@@ -482,6 +482,19 @@ namespace Ogre {
         // The direction we want the local direction point to
         Vector3 targetDir = vec.normalisedCopy();
 
+        // Transform target direction to world space
+        switch (relativeTo)
+        {
+        case TS_PARENT:
+            if (mParent)
+                targetDir = mParent->_getDerivedOrientation() * targetDir;
+            break;
+        case TS_LOCAL:
+            targetDir = _getDerivedOrientation() * targetDir;
+            break;
+        }
+
+        // Calculate target orientation relative to world space
         Quaternion targetOrientation;
         if( mYawFixed )
         {
@@ -509,7 +522,7 @@ namespace Ogre {
         {
             const Quaternion& currentOrient = _getDerivedOrientation();
 
-            // Get current local direction
+            // Get current local direction relative to world space
             Vector3 currentDir = currentOrient * localDirectionVector;
 
             if ((currentDir+targetDir).squaredLength() < 0.00005f)
@@ -527,30 +540,33 @@ namespace Ogre {
             }
         }
 
-        if (relativeTo == TS_LOCAL || !mParent)
-        {
-            setOrientation(targetOrientation);
-        }
+        // Set target orientation, transformed to parent space
+        if (mParent)
+            setOrientation(mParent->_getDerivedOrientation().UnitInverse() * targetOrientation);
         else
-        {
-            if (relativeTo == TS_PARENT)
-            {
-                setOrientation(targetOrientation * mParent->getOrientation().Inverse());
-            }
-            else if (relativeTo == TS_WORLD)
-            {
-                setOrientation(targetOrientation * mParent->_getDerivedOrientation().Inverse());
-            }
-        }
-
-
+            setOrientation(targetOrientation);
     }
     //-----------------------------------------------------------------------
     void SceneNode::lookAt( const Vector3& targetPoint, TransformSpace relativeTo, 
         const Vector3& localDirectionVector)
     {
-        this->setDirection(targetPoint - _getDerivedPosition(), relativeTo, 
-            localDirectionVector);
+        // Calculate ourself origin relative to the given transform space
+        Vector3 origin;
+        switch (relativeTo)
+        {
+        default:    // Just in case
+        case TS_WORLD:
+            origin = _getDerivedPosition();
+            break;
+        case TS_PARENT:
+            origin = mPosition;
+            break;
+        case TS_LOCAL:
+            origin = Vector3::ZERO;
+            break;
+        }
+
+        setDirection(targetPoint - origin, relativeTo, localDirectionVector);
     }
     //-----------------------------------------------------------------------
     void SceneNode::_autoTrack(void)
