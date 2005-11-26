@@ -10,6 +10,7 @@ OgreArchiveManager.h \
 OgreAutoParamDataSource.h \
 OgreAxisAlignedBox.h \
 OgreBillboard.h \
+OgreBillboardChain.h \
 OgreBillboardParticleRenderer.h \
 OgreBillboardSet.h \
 OgreBitwise.h \

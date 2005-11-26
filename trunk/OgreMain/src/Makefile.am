@@ -10,6 +10,7 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
 						 OgreAutoParamDataSource.cpp \
                          OgreAxisAlignedBox.cpp \
                          OgreBillboard.cpp \
+						 OgreBillboardChain.cpp \
                          OgreBillboardParticleRenderer.cpp \
                          OgreBillboardSet.cpp \
                          OgreBitwise.cpp \
