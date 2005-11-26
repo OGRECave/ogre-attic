@@ -248,6 +248,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreBillboardChain.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreBillboardParticleRenderer.cpp"
 				>
 			</File>
@@ -924,6 +928,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreBillboard.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreBillboardChain.h"
 				>
 			</File>
 			<File
