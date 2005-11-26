@@ -326,7 +326,8 @@ namespace Ogre
 	DWORD D3D9Mappings::get(FilterType ft, FilterOptions fo, const D3DCAPS9& devCaps, 
         eD3DTexType texType)
 	{
-		DWORD capsType;
+		// Assume normal
+		DWORD capsType = devCaps.TextureFilterCaps;
 
 		switch( texType )
 		{
