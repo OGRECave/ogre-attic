@@ -335,7 +335,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 
 			
 			// determine number of exportsteps
-			size_t numSteps = 3 + 20;
+			size_t numSteps = 3 + OGRE_XSI_NUM_MESH_STEPS;
 			if (numlods > 0)
 				numSteps++;
 			if (edgeLists)

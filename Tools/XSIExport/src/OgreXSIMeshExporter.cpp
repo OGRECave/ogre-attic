@@ -197,7 +197,7 @@ namespace Ogre {
 			Finally, we bake any remaining protosubmeshes into submeshes.
 		*/
 		// Calculate the number of progress updates each mesh must raise
-		float progPerMesh = 20.0f / (float)(mXsiPolygonMeshList.size());
+		float progPerMesh = (float)OGRE_XSI_NUM_MESH_STEPS / (float)(mXsiPolygonMeshList.size());
 		float currProg = 0.0f;
 		for (PolygonMeshList::iterator pm = mXsiPolygonMeshList.begin();
 			pm != mXsiPolygonMeshList.end(); ++pm)
@@ -300,7 +300,6 @@ namespace Ogre {
         MATH::CVector3Array srcNormArray = nodeArray.GetNormalArray();
         CTriangleRefArray triArray = xsiMesh->mesh.GetTriangles();
 
-#if _DEBUG
 		StringUtil::StrStreamType msg;
 		msg << "-- " << XSItoOgre(xsiMesh->obj.GetName()) << " --" << std::endl;
 		msg << "Points: " << pointArray.GetCount() << std::endl;
@@ -309,7 +308,7 @@ namespace Ogre {
 		msg << "Num UVs: " << mCurrentTextureCoordDimensions.size() << std::endl;
 		String str = msg.str();
 		LogOgreAndXSI(str);
-#endif
+
 		if (mCurrentTextureCoordDimensions.size() > OGRE_MAX_TEXTURE_COORD_SETS)
 		{
 			// too many texture coordinates!
@@ -332,6 +331,9 @@ namespace Ogre {
         Real squaredRadius = 0.0f;
         Vector3 min, max;
         bool first = true;
+		CPolygonFaceRefArray polys(xsiMesh->mesh.GetPolygons());
+        UniqueVertex vertex;
+
 
 		float progPerTri = (float)progressUpdates / triArray.GetCount();
 		float prog = 0.0f;
@@ -343,7 +345,6 @@ namespace Ogre {
             Triangle tri(triArray[t]);
 			// derive sampler indices for triangle
 			size_t samplerIndices[3];
-			CPolygonFaceRefArray polys(xsiMesh->mesh.GetPolygons());
 			deriveSamplerIndices(tri, polys[tri.GetPolygonIndex()], samplerIndices);
 
 			// Decide which ProtoSubMesh we're to add this to (assume main)
@@ -358,21 +359,21 @@ namespace Ogre {
 			}
 			// has this mesh been used in this proto before? if not set offset
 			size_t positionIndexOffset;
-			ProtoSubMesh::PolygonMeshOffsetMap::iterator pomi = 
-				currentProto->polygonMeshOffsetMap.find(xsiMesh);
-			if (pomi == currentProto->polygonMeshOffsetMap.end())
+			if (currentProto->lastMeshEntry == xsiMesh)
 			{
-				// not found, this must be the first time we've found this PM on this Proto
-				// set offset to current index list size (will be 0 if we're not merging)
-				positionIndexOffset = currentProto->indices.size();
-				currentProto->polygonMeshOffsetMap[xsiMesh] = positionIndexOffset;
+				positionIndexOffset = currentProto->lastMeshIndexOffset;
 			}
 			else
 			{
-				positionIndexOffset = pomi->second;
+				// first time this has been used
+				// since we assume we 100% process each polygon mesh before the next,
+				// just use last pointer since faster in this section
+				currentProto->lastMeshEntry = xsiMesh;
+				positionIndexOffset = currentProto->indices.size();
+				currentProto->lastMeshIndexOffset = positionIndexOffset;
+				// Also have to store this for future reference
+				currentProto->polygonMeshOffsetMap[xsiMesh] = positionIndexOffset;
 			}
-
-
 			
             CTriangleVertexRefArray points = tri.GetPoints();
             for (long p = 0; p < 3; ++p)
@@ -383,7 +384,6 @@ namespace Ogre {
 				// per polymesh in teh same protosubmesh
 				posIndex += positionIndexOffset;
 
-                UniqueVertex vertex;
 				// Get position
 				MATH::CVector3 xsipos = point.GetPosition();
 				// Apply global SRT
