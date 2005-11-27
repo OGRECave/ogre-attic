@@ -248,6 +248,7 @@ namespace Ogre
             _setSrcAttributes(texDesc.Width, texDesc.Height, 1, _getPF(texDesc.Format));
             _setFinalAttributes(texDesc.Width, texDesc.Height, 1,  _getPF(texDesc.Format));
 			mIsLoaded = true;
+			mInternalResourcesCreated = true;
         }
         else
         {
@@ -311,6 +312,7 @@ namespace Ogre
 			_setSrcAttributes(texDesc.Width, texDesc.Height, texDesc.Depth, _getPF(texDesc.Format));
 			_setFinalAttributes(texDesc.Width, texDesc.Height, texDesc.Depth, _getPF(texDesc.Format));
 			mIsLoaded = true;
+			mInternalResourcesCreated = true;
         }
 		else
 		{
