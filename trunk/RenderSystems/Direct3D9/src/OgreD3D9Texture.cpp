@@ -103,17 +103,17 @@ namespace Ogre
 			if( FAILED( hr = pOthTex->GetSurfaceLevel(0, &pDstSurface) ) )
 			{
 				String msg = DXGetErrorDescription9(hr);
-				OGRE_EXCEPT( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
 				SAFE_RELEASE(pSrcSurface);
+				OGRE_EXCEPT( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
 			}
 
 			// do the blit, it's called StretchRect in D3D9 :)
 			if( FAILED( hr = mpDev->StretchRect( pSrcSurface, NULL, pDstSurface, &dstRC, D3DTEXF_NONE) ) )
 			{
 				String msg = DXGetErrorDescription9(hr);
-				OGRE_EXCEPT( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
 				SAFE_RELEASE(pSrcSurface);
 				SAFE_RELEASE(pDstSurface);
+				OGRE_EXCEPT( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
 			}
 
 			// release temp. surfaces
@@ -140,17 +140,17 @@ namespace Ogre
 				if( FAILED( hr = pOthTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pDstSurface) ) )
 				{
 					String msg = DXGetErrorDescription9(hr);
-					OGRE_EXCEPT( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
 					SAFE_RELEASE(pSrcSurface);
+					OGRE_EXCEPT( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
 				}
 
 				// do the blit, it's called StretchRect in D3D9 :)
 				if( FAILED( hr = mpDev->StretchRect( pSrcSurface, NULL, pDstSurface, &dstRC, D3DTEXF_NONE) ) )
 				{
 					String msg = DXGetErrorDescription9(hr);
-					OGRE_EXCEPT( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
 					SAFE_RELEASE(pSrcSurface);
 					SAFE_RELEASE(pDstSurface);
+					OGRE_EXCEPT( hr, "Couldn't blit : " + msg, "D3D9Texture::copyToTexture" );
 				}
 
 				// release temp. surfaces
@@ -229,16 +229,16 @@ namespace Ogre
 
             if (FAILED(hr))
 		    {
+				this->freeInternalResources();
 			    OGRE_EXCEPT( hr, "Can't create cube texture", "D3D9Texture::_loadCubeTex" );
-			    this->freeInternalResources();
 		    }
 
             hr = mpCubeTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
 
             if (FAILED(hr))
 		    {
+				this->freeInternalResources();
 			    OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_loadCubeTex" );
-			    this->freeInternalResources();
 		    }
 
             D3DSURFACE_DESC texDesc;
@@ -247,6 +247,7 @@ namespace Ogre
             _setSrcAttributes(texDesc.Width, texDesc.Height, 1, D3D9Mappings::_getPF(texDesc.Format));
             _setFinalAttributes(texDesc.Width, texDesc.Height, 1,  D3D9Mappings::_getPF(texDesc.Format));
 			mIsLoaded = true;
+			mInternalResourcesCreated = true;
         }
         else
         {
@@ -299,8 +300,8 @@ namespace Ogre
 	
 			if (FAILED(hr))
 			{
-				OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_loadVolumeTex" );
 				this->freeInternalResources();
+				OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_loadVolumeTex" );
 			}
 	
 			D3DVOLUME_DESC texDesc;
@@ -310,6 +311,7 @@ namespace Ogre
 			_setSrcAttributes(texDesc.Width, texDesc.Height, texDesc.Depth, D3D9Mappings::_getPF(texDesc.Format));
 			_setFinalAttributes(texDesc.Width, texDesc.Height, texDesc.Depth, D3D9Mappings::_getPF(texDesc.Format));
 			mIsLoaded = true;
+			mInternalResourcesCreated = true;
         }
 		else
 		{
@@ -348,8 +350,8 @@ namespace Ogre
 	
 			if (FAILED(hr))
 			{
-				OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_loadNormTex" );
 				this->freeInternalResources();
+				OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_loadNormTex" );
 			}
 	
 			D3DSURFACE_DESC texDesc;
@@ -358,6 +360,7 @@ namespace Ogre
 			_setSrcAttributes(texDesc.Width, texDesc.Height, 1, D3D9Mappings::_getPF(texDesc.Format));
 			_setFinalAttributes(texDesc.Width, texDesc.Height, 1, D3D9Mappings::_getPF(texDesc.Format));
 			mIsLoaded = true;
+			mInternalResourcesCreated = true;
         }
 		else
 		{
@@ -402,8 +405,8 @@ namespace Ogre
 			this->_createVolumeTex();
 			break;
 		default:
-			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::createInternalResources" );
 			this->freeInternalResources();
+			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::createInternalResources" );
 		}
 	}
 	/****************************************************************************************/
@@ -477,8 +480,8 @@ namespace Ogre
 		hr = mpNormTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
 		if (FAILED(hr))
 		{
-			OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_createNormTex" );
 			this->freeInternalResources();
+			OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_createNormTex" );
 		}
 		
 		// set final tex. attributes from tex. description
@@ -487,8 +490,8 @@ namespace Ogre
 		hr = mpNormTex->GetLevelDesc(0, &desc);
 		if (FAILED(hr))
 		{
-			OGRE_EXCEPT( hr, "Can't get texture description", "D3D9Texture::_createNormTex" );
 			this->freeInternalResources();
+			OGRE_EXCEPT( hr, "Can't get texture description", "D3D9Texture::_createNormTex" );
 		}
 		this->_setFinalAttributes(desc.Width, desc.Height, 1, D3D9Mappings::_getPF(desc.Format));
 		
@@ -572,8 +575,8 @@ namespace Ogre
 		hr = mpCubeTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
 		if (FAILED(hr))
 		{
-			OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_createCubeTex" );
 			this->freeInternalResources();
+			OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_createCubeTex" );
 		}
 		
 		// set final tex. attributes from tex. description
@@ -582,8 +585,8 @@ namespace Ogre
 		hr = mpCubeTex->GetLevelDesc(0, &desc);
 		if (FAILED(hr))
 		{
-			OGRE_EXCEPT( hr, "Can't get texture description", "D3D9Texture::_createCubeTex" );
 			this->freeInternalResources();
+			OGRE_EXCEPT( hr, "Can't get texture description", "D3D9Texture::_createCubeTex" );
 		}
 		this->_setFinalAttributes(desc.Width, desc.Height, 1, D3D9Mappings::_getPF(desc.Format));
 
@@ -669,8 +672,8 @@ namespace Ogre
 		hr = mpVolumeTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
 		if (FAILED(hr))
 		{
-			OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_createVolumeTex" );
 			this->freeInternalResources();
+			OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_createVolumeTex" );
 		}
 		
 		// set final tex. attributes from tex. description
@@ -679,8 +682,8 @@ namespace Ogre
 		hr = mpVolumeTex->GetLevelDesc(0, &desc);
 		if (FAILED(hr))
 		{
-			OGRE_EXCEPT( hr, "Can't get texture description", "D3D9Texture::_createVolumeTex" );
 			this->freeInternalResources();
+			OGRE_EXCEPT( hr, "Can't get texture description", "D3D9Texture::_createVolumeTex" );
 		}
 		this->_setFinalAttributes(desc.Width, desc.Height, desc.Depth, D3D9Mappings::_getPF(desc.Format));
 		
@@ -801,8 +804,8 @@ namespace Ogre
 				LogManager::getSingleton().logMessage("D3D9 : Loading Cube Texture, base image name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipmaps) + " mip map levels");
 			break;
 		default:
-			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::_setSrcAttributes" );
 			this->freeInternalResources();
+			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::_setSrcAttributes" );
 		}
 	}
 	/****************************************************************************************/
@@ -905,6 +908,44 @@ namespace Ogre
 		// Choose closest supported D3D format as a D3D format
 		return D3D9Mappings::_getPF(D3D9Mappings::_getClosestSupportedPF(mFormat));
 
+		/* Get the format of the depth stencil surface of our main render target. */
+		hr = mpDev->GetDepthStencilSurface(&pSrf);
+		if (FAILED(hr))
+		{
+			String msg = DXGetErrorDescription9(hr);
+			this->freeInternalResources();
+			OGRE_EXCEPT( hr, "Error GetDepthStencilSurface : " + msg, "D3D9Texture::_createDepthStencil" );
+		}
+		// get it's description
+		hr = pSrf->GetDesc(&srfDesc);
+		if (FAILED(hr))
+		{
+			SAFE_RELEASE(pSrf);
+			this->freeInternalResources();
+			String msg = DXGetErrorDescription9(hr);
+			OGRE_EXCEPT( hr, "Error GetDesc : " + msg, "D3D9Texture::_createDepthStencil" );
+		}
+		// release the temp. surface
+		SAFE_RELEASE(pSrf);
+		/** Create a depth buffer for our render target, it must be of
+		    the same format as other targets !!!
+		. */
+		hr = mpDev->CreateDepthStencilSurface( 
+			mSrcWidth, 
+			mSrcHeight, 
+			srfDesc.Format, 
+			srfDesc.MultiSampleType, 
+			NULL, 
+			FALSE, 
+			&mpZBuff, 
+			NULL);
+		// cry if failed 
+		if (FAILED(hr))
+		{
+			this->freeInternalResources();
+			String msg = DXGetErrorDescription9(hr);
+			OGRE_EXCEPT( hr, "Error CreateDepthStencilSurface : " + msg, "D3D9Texture::_createDepthStencil" );
+		}
 	}
 	/****************************************************************************************/
 	// Macro to hide ugly cast

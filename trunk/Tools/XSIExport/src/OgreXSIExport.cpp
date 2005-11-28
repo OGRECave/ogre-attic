@@ -63,7 +63,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 using namespace XSI;
 
-#define OGRE_XSI_EXPORTER_VERSION L"1.0.5"
+#define OGRE_XSI_EXPORTER_VERSION L"1.0.6a"
 
 /** This is the main file for the OGRE XSI plugin.
 The purpose of the methods in this file are as follows:
@@ -335,7 +335,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 
 			
 			// determine number of exportsteps
-			size_t numSteps = 3 + 20;
+			size_t numSteps = 3 + OGRE_XSI_NUM_MESH_STEPS;
 			if (numlods > 0)
 				numSteps++;
 			if (edgeLists)

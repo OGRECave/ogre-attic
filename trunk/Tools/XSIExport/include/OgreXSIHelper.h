@@ -47,6 +47,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreVector3.h"
 #include "OgreQuaternion.h"
 
+#define OGRE_XSI_NUM_MESH_STEPS 200
 
 /// Useful function to convert an XSI CString to an Ogre String
 inline Ogre::String XSItoOgre(const XSI::CString& xsistr)

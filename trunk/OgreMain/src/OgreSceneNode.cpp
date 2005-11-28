@@ -479,76 +479,94 @@ namespace Ogre {
         // Do nothing if given a zero vector
         if (vec == Vector3::ZERO) return;
 
-        // Adjust vector so that it is relative to local Z
-        Vector3 zAdjustVec;
-        if (localDirectionVector == Vector3::NEGATIVE_UNIT_Z)
-        {
-            zAdjustVec = -vec;
-        }
-        else
-        {
-            Quaternion localToUnitZ = localDirectionVector.getRotationTo(Vector3::UNIT_Z);
-            zAdjustVec = localToUnitZ * vec;
-        }
-        zAdjustVec.normalise();
+        // The direction we want the local direction point to
+        Vector3 targetDir = vec.normalisedCopy();
 
+        // Transform target direction to world space
+        switch (relativeTo)
+        {
+        case TS_PARENT:
+            if (mParent)
+                targetDir = mParent->_getDerivedOrientation() * targetDir;
+            break;
+        case TS_LOCAL:
+            targetDir = _getDerivedOrientation() * targetDir;
+            break;
+        }
+
+        // Calculate target orientation relative to world space
         Quaternion targetOrientation;
         if( mYawFixed )
         {
-            Vector3 xVec = mYawFixedAxis.crossProduct( zAdjustVec );
+            // Calculate the quaternion for rotate local Z to target direction
+            Vector3 xVec = mYawFixedAxis.crossProduct(targetDir);
             xVec.normalise();
-
-            Vector3 yVec = zAdjustVec.crossProduct( xVec );
+            Vector3 yVec = targetDir.crossProduct(xVec);
             yVec.normalise();
-            
-            targetOrientation.FromAxes( xVec, yVec, zAdjustVec );
+            Quaternion unitZToTarget = Quaternion(xVec, yVec, targetDir);
+
+            if (localDirectionVector == Vector3::NEGATIVE_UNIT_Z)
+            {
+                // Specail case for avoid calculate 180 degree turn
+                targetOrientation =
+                    Quaternion(-unitZToTarget.y, -unitZToTarget.z, unitZToTarget.w, unitZToTarget.x);
+            }
+            else
+            {
+                // Calculate the quaternion for rotate local direction to target direction
+                Quaternion localToUnitZ = localDirectionVector.getRotationTo(Vector3::UNIT_Z);
+                targetOrientation = unitZToTarget * localToUnitZ;
+            }
         }
         else
         {
+            const Quaternion& currentOrient = _getDerivedOrientation();
 
-            // Get axes from current quaternion
-            Vector3 axes[3];
-            _getDerivedOrientation().ToAxes(axes);
-            Quaternion rotQuat;
-            if ( (axes[2]+zAdjustVec).squaredLength() <  0.00005f)
+            // Get current local direction relative to world space
+            Vector3 currentDir = currentOrient * localDirectionVector;
+
+            if ((currentDir+targetDir).squaredLength() < 0.00005f)
             {
                 // Oops, a 180 degree turn (infinite possible rotation axes)
                 // Default to yaw i.e. use current UP
-                rotQuat.FromAngleAxis(Radian(Math::PI), axes[1]);
+                targetOrientation =
+                    Quaternion(-currentOrient.y, -currentOrient.z, currentOrient.w, currentOrient.x);
             }
             else
             {
                 // Derive shortest arc to new direction
-                rotQuat = axes[2].getRotationTo(zAdjustVec);
-
+                Quaternion rotQuat = currentDir.getRotationTo(targetDir);
+                targetOrientation = rotQuat * currentOrient;
             }
-            targetOrientation = rotQuat * mOrientation;
         }
 
-        if (relativeTo == TS_LOCAL || !mParent)
-        {
-            setOrientation(targetOrientation);
-        }
+        // Set target orientation, transformed to parent space
+        if (mParent)
+            setOrientation(mParent->_getDerivedOrientation().UnitInverse() * targetOrientation);
         else
-        {
-            if (relativeTo == TS_PARENT)
-            {
-                setOrientation(targetOrientation * mParent->getOrientation().Inverse());
-            }
-            else if (relativeTo == TS_WORLD)
-            {
-                setOrientation(targetOrientation * mParent->_getDerivedOrientation().Inverse());
-            }
-        }
-
-
+            setOrientation(targetOrientation);
     }
     //-----------------------------------------------------------------------
     void SceneNode::lookAt( const Vector3& targetPoint, TransformSpace relativeTo, 
         const Vector3& localDirectionVector)
     {
-        this->setDirection(targetPoint - _getDerivedPosition(), relativeTo, 
-            localDirectionVector);
+        // Calculate ourself origin relative to the given transform space
+        Vector3 origin;
+        switch (relativeTo)
+        {
+        default:    // Just in case
+        case TS_WORLD:
+            origin = _getDerivedPosition();
+            break;
+        case TS_PARENT:
+            origin = mPosition;
+            break;
+        case TS_LOCAL:
+            origin = Vector3::ZERO;
+            break;
+        }
+
+        setDirection(targetPoint - origin, relativeTo, localDirectionVector);
     }
     //-----------------------------------------------------------------------
     void SceneNode::_autoTrack(void)
