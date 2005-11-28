@@ -1867,7 +1867,8 @@ void SceneManager::renderQueueGroupObjects(RenderQueueGroup* pGroup)
         // Modulative stencil shadows in use
         renderModulativeStencilShadowedQueueGroupObjects(pGroup);
     }
-    else if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
+    else if (pGroup->getShadowsEnabled() && 
+		mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
     {
         // Modulative texture shadows in use
         if (mIlluminationStage == IRS_RENDER_TO_TEXTURE)
