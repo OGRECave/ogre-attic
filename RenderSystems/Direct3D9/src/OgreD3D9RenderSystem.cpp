@@ -242,7 +242,7 @@ namespace Ogre
 		OgreGuard( "D3D9RenderSystem::refreshD3DSettings" );
 
 		ConfigOption* optVideoMode;
-		D3D9Driver* driver;
+		D3D9Driver* driver = 0;
 		D3D9VideoMode* videoMode;
 
 		ConfigOptionMap::iterator opt = mOptions.find( "Rendering Device" );
@@ -255,14 +255,17 @@ namespace Ogre
 					break;
 			}
 
-			opt = mOptions.find( "Video Mode" );
-			optVideoMode = &opt->second;
-			optVideoMode->possibleValues.clear();
-			// get vide modes for this device
-			for( unsigned k=0; k < driver->getVideoModeList()->count(); k++ )
+			if (driver)
 			{
-				videoMode = driver->getVideoModeList()->item( k );
-				optVideoMode->possibleValues.push_back( videoMode->getDescription() );
+				opt = mOptions.find( "Video Mode" );
+				optVideoMode = &opt->second;
+				optVideoMode->possibleValues.clear();
+				// get vide modes for this device
+				for( unsigned k=0; k < driver->getVideoModeList()->count(); k++ )
+				{
+					videoMode = driver->getVideoModeList()->item( k );
+					optVideoMode->possibleValues.push_back( videoMode->getDescription() );
+				}
 			}
 		}
 
@@ -1474,8 +1477,8 @@ namespace Ogre
             }
 
 			// tell D3D the dimension of tex. coord.
-			int texCoordDim = D3DTTFF_DISABLE;
-            if (autoTexCoordType == TEXCALC_PROJECTIVE_TEXTURE)
+			int texCoordDim = D3DTTFF_COUNT2;
+            if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_PROJECTIVE_TEXTURE)
             {
                 /* We want texcoords (u, v, w, q) always get divided by q, but D3D
                 projected texcoords is divided by the last element (in the case of
@@ -1562,6 +1565,10 @@ namespace Ogre
 			tss = D3DTSS_COLOROP;
 		else if( bm.blendType == LBT_ALPHA )
 			tss = D3DTSS_ALPHAOP;
+		else
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+			"Invalid blend type", "D3D9RenderSystem::_setTextureBlendMode");
+
 		// set manual factor if required by operation
 		if (bm.operation == LBX_BLEND_MANUAL)
 		{
@@ -1587,6 +1594,11 @@ namespace Ogre
 			manualD3D = D3DXCOLOR( mManualBlendColours[stage][0].r, 
 				mManualBlendColours[stage][0].g, 
 				mManualBlendColours[stage][0].b, bm.alphaArg1 );
+		}
+		else
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"Invalid blend type", "D3D9RenderSystem::_setTextureBlendMode");
 		}
 		// Set manual factor if required
 		if (bm.source1 == LBS_MANUAL)
@@ -2192,7 +2204,7 @@ namespace Ogre
         setVertexBufferBinding(op.vertexData->vertexBufferBinding);
 
 		// Determine rendering operation
-		D3DPRIMITIVETYPE primType;
+		D3DPRIMITIVETYPE primType = D3DPT_TRIANGLELIST;
 		DWORD primCount = 0;
         switch( op.operationType )
 		{

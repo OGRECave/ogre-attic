@@ -128,7 +128,7 @@ namespace Ogre
     std::pair< uint, uint > Font::StrBBox( const String & text, Real char_height, RenderWindow & window )
     {
         std::pair< uint, uint > ret( 0, 0 );
-        Real vsX, vsY, veX, veY;
+        Real vsX, vsY;
         unsigned int w, h; 
         
         // These are not used, but are required byt the function calls.
@@ -139,11 +139,12 @@ namespace Ogre
 
         for( uint i = 0; i < text.length(); i++ )
         {
-            getGlyphTexCoords( text[ i ], vsX, vsY, veX, veY );
-
             // Calculate view-space width and height of char
             vsY = char_height;
-            vsX = getGlyphAspectRatio( text[ i ] ) * char_height;
+			if (text[i] == ' ') // assume capital A is space width
+				vsX = getGlyphAspectRatio( 'A' ) * char_height;
+			else
+	            vsX = getGlyphAspectRatio( text[ i ] ) * char_height;
 
             ret.second += vsX * w;
             if( vsY * h > ret.first || ( i && text[ i - 1 ] == '\n' ) )

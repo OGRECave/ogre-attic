@@ -190,6 +190,10 @@ namespace Ogre {
 			std::vector<ushort> textureCoordDimensions;
 			// Vertex colours?
 			bool hasVertexColours;
+			// Last polymesh entry added to this proto
+			PolygonMeshEntry* lastMeshEntry;
+			// Index offset for last polymesh entry
+			size_t lastMeshIndexOffset;
 			// index list
 			IndexList indices;
 			// map of polygon mesh -> position index offset (only > 0 when submeshes merged)
@@ -198,6 +202,9 @@ namespace Ogre {
 			// map original position index (+any PM offset) -> first real instance in this one
 			IndexRemap posIndexRemap;
 			Mesh::VertexBoneAssignmentList boneAssignments;
+
+			ProtoSubMesh() : lastMeshEntry(0), lastMeshIndexOffset(0) {}
+
 			
 		};
 		/// List of proto submeshes by material

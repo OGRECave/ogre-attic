@@ -113,23 +113,22 @@ namespace Ogre {
             Node* entityParentNode = mParentEntity->getParentNode();
             if (entityParentNode)
             {
+                // Combine orientation with that of parent entity
                 Quaternion mParentQ = entityParentNode->_getDerivedOrientation();
                 mDerivedOrientation = mParentQ * mDerivedOrientation;
 
-				if (mInheritScale)
-				{
-					// Incorporate parent scale
-					Vector3 entScale = entityParentNode->_getDerivedScale();
-					mDerivedPosition *= entScale;
+                Vector3 mParentS = entityParentNode->_getDerivedScale();
 
-					mDerivedScale *= entScale;
-				}
+                if (mInheritScale)
+                {
+                    // Incorporate parent entity scale
+                    mDerivedScale *= mParentS;
+                }
 
+                // Change position vector based on parent entity's orientation & scale
+                mDerivedPosition = mParentQ * (mParentS * mDerivedPosition);
 
-				// Change position vector based on parent's orientation
-                mDerivedPosition = mParentQ * mDerivedPosition;
-
-                // Add altered position vector to parents
+                // Add altered position vector to parent entity
                 mDerivedPosition += entityParentNode->_getDerivedPosition();
             }
         }
