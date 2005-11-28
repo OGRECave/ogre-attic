@@ -53,12 +53,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define OGRE_MEMORY_MACROS
 
 #if OGRE_DEBUG_MEMORY_MANAGER && OGRE_DEBUG_MODE
-#   define new    (::Ogre::MemoryManager::sMemManager.setOwner(__FILE__,__LINE__,__FUNCTION__),false) ? NULL                                                 : new
-#   define delete (::Ogre::MemoryManager::sMemManager.setOwner(__FILE__,__LINE__,__FUNCTION__),false) ? ::Ogre::MemoryManager::sMemManager.setOwner("",0,"") : delete
-#   define malloc(sz)      ::Ogre::MemoryManager::sMemManager.allocMem(__FILE__,__LINE__,__FUNCTION__, ::Ogre::m_alloc_malloc, sz,      gProcessID)
-#   define calloc(sz)      ::Ogre::MemoryManager::sMemManager.allocMem(__FILE__,__LINE__,__FUNCTION__, ::Ogre::m_alloc_calloc, sz,      gProcessID)
-#   define realloc(ptr,sz) ::Ogre::MemoryManager::sMemManager.rllocMem(__FILE__,__LINE__,__FUNCTION__, ::Ogre::m_alloc_realloc,sz, ptr, gProcessID)
-#   define free(ptr)       ::Ogre::MemoryManager::sMemManager.dllocMem(__FILE__,__LINE__,__FUNCTION__, ::Ogre::m_alloc_free,       ptr, gProcessID)
+#   define new    (::Ogre::MemoryManager::instance().setOwner(__FILE__,__LINE__,__FUNCTION__),false) ? NULL                                                 : new
+#   define delete (::Ogre::MemoryManager::instance().setOwner(__FILE__,__LINE__,__FUNCTION__),false) ? ::Ogre::MemoryManager::instance().setOwner("",0,"") : delete
+#   define malloc(sz)      ::Ogre::MemoryManager::instance().allocMem(__FILE__,__LINE__,__FUNCTION__, ::Ogre::m_alloc_malloc, sz,      gProcessID)
+#   define calloc(sz)      ::Ogre::MemoryManager::instance().allocMem(__FILE__,__LINE__,__FUNCTION__, ::Ogre::m_alloc_calloc, sz,      gProcessID)
+#   define realloc(ptr,sz) ::Ogre::MemoryManager::instance().rllocMem(__FILE__,__LINE__,__FUNCTION__, ::Ogre::m_alloc_realloc,sz, ptr, gProcessID)
+#   define free(ptr)       ::Ogre::MemoryManager::instance().dllocMem(__FILE__,__LINE__,__FUNCTION__, ::Ogre::m_alloc_free,       ptr, gProcessID)
 #endif // OGRE_DEBUG_MEMORY_MANAGER
 
 #endif // OGRE_MEMORY_MACROS
