@@ -1716,7 +1716,7 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(RenderQueueG
             }
             mShadowReceiverPass->_load();
 
-            if (l->getCastShadows() && pGroup->getShadowsEnabled())
+            if (l->getCastShadows())
             {
                 renderTextureShadowReceiverQueueGroupObjects(pGroup);
             }
@@ -1867,8 +1867,7 @@ void SceneManager::renderQueueGroupObjects(RenderQueueGroup* pGroup)
         // Modulative stencil shadows in use
         renderModulativeStencilShadowedQueueGroupObjects(pGroup);
     }
-    else if (pGroup->getShadowsEnabled() && 
-		mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
+    else if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
     {
         // Modulative texture shadows in use
         if (mIlluminationStage == IRS_RENDER_TO_TEXTURE)
@@ -1880,7 +1879,10 @@ void SceneManager::renderQueueGroupObjects(RenderQueueGroup* pGroup)
         else
         {
             // Ordinary pass
-            renderModulativeTextureShadowedQueueGroupObjects(pGroup);
+            if (pGroup->getShadowsEnabled())
+            	renderModulativeTextureShadowedQueueGroupObjects(pGroup);
+			else
+				renderBasicQueueGroupObjects(pGroup);
         }
     }
     else
