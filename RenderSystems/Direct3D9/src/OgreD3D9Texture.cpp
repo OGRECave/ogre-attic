@@ -908,44 +908,6 @@ namespace Ogre
 		// Choose closest supported D3D format as a D3D format
 		return D3D9Mappings::_getPF(D3D9Mappings::_getClosestSupportedPF(mFormat));
 
-		/* Get the format of the depth stencil surface of our main render target. */
-		hr = mpDev->GetDepthStencilSurface(&pSrf);
-		if (FAILED(hr))
-		{
-			String msg = DXGetErrorDescription9(hr);
-			this->freeInternalResources();
-			OGRE_EXCEPT( hr, "Error GetDepthStencilSurface : " + msg, "D3D9Texture::_createDepthStencil" );
-		}
-		// get it's description
-		hr = pSrf->GetDesc(&srfDesc);
-		if (FAILED(hr))
-		{
-			SAFE_RELEASE(pSrf);
-			this->freeInternalResources();
-			String msg = DXGetErrorDescription9(hr);
-			OGRE_EXCEPT( hr, "Error GetDesc : " + msg, "D3D9Texture::_createDepthStencil" );
-		}
-		// release the temp. surface
-		SAFE_RELEASE(pSrf);
-		/** Create a depth buffer for our render target, it must be of
-		    the same format as other targets !!!
-		. */
-		hr = mpDev->CreateDepthStencilSurface( 
-			mSrcWidth, 
-			mSrcHeight, 
-			srfDesc.Format, 
-			srfDesc.MultiSampleType, 
-			NULL, 
-			FALSE, 
-			&mpZBuff, 
-			NULL);
-		// cry if failed 
-		if (FAILED(hr))
-		{
-			this->freeInternalResources();
-			String msg = DXGetErrorDescription9(hr);
-			OGRE_EXCEPT( hr, "Error CreateDepthStencilSurface : " + msg, "D3D9Texture::_createDepthStencil" );
-		}
 	}
 	/****************************************************************************************/
 	// Macro to hide ugly cast
