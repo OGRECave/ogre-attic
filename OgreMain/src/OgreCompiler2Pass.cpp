@@ -30,12 +30,71 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreCompiler2Pass.h"
 
 namespace Ogre {
+    // boot strap for parsing BNF texts
+    Compiler2Pass::TokenRule Compiler2Pass::BNF_RulePath[] = {
+        // <syntax>     ::=  { rule }
+        _rule_ BNF_SYNTAX, "<syntax>"
+            _repeat_ BNF_RULE _nt_
+            _end_
+
+        // <rule>       ::=  <identifier>  "::="  <expression> ";"
+        _rule_ BNF_RULE, "<rule>"
+            _is_ BNF_IDENTIFIER _nt_
+            _and_ BNF_SET_RULE, "::="
+            _and_ BNF_EXPRESSION _nt_
+            _and_ _no_token_, ";"
+            _end_
+
+        // <expression> ::=  <term> { "|" <term> }
+        // <term>       ::=  <factor> { <factor> }
+        // <factor>     ::=  <identifier> | <terminal_symbol> | <repeat_expression> | <optional_expression> | 
+
+        // <repeat_expression> ::=  "{"  <identifier>  "}"
+        _rule_ BNF_REPEAT_EXPRESSION, "<repeat_expression>"
+            _is_ BNF_REPEAT, "{"
+            _and_ BNF_IDENTIFIER _nt_
+            _and_ _no_token_, "}"
+            _end_
+
+        // <optional_expression> ::= "["  <identifier>  "]"
+        _rule_ BNF_OPTIONAL_EXPRESSION, "<optional_expression>"
+            _is_ BNF_OPTIONAL, "["
+            _and_ BNF_IDENTIFIER _nt_
+            _and_ _no_token_, "]"
+            _end_
+
+        // <identifier> ::=  "<" <letter> {<letter_number>} ">"
+        _rule_ BNF_IDENTIFIER, "<identifier>"
+            _is_ _no_token_, "<"
+            _and_ BNF_LETTER _nt_
+            _repeat_ BNF_LETTER_DIGIT _nt_
+            _and_ _no_token_, ">"
+            _end_
+        // <terminal_symbol> ::= ["-"] "'" { <any_character> } "'"
+
+        // <letter_digit> ::= <letter> | <digit>
+        _rule_ BNF_LETTER_DIGIT, "<letter_digit>"
+            _is_ BNF_LETTER _nt_
+            _or_ BNF_DIGIT _nt_
+            _end_
+
+        // <letter> ::= [abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ]
+        _rule_ BNF_LETTER, "<letter>"
+            _is_ _character_, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
+            _end_
+
+        // <digit> ::= [0123456789]
+        _rule_ BNF_DIGIT, "<digit>"
+            _is_ _character_, "0123456789"
+            _end_
+
+    };
+
 
     Compiler2Pass::Compiler2Pass()
     {
 	    // reserve some memory space in the containers being used
 	    mTokenInstructions.reserve(100);
-	    mConstants.reserve(80);
 	    // default contexts allows all contexts
 	    // subclass should change it to fit the language being compiled
 	    mActiveContexts = 0xffffffff;
@@ -101,6 +160,10 @@ namespace Ogre {
 	    mCharPos = 0;
 	    // reset position in Constants container
 	    mConstants.clear();
+        mLabels.clear();
+        // there is no active label when first starting pass 1
+        mLabelIsActive = false;
+        mActiveLabelKey = 0;
 	    mEndOfSource = strlen(mSource);
 
 	    // start with a clean slate
@@ -137,7 +200,7 @@ namespace Ogre {
 	    const size_t TokenContainerOldSize = mTokenInstructions.size();
 	    const size_t OldCharPos = mCharPos;
 	    const size_t OldLinePos = mCurrentLine;
-	    const size_t OldConstantsSize = mConstants.size();
+	    //const size_t OldConstantsSize = mConstants.size();
 
 	    // keep track of what non-terminal token activated the rule
 	    uint ActiveNTTRule = mRootRulePath[rulepathIDX].mTokenID;
@@ -217,7 +280,7 @@ namespace Ogre {
 				    // this will get rid of all tokens that had been pushed on the container while
 				    // trying to validating this rule
 				    mTokenInstructions.resize(TokenContainerOldSize);
-				    mConstants.resize(OldConstantsSize);
+				    //mConstants.resize(OldConstantsSize);
 				    mCharPos = OldCharPos;
 				    mCurrentLine = OldLinePos;
 			    }
@@ -256,29 +319,44 @@ namespace Ogre {
 	    // only validate token if context is correct
 	    if (mSymbolTypeLib[TokenID].mContextKey & mActiveContexts)
 	    {
-    	
 		    // if terminal token then compare text of symbol with what is in source
 		    if ( mSymbolTypeLib[TokenID].mRuleID == 0)
 		    {
-
+                // position cursur to next token (non space) in script
 			    if (positionToNextSymbol())
 			    {
 				    // if Token is supposed to be a number then check if its a numerical constant
 				    if (TokenID == _value_)
 				    {
-					    float constantvalue;
+        			    float constantvalue = 0.0f;
 					    if (Passed = isFloatValue(constantvalue, tokenlength))
 					    {
-						    mConstants.push_back(constantvalue);
+                            // key is the next instruction index
+                            mConstants[mTokenInstructions.size()] = constantvalue;
 					    }
-    					
 				    }
-                    else
+                    else // check if user label or valid keyword token
                     {
                         if (TokenID == _character_)
                         {
                             // token string is list of valid single characters
-                            // compare character at current cursor position to characters in list for a match
+                            // compare character at current cursor position in script to characters in list for a match
+                            // if match found then add character to active label
+                            if ( strchr(mRootRulePath[rulepathIDX].mSymbol, mSource[mCharPos]))
+                            {
+                                // is a new label starting?
+                                // if mLabelIsActive is false then starting a new label so need a new mActiveLabelKey
+                                if (!mLabelIsActive)
+                                {
+                                    // mActiveLabelKey will be the end of the instruction container ie the size of mTokenInstructions
+                                    mActiveLabelKey = mTokenInstructions.size();
+                                    mLabelIsActive = true;
+                                }
+                                // add the single character to the end of the active label
+                                mLabels[mActiveLabelKey] += mSource[mCharPos];
+                                // only one character was processed
+                                tokenlength = 1;
+                            }
                         }
                         else
                         {
@@ -287,6 +365,26 @@ namespace Ogre {
                         }
                     }
 
+                    // turn off label processing if token ID was not for _character_
+                    if (TokenID != _character_)
+                    {
+                        mLabelIsActive = false;
+                    }
+                    else // _character_ token being processed
+                    {
+                        // turn off generation of a new token instruction if this is not
+                        // the first _character_ in a sequence of _character_ terminal tokens.
+                        // Only want one _character_ token which Identifies a label
+
+                        if (mTokenInstructions.size() > mActiveLabelKey)
+                        {
+                            // this token is not the first _character_ in the label sequence
+                            // so turn off the token by turning TokenID into _no_token_
+                            TokenID = _no_token_;
+                        }
+                    }
+
+                    // if valid terminal token was found then add it to the instruction container for pass 2 processing
 				    if (Passed)
 				    {
                         if (TokenID != _no_token_)

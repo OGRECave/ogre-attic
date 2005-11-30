@@ -47,12 +47,52 @@ namespace Ogre {
 			    it uses Look Ahead Left-Right (LALR) ruling based on Backus - Naur Form (BNF) notation for semantic
 			    checking and also performs	context checking allowing for language dialects
 
-	    PASS 2 - generate application specific instructions ie native instructions
+	    PASS 2 - generate application specific instructions ie native instructions based on the tokens in the instruction container.
 
     @par
 	    this class must be subclassed with the subclass providing some implementation details for Pass 2.  The subclass
 	    is responsible for setting up the token libraries along with defining the language syntax and handling
         token actions during the second pass.
+
+    @par
+        The sub class normally supplies a simplified BNF text description in its constructor prior to doing any parsing/tokenizing of source.
+        The simplified BNF text description defines the language syntax and rule structure.
+        The meta-symbols used in the BNF text description are: 
+
+        ::=  meaning "is defined as". "::=" starts the definition of a rule.  The left side of ::= must contain an <identifier>
+
+        <>   angle brackets are used to surround syntax rule names. A syntax rule name is also called a non-terminal in that
+             it does not generate a terminal token in the instruction container for pass 2 processing.
+
+        |    meaning "or". if the item on the left of the | fails then the item on the right is tested.
+             Example: <true_false> ::= 'true' | 'false';
+             whitespace is used to imply AND operation between left and right items.
+             Example: <terrain_shadaws> ::= 'terrain_shadows' <true_false>
+             the 'terrain_shadows' terminal token must be found and <true_false> rule must pass in order for <terrain_shadows> rule
+             to pass.
+
+
+        []   optional rule identifier is enclosed in meta symbols [ and ].
+             Note that only identifiers can take [] modifier.
+        {}   repetitive identifier (zero or more times) is enclosed in meta symbols { and }
+             Note that only identifiers can take {} modifier.
+        ''   terminal tokens are surrounded by single quotes.  A terminal token is always one or more characters.
+             For example: 'Colour' defines a character sequence that must be matched in whole.  Note that matching is case
+             sensitive.
+        -''  no terminal token is generated when a - precedes the first single quote but the text in between the quotes is still
+             tested against the characters in the source being parsed.
+        <value> predefined terminal token for excepting numerical values
+        ()   parentheses enclose a set of characters that can be used to generate a user identifier. for example:
+             (0123456789) matches a single character found in that set.
+             An example of a user identifier:
+
+             <Label> ::= <Character> {<Character>};
+             <Character> ::= (abcdefghijklmnopqrstuvwxyz);
+
+             This will generate a rule that accepts one or more lowercase letters to make up the Label.  The User identifier
+             stops collecting the characters into a string when a match cannot be found in the rule.
+
+         ;   marks end of rule
 
     */
     class _OgreExport Compiler2Pass
@@ -80,13 +120,22 @@ namespace Ogre {
             _value_
         };
 
+	    enum BNF_ID {
+            BNF_SYNTAX, BNF_RULE, BNF_IDENTIFIER, BNF_SET_RULE, BNF_EXPRESSION,
+            BNF_REPEAT_EXPRESSION, BNF_REPEAT, BNF_OPTIONAL, BNF_OPTIONAL_EXPRESSION,
+
+            BNF_LETTER, BNF_LETTER_DIGIT, BNF_DIGIT
+        };
+
+        //  mainly used by bootstrap BNF text parser
+        //  child class of Copmiler2Pass could use it to statically define rules
         // <>	- non-terminal token
         #define _rule_		{otRULE,		        // ::=	- rule definition
         #define _is_		,0},{otAND,
         #define _and_		_is_    		        //      - blank space is an implied "AND" meaning the token is required
         #define _or_		,0},{otOR,		        // |	- or
         #define _optional_	,0},{otOPTIONAL,	    // []	- optional
-        #define _repeat_	,0},{otREPEAT,	        // {}	- repeat until fail or rule does not progress
+        #define _repeat_	,0},{otREPEAT,	        // {}	- repeat 0 or more times until fail or rule does not progress
         #define _end_		,0},{otEND,0,0,0},
         #define _execute_	,0},{otEND_EXECUTE,0,0,0},
         #define _nt_        ,0
@@ -142,20 +191,31 @@ namespace Ogre {
 
 	    // mVauleID, mLabelID, mBadTokenID need to be initialized by the subclass before compiling occurs
 	    // defines the token ID used in the symbol type library
-	    uint mValueID;
-        uint mLabelID;
-        uint mBadTokenID;
+	    //uint mValueID;
+        //uint mLabelID;
+        //uint mBadTokenID;
 
 	    size_t mCurrentLine; /// current line number in source being tokenized
 	    size_t mCharPos;     /// position in current line in source being tokenized
 
 	    /// storage container for constants defined in source
-	    std::vector<float> mConstants;
+        /// container uses Token index as a key associated with a float constant
+	    std::map<size_t, float> mConstants;
 	    /// storage container for string labels defined in source
-        std::vector<String> mLabels;
+        /// container uses Token index as a key associated with a label
+        std::map<size_t, String> mLabels;
+        /// flag indicates when a label is being parsed.
+        /// It gets set false when a terminal token not of _character_ is encountered
+        bool mLabelIsActive;
+        /// the key of the active label being built during pass 1.
+        /// a new key is calculated when mLabelIsActive switches from false to true
+        size_t mActiveLabelKey;
 
 	    /// Active Contexts pattern used in pass 1 to determine which tokens are valid for a certain context
 	    uint mActiveContexts;
+
+        /// BNF rules to parse BNF text form
+	    static TokenRule BNF_RulePath[];
 
 	    /** check token semantics between ID1 and ID2 using left/right semantic data in Token Type library
 	    @param ID1 token ID on the left 
@@ -275,9 +335,10 @@ namespace Ogre {
 	    /// constructor
 	    Compiler2Pass();
 
-	    /** compile the source - performs 2 passes
-		    first pass is to tokinize, check semantics and context
-		    second pass is performed by using tokens to look up function implementors and executing them which convert tokens to application specific instructions
+	    /** compile the source - performs 2 passes.
+		    First pass is to tokinize, check semantics and context.
+		    The second pass is performed by using tokens to look up function implementors and executing
+            them which convert tokens to application specific instructions.
 	    @remark
 		    Pass 2 only gets executed if Pass 1 has built enough tokens to complete a rule path and found no errors
 	    @param source a pointer to the source text to be compiled
