@@ -28,6 +28,59 @@ http://www.gnu.org/copyleft/gpl.html.
 namespace Ogre {
 
     //-----------------------------------------------------------------------
+    String MaterialScriptCompiler::materialScript_BNF =
+        "<Script> ::= {<Script_Properties>}; \n"
+
+        "<Script_Properties> ::= <Material_Def> | <Vertex_Program_Def> | <Fragment_Program_Def>; \n"
+
+        "<Material_Def> ::= 'material' <Label> [<Material_Clone>] '{' {<Material_Properties>} '}'; \n"
+
+        "<Material_Properties> ::= <Technique_Def> | <Set_Texture_Alias_Def> | "
+        "                          <Lod_Distances_Def> | <Receive_Shadows_Def> | "
+        "                          <transparency_casts_shadows_def>; \n"
+
+        "    <Material_Clone> ::= ':' <Label>; \n"
+        "    <Set_Texture_Alias_Def> ::= 'set_texture_alias' <Label> <Label>; \n"
+        "    <Lod_Distances_Def> ::= 'lod_distances' <value> {<value>}; \n"
+        "    <Receive_Shadows_Def> ::= 'receive_shadows' <On_Off>; \n"
+        "    <transparency_casts_shadows_def> ::= 'transparency_casts_shadows' <On_Off>; \n"
+
+        // Technique section rules
+        "<Technique_Def> ::= 'technique' [<Label>] '{' {<Technique_Properties>} '}'; \n"
+        "    <Technique_Properties> ::= <Pass_Def> | <Lod_Index_Def>; \n"
+        "    <Lod_Index_Def> ::= 'lod_index' <value>; \n"
+
+            // Pass section rules
+        "    <Pass_Def> ::= 'pass' [<Label>] '{' {<Pass_Properties>} '}'; \n"
+        "        <Pass_Properties> ::= <Ambient_Def> | <Diffuse_Def> | <Specular_Def> | <Emissive_Def>; \n"
+        "                              <Scene_Blend_Def> | <Depth_Check_Def> | <Depth_Write_Def> | "
+        "                              <Depth_Func_Def> | <Colour_Write_Def> | <Cull_Hardware_Def> | "
+        "                              <Cull_Software_Def> | <Lighting_Def> | <Shading_Def> | "
+
+        "        <Ambient_Def> ::= 'ambient' <Colour_Param_Def> | <Vertexcolour_Def>; \n"
+        "        <Diffuse_Def> ::= 'diffuse' <Colour_Param_Def> | <Vertexcolour_Def>; \n"
+        "        <Specular_Def> ::= 'specular' <Specular_Params> | <Vertexcolour_Def> <value>; \n"
+        "            <Specular_Params> ::= <value> <value> <value> <value> [<value>]; \n"
+        "        <Emissive_Def> ::= 'emissive' <Colour_params> | <Vertexcolour_Def>; \n"
+
+        "        <Vertexcolour> ::= 'vertexcolour'; \n"
+
+        "        <Scene_Blend_Def> ::= 'scene_blend' <Simple_Blend> | <User_Blend>; \n"
+        "          <Simple_Blend> ::= 'add' | 'modulate' | 'colour_blend' | 'alpha_blend'; \n"
+        "          <Blend_Factor> ::= 'one' | 'zero' | 'dest_colour' | 'src_colour' | \n"
+        "                             'one_minus_dest_colour' | 'one_minus_src_colour' | \n"
+        "                             'dest_alpha' | 'src_alpha' | 'one_minus_dest_alpha' | \n"
+        "                             'one_minus_src_alpha'; \n"
+
+
+        "<Label> ::= <Quoted_Label> | <Unquoted_Label>; \n"
+        "<Quoted_Label> ::= '\"' <Character> {<Alphanumeric_Space>} '\"'; \n"
+        "<Alphanumeric_Space> ::= <Alphanumeric> | ' '; \n"
+        "<Alphanumeric> ::= <Character> | <Number>; \n"
+        "<Character> ::= (abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$#%!_*&\\/); \n"
+        "<Number> ::= (0123456789); \n"
+        ;
+    /* deprecated: rules are now written in BNF text format and will be compiled from string into the rule base
     MaterialScriptCompiler::TokenRule MaterialScriptCompiler::materialScript_RulePath[] = {
 
         // <Script> ::= {<Script_Properties>}
@@ -53,7 +106,8 @@ namespace Ogre {
 	        _end_
 
         // <Material_Properties> ::= <Technique_Def> | <Set_Texture_Alias_Def> |
-        //                           <Lod_Distances_Def> | <transparency_casts_shadows_def>
+        //                           <Lod_Distances_Def> | <Receive_Shadows_Def> |
+        //                           <transparency_casts_shadows_def>
         _rule_ mid_MATERIAL_PROPERTIES, "<Material_Properties>"
 	        _is_ mid_TECHNIQUE_DEF _nt_
 	        _or_ mid_SET_TEXTURE_ALIAS_DEF _nt_
@@ -68,6 +122,32 @@ namespace Ogre {
 	        _and_ mid_LABEL _nt_
 	        _end_
         	
+        // <Set_Texture_Alias_Def> ::= "set_texture_alias"  <Label> <Label>
+        _rule_ mid_SET_TEXTURE_ALIAS_DEF, "<Set_Texture_Alias_Def>"
+            _is_ mid_SET_TEXTURE_ALIAS, "set_texture_alias"
+            _and_ mid_LABEL _nt_
+            _and_ mid_LABEL _nt_
+            _end_
+
+        // <Lod_Distances_Def> ::= "lod_distances" <value> {<value>}
+        _rule_ mid_LOD_DISTANCES_DEF, "<Lod_Distances_Def>"
+            _is_ mid_LOD_DISTANCES, "lod_distances"
+            _and_ _value_, ""
+            _repeat_ _value_, ""
+            _end_
+
+        // <Receive_Shadows_Def> ::= "receive_shadows" <On_Off>
+        _rule_ mid_RECEIVE_SHADOWS_DEF, "<Receive_Shadows_Def>"
+            _is_ mid_RECEIVE_SHADOWS, "receive_shadows"
+            _and_ mid_ON_OFF _nt_
+            _end_
+
+        // <transparency_casts_shadows_def> ::= "transparency_casts_shadows" <On_Off>
+        _rule_ mid_TRANSPARENCY_CASTS_SHADOWS_DEF, "<transparency_casts_shadows_def>"
+            _is_ mid_TRANSPARENCY_CASTS_SHADOWS, "transparency_casts_shadows"
+            _and_ mid_ON_OFF _nt_
+            _end_
+
         // <Technique_Def> ::= "technique" [<Label>] "{" {<Technique_Properties>} "}"
         _rule_ mid_TECHNIQUE_DEF, "<Technique Def>"
 	        _is_ mid_TECHNIQUE, "technique"
@@ -81,6 +161,12 @@ namespace Ogre {
         _rule_ mid_TECHNIQUE_PROPERTIES, "<Technique Properties>"
             _is_ mid_PASS_DEF _nt_
             _or_ mid_LOD_INDEX_DEF _nt_
+            _end_
+
+        // <Lod_Index_Def> ::= lod_index <value>
+        _rule_ mid_LOD_INDEX_DEF, "<Lod_Index_Def>"
+            _is_ mid_LOD_INDEX, "lod_index"
+            _and_ _value_, ""
             _end_
 
         // <Pass_Def> ::= "pass" [<Label>] "{" {<Pass_Properties>} "}"
@@ -136,7 +222,7 @@ namespace Ogre {
             _or_ mid_VERTEXCOLOUR_DEF _nt_
             _end_
 
-        // <Specular_Def> ::= "specular" <Specular_Params> | <Vertexcolour_Def> <Value>
+        // <Specular_Def> ::= "specular" <Specular_Params> | <Vertexcolour_Def> <value>
         _rule_ mid_SPECULAR_DEF, "<Specular_Def>"
             _is_ mid_SPECULAR, "specular"
             _and_ mid_SPECULAR_PARAMS _nt_
@@ -144,7 +230,7 @@ namespace Ogre {
             _and_ _value_, ""
             _end_
 
-        // <Specular_Params> ::= <Value> <Value> <Value> <Value> [<Value>]
+        // <Specular_Params> ::= <value> <value> <value> <value> [<value>]
         _rule_ mid_SPECULAR_PARAMS, "<Specular_Params>"
             _is_ _value_, ""
             _and_ _value_, ""
@@ -216,8 +302,31 @@ namespace Ogre {
             _and_ mid_ON_OFF _nt_
             _end_
 
-        // <Depth_Func_Def> ::= "depth_func" "always_fail" | "always_pass" | "less" | "less_equal" |
+        // <Depth_Func_Def> ::= "depth_func" <Compare_Func_Def>
+        _rule_ mid_DEPTH_FUNC_DEF, "<Depth_Func_Def>"
+            _is_ mid_DEPTH_FUNC, "depth_func"
+            _and_ mid_COMPARE_FUNC_DEF _nt_
+            _end_
+        
+        // <Alpha_Rejection_Def> ::= "alpha_rejection" <Compare_Func_Def> <value>
+        _rule_ mid_ALPHA_REJECTION_DEF, "<Alpha_Rejection_Def>"
+            _is_ mid_ALPHA_REJECTION, "alpha_rejection"
+            _and_ mid_COMPARE_FUNC_DEF _nt_
+            _and_ _value_, ""
+            _end_
+
+        // <Compare_Func_Def> ::= "always_fail" | "always_pass" | "less_equal" | "less" |
         //                      "equal" | "not_equal" | "greater_equal" | "greater"
+        _rule_ mid_COMPARE_FUNC_DEF, "<Compare_Func_Def>"
+            _is_ mid_ALWAYS_FAIL, "always_fail"
+            _or_ mid_ALWAYS_PASS, "always_pass"
+            _or_ mid_LESS_EQUAL, "less_equal"
+            _or_ mid_LESS, "less"
+            _or_ mid_EQUAL, "equal"
+            _or_ mid_NOT_EQUAL, "not_equal"
+            _or_ mid_GREATER_EQUAL, "greater_equal"
+            _or_ mid_GREATER, "greater"
+            _end_
 
         // <Colour_Write_Def> ::= "colour_write" <On_Off>
         _rule_ mid_COLOUR_WRITE_DEF, "<Colour_Write_Def>"
@@ -255,7 +364,20 @@ namespace Ogre {
             _or_ mid_PHONG, "phong"
             _end_
 
-        // <Fog_Override_Def> ::= "fog_override" "false" | "true" [<Fog_parameters>]
+        // <Fog_Override_Def> ::= "fog_override" <True_False> [<Fog_parameters>]
+        _rule_ mid_FOG_OVERRIDE_DEF, "<Fog_Override_Def>"
+            _is_ mid_FOG_OVERRIDE, "fog_override"
+            _and_ mid_TRUE_FALSE_DEF _nt_
+            _optional_ mid_FOG_PARAMETERS_DEF _nt_
+            _end_
+
+        // <Fog_parameters> ::= <type> <colour> <density> <start> <end>
+
+        // <True_False> ::= "true" | "false"
+        _rule_ mid_TRUE_FALSE_DEF, "<True_False>"
+            _is_ mid_TRUE, "true"
+            _or_ mid_FALSE, "false"
+            _end_
 
         // <On_Off> ::= "on" | "off"
         _rule_ mid_ON_OFF, "<On_Off>"
@@ -263,7 +385,7 @@ namespace Ogre {
             _or_ mid_OFF, "off"
             _end_
 
-        // <Colour_params> ::= <Value> <Value> <Value> [<Value>]
+        // <Colour_params> ::= <value> <value> <value> [<value>]
         _rule_ mid_COLOUR_PARAM_DEF, "<Colour_Param_Def>"
             _is_ _value_, ""
             _and_ _value_, ""
@@ -315,19 +437,18 @@ namespace Ogre {
 	        _or_ mid_NUMBER _nt_
 	        _end_
         	
-        // <Character> ::= [abcdefghijklmnopqrstuvwxyz] | [ABCDEFGHIJKLMNOPQRSTUVWXYZ] | [$#%!_*&]
+        // <Character> ::= [abcdefghijklmnopqrstuvwxyz] | [ABCDEFGHIJKLMNOPQRSTUVWXYZ] | [$#%!_*&\/]
         _rule_ mid_CHARACTER, "<Character>"
-	        _is_ _character_, "abcdefghijklmnopqrstuvwxyz"
-	        _or_ _character_, "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	        _or_ _character_, "$#%!_*&"
+	        _is_ _character_, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$#%!_*&\\/"
 	        _end_
      
-        // <Number> ::= [0123456789]
+        // <Number> ::= (0123456789)
         _rule_ mid_NUMBER, "<Number>"
 	        _is_ _character_, "0123456789"
 	        _end_
 
     };
+    */
     //-----------------------------------------------------------------------
 
 }
