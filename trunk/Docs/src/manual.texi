@@ -796,7 +796,7 @@ Advanced Format: iteration <number> [<per_light> [lightType]]@*@*
 Examples:
 @table @asis
 @item iteration once
-	The pass is onle executed once which is the default behaviour.
+	The pass is only executed once which is the default behaviour.
 @item iteration once_per_light point
 	The pass is executed once for each point light.
 @item iteration 5
