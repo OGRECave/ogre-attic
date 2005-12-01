@@ -24,79 +24,35 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 #include "OgreRenderQueueSortingGrouping.h"
+#include "OgreException.h"
 
 namespace Ogre {
     // Init statics
-    RadixSort<RenderPriorityGroup::TransparentRenderablePassList,
-        RenderPriorityGroup::RenderablePass, uint32> RenderPriorityGroup::msRadixSorter1;
-    RadixSort<RenderPriorityGroup::TransparentRenderablePassList,
-        RenderPriorityGroup::RenderablePass, float> RenderPriorityGroup::msRadixSorter2;
+    RadixSort<QueuedRenderableCollection::RenderablePassList,
+        RenderablePass, uint32> QueuedRenderableCollection::msRadixSorter1;
+    RadixSort<QueuedRenderableCollection::RenderablePassList,
+        RenderablePass, float> QueuedRenderableCollection::msRadixSorter2;
 
-    //-----------------------------------------------------------------------
-    void RenderPriorityGroup::destroySolidPassMap(SolidRenderablePassMap& passmap)
-    {
-        // destroy all the pass map entries
-        SolidRenderablePassMap::iterator i, iend;
-        iend = passmap.end();
-        for (i = passmap.begin(); i != iend; ++i)
-        {
-            // Free the list associated with this pass
-            delete i->second;
-        }
-        passmap.clear();
-    }
-    //-----------------------------------------------------------------------
-    void RenderPriorityGroup::removeSolidPassEntry(Pass* p)
-    {
-        SolidRenderablePassMap::iterator i;
 
-        i = mSolidPasses.find(p);
-        if (i != mSolidPasses.end())
-        {
-            // free memory
-            delete i->second;
-            // erase from map
-            mSolidPasses.erase(i);
-        }
+	//-----------------------------------------------------------------------
+	RenderPriorityGroup::RenderPriorityGroup(RenderQueueGroup* parent, 
+            bool splitPassesByLightingType, bool splitNoShadowPasses)
+	 	:mParent(parent), mSplitPassesByLightingType(splitPassesByLightingType),
+            mSplitNoShadowPasses(splitNoShadowPasses) 
+	{
+		// Initialise collection sorting options
+		// TODO - this will become dynamic according to invocation later
+		mSolidsBasic.addOrganisationMode(QueuedRenderableCollection::OM_PASS_GROUP);
+		mSolidsDiffuseSpecular.addOrganisationMode(QueuedRenderableCollection::OM_PASS_GROUP);
+		mSolidsDecal.addOrganisationMode(QueuedRenderableCollection::OM_PASS_GROUP);
+		mSolidsNoShadowReceive.addOrganisationMode(QueuedRenderableCollection::OM_PASS_GROUP);
 
-        i = mSolidPassesDiffuseSpecular.find(p);
-        if (i != mSolidPassesDiffuseSpecular.end())
-        {
-            // free memory
-            delete i->second;
-            // erase from map
-            mSolidPassesDiffuseSpecular.erase(i);
-        }
-        i = mSolidPassesDecal.find(p);
-        if (i != mSolidPassesDecal.end())
-        {
-            // free memory
-            delete i->second;
-            // erase from map
-            mSolidPassesDecal.erase(i);
-        }
-        i = mSolidPassesNoShadow.find(p);
-        if (i != mSolidPassesNoShadow.end())
-        {
-            // free memory
-            delete i->second;
-            // erase from map
-            mSolidPassesNoShadow.erase(i);
-        }
+		// Transparents will always be sorted this way
+		mTransparents.addOrganisationMode(QueuedRenderableCollection::OM_SORT_DESCENDING);
 
-    }
-    //-----------------------------------------------------------------------
-    void RenderPriorityGroup::clearSolidPassMap(SolidRenderablePassMap& passmap)
-    {
-        SolidRenderablePassMap::iterator i, iend;
-        iend = passmap.end();
-        for (i = passmap.begin(); i != iend; ++i)
-        {
-            // Clear the list associated with this pass, but leave the pass entry
-            i->second->clear();
-        }
-    }
-    //-----------------------------------------------------------------------
+		
+	}
+	//-----------------------------------------------------------------------
     void RenderPriorityGroup::addRenderable(Renderable* rend)
     {
         // Check material & technique supplied (the former since the default implementation
@@ -147,14 +103,14 @@ namespace Ogre {
     {
         Technique::PassIterator pi = pTech->getPassIterator();
 
-        SolidRenderablePassMap* passMap;
+		QueuedRenderableCollection* collection;
         if (addToNoShadow)
         {
-            passMap = &mSolidPassesNoShadow;
+            collection = &mSolidsNoShadowReceive;
         }
         else
         {
-            passMap = &mSolidPasses;
+            collection = &mSolidsBasic;
         }
 
 
@@ -162,21 +118,7 @@ namespace Ogre {
         {
             // Insert into solid list
             Pass* p = pi.getNext();
-            SolidRenderablePassMap::iterator i = passMap->find(p);
-            if (i == passMap->end())
-            {
-                std::pair<SolidRenderablePassMap::iterator, bool> retPair;
-                // Create new pass entry, build a new list
-                // Note that this pass and list are never destroyed until the engine
-                // shuts down, although the lists will be cleared
-                retPair = passMap->insert(
-                    SolidRenderablePassMap::value_type(p, new RenderableList() ) );
-                assert(retPair.second && "Error inserting new pass entry into SolidRenderablePassMap");
-                i = retPair.first;
-            }
-            // Insert renderable
-            i->second->push_back(rend);
-
+			collection->addRenderable(p, rend);
         }
     }
     //-----------------------------------------------------------------------
@@ -190,34 +132,21 @@ namespace Ogre {
         {
             // Insert into solid list
             IlluminationPass* p = pi.getNext();
-            SolidRenderablePassMap* passMap;
+            QueuedRenderableCollection* collection;
             switch(p->stage)
             {
             case IS_AMBIENT:
-                passMap = &mSolidPasses;
+                collection = &mSolidsBasic;
                 break;
             case IS_PER_LIGHT:
-                passMap = &mSolidPassesDiffuseSpecular;
+                collection = &mSolidsDiffuseSpecular;
                 break;
             case IS_DECAL:
-                passMap = &mSolidPassesDecal;
+                collection = &mSolidsDecal;
                 break;
             };
 
-            SolidRenderablePassMap::iterator i = passMap->find(p->pass);
-            if (i == passMap->end())
-            {
-                std::pair<SolidRenderablePassMap::iterator, bool> retPair;
-                // Create new pass entry, build a new list
-                // Note that this pass and list are never destroyed until the engine
-                // shuts down, although the lists will be cleared
-                retPair = passMap->insert(
-                    SolidRenderablePassMap::value_type(p->pass, new RenderableList() ) );
-                assert(retPair.second && "Error inserting new pass entry into SolidRenderablePassMap");
-                i = retPair.first;
-            }
-            // Insert renderable
-            i->second->push_back(rend);
+			collection->addRenderable(p->pass, rend);
         }
     }
     //-----------------------------------------------------------------------
@@ -228,41 +157,21 @@ namespace Ogre {
         while (pi.hasMoreElements())
         {
             // Insert into transparent list
-            mTransparentPasses.push_back(RenderablePass(rend, pi.getNext()));
+            mTransparents.addRenderable(pi.getNext(), rend);
         }
     }
     //-----------------------------------------------------------------------
-    void RenderPriorityGroup::sort(const Camera* cam)
-    {
-		// We can either use a stable_sort and the 'less' implementation,
-		// or a 2-pass radix sort (once by pass, then by distance, since
-		// radix sorting is inherently stable this will work)
-		// We use stable_sort if the number of items is 512 or less, since
-		// the complexity of the radix sort is approximately O(10N), since 
-		// each sort is O(5N) (1 pass histograms, 4 passes sort)
-		// Since stable_sort has a worst-case performance of O(N(logN)^2)
-		// the performance tipping point is from about 1500 items, but in
-		// stable_sorts best-case scenario O(NlogN) it would be much higher.
-		// Take a stab at 2000 items.
-		
-		if (mTransparentPasses.size() > 2000)
-		{
-			// sort by pass
-			msRadixSorter1.sort(mTransparentPasses, TransparentSortFunctor1());
-			// sort by depth
-			msRadixSorter2.sort(mTransparentPasses, TransparentSortFunctor2(cam));
-		}
-		else
-		{
-	        std::stable_sort(
-				mTransparentPasses.begin(), mTransparentPasses.end(), 
-            	TransparentQueueItemLess(cam));
-		}
-    }
+	void RenderPriorityGroup::removePassEntry(Pass* p)
+	{
+		mSolidsBasic.removePassGroup(p);
+		mSolidsDiffuseSpecular.removePassGroup(p);
+		mSolidsNoShadowReceive.removePassGroup(p);
+		mSolidsDecal.removePassGroup(p);
+		mTransparents.removePassGroup(p); // shouldn't be any, but for completeness
+	}	
     //-----------------------------------------------------------------------
     void RenderPriorityGroup::clear(void)
     {
-        SolidRenderablePassMap::iterator i, iend;
         // Delete queue groups which are using passes which are to be
         // deleted, we won't need these any more and they clutter up 
         // the list and can cause problems with future clones
@@ -271,7 +180,7 @@ namespace Ogre {
         giend = graveyardList.end();
         for (gi = graveyardList.begin(); gi != giend; ++gi)
         {
-            removeSolidPassEntry(*gi);
+            removePassEntry(*gi);
         }
 
         // Now remove any dirty passes, these will have their hashes recalculated
@@ -282,27 +191,225 @@ namespace Ogre {
         diend = dirtyList.end();
         for (di = dirtyList.begin(); di != diend; ++di)
         {
-            removeSolidPassEntry(*di);
+            removePassEntry(*di);
         }
         // NB we do NOT clear the graveyard or the dirty list here, because 
         // it needs to be acted on for all groups, the parent queue takes 
         // care of this afterwards
 
-        // We do not clear the unchanged solid pass maps, only the contents of each list
-        // This is because we assume passes are reused a lot and it saves resorting
-        clearSolidPassMap(mSolidPasses);
-        clearSolidPassMap(mSolidPassesDecal);
-        clearSolidPassMap(mSolidPassesDiffuseSpecular);
-        clearSolidPassMap(mSolidPassesNoShadow);
+		// Now empty the remaining collections
+		// Note that groups don't get deleted, just emptied hence the difference
+		// between the pass groups which are removed above, and clearing done
+		// here
+		mSolidsBasic.clear();
+        mSolidsDecal.clear();
+        mSolidsDiffuseSpecular.clear();
+        mSolidsNoShadowReceive.clear();
+        mTransparents.clear();
 
-        // Always empty the transparents list
-        mTransparentPasses.clear();
+    }
+	//-----------------------------------------------------------------------
+	void RenderPriorityGroup::sort(const Camera* cam)
+	{
+		mSolidsBasic.sort(cam);
+		mSolidsDecal.sort(cam);
+		mSolidsDiffuseSpecular.sort(cam);
+		mSolidsNoShadowReceive.sort(cam);
+		mTransparents.sort(cam);
+	}
+    //-----------------------------------------------------------------------
+	QueuedRenderableCollection::QueuedRenderableCollection(void)
+		:mOrganisationMode(0)
+	{
+	}
+    //-----------------------------------------------------------------------
+	QueuedRenderableCollection::~QueuedRenderableCollection(void)
+	{
+        // destroy all the pass map entries (rather than clearing)
+        PassGroupRenderableMap::iterator i, iend;
+        iend = mGrouped.end();
+        for (i = mGrouped.begin(); i != iend; ++i)
+        {
+            // Free the list associated with this pass
+            delete i->second;
+        }
+		
+	}
+    //-----------------------------------------------------------------------
+	void QueuedRenderableCollection::clear(void)
+	{
+        PassGroupRenderableMap::iterator i, iend;
+        iend = mGrouped.end();
+        for (i = mGrouped.begin(); i != iend; ++i)
+        {
+            // Clear the list associated with this pass, but leave the pass entry
+            i->second->clear();
+        }
+
+		// Clear sorted list
+		mSortedDescending.clear();
+	}
+    //-----------------------------------------------------------------------
+	void QueuedRenderableCollection::removePassGroup(Pass* p)
+	{
+        PassGroupRenderableMap::iterator i;
+
+        i = mGrouped.find(p);
+        if (i != mGrouped.end())
+        {
+            // free memory
+            delete i->second;
+            // erase from map
+            mGrouped.erase(i);
+        }
+	}
+    //-----------------------------------------------------------------------
+	void QueuedRenderableCollection::sort(const Camera* cam)
+    {
+		// ascending and descending sort both set bit 1
+		if (mOrganisationMode & OM_SORT_DESCENDING)
+		{
+			
+			// We can either use a stable_sort and the 'less' implementation,
+			// or a 2-pass radix sort (once by pass, then by distance, since
+			// radix sorting is inherently stable this will work)
+			// We use stable_sort if the number of items is 512 or less, since
+			// the complexity of the radix sort is approximately O(10N), since 
+			// each sort is O(5N) (1 pass histograms, 4 passes sort)
+			// Since stable_sort has a worst-case performance of O(N(logN)^2)
+			// the performance tipping point is from about 1500 items, but in
+			// stable_sorts best-case scenario O(NlogN) it would be much higher.
+			// Take a stab at 2000 items.
+			
+			if (mSortedDescending.size() > 2000)
+			{
+				// sort by pass
+				msRadixSorter1.sort(mSortedDescending, RadixSortFunctorPass());
+				// sort by depth
+				msRadixSorter2.sort(mSortedDescending, RadixSortFunctorDistance(cam));
+			}
+			else
+			{
+				std::stable_sort(
+					mSortedDescending.begin(), mSortedDescending.end(), 
+					DepthSortDescendingLess(cam));
+			}
+		}
+
+		// Nothing needs to be done for pass groups, they auto-organise
 
     }
     //-----------------------------------------------------------------------
+    void QueuedRenderableCollection::addRenderable(Pass* pass, Renderable* rend)
+	{
+		// ascending and descending sort both set bit 1
+		if (mOrganisationMode & OM_SORT_DESCENDING)
+		{
+			mSortedDescending.push_back(RenderablePass(rend, pass));
+		}
 
+		if (mOrganisationMode & OM_PASS_GROUP)
+		{
+            PassGroupRenderableMap::iterator i = mGrouped.find(pass);
+            if (i == mGrouped.end())
+            {
+                std::pair<PassGroupRenderableMap::iterator, bool> retPair;
+                // Create new pass entry, build a new list
+                // Note that this pass and list are never destroyed until the 
+				// engine shuts down, or a pass is destroyed or has it's hash
+				// recalculated, although the lists will be cleared
+                retPair = mGrouped.insert(
+                    PassGroupRenderableMap::value_type(
+						pass, new RenderableList() ));
+                assert(retPair.second && 
+					"Error inserting new pass entry into PassGroupRenderableMap");
+                i = retPair.first;
+            }
+            // Insert renderable
+            i->second->push_back(rend);
+			
+		}
+		
+	}
+    //-----------------------------------------------------------------------
+	void QueuedRenderableCollection::acceptVisitor(
+		QueuedRenderableVisitor* visitor, OrganisationMode om) const
+	{
+		if ((om & mOrganisationMode) == 0)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"Organisation mode requested in acceptVistor was not notified "
+				"to this class ahead of time, therefore may not be supported.", 
+				"QueuedRenderableCollection::acceptVisitor");
+		}
 
+		switch(om)
+		{
+		case OM_PASS_GROUP:
+			acceptVisitorGrouped(visitor);
+			break;
+		case OM_SORT_DESCENDING:
+			acceptVisitorDescending(visitor);
+			break;
+		case OM_SORT_ASCENDING:
+			acceptVisitorAscending(visitor);
+			break;
+		}
+		
+	}
+    //-----------------------------------------------------------------------
+	void QueuedRenderableCollection::acceptVisitorGrouped(
+		QueuedRenderableVisitor* visitor) const
+	{
+		PassGroupRenderableMap::const_iterator ipass, ipassend;
+		ipassend = mGrouped.end();
+		for (ipass = mGrouped.begin(); ipass != ipassend; ++ipass)
+		{
+			// Fast bypass if this group is now empty
+			if (ipass->second->empty()) continue;
 
+			// Visit Pass - allow skip
+			if (!visitor->visit(ipass->first))
+				continue;
+
+			RenderableList* rendList = ipass->second;
+			RenderableList::const_iterator irend, irendend;
+			irendend = rendList->end();
+			for (irend = rendList->begin(); irend != irendend; ++irend)
+			{
+				// Visit Renderable
+				visitor->visit(*irend);
+			}
+		} 
+
+	}
+    //-----------------------------------------------------------------------
+	void QueuedRenderableCollection::acceptVisitorDescending(
+		QueuedRenderableVisitor* visitor) const
+	{
+		// List is already in descending order, so iterate forward
+		RenderablePassList::const_iterator i, iend;
+
+		iend = mSortedDescending.end();
+		for (i = mSortedDescending.begin(); i != iend; ++i)
+		{
+			visitor->visit(&(*i));
+		}
+	}
+    //-----------------------------------------------------------------------
+	void QueuedRenderableCollection::acceptVisitorAscending(
+		QueuedRenderableVisitor* visitor) const
+	{
+		// List is in descending order, so iterate in reverse
+		RenderablePassList::const_reverse_iterator i, iend;
+
+		iend = mSortedDescending.rend();
+		for (i = mSortedDescending.rbegin(); i != iend; ++i)
+		{
+			visitor->visit(&(*i));
+		}
+
+	}
 
 
 }

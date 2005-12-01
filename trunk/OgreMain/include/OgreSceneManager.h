@@ -220,7 +220,7 @@ namespace Ogre {
                 A Pass object that was used instead of the one passed in, can
                 happen when rendering shadow passes
         */
-        virtual Pass* setPass(Pass* pass);
+        virtual const Pass* setPass(const Pass* pass);
         /// A pass designed to let us render shadow colour on white for texture shadows
         Pass* mShadowCasterPlainBlackPass;
         /// A pass designed to let us render shadow receivers for texture shadows
@@ -234,7 +234,7 @@ namespace Ogre {
             and fudge the AutpoParamDataSource to set black lighting for
             passes with vertex programs. 
         */
-        Pass* deriveShadowCasterPass(Pass* pass);
+        const Pass* deriveShadowCasterPass(const Pass* pass);
         /** Internal method for turning a regular pass into a shadow receiver pass.
         @remarks
         This is only used for texture shadows, basically we're trying to
@@ -243,7 +243,7 @@ namespace Ogre {
         all fixed function passes, but will merge in a vertex program
         for passes with vertex programs. 
         */
-        Pass* deriveShadowReceiverPass(Pass* pass);
+        const Pass* deriveShadowReceiverPass(const Pass* pass);
     
         /** Internal method to validate whether a Pass should be allowed to render.
         @remarks
@@ -251,7 +251,7 @@ namespace Ogre {
             allow the SceneManager to omit it if required. A return value of false
             skips this pass. 
         */
-        bool validatePassForRendering(Pass* pass);
+        bool validatePassForRendering(const Pass* pass);
 
         /** Internal method to validate whether a Renderable should be allowed to render.
         @remarks
@@ -259,7 +259,7 @@ namespace Ogre {
         allow the SceneManager to omit it if required. A return value of false
         skips it. 
         */
-        bool validateRenderableForRendering(Pass* pass, Renderable* rend);
+        bool validateRenderableForRendering(const Pass* pass, const Renderable* rend);
 
         enum BoxPlane
         {
@@ -298,7 +298,7 @@ namespace Ogre {
 
         /** Internal method used by _renderVisibleObjects to deal with renderables
             which override the camera's own view / projection materices. */
-        void useRenderableViewProjMode(Renderable* pRend);
+        void useRenderableViewProjMode(const Renderable* pRend);
 
         /// Controller flag for determining if we need to set view/proj matrices
         bool mCamChanged;
@@ -329,8 +329,8 @@ namespace Ogre {
             method allows you to pass in a previously determined set of lights
             which will be used for a single render of this object.
         */
-        virtual void renderSingleObject(Renderable* rend, Pass* pass, bool doLightIteration, 
-            const LightList* manualLightList = 0);
+        virtual void renderSingleObject(const Renderable* rend, const Pass* pass, 
+			bool doLightIteration, const LightList* manualLightList = 0);
 
         /// Utility class for calculating automatic parameters for gpu programs
         AutoParamDataSource mAutoParamDataSource;
@@ -457,32 +457,72 @@ namespace Ogre {
             const Camera* camera);
 		/** Render the objects in a given queue group 
 		*/
-		virtual void renderQueueGroupObjects(RenderQueueGroup* group);
+		virtual void renderQueueGroupObjects(RenderQueueGroup* group, 
+			QueuedRenderableCollection::OrganisationMode om);
         /** Render a group in the ordinary way */
-        virtual void renderBasicQueueGroupObjects(RenderQueueGroup* pGroup);
+		virtual void renderBasicQueueGroupObjects(RenderQueueGroup* pGroup, 
+			QueuedRenderableCollection::OrganisationMode om);
 		/** Render a group with the added complexity of additive stencil shadows. */
-		virtual void renderAdditiveStencilShadowedQueueGroupObjects(RenderQueueGroup* group);
+		virtual void renderAdditiveStencilShadowedQueueGroupObjects(RenderQueueGroup* group, 
+			QueuedRenderableCollection::OrganisationMode om);
 		/** Render a group with the added complexity of additive stencil shadows. */
-		virtual void renderModulativeStencilShadowedQueueGroupObjects(RenderQueueGroup* group);
+		virtual void renderModulativeStencilShadowedQueueGroupObjects(RenderQueueGroup* group, 
+			QueuedRenderableCollection::OrganisationMode om);
         /** Render a group rendering only shadow casters. */
-        virtual void renderTextureShadowCasterQueueGroupObjects(RenderQueueGroup* group);
+		virtual void renderTextureShadowCasterQueueGroupObjects(RenderQueueGroup* group, 
+			QueuedRenderableCollection::OrganisationMode om);
         /** Render a group rendering only shadow receivers. */
-        virtual void renderTextureShadowReceiverQueueGroupObjects(RenderQueueGroup* group);
+		virtual void renderTextureShadowReceiverQueueGroupObjects(RenderQueueGroup* group, 
+			QueuedRenderableCollection::OrganisationMode om);
         /** Render a group with the added complexity of additive stencil shadows. */
-        virtual void renderModulativeTextureShadowedQueueGroupObjects(RenderQueueGroup* group);
+		virtual void renderModulativeTextureShadowedQueueGroupObjects(RenderQueueGroup* group, 
+			QueuedRenderableCollection::OrganisationMode om);
 		/** Render a set of objects, see renderSingleObject for param definitions */
-		virtual void renderObjects(const RenderPriorityGroup::SolidRenderablePassMap& objs, 
-            bool doLightIteration, const LightList* manualLightList = 0);
-        /** Render a set of objects, see renderSingleObject for param definitions */
-		virtual void renderObjects(const RenderPriorityGroup::TransparentRenderablePassList& objs, 
+		virtual void renderObjects(const QueuedRenderableCollection& objs, 
+			QueuedRenderableCollection::OrganisationMode om, 
             bool doLightIteration, const LightList* manualLightList = 0);
 		/** Render those objects in the transparent pass list which have shadow casting forced on
 		@remarks
 			This function is intended to be used to render the shadows of transparent objects which have
 			transparency_casts_shadows set to 'on' in their material
 		*/
-		virtual void renderTransparentShadowCasterObjects(const RenderPriorityGroup::TransparentRenderablePassList& objs, 
+		virtual void renderTransparentShadowCasterObjects(const QueuedRenderableCollection& objs, 
+			QueuedRenderableCollection::OrganisationMode om, 
 			bool doLightIteration, const LightList* manualLightList = 0);
+
+		/** Inner helper class to implement the visitor pattern for rendering objects
+			in a queue. 
+		*/
+		class _OgreExport SceneMgrQueuedRenderableVisitor : public QueuedRenderableVisitor
+		{
+		protected:
+			/// Pass that was actually used at the grouping level
+			const Pass* mUsedPass;
+		public:
+			SceneMgrQueuedRenderableVisitor() 
+				:transparentShadowCastersMode(false) {}
+			~SceneMgrQueuedRenderableVisitor() {}
+			void visit(const Renderable* r);
+			bool visit(const Pass* p);
+			void visit(const RenderablePass* rp);
+
+			/// Target SM to send renderables to
+			SceneManager* targetSceneMgr;
+			/// Are we in transparent shadow caster mode?
+			bool transparentShadowCastersMode;
+			/// Automatic light handling?
+			bool autoLights;
+			/// Manual light list
+			const LightList* manualLightList;
+
+		};
+		/// Allow visitor helper to access protected methods
+		friend class SceneMgrQueuedRenderableVisitor;
+		/// The active renderable visitor class - subclasses could override this
+		SceneMgrQueuedRenderableVisitor* mActiveQueuedRenderableVisitor;
+		/// Storage for default renderable visitor
+		SceneMgrQueuedRenderableVisitor mDefaultQueuedRenderableVisitor;
+
     public:
         /** Default constructor.
         */

@@ -411,6 +411,12 @@ namespace Ogre {
     {
         return TextureUnitStateIterator(mTextureUnitStates.begin(), mTextureUnitStates.end());
     }
+	//-----------------------------------------------------------------------
+	Pass::ConstTextureUnitStateIterator
+		Pass::getTextureUnitStateIterator(void) const
+	{
+		return ConstTextureUnitStateIterator(mTextureUnitStates.begin(), mTextureUnitStates.end());
+	}
     //-----------------------------------------------------------------------
     void Pass::removeTextureUnitState(unsigned short index)
     {
@@ -933,7 +939,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void Pass::_updateAutoParamsNoLights(const AutoParamDataSource& source)
+    void Pass::_updateAutoParamsNoLights(const AutoParamDataSource& source) const
     {
         if (hasVertexProgram())
         {
@@ -948,7 +954,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void Pass::_updateAutoParamsLightsOnly(const AutoParamDataSource& source)
+    void Pass::_updateAutoParamsLightsOnly(const AutoParamDataSource& source) const
     {
         if (hasVertexProgram())
         {

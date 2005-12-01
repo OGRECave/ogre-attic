@@ -139,6 +139,9 @@ mVisibilityMask(0xFFFFFFFF)
     Root *root = Root::getSingletonPtr();
     if (root)
         _setDestinationRenderSystem(root->getRenderSystem());
+
+	// Setup default queued renderable visitor
+	mActiveQueuedRenderableVisitor = &mDefaultQueuedRenderableVisitor;
 }
 //-----------------------------------------------------------------------
 SceneManager::~SceneManager()
@@ -586,7 +589,7 @@ SceneNode* SceneManager::getSceneNode(const String& name) const
 
 }
 //-----------------------------------------------------------------------
-Pass* SceneManager::setPass(Pass* pass)
+const Pass* SceneManager::setPass(const Pass* pass)
 {
     static bool lastUsedVertexProgram = false;
     static bool lastUsedFragmentProgram = false;
@@ -701,7 +704,7 @@ Pass* SceneManager::setPass(Pass* pass)
 
     // Texture unit settings
 
-    Pass::TextureUnitStateIterator texIter =  pass->getTextureUnitStateIterator();
+    Pass::ConstTextureUnitStateIterator texIter =  pass->getTextureUnitStateIterator();
     size_t unit = 0;
     while(texIter.hasMoreElements())
     {
@@ -739,6 +742,8 @@ Pass* SceneManager::setPass(Pass* pass)
 void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverlays)
 {
     Root::getSingleton()._setCurrentSceneManager(this);
+	mActiveQueuedRenderableVisitor->targetSceneMgr = this;
+
     // Prep Pass for use in debug shadows
     initShadowVolumeMaterials();
     // Perform a quick pre-check to see whether we should override far distance
@@ -1344,6 +1349,8 @@ void SceneManager::_findVisibleObjects(Camera* cam, bool onlyShadowCasters)
 //-----------------------------------------------------------------------
 void SceneManager::_renderVisibleObjects(void)
 {
+	// TODO sjs Drive from RenderQueueSequence
+
     // Render each separate queue
     RenderQueue::QueueGroupIterator queueIt = getRenderQueue()->_getQueueGroupIterator();
 
@@ -1370,7 +1377,8 @@ void SceneManager::_renderVisibleObjects(void)
                 continue;
             }
 
-            renderQueueGroupObjects(pGroup);
+			// TODO sjs Drive ordering from RenderQueueInvocation
+			renderQueueGroupObjects(pGroup, QueuedRenderableCollection::OM_PASS_GROUP);
 
             // Fire queue ended event
             if (fireRenderQueueEnded(qId))
@@ -1388,7 +1396,9 @@ void SceneManager::_renderVisibleObjects(void)
 
 }
 //-----------------------------------------------------------------------
-void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(RenderQueueGroup* pGroup)
+void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(
+	RenderQueueGroup* pGroup, 
+	QueuedRenderableCollection::OrganisationMode om)
 {
     RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
     LightList lightList;
@@ -1405,9 +1415,9 @@ void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(RenderQueueGro
 
         // Render all the ambient passes first, no light iteration, no lights
         mIlluminationStage = IRS_AMBIENT;
-        renderObjects(pPriorityGrp->_getSolidPasses(), false, &lightList);
+        renderObjects(pPriorityGrp->getSolidsBasic(), om, false, &lightList);
         // Also render any objects which have receive shadows disabled
-        renderObjects(pPriorityGrp->_getSolidPassesNoShadow(), true);
+        renderObjects(pPriorityGrp->getSolidsNoShadowReceive(), om, true);
 
 
         // Now iterate per light
@@ -1438,7 +1448,7 @@ void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(RenderQueueGro
                 lightList.push_back(l);
             else
                 lightList[0] = l;
-            renderObjects(pPriorityGrp->_getSolidPassesDiffuseSpecular(), false, &lightList);
+            renderObjects(pPriorityGrp->getSolidsDiffuseSpecular(), om, false, &lightList);
 
             // Reset stencil params
             mDestRenderSystem->setStencilBufferParams();
@@ -1450,7 +1460,7 @@ void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(RenderQueueGro
 
         // Now render decal passes, no need to set lights as lighting will be disabled
         mIlluminationStage = IRS_DECAL;
-        renderObjects(pPriorityGrp->_getSolidPassesDecal(), false);
+        renderObjects(pPriorityGrp->getSolidsDecal(), om, false);
 
 
     }// for each priority
@@ -1464,15 +1474,18 @@ void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(RenderQueueGro
     {
         RenderPriorityGroup* pPriorityGrp = groupIt2.getNext();
 
-        // Do transparents
-        renderObjects(pPriorityGrp->_getTransparentPasses(), true);
+        // Do transparents (always descending sort)
+        renderObjects(pPriorityGrp->getTransparents(), 
+			QueuedRenderableCollection::OM_SORT_DESCENDING, true);
 
     }// for each priority
 
 
 }
 //-----------------------------------------------------------------------
-void SceneManager::renderModulativeStencilShadowedQueueGroupObjects(RenderQueueGroup* pGroup)
+void SceneManager::renderModulativeStencilShadowedQueueGroupObjects(
+	RenderQueueGroup* pGroup, 
+	QueuedRenderableCollection::OrganisationMode om)
 {
     /* For each light, we need to render all the solids from each group, 
     then do the modulative shadows, then render the transparents from
@@ -1493,7 +1506,7 @@ void SceneManager::renderModulativeStencilShadowedQueueGroupObjects(RenderQueueG
         pPriorityGrp->sort(mCameraInProgress);
 
         // Do (shadowable) solids
-        renderObjects(pPriorityGrp->_getSolidPasses(), true);
+        renderObjects(pPriorityGrp->getSolidsBasic(), om, true);
     }
 
 
@@ -1531,7 +1544,7 @@ void SceneManager::renderModulativeStencilShadowedQueueGroupObjects(RenderQueueG
         RenderPriorityGroup* pPriorityGrp = groupIt2.getNext();
 
         // Do non-shadowable solids
-        renderObjects(pPriorityGrp->_getSolidPassesNoShadow(), true);
+        renderObjects(pPriorityGrp->getSolidsNoShadowReceive(), om, true);
 
     }// for each priority
 
@@ -1542,14 +1555,17 @@ void SceneManager::renderModulativeStencilShadowedQueueGroupObjects(RenderQueueG
     {
         RenderPriorityGroup* pPriorityGrp = groupIt3.getNext();
 
-        // Do transparents
-        renderObjects(pPriorityGrp->_getTransparentPasses(), true);
+        // Do transparents (always descending sort)
+        renderObjects(pPriorityGrp->getTransparents(), 
+			QueuedRenderableCollection::OM_SORT_DESCENDING, true);
 
     }// for each priority
 
 }
 //-----------------------------------------------------------------------
-void SceneManager::renderTextureShadowCasterQueueGroupObjects(RenderQueueGroup* pGroup)
+void SceneManager::renderTextureShadowCasterQueueGroupObjects(
+	RenderQueueGroup* pGroup, 
+	QueuedRenderableCollection::OrganisationMode om)
 {
     static LightList nullLightList;
     // This is like the basic group render, except we skip all transparents
@@ -1573,11 +1589,13 @@ void SceneManager::renderTextureShadowCasterQueueGroupObjects(RenderQueueGroup* 
         pPriorityGrp->sort(mCameraInProgress);
 
         // Do solids, override light list incase any vertex programs use them
-        renderObjects(pPriorityGrp->_getSolidPasses(), false, &nullLightList);
-        renderObjects(pPriorityGrp->_getSolidPassesNoShadow(), false, &nullLightList);
+        renderObjects(pPriorityGrp->getSolidsBasic(), om, false, &nullLightList);
+        renderObjects(pPriorityGrp->getSolidsNoShadowReceive(), om, false, &nullLightList);
 		// Do transparents that cast shadows
 		renderTransparentShadowCasterObjects(
-				pPriorityGrp->_getTransparentPasses(), false, &nullLightList);
+				pPriorityGrp->getTransparents(), 
+				QueuedRenderableCollection::OM_SORT_DESCENDING, 
+				false, &nullLightList);
 
 
     }// for each priority
@@ -1587,7 +1605,9 @@ void SceneManager::renderTextureShadowCasterQueueGroupObjects(RenderQueueGroup* 
     mDestRenderSystem->setAmbientLight(mAmbientLight.r, mAmbientLight.g, mAmbientLight.b);
 }
 //-----------------------------------------------------------------------
-void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(RenderQueueGroup* pGroup)
+void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(
+	RenderQueueGroup* pGroup, 
+	QueuedRenderableCollection::OrganisationMode om)
 {
     /* For each light, we need to render all the solids from each group, 
     then do the modulative shadows, then render the transparents from
@@ -1608,8 +1628,8 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(RenderQueueG
         pPriorityGrp->sort(mCameraInProgress);
 
         // Do solids
-        renderObjects(pPriorityGrp->_getSolidPasses(), true);
-        renderObjects(pPriorityGrp->_getSolidPassesNoShadow(), true);
+        renderObjects(pPriorityGrp->getSolidsBasic(), om, true);
+        renderObjects(pPriorityGrp->getSolidsNoShadowReceive(), om, true);
     }
 
 
@@ -1672,7 +1692,7 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(RenderQueueG
 
             if (l->getCastShadows())
             {
-                renderTextureShadowReceiverQueueGroupObjects(pGroup);
+                renderTextureShadowReceiverQueueGroupObjects(pGroup, om);
             }
 
             ++si;
@@ -1689,14 +1709,17 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(RenderQueueG
     {
         RenderPriorityGroup* pPriorityGrp = groupIt3.getNext();
 
-        // Do transparents
-        renderObjects(pPriorityGrp->_getTransparentPasses(), true);
+        // Do transparents (always descending)
+        renderObjects(pPriorityGrp->getTransparents(), 
+			QueuedRenderableCollection::OM_SORT_DESCENDING, true);
 
     }// for each priority
 
 }
 //-----------------------------------------------------------------------
-void SceneManager::renderTextureShadowReceiverQueueGroupObjects(RenderQueueGroup* pGroup)
+void SceneManager::renderTextureShadowReceiverQueueGroupObjects(
+	RenderQueueGroup* pGroup, 
+	QueuedRenderableCollection::OrganisationMode om)
 {
     static LightList nullLightList;
 
@@ -1712,7 +1735,7 @@ void SceneManager::renderTextureShadowReceiverQueueGroupObjects(RenderQueueGroup
         RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
 
         // Do solids, override light list incase any vertex programs use them
-        renderObjects(pPriorityGrp->_getSolidPasses(), false, &nullLightList);
+        renderObjects(pPriorityGrp->getSolidsBasic(), om, false, &nullLightList);
 
         // Don't render transparents or passes which have shadow receipt disabled
 
@@ -1724,7 +1747,48 @@ void SceneManager::renderTextureShadowReceiverQueueGroupObjects(RenderQueueGroup
 
 }
 //-----------------------------------------------------------------------
-bool SceneManager::validatePassForRendering(Pass* pass)
+void SceneManager::SceneMgrQueuedRenderableVisitor::visit(const Renderable* r)
+{
+	// Give SM a chance to eliminate
+	if (targetSceneMgr->validateRenderableForRendering(mUsedPass, r))
+	{
+		// Render a single object, this will set up auto params if required
+		targetSceneMgr->renderSingleObject(r, mUsedPass, autoLights, manualLightList);
+	}
+}
+//-----------------------------------------------------------------------
+bool SceneManager::SceneMgrQueuedRenderableVisitor::visit(const Pass* p)
+{
+	// Give SM a chance to eliminate this pass
+	if (!targetSceneMgr->validatePassForRendering(p))
+		return false;
+
+	// Set pass, store the actual one used
+	mUsedPass = targetSceneMgr->setPass(p);
+
+
+	return true;
+}
+//-----------------------------------------------------------------------
+void SceneManager::SceneMgrQueuedRenderableVisitor::visit(const RenderablePass* rp)
+{
+	// Skip this one if we're in transparency cast shadows mode & it doesn't
+	// Don't need to implement this one in the other visit methods since
+	// transparents are never grouped, always sorted
+	if (transparentShadowCastersMode && 
+		!rp->pass->getParent()->getParent()->getTransparencyCastsShadows())
+		return;
+
+	// Give SM a chance to eliminate
+	if (targetSceneMgr->validateRenderableForRendering(rp->pass, rp->renderable))
+	{
+		targetSceneMgr->setPass(rp->pass);
+		targetSceneMgr->renderSingleObject(rp->renderable, rp->pass, autoLights, 
+			manualLightList);
+	}
+}
+//-----------------------------------------------------------------------
+bool SceneManager::validatePassForRendering(const Pass* pass)
 {
     // Bypass if we're doing a texture shadow render and 
     // this pass is after the first (only 1 pass needed for shadow texture)
@@ -1738,7 +1802,7 @@ bool SceneManager::validatePassForRendering(Pass* pass)
     return true;
 }
 //-----------------------------------------------------------------------
-bool SceneManager::validateRenderableForRendering(Pass* pass, Renderable* rend)
+bool SceneManager::validateRenderableForRendering(const Pass* pass, const Renderable* rend)
 {
     // Skip this renderable if we're doing texture shadows, it casts shadows
     // and we're doing the render receivers pass and we're not self-shadowing
@@ -1753,73 +1817,32 @@ bool SceneManager::validateRenderableForRendering(Pass* pass, Renderable* rend)
 
 }
 //-----------------------------------------------------------------------
-void SceneManager::renderObjects(
-                                 const RenderPriorityGroup::SolidRenderablePassMap& objs, bool doLightIteration, 
+void SceneManager::renderObjects(const QueuedRenderableCollection& objs, 
+								 QueuedRenderableCollection::OrganisationMode om, 
+								 bool doLightIteration, 
                                  const LightList* manualLightList)
 {
-    // ----- SOLIDS LOOP -----
-    RenderPriorityGroup::SolidRenderablePassMap::const_iterator ipass, ipassend;
-    ipassend = objs.end();
-    for (ipass = objs.begin(); ipass != ipassend; ++ipass)
-    {
-        // Fast bypass if this group is now empty
-        if (ipass->second->empty()) continue;
-
-        // Give SM a chance to eliminate this pass
-        if (!validatePassForRendering(ipass->first))
-            continue;
-
-        // For solids, we try to do each pass in turn
-        Pass* usedPass = setPass(ipass->first);
-        RenderPriorityGroup::RenderableList* rendList = ipass->second;
-        RenderPriorityGroup::RenderableList::const_iterator irend, irendend;
-        irendend = rendList->end();
-        for (irend = rendList->begin(); irend != irendend; ++irend)
-        {
-            // Give SM a chance to eliminate
-            if (!validateRenderableForRendering(ipass->first, *irend))
-                continue;
-            // Render a single object, this will set up auto params if required
-            renderSingleObject(*irend, usedPass, doLightIteration, manualLightList);
-        }
-    } 
+	mActiveQueuedRenderableVisitor->autoLights = doLightIteration;
+	mActiveQueuedRenderableVisitor->manualLightList = manualLightList;
+	mActiveQueuedRenderableVisitor->transparentShadowCastersMode = false;
+	// Use visitor
+	objs.acceptVisitor(mActiveQueuedRenderableVisitor, om);
 }
 //-----------------------------------------------------------------------
-void SceneManager::renderObjects(
-                                 const RenderPriorityGroup::TransparentRenderablePassList& objs, bool doLightIteration,
-                                 const LightList* manualLightList)
-{
-    // ----- TRANSPARENT LOOP -----
-    // This time we render by Z, not by pass
-    // The mTransparentObjects set needs to be ordered first
-    // Render each non-transparent entity in turn, grouped by material
-    RenderPriorityGroup::TransparentRenderablePassList::const_iterator itrans, itransend;
-
-    itransend = objs.end();
-    for (itrans = objs.begin(); 
-        itrans != itransend; ++itrans)
-    {
-        // For transparents, we have to accept that we can't sort entirely by pass
-        setPass(itrans->pass);
-        renderSingleObject(itrans->renderable, itrans->pass, doLightIteration, 
-            manualLightList);
-    }
-
-}
-//-----------------------------------------------------------------------
-void SceneManager::renderQueueGroupObjects(RenderQueueGroup* pGroup)
+void SceneManager::renderQueueGroupObjects(RenderQueueGroup* pGroup, 
+										   QueuedRenderableCollection::OrganisationMode om)
 {
     if (pGroup->getShadowsEnabled() && 
         mShadowTechnique == SHADOWTYPE_STENCIL_ADDITIVE)
     {
         // Additive stencil shadows in use
-        renderAdditiveStencilShadowedQueueGroupObjects(pGroup);
+        renderAdditiveStencilShadowedQueueGroupObjects(pGroup, om);
     }
     else if (pGroup->getShadowsEnabled() && 
         mShadowTechnique == SHADOWTYPE_STENCIL_MODULATIVE)
     {
         // Modulative stencil shadows in use
-        renderModulativeStencilShadowedQueueGroupObjects(pGroup);
+        renderModulativeStencilShadowedQueueGroupObjects(pGroup, om);
     }
     else if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
     {
@@ -1828,27 +1851,28 @@ void SceneManager::renderQueueGroupObjects(RenderQueueGroup* pGroup)
         {
             // Shadow caster pass
             if (pGroup->getShadowsEnabled())
-                renderTextureShadowCasterQueueGroupObjects(pGroup);
+                renderTextureShadowCasterQueueGroupObjects(pGroup, om);
         }
         else
         {
             // Ordinary pass
             if (pGroup->getShadowsEnabled())
-            	renderModulativeTextureShadowedQueueGroupObjects(pGroup);
+            	renderModulativeTextureShadowedQueueGroupObjects(pGroup, om);
 			else
-				renderBasicQueueGroupObjects(pGroup);
+				renderBasicQueueGroupObjects(pGroup, om);
         }
     }
     else
     {
         // No shadows, ordinary pass
-        renderBasicQueueGroupObjects(pGroup);
+        renderBasicQueueGroupObjects(pGroup, om);
     }
 
 
 }
 //-----------------------------------------------------------------------
-void SceneManager::renderBasicQueueGroupObjects(RenderQueueGroup* pGroup)
+void SceneManager::renderBasicQueueGroupObjects(RenderQueueGroup* pGroup, 
+												QueuedRenderableCollection::OrganisationMode om)
 {
     // Basic render loop
     // Iterate through priorities
@@ -1862,38 +1886,32 @@ void SceneManager::renderBasicQueueGroupObjects(RenderQueueGroup* pGroup)
         pPriorityGrp->sort(mCameraInProgress);
 
         // Do solids
-        renderObjects(pPriorityGrp->_getSolidPasses(), true);
-        // Do transparents
-        renderObjects(pPriorityGrp->_getTransparentPasses(), true);
+        renderObjects(pPriorityGrp->getSolidsBasic(), om, true);
+        // Do transparents (always descending)
+        renderObjects(pPriorityGrp->getTransparents(), 
+			QueuedRenderableCollection::OM_SORT_DESCENDING, true);
 
 
     }// for each priority
 }
 //-----------------------------------------------------------------------
 void SceneManager::renderTransparentShadowCasterObjects(
-	const RenderPriorityGroup::TransparentRenderablePassList& objs, bool doLightIteration,
+	const QueuedRenderableCollection& objs, 
+	QueuedRenderableCollection::OrganisationMode om, bool doLightIteration,
 	const LightList* manualLightList)
 {
-	// ----- TRANSPARENT LOOP as in renderObjects above, but changed a bit -----
-	RenderPriorityGroup::TransparentRenderablePassList::const_iterator itrans, itransend;
+	mActiveQueuedRenderableVisitor->transparentShadowCastersMode = true;
+	mActiveQueuedRenderableVisitor->autoLights = doLightIteration;
+	mActiveQueuedRenderableVisitor->manualLightList = manualLightList;
+	
+	// Sort descending (transparency)
+	objs.acceptVisitor(mActiveQueuedRenderableVisitor, 
+		QueuedRenderableCollection::OM_SORT_DESCENDING);
 
-	itransend = objs.end();
-	for (itrans = objs.begin(); 
-		itrans != itransend; ++itrans)
-	{
-		Renderable *r = itrans->renderable;
-		Pass *p = itrans->pass;
-
-		// only render this pass if it's being forced to cast shadows
-		if (p->getParent()->getParent()->getTransparencyCastsShadows())
-		{
-			setPass(p);
-			renderSingleObject(itrans->renderable, p, doLightIteration, manualLightList);
-		}
-	}
+	mActiveQueuedRenderableVisitor->transparentShadowCastersMode = false;
 }
 //-----------------------------------------------------------------------
-void SceneManager::renderSingleObject(Renderable* rend, Pass* pass, 
+void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass, 
                                       bool doLightIteration, const LightList* manualLightList)
 {
     static Matrix4 xform[256];
@@ -1933,7 +1951,7 @@ void SceneManager::renderSingleObject(Renderable* rend, Pass* pass,
     useRenderableViewProjMode(rend);
 
     // Reissue any texture gen settings which are dependent on view matrix
-    Pass::TextureUnitStateIterator texIter =  pass->getTextureUnitStateIterator();
+    Pass::ConstTextureUnitStateIterator texIter =  pass->getTextureUnitStateIterator();
     size_t unit = 0;
     while(texIter.hasMoreElements())
     {
@@ -1975,7 +1993,9 @@ void SceneManager::renderSingleObject(Renderable* rend, Pass* pass,
     mDestRenderSystem->setClipPlanes(rend->getClipPlanes());
 
     // Set up rendering operation
-    rend->getRenderOperation(ro);
+	// I know, I know, const_cast is nasty but otherwise it requires all internal
+	// state of the Renderable assigned to the rop to be mutable
+    const_cast<Renderable*>(rend)->getRenderOperation(ro);
     ro.srcRenderable = rend;
 
 
@@ -2314,7 +2334,7 @@ void SceneManager::manualRender(RenderOperation* rend,
 
 }
 //---------------------------------------------------------------------
-void SceneManager::useRenderableViewProjMode(Renderable* pRend)
+void SceneManager::useRenderableViewProjMode(const Renderable* pRend)
 {
     // Check view matrix
     static bool lastViewWasIdentity = false;
@@ -2914,7 +2934,7 @@ void SceneManager::initShadowVolumeMaterials(void)
     mShadowMaterialInitDone = true;
 }
 //---------------------------------------------------------------------
-Pass* SceneManager::deriveShadowCasterPass(Pass* pass)
+const Pass* SceneManager::deriveShadowCasterPass(const Pass* pass)
 {
     switch (mShadowTechnique)
     {
@@ -2990,7 +3010,7 @@ Pass* SceneManager::deriveShadowCasterPass(Pass* pass)
 
 }
 //---------------------------------------------------------------------
-Pass* SceneManager::deriveShadowReceiverPass(Pass* pass)
+const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 {
 
     switch (mShadowTechnique)
@@ -4063,7 +4083,7 @@ void SceneManager::extractAllMovableObjectsByType(const String& typeName)
 void SceneManager::_injectRenderWithPass(Pass *pass, Renderable *rend)
 {
 	// render something as if it came from the current queue
-    Pass *usedPass = setPass(pass);
+    const Pass *usedPass = setPass(pass);
     renderSingleObject(rend, usedPass, false);
 }
 //---------------------------------------------------------------------

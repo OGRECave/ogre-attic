@@ -352,7 +352,11 @@ namespace Ogre {
         /** Get an iterator over the TextureUnitStates contained in this Pass. */
         TextureUnitStateIterator getTextureUnitStateIterator(void);
 
-        /** Removes the indexed texture unit state from this pass.
+		typedef ConstVectorIterator<TextureUnitStates> ConstTextureUnitStateIterator;
+		/** Get an iterator over the TextureUnitStates contained in this Pass. */
+		ConstTextureUnitStateIterator getTextureUnitStateIterator(void) const;
+
+		/** Removes the indexed texture unit state from this pass.
         @remarks
             Note that removing a texture which is not the topmost will have a larger performance impact.
         */
@@ -915,9 +919,9 @@ namespace Ogre {
         void _notifyNeedsRecompile(void);
 
         /** Update any automatic parameters (except lights) on this pass */
-        void _updateAutoParamsNoLights(const AutoParamDataSource& source);
+        void _updateAutoParamsNoLights(const AutoParamDataSource& source) const;
         /** Update any automatic light parameters on this pass */
-        void _updateAutoParamsLightsOnly(const AutoParamDataSource& source);
+        void _updateAutoParamsLightsOnly(const AutoParamDataSource& source) const;
 
         /** Set texture filtering for every texture unit 
         @note
