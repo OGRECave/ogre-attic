@@ -2826,7 +2826,7 @@ protected:
         //testProjection();
         //testStencilShadows(SHADOWTYPE_STENCIL_ADDITIVE, true, true);
         //testStencilShadows(SHADOWTYPE_STENCIL_MODULATIVE, false, true);
-        //testTextureShadows();
+        testTextureShadows();
         //testOverlayZOrder();
 
         //testRaySceneQuery();
@@ -2842,7 +2842,7 @@ protected:
 		//testBillboardTextureCoords();
 		//testReloadResources();
 		//testTransparencyMipMaps();
-		testRadixSort();
+		//testRadixSort();
 		//testMorphAnimation();
 		//testPoseAnimation();
 		//testBug();
@@ -3062,8 +3062,8 @@ int main(int argc, char **argv)
 #endif
 {
     // Create application object
-    //PlayPenApplication app;
-	MemoryTestApplication app;
+    PlayPenApplication app;
+	//MemoryTestApplication app;
 
     try {
         app.go();
