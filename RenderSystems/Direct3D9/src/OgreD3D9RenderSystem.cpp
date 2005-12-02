@@ -2664,6 +2664,16 @@ namespace Ogre
 	{
 		// Release all non-managed resources
 
+		// Set all texture units to nothing
+		_disableTextureUnitsFrom(0);
+
+		// Unbind any vertex streams
+		for (size_t i = 0; i < mLastVertexSourceCount; ++i)
+		{
+			mpD3DDevice->SetStreamSource(i, NULL, 0, 0);
+		}
+        mLastVertexSourceCount = 0;
+
 		// We have to deal with non-managed textures and vertex buffers
 		// GPU programs don't have to be restored
 		static_cast<D3D9TextureManager*>(mTextureManager)->releaseDefaultPoolResources();
