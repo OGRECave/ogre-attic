@@ -780,6 +780,27 @@ namespace Ogre
         major = static_cast<ushort>((mCaps.VertexShaderVersion & 0x0000FF00) >> 8);
         minor = static_cast<ushort>(mCaps.VertexShaderVersion & 0x000000FF);
 
+        bool vs2x = false;
+        bool vs2a = false;
+
+        // Special case detection for vs_2_x/a support
+        if (major >= 2)
+        {
+            if ((mCaps.VS20Caps.Caps & D3DVS20CAPS_PREDICATION) &&
+                (mCaps.VS20Caps.DynamicFlowControlDepth > 0) &&
+                (mCaps.VS20Caps.NumTemps >= 12))
+            {
+                vs2x = true;
+            }
+
+            if ((mCaps.VS20Caps.Caps & D3DVS20CAPS_PREDICATION) &&
+                (mCaps.VS20Caps.DynamicFlowControlDepth > 0) &&
+                (mCaps.VS20Caps.NumTemps >= 13))
+            {
+                vs2a = true;
+            }
+        }
+
         // Populate max version & params
         switch (major)
         {
@@ -794,7 +815,11 @@ namespace Ogre
            
             break;
         case 2:
-            if (minor > 0)
+            if (vs2a)
+            {
+                mCapabilities->setMaxVertexProgramVersion("vs_2_a");
+            }
+            else if (vs2x)
             {
                 mCapabilities->setMaxVertexProgramVersion("vs_2_x");
             }
@@ -829,8 +854,10 @@ namespace Ogre
         case 3:
             mGpuProgramManager->_pushSyntaxCode("vs_3_0");
         case 2:
-            if (major > 2 || minor > 0)
+            if (vs2x)
                 mGpuProgramManager->_pushSyntaxCode("vs_2_x");
+            if (vs2a)
+                mGpuProgramManager->_pushSyntaxCode("vs_2_a");
 
             mGpuProgramManager->_pushSyntaxCode("vs_2_0");
         case 1:
@@ -845,7 +872,35 @@ namespace Ogre
         major = static_cast<ushort>((mCaps.PixelShaderVersion & 0x0000FF00) >> 8);
         minor = static_cast<ushort>(mCaps.PixelShaderVersion & 0x000000FF);
 
-		bool ps2x = false;
+		bool ps2a = false;
+        bool ps2b = false;
+        bool ps2x = false;
+
+        // Special case detection for ps_2_x/a/b support
+        if (major >= 2)
+        {
+			if ((mCaps.PS20Caps.Caps & D3DPS20CAPS_NOTEXINSTRUCTIONLIMIT) &&
+                (mCaps.PS20Caps.NumTemps >= 32))
+            {
+                ps2b = true;
+            }
+
+	        if ((mCaps.PS20Caps.Caps & D3DPS20CAPS_NOTEXINSTRUCTIONLIMIT) &&
+                (mCaps.PS20Caps.Caps & D3DPS20CAPS_NODEPENDENTREADLIMIT) &&
+                (mCaps.PS20Caps.Caps & D3DPS20CAPS_ARBITRARYSWIZZLE) &&
+				(mCaps.PS20Caps.Caps & D3DPS20CAPS_GRADIENTINSTRUCTIONS) &&
+				(mCaps.PS20Caps.Caps & D3DPS20CAPS_PREDICATION) &&
+                (mCaps.PS20Caps.NumTemps >= 22))
+	        {
+                ps2a = true;
+			}
+
+            // Does this enough?
+            if (ps2a || ps2b)
+            {
+                ps2x = true;
+            }
+        }
 
         switch (major)
         {
@@ -875,40 +930,28 @@ namespace Ogre
             mCapabilities->setFragmentProgramConstantFloatCount(8);
             break;
         case 2:
-			if ((mCaps.PS20Caps.Caps & D3DPS20CAPS_NODEPENDENTREADLIMIT) &&
-				(mCaps.PS20Caps.Caps & D3DPS20CAPS_NOTEXINSTRUCTIONLIMIT))
-			{
-	            if ((mCaps.PS20Caps.Caps & D3DPS20CAPS_ARBITRARYSWIZZLE) &&
-					(mCaps.PS20Caps.Caps & D3DPS20CAPS_GRADIENTINSTRUCTIONS) &&
-					(mCaps.PS20Caps.Caps & D3DPS20CAPS_PREDICATION))
-	            {
-					// ps_2_a is more powerful than ps_2_b? odd
-		            mCapabilities->setMaxFragmentProgramVersion("ps_2_a");
-				}
-				else
-				{
-					mCapabilities->setMaxFragmentProgramVersion("ps_2_b");
-				}
-				// ps_2_x general
-				ps2x = true;
-
-                // 16 boolean params allowed
-                mCapabilities->setFragmentProgramConstantBoolCount(16);
-                // 16 integer params allowed, 4D
-                mCapabilities->setFragmentProgramConstantIntCount(16);
-                // float params, always 4D
-                mCapabilities->setFragmentProgramConstantFloatCount(224);
+			if (ps2a)
+            {
+                mCapabilities->setMaxFragmentProgramVersion("ps_2_a");
+            }
+			else if (ps2b)
+            {
+                mCapabilities->setMaxFragmentProgramVersion("ps_2_b");
+            }
+			else if (ps2x)
+            {
+                mCapabilities->setMaxFragmentProgramVersion("ps_2_x");
             }
             else
             {
                 mCapabilities->setMaxFragmentProgramVersion("ps_2_0");
-                // no boolean params allowed
-                mCapabilities->setFragmentProgramConstantBoolCount(0);
-                // no integer params allowed
-                mCapabilities->setFragmentProgramConstantIntCount(0);
-                // float params, always 4D
-                mCapabilities->setFragmentProgramConstantFloatCount(32);
             }
+            // 16 boolean params allowed
+            mCapabilities->setFragmentProgramConstantBoolCount(16);
+            // 16 integer params allowed, 4D
+            mCapabilities->setFragmentProgramConstantIntCount(16);
+            // float params, always 4D
+            mCapabilities->setFragmentProgramConstantFloatCount(32);
             break;
         case 3:
             if (minor > 0)
@@ -942,6 +985,10 @@ namespace Ogre
         case 2:
             if (ps2x)
                 mGpuProgramManager->_pushSyntaxCode("ps_2_x");
+            if (ps2a)
+                mGpuProgramManager->_pushSyntaxCode("ps_2_a");
+            if (ps2b)
+                mGpuProgramManager->_pushSyntaxCode("ps_2_b");
 
             mGpuProgramManager->_pushSyntaxCode("ps_2_0");
         case 1:
