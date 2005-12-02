@@ -3585,8 +3585,10 @@ namespace Ogre
     {
         if (sbf_src == SBF_ONE && sbf_dst == SBF_ONE )
             writeValue("add");
-        else if (sbf_src == SBF_SOURCE_COLOUR && sbf_dst == SBF_ONE_MINUS_SOURCE_COLOUR)
+        else if (sbf_src == SBF_DEST_COLOUR && sbf_dst == SBF_ZERO)
             writeValue("modulate");
+        else if (sbf_src == SBF_SOURCE_COLOUR && sbf_dst == SBF_ONE_MINUS_SOURCE_COLOUR)
+            writeValue("colour_blend");
         else if (sbf_src == SBF_SOURCE_ALPHA && sbf_dst == SBF_ONE_MINUS_SOURCE_ALPHA)
             writeValue("alpha_blend");
         else

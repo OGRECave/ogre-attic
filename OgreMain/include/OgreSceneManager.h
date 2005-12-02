@@ -1053,6 +1053,12 @@ namespace Ogre {
             int xsegments = 1, int ysegments = 1, 
             const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
+		/** Return whether a key plane is enabled */
+		virtual bool isSkyPlaneEnabled(void) const { return mSkyPlaneEnabled; }
+
+		/** Get the sky plane node, if enabled. */
+		virtual SceneNode* getSkyPlaneNode(void) { return mSkyPlaneNode; }		
+
         /** Enables / disables a 'sky box' i.e. a 6-sided box at constant
             distance from the camera representing the sky.
             @remarks
@@ -1098,6 +1104,12 @@ namespace Ogre {
             bool enable, const String& materialName, Real distance = 5000,
             bool drawFirst = true, const Quaternion& orientation = Quaternion::IDENTITY,
             const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+		/** Return whether a skybox is enabled */
+		virtual bool isSkyBoxEnabled(void) const { return mSkyBoxEnabled; }
+
+		/** Get the skybox node, if enabled. */
+		virtual SceneNode* getSkyBoxNode(void) const { return mSkyBoxNode; }
 
         /** Enables / disables a 'sky dome' i.e. an illusion of a curved sky.
             @remarks
@@ -1161,7 +1173,13 @@ namespace Ogre {
             int xsegments = 16, int ysegments = 16, int ysegments_keep = -1,
             const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
-        /** Sets the fogging mode applied to the scene.
+		/** Return whether a skydome is enabled */
+		virtual bool isSkyDomeEnabled(void) const { return mSkyDomeEnabled; }
+
+		/** Get the sky dome node, if enabled. */
+		virtual SceneNode* getSkyDomeNode(void) { return mSkyDomeNode; }		
+
+		/** Sets the fogging mode applied to the scene.
             @remarks
                 This method sets up the scene-wide fogging effect. These settings
                 apply to all geometry rendered, UNLESS the material with which it

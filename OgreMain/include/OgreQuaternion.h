@@ -210,7 +210,8 @@ namespace Ogre {
 			Real val[4];
 		};
 
-        /** Function for writing to a stream.
+        /** Function for writing to a stream. Outputs "Quaternion(w, x, y, z)" with w,x,y,z
+            being the member values of the quaternion.
         */
         inline _OgreExport friend std::ostream& operator <<
             ( std::ostream& o, const Quaternion& q )
