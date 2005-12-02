@@ -33,6 +33,19 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     //---------------------------------------------------------------------
     Viewport::Viewport(Camera* cam, RenderTarget* target, Real left, Real top, Real width, Real height, int ZOrder)
+        : mCamera(cam)
+        , mTarget(target)
+        , mRelLeft(left)
+        , mRelTop(top)
+        , mRelWidth(width)
+        , mRelHeight(height)
+        // Actual dimensions will update later
+        , mZOrder(ZOrder)
+        , mBackColour(ColourValue::Black)
+        , mClearEveryFrame(true)
+        , mUpdated(false)
+        , mShowOverlays(true)
+        , mShowSkies(true)
     {
 
 		StringUtil::StrStreamType msg;
@@ -43,24 +56,9 @@ namespace Ogre {
 			<< "L: " << left << " T: " << top << " W: " << width << " H: " << height
 			<< " ZOrder: " << ZOrder;
         LogManager::getSingleton().logMessage(msg.str());
-        mCamera = cam;
-        mTarget = target;
-
-        mRelLeft = left;
-        mRelTop = top;
-        mRelWidth = width;
-        mRelHeight = height;
-        mZOrder = ZOrder;
-
-        mBackColour = ColourValue::Black;
-        mClearEveryFrame = true;
-
 
         // Calculate actual dimensions
         _updateDimensions();
-
-        mUpdated = true;
-        mShowOverlays = true;
 
         // notify camera
         cam->_notifyViewport(this);
@@ -234,5 +232,15 @@ namespace Ogre {
     bool Viewport::getOverlaysEnabled(void) const
     {
         return mShowOverlays;
+    }
+    //---------------------------------------------------------------------
+    void Viewport::setSkiesEnabled(bool enabled)
+    {
+        mShowSkies = enabled;
+    }
+    //---------------------------------------------------------------------
+    bool Viewport::getSkiesEnabled(void) const
+    {
+        return mShowSkies;
     }
 }

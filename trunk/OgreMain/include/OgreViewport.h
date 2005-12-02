@@ -209,6 +209,22 @@ namespace Ogre {
             viewport. */
         bool getOverlaysEnabled(void) const;
 
+        /** Tells this viewport whether it should display skies.
+        @remarks
+            Skies are layers which appear on background of the scene. They are created via
+            SceneManager::setSkyBox, SceneManager::setSkyPlane and SceneManager::setSkyDome and
+            every viewport displays these by default. However, you probably don't want this if
+            you're using multiple viewports, because one of them is probably a picture-in-picture
+            which is not supposed to have skies of it's own. In this case you can turn off skies
+            on this viewport by calling this method.
+        @param enabled If true, any skies are displayed, if false they are not.
+        */
+        void setSkiesEnabled(bool enabled);
+
+        /** Returns whether or not skies (created in the SceneManager) are displayed in this
+            viewport. */
+        bool getSkiesEnabled(void) const;
+
 
     protected:
         Camera* mCamera;
@@ -224,6 +240,7 @@ namespace Ogre {
         bool mClearEveryFrame;
         bool mUpdated;
         bool mShowOverlays;
+        bool mShowSkies;
     };
 
 }

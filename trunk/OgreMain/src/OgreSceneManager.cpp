@@ -872,8 +872,11 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
     {
         OverlayManager::getSingleton()._queueOverlaysForRendering(camera, getRenderQueue(), vp);
     }
-    // Queue skies
-    _queueSkiesForRendering(camera);
+    // Queue skies, if viewport seems it
+    if (vp->getSkiesEnabled())
+    {
+        _queueSkiesForRendering(camera);
+    }
 
 
     // Don't do view / proj here anymore
