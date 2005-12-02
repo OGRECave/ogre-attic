@@ -175,7 +175,7 @@ namespace Ogre {
         friend void ::operator delete[](void*);
 
     public:
-        static MemoryManager sMemManager;
+        static MemoryManager& instance(void);
 
     private:
         /// This is used in the process tracking part of the memory manager.
@@ -346,23 +346,23 @@ static unsigned gProcessID = 0;
 inline void *operator new(size_t reportedSize)
 {
     if( !gProcessID )
-        gProcessID = Ogre::MemoryManager::sMemManager._getProcessID();
-    return Ogre::MemoryManager::sMemManager.op_new_sc( reportedSize, gProcessID );
+        gProcessID = Ogre::MemoryManager::instance()._getProcessID();
+    return Ogre::MemoryManager::instance().op_new_sc( reportedSize, gProcessID );
 }
 inline void *operator new[](size_t reportedSize)
 {
     if( !gProcessID )
-        gProcessID = Ogre::MemoryManager::sMemManager._getProcessID();
-    return Ogre::MemoryManager::sMemManager.op_new_vc( reportedSize, gProcessID );
+        gProcessID = Ogre::MemoryManager::instance()._getProcessID();
+    return Ogre::MemoryManager::instance().op_new_vc( reportedSize, gProcessID );
 }
 
 inline void operator delete(void *reportedAddress)
 {
-    Ogre::MemoryManager::sMemManager.op_del_sc( reportedAddress, gProcessID );    
+    Ogre::MemoryManager::instance().op_del_sc( reportedAddress, gProcessID );    
 }
 inline void operator delete[](void *reportedAddress)
 {
-    Ogre::MemoryManager::sMemManager.op_del_vc( reportedAddress, gProcessID );
+    Ogre::MemoryManager::instance().op_del_vc( reportedAddress, gProcessID );
 }
 //-----------------------------------------------------------------------------
 
@@ -378,7 +378,7 @@ inline void operator delete[](void *reportedAddress)
     class _OgreExport MemoryManager
     {
     public:
-        static MemoryManager sMemManager;
+        static MemoryManager& instance(void);
 
         MemoryManager();
         ~MemoryManager();
