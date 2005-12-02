@@ -309,17 +309,23 @@ namespace Ogre {
 
         if (mActiveRenderer)
         {
-            of << "Render System\t" << mActiveRenderer->getName() << std::endl;;
-
-            ConfigOptionMap& opts = mActiveRenderer->getConfigOptions();
-            for(  ConfigOptionMap::iterator pOpt = opts.begin(); pOpt != opts.end(); ++pOpt )
-            {
-				of << pOpt->first << "\t" << pOpt->second.currentValue << std::endl;;
-            }
+            of << "Render System=" << mActiveRenderer->getName() << std::endl;
         }
         else
         {
-            of << "Render System\t ";
+            of << "Render System=" << std::endl;
+        }
+
+        for (RenderSystemList::const_iterator pRend = getAvailableRenderers()->begin(); pRend != getAvailableRenderers()->end(); ++pRend)
+        {
+            RenderSystem* rs = *pRend;
+            of << std::endl;
+            of << "[" << rs->getName() << "]" << std::endl;
+            const ConfigOptionMap& opts = rs->getConfigOptions();
+            for (ConfigOptionMap::const_iterator pOpt = opts.begin(); pOpt != opts.end(); ++pOpt)
+            {
+				of << pOpt->first << "=" << pOpt->second.currentValue << std::endl;
+            }
         }
 
         of.close();
@@ -333,7 +339,6 @@ namespace Ogre {
         //   available, and false if no saved config is
         //   stored, or if there has been a problem
         ConfigFile cfg;
-        String renderSystem;
         RenderSystemList::iterator pRend;
 
         try {
@@ -352,42 +357,34 @@ namespace Ogre {
             }
         }
 
-        renderSystem = cfg.getSetting("Render System");
-        if(renderSystem.empty())
+        ConfigFile::SectionIterator iSection = cfg.getSectionIterator();
+        while (iSection.hasMoreElements())
         {
-            // No render system entry - error
-            return false;
-        }
-		
-        pRend = getAvailableRenderers()->begin();
-        while (pRend != getAvailableRenderers()->end())
-        {
-            String rName = (*pRend)->getName();
-            if (rName == renderSystem)
-                break;
-            pRend++;
+            const String& renderSystem = iSection.peekNextKey();
+            const ConfigFile::SettingsMultiMap& settings = *iSection.getNext();
+
+            RenderSystem* rs = getRenderSystemByName(renderSystem);
+            if (!rs)
+            {
+                // Unrecognised render system
+                continue;
+            }
+
+            ConfigFile::SettingsMultiMap::const_iterator i;
+            for (i = settings.begin(); i != settings.end(); ++i)
+            {
+                rs->setConfigOption(i->first, i->second);
+            }
         }
 
-        if (pRend == getAvailableRenderers()->end())
+        RenderSystem* rs = getRenderSystemByName(cfg.getSetting("Render System"));
+        if (!rs)
         {
             // Unrecognised render system
             return false;
         }
 
-        setRenderSystem(*pRend);
-
-        ConfigFile::SettingsIterator i = cfg.getSettingsIterator();
-
-        String optName, optVal;
-        while (i.hasMoreElements())
-        {
-            optName = i.peekNextKey();
-            optVal = i.getNext();
-            if(optName != "Render System")
-            {
-                mActiveRenderer->setConfigOption(optName, optVal);
-            }
-        }
+        setRenderSystem(rs);
 
         // Successful load
         return true;
@@ -419,6 +416,27 @@ namespace Ogre {
 
         return &mRenderers;
 
+    }
+
+    //-----------------------------------------------------------------------
+    RenderSystem* Root::getRenderSystemByName(const String& name)
+    {
+        if (name.empty())
+        {
+            // No render system
+            return NULL;
+        }
+
+        RenderSystemList::const_iterator pRend;
+        for (pRend = getAvailableRenderers()->begin(); pRend != getAvailableRenderers()->end(); ++pRend)
+        {
+            RenderSystem* rs = *pRend;
+            if (rs->getName() == name)
+                return rs;
+        }
+
+        // Unrecognised render system
+        return NULL;
     }
 
     //-----------------------------------------------------------------------

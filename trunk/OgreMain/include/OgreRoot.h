@@ -240,6 +240,14 @@ namespace Ogre
         */
         RenderSystemList* getAvailableRenderers(void);
 
+        /** Retrieve a pointer to the render system by the given name
+            @param
+                name Name of the render system intend to retrieve.
+            @returns
+                A pointer to the render system, <b>NULL</b> if no found.
+        */
+        RenderSystem* getRenderSystemByName(const String& name);
+
         /** Sets the rendering subsystem to be used.
             @remarks
                 This method indicates to OGRE which rendering system is to be
