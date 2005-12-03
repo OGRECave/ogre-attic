@@ -830,7 +830,7 @@ namespace Ogre {
         mBoundsUpdateTime = stopIn;
     }
 	//-----------------------------------------------------------------------
-	void ParticleSystem::setRenderQueueGroup(RenderQueueGroupID queueID)
+	void ParticleSystem::setRenderQueueGroup(uint8 queueID)
 	{
 		MovableObject::setRenderQueueGroup(queueID);
 		if (mRenderer)

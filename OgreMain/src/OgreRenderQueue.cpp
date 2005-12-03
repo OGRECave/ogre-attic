@@ -71,7 +71,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void RenderQueue::addRenderable(Renderable* pRend, RenderQueueGroupID groupID, ushort priority)
+    void RenderQueue::addRenderable(Renderable* pRend, uint8 groupID, ushort priority)
     {
         // Find group
         RenderQueueGroup* pGroup = getQueueGroup(groupID);
@@ -107,7 +107,7 @@ namespace Ogre {
         return QueueGroupIterator(mGroups.begin(), mGroups.end());
     }
     //-----------------------------------------------------------------------
-    void RenderQueue::addRenderable(Renderable* pRend, RenderQueueGroupID groupID)
+    void RenderQueue::addRenderable(Renderable* pRend, uint8 groupID)
     {
         addRenderable(pRend, groupID, mDefaultRenderablePriority);
     }
@@ -117,12 +117,12 @@ namespace Ogre {
         addRenderable(pRend, mDefaultQueueGroup, mDefaultRenderablePriority);
     }
     //-----------------------------------------------------------------------
-    RenderQueueGroupID RenderQueue::getDefaultQueueGroup(void) const
+    uint8 RenderQueue::getDefaultQueueGroup(void) const
     {
         return mDefaultQueueGroup;
     }
     //-----------------------------------------------------------------------
-    void RenderQueue::setDefaultQueueGroup(RenderQueueGroupID grp)
+    void RenderQueue::setDefaultQueueGroup(uint8 grp)
     {
         mDefaultQueueGroup = grp;
     }
@@ -139,7 +139,7 @@ namespace Ogre {
 	
 	
 	//-----------------------------------------------------------------------
-	RenderQueueGroup* RenderQueue::getQueueGroup(RenderQueueGroupID groupID)
+	RenderQueueGroup* RenderQueue::getQueueGroup(uint8 groupID)
 	{
 		// Find group
 		RenderQueueGroupMap::iterator groupIt;

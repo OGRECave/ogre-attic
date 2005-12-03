@@ -116,7 +116,7 @@ namespace Ogre {
         return 0;
     }
 	//-------------------------------------------------------------------------
-	void TerrainPage::setRenderQueue(RenderQueueGroupID qid)
+	void TerrainPage::setRenderQueue(uint8 qid)
 	{
 		for ( size_t j = 0; j < tilesPerPage; j++ )
 		{

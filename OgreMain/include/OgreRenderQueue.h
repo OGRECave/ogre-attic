@@ -32,6 +32,9 @@ namespace Ogre {
 
     /** Enumeration of queue groups, by which the application may group queued renderables
         so that they are rendered together with events in between
+	@remarks
+		When passed into methods these are actually passed as a uint8 to allow you
+		to use values in between if you want to.
     */
     enum RenderQueueGroupID
     {
@@ -73,13 +76,13 @@ namespace Ogre {
     class _OgreExport RenderQueue
     {
     public:
-        typedef std::map< RenderQueueGroupID, RenderQueueGroup* > RenderQueueGroupMap;
+        typedef std::map< uint8, RenderQueueGroup* > RenderQueueGroupMap;
         /// Iterator over queue groups
         typedef MapIterator<RenderQueueGroupMap> QueueGroupIterator;
     protected:
         RenderQueueGroupMap mGroups;
         /// The current default queue group
-        RenderQueueGroupID mDefaultQueueGroup;
+        uint8 mDefaultQueueGroup;
         /// The default priority
         ushort mDefaultRenderablePriority;
 
@@ -100,7 +103,7 @@ namespace Ogre {
 			OGRE registers new queue groups as they are requested, 
 			therefore this method will always return a valid group.
 		*/
-		RenderQueueGroup* getQueueGroup(RenderQueueGroupID qid);
+		RenderQueueGroup* getQueueGroup(uint8 qid);
 
         /** Add a renderable object to the queue.
         @remarks
@@ -124,7 +127,7 @@ namespace Ogre {
             from sorting them for best efficiency. However this could be useful for ordering 2D
             elements manually for example.
         */
-        void addRenderable(Renderable* pRend, RenderQueueGroupID groupID, ushort priority);
+        void addRenderable(Renderable* pRend, uint8 groupID, ushort priority);
 
         /** Add a renderable object to the queue.
         @remarks
@@ -143,7 +146,7 @@ namespace Ogre {
             boundaries. This can be handy for overlays where no matter what you want the overlay to 
             be rendered last.
         */
-        void addRenderable(Renderable* pRend, RenderQueueGroupID groupId);
+        void addRenderable(Renderable* pRend, uint8 groupId);
 
         /** Add a renderable object to the queue.
         @remarks
@@ -162,7 +165,7 @@ namespace Ogre {
         /** Gets the current default queue group, which will be used for all renderable which do not
             specify which group they wish to be on.
         */
-        RenderQueueGroupID getDefaultQueueGroup(void) const;
+        uint8 getDefaultQueueGroup(void) const;
 
         /** Sets the current default renderable priority, 
             which will be used for all renderables which do not
@@ -178,7 +181,7 @@ namespace Ogre {
         /** Sets the current default queue group, which will be used for all renderable which do not
             specify which group they wish to be on.
         */
-        void setDefaultQueueGroup(RenderQueueGroupID grp);
+        void setDefaultQueueGroup(uint8 grp);
         
         /** Internal method, returns an iterator for the queue groups. */
         QueueGroupIterator _getQueueGroupIterator(void);

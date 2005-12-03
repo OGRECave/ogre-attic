@@ -149,7 +149,7 @@ namespace Ogre {
         /// @copydoc ParticleSystemRenderer::_notifyDefaultDimensions
         void _notifyDefaultDimensions(Real width, Real height);
 		/// @copydoc ParticleSystemRenderer::setRenderQueueGroup
-		void setRenderQueueGroup(RenderQueueGroupID queueID);
+		void setRenderQueueGroup(uint8 queueID);
 		/// @copydoc ParticleSystemRenderer::setKeepParticlesInLocalSpace
 		void setKeepParticlesInLocalSpace(bool keepLocal);
 

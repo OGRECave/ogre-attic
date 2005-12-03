@@ -103,6 +103,7 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgreQuaternion.cpp \
 						 OgreRectangle2D.cpp \
                          OgreRenderQueue.cpp \
+						 OgreRenderQueueInvocation.cpp \
 						 OgreRenderQueueSortingGrouping.cpp \
                          OgreRenderSystem.cpp \
                          OgreRenderSystemCapabilities.cpp \

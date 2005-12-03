@@ -120,7 +120,9 @@ namespace Ogre
 		BillboardSetFactory* mBillboardSetFactory;
 		ManualObjectFactory* mManualObjectFactory;
 
-		
+		typedef std::map<String, RenderQueueInvocationSequence*> RenderQueueInvocationSequenceMap;
+		RenderQueueInvocationSequenceMap mRQSequenceMap;
+
         /** Method reads a plugins configuration file and instantiates all
             plugins.
             @param
@@ -643,6 +645,34 @@ namespace Ogre
             individual RenderTarget instances using their own update() method.
         */
         void _updateAllRenderTargets(void);
+
+		/** Create a new RenderQueueInvocationSequence, useful for linking to
+			Viewport instances to perform custom rendering.
+		@param name The name to give the new sequence
+		*/
+		RenderQueueInvocationSequence* createRenderQueueInvocationSequence(
+			const String& name);
+
+		/** Get a RenderQueueInvocationSequence. 
+		@param name The name to identify the sequence
+		*/
+		RenderQueueInvocationSequence* getRenderQueueInvocationSequence(
+			const String& name);
+
+		/** Destroy a RenderQueueInvocationSequence. 
+		@remarks
+			You must ensure that no Viewports are using this sequence.
+		@param name The name to identify the sequence
+		*/
+		void destroyRenderQueueInvocationSequence(
+			const String& name);
+
+		/** Destroy all RenderQueueInvocationSequences. 
+		@remarks
+			You must ensure that no Viewports are using custom sequences.
+		@param name The name to identify the sequence
+		*/
+		void destroyAllRenderQueueInvocationSequences(void);
 
         /** Override standard Singleton retrieval.
             @remarks

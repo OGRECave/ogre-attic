@@ -67,7 +67,7 @@ namespace Ogre {
 		/// User defined link to another object / value / whatever
 		Any mUserAny;
         /// The render queue to use when rendering this object
-        RenderQueueGroupID mRenderQueueID;
+        uint8 mRenderQueueID;
 		/// Flags whether the RenderQueue's default should be used.
 		bool mRenderQueueIDSet;
         /// Flags determining whether this object is included / excluded from scene queries
@@ -240,10 +240,10 @@ namespace Ogre {
             See RenderQueue for more details.
         @param queueID Enumerated value of the queue group to use.
         */
-        virtual void setRenderQueueGroup(RenderQueueGroupID queueID);
+        virtual void setRenderQueueGroup(uint8 queueID);
 
         /** Gets the queue group for this entity, see setRenderQueueGroup for full details. */
-        virtual RenderQueueGroupID getRenderQueueGroup(void) const;
+        virtual uint8 getRenderQueueGroup(void) const;
 
 		/// return the full transformation of the parent sceneNode or the attachingPoint node
 		virtual Matrix4 _getParentNodeFullTransform(void) const;

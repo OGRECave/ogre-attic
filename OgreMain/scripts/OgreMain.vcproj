@@ -419,6 +419,12 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreMovableObject.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalOptions="/Zm150"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\OgreMovablePlane.cpp">
@@ -521,6 +527,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreRenderQueue.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreRenderQueueInvocation.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreRenderQueueSortingGrouping.cpp">
@@ -1122,6 +1131,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreRenderQueue.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreRenderQueueInvocation.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreRenderQueueListener.h">

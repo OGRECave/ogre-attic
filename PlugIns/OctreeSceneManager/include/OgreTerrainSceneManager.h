@@ -322,7 +322,7 @@ public:
     /** Overridden from SceneManager */
     void clearScene(void);
 	/** Overridden from SceneManager */
-	void setWorldGeometryRenderQueue(RenderQueueGroupID qid);
+	void setWorldGeometryRenderQueue(uint8 qid);
 
 	/// Shutdown cleanly before we get destroyed
 	void shutdown(void);

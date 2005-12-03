@@ -36,11 +36,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     RenderTarget::RenderTarget()
+		:mPriority(OGRE_DEFAULT_RT_GROUP),
+		mActive(true),
+		mAutoUpdate(true)
     {
-        // Default to no stats display
-        mActive = true;
-        mAutoUpdate = true;
-        mPriority = OGRE_DEFAULT_RT_GROUP;
         mTimer = Root::getSingleton().getTimer();
         resetStatistics();
     }

@@ -428,7 +428,7 @@ namespace Ogre {
 		void _notifyOrigin(const String& origin) { mOrigin = origin; }
 
 		/** @copydoc MovableObject::setRenderQueueGroup */
-		void setRenderQueueGroup(RenderQueueGroupID queueID);
+		void setRenderQueueGroup(uint8 queueID);
 
 		/** Set whether or not particles are sorted according to the camera.
 		@remarks

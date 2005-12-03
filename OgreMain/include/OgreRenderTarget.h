@@ -287,6 +287,7 @@ namespace Ogre {
         */
         virtual bool isPrimary(void) const;
 
+
         /** RenderSystem specific interface for a RenderTarget;
             this should be subclassed by RenderSystems.
         */
@@ -337,6 +338,7 @@ namespace Ogre {
 
         typedef std::vector<RenderTargetListener*> RenderTargetListenerList;
         RenderTargetListenerList mListeners;
+	
 
         /// internal method for firing events
         virtual void firePreUpdate(void);

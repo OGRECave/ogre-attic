@@ -189,7 +189,7 @@ void CompositorChain::postTargetOperation(CompositorInstance::TargetOperation &o
 	/// Unregister our listener
 	sm->removeRenderQueueListener(&mOurListener);
 	/// Flush remaing operations
-	mOurListener.flushUpTo((RenderQueueGroupID)RENDER_QUEUE_COUNT);
+	mOurListener.flushUpTo((uint8)RENDER_QUEUE_COUNT);
 	/// Restore default scene and camera settings
 	sm->setVisibilityMask(mOldVisibilityMask);
     cam->setLodBias(mOldLodBias);
@@ -239,7 +239,8 @@ Viewport *CompositorChain::getViewport()
     return mViewport;
 }
 //-----------------------------------------------------------------------
-void CompositorChain::RQListener::renderQueueStarted(RenderQueueGroupID id, bool& skipThisQueue)
+void CompositorChain::RQListener::renderQueueStarted(uint8 id, 
+	const String& invocation, bool& skipThisQueue)
 {
 	flushUpTo(id);
 	/// If noone wants to render this queue, skip it
@@ -250,7 +251,8 @@ void CompositorChain::RQListener::renderQueueStarted(RenderQueueGroupID id, bool
 	}
 }
 //-----------------------------------------------------------------------
-void CompositorChain::RQListener::renderQueueEnded(RenderQueueGroupID id, bool& repeatThisQueue)
+void CompositorChain::RQListener::renderQueueEnded(uint8 id, 
+	const String& invocation, bool& repeatThisQueue)
 {
 }
 //-----------------------------------------------------------------------
@@ -263,7 +265,7 @@ void CompositorChain::RQListener::setOperation(CompositorInstance::TargetOperati
 	lastOp = op->renderSystemOperations.end();
 }
 //-----------------------------------------------------------------------
-void CompositorChain::RQListener::flushUpTo(RenderQueueGroupID id)
+void CompositorChain::RQListener::flushUpTo(uint8 id)
 {
 	/// Process all RenderSystemOperations up to and including render queue id.
     /// Including, because the operations for RenderQueueGroup x should be executed

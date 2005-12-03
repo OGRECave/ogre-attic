@@ -198,10 +198,10 @@ namespace Ogre {
         Real mFogEnd;
         Real mFogDensity;
 
-		typedef std::set<RenderQueueGroupID> SpecialCaseRenderQueueList;
+		typedef std::set<uint8> SpecialCaseRenderQueueList;
 		SpecialCaseRenderQueueList mSpecialCaseQueueList;
 		SpecialCaseRenderQueueMode mSpecialCaseQueueMode;
-		RenderQueueGroupID mWorldGeometryRenderQueue;
+		uint8 mWorldGeometryRenderQueue;
 
 		typedef std::map<String, MovableObject*> MovableObjectMap;
 		typedef std::map<String, MovableObjectMap*> MovableObjectCollectionMap;
@@ -307,15 +307,23 @@ namespace Ogre {
         RenderQueueListenerList mRenderQueueListeners;
 
         /// Internal method for firing the queue start event, returns true if queue is to be skipped
-        bool fireRenderQueueStarted(RenderQueueGroupID id);
+        bool fireRenderQueueStarted(uint8 id, const String& invocation);
         /// Internal method for firing the queue end event, returns true if queue is to be repeated
-        bool fireRenderQueueEnded(RenderQueueGroupID id);
+        bool fireRenderQueueEnded(uint8 id, const String& invocation);
 
         /** Internal method for setting the destination viewport for the next render. */
         virtual void setViewport(Viewport *vp);
 
 		/** Flag that indicates if all of the scene node's bounding boxes should be shown as a wireframe. */
-		bool mShowBoundingBoxes;       
+		bool mShowBoundingBoxes;      
+
+		/** Internal method for rendering all objects using the default queue sequence. */
+		virtual void renderVisibleObjectsDefaultSequence(void);
+		/** Internal method for rendering all objects using a custom queue sequence. */
+		virtual void renderVisibleObjectsCustomSequence(RenderQueueInvocationSequence* s);
+		/** Internal method for preparing the render queue for use with each render. */
+		virtual void prepareRenderQueue(void);
+
 
         /** Internal utility method for rendering a single object. 
         @remarks
@@ -409,6 +417,11 @@ namespace Ogre {
 		/// Visibility mask used to show / hide objects
 		uint32 mVisibilityMask;
 
+		/// Suppress render state changes?
+		bool mSuppressRenderStateChanges;
+		/// Suppress shadows?
+		bool mSuppressShadows;
+
 
         GpuProgramParametersSharedPtr mInfiniteExtrusionParams;
         GpuProgramParametersSharedPtr mFiniteExtrusionParams;
@@ -455,10 +468,6 @@ namespace Ogre {
         */
         virtual const ShadowCasterList& findShadowCastersForLight(const Light* light, 
             const Camera* camera);
-		/** Render the objects in a given queue group 
-		*/
-		virtual void renderQueueGroupObjects(RenderQueueGroup* group, 
-			QueuedRenderableCollection::OrganisationMode om);
         /** Render a group in the ordinary way */
 		virtual void renderBasicQueueGroupObjects(RenderQueueGroup* pGroup, 
 			QueuedRenderableCollection::OrganisationMode om);
@@ -1422,13 +1431,13 @@ namespace Ogre {
 		@param qid The identifier of the queue which should be added to the
 			special case list. Nothing happens if the queue is already in the list.
 		*/
-		virtual void addSpecialCaseRenderQueue(RenderQueueGroupID qid);
+		virtual void addSpecialCaseRenderQueue(uint8 qid);
 		/** Removes an item to the 'special case' render queue list.
 		@see SceneManager::addSpecialCaseRenderQueue
 		@param qid The identifier of the queue which should be removed from the
 			special case list. Nothing happens if the queue is not in the list.
 		*/
-		virtual void removeSpecialCaseRenderQueue(RenderQueueGroupID qid);
+		virtual void removeSpecialCaseRenderQueue(uint8 qid);
 		/** Clears the 'special case' render queue list.
 		@see SceneManager::addSpecialCaseRenderQueue
 		*/
@@ -1446,7 +1455,7 @@ namespace Ogre {
 		@param qid The identifier of the queue which should be tested
 		@returns true if the queue will be rendered, false otherwise
 		*/
-		virtual bool isRenderQueueToBeProcessed(RenderQueueGroupID qid);
+		virtual bool isRenderQueueToBeProcessed(uint8 qid);
 
 		/** Sets the render queue that the world geometry (if any) this SceneManager
 			renders will be associated with.
@@ -1463,7 +1472,7 @@ namespace Ogre {
 			by the SceneManager. If the SceneManager feeds world geometry into
 			the queues, however, the ordering will be affected. 
 		*/
-		virtual void setWorldGeometryRenderQueue(RenderQueueGroupID qid);
+		virtual void setWorldGeometryRenderQueue(uint8 qid);
 		/** Gets the render queue that the world geometry (if any) this SceneManager
 			renders will be associated with.
 		@remarks
@@ -1474,7 +1483,7 @@ namespace Ogre {
 			world geometry, it should still pick a queue to represent it's manual
 			rendering, and check isRenderQueueToBeProcessed before rendering.
 		*/
-		virtual RenderQueueGroupID getWorldGeometryRenderQueue(void);
+		virtual uint8 getWorldGeometryRenderQueue(void);
 
 		/** Allows all bounding boxes of scene nodes to be displayed. */
 		virtual void showBoundingBoxes(bool bShow);
@@ -1974,7 +1983,60 @@ namespace Ogre {
 			@param pass		Material pass to use for setting up this quad.
 			@param rend		Renderable to render
 		 */
-		void _injectRenderWithPass(Pass *pass, Renderable *rend);
+		virtual void _injectRenderWithPass(Pass *pass, Renderable *rend);
+
+		/** Indicates to the SceneManager whether it should suppress changing
+			the RenderSystem states when rendering objects.
+		@remarks
+			This method allows you to tell the SceneManager not to change any
+			RenderSystem state until you tell it to. This method is only 
+			intended for advanced use, don't use it if you're unsure of the 
+			effect. The only RenderSystems calls made are to set the world 
+			matrix for each object (note - view an projection matrices are NOT
+			SET - they are under your control) and to render the object; it is up to 
+			the caller to do everything else, including enabling any vertex / 
+			fragment programs and updating their parameter state, and binding
+			parameters to the RenderSystem.
+		@note
+			Calling this implicitly disables shadow processing since no shadows
+			can be rendered without changing state.
+		@param suppress If true, no RenderSystem state changes will be issued
+			until this method is called again with a parameter of false.
+		*/
+		virtual void _suppressRenderStateChanges(bool suppress)
+		{ mSuppressRenderStateChanges = suppress; }
+		
+		/** Are render state changes suppressed? 
+		@see _suppressRenderStateChanges
+		*/
+		virtual bool _areRenderStateChangesSuppressed(void) const
+		{ return mSuppressRenderStateChanges; }
+
+		/** Indicates to the SceneManager whether it should suppress the 
+			active shadow rendering technique until told otherwise.
+		@remarks
+			This is a temporary alternative to setShadowTechnique to suppress
+			the rendering of shadows and forcing all processing down the 
+			standard rendering path. This is intended for internal use only.
+		@param suppress If true, no shadow rendering will occur until this
+			method is called again with a parameter of false.
+		*/
+		virtual void _suppressShadows(bool suppress) 
+		{ mSuppressShadows = suppress; }
+
+		/** Are shadows suppressed? 
+		@see _suppressShadows
+		*/
+		virtual bool _areShadowsSuppressed(void) const
+		{ return mSuppressShadows; }
+
+		/** Render the objects in a given queue group 
+		@remarks You should only call this from a RenderQueueInvocation implementation
+		*/
+		virtual void _renderQueueGroupObjects(RenderQueueGroup* group, 
+			QueuedRenderableCollection::OrganisationMode om);
+
+		
 
 		/** Get the rendersystem subclass to which the output of this Scene Manager
 			gets sent

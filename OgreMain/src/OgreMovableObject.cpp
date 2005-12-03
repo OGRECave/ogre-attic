@@ -175,13 +175,13 @@ namespace Ogre {
 
 	}
     //-----------------------------------------------------------------------
-    void MovableObject::setRenderQueueGroup(RenderQueueGroupID queueID)
+    void MovableObject::setRenderQueueGroup(uint8 queueID)
     {
         mRenderQueueID = queueID;
         mRenderQueueIDSet = true;
     }
     //-----------------------------------------------------------------------
-    RenderQueueGroupID MovableObject::getRenderQueueGroup(void) const
+    uint8 MovableObject::getRenderQueueGroup(void) const
     {
         return mRenderQueueID;
     }

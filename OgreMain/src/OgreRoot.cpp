@@ -57,6 +57,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreBillboardSet.h"
 #include "OgreLight.h"
 #include "OgreManualObject.h"
+#include "OgreRenderQueueInvocation.h"
 
 #if OGRE_NO_DEVIL == 0
 #include "OgreILCodecs.h"
@@ -251,6 +252,7 @@ namespace Ogre {
         shutdown();
         delete mSceneManagerEnum;
         
+		destroyAllRenderQueueInvocationSequences();
         delete mCompositorManager;
 		delete mExternalTextureSourceManager;
 #if OGRE_NO_DEVIL == 0
@@ -1025,5 +1027,62 @@ namespace Ogre {
 			mMovableObjectFactoryMap.end());
 
 	}
+	//---------------------------------------------------------------------
+	RenderQueueInvocationSequence* Root::createRenderQueueInvocationSequence(
+		const String& name)
+	{
+		RenderQueueInvocationSequenceMap::iterator i = 
+			mRQSequenceMap.find(name);
+		if (i != mRQSequenceMap.end())
+		{
+			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
+				"RenderQueueInvocationSequence with the name " + name + 
+					" already exists.", 
+				"Root::createRenderQueueInvocationSequence");
+		}
+		RenderQueueInvocationSequence* ret = new RenderQueueInvocationSequence(name);
+		mRQSequenceMap[name] = ret;
+		return ret;
+	}
+	//---------------------------------------------------------------------
+	RenderQueueInvocationSequence* Root::getRenderQueueInvocationSequence(
+		const String& name)
+	{
+		RenderQueueInvocationSequenceMap::iterator i = 
+			mRQSequenceMap.find(name);
+		if (i == mRQSequenceMap.end())
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+				"RenderQueueInvocationSequence with the name " + name + 
+				" not found.", 
+				"Root::getRenderQueueInvocationSequence");
+		}
+		return i->second;
+	}
+	//---------------------------------------------------------------------
+	void Root::destroyRenderQueueInvocationSequence(
+		const String& name)
+	{
+		RenderQueueInvocationSequenceMap::iterator i = 
+			mRQSequenceMap.find(name);
+		if (i != mRQSequenceMap.end())
+		{
+			delete i->second;
+			mRQSequenceMap.erase(i);
+		}
+	}
+	//---------------------------------------------------------------------
+	void Root::destroyAllRenderQueueInvocationSequences(void)
+	{
+		for (RenderQueueInvocationSequenceMap::iterator i = mRQSequenceMap.begin();
+			i != mRQSequenceMap.end(); ++i)
+		{
+			delete i->second;
+		}
+		mRQSequenceMap.clear();
+	}
+	//---------------------------------------------------------------------
+
+
 		
 }

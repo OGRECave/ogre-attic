@@ -34,7 +34,7 @@ namespace Ogre {
         events from the render queue. 
     @remarks
         The OGRE render queue is divided into several queue groups, as defined by
-        RenderQueueGroupID. A class may implement this interface, and register itself
+        uint8. A class may implement this interface, and register itself
         as a listener by calling SceneManager::addRenderQueueListener. After doing so,
         the class will receive an event before and after each queue group is sent to 
         the rendering system.
@@ -51,24 +51,30 @@ namespace Ogre {
         @remarks
             This method is called by the SceneManager before each queue group is
             rendered. 
-            @param id The id of the queue group which is about to be rendered
-            @param skipThisQueue A boolean passed by reference which is by default set to 
-                false. If the event sets this to true, the queue will be skipped and not
-                rendered. Note that in this case the renderQueueEnded event will not be raised
-                for this queue group.
+        @param queueGroupId The id of the queue group which is about to be rendered
+		@param invocation Name of the invocation which is causing this to be 
+			called (@see RenderQueueInvocation)
+		@param skipThisInvocation A boolean passed by reference which is by default set to 
+			false. If the event sets this to true, the queue will be skipped and not
+			rendered. Note that in this case the renderQueueEnded event will not be raised
+			for this queue group.
         */
-        virtual void renderQueueStarted(RenderQueueGroupID id, bool& skipThisQueue) = 0;
+        virtual void renderQueueStarted(uint8 queueGroupId, const String& invocation, 
+			bool& skipThisInvocation) = 0;
         /** Event raised after a queue group is rendered. 
         @remarks
             This method is called by the SceneManager after each queue group is
             rendered. 
-            @param id The id of the queue group which has just been rendered
-            @param repeatThisQueue A boolean passed by reference which is by default set to 
-                false. If the event sets this to true, the queue which has just been
-                rendered will be repeated, and the renderQueueStarted and renderQueueEnded
-                events will also be fired for it again.
+        @param queueGroupId The id of the queue group which has just been rendered
+		@param invocation Name of the invocation which is causing this to be 
+			called (@see RenderQueueInvocation)
+		@param repeatThisInvocation A boolean passed by reference which is by default set to 
+			false. If the event sets this to true, the queue which has just been
+			rendered will be repeated, and the renderQueueStarted and renderQueueEnded
+			events will also be fired for it again.
         */
-        virtual void renderQueueEnded(RenderQueueGroupID id, bool& repeatThisQueue) = 0;
+        virtual void renderQueueEnded(uint8 queueGroupId, const String& invocation, 
+			bool& repeatThisInvocation) = 0;
     };
 
 }
