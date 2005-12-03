@@ -41,16 +41,35 @@ namespace Ogre {
             mSplitNoShadowPasses(splitNoShadowPasses) 
 	{
 		// Initialise collection sorting options
-		// TODO - this will become dynamic according to invocation later
-		mSolidsBasic.addOrganisationMode(QueuedRenderableCollection::OM_PASS_GROUP);
-		mSolidsDiffuseSpecular.addOrganisationMode(QueuedRenderableCollection::OM_PASS_GROUP);
-		mSolidsDecal.addOrganisationMode(QueuedRenderableCollection::OM_PASS_GROUP);
-		mSolidsNoShadowReceive.addOrganisationMode(QueuedRenderableCollection::OM_PASS_GROUP);
+		// this can become dynamic according to invocation later
+		defaultOrganisationMode();
 
 		// Transparents will always be sorted this way
 		mTransparents.addOrganisationMode(QueuedRenderableCollection::OM_SORT_DESCENDING);
 
 		
+	}
+	//-----------------------------------------------------------------------
+	void RenderPriorityGroup::resetOrganisationModes(void)
+	{
+		mSolidsBasic.resetOrganisationModes();
+		mSolidsDiffuseSpecular.resetOrganisationModes();
+		mSolidsDecal.resetOrganisationModes();
+		mSolidsNoShadowReceive.resetOrganisationModes();
+	}
+	//-----------------------------------------------------------------------
+	void RenderPriorityGroup::addOrganisationMode(QueuedRenderableCollection::OrganisationMode om)
+	{
+		mSolidsBasic.addOrganisationMode(om);
+		mSolidsDiffuseSpecular.addOrganisationMode(om);
+		mSolidsDecal.addOrganisationMode(om);
+		mSolidsNoShadowReceive.addOrganisationMode(om);
+	}
+	//-----------------------------------------------------------------------
+	void RenderPriorityGroup::defaultOrganisationMode(void)
+	{
+		resetOrganisationModes();
+		addOrganisationMode(QueuedRenderableCollection::OM_PASS_GROUP);
 	}
 	//-----------------------------------------------------------------------
     void RenderPriorityGroup::addRenderable(Renderable* rend)

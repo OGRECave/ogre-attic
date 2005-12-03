@@ -79,7 +79,7 @@ namespace Ogre {
         TerrainRenderable * getTerrainTile( const Vector3 & pt );
 
 		/** Sets the render queue group which the tiles should be rendered in. */
-		void setRenderQueue(RenderQueueGroupID qid);
+		void setRenderQueue(uint8 qid);
 
 
     };

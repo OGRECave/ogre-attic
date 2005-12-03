@@ -80,6 +80,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePlatformManager.h"
 #include "OgreProfiler.h"
 #include "OgreRadixSort.h"
+#include "OgreRenderQueueInvocation.h"
 #include "OgreRenderQueueListener.h"
 #include "OgreRenderSystem.h"
 #include "OgreRenderTargetListener.h"

@@ -327,7 +327,7 @@ namespace Ogre {
 		void _notifyCurrentCamera(Camera* cam);
 
 		/// Overridden - see MovableObject.
-		void setRenderQueueGroup(RenderQueueGroupID queueID);
+		void setRenderQueueGroup(uint8 queueID);
 
 		/** Overridden - see MovableObject.
 		*/

@@ -60,6 +60,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStaticGeometry.h"
 #include "OgreHardwarePixelBuffer.h"
 #include "OgreManualObject.h"
+#include "OgreRenderQueueInvocation.h"
 // This class implements the most basic scene manager
 
 #include <cstdio>
@@ -117,7 +118,9 @@ mShadowTextureCustomCasterPass(0),
 mShadowTextureCustomReceiverPass(0),
 mShadowTextureCasterVPDirty(false),
 mShadowTextureReceiverVPDirty(false),
-mVisibilityMask(0xFFFFFFFF)
+mVisibilityMask(0xFFFFFFFF),
+mSuppressRenderStateChanges(false),
+mSuppressShadows(false)
 {
     // Root scene node
     mSceneRoot = new SceneNode(this, "root node");
@@ -184,12 +187,12 @@ void SceneManager::initRenderQueue(void)
     mRenderQueue->getQueueGroup(RENDER_QUEUE_SKIES_LATE)->setShadowsEnabled(false);
 }
 //-----------------------------------------------------------------------
-void SceneManager::addSpecialCaseRenderQueue(RenderQueueGroupID qid)
+void SceneManager::addSpecialCaseRenderQueue(uint8 qid)
 {
 	mSpecialCaseQueueList.insert(qid);
 }
 //-----------------------------------------------------------------------
-void SceneManager::removeSpecialCaseRenderQueue(RenderQueueGroupID qid)
+void SceneManager::removeSpecialCaseRenderQueue(uint8 qid)
 {
 	mSpecialCaseQueueList.erase(qid);
 }
@@ -209,19 +212,19 @@ SceneManager::SpecialCaseRenderQueueMode SceneManager::getSpecialCaseRenderQueue
 	return mSpecialCaseQueueMode;
 }
 //-----------------------------------------------------------------------
-bool SceneManager::isRenderQueueToBeProcessed(RenderQueueGroupID qid)
+bool SceneManager::isRenderQueueToBeProcessed(uint8 qid)
 {
 	bool inList = mSpecialCaseQueueList.find(qid) != mSpecialCaseQueueList.end();
 	return (inList && mSpecialCaseQueueMode == SCRQM_INCLUDE)
 		|| (!inList && mSpecialCaseQueueMode == SCRQM_EXCLUDE);
 }
 //-----------------------------------------------------------------------
-void SceneManager::setWorldGeometryRenderQueue(RenderQueueGroupID qid)
+void SceneManager::setWorldGeometryRenderQueue(uint8 qid)
 {
 	mWorldGeometryRenderQueue = qid;
 }
 //-----------------------------------------------------------------------
-RenderQueueGroupID SceneManager::getWorldGeometryRenderQueue(void)
+uint8 SceneManager::getWorldGeometryRenderQueue(void)
 {
 	return mWorldGeometryRenderQueue;
 }
@@ -594,149 +597,199 @@ const Pass* SceneManager::setPass(const Pass* pass)
     static bool lastUsedVertexProgram = false;
     static bool lastUsedFragmentProgram = false;
 
-    if (mIlluminationStage == IRS_RENDER_TO_TEXTURE)
-    {
-        // Derive a special shadow caster pass from this one
-        pass = deriveShadowCasterPass(pass);
-    }
-    else if (mIlluminationStage == IRS_RENDER_MODULATIVE_PASS)
-    {
-        pass = deriveShadowReceiverPass(pass);
-    }
+	if (!mSuppressRenderStateChanges)
+	{
+		if (mIlluminationStage == IRS_RENDER_TO_TEXTURE)
+		{
+			// Derive a special shadow caster pass from this one
+			pass = deriveShadowCasterPass(pass);
+		}
+		else if (mIlluminationStage == IRS_RENDER_MODULATIVE_PASS)
+		{
+			pass = deriveShadowReceiverPass(pass);
+		}
 
-    // TEST
-    /*
-    LogManager::getSingleton().logMessage("BEGIN PASS " + StringConverter::toString(pass->getIndex()) + 
-    " of " + pass->getParent()->getParent()->getName());
-    */
-    bool passSurfaceAndLightParams = true;
+		// TEST
+		/*
+		LogManager::getSingleton().logMessage("BEGIN PASS " + StringConverter::toString(pass->getIndex()) + 
+		" of " + pass->getParent()->getParent()->getName());
+		*/
+		bool passSurfaceAndLightParams = true;
 
-    if (pass->hasVertexProgram())
-    {
-        mDestRenderSystem->bindGpuProgram(pass->getVertexProgram()->_getBindingDelegate());
-        // bind parameters later since they can be per-object
-        lastUsedVertexProgram = true;
-        // does the vertex program want surface and light params passed to rendersystem?
-        passSurfaceAndLightParams = pass->getVertexProgram()->getPassSurfaceAndLightStates();
-    }
-    else
-    {
-        // Unbind program?
-        if (lastUsedVertexProgram)
-        {
-            mDestRenderSystem->unbindGpuProgram(GPT_VERTEX_PROGRAM);
-            lastUsedVertexProgram = false;
-        }
-        // Set fixed-function vertex parameters
-    }
+		if (pass->hasVertexProgram())
+		{
+			mDestRenderSystem->bindGpuProgram(pass->getVertexProgram()->_getBindingDelegate());
+			// bind parameters later since they can be per-object
+			lastUsedVertexProgram = true;
+			// does the vertex program want surface and light params passed to rendersystem?
+			passSurfaceAndLightParams = pass->getVertexProgram()->getPassSurfaceAndLightStates();
+		}
+		else
+		{
+			// Unbind program?
+			if (lastUsedVertexProgram)
+			{
+				mDestRenderSystem->unbindGpuProgram(GPT_VERTEX_PROGRAM);
+				lastUsedVertexProgram = false;
+			}
+			// Set fixed-function vertex parameters
+		}
 
-    if (passSurfaceAndLightParams)
-    {
-        // Set surface reflectance properties, only valid if lighting is enabled
-        if (pass->getLightingEnabled())
-        {
-            mDestRenderSystem->_setSurfaceParams( 
-                pass->getAmbient(), 
-                pass->getDiffuse(), 
-                pass->getSpecular(), 
-                pass->getSelfIllumination(), 
-                pass->getShininess(),
-		pass->getVertexColourTracking() );
-        }
+		if (passSurfaceAndLightParams)
+		{
+			// Set surface reflectance properties, only valid if lighting is enabled
+			if (pass->getLightingEnabled())
+			{
+				mDestRenderSystem->_setSurfaceParams( 
+					pass->getAmbient(), 
+					pass->getDiffuse(), 
+					pass->getSpecular(), 
+					pass->getSelfIllumination(), 
+					pass->getShininess(),
+			pass->getVertexColourTracking() );
+			}
 
-        // Dynamic lighting enabled?
-        mDestRenderSystem->setLightingEnabled(pass->getLightingEnabled());
-    }
+			// Dynamic lighting enabled?
+			mDestRenderSystem->setLightingEnabled(pass->getLightingEnabled());
+		}
 
-    // Using a fragment program?
-    if (pass->hasFragmentProgram())
-    {
-        mDestRenderSystem->bindGpuProgram(
-            pass->getFragmentProgram()->_getBindingDelegate());
-        // bind parameters later since they can be per-object
-        lastUsedFragmentProgram = true;
-    }
-    else
-    {
-        // Unbind program?
-        if (lastUsedFragmentProgram)
-        {
-            mDestRenderSystem->unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
-            lastUsedFragmentProgram = false;
-        }
+		// Using a fragment program?
+		if (pass->hasFragmentProgram())
+		{
+			mDestRenderSystem->bindGpuProgram(
+				pass->getFragmentProgram()->_getBindingDelegate());
+			// bind parameters later since they can be per-object
+			lastUsedFragmentProgram = true;
+		}
+		else
+		{
+			// Unbind program?
+			if (lastUsedFragmentProgram)
+			{
+				mDestRenderSystem->unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
+				lastUsedFragmentProgram = false;
+			}
 
-        // Set fixed-function fragment settings
+			// Set fixed-function fragment settings
 
-        // Fog (assumes we want pixel fog which is the usual)
-        // New fog params can either be from scene or from material
-        FogMode newFogMode;
-        ColourValue newFogColour;
-        Real newFogStart, newFogEnd, newFogDensity;
-        if (pass->getFogOverride())
-        {
-            // New fog params from material
-            newFogMode = pass->getFogMode();
-            newFogColour = pass->getFogColour();
-            newFogStart = pass->getFogStart();
-            newFogEnd = pass->getFogEnd();
-            newFogDensity = pass->getFogDensity();
-        }
-        else
-        {
-            // New fog params from scene
-            newFogMode = mFogMode;
-            newFogColour = mFogColour;
-            newFogStart = mFogStart;
-            newFogEnd = mFogEnd;
-            newFogDensity = mFogDensity;
-        }
-        mDestRenderSystem->_setFog(
-            newFogMode, newFogColour, newFogDensity, newFogStart, newFogEnd);
+			// Fog (assumes we want pixel fog which is the usual)
+			// New fog params can either be from scene or from material
+			FogMode newFogMode;
+			ColourValue newFogColour;
+			Real newFogStart, newFogEnd, newFogDensity;
+			if (pass->getFogOverride())
+			{
+				// New fog params from material
+				newFogMode = pass->getFogMode();
+				newFogColour = pass->getFogColour();
+				newFogStart = pass->getFogStart();
+				newFogEnd = pass->getFogEnd();
+				newFogDensity = pass->getFogDensity();
+			}
+			else
+			{
+				// New fog params from scene
+				newFogMode = mFogMode;
+				newFogColour = mFogColour;
+				newFogStart = mFogStart;
+				newFogEnd = mFogEnd;
+				newFogDensity = mFogDensity;
+			}
+			mDestRenderSystem->_setFog(
+				newFogMode, newFogColour, newFogDensity, newFogStart, newFogEnd);
 
-    }
+		}
 
-    // The rest of the settings are the same no matter whether we use programs or not
+		// The rest of the settings are the same no matter whether we use programs or not
 
-    // Set scene blending
-    mDestRenderSystem->_setSceneBlending(
-        pass->getSourceBlendFactor(), pass->getDestBlendFactor());
+		// Set scene blending
+		mDestRenderSystem->_setSceneBlending(
+			pass->getSourceBlendFactor(), pass->getDestBlendFactor());
 
 
-    // Texture unit settings
+		// Texture unit settings
 
-    Pass::ConstTextureUnitStateIterator texIter =  pass->getTextureUnitStateIterator();
-    size_t unit = 0;
-    while(texIter.hasMoreElements())
-    {
-        TextureUnitState* pTex = texIter.getNext();
-        mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
-        ++unit;
-    }
-    // Disable remaining texture units
-    mDestRenderSystem->_disableTextureUnitsFrom(pass->getNumTextureUnitStates());
+		Pass::ConstTextureUnitStateIterator texIter =  pass->getTextureUnitStateIterator();
+		size_t unit = 0;
+		while(texIter.hasMoreElements())
+		{
+			TextureUnitState* pTex = texIter.getNext();
+			mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
+			++unit;
+		}
+		// Disable remaining texture units
+		mDestRenderSystem->_disableTextureUnitsFrom(pass->getNumTextureUnitStates());
 
-    // Set up non-texture related material settings
-    // Depth buffer settings
-    mDestRenderSystem->_setDepthBufferFunction(pass->getDepthFunction());
-    mDestRenderSystem->_setDepthBufferCheckEnabled(pass->getDepthCheckEnabled());
-    mDestRenderSystem->_setDepthBufferWriteEnabled(pass->getDepthWriteEnabled());
-    mDestRenderSystem->_setDepthBias(pass->getDepthBias());
-	// Alpha-reject settings
-	mDestRenderSystem->_setAlphaRejectSettings(
-		pass->getAlphaRejectFunction(), pass->getAlphaRejectValue());
-    // Set colour write mode
-    // Right now we only use on/off, not per-channel
-    bool colWrite = pass->getColourWriteEnabled();
-    mDestRenderSystem->_setColourBufferWriteEnabled(colWrite, colWrite, colWrite, colWrite);
-    // Culling mode
-    mDestRenderSystem->_setCullingMode(pass->getCullingMode());
-    // Shading
-    mDestRenderSystem->setShadingType(pass->getShadingMode());
+		// Set up non-texture related material settings
+		// Depth buffer settings
+		mDestRenderSystem->_setDepthBufferFunction(pass->getDepthFunction());
+		mDestRenderSystem->_setDepthBufferCheckEnabled(pass->getDepthCheckEnabled());
+		mDestRenderSystem->_setDepthBufferWriteEnabled(pass->getDepthWriteEnabled());
+		mDestRenderSystem->_setDepthBias(pass->getDepthBias());
+		// Alpha-reject settings
+		mDestRenderSystem->_setAlphaRejectSettings(
+			pass->getAlphaRejectFunction(), pass->getAlphaRejectValue());
+		// Set colour write mode
+		// Right now we only use on/off, not per-channel
+		bool colWrite = pass->getColourWriteEnabled();
+		mDestRenderSystem->_setColourBufferWriteEnabled(colWrite, colWrite, colWrite, colWrite);
+		// Culling mode
+		mDestRenderSystem->_setCullingMode(pass->getCullingMode());
+		// Shading
+		mDestRenderSystem->setShadingType(pass->getShadingMode());
 
-    // set pass number
-    mAutoParamDataSource.setPassNumber( pass->getIndex() );
+		// set pass number
+    	mAutoParamDataSource.setPassNumber( pass->getIndex() );
+	}
 
     return pass;
+}
+//-----------------------------------------------------------------------
+void SceneManager::prepareRenderQueue(void)
+{
+	RenderQueue* q = getRenderQueue();
+	// Clear the render queue
+	q->clear();
+
+	// Prep the ordering options
+
+	// If we're using a custom render squence, define based on that
+	RenderQueueInvocationSequence* seq = 
+		mCurrentViewport->_getRenderQueueInvocationSequence();
+	if (seq)
+	{
+		// Iterate once to crate / reset all
+		RenderQueueInvocationIterator invokeIt = seq->iterator();
+		while (invokeIt.hasMoreElements())
+		{
+			RenderQueueInvocation* invocation = invokeIt.getNext();
+			RenderQueueGroup* group = 
+				q->getQueueGroup(invocation->getRenderQueueGroupID());
+			group->resetOrganisationModes();
+		}
+		// Iterate again to build up options (may be more than one)
+		invokeIt = seq->iterator();
+		while (invokeIt.hasMoreElements())
+		{
+			RenderQueueInvocation* invocation = invokeIt.getNext();
+			RenderQueueGroup* group = 
+				q->getQueueGroup(invocation->getRenderQueueGroupID());
+			group->addOrganisationMode(invocation->getSolidsOrganisation());
+		}
+	}
+	else
+	{
+		// Default all the queue groups that are there, new ones will be created
+		// with defaults too
+		RenderQueue::QueueGroupIterator groupIter = q->_getQueueGroupIterator();
+		while (groupIter.hasMoreElements())
+		{
+			RenderQueueGroup* g = groupIter.getNext();
+			g->defaultOrganisationMode();
+		}
+	}
+
+
 }
 //-----------------------------------------------------------------------
 void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverlays)
@@ -861,10 +914,10 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
         }
     }
 
-    // Clear the render queue
-    getRenderQueue()->clear();
+	// Prepare render queue for receiving new objects
+	prepareRenderQueue();
 
-    // Parse the scene and tag visibles
+	// Parse the scene and tag visibles
     _findVisibleObjects(camera, 
         mIlluminationStage == IRS_RENDER_TO_TEXTURE? true : false);
     // Add overlays, if viewport deems it
@@ -878,11 +931,6 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
         _queueSkiesForRendering(camera);
     }
 
-
-    // Don't do view / proj here anymore
-    // Checked per renderable now, although only changed when required
-    //mDestRenderSystem->_setViewMatrix(camera->getViewMatrix());
-    //mDestRenderSystem->_setProjectionMatrix(camera->getProjectionMatrix());
 
     mDestRenderSystem->_beginGeometryCount();
     // Begin the frame
@@ -1352,8 +1400,63 @@ void SceneManager::_findVisibleObjects(Camera* cam, bool onlyShadowCasters)
 //-----------------------------------------------------------------------
 void SceneManager::_renderVisibleObjects(void)
 {
-	// TODO sjs Drive from RenderQueueSequence
+	RenderQueueInvocationSequence* invocationSequence = 
+		mCurrentViewport->_getRenderQueueInvocationSequence();
+	if (invocationSequence)
+	{
+		renderVisibleObjectsCustomSequence(invocationSequence);
+	}
+	else
+	{
+		renderVisibleObjectsDefaultSequence();
+	}
+}
+//-----------------------------------------------------------------------
+void SceneManager::renderVisibleObjectsCustomSequence(RenderQueueInvocationSequence* seq)
+{
+	RenderQueueInvocationIterator invocationIt = seq->iterator();
+	while (invocationIt.hasMoreElements())
+	{
+		RenderQueueInvocation* invocation = invocationIt.getNext();
+		uint8 qId = invocation->getRenderQueueGroupID();
+		// Skip this one if not to be processed
+		if (!isRenderQueueToBeProcessed(qId))
+			continue;
 
+
+		bool repeatQueue = false;
+		const String& invocationName = invocation->getInvocationName();
+		RenderQueueGroup* queueGroup = getRenderQueue()->getQueueGroup(qId);
+		do // for repeating queues
+		{
+			// Fire queue started event
+			if (fireRenderQueueStarted(qId, invocationName))
+			{
+				// Someone requested we skip this queue
+				continue;
+			}
+
+			// Invoke it
+			invocation->invoke(queueGroup, this);
+
+			// Fire queue ended event
+			if (fireRenderQueueEnded(qId, invocationName))
+			{
+				// Someone requested we repeat this queue
+				repeatQueue = true;
+			}
+			else
+			{
+				repeatQueue = false;
+			}
+		} while (repeatQueue);
+
+
+	}
+}
+//-----------------------------------------------------------------------
+void SceneManager::renderVisibleObjectsDefaultSequence(void)
+{
     // Render each separate queue
     RenderQueue::QueueGroupIterator queueIt = getRenderQueue()->_getQueueGroupIterator();
 
@@ -1363,7 +1466,7 @@ void SceneManager::_renderVisibleObjects(void)
     while (queueIt.hasMoreElements())
     {
         // Get queue group id
-        RenderQueueGroupID qId = queueIt.peekNextKey();
+        uint8 qId = queueIt.peekNextKey();
 		RenderQueueGroup* pGroup = queueIt.getNext();
 		// Skip this one if not to be processed
 		if (!isRenderQueueToBeProcessed(qId))
@@ -1374,17 +1477,17 @@ void SceneManager::_renderVisibleObjects(void)
         do // for repeating queues
         {
             // Fire queue started event
-            if (fireRenderQueueStarted(qId))
+			if (fireRenderQueueStarted(qId, StringUtil::BLANK))
             {
                 // Someone requested we skip this queue
                 continue;
             }
 
 			// TODO sjs Drive ordering from RenderQueueInvocation
-			renderQueueGroupObjects(pGroup, QueuedRenderableCollection::OM_PASS_GROUP);
+			_renderQueueGroupObjects(pGroup, QueuedRenderableCollection::OM_PASS_GROUP);
 
             // Fire queue ended event
-            if (fireRenderQueueEnded(qId))
+			if (fireRenderQueueEnded(qId, StringUtil::BLANK))
             {
                 // Someone requested we repeat this queue
                 repeatQueue = true;
@@ -1795,8 +1898,11 @@ bool SceneManager::validatePassForRendering(const Pass* pass)
 {
     // Bypass if we're doing a texture shadow render and 
     // this pass is after the first (only 1 pass needed for shadow texture)
+	// Also bypass if passes above the first if render state changes are
+	// suppressed since we're not actually using this pass data anyway
     if ((mIlluminationStage == IRS_RENDER_TO_TEXTURE ||
-        mIlluminationStage == IRS_RENDER_MODULATIVE_PASS) && 
+        mIlluminationStage == IRS_RENDER_MODULATIVE_PASS ||
+		mSuppressRenderStateChanges) && 
         pass->getIndex() > 0)
     {
         return false;
@@ -1832,17 +1938,19 @@ void SceneManager::renderObjects(const QueuedRenderableCollection& objs,
 	objs.acceptVisitor(mActiveQueuedRenderableVisitor, om);
 }
 //-----------------------------------------------------------------------
-void SceneManager::renderQueueGroupObjects(RenderQueueGroup* pGroup, 
+void SceneManager::_renderQueueGroupObjects(RenderQueueGroup* pGroup, 
 										   QueuedRenderableCollection::OrganisationMode om)
 {
-    if (pGroup->getShadowsEnabled() && 
-        mShadowTechnique == SHADOWTYPE_STENCIL_ADDITIVE)
+    if (pGroup->getShadowsEnabled()
+		&& !mSuppressShadows && !mSuppressRenderStateChanges
+        && mShadowTechnique == SHADOWTYPE_STENCIL_ADDITIVE)
     {
         // Additive stencil shadows in use
         renderAdditiveStencilShadowedQueueGroupObjects(pGroup, om);
     }
-    else if (pGroup->getShadowsEnabled() && 
-        mShadowTechnique == SHADOWTYPE_STENCIL_MODULATIVE)
+    else if (pGroup->getShadowsEnabled() 
+		&& !mSuppressShadows && !mSuppressRenderStateChanges
+        && mShadowTechnique == SHADOWTYPE_STENCIL_MODULATIVE)
     {
         // Modulative stencil shadows in use
         renderModulativeStencilShadowedQueueGroupObjects(pGroup, om);
@@ -1853,13 +1961,15 @@ void SceneManager::renderQueueGroupObjects(RenderQueueGroup* pGroup,
         if (mIlluminationStage == IRS_RENDER_TO_TEXTURE)
         {
             // Shadow caster pass
-            if (pGroup->getShadowsEnabled())
+            if (pGroup->getShadowsEnabled() 
+				&& !mSuppressShadows && !mSuppressRenderStateChanges)
                 renderTextureShadowCasterQueueGroupObjects(pGroup, om);
         }
         else
         {
             // Ordinary pass
-            if (pGroup->getShadowsEnabled())
+            if (pGroup->getShadowsEnabled()
+				 && !mSuppressShadows && !mSuppressRenderStateChanges)
             	renderModulativeTextureShadowedQueueGroupObjects(pGroup, om);
 			else
 				renderBasicQueueGroupObjects(pGroup, om);
@@ -1927,7 +2037,7 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 
     bool passSurfaceAndLightParams = true;
 
-    if (pass->isProgrammable())
+    if (pass->isProgrammable() && !mSuppressRenderStateChanges)
     {
         // Tell auto params object about the renderable change
         mAutoParamDataSource.setCurrentRenderable(rend);
@@ -1951,7 +2061,8 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
     }
 
     // Issue view / projection changes if any
-    useRenderableViewProjMode(rend);
+	if (!mSuppressRenderStateChanges)
+		useRenderableViewProjMode(rend);
 
     // Reissue any texture gen settings which are dependent on view matrix
     Pass::ConstTextureUnitStateIterator texIter =  pass->getTextureUnitStateIterator();
@@ -1959,7 +2070,8 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
     while(texIter.hasMoreElements())
     {
         TextureUnitState* pTex = texIter.getNext();
-        if (pTex->hasViewRelativeTextureCoordinateGeneration())
+        if (!mSuppressRenderStateChanges
+			&& pTex->hasViewRelativeTextureCoordinateGeneration())
         {
             mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
         }
@@ -1976,25 +2088,27 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
     }
 
     // Set up the solid / wireframe override
-    SceneDetailLevel reqDetail = rend->getRenderDetail();
-    if (rend->getRenderDetailOverrideable())
-    {
-        // check camera detial only when render detail is overridable
-        if (reqDetail > camDetailLevel)
-        {
-            // only downgrade detail; if cam says wireframe we don't go up to solid
-            reqDetail = camDetailLevel;
-        }
-    }
-    if (reqDetail != lastDetailLevel)
-    {
-        mDestRenderSystem->_setRasterisationMode(reqDetail);
-        lastDetailLevel = reqDetail;
+	if (!mSuppressRenderStateChanges)
+	{
+		SceneDetailLevel reqDetail = rend->getRenderDetail();
+		if (rend->getRenderDetailOverrideable())
+		{
+			// check camera detial only when render detail is overridable
+			if (reqDetail > camDetailLevel)
+			{
+				// only downgrade detail; if cam says wireframe we don't go up to solid
+				reqDetail = camDetailLevel;
+			}
+		}
+		if (reqDetail != lastDetailLevel)
+		{
+			mDestRenderSystem->_setRasterisationMode(reqDetail);
+			lastDetailLevel = reqDetail;
 
-    }
+		}
 
-    mDestRenderSystem->setClipPlanes(rend->getClipPlanes());
-
+		mDestRenderSystem->setClipPlanes(rend->getClipPlanes());
+	}
     // Set up rendering operation
 	// I know, I know, const_cast is nasty but otherwise it requires all internal
 	// state of the Renderable assigned to the rop to be mutable
@@ -2002,110 +2116,119 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
     ro.srcRenderable = rend;
 
 
-    if (doLightIteration)
-    {
-        // Here's where we issue the rendering operation to the render system
-        // Note that we may do this once per light, therefore it's in a loop
-        // and the light parameters are updated once per traversal through the
-        // loop
-        const LightList& rendLightList = rend->getLights();
-        bool iteratePerLight = pass->getIteratePerLight();
-        size_t numIterations = iteratePerLight ? rendLightList.size() : 1;
-        const LightList* pLightListToUse;
-        for (size_t i = 0; i < numIterations; ++i)
-        {
-            // Determine light list to use
-            if (iteratePerLight)
-            {
-                // Change the only element of local light list to be
-                // the light at index i
-                localLightList.clear();
-                // Check whether we need to filter this one out
-                if (pass->getRunOnlyForOneLightType() && 
-                    pass->getOnlyLightType() != rendLightList[i]->getType())
-                {
-                    // Skip
-                    continue;
-                }
+	if (!mSuppressRenderStateChanges)
+	{
+		if (doLightIteration)
+		{
+			// Here's where we issue the rendering operation to the render system
+			// Note that we may do this once per light, therefore it's in a loop
+			// and the light parameters are updated once per traversal through the
+			// loop
+			const LightList& rendLightList = rend->getLights();
+			bool iteratePerLight = pass->getIteratePerLight();
+			size_t numIterations = iteratePerLight ? rendLightList.size() : 1;
+			const LightList* pLightListToUse;
+			for (size_t i = 0; i < numIterations; ++i)
+			{
+				// Determine light list to use
+				if (iteratePerLight)
+				{
+					// Change the only element of local light list to be
+					// the light at index i
+					localLightList.clear();
+					// Check whether we need to filter this one out
+					if (pass->getRunOnlyForOneLightType() && 
+						pass->getOnlyLightType() != rendLightList[i]->getType())
+					{
+						// Skip
+						continue;
+					}
 
-                localLightList.push_back(rendLightList[i]);
-                pLightListToUse = &localLightList;
-            }
-            else
-            {
-                // Use complete light list
-                pLightListToUse = &rendLightList;
-            }
+					localLightList.push_back(rendLightList[i]);
+					pLightListToUse = &localLightList;
+				}
+				else
+				{
+					// Use complete light list
+					pLightListToUse = &rendLightList;
+				}
 
 
-            // Do we need to update GPU program parameters?
-            if (pass->isProgrammable())
-            {
-                // Update any automatic gpu params for lights
-                // Other bits of information will have to be looked up
-                mAutoParamDataSource.setCurrentLightList(pLightListToUse);
-                pass->_updateAutoParamsLightsOnly(mAutoParamDataSource);
-                // NOTE: We MUST bind parameters AFTER updating the autos
-                // TEST
-                if (pass->hasVertexProgram())
-                {
-                    mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
-                        pass->getVertexProgramParameters());
-                }
-                if (pass->hasFragmentProgram())
-                {
-                    mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
-                        pass->getFragmentProgramParameters());
-                }
-            }
-            // Do we need to update light states? 
-            // Only do this if fixed-function vertex lighting applies
-            if (pass->getLightingEnabled() && passSurfaceAndLightParams)
-            {
-                mDestRenderSystem->_useLights(*pLightListToUse, pass->getMaxSimultaneousLights());
-            }
-            // issue the render op		
-            // nfz: check for gpu_multipass
-            mDestRenderSystem->setCurrentPassIterationCount(pass->getPassIterationCount());
-            mDestRenderSystem->_render(ro);
-        } // possibly iterate per light
-    }
-    else // no automatic light processing
-    {
-        // Do we need to update GPU program parameters?
-        if (pass->isProgrammable())
-        {
-            // Do we have a manual light list?
-            if (manualLightList)
-            {
-                // Update any automatic gpu params for lights
-                mAutoParamDataSource.setCurrentLightList(manualLightList);
-                pass->_updateAutoParamsLightsOnly(mAutoParamDataSource);
-            }
+				// Do we need to update GPU program parameters?
+				if (pass->isProgrammable())
+				{
+					// Update any automatic gpu params for lights
+					// Other bits of information will have to be looked up
+					mAutoParamDataSource.setCurrentLightList(pLightListToUse);
+					pass->_updateAutoParamsLightsOnly(mAutoParamDataSource);
+					// NOTE: We MUST bind parameters AFTER updating the autos
+					// TEST
+					if (pass->hasVertexProgram())
+					{
+						mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
+							pass->getVertexProgramParameters());
+					}
+					if (pass->hasFragmentProgram())
+					{
+						mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
+							pass->getFragmentProgramParameters());
+					}
+				}
+				// Do we need to update light states? 
+				// Only do this if fixed-function vertex lighting applies
+				if (pass->getLightingEnabled() && passSurfaceAndLightParams)
+				{
+					mDestRenderSystem->_useLights(*pLightListToUse, pass->getMaxSimultaneousLights());
+				}
+				// issue the render op		
+				// nfz: check for gpu_multipass
+				mDestRenderSystem->setCurrentPassIterationCount(pass->getPassIterationCount());
+				mDestRenderSystem->_render(ro);
+			} // possibly iterate per light
+		}
+		else // no automatic light processing
+		{
+			// Do we need to update GPU program parameters?
+			if (pass->isProgrammable())
+			{
+				// Do we have a manual light list?
+				if (manualLightList)
+				{
+					// Update any automatic gpu params for lights
+					mAutoParamDataSource.setCurrentLightList(manualLightList);
+					pass->_updateAutoParamsLightsOnly(mAutoParamDataSource);
+				}
 
-            if (pass->hasVertexProgram())
-            {
-                mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
-                    pass->getVertexProgramParameters());
-            }
-            if (pass->hasFragmentProgram())
-            {
-                mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
-                    pass->getFragmentProgramParameters());
-            }
-        }
+				if (pass->hasVertexProgram())
+				{
+					mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
+						pass->getVertexProgramParameters());
+				}
+				if (pass->hasFragmentProgram())
+				{
+					mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
+						pass->getFragmentProgramParameters());
+				}
+			}
 
-        // Use manual lights if present, and not using vertex programs that don't use fixed pipeline
-        if (manualLightList && 
-            pass->getLightingEnabled() && passSurfaceAndLightParams)
-        {
-            mDestRenderSystem->_useLights(*manualLightList, pass->getMaxSimultaneousLights());
-        }
-        // issue the render op		
-        // nfz: set up multipass rendering
-        mDestRenderSystem->setCurrentPassIterationCount(pass->getPassIterationCount());
-        mDestRenderSystem->_render(ro);
-    }
+			// Use manual lights if present, and not using vertex programs that don't use fixed pipeline
+			if (manualLightList && 
+				pass->getLightingEnabled() && passSurfaceAndLightParams)
+			{
+				mDestRenderSystem->_useLights(*manualLightList, pass->getMaxSimultaneousLights());
+			}
+			// issue the render op		
+			// nfz: set up multipass rendering
+			mDestRenderSystem->setCurrentPassIterationCount(pass->getPassIterationCount());
+			mDestRenderSystem->_render(ro);
+		}
+	}
+	else // mSuppressRenderStateChanges
+	{
+		// Just render
+		mDestRenderSystem->setCurrentPassIterationCount(1);
+		mDestRenderSystem->_render(ro);
+	}
 }
 //-----------------------------------------------------------------------
 void SceneManager::setAmbientLight(const ColourValue& colour)
@@ -2396,7 +2519,7 @@ void SceneManager::_queueSkiesForRendering(Camera* cam)
         mSkyDomeNode->setPosition(cam->getDerivedPosition());
     }
 
-    RenderQueueGroupID qid;
+    uint8 qid;
     if (mSkyPlaneEnabled)
     {
         qid = mSkyPlaneDrawFirst? 
@@ -2450,7 +2573,7 @@ void SceneManager::removeRenderQueueListener(RenderQueueListener* delListener)
 
 }
 //---------------------------------------------------------------------
-bool SceneManager::fireRenderQueueStarted(RenderQueueGroupID id)
+bool SceneManager::fireRenderQueueStarted(uint8 id, const String& invocation)
 {
     RenderQueueListenerList::iterator i, iend;
     bool skip = false;
@@ -2458,12 +2581,12 @@ bool SceneManager::fireRenderQueueStarted(RenderQueueGroupID id)
     iend = mRenderQueueListeners.end();
     for (i = mRenderQueueListeners.begin(); i != iend; ++i)
     {
-        (*i)->renderQueueStarted(id, skip);
+        (*i)->renderQueueStarted(id, invocation, skip);
     }
     return skip;
 }
 //---------------------------------------------------------------------
-bool SceneManager::fireRenderQueueEnded(RenderQueueGroupID id)
+bool SceneManager::fireRenderQueueEnded(uint8 id, const String& invocation)
 {
     RenderQueueListenerList::iterator i, iend;
     bool repeat = false;
@@ -2471,7 +2594,7 @@ bool SceneManager::fireRenderQueueEnded(RenderQueueGroupID id)
     iend = mRenderQueueListeners.end();
     for (i = mRenderQueueListeners.begin(); i != iend; ++i)
     {
-        (*i)->renderQueueEnded(id, repeat);
+        (*i)->renderQueueEnded(id, invocation, repeat);
     }
     return repeat;
 }

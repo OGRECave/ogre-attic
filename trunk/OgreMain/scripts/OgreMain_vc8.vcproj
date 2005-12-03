@@ -686,6 +686,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreRenderQueueInvocation.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreRenderQueueSortingGrouping.cpp"
 				>
 			</File>
@@ -1460,6 +1464,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreRenderQueue.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreRenderQueueInvocation.h"
 				>
 			</File>
 			<File

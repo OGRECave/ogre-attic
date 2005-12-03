@@ -104,7 +104,7 @@ namespace Ogre {
 			int currentQueueGroupID;
 
 			/// RenderSystem operations to queue into the scene manager, by
-			/// RenderQueueGroupID
+			/// uint8
 			RenderSystemOpPairs renderSystemOperations;
 
 			/// Scene visibility mask

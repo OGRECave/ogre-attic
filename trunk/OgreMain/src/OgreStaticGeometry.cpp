@@ -623,7 +623,7 @@ namespace Ogre {
 
 	}
 	//--------------------------------------------------------------------------
-    void StaticGeometry::setRenderQueueGroup(RenderQueueGroupID queueID)
+    void StaticGeometry::setRenderQueueGroup(uint8 queueID)
 	{
 		mRenderQueueIDSet = true;
 		mRenderQueueID = queueID;
@@ -635,7 +635,7 @@ namespace Ogre {
 		}
 	}
 	//--------------------------------------------------------------------------
-	RenderQueueGroupID StaticGeometry::getRenderQueueGroup(void) const
+	uint8 StaticGeometry::getRenderQueueGroup(void) const
 	{
 		return mRenderQueueID;
 	}
@@ -1151,7 +1151,7 @@ namespace Ogre {
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::LODBucket::addRenderables(RenderQueue* queue,
-		RenderQueueGroupID group, Real camDistanceSquared)
+		uint8 group, Real camDistanceSquared)
 	{
 		// Just pass this on to child buckets
 		MaterialBucketMap::iterator i, iend;
@@ -1255,7 +1255,7 @@ namespace Ogre {
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::MaterialBucket::addRenderables(RenderQueue* queue,
-		RenderQueueGroupID group, Real camDistanceSquared)
+		uint8 group, Real camDistanceSquared)
 	{
 		// Determine the current material technique
 		mTechnique = mMaterial->getTechnique(

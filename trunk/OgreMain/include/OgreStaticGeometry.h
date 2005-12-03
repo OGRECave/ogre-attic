@@ -274,7 +274,7 @@ namespace Ogre {
 			/// Build
 			void build(bool stencilShadows);
 			/// Add children to the render queue
-			void addRenderables(RenderQueue* queue, RenderQueueGroupID group, 
+			void addRenderables(RenderQueue* queue, uint8 group, 
 				Real camSquaredDist);
 			/// Get the material for this bucket
 			const MaterialPtr& getMaterial(void) const { return mMaterial; }
@@ -321,7 +321,7 @@ namespace Ogre {
 			/// Build
 			void build(bool stencilShadows);
 			/// Add children to the render queue
-			void addRenderables(RenderQueue* queue, RenderQueueGroupID group, 
+			void addRenderables(RenderQueue* queue, uint8 group, 
 				Real camSquaredDistance);
 			/// Iterator over the materials in this LOD
 			typedef MapIterator<MaterialBucketMap> MaterialIterator;
@@ -468,7 +468,7 @@ namespace Ogre {
 		Vector3 mOrigin;
 		bool mVisible;
         /// The render queue to use when rendering this object
-        RenderQueueGroupID mRenderQueueID;
+        uint8 mRenderQueueID;
 		/// Flags whether the RenderQueue's default should be used.
 		bool mRenderQueueIDSet;
 
@@ -567,7 +567,7 @@ namespace Ogre {
 		@remarks
 			This method takes an existing Entity and adds its details to the 
 			list of	elements to include when building. Note that the Entity         /// The render queue to use when rendering this object
-        RenderQueueGroupID mRenderQueueID;
+        uint8 mRenderQueueID;
 		/// Flags whether the RenderQueue's default should be used.
 		bool mRenderQueueIDSet;
 
@@ -723,10 +723,10 @@ namespace Ogre {
             See RenderQueue for more details.
         @param queueID Enumerated value of the queue group to use.
         */
-        virtual void setRenderQueueGroup(RenderQueueGroupID queueID);
+        virtual void setRenderQueueGroup(uint8 queueID);
 
         /** Gets the queue group for this entity, see setRenderQueueGroup for full details. */
-        virtual RenderQueueGroupID getRenderQueueGroup(void) const;
+        virtual uint8 getRenderQueueGroup(void) const;
 		
 		/// Iterator for iterating over contained regions
 		typedef MapIterator<RegionMap> RegionIterator;

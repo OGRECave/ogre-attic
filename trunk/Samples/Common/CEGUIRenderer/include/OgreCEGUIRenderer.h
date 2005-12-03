@@ -63,7 +63,7 @@ class OgreCEGUIRenderer;
 class CEGUIRQListener : public Ogre::RenderQueueListener
 {
 public:
-	CEGUIRQListener(OgreCEGUIRenderer* renderer, Ogre::RenderQueueGroupID queue_id, bool post_queue)
+	CEGUIRQListener(OgreCEGUIRenderer* renderer, Ogre::uint8 queue_id, bool post_queue)
 	{
 		d_renderer		= renderer;
 		d_queue_id		= queue_id;
@@ -72,11 +72,11 @@ public:
 
 	virtual ~CEGUIRQListener() {}
 
-	virtual void	renderQueueStarted(Ogre::RenderQueueGroupID id, bool& skipThisQueue);
-	virtual void	renderQueueEnded(Ogre::RenderQueueGroupID id, bool& repeatThisQueue);
+	virtual void	renderQueueStarted(Ogre::uint8 id, const Ogre::String& invocation, bool& skipThisQueue);
+	virtual void	renderQueueEnded(Ogre::uint8 id, const Ogre::String& invocation, bool& repeatThisQueue);
 
 	// methods for adjusting target queue settings
-	void	setTargetRenderQueue(Ogre::RenderQueueGroupID queue_id)		{d_queue_id = queue_id;}
+	void	setTargetRenderQueue(Ogre::uint8 queue_id)		{d_queue_id = queue_id;}
 	void	setPostRenderQueue(bool post_queue)		{d_post_queue = post_queue;}
 
 private:
@@ -84,7 +84,7 @@ private:
 		Implementation Data
 	*************************************************************************/
 	OgreCEGUIRenderer*				d_renderer;		//!< CEGUI renderer object for Ogre.
-	Ogre::RenderQueueGroupID	d_queue_id;		//!< ID of the queue that we are hooked into
+	Ogre::uint8	d_queue_id;		//!< ID of the queue that we are hooked into
 	bool						d_post_queue;	//!< true if we render after everything else in our queue.
 };
 
@@ -104,7 +104,7 @@ public:
 		Pointer to an Ogre::RenderWindow object.
 
 	\param queue_id
-		Ogre::RenderQueueGroupID value that specifies where the GUI should appear in the ogre rendering output.
+		Ogre::uint8 value that specifies where the GUI should appear in the ogre rendering output.
 
 	\param post_queue
 		set to true to have GUI rendered after render queue \a queue_id, or false to have the GUI rendered before render queue
@@ -116,7 +116,7 @@ public:
 	\param scene_type
 		One of the Ogre::SceneType enumerated values specifying the scene manager to be targeted by the GUI renderer.
 	*/
-	OgreCEGUIRenderer(Ogre::RenderWindow* window, Ogre::RenderQueueGroupID queue_id = Ogre::RENDER_QUEUE_OVERLAY, bool post_queue = false, uint max_quads = 0, Ogre::SceneType scene_type = Ogre::ST_GENERIC);
+	OgreCEGUIRenderer(Ogre::RenderWindow* window, Ogre::uint8 queue_id = Ogre::RENDER_QUEUE_OVERLAY, bool post_queue = false, uint max_quads = 0, Ogre::SceneType scene_type = Ogre::ST_GENERIC);
 
 
 	/*!
@@ -127,7 +127,7 @@ public:
 		Pointer to an Ogre::RenderWindow object.
 
 	\param queue_id
-		Ogre::RenderQueueGroupID value that specifies where the GUI should appear in the ogre rendering output.
+		Ogre::uint8 value that specifies where the GUI should appear in the ogre rendering output.
 
 	\param post_queue
 		set to true to have GUI rendered after render queue \a queue_id, or false to have the GUI rendered before render queue
@@ -139,7 +139,7 @@ public:
 	\param scene_manager
 		Pointer to an Ogre::SceneManager object that is to be used for GUI rendering.
 	*/
-	OgreCEGUIRenderer(Ogre::RenderWindow* window, Ogre::RenderQueueGroupID queue_id, bool post_queue, uint max_quads, Ogre::SceneManager* scene_manager);
+	OgreCEGUIRenderer(Ogre::RenderWindow* window, Ogre::uint8 queue_id, bool post_queue, uint max_quads, Ogre::SceneManager* scene_manager);
 
 
 	/*!
@@ -317,7 +317,7 @@ public:
 		Set the target render queue for GUI rendering.
 
 	\param queue_id
-		Ogre::RenderQueueGroupID value specifying the render queue that the GUI system should attach to.
+		Ogre::uint8 value specifying the render queue that the GUI system should attach to.
 
 	\param post_queue
 		- true to specify that the GUI should render after everything else in render queue \a queue_id.
@@ -326,7 +326,7 @@ public:
 	\return
 		Nothing.
 	*/
-	void	setTargetRenderQueue(Ogre::RenderQueueGroupID queue_id, bool post_queue);
+	void	setTargetRenderQueue(Ogre::uint8 queue_id, bool post_queue);
 
 
 	/*!
@@ -430,7 +430,7 @@ private:
     uint32    colourToOgre(const colour& col) const;
 
 	// perform main work of the constructor.  This does everything except the final hook into the render system.
-	void	constructor_impl(Ogre::RenderWindow* window, Ogre::RenderQueueGroupID queue_id, bool post_queue, uint max_quads);
+	void	constructor_impl(Ogre::RenderWindow* window, Ogre::uint8 queue_id, bool post_queue, uint max_quads);
 
 
 	/*************************************************************************
@@ -445,7 +445,7 @@ private:
 	// Ogre specific bits.
 	Ogre::Root*					d_ogre_root;		//!< pointer to the Ogre root object that we attach to
 	Ogre::RenderSystem*			d_render_sys;		//!< Pointer to the render system for Ogre.
-	Ogre::RenderQueueGroupID	d_queue_id;			//!< ID of the queue that we are hooked into
+	Ogre::uint8	d_queue_id;			//!< ID of the queue that we are hooked into
 	Ogre::TexturePtr			d_currTexture;		//!< currently set texture;
 	Ogre::RenderOperation		d_render_op;		//!< Ogre render operation we use to do our stuff.
 	Ogre::HardwareVertexBufferSharedPtr	d_buffer;	//!< vertex buffer to queue sprite rendering

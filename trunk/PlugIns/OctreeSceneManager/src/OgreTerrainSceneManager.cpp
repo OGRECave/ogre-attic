@@ -927,7 +927,7 @@ namespace Ogre
         return PageSourceIterator(mPageSources.begin(), mPageSources.end());
     }
 	//-------------------------------------------------------------------------
-	void TerrainSceneManager::setWorldGeometryRenderQueue(RenderQueueGroupID qid)
+	void TerrainSceneManager::setWorldGeometryRenderQueue(uint8 qid)
 	{
 		for (TerrainPage2D::iterator pi = mTerrainPages.begin(); 
 			pi != mTerrainPages.end(); ++pi)

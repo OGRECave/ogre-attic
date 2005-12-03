@@ -144,22 +144,22 @@ CompositionTargetPass *CompositionPass::getParent()
     return mParent;
 }
 //-----------------------------------------------------------------------
-void CompositionPass::setFirstRenderQueue(RenderQueueGroupID id)
+void CompositionPass::setFirstRenderQueue(uint8 id)
 {
 	mFirstRenderQueue = id;
 }
 //-----------------------------------------------------------------------
-RenderQueueGroupID CompositionPass::getFirstRenderQueue()
+uint8 CompositionPass::getFirstRenderQueue()
 {
 	return mFirstRenderQueue;
 }
 //-----------------------------------------------------------------------
-void CompositionPass::setLastRenderQueue(RenderQueueGroupID id)
+void CompositionPass::setLastRenderQueue(uint8 id)
 {
 	mLastRenderQueue = id;
 }
 //-----------------------------------------------------------------------
-RenderQueueGroupID CompositionPass::getLastRenderQueue()
+uint8 CompositionPass::getLastRenderQueue()
 {
 	return mLastRenderQueue;
 }

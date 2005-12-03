@@ -92,7 +92,7 @@ void destroyQuadRenderOp(Ogre::RenderOperation &d_render_op,
 /*************************************************************************
 	Constructor
 *************************************************************************/
-OgreCEGUIRenderer::OgreCEGUIRenderer(Ogre::RenderWindow* window, Ogre::RenderQueueGroupID queue_id, bool post_queue, uint max_quads, Ogre::SceneType scene_type)
+OgreCEGUIRenderer::OgreCEGUIRenderer(Ogre::RenderWindow* window, Ogre::uint8 queue_id, bool post_queue, uint max_quads, Ogre::SceneType scene_type)
 {
 	constructor_impl(window, queue_id, post_queue, max_quads);
 
@@ -104,7 +104,7 @@ OgreCEGUIRenderer::OgreCEGUIRenderer(Ogre::RenderWindow* window, Ogre::RenderQue
 /*************************************************************************
 	Constructor (specifying scene manager)
 *************************************************************************/
-OgreCEGUIRenderer::OgreCEGUIRenderer(Ogre::RenderWindow* window, Ogre::RenderQueueGroupID queue_id, bool post_queue, uint max_quads, Ogre::SceneManager* scene_manager)
+OgreCEGUIRenderer::OgreCEGUIRenderer(Ogre::RenderWindow* window, Ogre::uint8 queue_id, bool post_queue, uint max_quads, Ogre::SceneManager* scene_manager)
 {
 	constructor_impl(window, queue_id, post_queue, max_quads);
 
@@ -648,7 +648,7 @@ void OgreCEGUIRenderer::setTargetSceneManager(Ogre::SceneManager* scene_manager)
 /*************************************************************************
 	Set the target render queue for GUI rendering.	
 *************************************************************************/
-void OgreCEGUIRenderer::setTargetRenderQueue(Ogre::RenderQueueGroupID queue_id, bool post_queue)
+void OgreCEGUIRenderer::setTargetRenderQueue(Ogre::uint8 queue_id, bool post_queue)
 {
 	d_queue_id		= queue_id;
 	d_post_queue	= post_queue;
@@ -665,7 +665,7 @@ void OgreCEGUIRenderer::setTargetRenderQueue(Ogre::RenderQueueGroupID queue_id, 
 /*************************************************************************
 	perform main work of the constructor
 *************************************************************************/
-void OgreCEGUIRenderer::constructor_impl(Ogre::RenderWindow* window, Ogre::RenderQueueGroupID queue_id, bool post_queue, uint max_quads)
+void OgreCEGUIRenderer::constructor_impl(Ogre::RenderWindow* window, Ogre::uint8 queue_id, bool post_queue, uint max_quads)
 {
 	using namespace Ogre;
 
@@ -763,7 +763,8 @@ void OgreCEGUIRenderer::setDisplaySize(const Size& sz)
 	Callback from Ogre invoked before other stuff in our target queue
 	is rendered
 *************************************************************************/
-void CEGUIRQListener::renderQueueStarted(Ogre::RenderQueueGroupID id, bool& skipThisQueue)
+void CEGUIRQListener::renderQueueStarted(Ogre::uint8 id, const Ogre::String& invocation, 
+										 bool& skipThisQueue)
 {
 	if ((!d_post_queue) && (d_queue_id == id))
 	{
@@ -777,7 +778,7 @@ void CEGUIRQListener::renderQueueStarted(Ogre::RenderQueueGroupID id, bool& skip
 Callback from Ogre invoked after other stuff in our target queue
 is rendered
 *************************************************************************/
-void CEGUIRQListener::renderQueueEnded(Ogre::RenderQueueGroupID id, bool& repeatThisQueue)
+void CEGUIRQListener::renderQueueEnded(Ogre::uint8 id, const Ogre::String& invocation, bool& repeatThisQueue)
 {
 	if ((d_post_queue) && (d_queue_id == id))
 	{

@@ -254,16 +254,23 @@ namespace Ogre {
 		
 		/** Reset the organisation modes required for this collection. 
 		@remarks
-			This also empties the internal collections.
+			You can only do this when the collection is empty.
 		@see OrganisationMode
 		*/
-		void resetOrganisationModes(void) { mOrganisationMode = 0; }
+		void resetOrganisationModes(void) 
+		{ 
+			mOrganisationMode = 0; 
+		}
 		
 		/** Add a required sorting / grouping mode to this collection when next used.
+		@remarks
+			You can only do this when the collection is empty.
 		@see OrganisationMode
 		*/
 		void addOrganisationMode(OrganisationMode om) 
-		{ mOrganisationMode |= om; }
+		{ 
+			mOrganisationMode |= om; 
+		}
 
         /// Add a renderable to the collection using a given pass
         void addRenderable(Pass* pass, Renderable* rend);
@@ -360,7 +367,31 @@ namespace Ogre {
         { return mTransparents; }
 
 
-        /** Add a renderable to this group. */
+		/** Reset the organisation modes required for the solids in this group. 
+		@remarks
+			You can only do this when the group is empty, ie after clearing the 
+			queue.
+		@see QueuedRenderableCollection::OrganisationMode
+		*/
+		void resetOrganisationModes(void);
+		
+		/** Add a required sorting / grouping mode for the solids in this group.
+		@remarks
+			You can only do this when the group is empty, ie after clearing the 
+			queue.
+		@see QueuedRenderableCollection::OrganisationMode
+		*/
+		void addOrganisationMode(QueuedRenderableCollection::OrganisationMode om); 
+
+		/** Setthe  sorting / grouping mode for the solids in this group to the default.
+		@remarks
+			You can only do this when the group is empty, ie after clearing the 
+			queue.
+		@see QueuedRenderableCollection::OrganisationMode
+		*/
+		void defaultOrganisationMode(void); 
+
+		/** Add a renderable to this group. */
         void addRenderable(Renderable* pRend);
 
 		/** Sorts the objects which have been added to the queue; transparent objects by their 
@@ -525,6 +556,53 @@ namespace Ogre {
                 i->second->setSplitNoShadowPasses(split);
             }
         }
+		/** Reset the organisation modes required for the solids in this group. 
+		@remarks
+			You can only do this when the group is empty, ie after clearing the 
+			queue.
+		@see QueuedRenderableCollection::OrganisationMode
+		*/
+		void resetOrganisationModes(void)
+		{
+			PriorityMap::iterator i, iend;
+			iend = mPriorityGroups.end();
+			for (i = mPriorityGroups.begin(); i != iend; ++i)
+			{
+				i->second->resetOrganisationModes();
+			}
+		}
+		
+		/** Add a required sorting / grouping mode for the solids in this group.
+		@remarks
+			You can only do this when the group is empty, ie after clearing the 
+			queue.
+		@see QueuedRenderableCollection::OrganisationMode
+		*/
+		void addOrganisationMode(QueuedRenderableCollection::OrganisationMode om)
+		{
+			PriorityMap::iterator i, iend;
+			iend = mPriorityGroups.end();
+			for (i = mPriorityGroups.begin(); i != iend; ++i)
+			{
+				i->second->addOrganisationMode(om);
+			}
+		}
+
+		/** Setthe  sorting / grouping mode for the solids in this group to the default.
+		@remarks
+			You can only do this when the group is empty, ie after clearing the 
+			queue.
+		@see QueuedRenderableCollection::OrganisationMode
+		*/
+		void defaultOrganisationMode(void)
+		{
+			PriorityMap::iterator i, iend;
+			iend = mPriorityGroups.end();
+			for (i = mPriorityGroups.begin(); i != iend; ++i)
+			{
+				i->second->defaultOrganisationMode();
+			}
+		}
 
     };
 

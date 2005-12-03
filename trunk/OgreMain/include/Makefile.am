@@ -131,6 +131,7 @@ OgreRectangle.h \
 OgreRectangle2D.h \
 OgreRenderOperation.h \
 OgreRenderQueue.h \
+OgreRenderQueueInvocation.h \
 OgreRenderQueueListener.h \
 OgreRenderQueueSortingGrouping.h \
 OgreRenderSystem.h \

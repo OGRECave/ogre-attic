@@ -1756,7 +1756,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void Entity::setRenderQueueGroup(RenderQueueGroupID queueID)
+    void Entity::setRenderQueueGroup(uint8 queueID)
     {
         MovableObject::setRenderQueueGroup(queueID);
 

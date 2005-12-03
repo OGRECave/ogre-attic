@@ -77,19 +77,19 @@ namespace Ogre {
 		/** Set the first render queue to be rendered in this pass (inclusive) 
 			@note applies when PassType is RENDERSCENE
 		*/
-        void setFirstRenderQueue(RenderQueueGroupID id);
+        void setFirstRenderQueue(uint8 id);
 		/** Get the first render queue to be rendered in this pass (inclusive) 
 			@note applies when PassType is RENDERSCENE
 		*/
-		RenderQueueGroupID getFirstRenderQueue();
+		uint8 getFirstRenderQueue();
 		/** Set the last render queue to be rendered in this pass (inclusive) 
 			@note applies when PassType is RENDERSCENE
 		*/
-        void setLastRenderQueue(RenderQueueGroupID id);
+        void setLastRenderQueue(uint8 id);
 		/** Get the last render queue to be rendered in this pass (inclusive) 
 			@note applies when PassType is RENDERSCENE
 		*/
-		RenderQueueGroupID getLastRenderQueue();
+		uint8 getLastRenderQueue();
 
 		/** Would be nice to have for RENDERSCENE:
 			flags to:
@@ -233,8 +233,8 @@ namespace Ogre {
         /// Material used for rendering
         MaterialPtr mMaterial;
         /// [first,last] render queue to render this pass (in case of PT_RENDERSCENE)
-		RenderQueueGroupID mFirstRenderQueue;
-		RenderQueueGroupID mLastRenderQueue;
+		uint8 mFirstRenderQueue;
+		uint8 mLastRenderQueue;
         /// Clear buffers (in case of PT_CLEAR)
         uint32 mClearBuffers;
         /// Clear colour (in case of PT_CLEAR)

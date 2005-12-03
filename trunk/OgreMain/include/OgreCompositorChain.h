@@ -143,16 +143,16 @@ namespace Ogre {
 		public:
 			/** @copydoc RenderQueueListener::renderQueueStarted
 			*/
-			virtual void renderQueueStarted(RenderQueueGroupID id, bool& skipThisQueue);
+			virtual void renderQueueStarted(uint8 id, const String& invocation, bool& skipThisQueue);
 			/** @copydoc RenderQueueListener::renderQueueEnded
 			*/
-			virtual void renderQueueEnded(RenderQueueGroupID id, bool& repeatThisQueue);
+			virtual void renderQueueEnded(uint8 id, const String& invocation, bool& repeatThisQueue);
 
 			/** Set current operation and target */
 			void setOperation(CompositorInstance::TargetOperation *op,SceneManager *sm,RenderSystem *rs);
 
 			/** Flush remaining render system operations */
-			void flushUpTo(RenderQueueGroupID id);
+			void flushUpTo(uint8 id);
 		private:
 			CompositorInstance::TargetOperation *mOperation;
 			SceneManager *mSceneManager;

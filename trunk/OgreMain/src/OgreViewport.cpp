@@ -29,6 +29,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderTarget.h"
 #include "OgreCamera.h"
 #include "OgreMath.h"
+#include "OgreRoot.h"
+
 
 namespace Ogre {
     //---------------------------------------------------------------------
@@ -46,6 +48,7 @@ namespace Ogre {
         , mUpdated(false)
         , mShowOverlays(true)
         , mShowSkies(true)
+		, mRQSequence(0)
     {
 
 		StringUtil::StrStreamType msg;
@@ -243,4 +246,30 @@ namespace Ogre {
     {
         return mShowSkies;
     }
+	//-----------------------------------------------------------------------
+	void Viewport::setRenderQueueInvocationSequenceName(const String& sequenceName)
+	{
+		mRQSequenceName = sequenceName;
+		if (mRQSequenceName.empty())
+		{
+			mRQSequence = 0;
+		}
+		else
+		{
+			mRQSequence = 
+				Root::getSingleton().getRenderQueueInvocationSequence(mRQSequenceName);
+		}
+	}
+	//-----------------------------------------------------------------------
+	const String& Viewport::getRenderQueueInvocationSequenceName(void) const
+	{
+		return mRQSequenceName;
+	}
+	//-----------------------------------------------------------------------
+	RenderQueueInvocationSequence* Viewport::_getRenderQueueInvocationSequence(void)
+	{
+		return mRQSequence;
+	}
+	//-----------------------------------------------------------------------
+
 }
