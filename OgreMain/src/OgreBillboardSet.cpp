@@ -810,12 +810,19 @@ namespace Ogre {
             invTransform = mParentNode->_getDerivedOrientation().Inverse();
         }
         Quaternion camQ;
+		Vector3 camdir = cam->getDerivedDirection();
 
         switch (mBillboardType)
         {
         case BBT_POINT:
             // Get camera world axes for X and Y (depth is irrelevant)
             camQ = cam->getDerivedOrientation();
+			if (cam->isReflected())
+			{
+				Vector3 dir = camQ * Vector3::NEGATIVE_UNIT_Z;
+				Vector3 rdir = camdir.reflect(cam->getReflectionPlane().normal);
+				camQ = dir.getRotationTo(rdir) * camQ;
+			}
             if (!mWorldSpace)
             {
                 // Convert into billboard local space
@@ -828,14 +835,18 @@ namespace Ogre {
             // Y-axis is common direction
             // X-axis is cross with camera direction 
             *pY = mCommonDirection;
+			if (cam->isReflected())
+			{
+				camdir = camdir.reflect(cam->getReflectionPlane().normal);
+			}
             if (!mWorldSpace)
             {
                 // Convert into billboard local space
-                *pX = (invTransform * cam->getDerivedDirection()).crossProduct(*pY);
+                *pX = (invTransform * camdir).crossProduct(*pY);
             }
             else
             {
-                *pX = cam->getDerivedDirection().crossProduct(*pY);
+                *pX = camdir.crossProduct(*pY);
             }
             pX->normalise();
             
@@ -845,20 +856,25 @@ namespace Ogre {
             // X-axis is cross with camera direction 
             // Scale direction first
             *pY = bb->mDirection;
+			if (cam->isReflected())
+			{
+				camdir = camdir.reflect(cam->getReflectionPlane().normal);
+			}
             if (!mWorldSpace)
             {
                 // Convert into billboard local space
-                *pX = (invTransform * cam->getDerivedDirection()).crossProduct(*pY);
+                *pX = (invTransform * camdir).crossProduct(*pY);
 				pX->normalise();
             }
             else
             {
 				*pY *= 0.01f;
-                *pX = cam->getDerivedDirection().crossProduct(*pY);
+                *pX = camdir.crossProduct(*pY);
             }
 
             break;
         }
+
 
     }
     //-----------------------------------------------------------------------

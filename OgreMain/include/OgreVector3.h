@@ -535,14 +535,24 @@ namespace Ogre
 
             Vector3 c = v0.crossProduct(v1);
 
-            // NB if the crossProduct approaches zero, we get unstable because ANY axis will do
-            // when v0 == -v1
             Real d = v0.dotProduct(v1);
             // If dot == 1, vectors are the same
             if (d >= 1.0f)
             {
                 return Quaternion::IDENTITY;
             }
+			// NB if the crossProduct approaches zero, we get unstable because ANY axis will do
+			// when v0 == -v1
+			if (c.isZeroLength())
+			{
+				Vector3 axis = Vector3::UNIT_X.crossProduct(*this);
+				if (axis.isZeroLength()) // pick another if colinear
+					axis = Vector3::UNIT_Y.crossProduct(*this);
+				axis.normalise();
+				Quaternion ret;
+				ret.FromAngleAxis(Radian(Math::PI), axis);
+				return ret;
+			}
             Real s = Math::Sqrt( (1+d)*2 );
             assert (s != 0 && "Divide by zero!");
             Real invs = 1 / s;
