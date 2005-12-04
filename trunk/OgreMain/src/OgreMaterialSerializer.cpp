@@ -521,6 +521,12 @@ namespace Ogre
         return false;
     }
     //-----------------------------------------------------------------------
+    bool parsePointSize(String& params, MaterialScriptContext& context)
+    {
+        context.pass->setPointSize(StringConverter::parseReal(params));
+        return false;
+    }
+    //-----------------------------------------------------------------------
     bool parseFogging(String& params, MaterialScriptContext& context)
     {
         StringUtil::toLowerCase(params);
@@ -2305,6 +2311,7 @@ namespace Ogre
         mPassAttribParsers.insert(AttribParserList::value_type("fragment_program_ref", (ATTRIBUTE_PARSER)parseFragmentProgramRef));
         mPassAttribParsers.insert(AttribParserList::value_type("max_lights", (ATTRIBUTE_PARSER)parseMaxLights));
         mPassAttribParsers.insert(AttribParserList::value_type("iteration", (ATTRIBUTE_PARSER)parseIteration));
+		mPassAttribParsers.insert(AttribParserList::value_type("point_size", (ATTRIBUTE_PARSER)parsePointSize));
 
         // Set up texture unit attribute parsers
 		mTextureUnitAttribParsers.insert(AttribParserList::value_type("texture_source", (ATTRIBUTE_PARSER)parseTextureSource));
@@ -2996,6 +3003,14 @@ namespace Ogre
                     else
                         writeColourValue(pPass->getSelfIllumination(), true);
                 }
+            }
+
+            // Point size
+            if (mDefaults ||
+                pPass->getPointSize() != 1.0)
+            {
+                writeAttribute(3, "point_size");
+                writeValue(StringConverter::toString(pPass->getPointSize()));
             }
 
             // scene blend factor

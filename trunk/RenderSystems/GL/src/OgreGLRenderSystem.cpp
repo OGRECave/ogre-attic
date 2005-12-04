@@ -869,7 +869,12 @@ namespace Ogre {
             glDisable(GL_COLOR_MATERIAL);          
         }
     }
-
+    //-----------------------------------------------------------------------------
+    void GLRenderSystem::_setPointSize(Real ps)
+    {
+        glPointSize(ps);
+    }
+    
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setTexture(size_t stage, bool enabled, const String &texname)
     {

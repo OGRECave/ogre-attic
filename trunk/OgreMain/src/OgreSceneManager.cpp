@@ -706,6 +706,8 @@ const Pass* SceneManager::setPass(const Pass* pass)
 		mDestRenderSystem->_setSceneBlending(
 			pass->getSourceBlendFactor(), pass->getDestBlendFactor());
 
+		// Set point size
+		mDestRenderSystem->_setPointSize(pass->getPointSize());
 
 		// Texture unit settings
 
@@ -788,7 +790,6 @@ void SceneManager::prepareRenderQueue(void)
 			g->defaultOrganisationMode();
 		}
 	}
-
 
 }
 //-----------------------------------------------------------------------

@@ -1324,6 +1324,11 @@ namespace Ogre
         
 	}
 	//---------------------------------------------------------------------
+    void D3D9RenderSystem::_setPointSize(Real ps)
+    {
+        __SetRenderState(D3DRS_POINTSIZE, *((LPDWORD)(&ps)));
+    }
+	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTexture( size_t stage, bool enabled, const String &texname )
 	{
 		HRESULT hr;

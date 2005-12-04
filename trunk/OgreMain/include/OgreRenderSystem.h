@@ -487,6 +487,10 @@ namespace Ogre
             const ColourValue &diffuse, const ColourValue &specular,
             const ColourValue &emissive, Real shininess,
             TrackVertexColourType tracking = TVC_NONE) = 0;
+        /** Sets the point size of objects to be rendered after it.
+            @param ps The size of the point
+        */
+        virtual void _setPointSize(Real ps) = 0;
         /**
           Sets the status of a single texture stage.
 

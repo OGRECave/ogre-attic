@@ -402,6 +402,17 @@ namespace Ogre {
 		}
     }
     //-----------------------------------------------------------------------
+    void Material::setPointSize(Real ps)
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setPointSize(ps);
+        }
+
+    }
+    //-----------------------------------------------------------------------
     void Material::setAmbient(Real red, Real green, Real blue)
     {
         Techniques::iterator i, iend;
