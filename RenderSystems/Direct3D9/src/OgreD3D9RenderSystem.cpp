@@ -1685,6 +1685,27 @@ namespace Ogre
 		hr = __SetTextureStageState( stage, tss, D3D9Mappings::get(bm.source2) );
 		if (FAILED(hr))
 			OGRE_EXCEPT( hr, "Failed to set source 2", "D3D9RenderSystem::_setTextureBlendMode" );
+
+		// Set interpolation factor if lerping
+		if (bm.operation == LBX_BLEND_DIFFUSE_COLOUR && 
+			mCaps.TextureOpCaps & D3DTEXOPCAPS_LERP)
+		{
+			// choose source 0 (lerp factor)
+			if( bm.blendType == LBT_COLOUR )
+			{
+				tss = D3DTSS_COLORARG0;
+			}
+			else if( bm.blendType == LBT_ALPHA )
+			{
+				tss = D3DTSS_ALPHAARG0;
+			}
+			hr = __SetTextureStageState(stage, tss, D3DTA_DIFFUSE);
+
+			if (FAILED(hr))
+				OGRE_EXCEPT( hr, "Failed to set lerp source 0", 
+					"D3D9RenderSystem::_setTextureBlendMode" );
+
+		}
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setSceneBlending( SceneBlendFactor sourceFactor, SceneBlendFactor destFactor )

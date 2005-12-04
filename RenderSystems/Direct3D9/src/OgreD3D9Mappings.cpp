@@ -176,6 +176,11 @@ namespace Ogre
 				return D3DTOP_DOTPRODUCT3;
 			else
 				return D3DTOP_MODULATE;
+		case LBX_BLEND_DIFFUSE_COLOUR:
+			if (devCaps.TextureOpCaps & D3DTEXOPCAPS_LERP)
+				return D3DTOP_LERP;
+			else
+				return D3DTOP_MODULATE;
 		}
 		return 0;
 	}

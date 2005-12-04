@@ -2899,6 +2899,44 @@ protected:
 
 	}
 
+	void testBlendDiffuseColour()
+	{
+		MaterialPtr mat = MaterialManager::getSingleton().create(
+			"testBlendDiffuseColour", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* pass = mat->getTechnique(0)->getPass(0);
+		// no lighting, it will mess up vertex colours
+		pass->setLightingEnabled(false);
+		// Make sure we pull in vertex colour as diffuse
+		pass->setVertexColourTracking(TVC_DIFFUSE);
+		// Base layer
+		TextureUnitState* t = pass->createTextureUnitState("BeachStones.jpg");
+		// don't want to bring in vertex diffuse on base layer
+		t->setColourOperation(LBO_REPLACE); 
+		// Second layer (lerp based on colour)
+		t = pass->createTextureUnitState("terr_dirt-grass.jpg");
+		t->setColourOperationEx(LBX_BLEND_DIFFUSE_COLOUR);
+		// third layer (lerp based on alpha)
+		ManualObject* man = mSceneMgr->createManualObject("quad");
+		man->begin("testBlendDiffuseColour");
+		man->position(-100, 100, 0);
+		man->textureCoord(0,0);
+		man->colour(0, 0, 0);
+		man->position(-100, -100, 0);
+		man->textureCoord(0,1);
+		man->colour(0.5, 0.5, 0.5);
+		man->position(100, -100, 0);
+		man->textureCoord(1,1);
+		man->colour(1, 1, 1);
+		man->position(100, 100, 0);
+		man->textureCoord(1,0);
+		man->colour(0.5, 0.5, 0.5);
+		man->quad(0, 1, 2, 3);
+		man->end();
+
+		mSceneMgr->getRootSceneNode()->attachObject(man);
+
+	}
+
     // Just override the mandatory create scene method
     void createScene(void)
     {
@@ -2934,7 +2972,8 @@ protected:
         //testStencilShadows(SHADOWTYPE_STENCIL_MODULATIVE, false, true);
         //testTextureShadows();
         //testOverlayZOrder();
-		testReflectedBillboards();
+		//testReflectedBillboards();
+		testBlendDiffuseColour();
 
         //testRaySceneQuery();
         //testIntersectionSceneQuery();

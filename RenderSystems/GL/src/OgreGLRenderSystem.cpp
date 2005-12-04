@@ -1868,6 +1868,9 @@ namespace Ogre {
         case LBX_SUBTRACT:
             cmd = GL_SUBTRACT;
             break;
+		case LBX_BLEND_DIFFUSE_COLOUR:
+			cmd = GL_INTERPOLATE;
+			break; 
         case LBX_BLEND_DIFFUSE_ALPHA:
             cmd = GL_INTERPOLATE;
             break;
@@ -1909,6 +1912,10 @@ namespace Ogre {
         float blendValue[4] = {0, 0, 0, bm.factor};
         switch (bm.operation)
         {
+		case LBX_BLEND_DIFFUSE_COLOUR:
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_PRIMARY_COLOR);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA, GL_PRIMARY_COLOR);
+            break;
         case LBX_BLEND_DIFFUSE_ALPHA:
             glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_PRIMARY_COLOR);
             glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA, GL_PRIMARY_COLOR);
@@ -1944,9 +1951,16 @@ namespace Ogre {
             break;
 		}
 
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_ALPHA);
+		if (bm.blendType == LBT_COLOUR){
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
+			if (bm.operation == LBX_BLEND_DIFFUSE_COLOUR){
+				glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
+			} else {
+				glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_ALPHA);
+			}
+		} 
+
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA, GL_SRC_ALPHA);
