@@ -75,6 +75,7 @@ GpuProgramParametersSharedPtr vertParams;
 MaterialPtr skin;
 Frustum* frustum = 0;
 Camera* theCam;
+Camera* reflectCam = 0;
 
 class RefractionTextureListener : public RenderTargetListener
 {
@@ -196,7 +197,14 @@ public:
 
 
 
-        return ExampleFrameListener::frameStarted(evt);
+        bool ret = ExampleFrameListener::frameStarted(evt);
+
+		if (reflectCam)
+		{
+			reflectCam->setOrientation(mCamera->getOrientation());
+			reflectCam->setPosition(mCamera->getPosition());
+		}
+		return ret;
 
     }
 
@@ -2635,6 +2643,104 @@ protected:
 
 	}
 
+
+	void testReflectedBillboards()
+	{
+		// Set ambient light
+		mSceneMgr->setAmbientLight(ColourValue(0.2, 0.2, 0.2));
+
+		// Create a light
+		Light* l = mSceneMgr->createLight("MainLight");
+		l->setType(Light::LT_DIRECTIONAL);
+		Vector3 dir(0.5, -1, 0);
+		dir.normalise();
+		l->setDirection(dir);
+		l->setDiffuseColour(1.0f, 1.0f, 0.8f);
+		l->setSpecularColour(1.0f, 1.0f, 1.0f);
+
+
+		// Create a prefab plane
+		Plane plane;
+		plane.d = 0;
+		plane.normal = Vector3::UNIT_Y;
+		MeshManager::getSingleton().createPlane("ReflectionPlane", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+			plane, 2000, 2000, 
+			1, 1, true, 1, 1, 1, Vector3::UNIT_Z);
+		Entity* planeEnt = mSceneMgr->createEntity( "Plane", "ReflectionPlane" );
+
+		// Attach the rtt entity to the root of the scene
+		SceneNode* rootNode = mSceneMgr->getRootSceneNode();
+		SceneNode* planeNode = rootNode->createChildSceneNode();
+
+		// Attach both the plane entity, and the plane definition
+		planeNode->attachObject(planeEnt);
+
+		RenderTexture* rttTex = mRoot->getRenderSystem()->createRenderTexture( "RttTex", 512, 512, TEX_TYPE_2D, PF_R8G8B8 );
+		{
+			reflectCam = mSceneMgr->createCamera("ReflectCam");
+			reflectCam->setNearClipDistance(mCamera->getNearClipDistance());
+			reflectCam->setFarClipDistance(mCamera->getFarClipDistance());
+			reflectCam->setAspectRatio(
+				(Real)mWindow->getViewport(0)->getActualWidth() / 
+				(Real)mWindow->getViewport(0)->getActualHeight());
+
+			Viewport *v = rttTex->addViewport( reflectCam );
+			v->setClearEveryFrame( true );
+			v->setBackgroundColour( ColourValue::Black );
+
+			MaterialPtr mat = MaterialManager::getSingleton().create("RttMat",
+				ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+			TextureUnitState* t = mat->getTechnique(0)->getPass(0)->createTextureUnitState("RustedMetal.jpg");
+			t = mat->getTechnique(0)->getPass(0)->createTextureUnitState("RttTex");
+			// Blend with base texture
+			t->setColourOperationEx(LBX_BLEND_MANUAL, LBS_TEXTURE, LBS_CURRENT, ColourValue::White, 
+				ColourValue::White, 0.25);
+			t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+			t->setProjectiveTexturing(true, reflectCam);
+
+			// set up linked reflection
+			reflectCam->enableReflection(plane);
+			// Also clip
+			reflectCam->enableCustomNearClipPlane(plane);
+		}
+
+		// Give the plane a texture
+		planeEnt->setMaterialName("RttMat");
+
+
+		// point billboards
+		ParticleSystem* pSys2 = ParticleSystemManager::getSingleton().createSystem("fountain1", 
+			"Examples/Smoke");
+		// Point the fountain at an angle
+		SceneNode* fNode = static_cast<SceneNode*>(rootNode->createChild());
+		fNode->attachObject(pSys2);
+
+		// oriented_self billboards
+		ParticleSystem* pSys3 = ParticleSystemManager::getSingleton().createSystem("fountain2", 
+			"Examples/PurpleFountain");
+		// Point the fountain at an angle
+		fNode = rootNode->createChildSceneNode();
+		fNode->translate(-200,-100,0);
+		fNode->rotate(Vector3::UNIT_Z, Degree(-20));
+		fNode->attachObject(pSys3);
+
+
+
+		// oriented_common billboards
+		ParticleSystem* pSys4 = ParticleSystemManager::getSingleton().createSystem("rain", 
+			"Examples/Rain");
+		SceneNode* rNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		rNode->translate(0,1000,0);
+		rNode->attachObject(pSys4);
+		// Fast-forward the rain so it looks more natural
+		pSys4->fastForward(5);
+
+
+		mCamera->setPosition(-50, 100, 500);
+		mCamera->lookAt(0,0,0);
+	}
+
 	void testManualObjectNonIndexed()
 	{
 		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
@@ -2826,8 +2932,9 @@ protected:
         //testProjection();
         //testStencilShadows(SHADOWTYPE_STENCIL_ADDITIVE, true, true);
         //testStencilShadows(SHADOWTYPE_STENCIL_MODULATIVE, false, true);
-        testTextureShadows();
+        //testTextureShadows();
         //testOverlayZOrder();
+		testReflectedBillboards();
 
         //testRaySceneQuery();
         //testIntersectionSceneQuery();
