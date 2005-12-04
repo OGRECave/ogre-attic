@@ -29,7 +29,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
 
-    HardwareOcclusionQuery::HardwareOcclusionQuery()
+    HardwareOcclusionQuery::HardwareOcclusionQuery() : 
+        mPixelCount(0),
+        mIsQueryResultStillOutstanding(false)
     {
     }
     HardwareOcclusionQuery::~HardwareOcclusionQuery()
