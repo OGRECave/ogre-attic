@@ -358,6 +358,13 @@ namespace Ogre {
 
         // Calculate camera orientation
         mCamQ = mCurrentCamera->getDerivedOrientation();
+		if (mCurrentCamera->isReflected())
+		{
+			Vector3 dir = mCamQ * Vector3::NEGATIVE_UNIT_Z;
+			Vector3 rdir = dir.reflect(mCurrentCamera->getReflectionPlane().normal);
+			mCamQ = dir.getRotationTo(rdir) * mCamQ;
+		}
+
         if (!mWorldSpace)
         {
             // Default behaviour is that billboards are in local node space

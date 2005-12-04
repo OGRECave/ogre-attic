@@ -523,10 +523,11 @@ namespace Ogre
         @remarks
             If you call this with a dest vector that is close to the inverse
             of this vector, we will rotate 180 degrees around the 'fallbackAxis'
-			since in this case ANY axis of rotation is valid. 
+			(if specified, or a generated axis if not) since in this case 
+			ANY axis of rotation is valid. 
         */
         Quaternion getRotationTo(const Vector3& dest, 
-			const Vector3& fallbackAxis = Vector3::UNIT_Y) const
+			const Vector3& fallbackAxis = Vector3::ZERO) const
         {
             // Based on Stan Melax's article in Game Programming Gems
             Quaternion q;
@@ -538,9 +539,6 @@ namespace Ogre
 
             Vector3 c = v0.crossProduct(v1);
 
-            // NB if the crossProduct approaches zero, we get unstable because 
-			// ANY axis will do
-            // when v0 == -v1
             Real d = v0.dotProduct(v1);
             // If dot == 1, vectors are the same
             if (d >= 1.0f)
@@ -550,8 +548,20 @@ namespace Ogre
             Real s = Math::Sqrt( (1+d)*2 );
 			if (s < 1e-6f)
 			{
-				// rotate 180 degrees about the fallback axis
-				q.FromAngleAxis(Radian(Math::PI), fallbackAxis);
+				if (fallbackAxis != Vector3::ZERO)
+				{
+					// rotate 180 degrees about the fallback axis
+					q.FromAngleAxis(Radian(Math::PI), fallbackAxis);
+				}
+				else
+				{
+					// Generate an axis
+					Vector3 axis = Vector3::UNIT_X.crossProduct(*this);
+					if (axis.isZeroLength()) // pick another if colinear
+						axis = Vector3::UNIT_Y.crossProduct(*this);
+					axis.normalise();
+					q.FromAngleAxis(Radian(Math::PI), axis);
+				}
 			}
 			else
 			{
