@@ -323,6 +323,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void RenderSystem::shutdown(void)
     {
+		// Remove occlusion queries
+		for (HardwareOcclusionQueryList::iterator i = mHwOcclusionQueries.begin();
+			i != mHwOcclusionQueries.end(); ++i)
+		{
+			delete *i;
+		}
+		mHwOcclusionQueries.clear();
+
         // Remove all the render targets.
 		// (destroy primary target last since others may depend on it)
 		RenderTarget* primary = 0;
@@ -435,5 +443,18 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------
+	void RenderSystem::destroyHardwareOcclusionQuery( HardwareOcclusionQuery *hq)
+	{
+		for (HardwareOcclusionQueryList::iterator i = mHwOcclusionQueries.begin();
+			i != mHwOcclusionQueries.end(); ++i)
+		{
+			if (*i == hq)
+			{
+				delete *i;
+				mHwOcclusionQueries.erase(i);
+			}
+		}
+	}
+
 }
 

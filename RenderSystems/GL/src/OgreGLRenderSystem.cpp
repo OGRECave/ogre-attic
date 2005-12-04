@@ -2556,7 +2556,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
     HardwareOcclusionQuery* GLRenderSystem::createHardwareOcclusionQuery(void)
     {
-        return new GLHardwareOcclusionQuery(); 
+        GLHardwareOcclusionQuery* ret = new GLHardwareOcclusionQuery(); 
+		mHwOcclusionQueries.push_back(ret);
+		return ret;
     }
     //---------------------------------------------------------------------
     Real GLRenderSystem::getHorizontalTexelOffset(void)

@@ -2585,7 +2585,9 @@ namespace Ogre
     //---------------------------------------------------------------------
     HardwareOcclusionQuery* D3D9RenderSystem::createHardwareOcclusionQuery(void)
     {
-        return new D3D9HardwareOcclusionQuery(mpD3DDevice); 
+		D3D9HardwareOcclusionQuery* ret = new D3D9HardwareOcclusionQuery (mpD3DDevice); 
+		mHwOcclusionQueries.push_back(ret);
+		return ret;
     }
     //---------------------------------------------------------------------
     Real D3D9RenderSystem::getHorizontalTexelOffset(void)
