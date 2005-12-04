@@ -191,9 +191,11 @@ namespace Ogre
 			}
 			else
 			{
+				StringUtil::StrStreamType str;
+				str << "Bad cast from type '" << getType().name() << "' "
+					<< "to '" << typeid(ValueType).name() << "'";
 				OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-					"Bad cast from type '" + getType().name() +"' "
-					"to '" + typeid(ValueType).name() + "'", 
+					 str.str(), 
 					"Any::operator()");
 			}
 		}
