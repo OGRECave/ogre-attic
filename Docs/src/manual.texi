@@ -494,6 +494,8 @@ Here are the attributes you can use in a 'pass' section of a .material script:
 @ref{max_lights}
 @item
 @ref{iteration}
+@item
+@ref{point_size}
 @end itemize
 
 @heading Attribute Descriptions
@@ -900,7 +902,15 @@ material Fur
   } 
 }
 @end example
-Note: use gpu program auto parameters @ref{pass_number} and @ref{pass_iteration_number} to tell the vertex or fragment program the pass number and iteration number.
+Note: use gpu program auto parameters @ref{pass_number} and @ref{pass_iteration_number} to tell the vertex or fragment program the pass number and iteration number.@*@*
+
+@anchor{point_size}
+@subheading point_size
+
+This setting allows you to change the size of points when rendering a point list, or a list of point sprites. This setting applies when per-vertex point sizes are not in use. @*@*
+
+Format: point_size <size>@*@*
+Default: point_size 1.0@*@*
 
 @node Texture Units
 @subsection Texture Units

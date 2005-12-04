@@ -331,6 +331,17 @@ namespace Ogre {
         return mParent->isLoaded() && mIsSupported;
     }
     //-----------------------------------------------------------------------
+    void Technique::setPointSize(Real ps)
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setPointSize(ps);
+        }
+
+    }
+    //-----------------------------------------------------------------------
     void Technique::setAmbient(Real red, Real green, Real blue)
     {
         Passes::iterator i, iend;

@@ -149,6 +149,16 @@ namespace Ogre {
         // and to make code easier to write when dealing with simple materials
         // They set the properties which have been moved to Pass for all Techniques and all Passes
 
+        /** Sets the point size properties for every Pass in this Technique.
+        @note
+            This property actually exists on the Pass class. For simplicity, this method allows 
+            you to set these properties for every current Pass within this Technique. If 
+            you need more precision, retrieve the Pass instance and set the
+            property there.
+        @see Pass::setPointSize
+        */
+        void setPointSize(Real ps);
+
         /** Sets the ambient colour reflectance properties for every Pass in every Technique.
         @note
             This property actually exists on the Pass class. For simplicity, this method allows 

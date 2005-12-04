@@ -135,6 +135,8 @@ namespace Ogre {
         bool mQueuedForDeletion;
         // number of pass iterations to perform
         size_t mPassIterationCount;
+		// point size, applies when not using per-vertex point size
+		Real mPointSize;
 	public:
 		typedef std::set<Pass*> PassSet;
     protected:
@@ -286,7 +288,21 @@ namespace Ogre {
          */
         void setVertexColourTracking(TrackVertexColourType tracking);
 
-        /** Gets the ambient colour reflectance of the pass.
+        /** Gets the point size of the pass.
+		@remarks
+			This property determines what point size is used to render point list.
+			It is used when there is no per-vertex point size specified.
+        */
+        Real getPointSize(void) const;
+
+		/** Sets the point size of this pass.
+		@remarks
+			This property determines what point size is used to render point list.
+			It is used when there is no per-vertex point size specified.
+		*/
+		void setPointSize(Real ps);
+		
+		/** Gets the ambient colour reflectance of the pass.
         */
         const ColourValue& getAmbient(void) const;
 

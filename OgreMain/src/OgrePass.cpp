@@ -45,6 +45,7 @@ namespace Ogre {
 	    mAmbient = mDiffuse = ColourValue::White;
 	    mSpecular = mEmissive = ColourValue::Black;
 	    mShininess = 0;
+        mPointSize = 1.0;
        mTracking = TVC_NONE;
         mHash = 0;
 
@@ -143,6 +144,7 @@ namespace Ogre {
         mOnlyLightType = oth.mOnlyLightType;
 	    mShadeOptions = oth.mShadeOptions;
         mPassIterationCount = oth.mPassIterationCount;
+		mPointSize = oth.mPointSize;
 
 		if (oth.mVertexProgramUsage)
 		{
@@ -207,6 +209,11 @@ namespace Ogre {
         mName = name;
     }
     //-----------------------------------------------------------------------
+    void Pass::setPointSize(Real ps)
+    {
+	    mPointSize = ps;
+    }
+    //-----------------------------------------------------------------------
     void Pass::setAmbient(Real red, Real green, Real blue)
     {
 	    mAmbient.r = red;
@@ -267,6 +274,11 @@ namespace Ogre {
     void Pass::setVertexColourTracking(TrackVertexColourType tracking)
     {
         mTracking = tracking;
+    }
+    //-----------------------------------------------------------------------
+    Real Pass::getPointSize(void) const
+    {
+	    return mPointSize;
     }
     //-----------------------------------------------------------------------
     const ColourValue& Pass::getAmbient(void) const
