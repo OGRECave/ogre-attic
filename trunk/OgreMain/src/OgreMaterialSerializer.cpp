@@ -887,6 +887,8 @@ namespace Ogre
             return LBX_ADD_SMOOTH;
         else if (param == "subtract")
             return LBX_SUBTRACT;
+        else if (param == "blend_diffuse_colour")
+            return LBX_BLEND_DIFFUSE_COLOUR;
         else if (param == "blend_diffuse_alpha")
             return LBX_BLEND_DIFFUSE_ALPHA;
         else if (param == "blend_texture_alpha")
@@ -3653,6 +3655,9 @@ namespace Ogre
             break;
         case LBX_BLEND_CURRENT_ALPHA:
             writeValue("blend_current_alpha");
+            break;
+        case LBX_BLEND_DIFFUSE_COLOUR:
+            writeValue("blend_diffuse_colour");
             break;
         case LBX_BLEND_DIFFUSE_ALPHA:
             writeValue("blend_diffuse_alpha");
