@@ -55,6 +55,7 @@ namespace Ogre {
             // unsigned short handle            : handle of the bone, should be contiguous & start at 0
             // Vector3 position                 : position of this bone relative to parent 
             // Quaternion orientation           : orientation of this bone relative to parent 
+            // Vector3 scale                    : scale of this bone relative to parent 
 
         SKELETON_BONE_PARENT       = 0x3000,
         // Record of the parent of a single bone, used to build the node tree

@@ -164,6 +164,11 @@ namespace Ogre {
         writeObject(pBone->getPosition());
         // Quaternion orientation           : orientation of this bone relative to parent 
         writeObject(pBone->getOrientation());
+        // Vector3 scale                    : scale of this bone relative to parent 
+        if (pBone->getScale() != Vector3::UNIT_SCALE)
+        {
+            writeObject(pBone->getScale());
+        }
     }
     //---------------------------------------------------------------------
     void SkeletonSerializer::writeBoneParent(const Skeleton* pSkel, 
@@ -231,10 +236,36 @@ namespace Ogre {
         // Vector3 translate            : Translation to apply at this keyframe
         writeObject(key->getTranslate());
         // Vector3 scale                : Scale to apply at this keyframe
-        writeObject(key->getScale());
+        if (key->getScale() != Vector3::UNIT_SCALE)
+        {
+            writeObject(key->getScale());
+        }
     }
     //---------------------------------------------------------------------
     size_t SkeletonSerializer::calcBoneSize(const Skeleton* pSkel, 
+        const Bone* pBone)
+    {
+        size_t size = STREAM_OVERHEAD_SIZE;
+
+        // handle
+        size += sizeof(unsigned short);
+
+        // position
+        size += sizeof(float) * 3;
+
+        // orientation
+        size += sizeof(float) * 4;
+
+        // scale
+        if (pBone->getScale() != Vector3::UNIT_SCALE)
+        {
+            size += sizeof(float) * 3;
+        }
+
+        return size;
+    }
+    //---------------------------------------------------------------------
+    size_t SkeletonSerializer::calcBoneSizeWithoutScale(const Skeleton* pSkel, 
         const Bone* pBone)
     {
         size_t size = STREAM_OVERHEAD_SIZE;
@@ -313,6 +344,24 @@ namespace Ogre {
         // Vector3 translate            : Translation to apply at this keyframe
         size += sizeof(float) * 3;
         // Vector3 scale                : Scale to apply at this keyframe
+        if (pKey->getScale() != Vector3::UNIT_SCALE)
+        {
+            size += sizeof(float) * 3;
+        }
+
+        return size;
+    }
+    //---------------------------------------------------------------------
+    size_t SkeletonSerializer::calcKeyFrameSizeWithoutScale(const Skeleton* pSkel, 
+        const TransformKeyFrame* pKey)
+    {
+        size_t size = STREAM_OVERHEAD_SIZE;
+
+        // float time                    : The time position (seconds)
+        size += sizeof(float);
+        // Quaternion rotate            : Rotation to apply at this keyframe
+        size += sizeof(float) * 4;
+        // Vector3 translate            : Translation to apply at this keyframe
         size += sizeof(float) * 3;
 
         return size;
@@ -337,6 +386,13 @@ namespace Ogre {
         Quaternion q;
         readObject(stream, q);
         pBone->setOrientation(q);
+        // Do we have scale?
+        if (mCurrentstreamLen > calcBoneSizeWithoutScale(pSkel, pBone))
+        {
+            Vector3 scale;
+            readObject(stream, scale);
+            pBone->setScale(scale);
+        }
     }
     //---------------------------------------------------------------------
     void SkeletonSerializer::readBoneParent(DataStreamPtr& stream, Skeleton* pSkel)
@@ -452,7 +508,7 @@ namespace Ogre {
         readObject(stream, trans);
         kf->setTranslate(trans);
         // Do we have scale?
-        if (mCurrentstreamLen == calcKeyFrameSize(pSkel, kf))
+        if (mCurrentstreamLen > calcKeyFrameSizeWithoutScale(pSkel, kf))
         {
             Vector3 scale;
             readObject(stream, scale);

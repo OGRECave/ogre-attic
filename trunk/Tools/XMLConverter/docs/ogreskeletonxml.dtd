@@ -1,6 +1,6 @@
 <!ELEMENT skeleton (bones, bonehierarchy, animations?, animationlinks?) >
 <!ELEMENT bones (bone+) >
-<!ELEMENT bone (position, rotation) >
+<!ELEMENT bone (position, rotation, scale?) >
 <!ATTLIST bone
 	id		CDATA	#REQUIRED
 	name	CDATA	#REQUIRED>

@@ -91,10 +91,12 @@ namespace Ogre {
 		void readSkeletonAnimationLink(DataStreamPtr& stream, Skeleton* pSkel);
 
         size_t calcBoneSize(const Skeleton* pSkel, const Bone* pBone);
+        size_t calcBoneSizeWithoutScale(const Skeleton* pSkel, const Bone* pBone);
         size_t calcBoneParentSize(const Skeleton* pSkel);
         size_t calcAnimationSize(const Skeleton* pSkel, const Animation* pAnim);
         size_t calcAnimationTrackSize(const Skeleton* pSkel, const NodeAnimationTrack* pTrack);
         size_t calcKeyFrameSize(const Skeleton* pSkel, const TransformKeyFrame* pKey);
+        size_t calcKeyFrameSizeWithoutScale(const Skeleton* pSkel, const TransformKeyFrame* pKey);
 		size_t calcSkeletonAnimationLinkSize(const Skeleton* pSkel, 
 			const LinkedSkeletonAnimationSource& link);
 
