@@ -276,8 +276,8 @@ namespace Ogre {
 		if (i != mVertexBuffers.end())
 		{
             // release vertex buffer copies
-            _forceReleaseBufferCopies(*i);
 			mVertexBuffers.erase(i);
+            _forceReleaseBufferCopies(buf);
 		}
 	}
 	//-----------------------------------------------------------------------
@@ -318,7 +318,20 @@ namespace Ogre {
     {
         bindPositions = positions;
         bindNormals = normals;
+
         HardwareBufferManager &mgr = HardwareBufferManager::getSingleton();
+
+        if (!destPositionBuffer.isNull())
+        {
+            mgr.releaseVertexBufferCopy(destPositionBuffer);
+            destPositionBuffer.setNull();
+        }
+        if (!destNormalBuffer.isNull())
+        {
+            mgr.releaseVertexBufferCopy(destNormalBuffer);
+            destNormalBuffer.setNull();
+        }
+
         if (bindPositions)
         {
             destPositionBuffer = mgr.allocateVertexBufferCopy(srcPositionBuffer, 
@@ -346,6 +359,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void TempBlendedBufferInfo::licenseExpired(HardwareBuffer* buffer)
     {
+        assert(buffer == destPositionBuffer.get()
+            || buffer == destNormalBuffer.get());
+
         if (buffer == destPositionBuffer.get())
             destPositionBuffer.setNull();
         if (buffer == destNormalBuffer.get())
