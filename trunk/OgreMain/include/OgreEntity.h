@@ -228,6 +228,8 @@ namespace Ogre {
 			ushort numberOfElements);
 		/// Are software vertex animation temp buffers bound?
 		bool tempVertexAnimBuffersBound(void) const;
+        /// Are software skeleton animation temp buffers bound?
+        bool tempSkelAnimBuffersBound(bool requestNormals) const;
 
 	public:
 		/// Contains the child objects (attached to bones) indexed by name
