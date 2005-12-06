@@ -524,6 +524,27 @@ namespace Ogre {
 		return ret;
 	}
     //-----------------------------------------------------------------------
+    bool Entity::tempSkelAnimBuffersBound(bool requestNormals) const
+    {
+        // Do we still have temp buffers for software skeleton animation bound?
+        if (mSkelAnimVertexData)
+        {
+            if (!mTempSkelAnimInfo.buffersCheckedOut(true, requestNormals))
+                return false;
+        }
+        for (SubEntityList::const_iterator i = mSubEntityList.begin();
+            i != mSubEntityList.end(); ++i)
+        {
+            SubEntity* sub = *i;
+            if (sub->isVisible() && sub->mSkelAnimVertexData)
+            {
+                if (!sub->mTempSkelAnimInfo.buffersCheckedOut(true, requestNormals))
+                    return false;
+            }
+        }
+        return true;
+    }
+    //-----------------------------------------------------------------------
     void Entity::updateAnimation(void)
     {
 		Root& root = Root::getSingleton();
@@ -544,7 +565,7 @@ namespace Ogre {
         if (mFrameAnimationLastUpdated != mAnimationState->getDirtyFrameNumber() ||
 			(mLastParentXform != getParentSceneNode()->_getFullTransform() && hasSkeleton()) ||
 			(softwareAnimation && hasVertexAnimation() && !tempVertexAnimBuffersBound()) ||
-			(softwareAnimation && hasSkeleton() && !mTempSkelAnimInfo.buffersCheckedOut(true, blendNormals)))
+			(softwareAnimation && hasSkeleton() && !tempSkelAnimBuffersBound(blendNormals)))
         {
 			if (hasVertexAnimation())
 			{
