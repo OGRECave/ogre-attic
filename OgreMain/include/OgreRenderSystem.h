@@ -173,7 +173,13 @@ namespace Ogre
          */
         virtual void setConfigOption(const String &name, const String &value) = 0;
 
-		virtual HardwareOcclusionQuery* createHardwareOcclusionQuery() = 0;
+		/** Create an object for performing hardware occlusion queries. 
+		*/
+		virtual HardwareOcclusionQuery* createHardwareOcclusionQuery(void) = 0;
+
+		/** Destroy a hardware occlusion query object. 
+		*/
+		virtual void destroyHardwareOcclusionQuery(HardwareOcclusionQuery *hq);
 
         /** Validates the options set for the rendering system, returning a message if there are problems.
             @note
@@ -1019,7 +1025,7 @@ namespace Ogre
 		virtual const StringVector& getRenderSystemEvents(void) const { return mEventNames; }
     protected:
 
-
+		
         /** The render targets. */
         RenderTargetMap mRenderTargets;
 		/** The render targets, ordered by priority. */
@@ -1075,6 +1081,10 @@ namespace Ogre
 
 		typedef std::list<Listener*> ListenerList;
 		ListenerList mEventListeners;
+
+		typedef std::list<HardwareOcclusionQuery*> HardwareOcclusionQueryList;
+		HardwareOcclusionQueryList mHwOcclusionQueries;
+
 
     };
 }

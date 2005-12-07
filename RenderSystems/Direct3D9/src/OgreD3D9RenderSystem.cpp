@@ -2590,7 +2590,7 @@ namespace Ogre
             dx9ClipPlane[0] = plane.normal.x;
             dx9ClipPlane[1] = plane.normal.y;
             dx9ClipPlane[2] = plane.normal.z;
-            dx9ClipPlane[3] = -plane.d;
+            dx9ClipPlane[3] = plane.d;
 
             hr = mpD3DDevice->SetClipPlane(i, dx9ClipPlane);
             if (FAILED(hr))
@@ -2738,7 +2738,9 @@ namespace Ogre
     //---------------------------------------------------------------------
     HardwareOcclusionQuery* D3D9RenderSystem::createHardwareOcclusionQuery(void)
     {
-        return new D3D9HardwareOcclusionQuery(mpD3DDevice); 
+		D3D9HardwareOcclusionQuery* ret = new D3D9HardwareOcclusionQuery (mpD3DDevice); 
+		mHwOcclusionQueries.push_back(ret);
+		return ret;
     }
     //---------------------------------------------------------------------
     Real D3D9RenderSystem::getHorizontalTexelOffset(void)

@@ -346,7 +346,8 @@ void D3D9HardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const Pixel
 	
 		if(D3DXCreateTexture(
 			mpDev,
-			dst.getWidth(), dst.getHeight(), 0,
+			dst.getWidth(), dst.getHeight(), 
+			1, // 1 mip level ie topmost, generate no mipmaps
 			0, D3D9Mappings::_getPF(tmpFormat), D3DPOOL_SCRATCH,
 			&tmp
 			) != D3D_OK)
