@@ -2437,7 +2437,7 @@ namespace Ogre
             dx9ClipPlane[0] = plane.normal.x;
             dx9ClipPlane[1] = plane.normal.y;
             dx9ClipPlane[2] = plane.normal.z;
-            dx9ClipPlane[3] = -plane.d;
+            dx9ClipPlane[3] = plane.d;
 
             hr = mpD3DDevice->SetClipPlane(i, dx9ClipPlane);
             if (FAILED(hr))

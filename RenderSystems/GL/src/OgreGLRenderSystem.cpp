@@ -2388,7 +2388,7 @@ namespace Ogre {
             GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0 + i);
             const Plane& plane = clipPlanes[i];
 
-            if (i >= GL_MAX_CLIP_PLANES)
+            if (i >= 6/*GL_MAX_CLIP_PLANES*/)
             {
                 OGRE_EXCEPT(0, "Unable to set clip plane", 
                     "GLRenderSystem::setClipPlanes");
@@ -2397,7 +2397,7 @@ namespace Ogre {
             clipPlane[0] = plane.normal.x;
             clipPlane[1] = plane.normal.y;
             clipPlane[2] = plane.normal.z;
-            clipPlane[3] = -plane.d;
+            clipPlane[3] = plane.d;
 
             glClipPlane(clipPlaneId, clipPlane);
             glEnable(clipPlaneId);
