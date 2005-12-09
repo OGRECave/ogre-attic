@@ -236,6 +236,8 @@ namespace Ogre {
         /** Sets the range of a spotlight, i.e. the angle of the inner and outer cones and the rate of falloff between them.
             @param
                 innerAngle Angle covered by the bright inner cone
+                @node
+                    The inner cone applicable only to Direct3D, it'll always treat as zero in OpenGL.
             @param
                 outerAngle Angle covered by the outer cone
             @param
