@@ -48,6 +48,7 @@ namespace Ogre {
         , mUpdated(false)
         , mShowOverlays(true)
         , mShowSkies(true)
+		, mShowShadows(true)
 		, mRQSequence(0)
     {
 
@@ -245,6 +246,16 @@ namespace Ogre {
     bool Viewport::getSkiesEnabled(void) const
     {
         return mShowSkies;
+    }
+    //---------------------------------------------------------------------
+    void Viewport::setShadowsEnabled(bool enabled)
+    {
+        mShowShadows = enabled;
+    }
+    //---------------------------------------------------------------------
+    bool Viewport::getShadowsEnabled(void) const
+    {
+        return mShowShadows;
     }
 	//-----------------------------------------------------------------------
 	void Viewport::setRenderQueueInvocationSequenceName(const String& sequenceName)

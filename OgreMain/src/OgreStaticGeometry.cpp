@@ -546,9 +546,7 @@ namespace Ogre {
 			region->assign(qsm);
 		}
 		bool stencilShadows = false;
-		if (mCastShadows && 
-			(mOwner->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE ||
-			mOwner->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE))
+		if (mCastShadows && mOwner->isShadowTechniqueStencilBased())
 		{
 			stencilShadows = true;
 		}

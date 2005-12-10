@@ -552,8 +552,7 @@ namespace Ogre {
 		bool forcedSwSkinning = getSoftwareSkinningRequests()>0;
 		bool forcedNormals = getSoftwareSkinningNormalsRequests()>0;
 		bool stencilShadows = 
-			root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE ||
-			root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE;
+			root._getCurrentSceneManager()->isShadowTechniqueStencilBased();
 		bool softwareAnimation = !hwSkinning || forcedSwSkinning || stencilShadows;
 		// Blend normals in s/w only if we're not using h/w skinning,
 		// since shadows only require positions
