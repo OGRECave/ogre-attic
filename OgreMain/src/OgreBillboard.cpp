@@ -59,7 +59,7 @@ namespace Ogre {
     {
         mRotation = rotation;
         if (mRotation != Radian(0))
-            mParentSet->_notifyBillboardTextureCoordsModified();
+            mParentSet->_notifyBillboardRotated();
     }
     //-----------------------------------------------------------------------
     void Billboard::setPosition(const Vector3& position)
