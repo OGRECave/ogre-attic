@@ -54,6 +54,20 @@ namespace Ogre {
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
+        /** Command object for billboard origin (see ParamCommand).*/
+        class _OgrePrivate CmdBillboardOrigin : public ParamCommand
+        {
+        public:
+            String doGet(const void* target) const;
+            void doSet(void* target, const String& val);
+        };
+        /** Command object for billboard rotation type (see ParamCommand).*/
+        class _OgrePrivate CmdBillboardRotationType : public ParamCommand
+        {
+        public:
+            String doGet(const void* target) const;
+            void doSet(void* target, const String& val);
+        };
         /** Command object for common direction (see ParamCommand).*/
         class _OgrePrivate CmdCommonDirection : public ParamCommand
         {
@@ -102,6 +116,23 @@ namespace Ogre {
         A member of the BillboardOrigin enum specifying the origin for all the billboards in this set.
         */
         BillboardOrigin getBillboardOrigin(void) const { return mBillboardSet->getBillboardOrigin(); }
+
+        /** Sets billboard rotation type.
+            @remarks
+                This setting controls the billboard rotation type, you can deciding rotate the billboard's vertices
+                around their facing direction or rotate the billboard's texture coordinates.
+            @par
+                The default settings is BBR_TEXCOORD.
+            @param
+                rotationType A member of the BillboardRotationType enum specifying the rotation type for all the billboards in this set.
+        */
+        void setBillboardRotationType(BillboardRotationType rotationType);
+
+        /** Sets billboard rotation type.
+            @returns
+                A member of the BillboardRotationType enum specifying the rotation type for all the billboards in this set.
+        */
+        BillboardRotationType getBillboardRotationType(void) const;
 
         /** Use this to specify the common direction given to billboards of type BBT_ORIENTED_COMMON.
         @remarks
@@ -158,6 +189,8 @@ namespace Ogre {
 
     protected:
         static CmdBillboardType msBillboardTypeCmd;
+        static CmdBillboardOrigin msBillboardOriginCmd;
+        static CmdBillboardRotationType msBillboardRotationTypeCmd;
         static CmdCommonDirection msCommonDirectionCmd;
         static CmdCommonUpVector msCommonUpVectorCmd;
 

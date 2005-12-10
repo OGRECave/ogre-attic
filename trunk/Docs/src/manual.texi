@@ -1823,6 +1823,10 @@ For a detailed description of the core particle system attributes, see the list 
 @item
 @ref{billboard_type}
 @item
+@ref{billboard_origin}
+@item
+@ref{billboard_rotation_type}
+@item
 @ref{common_direction}
 @item
 @ref{common_up_vector}
@@ -1931,6 +1935,54 @@ The options for this parameter are:
 	Particles are perpendicular to a common, typically fixed direction vector (see @ref{common_direction}), which acts as their local Z axis, and their local Y axis coplanar with common direction and the common up vector (see @ref{common_up_vector}). The billboard never rotates to face the camera, you might use double-side material to ensure particles never culled by back-facing. Good for aureolas, rings etc where the particles will perpendicular to the ground - this is slightly faster than perpendicular_self (see below).
 @item perpendicular_self
 	Particles are perpendicular to their own direction vector, which acts as their local Z axis, and their local Y axis coplanar with their own direction vector and the common up vector (see @ref{common_up_vector}). The billboard never rotates to face the camera, you might use double-side material to ensure particles never culled by back-facing. Good for rings stack etc where the particles will perpendicular to their travelling direction.
+@end table
+
+@anchor{billboard_origin}
+@subheading billboard_origin
+
+Specifying the point which acts as the origin point for all billboard particles, controls the fine tuning of where a billboard particle appears in relation to it's position.@*@*
+
+format: billboard_origin <top_left|top_center|top_right|center_left|center|center_right|bottom_left|bottom_center|bottom_right>@*
+example: billboard_origin top_right@*
+default: center@*
+
+The options for this parameter are:
+@table @asis
+@item top_left
+	The billboard origin is the top-left corner.
+@item top_center
+	The billboard origin is the center of top edge.
+@item top_right
+	The billboard origin is the top-right corner.
+@item center_left
+	The billboard origin is the center of left edge.
+@item center
+	The billboard origin is the center.
+@item center_right
+	The billboard origin is the center of right edge.
+@item bottom_left
+	The billboard origin is the bottom-left corner.
+@item bottom_center
+	The billboard origin is the center of bottom edge.
+@item bottom_right
+	The billboard origin is the bottom-right corner.
+@end table
+
+@anchor{billboard_rotation_type}
+@subheading billboard_rotation_type
+
+By default, billboard particles will rotate the texture coordinates to according with particle rotation. But rotate texture coordinates has some disadvantage, e.g. the corners of the texture will lost after rotate, and the corners of the billboard will fill with unwant texture area when using wrap address mode or sub-texture sampling. This settings allow you specifying other rotation type.@*@*
+
+format: billboard_rotation_type <vertex|texcoord>@*
+example: billboard_rotation_type vertex@*
+default: texcoord@*
+
+The options for this parameter are:
+@table @asis
+@item vertex
+	Billboard particles will rotate the vertices around their facing direction to according with particle rotation. Rotate vertices guarantee texture corners exactly match billboard corners, thus has advantage mentioned above, but should take more time to generate the vertices.
+@item texcoord
+	Billboard particles will rotate the texture coordinates to according with particle rotation. Rotate texture coordinates is faster than rotate vertices, but has some disadvantage mentioned above.
 @end table
 
 @anchor{common_direction}

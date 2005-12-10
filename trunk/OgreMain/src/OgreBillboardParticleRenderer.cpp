@@ -33,6 +33,8 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     BillboardParticleRenderer::CmdBillboardType BillboardParticleRenderer::msBillboardTypeCmd;
+    BillboardParticleRenderer::CmdBillboardOrigin BillboardParticleRenderer::msBillboardOriginCmd;
+    BillboardParticleRenderer::CmdBillboardRotationType BillboardParticleRenderer::msBillboardRotationTypeCmd;
     BillboardParticleRenderer::CmdCommonDirection BillboardParticleRenderer::msCommonDirectionCmd;
     BillboardParticleRenderer::CmdCommonUpVector BillboardParticleRenderer::msCommonUpVectorCmd;
     //-----------------------------------------------------------------------
@@ -49,6 +51,20 @@ namespace Ogre {
                 "and 'perpendicular_self' means particles are perpendicular to their own direction.",
                 PT_STRING),
                 &msBillboardTypeCmd);
+
+            dict->addParameter(ParameterDef("billboard_origin", 
+                "This setting controls the fine tuning of where a billboard appears in relation to it's position. "
+                "Possible value are: 'top_left', 'top_center', 'top_right', 'center_left', 'center', 'center_right', "
+                "'bottom_left', 'bottom_center' and 'bottom_right'. Default value is 'center'.",
+                PT_STRING),
+                &msBillboardOriginCmd);
+
+            dict->addParameter(ParameterDef("billboard_rotation_type", 
+                "This setting controls the billboard rotation type. "
+				"'vertex' means rotate the billboard's vertices around their facing direction."
+                "'texcoord' means rotate the billboard's texture coordinates. Default value is 'texcoord'.",
+                PT_STRING),
+                &msBillboardRotationTypeCmd);
 
             dict->addParameter(ParameterDef("common_direction", 
                 "Only useful when billboard_type is oriented_common or perpendicular_common. "
@@ -130,6 +146,16 @@ namespace Ogre {
         return mBillboardSet->getBillboardType();
     }
     //-----------------------------------------------------------------------
+    void BillboardParticleRenderer::setBillboardRotationType(BillboardRotationType rotationType)
+    {
+        mBillboardSet->setBillboardRotationType(rotationType);
+    }
+    //-----------------------------------------------------------------------
+    BillboardRotationType BillboardParticleRenderer::getBillboardRotationType(void) const
+    {
+        return mBillboardSet->getBillboardRotationType();
+    }
+    //-----------------------------------------------------------------------
     void BillboardParticleRenderer::setCommonDirection(const Vector3& vec)
     {
         mBillboardSet->setCommonDirection(vec);
@@ -157,7 +183,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BillboardParticleRenderer::_notifyParticleRotated(void)
     {
-        mBillboardSet->_notifyBillboardTextureCoordsModified();
+        mBillboardSet->_notifyBillboardRotated();
     }
     //-----------------------------------------------------------------------
     void BillboardParticleRenderer::_notifyDefaultDimensions(Real width, Real height)
@@ -263,6 +289,94 @@ namespace Ogre {
         }
 
         static_cast<BillboardParticleRenderer*>(target)->setBillboardType(t);
+    }
+    //-----------------------------------------------------------------------
+    String BillboardParticleRenderer::CmdBillboardOrigin::doGet(const void* target) const
+    {
+        BillboardOrigin o = static_cast<const BillboardParticleRenderer*>(target)->getBillboardOrigin();
+        switch (o)
+        {
+        case BBO_TOP_LEFT:
+            return "top_left";
+        case BBO_TOP_CENTER:
+            return "top_center";
+        case BBO_TOP_RIGHT:
+            return "top_right";
+        case BBO_CENTER_LEFT:
+            return "center_left";
+        case BBO_CENTER:
+            return "center";
+        case BBO_CENTER_RIGHT:
+            return "center_right";
+        case BBO_BOTTOM_LEFT:
+            return "bottom_left";
+        case BBO_BOTTOM_CENTER:
+            return "bottom_center";
+        case BBO_BOTTOM_RIGHT:
+            return "bottom_right";
+        }
+        // Compiler nicety
+        return StringUtil::BLANK;
+    }
+    void BillboardParticleRenderer::CmdBillboardOrigin::doSet(void* target, const String& val)
+    {
+        BillboardOrigin o;
+        if (val == "top_left")
+            o = BBO_TOP_LEFT;
+        else if (val =="top_center")
+            o = BBO_TOP_CENTER;
+        else if (val =="top_right")
+            o = BBO_TOP_RIGHT;
+        else if (val =="center_left")
+            o = BBO_CENTER_LEFT;
+        else if (val =="center")
+            o = BBO_CENTER;
+        else if (val =="center_right")
+            o = BBO_CENTER_RIGHT;
+        else if (val =="bottom_left")
+            o = BBO_BOTTOM_LEFT;
+        else if (val =="bottom_center")
+            o = BBO_BOTTOM_CENTER;
+        else if (val =="bottom_right")
+            o = BBO_BOTTOM_RIGHT;
+        else
+        {
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+                "Invalid billboard_origin '" + val + "'", 
+                "ParticleSystem::CmdBillboardOrigin::doSet");
+        }
+
+        static_cast<BillboardParticleRenderer*>(target)->setBillboardOrigin(o);
+    }
+    //-----------------------------------------------------------------------
+    String BillboardParticleRenderer::CmdBillboardRotationType::doGet(const void* target) const
+    {
+        BillboardRotationType r = static_cast<const BillboardParticleRenderer*>(target)->getBillboardRotationType();
+        switch(r)
+        {
+        case BBR_VERTEX:
+            return "vertex";
+        case BBR_TEXCOORD:
+            return "texcoord";
+        }
+        // Compiler nicety
+        return StringUtil::BLANK;
+    }
+    void BillboardParticleRenderer::CmdBillboardRotationType::doSet(void* target, const String& val)
+    {
+        BillboardRotationType r;
+        if (val == "vertex")
+            r = BBR_VERTEX;
+        else if (val == "texcoord")
+            r = BBR_TEXCOORD;
+        else
+        {
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+                "Invalid billboard_rotation_type '" + val + "'", 
+                "ParticleSystem::CmdBillboardRotationType::doSet");
+        }
+
+        static_cast<BillboardParticleRenderer*>(target)->setBillboardRotationType(r);
     }
     //-----------------------------------------------------------------------
     String BillboardParticleRenderer::CmdCommonDirection::doGet(const void* target) const

@@ -51,6 +51,14 @@ namespace Ogre {
         BBO_BOTTOM_CENTER,
         BBO_BOTTOM_RIGHT
     };
+    /** The rotation type of billboard. */
+    enum BillboardRotationType
+    {
+        /// Rotate the billboard's vertices around their facing direction
+        BBR_VERTEX,
+        /// Rotate the billboard's texture coordinates
+        BBR_TEXCOORD
+    };
     /** The type of billboard to use. */
     enum BillboardType
     {
@@ -101,6 +109,8 @@ namespace Ogre {
 
         /// Origin of each billboard
         BillboardOrigin mOriginType;
+        /// Rotation type of each billboard
+        BillboardRotationType mRotationType;
 
         /// Default width of each billboard
         Real mDefaultWidth;
@@ -121,7 +131,7 @@ namespace Ogre {
 		/// Flag indicating whether the billboards has to be sorted
 		bool mSortingEnabled;
 
-        bool mFixedTextureCoords;
+        bool mAllDefaultRotation;
         bool mWorldSpace;
 
         typedef std::list<Billboard*> ActiveBillboardList;
@@ -438,6 +448,23 @@ namespace Ogre {
         */
         virtual BillboardOrigin getBillboardOrigin(void) const;
 
+        /** Sets billboard rotation type.
+            @remarks
+                This setting controls the billboard rotation type, you can deciding rotate the billboard's vertices
+                around their facing direction or rotate the billboard's texture coordinates.
+            @par
+                The default settings is BBR_TEXCOORD.
+            @param
+                rotationType A member of the BillboardRotationType enum specifying the rotation type for all the billboards in this set.
+        */
+        virtual void setBillboardRotationType(BillboardRotationType rotationType);
+
+        /** Sets billboard rotation type.
+            @returns
+                A member of the BillboardRotationType enum specifying the rotation type for all the billboards in this set.
+        */
+        virtual BillboardRotationType getBillboardRotationType(void) const;
+
         /** Sets the default dimensions of the billboards in this set.
             @remarks
                 All billboards in a set are created with these default dimensions. The set will render most efficiently if
@@ -535,10 +562,9 @@ namespace Ogre {
         */
         virtual void _notifyBillboardResized(void);
 
-        /** Notifies the billboardset that texture coordinates will be modified
-            for this set. */
-        virtual void _notifyBillboardTextureCoordsModified(void) {
-            mFixedTextureCoords = false; }
+        /** Internal callback used by Billboards to notify their parent that they have been rotated..
+        */
+        virtual void _notifyBillboardRotated(void);
 
         /** Returns whether or not billbards in this are tested individually for culling. */
         virtual bool getCullIndividually(void) const;
