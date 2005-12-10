@@ -162,14 +162,27 @@ namespace Ogre {
     enum ShadowTechnique
     {
         /** No shadows */
-        SHADOWTYPE_NONE,
+        SHADOWTYPE_NONE = 0x00,
+		/** Mask for additive shadows (not for direct use, use  SHADOWTYPE_ enum instead)
+		*/
+		SHADOWDETAILTYPE_ADDITIVE = 0x01,
+		/** Mask for modulative shadows (not for direct use, use  SHADOWTYPE_ enum instead)
+		*/
+		SHADOWDETAILTYPE_MODULATIVE = 0x02,
+		/** Mask for stencil shadows (not for direct use, use  SHADOWTYPE_ enum instead)
+		*/
+		SHADOWDETAILTYPE_STENCIL = 0x10,
+		/** Mask for texture shadows (not for direct use, use  SHADOWTYPE_ enum instead)
+		*/
+		SHADOWDETAILTYPE_TEXTURE = 0x20,
+		
         /** Stencil shadow technique which renders all shadow volumes as
             a modulation after all the non-transparent areas have been 
             rendered. This technique is considerably less fillrate intensive 
             than the additive stencil shadow approach when there are multiple
             lights, but is not an accurate model. 
         */
-        SHADOWTYPE_STENCIL_MODULATIVE,
+        SHADOWTYPE_STENCIL_MODULATIVE = 0x12,
         /** Stencil shadow technique which renders each light as a separate
             additive pass to the scene. This technique can be very fillrate
             intensive because it requires at least 2 passes of the entire
@@ -177,12 +190,22 @@ namespace Ogre {
             accurate model than the modulative stencil approach and this is
             especially apparant when using coloured lights or bump mapping.
         */
-        SHADOWTYPE_STENCIL_ADDITIVE,
+        SHADOWTYPE_STENCIL_ADDITIVE = 0x11,
         /** Texture-based shadow technique which involves a monochrome render-to-texture
             of the shadow caster and a projection of that texture onto the 
             shadow receivers as a modulative pass. 
         */
-        SHADOWTYPE_TEXTURE_MODULATIVE
+        SHADOWTYPE_TEXTURE_MODULATIVE = 0x22,
+		
+        /** Texture-based shadow technique which involves a monochrome render-to-texture
+            of the shadow caster and a projection of that texture onto the 
+            shadow receivers, built up per light as additive passes. 
+			This technique can be very fillrate intensive because it requires numLights + 2 
+			passes of the entire scene. However, it is a more accurate model than the 
+			modulative approach and this is especially apparant when using coloured lights 
+			or bump mapping.
+        */
+        SHADOWTYPE_TEXTURE_ADDITIVE = 0x21,
     };
 
     /** An enumeration describing which material properties should track the vertex colours */

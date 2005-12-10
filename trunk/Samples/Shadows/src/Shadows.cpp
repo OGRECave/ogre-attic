@@ -52,11 +52,12 @@ String mAtheneMaterials[NUM_ATHENE_MATERIALS] =
     "Examples/Athene/NormalMapped",
     "Examples/Athene/Basic"
 };
-#define NUM_SHADOW_TECH 4
+#define NUM_SHADOW_TECH 5
 String mShadowTechDescriptions[NUM_SHADOW_TECH] = 
 {
     "Stencil Shadows (Additive)",
     "Stencil Shadows (Modulative)",
+	"Texture Shadows (Additive)",
     "Texture Shadows (Modulative)",
     "None"
 };
@@ -64,6 +65,7 @@ ShadowTechnique mShadowTech[NUM_SHADOW_TECH] =
 {
     SHADOWTYPE_STENCIL_ADDITIVE,
     SHADOWTYPE_STENCIL_MODULATIVE,
+	SHADOWTYPE_TEXTURE_ADDITIVE,
     SHADOWTYPE_TEXTURE_MODULATIVE,
     SHADOWTYPE_NONE
 };
@@ -183,6 +185,7 @@ public:
             mLight->setAttenuation(8000,1,0.0005,0);
             break;
         case SHADOWTYPE_TEXTURE_MODULATIVE:
+		case SHADOWTYPE_TEXTURE_ADDITIVE:
             // Change fixed point light to spotlight
             // Fixed light, dim
             mSunLight->setCastShadows(true);
@@ -361,8 +364,6 @@ protected:
         SceneNode* node;
         node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
         mAthene = mSceneMgr->createEntity( "athene", "athene.mesh" );
-        //mAnimState = pEnt->getAnimationState("Walk");
-        //mAnimState->setEnabled(true);
         mAthene->setMaterialName(mAtheneMaterials[mCurrentAtheneMaterial]);
         node->attachObject( mAthene );
         node->translate(0,-20, 0);
@@ -372,32 +373,24 @@ protected:
 
         node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
         pEnt = mSceneMgr->createEntity( "col1", "column.mesh" );
-        //mAnimState = pEnt->getAnimationState("Walk");
-        //mAnimState->setEnabled(true);
         pEnt->setMaterialName("Examples/Rockwall");
         node->attachObject( pEnt );
         node->translate(200,0, -200);
 
         node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
         pEnt = mSceneMgr->createEntity( "col2", "column.mesh" );
-        //mAnimState = pEnt->getAnimationState("Walk");
-        //mAnimState->setEnabled(true);
         pEnt->setMaterialName("Examples/Rockwall");
         node->attachObject( pEnt );
         node->translate(200,0, 200);
 
         node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
         pEnt = mSceneMgr->createEntity( "col3", "column.mesh" );
-        //mAnimState = pEnt->getAnimationState("Walk");
-        //mAnimState->setEnabled(true);
         pEnt->setMaterialName("Examples/Rockwall");
         node->attachObject( pEnt );
         node->translate(-200,0, -200);
 
         node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
         pEnt = mSceneMgr->createEntity( "col4", "column.mesh" );
-        //mAnimState = pEnt->getAnimationState("Walk");
-        //mAnimState->setEnabled(true);
         pEnt->setMaterialName("Examples/Rockwall");
         node->attachObject( pEnt );
         node->translate(-200,0, 200);

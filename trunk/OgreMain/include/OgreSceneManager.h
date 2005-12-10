@@ -105,16 +105,10 @@ namespace Ogre {
         {
             /// No special illumination stage
             IRS_NONE,
-            /// Ambient stage, when background light is added
-            IRS_AMBIENT,
-            /// Diffuse / specular stage, when individual light contributions are added
-            IRS_PER_LIGHT,
-            /// Decal stage, when texture detail is added to the lit base
-            IRS_DECAL,
             /// Render to texture stage, used for texture based shadows
             IRS_RENDER_TO_TEXTURE,
-            /// Modulative render from shadow texture stage
-            IRS_RENDER_MODULATIVE_PASS
+            /// Render from shadow texture to receivers stage
+            IRS_RENDER_RECEIVER_PASS
         };
 
 		/** Enumeration of the possible modes allowed for processing the special case
@@ -310,6 +304,8 @@ namespace Ogre {
         bool fireRenderQueueStarted(uint8 id, const String& invocation);
         /// Internal method for firing the queue end event, returns true if queue is to be repeated
         bool fireRenderQueueEnded(uint8 id, const String& invocation);
+        /// Internal method for firing the texture shadows updated event
+        void fireShadowTexturesUpdated(size_t numberOfShadowTextures);
 
         /** Internal method for setting the destination viewport for the next render. */
         virtual void setViewport(Viewport *vp);
@@ -474,7 +470,7 @@ namespace Ogre {
 		/** Render a group with the added complexity of additive stencil shadows. */
 		virtual void renderAdditiveStencilShadowedQueueGroupObjects(RenderQueueGroup* group, 
 			QueuedRenderableCollection::OrganisationMode om);
-		/** Render a group with the added complexity of additive stencil shadows. */
+		/** Render a group with the added complexity of modulative stencil shadows. */
 		virtual void renderModulativeStencilShadowedQueueGroupObjects(RenderQueueGroup* group, 
 			QueuedRenderableCollection::OrganisationMode om);
         /** Render a group rendering only shadow casters. */
@@ -483,8 +479,12 @@ namespace Ogre {
         /** Render a group rendering only shadow receivers. */
 		virtual void renderTextureShadowReceiverQueueGroupObjects(RenderQueueGroup* group, 
 			QueuedRenderableCollection::OrganisationMode om);
-        /** Render a group with the added complexity of additive stencil shadows. */
+        /** Render a group with the added complexity of modulative texture shadows. */
 		virtual void renderModulativeTextureShadowedQueueGroupObjects(RenderQueueGroup* group, 
+			QueuedRenderableCollection::OrganisationMode om);
+
+		/** Render a group with additive texture shadows. */
+		virtual void renderAdditiveTextureShadowedQueueGroupObjects(RenderQueueGroup* group, 
 			QueuedRenderableCollection::OrganisationMode om);
 		/** Render a set of objects, see renderSingleObject for param definitions */
 		virtual void renderObjects(const QueuedRenderableCollection& objs, 
@@ -1881,6 +1881,19 @@ namespace Ogre {
 		*/
         virtual void setShadowUseInfiniteFarPlane(bool enable) {
             mShadowUseInfiniteFarPlane = enable; }
+
+		/** Is there a stencil shadow based shadowing technique in use? */
+		virtual bool isShadowTechniqueStencilBased(void) const 
+		{ return (mShadowTechnique & SHADOWDETAILTYPE_STENCIL) != 0; }
+		/** Is there a texture shadow based shadowing technique in use? */
+		virtual bool isShadowTechniqueTextureBased(void) const 
+		{ return (mShadowTechnique & SHADOWDETAILTYPE_TEXTURE) != 0; }
+		/** Is there a modulative shadowing technique in use? */
+		virtual bool isShadowTechniqueModulative(void) const 
+		{ return (mShadowTechnique & SHADOWDETAILTYPE_MODULATIVE) != 0; }
+		/** Is there an additive shadowing technique in use? */
+		virtual bool isShadowTechniqueAdditive(void) const 
+		{ return (mShadowTechnique & SHADOWDETAILTYPE_ADDITIVE) != 0; }
 
 		/** Creates a StaticGeometry instance suitable for use with this
 			SceneManager.

@@ -147,6 +147,9 @@ namespace Ogre {
 			/** @copydoc RenderQueueListener::renderQueueEnded
 			*/
 			virtual void renderQueueEnded(uint8 id, const String& invocation, bool& repeatThisQueue);
+			/** @copydoc RenderQueueListener::shadowTexturesUpdated
+			*/
+			void shadowTexturesUpdated(size_t numberOfShadowTextures) {}
 
 			/** Set current operation and target */
 			void setOperation(CompositorInstance::TargetOperation *op,SceneManager *sm,RenderSystem *rs);
