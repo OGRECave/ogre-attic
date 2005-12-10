@@ -88,6 +88,7 @@ namespace Ogre {
 
         bool mSplitPassesByLightingType;
         bool mSplitNoShadowPasses;
+		bool mShadowCastersCannotBeReceivers;
     public:
         RenderQueue();
         virtual ~RenderQueue();
@@ -194,6 +195,11 @@ namespace Ogre {
         techniques are used.
         */
         void setSplitNoShadowPasses(bool split);
+		/** Sets whether or not objects which cast shadows should be treated as
+		never receiving shadows. 
+		*/
+		void setShadowCastersCannotBeReceivers(bool ind);
+
     };
 
 

@@ -71,7 +71,8 @@ namespace Ogre {
         TextureUnitState* textureUnit;
         GpuProgramPtr program; // used when referencing a program, not when defining it
         bool isProgramShadowCaster; // when referencing, are we in context of shadow caster
-        bool isProgramShadowReceiver; // when referencing, are we in context of shadow caster
+        bool isVertexProgramShadowReceiver; // when referencing, are we in context of shadow caster
+		bool isFragmentProgramShadowReceiver; // when referencing, are we in context of shadow caster
         GpuProgramParametersSharedPtr programParams;
 		MaterialScriptProgramDefinition* programDef; // this is used while defining a program
 
