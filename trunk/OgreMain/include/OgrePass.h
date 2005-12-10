@@ -131,6 +131,8 @@ namespace Ogre {
         GpuProgramUsage *mShadowReceiverVertexProgramUsage;
 		// Fragment program details
 		GpuProgramUsage *mFragmentProgramUsage;
+		// Fragment program details
+		GpuProgramUsage *mShadowReceiverFragmentProgramUsage;
         // Is this pass queued for deletion?
         bool mQueuedForDeletion;
         // number of pass iterations to perform
@@ -355,6 +357,13 @@ namespace Ogre {
             Returns 0 if name match is not found.
         */
         TextureUnitState* getTextureUnitState(const String& name);
+		/** Retrieves a const pointer to a texture unit state.
+		*/
+		const TextureUnitState* getTextureUnitState(unsigned short index) const;
+		/** Retrieves the Texture Unit State matching name.
+		Returns 0 if name match is not found.
+		*/
+		const TextureUnitState* getTextureUnitState(const String& name) const;
 
         /**  Retrieve the index of the Texture Unit State in the pass.
         @param
@@ -857,6 +866,36 @@ namespace Ogre {
         for setting high-level program parameters.
         */
         void setShadowReceiverVertexProgramParameters(GpuProgramParametersSharedPtr params);
+
+		/** This method allows you to specify a fragment program for use when
+			rendering a texture shadow receiver. 
+		@remarks
+			Texture shadows are applied by rendering the receiver. Modulative texture
+			shadows are performed as a post-render darkening pass, and as such 
+			fragment programs are generally not required per-object. Additive
+			texture shadows, however, are applied by accumulating light masked
+			out using a texture shadow (black & white by default, unless you
+			customise this using SceneManager::setCustomShadowCasterMaterial).
+			OGRE can do this for you for most materials, but if you use a custom
+			lighting program (e.g. per pixel lighting) then you'll need to provide
+			a custom version for receiving shadows. You don't need to provide
+			this for shadow casters if you don't use self-shadowing since they
+			will never be shadow receivers too.
+		@par
+			The shadow texture is always bound to texture unit 0 when rendering
+			texture shadow passes. Therefore your custom shadow receiver program
+			may well just need to shift it's texture unit usage up by one unit,
+			and take the shadow texture into account in its calculations.
+		*/
+		void setShadowReceiverFragmentProgram(const String& name);
+        /** Sets the fragment program parameters for rendering as a shadow receiver.
+        @remarks
+        Only applicable to programmable passes, and this particular call is
+        designed for low-level programs; use the named parameter methods
+        for setting high-level program parameters.
+        */
+        void setShadowReceiverFragmentProgramParameters(GpuProgramParametersSharedPtr params);
+
         /** Gets the name of the vertex program used by this pass when rendering shadow receivers. */
         const String& getShadowReceiverVertexProgramName(void) const;
         /** Gets the vertex program parameters used by this pass when rendering shadow receivers. */
@@ -865,6 +904,13 @@ namespace Ogre {
         only available after _load(). */
         const GpuProgramPtr& getShadowReceiverVertexProgram(void) const;
 
+		/** Gets the name of the fragment program used by this pass when rendering shadow receivers. */
+		const String& getShadowReceiverFragmentProgramName(void) const;
+		/** Gets the fragment program parameters used by this pass when rendering shadow receivers. */
+		GpuProgramParametersSharedPtr getShadowReceiverFragmentProgramParameters(void) const;
+		/** Gets the fragment program used by this pass when rendering shadow receivers, 
+		only available after _load(). */
+		const GpuProgramPtr& getShadowReceiverFragmentProgram(void) const;
 
 		/** Sets the details of the fragment program to use.
 		@remarks

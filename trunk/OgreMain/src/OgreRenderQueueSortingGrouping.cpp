@@ -36,9 +36,11 @@ namespace Ogre {
 
 	//-----------------------------------------------------------------------
 	RenderPriorityGroup::RenderPriorityGroup(RenderQueueGroup* parent, 
-            bool splitPassesByLightingType, bool splitNoShadowPasses)
+            bool splitPassesByLightingType, bool splitNoShadowPasses, 
+			bool shadowCastersNotReceivers)
 	 	:mParent(parent), mSplitPassesByLightingType(splitPassesByLightingType),
-            mSplitNoShadowPasses(splitNoShadowPasses) 
+            mSplitNoShadowPasses(splitNoShadowPasses), 
+			mShadowCastersNotReceivers(shadowCastersNotReceivers)
 	{
 		// Initialise collection sorting options
 		// this can become dynamic according to invocation later
@@ -97,7 +99,9 @@ namespace Ogre {
         }
         else
         {
-            if (mSplitNoShadowPasses && !pTech->getParent()->getReceiveShadows())
+            if (mSplitNoShadowPasses && 
+				(!pTech->getParent()->getReceiveShadows() ||
+				rend->getCastsShadows() && mShadowCastersNotReceivers))
             {
                 // Add solid renderable and add passes to no-shadow group
                 addSolidRenderable(pTech, rend, true);

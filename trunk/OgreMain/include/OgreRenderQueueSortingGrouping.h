@@ -317,6 +317,7 @@ namespace Ogre {
         RenderQueueGroup* mParent;
         bool mSplitPassesByLightingType;
         bool mSplitNoShadowPasses;
+		bool mShadowCastersNotReceivers;
         /// Solid pass list, used when no shadows, modulative shadows, or ambient passes for additive
 		QueuedRenderableCollection mSolidsBasic;
         /// Solid per-light pass list, used with additive shadows
@@ -340,7 +341,8 @@ namespace Ogre {
 
     public:
         RenderPriorityGroup(RenderQueueGroup* parent, 
-            bool splitPassesByLightingType, bool splitNoShadowPasses); 
+            bool splitPassesByLightingType, bool splitNoShadowPasses, 
+			bool shadowCastersNotReceivers); 
            
         ~RenderPriorityGroup() { }
 
@@ -418,6 +420,15 @@ namespace Ogre {
             mSplitNoShadowPasses = split;
         }
 
+		/** Sets whether or not objects which cast shadows should be treated as
+			never receiving shadows. 
+		*/
+		void setShadowCastersCannotBeReceivers(bool ind)
+		{
+			mShadowCastersNotReceivers = ind;
+		}
+
+
 
     };
 
@@ -438,6 +449,7 @@ namespace Ogre {
         RenderQueue* mParent;
         bool mSplitPassesByLightingType;
         bool mSplitNoShadowPasses;
+		bool mShadowCastersNotReceivers;
         /// Map of RenderPriorityGroup objects
         PriorityMap mPriorityGroups;
 		/// Whether shadows are enabled for this queue
@@ -448,7 +460,8 @@ namespace Ogre {
 		RenderQueueGroup(RenderQueue* parent, bool splitPassesByLightingType, 
             bool splitNoShadowPasses) 
             :mParent(parent), mSplitPassesByLightingType(splitPassesByLightingType),
-            mSplitNoShadowPasses(splitNoShadowPasses), mShadowsEnabled(true) {}
+            mSplitNoShadowPasses(splitNoShadowPasses), mShadowsEnabled(true), 
+			mShadowCastersNotReceivers(false) {}
 
         ~RenderQueueGroup() {
             // destroy contents now
@@ -475,7 +488,8 @@ namespace Ogre {
             {
                 // Missing, create
                 pPriorityGrp = new RenderPriorityGroup(this, 
-                    mSplitPassesByLightingType, mSplitNoShadowPasses);
+                    mSplitPassesByLightingType, mSplitNoShadowPasses, 
+					mShadowCastersNotReceivers);
                 mPriorityGroups.insert(PriorityMap::value_type(priority, pPriorityGrp));
             }
             else
@@ -556,6 +570,19 @@ namespace Ogre {
                 i->second->setSplitNoShadowPasses(split);
             }
         }
+		/** Sets whether or not objects which cast shadows should be treated as
+		never receiving shadows. 
+		*/
+		void setShadowCastersCannotBeReceivers(bool ind)
+		{
+			mShadowCastersNotReceivers = ind;
+			PriorityMap::iterator i, iend;
+			iend = mPriorityGroups.end();
+			for (i = mPriorityGroups.begin(); i != iend; ++i)
+			{
+				i->second->setShadowCastersCannotBeReceivers(ind);
+			}
+		}
 		/** Reset the organisation modes required for the solids in this group. 
 		@remarks
 			You can only do this when the group is empty, ie after clearing the 

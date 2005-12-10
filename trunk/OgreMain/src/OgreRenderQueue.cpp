@@ -34,7 +34,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //---------------------------------------------------------------------
-    RenderQueue::RenderQueue() : mSplitPassesByLightingType(false), mSplitNoShadowPasses(false)
+    RenderQueue::RenderQueue() : mSplitPassesByLightingType(false), 
+		mSplitNoShadowPasses(false), mShadowCastersCannotBeReceivers(false)
     {
         // Create the 'main' queue up-front since we'll always need that
         mGroups.insert(
@@ -186,6 +187,19 @@ namespace Ogre {
             i->second->setSplitNoShadowPasses(split);
         }
     }
+	//-----------------------------------------------------------------------
+	void RenderQueue::setShadowCastersCannotBeReceivers(bool ind)
+	{
+		mShadowCastersCannotBeReceivers = ind;
+
+		RenderQueueGroupMap::iterator i, iend;
+		i = mGroups.begin();
+		iend = mGroups.end();
+		for (; i != iend; ++i)
+		{
+			i->second->setShadowCastersCannotBeReceivers(ind);
+		}
+	}
 
 }
 

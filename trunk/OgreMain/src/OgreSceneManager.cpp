@@ -1781,27 +1781,39 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(
             // if this light is a spotlight, we need to add the spot fader layer
             if (l->getType() == Light::LT_SPOTLIGHT)
             {
+				// remove all TUs except 0 & 1 
+				// (only an issue if additive shadows have been used)
+				while(targetPass->getNumTextureUnitStates() > 2)
+					targetPass->removeTextureUnitState(2);
+
                 // Add spot fader if not present already
-                if (targetPass->getNumTextureUnitStates() == 1)
-                {
+                if (targetPass->getNumTextureUnitStates() == 2 && 
+					targetPass->getTextureUnitState(1)->getTextureName() == 
+						"spot_shadow_fade.png")
+				{
+					// Just set 
+					TextureUnitState* t = 
+						targetPass->getTextureUnitState(1);
+					t->setProjectiveTexturing(true, cam);
+				}
+                else
+				{
+					// Remove any non-conforming spot layers
+					while(targetPass->getNumTextureUnitStates() > 1)
+						targetPass->removeTextureUnitState(1);
+
                     TextureUnitState* t = 
                         mShadowReceiverPass->createTextureUnitState("spot_shadow_fade.png");
                     t->setProjectiveTexturing(true, cam);
                     t->setColourOperation(LBO_ADD);
                     t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
                 }
-                else
-                {
-                    // Just set projector
-                    TextureUnitState* t = 
-                        targetPass->getTextureUnitState(1);
-                    t->setProjectiveTexturing(true, cam);
-                }
             }
-            else if (targetPass->getNumTextureUnitStates() > 1)
+            else 
             {
-                // remove spot fader layer
-                targetPass->removeTextureUnitState(1);
+				// remove all TUs except 0 including spot
+				while(targetPass->getNumTextureUnitStates() > 1)
+	                targetPass->removeTextureUnitState(1);
 
             }
 			// Set lighting / blending modes
@@ -1877,8 +1889,6 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
 
 				if (l->getCastShadows())
 				{
-					mIlluminationStage = IRS_RENDER_RECEIVER_PASS;
-
 					// Store current shadow texture
 					mCurrentShadowTexture = si->getPointer();
 					// Get camera for current shadow texture
@@ -1892,9 +1902,12 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
 					targetPass->getTextureUnitState(0)->setProjectiveTexturing(true, cam);
 					mAutoParamDataSource.setTextureProjector(cam);
 					// Remove any spot fader layer
-					if (targetPass->getNumTextureUnitStates() > 1)
+					if (targetPass->getNumTextureUnitStates() > 1 && 
+						targetPass->getTextureUnitState(1)->getTextureName() 
+							== "spot_shadow_fade.png")
 					{
-						// remove spot fader layer
+						// remove spot fader layer (should only be there if
+						// we previously used modulative shadows)
 						targetPass->removeTextureUnitState(1);
 					}
 					// Set lighting / blending modes
@@ -1910,11 +1923,14 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
 
 					// increment shadow texture since used
 					++si;
+
+					mIlluminationStage = IRS_RENDER_RECEIVER_PASS;
+
 				}
 				else
 				{
-					// Lighting only render, no shadows
-					mIlluminationStage = IRS_RENDER_RECEIVER_PASS;
+					mIlluminationStage = IRS_NONE;
+
 				}
 				renderObjects(pPriorityGrp->getSolidsDiffuseSpecular(), om, false, &lightList);
 
@@ -2018,10 +2034,11 @@ void SceneManager::SceneMgrQueuedRenderableVisitor::visit(const RenderablePass* 
 bool SceneManager::validatePassForRendering(const Pass* pass)
 {
     // Bypass if we're doing a texture shadow render and 
-    // this pass is after the first (only 1 pass needed for shadow texture)
+    // this pass is after the first (only 1 pass needed for modulative shadow texture)
 	// Also bypass if passes above the first if render state changes are
 	// suppressed since we're not actually using this pass data anyway
-    if ((mIlluminationStage == IRS_RENDER_TO_TEXTURE ||
+    if (isShadowTechniqueModulative() &&
+		(mIlluminationStage == IRS_RENDER_TO_TEXTURE ||
         mIlluminationStage == IRS_RENDER_RECEIVER_PASS ||
 		mSuppressRenderStateChanges) && 
         pass->getIndex() > 0)
@@ -2251,19 +2268,6 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 
 	if (!mSuppressRenderStateChanges)
 	{
-		// Special-case texture additive shadows, since if shadow casting is on
-		// and we're not self shadowing, shadow receipt must be turned off but
-		// we must still render the object
-		bool restoreTextureUnitAfterShadow = false;
-		if (mIlluminationStage == IRS_RENDER_RECEIVER_PASS &&
-			mShadowTechnique == SHADOWTYPE_TEXTURE_ADDITIVE &&
-			rend->getCastsShadows() && !mShadowTextureSelfShadow)
-		{
-			// turn off (always unit 0)
-			mDestRenderSystem->_setTexture(0, false, StringUtil::BLANK);
-			restoreTextureUnitAfterShadow = true;
-		}
-
 		if (doLightIteration)
 		{
 			// Here's where we issue the rendering operation to the render system
@@ -2369,19 +2373,6 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 			mDestRenderSystem->_render(ro);
 		}
 
-		if (restoreTextureUnitAfterShadow)
-		{
-			if (mShadowTextureCustomReceiverPass)
-			{
-				mDestRenderSystem->_setTexture(0, true, 
-					mShadowTextureCustomReceiverPass->getTextureUnitState(0)->getTextureName());
-			}
-			else
-			{
-				mDestRenderSystem->_setTexture(0, true, 
-					mShadowReceiverPass->getTextureUnitState(0)->getTextureName());
-			}
-		}
 	}
 	else // mSuppressRenderStateChanges
 	{
@@ -2824,7 +2815,14 @@ void SceneManager::setShadowTechnique(ShadowTechnique technique)
             // tell all meshes to prepare shadow volumes
             MeshManager::getSingleton().setPrepareAllMeshesForShadowVolumes(true);
         }
+
+		// Casters can always be receivers
+		getRenderQueue()->setShadowCastersCannotBeReceivers(false);
     }
+	else // texture based
+	{
+		getRenderQueue()->setShadowCastersCannotBeReceivers(!mShadowTextureSelfShadow);
+	}
 
     if (isShadowTechniqueAdditive())
     {
@@ -3309,27 +3307,134 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 
     if (isShadowTechniqueTextureBased())
     {
-		if (mShadowTextureCustomReceiverPass)
-		{
-			// Receiver pass has been customised
+		Pass* retPass = mShadowTextureCustomReceiverPass ? 
+			mShadowTextureCustomReceiverPass : mShadowReceiverPass;
 
-			if (!pass->getShadowReceiverVertexProgramName().empty())
+		if (pass->hasVertexProgram())
+		{
+			// Have to merge the receiver vertex program in
+			retPass->setVertexProgram(
+				pass->getShadowReceiverVertexProgramName());
+			// Did this result in a new vertex program?
+			if (retPass->hasVertexProgram())
 			{
-				// Have to merge the shadow Receiver vertex program in
-				mShadowTextureCustomReceiverPass->setVertexProgram(
-					pass->getShadowReceiverVertexProgramName());
-				const GpuProgramPtr& prg = mShadowTextureCustomReceiverPass->getVertexProgram();
-				// Load this program if not done already
+				const GpuProgramPtr& prg = retPass->getVertexProgram();
+				// Load this program if required
 				if (!prg->isLoaded())
 					prg->load();
 				// Copy params
-				mShadowTextureCustomReceiverPass->setVertexProgramParameters(
+				retPass->setVertexProgramParameters(
 					pass->getShadowReceiverVertexProgramParameters());
-				// mark that we've overridden the standard
-				mShadowTextureReceiverVPDirty = true;
-				// Also have to hack the light autoparams, that is done later
+
+				if (retPass == mShadowTextureCustomReceiverPass)
+				{
+					// mark that we've overridden the standard
+					mShadowTextureReceiverVPDirty = true;
+				}
 			}
-			else if (mShadowTextureReceiverVPDirty)
+			// Also have to hack the light autoparams, that is done later
+		}
+		else
+		{
+			retPass->setVertexProgram(StringUtil::BLANK);
+		}
+
+		bool resetFragmentProgram = true;
+		// If additive, need lighting parameters & standard programs
+		if (isShadowTechniqueAdditive())
+		{
+			retPass->setLightingEnabled(true);
+			retPass->setAmbient(pass->getAmbient());
+			retPass->setSelfIllumination(pass->getSelfIllumination());
+			retPass->setDiffuse(pass->getDiffuse());
+			retPass->setSpecular(pass->getSpecular());
+			retPass->setShininess(pass->getShininess());
+			retPass->setIteratePerLight(pass->getIteratePerLight(), 
+				pass->getRunOnlyForOneLightType(), pass->getOnlyLightType());
+
+			// Will also need fragment programs since this is a complex light setup
+			if (pass->hasFragmentProgram())
+			{
+				String fragName = pass->getShadowReceiverFragmentProgramName();
+				GpuProgramParametersSharedPtr params;
+				if (!fragName.empty())
+				{
+					resetFragmentProgram = false;
+
+					params = pass->getShadowReceiverFragmentProgramParameters();
+
+					retPass->setFragmentProgram(fragName);
+					const GpuProgramPtr& prg = retPass->getFragmentProgram();
+					// Load this program if required
+					if (!prg->isLoaded())
+						prg->load();
+					// Copy params
+					retPass->setFragmentProgramParameters(params);
+
+					// Copy texture state, shift up one since 0 is shadow texture
+					size_t origPassTUCount = pass->getNumTextureUnitStates();
+					for (size_t t = 0; t < origPassTUCount; ++t)
+					{
+						size_t targetIndex = t+1;
+						TextureUnitState* tex;
+						if (retPass->getNumTextureUnitStates() <= targetIndex)
+						{
+							tex = retPass->createTextureUnitState();
+						}
+						else
+						{
+							tex = retPass->getTextureUnitState(targetIndex);
+						}
+						(*tex) = *(pass->getTextureUnitState(t));
+					}
+					// Remove any extras
+					while (retPass->getNumTextureUnitStates() > (origPassTUCount + 1))
+					{
+						retPass->removeTextureUnitState(origPassTUCount+1);
+					}
+
+					// Did we bind a shadow vertex program?
+					if (pass->hasVertexProgram() && !retPass->hasVertexProgram())
+					{
+						// We didn't bind a receiver-specific program, so bind the original
+						retPass->setVertexProgram(pass->getVertexProgramName());
+						const GpuProgramPtr& prg = retPass->getVertexProgram();
+						// Load this program if required
+						if (!prg->isLoaded())
+							prg->load();
+						// Copy params
+						retPass->setVertexProgramParameters(
+							pass->getVertexProgramParameters());
+
+						if (retPass == mShadowTextureCustomReceiverPass)
+						{
+							// mark that we've overridden the standard
+							mShadowTextureReceiverVPDirty = true;
+						}
+					}
+				} // valid shadow fragment program
+			} // ori pass has fragment program
+			
+		}// additive lighting
+
+		// reset fragment program
+		if (resetFragmentProgram)
+		{
+			retPass->setFragmentProgram(StringUtil::BLANK);
+			// Remove any extra texture units
+			while (retPass->getNumTextureUnitStates() > 1)
+			{
+				retPass->removeTextureUnitState(1);
+			}
+		}
+
+		// reset vertex program
+		if (retPass->hasVertexProgram() && !pass->hasVertexProgram())
+		{
+			// reset
+			retPass->setVertexProgram("");
+
+			if (mShadowTextureReceiverVPDirty)
 			{
 				// reset
 				mShadowTextureCustomReceiverPass->setVertexProgram(
@@ -3342,38 +3447,11 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 				}
 				mShadowTextureReceiverVPDirty = false;
 			}
-			return mShadowTextureCustomReceiverPass;
-		}
-		else
-		{
-			if (pass->hasVertexProgram())
-			{
-				// Have to merge the receiver vertex program in
-				// This may return "" which means fixed function will be used
-				mShadowReceiverPass->setVertexProgram(
-					pass->getShadowReceiverVertexProgramName());
-				// Did this result in a new vertex program?
-				if (mShadowReceiverPass->hasVertexProgram())
-				{
-					const GpuProgramPtr& prg = mShadowReceiverPass->getVertexProgram();
-					// Load this program if required
-					if (!prg->isLoaded())
-						prg->load();
-					// Copy params
-					mShadowReceiverPass->setVertexProgramParameters(
-						pass->getShadowReceiverVertexProgramParameters());
-				}
-				// Also have to hack the light autoparams, that is done later
-			}
-			else if (mShadowReceiverPass->hasVertexProgram())
-			{
-				// reset
-				mShadowReceiverPass->setVertexProgram("");
-
-			}
 		}
 
-        return mShadowReceiverPass;
+		retPass->_load();
+
+		return retPass;
 	}
 	else
 	{
@@ -3828,6 +3906,12 @@ void SceneManager::setShadowTextureSettings(unsigned short size,
     mShadowTextureCount = count;
     mShadowTextureSize = size;
 	mShadowTextureFormat = fmt;
+}
+//---------------------------------------------------------------------
+void SceneManager::setShadowTextureSelfShadow(bool selfShadow) 
+{ 
+	mShadowTextureSelfShadow = selfShadow; 
+	getRenderQueue()->setShadowCastersCannotBeReceivers(!selfShadow);
 }
 //---------------------------------------------------------------------
 void SceneManager::setShadowTextureCasterMaterial(const String& name)

@@ -1794,8 +1794,8 @@ namespace Ogre {
 			this case you might want to enable this option.
 		@param selfShadow Whether to attempt self-shadowing with texture shadows
 		*/
-		virtual void setShadowTextureSelfShadow(bool selfShadow) 
-		{ mShadowTextureSelfShadow = selfShadow; }
+		virtual void setShadowTextureSelfShadow(bool selfShadow); 
+
 		/// Gets whether or not texture shadows attempt to self-shadow.
 		virtual bool getShadowTextureSelfShadow(void) const 
 		{ return mShadowTextureSelfShadow; }

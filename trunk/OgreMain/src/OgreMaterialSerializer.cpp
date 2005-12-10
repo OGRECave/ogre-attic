@@ -1937,7 +1937,8 @@ namespace Ogre
             }
 
             context.isProgramShadowCaster = false;
-            context.isProgramShadowReceiver = false;
+            context.isVertexProgramShadowReceiver = false;
+			context.isFragmentProgramShadowReceiver = false;
             
             // Set the vertex program for this pass
             context.pass->setVertexProgram(params);
@@ -1968,7 +1969,8 @@ namespace Ogre
         }
 
         context.isProgramShadowCaster = true;
-        context.isProgramShadowReceiver = false;
+        context.isVertexProgramShadowReceiver = false;
+		context.isFragmentProgramShadowReceiver = false;
 
         // Set the vertex program for this pass
         context.pass->setShadowCasterVertexProgram(params);
@@ -1992,14 +1994,15 @@ namespace Ogre
         if (context.program.isNull())
         {
             // Unknown program
-            logParseError("Invalid vertex_program_ref entry - vertex program " 
+            logParseError("Invalid shadow_receiver_vertex_program_ref entry - vertex program " 
                 + params + " has not been defined.", context);
             return true;
         }
         
 
         context.isProgramShadowCaster = false;
-        context.isProgramShadowReceiver = true;
+        context.isVertexProgramShadowReceiver = true;
+		context.isFragmentProgramShadowReceiver = false;
 
         // Set the vertex program for this pass
         context.pass->setShadowReceiverVertexProgram(params);
@@ -2013,6 +2016,38 @@ namespace Ogre
         // Return TRUE because this must be followed by a {
         return true;
     }
+	//-----------------------------------------------------------------------
+	bool parseShadowReceiverFragmentProgramRef(String& params, MaterialScriptContext& context)
+	{
+		// update section
+		context.section = MSS_PROGRAM_REF;
+
+		context.program = GpuProgramManager::getSingleton().getByName(params);
+		if (context.program.isNull())
+		{
+			// Unknown program
+			logParseError("Invalid shadow_receiver_fragment_program_ref entry - fragment program " 
+				+ params + " has not been defined.", context);
+			return true;
+		}
+
+
+		context.isProgramShadowCaster = false;
+		context.isVertexProgramShadowReceiver = false;
+		context.isFragmentProgramShadowReceiver = true;
+
+		// Set the vertex program for this pass
+		context.pass->setShadowReceiverFragmentProgram(params);
+
+		// Create params? Skip this if program is not supported
+		if (context.program->isSupported())
+		{
+			context.programParams = context.pass->getShadowReceiverFragmentProgramParameters();
+		}
+
+		// Return TRUE because this must be followed by a {
+		return true;
+	}
     //-----------------------------------------------------------------------
     bool parseFragmentProgramRef(String& params, MaterialScriptContext& context)
     {
@@ -2308,6 +2343,7 @@ namespace Ogre
         mPassAttribParsers.insert(AttribParserList::value_type("vertex_program_ref", (ATTRIBUTE_PARSER)parseVertexProgramRef));
         mPassAttribParsers.insert(AttribParserList::value_type("shadow_caster_vertex_program_ref", (ATTRIBUTE_PARSER)parseShadowCasterVertexProgramRef));
         mPassAttribParsers.insert(AttribParserList::value_type("shadow_receiver_vertex_program_ref", (ATTRIBUTE_PARSER)parseShadowReceiverVertexProgramRef));
+		mPassAttribParsers.insert(AttribParserList::value_type("shadow_receiver_fragment_program_ref", (ATTRIBUTE_PARSER)parseShadowReceiverFragmentProgramRef));
         mPassAttribParsers.insert(AttribParserList::value_type("fragment_program_ref", (ATTRIBUTE_PARSER)parseFragmentProgramRef));
         mPassAttribParsers.insert(AttribParserList::value_type("max_lights", (ATTRIBUTE_PARSER)parseMaxLights));
         mPassAttribParsers.insert(AttribParserList::value_type("iteration", (ATTRIBUTE_PARSER)parseIteration));

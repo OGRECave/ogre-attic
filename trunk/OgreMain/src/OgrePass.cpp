@@ -80,6 +80,7 @@ namespace Ogre {
 		mVertexProgramUsage = NULL;
         mShadowCasterVertexProgramUsage = NULL;
         mShadowReceiverVertexProgramUsage = NULL;
+		mShadowReceiverFragmentProgramUsage = NULL;
 		mFragmentProgramUsage = NULL;
 
         mQueuedForDeletion = false;
@@ -178,6 +179,14 @@ namespace Ogre {
         {
 		    mFragmentProgramUsage = NULL;
         }
+		if (oth.mShadowReceiverFragmentProgramUsage)
+		{
+			mShadowReceiverFragmentProgramUsage = new GpuProgramUsage(*(oth.mShadowReceiverFragmentProgramUsage));
+		}
+		else
+		{
+			mShadowReceiverFragmentProgramUsage = NULL;
+		}
 
 		TextureUnitStates::const_iterator i, iend;
 
@@ -383,6 +392,33 @@ namespace Ogre {
 
         return foundTUS;
     }
+	//-----------------------------------------------------------------------
+	const TextureUnitState* Pass::getTextureUnitState(unsigned short index) const
+	{
+		assert (index < mTextureUnitStates.size() && "Index out of bounds");
+		return mTextureUnitStates[index];
+	}
+	//-----------------------------------------------------------------------------
+	const TextureUnitState* Pass::getTextureUnitState(const String& name) const
+	{
+		TextureUnitStates::const_iterator i    = mTextureUnitStates.begin();
+		TextureUnitStates::const_iterator iend = mTextureUnitStates.end();
+		const TextureUnitState* foundTUS = 0;
+
+		// iterate through TUS Container to find a match
+		while (i != iend)
+		{
+			if ( (*i)->getName() == name )
+			{
+				foundTUS = (*i);
+				break;
+			}
+
+			++i;
+		}
+
+		return foundTUS;
+	}
 
     //-----------------------------------------------------------------------
     unsigned short Pass::getTextureUnitStateIndex(const TextureUnitState* state)
@@ -757,6 +793,11 @@ namespace Ogre {
 			// Load fragment program
             mFragmentProgramUsage->_load();
 		}
+		if (mShadowReceiverFragmentProgramUsage)
+		{
+			// Load Fragment program
+			mShadowReceiverFragmentProgramUsage->_load();
+		}
 
         // Recalculate hash
         _dirtyHash();
@@ -1028,6 +1069,11 @@ namespace Ogre {
             delete mFragmentProgramUsage;
             mFragmentProgramUsage = 0;
         }
+		if (mShadowReceiverFragmentProgramUsage)
+		{
+			delete mShadowReceiverFragmentProgramUsage;
+			mShadowReceiverFragmentProgramUsage = 0;
+		}
         // remove from dirty list, if there
         msDirtyHashList.erase(this);
 
@@ -1156,6 +1202,61 @@ namespace Ogre {
     {
         return mShadowReceiverVertexProgramUsage->getProgram();
     }
+	//-----------------------------------------------------------------------
+	void Pass::setShadowReceiverFragmentProgram(const String& name)
+	{
+		// Turn off Fragment program if name blank
+		if (name.empty())
+		{
+			if (mShadowReceiverFragmentProgramUsage) delete mShadowReceiverFragmentProgramUsage;
+			mShadowReceiverFragmentProgramUsage = NULL;
+		}
+		else
+		{
+			if (!mShadowReceiverFragmentProgramUsage)
+			{
+				mShadowReceiverFragmentProgramUsage = new GpuProgramUsage(GPT_FRAGMENT_PROGRAM);
+			}
+			mShadowReceiverFragmentProgramUsage->setProgramName(name);
+		}
+		// Needs recompilation
+		mParent->_notifyNeedsRecompile();
+	}
+	//-----------------------------------------------------------------------
+	void Pass::setShadowReceiverFragmentProgramParameters(GpuProgramParametersSharedPtr params)
+	{
+		if (!mShadowReceiverFragmentProgramUsage)
+		{
+			OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS, 
+				"This pass does not have a shadow receiver fragment program assigned!", 
+				"Pass::setShadowReceiverFragmentProgramParameters");
+		}
+		mShadowReceiverFragmentProgramUsage->setParameters(params);
+	}
+	//-----------------------------------------------------------------------
+	const String& Pass::getShadowReceiverFragmentProgramName(void) const
+	{
+		if (!mShadowReceiverFragmentProgramUsage)
+			return StringUtil::BLANK;
+		else
+			return mShadowReceiverFragmentProgramUsage->getProgramName();
+	}
+	//-----------------------------------------------------------------------
+	GpuProgramParametersSharedPtr Pass::getShadowReceiverFragmentProgramParameters(void) const
+	{
+		if (!mShadowReceiverFragmentProgramUsage)
+		{
+			OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS, 
+				"This pass does not have a shadow receiver fragment program assigned!", 
+				"Pass::getShadowReceiverFragmentProgramParameters");
+		}
+		return mShadowReceiverFragmentProgramUsage->getParameters();
+	}
+	//-----------------------------------------------------------------------
+	const GpuProgramPtr& Pass::getShadowReceiverFragmentProgram(void) const
+	{
+		return mShadowReceiverFragmentProgramUsage->getProgram();
+	}
     //-----------------------------------------------------------------------
 	const String& Pass::getResourceGroup(void) const
 	{
