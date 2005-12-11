@@ -59,6 +59,7 @@ AnimationState* mAnimState = 0;
 Overlay* mpOverlay;
 Entity* pPlaneEnt;
 Camera* testCam = 0;
+Camera* reflectCam = 0;
 SceneNode* camPlaneNode[6];
 Light* mLight;
 IntersectionSceneQuery* intersectionQuery = 0;
@@ -66,6 +67,7 @@ RaySceneQuery* rayQuery = 0;
 Entity* ball = 0;
 Vector3 ballVector;
 bool testreload = false;
+Plane plane;
 
 
 // Hacky globals
@@ -194,8 +196,16 @@ public:
 
 
 
+        bool ret = ExampleFrameListener::frameStarted(evt);
 
-        return ExampleFrameListener::frameStarted(evt);
+		// Sync reflection cam
+		if (reflectCam)
+		{
+			reflectCam->setOrientation(mCamera->getOrientation());
+			reflectCam->setPosition(mCamera->getPosition());
+		}
+
+		return ret;
 
     }
 
@@ -417,7 +427,8 @@ public:
         // Print camera details
         mWindow->setDebugText("P: " + StringConverter::toString(mCamera->getDerivedPosition()) + " " + 
             "O: " + StringConverter::toString(mCamera->getDerivedOrientation()));
-        return ExampleFrameListener::frameStarted(evt) && ExampleFrameListener::frameEnded(evt);        
+        return ExampleFrameListener::frameStarted(evt) && ExampleFrameListener::frameEnded(evt);      
+
 
     }
 
@@ -738,39 +749,112 @@ protected:
 
     }
 
+	void testReflectedBillboards()
+	{
+		// Set ambient light
+		mSceneMgr->setAmbientLight(ColourValue(0.2, 0.2, 0.2));
+
+		// Create a light
+		Light* l = mSceneMgr->createLight("MainLight");
+		l->setType(Light::LT_DIRECTIONAL);
+		Vector3 dir(0.5, -1, 0);
+		dir.normalise();
+		l->setDirection(dir);
+		l->setDiffuseColour(1.0f, 1.0f, 0.8f);
+		l->setSpecularColour(1.0f, 1.0f, 1.0f);
+
+
+		// Create a prefab plane
+		plane.d = 0;
+		plane.normal = Vector3::UNIT_Y;
+		MeshManager::getSingleton().createPlane("ReflectionPlane", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+			plane, 2000, 2000, 
+			1, 1, true, 1, 1, 1, Vector3::UNIT_Z);
+		Entity* planeEnt = mSceneMgr->createEntity( "Plane", "ReflectionPlane" );
+
+		// Attach the rtt entity to the root of the scene
+		SceneNode* rootNode = mSceneMgr->getRootSceneNode();
+		SceneNode* planeNode = rootNode->createChildSceneNode();
+
+		// Attach both the plane entity, and the plane definition
+		planeNode->attachObject(planeEnt);
+
+		RenderTexture* rttTex = mRoot->getRenderSystem()->createRenderTexture( "RttTex", 512, 512, TEX_TYPE_2D, PF_R8G8B8 );
+		{
+			reflectCam = mSceneMgr->createCamera("ReflectCam");
+			reflectCam->setNearClipDistance(mCamera->getNearClipDistance());
+			reflectCam->setFarClipDistance(mCamera->getFarClipDistance());
+			reflectCam->setAspectRatio(
+				(Real)mWindow->getViewport(0)->getActualWidth() / 
+				(Real)mWindow->getViewport(0)->getActualHeight());
+
+			Viewport *v = rttTex->addViewport( reflectCam );
+			v->setClearEveryFrame( true );
+			v->setBackgroundColour( ColourValue::Black );
+
+			MaterialPtr mat = MaterialManager::getSingleton().create("RttMat",
+				ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+			TextureUnitState* t = mat->getTechnique(0)->getPass(0)->createTextureUnitState("RustedMetal.jpg");
+			t = mat->getTechnique(0)->getPass(0)->createTextureUnitState("RttTex");
+			// Blend with base texture
+			t->setColourOperationEx(LBX_BLEND_MANUAL, LBS_TEXTURE, LBS_CURRENT, ColourValue::White, 
+				ColourValue::White, 0.25);
+			t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+			t->setProjectiveTexturing(true, reflectCam);
+
+			// set up linked reflection
+			reflectCam->enableReflection(plane);
+			// Also clip
+			reflectCam->enableCustomNearClipPlane(plane);
+		}
+
+		// Give the plane a texture
+		planeEnt->setMaterialName("RttMat");
+
+
+		// point billboards
+		ParticleSystem* pSys2 = ParticleSystemManager::getSingleton().createSystem("fountain1", 
+			"Examples/Smoke");
+		// Point the fountain at an angle
+		SceneNode* fNode = static_cast<SceneNode*>(rootNode->createChild());
+		fNode->attachObject(pSys2);
+
+		// oriented_self billboards
+		ParticleSystem* pSys3 = ParticleSystemManager::getSingleton().createSystem("fountain2", 
+			"Examples/PurpleFountain");
+		// Point the fountain at an angle
+		fNode = rootNode->createChildSceneNode();
+		fNode->translate(-200,-100,0);
+		fNode->rotate(Vector3::UNIT_Z, Degree(-20));
+		fNode->attachObject(pSys3);
+
+
+		
+		// oriented_common billboards
+		ParticleSystem* pSys4 = ParticleSystemManager::getSingleton().createSystem("rain", 
+			"Examples/Rain");
+		SceneNode* rNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		rNode->translate(0,1000,0);
+		rNode->attachObject(pSys4);
+		// Fast-forward the rain so it looks more natural
+		pSys4->fastForward(5);
+
+
+		mCamera->setPosition(-50, 100, 500);
+		mCamera->lookAt(0,0,0);
+	}
+
 	void testBug()
 	{
+		SceneNode* n = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		SceneNode* n2 = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		n->setAutoTracking(true, n2);
 
-		//Load the main background
-		MaterialPtr      bgmaterial = MaterialManager::getSingleton().create("Background", "General");
-		bgmaterial->getTechnique(0)->getPass(0)->createTextureUnitState("ogrelogo.png");
-		bgmaterial->getTechnique(0)->getPass(0)->setDepthCheckEnabled(false);
-		bgmaterial->getTechnique(0)->getPass(0)->setDepthWriteEnabled(false);
-
-		//Disable lighting on background
-		bgmaterial->getTechnique(0)->getPass(0)->setLightingEnabled(false);
-
-		//Create background rectangle
-		Rectangle2D*   bgrect = new Rectangle2D(true);
-
-		//Cover whole screen
-		bgrect->setCorners(-1.0,1.0,1.0,-1.0);
-
-		//Kludge: set bounding box to a large size.
-		bgrect->setBoundingBox(AxisAlignedBox(-10000.0*Vector3::UNIT_SCALE, 100000.0*Vector3::UNIT_SCALE));
-		bgrect->setMaterial("Background");
-
-		//Render background before everything else
-		bgrect->setRenderQueueGroup(RENDER_QUEUE_BACKGROUND);
-
-		//Attach background to the scene
-		SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode("Background");
-		node->attachObject(bgrect); 	
+		mSceneMgr->destroySceneNode(n->getName());
+		mSceneMgr->destroySceneNode(n2->getName());
 
 
-		Entity* e = mSceneMgr->createEntity("2", "knot.mesh");
-		e->setMaterialName("mymaterial");
-		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
 	}
 
 	void testTransparencyMipMaps()
@@ -1522,23 +1606,31 @@ protected:
     {
         // Set ambient light
         mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
-        mWindow->getViewport(0)->setBackgroundColour(ColourValue::White);
+        //mWindow->getViewport(0)->setBackgroundColour(ColourValue::White);
 
 
 
-        Entity *ent = mSceneMgr->createEntity("robot", "robot.mesh");
+		//Entity *ent = mSceneMgr->createEntity("robot", "scuttlepod.mesh");
+		//mAnimState = ent->getAnimationState("Walk");
+        //Entity *ent = mSceneMgr->createEntity("robot", "jaiqua.mesh");
+		//mAnimState = ent->getAnimationState("Jaiqua_walk_Preset");
+		Entity *ent = mSceneMgr->createEntity("robot", "Golden.mesh");
+		mAnimState = ent->getAnimationState("TestAnimationThatDoesntWork");
+
+		mAnimState->setEnabled(true);
+
         // Uncomment the below to test software skinning
-        ent->setMaterialName("Examples/Rocky");
+        //ent->setMaterialName("Examples/Rocky");
         // Add entity to the scene node
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
-        mAnimState = ent->getAnimationState("Walk");
-        mAnimState->setEnabled(true);
 
         // Give it a little ambience with lights
         Light* l;
-        l = mSceneMgr->createLight("BlueLight");
-        l->setPosition(-200,-80,-100);
-        l->setDiffuseColour(0.5, 0.5, 1.0);
+        l = mSceneMgr->createLight("Light");
+		Vector3 dir(-1,-1, 0);
+		dir.normalise();
+		l->setType(Light::LT_DIRECTIONAL);
+		l->setDirection(dir);
 
         l = mSceneMgr->createLight("GreenLight");
         l->setPosition(0,0,-100);
@@ -1934,9 +2026,10 @@ protected:
         mTestNode[3]->attachObject( pEnt );
 
 		// User test
+		/*
 		pEnt = mSceneMgr->createEntity( "3.6", "ogre_male_endCaps.mesh" );
 		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0, 0, 100))->attachObject( pEnt );
-
+		*/
 
         MeshPtr msh = MeshManager::getSingleton().load("knot.mesh", 
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
@@ -2014,7 +2107,7 @@ protected:
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 
     }
-    void testTextureShadows()
+    void testTextureShadows(bool directional)
     {
         mSceneMgr->setShadowTextureSize(512);
         mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);
@@ -2026,21 +2119,26 @@ protected:
 
         mLight = mSceneMgr->createLight("MainLight");
 
-        /*
-        // Directional test
-        mLight->setType(Light::LT_DIRECTIONAL);
-        Vector3 vec(-1,-1,0);
-        vec.normalise();
-        mLight->setDirection(vec);
-        */
+        
+        if (directional)
+		{
+			// Directional test
+			mLight->setType(Light::LT_DIRECTIONAL);
+			Vector3 vec(-1,-1,0);
+			vec.normalise();
+			mLight->setDirection(vec);
+		}
+		else
+		{
 
-        // Spotlight test
-        mLight->setType(Light::LT_SPOTLIGHT);
-        mLight->setDiffuseColour(1.0, 1.0, 0.8);
-        mTestNode[0] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-        mTestNode[0]->setPosition(800,600,0);
-        mTestNode[0]->lookAt(Vector3(0,0,0), Node::TS_WORLD, Vector3::UNIT_Z);
-        mTestNode[0]->attachObject(mLight);
+			// Spotlight test
+			mLight->setType(Light::LT_SPOTLIGHT);
+			mLight->setDiffuseColour(1.0, 1.0, 0.8);
+			mTestNode[0] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+			mTestNode[0]->setPosition(800,600,0);
+			mTestNode[0]->lookAt(Vector3(0,0,0), Node::TS_WORLD, Vector3::UNIT_Z);
+			mTestNode[0]->attachObject(mLight);
+		}
 
         mTestNode[1] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 
@@ -2057,11 +2155,18 @@ protected:
         mTestNode[2] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-200, 0, -200));
         mTestNode[2]->attachObject( pEnt );
 
-        // Transparent object (can force cast shadows)
-        pEnt = mSceneMgr->createEntity( "3.5", "knot.mesh" );
-        pEnt->setMaterialName("Examples/TransparentTest");
-        MaterialPtr mat3 = MaterialManager::getSingleton().getByName("Examples/TransparentTest");
-        mat3->setTransparencyCastsShadows(true);
+		// Transparent object (can force cast shadows)
+		pEnt = mSceneMgr->createEntity( "3.5", "knot.mesh" );
+		MaterialPtr tmat = MaterialManager::getSingleton().create("TestAlphaTransparency", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		tmat->setTransparencyCastsShadows(true);
+		Pass* tpass = tmat->getTechnique(0)->getPass(0);
+		tpass->setAlphaRejectSettings(CMPF_GREATER, 150);
+		tpass->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		tpass->createTextureUnitState("gras_02.png");
+		tpass->setCullingMode(CULL_NONE);
+
+		pEnt->setMaterialName("TestAlphaTransparency");
         mTestNode[3] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(350, 0, -200));
         mTestNode[3]->attachObject( pEnt );
 
@@ -2116,7 +2221,103 @@ protected:
 
     }
 
-    void testOverlayZOrder(void)
+	void testRenderToFloatTexture()
+	{
+		//mSceneMgr->setShadowFarDistance(800);
+		// Set ambient light
+		mSceneMgr->setAmbientLight(ColourValue(0.3, 0.3, 0.3));
+
+		mLight = mSceneMgr->createLight("MainLight");
+
+		// Directional test
+		mLight->setType(Light::LT_DIRECTIONAL);
+		Vector3 vec(-1,-1,0);
+		vec.normalise();
+		mLight->setDirection(vec);
+
+
+		Entity* pEnt;
+		pEnt = mSceneMgr->createEntity( "1", "robot.mesh" );
+		mAnimState = pEnt->getAnimationState("Walk");
+		mAnimState->setEnabled(true);
+		//pEnt->setMaterialName("2 - Default");
+		mTestNode[1] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		mTestNode[1]->attachObject( pEnt );
+		mTestNode[1]->translate(0,-100,0);
+
+		pEnt = mSceneMgr->createEntity( "3", "knot.mesh" );
+		mTestNode[2] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-200, 0, -200));
+		mTestNode[2]->attachObject( pEnt );
+
+		// Transparent object (can force cast shadows)
+		pEnt = mSceneMgr->createEntity( "3.5", "knot.mesh" );
+		pEnt->setMaterialName("Examples/TransparentTest");
+		MaterialPtr mat3 = MaterialManager::getSingleton().getByName("Examples/TransparentTest");
+		mat3->setTransparencyCastsShadows(true);
+		mTestNode[3] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(350, 0, -200));
+		mTestNode[3]->attachObject( pEnt );
+
+		MeshPtr msh = MeshManager::getSingleton().load("knot.mesh",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		msh->buildTangentVectors();
+		pEnt = mSceneMgr->createEntity( "4", "knot.mesh" );
+		//pEnt->setMaterialName("Examples/BumpMapping/MultiLightSpecular");
+		mTestNode[2] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(100, 0, 200));
+		mTestNode[2]->attachObject( pEnt );
+
+		mSceneMgr->setSkyBox(true, "Examples/CloudyNoonSkyBox");
+
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 100;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt;
+		pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("2 - Default");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		RenderTexture* rttTex = 
+			mRoot->getRenderSystem()->createRenderTexture( "RttTex", 512, 512, TEX_TYPE_2D, PF_FLOAT32_RGB );
+
+		Viewport *v = rttTex->addViewport( mCamera );
+		v->setClearEveryFrame( true );
+		v->setBackgroundColour( ColourValue::Black );
+
+
+
+		// Set up a debug panel to display the RTT
+		MaterialPtr debugMat = MaterialManager::getSingleton().create(
+			"Ogre/DebugShadowMap", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		debugMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+		TextureUnitState *t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("RttTex");
+		t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+		//t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("spot_shadow_fade.png");
+		//t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+		//t->setColourOperation(LBO_ADD);
+
+		OverlayContainer* debugPanel = (OverlayContainer*)
+			(OverlayManager::getSingleton().createOverlayElement("Panel", "Ogre/DebugShadowPanel"));
+		debugPanel->_setPosition(0.8, 0);
+		debugPanel->_setDimensions(0.2, 0.3);
+		debugPanel->setMaterialName("Ogre/DebugShadowMap");
+		Overlay* debugOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
+		debugOverlay->add2D(debugPanel);
+
+
+
+		ParticleSystem* pSys2 = ParticleSystemManager::getSingleton().createSystem("smoke", 
+			"Examples/Smoke");
+		mTestNode[4] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-300, -100, 200));
+		mTestNode[4]->attachObject(pSys2);
+
+
+	}
+
+	void testOverlayZOrder(void)
     {
         Overlay* o = OverlayManager::getSingleton().getByName("Test/Overlay3");
         o->show();
@@ -2255,7 +2456,7 @@ protected:
 
 	void testStaticGeometry(void)
 	{
-		//mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);
+		mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);
 		//mSceneMgr->setShowDebugShadows(true);
 
 		mSceneMgr->setSkyBox(true, "Examples/EveningSkyBox");
@@ -2292,7 +2493,7 @@ protected:
 		StaticGeometry* s = mSceneMgr->createStaticGeometry("bing");
 		s->setCastShadows(true);
 		s->setRegionDimensions(Vector3(500,500,500));
-		for (int i = 0; i < 1000; ++i)
+		for (int i = 0; i < 300; ++i)
 		{
 			Vector3 pos;
 			pos.x = Math::RangeRandom(min.x, max.x);
@@ -2362,8 +2563,260 @@ protected:
 			node->attachObject(entity);
 		}
 
+		node = mSceneMgr->getRootSceneNode()->createChildSceneNode("Entity2",
+			Vector3(-50.0, 0.0, 50.0), Quaternion(Degree(45.0), Vector3::UNIT_Z));
+		entity = mSceneMgr->createEntity("Entity2", meshName);
+		entity->setMaterialName("Examples/RustySteel");
+		node->attachObject(entity);
+
 		mCamera->setPosition(70.0, 90.0, 220.0);
 		mCamera->lookAt(Vector3::ZERO); 
+	}
+
+	void testPerf()
+	{
+		int count = 0;
+		Entity* ent;
+		SceneNode *node;      
+		for (int i = 0; i < 21; i++)
+			for(int j = 0; j < 21; j++)
+			{
+				char tmp[64];
+				sprintf(tmp, "Trial_%d", count);      
+				count++;
+				ent = mSceneMgr->createEntity(tmp,"cube.mesh");
+				node =mSceneMgr->getRootSceneNode()->createChildSceneNode();
+				node->attachObject( ent );                     
+				node->setPosition(i*100, 0, j*100);
+			}
+
+			mCamera->setPosition(Vector3(3000,1000,3000));
+			mCamera->lookAt(Vector3(0,0,0)); 
+	}
+	void testSphere(const std::string& strName, const float r, const int nRings = 16, const int nSegments = 16)
+	{
+		MeshPtr pSphere = MeshManager::getSingleton().createManual(strName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		SubMesh *pSphereVertex = pSphere->createSubMesh();
+
+		pSphere->sharedVertexData = new VertexData();
+		VertexData* vertexData = pSphere->sharedVertexData;
+
+		// define the vertex format
+		VertexDeclaration* vertexDecl = vertexData->vertexDeclaration;
+		size_t currOffset = 0;
+		// positions
+		vertexDecl->addElement(0, currOffset, VET_FLOAT3, VES_POSITION);
+		currOffset += VertexElement::getTypeSize(VET_FLOAT3);
+		// normals
+		vertexDecl->addElement(0, currOffset, VET_FLOAT3, VES_NORMAL);
+		currOffset += VertexElement::getTypeSize(VET_FLOAT3);
+		// two dimensional texture coordinates
+		vertexDecl->addElement(0, currOffset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+		currOffset += VertexElement::getTypeSize(VET_FLOAT2);
+
+		// allocate the vertex buffer
+		vertexData->vertexCount = (nRings + 1) * (nSegments+1);
+		HardwareVertexBufferSharedPtr vBuf = HardwareBufferManager::getSingleton().createVertexBuffer(vertexDecl->getVertexSize(0), vertexData->vertexCount, HardwareBuffer::HBU_STATIC_WRITE_ONLY, false);
+		VertexBufferBinding* binding = vertexData->vertexBufferBinding;
+		binding->setBinding(0, vBuf);
+		float* pVertex = static_cast<float*>(vBuf->lock(HardwareBuffer::HBL_DISCARD));
+
+		// allocate index buffer
+		pSphereVertex->indexData->indexCount = 6 * nRings * (nSegments + 1);
+		pSphereVertex->indexData->indexBuffer = HardwareBufferManager::getSingleton().createIndexBuffer(HardwareIndexBuffer::IT_16BIT, pSphereVertex->indexData->indexCount, HardwareBuffer::HBU_STATIC_WRITE_ONLY, false);
+		HardwareIndexBufferSharedPtr iBuf = pSphereVertex->indexData->indexBuffer;
+		unsigned short* pIndices = static_cast<unsigned short*>(iBuf->lock(HardwareBuffer::HBL_DISCARD));
+
+		float fDeltaRingAngle = (Math::PI / nRings);
+		float fDeltaSegAngle = (2 * Math::PI / nSegments);
+		unsigned short wVerticeIndex = 0 ;
+
+		// Generate the group of rings for the sphere
+		for( int ring = 0; ring <= nRings; ring++ ) {
+			float r0 = r * sinf (ring * fDeltaRingAngle);
+			float y0 = r * cosf (ring * fDeltaRingAngle);
+
+			// Generate the group of segments for the current ring
+			for(int seg = 0; seg <= nSegments; seg++) {
+				float x0 = r0 * sinf(seg * fDeltaSegAngle);
+				float z0 = r0 * cosf(seg * fDeltaSegAngle);
+
+				// Add one vertex to the strip which makes up the sphere
+				*pVertex++ = x0;
+				*pVertex++ = y0;
+				*pVertex++ = z0;
+
+				Vector3 vNormal = Vector3(x0, y0, z0).normalisedCopy();
+				*pVertex++ = vNormal.x;
+				*pVertex++ = vNormal.y;
+				*pVertex++ = vNormal.z;
+
+				*pVertex++ = (float) seg / (float) nSegments;
+				*pVertex++ = (float) ring / (float) nRings;
+
+				if (ring != nRings) {
+					// each vertex (except the last) has six indices pointing to it
+					*pIndices++ = wVerticeIndex + nSegments + 1;
+					*pIndices++ = wVerticeIndex;               
+					*pIndices++ = wVerticeIndex + nSegments;
+					*pIndices++ = wVerticeIndex + nSegments + 1;
+					*pIndices++ = wVerticeIndex + 1;
+					*pIndices++ = wVerticeIndex;
+					wVerticeIndex ++;
+				}
+			}; // end for seg
+		} // end for ring
+
+		// Unlock
+		vBuf->unlock();
+		iBuf->unlock();
+		// Generate face list
+		pSphereVertex->useSharedVertices = true;
+
+		// the original code was missing this line:
+		pSphere->_setBounds( AxisAlignedBox( Vector3(-r, -r, -r), Vector3(r, r, r) ), false );
+		pSphere->_setBoundingSphereRadius(r);
+		// this line makes clear the mesh is loaded (avoids memory leaks)
+		pSphere->load();
+
+		pSphere->unload();
+	}
+
+	void testColourCube()
+	{
+	/// Create the mesh via the MeshManager
+	Ogre::MeshPtr msh = MeshManager::getSingleton().createManual("ColourCube", "General");
+
+	/// Create one submesh
+	SubMesh* sub = msh->createSubMesh();
+
+	const float sqrt13 = 0.577350269f; /* sqrt(1/3) */
+
+	/// Define the vertices (8 vertices, each consisting of 3 groups of 3 floats
+	const size_t nVertices = 8;
+	const size_t vbufCount = 3*2*nVertices;
+	float vertices[vbufCount] = {
+		-100.0,100.0,-100.0,        //0 position
+			-sqrt13,sqrt13,-sqrt13,     //0 normal
+			100.0,100.0,-100.0,         //1 position
+			sqrt13,sqrt13,-sqrt13,      //1 normal
+			100.0,-100.0,-100.0,        //2 position
+			sqrt13,-sqrt13,-sqrt13,     //2 normal
+			-100.0,-100.0,-100.0,       //3 position
+			-sqrt13,-sqrt13,-sqrt13,    //3 normal
+			-100.0,100.0,100.0,         //4 position
+			-sqrt13,sqrt13,sqrt13,      //4 normal
+			100.0,100.0,100.0,          //5 position
+			sqrt13,sqrt13,sqrt13,       //5 normal
+			100.0,-100.0,100.0,         //6 position
+			sqrt13,-sqrt13,sqrt13,      //6 normal
+			-100.0,-100.0,100.0,        //7 position
+			-sqrt13,-sqrt13,sqrt13,     //7 normal
+	};
+
+	RenderSystem* rs = Root::getSingleton().getRenderSystem();
+	RGBA colours[nVertices];
+	RGBA *pColour = colours;
+	// Use render system to convert colour value since colour packing varies
+	rs->convertColourValue(ColourValue(1.0,0.0,0.0), pColour++); //0 colour
+	rs->convertColourValue(ColourValue(1.0,1.0,0.0), pColour++); //1 colour
+	rs->convertColourValue(ColourValue(0.0,1.0,0.0), pColour++); //2 colour
+	rs->convertColourValue(ColourValue(0.0,0.0,0.0), pColour++); //3 colour
+	rs->convertColourValue(ColourValue(1.0,0.0,1.0), pColour++); //4 colour
+	rs->convertColourValue(ColourValue(1.0,1.0,1.0), pColour++); //5 colour
+	rs->convertColourValue(ColourValue(0.0,1.0,1.0), pColour++); //6 colour
+	rs->convertColourValue(ColourValue(0.0,0.0,1.0), pColour++); //7 colour
+
+	/// Define 12 triangles (two triangles per cube face)
+	/// The values in this table refer to vertices in the above table
+	const size_t ibufCount = 36;
+	unsigned short faces[ibufCount] = {
+		0,2,3,
+			0,1,2,
+			1,6,2,
+			1,5,6,
+			4,6,5,
+			4,7,6,
+			0,7,4,
+			0,3,7,
+			0,5,1,
+			0,4,5,
+			2,7,3,
+			2,6,7
+	};
+
+	/// Create vertex data structure for 8 vertices shared between submeshes
+	msh->sharedVertexData = new VertexData();
+	msh->sharedVertexData->vertexCount = nVertices;
+
+	/// Create declaration (memory format) of vertex data
+	VertexDeclaration* decl = msh->sharedVertexData->vertexDeclaration;
+	size_t offset = 0;
+	// 1st buffer
+	decl->addElement(0, offset, VET_FLOAT3, VES_POSITION);
+	offset += VertexElement::getTypeSize(VET_FLOAT3);
+	decl->addElement(0, offset, VET_FLOAT3, VES_NORMAL);
+	offset += VertexElement::getTypeSize(VET_FLOAT3);
+	/// Allocate vertex buffer of the requested number of vertices (vertexCount) 
+	/// and bytes per vertex (offset)
+	HardwareVertexBufferSharedPtr vbuf = 
+		HardwareBufferManager::getSingleton().createVertexBuffer(
+		offset, msh->sharedVertexData->vertexCount, HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+	/// Upload the vertex data to the card
+	vbuf->writeData(0, vbuf->getSizeInBytes(), vertices, true);
+
+	/// Set vertex buffer binding so buffer 0 is bound to our vertex buffer
+	VertexBufferBinding* bind = msh->sharedVertexData->vertexBufferBinding; 
+	bind->setBinding(0, vbuf);
+
+	// 2nd buffer
+	offset = 0;
+	decl->addElement(1, offset, VET_COLOUR, VES_DIFFUSE);
+	offset += VertexElement::getTypeSize(VET_COLOUR);
+	/// Allocate vertex buffer of the requested number of vertices (vertexCount) 
+	/// and bytes per vertex (offset)
+	vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+		offset, msh->sharedVertexData->vertexCount, HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+	/// Upload the vertex data to the card
+	vbuf->writeData(0, vbuf->getSizeInBytes(), colours, true);
+
+	/// Set vertex buffer binding so buffer 1 is bound to our colour buffer
+	bind->setBinding(1, vbuf);
+
+	/// Allocate index buffer of the requested number of vertices (ibufCount) 
+	HardwareIndexBufferSharedPtr ibuf = HardwareBufferManager::getSingleton().
+		createIndexBuffer(
+		HardwareIndexBuffer::IT_16BIT, 
+		ibufCount, 
+		HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+
+	/// Upload the index data to the card
+	ibuf->writeData(0, ibuf->getSizeInBytes(), faces, true);
+
+	/// Set parameters of the submesh
+	sub->useSharedVertices = true;
+	sub->indexData->indexBuffer = ibuf;
+	sub->indexData->indexCount = ibufCount;
+	sub->indexData->indexStart = 0;
+
+	/// Set bounding information (for culling)
+	msh->_setBounds(AxisAlignedBox(-100,-100,0,100,100,0));
+	msh->_setBoundingSphereRadius(Math::Sqrt(100*100+100*100));
+
+	/// Notify Mesh object that it has been loaded
+	msh->load();
+
+
+		MaterialPtr mat = MaterialManager::getSingleton().create(
+			"Test/ColourTest", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		mat->getTechnique(0)->getPass(0)->setVertexColourTracking(TVC_AMBIENT);
+
+		Entity* thisEntity = mSceneMgr->createEntity("cc", "ColourCube");
+		thisEntity->setMaterialName("Test/ColourTest");
+		SceneNode* thisSceneNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
+		thisSceneNode->setPosition(-35, 0, 0);
+		thisSceneNode->attachObject(thisEntity);
+
 	}
 
     // Just override the mandatory create scene method
@@ -2391,10 +2844,11 @@ protected:
         //testProjection();
         //testStencilShadows(SHADOWTYPE_STENCIL_ADDITIVE, true, true);
         //testStencilShadows(SHADOWTYPE_STENCIL_MODULATIVE, false, true);
-        //testTextureShadows();
+        testTextureShadows(true);
         //testOverlayZOrder();
 
         //testRaySceneQuery();
+		//testSphere("MrSphere", 100);
         //testIntersectionSceneQuery();
 
         //test2Spotlights();
@@ -2407,7 +2861,10 @@ protected:
 		//testBug();
 		//testReloadResources();
 		//testTransparencyMipMaps();
-		testDepthBias();
+		//testDepthBias();
+		//testPerf();
+		//testColourCube();
+		//testReflectedBillboards();
 
     }
     // Create new frame listener
@@ -2436,6 +2893,347 @@ public:
 
 
 
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+class SwitchApplication : public ExampleApplication
+{
+public:
+	SwitchApplication()                   { }
+	~SwitchApplication()                  { }
+
+	bool frameStarted(const FrameEvent &evt);
+	void cleanup();
+	void scene1();
+	void scene2();
+	Camera* getCamera()             { return mCamera; }
+
+protected:
+	AnimationState *mAnimationState;
+
+	void createCamera()            { }
+	void createViewports()         { }
+	void chooseSceneManager(void)  { }
+	void createScene(void)         { scene1(); }
+
+	void createFrameListener(void);
+};
+
+
+class SwitchListener : public ExampleFrameListener
+{
+protected:
+	SwitchApplication* mApp;
+public:
+	SwitchListener(SwitchApplication* app, RenderWindow* win, Camera* cam)
+		: ExampleFrameListener(win, cam, false, false)
+	{
+		mApp = app;
+	}
+
+	bool frameStarted(const FrameEvent &evt);
+};
+
+
+bool SwitchListener::frameStarted(const FrameEvent &evt)
+{
+	if ( mInputDevice->isKeyDown( KC_1 ) && (mTimeUntilNextToggle < 0.0f))
+	{
+		mApp->cleanup();
+		mApp->scene1();
+		mCamera = mApp->getCamera();
+		mTimeUntilNextToggle = 0.5f;
+	}
+
+	if ( mInputDevice->isKeyDown( KC_2 ) && (mTimeUntilNextToggle < 0.0f))
+	{
+		mApp->cleanup();
+		mApp->scene2();
+		mCamera = mApp->getCamera();
+		mTimeUntilNextToggle = 0.5f;
+	}
+
+	mApp->frameStarted(evt);    // for processing animation
+	return ExampleFrameListener::frameStarted(evt);
+}
+
+bool SwitchApplication::frameStarted(const FrameEvent &evt)
+{
+	if(mAnimationState)
+		mAnimationState->addTime(evt.timeSinceLastFrame);
+	return true;
+}
+
+void SwitchApplication::cleanup()
+{
+	mAnimationState = 0;
+	mWindow->removeAllViewports();
+	mSceneMgr->removeAllCameras();
+	mSceneMgr->clearScene();
+}
+
+void SwitchApplication::scene1()
+{
+	mSceneMgr = Root::getSingleton().getSceneManager(ST_EXTERIOR_CLOSE);
+	mCamera = mSceneMgr->createCamera("camera1");
+	mCamera->setNearClipDistance(1);
+	mCamera->setPosition(400, 100, 850);
+	mCamera->lookAt(490, 100, 590);
+	mWindow->addViewport(mCamera);
+
+	mSceneMgr->setWorldGeometry( "Terrain.cfg" );
+	mSceneMgr->setSkyBox(true, "Examples/SpaceSkyBox", 1000 );
+	//mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);
+	//mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);
+
+	Light *light = mSceneMgr->createLight("Light1");
+	light->setPosition(Vector3(-1000, 1000, 1000));
+	light->setType(Light::LT_DIRECTIONAL);
+	Vector3 direction = Vector3(1.5, -.6, -1.2);
+	direction.normalise();
+	light->setDirection(direction);
+	light->setDiffuseColour(ColourValue(.95, .95, .5));
+	light->setSpecularColour(ColourValue(.95, .95, .5));
+
+
+	Entity *ent = mSceneMgr->createEntity( "Robot", "robot.mesh" );
+	ent->setMaterialName( "Examples/Rocky" );
+	SceneNode *sn;
+	sn = mSceneMgr->getRootSceneNode()->createChildSceneNode("RobotNode");
+	sn->attachObject(ent);
+	sn->setPosition(490,100,590);
+
+	mAnimationState = ent->getAnimationState( "Idle" );
+	mAnimationState->setLoop( true );
+	mAnimationState->setEnabled( true );
+}
+
+void SwitchApplication::scene2()
+{
+	mSceneMgr = Root::getSingleton().getSceneManager(ST_GENERIC);
+	mCamera = mSceneMgr->createCamera("camera1");
+	mCamera->setNearClipDistance(1);
+	mCamera->setPosition(0, 10, 300);
+	mCamera->lookAt(0, 0, 0);
+	mWindow->addViewport(mCamera);
+
+	mSceneMgr->setSkyBox(true,"Examples/EveningSkyBox", 1000);
+	//mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);
+	//mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_ADDITIVE);
+	//mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);
+
+	Light *light = mSceneMgr->createLight("Light2");
+	light->setPosition(Vector3(-1000, 1000, 1000));
+	light->setType(Light::LT_DIRECTIONAL);
+	Vector3 direction = Vector3(1.5, -.6, -1.2);
+	direction.normalise();
+	light->setDirection(direction);
+	light->setDiffuseColour(ColourValue(.95, .95, .5));
+	light->setSpecularColour(ColourValue(.95, .95, .5));
+
+	Plane plane(Vector3::UNIT_Y, 0);
+	MeshManager::getSingleton().createPlane("ground",
+		ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+		3000,1000,30,10,true,1,30,10,Vector3::UNIT_Z);
+	ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+
+	Entity *ent = mSceneMgr->createEntity("groundEnt", "ground");
+	mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+	ent->setMaterialName("Examples/Water5");
+	ent->setCastShadows(false);
+
+	SceneNode *sn;
+	ent = mSceneMgr->createEntity ("ogreEnt", "ogrehead.mesh");
+	ent->setMaterialName("Examples/TransparentTest");
+	sn = mSceneMgr->getRootSceneNode()->createChildSceneNode("ogreNode");
+	sn->attachObject(ent);
+	sn->setPosition(0, 30, 0);
+}
+
+
+void SwitchApplication::createFrameListener(void)
+{
+	mFrameListener = new SwitchListener(this, mWindow, mCamera);
+	mFrameListener->showDebugOverlay(true);
+	mRoot->addFrameListener(mFrameListener);
+}
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+bool gReload;
+
+// Listener class for frame updates
+class MemoryTestFrameListener : public FrameListener, public KeyListener
+{
+protected:
+	Real time;
+	EventProcessor* mEventProcessor;
+	InputReader* mInputDevice;
+public:
+	MemoryTestFrameListener(RenderWindow * win)
+	{
+		time = 0;
+		mEventProcessor = new EventProcessor();
+		mEventProcessor->initialise(win);
+		mEventProcessor->startProcessingEvents();
+		mEventProcessor->addKeyListener(this);
+		mInputDevice = mEventProcessor->getInputReader();
+	}
+	virtual ~MemoryTestFrameListener()
+	{
+		time = 0;            
+		delete mEventProcessor;
+	}
+
+	bool frameStarted(const FrameEvent& evt)
+	{
+		if( mInputDevice->isKeyDown( KC_ESCAPE) )
+		{
+			gReload = false;
+			return false;
+		}
+
+		time += evt.timeSinceLastFrame;
+		if(time>5)
+		{
+			LogManager::getSingleton().logMessage("Reloading scene after 5 seconds");
+			gReload = true;
+			time=0;
+			return false;
+		}
+		else
+		{
+			gReload = false;
+			return true;
+		}
+	}
+
+	void keyClicked(KeyEvent* e) {};
+	void keyPressed(KeyEvent* e) {};
+	void keyReleased(KeyEvent* e) {};
+	void keyFocusIn(KeyEvent* e) {}
+	void keyFocusOut(KeyEvent* e) {}
+};
+
+/** Application class */
+class MemoryTestApplication : public ExampleApplication
+{
+protected:
+	MemoryTestFrameListener * mTestFrameListener;
+public:
+
+	void go(void)
+	{
+		mRoot = 0;
+		if (!setup())
+			return;
+
+		mRoot->startRendering();
+
+		while(gReload)
+		{
+			// clean up
+			destroyScene();
+			destroyResources();
+			if (!setup())
+				return;
+			mRoot->startRendering();
+		}
+		// clean up
+		destroyScene();
+	}
+
+	bool setup(void)
+	{
+		if(!gReload)
+			mRoot = new Root();
+
+		setupResources();
+
+		if(!gReload)
+		{
+			bool carryOn = configure();
+			if (!carryOn)
+				return false;
+
+			chooseSceneManager();
+			createCamera();
+			createViewports();
+
+			// Set default mipmap level (NB some APIs ignore this)
+			TextureManager::getSingleton().setDefaultNumMipmaps(5);
+
+			// Create any resource listeners (for loading screens)
+			createResourceListener();
+
+			createFrameListener();
+		}
+		// Load resources
+		loadResources();
+
+		// Create the scene
+		createScene();        
+
+		return true;
+
+	}
+
+	/// Method which will define the source of resources (other than current folder)
+	virtual void setupResources(void)
+	{
+		// Custom setup
+		ResourceGroupManager::getSingleton().createResourceGroup("CustomResourceGroup");
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../media/ogrehead.zip", "Zip", "CustomResourceGroup");
+	}
+	void loadResources(void)
+	{
+		// Initialise, parse scripts etc
+		ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+	}
+	void destroyResources()
+	{
+		LogManager::getSingleton().logMessage("Destroying resources");
+		ResourceGroupManager::getSingleton().removeResourceLocation(
+			"../../../media/ogrehead.zip");
+		ResourceGroupManager::getSingleton().destroyResourceGroup("CustomResourceGroup");
+	}
+
+	void createScene(void)
+	{
+		// Set a very low level of ambient lighting
+		mSceneMgr->setAmbientLight(ColourValue(0.1, 0.1, 0.1));
+
+		// Load ogre head
+		MeshManager::getSingleton().load("ogrehead.mesh","CustomResourceGroup");
+		Entity* head = mSceneMgr->createEntity("head", "ogrehead.mesh");
+
+		// Attach the head to the scene
+		mSceneMgr->getRootSceneNode()->attachObject(head);
+
+	}
+
+	void createFrameListener(void)
+	{
+		// This is where we instantiate our own frame listener
+		mTestFrameListener= new MemoryTestFrameListener(mWindow);
+		mRoot->addFrameListener(mTestFrameListener);
+		/*if(!gReload)
+		{
+		ExampleApplication::createFrameListener();
+		}*/
+	}
+
+	void destroyScene(void)
+	{
+		LogManager::getSingleton().logMessage("Clearing scene");
+		mSceneMgr->clearScene();
+	}
+};
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+
+
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
@@ -2448,6 +3246,8 @@ int main(int argc, char **argv)
 {
     // Create application object
     PlayPenApplication app;
+	//SwitchApplication app;
+	//MemoryTestApplication app;
 
     try {
         app.go();
