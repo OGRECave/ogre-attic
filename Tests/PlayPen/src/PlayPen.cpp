@@ -2046,10 +2046,10 @@ protected:
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 
     }
-    void testTextureShadows()
+    void testTextureShadows(ShadowTechnique tech)
     {
         mSceneMgr->setShadowTextureSize(512);
-        mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);
+        mSceneMgr->setShadowTechnique(tech);
         mSceneMgr->setShadowFarDistance(1500);
         mSceneMgr->setShadowColour(ColourValue(0.35, 0.35, 0.35));
         //mSceneMgr->setShadowFarDistance(800);
@@ -2970,10 +2970,11 @@ protected:
         //testProjection();
         //testStencilShadows(SHADOWTYPE_STENCIL_ADDITIVE, true, true);
         //testStencilShadows(SHADOWTYPE_STENCIL_MODULATIVE, false, true);
-        //testTextureShadows();
+        testTextureShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
+		//testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
         //testOverlayZOrder();
 		//testReflectedBillboards();
-		testBlendDiffuseColour();
+		//testBlendDiffuseColour();
 
         //testRaySceneQuery();
         //testIntersectionSceneQuery();
