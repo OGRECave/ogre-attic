@@ -706,6 +706,7 @@ namespace Ogre {
             {
             case Light::LT_SPOTLIGHT:
                 glLightf( gl_index, GL_SPOT_CUTOFF, 0.5f * lt->getSpotlightOuterAngle().valueDegrees() );
+                glLightf(gl_index, GL_SPOT_EXPONENT, lt->getSpotlightFalloff());
                 break;
             default:
                 glLightf( gl_index, GL_SPOT_CUTOFF, 180.0 );

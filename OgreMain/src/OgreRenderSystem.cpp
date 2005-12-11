@@ -40,6 +40,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterial.h"
 #include "OgreTimer.h"
 #include "OgreHardwarePixelBuffer.h"
+#include "OgreHardwareOcclusionQuery.h"
 
 namespace Ogre {
 
