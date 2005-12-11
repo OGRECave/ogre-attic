@@ -174,7 +174,7 @@ namespace Ogre {
 			the same vertex & index format is stored. It also acts as the 
 			renderable.
 		*/
-		class _OgreExport GeometryBucket : public Renderable
+		class _OgreExport GeometryBucket :	public Renderable
 		{
 		protected:
 			/// Geometry which has been queued up pre-build (not for deallocation)

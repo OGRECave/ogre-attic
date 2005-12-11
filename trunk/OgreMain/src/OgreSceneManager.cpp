@@ -545,20 +545,21 @@ void SceneManager::destroySceneNode(const String& name)
     // Find any scene nodes which are tracking this node, and turn them off
     AutoTrackingSceneNodes::iterator ai, aiend;
     aiend = mAutoTrackingSceneNodes.end();
-    for (ai = mAutoTrackingSceneNodes.begin(); ai != aiend; ++ai)
+    for (ai = mAutoTrackingSceneNodes.begin(); ai != aiend; )
     {
-        SceneNode* n = *ai;
+		// Pre-increment incase we delete
+		AutoTrackingSceneNodes::iterator curri = ai++;
+        SceneNode* n = *curri;
         // Tracking this node
         if (n->getAutoTrackTarget() == i->second)
         {
             // turn off, this will notify SceneManager to remove
             n->setAutoTracking(false);
-            // no need to reset iterator since set erase does not invalidate
         }
         // node is itself a tracker
         else if (n == i->second)
         {
-            mAutoTrackingSceneNodes.erase(ai);
+            mAutoTrackingSceneNodes.erase(curri);
         }
     }
 
