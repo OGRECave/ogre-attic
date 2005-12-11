@@ -346,6 +346,8 @@ namespace Ogre {
             if ((state->getParent() == 0) || (state->getParent() == this))
             {
 		        mTextureUnitStates.push_back(state);
+				// Notify state
+				state->_notifyParent(this);
                 // if texture unit state name is empty then give it a default name based on its index
                 if (state->getName().empty())
                 {
@@ -748,6 +750,8 @@ namespace Ogre {
 			// Add all the other texture unit states
 			for (; i != iend; ++i)
 			{
+				// detach from parent first
+				(*i)->_notifyParent(0);
 				newPass->addTextureUnitState(*i);
 			}
 			// Now remove texture units from this Pass, we don't need to delete since they've

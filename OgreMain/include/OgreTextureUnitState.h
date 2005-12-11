@@ -942,6 +942,9 @@ namespace Ogre {
             True if matching texture aliases were found in the Texture Unit State.
         */
         bool applyTextureAliases(const AliasTextureNamePairList& aliasList, const bool apply = true);
+
+		/** Notify this object that its parent has changed */
+		void _notifyParent(Pass* parent);
 	
 protected:
         // State
