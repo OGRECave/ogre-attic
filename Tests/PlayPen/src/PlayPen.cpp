@@ -2091,9 +2091,16 @@ protected:
 
         // Transparent object (can force cast shadows)
         pEnt = mSceneMgr->createEntity( "3.5", "knot.mesh" );
-        pEnt->setMaterialName("Examples/TransparentTest");
-        MaterialPtr mat3 = MaterialManager::getSingleton().getByName("Examples/TransparentTest");
-        mat3->setTransparencyCastsShadows(true);
+		MaterialPtr tmat = MaterialManager::getSingleton().create("TestAlphaTransparency", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		tmat->setTransparencyCastsShadows(true);
+		Pass* tpass = tmat->getTechnique(0)->getPass(0);
+		tpass->setAlphaRejectSettings(CMPF_GREATER, 150);
+		tpass->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		tpass->createTextureUnitState("gras_02.png");
+		tpass->setCullingMode(CULL_NONE);
+
+        pEnt->setMaterialName("TestAlphaTransparency");
         mTestNode[3] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(350, 0, -200));
         mTestNode[3]->attachObject( pEnt );
 
@@ -2970,8 +2977,8 @@ protected:
         //testProjection();
         //testStencilShadows(SHADOWTYPE_STENCIL_ADDITIVE, true, true);
         //testStencilShadows(SHADOWTYPE_STENCIL_MODULATIVE, false, true);
-        testTextureShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
-		//testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
+        //testTextureShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
+		testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
         //testOverlayZOrder();
 		//testReflectedBillboards();
 		//testBlendDiffuseColour();

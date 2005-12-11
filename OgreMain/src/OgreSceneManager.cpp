@@ -3230,27 +3230,88 @@ const Pass* SceneManager::deriveShadowCasterPass(const Pass* pass)
 {
 	if (isShadowTechniqueTextureBased())
     {
-		if (mShadowTextureCustomCasterPass)
-		{
-			// Caster pass has been customised
+		Pass* retPass = mShadowTextureCustomCasterPass ? 
+			mShadowTextureCustomCasterPass : mShadowCasterPlainBlackPass;
 
-			if (!pass->getShadowCasterVertexProgramName().empty())
+		
+		// Special case alpha-blended passes
+		if ((pass->getSourceBlendFactor() == SBF_SOURCE_ALPHA && 
+			pass->getDestBlendFactor() == SBF_ONE_MINUS_SOURCE_ALPHA) 
+			|| pass->getAlphaRejectFunction() != CMPF_ALWAYS_PASS)
+		{
+			// Alpha blended passes must retain their transparency
+			retPass->setAlphaRejectSettings(pass->getAlphaRejectFunction(), 
+				pass->getAlphaRejectValue());
+			retPass->setSceneBlending(pass->getSourceBlendFactor(), pass->getDestBlendFactor());
+			retPass->getParent()->getParent()->setTransparencyCastsShadows(true);
+
+			// So we allow the texture units, but override the colour functions
+			// Copy texture state, shift up one since 0 is shadow texture
+			size_t origPassTUCount = pass->getNumTextureUnitStates();
+			for (size_t t = 0; t < origPassTUCount; ++t)
 			{
-				// Have to merge the shadow caster vertex program in
-				mShadowTextureCustomCasterPass->setVertexProgram(
-					pass->getShadowCasterVertexProgramName());
-				const GpuProgramPtr& prg = mShadowTextureCustomCasterPass->getVertexProgram();
-				// Load this program if not done already
-				if (!prg->isLoaded())
-					prg->load();
-				// Copy params
-				mShadowTextureCustomCasterPass->setVertexProgramParameters(
-					pass->getShadowCasterVertexProgramParameters());
+				TextureUnitState* tex;
+				if (retPass->getNumTextureUnitStates() <= t)
+				{
+					tex = retPass->createTextureUnitState();
+				}
+				else
+				{
+					tex = retPass->getTextureUnitState(t);
+				}
+				// copy base state
+				(*tex) = *(pass->getTextureUnitState(t));
+				// override colour function
+				tex->setColourOperationEx(LBX_SOURCE1, LBS_MANUAL, LBS_CURRENT,
+					isShadowTechniqueAdditive()? ColourValue::Black : mShadowColour);
+
+			}
+			// Remove any extras
+			while (retPass->getNumTextureUnitStates() > origPassTUCount)
+			{
+				retPass->removeTextureUnitState(origPassTUCount);
+			}
+
+		}
+		else
+		{
+			// reset
+			retPass->setSceneBlending(SBT_REPLACE);
+			retPass->setAlphaRejectFunction(CMPF_ALWAYS_PASS);
+			while (retPass->getNumTextureUnitStates() > 0)
+			{
+				retPass->removeTextureUnitState(0);
+			}
+		}
+
+		// Propagate culling modes
+		retPass->setCullingMode(pass->getCullingMode());
+		retPass->setManualCullingMode(pass->getManualCullingMode());
+		
+
+		if (!pass->getShadowCasterVertexProgramName().empty())
+		{
+			// Have to merge the shadow caster vertex program in
+			retPass->setVertexProgram(
+				pass->getShadowCasterVertexProgramName());
+			const GpuProgramPtr& prg = retPass->getVertexProgram();
+			// Load this program if not done already
+			if (!prg->isLoaded())
+				prg->load();
+			// Copy params
+			retPass->setVertexProgramParameters(
+				pass->getShadowCasterVertexProgramParameters());
+			if (retPass == mShadowTextureCustomCasterPass)
+			{
 				// mark that we've overridden the standard
 				mShadowTextureCasterVPDirty = true;
-				// Also have to hack the light autoparams, that is done later
 			}
-			else if (mShadowTextureCasterVPDirty)
+			// Also have to hack the light autoparams, that is done later
+		}
+		else 
+		{
+			retPass->setVertexProgram(StringUtil::BLANK);
+			if (mShadowTextureCasterVPDirty)
 			{
 				// reset
 				mShadowTextureCustomCasterPass->setVertexProgram(
@@ -3263,38 +3324,8 @@ const Pass* SceneManager::deriveShadowCasterPass(const Pass* pass)
 				}
 				mShadowTextureCasterVPDirty = false;
 			}
-			return mShadowTextureCustomCasterPass;
 		}
-		else
-		{
-			// Standard pass
-			if (pass->hasVertexProgram())
-			{
-				// Have to merge the shadow caster vertex program in
-				// This may in fact be blank, in which case it falls back on 
-				// fixed function
-				mShadowCasterPlainBlackPass->setVertexProgram(
-					pass->getShadowCasterVertexProgramName());
-				// Did this result in a new vertex program?
-				if (mShadowCasterPlainBlackPass->hasVertexProgram())
-				{
-					const GpuProgramPtr& prg = mShadowCasterPlainBlackPass->getVertexProgram();
-					// Load this program if not done already
-					if (!prg->isLoaded())
-						prg->load();
-					// Copy params
-					mShadowCasterPlainBlackPass->setVertexProgramParameters(
-						pass->getShadowCasterVertexProgramParameters());
-				}
-				// Also have to hack the light autoparams, that is done later
-			}
-			else if (mShadowCasterPlainBlackPass->hasVertexProgram())
-			{
-				// reset
-				mShadowCasterPlainBlackPass->setVertexProgram("");
-			}
-			return mShadowCasterPlainBlackPass;
-		}
+		return retPass;
 	}
 	else
 	{
@@ -3911,8 +3942,9 @@ void SceneManager::setShadowTextureSettings(unsigned short size,
 //---------------------------------------------------------------------
 void SceneManager::setShadowTextureSelfShadow(bool selfShadow) 
 { 
-	mShadowTextureSelfShadow = selfShadow; 
-	getRenderQueue()->setShadowCastersCannotBeReceivers(!selfShadow);
+	mShadowTextureSelfShadow = selfShadow;
+	if (isShadowTechniqueTextureBased())
+		getRenderQueue()->setShadowCastersCannotBeReceivers(!selfShadow);
 }
 //---------------------------------------------------------------------
 void SceneManager::setShadowTextureCasterMaterial(const String& name)
