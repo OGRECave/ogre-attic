@@ -313,6 +313,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void Pass::addTextureUnitState(TextureUnitState* state)
 	{
+		// Notify state
+		state->_notifyParent(this);
 		mTextureUnitStates.push_back(state);
         // Needs recompilation
         mParent->_notifyNeedsRecompile();

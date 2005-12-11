@@ -859,6 +859,10 @@ namespace Ogre {
         /** Tells the class that it needs recompilation. */
         void _notifyNeedsRecompile(void);
 
+		/** Notify this object that its parent has changed */
+		void _notifyParent(Pass* parent);
+
+
 	
 protected:
         // State

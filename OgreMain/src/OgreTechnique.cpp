@@ -65,9 +65,9 @@ namespace Ogre {
 		mIsSupported = false;
         // Go through each pass, checking requirements
         Passes::iterator i, iend;
-        iend = mPasses.end();
-        for (i = mPasses.begin(); i != iend; ++i)
-        {
+		size_t passNum = 0;
+        for (i = mPasses.begin(); i != mPasses.end(); ++i, ++passNum)        
+		{
             Pass* currPass = *i;
             // Check texture unit requirements
             size_t numTexUnitsRequested = currPass->getNumTextureUnitStates();
@@ -116,12 +116,20 @@ namespace Ogre {
 				
 				// We're ok on operations, now we need to check # texture units
 				// Keep splitting this pass so long as units requested > gpu units
+				bool resetIterator = false;
                 while (numTexUnitsRequested > numTexUnits)
                 {
                     // chop this pass into many passes
                     currPass = currPass->_split(numTexUnits);
                     numTexUnitsRequested = currPass->getNumTextureUnitStates();
+					resetIterator = true;
                 }
+				// Reset the iterator if we split passes
+				if (resetIterator)
+				{
+					i = mPasses.begin();
+					std::advance(i, passNum);
+				}
             }
 
             if (currPass->hasVertexProgram())

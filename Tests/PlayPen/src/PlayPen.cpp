@@ -2818,7 +2818,25 @@ protected:
 		thisSceneNode->attachObject(thisEntity);
 
 	}
+	void testSplitPassesTooManyTexUnits()
+	{
+		MaterialPtr mat = MaterialManager::getSingleton().create(
+			"Test", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->createTextureUnitState("gras_02.png");
+		p->createTextureUnitState("gras_02.png");
+		p->createTextureUnitState("gras_02.png");
+		p->createTextureUnitState("gras_02.png");
+		p->createTextureUnitState("gras_02.png");
+		p->createTextureUnitState("gras_02.png");
+		p->createTextureUnitState("gras_02.png");
+		p->createTextureUnitState("gras_02.png");
+		p->createTextureUnitState("gras_02.png");
+
+		mat->compile();
+
+	}
     // Just override the mandatory create scene method
     void createScene(void)
     {
@@ -2844,7 +2862,8 @@ protected:
         //testProjection();
         //testStencilShadows(SHADOWTYPE_STENCIL_ADDITIVE, true, true);
         //testStencilShadows(SHADOWTYPE_STENCIL_MODULATIVE, false, true);
-        testTextureShadows(true);
+        //testTextureShadows(true);
+		testSplitPassesTooManyTexUnits();
         //testOverlayZOrder();
 
         //testRaySceneQuery();

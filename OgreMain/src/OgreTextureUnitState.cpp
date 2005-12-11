@@ -962,5 +962,11 @@ namespace Ogre {
         }
 
     }
+	//-----------------------------------------------------------------------------
+	void TextureUnitState::_notifyParent(Pass* parent)
+	{
+		mParent = parent;
+	}
+
 
 }
