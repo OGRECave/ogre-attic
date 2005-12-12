@@ -204,7 +204,7 @@ namespace Ogre {
 		(*i)->queueForDeletion();
 		i = mPasses.erase(i);
 		// Adjust passes index
-		for (; i != mPasses.end(); i, index)
+		for (; i != mPasses.end(); ++i, ++index)
 		{
 			(*i)->_notifyIndex(index);
 		}
