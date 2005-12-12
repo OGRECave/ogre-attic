@@ -69,12 +69,38 @@ namespace Ogre {
         for (i = mPasses.begin(); i != mPasses.end(); ++i, ++passNum)
         {
             Pass* currPass = *i;
+			// Adjust pass index
+			currPass->_notifyIndex(passNum);
             // Check texture unit requirements
             size_t numTexUnitsRequested = currPass->getNumTextureUnitStates();
             const RenderSystemCapabilities* caps = 
                 Root::getSingleton().getRenderSystem()->getCapabilities();
             unsigned short numTexUnits = caps->getNumTextureUnits();
+#if defined(OGRE_PRETEND_TEXTURE_UNITS) && OGRE_PRETEND_TEXTURE_UNITS > 0
+			if (numTexUnits > OGRE_PRETEND_TEXTURE_UNITS)
+				numTexUnits = OGRE_PRETEND_TEXTURE_UNITS;
+#endif
+			if (!autoManageTextureUnits && numTexUnitsRequested > numTexUnits)
+			{
+				// The user disabled auto pass split
+				return;
+			}
 
+			if (currPass->hasVertexProgram())
+			{
+				// Check texture units
+				if (numTexUnitsRequested > numTexUnits)
+				{
+					// Can't do this one, and can't split a programmable vertex pass
+					return;
+				}
+				// Check vertex program version
+				if (!currPass->getVertexProgram()->isSupported() )
+				{
+					// Can't do this one
+					return;
+				}
+			}
             if (currPass->hasFragmentProgram())
             {
                 // Check texture units
@@ -105,6 +131,14 @@ namespace Ogre {
 						// Fail
 						return;
 					}
+					// Any 3D textures? NB we make the assumption that any
+					// card capable of running fragment programs can support
+					// 3D textures, which has to be true, surely?
+					if (tex->getTextureType() == TEX_TYPE_3D && !caps->hasCapability(RSC_TEXTURE_3D))
+					{
+						// Fail
+						return;
+					}					
 					// Any Dot3 blending?
 					if (tex->getColourBlendMode().operation == LBX_DOTPRODUCT &&
 							!caps->hasCapability(RSC_DOT3))
@@ -116,32 +150,25 @@ namespace Ogre {
 				
 				// We're ok on operations, now we need to check # texture units
 				// Keep splitting this pass so long as units requested > gpu units
-				bool resetIterator = false;
                 while (numTexUnitsRequested > numTexUnits)
                 {
                     // chop this pass into many passes
                     currPass = currPass->_split(numTexUnits);
                     numTexUnitsRequested = currPass->getNumTextureUnitStates();
-					resetIterator = true;
-                }
-				// Reset the iterator if we split passes
-				if (resetIterator)
-				{
-					i = mPasses.begin();
-					std::advance(i, passNum);
+					// Advance pass number
+					++passNum;
+					// Reset iterator
+					i = mPasses.begin() + passNum;
+					// Move the new pass to the right place (will have been created
+					// at the end, may be other passes in between)
+					assert(mPasses.back() == currPass);
+					std::copy_backward(i, --mPasses.end(), mPasses.end());
+					*i = currPass;
+					// Adjust pass index
+					currPass->_notifyIndex(passNum);                
 				}
             }
 
-            if (currPass->hasVertexProgram())
-            {
-                // Check vertex program version
-                if (!currPass->getVertexProgram()->isSupported() )
-                {
-                    // Can't do this one
-                    return;
-                }
-            }
-		
 		}
         // If we got this far, we're ok
         mIsSupported = true;
@@ -195,7 +222,12 @@ namespace Ogre {
 		assert(index < mPasses.size() && "Index out of bounds");
 		Passes::iterator i = mPasses.begin() + index;
 		(*i)->queueForDeletion();
-		mPasses.erase(i);
+		i = mPasses.erase(i);
+		// Adjust passes index
+		for (; i != mPasses.end(); i, index)
+		{
+			(*i)->_notifyIndex(index);
+		}
     }
     //-----------------------------------------------------------------------------
     void Technique::removeAllPasses(void)
@@ -231,6 +263,23 @@ namespace Ogre {
             if (destinationIndex > sourceIndex) --i;
 
             mPasses.insert(i, pass);
+
+			// Adjust passes index
+			size_t beginIndex, endIndex;
+			if (destinationIndex > sourceIndex)
+			{
+				beginIndex = sourceIndex;
+				endIndex = destinationIndex;
+			}
+			else
+			{
+				beginIndex = destinationIndex;
+				endIndex = sourceIndex;
+			}
+			for (size_t index = beginIndex; index <= endIndex; ++index)
+			{
+				mPasses[index]->_notifyIndex(index);
+			}
             moveSuccessful = true;
         }
 
