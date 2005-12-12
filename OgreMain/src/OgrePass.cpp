@@ -590,9 +590,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	Pass* Pass::_split(unsigned short numUnits)
 	{
-		if (mFragmentProgramUsage)
+		if (mVertexProgramUsage || mFragmentProgramUsage)
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Passes with fragment programs cannot be "
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Programmable passes cannot be "
 				"automatically split, define a fallback technique instead.",
 				"Pass:_split");
 		}
@@ -609,6 +609,12 @@ namespace Ogre {
 			// Set the new pass to fallback using scene blend
 			newPass->setSceneBlending(
 				(*i)->getColourBlendFallbackSrc(), (*i)->getColourBlendFallbackDest());
+			// Fixup the texture unit 0   of new pass   blending method   to replace
+			// all colour and alpha   with texture without adjustment, because we
+			// assume it's detail texture.
+			(*i)->setColourOperationEx(LBX_SOURCE1,   LBS_TEXTURE, LBS_CURRENT);
+			(*i)->setAlphaOperation(LBX_SOURCE1, LBS_TEXTURE, LBS_CURRENT);
+
 			// Add all the other texture unit states
 			for (; i != iend; ++i)
 			{
@@ -617,9 +623,19 @@ namespace Ogre {
 			// Now remove texture units from this Pass, we don't need to delete since they've
 			// been transferred
 			mTextureUnitStates.erase(istart, iend);
+			_dirtyHash();
 			return newPass;
 		}
 		return NULL;
+	}
+	//-----------------------------------------------------------------------------
+	void Pass::_notifyIndex(unsigned short index)
+	{
+		if (mIndex != index)
+		{
+			mIndex = index;
+			_dirtyHash();
+		}
 	}
     //-----------------------------------------------------------------------
 	void Pass::_load(void)

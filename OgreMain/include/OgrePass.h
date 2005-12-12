@@ -855,6 +855,9 @@ namespace Ogre {
 		*/
 		Pass* _split(unsigned short numUnits);
 
+		/** Internal method to adjust pass index. */
+		void _notifyIndex(unsigned short index);
+
 		/** Internal method for loading this pass. */
 		void _load(void);
 		/** Internal method for unloading this pass. */
