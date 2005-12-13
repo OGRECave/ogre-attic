@@ -162,7 +162,7 @@ namespace Ogre {
 					// Move the new pass to the right place (will have been created
 					// at the end, may be other passes in between)
 					assert(mPasses.back() == currPass);
-					std::copy_backward(i, --mPasses.end(), mPasses.end());
+					std::copy_backward(i, (mPasses.end()-1), mPasses.end());
 					*i = currPass;
 					// Adjust pass index
 					currPass->_notifyIndex(passNum);                
