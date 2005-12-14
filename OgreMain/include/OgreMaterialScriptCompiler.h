@@ -64,7 +64,7 @@ namespace Ogre {
             ID_COLOUR_WRITE, ID_CULL_HARDWARE, ID_CLOCKWISE, ID_ANTICLOCKWISE, ID_CULL_NONE,
             ID_CULL_SOFTWARE, ID_CULL_BACK, ID_CULL_FRONT,
             ID_SHADING, ID_FLAT, ID_GOURAUD, ID_PHONG,
-            ID_LIGHTING, ID_FOG_OVERRIDE,
+            ID_LIGHTING, ID_MAX_LIGHTS, ID_FOG_OVERRIDE,
             ID_TEXTURE_UNIT,
 
             // general
@@ -179,6 +179,10 @@ namespace Ogre {
 
         void logParseError(const String& error);
 
+        // support methods that convert tokens
+        ColourValue _parseColourValue(void);
+        CompareFunction convertCompareFunction(void);
+
         // Token Actions which get called when tokens are created during parsing.
         void parseOpenBrace(void);
         void parseCloseBrace(void);
@@ -191,14 +195,19 @@ namespace Ogre {
         void parseReceiveShadows(void);
         // Pass related Actions
         void parsePass(void);
-        ColourValue _parseColourValue(void);
         void parseAmbient(void);
         void parseDiffuse(void);
         void parseSpecular(void);
         void parseEmissive(void);
         void parseDepthCheck(void);
         void parseDepthWrite(void);
+        void parseDepthFunc(void);
+        void parseAlphaRejection(void);
         void parseColourWrite(void);
+        void parseCullHardware(void);
+        void parseCullSoftware(void);
+        void parseLighting(void);
+        void parseMaxLights(void);
 
         void parseTextureUnit(void);
         void parseTextureCustomParameter(void);
