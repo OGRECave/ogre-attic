@@ -92,13 +92,12 @@ namespace Ogre {
 
 
     Compiler2Pass::Compiler2Pass()
+	    // default contexts allows all contexts
+	    // subclass should change it to fit the language being compiled
+        : mActiveContexts(0xffffffff)
     {
 	    // reserve some memory space in the containers being used
 	    mTokenInstructions.reserve(100);
-	    // default contexts allows all contexts
-	    // subclass should change it to fit the language being compiled
-	    mActiveContexts = 0xffffffff;
-
     }
 
     //-----------------------------------------------------------------------
@@ -179,6 +178,7 @@ namespace Ogre {
 
     }
 
+    //-----------------------------------------------------------------------
     bool Compiler2Pass::doPass2()
     {
         bool passed = true;
@@ -187,6 +187,39 @@ namespace Ogre {
         return passed;
     }
 
+    //-----------------------------------------------------------------------
+    const Compiler2Pass::TokenInst& Compiler2Pass::getNextToken(void)
+    {
+        static TokenInst badToken;
+        // get the current token instruction and advance instruction que index by one
+        return badToken;
+    }
+    //-----------------------------------------------------------------------
+    void Compiler2Pass::replaceToken(void)
+    {
+        // move instruction que index back one position
+    }
+    //-----------------------------------------------------------------------
+    float Compiler2Pass::getNextTokenValue(void)
+    {
+        // get float value from current token instruction
+        // if no value associated then return 0.0f
+        return 0.0f;
+    }
+    //-----------------------------------------------------------------------
+    const String& Compiler2Pass::getNextTokenLabel(void)
+    {
+        static String emptyString;
+        // get label from current token instruction
+        // if token has no label then return empty string
+        return emptyString;
+    }
+    //-----------------------------------------------------------------------
+    size_t Compiler2Pass::getTokenQueCount(void)
+    {
+        // calculate number of tokens between current token instruction and next token with action
+        return 0;
+    }
 
     //-----------------------------------------------------------------------
     bool Compiler2Pass::processRulePath( size_t rulepathIDX)
@@ -213,7 +246,7 @@ namespace Ogre {
         bool ExecutePass2 = false;
 
 	    // keep following rulepath until the end is reached
-	    while (EndFound == false)
+	    while (!EndFound)
 	    {
 		    switch (mRootRulePath[rulepathIDX].mOperation)
 		    {
@@ -547,5 +580,12 @@ namespace Ogre {
 	    while ((mSource[mCharPos] == ' ') || (mSource[mCharPos] == '\t'))
 		    mCharPos++; // find first non white space character
     }
+
+    //-----------------------------------------------------------------------
+    void Compiler2Pass::addLexemeToken(const String& name, const size_t key, const bool hasAction)
+    {
+        mLexemeTokenMap[name] = TokenDef(key, hasAction);
+    }
+
 
 }
