@@ -46,7 +46,7 @@ namespace Ogre {
 
         "<Script_Properties> ::= <Material_Def> | <Vertex_Program_Def> | <Fragment_Program_Def>; \n"
 
-        "<Material_Def> ::= 'material' <Label> [<Material_Clone>] -'{' {<Material_Properties>} '}'; \n"
+        "<Material_Def> ::= 'material' <Label> [<Material_Clone>] '{' {<Material_Properties>} '}'; \n"
 
         "<Material_Properties> ::= <Technique_Def> | <Set_Texture_Alias_Def> | "
         "                          <Lod_Distances_Def> | <Receive_Shadows_Def> | "
@@ -59,12 +59,12 @@ namespace Ogre {
         "    <transparency_casts_shadows_def> ::= 'transparency_casts_shadows' <On_Off>; \n"
 
         // Technique section rules
-        "<Technique_Def> ::= 'technique' [<Label>] -'{' {<Technique_Properties>} '}'; \n"
+        "<Technique_Def> ::= 'technique' [<Label>] '{' {<Technique_Properties>} '}'; \n"
         "    <Technique_Properties> ::= <Pass_Def> | <Lod_Index_Def>; \n"
         "    <Lod_Index_Def> ::= 'lod_index' <#value>; \n"
 
         // Pass section rules
-        "    <Pass_Def> ::= 'pass' [<Label>] -'{' {<Pass_Properties>} '}'; \n"
+        "    <Pass_Def> ::= 'pass' [<Label>] '{' {<Pass_Properties>} '}'; \n"
         "        <Pass_Properties> ::= <Ambient_Def> | <Diffuse_Def> | <Specular_Def> | <Emissive_Def>; \n"
         "                              <Scene_Blend_Def> | <Depth_Check_Def> | <Depth_Write_Def> | "
         "                              <Depth_Func_Def> | <Colour_Write_Def> | <Cull_Hardware_Def> | "
@@ -111,7 +111,7 @@ namespace Ogre {
         "               <Per_Light> ::= 'per_light' <light_type>; \n"
         "           <light_type> ::= 'point' | 'directional' | 'spot'; \n"
         // Texture Unit section rules
-        "        <Texture_Unit_Def> ::= 'texture_unit' [<Label>] -'{' {<TUS_Properties>} '}'; \n"
+        "        <Texture_Unit_Def> ::= 'texture_unit' [<Label>] '{' {<TUS_Properties>} '}'; \n"
         " "
 
         // common rules
@@ -141,16 +141,22 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::initTokenActions(void)
     {
+        addLexemeTokenAction("{", ID_OPENBRACE, &MaterialScriptCompiler::parseOpenBrace);
         addLexemeTokenAction("}", ID_CLOSEBRACE, &MaterialScriptCompiler::parseCloseBrace);
+        addLexemeTokenAction("vertex_program", ID_VERTEX_PROGRAM, &MaterialScriptCompiler::parseVertexProgram);
+        addLexemeTokenAction("fragment_program", ID_FRAGMENT_PROGRAM, &MaterialScriptCompiler::parseFragmentProgram);
         addLexemeTokenAction("material", ID_MATERIAL, &MaterialScriptCompiler::parseMaterial);
+        addLexemeTokenAction(":", ID_CLONE);
         addLexemeTokenAction("technique", ID_TECHNIQUE, &MaterialScriptCompiler::parseTechnique);
         addLexemeTokenAction("transparency_casts_shadows", ID_TRANSPARENCY_CASTS_SHADOWS, &MaterialScriptCompiler::parseTransparencyCastsShadows);
         addLexemeTokenAction("receive_shadows", ID_RECEIVE_SHADOWS, &MaterialScriptCompiler::parseReceiveShadows);
+        addLexemeTokenAction("pass", ID_PASS, &MaterialScriptCompiler::parsePass);
         addLexemeTokenAction("ambient", ID_AMBIENT, &MaterialScriptCompiler::parseAmbient);
         addLexemeTokenAction("diffuse", ID_DIFFUSE, &MaterialScriptCompiler::parseDiffuse);
         addLexemeTokenAction("specular", ID_SPECULAR, &MaterialScriptCompiler::parseSpecular);
         addLexemeTokenAction("emissive", ID_EMISSIVE, &MaterialScriptCompiler::parseEmissive);
 
+        addLexemeTokenAction("texture_unit", ID_TEXTURE_UNIT, &MaterialScriptCompiler::parseTextureUnit);
     }
 
     //-----------------------------------------------------------------------
@@ -194,6 +200,11 @@ namespace Ogre {
                     " of " + mScriptContext.filename + ": " + error);
             }
         }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseOpenBrace(void)
+    {
+
     }
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseCloseBrace(void)
@@ -273,19 +284,163 @@ namespace Ogre {
             break;
         };
     }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseVertexProgram(void)
+    {
+        // update section
+        mScriptContext.section = MSS_PROGRAM;
+
+		// Create new program definition-in-progress
+		mScriptContext.programDef = new MaterialScriptProgramDefinition();
+		mScriptContext.programDef->progType = GPT_VERTEX_PROGRAM;
+        mScriptContext.programDef->supportsSkeletalAnimation = false;
+		mScriptContext.programDef->supportsMorphAnimation = false;
+		mScriptContext.programDef->supportsPoseAnimation = 0;
+
+		// Get name and language code
+        const size_t paramCount = getTokenQueCount();
+		if (paramCount != 2)
+		{
+            logParseError("Invalid vertex_program entry - expected "
+				"2 parameters.");
+            return;
+		}
+		// Name, preserve case
+		mScriptContext.programDef->name = getNextTokenLabel();
+		// language code, make lower case
+		mScriptContext.programDef->language = getNextTokenLabel();
+		StringUtil::toLowerCase(mScriptContext.programDef->language);
+	}
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseFragmentProgram(void)
+    {
+        // update section
+        mScriptContext.section = MSS_PROGRAM;
+
+		// Create new program definition-in-progress
+		mScriptContext.programDef = new MaterialScriptProgramDefinition();
+		mScriptContext.programDef->progType = GPT_FRAGMENT_PROGRAM;
+		mScriptContext.programDef->supportsSkeletalAnimation = false;
+		mScriptContext.programDef->supportsMorphAnimation = false;
+		mScriptContext.programDef->supportsPoseAnimation = 0;
+
+		// Get name and language code
+        const size_t paramCount = getTokenQueCount();
+		if (paramCount != 2)
+		{
+            logParseError("Invalid fragment_program entry - expected "
+				"2 parameters.");
+            return;
+		}
+		// Name, preserve case
+		mScriptContext.programDef->name = getNextTokenLabel();
+		// language code, make lower case
+		mScriptContext.programDef->language = getNextTokenLabel();
+		StringUtil::toLowerCase(mScriptContext.programDef->language);
+	}
 	//-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseMaterial(void)
     {
+        // check params for reference to parent material to copy from
+        // syntax: material name : parentMaterialName
+        MaterialPtr basematerial;
+
+        const String materialName = getNextTokenLabel();
+        // Create a brand new material
+        const size_t paramCount = getTokenQueCount();
+        if (paramCount == 2)
+        {
+            getNextToken();
+            // if a second parameter exists then assume its the name of the base material
+            // that this new material should clone from
+            const String parentName = getNextTokenLabel();
+            // make sure base material exists
+            basematerial = MaterialManager::getSingleton().getByName(parentName);
+            // if it doesn't exist then report error in log and just create a new material
+            if (basematerial.isNull())
+            {
+                logParseError("parent material: " + parentName + " not found for new material:"
+                    + materialName);
+            }
+        }
+
+        mScriptContext.material = 
+			MaterialManager::getSingleton().create(materialName, mScriptContext.groupName);
+
+        if (!basematerial.isNull())
+        {
+            // copy parent material details to new material
+            basematerial->copyDetailsTo(mScriptContext.material);
+        }
+        else
+        {
+            // Remove pre-created technique from defaults
+            mScriptContext.material->removeAllTechniques();
+        }
+
+		mScriptContext.material->_notifyOrigin(mScriptContext.filename);
+
+        // update section
+        mScriptContext.section = MSS_MATERIAL;
 
     }
 	//-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseTechnique(void)
     {
+        String techniqueName;
+        const size_t paramCount = getTokenQueCount();
+        // if params is not empty then see if the technique name already exists
+        if ((paramCount > 0) && (mScriptContext.material->getNumTechniques() > 0))
+        {
+            // find the technique with name = params
+            techniqueName = getNextTokenLabel();
+            Technique * foundTechnique = mScriptContext.material->getTechnique(techniqueName);
+            if (foundTechnique)
+            {
+                // figure out technique index by iterating through technique container
+                // would be nice if each technique remembered its index
+                int count = 0;
+                Material::TechniqueIterator i = mScriptContext.material->getTechniqueIterator();
+                while(i.hasMoreElements())
+                {
+                    if (foundTechnique == i.peekNext())
+                        break;
+                    i.moveNext();
+                    ++count;
+                }
 
-    }
-	//-----------------------------------------------------------------------
-    void MaterialScriptCompiler::parsePass(void)
-    {
+                mScriptContext.techLev = count;
+            }
+            else
+            {
+                // name was not found so a new technique is needed
+                // position technique level to the end index
+                // a new technique will be created later on
+                mScriptContext.techLev = mScriptContext.material->getNumTechniques();
+            }
+
+        }
+        else 
+        {
+            // no name was given in the script so a new technique will be created
+		    // Increase technique level depth
+		    ++mScriptContext.techLev;
+        }
+
+        // Create a new technique if it doesn't already exist
+        if (mScriptContext.material->getNumTechniques() > mScriptContext.techLev)
+        {
+            mScriptContext.technique = mScriptContext.material->getTechnique(mScriptContext.techLev);
+        }
+        else
+        {
+            mScriptContext.technique = mScriptContext.material->createTechnique();
+            if (!techniqueName.empty())
+                mScriptContext.technique->setName(techniqueName);
+        }
+
+        // update section
+        mScriptContext.section = MSS_TECHNIQUE;
 
     }
 	//-----------------------------------------------------------------------
@@ -325,6 +480,51 @@ namespace Ogre {
         }
     }
 
+	//-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parsePass(void)
+    {
+        String passName;
+        const size_t paramCount = getTokenQueCount();
+        // if params is not empty then see if the pass name already exists
+        if ((paramCount > 0) && (mScriptContext.technique->getNumPasses() > 0))
+        {
+            passName = getNextTokenLabel();
+            // find the pass with name = params
+            Pass * foundPass = mScriptContext.technique->getPass(passName);
+            if (foundPass)
+            {
+                mScriptContext.passLev = foundPass->getIndex();
+            }
+            else
+            {
+                // name was not found so a new pass is needed
+                // position pass level to the end index
+                // a new pass will be created later on
+                mScriptContext.passLev = mScriptContext.technique->getNumPasses();
+            }
+
+        }
+        else
+        {
+		    //Increase pass level depth
+		    ++mScriptContext.passLev;
+        }
+
+        if (mScriptContext.technique->getNumPasses() > mScriptContext.passLev)
+        {
+            mScriptContext.pass = mScriptContext.technique->getPass(mScriptContext.passLev);
+        }
+        else
+        {
+            // Create a new pass
+            mScriptContext.pass = mScriptContext.technique->createPass();
+            if (!passName.empty())
+                mScriptContext.pass->setName(passName);
+        }
+
+        // update section
+        mScriptContext.section = MSS_PASS;
+    }
     //-----------------------------------------------------------------------
     ColourValue MaterialScriptCompiler::_parseColourValue(void)
     {
@@ -465,6 +665,53 @@ namespace Ogre {
 			ExternalTextureSourceManager::getSingleton().getCurrentPlugIn()->setParameter( param1, param2 );
         }
 	}
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseTextureUnit(void)
+    {
+        String tusName;
+        const size_t paramCount = getTokenQueCount();
+        // if params is a name then see if that texture unit exists
+        // if not then log the warning and just move on to the next TU from current
+        if ((paramCount > 0) && (mScriptContext.pass->getNumTextureUnitStates() > 0))
+        {
+            // specifying a TUS name in the script for a TU means that a specific TU is being requested
+            // try to get the specific TU
+            // if the index requested is not valid, just creat a new TU
+            // find the TUS with name
+            tusName = getNextTokenLabel();
+            TextureUnitState * foundTUS = mScriptContext.pass->getTextureUnitState(tusName);
+            if (foundTUS)
+            {
+                mScriptContext.stateLev = mScriptContext.pass->getTextureUnitStateIndex(foundTUS);
+            }
+            else
+            {
+                // name was not found so a new TUS is needed
+                // position TUS level to the end index
+                // a new TUS will be created later on
+                mScriptContext.stateLev = static_cast<uint>(mScriptContext.pass->getNumTextureUnitStates());
+            }
+        }
+        else
+        {
+		    //Increase Texture Unit State level depth
+		    ++mScriptContext.stateLev;
+        }
+
+        if (mScriptContext.pass->getNumTextureUnitStates() > mScriptContext.stateLev)
+        {
+            mScriptContext.textureUnit = mScriptContext.pass->getTextureUnitState(mScriptContext.stateLev);
+        }
+        else
+        {
+            // Create a new texture unit
+            mScriptContext.textureUnit = mScriptContext.pass->createTextureUnitState();
+            if (!tusName.empty())
+                mScriptContext.textureUnit->setName(tusName);
+        }
+        // update section
+        mScriptContext.section = MSS_TEXTUREUNIT;
+    }
     //-----------------------------------------------------------------------
 	void MaterialScriptCompiler::finishProgramDefinition(void)
 	{

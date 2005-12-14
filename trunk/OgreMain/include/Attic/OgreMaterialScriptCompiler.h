@@ -46,7 +46,8 @@ namespace Ogre {
 	    // Token ID enumeration
 	    enum TokenID {
 		    // Terminal Tokens section
-            ID_UNKOWN = 0, ID_CLOSEBRACE,
+            ID_UNKOWN = 0, ID_OPENBRACE, ID_CLOSEBRACE,
+            ID_VERTEX_PROGRAM, ID_FRAGMENT_PROGRAM,
             // material
             ID_MATERIAL, ID_CLONE, ID_TECHNIQUE, ID_SET_TEXTURE_ALIAS, ID_LOD_DISTANCES,
             ID_RECEIVE_SHADOWS, ID_TRANSPARENCY_CASTS_SHADOWS, ID_LOD_INDEX,
@@ -141,7 +142,7 @@ namespace Ogre {
             GpuProgramParametersSharedPtr programParams;
 		    MaterialScriptProgramDefinition* programDef; // this is used while defining a program
 
-		    int techLev,	//Keep track of what tech, pass, and state level we are in
+		    uint techLev,	//Keep track of what tech, pass, and state level we are in
 			    passLev,
 			    stateLev;
             StringVector defaultParamLines;
@@ -179,7 +180,10 @@ namespace Ogre {
         void logParseError(const String& error);
 
         // Token Actions which get called when tokens are created during parsing.
+        void parseOpenBrace(void);
         void parseCloseBrace(void);
+        void parseVertexProgram(void);
+        void parseFragmentProgram(void);
         void parseMaterial(void);
         // Technique related actions
         void parseTechnique(void);
@@ -193,6 +197,7 @@ namespace Ogre {
         void parseSpecular(void);
         void parseEmissive(void);
 
+        void parseTextureUnit(void);
         void parseTextureCustomParameter(void);
     	void finishProgramDefinition(void);
 
