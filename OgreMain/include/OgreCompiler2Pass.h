@@ -181,9 +181,10 @@ namespace Ogre {
 	    struct TokenInst
         {
 	    size_t mNTTRuleID;			/// Non-Terminal Token Rule ID that generated Token
-	    size_t mID;					/// Token ID
+	    size_t mID;					/// expected Token ID. Could be UNKNOWN if valid token was not found.
 	    size_t mLine;				/// line number in source code where Token was found
 	    size_t mPos;				/// Character position in source where Token was found
+        bool mFound;                /// is true if expected token was found
 	    };
 
 	    typedef std::vector<TokenInst> TokenInstContainer;
@@ -271,17 +272,34 @@ namespace Ogre {
             Its upto the child class to implement how it will associate a token key with and action.
         */
         virtual void executeTokenAction(const size_t tokenID) = 0;
-
+        /** Gets the next token from the instruction que.  If an unkown token is found then an exception is raised but
+            the instruction pointer is still moved passed the unknown token.  The subclass should catch the exception,
+            provide an error message, and attempt recovery.
+        */
         const TokenInst& getNextToken(void);
+        /** 
+        */
         void replaceToken(void);
+        /** Gets the next token's associated floating point value in the instruction que that was parsed from the
+            text source.  If an unkown token is found or no associated value was found then an exception is raised but
+            the instruction pointer is still moved passed the unknown token.  The subclass should catch the exception,
+            provide an error message, and attempt recovery.
+        */
         float getNextTokenValue(void);
+        /** Gets the next token's associated text label in the instruction que that was parsed from the
+            text source.  If an unkown token is found or no associated label was found then an exception is raised but
+            the instruction pointer is still moved passed the unknown token.  The subclass should catch the exception,
+            provide an error message, and attempt recovery.
+        */
         const String& getNextTokenLabel(void);
+        /** Gets the number of tokens waiting in the instruction que that need to be processed by an token action.
+        */
         size_t getTokenQueCount(void);
 
         /** Add a lexeme token association.  The backend compiler uses the associations between lexeme
             and token when building the rule base from the BNF script so all associations must be done
             prior to compiling a source.
-        **/
+        */
         void addLexemeToken(const std::string& lexeme, const size_t token, const bool hasAction = false);
 
         /// find the eol charater
