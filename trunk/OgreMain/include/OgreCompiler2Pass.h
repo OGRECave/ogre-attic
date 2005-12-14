@@ -73,15 +73,18 @@ namespace Ogre {
 
 
         []   optional rule identifier is enclosed in meta symbols [ and ].
-             Note that only identifiers can take [] modifier.
+             Note that only one identifier or terminal token can take [] modifier.
         {}   repetitive identifier (zero or more times) is enclosed in meta symbols { and }
-             Note that only identifiers can take {} modifier.
+             Note that only one identifier or terminal token can take {} modifier.
         ''   terminal tokens are surrounded by single quotes.  A terminal token is always one or more characters.
              For example: 'Colour' defines a character sequence that must be matched in whole.  Note that matching is case
              sensitive.
         -''  no terminal token is generated when a - precedes the first single quote but the text in between the quotes is still
              tested against the characters in the source being parsed.
-        <value> predefined terminal token for excepting numerical values
+        <#name> # indicates that a numerical value is to be parsed to form a terminal token.  Name is optional and is just a descriptor 
+             to help with understanding what the value will be used for.
+             that will hold the value.
+             Example: <Colour> ::= <#red> <#green> <#blue>
         ()   parentheses enclose a set of characters that can be used to generate a user identifier. for example:
              (0123456789) matches a single character found in that set.
              An example of a user identifier:
@@ -157,6 +160,22 @@ namespace Ogre {
 
 	    };
 
+        struct TokenDef
+        {
+            size_t ID;
+            bool hasAction;
+
+            TokenDef(void) : ID(0), hasAction(false) {}
+            TokenDef( const size_t _ID, const bool _hasAction )
+                : ID(_ID)
+                , hasAction(_hasAction)
+            {
+            }
+        };
+
+        typedef std::map<std::string, TokenDef> LexemeTokenMap;
+        typedef LexemeTokenMap::iterator TokeyKeyIterator;
+        LexemeTokenMap mLexemeTokenMap;
 
 	    /** structure for Token instructions that are constructed during first pass*/
 	    struct TokenInst
@@ -248,9 +267,23 @@ namespace Ogre {
 	    */
 	    bool doPass2();
 
-        /** execute the action associated with the token pointed to by the Pass 2 token instruction position
+        /** execute the action associated with the token pointed to by the Pass 2 token instruction position.
+            Its upto the child class to implement how it will associate a token key with and action.
         */
-        virtual void executeTokenAction(void) = 0;
+        virtual void executeTokenAction(const size_t tokenID) = 0;
+
+        const TokenInst& getNextToken(void);
+        void replaceToken(void);
+        float getNextTokenValue(void);
+        const String& getNextTokenLabel(void);
+        size_t getTokenQueCount(void);
+
+        /** Add a lexeme token association.  The backend compiler uses the associations between lexeme
+            and token when building the rule base from the BNF script so all associations must be done
+            prior to compiling a source.
+        **/
+        void addLexemeToken(const std::string& lexeme, const size_t token, const bool hasAction = false);
+
         /// find the eol charater
 	    void findEOL();
 
@@ -334,6 +367,7 @@ namespace Ogre {
 
 	    /// constructor
 	    Compiler2Pass();
+        virtual ~Compiler2Pass() {}
 
 	    /** compile the source - performs 2 passes.
 		    First pass is to tokinize, check semantics and context.
