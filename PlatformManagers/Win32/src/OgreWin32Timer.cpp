@@ -32,16 +32,17 @@ namespace Ogre {
         QueryPerformanceFrequency(&mFrequency);
         QueryPerformanceCounter(&mStartTime);
         mStartTick = GetTickCount();
+        mLastTime = 0;
     }
     //-------------------------------------------------------------------------
     unsigned long Win32Timer::getMilliseconds()
     {
         LARGE_INTEGER curTime;
         QueryPerformanceCounter(&curTime);
+        LONGLONG newTime = curTime.QuadPart - mStartTime.QuadPart;
         
         // scale by 1000 for milliseconds
-        unsigned long newTicks = (unsigned long)
-            (1000*(curTime.QuadPart-mStartTime.QuadPart)/mFrequency.QuadPart);
+        unsigned long newTicks = (unsigned long) (1000 * newTime / mFrequency.QuadPart);
 
         // detect and compensate for performance counter leaps
         // (surprisingly common, see Microsoft KB: Q274323)
@@ -49,9 +50,17 @@ namespace Ogre {
         signed long msecOff = (signed long)(newTicks - check);
         if (msecOff < -100 || msecOff > 100)
         {
-            mStartTime.QuadPart += msecOff * mFrequency.QuadPart / 1000;
-            newTicks = check;
+            // We must keep the timer running forward :)
+            LONGLONG adjust = (std::min)(msecOff * mFrequency.QuadPart / 1000, newTime - mLastTime);
+            mStartTime.QuadPart += adjust;
+            newTime -= adjust;
+
+            // Re-calculate milliseconds
+            newTicks = (unsigned long) (1000 * newTime / mFrequency.QuadPart);
         }
+
+        // Record last time for adjust
+        mLastTime = newTime;
 
         return newTicks;
 	}
@@ -60,12 +69,10 @@ namespace Ogre {
 	{
         LARGE_INTEGER curTime;
         QueryPerformanceCounter(&curTime);
+        LONGLONG newTime = curTime.QuadPart - mStartTime.QuadPart;
         
-        // scale by 1000000 for microseconds;
-        // also get milliseconds to check against GetTickCount
-        unsigned long newMicro = (unsigned long)
-            (1000000*(curTime.QuadPart-mStartTime.QuadPart)/mFrequency.QuadPart);
-        unsigned long newTicks = newMicro / 1000;
+        // get milliseconds to check against GetTickCount
+        unsigned long newTicks = (unsigned long) (1000 * newTime / mFrequency.QuadPart);
         
         // detect and compensate for performance counter leaps
         // (surprisingly common, see Microsoft KB: Q274323)
@@ -73,9 +80,17 @@ namespace Ogre {
         signed long msecOff = (signed long)(newTicks - check);
         if (msecOff < -100 || msecOff > 100)
         {
-            mStartTime.QuadPart += msecOff * mFrequency.QuadPart / 1000;
-            newMicro -= msecOff * 1000;
+            // We must keep the timer running forward :)
+            LONGLONG adjust = (std::min)(msecOff * mFrequency.QuadPart / 1000, newTime - mLastTime);
+            mStartTime.QuadPart += adjust;
+            newTime -= adjust;
         }
+
+        // Record last time for adjust
+        mLastTime = newTime;
+
+        // scale by 1000000 for microseconds
+        unsigned long newMicro = (unsigned long) (1000000 * newTime / mFrequency.QuadPart);
 
         return newMicro;
 	}
