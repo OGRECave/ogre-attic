@@ -155,6 +155,9 @@ namespace Ogre {
         addLexemeTokenAction("diffuse", ID_DIFFUSE, &MaterialScriptCompiler::parseDiffuse);
         addLexemeTokenAction("specular", ID_SPECULAR, &MaterialScriptCompiler::parseSpecular);
         addLexemeTokenAction("emissive", ID_EMISSIVE, &MaterialScriptCompiler::parseEmissive);
+        addLexemeTokenAction("depth_check", ID_DEPTH_CHECK, &MaterialScriptCompiler::parseDepthCheck);
+        addLexemeTokenAction("depth_write", ID_DEPTH_WRITE, &MaterialScriptCompiler::parseDepthWrite);
+        addLexemeTokenAction("colour_write", ID_COLOUR_WRITE, &MaterialScriptCompiler::parseColourWrite);
 
         addLexemeTokenAction("texture_unit", ID_TEXTURE_UNIT, &MaterialScriptCompiler::parseTextureUnit);
     }
@@ -446,7 +449,6 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseTransparencyCastsShadows(void)
 	{
-        //StringUtil::toLowerCase(params);
         switch (getNextToken().mID)
         {
         case ID_ON:
@@ -465,7 +467,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseReceiveShadows(void)
     {
-        //StringUtil::toLowerCase(params);
         switch (getNextToken().mID)
         {
         case ID_ON:
@@ -643,6 +644,51 @@ namespace Ogre {
         else
         {
             logParseError("Bad emissive attribute, wrong number of parameters (expected 1, 3 or 4)");
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseDepthCheck(void)
+    {
+        switch (getNextToken().mID)
+        {
+        case ID_ON:
+            mScriptContext.pass->setDepthCheckEnabled(true);
+            break;
+        case ID_OFF:
+            mScriptContext.pass->setDepthCheckEnabled(false);
+            break;
+        default:
+            logParseError("Bad depth_check attribute, valid parameters are 'on' or 'off'.");
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseDepthWrite(void)
+    {
+        switch (getNextToken().mID)
+        {
+        case ID_ON:
+            mScriptContext.pass->setDepthWriteEnabled(true);
+            break;
+        case ID_OFF:
+            mScriptContext.pass->setDepthWriteEnabled(false);
+            break;
+        default:
+            logParseError("Bad depth_write attribute, valid parameters are 'on' or 'off'.");
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseColourWrite(void)
+    {
+        switch (getNextToken().mID)
+        {
+        case ID_ON:
+            mScriptContext.pass->setColourWriteEnabled(true);
+            break;
+        case ID_OFF:
+            mScriptContext.pass->setColourWriteEnabled(false);
+            break;
+        default:
+            logParseError("Bad colour_write attribute, valid parameters are 'on' or 'off'.");
         }
     }
     //-----------------------------------------------------------------------
