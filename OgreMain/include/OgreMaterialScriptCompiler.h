@@ -46,7 +46,7 @@ namespace Ogre {
 	    // Token ID enumeration
 	    enum TokenID {
 		    // Terminal Tokens section
-            ID_UNKOWN = 0,
+            ID_UNKOWN = 0, ID_CLOSEBRACE,
             // material
             ID_MATERIAL, ID_CLONE, ID_TECHNIQUE, ID_SET_TEXTURE_ALIAS, ID_LOD_DISTANCES,
             ID_RECEIVE_SHADOWS, ID_TRANSPARENCY_CASTS_SHADOWS, ID_LOD_INDEX,
@@ -179,6 +179,7 @@ namespace Ogre {
         void logParseError(const String& error);
 
         // Token Actions which get called when tokens are created during parsing.
+        void parseCloseBrace(void);
         void parseMaterial(void);
         // Technique related actions
         void parseTechnique(void);
@@ -193,6 +194,7 @@ namespace Ogre {
         void parseEmissive(void);
 
         void parseTextureCustomParameter(void);
+    	void finishProgramDefinition(void);
 
     };
 }
