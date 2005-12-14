@@ -321,6 +321,7 @@ namespace Ogre {
             }
             else
             {
+                replaceToken();
                 logParseError("Bad specular attribute, double parameter statement must be 'vertexcolour <shininess>'");
             }
         } 
@@ -351,6 +352,7 @@ namespace Ogre {
             }
             else
             {
+                replaceToken();
                 logParseError("Bad emissive attribute, single parameter flag must be 'vertexcolour'");
             }
         }
