@@ -428,6 +428,7 @@ namespace Ogre {
 					        newtoken.mNTTRuleID = activeRuleID;
 					        newtoken.mLine = mCurrentLine;
 					        newtoken.mPos = mCharPos;
+                            newtoken.mFound = true;
 
 					        mTokenInstructions.push_back(newtoken);
                         }
