@@ -196,6 +196,9 @@ namespace Ogre {
         void parseDiffuse(void);
         void parseSpecular(void);
         void parseEmissive(void);
+        void parseDepthCheck(void);
+        void parseDepthWrite(void);
+        void parseColourWrite(void);
 
         void parseTextureUnit(void);
         void parseTextureCustomParameter(void);
