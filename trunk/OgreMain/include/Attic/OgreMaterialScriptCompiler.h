@@ -27,37 +27,50 @@ http://www.gnu.org/copyleft/gpl.html.
 #define __MaterialScriptScompiler_H__
 
 #include "OgreCompiler2Pass.h"
+#include "OgrePrerequisites.h"
+//#include "OgreMaterial.h"
+//#include "OgreBlendMode.h"
+//#include "OgreTextureUnitState.h"
+//#include "OgreGpuProgram.h"
 
 namespace Ogre {
 
     class MaterialScriptCompiler : public Compiler2Pass
     {
-    private:
+
+    public:
+        MaterialScriptCompiler(void);
+        ~MaterialScriptCompiler(void);
+
+    protected:
 	    // Token ID enumeration
-        /* deprecated: rules are now written in BNF text format and will be compiled from string into the rule base
-	    enum SymbolID {
+	    enum TokenID {
 		    // Terminal Tokens section
+            ID_UNKOWN = 0,
             // material
-            mid_MATERIAL = 0, mid_CLONE, mid_TECHNIQUE, mid_SET_TEXTURE_ALIAS, mid_LOD_DISTANCES,
-            mid_RECEIVE_SHADOWS, mid_TRANSPARENCY_CASTS_SHADOWS, mid_LOD_INDEX,
+            ID_MATERIAL, ID_CLONE, ID_TECHNIQUE, ID_SET_TEXTURE_ALIAS, ID_LOD_DISTANCES,
+            ID_RECEIVE_SHADOWS, ID_TRANSPARENCY_CASTS_SHADOWS, ID_LOD_INDEX,
             
             // pass 
-            mid_PASS, mid_AMBIENT, mid_DIFFUSE, mid_SPECULAR, mid_EMISSIVE,
-            mid_VERTEXCOLOUR, mid_SCENE_BLEND, mid_BLEND_ADD, mid_BLEND_MODULATE, mid_COLOUR_BLEND, mid_ALPHA_BLEND,
-            mid_BLEND_ONE, mid_BLEND_ZERO, mid_BLEND_DEST_COLOUR,
-            mid_BLEND_SRC_COLOUR, mid_BLEND_ONCE_MINUS_DEST_COLOUR, mid_BLEND_ONE_MINUS_SRC_COLOUR,
-            mid_BLEND_DEST_ALPHA, mid_BLEND_SRC_ALPHA, mid_BLEND_ONE_MINUS_DEST_ALPHA, mid_BLEND_ONE_MINUS_SRC_ALPHA,
-            mid_DEPTH_CHECK, mid_DEPTH_WRITE, mid_ALPHA_REJECTION, mid_DEPTH_FUNC, mid_ALWAYS_FAIL, mid_ALWAYS_PASS,
-            mid_LESS_EQUAL, mid_LESS, mid_EQUAL, mid_NOT_EQUAL, mid_GREATER_EQUAL, mid_GREATER,
+            ID_PASS, ID_AMBIENT, ID_DIFFUSE, ID_SPECULAR, ID_EMISSIVE,
+            ID_VERTEXCOLOUR, ID_SCENE_BLEND, ID_BLEND_ADD, ID_BLEND_MODULATE, ID_COLOUR_BLEND, ID_ALPHA_BLEND,
+            ID_BLEND_ONE, ID_BLEND_ZERO, ID_BLEND_DEST_COLOUR,
+            ID_BLEND_SRC_COLOUR, ID_BLEND_ONCE_MINUS_DEST_COLOUR, ID_BLEND_ONE_MINUS_SRC_COLOUR,
+            ID_BLEND_DEST_ALPHA, ID_BLEND_SRC_ALPHA, ID_BLEND_ONE_MINUS_DEST_ALPHA, ID_BLEND_ONE_MINUS_SRC_ALPHA,
+            ID_DEPTH_CHECK, ID_DEPTH_WRITE, ID_ALPHA_REJECTION, ID_DEPTH_FUNC, ID_ALWAYS_FAIL, ID_ALWAYS_PASS,
+            ID_LESS_EQUAL, ID_LESS, ID_EQUAL, ID_NOT_EQUAL, ID_GREATER_EQUAL, ID_GREATER,
             
-            mid_COLOUR_WRITE, mid_CULL_HARDWARE, mid_CLOCKWISE, mid_ANTICLOCKWISE, mid_CULL_NONE,
-            mid_CULL_SOFTWARE, mid_CULL_BACK, mid_CULL_FRONT,
-            mid_SHADING, mid_FLAT, mid_GOURAUD, mid_PHONG,
-            mid_LIGHTING, mid_FOG_OVERRIDE,
-            mid_TEXTURE_UNIT,
+            ID_COLOUR_WRITE, ID_CULL_HARDWARE, ID_CLOCKWISE, ID_ANTICLOCKWISE, ID_CULL_NONE,
+            ID_CULL_SOFTWARE, ID_CULL_BACK, ID_CULL_FRONT,
+            ID_SHADING, ID_FLAT, ID_GOURAUD, ID_PHONG,
+            ID_LIGHTING, ID_FOG_OVERRIDE,
+            ID_TEXTURE_UNIT,
 
             // general
-            mid_ON, mid_OFF, mid_TRUE, mid_FALSE, 
+            ID_ON, ID_OFF, ID_TRUE, ID_FALSE
+        };
+
+        /* deprecated: rules are now written in BNF text format and will be compiled from string into the rule base
 
 
     		// non-terminal tokens section
@@ -86,11 +99,101 @@ namespace Ogre {
             mid_SYSTEM
         };
         */
+
+        /** Enum to identify material sections. */
+        enum MaterialScriptSection
+        {
+            MSS_NONE,
+            MSS_MATERIAL,
+            MSS_TECHNIQUE,
+            MSS_PASS,
+            MSS_TEXTUREUNIT,
+            MSS_PROGRAM_REF,
+		    MSS_PROGRAM,
+            MSS_DEFAULT_PARAMETERS,
+		    MSS_TEXTURESOURCE
+        };
+	    /** Struct for holding a program definition which is in progress. */
+	    struct MaterialScriptProgramDefinition
+	    {
+		    String name;
+		    GpuProgramType progType;
+            String language;
+		    String source;
+		    String syntax;
+            bool supportsSkeletalAnimation;
+		    bool supportsMorphAnimation;
+		    ushort supportsPoseAnimation; // number of simultaneous poses supported
+		    std::map<String, String> customParameters;
+	    };
+        /** Struct for holding the script context while parsing. */
+        struct MaterialScriptContext 
+        {
+            MaterialScriptSection section;
+		    String groupName;
+            MaterialPtr material;
+            Technique* technique;
+            Pass* pass;
+            TextureUnitState* textureUnit;
+            GpuProgramPtr program; // used when referencing a program, not when defining it
+            bool isProgramShadowCaster; // when referencing, are we in context of shadow caster
+            bool isProgramShadowReceiver; // when referencing, are we in context of shadow caster
+            GpuProgramParametersSharedPtr programParams;
+		    MaterialScriptProgramDefinition* programDef; // this is used while defining a program
+
+		    int techLev,	//Keep track of what tech, pass, and state level we are in
+			    passLev,
+			    stateLev;
+            StringVector defaultParamLines;
+
+		    // Error reporting state
+            size_t lineNo;
+            String filename;
+            AliasTextureNamePairList textureAliases;
+        };
+
+        MaterialScriptContext mScriptContext;
+
 	    // static library database for tokens and BNF rules
 	    static TokenRule materialScript_RulePath[];
+        // simplified Backus - Naur Form (BNF) grammer for material scripts
         static String materialScript_BNF;
 
-    public:
+        typedef void (MaterialScriptCompiler::* MSC_Action)(void);
+        typedef std::map<size_t, MSC_Action> TokenActionMap;
+        typedef TokenActionMap::iterator TokenActionIterator;
+        /** Map of Token value as key to an Action.  An Action converts tokens into
+            the final format.
+        */
+        TokenActionMap mTokenActionMap;
+
+        /** Execute an Action associated with a token.  Gets called when the compiler finishes tokenizing a
+            section of the source that has been parsed.
+        **/
+        virtual void executeTokenAction(const size_t tokenID);
+        /** Associate all the lexemes used in a material script with their corresponding tokens and actions.
+        **/
+        void initTokenActions(void);
+        void addLexemeTokenAction(const String& lexeme, const size_t token, const MSC_Action action = 0);
+
+        void logParseError(const String& error);
+
+        // Token Actions which get called when tokens are created during parsing.
+        void parseMaterial(void);
+        // Technique related actions
+        void parseTechnique(void);
+        void parseTransparencyCastsShadows(void);
+        void parseReceiveShadows(void);
+        // Pass related Actions
+        void parsePass(void);
+        ColourValue _parseColourValue(void);
+        void parseAmbient(void);
+        void parseDiffuse(void);
+        void parseSpecular(void);
+        void parseEmissive(void);
+
+        void parseTextureCustomParameter(void);
+
     };
 }
 
