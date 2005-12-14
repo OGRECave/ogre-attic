@@ -46,7 +46,7 @@ namespace Ogre {
 
         "<Script_Properties> ::= <Material_Def> | <Vertex_Program_Def> | <Fragment_Program_Def>; \n"
 
-        "<Material_Def> ::= 'material' <Label> [<Material_Clone>] -'{' {<Material_Properties>} -'}'; \n"
+        "<Material_Def> ::= 'material' <Label> [<Material_Clone>] -'{' {<Material_Properties>} '}'; \n"
 
         "<Material_Properties> ::= <Technique_Def> | <Set_Texture_Alias_Def> | "
         "                          <Lod_Distances_Def> | <Receive_Shadows_Def> | "
@@ -59,12 +59,12 @@ namespace Ogre {
         "    <transparency_casts_shadows_def> ::= 'transparency_casts_shadows' <On_Off>; \n"
 
         // Technique section rules
-        "<Technique_Def> ::= 'technique' [<Label>] -'{' {<Technique_Properties>} -'}'; \n"
+        "<Technique_Def> ::= 'technique' [<Label>] -'{' {<Technique_Properties>} '}'; \n"
         "    <Technique_Properties> ::= <Pass_Def> | <Lod_Index_Def>; \n"
         "    <Lod_Index_Def> ::= 'lod_index' <#value>; \n"
 
         // Pass section rules
-        "    <Pass_Def> ::= 'pass' [<Label>] -'{' {<Pass_Properties>} -'}'; \n"
+        "    <Pass_Def> ::= 'pass' [<Label>] -'{' {<Pass_Properties>} '}'; \n"
         "        <Pass_Properties> ::= <Ambient_Def> | <Diffuse_Def> | <Specular_Def> | <Emissive_Def>; \n"
         "                              <Scene_Blend_Def> | <Depth_Check_Def> | <Depth_Write_Def> | "
         "                              <Depth_Func_Def> | <Colour_Write_Def> | <Cull_Hardware_Def> | "
@@ -111,7 +111,7 @@ namespace Ogre {
         "               <Per_Light> ::= 'per_light' <light_type>; \n"
         "           <light_type> ::= 'point' | 'directional' | 'spot'; \n"
         // Texture Unit section rules
-        "        <Texture_Unit_Def> ::= 'texture_unit' [<Label>] -'{' {<TUS_Properties>} -'}'; \n"
+        "        <Texture_Unit_Def> ::= 'texture_unit' [<Label>] -'{' {<TUS_Properties>} '}'; \n"
         " "
 
         // common rules
@@ -131,7 +131,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     MaterialScriptCompiler::MaterialScriptCompiler(void)
     {
-
+        initTokenActions();
     }
     //-----------------------------------------------------------------------
     MaterialScriptCompiler::~MaterialScriptCompiler(void)
@@ -141,6 +141,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::initTokenActions(void)
     {
+        addLexemeTokenAction("}", ID_CLOSEBRACE, &MaterialScriptCompiler::parseCloseBrace);
         addLexemeTokenAction("material", ID_MATERIAL, &MaterialScriptCompiler::parseMaterial);
         addLexemeTokenAction("technique", ID_TECHNIQUE, &MaterialScriptCompiler::parseTechnique);
         addLexemeTokenAction("transparency_casts_shadows", ID_TRANSPARENCY_CASTS_SHADOWS, &MaterialScriptCompiler::parseTransparencyCastsShadows);
@@ -193,6 +194,84 @@ namespace Ogre {
                     " of " + mScriptContext.filename + ": " + error);
             }
         }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseCloseBrace(void)
+    {
+        switch(mScriptContext.section)
+        {
+        case MSS_NONE:
+            logParseError("Unexpected terminating brace.");
+            break;
+        case MSS_MATERIAL:
+            // End of material
+            // if texture aliases were found, pass them to the material
+            // to update texture names used in Texture unit states
+            if (!mScriptContext.textureAliases.empty())
+            {
+                // request material to update all texture names in TUS's
+                // that use texture aliases in the list
+                mScriptContext.material->applyTextureAliases(mScriptContext.textureAliases);
+            }
+
+            mScriptContext.section = MSS_NONE;
+            mScriptContext.material.setNull();
+			//Reset all levels for next material
+			mScriptContext.passLev = -1;
+			mScriptContext.stateLev= -1;
+			mScriptContext.techLev = -1;
+            mScriptContext.textureAliases.clear();
+            break;
+        case MSS_TECHNIQUE:
+            // End of technique
+            mScriptContext.section = MSS_MATERIAL;
+            mScriptContext.technique = NULL;
+			mScriptContext.passLev = -1;	//Reset pass level (yes, the pass level)
+            break;
+        case MSS_PASS:
+            // End of pass
+            mScriptContext.section = MSS_TECHNIQUE;
+            mScriptContext.pass = NULL;
+			mScriptContext.stateLev = -1;	//Reset state level (yes, the state level)
+            break;
+        case MSS_TEXTUREUNIT:
+            // End of texture unit
+            mScriptContext.section = MSS_PASS;
+            mScriptContext.textureUnit = NULL;
+            break;
+		case MSS_TEXTURESOURCE:
+			//End texture source section
+			//Finish creating texture here
+			
+			if(	ExternalTextureSourceManager::getSingleton().getCurrentPlugIn() != 0)
+            {
+                const String sMaterialName = mScriptContext.material->getName();
+				ExternalTextureSourceManager::getSingleton().getCurrentPlugIn()->
+				createDefinedTexture( sMaterialName, mScriptContext.groupName );
+            }
+			//Revert back to texture unit
+			mScriptContext.section = MSS_TEXTUREUNIT;
+			break;
+        case MSS_PROGRAM_REF:
+            // End of program
+            mScriptContext.section = MSS_PASS;
+            mScriptContext.program.setNull();
+            break;
+        case MSS_PROGRAM:
+			// Program definitions are slightly different, they are deferred
+			// until all the information required is known
+            // End of program
+			finishProgramDefinition();
+            mScriptContext.section = MSS_NONE;
+            delete mScriptContext.programDef;
+            mScriptContext.defaultParamLines.clear();
+            mScriptContext.programDef = NULL;
+            break;
+        case MSS_DEFAULT_PARAMETERS:
+            // End of default parameters
+            mScriptContext.section = MSS_PROGRAM;
+            break;
+        };
     }
 	//-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseMaterial(void)
@@ -386,5 +465,116 @@ namespace Ogre {
 			ExternalTextureSourceManager::getSingleton().getCurrentPlugIn()->setParameter( param1, param2 );
         }
 	}
+    //-----------------------------------------------------------------------
+	void MaterialScriptCompiler::finishProgramDefinition(void)
+	{
+		// Now it is time to create the program and propagate the parameters
+		MaterialScriptProgramDefinition* def = mScriptContext.programDef;
+        GpuProgramPtr gp;
+		if (def->language == "asm")
+		{
+			// Native assembler
+			// Validate
+			if (def->source.empty())
+			{
+				logParseError("Invalid program definition for " + def->name +
+					", you must specify a source file.");
+			}
+			if (def->syntax.empty())
+			{
+				logParseError("Invalid program definition for " + def->name +
+					", you must specify a syntax code.");
+			}
+			// Create
+			gp = GpuProgramManager::getSingleton().
+				createProgram(def->name, mScriptContext.groupName, def->source, 
+                    def->progType, def->syntax);
+
+		}
+		else
+		{
+			// High-level program
+			// Validate
+			if (def->source.empty())
+			{
+				logParseError("Invalid program definition for " + def->name +
+					", you must specify a source file.");
+			}
+			// Create
+            try 
+            {
+			    HighLevelGpuProgramPtr hgp = HighLevelGpuProgramManager::getSingleton().
+				    createProgram(def->name, mScriptContext.groupName, 
+                        def->language, def->progType);
+                // Assign to generalised version
+                gp = hgp;
+                // Set source file
+                hgp->setSourceFile(def->source);
+
+			    // Set custom parameters
+			    std::map<String, String>::const_iterator i, iend;
+			    iend = def->customParameters.end();
+			    for (i = def->customParameters.begin(); i != iend; ++i)
+			    {
+				    if (!hgp->setParameter(i->first, i->second))
+				    {
+					    logParseError("Error in program " + def->name + 
+						    " parameter " + i->first + " is not valid.");
+				    }
+			    }
+            }
+            catch (Exception& e)
+            {
+                logParseError("Could not create GPU program '"
+                    + def->name + "', error reported was: " + e.getFullDescription());
+				mScriptContext.program.setNull();
+            	mScriptContext.programParams.setNull();
+				return;
+            }
+        }
+        // Set skeletal animation option
+        gp->setSkeletalAnimationIncluded(def->supportsSkeletalAnimation);
+		// Set morph animation option
+		gp->setMorphAnimationIncluded(def->supportsMorphAnimation);
+		// Set pose animation option
+		gp->setPoseAnimationIncluded(def->supportsPoseAnimation);
+		// set origin
+		gp->_notifyOrigin(mScriptContext.filename);
+
+        // Set up to receive default parameters
+        if (gp->isSupported() 
+            && !mScriptContext.defaultParamLines.empty())
+        {
+            mScriptContext.programParams = gp->getDefaultParameters();
+            mScriptContext.program = gp;
+            StringVector::iterator i, iend;
+            iend = mScriptContext.defaultParamLines.end();
+            for (i = mScriptContext.defaultParamLines.begin();
+                i != iend; ++i)
+            {
+                // find & invoke a parser
+                // do this manually because we want to call a custom
+                // routine when the parser is not found
+                // First, split line on first divisor only
+                StringVector splitCmd = StringUtil::split(*i, " \t", 1);
+                // Find attribute parser
+                //******************** FIX THIS
+                //AttribParserList::iterator iparser 
+                //    = mProgramDefaultParamAttribParsers.find(splitCmd[0]);
+                //if (iparser != mProgramDefaultParamAttribParsers.end())
+                //{
+                //    String cmd = splitCmd.size() >= 2? splitCmd[1]:StringUtil::BLANK;
+                //    // Use parser with remainder
+                //    iparser->second(cmd, mScriptContext );
+                //}
+
+            }
+            // Reset
+            mScriptContext.program.setNull();
+            mScriptContext.programParams.setNull();
+        }
+
+	}
+
 
 }
