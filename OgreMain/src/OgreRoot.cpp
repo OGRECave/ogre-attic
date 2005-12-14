@@ -590,14 +590,14 @@ namespace Ogre {
             return 0;
 
         // Times up to 0.5 seconds old should be kept
-        unsigned long discardLimit = now - 500;
+        unsigned long discardThreshold = 500;
 
         // Find the oldest time to keep
         std::deque<unsigned long>::iterator it = times.begin(),
             end = times.end()-2; // We need at least two times
         while(it != end)
         {
-            if(*it < discardLimit)
+            if (now - *it > discardThreshold)
                 ++it;
             else
                 break;
