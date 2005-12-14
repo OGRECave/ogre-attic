@@ -91,8 +91,8 @@ namespace Ogre {
         "        <Depth_Func_Def> ::= 'depth_func' <Compare_Func_Def>; \n"
         "        <Depth_Bias_Def> ::= 'depth_bias' <#value>; \n"
         "        <Alpha_Rejection_Def> ::= 'alpha_rejection' <Compare_Func_Def> <value>; \n"
-        "          <Compare_Func_Def> ::= 'always_fail' | 'always_pass' | 'less_equal' | 'less' | \n"
-        "                                 'equal' | 'not_equal' | 'greater_equal' | 'greater'; \n"
+        "        <Compare_Func_Def> ::= 'always_fail' | 'always_pass' | 'less_equal' | 'less' | \n"
+        "                               'equal' | 'not_equal' | 'greater_equal' | 'greater'; \n"
         "        <Colour_Write_Def> ::= 'colour_write' <On_Off>; \n"
         "        <Cull_Hardware_Def> ::= 'cull_hardware' 'clockwise' | 'anticlockwise' | 'none'; \n"
         "        <Cull_Software_Def> ::= 'cull_software' 'back' | 'front' | 'none'; \n"
@@ -157,7 +157,12 @@ namespace Ogre {
         addLexemeTokenAction("emissive", ID_EMISSIVE, &MaterialScriptCompiler::parseEmissive);
         addLexemeTokenAction("depth_check", ID_DEPTH_CHECK, &MaterialScriptCompiler::parseDepthCheck);
         addLexemeTokenAction("depth_write", ID_DEPTH_WRITE, &MaterialScriptCompiler::parseDepthWrite);
+        addLexemeTokenAction("depth_func", ID_DEPTH_FUNC, &MaterialScriptCompiler::parseDepthFunc);
         addLexemeTokenAction("colour_write", ID_COLOUR_WRITE, &MaterialScriptCompiler::parseColourWrite);
+        addLexemeTokenAction("cull_hardware", ID_CULL_HARDWARE, &MaterialScriptCompiler::parseCullHardware);
+        addLexemeTokenAction("cull_software", ID_CULL_SOFTWARE, &MaterialScriptCompiler::parseCullSoftware);
+        addLexemeTokenAction("lighting", ID_LIGHTING, &MaterialScriptCompiler::parseLighting);
+        addLexemeTokenAction("max_lights", ID_LIGHTING, &MaterialScriptCompiler::parseMaxLights);
 
         addLexemeTokenAction("texture_unit", ID_TEXTURE_UNIT, &MaterialScriptCompiler::parseTextureUnit);
     }
@@ -173,8 +178,26 @@ namespace Ogre {
     void MaterialScriptCompiler::executeTokenAction(const size_t tokenID)
     {
         TokenActionIterator action = mTokenActionMap.find(tokenID);
-        if (action != mTokenActionMap.end())
-            (this->*action->second)();
+
+        if (action == mTokenActionMap.end())
+        {
+            // BAD command. BAD!
+            logParseError("Unrecognised command action");
+            return;
+        }
+        else
+        {
+            try
+            {
+                (this->*action->second)();
+            }
+            catch (Exception& ogreException)
+            {
+                // an unknown token found or BNF Grammer rule was not successful
+                // in finding a valid terminal token to complete the rule expression.
+                logParseError(ogreException.getDescription());
+            }
+        }
     }
 
     //-----------------------------------------------------------------------
@@ -677,6 +700,51 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
+    CompareFunction MaterialScriptCompiler::convertCompareFunction(void)
+    {
+        switch (getNextToken().mID)
+        {
+        case ID_ALWAYS_FAIL:
+            return CMPF_ALWAYS_FAIL;
+        case ID_ALWAYS_PASS:
+            return CMPF_ALWAYS_PASS;
+        case ID_LESS:
+            return CMPF_LESS;
+        case ID_LESS_EQUAL:
+            return CMPF_LESS_EQUAL;
+        case ID_EQUAL:
+            return CMPF_EQUAL;
+        case ID_NOT_EQUAL:
+            return CMPF_NOT_EQUAL;
+        case ID_GREATER_EQUAL:
+            return CMPF_GREATER_EQUAL;
+        case ID_GREATER:
+            return CMPF_GREATER;
+        }
+
+        OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid compare function", "convertCompareFunction");
+    }
+
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseDepthFunc(void)
+    {
+        const CompareFunction func = convertCompareFunction();
+        mScriptContext.pass->setDepthFunction(func);
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseAlphaRejection(void)
+    {
+        const size_t paramCount = getTokenQueCount();
+        if (paramCount != 2)
+        {
+            logParseError("Bad alpha_rejection attribute, wrong number of parameters (expected 2)");
+            return;
+        }
+
+        const CompareFunction cmp = convertCompareFunction();
+        mScriptContext.pass->setAlphaRejectSettings(cmp, getNextTokenValue());
+    }
+    //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseColourWrite(void)
     {
         switch (getNextToken().mID)
@@ -690,6 +758,66 @@ namespace Ogre {
         default:
             logParseError("Bad colour_write attribute, valid parameters are 'on' or 'off'.");
         }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseCullHardware(void)
+    {
+        switch (getNextToken().mID)
+        {
+        case ID_CULL_NONE:
+            mScriptContext.pass->setCullingMode(CULL_NONE);
+            break;
+        case ID_ANTICLOCKWISE:
+            mScriptContext.pass->setCullingMode(CULL_ANTICLOCKWISE);
+            break;
+        case ID_CLOCKWISE:
+            mScriptContext.pass->setCullingMode(CULL_CLOCKWISE);
+            break;
+        default:
+            logParseError(
+                "Bad cull_hardware attribute, valid parameters are "
+                "'none', 'clockwise' or 'anticlockwise'.");
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseCullSoftware(void)
+    {
+        switch (getNextToken().mID)
+        {
+        case ID_CULL_NONE:
+            mScriptContext.pass->setManualCullingMode(MANUAL_CULL_NONE);
+            break;
+        case ID_CULL_BACK:
+            mScriptContext.pass->setManualCullingMode(MANUAL_CULL_BACK);
+            break;
+        case ID_CULL_FRONT:
+            mScriptContext.pass->setManualCullingMode(MANUAL_CULL_FRONT);
+            break;
+        default:
+            logParseError(
+                "Bad cull_software attribute, valid parameters are 'none', "
+                "'front' or 'back'.");
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseLighting(void)
+    {
+        switch (getNextToken().mID)
+        {
+        case ID_ON:
+            mScriptContext.pass->setLightingEnabled(true);
+            break;
+        case ID_OFF:
+            mScriptContext.pass->setLightingEnabled(false);
+            break;
+        default:
+            logParseError("Bad lighting attribute, valid parameters are 'on' or 'off'.");
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseMaxLights(void)
+    {
+		mScriptContext.pass->setMaxSimultaneousLights(static_cast<int>(getNextTokenValue()));
     }
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseTextureCustomParameter(void)
