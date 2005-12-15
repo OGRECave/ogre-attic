@@ -146,25 +146,53 @@ namespace Ogre {
         addLexemeTokenAction("vertex_program", ID_VERTEX_PROGRAM, &MaterialScriptCompiler::parseVertexProgram);
         addLexemeTokenAction("fragment_program", ID_FRAGMENT_PROGRAM, &MaterialScriptCompiler::parseFragmentProgram);
         addLexemeTokenAction("material", ID_MATERIAL, &MaterialScriptCompiler::parseMaterial);
-        addLexemeTokenAction(":", ID_CLONE);
-        addLexemeTokenAction("technique", ID_TECHNIQUE, &MaterialScriptCompiler::parseTechnique);
-        addLexemeTokenAction("transparency_casts_shadows", ID_TRANSPARENCY_CASTS_SHADOWS, &MaterialScriptCompiler::parseTransparencyCastsShadows);
-        addLexemeTokenAction("receive_shadows", ID_RECEIVE_SHADOWS, &MaterialScriptCompiler::parseReceiveShadows);
-        addLexemeTokenAction("pass", ID_PASS, &MaterialScriptCompiler::parsePass);
-        addLexemeTokenAction("ambient", ID_AMBIENT, &MaterialScriptCompiler::parseAmbient);
-        addLexemeTokenAction("diffuse", ID_DIFFUSE, &MaterialScriptCompiler::parseDiffuse);
-        addLexemeTokenAction("specular", ID_SPECULAR, &MaterialScriptCompiler::parseSpecular);
-        addLexemeTokenAction("emissive", ID_EMISSIVE, &MaterialScriptCompiler::parseEmissive);
-        addLexemeTokenAction("depth_check", ID_DEPTH_CHECK, &MaterialScriptCompiler::parseDepthCheck);
-        addLexemeTokenAction("depth_write", ID_DEPTH_WRITE, &MaterialScriptCompiler::parseDepthWrite);
-        addLexemeTokenAction("depth_func", ID_DEPTH_FUNC, &MaterialScriptCompiler::parseDepthFunc);
-        addLexemeTokenAction("colour_write", ID_COLOUR_WRITE, &MaterialScriptCompiler::parseColourWrite);
-        addLexemeTokenAction("cull_hardware", ID_CULL_HARDWARE, &MaterialScriptCompiler::parseCullHardware);
-        addLexemeTokenAction("cull_software", ID_CULL_SOFTWARE, &MaterialScriptCompiler::parseCullSoftware);
-        addLexemeTokenAction("lighting", ID_LIGHTING, &MaterialScriptCompiler::parseLighting);
-        addLexemeTokenAction("max_lights", ID_MAX_LIGHTS, &MaterialScriptCompiler::parseMaxLights);
+            addLexemeTokenAction(":", ID_CLONE);
 
+        // Technique section
+        addLexemeTokenAction("technique", ID_TECHNIQUE, &MaterialScriptCompiler::parseTechnique);
+            addLexemeTokenAction("transparency_casts_shadows", ID_TRANSPARENCY_CASTS_SHADOWS, &MaterialScriptCompiler::parseTransparencyCastsShadows);
+            addLexemeTokenAction("receive_shadows", ID_RECEIVE_SHADOWS, &MaterialScriptCompiler::parseReceiveShadows);
+
+        // Pass section
+        addLexemeTokenAction("pass", ID_PASS, &MaterialScriptCompiler::parsePass);
+            addLexemeTokenAction("ambient", ID_AMBIENT, &MaterialScriptCompiler::parseAmbient);
+            addLexemeTokenAction("diffuse", ID_DIFFUSE, &MaterialScriptCompiler::parseDiffuse);
+            addLexemeTokenAction("specular", ID_SPECULAR, &MaterialScriptCompiler::parseSpecular);
+            addLexemeTokenAction("emissive", ID_EMISSIVE, &MaterialScriptCompiler::parseEmissive);
+            addLexemeTokenAction("depth_check", ID_DEPTH_CHECK, &MaterialScriptCompiler::parseDepthCheck);
+            addLexemeTokenAction("depth_write", ID_DEPTH_WRITE, &MaterialScriptCompiler::parseDepthWrite);
+            addLexemeTokenAction("depth_func", ID_DEPTH_FUNC, &MaterialScriptCompiler::parseDepthFunc);
+                addLexemeTokenAction("always_fail", ID_ALWAYS_FAIL);
+                addLexemeTokenAction("always_pass", ID_ALWAYS_PASS);
+                addLexemeTokenAction("less_equal", ID_LESS_EQUAL);
+                addLexemeTokenAction("less", ID_LESS);
+                addLexemeTokenAction("equal", ID_EQUAL);
+                addLexemeTokenAction("not_equal", ID_NOT_EQUAL);
+                addLexemeTokenAction("greater_equal", ID_GREATER_EQUAL);
+                addLexemeTokenAction("greater", ID_GREATER);
+            addLexemeTokenAction("colour_write", ID_COLOUR_WRITE, &MaterialScriptCompiler::parseColourWrite);
+            addLexemeTokenAction("cull_hardware", ID_CULL_HARDWARE, &MaterialScriptCompiler::parseCullHardware);
+                addLexemeTokenAction("clockwise", ID_CLOCKWISE);
+                addLexemeTokenAction("anticlockwise", ID_ANTICLOCKWISE);
+                addLexemeTokenAction("none", ID_CULL_NONE);
+            addLexemeTokenAction("cull_software", ID_CULL_SOFTWARE, &MaterialScriptCompiler::parseCullSoftware);
+                addLexemeTokenAction("back", ID_CULL_BACK);
+                addLexemeTokenAction("front", ID_CULL_FRONT);
+            addLexemeTokenAction("lighting", ID_LIGHTING, &MaterialScriptCompiler::parseLighting);
+            addLexemeTokenAction("max_lights", ID_MAX_LIGHTS, &MaterialScriptCompiler::parseMaxLights);
+            addLexemeTokenAction("shading", ID_SHADING, &MaterialScriptCompiler::parseShading);
+                addLexemeTokenAction("flat", ID_FLAT);
+                addLexemeTokenAction("gouraud", ID_GOURAUD);
+                addLexemeTokenAction("phong", ID_PHONG);
+            addLexemeTokenAction("point_size", ID_POINT_SIZE, &MaterialScriptCompiler::parsePointSize);
+
+        // Texture Unit section
         addLexemeTokenAction("texture_unit", ID_TEXTURE_UNIT, &MaterialScriptCompiler::parseTextureUnit);
+
+        // common section
+        addLexemeTokenAction("on", ID_ON);
+        addLexemeTokenAction("off", ID_OFF);
+
     }
 
     //-----------------------------------------------------------------------
@@ -818,6 +846,30 @@ namespace Ogre {
     void MaterialScriptCompiler::parseMaxLights(void)
     {
 		mScriptContext.pass->setMaxSimultaneousLights(static_cast<int>(getNextTokenValue()));
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseShading(void)
+    {
+        switch (getNextToken().mID)
+        {
+        case ID_FLAT:
+            mScriptContext.pass->setShadingMode(SO_FLAT);
+            break;
+        case ID_GOURAUD:
+            mScriptContext.pass->setShadingMode(SO_GOURAUD);
+            break;
+        case ID_PHONG:
+            mScriptContext.pass->setShadingMode(SO_PHONG);
+            break;
+        default:
+            logParseError("Bad shading attribute, valid parameters are 'flat', "
+                "'gouraud' or 'phong'.");
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parsePointSize(void)
+    {
+        mScriptContext.pass->setPointSize(getNextTokenValue());
     }
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseTextureCustomParameter(void)
