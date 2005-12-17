@@ -137,4 +137,45 @@ void hardwareSkinningFourWeights_vp(
 		(saturate(dot(lightDir0, norm)) * lightDiffuseColour[0]) + 
 		(saturate(dot(lightDir1, norm)) * lightDiffuseColour[1]);
 	
-}	
+}
+
+void hardwareMorphAnimation(float3 pos1 : POSITION,
+			  float4 normal		: NORMAL,
+			  float2 uv		  : TEXCOORD0,
+			  float3 pos2	  : TEXCOORD1,
+						  
+			  out float4 oPosition : POSITION,
+			  out float2 oUv	   : TEXCOORD0,
+			  out float4 colour    : COLOR,
+
+						  uniform float4x4 worldViewProj, 
+						  uniform float anim_t)
+{
+	// interpolate
+	float4 interp = float4(pos1 + anim_t*(pos2 - pos1), 1.0f);
+	
+	oPosition = mul(worldViewProj, interp);
+	oUv = uv;
+	colour = float4(1,0,0,1);
+}
+
+void hardwarePoseAnimation(float3 pos : POSITION,
+			  float4 normal		: NORMAL,
+			  float2 uv		  : TEXCOORD0,
+			  float3 pose1	  : TEXCOORD1,
+			  float3 pose2	  : TEXCOORD2,
+						  
+			  out float4 oPosition : POSITION,
+			  out float2 oUv	   : TEXCOORD0,
+			  out float4 colour    : COLOR,
+
+						  uniform float4x4 worldViewProj, 
+						  uniform float anim_t[2])
+{
+	// interpolate
+	float4 interp = float4(pos + anim_t[0]*pose1 + anim_t[1]*pose2, 1.0f);
+	
+	oPosition = mul(worldViewProj, interp);
+	oUv = uv;
+	colour = float4(1,0,0,1);
+}

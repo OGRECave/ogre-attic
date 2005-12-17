@@ -97,6 +97,7 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgrePatchSurface.cpp \
                          OgrePlane.cpp \
                          OgrePlatformManager.cpp \
+						 OgrePose.cpp \
                          OgrePredefinedControllers.cpp \
 						 OgreProfiler.cpp \
                          OgreProgressiveMesh.cpp \

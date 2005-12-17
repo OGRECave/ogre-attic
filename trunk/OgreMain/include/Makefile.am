@@ -119,6 +119,7 @@ OgrePlane.h \
 OgrePlaneBoundedVolume.h \
 OgrePlatform.h \
 OgrePlatformManager.h \
+OgrePose.h \
 OgrePositionTarget.h \
 OgrePredefinedControllers.h \
 OgrePrerequisites.h \

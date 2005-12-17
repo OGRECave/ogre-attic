@@ -74,6 +74,12 @@ namespace Ogre {
                 "MeshSerializerImpl::exportMesh");
         }
         mpfFile = fopen(filename.c_str(), "wb");
+		if (!mpfFile)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"Unable to open file " + filename + " for writing",
+				"MeshSerializerImpl::exportMesh");
+		}
 
         writeFileHeader();
         LogManager::getSingleton().logMessage("File header written.");
@@ -181,6 +187,7 @@ namespace Ogre {
 		// Write morph animation 
 		if (pMesh->hasVertexAnimation())
 		{
+			writePoses(pMesh);
 			writeAnimations(pMesh);
 		}
     }
@@ -762,6 +769,7 @@ namespace Ogre {
                  streamID == M_MESH_BOUNDS ||
 				 streamID == M_SUBMESH_NAME_TABLE ||
 				 streamID == M_EDGE_LISTS ||
+				 streamID == M_POSES ||
 				 streamID == M_ANIMATIONS))
             {
                 switch(streamID)
@@ -808,6 +816,9 @@ namespace Ogre {
                 case M_EDGE_LISTS:
                     readEdgeList(stream, pMesh);
                     break;
+				case M_POSES:
+					readPoses(stream, pMesh);
+					break;
 				case M_ANIMATIONS:
 					readAnimations(stream, pMesh);
 					break;
@@ -1797,8 +1808,11 @@ namespace Ogre {
 		}
 		else
 		{
-			VertexPoseKeyFrame* kf = track->getVertexPoseKeyFrame();
-			size += calcPoseKeyframeSize(kf);
+			for (unsigned short i = 0; i < track->getNumKeyFrames(); ++i)
+			{
+				VertexPoseKeyFrame* kf = track->getVertexPoseKeyFrame(i);
+				size += calcPoseKeyframeSize(kf);
+			}
 		}
 		return size;
 	}
@@ -1821,9 +1835,50 @@ namespace Ogre {
 	{
 		size_t size = STREAM_OVERHEAD_SIZE;
 
-		size_t eachVertexSize = calcPoseVertexSize();
+		// float time
+		size += sizeof(float);
 
-		size += eachVertexSize * kf->getVertexOffsets().size();
+		size += calcPoseKeyframePoseRefSize() * kf->getPoseReferences().size();
+
+		return size;
+
+	}
+	//---------------------------------------------------------------------
+	size_t MeshSerializerImpl::calcPoseKeyframePoseRefSize(void)
+	{
+		size_t size = STREAM_OVERHEAD_SIZE;
+		// unsigned short poseIndex 
+		size += sizeof(uint16);
+		// float influence
+		size += sizeof(float);
+
+		return size;
+
+	}
+	//---------------------------------------------------------------------
+	size_t MeshSerializerImpl::calcPosesSize(const Mesh* pMesh)
+	{
+		size_t size = STREAM_OVERHEAD_SIZE;
+
+		Mesh::ConstPoseIterator poseIt = pMesh->getPoseIterator();
+		while (poseIt.hasMoreElements())
+		{
+			size += calcPoseSize(poseIt.getNext());
+		}
+		return size;
+	}
+	//---------------------------------------------------------------------
+	size_t MeshSerializerImpl::calcPoseSize(const Pose* pose)
+	{
+		size_t size = STREAM_OVERHEAD_SIZE;
+
+		// char* name (may be blank)
+		size += pose->getName().length() + 1;
+		// unsigned short target	
+		size += sizeof(uint16);
+
+		// vertex offsets
+		size += pose->getVertexOffsets().size() * calcPoseVertexSize();
 
 		return size;
 
@@ -1838,6 +1893,47 @@ namespace Ogre {
 		size += sizeof(float) * 3;
 
 		return size;
+	}
+	//---------------------------------------------------------------------
+	void MeshSerializerImpl::writePoses(const Mesh* pMesh)
+	{
+		Mesh::ConstPoseIterator poseIterator = pMesh->getPoseIterator();
+		if (poseIterator.hasMoreElements())
+		{
+			writeChunkHeader(M_POSES, calcPosesSize(pMesh));
+			while (poseIterator.hasMoreElements())
+			{
+				writePose(poseIterator.getNext());
+			}
+		}
+
+	}
+	//---------------------------------------------------------------------
+	void MeshSerializerImpl::writePose(const Pose* pose)
+	{
+		writeChunkHeader(M_POSE, calcPoseSize(pose));
+
+		// char* name (may be blank)
+		writeString(pose->getName());
+
+		// unsigned short target	
+		ushort val = pose->getTarget();
+		writeShorts(&val, 1);
+
+		size_t vertexSize = calcPoseVertexSize();
+		Pose::ConstVertexOffsetIterator vit = pose->getVertexOffsetIterator();
+		while (vit.hasMoreElements())
+		{
+			uint32 vertexIndex = (uint32)vit.peekNextKey();
+			Vector3 offset = vit.getNext();
+			writeChunkHeader(M_POSE_VERTEX, vertexSize);
+			// unsigned long vertexIndex
+			writeInts(&vertexIndex, 1);
+			// float xoffset, yoffset, zoffset
+			writeFloats(offset.val, 3);
+		}
+
+
 	}
 	//---------------------------------------------------------------------
 	void MeshSerializerImpl::writeAnimations(const Mesh* pMesh)
@@ -1891,7 +1987,11 @@ namespace Ogre {
 		}
 		else // VAT_POSE
 		{
-			writePoseKeyframe(track->getVertexPoseKeyFrame());
+			for (unsigned short i = 0; i < track->getNumKeyFrames(); ++i)
+			{
+				VertexPoseKeyFrame* kf = track->getVertexPoseKeyFrame(i);
+				writePoseKeyframe(kf);
+			}
 		}
 
 	}
@@ -1912,18 +2012,110 @@ namespace Ogre {
 	void MeshSerializerImpl::writePoseKeyframe(const VertexPoseKeyFrame* kf)
 	{
 		writeChunkHeader(M_ANIMATION_POSE_KEYFRAME, calcPoseKeyframeSize(kf));
+		// float time
+		float timePos = kf->getTime();
+		writeFloats(&timePos, 1);
 		
-		size_t vertexSize = calcPoseVertexSize();
-		VertexPoseKeyFrame::ConstVertexOffsetIterator vit = kf->getVertexOffsetIterator();
-		while (vit.hasMoreElements())
+		// pose references
+		VertexPoseKeyFrame::ConstPoseRefIterator poseRefIt = 
+			kf->getPoseReferenceIterator();
+		while (poseRefIt.hasMoreElements())
 		{
-			uint32 vertexIndex = (uint32)vit.peekNextKey();
-			Vector3 offset = vit.getNext();
-			writeChunkHeader(M_ANIMATION_POSE_VERTEX, vertexSize);
-			// unsigned long vertexIndex
-			writeInts(&vertexIndex, 1);
-			// float xoffset, yoffset, zoffset
-			writeFloats(offset.val, 3);
+			writePoseKeyframePoseRef(poseRefIt.getNext());
+		}
+
+		
+
+	}
+	//---------------------------------------------------------------------
+	void MeshSerializerImpl::writePoseKeyframePoseRef(
+		const VertexPoseKeyFrame::PoseRef& poseRef)
+	{
+		writeChunkHeader(M_ANIMATION_POSE_REF, calcPoseKeyframePoseRefSize());
+		// unsigned short poseIndex 
+		writeShorts(&(poseRef.poseIndex), 1);
+		// float influence
+		writeFloats(&(poseRef.influence), 1);
+	}
+	//---------------------------------------------------------------------
+	void MeshSerializerImpl::readPoses(DataStreamPtr& stream, Mesh* pMesh)
+	{
+		unsigned short streamID;
+
+		// Find all substreams 
+		if (!stream->eof())
+		{
+			streamID = readChunk(stream);
+			while(!stream->eof() &&
+				(streamID == M_POSE))
+			{
+				switch(streamID)
+				{
+				case M_POSE:
+					readPose(stream, pMesh);
+					break;
+
+				}
+
+				if (!stream->eof())
+				{
+					streamID = readChunk(stream);
+				}
+
+			}
+			if (!stream->eof())
+			{
+				// Backpedal back to start of stream
+				stream->skip(-STREAM_OVERHEAD_SIZE);
+			}
+		}
+	}
+	//---------------------------------------------------------------------
+	void MeshSerializerImpl::readPose(DataStreamPtr& stream, Mesh* pMesh)
+	{
+		// char* name (may be blank)
+		String name = readString(stream);
+		// unsigned short target	
+		unsigned short target;
+		readShorts(stream, &target, 1);
+
+		Pose* pose = pMesh->createPose(target, name);
+
+		// Find all substreams 
+		unsigned short streamID;
+		if (!stream->eof())
+		{
+			streamID = readChunk(stream);
+			while(!stream->eof() &&
+				(streamID == M_POSE_VERTEX))
+			{
+				switch(streamID)
+				{
+				case M_POSE_VERTEX:
+					// create vertex offset
+					uint32 vertIndex;
+					Vector3 offset;
+					// unsigned long vertexIndex
+					readInts(stream, &vertIndex, 1);
+					// float xoffset, yoffset, zoffset
+					readFloats(stream, offset.val, 3);
+
+					pose->addVertex(vertIndex, offset);
+					break;
+
+				}
+
+				if (!stream->eof())
+				{
+					streamID = readChunk(stream);
+				}
+
+			}
+			if (!stream->eof())
+			{
+				// Backpedal back to start of stream
+				stream->skip(-STREAM_OVERHEAD_SIZE);
+			}
 		}
 
 	}
@@ -2077,8 +2269,12 @@ namespace Ogre {
 	//---------------------------------------------------------------------
 	void MeshSerializerImpl::readPoseKeyFrame(DataStreamPtr& stream, VertexAnimationTrack* track)
 	{
+		// float time
+		float timePos;
+		readFloats(stream, &timePos, 1);
+
 		// Create keyframe
-		VertexPoseKeyFrame* kf = track->createVertexPoseKeyFrame();
+		VertexPoseKeyFrame* kf = track->createVertexPoseKeyFrame(timePos);
 
 		unsigned short streamID;
 
@@ -2086,20 +2282,19 @@ namespace Ogre {
 		{
 			streamID = readChunk(stream);
 			while(!stream->eof() &&
-				streamID == M_ANIMATION_POSE_VERTEX)
+				streamID == M_ANIMATION_POSE_REF)
 			{
 				switch(streamID)
 				{
-				case M_ANIMATION_POSE_VERTEX:
-					// create vertex offset
-					uint32 vertIndex;
-					Vector3 offset;
-					// unsigned long vertexIndex
-					readInts(stream, &vertIndex, 1);
-					// float xoffset, yoffset, zoffset
-					readFloats(stream, offset.val, 3);
+				case M_ANIMATION_POSE_REF:
+					uint16 poseIndex;
+					float influence;
+					// unsigned short poseIndex 
+					readShorts(stream, &poseIndex, 1);
+					// float influence
+					readFloats(stream, &influence, 1);
 
-					kf->addVertex(vertIndex, offset);
+					kf->addPoseReference(poseIndex, influence);
 
 					break;
 				};

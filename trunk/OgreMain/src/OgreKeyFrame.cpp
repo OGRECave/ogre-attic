@@ -114,71 +114,51 @@ namespace Ogre
 		return mBuffer;
 	}
 	//---------------------------------------------------------------------
-	VertexPoseKeyFrame::VertexPoseKeyFrame(const AnimationTrack* parent)
-		:KeyFrame(parent, 0.0f)
+	VertexPoseKeyFrame::VertexPoseKeyFrame(const AnimationTrack* parent, Real time)
+		:KeyFrame(parent, time)
 	{
 	}
 	//---------------------------------------------------------------------
-	void VertexPoseKeyFrame::addVertex(size_t index, const Vector3& offset)
+	void VertexPoseKeyFrame::addPoseReference(ushort poseIndex, Real influence)
 	{
-		mVertexOffsetMap[index] = offset;
-		mBuffer.setNull();
+		mPoseRefs.push_back(PoseRef(poseIndex, influence));
 	}
 	//---------------------------------------------------------------------
-	void VertexPoseKeyFrame::removeVertex(size_t index)
+	void VertexPoseKeyFrame::removePoseReference(ushort poseIndex)
 	{
-		VertexOffsetMap::iterator i = mVertexOffsetMap.find(index);
-		if (i != mVertexOffsetMap.end())
+		for (PoseRefList::iterator i = mPoseRefs.begin(); i != mPoseRefs.end(); ++i)
 		{
-			mVertexOffsetMap.erase(i);
-			mBuffer.setNull();
-		}
-	}
-	//---------------------------------------------------------------------
-	void VertexPoseKeyFrame::clearVertexOffsets(void)
-	{
-		mVertexOffsetMap.clear();
-		mBuffer.setNull();
-	}
-	//---------------------------------------------------------------------
-	VertexPoseKeyFrame::ConstVertexOffsetIterator 
-	VertexPoseKeyFrame::getVertexOffsetIterator(void) const
-	{
-		return ConstVertexOffsetIterator(mVertexOffsetMap.begin(), mVertexOffsetMap.end());
-	}
-	//---------------------------------------------------------------------
-	VertexPoseKeyFrame::VertexOffsetIterator 
-	VertexPoseKeyFrame::getVertexOffsetIterator(void)
-	{
-		return VertexOffsetIterator(mVertexOffsetMap.begin(), mVertexOffsetMap.end());
-	}
-	//---------------------------------------------------------------------
-	const HardwareVertexBufferSharedPtr& VertexPoseKeyFrame::_getHardwareVertexBuffer(size_t numVertices)
-	{
-		if (mBuffer.isNull())
-		{
-			// Create buffer
-			mBuffer = HardwareBufferManager::getSingleton().createVertexBuffer(
-				VertexElement::getTypeSize(VET_FLOAT3),
-				numVertices, HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-
-			float* pFloat = static_cast<float*>(
-				mBuffer->lock(HardwareBuffer::HBL_DISCARD));
-			// initialise
-			memset(pFloat, 0, mBuffer->getSizeInBytes()); 
-			// Set each vertex
-			for (VertexOffsetMap::iterator i = mVertexOffsetMap.begin();
-				i != mVertexOffsetMap.end(); ++i)
+			if (i->poseIndex == poseIndex)
 			{
-				float* pDst = pFloat + (3 * i->first);
-				*pDst++ = i->second.x;
-				*pDst++ = i->second.y;
-				*pDst++ = i->second.z;
+				mPoseRefs.erase(i);
+				return;
 			}
-			mBuffer->unlock();
 		}
-		return mBuffer;
 	}
+	//---------------------------------------------------------------------
+	void VertexPoseKeyFrame::removeAllPoseReferences(void)
+	{
+		mPoseRefs.clear();
+	}
+	//---------------------------------------------------------------------
+	const VertexPoseKeyFrame::PoseRefList& 
+	VertexPoseKeyFrame::getPoseReferences(void) const
+	{
+		return mPoseRefs;
+	}
+	//---------------------------------------------------------------------
+	VertexPoseKeyFrame::PoseRefIterator 
+	VertexPoseKeyFrame::getPoseReferenceIterator(void)
+	{
+		return PoseRefIterator(mPoseRefs.begin(), mPoseRefs.end());
+	}
+	//---------------------------------------------------------------------
+	VertexPoseKeyFrame::ConstPoseRefIterator 
+	VertexPoseKeyFrame::getPoseReferenceIterator(void) const
+	{
+		return ConstPoseRefIterator(mPoseRefs.begin(), mPoseRefs.end());
+	}
+	//---------------------------------------------------------------------
 
 
 }

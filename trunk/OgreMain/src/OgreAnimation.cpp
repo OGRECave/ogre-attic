@@ -280,7 +280,7 @@ namespace Ogre {
     }
 	//---------------------------------------------------------------------
 	void Animation::apply(Entity* entity, Real timePos, Real weight, 
-		bool software, bool hardware, ushort animIndex)
+		bool software, bool hardware)
 	{
 		VertexTrackList::iterator i;
 		for (i = mVertexTrackList.begin(); i != mVertexTrackList.end(); ++i)
@@ -329,12 +329,14 @@ namespace Ogre {
 					destBuffer->copyData(*origBuffer.get(), 0, 0, destBuffer->getSizeInBytes(), true);
 				}
 				track->setTargetMode(VertexAnimationTrack::TM_SOFTWARE);
-				track->applyToVertexData(swVertexData, timePos, weight, animIndex);
+				track->applyToVertexData(swVertexData, timePos, weight, 
+					&(entity->getMesh()->getPoseList()));
 			}
 			if (hardware)
 			{
 				track->setTargetMode(VertexAnimationTrack::TM_HARDWARE);
-				track->applyToVertexData(hwVertexData, timePos, weight, animIndex);
+				track->applyToVertexData(hwVertexData, timePos, weight, 
+					&(entity->getMesh()->getPoseList()));
 			}
 		}
 

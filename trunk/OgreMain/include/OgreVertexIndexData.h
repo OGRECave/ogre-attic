@@ -70,6 +70,8 @@ namespace Ogre {
 		typedef std::vector<HardwareAnimationData> HardwareAnimationDataList;
 		/// VertexElements used for hardware morph / pose animation
 		HardwareAnimationDataList hwAnimationDataList;
+		/// Number of hardware animation data items used
+		size_t hwAnimDataItemsUsed;
 		
 		/** Clones this vertex data, potentially including replicating any vertex buffers.
 		@remarks The caller is expected to delete the returned pointer when ready

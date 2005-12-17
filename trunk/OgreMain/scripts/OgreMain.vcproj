@@ -493,6 +493,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgrePlatformManager.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgrePose.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgrePrecompiledHeaders.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1098,6 +1101,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgrePlatformManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgrePose.h">
 			</File>
 			<File
 				RelativePath="..\include\OgrePositionTarget.h">

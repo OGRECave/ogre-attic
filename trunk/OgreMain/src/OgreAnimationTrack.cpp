@@ -615,7 +615,7 @@ namespace Ogre {
 		return static_cast<VertexMorphKeyFrame*>(createKeyFrame(timePos));
 	}
 	//--------------------------------------------------------------------------
-	VertexPoseKeyFrame* VertexAnimationTrack::createVertexPoseKeyFrame(void)
+	VertexPoseKeyFrame* VertexAnimationTrack::createVertexPoseKeyFrame(Real timePos)
 	{
 		if (mAnimationType != VAT_POSE)
 		{
@@ -623,13 +623,7 @@ namespace Ogre {
 				"Pose keyframes can only be created on vertex tracks of type pose.",
 				"VertexAnimationTrack::createVertexPoseKeyFrame");
 		}
-		if (!mKeyFrames.empty())
-		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-				"Pose tracks can only have one keyframe.",
-				"VertexAnimationTrack::createVertexPoseKeyFrame");
-		}
-		return static_cast<VertexPoseKeyFrame*>(createKeyFrame(0.0f));
+		return static_cast<VertexPoseKeyFrame*>(createKeyFrame(timePos));
 	}
 	//--------------------------------------------------------------------------
 	void VertexAnimationTrack::apply(Real timePos, Real weight, bool accumulate, 
@@ -639,14 +633,14 @@ namespace Ogre {
 	}
 	//--------------------------------------------------------------------------
 	void VertexAnimationTrack::applyToVertexData(VertexData* data, 
-		Real timePos, Real weight, ushort animIndex)
+		Real timePos, Real weight,  const PoseList* poseList)
 	{
+		// Get keyframes
+		KeyFrame *kf1, *kf2; 
+		Real t = getKeyFramesAtTime(timePos, &kf1, &kf2);
+
 		if (mAnimationType == VAT_MORPH)
 		{
-			// Get keyframes
-			KeyFrame *kf1, *kf2; 
-			Real t = getKeyFramesAtTime(timePos, &kf1, &kf2);
-
 			VertexMorphKeyFrame* vkf1 = static_cast<VertexMorphKeyFrame*>(kf1);
 			VertexMorphKeyFrame* vkf2 = static_cast<VertexMorphKeyFrame*>(kf2);
 
@@ -685,32 +679,94 @@ namespace Ogre {
 		{
 			// Pose
 
-			// Time is irrelevant, only weight matters
-			VertexPoseKeyFrame* kf = getVertexPoseKeyFrame();
+			VertexPoseKeyFrame* vkf1 = static_cast<VertexPoseKeyFrame*>(kf1);
+			VertexPoseKeyFrame* vkf2 = static_cast<VertexPoseKeyFrame*>(kf2);
 
-			if (mTargetMode == TM_HARDWARE)
+			// For each pose reference in key 1, we need to locate the entry in
+			// key 2 and interpolate the influence
+			const VertexPoseKeyFrame::PoseRefList& poseList1 = vkf1->getPoseReferences();
+			const VertexPoseKeyFrame::PoseRefList& poseList2 = vkf2->getPoseReferences();
+			for (VertexPoseKeyFrame::PoseRefList::const_iterator p1 = poseList1.begin();
+				p1 != poseList1.end(); ++p1)
 			{
-				// Hardware
-				// If target mode is hardware, need to bind our pose buffer
-				// to a target texcoord 
-				assert(!data->hwAnimationDataList.empty() && 
-					"Haven't set up hardware vertex animation elements!");
-				// no use for TempBlendedBufferInfo here btw
-				// Set pose target as required
-				VertexData::HardwareAnimationData& animData = data->hwAnimationDataList[animIndex];
-				data->vertexBufferBinding->setBinding(
-					animData.targetVertexElement->getSource(), 
-					kf->_getHardwareVertexBuffer(data->vertexCount));
-				// save weight in parametric
-				animData.parametric = weight;
+				Real startInfluence = p1->influence;
+				Real endInfluence = 0;
+				// Search for entry in keyframe 2 list (if not there, will be 0)
+				for (VertexPoseKeyFrame::PoseRefList::const_iterator p2 = poseList2.begin();
+					p2 != poseList2.end(); ++p2)
+				{
+					if (p1->poseIndex == p2->poseIndex)
+					{
+						endInfluence = p2->influence;
+						break;
+					}
+				}
+				// Interpolate influence
+				Real influence = startInfluence + t*(endInfluence - startInfluence);
+				// Scale by animation weight
+				influence = weight * influence;
+				// Get pose
+				assert (p1->poseIndex <= poseList->size());
+				Pose* pose = (*poseList)[p1->poseIndex];
+				// apply
+				applyPoseToVertexData(pose, data, influence);
 			}
-			else
+			// Now deal with any poses in key 2 which are not in key 1
+			for (VertexPoseKeyFrame::PoseRefList::const_iterator p2 = poseList2.begin();
+				p2 != poseList2.end(); ++p2)
 			{
-				// Software
-				Mesh::softwareVertexPoseBlend(weight, kf->getVertexOffsets(), data);
-			}
-
+				bool found = false;
+				for (VertexPoseKeyFrame::PoseRefList::const_iterator p1 = poseList1.begin();
+					p1 != poseList1.end(); ++p1)
+				{
+					if (p1->poseIndex == p2->poseIndex)
+					{
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+				{
+					// Need to apply this pose too, scaled from 0 start
+					Real influence = t * p2->influence;
+					// Scale by animation weight
+					influence = weight * influence;
+					// Get pose
+					assert (p2->poseIndex <= poseList->size());
+					const Pose* pose = (*poseList)[p2->poseIndex];
+					// apply
+					applyPoseToVertexData(pose, data, influence);
+				}
+			} // key 2 iteration
+		} // morph or pose animation
+	}
+	//-----------------------------------------------------------------------------
+	void VertexAnimationTrack::applyPoseToVertexData(const Pose* pose, 
+		VertexData* data, Real influence)
+	{
+		if (mTargetMode == TM_HARDWARE)
+		{
+			// Hardware
+			// If target mode is hardware, need to bind our pose buffer
+			// to a target texcoord 
+			assert(!data->hwAnimationDataList.empty() && 
+				"Haven't set up hardware vertex animation elements!");
+			// no use for TempBlendedBufferInfo here btw
+			// Set pose target as required
+			size_t hwIndex = data->hwAnimDataItemsUsed++;
+			VertexData::HardwareAnimationData& animData = data->hwAnimationDataList[hwIndex];
+			data->vertexBufferBinding->setBinding(
+				animData.targetVertexElement->getSource(), 
+				pose->_getHardwareVertexBuffer(data->vertexCount));
+			// save final influence in parametric
+			animData.parametric = influence;
 		}
+		else
+		{
+			// Software
+			Mesh::softwareVertexPoseBlend(influence, pose->getVertexOffsets(), data);
+		}
+
 	}
 	//--------------------------------------------------------------------------
 	VertexMorphKeyFrame* VertexAnimationTrack::getVertexMorphKeyFrame(unsigned short index) const
@@ -725,7 +781,7 @@ namespace Ogre {
 		return static_cast<VertexMorphKeyFrame*>(getKeyFrame(index));
 	}
 	//--------------------------------------------------------------------------
-	VertexPoseKeyFrame* VertexAnimationTrack::getVertexPoseKeyFrame(void) const
+	VertexPoseKeyFrame* VertexAnimationTrack::getVertexPoseKeyFrame(unsigned short index) const
 	{
 		if (mAnimationType != VAT_POSE)
 		{
@@ -734,7 +790,7 @@ namespace Ogre {
 				"VertexAnimationTrack::getVertexPoseKeyFrame");
 		}
 
-		return static_cast<VertexPoseKeyFrame*>(getKeyFrame(0));
+		return static_cast<VertexPoseKeyFrame*>(getKeyFrame(index));
 	}
 	//--------------------------------------------------------------------------
 	KeyFrame* VertexAnimationTrack::createKeyFrameImpl(Real time)
@@ -745,7 +801,7 @@ namespace Ogre {
 		case VAT_MORPH:
             return new VertexMorphKeyFrame(this, time);
 		case VAT_POSE:
-			return new VertexPoseKeyFrame(this);
+			return new VertexPoseKeyFrame(this, time);
 		};
 
 	}

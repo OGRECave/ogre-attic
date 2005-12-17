@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 11 2005 by texi2html 1.64 -->
+<!-- Created on , 17 2005 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -36,20 +36,31 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <HR SIZE=1>
 <H3> 8.3.2 Pose Animation </H3>
 <!--docid::SEC257::-->
-Pose animation allows you to blend together potentially multiple vertex poses at different weights into final vertex state. A common use for this is facial animation, where each facial expression is placed in a separate animation, and weights used to either blend from one expression to another, or to combine full expressions if each pose only affects part of the face.<BR><BR>
+Pose animation allows you to blend together potentially multiple vertex poses at different influence levels into final vertex state. A common use for this is facial animation, where each facial expression is placed in a separate animation, and influences used to either blend from one expression to another, or to combine full expressions if each pose only affects part of the face.<BR><BR>
 
-In order to do this, pose animation uses offsets to the original vertex data, and does not require that every vertex has an offset - those that don't are left alone. When blending in software these vertices are completely skipped - when blending in hardware (which requires a vertex entry for every vertex), zero offsets for vertices which are not mentioned are automatically created for you.<BR><BR>
+In order to do this, pose animation uses a set of reference poses defined in the mesh, expressed as offsets to the original vertex data. It does not require that every vertex has an offset - those that don't are left alone. When blending in software these vertices are completely skipped - when blending in hardware (which requires a vertex entry for every vertex), zero offsets for vertices which are not mentioned are automatically created for you.<BR><BR>
 
-Pose animation tracks only have a single keyframe, ie the final pose. For this reason the 'time' property of the animation state has no effect, only the weight changes the effect. Unlike morph animation you can have multiple animations with tracks affecting the same vertex data active at once, since this is how blending is performed.<BR><BR>
+Once you've defined the poses, you can refer to them in animations. Each pose animation track refers to a single set of geometry (either the shared geometry of the mesh, or dedicated geometry on a submesh), and each keyframe in the track can refer to one or more poses, each with its own influence level. The weight applied to the entire animation scales these influence levels too. You can define many keyframes which cause the blend of poses to change over time. The absence of a pose reference in a keyframe when it is present in a neighbouring one causes it to be treated as an influence of 0 for interpolation. <BR><BR>
+
+You should be careful how many poses you apply at once. When performing pose animation in hardware (See section <A HREF="manual_18.html#SEC88">Pose Animation in Vertex Programs</A>), every active pose requires another vertex buffer to be added to the shader, and in when animating in software it will also take longer the more active poses you have. Bear in mind that if you have 2 poses in one keyframe, and a different 2 in the next, that actually means there are 4 active keyframes when interpolating between them. <BR><BR>  
 
 You can combine pose animation with skeletal animation, See section <A HREF="manual_68.html#SEC258">8.3.3 Combining Skeletal and Vertex Animation</A>, and you can also hardware accelerate the application of the blend with a vertex shader, See section <A HREF="manual_18.html#SEC88">Pose Animation in Vertex Programs</A>.
 
 <A NAME="Combining Skeletal and Vertex Animation"></A>
 <HR SIZE=1>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_66.html#SEC256"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_65.html#SEC253"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_68.html#SEC258"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 11 2005</I>
+by <I>Steve Streeting</I> on <I>, 17 2005</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

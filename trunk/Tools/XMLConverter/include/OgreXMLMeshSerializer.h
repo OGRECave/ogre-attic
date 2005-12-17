@@ -77,9 +77,10 @@ namespace Ogre {
 		void writeLodUsageGenerated(TiXmlElement* usageNode, unsigned short levelNum,  
 			const MeshLodUsage& usage, const Mesh* pMesh);
         void writeSubMeshNames(TiXmlElement* mMeshNode, const Mesh* m);
+		void writePoses(TiXmlElement* meshNode, const Mesh* m);
 		void writeAnimations(TiXmlElement* meshNode, const Mesh* m);
 		void writeMorphKeyFrames(TiXmlElement* trackNode, const VertexAnimationTrack* track);
-		void writePose(TiXmlElement* trackNode, const VertexAnimationTrack* track);
+		void writePoseKeyFrames(TiXmlElement* trackNode, const VertexAnimationTrack* track);
 
         void readSubMeshes(TiXmlElement* mSubmeshesNode);
         void readGeometry(TiXmlElement* mGeometryNode, VertexData* pData);
@@ -91,11 +92,12 @@ namespace Ogre {
 		void readLodUsageManual(TiXmlElement* manualNode, unsigned short index);
 		void readLodUsageGenerated(TiXmlElement* genNode, unsigned short index);
 		void readSubMeshNames(TiXmlElement* mMeshNamesNode, Mesh* sm);
+		void readPoses(TiXmlElement* posesNode, Mesh *m);
 		void readAnimations(TiXmlElement* mAnimationsNode, Mesh *m);
 		void readTracks(TiXmlElement* tracksNode, Mesh *m, Animation* anim);
 		void readMorphKeyFrames(TiXmlElement* keyframesNode, VertexAnimationTrack* track, 
 			size_t vertexCount);
-		void readPose(TiXmlElement* keyframesNode, VertexAnimationTrack* track);
+		void readPoseKeyFrames(TiXmlElement* keyframesNode, VertexAnimationTrack* track);
 
 
     };

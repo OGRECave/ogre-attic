@@ -44,6 +44,7 @@ namespace Ogre {
 			createVertexDeclaration();
 		vertexCount = 0;
 		vertexStart = 0;
+		hwAnimDataItemsUsed = 0;
 
 	}
     //-----------------------------------------------------------------------

@@ -66,8 +66,6 @@ RaySceneQuery* rayQuery = 0;
 Entity* ball = 0;
 Vector3 ballVector;
 bool testreload = false;
-AnimationState* pose1AnimationState = 0;
-AnimationState* pose2AnimationState = 0;
 
 // Hacky globals
 GpuProgramParametersSharedPtr fragParams;
@@ -403,32 +401,6 @@ public:
             timeUntilNextToggle = 0.5;
         }
 
-		// Pose animation hooks
-		if (mInputDevice->isKeyDown(KC_1) && pose1AnimationState)
-		{
-			Real weight = pose1AnimationState->getWeight();
-			weight = std::max(0.0f, weight - evt.timeSinceLastFrame * 0.2f);
-			pose1AnimationState->setWeight(weight);
-		}
-		if (mInputDevice->isKeyDown(KC_2) && pose1AnimationState)
-		{
-			Real weight = pose1AnimationState->getWeight();
-			weight = std::min(1.0f, weight + evt.timeSinceLastFrame * 0.2f);
-			pose1AnimationState->setWeight(weight);
-		}
-
-		if (mInputDevice->isKeyDown(KC_3) && pose2AnimationState)
-		{
-			Real weight = pose2AnimationState->getWeight();
-			weight = std::max(0.0f, weight - evt.timeSinceLastFrame * 0.2f);
-			pose2AnimationState->setWeight(weight);
-		}
-		if (mInputDevice->isKeyDown(KC_4) && pose2AnimationState)
-		{
-			Real weight = pose2AnimationState->getWeight();
-			weight = std::min(1.0f, weight + evt.timeSinceLastFrame * 0.2f);
-			pose2AnimationState->setWeight(weight);
-		}
 
         
         /** Hack to test frustum vols
@@ -2522,17 +2494,17 @@ protected:
 
 		// write
 		MeshSerializer ser;
-		ser.exportMesh(mesh.get(), "testmorph.mesh");
+		ser.exportMesh(mesh.get(), "../../../Media/testmorph.mesh");
 		
 
 		Entity* e = mSceneMgr->createEntity("test", "testmorph.mesh");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
 
 		// test hardware morph
-		e->setMaterialName("testmorph");
+		//e->setMaterialName("Examples/HardwareMorphAnimation");
 
 		mCamera->setNearClipDistance(0.5);
-		mSceneMgr->setShowDebugShadows(true);
+		//mSceneMgr->setShowDebugShadows(true);
 
 		mAnimState = e->getAnimationState("testAnim");
 		mAnimState->setEnabled(true);
@@ -2588,52 +2560,75 @@ protected:
 			posElem->getSource());
 
 
-		// create 2 pose animations
-		Animation* anim = mesh->createAnimation("pose1", 0.0f);
-		VertexAnimationTrack* vt = anim->createVertexTrack(1, sm->vertexData, VAT_POSE);
-		// re-use start positions for frame 0
-		VertexPoseKeyFrame* kf = vt->createVertexPoseKeyFrame();
-
+		// create 2 poses
+		Pose* pose = mesh->createPose(1, "pose1");
 		// Pose1 moves vertices 0, 1, 2 and 3 upward
 		Vector3 offset1(0, 50, 0);
-		kf->addVertex(0, offset1);
-		kf->addVertex(1, offset1);
-		kf->addVertex(2, offset1);
-		kf->addVertex(3, offset1);
+		pose->addVertex(0, offset1);
+		pose->addVertex(1, offset1);
+		pose->addVertex(2, offset1);
+		pose->addVertex(3, offset1);
 
-		anim = mesh->createAnimation("pose2", 0.0f);
-		vt = anim->createVertexTrack(1, sm->vertexData, VAT_POSE);
-		// re-use start positions for frame 0
-		kf = vt->createVertexPoseKeyFrame();
-
+		pose = mesh->createPose(1, "pose2");
 		// Pose2 moves vertices 3, 4, and 5 to the right
 		// Note 3 gets affected by both
 		Vector3 offset2(100, 0, 0);
-		kf->addVertex(3, offset2);
-		kf->addVertex(4, offset2);
-		kf->addVertex(5, offset2);
+		pose->addVertex(3, offset2);
+		pose->addVertex(4, offset2);
+		pose->addVertex(5, offset2);
+
+
+		Animation* anim = mesh->createAnimation("poseanim", 20.0f);
+		VertexAnimationTrack* vt = anim->createVertexTrack(1, sm->vertexData, VAT_POSE);
+		
+		// Frame 0 - no effect 
+		VertexPoseKeyFrame* kf = vt->createVertexPoseKeyFrame(0);
+
+		// Frame 1 - bring in pose 1 (index 0)
+		kf = vt->createVertexPoseKeyFrame(3);
+		kf->addPoseReference(0, 1.0f);
+
+		// Frame 2 - remove all 
+		kf = vt->createVertexPoseKeyFrame(6);
+
+		// Frame 3 - bring in pose 2 (index 1)
+		kf = vt->createVertexPoseKeyFrame(9);
+		kf->addPoseReference(1, 1.0f);
+
+		// Frame 4 - remove all
+		kf = vt->createVertexPoseKeyFrame(12);
+
+
+		// Frame 5 - bring in pose 1 at 50%, pose 2 at 100% 
+		kf = vt->createVertexPoseKeyFrame(15);
+		kf->addPoseReference(0, 0.5f);
+		kf->addPoseReference(1, 1.0f);
+
+		// Frame 6 - bring in pose 1 at 100%, pose 2 at 50% 
+		kf = vt->createVertexPoseKeyFrame(18);
+		kf->addPoseReference(0, 1.0f);
+		kf->addPoseReference(1, 0.5f);
+
+		// Frame 7 - reset
+		kf = vt->createVertexPoseKeyFrame(20);
 
 		// write
 		MeshSerializer ser;
-		ser.exportMesh(mesh.get(), "testpose.mesh");
+		ser.exportMesh(mesh.get(), "../../../Media/testpose.mesh");
 
 
 		Entity* e = mSceneMgr->createEntity("test", "testpose.mesh");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
 
 		// test hardware pose
-		//e->setMaterialName("testpose");
+		e->setMaterialName("Examples/HardwarePoseAnimation");
 
 		mCamera->setNearClipDistance(0.5);
 		mSceneMgr->setShowDebugShadows(true);
 
-		pose1AnimationState = e->getAnimationState("pose1");
-		pose1AnimationState->setEnabled(true);
-		pose1AnimationState->setWeight(0.0f);
-
-		pose2AnimationState = e->getAnimationState("pose2");
-		pose2AnimationState->setEnabled(true);
-		pose2AnimationState->setWeight(0.0f);
+		mAnimState = e->getAnimationState("poseanim");
+		mAnimState->setEnabled(true);
+		mAnimState->setWeight(1.0f);
 
 		Plane plane;
 		plane.normal = Vector3::UNIT_Y;
@@ -2645,6 +2640,9 @@ protected:
 		pPlaneEnt->setMaterialName("2 - Default");
 		pPlaneEnt->setCastShadows(false);
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		mCamera->setPosition(0,0,-300);
+		mCamera->lookAt(0,0,0);
 
 
 
@@ -2999,7 +2997,7 @@ protected:
         //testStencilShadows(SHADOWTYPE_STENCIL_MODULATIVE, false, true);
         //testTextureShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
-		testSplitPassesTooManyTexUnits();
+		//testSplitPassesTooManyTexUnits();
         //testOverlayZOrder();
 		//testReflectedBillboards();
 		//testBlendDiffuseColour();
@@ -3019,7 +3017,7 @@ protected:
 		//testTransparencyMipMaps();
 		//testRadixSort();
 		//testMorphAnimation();
-		//testPoseAnimation();
+		testPoseAnimation();
 		//testBug();
 		//testManualObjectNonIndexed();
 		//testManualObjectIndexed();

@@ -93,6 +93,11 @@ namespace Ogre {
 		if (elem)
 			readSubMeshNames(elem, mpMesh);
 
+		// poses
+		elem = rootElem->FirstChildElement("poses");
+		if (elem)
+			readPoses(elem, mpMesh);
+
 		// animations
 		elem = rootElem->FirstChildElement("animations");
 		if (elem)
@@ -185,6 +190,8 @@ namespace Ogre {
 		}
         // Write submesh names
         writeSubMeshNames(rootNode, pMesh);
+		// Write poses
+		writePoses(rootNode, pMesh);
 		// Write animations
 		writeAnimations(rootNode, pMesh);
 
@@ -1251,6 +1258,68 @@ namespace Ogre {
         
 	}
 	//-----------------------------------------------------------------------------
+	void XMLMeshSerializer::readPoses(TiXmlElement* posesNode, Mesh *m)
+	{
+		TiXmlElement* poseNode = posesNode->FirstChildElement("pose");
+
+		while (poseNode)
+		{
+			const char* target = poseNode->Attribute("target");
+			if (!target)
+			{
+				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+					"Required attribute 'target' missing on pose", 
+					"XMLMeshSerializer::readPoses");
+			}
+			unsigned short targetID;
+			if(target == "mesh")
+			{
+				targetID = 0;
+			}
+			else
+			{
+				// submesh, get index
+				const char* val = poseNode->Attribute("index");
+				if (!val)
+				{
+					OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+						"Required attribute 'index' missing on pose", 
+						"XMLMeshSerializer::readPoses");
+				}
+				unsigned short submeshIndex = static_cast<unsigned short>(
+					StringConverter::parseUnsignedInt(val));
+
+				targetID = submeshIndex + 1;
+			}
+
+			String name;
+			const char* val = poseNode->Attribute("name");
+			if (val)
+				name = val;
+			Pose* pose = m->createPose(targetID, name);
+
+			TiXmlElement* poseOffsetNode = poseNode->FirstChildElement("poseoffset");
+			while (poseOffsetNode)
+			{
+				uint index = StringConverter::parseUnsignedInt(
+					poseOffsetNode->Attribute("index"));
+				Vector3 offset;
+				offset.x = StringConverter::parseReal(poseOffsetNode->Attribute("x"));
+				offset.y = StringConverter::parseReal(poseOffsetNode->Attribute("y"));
+				offset.z = StringConverter::parseReal(poseOffsetNode->Attribute("z"));
+
+				pose->addVertex(index, offset);
+
+				poseOffsetNode = poseOffsetNode->NextSiblingElement();
+			}
+
+			poseNode = poseNode->NextSiblingElement();
+
+		}
+
+
+	}
+	//-----------------------------------------------------------------------------
 	void XMLMeshSerializer::readAnimations(TiXmlElement* mAnimationsNode, Mesh *pMesh)
 	{
 		TiXmlElement* animElem = mAnimationsNode->FirstChildElement("animation");
@@ -1345,7 +1414,7 @@ namespace Ogre {
 				}
 				else // VAT_POSE
 				{
-					readPose(keyframesNode, track);
+					readPoseKeyFrames(keyframesNode, track);
 				}
 			}
 
@@ -1413,30 +1482,99 @@ namespace Ogre {
 
 	}
 	//-----------------------------------------------------------------------------
-	void XMLMeshSerializer::readPose(TiXmlElement* keyframesNode, VertexAnimationTrack* track)
+	void XMLMeshSerializer::readPoseKeyFrames(TiXmlElement* keyframesNode, VertexAnimationTrack* track)
 	{
-		TiXmlElement* poseNode = keyframesNode->FirstChildElement("pose");
-
-		if (poseNode)
+		TiXmlElement* keyNode = keyframesNode->FirstChildElement("keyframe");
+		while (keyNode)
 		{
-			VertexPoseKeyFrame* kf = track->createVertexPoseKeyFrame();
-
-			TiXmlElement* poseOffsetNode = poseNode->FirstChildElement("poseoffset");
-			while (poseOffsetNode)
+			const char* val = keyNode->Attribute("time");
+			if (!val)
 			{
-				uint index = StringConverter::parseUnsignedInt(
-					poseOffsetNode->Attribute("index"));
-				Vector3 offset;
-				offset.x = StringConverter::parseReal(poseOffsetNode->Attribute("x"));
-				offset.y = StringConverter::parseReal(poseOffsetNode->Attribute("y"));
-				offset.z = StringConverter::parseReal(poseOffsetNode->Attribute("z"));
+				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+					"Required attribute 'time' missing on keyframe", 
+					"XMLMeshSerializer::readKeyFrames");
+			}
+			Real time = StringConverter::parseReal(val);
 
-				kf->addVertex(index, offset);
+			VertexPoseKeyFrame* kf = track->createVertexPoseKeyFrame(time);
 
-				poseOffsetNode = poseOffsetNode->NextSiblingElement();
+			// Read all pose references
+			TiXmlElement* poseRefNode = keyNode->FirstChildElement("poseref");
+			while (poseRefNode)
+			{
+				const char* val = poseRefNode->Attribute("poseindex");
+				if (!val)
+				{
+					OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+						"Required attribute 'poseindex' missing on poseref", 
+						"XMLMeshSerializer::readPoseKeyFrames");
+				}
+				unsigned short poseIndex = StringConverter::parseUnsignedInt(val);
+				Real influence = 1.0f;
+				val = poseRefNode->Attribute("influence");
+				if (val)
+				{
+					influence = StringConverter::parseReal(val);
+				}
+
+				kf->addPoseReference(poseIndex, influence);
+
+				poseRefNode = poseRefNode->NextSiblingElement();
+			}
+
+			keyNode = keyNode->NextSiblingElement();
+		}
+
+	}
+	//-----------------------------------------------------------------------------
+	void XMLMeshSerializer::writePoses(TiXmlElement* meshNode, const Mesh* m)
+	{
+		if (m->getPoseCount() == 0)
+			return;
+
+		TiXmlElement* posesNode = 
+			meshNode->InsertEndChild(TiXmlElement("poses"))->ToElement();
+
+		Mesh::ConstPoseIterator poseIt = m->getPoseIterator();
+		while (poseIt.hasMoreElements())
+		{
+			const Pose* pose = poseIt.getNext();
+			TiXmlElement* poseNode = 
+				posesNode->InsertEndChild(TiXmlElement("pose"))->ToElement();
+			unsigned short target = pose->getTarget();
+			if (target == 0)
+			{
+				// Main mesh
+				poseNode->SetAttribute("target", "mesh");
+			}
+			else
+			{
+				// Submesh - rebase index
+				poseNode->SetAttribute("target", "submesh");
+				poseNode->SetAttribute("index", 
+					StringConverter::toString(target - 1));
+			}
+			poseNode->SetAttribute("name", pose->getName());
+
+			Pose::ConstVertexOffsetIterator vit = pose->getVertexOffsetIterator();
+			while (vit.hasMoreElements())
+			{
+				TiXmlElement* poseOffsetElement = poseNode->InsertEndChild(
+					TiXmlElement("poseoffset"))->ToElement();
+
+				poseOffsetElement->SetAttribute("index", 
+					StringConverter::toString(vit.peekNextKey()));
+
+				Vector3 offset = vit.getNext();
+				poseOffsetElement->SetAttribute("x", StringConverter::toString(offset.x));
+				poseOffsetElement->SetAttribute("y", StringConverter::toString(offset.y));
+				poseOffsetElement->SetAttribute("z", StringConverter::toString(offset.z));
+
+
 			}
 
 		}
+
 	}
 	//-----------------------------------------------------------------------------
 	void XMLMeshSerializer::writeAnimations(TiXmlElement* meshNode, const Mesh* m)
@@ -1487,7 +1625,7 @@ namespace Ogre {
 				else
 				{
 					trackNode->SetAttribute("type", "pose");
-					writePose(trackNode, track);
+					writePoseKeyFrames(trackNode, track);
 				}
 
 
@@ -1528,7 +1666,7 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------------
-	void XMLMeshSerializer::writePose(TiXmlElement* trackNode, const VertexAnimationTrack* track)
+	void XMLMeshSerializer::writePoseKeyFrames(TiXmlElement* trackNode, const VertexAnimationTrack* track)
 	{
 		TiXmlElement* keyframesNode = 
 			trackNode->InsertEndChild(TiXmlElement("keyframes"))->ToElement();
@@ -1536,24 +1674,31 @@ namespace Ogre {
 		TiXmlElement* poseNode = keyframesNode->InsertEndChild(
 			TiXmlElement("pose"))->ToElement();
 
-		const VertexPoseKeyFrame* kf = track->getVertexPoseKeyFrame();
-
-		VertexPoseKeyFrame::ConstVertexOffsetIterator vit = kf->getVertexOffsetIterator();
-		while (vit.hasMoreElements())
+		for (unsigned short k = 0; k < track->getNumKeyFrames(); ++k)
 		{
-			TiXmlElement* poseOffsetElement = poseNode->InsertEndChild(
-				TiXmlElement("poseoffset"))->ToElement();
+			VertexPoseKeyFrame* kf = track->getVertexPoseKeyFrame(k);
+			TiXmlElement* keyNode = 
+				keyframesNode->InsertEndChild(TiXmlElement("keyframe"))->ToElement();
+			keyNode->SetAttribute("time", 
+				StringConverter::toString(kf->getTime()));
 
-			poseOffsetElement->SetAttribute("index", 
-				StringConverter::toString(vit.peekNextKey()));
+			VertexPoseKeyFrame::PoseRefIterator poseIt = kf->getPoseReferenceIterator();
+			while (poseIt.hasMoreElements())
+			{
+				VertexPoseKeyFrame::PoseRef& poseRef = poseIt.getNext();
+				TiXmlElement* poseRefNode = 
+					keyNode->InsertEndChild(TiXmlElement("poseref"))->ToElement();
 
-			Vector3 offset = vit.getNext();
-			poseOffsetElement->SetAttribute("x", StringConverter::toString(offset.x));
-			poseOffsetElement->SetAttribute("y", StringConverter::toString(offset.y));
-			poseOffsetElement->SetAttribute("z", StringConverter::toString(offset.z));
+				poseRefNode->SetAttribute("poseindex", 
+					StringConverter::toString(poseRef.poseIndex));
+				poseRefNode->SetAttribute("influence", 
+					StringConverter::toString(poseRef.influence));
 
+			}
 
 		}
+
+
 	}
 
 
