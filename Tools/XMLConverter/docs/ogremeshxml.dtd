@@ -97,7 +97,24 @@
 <!ATTLIST submeshname 
 	name	CDATA	#REQUIRED
 	index	CDATA	#REQUIRED >
-<!ELEMENT animations (animation+)>
+<!ELEMENT animations (poses?,animation+)>
+<!ELEMENT poses (pose+)>
+<!-- A single pose references a single set of geometry data with a set of offsets.
+	If target is 'mesh', targets the shared geometry, if target is submesh, targets
+	the submesh identified by 'index'.
+-->
+<!ELEMENT pose (poseoffset+) >
+<!ATTLIST pose
+	target	(mesh|submesh) #REQUIRED
+	index   CDATA   "0"
+	name	CDATA	"">
+<!-- poseoffset lists the vertices that change position, and by how much -->
+<!ELEMENT poseoffset EMPTY>
+<!ATTLIST poseoffset
+    index	CDATA	#REQUIRED
+	x		CDATA	#REQUIRED
+	y		CDATA	#REQUIRED
+	z		CDATA	#REQUIRED >
 <!ELEMENT animation (tracks)>
 <!ATTLIST animation
 	name	CDATA	#REQUIRED 
@@ -106,26 +123,29 @@
 <!ELEMENT track (keyframes)>
 <!-- Morph animation is a keyframed set of absolute vertex positions. Cannot
      be blended with other morph animations or pose animation.
-     Pose animation is a single pose per track, in relative vertex offsets, 
-	 especially useful for facial animation.
-	 Can be blended with other poses but not with morph animation. -->
+     Pose animation is a set of keyframes referencing poses and a weight,
+	 with one track per set of vertex data.
+	 Can be blended with other poses but not with morph animation. 
+	If target is 'mesh', targets the shared geometry, if target is submesh, targets
+	the submesh identified by 'index'. 
+-->
 <!ATTLIST track 
 	target	(mesh|submesh) #REQUIRED
 	index	CDATA	"0"
 	type    (morph|pose) #REQUIRED>
-<!-- keyframes are applicable for morph tracks, pose for pose tracks -->
-<!ELEMENT keyframes (keyframe*,pose?)>
-<!ELEMENT keyframe (position+)>
+<!-- keyframes are applicable for all tracks, but for morph tracks
+     they contain positions, and for pose tracks they contain pose references -->
+<!ELEMENT keyframes (keyframe*)>
+<!ELEMENT keyframe (position*, poseref*)>
 <!ATTLIST keyframe
 	time	CDATA	#REQUIRED >
-<!ELEMENT pose (poseoffset+) >
-<!-- poseoffset lists the vertices that change position, and by how much -->
-<!ELEMENT poseoffset EMPTY>
-<!ATTLIST poseoffset
-    index	CDATA	#REQUIRED
-	x		CDATA	#REQUIRED
-	y		CDATA	#REQUIRED
-	z		CDATA	#REQUIRED >
+<!-- Pose reference, links to pose via numeric index. target of parent track
+	must agree with target of referenced pose. For a single track, each
+	keyframe can reference multiple poses at different weights. -->
+<!ELEMENT poseref EMPTY>
+<!ATTLIST poseref 
+	poseindex	CDATA	#REQUIRED
+	influence	CDATA	"1.0">
 	
 
 	

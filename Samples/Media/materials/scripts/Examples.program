@@ -36,4 +36,33 @@ vertex_program Ogre/HardwareSkinningFourWeights cg
    profiles vs_1_1 arbvp1
    includes_skeletal_animation true
 }
+// Basic hardware morph animation 
+vertex_program Ogre/HardwareMorphAnimation cg
+{
+	source Example_Basic.cg
+	entry_point hardwareMorphAnimation
+	profiles vs_1_1 arbvp1
+
+	includes_morph_animation true
+	default_params
+	{
+		param_named_auto worldViewProj worldviewproj_matrix
+		param_named_auto anim_t animation_parametric
+	}
+}
+// Basic hardware pose animation supporting 2 active poses
+vertex_program Ogre/HardwarePoseAnimation cg
+{
+	source Example_Basic.cg
+	entry_point hardwarePoseAnimation
+	profiles vs_1_1 arbvp1
+
+	includes_pose_animation 2
+	default_params
+	{
+		param_named_auto worldViewProj worldviewproj_matrix
+		param_named_auto anim_t[0] animation_parametric
+	}
+}
+
 

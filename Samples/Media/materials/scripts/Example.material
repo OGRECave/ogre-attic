@@ -731,3 +731,48 @@ material Examples/Aureola
 		}
 	}
 }
+
+// Test hardware morph animation
+material Examples/HardwareMorphAnimation
+{
+	technique
+	{
+		pass
+		{
+			
+			vertex_program_ref Ogre/HardwareMorphAnimation
+			{
+				// all default
+			}
+
+			texture_unit
+			{
+			
+			}
+			
+		}
+	}
+}
+
+// Test hardware pose animation
+material Examples/HardwarePoseAnimation
+{
+	technique
+	{
+		pass
+		{
+			
+			vertex_program_ref Ogre/HardwarePoseAnimation
+			{
+				// all default
+			}
+
+			texture_unit
+			{
+			
+			}
+			
+		}
+	}
+}
+

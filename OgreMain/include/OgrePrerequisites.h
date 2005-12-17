@@ -295,6 +295,7 @@ namespace Ogre {
     class PlatformManager;
     class Plane;
     class PlaneBoundedVolume;
+	class Pose;
 	class PositionTarget;
     class ProgressiveMesh;
     class Profile;

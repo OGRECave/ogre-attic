@@ -225,8 +225,9 @@ namespace Ogre {
         removeLodLevels();
         mPreparedForShadowVolumes = false;
 
-		// remove all animations
+		// remove all poses & animations
 		removeAllAnimations();
+		removeAllPoses();
 
         // Clear bone assignments
         mBoneAssignments.clear();
@@ -2120,7 +2121,98 @@ namespace Ogre {
 			return getSubMesh(handle-1)->vertexData;
 		}
 	}
+	//---------------------------------------------------------------------
+	Pose* Mesh::createPose(ushort target, const String& name)
+	{
+		Pose* retPose = new Pose(target, name);
+		mPoseList.push_back(retPose);
+		return retPose;
+	}
+	//---------------------------------------------------------------------
+	Pose* Mesh::getPose(ushort index)
+	{
+		if (index >= getPoseCount())
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"Index out of bounds",
+				"Mesh::getPose");
+		}
 
+		return mPoseList[index];
+		
+	}
+	//---------------------------------------------------------------------
+	Pose* Mesh::getPose(const String& name)
+	{
+		for (PoseList::iterator i = mPoseList.begin(); i != mPoseList.end(); ++i)
+		{
+			if ((*i)->getName() == name)
+				return *i;
+		}
+		StringUtil::StrStreamType str;
+		str << "No pose called " << name << " found in Mesh " << mName;
+		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+			str.str(),
+			"Mesh::getPose");
+
+	}
+	//---------------------------------------------------------------------
+	void Mesh::removePose(ushort index)
+	{
+		if (index >= getPoseCount())
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"Index out of bounds",
+				"Mesh::removePose");
+		}
+		PoseList::iterator i = mPoseList.begin();
+		std::advance(i, index);
+		delete *i;
+		mPoseList.erase(i);
+
+	}
+	//---------------------------------------------------------------------
+	void Mesh::removePose(const String& name)
+	{
+		for (PoseList::iterator i = mPoseList.begin(); i != mPoseList.end(); ++i)
+		{
+			if ((*i)->getName() == name)
+			{
+				delete *i;
+				mPoseList.erase(i);
+				return;
+			}
+		}
+		StringUtil::StrStreamType str;
+		str << "No pose called " << name << " found in Mesh " << mName;
+		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+			str.str(),
+			"Mesh::removePose");
+	}
+	//---------------------------------------------------------------------
+	void Mesh::removeAllPoses(void)
+	{
+		for (PoseList::iterator i = mPoseList.begin(); i != mPoseList.end(); ++i)
+		{
+			delete *i;
+		}
+		mPoseList.clear();
+	}
+	//---------------------------------------------------------------------
+	Mesh::PoseIterator Mesh::getPoseIterator(void)
+	{
+		return PoseIterator(mPoseList.begin(), mPoseList.end());
+	}
+	//---------------------------------------------------------------------
+	Mesh::ConstPoseIterator Mesh::getPoseIterator(void) const
+	{
+		return ConstPoseIterator(mPoseList.begin(), mPoseList.end());
+	}
+	//-----------------------------------------------------------------------------
+	const PoseList& Mesh::getPoseList(void) const
+	{
+		return mPoseList;
+	}
 	//---------------------------------------------------------------------
 	void Mesh::updateMaterialForAllSubMeshes(void)
 	{
@@ -2132,5 +2224,7 @@ namespace Ogre {
         }
 
     }
+	//---------------------------------------------------------------------
+
 }
 

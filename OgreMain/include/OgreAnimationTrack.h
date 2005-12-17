@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRotationalSpline.h"
 #include "OgreKeyFrame.h"
 #include "OgreAnimable.h"
+#include "OgrePose.h"
 
 namespace Ogre 
 {
@@ -294,38 +295,53 @@ namespace Ogre
 		to separate them since the requirements and limitations of each are quite
 		different.
 	@par
-		With morph animation, we have a whole series of poses which must be 
-		interpolated, e.g. a running animation implemented as morph targets. 
-		We choose not to support blending between multiple
-		morph animations - this is beccause we like to support all features in
-		hardware if possible, and blending of multiple morph animations requires
-		(2*animations + 1) position vertex buffers. This is because to support
-		blending all the positions have to be stored as offsets rather than snapshots,
-		so to interpolate you need the previous keyframe, the next keyframe and
-		the original vertex data. This clearly becomes infeasible very quickly
-		when trying to implement this in a vertex shader - and really if you're
-		wanting to do blended animation with multiple sets of tracks you should
-		be using skeletal animation. By only supporting one active morph animation
-		at once, the buffer requirements reduce to just 2 - snapshots of 2 keyframes
-		of absolute position data. 
+		Morph animation is a simple approach where we have a whole series of 
+		snapshots of vertex data which must be interpolated, e.g. a running 
+		animation implemented as morph targets. Because this is based on simple
+		snapshots, it's quite fast to use when animating an entire mesh because 
+		it's a simple linear change between keyframes. However, this simplistic 
+		approach does not support blending between multiple morph animations. 
+		If you need animation blending, you are advised to use skeletal animation
+		for full-mesh animation, and pose animation for animation of subsets of 
+		meshes or where skeletal animation doesn't fit - for example facial animation.
+		For animating in a vertex shader, morph animation is quite simple and 
+		just requires the 2 vertex buffers (one the original position buffer) 
+		of absolute position data, and an interpolation factor. Each track in 
+		a morph animation refrences a unique set of vertex data.
 	@par
-		Pose animation is different - it is not a sequence of keyframes, but a
-		single target pose per track. For simplicity this is implemented as a
-		single keyframe, but the data inside it is stored as an offset to the 
-		base vertex data rather than as absolute data. This is because the
-		primary reason for pose animation is to be able to blend multiple
-		weighted poses - for example multiple expressions in facial animation.
-		Whilst each track doesn't need interpolation within itself, it will be
-		blended with other tracks for the same submesh. Since there is only one
-		keyframe, the vertex buffer requirements for hardware interpolation are
-		only (animations + 1), which is more manageable. 
+		Pose animation is more complex. Like morph animation each track references
+		a single unique set of vertex data, but unlike morph animation, each 
+		keyframe references 1 or more 'poses', each with an influence level. 
+		A pose is a series of offsets to the base vertex data, and may be sparse - ie it
+		may not reference every vertex. Because they're offsets, they can be 
+		blended - both within a track and between animations. This set of features
+		is very well suited to facial animation.
+	@par
+		For example, let's say you modelled a face (one set of vertex data), and 
+		defined a set of poses which represented the various phonetic positions 
+		of the face. You could then define an animation called 'SayHello', containing
+		a single track which referenced the face vertex data, and which included 
+		a series of keyframes, each of which referenced one or more of the facial 
+		positions at different influence levels - the combination of which over
+		time made the face form the shapes required to say the word 'hello'. Since
+		the poses are only stored once, but can be referenced may times in 
+		many animations, this is a very powerful way to build up a speech system.
+	@par
+		The downside of pose animation is that it can be more difficult to set up.
+		Also, since it uses more buffers (one for the base data, and one for each
+		active pose), if you're animating in hardware using vertex shaders you need
+		to keep an eye on how many poses you're blending at once. You define a
+		maximum supported number in your vertex program definition, see the 
+		includes_pose_animation material script entry. 
 	@par
 		So, by partitioning the vertex animation approaches into 2, we keep the
-		techniques viable for hardware acceleration whilst still allowing all 
-		the useful techniques to be available. Note that morph animation cannot
+		simple morph technique easy to use, whilst still allowing all 
+		the powerful techniques to be used. Note that morph animation cannot
 		be blended with other types of vertex animation (pose animation or other
 		morph animation); pose animation can be blended with other pose animation
-		though, and both types can be combined with skeletal animation.
+		though, and both types can be combined with skeletal animation. Also note
+		that all morph animation can be expressed as pose animation, but not vice
+		versa.
 	*/
 	enum VertexAnimationType
 	{
@@ -338,48 +354,7 @@ namespace Ogre
 	};
 
 	/** Specialised AnimationTrack for dealing with changing vertex position information.
-	@remarks
-		Vertex animation tracks come in 2 types, morph and pose tracks. The reason
-		for the 2 types is that we have 2 different potential goals - to encapsulate
-		a complete, flowing morph animation with multiple keyframes (a typical animation,
-		but implemented by having snapshots of the vertex data at each keyframe), 
-		or to represent a single pose change, for example a facial expression. 
-		Whilst both could in fact be implemented using the same system, we choose
-		to separate them since the requirements and limitations of each are quite
-		different.
-	@par
-		With morph animation, we have a whole series of poses which must be 
-		interpolated, e.g. a running animation implemented as morph targets. 
-		We choose not to support blending between multiple
-		morph animations - this is beccause we like to support all features in
-		hardware if possible, and blending of multiple morph animations requires
-		(2*animations + 1) position vertex buffers. This is because to support
-		blending all the positions have to be stored as offsets rather than snapshots,
-		so to interpolate you need the previous keyframe, the next keyframe and
-		the original vertex data. This clearly becomes infeasible very quickly
-		when trying to implement this in a vertex shader - and really if you're
-		wanting to do blended animation with multiple sets of tracks you should
-		be using skeletal animation. By only supporting one active morph animation
-		at once, the buffer requirements reduce to just 2 - snapshots of 2 keyframes
-		of absolute position data. 
-	@par
-		Pose animation is different - it is not a sequence of keyframes, but a
-		single target pose per track. For simplicity this is implemented as a
-		single keyframe, but the data inside it is stored as an offset to the 
-		base vertex data rather than as absolute data. This is because the
-		primary reason for pose animation is to be able to blend multiple
-		weighted poses - for example multiple expressions in facial animation.
-		Whilst each track doesn't need interpolation within itself, it will be
-		blended with other tracks for the same submesh. Since there is only one
-		keyframe, the vertex buffer requirements for hardware interpolation are
-		only (animations + 1), which is more manageable. 
-	@par
-		So, by partitioning the vertex animation approaches into 2, we keep the
-		techniques viable for hardware acceleration whilst still allowing all 
-		the useful techniques to be available. Note that morph animation cannot
-		be blended with other types of vertex animation (pose animation or other
-		morph animation); pose animation can be blended with other pose animation
-		though, and both types can be combined with skeletal animation.
+	@see VertexAnimationType
 	*/
 	class _OgreExport VertexAnimationTrack : public AnimationTrack
 	{
@@ -412,12 +387,8 @@ namespace Ogre
 		virtual VertexMorphKeyFrame* createVertexMorphKeyFrame(Real timePos);
 
 		/** Creates the single pose KeyFrame and adds it to this animation.
-		@remarks
-			Only a single pose keyframe is allowed since these are optimised
-			for interpolating between poses in different animations rather 
-			than between keyframes in the same animation.
 		*/
-		virtual VertexPoseKeyFrame* createVertexPoseKeyFrame(void);
+		virtual VertexPoseKeyFrame* createVertexPoseKeyFrame(Real timePos);
 
 		/** This method in fact does nothing, since interpolation is not performed
 			inside the keyframes for this type of track. 
@@ -431,14 +402,15 @@ namespace Ogre
 		/** As the 'apply' method but applies to specified VertexData instead of 
 			associated data. */
 		virtual void applyToVertexData(VertexData* data, 
-			Real timePos, Real weight = 1.0, ushort animIndex = 0);
+			Real timePos, Real weight = 1.0, 
+			const PoseList* poseList = 0);
 
 
 		/** Returns the morph KeyFrame at the specified index. */
 		VertexMorphKeyFrame* getVertexMorphKeyFrame(unsigned short index) const;
 
-		/** Returns the single pose KeyFrame in the track. */
-		VertexPoseKeyFrame* getVertexPoseKeyFrame(void) const;
+		/** Returns the pose KeyFrame at the specified index. */
+		VertexPoseKeyFrame* getVertexPoseKeyFrame(unsigned short index) const;
 
 		/** Sets the associated VertexData which this track will update. */
 		void setAssociatedVertexData(VertexData* data) { mTargetVertexData = data; }
@@ -461,6 +433,9 @@ namespace Ogre
 
 		/// @copydoc AnimationTrack::createKeyFrameImpl
 		KeyFrame* createKeyFrameImpl(Real time);
+
+		/// Utility method for applying pose animation
+		void applyPoseToVertexData(const Pose* pose, VertexData* data, Real influence);
 
 
 	};

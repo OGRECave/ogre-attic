@@ -37,6 +37,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHardwareVertexBuffer.h"
 #include "OgreSkeleton.h"
 #include "OgreAnimationTrack.h"
+#include "OgrePose.h"
 
 
 namespace Ogre {
@@ -110,6 +111,8 @@ namespace Ogre {
 			Translates a name into SubMesh index
 		*/
 		typedef HashMap<String, ushort> SubMeshNameMap ;
+
+		
     protected:
 		SubMeshNameMap mSubMeshNameMap ;
 
@@ -159,6 +162,9 @@ namespace Ogre {
 		mutable VertexAnimationType mSharedVertexDataAnimationType;
 		/// Do we need to scan animations for animation types?
 		mutable bool mAnimationTypesDirty;
+
+		/// List of available poses for shared and dedicated geometryPoseList
+		PoseList mPoseList;
 
 
         /// @copydoc Resource::loadImpl
@@ -750,6 +756,39 @@ namespace Ogre {
 		/** Are the derived animation types out of date? */
 		bool _getAnimationTypesDirty(void) const { return mAnimationTypesDirty; }
 
+		/** Create a new Pose for this mesh or one of its submeshes.
+  	    @param target The target geometry index; 0 is the shared Mesh geometry, 1+ is the
+			dedicated SubMesh geometry belonging to submesh index + 1.
+		@param name Name to give the pose, which is optional
+		@returns A new Pose ready for population
+		*/
+		Pose* createPose(ushort target, const String& name = StringUtil::BLANK);
+		/** Get the number of poses.*/
+		size_t getPoseCount(void) const { return mPoseList.size(); }
+		/** Retrieve an existing Pose by index.*/
+		Pose* getPose(ushort index);
+		/** Retrieve an existing Pose by name.*/
+		Pose* getPose(const String& name);
+		/** Destroy a pose by index.
+		@note This will invalidate any animation tracks referring to this pose or those after it.
+		*/
+		void removePose(ushort index);
+		/** Destroy a pose by name.
+		@note This will invalidate any animation tracks referring to this pose or those after it.
+		*/
+		void removePose(const String& name);
+		/** Destroy all poses */
+		void removeAllPoses(void);
+
+		typedef VectorIterator<PoseList> PoseIterator;
+		typedef ConstVectorIterator<PoseList> ConstPoseIterator;
+
+		/** Get an iterator over all the poses defined. */
+		PoseIterator getPoseIterator(void);
+		/** Get an iterator over all the poses defined. */
+		ConstPoseIterator getPoseIterator(void) const;
+		/** Get pose list */
+		const PoseList& getPoseList(void) const;
 
     };
 

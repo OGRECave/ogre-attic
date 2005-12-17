@@ -674,6 +674,9 @@ namespace Ogre {
 		{
 			vdata->hwAnimationDataList[i].parametric = 0.0f;
 		}
+		// reset used count
+		vdata->hwAnimDataItemsUsed = 0;
+
 	}
 	//-----------------------------------------------------------------------
 	void Entity::applyVertexAnimation(bool hardwareAnimation, bool stencilShadows)
@@ -742,7 +745,6 @@ namespace Ogre {
 		// Note - you should only apply one morph animation to each set of vertex data
 		// at once; if you do more, only the last one will actually apply
 		markBuffersUnusedForAnimation();
-		ushort animIndex = 0;
 		while(animIt.hasMoreElements())
 		{
 			AnimationState* state = animIt.getNext();
@@ -752,7 +754,7 @@ namespace Ogre {
 				if (anim)
 				{
 					anim->apply(this, state->getTimePosition(), state->getWeight(), 
-						swAnim, hardwareAnimation, animIndex++);
+						swAnim, hardwareAnimation);
 				}
 			}
 		}

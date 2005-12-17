@@ -156,51 +156,65 @@ namespace Ogre
 
 	};
 
-	/** Specialised KeyFrame which stores offsets for a subset of the vertices 
-		in a buffer to provide a blendable pose, designed to be interpolated with
-		other animations.
+	/** Specialised KeyFrame which references a Mesh::Pose at a certain influence
+		level, which stores offsets for a subset of the vertices 
+		in a buffer to provide a blendable pose.
 	*/
 	class _OgreExport VertexPoseKeyFrame : public KeyFrame
 	{
 	public:
 		/** Default constructor, you should not call this but use AnimationTrack::createKeyFrame instead. */
-		VertexPoseKeyFrame(const AnimationTrack* parent);
+		VertexPoseKeyFrame(const AnimationTrack* parent, Real time);
 		~VertexPoseKeyFrame() {}
 
-		/// A collection of vertex offsets based on the vertex index
-		typedef std::map<size_t, Vector3> VertexOffsetMap;
-		/// An iterator over the vertex offsets
-		typedef MapIterator<VertexOffsetMap> VertexOffsetIterator;
-		/// An iterator over the vertex offsets
-		typedef ConstMapIterator<VertexOffsetMap> ConstVertexOffsetIterator;
+		/** Reference to a pose at a given influence level 
+		@remarks
+			Each keyframe can refer to many poses each at a given influence level.
+		**/
+		struct PoseRef
+		{
+			/** The linked pose index.
+			@remarks
+				The Mesh contains all poses for all vertex data in one list, both 
+				for the shared vertex data and the dedicated vertex data on submeshes.
+				The 'target' on the parent track must match the 'target' on the 
+				linked pose.
+			*/
+			ushort poseIndex;
+			/** Influence level of the linked pose. 
+				1.0 for full influence (full offset), 0.0 for no influence.
+			*/
+			Real influence;
 
-		/** Adds an offset to a vertex for this pose. 
-		@param index The vertex index
-		@param offset The position offset for this pose
+			PoseRef(ushort p, Real i) : poseIndex(p), influence(i) {}
+		};
+		typedef std::vector<PoseRef> PoseRefList;
+
+		/** Add a new pose reference. 
+		@see PoseRef
 		*/
-		void addVertex(size_t index, const Vector3& offset);
+		void addPoseReference(ushort poseIndex, Real influence);
+		/** Remove reference to a given pose. 
+		@param poseIndex The pose index (not the index of the reference)
+		*/
+		void removePoseReference(ushort poseIndex);
+		/** Remove all pose references. */
+		void removeAllPoseReferences(void);
 
-		/** Remove a vertex offset. */
-		void removeVertex(size_t index);
 
-		/** Clear all vertex offsets. */
-		void clearVertexOffsets(void);
+		/** Get a const reference to the list of pose references. */
+		const PoseRefList& getPoseReferences(void) const;
 
-		/** Gets an iterator over all the vertex offsets. */
-		ConstVertexOffsetIterator getVertexOffsetIterator(void) const;
-		/** Gets an iterator over all the vertex offsets. */
-		VertexOffsetIterator getVertexOffsetIterator(void);
-		/** Gets a const reference to the vertex offsets. */
-		const VertexOffsetMap& getVertexOffsets(void) const { return mVertexOffsetMap; }
+		typedef VectorIterator<PoseRefList> PoseRefIterator;
+		typedef ConstVectorIterator<PoseRefList> ConstPoseRefIterator;
 
-		/** Get a hardware vertex buffer version of the vertex offsets. */
-		const HardwareVertexBufferSharedPtr& _getHardwareVertexBuffer(size_t numVertices);
+		/** Get an iterator over the pose references. */
+		PoseRefIterator getPoseReferenceIterator(void);
 
+		/** Get a const iterator over the pose references. */
+		ConstPoseRefIterator getPoseReferenceIterator(void) const;
 	protected:
-		/// Primary storage, sparse vertex use
-		VertexOffsetMap mVertexOffsetMap;
-		/// Derived hardware buffer, covers all vertices
-		HardwareVertexBufferSharedPtr mBuffer;
+		PoseRefList mPoseRefs;
 
 	};
 

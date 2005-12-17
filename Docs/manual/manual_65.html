@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 11 2005 by texi2html 1.64 -->
+<!-- Created on , 17 2005 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -42,7 +42,7 @@ There are actually two subtypes of vertex animation, for reasons which will be d
 
 <DL COMPACT>
 <DT><A HREF="manual_66.html#SEC256">8.3.1 Morph Animation</A>
-<DD>Morph animation is about interpolating many mesh snapshots along a keyframe timeline. Morph animation has a direct correlation to old-skool character animation techniques used before skeletal animation was widely used.<BR>
+<DD>Morph animation is a very simple technique which interpolates mesh snapshots along a keyframe timeline. Morph animation has a direct correlation to old-skool character animation techniques used before skeletal animation was widely used.<BR>
 <DT><A HREF="manual_67.html#SEC257">8.3.2 Pose Animation</A>
 <DD>Pose animation is about blending multiple discrete poses, expressed as offsets to the base vertex data, with different weights to provide a final result. Pose animation's most obvious use is facial animation.
 </DL>
@@ -50,13 +50,17 @@ There are actually two subtypes of vertex animation, for reasons which will be d
 <A NAME="SEC254"></A>
 <H2> Why two subtypes? </H2>
 <!--docid::SEC254::-->
-So, why two subtypes of vertex animation? Couldn't both be implemented using the same system? The short answer is yes, but for very good reasons we decided to specialise them in order to optimise the implementation of each discrete type. If you don't care about the reasons why these are implemented differently, you can skip to the next part.<BR><BR>
+So, why two subtypes of vertex animation? Couldn't both be implemented using the same system? The short answer is yes; in fact you can implement both types using pose animation. But for very good reasons we decided to allow morph animation to be specified separately since the subset of features that it uses is both easier to define and has lower requirements on hardware shaders, if animation is implemented through them. If you don't care about the reasons why these are implemented differently, you can skip to the next part.<BR><BR>
 
-With morph animation, we have a whole series of poses which must be interpolated, e.g. a running animation implemented as morph targets. We choose not to support blending between multiple morph animations - this is beccause we like to support all features in hardware if possible, and blending of multiple morph animations requires (2*animations + 1) position vertex buffers. This is because to support blending all the positions have to be stored as offsets rather than snapshots, so to interpolate you need the previous keyframe, the next keyframe and the original vertex data. This clearly becomes infeasible very quickly when trying to implement this in a vertex shader - and really if you're wanting to do blended animation with multiple sets of tracks you should be using skeletal animation. By only supporting one active morph animation at once, the buffer requirements reduce to just 2 - snapshots of 2 keyframes of absolute position data. <BR><BR>
+Morph animation is a simple approach where we have a whole series of snapshots of vertex data which must be interpolated, e.g. a running animation implemented as morph targets. Because this is based on simple snapshots, it's quite fast to use when animating an entire mesh because it's a simple linear change between keyframes. However, this simplistic approach does not support blending between multiple morph animations. If you need animation blending, you are advised to use skeletal animation for full-mesh animation, and pose animation for animation of subsets of meshes or where skeletal animation doesn't fit - for example facial animation. For animating in a vertex shader, morph animation is quite simple and just requires the 2 vertex buffers (one the original position buffer) of absolute position data, and an interpolation factor. Each track in a morph animation refrences a unique set of vertex data. <BR><BR>
 
-Pose animation is different - it is not a sequence of keyframes, but a single target pose per track. For simplicity this is implemented as a single keyframe, but the data inside it is stored as an offset to the  base vertex data rather than as absolute data. This is because the primary reason for pose animation is to be able to blend multiple weighted poses - for example multiple expressions in facial animation. Whilst each track doesn't need interpolation within itself, it will be blended with other tracks for the same submesh. Since there is only one keyframe, the vertex buffer requirements for hardware interpolation are only (animations + 1), which is more manageable.  <BR><BR>
+Pose animation is more complex. Like morph animation each track references a single unique set of vertex data, but unlike morph animation, each keyframe references 1 or more 'poses', each with an influence level. A pose is a series of offsets to the base vertex data, and may be sparse - ie it may not reference every vertex. Because they're offsets, they can be blended - both within a track and between animations. This set of features is very well suited to facial animation.  <BR><BR>
 
-So, by partitioning the vertex animation approaches into 2, we keep the techniques viable for hardware acceleration whilst still allowing all the useful techniques to be available. Note that morph animation cannot be blended with other types of vertex animation on the same vertex data (pose animation or other morph animation); pose animation can be blended with other pose animation though, and both types can be combined with skeletal animation. This combination limitation applies per set of vertex data though, not globally across the mesh (see below).
+For example, let's say you modelled a face (one set of vertex data), and defined a set of poses which represented the various phonetic positions of the face. You could then define an animation called 'SayHello', containinga single track which referenced the face vertex data, and which included a series of keyframes, each of which referenced one or more of the facial positions at different influence levels - the combination of which over time made the face form the shapes required to say the word 'hello'. Since	the poses are only stored once, but can be referenced may times in many animations, this is a very powerful way to build up a speech system.<BR><BR>
+
+The downside of pose animation is that it can be more difficult to set up, requiring poses to be separately defined and then referenced in the keyframes. Also, since it uses more buffers (one for the base data, and one for each active pose), if you're animating in hardware using vertex shaders you need to keep an eye on how many poses you're blending at once. You define a maximum supported number in your vertex program definition, via the includes_pose_animation material script entry,  See section <A HREF="manual_18.html#SEC88">Pose Animation in Vertex Programs</A>. 
+
+So, by partitioning the vertex animation approaches into 2, we keep the simple morph technique easy to use, whilst still allowing all the powerful techniques to be used. Note that morph animation cannot be blended with other types of vertex animation on the same vertex data (pose animation or other morph animation); pose animation can be blended with other pose animation though, and both types can be combined with skeletal animation. This combination limitation applies per set of vertex data though, not globally across the mesh (see below). Also note that all morph animation can be expressed (in a more complex fashion) as pose animation, but not vice versa.
 
 <A NAME="SEC255"></A>
 <H2> Subtype applies per track </H2>
@@ -81,7 +85,7 @@ To see how to apply vertex animation, See section <A HREF="manual_64.html#SEC252
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 11 2005</I>
+by <I>Steve Streeting</I> on <I>, 17 2005</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
