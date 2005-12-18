@@ -453,6 +453,7 @@ namespace Ogre {
 			{
 				delete *i;
 				mHwOcclusionQueries.erase(i);
+				break;
 			}
 		}
 	}
