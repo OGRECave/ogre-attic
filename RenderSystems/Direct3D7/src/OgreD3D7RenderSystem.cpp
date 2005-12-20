@@ -104,7 +104,6 @@ namespace Ogre {
 
         SAFE_DELETE(mTextureManager);
         SAFE_DELETE(mDriverList);
-        SAFE_DELETE(mCapabilities);
         SAFE_DELETE(mHardwareBufferManager);
         SAFE_DELETE(mGpuProgramManager);
 

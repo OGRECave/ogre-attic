@@ -134,12 +134,6 @@ namespace Ogre
 		SAFE_DELETE(mGpuProgramManager);
 		SAFE_RELEASE( mpD3D );
 
-        if (mCapabilities)
-        {
-            delete mCapabilities;
-            mCapabilities = NULL;
-        }
-
 		LogManager::getSingleton().logMessage( "D3D9 : " + getName() + " destroyed." );
 		OgreUnguard();
 	}
