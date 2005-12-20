@@ -62,21 +62,6 @@ namespace Ogre {
         virtual void renderQueueStarted(uint8 queueGroupId, const String& invocation, 
 			bool& skipThisInvocation) = 0;
 
-		/** Event raised after all shadow textures have been rendered into for all queues / targets 
-			but before any other geometry has been rendered (including main scene geometry and any 
-			additional shadow receiver passes). 
-		@remarks
-			This callback is useful for those that wish to perform some additional processing
-			on shadow textures before they are used to render shadows. For example you could
-			perform some filtering by rendering the existing shadow textures into another 
-			alternative shadow texture with a shader.]
-		@note
-			This event will only be fired when texture shadows are in use, and shadows are enabled
-			for the queue invocation.
-		@param numberOfShadowTextures The number of shadow textures in use
-		*/
-		virtual void shadowTexturesUpdated(size_t numberOfShadowTextures) = 0;
-		
         /** Event raised after a queue group is rendered. 
         @remarks
             This method is called by the SceneManager after each queue group is

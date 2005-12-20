@@ -58,6 +58,63 @@ namespace Ogre {
 	class DefaultSphereSceneQuery;
 	class DefaultAxisAlignedBoxSceneQuery;
 
+	/** Interface definition for classes which can listen in on the process
+		of rendering shadows, in order to implement custom behaviour.
+	*/
+	class _OgreExport ShadowListener
+	{
+	public:
+		ShadowListener() {}
+		virtual ~ShadowListener() {}
+
+		/** Event raised after all shadow textures have been rendered into for 
+			all queues / targets but before any other geometry has been rendered
+		    (including main scene geometry and any additional shadow receiver 
+			passes). 
+		@remarks
+			This callback is useful for those that wish to perform some 
+			additional processing on shadow textures before they are used to 
+			render shadows. For example you could perform some filtering by 
+			rendering the existing shadow textures into another alternative 
+			shadow texture with a shader.]
+		@note
+			This event will only be fired when texture shadows are in use.
+		@param numberOfShadowTextures The number of shadow textures in use
+		*/
+		virtual void shadowTexturesUpdated(size_t numberOfShadowTextures) = 0;
+
+		/** This event occurs just before the view & projection matrices are
+		 	set for rendering into a shadow texture.
+		@remarks
+			You can use this event hook to perform some custom processing,
+			such as altering the camera being used for rendering the light's
+			view, including setting custom view & projection matrices if you
+			want to perform an advanced shadow technique.
+		@note
+			This event will only be fired when texture shadows are in use.
+		@param light Pointer to the light for which shadows are being rendered
+		@param camera Pointer to the camera being used to render
+		*/
+		virtual void shadowTextureCasterPreViewProj(Light* light, 
+			Camera* camera) = 0;
+		/** This event occurs just before the view & projection matrices are
+		 	set for re-rendering a shadow receiver.
+		@remarks
+			You can use this event hook to perform some custom processing,
+			such as altering the projection frustum being used for rendering 
+			the shadow onto the receiver to perform an advanced shadow 
+			technique.
+		@note
+			This event will only be fired when texture shadows are in use.
+		@param light Pointer to the light for which shadows are being rendered
+		@param frustum Pointer to the projection frustum being used to project
+			the shadow texture
+		*/
+		virtual void shadowTextureReceiverPreViewProj(Light* light, 
+			Frustum* frustum) = 0;
+		
+	};
+
     /** Manages the rendering of a 'scene' i.e. a collection of primitives.
         @remarks
             This class defines the basic behaviour of the 'Scene Manager' family. These classes will
@@ -300,13 +357,19 @@ namespace Ogre {
         typedef std::vector<RenderQueueListener*> RenderQueueListenerList;
         RenderQueueListenerList mRenderQueueListeners;
 
+        typedef std::vector<ShadowListener*> ShadowListenerList;
+        ShadowListenerList mShadowListeners;
         /// Internal method for firing the queue start event, returns true if queue is to be skipped
         bool fireRenderQueueStarted(uint8 id, const String& invocation);
         /// Internal method for firing the queue end event, returns true if queue is to be repeated
         bool fireRenderQueueEnded(uint8 id, const String& invocation);
-        /// Internal method for firing the texture shadows updated event
-        void fireShadowTexturesUpdated(size_t numberOfShadowTextures);
 
+		/// Internal method for firing the texture shadows updated event
+        void fireShadowTexturesUpdated(size_t numberOfShadowTextures);
+		/// Internal method for firing the pre caster texture shadows event
+        void fireShadowTexturesPreCaster(Light* light, Camera* camera);
+		/// Internal method for firing the pre receiver texture shadows event
+        void fireShadowTexturesPreReceiver(Light* light, Frustum* f);
         /** Internal method for setting the destination viewport for the next render. */
         virtual void setViewport(Viewport *vp);
 
@@ -1894,6 +1957,14 @@ namespace Ogre {
 		/** Is there an additive shadowing technique in use? */
 		virtual bool isShadowTechniqueAdditive(void) const 
 		{ return (mShadowTechnique & SHADOWDETAILTYPE_ADDITIVE) != 0; }
+
+		/** Add a shadow listener which will get called back on shadow
+			events.
+		*/
+		virtual void addShadowListener(ShadowListener* s);
+		/** Remove a shadow listener
+		*/
+		virtual void removeShadowListener(ShadowListener* s);
 
 		/** Creates a StaticGeometry instance suitable for use with this
 			SceneManager.

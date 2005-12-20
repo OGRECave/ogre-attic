@@ -74,7 +74,6 @@ public:
 
 	virtual void	renderQueueStarted(Ogre::uint8 id, const Ogre::String& invocation, bool& skipThisQueue);
 	virtual void	renderQueueEnded(Ogre::uint8 id, const Ogre::String& invocation, bool& repeatThisQueue);
-	virtual void	shadowTexturesUpdated(size_t numTextureShadows) {}
 
 	// methods for adjusting target queue settings
 	void	setTargetRenderQueue(Ogre::uint8 queue_id)		{d_queue_id = queue_id;}
