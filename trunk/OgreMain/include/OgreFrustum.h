@@ -102,6 +102,10 @@ namespace Ogre
         mutable bool mRecalcWorldSpaceCorners;
         /// Something re the vertex data has changed
         mutable bool mRecalcVertexData;
+		/// Are we using a custom view matrix?
+		bool mCustomViewMatrix;
+		/// Are we using a custom projection matrix?
+		bool mCustomProjMatrix;
 
 		
         // Internal functions for calcs
@@ -317,7 +321,54 @@ namespace Ogre
         */
         virtual const Matrix4& getViewMatrix(void) const;
 
-        /** Retrieves the clipping planes of the frustum.
+		/** Set whether to use a custom view matrix on this frustum.
+		@remarks
+			This is an advanced method which allows you to manually set
+			the view matrix on this frustum, rather than having it calculate
+			itself based on it's position and orientation. 
+		@note
+			After enabling a custom view matrix, the frustum will no longer
+			update on its own based on position / orientation changes. You 
+			are completely responsible for keeping the view matrix up to date.
+			The custom matrix will be returned from getViewMatrix.
+		@param enable If true, the custom view matrix passed as the second 
+			parameter will be used in preference to an auto calculated one. If
+			false, the frustum will revert to auto calculating the view matrix.
+		@param viewMatrix The custom view matrix to use
+		@see Frustum::setCustomProjectionMatrix
+		*/
+		virtual void setCustomViewMatrix(bool enable, 
+			const Matrix4& viewMatrix = Matrix4::IDENTITY);
+		/// Returns whether a custom view matrix is in use
+		virtual bool isCustomViewMatrixEnabled(void) const 
+		{ return mCustomViewMatrix; }
+		
+		/** Set whether to use a custom projection matrix on this frustum.
+		@remarks
+			This is an advanced method which allows you to manually set
+			the projection matrix on this frustum, rather than having it 
+			calculate itself based on it's position and orientation. 
+		@note
+			After enabling a custom projection matrix, the frustum will no 
+			longer update on its own based on field of view and near / far
+			distance changes. You are completely responsible for keeping the 
+			projection matrix up to date if those values change. The custom 
+			matrix will be returned from getProjectionMatrix and derivative
+			functions.
+		@param enable If true, the custom projection matrix passed as the 
+			second parameter will be used in preference to an auto calculated 
+			one. If	false, the frustum will revert to auto calculating the 
+			projection matrix.
+		@param projectionMatrix The custom view matrix to use
+		@see Frustum::setCustomViewMatrix
+		*/
+		virtual void setCustomProjectionMatrix(bool enable, 
+			const Matrix4& projectionMatrix = Matrix4::IDENTITY);
+		/// Returns whether a custom projection matrix is in use
+		virtual bool isCustomProjectionMatrixEnabled(void) const
+		{ return mCustomProjMatrix; }
+
+		/** Retrieves the clipping planes of the frustum.
         @remarks
             The clipping planes are ordered as declared in enumerate constants FrustumPlane.
         */

@@ -1823,10 +1823,10 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(
 
             targetPass->_load();
 
-            if (l->getCastShadows())
-            {
-                renderTextureShadowReceiverQueueGroupObjects(pGroup, om);
-            }
+			// Fire pre-receiver event
+			fireShadowTexturesPreReceiver(l, cam);
+
+            renderTextureShadowReceiverQueueGroupObjects(pGroup, om);
 
             ++si;
 
@@ -2725,6 +2725,26 @@ void SceneManager::removeRenderQueueListener(RenderQueueListener* delListener)
 
 }
 //---------------------------------------------------------------------
+void SceneManager::addShadowListener(ShadowListener* newListener)
+{
+    mShadowListeners.push_back(newListener);
+}
+//---------------------------------------------------------------------
+void SceneManager::removeShadowListener(ShadowListener* delListener)
+{
+    ShadowListenerList::iterator i, iend;
+    iend = mShadowListeners.end();
+    for (i = mShadowListeners.begin(); i != iend; ++i)
+    {
+        if (*i == delListener)
+        {
+            mShadowListeners.erase(i);
+            break;
+        }
+    }
+
+}
+//---------------------------------------------------------------------
 bool SceneManager::fireRenderQueueStarted(uint8 id, const String& invocation)
 {
     RenderQueueListenerList::iterator i, iend;
@@ -2753,12 +2773,34 @@ bool SceneManager::fireRenderQueueEnded(uint8 id, const String& invocation)
 //---------------------------------------------------------------------
 void SceneManager::fireShadowTexturesUpdated(size_t numberOfShadowTextures)
 {
-    RenderQueueListenerList::iterator i, iend;
+    ShadowListenerList::iterator i, iend;
 
-    iend = mRenderQueueListeners.end();
-    for (i = mRenderQueueListeners.begin(); i != iend; ++i)
+    iend = mShadowListeners.end();
+    for (i = mShadowListeners.begin(); i != iend; ++i)
     {
         (*i)->shadowTexturesUpdated(numberOfShadowTextures);
+    }
+}
+//---------------------------------------------------------------------
+void SceneManager::fireShadowTexturesPreCaster(Light* light, Camera* camera)
+{
+    ShadowListenerList::iterator i, iend;
+
+    iend = mShadowListeners.end();
+    for (i = mShadowListeners.begin(); i != iend; ++i)
+    {
+        (*i)->shadowTextureCasterPreViewProj(light, camera);
+    }
+}
+//---------------------------------------------------------------------
+void SceneManager::fireShadowTexturesPreReceiver(Light* light, Frustum* f)
+{
+    ShadowListenerList::iterator i, iend;
+
+    iend = mShadowListeners.end();
+    for (i = mShadowListeners.begin(); i != iend; ++i)
+    {
+        (*i)->shadowTextureReceiverPreViewProj(light, f);
     }
 }
 //---------------------------------------------------------------------
@@ -4209,12 +4251,6 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
             // Finally set position
             texCam->setPosition(pos);
 
-            shadowView->setBackgroundColour(ColourValue::White);
-
-            // Update target
-            shadowRTT->update();
-
-            ++si;
         }
         // Spotlight
         else if (light->getType() == Light::LT_SPOTLIGHT)
@@ -4229,13 +4265,16 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
             // to both reflect the nature of the scene
             texCam->setNearClipDistance(cam->getNearClipDistance());
 
-            shadowView->setBackgroundColour(ColourValue::White);
-
-            // Update target
-            shadowRTT->update();
-
-            ++si;
         }
+        shadowView->setBackgroundColour(ColourValue::White);
+
+		// Fire shadow caster update, callee can alter camera settings
+		fireShadowTexturesPreCaster(light, texCam);
+
+        // Update target
+        shadowRTT->update();
+
+        ++si;
     }
     // Set the illumination stage, prevents recursive calls
     mIlluminationStage = savedStage;

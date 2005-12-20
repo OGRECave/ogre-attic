@@ -2962,6 +2962,15 @@ protected:
 
 	}
 
+	void testCustomProjectionMatrix()
+	{
+		testLotsAndLotsOfEntities();
+		Matrix4 mat = mCamera->getProjectionMatrix();
+		mCamera->setCustomProjectionMatrix(true, mat);
+		mat = mCamera->getProjectionMatrix();
+
+	}
+
     // Just override the mandatory create scene method
     void createScene(void)
     {
@@ -3017,10 +3026,11 @@ protected:
 		//testTransparencyMipMaps();
 		//testRadixSort();
 		//testMorphAnimation();
-		testPoseAnimation();
+		//testPoseAnimation();
 		//testBug();
 		//testManualObjectNonIndexed();
 		//testManualObjectIndexed();
+		testCustomProjectionMatrix();
 
 		
     }
