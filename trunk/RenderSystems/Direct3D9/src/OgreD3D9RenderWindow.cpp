@@ -329,16 +329,31 @@ namespace Ogre
 		ZeroMemory( &md3dpp, sizeof(D3DPRESENT_PARAMETERS) );
 		md3dpp.Windowed					= !mIsFullScreen;
 		md3dpp.SwapEffect				= D3DSWAPEFFECT_DISCARD;
-		md3dpp.BackBufferCount			= 1;
+		// triple buffer if VSync is on
+		md3dpp.BackBufferCount			= mVSync ? 2 : 1;
 		md3dpp.EnableAutoDepthStencil	= mIsDepthBuffered;
 		md3dpp.hDeviceWindow			= mHWnd;
 		md3dpp.BackBufferWidth			= mWidth;
 		md3dpp.BackBufferHeight			= mHeight;
 
 		if (mVSync)
+		{
 			md3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+		}
 		else
+		{
+			// NB not using vsync in windowed mode in D3D9 can cause jerking at low 
+			// frame rates no matter what buffering modes are used (odd - perhaps a
+			// timer issue in D3D9 since GL doesn't suffer from this) 
+			// low is < 200fps in this context
+			if (!mIsFullScreen)
+			{
+				LogManager::getSingleton().logMessage("D3D9 : WARNING - "
+					"disabling VSync in windowed mode can cause timing issues at lower "
+					"frame rates, turn VSync on if you observe this problem.");
+			}
 			md3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+		}
 
 		md3dpp.BackBufferFormat		= D3DFMT_R5G6B5;
 		if( mColourDepth > 16 )
@@ -388,10 +403,16 @@ namespace Ogre
 				&md3dpp, &mpSwapChain);
 			if (FAILED(hr))
 			{
+				// Try a second time, may fail the first time due to back buffer count,
+				// which will be corrected by the runtime
+				hr = mpD3DDevice->CreateAdditionalSwapChain(
+					&md3dpp, &mpSwapChain);
+			}
+			if (FAILED(hr))
+			{
 				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
 					"Unable to create an additional swap chain",
 					"D3D9RenderWindow::createD3DResources");
-
 			}
 			// Store references to buffers for convenience
 			mpSwapChain->GetBackBuffer( 0, D3DBACKBUFFER_TYPE_MONO, &mpRenderSurface );
@@ -440,6 +461,13 @@ namespace Ogre
 
 				hr = pD3D->CreateDevice( mDriver->getAdapterNumber(), devType, mHWnd,
 					D3DCREATE_HARDWARE_VERTEXPROCESSING | extraFlags, &md3dpp, &mpD3DDevice );
+				if (FAILED(hr))
+				{
+					// Try a second time, may fail the first time due to back buffer count,
+					// which will be corrected down to 1 by the runtime
+					hr = pD3D->CreateDevice( mDriver->getAdapterNumber(), devType, mHWnd,
+						D3DCREATE_HARDWARE_VERTEXPROCESSING | extraFlags, &md3dpp, &mpD3DDevice );
+				}
 				if( FAILED( hr ) )
 				{
 					hr = pD3D->CreateDevice( mDriver->getAdapterNumber(), devType, mHWnd,
