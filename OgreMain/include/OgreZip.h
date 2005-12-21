@@ -25,11 +25,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __Zip_H__
 #define __Zip_H__
 
-#include <zzip/zzip.h>
 #include "OgrePrerequisites.h"
 
 #include "OgreArchive.h"
 #include "OgreArchiveFactory.h"
+
+// Forward declaration for zziplib to avoid header file dependency.
+typedef struct zzip_dir		ZZIP_DIR;
+typedef struct zzip_file	ZZIP_FILE;
 
 namespace Ogre {
 
@@ -45,7 +48,7 @@ namespace Ogre {
         /// Handle to root zip file
         ZZIP_DIR* mZzipDir;
         /// Handle any errors from zzip
-        void checkZzipError(zzip_error_t zzipError, const String& operation) const;
+        void checkZzipError(int zzipError, const String& operation) const;
         /// File list (since zziplib seems to only allow scanning of dir tree once)
         FileInfoList mFileList;
     public:

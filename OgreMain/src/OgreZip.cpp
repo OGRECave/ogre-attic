@@ -31,6 +31,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringVector.h"
 #include "OgreRoot.h"
 
+#include <zzip/zzip.h>
+
 
 namespace Ogre {
 
@@ -243,11 +245,11 @@ namespace Ogre {
 
 	}
 	//-----------------------------------------------------------------------
-    void ZipArchive::checkZzipError(zzip_error_t zzipError, const String& operation) const
+    void ZipArchive::checkZzipError(int zzipError, const String& operation) const
     {
         if (zzipError != ZZIP_NO_ERROR)
         {
-            String errorMsg = getZzipErrorDescription(zzipError);
+            String errorMsg = getZzipErrorDescription(static_cast<zzip_error_t>(zzipError));
 
             OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
                 mName + " - error whilst " + operation + ": " + errorMsg,
@@ -358,7 +360,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool ZipDataStream::eof(void) const
     {
-        return (zzip_tell(mZzipFile) >= mSize);
+        return (zzip_tell(mZzipFile) >= static_cast<zzip_off_t>(mSize));
     }
     //-----------------------------------------------------------------------
     void ZipDataStream::close(void)
