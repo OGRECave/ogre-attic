@@ -360,6 +360,31 @@ namespace Ogre {
 		*/
 		Real getSpeedFactor(void) const { return mSpeedFactor; }
 
+        /** Sets a 'iteration interval' on this particle system.
+        @remarks
+            Particle system update interval based on elapsed frame time will cause difference
+            behavior between low frame-rate and high frame-rate. By use this interval, you can
+            control the particle system update in a fixed interval, keep behavior as same as
+            possible, no matter what frame-rate it is.
+        @par
+            When iteration interval set to zero, means update based on elapsed frame time, otherwise
+            each iteration will take the given interval, repeat until eat up all elapsed frame time.
+        @param
+            iterationInterval The iteration interval, default to zero.
+        */
+        void setIterationInterval(Real iterationInterval) { mIterationInterval = iterationInterval; }
+
+        /** Gets a 'iteration interval' on this particle system.
+        */
+        Real getIterationInterval(void) const { return mIterationInterval; }
+
+		/** Set the default iteration interval for all future ParticleSystem instances.
+		*/
+        static void setDefaultIterationInterval(Real iterationInterval) { msDefaultIterationInterval = iterationInterval; }
+
+		/** Get the default iteration interval for all future ParticleSystem instances.
+		*/
+        static Real getDefaultIterationInterval(void) { return msDefaultIterationInterval; }
 
         /** Overridden from MovableObject */
         const String& getMovableType(void) const;
@@ -519,6 +544,7 @@ namespace Ogre {
         Real mBoundingRadius;
         bool mBoundsAutoUpdate;
         Real mBoundsUpdateTime;
+        Real mUpdateRemainTime;
 
         /// World AABB, only used to compare world-space positions to calc bounds
         AxisAlignedBox mWorldAABB;
@@ -537,6 +563,8 @@ namespace Ogre {
         Real mDefaultHeight;
 		/// Speed factor
 		Real mSpeedFactor;
+        /// Iteration interval
+        Real mIterationInterval;
 		/// Particles sorted according to camera?
 		bool mSorted;
 		/// Particles in local space?
@@ -606,6 +634,8 @@ namespace Ogre {
 		/// Optional origin of this particle system (eg script name)
 		String mOrigin;
 
+        /// Default iteration interval
+        static Real msDefaultIterationInterval;
 
         /** Internal method used to expire dead particles. */
         void _expire(Real timeElapsed);
