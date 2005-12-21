@@ -54,12 +54,22 @@ namespace Ogre {
 
     RadixSort<ParticleSystem::ActiveParticleList, Particle*, float> ParticleSystem::mRadixSorter;
 
+    Real ParticleSystem::msDefaultIterationInterval = 0;
+
     //-----------------------------------------------------------------------
     ParticleSystem::ParticleSystem() 
-      : mBoundsAutoUpdate(true), mBoundsUpdateTime(10.0f),
+      : mBoundsAutoUpdate(true),
+        mBoundsUpdateTime(10.0f),
+        mUpdateRemainTime(0),
         mResourceGroupName(ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME),
-        mIsRendererConfigured(false), mSpeedFactor(1.0f), mSorted(false), 
-		mLocalSpace(false), mRenderer(0),mCullIndividual(false), mPoolSize(0)
+        mIsRendererConfigured(false),
+        mSpeedFactor(1.0f),
+        mIterationInterval(msDefaultIterationInterval),
+        mSorted(false),
+        mLocalSpace(false),
+        mRenderer(0),
+        mCullIndividual(false),
+        mPoolSize(0)
     {
         initParameters();
         mAABB.setExtents(-1, -1, -1, 1, 1, 1);
@@ -75,10 +85,19 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     ParticleSystem::ParticleSystem(const String& name, const String& resourceGroup)
-      : MovableObject(name), mBoundsAutoUpdate(true), mBoundsUpdateTime(10.0f),
-        mResourceGroupName(resourceGroup), mIsRendererConfigured(false),
-		mSpeedFactor(1.0f), mSorted(false), mLocalSpace(false), mRenderer(0), 
-		mCullIndividual(false), mPoolSize(0)
+      : MovableObject(name),
+        mBoundsAutoUpdate(true),
+        mBoundsUpdateTime(10.0f),
+        mUpdateRemainTime(0),
+        mResourceGroupName(resourceGroup),
+        mIsRendererConfigured(false),
+        mSpeedFactor(1.0f),
+        mIterationInterval(msDefaultIterationInterval),
+        mSorted(false),
+        mLocalSpace(false),
+        mRenderer(0), 
+		mCullIndividual(false),
+        mPoolSize(0)
     {
         setDefaultDimensions( 100, 100 );
         setMaterialName( "BaseWhite" );
@@ -268,12 +287,31 @@ namespace Ogre {
 		// Only update if attached to a node
 		if (mParentNode)
 		{
-			// Update existing particles
-        	_expire(timeElapsed);
-        	_triggerAffectors(timeElapsed);
-        	_applyMotion(timeElapsed);
-			// Emit new particles
-        	_triggerEmitters(timeElapsed);
+            if (mIterationInterval > 0)
+            {
+                mUpdateRemainTime += timeElapsed;
+
+                while (mUpdateRemainTime >= mIterationInterval)
+                {
+			        // Update existing particles
+        	        _expire(mIterationInterval);
+        	        _triggerAffectors(mIterationInterval);
+        	        _applyMotion(mIterationInterval);
+			        // Emit new particles
+        	        _triggerEmitters(mIterationInterval);
+
+                    mUpdateRemainTime -= mIterationInterval;
+                }
+            }
+            else
+            {
+			    // Update existing particles
+        	    _expire(timeElapsed);
+        	    _triggerAffectors(timeElapsed);
+        	    _applyMotion(timeElapsed);
+			    // Emit new particles
+        	    _triggerEmitters(timeElapsed);
+            }
 
             if (!mBoundsAutoUpdate && mBoundsUpdateTime > 0.0f)
                 mBoundsUpdateTime -= timeElapsed; // count down 
@@ -704,6 +742,8 @@ namespace Ogre {
         // Remove all active instances
         mActiveParticles.clear(); 
 
+        // Reset update remain time
+        mUpdateRemainTime = 0;
     }
     //-----------------------------------------------------------------------
     void ParticleSystem::setRenderer(const String& rendererName)
