@@ -642,14 +642,15 @@ namespace Ogre {
             return 0;
 
         // Times up to mFrameSmoothingTime seconds old should be kept
-        unsigned long discardLimit = now - static_cast<long>(mFrameSmoothingTime * 1000.0f);
+        unsigned long discardThreshold = 
+			static_cast<unsigned long>(mFrameSmoothingTime * 1000.0f);
 
         // Find the oldest time to keep
         std::deque<unsigned long>::iterator it = times.begin(),
             end = times.end()-2; // We need at least two times
         while(it != end)
         {
-            if(*it < discardLimit)
+            if (now - *it > discardThreshold)
                 ++it;
             else
                 break;

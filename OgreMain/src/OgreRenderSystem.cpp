@@ -68,6 +68,8 @@ namespace Ogre {
     RenderSystem::~RenderSystem()
     {
         shutdown();
+		delete mCapabilities;
+		mCapabilities = 0;
     }
     //-----------------------------------------------------------------------
     void RenderSystem::_initRenderTargets(void)
@@ -495,6 +497,7 @@ namespace Ogre {
 			{
 				delete *i;
 				mHwOcclusionQueries.erase(i);
+				break;
 			}
 		}
 	}
