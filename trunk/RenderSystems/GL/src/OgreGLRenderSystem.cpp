@@ -161,7 +161,6 @@ namespace Ogre {
         if (mTextureManager)
             delete mTextureManager;
 
-        delete mCapabilities;
         delete mGLSupport;
     }
 

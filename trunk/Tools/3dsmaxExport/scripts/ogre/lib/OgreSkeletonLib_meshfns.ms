@@ -245,6 +245,11 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 			vertexColorIndex = (int) (faceVertexColorIndices[localVertexIndex]) ;
 			vertexAlphaIndex = (int) (faceVertexAlphaIndices[localVertexIndex]);
 			vertexNormal = getVertexNormalAccordingToSmoothingGroups tmesh face localVertexIndex;
+			-- flip normal capability
+			if (flipNormal) then
+			(
+				vertexNormal = vertexNormal * -1
+			)
 			
 			-- we retrieve datas. it depends on options.
 			-- UV face

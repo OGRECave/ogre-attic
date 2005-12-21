@@ -34,6 +34,7 @@ namespace Ogre {
     {
     private:
         DWORD mStartTick;
+		LONGLONG mLastTime;
         LARGE_INTEGER mStartTime;
         LARGE_INTEGER mFrequency;
 

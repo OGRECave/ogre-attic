@@ -296,14 +296,14 @@ struct A8R8G8B8toR8G8B8: public PixelConverter <uint32, Col3b, FMTCONVERTERID(PF
 {
     inline static DstType pixelConvert(uint32 inp)
     {
-        return Col3b((uint8)(inp>>16)&0xFF, (uint8)(inp>>8)&0xFF, (uint8)(inp>>0)&0xFF);
+        return Col3b((uint8)((inp>>16)&0xFF), (uint8)((inp>>8)&0xFF), (uint8)((inp>>0)&0xFF));
     }
 };
 struct A8R8G8B8toB8G8R8: public PixelConverter <uint32, Col3b, FMTCONVERTERID(PF_A8R8G8B8, PF_BYTE_BGR)>
 {
     inline static DstType pixelConvert(uint32 inp)
     {
-        return Col3b((uint8)(inp>>0)&0xFF, (uint8)(inp>>8)&0xFF, (uint8)(inp>>16)&0xFF);
+        return Col3b((uint8)((inp>>0)&0xFF), (uint8)((inp>>8)&0xFF), (uint8)((inp>>16)&0xFF));
     }
 };
 
