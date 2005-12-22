@@ -35,7 +35,7 @@ http://www.gnu.org/copyleft/gpl.html.
 
 namespace Ogre {
 
-    class MaterialScriptCompiler : public Compiler2Pass
+    class _OgreExport MaterialScriptCompiler : public Compiler2Pass
     {
 
     public:
