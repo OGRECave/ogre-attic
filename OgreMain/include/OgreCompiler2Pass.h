@@ -35,9 +35,6 @@ namespace Ogre {
     // macro to get the size of a static array
     #define ARRAYSIZE(array) (sizeof(array)/sizeof(array[0]))
 
-    typedef bool (*TOKEN_ACTION)(void);
-
-
     /** Compiler2Pass is a generic 2 pass compiler/assembler
     @remarks
 	    provides a tokenizer in pass 1 and relies on the subclass to provide the virtual method for pass 2 
@@ -83,7 +80,6 @@ namespace Ogre {
              tested against the characters in the source being parsed.
         <#name> # indicates that a numerical value is to be parsed to form a terminal token.  Name is optional and is just a descriptor 
              to help with understanding what the value will be used for.
-             that will hold the value.
              Example: <Colour> ::= <#red> <#green> <#blue>
         ()   parentheses enclose a set of characters that can be used to generate a user identifier. for example:
              (0123456789) matches a single character found in that set.
@@ -104,7 +100,7 @@ namespace Ogre {
     protected:
 
 	    // BNF operation types
-	    enum OperationType {otRULE, otAND, otOR, otOPTIONAL, otREPEAT, otEND, otEND_EXECUTE};
+	    enum OperationType {otUNKNOWN, otRULE, otAND, otOR, otOPTIONAL, otREPEAT, otDATA, otEND};
 
 	    /** structure used to build rule paths
 
@@ -112,10 +108,15 @@ namespace Ogre {
 	    struct TokenRule
         {
 		    OperationType mOperation;
-		    uint mTokenID;
-		    char* mSymbol;
-		    uint mErrorID;
+		    size_t mTokenID;
+
+            TokenRule(void) : mOperation(otUNKNOWN), mTokenID(0) {}
+            TokenRule(const OperationType ot, const size_t token)
+                : mOperation(ot), mTokenID(token) {}
 	    };
+
+	    typedef std::vector<TokenRule> TokenRuleContainer;
+	    typedef TokenRuleContainer::iterator TokenRuleIterator;
 
         enum SystemRuleToken {
             _no_token_ = 1000,
@@ -123,97 +124,88 @@ namespace Ogre {
             _value_
         };
 
-	    enum BNF_ID {
-            BNF_SYNTAX, BNF_RULE, BNF_IDENTIFIER, BNF_SET_RULE, BNF_EXPRESSION,
-            BNF_REPEAT_EXPRESSION, BNF_REPEAT, BNF_OPTIONAL, BNF_OPTIONAL_EXPRESSION,
+	    enum BNF_ID {BNF_UNKOWN = 0,
+            BNF_SYNTAX, BNF_RULE, BNF_IDENTIFIER, BNF_ID_BEGIN, BNF_ID_END, BNF_SET_RULE, BNF_EXPRESSION,
+            BNF_REPEAT_EXPRESSION, BNF_REPEAT_BEGIN, BNF_REPEAT_END, BNF_OPTIONAL_BEGIN, BNF_OPTIONAL_END,
+            BNF_OPTIONAL_EXPRESSION,
 
-            BNF_LETTER, BNF_LETTER_DIGIT, BNF_DIGIT
+            BNF_LETTER, BNF_LETTER_DIGIT, BNF_DIGIT,
+            BNF_ALPHA_SET, BNF_NUMBER_SET
         };
 
-        //  mainly used by bootstrap BNF text parser
+        //  used by bootstrap BNF text parser
         //  child class of Copmiler2Pass could use it to statically define rules
         // <>	- non-terminal token
         #define _rule_		{otRULE,		        // ::=	- rule definition
-        #define _is_		,0},{otAND,
+        #define _is_		},{otAND,
         #define _and_		_is_    		        //      - blank space is an implied "AND" meaning the token is required
-        #define _or_		,0},{otOR,		        // |	- or
-        #define _optional_	,0},{otOPTIONAL,	    // []	- optional
-        #define _repeat_	,0},{otREPEAT,	        // {}	- repeat 0 or more times until fail or rule does not progress
-        #define _end_		,0},{otEND,0,0,0},
-        #define _execute_	,0},{otEND_EXECUTE,0,0,0},
-        #define _nt_        ,0
-        // " "  - terminal token string
+        #define _or_		},{otOR,		        // |	- or
+        #define _optional_	},{otOPTIONAL,  	    // []	- optional
+        #define _repeat_	},{otREPEAT,	        // {}	- repeat 0 or more times until fail or rule does not progress
+        #define _end_		otEND,0
 
-	    /** structure used to build Symbol Type library */
-	    struct SymbolDef
+        #define TOKEN_HAS_ACTION true,false
+        #define TOKEN_IS_RULE false,true
+
+	    /** structure used to build lexeme Type library */
+	    struct LexemeTokenDef
         {
-	    size_t mID;					/// Token ID which is the index into the Token Type library
-	    uint mPass2Data;			/// data used by pass 2 to build native instructions
-
-	    uint mContextKey;			/// context key to fit the Active Context 
-	    uint mContextPatternSet;	/// new pattern to set for Active Context bits
-	    uint mContextPatternClear;  /// Contexts bits to clear Active Context bits
-
-	    size_t mDefTextID;			/// index into text table for default name : set at runtime
-	    size_t mRuleID;				/// index into Rule database for non-terminal token rulepath
-								    /// if RuleID is zero the token is terminal
+	        size_t mID;					/// Token ID which is the index into the Token Type library
+            bool mHasAction;            /// has an action associated with it. only applicable to terminal tokens
+            bool mIsNonTerminal;        /// if true then token is non-terminal
+	        size_t mRuleID;				/// index into Rule database for non-terminal token rulepath and lexeme
+            String mLexeme;             /// text representation of token or valid characters for label parsing
+								        
+            LexemeTokenDef(void) : mID(0), mHasAction(false), mIsNonTerminal(false), mRuleID(0) {}
+            LexemeTokenDef( const size_t ID, const String& lexeme, const bool hasAction = false, const bool nonterminal = false, const size_t ruleID = 0 )
+                : mID(ID)
+                , mHasAction(hasAction)
+                , mIsNonTerminal(nonterminal)
+                , mRuleID(ruleID)
+                , mLexeme(lexeme)
+            {
+            }
 
 	    };
 
-        struct TokenDef
-        {
-            size_t ID;
-            bool hasAction;
+        typedef std::vector<LexemeTokenDef> LexemeTokenDefContainer;
+        typedef LexemeTokenDefContainer::iterator LexemeTokenDefIterator;
 
-            TokenDef(void) : ID(0), hasAction(false) {}
-            TokenDef( const size_t _ID, const bool _hasAction )
-                : ID(_ID)
-                , hasAction(_hasAction)
-            {
-            }
-        };
-
-        typedef std::map<std::string, TokenDef> LexemeTokenMap;
+        typedef std::map<std::string, size_t> LexemeTokenMap;
         typedef LexemeTokenMap::iterator TokeyKeyIterator;
-        LexemeTokenMap mLexemeTokenMap;
+        /// map used to lookup client token based on previously defined lexeme
+        LexemeTokenMap mClientLexemeTokenMap;
+
 
 	    /** structure for Token instructions that are constructed during first pass*/
 	    struct TokenInst
         {
 	    size_t mNTTRuleID;			/// Non-Terminal Token Rule ID that generated Token
-	    size_t mID;					/// expected Token ID. Could be UNKNOWN if valid token was not found.
+	    size_t mTokenID;					/// expected Token ID. Could be UNKNOWN if valid token was not found.
 	    size_t mLine;				/// line number in source code where Token was found
 	    size_t mPos;				/// Character position in source where Token was found
         bool mFound;                /// is true if expected token was found
 	    };
 
 	    typedef std::vector<TokenInst> TokenInstContainer;
-	    //typedef TokenInstContainer::iterator TokenInstIterator;
+	    typedef TokenInstContainer::iterator TokenInstIterator;
+        
+        // client token que, definitions, rules
+        TokenInstContainer       mClientTokenQue;
+        LexemeTokenDefContainer  mClientLexemeTokenDefinitions;
+	    TokenRuleContainer       mClientRootRulePath;
 
-	    /// container for Tokens extracted from source
-	    TokenInstContainer mTokenInstructions;
+	    /// Active token que, definitions, rules currntly being used by parser
+	    TokenInstContainer*      mActiveTokenQue;
+        LexemeTokenDefContainer* mActiveLexemeTokenDefinitions;
+	    /// pointer to root rule path - has to be set by subclass constructor
+	    TokenRuleContainer*      mActiveRootRulePath;
         /// the location within the token instruction container where pass 2 is
         size_t mPass2TokenPosition;
 
 	    /// pointer to the source to be compiled
 	    const char* mSource;
 	    size_t mEndOfSource;
-
-	    /// pointers to Text and Token Type libraries setup by subclass
-	    SymbolDef* mSymbolTypeLib;
-
-	    /// pointer to root rule path - has to be set by subclass constructor
-	    TokenRule* mRootRulePath;
-
-	    /// number of entries in Text and Token Type libraries
-	    size_t mRulePathLibCnt;
-	    size_t mSymbolTypeLibCnt;
-
-	    // mVauleID, mLabelID, mBadTokenID need to be initialized by the subclass before compiling occurs
-	    // defines the token ID used in the symbol type library
-	    //uint mValueID;
-        //uint mLabelID;
-        //uint mBadTokenID;
 
 	    size_t mCurrentLine; /// current line number in source being tokenized
 	    size_t mCharPos;     /// position in current line in source being tokenized
@@ -234,8 +226,6 @@ namespace Ogre {
 	    /// Active Contexts pattern used in pass 1 to determine which tokens are valid for a certain context
 	    uint mActiveContexts;
 
-        /// BNF rules to parse BNF text form
-	    static TokenRule BNF_RulePath[];
 
 	    /** check token semantics between ID1 and ID2 using left/right semantic data in Token Type library
 	    @param ID1 token ID on the left 
@@ -248,8 +238,8 @@ namespace Ogre {
 	    //bool checkTokenSemantics(uint ID1, uint ID2);
 
 	    /** perform pass 1 of compile process
-		    scans source for symbols that can be tokenized and then
-		    performs general semantic and context verification on each symbol before it is tokenized.
+		    scans source for lexemes that can be tokenized and then
+		    performs general semantic and context verification on each lexeme before it is tokenized.
 		    A tokenized instruction list is built to be used by Pass 2.
             A rule path can trigger Pass 2 execution if enough tokens have been generated in Pass 1.
             Pass 1 will then pass control to pass 2 temporarily until the current tokens have been consumed.
@@ -300,18 +290,18 @@ namespace Ogre {
             and token when building the rule base from the BNF script so all associations must be done
             prior to compiling a source.
         */
-        void addLexemeToken(const std::string& lexeme, const size_t token, const bool hasAction = false);
+        void addLexemeToken(const String& lexeme, const size_t token, const bool hasAction = false);
+
+        /** sets up the parser rules for the client based on the BNF Grammer text passed in.  
+            Raises an exception if the grammer did not compile successfully.  This method should be called
+            prior to a call to compile otherwise nothing will happen since the compiler has no rules to work
+            with.  Setting the grammer only needs to be set once during the lifetime of the compiler unless the
+            grammer changes.
+        */
+        void setClientBNFGrammer(const String& bnfGrammer);
 
         /// find the eol charater
 	    void findEOL();
-
-	    /** get the text symbol for this token
-	    @remark
-		    mainly used for debugging and in test routines
-	    @param sid is the token ID
-	    @return a pointer to the string text
-	    */
-	    char* getTypeDefText(const uint sid);
 
 	    /** check to see if the text at the present position in the source is a numerical constant
 	    @param fvalue is a reference that will receive the float value that is in the source
@@ -322,16 +312,25 @@ namespace Ogre {
 	    */
 	    bool isFloatValue(float& fvalue, size_t& charsize);
 
-	    /** check to see if the text is in the symbol text library
-	    @param symbol points to begining of text where a symbol token might exist
-	    @param symbolsize reference that will receive the size value of the symbol found
+        /** Check if source at current position is supposed to be a user defined character label.
+        A new label is processed when previous operation was not _character_ otherwise the processed
+        character (if match was found) is added to the current label.  This allows _character_ operations
+        to be chained together to form a crude regular expression to build a label.
+	    @param rulepathIDX index into rule path database of token to validate.
+	    @return
+		    true if token was found for character label.
+        */
+        bool isCharacterLabel(const size_t rulepathIDX);
+	    /** check to see if the text is in the lexeme text library
+	    @param lexeme points to begining of text where a lexem token might exist
+	    @param lexemesize reference that will receive the size value of the lexeme found
 	    @return
 		    true if a matching token could be found in the token type library
 		    false if could not be tokenized
 	    */
-	    bool isSymbol(const char* symbol, size_t& symbolsize);
+	    bool isLexemeMatch(const char* lexeme, size_t& lexemesize);
 	    /// position to the next possible valid sysmbol
-	    bool positionToNextSymbol();
+	    bool positionToNextLexeme();
 	    /** process input source text using rulepath to determine allowed tokens
 	    @remarks
 		    the method is reentrant and recursive
@@ -344,8 +343,6 @@ namespace Ogre {
 			    OPTIONAL: the token is optional and does not cause the rule to fail if the token is not found
 			    REPEAT: the token is required but there can be more than one in a sequence
 			    END: end of the rule path - the method returns the succuss of the rule
-                EXECUTE: same as END but instead of continuing Pass 1 tokenizing, Pass 2 is initiated to consume
-                  current tokens.
 
 	    @param rulepathIDX index into an array of Token Rules that define a rule path to be processed
 	    @return 
@@ -369,17 +366,23 @@ namespace Ogre {
 	    void skipWhiteSpace();
 
 
-	    /** check if current position in source has the symbol text equivalent to the TokenID
+	    /** check if current position in source has the lexeme text equivalent to the TokenID
 	    @param rulepathIDX index into rule path database of token to validate
 	    @param activeRuleID index of non-terminal rule that generated the token
 	    @return
 		    true if token was found
-		    false if token symbol text does not match the source text
+		    false if token lexeme text does not match the source text
 		    if token is non-terminal then processRulePath is called 
 	    */
-	    bool ValidateToken(const size_t rulepathIDX, const uint activeRuleID); 
+	    bool ValidateToken(const size_t rulepathIDX, const size_t activeRuleID);
 
+    private:
+        // used for interpreting BNF script
+        static LexemeTokenDefContainer mBNF_Definitions;
+        /// BNF rules to parse BNF text form
+	    static TokenRuleContainer      mBNF_RulePath;
 
+        static void initBNFCompiler(void);
     public:
 
 
@@ -400,15 +403,15 @@ namespace Ogre {
 	    */
 	    bool compile(const char* source);
 
-	    /** Initialize the type library with matching symbol text found in symbol text library
-		    find a default text for all Symbol Types in library
+	    /** Initialize the type library with matching lexeme text found in lexeme text library
+		    find a default text for all lexeme Types in library
 
 		    scan through all the rules and initialize TypeLib with index to text and index to rules for non-terminal tokens
 
 		    must be called by subclass after libraries and rule database setup
 	    */
 
-	    void InitSymbolTypeLib();
+	    void InitlexemeTypeLib();
 
     };
 
