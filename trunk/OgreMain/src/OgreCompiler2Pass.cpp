@@ -30,101 +30,121 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreCompiler2Pass.h"
 
 namespace Ogre {
-    // boot strap for parsing BNF texts
-    Compiler2Pass::TokenRule Compiler2Pass::BNF_RulePath[] = {
-        // <syntax>     ::=  { rule }
-        _rule_ BNF_SYNTAX, "<syntax>"
-            _repeat_ BNF_RULE _nt_
-            _end_
+    //-----------------------------------------------------------------------
+    Compiler2Pass::LexemeTokenDefContainer Compiler2Pass::mBNF_Definitions;
+	Compiler2Pass::TokenRuleContainer Compiler2Pass::mBNF_RulePath;
 
-        // <rule>       ::=  <identifier>  "::="  <expression> ";"
-        _rule_ BNF_RULE, "<rule>"
-            _is_ BNF_IDENTIFIER _nt_
-            _and_ BNF_SET_RULE, "::="
-            _and_ BNF_EXPRESSION _nt_
-            _and_ _no_token_, ";"
-            _end_
-
-        // <expression> ::=  <term> { "|" <term> }
-        // <term>       ::=  <factor> { <factor> }
-        // <factor>     ::=  <identifier> | <terminal_symbol> | <repeat_expression> | <optional_expression> | 
-
-        // <repeat_expression> ::=  "{"  <identifier>  "}"
-        _rule_ BNF_REPEAT_EXPRESSION, "<repeat_expression>"
-            _is_ BNF_REPEAT, "{"
-            _and_ BNF_IDENTIFIER _nt_
-            _and_ _no_token_, "}"
-            _end_
-
-        // <optional_expression> ::= "["  <identifier>  "]"
-        _rule_ BNF_OPTIONAL_EXPRESSION, "<optional_expression>"
-            _is_ BNF_OPTIONAL, "["
-            _and_ BNF_IDENTIFIER _nt_
-            _and_ _no_token_, "]"
-            _end_
-
-        // <identifier> ::=  "<" <letter> {<letter_number>} ">"
-        _rule_ BNF_IDENTIFIER, "<identifier>"
-            _is_ _no_token_, "<"
-            _and_ BNF_LETTER _nt_
-            _repeat_ BNF_LETTER_DIGIT _nt_
-            _and_ _no_token_, ">"
-            _end_
-        // <terminal_symbol> ::= ["-"] "'" { <any_character> } "'"
-
-        // <letter_digit> ::= <letter> | <digit>
-        _rule_ BNF_LETTER_DIGIT, "<letter_digit>"
-            _is_ BNF_LETTER _nt_
-            _or_ BNF_DIGIT _nt_
-            _end_
-
-        // <letter> ::= [abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ]
-        _rule_ BNF_LETTER, "<letter>"
-            _is_ _character_, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
-            _end_
-
-        // <digit> ::= [0123456789]
-        _rule_ BNF_DIGIT, "<digit>"
-            _is_ _character_, "0123456789"
-            _end_
-
-    };
-
-
+    //-----------------------------------------------------------------------
     Compiler2Pass::Compiler2Pass()
-	    // default contexts allows all contexts
-	    // subclass should change it to fit the language being compiled
-        : mActiveContexts(0xffffffff)
     {
 	    // reserve some memory space in the containers being used
-	    mTokenInstructions.reserve(100);
+	    mClientTokenQue.reserve(100);
+        mClientLexemeTokenDefinitions.reserve(100);
+
+        initBNFCompiler();
+    }
+
+    void Compiler2Pass::initBNFCompiler(void)
+    {
+        if (mBNF_Definitions.empty())
+        {
+            mBNF_Definitions.push_back(LexemeTokenDef(BNF_UNKOWN, "UNKNOWN"));
+            mBNF_Definitions.push_back(LexemeTokenDef(BNF_SYNTAX, "<syntax>", TOKEN_IS_RULE));
+            mBNF_Definitions.push_back(LexemeTokenDef(BNF_RULE, "<rule>", TOKEN_IS_RULE));
+            mBNF_Definitions.push_back(LexemeTokenDef(BNF_IDENTIFIER, "<identifier>", TOKEN_IS_RULE));
+            mBNF_Definitions.push_back(LexemeTokenDef(BNF_ID_BEGIN, "<", TOKEN_HAS_ACTION));
+            mBNF_Definitions.push_back(LexemeTokenDef(BNF_ID_END, ">", TOKEN_HAS_ACTION));
+            mBNF_Definitions.push_back(LexemeTokenDef(BNF_SET_RULE, "::=", TOKEN_HAS_ACTION));
+
+        }
+
+        if (mBNF_RulePath.empty())
+        {
+            #define BNF_TOKENRULE(rule, token) mBNF_RulePath.push_back(TokenRule(rule, token))
+            // <syntax>     ::=  { rule }
+            BNF_TOKENRULE(otRULE, BNF_SYNTAX);
+            BNF_TOKENRULE(otREPEAT, BNF_RULE);
+            BNF_TOKENRULE(otEND, 0);
+
+            // <rule>       ::=  <identifier>  "::="  <expression>
+            BNF_TOKENRULE(otRULE, BNF_RULE);
+                BNF_TOKENRULE(otAND, BNF_IDENTIFIER);
+                BNF_TOKENRULE(otAND, BNF_SET_RULE);
+                BNF_TOKENRULE(otAND, BNF_EXPRESSION);
+            BNF_TOKENRULE(otEND, 0);
+
+            // <expression> ::=  <term> { "|" <term> }
+            // <term>       ::=  <factor> { <factor> }
+            // <factor>     ::=  <identifier> | <terminal_symbol> | <repeat_expression> | <optional_expression> | 
+
+            // <repeat_expression> ::=  "{"  <identifier>  "}"
+            BNF_TOKENRULE(otRULE, BNF_REPEAT_EXPRESSION);
+                BNF_TOKENRULE(otAND, BNF_REPEAT_BEGIN);
+                BNF_TOKENRULE(otAND, BNF_IDENTIFIER);
+                BNF_TOKENRULE(otAND, BNF_REPEAT_END);
+            BNF_TOKENRULE(otEND, 0);
+
+            // <optional_expression> ::= "["  <identifier>  "]"
+            BNF_TOKENRULE(otRULE, BNF_OPTIONAL_EXPRESSION);
+                BNF_TOKENRULE(otAND, BNF_OPTIONAL_BEGIN);
+                BNF_TOKENRULE(otAND, BNF_IDENTIFIER);
+                BNF_TOKENRULE(otAND, BNF_OPTIONAL_END);
+            BNF_TOKENRULE(otEND, 0);
+
+            // <identifier> ::=  "<" <letter> {<letter_number>} ">"
+            BNF_TOKENRULE(otRULE, BNF_IDENTIFIER);
+                BNF_TOKENRULE(otAND, BNF_ID_BEGIN);
+                BNF_TOKENRULE(otAND, BNF_LETTER);
+                BNF_TOKENRULE(otREPEAT, BNF_LETTER_DIGIT);
+                BNF_TOKENRULE(otAND, BNF_ID_END);
+            BNF_TOKENRULE(otEND, 0);
+            // <terminal_symbol> ::= ["-"] "'" { <any_character> } "'"
+
+            // <letter_digit> ::= <letter> | <digit>
+            BNF_TOKENRULE(otRULE, BNF_LETTER_DIGIT);
+                BNF_TOKENRULE(otAND, BNF_LETTER);
+                BNF_TOKENRULE(otOR, BNF_DIGIT);
+            BNF_TOKENRULE(otEND, 0);
+
+            // <letter> ::= [abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ]
+            BNF_TOKENRULE(otRULE, BNF_LETTER);
+                BNF_TOKENRULE(otAND, _character_);
+                BNF_TOKENRULE(otDATA, BNF_ALPHA_SET);// "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
+            BNF_TOKENRULE(otEND, 0);
+
+            // <digit> ::= [0123456789]
+            BNF_TOKENRULE(otRULE, BNF_DIGIT);
+            BNF_TOKENRULE(otAND, _character_);
+            BNF_TOKENRULE(otDATA, BNF_NUMBER_SET);
+            BNF_TOKENRULE(otEND, 0);
+        }
     }
 
     //-----------------------------------------------------------------------
-    void Compiler2Pass::InitSymbolTypeLib()
+    void Compiler2Pass::InitlexemeTypeLib()
     {
-	    uint token_ID;
-	    // find a default text for all Symbol Types in library
+	    //uint token_ID;
+	    // find a default text for all lexeme Types in library
 
 	    // scan through all the rules and initialize TypeLib with index to text and index to rules for non-terminal tokens
-	    for (size_t i = 0; i < mRulePathLibCnt; i++) {
-		    token_ID = mRootRulePath[i].mTokenID;
-		    // make sure SymbolTypeLib holds valid token
-		    assert(mSymbolTypeLib[token_ID].mID == token_ID);
-		    switch(mRootRulePath[i].mOperation)
-		    {
-		    case otRULE:
-			    // if operation is a rule then update typelib
-			    mSymbolTypeLib[token_ID].mRuleID = i;
+	    //for (size_t i = 0; i < mRulePathLibCnt; i++) {
+		   // token_ID = mRootRulePath[i].mTokenID;
+		   // // make sure lexemeTypeLib holds valid token
+		   // assert(mLexemeTypeLib[token_ID].mID == token_ID);
+		   // switch(mRootRulePath[i].mOperation)
+		   // {
+		   // case otRULE:
+			  //  // if operation is a rule then update typelib
+			  //  mLexemeTypeLib[token_ID].mRuleID = i;
 
-		    case otAND:
-		    case otOR:
-		    case otOPTIONAL:
-			    // update text index in typelib
-			    if (mRootRulePath[i].mSymbol != NULL) mSymbolTypeLib[token_ID].mDefTextID = i;
-			    break;
-		    }
-	    }
+		   // case otAND:
+		   // case otOR:
+		   // case otOPTIONAL:
+			  //  // update text index in typelib
+			  //  if (mRootRulePath[i].mLexeme != NULL) mLexemeTypeLib[token_ID].mDefTextID = i;
+			  //  break;
+		   // }
+	    //}
 
     }
 
@@ -135,7 +155,7 @@ namespace Ogre {
 
 	    mSource = source;
 	    // start compiling if there is a rule base to work with
-	    if (mRootRulePath != NULL)
+	    if (mActiveRootRulePath != NULL)
 	    {
 		    Passed = doPass1();
 
@@ -166,13 +186,13 @@ namespace Ogre {
 	    mEndOfSource = strlen(mSource);
 
 	    // start with a clean slate
-	    mTokenInstructions.clear();
+	    mActiveTokenQue->clear();
 	    // tokenize and check semantics untill an error occurs or end of source is reached
 	    // assume RootRulePath has pointer to rules so start at index + 1 for first rule path
 	    // first rule token would be a rule definition so skip over it
 	    bool passed = processRulePath(0);
-	    // if a symbol in source still exists then the end of source was not reached and there was a problem some where
-	    if (positionToNextSymbol()) passed = false;
+	    // if a lexeme in source still exists then the end of source was not reached and there was a problem some where
+	    if (positionToNextLexeme()) passed = false;
     	
 	    return passed;
 
@@ -220,35 +240,47 @@ namespace Ogre {
         // calculate number of tokens between current token instruction and next token with action
         return 0;
     }
+    //-----------------------------------------------------------------------
+    void Compiler2Pass::setClientBNFGrammer(const String& bnfGrammer)
+    {
+        // switch to internal BNF Containers
+        mActiveTokenQue = &mClientTokenQue;
+        mActiveLexemeTokenDefinitions = &mBNF_Definitions;
+        mActiveRootRulePath = &mBNF_RulePath;
+        // clear client containers
+        mClientTokenQue.clear();
+        mClientLexemeTokenDefinitions.clear();
+        mClientRootRulePath.clear();
+
+    }
 
     //-----------------------------------------------------------------------
     bool Compiler2Pass::processRulePath( size_t rulepathIDX)
     {
-	    // rule path determines what tokens and therefore what symbols are acceptable from the source
-	    // it is assumed that the tokens with the longest similar symbols are arranged first so
+	    // rule path determines what tokens and therefore what lexemes are acceptable from the source
+	    // it is assumed that the tokens with the longest similar lexemes are arranged first so
 	    // if a match is found it is accepted and no further searching is done
 
 	    // record position of last token in container
 	    // to be used as the rollback position if a valid token is not found
-	    const size_t TokenContainerOldSize = mTokenInstructions.size();
+	    const size_t TokenContainerOldSize = mActiveTokenQue->size();
 	    const size_t OldCharPos = mCharPos;
 	    const size_t OldLinePos = mCurrentLine;
 	    //const size_t OldConstantsSize = mConstants.size();
 
 	    // keep track of what non-terminal token activated the rule
-	    uint ActiveNTTRule = mRootRulePath[rulepathIDX].mTokenID;
+	    size_t ActiveNTTRule = (*mActiveRootRulePath)[rulepathIDX].mTokenID;
 	    // start rule path at next position for definition
-	    rulepathIDX++;
+	    ++rulepathIDX;
 
 	    // assume the rule will pass
 	    bool Passed = true;
 	    bool EndFound = false;
-        bool ExecutePass2 = false;
 
 	    // keep following rulepath until the end is reached
 	    while (!EndFound)
 	    {
-		    switch (mRootRulePath[rulepathIDX].mOperation)
+		    switch ((*mActiveRootRulePath)[rulepathIDX].mOperation)
 		    {
 
 		    case otAND:
@@ -262,7 +294,7 @@ namespace Ogre {
 			    if ( Passed == false )
 			    {
 				    // clear previous tokens from entry and try again
-				    mTokenInstructions.resize(TokenContainerOldSize);
+				    mActiveTokenQue->resize(TokenContainerOldSize);
 				    Passed = ValidateToken(rulepathIDX, ActiveNTTRule);
 			    }
 			    else
@@ -303,7 +335,6 @@ namespace Ogre {
 			    break;
 
 		    case otEND:
-            case otEND_EXECUTE:
 			    // end of rule found so time to return
 			    EndFound = true;
 			    if (Passed == false)
@@ -312,17 +343,16 @@ namespace Ogre {
 				    // roll back the token container end position to what it was when rule started
 				    // this will get rid of all tokens that had been pushed on the container while
 				    // trying to validating this rule
-				    mTokenInstructions.resize(TokenContainerOldSize);
+				    mActiveTokenQue->resize(TokenContainerOldSize);
 				    //mConstants.resize(OldConstantsSize);
 				    mCharPos = OldCharPos;
 				    mCurrentLine = OldLinePos;
 			    }
-                else
-                {
-                    // set execute pass 2 flag if rule requests it
-                    ExecutePass2 = mRootRulePath[rulepathIDX].mOperation == otEND_EXECUTE;
-                }
 			    break;
+
+            case otDATA:
+                // skip it, should have been handled by previous operation.
+                break;
 
 		    default:
 			    // an exception should be raised since the code should never get here
@@ -334,136 +364,137 @@ namespace Ogre {
 
 
 		    // move on to the next rule in the path
-		    rulepathIDX++;
+		    ++rulepathIDX;
 	    }
 
-        if (ExecutePass2) doPass2();
 	    return Passed;
 
     }
 
+    bool Compiler2Pass::isCharacterLabel(const size_t rulepathIDX)
+    {
+	    // assume the test is going to fail
+	    bool Passed = false;
+
+        if ((*mActiveRootRulePath)[rulepathIDX].mTokenID == _character_)
+        {
+            // get token from next rule operation
+            // token string is list of valid single characters
+            // compare character at current cursor position in script to characters in list for a match
+            // if match found then add character to active label
+            // _character_ will not have  a token definition but the next rule operation should be 
+            // DATA and have the token ID required to get the character set.
+            const TokenRule& rule = (*mActiveRootRulePath)[rulepathIDX + 1];
+            if (rule.mOperation == otDATA)
+            {
+	            const size_t TokenID = rule.mTokenID;
+                if ( strchr((*mActiveLexemeTokenDefinitions)[TokenID].mLexeme.c_str(), mSource[mCharPos]))
+                {
+                    // is a new label starting?
+                    // if mLabelIsActive is false then starting a new label so need a new mActiveLabelKey
+                    if (!mLabelIsActive)
+                    {
+                        // mActiveLabelKey will be the end of the instruction container ie the size of mTokenInstructions
+                        mActiveLabelKey = mActiveTokenQue->size();
+                        mLabelIsActive = true;
+                    }
+                    // add the single character to the end of the active label
+                    mLabels[mActiveLabelKey] += mSource[mCharPos];
+                    Passed = true;
+                }
+            }
+        }
+
+        return Passed;
+    }
     //-----------------------------------------------------------------------
-    bool Compiler2Pass::ValidateToken(const size_t rulepathIDX, const uint activeRuleID)
+    bool Compiler2Pass::ValidateToken(const size_t rulepathIDX, const size_t activeRuleID)
     {
 	    size_t tokenlength = 0;
 	    // assume the test is going to fail
 	    bool Passed = false;
-	    uint TokenID = mRootRulePath[rulepathIDX].mTokenID;
-	    // only validate token if context is correct
-	    if (mSymbolTypeLib[TokenID].mContextKey & mActiveContexts)
+	    size_t TokenID = (*mActiveRootRulePath)[rulepathIDX].mTokenID;
+	    // if terminal token then compare text of lexeme with what is in source
+	    if ( !(*mActiveLexemeTokenDefinitions)[TokenID].mIsNonTerminal )
 	    {
-		    // if terminal token then compare text of symbol with what is in source
-		    if ( mSymbolTypeLib[TokenID].mRuleID == 0)
+            // position cursur to next token (non space) in script
+		    if (positionToNextLexeme())
 		    {
-                // position cursur to next token (non space) in script
-			    if (positionToNextSymbol())
+			    // if Token is supposed to be a number then check if its a numerical constant
+			    if (TokenID == _value_)
 			    {
-				    // if Token is supposed to be a number then check if its a numerical constant
-				    if (TokenID == _value_)
+    			    float constantvalue = 0.0f;
+				    if (Passed = isFloatValue(constantvalue, tokenlength))
 				    {
-        			    float constantvalue = 0.0f;
-					    if (Passed = isFloatValue(constantvalue, tokenlength))
-					    {
-                            // key is the next instruction index
-                            mConstants[mTokenInstructions.size()] = constantvalue;
-					    }
-				    }
-                    else // check if user label or valid keyword token
-                    {
-                        if (TokenID == _character_)
-                        {
-                            // token string is list of valid single characters
-                            // compare character at current cursor position in script to characters in list for a match
-                            // if match found then add character to active label
-                            if ( strchr(mRootRulePath[rulepathIDX].mSymbol, mSource[mCharPos]))
-                            {
-                                // is a new label starting?
-                                // if mLabelIsActive is false then starting a new label so need a new mActiveLabelKey
-                                if (!mLabelIsActive)
-                                {
-                                    // mActiveLabelKey will be the end of the instruction container ie the size of mTokenInstructions
-                                    mActiveLabelKey = mTokenInstructions.size();
-                                    mLabelIsActive = true;
-                                }
-                                // add the single character to the end of the active label
-                                mLabels[mActiveLabelKey] += mSource[mCharPos];
-                                // only one character was processed
-                                tokenlength = 1;
-                            }
-                        }
-                        else
-                        {
-				            // compare token symbol text with source text
-				            Passed = isSymbol(mRootRulePath[rulepathIDX].mSymbol, tokenlength);
-                        }
-                    }
-
-                    // turn off label processing if token ID was not for _character_
-                    if (TokenID != _character_)
-                    {
-                        mLabelIsActive = false;
-                    }
-                    else // _character_ token being processed
-                    {
-                        // turn off generation of a new token instruction if this is not
-                        // the first _character_ in a sequence of _character_ terminal tokens.
-                        // Only want one _character_ token which Identifies a label
-
-                        if (mTokenInstructions.size() > mActiveLabelKey)
-                        {
-                            // this token is not the first _character_ in the label sequence
-                            // so turn off the token by turning TokenID into _no_token_
-                            TokenID = _no_token_;
-                        }
-                    }
-
-                    // if valid terminal token was found then add it to the instruction container for pass 2 processing
-				    if (Passed)
-				    {
-                        if (TokenID != _no_token_)
-                        {
-					        TokenInst newtoken;
-					        // push token onto end of container
-					        newtoken.mID = TokenID;
-					        newtoken.mNTTRuleID = activeRuleID;
-					        newtoken.mLine = mCurrentLine;
-					        newtoken.mPos = mCharPos;
-                            newtoken.mFound = true;
-
-					        mTokenInstructions.push_back(newtoken);
-                        }
-
-                        // update source position
-					    mCharPos += tokenlength;
-
-					    // allow token instruction to change the ActiveContexts
-					    // use token contexts pattern to clear ActiveContexts pattern bits
-					    mActiveContexts &= ~mSymbolTypeLib[TokenID].mContextPatternClear;
-					    // use token contexts pattern to set ActiveContexts pattern bits
-					    mActiveContexts |= mSymbolTypeLib[TokenID].mContextPatternSet;
+                        // key is the next instruction index
+                        mConstants[mActiveTokenQue->size()] = constantvalue;
 				    }
 			    }
+                else // check if user label or valid keyword token
+                {
+                    if (isCharacterLabel(rulepathIDX))
+                    {
+                        // only one character was processed
+                        tokenlength = 1;
+                    }
+                    else
+                    {
+			            // compare token lexeme text with source text
+                        Passed = isLexemeMatch((*mActiveLexemeTokenDefinitions)[TokenID].mLexeme.c_str(), tokenlength);
+                    }
+                }
 
-		    }
-		    // else a non terminal token was found
-		    else
-		    {
+                // turn off label processing if token ID was not for _character_
+                if (TokenID != _character_)
+                {
+                    mLabelIsActive = false;
+                }
+                else // _character_ token being processed
+                {
+                    // turn off generation of a new token instruction if this is not
+                    // the first _character_ in a sequence of _character_ terminal tokens.
+                    // Only want one _character_ token which Identifies a label
 
-			    // execute rule for non-terminal
-			    // get rule_ID for index into  rulepath to be called
-			    Passed = processRulePath(mSymbolTypeLib[TokenID].mRuleID);
+                    if (mActiveTokenQue->size() > mActiveLabelKey)
+                    {
+                        // this token is not the first _character_ in the label sequence
+                        // so turn off the token by turning TokenID into _no_token_
+                        TokenID = _no_token_;
+                    }
+                }
+
+                // if valid terminal token was found then add it to the instruction container for pass 2 processing
+			    if (Passed)
+			    {
+                    if (TokenID != _no_token_)
+                    {
+				        TokenInst newtoken;
+				        // push token onto end of container
+				        newtoken.mTokenID = TokenID;
+				        newtoken.mNTTRuleID = activeRuleID;
+				        newtoken.mLine = mCurrentLine;
+				        newtoken.mPos = mCharPos;
+                        newtoken.mFound = true;
+
+				        mActiveTokenQue->push_back(newtoken);
+                    }
+
+                    // update source position
+				    mCharPos += tokenlength;
+			    }
 		    }
+
 	    }
-
+	    // else a non terminal token was found
+	    else
+	    {
+		    // execute rule for non-terminal
+		    // get rule_ID for index into  rulepath to be called
+		    Passed = processRulePath((*mActiveLexemeTokenDefinitions)[TokenID].mRuleID);
+	    }
 
 	    return Passed;
 
-    }
-
-    //-----------------------------------------------------------------------
-    char* Compiler2Pass::getTypeDefText(const uint sid)
-    {
-	    return mRootRulePath[mSymbolTypeLib[sid].mDefTextID].mSymbol;
     }
 
     //-----------------------------------------------------------------------
@@ -491,25 +522,25 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    bool Compiler2Pass::isSymbol(const char* symbol, size_t& symbolsize)
+    bool Compiler2Pass::isLexemeMatch(const char* lexeme, size_t& lexemesize)
     {
-	    // compare text at source+charpos with the symbol : limit testing to symbolsize
-	    bool symbolfound = false;
-	    symbolsize = strlen(symbol);
-	    if (strncmp(mSource + mCharPos, symbol, symbolsize)==0)
+	    // compare text at source+charpos with the lexeme : limit testing to lexemesize
+	    bool lexemefound = false;
+	    lexemesize = strlen(lexeme);
+	    if (strncmp(mSource + mCharPos, lexeme, lexemesize)==0)
 	    {
-		    symbolfound = true;
+		    lexemefound = true;
 	    }
 
-	    return symbolfound;
+	    return lexemefound;
     }
 
     //-----------------------------------------------------------------------
-    bool Compiler2Pass::positionToNextSymbol()
+    bool Compiler2Pass::positionToNextLexeme()
     {
-	    bool validsymbolfound = false;
+	    bool validlexemefound = false;
 	    bool endofsource = false;
-	    while (!validsymbolfound && !endofsource)
+	    while (!validlexemefound && !endofsource)
 	    {
 		    skipWhiteSpace();
 		    skipEOL();
@@ -520,11 +551,11 @@ namespace Ogre {
 		    else
 		    {
 			    // if ASCII > space then assume valid character is found
-			    if (mSource[mCharPos] > ' ') validsymbolfound = true;
+			    if (mSource[mCharPos] > ' ') validlexemefound = true;
 		    }
 	    }// end of while
 
-	    return validsymbolfound;
+	    return validlexemefound;
     }
 
 
@@ -583,9 +614,12 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void Compiler2Pass::addLexemeToken(const String& name, const size_t key, const bool hasAction)
+    void Compiler2Pass::addLexemeToken(const String& lexeme, const size_t token, const bool hasAction)
     {
-        mLexemeTokenMap[name] = TokenDef(key, hasAction);
+        if (token >= mClientLexemeTokenDefinitions.size())
+            mClientLexemeTokenDefinitions.resize(token + 10);
+        mClientLexemeTokenDefinitions[token] = LexemeTokenDef(token, lexeme, hasAction);
+        mClientLexemeTokenMap[lexeme] = token;
     }
 
 
