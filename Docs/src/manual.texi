@@ -1049,6 +1049,8 @@ See the IMPORTANT note below about the issues between mulitpass and multitexturi
 	As blend_diffuse_alpha but use current alpha from previous stages (same as blend_diffuse_alpha for first layer)
 @item blend_manual
 	As blend_diffuse_alpha but use a constant manual alpha value specified in <manual>
+@item dotproduct
+	The dot product of source1 and source2
 @end table
 @item Source1 and source2 options
 @table @asis
@@ -1062,8 +1064,6 @@ See the IMPORTANT note below about the issues between mulitpass and multitexturi
 	The interpolated specular colour from the vertices.
 @item src_manual
 	The manual colour specified at the end of the command.
-@item dotproduct
-	The dot product of source1 and source2
 @end table
 @end table
 @*
