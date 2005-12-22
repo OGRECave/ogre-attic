@@ -42,88 +42,88 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     String MaterialScriptCompiler::materialScript_BNF =
-        "<Script> ::= {<Script_Properties>}; \n"
+        "<Script> ::= {<Script_Properties>} \n"
 
-        "<Script_Properties> ::= <Material_Def> | <Vertex_Program_Def> | <Fragment_Program_Def>; \n"
+        "<Script_Properties> ::= <Material_Def> | <Vertex_Program_Def> | <Fragment_Program_Def> \n"
 
-        "<Material_Def> ::= 'material' <Label> [<Material_Clone>] '{' {<Material_Properties>} '}'; \n"
+        "<Material_Def> ::= 'material' <Label> [<Material_Clone>] '{' {<Material_Properties>} '}' \n"
 
         "<Material_Properties> ::= <Technique_Def> | <Set_Texture_Alias_Def> | "
         "                          <Lod_Distances_Def> | <Receive_Shadows_Def> | "
-        "                          <transparency_casts_shadows_def>; \n"
+        "                          <transparency_casts_shadows_def> \n"
 
-        "    <Material_Clone> ::= ':' <Label>; \n"
-        "    <Set_Texture_Alias_Def> ::= 'set_texture_alias' <Label> <Label>; \n"
-        "    <Lod_Distances_Def> ::= 'lod_distances' <#distance> {<#distance>}; \n"
-        "    <Receive_Shadows_Def> ::= 'receive_shadows' <On_Off>; \n"
-        "    <transparency_casts_shadows_def> ::= 'transparency_casts_shadows' <On_Off>; \n"
+        "    <Material_Clone> ::= ':' <Label> \n"
+        "    <Set_Texture_Alias_Def> ::= 'set_texture_alias' <Label> <Label> \n"
+        "    <Lod_Distances_Def> ::= 'lod_distances' <#distance> {<#distance>} \n"
+        "    <Receive_Shadows_Def> ::= 'receive_shadows' <On_Off> \n"
+        "    <transparency_casts_shadows_def> ::= 'transparency_casts_shadows' <On_Off> \n"
 
         // Technique section rules
-        "<Technique_Def> ::= 'technique' [<Label>] '{' {<Technique_Properties>} '}'; \n"
-        "    <Technique_Properties> ::= <Pass_Def> | <Lod_Index_Def>; \n"
-        "    <Lod_Index_Def> ::= 'lod_index' <#value>; \n"
+        "<Technique_Def> ::= 'technique' [<Label>] '{' {<Technique_Properties>} '}' \n"
+        "    <Technique_Properties> ::= <Pass_Def> | <Lod_Index_Def> \n"
+        "    <Lod_Index_Def> ::= 'lod_index' <#value> \n"
 
         // Pass section rules
-        "    <Pass_Def> ::= 'pass' [<Label>] '{' {<Pass_Properties>} '}'; \n"
-        "        <Pass_Properties> ::= <Ambient_Def> | <Diffuse_Def> | <Specular_Def> | <Emissive_Def>; \n"
+        "    <Pass_Def> ::= 'pass' [<Label>] '{' {<Pass_Properties>} '}' \n"
+        "        <Pass_Properties> ::= <Ambient_Def> | <Diffuse_Def> | <Specular_Def> | <Emissive_Def> \n"
         "                              <Scene_Blend_Def> | <Depth_Check_Def> | <Depth_Write_Def> | "
         "                              <Depth_Func_Def> | <Colour_Write_Def> | <Cull_Hardware_Def> | "
         "                              <Cull_Software_Def> | <Lighting_Def> | <Shading_Def> | "
 
-        "        <Ambient_Def> ::= 'ambient' <Colour_Param_Def> | <Vertexcolour_Def>; \n"
-        "        <Diffuse_Def> ::= 'diffuse' <Colour_Param_Def> | <Vertexcolour_Def>; \n"
-        "        <Specular_Def> ::= 'specular' <Specular_Params> <#shininess>; \n"
-        "            <Specular_Params> ::= <Colour_params> | <Vertexcolour_Def>; \n"
-        "        <Emissive_Def> ::= 'emissive' <Colour_params> | <Vertexcolour_Def>; \n"
+        "        <Ambient_Def> ::= 'ambient' <Colour_Param_Def> | <Vertexcolour_Def> \n"
+        "        <Diffuse_Def> ::= 'diffuse' <Colour_Param_Def> | <Vertexcolour_Def> \n"
+        "        <Specular_Def> ::= 'specular' <Specular_Params> <#shininess> \n"
+        "            <Specular_Params> ::= <Colour_params> | <Vertexcolour_Def> \n"
+        "        <Emissive_Def> ::= 'emissive' <Colour_params> | <Vertexcolour_Def> \n"
 
-        "        <Vertexcolour> ::= 'vertexcolour'; \n"
+        "        <Vertexcolour> ::= 'vertexcolour' \n"
 
-        "        <Scene_Blend_Def> ::= 'scene_blend' <Simple_Blend> | <User_Blend>; \n"
-        "          <Simple_Blend> ::= 'add' | 'modulate' | 'colour_blend' | 'alpha_blend'; \n"
-        "          <User_Blend> ::= <Blend_Factor> <Blend_Factor>; \n"
+        "        <Scene_Blend_Def> ::= 'scene_blend' <Simple_Blend> | <User_Blend> \n"
+        "          <Simple_Blend> ::= 'add' | 'modulate' | 'colour_blend' | 'alpha_blend' \n"
+        "          <User_Blend> ::= <Blend_Factor> <Blend_Factor> \n"
         "          <Blend_Factor> ::= 'one' | 'zero' | 'dest_colour' | 'src_colour' | \n"
         "                             'one_minus_dest_colour' | 'one_minus_src_colour' | \n"
         "                             'dest_alpha' | 'src_alpha' | 'one_minus_dest_alpha' | \n"
-        "                             'one_minus_src_alpha'; \n"
+        "                             'one_minus_src_alpha' \n"
 
-        "        <Depth_Check_Def> ::= 'depth_check' <On_Off>; \n"
-        "        <Depth_Write_Def> ::= 'depth_write' <On_Off>; \n"
-        "        <Depth_Func_Def> ::= 'depth_func' <Compare_Func_Def>; \n"
-        "        <Depth_Bias_Def> ::= 'depth_bias' <#value>; \n"
-        "        <Alpha_Rejection_Def> ::= 'alpha_rejection' <Compare_Func_Def> <value>; \n"
+        "        <Depth_Check_Def> ::= 'depth_check' <On_Off> \n"
+        "        <Depth_Write_Def> ::= 'depth_write' <On_Off> \n"
+        "        <Depth_Func_Def> ::= 'depth_func' <Compare_Func_Def> \n"
+        "        <Depth_Bias_Def> ::= 'depth_bias' <#value> \n"
+        "        <Alpha_Rejection_Def> ::= 'alpha_rejection' <Compare_Func_Def> <#value> \n"
         "        <Compare_Func_Def> ::= 'always_fail' | 'always_pass' | 'less_equal' | 'less' | \n"
-        "                               'equal' | 'not_equal' | 'greater_equal' | 'greater'; \n"
-        "        <Colour_Write_Def> ::= 'colour_write' <On_Off>; \n"
-        "        <Cull_Hardware_Def> ::= 'cull_hardware' 'clockwise' | 'anticlockwise' | 'none'; \n"
-        "        <Cull_Software_Def> ::= 'cull_software' 'back' | 'front' | 'none'; \n"
-        "        <Lighting_Def> ::= 'lighting' <On_Off>; \n"
-        "        <Shading_Def> ::= 'shading' 'flat' | 'gouraud' | 'phong'; \n"
-        "        <Fog_Override_Def> ::= 'fog_override' <fog_false> | <fog_true>; \n"
-        "           <fog_false> ::= 'false'; \n"
-        "           <fog_true> ::= 'true' [<Fog_parameters>]; \n"
-        "               <Fog_parameters> ::= <fog_type> <fog_colour> <#fog_density> <#start> <#end>; \n"
+        "                               'equal' | 'not_equal' | 'greater_equal' | 'greater' \n"
+        "        <Colour_Write_Def> ::= 'colour_write' <On_Off> \n"
+        "        <Cull_Hardware_Def> ::= 'cull_hardware' 'clockwise' | 'anticlockwise' | 'none' \n"
+        "        <Cull_Software_Def> ::= 'cull_software' 'back' | 'front' | 'none' \n"
+        "        <Lighting_Def> ::= 'lighting' <On_Off> \n"
+        "        <Shading_Def> ::= 'shading' 'flat' | 'gouraud' | 'phong' \n"
+        "        <Fog_Override_Def> ::= 'fog_override' <fog_false> | <fog_true> \n"
+        "           <fog_false> ::= 'false' \n"
+        "           <fog_true> ::= 'true' [<Fog_parameters>] \n"
+        "               <Fog_parameters> ::= <fog_type> <fog_colour> <#fog_density> <#start> <#end> \n"
         "                   <fog_type> ::= 'none' | 'linear' | 'exp' | 'exp2'; \n"
-        "                   <fog_colour> ::= <#red> <#green> <#blue>; \n"
-        "        <Max_Lights_Def> ::= 'max_lights' <#number>; \n"
-        "        <Iteration_Def> ::= 'iteration' 'once' | <Iteration_Once_Params> | <Iteration_Counted>; \n"
-        "           <Iteration_Once_Params> ::= 'once_per_light' [<light_type>]; \n"
-        "           <Iteration_Counted> ::= <#number> [<Per_Light>]; \n"
-        "               <Per_Light> ::= 'per_light' <light_type>; \n"
-        "           <light_type> ::= 'point' | 'directional' | 'spot'; \n"
+        "                   <fog_colour> ::= <#red> <#green> <#blue> \n"
+        "        <Max_Lights_Def> ::= 'max_lights' <#number> \n"
+        "        <Iteration_Def> ::= 'iteration' 'once' | <Iteration_Once_Params> | <Iteration_Counted> \n"
+        "           <Iteration_Once_Params> ::= 'once_per_light' [<light_type>] \n"
+        "           <Iteration_Counted> ::= <#number> [<Per_Light>] \n"
+        "               <Per_Light> ::= 'per_light' <light_type> \n"
+        "           <light_type> ::= 'point' | 'directional' | 'spot' \n"
         // Texture Unit section rules
-        "        <Texture_Unit_Def> ::= 'texture_unit' [<Label>] '{' {<TUS_Properties>} '}'; \n"
+        "        <Texture_Unit_Def> ::= 'texture_unit' [<Label>] '{' {<TUS_Properties>} '}' \n"
         " "
 
         // common rules
-        "<On_Off> ::= 'on' | 'off'; \n"
-        "<Colour_params> ::= <#red> <#green> <#blue> [<#alpha>]; \n"
+        "<On_Off> ::= 'on' | 'off' \n"
+        "<Colour_params> ::= <#red> <#green> <#blue> [<#alpha>] \n"
 
 
-        "<Label> ::= <Quoted_Label> | <Unquoted_Label>; \n"
-        "<Quoted_Label> ::= '\"' <Character> {<Alphanumeric_Space>} '\"'; \n"
-        "<Alphanumeric_Space> ::= <Alphanumeric> | ' '; \n"
-        "<Alphanumeric> ::= <Character> | <Number>; \n"
-        "<Character> ::= (abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$#%!_*&\\/); \n"
+        "<Label> ::= <Quoted_Label> | <Unquoted_Label> \n"
+        "<Quoted_Label> ::= '\"' <Character> {<Alphanumeric_Space>} '\"' \n"
+        "<Alphanumeric_Space> ::= <Alphanumeric> | ' ' \n"
+        "<Alphanumeric> ::= <Character> | <Number> \n"
+        "<Character> ::= (abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$#%!_*&\\/) \n"
         "<Number> ::= (0123456789); \n"
         
         ;
@@ -500,7 +500,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseTransparencyCastsShadows(void)
 	{
-        switch (getNextToken().mID)
+        switch (getNextToken().mTokenID)
         {
         case ID_ON:
 			mScriptContext.material->setTransparencyCastsShadows(true);
@@ -518,7 +518,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseReceiveShadows(void)
     {
-        switch (getNextToken().mID)
+        switch (getNextToken().mTokenID)
         {
         case ID_ON:
             mScriptContext.material->setReceiveShadows(true);
@@ -592,7 +592,7 @@ namespace Ogre {
         // Must be 1, 3 or 4 parameters
         const size_t paramCount = getTokenQueCount();
         if (paramCount == 1) {
-            if(getNextToken().mID == ID_VERTEXCOLOUR)
+            if(getNextToken().mTokenID == ID_VERTEXCOLOUR)
             {
                 mScriptContext.pass->setVertexColourTracking(mScriptContext.pass->getVertexColourTracking() | TVC_AMBIENT);
             }
@@ -618,7 +618,7 @@ namespace Ogre {
         // Must be 1, 3 or 4 parameters 
         const size_t paramCount = getTokenQueCount();
         if (paramCount == 1) {
-            if(getNextToken().mID == ID_VERTEXCOLOUR)
+            if(getNextToken().mTokenID == ID_VERTEXCOLOUR)
             {
                mScriptContext.pass->setVertexColourTracking(mScriptContext.pass->getVertexColourTracking() | TVC_DIFFUSE);
             }
@@ -645,7 +645,7 @@ namespace Ogre {
         const size_t paramCount = getTokenQueCount();
         if(paramCount == 2) 
         {   
-            if(getNextToken().mID == ID_VERTEXCOLOUR)
+            if(getNextToken().mTokenID == ID_VERTEXCOLOUR)
             {
                 mScriptContext.pass->setVertexColourTracking(mScriptContext.pass->getVertexColourTracking() | TVC_SPECULAR);
                 mScriptContext.pass->setShininess(getNextTokenValue());
@@ -677,7 +677,7 @@ namespace Ogre {
         // Must be 1, 3 or 4 parameters 
         const size_t paramCount = getTokenQueCount();
         if (paramCount == 1) {
-            if(getNextToken().mID == ID_VERTEXCOLOUR)
+            if(getNextToken().mTokenID == ID_VERTEXCOLOUR)
             {
                mScriptContext.pass->setVertexColourTracking(mScriptContext.pass->getVertexColourTracking() | TVC_EMISSIVE);
             }
@@ -700,7 +700,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseDepthCheck(void)
     {
-        switch (getNextToken().mID)
+        switch (getNextToken().mTokenID)
         {
         case ID_ON:
             mScriptContext.pass->setDepthCheckEnabled(true);
@@ -715,7 +715,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseDepthWrite(void)
     {
-        switch (getNextToken().mID)
+        switch (getNextToken().mTokenID)
         {
         case ID_ON:
             mScriptContext.pass->setDepthWriteEnabled(true);
@@ -730,7 +730,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     CompareFunction MaterialScriptCompiler::convertCompareFunction(void)
     {
-        switch (getNextToken().mID)
+        switch (getNextToken().mTokenID)
         {
         case ID_ALWAYS_FAIL:
             return CMPF_ALWAYS_FAIL;
@@ -775,7 +775,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseColourWrite(void)
     {
-        switch (getNextToken().mID)
+        switch (getNextToken().mTokenID)
         {
         case ID_ON:
             mScriptContext.pass->setColourWriteEnabled(true);
@@ -790,7 +790,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseCullHardware(void)
     {
-        switch (getNextToken().mID)
+        switch (getNextToken().mTokenID)
         {
         case ID_CULL_NONE:
             mScriptContext.pass->setCullingMode(CULL_NONE);
@@ -810,7 +810,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseCullSoftware(void)
     {
-        switch (getNextToken().mID)
+        switch (getNextToken().mTokenID)
         {
         case ID_CULL_NONE:
             mScriptContext.pass->setManualCullingMode(MANUAL_CULL_NONE);
@@ -830,7 +830,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseLighting(void)
     {
-        switch (getNextToken().mID)
+        switch (getNextToken().mTokenID)
         {
         case ID_ON:
             mScriptContext.pass->setLightingEnabled(true);
@@ -850,7 +850,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseShading(void)
     {
-        switch (getNextToken().mID)
+        switch (getNextToken().mTokenID)
         {
         case ID_FLAT:
             mScriptContext.pass->setShadingMode(SO_FLAT);
