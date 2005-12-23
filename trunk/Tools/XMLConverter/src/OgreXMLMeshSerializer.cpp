@@ -176,7 +176,8 @@ namespace Ogre {
 
                 while (bi.hasMoreElements())
                 {
-                    writeBoneAssignment(boneAssignNode, &(bi.getNext()));
+					const VertexBoneAssignment& assign = bi.getNext();
+                    writeBoneAssignment(boneAssignNode, &assign);
                 }
 
                 LogManager::getSingleton().logMessage("Shared geometry bone assignments exported.");
@@ -315,7 +316,8 @@ namespace Ogre {
                 subMeshNode->InsertEndChild(TiXmlElement("boneassignments"))->ToElement();
             while (bi.hasMoreElements())
             {
-                writeBoneAssignment(boneAssignNode, &bi.getNext());
+				const VertexBoneAssignment& assign = bi.getNext();
+                writeBoneAssignment(boneAssignNode, &assign);
             }
         }
         LogManager::getSingleton().logMessage("Dedicated geometry bone assignments exported.");
@@ -1685,7 +1687,7 @@ namespace Ogre {
 			VertexPoseKeyFrame::PoseRefIterator poseIt = kf->getPoseReferenceIterator();
 			while (poseIt.hasMoreElements())
 			{
-				VertexPoseKeyFrame::PoseRef& poseRef = poseIt.getNext();
+				const VertexPoseKeyFrame::PoseRef& poseRef = poseIt.getNext();
 				TiXmlElement* poseRefNode = 
 					keyNode->InsertEndChild(TiXmlElement("poseref"))->ToElement();
 
