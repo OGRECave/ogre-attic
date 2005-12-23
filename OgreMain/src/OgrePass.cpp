@@ -45,8 +45,14 @@ namespace Ogre {
 	    mAmbient = mDiffuse = ColourValue::White;
 	    mSpecular = mEmissive = ColourValue::Black;
 	    mShininess = 0;
-        mPointSize = 1.0;
-       mTracking = TVC_NONE;
+        mPointSize = 1.0f;
+		mPointMinSize = 0.0f;
+		mPointMaxSize = 50000.0f;
+		mPointSpritesEnabled = false;
+		mPointAttenuationEnabled = false;
+		mPointAttenuationCoeffs[0] = 1.0f;
+		mPointAttenuationCoeffs[1] = mPointAttenuationCoeffs[2] = 0.0f;
+        mTracking = TVC_NONE;
         mHash = 0;
 
         // By default, don't override the scene's fog settings
@@ -146,6 +152,12 @@ namespace Ogre {
 	    mShadeOptions = oth.mShadeOptions;
         mPassIterationCount = oth.mPassIterationCount;
 		mPointSize = oth.mPointSize;
+		mPointMinSize = oth.mPointMinSize;
+		mPointMaxSize = oth.mPointMaxSize;
+		mPointSpritesEnabled = oth.mPointSpritesEnabled;
+		mPointAttenuationEnabled = oth.mPointAttenuationEnabled;
+		memcpy(mPointAttenuationCoeffs, oth.mPointAttenuationCoeffs, sizeof(Real)*3);
+
 
 		if (oth.mVertexProgramUsage)
 		{
@@ -222,6 +234,65 @@ namespace Ogre {
     {
 	    mPointSize = ps;
     }
+    //-----------------------------------------------------------------------
+	void Pass::setPointSpritesEnabled(bool enabled)
+	{
+		mPointSpritesEnabled = enabled;
+	}
+    //-----------------------------------------------------------------------
+	bool Pass::getPointSpritesEnabled(void) const
+	{
+		return mPointSpritesEnabled;
+	}
+    //-----------------------------------------------------------------------
+	void Pass::setPointAttenuation(bool enabled, 
+		Real constant, Real linear, Real quadratic)
+	{
+		mPointAttenuationEnabled = enabled;
+		mPointAttenuationCoeffs[0] = constant;
+		mPointAttenuationCoeffs[1] = linear;
+		mPointAttenuationCoeffs[2] = quadratic;
+	}
+    //-----------------------------------------------------------------------
+	bool Pass::isPointAttenuationEnabled(void) const
+	{
+		return mPointAttenuationEnabled;
+	}
+    //-----------------------------------------------------------------------
+	Real Pass::getPointAttenuationConstant(void) const
+	{
+		return mPointAttenuationCoeffs[0];
+	}
+    //-----------------------------------------------------------------------
+	Real Pass::getPointAttenuationLinear(void) const
+	{
+		return mPointAttenuationCoeffs[1];
+	}
+    //-----------------------------------------------------------------------
+	Real Pass::getPointAttenuationQuadratic(void) const
+	{
+		return mPointAttenuationCoeffs[2];
+	}
+    //-----------------------------------------------------------------------
+	void Pass::setPointMinSize(Real min)
+	{
+		mPointMinSize = min;
+	}
+    //-----------------------------------------------------------------------
+	Real Pass::getPointMinSize(void) const
+	{
+		return mPointMinSize;
+	}
+    //-----------------------------------------------------------------------
+	void Pass::setPointMaxSize(Real max)
+	{
+		mPointMaxSize = max;
+	}
+    //-----------------------------------------------------------------------
+	Real Pass::getPointMaxSize(void) const
+	{
+		return mPointMaxSize;
+	}
     //-----------------------------------------------------------------------
     void Pass::setAmbient(Real red, Real green, Real blue)
     {

@@ -496,6 +496,14 @@ Here are the attributes you can use in a 'pass' section of a .material script:
 @ref{iteration}
 @item
 @ref{point_size}
+@item
+@ref{point_sprites}
+@item
+@ref{point_size_attenuation}
+@item
+@ref{point_size_min}
+@item
+@ref{point_size_max}
 @end itemize
 
 @heading Attribute Descriptions
@@ -907,10 +915,48 @@ Note: use gpu program auto parameters @ref{pass_number} and @ref{pass_iteration_
 @anchor{point_size}
 @subheading point_size
 
-This setting allows you to change the size of points when rendering a point list, or a list of point sprites. This setting applies when per-vertex point sizes are not in use. @*@*
+This setting allows you to change the size of points when rendering a point list, or a list of point sprites. The interpretation of this command depends on the @ref{point_size_attenuation} option - if it is off (the default), the point size is in screen pixels, if it is on, it expressed as normalised screen coordinates (1.0 is the height of the screen) when the point is at the origin.  @*@*
+
+NOTE: GL has a limitation on the size of points it supports, and will clamp the size of your points lower than you might think (e.g. on an FX5900 the max size is 63 pixels). D3D has no such limit.@*@*
 
 Format: point_size <size>@*@*
 Default: point_size 1.0@*@*
+
+@anchor{point_sprites}
+@subheading point_sprites
+
+This setting specifies whether or not hardware point sprite rendering is enabled for this pass. Enabling it means that a point list is rendered as a list of quads rather than a list of dots. It is very useful to use this option if you're using a billboardset and only need to use point oriented billboards which are all of the same size. You can also use it for any other point list render. @*@*
+
+Format: point_sprites <on|off>@*@*
+Default: point_sprites off@*@*
+
+@anchor{point_size_attenuation}
+@subheading point_size_attenuation
+
+Defines whether point size is attenuated with view space distance, and in what fashion. This option is especially useful when you're using point sprites (@xref{point_sprites}) since it defines how they reduce in size as they get further away from the camera. You can also disable this option to make point sprites a constant screen size (like points), or enable it for points so they change size with distance.@*@*
+
+You only have to provide the final 3 parameters if you turn attenuation on. The formula for attenuation is that the size of the point is multiplied by 1 / (constant + linear * dist + quadratic * d^2); therefore turning it off is equivalent to (constant = 1, linear = 0, quadratic = 0) and standard perspective attenuation is (constant = 0, linear = 1, quadratic = 0). The latter is assumed if you leave out the final 3 parameters when you specify 'on'.@*@*
+
+Note that the resulting attenuated size is clamped to the minimum and maximum point size, see the next section.@*@*
+
+Format: point_size_attenuation <on|off> [constant linear quadratic]
+Default: point_size_attenuation off
+
+@anchor{point_size_min}
+@subheading point_size_min
+
+Sets the minimum point size after attenuation (@ref{point_size_attenuation}). For details on the size metrics, @xref{point_size}.@*@*
+
+Format: point_size_min <size>
+Default: point_size_min 0
+
+@anchor{point_size_max}
+@subheading point_size_max
+
+Sets the maximum point size after attenuation (@ref{point_size_attenuation}). For details on the size metrics, @xref{point_size}.@*@*
+
+Format: point_size_max <size>
+Default: point_size_max 5000
 
 @node Texture Units
 @subsection Texture Units

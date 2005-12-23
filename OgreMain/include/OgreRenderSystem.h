@@ -493,10 +493,28 @@ namespace Ogre
             const ColourValue &diffuse, const ColourValue &specular,
             const ColourValue &emissive, Real shininess,
             TrackVertexColourType tracking = TVC_NONE) = 0;
-        /** Sets the point size of objects to be rendered after it.
-            @param ps The size of the point
-        */
-        virtual void _setPointSize(Real ps) = 0;
+
+		/** Sets whether or not rendering points using OT_POINT_LIST will 
+			render point sprites (textured quads) or plain points.
+		@param enabled True enables point sprites, false returns to normal
+			point rendering.
+		*/	
+		virtual void _setPointSpritesEnabled(bool enabled) = 0;
+
+		/** Sets the size of points and how they are attenuated with distance.
+		@remarks
+			When performing point rendering or point sprite rendering,
+			point size can be attenuated with distance. The equation for
+			doing this is attenuation = 1 / (constant + linear * dist + quadratic * d^2) .
+		@par
+			For example, to disable distance attenuation (constant screensize) 
+			you would set constant to 1, and linear and quadratic to 0. A
+			standard perspective attenuation would be 0, 1, 0 respectively.
+		*/
+		virtual void _setPointParameters(Real size, bool attenuationEnabled, 
+			Real constant, Real linear, Real quadratic, Real minSize, Real maxSize) = 0;
+
+
         /**
           Sets the status of a single texture stage.
 

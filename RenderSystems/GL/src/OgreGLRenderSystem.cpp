@@ -525,6 +525,11 @@ namespace Ogre {
                 LogManager::getSingleton().logMessage("GL: Warning: RenderTexture size is restricted to size of framebuffer. If you are on Linux, consider using GLX instead of SDL.");
             }
         }
+
+		// Point size
+		Real ps;
+		glGetFloatv(GL_POINT_SIZE_MAX, &ps);
+		mCapabilities->setMaxPointSize(ps);
         
 		Log* defaultLog = LogManager::getSingleton().getDefaultLog();
 		if (defaultLog)
@@ -870,11 +875,69 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------------
-    void GLRenderSystem::_setPointSize(Real ps)
+	void GLRenderSystem::_setPointParameters(Real size, 
+		bool attenuationEnabled, Real constant, Real linear, Real quadratic,
+		Real minSize, Real maxSize)
     {
-        glPointSize(ps);
+
+		if(attenuationEnabled)
+		{
+			// XXX: why do I need this for results to be consistent with D3D?
+			// Equations are supposedly the same once you factor in vp height
+			Real correction = 0.005;
+			// scaling required
+			float val[4] = {constant, linear*correction, quadratic*correction, 1};
+			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, val);
+			// Point size is still calculated in pixels even when attenuation is
+			// enabled, which is pretty awkward, since you typically want a viewport
+			// independent size if you're looking for attenuation.
+			// So, scale the point size up by viewport size (this is equivalent to
+			// what D3D does as standard)
+			Real adjSize = size * mActiveViewport->getActualHeight();
+			Real adjMinSize = minSize * mActiveViewport->getActualHeight();
+			Real adjMaxSize = maxSize * mActiveViewport->getActualHeight();
+			glPointSize(adjSize);
+			glPointParameterf(GL_POINT_SIZE_MIN, adjMinSize);
+			glPointParameterf(GL_POINT_SIZE_MAX, adjMaxSize);
+
+		}
+		else
+		{
+			// no scaling required
+			// GL has no disabled flag for this so just set to constant
+			float val[4] = {1, 0, 0, 1};
+			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, val);
+			glPointSize(size);
+			glPointParameterf(GL_POINT_SIZE_MIN, minSize);
+			glPointParameterf(GL_POINT_SIZE_MAX, maxSize);
+		}
+
+
+
     }
-    
+	//---------------------------------------------------------------------
+	void GLRenderSystem::_setPointSpritesEnabled(bool enabled)
+	{
+		if (enabled)
+		{
+			glEnable(GL_POINT_SPRITE);
+		}
+		else
+		{
+			glDisable(GL_POINT_SPRITE);
+		}
+
+		// Set sprite texture coord generation
+		// Don't offer this as an option since D3D links it to sprite enabled
+		for (ushort i = 0; i < mFixedFunctionTextureUnits; ++i)
+		{
+			glActiveTextureARB(GL_TEXTURE0 + i);
+			glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, 
+				enabled ? GL_TRUE : GL_FALSE);
+		}
+		glActiveTextureARB(GL_TEXTURE0);
+
+	}
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setTexture(size_t stage, bool enabled, const String &texname)
     {

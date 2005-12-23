@@ -139,6 +139,12 @@ namespace Ogre {
         size_t mPassIterationCount;
 		// point size, applies when not using per-vertex point size
 		Real mPointSize;
+		Real mPointMinSize;
+		Real mPointMaxSize;
+		Real mPointSpritesEnabled;
+		Real mPointAttenuationEnabled;
+		// constant, linear, quadratic coeffs
+		Real mPointAttenuationCoeffs[3];
 	public:
 		typedef std::set<Pass*> PassSet;
     protected:
@@ -292,18 +298,68 @@ namespace Ogre {
 
         /** Gets the point size of the pass.
 		@remarks
-			This property determines what point size is used to render point list.
-			It is used when there is no per-vertex point size specified.
+			This property determines what point size is used to render a point 
+			list.
         */
         Real getPointSize(void) const;
 
 		/** Sets the point size of this pass.
 		@remarks
-			This property determines what point size is used to render point list.
-			It is used when there is no per-vertex point size specified.
+			This property determines what point size is used to render a point 
+			list.
 		*/
 		void setPointSize(Real ps);
 		
+		/** Sets whether or not rendering points using OT_POINT_LIST will 
+			render point sprites (textured quads) or plain points (dots).
+		@param enabled True enables point sprites, false returns to normal
+			point rendering.
+		*/	
+		void setPointSpritesEnabled(bool enabled);
+
+		/** Returns whether point sprites are enabled when rendering a 
+			point list.
+		*/
+		bool getPointSpritesEnabled(void) const;
+
+		/** Sets how points are attenuated with distance.
+		@remarks
+			When performing point rendering or point sprite rendering,
+			point size can be attenuated with distance. The equation for
+			doing this is attenuation = 1 / (constant + linear * dist + quadratic * d^2).
+		@par
+			For example, to disable distance attenuation (constant screensize) 
+			you would set constant to 1, and linear and quadratic to 0. A
+			standard perspective attenuation would be 0, 1, 0 respectively.
+		@note 
+			The resulting size is clamped to the minimum and maximum point
+			size.
+		@param enabled Whether point attenuation is enabled
+		@param constant, linear, quadratic Parameters to the attentuation 
+			function defined above
+		*/
+		void setPointAttenuation(bool enabled, 
+			Real constant = 0.0f, Real linear = 1.0f, Real quadratic = 0.0f);
+
+		/** Returns whether points are attenuated with distance. */
+		bool isPointAttenuationEnabled(void) const;
+
+		/** Returns the constant coefficient of point attenuation. */
+		Real getPointAttenuationConstant(void) const;
+		/** Returns the linear coefficient of point attenuation. */
+		Real getPointAttenuationLinear(void) const;
+		/** Returns the quadratic coefficient of point attenuation. */
+		Real getPointAttenuationQuadratic(void) const;
+
+		/** Set the minimum point size, when point attenuation is in use. */
+		void setPointMinSize(Real min);
+		/** Get the minimum point size, when point attenuation is in use. */
+		Real getPointMinSize(void) const;
+		/** Set the maximum point size, when point attenuation is in use. */
+		void setPointMaxSize(Real max);
+		/** Get the maximum point size, when point attenuation is in use. */
+		Real getPointMaxSize(void) const;
+
 		/** Gets the ambient colour reflectance of the pass.
         */
         const ColourValue& getAmbient(void) const;

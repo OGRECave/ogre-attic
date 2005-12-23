@@ -69,6 +69,8 @@ namespace Ogre {
         "                              <Scene_Blend_Def> | <Depth_Check_Def> | <Depth_Write_Def> | "
         "                              <Depth_Func_Def> | <Colour_Write_Def> | <Cull_Hardware_Def> | "
         "                              <Cull_Software_Def> | <Lighting_Def> | <Shading_Def> | "
+		"                              <Point_Size_Def> | <Point_Sprites_Def> | <Point_Size_Attenuation_Def> | "
+		"                              <Point_Size_Min_Def> | <Point_Size_Max_Def> \n"
 
         "        <Ambient_Def> ::= 'ambient' <Colour_Param_Def> | <Vertexcolour_Def> \n"
         "        <Diffuse_Def> ::= 'diffuse' <Colour_Param_Def> | <Vertexcolour_Def> \n"
@@ -98,11 +100,17 @@ namespace Ogre {
         "        <Cull_Software_Def> ::= 'cull_software' 'back' | 'front' | 'none' \n"
         "        <Lighting_Def> ::= 'lighting' <On_Off> \n"
         "        <Shading_Def> ::= 'shading' 'flat' | 'gouraud' | 'phong' \n"
+		"        <Point_Size_Def> ::= 'point_size' <#size> \n"
+		"        <Point_Sprites_Def> ::= 'point_sprites' <On_Off> \n"
+		"        <Point_Size_Min_Def> ::= 'point_size_min' <#size> \n"
+		"        <Point_Size_Max_Def> ::= 'point_size_max' <#size> \n"
+		"        <Point_Size_Attenuation_Def> ::= 'point_size_attenuation' <On_Off> [<Point_Size_Att_Params>] \n"
+		"            <Point_Size_Att_Params> ::= <#constant> <#linear> <#quadric> \n"
         "        <Fog_Override_Def> ::= 'fog_override' <fog_false> | <fog_true> \n"
         "           <fog_false> ::= 'false' \n"
         "           <fog_true> ::= 'true' [<Fog_parameters>] \n"
         "               <Fog_parameters> ::= <fog_type> <fog_colour> <#fog_density> <#start> <#end> \n"
-        "                   <fog_type> ::= 'none' | 'linear' | 'exp' | 'exp2'; \n"
+        "                   <fog_type> ::= 'none' | 'linear' | 'exp' | 'exp2' \n"
         "                   <fog_colour> ::= <#red> <#green> <#blue> \n"
         "        <Max_Lights_Def> ::= 'max_lights' <#number> \n"
         "        <Iteration_Def> ::= 'iteration' 'once' | <Iteration_Once_Params> | <Iteration_Counted> \n"
@@ -185,6 +193,10 @@ namespace Ogre {
                 addLexemeTokenAction("gouraud", ID_GOURAUD);
                 addLexemeTokenAction("phong", ID_PHONG);
             addLexemeTokenAction("point_size", ID_POINT_SIZE, &MaterialScriptCompiler::parsePointSize);
+            addLexemeTokenAction("point_sprites", ID_POINT_SPRITES, &MaterialScriptCompiler::parsePointSprites);
+            addLexemeTokenAction("point_size_attenuation", ID_POINT_SIZE_ATTENUATION, &MaterialScriptCompiler::parsePointSizeAttenuation);
+            addLexemeTokenAction("point_size_min", ID_POINT_SIZE_MIN, &MaterialScriptCompiler::parsePointSizeMin);
+            addLexemeTokenAction("point_size_max", ID_POINT_SIZE_MAX, &MaterialScriptCompiler::parsePointSizeMax);
 
         // Texture Unit section
         addLexemeTokenAction("texture_unit", ID_TEXTURE_UNIT, &MaterialScriptCompiler::parseTextureUnit);
@@ -871,6 +883,61 @@ namespace Ogre {
     {
         mScriptContext.pass->setPointSize(getNextTokenValue());
     }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parsePointSprites(void)
+	{
+        switch (getNextToken().mID)
+        {
+        case ID_ON:
+            mScriptContext.pass->setPointSpritesEnabled(true);
+            break;
+        case ID_OFF:
+            mScriptContext.pass->setPointSpritesEnabled(false);
+            break;
+        default:
+            logParseError("Bad point_sprites attribute, valid parameters are 'on' or 'off'.");
+        }
+	}
+    //-----------------------------------------------------------------------
+	void MaterialScriptCompiler::parsePointSizeMin(void)
+	{
+        mScriptContext.pass->setPointMinSize(getNextTokenValue());
+	}
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parsePointSizeMax(void)
+	{
+        mScriptContext.pass->setPointMaxSize(getNextTokenValue());
+	}
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parsePointSizeAttenuation(void)
+	{
+        const size_t paramCount = getTokenQueCount();
+        if (paramCount != 1 && paramCount != 4)
+        {
+            logParseError("Bad point_size_attenuation attribute, wrong number of parameters (expected 1 or 4)");
+            return;
+        }
+        switch (getNextToken().mID)
+        {
+        case ID_ON:
+			if (paramCount != 4)
+			{
+            	logParseError("Bad point_size_attenuation attribute, wrong number of parameters (4 needed)");
+           		return;
+			}
+			Real constant = getNextTokenValue();
+			Real linear = getNextTokenValue();
+			Real quadric = getNextTokenValue();
+			
+            mScriptContext.pass->setPointAttenuation(true, constant, linear, quadric);
+            break;
+        case ID_OFF:
+            mScriptContext.pass->setPointAttenuation(false);
+            break;
+        default:
+            logParseError("Bad point_size_attenuation attribute, valid values are 'on' or 'off'.");
+        }
+	}
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseTextureCustomParameter(void)
     {

@@ -707,8 +707,17 @@ const Pass* SceneManager::setPass(const Pass* pass)
 		mDestRenderSystem->_setSceneBlending(
 			pass->getSourceBlendFactor(), pass->getDestBlendFactor());
 
-		// Set point size
-		mDestRenderSystem->_setPointSize(pass->getPointSize());
+		// Set point parameters
+		mDestRenderSystem->_setPointParameters(
+			pass->getPointSize(),
+			pass->isPointAttenuationEnabled(), 
+			pass->getPointAttenuationConstant(), 
+			pass->getPointAttenuationLinear(), 
+			pass->getPointAttenuationQuadratic(), 
+			pass->getPointMinSize(), 
+			pass->getPointMaxSize());
+
+		mDestRenderSystem->_setPointSpritesEnabled(pass->getPointSpritesEnabled());
 
 		// Texture unit settings
 

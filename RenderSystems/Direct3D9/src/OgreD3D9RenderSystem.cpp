@@ -762,6 +762,9 @@ namespace Ogre
 
 		}
 
+		// Point size (unbounded in D3D)
+		mCapabilities->setMaxPointSize(10000);
+
 		Log* defaultLog = LogManager::getSingleton().getDefaultLog();
 		if (defaultLog)
 		{
@@ -1318,10 +1321,41 @@ namespace Ogre
         
 	}
 	//---------------------------------------------------------------------
-    void D3D9RenderSystem::_setPointSize(Real ps)
+	void D3D9RenderSystem::_setPointParameters(Real size, 
+		bool attenuationEnabled, Real constant, Real linear, Real quadratic,
+		Real minSize, Real maxSize)
     {
-        __SetRenderState(D3DRS_POINTSIZE, *((LPDWORD)(&ps)));
+		if(attenuationEnabled)
+		{
+			// scaling required
+			__SetRenderState(D3DRS_POINTSCALEENABLE, TRUE);
+			__SetRenderState(D3DRS_POINTSCALE_A, *((LPDWORD)(&constant)));
+			__SetRenderState(D3DRS_POINTSCALE_B, *((LPDWORD)(&linear)));
+			__SetRenderState(D3DRS_POINTSCALE_C, *((LPDWORD)(&quadratic)));
+		}
+		else
+		{
+			// no scaling required
+			__SetRenderState(D3DRS_POINTSCALEENABLE, FALSE);
+		}
+		__SetRenderState(D3DRS_POINTSIZE, *((LPDWORD)(&size)));
+		__SetRenderState(D3DRS_POINTSIZE_MIN, *((LPDWORD)(&minSize)));
+		__SetRenderState(D3DRS_POINTSIZE_MAX, *((LPDWORD)(&maxSize)));
+
+
     }
+	//---------------------------------------------------------------------
+	void D3D9RenderSystem::_setPointSpritesEnabled(bool enabled)
+	{
+		if (enabled)
+		{
+			__SetRenderState(D3DRS_POINTSPRITEENABLE, TRUE);
+		}
+		else
+		{
+			__SetRenderState(D3DRS_POINTSPRITEENABLE, FALSE);
+		}
+	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTexture( size_t stage, bool enabled, const String &texname )
 	{

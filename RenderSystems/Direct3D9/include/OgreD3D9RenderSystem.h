@@ -211,7 +211,9 @@ namespace Ogre
 		void _setViewMatrix( const Matrix4 &m );
 		void _setProjectionMatrix( const Matrix4 &m );
 		void _setSurfaceParams( const ColourValue &ambient, const ColourValue &diffuse, const ColourValue &specular, const ColourValue &emissive, Real shininess, TrackVertexColourType tracking );
-        void _setPointSize( Real ps );
+		void _setPointSpritesEnabled(bool enabled);
+		void _setPointParameters(Real size, bool attenuationEnabled, 
+			Real constant, Real linear, Real quadratic, Real minSize, Real maxSize);
 		void _setTexture( size_t unit, bool enabled, const String &texname );
         void _setTextureCoordSet( size_t unit, size_t index );
         void _setTextureCoordCalculation(size_t unit, TexCoordCalcMethod m, 
