@@ -37,6 +37,7 @@ namespace Ogre {
     BillboardParticleRenderer::CmdBillboardRotationType BillboardParticleRenderer::msBillboardRotationTypeCmd;
     BillboardParticleRenderer::CmdCommonDirection BillboardParticleRenderer::msCommonDirectionCmd;
     BillboardParticleRenderer::CmdCommonUpVector BillboardParticleRenderer::msCommonUpVectorCmd;
+    BillboardParticleRenderer::CmdPointRendering BillboardParticleRenderer::msPointRenderingCmd;
     //-----------------------------------------------------------------------
     BillboardParticleRenderer::BillboardParticleRenderer()
     {
@@ -81,6 +82,14 @@ namespace Ogre {
 				"the player and parallel to the ground).",
                 PT_VECTOR3),
                 &msCommonUpVectorCmd);
+            dict->addParameter(ParameterDef("point_rendering",
+                "Set whether or not particles will use point rendering "
+				"rather than manually generated quads. This allows for faster "
+				"rendering of point-oriented particles although introduces some "
+				"limitations too such as requiring a common particle size."
+				"Possible values are 'true' or 'false'.",
+                PT_STRING),
+                &msPointRenderingCmd);
         }
 
         // Create billboard set
@@ -214,6 +223,16 @@ namespace Ogre {
 	void BillboardParticleRenderer::setKeepParticlesInLocalSpace(bool keepLocal)
 	{
 		mBillboardSet->setBillboardsInWorldSpace(!keepLocal);
+	}
+	//-----------------------------------------------------------------------
+	void BillboardParticleRenderer::setPointRenderingEnabled(bool enabled)
+	{
+		mBillboardSet->setPointRenderingEnabled(enabled);
+	}
+	//-----------------------------------------------------------------------
+	bool BillboardParticleRenderer::isPointRenderingEnabled(void) const
+	{
+		return mBillboardSet->isPointRenderingEnabled();
 	}
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
@@ -399,6 +418,17 @@ namespace Ogre {
     {
         static_cast<BillboardParticleRenderer*>(target)->setCommonUpVector(
             StringConverter::parseVector3(val));
+    }
+    //-----------------------------------------------------------------------
+    String BillboardParticleRenderer::CmdPointRendering::doGet(const void* target) const
+    {
+        return StringConverter::toString(
+            static_cast<const BillboardParticleRenderer*>(target)->isPointRenderingEnabled() );
+    }
+    void BillboardParticleRenderer::CmdPointRendering::doSet(void* target, const String& val)
+    {
+        static_cast<BillboardParticleRenderer*>(target)->setPointRenderingEnabled(
+            StringConverter::parseBool(val));
     }
 
 }

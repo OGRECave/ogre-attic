@@ -82,6 +82,13 @@ namespace Ogre {
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
+        /** Command object for point rendering (see ParamCommand).*/
+        class _OgrePrivate CmdPointRendering : public ParamCommand
+        {
+        public:
+            String doGet(const void* target) const;
+            void doSet(void* target, const String& val);
+        };
 
         /** Sets the type of billboard to render.
         @remarks
@@ -160,6 +167,14 @@ namespace Ogre {
         /** Gets the common up-vector for all billboards (BBT_PERPENDICULAR_SELF) */
         const Vector3& getCommonUpVector(void) const;
 
+		/// @copydoc BillboardSet::setPointRenderingEnabled
+		void setPointRenderingEnabled(bool enabled);
+
+		/// @copydoc BillboardSet::isPointRenderingEnabled
+		bool isPointRenderingEnabled(void) const;
+
+
+
         /// @copydoc ParticleSystemRenderer::getType
         const String& getType(void) const;
         /// @copydoc ParticleSystemRenderer::_updateRenderQueue
@@ -193,6 +208,7 @@ namespace Ogre {
         static CmdBillboardRotationType msBillboardRotationTypeCmd;
         static CmdCommonDirection msCommonDirectionCmd;
         static CmdCommonUpVector msCommonUpVectorCmd;
+        static CmdPointRendering msPointRenderingCmd;
 
 
     };

@@ -917,7 +917,7 @@ Note: use gpu program auto parameters @ref{pass_number} and @ref{pass_iteration_
 
 This setting allows you to change the size of points when rendering a point list, or a list of point sprites. The interpretation of this command depends on the @ref{point_size_attenuation} option - if it is off (the default), the point size is in screen pixels, if it is on, it expressed as normalised screen coordinates (1.0 is the height of the screen) when the point is at the origin.  @*@*
 
-NOTE: GL has a limitation on the size of points it supports, and will clamp the size of your points lower than you might think (e.g. on an FX5900 the max size is 63 pixels). D3D has no such limit.@*@*
+NOTE: Some drivers have an upper limit on the size of points they support - this can even vary between APIs on the same card! Don't rely on point sizes that cause the points to get very large on screen, since they may get clamped on some cards. Upper sizes can range from 64 to 256 pixels.@*@*
 
 Format: point_size <size>@*@*
 Default: point_size 1.0@*@*
@@ -1891,6 +1891,8 @@ For a detailed description of the core particle system attributes, see the list 
 @ref{particle_sorted, sorted}
 @item
 @ref{particle_localspace, local_space}
+@item
+@ref{particle_point_rendering, point_rendering}
 @end itemize
 See also: @ref{Particle Emitters}, @ref{Particle Affectors}
 
@@ -2061,6 +2063,25 @@ example: common_up_vector 0 1 0@*
 default: 0 1 0@*
 @*@*
 See also: @ref{Particle Emitters}, @ref{Particle Affectors}
+
+@anchor{particle_point_rendering}
+@subheading point_rendering
+
+This is actually an attribute of the 'billboard' particle renderer (the default), and sets whether or not the billboardset will use point rendering rather than manually generated quads.@*@*
+
+By default a billboardset is rendered by generating geometry for a textured quad in memory, taking into account the size and orientation settings, and uploading it to the video card. The alternative is to use hardware point rendering, which means that	only one position needs to be sent per billboard rather than 4 and	the hardware sorts out how this is rendered based on the render	state.@*@*
+
+Using point rendering is faster than generating quads manually, but	is more restrictive. The following restrictions apply:
+@itemize @bullet
+@item Only the 'point' orientation type is supported
+@item Size and appearance of each particle is controlled by the material pass (@ref{point_size}, @ref{point_size_attenuation}, @ref{point_sprites})
+@item Per-particle size is not supported (stems from the above)
+@item Per-particle rotation is not supported, and this can only be controlled through texture unit rotation in the material definition
+@item Only 'center' origin is supported
+@item Some drivers have an upper limit on the size of points they support - this can even vary between APIs on the same card! Don't rely on point sizes that cause the point sprites to get very large on screen, since they may get clamped on some cards. Upper sizes can range from 64 to 256 pixels.
+@end itemize
+You will almost certainly want to enable in your material pass both point attenuation and point sprites if you use this option. @*@*
+
 
 @node Particle Emitters
 @subsection Particle Emitters
