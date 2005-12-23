@@ -172,6 +172,8 @@
         _ZT[ISV]N4Ogre31TexCoordModifierControllerValueE;
         _ZT[ISV]N4Ogre[0-9][0-9][U-W]*;
         _ZT[ISV]N4Ogre10ZipArchiveE;
+		_ZT[ISV]N4Ogre8TagPointE;
+        _ZT[ISV]N4Ogre16MemoryDataStreamE;
 
         # export thunks
         _ZThn*;
