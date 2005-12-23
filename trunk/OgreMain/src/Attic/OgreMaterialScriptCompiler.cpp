@@ -920,16 +920,18 @@ namespace Ogre {
         switch (getNextToken().mID)
         {
         case ID_ON:
-			if (paramCount != 4)
+			if (paramCount == 4)
 			{
-            	logParseError("Bad point_size_attenuation attribute, wrong number of parameters (4 needed)");
-           		return;
+				Real constant = getNextTokenValue();
+				Real linear = getNextTokenValue();
+				Real quadric = getNextTokenValue();
+	            mScriptContext.pass->setPointAttenuation(true, constant, linear, quadric);
 			}
-			Real constant = getNextTokenValue();
-			Real linear = getNextTokenValue();
-			Real quadric = getNextTokenValue();
+			else
+			{
+				mScriptContext.pass->setPointAttenuation(true);
+			}
 			
-            mScriptContext.pass->setPointAttenuation(true, constant, linear, quadric);
             break;
         case ID_OFF:
             mScriptContext.pass->setPointAttenuation(false);
