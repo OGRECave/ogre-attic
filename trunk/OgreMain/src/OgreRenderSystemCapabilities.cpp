@@ -141,6 +141,9 @@ namespace Ogre {
 		pLog->logMessage(
             " * Multiple Render Targets: " 
             + StringConverter::toString(mNumMultiRenderTargets));
+		pLog->logMessage(
+			" * Max Point Size: " 
+			+ StringConverter::toString(mMaxPointSize));
 
     }
 };

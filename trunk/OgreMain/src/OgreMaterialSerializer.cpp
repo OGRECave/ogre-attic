@@ -527,6 +527,63 @@ namespace Ogre
         return false;
     }
     //-----------------------------------------------------------------------
+    bool parsePointSprites(String& params, MaterialScriptContext& context)
+    {
+        if (params=="on")
+	        context.pass->setPointSpritesEnabled(true);
+		else if (params=="off")
+	        context.pass->setPointSpritesEnabled(false);
+		else
+            logParseError(
+                "Bad point_sprites attribute, valid parameters are 'on' or 'off'.", context);
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+	bool parsePointAttenuation(String& params, MaterialScriptContext& context)
+	{
+        StringVector vecparams = StringUtil::split(params, " \t");
+        if (vecparams.size() != 1 && vecparams.size() != 4)
+		{
+			logParseError("Bad point_size_attenuation attribute, 1 or 4 parameters expected", context);
+			return false;
+		}
+		if (vecparams[0] == "off")
+		{
+			context.pass->setPointAttenuation(false);
+		}
+		else if (vecparams[0] == "on")
+		{
+			if (vecparams.size() == 4)
+			{
+				context.pass->setPointAttenuation(true, 
+					StringConverter::parseReal(vecparams[1]), 
+					StringConverter::parseReal(vecparams[2]),
+					StringConverter::parseReal(vecparams[3]));
+			}
+			else
+			{
+				context.pass->setPointAttenuation(true);
+			}
+		}
+		
+		return false;
+	}
+    //-----------------------------------------------------------------------
+	bool parsePointSizeMin(String& params, MaterialScriptContext& context)
+	{
+		context.pass->setPointMinSize(
+			StringConverter::parseReal(params));
+		return false;
+	}
+    //-----------------------------------------------------------------------
+	bool parsePointSizeMax(String& params, MaterialScriptContext& context)
+	{
+		context.pass->setPointMaxSize(
+			StringConverter::parseReal(params));
+		return false;
+	}
+    //-----------------------------------------------------------------------
     bool parseFogging(String& params, MaterialScriptContext& context)
     {
         StringUtil::toLowerCase(params);
@@ -2348,6 +2405,10 @@ namespace Ogre
         mPassAttribParsers.insert(AttribParserList::value_type("max_lights", (ATTRIBUTE_PARSER)parseMaxLights));
         mPassAttribParsers.insert(AttribParserList::value_type("iteration", (ATTRIBUTE_PARSER)parseIteration));
 		mPassAttribParsers.insert(AttribParserList::value_type("point_size", (ATTRIBUTE_PARSER)parsePointSize));
+		mPassAttribParsers.insert(AttribParserList::value_type("point_sprites", (ATTRIBUTE_PARSER)parsePointSprites));
+		mPassAttribParsers.insert(AttribParserList::value_type("point_size_attenuation", (ATTRIBUTE_PARSER)parsePointAttenuation));
+		mPassAttribParsers.insert(AttribParserList::value_type("point_size_min", (ATTRIBUTE_PARSER)parsePointSizeMin));
+		mPassAttribParsers.insert(AttribParserList::value_type("point_size_max", (ATTRIBUTE_PARSER)parsePointSizeMax));
 
         // Set up texture unit attribute parsers
 		mTextureUnitAttribParsers.insert(AttribParserList::value_type("texture_source", (ATTRIBUTE_PARSER)parseTextureSource));

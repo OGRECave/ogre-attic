@@ -64,7 +64,9 @@ namespace Ogre {
             ID_COLOUR_WRITE, ID_CULL_HARDWARE, ID_CLOCKWISE, ID_ANTICLOCKWISE, ID_CULL_NONE,
             ID_CULL_SOFTWARE, ID_CULL_BACK, ID_CULL_FRONT,
             ID_SHADING, ID_FLAT, ID_GOURAUD, ID_PHONG,
-            ID_LIGHTING, ID_MAX_LIGHTS, ID_FOG_OVERRIDE, ID_POINT_SIZE,
+            ID_LIGHTING, ID_MAX_LIGHTS, ID_FOG_OVERRIDE, 
+			ID_POINT_SIZE, ID_POINT_SPRITES, ID_POINT_ATTENUATION,
+			ID_POINT_SIZE_MIN, ID_POINT_SIZE_MAX
 
             ID_TEXTURE_UNIT,
 
@@ -181,6 +183,10 @@ namespace Ogre {
         void parseMaxLights(void);
         void parseShading(void);
         void parsePointSize(void);
+        void parsePointSprites(void);
+        void parsePointSizeMin(void);
+        void parsePointSizeMax(void);
+        void parsePointSizeAttenuation(void);
 
         void parseTextureUnit(void);
         void parseTextureCustomParameter(void);

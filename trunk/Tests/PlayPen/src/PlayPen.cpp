@@ -2971,6 +2971,48 @@ protected:
 
 	}
 
+	void testPointSprites()
+	{
+		MaterialPtr mat = MaterialManager::getSingleton().create("spriteTest1", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setPointSpritesEnabled(true);
+		p->createTextureUnitState("flare.png");
+		p->setLightingEnabled(false);
+		p->setDepthWriteEnabled(false);
+		p->setSceneBlending(SBT_ADD);
+		p->setPointAttenuation(true);
+		p->setPointSize(1);
+		srand((unsigned)time( NULL ) );
+
+		ManualObject* man = mSceneMgr->createManualObject("man");
+		man->begin("spriteTest1", RenderOperation::OT_POINT_LIST);
+		/*
+		for (size_t i = 0; i < 1000; ++i)
+		{
+			man->position(Math::SymmetricRandom() * 500, 
+				Math::SymmetricRandom() * 500, 
+				Math::SymmetricRandom() * 500);
+			man->colour(Math::RangeRandom(0.5f, 1.0f), 
+				Math::RangeRandom(0.5f, 1.0f), Math::RangeRandom(0.5f, 1.0f));
+		}
+		*/
+		for (size_t i = 0; i < 20; ++i)
+		{
+			for (size_t j = 0; j < 20; ++j)
+			{
+				for (size_t k = 0; k < 20; ++k)
+				{
+					man->position(i * 30, j * 30, k * 30);
+				}
+			}
+		}
+
+		man->end();
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(man);
+
+	}
+
     // Just override the mandatory create scene method
     void createScene(void)
     {
@@ -3030,7 +3072,8 @@ protected:
 		//testBug();
 		//testManualObjectNonIndexed();
 		//testManualObjectIndexed();
-		testCustomProjectionMatrix();
+		//testCustomProjectionMatrix();
+		testPointSprites();
 
 		
     }

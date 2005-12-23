@@ -118,6 +118,8 @@ namespace Ogre {
             ushort mFragmentProgramConstantBoolCount;
 			/// The number of simultaneous render targets supported
 			ushort mNumMultiRenderTargets;
+			/// The maximum point size
+			Real mMaxPointSize;
 
     	public:	
             RenderSystemCapabilities ();
@@ -296,6 +298,17 @@ namespace Ogre {
             {
                 mFragmentProgramConstantBoolCount = c;           
             }
+			/// Maximum point screen size in pixels
+			void setMaxPointSize(Real s)
+			{
+				mMaxPointSize = s;
+			}
+			/// Maximum point screen size in pixels
+			Real getMaxPointSize(void) const
+			{
+				return mMaxPointSize;
+			}
+
 
             /** Write the capabilities to the pass in Log */
             void log(Log* pLog);
