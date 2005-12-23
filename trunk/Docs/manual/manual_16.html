@@ -645,7 +645,7 @@ material Fur
 This setting allows you to change the size of points when rendering a point list, or a list of point sprites. The interpretation of this command depends on the <A HREF="manual_16.html#SEC56">point_size_attenuation</A> option - if it is off (the default), the point size is in screen pixels, if it is on, it expressed as normalised screen coordinates (1.0 is the height of the screen) when the point is at the origin.  <BR><BR>
 </P><P>
 
-NOTE: GL has a limitation on the size of points it supports, and will clamp the size of your points lower than you might think (e.g. on an FX5900 the max size is 63 pixels). D3D has no such limit.<BR><BR>
+NOTE: Some drivers have an upper limit on the size of points they support - this can even vary between APIs on the same card! Don't rely on point sizes that cause the points to get very large on screen, since they may get clamped on some cards. Upper sizes can range from 64 to 256 pixels.<BR><BR>
 </P><P>
 
 Format: point_size &#60;size&#62;<BR><BR>

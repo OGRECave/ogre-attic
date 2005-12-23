@@ -307,8 +307,18 @@ namespace Ogre {
 
 		/** Sets the point size of this pass.
 		@remarks
-			This property determines what point size is used to render a point 
-			list.
+			This setting allows you to change the size of points when rendering 
+			a point list, or a list of point sprites. The interpretation of this 
+			command depends on the Pass::setPointSizeAttenuation option - if it 
+			is off (the default), the point size is in screen pixels, if it is on, 
+			it expressed as normalised screen coordinates (1.0 is the height of 
+			the screen) when the point is at the origin.
+		@note 
+			Some drivers have an upper limit on the size of points they support 
+			- this can even vary between APIs on the same card! Don't rely on 
+			point sizes that cause the point sprites to get very large on screen, 
+			since they may get clamped on some cards. Upper sizes can range from 
+			64 to 256 pixels.
 		*/
 		void setPointSize(Real ps);
 		

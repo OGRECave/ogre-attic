@@ -256,6 +256,9 @@ namespace Ogre {
 
 		static RadixSort<ActiveBillboardList, Billboard*, float> mRadixSorter;
 
+		/// Use point rendering?
+		bool mPointRendering;
+
 
 
     private:
@@ -269,6 +272,9 @@ namespace Ogre {
         /** Internal method creates vertex and index buffers.
         */
         void _createBuffers(void);
+        /** Internal method destroys vertex and index buffers.
+        */
+        void _destroyBuffers(void);
 
     public:
 
@@ -726,6 +732,40 @@ namespace Ogre {
           */
         virtual Ogre::FloatRect const * getTextureCoords( uint16 * oNumCoords );
 
+		/** Set whether or not the BillboardSet will use point rendering
+			rather than manually generated quads.
+		@remarks
+			By default a billboardset is rendered by generating geometry for a
+			textured quad in memory, taking into account the size and 
+			orientation settings, and uploading it to the video card. 
+			The alternative is to use hardware point rendering, which means that
+			only one position needs to be sent per billboard rather than 4 and
+			the hardware sorts out how this is rendered based on the render
+			state.
+		@par
+			Using point rendering is faster than generating quads manually, but
+			is more restrictive. The following restrictions apply:
+			\li Only the BBT_POINT type is supported
+			\li Size and appearance of each billboard is controlled by the 
+				material (Pass::setPointSize, Pass::setPointSizeAttenuation, 
+				Pass::setPointSpritesEnabled)
+			\li Per-billboard size is not supported (stems from the above)
+			\li Per-billboard rotation is not supported, this can only be 
+				controlled through texture unit rotation
+			\li Only BBO_CENTER origin is supported
+			\li Per-billboard texture coordinates are not supported
+
+		@par
+			You will almost certainly want to enable in your material pass
+			both point attenuation and point sprites if you use this option. 
+		@param enabled True to enable point rendering, false otherwise
+		*/
+		virtual void setPointRenderingEnabled(bool enabled);
+
+		/** Returns whether point rendering is enabled. */
+		virtual bool isPointRenderingEnabled(void) const
+		{ return mPointRendering; }
+		
 		/// Override to return specific type flag
 		uint32 getTypeFlags(void) const;
 

@@ -35,6 +35,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreException.h"
 #include "OgreStringConverter.h"
+#include "OgreLogManager.h"
 #include <algorithm>
 
 namespace Ogre {
@@ -58,7 +59,8 @@ namespace Ogre {
         mCommonUpVector(Vector3::UNIT_Y),
         mBuffersCreated(false),
         mPoolSize(0),
-        mExternalData(false)
+        mExternalData(false), 
+		mPointRendering(false)
     {
         setDefaultDimensions( 100, 100 );
         setMaterialName( "BaseWhite" );
@@ -87,7 +89,8 @@ namespace Ogre {
         mCommonUpVector(Vector3::UNIT_Y),
         mBuffersCreated(false),
         mPoolSize(poolSize),
-        mExternalData(externalData)
+        mExternalData(externalData),
+		mPointRendering(false)
     {
         setDefaultDimensions( 100, 100 );
         setMaterialName( "BaseWhite" );
@@ -106,17 +109,7 @@ namespace Ogre {
         }
 
         // Delete shared buffers
-        if(mVertexData)
-        {
-            delete mVertexData;
-            mVertexData = 0;
-        }
-            
-        if(mIndexData)
-        {
-            delete mIndexData;
-            mIndexData = 0;
-        }
+		_destroyBuffers();
     }
     //-----------------------------------------------------------------------
     Billboard* BillboardSet::createBillboard(
@@ -363,45 +356,48 @@ namespace Ogre {
         if(!mBuffersCreated)
             _createBuffers();
 
-
-
-        // Get offsets for origin type
-        getParametricOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff);
-
-        // Calculate camera orientation
-        mCamQ = mCurrentCamera->getDerivedOrientation();
-		if (mCurrentCamera->isReflected())
+		// Only calculate vertex offets et al if we're not point rendering
+		if (!mPointRendering)
 		{
-			Vector3 dir = mCamQ * Vector3::NEGATIVE_UNIT_Z;
-			Vector3 rdir = dir.reflect(mCurrentCamera->getReflectionPlane().normal);
-			mCamQ = dir.getRotationTo(rdir) * mCamQ;
+
+			// Get offsets for origin type
+			getParametricOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff);
+
+			// Calculate camera orientation
+			mCamQ = mCurrentCamera->getDerivedOrientation();
+			if (mCurrentCamera->isReflected())
+			{
+				Vector3 dir = mCamQ * Vector3::NEGATIVE_UNIT_Z;
+				Vector3 rdir = dir.reflect(mCurrentCamera->getReflectionPlane().normal);
+				mCamQ = dir.getRotationTo(rdir) * mCamQ;
+			}
+
+			if (!mWorldSpace)
+			{
+				// Default behaviour is that billboards are in local node space
+				// so orientation of camera (in world space) must be reverse-transformed 
+				// into node space
+				mCamQ = mParentNode->_getDerivedOrientation().Inverse() * mCamQ;
+			}
+
+			// Camera direction points down -Z
+			mCamDir = mCamQ * Vector3::NEGATIVE_UNIT_Z;
+
+			// Generate axes etc up-front if not oriented per-billboard
+			if (mBillboardType != BBT_ORIENTED_SELF &&
+				mBillboardType != BBT_PERPENDICULAR_SELF)
+			{
+				genBillboardAxes(&mCamX, &mCamY);
+
+				/* If all billboards are the same size we can precalculate the
+				   offsets and just use '+' instead of '*' for each billboard,
+				   and it should be faster.
+				*/
+				genVertOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff, 
+					mDefaultWidth, mDefaultHeight, mCamX, mCamY, mVOffset);
+
+			}
 		}
-
-        if (!mWorldSpace)
-        {
-            // Default behaviour is that billboards are in local node space
-            // so orientation of camera (in world space) must be reverse-transformed 
-            // into node space
-            mCamQ = mParentNode->_getDerivedOrientation().Inverse() * mCamQ;
-        }
-
-        // Camera direction points down -Z
-        mCamDir = mCamQ * Vector3::NEGATIVE_UNIT_Z;
-
-        // Generate axes etc up-front if not oriented per-billboard
-        if (mBillboardType != BBT_ORIENTED_SELF &&
-            mBillboardType != BBT_PERPENDICULAR_SELF)
-        {
-            genBillboardAxes(&mCamX, &mCamY);
-
-            /* If all billboards are the same size we can precalculate the
-               offsets and just use '+' instead of '*' for each billboard,
-               and it should be faster.
-            */
-            genVertOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff, 
-                mDefaultWidth, mDefaultHeight, mCamX, mCamY, mVOffset);
-
-        }
 
         // Init num visible
         mNumVisibleBillboards = 0;
@@ -417,29 +413,32 @@ namespace Ogre {
         // Skip if not visible (NB always true if not bounds checking individual billboards)
         if (!billboardVisible(mCurrentCamera, bb)) return;
 
-        if (mBillboardType == BBT_ORIENTED_SELF ||
-            mBillboardType == BBT_PERPENDICULAR_SELF)
+        if (!mPointRendering &&
+			(mBillboardType == BBT_ORIENTED_SELF ||
+            mBillboardType == BBT_PERPENDICULAR_SELF))
         {
             // Have to generate axes & offsets per billboard
             genBillboardAxes(&mCamX, &mCamY, &bb);
         }
 
-        if( mAllDefaultSize ) // If they're all the same size
+		// If they're all the same size or we're point rendering
+        if( mAllDefaultSize || mPointRendering) 
         {
             /* No per-billboard checking, just blast through.
             Saves us an if clause every billboard which may
             make a difference.
             */
 
-            if (mBillboardType == BBT_ORIENTED_SELF ||
-                mBillboardType == BBT_PERPENDICULAR_SELF)
+            if (!mPointRendering &&
+				(mBillboardType == BBT_ORIENTED_SELF ||
+           		mBillboardType == BBT_PERPENDICULAR_SELF))
             {
                 genVertOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff, 
                     mDefaultWidth, mDefaultHeight, mCamX, mCamY, mVOffset);
             }
             genVertices(mVOffset, bb);
         }
-        else // not all default size
+        else // not all default size and not point rendering
         {
             Vector3 vOwnOffset[4];
             // If it has own dimensions, or self-oriented, gen offsets
@@ -560,16 +559,27 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BillboardSet::getRenderOperation(RenderOperation& op)
     {
-        op.operationType = RenderOperation::OT_TRIANGLE_LIST;
-        op.useIndexes = true;
-
         op.vertexData = mVertexData;
-        op.vertexData->vertexCount = mNumVisibleBillboards * 4;
-        op.vertexData->vertexStart = 0;
+       	op.vertexData->vertexStart = 0;
 
-        op.indexData = mIndexData;
-        op.indexData->indexCount = mNumVisibleBillboards * 6;
-        op.indexData->indexStart = 0;
+		if (mPointRendering)
+		{
+			op.operationType = RenderOperation::OT_POINT_LIST;
+    	    op.useIndexes = false;
+			op.indexData = 0;
+			op.vertexData->vertexCount = mNumVisibleBillboards;
+		}
+		else
+		{
+			op.operationType = RenderOperation::OT_TRIANGLE_LIST;
+    	    op.useIndexes = true;
+
+    	    op.vertexData->vertexCount = mNumVisibleBillboards * 4;
+
+	        op.indexData = mIndexData;
+    	    op.indexData->indexCount = mNumVisibleBillboards * 6;
+        	op.indexData->indexStart = 0;
+		}
     }
 
     //-----------------------------------------------------------------------
@@ -642,18 +652,8 @@ namespace Ogre {
         }
 
         mPoolSize = size;
-        mBuffersCreated = false;
-
-        if (mVertexData)
-        {
-            delete mVertexData;
-            mVertexData = 0;
-        }
-        if (mIndexData)
-        {
-            delete mIndexData;
-            mIndexData = 0;
-        }
+        
+		_destroyBuffers();
     }
 
     //-----------------------------------------------------------------------
@@ -664,15 +664,29 @@ namespace Ogre {
            rendering operations for the sections relating to the active billboards
         */
 
-        /* Alloc positions   ( 4 verts per billboard, 3 components )
+        /* Alloc positions   ( 1 or 4 verts per billboard, 3 components )
                  colours     ( 1 x RGBA per vertex )
-                 indices     ( 6 per billboard ( 2 tris ) )
-                 tex. coords ( 2D coords, 4 per billboard )
+                 indices     ( 6 per billboard ( 2 tris ) if not point rendering )
+                 tex. coords ( 2D coords, 1 or 4 per billboard )
         */
-        mVertexData = new VertexData();
-        mIndexData  = new IndexData();
 
-        mVertexData->vertexCount = mPoolSize * 4;
+		// Warn if user requested an invalid setup
+		// Do it here so it only appears once
+		if (mPointRendering && mBillboardType != BBT_POINT)
+		{
+			
+			LogManager::getSingleton().logMessage("Warning: BillboardSet " + 
+				mName + " has point rendering enabled but is using a type " 
+				"other than BBT_POINT, this may not give you the results you "
+				"expect.");
+		}
+		
+        mVertexData = new VertexData();
+		if (mPointRendering)
+			mVertexData->vertexCount = mPoolSize;
+		else
+			mVertexData->vertexCount = mPoolSize * 4;
+		
         mVertexData->vertexStart = 0;
 
         // Vertex declaration
@@ -694,54 +708,72 @@ namespace Ogre {
         // bind position and diffuses
         binding->setBinding(0, mMainBuf);
 
+		if (!mPointRendering)
+		{
+			mIndexData  = new IndexData();
+			mIndexData->indexStart = 0;
+			mIndexData->indexCount = mPoolSize * 6;
 
-        mIndexData->indexStart = 0;
-        mIndexData->indexCount = mPoolSize * 6;
+			mIndexData->indexBuffer = HardwareBufferManager::getSingleton().
+				createIndexBuffer(HardwareIndexBuffer::IT_16BIT,
+					mIndexData->indexCount,
+					HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 
-        mIndexData->indexBuffer = HardwareBufferManager::getSingleton().
-            createIndexBuffer(HardwareIndexBuffer::IT_16BIT,
-                mIndexData->indexCount,
-                HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+			/* Create indexes (will be the same every frame)
+			   Using indexes because it means 1/3 less vertex transforms (4 instead of 6)
 
-        /* Create indexes (will be the same every frame)
-           Using indexes because it means 1/3 less vertex transforms (4 instead of 6)
+			   Billboard layout relative to camera:
 
-           Billboard layout relative to camera:
+				2-----3
+				|    /|
+				|  /  |
+				|/    |
+				0-----1
+			*/
 
-            2-----3
-            |    /|
-            |  /  |
-            |/    |
-            0-----1
-        */
+			ushort* pIdx = static_cast<ushort*>(
+				mIndexData->indexBuffer->lock(0,
+				  mIndexData->indexBuffer->getSizeInBytes(),
+				  HardwareBuffer::HBL_DISCARD) );
 
-        ushort* pIdx = static_cast<ushort*>(
-            mIndexData->indexBuffer->lock(0,
-              mIndexData->indexBuffer->getSizeInBytes(),
-              HardwareBuffer::HBL_DISCARD) );
+			for(
+				size_t idx, idxOff, bboard = 0;
+				bboard < mPoolSize;
+				++bboard )
+			{
+				// Do indexes
+				idx    = bboard * 6;
+				idxOff = bboard * 4;
 
-        for(
-            size_t idx, idxOff, bboard = 0;
-            bboard < mPoolSize;
-            ++bboard )
-        {
-            // Do indexes
-            idx    = bboard * 6;
-            idxOff = bboard * 4;
+				pIdx[idx] = static_cast<unsigned short>(idxOff); // + 0;, for clarity
+				pIdx[idx+1] = static_cast<unsigned short>(idxOff + 1);
+				pIdx[idx+2] = static_cast<unsigned short>(idxOff + 3);
+				pIdx[idx+3] = static_cast<unsigned short>(idxOff + 0);
+				pIdx[idx+4] = static_cast<unsigned short>(idxOff + 3);
+				pIdx[idx+5] = static_cast<unsigned short>(idxOff + 2);
 
-            pIdx[idx] = static_cast<unsigned short>(idxOff); // + 0;, for clarity
-            pIdx[idx+1] = static_cast<unsigned short>(idxOff + 1);
-            pIdx[idx+2] = static_cast<unsigned short>(idxOff + 3);
-            pIdx[idx+3] = static_cast<unsigned short>(idxOff + 0);
-            pIdx[idx+4] = static_cast<unsigned short>(idxOff + 3);
-            pIdx[idx+5] = static_cast<unsigned short>(idxOff + 2);
+			}
 
-        }
-
-        mIndexData->indexBuffer->unlock();
+			mIndexData->indexBuffer->unlock();
+		}
         mBuffersCreated = true;
     }
+    //-----------------------------------------------------------------------
+	void BillboardSet::_destroyBuffers(void)
+	{
+        if (mVertexData)
+        {
+            delete mVertexData;
+            mVertexData = 0;
+        }
+        if (mIndexData)
+        {
+            delete mIndexData;
+            mIndexData = 0;
+        }
+		mBuffersCreated = false;
 
+	}
     //-----------------------------------------------------------------------
     unsigned int BillboardSet::getPoolSize(void) const
     {
@@ -974,7 +1006,25 @@ namespace Ogre {
         assert( bb.mTexCoords < mTextureCoords.size() );
         const Ogre::FloatRect & r = mTextureCoords[bb.mTexCoords];
 
-        if (mAllDefaultRotation || bb.mRotation == Radian(0))
+		if (mPointRendering)
+		{
+			// Single vertex per billboard, ignore offsets
+			// position
+            *mLockPtr++ = bb.mPosition.x;
+            *mLockPtr++ = bb.mPosition.y;
+            *mLockPtr++ = bb.mPosition.z;
+            // Colour
+            // Convert float* to RGBA*
+            pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
+            *pCol++ = colour;
+			// Update lock pointer
+			mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
+            // Texture coords irrelevant (generated in point sprite mode, 
+			// and unused in standard point mode)
+            mLockPtr += 2;
+
+		}
+		else if (mAllDefaultRotation || bb.mRotation == Radian(0))
         {
             // Left-top
             // Positions
@@ -1270,13 +1320,23 @@ namespace Ogre {
       }
       assert( coordIndex == (size_t)stacks * slices );
     }
-    
+	//-----------------------------------------------------------------------
     Ogre::FloatRect const * BillboardSet::getTextureCoords( uint16 * oNumCoords )
     {
       *oNumCoords = (uint16)mTextureCoords.size();
       //  std::vector<> is guaranteed to be contiguous
       return &mTextureCoords.front();
     }
+	//-----------------------------------------------------------------------
+	void BillboardSet::setPointRenderingEnabled(bool enabled)
+	{
+		if (enabled != mPointRendering)
+		{
+			mPointRendering = enabled;
+			// Different buffer structure (1 or 4 verts per billboard)
+			_destroyBuffers();
+		}
+	}
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
 	String BillboardSetFactory::FACTORY_TYPE_NAME = "BillboardSet";
