@@ -886,7 +886,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parsePointSprites(void)
 	{
-        switch (getNextToken().mID)
+        switch (getNextToken().mTokenID)
         {
         case ID_ON:
             mScriptContext.pass->setPointSpritesEnabled(true);
@@ -917,7 +917,7 @@ namespace Ogre {
             logParseError("Bad point_size_attenuation attribute, wrong number of parameters (expected 1 or 4)");
             return;
         }
-        switch (getNextToken().mID)
+        switch (getNextToken().mTokenID)
         {
         case ID_ON:
 			if (paramCount == 4)

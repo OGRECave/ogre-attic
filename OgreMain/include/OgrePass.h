@@ -141,8 +141,8 @@ namespace Ogre {
 		Real mPointSize;
 		Real mPointMinSize;
 		Real mPointMaxSize;
-		Real mPointSpritesEnabled;
-		Real mPointAttenuationEnabled;
+		bool mPointSpritesEnabled;
+		bool mPointAttenuationEnabled;
 		// constant, linear, quadratic coeffs
 		Real mPointAttenuationCoeffs[3];
 	public:
@@ -169,8 +169,10 @@ namespace Ogre {
         bool hasFragmentProgram(void) const { return mFragmentProgramUsage != NULL; }
         /// Returns true if this pass uses a shadow caster vertex program
         bool hasShadowCasterVertexProgram(void) const { return mShadowCasterVertexProgramUsage != NULL; }
-        /// Returns true if this pass uses a shadow caster vertex program
+        /// Returns true if this pass uses a shadow receiver vertex program
         bool hasShadowReceiverVertexProgram(void) const { return mShadowReceiverVertexProgramUsage != NULL; }
+        /// Returns true if this pass uses a shadow receiver fragment program
+        bool hasShadowReceiverFragmentProgram(void) const { return mShadowReceiverFragmentProgramUsage != NULL; }
 
 
         /// Gets the index of this Pass in the parent Technique
