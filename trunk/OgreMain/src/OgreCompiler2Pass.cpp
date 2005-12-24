@@ -88,6 +88,7 @@ namespace Ogre {
         {
             //  used by bootstrap BNF text parser
             //  <>	- non-terminal token
+            //  ()  - set of 
             // ::=	- rule definition
             #define _rule_(id)	    mBNFTokenState.mRootRulePath.push_back(TokenRule(otRULE, id));
             #define _is_(id)	    mBNFTokenState.mRootRulePath.push_back(TokenRule(otAND, id));
@@ -155,6 +156,7 @@ namespace Ogre {
                 _repeat_(BNF_LETTER_DIGIT)
                 _and_(BNF_ID_END)
             _end_
+
             // <terminal_symbol> ::= "'" { <any_character> } "'"
             _rule_(BNF_TERMINAL_SYMBOL)
                 _is_(BNF_SINGLEQUOTE)
@@ -162,26 +164,31 @@ namespace Ogre {
                 _and_(BNF_SINGLEQUOTE)
             _end_
 
-            // <any_character> ::= <letter> | <digit> | <special_characters>
+            // <any_character> ::= <letter_digit> | <special_characters>
+            _rule_(BNF_ANY_CHARACTER)
+                _is_(BNF_LETTER_DIGIT)
+                _or_(BNF_SPECIAL_CHARACTERS)
+            _end_
+
             // <letter_digit> ::= <letter> | <digit>
             _rule_(BNF_LETTER_DIGIT)
                 _is_(BNF_LETTER)
                 _or_(BNF_DIGIT)
             _end_
 
-            // <letter> ::= [abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ]
+            // <letter> ::= (abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ)
             _rule_(BNF_LETTER)
                 _is_(_character_)
                 _data_(BNF_ALPHA_SET)// "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
             _end_
 
-            // <digit> ::= [0123456789]
+            // <digit> ::= (0123456789)
             _rule_(BNF_DIGIT)
                 _is_(_character_)
                 _data_(BNF_NUMBER_SET)
             _end_
 
-            // <special_characters> ::= [`~!@#$%^&*()-_=+\|[]{}:;"'<>,.?/]
+            // <special_characters> ::= (`~!@#$%^&*()-_=+\|[]{}:;"'<>,.?/)
             _rule_(BNF_SPECIAL_CHARACTERS)
                 _is_(_character_)
                 _data_(BNF_SPECIAL_CHARACTER_SET)
