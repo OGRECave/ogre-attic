@@ -38,6 +38,7 @@ namespace Ogre {
     String PanelOverlayElement::msTypeName = "Panel";
     PanelOverlayElement::CmdTiling PanelOverlayElement::msCmdTiling;
     PanelOverlayElement::CmdTransparent PanelOverlayElement::msCmdTransparent;
+    PanelOverlayElement::CmdUVCoords PanelOverlayElement::msCmdUVCoords;
     //---------------------------------------------------------------------
     // vertex buffer bindings, set at compile time (we could look these up but no point)
     #define POSITION_BINDING 0
@@ -46,17 +47,21 @@ namespace Ogre {
     //---------------------------------------------------------------------
     PanelOverlayElement::PanelOverlayElement(const String& name)
         : OverlayContainer(name)
+        , mU1(0.0)
+        , mV1(0.0)
+        , mU2(1.0)
+        , mV2(1.0)
+        , mTransparent(false)
+        // Defer creation of texcoord buffer until we know how big it needs to be
+        , mNumTexCoordsInBuffer(0)
+
     {
-        mTransparent = false;
         // Init tiling
         for (ushort i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; ++i)
         {
             mTileX[i] = 1.0f;
             mTileY[i] = 1.0f;
         }
-
-        // Defer creation of texcoord buffer until we know how big it needs to be
-        mNumTexCoordsInBuffer = 0;
 
         // No normals or colours
         if (createParamDictionary("PanelOverlayElement"))
@@ -136,6 +141,22 @@ namespace Ogre {
     bool PanelOverlayElement::isTransparent(void) const
     {
         return mTransparent;
+    }
+    //---------------------------------------------------------------------
+    void PanelOverlayElement::setUV(Real u1, Real v1, Real u2, Real v2)
+    {
+		mU1 = u1; 
+		mU2 = u2; 
+		mV1 = v1; 
+		mV2 = v2; 
+		mGeomUVsOutOfDate = true;
+    }
+    void PanelOverlayElement::getUV(Real& u1, Real& v1, Real& u2, Real& v2) const
+    {
+		u1 = mU1; 
+		u2 = mU2; 
+		v1 = mV1; 
+		v2 = mV2; 
     }
     //---------------------------------------------------------------------
     const String& PanelOverlayElement::getTypeName(void) const
@@ -281,34 +302,35 @@ namespace Ogre {
 				size_t vertexSize = decl->getVertexSize(TEXCOORD_BINDING) / sizeof(float);
 				for (ushort i = 0; i < numLayers; ++i)
 				{
-					// Calc upper tex coords
-					Real upperX = 1.0f * mTileX[i];
-					Real upperY = 1.0f * mTileY[i];
-	                
-					/*
-						0-----2
-						|    /|
-						|  /  |
-						|/    |
-						1-----3
-					*/
-					// Find start offset for this set
-					float* pTex = pVBStart + (i * uvSize);
+				    // Calc upper tex coords
+                    Real upperX = mU2 * mTileX[i];
+                    Real upperY = mV2 * mTileY[i];
 
-					pTex[0] = 0.0f;
-					pTex[1] = 0.0f;
+                    
+				    /*
+					    0-----2
+					    |    /|
+					    |  /  |
+					    |/    |
+					    1-----3
+				    */
+				    // Find start offset for this set
+				    float* pTex = pVBStart + (i * uvSize);
 
-					pTex += vertexSize; // jump by 1 vertex stride
-					pTex[0] = 0.0f;
-					pTex[1] = upperY;
+                    pTex[0] = mU1;
+                    pTex[1] = mV1;
 
-					pTex += vertexSize;
-					pTex[0] = upperX;
-					pTex[1] = 0.0f;
+                    pTex += vertexSize; // jump by 1 vertex stride
+                    pTex[0] = mU1;
+                    pTex[1] = upperY;
 
-					pTex += vertexSize;
-					pTex[0] = upperX;
-					pTex[1] = upperY;
+                    pTex += vertexSize;
+                    pTex[0] = upperX;
+                    pTex[1] = mV1;
+
+                    pTex += vertexSize;
+                    pTex[0] = upperX;
+                    pTex[1] = upperY;
 				}
 				vbuf->unlock();
 			}
@@ -319,6 +341,11 @@ namespace Ogre {
     {
         OverlayContainer::addBaseParameters();
         ParamDictionary* dict = getParamDictionary();
+
+        dict->addParameter(ParameterDef("uv_coords", 
+           "The texture coordinates for the texture. 1 set of uv values."
+           , PT_STRING),
+           &msCmdUVCoords);
 
         dict->addParameter(ParameterDef("tiling", 
             "The number of times to repeat the background texture."
@@ -365,7 +392,29 @@ namespace Ogre {
         static_cast<PanelOverlayElement*>(target)->setTransparent(
             StringConverter::parseBool(val));
     }
+    //-----------------------------------------------------------------------
+    String PanelOverlayElement::CmdUVCoords::doGet(const void* target) const
+    {
+        Real u1, v1, u2, v2;
+        
+        static_cast<const PanelOverlayElement*>(target)->getUV(u1, v1, u2, v2);
+        String ret = " " + StringConverter::toString(u1) + " "
+             + StringConverter::toString(v1) + " " + StringConverter::toString(u2) + " "
+             + StringConverter::toString(v2);
 
+        return ret;
+    }
+    void PanelOverlayElement::CmdUVCoords::doSet(void* target, const String& val)
+    {
+        std::vector<String> vec = StringUtil::split(val);
+
+        static_cast<PanelOverlayElement*>(target)->setUV(
+            StringConverter::parseReal(vec[0]),
+            StringConverter::parseReal(vec[1]),
+            StringConverter::parseReal(vec[2]),
+            StringConverter::parseReal(vec[3])
+            );
+    }
 
 }
 

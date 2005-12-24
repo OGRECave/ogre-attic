@@ -71,6 +71,12 @@ namespace Ogre {
         */
         Real getTileY(ushort layer = 0) const;
 
+        /** Sets the texture coordinates for the panel. */
+        void setUV(Real u1, Real v1, Real u2, Real v2);
+
+        /** Get the uv coordinates for the panel*/
+        void getUV(Real& u1, Real& v1, Real& u2, Real& v2) const;
+
         /** Sets whether this panel is transparent (used only as a grouping level), or 
             if it is actually renderred.
         */
@@ -103,6 +109,13 @@ namespace Ogre {
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
+        /** Command object for specifying UV coordinates (see ParamCommand).*/
+        class _OgrePrivate CmdUVCoords : public ParamCommand
+        {
+        public:
+            String doGet(const void* target) const;
+            void doSet(void* target, const String& val);
+        };
     protected:
         // Flag indicating if this panel should be visual or just group things
         bool mTransparent;
@@ -110,6 +123,7 @@ namespace Ogre {
         Real mTileX[OGRE_MAX_TEXTURE_LAYERS];
         Real mTileY[OGRE_MAX_TEXTURE_LAYERS];
         size_t mNumTexCoordsInBuffer;
+        Real mU1, mV1, mU2, mV2;
 
         RenderOperation mRenderOp;
 
@@ -122,18 +136,14 @@ namespace Ogre {
         /// Method for setting up base parameters for this class
         void addBaseParameters(void);
 
-
         static String msTypeName;
-
 
         // Command objects
         static CmdTiling msCmdTiling;
         static CmdTransparent msCmdTransparent;
-
-        
+        static CmdUVCoords msCmdUVCoords;
 
     };
-
 
 }
 
