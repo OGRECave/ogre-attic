@@ -762,8 +762,8 @@ namespace Ogre
 
 		}
 
-		// Point size (unbounded in D3D)
-		mCapabilities->setMaxPointSize(10000);
+		// Point size
+		mCapabilities->setMaxPointSize(mCaps.MaxPointSize);
 
 		Log* defaultLog = LogManager::getSingleton().getDefaultLog();
 		if (defaultLog)
