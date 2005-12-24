@@ -146,6 +146,31 @@ namespace Ogre {
 		HDC old_hdc = wglGetCurrentDC();
 		HGLRC old_context = wglGetCurrentContext();
 
+		// Adjust pbuffer size to the texture size for best performance.
+		//
+		// Note: Since most NVIDIA card support rectangle texture (bear
+		// in mind the rectangle texture can't support mipmap at all), but
+		// we doesn't support this feature in texture, so, if the card
+		// doesn't support really NPOT texture, it'll resize to POT always.
+		// And, the NVIDIA card can create NPOT pbuffer since we wasn't
+		// tell it create a pbuffer that support really NPOT texture (In
+		// actually, I can't found a ways to create non-mipmaps support
+		// but must POT if not support really NPOT texture by card). So,
+		// seems NVIDIA card create NPOT pbuffer that intented to support
+		// rectangle texture.
+		//
+		// In my test (FX 5600), NPOT pbuffer bind to POT texture cause huge
+		// performance harm (In RenderToTexture demo, which frame-rate drop
+		// under 1 FPS!), it's work fine if both pbuffer and texture are POT,
+		// no matter size match exactly or not.
+		//
+		// Just set to same size here to avoid harm performance in case mentioned
+		// above, and doesn't lost of really NPOT texture support. Also notes set
+		// to difference size is useful in some situation (AA effect, etc).
+		//
+		mWidth = mTexture->getWidth();
+		mHeight = mTexture->getHeight();
+
 		// Bind to RGB or RGBA texture
 		int bttype = 0;
 		if(mUseBind)
@@ -181,6 +206,7 @@ namespace Ogre {
 		int pattrib[] = { 
 			WGL_TEXTURE_FORMAT_ARB, texformat, 
 			WGL_TEXTURE_TARGET_ARB, WGL_TEXTURE_2D_ARB,
+			WGL_PBUFFER_LARGEST_ARB, true,
 			0 
 		};
 
@@ -239,7 +265,7 @@ namespace Ogre {
 		int iWidth, iHeight;
 		_wglQueryPbufferARB(mPBuffer, WGL_PBUFFER_WIDTH_ARB, &iWidth);
 		_wglQueryPbufferARB(mPBuffer, WGL_PBUFFER_HEIGHT_ARB, &iHeight);
-        str.clear();
+		str.str(StringUtil::BLANK);
         str << "Win32RenderTexture::PBuffer created -- Real dimensions "
             << mWidth << "x" << mHeight;
 		LogManager::getSingleton().logMessage(LML_NORMAL, str.str());
