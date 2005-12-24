@@ -85,14 +85,11 @@ namespace Ogre {
              (0123456789) matches a single character found in that set.
              An example of a user identifier:
 
-             <Label> ::= <Character> {<Character>};
-             <Character> ::= (abcdefghijklmnopqrstuvwxyz);
+             <Label> ::= <Character> {<Character>}
+             <Character> ::= (abcdefghijklmnopqrstuvwxyz)
 
              This will generate a rule that accepts one or more lowercase letters to make up the Label.  The User identifier
              stops collecting the characters into a string when a match cannot be found in the rule.
-
-         ;   marks end of rule
-
     */
     class _OgreExport Compiler2Pass
     {
@@ -126,31 +123,20 @@ namespace Ogre {
 
 	    enum BNF_ID {BNF_UNKOWN = 0,
             BNF_SYNTAX, BNF_RULE, BNF_IDENTIFIER, BNF_ID_BEGIN, BNF_ID_END, BNF_SET_RULE, BNF_EXPRESSION,
-            BNF_REPEAT_EXPRESSION, BNF_REPEAT_BEGIN, BNF_REPEAT_END, BNF_OPTIONAL_BEGIN, BNF_OPTIONAL_END,
-            BNF_OPTIONAL_EXPRESSION,
+            BNF_AND_TERM, BNF_OR_TERM, BNF_TERM, BNF_OR, BNF_TERMINAL_SYMBOL,
+            BNF_REPEAT_EXPRESSION, BNF_REPEAT_BEGIN, BNF_REPEAT_END, BNF_OPTIONAL_EXPRESSION,
+            BNF_OPTIONAL_BEGIN, BNF_OPTIONAL_END, BNF_SINGLEQUOTE, BNF_ANY_CHARACTER, BNF_SPECIAL_CHARACTERS,
+            
 
             BNF_LETTER, BNF_LETTER_DIGIT, BNF_DIGIT,
-            BNF_ALPHA_SET, BNF_NUMBER_SET
+            BNF_ALPHA_SET, BNF_NUMBER_SET, BNF_SPECIAL_CHARACTER_SET
         };
 
-        //  used by bootstrap BNF text parser
-        //  child class of Copmiler2Pass could use it to statically define rules
-        // <>	- non-terminal token
-        #define _rule_		{otRULE,		        // ::=	- rule definition
-        #define _is_		},{otAND,
-        #define _and_		_is_    		        //      - blank space is an implied "AND" meaning the token is required
-        #define _or_		},{otOR,		        // |	- or
-        #define _optional_	},{otOPTIONAL,  	    // []	- optional
-        #define _repeat_	},{otREPEAT,	        // {}	- repeat 0 or more times until fail or rule does not progress
-        #define _end_		otEND,0
-
-        #define TOKEN_HAS_ACTION true,false
-        #define TOKEN_IS_RULE false,true
 
 	    /** structure used to build lexeme Type library */
 	    struct LexemeTokenDef
         {
-	        size_t mID;					/// Token ID which is the index into the Token Type library
+	        size_t mID;					/// Token ID which is the index into the Lexeme Token Definition Container
             bool mHasAction;            /// has an action associated with it. only applicable to terminal tokens
             bool mIsNonTerminal;        /// if true then token is non-terminal
 	        size_t mRuleID;				/// index into Rule database for non-terminal token rulepath and lexeme
@@ -172,9 +158,8 @@ namespace Ogre {
         typedef LexemeTokenDefContainer::iterator LexemeTokenDefIterator;
 
         typedef std::map<std::string, size_t> LexemeTokenMap;
-        typedef LexemeTokenMap::iterator TokeyKeyIterator;
+        typedef LexemeTokenMap::iterator TokenKeyIterator;
         /// map used to lookup client token based on previously defined lexeme
-        LexemeTokenMap mClientLexemeTokenMap;
 
 
 	    /** structure for Token instructions that are constructed during first pass*/
@@ -190,16 +175,19 @@ namespace Ogre {
 	    typedef std::vector<TokenInst> TokenInstContainer;
 	    typedef TokenInstContainer::iterator TokenInstIterator;
         
-        // client token que, definitions, rules
-        TokenInstContainer       mClientTokenQue;
-        LexemeTokenDefContainer  mClientLexemeTokenDefinitions;
-	    TokenRuleContainer       mClientRootRulePath;
+        // token que, definitions, rules
+        struct TokenState 
+        {
+            TokenInstContainer       mTokenQue;
+            LexemeTokenDefContainer  mLexemeTokenDefinitions;
+	        TokenRuleContainer       mRootRulePath;
+            LexemeTokenMap           mLexemeTokenMap;
+        };
+
+        TokenState mClientTokenState;
 
 	    /// Active token que, definitions, rules currntly being used by parser
-	    TokenInstContainer*      mActiveTokenQue;
-        LexemeTokenDefContainer* mActiveLexemeTokenDefinitions;
-	    /// pointer to root rule path - has to be set by subclass constructor
-	    TokenRuleContainer*      mActiveRootRulePath;
+        TokenState* mActiveTokenState;
         /// the location within the token instruction container where pass 2 is
         size_t mPass2TokenPosition;
 
@@ -376,15 +364,18 @@ namespace Ogre {
 	    */
 	    bool ValidateToken(const size_t rulepathIDX, const size_t activeRuleID);
 
+	    /** scan through all the rules and initialize token definition with index to rules for non-terminal tokens.
+            Gets called when internal grammer is being verified or after client grammer has been parsed.
+	    */
+	    void verifyTokenRuleLinks();
+
     private:
         // used for interpreting BNF script
-        static LexemeTokenDefContainer mBNF_Definitions;
-        /// BNF rules to parse BNF text form
-	    static TokenRuleContainer      mBNF_RulePath;
+        static TokenState mBNFTokenState;
 
-        static void initBNFCompiler(void);
+        void initBNFCompiler(void);
+
     public:
-
 
 	    /// constructor
 	    Compiler2Pass();
@@ -402,16 +393,6 @@ namespace Ogre {
 		    false if any errors occur in Pass 1 or Pass 2
 	    */
 	    bool compile(const char* source);
-
-	    /** Initialize the type library with matching lexeme text found in lexeme text library
-		    find a default text for all lexeme Types in library
-
-		    scan through all the rules and initialize TypeLib with index to text and index to rules for non-terminal tokens
-
-		    must be called by subclass after libraries and rule database setup
-	    */
-
-	    void InitlexemeTypeLib();
 
     };
 
