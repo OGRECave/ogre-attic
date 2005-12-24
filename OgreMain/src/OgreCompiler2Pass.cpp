@@ -31,120 +31,189 @@ http://www.gnu.org/copyleft/gpl.html.
 
 namespace Ogre {
     //-----------------------------------------------------------------------
-    Compiler2Pass::LexemeTokenDefContainer Compiler2Pass::mBNF_Definitions;
-	Compiler2Pass::TokenRuleContainer Compiler2Pass::mBNF_RulePath;
-
+    // instantiate static members
+    Compiler2Pass::TokenState Compiler2Pass::mBNFTokenState;
     //-----------------------------------------------------------------------
     Compiler2Pass::Compiler2Pass()
+        : mActiveTokenState(&mBNFTokenState)
+        , mSource(0)
     {
 	    // reserve some memory space in the containers being used
-	    mClientTokenQue.reserve(100);
-        mClientLexemeTokenDefinitions.reserve(100);
+	    mClientTokenState.mTokenQue.reserve(100);
+        mClientTokenState.mLexemeTokenDefinitions.reserve(100);
+	    mBNFTokenState.mTokenQue.reserve(100);
+        mBNFTokenState.mLexemeTokenDefinitions.reserve(50);
 
         initBNFCompiler();
     }
-
+    //-----------------------------------------------------------------------
     void Compiler2Pass::initBNFCompiler(void)
     {
-        if (mBNF_Definitions.empty())
+        if (mBNFTokenState.mLexemeTokenDefinitions.empty())
         {
-            mBNF_Definitions.push_back(LexemeTokenDef(BNF_UNKOWN, "UNKNOWN"));
-            mBNF_Definitions.push_back(LexemeTokenDef(BNF_SYNTAX, "<syntax>", TOKEN_IS_RULE));
-            mBNF_Definitions.push_back(LexemeTokenDef(BNF_RULE, "<rule>", TOKEN_IS_RULE));
-            mBNF_Definitions.push_back(LexemeTokenDef(BNF_IDENTIFIER, "<identifier>", TOKEN_IS_RULE));
-            mBNF_Definitions.push_back(LexemeTokenDef(BNF_ID_BEGIN, "<", TOKEN_HAS_ACTION));
-            mBNF_Definitions.push_back(LexemeTokenDef(BNF_ID_END, ">", TOKEN_HAS_ACTION));
-            mBNF_Definitions.push_back(LexemeTokenDef(BNF_SET_RULE, "::=", TOKEN_HAS_ACTION));
+            #define TOKEN_HAS_ACTION true
 
+            addLexemeToken("UNKNOWN", BNF_UNKOWN);
+            addLexemeToken("<syntax>", BNF_SYNTAX);
+            addLexemeToken("<rule>", BNF_RULE);
+            addLexemeToken("<identifier>", BNF_IDENTIFIER);
+            addLexemeToken("<", BNF_ID_BEGIN);
+            addLexemeToken(">", BNF_ID_END);
+            addLexemeToken("::=", BNF_SET_RULE);
+            addLexemeToken("<expression>", BNF_EXPRESSION);
+            addLexemeToken("<and_term>", BNF_AND_TERM);
+            addLexemeToken("<or_term>", BNF_OR_TERM);
+            addLexemeToken("<term>", BNF_TERM);
+            addLexemeToken("|", BNF_OR);
+            addLexemeToken("<terminal_symbol>", BNF_TERMINAL_SYMBOL);
+            addLexemeToken("<repeat_expression>", BNF_REPEAT_EXPRESSION);
+            addLexemeToken("{", BNF_REPEAT_BEGIN);
+            addLexemeToken("}", BNF_REPEAT_END);
+            addLexemeToken("<optional_expression>", BNF_OPTIONAL_EXPRESSION);
+            addLexemeToken("[", BNF_OPTIONAL_BEGIN);
+            addLexemeToken("]", BNF_OPTIONAL_END);
+            addLexemeToken("'", BNF_SINGLEQUOTE);
+            addLexemeToken("<any_character>", BNF_ANY_CHARACTER);
+            addLexemeToken("<special_characters>", BNF_SPECIAL_CHARACTERS);
+
+            addLexemeToken("<letter>", BNF_LETTER);
+            addLexemeToken("<letter_digit>", BNF_LETTER_DIGIT);
+            addLexemeToken("<digit>", BNF_DIGIT);
+            addLexemeToken("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", BNF_ALPHA_SET);
+            addLexemeToken("0123456789", BNF_NUMBER_SET);
+            addLexemeToken("`~!@#$%^&*()-_=+\\|[]{}:;\"'<>,.?/", BNF_SPECIAL_CHARACTER_SET);
         }
 
-        if (mBNF_RulePath.empty())
+        if (mBNFTokenState.mRootRulePath.empty())
         {
-            #define BNF_TOKENRULE(rule, token) mBNF_RulePath.push_back(TokenRule(rule, token))
+            //  used by bootstrap BNF text parser
+            //  <>	- non-terminal token
+            // ::=	- rule definition
+            #define _rule_(id)	    mBNFTokenState.mRootRulePath.push_back(TokenRule(otRULE, id));
+            #define _is_(id)	    mBNFTokenState.mRootRulePath.push_back(TokenRule(otAND, id));
+            //     - blank space is an implied "AND" meaning the token is required
+            #define _and_(id)		mBNFTokenState.mRootRulePath.push_back(TokenRule(otAND, id));
+            // |	- or
+            #define _or_(id)		mBNFTokenState.mRootRulePath.push_back(TokenRule(otOR,	id));
+            // []	- optional
+            #define _optional_(id)	mBNFTokenState.mRootRulePath.push_back(TokenRule(otOPTIONAL, id));
+            // {}	- repeat 0 or more times until fail or rule does not progress
+            #define _repeat_(id)	mBNFTokenState.mRootRulePath.push_back(TokenRule(otREPEAT,	id));
+            #define _data_(id)      mBNFTokenState.mRootRulePath.push_back(TokenRule(otDATA, id));
+            #define _end_   		mBNFTokenState.mRootRulePath.push_back(TokenRule(otEND,0));
+
             // <syntax>     ::=  { rule }
-            BNF_TOKENRULE(otRULE, BNF_SYNTAX);
-            BNF_TOKENRULE(otREPEAT, BNF_RULE);
-            BNF_TOKENRULE(otEND, 0);
+            _rule_(BNF_SYNTAX) _repeat_(BNF_RULE) _end_
 
             // <rule>       ::=  <identifier>  "::="  <expression>
-            BNF_TOKENRULE(otRULE, BNF_RULE);
-                BNF_TOKENRULE(otAND, BNF_IDENTIFIER);
-                BNF_TOKENRULE(otAND, BNF_SET_RULE);
-                BNF_TOKENRULE(otAND, BNF_EXPRESSION);
-            BNF_TOKENRULE(otEND, 0);
+            _rule_(BNF_RULE)
+                _is_(BNF_IDENTIFIER)
+                _and_(BNF_SET_RULE)
+                _and_(BNF_EXPRESSION)
+            _end_
 
-            // <expression> ::=  <term> { "|" <term> }
-            // <term>       ::=  <factor> { <factor> }
-            // <factor>     ::=  <identifier> | <terminal_symbol> | <repeat_expression> | <optional_expression> | 
-
+            // <expression> ::=  <and_term> { <or_term> }
+            _rule_(BNF_EXPRESSION)
+                _is_(BNF_AND_TERM)
+                _repeat_(BNF_OR_TERM)
+            _end_
+            // <or_term>    ::=  "|" <and_term>
+            _rule_(BNF_OR_TERM)
+                _is_(BNF_OR)
+                _and_(BNF_AND_TERM)
+            _end_
+            // <and_term>   ::=  <term> { <term> }
+            _rule_(BNF_AND_TERM)
+                _is_(BNF_TERM)
+                _repeat_(BNF_TERM)
+            _end_
+            // <term>       ::=  <identifier> | <terminal_symbol> | <repeat_expression> | <optional_expression>
+            _rule_(BNF_TERM)
+                _is_(BNF_IDENTIFIER)
+                _or_(BNF_TERMINAL_SYMBOL)
+                _or_(BNF_REPEAT_EXPRESSION)
+                _or_(BNF_OPTIONAL_EXPRESSION)
+            _end_
             // <repeat_expression> ::=  "{"  <identifier>  "}"
-            BNF_TOKENRULE(otRULE, BNF_REPEAT_EXPRESSION);
-                BNF_TOKENRULE(otAND, BNF_REPEAT_BEGIN);
-                BNF_TOKENRULE(otAND, BNF_IDENTIFIER);
-                BNF_TOKENRULE(otAND, BNF_REPEAT_END);
-            BNF_TOKENRULE(otEND, 0);
+            _rule_(BNF_REPEAT_EXPRESSION)
+                _is_(BNF_REPEAT_BEGIN)
+                _and_(BNF_IDENTIFIER)
+                _and_(BNF_REPEAT_END)
+            _end_
 
             // <optional_expression> ::= "["  <identifier>  "]"
-            BNF_TOKENRULE(otRULE, BNF_OPTIONAL_EXPRESSION);
-                BNF_TOKENRULE(otAND, BNF_OPTIONAL_BEGIN);
-                BNF_TOKENRULE(otAND, BNF_IDENTIFIER);
-                BNF_TOKENRULE(otAND, BNF_OPTIONAL_END);
-            BNF_TOKENRULE(otEND, 0);
+            _rule_(BNF_OPTIONAL_EXPRESSION)
+                _is_(BNF_OPTIONAL_BEGIN)
+                _and_(BNF_IDENTIFIER)
+                _and_(BNF_OPTIONAL_END)
+            _end_
 
             // <identifier> ::=  "<" <letter> {<letter_number>} ">"
-            BNF_TOKENRULE(otRULE, BNF_IDENTIFIER);
-                BNF_TOKENRULE(otAND, BNF_ID_BEGIN);
-                BNF_TOKENRULE(otAND, BNF_LETTER);
-                BNF_TOKENRULE(otREPEAT, BNF_LETTER_DIGIT);
-                BNF_TOKENRULE(otAND, BNF_ID_END);
-            BNF_TOKENRULE(otEND, 0);
-            // <terminal_symbol> ::= ["-"] "'" { <any_character> } "'"
+            _rule_(BNF_IDENTIFIER)
+                _is_(BNF_ID_BEGIN)
+                _and_(BNF_LETTER)
+                _repeat_(BNF_LETTER_DIGIT)
+                _and_(BNF_ID_END)
+            _end_
+            // <terminal_symbol> ::= "'" { <any_character> } "'"
+            _rule_(BNF_TERMINAL_SYMBOL)
+                _is_(BNF_SINGLEQUOTE)
+                _repeat_(BNF_ANY_CHARACTER)
+                _and_(BNF_SINGLEQUOTE)
+            _end_
 
+            // <any_character> ::= <letter> | <digit> | <special_characters>
             // <letter_digit> ::= <letter> | <digit>
-            BNF_TOKENRULE(otRULE, BNF_LETTER_DIGIT);
-                BNF_TOKENRULE(otAND, BNF_LETTER);
-                BNF_TOKENRULE(otOR, BNF_DIGIT);
-            BNF_TOKENRULE(otEND, 0);
+            _rule_(BNF_LETTER_DIGIT)
+                _is_(BNF_LETTER)
+                _or_(BNF_DIGIT)
+            _end_
 
             // <letter> ::= [abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ]
-            BNF_TOKENRULE(otRULE, BNF_LETTER);
-                BNF_TOKENRULE(otAND, _character_);
-                BNF_TOKENRULE(otDATA, BNF_ALPHA_SET);// "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
-            BNF_TOKENRULE(otEND, 0);
+            _rule_(BNF_LETTER)
+                _is_(_character_)
+                _data_(BNF_ALPHA_SET)// "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
+            _end_
 
             // <digit> ::= [0123456789]
-            BNF_TOKENRULE(otRULE, BNF_DIGIT);
-            BNF_TOKENRULE(otAND, _character_);
-            BNF_TOKENRULE(otDATA, BNF_NUMBER_SET);
-            BNF_TOKENRULE(otEND, 0);
+            _rule_(BNF_DIGIT)
+                _is_(_character_)
+                _data_(BNF_NUMBER_SET)
+            _end_
+
+            // <special_characters> ::= [`~!@#$%^&*()-_=+\|[]{}:;"'<>,.?/]
+            _rule_(BNF_SPECIAL_CHARACTERS)
+                _is_(_character_)
+                _data_(BNF_SPECIAL_CHARACTER_SET)
+            _end_
+
+            // now that all the rules are added, update token definitions with rule links
+            verifyTokenRuleLinks();
         }
+        // switch to client state
+        mActiveTokenState = &mClientTokenState;
     }
 
     //-----------------------------------------------------------------------
-    void Compiler2Pass::InitlexemeTypeLib()
+    void Compiler2Pass::verifyTokenRuleLinks()
     {
-	    //uint token_ID;
-	    // find a default text for all lexeme Types in library
+	    size_t token_ID;
 
-	    // scan through all the rules and initialize TypeLib with index to text and index to rules for non-terminal tokens
-	    //for (size_t i = 0; i < mRulePathLibCnt; i++) {
-		   // token_ID = mRootRulePath[i].mTokenID;
-		   // // make sure lexemeTypeLib holds valid token
-		   // assert(mLexemeTypeLib[token_ID].mID == token_ID);
-		   // switch(mRootRulePath[i].mOperation)
-		   // {
-		   // case otRULE:
-			  //  // if operation is a rule then update typelib
-			  //  mLexemeTypeLib[token_ID].mRuleID = i;
-
-		   // case otAND:
-		   // case otOR:
-		   // case otOPTIONAL:
-			  //  // update text index in typelib
-			  //  if (mRootRulePath[i].mLexeme != NULL) mLexemeTypeLib[token_ID].mDefTextID = i;
-			  //  break;
-		   // }
-	    //}
+	    // scan through all the rules and initialize index to rules for non-terminal tokens
+        const size_t ruleCount = mActiveTokenState->mRootRulePath.size();
+        for (size_t i = 0; i < ruleCount; ++i)
+        {
+		   // make sure token definition holds valid token
+		   if (mActiveTokenState->mRootRulePath[i].mOperation == otRULE)
+		   {
+    		   token_ID = mActiveTokenState->mRootRulePath[i].mTokenID;
+               assert(token_ID < mActiveTokenState->mLexemeTokenDefinitions.size());
+        	   assert(mActiveTokenState->mLexemeTokenDefinitions[token_ID].mID == token_ID);
+			   // if operation is a rule then update token definition
+               mActiveTokenState->mLexemeTokenDefinitions[token_ID].mRuleID = i;
+               mActiveTokenState->mLexemeTokenDefinitions[token_ID].mIsNonTerminal = true;
+		   }
+	    }
 
     }
 
@@ -155,7 +224,7 @@ namespace Ogre {
 
 	    mSource = source;
 	    // start compiling if there is a rule base to work with
-	    if (mActiveRootRulePath != NULL)
+        if (!mActiveTokenState->mRootRulePath.empty())
 	    {
 		    Passed = doPass1();
 
@@ -186,7 +255,7 @@ namespace Ogre {
 	    mEndOfSource = strlen(mSource);
 
 	    // start with a clean slate
-	    mActiveTokenQue->clear();
+	    mActiveTokenState->mTokenQue.clear();
 	    // tokenize and check semantics untill an error occurs or end of source is reached
 	    // assume RootRulePath has pointer to rules so start at index + 1 for first rule path
 	    // first rule token would be a rule definition so skip over it
@@ -244,13 +313,15 @@ namespace Ogre {
     void Compiler2Pass::setClientBNFGrammer(const String& bnfGrammer)
     {
         // switch to internal BNF Containers
-        mActiveTokenQue = &mClientTokenQue;
-        mActiveLexemeTokenDefinitions = &mBNF_Definitions;
-        mActiveRootRulePath = &mBNF_RulePath;
+        mActiveTokenState = &mBNFTokenState;
         // clear client containers
-        mClientTokenQue.clear();
-        mClientLexemeTokenDefinitions.clear();
-        mClientRootRulePath.clear();
+        mClientTokenState.mTokenQue.clear();
+        mClientTokenState.mLexemeTokenDefinitions.clear();
+        mClientTokenState.mRootRulePath.clear();
+
+        // attempt to compile the grammer into a rule base
+        // change token state to client data after compiling grammer
+        mActiveTokenState = &mClientTokenState;
 
     }
 
@@ -263,13 +334,13 @@ namespace Ogre {
 
 	    // record position of last token in container
 	    // to be used as the rollback position if a valid token is not found
-	    const size_t TokenContainerOldSize = mActiveTokenQue->size();
+        const size_t TokenContainerOldSize = mActiveTokenState->mTokenQue.size();
 	    const size_t OldCharPos = mCharPos;
 	    const size_t OldLinePos = mCurrentLine;
 	    //const size_t OldConstantsSize = mConstants.size();
 
 	    // keep track of what non-terminal token activated the rule
-	    size_t ActiveNTTRule = (*mActiveRootRulePath)[rulepathIDX].mTokenID;
+	    size_t ActiveNTTRule = mActiveTokenState->mRootRulePath[rulepathIDX].mTokenID;
 	    // start rule path at next position for definition
 	    ++rulepathIDX;
 
@@ -280,7 +351,7 @@ namespace Ogre {
 	    // keep following rulepath until the end is reached
 	    while (!EndFound)
 	    {
-		    switch ((*mActiveRootRulePath)[rulepathIDX].mOperation)
+		    switch (mActiveTokenState->mRootRulePath[rulepathIDX].mOperation)
 		    {
 
 		    case otAND:
@@ -294,7 +365,7 @@ namespace Ogre {
 			    if ( Passed == false )
 			    {
 				    // clear previous tokens from entry and try again
-				    mActiveTokenQue->resize(TokenContainerOldSize);
+				    mActiveTokenState->mTokenQue.resize(TokenContainerOldSize);
 				    Passed = ValidateToken(rulepathIDX, ActiveNTTRule);
 			    }
 			    else
@@ -334,6 +405,10 @@ namespace Ogre {
 			    }
 			    break;
 
+            case otDATA:
+                // skip it, should have been handled by previous operation.
+                break;
+
 		    case otEND:
 			    // end of rule found so time to return
 			    EndFound = true;
@@ -343,16 +418,12 @@ namespace Ogre {
 				    // roll back the token container end position to what it was when rule started
 				    // this will get rid of all tokens that had been pushed on the container while
 				    // trying to validating this rule
-				    mActiveTokenQue->resize(TokenContainerOldSize);
+				    mActiveTokenState->mTokenQue.resize(TokenContainerOldSize);
 				    //mConstants.resize(OldConstantsSize);
 				    mCharPos = OldCharPos;
 				    mCurrentLine = OldLinePos;
 			    }
 			    break;
-
-            case otDATA:
-                // skip it, should have been handled by previous operation.
-                break;
 
 		    default:
 			    // an exception should be raised since the code should never get here
@@ -371,12 +442,13 @@ namespace Ogre {
 
     }
 
+    //-----------------------------------------------------------------------
     bool Compiler2Pass::isCharacterLabel(const size_t rulepathIDX)
     {
 	    // assume the test is going to fail
 	    bool Passed = false;
 
-        if ((*mActiveRootRulePath)[rulepathIDX].mTokenID == _character_)
+        if (mActiveTokenState->mRootRulePath[rulepathIDX].mTokenID == _character_)
         {
             // get token from next rule operation
             // token string is list of valid single characters
@@ -384,18 +456,18 @@ namespace Ogre {
             // if match found then add character to active label
             // _character_ will not have  a token definition but the next rule operation should be 
             // DATA and have the token ID required to get the character set.
-            const TokenRule& rule = (*mActiveRootRulePath)[rulepathIDX + 1];
+            const TokenRule& rule = mActiveTokenState->mRootRulePath[rulepathIDX + 1];
             if (rule.mOperation == otDATA)
             {
 	            const size_t TokenID = rule.mTokenID;
-                if ( strchr((*mActiveLexemeTokenDefinitions)[TokenID].mLexeme.c_str(), mSource[mCharPos]))
+                if ( strchr(mActiveTokenState->mLexemeTokenDefinitions[TokenID].mLexeme.c_str(), mSource[mCharPos]))
                 {
                     // is a new label starting?
                     // if mLabelIsActive is false then starting a new label so need a new mActiveLabelKey
                     if (!mLabelIsActive)
                     {
                         // mActiveLabelKey will be the end of the instruction container ie the size of mTokenInstructions
-                        mActiveLabelKey = mActiveTokenQue->size();
+                        mActiveLabelKey = mActiveTokenState->mTokenQue.size();
                         mLabelIsActive = true;
                     }
                     // add the single character to the end of the active label
@@ -413,9 +485,9 @@ namespace Ogre {
 	    size_t tokenlength = 0;
 	    // assume the test is going to fail
 	    bool Passed = false;
-	    size_t TokenID = (*mActiveRootRulePath)[rulepathIDX].mTokenID;
+	    size_t TokenID = mActiveTokenState->mRootRulePath[rulepathIDX].mTokenID;
 	    // if terminal token then compare text of lexeme with what is in source
-	    if ( !(*mActiveLexemeTokenDefinitions)[TokenID].mIsNonTerminal )
+	    if ( !mActiveTokenState->mLexemeTokenDefinitions[TokenID].mIsNonTerminal )
 	    {
             // position cursur to next token (non space) in script
 		    if (positionToNextLexeme())
@@ -427,7 +499,7 @@ namespace Ogre {
 				    if (Passed = isFloatValue(constantvalue, tokenlength))
 				    {
                         // key is the next instruction index
-                        mConstants[mActiveTokenQue->size()] = constantvalue;
+                        mConstants[mActiveTokenState->mTokenQue.size()] = constantvalue;
 				    }
 			    }
                 else // check if user label or valid keyword token
@@ -440,7 +512,7 @@ namespace Ogre {
                     else
                     {
 			            // compare token lexeme text with source text
-                        Passed = isLexemeMatch((*mActiveLexemeTokenDefinitions)[TokenID].mLexeme.c_str(), tokenlength);
+                        Passed = isLexemeMatch(mActiveTokenState->mLexemeTokenDefinitions[TokenID].mLexeme.c_str(), tokenlength);
                     }
                 }
 
@@ -455,7 +527,7 @@ namespace Ogre {
                     // the first _character_ in a sequence of _character_ terminal tokens.
                     // Only want one _character_ token which Identifies a label
 
-                    if (mActiveTokenQue->size() > mActiveLabelKey)
+                    if (mActiveTokenState->mTokenQue.size() > mActiveLabelKey)
                     {
                         // this token is not the first _character_ in the label sequence
                         // so turn off the token by turning TokenID into _no_token_
@@ -476,7 +548,7 @@ namespace Ogre {
 				        newtoken.mPos = mCharPos;
                         newtoken.mFound = true;
 
-				        mActiveTokenQue->push_back(newtoken);
+				        mActiveTokenState->mTokenQue.push_back(newtoken);
                     }
 
                     // update source position
@@ -490,7 +562,7 @@ namespace Ogre {
 	    {
 		    // execute rule for non-terminal
 		    // get rule_ID for index into  rulepath to be called
-		    Passed = processRulePath((*mActiveLexemeTokenDefinitions)[TokenID].mRuleID);
+		    Passed = processRulePath(mActiveTokenState->mLexemeTokenDefinitions[TokenID].mRuleID);
 	    }
 
 	    return Passed;
@@ -565,9 +637,9 @@ namespace Ogre {
     // if current char and next are // then search for EOL
 	    if (mCharPos < mEndOfSource)
 	    {
-		    if ( ((mSource[mCharPos] == '/') && (mSource[mCharPos + 1] == '/')) ||
+		    if ( ((mSource[mCharPos] == '/') && (mSource[mCharPos + 1] == '/'))/* ||
 			    (mSource[mCharPos] == ';') ||
-			    (mSource[mCharPos] == '#') )
+			    (mSource[mCharPos] == '#')*/ )
 		    {
 			    findEOL();
 		    }
@@ -616,10 +688,16 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Compiler2Pass::addLexemeToken(const String& lexeme, const size_t token, const bool hasAction)
     {
-        if (token >= mClientLexemeTokenDefinitions.size())
-            mClientLexemeTokenDefinitions.resize(token + 10);
-        mClientLexemeTokenDefinitions[token] = LexemeTokenDef(token, lexeme, hasAction);
-        mClientLexemeTokenMap[lexeme] = token;
+        if (token >= mActiveTokenState->mLexemeTokenDefinitions.size())
+            mActiveTokenState->mLexemeTokenDefinitions.resize(token + 1);
+        // since resizing guarentees the token definition will exist, just assign values to members
+        LexemeTokenDef& tokenDef = mActiveTokenState->mLexemeTokenDefinitions[token];
+        assert(tokenDef.mID == 0);
+        tokenDef.mID = token;
+        tokenDef.mLexeme = lexeme;
+        tokenDef.mHasAction = hasAction;
+
+        mActiveTokenState->mLexemeTokenMap[lexeme] = token;
     }
 
 
