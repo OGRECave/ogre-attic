@@ -818,10 +818,10 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
     unsigned long thisFrameNumber = Root::getSingleton().getCurrentFrameNumber();
     if (thisFrameNumber != lastFrameNumber)
     {
-        // Update animations
-        _applySceneAnimations();
         // Update controllers 
         ControllerManager::getSingleton().updateAllControllers();
+        // Update animations
+        _applySceneAnimations();
         lastFrameNumber = thisFrameNumber;
     }
 
@@ -2125,7 +2125,6 @@ void SceneManager::renderSingleObject(Renderable* rend, Pass* pass,
 void SceneManager::setAmbientLight(const ColourValue& colour)
 {
     mAmbientLight = colour;
-    mDestRenderSystem->setAmbientLight(colour.r, colour.g, colour.b);
 }
 //-----------------------------------------------------------------------
 const ColourValue& SceneManager::getAmbientLight(void) const
@@ -2663,6 +2662,11 @@ void SceneManager::setShadowTechnique(ShadowTechnique technique)
     if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
     {
         createShadowTextures(mShadowTextureSize, mShadowTextureCount, mShadowTextureFormat);
+    }
+    else
+    {
+        // Destroy shadow textures to optimise resource usage
+        destroyShadowTextures();
     }
 
 }
@@ -3754,16 +3758,7 @@ void SceneManager::createShadowTextures(unsigned short size,
 
 
     // destroy existing
-    ShadowTextureList::iterator i, iend;
-    iend = mShadowTextures.end();
-    for (i = mShadowTextures.begin(); i != iend; ++i)
-    {
-        RenderTexture* r = *i;
-        // remove camera and destroy texture
-        removeCamera(r->getViewport(0)->getCamera());
-        mDestRenderSystem->destroyRenderTexture(r->getName());
-    }
-    mShadowTextures.clear();
+	destroyShadowTextures();
 
     // Recreate shadow textures
     for (unsigned short t = 0; t < count; ++t)
@@ -3811,6 +3806,20 @@ void SceneManager::createShadowTextures(unsigned short size,
         mat->touch();
 
     }
+}
+//---------------------------------------------------------------------
+void SceneManager::destroyShadowTextures(void)
+{
+    ShadowTextureList::iterator i, iend;
+    iend = mShadowTextures.end();
+    for (i = mShadowTextures.begin(); i != iend; ++i)
+    {
+        RenderTexture* r = *i;
+        // remove camera and destroy texture
+        removeCamera(r->getViewport(0)->getCamera());
+        mDestRenderSystem->destroyRenderTexture(r->getName());
+    }
+    mShadowTextures.clear();
 }
 //---------------------------------------------------------------------
 void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)

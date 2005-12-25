@@ -376,6 +376,8 @@ namespace Ogre {
         /// Internal method for creating shadow textures (texture-based shadows)
         virtual void createShadowTextures(unsigned short size, unsigned short count, 
 			PixelFormat fmt);
+        /// Internal method for destroying shadow textures (texture-based shadows)
+        virtual void destroyShadowTextures(void);
         /// Internal method for preparing shadow textures ready for use in a regular render
         virtual void prepareShadowTextures(Camera* cam, Viewport* vp);
 
@@ -529,6 +531,12 @@ namespace Ogre {
         virtual void removeCamera(const String& name);
 
         /** Removes (and destroys) all cameras from the scene.
+            @remarks
+                Some cameras are internal created to dealing with texture shadow,
+                their aren't supposed to destroy outside. So, while you are using
+                texture shadow, don't call this method, or you can set the shadow
+                technique other than texture-based, which will destroy all internal
+                created shadow cameras and textures.
         */
         virtual void removeAllCameras(void);
 
