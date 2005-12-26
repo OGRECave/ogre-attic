@@ -1945,7 +1945,7 @@ namespace Ogre
 		    ++context.stateLev;
         }
 
-        if (context.pass->getNumTextureUnitStates() > context.stateLev)
+        if (context.pass->getNumTextureUnitStates() > static_cast<size_t>(context.stateLev))
         {
             context.textureUnit = context.pass->getTextureUnitState(context.stateLev);
         }
@@ -2020,7 +2020,7 @@ namespace Ogre
         if (context.program.isNull())
         {
             // Unknown program
-            logParseError("Invalid vertex_program_ref entry - vertex program " 
+            logParseError("Invalid shadow_caster_vertex_program_ref entry - vertex program " 
                 + params + " has not been defined.", context);
             return true;
         }
@@ -3279,6 +3279,11 @@ namespace Ogre
                 writeShadowReceiverVertexProgramRef(pPass);
             }
 
+            if (pPass->hasShadowReceiverFragmentProgram())
+            {
+                writeShadowReceiverFragmentProgramRef(pPass);
+            }
+
             // Nested texture layers
             Pass::TextureUnitStateIterator it = const_cast<Pass*>(pPass)->getTextureUnitStateIterator();
             while(it.hasMoreElements())
@@ -3830,95 +3835,55 @@ namespace Ogre
     //-----------------------------------------------------------------------
     void MaterialSerializer::writeVertexProgramRef(const Pass* pPass)
     {
-        mBuffer += "\n";
-        writeAttribute(3, "vertex_program_ref");
-        writeValue( pPass->getVertexProgramName() );
-        beginSection(3);
-        {
-            // write out paramters
-            GpuProgramParameters* defaultParams= 0;
-            const GpuProgramPtr program = pPass->getVertexProgram();
-            // does the vertex program have default parameters?
-            if (program->hasDefaultParameters())
-                defaultParams = program->getDefaultParameters().getPointer();
-
-            writeGPUProgramParameters(pPass->getVertexProgramParameters(), defaultParams);
-        }
-        endSection(3);
-
-        // add to GpuProgram contatiner
-        mGpuProgramDefinitionContainer.insert(pPass->getVertexProgramName());
-
+        writeGpuProgramRef("vertex_program_ref",
+            pPass->getVertexProgram(), pPass->getVertexProgramParameters());
     }
     //-----------------------------------------------------------------------
     void MaterialSerializer::writeShadowCasterVertexProgramRef(const Pass* pPass)
     {
-        mBuffer += "\n";
-        writeAttribute(3, "shadow_caster_vertex_program_ref");
-        writeValue( pPass->getShadowCasterVertexProgramName() );
-        beginSection(3);
-        {
-            // write out paramters
-            GpuProgramParameters* defaultParams= 0;
-            const GpuProgramPtr program = pPass->getShadowCasterVertexProgram();
-            // does the vertex program have default parameters?
-            if (program->hasDefaultParameters())
-                defaultParams = program->getDefaultParameters().getPointer();
-
-            writeGPUProgramParameters(pPass->getShadowCasterVertexProgramParameters(), defaultParams);
-        }
-        endSection(3);
-
-        // add to GpuProgram contatiner
-        mGpuProgramDefinitionContainer.insert(pPass->getShadowCasterVertexProgramName());
+        writeGpuProgramRef("shadow_caster_vertex_program_ref",
+            pPass->getShadowCasterVertexProgram(), pPass->getShadowCasterVertexProgramParameters());
     }
     //-----------------------------------------------------------------------
     void MaterialSerializer::writeShadowReceiverVertexProgramRef(const Pass* pPass)
     {
-        mBuffer += "\n";
-        writeAttribute(3, "shadow_receiver_vertex_program_ref");
-        writeValue( pPass->getShadowReceiverVertexProgramName() );
-        beginSection(3);
-        {
-            // write out paramters
-            GpuProgramParameters* defaultParams= 0;
-            const GpuProgramPtr program = pPass->getShadowReceiverVertexProgram();
-            // does the vertex program have default parameters?
-            if (program->hasDefaultParameters())
-                defaultParams = program->getDefaultParameters().getPointer();
-
-            writeGPUProgramParameters(pPass->getShadowReceiverVertexProgramParameters(), defaultParams);
-        }
-        endSection(3);
-
-        // add to GpuProgram contatiner
-        mGpuProgramDefinitionContainer.insert(pPass->getShadowReceiverVertexProgramName());
+        writeGpuProgramRef("shadow_receiver_vertex_program_ref",
+            pPass->getShadowReceiverVertexProgram(), pPass->getShadowReceiverVertexProgramParameters());
     }
-
+    //-----------------------------------------------------------------------
+    void MaterialSerializer::writeShadowReceiverFragmentProgramRef(const Pass* pPass)
+    {
+        writeGpuProgramRef("shadow_receiver_fragment_program_ref",
+            pPass->getShadowReceiverFragmentProgram(), pPass->getShadowReceiverFragmentProgramParameters());
+    }
     //-----------------------------------------------------------------------
     void MaterialSerializer::writeFragmentProgramRef(const Pass* pPass)
     {
+        writeGpuProgramRef("fragment_program_ref",
+            pPass->getFragmentProgram(), pPass->getFragmentProgramParameters());
+    }
+    //-----------------------------------------------------------------------
+    void MaterialSerializer::writeGpuProgramRef(const String& attrib,
+        const GpuProgramPtr& program, const GpuProgramParametersSharedPtr& params)
+    {
         mBuffer += "\n";
-        writeAttribute(3, "fragment_program_ref");
-        writeValue( pPass->getFragmentProgramName() );
+        writeAttribute(3, attrib);
+        writeValue(program->getName());
         beginSection(3);
         {
             // write out paramters
             GpuProgramParameters* defaultParams= 0;
-            const GpuProgramPtr program = pPass->getFragmentProgram();
-            // does the vertex program have default parameters?
+            // does the GPU program have default parameters?
             if (program->hasDefaultParameters())
                 defaultParams = program->getDefaultParameters().getPointer();
 
-            writeGPUProgramParameters(pPass->getFragmentProgramParameters(), defaultParams);
-
+            writeGPUProgramParameters(params, defaultParams);
         }
         endSection(3);
 
         // add to GpuProgram contatiner
-        mGpuProgramDefinitionContainer.insert(pPass->getFragmentProgramName());
+        mGpuProgramDefinitionContainer.insert(program->getName());
     }
-
     //-----------------------------------------------------------------------
     static bool isConstantRealValsEqual(const GpuProgramParameters::RealConstantEntry* constEntry,
         const GpuProgramParameters::RealConstantEntry* defaultEntry, const size_t elementCount)
