@@ -131,7 +131,9 @@ namespace Ogre {
         void writeVertexProgramRef(const Pass* pPass);
         void writeShadowCasterVertexProgramRef(const Pass* pPass);
         void writeShadowReceiverVertexProgramRef(const Pass* pPass);
+        void writeShadowReceiverFragmentProgramRef(const Pass* pPass);
         void writeFragmentProgramRef(const Pass* pPass);
+        void writeGpuProgramRef(const String& attrib, const GpuProgramPtr& program, const GpuProgramParametersSharedPtr& params);
         void writeGpuPrograms(void);
         void writeGPUProgramParameters(const GpuProgramParametersSharedPtr& params, GpuProgramParameters* defaultParams,
             const int level = 4, const bool useMainBuffer = true);
