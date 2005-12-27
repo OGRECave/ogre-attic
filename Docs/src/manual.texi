@@ -953,10 +953,10 @@ Default: point_size_min 0
 @anchor{point_size_max}
 @subheading point_size_max
 
-Sets the maximum point size after attenuation (@ref{point_size_attenuation}). For details on the size metrics, @xref{point_size}.@*@*
+Sets the maximum point size after attenuation (@ref{point_size_attenuation}). For details on the size metrics, @xref{point_size}. A value of 0 means the maximum is set to the same as the max size reported by the current card. @*@*
 
 Format: point_size_max <size>
-Default: point_size_max 5000
+Default: point_size_max 0
 
 @node Texture Units
 @subsection Texture Units
