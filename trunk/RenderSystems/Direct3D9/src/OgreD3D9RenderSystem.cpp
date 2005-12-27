@@ -1340,6 +1340,8 @@ namespace Ogre
 		}
 		__SetRenderState(D3DRS_POINTSIZE, *((LPDWORD)(&size)));
 		__SetRenderState(D3DRS_POINTSIZE_MIN, *((LPDWORD)(&minSize)));
+		if (maxSize == 0.0f)
+			maxSize = mCapabilities->getMaxPointSize();
 		__SetRenderState(D3DRS_POINTSIZE_MAX, *((LPDWORD)(&maxSize)));
 
 

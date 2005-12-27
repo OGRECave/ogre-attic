@@ -367,9 +367,13 @@ namespace Ogre {
 		void setPointMinSize(Real min);
 		/** Get the minimum point size, when point attenuation is in use. */
 		Real getPointMinSize(void) const;
-		/** Set the maximum point size, when point attenuation is in use. */
+		/** Set the maximum point size, when point attenuation is in use. 
+		@remarks Setting this to 0 indicates the max size supported by the card.
+		*/
 		void setPointMaxSize(Real max);
-		/** Get the maximum point size, when point attenuation is in use. */
+		/** Get the maximum point size, when point attenuation is in use. 
+		@remarks 0 indicates the max size supported by the card.
+		*/
 		Real getPointMaxSize(void) const;
 
 		/** Gets the ambient colour reflectance of the pass.

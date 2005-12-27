@@ -895,7 +895,11 @@ namespace Ogre {
 			// what D3D does as standard)
 			Real adjSize = size * mActiveViewport->getActualHeight();
 			Real adjMinSize = minSize * mActiveViewport->getActualHeight();
-			Real adjMaxSize = maxSize * mActiveViewport->getActualHeight();
+			Real adjMaxSize;
+			if (maxSize == 0.0f)
+				adjMaxSize = mCapabilities->getMaxPointSize(); // pixels
+			else
+				adjMaxSize = maxSize * mActiveViewport->getActualHeight();
 			glPointSize(adjSize);
 			glPointParameterf(GL_POINT_SIZE_MIN, adjMinSize);
 			glPointParameterf(GL_POINT_SIZE_MAX, adjMaxSize);
@@ -909,6 +913,8 @@ namespace Ogre {
 			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, val);
 			glPointSize(size);
 			glPointParameterf(GL_POINT_SIZE_MIN, minSize);
+			if (maxSize == 0.0f)
+				maxSize = mCapabilities->getMaxPointSize();
 			glPointParameterf(GL_POINT_SIZE_MAX, maxSize);
 		}
 

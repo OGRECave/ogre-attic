@@ -47,7 +47,7 @@ namespace Ogre {
 	    mShininess = 0;
         mPointSize = 1.0f;
 		mPointMinSize = 0.0f;
-		mPointMaxSize = 50000.0f;
+		mPointMaxSize = 0.0f;
 		mPointSpritesEnabled = false;
 		mPointAttenuationEnabled = false;
 		mPointAttenuationCoeffs[0] = 1.0f;
