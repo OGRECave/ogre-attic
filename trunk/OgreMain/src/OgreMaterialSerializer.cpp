@@ -3110,6 +3110,47 @@ namespace Ogre
                 writeValue(StringConverter::toString(pPass->getPointSize()));
             }
 
+            // Point sprites
+            if (mDefaults ||
+                pPass->getPointSpritesEnabled())
+            {
+                writeAttribute(3, "point_sprites");
+                writeValue(pPass->getPointSpritesEnabled() ? "on" : "off");
+            }
+
+            // Point attenuation
+            if (mDefaults ||
+                pPass->isPointAttenuationEnabled())
+            {
+                writeAttribute(3, "point_size_attenuation");
+                writeValue(pPass->isPointAttenuationEnabled() ? "on" : "off");
+                if (pPass->isPointAttenuationEnabled() &&
+                    (pPass->getPointAttenuationConstant() != 0.0 ||
+                     pPass->getPointAttenuationLinear() != 1.0 ||
+                     pPass->getPointAttenuationQuadratic() != 0.0))
+                {
+                    writeValue(StringConverter::toString(pPass->getPointAttenuationConstant()));
+                    writeValue(StringConverter::toString(pPass->getPointAttenuationLinear()));
+                    writeValue(StringConverter::toString(pPass->getPointAttenuationQuadratic()));
+                }
+            }
+
+            // Point min size
+            if (mDefaults ||
+                pPass->getPointMinSize() != 0.0)
+            {
+                writeAttribute(3, "point_size_min");
+                writeValue(StringConverter::toString(pPass->getPointMinSize()));
+            }
+
+            // Point max size
+            if (mDefaults ||
+                pPass->getPointMaxSize() != 0.0)
+            {
+                writeAttribute(3, "point_size_max");
+                writeValue(StringConverter::toString(pPass->getPointMaxSize()));
+            }
+
             // scene blend factor
             if (mDefaults || 
                 pPass->getSourceBlendFactor() != SBF_ONE || 
