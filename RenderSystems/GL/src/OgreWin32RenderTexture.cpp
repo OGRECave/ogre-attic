@@ -143,6 +143,7 @@ namespace Ogre {
 		int pattrib_bind[] = { 
 			WGL_TEXTURE_FORMAT_ARB, texformat, 
 			WGL_TEXTURE_TARGET_ARB, WGL_TEXTURE_2D_ARB,
+			WGL_PBUFFER_LARGEST_ARB, true,
 			0 
 		};
 #endif
@@ -201,6 +202,10 @@ namespace Ogre {
 		int iWidth, iHeight;
 		wglQueryPbufferARB(mPBuffer, WGL_PBUFFER_WIDTH_ARB, &iWidth);
 		wglQueryPbufferARB(mPBuffer, WGL_PBUFFER_HEIGHT_ARB, &iHeight);
+		str.str(StringUtil::BLANK);
+        str << "Win32RenderTexture::PBuffer created -- Real dimensions "
+            << mWidth << "x" << mHeight;
+		LogManager::getSingleton().logMessage(LML_NORMAL, str.str());
 		mWidth = iWidth;  
 		mHeight = iHeight;
 	}

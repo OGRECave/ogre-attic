@@ -177,6 +177,8 @@
         _ZT[ISV]N4Ogre17MultiRenderTargetE;
         _ZT[ISV]N4Ogre[0-9]Composit*E;
         _ZT[ISV]N4Ogre[1-9][0-9]Composit*E;
+		_ZT[ISV]N4Ogre8TagPointE;
+        _ZT[ISV]N4Ogre16MemoryDataStreamE;
 
         # export thunks
         _ZThn*;

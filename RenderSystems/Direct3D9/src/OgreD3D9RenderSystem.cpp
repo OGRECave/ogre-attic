@@ -1895,9 +1895,9 @@ namespace Ogre
 			hr = __SetRenderState( fogType, D3D9Mappings::get(mode) );
 
 			hr = __SetRenderState( D3DRS_FOGCOLOR, colour.getAsARGB() );
-			hr = __SetRenderState( D3DRS_FOGSTART, *((LPDWORD)(&start)) );
-			hr = __SetRenderState( D3DRS_FOGEND, *((LPDWORD)(&end)) );
-			hr = __SetRenderState( D3DRS_FOGDENSITY, *((LPDWORD)(&densitiy)) );
+			hr = __SetFloatRenderState( D3DRS_FOGSTART, start );
+			hr = __SetFloatRenderState( D3DRS_FOGEND, end );
+			hr = __SetFloatRenderState( D3DRS_FOGDENSITY, densitiy );
 		}
 
 		if( FAILED( hr ) )

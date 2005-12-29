@@ -137,7 +137,7 @@ macroScript showOgreExportTools
 		
 		on OgreExportObject open  do
 		(
-			if (gridPrefs == undefined) then	--gmax special interface : I test this to know if it is gmax or 3dsmax
+			if (maxOps.productAppID == #max) then	
 				g_MAX = false;
 			else
 				g_MAX = true;
