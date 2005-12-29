@@ -106,6 +106,16 @@ namespace Ogre
 		HRESULT __SetSamplerState(DWORD sampler, D3DSAMPLERSTATETYPE type, DWORD value);
 		HRESULT __SetTextureStageState(DWORD stage, D3DTEXTURESTAGESTATETYPE type, DWORD value);
 
+		HRESULT __SetFloatRenderState(D3DRENDERSTATETYPE state, Real value)
+		{
+#if OGRE_DOUBLE_PRECISION == 1
+			float temp = static_cast<float>(value);
+			return __SetRenderState(state, *((LPDWORD)(&temp)));
+#else
+			return __SetRenderState(state, *((LPDWORD)(&value)));
+#endif
+		}
+
 		/// return anisotropy level
 		DWORD _getCurrentAnisotropy(size_t unit);
 		/// check if a FSAA is supported
