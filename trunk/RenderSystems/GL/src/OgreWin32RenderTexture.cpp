@@ -202,12 +202,12 @@ namespace Ogre {
 		int iWidth, iHeight;
 		wglQueryPbufferARB(mPBuffer, WGL_PBUFFER_WIDTH_ARB, &iWidth);
 		wglQueryPbufferARB(mPBuffer, WGL_PBUFFER_HEIGHT_ARB, &iHeight);
+		mWidth = iWidth;  
+		mHeight = iHeight;
 		str.str(StringUtil::BLANK);
         str << "Win32RenderTexture::PBuffer created -- Real dimensions "
             << mWidth << "x" << mHeight;
 		LogManager::getSingleton().logMessage(LML_NORMAL, str.str());
-		mWidth = iWidth;  
-		mHeight = iHeight;
 	}
 	void Win32PBuffer::destroyPBuffer() 
 	{
