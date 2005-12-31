@@ -239,11 +239,11 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    bool Compiler2Pass::compile(const char* source)
+    bool Compiler2Pass::compile(const String& source)
     {
 	    bool Passed = false;
 
-	    mSource = source;
+	    mSource = &source;
 	    // start compiling if there is a rule base to work with
         if (!mActiveTokenState->rootRulePath.empty())
 	    {
@@ -273,7 +273,7 @@ namespace Ogre {
         // there is no active label when first starting pass 1
         mLabelIsActive = false;
         mActiveLabelKey = 0;
-	    mEndOfSource = strlen(mSource);
+        mEndOfSource = mSource->length();
 
 	    // start with a clean slate
 	    mActiveTokenState->tokenQue.clear();
@@ -341,7 +341,7 @@ namespace Ogre {
         mClientTokenState.rootRulePath.clear();
 
         // attempt to compile the grammer into a rule base
-        mSource = bnfGrammer.c_str();
+        mSource = &bnfGrammer;
         if (doPass1())
         {
             // convert tokens to rules
@@ -497,7 +497,7 @@ namespace Ogre {
         if (rule.operation == otDATA)
         {
             const size_t TokenID = rule.tokenID;
-            if ( strchr(mActiveTokenState->lexemeTokenDefinitions[TokenID].lexeme.c_str(), mSource[mCharPos]))
+            if (mActiveTokenState->lexemeTokenDefinitions[TokenID].lexeme.find((*mSource)[mCharPos]) != String::npos)
             {
                 // is a new label starting?
                 // if mLabelIsActive is false then starting a new label so need a new mActiveLabelKey
@@ -508,7 +508,7 @@ namespace Ogre {
                     mLabelIsActive = true;
                 }
                 // add the single character to the end of the active label
-                mLabels[mActiveLabelKey] += mSource[mCharPos];
+                mLabels[mActiveLabelKey] += (*mSource)[mCharPos];
                 Passed = true;
             }
         }
@@ -550,7 +550,7 @@ namespace Ogre {
                     else
                     {
 			            // compare token lexeme text with source text
-                        Passed = isLexemeMatch(mActiveTokenState->lexemeTokenDefinitions[tokenID].lexeme.c_str(), tokenlength);
+                        Passed = isLexemeMatch(mActiveTokenState->lexemeTokenDefinitions[tokenID].lexeme, tokenlength);
                     }
                 }
 
@@ -613,7 +613,7 @@ namespace Ogre {
 	    // check to see if it is a numeric float value
 	    bool valuefound = false;
 
-	    const char* startptr = mSource + mCharPos;
+        const char* startptr = mSource->c_str() + mCharPos;
 	    char* endptr = NULL;
 
 	    fvalue = (float)strtod(startptr, &endptr);
@@ -632,36 +632,30 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    bool Compiler2Pass::isLexemeMatch(const char* lexeme, size_t& lexemesize)
+    bool Compiler2Pass::isLexemeMatch(const String& lexeme, size_t& lexemesize)
     {
 	    // compare text at source+charpos with the lexeme : limit testing to lexemesize
-	    bool lexemefound = false;
-	    lexemesize = strlen(lexeme);
-	    if (strncmp(mSource + mCharPos, lexeme, lexemesize)==0)
-	    {
-		    lexemefound = true;
-	    }
-
-	    return lexemefound;
+        lexemesize = lexeme.length();
+	    return (mSource->compare(mCharPos, lexemesize, lexeme) == 0);
     }
 
     //-----------------------------------------------------------------------
     bool Compiler2Pass::positionToNextLexeme()
     {
 	    bool validlexemefound = false;
-	    bool endofsource = false;
+	    bool endofsource = mCharPos >= mEndOfSource;
 	    while (!validlexemefound && !endofsource)
 	    {
 		    skipWhiteSpace();
 		    skipEOL();
 		    skipComments();
 		    // have we reached the end of the string?
-		    if (mCharPos == mEndOfSource)
+		    if (mCharPos >= mEndOfSource)
 			    endofsource = true;
 		    else
 		    {
 			    // if ASCII > space then assume valid character is found
-			    if (mSource[mCharPos] > ' ') validlexemefound = true;
+			    if ((*mSource)[mCharPos] > ' ') validlexemefound = true;
 		    }
 	    }// end of while
 
@@ -672,42 +666,35 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Compiler2Pass::skipComments()
     {
-    // if current char and next are // then search for EOL
-	    if (mCharPos < mEndOfSource)
-	    {
-		    if ( ((mSource[mCharPos] == '/') && (mSource[mCharPos + 1] == '/'))/* ||
-			    (mSource[mCharPos] == ';') ||
-			    (mSource[mCharPos] == '#')*/ )
-		    {
-			    findEOL();
-		    }
-	    }
+        if (mCharPos >= mEndOfSource)
+            return;
+        // if current char and next are // then search for EOL
+        if (mSource->compare(mCharPos, 2, "//") == 0)
+			 findEOL();
     }
 
 
     //-----------------------------------------------------------------------
     void Compiler2Pass::findEOL()
     {
+        if (mCharPos >= mEndOfSource)
+            return;
 	    // find eol charter and move to this position
-	    const char* newpos = strchr(&mSource[mCharPos], '\n');
-	    if(newpos) {
-		    mCharPos += newpos - &mSource[mCharPos];
-	    }
-	    // couldn't find end of line so skip to the end
-	    else
-		    mCharPos = mEndOfSource - 1;
-
+        mCharPos = mSource->find('\n', mCharPos);
     }
 
 
     //-----------------------------------------------------------------------
     void Compiler2Pass::skipEOL()
     {
-	    if ((mSource[mCharPos] == '\n') || (mSource[mCharPos] == '\r'))
+        if (mCharPos >= mEndOfSource)
+            return;
+
+	    if (((*mSource)[mCharPos] == '\n') || ((*mSource)[mCharPos] == '\r'))
 	    {
 		    mCurrentLine++;
 		    mCharPos++;
-		    if ((mSource[mCharPos] == '\n') || (mSource[mCharPos] == '\r'))
+		    if (((*mSource)[mCharPos] == '\n') || ((*mSource)[mCharPos] == '\r'))
 		    {
 			    mCharPos++;
 		    }
@@ -718,9 +705,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Compiler2Pass::skipWhiteSpace()
     {
-	    // FIX - this method kinda slow
-	    while ((mSource[mCharPos] == ' ') || (mSource[mCharPos] == '\t'))
-		    mCharPos++; // find first non white space character
+        if (mCharPos >= mEndOfSource)
+            return;
+
+        mCharPos = mSource->find_first_not_of(" \t", mCharPos);
     }
 
     //-----------------------------------------------------------------------
