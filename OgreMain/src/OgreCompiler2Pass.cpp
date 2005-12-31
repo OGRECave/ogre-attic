@@ -550,7 +550,8 @@ namespace Ogre {
                     else
                     {
 			            // compare token lexeme text with source text
-                        Passed = isLexemeMatch(mActiveTokenState->lexemeTokenDefinitions[tokenID].lexeme, tokenlength);
+                        if (Passed = isLexemeMatch(mActiveTokenState->lexemeTokenDefinitions[tokenID].lexeme))
+                            tokenlength = mActiveTokenState->lexemeTokenDefinitions[tokenID].lexeme.length();
                     }
                 }
 
@@ -632,11 +633,10 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    bool Compiler2Pass::isLexemeMatch(const String& lexeme, size_t& lexemesize)
+    bool Compiler2Pass::isLexemeMatch(const String& lexeme)
     {
-	    // compare text at source+charpos with the lexeme : limit testing to lexemesize
-        lexemesize = lexeme.length();
-	    return (mSource->compare(mCharPos, lexemesize, lexeme) == 0);
+	    // compare text at source+charpos with the lexeme : limit testing to lexeme size
+	    return (mSource->compare(mCharPos, lexeme.length(), lexeme) == 0);
     }
 
     //-----------------------------------------------------------------------

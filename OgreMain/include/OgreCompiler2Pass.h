@@ -312,12 +312,11 @@ namespace Ogre {
         bool isCharacterLabel(const size_t rulepathIDX);
 	    /** check to see if the text is in the lexeme text library
 	    @param lexeme points to begining of text where a lexem token might exist
-	    @param lexemesize reference that will receive the size value of the lexeme found
 	    @return
 		    true if a matching token could be found in the token type library
 		    false if could not be tokenized
 	    */
-	    bool isLexemeMatch(const String& lexeme, size_t& lexemesize);
+	    bool isLexemeMatch(const String& lexeme);
 	    /// position to the next possible valid sysmbol
 	    bool positionToNextLexeme();
 	    /** process input source text using rulepath to determine allowed tokens
