@@ -104,51 +104,52 @@ namespace Ogre {
 	    */
 	    struct TokenRule
         {
-		    OperationType mOperation;
-		    size_t mTokenID;
+		    OperationType operation;
+		    size_t tokenID;
 
-            TokenRule(void) : mOperation(otUNKNOWN), mTokenID(0) {}
+            TokenRule(void) : operation(otUNKNOWN), tokenID(0) {}
             TokenRule(const OperationType ot, const size_t token)
-                : mOperation(ot), mTokenID(token) {}
+                : operation(ot), tokenID(token) {}
 	    };
 
 	    typedef std::vector<TokenRule> TokenRuleContainer;
 	    typedef TokenRuleContainer::iterator TokenRuleIterator;
 
+        static const size_t SystemTokenBase = 1000;
         enum SystemRuleToken {
-            _no_token_ = 1000,
+            _no_token_ = SystemTokenBase,
             _character_,
             _value_
         };
 
 	    enum BNF_ID {BNF_UNKOWN = 0,
-            BNF_SYNTAX, BNF_RULE, BNF_IDENTIFIER, BNF_ID_BEGIN, BNF_ID_END, BNF_SET_RULE, BNF_EXPRESSION,
+            BNF_SYNTAX, BNF_RULE, BNF_IDENTIFIER, BNF_IDENTIFIER_CHARACTERS, BNF_ID_BEGIN, BNF_ID_END, BNF_SET_RULE, BNF_EXPRESSION,
             BNF_AND_TERM, BNF_OR_TERM, BNF_TERM, BNF_OR, BNF_TERMINAL_SYMBOL,
             BNF_REPEAT_EXPRESSION, BNF_REPEAT_BEGIN, BNF_REPEAT_END, BNF_OPTIONAL_EXPRESSION,
-            BNF_OPTIONAL_BEGIN, BNF_OPTIONAL_END, BNF_SINGLEQUOTE, BNF_ANY_CHARACTER, BNF_SPECIAL_CHARACTERS,
-            
+            BNF_OPTIONAL_BEGIN, BNF_OPTIONAL_END, BNF_SINGLEQUOTE, BNF_ANY_CHARACTER, BNF_SPECIAL_CHARACTERS1,
+            BNF_SPECIAL_CHARACTERS2,
 
             BNF_LETTER, BNF_LETTER_DIGIT, BNF_DIGIT,
-            BNF_ALPHA_SET, BNF_NUMBER_SET, BNF_SPECIAL_CHARACTER_SET
+            BNF_ALPHA_SET, BNF_NUMBER_SET, BNF_SPECIAL_CHARACTER_SET1, BNF_SPECIAL_CHARACTER_SET2
         };
 
 
 	    /** structure used to build lexeme Type library */
 	    struct LexemeTokenDef
         {
-	        size_t mID;					/// Token ID which is the index into the Lexeme Token Definition Container
-            bool mHasAction;            /// has an action associated with it. only applicable to terminal tokens
-            bool mIsNonTerminal;        /// if true then token is non-terminal
-	        size_t mRuleID;				/// index into Rule database for non-terminal token rulepath and lexeme
-            String mLexeme;             /// text representation of token or valid characters for label parsing
+	        size_t ID;					/// Token ID which is the index into the Lexeme Token Definition Container
+            bool hasAction;            /// has an action associated with it. only applicable to terminal tokens
+            bool isNonTerminal;        /// if true then token is non-terminal
+	        size_t ruleID;				/// index into Rule database for non-terminal token rulepath and lexeme
+            String lexeme;             /// text representation of token or valid characters for label parsing
 								        
-            LexemeTokenDef(void) : mID(0), mHasAction(false), mIsNonTerminal(false), mRuleID(0) {}
+            LexemeTokenDef(void) : ID(0), hasAction(false), isNonTerminal(false), ruleID(0) {}
             LexemeTokenDef( const size_t ID, const String& lexeme, const bool hasAction = false, const bool nonterminal = false, const size_t ruleID = 0 )
-                : mID(ID)
-                , mHasAction(hasAction)
-                , mIsNonTerminal(nonterminal)
-                , mRuleID(ruleID)
-                , mLexeme(lexeme)
+                : ID(ID)
+                , hasAction(hasAction)
+                , isNonTerminal(nonterminal)
+                , ruleID(ruleID)
+                , lexeme(lexeme)
             {
             }
 
@@ -165,11 +166,11 @@ namespace Ogre {
 	    /** structure for Token instructions that are constructed during first pass*/
 	    struct TokenInst
         {
-	    size_t mNTTRuleID;			/// Non-Terminal Token Rule ID that generated Token
-	    size_t mTokenID;					/// expected Token ID. Could be UNKNOWN if valid token was not found.
-	    size_t mLine;				/// line number in source code where Token was found
-	    size_t mPos;				/// Character position in source where Token was found
-        bool mFound;                /// is true if expected token was found
+	    size_t NTTRuleID;			/// Non-Terminal Token Rule ID that generated Token
+	    size_t tokenID;					/// expected Token ID. Could be UNKNOWN if valid token was not found.
+	    size_t line;				/// line number in source code where Token was found
+	    size_t pos;				/// Character position in source where Token was found
+        bool found;                /// is true if expected token was found
 	    };
 
 	    typedef std::vector<TokenInst> TokenInstContainer;
@@ -178,10 +179,10 @@ namespace Ogre {
         // token que, definitions, rules
         struct TokenState 
         {
-            TokenInstContainer       mTokenQue;
-            LexemeTokenDefContainer  mLexemeTokenDefinitions;
-	        TokenRuleContainer       mRootRulePath;
-            LexemeTokenMap           mLexemeTokenMap;
+            TokenInstContainer       tokenQue;
+            LexemeTokenDefContainer  lexemeTokenDefinitions;
+	        TokenRuleContainer       rootRulePath;
+            LexemeTokenMap           lexemeTokenMap;
         };
 
         TokenState mClientTokenState;
