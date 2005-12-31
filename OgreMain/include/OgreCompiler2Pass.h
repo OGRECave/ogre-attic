@@ -197,7 +197,7 @@ namespace Ogre {
 	    size_t mEndOfSource;
 
 	    size_t mCurrentLine; /// current line number in source being tokenized
-	    size_t mCharPos;     /// position in current line in source being tokenized
+        size_t mCharPos;     /// position in current line in source being tokenized
 
 	    /// storage container for constants defined in source
         /// container uses Token index as a key associated with a float constant
