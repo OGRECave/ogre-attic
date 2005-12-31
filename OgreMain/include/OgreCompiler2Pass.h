@@ -193,7 +193,7 @@ namespace Ogre {
         size_t mPass2TokenPosition;
 
 	    /// pointer to the source to be compiled
-	    const char* mSource;
+	    const String* mSource;
 	    size_t mEndOfSource;
 
 	    size_t mCurrentLine; /// current line number in source being tokenized
@@ -317,7 +317,7 @@ namespace Ogre {
 		    true if a matching token could be found in the token type library
 		    false if could not be tokenized
 	    */
-	    bool isLexemeMatch(const char* lexeme, size_t& lexemesize);
+	    bool isLexemeMatch(const String& lexeme, size_t& lexemesize);
 	    /// position to the next possible valid sysmbol
 	    bool positionToNextLexeme();
 	    /** process input source text using rulepath to determine allowed tokens
@@ -393,7 +393,7 @@ namespace Ogre {
 		    true if Pass 1 and Pass 2 are successfull
 		    false if any errors occur in Pass 1 or Pass 2
 	    */
-	    bool compile(const char* source);
+	    bool compile(const String& source);
 
     };
 
