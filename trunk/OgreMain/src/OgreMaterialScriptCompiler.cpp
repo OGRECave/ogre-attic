@@ -140,6 +140,7 @@ namespace Ogre {
     MaterialScriptCompiler::MaterialScriptCompiler(void)
     {
         initTokenActions();
+        setClientBNFGrammer(materialScript_BNF);
     }
     //-----------------------------------------------------------------------
     MaterialScriptCompiler::~MaterialScriptCompiler(void)
@@ -512,7 +513,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseTransparencyCastsShadows(void)
 	{
-        switch (getNextToken().mTokenID)
+        switch (getNextToken().tokenID)
         {
         case ID_ON:
 			mScriptContext.material->setTransparencyCastsShadows(true);
@@ -530,7 +531,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseReceiveShadows(void)
     {
-        switch (getNextToken().mTokenID)
+        switch (getNextToken().tokenID)
         {
         case ID_ON:
             mScriptContext.material->setReceiveShadows(true);
@@ -604,7 +605,7 @@ namespace Ogre {
         // Must be 1, 3 or 4 parameters
         const size_t paramCount = getTokenQueCount();
         if (paramCount == 1) {
-            if(getNextToken().mTokenID == ID_VERTEXCOLOUR)
+            if(getNextToken().tokenID == ID_VERTEXCOLOUR)
             {
                 mScriptContext.pass->setVertexColourTracking(mScriptContext.pass->getVertexColourTracking() | TVC_AMBIENT);
             }
@@ -630,7 +631,7 @@ namespace Ogre {
         // Must be 1, 3 or 4 parameters 
         const size_t paramCount = getTokenQueCount();
         if (paramCount == 1) {
-            if(getNextToken().mTokenID == ID_VERTEXCOLOUR)
+            if(getNextToken().tokenID == ID_VERTEXCOLOUR)
             {
                mScriptContext.pass->setVertexColourTracking(mScriptContext.pass->getVertexColourTracking() | TVC_DIFFUSE);
             }
@@ -657,7 +658,7 @@ namespace Ogre {
         const size_t paramCount = getTokenQueCount();
         if(paramCount == 2) 
         {   
-            if(getNextToken().mTokenID == ID_VERTEXCOLOUR)
+            if(getNextToken().tokenID == ID_VERTEXCOLOUR)
             {
                 mScriptContext.pass->setVertexColourTracking(mScriptContext.pass->getVertexColourTracking() | TVC_SPECULAR);
                 mScriptContext.pass->setShininess(getNextTokenValue());
@@ -689,7 +690,7 @@ namespace Ogre {
         // Must be 1, 3 or 4 parameters 
         const size_t paramCount = getTokenQueCount();
         if (paramCount == 1) {
-            if(getNextToken().mTokenID == ID_VERTEXCOLOUR)
+            if(getNextToken().tokenID == ID_VERTEXCOLOUR)
             {
                mScriptContext.pass->setVertexColourTracking(mScriptContext.pass->getVertexColourTracking() | TVC_EMISSIVE);
             }
@@ -712,7 +713,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseDepthCheck(void)
     {
-        switch (getNextToken().mTokenID)
+        switch (getNextToken().tokenID)
         {
         case ID_ON:
             mScriptContext.pass->setDepthCheckEnabled(true);
@@ -727,7 +728,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseDepthWrite(void)
     {
-        switch (getNextToken().mTokenID)
+        switch (getNextToken().tokenID)
         {
         case ID_ON:
             mScriptContext.pass->setDepthWriteEnabled(true);
@@ -742,7 +743,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     CompareFunction MaterialScriptCompiler::convertCompareFunction(void)
     {
-        switch (getNextToken().mTokenID)
+        switch (getNextToken().tokenID)
         {
         case ID_ALWAYS_FAIL:
             return CMPF_ALWAYS_FAIL;
@@ -787,7 +788,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseColourWrite(void)
     {
-        switch (getNextToken().mTokenID)
+        switch (getNextToken().tokenID)
         {
         case ID_ON:
             mScriptContext.pass->setColourWriteEnabled(true);
@@ -802,7 +803,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseCullHardware(void)
     {
-        switch (getNextToken().mTokenID)
+        switch (getNextToken().tokenID)
         {
         case ID_CULL_NONE:
             mScriptContext.pass->setCullingMode(CULL_NONE);
@@ -822,7 +823,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseCullSoftware(void)
     {
-        switch (getNextToken().mTokenID)
+        switch (getNextToken().tokenID)
         {
         case ID_CULL_NONE:
             mScriptContext.pass->setManualCullingMode(MANUAL_CULL_NONE);
@@ -842,7 +843,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseLighting(void)
     {
-        switch (getNextToken().mTokenID)
+        switch (getNextToken().tokenID)
         {
         case ID_ON:
             mScriptContext.pass->setLightingEnabled(true);
@@ -862,7 +863,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseShading(void)
     {
-        switch (getNextToken().mTokenID)
+        switch (getNextToken().tokenID)
         {
         case ID_FLAT:
             mScriptContext.pass->setShadingMode(SO_FLAT);
@@ -886,7 +887,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parsePointSprites(void)
 	{
-        switch (getNextToken().mTokenID)
+        switch (getNextToken().tokenID)
         {
         case ID_ON:
             mScriptContext.pass->setPointSpritesEnabled(true);
@@ -917,7 +918,7 @@ namespace Ogre {
             logParseError("Bad point_size_attenuation attribute, wrong number of parameters (expected 1 or 4)");
             return;
         }
-        switch (getNextToken().mTokenID)
+        switch (getNextToken().tokenID)
         {
         case ID_ON:
 			if (paramCount == 4)
