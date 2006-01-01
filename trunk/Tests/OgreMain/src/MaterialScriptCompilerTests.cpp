@@ -47,7 +47,7 @@ void MaterialScriptCompilerTests::testPositionToNextSymbol()
     const int line;
   };
 
-  const char TestStr1[] = "   \n\r  //c  \n\r// test\n\r  \t  c   - \n\r ,  e";
+  const String TestStr1 = "   \n\r  //c  \n\r// test\n\r  \t  c   - \n\r ,  e";
   const test1result test1results[] = {
     {'c', 4},
     {'-', 4},
@@ -56,15 +56,15 @@ void MaterialScriptCompilerTests::testPositionToNextSymbol()
   };
 
   // first test: see if positionToNextSymbol can find a valid Symbol
-  mSource = TestStr1;
+  mSource = &TestStr1;
   mCharPos = 0;
   size_t resultID = 0;
   mCurrentLine = 1;
-  mEndOfSource = strlen(mSource);
+  mEndOfSource = mSource->length();
   while (positionToNextLexeme()) {
-      CPPUNIT_ASSERT_MESSAGE( "test " + StringConverter::toString(resultID) + "  character found: " + mSource[mCharPos] +
+      CPPUNIT_ASSERT_MESSAGE( "test " + StringConverter::toString(resultID) + "  character found: " + (*mSource)[mCharPos] +
           "  Line:%d  : " + StringConverter::toString(mCurrentLine)
-          , (mSource[mCharPos] == test1results[resultID].character) && (mCurrentLine==test1results[resultID].line) );
+          , ((*mSource)[mCharPos] == test1results[resultID].character) && (mCurrentLine==test1results[resultID].line) );
     resultID++;
     mCharPos++;
   }
@@ -74,7 +74,7 @@ void MaterialScriptCompilerTests::testPositionToNextSymbol()
 void MaterialScriptCompilerTests::testIsFloatValue(void)
 {
   struct testfloatresult{
-    const char *teststr;
+    const String teststr;
     const float fvalue;
     const size_t charsize;
   };
@@ -95,7 +95,7 @@ void MaterialScriptCompilerTests::testIsFloatValue(void)
   size_t testsize = ARRAYSIZE(testfloatresults);
   for(size_t resultID=0; resultID<testsize; resultID++)
   {
-    mSource = testfloatresults[resultID].teststr;
+    mSource = &testfloatresults[resultID].teststr;
     isFloatValue(fvalue, charsize);
     CPPUNIT_ASSERT_MESSAGE( "test " + StringConverter::toString(resultID) + " value returned: " + StringConverter::toString(fvalue)
         , fvalue == testfloatresults[resultID].fvalue);
@@ -107,12 +107,13 @@ void MaterialScriptCompilerTests::testIsFloatValue(void)
 
 void MaterialScriptCompilerTests::testIsLexemeMatch(void)
 {
-  char TestStr[] = "material test";
-  char TestSymbols[] = "material";
+  const String TestStr = "material test";
+  const String TestSymbols = "material";
 
-  mSource = TestStr;
+  mSource = &TestStr;
   mCharPos = 0;
-  size_t resultID = 0;
-  CPPUNIT_ASSERT(isLexemeMatch(TestSymbols, resultID) && resultID == (sizeof(TestSymbols) - 1));
+  CPPUNIT_ASSERT(isLexemeMatch(TestSymbols));
+  mCharPos = 1;
+  CPPUNIT_ASSERT(!isLexemeMatch(TestSymbols));
 
 }
