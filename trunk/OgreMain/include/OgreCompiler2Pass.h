@@ -215,17 +215,6 @@ namespace Ogre {
 	    /// Active Contexts pattern used in pass 1 to determine which tokens are valid for a certain context
 	    uint mActiveContexts;
 
-
-	    /** check token semantics between ID1 and ID2 using left/right semantic data in Token Type library
-	    @param ID1 token ID on the left 
-	    @param ID2 token ID on the right
-	    @return
-		    true if both will bind to each other
-		    false if either fails the semantic bind test
-
-	    */
-	    //bool checkTokenSemantics(uint ID1, uint ID2);
-
 	    /** perform pass 1 of compile process
 		    scans source for lexemes that can be tokenized and then
 		    performs general semantic and context verification on each lexeme before it is tokenized.
@@ -273,7 +262,7 @@ namespace Ogre {
         const String& getNextTokenLabel(void);
         /** Gets the number of tokens waiting in the instruction que that need to be processed by an token action.
         */
-        size_t getTokenQueCount(void);
+        size_t getTokenQueCount(void) const;
 
         /** Add a lexeme token association.  The backend compiler uses the associations between lexeme
             and token when building the rule base from the BNF script so all associations must be done
@@ -299,7 +288,7 @@ namespace Ogre {
 		    true if characters form a valid float representation
 		    false if a number value could not be extracted
 	    */
-	    bool isFloatValue(float& fvalue, size_t& charsize);
+	    bool isFloatValue(float& fvalue, size_t& charsize) const;
 
         /** Check if source at current position is supposed to be a user defined character label.
         A new label is processed when previous operation was not _character_ otherwise the processed
@@ -316,7 +305,7 @@ namespace Ogre {
 		    true if a matching token could be found in the token type library
 		    false if could not be tokenized
 	    */
-	    bool isLexemeMatch(const String& lexeme);
+	    bool isLexemeMatch(const String& lexeme) const;
 	    /// position to the next possible valid sysmbol
 	    bool positionToNextLexeme();
 	    /** process input source text using rulepath to determine allowed tokens
