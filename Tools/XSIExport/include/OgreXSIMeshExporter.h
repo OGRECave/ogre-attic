@@ -169,6 +169,8 @@ namespace Ogre {
 		void processPolygonMesh(Mesh* pMesh, PolygonMeshEntry* pm, bool lookForBoneAssignments, unsigned short progressUpdates);
 		/// Find deformers and bone assignments
 		void processBoneAssignments(Mesh* pMesh, PolygonMeshEntry* pm);
+		/// Find shape keys for a given mesh
+		void processShapeKeys(Mesh* pMesh, PolygonMeshEntry* pm);
 		
 		/// Tidy up
 		void cleanupDeformerMap(void);
@@ -202,6 +204,8 @@ namespace Ogre {
 			// map original position index (+any PM offset) -> first real instance in this one
 			IndexRemap posIndexRemap;
 			Mesh::VertexBoneAssignmentList boneAssignments;
+			/// By-value pose list, build up ready for transfer later
+			std::list<Pose> poseList;
 
 			ProtoSubMesh() : lastMeshEntry(0), lastMeshIndexOffset(0) {}
 

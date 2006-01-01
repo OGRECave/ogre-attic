@@ -185,9 +185,9 @@ namespace Ogre {
 		}
 
 		// Write morph animation 
+		writePoses(pMesh);
 		if (pMesh->hasVertexAnimation())
 		{
-			writePoses(pMesh);
 			writeAnimations(pMesh);
 		}
     }

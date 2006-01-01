@@ -36,6 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_envelope.h>
 #include <xsi_time.h>
 #include <xsi_source.h>
+#include <xsi_shapekey.h>
 
 #include "OgreException.h"
 #include "OgreXSIHelper.h"
@@ -47,6 +48,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMeshSerializer.h"
 #include "OgreHardwareBufferManager.h"
 #include "OgreVertexBoneAssignment.h"
+#include "OgrePose.h"
 
 using namespace XSI;
 
@@ -451,6 +453,9 @@ namespace Ogre {
 			processBoneAssignments(pMesh, xsiMesh);
 		}
 
+		// process any shape keys
+		processShapeKeys(pMesh, xsiMesh);
+
 
 		// Post-process the mesh
 		postprocessPolygonMesh(xsiMesh);
@@ -753,6 +758,123 @@ namespace Ogre {
 
 	}
 	//-----------------------------------------------------------------------
+	void XsiMeshExporter::processShapeKeys(Mesh* pMesh, PolygonMeshEntry* xsiMesh)
+	{
+		// ShapeKeys are kept underneath clusters
+		// The clusters are point clusters, not poly clusters like those used 
+		// to define materials
+		// Each point cluster identifies the list of points involved, and the shape key
+		// contains the offsets for that key
+		// Like bone assignments, we have to ensure we add keys for duplicated points
+
+        CRefArray clusterRefArray;
+        // Filter to 'pnt' types
+        xsiMesh->mesh.GetClusters().Filter(
+			siVertexCluster,CStringArray(),L"",clusterRefArray);
+
+		for(int i = 0; i < clusterRefArray.GetCount(); ++i)
+		{
+			Cluster cluster(clusterRefArray[i]);
+
+			// Cluster elements are the vertex indices affected
+			CClusterElementArray verticesArray = cluster.GetElements();
+
+			CRefArray clusterProperties = cluster.GetProperties();
+			for (int p = 0; p < clusterProperties.GetCount(); ++p)
+			{
+				ClusterProperty prop(clusterProperties[p]);
+				// Pull out only shape keys
+				if (prop.GetPropertyType() == siClusterPropertyShapeKeyType)
+				{
+					ShapeKey shapeKey(prop);
+
+					LogOgreAndXSI("Found shape key " + XSItoOgre(shapeKey.GetName()));
+					// elements of property are the offsets, a double array of values
+					CClusterPropertyElementArray shapeElements = shapeKey.GetElements();
+
+					// We need shapes to be relative to the original local geometry
+					// This is the default but perhaps a user might have altered it
+					Parameter keyTypeParam = shapeKey.GetParameter(L"KeyType");
+					CValue currMode = keyTypeParam.GetValue();
+					if ((unsigned short)currMode != siShapeLocalReferenceMode)
+					{
+						// Convert the shape reference mode to the one we want
+						CValueArray args;
+						CValue dummy;
+						args.Resize(2);
+						args[0] = shapeKey.GetFullName();
+						args[1] = (unsigned short)siShapeLocalReferenceMode;
+						mXsiApp.ExecuteCommand(L"ConvertShapeReferenceMode", args, dummy);
+					}
+
+					// Locate ProtoSubMeshes which use this mesh
+					for (ProtoSubMeshList::iterator psi = mProtoSubmeshList.begin();
+						psi != mProtoSubmeshList.end(); ++psi)
+					{
+						ProtoSubMesh* ps = psi->second;
+						ProtoSubMesh::PolygonMeshOffsetMap::iterator poli = 
+							ps->polygonMeshOffsetMap.find(xsiMesh);
+						if (poli != ps->polygonMeshOffsetMap.end())
+						{
+							// remap from mesh vertex index to proto vertex index
+							size_t indexAdjustment = poli->second;
+
+							// Create a new pose, target is implied by proto, final
+							// index to be determined later including merging
+							Pose pose(0, XSItoOgre(shapeKey.GetName()));
+
+							// Iterate per vertex affected
+							for (int xi = 0; xi < verticesArray.GetCount(); ++xi)
+							{
+								// Index
+								size_t positionIndex = verticesArray.GetItem(xi);
+								// adjust index based on merging
+								size_t adjIndex = positionIndex + indexAdjustment;
+								// look up real index
+								// If it doesn't exist, it's probably on a seam
+								// between clusters and we can safely skip it
+								IndexRemap::iterator remi = ps->posIndexRemap.find(adjIndex);
+								if (remi != ps->posIndexRemap.end())
+								{
+
+									size_t vertIndex = remi->second;
+									bool moreVerts = true;
+
+									// Now get offset
+									CDoubleArray xsiOffset = shapeElements.GetItem(xi);
+									Vector3 offset(xsiOffset[0], xsiOffset[1], xsiOffset[2]);
+
+									// add UniqueVertex and clones
+									while (moreVerts)
+									{
+										UniqueVertex& vertex = ps->uniqueVertices[vertIndex];
+
+										// Create a vertex pose entry
+										pose.addVertex(vertIndex, offset);
+
+										if (vertex.nextIndex == 0)
+										{
+											moreVerts = false;
+										}
+										else
+										{
+											vertIndex = vertex.nextIndex;
+										}
+									} // more duplicate verts
+								} // found remap?
+							} // for each vertex affected
+
+							// Add pose to proto
+							ps->poseList.push_back(pose);
+
+						} // proto found?
+					}// for each proto
+				} // shape key cluster property?
+			} // for each cluster property
+		} // for each cluster
+
+	}
+	//-----------------------------------------------------------------------
 	void XsiMeshExporter::exportProtoSubMeshes(Mesh* pMesh)
 	{
 		// Take the list of ProtoSubMesh instances and bake a SubMesh per
@@ -873,6 +995,22 @@ namespace Ogre {
 				bi != proto->boneAssignments.end(); ++bi)
 			{
 				sm->addBoneAssignment(bi->second);
+			}
+		}
+
+		// poses
+		// derive target index (current submesh index + 1 since 0 is shared geom)
+		ushort targetIndex = pMesh->getNumSubMeshes(); 
+		for (std::list<Pose>::iterator pi = proto->poseList.begin();
+			pi != proto->poseList.end(); ++pi)
+		{
+			Pose* pose = pMesh->createPose(targetIndex, pi->getName());
+			Pose::VertexOffsetIterator vertIt = 
+				pi->getVertexOffsetIterator();
+			while (vertIt.hasMoreElements())
+			{
+				pose->addVertex(vertIt.peekNextKey(), vertIt.peekNextValue());
+				vertIt.getNext();
 			}
 		}
 		
