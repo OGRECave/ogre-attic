@@ -301,34 +301,50 @@ namespace Ogre {
     const Compiler2Pass::TokenInst& Compiler2Pass::getNextToken(void)
     {
         static TokenInst badToken;
-        // get the current token instruction and advance instruction que index by one
-        return badToken;
+        // advance instruction que index by one then get the current token instruction
+        if (mPass2TokenPosition < mActiveTokenState->tokenQue.size() - 1)
+        {
+            ++mPass2TokenPosition;
+            return mActiveTokenState->tokenQue[mPass2TokenPosition];
+        }
+        else
+            return badToken;
     }
     //-----------------------------------------------------------------------
     void Compiler2Pass::replaceToken(void)
     {
         // move instruction que index back one position
+        --mPass2TokenPosition;
     }
     //-----------------------------------------------------------------------
     float Compiler2Pass::getNextTokenValue(void)
     {
         // get float value from current token instruction
-        // if no value associated then return 0.0f
-        return 0.0f;
+        if (getNextToken().tokenID == _value_)
+            return mConstants[mPass2TokenPosition];
+        else
+            // if no value associated then return 0.0f
+            return 0.0f;
     }
     //-----------------------------------------------------------------------
     const String& Compiler2Pass::getNextTokenLabel(void)
     {
         static String emptyString;
         // get label from current token instruction
-        // if token has no label then return empty string
-        return emptyString;
+        if (getNextToken().tokenID == _character_)
+            return mLabels[mPass2TokenPosition];
+        else
+            // if token has no label then return empty string
+            return emptyString;
     }
     //-----------------------------------------------------------------------
-    size_t Compiler2Pass::getTokenQueCount(void)
+    size_t Compiler2Pass::getTokenQueCount(void) const
     {
         // calculate number of tokens between current token instruction and next token with action
-        return 0;
+        if(mActiveTokenState->tokenQue.size() > mPass2TokenPosition)
+            return mActiveTokenState->tokenQue.size() - 1 - mPass2TokenPosition;
+        else
+            return 0;
     }
     //-----------------------------------------------------------------------
     void Compiler2Pass::setClientBNFGrammer(const String& bnfGrammer)
@@ -609,7 +625,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    bool Compiler2Pass::isFloatValue(float& fvalue, size_t& charsize)
+    bool Compiler2Pass::isFloatValue(float& fvalue, size_t& charsize) const
     {
 	    // check to see if it is a numeric float value
 	    bool valuefound = false;
@@ -633,7 +649,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    bool Compiler2Pass::isLexemeMatch(const String& lexeme)
+    bool Compiler2Pass::isLexemeMatch(const String& lexeme) const
     {
 	    // compare text at source+charpos with the lexeme : limit testing to lexeme size
 	    return (mSource->compare(mCharPos, lexeme.length(), lexeme) == 0);
@@ -644,6 +660,7 @@ namespace Ogre {
     {
 	    bool validlexemefound = false;
 	    bool endofsource = mCharPos >= mEndOfSource;
+
 	    while (!validlexemefound && !endofsource)
 	    {
 		    skipWhiteSpace();
@@ -661,7 +678,6 @@ namespace Ogre {
 
 	    return validlexemefound;
     }
-
 
     //-----------------------------------------------------------------------
     void Compiler2Pass::skipComments()
