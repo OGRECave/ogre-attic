@@ -828,6 +828,10 @@ namespace Ogre {
 							{
 								// Index
 								size_t positionIndex = verticesArray.GetItem(xi);
+								// Now get offset
+								CDoubleArray xsiOffset = shapeElements.GetItem(xi);
+								Vector3 offset(xsiOffset[0], xsiOffset[1], xsiOffset[2]);
+
 								// adjust index based on merging
 								size_t adjIndex = positionIndex + indexAdjustment;
 								// look up real index
@@ -840,9 +844,10 @@ namespace Ogre {
 									size_t vertIndex = remi->second;
 									bool moreVerts = true;
 
-									// Now get offset
-									CDoubleArray xsiOffset = shapeElements.GetItem(xi);
-									Vector3 offset(xsiOffset[0], xsiOffset[1], xsiOffset[2]);
+
+									// Skip zero offsets
+									if (offset == Vector3::ZERO)
+										continue;
 
 									// add UniqueVertex and clones
 									while (moreVerts)
