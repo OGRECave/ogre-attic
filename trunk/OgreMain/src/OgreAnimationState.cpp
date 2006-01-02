@@ -317,7 +317,7 @@ namespace Ogre
     //---------------------------------------------------------------------
     void AnimationStateSet::_notifyAnimationStateEnabled(AnimationState* target, bool enabled)
     {
-        // Remove for enabled animation state list first
+        // Remove from enabled animation state list first
         mEnabledAnimationStates.remove(target);
 
         // Add to enabled animation state list if need
