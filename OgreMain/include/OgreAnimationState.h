@@ -117,6 +117,9 @@ namespace Ogre {
 	typedef std::map<String, AnimationState*> AnimationStateMap;
 	typedef MapIterator<AnimationStateMap> AnimationStateIterator;
 	typedef ConstMapIterator<AnimationStateMap> ConstAnimationStateIterator;
+    // A list of enabled animation states
+    typedef std::list<AnimationState*> EnabledAnimationStateList;
+    typedef ConstVectorIterator<EnabledAnimationStateList> ConstEnabledAnimationStateIterator;
 
 	/** Class encapsulating a set of AnimationState objects.
 	*/
@@ -159,10 +162,15 @@ namespace Ogre {
 		/// Get the latest animation state been altered frame number
 		unsigned long getDirtyFrameNumber(void) const { return mDirtyFrameNumber; }
 
+        /// Internal method respond to enable/disable an animation state
+        void _notifyAnimationStateEnabled(AnimationState* target, bool enabled);
+		/// Get an iterator over all the enabled animation states in this set
+		ConstEnabledAnimationStateIterator getEnabledAnimationStateIterator(void) const;
+
 	protected:
 		unsigned long mDirtyFrameNumber;
 		AnimationStateMap mAnimationStates;
-
+        EnabledAnimationStateList mEnabledAnimationStates;
 
 	};
 

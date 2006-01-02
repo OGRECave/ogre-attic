@@ -2566,34 +2566,30 @@ void SceneManager::destroyAllAnimationStates(void)
 //-----------------------------------------------------------------------
 void SceneManager::_applySceneAnimations(void)
 {
-    AnimationStateIterator stateIt = mAnimationStates.getAnimationStateIterator();
+    ConstEnabledAnimationStateIterator stateIt = mAnimationStates.getEnabledAnimationStateIterator();
 
     while (stateIt.hasMoreElements())
     {
-		AnimationState* state = stateIt.getNext();
+        const AnimationState* state = stateIt.getNext();
+        Animation* anim = getAnimation(state->getAnimationName());
 
-        if (state->getEnabled())
+        // Reset any nodes involved
+        // NB this excludes blended animations
+        Animation::NodeTrackIterator nodeTrackIt = anim->getNodeTrackIterator();
+        while(nodeTrackIt.hasMoreElements())
         {
-            Animation* anim = getAnimation(state->getAnimationName());
-
-            // Reset any nodes involved
-            // NB this excludes blended animations
-            Animation::NodeTrackIterator nodeTrackIt = anim->getNodeTrackIterator();
-            while(nodeTrackIt.hasMoreElements())
-            {
-                Node* nd = nodeTrackIt.getNext()->getAssociatedNode();
-                nd->resetToInitialState();
-            }
-
-			Animation::NumericTrackIterator numTrackIt = anim->getNumericTrackIterator();
-			while(numTrackIt.hasMoreElements())
-			{
-				numTrackIt.getNext()->getAssociatedAnimable()->resetToBaseValue();
-			}
-
-            // Apply the animation
-            anim->apply(state->getTimePosition(), state->getWeight());
+            Node* nd = nodeTrackIt.getNext()->getAssociatedNode();
+            nd->resetToInitialState();
         }
+
+        Animation::NumericTrackIterator numTrackIt = anim->getNumericTrackIterator();
+        while(numTrackIt.hasMoreElements())
+        {
+            numTrackIt.getNext()->getAssociatedAnimable()->resetToBaseValue();
+        }
+
+        // Apply the animation
+        anim->apply(state->getTimePosition(), state->getWeight());
     }
 
 
