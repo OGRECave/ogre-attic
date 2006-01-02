@@ -78,9 +78,29 @@ namespace Ogre {
              sensitive.
         -''  no terminal token is generated when a - precedes the first single quote but the text in between the quotes is still
              tested against the characters in the source being parsed.
+        (?! ) negative lookahead (not test) inspired by Perl 5. Scans ahead for a non-terminal or terminal expression
+             that should fail in order to make the rule production pass.  
+             Does not generate a token or advance the cursur.  If the lookahead result fails ie token is found,
+             then the current rule fails and rollback occurs.  Mainly used to solve multiple contexts of a token.
+             An Example of where not test is used to solve multiple contexts:
+
+             <rule>       ::=  <identifier>  "::="  <expression>
+             <expression> ::=  <and_term> { <or_term> }
+             <or_term>    ::=  "|" <and_term>
+             <and_term>   ::=  <term> { <term> }
+             <term>       ::=  <identifier_right> | <terminal_symbol> | <repeat_expression> | <optional_expression>
+             <identifier_right> ::= <identifier> (?!"::=")
+
+             <identiefier> appears on both sides of the ::= so (?!"::=") test to make sure that ::= is not on the 
+             right which would indicate that a new rule was being formed.
+
+             Works on both terminals and non-terminals.
+             Note: lookahead failure cause the whole rule to fail and rollback to occur
+
         <#name> # indicates that a numerical value is to be parsed to form a terminal token.  Name is optional and is just a descriptor 
              to help with understanding what the value will be used for.
              Example: <Colour> ::= <#red> <#green> <#blue>
+
         ()   parentheses enclose a set of characters that can be used to generate a user identifier. for example:
              (0123456789) matches a single character found in that set.
              An example of a user identifier:
@@ -97,7 +117,7 @@ namespace Ogre {
     protected:
 
 	    // BNF operation types
-	    enum OperationType {otUNKNOWN, otRULE, otAND, otOR, otOPTIONAL, otREPEAT, otDATA, otEND};
+	    enum OperationType {otUNKNOWN, otRULE, otAND, otOR, otOPTIONAL, otREPEAT, otDATA, otNOT_TEST, otEND};
 
 	    /** structure used to build rule paths
 
@@ -123,7 +143,8 @@ namespace Ogre {
         };
 
 	    enum BNF_ID {BNF_UNKOWN = 0,
-            BNF_SYNTAX, BNF_RULE, BNF_IDENTIFIER, BNF_IDENTIFIER_CHARACTERS, BNF_ID_BEGIN, BNF_ID_END, BNF_SET_RULE, BNF_EXPRESSION,
+            BNF_SYNTAX, BNF_RULE, BNF_IDENTIFIER, BNF_IDENTIFIER_RIGHT, BNF_IDENTIFIER_CHARACTERS, BNF_ID_BEGIN, BNF_ID_END,
+            BNF_SET_RULE, BNF_EXPRESSION,
             BNF_AND_TERM, BNF_OR_TERM, BNF_TERM, BNF_OR, BNF_TERMINAL_SYMBOL,
             BNF_REPEAT_EXPRESSION, BNF_REPEAT_BEGIN, BNF_REPEAT_END, BNF_OPTIONAL_EXPRESSION,
             BNF_OPTIONAL_BEGIN, BNF_OPTIONAL_END, BNF_SINGLEQUOTE, BNF_ANY_CHARACTER, BNF_SPECIAL_CHARACTERS1,
