@@ -193,7 +193,7 @@ namespace Ogre
 
         // Clone enabled animation state list
         for (EnabledAnimationStateList::const_iterator it = rhs.mEnabledAnimationStates.begin();
-            it != rhs.mEnabledAnimationStates.end(); ++i)
+            it != rhs.mEnabledAnimationStates.end(); ++it)
         {
             const AnimationState* src = *it;
             mEnabledAnimationStates.push_back(getAnimationState(src->getAnimationName()));
