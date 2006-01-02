@@ -681,7 +681,6 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void Entity::applyVertexAnimation(bool hardwareAnimation, bool stencilShadows)
 	{
-		AnimationStateIterator animIt = mAnimationState->getAnimationStateIterator();
 		MeshPtr msh = getMesh();
 		bool swAnim = !hardwareAnimation || stencilShadows || (mSoftwareSkinningRequests>0);
 
@@ -745,18 +744,16 @@ namespace Ogre {
 		// Note - you should only apply one morph animation to each set of vertex data
 		// at once; if you do more, only the last one will actually apply
 		markBuffersUnusedForAnimation();
+		ConstEnabledAnimationStateIterator animIt = mAnimationState->getEnabledAnimationStateIterator();
 		while(animIt.hasMoreElements())
 		{
-			AnimationState* state = animIt.getNext();
-			if (state->getEnabled())
-			{
-				Animation* anim = msh->_getAnimationImpl(state->getAnimationName());
-				if (anim)
-				{
-					anim->apply(this, state->getTimePosition(), state->getWeight(), 
-						swAnim, hardwareAnimation);
-				}
-			}
+            const AnimationState* state = animIt.getNext();
+            Animation* anim = msh->_getAnimationImpl(state->getAnimationName());
+            if (anim)
+            {
+                anim->apply(this, state->getTimePosition(), state->getWeight(), 
+                    swAnim, hardwareAnimation);
+            }
 		}
 		// Deal with cases where no animation applied
 		restoreBuffersForUnusedAnimation(hardwareAnimation);

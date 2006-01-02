@@ -137,7 +137,7 @@ namespace Ogre
     void AnimationState::setEnabled(bool enabled)
     {
         mEnabled = enabled;
-		mParent->_notifyDirty();
+        mParent->_notifyAnimationStateEnabled(this, enabled);
     }
     //---------------------------------------------------------------------
     bool AnimationState::operator==(const AnimationState& rhs) const
@@ -191,6 +191,13 @@ namespace Ogre
 				new AnimationState(this, *src);
 		}
 
+        // Clone enabled animation state list
+        for (EnabledAnimationStateList::const_iterator it = rhs.mEnabledAnimationStates.begin();
+            it != rhs.mEnabledAnimationStates.end(); ++i)
+        {
+            const AnimationState* src = *it;
+            mEnabledAnimationStates.push_back(getAnimationState(src->getAnimationName()));
+        }
 	}
 	//---------------------------------------------------------------------
 	AnimationStateSet::~AnimationStateSet()
@@ -204,6 +211,8 @@ namespace Ogre
 		AnimationStateMap::iterator i = mAnimationStates.find(name);
 		if (i != mAnimationStates.end())
 		{
+            mEnabledAnimationStates.remove(i->second);
+
 			delete i->second;
 			mAnimationStates.erase(i);
 		}
@@ -217,6 +226,7 @@ namespace Ogre
 			delete i->second;
 		}
 		mAnimationStates.clear();
+        mEnabledAnimationStates.clear();
 
 	}
 	//---------------------------------------------------------------------
@@ -282,12 +292,48 @@ namespace Ogre
             }
         }
 
+        // Copy matching enabled animation state list
+        target->mEnabledAnimationStates.clear();
+
+        EnabledAnimationStateList::const_iterator it, itend;
+        itend = mEnabledAnimationStates.end();
+        for (it = mEnabledAnimationStates.begin(); it != itend; ++it)
+        {
+            const AnimationState* src = *it;
+            AnimationStateMap::const_iterator itarget = target->mAnimationStates.find(src->getAnimationName());
+            if (itarget != target->mAnimationStates.end())
+            {
+                target->mEnabledAnimationStates.push_back(itarget->second);
+            }
+        }
+
         target->mDirtyFrameNumber = mDirtyFrameNumber;
     }
     //---------------------------------------------------------------------
     void AnimationStateSet::_notifyDirty(void)
     {
         mDirtyFrameNumber = Root::getSingleton().getCurrentFrameNumber();
+    }
+    //---------------------------------------------------------------------
+    void AnimationStateSet::_notifyAnimationStateEnabled(AnimationState* target, bool enabled)
+    {
+        // Remove for enabled animation state list first
+        mEnabledAnimationStates.remove(target);
+
+        // Add to enabled animation state list if need
+        if (enabled)
+        {
+            mEnabledAnimationStates.push_back(target);
+        }
+
+        // Set the dirty frame number
+        _notifyDirty();
+    }
+    //---------------------------------------------------------------------
+    ConstEnabledAnimationStateIterator AnimationStateSet::getEnabledAnimationStateIterator(void) const
+    {
+        return ConstEnabledAnimationStateIterator(
+            mEnabledAnimationStates.begin(), mEnabledAnimationStates.end());
     }
 	//---------------------------------------------------------------------
 	//---------------------------------------------------------------------

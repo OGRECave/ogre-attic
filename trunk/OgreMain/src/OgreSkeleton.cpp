@@ -214,31 +214,27 @@ namespace Ogre {
         // Reset bones
         reset();
 
-        // Per animation state
-		ConstAnimationStateIterator stateIt = 
-			animSet.getAnimationStateIterator();
+        // Per enabled animation state
+        ConstEnabledAnimationStateIterator stateIt = 
+            animSet.getEnabledAnimationStateIterator();
         while (stateIt.hasMoreElements())
         {
-            // Apply if enabled
             const AnimationState* animState = stateIt.getNext();
-            if (animState->getEnabled())
+            const LinkedSkeletonAnimationSource* linked = 0;
+            Animation* anim = getAnimation(animState->getAnimationName(), &linked);
+            // tolerate state entries for animations we're not aware of
+            if (anim)
             {
-				const LinkedSkeletonAnimationSource* linked = 0;
-				Animation* anim = getAnimation(animState->getAnimationName(), &linked);
-				// tolerate state entries for animations we're not aware of
-				if (anim)
-				{
-					if (linked)
-					{
-						anim->apply(this, animState->getTimePosition(), animState->getWeight(), 
-							mBlendState == ANIMBLEND_CUMULATIVE, linked->scale);
-					}
-					else
-					{
-						anim->apply(this, animState->getTimePosition(), animState->getWeight(), 
-							mBlendState == ANIMBLEND_CUMULATIVE);
-					}
-				}
+                if (linked)
+                {
+                    anim->apply(this, animState->getTimePosition(), animState->getWeight(), 
+                        mBlendState == ANIMBLEND_CUMULATIVE, linked->scale);
+                }
+                else
+                {
+                    anim->apply(this, animState->getTimePosition(), animState->getWeight(), 
+                        mBlendState == ANIMBLEND_CUMULATIVE);
+                }
             }
         }
 
