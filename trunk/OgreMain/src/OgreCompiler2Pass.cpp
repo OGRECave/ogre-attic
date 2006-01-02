@@ -57,6 +57,7 @@ namespace Ogre {
             addLexemeToken("<syntax>", BNF_SYNTAX);
             addLexemeToken("<rule>", BNF_RULE);
             addLexemeToken("<identifier>", BNF_IDENTIFIER);
+            addLexemeToken("<identifier_right>", BNF_IDENTIFIER_RIGHT);
             addLexemeToken("<identifier_characters>", BNF_IDENTIFIER_CHARACTERS);
             addLexemeToken("<", BNF_ID_BEGIN);
             addLexemeToken(">", BNF_ID_END);
@@ -104,6 +105,8 @@ namespace Ogre {
             // {}	- repeat 0 or more times until fail or rule does not progress
             #define _repeat_(id)	mBNFTokenState.rootRulePath.push_back(TokenRule(otREPEAT,	id));
             #define _data_(id)      mBNFTokenState.rootRulePath.push_back(TokenRule(otDATA, id));
+            // (?! ) - lookahead negative (not test)
+            #define _not_(id)       mBNFTokenState.rootRulePath.push_back(TokenRule(otNOT_TEST, id));
             #define _end_   		mBNFTokenState.rootRulePath.push_back(TokenRule(otEND,0));
 
             // <syntax>     ::=  { rule }
@@ -131,9 +134,9 @@ namespace Ogre {
                 _is_(BNF_TERM)
                 _repeat_(BNF_TERM)
             _end_
-            // <term>       ::=  <identifier> | <terminal_symbol> | <repeat_expression> | <optional_expression>
+            // <term>       ::=  <identifier_right> | <terminal_symbol> | <repeat_expression> | <optional_expression>
             _rule_(BNF_TERM)
-                _is_(BNF_IDENTIFIER)
+                _is_(BNF_IDENTIFIER_RIGHT)
                 _or_(BNF_TERMINAL_SYMBOL)
                 _or_(BNF_REPEAT_EXPRESSION)
                 _or_(BNF_OPTIONAL_EXPRESSION)
@@ -150,6 +153,12 @@ namespace Ogre {
                 _is_(BNF_OPTIONAL_BEGIN)
                 _and_(BNF_IDENTIFIER)
                 _and_(BNF_OPTIONAL_END)
+            _end_
+
+            // <identifier_right> ::= <indentifier> (?!"::=")
+            _rule_(BNF_IDENTIFIER_RIGHT)
+                _is_(BNF_IDENTIFIER)
+                _not_(BNF_SET_RULE)
             _end_
 
             // <identifier> ::=  "<" <letter> {<identifier_characters>} ">"
@@ -433,7 +442,7 @@ namespace Ogre {
 			    break;
 
 		    case otREPEAT:
-			    // repeat until no called rule fails or cursor does not advance
+			    // repeat until called rule fails or cursor does not advance
 			    // repeat is 0 or more times
 			    if (passed)
 			    {
@@ -459,6 +468,40 @@ namespace Ogre {
 
             case otDATA:
                 // skip it, should have been handled by previous operation.
+                break;
+
+            case otNOT_TEST:
+			    // only validate if the previous rule passed
+			    if (passed)
+                {
+
+                    // perform look ahead and test if rule production fails
+                    const size_t la_TokenContainerOldSize = mActiveTokenState->tokenQue.size();
+	                const size_t la_OldCharPos = mCharPos;
+	                const size_t la_OldLinePos = mCurrentLine;
+
+                    passed = !ValidateToken(rulepathIDX, ActiveNTTRule);
+
+                    // only wanted to take a peek as to what was ahead so now restore back to current position
+			        mActiveTokenState->tokenQue.resize(la_TokenContainerOldSize);
+			        mCharPos = la_OldCharPos;
+			        mCurrentLine = la_OldLinePos;
+
+                    // only perform full rollback if tokens found
+			        if (!passed)
+			        {
+				        // the rule did not validate so get rid of tokens decoded
+				        // roll back the token container end position to what it was when rule started
+				        // this will get rid of all tokens that had been pushed on the container while
+				        // trying to validating this rule
+				        mActiveTokenState->tokenQue.resize(TokenContainerOldSize);
+				        //mConstants.resize(OldConstantsSize);
+				        mCharPos = OldCharPos;
+				        mCurrentLine = OldLinePos;
+                        // terminate rule production processing
+        			    endFound = true;
+			        }
+                }
                 break;
 
 		    case otEND:
@@ -522,6 +565,8 @@ namespace Ogre {
                     // mActiveLabelKey will be the end of the instruction container ie the size of mTokenInstructions
                     mActiveLabelKey = mActiveTokenState->tokenQue.size();
                     mLabelIsActive = true;
+                    // reset the contents of the label since it might have been used prior to a rollback
+                    mLabels[mActiveLabelKey] = "";
                 }
                 // add the single character to the end of the active label
                 mLabels[mActiveLabelKey] += (*mSource)[mCharPos];
