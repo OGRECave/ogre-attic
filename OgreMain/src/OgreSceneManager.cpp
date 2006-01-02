@@ -3354,7 +3354,7 @@ void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera
 	for (si = casters.begin(); si != siend; ++si)
 	{
         ShadowCaster* caster = *si;
-		bool zfailAlgo = false;
+		bool zfailAlgo = camera->isCustomNearClipPlaneEnabled();
 		unsigned long flags = 0;
 
         if (light->getType() != Light::LT_DIRECTIONAL)

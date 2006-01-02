@@ -444,6 +444,9 @@ namespace Ogre
 		virtual void enableCustomNearClipPlane(const Plane& plane);
 		/** Disables any custom near clip plane. */
 		virtual void disableCustomNearClipPlane(void);
+		/** Is a custom near clip plane in use? */
+		virtual bool isCustomNearClipPlaneEnabled(void) const 
+		{ return mObliqueDepthProjection; }
 		
 
         /// Small constant used to reduce far plane projection to avoid inaccuracies
