@@ -152,7 +152,7 @@ namespace Ogre {
 	{
 		if (mParentNode)
 		{
-			if (mUpperDistance > 0)
+			if (cam->getUseRenderingDistance() && mUpperDistance > 0)
 			{
 				Real rad = getBoundingRadius();
 				Real squaredDepth = mParentNode->getSquaredViewDepth(cam);

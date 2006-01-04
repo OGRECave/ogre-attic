@@ -135,6 +135,9 @@ namespace Ogre {
         bool mAutoAspectRatio;
 		/// Custom culling frustum
 		Frustum *mCullFrustum;
+		/// Whether or not the rendering distance of objects should take effect for this camera
+		bool mUseRenderingDistance;
+
 
         // Internal functions for calcs
         bool isViewOutOfDate(void) const;
@@ -497,6 +500,16 @@ namespace Ogre {
 			using the real view matrix in order to display the correct debug view.
 		*/
 		const Matrix4& getViewMatrix(bool ownFrustumOnly) const;
+		/** Set whether this camera should use the 'rendering distance' on
+			objects to exclude distant objects from the final image. The
+			default behaviour is to use it.
+		@param use True to use the rendering distance, false not to.
+		*/
+		virtual void setUseRenderingDistance(bool use) { mUseRenderingDistance = use; }
+		/** Get whether this camera should use the 'rendering distance' on
+			objects to exclude distant objects from the final image.
+		*/
+		virtual bool getUseRenderingDistance(void) const { return mUseRenderingDistance; }
      };
 
 } // namespace Ogre

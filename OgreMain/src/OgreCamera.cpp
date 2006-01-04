@@ -41,15 +41,22 @@ namespace Ogre {
     String Camera::msMovableType = "Camera";
     //-----------------------------------------------------------------------
     Camera::Camera( const String& name, SceneManager* sm)
-        : mName( name )
+        : mName( name ),
+		mSceneMgr(sm),
+		mOrientation(Quaternion::IDENTITY),
+		mPosition(Vector3::ZERO),
+		mSceneDetail(SDL_SOLID),
+		mAutoTrackTarget(0),
+		mAutoTrackOffset(Vector3::ZERO),
+		mSceneLodFactor(1.0f),
+		mSceneLodFactorInv(1.0f),
+		mWindowSet(false),
+		mLastViewport(0),
+		mAutoAspectRatio(false),
+		mCullFrustum(0),
+		mUseRenderingDistance(true)
+
     {
-        // Init camera location & direction
-
-        // Locate at (0,0,0)
-        mPosition.x = mPosition.y = mPosition.z = 0;
-        // Point down -Z axis
-        mOrientation = Quaternion::IDENTITY;
-
 
         // Reasonable defaults to camera params
         mFOVy = Radian(Math::PI/4.0);
@@ -57,7 +64,6 @@ namespace Ogre {
         mFarDist = 100000.0f;
         mAspect = 1.33333333333333f;
         mProjType = PT_PERSPECTIVE;
-        mSceneDetail = SDL_SOLID;
         setFixedYawAxis(true);    // Default to fixed yaw, like freelook since most people expect this
 
         invalidateFrustum();
@@ -69,24 +75,11 @@ namespace Ogre {
 
         mParentNode = 0;
 
-        // Record SceneManager
-        mSceneMgr = sm;
-
-        // Init no tracking
-        mAutoTrackTarget = 0;
-
-        // Init lod
-        mSceneLodFactor = mSceneLodFactorInv =  1.0f;
-
         // no reflection
         mReflect = false;
 
         mVisible = false;
 
-
-        mWindowSet = false;
-        mAutoAspectRatio = false;
-		mCullFrustum = 0;
     }
 
     //-----------------------------------------------------------------------
