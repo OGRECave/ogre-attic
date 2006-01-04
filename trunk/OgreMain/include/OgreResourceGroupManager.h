@@ -171,6 +171,7 @@ namespace Ogre {
         {
             String resourceName;
             String resourceType;
+            ManualResourceLoader* loader;
 			NameValuePairList parameters;
         };
         /// List of resource declarations
@@ -486,6 +487,48 @@ namespace Ogre {
         void declareResource(const String& name, const String& resourceType,
             const String& groupName = DEFAULT_RESOURCE_GROUP_NAME,
 			const NameValuePairList& loadParameters = NameValuePairList());
+        /** Declares a resource to be a part of a resource group, allowing you
+            to load and unload it as part of the group.
+        @remarks
+            By declaring resources before you attempt to use them, you can
+            more easily control the loading and unloading of those resources
+            by their group. Declaring them also allows them to be enumerated,
+            which means events can be raised to indicate the loading progress
+            (@see ResourceGroupListener). Note that another way of declaring
+            resources is to use a script specific to the resource type, if
+            available (e.g. .material).
+        @par
+            Declared resources are not created as Resource instances (and thus
+            are not available through their ResourceManager) until initialiseResourceGroup
+            is called, at which point all declared resources will become created
+            (but unloaded) Resource instances, along with any resources declared
+            in scripts in resource locations associated with the group.
+        @param name The resource name.
+        @param resourceType The type of the resource. Ogre comes preconfigured with
+            a number of resource types:
+            <ul>
+            <li>Font</li>
+            <li>GpuProgram</li>
+            <li>HighLevelGpuProgram</li>
+            <li>Material</li>
+            <li>Mesh</li>
+            <li>Skeleton</li>
+            <li>Texture</li>
+            </ul>
+            .. but more can be added by plugin ResourceManager classes.
+        @param groupName The name of the group to which it will belong.
+        @param loader Pointer to a ManualResourceLoader implementation which will
+            be called when the Resource wishes to load. If supplied, the resource
+            is manually loaded, otherwise it'll loading from file automatic.
+            @note We don't support declare manually loaded resource without loader
+                here, since it's meaningless.
+        @param loadParameters A list of name / value pairs which supply custom
+            parameters to the resource which will be required before it can
+            be loaded. These are specific to the resource type.
+        */
+        void declareResource(const String& name, const String& resourceType,
+            const String& groupName, ManualResourceLoader* loader,
+            const NameValuePairList& loadParameters = NameValuePairList());
         /** Undeclare a resource.
 		@remarks
 			Note that this will not cause it to be unloaded
