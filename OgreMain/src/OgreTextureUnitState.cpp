@@ -1054,6 +1054,8 @@ namespace Ogre {
     void TextureUnitState::setName(const String& name)
     {
         mName = name;
+		if (mTextureNameAlias.empty())
+			mTextureNameAlias = mName;
     }
 
     //-----------------------------------------------------------------------
