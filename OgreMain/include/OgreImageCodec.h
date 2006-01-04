@@ -67,6 +67,10 @@ namespace Ogre {
         };
 
     public:
+        String getDataType() const
+        {
+            return "ImageData";
+        }
     };
 
 } // namespace

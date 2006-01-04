@@ -34,6 +34,18 @@ namespace Ogre {
     Codec::~Codec() {
     }
 
+    StringVector Codec::getExtensions(void)
+    {
+        StringVector result;
+        result.reserve(ms_mapCodecs.size());
+        CodecList::const_iterator i;
+        for (i = ms_mapCodecs.begin(); i != ms_mapCodecs.end(); ++i)
+        {
+            result.push_back(i->first);
+        }
+        return result;
+    }
+
     Codec* Codec::getCodec(const String& extension)
     {
         String lwrcase = extension;
