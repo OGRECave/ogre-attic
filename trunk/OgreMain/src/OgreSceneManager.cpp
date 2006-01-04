@@ -4101,6 +4101,9 @@ void SceneManager::createShadowTextures(unsigned short size,
         // Create a camera to go with this texture
         Camera* cam = createCamera(camName);
         cam->setAspectRatio(1.0f);
+		// Don't use rendering distance for light cameras; we don't want shadows
+		// for visible objects disappearing, especially for directional lights
+		cam->setUseRenderingDistance(false);
         // Create a viewport
         Viewport *v = shadowRTT->addViewport(cam);
         v->setClearEveryFrame(true);
