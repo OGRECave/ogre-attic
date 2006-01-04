@@ -50,6 +50,7 @@ namespace Ogre {
     {
 	public:
 		virtual void processEvent(InputEvent* e) = 0;
+		virtual ~EventTarget() {}
     };
 }
 

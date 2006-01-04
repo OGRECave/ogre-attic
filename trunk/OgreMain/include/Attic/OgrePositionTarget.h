@@ -47,6 +47,7 @@ namespace Ogre {
     class _OgreExport PositionTarget : public EventTarget
     {
 	public:
+		virtual ~PositionTarget() {}
         /** Gets the left of this element in relation to the screen (where 0 = far left, 1.0 = far right)  */
         virtual Real getLeft(void) const = 0;
 

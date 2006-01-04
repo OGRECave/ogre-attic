@@ -58,6 +58,15 @@ namespace Ogre {
             create a fresh log or retrieve an existing one to output to.
             One log is the default log, and is the one written to when the
             logging methods of this class are called.
+		@par
+			By default, Root will instantiate a LogManager (which becomes the 
+			Singleton instance) on construction, and will create a default log
+			based on the Root construction parameters. If you want more control,
+			for example redirecting log output right from the start or suppressing
+			debug output, you need to create a LogManager yourself before creating
+			a Root instance, then create a default log. Root will detect that 
+			you've created one yourself and won't create one of its own, thus
+			using all your logging preferences from the first instance.
     */
     class _OgreExport LogManager : public Singleton<LogManager>
     {
