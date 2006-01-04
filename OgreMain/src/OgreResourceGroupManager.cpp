@@ -411,6 +411,14 @@ namespace Ogre {
         const String& resourceType, const String& groupName,
 		const NameValuePairList& loadParameters)
     {
+        declareResource(name, resourceType, groupName, 0, loadParameters);
+    }
+    //-----------------------------------------------------------------------
+    void ResourceGroupManager::declareResource(const String& name, 
+        const String& resourceType, const String& groupName,
+        ManualResourceLoader* loader,
+        const NameValuePairList& loadParameters)
+    {
 		ResourceGroup* grp = getResourceGroup(groupName);
 		if (!grp)
 		{
@@ -422,6 +430,7 @@ namespace Ogre {
 		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
 
 		ResourceDeclaration dcl;
+		dcl.loader = loader;
 		dcl.parameters = loadParameters;
 		dcl.resourceName = name;
 		dcl.resourceType = resourceType;
@@ -707,9 +716,8 @@ namespace Ogre {
 			// Retrieve the appropriate manager
 			ResourceManager* mgr = _getResourceManager(dcl.resourceType);
 			// Create the resource
-			ResourcePtr res = mgr->create(dcl.resourceName, grp->name);
-			// Set custom parameters
-			res->setParameterList(dcl.parameters);
+			ResourcePtr res = mgr->create(dcl.resourceName, grp->name,
+                dcl.loader != 0, dcl.loader, &dcl.parameters);
 			// Add resource to load list
 			ResourceGroup::LoadResourceOrderMap::iterator li = 
 				grp->loadResourceOrderMap.find(mgr->getLoadingOrder());
