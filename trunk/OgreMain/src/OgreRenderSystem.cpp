@@ -460,7 +460,7 @@ namespace Ogre {
             mActiveVertexGpuProgramParameters->incPassIterationNumber();
             bindGpuProgramPassIterationParameters(GPT_VERTEX_PROGRAM);
         }
-        if (!mActiveVertexGpuProgramParameters.isNull())
+        if (!mActiveFragmentGpuProgramParameters.isNull())
         {
             mActiveFragmentGpuProgramParameters->incPassIterationNumber();
             bindGpuProgramPassIterationParameters(GPT_FRAGMENT_PROGRAM);
