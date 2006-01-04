@@ -47,6 +47,7 @@ namespace Ogre {
     class _OgreExport RenderQueueListener
     {
     public:
+		virtual ~RenderQueueListener() {}
         /** Event raised before a queue group is rendered. 
         @remarks
             This method is called by the SceneManager before each queue group is

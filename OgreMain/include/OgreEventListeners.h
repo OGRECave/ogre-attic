@@ -52,6 +52,8 @@ namespace Ogre {
 
     class _OgreExport EventListener 
     {
+	public:
+		virtual ~EventListener() {}
 	};
     
 	/** Specialised EventListener for discrete mouse events.

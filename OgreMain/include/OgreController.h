@@ -84,6 +84,8 @@ namespace Ogre {
             mDeltaCount = 0;
         }
 
+		virtual ~ControllerFunction() {}
+
         virtual T calculate(T sourceValue) = 0;
     };
 
