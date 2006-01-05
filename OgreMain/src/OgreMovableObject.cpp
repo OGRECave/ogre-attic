@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreEntity.h"
 #include "OgreRoot.h"
 #include "OgreSceneManager.h"
+#include "OgreCamera.h"
 
 namespace Ogre {
 	//-----------------------------------------------------------------------
