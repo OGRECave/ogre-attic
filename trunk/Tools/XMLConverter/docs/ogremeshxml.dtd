@@ -1,5 +1,5 @@
 <!ELEMENT mesh (sharedgeometry?, submeshes, 
-	skeletonlink?, boneassignments?, levelofdetail?, submeshnames?, animations?)>
+	skeletonlink?, boneassignments?, levelofdetail?, submeshnames?, poses?, animations?)>
 <!ELEMENT sharedgeometry (vertexbuffer+)>
 <!ATTLIST sharedgeometry
 	vertexcount CDATA #REQUIRED>
@@ -97,7 +97,6 @@
 <!ATTLIST submeshname 
 	name	CDATA	#REQUIRED
 	index	CDATA	#REQUIRED >
-<!ELEMENT animations (poses?,animation+)>
 <!ELEMENT poses (pose+)>
 <!-- A single pose references a single set of geometry data with a set of offsets.
 	If target is 'mesh', targets the shared geometry, if target is submesh, targets
@@ -115,6 +114,7 @@
 	x		CDATA	#REQUIRED
 	y		CDATA	#REQUIRED
 	z		CDATA	#REQUIRED >
+<!ELEMENT animations (animation+)>
 <!ELEMENT animation (tracks)>
 <!ATTLIST animation
 	name	CDATA	#REQUIRED 
