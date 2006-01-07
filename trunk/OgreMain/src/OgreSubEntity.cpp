@@ -376,7 +376,8 @@ namespace Ogre {
 		//  We didn't apply any animation and 
 		//    We're morph animated (hardware binds keyframe, software is missing)
 		//    or we're pose animated and software (hardware is fine, still bound)
-		if (!mSubMesh->useSharedVertices && 
+		if (mSubMesh->getVertexAnimationType() != VAT_NONE && 
+			!mSubMesh->useSharedVertices && 
 			!mVertexAnimationAppliedThisFrame &&
 			(!hardwareAnimation || mSubMesh->getVertexAnimationType() == VAT_MORPH))
 		{
