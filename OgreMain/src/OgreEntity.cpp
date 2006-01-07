@@ -698,8 +698,8 @@ namespace Ogre {
 				si != mSubEntityList.end(); ++si)
 			{
 				SubEntity* sub = *si;
-				if (sub->_getSoftwareVertexAnimVertexData()
-					&& sub->getSubMesh()->getVertexAnimationType() != VAT_NONE)
+				if (sub->getSubMesh()->getVertexAnimationType() != VAT_NONE && 
+					!sub->getSubMesh()->useSharedVertices)
 				{
 					initHardwareAnimationElements(
 						sub->_getHardwareVertexAnimVertexData(),
@@ -726,7 +726,7 @@ namespace Ogre {
 				si != mSubEntityList.end(); ++si)
 			{
 				SubEntity* sub = *si;
-				if (sub->_getSoftwareVertexAnimVertexData() && 
+				if (!sub->getSubMesh()->useSharedVertices && 
 					sub->getSubMesh()->getVertexAnimationType() == VAT_POSE)
 				{
 					VertexData* data = sub->_getSoftwareVertexAnimVertexData();
@@ -774,7 +774,7 @@ namespace Ogre {
 				si != mSubEntityList.end(); ++si)
 			{
 				SubEntity* sub = *si;
-				if (sub->_getSoftwareVertexAnimVertexData() && 
+				if (!sub->getSubMesh()->useSharedVertices && 
 					sub->getSubMesh()->getVertexAnimationType() == VAT_POSE)
 				{
 					VertexData* data = sub->_getSoftwareVertexAnimVertexData();
