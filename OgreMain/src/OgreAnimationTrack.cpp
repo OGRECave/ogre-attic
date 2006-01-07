@@ -754,12 +754,18 @@ namespace Ogre {
 			// no use for TempBlendedBufferInfo here btw
 			// Set pose target as required
 			size_t hwIndex = data->hwAnimDataItemsUsed++;
-			VertexData::HardwareAnimationData& animData = data->hwAnimationDataList[hwIndex];
-			data->vertexBufferBinding->setBinding(
-				animData.targetVertexElement->getSource(), 
-				pose->_getHardwareVertexBuffer(data->vertexCount));
-			// save final influence in parametric
-			animData.parametric = influence;
+			// If we try to use too many poses, ignore extras
+			if (hwIndex < data->hwAnimationDataList.size())
+			{
+				VertexData::HardwareAnimationData& animData = data->hwAnimationDataList[hwIndex];
+				data->vertexBufferBinding->setBinding(
+					animData.targetVertexElement->getSource(), 
+					pose->_getHardwareVertexBuffer(data->vertexCount));
+				// save final influence in parametric
+				animData.parametric = influence;
+
+			}
+
 		}
 		else
 		{
