@@ -525,6 +525,11 @@ namespace Ogre {
 		}
 		return i->second;
 	}
+	//-----------------------------------------------------------------------------
+	bool VertexBufferBinding::isBufferBound(unsigned short index)
+	{
+		return mBindingMap.find(index) != mBindingMap.end();
+	}
     //-----------------------------------------------------------------------------
     HardwareVertexBufferSharedPtr::HardwareVertexBufferSharedPtr(HardwareVertexBuffer* buf)
         : SharedPtr<HardwareVertexBuffer>(buf)

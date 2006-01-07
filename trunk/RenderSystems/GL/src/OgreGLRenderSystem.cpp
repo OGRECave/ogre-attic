@@ -2099,6 +2099,9 @@ namespace Ogre {
 
         for (elem = decl.begin(); elem != elemEnd; ++elem)
         {
+			if (!op.vertexData->vertexBufferBinding->isBufferBound(elem->getSource()))
+				continue; // skip unbound elements
+
             HardwareVertexBufferSharedPtr vertexBuffer = 
                 op.vertexData->vertexBufferBinding->getBuffer(elem->getSource());
             if(mCapabilities->hasCapability(RSC_VBO))

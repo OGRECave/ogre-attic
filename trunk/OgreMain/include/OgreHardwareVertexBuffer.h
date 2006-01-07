@@ -463,6 +463,8 @@ namespace Ogre {
 
 		/// Gets the buffer bound to the given source index
 		virtual HardwareVertexBufferSharedPtr getBuffer(unsigned short index);
+		/// Gets whether a buffer is bound to the given source index
+		virtual bool isBufferBound(unsigned short index);
 
         virtual size_t getBufferCount(void) const { return mBindingMap.size(); }
 
