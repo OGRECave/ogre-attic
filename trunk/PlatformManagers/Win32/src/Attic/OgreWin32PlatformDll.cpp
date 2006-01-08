@@ -134,6 +134,17 @@ namespace Ogre {
 #endif
     }
 
+	extern "C" void messagePump(RenderWindow* rw)
+	{
+		//A simple Win32 event pump
+		MSG  msg;
+		while( PeekMessage( &msg, NULL, 0U, 0U, PM_REMOVE ) )
+		{
+			TranslateMessage( &msg );
+			DispatchMessage( &msg );
+		}
+	}
+
 #ifdef DEBUG
     BOOL WINAPI DllMain( HINSTANCE hinstDLL,  // handle to DLL module
                          DWORD fdwReason,     // reason for calling function

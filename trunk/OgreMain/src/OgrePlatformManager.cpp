@@ -61,6 +61,8 @@ namespace Ogre {
         mpfDestroyInputReader = (DLL_DESTROYINPUTREADER)lib->getSymbol("destroyPlatformInputReader");
         mpfDestroyTimer = (DLL_DESTROYTIMER)lib->getSymbol("destroyTimer");
 
+		mpfMessagePump = (DLL_MESSAGEPUMP)lib->getSymbol("messagePump");
+
     }
     //-----------------------------------------------------------------------
     ConfigDialog* PlatformManager::createConfigDialog()
@@ -117,7 +119,13 @@ namespace Ogre {
     {
         mpfDestroyTimer(timer);
     }
-
+    //-----------------------------------------------------------------------
+    void PlatformManager::messagePump( RenderWindow* rw )
+    {
+        //Delegate -- If the platform does not export this function, then just return
+        if( rw && mpfMessagePump )
+            mpfMessagePump(rw);
+    }
     //-----------------------------------------------------------------------
     ConfigDialog::~ConfigDialog() {
     }

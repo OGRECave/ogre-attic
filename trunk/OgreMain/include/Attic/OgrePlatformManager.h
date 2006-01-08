@@ -40,6 +40,8 @@ namespace Ogre {
     typedef void (*DLL_DESTROYINPUTREADER)(InputReader* ppReader);
     typedef void (*DLL_DESTROYTIMER)(Timer* ppTimer);
 
+	typedef void (*DLL_MESSAGEPUMP)(RenderWindow* rw);
+
     /** Class which manages the platform settings Ogre runs on.
         @remarks
             Because Ogre is designed to be platform-independent, it
@@ -56,11 +58,13 @@ namespace Ogre {
         DLL_CREATEERRORDIALOG mpfCreateErrorDialog;
         DLL_CREATEINPUTREADER mpfCreateInputReader;
 		DLL_CREATETIMER mpfCreateTimer;
-
-        DLL_DESTROYCONFIGDIALOG mpfDestroyConfigDialog;
+		
+		DLL_DESTROYCONFIGDIALOG mpfDestroyConfigDialog;
         DLL_DESTROYERRORDIALOG mpfDestroyErrorDialog;
         DLL_DESTROYINPUTREADER mpfDestroyInputReader;
         DLL_DESTROYTIMER mpfDestroyTimer;
+
+		DLL_MESSAGEPUMP mpfMessagePump;
 		
     public:
         /** Default constructor.
@@ -118,6 +122,16 @@ namespace Ogre {
 
         /** Destroys an instance of a timer. */
         void destroyTimer(Timer* timer);
+
+		/**
+		@remarks
+			Allows platform to provide Platform specific Event
+			updating/dispatching per frame (ie. Win32 Message Pump) as called
+			from Root::startRendering . If you are not using Root::startRendering,
+			you can call this function yourself, or run your own event pump
+		*/
+		void messagePump(RenderWindow* rw);
+
         /** Override standard Singleton retrieval.
         @remarks
         Why do we do this? Well, it's because the Singleton

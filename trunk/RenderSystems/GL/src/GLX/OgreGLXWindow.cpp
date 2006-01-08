@@ -49,45 +49,54 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <GL/glx.h>
 
 
-namespace Ogre {
+namespace Ogre
+{
 
+//-------------------------------------------------------------------------------------------------//
 GLXWindow::GLXWindow(Display *display) :
-		mDisplay(display),
-		mWindow(0),
-		mGlxContext(0),
+	mDisplay(display), mWindow(0), mGlxContext(0),
         mClosed(false),mFullScreen(false), mOldMode(-1),
-        mContext(0) {
+        mContext(0) 
+{
 	mActive = false;
 }
 
-GLXWindow::~GLXWindow() {
+//-------------------------------------------------------------------------------------------------//
+GLXWindow::~GLXWindow() 
+{
 	if(mGlxContext)
 		glXDestroyContext(mDisplay, mGlxContext);
+	
 	if(mWindow)
 		XDestroyWindow(mDisplay, mWindow);
-#ifndef NO_XRANDR
 
-	if(mFullScreen) {
+#ifndef NO_XRANDR
+	if(mFullScreen) 
+	{
 		// Restore original video mode.
 		Window rootWindow = DefaultRootWindow(mDisplay);
 		XRRScreenConfiguration *config;
 
 		// Get current screen info
 		config = XRRGetScreenInfo(mDisplay, rootWindow);
-		if(config) {
+		if(config) 
+		{
 			Rotation current_rotation;
 			XRRConfigCurrentConfiguration (config, &current_rotation);
 			//std::cerr << "Restore mode " << mOldMode << std::endl;
 			LogManager::getSingleton().logMessage("GLXWindow::~GLXWindow -- Leaving full screen mode");
 			XRRSetScreenConfig(mDisplay, config, rootWindow, mOldMode, current_rotation, CurrentTime);
 			XRRFreeScreenConfigInfo(config);
-		} else {
+		} 
+		else 
+		{
 			LogManager::getSingleton().logMessage("GLXWindow::~GLXWindow -- Could not switch from full screen mode: XRRGetScreenInfo failed");
 		}
 	}
 #endif
 }
 
+//-------------------------------------------------------------------------------------------------//
 void GLXWindow::create(const String& name, unsigned int width, unsigned int height,
 	            bool fullScreen, const NameValuePairList *miscParams)
 {
@@ -152,7 +161,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 
 			left = top = 0;
 			fullScreen = false; // Can't be full screen if embedded in an app!
-            mTopLevel = false;  // Can't be top-level if embedded
+			mTopLevel = false;  // Can't be top-level if embedded
 		}
 		
 		opt = miscParams->find("externalWindowHandle");
@@ -177,7 +186,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 			
 			left = top = 0;
 			fullScreen = false; // Can't be full screen if embedded in an app!
-            mTopLevel = false;  // Can't be top-level if embedded         
+			mTopLevel = false;  // Can't be top-level if embedded         
 		}
 
 	}
@@ -188,15 +197,18 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 		LogManager::getSingleton().logMessage("GLXWindow::create -- FSAA only supported in fullscreen mode");
 		fsaa_samples = 0;
 	}
-    // Disable FSAA for now -- it doesn't work on NVIDIA
-    fsaa_samples = 0;
+	// Disable FSAA for now -- it doesn't work on NVIDIA
+	fsaa_samples = 0;
 
 #ifndef NO_XRANDR
 	// Attempt mode switch for fullscreen -- only if RANDR extension is there
 	int dummy;
-	if(fullScreen && ! XQueryExtension(mDisplay, "RANDR", &dummy, &dummy, &dummy)) {
-			LogManager::getSingleton().logMessage("GLXWindow::create -- Could not switch to full screen mode: No XRANDR extension found");
-	} else if(fullScreen) {
+	if(fullScreen && ! XQueryExtension(mDisplay, "RANDR", &dummy, &dummy, &dummy)) 
+	{
+		LogManager::getSingleton().logMessage("GLXWindow::create -- Could not switch to full screen mode: No XRANDR extension found");
+	} 
+	else if(fullScreen) 
+	{
 		// Use Xrandr extension to switch video modes. This is much better than
 		// XVidMode as you can't scroll away from the full-screen applications.
 		XRRScreenConfiguration *config;
@@ -267,7 +279,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 		attr.background_pixel = 0;
 		attr.border_pixel = 0;
 		attr.colormap = XCreateColormap(mDisplay,rootWindow,visualInfo->visual,AllocNone);
-		attr.event_mask = StructureNotifyMask | KeyPressMask | KeyReleaseMask | PointerMotionMask | ButtonPressMask | ButtonReleaseMask;
+		attr.event_mask = StructureNotifyMask;
 		if(fullScreen) {
 			mask = CWBackPixel | CWColormap | CWOverrideRedirect | CWSaveUnder | CWBackingStore | CWEventMask;
 			attr.override_redirect = True;
@@ -346,9 +358,8 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 		else
 			mGlxContext = glXCreateContext(mDisplay,visualInfo,mainContext->mCtx,True);
 	
-	if(!mGlxContext) {
+	if(!mGlxContext)
 		OGRE_EXCEPT(999, "glXCreateContext failed", "GLXWindow::create");
-	}
 
 	// Free visual info
 	if (extVisualHandler == NULL)
@@ -363,16 +374,20 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
     mContext = new GLXContext(mDisplay, mWindow, mGlxContext);
 }
 
+//-------------------------------------------------------------------------------------------------//
 void GLXWindow::destroy(void)
 {
-    // Unregister and destroy OGRE GLContext
-    delete mContext;
+	// Unregister and destroy OGRE GLContext
+	delete mContext;
 
-    // Destroy GL context
+	// Destroy GL context
 	if(mGlxContext)
 		glXDestroyContext(mDisplay, mGlxContext);
+
 	if(mWindow)
 		XDestroyWindow(mDisplay, mWindow);
+
+	mContext = 0;
 	mWindow = 0;
 	mGlxContext = 0;
 	mActive = false;
@@ -380,46 +395,52 @@ void GLXWindow::destroy(void)
 	Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
 }
 
+//-------------------------------------------------------------------------------------------------//
 bool GLXWindow::isActive() const
 {
 	return mActive;
 }
 
+//-------------------------------------------------------------------------------------------------//
 bool GLXWindow::isClosed() const
 {
 	return mClosed;
 }
 
+//-------------------------------------------------------------------------------------------------//
 void GLXWindow::reposition(int left, int top)
 {
 	XMoveWindow(mDisplay,mWindow,left,top);
 }
 
+//-------------------------------------------------------------------------------------------------//
 void GLXWindow::resize(unsigned int width, unsigned int height)
 {
-    if (!mTopLevel) 
-        /// Embedded
-        resized(width, height);
-    else
-        /// Ogre handles window
-        XResizeWindow(mDisplay,mWindow,width,height);
+	if (!mTopLevel)
+		resized(width, height); /// Embedded
+	else
+		XResizeWindow(mDisplay,mWindow,width,height); /// Ogre handles window
 }
 
+//-------------------------------------------------------------------------------------------------//
 void GLXWindow::swapBuffers(bool waitForVSync)
 {
 	glXSwapBuffers(mDisplay,mWindow);
 }
 
-void GLXWindow::processEvent(const XEvent &event)
+//-------------------------------------------------------------------------------------------------//
+void GLXWindow::injectXEvent(const XEvent &event)
 {
 	// Process only events for this window
-	switch(event.type) {
+	switch(event.type) 
+	{
 	case ClientMessage:
 		if(event.xclient.display != mDisplay || event.xclient.window != mWindow)
-			// Not for me
 			break;
-		if(event.xclient.format == 32 && event.xclient.data.l[0] == (long)mAtomDeleteWindow)  {
-			// Window deleted -- oops, this does not work, ogre doesn't register the close
+
+		if(event.xclient.format == 32 && event.xclient.data.l[0] == (long)mAtomDeleteWindow)  
+		{
+			//Window deleted -- oops, this does not work, ogre doesn't register the close
 			//mClosed = true;
 			//mActive = false;
 			//Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
@@ -427,113 +448,106 @@ void GLXWindow::processEvent(const XEvent &event)
 		break;
 	case ConfigureNotify:
 		if(event.xconfigure.display != mDisplay || event.xconfigure.window != mWindow)
-			// Not for me
 			break;
-        resized(event.xconfigure.width,	event.xconfigure.height);
+
+		resized(event.xconfigure.width,	event.xconfigure.height);
 		break;
 	case MapNotify:
 		if(event.xconfigure.display != mDisplay || event.xconfigure.window != mWindow)
-			// Not for me
 			break;
+
 		// Window was mapped to the screen
-		exposed(true);
+		mActive = true;
 		break;
 	case UnmapNotify:
 		if(event.xconfigure.display != mDisplay || event.xconfigure.window != mWindow)
-			// Not for me
 			break;
+
 		// Window was unmapped from the screen (user switched
 		// to another workspace, for example)
-        exposed(false);
+		mActive = false;
 		break;
 	}
 }
 
-void GLXWindow::exposed(bool active)
-{
-    mActive = active;
-}
+//-------------------------------------------------------------------------------------------------//
 void GLXWindow::resized(size_t width, size_t height)
 {
-    // Check if the window size really changed
-    if(mWidth == width && mHeight == height)
-        return;
-    mWidth = width;
-    mHeight = height;
+	// Check if the window size really changed
+	if(mWidth == width && mHeight == height)
+		return;
 
-    for (ViewportList::iterator it = mViewportList.begin();
-                    it != mViewportList.end(); ++it) {
-        (*it).second->_updateDimensions();
-    }
-}
-/// Pure virtual destructor must be defined
-GLXWindowInterface::~GLXWindowInterface()
-{
+	mWidth = width;
+	mHeight = height;
+
+	for (ViewportList::iterator it = mViewportList.begin();	it != mViewportList.end(); ++it)
+		(*it).second->_updateDimensions();
 }
 
+//-------------------------------------------------------------------------------------------------//
 void GLXWindow::getCustomAttribute( const String& name, void* pData )
 {
-    if( name == "GLCONTEXT" ) {
-        *static_cast<GLXContext**>(pData) = mContext;
-        return;
-    } else if( name == "GLXWINDOW" ) {
+	if( name == "GLCONTEXT" ) 
+	{
+		*static_cast<GLXContext**>(pData) = mContext;
+		return;
+	} 
+	else if( name == "GLXWINDOW" ) 
+	{
 		*static_cast<Window*>(pData) = mWindow;
 		return;
-	} else if( name == "GLXDISPLAY" ) {
+	} 
+	else if( name == "GLXDISPLAY" ) 
+	{
 		*static_cast<Display**>(pData) = mDisplay;
-		return;
-	} else if( name == "GLXWINDOWINTERFACE" ) {
-		*static_cast<GLXWindowInterface**>(pData) = this;
 		return;
 	}
 }
 
-
-
+//-------------------------------------------------------------------------------------------------//
 void GLXWindow::writeContentsToFile(const String& filename)
 {
-        ImageCodec::ImageData* imgData = new ImageCodec::ImageData;
-        imgData->width = mWidth;
-       imgData->height = mHeight;
-     imgData->format = PF_BYTE_RGB;
+	ImageCodec::ImageData* imgData = new ImageCodec::ImageData;
+	imgData->width = mWidth;
+	imgData->height = mHeight;
+	imgData->format = PF_BYTE_RGB;
 
-      // Allocate buffer
-        uchar* pBuffer = new uchar[mWidth * mHeight * 3];
+	// Allocate buffer
+	uchar* pBuffer = new uchar[mWidth * mHeight * 3];
 
-     // Read pixels
-     // I love GL: it does all the locking & colour conversion for us
-       glReadPixels(0,0, mWidth-1, mHeight-1, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
+	// Read pixels
+	// I love GL: it does all the locking & colour conversion for us
+	glReadPixels(0,0, mWidth-1, mHeight-1, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
 
-        // Wrap buffer in a memory stream
-        DataStreamPtr stream(new MemoryDataStream(pBuffer, mWidth * mHeight * 3, false));
+	// Wrap buffer in a memory stream
+	DataStreamPtr stream(new MemoryDataStream(pBuffer, mWidth * mHeight * 3, false));
 
-       // Need to flip the read data over in Y though
-     Image img;
-     img.loadRawData(stream, mWidth, mHeight, PF_BYTE_RGB );
-      img.flipAroundX();
+	// Need to flip the read data over in Y though
+	Image img;
+	img.loadRawData(stream, mWidth, mHeight, PF_BYTE_RGB );
+	img.flipAroundX();
 
-        MemoryDataStreamPtr streamFlipped(new MemoryDataStream(img.getData(), stream->size(), false));
+	MemoryDataStreamPtr streamFlipped(new MemoryDataStream(img.getData(), stream->size(), false));
 
-        // Get codec
-      size_t pos = filename.find_last_of(".");
-       String extension;
-      if( pos == String::npos )
-          OGRE_EXCEPT(
-            Exception::ERR_INVALIDPARAMS,
-         "Unable to determine image type for '" + filename + "' - invalid extension.",
-          "SDLWindow::writeContentsToFile" );
+	// Get codec
+	size_t pos = filename.find_last_of(".");
+	String extension;
+	if( pos == String::npos )
+		OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS, "Unable to determine image type for '" 
+			+ filename + "' - invalid extension.", "SDLWindow::writeContentsToFile" );
 
-       while( pos != filename.length() - 1 )
-          extension += filename[++pos];
+	while( pos != filename.length() - 1 )
+		extension += filename[++pos];
 
-     // Get the codec
-       Codec * pCodec = Codec::getCodec(extension);
+	// Get the codec
+	Codec * pCodec = Codec::getCodec(extension);
 
-      // Write out
-       Codec::CodecDataPtr codecDataPtr(imgData);
-     pCodec->codeToFile(streamFlipped, filename, codecDataPtr);
+	// Write out
+	Codec::CodecDataPtr codecDataPtr(imgData);
+	pCodec->codeToFile(streamFlipped, filename, codecDataPtr);
 
-        delete [] pBuffer;
+	delete [] pBuffer;
 }
 
 }
+
