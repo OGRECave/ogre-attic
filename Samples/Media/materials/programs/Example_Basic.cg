@@ -148,11 +148,11 @@ void hardwareMorphAnimation(float3 pos1 : POSITION,
 			  out float2 oUv	   : TEXCOORD0,
 			  out float4 colour    : COLOR,
 
-						  uniform float4x4 worldViewProj, 
-						  uniform float anim_t)
+			  uniform float4x4 worldViewProj, 
+			  uniform float4 anim_t)
 {
 	// interpolate
-	float4 interp = float4(pos1 + anim_t*(pos2 - pos1), 1.0f);
+	float4 interp = float4(pos1 + anim_t.x*(pos2 - pos1), 1.0f);
 	
 	oPosition = mul(worldViewProj, interp);
 	oUv = uv;
@@ -169,11 +169,11 @@ void hardwarePoseAnimation(float3 pos : POSITION,
 			  out float2 oUv	   : TEXCOORD0,
 			  out float4 colour    : COLOR,
 
-						  uniform float4x4 worldViewProj, 
-						  uniform float anim_t[2])
+			  uniform float4x4 worldViewProj, 
+			  uniform float4 anim_t)
 {
 	// interpolate
-	float4 interp = float4(pos + anim_t[0]*pose1 + anim_t[1]*pose2, 1.0f);
+	float4 interp = float4(pos + anim_t.x*pose1 + anim_t.y*pose2, 1.0f);
 	
 	oPosition = mul(worldViewProj, interp);
 	oUv = uv;

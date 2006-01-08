@@ -334,24 +334,21 @@ namespace Ogre {
 	{
 		if (constantEntry.paramType == GpuProgramParameters::ACT_ANIMATION_PARAMETRIC)
 		{
-			// Set as many values as there are hardware animation entries
-			// Shader writer must ensure there's enough space as advertised
-			// if using includes_pose_animation in vertex program definition
-			size_t index = constantEntry.index;
-			for (VertexData::HardwareAnimationDataList::iterator i = 
-				mHardwareVertexAnimVertexData->hwAnimationDataList.begin(); 
-				i != mHardwareVertexAnimVertexData->hwAnimationDataList.end(); ++i)
+			// Set up to 4 values, or up to limit of hardware animation entries
+			// Pack into 4-element constants offset based on constant data index
+			// If there are more than 4 entries, this will be called more than once
+			Vector4 val(0.0f,0.0f,0.0f,0.0f);
+
+			size_t animIndex = constantEntry.data * 4;
+			for (size_t i = 0; i < 4 && 
+				animIndex < mHardwareVertexAnimVertexData->hwAnimationDataList.size();
+				++i, ++animIndex)
 			{
-				// get the parametric morph value
-				if (mHardwareVertexAnimVertexData)
-				{
-					params->setConstant(index++, i->parametric);
-				}
-				else
-				{
-					params->setConstant(index++, i->parametric);
-				}
+				val.val[i] = 
+					mHardwareVertexAnimVertexData->hwAnimationDataList[animIndex].parametric;
 			}
+			// set the parametric morph value
+			params->setConstant(constantEntry.index, val);
 		}
 		else
 		{
