@@ -1586,15 +1586,26 @@ namespace Ogre
 
         case GpuProgramParameters::ACDT_INT:
             {
-                if (vecparams.size() != 3)
-                {
-                    logParseError("Invalid " + commandname + " attribute - "
-                        "expected 3 parameters.", context);
-                    return;
-                }
+				// Special case animation_parametric, we need to keep track of number of times used
+				if (autoConstantDef->acType == GpuProgramParameters::ACT_ANIMATION_PARAMETRIC)
+				{
+					context.programParams->setAutoConstant(
+						index, autoConstantDef->acType, context.numAnimationParametrics++);
+				}
+				else
+				{
 
-                size_t extraParam = StringConverter::parseInt(vecparams[2]);
-                context.programParams->setAutoConstant(index, autoConstantDef->acType, extraParam);
+					if (vecparams.size() != 3)
+					{
+						logParseError("Invalid " + commandname + " attribute - "
+							"expected 3 parameters.", context);
+						return;
+					}
+
+					size_t extraParam = StringConverter::parseInt(vecparams[2]);
+					context.programParams->setAutoConstant(
+						index, autoConstantDef->acType, extraParam);
+				}
             }
             break;
 
@@ -2005,6 +2016,7 @@ namespace Ogre
         if (context.program->isSupported())
         {
             context.programParams = context.pass->getVertexProgramParameters();
+			context.numAnimationParametrics = 0;
         }
 
         // Return TRUE because this must be followed by a {
@@ -2036,6 +2048,7 @@ namespace Ogre
         if (context.program->isSupported())
         {
             context.programParams = context.pass->getShadowCasterVertexProgramParameters();
+			context.numAnimationParametrics = 0;
         }
 
         // Return TRUE because this must be followed by a {
@@ -2068,6 +2081,7 @@ namespace Ogre
         if (context.program->isSupported())
         {
             context.programParams = context.pass->getShadowReceiverVertexProgramParameters();
+			context.numAnimationParametrics = 0;
         }
 
         // Return TRUE because this must be followed by a {
@@ -2100,6 +2114,7 @@ namespace Ogre
 		if (context.program->isSupported())
 		{
 			context.programParams = context.pass->getShadowReceiverFragmentProgramParameters();
+			context.numAnimationParametrics = 0;
 		}
 
 		// Return TRUE because this must be followed by a {
@@ -2143,6 +2158,7 @@ namespace Ogre
         if (context.program->isSupported())
         {
             context.programParams = context.pass->getFragmentProgramParameters();
+			context.numAnimationParametrics = 0;
         }
 
         // Return TRUE because this must be followed by a {
@@ -2776,6 +2792,7 @@ namespace Ogre
             && !mScriptContext.defaultParamLines.empty())
         {
             mScriptContext.programParams = gp->getDefaultParameters();
+			mScriptContext.numAnimationParametrics = 0;
             mScriptContext.program = gp;
             StringVector::iterator i, iend;
             iend = mScriptContext.defaultParamLines.end();

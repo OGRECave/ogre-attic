@@ -113,6 +113,7 @@ namespace Ogre {
             bool isProgramShadowCaster; // when referencing, are we in context of shadow caster
             bool isProgramShadowReceiver; // when referencing, are we in context of shadow caster
             GpuProgramParametersSharedPtr programParams;
+			ushort numAnimationParametrics;
 		    MaterialScriptProgramDefinition* programDef; // this is used while defining a program
 
 		    uint techLev,	//Keep track of what tech, pass, and state level we are in

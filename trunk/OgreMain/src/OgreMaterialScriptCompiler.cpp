@@ -1089,6 +1089,7 @@ namespace Ogre {
             && !mScriptContext.defaultParamLines.empty())
         {
             mScriptContext.programParams = gp->getDefaultParameters();
+			mScriptContext.numAnimationParametrics = 0;
             mScriptContext.program = gp;
             StringVector::iterator i, iend;
             iend = mScriptContext.defaultParamLines.end();

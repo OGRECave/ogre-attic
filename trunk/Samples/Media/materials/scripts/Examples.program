@@ -61,7 +61,7 @@ vertex_program Ogre/HardwarePoseAnimation cg
 	default_params
 	{
 		param_named_auto worldViewProj worldviewproj_matrix
-		param_named_auto anim_t[0] animation_parametric
+		param_named_auto anim_t animation_parametric
 	}
 }
 
