@@ -768,9 +768,22 @@ material Examples/HardwareMorphAnimation
 
 			texture_unit
 			{
-			
+				tex_coord_set 0
+				colour_op_ex source1 src_current src_current
 			}
-			
+			// need to define these texture units otherwise GL won't use the uv sets			
+			texture_unit
+			{
+				tex_coord_set 1
+				// also need to set blending to ignore texture which is GL warning texture
+				colour_op_ex source1 src_current src_current
+			}
+			texture_unit
+			{
+				tex_coord_set 2
+				colour_op_ex source1 src_current src_current
+			}
+		
 		}
 	}
 }
@@ -787,12 +800,25 @@ material Examples/HardwarePoseAnimation
 			{
 				// all default
 			}
-
 			texture_unit
 			{
-			
+				tex_coord_set 0
+				colour_op_ex source1 src_current src_current
 			}
-			
+			// need to define these texture units otherwise GL won't use the uv sets			
+			texture_unit
+			{
+				tex_coord_set 1
+				// also need to set blending to ignore texture which is GL warning texture
+				colour_op_ex source1 src_current src_current
+			}
+			texture_unit
+			{
+				tex_coord_set 2
+				colour_op_ex source1 src_current src_current
+			}
+
+		
 		}
 	}
 }

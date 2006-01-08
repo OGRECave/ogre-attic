@@ -2030,14 +2030,13 @@ protected:
 
         mLight = mSceneMgr->createLight("MainLight");
 
-        /*
         // Directional test
         mLight->setType(Light::LT_DIRECTIONAL);
         Vector3 vec(-1,-1,0);
         vec.normalise();
         mLight->setDirection(vec);
-        */
 
+		/*
         // Spotlight test
         mLight->setType(Light::LT_SPOTLIGHT);
         mLight->setDiffuseColour(1.0, 1.0, 0.8);
@@ -2045,12 +2044,14 @@ protected:
         mTestNode[0]->setPosition(800,600,0);
         mTestNode[0]->lookAt(Vector3(0,0,0), Node::TS_WORLD, Vector3::UNIT_Z);
         mTestNode[0]->attachObject(mLight);
+		*/
 
         mTestNode[1] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 
 
         Entity* pEnt;
         pEnt = mSceneMgr->createEntity( "1", "robot.mesh" );
+		//pEnt->setRenderingDistance(100);
         mAnimState = pEnt->getAnimationState("Walk");
         mAnimState->setEnabled(true);
         //pEnt->setMaterialName("2 - Default");
@@ -2499,16 +2500,22 @@ protected:
 
 		Entity* e = mSceneMgr->createEntity("test", "testmorph.mesh");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		AnimationState* animState = e->getAnimationState("testAnim");
+		animState->setEnabled(true);
+		animState->setWeight(1.0f);
+		mAnimStateList.push_back(animState);
 
+		e = mSceneMgr->createEntity("test2", "testmorph.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(100,0,0))->attachObject(e);
 		// test hardware morph
-		//e->setMaterialName("Examples/HardwareMorphAnimation");
+		e->setMaterialName("Examples/HardwareMorphAnimation");
+		animState = e->getAnimationState("testAnim");
+		animState->setEnabled(true);
+		animState->setWeight(1.0f);
+		mAnimStateList.push_back(animState);
 
 		mCamera->setNearClipDistance(0.5);
 		//mSceneMgr->setShowDebugShadows(true);
-
-		mAnimState = e->getAnimationState("testAnim");
-		mAnimState->setEnabled(true);
-		
 
 		Plane plane;
 		plane.normal = Vector3::UNIT_Y;
@@ -2539,7 +2546,6 @@ protected:
 		Light* l = mSceneMgr->createLight("light1");
 		l->setType(Light::LT_DIRECTIONAL);
 		l->setDirection(dir);
-
 
 		MeshPtr mesh = MeshManager::getSingleton().load("cube.mesh", 
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
@@ -2617,18 +2623,28 @@ protected:
 		ser.exportMesh(mesh.get(), "../../../Media/testpose.mesh");
 
 
-		Entity* e = mSceneMgr->createEntity("test", "testpose.mesh");
-		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
 
+		// software pose
+		Entity* e = mSceneMgr->createEntity("test2", "testpose.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(150,0,0))->attachObject(e);
+		AnimationState* animState = e->getAnimationState("poseanim");
+		animState->setEnabled(true);
+		animState->setWeight(1.0f);
+		mAnimStateList.push_back(animState);
+
+		
 		// test hardware pose
+		e = mSceneMgr->createEntity("test", "testpose.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
 		e->setMaterialName("Examples/HardwarePoseAnimation");
+		animState = e->getAnimationState("poseanim");
+		animState->setEnabled(true);
+		animState->setWeight(1.0f);
+		mAnimStateList.push_back(animState);
+		
 
 		mCamera->setNearClipDistance(0.5);
 		mSceneMgr->setShowDebugShadows(true);
-
-		mAnimState = e->getAnimationState("poseanim");
-		mAnimState->setEnabled(true);
-		mAnimState->setWeight(1.0f);
 
 		Plane plane;
 		plane.normal = Vector3::UNIT_Y;
@@ -3067,13 +3083,13 @@ protected:
 		//testReloadResources();
 		//testTransparencyMipMaps();
 		//testRadixSort();
-		//testMorphAnimation();
+		testMorphAnimation();
 		//testPoseAnimation();
 		//testBug();
 		//testManualObjectNonIndexed();
 		//testManualObjectIndexed();
 		//testCustomProjectionMatrix();
-		testPointSprites();
+		//testPointSprites();
 
 		
     }
