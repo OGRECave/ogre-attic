@@ -160,6 +160,10 @@ void GLXInput::initialise(RenderWindow* pWindow, bool useKeyboard, bool useMouse
 	pWindow->getCustomAttribute("GLXWINDOW", &mWindow);
 	pWindow->getCustomAttribute("GLXDISPLAY", &mDisplay);
 
+	//Change input mask to reflect the fact that we want input events (the rendersystem only requests window
+	//events)
+	XSelectInput(mDisplay, mWindow, StructureNotifyMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask );
+
 	// Create hidden cursor
 	// X offers no standard support for this so we need to create a blank pixmap.
 	Pixmap blank_pixmap = XCreatePixmap(mDisplay, mWindow, 1, 1, 1);
@@ -208,7 +212,7 @@ void GLXInput::capture() {
 
 		// Give window a shot as processing the event
 		// TODO: call for every window
-		w->processEvent(event);
+		w->injectXEvent(event);
 
 		int button_mask = -1;
 		int button_bits = 0;

@@ -29,6 +29,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGLXInput.h"
 #include "OgreGLXTimer.h"
 
+#include "OgreGLXWindow.h"
+
+//Kinda a hack. but neccessary to know if any OgreInput has/is being used
+int GLXInputCreated = 0;
+
 namespace Ogre {
 // Platform factory functions
 extern "C" void createPlatformConfigDialog(ConfigDialog** ppDlg) {
@@ -41,6 +46,7 @@ extern "C" void createPlatformErrorDialog(ErrorDialog** ppDlg) {
 
 extern "C" void createPlatformInputReader(InputReader** ppDlg) {
 	*ppDlg = new GLXInput();
+	++GLXInputCreated;
 }
 
 extern "C" void createTimer(Timer** ppTimer) {
@@ -65,6 +71,28 @@ extern "C" void destroyPlatformRenderWindow(RenderWindow* wnd) {
 }
 
 extern "C" void destroyPlatformInputReader(InputReader* reader) {
+	if( reader )
+		--GLXInputCreated;
 	delete reader;
 }
+
+extern "C" void messagePump(RenderWindow* rw) {
+	//Do not do this if the GLXInput is also pumping events - hopefully Input will be removed
+	//from Ogre soon...
+	if(GLXInputCreated > 0)
+		return;
+	
+	//Pump X Events
+	GLXWindow *w = static_cast<GLXWindow*>(rw);
+	Display* dis = w->getXDisplay();
+	XEvent event;
+
+	// Process X events until event pump exhausted
+	while(XPending(dis) > 0) 
+	{
+		XNextEvent(dis,&event);
+		w->injectXEvent(event);
+	}
+}
+
 }

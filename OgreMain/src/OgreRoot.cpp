@@ -72,15 +72,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreExternalTextureSourceManager.h"
 #include "OgreCompositorManager.h"
 
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-
-#   define WIN32_LEAN_AND_MEAN
-#   include <direct.h>
-#   include <windows.h>
-
-#endif
-
-
 namespace Ogre {    
     //-----------------------------------------------------------------------
     template<> Root* Singleton<Root>::ms_Singleton = 0;
@@ -678,25 +669,17 @@ namespace Ogre {
             mEventTimes[i].clear();
 
         // Infinite loop, until broken out of by frame listeners
-		// or break out by calling queueEndRendering()
-		mQueuedEnd = false;
-		while( !mQueuedEnd )
-		{
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-            // Pump events on Win32
-    		MSG  msg;
-			while( PeekMessage( &msg, NULL, 0U, 0U, PM_REMOVE ) )
-			{
-				TranslateMessage( &msg );
-				DispatchMessage( &msg );
-			}
-#endif
+        // or break out by calling queueEndRendering()
+        mQueuedEnd = false;
+       
+        while( !mQueuedEnd )
+        {
+            //Allow platform to pump/create/etc messages/events once per frame
+            mPlatformManager->messagePump(mAutoWindow);
 
             if (!renderOneFrame())
                 break;
-		}
-
-
+        }
     }
     //-----------------------------------------------------------------------
     bool Root::renderOneFrame(void)

@@ -28,76 +28,99 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreRenderWindow.h"
 #include "OgreGLXContext.h"
-#include "OgreGLXWindowInterface.h"
+
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include <GL/glxext.h>
 
-namespace Ogre {
+namespace Ogre 
+{
+	class GLXWindow : public RenderWindow
+	{
+	private:
+		::Display *mDisplay;		//Pointer to X connection
+		::Window mWindow;		//X Window
+		::Atom mAtomDeleteWindow;	//Used for handling X window closing (todo - dosn't work?)
+		::GLXContext mGlxContext;
 
-class GLXWindow : public RenderWindow,GLXWindowInterface {
-private:
-	::Display *mDisplay;
-	::Window mWindow;
-	::Atom mAtomDeleteWindow;
-	::GLXContext mGlxContext;
+		bool mClosed;
+		bool mFullScreen;
+        	bool mTopLevel; // This is false if the Ogre window is embedded
+		int mOldMode;	// Mode before switching to fullscreen
 
-	bool mClosed;
-	bool mFullScreen;
-        bool mTopLevel; // This is false if the Ogre window is embedded
-	int mOldMode;	// Mode before switching to fullscreen
+		GLXContext   *mContext;
+	public:
+		// Pass X display to create this window on
+		GLXWindow(Display *display);
+		~GLXWindow();
 
-	GLXContext   *mContext;
-public:
-	// Pass X display to create this window on
-	GLXWindow(Display *display);
-	~GLXWindow();
+		void create(const String& name, unsigned int width, unsigned int height,
+			    bool fullScreen, const NameValuePairList *miscParams);
+		
+		/** @copydoc see RenderWindow::destroy */
+		void destroy(void);
+		
+		/** @copydoc see RenderWindow::isActive */
+		bool isActive(void) const;
 
-	void create(const String& name, unsigned int width, unsigned int height,
-	            bool fullScreen, const NameValuePairList *miscParams);
-	/** Overridden - see RenderWindow */
-	void destroy(void);
-	/** Overridden - see RenderWindow */
-	bool isActive(void) const;
-	/** Overridden - see RenderWindow */
-	bool isClosed(void) const;
-	/** Overridden - see RenderWindow */
-	void reposition(int left, int top);
-	/** Overridden - see RenderWindow */
-	void resize(unsigned int width, unsigned int height);
-	/** Overridden - see RenderWindow */
-	void swapBuffers(bool waitForVSync);
+		/** @copydoc see RenderWindow::isClosed */
+		bool isClosed(void) const;
 
-	/** Overridden - see RenderTarget.
-	*/
-	void writeContentsToFile(const String& filename);
+		/** @copydoc see RenderWindow::reposition */
+		void reposition(int left, int top);
 
-	/**
-	 * Get custom attribute; the following attributes are valid:
-	 * GLXWINDOW	The X Window associated with this
-	 * GLXDISPLAY	The X Display associated with this
-     * GLXWINDOWINTERFACE    An interface that can be used to notify this window of events, in case you do the   
-                     X event handling yourself. Use if this is mandatory when you provide your own input system
-                     instead of the Ogre input system. (at least call exposed with true to see something)
-	 */
-	void getCustomAttribute(const String& name, void* pData);
+		/** @copydoc see RenderWindow::resize */
+		void resize(unsigned int width, unsigned int height);
 
-	/**
-	 * Call this for every X event, so that the window stays up to date with 
-	 * ConfigureNotify and Deletion events.
-	 */
-	virtual void processEvent(const XEvent &event);
+		/** @copydoc see RenderWindow::swapBuffers */
+		void swapBuffers(bool waitForVSync);
+	
+		/** @copydoc see RenderWindow::writeContentsToFile */
+		void writeContentsToFile(const String& filename);
 
-	bool requiresTextureFlipping() const {
-		return false;
-	}
-    
-    /// Application interface
-    void exposed(bool active);
-    void resized(size_t width, size_t height);
-};
+		/**
+		@remarks
+			* Get custom attribute; the following attributes are valid:
+			* GLXWINDOW	The X Window associated with this
+			* GLXDISPLAY	The X Display associated with this
+		*/
+		void getCustomAttribute(const String& name, void* pData);
+
+		/**
+		@remarks
+			Call this for every X event, so that the window stays up to date with 
+			ConfigureNotify and Deletion events. If you are using neither Root::startRendering
+			nor dispatchEvents() than call this to inject X Events from your X Event polling routine.
+			Only X Events that match the Window ID of this window will be respconded to.
+		*/
+		virtual void injectXEvent(const XEvent &event);
+
+		bool requiresTextureFlipping() const { return false; }
+
+		/**
+		@remarks
+			Window covered/uncovered. Use this to inject an exposed event - this is only if you are
+			not sending Events (via PlatformManager::messagePump). This happens normally unless
+			you are creating your own windows.. In which case you control events
+		*/
+		void exposed(bool active) { mActive = active; }
+
+		/**
+		@remarks
+			Window rsize. Use this to inject a resize event - this is only if you are
+			not sending Events (via PlatformManager::messagePump). This happens normally unless
+			you are creating your own windows.. In which case you control events
+		*/
+		void resized(size_t width, size_t height);
+
+		/**
+		@remarks
+			Convience method for getting the XDisplay... You can also use the getCustomAttribute method,
+			this is just here for avoiding string creation just to get this (GLXPlatform)
+		*/
+		::Display* getXDisplay() { return mDisplay; }
+	};
 }
 
 #endif
-
