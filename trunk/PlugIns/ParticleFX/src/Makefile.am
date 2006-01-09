@@ -9,6 +9,8 @@ Plugin_ParticleFX_la_SOURCES = OgreAreaEmitter.cpp \
 						OgreColourImageAffector.cpp \
 						OgreColourInterpolatorAffector.cpp \
                         OgreCylinderEmitter.cpp \
+						OgreDeflectorPlaneAffector.cpp \
+						OgreDirectionRandomiserAffector.cpp \
                         OgreEllipsoidEmitter.cpp \
                         OgreHollowEllipsoidEmitter.cpp \
                         OgreLinearForceAffector.cpp \

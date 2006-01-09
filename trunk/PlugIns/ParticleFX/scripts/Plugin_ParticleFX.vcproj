@@ -159,6 +159,14 @@
 				RelativePath="..\src\OgreCylinderEmitter.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreDeflectorPlaneAffector.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreDirectionRandomiserAffector.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreEllipsoidEmitter.cpp">
 			</File>
 			<File
@@ -221,6 +229,22 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreCylinderEmitterFactory.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreDeflectorPlaneAffector.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreDeflectorPlaneAffectorFactory.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreDirectionRandomiserAffector.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreDirectionRandomiserAffectorFactory.h"
+				>
 			</File>
 			<File
 				RelativePath="..\include\OgreEllipsoidEmitter.h">
