@@ -22,43 +22,30 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef __SfxPluginPrerequisites_H__
-#define __SfxPluginPrerequisites_H__
+#ifndef __DirectionRandomiserAffectorFactory_H__
+#define __DirectionRandomiserAffectorFactory_H__
 
-#include "OgrePrerequisites.h"
-
-//-----------------------------------------------------------------------
-// Windows Settings
-//-----------------------------------------------------------------------
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-#   if OGRE_DYNAMIC_LINKAGE == 0
-#       pragma warn( "No dynamic linkage" )
-#       define _OgreParticleFXExport
-#   else
-#       ifdef PLUGIN_ParticleFX_EXPORTS
-#           define _OgreParticleFXExport __declspec(dllexport)
-#       else
-#           define _OgreParticleFXExport __declspec(dllimport)
-#       endif
-#   endif
-#else
-#   define _OgreParticleFXExport
-#endif
-
+#include "OgreParticleFXPrerequisites.h"
+#include "OgreParticleAffectorFactory.h"
+#include "OgreDirectionRandomiserAffector.h"
 
 namespace Ogre {
 
-    // Predeclare classes
-    class PointEmitter;
-    class PointEmitterFactory;
-    class LinearForceAffector;
-    class LinearForceAffectorFactory;
-	class DirectionRandomiserAffectorFactory;
-	class DeflectorPlaneAffectorFactory;
+    /** Factory class for DirectionRandomiserAffector. */
+    class _OgreParticleFXExport DirectionRandomiserAffectorFactory : public ParticleAffectorFactory
+    {
+        /** See ParticleAffectorFactory */
+        String getName() const { return "DirectionRandomiser"; }
 
-
+        /** See ParticleAffectorFactory */
+        ParticleAffector* createAffector(ParticleSystem* psys)
+        {
+            ParticleAffector* p = new DirectionRandomiserAffector(psys);
+            mAffectors.push_back(p);
+            return p;
+        }
+    };
 
 }
-
 
 #endif

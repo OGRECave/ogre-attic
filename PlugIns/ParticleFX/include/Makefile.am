@@ -11,6 +11,10 @@ noinst_HEADERS =OgreAreaEmitter.h \
 				OgreColourInterpolatorAffectorFactory.h \
                 OgreCylinderEmitter.h \
                 OgreCylinderEmitterFactory.h \
+				OgreDeflectorPlaneAffector.h \
+				OgreDeflectorPlaneAffectorFactory.h \
+				OgreDirectionRandomiserAffector.h \
+				OgreDirectionRandomiserAffectorFactory.h \
                 OgreEllipsoidEmitter.h \
                 OgreEllipsoidEmitterFactory.h \
                 OgreHollowEllipsoidEmitter.h \
