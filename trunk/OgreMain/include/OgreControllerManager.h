@@ -172,7 +172,26 @@ namespace Ogre {
 		*/
 		void setTimeFactor(Real tf);
 
-        /** Return the elapsed time.
+		/** Gets the constant that is added to time lapsed between each frame.
+		@remarks
+			See setFrameDelay for full information on the meaning of this value.
+		*/
+		Real getFrameDelay(void) const;
+
+		/** Sets a constant frame rate.
+		@remarks
+			This function is useful when rendering a sequence to
+			files that should create a film clip with constant frame
+			rate.
+			It will ensure that scrolling textures and animations
+			move at a constant frame rate.
+		@param fd The delay in seconds wanted between each frame 
+			(1.0f / 25.0f means a seconds worth of animation is done 
+			in 25 frames).
+		*/
+		void setFrameDelay(Real fd);
+
+		/** Return the elapsed time.
         @remarks
             See setElapsedTime for full information on the meaning of this value.
         */

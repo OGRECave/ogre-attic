@@ -41,14 +41,24 @@ namespace Ogre
         Root::getSingleton().addFrameListener(this);
         mFrameTime = 0;
 		mTimeFactor = 1;
+		mFrameDelay = 0;
         mElapsedTime = 0;
 
     }
     //-----------------------------------------------------------------------
     bool FrameTimeControllerValue::frameStarted(const FrameEvent &evt)
     {
-        // Save the time value after applying time factor
-        mFrameTime = mTimeFactor * evt.timeSinceLastFrame;
+		if(mFrameDelay) 
+		{
+			// Fixed frame time
+			mFrameTime = mFrameDelay;
+			mTimeFactor =  mFrameDelay / evt.timeSinceLastFrame;
+		}
+		else 
+		{
+			// Save the time value after applying time factor
+			mFrameTime = mTimeFactor * evt.timeSinceLastFrame;
+		}
         // Accumulate the elapsed time
         mElapsedTime += mFrameTime;
         return true;
@@ -74,7 +84,20 @@ namespace Ogre
 	}
 	//-----------------------------------------------------------------------
 	void FrameTimeControllerValue::setTimeFactor(Real tf) {
-		if(tf >= 0) mTimeFactor = tf;
+		if(tf >= 0) 
+		{
+			mTimeFactor = tf;
+			mFrameDelay = 0;
+		}
+	}
+	//-----------------------------------------------------------------------
+	Real FrameTimeControllerValue::getFrameDelay(void) const {
+		return mFrameDelay;
+	}
+	//-----------------------------------------------------------------------
+	void FrameTimeControllerValue::setFrameDelay(Real fd) {
+		mTimeFactor = 0;
+		mFrameDelay = fd;
 	}
     //-----------------------------------------------------------------------
     Real FrameTimeControllerValue::getElapsedTime(void) const
