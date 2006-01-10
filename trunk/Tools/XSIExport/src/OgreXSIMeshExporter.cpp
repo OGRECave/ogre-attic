@@ -792,21 +792,6 @@ namespace Ogre {
 					// elements of property are the offsets, a double array of values
 					CClusterPropertyElementArray shapeElements = shapeKey.GetElements();
 
-					// We need shapes to be relative to the original local geometry
-					// This is the default but perhaps a user might have altered it
-					Parameter keyTypeParam = shapeKey.GetParameter(L"KeyType");
-					CValue currMode = keyTypeParam.GetValue();
-					if ((unsigned short)currMode != siShapeLocalReferenceMode)
-					{
-						// Convert the shape reference mode to the one we want
-						CValueArray args;
-						CValue dummy;
-						args.Resize(2);
-						args[0] = shapeKey.GetFullName();
-						args[1] = (unsigned short)siShapeLocalReferenceMode;
-						mXsiApp.ExecuteCommand(L"ConvertShapeReferenceMode", args, dummy);
-					}
-
 					// Locate ProtoSubMeshes which use this mesh
 					for (ProtoSubMeshList::iterator psi = mProtoSubmeshList.begin();
 						psi != mProtoSubmeshList.end(); ++psi)
