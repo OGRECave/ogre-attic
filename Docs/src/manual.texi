@@ -411,7 +411,7 @@ In a material script, techniques must be listed in order of preference, i.e. the
 
 To help clearly identify what each technique is used for, the technique can be named but its optional.  Techniques not named within the script will take on a name that is the technique index number.  For example: the first technique in a material is index 0, its name would be "0" if it was not given a name in the script.  The technique name must be unqiue within the material or else the final technique is the resulting merge of all techniques with the same name in the material.  A warning message is posted in the Ogre.log if this occurs.  Named techniques can help when copying a material and modifying an existing technique: (@xref{Copying Materials})@*@*
 
-Format technique name@*@*
+Format: technique name@*@*
 
 Techniques have only one attribute of their own, which indicates which LOD index they belong to (@xref{lod_index}). We also mention an extra Material attribute called @ref{lod_distances} which isn't a Technique attribute but is directly related to the lod_index attribute, so it's listed here for convenience.@*@*
 
@@ -1020,6 +1020,7 @@ Format: texture_alias <name>@*@*
 Example: texture_alias NormalMap@*@*
 
 Setting the texture alias name is usefull if this material is to be copied by other other materials and only the textures will be changed in the new material.(@xref{Copying Materials})@*@*
+Default: If a texture_unit has a name then the texture_alias defaults to the texture_unit name.
 
 @anchor{texture}
 @subheading texture
