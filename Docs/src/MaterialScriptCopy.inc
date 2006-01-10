@@ -123,6 +123,15 @@ Using texture aliases within texture units:@*
 Format:@*
 texture_alias <name>@*@*
 
+Default: <name> will default to texture_unit <name> if set
+@example
+texture_unit DiffuseTex
+{
+  texture diffuse.jpg
+}
+@end example
+texture_alias defaults to DiffuseTex.@*
+
 Example: The base material to be cloned:@*
 @example
 material TSNormalSpecMapping
@@ -150,27 +159,24 @@ material TSNormalSpecMapping
       } 
 
       // Normal map
-      texture_unit 
+      texture_unit NormalMap
       {
-        texture_alias NormalMap
         texture defaultNM.png
         tex_coord_set 0
         filtering trilinear
       }
 
       // Base diffuse texture map
-      texture_unit 
+      texture_unit NormalMap
       {
-        texture_alias DiffuseMap
         texture defaultDiff.png
         filtering trilinear
         tex_coord_set 1
       }
 
       // spec map for shinnines
-      texture_unit
+      texture_unit SpecMap
       {
-        texture_alias SpecMap
         texture defaultSpec.png
         filtering trilinear
         tex_coord_set 2
@@ -230,7 +236,8 @@ material TSNormalSpecMapping
 }
 @end example
 
-Note that the GLSL and HLSL techniques use the same textures.  For each texture usage type a texture alias is given that describes what the texture is used for.  So the first texture unit in the GLSL technique has the same alias as the TUS in the HLSL technique since its the same texture used. Same goes for the second and third texture units.@*@*
+Note that the GLSL and HLSL techniques use the same textures.  For each texture usage type a texture alias is given that describes what the texture is used for.  So the first texture unit in the GLSL technique has the same alias as the TUS in the HLSL technique since its the same texture used. Same goes for the second and third texture units.@*
+For demonstration purposes, the GLSL technique makes use of texture_unit naming and therefore the texture_alias name does not have to be set since it defaults to the texture unit name.  So why not use the default all the time since its less typing?  For most situations you can.  Its when you clone a material that and then want to change the alias that you must use the texture_alias command in the script.  You cannot change the name of a texture_unit in a cloned material so texture_alias provides a facility to assign an alias name.@*@*
 
 Now we want to clone the material but only want to change the textures used.  We could copy and paste the whole material but if we decide to change the base material later then we also have to update the copied material in the script.  With set_texture_alias, copying a material is very easy now.  set_texture_alias is specified at the top of the material definition.  All techniques using the specified texture alias will be effected by set_texture_alias.@*@*
 
