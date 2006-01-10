@@ -55,7 +55,8 @@ namespace Ogre {
          mCurrentRenderable(NULL),
          mCurrentCamera(NULL), 
          mCurrentTextureProjector(NULL), 
-         mCurrentRenderTarget(NULL)
+         mCurrentRenderTarget(NULL),
+         mCurrentViewport(NULL)
     {
         mBlankLight.setDiffuseColour(ColourValue::Black);
         mBlankLight.setSpecularColour(ColourValue::Black);
@@ -308,6 +309,11 @@ namespace Ogre {
         return mCurrentRenderTarget;
     }
     //-----------------------------------------------------------------------------
+    void AutoParamDataSource::setCurrentViewport(const Viewport* viewport)
+    {
+        mCurrentViewport = viewport;
+    }
+    //-----------------------------------------------------------------------------
 	void AutoParamDataSource::setShadowDirLightExtrusionDistance(Real dist)
 	{
 		mDirLightExtrusionDistance = dist;
@@ -486,40 +492,37 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
 	Real AutoParamDataSource::getViewportWidth() const
 	{ 
-		return mCurrentRenderTarget->getWidth(); 
+		return mCurrentViewport->getActualWidth(); 
 	}
 	//-----------------------------------------------------------------------------
 	Real AutoParamDataSource::getViewportHeight() const
 	{ 
-		return mCurrentRenderTarget->getHeight(); 
+		return mCurrentViewport->getActualHeight(); 
 	}
 	//-----------------------------------------------------------------------------
 	Real AutoParamDataSource::getInverseViewportWidth() const
 	{ 
-		return 1.0f/mCurrentRenderTarget->getWidth(); 
+		return 1.0f/mCurrentViewport->getActualWidth(); 
 	}
 	//-----------------------------------------------------------------------------
 	Real AutoParamDataSource::getInverseViewportHeight() const
 	{ 
-		return 1.0f/mCurrentRenderTarget->getHeight(); 
+		return 1.0f/mCurrentViewport->getActualHeight(); 
 	}
 	//-----------------------------------------------------------------------------
 	Vector3 AutoParamDataSource::getViewDirection() const
 	{
-		Vector3 dir = mCurrentCamera->getDerivedDirection();
-		Matrix3 rs;
-		getInverseWorldMatrix().extract3x3Matrix(rs);
-		return rs*dir;
+		return mCurrentCamera->getDerivedDirection();
 	}
 	//-----------------------------------------------------------------------------
 	Vector3 AutoParamDataSource::getViewSideVector() const
 	{ 
-		return mCurrentCamera->getRight(); 
+		return mCurrentCamera->getDerivedRight();
 	}
 	//-----------------------------------------------------------------------------
 	Vector3 AutoParamDataSource::getViewUpVector() const
 	{ 
-		return mCurrentCamera->getUp(); 
+		return mCurrentCamera->getDerivedUp();
 	}
 	//-----------------------------------------------------------------------------
 	Real AutoParamDataSource::getFOV() const
