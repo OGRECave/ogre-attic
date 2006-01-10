@@ -288,12 +288,13 @@ your resulting .mesh will be where the world origin is in XSI<br>
 Actions &gt; Store) to be exported. Any work-in-progress animation will
 not be picked up<br>
   </li>
-  <li>You can make your animations smaller by turning them into FK
-beforehand, and thus avoid fixed-rate sampling. This is somewhat tricky
-to do properly, and you can't typically have IK and FK actions
-functioning on the same model. If you're not sure, keep the 'Sample?'
-option checked for your animations, since it's the simplest way to make
-sure the animations look right in OGRE.</li>
+  <li>The exporter automatically samples any IK animation and turns it in to FK,
+  optimising the animation as it does it to remove redundant keys and tracks.</li>
+<li>Shape animation should be expressed in shape reference mode
+'Local' if you expect the results to work in combination with skeletal
+animation. If you don't use skeletal animation, either 'Local' or
+'Object' will work. You shouldn't use 'Absolute' mode. </li>
+
 </ol>
 Important material considerations:<br>
 <ul>
