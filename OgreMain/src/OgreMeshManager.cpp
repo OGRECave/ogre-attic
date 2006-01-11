@@ -313,7 +313,7 @@ namespace Ogre
     {
         MeshPtr msh = create(
             "Prefab_Plane", 
-            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+            ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, 
             true, // manually loaded
             this);
 		// Planes can never be manifold

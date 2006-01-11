@@ -44,6 +44,7 @@ namespace Ogre {
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }
 	String ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME = "General";
+	String ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME = "Internal";
 	String ResourceGroupManager::BOOTSTRAP_RESOURCE_GROUP_NAME = "Bootstrap";
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
@@ -52,6 +53,8 @@ namespace Ogre {
     {
         // Create the 'General' group
         createResourceGroup(DEFAULT_RESOURCE_GROUP_NAME);
+        // Create the 'Internal' group
+        createResourceGroup(INTERNAL_RESOURCE_GROUP_NAME);
         // default world group to the default group
         mWorldGroupName = DEFAULT_RESOURCE_GROUP_NAME;
     }

@@ -77,7 +77,7 @@ void CompositorManager::initialise(void)
         }
     };
     */
-    CompositorPtr scene = create("Ogre/Scene", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    CompositorPtr scene = create("Ogre/Scene", ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME);
     CompositionTechnique *t = scene->createTechnique();
     CompositionTargetPass *tp = t->getOutputTargetPass();
     tp->setVisibilityMask(0xFFFFFFFF);

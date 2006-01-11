@@ -361,7 +361,7 @@ namespace Ogre {
 				{
 					GpuProgramPtr vp = 
 						GpuProgramManager::getSingleton().createProgramFromString(
-						programNames[v], ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+						programNames[v], ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME,
 						ShadowVolumeExtrudeProgram::getProgramSource(
 						vertexProgramLightTypes[v], syntax, 
 						vertexProgramFinite[v], vertexProgramDebug[v]),

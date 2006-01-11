@@ -164,6 +164,8 @@ namespace Ogre {
 		OGRE_AUTO_MUTEX // public to allow external locking
 		/// Default resource group name
 		static String DEFAULT_RESOURCE_GROUP_NAME;
+        /// Internal resource group name (should be used by OGRE internal only)
+        static String INTERNAL_RESOURCE_GROUP_NAME;
 		/// Bootstrap resource group name (min OGRE resources)
 		static String BOOTSTRAP_RESOURCE_GROUP_NAME;
         /// Nested struct defining a resource declaration
@@ -287,8 +289,12 @@ namespace Ogre {
             resources used for the level of a game. There is always one predefined
             resource group called ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
 			which is typically used to hold all resources which do not need to 
-			be unloaded until shutdown. You can create additional ones so that 
-			you can control the life of your resources in whichever way you wish.
+			be unloaded until shutdown. There is another predefined resource
+            group called ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME too,
+            which should be used by OGRE internal only, the resources created
+            in this group aren't supposed to modify, unload or remove by user.
+            You can create additional ones so that you can control the life of
+            your resources in whichever way you wish.
         @par
             Once you have defined a resource group, resources which will be loaded
 			as part of it are defined in one of 3 ways:
