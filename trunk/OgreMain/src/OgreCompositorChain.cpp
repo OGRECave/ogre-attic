@@ -42,7 +42,7 @@ CompositorChain::CompositorChain(Viewport *vp):
     
     /// Create base "original scene" compositor
     CompositorPtr base = CompositorManager::getSingleton().load("Ogre/Scene",
-        ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+        ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME);
     mOriginalScene = base->getSupportedTechnique(0)->createInstance(this);
 }
 //-----------------------------------------------------------------------

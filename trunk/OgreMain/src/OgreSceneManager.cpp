@@ -3087,7 +3087,7 @@ void SceneManager::initShadowVolumeMaterials(void)
             // Create
             matDebug = MaterialManager::getSingleton().create(
                 "Ogre/Debug/ShadowVolumes", 
-                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+                ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME);
             mShadowDebugPass = matDebug->getTechnique(0)->getPass(0);
             mShadowDebugPass->setSceneBlending(SBT_ADD); 
             mShadowDebugPass->setLightingEnabled(false);
@@ -3136,7 +3136,7 @@ void SceneManager::initShadowVolumeMaterials(void)
             // Init
             matStencil = MaterialManager::getSingleton().create(
                 "Ogre/StencilShadowVolumes",
-                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+                ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME);
             mShadowStencilPass = matStencil->getTechnique(0)->getPass(0);
 
             if (mDestRenderSystem->getCapabilities()->hasCapability(
@@ -3184,7 +3184,7 @@ void SceneManager::initShadowVolumeMaterials(void)
             // Init
             matModStencil = MaterialManager::getSingleton().create(
                 "Ogre/StencilShadowModulationPass",
-                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+                ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME);
             mShadowModulativePass = matModStencil->getTechnique(0)->getPass(0);
             mShadowModulativePass->setSceneBlending(SBF_DEST_COLOUR, SBF_ZERO); 
             mShadowModulativePass->setLightingEnabled(false);
@@ -3217,7 +3217,7 @@ void SceneManager::initShadowVolumeMaterials(void)
         {
             matPlainBlack = MaterialManager::getSingleton().create(
                 "Ogre/TextureShadowCaster",
-                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+                ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME);
             mShadowCasterPlainBlackPass = matPlainBlack->getTechnique(0)->getPass(0);
             // Lighting has to be on, because we need shadow coloured objects
             // Note that because we can't predict vertex programs, we'll have to
@@ -3246,7 +3246,7 @@ void SceneManager::initShadowVolumeMaterials(void)
         {
             matShadRec = MaterialManager::getSingleton().create(
                 "Ogre/TextureShadowReceiver",
-                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+                ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME);
             mShadowReceiverPass = matShadRec->getTechnique(0)->getPass(0);
 			// Don't set lighting and blending modes here, depends on additive / modulative
             TextureUnitState* t = mShadowReceiverPass->createTextureUnitState();
@@ -3270,7 +3270,7 @@ void SceneManager::initShadowVolumeMaterials(void)
         img.load(stream, "png");
         spotShadowFadeTex = 
             TextureManager::getSingleton().loadImage(
-			"spot_shadow_fade.png", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+			"spot_shadow_fade.png", ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, 
 			img, TEX_TYPE_2D);
     }
 
@@ -4089,7 +4089,7 @@ void SceneManager::createShadowTextures(unsigned short size,
         if (isShadowTechniqueTextureBased())
         {
             shadowTex = TextureManager::getSingleton().createManual( targName, 
-                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
+                ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
                 size, size, 0, mShadowTextureFormat, TU_RENDERTARGET);
                 
             // Ensure texture loaded
@@ -4119,7 +4119,7 @@ void SceneManager::createShadowTextures(unsigned short size,
         if (mat.isNull())
         {
             mat = MaterialManager::getSingleton().create(
-                matName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+                matName, ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME);
         }
         else
         {

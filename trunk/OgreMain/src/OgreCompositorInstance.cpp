@@ -328,7 +328,7 @@ static size_t dummyCounter = 0;
     MaterialPtr mat = 
         MaterialManager::getSingleton().create(
             "CompositorInstanceMaterial"+StringConverter::toString(dummyCounter),
-            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+            ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME
         );
     ++dummyCounter;
     /// This is safe, as we hold a private reference
@@ -362,7 +362,7 @@ static size_t dummyCounter = 0;
         /// Make the tetxure
         TexturePtr tex = TextureManager::getSingleton().createManual(
             "CompositorInstanceTexture"+StringConverter::toString(dummyCounter), 
-            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
+            ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
             (uint)width, (uint)height, 0, def->format, TU_RENDERTARGET );    
         ++dummyCounter;
         mLocalTextures[def->name] = tex;
