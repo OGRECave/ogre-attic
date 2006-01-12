@@ -1891,13 +1891,13 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
 			ShadowTextureList::iterator si, siend;
 			liend = mLightsAffectingFrustum.end();
 			siend = mShadowTextures.end();
+            si = mShadowTextures.begin();
 
-			for (li = mLightsAffectingFrustum.begin(), si = mShadowTextures.begin();
-				li != liend && si != siend; ++li)
+			for (li = mLightsAffectingFrustum.begin(); li != liend; ++li)
 			{
 				Light* l = *li;
 
-				if (l->getCastShadows())
+				if (l->getCastShadows() && si != siend)
 				{
 					// Store current shadow texture
 					mCurrentShadowTexture = si->getPointer();
@@ -1925,12 +1925,6 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
 					targetPass->setLightingEnabled(true);
 					targetPass->_load();
 
-					// render lighting passes for this light
-					if (lightList.empty())
-						lightList.push_back(l);
-					else
-						lightList[0] = l;
-
 					// increment shadow texture since used
 					++si;
 
@@ -1942,6 +1936,12 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
 					mIlluminationStage = IRS_NONE;
 
 				}
+
+                // render lighting passes for this light
+                if (lightList.empty())
+                    lightList.push_back(l);
+                else
+                    lightList[0] = l;
 				renderObjects(pPriorityGrp->getSolidsDiffuseSpecular(), om, false, &lightList);
 
 			}// for each light
