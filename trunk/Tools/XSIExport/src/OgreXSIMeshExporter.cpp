@@ -770,8 +770,9 @@ namespace Ogre {
 		// contains the offsets for that key
 		// Like bone assignments, we have to ensure we add keys for duplicated points
 
-		// Get points incase we need to convert from local reference frame
+		// Get points & vertices incase we need to convert from local reference frame
 		CPointRefArray pointsArray = xsiMesh->mesh.GetPoints();
+		CVertexRefArray verticesArray = xsiMesh->mesh.GetVertices();
 
         CRefArray clusterRefArray;
         // Filter to 'pnt' types
@@ -783,7 +784,7 @@ namespace Ogre {
 			Cluster cluster(clusterRefArray[i]);
 
 			// Cluster elements are the vertex indices affected
-			CClusterElementArray verticesArray = cluster.GetElements();
+			CClusterElementArray vertexIndexArray = cluster.GetElements();
 
 			CRefArray clusterProperties = cluster.GetProperties();
 			for (int p = 0; p < clusterProperties.GetCount(); ++p)
@@ -834,10 +835,10 @@ namespace Ogre {
 							Pose pose(0, XSItoOgre(shapeKey.GetName()));
 
 							// Iterate per vertex affected
-							for (int xi = 0; xi < verticesArray.GetCount(); ++xi)
+							for (int xi = 0; xi < vertexIndexArray.GetCount(); ++xi)
 							{
 								// Index
-								size_t positionIndex = verticesArray.GetItem(xi);
+								size_t positionIndex = vertexIndexArray.GetItem(xi);
 								// Now get offset
 								CDoubleArray xsiOffset = shapeElements.GetItem(xi);
 								Vector3 offset(xsiOffset[0], xsiOffset[1], xsiOffset[2]);
@@ -863,7 +864,7 @@ namespace Ogre {
 									Point point(pointsArray[positionIndex]);
 									bool normalValid;
 									Vector3 localY = XSItoOgre(point.GetNormal(normalValid));
-									Vertex vertex(xsiMesh->mesh.GetVertices().GetItem(positionIndex));
+									Vertex vertex(verticesArray.GetItem(positionIndex));
 									CEdgeRefArray edgeArray = vertex.GetNeighborEdges();
 									if (normalValid && edgeArray.GetCount() > 0)
 									{
