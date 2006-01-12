@@ -37,9 +37,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     //-----------------------------------------------------------------------
     SubEntity::SubEntity (Entity* parent, SubMesh* subMeshBasis)
-        : Renderable(), mParentEntity(parent), mSubMesh(subMeshBasis)
+        : Renderable(), mParentEntity(parent), mMaterialName("BaseWhite"),
+		mSubMesh(subMeshBasis)
     {
-        mpMaterial = MaterialManager::getSingleton().getByName("BaseWhite");
+        mpMaterial = MaterialManager::getSingleton().getByName(mMaterialName);
         mMaterialLodIndex = 0;
         mRenderDetail = SDL_SOLID;
         mVisible = true;

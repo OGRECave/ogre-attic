@@ -44,7 +44,7 @@ namespace Ogre {
 
         // Defaults
         mDirection = Vector3::UNIT_Z;
-        mUp = Vector3::UNIT_Z;
+        mUp = Vector3::UNIT_Y;
         setSize(100,100,100);
         mType = t;
 
