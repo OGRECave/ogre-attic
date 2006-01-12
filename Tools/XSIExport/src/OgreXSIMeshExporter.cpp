@@ -809,9 +809,9 @@ namespace Ogre {
 					// XSI bug? siShapeReferenceMode enum doesn't match runtime values
 					// Local = 1, Absolute = 0, Object = 2 in real life
 					// Logged with Softimage as UDEV00203965 
-					bool convertFromLocal = 
+					bool isLocalSpace = 
 						((unsigned short)currMode) == 1; //siShapeLocalReferenceMode;
-					bool convertFromAbsolute = 
+					bool isGlobalSpace = 
 						((unsigned short)currMode) == 0;//siShapeAbsoluteReferenceMode;
 
 					LogOgreAndXSI("Found shape key " + XSItoOgre(shapeKey.GetName()));
@@ -848,7 +848,7 @@ namespace Ogre {
 									continue;
 
 
-								if (convertFromLocal)
+								if (isLocalSpace)
 								{
 									// Local reference mode -> object space
 									// Local mode is the most popular since in XSI
@@ -893,19 +893,23 @@ namespace Ogre {
 									}
 
 								}
-								else if (convertFromAbsolute)
+								
+								if (!isGlobalSpace)
 								{
+									// shape is in object space, if object is parented
+									// by a null or a static bone, we need to adjust the
+									// shape offset since this inherited transform is
+									// baked into the base OGRE mesh (to preserve
+									// relative positioning of parts)
+
+									// If object is parented
 									// Don't know if anyone really uses this
 									// Convert global to object space
-									MATH::CMatrix4 xform = 
-										xsiMesh->obj.GetKinematics().GetGlobal().GetTransform().GetMatrix4();
-									xform.InvertInPlace();
-									MATH::CTransformation trans;
-									trans.SetMatrix4(xform);
-									MATH::CVector3 off(xsiOffset[0], xsiOffset[1], xsiOffset[2]);
-									off.MulByTransformationInPlace(trans);
+									MATH::CTransformation xform = 
+										xsiMesh->obj.GetKinematics().GetGlobal().GetTransform();
+									MATH::CVector3 off(offset.x, offset.y, offset.z);
+									off.MulByTransformationInPlace(xform);
 									offset = XSItoOgre(off);
-									
 
 								}
 
