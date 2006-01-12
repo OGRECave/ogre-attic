@@ -37,6 +37,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_time.h>
 #include <xsi_source.h>
 #include <xsi_shapekey.h>
+#include <xsi_edge.h>
+#include <xsi_vector3.h>
+#include <xsi_matrix4.h>
 
 #include "OgreException.h"
 #include "OgreXSIHelper.h"
@@ -767,6 +770,9 @@ namespace Ogre {
 		// contains the offsets for that key
 		// Like bone assignments, we have to ensure we add keys for duplicated points
 
+		// Get points incase we need to convert from local reference frame
+		CPointRefArray pointsArray = xsiMesh->mesh.GetPoints();
+
         CRefArray clusterRefArray;
         // Filter to 'pnt' types
         xsiMesh->mesh.GetClusters().Filter(
@@ -787,6 +793,25 @@ namespace Ogre {
 				if (prop.GetPropertyType() == siClusterPropertyShapeKeyType)
 				{
 					ShapeKey shapeKey(prop);
+
+					Parameter keyTypeParam = shapeKey.GetParameter(L"KeyType");
+					CValue currMode = keyTypeParam.GetValue();
+					/*
+					StringUtil::StrStreamType str;
+					str << "KeyType = " << (unsigned short)currMode << 
+						" siShapeLocalReferenceMode = " << (unsigned short)siShapeLocalReferenceMode <<
+						" siShapeAbsoluteReferenceMode = " << (unsigned short)siShapeAbsoluteReferenceMode <<
+						" siShapeObjectReferenceMode = " << (unsigned short)siShapeObjectReferenceMode;
+					LogOgreAndXSI(str.str());
+					*/
+
+					// XSI bug? siShapeReferenceMode enum doesn't match runtime values
+					// Local = 1, Absolute = 0, Object = 2 in real life
+					// Logged with Softimage as UDEV00203965 
+					bool convertFromLocal = 
+						((unsigned short)currMode) == 1; //siShapeLocalReferenceMode;
+					bool convertFromAbsolute = 
+						((unsigned short)currMode) == 0;//siShapeAbsoluteReferenceMode;
 
 					LogOgreAndXSI("Found shape key " + XSItoOgre(shapeKey.GetName()));
 					// elements of property are the offsets, a double array of values
@@ -817,6 +842,73 @@ namespace Ogre {
 								CDoubleArray xsiOffset = shapeElements.GetItem(xi);
 								Vector3 offset(xsiOffset[0], xsiOffset[1], xsiOffset[2]);
 
+								// Skip zero offsets
+								if (offset == Vector3::ZERO)
+									continue;
+
+
+								if (convertFromLocal)
+								{
+									// Local reference mode -> object space
+									// Local mode is the most popular since in XSI
+									// it plays nice with skeletal animation, but
+									// it's relative to the _point's_ local space
+
+									// Get local axes
+									// XSI defines local space as:
+									// Y = vertex normal
+									// X = normalised projection of first edge 
+									//     from vertex onto normal plane
+									// Z = cross product of above
+									Point point(pointsArray[positionIndex]);
+									bool normalValid;
+									Vector3 localY = XSItoOgre(point.GetNormal(normalValid));
+									Vertex vertex(xsiMesh->mesh.GetVertices().GetItem(positionIndex));
+									CEdgeRefArray edgeArray = vertex.GetNeighborEdges();
+									if (normalValid && edgeArray.GetCount() > 0)
+									{
+
+										Edge edge(edgeArray[0]);
+										CVertexRefArray verticesOnEdge = edge.GetNeighborVertices();
+										Vertex otherVertex = 
+											(verticesOnEdge[0] == vertex) ?
+											verticesOnEdge[1] : verticesOnEdge[0];
+										Vector3 edgeVector 
+											= XSItoOgre(otherVertex.GetPosition())
+												- XSItoOgre(vertex.GetPosition());
+										// Project the vector onto the normal plane (d irrelevant)
+										Plane normPlane(localY, 0);
+										Vector3 localX = normPlane.projectVector(edgeVector);
+										localX.normalise();
+
+										Vector3 localZ = localX.crossProduct(localY);
+
+										// multiply out position by local axes to form
+										// final position
+										offset = (localX * offset.x) + 
+											(localY * offset.y) + 
+											(localZ * offset.z);
+
+									}
+
+								}
+								else if (convertFromAbsolute)
+								{
+									// Don't know if anyone really uses this
+									// Convert global to object space
+									MATH::CMatrix4 xform = 
+										xsiMesh->obj.GetKinematics().GetGlobal().GetTransform().GetMatrix4();
+									xform.InvertInPlace();
+									MATH::CTransformation trans;
+									trans.SetMatrix4(xform);
+									MATH::CVector3 off(xsiOffset[0], xsiOffset[1], xsiOffset[2]);
+									off.MulByTransformationInPlace(trans);
+									offset = XSItoOgre(off);
+									
+
+								}
+
+
 								// adjust index based on merging
 								size_t adjIndex = positionIndex + indexAdjustment;
 								// look up real index
@@ -829,10 +921,6 @@ namespace Ogre {
 									size_t vertIndex = remi->second;
 									bool moreVerts = true;
 
-
-									// Skip zero offsets
-									if (offset == Vector3::ZERO)
-										continue;
 
 									// add UniqueVertex and clones
 									while (moreVerts)

@@ -24,6 +24,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 #include "OgrePlane.h"
+#include "OgreMatrix3.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -84,6 +85,23 @@ namespace Ogre {
         normal.normalise();
         d = -normal.dotProduct(rkPoint0);
     }
+	//-----------------------------------------------------------------------
+	Vector3 Plane::projectVector(const Vector3& p)
+	{
+		// We know plane normal is unit length, so use simple method
+		Matrix3 xform;
+		xform[0][0] = normal.x * normal.x - 1.0f;
+		xform[0][1] = normal.x * normal.y;
+		xform[0][2] = normal.x * normal.z;
+		xform[1][0] = normal.y * normal.x;
+		xform[1][1] = normal.y * normal.y - 1.0f;
+		xform[1][2] = normal.y * normal.z;
+		xform[2][0] = normal.z * normal.x;
+		xform[2][1] = normal.z * normal.y;
+		xform[2][2] = normal.z * normal.z - 1.0f;
+		return xform * p;
+
+	}
     //-----------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& o, Plane& p)
     {
