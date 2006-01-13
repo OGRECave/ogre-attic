@@ -46,6 +46,7 @@ namespace Ogre {
 	String ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME = "General";
 	String ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME = "Internal";
 	String ResourceGroupManager::BOOTSTRAP_RESOURCE_GROUP_NAME = "Bootstrap";
+	String ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME = "Autodetect";
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     ResourceGroupManager::ResourceGroupManager()
@@ -472,7 +473,8 @@ namespace Ogre {
 		if (!grp)
 		{
 			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-				"Cannot locate a resource group called '" + groupName + "'", 
+				"Cannot locate a resource group called '" + groupName + 
+				"' for resource '" + resourceName + "'" , 
 				"ResourceGroupManager::openResource");
 		}
 
@@ -1170,6 +1172,12 @@ namespace Ogre {
                 "ResourceGroupManager::resourceExists");
         }
 
+		return resourceExists(grp, resourceName);
+	}
+    //-----------------------------------------------------------------------
+	bool ResourceGroupManager::resourceExists(ResourceGroup* grp, const String& resourceName)
+	{
+
 		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
 
 		// Try indexes first
@@ -1208,6 +1216,40 @@ namespace Ogre {
 
 		return false;
 
+	}
+    //-----------------------------------------------------------------------
+	ResourceGroupManager::ResourceGroup* 
+	ResourceGroupManager::findGroupContainingResourceImpl(const String& filename)
+	{
+        OGRE_LOCK_AUTO_MUTEX
+
+			// Iterate over resource groups and find
+		for (ResourceGroupMap::iterator i = mResourceGroupMap.begin();
+			i != mResourceGroupMap.end(); ++i)
+		{
+	        ResourceGroup* grp = i->second;
+
+			OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
+				
+			if (resourceExists(grp, filename))
+				return grp;
+		}
+		// Not found
+		return 0;
+	}
+    //-----------------------------------------------------------------------
+	const String& ResourceGroupManager::findGroupContainingResource(const String& filename)
+	{
+		ResourceGroup* grp = findGroupContainingResourceImpl(filename);
+		if (!grp)
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
+				"Unable to derive resource group for " + 
+				filename + " automatically since the resource was not "
+				"found.", 
+				"ResourceGroupManager::findGroupContainingResource");
+		}
+		return grp->name;
 	}
     //-----------------------------------------------------------------------
     void ResourceGroupManager::linkWorldGeometryToResourceGroup(const String& group, 

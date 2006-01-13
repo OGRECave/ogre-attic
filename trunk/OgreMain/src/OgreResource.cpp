@@ -67,6 +67,11 @@ namespace Ogre
 			}
 			else
 			{
+				if (mGroup == ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME)
+				{
+					// Derive resource group
+					mGroup = ResourceGroupManager::getSingleton().findGroupContainingResource(mName);
+				}
 				loadImpl();
 			}
 			// Calculate resource size
