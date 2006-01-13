@@ -168,6 +168,8 @@ namespace Ogre {
         static String INTERNAL_RESOURCE_GROUP_NAME;
 		/// Bootstrap resource group name (min OGRE resources)
 		static String BOOTSTRAP_RESOURCE_GROUP_NAME;
+		/// Special resource group name which causes resource group to be automatically determined based on searching for the resource in all groups.
+		static String AUTODETECT_RESOURCE_GROUP_NAME;
         /// Nested struct defining a resource declaration
         struct ResourceDeclaration
         {
@@ -257,6 +259,8 @@ namespace Ogre {
 		void dropGroupContents(ResourceGroup* grp);
 		/** Delete a group for shutdown - don't notify ResourceManagers. */
 		void deleteGroup(ResourceGroup* grp);
+		/// Internal find method for auto groups
+		ResourceGroup* findGroupContainingResourceImpl(const String& filename);
 		/// Internal event firing method
 		void fireResourceGroupScriptingStarted(const String& groupName, size_t scriptCount);
 		/// Internal event firing method
@@ -295,6 +299,10 @@ namespace Ogre {
             in this group aren't supposed to modify, unload or remove by user.
             You can create additional ones so that you can control the life of
             your resources in whichever way you wish.
+			There is one other predefined value, 
+			ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME; using this 
+			causes the group name to be derived at load time by searching for 
+			the resource in the resource locations of each group in turn.
         @par
             Once you have defined a resource group, resources which will be loaded
 			as part of it are defined in one of 3 ways:
@@ -607,6 +615,19 @@ namespace Ogre {
         @param filename Fully qualified name of the file to test for
         */
         bool resourceExists(const String& group, const String& filename);
+
+        /** Find out if the named file exists in a group. 
+        @param group Pointer to the resource group
+        @param filename Fully qualified name of the file to test for
+        */
+        bool resourceExists(ResourceGroup* group, const String& filename);
+		/** Find the group in which a resource exists.
+		@param filename Fully qualified name of the file the resource should be
+			found as
+		@returns Name of the resource group the resource was found in. An
+			exception is thrown if the group could not be determined.
+		*/
+		const String& findGroupContainingResource(const String& filename);
 
         /** Find all files matching a given pattern in a group and get 
         some detailed information about them.

@@ -1993,8 +1993,8 @@ namespace Ogre {
 				// Get mesh (load if required)
 				pMesh = MeshManager::getSingleton().load( 
 					ni->second, 
-					// note that you can change the group by pre-loading the mesh 
-					ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME );
+					// autodetect group location
+					ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME );
 			}
 
 		}
