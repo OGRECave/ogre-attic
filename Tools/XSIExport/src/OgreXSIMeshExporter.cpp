@@ -1036,6 +1036,12 @@ namespace Ogre {
 		// always add position and normal
         sm->vertexData->vertexDeclaration->addElement(buf, offset, VET_FLOAT3, VES_POSITION);
         offset += VertexElement::getTypeSize(VET_FLOAT3);
+		// Split vertex data after position if poses present
+		if (!proto->poseList.empty())
+		{
+			buf++;
+			offset = 0;
+		}
         sm->vertexData->vertexDeclaration->addElement(buf, offset, VET_FLOAT3, VES_NORMAL);
         offset += VertexElement::getTypeSize(VET_FLOAT3);
         // split vertex data here if animated
