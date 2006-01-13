@@ -1329,20 +1329,20 @@ namespace Ogre
 		{
 			// scaling required
 			__SetRenderState(D3DRS_POINTSCALEENABLE, TRUE);
-			__SetRenderState(D3DRS_POINTSCALE_A, *((LPDWORD)(&constant)));
-			__SetRenderState(D3DRS_POINTSCALE_B, *((LPDWORD)(&linear)));
-			__SetRenderState(D3DRS_POINTSCALE_C, *((LPDWORD)(&quadratic)));
+			__SetFloatRenderState(D3DRS_POINTSCALE_A, constant);
+			__SetFloatRenderState(D3DRS_POINTSCALE_B, linear);
+			__SetFloatRenderState(D3DRS_POINTSCALE_C, quadratic);
 		}
 		else
 		{
 			// no scaling required
 			__SetRenderState(D3DRS_POINTSCALEENABLE, FALSE);
 		}
-		__SetRenderState(D3DRS_POINTSIZE, *((LPDWORD)(&size)));
-		__SetRenderState(D3DRS_POINTSIZE_MIN, *((LPDWORD)(&minSize)));
+		__SetFloatRenderState(D3DRS_POINTSIZE, size);
+		__SetFloatRenderState(D3DRS_POINTSIZE_MIN, minSize);
 		if (maxSize == 0.0f)
 			maxSize = mCapabilities->getMaxPointSize();
-		__SetRenderState(D3DRS_POINTSIZE_MAX, *((LPDWORD)(&maxSize)));
+		__SetFloatRenderState(D3DRS_POINTSIZE_MAX, maxSize);
 
 
     }
