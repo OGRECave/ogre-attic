@@ -729,6 +729,10 @@ namespace Ogre {
 		*/
 		void _notifyResourceRemoved(ResourcePtr& res);
 
+		/** Internale method to notify the group manager that a resource has
+			changed group (only applicable for autodetect group) */
+		void _notifyResourceGroupChanged(const String& oldGroup, Resource* res);
+
 		/** Internal method called by ResourceManager when all resources 
 			for that manager are removed.
 		@param manager Pointer to the manager for which all resources are being removed
