@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding = "windows-1250"?>
+<?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.00"
+	Version="7.10"
 	Name="Plugin_CgProgramManager"
 	ProjectGUID="{1C741C2F-3278-43D8-9FD2-E631A64B70AE}"
 	Keyword="Win32Proj">
@@ -60,7 +60,13 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -122,9 +128,17 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
 		<Filter
 			Name="Source Files"
@@ -143,6 +157,9 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
+				RelativePath="..\..\..\Dependencies\include\Cg\cg.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreCgPrerequisites.h">
 			</File>
 			<File
@@ -150,9 +167,6 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreCgProgramFactory.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Dependencies\include\Cg\cg.h">
 			</File>
 		</Filter>
 		<Filter

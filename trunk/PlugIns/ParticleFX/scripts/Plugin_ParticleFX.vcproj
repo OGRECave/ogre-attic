@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding = "windows-1250"?>
+<?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.00"
+	Version="7.10"
 	Name="Plugin_ParticleFX"
 	ProjectGUID="{C61A6060-5F0B-4B83-A0BC-678CCDA98FF6}"
 	Keyword="Win32Proj">
@@ -65,7 +65,13 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -130,9 +136,17 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
 		<Filter
 			Name="Source Files"
@@ -159,12 +173,10 @@
 				RelativePath="..\src\OgreCylinderEmitter.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreDeflectorPlaneAffector.cpp"
-				>
+				RelativePath="..\src\OgreDeflectorPlaneAffector.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreDirectionRandomiserAffector.cpp"
-				>
+				RelativePath="..\src\OgreDirectionRandomiserAffector.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreEllipsoidEmitter.cpp">
@@ -231,20 +243,16 @@
 				RelativePath="..\include\OgreCylinderEmitterFactory.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreDeflectorPlaneAffector.h"
-				>
+				RelativePath="..\include\OgreDeflectorPlaneAffector.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreDeflectorPlaneAffectorFactory.h"
-				>
+				RelativePath="..\include\OgreDeflectorPlaneAffectorFactory.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreDirectionRandomiserAffector.h"
-				>
+				RelativePath="..\include\OgreDirectionRandomiserAffector.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreDirectionRandomiserAffectorFactory.h"
-				>
+				RelativePath="..\include\OgreDirectionRandomiserAffectorFactory.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreEllipsoidEmitter.h">
