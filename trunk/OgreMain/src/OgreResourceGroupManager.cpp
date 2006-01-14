@@ -56,6 +56,8 @@ namespace Ogre {
         createResourceGroup(DEFAULT_RESOURCE_GROUP_NAME);
         // Create the 'Internal' group
         createResourceGroup(INTERNAL_RESOURCE_GROUP_NAME);
+		// Create the 'Autodetect' group (only used for temp storage)
+		createResourceGroup(AUTODETECT_RESOURCE_GROUP_NAME);
         // default world group to the default group
         mWorldGroupName = DEFAULT_RESOURCE_GROUP_NAME;
     }
@@ -793,6 +795,36 @@ namespace Ogre {
 				}
 			}
 		}
+	}
+	//-----------------------------------------------------------------------
+	void ResourceGroupManager::_notifyResourceGroupChanged(const String& oldGroup, 
+		Resource* res)
+	{
+		OGRE_LOCK_AUTO_MUTEX
+	
+		// New group
+		ResourceGroup* newGrp = getResourceGroup(res->getGroup());
+		// find old entry
+		ResourceGroupMap::iterator grpi = mResourceGroupMap.find(oldGroup);
+
+		assert(grpi != mResourceGroupMap.end());
+		ResourceGroup* grp = grpi->second;
+		Real order = res->getCreator()->getLoadingOrder();
+		ResourceGroup::LoadResourceOrderMap::iterator i = 
+			grp->loadResourceOrderMap.find(order);
+		assert(i != grp->loadResourceOrderMap.end());
+		LoadUnloadResourceList* loadList = i->second;
+		for (LoadUnloadResourceList::iterator l = loadList->begin(); 
+			l != loadList->end(); ++l)
+		{
+			if ((*l).getPointer() == res)
+			{
+				addCreatedResource(*l, *newGrp);
+				loadList->erase(l);
+				break;
+			}
+		}
+
 	}
 	//-----------------------------------------------------------------------
 	void ResourceGroupManager::_notifyAllResourcesRemoved(ResourceManager* manager)

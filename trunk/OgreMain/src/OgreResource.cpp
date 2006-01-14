@@ -71,6 +71,9 @@ namespace Ogre
 				{
 					// Derive resource group
 					mGroup = ResourceGroupManager::getSingleton().findGroupContainingResource(mName);
+
+					ResourceGroupManager::getSingleton()._notifyResourceGroupChanged(
+						ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME, this);
 				}
 				loadImpl();
 			}
