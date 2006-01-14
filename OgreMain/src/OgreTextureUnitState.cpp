@@ -42,6 +42,7 @@ namespace Ogre {
         colourBlendMode.blendType = LBT_COLOUR;
         setColourOperation(LBO_MODULATE);
         setTextureAddressingMode(TAM_WRAP);
+        mBorderColour = ColourValue::Black;
 
         alphaBlendMode.operation = LBX_MODULATE;
         alphaBlendMode.blendType = LBT_ALPHA;
@@ -91,6 +92,7 @@ namespace Ogre {
         colourBlendMode.blendType = LBT_COLOUR;
         setColourOperation(LBO_MODULATE);
         setTextureAddressingMode(TAM_WRAP);
+        mBorderColour = ColourValue::Black;
 
         alphaBlendMode.operation = LBX_MODULATE;
         alphaBlendMode.blendType = LBT_ALPHA;
@@ -609,6 +611,16 @@ namespace Ogre {
         mAddressMode = uvw;
     }
     //-----------------------------------------------------------------------
+    void TextureUnitState::setTextureBorderColour(const ColourValue& colour)
+    {
+        mBorderColour = colour;
+    }
+    //-----------------------------------------------------------------------
+    const ColourValue& TextureUnitState::getTextureBorderColour(void) const
+    {
+        return mBorderColour;
+    }
+    //-----------------------------------------------------------------------
     void TextureUnitState::setEnvironmentMap(bool enable, EnvMapType envMapType)
     {
         if (enable)
@@ -898,7 +910,7 @@ namespace Ogre {
 	}
 
 	//-----------------------------------------------------------------------
-	std::multimap<TextureUnitState::TextureEffectType, TextureUnitState::TextureEffect> TextureUnitState::getEffects(void) const
+	const TextureUnitState::EffectMap& TextureUnitState::getEffects(void) const
 	{
 		return mEffects;
 	}

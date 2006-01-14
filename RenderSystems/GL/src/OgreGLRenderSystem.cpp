@@ -1153,6 +1153,8 @@ namespace Ogre {
             return GL_MIRRORED_REPEAT;
         case TextureUnitState::TAM_CLAMP:
             return GL_CLAMP_TO_EDGE;
+        case TextureUnitState::TAM_BORDER:
+            return GL_CLAMP_TO_BORDER;
         }
 		
 	}
@@ -1166,6 +1168,14 @@ namespace Ogre {
 			getTextureAddressingMode(uvw.v));
         glTexParameteri( mTextureTypes[stage], GL_TEXTURE_WRAP_R, 
 				getTextureAddressingMode(uvw.w));
+        glActiveTextureARB( GL_TEXTURE0 );
+    }
+    //-----------------------------------------------------------------------------
+    void GLRenderSystem::_setTextureBorderColour(size_t stage, const ColourValue& colour)
+    {
+        GLfloat border[4] = { colour.r, colour.g, colour.b, colour.a };
+        glActiveTextureARB( GL_TEXTURE0 + stage );
+        glTexParameterfv( mTextureTypes[stage], GL_TEXTURE_BORDER_COLOR, border);
         glActiveTextureARB( GL_TEXTURE0 );
     }
     //-----------------------------------------------------------------------------

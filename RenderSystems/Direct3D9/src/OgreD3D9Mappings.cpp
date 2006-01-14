@@ -107,6 +107,8 @@ namespace Ogre
 			return D3DTADDRESS_MIRROR;
 		case TextureUnitState::TAM_CLAMP:
 			return D3DTADDRESS_CLAMP;
+        case TextureUnitState::TAM_BORDER:
+            return D3DTADDRESS_BORDER;
 		}
 		return D3DTADDRESS_FORCE_DWORD;
 	}

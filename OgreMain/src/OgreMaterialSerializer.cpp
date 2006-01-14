@@ -840,9 +840,11 @@ namespace Ogre
 			return TextureUnitState::TAM_MIRROR;
 		else if (params=="clamp")
 			return TextureUnitState::TAM_CLAMP;
+		else if (params=="border")
+			return TextureUnitState::TAM_BORDER;
 		else
 			logParseError("Bad tex_address_mode attribute, valid parameters are "
-				"'wrap', 'clamp' or 'mirror'.", context);
+				"'wrap', 'mirror', 'clamp' or 'border'.", context);
 		// default
 		return TextureUnitState::TAM_WRAP;
 	}
@@ -882,6 +884,23 @@ namespace Ogre
 			}
 			context.textureUnit->setTextureAddressingMode(uvw);
 		}
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    bool parseTexBorderColour(String& params, MaterialScriptContext& context)
+    {
+        StringVector vecparams = StringUtil::split(params, " \t");
+        // Must be 3 or 4 parameters 
+        if (vecparams.size() == 3 || vecparams.size() == 4)
+        {
+            context.textureUnit->setTextureBorderColour( _parseColourValue(vecparams) );
+        }
+        else 
+        {
+            logParseError(
+                "Bad tex_border_colour attribute, wrong number of parameters (expected 3 or 4)", 
+                context);
+        }
         return false;
     }
     //-----------------------------------------------------------------------
@@ -2433,6 +2452,7 @@ namespace Ogre
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("cubic_texture", (ATTRIBUTE_PARSER)parseCubicTexture));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("tex_coord_set", (ATTRIBUTE_PARSER)parseTexCoord));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("tex_address_mode", (ATTRIBUTE_PARSER)parseTexAddressMode));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("tex_border_colour", (ATTRIBUTE_PARSER)parseTexBorderColour));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("colour_op", (ATTRIBUTE_PARSER)parseColourOp));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("colour_op_ex", (ATTRIBUTE_PARSER)parseColourOpEx));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("colour_op_multipass_fallback", (ATTRIBUTE_PARSER)parseColourOpFallback));
@@ -3370,6 +3390,23 @@ namespace Ogre
         return "point";
     }
     //-----------------------------------------------------------------------
+    String convertTexAddressMode(TextureUnitState::TextureAddressingMode tam)
+	{
+        switch (tam)
+        {
+        case TextureUnitState::TAM_BORDER:
+            return "border";
+        case TextureUnitState::TAM_CLAMP:
+            return "clamp";
+        case TextureUnitState::TAM_MIRROR:
+            return "mirror";
+        case TextureUnitState::TAM_WRAP:
+            return "wrap";
+        }
+
+        return "wrap";
+	}
+    //-----------------------------------------------------------------------
     void MaterialSerializer::writeTextureUnit(const TextureUnitState *pTex)
     {
         LogManager::getSingleton().logMessage("MaterialSerializer : parsing texture layer.", LML_CRITICAL);
@@ -3461,42 +3498,29 @@ namespace Ogre
 				uvw.w != Ogre::TextureUnitState::TAM_WRAP )
             {
                 writeAttribute(4, "tex_address_mode");
-                switch (uvw.u)
+                if (uvw.u == uvw.v && uvw.u == uvw.w)
                 {
-                case Ogre::TextureUnitState::TAM_CLAMP:
-                    writeValue("clamp");
-                    break;
-                case Ogre::TextureUnitState::TAM_MIRROR:
-                    writeValue("mirror");
-                    break;
-                case Ogre::TextureUnitState::TAM_WRAP:
-                    writeValue("wrap");
-                    break;
+                    writeValue(convertTexAddressMode(uvw.u));
                 }
-				switch (uvw.v)
-				{
-				case Ogre::TextureUnitState::TAM_CLAMP:
-					writeValue(" clamp");
-					break;
-				case Ogre::TextureUnitState::TAM_MIRROR:
-					writeValue(" mirror");
-					break;
-				case Ogre::TextureUnitState::TAM_WRAP:
-					writeValue(" wrap");
-					break;
-				}
-				switch (uvw.w)
-				{
-				case Ogre::TextureUnitState::TAM_CLAMP:
-					writeValue(" clamp");
-					break;
-				case Ogre::TextureUnitState::TAM_MIRROR:
-					writeValue(" mirror");
-					break;
-				case Ogre::TextureUnitState::TAM_WRAP:
-					writeValue(" wrap");
-					break;
-				}
+                else
+                {
+                    writeValue(convertTexAddressMode(uvw.u));
+                    writeValue(convertTexAddressMode(uvw.v));
+                    if (uvw.w != TextureUnitState::TAM_WRAP)
+                    {
+                        writeValue(convertTexAddressMode(uvw.w));
+                    }
+                }
+            }
+
+            //border colour
+            const ColourValue& borderColour =
+                pTex->getTextureBorderColour();
+            if (mDefaults ||
+                borderColour != ColourValue::Black)
+            {
+                writeAttribute(4, "tex_border_colour");
+                writeColourValue(borderColour, true);
             }
 
             //filtering

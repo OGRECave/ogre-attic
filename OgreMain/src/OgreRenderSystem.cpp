@@ -240,6 +240,8 @@ namespace Ogre {
 
         // Texture addressing mode
         _setTextureAddressingMode(texUnit, tl.getTextureAddressingMode() );
+        // Texture border colour
+        _setTextureBorderColour(texUnit, tl.getTextureBorderColour());
 
         // Set texture effects
         TextureUnitState::EffectMap::iterator effi;
@@ -490,15 +492,12 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void RenderSystem::destroyHardwareOcclusionQuery( HardwareOcclusionQuery *hq)
 	{
-		for (HardwareOcclusionQueryList::iterator i = mHwOcclusionQueries.begin();
-			i != mHwOcclusionQueries.end(); ++i)
+		HardwareOcclusionQueryList::iterator i =
+			std::find(mHwOcclusionQueries.begin(), mHwOcclusionQueries.end(), hq);
+		if (i != mHwOcclusionQueries.end())
 		{
-			if (*i == hq)
-			{
-				delete *i;
-				mHwOcclusionQueries.erase(i);
-				break;
-			}
+			mHwOcclusionQueries.erase(i);
+			delete hq;
 		}
 	}
 

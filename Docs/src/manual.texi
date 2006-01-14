@@ -978,6 +978,8 @@ Here are the attributes you can use in a 'texture_unit' section of a .material s
 @item
 @ref{tex_address_mode}
 @item
+@ref{tex_border_colour}
+@item
 @ref{filtering}
 @item
 @ref{max_anisotropy}
@@ -1112,9 +1114,23 @@ Extended Format: tex_address_mode <u_mode> <v_mode> [<w_mode>]
 	Values beyond 1.0 are clamped to 1.0. Texture 'streaks' beyond 1.0 since last line of pixels is used across the rest of the address space. Useful for textures which need exact coverage from 0.0 to 1.0 without the 'fuzzy edge' wrap gives when combined with filtering.
 @item mirror
 	Texture flips every boundary, meaning texture is mirrored every 1.0 u or v
+@item border
+	Values outside the range [0.0, 1.0] are set to the border colour, you might also set the @ref{tex_border_colour} attribute too.
 @end table
 @*
 Default: tex_address_mode wrap@*@*
+
+@anchor{tex_border_colour}
+@subheading tex_border_colour
+
+Sets the border colour of border texture address mode (see @ref{tex_address_mode}). @*@*
+
+Format: tex_border_colour <red> <green> <blue> [<alpha>]@*
+NB valid colour values are between 0.0 and 1.0.@*@*
+
+Example: tex_border_colour 0.0 1.0 0.3@*@*
+
+Default: tex_border_colour 0.0 0.0 0.0 1.0@*@*
 
 @anchor{filtering}
 @subheading filtering

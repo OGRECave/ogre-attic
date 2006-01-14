@@ -116,7 +116,9 @@ namespace Ogre {
             /// Texture mirrors (flips) at joins over 1.0
             TAM_MIRROR,
             /// Texture clamps at 1.0
-            TAM_CLAMP
+            TAM_CLAMP,
+            /// Texture coordinates outside the range [0.0, 1.0] are set to the border colour
+            TAM_BORDER
         };
 
 		/** Texture addressing mode for each texture coordinate. */
@@ -152,6 +154,9 @@ namespace Ogre {
             const Frustum* frustum;
         };
 
+        /** Texture effects in a multimap paired array
+        */
+        typedef std::multimap<TextureEffectType, TextureEffect> EffectMap;
 
         /** Default constructor.
         */
@@ -562,6 +567,22 @@ namespace Ogre {
 		*/
         void setTextureAddressingMode( const UVWAddressingMode& uvw);
 
+        /** Sets the texture border colour.
+        @note
+            The default is ColourValue::Black, and this value only used when addressing mode
+            is TAM_BORDER.
+        @note
+            This applies for both the fixed-function and programmable pipelines.
+		*/
+        void setTextureBorderColour(const ColourValue& colour);
+
+        /** Sets the texture border colour.
+        @note
+            The default is ColourValue::Black, and this value only used when addressing mode
+            is TAM_BORDER.
+		*/
+        const ColourValue& getTextureBorderColour(void) const;
+
 		/** Setting advanced blending options.
         @remarks
         This is an extended version of the TextureUnitState::setColourOperation method which allows
@@ -855,7 +876,7 @@ namespace Ogre {
         void setBlank(void);
 
         // get texture effects in a multimap paired array
-        std::multimap<TextureEffectType, TextureEffect> getEffects(void) const;
+        const EffectMap& getEffects(void) const;
         // get the animated-texture animation duration
         Real getAnimationDuration(void) const;
 
@@ -959,7 +980,8 @@ protected:
 		int mTextureSrcMipmaps; // Request number of mipmaps
 
         unsigned int mTextureCoordSetIndex;
-        UVWAddressingMode mAddressMode;                
+        UVWAddressingMode mAddressMode;
+        ColourValue mBorderColour;
 
         LayerBlendModeEx colourBlendMode;
         SceneBlendFactor colourBlendFallbackSrc;
@@ -998,7 +1020,6 @@ protected:
         std::vector<String> mFrames;
         String mName;               // optional name for the TUS
         String mTextureNameAlias;       // optional alias for texture frames
-        typedef std::multimap<TextureEffectType, TextureEffect> EffectMap;
         EffectMap mEffects;
         //-----------------------------------------------------------------------------
 

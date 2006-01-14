@@ -1634,6 +1634,14 @@ namespace Ogre
 		if( FAILED( hr = __SetSamplerState( stage, D3DSAMP_ADDRESSW, D3D9Mappings::get(uvw.w) ) ) )
 			OGRE_EXCEPT( hr, "Failed to set texture addressing mode for W", "D3D9RenderSystem::_setTextureAddressingMode" );
 	}
+    //-----------------------------------------------------------------------------
+    void D3D9RenderSystem::_setTextureBorderColour(size_t stage,
+        const ColourValue& colour)
+    {
+		HRESULT hr;
+		if( FAILED( hr = __SetSamplerState( stage, D3DSAMP_BORDERCOLOR, colour.getAsARGB()) ) )
+			OGRE_EXCEPT( hr, "Failed to set texture border colour", "D3D9RenderSystem::_setTextureBorderColour" );
+    }
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTextureBlendMode( size_t stage, const LayerBlendModeEx& bm )
 	{
