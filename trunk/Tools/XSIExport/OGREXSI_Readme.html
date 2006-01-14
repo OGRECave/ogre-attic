@@ -294,6 +294,8 @@ not be picked up<br>
 'Local' if you expect the results to work in combination with skeletal
 animation. If you don't use skeletal animation, either 'Local' or
 'Object' will work. You shouldn't use 'Absolute' mode. </li>
+<li>Make sure you remove any active shape key composition on the modifier stack
+for your meshes before exporting, they can mess up the initial base state of the mesh as seen by the exporter, since the shape keys are relative to the mesh before this composition.</li>
 
 </ol>
 Important material considerations:<br>
