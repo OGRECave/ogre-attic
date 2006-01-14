@@ -584,6 +584,9 @@ namespace Ogre
 		/** Sets the texture addressing mode for a texture unit.*/
         virtual void _setTextureAddressingMode(size_t unit, const TextureUnitState::UVWAddressingMode& uvw) = 0;
 
+		/** Sets the texture border colour for a texture unit.*/
+        virtual void _setTextureBorderColour(size_t unit, const ColourValue& colour) = 0;
+
         /** Sets the texture coordinate transformation matrix for a texture unit.
             @param unit Texture unit to affect
             @param xform The 4x4 matrix

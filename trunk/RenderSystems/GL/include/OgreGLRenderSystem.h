@@ -264,6 +264,10 @@ namespace Ogre {
         /** See
           RenderSystem
          */
+        void _setTextureBorderColour(size_t stage, const ColourValue& colour);
+        /** See
+          RenderSystem
+         */
         void _setTextureMatrix(size_t stage, const Matrix4& xform);
         /** See
           RenderSystem

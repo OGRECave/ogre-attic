@@ -230,6 +230,7 @@ namespace Ogre
             const Frustum* frustum = 0);
 		void _setTextureBlendMode( size_t unit, const LayerBlendModeEx& bm );
         void _setTextureAddressingMode(size_t stage, const TextureUnitState::UVWAddressingMode& uvw);
+        void _setTextureBorderColour(size_t stage, const ColourValue& colour);
 		void _setTextureMatrix( size_t unit, const Matrix4 &xform );
 		void _setSceneBlending( SceneBlendFactor sourceFactor, SceneBlendFactor destFactor );
 		void _setAlphaRejectSettings( CompareFunction func, unsigned char value );
