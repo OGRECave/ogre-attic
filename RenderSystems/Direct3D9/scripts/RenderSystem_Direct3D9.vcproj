@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding = "Windows-1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.00"
+	Version="7.10"
 	Name="RenderSystem_Direct3D9"
 	ProjectGUID="{0F172B9C-E5D5-4EB1-BFDB-93D787A37461}"
 	Keyword="Win32Proj">
@@ -62,7 +62,13 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -124,9 +130,17 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
 		<Filter
 			Name="Source Files"
@@ -147,12 +161,6 @@
 				RelativePath="..\src\OgreD3D9GpuProgramManager.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreD3D9HLSLProgram.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreD3D9HLSLProgramFactory.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreD3D9HardwareBufferManager.cpp">
 			</File>
 			<File
@@ -168,7 +176,16 @@
 				RelativePath="..\src\OgreD3D9HardwareVertexBuffer.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreD3D9HLSLProgram.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreD3D9HLSLProgramFactory.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreD3D9Mappings.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreD3D9MultiRenderTarget.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreD3D9RenderSystem.cpp">
@@ -191,9 +208,6 @@
 			<File
 				RelativePath="..\src\OgreD3D9VideoModeList.cpp">
 			</File>
-			<File
-				RelativePath="..\src\OgreD3D9MultiRenderTarget.cpp">
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -211,12 +225,6 @@
 				RelativePath="..\include\OgreD3D9GpuProgramManager.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreD3D9HLSLProgram.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreD3D9HLSLProgramFactory.h">
-			</File>
-			<File
 				RelativePath="..\include\OgreD3D9HardwareBufferManager.h">
 			</File>
 			<File
@@ -232,7 +240,16 @@
 				RelativePath="..\include\OgreD3D9HardwareVertexBuffer.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreD3D9HLSLProgram.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreD3D9HLSLProgramFactory.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreD3D9Mappings.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreD3D9MultiRenderTarget.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreD3D9Prerequisites.h">
@@ -257,9 +274,6 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreD3D9VideoModeList.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreD3D9MultiRenderTarget.h">
 			</File>
 		</Filter>
 		<Filter

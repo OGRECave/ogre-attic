@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding = "windows-1250"?>
+<?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.00"
+	Version="7.10"
 	Name="OgreMain"
 	ProjectGUID="{35AFBABB-DF05-43DE-91A7-BB828A874015}"
 	Keyword="Win32Proj">
@@ -69,7 +69,13 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -137,9 +143,17 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
 		<Filter
 			Name="Source Files"
@@ -704,6 +718,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
+				RelativePath="..\include\asm_math.h">
+			</File>
+			<File
 				RelativePath="..\include\Ogre.h">
 			</File>
 			<File
@@ -1022,10 +1039,10 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreMovablePlane.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreNoMemoryMacros.h">
+				RelativePath="..\include\OgreNode.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreNode.h">
+				RelativePath="..\include\OgreNoMemoryMacros.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreOverlay.h">
@@ -1133,6 +1150,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreRectangle2D.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreRenderable.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreRenderOperation.h">
 			</File>
 			<File
@@ -1164,9 +1184,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreRenderWindow.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreRenderable.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreResource.h">
@@ -1326,9 +1343,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreZip.h">
-			</File>
-			<File
-				RelativePath="..\include\asm_math.h">
 			</File>
 		</Filter>
 		<Filter
