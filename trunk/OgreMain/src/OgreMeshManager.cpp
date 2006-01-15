@@ -901,6 +901,12 @@ namespace Ogre
             HardwareBuffer::Usage vbUsage, HardwareBuffer::Usage ibUsage,
             bool vbUseShadow, bool ibUseShadow)
     {
+        if (width < 3 || height < 3)
+        {
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+                "Bezier patch require at least 3x3 control points",
+                "MeshManager::createBezierPatch");
+        }
 
         MeshPtr pMesh = getByName(name);
         if (!pMesh.isNull())

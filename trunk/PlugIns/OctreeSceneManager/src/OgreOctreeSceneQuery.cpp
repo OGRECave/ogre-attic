@@ -292,6 +292,8 @@ OctreePlaneBoundedVolumeListSceneQuery::~OctreePlaneBoundedVolumeListSceneQuery(
 //---------------------------------------------------------------------
 void OctreePlaneBoundedVolumeListSceneQuery::execute(SceneQueryListener* listener)
 {
+    std::set<SceneNode*> checkedSceneNodes;
+
     PlaneBoundedVolumeList::iterator pi, piend;
     piend = mVolumes.end();
     for (pi = mVolumes.begin(); pi != piend; ++pi)
@@ -301,9 +303,13 @@ void OctreePlaneBoundedVolumeListSceneQuery::execute(SceneQueryListener* listene
         static_cast<OctreeSceneManager*>( mParentSceneMgr ) -> findNodesIn( *pi, list, 0 );
 
         //grab all moveables from the node that intersect...
-        std::list < SceneNode * >::iterator it = list.begin();
-        while( it != list.end() )
+        std::list < SceneNode * >::iterator it, itend;
+        itend = list.end();
+        for (it = list.begin(); it != itend; ++it)
         {
+            // avoid double-check same scene node
+            if (!checkedSceneNodes.insert(*it).second)
+                continue;
             SceneNode::ObjectIterator oit = (*it) -> getAttachedObjectIterator();
             while( oit.hasMoreElements() )
             {
@@ -331,7 +337,6 @@ void OctreePlaneBoundedVolumeListSceneQuery::execute(SceneQueryListener* listene
 					}
                 }
             }
-            ++it;
         }
     }//for
 }

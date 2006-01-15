@@ -84,6 +84,7 @@ namespace Ogre {
         const LightList* mCurrentLightList;
         const Frustum* mCurrentTextureProjector;
         const RenderTarget* mCurrentRenderTarget;
+        const Viewport* mCurrentViewport;
 
         Light mBlankLight;
     public:
@@ -99,6 +100,8 @@ namespace Ogre {
         void setTextureProjector(const Frustum* frust);
         /** Sets the current render target */
         void setCurrentRenderTarget(const RenderTarget* target);
+        /** Sets the current viewport */
+        void setCurrentViewport(const Viewport* viewport);
 		/** Sets the shadow extrusion distance to be used for point lights. */
 		void setShadowDirLightExtrusionDistance(Real dist);
 

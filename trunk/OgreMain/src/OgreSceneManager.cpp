@@ -886,6 +886,8 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
         mDestRenderSystem->setInvertVertexWinding(false);
     }
 
+    // Tell params about viewport
+    mAutoParamDataSource.setCurrentViewport(vp);
     // Set the viewport
     setViewport(vp);
 
