@@ -439,6 +439,18 @@ namespace Ogre {
         return mDerivedOrientation * -Vector3::UNIT_Z;
     }
     //-----------------------------------------------------------------------
+    Vector3 Camera::getDerivedUp(void) const
+    {
+        updateView();
+        return mDerivedOrientation * Vector3::UNIT_Y;
+    }
+    //-----------------------------------------------------------------------
+    Vector3 Camera::getDerivedRight(void) const
+    {
+        updateView();
+        return mDerivedOrientation * Vector3::UNIT_X;
+    }
+    //-----------------------------------------------------------------------
     const String& Camera::getMovableType(void) const
     {
         return msMovableType;

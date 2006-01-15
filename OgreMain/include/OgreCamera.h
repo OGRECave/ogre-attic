@@ -345,6 +345,12 @@ namespace Ogre {
         /** Gets the derived direction vector of the camera, including any 
             translation inherited from a node attachment. */
         Vector3 getDerivedDirection(void) const;
+        /** Gets the derived up vector of the camera, including any 
+            translation inherited from a node attachment. */
+        Vector3 getDerivedUp(void) const;
+        /** Gets the derived right vector of the camera, including any 
+            translation inherited from a node attachment. */
+        Vector3 getDerivedRight(void) const;
 
         /** Overridden from MovableObject */
         const String& getMovableType(void) const;

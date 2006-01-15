@@ -275,8 +275,10 @@ namespace Ogre {
                 Note this declaration must _only_ draw on buffer source 0!
             @param
                 width Specifies the width of the patch in control points.
+                Note this parameter must greater than or equal to 3.
             @param
                 height Specifies the height of the patch in control points. 
+                Note this parameter must greater than or equal to 3.
             @param
                 uMaxSubdivisionLevel,vMaxSubdivisionLevel If you want to manually set the top level of subdivision, 
                 do it here, otherwise let the system decide.
