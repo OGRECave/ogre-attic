@@ -72,6 +72,7 @@ namespace Ogre
         mMinLevelDistSqr = 0;
 
         mInit = false;
+        mLightListDirty = true;
 		MovableObject::mCastShadows = false;
 
         for ( int i = 0; i < 4; i++ )
@@ -239,6 +240,11 @@ namespace Ogre
             ( min + max ) / 2,
             ( startz * msOptions->scale.z + (endz - 1) * msOptions->scale.z ) / 2 );
 
+        mBoundingRadius =
+            std::max(max - min,
+                std::max((endx - 1 - startx) * msOptions->scale.x,
+                         (endz - 1 - startz) * msOptions->scale.z)) / 2;
+
         // Create delta buffer list if required to morph
         if (msOptions->lodMorph)
         {
@@ -328,7 +334,10 @@ namespace Ogre
 
 
         Vector3 cpos = cam -> getDerivedPosition();
-        Vector3 diff = mCenter - cpos;
+        const AxisAlignedBox& aabb = getWorldBoundingBox(true);
+        Vector3 diff(0, 0, 0);
+        diff.makeFloor(cpos - aabb.getMinimum());
+        diff.makeCeil(cpos - aabb.getMaximum());
 
         Real L = diff.squaredLength();
 
@@ -401,6 +410,9 @@ namespace Ogre
     //-----------------------------------------------------------------------
     void TerrainRenderable::_updateRenderQueue( RenderQueue* queue )
     {
+        // Notify need to calculate light list when our sending to render queue
+        mLightListDirty = true;
+
         queue->addRenderable( this );
     }
     //-----------------------------------------------------------------------
@@ -948,7 +960,13 @@ namespace Ogre
     //-----------------------------------------------------------------------
     const LightList& TerrainRenderable::getLights(void) const
     {
-        return getParentSceneNode()->findLights(this->getBoundingRadius());
+        if (mLightListDirty)
+        {
+            getParentSceneNode()->getCreator()->_populateLightList(
+                mCenter, this->getBoundingRadius(), mLightList);
+            mLightListDirty = false;
+        }
+        return mLightList;
     }
     //-----------------------------------------------------------------------
     IndexData* TerrainRenderable::getIndexData(void)
