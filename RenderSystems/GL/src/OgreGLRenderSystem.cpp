@@ -885,9 +885,18 @@ namespace Ogre {
 			// XXX: why do I need this for results to be consistent with D3D?
 			// Equations are supposedly the same once you factor in vp height
 			Real correction = 0.005;
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+			// HACK - ATI/Linux segfaults when you set point attenuation!
+			// Driver fault!
+			if (mGLSupport->getGLVendor() != "ATI")
+			{
+#endif
 			// scaling required
 			float val[4] = {constant, linear*correction, quadratic*correction, 1};
 			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, val);
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+			}
+#endif
 			// Point size is still calculated in pixels even when attenuation is
 			// enabled, which is pretty awkward, since you typically want a viewport
 			// independent size if you're looking for attenuation.
@@ -909,8 +918,17 @@ namespace Ogre {
 		{
 			// no scaling required
 			// GL has no disabled flag for this so just set to constant
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+			// HACK - ATI/Linux segfaults when you set point attenuation!
+			// Driver fault!
+			if (mGLSupport->getGLVendor() != "ATI")
+			{
+#endif
 			float val[4] = {1, 0, 0, 1};
 			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, val);
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+			}
+#endif
 			glPointSize(size);
 			glPointParameterf(GL_POINT_SIZE_MIN, minSize);
 			if (maxSize == 0.0f)
