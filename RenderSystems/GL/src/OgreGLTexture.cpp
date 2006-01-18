@@ -275,11 +275,28 @@ namespace Ogre {
         }
         else
         {
-            if(mTextureType == TEX_TYPE_1D || mTextureType == TEX_TYPE_2D || 
+			String baseName, ext;
+			size_t pos = mName.find_last_of(".");
+			if( pos == String::npos )
+				OGRE_EXCEPT(
+					Exception::ERR_INVALIDPARAMS, 
+					"Unable to load image file '"+ mName + "' - invalid extension.",
+					"GLTexture::loadImpl" );
+
+			baseName = mName.substr(0, pos);
+			ext = mName.substr(pos+1);
+    
+			if(mTextureType == TEX_TYPE_1D || mTextureType == TEX_TYPE_2D || 
                 mTextureType == TEX_TYPE_3D)
             {
                 Image img;
-                img.load(mName, mGroup);
+	            // find & load resource data intro stream to allow resource
+				// group changes if required
+				DataStreamPtr dstream = 
+					ResourceGroupManager::getSingleton().openResource(
+						mName, mGroup, true, this);
+
+                img.load(dstream, ext);
 
 				// If this is a cube map, set the texture type flag accordingly.
                 if (img.hasFlag(IF_CUBEMAP))
@@ -294,27 +311,34 @@ namespace Ogre {
             {
 				if(StringUtil::endsWith(getName(), ".dds"))
 				{
-					// XX HACK there should be a better way to specify wether 
+					// XX HACK there should be a better way to specify whether 
 					// all faces are in the same file or not
 					Image img;
-                	img.load(mName, mGroup);
+	            	// find & load resource data intro stream to allow resource
+					// group changes if required
+					DataStreamPtr dstream = 
+						ResourceGroupManager::getSingleton().openResource(
+							mName, mGroup, true, this);
+
+	                img.load(dstream, ext);
 					loadImage( img );
 				}
 				else
 				{
-					String baseName, ext;
 					std::vector<Image> images(6);
 					std::vector<const Image*> imagePtrs;
 					static const String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
 	
 					for(size_t i = 0; i < 6; i++)
 					{
-						size_t pos = mName.find_last_of(".");
-						baseName = mName.substr(0, pos);
-						ext = mName.substr(pos);
-						String fullName = baseName + suffixes[i] + ext;
+						String fullName = baseName + suffixes[i] + "." + ext;
+		            	// find & load resource data intro stream to allow resource
+						// group changes if required
+						DataStreamPtr dstream = 
+							ResourceGroupManager::getSingleton().openResource(
+								fullName, mGroup, true, this);
 	
-						images[i].load(fullName, mGroup);
+						images[i].load(dstream, ext);
 						imagePtrs.push_back(&images[i]);
 					}
 	

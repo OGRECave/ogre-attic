@@ -201,6 +201,15 @@ namespace Ogre {
 		/// Gets the group which this resource is a member of
 		const String& getGroup(void) { return mGroup; }
 
+		/** Change the resource group ownership of a Resource.
+		@remarks
+			This method is generally reserved for internal use, although
+			if you really know what you're doing you can use it to move
+			this resource from one group to another.
+		@param newGroup Name of the new group
+		*/
+		void changeGroupOwnership(const String& newGroup);
+
 		/// Gets the manager which created this resource
 		ResourceManager* getCreator(void) { return mCreator; }
 		/** Get the origin of this resource, e.g. a script file name.

@@ -218,7 +218,9 @@ namespace Ogre
 		if (StringUtil::endsWith(getName(), ".dds"))
         {
             // find & load resource data
-			DataStreamPtr dstream = ResourceGroupManager::getSingleton().openResource(mName, mGroup);
+			DataStreamPtr dstream = 
+				ResourceGroupManager::getSingleton().openResource(
+					mName, mGroup, true, this);
             MemoryDataStream stream( dstream );
 
             HRESULT hr = D3DXCreateCubeTextureFromFileInMemory(
@@ -254,18 +256,25 @@ namespace Ogre
 			// Load from 6 separate files
 			// Use OGRE its own codecs
 			String baseName, ext;
+			size_t pos = mName.find_last_of(".");
+			baseName = mName.substr(0, pos);
+			ext = mName.substr(pos+1);
 			std::vector<Image> images(6);
 			std::vector<const Image*> imagePtrs;
 			static const String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
 
 			for(size_t i = 0; i < 6; i++)
 			{
-				size_t pos = mName.find_last_of(".");
-				baseName = mName.substr(0, pos);
-				ext = mName.substr(pos);
-				String fullName = baseName + suffixes[i] + ext;
+				String fullName = baseName + suffixes[i] + "." + ext;
 
-				images[i].load(fullName, mGroup);
+            	// find & load resource data intro stream to allow resource
+				// group changes if required
+				DataStreamPtr dstream = 
+					ResourceGroupManager::getSingleton().openResource(
+						fullName, mGroup, true, this);
+	
+				images[i].load(dstream, ext);
+
 				imagePtrs.push_back(&images[i]);
 			}
 
@@ -280,7 +289,9 @@ namespace Ogre
 		if (StringUtil::endsWith(getName(), ".dds"))
 		{
 			// find & load resource data
-			DataStreamPtr dstream = ResourceGroupManager::getSingleton().openResource(mName, mGroup);
+			DataStreamPtr dstream = 
+				ResourceGroupManager::getSingleton().openResource(
+					mName, mGroup, true, this);
 			MemoryDataStream stream(dstream);
 	
 			HRESULT hr = D3DXCreateVolumeTextureFromFileInMemory(
@@ -316,7 +327,15 @@ namespace Ogre
 		else
 		{
 			Image img;
-			img.load(mName, mGroup);
+           	// find & load resource data intro stream to allow resource
+			// group changes if required
+			DataStreamPtr dstream = 
+				ResourceGroupManager::getSingleton().openResource(
+					mName, mGroup, true, this);
+			size_t pos = mName.find_last_of(".");
+			String ext = mName.substr(pos+1);
+	
+			img.load(dstream, ext);
 			loadImage(img);
 		}
     }
@@ -330,7 +349,8 @@ namespace Ogre
 			// Use D3DX
 			// find & load resource data
 			DataStreamPtr dstream = 
-				ResourceGroupManager::getSingleton().openResource(mName, mGroup);
+				ResourceGroupManager::getSingleton().openResource(
+					mName, mGroup, true, this);
 			MemoryDataStream stream(dstream);
 	
 			HRESULT hr = D3DXCreateTextureFromFileInMemory(
@@ -365,7 +385,16 @@ namespace Ogre
 		else
 		{
 			Image img;
-			img.load(mName, mGroup);
+           	// find & load resource data intro stream to allow resource
+			// group changes if required
+			DataStreamPtr dstream = 
+				ResourceGroupManager::getSingleton().openResource(
+					mName, mGroup, true, this);
+	
+			size_t pos = mName.find_last_of(".");
+			String ext = mName.substr(pos+1);
+			
+			img.load(dstream, ext);
 			loadImage(img);
 		}
 	}

@@ -1749,6 +1749,87 @@ protected:
 
 	}
 
+	void testFallbackResourceGroup()
+	{
+		// Load all textures from new resource group "Test"
+		ResourceGroupManager::getSingleton().removeResourceLocation("../../../Media/materials/textures");
+		ResourceGroupManager::getSingleton().createResourceGroup("Test");
+		ResourceGroupManager::getSingleton().addResourceLocation("../../../Media/materials/textures", "FileSystem", "Test");
+
+		// Load a texture from default group (won't be found there, but should fall back)
+		TextureManager::getSingleton().load("dirt01.jpg", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+		ResourceGroupManager::getSingleton().unloadUnreferencedResourcesInGroup("Test");
+
+		// Add a few robots for fun
+		Entity *ent;
+		for (int i = 0; i < 5; ++i)
+		{
+			ent = mSceneMgr->createEntity("robot" + StringConverter::toString(i), "robot.mesh");
+			// Add entity to the scene node
+			mSceneMgr->getRootSceneNode()->createChildSceneNode(
+				Vector3(0,0,(i*50)-(5*50/2)))->attachObject(ent);
+		}
+		// Give it a little ambience with lights
+		Light* l;
+		l = mSceneMgr->createLight("BlueLight");
+		l->setPosition(-200,-80,-100);
+		l->setDiffuseColour(0.5, 0.5, 1.0);
+
+		l = mSceneMgr->createLight("GreenLight");
+		l->setPosition(0,0,-100);
+		l->setDiffuseColour(0.5, 1.0, 0.5);
+
+		// Position the camera
+		mCamera->setPosition(100,50,100);
+		mCamera->lookAt(-50,50,0);
+
+	}
+
+	void testGeneratedLOD()
+	{
+		MeshPtr msh1 = (MeshPtr)MeshManager::getSingleton().load("barrel.mesh", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+		msh1->removeLodLevels();
+
+		Mesh::LodDistanceList lodList;
+		lodList.push_back(50);
+		lodList.push_back(100);
+		lodList.push_back(150);
+		lodList.push_back(200);
+		lodList.push_back(250);
+		lodList.push_back(300);
+
+		msh1->generateLodLevels(lodList, ProgressiveMesh::VRQ_PROPORTIONAL, 0.3);
+
+		Entity *ent;
+		for (int i = 0; i < 1; ++i)
+		{
+			ent = mSceneMgr->createEntity("tst" + StringConverter::toString(i), "barrel.mesh");
+			// Add entity to the scene node
+			mSceneMgr->getRootSceneNode()->createChildSceneNode(
+				Vector3(0,0,(i*50)-(5*50/2)))->attachObject(ent);
+		}
+
+		// Give it a little ambience with lights
+		Light* l;
+		l = mSceneMgr->createLight("BlueLight");
+		l->setPosition(-200,-80,-100);
+		l->setDiffuseColour(0.5, 0.5, 1.0);
+
+		l = mSceneMgr->createLight("GreenLight");
+		l->setPosition(0,0,-100);
+		l->setDiffuseColour(0.5, 1.0, 0.5);
+
+		// Position the camera
+		mCamera->setPosition(100,50,100);
+		mCamera->lookAt(-50,50,0);
+
+		mSceneMgr->setAmbientLight(ColourValue::White);
+
+	}
+
     void clearSceneSetup()
     {
         bool showOctree = true;
@@ -2664,6 +2745,73 @@ protected:
 
 	}
 
+	void testPoseAnimation2()
+	{
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+		Vector3 dir(-1, -1, -0.5);
+		dir.normalise();
+		Light* l = mSceneMgr->createLight("light1");
+		l->setType(Light::LT_DIRECTIONAL);
+		l->setDirection(dir);
+
+		MeshPtr mesh = MeshManager::getSingleton().load("facial.mesh", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Animation* anim = mesh->createAnimation("pose", 20);
+		VertexAnimationTrack* track = anim->createVertexTrack(4, VAT_POSE);
+		// Frame 0 - no effect 
+		VertexPoseKeyFrame* kf = track->createVertexPoseKeyFrame(0);
+
+		// bring in pose 4 (happy)
+		kf = track->createVertexPoseKeyFrame(5);
+		kf->addPoseReference(4, 1.0f);
+
+		// bring in pose 5 (sad)
+		kf = track->createVertexPoseKeyFrame(10);
+		kf->addPoseReference(5, 1.0f);
+
+		// bring in pose 6 (mad)
+		kf = track->createVertexPoseKeyFrame(15);
+		kf->addPoseReference(6, 1.0f);
+		
+		kf = track->createVertexPoseKeyFrame(20);
+
+
+		// software pose
+		Entity* e = mSceneMgr->createEntity("test2", "facial.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(150,0,0))->attachObject(e);
+		AnimationState* animState = e->getAnimationState("pose");
+		animState->setEnabled(true);
+		animState->setWeight(1.0f);
+		mAnimStateList.push_back(animState);
+
+
+		/*
+		// test hardware pose
+		e = mSceneMgr->createEntity("test", "testpose.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		e->setMaterialName("Examples/HardwarePoseAnimation");
+		animState = e->getAnimationState("poseanim");
+		animState->setEnabled(true);
+		animState->setWeight(1.0f);
+		mAnimStateList.push_back(animState);
+		*/
+
+
+		mCamera->setNearClipDistance(0.5);
+		mSceneMgr->setShowDebugShadows(true);
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 200;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("2 - Default");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+	}
+
 
 	void testReflectedBillboards()
 	{
@@ -3075,6 +3223,7 @@ protected:
         //test2Spotlights();
 
 		//testManualLOD();
+		//testGeneratedLOD();
 		//testLotsAndLotsOfEntities();
 		//testSimpleMesh();
 		//test2Windows();
@@ -3083,13 +3232,15 @@ protected:
 		//testReloadResources();
 		//testTransparencyMipMaps();
 		//testRadixSort();
-		testMorphAnimation();
+		//testMorphAnimation();
 		//testPoseAnimation();
+		//testPoseAnimation2();
 		//testBug();
 		//testManualObjectNonIndexed();
 		//testManualObjectIndexed();
 		//testCustomProjectionMatrix();
 		//testPointSprites();
+		testFallbackResourceGroup();
 
 		
     }
