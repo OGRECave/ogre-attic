@@ -761,6 +761,28 @@ namespace Ogre
 		// We always support rendertextures bigger than the frame buffer
         mCapabilities->setCapability(RSC_HWRENDER_TO_TEXTURE);
 
+		// Determine if any floating point texture format is supported
+		D3DFORMAT floatFormats[6] = {D3DFMT_R16F, D3DFMT_G16R16F, 
+			D3DFMT_A16B16G16R16F, D3DFMT_R32F, D3DFMT_G32R32F, 
+			D3DFMT_A32B32G32R32F};
+		LPDIRECT3DSURFACE9 bbSurf;
+		mPrimaryWindow->getCustomAttribute("DDBACKBUFFER", &bbSurf);
+		D3DSURFACE_DESC bbSurfDesc;
+		bbSurf->GetDesc(&bbSurfDesc);
+		
+		for (int i = 0; i < 6; ++i)
+		{
+			if (SUCCEEDED(mpD3D->CheckDeviceFormat(D3DADAPTER_DEFAULT, 
+				D3DDEVTYPE_HAL, bbSurfDesc.Format, 
+				0, D3DRTYPE_TEXTURE, floatFormats[i])))
+			{
+				mCapabilities->setCapability(RSC_TEXTURE_FLOAT);
+				break;
+			}
+			
+		}
+		
+
 		Log* defaultLog = LogManager::getSingleton().getDefaultLog();
 		if (defaultLog)
 		{
