@@ -33,6 +33,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+// A reference count of 3 means that only RGM and RM have references
+// RGM has one (this one) and RM has 2 (by name and by handle)
+#define OGRE_RESOURCE_UNUSED_REFERENCE_COUNT 3
     //-----------------------------------------------------------------------
     template<> ResourceGroupManager* Singleton<ResourceGroupManager>::ms_Singleton = 0;
     ResourceGroupManager* ResourceGroupManager::getSingletonPtr(void)
@@ -220,11 +223,6 @@ namespace Ogre {
 		LogManager::getSingleton().logMessage("Finished loading resource group " + name);
     }
     //-----------------------------------------------------------------------
-    void ResourceGroupManager::unloadResourceGroup(const String& name)
-    {
-        unloadResourceGroup(name, false);
-    }
-    //-----------------------------------------------------------------------
     void ResourceGroupManager::unloadResourceGroup(const String& name, bool reloadableOnly)
     {
 		// Can only bulk-unload one group at a time (reasonable limitation I think)
@@ -261,6 +259,50 @@ namespace Ogre {
 		mCurrentGroup = 0;
 		LogManager::getSingleton().logMessage("Finished unloading resource group " + name);
     }
+	//-----------------------------------------------------------------------
+	void ResourceGroupManager::unloadUnreferencedResourcesInGroup(
+		const String& name, bool reloadableOnly )
+	{
+		// Can only bulk-unload one group at a time (reasonable limitation I think)
+		OGRE_LOCK_AUTO_MUTEX
+
+		LogManager::getSingleton().logMessage(
+			"Unloading unused resources in resource group " + name);
+		ResourceGroup* grp = getResourceGroup(name);
+		if (!grp)
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+				"Cannot find a group named " + name, 
+				"ResourceGroupManager::unloadUnreferencedResourcesInGroup");
+		}
+		// Set current group
+		mCurrentGroup = grp;
+
+		ResourceGroup::LoadResourceOrderMap::reverse_iterator oi;
+		// unload in reverse order
+		for (oi = grp->loadResourceOrderMap.rbegin(); oi != grp->loadResourceOrderMap.rend(); ++oi)
+		{
+			for (LoadUnloadResourceList::iterator l = oi->second->begin();
+				l != oi->second->end(); ++l)
+			{
+				// A use count of 3 means that only RGM and RM have references
+				// RGM has one (this one) and RM has 2 (by name and by handle)
+				if (l->useCount() == OGRE_RESOURCE_UNUSED_REFERENCE_COUNT)
+				{
+					Resource* resource = l->get();
+					if (!reloadableOnly || resource->isReloadable())
+					{
+						resource->unload();
+					}
+				}
+			}
+		}
+
+		// reset current group
+		mCurrentGroup = 0;
+		LogManager::getSingleton().logMessage(
+			"Finished unloading unused resources in resource group " + name);
+	}
 	//-----------------------------------------------------------------------
 	void ResourceGroupManager::clearResourceGroup(const String& name)
 	{
@@ -300,7 +342,7 @@ namespace Ogre {
 		}
 		// set current group
 		mCurrentGroup = grp;
-        unloadResourceGroup(name); // will throw an exception if name not valid
+        unloadResourceGroup(name, false); // will throw an exception if name not valid
 		dropGroupContents(grp);
 		deleteGroup(grp);
         mResourceGroupMap.erase(mResourceGroupMap.find(name));
@@ -468,7 +510,8 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     DataStreamPtr ResourceGroupManager::openResource(
-        const String& resourceName, const String& groupName)
+        const String& resourceName, const String& groupName, 
+		bool searchGroupsIfNotFound, Resource* resourceBeingLoaded)
     {
 		// Try to find in resource index first
 		ResourceGroup* grp = getResourceGroup(groupName);
@@ -521,6 +564,25 @@ namespace Ogre {
 
 		
 		// Not found
+		if (searchGroupsIfNotFound)
+		{
+			ResourceGroup* grp = findGroupContainingResourceImpl(resourceName); 
+			if (grp)
+			{
+				if (resourceBeingLoaded)
+				{
+					resourceBeingLoaded->changeGroupOwnership(grp->name);
+				}
+				return openResource(resourceName, grp->name, false);
+			}
+			else
+			{
+				OGRE_EXCEPT(Exception::ERR_FILE_NOT_FOUND, 
+					"Cannot locate resource " + resourceName + 
+					" in resource group " + groupName + " or any other group.", 
+					"ResourceGroupManager::openResource");
+			}
+		}
 		OGRE_EXCEPT(Exception::ERR_FILE_NOT_FOUND, "Cannot locate resource " + 
 			resourceName + " in resource group " + groupName + ".", 
 			"ResourceGroupManager::openResource");

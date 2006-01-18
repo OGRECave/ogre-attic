@@ -193,7 +193,8 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("Mesh: Loading " + mName + ".");
 
         DataStreamPtr stream = 
-            ResourceGroupManager::getSingleton().openResource(mName, mGroup);
+            ResourceGroupManager::getSingleton().openResource(
+				mName, mGroup, true, this);
         serializer.importMesh(stream, this);
         
         /* check all submeshes to see if their materials should be

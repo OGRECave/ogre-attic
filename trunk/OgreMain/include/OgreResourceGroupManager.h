@@ -398,17 +398,6 @@ namespace Ogre {
             will be in an unloaded state. If you want to remove them entirely,
             you should use clearResourceGroup or destroyResourceGroup.
         @param name The name to of the resource group to unload.
-        */
-        void unloadResourceGroup(const String& name);
-
-        /** Unloads a resource group.
-        @remarks
-            This method unloads all the resources that have been declared as
-            being part of the named resource group. Note that these resources
-            will still exist in their respective ResourceManager classes, but
-            will be in an unloaded state. If you want to remove them entirely,
-            you should use clearResourceGroup or destroyResourceGroup.
-        @param name The name to of the resource group to unload.
         @param reloadableOnly If set to true, only unload the resource that is
             reloadable. Because some resources isn't reloadable, they will be
             unloaded but can't load them later. Thus, you might not want to them
@@ -416,7 +405,21 @@ namespace Ogre {
             manually later.
             @see Resource::isReloadable for resource is reloadable.
         */
-        void unloadResourceGroup(const String& name, bool reloadableOnly);
+        void unloadResourceGroup(const String& name, bool reloadableOnly = true);
+
+		/** Unload all resources which are not referenced by any other object.
+		@remarks
+			This method behaves like unloadResourceGroup, except that it only
+			unloads resources in the group which are not in use, ie not referenced
+			by other objects. This allows you to free up some memory selectively
+			whilst still keeping the group around (and the resources present,
+			just not using much memory).
+		@param name The name of the group to check for unreferenced resources
+		@param reloadableOnly If true (the default), only unloads resources
+			which can be subsequently automatically reloaded
+		*/
+		void unloadUnreferencedResourcesInGroup(const String& name, 
+			bool reloadableOnly = true);
 
 		/** Clears a resource group. 
 		@remarks
@@ -435,7 +438,6 @@ namespace Ogre {
         @param name The name of the resource group to destroy.
         */
         void destroyResourceGroup(const String& name);
-
 
         /** Method to add a resource location to for a given resource group. 
         @remarks
@@ -564,11 +566,19 @@ namespace Ogre {
 			find() method if you need to.
 		@param groupName The name of the resource group; this determines which 
 			locations are searched. 
+		@param searchGroupsIfNotFound If true, if the resource is not found in 
+			the group specified, other groups will be searched. If you're
+			loading a real Resource using this option, you <strong>must</strong>
+			also provide the resourceBeingLoaded parameter to enable the 
+			group membership to be changed
+		@param resourceBeingLoaded Optional pointer to the resource being 
+			loaded, which you should supply if you want
 		@returns Shared pointer to data stream containing the data, will be
 			destroyed automatically when no longer referenced
 		*/
 		DataStreamPtr openResource(const String& resourceName, 
-			const String& groupName = DEFAULT_RESOURCE_GROUP_NAME);
+			const String& groupName = DEFAULT_RESOURCE_GROUP_NAME,
+			bool searchGroupsIfNotFound = true, Resource* resourceBeingLoaded = 0);
 
 		/** Open all resources matching a given pattern (which can contain
 			the character '*' as a wildcard), and return a collection of 

@@ -461,7 +461,8 @@ namespace Ogre
 		{
 			// otherwise try resource system
 			DataStreamPtr stream = 
-				ResourceGroupManager::getSingleton().openResource(filename);
+				ResourceGroupManager::getSingleton().openResource(filename, 
+					ResourceGroupManager::getSingleton().getWorldResourceGroupName());
 				
 			setWorldGeometry(stream);
 		}
