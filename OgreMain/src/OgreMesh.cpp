@@ -432,6 +432,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Mesh::_initAnimationState(AnimationStateSet* animSet)
     {
+		// Animation states for skeletal animation
 		if (hasSkeleton())
 		{
 			// Delegate to Skeleton
@@ -452,11 +453,20 @@ namespace Ogre {
 			}
 		}
 
+		// Animation states for vertex animation
 		for (AnimationList::iterator i = mAnimationsList.begin(); 
 			i != mAnimationsList.end(); ++i)
 		{
-			animSet->createAnimationState(i->second->getName(), 0.0, 
-				i->second->getLength());
+			// Only create a new animation state if it doesn't exist
+			// We can have the same named animation in both skeletal and vertex
+			// with a shared animation state affecting both, for combined effects
+			// The animations should be the same length if this feature is used!
+			if (!animSet->hasAnimationState(i->second->getName()))
+			{
+				animSet->createAnimationState(i->second->getName(), 0.0, 
+					i->second->getLength());
+			}
+
 		}
 
     }
