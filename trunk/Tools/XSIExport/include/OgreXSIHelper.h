@@ -196,21 +196,18 @@ namespace Ogre {
 	typedef std::map<String,DeformerEntry*> DeformerMap;
 
 
-	/** An entry for an animation; allows the userto split the timeline into 
+	/** An entry for animation; allows the userto split the timeline into 
 		multiple separate animations. 
 	*/
 	struct AnimationEntry
 	{
 		String animationName;
-		long startFrame; // -1 if 'from start'
-		long endFrame; // -1 if 'to end'
-		XSI::ActionSource source;
-		std::set<long> frames;
-		bool ikSample;
-		double ikSampleInterval;
+		long startFrame; 
+		long endFrame; 
+		double ikSampleInterval; // skeletal only
 	};
-	/// Map from deformer name to deformer entry
-	typedef std::vector<AnimationEntry> AnimationList;
+	/// List of animations
+	typedef std::list<AnimationEntry> AnimationList;
 
 	/** Record of an XSI GL shader material. */
 	struct MaterialEntry
