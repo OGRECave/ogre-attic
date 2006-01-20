@@ -46,6 +46,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_gridwidget.h>
 #include <xsi_mixer.h>
 #include <xsi_source.h>
+#include <xsi_timecontrol.h>
 
 #include "OgreXSIMeshExporter.h"
 #include "OgreXSISkeletonExporter.h"
@@ -63,7 +64,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 using namespace XSI;
 
-#define OGRE_XSI_EXPORTER_VERSION L"1.0.6a"
+#define OGRE_XSI_EXPORTER_VERSION L"1.1.0"
+
+// define columns of animations list
+#define ANIMATION_LIST_EXPORT_COL 0
+#define ANIMATION_LIST_NAME_COL 1
+#define ANIMATION_LIST_START_COL 2
+#define ANIMATION_LIST_END_COL 3
+#define ANIMATION_LIST_IKFREQ_COL 4
 
 /** This is the main file for the OGRE XSI plugin.
 The purpose of the methods in this file are as follows:
@@ -169,6 +177,7 @@ XSI::CStatus OgreMeshExportCommand_Init( const XSI::CRef& context )
 	args.Add( L"calculateEdgeLists", L"true" );
     args.Add( L"calculateTangents", L"false" );
     args.Add( L"exportSkeleton", L"true" );
+	args.Add( L"exportVertexAnimation", L"true" );
     args.Add( L"targetSkeletonFileName", L"c:/default.skeleton" );
     args.Add( L"fps", L"24" );
     args.Add( L"animationList", L"" ); 
@@ -321,6 +330,8 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 
 			param = prop.GetParameters().GetItem( L"exportSkeleton" );
 			bool exportSkeleton = param.GetValue();
+			param = prop.GetParameters().GetItem( L"exportVertexAnimation" );
+			bool exportVertexAnimation = param.GetValue();
 			param = prop.GetParameters().GetItem( L"exportMaterials" );
 			bool exportMaterials = param.GetValue();
 			param = prop.GetParameters().GetItem( L"copyTextures" );
@@ -351,7 +362,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 			param = prop.GetParameters().GetItem( L"materialPrefix" );
 			Ogre::String materialPrefix = XSItoOgre(param.GetValue());
 
-			if (exportSkeleton)
+			if (exportSkeleton || exportVertexAnimation)
 			{
 				param = prop.GetParameters().GetItem( L"targetSkeletonFileName" );
 				Ogre::String skeletonFileName = XSItoOgre(param.GetValue());
@@ -373,53 +384,17 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 				param = prop.GetParameters().GetItem( L"animationList" );
 				GridData gd(param.GetValue());
 				Ogre::AnimationList selAnimList;
-				bool anyIKSample = false;
 				for (int a = 0; a < gd.GetRowCount(); ++a)
 				{
-					if (gd.GetCell(1, a) == true)
+					if (gd.GetCell(ANIMATION_LIST_EXPORT_COL, a) == true)
 					{
-						Ogre::String name = XSItoOgre(gd.GetCell(0, a));
-
-						for (Ogre::AnimationList::iterator ai = animList.begin(); ai != animList.end(); ++ai)
-						{
-							if (ai->animationName == name)
-							{
-								if (gd.GetCell(2, a))
-								{
-									// IK sample
-									ai->ikSample = true;
-									ai->ikSampleInterval = gd.GetCell(3, a);
-									anyIKSample = true;
-
-								}
-								else
-								{
-									ai->ikSample = false;
-								}
-								selAnimList.push_back(*ai);
-								break;
-							}
-						}
+						Ogre::AnimationEntry ae;
+						ae.animationName = XSItoOgre(gd.GetCell(ANIMATION_LIST_NAME_COL, a));
+						ae.ikSampleInterval = gd.GetCell(ANIMATION_LIST_IKFREQ_COL, a);
+						ae.startFrame = gd.GetCell(ANIMATION_LIST_START_COL, a);
+						ae.endFrame = gd.GetCell(ANIMATION_LIST_END_COL, a);
+						selAnimList.push_back(ae);
 					}
-				}
-
-				// Warn about effect of IK sampling
-				if (anyIKSample)
-				{
-					long btn;
-					CStatus ret = app.GetUIToolkit().MsgBox(
-						L"You have chosen to sample one or more of your "
-						L"animations (in order to convert IK or other "
-						L"constraint-based animation). \n\n This will require "
-						L"all animation which has not yet been stored in an "
-						L"action to be removed, and the mixer to be cleared. "
-						L"Is this OK?", 
-						siMsgYesNo,
-						L"Animation sampling required",
-						btn);
-					if (btn != 6)
-						return CStatus::Fail;
-					
 				}
 
 				// Truncate the skeleton filename to just the name (no path)
@@ -572,6 +547,10 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
         L"exportSkeleton",CValue::siBool, caps, 
         L"Export Skeleton", L"", 
         CValue(true), param) ;	
+	prop.AddParameter(	
+		L"exportVertexAnimation",CValue::siBool, caps, 
+		L"Export Vertex Animation", L"", 
+		CValue(true), param) ;	
     prop.AddParameter(	
         L"targetSkeletonFileName",CValue::siString, caps, 
         L"Skeleton Filename", L"", 
@@ -611,8 +590,8 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 {
 	// XSI will call this to define the visual appearance of the CustomProperty
 	// The layout is shared between all instances of the CustomProperty
-	// and is cached.  You can force the code to re-execute by using the 
-	// XSIUtils.Refresh feature.
+	// and is CACHED!!!.  You can force the code to re-execute by using the 
+	// XSIUtils.Reload feature, or right-clicking the property page and selecting 'Refresh'
 
 	PPGLayout oLayout = Context( in_Ctx ).GetSource() ;
 	PPGItem item ;
@@ -628,12 +607,6 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
     item.PutAttribute( siUINoLabel, true );
 	oLayout.EndGroup();
 	
-	/*
-    item.PutWidthPercentage(80);
-    item = oLayout.AddButton(L"Refresh", L"Refresh");
-    item.PutWidthPercentage(1) ;
-	*/
-
 	oLayout.AddGroup(L"Mesh");
     item = oLayout.AddItem(L"targetMeshFileName", L"Target", siControlFilePath);
 	item.PutAttribute( siUINoLabel, true );
@@ -670,16 +643,29 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 	// Skeleton Tab
 	oLayout.AddTab(L"Animation");
 
+	item = oLayout.AddItem(L"exportVertexAnimation");
 	item = oLayout.AddItem(L"exportSkeleton");
 	item = oLayout.AddItem(L"targetSkeletonFileName", L"Target", siControlFilePath);
 	item.PutAttribute( siUINoLabel, true );
 	item.PutAttribute( siUIFileFilter, L"OGRE Skeleton format (*.skeleton)|*.skeleton|All Files (*.*)|*.*||" );
 	item = oLayout.AddItem(L"fps");
+
+	oLayout.AddGroup(L"Animations");
 	item = oLayout.AddItem(L"animationList", L"Animations", siControlGrid);
-	item.PutAttribute(siUIGridColumnWidths, L"0:120:60:90:130");
+	item.PutAttribute( siUINoLabel, true );
+	item.PutAttribute(siUIGridColumnWidths, L"0:15:250:30:30:75");
 	item.PutAttribute(siUIGridHideRowHeader, true);
-	// Make animatino name read-only
-	item.PutAttribute(siUIGridReadOnlyColumns, L"1:0:0:0");
+
+	oLayout.AddRow();
+	item = oLayout.AddButton(L"refreshAnimation", L"Refresh");
+	item = oLayout.AddButton(L"addAnimation", L"Add");
+	item = oLayout.AddButton(L"removeAnimation", L"Remove");
+	oLayout.EndRow();
+	oLayout.EndGroup();
+
+
+	// Make animatino name read-only (not any more)
+	//item.PutAttribute(siUIGridReadOnlyColumns, L"1:0:0:0");
 
 
 
@@ -730,70 +716,42 @@ bool hasSkeleton(Selection& sel, bool recurse)
 	return false;
 }
 
-bool isAnimationIK(XSI::ActionSource& source)
-{
-	// Iterate over the animation items, and return true if any of them
-	// are effectors. 
-	Application app;
-	CRefArray items = source.GetItems();
-	for (int i = 0; i < items.GetCount(); ++i)
-	{
-		XSI::AnimationSourceItem item = items[i];
 
-		// Check the target
-		Ogre::String target = XSItoOgre(item.GetTarget());
-		size_t firstDotPos = target.find_first_of(".");
-		if (firstDotPos != Ogre::String::npos)
-		{
-			Ogre::String targetName = target.substr(0, firstDotPos);
-			// Find object
-			X3DObject targObj = app.GetActiveSceneRoot().FindChild(
-				OgretoXSI(targetName), L"", CStringArray());
-			if (targObj.IsValid())
-			{
-				if (targObj.IsA(siChainEffectorID))
-					return true;
-			}
-		}
-	}
-
-	return false;
-
-
-}
 
 void findAnimations(XSI::Model& model, Ogre::AnimationList& animList)
 {
-	XSI::CRefArray sources = model.GetSources();
-	for (int s = 0; s < sources.GetCount(); ++s)
+
+	if (model.HasMixer())
 	{
-		XSI::Source src(sources[s]);
-		if (src.IsA(siActionSourceID))
+		// Scan the mixer for all clips
+		// At this point we're only interested in the top-level and do not
+		// cascade into all clip containers, since we're interested in the
+		// top-level timeline splits
+		XSI::Mixer mixer = model.GetMixer();
+		CRefArray clips = mixer.GetClips();
+		for (int c = 0; c < clips.GetCount(); ++c)
 		{
-			bool add = true;
-			Ogre::String name = XSItoOgre(src.GetName());
-			for (Ogre::AnimationList::iterator e = animList.begin(); e != animList.end(); ++e)
+			XSI::Clip clip(clips[c]);
+			XSI::CString clipType = clip.GetType();
+			if (clipType == siClipAnimationType ||
+				clipType == siClipShapeType  ||
+				clipType == siClipAnimCompoundType || // nested fcurves
+				clipType == siClipShapeCompoundType) // nested shape
 			{
-				if (e->animationName == name)
-				{
-					add = false;
-					break;
-				}
-			}
-			if (add)
-			{
+				XSI::TimeControl timeControl = clip.GetTimeControl();
 				Ogre::AnimationEntry anim;
-				anim.animationName = name;
-				anim.startFrame = -1;
-				anim.endFrame = -1;
-				anim.source = ActionSource(src);
-				// default to sampling
-				anim.ikSample = true;
+				anim.animationName = XSItoOgre(clip.GetName());
+				anim.startFrame = timeControl.GetStartOffset();
+				long length = (1.0 / timeControl.GetScale()) * 
+					(timeControl.GetClipOut() - timeControl.GetClipIn() + 1);
+				anim.endFrame = anim.startFrame + length - 1;
 				anim.ikSampleInterval = 5.0f;
 				animList.push_back(anim);
-			}
-		}
 
+			}
+
+		}
+		
 	}
 
 }
@@ -812,15 +770,73 @@ void getAnimations(XSI::Model& root, Ogre::AnimationList& animList)
 		findAnimations(child, animList);
 	}
 
+	// Now iterate over the list and eliminate overlapping elements
+	for (Ogre::AnimationList::iterator i = animList.begin();
+		i != animList.end(); ++i)
+	{
+		Ogre::AnimationList::iterator j = i;
+		++j;
+		for (; j != animList.end();)
+		{
+			bool remove = false;
+			if (j->endFrame >= i->startFrame)
+			{
+				// Merge this one into i, extend i's start to j
+				remove = true;
+				i->startFrame = j->startFrame;
+			}
+			if (j->startFrame <= i->endFrame)
+			{
+				remove = true;
+				i->endFrame = j->endFrame;
+			}
+			if (remove)
+			{
+				j = animList.erase(j);
+			}
+			else
+			{
+				++j;
+			}
+		}
+	}
+
+
 }
 
-
-struct AnimSetting
+void populateAnimationsList(XSI::GridData gd)
 {
-	bool toexport;
-	bool ik;
-	double ikSampleInterval;
-};
+	// 5 columns
+	gd.PutColumnCount(5);
+
+	// Export column is a check box
+	gd.PutColumnType(ANIMATION_LIST_EXPORT_COL, siColumnBool);
+
+	// Labels
+	gd.PutColumnLabel(ANIMATION_LIST_EXPORT_COL, L"");
+	gd.PutColumnLabel(ANIMATION_LIST_NAME_COL, L"Name");
+	gd.PutColumnLabel(ANIMATION_LIST_START_COL, L"Start");
+	gd.PutColumnLabel(ANIMATION_LIST_END_COL, L"End");
+	gd.PutColumnLabel(ANIMATION_LIST_IKFREQ_COL, L"Sample Freq");
+
+
+	Application app;
+	Model appRoot(app.GetActiveSceneRoot());
+	getAnimations(appRoot, animList);
+	gd.PutRowCount(animList.size());
+	long row = 0;
+	for (Ogre::AnimationList::iterator a = animList.begin(); 
+			a != animList.end(); ++a, ++row)
+	{
+		gd.PutCell(ANIMATION_LIST_NAME_COL, row, OgretoXSI(a->animationName));
+		// default to export
+		gd.PutCell(ANIMATION_LIST_EXPORT_COL, row, true);
+		gd.PutCell(ANIMATION_LIST_START_COL, row, a->startFrame);
+		gd.PutCell(ANIMATION_LIST_END_COL, row, a->endFrame);
+		gd.PutCell(ANIMATION_LIST_IKFREQ_COL, row, a->ikSampleInterval);
+	}
+}
+
 
 #ifdef unix
 extern "C" 
@@ -864,17 +880,16 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
         // Make the selection read-only
 		objectNameParam.PutCapabilityFlag( siReadOnly, true );
 
-        // enable / disable the skeleton export based on envelopes
+		// default the frame rate to that selected in animation panel
+		prop.PutParameterValue(L"fps", CTime().GetFrameRate());
+
+		// enable / disable the skeleton export based on envelopes
 		if (!hasSkeleton(sel, true))
 		{
 			prop.PutParameterValue(L"exportSkeleton", false);
 			Parameter param = prop.GetParameters().GetItem(L"exportSkeleton");
 			param.PutCapabilityFlag(siReadOnly, true);
 			param = prop.GetParameters().GetItem(L"targetSkeletonFileName");
-			param.PutCapabilityFlag(siReadOnly, true);
-			param = prop.GetParameters().GetItem(L"fps");
-			param.PutCapabilityFlag(siReadOnly, true);
-			param = prop.GetParameters().GetItem(L"animationList");
 			param.PutCapabilityFlag(siReadOnly, true);
 			hasSkel = false;
 		}
@@ -885,96 +900,94 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 			param.PutCapabilityFlag(siReadOnly, false);
 			param = prop.GetParameters().GetItem(L"targetSkeletonFileName");
 			param.PutCapabilityFlag(siReadOnly, false);
-			param = prop.GetParameters().GetItem(L"fps");
-			param.PutCapabilityFlag(siReadOnly, false);
-			// default the frame rate to that selected in animation panel
-			prop.PutParameterValue(L"fps", CTime().GetFrameRate());
-			param = prop.GetParameters().GetItem(L"animationList");
-			param.PutCapabilityFlag(siReadOnly, false);
-			// value of param is a griddata object
-			// initialise it with all animations but try to remember previous values
-			GridData gd(param.GetValue());
-			// Store the existing settings
-			std::map<Ogre::String,AnimSetting> rememberedAnimations;
-			int row;
-			for (row = 0; row < gd.GetRowCount(); ++row)
-			{
-				AnimSetting s;
-				s.toexport = gd.GetCell(1, row);
-				s.ik = gd.GetCell(2, row);
-				s.ikSampleInterval = gd.GetCell(3, row);
-				Ogre::String animName = XSItoOgre(gd.GetCell(0, row));
-				rememberedAnimations[animName] = s;
-			}
-
-			// Second & third column is check box			
-			gd.PutColumnType(1, siColumnBool);
-			gd.PutColumnType(2, siColumnBool);
-			// Name is not adjustable
-
-
-			gd.PutColumnCount(4);
-			gd.PutColumnLabel(0, L"Name");
-			gd.PutColumnLabel(1, L"Export?");
-			gd.PutColumnLabel(2, L"Sample?");
-			gd.PutColumnLabel(3, L"Sample Interval");
-
-
-			XSI::Model appRoot(app.GetActiveSceneRoot());
-			getAnimations(appRoot, animList);
-			gd.PutRowCount(animList.size());
-			row = 0;
-			for (Ogre::AnimationList::iterator a = animList.begin(); a != animList.end(); ++a, ++row)
-			{
-				gd.PutCell(0, row, OgretoXSI(a->animationName));
-				// do we have a setting for this already?
-				std::map<Ogre::String, AnimSetting>::iterator ra = 
-					rememberedAnimations.find(a->animationName);
-
-				if (ra != rememberedAnimations.end())
-				{
-					AnimSetting& s = ra->second;
-
-					gd.PutCell(1, row, s.toexport);
-					gd.PutCell(2, row, s.ik);
-					gd.PutCell(3, row, s.ikSampleInterval);
-				}
-				else
-				{
-					// default to true
-					gd.PutCell(1, row, true);
-					gd.PutCell(2, row, a->ikSample);
-					gd.PutCell(3, row, a->ikSampleInterval);
-				}
-			}
-			
 			hasSkel = true;
 		}
+		// value of param is a griddata object
+		// initialise it with all detected animations if it's empty
+		Parameter param = prop.GetParameters().GetItem(L"animationList");
+		GridData gd(param.GetValue());
+		if (gd.GetRowCount() == 0 || gd.GetCell(0,0) == L"No data has been set")
+		{
+			populateAnimationsList(gd);
+		}
+			
 	}
     // On clicking a button
 	else if ( eventID == PPGEventContext::siButtonClicked )
 	{
 		CValue buttonPressed = ctx.GetAttribute( L"Button" );	
-        // Clicked the refresh button
-		/*
-		if ( buttonPressed.GetAsText() == L"Refresh" )
+        // Clicked the refresh animation button
+		if ( buttonPressed.GetAsText() == L"refreshAnimation" )
 		{
-			objectNameParam.PutCapabilityFlag( siReadOnly, false );
-			// Pre-populate object with currently selected item
-			Selection sel(app.GetSelection());
-			CString val;
-			for (int i = 0; i < sel.GetCount(); ++i)
+			long btn;
+			CStatus ret = app.GetUIToolkit().MsgBox(
+				L"Are you sure you want to lose the current contents "
+				L"of the animations list and to refresh it from mixers?",
+				siMsgYesNo,
+				L"Confirm",
+				btn);
+			if (btn == 6)
 			{
-				val += SIObject(sel[0]).GetName();
-				if (i < sel.GetCount() - 1)
-					val += L", ";
+				Parameter param = prop.GetParameters().GetItem(L"animationList");
+				GridData gd(param.GetValue());
+				populateAnimationsList(gd);
 			}
-			prop.PutParameterValue(L"objectName", val);
-			prop.PutParameterValue(L"objects", CValue(CRefArray(sel.GetArray())));
-			// Make the selection read-only
-			objectNameParam.PutCapabilityFlag( siReadOnly, true );
+			
 		}
-		*/
+		else if( buttonPressed.GetAsText() == L"addAnimation" )
+		{
+			Parameter param = prop.GetParameters().GetItem(L"animationList");
+			GridData gd(param.GetValue());
+
+			gd.PutRowCount(gd.GetRowCount() + 1);
+			// default export to true and sample rate
+			gd.PutCell(ANIMATION_LIST_EXPORT_COL, gd.GetRowCount()-1, true);
+			gd.PutCell(ANIMATION_LIST_IKFREQ_COL, gd.GetRowCount()-1, 5);
+		}
+		else if( buttonPressed.GetAsText() == L"removeAnimation" )
+		{
+			Parameter param = prop.GetParameters().GetItem(L"animationList");
+			GridData gd(param.GetValue());
+			GridWidget gw = gd.GetGridWidget();
+
+			// cell-level selection, so have to search for selection in every cell
+			long selRow = -1;
+			for (long row = 0; row < gd.GetRowCount() && selRow == -1; ++row)
+			{
+				for (long col = 0; col < gd.GetColumnCount() && selRow == -1; ++col)
+				{
+					if (gw.IsCellSelected(col, row))
+					{
+						selRow = row;
+					}
+				}
+			}
+
+			if (selRow != -1)
+			{
+				long btn;
+				CStatus ret = app.GetUIToolkit().MsgBox(
+					L"Are you sure you want to remove this animation entry?",
+					siMsgYesNo,
+					L"Confirm",
+					btn);
+				if (btn == 6)
+				{
+					// Move all the contents up one
+					for (long row = selRow; row < gd.GetRowCount(); ++row)
+					{
+						for (long col = 0; col < gd.GetColumnCount(); ++col)
+						{
+							gd.PutCell(col, row, gd.GetCell(col, row+1));
+						}
+					}
+					// remove last row
+					gd.PutRowCount(gd.GetRowCount() - 1);
+				}
+
+			}
+
+		}
 	}
     // Changed a parameter
 	else if ( eventID == PPGEventContext::siParameterChange )
