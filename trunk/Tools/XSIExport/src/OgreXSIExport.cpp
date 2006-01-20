@@ -942,7 +942,7 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 			gd.PutRowCount(gd.GetRowCount() + 1);
 			// default export to true and sample rate
 			gd.PutCell(ANIMATION_LIST_EXPORT_COL, gd.GetRowCount()-1, true);
-			gd.PutCell(ANIMATION_LIST_IKFREQ_COL, gd.GetRowCount()-1, 5);
+			gd.PutCell(ANIMATION_LIST_IKFREQ_COL, gd.GetRowCount()-1, 5L);
 		}
 		else if( buttonPressed.GetAsText() == L"removeAnimation" )
 		{
