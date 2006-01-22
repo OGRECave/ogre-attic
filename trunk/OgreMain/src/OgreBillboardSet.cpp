@@ -328,6 +328,34 @@ namespace Ogre {
 		MovableObject::_notifyCurrentCamera(cam);
 
         mCurrentCamera = cam;
+
+        // Calculate camera orientation and direction if really required.
+        if ((!mExternalData && mSortingEnabled) ||
+            (!mPointRendering &&
+             (mBillboardType == BBT_POINT ||
+              mBillboardType == BBT_ORIENTED_SELF ||
+              mBillboardType == BBT_ORIENTED_COMMON)))
+        {
+			// Calculate camera orientation
+			mCamQ = mCurrentCamera->getDerivedOrientation();
+			if (mCurrentCamera->isReflected())
+			{
+				Vector3 dir = mCamQ * Vector3::NEGATIVE_UNIT_Z;
+				Vector3 rdir = dir.reflect(mCurrentCamera->getReflectionPlane().normal);
+				mCamQ = dir.getRotationTo(rdir) * mCamQ;
+			}
+
+			if (!mWorldSpace)
+			{
+				// Default behaviour is that billboards are in local node space
+				// so orientation of camera (in world space) must be reverse-transformed 
+				// into node space
+				mCamQ = mParentNode->_getDerivedOrientation().UnitInverse() * mCamQ;
+			}
+
+			// Camera direction points down -Z
+			mCamDir = mCamQ * Vector3::NEGATIVE_UNIT_Z;
+        }
     }
     //-----------------------------------------------------------------------
     void BillboardSet::beginBillboards(void)
@@ -362,26 +390,6 @@ namespace Ogre {
 
 			// Get offsets for origin type
 			getParametricOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff);
-
-			// Calculate camera orientation
-			mCamQ = mCurrentCamera->getDerivedOrientation();
-			if (mCurrentCamera->isReflected())
-			{
-				Vector3 dir = mCamQ * Vector3::NEGATIVE_UNIT_Z;
-				Vector3 rdir = dir.reflect(mCurrentCamera->getReflectionPlane().normal);
-				mCamQ = dir.getRotationTo(rdir) * mCamQ;
-			}
-
-			if (!mWorldSpace)
-			{
-				// Default behaviour is that billboards are in local node space
-				// so orientation of camera (in world space) must be reverse-transformed 
-				// into node space
-				mCamQ = mParentNode->_getDerivedOrientation().Inverse() * mCamQ;
-			}
-
-			// Camera direction points down -Z
-			mCamDir = mCamQ * Vector3::NEGATIVE_UNIT_Z;
 
 			// Generate axes etc up-front if not oriented per-billboard
 			if (mBillboardType != BBT_ORIENTED_SELF &&
@@ -698,7 +706,12 @@ namespace Ogre {
         offset += VertexElement::getTypeSize(VET_FLOAT3);
         decl->addElement(0, offset, VET_COLOUR, VES_DIFFUSE);
         offset += VertexElement::getTypeSize(VET_COLOUR);
-        decl->addElement(0, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+        // Texture coords irrelevant when enabled point rendering (generated
+        // in point sprite mode, and unused in standard point mode)
+        if (!mPointRendering)
+        {
+            decl->addElement(0, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+        }
 
         mMainBuf = 
             HardwareBufferManager::getSingleton().createVertexBuffer(
@@ -1019,10 +1032,7 @@ namespace Ogre {
             *pCol++ = colour;
 			// Update lock pointer
 			mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
-            // Texture coords irrelevant (generated in point sprite mode, 
-			// and unused in standard point mode)
-            mLockPtr += 2;
-
+            // No texture coords in point rendering
 		}
 		else if (mAllDefaultRotation || bb.mRotation == Radian(0))
         {
