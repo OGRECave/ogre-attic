@@ -2754,6 +2754,7 @@ protected:
 		l->setType(Light::LT_DIRECTIONAL);
 		l->setDirection(dir);
 
+		/*
 		MeshPtr mesh = MeshManager::getSingleton().load("facial.mesh", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		Animation* anim = mesh->createAnimation("pose", 20);
 		VertexAnimationTrack* track = anim->createVertexTrack(4, VAT_POSE);
@@ -2773,12 +2774,12 @@ protected:
 		kf->addPoseReference(6, 1.0f);
 		
 		kf = track->createVertexPoseKeyFrame(20);
-
+		*/
 
 		// software pose
 		Entity* e = mSceneMgr->createEntity("test2", "facial.mesh");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(150,0,0))->attachObject(e);
-		AnimationState* animState = e->getAnimationState("pose");
+		AnimationState* animState = e->getAnimationState("Speak");
 		animState->setEnabled(true);
 		animState->setWeight(1.0f);
 		mAnimStateList.push_back(animState);
@@ -3232,6 +3233,47 @@ protected:
 		pip->setRenderQueueInvocationSequenceName("pip");
 	}
 
+	void testViewportNoShadows(ShadowTechnique shadowTech)
+	{
+		mSceneMgr->setShadowTechnique(shadowTech);
+
+		// Setup lighting
+		mSceneMgr->setAmbientLight(ColourValue(0.2, 0.2, 0.2));
+		Light* light = mSceneMgr->createLight("MainLight");
+		light->setType(Light::LT_DIRECTIONAL);
+		Vector3 dir(-1, -1, 0.5);
+		dir.normalise();
+		light->setDirection(dir);
+
+		// Create a skydome
+		//mSceneMgr->setSkyDome(true, "Examples/CloudySky", 5, 8);
+
+		// Create a floor plane mesh
+		Plane plane(Vector3::UNIT_Y, 0.0);
+		MeshManager::getSingleton().createPlane(
+			"FloorPlane", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+			plane, 200000, 200000, 20, 20, true, 1, 500, 500, Vector3::UNIT_Z);
+
+
+		// Add a floor to the scene
+		Entity* entity = mSceneMgr->createEntity("floor", "FloorPlane");
+		entity->setMaterialName("Examples/RustySteel");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(entity);
+		entity->setCastShadows(false);
+
+		// Add the mandatory ogre head
+		entity = mSceneMgr->createEntity("head", "ogrehead.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0.0, 10.0, 0.0))->attachObject(entity);
+
+		// Position and orient the camera
+		mCamera->setPosition(-100.0, 50.0, 90.0);
+		mCamera->lookAt(0.0, 10.0, -35.0);
+
+		// Add an additional viewport on top of the other one
+		Viewport* pip = mWindow->addViewport(mCamera, 1, 0.7, 0.0, 0.3, 0.3);
+		pip->setShadowsEnabled(false);
+
+	}
     // Just override the mandatory create scene method
     void createScene(void)
     {
@@ -3289,14 +3331,15 @@ protected:
 		//testRadixSort();
 		//testMorphAnimation();
 		//testPoseAnimation();
-		//testPoseAnimation2();
+		testPoseAnimation2();
 		//testBug();
 		//testManualObjectNonIndexed();
 		//testManualObjectIndexed();
 		//testCustomProjectionMatrix();
 		//testPointSprites();
 		//testFallbackResourceGroup();
-		testSuppressedShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
+		//testSuppressedShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
+		//testViewportNoShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 
 		
     }

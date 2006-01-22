@@ -333,6 +333,9 @@ namespace Ogre {
         static InterpolationMode msDefaultInterpolationMode;
         static RotationInterpolationMode msDefaultRotationInterpolationMode;
 
+		void optimiseNodeTracks(void);
+		void optimiseVertexTracks(void);
+
         
     };
 

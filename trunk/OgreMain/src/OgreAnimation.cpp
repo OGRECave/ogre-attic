@@ -410,11 +410,18 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	void Animation::optimise(void)
 	{
+		optimiseNodeTracks();
+		optimiseVertexTracks();
+		
+	}
+	//-----------------------------------------------------------------------
+	void Animation::optimiseNodeTracks(void)
+	{
 		// Iterate over the node tracks and identify those with no useful keyframes
 		std::list<unsigned short> tracksToDestroy;
-        NodeTrackList::iterator i;
-        for (i = mNodeTrackList.begin(); i != mNodeTrackList.end(); ++i)
-        {
+		NodeTrackList::iterator i;
+		for (i = mNodeTrackList.begin(); i != mNodeTrackList.end(); ++i)
+		{
 			NodeAnimationTrack* track = i->second;
 			if (!track->hasNonZeroKeyFrames())
 			{
@@ -425,16 +432,44 @@ namespace Ogre {
 			{
 				track->optimise();
 			}
-			
+
 		}
-		
+
 		// Now destroy the tracks we marked for death
 		for(std::list<unsigned short>::iterator h = tracksToDestroy.begin();
 			h != tracksToDestroy.end(); ++h)
 		{
 			destroyNodeTrack(*h);
 		}
-		
+	}
+	//-----------------------------------------------------------------------
+	void Animation::optimiseVertexTracks(void)
+	{
+		// Iterate over the node tracks and identify those with no useful keyframes
+		std::list<unsigned short> tracksToDestroy;
+		VertexTrackList::iterator i;
+		for (i = mVertexTrackList.begin(); i != mVertexTrackList.end(); ++i)
+		{
+			VertexAnimationTrack* track = i->second;
+			if (!track->hasNonZeroKeyFrames())
+			{
+				// mark the entire track for destruction
+				tracksToDestroy.push_back(i->first);
+			}
+			else
+			{
+				track->optimise();
+			}
+
+		}
+
+		// Now destroy the tracks we marked for death
+		for(std::list<unsigned short>::iterator h = tracksToDestroy.begin();
+			h != tracksToDestroy.end(); ++h)
+		{
+			destroyVertexTrack(*h);
+		}
+
 	}
 
 }
