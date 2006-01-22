@@ -2230,8 +2230,7 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
     }
 
     // Issue view / projection changes if any
-	if (!mSuppressRenderStateChanges)
-		useRenderableViewProjMode(rend);
+	useRenderableViewProjMode(rend);
 
     // Reissue any texture gen settings which are dependent on view matrix
     Pass::ConstTextureUnitStateIterator texIter =  pass->getTextureUnitStateIterator();
