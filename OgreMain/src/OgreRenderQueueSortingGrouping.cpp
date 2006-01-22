@@ -99,7 +99,7 @@ namespace Ogre {
         }
         else
         {
-            if (mSplitNoShadowPasses && 
+            if (mSplitNoShadowPasses &&
 				(!pTech->getParent()->getReceiveShadows() ||
 				rend->getCastsShadows() && mShadowCastersNotReceivers))
             {
@@ -108,7 +108,7 @@ namespace Ogre {
             }
             else
             {
-                if (mSplitPassesByLightingType)
+                if (mSplitPassesByLightingType && mParent->getShadowsEnabled())
                 {
                     addSolidRenderableSplitByLightType(pTech, rend);
                 }
