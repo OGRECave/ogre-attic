@@ -94,7 +94,7 @@ namespace Ogre {
 		/// Get deformer from passed in map or lower case version
 		DeformerEntry* getDeformer(const String& name, DeformerMap& deformers);
 		void sampleAllBones(DeformerMap& deformers, 
-			std::vector<NodeAnimationTrack*> deformerTracks, double frame, float fps);
+			std::vector<NodeAnimationTrack*> deformerTracks, double frame, Real time, float fps);
 		void establishInitialTransforms(DeformerMap& deformers);
 
 	};

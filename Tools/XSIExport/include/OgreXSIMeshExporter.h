@@ -40,6 +40,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_facet.h>
 #include <xsi_point.h>
 #include <xsi_polygonmesh.h>
+#include <xsi_shapekey.h>
+#include <xsi_clip.h>
+#include <xsi_clipcontainer.h>
 
 
 namespace Ogre {
@@ -71,6 +74,7 @@ namespace Ogre {
 		@param exportChildren Whether to cascade down each objects children
         @param edgeLists Whether to calculate edge lists
         @param tangents Whether to calculate tangents
+		@param animList List of animations in use (of any type)
 		@param materialPrefix Prefix to give all materials
 		@param lod LOD generation parameters (if required)
 		@param skeletonName Name of the skeleton to link to if animated
@@ -79,7 +83,8 @@ namespace Ogre {
         */
         DeformerMap& exportMesh(const String& fileName, 
             bool mergeSubMeshes, bool exportChildren, bool edgeLists, 
-			bool tangents, const String& materialPrefix = StringUtil::BLANK,
+			bool tangents, bool vertexAnimation, AnimationList& animList, 
+			Real fps, const String& materialPrefix = StringUtil::BLANK,
 			LodData* lod = 0, const String& skeletonName = "");
 
 		/** Get a list of materials which were located during the last call
@@ -164,7 +169,8 @@ namespace Ogre {
 		/// Recursive method to locate PolygonMeshes
 		void findPolygonMeshes(XSI::X3DObject& x3dObj, bool recurse);
 		/// Build the mesh
-		void buildMesh(Mesh* pMesh, bool mergeSubmeshes, bool lookForBoneAssignments);
+		void buildMesh(Mesh* pMesh, bool mergeSubmeshes, bool lookForBoneAssignments, 
+			bool vertexAnimation, AnimationList& animList, Real fps);
 		/// Process a single PolygonMesh into one or more ProtoSubMeshes
 		void processPolygonMesh(Mesh* pMesh, PolygonMeshEntry* pm, bool lookForBoneAssignments, unsigned short progressUpdates);
 		/// Find deformers and bone assignments
@@ -206,11 +212,34 @@ namespace Ogre {
 			Mesh::VertexBoneAssignmentList boneAssignments;
 			/// By-value pose list, build up ready for transfer later
 			std::list<Pose> poseList;
+			/// List of XSI shape keys which are being used in this proto
+			XSI::CRefArray shapeKeys;
 
 			ProtoSubMesh() : lastMeshEntry(0), lastMeshIndexOffset(0) {}
 
 			
 		};
+
+		/// Global shape key to pose mapping
+		struct ShapeKeyToPoseEntry
+		{
+			XSI::CRef shapeKey;
+			size_t poseIndex;
+			size_t targetHandle;
+
+		};
+		typedef std::list<ShapeKeyToPoseEntry> ShapeKeyMapping;
+		ShapeKeyMapping mShapeKeyMapping;
+
+		struct ShapeClipEntry
+		{
+			XSI::Clip clip;
+			ShapeKeyToPoseEntry* keytoPose;
+			long startFrame;
+			long endFrame;
+		};
+		typedef std::list<ShapeClipEntry> ShapeClipList;
+
 		/// List of proto submeshes by material
 		typedef std::map<String, ProtoSubMesh*> ProtoSubMeshList;
 		/// List of proto submeshes by material
@@ -235,6 +264,16 @@ namespace Ogre {
 		void exportProtoSubMeshes(Mesh* pMesh);
         /// Export a single ProtoSubMesh 
         void exportProtoSubMesh(Mesh* pMesh, ProtoSubMesh* proto);
+		/// Export vertex animations
+		void exportAnimations(Mesh* pMesh, AnimationList& animList, Real fps);
+		/// Build a list of all shape clips
+		void buildShapeClipList(ShapeClipList& listToPopulate);
+		/// Build a list of all shape clips in a container
+		void buildShapeClipList(XSI::ClipContainer& container, ShapeClipList& listToPopulate);
+		/// Build a derived clip list for just a specific submesh, and a list of keys to sample
+		void deriveShapeClipAndKeyframeList(ushort targetIndex, 
+			AnimationEntry& animEntry, ShapeClipList& inClipList, 
+			ShapeClipList& outClipList, std::set<long>& keyFrameList);
 		/// Retrieve a ProtoSubMesh for the given material name 
 		/// (creates if required, validates if re-using)
 		ProtoSubMesh* createOrRetrieveProtoSubMesh(const String& materialName,

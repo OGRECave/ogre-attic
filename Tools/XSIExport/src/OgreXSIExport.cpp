@@ -362,28 +362,21 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 			param = prop.GetParameters().GetItem( L"materialPrefix" );
 			Ogre::String materialPrefix = XSItoOgre(param.GetValue());
 
+			param = prop.GetParameters().GetItem( L"fps" );
+			float fps = param.GetValue();
+			if (fps == 0.0f)
+			{
+				OGRE_EXCEPT(Ogre::Exception::ERR_INVALIDPARAMS, 
+					"You must supply a valid value for 'FPS'", 
+					"OGRE Export");
+			}
+
+			Ogre::AnimationList selAnimList;
 			if (exportSkeleton || exportVertexAnimation)
 			{
-				param = prop.GetParameters().GetItem( L"targetSkeletonFileName" );
-				Ogre::String skeletonFileName = XSItoOgre(param.GetValue());
-				if (skeletonFileName.empty())
-				{
-					OGRE_EXCEPT(Ogre::Exception::ERR_INVALIDPARAMS, 
-						"You must supply a skeleton file name", 
-						"OGRE Exporter");
-				}
-				param = prop.GetParameters().GetItem( L"fps" );
-				float fps = param.GetValue();
-				if (fps == 0.0f)
-				{
-					OGRE_EXCEPT(Ogre::Exception::ERR_INVALIDPARAMS, 
-						"You must supply a valid value for 'FPS'", 
-						"OGRE Export");
-				}
 
 				param = prop.GetParameters().GetItem( L"animationList" );
 				GridData gd(param.GetValue());
-				Ogre::AnimationList selAnimList;
 				for (int a = 0; a < gd.GetRowCount(); ++a)
 				{
 					if (gd.GetCell(ANIMATION_LIST_EXPORT_COL, a) == true)
@@ -395,6 +388,18 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 						ae.endFrame = gd.GetCell(ANIMATION_LIST_END_COL, a);
 						selAnimList.push_back(ae);
 					}
+				}
+			}
+
+			if (exportSkeleton)
+			{
+				param = prop.GetParameters().GetItem( L"targetSkeletonFileName" );
+				Ogre::String skeletonFileName = XSItoOgre(param.GetValue());
+				if (skeletonFileName.empty())
+				{
+					OGRE_EXCEPT(Ogre::Exception::ERR_INVALIDPARAMS, 
+						"You must supply a skeleton file name", 
+						"OGRE Exporter");
 				}
 
 				// Truncate the skeleton filename to just the name (no path)
@@ -413,19 +418,18 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 				// Do the mesh
 				Ogre::DeformerMap& deformers = 
 					meshExporter.exportMesh(meshFileName, mergeSubmeshes, 
-						exportChildren, edgeLists, tangents, materialPrefix,
+						exportChildren, edgeLists, tangents, exportVertexAnimation,
+						selAnimList, fps, materialPrefix,
 						lodData, skelName);
 				// do the skeleton
 				skelExporter.exportSkeleton(skeletonFileName, deformers, fps, selAnimList);
-
-
-
 			}
 			else
 			{
-				// Just mesh
+				// No skeleton
 				meshExporter.exportMesh(meshFileName, mergeSubmeshes, 
-					exportChildren, edgeLists, tangents, materialPrefix, lodData);
+					exportChildren, edgeLists, tangents, exportVertexAnimation,
+					selAnimList, fps, materialPrefix, lodData);
 			}
 
 			

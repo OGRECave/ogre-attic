@@ -138,6 +138,15 @@ namespace Ogre
             changed, which may cause it to rebuild some internal data. */
 		virtual void _keyFrameDataChanged(void) const {}
 
+		/** Method to determine if this track has any KeyFrames which are
+		doing anything useful - can be used to determine if this track
+		can be optimised out.
+		*/
+		virtual bool hasNonZeroKeyFrames(void) const { return true; }
+
+		/** Optimise the current track by removing any duplicate keyframes. */
+		virtual void optimise(void) {}
+
     protected:
         typedef std::vector<KeyFrame*> KeyFrameList;
         KeyFrameList mKeyFrames;
@@ -421,6 +430,15 @@ namespace Ogre
 		void setTargetMode(TargetMode m) { mTargetMode = m; }
 		/// Get the target mode
 		TargetMode getTargetMode(void) const { return mTargetMode; }
+
+		/** Method to determine if this track has any KeyFrames which are
+		doing anything useful - can be used to determine if this track
+		can be optimised out.
+		*/
+		virtual bool hasNonZeroKeyFrames(void) const;
+
+		/** Optimise the current track by removing any duplicate keyframes. */
+		virtual void optimise(void);
 
 
 	protected:

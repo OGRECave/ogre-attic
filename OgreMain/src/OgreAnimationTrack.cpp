@@ -811,6 +811,42 @@ namespace Ogre {
 		};
 
 	}
+	//---------------------------------------------------------------------
+	bool VertexAnimationTrack::hasNonZeroKeyFrames(void) const
+	{
+		if (mAnimationType == VAT_MORPH)
+		{
+			return !mKeyFrames.empty();
+		}
+		else
+		{
+
+			KeyFrameList::const_iterator i = mKeyFrames.begin();
+			for (; i != mKeyFrames.end(); ++i)
+			{
+				// look for keyframes which have a pose influence which is non-zero
+				const VertexPoseKeyFrame* kf = static_cast<const VertexPoseKeyFrame*>(*i);
+				VertexPoseKeyFrame::ConstPoseRefIterator poseIt 
+					= kf->getPoseReferenceIterator();
+				while (poseIt.hasMoreElements())
+				{
+					VertexPoseKeyFrame::PoseRef& poseRef = poseIt.getNext();
+					if (poseRef.influence > 0.0f)
+						return true;
+				}
+
+			}
+
+			return false;
+		}
+	}
+	//---------------------------------------------------------------------
+	void VertexAnimationTrack::optimise(void)
+	{
+		// TODO - remove sequences of duplicate pose references?
+
+
+	}
 
 	
 }

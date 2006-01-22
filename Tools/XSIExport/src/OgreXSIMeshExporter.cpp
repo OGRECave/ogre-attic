@@ -36,10 +36,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_envelope.h>
 #include <xsi_time.h>
 #include <xsi_source.h>
-#include <xsi_shapekey.h>
 #include <xsi_edge.h>
 #include <xsi_vector3.h>
 #include <xsi_matrix4.h>
+#include <xsi_mixer.h>
+#include <xsi_clip.h>
+#include <xsi_timecontrol.h>
+#include <xsi_actionsource.h>
+#include <xsi_fcurve.h>
+#include <xsi_fcurvekey.h>
 
 #include "OgreException.h"
 #include "OgreXSIHelper.h"
@@ -52,6 +57,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHardwareBufferManager.h"
 #include "OgreVertexBoneAssignment.h"
 #include "OgrePose.h"
+#include "OgreAnimation.h"
+#include "OgreAnimationTrack.h"
 
 using namespace XSI;
 
@@ -96,7 +103,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	DeformerMap& XsiMeshExporter::exportMesh(const String& fileName, 
 		bool mergeSubMeshes, bool exportChildren, 
-		bool edgeLists, bool tangents, const String& materialPrefix, 
+		bool edgeLists, bool tangents, bool vertexAnimation, 
+		AnimationList& animList, Real fps, const String& materialPrefix, 
 		LodData* lod, const String& skeletonName)
     {
 
@@ -112,6 +120,7 @@ namespace Ogre {
 
 		cleanupDeformerMap();
 		cleanupMaterialMap();
+		mShapeKeyMapping.clear();
 
 		// Find all PolygonMesh objects
 		buildPolygonMeshList(exportChildren);
@@ -125,7 +134,8 @@ namespace Ogre {
 		}
 
 		// write the data into a mesh
-		buildMesh(pMesh.getPointer(), mergeSubMeshes, !skeletonName.empty());
+		buildMesh(pMesh.getPointer(), mergeSubMeshes, !skeletonName.empty(), 
+			vertexAnimation, animList, fps);
 
 		// progress report
 		ProgressManager::getSingleton().progress();
@@ -185,7 +195,9 @@ namespace Ogre {
 		return mTextureProjectionMap;
 	}
 	//-----------------------------------------------------------------------
-	void XsiMeshExporter::buildMesh(Mesh* pMesh, bool mergeSubmeshes, bool lookForBoneAssignments)
+	void XsiMeshExporter::buildMesh(Mesh* pMesh, bool mergeSubmeshes, 
+		bool lookForBoneAssignments, bool vertexAnimation, AnimationList& animList, 
+		Real fps)
 	{
 		/* Iterate over the list of polygon meshes that we've already located.
 			For each one:
@@ -223,6 +235,11 @@ namespace Ogre {
 		{
 			// export out the combined result
 			exportProtoSubMeshes(pMesh);
+		}
+
+		if (vertexAnimation)
+		{
+			exportAnimations(pMesh, animList, fps);
 		}
 	}
 	//-----------------------------------------------------------------------
@@ -458,7 +475,6 @@ namespace Ogre {
 
 		// process any shape keys
 		processShapeKeys(pMesh, xsiMesh);
-
 
 		// Post-process the mesh
 		postprocessPolygonMesh(xsiMesh);
@@ -950,11 +966,243 @@ namespace Ogre {
 							// Add pose to proto
 							ps->poseList.push_back(pose);
 
+							// record that we used this shape key
+							ps->shapeKeys.Add(shapeKey);
+
+
 						} // proto found?
 					}// for each proto
 				} // shape key cluster property?
 			} // for each cluster property
 		} // for each cluster
+
+	}
+	//-----------------------------------------------------------------------
+	void XsiMeshExporter::buildShapeClipList(ShapeClipList& listToPopulate)
+	{
+		// Process all mixers
+		Model root = mXsiApp.GetActiveSceneRoot();
+		if (root.HasMixer())
+			buildShapeClipList(root.GetMixer(), listToPopulate);
+
+		// Get all child models (recursive)
+		CRefArray models = root.GetModels();
+		for (int m = 0; m < models.GetCount(); ++m)
+		{
+			Model model(models[m]);
+			if (model.HasMixer())
+				buildShapeClipList(model.GetMixer(), listToPopulate);
+		}
+
+	}
+	//-----------------------------------------------------------------------
+	void XsiMeshExporter::buildShapeClipList(ClipContainer& container, 
+		ShapeClipList& listToPopulate)
+	{
+		CRefArray clips = container.GetClips();
+		for (int c = 0; c < clips.GetCount(); ++c)
+		{
+			if (clips[c].IsA(siClipContainerID))
+			{
+				ClipContainer container(clips[c]);
+				// cascade
+				buildShapeClipList(container, listToPopulate);
+			}
+			else
+			{
+
+				XSI::Clip clip(clips[c]);
+				XSI::CString clipType = clip.GetType();
+				if (clip.GetType() == siClipShapeType)
+				{
+					XSI::TimeControl timeControl = clip.GetTimeControl();
+					ShapeClipEntry sce;
+					sce.clip = clip;
+					sce.startFrame = timeControl.GetStartOffset();
+					long length = (1.0 / timeControl.GetScale()) * 
+						(timeControl.GetClipOut() - timeControl.GetClipIn() + 1);
+					sce.endFrame = sce.startFrame + length - 1;
+
+					// Find link to shape
+					sce.keytoPose = 0;
+					ActionSource source(clip.GetSource());
+					CRefArray sourceItems = source.GetItems();
+					assert (sourceItems.GetCount() == 1 && "More than one source item on shape clip!");
+					AnimationSourceItem sourceItem(sourceItems[0]);
+					// Source is the shape key
+					// Locate this in the list we built while building poses
+					for (ShapeKeyMapping::iterator skm = mShapeKeyMapping.begin();
+						skm != mShapeKeyMapping.end(); ++skm)
+					{
+						ShapeKeyToPoseEntry& mapping = *skm;
+						if(mapping.shapeKey == sourceItem.GetSource())
+						{
+							// bingo
+							sce.keytoPose = &(*skm);
+						}
+					}
+
+					listToPopulate.push_back(sce);
+
+				}
+			}
+
+		}
+
+
+	}
+	//-----------------------------------------------------------------------
+	void XsiMeshExporter::exportAnimations(Mesh* pMesh, AnimationList& animList, 
+		Real fps)
+	{
+		ShapeClipList clipList;
+		buildShapeClipList(clipList);
+		// Add all animations
+		for (AnimationList::iterator i = animList.begin(); i != animList.end(); ++i)
+		{
+			// For each animation, we want to search for all shape clips using a
+			// shape key which has been used 
+			AnimationEntry& animEntry = *i;
+			Animation* anim = 0;
+
+			// Iterate per submesh since we want to collect a track per submesh
+			// Iterate over the 'target index' which is submesh index + 1
+			for (ushort targetIndex = 1; targetIndex <= pMesh->getNumSubMeshes(); ++targetIndex)
+			{
+				// find all shape clips for this submesh overlapping this time period
+				// we'll clamp the clip too
+				ShapeClipList submeshClipList;
+				std::set<long> keyframeList;
+
+				deriveShapeClipAndKeyframeList(targetIndex, animEntry, clipList, 
+					submeshClipList, keyframeList);
+
+				if (!submeshClipList.empty())
+				{
+
+					// Create animation if we haven't already
+					if (!anim)
+					{
+						Real len = (float)(animEntry.endFrame - animEntry.startFrame + 1) / fps;
+						anim = pMesh->createAnimation(animEntry.animationName, len);
+					}
+					
+					// Create track
+					VertexAnimationTrack* track = 
+						anim->createVertexTrack(targetIndex, VAT_POSE);
+					
+					// Now sample all the clips on all the keyframes
+					for (std::set<long>::iterator k = keyframeList.begin();
+						k != keyframeList.end(); ++k)
+					{
+						// Create a key
+						long frameNum = *k;
+						Real keyTime = (float)(frameNum - animEntry.startFrame) / fps;
+						VertexPoseKeyFrame* keyFrame = 
+							track->createVertexPoseKeyFrame(keyTime);
+
+						// Sample all the clips
+						for (ShapeClipList::iterator c = submeshClipList.begin();
+							c != submeshClipList.end(); ++c)
+						{
+							ShapeClipEntry& sce = *c;
+							if(frameNum >= sce.startFrame && 
+								frameNum <= sce.endFrame)
+							{
+
+								// map the keyframe number to a local number
+								long localFrameNum = frameNum - sce.startFrame *
+									sce.clip.GetTimeControl().GetScale();
+
+								// sample pose influences
+								// Iterate over the animated parameters, find a 'weight' fcurve entry
+								bool fcurveFound = false;
+								CRefArray params = sce.clip.GetAnimatedParameters();
+								for (int p = 0; p < params.GetCount(); ++p)
+								{
+									Parameter param(params[p]);
+									if (param.GetSource().IsA(siFCurveID))
+									{
+										fcurveFound = true;
+										FCurve fcurve(param.GetSource());
+										CValue val = fcurve.Eval(localFrameNum);
+										if ((float)val != 0.0f)
+										{
+											keyFrame->addPoseReference(
+												sce.keytoPose->poseIndex, val);
+										}
+										
+									}
+								}
+
+								if (!fcurveFound)
+								{
+									// No fcurves, so just assume 1.0 weight since that's
+									// how XSI deals with it
+									keyFrame->addPoseReference(sce.keytoPose->poseIndex, 1.0f);
+
+								}
+							}
+						}
+					}
+					
+				}
+
+			}
+		}
+
+	}
+	//-----------------------------------------------------------------------
+	void XsiMeshExporter::deriveShapeClipAndKeyframeList(ushort targetIndex, 
+		AnimationEntry& animEntry, ShapeClipList& inClipList, 
+		ShapeClipList& outClipList, std::set<long>& keyFrameList)
+	{
+		for (ShapeClipList::iterator sci = inClipList.begin(); 
+			sci != inClipList.end(); ++sci)
+		{
+			ShapeClipEntry& sce = *sci;
+
+			if (sce.startFrame <= animEntry.endFrame &&
+				sce.endFrame >= animEntry.startFrame && 
+				sce.keytoPose->targetHandle == targetIndex)
+			{
+				// Clip overlaps with the animation sampling area and 
+				// applies to this submesh
+				ShapeClipEntry newClipEntry;
+				newClipEntry.startFrame = std::max(sce.startFrame, animEntry.startFrame);
+				newClipEntry.endFrame = std::min(sce.endFrame, animEntry.endFrame);
+				newClipEntry.clip = sce.clip;
+				newClipEntry.keytoPose = sce.keytoPose;
+				outClipList.push_back(newClipEntry);
+
+				// Iterate over the animated parameters, find a 'weight' fcurve entry
+				CRefArray params = sce.clip.GetAnimatedParameters();
+				for (int p = 0; p < params.GetCount(); ++p)
+				{
+					Parameter param(params[p]);
+					if (param.GetSource().IsA(siFCurveID))
+					{
+						FCurve fcurve(param.GetSource());
+						CRefArray keys = fcurve.GetKeys();
+						for (int k = 0; k < keys.GetCount(); ++k)
+						{
+							FCurveKey key(keys[k]);
+							// convert from key time to global frame number
+							CTime time = key.GetTime();
+							long frameNum = (long)((double)(time.GetTime() + sce.startFrame)
+								/ sce.clip.GetTimeControl().GetScale());
+							keyFrameList.insert(frameNum);
+						}
+				
+
+					}
+				}
+
+			}
+		}
+		// Always sample start & end frames
+		keyFrameList.insert(animEntry.startFrame);
+		keyFrameList.insert(animEntry.endFrame);
 
 	}
 	//-----------------------------------------------------------------------
@@ -1090,8 +1338,9 @@ namespace Ogre {
 		// poses
 		// derive target index (current submesh index + 1 since 0 is shared geom)
 		ushort targetIndex = pMesh->getNumSubMeshes(); 
+		ushort sk = 0;
 		for (std::list<Pose>::iterator pi = proto->poseList.begin();
-			pi != proto->poseList.end(); ++pi)
+			pi != proto->poseList.end(); ++pi, ++sk)
 		{
 			Pose* pose = pMesh->createPose(targetIndex, pi->getName());
 			Pose::VertexOffsetIterator vertIt = 
@@ -1101,8 +1350,16 @@ namespace Ogre {
 				pose->addVertex(vertIt.peekNextKey(), vertIt.peekNextValue());
 				vertIt.getNext();
 			}
+
+			// record shape key to pose mapping for animation later
+			ShapeKeyToPoseEntry se;
+			se.shapeKey = proto->shapeKeys[sk];
+			se.poseIndex = pMesh->getPoseCount() - 1;
+			se.targetHandle = targetIndex;
+			mShapeKeyMapping.push_back(se);
+
 		}
-		
+
 	}
 	//-----------------------------------------------------------------------
 	void XsiMeshExporter::buildPolygonMeshList(bool includeChildren)

@@ -423,14 +423,17 @@ namespace Ogre
 			animEntry.ikSampleInterval = 5.0f;
 		}
 
-		for (long frame = 0; frame < numFrames; frame += animEntry.ikSampleInterval)
+		// Sample all bones from start to before the end frame
+		for (long frame = animEntry.startFrame; frame < animEntry.endFrame; 
+			frame += animEntry.ikSampleInterval)
 		{
-			sampleAllBones(deformers, deformerTracks, frame, fps);
+			Real time = (float)(frame - animEntry.startFrame) / fps;
+			sampleAllBones(deformers, deformerTracks, frame, time, fps);
 
 		}
-		// sample final frame
-		sampleAllBones(deformers, deformerTracks, 
-			animEntry.endFrame - animEntry.startFrame, fps);
+		// sample final frame (must be guaranteed to be done)
+		Real time = (float)(animEntry.endFrame - animEntry.startFrame) / fps;
+		sampleAllBones(deformers, deformerTracks, animEntry.endFrame, time, fps);
 
 
 	}
@@ -457,7 +460,8 @@ namespace Ogre
 	}
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::sampleAllBones(DeformerMap& deformers, 
-		std::vector<NodeAnimationTrack*> deformerTracks, double frame, float fps)
+		std::vector<NodeAnimationTrack*> deformerTracks, double frame, 
+		Real time, float fps)
 	{
 		CValueArray args;
 		CValue dummy;
@@ -509,7 +513,7 @@ namespace Ogre
 			transformation.GetTranslationValues(posx, posy, posz);
 
 			// create keyframe
-			TransformKeyFrame* kf = track->createNodeKeyFrame((float)frame / fps);
+			TransformKeyFrame* kf = track->createNodeKeyFrame(time);
 			// not sure why inverted transform doesn't work for position, but it doesn't
 			// I thought XSI used same transform order as OGRE
 			kf->setTranslate(XSItoOgre(transformation.GetTranslation()));
