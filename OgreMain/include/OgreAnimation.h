@@ -135,11 +135,17 @@ namespace Ogre {
         /** Gets a node track by it's handle. */
         NodeAnimationTrack* getNodeTrack(unsigned short handle) const;
 
+		/** Does a track exist with the given handle? */
+		bool hasNodeTrack(unsigned short handle) const;
+
 		/** Gets the number of NumericAnimationTrack objects contained in this animation. */
 		unsigned short getNumNumericTracks(void) const;
 
 		/** Gets a numeric track by it's handle. */
 		NumericAnimationTrack* getNumericTrack(unsigned short handle) const;
+
+		/** Does a track exist with the given handle? */
+		bool hasNumericTrack(unsigned short handle) const;
 
 		/** Gets the number of VertexAnimationTrack objects contained in this animation. */
 		unsigned short getNumVertexTracks(void) const;
@@ -147,6 +153,8 @@ namespace Ogre {
 		/** Gets a Vertex track by it's handle. */
 		VertexAnimationTrack* getVertexTrack(unsigned short handle) const;
 
+		/** Does a track exist with the given handle? */
+		bool hasVertexTrack(unsigned short handle) const;
 		
 		/** Destroys the node track with the given handle. */
         void destroyNodeTrack(unsigned short handle);

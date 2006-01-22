@@ -1527,13 +1527,13 @@ protected:
     {
         // Set ambient light
         mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
-        mWindow->getViewport(0)->setBackgroundColour(ColourValue::White);
+        //mWindow->getViewport(0)->setBackgroundColour(ColourValue::White);
 
 
 
-        Entity *ent = mSceneMgr->createEntity("robot", "robot.mesh");
+        Entity *ent = mSceneMgr->createEntity("robot", "scuttlepod.mesh");
         // Uncomment the below to test software skinning
-        ent->setMaterialName("Examples/Rocky");
+        //ent->setMaterialName("Examples/Rocky");
         // Add entity to the scene node
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
         mAnimState = ent->getAnimationState("Walk");
@@ -3177,6 +3177,61 @@ protected:
 
 	}
 
+	void testSuppressedShadows(ShadowTechnique shadowTech)
+	{
+		mSceneMgr->setShadowTechnique(shadowTech);
+
+		// Setup lighting
+		mSceneMgr->setAmbientLight(ColourValue(0.2, 0.2, 0.2));
+		Light* light = mSceneMgr->createLight("MainLight");
+		light->setType(Light::LT_DIRECTIONAL);
+		Vector3 dir(-1, -1, 0.5);
+		dir.normalise();
+		light->setDirection(dir);
+
+		// Create a skydome
+		//mSceneMgr->setSkyDome(true, "Examples/CloudySky", 5, 8);
+
+		// Create a floor plane mesh
+		Plane plane(Vector3::UNIT_Y, 0.0);
+		MeshManager::getSingleton().createPlane(
+			"FloorPlane", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+			plane, 200000, 200000, 20, 20, true, 1, 500, 500, Vector3::UNIT_Z);
+	
+
+		// Add a floor to the scene
+		Entity* entity = mSceneMgr->createEntity("floor", "FloorPlane");
+		entity->setMaterialName("Examples/RustySteel");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(entity);
+		entity->setCastShadows(false);
+
+		// Add the mandatory ogre head
+		entity = mSceneMgr->createEntity("head", "ogrehead.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0.0, 10.0, 0.0))->attachObject(entity);
+
+		// Position and orient the camera
+		mCamera->setPosition(-100.0, 50.0, 90.0);
+		mCamera->lookAt(0.0, 10.0, -35.0);
+
+		// Add an additional viewport on top of the other one
+		Viewport* pip = mWindow->addViewport(mCamera, 1, 0.7, 0.0, 0.3, 0.3);
+
+		// Create a render queue invocation sequence for the pip viewport
+		RenderQueueInvocationSequence* invocationSequence =
+			mRoot->createRenderQueueInvocationSequence("pip");
+
+		// Add an invocation to the sequence
+		RenderQueueInvocation* invocation =
+			invocationSequence->add(RENDER_QUEUE_MAIN, "main");
+
+		// Disable render state changes and shadows for that invocation
+		//invocation->setSuppressRenderStateChanges(true);
+		invocation->setSuppressShadows(true);
+
+		// Set the render queue invocation sequence for the pip viewport
+		pip->setRenderQueueInvocationSequenceName("pip");
+	}
+
     // Just override the mandatory create scene method
     void createScene(void)
     {
@@ -3240,7 +3295,8 @@ protected:
 		//testManualObjectIndexed();
 		//testCustomProjectionMatrix();
 		//testPointSprites();
-		testFallbackResourceGroup();
+		//testFallbackResourceGroup();
+		testSuppressedShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 
 		
     }
