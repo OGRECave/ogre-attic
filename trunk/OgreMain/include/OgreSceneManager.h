@@ -564,6 +564,14 @@ namespace Ogre {
 			QueuedRenderableCollection::OrganisationMode om, 
 			bool doLightIteration, const LightList* manualLightList = 0);
 
+		/** Update the state of the global render queue splitting based on a shadow
+		option change. */
+		virtual void updateRenderQueueSplitOptions(void);
+		/** Update the state of the render queue group splitting based on a shadow
+		option change. */
+		virtual void updateRenderQueueGroupSplitOptions(RenderQueueGroup* group, 
+			bool suppressShadows, bool suppressRenderState);
+
 		/** Inner helper class to implement the visitor pattern for rendering objects
 			in a queue. 
 		*/
@@ -1965,6 +1973,9 @@ namespace Ogre {
 		/** Is there an additive shadowing technique in use? */
 		virtual bool isShadowTechniqueAdditive(void) const 
 		{ return (mShadowTechnique & SHADOWDETAILTYPE_ADDITIVE) != 0; }
+		/** Is there any shadowing technique in use? */
+		virtual bool isShadowTechniqueInUse(void) const 
+		{ return mShadowTechnique != SHADOWTYPE_NONE; }
 
 		/** Add a shadow listener which will get called back on shadow
 			events.
@@ -2095,8 +2106,7 @@ namespace Ogre {
 		@param suppress If true, no RenderSystem state changes will be issued
 			until this method is called again with a parameter of false.
 		*/
-		virtual void _suppressRenderStateChanges(bool suppress)
-		{ mSuppressRenderStateChanges = suppress; }
+		virtual void _suppressRenderStateChanges(bool suppress);
 		
 		/** Are render state changes suppressed? 
 		@see _suppressRenderStateChanges
@@ -2113,8 +2123,7 @@ namespace Ogre {
 		@param suppress If true, no shadow rendering will occur until this
 			method is called again with a parameter of false.
 		*/
-		virtual void _suppressShadows(bool suppress) 
-		{ mSuppressShadows = suppress; }
+		virtual void _suppressShadows(bool suppress); 
 
 		/** Are shadows suppressed? 
 		@see _suppressShadows
@@ -2127,8 +2136,6 @@ namespace Ogre {
 		*/
 		virtual void _renderQueueGroupObjects(RenderQueueGroup* group, 
 			QueuedRenderableCollection::OrganisationMode om);
-
-		
 
 		/** Get the rendersystem subclass to which the output of this Scene Manager
 			gets sent

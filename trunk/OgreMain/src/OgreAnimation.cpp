@@ -76,6 +76,11 @@ namespace Ogre {
     {
         return (unsigned short)mNodeTrackList.size();
     }
+	//---------------------------------------------------------------------
+	bool Animation::hasNodeTrack(unsigned short handle) const
+	{
+		return (mNodeTrackList.find(handle) != mNodeTrackList.end());
+	}
     //---------------------------------------------------------------------
     NodeAnimationTrack* Animation::getNodeTrack(unsigned short handle) const
     {
@@ -134,6 +139,11 @@ namespace Ogre {
 	unsigned short Animation::getNumNumericTracks(void) const
 	{
 		return (unsigned short)mNumericTrackList.size();
+	}
+	//---------------------------------------------------------------------
+	bool Animation::hasNumericTrack(unsigned short handle) const
+	{
+		return (mNumericTrackList.find(handle) != mNumericTrackList.end());
 	}
 	//---------------------------------------------------------------------
 	NumericAnimationTrack* Animation::getNumericTrack(unsigned short handle) const
@@ -195,6 +205,11 @@ namespace Ogre {
 	unsigned short Animation::getNumVertexTracks(void) const
 	{
 		return (unsigned short)mVertexTrackList.size();
+	}
+	//---------------------------------------------------------------------
+	bool Animation::hasVertexTrack(unsigned short handle) const
+	{
+		return (mVertexTrackList.find(handle) != mVertexTrackList.end());
 	}
 	//---------------------------------------------------------------------
 	VertexAnimationTrack* Animation::getVertexTrack(unsigned short handle) const
