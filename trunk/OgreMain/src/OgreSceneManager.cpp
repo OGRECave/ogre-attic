@@ -2054,7 +2054,7 @@ bool SceneManager::validatePassForRendering(const Pass* pass)
     // this pass is after the first (only 1 pass needed for modulative shadow texture)
 	// Also bypass if passes above the first if render state changes are
 	// suppressed since we're not actually using this pass data anyway
-    if (!mSuppressShadows &&
+    if (!mSuppressShadows && mCurrentViewport->getShadowsEnabled() &&
 		isShadowTechniqueModulative() &&
 		(mIlluminationStage == IRS_RENDER_TO_TEXTURE ||
         mIlluminationStage == IRS_RENDER_RECEIVER_PASS ||
@@ -2071,7 +2071,7 @@ bool SceneManager::validateRenderableForRendering(const Pass* pass, const Render
 {
     // Skip this renderable if we're doing modulative texture shadows, it casts shadows
     // and we're doing the render receivers pass and we're not self-shadowing
-    if (!mSuppressShadows &&
+    if (!mSuppressShadows && mCurrentViewport->getShadowsEnabled() &&
 		isShadowTechniqueTextureBased() && 
         mIlluminationStage == IRS_RENDER_RECEIVER_PASS && 
         rend->getCastsShadows() && !mShadowTextureSelfShadow && 
@@ -2906,7 +2906,7 @@ void SceneManager::updateRenderQueueSplitOptions(void)
 		getRenderQueue()->setShadowCastersCannotBeReceivers(!mShadowTextureSelfShadow);
 	}
 
-	if (isShadowTechniqueAdditive())
+	if (isShadowTechniqueAdditive() && mCurrentViewport->getShadowsEnabled())
 	{
 		// Additive lighting, we need to split everything by illumination stage
 		getRenderQueue()->setSplitPassesByLightingType(true);
@@ -2916,7 +2916,7 @@ void SceneManager::updateRenderQueueSplitOptions(void)
 		getRenderQueue()->setSplitPassesByLightingType(false);
 	}
 
-	if (isShadowTechniqueInUse())
+	if (isShadowTechniqueInUse() && mCurrentViewport->getShadowsEnabled())
 	{
 		// Tell render queue to split off non-shadowable materials
 		getRenderQueue()->setSplitNoShadowPasses(true);
@@ -2942,7 +2942,8 @@ void SceneManager::updateRenderQueueGroupSplitOptions(RenderQueueGroup* group,
 		group->setShadowCastersCannotBeReceivers(!mShadowTextureSelfShadow);
 	}
 
-	if (!suppressShadows && isShadowTechniqueAdditive())
+	if (!suppressShadows && mCurrentViewport->getShadowsEnabled() &&
+		isShadowTechniqueAdditive())
 	{
 		// Additive lighting, we need to split everything by illumination stage
 		group->setSplitPassesByLightingType(true);
@@ -2952,7 +2953,8 @@ void SceneManager::updateRenderQueueGroupSplitOptions(RenderQueueGroup* group,
 		group->setSplitPassesByLightingType(false);
 	}
 
-	if (!suppressShadows && isShadowTechniqueInUse())
+	if (!suppressShadows && mCurrentViewport->getShadowsEnabled() 
+		&& isShadowTechniqueInUse())
 	{
 		// Tell render queue to split off non-shadowable materials
 		group->setSplitNoShadowPasses(true);
