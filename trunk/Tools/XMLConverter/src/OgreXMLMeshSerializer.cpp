@@ -1673,9 +1673,6 @@ namespace Ogre {
 		TiXmlElement* keyframesNode = 
 			trackNode->InsertEndChild(TiXmlElement("keyframes"))->ToElement();
 
-		TiXmlElement* poseNode = keyframesNode->InsertEndChild(
-			TiXmlElement("pose"))->ToElement();
-
 		for (unsigned short k = 0; k < track->getNumKeyFrames(); ++k)
 		{
 			VertexPoseKeyFrame* kf = track->getVertexPoseKeyFrame(k);
