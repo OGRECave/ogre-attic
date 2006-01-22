@@ -215,7 +215,7 @@ namespace Ogre {
 
             while (pit.hasMoreElements())
             {
-                setPass(pit.getNext());
+                _setPass(pit.getNext());
 
                 mDestRenderSystem->_render(mRenderOp);
 

@@ -593,12 +593,12 @@ SceneNode* SceneManager::getSceneNode(const String& name) const
 
 }
 //-----------------------------------------------------------------------
-const Pass* SceneManager::setPass(const Pass* pass)
+const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed)
 {
     static bool lastUsedVertexProgram = false;
     static bool lastUsedFragmentProgram = false;
 
-	if (!mSuppressRenderStateChanges)
+	if (!mSuppressRenderStateChanges || evenIfSuppressed)
 	{
 		if (mIlluminationStage == IRS_RENDER_TO_TEXTURE)
 		{
@@ -1645,7 +1645,7 @@ void SceneManager::renderModulativeStencilShadowedQueueGroupObjects(
             mDestRenderSystem->clearFrameBuffer(FBT_STENCIL);
             renderShadowVolumesToStencil(l, mCameraInProgress);
             // render full-screen shadow modulator for all lights
-            setPass(mShadowModulativePass);
+            _setPass(mShadowModulativePass);
             // turn stencil check on
             mDestRenderSystem->setStencilCheckEnabled(true);
             // NB we render where the stencil is not equal to zero to render shadows, not lit areas
@@ -2024,7 +2024,7 @@ bool SceneManager::SceneMgrQueuedRenderableVisitor::visit(const Pass* p)
 		return false;
 
 	// Set pass, store the actual one used
-	mUsedPass = targetSceneMgr->setPass(p);
+	mUsedPass = targetSceneMgr->_setPass(p);
 
 
 	return true;
@@ -2042,7 +2042,7 @@ void SceneManager::SceneMgrQueuedRenderableVisitor::visit(const RenderablePass* 
 	// Give SM a chance to eliminate
 	if (targetSceneMgr->validateRenderableForRendering(rp->pass, rp->renderable))
 	{
-		targetSceneMgr->setPass(rp->pass);
+		targetSceneMgr->_setPass(rp->pass);
 		targetSceneMgr->renderSingleObject(rp->renderable, rp->pass, autoLights, 
 			manualLightList);
 	}
@@ -2616,7 +2616,7 @@ void SceneManager::manualRender(RenderOperation* rend,
     if (doBeginEndFrame)
         mDestRenderSystem->_beginFrame();
 
-    setPass(pass);
+    _setPass(pass);
     mDestRenderSystem->_render(*rend);
 
     if (doBeginEndFrame)
@@ -3813,7 +3813,7 @@ void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera
             mShadowDebugPass->getTextureUnitState(0)->
                 setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT,
                 zfailAlgo ? ColourValue(0.7, 0.0, 0.2) : ColourValue(0.0, 0.7, 0.2));
-            setPass(mShadowDebugPass);
+            _setPass(mShadowDebugPass);
             renderShadowVolumeObjects(iShadowRenderables, mShadowDebugPass, &lightList, flags,
                 true, false, false);
             mDestRenderSystem->_setColourBufferWriteEnabled(false, false, false, false);
@@ -4621,7 +4621,7 @@ void SceneManager::extractAllMovableObjectsByType(const String& typeName)
 void SceneManager::_injectRenderWithPass(Pass *pass, Renderable *rend)
 {
 	// render something as if it came from the current queue
-    const Pass *usedPass = setPass(pass);
+    const Pass *usedPass = _setPass(pass);
     renderSingleObject(rend, usedPass, false);
 }
 //---------------------------------------------------------------------

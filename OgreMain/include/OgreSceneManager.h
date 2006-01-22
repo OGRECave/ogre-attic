@@ -264,14 +264,6 @@ namespace Ogre {
             Subclasses can use this to install their own RenderQueue implementation.
         */
         virtual void initRenderQueue(void);
-        /** Internal method for setting up the renderstate for a rendering pass.
-            @param
-                pass The Pass details to set.
-            @returns
-                A Pass object that was used instead of the one passed in, can
-                happen when rendering shadow passes
-        */
-        virtual const Pass* setPass(const Pass* pass);
         /// A pass designed to let us render shadow colour on white for texture shadows
         Pass* mShadowCasterPlainBlackPass;
         /// A pass designed to let us render shadow receivers for texture shadows
@@ -2113,6 +2105,19 @@ namespace Ogre {
 		*/
 		virtual bool _areRenderStateChangesSuppressed(void) const
 		{ return mSuppressRenderStateChanges; }
+
+        /** Internal method for setting up the renderstate for a rendering pass.
+            @param pass The Pass details to set.
+			@param evenIfSuppressed Sets the pass details even if render state
+				changes are suppressed; if you are using this to manually set state
+				when render state changes are suppressed, you should set this to 
+				true.
+            @returns
+                A Pass object that was used instead of the one passed in, can
+                happen when rendering shadow passes
+        */
+        virtual const Pass* _setPass(const Pass* pass, bool evenIfSuppressed = false);
+
 
 		/** Indicates to the SceneManager whether it should suppress the 
 			active shadow rendering technique until told otherwise.
