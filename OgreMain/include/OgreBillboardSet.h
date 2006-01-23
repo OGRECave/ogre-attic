@@ -705,7 +705,7 @@ namespace Ogre {
             both U and V (i e, the entire texture).
           @see
             BillboardSet::setTextureStacksAndSlices()
-            Billboard::setTexCoords()
+            Billboard::setTexcoordIndex()
           */
         virtual void setTextureCoords( Ogre::FloatRect const * coords, uint16 numCoords );
 
@@ -716,7 +716,7 @@ namespace Ogre {
             would be 128 texels tall and 64 texels wide.
           @remarks
             This function is short-hand for creating a regular set and calling 
-            setTextureCoords() yourself. The numbering used for Billboard::setTexCoords() 
+            setTextureCoords() yourself. The numbering used for Billboard::setTexcoordIndex() 
             counts first across, then down, so top-left is 0, the one to the right 
             of that is 1, and the lower-right is stacks*slices-1.
           @see
