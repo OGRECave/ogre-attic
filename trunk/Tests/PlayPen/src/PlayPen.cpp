@@ -2223,7 +2223,7 @@ protected:
         const Vector3& min, const Vector3& max)
     {
         Entity *cloneEnt;
-        for (int n = 0; n < cloneCount; ++n)
+        for (size_t n = 0; n < cloneCount; ++n)
         {
             // Create a new node under the root
             SceneNode* node = mSceneMgr->createSceneNode();
@@ -2432,15 +2432,17 @@ protected:
 		mSceneMgr->setAmbientLight(ColourValue::White);
 
 		BillboardSet* bbs = mSceneMgr->createBillboardSet("test");
+        BillboardSet* bbs2 = mSceneMgr->createBillboardSet("test2");
 		float xsegs = 3;
 		float ysegs = 3;
 		float width = 300;
 		float height = 300;
-		float gap = 30;
+		float gap = 20;
 
 		// set up texture coords
 		bbs->setTextureStacksAndSlices(ysegs, xsegs);
 		bbs->setDefaultDimensions(width/xsegs, height/xsegs);
+		bbs2->setDefaultDimensions(width/xsegs, height/xsegs);
 
 		for (float y = 0; y < ysegs; ++y)
 		{
@@ -2448,15 +2450,23 @@ protected:
 			{
 				Vector3 midPoint;
 				midPoint.x = (x * width / xsegs) + ((x-1) * gap);
-				midPoint.y = (y * height / xsegs) + ((y-1) * gap);
+				midPoint.y = (y * height / ysegs) + ((y-1) * gap);
 				midPoint.z = 0;
 				Billboard* bb = bbs->createBillboard(midPoint);
-				bb->setTexCoords((ysegs - y - 1)*ysegs + x);
+				bb->setTexcoordIndex((ysegs - y - 1)*xsegs + x);
+                Billboard* bb2 = bbs2->createBillboard(midPoint);
+                bb2->setTexcoordRect(
+                    FloatRect((x + 0) / xsegs, (ysegs - y - 1) / ysegs,
+                              (x + 1) / xsegs, (ysegs - y - 0) / ysegs));
 			}
 		}
 
 		bbs->setMaterialName("Examples/OgreLogo");
+        bbs2->setMaterialName("Examples/OgreLogo");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(bbs);
+        mSceneMgr->getRootSceneNode()
+            ->createChildSceneNode(Vector3(- (width + xsegs * gap), 0, 0))
+            ->attachObject(bbs2);
 
 	}
 
@@ -3325,13 +3335,13 @@ protected:
 		//testSimpleMesh();
 		//test2Windows();
 		//testStaticGeometry();
-		//testBillboardTextureCoords();
+		testBillboardTextureCoords();
 		//testReloadResources();
 		//testTransparencyMipMaps();
 		//testRadixSort();
 		//testMorphAnimation();
 		//testPoseAnimation();
-		testPoseAnimation2();
+		//testPoseAnimation2();
 		//testBug();
 		//testManualObjectNonIndexed();
 		//testManualObjectIndexed();

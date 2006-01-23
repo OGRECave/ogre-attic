@@ -136,7 +136,7 @@ namespace Ogre {
         newBill->setColour(colour);
         newBill->mDirection = Vector3::ZERO;
         newBill->setRotation(Radian(0));
-        newBill->setTexCoords(0);
+        newBill->setTexcoordIndex(0);
         newBill->resetDimensions();
         newBill->_notifyOwner(this);
 
@@ -1016,8 +1016,9 @@ namespace Ogre {
 		RGBA* pCol;
 
         // Texcoords
-        assert( bb.mTexCoords < mTextureCoords.size() );
-        const Ogre::FloatRect & r = mTextureCoords[bb.mTexCoords];
+        assert( bb.mUseTexcoordRect || bb.mTexcoordIndex < mTextureCoords.size() );
+        const Ogre::FloatRect & r =
+            bb.mUseTexcoordRect ? bb.mTexcoordRect : mTextureCoords[bb.mTexcoordIndex];
 
 		if (mPointRendering)
 		{

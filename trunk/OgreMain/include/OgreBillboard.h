@@ -30,7 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreVector3.h"
 #include "OgreColourValue.h"
-
+#include "OgreCommon.h"
 
 namespace Ogre {
 
@@ -60,7 +60,9 @@ namespace Ogre {
         friend class BillboardParticleRenderer;
     protected:
         bool mOwnDimensions;
-        uint16 mTexCoords;      //  index into the BillboardSet array of texture coordinates
+        bool mUseTexcoordRect;
+        uint16 mTexcoordIndex;      // index into the BillboardSet array of texture coordinates
+        FloatRect mTexcoordRect;    // individual texture coordinates
         Real mWidth;
         Real mHeight;
     public:
@@ -158,18 +160,52 @@ namespace Ogre {
         */
         void _notifyOwner(BillboardSet* owner);
 
-        /** setTexCoords() sets which texture coordinate rect this billboard will use 
+        /** Returns true if this billboard use individual texture coordinate rect (i.e. if the 
+            Billboard::setTexcoordRect method has been called for this instance), or returns
+            false if use texture coordinates defined in the parent BillboardSet's texture
+            coordinates array (i.e. if the Billboard::setTexcoordIndex method has been called
+            for this instance).
+            @see
+                Billboard::setTexcoordIndex()
+                Billboard::setTexcoordRect()
+        */
+        bool isUseTexcoordRect(void) const { return mUseTexcoordRect; }
+
+        /** setTexcoordIndex() sets which texture coordinate rect this billboard will use 
             when rendering. The parent billboard set may contain more than one, in which 
             case a billboard can be textured with different pieces of a larger texture 
             sheet very efficiently.
           @see
             BillboardSet::setTextureCoords()
           */
-        void setTexCoords( uint16 tc ) { mTexCoords = tc; }
-        /** getTexCoords() returns the previous value set by setTexCoords(). 
+        void setTexcoordIndex(uint16 texcoordIndex);
+
+        /** getTexcoordIndex() returns the previous value set by setTexcoordIndex(). 
             The default value is 0, which is always a valid texture coordinate set.
+            @remarks
+                This value is useful only when isUseTexcoordRect return false.
           */
-        uint16 getTexCoords() const { return mTexCoords; }
+        uint16 getTexcoordIndex(void) const { return mTexcoordIndex; }
+
+        /** setTexcoordRect() sets the individual texture coordinate rect of this billboard
+            will use when rendering. The parent billboard set may contain more than one, in
+            which case a billboard can be textured with different pieces of a larger texture
+            sheet very efficiently.
+        */
+        void setTexcoordRect(const FloatRect& texcoordRect);
+
+        /** setTexcoordRect() sets the individual texture coordinate rect of this billboard
+            will use when rendering. The parent billboard set may contain more than one, in
+            which case a billboard can be textured with different pieces of a larger texture
+            sheet very efficiently.
+        */
+        void setTexcoordRect(Real u0, Real v0, Real u1, Real v1);
+
+        /** getTexcoordRect() returns the previous value set by setTexcoordRect(). 
+            @remarks
+                This value is useful only when isUseTexcoordRect return true.
+        */
+        const FloatRect& getTexcoordRect(void) const { return mTexcoordRect; }
     };
 
 }
