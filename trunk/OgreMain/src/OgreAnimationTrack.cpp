@@ -830,7 +830,7 @@ namespace Ogre {
 					= kf->getPoseReferenceIterator();
 				while (poseIt.hasMoreElements())
 				{
-					VertexPoseKeyFrame::PoseRef& poseRef = poseIt.getNext();
+					const VertexPoseKeyFrame::PoseRef& poseRef = poseIt.getNext();
 					if (poseRef.influence > 0.0f)
 						return true;
 				}
