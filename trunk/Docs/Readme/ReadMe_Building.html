@@ -64,7 +64,7 @@ configurations:</P>
 		<TD>
 			<P ALIGN=CENTER STYLE="border-top: none; border-bottom: 1.00pt solid #666600; border-left: 1.00pt solid #666600; border-right: 1.00pt solid #666600; padding-top: 0cm; padding-bottom: 0.26cm; padding-left: 0.05cm; padding-right: 0.05cm">
 			<FONT COLOR="#66cc33"><FONT SIZE=1 STYLE="font-size: 8pt">Requires
-			gcc 3.x</FONT></FONT></P>
+			gcc 3.x or 4.x</FONT></FONT></P>
 		</TD>
 	</TR>
 	<TR>
@@ -82,7 +82,7 @@ configurations:</P>
 		<TD>
 			<P ALIGN=CENTER STYLE="border-top: none; border-bottom: 1.00pt solid #666600; border-left: 1.00pt solid #666600; border-right: 1.00pt solid #666600; padding-top: 0cm; padding-bottom: 0.26cm; padding-left: 0.05cm; padding-right: 0.05cm">
 			<FONT COLOR="#66cc33"><FONT SIZE=1 STYLE="font-size: 8pt">Requires
-			gcc 3.x</FONT></FONT></P>
+			gcc 3.x or 4.x</FONT></FONT></P>
 		</TD>
 	</TR>
 </TABLE>
@@ -114,17 +114,17 @@ Visual C++ 6 or Visual C++.Net</P>
 <P ALIGN=LEFT>If you're building under Linux with gcc, here's a very
 quick overview:</P>
 <OL>
-	<LI><P STYLE="margin-bottom: 0cm">If you're using gcc version 2.9x,
-	make sure you've installed <A HREF="http://www.stlport.org/">STLport</A>.
-	However, if you can we advise using gcc 3.2+.</P>
+	<LI><P STYLE="margin-bottom: 0cm">We only support gcc version 3.x or 4.x</p>
 	<LI><P STYLE="margin-bottom: 0cm">Confirm that you have SDL 1.2.4,
-	Freetype2, DevIL, zziplib, CEGUI 0.2.0 and pkg-config available on
+	Freetype2, DevIL, zziplib, CEGUI 0.3.x or above and pkg-config available on
 	your system (if not, install them!)</P>
 	<LI><P STYLE="margin-bottom: 0cm">Change to the 'ogrenew' directory,
 		</P>
 	<LI><P STYLE="margin-bottom: 0cm">If you are installing from CVS,
 	run './bootstrap'</P>
-	<LI><P STYLE="margin-bottom: 0cm">type './configure'.</P>
+	<LI><P STYLE="margin-bottom: 0cm">type './configure'. If you want to use
+	the GLX windowing system which supports more options than SDL, use 
+	--with-platform=GLX</P>
 	<LI><P>Run 'make' and 'make install' (the latter as root)</P>
 </OL>
 <P>For more detailed instructions, see the<A HREF="../README.linux">
