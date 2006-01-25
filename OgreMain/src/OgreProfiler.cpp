@@ -390,7 +390,15 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Profiler::endProfile(const String& profileName) {
 
-        // if the profiler is enabled
+		// if the profiler received a request to be enabled or disabled
+		// we reached the end of the frame so we can safely do this
+		if (mEnableStateChangePending) {
+
+			changeEnableState();
+
+		}
+
+     // if the profiler is enabled
         if(!mEnabled) {
 
             return;
@@ -477,14 +485,6 @@ namespace Ogre {
 
             // we display everything to the screen
             displayResults();
-
-            // if the profiler received a request to be enabled or disabled
-            // we reached the end of the frame so we can safely do this
-            if (mEnableStateChangePending) {
-
-                changeEnableState();
-
-            }
 
         }
 
