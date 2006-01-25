@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 #include "OgreCommon.h"
 #include "OgreString.h"
+#include "OgreLogManager.h"
 
 namespace Ogre 
 {
@@ -55,7 +56,7 @@ namespace Ogre
                 }
 
                 // Invalid option
-                std::cout << "Invalid option " << tmp << std::endl;
+                LogManager::getSingleton().logMessage("Invalid option " + tmp);
 
             }
         }

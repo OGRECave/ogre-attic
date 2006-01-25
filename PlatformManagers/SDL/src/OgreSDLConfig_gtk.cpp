@@ -41,7 +41,7 @@ bool SDLConfig::display(void)
     Glib::RefPtr<Gnome::Glade::Xml> xml = Gnome::Glade::Xml::create( sharedir + "/ogre-config.glade");
     if (!xml)
     {
-        std::cerr << "Problem loading config" << std::endl;
+        LogManager::getSingleton().logMessage("Problem loading config");
         exit(1);
     }
 
@@ -49,7 +49,7 @@ bool SDLConfig::display(void)
     xml->get_widget("winConfig", _winConfig);
     if (!_winConfig)
     {
-        std::cerr << "Invalid window." << std::endl;
+        LogManager::getSingleton().logMessage("Invalid window.");
         exit(1);
     }
 
