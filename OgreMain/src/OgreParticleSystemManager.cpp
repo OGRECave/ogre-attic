@@ -75,7 +75,10 @@ namespace Ogre {
         ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
         // delete billboard factory
         if (mBillboardRendererFactory)
+		{
             delete mBillboardRendererFactory;
+			mBillboardRendererFactory = 0;
+		}
 
     }
     //-----------------------------------------------------------------------
