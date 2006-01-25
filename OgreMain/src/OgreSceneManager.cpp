@@ -1415,7 +1415,7 @@ void SceneManager::_renderVisibleObjects(void)
             if (fireRenderQueueStarted(qId))
             {
                 // Someone requested we skip this queue
-                continue;
+                break;
             }
 
             renderQueueGroupObjects(pGroup);
