@@ -804,7 +804,7 @@ namespace Ogre
 
     }
     //-------------------------------------------------------------------------
-    int TerrainSceneManager::setDetailTextureRepeat(void)
+    int TerrainSceneManager::getDetailTextureRepeat(void)
     {
         return mOptions.detailTile;
     }
