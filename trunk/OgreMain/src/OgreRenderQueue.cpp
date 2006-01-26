@@ -34,14 +34,21 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //---------------------------------------------------------------------
-    RenderQueue::RenderQueue() : mSplitPassesByLightingType(false), 
-		mSplitNoShadowPasses(false), mShadowCastersCannotBeReceivers(false)
+    RenderQueue::RenderQueue()
+        : mSplitPassesByLightingType(false)
+        , mSplitPreservingAlphaRejection(false)
+		, mSplitNoShadowPasses(false)
+        , mShadowCastersCannotBeReceivers(false)
     {
         // Create the 'main' queue up-front since we'll always need that
         mGroups.insert(
             RenderQueueGroupMap::value_type(
                 RENDER_QUEUE_MAIN, 
-                new RenderQueueGroup(this, mSplitPassesByLightingType, mSplitNoShadowPasses)
+                new RenderQueueGroup(this,
+                    mSplitPassesByLightingType,
+                    mSplitPreservingAlphaRejection,
+                    mSplitNoShadowPasses,
+                    mShadowCastersCannotBeReceivers)
                 )
             );
 
@@ -150,7 +157,11 @@ namespace Ogre {
 		if (groupIt == mGroups.end())
 		{
 			// Insert new
-			pGroup = new RenderQueueGroup(this, mSplitPassesByLightingType, mSplitNoShadowPasses);
+			pGroup = new RenderQueueGroup(this,
+                mSplitPassesByLightingType,
+                mSplitPreservingAlphaRejection,
+                mSplitNoShadowPasses,
+                mShadowCastersCannotBeReceivers);
 			mGroups.insert(RenderQueueGroupMap::value_type(groupID, pGroup));
 		}
 		else
@@ -162,16 +173,17 @@ namespace Ogre {
 
 	}
     //-----------------------------------------------------------------------
-    void RenderQueue::setSplitPassesByLightingType(bool split)
+    void RenderQueue::setSplitPassesByLightingType(bool split, bool preservingAlphaRejection)
     {
         mSplitPassesByLightingType = split;
+        mSplitPreservingAlphaRejection = preservingAlphaRejection;
 
         RenderQueueGroupMap::iterator i, iend;
         i = mGroups.begin();
         iend = mGroups.end();
         for (; i != iend; ++i)
         {
-            i->second->setSplitPassesByLightingType(split);
+            i->second->setSplitPassesByLightingType(split, preservingAlphaRejection);
         }
     }
     //-----------------------------------------------------------------------

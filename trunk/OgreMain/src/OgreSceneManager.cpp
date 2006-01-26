@@ -813,12 +813,17 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
     Root::getSingleton()._setCurrentSceneManager(this);
 	mActiveQueuedRenderableVisitor->targetSceneMgr = this;
 
-    // Prep Pass for use in debug shadows
-    initShadowVolumeMaterials();
+    if (isShadowTechniqueInUse())
+    {
+        // Prepare shadow materials
+        initShadowVolumeMaterials();
+    }
+
     // Perform a quick pre-check to see whether we should override far distance
     // When using stencil volumes we have to use infinite far distance
     // to prevent dark caps getting clipped
     if (isShadowTechniqueStencilBased() && 
+        camera->getProjectionType() == PT_PERSPECTIVE &&
         camera->getFarClipDistance() != 0 && 
         mDestRenderSystem->getCapabilities()->hasCapability(RSC_INFINITE_FAR_PLANE) && 
         mShadowUseInfiniteFarPlane)
@@ -1454,7 +1459,7 @@ void SceneManager::renderVisibleObjectsCustomSequence(RenderQueueInvocationSeque
 			if (fireRenderQueueStarted(qId, invocationName))
 			{
 				// Someone requested we skip this queue
-				continue;
+				break;
 			}
 
 			// Invoke it
@@ -2909,11 +2914,11 @@ void SceneManager::updateRenderQueueSplitOptions(void)
 	if (isShadowTechniqueAdditive() && mCurrentViewport->getShadowsEnabled())
 	{
 		// Additive lighting, we need to split everything by illumination stage
-		getRenderQueue()->setSplitPassesByLightingType(true);
+		getRenderQueue()->setSplitPassesByLightingType(true, isShadowTechniqueTextureBased());
 	}
 	else
 	{
-		getRenderQueue()->setSplitPassesByLightingType(false);
+		getRenderQueue()->setSplitPassesByLightingType(false, false);
 	}
 
 	if (isShadowTechniqueInUse() && mCurrentViewport->getShadowsEnabled())
@@ -2946,11 +2951,11 @@ void SceneManager::updateRenderQueueGroupSplitOptions(RenderQueueGroup* group,
 		isShadowTechniqueAdditive())
 	{
 		// Additive lighting, we need to split everything by illumination stage
-		group->setSplitPassesByLightingType(true);
+		group->setSplitPassesByLightingType(true, isShadowTechniqueTextureBased());
 	}
 	else
 	{
-		group->setSplitPassesByLightingType(false);
+		group->setSplitPassesByLightingType(false, false);
 	}
 
 	if (!suppressShadows && mCurrentViewport->getShadowsEnabled() 
@@ -3487,6 +3492,7 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 		}
 
 		bool resetFragmentProgram = true;
+        size_t keepTUCount = 1;
 		// If additive, need lighting parameters & standard programs
 		if (isShadowTechniqueAdditive())
 		{
@@ -3498,6 +3504,27 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 			retPass->setShininess(pass->getShininess());
 			retPass->setIteratePerLight(pass->getIteratePerLight(), 
 				pass->getRunOnlyForOneLightType(), pass->getOnlyLightType());
+
+            // We need to keep alpha rejection settings
+            retPass->setAlphaRejectSettings(pass->getAlphaRejectFunction(),
+                pass->getAlphaRejectValue());
+            // Copy texture state, shift up one since 0 is shadow texture
+            size_t origPassTUCount = pass->getNumTextureUnitStates();
+            for (size_t t = 0; t < origPassTUCount; ++t)
+            {
+                size_t targetIndex = t+1;
+                TextureUnitState* tex;
+                if (retPass->getNumTextureUnitStates() <= targetIndex)
+                {
+                    tex = retPass->createTextureUnitState();
+                }
+                else
+                {
+                    tex = retPass->getTextureUnitState(targetIndex);
+                }
+                (*tex) = *(pass->getTextureUnitState(t));
+            }
+            keepTUCount = origPassTUCount + 1;
 
 			// Will also need fragment programs since this is a complex light setup
 			if (pass->hasFragmentProgram())
@@ -3517,28 +3544,6 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 						prg->load();
 					// Copy params
 					retPass->setFragmentProgramParameters(params);
-
-					// Copy texture state, shift up one since 0 is shadow texture
-					size_t origPassTUCount = pass->getNumTextureUnitStates();
-					for (size_t t = 0; t < origPassTUCount; ++t)
-					{
-						size_t targetIndex = t+1;
-						TextureUnitState* tex;
-						if (retPass->getNumTextureUnitStates() <= targetIndex)
-						{
-							tex = retPass->createTextureUnitState();
-						}
-						else
-						{
-							tex = retPass->getTextureUnitState(targetIndex);
-						}
-						(*tex) = *(pass->getTextureUnitState(t));
-					}
-					// Remove any extras
-					while (retPass->getNumTextureUnitStates() > (origPassTUCount + 1))
-					{
-						retPass->removeTextureUnitState(origPassTUCount+1);
-					}
 
 					// Did we bind a shadow vertex program?
 					if (pass->hasVertexProgram() && !retPass->hasVertexProgram())
@@ -3568,12 +3573,12 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 		if (resetFragmentProgram)
 		{
 			retPass->setFragmentProgram(StringUtil::BLANK);
-			// Remove any extra texture units
-			while (retPass->getNumTextureUnitStates() > 1)
-			{
-				retPass->removeTextureUnitState(1);
-			}
 		}
+        // Remove any extra texture units
+        while (retPass->getNumTextureUnitStates() > keepTUCount)
+        {
+            retPass->removeTextureUnitState(keepTUCount);
+        }
 
 		// reset vertex program
 		if (retPass->hasVertexProgram() && !pass->hasVertexProgram())
@@ -3976,11 +3981,13 @@ void SceneManager::setShadowColour(const ColourValue& colour)
 {
     mShadowColour = colour;
 
-    // Prep materials first
-    initShadowVolumeMaterials();
-
-    mShadowModulativePass->getTextureUnitState(0)->setColourOperationEx(
-        LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, colour);
+    // Change shadow material setting only when it's prepared,
+    // otherwise, it'll set up while preparing shadow materials.
+    if (mShadowModulativePass)
+    {
+        mShadowModulativePass->getTextureUnitState(0)->setColourOperationEx(
+            LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, colour);
+    }
 }
 //---------------------------------------------------------------------
 const ColourValue& SceneManager::getShadowColour(void) const
@@ -4263,6 +4270,8 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
         if (!light->getCastShadows())
             continue;
 
+        Vector3 pos, dir;
+
         // Directional lights 
         if (light->getType() == Light::LT_DIRECTIONAL)
         {
@@ -4273,54 +4282,20 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
             texCam->setFOVy(Degree(90));
             texCam->setNearClipDistance(shadowDist);
 
-            // Set size of projection
-
             // Calculate look at position
             // We want to look at a spot shadowOffset away from near plane
             // 0.5 is a litle too close for angles
             Vector3 target = cam->getDerivedPosition() + 
                 (cam->getDerivedDirection() * shadowOffset);
 
+            // Calculate direction, which same as directional light direction
+            dir = - light->getDerivedDirection(); // backwards since point down -z
+            dir.normalise();
+
             // Calculate position
             // We want to be in the -ve direction of the light direction
             // far enough to project for the dir light extrusion distance
-            Vector3 pos = target + 
-                (light->getDerivedDirection() * -mShadowDirLightExtrudeDist);
-
-            // Calculate orientation
-            Vector3 dir = (pos - target); // backwards since point down -z
-            dir.normalise();
-            /*
-            // Next section (camera oriented shadow map) abandoned
-            // Always point in the same direction, if we don't do this then
-            // we get 'shadow swimming' as camera rotates
-            // As it is, we get swimming on moving but this is less noticeable
-
-            // calculate up vector, we want it aligned with cam direction
-            Vector3 up = cam->getDerivedDirection();
-            // Check it's not coincident with dir
-            if (up.dotProduct(dir) >= 1.0f)
-            {
-            // Use camera up
-            up = cam->getUp();
-            }
-            */
-            Vector3 up = Vector3::UNIT_Y;
-            // Check it's not coincident with dir
-            if (up.dotProduct(dir) >= 1.0f)
-            {
-                // Use camera up
-                up = Vector3::UNIT_Z;
-            }
-            // cross twice to rederive, only direction is unaltered
-            Vector3 left = dir.crossProduct(up);
-            left.normalise();
-            up = dir.crossProduct(left);
-            up.normalise();
-            // Derive quaternion from axes
-            Quaternion q;
-            q.FromAxes(left, up, dir);
-            texCam->setOrientation(q);
+            pos = target + dir * mShadowDirLightExtrudeDist;
 
             // Round local x/y position based on a world-space texel; this helps to reduce
             // jittering caused by the projection moving with the camera
@@ -4329,9 +4304,6 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
             pos.x -= fmod(pos.x, worldTexelSize);
             pos.y -= fmod(pos.y, worldTexelSize);
             pos.z -= fmod(pos.z, worldTexelSize);
-            // Finally set position
-            texCam->setPosition(pos);
-
         }
         // Spotlight
         else if (light->getType() == Light::LT_SPOTLIGHT)
@@ -4340,13 +4312,78 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
             texCam->setProjectionType(PT_PERSPECTIVE);
             // set FOV slightly larger than the spotlight range to ensure coverage
             texCam->setFOVy(light->getSpotlightOuterAngle()*1.2);
-            texCam->setPosition(light->getDerivedPosition());
-            texCam->setDirection(light->getDerivedDirection());
             // set near clip the same as main camera, since they are likely
             // to both reflect the nature of the scene
             texCam->setNearClipDistance(cam->getNearClipDistance());
 
+            // Calculate position, which same as spotlight position
+            pos = light->getDerivedPosition();
+
+            // Calculate direction, which same as spotlight direction
+            dir = - light->getDerivedDirection(); // backwards since point down -z
+            dir.normalise();
         }
+        // Point light
+        else
+        {
+            // Set perspective projection
+            texCam->setProjectionType(PT_PERSPECTIVE);
+            // Use 120 degree FOV for point light to ensure coverage more area
+            texCam->setFOVy(Degree(120));
+            // set near clip the same as main camera, since they are likely
+            // to both reflect the nature of the scene
+            texCam->setNearClipDistance(cam->getNearClipDistance());
+
+            // Calculate look at position
+            // We want to look at a spot shadowOffset away from near plane
+            // 0.5 is a litle too close for angles
+            Vector3 target = cam->getDerivedPosition() + 
+                (cam->getDerivedDirection() * shadowOffset);
+
+            // Calculate position, which same as point light position
+            pos = light->getDerivedPosition();
+
+            dir = (pos - target); // backwards since point down -z
+            dir.normalise();
+        }
+
+        // Finally set position
+        texCam->setPosition(pos);
+
+        // Calculate orientation based on direction calculated above
+        /*
+        // Next section (camera oriented shadow map) abandoned
+        // Always point in the same direction, if we don't do this then
+        // we get 'shadow swimming' as camera rotates
+        // As it is, we get swimming on moving but this is less noticeable
+
+        // calculate up vector, we want it aligned with cam direction
+        Vector3 up = cam->getDerivedDirection();
+        // Check it's not coincident with dir
+        if (up.dotProduct(dir) >= 1.0f)
+        {
+        // Use camera up
+        up = cam->getUp();
+        }
+        */
+        Vector3 up = Vector3::UNIT_Y;
+        // Check it's not coincident with dir
+        if (Math::Abs(up.dotProduct(dir)) >= 1.0f)
+        {
+            // Use camera up
+            up = Vector3::UNIT_Z;
+        }
+        // cross twice to rederive, only direction is unaltered
+        Vector3 left = dir.crossProduct(up);
+        left.normalise();
+        up = dir.crossProduct(left);
+        up.normalise();
+        // Derive quaternion from axes
+        Quaternion q;
+        q.FromAxes(left, up, dir);
+        texCam->setOrientation(q);
+
+        // Setup background colour
         shadowView->setBackgroundColour(ColourValue::White);
 
 		// Fire shadow caster update, callee can alter camera settings

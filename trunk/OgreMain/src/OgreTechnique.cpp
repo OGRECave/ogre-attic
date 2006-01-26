@@ -635,23 +635,15 @@ namespace Ogre {
         _notifyNeedsRecompile();
     }
     //-----------------------------------------------------------------------
-    void Technique::_compileIlluminationPasses(void)
+    void Technique::_compileIlluminationPasses(bool preservingAlphaRejection)
     {
         clearIlluminationPasses();
-
-        if (isTransparent())
-        {
-            // Don't need to split transparents since they are rendered separately
-            return;
-        }
 
         Passes::iterator i, iend;
         iend = mPasses.end();
         i = mPasses.begin();
         
         IlluminationStage iStage = IS_AMBIENT;
-
-        // Disable requirement to recompile during compile
 
         bool haveAmbient = false;
         while (i != iend)
@@ -678,27 +670,37 @@ namespace Ogre {
                 {
                     // Split off any ambient part
                     if (p->getAmbient() != ColourValue::Black ||
-                        p->getSelfIllumination() != ColourValue::Black)
+                        p->getSelfIllumination() != ColourValue::Black ||
+                        (preservingAlphaRejection &&
+                         p->getAlphaRejectFunction() != CMPF_ALWAYS_PASS))
                     {
                         // Copy existing pass
                         Pass* newPass = new Pass(this, p->getIndex(), *p);
-                        // Remove any texture units
-                        newPass->removeAllTextureUnitStates();
+                        if (preservingAlphaRejection &&
+                            newPass->getAlphaRejectFunction() != CMPF_ALWAYS_PASS)
+                        {
+                            // Alpha rejection passes must retain their transparency, so
+                            // we allow the texture units, but override the colour functions
+                            Pass::TextureUnitStateIterator tusi = newPass->getTextureUnitStateIterator();
+                            while (tusi.hasMoreElements())
+                            {
+                                TextureUnitState* tus = tusi.getNext();
+                                tus->setColourOperationEx(LBX_SOURCE1, LBS_CURRENT);
+                            }
+                        }
+                        else
+                        {
+                            // Remove any texture units
+                            newPass->removeAllTextureUnitStates();
+                        }
                         // Remove any fragment program
                         if (newPass->hasFragmentProgram())
                             newPass->setFragmentProgram("");
                         // We have to leave vertex program alone (if any) and
                         // just trust that the author is using light bindings, which 
                         // we will ensure there are none in the ambient pass
-                        newPass->setDiffuse(ColourValue::Black);
+                        newPass->setDiffuse(0, 0, 0, newPass->getDiffuse().a);  // Preserving alpha
                         newPass->setSpecular(ColourValue::Black);
-
-                        // If ambient & emissive are zero, then no colour write
-                        if (newPass->getAmbient() == ColourValue::Black && 
-                            newPass->getSelfIllumination() == ColourValue::Black)
-                        {
-                            newPass->setColourWriteEnabled(false);
-                        }
 
                         iPass = new IlluminationPass();
                         iPass->destroyOnShutdown = true;
@@ -750,8 +752,23 @@ namespace Ogre {
                     {
                         // Copy existing pass
                         Pass* newPass = new Pass(this, p->getIndex(), *p);
-                        // remove texture units
-                        newPass->removeAllTextureUnitStates();
+                        if (preservingAlphaRejection &&
+                            newPass->getAlphaRejectFunction() != CMPF_ALWAYS_PASS)
+                        {
+                            // Alpha rejection passes must retain their transparency, so
+                            // we allow the texture units, but override the colour functions
+                            Pass::TextureUnitStateIterator tusi = newPass->getTextureUnitStateIterator();
+                            while (tusi.hasMoreElements())
+                            {
+                                TextureUnitState* tus = tusi.getNext();
+                                tus->setColourOperationEx(LBX_SOURCE1, LBS_CURRENT);
+                            }
+                        }
+                        else
+                        {
+                            // remove texture units
+                            newPass->removeAllTextureUnitStates();
+                        }
                         // remove fragment programs
                         if (newPass->hasFragmentProgram())
                             newPass->setFragmentProgram("");
@@ -794,7 +811,7 @@ namespace Ogre {
                         // Copy the pass and tweak away the lighting parts
                         Pass* newPass = new Pass(this, p->getIndex(), *p);
                         newPass->setAmbient(ColourValue::Black);
-                        newPass->setDiffuse(ColourValue::Black);
+                        newPass->setDiffuse(0, 0, 0, newPass->getDiffuse().a);  // Preserving alpha
                         newPass->setSpecular(ColourValue::Black);
                         newPass->setSelfIllumination(ColourValue::Black);
                         newPass->setLightingEnabled(false);
@@ -837,16 +854,18 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     const Technique::IlluminationPassIterator 
-    Technique::getIlluminationPassIterator(void)
+    Technique::getIlluminationPassIterator(bool preservingAlphaRejection)
     {
-        if (mIlluminationPassesCompilationPhase == IPS_NOT_COMPILED)
+        IlluminationPassesState targetState =
+            preservingAlphaRejection ? IPS_COMPILED_WITH_ALPHA_REJECTION : IPS_COMPILED;
+        if (mIlluminationPassesCompilationPhase != targetState)
         {
             // prevents parent->_notifyNeedsRecompile() call during compile
             mIlluminationPassesCompilationPhase = IPS_COMPILE_DISABLED;
             // Splitting the passes into illumination passes
-            _compileIlluminationPasses();
+            _compileIlluminationPasses(preservingAlphaRejection);
             // Mark that illumination passes compilation finished
-            mIlluminationPassesCompilationPhase = IPS_COMPILED;
+            mIlluminationPassesCompilationPhase = targetState;
         }
 
         return IlluminationPassIterator(mIlluminationPasses.begin(), 
