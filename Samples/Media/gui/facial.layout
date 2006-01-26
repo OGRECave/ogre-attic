@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<GUILayout>
+	<!-- TODO -->
+<Window Type="DefaultGUISheet" Name="root">
+    <Window Type="DefaultGUISheet" Name="FacialDemo">
+		<Property Name="Size" Value="w:0.25 h:1" />
+
+		<Window Type="TaharezLook/FrameWindow" Name="OgreGuiDemo/WindowPropertiesWindow">
+			<Property Name="MetricsMode" Value="Absolute" />
+			<Property Name="Size" Value="w:200 h:400" />
+            <Property Name="Position" Value="x:0 y:0.52" />
+            <Property Name="TitlebarEnabled" Value="false" />
+            <Property Name="CloseButtonEnabled" Value="false" />
+            <Property Name="Text" Value="Editor Window" />
+            <Window Type="TaharezLook/StaticText" Name="OgreGuiDemo/WindowProperties/NameText">
+                <Property Name="Position" Value="x:5 y:5" />
+				<Property Name="Size" Value="w:50 h:20" />
+                <Property Name="Text" Value="Name:" />
+            </Window>
+
+            <Window Type="TaharezLook/Button" Name="OgreGuiDemo/WindowPropertiesWindow/OKButton">
+				<Property Name="Position" Value="x:5 y:40" />
+                <Property Name="Size" Value="w:50 h:20" />
+                <Property Name="Text" Value="OK" />
+            </Window>
+            <Window Type="TaharezLook/Button" Name="OgreGuiDemo/WindowPropertiesWindow/CancelButton">
+                <Property Name="Position" Value="x:55 y:40" />
+                <Property Name="Size" Value="w:50 h:20" />
+                <Property Name="Text" Value="Cancel" />
+            </Window>
+        </Window>
+	</Window>
+</Window>
+
+</GUILayout>

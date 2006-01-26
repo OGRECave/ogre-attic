@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="OgreMain"
 	ProjectGUID="{35AFBABB-DF05-43DE-91A7-BB828A874015}"
+	RootNamespace="OgreMain"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
