@@ -1,31 +1,31 @@
 <?xml version="1.0"?>
-<!DOCTYPE Code::Blocks_project_file>
-<Code::Blocks_project_file>
+<!DOCTYPE CodeBlocks_project_file>
+<CodeBlocks_project_file>
 	<FileVersion major="1" minor="1"/>
 	<Project>
 		<Option title="Plugin_ParticleFX"/>
 		<Option makefile="Makefile"/>
 		<Option makefile_is_custom="0"/>
 		<Option default_target="-1"/>
+		<Option active_target="0"/>
 		<Option compiler="0"/>
 		<Build>
 			<Target title="Debug">
-				<Option output="..\bin\debug\plugin_particlefx.dll"/>
+				<Option output="..\bin\Debug\Plugin_ParticleFX.dll"/>
+				<Option working_dir="."/>
 				<Option object_output="..\obj\Debug"/>
 				<Option deps_output=".deps"/>
-				<Option external_deps=""/>
 				<Option type="3"/>
 				<Option compiler="0"/>
-				<Option includeInTargetAll="0"/>
 				<Option createStaticLib="1"/>
 				<Compiler>
+					<Add option="-W"/>
+					<Add option="-g"/>
 					<Add option="-DWIN32"/>
 					<Add option="-D_DEBUG"/>
 					<Add option="-D_WINDOWS"/>
 					<Add option="-D_USRDLL"/>
 					<Add option="-DPLUGIN_ParticleFX_EXPORTS"/>
-					<Add option="-W"/>
-					<Add option="-g"/>
 					<Add directory="..\include"/>
 					<Add directory="..\..\..\OgreMain\include"/>
 					<Add directory="..\..\..\Dependencies\zlib\include"/>
@@ -37,18 +37,19 @@
 					<Add directory="..\..\..\Dependencies\lib\Debug"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="copy ..\bin\Debug\Plugin_ParticleFX.dll ..\..\..\Samples\Common\bin\Debug"/>
+					<Add after="cp ..\bin\Debug\Plugin_ParticleFX.dll ..\..\..\Samples\Common\bin\Debug"/>
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
-				<Option output="..\bin\release\plugin_particlefx.dll"/>
+				<Option output="..\bin\Release\Plugin_ParticleFX.dll"/>
+				<Option working_dir="."/>
 				<Option object_output="..\obj\Release"/>
 				<Option deps_output=".deps"/>
-				<Option external_deps=""/>
 				<Option type="3"/>
 				<Option compiler="0"/>
 				<Option createStaticLib="1"/>
 				<Compiler>
+					<Add option="-O3"/>
 					<Add option="-W"/>
 					<Add option="-DWIN32"/>
 					<Add option="-DNDEBUG"/>
@@ -60,19 +61,16 @@
 					<Add directory="..\..\..\Dependencies\include"/>
 				</Compiler>
 				<Linker>
+					<Add option="-s"/>
 					<Add library="OgreMain"/>
 					<Add directory="..\..\..\OgreMain\lib\Release"/>
 					<Add directory="..\..\..\Dependencies\lib\Release"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="..\..\..\Dependencies\bin\cp.exe ..\bin\Release\Plugin_ParticleFX.dll ..\..\..\Samples\Common\bin\Release"/>
-					<Add after="strip ..\..\..\Samples\Common\bin\Release\Plugin_ParticleFX.dll"/>
+					<Add after="cp ..\bin\Release\Plugin_ParticleFX.dll ..\..\..\Samples\Common\bin\Release"/>
 				</ExtraCommands>
 			</Target>
 		</Build>
-		<Compiler>
-			<Add option="-g"/>
-		</Compiler>
 		<Linker>
 			<Add option="-Wl,--enable-runtime-pseudo-reloc"/>
 		</Linker>
@@ -348,4 +346,4 @@
 			<Option target="Release"/>
 		</Unit>
 	</Project>
-</Code::Blocks_project_file>
+</CodeBlocks_project_file>
