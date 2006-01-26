@@ -40,6 +40,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreTechnique.h"
 #include "OgrePass.h"
+#include "OgreMaterialManager.h"
 
 
 #include <fstream>

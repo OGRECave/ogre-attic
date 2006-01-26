@@ -49,6 +49,7 @@ Enhancements 2003 - 2004 (C) The OGRE Team
 #include "OgreTerrainPage.h"
 #include "OgreLogManager.h"
 #include "OgreResourceGroupManager.h"
+#include "OgreMaterialManager.h"
 #include <fstream>
 
 #define TERRAIN_MATERIAL_NAME "TerrainSceneManager/Terrain"

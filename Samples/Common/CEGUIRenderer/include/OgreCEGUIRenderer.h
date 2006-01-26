@@ -45,6 +45,7 @@
 
 #include <OgreRenderQueueListener.h>
 #include <OgreSceneManagerEnumerator.h>
+#include <OgreTextureUnitState.h>
 
 // Start of CEGUI namespace section
 namespace CEGUI
