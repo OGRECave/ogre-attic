@@ -1,23 +1,22 @@
 <?xml version="1.0"?>
-<!DOCTYPE Code::Blocks_project_file>
-<Code::Blocks_project_file>
+<!DOCTYPE CodeBlocks_project_file>
+<CodeBlocks_project_file>
 	<FileVersion major="1" minor="1"/>
 	<Project>
 		<Option title="PlatformManager_Win32"/>
 		<Option makefile="Makefile"/>
 		<Option makefile_is_custom="0"/>
 		<Option default_target="-1"/>
+		<Option active_target="0"/>
 		<Option compiler="0"/>
 		<Build>
 			<Target title="Debug">
-				<Option output="..\bin\debug\platformmanager_win32.dll"/>
-				<Option working_dir="..\bin\debug"/>
+				<Option output="..\bin\Debug\PlatformManager_Win32.dll"/>
+				<Option working_dir="."/>
 				<Option object_output="..\obj\Debug"/>
 				<Option deps_output=".deps"/>
-				<Option external_deps=""/>
 				<Option type="3"/>
 				<Option compiler="0"/>
-				<Option includeInTargetAll="0"/>
 				<Option createStaticLib="1"/>
 				<Compiler>
 					<Add option="-W"/>
@@ -45,20 +44,19 @@
 					<Add directory="..\..\..\Dependencies\lib\Debug"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="..\..\..\Dependencies\bin\cp.exe ..\bin\Debug\PlatformManager_Win32.dll ..\..\..\Samples\Common\Bin\Debug\OgrePlatform_d.dll"/>
+					<Add after="cp ..\bin\Debug\PlatformManager_Win32.dll ..\..\..\Samples\Common\Bin\Debug\OgrePlatform_d.dll"/>
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
-				<Option output="..\bin\release\platformmanager_win32.dll"/>
-				<Option working_dir="..\bin\release"/>
+				<Option output="..\bin\Release\PlatformManager_Win32.dll"/>
+				<Option working_dir="."/>
 				<Option object_output="..\obj\Release"/>
 				<Option deps_output=".deps"/>
-				<Option external_deps=""/>
 				<Option type="3"/>
 				<Option compiler="0"/>
 				<Option createStaticLib="1"/>
 				<Compiler>
-					<Add option="-fexpensive-optimizations"/>
+					<Add option="-O3"/>
 					<Add option="-W"/>
 					<Add option="-DWIN32"/>
 					<Add option="-DNDEBUG"/>
@@ -71,10 +69,11 @@
 					<Add directory="..\..\..\Dependencies\include"/>
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="..\include"/>
 					<Add directory="..\misc"/>
+					<Add directory="..\include"/>
 				</ResourceCompiler>
 				<Linker>
+					<Add option="-s"/>
 					<Add library="OgreMain"/>
 					<Add library="dxguid"/>
 					<Add library="dinput8"/>
@@ -83,15 +82,10 @@
 					<Add directory="..\..\..\Dependencies\lib\Release"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="..\..\..\Dependencies\bin\cp.exe ..\bin\Release\PlatformManager_Win32.dll ..\..\..\Samples\Common\Bin\Release\OgrePlatform.dll"/>
-					<Add after="strip ..\..\..\Samples\Common\Bin\Release\OgrePlatform.dll"/>
+					<Add after="cp ..\bin\Release\PlatformManager_Win32.dll ..\..\..\Samples\Common\Bin\Release\OgrePlatform.dll"/>
 				</ExtraCommands>
 			</Target>
 		</Build>
-		<Compiler>
-			<Add option="-W"/>
-			<Add option="-g"/>
-		</Compiler>
 		<Linker>
 			<Add option="-Wl,--enable-runtime-pseudo-reloc"/>
 		</Linker>
@@ -171,7 +165,7 @@
 			<Option target="Debug"/>
 			<Option target="Release"/>
 		</Unit>
-		<Unit filename="..\misc\resource.h">
+		<Unit filename="..\misc\winres.h">
 			<Option compilerVar=""/>
 			<Option compile="0"/>
 			<Option link="0"/>
@@ -209,4 +203,4 @@
 			<Option target="Release"/>
 		</Unit>
 	</Project>
-</Code::Blocks_project_file>
+</CodeBlocks_project_file>

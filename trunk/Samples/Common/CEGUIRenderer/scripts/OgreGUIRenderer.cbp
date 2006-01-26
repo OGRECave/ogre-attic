@@ -1,22 +1,22 @@
 <?xml version="1.0"?>
-<!DOCTYPE Code::Blocks_project_file>
-<Code::Blocks_project_file>
+<!DOCTYPE CodeBlocks_project_file>
+<CodeBlocks_project_file>
 	<FileVersion major="1" minor="1"/>
 	<Project>
 		<Option title="OgreGUIRenderer"/>
 		<Option makefile="Makefile"/>
 		<Option makefile_is_custom="0"/>
 		<Option default_target="-1"/>
+		<Option active_target="0"/>
 		<Option compiler="0"/>
 		<Build>
 			<Target title="Debug">
-				<Option output="..\bin\debug\ogreguirenderer_d.dll"/>
-				<Option object_output="..\bin\debug"/>
+				<Option output="..\bin\Debug\OgreGUIRenderer_d.dll"/>
+				<Option working_dir="."/>
+				<Option object_output="..\bin\Debug"/>
 				<Option deps_output=".deps"/>
-				<Option external_deps=""/>
 				<Option type="3"/>
 				<Option compiler="0"/>
-				<Option includeInTargetAll="0"/>
 				<Option createStaticLib="1"/>
 				<Compiler>
 					<Add option="-W"/>
@@ -33,26 +33,27 @@
 					<Add directory="..\..\..\..\Dependencies\include\CEGUI"/>
 				</Compiler>
 				<Linker>
-					<Add library="CEGUIBase_d"/>
+					<Add library="CEGUIBase"/>
 					<Add library="Ogremain_d"/>
-					<Add library="xerces-c_2D"/>
+					<Add library="xerces-c_2_6"/>
 					<Add directory="..\..\..\..\OgreMain\lib\Debug"/>
 					<Add directory="..\..\..\..\dependencies\lib\Debug"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="copy &quot;..\bin\Debug\&quot; &quot;..\..\..\..\Samples\Common\bin\Debug&quot;"/>
+					<Add after="cp ..\bin\Debug\OgreGUIRenderer_d.dll ..\..\..\..\Samples\Common\bin\Debug"/>
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
-				<Option output="..\bin\release\ogreguirenderer.dll"/>
-				<Option object_output="..\bin\release"/>
+				<Option output="..\bin\Release\OgreGUIRenderer.dll"/>
+				<Option working_dir="."/>
+				<Option object_output="..\bin\Release"/>
 				<Option deps_output=".deps"/>
-				<Option external_deps=""/>
 				<Option type="3"/>
 				<Option compiler="0"/>
 				<Option createStaticLib="1"/>
 				<Compiler>
-					<Add option="-w"/>
+					<Add option="-O3"/>
+					<Add option="-W"/>
 					<Add option="-DWIN32"/>
 					<Add option="-DNDEBUG"/>
 					<Add option="-D_WINDOWS"/>
@@ -64,6 +65,7 @@
 					<Add directory="..\..\..\..\Dependencies\include\CEGUI"/>
 				</Compiler>
 				<Linker>
+					<Add option="-s"/>
 					<Add library="CEGUIBase"/>
 					<Add library="Ogremain"/>
 					<Add library="xerces-c_2_6"/>
@@ -71,8 +73,7 @@
 					<Add directory="..\..\..\..\dependencies\lib\Release"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="..\..\..\..\Dependencies\bin\cp.exe ..\bin\Release\ogreguirenderer.dll ..\..\bin\Release"/>
-					<Add after="strip ..\..\bin\Release\ogreguirenderer.dll"/>
+					<Add after="cp ..\bin\Release\OgreGUIRenderer.dll ..\..\bin\Release"/>
 				</ExtraCommands>
 			</Target>
 		</Build>
@@ -116,4 +117,4 @@
 			<Option target="Release"/>
 		</Unit>
 	</Project>
-</Code::Blocks_project_file>
+</CodeBlocks_project_file>

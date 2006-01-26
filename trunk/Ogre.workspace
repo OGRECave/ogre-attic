@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<!DOCTYPE Code::Blocks_workspace_file>
-<Code::Blocks_workspace_file>
+<!DOCTYPE CodeBlocks_workspace_file>
+<CodeBlocks_workspace_file>
 	<Workspace title="Ogre workspace">
 		<Project filename="OgreMain\scripts\OgreMain.cbp" active="1"/>
 		<Project filename="PlatformManagers\Win32\scripts\PlatformManager_Win32.cbp"/>
@@ -22,8 +22,10 @@
 		<Project filename="Samples\CelShading\scripts\Demo_CelShading.cbp"/>
 		<Project filename="Samples\CubeMapping\scripts\Demo_CubeMapping.cbp"/>
 		<Project filename="Samples\Dot3Bump\scripts\Demo_Dot3Bump.cbp"/>
+		<Project filename="Samples\DynTex\scripts\Demo_DynTex.cbp"/>
 		<Project filename="Samples\EnvMapping\scripts\Demo_EnvMapping.cbp"/>
 		<Project filename="Samples\Fresnel\scripts\Demo_Fresnel.cbp"/>
+		<Project filename="Samples\Grass\scripts\Demo_Grass.cbp"/>
 		<Project filename="Samples\Gui\scripts\Demo_Gui.cbp"/>
 		<Project filename="Samples\Lighting\scripts\Demo_Lighting.cbp"/>
 		<Project filename="Samples\ParticleFX\scripts\Demo_ParticleFX.cbp"/>
@@ -38,8 +40,6 @@
 		<Project filename="Samples\Transpacency\scripts\Demo_Transparency.cbp"/>
 		<Project filename="Samples\Water\scripts\Demo_Water.cbp"/>
 		<Project filename="Samples\Shadows\scripts\Demo_Shadows.cbp"/>
-		<Project filename="Samples\DynTex\scripts\Demo_DynTex.cbp"/>
 		<Project filename="Samples\VolumeTex\scripts\Demo_VolumeTex.cbp"/>
-		<Project filename="Samples\Grass\scripts\Demo_Grass.cbp"/>
 	</Workspace>
-</Code::Blocks_workspace_file>
+</CodeBlocks_workspace_file>

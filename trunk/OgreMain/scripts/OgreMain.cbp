@@ -1,23 +1,22 @@
 <?xml version="1.0"?>
-<!DOCTYPE Code::Blocks_project_file>
-<Code::Blocks_project_file>
+<!DOCTYPE CodeBlocks_project_file>
+<CodeBlocks_project_file>
 	<FileVersion major="1" minor="1"/>
 	<Project>
 		<Option title="OgreMain"/>
 		<Option makefile="Makefile"/>
 		<Option makefile_is_custom="0"/>
 		<Option default_target="-1"/>
+		<Option active_target="0"/>
 		<Option compiler="0"/>
 		<Build>
 			<Target title="Debug">
-				<Option output="..\lib\Debug\ogremain_d.dll"/>
-				<Option working_dir="..\lib\Debug"/>
+				<Option output="..\lib\Debug\OgreMain_d.dll"/>
+				<Option working_dir="."/>
 				<Option object_output="..\obj\Debug"/>
 				<Option deps_output=".deps"/>
-				<Option external_deps=""/>
 				<Option type="3"/>
 				<Option compiler="0"/>
-				<Option includeInTargetAll="0"/>
 				<Option createStaticLib="1"/>
 				<Compiler>
 					<Add option="-W"/>
@@ -43,20 +42,20 @@
 					<Add directory="..\..\Dependencies\lib\Release"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="..\..\Dependencies\bin\cp.exe ..\lib\Debug\ogremain_d.dll ..\..\Samples\Common\bin\Debug"/>
-					<Add after="..\..\Dependencies\bin\cp.exe ..\lib\Debug\ogremain_d.dll ..\..\Tools\Common\bin\Debug"/>
+					<Add after="cp ..\lib\Debug\OgreMain_d.dll ..\..\Samples\Common\bin\Debug"/>
+					<Add after="cp ..\lib\Debug\OgreMain_d.dll ..\..\Tools\Common\bin\Debug"/>
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
-				<Option output="..\lib\Release\ogremain.dll"/>
+				<Option output="..\lib\Release\OgreMain.dll"/>
 				<Option working_dir="."/>
 				<Option object_output="..\obj\Release"/>
 				<Option deps_output=".deps"/>
-				<Option external_deps=""/>
 				<Option type="3"/>
 				<Option compiler="0"/>
 				<Option createStaticLib="1"/>
 				<Compiler>
+					<Add option="-O3"/>
 					<Add option="-W"/>
 					<Add option="-DWIN32"/>
 					<Add option="-DNDEBUG"/>
@@ -67,6 +66,7 @@
 					<Add directory="..\..\Dependencies\include"/>
 				</Compiler>
 				<Linker>
+					<Add option="-s"/>
 					<Add library="kernel32"/>
 					<Add library="user32"/>
 					<Add library="zziplib"/>
@@ -78,10 +78,8 @@
 					<Add directory="..\..\Dependencies\lib\Release"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="..\..\Dependencies\bin\cp.exe ..\lib\Release\OgreMain.dll ..\..\Samples\Common\bin\Release"/>
-					<Add after="strip ..\..\Samples\Common\bin\Release\OgreMain.dll"/>
-					<Add after="..\..\Dependencies\bin\cp.exe ..\lib\Release\OgreMain.dll ..\..\Tools\Common\bin\Release"/>
-					<Add after="strip ..\..\Tools\Common\bin\Release\OgreMain.dll"/>
+					<Add after="cp ..\lib\Release\OgreMain.dll ..\..\Samples\Common\bin\Release"/>
+					<Add after="cp ..\lib\Release\OgreMain.dll ..\..\Tools\Common\bin\Release"/>
 				</ExtraCommands>
 			</Target>
 		</Build>
@@ -2204,4 +2202,4 @@
 			<Option target="Release"/>
 		</Unit>
 	</Project>
-</Code::Blocks_project_file>
+</CodeBlocks_project_file>

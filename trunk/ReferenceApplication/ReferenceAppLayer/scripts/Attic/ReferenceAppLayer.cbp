@@ -1,31 +1,31 @@
 <?xml version="1.0"?>
-<!DOCTYPE Code::Blocks_project_file>
-<Code::Blocks_project_file>
+<!DOCTYPE CodeBlocks_project_file>
+<CodeBlocks_project_file>
 	<FileVersion major="1" minor="1"/>
 	<Project>
 		<Option title="ReferenceAppLayer"/>
 		<Option makefile="Makefile"/>
 		<Option makefile_is_custom="0"/>
 		<Option default_target="-1"/>
+		<Option active_target="0"/>
 		<Option compiler="0"/>
 		<Build>
 			<Target title="Debug">
-				<Option output="..\lib\Debug\referenceapplayer.dll"/>
-				<Option object_output="..\obj\debug"/>
+				<Option output="..\lib\Debug\ReferenceAppLayer.dll"/>
+				<Option working_dir="."/>
+				<Option object_output="..\obj\Debug"/>
 				<Option deps_output=".deps"/>
-				<Option external_deps=""/>
 				<Option type="3"/>
 				<Option compiler="0"/>
-				<Option includeInTargetAll="0"/>
 				<Option createStaticLib="1"/>
 				<Compiler>
+					<Add option="-W"/>
+					<Add option="-g"/>
 					<Add option="-DWIN32"/>
 					<Add option="-D_DEBUG"/>
 					<Add option="-D_WINDOWS"/>
 					<Add option="-D_USRDLL"/>
 					<Add option="-DREFERENCEAPPLAYER_EXPORTS"/>
-					<Add option="-W"/>
-					<Add option="-g"/>
 					<Add directory="..\include"/>
 					<Add directory="..\..\..\OgreMain\include"/>
 					<Add directory="..\..\..\Dependencies\include"/>
@@ -37,20 +37,20 @@
 					<Add directory="..\..\..\Dependencies\lib\Debug"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="copy ..\lib\Debug\ReferenceAppLayer.dll ..\..\..\Samples\Common\bin\Debug"/>
+					<Add after="cp ..\lib\Debug\ReferenceAppLayer.dll ..\..\..\Samples\Common\bin\Debug"/>
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
-				<Option output="..\lib\Release\referenceapplayer.dll"/>
-				<Option object_output="..\obj\release"/>
+				<Option output="..\lib\Release\ReferenceAppLayer.dll"/>
+				<Option working_dir="."/>
+				<Option object_output="..\obj\Release"/>
 				<Option deps_output=".deps"/>
-				<Option external_deps=""/>
 				<Option type="3"/>
 				<Option compiler="0"/>
 				<Option createStaticLib="1"/>
 				<Compiler>
+					<Add option="-O3"/>
 					<Add option="-W"/>
-					<Add option="-g"/>
 					<Add option="-DWIN32"/>
 					<Add option="-DNDEBUG"/>
 					<Add option="-D_WINDOWS"/>
@@ -61,20 +61,17 @@
 					<Add directory="..\..\..\Dependencies\include"/>
 				</Compiler>
 				<Linker>
+					<Add option="-s"/>
 					<Add library="OgreMain"/>
 					<Add library="ode"/>
 					<Add directory="..\..\..\OgreMain\lib\Release"/>
 					<Add directory="..\..\..\Dependencies\lib\Release"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="..\..\..\Dependencies\bin\cp.exe ..\lib\Release\ReferenceAppLayer.dll ..\..\..\Samples\Common\bin\Release"/>
-					<Add after="strip ..\..\..\Samples\Common\bin\Release\ReferenceAppLayer.dll"/>
+					<Add after="cp ..\lib\Release\ReferenceAppLayer.dll ..\..\..\Samples\Common\bin\Release"/>
 				</ExtraCommands>
 			</Target>
 		</Build>
-		<Compiler>
-			<Add option="-g"/>
-		</Compiler>
 		<Linker>
 			<Add option="-Wl,--enable-runtime-pseudo-reloc"/>
 		</Linker>
@@ -201,4 +198,4 @@
 			<Option target="Release"/>
 		</Unit>
 	</Project>
-</Code::Blocks_project_file>
+</CodeBlocks_project_file>

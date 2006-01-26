@@ -1,27 +1,28 @@
 <?xml version="1.0"?>
-<!DOCTYPE Code::Blocks_project_file>
-<Code::Blocks_project_file>
+<!DOCTYPE CodeBlocks_project_file>
+<CodeBlocks_project_file>
 	<FileVersion major="1" minor="1"/>
 	<Project>
 		<Option title="Demo_Lighting"/>
 		<Option makefile="Makefile"/>
 		<Option makefile_is_custom="0"/>
+		<Option active_target="0"/>
 		<Option compiler="0"/>
 		<Build>
 			<Target title="Debug">
-				<Option output="..\bin\Debug\demo_lighting.exe"/>
+				<Option output="..\bin\Debug\Demo_Lighting.exe"/>
+				<Option working_dir="..\..\Common\bin\Debug\"/>
 				<Option object_output="..\obj\Debug"/>
 				<Option deps_output=".deps"/>
-				<Option external_deps=""/>
 				<Option type="1"/>
 				<Option compiler="0"/>
-				<Option includeInTargetAll="0"/>
+				<Option projectResourceIncludeDirsRelation="1"/>
 				<Compiler>
+					<Add option="-W"/>
+					<Add option="-g"/>
 					<Add option="-DWIN32"/>
 					<Add option="-D_DEBUG"/>
 					<Add option="-D_WINDOWS"/>
-					<Add option="-W"/>
-					<Add option="-g"/>
 					<Add directory="..\include"/>
 					<Add directory="..\..\Common\include"/>
 					<Add directory="..\..\..\OgreMain\include"/>
@@ -31,17 +32,19 @@
 					<Add directory="..\..\..\OgreMain\lib\Debug"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="copy ..\bin\Debug\Demo_Lighting.exe ..\..\Common\Bin\Debug"/>
+					<Add after="cp ..\bin\Debug\Demo_Lighting.exe ..\..\Common\Bin\Debug"/>
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
 				<Option output="..\bin\Release\Demo_Lighting.exe"/>
+				<Option working_dir="..\..\Common\bin\Release\"/>
 				<Option object_output="..\obj\Release"/>
-				<Option deps_output="C:\Downloads\Ogre\build\ogrenew\Samples\Lighting\scripts\.deps"/>
-				<Option external_deps=""/>
+				<Option deps_output=".deps"/>
 				<Option type="1"/>
 				<Option compiler="0"/>
+				<Option projectResourceIncludeDirsRelation="1"/>
 				<Compiler>
+					<Add option="-O3"/>
 					<Add option="-W"/>
 					<Add option="-DWIN32"/>
 					<Add option="-DNDEBUG"/>
@@ -51,18 +54,15 @@
 					<Add directory="..\..\..\OgreMain\include"/>
 				</Compiler>
 				<Linker>
+					<Add option="-s"/>
 					<Add library="OgreMain"/>
 					<Add directory="..\..\..\OgreMain\lib\Release"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="..\..\..\Dependencies\bin\cp.exe ..\bin\Release\Demo_Lighting.exe ..\..\Common\Bin\Release"/>
-					<Add after="strip ..\..\Common\Bin\Release\Demo_Lighting.exe"/>
+					<Add after="cp ..\bin\Release\Demo_Lighting.exe ..\..\Common\Bin\Release"/>
 				</ExtraCommands>
 			</Target>
 		</Build>
-		<Compiler>
-			<Add option="-g"/>
-		</Compiler>
 		<Linker>
 			<Add option="-Wl,--enable-runtime-pseudo-reloc"/>
 		</Linker>
@@ -79,4 +79,4 @@
 			<Option target="Release"/>
 		</Unit>
 	</Project>
-</Code::Blocks_project_file>
+</CodeBlocks_project_file>

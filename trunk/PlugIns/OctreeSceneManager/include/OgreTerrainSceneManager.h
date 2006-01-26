@@ -114,14 +114,14 @@ public:
     /** Gets the texture to use for the detail texture. */
     const String& getDetailTexture(void) { return mDetailTextureName; }
     /** Gets the number of times per tile the detail texture should be repeated. */
-    int setDetailTextureRepeat(void);
+    int getDetailTextureRepeat(void);
     /** Gets the dimensions of each tile (must be power of 2 + 1) */
     int getTileSize(void); 
     /** Gets the dimensions of each page (must be power of 2 + 1) */
     int getPageSize(void); 
     /** Gets the maximum screen space pixel error.  */
     int getMaxPixelError(void); 
-    /** Sets how to scale the terrain data. */
+    /** Gets how to scale the terrain data. */
     const Vector3& getScale(void);
     /** Gets the maximum geomipmap level to allow. */
     int getMaxGeoMipMapLevel(void);

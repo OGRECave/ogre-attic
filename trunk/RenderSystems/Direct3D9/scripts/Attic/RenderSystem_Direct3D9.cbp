@@ -1,60 +1,61 @@
 <?xml version="1.0"?>
-<!DOCTYPE Code::Blocks_project_file>
-<Code::Blocks_project_file>
+<!DOCTYPE CodeBlocks_project_file>
+<CodeBlocks_project_file>
 	<FileVersion major="1" minor="1"/>
 	<Project>
 		<Option title="RenderSystem_Direct3D9"/>
 		<Option makefile="Makefile"/>
 		<Option makefile_is_custom="0"/>
 		<Option default_target="-1"/>
+		<Option active_target="0"/>
 		<Option compiler="0"/>
 		<Build>
 			<Target title="Debug">
-				<Option output="..\bin\debug\rendersystem_direct3d9.dll"/>
+				<Option output="..\bin\Debug\RenderSystem_Direct3D9.dll"/>
+				<Option working_dir="."/>
 				<Option object_output="..\obj\Debug"/>
-				<Option deps_output="..\..\..\..\build\ogrenew\RenderSystems\Direct3D9\scripts\.deps"/>
-				<Option external_deps=""/>
+				<Option deps_output=".deps"/>
 				<Option type="3"/>
 				<Option compiler="0"/>
-				<Option includeInTargetAll="0"/>
 				<Option createStaticLib="1"/>
 				<Compiler>
+					<Add option="-W"/>
+					<Add option="-g"/>
 					<Add option="-DWIN32"/>
 					<Add option="-D_DEBUG"/>
 					<Add option="-D_WINDOWS"/>
 					<Add option="-D_USRDLL"/>
 					<Add option="-DOGRED3DENGINEDLL_EXPORTS"/>
 					<Add option="-DDEBUG_SAVE_TEXTURE"/>
-					<Add option="-W"/>
-					<Add option="-g"/>
 					<Add directory="..\include"/>
 					<Add directory="..\..\..\OgreMain\include"/>
 					<Add directory="..\..\..\Dependencies\include"/>
 				</Compiler>
 				<Linker>
 					<Add library="OgreMain_d"/>
+					<Add library="gdi32"/>
 					<Add library="d3d9"/>
-					<Add library="d3dx9"/>
+					<Add library="d3dx9d"/>
 					<Add library="dxerr9"/>
 					<Add library="dxguid"/>
 					<Add directory="..\..\..\OgreMain\lib\Debug"/>
 					<Add directory="..\..\..\Dependencies\lib\Debug"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="copy ..\bin\Debug\RenderSystem_Direct3D9.dll ..\..\..\Samples\Common\Bin\Debug"/>
+					<Add after="cp ..\bin\Debug\RenderSystem_Direct3D9.dll ..\..\..\Samples\Common\Bin\Debug"/>
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
-				<Option output="..\bin\release\rendersystem_direct3d9.dll"/>
-				<Option object_output="..\obj\release"/>
-				<Option deps_output="..\..\..\..\build\ogrenew\RenderSystems\Direct3D9\scripts\.deps"/>
-				<Option external_deps=""/>
+				<Option output="..\bin\Release\RenderSystem_Direct3D9.dll"/>
+				<Option working_dir="."/>
+				<Option object_output="..\obj\Release"/>
+				<Option deps_output=".deps"/>
 				<Option type="3"/>
 				<Option compiler="0"/>
 				<Option createStaticLib="1"/>
 				<Compiler>
+					<Add option="-O3"/>
 					<Add option="-W"/>
-					<Add option="-g"/>
 					<Add option="-DWIN32"/>
 					<Add option="-DNDEBUG"/>
 					<Add option="-D_WINDOWS"/>
@@ -66,6 +67,7 @@
 					<Add directory="..\..\..\Dependencies\include"/>
 				</Compiler>
 				<Linker>
+					<Add option="-s"/>
 					<Add library="OgreMain"/>
 					<Add library="gdi32"/>
 					<Add library="d3d9"/>
@@ -76,14 +78,10 @@
 					<Add directory="..\..\..\Dependencies\lib\Release"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="..\..\..\Dependencies\bin\cp.exe ..\bin\Release\RenderSystem_Direct3D9.dll ..\..\..\Samples\Common\Bin\Release"/>
-					<Add after="strip ..\..\..\Samples\Common\Bin\Release\RenderSystem_Direct3D9.dll"/>
+					<Add after="cp ..\bin\Release\RenderSystem_Direct3D9.dll ..\..\..\Samples\Common\Bin\Release"/>
 				</ExtraCommands>
 			</Target>
 		</Build>
-		<Compiler>
-			<Add option="-g"/>
-		</Compiler>
 		<Linker>
 			<Add option="-Wl,--enable-runtime-pseudo-reloc"/>
 		</Linker>
@@ -328,4 +326,4 @@
 			<Option target="Release"/>
 		</Unit>
 	</Project>
-</Code::Blocks_project_file>
+</CodeBlocks_project_file>
