@@ -24,6 +24,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 #include "OgreRenderQueueSortingGrouping.h"
+#include "OgreMaterialManager.h"
 #include "OgreException.h"
 
 namespace Ogre {
@@ -36,11 +37,15 @@ namespace Ogre {
 
 	//-----------------------------------------------------------------------
 	RenderPriorityGroup::RenderPriorityGroup(RenderQueueGroup* parent, 
-            bool splitPassesByLightingType, bool splitNoShadowPasses, 
+            bool splitPassesByLightingType,
+            bool splitPreservingAlphaRejection,
+            bool splitNoShadowPasses, 
 			bool shadowCastersNotReceivers)
-	 	:mParent(parent), mSplitPassesByLightingType(splitPassesByLightingType),
-            mSplitNoShadowPasses(splitNoShadowPasses), 
-			mShadowCastersNotReceivers(shadowCastersNotReceivers)
+	 	: mParent(parent)
+        , mSplitPassesByLightingType(splitPassesByLightingType)
+        , mSplitPreservingAlphaRejection(splitPreservingAlphaRejection)
+        , mSplitNoShadowPasses(splitNoShadowPasses)
+        , mShadowCastersNotReceivers(shadowCastersNotReceivers)
 	{
 		// Initialise collection sorting options
 		// this can become dynamic according to invocation later
@@ -110,7 +115,7 @@ namespace Ogre {
             {
                 if (mSplitPassesByLightingType && mParent->getShadowsEnabled())
                 {
-                    addSolidRenderableSplitByLightType(pTech, rend);
+                    addSolidRenderableSplitByLightType(pTech, rend, mSplitPreservingAlphaRejection);
                 }
                 else
                 {
@@ -145,11 +150,12 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void RenderPriorityGroup::addSolidRenderableSplitByLightType(Technique* pTech, Renderable* rend)
+    void RenderPriorityGroup::addSolidRenderableSplitByLightType(Technique* pTech,
+        Renderable* rend, bool preservingAlphaRejection)
     {
         // Divide the passes into the 3 categories
         Technique::IlluminationPassIterator pi = 
-            pTech->getIlluminationPassIterator();
+            pTech->getIlluminationPassIterator(preservingAlphaRejection);
 
         while (pi.hasMoreElements())
         {

@@ -31,7 +31,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterial.h"
 #include "OgreTechnique.h"
 #include "OgrePass.h"
-#include "OgreMaterialManager.h"
 #include "OgreRadixSort.h"
 
 namespace Ogre {
@@ -316,6 +315,7 @@ namespace Ogre {
 		/// Parent queue group
         RenderQueueGroup* mParent;
         bool mSplitPassesByLightingType;
+        bool mSplitPreservingAlphaRejection;
         bool mSplitNoShadowPasses;
 		bool mShadowCastersNotReceivers;
         /// Solid pass list, used when no shadows, modulative shadows, or ambient passes for additive
@@ -335,13 +335,15 @@ namespace Ogre {
         /// Internal method for adding a solid renderable
         void addSolidRenderable(Technique* pTech, Renderable* rend, bool toNoShadowMap);
         /// Internal method for adding a solid renderable
-        void addSolidRenderableSplitByLightType(Technique* pTech, Renderable* rend);
+        void addSolidRenderableSplitByLightType(Technique* pTech, Renderable* rend, bool preservingAlphaRejection);
         /// Internal method for adding a transparent renderable
         void addTransparentRenderable(Technique* pTech, Renderable* rend);
 
     public:
         RenderPriorityGroup(RenderQueueGroup* parent, 
-            bool splitPassesByLightingType, bool splitNoShadowPasses, 
+            bool splitPassesByLightingType,
+            bool splitPreservingAlphaRejection,
+            bool splitNoShadowPasses, 
 			bool shadowCastersNotReceivers); 
            
         ~RenderPriorityGroup() { }
@@ -407,9 +409,10 @@ namespace Ogre {
         /** Sets whether or not the queue will split passes by their lighting type,
         ie ambient, per-light and decal. 
         */
-        void setSplitPassesByLightingType(bool split)
+        void setSplitPassesByLightingType(bool split, bool preservingAlphaRejection)
         {
             mSplitPassesByLightingType = split;
+            mSplitPreservingAlphaRejection = preservingAlphaRejection;
         }
 
         /** Sets whether or not passes which have shadow receive disabled should
@@ -448,6 +451,7 @@ namespace Ogre {
     protected:
         RenderQueue* mParent;
         bool mSplitPassesByLightingType;
+        bool mSplitPreservingAlphaRejection;
         bool mSplitNoShadowPasses;
 		bool mShadowCastersNotReceivers;
         /// Map of RenderPriorityGroup objects
@@ -457,11 +461,19 @@ namespace Ogre {
 
 
     public:
-		RenderQueueGroup(RenderQueue* parent, bool splitPassesByLightingType, 
-            bool splitNoShadowPasses) 
-            :mParent(parent), mSplitPassesByLightingType(splitPassesByLightingType),
-            mSplitNoShadowPasses(splitNoShadowPasses), mShadowsEnabled(true), 
-			mShadowCastersNotReceivers(false) {}
+		RenderQueueGroup(RenderQueue* parent,
+            bool splitPassesByLightingType,
+            bool splitPreservingAlphaRejection,
+            bool splitNoShadowPasses,
+            bool shadowCastersNotReceivers) 
+            : mParent(parent)
+            , mSplitPassesByLightingType(splitPassesByLightingType)
+            , mSplitPreservingAlphaRejection(splitPreservingAlphaRejection)
+            , mSplitNoShadowPasses(splitNoShadowPasses)
+            , mShadowCastersNotReceivers(shadowCastersNotReceivers)
+            , mShadowsEnabled(true)
+        {
+        }
 
         ~RenderQueueGroup() {
             // destroy contents now
@@ -488,7 +500,9 @@ namespace Ogre {
             {
                 // Missing, create
                 pPriorityGrp = new RenderPriorityGroup(this, 
-                    mSplitPassesByLightingType, mSplitNoShadowPasses, 
+                    mSplitPassesByLightingType,
+                    mSplitPreservingAlphaRejection,
+                    mSplitNoShadowPasses, 
 					mShadowCastersNotReceivers);
                 mPriorityGroups.insert(PriorityMap::value_type(priority, pPriorityGrp));
             }
@@ -546,14 +560,15 @@ namespace Ogre {
         /** Sets whether or not the queue will split passes by their lighting type,
         ie ambient, per-light and decal. 
         */
-        void setSplitPassesByLightingType(bool split)
+        void setSplitPassesByLightingType(bool split, bool preservingAlphaRejection)
         {
             mSplitPassesByLightingType = split;
+            mSplitPreservingAlphaRejection = preservingAlphaRejection;
             PriorityMap::iterator i, iend;
             iend = mPriorityGroups.end();
             for (i = mPriorityGroups.begin(); i != iend; ++i)
             {
-                i->second->setSplitPassesByLightingType(split);
+                i->second->setSplitPassesByLightingType(split, preservingAlphaRejection);
             }
         }
         /** Sets whether or not the queue will split passes which have shadow receive
