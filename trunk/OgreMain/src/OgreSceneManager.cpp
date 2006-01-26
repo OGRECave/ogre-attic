@@ -3492,10 +3492,11 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 		}
 
 		bool resetFragmentProgram = true;
-        size_t keepTUCount = 1;
+        size_t keepTUCount;
 		// If additive, need lighting parameters & standard programs
 		if (isShadowTechniqueAdditive())
 		{
+			keepTUCount = 1;
 			retPass->setLightingEnabled(true);
 			retPass->setAmbient(pass->getAmbient());
 			retPass->setSelfIllumination(pass->getSelfIllumination());
@@ -3568,6 +3569,11 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 			} // ori pass has fragment program
 			
 		}// additive lighting
+		else
+		{
+			// need to keep spotlight fade etc
+			keepTUCount = retPass->getNumTextureUnitStates();
+		}
 
 		// reset fragment program
 		if (resetFragmentProgram)
