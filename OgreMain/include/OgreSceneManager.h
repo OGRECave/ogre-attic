@@ -42,6 +42,9 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreRenderQueue.h"
 #include "OgreRenderQueueSortingGrouping.h"
 #include "OgreRectangle2D.h"
+#include "OgrePixelFormat.h"
+#include "OgreResourceGroupManager.h"
+#include "OgreTexture.h"
 
 namespace Ogre {
 
