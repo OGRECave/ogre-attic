@@ -1,25 +1,26 @@
 <?xml version="1.0"?>
-<!DOCTYPE Code::Blocks_project_file>
-<Code::Blocks_project_file>
+<!DOCTYPE CodeBlocks_project_file>
+<CodeBlocks_project_file>
 	<FileVersion major="1" minor="1"/>
 	<Project>
 		<Option title="MeshUpgrader"/>
 		<Option makefile="Makefile"/>
 		<Option makefile_is_custom="0"/>
+		<Option active_target="0"/>
 		<Option compiler="0"/>
 		<Build>
 			<Target title="Debug">
-				<Option output="..\bin\debug\ogremeshupgrade.exe"/>
-				<Option object_output="..\obj\debug"/>
+				<Option output="..\bin\Debug\OgreMeshUpgrader.exe"/>
+				<Option working_dir="..\..\Common\bin\Debug"/>
+				<Option object_output="..\obj\Debug"/>
 				<Option deps_output=".deps"/>
-				<Option external_deps=""/>
 				<Option type="1"/>
 				<Option compiler="0"/>
-				<Option includeInTargetAll="0"/>
+				<Option projectResourceIncludeDirsRelation="1"/>
 				<Compiler>
-					<Add option="-DTIXML_USE_STL"/>
 					<Add option="-W"/>
 					<Add option="-g"/>
+					<Add option="-DTIXML_USE_STL"/>
 					<Add directory="..\include"/>
 					<Add directory="..\..\..\OgreMain\include"/>
 					<Add directory="..\..\..\Dependencies\include"/>
@@ -30,38 +31,36 @@
 					<Add directory="..\..\..\Dependencies\lib\Debug"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="copy ..\bin\Debug\OgreMeshUpgrade.exe ..\..\Common\bin\Debug"/>
+					<Add after="cp ..\bin\Debug\OgreMeshUpgrader.exe ..\..\Common\bin\Debug"/>
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
-				<Option output="..\bin\Release\OgreMeshUpgrade.exe"/>
+				<Option output="..\bin\Release\OgreMeshUpgrader.exe"/>
+				<Option working_dir="..\..\Common\bin\Release"/>
 				<Option object_output="..\obj\Release"/>
-				<Option deps_output="C:\Downloads\Ogre\build\ogrenew\Tools\MeshUpgrader\scripts\.deps"/>
-				<Option external_deps=""/>
+				<Option deps_output=".deps"/>
 				<Option type="1"/>
 				<Option compiler="0"/>
+				<Option projectResourceIncludeDirsRelation="1"/>
 				<Compiler>
+					<Add option="-O3"/>
 					<Add option="-W"/>
-					<Add option="-g"/>
 					<Add option="-DTIXML_USE_STL"/>
 					<Add directory="..\include"/>
 					<Add directory="..\..\..\OgreMain\include"/>
 					<Add directory="..\..\..\Dependencies\include"/>
 				</Compiler>
 				<Linker>
+					<Add option="-s"/>
 					<Add library="OgreMain"/>
 					<Add directory="..\..\..\OgreMain\lib\Release"/>
 					<Add directory="..\..\..\Dependencies\lib\Release"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="..\..\..\Dependencies\bin\cp.exe ..\bin\Release\OgreMeshUpgrade.exe ..\..\Common\bin\Release"/>
-					<Add after="strip ..\..\Common\bin\Release\OgreMeshUpgrade.exe"/>
+					<Add after="cp ..\bin\Release\OgreMeshUpgrader.exe ..\..\Common\bin\Release"/>
 				</ExtraCommands>
 			</Target>
 		</Build>
-		<Compiler>
-			<Add option="-g"/>
-		</Compiler>
 		<Linker>
 			<Add option="-Wl,--enable-runtime-pseudo-reloc"/>
 		</Linker>
@@ -71,4 +70,4 @@
 			<Option target="Release"/>
 		</Unit>
 	</Project>
-</Code::Blocks_project_file>
+</CodeBlocks_project_file>

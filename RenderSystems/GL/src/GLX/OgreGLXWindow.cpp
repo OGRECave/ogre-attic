@@ -100,7 +100,7 @@ GLXWindow::~GLXWindow()
 void GLXWindow::create(const String& name, unsigned int width, unsigned int height,
 	            bool fullScreen, const NameValuePairList *miscParams)
 {
-	std::cerr << "GLXWindow::create" << std::endl;
+	LogManager::getSingleton().logMessage("GLXWindow::create");
 
 	String title = name;
 	size_t fsaa_samples = 0;
@@ -122,7 +122,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
         // Unless parentWindowHandle is given in miscParams we're top-level
 	mTopLevel = true;
    
-	std::cerr << "Parsing miscParams" << std::endl;
+	LogManager::getSingleton().logMessage("Parsing miscParams");
 	if(miscParams)
 	{
 		// Parse miscellenous parameters

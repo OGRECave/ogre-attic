@@ -276,7 +276,7 @@ namespace Ogre
         Real getSquaredViewDepth(const Camera* cam) const;
 
         /** Overridden from MovableObject */
-        Real getBoundingRadius(void) const { return 0; /* not needed */ }
+        Real getBoundingRadius(void) const { return mBoundingRadius; }
 
         /** @copydoc Renderable::getLights */
         const LightList& getLights(void) const;
@@ -356,6 +356,12 @@ namespace Ogre
         Real *mMinLevelDistSqr;
         /// Connection to tiles four neighbours
         TerrainRenderable *mNeighbors [ 4 ];
+        /// Whether light list need to re-calculate
+        mutable bool mLightListDirty;
+        /// Cached light list
+        mutable LightList mLightList;
+        /// The bounding radius of this tile
+        Real mBoundingRadius;
         /// Bounding box of this tile
         AxisAlignedBox mBounds;
         /// The center point of this tile

@@ -1502,7 +1502,7 @@ void SceneManager::renderVisibleObjectsDefaultSequence(void)
 				mIlluminationStage == IRS_RENDER_TO_TEXTURE ? "Shadows" : StringUtil::BLANK))
             {
                 // Someone requested we skip this queue
-                continue;
+                break;
             }
 
 			// TODO sjs Drive ordering from RenderQueueInvocation
