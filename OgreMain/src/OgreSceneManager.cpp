@@ -4245,17 +4245,14 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
         shadowDist = cam->getNearClipDistance() * 300;
     }
 	Real shadowOffset = shadowDist * mShadowTextureOffset;
-    // set fogging to hide the shadow edge in modulative mode
-	if (isShadowTechniqueModulative())
-	{
-		Real shadowEnd = shadowDist + shadowOffset;
-		mShadowReceiverPass->setFog(true, FOG_LINEAR, ColourValue::White, 
-			0, shadowEnd * mShadowTextureFadeStart, shadowEnd * mShadowTextureFadeEnd);
-	}
-	else
-	{
-		mShadowReceiverPass->setFog(false);
-	}
+    // Precalculate fading info
+	Real shadowEnd = shadowDist + shadowOffset;
+	Real fadeStart = shadowEnd * mShadowTextureFadeStart;
+	Real fadeEnd = shadowEnd * mShadowTextureFadeEnd;
+	// set fogging to hide the shadow edge 
+	// Additive lighting needs fading too (directional)
+	mShadowReceiverPass->setFog(true, FOG_LINEAR, ColourValue::White, 
+		0, fadeStart, fadeEnd);
 
     // Iterate over the lights we've found, max out at the limit of light textures
 
