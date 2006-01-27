@@ -11,23 +11,351 @@
             <Property Name="Position" Value="x:0 y:0.52" />
             <Property Name="TitlebarEnabled" Value="false" />
             <Property Name="CloseButtonEnabled" Value="false" />
-            <Property Name="Text" Value="Editor Window" />
-            <Window Type="TaharezLook/StaticText" Name="OgreGuiDemo/WindowProperties/NameText">
+			<Property Name="Text" Value="Editor Window" />
+			<Window Type="TaharezLook/RadioButton" Name="Facial/Radio/Play">
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
                 <Property Name="Position" Value="x:5 y:5" />
-				<Property Name="Size" Value="w:50 h:20" />
-                <Property Name="Text" Value="Name:" />
+				<Property Name="Size" Value="w:90 h:20" />
+                <Property Name="Text" Value="Animation" />
+            </Window>
+			<Window Type="TaharezLook/RadioButton" Name="Facial/Radio/Manual">
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:100 y:5" />
+				<Property Name="Size" Value="w:90 h:20" />
+                <Property Name="Text" Value="Manual" />
+			</Window>				
+			<Window Type="TaharezLook/StaticText" Name="Facial/Expressions">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:5 y:15" />
+				<Property Name="Size" Value="w:190 h:40" />
+                <Property Name="Text" Value="Expressions" />
+            </Window>
+			<Window Type="TaharezLook/StaticText" Name="Facial/Happy_Label">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+				<Property Name="Position" Value="x:5 y:35" />
+				<Property Name="Size" Value="w:65 h:40" />
+                <Property Name="Text" Value="Happy" />
+            </Window>
+			<Window Type="TaharezLook/HorizontalScrollbar" Name="Facial/Happy_Scroll">
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:60 y:55" />
+				<Property Name="Size" Value="w:120 h:10" />
+				<Property Name="DocumentSize" Value="1.1" />
+				<Property Name="PageSize" Value="0.1" />
+				<Property Name="StepSize" Value="0.05" />
+				<Property Name="OverlapSize" Value="0.05" />
+            </Window>
+			<Window Type="TaharezLook/StaticText" Name="Facial/Sad_Label">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+				<Property Name="Position" Value="x:5 y:50" />
+				<Property Name="Size" Value="w:65 h:40" />
+                <Property Name="Text" Value="Sad" />
+            </Window>
+			<Window Type="TaharezLook/HorizontalScrollbar" Name="Facial/Sad_Scroll">
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:60 y:70" />
+				<Property Name="Size" Value="w:120 h:10" />
+				<Property Name="DocumentSize" Value="255" />
+				<Property Name="PageSize" Value="16" />
+				<Property Name="StepSize" Value="1" />
+            </Window>
+			<Window Type="TaharezLook/StaticText" Name="Facial/Angry_Label">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:5 y:65" />
+				<Property Name="Size" Value="w:65 h:40" />
+                <Property Name="Text" Value="Angry" />
+            </Window>
+			<Window Type="TaharezLook/HorizontalScrollbar" Name="Facial/Angry_Scroll">
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:60 y:85" />
+				<Property Name="Size" Value="w:120 h:10" />
+				<Property Name="DocumentSize" Value="255" />
+				<Property Name="PageSize" Value="16" />
+				<Property Name="StepSize" Value="1" />
+			</Window>
+
+			<Window Type="TaharezLook/StaticText" Name="Facial/MouthShapes">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:5 y:90" />
+				<Property Name="Size" Value="w:150 h:40" />
+                <Property Name="Text" Value="Mouth Shapes" />
             </Window>
 
-            <Window Type="TaharezLook/Button" Name="OgreGuiDemo/WindowPropertiesWindow/OKButton">
-				<Property Name="Position" Value="x:5 y:40" />
-                <Property Name="Size" Value="w:50 h:20" />
-                <Property Name="Text" Value="OK" />
+			<Window Type="TaharezLook/StaticText" Name="Facial/A_Label">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:25 y:115" />
+				<Property Name="Size" Value="w:65 h:40" />
+                <Property Name="Text" Value="A" />
             </Window>
-            <Window Type="TaharezLook/Button" Name="OgreGuiDemo/WindowPropertiesWindow/CancelButton">
-                <Property Name="Position" Value="x:55 y:40" />
-                <Property Name="Size" Value="w:50 h:20" />
-                <Property Name="Text" Value="Cancel" />
+			<Window Type="TaharezLook/HorizontalScrollbar" Name="Facial/A_Scroll">
+				<Property Name="MetricsMode" Value="Absolute" />
+				<Property Name="Position" Value="x:60 y:130" />
+				<Property Name="Size" Value="w:120 h:10" />
+				<Property Name="DocumentSize" Value="255" />
+				<Property Name="PageSize" Value="16" />
+				<Property Name="StepSize" Value="1" />
             </Window>
+			<Window Type="TaharezLook/StaticText" Name="Facial/E_Label">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+				<Property Name="Position" Value="x:25 y:130" />
+				<Property Name="Size" Value="w:65 h:40" />
+                <Property Name="Text" Value="E" />
+            </Window>
+			<Window Type="TaharezLook/HorizontalScrollbar" Name="Facial/E_Scroll">
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:60 y:145" />
+				<Property Name="Size" Value="w:120 h:10" />
+				<Property Name="DocumentSize" Value="255" />
+				<Property Name="PageSize" Value="16" />
+				<Property Name="StepSize" Value="1" />
+            </Window>
+			<Window Type="TaharezLook/StaticText" Name="Facial/I_Label">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:25 y:145" />
+				<Property Name="Size" Value="w:65 h:40" />
+                <Property Name="Text" Value="I" />
+            </Window>
+			<Window Type="TaharezLook/HorizontalScrollbar" Name="Facial/I_Scroll">
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:60 y:160" />
+				<Property Name="Size" Value="w:120 h:10" />
+				<Property Name="DocumentSize" Value="255" />
+				<Property Name="PageSize" Value="16" />
+				<Property Name="StepSize" Value="1" />
+            </Window>
+			<Window Type="TaharezLook/StaticText" Name="Facial/O_Label">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+				<Property Name="Position" Value="x:25 y:160" />
+				<Property Name="Size" Value="w:65 h:40" />
+                <Property Name="Text" Value="O" />
+            </Window>
+			<Window Type="TaharezLook/HorizontalScrollbar" Name="Facial/O_Scroll">
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:60 y:175" />
+				<Property Name="Size" Value="w:120 h:10" />
+				<Property Name="DocumentSize" Value="255" />
+				<Property Name="PageSize" Value="16" />
+				<Property Name="StepSize" Value="1" />
+            </Window>
+			<Window Type="TaharezLook/StaticText" Name="Facial/U_Label">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:25 y:175" />
+				<Property Name="Size" Value="w:65 h:40" />
+                <Property Name="Text" Value="U" />
+            </Window>
+			<Window Type="TaharezLook/HorizontalScrollbar" Name="Facial/U_Scroll">
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:60 y:190" />
+				<Property Name="Size" Value="w:120 h:10" />
+				<Property Name="DocumentSize" Value="255" />
+				<Property Name="PageSize" Value="16" />
+				<Property Name="StepSize" Value="1" />
+            </Window>
+			<Window Type="TaharezLook/StaticText" Name="Facial/C_Label">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:25 y:190" />
+				<Property Name="Size" Value="w:65 h:40" />
+                <Property Name="Text" Value="C" />
+            </Window>
+			<Window Type="TaharezLook/HorizontalScrollbar" Name="Facial/C_Scroll">
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:60 y:205" />
+				<Property Name="Size" Value="w:120 h:10" />
+				<Property Name="DocumentSize" Value="255" />
+				<Property Name="PageSize" Value="16" />
+				<Property Name="StepSize" Value="1" />
+			</Window>
+			<Window Type="TaharezLook/StaticText" Name="Facial/W_Label">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:25 y:205" />
+				<Property Name="Size" Value="w:65 h:40" />
+                <Property Name="Text" Value="W" />
+            </Window>
+			<Window Type="TaharezLook/HorizontalScrollbar" Name="Facial/W_Scroll">
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:60 y:220" />
+				<Property Name="Size" Value="w:120 h:10" />
+				<Property Name="DocumentSize" Value="255" />
+				<Property Name="PageSize" Value="16" />
+				<Property Name="StepSize" Value="1" />
+            </Window>
+			<Window Type="TaharezLook/StaticText" Name="Facial/M_Label">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:25 y:220" />
+				<Property Name="Size" Value="w:65 h:40" />
+                <Property Name="Text" Value="M" />
+            </Window>
+			<Window Type="TaharezLook/HorizontalScrollbar" Name="Facial/M_Scroll">
+				<Property Name="MetricsMode" Value="Absolute" />
+				<Property Name="Position" Value="x:60 y:235" />
+				<Property Name="Size" Value="w:120 h:10" />
+				<Property Name="DocumentSize" Value="255" />
+				<Property Name="PageSize" Value="16" />
+				<Property Name="StepSize" Value="1" />
+            </Window>
+			<Window Type="TaharezLook/StaticText" Name="Facial/L_Label">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:25 y:235" />
+				<Property Name="Size" Value="w:65 h:40" />
+                <Property Name="Text" Value="L" />
+            </Window>
+			<Window Type="TaharezLook/HorizontalScrollbar" Name="Facial/L_Scroll">
+				<Property Name="MetricsMode" Value="Absolute" />
+				<Property Name="Position" Value="x:60 y:250" />
+				<Property Name="Size" Value="w:120 h:10" />
+				<Property Name="DocumentSize" Value="255" />
+				<Property Name="PageSize" Value="16" />
+				<Property Name="StepSize" Value="1" />
+            </Window>
+			<Window Type="TaharezLook/StaticText" Name="Facial/F_Label">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:25 y:250" />
+				<Property Name="Size" Value="w:65 h:40" />
+                <Property Name="Text" Value="F" />
+            </Window>
+			<Window Type="TaharezLook/HorizontalScrollbar" Name="Facial/F_Scroll">
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:60 y:265" />
+				<Property Name="Size" Value="w:120 h:10" />
+				<Property Name="DocumentSize" Value="255" />
+				<Property Name="PageSize" Value="16" />
+				<Property Name="StepSize" Value="1" />
+            </Window>
+			<Window Type="TaharezLook/StaticText" Name="Facial/T_Label">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:25 y:265" />
+				<Property Name="Size" Value="w:65 h:40" />
+                <Property Name="Text" Value="T" />
+            </Window>
+			<Window Type="TaharezLook/HorizontalScrollbar" Name="Facial/T_Scroll">
+				<Property Name="MetricsMode" Value="Absolute" />
+				<Property Name="Position" Value="x:60 y:280" />
+				<Property Name="Size" Value="w:120 h:10" />
+				<Property Name="DocumentSize" Value="255" />
+				<Property Name="PageSize" Value="16" />
+				<Property Name="StepSize" Value="1" />
+            </Window>
+			<Window Type="TaharezLook/StaticText" Name="Facial/P_Label">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:25 y:280" />
+				<Property Name="Size" Value="w:65 h:40" />
+                <Property Name="Text" Value="P" />
+            </Window>
+			<Window Type="TaharezLook/HorizontalScrollbar" Name="Facial/P_Scroll">
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:60 y:295" />
+				<Property Name="Size" Value="w:120 h:10" />
+				<Property Name="DocumentSize" Value="255" />
+				<Property Name="PageSize" Value="16" />
+				<Property Name="StepSize" Value="1" />
+            </Window>
+			<Window Type="TaharezLook/StaticText" Name="Facial/R_Label">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:25 y:295" />
+				<Property Name="Size" Value="w:65 h:40" />
+                <Property Name="Text" Value="R" />
+            </Window>
+			<Window Type="TaharezLook/HorizontalScrollbar" Name="Facial/R_Scroll">
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:60 y:310" />
+				<Property Name="Size" Value="w:120 h:10" />
+				<Property Name="DocumentSize" Value="255" />
+				<Property Name="PageSize" Value="16" />
+				<Property Name="StepSize" Value="1" />
+            </Window>
+			<Window Type="TaharezLook/StaticText" Name="Facial/S_Label">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:25 y:310" />
+				<Property Name="Size" Value="w:65 h:40" />
+                <Property Name="Text" Value="S" />
+            </Window>
+			<Window Type="TaharezLook/HorizontalScrollbar" Name="Facial/S_Scroll">
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:60 y:325" />
+				<Property Name="Size" Value="w:120 h:10" />
+				<Property Name="DocumentSize" Value="255" />
+				<Property Name="PageSize" Value="16" />
+				<Property Name="StepSize" Value="1" />
+            </Window>
+			<Window Type="TaharezLook/StaticText" Name="Facial/TH_Label">
+				<Property Name="FrameEnabled" Value="False"/>
+				<Property Name="BackgroundEnabled" Value="False"/>
+				<Property Name="Font" Value="Tahoma-10"/>
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:25 y:325" />
+				<Property Name="Size" Value="w:65 h:40" />
+                <Property Name="Text" Value="TH" />
+            </Window>
+			<Window Type="TaharezLook/HorizontalScrollbar" Name="Facial/TH_Scroll">
+				<Property Name="MetricsMode" Value="Absolute" />
+                <Property Name="Position" Value="x:60 y:340" />
+				<Property Name="Size" Value="w:120 h:10" />
+				<Property Name="DocumentSize" Value="255" />
+				<Property Name="PageSize" Value="16" />
+				<Property Name="StepSize" Value="1" />
+            </Window>
+			
+			<!-- A, U, O, E, I, C, W, M, L, F, T, P, R, S, TH -->
+
         </Window>
 	</Window>
 </Window>
