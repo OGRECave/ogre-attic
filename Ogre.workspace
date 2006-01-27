@@ -2,7 +2,7 @@
 <!DOCTYPE CodeBlocks_workspace_file>
 <CodeBlocks_workspace_file>
 	<Workspace title="Ogre workspace">
-		<Project filename="OgreMain\scripts\OgreMain.cbp" active="1"/>
+		<Project filename="OgreMain\scripts\OgreMain.cbp"/>
 		<Project filename="PlatformManagers\Win32\scripts\PlatformManager_Win32.cbp"/>
 		<Project filename="PlugIns\BSPSceneManager\scripts\Plugin_BSPSceneManager.cbp"/>
 		<Project filename="PlugIns\CgProgramManager\scripts\Plugin_CgProgramManager.cbp"/>
@@ -21,6 +21,7 @@
 		<Project filename="Samples\CameraTrack\scripts\Demo_CameraTrack.cbp"/>
 		<Project filename="Samples\CelShading\scripts\Demo_CelShading.cbp"/>
 		<Project filename="Samples\CubeMapping\scripts\Demo_CubeMapping.cbp"/>
+		<Project filename="Samples\DeferredShading\scripts\Demo_DeferredShading.cbp" active="1"/>
 		<Project filename="Samples\Dot3Bump\scripts\Demo_Dot3Bump.cbp"/>
 		<Project filename="Samples\DynTex\scripts\Demo_DynTex.cbp"/>
 		<Project filename="Samples\EnvMapping\scripts\Demo_EnvMapping.cbp"/>
