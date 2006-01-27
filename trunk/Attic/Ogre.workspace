@@ -24,6 +24,7 @@
 		<Project filename="Samples\Dot3Bump\scripts\Demo_Dot3Bump.cbp"/>
 		<Project filename="Samples\DynTex\scripts\Demo_DynTex.cbp"/>
 		<Project filename="Samples\EnvMapping\scripts\Demo_EnvMapping.cbp"/>
+		<Project filename="Samples\FacialAnimation\scripts\Demo_FacialAnimation.cbp"/>
 		<Project filename="Samples\Fresnel\scripts\Demo_Fresnel.cbp"/>
 		<Project filename="Samples\Grass\scripts\Demo_Grass.cbp"/>
 		<Project filename="Samples\Gui\scripts\Demo_Gui.cbp"/>
