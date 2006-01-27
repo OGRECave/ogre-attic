@@ -2,6 +2,8 @@
 <GUIScheme Name="TaharezLook">
 	<Imageset Name="TaharezLook" Filename="TaharezLook.imageset" />
 	<Font Name="Tahoma-12" Filename="tahoma-12.font" />
+	<Font Name="Tahoma-10" Filename="tahoma-10.font" />
+	<Font Name="Tahoma-8" Filename="tahoma-8.font" />
 	<WindowSet Filename="CEGUITaharezLook">
 		<WindowFactory Name="TaharezLook/AlternateProgressBar" />
 		<WindowFactory Name="TaharezLook/Button" />
