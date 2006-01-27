@@ -139,7 +139,6 @@ OgreRenderSystem.h \
 OgreRenderSystemCapabilities.h \
 OgreRenderTarget.h \
 OgreRenderTargetListener.h \
-OgreRenderTargetTexture.h \
 OgreRenderTexture.h \
 OgreRenderWindow.h \
 OgreRenderable.h \
