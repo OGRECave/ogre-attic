@@ -23,6 +23,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "OgreStringConverter.h"
 #include "OgreException.h"
+#include "OgreMaterialManager.h"
 
 #include "OgrePass.h"
 #include "OgreTechnique.h"

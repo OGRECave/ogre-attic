@@ -28,6 +28,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "OgreHardwarePixelBuffer.h"
 #include "OgreRoot.h"
 #include "OgreRenderSystem.h"
+#include "OgreMaterialManager.h"
 
 #include "OgreEntity.h"
 #include "OgreSubEntity.h"
