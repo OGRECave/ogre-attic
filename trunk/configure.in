@@ -145,11 +145,16 @@ AC_CONFIG_FILES([Makefile \
     Samples/CubeMapping/Makefile \
     Samples/CubeMapping/src/Makefile \
     Samples/CubeMapping/include/Makefile \
+	Samples/DeferredShading/Makefile \
+	Samples/DeferredShading/src/Makefile \
+	Samples/DeferredShading/include/Makefile  \
     Samples/Dot3Bump/Makefile \
     Samples/Dot3Bump/src/Makefile \
     Samples/EnvMapping/Makefile \
     Samples/EnvMapping/src/Makefile \
     Samples/EnvMapping/include/Makefile \
+    Samples/FacialAnimation/Makefile \
+    Samples/FacialAnimation/src/Makefile \
     Samples/Fresnel/Makefile \
     Samples/Fresnel/src/Makefile \
     Samples/Grass/Makefile \
@@ -199,9 +204,6 @@ AC_CONFIG_FILES([Makefile \
 	Samples/VolumeTex/Makefile \
 	Samples/VolumeTex/src/Makefile \
 	Samples/VolumeTex/include/Makefile \
-	Samples/DeferredShading/Makefile \
-	Samples/DeferredShading/src/Makefile \
-	Samples/DeferredShading/include/Makefile  \
     Tests/Makefile \
     Tests/src/Makefile \
     Tools/Makefile \
