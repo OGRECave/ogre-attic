@@ -59,13 +59,13 @@ namespace Ogre {
 		  mVertexProgramInUse(false),
 		  mSoftwareSkinningRequests(0),
 		  mSoftwareSkinningNormalsRequests(0),
-		  mMeshLodFactorInv(1.0f),
 		  mMeshLodIndex(0),
-		  mMaxMeshLodIndex(0),		// Backwards, remember low value = high detail
+		  mMeshLodFactorInv(1.0f),
 		  mMinMeshLodIndex(99),
+		  mMaxMeshLodIndex(0),		// Backwards, remember low value = high detail
 		  mMaterialLodFactorInv(1.0f),
-		  mMaxMaterialLodIndex(0), 		// Backwards, remember low value = high detail
 		  mMinMaterialLodIndex(99),
+		  mMaxMaterialLodIndex(0), 		// Backwards, remember low value = high detail
           mSkeletonInstance(0),
 		  mLastParentXform(Matrix4::ZERO),
 		  mNormaliseNormals(false)
@@ -89,13 +89,13 @@ namespace Ogre {
 		mVertexProgramInUse(false),
 		mSoftwareSkinningRequests(0),
 		mSoftwareSkinningNormalsRequests(0),
-		mMeshLodFactorInv(1.0f),
 		mMeshLodIndex(0),
-		mMaxMeshLodIndex(0),		// Backwards, remember low value = high detail
+		mMeshLodFactorInv(1.0f),
 		mMinMeshLodIndex(99),
+		mMaxMeshLodIndex(0),		// Backwards, remember low value = high detail
 		mMaterialLodFactorInv(1.0f),
-		mMaxMaterialLodIndex(0), 		// Backwards, remember low value = high detail
 		mMinMaterialLodIndex(99),
+		mMaxMaterialLodIndex(0), 		// Backwards, remember low value = high detail
 		mSkeletonInstance(0),
 		mLastParentXform(Matrix4::ZERO),
 		mNormaliseNormals(false)
@@ -126,7 +126,7 @@ namespace Ogre {
             {
                 const MeshLodUsage& usage = mesh->getLodLevel(i);
                 // Manually create entity
-                Entity* lodEnt = new Entity(name + "Lod" + StringConverter::toString(i), 
+                Entity* lodEnt = new Entity(name + "Lod" + StringConverter::toString(i),
                     usage.manualMesh);
                 mLodEntityList.push_back(lodEnt);
             }
@@ -185,7 +185,7 @@ namespace Ogre {
         liend = mLodEntityList.end();
         for (li = mLodEntityList.begin(); li != liend; ++li)
         {
-            // Delete 
+            // Delete
             delete (*li);
         }
 
@@ -199,7 +199,7 @@ namespace Ogre {
             delete *si;
         }
 
-        // Detach all child objects, do this manually to avoid needUpdate() call 
+        // Detach all child objects, do this manually to avoid needUpdate() call
         // which can fail because of deleted items
         detachAllObjectsImpl();
 
@@ -212,7 +212,7 @@ namespace Ogre {
                     delete mAnimationState;
                     delete mFrameBonesLastUpdated;
                     delete mSharedSkeletonEntities;
-                }	
+                }
             } else {
                 delete mSkeletonInstance;
                 delete [] mBoneMatrices;
@@ -264,7 +264,7 @@ namespace Ogre {
     Entity* Entity::clone( const String& newName)
     {
         Entity* newEnt;
-		newEnt = Root::getSingleton()._getCurrentSceneManager()->createEntity( 
+		newEnt = Root::getSingleton()._getCurrentSceneManager()->createEntity(
 			newName, getMesh()->getName() );
         // Copy material settings
         SubEntityList::iterator i;
@@ -411,7 +411,7 @@ namespace Ogre {
         if (mMeshLodIndex > 0 && mMesh->isLodManual())
         {
             // Use alternate entity
-            assert( static_cast< size_t >( mMeshLodIndex - 1 ) < mLodEntityList.size() && 
+            assert( static_cast< size_t >( mMeshLodIndex - 1 ) < mLodEntityList.size() &&
                 "No LOD EntityList - did you build the manual LODs after creating the entity?");
             // index - 1 as we skip index 0 (original lod)
             if (hasSkeleton() && mLodEntityList[mMeshLodIndex - 1]->hasSkeleton())
@@ -430,26 +430,26 @@ namespace Ogre {
         iend = mSubEntityList.end();
         for (i = mSubEntityList.begin(); i != iend; ++i)
         {
-            if((*i)->isVisible())  
+            if((*i)->isVisible())
             {
-                if(mRenderQueueIDSet) 
+                if(mRenderQueueIDSet)
                 {
                     queue->addRenderable(*i, mRenderQueueID);
-                } 
-                else 
+                }
+                else
                 {
                     queue->addRenderable(*i);
                 }
             }
         }
 
-        // Since we know we're going to be rendered, take this opportunity to 
+        // Since we know we're going to be rendered, take this opportunity to
         // update the animation
         if (hasSkeleton() || hasVertexAnimation())
         {
             updateAnimation();
 
-            //--- pass this point,  we are sure that the transformation matrix of each bone and tagPoint have been updated			
+            //--- pass this point,  we are sure that the transformation matrix of each bone and tagPoint have been updated
             ChildObjectList::iterator child_itr = mChildObjectList.begin();
             ChildObjectList::iterator child_itr_end = mChildObjectList.end();
             for( ; child_itr != child_itr_end; child_itr++)
@@ -468,7 +468,7 @@ namespace Ogre {
             for (int b = 0; b < numBones; ++b)
             {
                 Bone* bone = mSkeletonInstance->getBone(b);
-                if(mRenderQueueIDSet) 
+                if(mRenderQueueIDSet)
                 {
                      queue->addRenderable(bone, mRenderQueueID);
                 } else {
@@ -486,7 +486,7 @@ namespace Ogre {
     {
         if (!mAnimationState)
         {
-            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Entity is not animated", 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Entity is not animated",
                 "Entity::getAnimationState");
         }
 
@@ -551,7 +551,7 @@ namespace Ogre {
 		bool hwSkinning = isHardwareAnimationEnabled();
 		bool forcedSwSkinning = getSoftwareSkinningRequests()>0;
 		bool forcedNormals = getSoftwareSkinningNormalsRequests()>0;
-		bool stencilShadows = 
+		bool stencilShadows =
 			root._getCurrentSceneManager()->isShadowTechniqueStencilBased();
 		bool softwareAnimation = !hwSkinning || forcedSwSkinning || stencilShadows;
 		// Blend normals in s/w only if we're not using h/w skinning,
@@ -571,14 +571,14 @@ namespace Ogre {
 				if (softwareAnimation)
 				{
 					// grab & bind temporary buffer for positions
-					if (mSoftwareVertexAnimVertexData 
+					if (mSoftwareVertexAnimVertexData
 						&& mMesh->getSharedVertexDataAnimationType() != VAT_NONE)
 					{
 						mTempVertexAnimInfo.checkoutTempCopies(true, false);
 						// NB we suppress hardware upload while doing blend if we're
 						// hardware skinned, because the only reason for doing this
 						// is for shadow, which need only be uploaded then
-						mTempVertexAnimInfo.bindTempCopies(mSoftwareVertexAnimVertexData, 
+						mTempVertexAnimInfo.bindTempCopies(mSoftwareVertexAnimVertexData,
 							hwSkinning);
 					}
 					SubEntityList::iterator i, iend;
@@ -591,7 +591,7 @@ namespace Ogre {
 							&& se->getSubMesh()->getVertexAnimationType() != VAT_NONE)
 						{
 							se->mTempVertexAnimInfo.checkoutTempCopies(true, false);
-							se->mTempVertexAnimInfo.bindTempCopies(se->mSoftwareVertexAnimVertexData, 
+							se->mTempVertexAnimInfo.bindTempCopies(se->mSoftwareVertexAnimVertexData,
 								hwSkinning);
 						}
 
@@ -616,12 +616,12 @@ namespace Ogre {
 						// hardware skinned, because the only reason for doing this
 						// is for shadow, which need only be uploaded then
 						mTempSkelAnimInfo.checkoutTempCopies(true, blendNormals);
-						mTempSkelAnimInfo.bindTempCopies(mSkelAnimVertexData, 
+						mTempSkelAnimInfo.bindTempCopies(mSkelAnimVertexData,
 							hwSkinning);
 						// Blend, taking source from either mesh data or morph data
 						Mesh::softwareVertexBlend(
-							(mMesh->getSharedVertexDataAnimationType() != VAT_NONE) ? 
-								mSoftwareVertexAnimVertexData :	mMesh->sharedVertexData, 
+							(mMesh->getSharedVertexDataAnimationType() != VAT_NONE) ?
+								mSoftwareVertexAnimVertexData :	mMesh->sharedVertexData,
 							mSkelAnimVertexData,
 							mBoneMatrices, &mMesh->sharedBlendIndexToBoneIndexMap[0],
 							blendNormals);
@@ -635,12 +635,12 @@ namespace Ogre {
 						if (se->isVisible() && se->mSkelAnimVertexData)
 						{
 							se->mTempSkelAnimInfo.checkoutTempCopies(true, blendNormals);
-							se->mTempSkelAnimInfo.bindTempCopies(se->mSkelAnimVertexData, 
+							se->mTempSkelAnimInfo.bindTempCopies(se->mSkelAnimVertexData,
 								hwSkinning);
 							// Blend, taking source from either mesh data or morph data
 							Mesh::softwareVertexBlend(
-								(se->getSubMesh()->getVertexAnimationType() != VAT_NONE)? 
-									se->mSoftwareVertexAnimVertexData : se->mSubMesh->vertexData, 
+								(se->getSubMesh()->getVertexAnimationType() != VAT_NONE)?
+									se->mSoftwareVertexAnimVertexData : se->mSubMesh->vertexData,
 								se->mSkelAnimVertexData,
 								mBoneMatrices, &se->mSubMesh->blendIndexToBoneIndexMap[0],
 								blendNormals);
@@ -662,7 +662,7 @@ namespace Ogre {
         }
     }
 	//-----------------------------------------------------------------------
-	void Entity::initHardwareAnimationElements(VertexData* vdata, 
+	void Entity::initHardwareAnimationElements(VertexData* vdata,
 		ushort numberOfElements)
 	{
 		if (vdata->hwAnimationDataList.size() < numberOfElements)
@@ -690,7 +690,7 @@ namespace Ogre {
 			if (mHardwareVertexAnimVertexData
 				&& msh->getSharedVertexDataAnimationType() != VAT_NONE)
 			{
-				initHardwareAnimationElements(mHardwareVertexAnimVertexData, 
+				initHardwareAnimationElements(mHardwareVertexAnimVertexData,
 					(msh->getSharedVertexDataAnimationType() == VAT_POSE)
 					? mHardwarePoseCount : 1);
 			}
@@ -698,7 +698,7 @@ namespace Ogre {
 				si != mSubEntityList.end(); ++si)
 			{
 				SubEntity* sub = *si;
-				if (sub->getSubMesh()->getVertexAnimationType() != VAT_NONE && 
+				if (sub->getSubMesh()->getVertexAnimationType() != VAT_NONE &&
 					!sub->getSubMesh()->useSharedVertices)
 				{
 					initHardwareAnimationElements(
@@ -713,7 +713,7 @@ namespace Ogre {
 		{
 			// May be blending multiple poses in software
 			// Suppress hardware upload of buffers
-			if (mSoftwareVertexAnimVertexData && 
+			if (mSoftwareVertexAnimVertexData &&
 				mMesh->getSharedVertexDataAnimationType() == VAT_POSE)
 			{
 				const VertexElement* elem = mSoftwareVertexAnimVertexData
@@ -726,7 +726,7 @@ namespace Ogre {
 				si != mSubEntityList.end(); ++si)
 			{
 				SubEntity* sub = *si;
-				if (!sub->getSubMesh()->useSharedVertices && 
+				if (!sub->getSubMesh()->useSharedVertices &&
 					sub->getSubMesh()->getVertexAnimationType() == VAT_POSE)
 				{
 					VertexData* data = sub->_getSoftwareVertexAnimVertexData();
@@ -751,7 +751,7 @@ namespace Ogre {
             Animation* anim = msh->_getAnimationImpl(state->getAnimationName());
             if (anim)
             {
-                anim->apply(this, state->getTimePosition(), state->getWeight(), 
+                anim->apply(this, state->getTimePosition(), state->getWeight(),
                     swAnim, hardwareAnimation);
             }
 		}
@@ -761,7 +761,7 @@ namespace Ogre {
 		// Unsuppress hardware upload if we suppressed it
 		if (!hardwareAnimation)
 		{
-			if (mSoftwareVertexAnimVertexData && 
+			if (mSoftwareVertexAnimVertexData &&
 				msh->getSharedVertexDataAnimationType() == VAT_POSE)
 			{
 				const VertexElement* elem = mSoftwareVertexAnimVertexData
@@ -774,7 +774,7 @@ namespace Ogre {
 				si != mSubEntityList.end(); ++si)
 			{
 				SubEntity* sub = *si;
-				if (!sub->getSubMesh()->useSharedVertices && 
+				if (!sub->getSubMesh()->useSharedVertices &&
 					sub->getSubMesh()->getVertexAnimationType() == VAT_POSE)
 				{
 					VertexData* data = sub->_getSoftwareVertexAnimVertexData();
@@ -786,13 +786,13 @@ namespace Ogre {
 				}
 			}
 		}
-		
+
 	}
 	//-----------------------------------------------------------------------------
 	void Entity::markBuffersUnusedForAnimation(void)
 	{
 		mVertexAnimationAppliedThisFrame = false;
-		for (SubEntityList::iterator i = mSubEntityList.begin(); 
+		for (SubEntityList::iterator i = mSubEntityList.begin();
 			i != mSubEntityList.end(); ++i)
 		{
 			(*i)->_markBuffersUnusedForAnimation();
@@ -808,28 +808,28 @@ namespace Ogre {
 	void Entity::restoreBuffersForUnusedAnimation(bool hardwareAnimation)
 	{
 		// Rebind original positions if:
-		//  We didn't apply any animation and 
+		//  We didn't apply any animation and
 		//    We're morph animated (hardware binds keyframe, software is missing)
 		//    or we're pose animated and software (hardware is fine, still bound)
 		if (mMesh->sharedVertexData &&
 			!mVertexAnimationAppliedThisFrame &&
 			(!hardwareAnimation || mMesh->getSharedVertexDataAnimationType() == VAT_MORPH))
 		{
-			const VertexElement* srcPosElem = 
+			const VertexElement* srcPosElem =
 				mMesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
-			HardwareVertexBufferSharedPtr srcBuf = 
+			HardwareVertexBufferSharedPtr srcBuf =
 				mMesh->sharedVertexData->vertexBufferBinding->getBuffer(
 					srcPosElem->getSource());
 
 			// Bind to software
-			const VertexElement* destPosElem = 
+			const VertexElement* destPosElem =
 				mSoftwareVertexAnimVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
 			mSoftwareVertexAnimVertexData->vertexBufferBinding->setBinding(
 				destPosElem->getSource(), srcBuf);
 
 		}
 
-		for (SubEntityList::iterator i = mSubEntityList.begin(); 
+		for (SubEntityList::iterator i = mSubEntityList.begin();
 			i != mSubEntityList.end(); ++i)
 		{
 			(*i)->_restoreBuffersForUnusedAnimation(hardwareAnimation);
@@ -876,7 +876,7 @@ namespace Ogre {
     void Entity::cacheBoneMatrices(void)
     {
         Root& root = Root::getSingleton();
-        unsigned long currentFrameNumber = root.getCurrentFrameNumber();		
+        unsigned long currentFrameNumber = root.getCurrentFrameNumber();
         if (*mFrameBonesLastUpdated  != currentFrameNumber) {
 
             // Get the appropriate meshes skeleton here
@@ -1003,26 +1003,26 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void Entity::setRenderDetail(SceneDetailLevel renderDetail) 
+    void Entity::setRenderDetail(SceneDetailLevel renderDetail)
     {
         SubEntityList::iterator i, iend;
         iend = mSubEntityList.end();
 
-        for( i = mSubEntityList.begin(); i != iend; ++i ) 
-        { 
-            (*i)->setRenderDetail(renderDetail); 
-        } 
+        for( i = mSubEntityList.begin(); i != iend; ++i )
+        {
+            (*i)->setRenderDetail(renderDetail);
+        }
     }
     //-----------------------------------------------------------------------
-    void Entity::setRenderDetailOverrideable(bool renderDetailOverrideable) 
+    void Entity::setRenderDetailOverrideable(bool renderDetailOverrideable)
     {
         SubEntityList::iterator i, iend;
         iend = mSubEntityList.end();
 
-        for( i = mSubEntityList.begin(); i != iend; ++i ) 
-        { 
+        for( i = mSubEntityList.begin(); i != iend; ++i )
+        {
             (*i)->setRenderDetailOverrideable(renderDetailOverrideable);
-        } 
+        }
     }
 
     //-----------------------------------------------------------------------
@@ -1036,18 +1036,18 @@ namespace Ogre {
         }
         if(pMovable->isAttached())
         {
-            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Object already attached to a sceneNode or a Bone", 
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Object already attached to a sceneNode or a Bone",
                 "Entity::attachObjectToBone");
         }
         if (!hasSkeleton())
         {
-            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "This entity's mesh has no skeleton to attach object to.", 
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "This entity's mesh has no skeleton to attach object to.",
                 "Entity::attachObjectToBone");
         }
         Bone* bone = mSkeletonInstance->getBone(boneName);
         if (!bone)
         {
-            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Cannot locate bone named " + boneName, 
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Cannot locate bone named " + boneName,
                 "Entity::attachObjectToBone");
         }
 
@@ -1080,7 +1080,7 @@ namespace Ogre {
 
         if (i == mChildObjectList.end())
         {
-            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No child object entry found named " + name, 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No child object entry found named " + name,
                 "Entity::detachObjectFromBone");
         }
         MovableObject *obj = i->second;
@@ -1163,17 +1163,17 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Entity::prepareTempBlendBuffers(void)
     {
-        if (mSkelAnimVertexData) 
+        if (mSkelAnimVertexData)
         {
             delete mSkelAnimVertexData;
             mSkelAnimVertexData = 0;
         }
-		if (mSoftwareVertexAnimVertexData) 
+		if (mSoftwareVertexAnimVertexData)
 		{
 			delete mSoftwareVertexAnimVertexData;
 			mSoftwareVertexAnimVertexData = 0;
 		}
-		if (mHardwareVertexAnimVertexData) 
+		if (mHardwareVertexAnimVertexData)
 		{
 			delete mHardwareVertexAnimVertexData;
 			mHardwareVertexAnimVertexData = 0;
@@ -1182,14 +1182,14 @@ namespace Ogre {
 		if (hasVertexAnimation())
 		{
 			// Shared data
-			if (mMesh->sharedVertexData 
+			if (mMesh->sharedVertexData
 				&& mMesh->getSharedVertexDataAnimationType() != VAT_NONE)
 			{
 				// Create temporary vertex blend info
 				// Prepare temp vertex data if needed
 				// Clone without copying data, remove blending info
 				// (since blend is performed in software)
-				mSoftwareVertexAnimVertexData = 
+				mSoftwareVertexAnimVertexData =
 					cloneVertexDataRemoveBlendInfo(mMesh->sharedVertexData);
 				extractTempBufferInfo(mSoftwareVertexAnimVertexData, &mTempVertexAnimInfo);
 
@@ -1208,7 +1208,7 @@ namespace Ogre {
                 // Prepare temp vertex data if needed
                 // Clone without copying data, remove blending info
                 // (since blend is performed in software)
-                mSkelAnimVertexData = 
+                mSkelAnimVertexData =
                     cloneVertexDataRemoveBlendInfo(mMesh->sharedVertexData);
                 extractTempBufferInfo(mSkelAnimVertexData, &mTempSkelAnimInfo);
             }
@@ -1262,9 +1262,9 @@ namespace Ogre {
     {
         // Clone without copying data
         VertexData* ret = source->clone(false);
-        const VertexElement* blendIndexElem = 
+        const VertexElement* blendIndexElem =
             source->vertexDeclaration->findElementBySemantic(VES_BLEND_INDICES);
-        const VertexElement* blendWeightElem = 
+        const VertexElement* blendWeightElem =
             source->vertexDeclaration->findElementBySemantic(VES_BLEND_WEIGHTS);
         // Remove blend index
         if (blendIndexElem)
@@ -1273,7 +1273,7 @@ namespace Ogre {
             ret->vertexBufferBinding->unsetBinding(blendIndexElem->getSource());
 
         }
-        if (blendWeightElem && 
+        if (blendWeightElem &&
             blendWeightElem->getSource() != blendIndexElem->getSource())
         {
             // Remove buffer reference
@@ -1299,7 +1299,7 @@ namespace Ogre {
     void Entity::reevaluateVertexProcessing(void)
     {
         // init
-        mHardwareAnimation = false; 
+        mHardwareAnimation = false;
         mVertexProgramInUse = false; // assume false because we just assign this
         bool firstPass = true;
 
@@ -1325,7 +1325,7 @@ namespace Ogre {
             }
             if (p->hasVertexProgram())
             {
-                // If one material uses a vertex program, set this flag 
+                // If one material uses a vertex program, set this flag
                 // Causes some special processing like forcing a separate light cap
                 mVertexProgramInUse = true;
 
@@ -1387,10 +1387,10 @@ namespace Ogre {
 						mHardwareAnimation = mHardwareAnimation &&
 							p->getVertexProgram()->isPoseAnimationIncluded();
 						if (sub->getSubMesh()->useSharedVertices)
-							mHardwarePoseCount = std::max(mHardwarePoseCount, 
+							mHardwarePoseCount = std::max(mHardwarePoseCount,
 								p->getVertexProgram()->getNumberOfPosesIncluded());
 						else
-							sub->mHardwarePoseCount = std::max(sub->mHardwarePoseCount, 
+							sub->mHardwarePoseCount = std::max(sub->mHardwarePoseCount,
 								p->getVertexProgram()->getNumberOfPosesIncluded());
 					}
 				}
@@ -1400,21 +1400,21 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    ShadowCaster::ShadowRenderableListIterator 
+    ShadowCaster::ShadowRenderableListIterator
         Entity::getShadowVolumeRenderableIterator(
-        ShadowTechnique shadowTechnique, const Light* light, 
-        HardwareIndexBufferSharedPtr* indexBuffer, 
+        ShadowTechnique shadowTechnique, const Light* light,
+        HardwareIndexBufferSharedPtr* indexBuffer,
         bool extrude, Real extrusionDistance, unsigned long flags)
     {
         assert(indexBuffer && "Only external index buffers are supported right now");
-        assert((*indexBuffer)->getType() == HardwareIndexBuffer::IT_16BIT && 
+        assert((*indexBuffer)->getType() == HardwareIndexBuffer::IT_16BIT &&
             "Only 16-bit indexes supported for now");
 
         // Potentially delegate to LOD entity
         if (mMesh->isLodManual() && mMeshLodIndex > 0)
         {
             // Use alternate entity
-            assert( static_cast< size_t >( mMeshLodIndex - 1 ) < mLodEntityList.size() && 
+            assert( static_cast< size_t >( mMeshLodIndex - 1 ) < mLodEntityList.size() &&
                 "No LOD EntityList - did you build the manual LODs after creating the entity?");
             // delegate, we're using manual LOD and not the top lod index
             if (hasSkeleton() && mLodEntityList[mMeshLodIndex - 1]->hasSkeleton())
@@ -1425,7 +1425,7 @@ namespace Ogre {
 					mLodEntityList[mMeshLodIndex - 1]->mAnimationState);
             }
             return mLodEntityList[mMeshLodIndex-1]->getShadowVolumeRenderableIterator(
-                shadowTechnique, light, indexBuffer, extrude, 
+                shadowTechnique, light, indexBuffer, extrude,
                 extrusionDistance, flags);
         }
 
@@ -1447,7 +1447,7 @@ namespace Ogre {
         }
 
 
-        // Update any animation 
+        // Update any animation
         if (hasAnimation)
         {
             updateAnimation();
@@ -1456,12 +1456,12 @@ namespace Ogre {
         // Calculate the object space light details
         Vector4 lightPos = light->getAs4DVector();
         // Only use object-space light if we're not doing transforms
-        // Since when animating the positions are already transformed into 
+        // Since when animating the positions are already transformed into
         // world space so we need world space light position
         if (!hasSkeleton())
         {
             Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
-            lightPos =  world2Obj * lightPos; 
+            lightPos =  world2Obj * lightPos;
         }
 
         // We need to search the edge list for silhouette edges
@@ -1501,15 +1501,15 @@ namespace Ogre {
                     pVertData = egi->vertexData;
                 }
 
-                // Try to find corresponding SubEntity; this allows the 
+                // Try to find corresponding SubEntity; this allows the
                 // linkage of visibility between ShadowRenderable and SubEntity
                 SubEntity* subent = findSubEntityForVertexData(egi->vertexData);
                 // Create a new renderable, create a separate light cap if
                 // we're using a vertex program (either for this model, or
-                // for extruding the shadow volume) since otherwise we can 
+                // for extruding the shadow volume) since otherwise we can
                 // get depth-fighting on the light cap
 
-                *si = new EntityShadowRenderable(this, indexBuffer, pVertData, 
+                *si = new EntityShadowRenderable(this, indexBuffer, pVertData,
                     mVertexProgramInUse || !extrude, subent);
             }
             else if (hasAnimation)
@@ -1532,7 +1532,7 @@ namespace Ogre {
                 {
                     // recalculate face normals
                     edgeList->updateFaceNormals(egi->vertexSet, esrPositionBuffer);
-                    // If we're not extruding in software we still need to update 
+                    // If we're not extruding in software we still need to update
                     // the latter part of the buffer (the hardware extruded part)
                     // with the latest animated positions
                     if (!extrude)
@@ -1553,8 +1553,8 @@ namespace Ogre {
             // Extrude vertices in software if required
             if (extrude)
             {
-                extrudeVertices(esrPositionBuffer, 
-                    egi->vertexData->vertexCount, 
+                extrudeVertices(esrPositionBuffer,
+                    egi->vertexData->vertexCount,
                     lightPos, extrusionDistance);
 
             }
@@ -1592,7 +1592,7 @@ namespace Ogre {
             }
         }
         // None found
-        OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+        OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
             "Cannot find blended version of the vertex data specified.",
             "Entity::findBlendedVertexData");
     }
@@ -1619,7 +1619,7 @@ namespace Ogre {
         return 0;
     }
     //-----------------------------------------------------------------------
-    void Entity::addSoftwareSkinningRequest(bool normalsAlso) 
+    void Entity::addSoftwareSkinningRequest(bool normalsAlso)
     {
         mSoftwareSkinningRequests++;
         if (normalsAlso) {
@@ -1636,7 +1636,7 @@ namespace Ogre {
     void Entity::removeSoftwareSkinningRequest(bool normalsAlso)
     {
         if (mSoftwareSkinningRequests == 0 ||
-            (normalsAlso && mSoftwareSkinningNormalsRequests == 0)) 
+            (normalsAlso && mSoftwareSkinningNormalsRequests == 0))
         {
             OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
                         "Attempt to remove nonexistant request.",
@@ -1663,7 +1663,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    Entity::EntityShadowRenderable::EntityShadowRenderable(Entity* parent, 
+    Entity::EntityShadowRenderable::EntityShadowRenderable(Entity* parent,
         HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData,
         bool createSeparateLightCap, SubEntity* subent, bool isLightCap)
         : mParent(parent), mSubEntity(subent)
@@ -1679,13 +1679,13 @@ namespace Ogre {
 
         // Create vertex data which just references position component (and 2 component)
         mRenderOp.vertexData = new VertexData();
-        mRenderOp.vertexData->vertexDeclaration = 
+        mRenderOp.vertexData->vertexDeclaration =
             HardwareBufferManager::getSingleton().createVertexDeclaration();
-        mRenderOp.vertexData->vertexBufferBinding = 
+        mRenderOp.vertexData->vertexBufferBinding =
             HardwareBufferManager::getSingleton().createVertexBufferBinding();
         // Map in position data
         mRenderOp.vertexData->vertexDeclaration->addElement(0,0,VET_FLOAT3, VES_POSITION);
-        mOriginalPosBufferBinding = 
+        mOriginalPosBufferBinding =
             vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
         mPositionBuffer = vertexData->vertexBufferBinding->getBuffer(mOriginalPosBufferBinding);
         mRenderOp.vertexData->vertexBufferBinding->setBinding(0, mPositionBuffer);
@@ -1708,12 +1708,12 @@ namespace Ogre {
         {
             // Vertex count must take into account the doubling of the buffer,
             // because second half of the buffer is the extruded copy
-            mRenderOp.vertexData->vertexCount = 
+            mRenderOp.vertexData->vertexCount =
                 vertexData->vertexCount * 2;
             if (createSeparateLightCap)
             {
                 // Create child light cap
-                mLightCap = new EntityShadowRenderable(parent, 
+                mLightCap = new EntityShadowRenderable(parent,
                     indexBuffer, vertexData, false, subent, true);
             }
         }
@@ -1793,32 +1793,32 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Entity::shareSkeletonInstanceWith(Entity* entity)
     {
-        if (entity->getMesh()->getSkeleton() != getMesh()->getSkeleton()) 
+        if (entity->getMesh()->getSkeleton() != getMesh()->getSkeleton())
         {
-            OGRE_EXCEPT(Exception::ERR_RT_ASSERTION_FAILED, 
+            OGRE_EXCEPT(Exception::ERR_RT_ASSERTION_FAILED,
                 "The supplied entity has a different skeleton.",
-                "Entity::shareSkeletonWith");	
+                "Entity::shareSkeletonWith");
         }
         if (!mSkeletonInstance)
         {
-            OGRE_EXCEPT(Exception::ERR_RT_ASSERTION_FAILED, 
+            OGRE_EXCEPT(Exception::ERR_RT_ASSERTION_FAILED,
                 "This entity has no skeleton.",
-                "Entity::shareSkeletonWith");	
-        }	
-        if (mSharedSkeletonEntities != NULL && entity->mSharedSkeletonEntities != NULL) 
+                "Entity::shareSkeletonWith");
+        }
+        if (mSharedSkeletonEntities != NULL && entity->mSharedSkeletonEntities != NULL)
         {
-            OGRE_EXCEPT(Exception::ERR_RT_ASSERTION_FAILED, 
+            OGRE_EXCEPT(Exception::ERR_RT_ASSERTION_FAILED,
                 "Both entities already shares their SkeletonInstances! At least "
                 "one of the instances must not share it's instance.",
-                "Entity::shareSkeletonWith");	
-        }	
+                "Entity::shareSkeletonWith");
+        }
 
         //check if we already share our skeletoninstance, we don't want to delete it if so
-        if (mSharedSkeletonEntities != NULL) 
+        if (mSharedSkeletonEntities != NULL)
         {
             entity->shareSkeletonInstanceWith(this);
         }
-        else 
+        else
         {
             delete mSkeletonInstance;
             delete [] mBoneMatrices;
@@ -1829,7 +1829,7 @@ namespace Ogre {
             mBoneMatrices = entity->mBoneMatrices;
             mAnimationState = entity->mAnimationState;
             mFrameBonesLastUpdated = entity->mFrameBonesLastUpdated;
-            if (entity->mSharedSkeletonEntities == NULL) 
+            if (entity->mSharedSkeletonEntities == NULL)
             {
                 entity->mSharedSkeletonEntities = new EntitySet();
                 entity->mSharedSkeletonEntities->insert(entity);
@@ -1855,24 +1855,24 @@ namespace Ogre {
 		}
 
 
-    }    
+    }
     //-----------------------------------------------------------------------
     void Entity::stopSharingSkeletonInstance()
     {
-        if (mSharedSkeletonEntities == NULL) 
+        if (mSharedSkeletonEntities == NULL)
         {
-            OGRE_EXCEPT(Exception::ERR_RT_ASSERTION_FAILED, 
+            OGRE_EXCEPT(Exception::ERR_RT_ASSERTION_FAILED,
                 "This entity is not sharing it's skeletoninstance.",
-                "Entity::shareSkeletonWith");	
-        }	
+                "Entity::shareSkeletonWith");
+        }
         //check if there's no other than us sharing the skeleton instance
-        if (mSharedSkeletonEntities->size() == 1) 
+        if (mSharedSkeletonEntities->size() == 1)
         {
             //just reset
             delete mSharedSkeletonEntities;
             mSharedSkeletonEntities = 0;
         }
-        else 
+        else
         {
             //do some cloning
             /*			mSkeletonInstance = new SkeletonInstance(*mSkeletonInstance);
@@ -1891,7 +1891,7 @@ namespace Ogre {
             mFrameBonesLastUpdated = new unsigned long;
 
             mSharedSkeletonEntities->erase(this);
-            if (mSharedSkeletonEntities->size() == 1) 
+            if (mSharedSkeletonEntities->size() == 1)
             {
                 (*mSharedSkeletonEntities->begin())->stopSharingSkeletonInstance();
             }
@@ -1914,7 +1914,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	VertexData* Entity::getVertexDataForBinding(void)
 	{
-		Entity::VertexDataBindChoice c = 
+		Entity::VertexDataBindChoice c =
 			chooseVertexDataForBinding(mMesh->getSharedVertexDataAnimationType() != VAT_NONE);
 		switch(c)
 		{
@@ -1980,7 +1980,7 @@ namespace Ogre {
 		return FACTORY_TYPE_NAME;
 	}
 	//-----------------------------------------------------------------------
-	MovableObject* EntityFactory::createInstanceImpl( const String& name, 
+	MovableObject* EntityFactory::createInstanceImpl( const String& name,
 		const NameValuePairList* params)
 	{
 		// must have mesh parameter
@@ -1991,8 +1991,8 @@ namespace Ogre {
 			if (ni != params->end())
 			{
 				// Get mesh (load if required)
-				pMesh = MeshManager::getSingleton().load( 
-					ni->second, 
+				pMesh = MeshManager::getSingleton().load(
+					ni->second,
 					// autodetect group location
 					ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME );
 			}
@@ -2000,11 +2000,11 @@ namespace Ogre {
 		}
 		if (pMesh.isNull())
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-				"'mesh' parameter required when constructing an Entity.", 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"'mesh' parameter required when constructing an Entity.",
 				"EntityFactory::createInstance");
 		}
-		
+
 		return new Entity(name, pMesh);
 
 	}

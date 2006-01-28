@@ -57,10 +57,10 @@ namespace Ogre {
         mBillboardType(BBT_POINT),
         mCommonDirection(Ogre::Vector3::UNIT_Z),
         mCommonUpVector(Vector3::UNIT_Y),
+        mPointRendering(false),
         mBuffersCreated(false),
         mPoolSize(0),
-        mExternalData(false), 
-		mPointRendering(false)
+		mExternalData(false)
     {
         setDefaultDimensions( 100, 100 );
         setMaterialName( "BaseWhite" );
@@ -71,7 +71,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     BillboardSet::BillboardSet(
         const String& name,
-        unsigned int poolSize, 
+        unsigned int poolSize,
         bool externalData) :
         MovableObject(name),
         mOriginType( BBO_CENTER ),
@@ -87,10 +87,10 @@ namespace Ogre {
         mBillboardType(BBT_POINT),
         mCommonDirection(Ogre::Vector3::UNIT_Z),
         mCommonUpVector(Vector3::UNIT_Y),
+		mPointRendering(false),
         mBuffersCreated(false),
         mPoolSize(poolSize),
-        mExternalData(externalData),
-		mPointRendering(false)
+        mExternalData(externalData)
     {
         setDefaultDimensions( 100, 100 );
         setMaterialName( "BaseWhite" );
@@ -131,7 +131,7 @@ namespace Ogre {
         // Get a new billboard
         Billboard* newBill = mFreeBillboards.front();
 		mActiveBillboards.splice(
-			mActiveBillboards.end(), mFreeBillboards, mFreeBillboards.begin()); 
+			mActiveBillboards.end(), mFreeBillboards, mFreeBillboards.begin());
         newBill->setPosition(position);
         newBill->setColour(colour);
         newBill->mDirection = Vector3::ZERO;
@@ -145,13 +145,13 @@ namespace Ogre {
         Vector3 vecAdjust(adjust, adjust, adjust);
 		Vector3 newMin = position - vecAdjust;
 		Vector3 newMax = position + vecAdjust;
-		
+
         mAABB.merge(newMin);
         mAABB.merge(newMax);
 
 		Real sqlen = std::max(newMin.squaredLength(), newMax.squaredLength());
 		mBoundingRadius = std::max(mBoundingRadius, Math::Sqrt(sqlen));
-		
+
         return newBill;
     }
 
@@ -174,9 +174,9 @@ namespace Ogre {
     {
 		// Insert actives into free list
 		mFreeBillboards.insert(mFreeBillboards.end(), mActiveBillboards.begin(), mActiveBillboards.end());
-      
+
 		// Remove all active instances
-      	mActiveBillboards.clear(); 
+      	mActiveBillboards.clear();
     }
 
     //-----------------------------------------------------------------------
@@ -348,7 +348,7 @@ namespace Ogre {
 			if (!mWorldSpace)
 			{
 				// Default behaviour is that billboards are in local node space
-				// so orientation of camera (in world space) must be reverse-transformed 
+				// so orientation of camera (in world space) must be reverse-transformed
 				// into node space
 				mCamQ = mParentNode->_getDerivedOrientation().UnitInverse() * mCamQ;
 			}
@@ -366,17 +366,17 @@ namespace Ogre {
         */
 
         /* NOTE: most engines generate world coordinates for the billboards
-           directly, taking the world axes of the camera as offsets to the 
-           center points. I take a different approach, reverse-transforming 
-           the camera world axes into local billboard space. 
+           directly, taking the world axes of the camera as offsets to the
+           center points. I take a different approach, reverse-transforming
+           the camera world axes into local billboard space.
            Why?
            Well, it's actually more efficient this way, because I only have to
-           reverse-transform using the billboardset world matrix (inverse) 
-           once, from then on it's simple additions (assuming identically 
-           sized billboards). If I transformed every billboard center by it's 
-           world transform, that's a matrix multiplication per billboard 
+           reverse-transform using the billboardset world matrix (inverse)
+           once, from then on it's simple additions (assuming identically
+           sized billboards). If I transformed every billboard center by it's
+           world transform, that's a matrix multiplication per billboard
            instead.
-           I leave the final transform to the render pipeline since that can 
+           I leave the final transform to the render pipeline since that can
            use hardware TnL if it is available.
         */
 
@@ -401,7 +401,7 @@ namespace Ogre {
 				   offsets and just use '+' instead of '*' for each billboard,
 				   and it should be faster.
 				*/
-				genVertOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff, 
+				genVertOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff,
 					mDefaultWidth, mDefaultHeight, mCamX, mCamY, mVOffset);
 
 			}
@@ -411,7 +411,7 @@ namespace Ogre {
         mNumVisibleBillboards = 0;
 
         // Lock the buffer
-        mLockPtr = static_cast<float*>( 
+        mLockPtr = static_cast<float*>(
             mMainBuf->lock(HardwareBuffer::HBL_DISCARD) );
 
     }
@@ -430,7 +430,7 @@ namespace Ogre {
         }
 
 		// If they're all the same size or we're point rendering
-        if( mAllDefaultSize || mPointRendering) 
+        if( mAllDefaultSize || mPointRendering)
         {
             /* No per-billboard checking, just blast through.
             Saves us an if clause every billboard which may
@@ -441,7 +441,7 @@ namespace Ogre {
 				(mBillboardType == BBT_ORIENTED_SELF ||
            		mBillboardType == BBT_PERPENDICULAR_SELF))
             {
-                genVertOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff, 
+                genVertOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff,
                     mDefaultWidth, mDefaultHeight, mCamX, mCamY, mVOffset);
             }
             genVertices(mVOffset, bb);
@@ -455,11 +455,11 @@ namespace Ogre {
                 bb.mOwnDimensions)
             {
                 // Generate using own dimensions
-                genVertOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff, 
+                genVertOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff,
                     bb.mWidth, bb.mHeight, mCamX, mCamY, vOwnOffset);
-                // Create vertex data            
+                // Create vertex data
                 genVertices(vOwnOffset, bb);
-            } 
+            }
             else // Use default dimension, already computed before the loop, for faster creation
             {
                 genVertices(mVOffset, bb);
@@ -491,7 +491,7 @@ namespace Ogre {
         else
         {
 			Real maxSqLen = -1.0f;
-        
+
             Vector3 min(Math::POS_INFINITY, Math::POS_INFINITY, Math::POS_INFINITY);
             Vector3 max(Math::NEG_INFINITY, Math::NEG_INFINITY, Math::NEG_INFINITY);
             ActiveBillboardList::iterator i, iend;
@@ -513,12 +513,12 @@ namespace Ogre {
 
             mAABB.setExtents(min, max);
 			mBoundingRadius = Math::Sqrt(maxSqLen);
-			
+
         }
 
         if (mParentNode)
             mParentNode->needUpdate();
-        
+
     }
     //-----------------------------------------------------------------------
     const AxisAlignedBox& BillboardSet::getBoundingBox(void) const
@@ -526,13 +526,13 @@ namespace Ogre {
         return mAABB;
     }
 
-    //-----------------------------------------------------------------------    
+    //-----------------------------------------------------------------------
     void BillboardSet::_updateRenderQueue(RenderQueue* queue)
     {
         // If we're driving this from our own data, update geometry now
         if (!mExternalData)
         {
-            if (mSortingEnabled) 
+            if (mSortingEnabled)
             {
                 _sortBillboards(mCurrentCamera);
             }
@@ -549,7 +549,7 @@ namespace Ogre {
         }
 
         //only set the render queue group if it has been explicitly set.
-        if( mRenderQueueIDSet ) 
+        if( mRenderQueueIDSet )
         {
            queue->addRenderable(this, mRenderQueueID);
         } else {
@@ -599,7 +599,7 @@ namespace Ogre {
         }
         else
         {
-            *xform = _getParentNodeFullTransform(); 
+            *xform = _getParentNodeFullTransform();
         }
     }
 
@@ -660,7 +660,7 @@ namespace Ogre {
         }
 
         mPoolSize = size;
-        
+
 		_destroyBuffers();
     }
 
@@ -682,19 +682,19 @@ namespace Ogre {
 		// Do it here so it only appears once
 		if (mPointRendering && mBillboardType != BBT_POINT)
 		{
-			
-			LogManager::getSingleton().logMessage("Warning: BillboardSet " + 
-				mName + " has point rendering enabled but is using a type " 
+
+			LogManager::getSingleton().logMessage("Warning: BillboardSet " +
+				mName + " has point rendering enabled but is using a type "
 				"other than BBT_POINT, this may not give you the results you "
 				"expect.");
 		}
-		
+
         mVertexData = new VertexData();
 		if (mPointRendering)
 			mVertexData->vertexCount = mPoolSize;
 		else
 			mVertexData->vertexCount = mPoolSize * 4;
-		
+
         mVertexData->vertexStart = 0;
 
         // Vertex declaration
@@ -713,10 +713,10 @@ namespace Ogre {
             decl->addElement(0, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
         }
 
-        mMainBuf = 
+        mMainBuf =
             HardwareBufferManager::getSingleton().createVertexBuffer(
                 decl->getVertexSize(0),
-                mVertexData->vertexCount, 
+                mVertexData->vertexCount,
                 HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
         // bind position and diffuses
         binding->setBinding(0, mMainBuf);
@@ -909,7 +909,7 @@ namespace Ogre {
         }
 
         return cam->isVisible(sph);
-        
+
     }
     //-----------------------------------------------------------------------
     void BillboardSet::increasePool(unsigned int size)
@@ -938,7 +938,7 @@ namespace Ogre {
 
         case BBT_ORIENTED_COMMON:
             // Y-axis is common direction
-            // X-axis is cross with camera direction 
+            // X-axis is cross with camera direction
             *pY = mCommonDirection;
             *pX = mCamDir.crossProduct(*pY);
             pX->normalise();
@@ -946,7 +946,7 @@ namespace Ogre {
 
         case BBT_ORIENTED_SELF:
             // Y-axis is direction
-            // X-axis is cross with camera direction 
+            // X-axis is cross with camera direction
             // Scale direction first
             *pY = bb->mDirection;
 			*pY *= 0.01f;
@@ -1008,7 +1008,7 @@ namespace Ogre {
 		return SceneManager::FX_TYPE_MASK;
 	}
     //-----------------------------------------------------------------------
-    void BillboardSet::genVertices( 
+    void BillboardSet::genVertices(
         const Vector3* const offsets, const Billboard& bb)
     {
         RGBA colour;
@@ -1287,7 +1287,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     const LightList& BillboardSet::getLights(void) const
     {
-        // It's actually quite unlikely that this will be called, 
+        // It's actually quite unlikely that this will be called,
         // because most billboards are unlit, but here we go anyway
         return getParentSceneNode()->findLights(this->getBoundingRadius());
     }
@@ -1304,7 +1304,7 @@ namespace Ogre {
       //  copy in data
       std::copy( coords, coords+numCoords, &mTextureCoords.front() );
     }
-    
+
     void BillboardSet::setTextureStacksAndSlices( uchar stacks, uchar slices )
     {
       if( stacks == 0 ) stacks = 1;
@@ -1316,7 +1316,7 @@ namespace Ogre {
       unsigned int coordIndex = 0;
       //  spread the U and V coordinates across the rects
       for( uint v = 0; v < stacks; ++v ) {
-        //  (float)X / X is guaranteed to be == 1.0f for X up to 8 million, so 
+        //  (float)X / X is guaranteed to be == 1.0f for X up to 8 million, so
         //  our range of 1..256 is quite enough to guarantee perfect coverage.
         float top = (float)v / (float)stacks;
         float bottom = ((float)v + 1) / (float)stacks;
@@ -1357,13 +1357,13 @@ namespace Ogre {
 		return FACTORY_TYPE_NAME;
 	}
 	//-----------------------------------------------------------------------
-	MovableObject* BillboardSetFactory::createInstanceImpl( const String& name, 
+	MovableObject* BillboardSetFactory::createInstanceImpl( const String& name,
 		const NameValuePairList* params)
 	{
 		// may have parameters
 		bool externalData = false;
 		unsigned int poolSize = 0;
-		
+
 		if (params != 0)
 		{
 			NameValuePairList::const_iterator ni = params->find("poolSize");

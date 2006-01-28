@@ -32,9 +32,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //-----------------------------------------------------------------------
-    RenderSystemCapabilities::RenderSystemCapabilities() 
+    RenderSystemCapabilities::RenderSystemCapabilities()
       : mNumWorldMatrices(0), mNumTextureUnits(0), mStencilBufferBitDepth(0),
-        mNumVertexBlendMatrices(0), mNumMultiRenderTargets(1), mCapabilities(0)
+        mNumVertexBlendMatrices(0), mCapabilities(0), mNumMultiRenderTargets(1)
     {
     }
     //-----------------------------------------------------------------------
@@ -47,102 +47,102 @@ namespace Ogre {
         pLog->logMessage("RenderSystem capabilities");
         pLog->logMessage("-------------------------");
         pLog->logMessage(
-            " * Hardware generation of mipmaps: " 
+            " * Hardware generation of mipmaps: "
             + StringConverter::toString(hasCapability(RSC_AUTOMIPMAP), true));
         pLog->logMessage(
-            " * Texture blending: " 
+            " * Texture blending: "
             + StringConverter::toString(hasCapability(RSC_BLENDING), true));
         pLog->logMessage(
-            " * Anisotropic texture filtering: " 
+            " * Anisotropic texture filtering: "
             + StringConverter::toString(hasCapability(RSC_ANISOTROPY), true));
         pLog->logMessage(
-            " * Dot product texture operation: " 
+            " * Dot product texture operation: "
             + StringConverter::toString(hasCapability(RSC_DOT3), true));
         pLog->logMessage(
-            " * Cube mapping: " 
+            " * Cube mapping: "
             + StringConverter::toString(hasCapability(RSC_CUBEMAPPING), true));
         pLog->logMessage(
-            " * Hardware stencil buffer: " 
+            " * Hardware stencil buffer: "
             + StringConverter::toString(hasCapability(RSC_HWSTENCIL), true));
         if (hasCapability(RSC_HWSTENCIL))
         {
             pLog->logMessage(
-                "   - Stencil depth: " 
+                "   - Stencil depth: "
                 + StringConverter::toString(getStencilBufferBitDepth()));
             pLog->logMessage(
-                "   - Two sided stencil support: " 
+                "   - Two sided stencil support: "
                 + StringConverter::toString(hasCapability(RSC_TWO_SIDED_STENCIL), true));
             pLog->logMessage(
-                "   - Wrap stencil values: " 
+                "   - Wrap stencil values: "
                 + StringConverter::toString(hasCapability(RSC_STENCIL_WRAP), true));
         }
         pLog->logMessage(
-            " * Hardware vertex / index buffers: " 
+            " * Hardware vertex / index buffers: "
             + StringConverter::toString(hasCapability(RSC_VBO), true));
         pLog->logMessage(
-            " * Vertex programs: " 
+            " * Vertex programs: "
             + StringConverter::toString(hasCapability(RSC_VERTEX_PROGRAM), true));
         if (hasCapability(RSC_VERTEX_PROGRAM))
         {
             pLog->logMessage(
-                "   - Max vertex program version: " 
+                "   - Max vertex program version: "
                 + getMaxVertexProgramVersion());
         }
         pLog->logMessage(
-            " * Fragment programs: " 
+            " * Fragment programs: "
             + StringConverter::toString(hasCapability(RSC_FRAGMENT_PROGRAM), true));
         if (hasCapability(RSC_FRAGMENT_PROGRAM))
         {
             pLog->logMessage(
-                "   - Max fragment program version: " 
+                "   - Max fragment program version: "
                 + getMaxFragmentProgramVersion());
         }
 
         pLog->logMessage(
-            " * Texture Compression: " 
+            " * Texture Compression: "
             + StringConverter::toString(hasCapability(RSC_TEXTURE_COMPRESSION), true));
         if (hasCapability(RSC_TEXTURE_COMPRESSION))
         {
             pLog->logMessage(
-                "   - DXT: " 
+                "   - DXT: "
                 + StringConverter::toString(hasCapability(RSC_TEXTURE_COMPRESSION_DXT), true));
             pLog->logMessage(
-                "   - VTC: " 
+                "   - VTC: "
                 + StringConverter::toString(hasCapability(RSC_TEXTURE_COMPRESSION_VTC), true));
         }
 
         pLog->logMessage(
-            " * Scissor Rectangle: " 
+            " * Scissor Rectangle: "
             + StringConverter::toString(hasCapability(RSC_SCISSOR_TEST), true));
         pLog->logMessage(
-            " * Hardware Occlusion Query: " 
+            " * Hardware Occlusion Query: "
             + StringConverter::toString(hasCapability(RSC_HWOCCLUSION), true));
         pLog->logMessage(
-            " * User clip planes: " 
+            " * User clip planes: "
             + StringConverter::toString(hasCapability(RSC_USER_CLIP_PLANES), true));
         pLog->logMessage(
-            " * VET_UBYTE4 vertex element type: " 
+            " * VET_UBYTE4 vertex element type: "
             + StringConverter::toString(hasCapability(RSC_VERTEX_FORMAT_UBYTE4), true));
         pLog->logMessage(
-            " * Infinite far plane projection: " 
+            " * Infinite far plane projection: "
             + StringConverter::toString(hasCapability(RSC_INFINITE_FAR_PLANE), true));
 		pLog->logMessage(
-            " * Hardware render-to-texture: " 
+            " * Hardware render-to-texture: "
             + StringConverter::toString(hasCapability(RSC_HWRENDER_TO_TEXTURE), true));
         pLog->logMessage(
-            " * Floating point textures: " 
+            " * Floating point textures: "
             + StringConverter::toString(hasCapability(RSC_TEXTURE_FLOAT), true));
         pLog->logMessage(
-            " * Non-power-of-two textures: " 
+            " * Non-power-of-two textures: "
             + StringConverter::toString(hasCapability(RSC_NON_POWER_OF_2_TEXTURES), true));
 		pLog->logMessage(
-            " * Volume textures: " 
+            " * Volume textures: "
             + StringConverter::toString(hasCapability(RSC_TEXTURE_3D), true));
 		pLog->logMessage(
-            " * Multiple Render Targets: " 
+            " * Multiple Render Targets: "
             + StringConverter::toString(mNumMultiRenderTargets));
 		pLog->logMessage(
-			" * Max Point Size: " 
+			" * Max Point Size: "
 			+ StringConverter::toString(mMaxPointSize));
 
     }
