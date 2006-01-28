@@ -77,7 +77,7 @@ namespace Ogre {
 
         /** Default destructor.
         */
-        ~Viewport();
+        virtual ~Viewport();
 
         /** Notifies the viewport of a possible change in dimensions.
             @remarks
@@ -228,8 +228,8 @@ namespace Ogre {
         /** Tells this viewport whether it should display shadows.
         @remarks
             This setting enables you to disable shadow rendering for a given viewport. The global
-			shadow technique set on SceneManager still controls the type and nature of shadows, 
-			but this flag can override the setting so that no shadows are rendered for a given 
+			shadow technique set on SceneManager still controls the type and nature of shadows,
+			but this flag can override the setting so that no shadows are rendered for a given
 			viewport to save processing time where they are not required.
         @param enabled If true, any shadows are displayed, if false they are not.
         */
@@ -239,11 +239,11 @@ namespace Ogre {
             viewport. */
         bool getShadowsEnabled(void) const;
 
-		/** Sets the use of a custom RenderQueueInvocationSequence for 
+		/** Sets the use of a custom RenderQueueInvocationSequence for
 			rendering this target.
 		@remarks
 			RenderQueueInvocationSequence instances are managed through Root. By
-			setting this, you are indicating that you wish this RenderTarget to 
+			setting this, you are indicating that you wish this RenderTarget to
 			be updated using a custom sequence of render queue invocations, with
 			potentially customised ordering and render state options. You should
 			create the named sequence through Root first, then set the name here.
