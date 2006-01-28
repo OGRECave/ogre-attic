@@ -47,13 +47,13 @@ namespace Ogre {
     //---------------------------------------------------------------------
     PanelOverlayElement::PanelOverlayElement(const String& name)
         : OverlayContainer(name)
+        , mTransparent(false)
+        // Defer creation of texcoord buffer until we know how big it needs to be
+        , mNumTexCoordsInBuffer(0)
         , mU1(0.0)
         , mV1(0.0)
         , mU2(1.0)
         , mV2(1.0)
-        , mTransparent(false)
-        // Defer creation of texcoord buffer until we know how big it needs to be
-        , mNumTexCoordsInBuffer(0)
 
     {
         // Init tiling
@@ -95,9 +95,9 @@ namespace Ogre {
 			mRenderOp.vertexData->vertexCount = 4;
 
 			// Vertex buffer #1
-			HardwareVertexBufferSharedPtr vbuf = 
+			HardwareVertexBufferSharedPtr vbuf =
 				HardwareBufferManager::getSingleton().createVertexBuffer(
-				decl->getVertexSize(POSITION_BINDING), mRenderOp.vertexData->vertexCount, 
+				decl->getVertexSize(POSITION_BINDING), mRenderOp.vertexData->vertexCount,
 				HardwareBuffer::HBU_STATIC_WRITE_ONLY// mostly static except during resizing
 				);
 			// Bind buffer
@@ -145,18 +145,18 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void PanelOverlayElement::setUV(Real u1, Real v1, Real u2, Real v2)
     {
-		mU1 = u1; 
-		mU2 = u2; 
-		mV1 = v1; 
-		mV2 = v2; 
+		mU1 = u1;
+		mU2 = u2;
+		mV1 = v1;
+		mV2 = v2;
 		mGeomUVsOutOfDate = true;
     }
     void PanelOverlayElement::getUV(Real& u1, Real& v1, Real& u2, Real& v2) const
     {
-		u1 = mU1; 
-		u2 = mU2; 
-		v1 = mV1; 
-		v2 = mV2; 
+		u1 = mU1;
+		u2 = mU2;
+		v1 = mV1;
+		v2 = mV2;
     }
     //---------------------------------------------------------------------
     const String& PanelOverlayElement::getTypeName(void) const
@@ -217,11 +217,11 @@ namespace Ogre {
 		top = -((_getDerivedTop() * 2) - 1);
 		bottom =  top -  (mHeight * 2);
 
-		HardwareVertexBufferSharedPtr vbuf = 
+		HardwareVertexBufferSharedPtr vbuf =
 			mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
 		float* pPos = static_cast<float*>(
 			vbuf->lock(HardwareBuffer::HBL_DISCARD) );
-	    
+
 		// Use the furthest away depth value, since materials should have depth-check off
 		// This initialised the depth buffer for any 3D objects in front
 		Real zValue = Root::getSingleton().getRenderSystem()->getMaximumDepthInputValue();
@@ -240,7 +240,7 @@ namespace Ogre {
 		*pPos++ = right;
 		*pPos++ = bottom;
 		*pPos++ = zValue;
-	    
+
 		vbuf->unlock();
     }
     //---------------------------------------------------------------------
@@ -271,7 +271,7 @@ namespace Ogre {
                     decl->addElement(TEXCOORD_BINDING,
                         offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, i);
                     offset += VertexElement::getTypeSize(VET_FLOAT2);
-                   
+
                 }
             }
 
@@ -279,9 +279,9 @@ namespace Ogre {
             if (mNumTexCoordsInBuffer != numLayers)
             {
                 // NB reference counting will take care of the old one if it exists
-                HardwareVertexBufferSharedPtr newbuf = 
+                HardwareVertexBufferSharedPtr newbuf =
                     HardwareBufferManager::getSingleton().createVertexBuffer(
-                    decl->getVertexSize(TEXCOORD_BINDING), mRenderOp.vertexData->vertexCount, 
+                    decl->getVertexSize(TEXCOORD_BINDING), mRenderOp.vertexData->vertexCount,
                     HardwareBuffer::HBU_STATIC_WRITE_ONLY // mostly static except during resizing
                     );
                 // Bind buffer, note this will unbind the old one and destroy the buffer it had
@@ -293,7 +293,7 @@ namespace Ogre {
             // Get the tcoord buffer & lock
 			if (mNumTexCoordsInBuffer)
 			{
-				HardwareVertexBufferSharedPtr vbuf = 
+				HardwareVertexBufferSharedPtr vbuf =
 					mRenderOp.vertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
 				float* pVBStart = static_cast<float*>(
 					vbuf->lock(HardwareBuffer::HBL_DISCARD) );
@@ -306,7 +306,7 @@ namespace Ogre {
                     Real upperX = mU2 * mTileX[i];
                     Real upperY = mV2 * mTileY[i];
 
-                    
+
 				    /*
 					    0-----2
 					    |    /|
@@ -342,17 +342,17 @@ namespace Ogre {
         OverlayContainer::addBaseParameters();
         ParamDictionary* dict = getParamDictionary();
 
-        dict->addParameter(ParameterDef("uv_coords", 
+        dict->addParameter(ParameterDef("uv_coords",
            "The texture coordinates for the texture. 1 set of uv values."
            , PT_STRING),
            &msCmdUVCoords);
 
-        dict->addParameter(ParameterDef("tiling", 
+        dict->addParameter(ParameterDef("tiling",
             "The number of times to repeat the background texture."
             , PT_STRING),
             &msCmdTiling);
 
-        dict->addParameter(ParameterDef("transparent", 
+        dict->addParameter(ParameterDef("transparent",
             "Sets whether the panel is transparent, i.e. invisible itself "
             "but it's contents are still displayed."
             , PT_BOOL),
@@ -396,7 +396,7 @@ namespace Ogre {
     String PanelOverlayElement::CmdUVCoords::doGet(const void* target) const
     {
         Real u1, v1, u2, v2;
-        
+
         static_cast<const PanelOverlayElement*>(target)->getUV(u1, v1, u2, v2);
         String ret = " " + StringConverter::toString(u1) + " "
              + StringConverter::toString(v1) + " " + StringConverter::toString(u2) + " "

@@ -81,10 +81,10 @@ namespace Ogre {
     Mesh::Mesh(ResourceManager* creator, const String& name, ResourceHandle handle,
         const String& group, bool isManual, ManualResourceLoader* loader)
         : Resource(creator, name, handle, group, isManual, loader),
-        mBoundRadius(0.0f), 
+        mBoundRadius(0.0f),
         mBoneAssignmentsOutOfDate(false),
-        mIsLodManual(false), 
-        mNumLods(1), 
+        mIsLodManual(false),
+        mNumLods(1),
         mVertexBufferUsage(HardwareBuffer::HBU_STATIC_WRITE_ONLY),
         mIndexBufferUsage(HardwareBuffer::HBU_STATIC_WRITE_ONLY),
         mVertexBufferShadowBuffer(true),
@@ -111,7 +111,7 @@ namespace Ogre {
     {
         // have to call this here reather than in Resource destructor
         // since calling virtual methods in base destructors causes crash
-        unload(); 
+        unload();
     }
     //-----------------------------------------------------------------------
     SubMesh* Mesh::createSubMesh()
@@ -137,11 +137,11 @@ namespace Ogre {
     }
 
     //---------------------------------------------------------------------
-	void Mesh::nameSubMesh(const String& name, ushort index) 
+	void Mesh::nameSubMesh(const String& name, ushort index)
 	{
 		mSubMeshNameMap[name] = index ;
 	}
-	
+
     //-----------------------------------------------------------------------
     SubMesh* Mesh::getSubMesh(const String& name) const
 	{
@@ -192,11 +192,11 @@ namespace Ogre {
         MeshSerializer serializer;
         LogManager::getSingleton().logMessage("Mesh: Loading " + mName + ".");
 
-        DataStreamPtr stream = 
+        DataStreamPtr stream =
             ResourceGroupManager::getSingleton().openResource(
 				mName, mGroup, true, this);
         serializer.importMesh(stream, this);
-        
+
         /* check all submeshes to see if their materials should be
            updated.  If the submesh has texture aliases that match those
            found in the current material then a new material is created using
@@ -354,21 +354,21 @@ namespace Ogre {
         Real sqLen1 = min.squaredLength();
         Real sqLen2 = max.squaredLength();
 
-        mBoundRadius = Math::Sqrt(std::max(sqLen1, sqLen2)); 
-        if (pad) 
+        mBoundRadius = Math::Sqrt(std::max(sqLen1, sqLen2));
+        if (pad)
         {
             // Pad out the AABB a little, helps with most bounds tests
             Vector3 scaler = (max - min) * MeshManager::getSingleton().getBoundsPaddingFactor();
             mAABB.setExtents(min  - scaler, max + scaler);
             // Pad out the sphere a little too
             mBoundRadius = mBoundRadius + (mBoundRadius * MeshManager::getSingleton().getBoundsPaddingFactor());
-        } 
-        else 
+        }
+        else
         {
             mAABB.setExtents(min, max);
             mBoundRadius = mBoundRadius;
         }
-		
+
     }
     //-----------------------------------------------------------------------
     void Mesh::_setBoundingSphereRadius(Real radius)
@@ -454,7 +454,7 @@ namespace Ogre {
 		}
 
 		// Animation states for vertex animation
-		for (AnimationList::iterator i = mAnimationsList.begin(); 
+		for (AnimationList::iterator i = mAnimationsList.begin();
 			i != mAnimationsList.end(); ++i)
 		{
 			// Only create a new animation state if it doesn't exist
@@ -463,7 +463,7 @@ namespace Ogre {
 			// The animations should be the same length if this feature is used!
 			if (!animSet->hasAnimationState(i->second->getName()))
 			{
-				animSet->createAnimationState(i->second->getName(), 0.0, 
+				animSet->createAnimationState(i->second->getName(), 0.0,
 					i->second->getLength());
 			}
 
@@ -485,7 +485,7 @@ namespace Ogre {
             // Get number of entries for this vertex
             currBones = static_cast<unsigned short>(assignments.count(v));
 
-            // Deal with max bones update 
+            // Deal with max bones update
             // (note this will record maxBones even if they exceed limit)
             if (maxBones < currBones)
                 maxBones = currBones;
@@ -543,11 +543,11 @@ namespace Ogre {
 		{
             // Warn that we've reduced bone assignments
             LogManager::getSingleton().logMessage("WARNING: the mesh '" + mName + "' "
-                "includes vertices with more than " + 
+                "includes vertices with more than " +
                 StringConverter::toString(OGRE_MAX_BLEND_WEIGHTS) + " bone assignments. "
                 "The lowest weighted assignments beyond this limit have been removed, so "
                 "your animation may look slightly different. To eliminate this, reduce "
-                "the number of bone assignments per vertex on your mesh to " + 
+                "the number of bone assignments per vertex on your mesh to " +
                 StringConverter::toString(OGRE_MAX_BLEND_WEIGHTS) + ".");
             // we've adjusted them down to the max
             maxBones = OGRE_MAX_BLEND_WEIGHTS;
@@ -559,7 +559,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void  Mesh::_compileBoneAssignments(void)
     {
-        unsigned short maxBones = 
+        unsigned short maxBones =
             _rationaliseBoneAssignments(sharedVertexData->vertexCount, mBoneAssignments);
 
         if (maxBones == 0)
@@ -568,7 +568,7 @@ namespace Ogre {
             return;
         }
 
-        compileBoneAssignments(mBoneAssignments, maxBones, 
+        compileBoneAssignments(mBoneAssignments, maxBones,
             sharedBlendIndexToBoneIndexMap, sharedVertexData);
 
         mBoneAssignmentsOutOfDate = false;
@@ -611,9 +611,9 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void Mesh::compileBoneAssignments(        
+    void Mesh::compileBoneAssignments(
         const VertexBoneAssignmentList& boneAssignments,
-        unsigned short numBlendWeightsPerVertex, 
+        unsigned short numBlendWeightsPerVertex,
         IndexMap& blendIndexToBoneIndexMap,
         VertexData* targetVertexData)
     {
@@ -629,7 +629,7 @@ namespace Ogre {
         IndexMap boneIndexToBlendIndexMap;
         buildIndexMap(boneAssignments, boneIndexToBlendIndexMap, blendIndexToBoneIndexMap);
 
-        const VertexElement* testElem = 
+        const VertexElement* testElem =
             decl->findElementBySemantic(VES_BLEND_INDICES);
         if (testElem)
         {
@@ -646,11 +646,11 @@ namespace Ogre {
             bindIndex = bind->getNextIndex();
         }
 
-        HardwareVertexBufferSharedPtr vbuf = 
+        HardwareVertexBufferSharedPtr vbuf =
             HardwareBufferManager::getSingleton().createVertexBuffer(
                 sizeof(unsigned char)*4 + sizeof(float)*numBlendWeightsPerVertex,
-                targetVertexData->vertexCount, 
-                HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+                targetVertexData->vertexCount,
+                HardwareBuffer::HBU_STATIC_WRITE_ONLY,
                 true // use shadow buffer
                 );
         // bind new buffer
@@ -658,7 +658,7 @@ namespace Ogre {
         const VertexElement *pIdxElem, *pWeightElem;
 
         // add new vertex elements
-        // Note, insert directly after all elements using the same source as 
+        // Note, insert directly after all elements using the same source as
         // position to abide by pre-Dx9 format restrictions
         const VertexElement* firstElem = decl->getElement(0);
         if(firstElem->getSemantic() == VES_POSITION)
@@ -669,10 +669,10 @@ namespace Ogre {
             {
                 ++insertPoint;
             }
-            const VertexElement& idxElem = 
+            const VertexElement& idxElem =
                 decl->insertElement(insertPoint, bindIndex, 0, VET_UBYTE4, VES_BLEND_INDICES);
-            const VertexElement& wtElem = 
-                decl->insertElement(insertPoint+1, bindIndex, sizeof(unsigned char)*4, 
+            const VertexElement& wtElem =
+                decl->insertElement(insertPoint+1, bindIndex, sizeof(unsigned char)*4,
                 VertexElement::multiplyTypeCount(VET_FLOAT1, numBlendWeightsPerVertex),
                 VES_BLEND_WEIGHTS);
             pIdxElem = &idxElem;
@@ -682,10 +682,10 @@ namespace Ogre {
         {
             // Position is not the first semantic, therefore this declaration is
             // not pre-Dx9 compatible anyway, so just tack it on the end
-            const VertexElement& idxElem = 
+            const VertexElement& idxElem =
                 decl->addElement(bindIndex, 0, VET_UBYTE4, VES_BLEND_INDICES);
-            const VertexElement& wtElem = 
-                decl->addElement(bindIndex, sizeof(unsigned char)*4, 
+            const VertexElement& wtElem =
+                decl->addElement(bindIndex, sizeof(unsigned char)*4,
                 VertexElement::multiplyTypeCount(VET_FLOAT1, numBlendWeightsPerVertex),
                 VES_BLEND_WEIGHTS);
             pIdxElem = &idxElem;
@@ -698,7 +698,7 @@ namespace Ogre {
         i = boneAssignments.begin();
 		iend = boneAssignments.end();
         unsigned char *pBase = static_cast<unsigned char*>(
-            vbuf->lock(HardwareBuffer::HBL_DISCARD)); 
+            vbuf->lock(HardwareBuffer::HBL_DISCARD));
         // Iterate by vertex
         float *pWeight;
         unsigned char *pIndex;
@@ -748,7 +748,7 @@ namespace Ogre {
         return mSkeletonName;
     }
     //---------------------------------------------------------------------
-    void Mesh::generateLodLevels(const LodDistanceList& lodDistances, 
+    void Mesh::generateLodLevels(const LodDistanceList& lodDistances,
         ProgressiveMesh::VertexReductionQuota reductionMethod, Real reductionValue)
     {
 #if OGRE_DEBUG_MODE
@@ -765,7 +765,7 @@ namespace Ogre {
         removeLodLevels();
 
 		StringUtil::StrStreamType str;
-		str << "Generating " << lodDistances.size() 
+		str << "Generating " << lodDistances.size()
 			<< " lower LODs for mesh " << mName;
         LogManager::getSingleton().logMessage(str.str());
 
@@ -778,8 +778,8 @@ namespace Ogre {
 
             ProgressiveMesh pm(pVertexData, (*isub)->indexData);
             pm.build(
-            static_cast<ushort>(lodDistances.size()), 
-                &((*isub)->mLodFaceList), 
+            static_cast<ushort>(lodDistances.size()),
+                &((*isub)->mLodFaceList),
                 reductionMethod, reductionValue);
 
         }
@@ -812,22 +812,22 @@ namespace Ogre {
         {
             // Load the mesh now
 			try {
-				mMeshLodUsageList[index].manualMesh = 
+				mMeshLodUsageList[index].manualMesh =
 					MeshManager::getSingleton().load(
 						mMeshLodUsageList[index].manualName,
 						mGroup);
 				// get the edge data, if required
 				if (!mMeshLodUsageList[index].edgeData)
 				{
-					mMeshLodUsageList[index].edgeData = 
+					mMeshLodUsageList[index].edgeData =
 						mMeshLodUsageList[index].manualMesh->getEdgeList(0);
 				}
 			}
 			catch (Exception& )
-			{	
+			{
 				StringUtil::StrStreamType str;
-				str << "Error while loading manual LOD level " 
-					<< mMeshLodUsageList[index].manualName 
+				str << "Error while loading manual LOD level "
+					<< mMeshLodUsageList[index].manualName
 					<< " - this LOD level will not be rendered. You can "
 					<< "ignore this error in offline mesh tools.";
 				LogManager::getSingleton().logMessage(str.str());
@@ -837,7 +837,7 @@ namespace Ogre {
         return mMeshLodUsageList[index];
     }
     //---------------------------------------------------------------------
-	struct ManualLodSortLess : 
+	struct ManualLodSortLess :
 	public std::binary_function<const MeshLodUsage&, const MeshLodUsage&, bool>
 	{
 		bool operator() (const MeshLodUsage& mesh1, const MeshLodUsage& mesh2)
@@ -933,7 +933,7 @@ namespace Ogre {
 		mMeshLodUsageList[level] = usage;
 	}
     //---------------------------------------------------------------------
-	void Mesh::_setSubMeshLodFaceList(unsigned short subIdx, unsigned short level, 
+	void Mesh::_setSubMeshLodFaceList(unsigned short subIdx, unsigned short level,
 		IndexData* facedata)
 	{
         assert(!mEdgeListsBuilt && "Can't modify LOD after edge lists built");
@@ -953,7 +953,7 @@ namespace Ogre {
 	{
 		SubMeshNameMap::const_iterator i = mSubMeshNameMap.find(name) ;
 		if (i == mSubMeshNameMap.end())
-            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No SubMesh named " + name + " found.", 
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No SubMesh named " + name + " found.",
                 "Mesh::_getSubMeshIndex");
 
 		return i->second;
@@ -1005,7 +1005,7 @@ namespace Ogre {
 		mIndexBufferShadowBuffer = shadowBuffer;
 	}
     //---------------------------------------------------------------------
-    void Mesh::organiseTangentsBuffer(VertexData *vertexData, 
+    void Mesh::organiseTangentsBuffer(VertexData *vertexData,
         unsigned short destCoordSet)
     {
 	    VertexDeclaration *vDecl = vertexData->vertexDeclaration ;
@@ -1013,54 +1013,54 @@ namespace Ogre {
 
 	    const VertexElement *tex3D = vDecl->findElementBySemantic(VES_TEXTURE_COORDINATES, destCoordSet);
 	    bool needsToBeCreated = false;
-    	
-	    if (!tex3D) 
+
+	    if (!tex3D)
         { // no tex coords with index 1
 			    needsToBeCreated = true ;
-	    } 
-        else if (tex3D->getType() != VET_FLOAT3) 
-        { 
+	    }
+        else if (tex3D->getType() != VET_FLOAT3)
+        {
             // tex buffer exists, but not 3D
-            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-                "Texture coordinate set " + StringConverter::toString(destCoordSet) + 
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+                "Texture coordinate set " + StringConverter::toString(destCoordSet) +
                 "already exists but is not 3D, therefore cannot contain tangents. Pick "
-                "an alternative destination coordinate set. ", 
+                "an alternative destination coordinate set. ",
                 "Mesh::organiseTangentsBuffer");
 	    }
-    	
+
 	    HardwareVertexBufferSharedPtr newBuffer;
-	    if (needsToBeCreated) 
+	    if (needsToBeCreated)
         {
-            // What we need to do, to be most efficient with our vertex streams, 
-            // is to tack the new 3D coordinate set onto the same buffer as the 
+            // What we need to do, to be most efficient with our vertex streams,
+            // is to tack the new 3D coordinate set onto the same buffer as the
             // previous texture coord set
-            const VertexElement* prevTexCoordElem = 
+            const VertexElement* prevTexCoordElem =
                 vertexData->vertexDeclaration->findElementBySemantic(
                     VES_TEXTURE_COORDINATES, destCoordSet - 1);
             if (!prevTexCoordElem)
             {
-                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
                     "Cannot locate the texture coordinate element preceding the "
                     "destination texture coordinate set to which to append the new "
                     "tangents.", "Mesh::orgagniseTangentsBuffer");
             }
             // Find the buffer associated with  this element
-            HardwareVertexBufferSharedPtr origBuffer = 
+            HardwareVertexBufferSharedPtr origBuffer =
                 vertexData->vertexBufferBinding->getBuffer(
                     prevTexCoordElem->getSource());
             // Now create a new buffer, which includes the previous contents
             // plus extra space for the 3D coords
 		    newBuffer = HardwareBufferManager::getSingleton().createVertexBuffer(
-                origBuffer->getVertexSize() + 3*sizeof(float), 
+                origBuffer->getVertexSize() + 3*sizeof(float),
                 vertexData->vertexCount,
-			    origBuffer->getUsage(), 
+			    origBuffer->getUsage(),
 			    origBuffer->hasShadowBuffer() );
             // Add the new element
 		    vDecl->addElement(
-                prevTexCoordElem->getSource(), 
-                origBuffer->getVertexSize(), 
-                VET_FLOAT3, 
-                VES_TEXTURE_COORDINATES, 
+                prevTexCoordElem->getSource(),
+                origBuffer->getVertexSize(),
+                VET_FLOAT3,
+                VES_TEXTURE_COORDINATES,
                 destCoordSet);
             // Now copy the original data across
             unsigned char* pSrc = static_cast<unsigned char*>(
@@ -1083,16 +1083,16 @@ namespace Ogre {
 
             // Rebind the new buffer
             vBind->setBinding(prevTexCoordElem->getSource(), newBuffer);
-	    } 
+	    }
     }
     //---------------------------------------------------------------------
-    void Mesh::buildTangentVectors(unsigned short sourceTexCoordSet, 
+    void Mesh::buildTangentVectors(unsigned short sourceTexCoordSet,
         unsigned short destTexCoordSet)
     {
         if (destTexCoordSet == 0)
         {
-            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-                "Destination texture coordinate set must be greater than 0", 
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+                "Destination texture coordinate set must be greater than 0",
                 "Mesh::buildTangentVectors");
         }
 
@@ -1122,13 +1122,13 @@ namespace Ogre {
 			if (buffIndex->getType() == HardwareIndexBuffer::IT_32BIT)
 			{
 		    	pVIndices32 = static_cast<uint32*>(
-					buffIndex->lock(HardwareBuffer::HBL_READ_ONLY)); 
+					buffIndex->lock(HardwareBuffer::HBL_READ_ONLY));
 				use32bit = true;
 			}
 			else
 			{
 		    	pVIndices16 = static_cast<uint16*>(
-					buffIndex->lock(HardwareBuffer::HBL_READ_ONLY)); 
+					buffIndex->lock(HardwareBuffer::HBL_READ_ONLY));
 			}
 		    // then, vertices
 		    VertexData *usedVertexData ;
@@ -1155,9 +1155,9 @@ namespace Ogre {
 
             if (!srcElem || srcElem->getType() != VET_FLOAT2)
             {
-                OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-                    "SubMesh " + StringConverter::toString(sm) + " of Mesh " + mName + 
-                    " has no 2D texture coordinates at the selected set, therefore we cannot calculate tangents.", 
+                OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+                    "SubMesh " + StringConverter::toString(sm) + " of Mesh " + mName +
+                    " has no 2D texture coordinates at the selected set, therefore we cannot calculate tangents.",
                     "Mesh::buildTangentVectors");
             }
             HardwareVertexBufferSharedPtr srcBuf, destBuf, posBuf;
@@ -1170,7 +1170,7 @@ namespace Ogre {
             {
                 // lock source for read and write
                 pSrcBase = static_cast<unsigned char*>(
-                    srcBuf->lock(HardwareBuffer::HBL_NORMAL)); 
+                    srcBuf->lock(HardwareBuffer::HBL_NORMAL));
                 srcInc = srcBuf->getVertexSize();
                 pDestBase = pSrcBase;
                 destInc = srcInc;
@@ -1178,14 +1178,14 @@ namespace Ogre {
             else
             {
                 pSrcBase = static_cast<unsigned char*>(
-                    srcBuf->lock(HardwareBuffer::HBL_READ_ONLY)); 
+                    srcBuf->lock(HardwareBuffer::HBL_READ_ONLY));
                 srcInc = srcBuf->getVertexSize();
                 destBuf = vBind->getBuffer(destElem->getSource());
                 destInc = destBuf->getVertexSize();
                 pDestBase = static_cast<unsigned char*>(
                     destBuf->lock(HardwareBuffer::HBL_NORMAL));
             }
-		    
+
 		    // find a vertex coord buffer
 		    const VertexElement *elemVPos = vDecl->findElementBySemantic(VES_POSITION);
             if (elemVPos->getSource() == srcElem->getSource())
@@ -1206,9 +1206,9 @@ namespace Ogre {
                     posBuf->lock(HardwareBuffer::HBL_READ_ONLY));
                 posInc = posBuf->getVertexSize();
             }
-    		
+
 		    size_t numFaces = indexData->indexCount / 3 ;
-    		
+
 		    // loop through all faces to calculate the tangents and normals
 		    size_t n;
 		    for (n = 0; n < numFaces; ++n)
@@ -1239,9 +1239,9 @@ namespace Ogre {
 			    }
 			    // calculate the TSB
                 Vector3 tangent = Math::calculateTangentSpaceVector(
-                    vertPos[0], vertPos[1], vertPos[2], 
+                    vertPos[0], vertPos[1], vertPos[2],
                     u[0], v[0], u[1], v[1], u[2], v[2]);
-			    // write new tex.coords 
+			    // write new tex.coords
                 // note we only write the tangent, not the binormal since we can calculate
                 // the binormal in the vertex program
 			    for (i = 0; i < 3; ++i)
@@ -1283,11 +1283,11 @@ namespace Ogre {
             }
 		    buffIndex->unlock();
 	    }
-        
+
     }
 
     //---------------------------------------------------------------------
-    bool Mesh::suggestTangentVectorBuildParams(unsigned short& outSourceCoordSet, 
+    bool Mesh::suggestTangentVectorBuildParams(unsigned short& outSourceCoordSet,
         unsigned short& outDestCoordSet)
     {
         // Go through all the vertex data and locate source and dest (must agree)
@@ -1314,11 +1314,11 @@ namespace Ogre {
             }
 
             const VertexElement *sourceElem = 0;
-            unsigned short proposedDest = 0;
+            //unsigned short proposedDest = 0;
             unsigned short t = 0;
             for (t = 0; t < OGRE_MAX_TEXTURE_COORD_SETS; ++t)
             {
-                const VertexElement* testElem = 
+                const VertexElement* testElem =
                     vertexData->vertexDeclaration->findElementBySemantic(
                         VES_TEXTURE_COORDINATES, t);
                 if (!testElem)
@@ -1350,18 +1350,18 @@ namespace Ogre {
             // After iterating, we should have a source and a possible destination (t)
             if (!sourceElem)
             {
-                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
                     "Cannot locate an appropriate 2D texture coordinate set for "
                     "all the vertex data in this mesh to create tangents from. ",
                     "Mesh::suggestTangentVectorBuildParams");
             }
-            // Check that we agree with previous decisions, if this is not the 
+            // Check that we agree with previous decisions, if this is not the
             // first one
             if (!firstOne)
             {
                 if (sourceElem->getIndex() != outSourceCoordSet)
                 {
-                    OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+                    OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
                         "Multiple sets of vertex data in this mesh disagree on "
                         "the appropriate index to use for the source texture coordinates. "
                         "This ambiguity must be rectified before tangents can be generated.",
@@ -1369,7 +1369,7 @@ namespace Ogre {
                 }
                 if (t != outDestCoordSet)
                 {
-                    OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+                    OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
                         "Multiple sets of vertex data in this mesh disagree on "
                         "the appropriate index to use for the target texture coordinates. "
                         "This ambiguity must be rectified before tangents can be generated.",
@@ -1386,7 +1386,7 @@ namespace Ogre {
        }
 
         return foundExisting;
-        
+
     }
     //---------------------------------------------------------------------
     void Mesh::buildEdgeList(void)
@@ -1436,7 +1436,7 @@ namespace Ogre {
                         }
                         else
                         {
-                            eb.addIndexData(s->mLodFaceList[lodIndex-1], 0, 
+                            eb.addIndexData(s->mLodFaceList[lodIndex-1], 0,
                                 s->operationType);
                         }
                     }
@@ -1447,13 +1447,13 @@ namespace Ogre {
                         if (lodIndex == 0)
                         {
                             // Base index data
-                            eb.addIndexData(s->indexData, vertexSetCount++, 
+                            eb.addIndexData(s->indexData, vertexSetCount++,
                                 s->operationType);
                         }
                         else
                         {
                             // LOD index data
-                            eb.addIndexData(s->mLodFaceList[lodIndex-1], 
+                            eb.addIndexData(s->mLodFaceList[lodIndex-1],
                                 vertexSetCount++, s->operationType);
                         }
 
@@ -1465,7 +1465,7 @@ namespace Ogre {
                 #if OGRE_DEBUG_MODE
                     // Override default log
                     Log* log = LogManager::getSingleton().createLog(
-                        mName + "_lod" + StringConverter::toString(lodIndex) + 
+                        mName + "_lod" + StringConverter::toString(lodIndex) +
                         "_prepshadow.log", false, false);
                     usage.edgeData->log(log);
                 #endif
@@ -1491,7 +1491,7 @@ namespace Ogre {
             if (!mIsLodManual || index == 0)
             {
                 // Only delete if we own this data
-                // Manual LODs > 0 own their own 
+                // Manual LODs > 0 own their own
                 delete usage.edgeData;
             }
             usage.edgeData = NULL;
@@ -1538,8 +1538,8 @@ namespace Ogre {
         return getLodLevel(lodIndex).edgeData;
     }
     //---------------------------------------------------------------------
-    void Mesh::softwareVertexBlend(const VertexData* sourceVertexData, 
-        const VertexData* targetVertexData, const Matrix4* pMatrices, 
+    void Mesh::softwareVertexBlend(const VertexData* sourceVertexData,
+        const VertexData* targetVertexData, const Matrix4* pMatrices,
         const unsigned short* pIndexMap,
         bool blendNormals)
     {
@@ -1556,22 +1556,22 @@ namespace Ogre {
 
 
         // Get elements for source
-        const VertexElement* srcElemPos = 
+        const VertexElement* srcElemPos =
             sourceVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
-        const VertexElement* srcElemNorm = 
+        const VertexElement* srcElemNorm =
             sourceVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL);
-        const VertexElement* srcElemBlendIndices = 
+        const VertexElement* srcElemBlendIndices =
             sourceVertexData->vertexDeclaration->findElementBySemantic(VES_BLEND_INDICES);
-        const VertexElement* srcElemBlendWeights = 
+        const VertexElement* srcElemBlendWeights =
             sourceVertexData->vertexDeclaration->findElementBySemantic(VES_BLEND_WEIGHTS);
-        assert (srcElemPos && srcElemBlendIndices && srcElemBlendWeights && 
+        assert (srcElemPos && srcElemBlendIndices && srcElemBlendWeights &&
             "You must supply at least positions, blend indices and blend weights");
         // Get elements for target
-        const VertexElement* destElemPos = 
+        const VertexElement* destElemPos =
             targetVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
-        const VertexElement* destElemNorm = 
+        const VertexElement* destElemNorm =
             targetVertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL);
-        
+
         // Do we have normals and want to blend them?
         bool includeNormals = blendNormals && (srcElemNorm != NULL) && (destElemNorm != NULL);
 
@@ -1597,7 +1597,7 @@ namespace Ogre {
         }
 
         // Lock source buffers for reading
-        assert (srcElemPos->getOffset() == 0 && 
+        assert (srcElemPos->getOffset() == 0 &&
             "Positions must be first element in dedicated buffer!");
         pSrcPos = static_cast<float*>(
             srcPosBuf->lock(HardwareBuffer::HBL_READ_ONLY));
@@ -1606,14 +1606,14 @@ namespace Ogre {
             if (srcPosNormShareBuffer)
             {
                 // Same buffer, must be packed directly after position
-                assert (srcElemNorm->getOffset() == sizeof(float) * 3 && 
+                assert (srcElemNorm->getOffset() == sizeof(float) * 3 &&
                     "Normals must be packed directly after positions in buffer!");
                 // pSrcNorm will not be used
             }
             else
             {
                 // Different buffer
-                assert (srcElemNorm->getOffset() == 0 && 
+                assert (srcElemNorm->getOffset() == 0 &&
                     "Normals must be first element in dedicated buffer!");
                 pSrcNorm = static_cast<float*>(
                     srcNormBuf->lock(HardwareBuffer::HBL_READ_ONLY));
@@ -1622,7 +1622,7 @@ namespace Ogre {
 
         // Indices must be first in a buffer and be 4 bytes
         assert(srcElemBlendIndices->getOffset() == 0 &&
-               srcElemBlendIndices->getType() == VET_UBYTE4 && 
+               srcElemBlendIndices->getType() == VET_UBYTE4 &&
                "Blend indices must be first in a buffer and be VET_UBYTE4");
         pBlendIdx = static_cast<unsigned char*>(
             srcIdxBuf->lock(HardwareBuffer::HBL_READ_ONLY));
@@ -1642,12 +1642,12 @@ namespace Ogre {
             pBlendWeight = static_cast<float*>(
                 srcWeightBuf->lock(HardwareBuffer::HBL_READ_ONLY));
         }
-        unsigned short numWeightsPerVertex = 
+        unsigned short numWeightsPerVertex =
             VertexElement::getTypeCount(srcElemBlendWeights->getType());
 
 
         // Lock destination buffers for writing
-        assert (destElemPos->getOffset() == 0 && 
+        assert (destElemPos->getOffset() == 0 &&
             "Positions must be first element in dedicated buffer!");
         pDestPos = static_cast<float*>(
             destPosBuf->lock(HardwareBuffer::HBL_DISCARD));
@@ -1656,11 +1656,11 @@ namespace Ogre {
             if (destPosNormShareBuffer)
             {
                 // Same buffer, must be packed directly after position
-                assert (destElemNorm->getOffset() == sizeof(float) * 3 && 
+                assert (destElemNorm->getOffset() == sizeof(float) * 3 &&
                     "Normals must be packed directly after positions in buffer!");
                 // Must be no other information in the buffer
-                assert(destPosBuf->getVertexSize() == 
-                    destElemPos->getSize() + destElemNorm->getSize() && 
+                assert(destPosBuf->getVertexSize() ==
+                    destElemPos->getSize() + destElemNorm->getSize() &&
                     "When software skinning, position & normal buffer must not include "
                     "any other vertex elements!");
                 // pDestNorm will not be used
@@ -1668,15 +1668,15 @@ namespace Ogre {
             else
             {
                 // Different buffer
-                assert (destElemNorm->getOffset() == 0 && 
+                assert (destElemNorm->getOffset() == 0 &&
                     "Normals must be first element in dedicated buffer!");
                 // Must be no other information in the buffer
-                assert(destPosBuf->getVertexSize() == 
-                    destElemPos->getSize() && 
+                assert(destPosBuf->getVertexSize() ==
+                    destElemPos->getSize() &&
                     "When software skinning, dedicated position buffer must not include "
                     "any other vertex elements!");
-                assert(destNormBuf->getVertexSize() == 
-                    destElemNorm->getSize() && 
+                assert(destNormBuf->getVertexSize() ==
+                    destElemNorm->getSize() &&
                     "When software skinning, dedicated normal buffer must not include "
                     "any other vertex elements!");
                 pDestNorm = static_cast<float*>(
@@ -1692,7 +1692,7 @@ namespace Ogre {
             sourceVec.y = *pSrcPos++;
             sourceVec.z = *pSrcPos++;
 
-            if (includeNormals) 
+            if (includeNormals)
             {
                 if (srcPosNormShareBuffer)
                 {
@@ -1711,33 +1711,33 @@ namespace Ogre {
             accumVecPos = Vector3::ZERO;
             accumVecNorm = Vector3::ZERO;
 
-            // Loop per blend weight 
-            for (unsigned short blendIdx = 0; 
+            // Loop per blend weight
+            for (unsigned short blendIdx = 0;
                 blendIdx < numWeightsPerVertex; ++blendIdx)
             {
                 // Blend by multiplying source by blend matrix and scaling by weight
                 // Add to accumulator
                 // NB weights must be normalised!!
-                if (*pBlendWeight != 0.0) 
+                if (*pBlendWeight != 0.0)
                 {
                     // Blend position, use 3x4 matrix
                     const Matrix4& mat = pMatrices[pIndexMap[*pBlendIdx]];
-                    accumVecPos.x += 
-                        (mat[0][0] * sourceVec.x + 
-                         mat[0][1] * sourceVec.y + 
-                         mat[0][2] * sourceVec.z + 
+                    accumVecPos.x +=
+                        (mat[0][0] * sourceVec.x +
+                         mat[0][1] * sourceVec.y +
+                         mat[0][2] * sourceVec.z +
                          mat[0][3])
                          * (*pBlendWeight);
-                    accumVecPos.y += 
-                        (mat[1][0] * sourceVec.x + 
-                         mat[1][1] * sourceVec.y + 
-                         mat[1][2] * sourceVec.z + 
+                    accumVecPos.y +=
+                        (mat[1][0] * sourceVec.x +
+                         mat[1][1] * sourceVec.y +
+                         mat[1][2] * sourceVec.z +
                          mat[1][3])
                          * (*pBlendWeight);
-                    accumVecPos.z += 
-                        (mat[2][0] * sourceVec.x + 
-                         mat[2][1] * sourceVec.y + 
-                         mat[2][2] * sourceVec.z + 
+                    accumVecPos.z +=
+                        (mat[2][0] * sourceVec.x +
+                         mat[2][1] * sourceVec.y +
+                         mat[2][2] * sourceVec.z +
                          mat[2][3])
                          * (*pBlendWeight);
                     if (includeNormals)
@@ -1747,19 +1747,19 @@ namespace Ogre {
                         // aspect of the matrix is orthogonal (no non-uniform scaling), the inverse transpose
                         // is equal to the main 3x3 matrix
                         // Note because it's a normal we just extract the rotational part, saves us renormalising here
-                        accumVecNorm.x += 
-                            (mat[0][0] * sourceNorm.x + 
-                             mat[0][1] * sourceNorm.y + 
-                             mat[0][2] * sourceNorm.z) 
+                        accumVecNorm.x +=
+                            (mat[0][0] * sourceNorm.x +
+                             mat[0][1] * sourceNorm.y +
+                             mat[0][2] * sourceNorm.z)
                              * (*pBlendWeight);
-                        accumVecNorm.y += 
-                            (mat[1][0] * sourceNorm.x + 
-                             mat[1][1] * sourceNorm.y + 
+                        accumVecNorm.y +=
+                            (mat[1][0] * sourceNorm.x +
+                             mat[1][1] * sourceNorm.y +
                              mat[1][2] * sourceNorm.z)
                             * (*pBlendWeight);
-                        accumVecNorm.z += 
-                            (mat[2][0] * sourceNorm.x + 
-                             mat[2][1] * sourceNorm.y + 
+                        accumVecNorm.z +=
+                            (mat[2][0] * sourceNorm.x +
+                             mat[2][1] * sourceNorm.y +
                              mat[2][2] * sourceNorm.z)
                             * (*pBlendWeight);
                     }
@@ -1828,21 +1828,21 @@ namespace Ogre {
 
     }
 	//---------------------------------------------------------------------
-	void Mesh::softwareVertexMorph(Real t, 
-		const HardwareVertexBufferSharedPtr& b1, 
-		const HardwareVertexBufferSharedPtr& b2, 
+	void Mesh::softwareVertexMorph(Real t,
+		const HardwareVertexBufferSharedPtr& b1,
+		const HardwareVertexBufferSharedPtr& b2,
 		VertexData* targetVertexData)
 	{
 		float* pb1 = static_cast<float*>(b1->lock(HardwareBuffer::HBL_READ_ONLY));
 		float* pb2 = static_cast<float*>(b2->lock(HardwareBuffer::HBL_READ_ONLY));
-		
-		const VertexElement* posElem = 
+
+		const VertexElement* posElem =
 			targetVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
 		assert(posElem);
-		HardwareVertexBufferSharedPtr destBuf = 
+		HardwareVertexBufferSharedPtr destBuf =
 			targetVertexData->vertexBufferBinding->getBuffer(
 				posElem->getSource());
-		assert(posElem->getSize() == destBuf->getVertexSize() && 
+		assert(posElem->getSize() == destBuf->getVertexSize() &&
 			"Positions must be in a buffer on their own for morphing");
 		float* pdst = static_cast<float*>(
 			destBuf->lock(HardwareBuffer::HBL_DISCARD));
@@ -1864,7 +1864,7 @@ namespace Ogre {
 		b2->unlock();
 	}
 	//---------------------------------------------------------------------
-	void Mesh::softwareVertexPoseBlend(Real weight, 
+	void Mesh::softwareVertexPoseBlend(Real weight,
 		const std::map<size_t, Vector3>& vertexOffsetMap,
 		VertexData* targetVertexData)
 	{
@@ -1872,13 +1872,13 @@ namespace Ogre {
 		if (weight == 0.0f)
 			return;
 
-		const VertexElement* posElem = 
+		const VertexElement* posElem =
 			targetVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
 		assert(posElem);
-		HardwareVertexBufferSharedPtr destBuf = 
+		HardwareVertexBufferSharedPtr destBuf =
 			targetVertexData->vertexBufferBinding->getBuffer(
 			posElem->getSource());
-		assert(posElem->getSize() == destBuf->getVertexSize() && 
+		assert(posElem->getSize() == destBuf->getVertexSize() &&
 			"Positions must be in a buffer on their own for pose blending");
 
 		// Have to lock in normal mode since this is incremental
@@ -1891,7 +1891,7 @@ namespace Ogre {
 		{
 			// Adjust pointer
 			float *pdst = pBase + i->first*3;
-			
+
 			*pdst = *pdst + (i->second.x * weight);
 			++pdst;
 			*pdst = *pdst + (i->second.y * weight);
@@ -1912,8 +1912,8 @@ namespace Ogre {
 		// Shared vertices
 		if (sharedVertexData)
 		{
-			for (i = 0; 
-				i < sharedVertexData->vertexBufferBinding->getBufferCount(); 
+			for (i = 0;
+				i < sharedVertexData->vertexBufferBinding->getBufferCount();
 				++i)
 			{
 				ret += sharedVertexData->vertexBufferBinding
@@ -1927,8 +1927,8 @@ namespace Ogre {
 			// Dedicated vertices
 			if (!(*si)->useSharedVertices)
 			{
-				for (i = 0; 
-					i < (*si)->vertexData->vertexBufferBinding->getBufferCount(); 
+				for (i = 0;
+					i < (*si)->vertexData->vertexBufferBinding->getBufferCount();
 					++i)
 				{
 					ret += (*si)->vertexData->vertexBufferBinding
@@ -1984,14 +1984,14 @@ namespace Ogre {
 				if (handle == 0)
 				{
 					// shared data
-					if (mSharedVertexDataAnimationType != VAT_NONE && 
+					if (mSharedVertexDataAnimationType != VAT_NONE &&
 						mSharedVertexDataAnimationType != track->getAnimationType())
 					{
 						// Mixing of morph and pose animation on same data is not allowed
-						OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-							"Animation tracks for shared vertex data on mesh " 
+						OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+							"Animation tracks for shared vertex data on mesh "
 							+ mName + " try to mix vertex animation types, which is "
-							"not allowed.", 
+							"not allowed.",
 							"Mesh::_determineAnimationTypes");
 					}
 					mSharedVertexDataAnimationType = track->getAnimationType();
@@ -2000,19 +2000,19 @@ namespace Ogre {
 				{
 					// submesh index (-1)
 					SubMesh* sm = getSubMesh(handle-1);
-					if (sm->mVertexAnimationType != VAT_NONE && 
+					if (sm->mVertexAnimationType != VAT_NONE &&
 						sm->mVertexAnimationType != track->getAnimationType())
 					{
 						// Mixing of morph and pose animation on same data is not allowed
-						OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-							"Animation tracks for dedicated vertex data " 
-							+ StringConverter::toString(handle-1) + " on mesh " 
+						OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+							"Animation tracks for dedicated vertex data "
+							+ StringConverter::toString(handle-1) + " on mesh "
 							+ mName + " try to mix vertex animation types, which is "
-							"not allowed.", 
+							"not allowed.",
 							"Mesh::_determineAnimationTypes");
 					}
 					sm->mVertexAnimationType = track->getAnimationType();
-				
+
 				}
 			}
 		}
@@ -2048,8 +2048,8 @@ namespace Ogre {
 		Animation* ret = _getAnimationImpl(name);
 		if (!ret)
 		{
-			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-				"No animation entry found named " + name, 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
+				"No animation entry found named " + name,
 				"Mesh::getAnimation");
 		}
 
@@ -2099,7 +2099,7 @@ namespace Ogre {
 
 		if (i == mAnimationsList.end())
 		{
-			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + name, 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + name,
 				"Mesh::getAnimation");
 		}
 
@@ -2144,13 +2144,13 @@ namespace Ogre {
 	{
 		if (index >= getPoseCount())
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
 				"Index out of bounds",
 				"Mesh::getPose");
 		}
 
 		return mPoseList[index];
-		
+
 	}
 	//---------------------------------------------------------------------
 	Pose* Mesh::getPose(const String& name)
@@ -2162,7 +2162,7 @@ namespace Ogre {
 		}
 		StringUtil::StrStreamType str;
 		str << "No pose called " << name << " found in Mesh " << mName;
-		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
 			str.str(),
 			"Mesh::getPose");
 
@@ -2172,7 +2172,7 @@ namespace Ogre {
 	{
 		if (index >= getPoseCount())
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
 				"Index out of bounds",
 				"Mesh::removePose");
 		}
@@ -2196,7 +2196,7 @@ namespace Ogre {
 		}
 		StringUtil::StrStreamType str;
 		str << "No pose called " << name << " found in Mesh " << mName;
-		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
 			str.str(),
 			"Mesh::removePose");
 	}

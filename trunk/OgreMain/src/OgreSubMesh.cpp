@@ -35,11 +35,11 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     SubMesh::SubMesh()
         : useSharedVertices(true)
+        , operationType(RenderOperation::OT_TRIANGLE_LIST)
         , vertexData(0)
         , mMatInitialised(false)
         , mBoneAssignmentsOutOfDate(false)
 		, mVertexAnimationType(VAT_NONE)
-        , operationType(RenderOperation::OT_TRIANGLE_LIST)
     {
 		indexData = new IndexData();
     }
@@ -70,9 +70,9 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void SubMesh::_getRenderOperation(RenderOperation& ro, ushort lodIndex) 
+    void SubMesh::_getRenderOperation(RenderOperation& ro, ushort lodIndex)
     {
-        
+
 		// SubMeshes always use indexes
         ro.useIndexes = true;
 		if (lodIndex > 0 && static_cast< size_t >( lodIndex - 1 ) < mLodFaceList.size())
@@ -110,7 +110,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SubMesh::_compileBoneAssignments(void)
     {
-        unsigned short maxBones = 
+        unsigned short maxBones =
             parent->_rationaliseBoneAssignments(vertexData->vertexCount, mBoneAssignments);
 
         if (maxBones == 0)
@@ -119,7 +119,7 @@ namespace Ogre {
             return;
         }
 
-        parent->compileBoneAssignments(mBoneAssignments, maxBones, 
+        parent->compileBoneAssignments(mBoneAssignments, maxBones,
             blendIndexToBoneIndexMap, vertexData);
 
         mBoneAssignmentsOutOfDate = false;
