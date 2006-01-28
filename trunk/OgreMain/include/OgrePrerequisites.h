@@ -8,17 +8,17 @@ Copyright (c) 2000-2005 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This library is free software; you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License (LGPL) as 
-published by the Free Software Foundation; either version 2.1 of the 
+under the terms of the GNU Lesser General Public License (LGPL) as
+published by the Free Software Foundation; either version 2.1 of the
 License, or (at your option) any later version.
 
-This library is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public 
+This library is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Lesser General Public License 
-along with this library; if not, write to the Free Software Foundation, 
+You should have received a copy of the GNU Lesser General Public License
+along with this library; if not, write to the Free Software Foundation,
 Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA or go to
 http://www.gnu.org/copyleft/lesser.txt
 -------------------------------------------------------------------------*/
@@ -56,18 +56,18 @@ http://www.gnu.org/copyleft/lesser.txt
 #   pragma warning (disable : 4275)
 
 // disable: "C++ Exception Specification ignored"
-// This is because MSVC 6 did not implement all the C++ exception 
+// This is because MSVC 6 did not implement all the C++ exception
 // specifications in the ANSI C++ draft.
 #   pragma warning( disable : 4290 )
 
-// disable: "no suitable definition provided for explicit template 
-// instantiation request" Occurs in VC7 for no justifiable reason on all 
+// disable: "no suitable definition provided for explicit template
+// instantiation request" Occurs in VC7 for no justifiable reason on all
 // #includes of Singleton
 #   pragma warning( disable: 4661)
 
-// disable: deprecation warnings when using CRT calls in VC8 
+// disable: deprecation warnings when using CRT calls in VC8
 // These show up on all C runtime lib code in VC8, disable since they clutter
-// the warnings with things we may not be able to do anything about (e.g. 
+// the warnings with things we may not be able to do anything about (e.g.
 // generated code from nvparse etc). I doubt very much that these calls
 // will ever be actually removed from VC anyway, it would break too much code.
 #	pragma warning( disable: 4996)
@@ -120,7 +120,7 @@ namespace Ogre {
     #	define _TO_CHAR( x ) x
     #endif
 
-    #if OGRE_COMPILER == OGRE_COMPILER_GNUC && OGRE_COMP_VER >= 310
+    #if OGRE_COMPILER == OGRE_COMPILER_GNUC && OGRE_COMP_VER >= 310 && !defined(STLPORT)
     #   define HashMap ::__gnu_cxx::hash_map
     #else
     #   if OGRE_COMPILER == OGRE_COMPILER_MSVC
@@ -138,8 +138,8 @@ namespace Ogre {
     */
     typedef unsigned char uchar;
     typedef unsigned short ushort;
-    typedef unsigned int uint;  
-	typedef unsigned long ulong;  
+    typedef unsigned int uint;
+	typedef unsigned long ulong;
 
     /// Useful macros
     #define OGRE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }
@@ -150,7 +150,7 @@ namespace Ogre {
 	#else
 		typedef std::string _StringBase;
 	#endif
-	
+
 	typedef _StringBase String;
 
 	// Useful threading defines
@@ -167,15 +167,15 @@ namespace Ogre {
 		#define OGRE_DELETE_AUTO_SHARED_MUTEX delete OGRE_AUTO_MUTEX_NAME;
 		#define OGRE_COPY_AUTO_SHARED_MUTEX(from) OGRE_AUTO_MUTEX_NAME = from;
 	#else
-		#define OGRE_AUTO_MUTEX 
-		#define OGRE_LOCK_AUTO_MUTEX 
+		#define OGRE_AUTO_MUTEX
+		#define OGRE_LOCK_AUTO_MUTEX
 		#define OGRE_MUTEX(name)
 		#define OGRE_LOCK_MUTEX(name)
-		#define OGRE_AUTO_SHARED_MUTEX 
+		#define OGRE_AUTO_SHARED_MUTEX
 		#define OGRE_LOCK_AUTO_SHARED_MUTEX
-		#define OGRE_NEW_AUTO_SHARED_MUTEX 
-		#define OGRE_DELETE_AUTO_SHARED_MUTEX 
-		#define OGRE_COPY_AUTO_SHARED_MUTEX(from) 
+		#define OGRE_NEW_AUTO_SHARED_MUTEX
+		#define OGRE_DELETE_AUTO_SHARED_MUTEX
+		#define OGRE_COPY_AUTO_SHARED_MUTEX(from)
 	#endif
 
 
@@ -363,13 +363,13 @@ namespace Ogre {
     class Vector2;
     class Vector3;
     class Vector4;
-    class Viewport;  
+    class Viewport;
 	class VertexAnimationTrack;
     class VertexBufferBinding;
     class VertexData;
     class VertexDeclaration;
 	class VertexMorphKeyFrame;
-    class WireBoundingBox; 
+    class WireBoundingBox;
     class Compositor;
     class CompositorManager;
     class CompositorChain;
