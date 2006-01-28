@@ -8,17 +8,17 @@ Copyright (c) 2000-2005 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This library is free software; you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License (LGPL) as 
-published by the Free Software Foundation; either version 2.1 of the 
+under the terms of the GNU Lesser General Public License (LGPL) as
+published by the Free Software Foundation; either version 2.1 of the
 License, or (at your option) any later version.
 
-This library is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public 
+This library is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
-You should have received a copy of the GNU Lesser General Public License 
-along with this library; if not, write to the Free Software Foundation, 
+You should have received a copy of the GNU Lesser General Public License
+along with this library; if not, write to the Free Software Foundation,
 Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA or go to
 http://www.gnu.org/copyleft/lesser.txt
 -------------------------------------------------------------------------*/
@@ -82,7 +82,7 @@ namespace Ogre
     {
         // have to call this here reather than in Resource destructor
         // since calling virtual methods in base destructors causes crash
-        unload(); 
+        unload();
     }
     //---------------------------------------------------------------------
     void Font::setType(FontType ftype)
@@ -129,8 +129,8 @@ namespace Ogre
     {
         std::pair< uint, uint > ret( 0, 0 );
         Real vsX, vsY;
-        unsigned int w, h; 
-        
+        unsigned int w, h;
+
         // These are not used, but are required byt the function calls.
         unsigned int cdepth;
 		int left, top;
@@ -162,7 +162,7 @@ namespace Ogre
 
 		if (mpMaterial.isNull())
         {
-            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR,
                 "Error creating new material!", "Font::load" );
         }
 
@@ -186,7 +186,7 @@ namespace Ogre
         texLayer->setTextureAddressingMode( TextureUnitState::TAM_CLAMP );
 		// Allow min/mag filter, but no mip
 		texLayer->setTextureFiltering(FO_LINEAR, FO_LINEAR, FO_NONE);
-		
+
 
         // Set up blending
         if (blendByAlpha)
@@ -213,7 +213,7 @@ namespace Ogre
 		// it wants to (re)load for real
 		String texName = mName + "Texture";
 		// Create, setting isManual to true and passing self as loader
-		mTexture = TextureManager::getSingleton().create( 
+		mTexture = TextureManager::getSingleton().create(
 			texName, mGroup, true, this);
 		mTexture->setTextureType(TEX_TYPE_2D);
 		mTexture->setNumMipmaps(0);
@@ -248,20 +248,20 @@ namespace Ogre
 			ResourceGroupManager::getSingleton().openResource(
 				mSource, mGroup, true, this);
 		MemoryDataStream ttfchunk(dataStreamPtr);
-		
+
         // Load font
         if( FT_New_Memory_Face( ftLibrary, ttfchunk.getPtr(), (FT_Long)ttfchunk.size() , 0, &face ) )
-            OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, 
+            OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR,
             "Could not open font face!", "Font::createTextureFromFont" );
 
 
         // Convert our point size to freetype 26.6 fixed point format
         FT_F26Dot6 ftSize = (FT_F26Dot6)(mTtfSize * (1 << 6));
         if( FT_Set_Char_Size( face, ftSize, 0, mTtfResolution, mTtfResolution ) )
-            OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, 
+            OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR,
             "Could not set char size!", "Font::createTextureFromFont" );
 
-        FILE *fo_def = stdout;
+        //FILE *fo_def = stdout;
 
         int max_height = 0, max_width = 0, max_bear = 0;
 
@@ -283,8 +283,8 @@ namespace Ogre
         }
 
 		// Now work out how big our texture needs to be
-		size_t rawSize = (max_width + char_spacer) * 
-							((max_height >> 6) + char_spacer) * 
+		size_t rawSize = (max_width + char_spacer) *
+							((max_height >> 6) + char_spacer) *
 							(endGlyph - startGlyph + 1);
 
 		size_t tex_side = Math::Sqrt(rawSize);
@@ -294,13 +294,13 @@ namespace Ogre
 		size_t roundUpSize = 0;
 		for (i = 0; i < 12 && roundUpSize < tex_side; ++i)
 			roundUpSize = 1 << i;
-		
+
 		tex_side = roundUpSize;
 		const size_t pixel_bytes = 2;
 		size_t data_width = tex_side * pixel_bytes;
 
 		LogManager::getSingleton().logMessage("Font " + mName + "using texture size " +
-			StringConverter::toString(tex_side) + "x" + StringConverter::toString(tex_side)); 
+			StringConverter::toString(tex_side) + "x" + StringConverter::toString(tex_side));
 
         uchar* imageData = new uchar[tex_side * tex_side * pixel_bytes];
 		// Reset content (White, transparent)
@@ -308,7 +308,7 @@ namespace Ogre
         {
             imageData[i + 0] = 0xFF; // luminance
             imageData[i + 1] = 0x00; // alpha
-        } 
+        }
 
         for( i = startGlyph, l = 0, m = 0, n = 0; i < endGlyph; i++ )
         {
@@ -341,7 +341,7 @@ namespace Ogre
             for( j = 0; j < face->glyph->bitmap.rows; j++ )
             {
                 int row = j + m + y_bearnig;
-                uchar* pDest = &imageData[(row * data_width) + l * pixel_bytes];   
+                uchar* pDest = &imageData[(row * data_width) + l * pixel_bytes];
                 for( k = 0; k < face->glyph->bitmap.width; k++ )
                 {
                     if (mAntialiasColour)
@@ -359,7 +359,7 @@ namespace Ogre
                     *pDest++= *buffer++;                 }
             }
 
-            this->setGlyphTexCoords( i, 
+            this->setGlyphTexCoords( i,
                 (Real)l / (Real)tex_side,  // u1
                 (Real)m / (Real)tex_side,  // v1
                 (Real)( l + ( face->glyph->advance.x >> 6 ) ) / (Real)tex_side, // u2
@@ -380,13 +380,13 @@ namespace Ogre
         DataStreamPtr memStream(
 			new MemoryDataStream(imageData, tex_side * tex_side * pixel_bytes, true));
 
-        Image img; 
+        Image img;
 		img.loadRawData( memStream, tex_side, tex_side, PF_BYTE_LA );
 
 		Texture* tex = static_cast<Texture*>(res);
 		tex->loadImage(img);
 
-		
+
 		FT_Done_FreeType(ftLibrary);
     }
 	//-----------------------------------------------------------------------
