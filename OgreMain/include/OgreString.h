@@ -85,7 +85,7 @@ namespace Ogre {
     class _OgreExport StringUtil
     {
 	public:
-        typedef std::stringstream StrStreamType;
+        typedef std::ostringstream StrStreamType;
 
         /** Removes any whitespace characters, be it standard space or
             TABs and so on.

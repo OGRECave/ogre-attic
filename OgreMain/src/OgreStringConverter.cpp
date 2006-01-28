@@ -36,12 +36,7 @@ namespace Ogre {
     String StringConverter::toString(Real val, unsigned short precision, 
         unsigned short width, char fill, std::ios::fmtflags flags)
     {
-#if OGRE_COMPILER == OGRE_COMPILER_MSVC && OGRE_COMP_VER == 1400
-		static StringUtil::StrStreamType stream;
-		stream.str(StringUtil::BLANK);
-#else
         StringUtil::StrStreamType stream;
-#endif
         stream.precision(precision);
         stream.width(width);
         stream.fill(fill);
@@ -54,12 +49,7 @@ namespace Ogre {
     String StringConverter::toString(int val, 
         unsigned short width, char fill, std::ios::fmtflags flags)
     {
-#if OGRE_COMPILER == OGRE_COMPILER_MSVC && OGRE_COMP_VER == 1400
-		static StringUtil::StrStreamType stream;
-		stream.str(StringUtil::BLANK);
-#else
         StringUtil::StrStreamType stream;
-#endif
 		stream.width(width);
         stream.fill(fill);
         if (flags)
@@ -97,12 +87,7 @@ namespace Ogre {
     String StringConverter::toString(size_t val, 
         unsigned short width, char fill, std::ios::fmtflags flags)
     {
-#if OGRE_COMPILER == OGRE_COMPILER_MSVC && OGRE_COMP_VER == 1400
-		static StringUtil::StrStreamType stream;
-		stream.str(StringUtil::BLANK);
-#else
         StringUtil::StrStreamType stream;
-#endif
 		stream.width(width);
         stream.fill(fill);
         if (flags)
@@ -114,12 +99,7 @@ namespace Ogre {
     String StringConverter::toString(unsigned long val, 
         unsigned short width, char fill, std::ios::fmtflags flags)
     {
-#if OGRE_COMPILER == OGRE_COMPILER_MSVC && OGRE_COMP_VER == 1400
-		static StringUtil::StrStreamType stream;
-		stream.str(StringUtil::BLANK);
-#else
         StringUtil::StrStreamType stream;
-#endif
 		stream.width(width);
         stream.fill(fill);
         if (flags)
@@ -132,12 +112,7 @@ namespace Ogre {
     String StringConverter::toString(long val, 
         unsigned short width, char fill, std::ios::fmtflags flags)
     {
-#if OGRE_COMPILER == OGRE_COMPILER_MSVC && OGRE_COMP_VER == 1400
-		static StringUtil::StrStreamType stream;
-		stream.str(StringUtil::BLANK);
-#else
         StringUtil::StrStreamType stream;
-#endif
 		stream.width(width);
         stream.fill(fill);
         if (flags)
@@ -148,24 +123,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     String StringConverter::toString(const Vector3& val)
     {
-#if OGRE_COMPILER == OGRE_COMPILER_MSVC && OGRE_COMP_VER == 1400
-		static StringUtil::StrStreamType stream;
-		stream.str(StringUtil::BLANK);
-#else
         StringUtil::StrStreamType stream;
-#endif
 		stream << val.x << " " << val.y << " " << val.z;
         return stream.str();
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(const Matrix3& val)
     {
-#if OGRE_COMPILER == OGRE_COMPILER_MSVC && OGRE_COMP_VER == 1400
-		static StringUtil::StrStreamType stream;
-		stream.str(StringUtil::BLANK);
-#else
 		StringUtil::StrStreamType stream;
-#endif
         stream << val[0][0] << " " 
             << val[0][1] << " "             
             << val[0][2] << " "             
@@ -204,12 +169,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     String StringConverter::toString(const Matrix4& val)
     {
-#if OGRE_COMPILER == OGRE_COMPILER_MSVC && OGRE_COMP_VER == 1400
-		static StringUtil::StrStreamType stream;
-		stream.str(StringUtil::BLANK);
-#else
 		StringUtil::StrStreamType stream;
-#endif
         stream << val[0][0] << " " 
             << val[0][1] << " "             
             << val[0][2] << " "             
@@ -231,36 +191,21 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     String StringConverter::toString(const Quaternion& val)
     {
-#if OGRE_COMPILER == OGRE_COMPILER_MSVC && OGRE_COMP_VER == 1400
-		static StringUtil::StrStreamType stream;
-		stream.str(StringUtil::BLANK);
-#else
 		StringUtil::StrStreamType stream;
-#endif
         stream  << val.w << " " << val.x << " " << val.y << " " << val.z;
         return stream.str();
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(const ColourValue& val)
     {
-#if OGRE_COMPILER == OGRE_COMPILER_MSVC && OGRE_COMP_VER == 1400
-		static StringUtil::StrStreamType stream;
-		stream.str(StringUtil::BLANK);
-#else
 		StringUtil::StrStreamType stream;
-#endif
         stream << val.r << " " << val.g << " " << val.b << " " << val.a;
         return stream.str();
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(const StringVector& val)
     {
-#if OGRE_COMPILER == OGRE_COMPILER_MSVC && OGRE_COMP_VER == 1400
-		static StringUtil::StrStreamType stream;
-		stream.str(StringUtil::BLANK);
-#else
 		StringUtil::StrStreamType stream;
-#endif
         StringVector::const_iterator i, iend, ibegin;
         ibegin = val.begin();
         iend = val.end();
