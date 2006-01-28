@@ -51,8 +51,8 @@ namespace Ogre {
             // material
             ID_MATERIAL, ID_CLONE, ID_TECHNIQUE, ID_SET_TEXTURE_ALIAS, ID_LOD_DISTANCES,
             ID_RECEIVE_SHADOWS, ID_TRANSPARENCY_CASTS_SHADOWS, ID_LOD_INDEX,
-            
-            // pass 
+
+            // pass
             ID_PASS, ID_AMBIENT, ID_DIFFUSE, ID_SPECULAR, ID_EMISSIVE,
             ID_VERTEXCOLOUR, ID_SCENE_BLEND, ID_BLEND_ADD, ID_BLEND_MODULATE, ID_COLOUR_BLEND, ID_ALPHA_BLEND,
             ID_BLEND_ONE, ID_BLEND_ZERO, ID_BLEND_DEST_COLOUR,
@@ -60,11 +60,11 @@ namespace Ogre {
             ID_BLEND_DEST_ALPHA, ID_BLEND_SRC_ALPHA, ID_BLEND_ONE_MINUS_DEST_ALPHA, ID_BLEND_ONE_MINUS_SRC_ALPHA,
             ID_DEPTH_CHECK, ID_DEPTH_WRITE, ID_ALPHA_REJECTION, ID_DEPTH_FUNC, ID_ALWAYS_FAIL, ID_ALWAYS_PASS,
             ID_LESS_EQUAL, ID_LESS, ID_EQUAL, ID_NOT_EQUAL, ID_GREATER_EQUAL, ID_GREATER,
-            
+
             ID_COLOUR_WRITE, ID_CULL_HARDWARE, ID_CLOCKWISE, ID_ANTICLOCKWISE, ID_CULL_NONE,
             ID_CULL_SOFTWARE, ID_CULL_BACK, ID_CULL_FRONT,
             ID_SHADING, ID_FLAT, ID_GOURAUD, ID_PHONG,
-            ID_LIGHTING, ID_MAX_LIGHTS, ID_FOG_OVERRIDE, 
+            ID_LIGHTING, ID_MAX_LIGHTS, ID_FOG_OVERRIDE,
 			ID_POINT_SIZE, ID_POINT_SPRITES, ID_POINT_SIZE_ATTENUATION,
 			ID_POINT_SIZE_MIN, ID_POINT_SIZE_MAX,
 
@@ -101,7 +101,7 @@ namespace Ogre {
 		    std::map<String, String> customParameters;
 	    };
         /** Struct for holding the script context while parsing. */
-        struct MaterialScriptContext 
+        struct MaterialScriptContext
         {
             MaterialScriptSection section;
 		    String groupName;
@@ -116,7 +116,7 @@ namespace Ogre {
 			ushort numAnimationParametrics;
 		    MaterialScriptProgramDefinition* programDef; // this is used while defining a program
 
-		    uint techLev,	//Keep track of what tech, pass, and state level we are in
+		    int techLev,	//Keep track of what tech, pass, and state level we are in
 			    passLev,
 			    stateLev;
             StringVector defaultParamLines;
