@@ -150,7 +150,7 @@ namespace Ogre {
             BNF_OPTIONAL_BEGIN, BNF_OPTIONAL_END, BNF_SINGLEQUOTE, BNF_ANY_CHARACTER, BNF_SPECIAL_CHARACTERS1,
             BNF_SPECIAL_CHARACTERS2,
 
-            BNF_LETTER, BNF_LETTER_DIGIT, BNF_DIGIT,
+            BNF_LETTER, BNF_LETTER_DIGIT, BNF_DIGIT, BNF_WHITE_SPACE,
             BNF_ALPHA_SET, BNF_NUMBER_SET, BNF_SPECIAL_CHARACTER_SET1, BNF_SPECIAL_CHARACTER_SET2
         };
 
@@ -340,6 +340,8 @@ namespace Ogre {
 			    OR: if the previous tokens failed then try these ones
 			    OPTIONAL: the token is optional and does not cause the rule to fail if the token is not found
 			    REPEAT: the token is required but there can be more than one in a sequence
+                DATA: Used by a previous token ie for character sets
+                NOTTEST: performs negative lookahead ie make sure the next token is not of a certain type
 			    END: end of the rule path - the method returns the succuss of the rule
 
 	    @param rulepathIDX index into an array of Token Rules that define a rule path to be processed
