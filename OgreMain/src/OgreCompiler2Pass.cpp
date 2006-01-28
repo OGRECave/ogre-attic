@@ -23,10 +23,10 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 #include "OgreStableHeaders.h"
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+//#include <assert.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
 #include "OgreCompiler2Pass.h"
 
 namespace Ogre {
@@ -86,13 +86,14 @@ namespace Ogre {
             addLexemeToken("0123456789", BNF_NUMBER_SET);
             addLexemeToken("`~!@#$%^&*()-_=+\\|[]{}:;\"'<>,.?/", BNF_SPECIAL_CHARACTER_SET2);
             addLexemeToken("$_", BNF_SPECIAL_CHARACTER_SET1);
+            addLexemeToken(" ", BNF_WHITE_SPACE);
         }
 
         if (mBNFTokenState.rootRulePath.empty())
         {
             //  used by bootstrap BNF text parser
             //  <>	- non-terminal token
-            //  ()  - set of 
+            //  ()  - set of
             // ::=	- rule definition
             #define _rule_(id)	    mBNFTokenState.rootRulePath.push_back(TokenRule(otRULE, id));
             #define _is_(id)	    mBNFTokenState.rootRulePath.push_back(TokenRule(otAND, id));
@@ -292,7 +293,7 @@ namespace Ogre {
 	    bool passed = processRulePath(0);
 	    // if a lexeme in source still exists then the end of source was not reached and there was a problem some where
 	    if (positionToNextLexeme()) passed = false;
-    	
+
 	    return passed;
 
     }
@@ -418,7 +419,7 @@ namespace Ogre {
 		    case otAND:
 			    // only validate if the previous rule passed
 			    if (passed)
-				    passed = ValidateToken(rulepathIDX, ActiveNTTRule); 
+				    passed = ValidateToken(rulepathIDX, ActiveNTTRule);
 			    break;
 
 		    case otOR:
@@ -438,7 +439,7 @@ namespace Ogre {
 
 		    case otOPTIONAL:
 			    // if previous passed then try this rule but it does not effect succes of rule since its optional
-			    if(passed) ValidateToken(rulepathIDX, ActiveNTTRule); 
+			    if(passed) ValidateToken(rulepathIDX, ActiveNTTRule);
 			    break;
 
 		    case otREPEAT:
@@ -550,7 +551,7 @@ namespace Ogre {
         // token string is list of valid single characters
         // compare character at current cursor position in script to characters in list for a match
         // if match found then add character to active label
-        // _character_ will not have  a token definition but the next rule operation should be 
+        // _character_ will not have  a token definition but the next rule operation should be
         // DATA and have the token ID required to get the character set.
         const TokenRule& rule = mActiveTokenState->rootRulePath[rulepathIDX + 1];
         if (rule.operation == otDATA)
@@ -587,8 +588,10 @@ namespace Ogre {
 	    if ( (tokenID >= SystemTokenBase) ||
             !mActiveTokenState->lexemeTokenDefinitions[tokenID].isNonTerminal )
 	    {
-            // position cursur to next token (non space) in script
-		    if (positionToNextLexeme())
+            // if label processing is active ie previous token was _character_
+            // and current token is supposed to be a _character_ then don't
+            // position to next lexeme in source
+		    if (mLabelIsActive || positionToNextLexeme())
 		    {
 			    // if Token is supposed to be a number then check if its a numerical constant
 			    if (tokenID == _value_)
