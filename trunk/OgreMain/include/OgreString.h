@@ -28,15 +28,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 
 // If we're using the GCC 3.1 C++ Std lib
-#if OGRE_COMPILER == OGRE_COMPILER_GNUC && OGRE_COMP_VER >= 310
+#if OGRE_COMPILER == OGRE_COMPILER_GNUC && OGRE_COMP_VER >= 310 && !defined(STLPORT)
 
 #include <ext/hash_map>
 namespace __gnu_cxx
 {
     template <> struct hash< Ogre::_StringBase >
     {
-        size_t operator()( const Ogre::_StringBase _stringBase ) const 
-        { 
+        size_t operator()( const Ogre::_StringBase _stringBase ) const
+        {
             /* This is the PRO-STL way, but it seems to cause problems with VC7.1
                and in some other cases (although I can't recreate it)
             hash<const char*> H;
@@ -56,7 +56,7 @@ namespace __gnu_cxx
 #elif !defined( _STLP_HASH_FUN_H )
 
 #	if _DEFINE_DEPRECATED_HASH_CLASSES
-namespace std 
+namespace std
 #	else
 namespace stdext
 #	endif
@@ -98,9 +98,9 @@ namespace Ogre {
 
         /** Returns a StringVector that contains all the substrings delimited
             by the characters in the passed <code>delims</code> argument.
-            @param 
+            @param
                 delims A list of delimiter characters to split by
-            @param 
+            @param
                 maxSplits The maximum number of splits to perform (0 for unlimited splits). If this
                 parameters is > 0, the splitting process will stop after this many splits, left to right.
         */
@@ -117,37 +117,37 @@ namespace Ogre {
 
         /** Returns whether the string begins with the pattern passed in.
         @param pattern The pattern to compare with.
-        @param lowerCase If true, the end of the string will be lower cased before 
+        @param lowerCase If true, the end of the string will be lower cased before
             comparison, pattern should also be in lower case.
         */
         static bool startsWith(const String& str, const String& pattern, bool lowerCase = true);
 
         /** Returns whether the string ends with the pattern passed in.
         @param pattern The pattern to compare with.
-        @param lowerCase If true, the end of the string will be lower cased before 
+        @param lowerCase If true, the end of the string will be lower cased before
             comparison, pattern should also be in lower case.
         */
         static bool endsWith(const String& str, const String& pattern, bool lowerCase = true);
 
-        /** Method for standardising paths - use forward slashes only, end with slash. 
+        /** Method for standardising paths - use forward slashes only, end with slash.
         */
         static String standardisePath( const String &init);
 
-        /** Method for splitting a fully qualified filename into the base name 
-            and path. 
+        /** Method for splitting a fully qualified filename into the base name
+            and path.
         @remarks
             Path is standardised as in standardisePath
         */
-        static void splitFilename(const String& qualifiedName, 
+        static void splitFilename(const String& qualifiedName,
             String& outBasename, String& outPath);
 
-        /** Simple pattern-matching routine allowing a wildcard pattern. 
+        /** Simple pattern-matching routine allowing a wildcard pattern.
         @param str String to test
         @param pattern Pattern to match against; can include simple '*' wildcards
         @param caseSensitive Whether the match is case sensitive or not
         */
         static bool match(const String& str, const String& pattern, bool caseSensitive = true);
-            
+
 
 
 
@@ -157,8 +157,8 @@ namespace Ogre {
     };
 
 
-#if OGRE_COMPILER == OGRE_COMPILER_GNUC && OGRE_COMP_VER >= 310
-    typedef ::__gnu_cxx::hash< _StringBase > _StringHash;    
+#if OGRE_COMPILER == OGRE_COMPILER_GNUC && OGRE_COMP_VER >= 310 && !defined(STLPORT)
+    typedef ::__gnu_cxx::hash< _StringBase > _StringHash;
 #elif !defined( _STLP_HASH_FUN_H )
 #	if _DEFINE_DEPRECATED_HASH_CLASSES
 		typedef std::hash_compare< _StringBase, std::less< _StringBase > > _StringHash;
