@@ -133,7 +133,7 @@ namespace Ogre {
         "<Alphanumeric> ::= <Character> | <Number> \n"
         "<Character> ::= (abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$#%!_*&\\/) \n"
         "<Number> ::= (0123456789); \n"
-        
+
         ;
 
     //-----------------------------------------------------------------------
@@ -248,7 +248,7 @@ namespace Ogre {
         if (mScriptContext.filename.empty() && !mScriptContext.material.isNull())
         {
             LogManager::getSingleton().logMessage(
-                "Error in material " + mScriptContext.material->getName() + 
+                "Error in material " + mScriptContext.material->getName() +
                 " : " + error);
         }
         else
@@ -257,13 +257,13 @@ namespace Ogre {
             {
                 LogManager::getSingleton().logMessage(
                     "Error in material " + mScriptContext.material->getName() +
-                    " at line " + StringConverter::toString(mScriptContext.lineNo) + 
+                    " at line " + StringConverter::toString(mScriptContext.lineNo) +
                     " of " + mScriptContext.filename + ": " + error);
             }
             else
             {
                 LogManager::getSingleton().logMessage(
-                    "Error at line " + StringConverter::toString(mScriptContext.lineNo) + 
+                    "Error at line " + StringConverter::toString(mScriptContext.lineNo) +
                     " of " + mScriptContext.filename + ": " + error);
             }
         }
@@ -320,7 +320,7 @@ namespace Ogre {
 		case MSS_TEXTURESOURCE:
 			//End texture source section
 			//Finish creating texture here
-			
+
 			if(	ExternalTextureSourceManager::getSingleton().getCurrentPlugIn() != 0)
             {
                 const String sMaterialName = mScriptContext.material->getName();
@@ -431,7 +431,7 @@ namespace Ogre {
             }
         }
 
-        mScriptContext.material = 
+        mScriptContext.material =
 			MaterialManager::getSingleton().create(materialName, mScriptContext.groupName);
 
         if (!basematerial.isNull())
@@ -487,7 +487,7 @@ namespace Ogre {
             }
 
         }
-        else 
+        else
         {
             // no name was given in the script so a new technique will be created
 		    // Increase technique level depth
@@ -614,13 +614,13 @@ namespace Ogre {
                 replaceToken();
                 logParseError("Bad ambient attribute, single parameter flag must be 'vertexcolour'");
             }
-        } 
+        }
         else if (paramCount == 3 || paramCount == 4)
         {
             mScriptContext.pass->setAmbient( _parseColourValue() );
             mScriptContext.pass->setVertexColourTracking(mScriptContext.pass->getVertexColourTracking() & ~TVC_AMBIENT);
         }
-        else 
+        else
         {
             logParseError("Bad ambient attribute, wrong number of parameters (expected 1, 3 or 4)");
         }
@@ -628,7 +628,7 @@ namespace Ogre {
    //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseDiffuse(void)
     {
-        // Must be 1, 3 or 4 parameters 
+        // Must be 1, 3 or 4 parameters
         const size_t paramCount = getTokenQueCount();
         if (paramCount == 1) {
             if(getNextToken().tokenID == ID_VERTEXCOLOUR)
@@ -654,10 +654,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseSpecular(void)
     {
-        // Must be 2, 4 or 5 parameters 
+        // Must be 2, 4 or 5 parameters
         const size_t paramCount = getTokenQueCount();
-        if(paramCount == 2) 
-        {   
+        if(paramCount == 2)
+        {
             if(getNextToken().tokenID == ID_VERTEXCOLOUR)
             {
                 mScriptContext.pass->setVertexColourTracking(mScriptContext.pass->getVertexColourTracking() | TVC_SPECULAR);
@@ -668,18 +668,18 @@ namespace Ogre {
                 replaceToken();
                 logParseError("Bad specular attribute, double parameter statement must be 'vertexcolour <shininess>'");
             }
-        } 
-        else if(paramCount == 4 || paramCount == 5) 
+        }
+        else if(paramCount == 4 || paramCount == 5)
         {
             mScriptContext.pass->setSpecular(
-                getNextTokenValue(), 
-                getNextTokenValue(), 
-                getNextTokenValue(), 
+                getNextTokenValue(),
+                getNextTokenValue(),
+                getNextTokenValue(),
                 paramCount == 5 ? getNextTokenValue() : 1.0f);
             mScriptContext.pass->setVertexColourTracking(mScriptContext.pass->getVertexColourTracking() & ~TVC_SPECULAR);
             mScriptContext.pass->setShininess( getNextTokenValue() );
         }
-        else 
+        else
         {
             logParseError("Bad specular attribute, wrong number of parameters (expected 2, 4 or 5)");
         }
@@ -687,7 +687,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseEmissive(void)
     {
-        // Must be 1, 3 or 4 parameters 
+        // Must be 1, 3 or 4 parameters
         const size_t paramCount = getTokenQueCount();
         if (paramCount == 1) {
             if(getNextToken().tokenID == ID_VERTEXCOLOUR)
@@ -783,7 +783,7 @@ namespace Ogre {
         }
 
         const CompareFunction cmp = convertCompareFunction();
-        mScriptContext.pass->setAlphaRejectSettings(cmp, getNextTokenValue());
+        mScriptContext.pass->setAlphaRejectSettings(cmp, static_cast<unsigned char>(getNextTokenValue()));
     }
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseColourWrite(void)
@@ -932,7 +932,7 @@ namespace Ogre {
 			{
 				mScriptContext.pass->setPointAttenuation(true);
 			}
-			
+
             break;
         case ID_OFF:
             mScriptContext.pass->setPointAttenuation(false);
@@ -952,7 +952,7 @@ namespace Ogre {
             logParseError("Invalid texture parameter entry; "
 				"there must be a parameter name and at least one value.");
 		}
-		
+
 		else if( ExternalTextureSourceManager::getSingleton().getCurrentPlugIn() != 0 )
         {
 			////First is command, next could be a string with one or more values
@@ -1030,7 +1030,7 @@ namespace Ogre {
 			}
 			// Create
 			gp = GpuProgramManager::getSingleton().
-				createProgram(def->name, mScriptContext.groupName, def->source, 
+				createProgram(def->name, mScriptContext.groupName, def->source,
                     def->progType, def->syntax);
 
 		}
@@ -1044,10 +1044,10 @@ namespace Ogre {
 					", you must specify a source file.");
 			}
 			// Create
-            try 
+            try
             {
 			    HighLevelGpuProgramPtr hgp = HighLevelGpuProgramManager::getSingleton().
-				    createProgram(def->name, mScriptContext.groupName, 
+				    createProgram(def->name, mScriptContext.groupName,
                         def->language, def->progType);
                 // Assign to generalised version
                 gp = hgp;
@@ -1061,7 +1061,7 @@ namespace Ogre {
 			    {
 				    if (!hgp->setParameter(i->first, i->second))
 				    {
-					    logParseError("Error in program " + def->name + 
+					    logParseError("Error in program " + def->name +
 						    " parameter " + i->first + " is not valid.");
 				    }
 			    }
@@ -1085,7 +1085,7 @@ namespace Ogre {
 		gp->_notifyOrigin(mScriptContext.filename);
 
         // Set up to receive default parameters
-        if (gp->isSupported() 
+        if (gp->isSupported()
             && !mScriptContext.defaultParamLines.empty())
         {
             mScriptContext.programParams = gp->getDefaultParameters();
@@ -1103,7 +1103,7 @@ namespace Ogre {
                 StringVector splitCmd = StringUtil::split(*i, " \t", 1);
                 // Find attribute parser
                 //******************** FIX THIS
-                //AttribParserList::iterator iparser 
+                //AttribParserList::iterator iparser
                 //    = mProgramDefaultParamAttribParsers.find(splitCmd[0]);
                 //if (iparser != mProgramDefaultParamAttribParsers.end())
                 //{
