@@ -25,7 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 // NOTE THAT THIS FILE IS BASED ON MATERIAL FROM:
 
 // Magic Software, Inc.
-// http://www.magic-software.com
+// http://www.geometrictools.com/
 // Copyright (c) 2000, All Rights Reserved
 //
 // Source code from Magic Software is supplied under the terms of a license
@@ -34,7 +34,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 // the Magic Software web site.  This file is subject to the license
 //
 // FREE SOURCE CODE
-// http://www.magic-software.com/License/free.pdf
+// http://www.geometrictools.com/License/WildMagic3License.pdf
 
 #ifndef __Quaternion_H__
 #define __Quaternion_H__
