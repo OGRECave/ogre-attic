@@ -24,7 +24,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 // Original free version by:
 // Magic Software, Inc.
-// http://www.magic-software.com
+// http://www.geometrictools.com/
 // Copyright (c) 2000, All Rights Reserved
 
 #ifndef __MovablePlane_H__

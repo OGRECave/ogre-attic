@@ -27,7 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreMath.h"
 
-// Adapted from Matrix math by Wild Magic http://www.magic-software.com
+// Adapted from Matrix math by Wild Magic http://www.geometrictools.com/
 
 namespace Ogre
 {

@@ -30,7 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreVector3.h"
 
 // NB All code adapted from Wild Magic 0.2 Matrix math (free source code)
-// http://www.magic-software.com
+// http://www.geometrictools.com/
 
 // NOTE.  The (x,y,z) coordinate system is assumed to be right-handed.
 // Coordinate axis rotation matrices are of the form
@@ -52,7 +52,7 @@ namespace Ogre
     /** A 3x3 matrix which can represent rotations around axes.
         @note
             <b>All the code is adapted from the Wild Magic 0.2 Matrix
-            library (http://www.magic-software.com).</b>
+            library (http://www.geometrictools.com/).</b>
         @par
             The coordinate system is assumed to be <b>right-handed</b>.
     */

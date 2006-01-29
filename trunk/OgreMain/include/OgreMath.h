@@ -160,7 +160,7 @@ namespace Ogre
             math approximations.
         @note
             <br>This is based on MgcMath.h from
-            <a href="http://www.magic-software.com">Wild Magic</a>.
+            <a href="http://www.geometrictools.com/">Wild Magic</a>.
     */
     class _OgreExport Math 
     {
