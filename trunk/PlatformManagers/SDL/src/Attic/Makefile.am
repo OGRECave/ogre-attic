@@ -1,4 +1,4 @@
-INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/PlatformManagers/SDL/include -I$(top_srcdir)/OgreMain/include $(SDL_CFLAGS) $(CFGTK_DEPS_CFLAGS) -DSHAREDIR=\"$(pkgdatadir)\" 
+INCLUDES = $(STLPORT_CFLAGS) -I$(top_builddir)/PlatformManagers/SDL/include -I$(top_srcdir)/PlatformManagers/SDL/include -I$(top_srcdir)/OgreMain/include $(SDL_CFLAGS) $(CFGTK_DEPS_CFLAGS) -DSHAREDIR=\"$(pkgdatadir)\"
 
 platformdir = $(libdir)
 platform_LTLIBRARIES = libOgrePlatform.la
