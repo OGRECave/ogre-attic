@@ -38,12 +38,29 @@ CompositorManager::CompositorManager():
 	mRectangle(0)
 {
 	initialise();
+
+	// Loading order (just after materials)
+	mLoadOrder = 110.0f;
+	// Scripting is supported by this manager
+	mScriptPatterns.push_back("*.compositor");
+	ResourceGroupManager::getSingleton()._registerScriptLoader(this);
+
+	// Resource type
+	mResourceType = "Compositor";
+
+	// Register with resource group manager
+	ResourceGroupManager::getSingleton()._registerResourceManager(mResourceType, this);
+
 }
 //-----------------------------------------------------------------------
 CompositorManager::~CompositorManager()
 {
     freeChains();
 	delete mRectangle;
+	// Resources cleared by superclass
+	// Unregister with resource group manager
+	ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);
+	ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
 }
 //-----------------------------------------------------------------------
 Resource* CompositorManager::createImpl(const String& name, ResourceHandle handle, 
