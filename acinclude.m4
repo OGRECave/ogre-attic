@@ -173,7 +173,7 @@ AC_DEFUN([OGRE_GET_CONFIG_TOOLKIT],
   dnl Do the extra checks per type here
   case $OGRE_CFGTK in 
     gtk)
-      PKG_CHECK_MODULES(CFGTK_DEPS, gtkmm-2.0 libglademm-2.0);;
+      PKG_CHECK_MODULES(CFGTK_DEPS, gtkmm-2.4 libglademm-2.4);;
   esac
 
   AC_SUBST(CFGTK_DEPS_CFLAGS)
@@ -205,7 +205,7 @@ AC_DEFUN([OGRE_GET_PLATFORM],
       PLATFORM_LIBS=$SDL_LIBS
       ;;
     gtk)
-      PKG_CHECK_MODULES(PLATFORM, gtkglextmm-1.0 libglademm-2.0);;
+      PKG_CHECK_MODULES(PLATFORM, gtkglextmm-1.0 libglademm-2.4);;
     GLX)
       AC_CHECK_HEADERS([X11/Intrinsic.h],, [AC_MSG_ERROR("libxt headers not found")])
       AC_CHECK_HEADERS([X11/Xaw/Command.h],, [AC_MSG_ERROR("libxaw headers not found")])
