@@ -31,6 +31,7 @@ LGPL like the rest of the engine.
 #include <CEGUI/elements/CEGUIPushButton.h>
 #include <CEGUI/elements/CEGUIScrollbar.h>
 #include <CEGUI/elements/CEGUIStaticImage.h>
+#include <CEGUI/elements/CEGUIRadioButton.h>
 #include "OgreCEGUIRenderer.h"
 #include "OgreCEGUIResourceProvider.h"
 
@@ -54,6 +55,56 @@ CEGUI::MouseButton convertOgreButtonToCegui(int buttonID)
 }
 
 AnimationState* speakAnimState;
+AnimationState* manualAnimState;
+VertexPoseKeyFrame* manualKeyFrame;
+
+enum ScrollbarIndex
+{
+	SI_HAPPY = 0,
+	SI_SAD = 1,
+	SI_ANGRY = 2,
+	SI_A = 3,
+	SI_E = 4,
+	SI_I = 5,
+	SI_O = 6,
+	SI_U = 7,
+	SI_C = 8,
+	SI_W = 9,
+	SI_M = 10,
+	SI_L = 11,
+	SI_F = 12,
+	SI_T = 13,
+	SI_P = 14,
+	SI_R = 15,
+	SI_S = 16,
+	SI_TH = 17,
+	SI_COUNT = 18
+};
+String scrollbarNames[SI_COUNT] = {
+	"Facial/Happy_Scroll",
+	"Facial/Sad_Scroll",
+	"Facial/Angry_Scroll",
+	"Facial/A_Scroll",
+	"Facial/E_Scroll",
+	"Facial/I_Scroll",
+	"Facial/O_Scroll",
+	"Facial/U_Scroll",
+	"Facial/C_Scroll",
+	"Facial/W_Scroll",
+	"Facial/M_Scroll",
+	"Facial/L_Scroll",
+	"Facial/F_Scroll",
+	"Facial/T_Scroll",
+	"Facial/P_Scroll",
+	"Facial/R_Scroll",
+	"Facial/S_Scroll",
+	"Facial/TH_Scroll",
+};
+ushort poseIndexes[SI_COUNT] = 
+{ 1, 2, 3, 4, 7, 8, 6, 5, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18};
+
+CEGUI::Scrollbar* scrollbars[SI_COUNT];
+
 
 class GuiFrameListener : public ExampleFrameListener, public MouseMotionListener, public MouseListener
 {
@@ -151,7 +202,7 @@ public:
 	}
 };
 
-class GuiApplication : public ExampleApplication
+class FacialApplication : public ExampleApplication
 {
 private:
     CEGUI::OgreCEGUIRenderer* mGUIRenderer;
@@ -166,7 +217,7 @@ private:
 	CEGUI::Window* mEditBox;
 
 public:
-    GuiApplication()
+    FacialApplication()
       : mGUIRenderer(0),
         mGUISystem(0),
         mEditorGuiSheet(0)
@@ -174,7 +225,7 @@ public:
 
 	}
 
-    ~GuiApplication()
+    ~FacialApplication()
     {
         if(mEditorGuiSheet)
         {
@@ -193,6 +244,55 @@ public:
     }
 
 protected:
+
+	bool mPlayAnimation;
+
+	// Handle the scrollbars changing
+	bool handleScrollChanged(const CEGUI::EventArgs& e)
+	{
+		if (!mPlayAnimation)
+		{
+			// Alter the animation 
+			// Find which one it is first
+			const CEGUI::WindowEventArgs& args = static_cast<const CEGUI::WindowEventArgs&>(e);
+			String name = args.window->getName().c_str();
+			// Find which pose was changed
+			int i;
+			for (i = 0; i < SI_COUNT; ++i)
+			{
+				if (scrollbarNames[i] == name)
+				{
+					break;
+				}
+			}
+			if (i != SI_COUNT)
+			{
+				// Update the pose
+				manualKeyFrame->updatePoseReference(
+					poseIndexes[i], scrollbars[i]->getScrollPosition());
+			}
+
+		}
+		return true;
+
+	}
+
+	// Handle play animation / manual tweaking event
+	bool handleRadioChanged(const CEGUI::EventArgs& e)
+	{
+		mPlayAnimation = !mPlayAnimation;
+		speakAnimState->setEnabled(mPlayAnimation);
+		manualAnimState->setEnabled(!mPlayAnimation);
+		for (int i = 0; i < SI_COUNT; ++i)
+		{
+			// enable / disable scrollbars
+			scrollbars[i]->setEnabled(!mPlayAnimation);
+		}
+
+		return true;
+
+	}
+
     // Just override the mandatory create scene method
     void createScene(void)
     {
@@ -215,6 +315,18 @@ protected:
 		l->setPosition(-120,-80,-50);
 		l->setDiffuseColour(0.7, 0.7, 0.6);
 
+
+		// Pre-load the mesh so that we can tweak it with a manual animation
+		MeshPtr mesh = MeshManager::getSingleton().load("facial.mesh", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Animation* anim = mesh->createAnimation("manual", 0);
+		VertexAnimationTrack* track = anim->createVertexTrack(4, VAT_POSE);
+		manualKeyFrame = track->createVertexPoseKeyFrame(0);
+		// create pose references, initially zero
+		for (int i = 0; i < SI_COUNT; ++i)
+		{
+			manualKeyFrame->addPoseReference(poseIndexes[i], 0.0f);
+		}
+
 		// setup GUI system
         mGUIRenderer = new CEGUI::OgreCEGUIRenderer(mWindow, 
             Ogre::RENDER_QUEUE_OVERLAY, false, 3000);
@@ -226,6 +338,8 @@ protected:
         Entity* head = mSceneMgr->createEntity("Head", "facial.mesh");
 		speakAnimState = head->getAnimationState("Speak");
 		speakAnimState->setEnabled(true);
+		manualAnimState = head->getAnimationState("manual");
+		manualAnimState->setTimePosition(0);
 
         SceneNode* headNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
         headNode->attachObject(head);
@@ -245,24 +359,30 @@ protected:
                 (CEGUI::utf8*)"facial.layout"); 
         mGUISystem->setGUISheet(sheet);
 
-		/*
-        CEGUI::Combobox* objectComboBox = (CEGUI::Combobox*)CEGUI::WindowManager::getSingleton().getWindow("OgreGuiDemo/TabCtrl/Page2/ObjectTypeList");
+		CEGUI::WindowManager& wmgr = CEGUI::WindowManager::getSingleton();
+		for (int i = 0; i < SI_COUNT; ++i)
+		{
+			scrollbars[i] = static_cast<CEGUI::Scrollbar*>(
+				wmgr.getWindow(scrollbarNames[i]));
+			scrollbars[i]->subscribeEvent(
+				CEGUI::Scrollbar::EventScrollPositionChanged, 
+				CEGUI::Event::Subscriber(&FacialApplication::handleScrollChanged, this));
+			// disable to begin with
+			scrollbars[i]->setEnabled(false);
 
-        CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem((CEGUI::utf8*)"FrameWindow", 0);
-        objectComboBox->addItem(item);
-        item = new CEGUI::ListboxTextItem((CEGUI::utf8*)"Horizontal Scrollbar", 1);
-        objectComboBox->addItem(item);
-        item = new CEGUI::ListboxTextItem((CEGUI::utf8*)"Vertical Scrollbar", 2);
-        objectComboBox->addItem(item);
-        item = new CEGUI::ListboxTextItem((CEGUI::utf8*)"StaticText", 3);
-        objectComboBox->addItem(item);
-        item = new CEGUI::ListboxTextItem((CEGUI::utf8*)"StaticImage", 4);
-        objectComboBox->addItem(item);
-        item = new CEGUI::ListboxTextItem((CEGUI::utf8*)"Render to Texture", 5);
-        objectComboBox->addItem(item);
-		*/
+		}
 
-        setupEventHandlers();
+		CEGUI::RadioButton* btn = static_cast<CEGUI::RadioButton*>(
+			wmgr.getWindow((CEGUI::utf8*)"Facial/Radio/Play"));
+		// play animation by default
+		btn->setSelected(true);
+		btn->subscribeEvent(CEGUI::RadioButton::EventSelectStateChanged, 
+			CEGUI::Event::Subscriber(&FacialApplication::handleRadioChanged, this));
+
+		mPlayAnimation = true;
+
+
+
     }
 
     // Create new frame listener
@@ -279,19 +399,19 @@ protected:
         wmgr.getWindow((CEGUI::utf8*)"OgreGuiDemo/TabCtrl/Page1/QuitButton")
 			->subscribeEvent(
 				CEGUI::PushButton::EventClicked, 
-				CEGUI::Event::Subscriber(&GuiApplication::handleQuit, this));
+				CEGUI::Event::Subscriber(&FacialApplication::handleQuit, this));
         wmgr.getWindow((CEGUI::utf8*)"OgreGuiDemo/TabCtrl/Page1/NewButton")
 			->subscribeEvent(
 				CEGUI::PushButton::EventClicked, 
-				CEGUI::Event::Subscriber(&GuiApplication::handleNew, this));
+				CEGUI::Event::Subscriber(&FacialApplication::handleNew, this));
         wmgr.getWindow((CEGUI::utf8*)"OgreGuiDemo/TabCtrl/Page1/LoadButton")
 			->subscribeEvent(
 				CEGUI::PushButton::EventClicked, 
-				CEGUI::Event::Subscriber(&GuiApplication::handleLoad, this));
+				CEGUI::Event::Subscriber(&FacialApplication::handleLoad, this));
         wmgr.getWindow((CEGUI::utf8*)"OgreGuiDemo/TabCtrl/Page2/ObjectTypeList")
 			->subscribeEvent(
 				CEGUI::Combobox::EventListSelectionAccepted, 
-				CEGUI::Event::Subscriber(&GuiApplication::handleObjectSelection, this));
+				CEGUI::Event::Subscriber(&FacialApplication::handleObjectSelection, this));
 		*/
 
     }
@@ -316,18 +436,18 @@ protected:
 	
 		mRed->subscribeEvent(
 				CEGUI::Scrollbar::EventScrollPositionChanged, 
-				CEGUI::Event::Subscriber(&GuiApplication::handleColourChanged, this));
+				CEGUI::Event::Subscriber(&FacialApplication::handleColourChanged, this));
 		mGreen->subscribeEvent(
 			CEGUI::Scrollbar::EventScrollPositionChanged, 
-			CEGUI::Event::Subscriber(&GuiApplication::handleColourChanged, this));
+			CEGUI::Event::Subscriber(&FacialApplication::handleColourChanged, this));
 		mBlue->subscribeEvent(
 			CEGUI::Scrollbar::EventScrollPositionChanged, 
-			CEGUI::Event::Subscriber(&GuiApplication::handleColourChanged, this));
+			CEGUI::Event::Subscriber(&FacialApplication::handleColourChanged, this));
 
 		wmgr.getWindow((CEGUI::utf8*)"Demo8/Window1/Controls/Add")
 			->subscribeEvent(
 			CEGUI::PushButton::EventClicked, 
-			CEGUI::Event::Subscriber(&GuiApplication::handleAdd, this));
+			CEGUI::Event::Subscriber(&FacialApplication::handleAdd, this));
 
 		CEGUI::Window* root = wmgr.getWindow("Demo8");
 		setupEnterExitEvents(root);
@@ -356,7 +476,7 @@ int main(int argc, char *argv[])
 {
 
     // Create application object
-    GuiApplication app;
+    FacialApplication app;
 
     try {
         app.go();

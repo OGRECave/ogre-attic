@@ -194,6 +194,10 @@ namespace Ogre
 		@see PoseRef
 		*/
 		void addPoseReference(ushort poseIndex, Real influence);
+		/** Update the influence of a pose reference. 
+		@see PoseRef
+		*/
+		void updatePoseReference(ushort poseIndex, Real influence);
 		/** Remove reference to a given pose. 
 		@param poseIndex The pose index (not the index of the reference)
 		*/

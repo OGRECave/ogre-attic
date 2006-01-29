@@ -124,6 +124,21 @@ namespace Ogre
 		mPoseRefs.push_back(PoseRef(poseIndex, influence));
 	}
 	//---------------------------------------------------------------------
+	void VertexPoseKeyFrame::updatePoseReference(ushort poseIndex, Real influence)
+	{
+		for (PoseRefList::iterator i = mPoseRefs.begin(); i != mPoseRefs.end(); ++i)
+		{
+			if (i->poseIndex == poseIndex)
+			{
+				i->influence = influence;
+				return;
+			}
+		}
+		// if we got here, we didn't find it
+		addPoseReference(poseIndex, influence);
+
+	}
+	//---------------------------------------------------------------------
 	void VertexPoseKeyFrame::removePoseReference(ushort poseIndex)
 	{
 		for (PoseRefList::iterator i = mPoseRefs.begin(); i != mPoseRefs.end(); ++i)
