@@ -135,6 +135,7 @@ AC_CONFIG_FILES([Makefile \
     Samples/Makefile \
     Samples/Common/Makefile \
     Samples/Common/include/Makefile \
+    Samples/Common/bin/Makefile \
     Samples/BezierPatch/Makefile \
     Samples/BezierPatch/src/Makefile \
     Samples/BezierPatch/include/Makefile \
