@@ -3029,6 +3029,8 @@ Attributes:
 If set to 'true' the panel is transparent and is not rendered itself, it is just used as a grouping level for it's children.
 @item tiling <layer> <x_tile> <y_tile>
 Sets the number of times the texture(s) of the material are tiled across the panel in the x and y direction. <layer> is the texture layer, from 0 to the number of texture layers in the material minus one. By setting tiling per layer you can create some nice multitextured backdrops for your panels, this works especially well when you animate one of the layers.
+@item uv_coords <topleft_u> <topleft_v> <bottomright_u> <bottomright_v>
+Sets the texture coordinates to use for this panel.
 @end table
 
 @anchor{BorderPanel}
