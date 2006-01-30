@@ -132,6 +132,12 @@ CompositorChain *CompositorManager::getCompositorChain(Viewport *vp)
     }
 }
 //-----------------------------------------------------------------------
+void CompositorManager::removeAll(void)
+{
+	freeChains();
+	ResourceManager::removeAll();
+}
+//-----------------------------------------------------------------------
 void CompositorManager::freeChains()
 {
     Chains::iterator i, iend=mChains.end();
