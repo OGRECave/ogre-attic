@@ -48,10 +48,19 @@ CompositorChain::CompositorChain(Viewport *vp):
 //-----------------------------------------------------------------------
 CompositorChain::~CompositorChain()
 {
-    removeAllCompositors();
-    mViewport->getTarget()->removeListener(this);
-    /// Destroy "original scene" compositor instance
-    mOriginalScene->getTechnique()->destroyInstance(mOriginalScene);
+	destroyResources();
+}
+//-----------------------------------------------------------------------
+void CompositorChain::destroyResources(void)
+{
+	if (mViewport)
+	{
+		removeAllCompositors();
+		mViewport->getTarget()->removeListener(this);
+		/// Destroy "original scene" compositor instance
+		mOriginalScene->getTechnique()->destroyInstance(mOriginalScene);
+		mViewport = 0;
+	}
 }
 //-----------------------------------------------------------------------
 CompositorInstance* CompositorChain::addCompositor(CompositorPtr filter, size_t addPosition, size_t technique)
@@ -200,6 +209,14 @@ void CompositorChain::postViewportUpdate(const RenderTargetViewportEvent& evt)
     if(evt.source != mViewport)
         return;
     postTargetOperation(mOutputOperation, mViewport, mViewport->getCamera());
+}
+//-----------------------------------------------------------------------
+void CompositorChain::viewportRemoved(const RenderTargetViewportEvent& evt)
+{
+	// this chain is now orphaned
+	// can't delete it since held from outside, but release all resources being used
+	destroyResources();
+
 }
 //-----------------------------------------------------------------------
 void CompositorChain::_compile()

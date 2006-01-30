@@ -138,15 +138,18 @@ namespace Ogre {
 
         mViewportList.insert(ViewportList::value_type(ZOrder, vp));
 
+		fireViewportAdded(vp);
+
         return vp;
     }
-
+	//-----------------------------------------------------------------------
     void RenderTarget::removeViewport(int ZOrder)
     {
         ViewportList::iterator it = mViewportList.find(ZOrder);
 
         if (it != mViewportList.end())
         {
+			fireViewportRemoved((*it).second);
             delete (*it).second;
             mViewportList.erase(ZOrder);
         }
@@ -385,6 +388,34 @@ namespace Ogre {
             (*i)->postViewportUpdate(evt);
         }
     }
+	//-----------------------------------------------------------------------
+	void RenderTarget::fireViewportAdded(Viewport* vp)
+	{
+		RenderTargetViewportEvent evt;
+		evt.source = vp;
+
+		RenderTargetListenerList::iterator i, iend;
+		i = mListeners.begin();
+		iend = mListeners.end();
+		for(; i != iend; ++i)
+		{
+			(*i)->viewportAdded(evt);
+		}
+	}
+	//-----------------------------------------------------------------------
+	void RenderTarget::fireViewportRemoved(Viewport* vp)
+	{
+		RenderTargetViewportEvent evt;
+		evt.source = vp;
+
+		RenderTargetListenerList::iterator i, iend;
+		i = mListeners.begin();
+		iend = mListeners.end();
+		for(; i != iend; ++i)
+		{
+			(*i)->viewportRemoved(evt);
+		}
+	}
     //-----------------------------------------------------------------------
     String RenderTarget::writeContentsToTimestampedFile(const String& filenamePrefix, const String& filenameSuffix)
     {
