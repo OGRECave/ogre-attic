@@ -141,6 +141,9 @@ namespace Ogre {
 			after doing what it needs to do.
 		*/
 		virtual void invoke(RenderQueueGroup* group, SceneManager* targetSceneManager);
+
+		/// Invocation identifier for shadows
+		static String RENDER_QUEUE_INVOCATION_SHADOWS;
 	};
 
 

@@ -1504,7 +1504,9 @@ void SceneManager::renderVisibleObjectsDefaultSequence(void)
         {
             // Fire queue started event
 			if (fireRenderQueueStarted(qId, 
-				mIlluminationStage == IRS_RENDER_TO_TEXTURE ? "Shadows" : StringUtil::BLANK))
+				mIlluminationStage == IRS_RENDER_TO_TEXTURE ? 
+					RenderQueueInvocation::RENDER_QUEUE_INVOCATION_SHADOWS : 
+					StringUtil::BLANK))
             {
                 // Someone requested we skip this queue
                 break;
@@ -1515,7 +1517,9 @@ void SceneManager::renderVisibleObjectsDefaultSequence(void)
 
             // Fire queue ended event
 			if (fireRenderQueueEnded(qId, 
-				mIlluminationStage == IRS_RENDER_TO_TEXTURE ? "Shadows" : StringUtil::BLANK))
+				mIlluminationStage == IRS_RENDER_TO_TEXTURE ? 
+					RenderQueueInvocation::RENDER_QUEUE_INVOCATION_SHADOWS : 
+					StringUtil::BLANK))
             {
                 // Someone requested we repeat this queue
                 repeatQueue = true;

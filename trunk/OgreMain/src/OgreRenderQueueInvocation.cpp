@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre
 {
+	String RenderQueueInvocation::RENDER_QUEUE_INVOCATION_SHADOWS = "SHADOWS";
 	//-----------------------------------------------------------------------------
 	RenderQueueInvocation::RenderQueueInvocation(uint8 renderQueueGroupID, 
 		const String& invocationName)
