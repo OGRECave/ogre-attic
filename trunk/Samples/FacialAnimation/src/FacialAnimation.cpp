@@ -178,6 +178,11 @@ public:
             return;
         }
 
+		if (e->getKey() == KC_SYSRQ)
+		{
+			mWindow->writeContentsToTimestampedFile("screenshot", ".png");
+		}
+
         CEGUI::System::getSingleton().injectKeyDown(e->getKey());
 		CEGUI::System::getSingleton().injectChar(e->getKeyChar());
         e->consume();
