@@ -289,6 +289,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreCompiler2Pass.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreCompositionPass.cpp"
 				>
 			</File>
@@ -314,6 +318,10 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreCompositorManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreCompositorScriptCompiler.cpp"
 				>
 			</File>
 			<File
@@ -988,6 +996,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\OgreCompiler2Pass.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\OgreCompositionPass.h"
 				>
 			</File>
@@ -1013,6 +1025,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreCompositorManager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreCompositorScriptCompiler.h"
 				>
 			</File>
 			<File
