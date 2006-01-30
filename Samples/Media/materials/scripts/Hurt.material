@@ -7,7 +7,7 @@ material RedQuad
         {
             lighting on
             diffuse 0.0 0.0 0.0 0.5
-            specular 0.0 0.0 0.0
+            specular 0.0 0.0 0.0 1.0 
             ambient 0.0 0.0 0.0
             emissive 1.0 0.0 0.0
             cull_hardware none
