@@ -41,7 +41,7 @@ vertex_program Blur1_vs_glsl glsl
 fragment_program Blur_ps_glsl glsl
 {
 	source Blur_ps.glsl
-	default_parameters
+	default_params
 	{
 		param_named tex0 int 0
 	}
