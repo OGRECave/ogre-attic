@@ -20,7 +20,8 @@
 		<Project filename="ReferenceApplication\BspCollision\scripts\BspCollision.cbp"/>
 		<Project filename="Samples\CameraTrack\scripts\Demo_CameraTrack.cbp"/>
 		<Project filename="Samples\CelShading\scripts\Demo_CelShading.cbp"/>
-		<Project filename="Samples\CubeMapping\scripts\Demo_CubeMapping.cbp"/>
+		<Project filename="Samples\Compositor\scripts\Demo_Compositor.cbp"/>
+		<Project filename="Samples\CubeMapiping\scripts\Demo_CubeMapping.cbp"/>
 		<Project filename="Samples\DeferredShading\scripts\Demo_DeferredShading.cbp" active="1"/>
 		<Project filename="Samples\Dot3Bump\scripts\Demo_Dot3Bump.cbp"/>
 		<Project filename="Samples\DynTex\scripts\Demo_DynTex.cbp"/>

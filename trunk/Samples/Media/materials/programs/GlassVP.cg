@@ -1,0 +1,13 @@
+void main_vs(
+                    // in
+                    float4 inPos: POSITION,
+                    
+                    // out
+                    out float4 Pos: POSITION,
+                    out float2 uv0: TEXCOORD0
+                   )
+{
+   inPos.xy = sign(inPos.xy);
+   Pos  = float4(inPos.xy, 0.0f, 1.0f);
+   uv0  = (float2(Pos.x, -Pos.y) + 1.0f)/2.0f;
+}
