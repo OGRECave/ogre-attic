@@ -37,12 +37,14 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	String CompositorScriptCompiler::compositorScript_BNF =
 		// Top level rule
+		"<Script> ::= {<Script_Properties>} \n"
+		"<Script_Properties> ::= {<CompositorDef>} \n"
 		"<CompositorDef> ::= 'compositor' <Label> '{' <TechniqueDef> '}' \n"
 		// Technique
 		"<TechniqueDef> ::= 'technique' '{' {<TextureDef>} {<TargetDef>} <TargetOuputDef> '}' \n"
 		"<TextureDef> ::= 'texture' <Label> <WidthOptionDef> <HeightOptionDef> <PixelFormatDef> \n"
-		"<WidthOptionDef> ::= 'target_width' | <#width> \n"
-		"<HeightOptionDef> ::= 'target_height' | <#height> \n"
+		"<WidthOptionDef> ::= 'target_width' <#width> \n"
+		"<HeightOptionDef> ::= 'target_height' <#height> \n"
 		"<PixelFormatDef> ::= <Label> \n"
 		// Target
 		"<TargetDef> ::= 'target' <Label> '{' [<TargetInputDef>] [<OnlyInitialDef>] {<PassDef>} '}' \n"
@@ -66,7 +68,6 @@ namespace Ogre {
 		"<Number> ::= (0123456789); \n"
 
 		;
-
 	//-----------------------------------------------------------------------
 	CompositorScriptCompiler::CompositorScriptCompiler(void)
 	{
@@ -214,46 +215,54 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseCompositor(void)
 	{
+		logParseError("parseCompositor");
 
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseTechnique(void)
 	{
+		logParseError("parseTechnique");
 
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseTexture(void)
 	{
-
+		logParseError("parseTexture");
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseTarget(void)
 	{
+		logParseError("parseTarget");
 
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseInput(void)
 	{
+		logParseError("parseInput");
 
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseTargetOutput(void)
 	{
+		logParseError("parseTargetOutput");
 
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseOnlyInitial(void)
 	{
+		logParseError("parseOnlyInitial");
 
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parsePass(void)
 	{
+		logParseError("parsePass");
 
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseMaterial(void)
 	{
+		logParseError("parseMaterial");
 
 	}
 
