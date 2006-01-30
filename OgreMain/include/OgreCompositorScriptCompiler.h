@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/gpl.html.
 
 namespace Ogre {
 
+	/** Compiler for parsing & lexing .compositor scripts */
 	class _OgreExport CompositorScriptCompiler : public Compiler2Pass
 	{
 

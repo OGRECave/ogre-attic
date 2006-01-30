@@ -76,8 +76,10 @@ namespace Ogre {
             addLexemeToken("]", BNF_OPTIONAL_END);
             addLexemeToken("'", BNF_SINGLEQUOTE);
             addLexemeToken("<any_character>", BNF_ANY_CHARACTER);
+			addLexemeToken("<any_character_except_quote>", BNF_ANY_CHARACTER_EXCEPT_QUOTE);
             addLexemeToken("<special_characters1>", BNF_SPECIAL_CHARACTERS1);
             addLexemeToken("<special_characters2>", BNF_SPECIAL_CHARACTERS2);
+			addLexemeToken("<special_characters3>", BNF_SPECIAL_CHARACTERS3);
 
             addLexemeToken("<letter>", BNF_LETTER);
             addLexemeToken("<letter_digit>", BNF_LETTER_DIGIT);
@@ -85,6 +87,7 @@ namespace Ogre {
             addLexemeToken("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", BNF_ALPHA_SET);
             addLexemeToken("0123456789", BNF_NUMBER_SET);
             addLexemeToken("`~!@#$%^&*()-_=+\\|[]{}:;\"'<>,.?/", BNF_SPECIAL_CHARACTER_SET2);
+			addLexemeToken("`~!@#$%^&*()-_=+\\|[]{}:;\"<>,.?/", BNF_SPECIAL_CHARACTER_SET3);
             addLexemeToken("$_", BNF_SPECIAL_CHARACTER_SET1);
             addLexemeToken(" ", BNF_WHITE_SPACE);
         }
@@ -176,10 +179,10 @@ namespace Ogre {
                 _or_(BNF_SPECIAL_CHARACTERS1)
             _end_
 
-            // <terminal_symbol> ::= "'" { <any_character> } "'"
+            // <terminal_symbol> ::= "'" { <any_character_except_quote> } "'"
             _rule_(BNF_TERMINAL_SYMBOL)
                 _is_(BNF_SINGLEQUOTE)
-                _repeat_(BNF_ANY_CHARACTER)
+                _repeat_(BNF_ANY_CHARACTER_EXCEPT_QUOTE)
                 _and_(BNF_SINGLEQUOTE)
             _end_
 
@@ -189,7 +192,13 @@ namespace Ogre {
                 _or_(BNF_SPECIAL_CHARACTERS2)
             _end_
 
-            // <letter_digit> ::= <letter> | <digit>
+            // <any_character_except_quote> ::= <letter_digit> | <special_characters3>
+            _rule_(BNF_ANY_CHARACTER_EXCEPT_QUOTE)
+                _is_(BNF_LETTER_DIGIT)
+                _or_(BNF_SPECIAL_CHARACTERS3)
+            _end_
+
+			// <letter_digit> ::= <letter> | <digit>
             _rule_(BNF_LETTER_DIGIT)
                 _is_(BNF_LETTER)
                 _or_(BNF_DIGIT)
@@ -217,6 +226,12 @@ namespace Ogre {
                 _is_(_character_)
                 _data_(BNF_SPECIAL_CHARACTER_SET2)
             _end_
+			// <special_characters3> ::= (`~!@#$%^&*()-_=+\|[]{}:;"<>,.?/)
+			// ie same as special_characters2 but no single quote
+			_rule_(BNF_SPECIAL_CHARACTERS3)
+				_is_(_character_)
+				_data_(BNF_SPECIAL_CHARACTER_SET3)
+			_end_
 
             // now that all the rules are added, update token definitions with rule links
             verifyTokenRuleLinks();
@@ -374,7 +389,7 @@ namespace Ogre {
         }
         else
         {
-            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "BNF Grammer compilation filed", "Compiler2Pass::setClientBNFGrammer");
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "BNF Grammar compilation failed", "Compiler2Pass::setClientBNFGrammer");
         }
         // change token state to client data after compiling grammer
         mActiveTokenState = &mClientTokenState;
