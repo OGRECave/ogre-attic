@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCompositionPass.h"
 #include "OgreCompositionTargetPass.h"
 #include "OgreCompositionTechnique.h"
+#include "OgreRoot.h"
 
 namespace Ogre {
 
@@ -147,8 +148,12 @@ Renderable *CompositorManager::_getTexturedRectangle2D()
 	{
 		/// 2D rectangle, to use for render_quad passes
 		mRectangle = new Rectangle2D(true);
-		mRectangle->setCorners(-1,1,1,-1);
 	}
+	RenderSystem* rs = Root::getSingleton().getRenderSystem();
+	Viewport* vp = rs->_getViewport();
+	Real hOffset = rs->getHorizontalTexelOffset() / (0.5 * vp->getActualWidth());
+	Real vOffset = rs->getVerticalTexelOffset() / (0.5 * vp->getActualHeight());
+	mRectangle->setCorners(-1 + hOffset, 1 - vOffset, 1 + hOffset, -1 - vOffset);
 	return mRectangle;
 }
 //-----------------------------------------------------------------------
