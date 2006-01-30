@@ -570,6 +570,7 @@ namespace Ogre {
 		/** Adds an Entity to the static geometry.
 		@remarks
 			This method takes an existing Entity and adds its details to the 
+			list of	elements to include when building. Note that the Entity
 			itself is not copied or referenced in this method; an Entity is 
 			passed simply so that you can change the materials of attached 
 			SubEntity objects if you want. You can add the same Entity 
