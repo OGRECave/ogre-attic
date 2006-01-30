@@ -92,6 +92,9 @@ namespace Ogre {
 		/** Get a textured fullscreen 2D rectangle, for internal use.
 		*/
 		Renderable *_getTexturedRectangle2D();
+
+		/** Overridden from ResourceManager since we have to clean up chains too. */
+		void removeAll(void);
     private:
         typedef std::map<Viewport*, CompositorChain*> Chains;
         Chains mChains;
