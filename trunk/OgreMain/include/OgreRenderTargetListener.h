@@ -113,6 +113,15 @@ namespace Ogre {
             rendered to. 
         */
         virtual void postViewportUpdate(const RenderTargetViewportEvent& evt) { }
+
+		/** Called to notify listener that a Viewport has been added to the 
+			target in question.
+		*/
+		virtual void viewportAdded(const RenderTargetViewportEvent& evt) {}
+		/** Called to notify listener that a Viewport has been removed from the 
+			target in question.
+		*/
+		virtual void viewportRemoved(const RenderTargetViewportEvent& evt) {}
     };
 }
 

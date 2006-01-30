@@ -95,6 +95,8 @@ namespace Ogre {
         virtual void preViewportUpdate(const RenderTargetViewportEvent& evt);
         /** @see RenderTargetListener::postViewportUpdate */
         virtual void postViewportUpdate(const RenderTargetViewportEvent& evt);
+		/** @see RenderTargetListener::viewportRemoved */
+		virtual void viewportRemoved(const RenderTargetViewportEvent& evt);
         
         /** Mark state as dirty, and to be recompiled next frame.
          */
@@ -136,6 +138,9 @@ namespace Ogre {
         /** Restore a viewport, the camera and the scene after a rendering operation
          */
         void postTargetOperation(CompositorInstance::TargetOperation &op, Viewport *vp, Camera *cam);
+
+		/// destroy internal resources
+		void destroyResources(void);
 
 		/** Render queue listener used to set up rendering events. */
 		class RQListener: public RenderQueueListener
