@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreCompositorManager.h"
 #include "OgreSceneManager.h"
+#include "OgreRenderQueueInvocation.h"
 namespace Ogre {
 CompositorChain::CompositorChain(Viewport *vp):
     mViewport(vp),
@@ -259,6 +260,10 @@ Viewport *CompositorChain::getViewport()
 void CompositorChain::RQListener::renderQueueStarted(uint8 id, 
 	const String& invocation, bool& skipThisQueue)
 {
+	// Skip shadows invocation, since this is nested within main viewport update
+	if (invocation == RenderQueueInvocation::RENDER_QUEUE_INVOCATION_SHADOWS)
+		return;
+
 	flushUpTo(id);
 	/// If noone wants to render this queue, skip it
 	/// Don't skip the OVERLAY queue because that's handled seperately
