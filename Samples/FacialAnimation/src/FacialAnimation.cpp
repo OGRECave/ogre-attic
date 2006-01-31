@@ -100,7 +100,7 @@ String scrollbarNames[SI_COUNT] = {
 	"Facial/S_Scroll",
 	"Facial/TH_Scroll",
 };
-ushort poseIndexes[SI_COUNT] = 
+unsigned short poseIndexes[SI_COUNT] = 
 { 1, 2, 3, 4, 7, 8, 6, 5, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18};
 
 CEGUI::Scrollbar* scrollbars[SI_COUNT];
