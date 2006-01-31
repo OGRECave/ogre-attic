@@ -61,11 +61,14 @@ namespace Ogre {
             addLexemeToken("<identifier_characters>", BNF_IDENTIFIER_CHARACTERS);
             addLexemeToken("<", BNF_ID_BEGIN);
             addLexemeToken(">", BNF_ID_END);
+            addLexemeToken("<#", BNF_CONSTANT_BEGIN);
             addLexemeToken("::=", BNF_SET_RULE);
             addLexemeToken("<expression>", BNF_EXPRESSION);
             addLexemeToken("<and_term>", BNF_AND_TERM);
             addLexemeToken("<or_term>", BNF_OR_TERM);
             addLexemeToken("<term>", BNF_TERM);
+            addLexemeToken("<term_id>", BNF_TERM_ID);
+            addLexemeToken("<constant>", BNF_CONSTANT);
             addLexemeToken("|", BNF_OR);
             addLexemeToken("<terminal_symbol>", BNF_TERMINAL_SYMBOL);
             addLexemeToken("<repeat_expression>", BNF_REPEAT_EXPRESSION);
@@ -76,18 +79,17 @@ namespace Ogre {
             addLexemeToken("]", BNF_OPTIONAL_END);
             addLexemeToken("'", BNF_SINGLEQUOTE);
             addLexemeToken("<any_character>", BNF_ANY_CHARACTER);
-			addLexemeToken("<any_character_except_quote>", BNF_ANY_CHARACTER_EXCEPT_QUOTE);
+            addLexemeToken("<single_quote_exc>", BNF_SINGLE_QUOTE_EXC);
+            addLexemeToken("<white_space_chk>", BNF_WHITE_SPACE_CHK);
             addLexemeToken("<special_characters1>", BNF_SPECIAL_CHARACTERS1);
             addLexemeToken("<special_characters2>", BNF_SPECIAL_CHARACTERS2);
-			addLexemeToken("<special_characters3>", BNF_SPECIAL_CHARACTERS3);
 
             addLexemeToken("<letter>", BNF_LETTER);
             addLexemeToken("<letter_digit>", BNF_LETTER_DIGIT);
             addLexemeToken("<digit>", BNF_DIGIT);
             addLexemeToken("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", BNF_ALPHA_SET);
             addLexemeToken("0123456789", BNF_NUMBER_SET);
-            addLexemeToken("`~!@#$%^&*()-_=+\\|[]{}:;\"'<>,.?/", BNF_SPECIAL_CHARACTER_SET2);
-			addLexemeToken("`~!@#$%^&*()-_=+\\|[]{}:;\"<>,.?/", BNF_SPECIAL_CHARACTER_SET3);
+            addLexemeToken("`~!@#$%^&*()-_=+\\|[]{}:;\"<>,.?/", BNF_SPECIAL_CHARACTER_SET2);
             addLexemeToken("$_", BNF_SPECIAL_CHARACTER_SET1);
             addLexemeToken(" ", BNF_WHITE_SPACE);
         }
@@ -138,24 +140,31 @@ namespace Ogre {
                 _is_(BNF_TERM)
                 _repeat_(BNF_TERM)
             _end_
-            // <term>       ::=  <identifier_right> | <terminal_symbol> | <repeat_expression> | <optional_expression>
+            // <term>       ::=  <term_id> | <repeat_expression> | <optional_expression>
             _rule_(BNF_TERM)
-                _is_(BNF_IDENTIFIER_RIGHT)
-                _or_(BNF_TERMINAL_SYMBOL)
+                _is_(BNF_TERM_ID)
                 _or_(BNF_REPEAT_EXPRESSION)
                 _or_(BNF_OPTIONAL_EXPRESSION)
             _end_
-            // <repeat_expression> ::=  "{"  <identifier>  "}"
+
+            // <term_id>    ::= <identifier_right> | <constant> | <terminal_symbol>
+            _rule_(BNF_TERM_ID)
+                _is_(BNF_IDENTIFIER_RIGHT)
+                _or_(BNF_TERMINAL_SYMBOL)
+                _or_(BNF_CONSTANT)
+            _end_
+
+            // <repeat_expression> ::=  "{"  <term_id>  "}"
             _rule_(BNF_REPEAT_EXPRESSION)
                 _is_(BNF_REPEAT_BEGIN)
-                _and_(BNF_IDENTIFIER)
+                _and_(BNF_TERM_ID)
                 _and_(BNF_REPEAT_END)
             _end_
 
-            // <optional_expression> ::= "["  <identifier>  "]"
+            // <optional_expression> ::= "["  <term_id>  "]"
             _rule_(BNF_OPTIONAL_EXPRESSION)
                 _is_(BNF_OPTIONAL_BEGIN)
-                _and_(BNF_IDENTIFIER)
+                _and_(BNF_TERM_ID)
                 _and_(BNF_OPTIONAL_END)
             _end_
 
@@ -179,23 +188,25 @@ namespace Ogre {
                 _or_(BNF_SPECIAL_CHARACTERS1)
             _end_
 
-            // <terminal_symbol> ::= "'" { <any_character_except_quote> } "'"
+            // <terminal_symbol> ::= "'" { <any_character> } "'"
             _rule_(BNF_TERMINAL_SYMBOL)
                 _is_(BNF_SINGLEQUOTE)
-                _repeat_(BNF_ANY_CHARACTER_EXCEPT_QUOTE)
+                _repeat_(BNF_ANY_CHARACTER)
                 _and_(BNF_SINGLEQUOTE)
+            _end_
+
+            // <constant> ::= "<#" <letter> {<identifier_characters>} ">"
+            _rule_(BNF_CONSTANT)
+                _is_(BNF_CONSTANT_BEGIN)
+                _and_(BNF_LETTER)
+                _repeat_(BNF_IDENTIFIER_CHARACTERS)
+                _and_(BNF_ID_END)
             _end_
 
             // <any_character> ::= <letter_digit> | <special_characters2>
             _rule_(BNF_ANY_CHARACTER)
                 _is_(BNF_LETTER_DIGIT)
                 _or_(BNF_SPECIAL_CHARACTERS2)
-            _end_
-
-            // <any_character_except_quote> ::= <letter_digit> | <special_characters3>
-            _rule_(BNF_ANY_CHARACTER_EXCEPT_QUOTE)
-                _is_(BNF_LETTER_DIGIT)
-                _or_(BNF_SPECIAL_CHARACTERS3)
             _end_
 
 			// <letter_digit> ::= <letter> | <digit>
@@ -221,17 +232,27 @@ namespace Ogre {
                 _is_(_character_)
                 _data_(BNF_SPECIAL_CHARACTER_SET1)
             _end_
-            // <special_characters2> ::= (`~!@#$%^&*()-_=+\|[]{}:;"'<>,.?/)
+
+            // <special_characters2> ::= (`~!@#$%^&*()-_=+\|[]{}:;"<>,.?/) | <single_quote_exc>
             _rule_(BNF_SPECIAL_CHARACTERS2)
                 _is_(_character_)
                 _data_(BNF_SPECIAL_CHARACTER_SET2)
+                _or_(BNF_WHITE_SPACE_CHK)
+                _or_(BNF_SINGLE_QUOTE_EXC)
             _end_
-			// <special_characters3> ::= (`~!@#$%^&*()-_=+\|[]{}:;"<>,.?/)
-			// ie same as special_characters2 but no single quote
-			_rule_(BNF_SPECIAL_CHARACTERS3)
-				_is_(_character_)
-				_data_(BNF_SPECIAL_CHARACTER_SET3)
-			_end_
+
+            // <single_quote_exc> ::= "'" (?!" ")
+            _rule_(BNF_SINGLE_QUOTE_EXC)
+                _is_(_character_)
+                _data_(BNF_SINGLEQUOTE)
+                _not_(BNF_WHITE_SPACE_CHK)
+            _end_
+
+            // <white_space_chk> ::= ( )
+            _rule_(BNF_WHITE_SPACE_CHK)
+                _is_(_character_)
+                _data_(BNF_WHITE_SPACE)
+            _end_
 
             // now that all the rules are added, update token definitions with rule links
             verifyTokenRuleLinks();
@@ -339,7 +360,8 @@ namespace Ogre {
     void Compiler2Pass::replaceToken(void)
     {
         // move instruction que index back one position
-        --mPass2TokenPosition;
+        if (mPass2TokenPosition > 0)
+            --mPass2TokenPosition;
     }
     //-----------------------------------------------------------------------
     float Compiler2Pass::getNextTokenValue(void)
@@ -426,7 +448,7 @@ namespace Ogre {
 	    bool endFound = false;
 
 	    // keep following rulepath until the end is reached
-	    while (!endFound)
+        while (!endFound)
 	    {
 		    switch (mActiveTokenState->rootRulePath[rulepathIDX].operation)
 		    {
@@ -721,7 +743,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool Compiler2Pass::positionToNextLexeme()
     {
-	    bool validlexemefound = false;
+        bool validlexemefound = false;
 	    bool endofsource = mCharPos >= mEndOfSource;
 
 	    while (!validlexemefound && !endofsource)
