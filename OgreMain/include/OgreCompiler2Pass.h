@@ -37,7 +37,7 @@ namespace Ogre {
 
     /** Compiler2Pass is a generic 2 pass compiler/assembler
     @remarks
-	    provides a tokenizer in pass 1 and relies on the subclass to provide the virtual method for pass 2 
+	    provides a tokenizer in pass 1 and relies on the subclass to provide the virtual method for pass 2
 
 	    PASS 1 - tokenize source: this is a simple brute force lexical scanner/analyzer that also parses
 			    the formed token for proper semantics and context in one pass
@@ -54,7 +54,7 @@ namespace Ogre {
     @par
         The sub class normally supplies a simplified BNF text description in its constructor prior to doing any parsing/tokenizing of source.
         The simplified BNF text description defines the language syntax and rule structure.
-        The meta-symbols used in the BNF text description are: 
+        The meta-symbols used in the BNF text description are:
 
         ::=  meaning "is defined as". "::=" starts the definition of a rule.  The left side of ::= must contain an <identifier>
 
@@ -79,7 +79,7 @@ namespace Ogre {
         -''  no terminal token is generated when a - precedes the first single quote but the text in between the quotes is still
              tested against the characters in the source being parsed.
         (?! ) negative lookahead (not test) inspired by Perl 5. Scans ahead for a non-terminal or terminal expression
-             that should fail in order to make the rule production pass.  
+             that should fail in order to make the rule production pass.
              Does not generate a token or advance the cursur.  If the lookahead result fails ie token is found,
              then the current rule fails and rollback occurs.  Mainly used to solve multiple contexts of a token.
              An Example of where not test is used to solve multiple contexts:
@@ -91,13 +91,13 @@ namespace Ogre {
              <term>       ::=  <identifier_right> | <terminal_symbol> | <repeat_expression> | <optional_expression>
              <identifier_right> ::= <identifier> (?!"::=")
 
-             <identiefier> appears on both sides of the ::= so (?!"::=") test to make sure that ::= is not on the 
+             <identiefier> appears on both sides of the ::= so (?!"::=") test to make sure that ::= is not on the
              right which would indicate that a new rule was being formed.
 
              Works on both terminals and non-terminals.
              Note: lookahead failure cause the whole rule to fail and rollback to occur
 
-        <#name> # indicates that a numerical value is to be parsed to form a terminal token.  Name is optional and is just a descriptor 
+        <#name> # indicates that a numerical value is to be parsed to form a terminal token.  Name is optional and is just a descriptor
              to help with understanding what the value will be used for.
              Example: <Colour> ::= <#red> <#green> <#blue>
 
@@ -144,15 +144,15 @@ namespace Ogre {
 
 	    enum BNF_ID {BNF_UNKOWN = 0,
             BNF_SYNTAX, BNF_RULE, BNF_IDENTIFIER, BNF_IDENTIFIER_RIGHT, BNF_IDENTIFIER_CHARACTERS, BNF_ID_BEGIN, BNF_ID_END,
-            BNF_SET_RULE, BNF_EXPRESSION,
-            BNF_AND_TERM, BNF_OR_TERM, BNF_TERM, BNF_OR, BNF_TERMINAL_SYMBOL,
+            BNF_CONSTANT_BEGIN, BNF_SET_RULE, BNF_EXPRESSION,
+            BNF_AND_TERM, BNF_OR_TERM, BNF_TERM, BNF_TERM_ID, BNF_CONSTANT, BNF_OR, BNF_TERMINAL_SYMBOL,
             BNF_REPEAT_EXPRESSION, BNF_REPEAT_BEGIN, BNF_REPEAT_END, BNF_OPTIONAL_EXPRESSION,
-            BNF_OPTIONAL_BEGIN, BNF_OPTIONAL_END, BNF_SINGLEQUOTE, BNF_ANY_CHARACTER, 
-			BNF_ANY_CHARACTER_EXCEPT_QUOTE,
-			BNF_SPECIAL_CHARACTERS1, BNF_SPECIAL_CHARACTERS2, BNF_SPECIAL_CHARACTERS3,
+            BNF_OPTIONAL_BEGIN, BNF_OPTIONAL_END, BNF_SINGLEQUOTE, BNF_SINGLE_QUOTE_EXC,
+            BNF_ANY_CHARACTER, BNF_SPECIAL_CHARACTERS1,
+            BNF_SPECIAL_CHARACTERS2, BNF_WHITE_SPACE_CHK,
 
             BNF_LETTER, BNF_LETTER_DIGIT, BNF_DIGIT, BNF_WHITE_SPACE,
-            BNF_ALPHA_SET, BNF_NUMBER_SET, BNF_SPECIAL_CHARACTER_SET1, 
+            BNF_ALPHA_SET, BNF_NUMBER_SET, BNF_SPECIAL_CHARACTER_SET1,
 			BNF_SPECIAL_CHARACTER_SET2, BNF_SPECIAL_CHARACTER_SET3
         };
 
@@ -165,7 +165,7 @@ namespace Ogre {
             bool isNonTerminal;        /// if true then token is non-terminal
 	        size_t ruleID;				/// index into Rule database for non-terminal token rulepath and lexeme
             String lexeme;             /// text representation of token or valid characters for label parsing
-								        
+
             LexemeTokenDef(void) : ID(0), hasAction(false), isNonTerminal(false), ruleID(0) {}
             LexemeTokenDef( const size_t ID, const String& lexeme, const bool hasAction = false, const bool nonterminal = false, const size_t ruleID = 0 )
                 : ID(ID)
@@ -198,9 +198,9 @@ namespace Ogre {
 
 	    typedef std::vector<TokenInst> TokenInstContainer;
 	    typedef TokenInstContainer::iterator TokenInstIterator;
-        
+
         // token que, definitions, rules
-        struct TokenState 
+        struct TokenState
         {
             TokenInstContainer       tokenQue;
             LexemeTokenDefContainer  lexemeTokenDefinitions;
@@ -268,7 +268,7 @@ namespace Ogre {
             provide an error message, and attempt recovery.
         */
         const TokenInst& getNextToken(void);
-        /** 
+        /**
         */
         void replaceToken(void);
         /** Gets the next token's associated floating point value in the instruction que that was parsed from the
@@ -293,7 +293,7 @@ namespace Ogre {
         */
         void addLexemeToken(const String& lexeme, const size_t token, const bool hasAction = false);
 
-        /** sets up the parser rules for the client based on the BNF Grammer text passed in.  
+        /** sets up the parser rules for the client based on the BNF Grammer text passed in.
             Raises an exception if the grammer did not compile successfully.  This method should be called
             prior to a call to compile otherwise nothing will happen since the compiler has no rules to work
             with.  Setting the grammer only needs to be set once during the lifetime of the compiler unless the
@@ -347,13 +347,13 @@ namespace Ogre {
 			    END: end of the rule path - the method returns the succuss of the rule
 
 	    @param rulepathIDX index into an array of Token Rules that define a rule path to be processed
-	    @return 
+	    @return
 		    true if rule passed - all required tokens found
 		    false if one or more tokens required to complete the rule were not found
 	    */
 	    bool processRulePath( size_t rulepathIDX);
 
-    	
+
 	    /** setup ActiveContexts - should be called by subclass to setup initial language contexts
         */
 	    void setActiveContexts(const uint contexts){ mActiveContexts = contexts; }
@@ -374,7 +374,7 @@ namespace Ogre {
 	    @return
 		    true if token was found
 		    false if token lexeme text does not match the source text
-		    if token is non-terminal then processRulePath is called 
+		    if token is non-terminal then processRulePath is called
 	    */
 	    bool ValidateToken(const size_t rulepathIDX, const size_t activeRuleID);
 
