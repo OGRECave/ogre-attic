@@ -123,6 +123,9 @@ namespace Ogre
 		typedef std::map<String, RenderQueueInvocationSequence*> RenderQueueInvocationSequenceMap;
 		RenderQueueInvocationSequenceMap mRQSequenceMap;
 
+		/// Are we initialised yet?
+		bool mIsInitialised;
+
         /** Method reads a plugins configuration file and instantiates all
             plugins.
             @param
@@ -130,6 +133,10 @@ namespace Ogre
                 Defaults to "plugins.cfg".
         */
         void loadPlugins( const String& pluginsfile = "plugins.cfg" );
+		/** Initialise all loaded plugins - allows plugins to perform actions
+			once the renderer is initialised.
+		*/
+		void initialisePlugins();
 		/** Shuts down all loaded plugins - allows things to be tidied up whilst
 			all plugins are still loaded.
 		*/
@@ -289,6 +296,9 @@ namespace Ogre
                 requested, otherwise <b>NULL</b>.
         */
 	    RenderWindow* initialise(bool autoCreateWindow, const String& windowTitle = "OGRE Render Window");
+
+		/** Returns whether the system is initialised or not. */
+		bool isInitialised(void) const { return mIsInitialised; }
 
         /** Gets a reference to a SceneManager object.
             @remarks

@@ -85,6 +85,7 @@ namespace Ogre {
     }
 
     typedef void (*DLL_START_PLUGIN)(void);
+	typedef void (*DLL_INIT_PLUGIN)(void);
     typedef void (*DLL_STOP_PLUGIN)(void);
 
 
@@ -119,7 +120,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Root::Root(const String& pluginFileName, const String& configFileName, const String& logFileName)
       : mLogManager(0), mCurrentFrame(0), mFrameSmoothingTime(0.0f), 
-	  mNextMovableObjectTypeFlag(1)
+	  mNextMovableObjectTypeFlag(1), mIsInitialised(false)
     {
         // First create new exception handler
         SET_TERM_HANDLER;
@@ -239,7 +240,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Root::~Root()
     {
-		shutdownPlugins();
         shutdown();
         delete mSceneManagerEnum;
         
@@ -496,6 +496,12 @@ namespace Ogre {
 
         // Initialise timer
         mTimer->reset();
+
+		// Init plugins
+		initialisePlugins();
+
+		mIsInitialised = true;
+
         return mAutoWindow;
 
     }
@@ -694,10 +700,17 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Root::shutdown(void)
     {
-        SceneManagerEnumerator::getSingleton().shutdownAll();
+		shutdownPlugins();
+		
+		delete mControllerManager;
+		mControllerManager = 0;
+
+		SceneManagerEnumerator::getSingleton().shutdownAll();
         ShadowVolumeExtrudeProgram::shutdown();
 		mResourceBackgroundQueue->shutdown();
         ResourceGroupManager::getSingleton().shutdownAll();
+
+		mIsInitialised = false;
 
 		LogManager::getSingleton().logMessage("*-*-* OGRE Shutdown");
     }
@@ -746,6 +759,22 @@ namespace Ogre {
 		{
 			// Call plugin shutdown (optional)
 			DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)(*i)->getSymbol("dllShutdownPlugin");
+			if (pFunc)
+			{
+				pFunc();
+			}
+
+		}
+	}
+	//-----------------------------------------------------------------------
+	void Root::initialisePlugins(void)
+	{
+		std::vector<DynLib*>::iterator i;
+
+		for (i = mPluginLibs.begin(); i != mPluginLibs.end(); ++i)
+		{
+			// Call plugin initialise (optional)
+			DLL_INIT_PLUGIN pFunc = (DLL_INIT_PLUGIN)(*i)->getSymbol("dllInitialisePlugin");
 			if (pFunc)
 			{
 				pFunc();
@@ -870,6 +899,16 @@ namespace Ogre {
 			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Cannot find symbol dllStartPlugin in library " + pluginName,
 				"Root::loadPlugins");
 		pFunc();
+
+		if (mIsInitialised)
+		{
+			// initialise too
+			DLL_INIT_PLUGIN pFunc = (DLL_INIT_PLUGIN)lib->getSymbol("dllInitialisePlugin");
+			if (pFunc)
+			{
+				pFunc();
+			}
+		}
 	}
     //-----------------------------------------------------------------------
 	void Root::unloadPlugin(const String& pluginName)
