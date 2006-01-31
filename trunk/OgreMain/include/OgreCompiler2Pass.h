@@ -76,6 +76,9 @@ namespace Ogre {
         ''   terminal tokens are surrounded by single quotes.  A terminal token is always one or more characters.
              For example: 'Colour' defines a character sequence that must be matched in whole.  Note that matching is case
              sensitive.
+        @    turn on single character scanning and don't skip white space.
+             Mainly used for label processing that allow white space.
+             Example: '@ ' prevents the white space between the quotes from being skipped
         -''  no terminal token is generated when a - precedes the first single quote but the text in between the quotes is still
              tested against the characters in the source being parsed.
         (?! ) negative lookahead (not test) inspired by Perl 5. Scans ahead for a non-terminal or terminal expression
@@ -139,15 +142,17 @@ namespace Ogre {
         enum SystemRuleToken {
             _no_token_ = SystemTokenBase,
             _character_,
-            _value_
+            _value_,
+            _no_space_skip_
         };
 
 	    enum BNF_ID {BNF_UNKOWN = 0,
             BNF_SYNTAX, BNF_RULE, BNF_IDENTIFIER, BNF_IDENTIFIER_RIGHT, BNF_IDENTIFIER_CHARACTERS, BNF_ID_BEGIN, BNF_ID_END,
             BNF_CONSTANT_BEGIN, BNF_SET_RULE, BNF_EXPRESSION,
             BNF_AND_TERM, BNF_OR_TERM, BNF_TERM, BNF_TERM_ID, BNF_CONSTANT, BNF_OR, BNF_TERMINAL_SYMBOL,
-            BNF_REPEAT_EXPRESSION, BNF_REPEAT_BEGIN, BNF_REPEAT_END, BNF_OPTIONAL_EXPRESSION,
-            BNF_OPTIONAL_BEGIN, BNF_OPTIONAL_END, BNF_SINGLEQUOTE, BNF_SINGLE_QUOTE_EXC,
+            BNF_REPEAT_EXPRESSION, BNF_REPEAT_BEGIN, BNF_REPEAT_END, BNF_SET, BNF_SET_BEGIN, BNF_SET_END,
+            BNF_OPTIONAL_EXPRESSION,
+            BNF_OPTIONAL_BEGIN, BNF_OPTIONAL_END, BNF_SINGLEQUOTE, BNF_SINGLE_QUOTE_EXC, BNF_SET_END_EXC,
             BNF_ANY_CHARACTER, BNF_SPECIAL_CHARACTERS1,
             BNF_SPECIAL_CHARACTERS2, BNF_WHITE_SPACE_CHK,
 
@@ -234,6 +239,9 @@ namespace Ogre {
         /// the key of the active label being built during pass 1.
         /// a new key is calculated when mLabelIsActive switches from false to true
         size_t mActiveLabelKey;
+        /// flag being true indicates that spaces are not to be skipped
+        /// automatically gets set to false when mLabelIsActive goes to false
+        bool mNoSpaceSkip;
 
 	    /// Active Contexts pattern used in pass 1 to determine which tokens are valid for a certain context
 	    uint mActiveContexts;

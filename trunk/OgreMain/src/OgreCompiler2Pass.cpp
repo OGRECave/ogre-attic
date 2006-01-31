@@ -74,6 +74,10 @@ namespace Ogre {
             addLexemeToken("<repeat_expression>", BNF_REPEAT_EXPRESSION);
             addLexemeToken("{", BNF_REPEAT_BEGIN);
             addLexemeToken("}", BNF_REPEAT_END);
+            addLexemeToken("<set>", BNF_SET);
+            addLexemeToken("(", BNF_SET_BEGIN);
+            addLexemeToken(")", BNF_SET_END);
+            addLexemeToken("<set_end_exc>", BNF_SET_END_EXC);
             addLexemeToken("<optional_expression>", BNF_OPTIONAL_EXPRESSION);
             addLexemeToken("[", BNF_OPTIONAL_BEGIN);
             addLexemeToken("]", BNF_OPTIONAL_END);
@@ -89,7 +93,7 @@ namespace Ogre {
             addLexemeToken("<digit>", BNF_DIGIT);
             addLexemeToken("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", BNF_ALPHA_SET);
             addLexemeToken("0123456789", BNF_NUMBER_SET);
-            addLexemeToken("`~!@#$%^&*()-_=+\\|[]{}:;\"<>,.?/", BNF_SPECIAL_CHARACTER_SET2);
+            addLexemeToken("`~!@#$%^&*(-_=+\\|[]{}:;\"<>,.?/", BNF_SPECIAL_CHARACTER_SET2);
             addLexemeToken("$_", BNF_SPECIAL_CHARACTER_SET1);
             addLexemeToken(" ", BNF_WHITE_SPACE);
         }
@@ -147,11 +151,12 @@ namespace Ogre {
                 _or_(BNF_OPTIONAL_EXPRESSION)
             _end_
 
-            // <term_id>    ::= <identifier_right> | <constant> | <terminal_symbol>
+            // <term_id>    ::= <identifier_right> | <constant> | <terminal_symbol> | <set>
             _rule_(BNF_TERM_ID)
                 _is_(BNF_IDENTIFIER_RIGHT)
                 _or_(BNF_TERMINAL_SYMBOL)
                 _or_(BNF_CONSTANT)
+                _or_(BNF_SET)
             _end_
 
             // <repeat_expression> ::=  "{"  <term_id>  "}"
@@ -188,9 +193,10 @@ namespace Ogre {
                 _or_(BNF_SPECIAL_CHARACTERS1)
             _end_
 
-            // <terminal_symbol> ::= "'" { <any_character> } "'"
+            // <terminal_symbol> ::= "'" @{ <any_character> } "'"
             _rule_(BNF_TERMINAL_SYMBOL)
                 _is_(BNF_SINGLEQUOTE)
+                _and_(_no_space_skip_)
                 _repeat_(BNF_ANY_CHARACTER)
                 _and_(BNF_SINGLEQUOTE)
             _end_
@@ -202,6 +208,15 @@ namespace Ogre {
                 _repeat_(BNF_IDENTIFIER_CHARACTERS)
                 _and_(BNF_ID_END)
             _end_
+
+            // <set> ::= "(" @{<any_character>} ")"
+            _rule_(BNF_SET)
+                _is_(BNF_SET_BEGIN)
+                _and_(_no_space_skip_)
+                _repeat_(BNF_ANY_CHARACTER)
+                _and_(BNF_SET_END)
+            _end_
+
 
             // <any_character> ::= <letter_digit> | <special_characters2>
             _rule_(BNF_ANY_CHARACTER)
@@ -233,18 +248,27 @@ namespace Ogre {
                 _data_(BNF_SPECIAL_CHARACTER_SET1)
             _end_
 
-            // <special_characters2> ::= (`~!@#$%^&*()-_=+\|[]{}:;"<>,.?/) | <single_quote_exc>
+            // <special_characters2> ::= (`~!@#$%^&*(-_=+\|[]{}:;"<>,.?/) | <single_quote_exc>
+            //                           | <white_space_chk> | <set_end_exc>
             _rule_(BNF_SPECIAL_CHARACTERS2)
                 _is_(_character_)
                 _data_(BNF_SPECIAL_CHARACTER_SET2)
                 _or_(BNF_WHITE_SPACE_CHK)
                 _or_(BNF_SINGLE_QUOTE_EXC)
+                _or_(BNF_SET_END_EXC)
             _end_
 
             // <single_quote_exc> ::= "'" (?!" ")
             _rule_(BNF_SINGLE_QUOTE_EXC)
                 _is_(_character_)
                 _data_(BNF_SINGLEQUOTE)
+                _not_(BNF_WHITE_SPACE_CHK)
+            _end_
+
+            // <set_end_exc> ::= ")" (?!" ")
+            _rule_(BNF_SET_END_EXC)
+                _is_(_character_)
+                _data_(BNF_SET_END)
                 _not_(BNF_WHITE_SPACE_CHK)
             _end_
 
@@ -274,8 +298,11 @@ namespace Ogre {
 		   if (mActiveTokenState->rootRulePath[i].operation == otRULE)
 		   {
     		   token_ID = mActiveTokenState->rootRulePath[i].tokenID;
-               assert(token_ID < mActiveTokenState->lexemeTokenDefinitions.size());
-        	   assert(mActiveTokenState->lexemeTokenDefinitions[token_ID].ID == token_ID);
+               if (token_ID >= mActiveTokenState->lexemeTokenDefinitions.size())
+                    OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "token ID out of token definition range", "Compiler2Pass::verifyTokenRuleLinks");
+
+        	   if (mActiveTokenState->lexemeTokenDefinitions[token_ID].ID != token_ID)
+                    OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "lexeme token definition: " +  mActiveTokenState->lexemeTokenDefinitions[token_ID].lexeme + " corrupted", "Compiler2Pass::verifyTokenRuleLinks");
 			   // if operation is a rule then update token definition
                mActiveTokenState->lexemeTokenDefinitions[token_ID].ruleID = i;
                mActiveTokenState->lexemeTokenDefinitions[token_ID].isNonTerminal = true;
@@ -603,6 +630,7 @@ namespace Ogre {
                     // mActiveLabelKey will be the end of the instruction container ie the size of mTokenInstructions
                     mActiveLabelKey = mActiveTokenState->tokenQue.size();
                     mLabelIsActive = true;
+                    mNoSpaceSkip = true;
                     // reset the contents of the label since it might have been used prior to a rollback
                     mLabels[mActiveLabelKey] = "";
                 }
@@ -625,10 +653,17 @@ namespace Ogre {
 	    if ( (tokenID >= SystemTokenBase) ||
             !mActiveTokenState->lexemeTokenDefinitions[tokenID].isNonTerminal )
 	    {
+	        if (tokenID == _no_space_skip_)
+	        {
+                // don't skip spaces to get to next lexeme
+                mNoSpaceSkip = true;
+                // move on to next rule
+                Passed = true;
+	        }
             // if label processing is active ie previous token was _character_
             // and current token is supposed to be a _character_ then don't
             // position to next lexeme in source
-		    if (mLabelIsActive || positionToNextLexeme())
+		    else if (mNoSpaceSkip || positionToNextLexeme())
 		    {
 			    // if Token is supposed to be a number then check if its a numerical constant
 			    if (tokenID == _value_)
@@ -660,6 +695,8 @@ namespace Ogre {
                 if (tokenID != _character_)
                 {
                     mLabelIsActive = false;
+                    // allow spaces to be skipped for next lexeme processing
+                    mNoSpaceSkip = false;
                 }
                 else // _character_ token being processed
                 {
@@ -795,6 +832,8 @@ namespace Ogre {
 	    {
 		    mCurrentLine++;
 		    mCharPos++;
+            if (mCharPos >= mEndOfSource)
+                return;
 		    if (((*mSource)[mCharPos] == '\n') || ((*mSource)[mCharPos] == '\r'))
 		    {
 			    mCharPos++;
