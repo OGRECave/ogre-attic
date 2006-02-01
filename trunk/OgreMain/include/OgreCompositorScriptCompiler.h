@@ -46,15 +46,15 @@ namespace Ogre {
 			// Terminal Tokens section
 			ID_UNKOWN = 0, ID_OPENBRACE, ID_CLOSEBRACE,
 			// Top level
-			ID_COMPOSITOR, 
+			ID_COMPOSITOR,
 			// Techniques
 			ID_TECHNIQUE, ID_TEXTURE, ID_TARGET_WIDTH, ID_TARGET_HEIGHT,
 			// Targets
 			ID_TARGET, ID_INPUT, ID_TARGET_OUTPUT, ID_ONLY_INITIAL,
 			ID_PREVIOUS, ID_NONE,
 			// Passes
-			ID_PASS, 
-			ID_MATERIAL, 
+			ID_PASS,
+			ID_MATERIAL,
 			ID_RENDER_QUAD, ID_CLEAR, ID_STENCIL, ID_RENDER_SCENE,
 
 			// general
@@ -87,7 +87,7 @@ namespace Ogre {
 
 		// static library database for tokens and BNF rules
 		static TokenRule compositorScript_RulePath[];
-		// simplified Backus - Naur Form (BNF) grammer for material scripts
+		// simplified Backus - Naur Form (BNF) grammer for compositor scripts
 		static String compositorScript_BNF;
 
 		typedef void (CompositorScriptCompiler::* CSC_Action)(void);
