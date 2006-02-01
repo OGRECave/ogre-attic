@@ -65,7 +65,7 @@ namespace Ogre {
 		"<Alphanumeric_Space> ::= <Alphanumeric> | ' ' \n"
 		"<Alphanumeric> ::= <Character> | <Number> \n"
 		"<Character> ::= (abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$#%!_*&\\/) \n"
-		"<Number> ::= (0123456789); \n"
+		"<Number> ::= (0123456789) \n"
 
 		;
 	//-----------------------------------------------------------------------
@@ -116,7 +116,7 @@ namespace Ogre {
 	}
 
 	//-----------------------------------------------------------------------
-	void CompositorScriptCompiler::addLexemeTokenAction(const String& lexeme, 
+	void CompositorScriptCompiler::addLexemeTokenAction(const String& lexeme,
 		const size_t token, const CSC_Action action)
 	{
 		addLexemeToken(lexeme, token, action != 0);
