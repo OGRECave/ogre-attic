@@ -47,8 +47,6 @@ namespace Ogre {
     {
         if (mBNFTokenState.lexemeTokenDefinitions.empty())
         {
-            #define TOKEN_HAS_ACTION true
-
             addLexemeToken("UNKNOWN", BNF_UNKOWN);
             addLexemeToken("<syntax>", BNF_SYNTAX);
             addLexemeToken("<rule>", BNF_RULE);
@@ -77,6 +75,8 @@ namespace Ogre {
             addLexemeToken("<optional_expression>", BNF_OPTIONAL_EXPRESSION);
             addLexemeToken("[", BNF_OPTIONAL_BEGIN);
             addLexemeToken("]", BNF_OPTIONAL_END);
+            addLexemeToken("<not_test>", BNF_NOT_TEST);
+            addLexemeToken("(?!", BNF_NOT_TEST_BEGIN);
             addLexemeToken("'", BNF_SINGLEQUOTE);
             addLexemeToken("<any_character>", BNF_ANY_CHARACTER);
             addLexemeToken("<single_quote_exc>", BNF_SINGLE_QUOTE_EXC);
@@ -303,8 +303,7 @@ namespace Ogre {
                mActiveTokenState->lexemeTokenDefinitions[token_ID].ruleID = i;
                mActiveTokenState->lexemeTokenDefinitions[token_ID].isNonTerminal = true;
 		   }
-	    }
-
+	    } // end for
     }
 
     //-----------------------------------------------------------------------
@@ -377,7 +376,8 @@ namespace Ogre {
             const TokenInst& tokenInst = mActiveTokenState->tokenQue[mPass2TokenPosition];
             if (expectedTokenID > 0 && (tokenInst.tokenID != expectedTokenID))
             {
-
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "expected token ID not found" ,
+                    "Compiler2Pass::getNextToken");
             }
 
             return tokenInst;
@@ -400,8 +400,9 @@ namespace Ogre {
     bool Compiler2Pass::testNextTokenID(const size_t expectedTokenID)
     {
         bool passed = false;
-        if (mPass2TokenPosition < mActiveTokenState->tokenQue.size() - 1)
-            passed = mActiveTokenState->tokenQue[mPass2TokenPosition].tokenID == expectedTokenID;
+        const size_t nextTokenIndex = mPass2TokenPosition + 1;
+        if (nextTokenIndex < mActiveTokenState->tokenQue.size() - 1)
+            passed = mActiveTokenState->tokenQue[nextTokenIndex].tokenID == expectedTokenID;
 
         return passed;
     }
@@ -457,7 +458,7 @@ namespace Ogre {
         mSource = &bnfGrammer;
         if (doPass1())
         {
-            buildClientBNFRuleBase();
+            buildClientBNFRulePaths();
         }
         else
         {
@@ -465,7 +466,8 @@ namespace Ogre {
         }
         // change token state to client data after compiling grammer
         mActiveTokenState = &mClientTokenState;
-
+        // verify the client rule paths and associated terminal and non-terminal lexemes
+        verifyTokenRuleLinks();
     }
 
     //-----------------------------------------------------------------------
@@ -643,7 +645,6 @@ namespace Ogre {
 	    }
 
 	    return passed;
-
     }
 
     //-----------------------------------------------------------------------
@@ -771,8 +772,8 @@ namespace Ogre {
 
                     // update source position
 				    mCharPos += tokenlength;
-			    }
-		    }
+			    } // end if
+		    } // end else if
 
 	    }
 	    // else a non terminal token was found
@@ -784,7 +785,6 @@ namespace Ogre {
 	    }
 
 	    return Passed;
-
     }
 
     //-----------------------------------------------------------------------
@@ -852,7 +852,6 @@ namespace Ogre {
 			 findEOL();
     }
 
-
     //-----------------------------------------------------------------------
     void Compiler2Pass::findEOL()
     {
@@ -861,7 +860,6 @@ namespace Ogre {
 	    // find eol charter and move to this position
         mCharPos = mSource->find('\n', mCharPos);
     }
-
 
     //-----------------------------------------------------------------------
     void Compiler2Pass::skipEOL()
@@ -881,7 +879,6 @@ namespace Ogre {
 		    }
 	    }
     }
-
 
     //-----------------------------------------------------------------------
     void Compiler2Pass::skipWhiteSpace()
@@ -906,11 +903,16 @@ namespace Ogre {
 
         mActiveTokenState->lexemeTokenMap[lexeme] = token;
     }
+
     //-----------------------------------------------------------------------
-    void Compiler2Pass::buildClientBNFRuleBase(void)
+    //              Private Methods
+    //-----------------------------------------------------------------------
+    void Compiler2Pass::buildClientBNFRulePaths(void)
     {
         bool isFirstToken = true;
-        // convert tokens to rules
+        OperationType pendingRuleOp = otAND;
+
+        // convert tokens in BNF token que to rule paths
         while (getPass2TokenCount() > 0)
         {
             // get a pass 2 token
@@ -923,39 +925,86 @@ namespace Ogre {
                 // a valid token has been found, convert to a rule
                 switch (currentToken.tokenID)
                 {
-                case BNF_ID_BEGIN:
-                    extractNonTerminal();
+                case BNF_ID_BEGIN: // <
+                    extractNonTerminal(pendingRuleOp);
+                    pendingRuleOp = otAND;
                     break;
 
 
-                case BNF_CONSTANT_BEGIN:
-                    extractConstant();
+                case BNF_CONSTANT_BEGIN: // <#
+                    extractNumericConstant(pendingRuleOp);
+                    pendingRuleOp = otAND;
                     break;
 
-                case BNF_SET_RULE:
-
+                case BNF_OR: // |
+                    pendingRuleOp = otOR;
                     break;
 
-                case BNF_SINGLEQUOTE:
-                    extractTerminal();
+                case BNF_REPEAT_BEGIN: // {
+                    pendingRuleOp = otREPEAT;
                     break;
 
-                case BNF_SET_BEGIN:
-                    extractSet();
+                case BNF_SINGLEQUOTE: // '
+                    extractTerminal(pendingRuleOp);
+                    pendingRuleOp = otAND;
+                    break;
+
+                case BNF_OPTIONAL_BEGIN: // [
+                    pendingRuleOp = otOPTIONAL;
+                    break;
+
+                case BNF_NOT_TEST_BEGIN: // (?!
+                    pendingRuleOp = otNOT_TEST;
+                    break;
+
+                case BNF_SET_BEGIN: // (
+                    extractSet(pendingRuleOp);
+                    pendingRuleOp = otAND;
                     break;
 
                 default:
-                    // should not get here so throw exception
+                    // trap closings ie ] }
                     break;
-
-                }
-            }
-        }
-
+                } // end switch
+            } // end if
+        } // end while
     }
 
     //-----------------------------------------------------------------------
-    void Compiler2Pass::extractNonTerminal(void)
+    void Compiler2Pass::modifyLastRule(const OperationType pendingRuleOp, const size_t tokenID)
+    {
+        // add operation using this token ID to the current rule expression
+        size_t lastIndex = mClientTokenState.rootRulePath.size();
+        if (lastIndex == 0)
+        {
+            // throw exception since there should have been at least one rule existing
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "BNF Grammar build rules failed: no previous rule op defined", "Compiler2Pass::modifyLastRule");
+        }
+        --lastIndex;
+        mClientTokenState.rootRulePath[lastIndex].operation = pendingRuleOp;
+        mClientTokenState.rootRulePath[lastIndex].tokenID = tokenID;
+        // add new end op token rule
+        mClientTokenState.rootRulePath.push_back(TokenRule(otEND, 0));
+    }
+
+    //-----------------------------------------------------------------------
+    size_t Compiler2Pass::getClientLexemeTokenID(const String& lexeme)
+    {
+        size_t tokenID = mClientTokenState.lexemeTokenMap[lexeme];
+
+        if (tokenID == 0)
+        {
+            tokenID = mClientTokenState.lexemeTokenDefinitions.size();
+            // add identifier to client lexeme tokens
+            mActiveTokenState = &mClientTokenState;
+            addLexemeToken(lexeme, tokenID);
+            mActiveTokenState = &mBNFTokenState;
+        }
+
+        return tokenID;
+    }
+    //-----------------------------------------------------------------------
+    void Compiler2Pass::extractNonTerminal(const OperationType pendingRuleOp)
     {
         // begining of identifier
         // next token should be for a label
@@ -964,33 +1013,23 @@ namespace Ogre {
         getNextToken(BNF_ID_END);
         // add identifier to lexeme token definitions
         //
-        size_t tokenID = mClientTokenState.lexemeTokenMap[identifierLabel];
-        if (tokenID == 0)
-        {
-            tokenID = mClientTokenState.lexemeTokenDefinitions.size();
-            // add identifier to lexeme tokens
-            mActiveTokenState = &mClientTokenState;
-            addLexemeToken(identifierLabel, tokenID);
-            mActiveTokenState = &mBNFTokenState;
-        }
-
+        const size_t tokenID = getClientLexemeTokenID(identifierLabel);
         // peek at the next token isntruction to see if this
         // identifier is for a new rule or is part of the current rule
         if (testNextTokenID(BNF_SET_RULE))
         {
-            // not part of the current rule expression so
-            // terminate current rule expression and
-            // prep for a new rule to be created
+            getNextToken(BNF_SET_RULE);
+            mClientTokenState.rootRulePath.push_back(TokenRule(otRULE, tokenID));
+            // add new end op token rule
+            mClientTokenState.rootRulePath.push_back(TokenRule(otEND, 0));
         }
         else
         {
-            // add operation using this token ID to the current rule expression
-
+            modifyLastRule(pendingRuleOp, tokenID);
         }
-
     }
     //-----------------------------------------------------------------------
-    void Compiler2Pass::extractTerminal(void)
+    void Compiler2Pass::extractTerminal(const OperationType pendingRuleOp)
     {
         // begining of label
         // next token should be for a label
@@ -998,31 +1037,31 @@ namespace Ogre {
         // next token should be single quote end
         getNextToken(BNF_SINGLEQUOTE);
         // add terminal to lexeme token definitions
-        //
-        size_t tokenID = mClientTokenState.lexemeTokenMap[terminalLabel];
-        if (tokenID == 0)
-        {
-            // get a new id
-            tokenID = mClientTokenState.lexemeTokenDefinitions.size();
-            // add identifier to lexeme tokens
-            mActiveTokenState = &mClientTokenState;
-            addLexemeToken(terminalLabel, tokenID);
-            mActiveTokenState = &mBNFTokenState;
-        }
-
-        // add operation using this token ID to the current rule expression
+        // note that if label not in the map it is automatically added
+        const size_t tokenID = getClientLexemeTokenID(terminalLabel);
+        modifyLastRule(pendingRuleOp, tokenID);
     }
     //-----------------------------------------------------------------------
-    void Compiler2Pass::extractSet(void)
+    void Compiler2Pass::extractSet(const OperationType pendingRuleOp)
     {
-
+        const String& setLabel = getNextTokenLabel();
+        // next token should be )
+        getNextToken(BNF_SET_END);
+        const size_t tokenID = getClientLexemeTokenID(setLabel);
         // add operation using this token ID to the current rule expression
+        modifyLastRule(pendingRuleOp, _character_);
+        // add the data required by the character lookup operation
+        modifyLastRule(otDATA, tokenID);
     }
     //-----------------------------------------------------------------------
-    void Compiler2Pass::extractConstant(void)
+    void Compiler2Pass::extractNumericConstant(const OperationType pendingRuleOp)
     {
+        // consume label for constant, don't need it for anything
+        getNextTokenLabel();
 
+        getNextToken(BNF_ID_END); // >
         // add operation using this token ID to the current rule expression
+        modifyLastRule(pendingRuleOp, _value_);
     }
 
 

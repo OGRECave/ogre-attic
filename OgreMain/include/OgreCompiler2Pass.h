@@ -151,7 +151,7 @@ namespace Ogre {
             BNF_CONSTANT_BEGIN, BNF_SET_RULE, BNF_EXPRESSION,
             BNF_AND_TERM, BNF_OR_TERM, BNF_TERM, BNF_TERM_ID, BNF_CONSTANT, BNF_OR, BNF_TERMINAL_SYMBOL,
             BNF_REPEAT_EXPRESSION, BNF_REPEAT_BEGIN, BNF_REPEAT_END, BNF_SET, BNF_SET_BEGIN, BNF_SET_END,
-            BNF_OPTIONAL_EXPRESSION,
+            BNF_NOT_TEST, BNF_NOT_TEST_BEGIN, BNF_OPTIONAL_EXPRESSION,
             BNF_OPTIONAL_BEGIN, BNF_OPTIONAL_END, BNF_SINGLEQUOTE, BNF_SINGLE_QUOTE_EXC, BNF_SET_END_EXC,
             BNF_ANY_CHARACTER, BNF_SPECIAL_CHARACTERS1,
             BNF_SPECIAL_CHARACTERS2, BNF_WHITE_SPACE_CHK,
@@ -407,16 +407,23 @@ namespace Ogre {
         static TokenState mBNFTokenState;
 
         void initBNFCompiler(void);
-        /// Convert BNF grammer token que created in pass 1 into a BNF rule base
-        void buildClientBNFRuleBase(void);
+        /// Convert BNF grammer token que created in pass 1 into a BNF rule path
+        void buildClientBNFRulePaths(void);
+        /// modify the last rule in the container. An end operation is added to the rule path.
+        void modifyLastRule(const OperationType pendingRuleOp, const size_t tokenID);
+        /** get the token ID for a lexeme in the client state. If the lexeme is not found then
+            it is added to the map and definition container and a new tokenID created.
+        @return the ID of the token.
+        */
+        size_t getClientLexemeTokenID(const String& lexeme);
         /// Extract a Non Terminal identifier from the token que
-        void extractNonTerminal(void);
+        void extractNonTerminal(const OperationType pendingRuleOp);
         /// Extract a Terminal lexeme from the token que and add to current rule expression
-        void extractTerminal(void);
+        void extractTerminal(const OperationType pendingRuleOp);
         /// Extract a set from the token que and add to current rule expression
-        void extractSet(void);
+        void extractSet(const OperationType pendingRuleOp);
         /// Extract a numeric constant from the token que and add it to the current rule expression
-        void extractConstant(void);
+        void extractNumericConstant(const OperationType pendingRuleOp);
 
     public:
 
