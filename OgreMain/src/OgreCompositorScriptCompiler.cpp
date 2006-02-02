@@ -62,6 +62,7 @@ namespace Ogre {
 		"<On_Off> ::= 'on' | 'off' \n"
 		"<Label> ::= <Quoted_Label> | <Unquoted_Label> \n"
 		"<Quoted_Label> ::= '\"' <Character> {<Alphanumeric_Space>} '\"' \n"
+        "<Unquoted_Label> ::= <Character> {<Alphanumeric>} \n"
 		"<Alphanumeric_Space> ::= <Alphanumeric> | ' ' \n"
 		"<Alphanumeric> ::= <Character> | <Number> \n"
 		"<Character> ::= (abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$#%!_*&\\/) \n"
