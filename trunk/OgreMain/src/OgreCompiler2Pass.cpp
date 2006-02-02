@@ -23,10 +23,6 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 #include "OgreStableHeaders.h"
-//#include <assert.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
 #include "OgreCompiler2Pass.h"
 
 namespace Ogre {
@@ -371,17 +367,43 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    const Compiler2Pass::TokenInst& Compiler2Pass::getNextToken(void)
+    const Compiler2Pass::TokenInst& Compiler2Pass::getNextToken(const size_t expectedTokenID)
     {
-        static TokenInst badToken;
+        //static TokenInst badToken;
         // advance instruction que index by one then get the current token instruction
         if (mPass2TokenPosition < mActiveTokenState->tokenQue.size() - 1)
         {
             ++mPass2TokenPosition;
-            return mActiveTokenState->tokenQue[mPass2TokenPosition];
+            const TokenInst& tokenInst = mActiveTokenState->tokenQue[mPass2TokenPosition];
+            if (expectedTokenID > 0 && (tokenInst.tokenID != expectedTokenID))
+            {
+
+            }
+
+            return tokenInst;
         }
         else
-            return badToken;
+            // no more tokens left for pass 2 processing
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "no more tokens available for pass 2 processing" ,
+                "Compiler2Pass::getNextToken");
+    }
+    //-----------------------------------------------------------------------
+    const Compiler2Pass::TokenInst& Compiler2Pass::getCurrentToken(void)
+    {
+        if (mPass2TokenPosition < mActiveTokenState->tokenQue.size() - 1)
+            return mActiveTokenState->tokenQue[mPass2TokenPosition];
+        else
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "no token available, all pass 2 tokens processed" ,
+                "Compiler2Pass::getCurrentToken");
+    }
+    //-----------------------------------------------------------------------
+    bool Compiler2Pass::testNextTokenID(const size_t expectedTokenID)
+    {
+        bool passed = false;
+        if (mPass2TokenPosition < mActiveTokenState->tokenQue.size() - 1)
+            passed = mActiveTokenState->tokenQue[mPass2TokenPosition].tokenID == expectedTokenID;
+
+        return passed;
     }
     //-----------------------------------------------------------------------
     void Compiler2Pass::replaceToken(void)
@@ -397,22 +419,23 @@ namespace Ogre {
         if (getNextToken().tokenID == _value_)
             return mConstants[mPass2TokenPosition];
         else
-            // if no value associated then return 0.0f
-            return 0.0f;
+            // if token is not for a value then throw an exception
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "token is not for a value" ,
+                "Compiler2Pass::getNextTokenValue");
     }
     //-----------------------------------------------------------------------
     const String& Compiler2Pass::getNextTokenLabel(void)
     {
-        static String emptyString;
         // get label from current token instruction
         if (getNextToken().tokenID == _character_)
             return mLabels[mPass2TokenPosition];
         else
-            // if token has no label then return empty string
-            return emptyString;
+            // if token is not for a label then throw an exception
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "token is not for a label" ,
+                "Compiler2Pass::getNextTokenLabel");
     }
     //-----------------------------------------------------------------------
-    size_t Compiler2Pass::getTokenQueCount(void) const
+    size_t Compiler2Pass::getPass2TokenCount(void) const
     {
         // calculate number of tokens between current token instruction and next token with action
         if(mActiveTokenState->tokenQue.size() > mPass2TokenPosition)
@@ -427,14 +450,14 @@ namespace Ogre {
         mActiveTokenState = &mBNFTokenState;
         // clear client containers
         mClientTokenState.tokenQue.clear();
-        mClientTokenState.lexemeTokenDefinitions.clear();
+        //mClientTokenState.lexemeTokenDefinitions.clear();
         mClientTokenState.rootRulePath.clear();
 
         // attempt to compile the grammer into a rule base
         mSource = &bnfGrammer;
         if (doPass1())
         {
-            // convert tokens to rules
+            buildClientBNFRuleBase();
         }
         else
         {
@@ -462,7 +485,9 @@ namespace Ogre {
         const size_t TokenContainerOldSize = mActiveTokenState->tokenQue.size();
 	    const size_t OldCharPos = mCharPos;
 	    const size_t OldLinePos = mCurrentLine;
-	    //const size_t OldConstantsSize = mConstants.size();
+        const bool OldLabelIsActive = mLabelIsActive;
+        const size_t OldActiveLabelKey = mActiveLabelKey;
+        const String OldLabel = mLabels[OldActiveLabelKey];
 
 	    // keep track of what non-terminal token activated the rule
 	    size_t ActiveNTTRule = mActiveTokenState->rootRulePath[rulepathIDX].tokenID;
@@ -544,6 +569,9 @@ namespace Ogre {
                     const size_t la_TokenContainerOldSize = mActiveTokenState->tokenQue.size();
 	                const size_t la_OldCharPos = mCharPos;
 	                const size_t la_OldLinePos = mCurrentLine;
+	                const bool la_OldLabelIsActive = mLabelIsActive;
+	                const size_t la_OldActiveLabelKey = mActiveLabelKey;
+	                const String la_OldLabel = mLabels[la_OldActiveLabelKey];
 
                     passed = !ValidateToken(rulepathIDX, ActiveNTTRule);
 
@@ -551,7 +579,13 @@ namespace Ogre {
 			        mActiveTokenState->tokenQue.resize(la_TokenContainerOldSize);
 			        mCharPos = la_OldCharPos;
 			        mCurrentLine = la_OldLinePos;
-
+			        // restor label state if it was active before not test
+			        if (la_OldLabelIsActive)
+			        {
+                        mActiveLabelKey = la_OldActiveLabelKey;
+                        mLabels[la_OldActiveLabelKey] = la_OldLabel;
+                        mLabelIsActive = la_OldLabelIsActive;
+			        }
                     // only perform full rollback if tokens found
 			        if (!passed)
 			        {
@@ -563,6 +597,13 @@ namespace Ogre {
 				        //mConstants.resize(OldConstantsSize);
 				        mCharPos = OldCharPos;
 				        mCurrentLine = OldLinePos;
+                        // restor label state if it was active before not test
+                        if (OldLabelIsActive)
+                        {
+                            mActiveLabelKey = OldActiveLabelKey;
+                            mLabels[OldActiveLabelKey] = OldLabel;
+                            mLabelIsActive = OldLabelIsActive;
+                        }
                         // terminate rule production processing
         			    endFound = true;
 			        }
@@ -864,6 +905,124 @@ namespace Ogre {
         tokenDef.hasAction = hasAction;
 
         mActiveTokenState->lexemeTokenMap[lexeme] = token;
+    }
+    //-----------------------------------------------------------------------
+    void Compiler2Pass::buildClientBNFRuleBase(void)
+    {
+        bool isFirstToken = true;
+        // convert tokens to rules
+        while (getPass2TokenCount() > 0)
+        {
+            // get a pass 2 token
+            // if this is the first time getting a token then get the current token
+            const TokenInst& currentToken  = isFirstToken ? getCurrentToken() : getNextToken();
+            isFirstToken = false;
+            // only process the token if its valid
+            if (currentToken.found)
+            {
+                // a valid token has been found, convert to a rule
+                switch (currentToken.tokenID)
+                {
+                case BNF_ID_BEGIN:
+                    extractNonTerminal();
+                    break;
+
+
+                case BNF_CONSTANT_BEGIN:
+                    extractConstant();
+                    break;
+
+                case BNF_SET_RULE:
+
+                    break;
+
+                case BNF_SINGLEQUOTE:
+                    extractTerminal();
+                    break;
+
+                case BNF_SET_BEGIN:
+                    extractSet();
+                    break;
+
+                default:
+                    // should not get here so throw exception
+                    break;
+
+                }
+            }
+        }
+
+    }
+
+    //-----------------------------------------------------------------------
+    void Compiler2Pass::extractNonTerminal(void)
+    {
+        // begining of identifier
+        // next token should be for a label
+        const String& identifierLabel = getNextTokenLabel();
+        // next token should be id end
+        getNextToken(BNF_ID_END);
+        // add identifier to lexeme token definitions
+        //
+        size_t tokenID = mClientTokenState.lexemeTokenMap[identifierLabel];
+        if (tokenID == 0)
+        {
+            tokenID = mClientTokenState.lexemeTokenDefinitions.size();
+            // add identifier to lexeme tokens
+            mActiveTokenState = &mClientTokenState;
+            addLexemeToken(identifierLabel, tokenID);
+            mActiveTokenState = &mBNFTokenState;
+        }
+
+        // peek at the next token isntruction to see if this
+        // identifier is for a new rule or is part of the current rule
+        if (testNextTokenID(BNF_SET_RULE))
+        {
+            // not part of the current rule expression so
+            // terminate current rule expression and
+            // prep for a new rule to be created
+        }
+        else
+        {
+            // add operation using this token ID to the current rule expression
+
+        }
+
+    }
+    //-----------------------------------------------------------------------
+    void Compiler2Pass::extractTerminal(void)
+    {
+        // begining of label
+        // next token should be for a label
+        const String& terminalLabel = getNextTokenLabel();
+        // next token should be single quote end
+        getNextToken(BNF_SINGLEQUOTE);
+        // add terminal to lexeme token definitions
+        //
+        size_t tokenID = mClientTokenState.lexemeTokenMap[terminalLabel];
+        if (tokenID == 0)
+        {
+            // get a new id
+            tokenID = mClientTokenState.lexemeTokenDefinitions.size();
+            // add identifier to lexeme tokens
+            mActiveTokenState = &mClientTokenState;
+            addLexemeToken(terminalLabel, tokenID);
+            mActiveTokenState = &mBNFTokenState;
+        }
+
+        // add operation using this token ID to the current rule expression
+    }
+    //-----------------------------------------------------------------------
+    void Compiler2Pass::extractSet(void)
+    {
+
+        // add operation using this token ID to the current rule expression
+    }
+    //-----------------------------------------------------------------------
+    void Compiler2Pass::extractConstant(void)
+    {
+
+        // add operation using this token ID to the current rule expression
     }
 
 

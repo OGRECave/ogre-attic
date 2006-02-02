@@ -274,8 +274,19 @@ namespace Ogre {
         /** Gets the next token from the instruction que.  If an unkown token is found then an exception is raised but
             the instruction pointer is still moved passed the unknown token.  The subclass should catch the exception,
             provide an error message, and attempt recovery.
+
+        @param expectedTokenID if set then if tokenID does not match then an exception is raised
         */
-        const TokenInst& getNextToken(void);
+        const TokenInst& getNextToken(const size_t expectedTokenID = 0);
+        /** Gets the current token from the instruction que.
+        */
+        const TokenInst& getCurrentToken(void);
+        /** If a next token instruction exist then test if its token ID matches.
+            This method is usefull for peeking ahead during pass 2 to see if a certain
+            token exists.
+        @param expectedTokenID is the ID of the token to match.
+        */
+        bool testNextTokenID(const size_t expectedTokenID);
         /**
         */
         void replaceToken(void);
@@ -291,12 +302,12 @@ namespace Ogre {
             provide an error message, and attempt recovery.
         */
         const String& getNextTokenLabel(void);
-        /** Gets the number of tokens waiting in the instruction que that need to be processed by an token action.
+        /** Gets the number of tokens waiting in the instruction que that need to be processed by an token action in pass 2.
         */
-        size_t getTokenQueCount(void) const;
+        size_t getPass2TokenCount(void) const;
 
         /** Add a lexeme token association.  The backend compiler uses the associations between lexeme
-            and token when building the rule base from the BNF script so all associations must be done
+            and token when building the rule base from the BNF script so all associations must  be done
             prior to compiling a source.
         */
         void addLexemeToken(const String& lexeme, const size_t token, const bool hasAction = false);
@@ -396,6 +407,16 @@ namespace Ogre {
         static TokenState mBNFTokenState;
 
         void initBNFCompiler(void);
+        /// Convert BNF grammer token que created in pass 1 into a BNF rule base
+        void buildClientBNFRuleBase(void);
+        /// Extract a Non Terminal identifier from the token que
+        void extractNonTerminal(void);
+        /// Extract a Terminal lexeme from the token que and add to current rule expression
+        void extractTerminal(void);
+        /// Extract a set from the token que and add to current rule expression
+        void extractSet(void);
+        /// Extract a numeric constant from the token que and add it to the current rule expression
+        void extractConstant(void);
 
     public:
 
