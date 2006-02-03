@@ -439,11 +439,11 @@ AC_DEFUN([OGRE_CHECK_CEGUI], [
                          Samples/Gui/src/Makefile])
         AC_SUBST(CEGUI_CFLAGS)
         AC_SUBST(CEGUI_LIBS)
-        AC_MSG_RESULT([CEGUI available, Gui sample will be built])
+        AC_MSG_RESULT([CEGUI available, Gui and FacialAnimation samples will be built])
     else
-        AC_MSG_RESULT([CEGUI not available, Gui sample will not be built])
+        AC_MSG_RESULT([CEGUI not available, Gui and FacialAnimation samples will not be built])
     fi
-    AM_CONDITIONAL([BUILD_CEGUI_SAMPLE], [test x$build_cegui_sample = xtrue])
+    AM_CONDITIONAL([HAVE_CEGUI], [test x$build_cegui_sample = xtrue])
 ])
 
 AC_DEFUN([OGRE_CHECK_DOUBLE],
