@@ -24,7 +24,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 // Thanks to Vincent Cantin (karmaGfa) for the original implementation of this
-// class, although it has not been mostly rewritten
+// class, although it has now been mostly rewritten
 
 #ifndef _BillboardChain_H__
 #define _BillboardChain_H__
@@ -38,6 +38,30 @@ namespace Ogre {
 
 
 	/** Allows the rendering of a chain of connected billboards.
+	@remarks
+		A billboard chain operates much like a traditional billboard, ie its
+		segments always face the camera; the difference being that instead of
+		a set of disconnected quads, the elements in this class are connected
+		together in a chain which must always stay in a continuous strip. This
+		kind of effect is useful for creating effects such as trails, beams,
+		lightning effects, etc.
+	@par
+		A single instance of this class can actually render multiple separate
+		chain segments in a single render operation, provided they all use the
+		same material. To clarify the terminology: a 'segment' is a separate 
+		sub-part of the chain with its own start and end (called the 'head'
+		and the 'tail'. An 'element' is a single position / colour / texcoord
+		entry in a segment. You can add items to the head of a chain, and 
+		remove them from the tail, very efficiently. Each segment has a max
+		size, and if adding an element to the segment would exceed this size, 
+		the tail element is automatically removed and re-used as the new item
+		on the head.
+	@par
+		This class has no auto-updating features to do things like alter the
+		colour of the elements or to automatically add / remove elements over
+		time - you have to do all this yourself as a user of the class. 
+		Subclasses can however be used to provide this kind of behaviour 
+		automatically. @see RibbonTrail
 	*/
 	class _OgreExport BillboardChain : public MovableObject, public Renderable
 	{
@@ -81,18 +105,18 @@ namespace Ogre {
 
 		/** Set the maximum number of chain elements per chain 
 		*/
-		void setMaxChainElements(size_t maxElements);
+		virtual void setMaxChainElements(size_t maxElements);
 		/** Get the maximum number of chain elements per chain 
 		*/
-		size_t getMaxChainElements(void) const { return mMaxElementsPerChain; }
+		virtual size_t getMaxChainElements(void) const { return mMaxElementsPerChain; }
 		/** Set the number of chain segments (this class can render multiple chains
 			at once using the same material). 
 		*/
-		void setNumberOfChains(size_t numChains);
+		virtual void setNumberOfChains(size_t numChains);
 		/** Get the number of chain segments (this class can render multiple chains
 		at once using the same material). 
 		*/
-		size_t getNumberOfChains(void) const { return mChainCount; }
+		virtual size_t getNumberOfChains(void) const { return mChainCount; }
 
 		/** Sets whether texture coordinate information should be included in the
 			final buffers generated.
@@ -100,7 +124,7 @@ namespace Ogre {
 			vertices have no normals and without one of these there is no source of
 			colour for the vertices.
 		*/
-		void setUseTextureCoords(bool use);
+		virtual void setUseTextureCoords(bool use);
 		/** Gets whether texture coordinate information should be included in the
 			final buffers generated.
 		*/
@@ -111,21 +135,21 @@ namespace Ogre {
 			vertices have no normals and without one of these there is no source of
 			colour for the vertices.
 		*/
-		void setUseVertexColours(bool use);
+		virtual void setUseVertexColours(bool use);
 		/** Gets whether vertex colour information should be included in the
 			final buffers generated.
 		*/
-		bool getUseVertexColours(void) const { return mUseVertexColour; }
+		virtual bool getUseVertexColours(void) const { return mUseVertexColour; }
 
 		/** Sets whether or not the buffers created for this object are suitable
 			for dynamic alteration.
 		*/
-		void setDynamic(bool dyn);
+		virtual void setDynamic(bool dyn);
 
 		/** Gets whether or not the buffers created for this object are suitable
 			for dynamic alteration.
 		*/
-		bool getDynamic(void) const { return mDynamic; }
+		virtual bool getDynamic(void) const { return mDynamic; }
 		
 		/** Add an element to the 'head' of a chain.
 		@remarks
@@ -135,31 +159,33 @@ namespace Ogre {
 		@param chainIndex The index of the chain
 		@param billboardChainElement The details to add
 		*/
-		void addChainElement(size_t chainIndex, 
+		virtual void addChainElement(size_t chainIndex, 
 			const Element& billboardChainElement);
 		/** Remove an element from the 'tail' of a chain.
 		@param chainIndex The index of the chain
 		*/
-		void removeChainElement(size_t chainIndex);
+		virtual void removeChainElement(size_t chainIndex);
 		/** Update the details of an existing chain element.
 		@param chainIndex The index of the chain
 		@param elementIndex The element index within the chain, measured from 
 			the 'head' of the chain
 		@param billboardChainElement The details to set
 		*/
-		void updateChainElement(size_t chainIndex, size_t elementIndex, 
+		virtual void updateChainElement(size_t chainIndex, size_t elementIndex, 
 			const Element& billboardChainElement);
 		/** Get the detail of a chain element.
 		@param chainIndex The index of the chain
 		@param elementIndex The element index within the chain, measured from
 			the 'head' of the chain
 		*/
-		const Element& getChainElement(size_t chainIndex, size_t elementIndex) const;
+		virtual const Element& getChainElement(size_t chainIndex, size_t elementIndex) const;
 		/// Get the material name in use
-		const String& getMaterialName(void) const { return mMaterialName; }
+		virtual const String& getMaterialName(void) const { return mMaterialName; }
 		/// Set the material name to use for rendering
-		void setMaterialName(const String& name);
+		virtual void setMaterialName(const String& name);
 
+
+		// Overridden members follow
 		void _notifyCurrentCamera(Camera* cam);
 		Real getSquaredViewDepth(const Camera* cam) const;
 		Real getBoundingRadius(void) const;
@@ -231,16 +257,16 @@ namespace Ogre {
 		ChainSegmentList mChainSegmentList;
 
 		/// Setup the STL collections
-		void setupChainContainers(void);
+		virtual void setupChainContainers(void);
 		/// Setup vertex declaration
-		void setupVertexDeclaration(void);
+		virtual void setupVertexDeclaration(void);
 		// Setup buffers
-		void setupBuffers(void);
+		virtual void setupBuffers(void);
 		/// Update the contents of the vertex buffer
-		void updateVertexBuffer(Camera* cam);
+		virtual void updateVertexBuffer(Camera* cam);
 		/// Update the contents of the index buffer
-		void updateIndexBuffer(void);
-		void updateBoundingBox(void) const;
+		virtual void updateIndexBuffer(void);
+		virtual void updateBoundingBox(void) const;
 	};
 
 

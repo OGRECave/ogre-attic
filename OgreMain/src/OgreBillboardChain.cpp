@@ -24,7 +24,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 // Thanks to Vincent Cantin (karmaGfa) for the original implementation of this
-// class, although it has not been mostly rewritten
+// class, although it has now been mostly rewritten
 
 #include "OgreStableHeaders.h"
 #include "OgreBillboardChain.h"
@@ -56,7 +56,7 @@ namespace Ogre {
 	{
 	}
 	//-----------------------------------------------------------------------
-	BillboardChain::BillboardChain(const String& name, size_t maxElements, 
+	BillboardChain::BillboardChain(const String& name, size_t maxElements,
 		size_t numberOfChains, bool useTextureCoords, bool useColours, bool dynamic)
 		:MovableObject(name),
 		mMaxElementsPerChain(maxElements),
@@ -131,6 +131,14 @@ namespace Ogre {
 				offset += VertexElement::getTypeSize(VET_FLOAT2);
 			}
 
+			if (!mUseTexCoords && !mUseVertexColour)
+			{
+				LogManager::getSingleton().logMessage(
+					"Error - BillboardChain '" + mName + "' is using neither "
+					"texture coordinates or vertex colours; it will not be "
+					"visible on some rendering APIs so you should change this "
+					"so you use one or the other.");
+			}
 			mVertexDeclDirty = false;
 		}
 	}
@@ -141,9 +149,9 @@ namespace Ogre {
 		if (mBuffersNeedRecreating)
 		{
 			// Create the vertex buffer (always dynamic due to the camera adjust)
-			HardwareVertexBufferSharedPtr pBuffer = 
+			HardwareVertexBufferSharedPtr pBuffer =
 				HardwareBufferManager::getSingleton().createVertexBuffer(
-				mVertexData->vertexDeclaration->getVertexSize(0), 
+				mVertexData->vertexDeclaration->getVertexSize(0),
 				mVertexData->vertexCount,
 				HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 
@@ -151,9 +159,9 @@ namespace Ogre {
 			// Any existing buffer will lose its reference count and be destroyed
 			mVertexData->vertexBufferBinding->setBinding(0, pBuffer);
 
-			mIndexData->indexBuffer = 
+			mIndexData->indexBuffer =
 				HardwareBufferManager::getSingleton().createIndexBuffer(
-					HardwareIndexBuffer::IT_16BIT, 
+					HardwareIndexBuffer::IT_16BIT,
 					mChainCount * mMaxElementsPerChain * 6, // max we can use
 					mDynamic? HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY : HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 			// NB we don't set the indexCount on IndexData here since we will
@@ -193,13 +201,13 @@ namespace Ogre {
 		mBuffersNeedRecreating = mIndexContentDirty = true;
 	}
 	//-----------------------------------------------------------------------
-	void BillboardChain::addChainElement(size_t chainIndex, 
+	void BillboardChain::addChainElement(size_t chainIndex,
 		const BillboardChain::Element& dtls)
 	{
 		if (chainIndex >= mChainCount)
 		{
-			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-				"chainIndex out of bounds", 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
+				"chainIndex out of bounds",
 				"BillboardChain::addChainElement");
 		}
 		ChainSegment& seg = mChainSegmentList[chainIndex];
@@ -220,7 +228,7 @@ namespace Ogre {
 			else
 			{
 				// Just step backward
-				--seg.head; 
+				--seg.head;
 			}
 			// Run out of elements?
 			if (seg.head == seg.tail)
@@ -230,7 +238,7 @@ namespace Ogre {
 				if (seg.tail == 0)
 					seg.tail = mMaxElementsPerChain - 1;
 				else
-					--seg.tail; 
+					--seg.tail;
 
 				// Don't mark indexes as dirty since they still apply, only vertices change
 			}
@@ -252,8 +260,8 @@ namespace Ogre {
 	{
 		if (chainIndex >= mChainCount)
 		{
-			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-				"chainIndex out of bounds", 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
+				"chainIndex out of bounds",
 				"BillboardChain::removeChainElement");
 		}
 		ChainSegment& seg = mChainSegmentList[chainIndex];
@@ -281,20 +289,20 @@ namespace Ogre {
 
 	}
 	//-----------------------------------------------------------------------
-	void BillboardChain::updateChainElement(size_t chainIndex, size_t elementIndex, 
+	void BillboardChain::updateChainElement(size_t chainIndex, size_t elementIndex,
 		const BillboardChain::Element& dtls)
 	{
 		if (chainIndex >= mChainCount)
 		{
-			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-				"chainIndex out of bounds", 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
+				"chainIndex out of bounds",
 				"BillboardChain::updateChainElement");
 		}
 		ChainSegment& seg = mChainSegmentList[chainIndex];
 		if (seg.head == NOT_VALID)
 		{
-			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-				"Chain segment is empty", 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
+				"Chain segment is empty",
 				"BillboardChain::updateChainElement");
 		}
 
@@ -309,14 +317,14 @@ namespace Ogre {
 
 	}
 	//-----------------------------------------------------------------------
-	const BillboardChain::Element& 
+	const BillboardChain::Element&
 	BillboardChain::getChainElement(size_t chainIndex, size_t elementIndex) const
 	{
 
 		if (chainIndex >= mChainCount)
 		{
-			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-				"chainIndex out of bounds", 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
+				"chainIndex out of bounds",
 				"BillboardChain::updateChainElement");
 		}
 		const ChainSegment& seg = mChainSegmentList[chainIndex];
@@ -354,7 +362,7 @@ namespace Ogre {
 				}
 
 			}
-	
+
 			// Set the current radius
 			if (mAABB.isNull())
 			{
@@ -363,7 +371,7 @@ namespace Ogre {
 			else
 			{
 				mRadius = Math::Sqrt(
-					std::max(mAABB.getMinimum().squaredLength(), 
+					std::max(mAABB.getMinimum().squaredLength(),
 					mAABB.getMaximum().squaredLength()));
 			}
 
@@ -381,9 +389,6 @@ namespace Ogre {
 		Vector3 eyePos = mParentNode->_getDerivedOrientation().Inverse() *
 			(cam->getDerivedPosition() - mParentNode->_getDerivedPosition());
 
-		// TEST
-		static bool logMe = true;
-
 		Vector3 chainTangent;
 		for (ChainSegmentList::iterator segi = mChainSegmentList.begin();
 			segi != mChainSegmentList.end(); ++segi)
@@ -394,7 +399,6 @@ namespace Ogre {
 			if (seg.head != NOT_VALID && seg.head != seg.tail)
 			{
 				size_t laste = seg.head;
-				bool first = true;
 				for (size_t e = seg.head; ; ++e) // until break
 				{
 					// Wrap forwards
@@ -407,21 +411,29 @@ namespace Ogre {
 
 					// Determine base pointer to vertex #1
 					void* pBase = static_cast<void*>(
-						static_cast<char*>(pBufferStart) + 
+						static_cast<char*>(pBufferStart) +
 							pBuffer->getVertexSize() * baseIdx);
 
-					if (first) 
+					// Get index of next item
+					size_t nexte = e + 1;
+					if (nexte == mMaxElementsPerChain)
+						nexte = 0;
+
+					if (e == seg.head)
 					{
 						// No laste, use next item
-						size_t nexte = e + 1;
-						if (nexte == mMaxElementsPerChain)
-							nexte = 0;
 						chainTangent = mChainElementList[nexte + seg.start].position - elem.position;
-						first = false;
 					}
-					else 
+					else if (e == seg.tail)
 					{
+						// No nexte, use only last item
 						chainTangent = elem.position - mChainElementList[laste + seg.start].position;
+					}
+					else
+					{
+						// A mid position, use tangent across both prev and next
+						chainTangent = mChainElementList[nexte + seg.start].position - mChainElementList[laste + seg.start].position;
+
 					}
 
 					Vector3 vP1ToEye = eyePos - elem.position;
@@ -431,19 +443,6 @@ namespace Ogre {
 
 					Vector3 pos0 = elem.position - vPerpendicular;
 					Vector3 pos1 = elem.position + vPerpendicular;
-
-					// TEST
-					if (logMe)
-					{
-						{
-							StringUtil::StrStreamType s;
-							s << "V" << baseIdx << " pos: " << pos0;
-							LogManager::getSingleton().logMessage(s.str());
-							s.str("");
-							s << "V" << baseIdx+1 << " pos: " << pos1;
-							LogManager::getSingleton().logMessage(s.str());
-						}
-					}
 
 					float* pFloat = static_cast<float*>(pBase);
 					// pos1
@@ -506,15 +505,11 @@ namespace Ogre {
 
 		pBuffer->unlock();
 
-		// TEST
-		logMe = false;
 
 	}
 	//-----------------------------------------------------------------------
 	void BillboardChain::updateIndexBuffer(void)
 	{
-		// TEST
-		bool logMe = true;
 
 		setupBuffers();
 		if (mIndexContentDirty)
@@ -551,18 +546,6 @@ namespace Ogre {
 						*pShort++ = baseIdx + 1;
 						*pShort++ = baseIdx;
 
-						if (logMe)
-						{
-							StringUtil::StrStreamType s;
-							s << "I: " << lastBaseIdx 
-								<< " " << lastBaseIdx + 1
-								<< " " << baseIdx
-								<< " " << lastBaseIdx + 1
-								<< " " << baseIdx + 1
-								<< " " << baseIdx;
-							LogManager::getSingleton().logMessage(s.str());
-						}
-						
 						mIndexData->indexCount += 6;
 
 
@@ -579,9 +562,6 @@ namespace Ogre {
 
 			mIndexContentDirty = false;
 		}
-
-		// TEST
-		logMe = false;
 
 	}
 	//-----------------------------------------------------------------------
@@ -624,7 +604,7 @@ namespace Ogre {
 
 		if (mMaterial.isNull())
 		{
-			LogManager::getSingleton().logMessage("Can't assign material " + name + 
+			LogManager::getSingleton().logMessage("Can't assign material " + name +
 				" to BillboardChain " + mName + " because this "
 				"Material does not exist. Have you forgotten to define it in a "
 				".material script?");
@@ -638,7 +618,7 @@ namespace Ogre {
 			}
 		}
 		// Ensure new material loaded (will not load again if already loaded)
-		mMaterial->load();	
+		mMaterial->load();
 	}
 	//-----------------------------------------------------------------------
 	const String& BillboardChain::getMovableType(void) const
