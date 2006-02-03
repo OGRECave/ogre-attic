@@ -55,6 +55,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreResourceBackgroundQueue.h"
 #include "OgreEntity.h"
 #include "OgreBillboardSet.h"
+#include "OgreBillboardChain.h"
 #include "OgreLight.h"
 #include "OgreManualObject.h"
 #include "OgreRenderQueueInvocation.h"
@@ -221,6 +222,8 @@ namespace Ogre {
 		addMovableObjectFactory(mBillboardSetFactory);
 		mManualObjectFactory = new ManualObjectFactory();
 		addMovableObjectFactory(mManualObjectFactory);
+		mBillboardChainFactory = new BillboardChainFactory();
+		addMovableObjectFactory(mBillboardChainFactory);
 
 		// Load plugins
         if (!pluginFileName.empty())
@@ -280,6 +283,7 @@ namespace Ogre {
 		delete mLightFactory;
 		delete mBillboardSetFactory;
 		delete mManualObjectFactory;
+		delete mBillboardChainFactory;
 
 
         mPlatformManager->destroyTimer(mTimer);
@@ -702,13 +706,13 @@ namespace Ogre {
     {
 		shutdownPlugins();
 		
-		delete mControllerManager;
-		mControllerManager = 0;
-
 		SceneManagerEnumerator::getSingleton().shutdownAll();
         ShadowVolumeExtrudeProgram::shutdown();
 		mResourceBackgroundQueue->shutdown();
         ResourceGroupManager::getSingleton().shutdownAll();
+
+		delete mControllerManager;
+		mControllerManager = 0;
 
 		mIsInitialised = false;
 

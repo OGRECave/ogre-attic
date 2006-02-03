@@ -363,6 +363,9 @@ namespace Ogre {
         */
         virtual void removeElement(VertexElementSemantic semantic, unsigned short index = 0);
 
+		/** Remove all elements. */
+		virtual void removeAllElements(void);
+
         /** Modify an element in-place, params as addElement. 
 	   @remarks
 	   <b>Please read the information in VertexDeclaration about

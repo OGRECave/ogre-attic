@@ -61,6 +61,18 @@ namespace Ogre {
         VertexDeclaration::removeElement(elem_index);
         mNeedsRebuild = true;
     }
+	//-----------------------------------------------------------------------
+	void D3D9VertexDeclaration::removeElement(VertexElementSemantic semantic, unsigned short index)
+	{
+		VertexDeclaration::removeElement(semantic, index);
+		mNeedsRebuild = true;
+	}
+	//-----------------------------------------------------------------------
+	void D3D9VertexDeclaration::removeAllElements(void)
+	{
+		VertexDeclaration::removeAllElements();
+		mNeedsRebuild = true;
+	}
     //-----------------------------------------------------------------------
     void D3D9VertexDeclaration::modifyElement(unsigned short elem_index, 
         unsigned short source, size_t offset, VertexElementType theType,

@@ -275,6 +275,11 @@ namespace Ogre {
 			}
 		}
     }
+	//-----------------------------------------------------------------------------
+	void VertexDeclaration::removeAllElements(void)
+	{
+		mElementList.clear();
+	}
     //-----------------------------------------------------------------------------
     void VertexDeclaration::modifyElement(unsigned short elem_index, 
         unsigned short source, size_t offset, VertexElementType theType,

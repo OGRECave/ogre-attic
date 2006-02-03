@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2005 The OGRE Team
@@ -23,7 +23,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-// Thanks to Vincent Cantin (karmaGfa) for the original version
+// Thanks to Vincent Cantin (karmaGfa) for the original implementation of this
+// class, although it has not been mostly rewritten
 
 #include "OgreStableHeaders.h"
 #include "OgreBillboardChain.h"
@@ -32,236 +33,713 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHardwareBufferManager.h"
 #include "OgreNode.h"
 #include "OgreCamera.h"
+#include "OgreRoot.h"
+#include "OgreMaterialManager.h"
+#include "OgreLogManager.h"
 
 namespace Ogre {
+#define NOT_VALID 0xffffffff
+	//-----------------------------------------------------------------------
+	BillboardChain::Element::Element()
+	{
+	}
+	//-----------------------------------------------------------------------
+	BillboardChain::Element::Element(Vector3 _position,
+		Real _width,
+		Real _uTexCoord,
+		ColourValue _colour) :
+	position(_position),
+		width(_width),
+		uTexCoord(_uTexCoord),
+		colour(_colour)
+	{
+	}
+	//-----------------------------------------------------------------------
+	BillboardChain::BillboardChain(const String& name, size_t maxElements, 
+		size_t numberOfChains, bool useTextureCoords, bool useColours, bool dynamic)
+		:MovableObject(name),
+		mMaxElementsPerChain(maxElements),
+		mChainCount(numberOfChains),
+		mUseTexCoords(useTextureCoords),
+		mUseVertexColour(useColours),
+		mDynamic(dynamic),
+		mVertexDeclDirty(true),
+		mBuffersNeedRecreating(true),
+		mBoundsDirty(true),
+		mIndexContentDirty(true),
+		mRadius(0.0f)
+	{
+		mVertexData = new VertexData();
+		mIndexData = new IndexData();
 
-#define POSITION_BINDING      0
-#define DIFFUSE_COLOR_BINDING 1
-#define TEXCOORD_BINDING      2
+		setupChainContainers();
 
-   BillboardChainElement::BillboardChainElement()
-   {
-   }
+		mVertexData->vertexStart = 0;
+		// index data set up later
+		// set basic white material
+		this->setMaterialName("BaseWhiteNoLighting");
 
-   BillboardChainElement::BillboardChainElement(Vector3 _position,
-                                     Real _width,
-                                     Real _uTexCoord,
-                                     ColourValue _colour) :
-      position(_position),
-      width(_width),
-      uTexCoord(_uTexCoord),
-      colour(_colour)
-   {
-   }
+	}
+	//-----------------------------------------------------------------------
+	BillboardChain::~BillboardChain()
+	{
+		delete mVertexData;
+		delete mIndexData;
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::setupChainContainers(void)
+	{
+		// Allocate enough space for everything
+		mChainElementList.resize(mChainCount * mMaxElementsPerChain);
+		mVertexData->vertexCount = mChainElementList.size() * 2;
 
-   BillboardChain::BillboardChain(int maxNbChainElements)
-    {
-      mRadius = 0.0f;
-      mCurrentNbChainElements = 0;
-      mMaxNbChainElements = maxNbChainElements;
+		// Configure chains
+		mChainSegmentList.resize(mChainCount);
+		for (size_t i = 0; i < mChainCount; ++i)
+		{
+			ChainSegment& seg = mChainSegmentList[i];
+			seg.start = i * mMaxElementsPerChain;
+			seg.tail = seg.head = NOT_VALID;
 
-        mRenderOp.vertexData = new VertexData();
-        mRenderOp.indexData = NULL;
-        mRenderOp.vertexData->vertexCount = mCurrentNbChainElements * 2;
-        mRenderOp.vertexData->vertexStart = 0;
-        mRenderOp.operationType = RenderOperation::OT_TRIANGLE_STRIP;
-        mRenderOp.useIndexes = false;
+		}
 
-        VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
-        VertexBufferBinding* bind = mRenderOp.vertexData->vertexBufferBinding;
 
-      // Add a description for the buffer of the positions of the vertices
-        decl->addElement(POSITION_BINDING, 0, VET_FLOAT3, VES_POSITION);
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::setupVertexDeclaration(void)
+	{
+		if (mVertexDeclDirty)
+		{
+			VertexDeclaration* decl = mVertexData->vertexDeclaration;
+			decl->removeAllElements();
 
-      // Create the buffer
-        HardwareVertexBufferSharedPtr pVertexBuffer =
-            HardwareBufferManager::getSingleton().createVertexBuffer(
-            decl->getVertexSize(POSITION_BINDING),
-            mMaxNbChainElements * 2,
-            HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+			size_t offset = 0;
+			// Add a description for the buffer of the positions of the vertices
+			decl->addElement(0, offset, VET_FLOAT3, VES_POSITION);
+			offset += VertexElement::getTypeSize(VET_FLOAT3);
 
-        // Bind the buffer
-        bind->setBinding(POSITION_BINDING, pVertexBuffer);
+			if (mUseVertexColour)
+			{
+				decl->addElement(0, offset, VET_COLOUR, VES_DIFFUSE);
+				offset += VertexElement::getTypeSize(VET_COLOUR);
+			}
 
-      // Add a description for the buffer of the diffuse color of the vertices
-      decl->addElement(DIFFUSE_COLOR_BINDING, 0, VET_FLOAT4, VES_DIFFUSE);
+			if (mUseTexCoords)
+			{
+				decl->addElement(0, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES);
+				offset += VertexElement::getTypeSize(VET_FLOAT2);
+			}
 
-      // Create the buffer
-        HardwareVertexBufferSharedPtr pVertexColorBuffer =
-            HardwareBufferManager::getSingleton().createVertexBuffer(
-            decl->getVertexSize(DIFFUSE_COLOR_BINDING),
-            mMaxNbChainElements * 2,
-            HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+			mVertexDeclDirty = false;
+		}
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::setupBuffers(void)
+	{
+		setupVertexDeclaration();
+		if (mBuffersNeedRecreating)
+		{
+			// Create the vertex buffer (always dynamic due to the camera adjust)
+			HardwareVertexBufferSharedPtr pBuffer = 
+				HardwareBufferManager::getSingleton().createVertexBuffer(
+				mVertexData->vertexDeclaration->getVertexSize(0), 
+				mVertexData->vertexCount,
+				HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 
-        // Bind the buffer
-        bind->setBinding(DIFFUSE_COLOR_BINDING, pVertexColorBuffer);
+			// (re)Bind the buffer
+			// Any existing buffer will lose its reference count and be destroyed
+			mVertexData->vertexBufferBinding->setBinding(0, pBuffer);
 
-      // Add a description for the buffer of the texture coordinates of the vertices
-        decl->addElement(TEXCOORD_BINDING, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES);
+			mIndexData->indexBuffer = 
+				HardwareBufferManager::getSingleton().createIndexBuffer(
+					HardwareIndexBuffer::IT_16BIT, 
+					mChainCount * mMaxElementsPerChain * 6, // max we can use
+					mDynamic? HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY : HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+			// NB we don't set the indexCount on IndexData here since we will
+			// probably use less than the maximum number of indices
 
-      // Create the buffer
-        HardwareVertexBufferSharedPtr pTexCoordBuffer =
-            HardwareBufferManager::getSingleton().createVertexBuffer(
-            decl->getVertexSize(TEXCOORD_BINDING),
-            mMaxNbChainElements * 2,
-            HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+			mBuffersNeedRecreating = false;
+		}
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::setMaxChainElements(size_t maxElements)
+	{
+		mMaxElementsPerChain = maxElements;
+		setupChainContainers();
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::setNumberOfChains(size_t numChains)
+	{
+		mChainCount = numChains;
+		setupChainContainers();
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::setUseTextureCoords(bool use)
+	{
+		mUseTexCoords = use;
+		mVertexDeclDirty = mBuffersNeedRecreating = true;
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::setUseVertexColours(bool use)
+	{
+		mUseVertexColour = use;
+		mVertexDeclDirty = mBuffersNeedRecreating = true;
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::setDynamic(bool dyn)
+	{
+		mDynamic = dyn;
+		mBuffersNeedRecreating = mIndexContentDirty = true;
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::addChainElement(size_t chainIndex, 
+		const BillboardChain::Element& dtls)
+	{
+		if (chainIndex >= mChainCount)
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+				"chainIndex out of bounds", 
+				"BillboardChain::addChainElement");
+		}
+		ChainSegment& seg = mChainSegmentList[chainIndex];
+		if (seg.head == NOT_VALID)
+		{
+			// Tail starts at end, head grows backwards
+			seg.tail = mMaxElementsPerChain - 1;
+			seg.head = seg.tail;
+			mIndexContentDirty = true;
+		}
+		else
+		{
+			if (seg.head == 0)
+			{
+				// Wrap backwards
+				seg.head = mMaxElementsPerChain - 1;
+			}
+			else
+			{
+				// Just step backward
+				--seg.head; 
+			}
+			// Run out of elements?
+			if (seg.head == seg.tail)
+			{
+				// Move tail backwards too, losing the end of the segment and re-using
+				// it in the head
+				if (seg.tail == 0)
+					seg.tail = mMaxElementsPerChain - 1;
+				else
+					--seg.tail; 
 
-        // Bind the buffer
-        bind->setBinding(TEXCOORD_BINDING, pTexCoordBuffer);
+				// Don't mark indexes as dirty since they still apply, only vertices change
+			}
+			else
+			{
+				// we added an additional entry so indexes need updating
+				mIndexContentDirty = true;
+			}
+		}
 
-        // set basic white material
-        this->setMaterial("BaseWhiteNoLighting");
-   }
-   
-   BillboardChain::~BillboardChain()
-    {
-      delete mRenderOp.vertexData;
-   }
+		// Set the details
+		mChainElementList[seg.start + seg.head] = dtls;
 
-    void BillboardChain::_notifyCurrentCamera(Camera* cam)
-    {
-      SimpleRenderable::_notifyCurrentCamera(cam);
+		mBoundsDirty = true;
 
-      updateHardwareBuffers();
-    }
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::removeChainElement(size_t chainIndex)
+	{
+		if (chainIndex >= mChainCount)
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+				"chainIndex out of bounds", 
+				"BillboardChain::removeChainElement");
+		}
+		ChainSegment& seg = mChainSegmentList[chainIndex];
+		if (seg.head == NOT_VALID)
+			return; // do nothing, nothing to remove
 
-   Real BillboardChain::getSquaredViewDepth(const Camera* cam) const
-   {
-      Vector3 min, max, mid, dist;
-      min = mBox.getMinimum();
-      max = mBox.getMaximum();
-      mid = ((max - min) * 0.5) + min;
-      dist = cam->getDerivedPosition() - mid;
 
-      return dist.squaredLength();
-   }
+		if (seg.tail == seg.head)
+		{
+			// last item
+			seg.head = seg.tail = NOT_VALID;
+		}
+		else if (seg.tail == 0)
+		{
+			seg.tail = mMaxElementsPerChain - 1;
+		}
+		else
+		{
+			--seg.tail;
+		}
 
-   Real BillboardChain::getBoundingRadius(void) const
-   {
-      return mRadius;
-   }
+		// we removed an entry so indexes need updating
+		mIndexContentDirty = true;
+		mBoundsDirty = true;
 
-   void BillboardChain::setNbChainElements(unsigned int nbChainElements)
-   {
-      mCurrentNbChainElements = nbChainElements;
-        mRenderOp.vertexData->vertexCount = mCurrentNbChainElements * 2;
-      mChainElementList.resize(mCurrentNbChainElements);
-   }
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::updateChainElement(size_t chainIndex, size_t elementIndex, 
+		const BillboardChain::Element& dtls)
+	{
+		if (chainIndex >= mChainCount)
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+				"chainIndex out of bounds", 
+				"BillboardChain::updateChainElement");
+		}
+		ChainSegment& seg = mChainSegmentList[chainIndex];
+		if (seg.head == NOT_VALID)
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+				"Chain segment is empty", 
+				"BillboardChain::updateChainElement");
+		}
 
-   void BillboardChain::setChainElement(unsigned int elementIndex, const BillboardChainElement& billboardChainElement)
-   {
-      mChainElementList[elementIndex] = billboardChainElement;
-   }
+		size_t idx = seg.head + elementIndex;
+		// adjust for the edge and start
+		idx = (idx % mMaxElementsPerChain) + seg.start;
 
-   void BillboardChain::updateBoundingBox()
-   {
-      if (mChainElementList.size() < 2)
-         return;
+		mChainElementList[idx] = dtls;
 
-      Real width = mChainElementList[0].width;
-      Vector3 widthVector = Vector3(width, width, width);
-      const Vector3& position = mChainElementList[0].position;
-      Vector3 minimum = position - widthVector;
-      Vector3 maximum = position + widthVector;
+		mBoundsDirty = true;
 
-      for (unsigned int i = 1; i < mChainElementList.size(); i++)
-      {
-         // Update the bounds of the bounding box
-         Real width = mChainElementList[i].width;
-         Vector3 widthVector = Vector3(width, width, width);
-         const Vector3& position = mChainElementList[i].position;
-         minimum.makeFloor(position - widthVector);
-         maximum.makeCeil(position + widthVector);
-      }
 
-      // Set the current bounding box
-      setBoundingBox(AxisAlignedBox(minimum, maximum));
+	}
+	//-----------------------------------------------------------------------
+	const BillboardChain::Element& 
+	BillboardChain::getChainElement(size_t chainIndex, size_t elementIndex) const
+	{
 
-      // Set the current radius
-        mRadius = Math::Sqrt(std::max(minimum.squaredLength(), maximum.squaredLength()));
-   }
+		if (chainIndex >= mChainCount)
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+				"chainIndex out of bounds", 
+				"BillboardChain::updateChainElement");
+		}
+		const ChainSegment& seg = mChainSegmentList[chainIndex];
 
-   void BillboardChain::updateHardwareBuffers()
-    {
-      if (mChainElementList.size() < 2)
-         return;
+		size_t idx = seg.head + elementIndex;
+		// adjust for the edge and start
+		idx = (idx % mMaxElementsPerChain) + seg.start;
 
-        // Setup the vertex coordinates
+		return mChainElementList[idx];
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::updateBoundingBox(void) const
+	{
+		if (mBoundsDirty)
+		{
+			mAABB.setNull();
+			Vector3 widthVector;
+			for (ChainSegmentList::const_iterator segi = mChainSegmentList.begin();
+				segi != mChainSegmentList.end(); ++segi)
+			{
+				const ChainSegment& seg = *segi;
 
-      HardwareVertexBufferSharedPtr pPosBuffer =
-         mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
+				for(size_t e = seg.head; e != seg.tail; ++e)
+				{
+					// Wrap forwards
+					if (e == mMaxElementsPerChain)
+						e = 0;
 
-        float* pPos = static_cast<float*>(pPosBuffer->lock(HardwareBuffer::HBL_DISCARD));
+					const Element& elem = mChainElementList[seg.start + e];
 
-      // Here. we need to compute the position of the camera in the coordinate system of the billboard chain.
-      Vector3 eyePos = mParentNode->_getDerivedOrientation().Inverse() *
-                   (m_pCamera->getDerivedPosition() - mParentNode->_getDerivedPosition());
+					widthVector.x = widthVector.y = widthVector.z = elem.width;
+					mAABB.merge(elem.position - widthVector);
+					mAABB.merge(elem.position + widthVector);
 
-      // Compute the position of the vertices in the chain
-      unsigned int chainSize = mChainElementList.size();
-      for (unsigned int i = 0; i < chainSize; i++)
-      {
-         Vector3 chainTangent;
-         if (i == 0) chainTangent = mChainElementList[1].position - mChainElementList[0].position;
-         else if (i == chainSize - 1) chainTangent = mChainElementList[chainSize - 1].position - mChainElementList[chainSize - 2].position;
-         else chainTangent = mChainElementList[i + 1].position - mChainElementList[i - 1].position;
+				}
 
-         const Vector3& p1 = mChainElementList[i].position;
+			}
+	
+			// Set the current radius
+			if (mAABB.isNull())
+			{
+				mRadius = 0.0f;
+			}
+			else
+			{
+				mRadius = Math::Sqrt(
+					std::max(mAABB.getMinimum().squaredLength(), 
+					mAABB.getMaximum().squaredLength()));
+			}
 
-         Vector3 vP1ToEye = eyePos - p1;
-         Vector3 vPerpendicular = chainTangent.crossProduct(vP1ToEye);
-         vPerpendicular.normalise();
-         vPerpendicular *= mChainElementList[i].width;
+			mBoundsDirty = false;
+		}
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::updateVertexBuffer(Camera* cam)
+	{
+		setupBuffers();
+		HardwareVertexBufferSharedPtr pBuffer =
+			mVertexData->vertexBufferBinding->getBuffer(0);
+		void* pBufferStart = pBuffer->lock(HardwareBuffer::HBL_DISCARD);
 
-         Vector3 pos0 = p1 - vPerpendicular;
-         Vector3 pos1 = p1 + vPerpendicular;
+		Vector3 eyePos = mParentNode->_getDerivedOrientation().Inverse() *
+			(cam->getDerivedPosition() - mParentNode->_getDerivedPosition());
 
-         // Update the buffer with the 2 vertex positions
-         *pPos++ = pos0.x;
-         *pPos++ = pos0.y;
-         *pPos++ = pos0.z;
-         *pPos++ = pos1.x;
-         *pPos++ = pos1.y;
-         *pPos++ = pos1.z;
-      }
+		// TEST
+		static bool logMe = true;
 
-        pPosBuffer->unlock();
+		Vector3 chainTangent;
+		for (ChainSegmentList::iterator segi = mChainSegmentList.begin();
+			segi != mChainSegmentList.end(); ++segi)
+		{
+			ChainSegment& seg = *segi;
 
-        // Setup the diffuse color of the vertex
+			// Skip 0 or 1 element segment counts
+			if (seg.head != NOT_VALID && seg.head != seg.tail)
+			{
+				size_t laste = seg.head;
+				bool first = true;
+				for (size_t e = seg.head; ; ++e) // until break
+				{
+					// Wrap forwards
+					if (e == mMaxElementsPerChain)
+						e = 0;
 
-      HardwareVertexBufferSharedPtr pVertexColorBuffer =
-         mRenderOp.vertexData->vertexBufferBinding->getBuffer(DIFFUSE_COLOR_BINDING);
+					Element& elem = mChainElementList[e + seg.start];
+					uint16 baseIdx = (e + seg.start) * 2;
+					uint16 lastBaseIdx = (laste + seg.start) * 2;
 
-        float* pColour = static_cast<float*>(pVertexColorBuffer->lock(HardwareBuffer::HBL_DISCARD));
-      for (unsigned int i = 0; i < mChainElementList.size(); i++)
-      {
-         ColourValue& col = mChainElementList[i].colour;
-         *pColour++ = col.r;
-         *pColour++ = col.g;
-         *pColour++ = col.b;
-         *pColour++ = col.a;
-         *pColour++ = col.r;
-         *pColour++ = col.g;
-         *pColour++ = col.b;
-         *pColour++ = col.a;
-      }
-        pVertexColorBuffer->unlock();
+					// Determine base pointer to vertex #1
+					void* pBase = static_cast<void*>(
+						static_cast<char*>(pBufferStart) + 
+							pBuffer->getVertexSize() * baseIdx);
 
-        // Setup the texture coordinates
+					if (first) 
+					{
+						// No laste, use next item
+						size_t nexte = e + 1;
+						if (nexte == mMaxElementsPerChain)
+							nexte = 0;
+						chainTangent = mChainElementList[nexte + seg.start].position - elem.position;
+						first = false;
+					}
+					else 
+					{
+						chainTangent = elem.position - mChainElementList[laste + seg.start].position;
+					}
 
-      HardwareVertexBufferSharedPtr pTexCoordBuffer =
-         mRenderOp.vertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
+					Vector3 vP1ToEye = eyePos - elem.position;
+					Vector3 vPerpendicular = chainTangent.crossProduct(vP1ToEye);
+					vPerpendicular.normalise();
+					vPerpendicular *= (elem.width * 0.5);
 
-        float* pTex = static_cast<float*>(pTexCoordBuffer->lock(HardwareBuffer::HBL_DISCARD));
-      for (unsigned int i = 0; i < mChainElementList.size(); i++)
-      {
-         *pTex++ = mChainElementList[i].uTexCoord;
-         *pTex++ = 0;
-         *pTex++ = mChainElementList[i].uTexCoord;
-         *pTex++ = 1;
-      }
-        pTexCoordBuffer->unlock();
-   }
+					Vector3 pos0 = elem.position - vPerpendicular;
+					Vector3 pos1 = elem.position + vPerpendicular;
+
+					// TEST
+					if (logMe)
+					{
+						{
+							StringUtil::StrStreamType s;
+							s << "V" << baseIdx << " pos: " << pos0;
+							LogManager::getSingleton().logMessage(s.str());
+							s.str("");
+							s << "V" << baseIdx+1 << " pos: " << pos1;
+							LogManager::getSingleton().logMessage(s.str());
+						}
+					}
+
+					float* pFloat = static_cast<float*>(pBase);
+					// pos1
+					*pFloat++ = pos0.x;
+					*pFloat++ = pos0.y;
+					*pFloat++ = pos0.z;
+
+					pBase = static_cast<void*>(pFloat);
+
+					if (mUseVertexColour)
+					{
+						RGBA* pCol = static_cast<RGBA*>(pBase);
+						Root::getSingleton().convertColourValue(elem.colour, pCol);
+						pCol++;
+						pBase = static_cast<void*>(pCol);
+					}
+
+					if (mUseTexCoords)
+					{
+						pFloat = static_cast<float*>(pBase);
+						*pFloat++ = elem.uTexCoord;
+						*pFloat++ = 0;
+						pBase = static_cast<void*>(pFloat);
+					}
+
+					// pos2
+					pFloat = static_cast<float*>(pBase);
+					*pFloat++ = pos1.x;
+					*pFloat++ = pos1.y;
+					*pFloat++ = pos1.z;
+					pBase = static_cast<void*>(pFloat);
+
+					if (mUseVertexColour)
+					{
+						RGBA* pCol = static_cast<RGBA*>(pBase);
+						Root::getSingleton().convertColourValue(elem.colour, pCol);
+						pCol++;
+						pBase = static_cast<void*>(pCol);
+					}
+
+					if (mUseTexCoords)
+					{
+						pFloat = static_cast<float*>(pBase);
+						*pFloat++ = elem.uTexCoord;
+						*pFloat++ = 1;
+						pBase = static_cast<void*>(pFloat);
+					}
+
+					if (e == seg.tail)
+						break; // last one
+
+					laste = e;
+
+				} // element
+			} // segment valid?
+
+		} // each segment
+
+
+
+		pBuffer->unlock();
+
+		// TEST
+		logMe = false;
+
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::updateIndexBuffer(void)
+	{
+		// TEST
+		bool logMe = true;
+
+		setupBuffers();
+		if (mIndexContentDirty)
+		{
+
+			uint16* pShort = static_cast<uint16*>(
+				mIndexData->indexBuffer->lock(HardwareBuffer::HBL_DISCARD));
+			mIndexData->indexCount = 0;
+			// indexes
+			for (ChainSegmentList::iterator segi = mChainSegmentList.begin();
+				segi != mChainSegmentList.end(); ++segi)
+			{
+				ChainSegment& seg = *segi;
+
+				// Skip 0 or 1 element segment counts
+				if (seg.head != NOT_VALID && seg.head != seg.tail)
+				{
+					// Start from head + 1 since it's only useful in pairs
+					size_t laste = seg.head;
+					while(1) // until break
+					{
+						size_t e = laste + 1;
+						// Wrap forwards
+						if (e == mMaxElementsPerChain)
+							e = 0;
+						// indexes of this element are (e * 2) and (e * 2) + 1
+						// indexes of the last element are the same, -2
+						uint16 baseIdx = (e + seg.start) * 2;
+						uint16 lastBaseIdx = (laste + seg.start) * 2;
+						*pShort++ = lastBaseIdx;
+						*pShort++ = lastBaseIdx + 1;
+						*pShort++ = baseIdx;
+						*pShort++ = lastBaseIdx + 1;
+						*pShort++ = baseIdx + 1;
+						*pShort++ = baseIdx;
+
+						if (logMe)
+						{
+							StringUtil::StrStreamType s;
+							s << "I: " << lastBaseIdx 
+								<< " " << lastBaseIdx + 1
+								<< " " << baseIdx
+								<< " " << lastBaseIdx + 1
+								<< " " << baseIdx + 1
+								<< " " << baseIdx;
+							LogManager::getSingleton().logMessage(s.str());
+						}
+						
+						mIndexData->indexCount += 6;
+
+
+						if (e == seg.tail)
+							break; // last one
+
+						laste = e;
+
+					}
+				}
+
+			}
+			mIndexData->indexBuffer->unlock();
+
+			mIndexContentDirty = false;
+		}
+
+		// TEST
+		logMe = false;
+
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::_notifyCurrentCamera(Camera* cam)
+	{
+		updateVertexBuffer(cam);
+	}
+	//-----------------------------------------------------------------------
+	Real BillboardChain::getSquaredViewDepth(const Camera* cam) const
+	{
+		Vector3 min, max, mid, dist;
+		min = mAABB.getMinimum();
+		max = mAABB.getMaximum();
+		mid = ((max - min) * 0.5) + min;
+		dist = cam->getDerivedPosition() - mid;
+
+		return dist.squaredLength();
+	}
+	//-----------------------------------------------------------------------
+	Real BillboardChain::getBoundingRadius(void) const
+	{
+		return mRadius;
+	}
+	//-----------------------------------------------------------------------
+	const AxisAlignedBox& BillboardChain::getBoundingBox(void) const
+	{
+		updateBoundingBox();
+		return mAABB;
+	}
+	//-----------------------------------------------------------------------
+	const MaterialPtr& BillboardChain::getMaterial(void) const
+	{
+		return mMaterial;
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::setMaterialName(const String& name)
+	{
+		mMaterialName = name;
+		mMaterial = MaterialManager::getSingleton().getByName(mMaterialName);
+
+		if (mMaterial.isNull())
+		{
+			LogManager::getSingleton().logMessage("Can't assign material " + name + 
+				" to BillboardChain " + mName + " because this "
+				"Material does not exist. Have you forgotten to define it in a "
+				".material script?");
+			mMaterial = MaterialManager::getSingleton().getByName("BaseWhiteNoLighting");
+			if (mMaterial.isNull())
+			{
+				OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "Can't assign default material "
+					"to BillboardChain of " + mName + ". Did "
+					"you forget to call MaterialManager::initialise()?",
+					"BillboardChain.setMaterialName");
+			}
+		}
+		// Ensure new material loaded (will not load again if already loaded)
+		mMaterial->load();	
+	}
+	//-----------------------------------------------------------------------
+	const String& BillboardChain::getMovableType(void) const
+	{
+		return BillboardChainFactory::FACTORY_TYPE_NAME;
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::_updateRenderQueue(RenderQueue* queue)
+	{
+		updateIndexBuffer();
+
+		if (mIndexData->indexCount > 0)
+		{
+			queue->addRenderable(this);
+		}
+
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::getRenderOperation(RenderOperation& op)
+	{
+		op.indexData = mIndexData;
+		op.operationType = RenderOperation::OT_TRIANGLE_LIST;
+		op.srcRenderable = this;
+		op.useIndexes = true;
+		op.vertexData = mVertexData;
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::getWorldTransforms(Matrix4* xform) const
+	{
+		*xform = _getParentNodeFullTransform();
+	}
+	//-----------------------------------------------------------------------
+	const Quaternion& BillboardChain::getWorldOrientation(void) const
+	{
+		return getParentNode()->_getDerivedOrientation();
+	}
+	//-----------------------------------------------------------------------
+	const Vector3& BillboardChain::getWorldPosition(void) const
+	{
+		return getParentNode()->_getDerivedPosition();
+	}
+	//-----------------------------------------------------------------------
+	const LightList& BillboardChain::getLights(void) const
+	{
+		return getParentSceneNode()->findLights(getBoundingRadius());
+	}
+	//-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	String BillboardChainFactory::FACTORY_TYPE_NAME = "BillboardChain";
+	//-----------------------------------------------------------------------
+	const String& BillboardChainFactory::getType(void) const
+	{
+		return FACTORY_TYPE_NAME;
+	}
+	//-----------------------------------------------------------------------
+	MovableObject* BillboardChainFactory::createInstanceImpl( const String& name,
+		const NameValuePairList* params)
+	{
+		size_t maxElements = 20;
+		size_t numberOfChains = 1;
+		bool useTex = true;
+		bool useCol = true;
+		bool dynamic = true;
+		// optional params
+		if (params != 0)
+		{
+			NameValuePairList::const_iterator ni = params->find("maxElements");
+			if (ni != params->end())
+			{
+				maxElements = StringConverter::parseUnsignedLong(ni->second);
+			}
+			ni = params->find("numberOfChains");
+			if (ni != params->end())
+			{
+				numberOfChains = StringConverter::parseUnsignedLong(ni->second);
+			}
+			ni = params->find("useTextureCoords");
+			if (ni != params->end())
+			{
+				useTex = StringConverter::parseBool(ni->second);
+			}
+			ni = params->find("useVertexColours");
+			if (ni != params->end())
+			{
+				useCol = StringConverter::parseBool(ni->second);
+			}
+			ni = params->find("dynamic");
+			if (ni != params->end())
+			{
+				dynamic = StringConverter::parseBool(ni->second);
+			}
+
+		}
+
+		return new BillboardChain(name, maxElements, numberOfChains, useTex, useCol, dynamic);
+
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChainFactory::destroyInstance( MovableObject* obj)
+	{
+		delete obj;
+	}
 
 }
 

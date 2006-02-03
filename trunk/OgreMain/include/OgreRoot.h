@@ -45,12 +45,6 @@ namespace Ogre
 {
     typedef std::vector<RenderSystem*> RenderSystemList;
 	
-	// Forward decls
-	class EntityFactory;
-	class LightFactory;
-	class BillboardSetFactory;
-	class ManualObjectFactory;
-
     /** The root class of the Ogre system.
         @remarks
             The Ogre::Root class represents a starting point for the client
@@ -115,10 +109,11 @@ namespace Ogre
 		MovableObjectFactoryMap mMovableObjectFactoryMap;
 		uint32 mNextMovableObjectTypeFlag;
 		// stock movable factories
-		EntityFactory* mEntityFactory;
-		LightFactory* mLightFactory;
-		BillboardSetFactory* mBillboardSetFactory;
-		ManualObjectFactory* mManualObjectFactory;
+		MovableObjectFactory* mEntityFactory;
+		MovableObjectFactory* mLightFactory;
+		MovableObjectFactory* mBillboardSetFactory;
+		MovableObjectFactory* mManualObjectFactory;
+		MovableObjectFactory* mBillboardChainFactory;
 
 		typedef std::map<String, RenderQueueInvocationSequence*> RenderQueueInvocationSequenceMap;
 		RenderQueueInvocationSequenceMap mRQSequenceMap;
