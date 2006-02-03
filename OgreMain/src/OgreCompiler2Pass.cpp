@@ -345,6 +345,8 @@ namespace Ogre {
 
 	    // start with a clean slate
 	    mActiveTokenState->tokenQue.clear();
+	    mPass2TokenPosition = 0;
+	    mPreviousActionQuePosition = 0;
 	    // tokenize and check semantics untill an error occurs or end of source is reached
 	    // assume RootRulePath has pointer to rules so start at index + 1 for first rule path
 	    // first rule token would be a rule definition so skip over it
@@ -768,6 +770,9 @@ namespace Ogre {
                         newtoken.found = true;
 
 				        mActiveTokenState->tokenQue.push_back(newtoken);
+				        // token action processing
+				        // if the token has an action then fire previous token action
+				        checkTokenActionTrigger();
                     }
 
                     // update source position
@@ -902,6 +907,40 @@ namespace Ogre {
         tokenDef.hasAction = hasAction;
 
         mActiveTokenState->lexemeTokenMap[lexeme] = token;
+    }
+
+    //-----------------------------------------------------------------------
+    void Compiler2Pass::checkTokenActionTrigger(void)
+    {
+        size_t lastTokenQuePos = mActiveTokenState->tokenQue.size();
+        // if there are no token instructions in the que then there is nothing todo
+        if (lastTokenQuePos == 0)
+            return;
+
+        --lastTokenQuePos;
+        // if last token index is zero and previous action position are zero  or the two are the same then do nothing
+        if (lastTokenQuePos == mPreviousActionQuePosition)
+            return;
+
+        // if token has an action
+        const size_t lastTokenID = mActiveTokenState->tokenQue.at(mPreviousActionQuePosition).tokenID;
+        if (mActiveTokenState->lexemeTokenDefinitions.at(lastTokenID).hasAction)
+        {
+            // only activate the action belonging to the token found previously
+            // get the token definition of the previouse token action
+            const size_t previousTokenID = mActiveTokenState->tokenQue.at(mPreviousActionQuePosition).tokenID;
+            const LexemeTokenDef& tokenDef = mActiveTokenState->lexemeTokenDefinitions.at(previousTokenID);
+            if (tokenDef.hasAction)
+            {
+                // set the current pass 2 token que position to previous action que position
+                // assume that pass 2 processing will use tokens downstream
+                mPass2TokenPosition = mPreviousActionQuePosition;
+                executeTokenAction(previousTokenID);
+            }
+            // current token action now becomes the previous one
+            mPreviousActionQuePosition = lastTokenQuePos;
+        }
+
     }
 
     //-----------------------------------------------------------------------

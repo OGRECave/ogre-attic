@@ -219,6 +219,10 @@ namespace Ogre {
         TokenState* mActiveTokenState;
         /// the location within the token instruction container where pass 2 is
         size_t mPass2TokenPosition;
+        /** the que position of the previous token that had an action.
+            A token's action is fired on the next token having an action.
+        */
+        size_t mPreviousActionQuePosition;
 
 	    /// pointer to the source to be compiled
 	    const String* mSource;
@@ -269,6 +273,8 @@ namespace Ogre {
 
         /** execute the action associated with the token pointed to by the Pass 2 token instruction position.
             Its upto the child class to implement how it will associate a token key with and action.
+            Actions should be placed at positions withing the BNF grammer (instruction que) that indicate
+            enough tokens exist for pass 2 processing to take place.
         */
         virtual void executeTokenAction(const size_t tokenID) = 0;
         /** Gets the next token from the instruction que.  If an unkown token is found then an exception is raised but
@@ -400,10 +406,16 @@ namespace Ogre {
 	    /** scan through all the rules and initialize token definition with index to rules for non-terminal tokens.
             Gets called when internal grammer is being verified or after client grammer has been parsed.
 	    */
-	    void verifyTokenRuleLinks();
+	    void verifyTokenRuleLinks(void);
+	    /** Checks the last token instruction and if it has an action then it triggers the action of the previously
+            found token having an action.
+	    */
+	    void checkTokenActionTrigger(void);
 
     private:
         // used for interpreting BNF script
+        // keep it as static so that only one structure is created
+        // no matter how many times this class is instantiated.
         static TokenState mBNFTokenState;
 
         void initBNFCompiler(void);
