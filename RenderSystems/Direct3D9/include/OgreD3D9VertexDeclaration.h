@@ -52,6 +52,13 @@ namespace Ogre {
 
         /** See VertexDeclaration */
         void removeElement(unsigned short elem_index);
+		
+		/** See VertexDeclaration */
+		void removeElement(VertexElementSemantic semantic, unsigned short index = 0);
+
+		/** See VertexDeclaration */
+		void removeAllElements(void);
+
 
         /** See VertexDeclaration */
         void modifyElement(unsigned short elem_index, unsigned short source, size_t offset, VertexElementType theType,
