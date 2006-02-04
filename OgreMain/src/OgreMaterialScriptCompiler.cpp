@@ -65,7 +65,7 @@ namespace Ogre {
 
         // Pass section rules
         "    <Pass_Def> ::= 'pass' [<Label>] '{' {<Pass_Properties>} '}' \n"
-        "        <Pass_Properties> ::= <Ambient_Def> | <Diffuse_Def> | <Specular_Def> | <Emissive_Def> \n"
+        "        <Pass_Properties> ::= <Ambient_Def> | <Diffuse_Def> | <Specular_Def> | <Emissive_Def> | \n"
         "                              <Scene_Blend_Def> | <Depth_Check_Def> | <Depth_Write_Def> | "
         "                              <Depth_Func_Def> | <Colour_Write_Def> | <Cull_Hardware_Def> | "
         "                              <Cull_Software_Def> | <Lighting_Def> | <Shading_Def> | "
@@ -127,7 +127,7 @@ namespace Ogre {
         "<Colour_params> ::= <#red> <#green> <#blue> [<#alpha>] \n"
 
 
-        "<Label> ::= <Quoted_Label> | <Unquoted_Label> \n"
+        "<Label> ::= <Unquoted_Label> | <Quoted_Label> \n"
         "<Quoted_Label> ::= '\"' <Character> {<Alphanumeric_Space>} '\"' \n"
         "<Unquoted_Label> ::= <Character> {<Alphanumeric>} \n"
         "<Alphanumeric_Space> ::= <Alphanumeric> | ' ' \n"
