@@ -345,7 +345,7 @@ namespace Ogre {
 
 	    // start with a clean slate
 	    mActiveTokenState->tokenQue.clear();
-	    mPass2TokenPosition = 0;
+	    mPass2TokenQuePosition = 0;
 	    mPreviousActionQuePosition = 0;
 	    // tokenize and check semantics untill an error occurs or end of source is reached
 	    // assume RootRulePath has pointer to rules so start at index + 1 for first rule path
@@ -372,10 +372,10 @@ namespace Ogre {
     {
         //static TokenInst badToken;
         // advance instruction que index by one then get the current token instruction
-        if (mPass2TokenPosition < mActiveTokenState->tokenQue.size() - 1)
+        if (mPass2TokenQuePosition < mActiveTokenState->tokenQue.size() - 1)
         {
-            ++mPass2TokenPosition;
-            const TokenInst& tokenInst = mActiveTokenState->tokenQue[mPass2TokenPosition];
+            ++mPass2TokenQuePosition;
+            const TokenInst& tokenInst = mActiveTokenState->tokenQue[mPass2TokenQuePosition];
             if (expectedTokenID > 0 && (tokenInst.tokenID != expectedTokenID))
             {
                 OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "expected token ID not found" ,
@@ -392,8 +392,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     const Compiler2Pass::TokenInst& Compiler2Pass::getCurrentToken(void)
     {
-        if (mPass2TokenPosition < mActiveTokenState->tokenQue.size() - 1)
-            return mActiveTokenState->tokenQue[mPass2TokenPosition];
+        if (mPass2TokenQuePosition < mActiveTokenState->tokenQue.size() - 1)
+            return mActiveTokenState->tokenQue[mPass2TokenQuePosition];
         else
             OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "no token available, all pass 2 tokens processed" ,
                 "Compiler2Pass::getCurrentToken");
@@ -402,7 +402,7 @@ namespace Ogre {
     bool Compiler2Pass::testNextTokenID(const size_t expectedTokenID)
     {
         bool passed = false;
-        const size_t nextTokenIndex = mPass2TokenPosition + 1;
+        const size_t nextTokenIndex = mPass2TokenQuePosition + 1;
         if (nextTokenIndex < mActiveTokenState->tokenQue.size() - 1)
             passed = mActiveTokenState->tokenQue[nextTokenIndex].tokenID == expectedTokenID;
 
@@ -412,15 +412,15 @@ namespace Ogre {
     void Compiler2Pass::replaceToken(void)
     {
         // move instruction que index back one position
-        if (mPass2TokenPosition > 0)
-            --mPass2TokenPosition;
+        if (mPass2TokenQuePosition > 0)
+            --mPass2TokenQuePosition;
     }
     //-----------------------------------------------------------------------
     float Compiler2Pass::getNextTokenValue(void)
     {
         // get float value from current token instruction
         if (getNextToken().tokenID == _value_)
-            return mConstants[mPass2TokenPosition];
+            return mConstants[mPass2TokenQuePosition];
         else
             // if token is not for a value then throw an exception
             OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "token is not for a value" ,
@@ -431,21 +431,31 @@ namespace Ogre {
     {
         // get label from current token instruction
         if (getNextToken().tokenID == _character_)
-            return mLabels[mPass2TokenPosition];
+            return mLabels[mPass2TokenQuePosition];
         else
             // if token is not for a label then throw an exception
             OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "token is not for a label" ,
                 "Compiler2Pass::getNextTokenLabel");
     }
     //-----------------------------------------------------------------------
-    size_t Compiler2Pass::getPass2TokenCount(void) const
+    size_t Compiler2Pass::getPass2TokenQueCount(void) const
     {
         // calculate number of tokens between current token instruction and next token with action
-        if(mActiveTokenState->tokenQue.size() > mPass2TokenPosition)
-            return mActiveTokenState->tokenQue.size() - 1 - mPass2TokenPosition;
+        if(mActiveTokenState->tokenQue.size() > mPass2TokenQuePosition)
+            return mActiveTokenState->tokenQue.size() - 1 - mPass2TokenQuePosition;
         else
             return 0;
     }
+    //-----------------------------------------------------------------------
+    size_t Compiler2Pass::getRemainingTokensForAction(void) const
+    {
+        size_t remaingingTokens = getPass2TokenQueCount();
+        // don't count token for next action
+        if (remaingingTokens > 0)
+            --remaingingTokens;
+        return remaingingTokens;
+    }
+
     //-----------------------------------------------------------------------
     void Compiler2Pass::setClientBNFGrammer(const String& bnfGrammer)
     {
@@ -922,8 +932,12 @@ namespace Ogre {
         if (lastTokenQuePos == mPreviousActionQuePosition)
             return;
 
-        // if token has an action
-        const size_t lastTokenID = mActiveTokenState->tokenQue.at(mPreviousActionQuePosition).tokenID;
+        const size_t lastTokenID = mActiveTokenState->tokenQue.at(lastTokenQuePos).tokenID;
+        // dont check actions for system token ID since they are not in lexemeTokenDefinitions
+        if (lastTokenID >= SystemTokenBase)
+            return;
+
+        // check action trigger if last token has an action
         if (mActiveTokenState->lexemeTokenDefinitions.at(lastTokenID).hasAction)
         {
             // only activate the action belonging to the token found previously
@@ -934,7 +948,7 @@ namespace Ogre {
             {
                 // set the current pass 2 token que position to previous action que position
                 // assume that pass 2 processing will use tokens downstream
-                mPass2TokenPosition = mPreviousActionQuePosition;
+                mPass2TokenQuePosition = mPreviousActionQuePosition;
                 executeTokenAction(previousTokenID);
             }
             // current token action now becomes the previous one
@@ -952,7 +966,7 @@ namespace Ogre {
         OperationType pendingRuleOp = otAND;
 
         // convert tokens in BNF token que to rule paths
-        while (getPass2TokenCount() > 0)
+        while (getPass2TokenQueCount() > 0)
         {
             // get a pass 2 token
             // if this is the first time getting a token then get the current token
