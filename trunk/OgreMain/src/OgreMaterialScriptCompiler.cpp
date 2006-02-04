@@ -366,7 +366,7 @@ namespace Ogre {
 		mScriptContext.programDef->supportsPoseAnimation = 0;
 
 		// Get name and language code
-        const size_t paramCount = getPass2TokenCount();
+        const size_t paramCount = getRemainingTokensForAction();
 		if (paramCount != 2)
 		{
             logParseError("Invalid vertex_program entry - expected "
@@ -393,7 +393,7 @@ namespace Ogre {
 		mScriptContext.programDef->supportsPoseAnimation = 0;
 
 		// Get name and language code
-        const size_t paramCount = getPass2TokenCount();
+        const size_t paramCount = getRemainingTokensForAction();
 		if (paramCount != 2)
 		{
             logParseError("Invalid fragment_program entry - expected "
@@ -415,7 +415,7 @@ namespace Ogre {
 
         const String materialName = getNextTokenLabel();
         // Create a brand new material
-        const size_t paramCount = getPass2TokenCount();
+        const size_t paramCount = getRemainingTokensForAction();
         if (paramCount == 2)
         {
             getNextToken();
@@ -456,7 +456,7 @@ namespace Ogre {
     void MaterialScriptCompiler::parseTechnique(void)
     {
         String techniqueName;
-        const size_t paramCount = getPass2TokenCount();
+        const size_t paramCount = getRemainingTokensForAction();
         // if params is not empty then see if the technique name already exists
         if ((paramCount > 0) && (mScriptContext.material->getNumTechniques() > 0))
         {
@@ -550,7 +550,7 @@ namespace Ogre {
     void MaterialScriptCompiler::parsePass(void)
     {
         String passName;
-        const size_t paramCount = getPass2TokenCount();
+        const size_t paramCount = getRemainingTokensForAction();
         // if params is not empty then see if the pass name already exists
         if ((paramCount > 0) && (mScriptContext.technique->getNumPasses() > 0))
         {
@@ -598,13 +598,13 @@ namespace Ogre {
             getNextTokenValue() ,
             getNextTokenValue() ,
             getNextTokenValue() ,
-            (getPass2TokenCount()==1) ? getNextTokenValue() : 1.0f ) ;
+            (getRemainingTokensForAction()==1) ? getNextTokenValue() : 1.0f ) ;
     }
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseAmbient(void)
     {
         // Must be 1, 3 or 4 parameters
-        const size_t paramCount = getPass2TokenCount();
+        const size_t paramCount = getRemainingTokensForAction();
         if (paramCount == 1) {
             if(getNextToken().tokenID == ID_VERTEXCOLOUR)
             {
@@ -630,7 +630,7 @@ namespace Ogre {
     void MaterialScriptCompiler::parseDiffuse(void)
     {
         // Must be 1, 3 or 4 parameters
-        const size_t paramCount = getPass2TokenCount();
+        const size_t paramCount = getRemainingTokensForAction();
         if (paramCount == 1) {
             if(getNextToken().tokenID == ID_VERTEXCOLOUR)
             {
@@ -656,7 +656,7 @@ namespace Ogre {
     void MaterialScriptCompiler::parseSpecular(void)
     {
         // Must be 2, 4 or 5 parameters
-        const size_t paramCount = getPass2TokenCount();
+        const size_t paramCount = getRemainingTokensForAction();
         if(paramCount == 2)
         {
             if(getNextToken().tokenID == ID_VERTEXCOLOUR)
@@ -689,7 +689,7 @@ namespace Ogre {
     void MaterialScriptCompiler::parseEmissive(void)
     {
         // Must be 1, 3 or 4 parameters
-        const size_t paramCount = getPass2TokenCount();
+        const size_t paramCount = getRemainingTokensForAction();
         if (paramCount == 1) {
             if(getNextToken().tokenID == ID_VERTEXCOLOUR)
             {
@@ -776,7 +776,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseAlphaRejection(void)
     {
-        const size_t paramCount = getPass2TokenCount();
+        const size_t paramCount = getRemainingTokensForAction();
         if (paramCount != 2)
         {
             logParseError("Bad alpha_rejection attribute, wrong number of parameters (expected 2)");
@@ -913,7 +913,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parsePointSizeAttenuation(void)
 	{
-        const size_t paramCount = getPass2TokenCount();
+        const size_t paramCount = getRemainingTokensForAction();
         if (paramCount != 1 && paramCount != 4)
         {
             logParseError("Bad point_size_attenuation attribute, wrong number of parameters (expected 1 or 4)");
@@ -948,7 +948,7 @@ namespace Ogre {
 		// This params object does not have the command stripped
 		// Split only up to first delimiter, program deals with the rest
 
-		if (getPass2TokenCount() != 2)
+		if (getRemainingTokensForAction() != 2)
 		{
             logParseError("Invalid texture parameter entry; "
 				"there must be a parameter name and at least one value.");
@@ -966,7 +966,7 @@ namespace Ogre {
     void MaterialScriptCompiler::parseTextureUnit(void)
     {
         String tusName;
-        const size_t paramCount = getPass2TokenCount();
+        const size_t paramCount = getRemainingTokensForAction();
         // if params is a name then see if that texture unit exists
         // if not then log the warning and just move on to the next TU from current
         if ((paramCount > 0) && (mScriptContext.pass->getNumTextureUnitStates() > 0))
