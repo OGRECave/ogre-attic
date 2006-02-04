@@ -60,7 +60,7 @@ namespace Ogre {
 		"<PassInputDef> ::= 'input' <#id> <Label> \n"
 		// common rules
 		"<On_Off> ::= 'on' | 'off' \n"
-		"<Label> ::= <Quoted_Label> | <Unquoted_Label> \n"
+		"<Label> ::= <Unquoted_Label> | <Quoted_Label> \n"
 		"<Quoted_Label> ::= '\"' <Character> {<Alphanumeric_Space>} '\"' \n"
         "<Unquoted_Label> ::= <Character> {<Alphanumeric>} \n"
 		"<Alphanumeric_Space> ::= <Alphanumeric> | ' ' \n"
