@@ -218,7 +218,7 @@ namespace Ogre {
 	    /// Active token que, definitions, rules currntly being used by parser
         TokenState* mActiveTokenState;
         /// the location within the token instruction container where pass 2 is
-        size_t mPass2TokenPosition;
+        size_t mPass2TokenQuePosition;
         /** the que position of the previous token that had an action.
             A token's action is fired on the next token having an action.
         */
@@ -310,7 +310,12 @@ namespace Ogre {
         const String& getNextTokenLabel(void);
         /** Gets the number of tokens waiting in the instruction que that need to be processed by an token action in pass 2.
         */
-        size_t getPass2TokenCount(void) const;
+        size_t getPass2TokenQueCount(void) const;
+        /** Get the number of tokens not processed by action token.
+            Client Actions should use this method to retreive the number of parameters(tokens)
+            remaining to be processed in the action.
+        */
+        size_t getRemainingTokensForAction(void) const;
 
         /** Add a lexeme token association.  The backend compiler uses the associations between lexeme
             and token when building the rule base from the BNF script so all associations must  be done
