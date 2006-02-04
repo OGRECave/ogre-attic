@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="Demo_FacialAnimation"
-	ProjectGUID="{7576D7EA-D4C5-4e06-B46E-B9EBF78B265B}"
+	ProjectGUID="{7576D7EA-D4C5-4E06-B46E-B9EBF78B265B}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
