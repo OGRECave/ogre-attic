@@ -96,6 +96,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Node::~Node()
     {
+		// Call listener (note, only called if there's something to do)
+		if (mListener)
+		{
+			mListener->nodeDestroyed(this);
+		}
+
 		removeAllChildren();
 		if(mParent)
 			mParent->removeChild(this);
@@ -109,10 +115,22 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Node::setParent(Node* parent)
     {
+		bool different = (parent != mParent);
+
         mParent = parent;
         // Request update from parent
 		mParentNotified = false ;
         needUpdate();
+
+		// Call listener (note, only called if there's something to do)
+		if (mListener && different)
+		{
+			if (mParent)
+				mListener->nodeAttached(this);
+			else
+				mListener->nodeDetached(this);
+		}
+
     }
 
     //-----------------------------------------------------------------------

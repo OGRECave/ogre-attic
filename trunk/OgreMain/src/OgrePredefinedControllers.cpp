@@ -226,6 +226,19 @@ namespace Ogre
 		v4.x = val;
 		mParams->setConstant(mParamIndex, v4);
 	}
+	//-----------------------------------------------------------------------
+	// PassthroughControllerFunction
+	//-----------------------------------------------------------------------
+	PassthroughControllerFunction::PassthroughControllerFunction(bool delta) 
+		: ControllerFunction<Real>(delta)
+	{
+	}
+	//-----------------------------------------------------------------------
+	Real PassthroughControllerFunction::calculate(Real source)
+	{
+		return getAdjustedInput(source);
+
+	}
     //-----------------------------------------------------------------------
     // AnimationControllerFunction
     //-----------------------------------------------------------------------

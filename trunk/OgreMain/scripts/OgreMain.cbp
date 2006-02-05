@@ -1164,6 +1164,13 @@
 			<Option target="Debug"/>
 			<Option target="Release"/>
 		</Unit>
+		<Unit filename="..\include\OgreRibbonTrail.h">
+			<Option compilerVar=""/>
+			<Option compile="0"/>
+			<Option link="0"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
 		<Unit filename="..\include\OgreRoot.h">
 			<Option compilerVar=""/>
 			<Option compile="0"/>
@@ -2151,6 +2158,11 @@
 			<Option target="Release"/>
 		</Unit>
 		<Unit filename="..\src\OgreResourceManager.cpp">
+			<Option compilerVar="CPP"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
+		<Unit filename="..\src\OgreRibbonTrail.cpp">
 			<Option compilerVar="CPP"/>
 			<Option target="Debug"/>
 			<Option target="Release"/>

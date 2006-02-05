@@ -743,6 +743,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreRibbonTrail.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreRoot.cpp"
 				>
 			</File>
@@ -1541,6 +1545,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreResourceManager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreRibbonTrail.h"
 				>
 			</File>
 			<File

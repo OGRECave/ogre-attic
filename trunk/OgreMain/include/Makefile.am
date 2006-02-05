@@ -146,6 +146,7 @@ OgreResource.h \
 OgreResourceBackgroundQueue.h \
 OgreResourceGroupManager.h \
 OgreResourceManager.h \
+OgreRibbonTrail.h \
 OgreRoot.h \
 OgreRotationalSpline.h \
 OgreSceneManager.h \

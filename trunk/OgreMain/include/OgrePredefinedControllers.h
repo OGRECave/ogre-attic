@@ -158,7 +158,26 @@ namespace Ogre {
     // Controller functions
     //-----------------------------------------------------------------------
 
-    /** Predefined controller function for dealing with animation.
+	/** Predefined controller function which just passes through the original source
+	directly to dest.
+	*/
+	class _OgreExport PassthroughControllerFunction : public ControllerFunction<Real>
+	{
+	public:
+		/** Constructor.
+		@param
+		sequenceTime The amount of time in seconds it takes to loop through the whole animation sequence.
+		@param
+		timeOffset The offset in seconds at which to start (default is start at 0)
+		*/
+		PassthroughControllerFunction(bool deltaInput = false);
+
+		/** Overriden function.
+		*/
+		Real calculate(Real source);
+	};
+
+	/** Predefined controller function for dealing with animation.
     */
     class _OgreExport AnimationControllerFunction : public ControllerFunction<Real>
     {
@@ -179,7 +198,7 @@ namespace Ogre {
         Real calculate(Real source);
     };
 
-    //-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
     /** Predefined controller function which simply scales an input to an output value.
     */
     class _OgreExport ScaleControllerFunction : public ControllerFunction<Real>

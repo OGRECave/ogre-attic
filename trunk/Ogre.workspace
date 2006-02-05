@@ -2,7 +2,7 @@
 <!DOCTYPE CodeBlocks_workspace_file>
 <CodeBlocks_workspace_file>
 	<Workspace title="Ogre workspace">
-		<Project filename="OgreMain\scripts\OgreMain.cbp"/>
+		<Project filename="OgreMain\scripts\OgreMain.cbp" active="1"/>
 		<Project filename="PlatformManagers\Win32\scripts\PlatformManager_Win32.cbp"/>
 		<Project filename="PlugIns\BSPSceneManager\scripts\Plugin_BSPSceneManager.cbp"/>
 		<Project filename="PlugIns\CgProgramManager\scripts\Plugin_CgProgramManager.cbp"/>
