@@ -79,7 +79,13 @@ namespace Ogre {
 				be several state-changing calls but only one of these calls, 
 				when the node graph is fully updated.
 			*/
-			virtual void nodeUpdated(const Node* node) = 0;
+			virtual void nodeUpdated(const Node* node) {}
+			/** Node is being destroyed */
+			virtual void nodeDestroyed(const Node* node) {};
+			/** Node has been attached to a parent */
+			virtual void nodeAttached(const Node* node) {};
+			/** Node has been detached from a parent */
+			virtual void nodeDetached(const Node* node) {};
 		};
 
     protected:
@@ -584,7 +590,7 @@ namespace Ogre {
 		
 		/** Gets the current listener for this Node.
 		*/
-		virtual Listener* getListener(Listener* listener) const { return mListener; }
+		virtual Listener* getListener(void) const { return mListener; }
 		
 		/** Overridden from Renderable.
         @remarks

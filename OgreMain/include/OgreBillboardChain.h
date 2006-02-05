@@ -79,12 +79,13 @@ namespace Ogre {
 
 			Element(Vector3 position,
 				Real width,
-				Real uTexCoord,
+				Real texCoord,
 				ColourValue colour);
 
 			Vector3 position;
 			Real width;
-			Real uTexCoord;
+			/// U or V texture coord depending on options
+			Real texCoord;
 			ColourValue colour;
 
 		};
@@ -128,7 +129,39 @@ namespace Ogre {
 		/** Gets whether texture coordinate information should be included in the
 			final buffers generated.
 		*/
-		bool getUseTextureCoords(void) const { return mUseTexCoords; }
+		virtual bool getUseTextureCoords(void) const { return mUseTexCoords; }
+
+		/** The direction in which texture coordinates from elements of the
+			chain are used.
+		*/
+		enum TexCoordDirection
+		{
+			/// Tex coord in elements is treated as the 'u' texture coordinate
+			TCD_U,
+			/// Tex coord in elements is treated as the 'v' texture coordinate
+			TCD_V,
+		};
+		/** Sets the direction in which texture coords specified on each element
+			are deemed to run along the length of the chain.
+		@param dir The direction, default is TCD_U.
+		*/
+		virtual void setTextureCoordDirection(TexCoordDirection dir);
+		/** Gets the direction in which texture coords specified on each element
+			are deemed to run.
+		*/
+		virtual TexCoordDirection getTextureCoordDirection(void) { return mTexCoordDir; }
+
+		/** Set the range of the texture coordinates generated across the width of
+			the chain elements.
+		@param start Start coordinate, default 0.0
+		@param end End coordinate, default 1.0
+		*/
+		virtual void setOtherTextureCoordRange(Real start, Real end);
+		/** Get the range of the texture coordinates generated across the width of
+			the chain elements.
+		*/
+		virtual const Real* getOtherTextureCoordRange(void) const { return mOtherTexCoordRange; }
+
 		/** Sets whether vertex colour information should be included in the
 			final buffers generated.
 		@note You must use either texture coordinates or vertex colour since the
@@ -232,6 +265,10 @@ namespace Ogre {
 		/// Material 
 		String mMaterialName;
 		MaterialPtr mMaterial;
+		/// Tetxure coord direction
+		TexCoordDirection mTexCoordDir;
+		/// Other texture coord range
+		Real mOtherTexCoordRange[2];
 
 
 		/// The list holding the chain elements
@@ -267,6 +304,9 @@ namespace Ogre {
 		/// Update the contents of the index buffer
 		virtual void updateIndexBuffer(void);
 		virtual void updateBoundingBox(void) const;
+
+		/// Chain segment has no elements
+		static const size_t SEGMENT_EMPTY;
 	};
 
 

@@ -115,6 +115,7 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgreResourceBackgroundQueue.cpp \
                          OgreResourceGroupManager.cpp \
                          OgreResourceManager.cpp \
+						 OgreRibbonTrail.cpp \
                          OgreRoot.cpp \
                          OgreRotationSpline.cpp \
                          OgreSceneManager.cpp \

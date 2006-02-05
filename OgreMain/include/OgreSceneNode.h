@@ -65,10 +65,6 @@ namespace Ogre {
         /// World-Axis aligned bounding box, updated only through _update
         AxisAlignedBox mWorldAABB;
 
-        /** Tells the SceneNode to update the world bound info it stores.
-        */
-        virtual void _updateBounds(void);
-
         /** See Node. */
         Node* createChildImpl(void);
 
@@ -172,6 +168,10 @@ namespace Ogre {
                     even if it hasn't changed itself.
         */
         virtual void _update(bool updateChildren, bool parentHasChanged);
+
+		/** Tells the SceneNode to update the world bound info it stores.
+		*/
+		virtual void _updateBounds(void);
 
         /** Internal method which locates any visible objects attached to this node and adds them to the passed in queue.
             @remarks

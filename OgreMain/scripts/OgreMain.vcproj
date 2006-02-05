@@ -579,6 +579,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreResourceManager.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreRibbonTrail.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreRoot.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1196,6 +1199,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreResourceManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreRibbonTrail.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreRoot.h">

@@ -114,6 +114,7 @@ namespace Ogre
 		MovableObjectFactory* mBillboardSetFactory;
 		MovableObjectFactory* mManualObjectFactory;
 		MovableObjectFactory* mBillboardChainFactory;
+		MovableObjectFactory* mRibbonTrailFactory;
 
 		typedef std::map<String, RenderQueueInvocationSequence*> RenderQueueInvocationSequenceMap;
 		RenderQueueInvocationSequenceMap mRQSequenceMap;

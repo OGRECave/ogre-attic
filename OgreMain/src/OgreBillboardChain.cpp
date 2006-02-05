@@ -39,7 +39,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 
 namespace Ogre {
-#define NOT_VALID 0xffffffff
+	const size_t BillboardChain::SEGMENT_EMPTY = 0xffffffff;
 	//-----------------------------------------------------------------------
 	BillboardChain::Element::Element()
 	{
@@ -47,11 +47,11 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	BillboardChain::Element::Element(Vector3 _position,
 		Real _width,
-		Real _uTexCoord,
+		Real _texCoord,
 		ColourValue _colour) :
 	position(_position),
 		width(_width),
-		uTexCoord(_uTexCoord),
+		texCoord(_texCoord),
 		colour(_colour)
 	{
 	}
@@ -68,10 +68,14 @@ namespace Ogre {
 		mBuffersNeedRecreating(true),
 		mBoundsDirty(true),
 		mIndexContentDirty(true),
-		mRadius(0.0f)
+		mRadius(0.0f),
+		mTexCoordDir(TCD_U)
 	{
 		mVertexData = new VertexData();
 		mIndexData = new IndexData();
+
+		mOtherTexCoordRange[0] = 0.0f;
+		mOtherTexCoordRange[1] = 1.0f;
 
 		setupChainContainers();
 
@@ -100,7 +104,7 @@ namespace Ogre {
 		{
 			ChainSegment& seg = mChainSegmentList[i];
 			seg.start = i * mMaxElementsPerChain;
-			seg.tail = seg.head = NOT_VALID;
+			seg.tail = seg.head = SEGMENT_EMPTY;
 
 		}
 
@@ -189,6 +193,17 @@ namespace Ogre {
 		mVertexDeclDirty = mBuffersNeedRecreating = true;
 	}
 	//-----------------------------------------------------------------------
+	void BillboardChain::setTextureCoordDirection(BillboardChain::TexCoordDirection dir)
+	{
+		mTexCoordDir = dir;
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::setOtherTextureCoordRange(Real start, Real end)
+	{
+		mOtherTexCoordRange[0] = start;
+		mOtherTexCoordRange[1] = end;
+	}
+	//-----------------------------------------------------------------------
 	void BillboardChain::setUseVertexColours(bool use)
 	{
 		mUseVertexColour = use;
@@ -211,7 +226,7 @@ namespace Ogre {
 				"BillboardChain::addChainElement");
 		}
 		ChainSegment& seg = mChainSegmentList[chainIndex];
-		if (seg.head == NOT_VALID)
+		if (seg.head == SEGMENT_EMPTY)
 		{
 			// Tail starts at end, head grows backwards
 			seg.tail = mMaxElementsPerChain - 1;
@@ -239,20 +254,18 @@ namespace Ogre {
 					seg.tail = mMaxElementsPerChain - 1;
 				else
 					--seg.tail;
-
-				// Don't mark indexes as dirty since they still apply, only vertices change
-			}
-			else
-			{
-				// we added an additional entry so indexes need updating
-				mIndexContentDirty = true;
 			}
 		}
 
 		// Set the details
 		mChainElementList[seg.start + seg.head] = dtls;
 
+		mIndexContentDirty = true;
 		mBoundsDirty = true;
+		// tell parent node to update bounds
+		if (mParentNode)
+			mParentNode->needUpdate();
+
 
 	}
 	//-----------------------------------------------------------------------
@@ -265,14 +278,14 @@ namespace Ogre {
 				"BillboardChain::removeChainElement");
 		}
 		ChainSegment& seg = mChainSegmentList[chainIndex];
-		if (seg.head == NOT_VALID)
+		if (seg.head == SEGMENT_EMPTY)
 			return; // do nothing, nothing to remove
 
 
 		if (seg.tail == seg.head)
 		{
 			// last item
-			seg.head = seg.tail = NOT_VALID;
+			seg.head = seg.tail = SEGMENT_EMPTY;
 		}
 		else if (seg.tail == 0)
 		{
@@ -286,6 +299,9 @@ namespace Ogre {
 		// we removed an entry so indexes need updating
 		mIndexContentDirty = true;
 		mBoundsDirty = true;
+		// tell parent node to update bounds
+		if (mParentNode)
+			mParentNode->needUpdate();
 
 	}
 	//-----------------------------------------------------------------------
@@ -299,7 +315,7 @@ namespace Ogre {
 				"BillboardChain::updateChainElement");
 		}
 		ChainSegment& seg = mChainSegmentList[chainIndex];
-		if (seg.head == NOT_VALID)
+		if (seg.head == SEGMENT_EMPTY)
 		{
 			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
 				"Chain segment is empty",
@@ -313,6 +329,9 @@ namespace Ogre {
 		mChainElementList[idx] = dtls;
 
 		mBoundsDirty = true;
+		// tell parent node to update bounds
+		if (mParentNode)
+			mParentNode->needUpdate();
 
 
 	}
@@ -396,7 +415,7 @@ namespace Ogre {
 			ChainSegment& seg = *segi;
 
 			// Skip 0 or 1 element segment counts
-			if (seg.head != NOT_VALID && seg.head != seg.tail)
+			if (seg.head != SEGMENT_EMPTY && seg.head != seg.tail)
 			{
 				size_t laste = seg.head;
 				for (size_t e = seg.head; ; ++e) // until break
@@ -463,8 +482,16 @@ namespace Ogre {
 					if (mUseTexCoords)
 					{
 						pFloat = static_cast<float*>(pBase);
-						*pFloat++ = elem.uTexCoord;
-						*pFloat++ = 0;
+						if (mTexCoordDir == TCD_U)
+						{
+							*pFloat++ = elem.texCoord;
+							*pFloat++ = mOtherTexCoordRange[0];
+						}
+						else
+						{
+							*pFloat++ = mOtherTexCoordRange[0];
+							*pFloat++ = elem.texCoord;
+						}
 						pBase = static_cast<void*>(pFloat);
 					}
 
@@ -486,8 +513,16 @@ namespace Ogre {
 					if (mUseTexCoords)
 					{
 						pFloat = static_cast<float*>(pBase);
-						*pFloat++ = elem.uTexCoord;
-						*pFloat++ = 1;
+						if (mTexCoordDir == TCD_U)
+						{
+							*pFloat++ = elem.texCoord;
+							*pFloat++ = mOtherTexCoordRange[1];
+						}
+						else
+						{
+							*pFloat++ = mOtherTexCoordRange[1];
+							*pFloat++ = elem.texCoord;
+						}
 						pBase = static_cast<void*>(pFloat);
 					}
 
@@ -525,7 +560,7 @@ namespace Ogre {
 				ChainSegment& seg = *segi;
 
 				// Skip 0 or 1 element segment counts
-				if (seg.head != NOT_VALID && seg.head != seg.tail)
+				if (seg.head != SEGMENT_EMPTY && seg.head != seg.tail)
 				{
 					// Start from head + 1 since it's only useful in pairs
 					size_t laste = seg.head;

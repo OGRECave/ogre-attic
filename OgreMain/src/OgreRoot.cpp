@@ -56,6 +56,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreEntity.h"
 #include "OgreBillboardSet.h"
 #include "OgreBillboardChain.h"
+#include "OgreRibbonTrail.h"
 #include "OgreLight.h"
 #include "OgreManualObject.h"
 #include "OgreRenderQueueInvocation.h"
@@ -224,6 +225,8 @@ namespace Ogre {
 		addMovableObjectFactory(mManualObjectFactory);
 		mBillboardChainFactory = new BillboardChainFactory();
 		addMovableObjectFactory(mBillboardChainFactory);
+		mRibbonTrailFactory = new RibbonTrailFactory();
+		addMovableObjectFactory(mRibbonTrailFactory);
 
 		// Load plugins
         if (!pluginFileName.empty())
@@ -284,6 +287,7 @@ namespace Ogre {
 		delete mBillboardSetFactory;
 		delete mManualObjectFactory;
 		delete mBillboardChainFactory;
+		delete mRibbonTrailFactory;
 
 
         mPlatformManager->destroyTimer(mTimer);
