@@ -47,12 +47,11 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	RibbonTrail::RibbonTrail(const String& name, size_t maxElements, 
 		size_t numberOfChains, bool useTextureCoords, bool useColours)
-		:BillboardChain(name, maxElements, numberOfChains, useTextureCoords, useColours, true)
-		, mInitialColour(ColourValue::White), mFading(false), 
-		mDeltaColour(ColourValue::Black), mInitialWidth(10), mDeltaWidth(0),
+		:BillboardChain(name, maxElements, numberOfChains, useTextureCoords, useColours, true),
 		mFadeController(0)
 	{
 		setTrailLength(100);
+		setNumberOfChains(numberOfChains);
 		mTimeControllerValue = ControllerValueRealPtr(new TimeControllerValue(this));
 
 		// use V as varying texture coord, so we can use 1D textures to 'smear'
@@ -90,7 +89,8 @@ namespace Ogre
 		// set up this segment
 		seg.head = seg.tail = SEGMENT_EMPTY;
 		// Create new element, v coord is always 0.0f
-		Element e(n->_getDerivedPosition(), mInitialWidth, 0.0f, mInitialColour);
+		Element e(n->_getDerivedPosition(), 
+			mInitialWidth[segIdx], 0.0f, mInitialColour[segIdx]);
 		// Add the start position
 		addChainElement(segIdx, e);
 		// Add another on the same spot, this will extend
@@ -129,49 +129,141 @@ namespace Ogre
 		BillboardChain::setMaxChainElements(maxElements);
 		mElemLength = mTrailLength / mMaxElementsPerChain;
 		mSquaredElemLength = mElemLength * mElemLength;
+	}
+	//-----------------------------------------------------------------------
+	void RibbonTrail::setNumberOfChains(size_t numChains)
+	{
+		size_t startInit = mChainCount;
 
+		BillboardChain::setNumberOfChains(numChains);
+		mInitialColour.resize(numChains);
+		mInitialWidth.resize(numChains);
+		mDeltaWidth.resize(numChains);
+		mDeltaColour.resize(numChains);
+
+		for (size_t i = startInit; i < mChainCount; ++i)
+		{
+			mInitialColour[i] = ColourValue::White;
+			mDeltaColour[i] = ColourValue::Black;
+			mInitialWidth[i] = 10;
+			mDeltaWidth[i] = 0;
+		}
 	}
 	//-----------------------------------------------------------------------
-	void RibbonTrail::setInitialColour(const ColourValue& col)
+	void RibbonTrail::setInitialColour(size_t chainIndex, const ColourValue& col)
 	{
-		setInitialColour(col.r, col.g, col.b, col.a);
+		setInitialColour(chainIndex, col.r, col.g, col.b, col.a);
 	}
 	//-----------------------------------------------------------------------
-	void RibbonTrail::setInitialColour(Real r, Real g, Real b, Real a)
+	void RibbonTrail::setInitialColour(size_t chainIndex, Real r, Real g, Real b, Real a)
 	{
-		mInitialColour.r = r;
-		mInitialColour.g = g;
-		mInitialColour.b = b;
-		mInitialColour.a = a;
+		if (chainIndex >= mChainCount)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"chainIndex out of bounds", "RibbonTrail::setInitialColour");
+		}
+		mInitialColour[chainIndex].r = r;
+		mInitialColour[chainIndex].g = g;
+		mInitialColour[chainIndex].b = b;
+		mInitialColour[chainIndex].a = a;
 	}
 	//-----------------------------------------------------------------------
-	void RibbonTrail::setFading(bool enabled, const ColourValue& valuePerSecond)
+	const ColourValue& RibbonTrail::getInitialColour(size_t chainIndex) const
 	{
-		setFading(enabled, 
+		if (chainIndex >= mChainCount)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"chainIndex out of bounds", "RibbonTrail::getInitialColour");
+		}
+		return mInitialColour[chainIndex];
+	}
+	//-----------------------------------------------------------------------
+	void RibbonTrail::setInitialWidth(size_t chainIndex, Real width)
+	{
+		if (chainIndex >= mChainCount)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"chainIndex out of bounds", "RibbonTrail::setInitialWidth");
+		}
+		mInitialWidth[chainIndex] = width;
+	}
+	//-----------------------------------------------------------------------
+	Real RibbonTrail::getInitialWidth(size_t chainIndex) const
+	{
+		if (chainIndex >= mChainCount)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"chainIndex out of bounds", "RibbonTrail::getInitialWidth");
+		}
+		return mInitialWidth[chainIndex];
+	}
+	//-----------------------------------------------------------------------
+	void RibbonTrail::setColourChange(size_t chainIndex, const ColourValue& valuePerSecond)
+	{
+		setColourChange(chainIndex, 
 			valuePerSecond.r, valuePerSecond.g, valuePerSecond.b, valuePerSecond.a);
 	}
 	//-----------------------------------------------------------------------
-	void RibbonTrail::setFading(bool enabled, Real r, Real g, Real b, Real a)
+	void RibbonTrail::setColourChange(size_t chainIndex, Real r, Real g, Real b, Real a)
 	{
-		mFading = enabled;
-		mDeltaColour.r = r;
-		mDeltaColour.g = g;
-		mDeltaColour.b = b;
-		mDeltaColour.a = a;
+		if (chainIndex >= mChainCount)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"chainIndex out of bounds", "RibbonTrail::setColourChange");
+		}
+		mDeltaColour[chainIndex].r = r;
+		mDeltaColour[chainIndex].g = g;
+		mDeltaColour[chainIndex].b = b;
+		mDeltaColour[chainIndex].a = a;
 
 		manageController();
 
 	}
 	//-----------------------------------------------------------------------
-	void RibbonTrail::setWidthChange(Real widthDeltaPerSecond)
+	const ColourValue& RibbonTrail::getColourChange(size_t chainIndex) const
 	{
-		mDeltaWidth = widthDeltaPerSecond;
+		if (chainIndex >= mChainCount)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"chainIndex out of bounds", "RibbonTrail::getColourChange");
+		}
+		return mDeltaColour[chainIndex];
+	}
+	//-----------------------------------------------------------------------
+	void RibbonTrail::setWidthChange(size_t chainIndex, Real widthDeltaPerSecond)
+	{
+		if (chainIndex >= mChainCount)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"chainIndex out of bounds", "RibbonTrail::setWidthChange");
+		}
+		mDeltaWidth[chainIndex] = widthDeltaPerSecond;
 		manageController();
+	}
+	//-----------------------------------------------------------------------
+	Real RibbonTrail::getWidthChange(size_t chainIndex) const
+	{
+		if (chainIndex >= mChainCount)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"chainIndex out of bounds", "RibbonTrail::getWidthChange");
+		}
+		return mDeltaWidth[chainIndex];
+
 	}
 	//-----------------------------------------------------------------------
 	void RibbonTrail::manageController(void)
 	{
-		if (!mFadeController && (mFading || mDeltaWidth))
+		bool needController = false;
+		for (size_t i = 0; i < mChainCount; ++i)
+		{
+			if (mDeltaWidth[i] != 0 || mDeltaColour[i] != ColourValue::Black)
+			{
+				needController = true;
+				break;
+			}
+		}
+		if (!mFadeController && needController)
 		{
 			// Set up fading via frame time controller
 			ControllerManager& mgr = ControllerManager::getSingleton();
@@ -179,7 +271,7 @@ namespace Ogre
 			mFadeController = mgr.createController(
 				mgr.getFrameTimeSource(), mTimeControllerValue, func);
 		}
-		else if (mFadeController && (!mFading && !mDeltaWidth))
+		else if (mFadeController && !needController)
 		{
 			// destroy controller
 			ControllerManager::getSingleton().destroyController(mFadeController);
@@ -228,7 +320,7 @@ namespace Ogre
 			Vector3 scaledDiff = diff * (mElemLength / Math::Sqrt(sqlen));
 			headElem.position = nextElem.position + scaledDiff;
 			// Add a new element to be the new head
-			Element newElem(newPos, mInitialWidth, 0.0f, mInitialColour);
+			Element newElem(newPos, mInitialWidth[index], 0.0f, mInitialColour[index]);
 			addChainElement(index, newElem);
 			// alter diff to represent new head size
 			diff = newPos - newElem.position;
@@ -278,7 +370,33 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void RibbonTrail::_timeUpdate(Real time)
 	{
-		// TODO
+		// Apply all segment effects
+		for (size_t s = 0; s < mChainSegmentList.size(); ++s)
+		{
+			ChainSegment& seg = mChainSegmentList[s];
+			if (seg.head != SEGMENT_EMPTY && seg.head != seg.tail)
+			{
+				
+				for(size_t e = seg.head + 1;; ++e) // until break
+				{
+					e = e % mMaxElementsPerChain;
+
+					Element& elem = mChainElementList[seg.start + e];
+					elem.width = elem.width - (time * mDeltaWidth[s]);
+					elem.width = std::max(0.0f, elem.width);
+					elem.colour = elem.colour - (mDeltaColour[s] * time);
+					elem.colour.r = std::max(0.0f, elem.colour.r);
+					elem.colour.g = std::max(0.0f, elem.colour.g);
+					elem.colour.b = std::max(0.0f, elem.colour.b);
+					elem.colour.a = std::max(0.0f, elem.colour.a);
+
+					if (e == seg.tail)
+						break;
+					
+				}
+			}
+
+		}
 
 	}
 	//-----------------------------------------------------------------------

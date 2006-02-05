@@ -99,48 +99,56 @@ namespace Ogre {
 
 		/** @copydoc BillboardChain::setMaxChainElements */
 		void setMaxChainElements(size_t maxElements);
+		/** @copydoc BillboardChain::setNumberOfChains */
+		void setNumberOfChains(size_t numChains);
 
-		/** Set the starting ribbon colour. 
+		/** Set the starting ribbon colour for a given segment. 
+		@param chainIndex The index of the chain
+		@param col The initial colour
 		@note
 			Only used if this instance is using vertex colours.
 		*/
-		virtual void setInitialColour(const ColourValue& col);
+		virtual void setInitialColour(size_t chainIndex, const ColourValue& col);
 		/** Set the starting ribbon colour. 
+		@param chainIndex The index of the chain
+		@param r,b,g,a The initial colour
 		@note
 			Only used if this instance is using vertex colours.
 		*/
-		virtual void setInitialColour(Real r, Real g, Real b, Real a = 1.0);
+		virtual void setInitialColour(size_t chainIndex, Real r, Real g, Real b, Real a = 1.0);
 		/** Get the starting ribbon colour. */
-		virtual const ColourValue& getInitialColour(void) const { return mInitialColour; }
+		virtual const ColourValue& getInitialColour(size_t chainIndex) const;
 
 		/** Enables / disables fading the trail using colour. 
-		@param enabled Whether to enable Colour fading
+		@param chainIndex The index of the chain
 		@param valuePerSecond The amount to subtract from colour each second
 		*/
-		virtual void setFading(bool enabled, 
-			const ColourValue& valuePerSecond = ColourValue::Black);
+		virtual void setColourChange(size_t chainIndex, const ColourValue& valuePerSecond);
 
-		/** Set the starting ribbon width in world units. */
-		virtual void setInitialWidth(Real width) { mInitialWidth = width; }
+		/** Set the starting ribbon width in world units. 
+		@param chainIndex The index of the chain
+		@param width The initial width of the ribbon
+		*/
+		virtual void setInitialWidth(size_t chainIndex, Real width);
 		/** Get the starting ribbon width in world units. */
-		virtual Real getInitialWidth(void) const { return mInitialWidth; }
+		virtual Real getInitialWidth(size_t chainIndex) const;
 		
-		/** Set the change in ribbon width per second. */
-		virtual void setWidthChange(Real widthDeltaPerSecond);
+		/** Set the change in ribbon width per second. 
+		@param chainIndex The index of the chain
+		@param widthDeltaPerSecond The amount the width will reduce by per second
+		*/
+		virtual void setWidthChange(size_t chainIndex, Real widthDeltaPerSecond);
 		/** Get the change in ribbon width per second. */
-		virtual Real getWidthChange(void) const { return mDeltaWidth; }
+		virtual Real getWidthChange(size_t chainIndex) const;
 
 		/** Enables / disables fading the trail using colour. 
-		@param enabled Whether to enable Colour fading
+		@param chainIndex The index of the chain
 		@param r,g,b,a The amount to subtract from each colour channel per second
 		*/
-		virtual void setFading(bool enabled, Real r = 0, Real g = 0, Real b = 0, Real a = 0);
-
-		/** Are we using fading? */
-		virtual bool isFadingEnabled(void) const { return mFading; }
+		virtual void setColourChange(size_t chainIndex, Real r, Real g, Real b, Real a);
 
 		/** Get the per-second fading amount */
-		virtual const ColourValue& getFadeAmount(void) const { return mDeltaColour; }
+		virtual const ColourValue& getColourChange(size_t chainIndex) const;
 
 		/// @see Node::Listener::nodeUpdated
 		void nodeUpdated(const Node* node);
@@ -159,16 +167,16 @@ namespace Ogre {
 		Real mElemLength;
 		/// Squared length of each element
 		Real mSquaredElemLength;
+		typedef std::vector<ColourValue> ColourValueList;
+		typedef std::vector<Real> RealList;
 		/// Initial colour of the ribbon
-		ColourValue mInitialColour;
-		/// fading flag
-		bool mFading;
+		ColourValueList mInitialColour;
 		/// fade amount per second
-		ColourValue mDeltaColour;
+		ColourValueList mDeltaColour;
 		/// Initial width of the ribbon
-		Real mInitialWidth;
+		RealList mInitialWidth;
 		/// Delta width of the ribbon
-		Real mDeltaWidth;
+		RealList mDeltaWidth;
 		/// controller used to hook up frame time to fader
 		Controller<Real>* mFadeController;
 		/// controller value for hooking up frame time to fader
