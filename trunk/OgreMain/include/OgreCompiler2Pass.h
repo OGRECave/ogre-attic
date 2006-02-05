@@ -423,6 +423,9 @@ namespace Ogre {
         // no matter how many times this class is instantiated.
         static TokenState mBNFTokenState;
 
+        /// if a previous token action was setup then activate it now
+        void activatePreviousTokenAction(void);
+        /// initialize token definitions and rule paths
         void initBNFCompiler(void);
         /// Convert BNF grammer token que created in pass 1 into a BNF rule path
         void buildClientBNFRulePaths(void);
