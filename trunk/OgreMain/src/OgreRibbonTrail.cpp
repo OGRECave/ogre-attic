@@ -230,6 +230,8 @@ namespace Ogre
 			// Add a new element to be the new head
 			Element newElem(newPos, mInitialWidth, 0.0f, mInitialColour);
 			addChainElement(index, newElem);
+			// alter diff to represent new head size
+			diff = newPos - newElem.position;
 
 		}
 		else
@@ -237,7 +239,30 @@ namespace Ogre
 			// Extend existing head
 			headElem.position = newPos;
 		}
-		// TODO shorten tail as we extend head
+
+		// Is this segment full?
+		if ((seg.tail + 1) % mMaxElementsPerChain == seg.head)
+		{
+			// If so, shrink tail gradually to match head extension
+			Element& tailElem = mChainElementList[seg.start + seg.tail];
+			size_t preTailIdx;
+			if (seg.tail == 0)
+				preTailIdx = mMaxElementsPerChain - 1;
+			else
+				preTailIdx = seg.tail - 1;
+			Element& preTailElem = mChainElementList[seg.start + preTailIdx];
+
+			// Measure tail diff from pretail to tail
+			Vector3 taildiff = tailElem.position - preTailElem.position;
+			Real taillen = taildiff.length();
+			if (taillen > 1e-06)
+			{
+				Real tailsize = mElemLength - diff.length();
+				taildiff *= tailsize / taillen;
+				tailElem.position = preTailElem.position + taildiff;
+			}
+
+		}
 
 
 		mBoundsDirty = true;
@@ -248,9 +273,6 @@ namespace Ogre
 		{
 			Node::queueNeedUpdate(getParentSceneNode());
 		}
-
-
-
 
 	}
 	//-----------------------------------------------------------------------
