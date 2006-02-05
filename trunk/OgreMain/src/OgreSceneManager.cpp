@@ -1404,6 +1404,9 @@ MeshPtr SceneManager::createSkydomePlane(
 //-----------------------------------------------------------------------
 void SceneManager::_updateSceneGraph(Camera* cam)
 {
+	// Process queued needUpdate calls 
+	Node::processQueuedUpdates();
+
     // Cascade down the graph updating transforms & world bounds
     // In this implementation, just update from the root
     // Smarter SceneManager subclasses may choose to update only
