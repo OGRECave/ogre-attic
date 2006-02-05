@@ -353,6 +353,12 @@ namespace Ogre {
 	    bool passed = processRulePath(0);
 	    // if a lexeme in source still exists then the end of source was not reached and there was a problem some where
 	    if (positionToNextLexeme()) passed = false;
+        if (passed)
+        {
+            // special condition at end of script.  The last action needs to be triggered if
+            // parsing reached the end of the source.
+            activatePreviousTokenAction();
+        }
 
 	    return passed;
 
@@ -941,24 +947,28 @@ namespace Ogre {
         if (mActiveTokenState->lexemeTokenDefinitions.at(lastTokenID).hasAction)
         {
             // only activate the action belonging to the token found previously
-            // get the token definition of the previouse token action
-            const size_t previousTokenID = mActiveTokenState->tokenQue.at(mPreviousActionQuePosition).tokenID;
-            const LexemeTokenDef& tokenDef = mActiveTokenState->lexemeTokenDefinitions.at(previousTokenID);
-            if (tokenDef.hasAction)
-            {
-                // set the current pass 2 token que position to previous action que position
-                // assume that pass 2 processing will use tokens downstream
-                mPass2TokenQuePosition = mPreviousActionQuePosition;
-                executeTokenAction(previousTokenID);
-            }
+            activatePreviousTokenAction();
             // current token action now becomes the previous one
             mPreviousActionQuePosition = lastTokenQuePos;
         }
-
     }
+    //-----------------------------------------------------------------------
 
     //-----------------------------------------------------------------------
     //              Private Methods
+    //-----------------------------------------------------------------------
+    void Compiler2Pass::activatePreviousTokenAction(void)
+    {
+        const size_t previousTokenID = mActiveTokenState->tokenQue.at(mPreviousActionQuePosition).tokenID;
+        const LexemeTokenDef& tokenDef = mActiveTokenState->lexemeTokenDefinitions.at(previousTokenID);
+        if (tokenDef.hasAction)
+        {
+            // set the current pass 2 token que position to previous action que position
+            // assume that pass 2 processing will use tokens downstream
+            mPass2TokenQuePosition = mPreviousActionQuePosition;
+            executeTokenAction(previousTokenID);
+        }
+    }
     //-----------------------------------------------------------------------
     void Compiler2Pass::buildClientBNFRulePaths(void)
     {
