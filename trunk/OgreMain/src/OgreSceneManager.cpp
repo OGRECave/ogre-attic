@@ -2918,11 +2918,11 @@ void SceneManager::updateRenderQueueSplitOptions(void)
 	if (isShadowTechniqueAdditive() && mCurrentViewport->getShadowsEnabled())
 	{
 		// Additive lighting, we need to split everything by illumination stage
-		getRenderQueue()->setSplitPassesByLightingType(true, isShadowTechniqueTextureBased());
+		getRenderQueue()->setSplitPassesByLightingType(true);
 	}
 	else
 	{
-		getRenderQueue()->setSplitPassesByLightingType(false, false);
+		getRenderQueue()->setSplitPassesByLightingType(false);
 	}
 
 	if (isShadowTechniqueInUse() && mCurrentViewport->getShadowsEnabled())
@@ -2955,11 +2955,11 @@ void SceneManager::updateRenderQueueGroupSplitOptions(RenderQueueGroup* group,
 		isShadowTechniqueAdditive())
 	{
 		// Additive lighting, we need to split everything by illumination stage
-		group->setSplitPassesByLightingType(true, isShadowTechniqueTextureBased());
+		group->setSplitPassesByLightingType(true);
 	}
 	else
 	{
-		group->setSplitPassesByLightingType(false, false);
+		group->setSplitPassesByLightingType(false);
 	}
 
 	if (!suppressShadows && mCurrentViewport->getShadowsEnabled() 
