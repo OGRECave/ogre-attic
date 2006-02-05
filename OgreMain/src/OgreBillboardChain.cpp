@@ -219,6 +219,7 @@ namespace Ogre {
 	void BillboardChain::addChainElement(size_t chainIndex,
 		const BillboardChain::Element& dtls)
 	{
+
 		if (chainIndex >= mChainCount)
 		{
 			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
@@ -265,7 +266,6 @@ namespace Ogre {
 		// tell parent node to update bounds
 		if (mParentNode)
 			mParentNode->needUpdate();
-
 
 	}
 	//-----------------------------------------------------------------------
@@ -366,18 +366,25 @@ namespace Ogre {
 			{
 				const ChainSegment& seg = *segi;
 
-				for(size_t e = seg.head; e != seg.tail; ++e)
+				if (seg.head != SEGMENT_EMPTY)
 				{
-					// Wrap forwards
-					if (e == mMaxElementsPerChain)
-						e = 0;
 
-					const Element& elem = mChainElementList[seg.start + e];
+					for(size_t e = seg.head; ; ++e) // until break
+					{
+						// Wrap forwards
+						if (e == mMaxElementsPerChain)
+							e = 0;
 
-					widthVector.x = widthVector.y = widthVector.z = elem.width;
-					mAABB.merge(elem.position - widthVector);
-					mAABB.merge(elem.position + widthVector);
+						const Element& elem = mChainElementList[seg.start + e];
 
+						widthVector.x = widthVector.y = widthVector.z = elem.width;
+						mAABB.merge(elem.position - widthVector);
+						mAABB.merge(elem.position + widthVector);
+
+						if (e == seg.tail)
+							break;
+
+					}
 				}
 
 			}

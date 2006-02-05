@@ -215,6 +215,9 @@ namespace Ogre {
 		/** Node listener - only one allowed (no list) for size & performance reasons. */
 		Listener* mListener;
 
+		typedef std::vector<Node*> QueuedUpdates;
+		static QueuedUpdates msQueuedUpdates;
+
 
     public:
         /** Constructor, should only be called by parent, not directly.
@@ -663,12 +666,28 @@ namespace Ogre {
         @remarks
             This not only tags the node state as being 'dirty', it also requests it's parent to 
             know about it's dirtiness so it will get an update next time.
+		@param forceParentUpdate Even if the node thinks it has already told it's
+			parent, tell it anyway
         */
-        virtual void needUpdate();
-        /** Called by children to notify their parent that they need an update. */
-        virtual void requestUpdate(Node* child);
+        virtual void needUpdate(bool forceParentUpdate = false);
+        /** Called by children to notify their parent that they need an update. 
+		@param forceParentUpdate Even if the node thinks it has already told it's
+			parent, tell it anyway
+		*/
+        virtual void requestUpdate(Node* child, bool forceParentUpdate = false);
         /** Called by children to notify their parent that they no longer need an update. */
         virtual void cancelUpdate(Node* child);
+
+		/** Queue a 'needUpdate' call to a node safely.
+		@ramarks
+			You can't call needUpdate() during the scene graph update, e.g. in
+			response to a Node::Listener hook, because the graph is already being 
+			updated, and update flag changes cannot be made reliably in that context. 
+			Call this method if you need to queue a needUpdate call in this case.
+		*/
+		static void queueNeedUpdate(Node* n);
+		/** Process queued 'needUpdate' calls. */
+		static void processQueuedUpdates(void);
 
         /** @copydoc Renderable::getLights */
         const LightList& getLights(void) const;

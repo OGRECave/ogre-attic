@@ -38,6 +38,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     unsigned long Node::msNextGeneratedNameExt = 1;
+	Node::QueuedUpdates Node::msQueuedUpdates;
     //-----------------------------------------------------------------------
     Node::Node()
 		:mParent(0),
@@ -810,7 +811,7 @@ namespace Ogre {
         return diff.squaredLength();
     }
     //-----------------------------------------------------------------------
-    void Node::needUpdate()
+    void Node::needUpdate(bool forceParentUpdate)
     {
 
         mNeedParentUpdate = true;
@@ -818,9 +819,9 @@ namespace Ogre {
         mCachedTransformOutOfDate = true;
 
         // Make sure we're not root and parent hasn't been notified before
-        if (mParent && !mParentNotified)
+        if (mParent && (!mParentNotified || forceParentUpdate))
         {
-            mParent->requestUpdate(this);
+            mParent->requestUpdate(this, forceParentUpdate);
 			mParentNotified = true ;
         }
 
@@ -828,7 +829,7 @@ namespace Ogre {
         mChildrenToUpdate.clear();
     }
     //-----------------------------------------------------------------------
-    void Node::requestUpdate(Node* child)
+    void Node::requestUpdate(Node* child, bool forceParentUpdate)
     {
         // If we're already going to update everything this doesn't matter
         if (mNeedChildUpdate)
@@ -838,8 +839,9 @@ namespace Ogre {
 
         mChildrenToUpdate.insert(child);
         // Request selective update of me, if we didn't do it before
-        if (mParent && !mParentNotified) {
-            mParent->requestUpdate(this);
+        if (mParent && (!mParentNotified || forceParentUpdate))
+		{
+            mParent->requestUpdate(this, forceParentUpdate);
 			mParentNotified = true ;
 		}
 
@@ -856,6 +858,23 @@ namespace Ogre {
 			mParentNotified = false ;
         }
     }
+	//-----------------------------------------------------------------------
+	void Node::queueNeedUpdate(Node* n)
+	{
+		msQueuedUpdates.push_back(n);
+	}
+	//-----------------------------------------------------------------------
+	void Node::processQueuedUpdates(void)
+	{
+		for (QueuedUpdates::iterator i = msQueuedUpdates.begin();
+			i != msQueuedUpdates.end(); ++i)
+		{
+			// Update, and force parent update since chances are we've ended
+			// up with some mixed state in there due to re-entrancy
+			(*i)->needUpdate(true);
+		}
+		msQueuedUpdates.clear();
+	}
     //-----------------------------------------------------------------------
     const LightList& Node::getLights(void) const
     {
