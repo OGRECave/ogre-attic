@@ -635,7 +635,7 @@ namespace Ogre {
         _notifyNeedsRecompile();
     }
     //-----------------------------------------------------------------------
-    void Technique::_compileIlluminationPasses(bool preservingAlphaRejection)
+    void Technique::_compileIlluminationPasses(void)
     {
         clearIlluminationPasses();
 
@@ -671,13 +671,11 @@ namespace Ogre {
                     // Split off any ambient part
                     if (p->getAmbient() != ColourValue::Black ||
                         p->getSelfIllumination() != ColourValue::Black ||
-                        (preservingAlphaRejection &&
-                         p->getAlphaRejectFunction() != CMPF_ALWAYS_PASS))
+                        p->getAlphaRejectFunction() != CMPF_ALWAYS_PASS)
                     {
                         // Copy existing pass
                         Pass* newPass = new Pass(this, p->getIndex(), *p);
-                        if (preservingAlphaRejection &&
-                            newPass->getAlphaRejectFunction() != CMPF_ALWAYS_PASS)
+                        if (newPass->getAlphaRejectFunction() != CMPF_ALWAYS_PASS)
                         {
                             // Alpha rejection passes must retain their transparency, so
                             // we allow the texture units, but override the colour functions
@@ -752,8 +750,7 @@ namespace Ogre {
                     {
                         // Copy existing pass
                         Pass* newPass = new Pass(this, p->getIndex(), *p);
-                        if (preservingAlphaRejection &&
-                            newPass->getAlphaRejectFunction() != CMPF_ALWAYS_PASS)
+                        if (newPass->getAlphaRejectFunction() != CMPF_ALWAYS_PASS)
                         {
                             // Alpha rejection passes must retain their transparency, so
                             // we allow the texture units, but override the colour functions
@@ -854,16 +851,15 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     const Technique::IlluminationPassIterator 
-    Technique::getIlluminationPassIterator(bool preservingAlphaRejection)
+    Technique::getIlluminationPassIterator(void)
     {
-        IlluminationPassesState targetState =
-            preservingAlphaRejection ? IPS_COMPILED_WITH_ALPHA_REJECTION : IPS_COMPILED;
+        IlluminationPassesState targetState = IPS_COMPILED;
         if (mIlluminationPassesCompilationPhase != targetState)
         {
             // prevents parent->_notifyNeedsRecompile() call during compile
             mIlluminationPassesCompilationPhase = IPS_COMPILE_DISABLED;
             // Splitting the passes into illumination passes
-            _compileIlluminationPasses(preservingAlphaRejection);
+            _compileIlluminationPasses();
             // Mark that illumination passes compilation finished
             mIlluminationPassesCompilationPhase = targetState;
         }

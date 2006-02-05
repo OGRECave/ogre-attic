@@ -87,7 +87,6 @@ namespace Ogre {
         ushort mDefaultRenderablePriority;
 
         bool mSplitPassesByLightingType;
-        bool mSplitPreservingAlphaRejection;
         bool mSplitNoShadowPasses;
 		bool mShadowCastersCannotBeReceivers;
     public:
@@ -190,7 +189,7 @@ namespace Ogre {
         /** Sets whether or not the queue will split passes by their lighting type,
             ie ambient, per-light and decal. 
         */
-        void setSplitPassesByLightingType(bool split, bool preservingAlphaRejection);
+        void setSplitPassesByLightingType(bool split);
         /** Sets whether or not the queue will split passes which have shadow receive
         turned off (in their parent material), which is needed when certain shadow
         techniques are used.

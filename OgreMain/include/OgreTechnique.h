@@ -46,8 +46,7 @@ namespace Ogre {
         {
             IPS_COMPILE_DISABLED = -1,
             IPS_NOT_COMPILED = 0,
-            IPS_COMPILED = 1,
-            IPS_COMPILED_WITH_ALPHA_REJECTION = 2
+            IPS_COMPILED = 1
         };
 
         typedef std::vector<Pass*> Passes;
@@ -78,7 +77,7 @@ namespace Ogre {
         /** Internal compilation method; see Material::compile. */
         void _compile(bool autoManageTextureUnits);
         /** Internal method for splitting the passes into illumination passes. */        
-        void _compileIlluminationPasses(bool preservingAlphaRejection);
+        void _compileIlluminationPasses(void);
 
 
         /** Creates a new Pass for this Technique.
@@ -113,7 +112,7 @@ namespace Ogre {
         const PassIterator getPassIterator(void);
         typedef VectorIterator<IlluminationPassList> IlluminationPassIterator;
         /** Gets an iterator over the illumination-stage categorised passes. */
-        const IlluminationPassIterator getIlluminationPassIterator(bool preservingAlphaRejection);
+        const IlluminationPassIterator getIlluminationPassIterator(void);
         /// Gets the parent Material
         Material* getParent(void) const { return mParent; }
 

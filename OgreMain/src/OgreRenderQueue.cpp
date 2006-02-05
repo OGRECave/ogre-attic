@@ -36,7 +36,6 @@ namespace Ogre {
     //---------------------------------------------------------------------
     RenderQueue::RenderQueue()
         : mSplitPassesByLightingType(false)
-        , mSplitPreservingAlphaRejection(false)
 		, mSplitNoShadowPasses(false)
         , mShadowCastersCannotBeReceivers(false)
     {
@@ -46,7 +45,6 @@ namespace Ogre {
                 RENDER_QUEUE_MAIN, 
                 new RenderQueueGroup(this,
                     mSplitPassesByLightingType,
-                    mSplitPreservingAlphaRejection,
                     mSplitNoShadowPasses,
                     mShadowCastersCannotBeReceivers)
                 )
@@ -159,7 +157,6 @@ namespace Ogre {
 			// Insert new
 			pGroup = new RenderQueueGroup(this,
                 mSplitPassesByLightingType,
-                mSplitPreservingAlphaRejection,
                 mSplitNoShadowPasses,
                 mShadowCastersCannotBeReceivers);
 			mGroups.insert(RenderQueueGroupMap::value_type(groupID, pGroup));
@@ -173,17 +170,16 @@ namespace Ogre {
 
 	}
     //-----------------------------------------------------------------------
-    void RenderQueue::setSplitPassesByLightingType(bool split, bool preservingAlphaRejection)
+    void RenderQueue::setSplitPassesByLightingType(bool split)
     {
         mSplitPassesByLightingType = split;
-        mSplitPreservingAlphaRejection = preservingAlphaRejection;
 
         RenderQueueGroupMap::iterator i, iend;
         i = mGroups.begin();
         iend = mGroups.end();
         for (; i != iend; ++i)
         {
-            i->second->setSplitPassesByLightingType(split, preservingAlphaRejection);
+            i->second->setSplitPassesByLightingType(split);
         }
     }
     //-----------------------------------------------------------------------
