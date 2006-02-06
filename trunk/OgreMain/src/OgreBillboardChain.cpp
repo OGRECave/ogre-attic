@@ -412,8 +412,13 @@ namespace Ogre {
 			mVertexData->vertexBufferBinding->getBuffer(0);
 		void* pBufferStart = pBuffer->lock(HardwareBuffer::HBL_DISCARD);
 
+		Vector3 camPos = cam->getDerivedPosition();
+		if (cam->isReflected())
+		{
+			camPos = cam->getReflectionMatrix() * camPos;
+		}
 		Vector3 eyePos = mParentNode->_getDerivedOrientation().Inverse() *
-			(cam->getDerivedPosition() - mParentNode->_getDerivedPosition());
+			(camPos - mParentNode->_getDerivedPosition());
 
 		Vector3 chainTangent;
 		for (ChainSegmentList::iterator segi = mChainSegmentList.begin();
@@ -433,7 +438,6 @@ namespace Ogre {
 
 					Element& elem = mChainElementList[e + seg.start];
 					uint16 baseIdx = (e + seg.start) * 2;
-					uint16 lastBaseIdx = (laste + seg.start) * 2;
 
 					// Determine base pointer to vertex #1
 					void* pBase = static_cast<void*>(
