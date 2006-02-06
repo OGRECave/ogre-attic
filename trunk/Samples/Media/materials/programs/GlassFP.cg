@@ -1,5 +1,5 @@
-sampler RT;
-sampler NormalMap;
+sampler RT : register(s0);
+sampler NormalMap : register(s1);
 
 float4 main_ps(float2 iTexCoord : TEXCOORD0) : COLOR
 {	
