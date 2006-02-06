@@ -30,8 +30,9 @@ namespace Ogre {
 
 	//-----------------------------------------------------------------------
 
-	GLSLLinkProgram::GLSLLinkProgram(void) : mLinked(false),
-		mUniformRefsBuilt(false)
+	GLSLLinkProgram::GLSLLinkProgram(void)
+        : mUniformRefsBuilt(false)
+        , mLinked(false)
 	{
 			checkForGLSLError( "GLSLLinkProgram::GLSLLinkProgram", "Error prior to Creating GLSL Program Object", 0 );
 		    mGLHandle = glCreateProgramObjectARB();
@@ -100,7 +101,7 @@ namespace Ogre {
 			for (int index = 0; index < uniformCount; index++)
 			{
 				glGetActiveUniformARB(mGLHandle, index, BUFFERSIZE, NULL, &newUniformReference.mArraySize, &newUniformReference.mType, uniformName);
-				// don't add built in uniforms 
+				// don't add built in uniforms
 				newUniformReference.mLocation = glGetUniformLocationARB(mGLHandle, uniformName);
 				if (newUniformReference.mLocation >= 0)
 				{
@@ -201,7 +202,7 @@ namespace Ogre {
 				currentRealConstant = params->getNamedRealConstantEntry( currentUniform->mName );
 				if (currentRealConstant != NULL)
 				{
-					if (currentRealConstant->isSet) 
+					if (currentRealConstant->isSet)
 					{
 						switch (currentUniform->mElementCount)
 						{
@@ -264,7 +265,7 @@ namespace Ogre {
 				currentIntConstant = params->getNamedIntConstantEntry( currentUniform->mName );
 				if (currentIntConstant != NULL)
 				{
-					if (currentIntConstant->isSet) 
+					if (currentIntConstant->isSet)
 					{
 						switch (currentUniform->mElementCount)
 						{
@@ -304,7 +305,7 @@ namespace Ogre {
 		UniformReferenceIterator endUniform = mUniformReferences.end();
 
 		GpuProgramParameters::RealConstantEntry* currentRealConstant;
-		GpuProgramParameters::IntConstantEntry* currentIntConstant;
+		//GpuProgramParameters::IntConstantEntry* currentIntConstant;
 
         currentRealConstant = params->getPassIterationEntry();
         if (currentRealConstant)
@@ -316,7 +317,7 @@ namespace Ogre {
 
 			    if (currentUniform->isReal)
 			    {
-				    
+
 				    if (currentRealConstant == params->getNamedRealConstantEntry( currentUniform->mName ))
 				    {
                         glUniform1fvARB( currentUniform->mLocation, 1, currentRealConstant->val );
