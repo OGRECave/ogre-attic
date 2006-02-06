@@ -26,8 +26,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreD3D9VideoModeList.h"
 #include "OgreD3D9VideoMode.h"
 
-namespace Ogre 
+namespace Ogre
 {
+    unsigned int D3D9Driver::driverCount = 0;
+
 	D3D9Driver::D3D9Driver()
 	{
 		tempNo = ++driverCount;
