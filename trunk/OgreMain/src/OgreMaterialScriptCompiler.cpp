@@ -140,8 +140,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     MaterialScriptCompiler::MaterialScriptCompiler(void)
     {
-        initTokenActions();
-        setClientBNFGrammer(materialScript_BNF);
+        setClientBNFGrammer("MaterialScript", materialScript_BNF);
     }
     //-----------------------------------------------------------------------
     MaterialScriptCompiler::~MaterialScriptCompiler(void)
@@ -149,7 +148,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void MaterialScriptCompiler::initTokenActions(void)
+    void MaterialScriptCompiler::setupTokenDefinitions(void)
     {
         addLexemeTokenAction("{", ID_OPENBRACE, &MaterialScriptCompiler::parseOpenBrace);
         addLexemeTokenAction("}", ID_CLOSEBRACE, &MaterialScriptCompiler::parseCloseBrace);

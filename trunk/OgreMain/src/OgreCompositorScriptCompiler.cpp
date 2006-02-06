@@ -72,8 +72,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	CompositorScriptCompiler::CompositorScriptCompiler(void)
 	{
-		initTokenActions();
-		setClientBNFGrammer(compositorScript_BNF);
+		setClientBNFGrammer("CompositorScript", compositorScript_BNF);
 	}
 	//-----------------------------------------------------------------------
 	CompositorScriptCompiler::~CompositorScriptCompiler(void)
@@ -81,7 +80,7 @@ namespace Ogre {
 
 	}
 	//-----------------------------------------------------------------------
-	void CompositorScriptCompiler::initTokenActions(void)
+	void CompositorScriptCompiler::setupTokenDefinitions(void)
 	{
 		addLexemeTokenAction("{", ID_OPENBRACE, &CompositorScriptCompiler::parseOpenBrace);
 		addLexemeTokenAction("}", ID_CLOSEBRACE, &CompositorScriptCompiler::parseCloseBrace);
