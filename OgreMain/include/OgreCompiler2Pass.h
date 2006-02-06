@@ -213,7 +213,7 @@ namespace Ogre {
             LexemeTokenMap           lexemeTokenMap;
         };
 
-        TokenState mClientTokenState;
+        TokenState* mClientTokenState;
 
 	    /// Active token que, definitions, rules currntly being used by parser
         TokenState* mActiveTokenState;
@@ -277,6 +277,9 @@ namespace Ogre {
             enough tokens exist for pass 2 processing to take place.
         */
         virtual void executeTokenAction(const size_t tokenID) = 0;
+        /** setup client token definitions.  Gets called when BNF grammer is being setup.
+        */
+        virtual void setupTokenDefinitions(void) = 0;
         /** Gets the next token from the instruction que.  If an unkown token is found then an exception is raised but
             the instruction pointer is still moved passed the unknown token.  The subclass should catch the exception,
             provide an error message, and attempt recovery.
@@ -328,8 +331,11 @@ namespace Ogre {
             prior to a call to compile otherwise nothing will happen since the compiler has no rules to work
             with.  Setting the grammer only needs to be set once during the lifetime of the compiler unless the
             grammer changes.
+            BNF Grammer rules are cached once the BNF grammer source is compiled.
         */
-        void setClientBNFGrammer(const String& bnfGrammer);
+        void setClientBNFGrammer(const String& grammerName, const String& bnfGrammer);
+
+
 
         /// find the eol charater
 	    void findEOL();
@@ -422,7 +428,9 @@ namespace Ogre {
         // keep it as static so that only one structure is created
         // no matter how many times this class is instantiated.
         static TokenState mBNFTokenState;
-
+        // maintain a map of BNF grammer
+        typedef std::map<String, TokenState> TokenStateContainer;
+        static TokenStateContainer mClientTokenStates;
         /// if a previous token action was setup then activate it now
         void activatePreviousTokenAction(void);
         /// initialize token definitions and rule paths
