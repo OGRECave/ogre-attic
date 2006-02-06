@@ -49,7 +49,7 @@ namespace Ogre {
 		virtual void bindSurface(size_t attachment, RenderTexture *target);
 
 		/** @copydoc MultiRenderTarget::unbindSurface */
-		virtual void unbindSurface(size_t attachment); 
+		virtual void unbindSurface(size_t attachment);
 
 		virtual void getCustomAttribute( const String& name, void *pData );
 
