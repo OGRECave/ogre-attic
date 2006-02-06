@@ -34,9 +34,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <dxerr9.h>
 #include "OgreMemoryMacros.h"
 
-namespace Ogre 
+namespace Ogre
 {
-	static unsigned int driverCount = 0;
 
 	class D3D9VideoModeList;
 	class D3D9VideoMode;
@@ -53,6 +52,7 @@ namespace Ogre
 		D3DDISPLAYMODE mDesktopDisplayMode;
 		D3D9VideoModeList* mpVideoModeList;
 		unsigned int tempNo;
+        static unsigned int driverCount;
 
 	public:
 		// Constructors
