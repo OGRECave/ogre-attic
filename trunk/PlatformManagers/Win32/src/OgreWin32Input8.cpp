@@ -25,7 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreWin32Input8.h"
 
 #ifndef OGRE_NO_DX_INPUT
-#ifndef DX7INPUTONLY 
+#ifndef DX7INPUTONLY
 
 #include "OgreRenderWindow.h"
 #include "OgreLogManager.h"
@@ -131,7 +131,7 @@ namespace Ogre {
 
         // Acquire input... we could have lost focus if the
 		// user tabbed away during init or perhaps we're in
-		// the debugger.  In either case when the input is 
+		// the debugger.  In either case when the input is
 		// checked we will try to acquire again.
 		hr = mlpDIKeyboard->Acquire();
 		if (FAILED(hr) && hr != DIERR_OTHERAPPHASPRIO)
@@ -195,7 +195,7 @@ namespace Ogre {
 
         // Acquire input... we could have lost focus if the
 		// user tabbed away during init or perhaps we're in
-		// the debugger.  In either case when the input is 
+		// the debugger.  In either case when the input is
 		// checked we will try to acquire again.        hr = mlpDIKeyboard->Acquire();
 		if (FAILED(hr) && hr != DIERR_OTHERAPPHASPRIO)
             throw Exception(hr, "Unable to set aquire DirectInput keyboard device.",
@@ -295,7 +295,7 @@ namespace Ogre {
 
         // Acquire input... we could have lost focus if the
 		// user tabbed away during init or perhaps we're in
-		// the debugger.  In either case when the input is 
+		// the debugger.  In either case when the input is
 		// checked we will try to acquire again.
 		hr = mlpDIMouse->Acquire();
         if (FAILED(hr) && hr != DIERR_OTHERAPPHASPRIO)
@@ -357,22 +357,22 @@ namespace Ogre {
 				initialiseImmediateMouse();
 			}
 		}
- 
+
 
         LogManager::getSingleton().logMessage("Win32Input8: DirectInput OK.");
 
     }
 
-/*	  void Win32Input8::setBufferedInput(bool keys, bool mouse) 
+/*	  void Win32Input8::setBufferedInput(bool keys, bool mouse)
     {
 		  flushAllBuffers();
 		  InputReader::setBufferedInput(keys, mouse);
 	}
 */
-	void Win32Input8::flushAllBuffers() 
+	void Win32Input8::flushAllBuffers()
 	{
 
-		DWORD dwItems = INFINITE; 
+		DWORD dwItems = INFINITE;
 		HRESULT hr = mlpDIKeyboard->GetDeviceData( sizeof(DIDEVICEOBJECTDATA),
 										 NULL, &dwItems, 0 );
 		hr = mlpDIMouse->GetDeviceData( sizeof(DIDEVICEOBJECTDATA),
@@ -380,9 +380,9 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-  
+
 	// this function is not needed at the moment because we are making everything buffered
-	  void Win32Input8::setBufferedInput(bool keys, bool mouse) 
+	  void Win32Input8::setBufferedInput(bool keys, bool mouse)
     {
 		if (mUseKeyboard && mUseBufferedKeys != keys)
 		{
@@ -503,7 +503,7 @@ namespace Ogre {
 
         if( SUCCEEDED( hr ) ||
             ( ( hr == DIERR_INPUTLOST || hr == DIERR_NOTACQUIRED ) &&
-              SUCCEEDED( mlpDIMouse->Acquire() ) && 
+              SUCCEEDED( mlpDIMouse->Acquire() ) &&
               SUCCEEDED( mlpDIMouse->GetDeviceState( sizeof( DIMOUSESTATE2 ), (LPVOID)&mouseState ) ) ) )
         {
             /* Register the new 'origin'. */
@@ -514,7 +514,7 @@ namespace Ogre {
             /* Get the new absolute position. */
             mMouseState.Xabs = mouseState.lX;
             mMouseState.Yabs = mouseState.lY;
-            mMouseState.Zabs = mouseState.lZ;            
+            mMouseState.Zabs = mouseState.lZ;
 
             /* Compute the new relative position. */
             mMouseState.Xrel = mMouseState.Xabs - mMouseCenterX;
@@ -546,7 +546,7 @@ namespace Ogre {
             // TODO - sort this out
             hr = 0;
         }
- 
+
    }
 
 
@@ -557,34 +557,34 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
 	bool Win32Input8::readBufferedKeyboardData()
 	{
-		DIDEVICEOBJECTDATA didod[ DINPUT_BUFFERSIZE ];  // Receives buffered data 
+		DIDEVICEOBJECTDATA didod[ DINPUT_BUFFERSIZE ];  // Receives buffered data
 		DWORD              dwElements;
 		HRESULT            hr;
 
-		if( NULL == mlpDIKeyboard ) 
+		if( NULL == mlpDIKeyboard )
 			return true;
-    
+
 		dwElements = DINPUT_BUFFERSIZE;
 
 		hr = mlpDIKeyboard->GetDeviceData( sizeof(DIDEVICEOBJECTDATA),
 										 didod, &dwElements, 0 );
-		if( FAILED(hr) ) 
+		if( FAILED(hr) )
 		{
 			// Error
 			hr = mlpDIKeyboard->Acquire();
-			while( hr == DIERR_INPUTLOST ) 
+			while( hr == DIERR_INPUTLOST )
 				hr = mlpDIKeyboard->Acquire();
 
 			// hr may be DIERR_OTHERAPPHASPRIO or other errors.  This
-			// may occur when the app is minimized or in the process of 
-			// switching, so just try again later 
-			return !FAILED(hr); 
+			// may occur when the app is minimized or in the process of
+			// switching, so just try again later
+			return !FAILED(hr);
 		}
 
 		// DI_BUFFEROVERFLOW we don't do anything with since we still want to
 		// process what's in the buffer
 
-		for(unsigned int i = 0; i < dwElements; i++ ) 
+		for(unsigned int i = 0; i < dwElements; i++ )
 		{
 			keyChanged( didod[ i ].dwOfs, (didod[ i ].dwData & 0x80) != 0);
 		}
@@ -597,13 +597,13 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
 	bool Win32Input8::readBufferedMouseData()
 	{
-		DIDEVICEOBJECTDATA didod[ DINPUT_BUFFERSIZE ];  // Receives buffered data 
+		DIDEVICEOBJECTDATA didod[ DINPUT_BUFFERSIZE ];  // Receives buffered data
 		DWORD              dwElements;
 		HRESULT            hr;
 
-		if( NULL == mlpDIMouse ) 
+		if( NULL == mlpDIMouse )
 			return true;
-    
+
 		dwElements = DINPUT_BUFFERSIZE;
 
         // Try to read the data. Continue normally on success (DI_OK
@@ -611,7 +611,7 @@ namespace Ogre {
         // we got.
 		hr = mlpDIMouse->GetDeviceData( sizeof(DIDEVICEOBJECTDATA),
 										 didod, &dwElements, 0 );
-		if( FAILED(hr) ) 
+		if( FAILED(hr) )
 		{
             // No need to handle DI_BUFFEROVERFLOW in ERROR handling.
             // So moved it to later.
@@ -622,15 +622,15 @@ namespace Ogre {
 			// device has been lost, either due to an external
 			// interruption.
 			//
-			
+
 			hr = mlpDIMouse->Acquire();
-			while( hr == DIERR_INPUTLOST ) 
+			while( hr == DIERR_INPUTLOST )
 				hr = mlpDIMouse->Acquire();
 
 			// hr may be DIERR_OTHERAPPHASPRIO or other errors.  This
-			// may occur when the app is minimized or in the process of 
-			// switching, so just try again later 
-			return !FAILED(hr); 
+			// may occur when the app is minimized or in the process of
+			// switching, so just try again later
+			return !FAILED(hr);
 		}
 
 		// DI_BUFFEROVERFLOW we don't do anything with since we still want to
@@ -645,12 +645,12 @@ namespace Ogre {
     #define FIELD_OFFSET offsetof
 #endif // __GNUC__
 
-		for(unsigned int i = 0; i < dwElements; i++ ) 
+		for(unsigned int i = 0; i < dwElements; i++ )
 		{
 			int nMouseCode = -1;		// not set
 
 			// this will display then scan code of the key
-			// plus a 'D' - meaning the key was pressed 
+			// plus a 'D' - meaning the key was pressed
 			//   or a 'U' - meaning the key was released
 			switch( didod [ i ].dwOfs )
 			{
@@ -671,9 +671,9 @@ namespace Ogre {
 					break;
 
 				case DIMOFS_X:
-					if (xSet) 
+					if (xSet)
 					{	// process the last X move since we have a new one
-						mouseMoved(); 
+						mouseMoved();
 						xSet = false;
 					}
 					mCursor->addToX(getScaled(didod[i].dwData));
@@ -681,19 +681,19 @@ namespace Ogre {
 					break;
 
 				case DIMOFS_Y:
-					if (ySet) 
+					if (ySet)
 					{
-						mouseMoved(); 
+						mouseMoved();
 						ySet = false;
 					}
-					mCursor->addToY(getScaled(didod[i].dwData));  
+					mCursor->addToY(getScaled(didod[i].dwData));
 					ySet = true;
 					break;
 
 				case DIMOFS_Z:
-					if (zSet) 
+					if (zSet)
 					{
-						mouseMoved(); 
+						mouseMoved();
 						zSet = false;
 					}
 					mCursor->addToZ(getScaled(didod[i].dwData));
@@ -709,7 +709,7 @@ namespace Ogre {
 			}
 			if (xSet && ySet)	// don't create 2 mousemove events for an single X and Y move, just create 1.
 			{
-				mouseMoved(); 
+				mouseMoved();
 				ySet = false;
 				xSet = false;
 			}
@@ -718,7 +718,7 @@ namespace Ogre {
 		}
 		if (zSet || xSet || ySet) // check for last moved at end
 		{
-			mouseMoved(); 
+			mouseMoved();
 		}
 
 		return true;
@@ -785,12 +785,6 @@ namespace Ogre {
 	long Win32Input8::getKeyModifiers() const
 	{
 		long ret = mModifiers;
-
-		if (mModifiers == 16)
-		{
-			int x=5;
-
-		}
 
 		if (isKeyDown(KC_LMENU) || isKeyDown(KC_RMENU))
 		{
