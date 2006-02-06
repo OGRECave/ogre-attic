@@ -148,7 +148,7 @@ namespace Ogre {
         virtual void executeTokenAction(const size_t tokenID);
         /** Associate all the lexemes used in a material script with their corresponding tokens and actions.
         **/
-        void initTokenActions(void);
+        virtual void setupTokenDefinitions(void);
         void addLexemeTokenAction(const String& lexeme, const size_t token, const MSC_Action action = 0);
 
         void logParseError(const String& error);
