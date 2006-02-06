@@ -33,45 +33,47 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     //-----------------------------------------------------------------------
     Light::Light()
+		: mLightType(LT_POINT),
+          mPosition(Vector3::ZERO),
+          mDiffuse(ColourValue::White),
+          mSpecular(ColourValue::Black),
+          mDirection(Vector3::UNIT_Z),
+		  mSpotOuter(Degree(40.0f)),
+          mSpotInner(Degree(30.0f)),
+          mSpotFalloff(1.0f),
+		  mRange(100000),
+		  mAttenuationConst(1.0f),
+		  mAttenuationLinear(0.0f),
+          mAttenuationQuad(0.0f),
+		  mPowerScale(1.0f),
+          mDerivedPosition(Vector3::ZERO),
+          mDerivedDirection(Vector3::UNIT_Z)
     {
         // Default to point light, white diffuse light, linear attenuation, fair range
-        mLightType = LT_POINT;
-        mDiffuse = ColourValue::White;
-        mSpecular = ColourValue::Black;
-        mRange = 5000;
-        mAttenuationConst = 1.0f;
-        mAttenuationLinear = 0.0f;
-        mAttenuationQuad = 0.0f;
 
-        // Center in world, direction irrelevant but set anyway
-        mPosition = mDerivedPosition = Vector3::ZERO;
-        mDirection = mDerivedPosition = Vector3::UNIT_Z;
         mParentNode = NULL;
-
         mLocalTransformDirty = false;
 
     }
     //-----------------------------------------------------------------------
-	Light::Light(const String& name) : MovableObject(name)
+	Light::Light(const String& name) : MovableObject(name),
+        mLightType(LT_POINT),
+        mPosition(Vector3::ZERO),
+        mDiffuse(ColourValue::White),
+        mSpecular(ColourValue::Black),
+        mDirection(Vector3::UNIT_Z),
+		mSpotOuter(Degree(40.0f)),
+        mSpotInner(Degree(30.0f)),
+        mSpotFalloff(1.0f),
+		mRange(100000),
+		mAttenuationConst(1.0f),
+		mAttenuationLinear(0.0f),
+        mAttenuationQuad(0.0f),
+		mPowerScale(1.0f),
+        mDerivedPosition(Vector3::ZERO),
+        mDerivedDirection(Vector3::UNIT_Z)
     {
 
-        // Default to point light, white diffuse light, linear attenuation, fair range
-        mLightType = LT_POINT;
-        mDiffuse = ColourValue::White;
-        mSpecular = ColourValue::Black;
-        mRange = 100000;
-        mAttenuationConst = 1.0f;
-        mAttenuationLinear = 0.0f;
-        mAttenuationQuad = 0.0f;
-
-        // Center in world, direction irrelevant but set anyway
-        mPosition = Vector3::ZERO;
-        mDirection = Vector3::UNIT_Z;
-
-        // Default some spot values
-        mSpotInner = Degree(30.0f);
-        mSpotOuter = Degree(40.0f);
-        mSpotFalloff = 1.0f;
         mParentNode = NULL;
 
     }
@@ -234,6 +236,16 @@ namespace Ogre {
     {
         return mAttenuationQuad;
     }
+    //-----------------------------------------------------------------------
+	void Light::setPowerScale(Real power)
+	{
+		mPowerScale = power;
+	}
+    //-----------------------------------------------------------------------
+	Real Light::getPowerScale(void) const
+	{
+		return mPowerScale;
+	}
     //-----------------------------------------------------------------------
     void Light::update(void) const
     {

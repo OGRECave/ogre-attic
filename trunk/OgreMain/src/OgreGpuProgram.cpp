@@ -88,6 +88,7 @@ namespace Ogre
         AutoConstantDefinition(ACT_LIGHT_DIRECTION_OBJECT_SPACE,  "light_direction_object_space", 4, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_LIGHT_DIRECTION_VIEW_SPACE,         "light_direction_view_space",   4, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_LIGHT_DISTANCE_OBJECT_SPACE,   "light_distance_object_space",  1, ET_REAL, ACDT_INT),
+        AutoConstantDefinition(ACT_LIGHT_POWER_SCALE,   		  "light_power",  1, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_SHADOW_EXTRUSION_DISTANCE,     "shadow_extrusion_distance",    1, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_CAMERA_POSITION,               "camera_position",              3, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_CAMERA_POSITION_OBJECT_SPACE,  "camera_position_object_space", 3, ET_REAL, ACDT_NONE),
@@ -695,6 +696,9 @@ namespace Ogre
             case ACT_SHADOW_EXTRUSION_DISTANCE:
                 setConstant(i->index, source.getShadowExtrusionDistance());
                 break;
+            case ACT_LIGHT_POWER_SCALE:
+				setConstant(i->index, source.getLight(i->data).getPowerScale());
+				break;
             case ACT_LIGHT_ATTENUATION:
                 // range, const, linear, quad
                 const Light& l = source.getLight(i->data);
