@@ -270,6 +270,20 @@ namespace Ogre {
 		*/
 		void setSpotlightFalloff(Real val);
 
+		/** Set a scaling factor to indicate the relative power of a light.
+		@remarks
+			This factor is only useful in High Dynamic Range (HDR) rendering.
+			You can bind it to a shader variable to take it into account,
+			@see GpuProgramParameters
+		@param power The power rating of this light, default is 1.0.
+		*/
+		void setPowerScale(Real power);
+
+		/** Set the scaling factor which indicates the relative power of a 
+			light.
+		*/
+		Real getPowerScale(void) const;
+
         /** Overridden from MovableObject */
         const AxisAlignedBox& getBoundingBox(void) const;
 
@@ -353,6 +367,7 @@ namespace Ogre {
         Real mAttenuationConst;
         Real mAttenuationLinear;
         Real mAttenuationQuad;
+		Real mPowerScale;
 
         mutable Vector3 mDerivedPosition;
         mutable Vector3 mDerivedDirection;

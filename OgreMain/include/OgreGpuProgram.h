@@ -179,6 +179,8 @@ namespace Ogre {
 				calculations.
 			*/
 			ACT_LIGHT_DISTANCE_OBJECT_SPACE,
+			/** Light power level, a single scalar as set in Light::setPowerScale  (index determined by setAutoConstant call) */
+			ACT_LIGHT_POWER_SCALE,
 			/** The distance a shadow volume should be extruded when using
 			    finite extrusion programs.
 			*/
