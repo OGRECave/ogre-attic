@@ -862,4 +862,22 @@ material WoodPallet
 	}
 }
 
+material Examples/LightRibbonTrail
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend add
+			depth_write off
 
+			texture_unit
+			{
+				texture ribbonband.png 1d
+				tex_address_mode clamp
+				filtering none
+			}
+		}
+	}
+}
