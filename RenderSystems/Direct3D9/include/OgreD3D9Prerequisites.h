@@ -37,6 +37,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 
 #include "OgreNoMemoryMacros.h"
+#undef NOMINMAX
 #define NOMINMAX // required to stop windows.h screwing up std::min definition
 #include <d3d9.h>
 #include <d3dx9.h>
@@ -44,7 +45,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMemoryMacros.h"
 
 
-namespace Ogre 
+namespace Ogre
 {
 	// Predefine classes
 	class D3D9RenderSystem;
@@ -67,7 +68,7 @@ namespace Ogre
 // Doing so avoids lost devices, but also has a performance impact
 // which is unacceptably bad when using very large buffers
 #define OGRE_D3D_MANAGE_BUFFERS 1
-    
+
     //-------------------------------------------
 	// Windows setttings
 	//-------------------------------------------
