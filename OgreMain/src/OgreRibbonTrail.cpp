@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMath.h"
 #include "OgreException.h"
 #include "OgreSceneNode.h"
+#include "OgreStringConverter.h"
 
 namespace Ogre
 {
@@ -454,3 +455,4 @@ namespace Ogre
 
 
 }
+
