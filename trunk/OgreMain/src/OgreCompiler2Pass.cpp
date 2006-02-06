@@ -29,14 +29,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     // instantiate static members
     Compiler2Pass::TokenState Compiler2Pass::mBNFTokenState;
+    Compiler2Pass::TokenStateContainer Compiler2Pass::mClientTokenStates;
     //-----------------------------------------------------------------------
     Compiler2Pass::Compiler2Pass()
         : mActiveTokenState(&mBNFTokenState)
         , mSource(0)
     {
 	    // reserve some memory space in the containers being used
-	    mClientTokenState.tokenQue.reserve(100);
-        mClientTokenState.lexemeTokenDefinitions.reserve(100);
 	    mBNFTokenState.tokenQue.reserve(100);
         mBNFTokenState.lexemeTokenDefinitions.reserve(50);
 
@@ -278,7 +277,7 @@ namespace Ogre {
             verifyTokenRuleLinks();
         }
         // switch to client state
-        mActiveTokenState = &mClientTokenState;
+        mActiveTokenState = mClientTokenState;
     }
 
     //-----------------------------------------------------------------------
@@ -312,6 +311,7 @@ namespace Ogre {
 	    bool Passed = false;
 
 	    mSource = &source;
+        mActiveTokenState = mClientTokenState;
 	    // start compiling if there is a rule base to work with
         if (!mActiveTokenState->rootRulePath.empty())
 	    {
@@ -463,29 +463,38 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void Compiler2Pass::setClientBNFGrammer(const String& bnfGrammer)
+    void Compiler2Pass::setClientBNFGrammer(const String& grammerName, const String& bnfGrammer)
     {
         // switch to internal BNF Containers
-        mActiveTokenState = &mBNFTokenState;
         // clear client containers
-        mClientTokenState.tokenQue.clear();
-        //mClientTokenState.lexemeTokenDefinitions.clear();
-        mClientTokenState.rootRulePath.clear();
+        mClientTokenState = &mClientTokenStates[grammerName];
+        // attempt to compile the grammer into a rule base if no rules exist
+        if (mClientTokenState->rootRulePath.size() == 0)
+        {
+            mClientTokenState->tokenQue.reserve(100);
+            mClientTokenState->lexemeTokenDefinitions.reserve(100);
+            // allow the client to setup token definitions prior to
+            // compiling the BNF grammer
+            // ensure token definitions are added to the client state
+            mActiveTokenState = mClientTokenState;
+            setupTokenDefinitions();
+            // make sure active token state is for BNF compiling
+            mActiveTokenState = &mBNFTokenState;
+            mSource = &bnfGrammer;
 
-        // attempt to compile the grammer into a rule base
-        mSource = &bnfGrammer;
-        if (doPass1())
-        {
-            buildClientBNFRulePaths();
+            if (doPass1())
+            {
+                buildClientBNFRulePaths();
+            }
+            else
+            {
+                OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "BNF Grammar compilation failed", "Compiler2Pass::setClientBNFGrammer");
+            }
+            // change token state to client data after compiling grammer
+            mActiveTokenState = mClientTokenState;
+            // verify the client rule paths and associated terminal and non-terminal lexemes
+            verifyTokenRuleLinks();
         }
-        else
-        {
-            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "BNF Grammar compilation failed", "Compiler2Pass::setClientBNFGrammer");
-        }
-        // change token state to client data after compiling grammer
-        mActiveTokenState = &mClientTokenState;
-        // verify the client rule paths and associated terminal and non-terminal lexemes
-        verifyTokenRuleLinks();
     }
 
     //-----------------------------------------------------------------------
@@ -1037,29 +1046,29 @@ namespace Ogre {
     void Compiler2Pass::modifyLastRule(const OperationType pendingRuleOp, const size_t tokenID)
     {
         // add operation using this token ID to the current rule expression
-        size_t lastIndex = mClientTokenState.rootRulePath.size();
+        size_t lastIndex = mClientTokenState->rootRulePath.size();
         if (lastIndex == 0)
         {
             // throw exception since there should have been at least one rule existing
             OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "BNF Grammar build rules failed: no previous rule op defined", "Compiler2Pass::modifyLastRule");
         }
         --lastIndex;
-        mClientTokenState.rootRulePath[lastIndex].operation = pendingRuleOp;
-        mClientTokenState.rootRulePath[lastIndex].tokenID = tokenID;
+        mClientTokenState->rootRulePath[lastIndex].operation = pendingRuleOp;
+        mClientTokenState->rootRulePath[lastIndex].tokenID = tokenID;
         // add new end op token rule
-        mClientTokenState.rootRulePath.push_back(TokenRule(otEND, 0));
+        mClientTokenState->rootRulePath.push_back(TokenRule(otEND, 0));
     }
 
     //-----------------------------------------------------------------------
     size_t Compiler2Pass::getClientLexemeTokenID(const String& lexeme)
     {
-        size_t tokenID = mClientTokenState.lexemeTokenMap[lexeme];
+        size_t tokenID = mClientTokenState->lexemeTokenMap[lexeme];
 
         if (tokenID == 0)
         {
-            tokenID = mClientTokenState.lexemeTokenDefinitions.size();
+            tokenID = mClientTokenState->lexemeTokenDefinitions.size();
             // add identifier to client lexeme tokens
-            mActiveTokenState = &mClientTokenState;
+            mActiveTokenState = mClientTokenState;
             addLexemeToken(lexeme, tokenID);
             mActiveTokenState = &mBNFTokenState;
         }
@@ -1082,9 +1091,9 @@ namespace Ogre {
         if (testNextTokenID(BNF_SET_RULE))
         {
             getNextToken(BNF_SET_RULE);
-            mClientTokenState.rootRulePath.push_back(TokenRule(otRULE, tokenID));
+            mClientTokenState->rootRulePath.push_back(TokenRule(otRULE, tokenID));
             // add new end op token rule
-            mClientTokenState.rootRulePath.push_back(TokenRule(otEND, 0));
+            mClientTokenState->rootRulePath.push_back(TokenRule(otEND, 0));
         }
         else
         {
