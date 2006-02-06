@@ -36,13 +36,13 @@ http://www.gnu.org/copyleft/gpl.html.
 // FIX ME - should not be hard coded
 #define BAD_TOKEN 999
 
-typedef unsigned int uint; 
+typedef unsigned int uint;
 
 
 
 /** Compiler2Pass is a generic compiler/assembler
 @remarks
-	provides a tokenizer in pass 1 and relies on the subclass to provide the virtual method for pass 2 
+	provides a tokenizer in pass 1 and relies on the subclass to provide the virtual method for pass 2
 
 	PASS 1 - tokenize source: this is a simple brute force lexical scanner/analyzer that also parses
 			 the formed token for proper semantics and context in one pass
@@ -79,7 +79,7 @@ protected:
 	  uint mID;					// Token ID which is the index into the Token Type library
 	  uint mPass2Data;			// data used by pass 2 to build native instructions
 
-	  uint mContextKey;			// context key to fit the Active Context 
+	  uint mContextKey;			// context key to fit the Active Context
 	  uint mContextPatternSet;	// new pattern to set for Active Context bits
 	  uint mContextPatternClear;// Contexts bits to clear Active Context bits
 
@@ -131,7 +131,7 @@ protected:
 	uint mActiveContexts;
 
 	/** check token semantics between ID1 and ID2 using left/right semantic data in Token Type library
-	@param ID1 token ID on the left 
+	@param ID1 token ID on the left
 	@param ID2 token ID on the right
 	@return
 		true if both will bind to each other
@@ -153,7 +153,7 @@ protected:
 		Pass 2 is for the subclass to take the token instructions generated in Pass 1 and
 		build the application specific instructions along with verifying
 		symantic and context rules that could not be checked in Pass 1
-		
+
 	*/
 	virtual bool doPass2() = 0;
 
@@ -204,13 +204,13 @@ protected:
 			END: end of the rule path - the method returns the succuss of the rule
 
 	@param rulepathIDX index into to array of Token Rules that define a rule path to be processed
-	@return 
+	@return
 		true if rule passed - all required tokens found
 		false if one or more tokens required to complete the rule were not found
 	*/
 	bool processRulePath( uint rulepathIDX);
 
-	
+
 	// setup ActiveContexts - should be called by subclass to setup initial language contexts
 	void setActiveContexts(const uint contexts){ mActiveContexts = contexts; }
 
@@ -231,20 +231,20 @@ protected:
 	@return
 		true if token was found
 		false if token symbol text does not match the source text
-		if token is non-terminal then processRulePath is called 
+		if token is non-terminal then processRulePath is called
 	*/
-	bool ValidateToken(const uint rulepathIDX, const uint activeRuleID); 
+	bool ValidateToken(const uint rulepathIDX, const uint activeRuleID);
 
 
 public:
-	// ** these probably should not be public 
+	// ** these probably should not be public
 	int mCurrentLine;
 	int mCharPos;
 
 
 	/// constructor
 	Compiler2Pass();
-
+    virtual ~Compiler2Pass() {}
 	/** compile the source - performs 2 passes
 		first pass is to tokinize, check semantics and context
 		second pass is performed by subclass and converts tokens to application specific instructions
