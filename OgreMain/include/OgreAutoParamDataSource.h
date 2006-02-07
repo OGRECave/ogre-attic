@@ -60,11 +60,14 @@ namespace Ogre {
         mutable Matrix4 mInverseTransposeWorldViewMatrix;
         mutable Vector4 mCameraPositionObjectSpace;
         mutable Matrix4 mTextureViewProjMatrix;
+        mutable Matrix4 mViewMatrix;
         mutable Matrix4 mProjectionMatrix;
 		mutable Real mDirLightExtrusionDistance;
         mutable Vector4 mCameraPosition;
-		
+
         mutable bool mWorldMatrixDirty;
+        mutable bool mViewMatrixDirty;
+        mutable bool mProjMatrixDirty;
         mutable bool mWorldViewMatrixDirty;
         mutable bool mViewProjMatrixDirty;
         mutable bool mWorldViewProjMatrixDirty;
