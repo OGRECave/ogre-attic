@@ -64,7 +64,7 @@ namespace Ogre {
 		// assume not supported
 		mIsSupported = false;
         // Go through each pass, checking requirements
-        Passes::iterator i, iend;
+        Passes::iterator i;
 		size_t passNum = 0;
         for (i = mPasses.begin(); i != mPasses.end(); ++i, ++passNum)
         {
@@ -73,7 +73,7 @@ namespace Ogre {
 			currPass->_notifyIndex(passNum);
             // Check texture unit requirements
             size_t numTexUnitsRequested = currPass->getNumTextureUnitStates();
-            const RenderSystemCapabilities* caps = 
+            const RenderSystemCapabilities* caps =
                 Root::getSingleton().getRenderSystem()->getCapabilities();
             unsigned short numTexUnits = caps->getNumTextureUnits();
 #if defined(OGRE_PRETEND_TEXTURE_UNITS) && OGRE_PRETEND_TEXTURE_UNITS > 0
@@ -123,7 +123,7 @@ namespace Ogre {
 				while (texi.hasMoreElements())
 				{
 					TextureUnitState* tex = texi.getNext();
-					// Any Cube textures? NB we make the assumption that any 
+					// Any Cube textures? NB we make the assumption that any
 					// card capable of running fragment programs can support
 					// cubic textures, which has to be true, surely?
 					if (tex->is3D() && !caps->hasCapability(RSC_CUBEMAPPING))
@@ -138,7 +138,7 @@ namespace Ogre {
 					{
 						// Fail
 						return;
-					}					
+					}
 					// Any Dot3 blending?
 					if (tex->getColourBlendMode().operation == LBX_DOTPRODUCT &&
 							!caps->hasCapability(RSC_DOT3))
@@ -147,7 +147,7 @@ namespace Ogre {
 						return;
 					}
 				}
-				
+
 				// We're ok on operations, now we need to check # texture units
 				// Keep splitting this pass so long as units requested > gpu units
                 while (numTexUnitsRequested > numTexUnits)
@@ -165,7 +165,7 @@ namespace Ogre {
 					std::copy_backward(i, (mPasses.end()-1), mPasses.end());
 					*i = currPass;
 					// Adjust pass index
-					currPass->_notifyIndex(passNum);                
+					currPass->_notifyIndex(passNum);
 				}
             }
 
@@ -601,7 +601,7 @@ namespace Ogre {
         }
     }
     // --------------------------------------------------------------------
-    void Technique::setSceneBlending( const SceneBlendFactor sourceFactor, 
+    void Technique::setSceneBlending( const SceneBlendFactor sourceFactor,
         const SceneBlendFactor destFactor)
     {
         Passes::iterator i, iend;
@@ -642,7 +642,7 @@ namespace Ogre {
         Passes::iterator i, iend;
         iend = mPasses.end();
         i = mPasses.begin();
-        
+
         IlluminationStage iStage = IS_AMBIENT;
 
         bool haveAmbient = false;
@@ -695,7 +695,7 @@ namespace Ogre {
                         if (newPass->hasFragmentProgram())
                             newPass->setFragmentProgram("");
                         // We have to leave vertex program alone (if any) and
-                        // just trust that the author is using light bindings, which 
+                        // just trust that the author is using light bindings, which
                         // we will ensure there are none in the ambient pass
                         newPass->setDiffuse(0, 0, 0, newPass->getDiffuse().a);  // Preserving alpha
                         newPass->setSpecular(ColourValue::Black);
@@ -708,9 +708,9 @@ namespace Ogre {
 
                         mIlluminationPasses.push_back(iPass);
                         haveAmbient = true;
-                        
+
                     }
-                    
+
                     if (!haveAmbient)
                     {
                         // Make up a new basic pass
@@ -744,7 +744,7 @@ namespace Ogre {
                 else
                 {
                     // Split off per-light details (can only be done for one)
-                    if (p->getLightingEnabled() && 
+                    if (p->getLightingEnabled() &&
                         (p->getDiffuse() != ColourValue::Black ||
                         p->getSpecular() != ColourValue::Black))
                     {
@@ -850,7 +850,7 @@ namespace Ogre {
         mIlluminationPasses.clear();
     }
     //-----------------------------------------------------------------------
-    const Technique::IlluminationPassIterator 
+    const Technique::IlluminationPassIterator
     Technique::getIlluminationPassIterator(void)
     {
         IlluminationPassesState targetState = IPS_COMPILED;
@@ -864,7 +864,7 @@ namespace Ogre {
             mIlluminationPassesCompilationPhase = targetState;
         }
 
-        return IlluminationPassIterator(mIlluminationPasses.begin(), 
+        return IlluminationPassIterator(mIlluminationPasses.begin(),
             mIlluminationPasses.end());
     }
     //-----------------------------------------------------------------------
