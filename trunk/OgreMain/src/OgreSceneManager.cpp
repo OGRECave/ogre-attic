@@ -2659,7 +2659,10 @@ void SceneManager::useRenderableViewProjMode(const Renderable* pRend)
 
     if (useIdentityProj && (mCamChanged || !lastProjWasIdentity))
     {
-        mDestRenderSystem->_setProjectionMatrix(Matrix4::IDENTITY);
+        // Use identity projection matrix, still need to take RS depth into account.
+        Matrix4 mat;
+        mDestRenderSystem->_convertProjectionMatrix(Matrix4::IDENTITY, mat);
+        mDestRenderSystem->_setProjectionMatrix(mat);
 
         lastProjWasIdentity = true;
     }

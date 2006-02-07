@@ -30,6 +30,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderTarget.h"
 #include "OgreControllerManager.h"
 #include "OgreMath.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
 
 namespace Ogre {
     const Matrix4 PROJECTIONCLIPSPACE2DTOIMAGESPACE_PERSPECTIVE(
@@ -41,6 +43,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     AutoParamDataSource::AutoParamDataSource()
         : mWorldMatrixDirty(true),
+         mViewMatrixDirty(true),
+         mProjMatrixDirty(true),
          mWorldViewMatrixDirty(true),
          mViewProjMatrixDirty(true),
          mWorldViewProjMatrixDirty(true),
@@ -71,10 +75,13 @@ namespace Ogre {
     {
 		mCurrentRenderable = rend;
 		mWorldMatrixDirty = true;
+        mViewMatrixDirty = true;
+        mProjMatrixDirty = true;
 		mWorldViewMatrixDirty = true;
         mViewProjMatrixDirty = true;
 		mWorldViewProjMatrixDirty = true;
 		mInverseWorldMatrixDirty = true;
+        mInverseViewMatrixDirty = true;
 		mInverseWorldViewMatrixDirty = true;
 		mInverseTransposeWorldMatrixDirty = true;
 		mInverseTransposeWorldViewMatrixDirty = true;
@@ -84,6 +91,8 @@ namespace Ogre {
     void AutoParamDataSource::setCurrentCamera(const Camera* cam)
     {
         mCurrentCamera = cam;
+        mViewMatrixDirty = true;
+        mProjMatrixDirty = true;
         mWorldViewMatrixDirty = true;
         mViewProjMatrixDirty = true;
         mWorldViewProjMatrixDirty = true;
@@ -134,7 +143,15 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getViewMatrix(void) const
     {
-        return mCurrentCamera->getViewMatrix(true);
+        if (mViewMatrixDirty)
+        {
+            if (mCurrentRenderable && mCurrentRenderable->useIdentityView())
+                mViewMatrix = Matrix4::IDENTITY;
+            else
+                mViewMatrix = mCurrentCamera->getViewMatrix(true);
+            mViewMatrixDirty = false;
+        }
+        return mViewMatrix;
     }
     //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getViewProjectionMatrix(void) const
@@ -149,17 +166,30 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getProjectionMatrix(void) const
     {
-        // NB use API-independent projection matrix since GPU programs
-        // bypass the API-specific handedness and use right-handed coords
-        mProjectionMatrix = mCurrentCamera->getProjectionMatrixWithRSDepth();
-        if (mCurrentRenderTarget && mCurrentRenderTarget->requiresTextureFlipping())
+        if (mProjMatrixDirty)
         {
-            // Because we're not using setProjectionMatrix, this needs to be done here
-            // Invert transformed y
-            mProjectionMatrix[1][0] = -mProjectionMatrix[1][0];
-            mProjectionMatrix[1][1] = -mProjectionMatrix[1][1];
-            mProjectionMatrix[1][2] = -mProjectionMatrix[1][2];
-            mProjectionMatrix[1][3] = -mProjectionMatrix[1][3];
+            // NB use API-independent projection matrix since GPU programs
+            // bypass the API-specific handedness and use right-handed coords
+            if (mCurrentRenderable && mCurrentRenderable->useIdentityProjection())
+            {
+                // Use identity projection matrix, still need to take RS depth into account.
+                RenderSystem* rs = Root::getSingleton().getRenderSystem();
+                rs->_convertProjectionMatrix(Matrix4::IDENTITY, mProjectionMatrix, true);
+            }
+            else
+            {
+                mProjectionMatrix = mCurrentCamera->getProjectionMatrixWithRSDepth();
+            }
+            if (mCurrentRenderTarget && mCurrentRenderTarget->requiresTextureFlipping())
+            {
+                // Because we're not using setProjectionMatrix, this needs to be done here
+                // Invert transformed y
+                mProjectionMatrix[1][0] = -mProjectionMatrix[1][0];
+                mProjectionMatrix[1][1] = -mProjectionMatrix[1][1];
+                mProjectionMatrix[1][2] = -mProjectionMatrix[1][2];
+                mProjectionMatrix[1][3] = -mProjectionMatrix[1][3];
+            }
+            mProjMatrixDirty = false;
         }
         return mProjectionMatrix;
     }
