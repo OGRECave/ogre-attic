@@ -74,7 +74,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreExternalTextureSourceManager.h"
 #include "OgreCompositorManager.h"
 
-namespace Ogre {    
+namespace Ogre {
     //-----------------------------------------------------------------------
     template<> Root* Singleton<Root>::ms_Singleton = 0;
     Root* Root::getSingletonPtr(void)
@@ -82,8 +82,8 @@ namespace Ogre {
         return ms_Singleton;
     }
     Root& Root::getSingleton(void)
-    {  
-        assert( ms_Singleton );  return ( *ms_Singleton );  
+    {
+        assert( ms_Singleton );  return ( *ms_Singleton );
     }
 
     typedef void (*DLL_START_PLUGIN)(void);
@@ -121,7 +121,7 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     Root::Root(const String& pluginFileName, const String& configFileName, const String& logFileName)
-      : mLogManager(0), mCurrentFrame(0), mFrameSmoothingTime(0.0f), 
+      : mLogManager(0), mCurrentFrame(0), mFrameSmoothingTime(0.0f),
 	  mNextMovableObjectTypeFlag(1), mIsInitialised(false)
     {
         // First create new exception handler
@@ -132,14 +132,14 @@ namespace Ogre {
 
         // Init
         mActiveRenderer = 0;
-        mVersion = StringConverter::toString(OGRE_VERSION_MAJOR) + "." + 
-            StringConverter::toString(OGRE_VERSION_MINOR) + "." + 
-            StringConverter::toString(OGRE_VERSION_PATCH) + " " + 
+        mVersion = StringConverter::toString(OGRE_VERSION_MAJOR) + "." +
+            StringConverter::toString(OGRE_VERSION_MINOR) + "." +
+            StringConverter::toString(OGRE_VERSION_PATCH) + " " +
             "(" + OGRE_VERSION_NAME + ")";
 		mConfigFileName = configFileName;
 
 		// Create log manager and default log file if there is no log manager yet
-		if(LogManager::getSingletonPtr() == 0) 
+		if(LogManager::getSingletonPtr() == 0)
 		{
 			mLogManager = new LogManager();
 			mLogManager->createLog(logFileName, true, true);
@@ -203,13 +203,13 @@ namespace Ogre {
         ArchiveManager::getSingleton().addArchiveFactory( mZipArchiveFactory );
 #if OGRE_NO_DEVIL == 0
 	    // Register image codecs
-	    ILCodecs::registerCodecs();	
+	    ILCodecs::registerCodecs();
 #endif
 
         mHighLevelGpuProgramManager = new HighLevelGpuProgramManager();
 
 		mExternalTextureSourceManager = new ExternalTextureSourceManager();
-        mCompositorManager = new CompositorManager();      
+        mCompositorManager = new CompositorManager();
 
         // Auto window
         mAutoWindow = 0;
@@ -230,7 +230,7 @@ namespace Ogre {
 
 		// Load plugins
         if (!pluginFileName.empty())
-            loadPlugins(pluginFileName);        
+            loadPlugins(pluginFileName);
 
 		LogManager::getSingleton().logMessage("*-*-* OGRE Initialising");
         msg = "*-*-* Version " + mVersion;
@@ -248,7 +248,7 @@ namespace Ogre {
     {
         shutdown();
         delete mSceneManagerEnum;
-        
+
 		destroyAllRenderQueueInvocationSequences();
         delete mCompositorManager;
 		delete mExternalTextureSourceManager;
@@ -277,7 +277,7 @@ namespace Ogre {
         delete mPanelFactory;
 
         unloadPlugins();
-        delete mMaterialManager;        
+        delete mMaterialManager;
         Pass::processPendingPassUpdates(); // make sure passes are cleaned
 		delete mResourceBackgroundQueue;
         delete mResourceGroupManager;
@@ -340,7 +340,7 @@ namespace Ogre {
         //   available, and false if no saved config is
         //   stored, or if there has been a problem
         ConfigFile cfg;
-        RenderSystemList::iterator pRend;
+        //RenderSystemList::iterator pRend;
 
         try {
             // Don't trim whitespace
@@ -565,7 +565,7 @@ namespace Ogre {
     {
         // Increment frame number
         ++mCurrentFrame;
-        
+
         // Remove all marked listeners
         std::set<FrameListener*>::iterator i;
         for (i = mRemovedFrameListeners.begin();
@@ -596,7 +596,7 @@ namespace Ogre {
             mFrameListeners.erase(*i);
         }
         mRemovedFrameListeners.clear();
-        
+
         // Tell all listeners
 		bool ret = true;
         for (i= mFrameListeners.begin(); i != mFrameListeners.end(); ++i)
@@ -647,7 +647,7 @@ namespace Ogre {
             return 0;
 
         // Times up to mFrameSmoothingTime seconds old should be kept
-        unsigned long discardThreshold = 
+        unsigned long discardThreshold =
 			static_cast<unsigned long>(mFrameSmoothingTime * 1000.0f);
 
         // Find the oldest time to keep
@@ -670,7 +670,7 @@ namespace Ogre {
     void Root::queueEndRendering(void)
     {
 	    mQueuedEnd = true;
-    }	
+    }
     //-----------------------------------------------------------------------
     void Root::startRendering(void)
     {
@@ -685,7 +685,7 @@ namespace Ogre {
         // Infinite loop, until broken out of by frame listeners
         // or break out by calling queueEndRendering()
         mQueuedEnd = false;
-       
+
         while( !mQueuedEnd )
         {
             //Allow platform to pump/create/etc messages/events once per frame
@@ -709,7 +709,7 @@ namespace Ogre {
     void Root::shutdown(void)
     {
 		shutdownPlugins();
-		
+
 		SceneManagerEnumerator::getSingleton().shutdownAll();
         ShadowVolumeExtrudeProgram::shutdown();
 		mResourceBackgroundQueue->shutdown();
@@ -810,7 +810,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Root::addResourceLocation(const String& name, const String& locType, 
+    void Root::addResourceLocation(const String& name, const String& locType,
 		const String& groupName, bool recursive)
     {
 		ResourceGroupManager::getSingleton().addResourceLocation(
@@ -834,7 +834,7 @@ namespace Ogre {
         return mAutoWindow;
     }
     //-----------------------------------------------------------------------
-	RenderWindow* Root::createRenderWindow(const String &name, unsigned int width, unsigned int height, 
+	RenderWindow* Root::createRenderWindow(const String &name, unsigned int width, unsigned int height,
 			bool fullScreen, const NameValuePairList *miscParams)
 	{
         if (!mActiveRenderer)
@@ -972,15 +972,15 @@ namespace Ogre {
 			mEventTimes[i].clear();
 	}
 	//---------------------------------------------------------------------
-	void Root::addMovableObjectFactory(MovableObjectFactory* fact, 
+	void Root::addMovableObjectFactory(MovableObjectFactory* fact,
 		bool overrideExisting)
 	{
 		MovableObjectFactoryMap::iterator facti = mMovableObjectFactoryMap.find(
 			fact->getType());
 		if (!overrideExisting && facti != mMovableObjectFactoryMap.end())
 		{
-			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
-				"A factory of type '" + fact->getType() + "' already exists.", 
+			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM,
+				"A factory of type '" + fact->getType() + "' already exists.",
 				"Root::addMovableObjectFactory");
 		}
 
@@ -1001,7 +1001,7 @@ namespace Ogre {
 		// Save
 		mMovableObjectFactoryMap[fact->getType()] = fact;
 
-		LogManager::getSingleton().logMessage("MovableObjectFactory for type '" + 
+		LogManager::getSingleton().logMessage("MovableObjectFactory for type '" +
 			fact->getType() + "' registered.");
 
 	}
@@ -1013,11 +1013,11 @@ namespace Ogre {
 	//---------------------------------------------------------------------
 	MovableObjectFactory* Root::getMovableObjectFactory(const String& typeName)
 	{
-		MovableObjectFactoryMap::iterator i = 
+		MovableObjectFactoryMap::iterator i =
 			mMovableObjectFactoryMap.find(typeName);
 		if (i == mMovableObjectFactoryMap.end())
 		{
-			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
 				"MovableObjectFactory of type " + typeName + " does not exist",
 				"Root::getMovableObjectFactory");
 		}
@@ -1028,9 +1028,9 @@ namespace Ogre {
 	{
 		if (mNextMovableObjectTypeFlag == SceneManager::USER_TYPE_MASK_LIMIT)
 		{
-			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
+			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM,
 				"Cannot allocate a type flag since "
-				"all the available flags have been used.", 
+				"all the available flags have been used.",
 				"Root::_allocateNextMovableObjectTypeFlag");
 
 		}
@@ -1051,7 +1051,7 @@ namespace Ogre {
 
 	}
 	//---------------------------------------------------------------------
-	Root::MovableObjectFactoryIterator 
+	Root::MovableObjectFactoryIterator
 	Root::getMovableObjectFactoryIterator(void) const
 	{
 		return MovableObjectFactoryIterator(mMovableObjectFactoryMap.begin(),
@@ -1062,13 +1062,13 @@ namespace Ogre {
 	RenderQueueInvocationSequence* Root::createRenderQueueInvocationSequence(
 		const String& name)
 	{
-		RenderQueueInvocationSequenceMap::iterator i = 
+		RenderQueueInvocationSequenceMap::iterator i =
 			mRQSequenceMap.find(name);
 		if (i != mRQSequenceMap.end())
 		{
-			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
-				"RenderQueueInvocationSequence with the name " + name + 
-					" already exists.", 
+			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM,
+				"RenderQueueInvocationSequence with the name " + name +
+					" already exists.",
 				"Root::createRenderQueueInvocationSequence");
 		}
 		RenderQueueInvocationSequence* ret = new RenderQueueInvocationSequence(name);
@@ -1079,13 +1079,13 @@ namespace Ogre {
 	RenderQueueInvocationSequence* Root::getRenderQueueInvocationSequence(
 		const String& name)
 	{
-		RenderQueueInvocationSequenceMap::iterator i = 
+		RenderQueueInvocationSequenceMap::iterator i =
 			mRQSequenceMap.find(name);
 		if (i == mRQSequenceMap.end())
 		{
-			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-				"RenderQueueInvocationSequence with the name " + name + 
-				" not found.", 
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
+				"RenderQueueInvocationSequence with the name " + name +
+				" not found.",
 				"Root::getRenderQueueInvocationSequence");
 		}
 		return i->second;
@@ -1094,7 +1094,7 @@ namespace Ogre {
 	void Root::destroyRenderQueueInvocationSequence(
 		const String& name)
 	{
-		RenderQueueInvocationSequenceMap::iterator i = 
+		RenderQueueInvocationSequenceMap::iterator i =
 			mRQSequenceMap.find(name);
 		if (i != mRQSequenceMap.end())
 		{
@@ -1115,5 +1115,5 @@ namespace Ogre {
 	//---------------------------------------------------------------------
 
 
-		
+
 }
