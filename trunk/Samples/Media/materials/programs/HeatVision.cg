@@ -79,14 +79,16 @@ void LightToHeat_vp(
                     // in
                     float4 inPos: POSITION,
                     
+                    uniform float flipping,
+
                     // out
                     out float4 Pos: POSITION,
                     out float2 uv0: TEXCOORD0
                    )
 {
-   inPos.xy = sign(inPos.xy);
-   Pos  = float4(inPos.xy, 0.0f, 1.0f);
-   uv0  = (float2(Pos.x, -Pos.y) + 1.0f)/2.0f;
+    Pos = float4(inPos.x, flipping * inPos.y, 0.0f, 1.0f);
+    inPos.xy = sign(inPos.xy);
+    uv0  = (float2(inPos.x, -inPos.y) + 1.0f)/2.0f;
 }
 
 
@@ -146,15 +148,16 @@ void Blur_vp(
                     // in
                     float4 inPos: POSITION,
                     
+                    uniform float flipping,
+
                     // out
                     out float4 Pos: POSITION,
                     out float2 uv0: TEXCOORD0
                    )
 {
-
-   inPos.xy = sign(inPos.xy);
-   Pos  = float4(inPos.xy, 0.0f, 1.0f);
-   uv0  = (float2(Pos.x, -Pos.y) + 1.0f)/2.0f;
+    Pos = float4(inPos.x, flipping * inPos.y, 0.0f, 1.0f);
+    inPos.xy = sign(inPos.xy);
+    uv0  = (float2(inPos.x, -inPos.y) + 1.0f)/2.0f;
 }
 
 // ps_2_0

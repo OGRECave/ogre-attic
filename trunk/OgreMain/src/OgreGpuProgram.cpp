@@ -77,6 +77,8 @@ namespace Ogre
         AutoConstantDefinition(ACT_TRANSPOSE_WORLDVIEWPROJ_MATRIX,     "transpose_worldviewproj_matrix",    16, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_INVERSE_TRANSPOSE_WORLDVIEWPROJ_MATRIX, "inverse_transpose_worldviewproj_matrix", 16, ET_REAL, ACDT_NONE),
 
+        AutoConstantDefinition(ACT_RENDER_TARGET_FLIPPING,          "render_target_flipping",         1, ET_REAL, ACDT_NONE),
+
         AutoConstantDefinition(ACT_AMBIENT_LIGHT_COLOUR,          "ambient_light_colour",         4, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_LIGHT_DIFFUSE_COLOUR,          "light_diffuse_colour",         4, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_LIGHT_SPECULAR_COLOUR,         "light_specular_colour",        4, ET_REAL, ACDT_INT),
@@ -523,6 +525,10 @@ namespace Ogre
                break;
             case ACT_INVERSE_TRANSPOSE_WORLDVIEWPROJ_MATRIX:
                setConstant(i->index, source.getInverseTransposeWorldViewProjMatrix());
+               break;
+
+            case ACT_RENDER_TARGET_FLIPPING:
+               setConstant(i->index, source.getCurrentRenderTarget()->requiresTextureFlipping() ? -1.f : +1.f);
                break;
 
             // NB ambient light still here because it's not related to a specific light

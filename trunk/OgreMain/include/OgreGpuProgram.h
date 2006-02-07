@@ -153,6 +153,13 @@ namespace Ogre {
 			ACT_INVERSE_TRANSPOSE_WORLDVIEWPROJ_MATRIX,
 
 
+            /// render target related values
+            /** -1 if requires texture flipping, +1 otherwise. It's useful when you bypassed
+            projection matrix transform, still able use this value to adjust transformed y position.
+            */
+            ACT_RENDER_TARGET_FLIPPING,
+
+
 			/// The ambient light colour set in the scene
 			ACT_AMBIENT_LIGHT_COLOUR, 
 
