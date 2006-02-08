@@ -48,7 +48,7 @@ Examples/PurpleFountain
 {
     material        Examples/Flare2
     particle_width  20
-    particle_height 20
+    particle_height 40
     cull_each       false
     quota           10000
     billboard_type  oriented_self

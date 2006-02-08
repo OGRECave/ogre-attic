@@ -949,7 +949,6 @@ namespace Ogre {
             // X-axis is cross with camera direction
             // Scale direction first
             *pY = bb->mDirection;
-			*pY *= 0.01f;
             *pX = mCamDir.crossProduct(*pY);
             pX->normalise();
             break;

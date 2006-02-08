@@ -121,7 +121,13 @@ namespace Ogre {
         {
             Particle* p = *i;
             bb.mPosition = p->position;
-            bb.mDirection = p->direction;
+			if (mBillboardSet->getBillboardType() == BBT_ORIENTED_SELF ||
+				mBillboardSet->getBillboardType() == BBT_PERPENDICULAR_SELF)
+			{
+				// Normalise direction vector
+				bb.mDirection = p->direction;
+				bb.mDirection.normalise();
+			}
             bb.mColour = p->colour;
             bb.mRotation = p->rotation;
             // Assign and compare at the same time
