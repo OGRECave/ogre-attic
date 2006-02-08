@@ -32,6 +32,7 @@ Description: Somewhere to play in the sand...
 #include "ExampleApplication.h"
 #include "OgreProgressiveMesh.h"
 #include "OgreEdgeListBuilder.h"
+#include "OgreBillboardChain.h"
 
 /*
 #include "OgreNoMemoryMacros.h"
@@ -74,6 +75,7 @@ MaterialPtr skin;
 Frustum* frustum = 0;
 Camera* theCam;
 Camera* reflectCam = 0;
+
 
 class RefractionTextureListener : public RenderTargetListener
 {
@@ -150,7 +152,6 @@ public:
 
     bool frameStarted(const FrameEvent& evt)
     {
-
         if (!vertParams.isNull())
         {
             Matrix4 scaleMat = Matrix4::IDENTITY;
@@ -748,34 +749,45 @@ protected:
 
 	void testBug()
 	{
-		// Set ambient light
-		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
-		mWindow->getViewport(0)->setBackgroundColour(ColourValue::White);
+		mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_ADDITIVE);
 
+		// Setup lighting
+		mSceneMgr->setAmbientLight(ColourValue(0.2, 0.2, 0.2));
+		Light* light = mSceneMgr->createLight("MainLight");
+		light->setType(Light::LT_DIRECTIONAL);
+		Vector3 dir(-1, -1, 0.5);
+		dir.normalise();
+		light->setDirection(dir);
 
+		// Create a floor plane mesh
+		Plane plane(Vector3::UNIT_Y, 0.0);
+		MeshManager::getSingleton().createPlane(
+			"FloorPlane", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+			plane, 200000, 200000, 20, 20, true, 1, 500, 500, Vector3::UNIT_Z);
 
-		Entity *ent = mSceneMgr->createEntity("robot", "invertedcube.mesh");
-		// Uncomment the below to test software skinning
-		//ent->setMaterialName("Examples/Rocky");
-		// Add entity to the scene node
-		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
-		mAnimState = ent->getAnimationState("door1");
-		mAnimState->setEnabled(true);
+		// Add a floor to the scene
+		Entity* entity = mSceneMgr->createEntity("floor", "FloorPlane");
+		entity->setMaterialName("Examples/RustySteel");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(entity);
 
-		// Give it a little ambience with lights
-		Light* l;
-		l = mSceneMgr->createLight("BlueLight");
-		l->setPosition(-200,-80,-100);
-		l->setDiffuseColour(0.5, 0.5, 1.0);
+		// Add the mandatory ogre heads ;)
+		entity = mSceneMgr->createEntity("head0", "ogrehead.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(
+			Vector3(0.0, 10.0, 0.0))->attachObject(entity);
 
-		l = mSceneMgr->createLight("GreenLight");
-		l->setPosition(0,0,-100);
-		l->setDiffuseColour(0.5, 1.0, 0.5);
+		entity = mSceneMgr->createEntity("head1", "ogrehead.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(
+			Vector3(-50.0, 10.0, -50.0))->attachObject(entity);
 
-		// Position the camera
-		mCamera->setPosition(100,50,100);
-		mCamera->lookAt(-50,50,0);
+		entity = mSceneMgr->createEntity("head2", "ogrehead.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(
+			Vector3(70.0, 10.0, -80.0))->attachObject(entity);
 
+		// Position and orient the camera
+		mCamera->setPosition(-55.0, 40.0, 100.0);
+		mCamera->lookAt(-10.0, 20.0, -35.0); 
+
+		mWindow->addViewport(mCamera, 1, 0.7, 0.0, 0.3, 0.3); 
 	}
 
 	void testTransparencyMipMaps()
@@ -3079,6 +3091,162 @@ protected:
 
 	}
 
+	void testBillboardChain()
+	{
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+		Vector3 dir(-1, -1, 0.5);
+		dir.normalise();
+		Light* l = mSceneMgr->createLight("light1");
+		l->setType(Light::LT_DIRECTIONAL);
+		l->setDirection(dir);
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 100;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("2 - Default");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		BillboardChain* chain = static_cast<BillboardChain*>(
+			mSceneMgr->createMovableObject("1", "BillboardChain"));
+		chain->setUseTextureCoords(true);
+		chain->setUseVertexColours(false);
+		/*
+		BillboardChain::Element elem;
+		elem.width = 10;
+		elem.texCoord = 0;
+		elem.position = Vector3(0,20,0);
+		chain->addChainElement(0, elem);
+		elem.position = Vector3(20,0,0);
+		elem.texCoord = 1.0;
+		chain->addChainElement(0, elem);
+		elem.position = Vector3(40,10,0);
+		elem.texCoord = 2.0;
+		chain->addChainElement(0, elem);
+		elem.position = Vector3(60,20,0);
+		elem.texCoord = 3.0;
+		chain->addChainElement(0, elem);
+		elem.position = Vector3(80,40,0);
+		elem.texCoord = 4.0;
+		chain->addChainElement(0, elem);
+		elem.position = Vector3(100,70,0);
+		elem.texCoord = 5.0;
+		chain->addChainElement(0, elem);
+		*/
+		chain->setMaterialName("Examples/RustySteel");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(chain);
+
+		mSceneMgr->showBoundingBoxes(true);
+	}
+
+	void testRibbonTrail()
+	{
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+		Vector3 dir(-1, -1, 0.5);
+		dir.normalise();
+		Light* l = mSceneMgr->createLight("light1");
+		l->setType(Light::LT_DIRECTIONAL);
+		l->setDirection(dir);
+
+		NameValuePairList pairList;
+		pairList["numberOfChains"] = "2";
+		pairList["maxElements"] = "80";
+		RibbonTrail* trail = static_cast<RibbonTrail*>(
+			mSceneMgr->createMovableObject("1", "RibbonTrail", &pairList));
+		trail->setMaterialName("Examples/LightRibbonTrail");
+		trail->setTrailLength(400);
+
+
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(trail);
+
+		// Create 3 nodes for trail to follow
+		SceneNode* animNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		animNode->setPosition(0,20,0);
+		Animation* anim = mSceneMgr->createAnimation("an1", 10);
+		anim->setInterpolationMode(Animation::IM_SPLINE);
+		NodeAnimationTrack* track = anim->createNodeTrack(1, animNode);
+		TransformKeyFrame* kf = track->createNodeKeyFrame(0);
+		kf->setTranslate(Vector3::ZERO);
+		kf = track->createNodeKeyFrame(2);
+		kf->setTranslate(Vector3(100, 0, 0));
+		kf = track->createNodeKeyFrame(4);
+		kf->setTranslate(Vector3(200, 0, 300));
+		kf = track->createNodeKeyFrame(6);
+		kf->setTranslate(Vector3(0, 20, 500));
+		kf = track->createNodeKeyFrame(8);
+		kf->setTranslate(Vector3(-100, 10, 100));
+		kf = track->createNodeKeyFrame(10);
+		kf->setTranslate(Vector3::ZERO);
+
+		AnimationState* animState = mSceneMgr->createAnimationState("an1");
+		animState->setEnabled(true);
+		mAnimStateList.push_back(animState);
+
+		trail->addNode(animNode);
+		trail->setInitialColour(0, 1.0, 0.8, 0);
+		trail->setColourChange(0, 0.5, 0.5, 0.5, 0.5);
+		trail->setInitialWidth(0, 5);
+
+		// Add light
+		Light* l2 = mSceneMgr->createLight("l2");
+		l2->setDiffuseColour(trail->getInitialColour(0));
+		animNode->attachObject(l2);
+
+		// Add billboard
+		BillboardSet* bbs = mSceneMgr->createBillboardSet("bb", 1);
+		bbs->createBillboard(Vector3::ZERO, trail->getInitialColour(0));
+		bbs->setMaterialName("Examples/Flare");
+		animNode->attachObject(bbs);
+
+		animNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		animNode->setPosition(-50,10,0);
+		anim = mSceneMgr->createAnimation("an2", 10);
+		anim->setInterpolationMode(Animation::IM_SPLINE);
+		track = anim->createNodeTrack(1, animNode);
+		kf = track->createNodeKeyFrame(0);
+		kf->setTranslate(Vector3::ZERO);
+		kf = track->createNodeKeyFrame(2);
+		kf->setTranslate(Vector3(-100, 150, -30));
+		kf = track->createNodeKeyFrame(4);
+		kf->setTranslate(Vector3(-200, 0, 40));
+		kf = track->createNodeKeyFrame(6);
+		kf->setTranslate(Vector3(0, -150, 70));
+		kf = track->createNodeKeyFrame(8);
+		kf->setTranslate(Vector3(50, 0, 30));
+		kf = track->createNodeKeyFrame(10);
+		kf->setTranslate(Vector3::ZERO);
+
+		animState = mSceneMgr->createAnimationState("an2");
+		animState->setEnabled(true);
+		mAnimStateList.push_back(animState);
+
+		trail->addNode(animNode);
+		trail->setInitialColour(1, 0.0, 1.0, 0.4);
+		trail->setColourChange(1, 0.5, 0.5, 0.5, 0.5);
+		trail->setInitialWidth(1, 5);
+
+
+		// Add light
+		l2 = mSceneMgr->createLight("l3");
+		l2->setDiffuseColour(trail->getInitialColour(1));
+		animNode->attachObject(l2);
+
+		// Add billboard
+		bbs = mSceneMgr->createBillboardSet("bb2", 1);
+		bbs->createBillboard(Vector3::ZERO, trail->getInitialColour(1));
+		bbs->setMaterialName("Examples/Flare");
+		animNode->attachObject(bbs);
+
+
+
+		//mSceneMgr->showBoundingBoxes(true);
+
+	}
+
 	void testBlendDiffuseColour()
 	{
 		MaterialPtr mat = MaterialManager::getSingleton().create(
@@ -3335,7 +3503,7 @@ protected:
 		//testSimpleMesh();
 		//test2Windows();
 		//testStaticGeometry();
-		testBillboardTextureCoords();
+		//testBillboardTextureCoords();
 		//testReloadResources();
 		//testTransparencyMipMaps();
 		//testRadixSort();
@@ -3350,6 +3518,8 @@ protected:
 		//testFallbackResourceGroup();
 		//testSuppressedShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testViewportNoShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
+		//testBillboardChain();
+		testRibbonTrail();
 
 		
     }
