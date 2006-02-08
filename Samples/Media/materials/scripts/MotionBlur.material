@@ -1,54 +1,14 @@
-//DirectX 9.0 HLSL Vertex Shader vs_1_1
-vertex_program Combine_vs11 hlsl
+fragment_program Ogre/Compositor/Combine_fp cg
 {
-	source Combine_vs11.hlsl
-	target vs_1_1
-	entry_point main
+	source Combine_fp.cg
+	profiles ps_2_0 ps_1_4 arbfp1
+	entry_point Combine_fp
+
+	default_params
+	{
+		param_named blur float 0.8
+	}
 }
-
-//DirectX 9.0 HLSL Pixel Shader ps_1_4
-fragment_program Combine_ps14 hlsl
-{
-	source Combine_ps14.hlsl
-	target ps_1_4
-	entry_point main
-}
-
-//DirectX 9.0 HLSL Vertex Shader vs_1_1
-vertex_program Copyback_vs11 hlsl
-{
-	source Copyback_vs11.hlsl
-	target vs_1_1
-	entry_point main
-}
-
-//DirectX 9.0 HLSL Pixel Shader ps_1_1
-fragment_program Copyback_ps11 hlsl
-{
-	source Copyback_ps11.hlsl
-	target ps_1_1
-	entry_point main
-}
-
-//DirectX 9.0 HLSL Vertex Shader vs_1_1
-vertex_program MotionBlur_vs11 hlsl
-{
-	source MotionBlur_vs11.hlsl
-	target vs_1_1
-	entry_point main
-}
-
-//DirectX 9.0 HLSL Pixel Shader ps_1_1
-fragment_program MotionBlur_ps11 hlsl
-{
-	source MotionBlur_ps11.hlsl
-	target ps_1_1
-	entry_point main
-}
-
-
-
-
 
 material Ogre/Compositor/Combine
 {
@@ -56,34 +16,16 @@ material Ogre/Compositor/Combine
 	{
 		pass
 		{
-			//State: D3DRS_CULLMODE, Value : D3DCULL_NONE
-			cull_hardware none
-			cull_software none
 			depth_check off
 
-			//DirectX 9.0 HLSL Pixel Shader ps_1_4
-			fragment_program_ref Combine_ps14
+			fragment_program_ref Ogre/Compositor/Combine_fp
 			{
-				//Shader Constant: blur
-				param_indexed 0 float4 0.800000 0.0 0.0 0.0
-			}
-			//DirectX 9.0 HLSL Vertex Shader vs_1_1
-			vertex_program_ref Combine_vs11
-			{
-				//Shader Constant: viewport_inv_height
-				param_indexed_auto 1 inverse_viewport_height
-				
-				//Shader Constant: viewport_inv_width
-				param_indexed_auto 0 inverse_viewport_width
 			}
 
-			//Texture Stage 0
-			//RT: Renderable Texture (using viewport size)
-			//State: D3DSAMP_ADDRESSU, Value : D3DTADDRESS_CLAMP
-			//State: D3DSAMP_ADDRESSV, Value : D3DTADDRESS_CLAMP
-			//State: D3DSAMP_MAGFILTER, Value : D3DTEXF_LINEAR
-			//State: D3DSAMP_MINFILTER, Value : D3DTEXF_LINEAR
-			//State: D3DSAMP_MIPFILTER, Value : D3DTEXF_NONE
+			vertex_program_ref Ogre/Compositor/StdQuad_vp
+			{
+			}
+
 			texture_unit
 			{
 				texture RT
@@ -92,13 +34,6 @@ material Ogre/Compositor/Combine
                 tex_coord_set 0
 			}
 
-			//Texture Stage 1
-			//Sum: Renderable Texture (using viewport size)
-			//State: D3DSAMP_ADDRESSU, Value : D3DTADDRESS_CLAMP
-			//State: D3DSAMP_ADDRESSV, Value : D3DTADDRESS_CLAMP
-			//State: D3DSAMP_MAGFILTER, Value : D3DTEXF_LINEAR
-			//State: D3DSAMP_MINFILTER, Value : D3DTEXF_LINEAR
-			//State: D3DSAMP_MIPFILTER, Value : D3DTEXF_NONE
 			texture_unit
 			{
 				texture SUM
@@ -118,10 +53,13 @@ material Ogre/Compositor/Copyback
 		{
 			lighting off
 			depth_check off
+
 			texture_unit
 			{
+				texture Temp
 				tex_address_mode clamp
 				filtering linear linear none
+				colour_op replace
                 tex_coord_set 0
 			}
 		}
@@ -134,31 +72,15 @@ material Ogre/Compositor/MotionBlur
 	{
 		pass
 		{
+			lighting off
 			depth_check off
-			fragment_program_ref MotionBlur_ps11
-			{
-			}
 
-			vertex_program_ref MotionBlur_vs11
-			{
-				//Shader Constant: viewport_inv_height
-				param_indexed_auto 1 inverse_viewport_height
-				//Shader Constant: viewport_inv_width
-				param_indexed_auto 0 inverse_viewport_width
-			}
-
-			//Texture Stage 0
-			//Sum: Renderable Texture (using viewport size)
-			//State: D3DSAMP_ADDRESSU, Value : D3DTADDRESS_CLAMP
-			//State: D3DSAMP_ADDRESSV, Value : D3DTADDRESS_CLAMP
-			//State: D3DSAMP_MAGFILTER, Value : D3DTEXF_LINEAR
-			//State: D3DSAMP_MINFILTER, Value : D3DTEXF_LINEAR
-			//State: D3DSAMP_MIPFILTER, Value : D3DTEXF_NONE
 			texture_unit
 			{
 				texture Sum
 				tex_address_mode clamp
 				filtering linear linear none
+				colour_op replace
                 tex_coord_set 0
 			}
 		}
