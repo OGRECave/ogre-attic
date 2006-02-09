@@ -139,11 +139,11 @@ namespace Ogre
             if ( fValue < 1.0 )
                 return Radian(asin(fValue));
             else
-                return Radian(-HALF_PI);
+                return Radian(HALF_PI);
         }
         else
         {
-            return Radian(HALF_PI);
+            return Radian(-HALF_PI);
         }
     }
     //-----------------------------------------------------------------------
