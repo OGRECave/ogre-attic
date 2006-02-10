@@ -63,9 +63,13 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::exportMesh(const Mesh* pMesh, const String& filename)
+    void MeshSerializerImpl::exportMesh(const Mesh* pMesh, 
+		const String& filename, Endian endianMode)
     {
         LogManager::getSingleton().logMessage("MeshSerializer writing mesh data to " + filename + "...");
+
+		// Decide on endian mode
+		determineEndianness(endianMode);
 
         // Check that the mesh has it's bounds set
         if (pMesh->getBounds().isNull() || pMesh->getBoundingSphereRadius() == 0.0f)

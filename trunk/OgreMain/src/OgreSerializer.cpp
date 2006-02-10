@@ -80,6 +80,30 @@ namespace Ogre {
 		}
 	}
     //---------------------------------------------------------------------
+	void Serializer::determineEndianness(Endian requestedEndian)
+	{
+		switch(requestedEndian)
+		{
+		case ENDIAN_NATIVE:
+			mFlipEndian = false;
+			break;
+		case ENDIAN_BIG:
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
+			mFlipEndian = false;
+#else
+			mFlipEndian = true;
+#endif
+			break;
+		case ENDIAN_LITTLE:
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
+			mFlipEndian = true;
+#else
+			mFlipEndian = false;
+#endif
+			break;
+		}
+	}
+    //---------------------------------------------------------------------
     void Serializer::writeFileHeader(void)
     {
         

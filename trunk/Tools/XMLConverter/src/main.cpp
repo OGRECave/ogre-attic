@@ -57,6 +57,7 @@ struct XmlOptions
 	bool quietMode;
 	bool d3d;
 	bool gl;
+	Serializer::Endian endian;
 };
 
 void help(void)
@@ -78,6 +79,7 @@ void help(void)
     cout << "-o             = DON'T optimise out redundant tracks & keyframes" << endl;
 	cout << "-d3d           = Prefer D3D packed colour formats (default on Windows)" << endl;
 	cout << "-gl            = Prefer GL packed colour formats (default on non-Windows)" << endl;
+	cout << "-E endian      = Set endian mode 'big' 'little' or 'native' (default)" << endl;
 	cout << "-q             = Quiet mode, less output" << endl;
     cout << "-log filename  = name of the log file (default: 'OgreXMLConverter.log')" << endl;
     cout << "sourcefile     = name of file to convert" << endl;
@@ -106,6 +108,7 @@ XmlOptions parseArgs(int numArgs, char **args)
     opts.reorganiseBuffers = true;
 	opts.optimiseAnimations = true;
 	opts.quietMode = false;
+	opts.endian = Serializer::ENDIAN_NATIVE;
 
     // ignore program name
     char* source = 0;
@@ -127,6 +130,7 @@ XmlOptions parseArgs(int numArgs, char **args)
     binOpt["-d"] = "";
     binOpt["-p"] = "";
     binOpt["-f"] = "";
+    binOpt["-E"] = "";
     binOpt["-log"] = "OgreXMLConverter.log";
 
     int startIndex = findCommandLineOpts(numArgs, args, unOpt, binOpt);
@@ -201,6 +205,17 @@ XmlOptions parseArgs(int numArgs, char **args)
         if (!bi->second.empty())
         {
             opts.logFile = bi->second;
+        }
+
+        bi = binOpt.find("-E");
+        if (!bi->second.empty())
+        {
+            if (bi->second == "big")
+                opts.endian = Serializer::ENDIAN_BIG;
+            else if (bi->second == "little")
+                opts.endian = Serializer::ENDIAN_LITTLE;
+            else 
+                opts.endian = Serializer::ENDIAN_NATIVE;
         }
 
 		ui = unOpt.find("-d3d");
@@ -625,7 +640,7 @@ void XMLToBinary(XmlOptions opts)
         }
 
 
-        meshSerializer->exportMesh(newMesh.getPointer(), opts.dest);
+        meshSerializer->exportMesh(newMesh.getPointer(), opts.dest, opts.endian);
     }
     else if (!stricmp(root->Value(), "skeleton"))
     {
@@ -637,7 +652,7 @@ void XMLToBinary(XmlOptions opts)
 		{
 			newSkel->optimiseAllAnimations();
 		}
-        skeletonSerializer->exportSkeleton(newSkel.getPointer(), opts.dest);
+        skeletonSerializer->exportSkeleton(newSkel.getPointer(), opts.dest, opts.endian);
     }
 
 

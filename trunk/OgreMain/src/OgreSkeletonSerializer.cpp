@@ -53,8 +53,12 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void SkeletonSerializer::exportSkeleton(const Skeleton* pSkeleton, const String& filename)
+    void SkeletonSerializer::exportSkeleton(const Skeleton* pSkeleton, 
+		const String& filename, Endian endianMode)
     {
+		// Decide on endian mode
+		determineEndianness(endianMode);
+
         String msg;
         mpfFile = fopen(filename.c_str(), "wb");
 

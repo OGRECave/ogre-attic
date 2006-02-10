@@ -66,7 +66,8 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializer::exportMesh(const Mesh* pMesh, const String& filename)
+    void MeshSerializer::exportMesh(const Mesh* pMesh, const String& filename,
+		Endian endianMode)
     {
         MeshSerializerImplMap::iterator impl = mImplementations.find(msCurrentVersion);
         if (impl == mImplementations.end())
@@ -75,7 +76,7 @@ namespace Ogre {
                 "current version " + msCurrentVersion, "MeshSerializer::exportMesh");
         }
 
-        impl->second->exportMesh(pMesh, filename);
+        impl->second->exportMesh(pMesh, filename, endianMode);
     }
     //---------------------------------------------------------------------
     void MeshSerializer::importMesh(DataStreamPtr& stream, Mesh* pDest)
