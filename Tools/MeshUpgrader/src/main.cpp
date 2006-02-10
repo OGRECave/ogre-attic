@@ -54,6 +54,7 @@ void help(void)
 	cout << "-gl        = Convert to GL colour formats" << endl;
 	cout << "-srcd3d    = Interpret ambiguous colours as D3D style" << endl;
 	cout << "-srcgl     = Interpret ambiguous colours as GL style" << endl;
+	cout << "-E endian  = Set endian mode 'big' 'little' or 'native' (default)" << endl;
     cout << "sourcefile = name of file to convert" << endl;
     cout << "destfile   = optional name of file to write to. If you don't" << endl;
     cout << "             specify this OGRE overwrites the existing file." << endl;
@@ -76,6 +77,7 @@ struct UpgradeOptions
 	Real lodPercent;
 	size_t lodFixed;
 	bool usePercent;
+	Serializer::Endian endian;
 
 };
 
@@ -100,6 +102,7 @@ void parseOpts(UnaryOptionList& unOpts, BinaryOptionList& binOpts)
 	opts.suppressEdgeLists = false;
 	opts.generateTangents = false;
 	opts.dontReorganise = false;
+	opts.endian = Serializer::ENDIAN_NATIVE;
 	opts.destColourFormatSet = false;
 	opts.srcColourFormatSet = false;
 
@@ -171,6 +174,16 @@ void parseOpts(UnaryOptionList& unOpts, BinaryOptionList& binOpts)
 		opts.usePercent = false;
 	}
 
+	bi = binOpts.find("-E");
+	if (!bi->second.empty())
+	{
+	    if (bi->second == "big")
+            opts.endian = Serializer::ENDIAN_BIG;
+	    else if (bi->second == "little")
+            opts.endian = Serializer::ENDIAN_LITTLE;
+	    else 
+            opts.endian = Serializer::ENDIAN_NATIVE;
+    }
 
 }
 
@@ -823,6 +836,7 @@ int main(int numargs, char** args)
 	binOptList["-d"] = "";
 	binOptList["-p"] = "";
 	binOptList["-f"] = "";
+	binOptList["-E"] = "";
 
     int startIdx = findCommandLineOpts(numargs, args, unOptList, binOptList);
 	parseOpts(unOptList, binOptList);
@@ -928,7 +942,7 @@ int main(int numargs, char** args)
 
 
 
-    meshSerializer->exportMesh(&mesh, dest);
+    meshSerializer->exportMesh(&mesh, dest, opts.endian);
     
 
 

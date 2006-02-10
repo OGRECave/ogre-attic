@@ -68,8 +68,10 @@ namespace Ogre {
             and optionally the Materials it uses to a .mesh file.
         @param pMesh Pointer to the Mesh to export
         @param filename The destination filename
+		@param endianMode The endian mode of the written file
         */
-        void exportMesh(const Mesh* pMesh, const String& filename);
+        void exportMesh(const Mesh* pMesh, const String& filename,
+			Endian endianMode = ENDIAN_NATIVE);
 
         /** Imports Mesh and (optionally) Material data from a .mesh file DataStream.
         @remarks
