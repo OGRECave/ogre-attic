@@ -34,7 +34,11 @@ namespace Ogre {
     ColourValue ColourValue::Blue = ColourValue(0.0,0.0,1.0);
 
     //---------------------------------------------------------------------
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
+    RGBA ColourValue::getAsABGR(void) const
+#else
     RGBA ColourValue::getAsRGBA(void) const
+#endif
     {
         uint8 val8;
         uint32 val32 = 0;
@@ -61,7 +65,11 @@ namespace Ogre {
         return val32;
     }
     //---------------------------------------------------------------------
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
+    ARGB ColourValue::getAsBGRA(void) const
+#else
     ARGB ColourValue::getAsARGB(void) const
+#endif
     {
         uint8 val8;
         uint32 val32 = 0;
@@ -89,7 +97,11 @@ namespace Ogre {
         return val32;
     }
     //---------------------------------------------------------------------
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
+    ABGR ColourValue::getAsRGBA(void) const
+#else
     ABGR ColourValue::getAsABGR(void) const
+#endif
     {
         uint8 val8;
         uint32 val32 = 0;
@@ -117,7 +129,11 @@ namespace Ogre {
         return val32;
     }
     //---------------------------------------------------------------------
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
+    void ColourValue::setAsABGR(const RGBA val)
+#else
     void ColourValue::setAsRGBA(const RGBA val)
+#endif
     {
         uint32 val32 = val;
 
@@ -137,7 +153,11 @@ namespace Ogre {
         a = static_cast<uint8>(val32) / 255.0f;
     }
     //---------------------------------------------------------------------
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
+    void ColourValue::setAsBGRA(const ARGB val)
+#else
     void ColourValue::setAsARGB(const ARGB val)
+#endif
     {
         uint32 val32 = val;
 
@@ -157,7 +177,11 @@ namespace Ogre {
         b = static_cast<uint8>(val32) / 255.0f;
     }
     //---------------------------------------------------------------------
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
+    void ColourValue::setAsRGBA(const ABGR val)
+#else
     void ColourValue::setAsABGR(const ABGR val)
+#endif
     {
         uint32 val32 = val;
 

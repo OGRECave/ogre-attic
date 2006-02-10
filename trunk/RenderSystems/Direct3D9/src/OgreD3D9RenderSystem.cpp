@@ -1064,13 +1064,13 @@ namespace Ogre
 		const String errMsg = DXGetErrorDescription9( errorNumber );
 		return errMsg;
 	}
-	//---------------------------------------------------------------------
-	void D3D9RenderSystem::convertColourValue( const ColourValue& colour, uint32* pDest )
-	{
-		*pDest = colour.getAsARGB();
-	}
     //---------------------------------------------------------------------
-    void D3D9RenderSystem::_convertProjectionMatrix(const Matrix4& matrix,
+	VertexElementType D3D9RenderSystem::getColourVertexElementType(void) const
+	{
+		return VET_COLOUR_ARGB;
+	}
+   	//---------------------------------------------------------------------
+	void D3D9RenderSystem::_convertProjectionMatrix(const Matrix4& matrix,
         Matrix4& dest, bool forGpuProgram)
     {
         dest = matrix;

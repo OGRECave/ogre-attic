@@ -36,24 +36,24 @@ namespace Ogre {
     class _OgreExport HardwareVertexBuffer : public HardwareBuffer
     {
 	    protected:
-		    
+
 		    size_t mNumVertices;
             size_t mVertexSize;
 
 	    public:
 		    /// Should be called by HardwareBufferManager
-		    HardwareVertexBuffer(size_t vertexSize, size_t numVertices, 
+		    HardwareVertexBuffer(size_t vertexSize, size_t numVertices,
                 HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer);
             ~HardwareVertexBuffer();
             /// Gets the size in bytes of a single vertex in this buffer
             size_t getVertexSize(void) const { return mVertexSize; }
             /// Get the number of vertices in this buffer
             size_t getNumVertices(void) const { return mNumVertices; }
-    		
+
 
 
 		    // NB subclasses should override lock, unlock, readData, writeData
-    	
+
     };
 
     /** Shared pointer implementation used to share index buffers. */
@@ -92,20 +92,25 @@ namespace Ogre {
     /// Vertex element type, used to identify the base types of the vertex contents
     enum VertexElementType
     {
-        VET_FLOAT1,
-        VET_FLOAT2,
-        VET_FLOAT3,
-        VET_FLOAT4,
-        VET_COLOUR,
-		VET_SHORT1,
-		VET_SHORT2,
-		VET_SHORT3,
-		VET_SHORT4, 
-        VET_UBYTE4
+        VET_FLOAT1 = 0,
+        VET_FLOAT2 = 1,
+        VET_FLOAT3 = 2,
+        VET_FLOAT4 = 3,
+        /// alias to more specific colour type - use the current rendersystem's colour packing
+		VET_COLOUR = 4,
+		VET_SHORT1 = 5,
+		VET_SHORT2 = 6,
+		VET_SHORT3 = 7,
+		VET_SHORT4 = 8,
+        VET_UBYTE4 = 9,
+        /// D3D style compact colour
+        VET_COLOUR_ARGB = 10,
+        /// GL style compact colour
+        VET_COLOUR_ABGR = 11
     };
 
     /** This class declares the usage of a single vertex buffer as a component
-        of a complete VertexDeclaration. 
+        of a complete VertexDeclaration.
         @remarks
         Several vertex buffers can be used to supply the input geometry for a
         rendering operation, and in each case a vertex buffer can be used in
@@ -147,17 +152,37 @@ namespace Ogre {
 		/// Utility method which returns the count of values in a given type
 		static unsigned short getTypeCount(VertexElementType etype);
 		/** Simple converter function which will turn a single-value type into a
-			multi-value type based on a parameter. 
+			multi-value type based on a parameter.
 		*/
 		static VertexElementType multiplyTypeCount(VertexElementType baseType, unsigned short count);
 		/** Simple converter function which will a type into it's single-value
-			equivalent - makes switches on type easier. 
+			equivalent - makes switches on type easier.
 		*/
 		static VertexElementType getBaseType(VertexElementType multiType);
 
+		/** Utility method for converting colour from
+			one packed 32-bit colour type to another.
+		@param srcType The source type
+		@param dstType The destination type
+		@param ptr Read / write value to change
+		*/
+		static void convertColourValue(VertexElementType srcType,
+			VertexElementType dstType, uint32* ptr);
+
+		/** Utility method for converting colour to
+			a packed 32-bit colour type.
+		@param src source colour
+		@param dst The destination type
+		*/
+		static uint32 convertColourValue(const ColourValue& src,
+			VertexElementType dst);
+
+		/** Utility method to get the most appropriate packed colour vertex element format. */
+		static VertexElementType getBestColourVertexElementType(void);
+
         inline bool operator== (const VertexElement& rhs) const
         {
-            if (mType != rhs.mType || 
+            if (mType != rhs.mType ||
                 mIndex != rhs.mIndex ||
                 mOffset != rhs.mOffset ||
                 mSemantic != rhs.mSemantic ||
@@ -191,7 +216,7 @@ namespace Ogre {
         inline void baseVertexPointerToElement(void* pBase, float** pElem) const
         {
             // The only way we can do this is to cast to char* in order to use byte offset
-            // then cast back to float*. However we have to go via void* because casting  
+            // then cast back to float*. However we have to go via void* because casting
             // directly is not allowed
             *pElem = static_cast<float*>(
                 static_cast<void*>(
@@ -238,23 +263,23 @@ namespace Ogre {
 
     };
     /** This class declares the format of a set of vertex inputs, which
-        can be issued to the rendering API through a RenderOperation. 
+        can be issued to the rendering API through a RenderOperation.
 	@remarks
-	You should be aware that the ordering and structure of the 
+	You should be aware that the ordering and structure of the
 	VertexDeclaration can be very important on DirectX with older
-	cards,so if you want to maintain maximum compatibility with 
+	cards,so if you want to maintain maximum compatibility with
 	all render systems and all cards you should be careful to follow these
 	rules:<ol>
 	<li>VertexElements should be added in the following order, and the order of the
-	elements within a shared buffer should be as follows: 
-	position, blending weights, normals, diffuse colours, specular colours, 
+	elements within a shared buffer should be as follows:
+	position, blending weights, normals, diffuse colours, specular colours,
             texture coordinates (in order, with no gaps)</li>
 	<li>You must not have unused gaps in your buffers which are not referenced
 	by any VertexElement</li>
 	<li>You must not cause the buffer & offset settings of 2 VertexElements to overlap</li>
 	</ol>
-	Whilst GL and more modern graphics cards in D3D will allow you to defy these rules, 
-	sticking to them will ensure that your buffers have the maximum compatibility. 
+	Whilst GL and more modern graphics cards in D3D will allow you to defy these rules,
+	sticking to them will ensure that your buffers have the maximum compatibility.
 	@par
 	Like the other classes in this functional area, these declarations should be created and
 	destroyed using the HardwareBufferManager.
@@ -272,7 +297,7 @@ namespace Ogre {
         /// Standard constructor, not you should use HardwareBufferManager::createVertexDeclaration
         VertexDeclaration();
         virtual ~VertexDeclaration();
-        
+
         /** Get the number of elements in the declaration. */
         size_t getElementCount(void) { return mElementList.size(); }
         /** Gets read-only access to the list of vertex elements. */
@@ -303,16 +328,16 @@ namespace Ogre {
         void closeGapsInSource(void);
 
         /** Generates a new VertexDeclaration for optimal usage based on the current
-            vertex declaration, which can be used with VertexData::reorganiseBuffers later 
+            vertex declaration, which can be used with VertexData::reorganiseBuffers later
             if you wish, or simply used as a template.
 		@remarks
 			Different buffer organisations and buffer usages will be returned
             depending on the parameters passed to this method.
-        @param skeletalAnimation Whether this vertex data is going to be 
+        @param skeletalAnimation Whether this vertex data is going to be
 			skeletally animated
 		@param vertexAnimation Whether this vertex data is going to be vertex animated
         */
-        VertexDeclaration* getAutoOrganisedDeclaration(bool skeletalAnimation, 
+        VertexDeclaration* getAutoOrganisedDeclaration(bool skeletalAnimation,
 			bool vertexAnimation);
 
         /** Gets the indeex of the highest source value referenced by this declaration. */
@@ -320,7 +345,7 @@ namespace Ogre {
 
 
 
-        /** Adds a new VertexElement to this declaration. 
+        /** Adds a new VertexElement to this declaration.
         @remarks
             This method adds a single element (positions, normals etc) to the end of the
             vertex declaration. <b>Please read the information in VertexDeclaration about
@@ -335,7 +360,7 @@ namespace Ogre {
         */
         virtual const VertexElement& addElement(unsigned short source, size_t offset, VertexElementType theType,
             VertexElementSemantic semantic, unsigned short index = 0);
-        /** Inserts a new VertexElement at a given position in this declaration. 
+        /** Inserts a new VertexElement at a given position in this declaration.
         @remarks
         This method adds a single element (positions, normals etc) at a given position in this
         vertex declaration. <b>Please read the information in VertexDeclaration about
@@ -355,7 +380,7 @@ namespace Ogre {
         /** Remove the element at the given index from this declaration. */
         virtual void removeElement(unsigned short elem_index);
 
-        /** Remove the element with the given semantic and usage index. 
+        /** Remove the element with the given semantic and usage index.
         @remarks
             In this case 'index' means the usage index for repeating elements such
             as texture coordinates. For other elements this will always be 0 and does
@@ -366,7 +391,7 @@ namespace Ogre {
 		/** Remove all elements. */
 		virtual void removeAllElements(void);
 
-        /** Modify an element in-place, params as addElement. 
+        /** Modify an element in-place, params as addElement.
 	   @remarks
 	   <b>Please read the information in VertexDeclaration about
 	    the importance of ordering and structure for compatibility with older D3D drivers</b>.
@@ -374,23 +399,23 @@ namespace Ogre {
         virtual void modifyElement(unsigned short elem_index, unsigned short source, size_t offset, VertexElementType theType,
             VertexElementSemantic semantic, unsigned short index = 0);
 
-		/** Finds a VertexElement with the given semantic, and index if there is more than 
-			one element with the same semantic. 
+		/** Finds a VertexElement with the given semantic, and index if there is more than
+			one element with the same semantic.
         @remarks
             If the element is not found, this method returns null.
 		*/
 		virtual const VertexElement* findElementBySemantic(VertexElementSemantic sem, unsigned short index = 0);
-		/** Based on the current elements, gets the size of the vertex for a given buffer source. 
+		/** Based on the current elements, gets the size of the vertex for a given buffer source.
 		@param source The buffer binding index for which to get the vertex size.
 		*/
 
-		/** Gets a list of elements which use a given source. 
+		/** Gets a list of elements which use a given source.
 		@remarks
 			Note that the list of elements is returned by value therefore is separate from
-			the declaration as soon as this method returns. 
+			the declaration as soon as this method returns.
 		*/
 		virtual VertexElementList findElementsBySource(unsigned short source);
-		
+
 		/** Gets the vertex size defined by this declaration for a given source. */
         virtual size_t getVertexSize(unsigned short source);
 
@@ -446,9 +471,9 @@ namespace Ogre {
 		/// Constructor, should not be called direct, use HardwareBufferManager::createVertexBufferBinding
 		VertexBufferBinding();
 		virtual ~VertexBufferBinding();
-		/** Set a binding, associating a vertex buffer with a given index. 
+		/** Set a binding, associating a vertex buffer with a given index.
 		@remarks
-			If the index is already associated with a vertex buffer, 
+			If the index is already associated with a vertex buffer,
             the association will be replaced. This may cause the old buffer
             to be destroyed if nothing else is referring to it.
 			You should assign bindings from 0 and not leave gaps, although you can

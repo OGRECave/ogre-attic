@@ -385,6 +385,12 @@ namespace Ogre {
         return static_cast< unsigned int >( mVertexCount );
     }
     //-----------------------------------------------------------------------
+	void RenderSystem::convertColourValue(const ColourValue& colour, uint32* pDest)
+	{
+		*pDest = VertexElement::convertColourValue(colour, getColourVertexElementType());
+
+	}
+    //-----------------------------------------------------------------------
     void RenderSystem::_setWorldMatrices(const Matrix4* m, unsigned short count)
     {
         // Save these matrices for software blending later

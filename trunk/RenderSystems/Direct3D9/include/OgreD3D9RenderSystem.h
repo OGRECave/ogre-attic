@@ -205,7 +205,7 @@ namespace Ogre
 		void setShadingType( ShadeOptions so );
 		void setLightingEnabled( bool enabled );
 		void destroyRenderTarget(const String& name);
-		void convertColourValue( const ColourValue& colour, uint32* pDest );
+		VertexElementType getColourVertexElementType(void) const;
 		void setStencilCheckEnabled(bool enabled);
         void setStencilBufferParams(CompareFunction func = CMPF_ALWAYS_PASS, 
             uint32 refValue = 0, uint32 mask = 0xFFFFFFFF, 

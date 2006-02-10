@@ -55,6 +55,8 @@ struct XmlOptions
     bool reorganiseBuffers;
 	bool optimiseAnimations;
 	bool quietMode;
+	bool d3d;
+	bool gl;
 };
 
 void help(void)
@@ -74,6 +76,8 @@ void help(void)
     cout << "-r             = DON'T reorganise vertex buffers to OGRE recommended format." << endl;
     cout << "-t             = Generate tangents (for normal mapping)" << endl;
     cout << "-o             = DON'T optimise out redundant tracks & keyframes" << endl;
+	cout << "-d3d           = Prefer D3D packed colour formats (default on Windows)" << endl;
+	cout << "-gl            = Prefer GL packed colour formats (default on non-Windows)" << endl;
 	cout << "-q             = Quiet mode, less output" << endl;
     cout << "-log filename  = name of the log file (default: 'OgreXMLConverter.log')" << endl;
     cout << "sourcefile     = name of file to convert" << endl;
@@ -117,6 +121,8 @@ XmlOptions parseArgs(int numArgs, char **args)
     unOpt["-t"] = false;
     unOpt["-o"] = false;
 	unOpt["-q"] = false;
+	unOpt["-d3d"] = false;
+	unOpt["-gl"] = false;
     binOpt["-l"] = "";
     binOpt["-d"] = "";
     binOpt["-p"] = "";
@@ -196,7 +202,21 @@ XmlOptions parseArgs(int numArgs, char **args)
         {
             opts.logFile = bi->second;
         }
-    }
+
+		ui = unOpt.find("-d3d");
+		if (ui->second)
+		{
+			opts.d3d = true;
+		}
+
+		ui = unOpt.find("-gl");
+		if (ui->second)
+		{
+			opts.gl = true;
+			opts.d3d = false;
+		}
+
+	}
     // Source / dest
     if (numArgs > startIndex)
         source = args[startIndex];
@@ -328,7 +348,13 @@ void XMLToBinary(XmlOptions opts)
         delete doc;
         MeshPtr newMesh = MeshManager::getSingleton().createManual("conversion", 
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-        xmlMeshSerializer->importMesh(opts.source, newMesh.getPointer());
+		VertexElementType colourElementType;
+		if (opts.d3d)
+			colourElementType = VET_COLOUR_ARGB;
+		else
+			colourElementType = VET_COLOUR_ABGR;
+
+        xmlMeshSerializer->importMesh(opts.source, colourElementType, newMesh.getPointer());
 
         // Re-jig the buffers?
         if (opts.reorganiseBuffers)

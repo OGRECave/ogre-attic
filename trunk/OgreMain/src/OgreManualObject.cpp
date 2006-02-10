@@ -43,11 +43,11 @@ namespace Ogre {
 #define TEMP_INITIAL_INDEX_SIZE sizeof(uint16) * TEMP_INITIAL_SIZE
 	//-----------------------------------------------------------------------------
 	ManualObject::ManualObject(const String& name)
-		: MovableObject(name), 
-		  mCurrentSection(0), mFirstVertex(true), 
+		: MovableObject(name),
+		  mCurrentSection(0), mFirstVertex(true),
 		  mTempVertexPending(false),
-		  mTempVertexBuffer(0), mTempVertexSize(TEMP_INITIAL_VERTEX_SIZE), 
-		  mTempIndexBuffer(0), mTempIndexSize(TEMP_INITIAL_INDEX_SIZE), 
+		  mTempVertexBuffer(0), mTempVertexSize(TEMP_INITIAL_VERTEX_SIZE),
+		  mTempIndexBuffer(0), mTempIndexSize(TEMP_INITIAL_INDEX_SIZE),
 		  mDeclSize(0), mTexCoordIndex(0), mRadius(0), mAnyIndexed(false),
 		  mEdgeList(0)
 	{
@@ -71,7 +71,7 @@ namespace Ogre {
 		delete mEdgeList;
 		mEdgeList = 0;
 		mAnyIndexed = false;
-		for (ShadowRenderableList::iterator s = mShadowRenderables.begin(); 
+		for (ShadowRenderableList::iterator s = mShadowRenderables.begin();
 			s != mShadowRenderables.end(); ++s)
 		{
 			delete *s;
@@ -168,13 +168,13 @@ namespace Ogre {
 		resizeTempIndexBufferIfNeeded(icount);
 	}
 	//-----------------------------------------------------------------------------
-	void ManualObject::begin(const String& materialName, 
+	void ManualObject::begin(const String& materialName,
 		RenderOperation::OperationType opType)
 	{
 		if (mCurrentSection)
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-				"You cannot call begin() again until after you call end()", 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"You cannot call begin() again until after you call end()",
 				"ManualObject::begin");
 		}
 		mCurrentSection = new ManualObjectSection(this, materialName, opType);
@@ -193,8 +193,8 @@ namespace Ogre {
 	{
 		if (!mCurrentSection)
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-				"You must call begin() before this method", 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"You must call begin() before this method",
 				"ManualObject::position");
 		}
 		if (mTempVertexPending)
@@ -235,8 +235,8 @@ namespace Ogre {
 	{
 		if (!mCurrentSection)
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-				"You must call begin() before this method", 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"You must call begin() before this method",
 				"ManualObject::normal");
 		}
 		if (mFirstVertex)
@@ -255,8 +255,8 @@ namespace Ogre {
 	{
 		if (!mCurrentSection)
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-				"You must call begin() before this method", 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"You must call begin() before this method",
 				"ManualObject::textureCoord");
 		}
 		if (mFirstVertex)
@@ -277,8 +277,8 @@ namespace Ogre {
 	{
 		if (!mCurrentSection)
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-				"You must call begin() before this method", 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"You must call begin() before this method",
 				"ManualObject::textureCoord");
 		}
 		if (mFirstVertex)
@@ -299,8 +299,8 @@ namespace Ogre {
 	{
 		if (!mCurrentSection)
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-				"You must call begin() before this method", 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"You must call begin() before this method",
 				"ManualObject::textureCoord");
 		}
 		if (mFirstVertex)
@@ -337,8 +337,8 @@ namespace Ogre {
 	{
 		if (!mCurrentSection)
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-				"You must call begin() before this method", 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"You must call begin() before this method",
 				"ManualObject::colour");
 		}
 		if (mFirstVertex)
@@ -359,8 +359,8 @@ namespace Ogre {
 	{
 		if (!mCurrentSection)
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-				"You must call begin() before this method", 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"You must call begin() before this method",
 				"ManualObject::index");
 		}
 		mAnyIndexed = true;
@@ -377,19 +377,19 @@ namespace Ogre {
 		mTempIndexBuffer[rop->indexData->indexCount - 1] = idx;
 	}
 	//-----------------------------------------------------------------------------
-	void ManualObject::triangle(uint16 i1, uint16 i2, uint16 i3)	
+	void ManualObject::triangle(uint16 i1, uint16 i2, uint16 i3)
 	{
 		if (!mCurrentSection)
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-				"You must call begin() before this method", 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"You must call begin() before this method",
 				"ManualObject::index");
 		}
-		if (mCurrentSection->getRenderOperation()->operationType != 
+		if (mCurrentSection->getRenderOperation()->operationType !=
 			RenderOperation::OT_TRIANGLE_LIST)
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-				"This method is only valid on triangle lists", 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"This method is only valid on triangle lists",
 				"ManualObject::index");
 		}
 
@@ -414,7 +414,7 @@ namespace Ogre {
 		{
 			// first vertex, autoorganise decl
 			VertexDeclaration* oldDcl = rop->vertexData->vertexDeclaration;
-			rop->vertexData->vertexDeclaration = 
+			rop->vertexData->vertexDeclaration =
 				oldDcl->getAutoOrganisedDeclaration(false, false);
 			HardwareBufferManager::getSingleton().destroyVertexDeclaration(oldDcl);
 		}
@@ -422,7 +422,7 @@ namespace Ogre {
 
 		// get base pointer
 		char* pBase = mTempVertexBuffer + (mDeclSize * (rop->vertexData->vertexCount-1));
-		const VertexDeclaration::VertexElementList& elemList = 
+		const VertexDeclaration::VertexElementList& elemList =
 			rop->vertexData->vertexDeclaration->getElements();
 		for (VertexDeclaration::VertexElementList::const_iterator i = elemList.begin();
 			i != elemList.end(); ++i)
@@ -438,6 +438,8 @@ namespace Ogre {
 				elem.baseVertexPointerToElement(pBase, &pFloat);
 				break;
 			case VET_COLOUR:
+			case VET_COLOUR_ABGR:
+			case VET_COLOUR_ARGB:
 				elem.baseVertexPointerToElement(pBase, &pRGBA);
 				break;
 			};
@@ -479,8 +481,8 @@ namespace Ogre {
 	{
 		if (!mCurrentSection)
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-				"You cannot call end() until after you call begin()", 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"You cannot call end() until after you call begin()",
 				"ManualObject::end");
 		}
 		if (mTempVertexPending)
@@ -491,23 +493,23 @@ namespace Ogre {
 
 		// Bake the real buffers
 		RenderOperation* rop = mCurrentSection->getRenderOperation();
-		HardwareVertexBufferSharedPtr vbuf = 
+		HardwareVertexBufferSharedPtr vbuf =
 			HardwareBufferManager::getSingleton().createVertexBuffer(
-				mDeclSize, 
-				rop->vertexData->vertexCount, 
+				mDeclSize,
+				rop->vertexData->vertexCount,
 				HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 		rop->vertexData->vertexBufferBinding->setBinding(0, vbuf);
 		vbuf->writeData(0, vbuf->getSizeInBytes(), mTempVertexBuffer, true);
 
 		if(rop->useIndexes)
 		{
-			rop->indexData->indexBuffer = 
+			rop->indexData->indexBuffer =
 				HardwareBufferManager::getSingleton().createIndexBuffer(
-					HardwareIndexBuffer::IT_16BIT, 
-					rop->indexData->indexCount, 
+					HardwareIndexBuffer::IT_16BIT,
+					rop->indexData->indexCount,
 					HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 			rop->indexData->indexBuffer->writeData(
-				0, rop->indexData->indexBuffer->getSizeInBytes(), 
+				0, rop->indexData->indexBuffer->getSizeInBytes(),
 				mTempIndexBuffer, true);
 		}
 
@@ -520,15 +522,15 @@ namespace Ogre {
 	{
 		if (mCurrentSection)
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
 				"You cannot call convertToMesh() whilst you are in the middle of "
-				"defining the object; call end() first.", 
+				"defining the object; call end() first.",
 				"ManualObject::convertToMesh");
 		}
 		if (mSectionList.empty())
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-				"No data defined to convert to a mesh.", 
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"No data defined to convert to a mesh.",
 				"ManualObject::convertToMesh");
 		}
 		for (SectionList::iterator i = mSectionList.begin(); i != mSectionList.end(); ++i)
@@ -536,8 +538,8 @@ namespace Ogre {
 			ManualObjectSection* sec = *i;
 			if (!sec->getRenderOperation()->useIndexes)
 			{
-				OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-					"Only indexed geometry may be converted to a mesh.", 
+				OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+					"Only indexed geometry may be converted to a mesh.",
 					"ManualObject::convertToMesh");
 			}
 		}
@@ -564,7 +566,7 @@ namespace Ogre {
 
 		return m;
 
-		
+
 	}
 	//-----------------------------------------------------------------------------
 	const String& ManualObject::getMovableType(void) const
@@ -617,20 +619,20 @@ namespace Ogre {
 		return mEdgeList;
 	}
 	//-----------------------------------------------------------------------------
-	ShadowCaster::ShadowRenderableListIterator 
+	ShadowCaster::ShadowRenderableListIterator
 	ManualObject::getShadowVolumeRenderableIterator(
-		ShadowTechnique shadowTechnique, const Light* light, 
-		HardwareIndexBufferSharedPtr* indexBuffer, 
+		ShadowTechnique shadowTechnique, const Light* light,
+		HardwareIndexBufferSharedPtr* indexBuffer,
 		bool extrude, Real extrusionDistance, unsigned long flags)
 	{
 		assert(indexBuffer && "Only external index buffers are supported right now");
-		assert((*indexBuffer)->getType() == HardwareIndexBuffer::IT_16BIT && 
+		assert((*indexBuffer)->getType() == HardwareIndexBuffer::IT_16BIT &&
 			"Only 16-bit indexes supported for now");
 
 		// Calculate the object space light details
 		Vector4 lightPos = light->getAs4DVector();
 		Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
-		lightPos =  world2Obj * lightPos; 
+		lightPos =  world2Obj * lightPos;
 
 
 		// Init shadow renderable list if required (only allow indexed)
@@ -652,7 +654,7 @@ namespace Ogre {
 			{
 				// Create a new renderable, create a separate light cap if
 				// we're using a vertex program (either for this model, or
-				// for extruding the shadow volume) since otherwise we can 
+				// for extruding the shadow volume) since otherwise we can
 				// get depth-fighting on the light cap
 				MaterialPtr mat = (*seci)->getMaterial();
 				mat->load();
@@ -667,7 +669,7 @@ namespace Ogre {
 						break;
 					}
 				}
-				*si = new ManualObjectSectionShadowRenderable(this, indexBuffer, 
+				*si = new ManualObjectSectionShadowRenderable(this, indexBuffer,
 					egi->vertexData, vertexProgram || !extrude);
 			}
 			// Get shadow renderable
@@ -676,8 +678,8 @@ namespace Ogre {
 			// Extrude vertices in software if required
 			if (extrude)
 			{
-				extrudeVertices(esrPositionBuffer, 
-					egi->vertexData->vertexCount, 
+				extrudeVertices(esrPositionBuffer,
+					egi->vertexData->vertexCount,
 					lightPos, extrusionDistance);
 
 			}
@@ -699,7 +701,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------
-	ManualObject::ManualObjectSection::ManualObjectSection(ManualObject* parent, 
+	ManualObject::ManualObjectSection::ManualObjectSection(ManualObject* parent,
 		const String& materialName,	RenderOperation::OperationType opType)
 		: mParent(parent), mMaterialName(materialName)
 	{
@@ -708,7 +710,7 @@ namespace Ogre {
 		mRenderOperation.useIndexes = false;
 		mRenderOperation.vertexData = new VertexData();
 		mRenderOperation.vertexData->vertexCount = 0;
-		
+
 	}
 	//-----------------------------------------------------------------------------
 	ManualObject::ManualObjectSection::~ManualObjectSection()
@@ -726,9 +728,9 @@ namespace Ogre {
 	{
 		if (mMaterial.isNull())
 		{
-			// Load from default group. If user wants to use alternate groups, 
+			// Load from default group. If user wants to use alternate groups,
 			// they can define it and preload
-			mMaterial = MaterialManager::getSingleton().load(mMaterialName, 
+			mMaterial = MaterialManager::getSingleton().load(mMaterialName,
 				ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		}
 		return mMaterial;
@@ -771,8 +773,8 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
 	ManualObject::ManualObjectSectionShadowRenderable::ManualObjectSectionShadowRenderable(
-		ManualObject* parent, HardwareIndexBufferSharedPtr* indexBuffer, 
-		const VertexData* vertexData, bool createSeparateLightCap, 
+		ManualObject* parent, HardwareIndexBufferSharedPtr* indexBuffer,
+		const VertexData* vertexData, bool createSeparateLightCap,
 		bool isLightCap)
 		: mParent(parent)
 	{
@@ -784,13 +786,13 @@ namespace Ogre {
 
 		// Create vertex data which just references position component (and 2 component)
 		mRenderOp.vertexData = new VertexData();
-		mRenderOp.vertexData->vertexDeclaration = 
+		mRenderOp.vertexData->vertexDeclaration =
 			HardwareBufferManager::getSingleton().createVertexDeclaration();
-		mRenderOp.vertexData->vertexBufferBinding = 
+		mRenderOp.vertexData->vertexBufferBinding =
 			HardwareBufferManager::getSingleton().createVertexBufferBinding();
 		// Map in position data
 		mRenderOp.vertexData->vertexDeclaration->addElement(0,0,VET_FLOAT3, VES_POSITION);
-		ushort origPosBind = 
+		ushort origPosBind =
 			vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
 		mPositionBuffer = vertexData->vertexBufferBinding->getBuffer(origPosBind);
 		mRenderOp.vertexData->vertexBufferBinding->setBinding(0, mPositionBuffer);
@@ -813,12 +815,12 @@ namespace Ogre {
 		{
 			// Vertex count must take into account the doubling of the buffer,
 			// because second half of the buffer is the extruded copy
-			mRenderOp.vertexData->vertexCount = 
+			mRenderOp.vertexData->vertexCount =
 				vertexData->vertexCount * 2;
 			if (createSeparateLightCap)
 			{
 				// Create child light cap
-				mLightCap = new ManualObjectSectionShadowRenderable(parent, 
+				mLightCap = new ManualObjectSectionShadowRenderable(parent,
 					indexBuffer, vertexData, false, true);
 			}
 		}
@@ -837,13 +839,13 @@ namespace Ogre {
 		*xform = mParent->_getParentNodeFullTransform();
 	}
 	//--------------------------------------------------------------------------
-	const Quaternion& 
+	const Quaternion&
 		ManualObject::ManualObjectSectionShadowRenderable::getWorldOrientation(void) const
 	{
 		return mParent->getParentNode()->_getDerivedOrientation();
 	}
 	//--------------------------------------------------------------------------
-	const Vector3& 
+	const Vector3&
 		ManualObject::ManualObjectSectionShadowRenderable::getWorldPosition(void) const
 	{
 		return mParent->getParentNode()->_getDerivedPosition();

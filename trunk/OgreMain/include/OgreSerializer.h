@@ -49,6 +49,7 @@ namespace Ogre {
         uint32 mCurrentstreamLen;
         FILE* mpfFile;
         String mVersion;
+		bool mFlipEndian; // default to native endian, derive from header
 
         // Internal methods
         virtual void writeFileHeader(void);
@@ -84,6 +85,9 @@ namespace Ogre {
         
         virtual void flipEndian(void * pData, size_t size, size_t count);
         virtual void flipEndian(void * pData, size_t size);
+
+		/// Determine the endianness of the incoming stream compared to native
+		virtual void determineEndianness(DataStreamPtr& stream);
     };
 
 }

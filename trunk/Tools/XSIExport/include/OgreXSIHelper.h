@@ -46,6 +46,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSingleton.h"
 #include "OgreVector3.h"
 #include "OgreQuaternion.h"
+#include "OgreHardwareVertexBuffer.h"
 
 #define OGRE_XSI_NUM_MESH_STEPS 200
 
@@ -106,14 +107,9 @@ inline Ogre::Quaternion XSItoOgre(const XSI::MATH::CQuaternion& xsiQuat)
 
 inline Ogre::RGBA XSItoOgre(const XSI::CVertexColor& xsiColour)
 {
-    Ogre::uint32 ret = 0;
-    ret += xsiColour.a << 24;
-    ret += xsiColour.r << 16;
-    ret += xsiColour.g << 8;
-    ret += xsiColour.b;
-
-    return ret;
-
+	Ogre::ColourValue col(xsiColour.r, xsiColour.g, xsiColour.b, xsiColour.a);
+	return Ogre::VertexElement::convertColourValue(col, 
+		Ogre::VertexElement::getBestColourVertexElementType());
 }
 
 inline void LogOgreAndXSI(const Ogre::String& msg)
