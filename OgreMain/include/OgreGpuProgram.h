@@ -160,6 +160,12 @@ namespace Ogre {
             ACT_RENDER_TARGET_FLIPPING,
 
 
+            /// Fog colour
+            ACT_FOG_COLOUR,
+            /// Fog params: density, linear start, linear end, 1/(end-start)
+            ACT_FOG_PARAMS,
+
+
 			/// The ambient light colour set in the scene
 			ACT_AMBIENT_LIGHT_COLOUR, 
 

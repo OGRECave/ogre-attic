@@ -313,6 +313,27 @@ namespace Ogre {
 		
 	}
     //-----------------------------------------------------------------------------
+    void AutoParamDataSource::setFog(FogMode mode, const ColourValue& colour,
+        Real expDensity, Real linearStart, Real linearEnd)
+    {
+        (void)mode; // ignored
+        mFogColour = colour;
+        mFogParams.x = expDensity;
+        mFogParams.y = linearStart;
+        mFogParams.z = linearEnd;
+        mFogParams.w = 1 / (linearEnd - linearStart);
+    }
+    //-----------------------------------------------------------------------------
+    const ColourValue& AutoParamDataSource::getFogColour(void) const
+    {
+        return mFogColour;
+    }
+    //-----------------------------------------------------------------------------
+    const Vector4& AutoParamDataSource::getFogParams(void) const
+    {
+        return mFogParams;
+    }
+    //-----------------------------------------------------------------------------
     void AutoParamDataSource::setTextureProjector(const Frustum* frust)
     {
         mCurrentTextureProjector = frust;
