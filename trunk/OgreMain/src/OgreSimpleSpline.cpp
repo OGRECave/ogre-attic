@@ -89,7 +89,7 @@ namespace Ogre {
     Vector3 SimpleSpline::interpolate(unsigned int fromIndex, Real t)
     {
         // Bounds check
-        assert (fromIndex >= 0 && fromIndex < mPoints.size() &&
+        assert (fromIndex < mPoints.size() &&
             "fromIndex out of bounds");
 
         if ((fromIndex + 1) == mPoints.size())

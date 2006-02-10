@@ -847,6 +847,42 @@ namespace Ogre {
 		/** Removes & destroys all ManualObjects from the SceneManager.
 		*/
 		virtual void destroyAllManualObjects(void);
+        /** Create a BillboardChain, an object which you can use to render
+            a linked chain of billboards.
+        @param
+            name The name to be given to the object (must be unique).
+        */
+        virtual BillboardChain* createBillboardChain(const String& name);
+        /** Retrieves a pointer to the named BillboardChain. */
+        virtual BillboardChain* getBillboardChain(const String& name);
+
+        /** Removes & destroys a BillboardChain from the SceneManager.
+        */
+        virtual void destroyBillboardChain(BillboardChain* obj);
+		/** Removes & destroys a BillboardChain from the SceneManager.
+		*/
+		virtual void destroyBillboardChain(const String& name);
+		/** Removes & destroys all BillboardChains from the SceneManager.
+		*/
+		virtual void destroyAllBillboardChains(void);		
+        /** Create a RibbonTrail, an object which you can use to render
+            a linked chain of billboards which follows one or more nodes.
+        @param
+            name The name to be given to the object (must be unique).
+        */
+        virtual RibbonTrail* createRibbonTrail(const String& name);
+        /** Retrieves a pointer to the named RibbonTrail. */
+        virtual RibbonTrail* getRibbonTrail(const String& name);
+
+        /** Removes & destroys a RibbonTrail from the SceneManager.
+        */
+        virtual void destroyRibbonTrail(RibbonTrail* obj);
+		/** Removes & destroys a RibbonTrail from the SceneManager.
+		*/
+		virtual void destroyRibbonTrail(const String& name);
+		/** Removes & destroys all RibbonTrails from the SceneManager.
+		*/
+		virtual void destroyAllRibbonTrails(void);		
         /** Empties the entire scene, inluding all SceneNodes, Entities, Lights, 
             BillboardSets etc. Cameras are not deleted at this stage since
             they are still referenced by viewports, which are not destroyed during

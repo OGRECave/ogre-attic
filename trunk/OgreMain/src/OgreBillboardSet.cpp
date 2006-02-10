@@ -49,6 +49,7 @@ namespace Ogre {
         mAllDefaultSize( true ),
         mAutoExtendPool( true ),
         mSortingEnabled(false),
+        mAccurateFacing(false),
         mAllDefaultRotation(true),
         mWorldSpace(false),
         mVertexData(0),
@@ -79,6 +80,7 @@ namespace Ogre {
         mAllDefaultSize( true ),
         mAutoExtendPool( true ),
         mSortingEnabled(false),
+        mAccurateFacing(false),
         mAllDefaultRotation(true),
         mWorldSpace(false),
         mVertexData(0),
@@ -393,7 +395,8 @@ namespace Ogre {
 
 			// Generate axes etc up-front if not oriented per-billboard
 			if (mBillboardType != BBT_ORIENTED_SELF &&
-				mBillboardType != BBT_PERPENDICULAR_SELF)
+				mBillboardType != BBT_PERPENDICULAR_SELF && 
+				!mAccurateFacing)
 			{
 				genBillboardAxes(&mCamX, &mCamY);
 
@@ -423,7 +426,8 @@ namespace Ogre {
 
         if (!mPointRendering &&
 			(mBillboardType == BBT_ORIENTED_SELF ||
-            mBillboardType == BBT_PERPENDICULAR_SELF))
+            mBillboardType == BBT_PERPENDICULAR_SELF ||
+            mAccurateFacing))
         {
             // Have to generate axes & offsets per billboard
             genBillboardAxes(&mCamX, &mCamY, &bb);
@@ -439,7 +443,8 @@ namespace Ogre {
 
             if (!mPointRendering &&
 				(mBillboardType == BBT_ORIENTED_SELF ||
-           		mBillboardType == BBT_PERPENDICULAR_SELF))
+           		mBillboardType == BBT_PERPENDICULAR_SELF ||
+           		mAccurateFacing))
             {
                 genVertOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff,
                     mDefaultWidth, mDefaultHeight, mCamX, mCamY, mVOffset);
@@ -452,7 +457,8 @@ namespace Ogre {
             // If it has own dimensions, or self-oriented, gen offsets
             if (mBillboardType == BBT_ORIENTED_SELF ||
                 mBillboardType == BBT_PERPENDICULAR_SELF ||
-                bb.mOwnDimensions)
+                bb.mOwnDimensions ||
+                mAccurateFacing)
             {
                 // Generate using own dimensions
                 genVertOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff,
@@ -928,12 +934,42 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BillboardSet::genBillboardAxes(Vector3* pX, Vector3 *pY, const Billboard* bb)
     {
+        // If we're using accurate facing, recalculate camera direction per BB
+        if (mAccurateFacing && 
+            (mBillboardType == BBT_POINT || 
+            mBillboardType == BBT_ORIENTED_COMMON ||
+            mBillboardType == BBT_ORIENTED_SELF))
+        {
+            // Use mCamDir for temp pos storage for efficiency
+            mCamDir = mCurrentCamera->getDerivedPosition();
+            if (mCurrentCamera->isReflected())
+            {
+                mCamDir = mCurrentCamera->getReflectionMatrix() * mCamDir;
+            }
+            // cam -> bb direction
+            mCamDir = bb->mPosition - mCamDir;
+            mCamDir.normalise();
+        }
+
+
         switch (mBillboardType)
         {
         case BBT_POINT:
-            // Get camera axes for X and Y (depth is irrelevant)
-            *pX = mCamQ * Vector3::UNIT_X;
-            *pY = mCamQ * Vector3::UNIT_Y;
+            if (mAccurateFacing)
+            {
+                // Point billboards will have 'up' based on but not equal to cameras
+                // Use pY temporarily to avoid allocation
+                *pY = mCamQ * Vector3::UNIT_Y;
+                *pX = mCamDir.crossProduct(*pY);
+                pX->normalise();
+                *pY = pX->crossProduct(mCamDir); // both normalised already
+            }
+            else
+            {
+                // Get camera axes for X and Y (depth is irrelevant)
+                *pX = mCamQ * Vector3::UNIT_X;
+                *pY = mCamQ * Vector3::UNIT_Y;
+            }
             break;
 
         case BBT_ORIENTED_COMMON:
@@ -965,8 +1001,7 @@ namespace Ogre {
             // Y-axis is own direction cross X-axis
             *pX = mCommonUpVector.crossProduct(bb->mDirection);
             pX->normalise();
-            *pY = bb->mDirection.crossProduct(*pX);
-            pY->normalise();
+            *pY = bb->mDirection.crossProduct(*pX); // both should be normalised
             break;
         }
 

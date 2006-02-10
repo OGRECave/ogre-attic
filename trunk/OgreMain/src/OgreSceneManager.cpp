@@ -61,6 +61,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHardwarePixelBuffer.h"
 #include "OgreManualObject.h"
 #include "OgreRenderQueueInvocation.h"
+#include "OgreBillboardChain.h"
+#include "OgreRibbonTrail.h"
 // This class implements the most basic scene manager
 
 #include <cstdio>
@@ -473,6 +475,62 @@ void SceneManager::destroyManualObject(const String& name)
 void SceneManager::destroyAllManualObjects(void)
 {
 	destroyAllMovableObjectsByType(ManualObjectFactory::FACTORY_TYPE_NAME);
+}
+//-----------------------------------------------------------------------
+BillboardChain* SceneManager::createBillboardChain(const String& name)
+{
+	return static_cast<BillboardChain*>(
+		createMovableObject(name, BillboardChainFactory::FACTORY_TYPE_NAME));
+}
+//-----------------------------------------------------------------------
+BillboardChain* SceneManager::getBillboardChain(const String& name)
+{
+	return static_cast<BillboardChain*>(
+		getMovableObject(name, BillboardChainFactory::FACTORY_TYPE_NAME));
+
+}
+//-----------------------------------------------------------------------
+void SceneManager::destroyBillboardChain(BillboardChain* obj)
+{
+	destroyMovableObject(obj);
+}
+//-----------------------------------------------------------------------
+void SceneManager::destroyBillboardChain(const String& name)
+{
+	destroyMovableObject(name, BillboardChainFactory::FACTORY_TYPE_NAME);
+}
+//-----------------------------------------------------------------------
+void SceneManager::destroyAllBillboardChains(void)
+{
+	destroyAllMovableObjectsByType(BillboardChainFactory::FACTORY_TYPE_NAME);
+}
+//-----------------------------------------------------------------------
+RibbonTrail* SceneManager::createRibbonTrail(const String& name)
+{
+	return static_cast<RibbonTrail*>(
+		createMovableObject(name, RibbonTrailFactory::FACTORY_TYPE_NAME));
+}
+//-----------------------------------------------------------------------
+RibbonTrail* SceneManager::getRibbonTrail(const String& name)
+{
+	return static_cast<RibbonTrail*>(
+		getMovableObject(name, RibbonTrailFactory::FACTORY_TYPE_NAME));
+
+}
+//-----------------------------------------------------------------------
+void SceneManager::destroyRibbonTrail(RibbonTrail* obj)
+{
+	destroyMovableObject(obj);
+}
+//-----------------------------------------------------------------------
+void SceneManager::destroyRibbonTrail(const String& name)
+{
+	destroyMovableObject(name, RibbonTrailFactory::FACTORY_TYPE_NAME);
+}
+//-----------------------------------------------------------------------
+void SceneManager::destroyAllRibbonTrails(void)
+{
+	destroyAllMovableObjectsByType(RibbonTrailFactory::FACTORY_TYPE_NAME);
 }
 //-----------------------------------------------------------------------
 void SceneManager::clearScene(void)

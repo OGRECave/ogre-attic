@@ -1919,6 +1919,8 @@ For a detailed description of the core particle system attributes, see the list 
 @ref{particle_localspace, local_space}
 @item
 @ref{particle_point_rendering, point_rendering}
+@item
+@ref{particle_accurate_facing, accurate_facing}
 @end itemize
 See also: @ref{Particle Emitters}, @ref{Particle Affectors}
 
@@ -2107,6 +2109,12 @@ Using point rendering is faster than generating quads manually, but	is more rest
 @item Some drivers have an upper limit on the size of points they support - this can even vary between APIs on the same card! Don't rely on point sizes that cause the point sprites to get very large on screen, since they may get clamped on some cards. Upper sizes can range from 64 to 256 pixels.
 @end itemize
 You will almost certainly want to enable in your material pass both point attenuation and point sprites if you use this option. @*@*
+
+
+@anchor{particle_accurate_facing}
+@subheading accurate_facing
+
+This is actually an attribute of the 'billboard' particle renderer (the default), and sets whether or not the billboardset will use a slower but more accurate calculation for facing the billboard to the camera. Bt default it uses the camera direction, which is faster but means the billboards don't stay in the same orientation as you rotate the camera. The 'accurate_facing true' option makes the calculation based on a vector from each billboard to the camera, which means the orientation is constant even whilst the camera rotates. 
 
 
 @node Particle Emitters
