@@ -1694,6 +1694,10 @@ The direction of a given light in view space (ie when the camera is at (0,0,0)).
 The 'power' scaling for a given light, useful in HDR rendering. This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light).
 @item ambient_light_colour
 The colour of the ambient light currently set in the scene.
+@item fog_colour
+The colour of the fog currently set in the scene.
+@item fog_params
+The parameters of the fog currently set in the scene. Packed as (exp_density, linear_start, linear_end, 1.0 / (linear_end - linear_start)).
 @item camera_position
 The current cameras position in world space.
 @item camera_position_object_space

@@ -80,6 +80,8 @@ namespace Ogre {
         mutable bool mCameraPositionDirty;
         mutable bool mTextureViewProjMatrixDirty;
 		mutable ColourValue mAmbientLight;
+        mutable ColourValue mFogColour;
+        mutable Vector4 mFogParams;
         mutable int mPassNumber;
 
         const Renderable* mCurrentRenderable;
@@ -127,6 +129,9 @@ namespace Ogre {
         const Light& getLight(size_t index) const;
 		void setAmbientLightColour(const ColourValue& ambient);
 		const ColourValue& getAmbientLightColour(void) const;
+        void setFog(FogMode mode, const ColourValue& colour, Real expDensity, Real linearStart, Real linearEnd);
+        const ColourValue& getFogColour(void) const;
+        const Vector4& getFogParams(void) const;
         const Matrix4& getTextureViewProjMatrix(void) const;
         const RenderTarget* getCurrentRenderTarget(void) const;
         const Renderable* getCurrentRenderable(void) const;

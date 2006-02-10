@@ -672,34 +672,40 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed)
 			}
 
 			// Set fixed-function fragment settings
-
-			// Fog (assumes we want pixel fog which is the usual)
-			// New fog params can either be from scene or from material
-			FogMode newFogMode;
-			ColourValue newFogColour;
-			Real newFogStart, newFogEnd, newFogDensity;
-			if (pass->getFogOverride())
-			{
-				// New fog params from material
-				newFogMode = pass->getFogMode();
-				newFogColour = pass->getFogColour();
-				newFogStart = pass->getFogStart();
-				newFogEnd = pass->getFogEnd();
-				newFogDensity = pass->getFogDensity();
-			}
-			else
-			{
-				// New fog params from scene
-				newFogMode = mFogMode;
-				newFogColour = mFogColour;
-				newFogStart = mFogStart;
-				newFogEnd = mFogEnd;
-				newFogDensity = mFogDensity;
-			}
-			mDestRenderSystem->_setFog(
-				newFogMode, newFogColour, newFogDensity, newFogStart, newFogEnd);
-
 		}
+
+        /* We need sets fog properties always. In D3D, it applies to shaders prior
+        to version vs_3_0 and ps_3_0. And in OGL, it applies to "ARB_fog_XXX" in
+        fragment program, and in other ways, them maybe access by gpu program via
+        "state.fog.XXX".
+        */
+        // New fog params can either be from scene or from material
+        FogMode newFogMode;
+        ColourValue newFogColour;
+        Real newFogStart, newFogEnd, newFogDensity;
+        if (pass->getFogOverride())
+        {
+            // New fog params from material
+            newFogMode = pass->getFogMode();
+            newFogColour = pass->getFogColour();
+            newFogStart = pass->getFogStart();
+            newFogEnd = pass->getFogEnd();
+            newFogDensity = pass->getFogDensity();
+        }
+        else
+        {
+            // New fog params from scene
+            newFogMode = mFogMode;
+            newFogColour = mFogColour;
+            newFogStart = mFogStart;
+            newFogEnd = mFogEnd;
+            newFogDensity = mFogDensity;
+        }
+        // Tell params about current fog
+        mAutoParamDataSource.setFog(
+            newFogMode, newFogColour, newFogDensity, newFogStart, newFogEnd);
+        mDestRenderSystem->_setFog(
+            newFogMode, newFogColour, newFogDensity, newFogStart, newFogEnd);
 
 		// The rest of the settings are the same no matter whether we use programs or not
 
@@ -2216,18 +2222,11 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
     static RenderOperation ro;
     static LightList localLightList;
 
-    bool passSurfaceAndLightParams = true;
-
-    if (pass->isProgrammable() && !mSuppressRenderStateChanges)
-    {
-        // Tell auto params object about the renderable change
-        mAutoParamDataSource.setCurrentRenderable(rend);
-        pass->_updateAutoParamsNoLights(mAutoParamDataSource);
-        if (pass->hasVertexProgram())
-        {
-            passSurfaceAndLightParams = pass->getVertexProgram()->getPassSurfaceAndLightStates();
-        }
-    }
+    // Set up rendering operation
+    // I know, I know, const_cast is nasty but otherwise it requires all internal
+    // state of the Renderable assigned to the rop to be mutable
+    const_cast<Renderable*>(rend)->getRenderOperation(ro);
+    ro.srcRenderable = rend;
 
     // Set world transformation
     rend->getWorldTransforms(xform);
@@ -2242,34 +2241,45 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
     }
 
     // Issue view / projection changes if any
-	useRenderableViewProjMode(rend);
+    useRenderableViewProjMode(rend);
 
-    // Reissue any texture gen settings which are dependent on view matrix
-    Pass::ConstTextureUnitStateIterator texIter =  pass->getTextureUnitStateIterator();
-    size_t unit = 0;
-    while(texIter.hasMoreElements())
+    if (!mSuppressRenderStateChanges)
     {
-        TextureUnitState* pTex = texIter.getNext();
-        if (!mSuppressRenderStateChanges
-			&& pTex->hasViewRelativeTextureCoordinateGeneration())
+        bool passSurfaceAndLightParams = true;
+
+        if (pass->isProgrammable())
         {
-            mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
+            // Tell auto params object about the renderable change
+            mAutoParamDataSource.setCurrentRenderable(rend);
+            pass->_updateAutoParamsNoLights(mAutoParamDataSource);
+            if (pass->hasVertexProgram())
+            {
+                passSurfaceAndLightParams = pass->getVertexProgram()->getPassSurfaceAndLightStates();
+            }
         }
-        ++unit;
-    }
 
+        // Reissue any texture gen settings which are dependent on view matrix
+        Pass::ConstTextureUnitStateIterator texIter =  pass->getTextureUnitStateIterator();
+        size_t unit = 0;
+        while(texIter.hasMoreElements())
+        {
+            TextureUnitState* pTex = texIter.getNext();
+            if (pTex->hasViewRelativeTextureCoordinateGeneration())
+            {
+                mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
+            }
+            ++unit;
+        }
 
-    // Sort out normalisation
-    bool thisNormalise = rend->getNormaliseNormals();
-    if (thisNormalise != normalisedNormals)
-    {
-        mDestRenderSystem->setNormaliseNormals(thisNormalise);
-        normalisedNormals = thisNormalise;
-    }
+        // Sort out normalisation
+        bool thisNormalise = rend->getNormaliseNormals();
+        if (thisNormalise != normalisedNormals)
+        {
+            mDestRenderSystem->setNormaliseNormals(thisNormalise);
+            normalisedNormals = thisNormalise;
+        }
 
-    // Set up the solid / wireframe override
-	if (!mSuppressRenderStateChanges)
-	{
+        // Set up the solid / wireframe override
 		SceneDetailLevel reqDetail = rend->getRenderDetail();
 		if (rend->getRenderDetailOverrideable())
 		{
@@ -2284,20 +2294,10 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 		{
 			mDestRenderSystem->_setRasterisationMode(reqDetail);
 			lastDetailLevel = reqDetail;
-
 		}
 
 		mDestRenderSystem->setClipPlanes(rend->getClipPlanes());
-	}
-    // Set up rendering operation
-	// I know, I know, const_cast is nasty but otherwise it requires all internal
-	// state of the Renderable assigned to the rop to be mutable
-    const_cast<Renderable*>(rend)->getRenderOperation(ro);
-    ro.srcRenderable = rend;
 
-
-	if (!mSuppressRenderStateChanges)
-	{
 		if (doLightIteration)
 		{
 			// Here's where we issue the rendering operation to the render system

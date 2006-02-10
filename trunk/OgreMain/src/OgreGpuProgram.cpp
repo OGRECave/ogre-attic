@@ -79,6 +79,9 @@ namespace Ogre
 
         AutoConstantDefinition(ACT_RENDER_TARGET_FLIPPING,          "render_target_flipping",         1, ET_REAL, ACDT_NONE),
 
+        AutoConstantDefinition(ACT_FOG_COLOUR,                    "fog_colour",                   4, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_FOG_PARAMS,                    "fog_params",                   4, ET_REAL, ACDT_NONE),
+
         AutoConstantDefinition(ACT_AMBIENT_LIGHT_COLOUR,          "ambient_light_colour",         4, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_LIGHT_DIFFUSE_COLOUR,          "light_diffuse_colour",         4, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_LIGHT_SPECULAR_COLOUR,         "light_specular_colour",        4, ET_REAL, ACDT_INT),
@@ -534,6 +537,13 @@ namespace Ogre
             // NB ambient light still here because it's not related to a specific light
             case ACT_AMBIENT_LIGHT_COLOUR: 
                 setConstant(i->index, source.getAmbientLightColour());
+                break;
+
+            case ACT_FOG_COLOUR:
+                setConstant(i->index, source.getFogColour());
+                break;
+            case ACT_FOG_PARAMS:
+                setConstant(i->index, source.getFogParams());
                 break;
 
             case ACT_CAMERA_POSITION:
