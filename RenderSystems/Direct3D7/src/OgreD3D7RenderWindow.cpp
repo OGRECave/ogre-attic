@@ -95,23 +95,17 @@ namespace Ogre {
                     win->update();
                 break;
 
+			case WM_ENTERSIZEMOVE:
+				// Prevent rendering while moving / sizing
+				win->mReady = false;
+				break;
+
+			case WM_EXITSIZEMOVE:
+				win->windowMovedOrResized();
+				win->mReady = true;
+				break;
+
             case WM_MOVE:
-                // Move messages need to be tracked to update the screen rects
-                // used for blitting the backbuffer to the primary.
-                if(win->mActive && win->mReady)
-                    win->windowMovedOrResized();
-                break;
-
-            case WM_ENTERSIZEMOVE:
-                // Prevent rendering while moving / sizing
-                win->mReady = false;
-                break;
-
-            case WM_EXITSIZEMOVE:
-                win->windowMovedOrResized();
-                win->mReady = true;
-                break;
-
             case WM_SIZE:
                 // Check to see if we are losing or gaining our window. Set the
                 // active flag to match.
@@ -617,6 +611,12 @@ namespace Ogre {
         GetClientRect( mHWnd, &rcCheck );
         ClientToScreen( mHWnd, (POINT*)&rcCheck.left );
         ClientToScreen( mHWnd, (POINT*)&rcCheck.right );
+
+		if ((rcCheck.right - rcCheck.left) == 0 ||
+			(rcCheck.bottom - rcCheck.top) == 0)
+		{
+			return;
+		}
 
         // Has the window resized? If so, we need to recreate surfaces
         if( ( rcCheck.right - rcCheck.left != 
