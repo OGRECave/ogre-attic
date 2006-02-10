@@ -131,6 +131,9 @@ namespace Ogre {
 		/// Flag indicating whether the billboards has to be sorted
 		bool mSortingEnabled;
 
+        // Use 'true' billboard to cam position facing, rather than camera direcion
+        bool mAccurateFacing;
+
         bool mAllDefaultRotation;
         bool mWorldSpace;
 
@@ -658,6 +661,26 @@ namespace Ogre {
 
         /** Gets the common up-vector for all billboards (BBT_PERPENDICULAR_SELF and BBT_PERPENDICULAR_COMMON) */
         virtual const Vector3& getCommonUpVector(void) const;
+        
+        /** Sets whether or not billboards should use an 'accurate' facing model
+            based on the vector from each billboard to the camera, rather than 
+            an optimised version using just the camera direction.
+        @remarks
+            By default, the axes for all billboards are calulated using the 
+            camera's view direction, not the vector from the camera position to
+            the billboard. The former is faster, and most of the time the difference
+            is not noticeable. However for some purposes (e.g. very large, static
+            billboards) the changing billboard orientation when rotating the camera
+            can be off putting, therefore you can enable this option to use a
+            more expensive, but more accurate version.
+        @param acc True to use the slower but more accurate model. Default is false.
+        */
+        virtual void setUseAccurateFacing(bool acc) { mAccurateFacing = acc; }
+        /** Gets whether or not billboards use an 'accurate' facing model
+            based on the vector from each billboard to the camera, rather than 
+            an optimised version using just the camera direction.
+        */
+        virtual bool getUseAccurateFacing(void) const { return mAccurateFacing; }
 
         /** Overridden from MovableObject */
         virtual const String& getMovableType(void) const;

@@ -193,6 +193,7 @@ namespace Ogre {
     class AxisAlignedBox;
     class AxisAlignedBoxSceneQuery;
     class Billboard;
+    class BillboardChain;
     class BillboardSet;
     class Bone;
     class Camera;
@@ -324,6 +325,7 @@ namespace Ogre {
 	class ResourceBackgroundQueue;
 	class ResourceGroupManager;
     class ResourceManager;
+    class RibbonTrail;
 	class Root;
     class SceneManager;
     class SceneManagerEnumerator;

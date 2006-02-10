@@ -69,7 +69,7 @@ namespace Ogre {
         // Note the intentional public access to main internal variables used at runtime
         // Forcing access via get/set would be too costly for 000's of billboards
         Vector3 mPosition;
-        // NB direction only relevant for rendering when billboard type = BBT_ORIENTED_SELF
+        // Normalised direction vector
         Vector3 mDirection;
         BillboardSet* mParentSet;
         ColourValue mColour;

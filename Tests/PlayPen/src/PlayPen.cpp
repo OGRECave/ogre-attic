@@ -3452,6 +3452,98 @@ protected:
 		pip->setShadowsEnabled(false);
 
 	}
+
+	void testSerialisedColour()
+	{
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+		Vector3 dir(-1, -1, 0.5);
+		dir.normalise();
+		Light* l = mSceneMgr->createLight("light1");
+		l->setType(Light::LT_DIRECTIONAL);
+		l->setDirection(dir);
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 100;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("2 - Default");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		/*
+		ManualObject* man = static_cast<ManualObject*>(
+			mSceneMgr->createMovableObject("test", ManualObjectFactory::FACTORY_TYPE_NAME));
+
+		man->begin("BaseWhiteNoLighting");
+		// Define a 40x40 plane, non-indexed
+		// Define a 40x40 plane, indexed
+		man->position(-20, 20, 20);
+		man->colour(1, 0, 0);
+
+		man->position(-20, -20, 20);
+		man->colour(1, 0, 0);
+
+		man->position(20, -20, 20);
+		man->colour(1, 0, 0);
+
+		man->position(20, 20, 20);
+		man->colour(1, 0, 0);
+
+		man->quad(0, 1, 2, 3);
+		man->end();
+
+		MeshPtr mesh = man->convertToMesh("colourtest.mesh");
+		MeshSerializer ms;
+		ms.exportMesh(mesh.getPointer(), "colourtest.mesh");
+
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(man);
+		*/
+		Entity* c = mSceneMgr->createEntity("1", "colourtest.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(c);
+
+
+
+	}
+
+	void testBillboardAccurateFacing()
+	{
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+		Vector3 dir(-1, -1, 0.5);
+		dir.normalise();
+		Light* l = mSceneMgr->createLight("light1");
+		l->setType(Light::LT_DIRECTIONAL);
+		l->setDirection(dir);
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 100;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("2 - Default");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		BillboardSet* bbs = mSceneMgr->createBillboardSet("1");
+		bbs->setDefaultDimensions(50,50);
+		bbs->createBillboard(-150, 25, 0);
+		bbs->setBillboardType(BBT_ORIENTED_COMMON);
+		bbs->setCommonDirection(Vector3::UNIT_Y);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(bbs);
+
+		bbs = mSceneMgr->createBillboardSet("2");
+		bbs->setDefaultDimensions(50,50);
+		bbs->createBillboard(150, 25, 0);
+		bbs->setUseAccurateFacing(true);
+		bbs->setBillboardType(BBT_ORIENTED_COMMON);
+		bbs->setCommonDirection(Vector3::UNIT_Y);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(bbs);
+	}
+
     // Just override the mandatory create scene method
     void createScene(void)
     {
@@ -3519,7 +3611,9 @@ protected:
 		//testSuppressedShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testViewportNoShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testBillboardChain();
-		testRibbonTrail();
+		//testRibbonTrail();
+		//testSerialisedColour();
+		testBillboardAccurateFacing();
 
 		
     }

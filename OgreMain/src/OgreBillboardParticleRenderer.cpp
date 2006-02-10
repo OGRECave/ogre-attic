@@ -38,6 +38,7 @@ namespace Ogre {
     BillboardParticleRenderer::CmdCommonDirection BillboardParticleRenderer::msCommonDirectionCmd;
     BillboardParticleRenderer::CmdCommonUpVector BillboardParticleRenderer::msCommonUpVectorCmd;
     BillboardParticleRenderer::CmdPointRendering BillboardParticleRenderer::msPointRenderingCmd;
+	BillboardParticleRenderer::CmdAccurateFacing BillboardParticleRenderer::msAccurateFacingCmd;
     //-----------------------------------------------------------------------
     BillboardParticleRenderer::BillboardParticleRenderer()
     {
@@ -88,8 +89,15 @@ namespace Ogre {
 				"rendering of point-oriented particles although introduces some "
 				"limitations too such as requiring a common particle size."
 				"Possible values are 'true' or 'false'.",
-                PT_STRING),
+                PT_BOOL),
                 &msPointRenderingCmd);
+			dict->addParameter(ParameterDef("accurate_facing",
+				"Set whether or not particles will be oriented to the camera "
+				"based on the relative position to the camera rather than just "
+				"the camera direction. This is more accurate but less optimal. "
+				"Cannot be combined with point rendering.",
+				PT_BOOL),
+				&msAccurateFacingCmd);
         }
 
         // Create billboard set
@@ -155,6 +163,16 @@ namespace Ogre {
     {
         mBillboardSet->setBillboardType(bbt);
     }
+	//-----------------------------------------------------------------------
+	void BillboardParticleRenderer::setUseAccurateFacing(bool acc)
+	{
+		mBillboardSet->setUseAccurateFacing(acc);
+	}
+	//-----------------------------------------------------------------------
+	bool BillboardParticleRenderer::getUseAccurateFacing(void) const
+	{
+		return mBillboardSet->getUseAccurateFacing();
+	}
     //-----------------------------------------------------------------------
     BillboardType BillboardParticleRenderer::getBillboardType(void) const
     {
@@ -436,6 +454,17 @@ namespace Ogre {
         static_cast<BillboardParticleRenderer*>(target)->setPointRenderingEnabled(
             StringConverter::parseBool(val));
     }
+	//-----------------------------------------------------------------------
+	String BillboardParticleRenderer::CmdAccurateFacing::doGet(const void* target) const
+	{
+		return StringConverter::toString(
+			static_cast<const BillboardParticleRenderer*>(target)->getUseAccurateFacing() );
+	}
+	void BillboardParticleRenderer::CmdAccurateFacing::doSet(void* target, const String& val)
+	{
+		static_cast<BillboardParticleRenderer*>(target)->setUseAccurateFacing(
+			StringConverter::parseBool(val));
+	}
 
 }
 

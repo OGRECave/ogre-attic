@@ -89,6 +89,13 @@ namespace Ogre {
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
+		/** Command object for accurate facing(see ParamCommand).*/
+		class _OgrePrivate CmdAccurateFacing : public ParamCommand
+		{
+		public:
+			String doGet(const void* target) const;
+			void doSet(void* target, const String& val);
+		};
 
         /** Sets the type of billboard to render.
         @remarks
@@ -104,6 +111,11 @@ namespace Ogre {
 
         /** Returns the billboard type in use. */
         BillboardType getBillboardType(void) const;
+
+		/// @copydoc BillboardSet::setUseAccurateFacing
+		void setUseAccurateFacing(bool acc);
+		/// @copydoc BillboardSet::getUseAccurateFacing
+		bool getUseAccurateFacing(void) const;
 
         /** Sets the point which acts as the origin point for all billboards in this set.
         @remarks
@@ -209,6 +221,7 @@ namespace Ogre {
         static CmdCommonDirection msCommonDirectionCmd;
         static CmdCommonUpVector msCommonUpVectorCmd;
         static CmdPointRendering msPointRenderingCmd;
+		static CmdAccurateFacing msAccurateFacingCmd;
 
 
     };
