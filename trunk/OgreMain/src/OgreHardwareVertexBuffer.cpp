@@ -218,12 +218,16 @@ namespace Ogre {
 	{
 		switch(dst)
 		{
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+        default:
+#endif
 		case VET_COLOUR_ARGB:
 			return src.getAsARGB();
-			break;
+#if OGRE_PLATFORM != OGRE_PLATFORM_WIN32
+        default:
+#endif
 		case VET_COLOUR_ABGR: 
 			return src.getAsABGR();
-			break;
 		};
 
 	}
