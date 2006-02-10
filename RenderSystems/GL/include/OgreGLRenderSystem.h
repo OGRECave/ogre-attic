@@ -199,7 +199,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void convertColourValue(const ColourValue& colour, uint32* pDest);
+        VertexElementType getColourVertexElementType(void) const;
         /** See
           RenderSystem
          */

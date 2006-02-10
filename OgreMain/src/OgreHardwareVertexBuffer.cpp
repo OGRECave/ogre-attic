@@ -29,6 +29,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 #include "OgreHardwareBufferManager.h"
 #include "OgreDefaultHardwareBufferManager.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
 
 namespace Ogre {
 
@@ -82,6 +84,8 @@ namespace Ogre {
 		switch(etype)
 		{
 		case VET_COLOUR:
+		case VET_COLOUR_ABGR:
+		case VET_COLOUR_ARGB:
 			return sizeof(RGBA);
 		case VET_FLOAT1:
 			return sizeof(float);
@@ -110,6 +114,8 @@ namespace Ogre {
 		switch (etype)
 		{
 		case VET_COLOUR:
+		case VET_COLOUR_ABGR:
+		case VET_COLOUR_ARGB:
 			return 1;
 		case VET_FLOAT1:
 			return 1;
@@ -175,6 +181,52 @@ namespace Ogre {
 		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid base type", 
 			"VertexElement::multiplyTypeCount");
 	}
+	//--------------------------------------------------------------------------
+	VertexElementType VertexElement::getBestColourVertexElementType(void)
+	{
+		// Use the current render system to determine if possible
+		if (Root::getSingletonPtr() && Root::getSingletonPtr()->getRenderSystem())
+		{
+			return Root::getSingleton().getRenderSystem()->getColourVertexElementType();
+		}
+		else
+		{
+			// We can't know the specific type right now, so pick a type
+			// based on platform
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+			return VET_COLOUR_ARGB; // prefer D3D format on windows
+#else
+			return VET_COLOUR_ABGR; // prefer GL format on everything else
+#endif
+
+		}
+	}
+	//--------------------------------------------------------------------------
+	void VertexElement::convertColourValue(VertexElementType srcType, 
+		VertexElementType dstType, uint32* ptr)
+	{
+		if (srcType == dstType)
+			return;
+
+		// Conversion between ARGB and ABGR is always a case of flipping R/B
+		*ptr = 
+		   ((*ptr&0x00FF0000)>>16)|((*ptr&0x000000FF)<<16)|(*ptr&0xFF00FF00);				
+	}
+	//--------------------------------------------------------------------------
+	uint32 VertexElement::convertColourValue(const ColourValue& src, 
+		VertexElementType dst)
+	{
+		switch(dst)
+		{
+		case VET_COLOUR_ARGB:
+			return src.getAsARGB();
+			break;
+		case VET_COLOUR_ABGR: 
+			return src.getAsABGR();
+			break;
+		};
+
+	}
 	//-----------------------------------------------------------------------------
 	VertexElementType VertexElement::getBaseType(VertexElementType multiType)
 	{
@@ -187,6 +239,10 @@ namespace Ogre {
 				return VET_FLOAT1;
 			case VET_COLOUR:
 				return VET_COLOUR;
+			case VET_COLOUR_ABGR:
+				return VET_COLOUR_ABGR;
+			case VET_COLOUR_ARGB:
+				return VET_COLOUR_ARGB;
 			case VET_SHORT1:
 			case VET_SHORT2:
 			case VET_SHORT3:
@@ -216,6 +272,11 @@ namespace Ogre {
         size_t offset, VertexElementType theType,
         VertexElementSemantic semantic, unsigned short index)
     {
+		// Refine colour type to a specific type
+		if (theType == VET_COLOUR)
+		{
+			theType = VertexElement::getBestColourVertexElementType();
+		}
         mElementList.push_back(
             VertexElement(source, offset, theType, semantic, index)
             );

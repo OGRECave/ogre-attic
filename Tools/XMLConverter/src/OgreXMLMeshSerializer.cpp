@@ -46,10 +46,12 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void XMLMeshSerializer::importMesh(const String& filename, Mesh* pMesh)
+    void XMLMeshSerializer::importMesh(const String& filename, 
+		VertexElementType colourElementType, Mesh* pMesh)
     {
         LogManager::getSingleton().logMessage("XMLMeshSerializer reading mesh data from " + filename + "...");
         mpMesh = pMesh;
+		mColourElementType = colourElementType;
         mXMLDoc = new TiXmlDocument(filename);
         mXMLDoc->LoadFile();
 
@@ -707,15 +709,15 @@ namespace Ogre {
             if (attrib && StringConverter::parseBool(attrib))
             {
                 // Add element
-                decl->addElement(bufCount, offset, VET_COLOUR, VES_DIFFUSE);
-                offset += VertexElement::getTypeSize(VET_COLOUR);
+                decl->addElement(bufCount, offset, mColourElementType, VES_DIFFUSE);
+                offset += VertexElement::getTypeSize(mColourElementType);
             }
             attrib = vbElem->Attribute("colours_specular");
             if (attrib && StringConverter::parseBool(attrib))
             {
                 // Add element
-                decl->addElement(bufCount, offset, VET_COLOUR, VES_SPECULAR);
-                offset += VertexElement::getTypeSize(VET_COLOUR);
+                decl->addElement(bufCount, offset, mColourElementType, VES_SPECULAR);
+                offset += VertexElement::getTypeSize(mColourElementType);
             }
             attrib = vbElem->Attribute("texture_coords");
             if (attrib && StringConverter::parseInt(attrib))
@@ -834,7 +836,7 @@ namespace Ogre {
 							ColourValue cv;
 							cv = StringConverter::parseColourValue(
 								xmlElem->Attribute("value"));
-							*pCol++ = cv.getAsARGB();
+							*pCol++ = VertexElement::convertColourValue(cv, mColourElementType);
 						}
                         break;
                     case VES_SPECULAR:
@@ -849,7 +851,7 @@ namespace Ogre {
 							ColourValue cv;
 							cv = StringConverter::parseColourValue(
 								xmlElem->Attribute("value"));
-							*pCol++ = cv.getAsARGB();
+							*pCol++ = VertexElement::convertColourValue(cv, mColourElementType);
 						}
                         break;
                     case VES_TEXTURE_COORDINATES:

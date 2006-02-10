@@ -482,6 +482,92 @@ namespace Ogre {
 
     }
 	//-----------------------------------------------------------------------
+	void VertexData::convertPackedColour(
+		VertexElementType srcType, VertexElementType destType)
+	{
+		if (destType != VET_COLOUR_ABGR && destType != VET_COLOUR_ARGB)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"Invalid destType parameter", "VertexData::convertPackedColour");
+		}
+		if (srcType != VET_COLOUR_ABGR && srcType != VET_COLOUR_ARGB)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"Invalid srcType parameter", "VertexData::convertPackedColour");
+		}
+
+		const VertexBufferBinding::VertexBufferBindingMap& bindMap = 
+			vertexBufferBinding->getBindings();
+		VertexBufferBinding::VertexBufferBindingMap::const_iterator bindi;
+		for (bindi = bindMap.begin(); bindi != bindMap.end(); ++bindi)
+		{
+			VertexDeclaration::VertexElementList elems = 
+				vertexDeclaration->findElementsBySource(bindi->first);
+			bool conversionNeeded = false;
+			VertexDeclaration::VertexElementList::iterator elemi;
+			for (elemi = elems.begin(); elemi != elems.end(); ++elemi)
+			{
+				VertexElement& elem = *elemi;
+				if (elem.getType() == VET_COLOUR || 
+					((elem.getType() == VET_COLOUR_ABGR || elem.getType() == VET_COLOUR_ARGB) 
+					&& elem.getType() != destType))
+				{
+					conversionNeeded = true;
+				}
+			}
+
+			if (conversionNeeded)
+			{
+				void* pBase = bindi->second->lock(HardwareBuffer::HBL_NORMAL);
+
+				for (size_t v = 0; v < bindi->second->getNumVertices(); ++v)
+				{
+
+					for (elemi = elems.begin(); elemi != elems.end(); ++elemi)
+					{
+						VertexElement& elem = *elemi;
+						VertexElementType currType = (elem.getType() == VET_COLOUR) ?
+							srcType : elem.getType();
+						if (elem.getType() == VET_COLOUR || 
+							((elem.getType() == VET_COLOUR_ABGR || elem.getType() == VET_COLOUR_ARGB) 
+							&& elem.getType() != destType))
+						{
+							uint32* pRGBA;
+							elem.baseVertexPointerToElement(pBase, &pRGBA);
+							VertexElement::convertColourValue(currType, destType, pRGBA);
+						}
+					}
+					pBase = static_cast<void*>(
+						static_cast<char*>(pBase) + bindi->second->getVertexSize());
+				}
+				bindi->second->unlock();
+
+				// Modify the elements to reflect the changed type
+				const VertexDeclaration::VertexElementList& allelems = 
+					vertexDeclaration->getElements();
+				VertexDeclaration::VertexElementList::const_iterator ai;
+				unsigned short elemIndex = 0;
+				for (ai = allelems.begin(); ai != allelems.end(); ++ai, ++elemIndex)
+				{
+					const VertexElement& elem = *ai;
+					if (elem.getType() == VET_COLOUR || 
+						((elem.getType() == VET_COLOUR_ABGR || elem.getType() == VET_COLOUR_ARGB) 
+						&& elem.getType() != destType))
+					{
+						vertexDeclaration->modifyElement(elemIndex, 
+							elem.getSource(), elem.getOffset(), destType, 
+							elem.getSemantic(), elem.getIndex());
+					}
+				}
+
+			}
+
+
+		} // each buffer
+
+
+	}
+	//-----------------------------------------------------------------------
 	void VertexData::allocateHardwareAnimationElements(ushort count)
 	{
 		// Find first free texture coord set

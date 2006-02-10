@@ -150,6 +150,16 @@ namespace Ogre {
 		*/
 		void reorganiseBuffers(VertexDeclaration* newDeclaration);
 
+		/** Convert all packed colour values (VET_COLOUR_*) in buffers used to
+			another type.
+		@param srcType The source colour type to assume if the ambiguous VET_COLOUR
+			is encountered.
+		@param destType The destination colour type, must be VET_COLOUR_ABGR or
+			VET_COLOUR_ARGB.
+		*/
+		void convertPackedColour(VertexElementType srcType, VertexElementType destType);
+
+
 		/** Allocate elements to serve a holder of morph / pose target data 
 			for hardware morphing / pose blending.
 		@remarks

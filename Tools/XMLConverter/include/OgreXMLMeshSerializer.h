@@ -51,9 +51,10 @@ namespace Ogre {
         virtual ~XMLMeshSerializer();
         /** Imports a Mesh from the given XML file.
         @param filename The name of the file to import, expected to be in XML format.
+		@param colourElementType The vertex element to use for packed colours
         @param pMesh The pre-created Mesh object to be populated.
         */
-        void importMesh(const String& filename, Mesh* pMesh);
+        void importMesh(const String& filename, VertexElementType colourElementType, Mesh* pMesh);
 
         /** Exports a mesh to the named XML file. */
         void exportMesh(const Mesh* pMesh, const String& filename);
@@ -63,6 +64,7 @@ namespace Ogre {
         TiXmlDocument* mXMLDoc;
         // State for import
         Mesh* mpMesh;
+		VertexElementType mColourElementType;
 
         // Internal methods
         void writeMesh(const Mesh* pMesh);

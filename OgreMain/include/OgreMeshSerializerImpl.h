@@ -161,7 +161,6 @@ namespace Ogre {
 
     };
 
-
     /** Class for providing backwards-compatibility for loading version 1.2 of the .mesh format. */
     class _OgrePrivate MeshSerializerImpl_v1_2 : public MeshSerializerImpl
     {

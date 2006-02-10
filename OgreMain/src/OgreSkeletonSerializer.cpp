@@ -97,8 +97,10 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void SkeletonSerializer::importSkeleton(DataStreamPtr& stream, Skeleton* pSkel)
     {
+		// Determine endianness (must be the first thing we do!)
+		determineEndianness(stream);
 
-        // Check header
+		// Check header
         readFileHeader(stream);
 
         unsigned short streamID;

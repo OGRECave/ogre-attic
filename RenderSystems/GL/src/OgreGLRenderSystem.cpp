@@ -1508,14 +1508,9 @@ namespace Ogre {
         // XXX Hint here?
     }
 
-    void GLRenderSystem::convertColourValue(const ColourValue& colour, uint32* pDest)
+	VertexElementType GLRenderSystem::getColourVertexElementType(void) const
     {
-    #if OGRE_ENDIAN == OGRE_ENDIAN_BIG
-        *pDest = colour.getAsRGBA();
-    #else
-      // GL accesses by byte, so use ABGR so little-endian format will make it RGBA in byte mode
-        *pDest = colour.getAsABGR();
-    #endif
+        return VET_COLOUR_ABGR;
     }
     
     void GLRenderSystem::_convertProjectionMatrix(const Matrix4& matrix,

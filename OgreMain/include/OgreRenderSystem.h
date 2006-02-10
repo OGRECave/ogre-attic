@@ -729,7 +729,11 @@ namespace Ogre
         @param colour The colour to convert
         @param pDest Pointer to location to put the result.
         */
-        virtual void convertColourValue(const ColourValue& colour, uint32* pDest) = 0;
+        virtual void convertColourValue(const ColourValue& colour, uint32* pDest);
+		/** Get the native VertexElementType for a compact 32-bit colour value
+			for this rendersystem.
+		*/
+		virtual VertexElementType getColourVertexElementType(void) const = 0;
 
         /** Converts a uniform projection matrix to suitable for this render system.
         @remarks
