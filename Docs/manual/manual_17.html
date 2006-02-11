@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 19 2005 by texi2html 1.64 -->
+<!-- Created on , 12 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.0.6: Passes</TITLE>
+<TITLE>OGRE Manual v1.0.7: Passes</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.0.6: Passes">
-<META NAME="keywords" CONTENT="OGRE Manual v1.0.6: Passes">
+<META NAME="description" CONTENT="OGRE Manual v1.0.7: Passes">
+<META NAME="keywords" CONTENT="OGRE Manual v1.0.7: Passes">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -89,7 +89,7 @@ Here are the attributes you can use in a 'pass' section of a .material script:
 <H3> ambient </H3>
 <!--docid::SEC36::-->
 
-Sets the ambient colour reflectance properties of this pass. <STRONG>This attribute has no effect if a vertex program is used.</STRONG> <BR><BR>
+Sets the ambient colour reflectance properties of this pass. <STRONG>This attribute has no effect if a asm, CG, or HLSL shader program is used.  With GLSL, the shader can read the OpenGL material state.</STRONG> <BR><BR>
 
 Format: ambient (&#60;red&#62; &#60;green&#62; &#60;blue&#62; [&#60;alpha&#62;]| vertexcolour)<BR>
 NB valid colour values are between 0.0 and 1.0.<BR><BR>
@@ -107,7 +107,7 @@ Default: ambient 1.0 1.0 1.0 1.0<BR><BR>
 <H3> diffuse </H3>
 <!--docid::SEC37::-->
 
-Sets the diffuse colour reflectance properties of this pass. <STRONG>This attribute has no effect if a vertex program is used.</STRONG><BR><BR>
+Sets the diffuse colour reflectance properties of this pass. <STRONG>This attribute has no effect if a asm, CG, or HLSL shader program is used.  With GLSL, the shader can read the OpenGL material state.</STRONG><BR><BR>
 
 Format: diffuse (&#60;red&#62; &#60;green&#62; &#60;blue&#62; [&#60;alpha&#62;]| vertexcolour)<BR>
 NB valid colour values are between 0.0 and 1.0.<BR><BR>
@@ -125,7 +125,7 @@ Default: diffuse 1.0 1.0 1.0 1.0<BR><BR>
 <H3> specular </H3>
 <!--docid::SEC38::-->
 
-Sets the specular colour reflectance properties of this pass. <STRONG>This attribute has no effect if a vertex program is used.</STRONG><BR><BR>
+Sets the specular colour reflectance properties of this pass. <STRONG>This attribute has no effect if a asm, CG, or HLSL shader program is used.  With GLSL, the shader can read the OpenGL material state.</STRONG><BR><BR>
 
 Format: specular (&#60;red&#62; &#60;green&#62; &#60;blue&#62; [&#60;alpha&#62;]| vertexcolour) &#60;shininess&#62;<BR>
 NB valid colour values are between 0.0 and 1.0. Shininess can be any value greater than 0.<BR><BR>
@@ -143,7 +143,7 @@ Default: specular 0.0 0.0 0.0 0.0 0.0<BR><BR>
 <H3> emissive </H3>
 <!--docid::SEC39::-->
 
-Sets the amount of self-illumination an object has. <STRONG>This attribute has no effect if a vertex program is used.</STRONG><BR><BR>
+Sets the amount of self-illumination an object has. <STRONG>This attribute has no effect if a asm, CG, or HLSL shader program is used.  With GLSL, the shader can read the OpenGL material state.</STRONG><BR><BR>
 
 Format: emissive (&#60;red&#62; &#60;green&#62; &#60;blue&#62; [&#60;alpha&#62;]| vertexcolour)<BR>
 NB valid colour values are between 0.0 and 1.0.<BR><BR>
@@ -439,7 +439,7 @@ Default: iteration once
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 19 2005</I>
+by <I>Steve Streeting</I> on <I>, 12 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
