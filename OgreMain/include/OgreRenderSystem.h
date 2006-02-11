@@ -790,7 +790,7 @@ namespace Ogre
             bool forGpuProgram) = 0;
 		
         /** Sets how to rasterise triangles, as points, wireframe or solid polys. */
-        virtual void _setRasterisationMode(SceneDetailLevel level) = 0;
+        virtual void _setPolygonMode(PolygonMode level) = 0;
 
         /** Turns stencil buffer checking on or off. 
         @remarks

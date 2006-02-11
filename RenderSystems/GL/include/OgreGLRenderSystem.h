@@ -357,7 +357,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _setRasterisationMode(SceneDetailLevel level);
+        void _setPolygonMode(PolygonMode level);
         /** See
           RenderSystem
          */

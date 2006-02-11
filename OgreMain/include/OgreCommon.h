@@ -147,15 +147,15 @@ namespace Ogre {
 		WFT_PWM
     };
 
-    /** The broad type of detail for rendering. */
-    enum SceneDetailLevel
+    /** The polygon mode to use when rasterising. */
+    enum PolygonMode
     {
 		/// Only points are rendered.
-        SDL_POINTS = 1,
+        PM_POINTS = 1,
 		/// Wireframe models are rendered.
-        SDL_WIREFRAME = 2,
+        PM_WIREFRAME = 2,
 		/// Solid polygons are rendered.
-        SDL_SOLID = 3
+        PM_SOLID = 3
     };
 
     /** An enumeration of broad shadow techniques */

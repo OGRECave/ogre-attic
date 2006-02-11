@@ -813,6 +813,8 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed)
 		mDestRenderSystem->_setCullingMode(pass->getCullingMode());
 		// Shading
 		mDestRenderSystem->setShadingType(pass->getShadingMode());
+		// Polygon mode
+		mDestRenderSystem->_setPolygonMode(pass->getPolygonMode());
 
 		// set pass number
     	mAutoParamDataSource.setPassNumber( pass->getIndex() );
@@ -1024,7 +1026,7 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
     mDestRenderSystem->_beginFrame();
 
     // Set rasterisation mode
-    mDestRenderSystem->_setRasterisationMode(camera->getDetailLevel());
+    mDestRenderSystem->_setPolygonMode(camera->getPolygonMode());
 
     // Render scene content 
     _renderVisibleObjects();
@@ -2275,8 +2277,8 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
     static Matrix4 xform[256];
     unsigned short numMatrices;
     static bool normalisedNormals = false;
-    SceneDetailLevel camDetailLevel = mCameraInProgress->getDetailLevel();
-    static SceneDetailLevel lastDetailLevel = camDetailLevel;
+    PolygonMode camPolyMode = mCameraInProgress->getPolygonMode();
+    static PolygonMode lastPolyMode = camPolyMode;
     static RenderOperation ro;
     static LightList localLightList;
 
@@ -2338,20 +2340,22 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
         }
 
         // Set up the solid / wireframe override
-		SceneDetailLevel reqDetail = rend->getRenderDetail();
-		if (rend->getRenderDetailOverrideable())
+		// Precedence is Camera, Object, Material
+		// Camera might not override object if not overrideable
+		PolygonMode reqMode = pass->getPolygonMode();
+		if (rend->getPolygonModeOverrideable())
 		{
 			// check camera detial only when render detail is overridable
-			if (reqDetail > camDetailLevel)
+			if (reqMode > camPolyMode)
 			{
 				// only downgrade detail; if cam says wireframe we don't go up to solid
-				reqDetail = camDetailLevel;
+				reqMode = camPolyMode;
 			}
 		}
-		if (reqDetail != lastDetailLevel)
+		if (reqMode != lastPolyMode)
 		{
-			mDestRenderSystem->_setRasterisationMode(reqDetail);
-			lastDetailLevel = reqDetail;
+			mDestRenderSystem->_setPolygonMode(reqMode);
+			lastPolyMode = reqMode;
 		}
 
 		mDestRenderSystem->setClipPlanes(rend->getClipPlanes());

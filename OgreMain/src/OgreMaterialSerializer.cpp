@@ -653,6 +653,22 @@ namespace Ogre
 
         return false;
     }
+	//-----------------------------------------------------------------------
+	bool parsePolygonMode(String& params, MaterialScriptContext& context)
+	{
+		StringUtil::toLowerCase(params);
+		if (params=="solid")
+			context.pass->setPolygonMode(PM_SOLID);
+		else if (params=="wireframe")
+			context.pass->setPolygonMode(PM_WIREFRAME);
+		else if (params=="points")
+			context.pass->setPolygonMode(PM_POINTS);
+		else
+			logParseError("Bad polygon_mode attribute, valid parameters are 'solid', "
+			"'wireframe' or 'points'.", context);
+
+		return false;
+	}
     //-----------------------------------------------------------------------
     bool parseFiltering(String& params, MaterialScriptContext& context)
     {
@@ -2430,6 +2446,7 @@ namespace Ogre
         mPassAttribParsers.insert(AttribParserList::value_type("lighting", (ATTRIBUTE_PARSER)parseLighting));
         mPassAttribParsers.insert(AttribParserList::value_type("fog_override", (ATTRIBUTE_PARSER)parseFogging));
         mPassAttribParsers.insert(AttribParserList::value_type("shading", (ATTRIBUTE_PARSER)parseShading));
+		mPassAttribParsers.insert(AttribParserList::value_type("polygon_mode", (ATTRIBUTE_PARSER)parsePolygonMode));
         mPassAttribParsers.insert(AttribParserList::value_type("depth_bias", (ATTRIBUTE_PARSER)parseDepthBias));
         mPassAttribParsers.insert(AttribParserList::value_type("texture_unit", (ATTRIBUTE_PARSER)parseTextureUnit));
         mPassAttribParsers.insert(AttribParserList::value_type("vertex_program_ref", (ATTRIBUTE_PARSER)parseVertexProgramRef));
@@ -3299,6 +3316,24 @@ namespace Ogre
                 }
             }
 
+
+			if (mDefaults || 
+				pPass->getPolygonMode() != PM_SOLID)
+			{
+				writeAttribute(3, "polygon_mode");
+				switch (pPass->getPolygonMode())
+				{
+				case PM_POINTS:
+					writeValue("points");
+					break;
+				case PM_WIREFRAME:
+					writeValue("wireframe");
+					break;
+				case PM_SOLID:
+					writeValue("solid");
+					break;
+				}
+			}
 
             //fog override
             if (mDefaults || 

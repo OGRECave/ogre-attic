@@ -97,7 +97,7 @@ namespace Ogre {
         Vector3 mYawFixedAxis;
 
         /// Rendering type
-        SceneDetailLevel mSceneDetail;
+        PolygonMode mSceneDetail;
 
         /// Stored number of visible faces in the last render
         unsigned int mVisFacesLastRender;
@@ -184,11 +184,11 @@ namespace Ogre {
                 that behaviour, allowing you to make the camera just render a
                 wireframe view, for example.
         */
-        void setDetailLevel(SceneDetailLevel sd);
+        void setPolygonMode(PolygonMode sd);
 
         /** Retrieves the level of detail that the camera will render.
         */
-        SceneDetailLevel getDetailLevel(void) const;
+        PolygonMode getPolygonMode(void) const;
 
         /** Sets the camera's position.
         */

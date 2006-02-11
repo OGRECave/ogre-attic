@@ -79,7 +79,7 @@ namespace Ogre {
       , mSourceTemplate(0)
     {
 		// default overlays to preserve their own detail level
-		mRenderDetailOverrideable = false;
+		mPolygonModeOverrideable = false;
     }
     //---------------------------------------------------------------------
     OverlayElement::~OverlayElement()

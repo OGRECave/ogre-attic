@@ -108,6 +108,8 @@ namespace Ogre {
 
         /// Shading options
         ShadeOptions mShadeOptions;
+		/// Polygon mode
+		PolygonMode mPolygonMode;
 
         //-------------------------------------------------------------------------    
         // Fog
@@ -664,6 +666,15 @@ namespace Ogre {
         */
         ShadeOptions getShadingMode(void) const;
 
+		/** Sets the type of polygon rendering required
+		@note
+		The default shading method is Solid 
+		*/
+		void setPolygonMode( PolygonMode mode );
+
+		/** Returns the type of light shading to be used.
+		*/
+		PolygonMode getPolygonMode(void) const;
 
         /** Sets the fogging mode applied to this pass.
         @remarks

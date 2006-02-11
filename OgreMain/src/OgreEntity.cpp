@@ -1003,25 +1003,14 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void Entity::setRenderDetail(SceneDetailLevel renderDetail)
+    void Entity::setPolygonModeOverrideable(bool overrideable)
     {
         SubEntityList::iterator i, iend;
         iend = mSubEntityList.end();
 
         for( i = mSubEntityList.begin(); i != iend; ++i )
         {
-            (*i)->setRenderDetail(renderDetail);
-        }
-    }
-    //-----------------------------------------------------------------------
-    void Entity::setRenderDetailOverrideable(bool renderDetailOverrideable)
-    {
-        SubEntityList::iterator i, iend;
-        iend = mSubEntityList.end();
-
-        for( i = mSubEntityList.begin(); i != iend; ++i )
-        {
-            (*i)->setRenderDetailOverrideable(renderDetailOverrideable);
+            (*i)->setPolygonModeOverrideable(overrideable);
         }
     }
 

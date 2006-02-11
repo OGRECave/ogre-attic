@@ -235,11 +235,11 @@ public:
 			mWireframe = !mWireframe;
 			if (mWireframe)
 			{
-				mCamera->setDetailLevel(SDL_WIREFRAME);
+				mCamera->setPolygonMode(PM_WIREFRAME);
 			}
 			else
 			{
-				mCamera->setDetailLevel(SDL_SOLID);
+				mCamera->setPolygonMode(PM_SOLID);
 			}
 			timeUntilNextToggle = 0.5;
 
