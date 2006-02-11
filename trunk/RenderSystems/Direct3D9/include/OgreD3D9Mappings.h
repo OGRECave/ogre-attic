@@ -90,8 +90,8 @@ namespace Ogre
 		static DWORD get(CullingMode cm, bool flip);
 		/// return a D3D9 equivalent for a Ogre FogMode value
 		static D3DFOGMODE get(FogMode fm);
-		/// return a D3D9 equivalent for a Ogre SceneDetailLevel value
-		static D3DFILLMODE get(SceneDetailLevel level);
+		/// return a D3D9 equivalent for a Ogre PolygonMode value
+		static D3DFILLMODE get(PolygonMode level);
 		/// return a D3D9 equivalent for a Ogre StencilOperation value
 		static DWORD get(StencilOperation op, bool invert = false);
 		/// return a D3D9 state type for Ogre FilterType value

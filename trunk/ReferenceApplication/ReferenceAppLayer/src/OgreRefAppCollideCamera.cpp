@@ -119,14 +119,14 @@ namespace OgreRefApp {
         return mCamera->getProjectionType();
     }
     //-----------------------------------------------------------------------
-    void CollideCamera::setDetailLevel(SceneDetailLevel sd) 
+    void CollideCamera::setPolygonMode(PolygonMode sd) 
     {
-        mCamera->setDetailLevel(sd);
+        mCamera->setPolygonMode(sd);
     }
     //-----------------------------------------------------------------------
-    SceneDetailLevel CollideCamera::getDetailLevel(void) const 
+    PolygonMode CollideCamera::getPolygonMode(void) const 
     {
-        return mCamera->getDetailLevel();
+        return mCamera->getPolygonMode();
     }
     //-----------------------------------------------------------------------
     void CollideCamera::setDirection(Real x, Real y, Real z) 

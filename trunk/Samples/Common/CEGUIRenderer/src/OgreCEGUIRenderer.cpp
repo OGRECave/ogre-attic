@@ -438,7 +438,7 @@ void OgreCEGUIRenderer::initRenderStates(void)
 	d_render_sys->unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
 	d_render_sys->unbindGpuProgram(GPT_VERTEX_PROGRAM);
 	d_render_sys->setShadingType(SO_GOURAUD);
-	d_render_sys->_setRasterisationMode(SDL_SOLID);
+	d_render_sys->_setPolygonMode(PM_SOLID);
 
 	// initialise texture settings
 	d_render_sys->_setTextureCoordCalculation(0, TEXCALC_NONE);

@@ -1933,11 +1933,11 @@ namespace Ogre
 			OGRE_EXCEPT( hr, "Error setting render state", "D3D9RenderSystem::_setFog" );
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setRasterisationMode(SceneDetailLevel level)
+	void D3D9RenderSystem::_setPolygonMode(PolygonMode level)
 	{
 		HRESULT hr = __SetRenderState(D3DRS_FILLMODE, D3D9Mappings::get(level));
 		if (FAILED(hr))
-			OGRE_EXCEPT(hr, "Error setting rasterisation mode.", "D3D9RenderSystem::setRasterisationMode");
+			OGRE_EXCEPT(hr, "Error setting polygon mode.", "D3D9RenderSystem::setPolygonMode");
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::setStencilCheckEnabled(bool enabled)

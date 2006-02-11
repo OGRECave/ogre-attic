@@ -82,6 +82,7 @@ namespace Ogre {
         mRunOnlyForOneLightType = true;
         mOnlyLightType = Light::LT_POINT;
 	    mShadeOptions = SO_GOURAUD;
+		mPolygonMode = PM_SOLID;
 
 		mVertexProgramUsage = NULL;
         mShadowCasterVertexProgramUsage = NULL;
@@ -150,6 +151,7 @@ namespace Ogre {
         mRunOnlyForOneLightType = oth.mRunOnlyForOneLightType;
         mOnlyLightType = oth.mOnlyLightType;
 	    mShadeOptions = oth.mShadeOptions;
+		mPolygonMode = oth.mPolygonMode;
         mPassIterationCount = oth.mPassIterationCount;
 		mPointSize = oth.mPointSize;
 		mPointMinSize = oth.mPointMinSize;
@@ -732,6 +734,16 @@ namespace Ogre {
     {
 	    return mShadeOptions;
     }
+	//-----------------------------------------------------------------------
+	void Pass::setPolygonMode(PolygonMode mode)
+	{
+		mPolygonMode = mode;
+	}
+	//-----------------------------------------------------------------------
+	PolygonMode Pass::getPolygonMode(void) const
+	{
+		return mPolygonMode;
+	}
     //-----------------------------------------------------------------------
     void Pass::setManualCullingMode(ManualCullingMode mode)
     {

@@ -42,7 +42,6 @@ namespace Ogre {
     {
         mpMaterial = MaterialManager::getSingleton().getByName(mMaterialName);
         mMaterialLodIndex = 0;
-        mRenderDetail = SDL_SOLID;
         mVisible = true;
         mSkelAnimVertexData = 0;
 		mSoftwareVertexAnimVertexData = 0;

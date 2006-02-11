@@ -25,7 +25,7 @@ LGPL like the rest of the engine.
 
 // Hack struct for test
 PatchMeshPtr patch;
-Entity* patchEntity;
+Pass* patchPass;
 
 // Event handler to add ability to alter subdivision
 class BezierListener : public ExampleFrameListener
@@ -55,8 +55,8 @@ public:
             if (factor > 1.0f) 
             {
                 wireframe = !wireframe;
-                //mCamera->setDetailLevel(wireframe ? SDL_WIREFRAME : SDL_SOLID);
-                patchEntity->setRenderDetail(wireframe ? SDL_WIREFRAME : SDL_SOLID);
+                //mCamera->setPolygonMode(wireframe ? PM_WIREFRAME : PM_SOLID);
+                patchPass->setPolygonMode(wireframe ? PM_WIREFRAME : PM_SOLID);
                 factor = 0.0f;
 
             }
@@ -178,12 +178,13 @@ protected:
         // Start patch at 0 detail
         patch->setSubdivision(0.0f);
         // Create entity based on patch
-        patchEntity = mSceneMgr->createEntity("Entity1", "Bezier1");
+        Entity* patchEntity = mSceneMgr->createEntity("Entity1", "Bezier1");
 
         MaterialPtr pMat = MaterialManager::getSingleton().create("TextMat", 
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         pMat->getTechnique(0)->getPass(0)->createTextureUnitState( "BumpyMetal.jpg" );
         patchEntity->setMaterialName("TextMat");
+		patchPass = pMat->getTechnique(0)->getPass(0);
 
         // Attach the entity to the root of the scene
         mSceneMgr->getRootSceneNode()->attachObject(patchEntity);

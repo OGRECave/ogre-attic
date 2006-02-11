@@ -45,7 +45,7 @@ namespace Ogre {
 		mSceneMgr(sm),
 		mOrientation(Quaternion::IDENTITY),
 		mPosition(Vector3::ZERO),
-		mSceneDetail(SDL_SOLID),
+		mSceneDetail(PM_SOLID),
 		mAutoTrackTarget(0),
 		mAutoTrackOffset(Vector3::ZERO),
 		mSceneLodFactor(1.0f),
@@ -101,13 +101,13 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    void Camera::setDetailLevel(SceneDetailLevel sd)
+    void Camera::setPolygonMode(PolygonMode sd)
     {
         mSceneDetail = sd;
     }
 
     //-----------------------------------------------------------------------
-    SceneDetailLevel Camera::getDetailLevel(void) const
+    PolygonMode Camera::getPolygonMode(void) const
     {
         return mSceneDetail;
     }

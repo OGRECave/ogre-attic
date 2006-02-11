@@ -78,7 +78,6 @@ namespace Ogre {
         /// Is this SubEntity visible?
         bool mVisible;
 
-        SceneDetailLevel mRenderDetail;
 		/// The LOD number of the material to use, calculated by Entity::_notifyCurrentCamera
 		unsigned short mMaterialLodIndex;
 
@@ -152,10 +151,6 @@ namespace Ogre {
         unsigned short getNumWorldTransforms(void) const;
         /** Overridden, see Renderable */
         Real getSquaredViewDepth(const Camera* cam) const;
-        /** Sets the rendering level (solid, wireframe) of this SubEntity. */
-        void setRenderDetail(SceneDetailLevel renderDetail) { mRenderDetail = renderDetail; } 
-        /** Overridden, see Renderable */
-        SceneDetailLevel getRenderDetail() const {return mRenderDetail;}
         /** @copydoc Renderable::getLights */
         const LightList& getLights(void) const;
         /** @copydoc Renderable::getCastsShadows */

@@ -228,6 +228,8 @@ Ambient lighting in scene = ColourValue(0.5, 0.5, 0.5) (mid-grey)
 Dynamic lighting enabled
 @item 
 Gourad shading mode
+@item
+Solid polygon mode
 @item 
 Bilinear texture filtering
 @end itemize
@@ -486,6 +488,8 @@ Here are the attributes you can use in a 'pass' section of a .material script:
 @ref{lighting}
 @item
 @ref{shading}
+@item 
+@ref{polygon_mode}
 @item
 @ref{fog_override}
 @item
@@ -746,6 +750,24 @@ When dynamic lighting is turned on, the effect is to generate colour values at e
 	Vertex normals are interpolated across the face, and these are used to determine colour at each pixel. Gives a more natural lighting effect but is more expensive and works better at high levels of tesselation. Not supported on all hardware.
 @end table
 Default: shading gouraud@*@*
+
+@anchor{polygon_mode}
+@subheading polygon_mode
+
+Sets how polygons should be rasterised, ie whether they should be filled in, or just drawn as lines or points.@*@*
+
+Format: polygon_mode <solid|wireframe|points>@*@*
+
+@table @asis
+@item solid
+The normal situation - polygons are filled in.
+@item wireframe
+Polygons are drawn in outline only.
+@item points
+Only the points of each polygon are rendered.
+@end table
+Default: polygon_mode solid@*@*
+
 
 @anchor{fog_override}
 @subheading fog_override

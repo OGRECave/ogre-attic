@@ -273,15 +273,15 @@ namespace Ogre
 		return D3DFOG_FORCE_DWORD;
 	}
 	//---------------------------------------------------------------------
-	D3DFILLMODE D3D9Mappings::get(SceneDetailLevel level)
+	D3DFILLMODE D3D9Mappings::get(PolygonMode level)
 	{
 		switch(level)
 		{
-		case SDL_POINTS:
+		case PM_POINTS:
 			return D3DFILL_POINT;
-		case SDL_WIREFRAME:
+		case PM_WIREFRAME:
 			return D3DFILL_WIREFRAME;
-		case SDL_SOLID:
+		case PM_SOLID:
 			return D3DFILL_SOLID;
 		}
 		return D3DFILL_FORCE_DWORD;

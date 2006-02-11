@@ -52,7 +52,7 @@ namespace Ogre {
     class _OgreExport Renderable
     {
     public:
-		Renderable() : mRenderDetailOverrideable(true) {}
+		Renderable() : mPolygonModeOverrideable(true) {}
         /** Virtual destructor needed as class has virtual methods. */
         virtual ~Renderable() { }
         /** Retrieves a weak reference to the material this renderable object uses.
@@ -129,10 +129,6 @@ namespace Ogre {
 			actual depth to avoid having to perform a square root on the result.
 		*/
 		virtual Real getSquaredViewDepth(const Camera* cam) const = 0;
-
-        /** Returns the preferred rasterisation mode of this renderable.
-        */
-        virtual SceneDetailLevel getRenderDetail() const {return SDL_SOLID;} 
 
         /** Returns whether or not this Renderable wishes the hardware to normalise normals. */
         virtual bool getNormaliseNormals(void) const { return false; }
@@ -232,17 +228,17 @@ namespace Ogre {
 		@param override true means that a lower camera detail will override this
 			renderables detail level, false means it won't.
 		*/
-		virtual void setRenderDetailOverrideable(bool override)
+		virtual void setPolygonModeOverrideable(bool override)
 		{
-			mRenderDetailOverrideable = override;
+			mPolygonModeOverrideable = override;
 		}
 
 		/** Gets whether this renderable's chosen detail level can be
 			overridden (downgraded) by the camera setting. 
 		*/
-		virtual bool getRenderDetailOverrideable(void) const
+		virtual bool getPolygonModeOverrideable(void) const
 		{
-			return mRenderDetailOverrideable;
+			return mPolygonModeOverrideable;
 		}
 
 
@@ -250,7 +246,7 @@ namespace Ogre {
         static const PlaneList msDummyPlaneList;
         typedef std::map<size_t, Vector4> CustomParameterMap;
         CustomParameterMap mCustomParameters;
-		bool mRenderDetailOverrideable;
+		bool mPolygonModeOverrideable;
     };
 
 
