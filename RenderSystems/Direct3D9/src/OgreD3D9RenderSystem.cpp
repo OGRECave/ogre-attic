@@ -545,14 +545,8 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::shutdown()
 	{
-		// Set all texture units to nothing to release texture surfaces
-		_disableTextureUnitsFrom(0);
-		// Unbind any vertex streams to avoid memory leaks
-		for (unsigned int i = 0; i < mLastVertexSourceCount; ++i)
-		{
-			HRESULT hr = mpD3DDevice->SetStreamSource(i, NULL, 0, 0);
-		}
 		RenderSystem::shutdown();
+		freeDevice();
 		SAFE_DELETE( mDriverList );
 		mActiveD3DDriver = NULL;
 		mpD3DDevice = NULL;
@@ -1052,7 +1046,6 @@ namespace Ogre
 		{
 			// We're destroying the primary window, so reset device and window
 			mPrimaryWindow = 0;
-			mpD3DDevice = 0;
 		}
 		else
 		{
@@ -1069,6 +1062,33 @@ namespace Ogre
 		}
 		// Do the real removal
 		RenderSystem::destroyRenderTarget(name);
+
+		// Did we destroy the primary?
+		if (!mPrimaryWindow)
+		{
+			// device is no longer valid, so free it all up
+			freeDevice();
+		}
+
+	}
+	//-----------------------------------------------------------------------
+	void D3D9RenderSystem::freeDevice(void)
+	{
+		if (mpD3DDevice)
+		{
+			// Set all texture units to nothing to release texture surfaces
+			_disableTextureUnitsFrom(0);
+			// Unbind any vertex streams to avoid memory leaks
+			for (unsigned int i = 0; i < mLastVertexSourceCount; ++i)
+			{
+				HRESULT hr = mpD3DDevice->SetStreamSource(i, NULL, 0, 0);
+			}
+			SAFE_RELEASE(mpD3DDevice);
+			mActiveD3DDriver->setD3DDevice(NULL);
+			mpD3DDevice = 0;
+
+		}
+
 
 	}
 	//---------------------------------------------------------------------
