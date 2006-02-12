@@ -187,7 +187,7 @@ namespace Ogre {
             // Get axes from current quaternion
             Vector3 axes[3];
             updateView();
-            mDerivedOrientation.ToAxes(axes);
+            mRealOrientation.ToAxes(axes);
             Quaternion rotQuat;
             if ( (axes[2]+zAdjustVec).squaredLength() <  0.00005f) 
             {
@@ -236,7 +236,7 @@ namespace Ogre {
     void Camera::lookAt(const Vector3& targetPoint)
     {
         updateView();
-        this->setDirection(targetPoint - mDerivedPosition);
+        this->setDirection(targetPoint - mRealPosition);
     }
 
     //-----------------------------------------------------------------------
@@ -319,8 +319,8 @@ namespace Ogre {
                 // Ok, we're out of date with SceneNode we're attached to
                 mLastParentOrientation = mParentNode->_getDerivedOrientation();
                 mLastParentPosition = mParentNode->_getDerivedPosition();
-                mDerivedOrientation = mLastParentOrientation * mOrientation;
-                mDerivedPosition = (mLastParentOrientation * mPosition) + mLastParentPosition;
+                mRealOrientation = mLastParentOrientation * mOrientation;
+                mRealPosition = (mLastParentOrientation * mPosition) + mLastParentPosition;
                 mRecalcView = true;
                 mRecalcWindow = true;
             }
@@ -328,8 +328,8 @@ namespace Ogre {
         else
         {
             // Rely on own updates
-            mDerivedOrientation = mOrientation;
-            mDerivedPosition = mPosition;
+            mRealOrientation = mOrientation;
+            mRealPosition = mPosition;
         }
 
         // Deriving reflection from linked plane?
@@ -341,6 +341,27 @@ namespace Ogre {
             mLastLinkedReflectionPlane = mLinkedReflectPlane->_getDerivedPlane();
             mRecalcView = true;
             mRecalcWindow = true;
+        }
+
+        // Deriving reflected orientation / position
+        if (mRecalcView)
+        {
+            if (mReflect)
+            {
+                // Calculate reflected orientation, use up-vector as fallback axis.
+				Vector3 dir = mRealOrientation * Vector3::NEGATIVE_UNIT_Z;
+				Vector3 rdir = dir.reflect(mReflectPlane.normal);
+                Vector3 up = mRealOrientation * Vector3::UNIT_Y;
+				mDerivedOrientation = dir.getRotationTo(rdir, up) * mRealOrientation;
+
+                // Calculate reflected position.
+                mDerivedPosition = mReflectMatrix * mRealPosition;
+            }
+            else
+            {
+                mDerivedOrientation = mRealOrientation;
+                mDerivedPosition = mRealPosition;
+            }
         }
 
         return mRecalcView;
@@ -434,9 +455,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Vector3 Camera::getDerivedDirection(void) const
     {
-        // Direction points down -Z by default
+        // Direction points down -Z
         updateView();
-        return mDerivedOrientation * -Vector3::UNIT_Z;
+        return mDerivedOrientation * Vector3::NEGATIVE_UNIT_Z;
     }
     //-----------------------------------------------------------------------
     Vector3 Camera::getDerivedUp(void) const
@@ -449,6 +470,37 @@ namespace Ogre {
     {
         updateView();
         return mDerivedOrientation * Vector3::UNIT_X;
+    }
+    //-----------------------------------------------------------------------
+    const Quaternion& Camera::getRealOrientation(void) const
+    {
+        updateView();
+        return mRealOrientation;
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& Camera::getRealPosition(void) const
+    {
+        updateView();
+        return mRealPosition;
+    }
+    //-----------------------------------------------------------------------
+    Vector3 Camera::getRealDirection(void) const
+    {
+        // Direction points down -Z
+        updateView();
+        return mRealOrientation * Vector3::NEGATIVE_UNIT_Z;
+    }
+    //-----------------------------------------------------------------------
+    Vector3 Camera::getRealUp(void) const
+    {
+        updateView();
+        return mRealOrientation * Vector3::UNIT_Y;
+    }
+    //-----------------------------------------------------------------------
+    Vector3 Camera::getRealRight(void) const
+    {
+        updateView();
+        return mRealOrientation * Vector3::UNIT_X;
     }
     //-----------------------------------------------------------------------
     const String& Camera::getMovableType(void) const
@@ -624,12 +676,12 @@ namespace Ogre {
     const Vector3& Camera::getPositionForViewUpdate(void) const
     {
         // Note no update, because we're calling this from the update!
-        return mDerivedPosition;
+        return mRealPosition;
     }
     //-----------------------------------------------------------------------
     const Quaternion& Camera::getOrientationForViewUpdate(void) const
     {
-        return mDerivedOrientation;
+        return mRealOrientation;
     }
     //-----------------------------------------------------------------------
     bool Camera::getAutoAspectRatio(void) const

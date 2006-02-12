@@ -370,15 +370,7 @@ namespace Ogre {
                 // Behind near plane
                 normal = -normal;
             }
-            // HACK: There bug in Camera::getDerivedPosition() which should be
-            // take reflection into account.
-            Vector3 cameraPos = cam->getDerivedPosition();
-            if (cam->isReflected())
-            {
-                // Camera is reflected, used the reflect of
-                // derived position as world position
-                cameraPos = cam->getReflectionMatrix() * cameraPos;
-            }
+            const Vector3& cameraPos = cam->getDerivedPosition();
             mNearClipVolume.planes.push_back(Plane(normal, cameraPos));
 
             // Finally, for a point/spot light we can add a sixth plane
