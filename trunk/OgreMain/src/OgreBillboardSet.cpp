@@ -340,12 +340,6 @@ namespace Ogre {
         {
 			// Calculate camera orientation
 			mCamQ = mCurrentCamera->getDerivedOrientation();
-			if (mCurrentCamera->isReflected())
-			{
-				Vector3 dir = mCamQ * Vector3::NEGATIVE_UNIT_Z;
-				Vector3 rdir = dir.reflect(mCurrentCamera->getReflectionPlane().normal);
-				mCamQ = dir.getRotationTo(rdir) * mCamQ;
-			}
 
 			if (!mWorldSpace)
 			{
@@ -942,10 +936,6 @@ namespace Ogre {
         {
             // Use mCamDir for temp pos storage for efficiency
             mCamDir = mCurrentCamera->getDerivedPosition();
-            if (mCurrentCamera->isReflected())
-            {
-                mCamDir = mCurrentCamera->getReflectionMatrix() * mCamDir;
-            }
             // cam -> bb direction
             mCamDir = bb->mPosition - mCamDir;
             mCamDir.normalise();

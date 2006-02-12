@@ -412,11 +412,7 @@ namespace Ogre {
 			mVertexData->vertexBufferBinding->getBuffer(0);
 		void* pBufferStart = pBuffer->lock(HardwareBuffer::HBL_DISCARD);
 
-		Vector3 camPos = cam->getDerivedPosition();
-		if (cam->isReflected())
-		{
-			camPos = cam->getReflectionMatrix() * camPos;
-		}
+		const Vector3& camPos = cam->getDerivedPosition();
 		Vector3 eyePos = mParentNode->_getDerivedOrientation().Inverse() *
 			(camPos - mParentNode->_getDerivedPosition());
 

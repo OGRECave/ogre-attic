@@ -87,9 +87,13 @@ namespace Ogre {
         /// Camera position - default (0,0,0)
         Vector3 mPosition;
 
-        /// Derived positions of parent orientation / position
+        /// Derived orientation/position of the camera, including reflection
         mutable Quaternion mDerivedOrientation;
         mutable Vector3 mDerivedPosition;
+
+        /// Real world orientation/position of the camera
+        mutable Quaternion mRealOrientation;
+        mutable Vector3 mRealPosition;
 
         /// Whether to yaw around a fixed axis.
         bool mYawFixed;
@@ -336,21 +340,37 @@ namespace Ogre {
         */
         unsigned int _getNumRenderedFaces(void) const;
 
-        /** Gets the derived orientation of the camera, including any 
-            rotation inherited from a node attachment. */
+        /** Gets the derived orientation of the camera, including any
+            rotation inherited from a node attachment and reflection matrix. */
         const Quaternion& getDerivedOrientation(void) const;
-        /** Gets the derived position of the camera, including any 
-            translation inherited from a node attachment. */
+        /** Gets the derived position of the camera, including any
+            translation inherited from a node attachment and reflection matrix. */
         const Vector3& getDerivedPosition(void) const;
-        /** Gets the derived direction vector of the camera, including any 
-            translation inherited from a node attachment. */
+        /** Gets the derived direction vector of the camera, including any
+            rotation inherited from a node attachment and reflection matrix. */
         Vector3 getDerivedDirection(void) const;
-        /** Gets the derived up vector of the camera, including any 
-            translation inherited from a node attachment. */
+        /** Gets the derived up vector of the camera, including any
+            rotation inherited from a node attachment and reflection matrix. */
         Vector3 getDerivedUp(void) const;
-        /** Gets the derived right vector of the camera, including any 
-            translation inherited from a node attachment. */
+        /** Gets the derived right vector of the camera, including any
+            rotation inherited from a node attachment and reflection matrix. */
         Vector3 getDerivedRight(void) const;
+
+        /** Gets the real world orientation of the camera, including any
+            rotation inherited from a node attachment */
+        const Quaternion& getRealOrientation(void) const;
+        /** Gets the real world position of the camera, including any
+            translation inherited from a node attachment. */
+        const Vector3& getRealPosition(void) const;
+        /** Gets the real world direction vector of the camera, including any
+            rotation inherited from a node attachment. */
+        Vector3 getRealDirection(void) const;
+        /** Gets the real world up vector of the camera, including any
+            rotation inherited from a node attachment. */
+        Vector3 getRealUp(void) const;
+        /** Gets the real world right vector of the camera, including any
+            rotation inherited from a node attachment. */
+        Vector3 getRealRight(void) const;
 
         /** Overridden from MovableObject */
         const String& getMovableType(void) const;
