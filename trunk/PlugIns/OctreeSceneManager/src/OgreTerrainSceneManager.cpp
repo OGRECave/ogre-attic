@@ -799,8 +799,15 @@ namespace Ogre
     void TerrainSceneManager::registerPageSource(const String& typeName, 
         TerrainPageSource* source)
     {
-        mPageSources.insert(
-            PageSourceMap::value_type(typeName, source));
+		std::pair<PageSourceMap::iterator, bool> retPair = 
+			mPageSources.insert(
+				PageSourceMap::value_type(typeName, source));
+		if (!retPair.second)
+		{
+			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
+				"The page source " + typeName + " is already registered",
+				"TerrainSceneManager::registerPageSource");
+		}
         LogManager::getSingleton().logMessage(
             "TerrainSceneManager: Registered a new PageSource for "
             "type " + typeName);

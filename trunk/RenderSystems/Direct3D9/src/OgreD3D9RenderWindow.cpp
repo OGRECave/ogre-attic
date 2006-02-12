@@ -511,9 +511,6 @@ namespace Ogre
 		{
 			// ignore depth buffer, access device through driver
 			mpRenderZBuffer = 0;
-			LPDIRECT3DDEVICE9 mpD3DDevice = mDriver->getD3DDevice();
-			SAFE_RELEASE(mpD3DDevice);
-			mDriver->setD3DDevice(NULL);
 		}
 	}
 

@@ -542,6 +542,10 @@ void OctreeSceneManager::_updateSceneGraph( Camera * cam )
 
 void OctreeSceneManager::_alertVisibleObjects( void )
 {
+    OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE,
+        "Function doesn't do as advertised",
+        "OctreeSceneManager::_alertVisibleObjects" );
+
     NodeList::iterator it = mVisible.begin();
 
     while ( it != mVisible.end() )
@@ -564,7 +568,7 @@ void OctreeSceneManager::_findVisibleObjects( Camera * cam, bool onlyShadowCaste
         Camera * c = getCamera( "CullCamera" );
 
         if ( c != 0 )
-            cam = getCamera( "CullCamera" );
+            cam = c;
     }
 
     mNumObjects = 0;
@@ -674,29 +678,31 @@ void OctreeSceneManager::walkOctree( OctreeCamera *camera, RenderQueue *queue,
             ++it;
         }
 
-        if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 )
-            walkOctree( camera, queue, octant -> mChildren[ 0 ][ 0 ][ 0 ], ( v == OctreeCamera::FULL ), onlyShadowCasters );
+        Octree* child;
+        bool childfoundvisible = (v == OctreeCamera::FULL);
+        if ( (child = octant -> mChildren[ 0 ][ 0 ][ 0 ]) != 0 )
+            walkOctree( camera, queue, child, childfoundvisible, onlyShadowCasters );
 
-        if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 )
-            walkOctree( camera, queue, octant -> mChildren[ 1 ][ 0 ][ 0 ], ( v == OctreeCamera::FULL ), onlyShadowCasters );
+        if ( (child = octant -> mChildren[ 1 ][ 0 ][ 0 ]) != 0 )
+            walkOctree( camera, queue, child, childfoundvisible, onlyShadowCasters );
 
-        if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 )
-            walkOctree( camera, queue, octant -> mChildren[ 0 ][ 1 ][ 0 ], ( v == OctreeCamera::FULL ), onlyShadowCasters );
+        if ( (child = octant -> mChildren[ 0 ][ 1 ][ 0 ]) != 0 )
+            walkOctree( camera, queue, child, childfoundvisible, onlyShadowCasters );
 
-        if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 )
-            walkOctree( camera, queue, octant -> mChildren[ 1 ][ 1 ][ 0 ], ( v == OctreeCamera::FULL ), onlyShadowCasters );
+        if ( (child = octant -> mChildren[ 1 ][ 1 ][ 0 ]) != 0 )
+            walkOctree( camera, queue, child, childfoundvisible, onlyShadowCasters );
 
-        if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 )
-            walkOctree( camera, queue, octant -> mChildren[ 0 ][ 0 ][ 1 ], ( v == OctreeCamera::FULL ), onlyShadowCasters );
+        if ( (child = octant -> mChildren[ 0 ][ 0 ][ 1 ]) != 0 )
+            walkOctree( camera, queue, child, childfoundvisible, onlyShadowCasters );
 
-        if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 )
-            walkOctree( camera, queue, octant -> mChildren[ 1 ][ 0 ][ 1 ], ( v == OctreeCamera::FULL ), onlyShadowCasters );
+        if ( (child = octant -> mChildren[ 1 ][ 0 ][ 1 ]) != 0 )
+            walkOctree( camera, queue, child, childfoundvisible, onlyShadowCasters );
 
-        if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 )
-            walkOctree( camera, queue, octant -> mChildren[ 0 ][ 1 ][ 1 ], ( v == OctreeCamera::FULL ), onlyShadowCasters );
+        if ( (child = octant -> mChildren[ 0 ][ 1 ][ 1 ]) != 0 )
+            walkOctree( camera, queue, child, childfoundvisible, onlyShadowCasters );
 
-        if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 )
-            walkOctree( camera, queue, octant -> mChildren[ 1 ][ 1 ][ 1 ], ( v == OctreeCamera::FULL ), onlyShadowCasters );
+        if ( (child = octant -> mChildren[ 1 ][ 1 ][ 1 ]) != 0 )
+            walkOctree( camera, queue, child, childfoundvisible, onlyShadowCasters );
 
     }
 
@@ -748,31 +754,31 @@ void _findNodes( const AxisAlignedBox &t, std::list < SceneNode * > &list, Scene
 		++it;
 	}
 
+	Octree* child;
 
+	if ( (child=octant -> mChildren[ 0 ][ 0 ][ 0 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 0 ] );
+	if ( (child=octant -> mChildren[ 1 ][ 0 ][ 0 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 0 ] );
+	if ( (child=octant -> mChildren[ 0 ][ 1 ][ 0 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 0 ] );
+	if ( (child=octant -> mChildren[ 1 ][ 1 ][ 0 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 0 ] );
+	if ( (child=octant -> mChildren[ 0 ][ 0 ][ 1 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 1 ] );
+	if ( (child=octant -> mChildren[ 1 ][ 0 ][ 1 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 1 ] );
+	if ( (child=octant -> mChildren[ 0 ][ 1 ][ 1 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 1 ] );
-
-	if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
+	if ( (child=octant -> mChildren[ 1 ][ 1 ][ 1 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
 }
 
@@ -821,31 +827,31 @@ void _findNodes( const Sphere &t, std::list < SceneNode * > &list, SceneNode *ex
 		++it;
 	}
 
+	Octree* child;
 
+	if ( (child=octant -> mChildren[ 0 ][ 0 ][ 0 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 0 ] );
+	if ( (child=octant -> mChildren[ 1 ][ 0 ][ 0 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 0 ] );
+	if ( (child=octant -> mChildren[ 0 ][ 1 ][ 0 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 0 ] );
+	if ( (child=octant -> mChildren[ 1 ][ 1 ][ 0 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 0 ] );
+	if ( (child=octant -> mChildren[ 0 ][ 0 ][ 1 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 1 ] );
+	if ( (child=octant -> mChildren[ 1 ][ 0 ][ 1 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 1 ] );
+	if ( (child=octant -> mChildren[ 0 ][ 1 ][ 1 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 1 ] );
-
-	if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
+	if ( (child=octant -> mChildren[ 1 ][ 1 ][ 1 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
 }
 
@@ -895,31 +901,31 @@ void _findNodes( const PlaneBoundedVolume &t, std::list < SceneNode * > &list, S
 		++it;
 	}
 
+	Octree* child;
 
+	if ( (child=octant -> mChildren[ 0 ][ 0 ][ 0 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 0 ] );
+	if ( (child=octant -> mChildren[ 1 ][ 0 ][ 0 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 0 ] );
+	if ( (child=octant -> mChildren[ 0 ][ 1 ][ 0 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 0 ] );
+	if ( (child=octant -> mChildren[ 1 ][ 1 ][ 0 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 0 ] );
+	if ( (child=octant -> mChildren[ 0 ][ 0 ][ 1 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 1 ] );
+	if ( (child=octant -> mChildren[ 1 ][ 0 ][ 1 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 1 ] );
+	if ( (child=octant -> mChildren[ 0 ][ 1 ][ 1 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 1 ] );
-
-	if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
+	if ( (child=octant -> mChildren[ 1 ][ 1 ][ 1 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
 }
 
@@ -968,31 +974,31 @@ void _findNodes( const Ray &t, std::list < SceneNode * > &list, SceneNode *exclu
 		++it;
 	}
 
+	Octree* child;
 
+	if ( (child=octant -> mChildren[ 0 ][ 0 ][ 0 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 0 ] );
+	if ( (child=octant -> mChildren[ 1 ][ 0 ][ 0 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 0 ] );
+	if ( (child=octant -> mChildren[ 0 ][ 1 ][ 0 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 0 ] );
+	if ( (child=octant -> mChildren[ 1 ][ 1 ][ 0 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 0 ] );
+	if ( (child=octant -> mChildren[ 0 ][ 0 ][ 1 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 1 ] );
+	if ( (child=octant -> mChildren[ 1 ][ 0 ][ 1 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 1 ] );
+	if ( (child=octant -> mChildren[ 0 ][ 1 ][ 1 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
-	if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 1 ] );
-
-	if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 )
-		_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
+	if ( (child=octant -> mChildren[ 1 ][ 1 ][ 1 ]) != 0 )
+		_findNodes( t, list, exclude, full, child );
 
 }
 

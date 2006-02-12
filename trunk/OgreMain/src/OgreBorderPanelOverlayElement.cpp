@@ -328,6 +328,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void BorderPanelOverlayElement::updateTextureGeometry()
     {
+		PanelOverlayElement::updateTextureGeometry();
 		/* Each cell is
 			0-----2
 			|    /|
