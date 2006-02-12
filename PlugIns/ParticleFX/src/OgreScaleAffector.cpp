@@ -66,15 +66,18 @@ namespace Ogre {
         {
             p = pi.getNext();
 
-			if( p->hasOwnDimensions() == false ){
-				p->setDimensions( pSystem->getDefaultWidth() , pSystem->getDefaultHeight() );
-			}
-			else{
-				NewWide = p->getOwnWidth()  + ds;
-				NewHigh = p->getOwnHeight() + ds;
+			if( p->hasOwnDimensions() == false )
+			{
+            	NewWide = pSystem->getDefaultWidth() + ds;
+	            NewHigh = pSystem->getDefaultHeight() + ds;
 
-				p->setDimensions( NewWide, NewHigh );
 			}
+			else
+			{
+            	NewWide = p->getOwnWidth()  + ds;
+            	NewHigh = p->getOwnHeight() + ds;
+			}
+			p->setDimensions( NewWide, NewHigh ); 
         }
 
     }
