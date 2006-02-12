@@ -63,7 +63,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 using namespace XSI;
 
-#define OGRE_XSI_EXPORTER_VERSION L"1.0.6a"
+#define OGRE_XSI_EXPORTER_VERSION L"1.0.7"
 
 /** This is the main file for the OGRE XSI plugin.
 The purpose of the methods in this file are as follows:
