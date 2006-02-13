@@ -106,6 +106,16 @@ namespace Ogre {
 		removeAllChildren();
 		if(mParent)
 			mParent->removeChild(this);
+
+        // Erase from queued updates
+        QueuedUpdates::iterator it =
+            std::find(msQueuedUpdates.begin(), msQueuedUpdates.end(), this);
+        if (it != msQueuedUpdates.end())
+        {
+            // Optimised algorithm to erase an element from unordered vector.
+            *it = msQueuedUpdates.back();
+            msQueuedUpdates.pop_back();
+        }
 	}
     //-----------------------------------------------------------------------
     Node* Node::getParent(void) const
