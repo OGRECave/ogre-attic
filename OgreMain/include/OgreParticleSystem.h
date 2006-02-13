@@ -574,12 +574,25 @@ namespace Ogre {
         typedef std::list<Particle*> FreeParticleList;
         typedef std::vector<Particle*> ParticlePool;
 
-		/// Sorting functor
-		struct SortFunctor
-		{
-			Vector3 sortDir;
-			float operator()(Particle* p) const;
-		};
+        /** Sort by direction functor */
+        struct SortByDirectionFunctor
+        {
+            /// Direction to sort in
+            Vector3 sortDir;
+
+            SortByDirectionFunctor(const Vector3& dir);
+            float operator()(Particle* p) const;
+        };
+
+        /** Sort by distance functor */
+        struct SortByDistanceFunctor
+        {
+            /// Position to sort in
+            Vector3 sortPos;
+
+            SortByDistanceFunctor(const Vector3& pos);
+            float operator()(Particle* p) const;
+        };
 
 		static RadixSort<ActiveParticleList, Particle*, float> mRadixSorter;
 

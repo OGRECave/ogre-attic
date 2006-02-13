@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMovableObject.h"
 #include "OgreRenderable.h"
 #include "OgreRadixSort.h"
+#include "OgreCommon.h"
 
 namespace Ogre {
 
@@ -186,6 +187,8 @@ namespace Ogre {
         Vector3 mCamDir;
         // Camera orientation in billboard space
         Quaternion mCamQ;
+        // Camera position in billboard space
+        Vector3 mCamPos;
 
         /// The vertex index data for all billboards in this set (1 set only)
         //unsigned short* mpIndexes;
@@ -249,13 +252,25 @@ namespace Ogre {
             const Vector3& x, const Vector3& y, Vector3* pDestVec);
 
 
-		/** Sort functor */
-		struct SortFunctor
-		{
-			/// Direction to sort in
-			Vector3 sortDir;
-			float operator()(Billboard* bill) const;
-		};
+        /** Sort by direction functor */
+        struct SortByDirectionFunctor
+        {
+            /// Direction to sort in
+            Vector3 sortDir;
+
+            SortByDirectionFunctor(const Vector3& dir);
+            float operator()(Billboard* bill) const;
+        };
+
+        /** Sort by distance functor */
+        struct SortByDistanceFunctor
+        {
+            /// Position to sort in
+            Vector3 sortPos;
+
+            SortByDistanceFunctor(const Vector3& pos);
+            float operator()(Billboard* bill) const;
+        };
 
 		static RadixSort<ActiveBillboardList, Billboard*, float> mRadixSorter;
 
@@ -695,6 +710,9 @@ namespace Ogre {
 
         /** Sort the billboard set. Only called when enabled via setSortingEnabled */
 		virtual void _sortBillboards( Camera* cam);
+
+        /** Gets the sort mode of this billboard set */
+        virtual SortMode _getSortMode(void) const;
 
         /** Sets whether billboards should be treated as being in world space. 
         @remarks

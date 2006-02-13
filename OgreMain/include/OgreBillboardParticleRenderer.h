@@ -210,6 +210,8 @@ namespace Ogre {
 		void setRenderQueueGroup(uint8 queueID);
 		/// @copydoc ParticleSystemRenderer::setKeepParticlesInLocalSpace
 		void setKeepParticlesInLocalSpace(bool keepLocal);
+        /// @copydoc ParticleSystemRenderer::_getSortMode
+        SortMode _getSortMode(void) const;
 
 		/// Access BillboardSet in use
 		BillboardSet* getBillboardSet(void) const { return mBillboardSet; }

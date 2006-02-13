@@ -248,6 +248,11 @@ namespace Ogre {
 	{
 		mBillboardSet->setBillboardsInWorldSpace(!keepLocal);
 	}
+    //-----------------------------------------------------------------------
+    SortMode BillboardParticleRenderer::_getSortMode(void) const
+    {
+        return mBillboardSet->_getSortMode();
+    }
 	//-----------------------------------------------------------------------
 	void BillboardParticleRenderer::setPointRenderingEnabled(bool enabled)
 	{
