@@ -69,6 +69,12 @@ namespace Ogre
 			(*i)->setListener(0);
 		}
 
+        if (mFadeController)
+        {
+			// destroy controller
+			ControllerManager::getSingleton().destroyController(mFadeController);
+        }
+
 	}
 	//-----------------------------------------------------------------------
 	void RibbonTrail::addNode(Node* n)
