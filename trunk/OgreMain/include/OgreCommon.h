@@ -218,6 +218,15 @@ namespace Ogre {
         TVC_EMISSIVE    = 0x8
     };
 
+    /** Sort mode for billboard-set and particle-system */
+    enum SortMode
+    {
+        /** Sort by direction of the camera */
+        SM_DIRECTION,
+        /** Sort by distance from the camera */
+        SM_DISTANCE
+    };
+
     typedef std::vector<Light*> LightList;
 
     typedef std::map<String, bool> UnaryOptionList;

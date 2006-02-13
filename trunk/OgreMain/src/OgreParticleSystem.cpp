@@ -887,25 +887,52 @@ namespace Ogre {
 			mRenderer->setKeepParticlesInLocalSpace(keepLocal);
 		}
 	}
-	//-----------------------------------------------------------------------
-	void ParticleSystem::_sortParticles(Camera* cam)
-	{
-		Quaternion camQ = cam->getDerivedOrientation();
-		if (mLocalSpace)
-		{
-			// transform the camera orientation into local space
-			camQ = mParentNode->_getDerivedOrientation().Inverse() * camQ;
-		}
-
-        SortFunctor sortFunctor;
-		sortFunctor.sortDir = camQ * Vector3::UNIT_Z;
-
-		mRadixSorter.sort(mActiveParticles, sortFunctor);
-	}
-	float ParticleSystem::SortFunctor::operator()(Particle* p) const
-	{
-		return sortDir.dotProduct(p->position);
-	}
+    //-----------------------------------------------------------------------
+    void ParticleSystem::_sortParticles(Camera* cam)
+    {
+        if (mRenderer)
+        {
+            SortMode sortMode = mRenderer->_getSortMode();
+            if (sortMode == SM_DIRECTION)
+            {
+                Vector3 camDir = cam->getDerivedDirection();
+                if (mLocalSpace)
+                {
+                    // transform the camera direction into local space
+                    camDir = mParentNode->_getDerivedOrientation().UnitInverse() * camDir;
+                }
+                mRadixSorter.sort(mActiveParticles, SortByDirectionFunctor(- camDir));
+            }
+            else if (sortMode == SM_DISTANCE)
+            {
+                Vector3 camPos = cam->getDerivedPosition();
+                if (mLocalSpace)
+                {
+                    // transform the camera position into local space
+                    camPos = mParentNode->_getDerivedOrientation().UnitInverse() *
+                        (camPos - mParentNode->_getDerivedPosition());
+                }
+                mRadixSorter.sort(mActiveParticles, SortByDistanceFunctor(camPos));
+            }
+        }
+    }
+    ParticleSystem::SortByDirectionFunctor::SortByDirectionFunctor(const Vector3& dir)
+        : sortDir(dir)
+    {
+    }
+    float ParticleSystem::SortByDirectionFunctor::operator()(Particle* p) const
+    {
+        return sortDir.dotProduct(p->position);
+    }
+    ParticleSystem::SortByDistanceFunctor::SortByDistanceFunctor(const Vector3& pos)
+        : sortPos(pos)
+    {
+    }
+    float ParticleSystem::SortByDistanceFunctor::operator()(Particle* p) const
+    {
+        // Sort descending by squared distance
+        return - (sortPos - p->position).squaredLength();
+    }
 	//-----------------------------------------------------------------------
 	uint32 ParticleSystem::getTypeFlags(void) const
 	{

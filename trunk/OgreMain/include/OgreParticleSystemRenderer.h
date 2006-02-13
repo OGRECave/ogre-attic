@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringInterface.h"
 #include "OgreFactoryObj.h"
 #include "OgreRenderQueue.h"
+#include "OgreCommon.h"
 
 namespace Ogre {
 
@@ -94,7 +95,8 @@ namespace Ogre {
 		*/
 		virtual void setKeepParticlesInLocalSpace(bool keepLocal) = 0;
 
-
+        /** Gets the desired particles sort mode of this renderer */
+        virtual SortMode _getSortMode(void) const = 0;
 
     };
 

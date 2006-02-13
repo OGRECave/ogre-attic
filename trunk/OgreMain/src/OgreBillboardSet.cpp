@@ -313,17 +313,50 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-	void BillboardSet::_sortBillboards( Camera* cam)
-	{
-        SortFunctor sortFunctor;
-        sortFunctor.sortDir = -mCamDir;
-
-		mRadixSorter.sort(mActiveBillboards, sortFunctor);
-	}
-	float BillboardSet::SortFunctor::operator()(Billboard* bill) const
-	{
-		return sortDir.dotProduct(bill->getPosition());
-	}
+    void BillboardSet::_sortBillboards( Camera* cam)
+    {
+        switch (_getSortMode())
+        {
+        case SM_DIRECTION:
+            mRadixSorter.sort(mActiveBillboards, SortByDirectionFunctor(-mCamDir));
+            break;
+        case SM_DISTANCE:
+            mRadixSorter.sort(mActiveBillboards, SortByDistanceFunctor(mCamPos));
+            break;
+        }
+    }
+    BillboardSet::SortByDirectionFunctor::SortByDirectionFunctor(const Vector3& dir)
+        : sortDir(dir)
+    {
+    }
+    float BillboardSet::SortByDirectionFunctor::operator()(Billboard* bill) const
+    {
+        return sortDir.dotProduct(bill->getPosition());
+    }
+    BillboardSet::SortByDistanceFunctor::SortByDistanceFunctor(const Vector3& pos)
+        : sortPos(pos)
+    {
+    }
+    float BillboardSet::SortByDistanceFunctor::operator()(Billboard* bill) const
+    {
+        // Sort descending by squared distance
+        return - (sortPos - bill->getPosition()).squaredLength();
+    }
+    //-----------------------------------------------------------------------
+    SortMode BillboardSet::_getSortMode(void) const
+    {
+        // Need to sort by distance if we're using accurate facing, or perpendicular billboard type.
+        if (mAccurateFacing ||
+            mBillboardType == BBT_PERPENDICULAR_SELF ||
+            mBillboardType == BBT_PERPENDICULAR_COMMON)
+        {
+            return SM_DISTANCE;
+        }
+        else
+        {
+            return SM_DIRECTION;
+        }
+    }
     //-----------------------------------------------------------------------
     void BillboardSet::_notifyCurrentCamera( Camera* cam )
     {
@@ -331,27 +364,21 @@ namespace Ogre {
 
         mCurrentCamera = cam;
 
-        // Calculate camera orientation and direction if really required.
-        if ((!mExternalData && mSortingEnabled) ||
-            (!mPointRendering &&
-             (mBillboardType == BBT_POINT ||
-              mBillboardType == BBT_ORIENTED_SELF ||
-              mBillboardType == BBT_ORIENTED_COMMON)))
+        // Calculate camera orientation and position
+        mCamQ = mCurrentCamera->getDerivedOrientation();
+        mCamPos = mCurrentCamera->getDerivedPosition();
+        if (!mWorldSpace)
         {
-			// Calculate camera orientation
-			mCamQ = mCurrentCamera->getDerivedOrientation();
-
-			if (!mWorldSpace)
-			{
-				// Default behaviour is that billboards are in local node space
-				// so orientation of camera (in world space) must be reverse-transformed
-				// into node space
-				mCamQ = mParentNode->_getDerivedOrientation().UnitInverse() * mCamQ;
-			}
-
-			// Camera direction points down -Z
-			mCamDir = mCamQ * Vector3::NEGATIVE_UNIT_Z;
+            // Default behaviour is that billboards are in local node space
+            // so orientation of camera (in world space) must be reverse-transformed
+            // into node space
+            mCamQ = mParentNode->_getDerivedOrientation().UnitInverse() * mCamQ;
+            mCamPos = mParentNode->_getDerivedOrientation().UnitInverse() *
+                (mCamPos - mParentNode->_getDerivedPosition());
         }
+
+        // Camera direction points down -Z
+        mCamDir = mCamQ * Vector3::NEGATIVE_UNIT_Z;
     }
     //-----------------------------------------------------------------------
     void BillboardSet::beginBillboards(void)
@@ -934,10 +961,8 @@ namespace Ogre {
             mBillboardType == BBT_ORIENTED_COMMON ||
             mBillboardType == BBT_ORIENTED_SELF))
         {
-            // Use mCamDir for temp pos storage for efficiency
-            mCamDir = mCurrentCamera->getDerivedPosition();
             // cam -> bb direction
-            mCamDir = bb->mPosition - mCamDir;
+            mCamDir = bb->mPosition - mCamPos;
             mCamDir.normalise();
         }
 
