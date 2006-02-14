@@ -318,7 +318,13 @@ namespace Ogre
 		Element& nextElem = mChainElementList[seg.start + nextElemIdx];
 
 		// Vary the head elem, but bake new version if that exceeds element len
-		const Vector3& newPos = node->_getDerivedPosition();
+        Vector3 newPos = node->_getDerivedPosition();
+        if (mParentNode)
+        {
+            // Transform position to ourself space
+            newPos = mParentNode->_getDerivedOrientation().UnitInverse() *
+                (newPos - mParentNode->_getDerivedPosition()) / mParentNode->_getDerivedScale();
+        }
 		Vector3 diff = newPos - nextElem.position;
 		Real sqlen = diff.squaredLength();
 		if (sqlen >= mSquaredElemLength)
