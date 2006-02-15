@@ -374,7 +374,7 @@ namespace Ogre {
             // into node space
             mCamQ = mParentNode->_getDerivedOrientation().UnitInverse() * mCamQ;
             mCamPos = mParentNode->_getDerivedOrientation().UnitInverse() *
-                (mCamPos - mParentNode->_getDerivedPosition());
+                (mCamPos - mParentNode->_getDerivedPosition()) / mParentNode->_getDerivedScale();
         }
 
         // Camera direction points down -Z

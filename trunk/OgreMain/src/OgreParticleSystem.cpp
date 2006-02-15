@@ -400,7 +400,8 @@ namespace Ogre {
 				if (!mLocalSpace)
 				{
 					p->position  = 
-						(mParentNode->_getDerivedOrientation() * p->position) 
+						(mParentNode->_getDerivedOrientation() *
+                         (mParentNode->_getDerivedScale() * p->position))
 						+ mParentNode->_getDerivedPosition();
 					p->direction = 
 						(mParentNode->_getDerivedOrientation() * p->direction);
@@ -594,29 +595,22 @@ namespace Ogre {
             mWorldAABB.setExtents(min, max);
 
 
-            // We've may have put particles in world space to decouple them from the
-            // node transform, so reverse transform back since we're expected to 
-            // provide a local AABB
-            Vector3 temp;
-            const Vector3 *corner = mWorldAABB.getAllCorners();
-            Quaternion invQ = mParentNode->_getDerivedOrientation().Inverse();
-            Vector3 t = mParentNode->_getDerivedPosition();
-            min.x = min.y = min.z = Math::POS_INFINITY;
-            max.x = max.y = max.z = Math::NEG_INFINITY;
-            for (int i = 0; i < 8; ++i)
+            if (mLocalSpace)
             {
-                // Reverse transform corner
-				if (mLocalSpace)
-                    temp = corner[i];
-                else
-                    temp = invQ * (corner[i] - t);
-                min.makeFloor(temp);
-                max.makeCeil(temp);
+                // Merge calculated box with current AABB to preserve any user-set AABB
+                mAABB.merge(mWorldAABB);
             }
-            AxisAlignedBox newAABB;
-            newAABB.setExtents(min, max);
-            // Merge calculated box with current AABB to preserve any user-set AABB
-            mAABB.merge(newAABB);
+            else
+            {
+                // We've already put particles in world space to decouple them from the
+                // node transform, so reverse transform back since we're expected to 
+                // provide a local AABB
+                AxisAlignedBox newAABB(mWorldAABB);
+                newAABB.transform(mParentNode->_getFullTransform().inverse());
+
+                // Merge calculated box with current AABB to preserve any user-set AABB
+                mAABB.merge(newAABB);
+            }
 
             mParentNode->needUpdate();
         }
@@ -910,7 +904,7 @@ namespace Ogre {
                 {
                     // transform the camera position into local space
                     camPos = mParentNode->_getDerivedOrientation().UnitInverse() *
-                        (camPos - mParentNode->_getDerivedPosition());
+                        (camPos - mParentNode->_getDerivedPosition()) / mParentNode->_getDerivedScale();
                 }
                 mRadixSorter.sort(mActiveParticles, SortByDistanceFunctor(camPos));
             }

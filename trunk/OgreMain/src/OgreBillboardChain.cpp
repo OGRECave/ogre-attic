@@ -414,7 +414,7 @@ namespace Ogre {
 
 		const Vector3& camPos = cam->getDerivedPosition();
 		Vector3 eyePos = mParentNode->_getDerivedOrientation().Inverse() *
-			(camPos - mParentNode->_getDerivedPosition());
+			(camPos - mParentNode->_getDerivedPosition()) / mParentNode->_getDerivedScale();
 
 		Vector3 chainTangent;
 		for (ChainSegmentList::iterator segi = mChainSegmentList.begin();
