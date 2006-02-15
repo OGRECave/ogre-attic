@@ -27,11 +27,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    ColourValue ColourValue::Black = ColourValue(0.0,0.0,0.0);
-    ColourValue ColourValue::White = ColourValue(1.0,1.0,1.0);
-    ColourValue ColourValue::Red = ColourValue(1.0,0.0,0.0);
-    ColourValue ColourValue::Green = ColourValue(0.0,1.0,0.0);
-    ColourValue ColourValue::Blue = ColourValue(0.0,0.0,1.0);
+    const ColourValue ColourValue::ZERO = ColourValue(0.0,0.0,0.0,0.0);
+    const ColourValue ColourValue::Black = ColourValue(0.0,0.0,0.0);
+    const ColourValue ColourValue::White = ColourValue(1.0,1.0,1.0);
+    const ColourValue ColourValue::Red = ColourValue(1.0,0.0,0.0);
+    const ColourValue ColourValue::Green = ColourValue(0.0,1.0,0.0);
+    const ColourValue ColourValue::Blue = ColourValue(0.0,0.0,1.0);
 
     //---------------------------------------------------------------------
 #if OGRE_ENDIAN == OGRE_ENDIAN_BIG

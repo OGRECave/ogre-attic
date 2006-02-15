@@ -48,7 +48,7 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	RibbonTrail::RibbonTrail(const String& name, size_t maxElements, 
 		size_t numberOfChains, bool useTextureCoords, bool useColours)
-		:BillboardChain(name, maxElements, numberOfChains, useTextureCoords, useColours, true),
+		:BillboardChain(name, maxElements, 0, useTextureCoords, useColours, true),
 		mFadeController(0)
 	{
 		setTrailLength(100);
@@ -140,21 +140,12 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void RibbonTrail::setNumberOfChains(size_t numChains)
 	{
-		size_t startInit = mChainCount;
-
 		BillboardChain::setNumberOfChains(numChains);
-		mInitialColour.resize(numChains);
-		mInitialWidth.resize(numChains);
-		mDeltaWidth.resize(numChains);
-		mDeltaColour.resize(numChains);
 
-		for (size_t i = startInit; i < mChainCount; ++i)
-		{
-			mInitialColour[i] = ColourValue::White;
-			mDeltaColour[i] = ColourValue::Black;
-			mInitialWidth[i] = 10;
-			mDeltaWidth[i] = 0;
-		}
+		mInitialColour.resize(numChains, ColourValue::White);
+        mDeltaColour.resize(numChains, ColourValue::ZERO);
+		mInitialWidth.resize(numChains, 10);
+		mDeltaWidth.resize(numChains, 0);
 	}
 	//-----------------------------------------------------------------------
 	void RibbonTrail::setInitialColour(size_t chainIndex, const ColourValue& col)
@@ -264,7 +255,7 @@ namespace Ogre
 		bool needController = false;
 		for (size_t i = 0; i < mChainCount; ++i)
 		{
-			if (mDeltaWidth[i] != 0 || mDeltaColour[i] != ColourValue::Black)
+			if (mDeltaWidth[i] != 0 || mDeltaColour[i] != ColourValue::ZERO)
 			{
 				needController = true;
 				break;
@@ -398,10 +389,7 @@ namespace Ogre
 					elem.width = elem.width - (time * mDeltaWidth[s]);
 					elem.width = std::max(0.0f, elem.width);
 					elem.colour = elem.colour - (mDeltaColour[s] * time);
-					elem.colour.r = std::max(0.0f, elem.colour.r);
-					elem.colour.g = std::max(0.0f, elem.colour.g);
-					elem.colour.b = std::max(0.0f, elem.colour.b);
-					elem.colour.a = std::max(0.0f, elem.colour.a);
+					elem.colour.saturate();
 
 					if (e == seg.tail)
 						break;
