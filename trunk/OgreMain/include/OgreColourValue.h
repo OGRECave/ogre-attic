@@ -48,11 +48,12 @@ namespace Ogre {
     class _OgreExport ColourValue
     {
     public:
-	    static ColourValue Black;
-	    static ColourValue White;
-	    static ColourValue Red;
-	    static ColourValue Green;
-	    static ColourValue Blue;
+        static const ColourValue ZERO;
+        static const ColourValue Black;
+        static const ColourValue White;
+        static const ColourValue Red;
+        static const ColourValue Green;
+        static const ColourValue Blue;
 
 	    explicit ColourValue( float red = 1.0f,
 				    float green = 1.0f,
@@ -100,6 +101,40 @@ namespace Ogre {
 	    /** Sets colour as ABGR.
 	    */
         void setAsABGR(const ABGR val);
+
+        /** Clamps colour value to the range [0, 1].
+        */
+        void saturate(void)
+        {
+            if (r < 0)
+                r = 0;
+            else if (r > 1)
+                r = 1;
+
+            if (g < 0)
+                g = 0;
+            else if (g > 1)
+                g = 1;
+
+            if (b < 0)
+                b = 0;
+            else if (b > 1)
+                b = 1;
+
+            if (a < 0)
+                a = 0;
+            else if (a > 1)
+                a = 1;
+        }
+
+        /** As saturate, except that this colour value is unaffected and
+            the saturated colour value is returned as a copy. */
+        ColourValue saturateCopy(void) const
+        {
+            ColourValue ret = *this;
+            ret.saturate();
+            return ret;
+        }
 
         // arithmetic operations
         inline ColourValue operator + ( const ColourValue& rkVector ) const
