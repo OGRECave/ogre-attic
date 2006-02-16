@@ -72,7 +72,7 @@ protected:
 
 
         // Green nimbus around Ogre
-        ParticleSystem* pSys1 = ParticleSystemManager::getSingleton().createSystem("Nimbus", 
+        ParticleSystem* pSys1 = mSceneMgr->createParticleSystem("Nimbus", 
             "Examples/GreenyNimbus");
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pSys1);
 
@@ -81,7 +81,7 @@ protected:
         mFountainNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 
         // fountain 1
-        ParticleSystem* pSys2 = ParticleSystemManager::getSingleton().createSystem("fountain1", 
+        ParticleSystem* pSys2 = mSceneMgr->createParticleSystem("fountain1", 
             "Examples/PurpleFountain");
         // Point the fountain at an angle
         SceneNode* fNode = mFountainNode->createChildSceneNode();
@@ -90,7 +90,7 @@ protected:
         fNode->attachObject(pSys2);
 
         // fountain 2
-        ParticleSystem* pSys3 = ParticleSystemManager::getSingleton().createSystem("fountain2", 
+        ParticleSystem* pSys3 = mSceneMgr->createParticleSystem("fountain2", 
             "Examples/PurpleFountain");
         // Point the fountain at an angle
         fNode = mFountainNode->createChildSceneNode();
@@ -102,7 +102,7 @@ protected:
 
 
         // Create a rainstorm 
-        ParticleSystem* pSys4 = ParticleSystemManager::getSingleton().createSystem("rain", 
+        ParticleSystem* pSys4 = mSceneMgr->createParticleSystem("rain", 
             "Examples/Rain");
         SceneNode* rNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
         rNode->translate(0,1000,0);
@@ -112,9 +112,12 @@ protected:
 
 
         // Aureola around Ogre perpendicular to the ground
-        ParticleSystem* pSys5 = ParticleSystemManager::getSingleton().createSystem("Aureola", 
+        ParticleSystem* pSys5 = mSceneMgr->createParticleSystem("Aureola", 
             "Examples/Aureola");
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pSys5);
+
+		// Set nonvisible timeout
+		ParticleSystem::setDefaultNonVisibleUpdateTimeout(5);
     }
 
     // Create new frame listener

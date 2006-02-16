@@ -263,9 +263,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Entity* Entity::clone( const String& newName)
     {
-        Entity* newEnt;
-		newEnt = Root::getSingleton()._getCurrentSceneManager()->createEntity(
-			newName, getMesh()->getName() );
+   		if (!mManager)
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+				"Cannot clone an Entity that wasn't created through a "
+				"SceneManager", "Entity::clone");
+		}
+	    Entity* newEnt = mManager->createEntity(newName, getMesh()->getName() );
         // Copy material settings
         SubEntityList::iterator i;
         unsigned int n = 0;

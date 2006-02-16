@@ -106,7 +106,7 @@ protected:
 
         mSceneMgr->getRootSceneNode()->attachObject( ent );
 
-        pThrusters = ParticleSystemManager::getSingleton().createSystem( "ParticleSys1", 200 );
+        pThrusters = mSceneMgr->createParticleSystem( "ParticleSys1", 200 );
 
         pThrusters ->setMaterialName( "Examples/Flare" );
         pThrusters ->setDefaultDimensions( 25, 25 );

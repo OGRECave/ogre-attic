@@ -52,10 +52,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     ParticleSystemManager::ParticleSystemManager()
     {
-		mTimeFactor = 1;
         mScriptPatterns.push_back("*.particle");
         ResourceGroupManager::getSingleton()._registerScriptLoader(this);
 		mFactory = new ParticleSystemFactory();
+		Root::getSingleton().addMovableObjectFactory(mFactory);
     }
     //-----------------------------------------------------------------------
     ParticleSystemManager::~ParticleSystemManager()
@@ -67,13 +67,6 @@ namespace Ogre {
             delete t->second;
         }
         mSystemTemplates.clear();
-        // Destroy all systems 
-        ParticleSystemMap::iterator i;
-        for (i = mSystems.begin(); i != mSystems.end(); ++i)
-        {
-            delete i->second;
-        }
-        mSystems.clear();
         ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
         // delete billboard factory
         if (mBillboardRendererFactory)
@@ -85,6 +78,7 @@ namespace Ogre {
 		if (mFactory)
 		{
 			// delete particle system factory
+			Root::getSingleton().removeMovableObjectFactory(mFactory);
 			delete mFactory;
 			mFactory = 0;
 		}
@@ -245,53 +239,18 @@ namespace Ogre {
             return 0;
         }
     }
-    //-----------------------------------------------------------------------
-    ParticleSystem* ParticleSystemManager::createSystem(const String& name, size_t quota, 
-        const String& resourceGroup)
-    {
-		return createSystemImpl(name, quota, resourceGroup, true);
-    }
-    //-----------------------------------------------------------------------
-    ParticleSystem* ParticleSystemManager::createSystem(const String& name, 
-		const String& templateName)
-
-	{
-		return createSystemImpl(name, templateName, true);
-	}
 	//-----------------------------------------------------------------------
-    ParticleSystem* ParticleSystemManager::createSystemImpl(const String& name, size_t quota, 
-        const String& resourceGroup, bool notifySM)
+    ParticleSystem* ParticleSystemManager::createSystemImpl(const String& name,
+		size_t quota, const String& resourceGroup)
     {
-		// check name
-		if (mSystems.find(name) != mSystems.end())
-		{
-			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
-				"ParticleSystem with name '" + name + "' already exists.", 
-				"ParticleSystemManager::createSystemImpl");
-		}
         ParticleSystem* sys = new ParticleSystem(name, resourceGroup);
         sys->setParticleQuota(quota);
-        mSystems.insert( ParticleSystemMap::value_type( name, sys ) );
-		if (notifySM)
-		{
-			// notify current scene manager, if any
-			SceneManager* sm = Root::getSingleton()._getCurrentSceneManager();
-			if (sm)
-				sm->injectMovableObject(sys);
-		}
         return sys;
     }
     //-----------------------------------------------------------------------
     ParticleSystem* ParticleSystemManager::createSystemImpl(const String& name, 
-		const String& templateName, bool notifySM)
+		const String& templateName)
     {
-		// check name
-		if (mSystems.find(name) != mSystems.end())
-		{
-			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
-				"ParticleSystem with name '" + name + "' already exists.", 
-				"ParticleSystemManager::createSystem");
-		}
         // Look up template
         ParticleSystem* pTemplate = getTemplate(templateName);
         if (!pTemplate)
@@ -299,88 +258,18 @@ namespace Ogre {
             OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Cannot find required template '" + templateName + "'", "ParticleSystemManager::createSystem");
         }
 
-        ParticleSystem* sys = createSystem(name, pTemplate->getParticleQuota(), 
+        ParticleSystem* sys = createSystemImpl(name, pTemplate->getParticleQuota(), 
             pTemplate->getResourceGroupName());
         // Copy template settings
         *sys = *pTemplate;
-		if (notifySM)
-		{
-			// notify current scene manager
-			SceneManager* sm = Root::getSingleton()._getCurrentSceneManager();
-			if (sm)
-				sm->injectMovableObject(sys);
-		}
         return sys;
         
     }
     //-----------------------------------------------------------------------
-    void ParticleSystemManager::destroySystemImpl(const String& name, 
-		bool notifySceneMgr)
+    void ParticleSystemManager::destroySystemImpl(ParticleSystem* sys)
 	{
-		if (notifySceneMgr)
-		{
-			// notify scene manager
-			SceneManager* sm = Root::getSingleton()._getCurrentSceneManager();
-			if (sm)
-				sm->extractMovableObject(name, 
-					ParticleSystemFactory::FACTORY_TYPE_NAME);
-		}
-        ParticleSystemMap::iterator i = mSystems.find(name);
-        if (i != mSystems.end())
-        {
-            delete i->second;
-            mSystems.erase(i);
-        }
+		delete sys;
 	}
-    //-----------------------------------------------------------------------
-    void ParticleSystemManager::destroySystemImpl(ParticleSystem* sys, 
-		bool notifySceneMgr)
-	{
-		if (notifySceneMgr)
-		{
-			// notify scene manager
-			SceneManager* sm = Root::getSingleton()._getCurrentSceneManager();
-			if (sm)
-				sm->extractMovableObject(sys);
-		}
-		
-        ParticleSystemMap::iterator i;
-        for (i = mSystems.begin(); i != mSystems.end(); ++i)
-        {
-            if (i->second == sys)
-            {
-                delete i->second;
-                mSystems.erase(i);
-                break;
-            }
-        }
-	}
-    //-----------------------------------------------------------------------
-    void ParticleSystemManager::destroySystem(const String& name)
-    {
-		destroySystemImpl(name, true);
-    }
-    //-----------------------------------------------------------------------
-    void ParticleSystemManager::destroySystem(ParticleSystem* sys)
-    {
-		destroySystemImpl(sys, true);
-    }
-
-    //-----------------------------------------------------------------------
-    ParticleSystem* ParticleSystemManager::getSystem(const String& name)
-    {
-        ParticleSystemMap::iterator i = mSystems.find(name);
-        if (i != mSystems.end())
-        {
-            return i->second;
-        }
-        else
-        {
-            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Cannot find particle system '" + name + "'",
-                "ParticleSystemManager::getSystem");
-        }
-    }
-
     //-----------------------------------------------------------------------
     ParticleEmitter* ParticleSystemManager::_createEmitter(
         const String& emitterType, ParticleSystem* psys)
@@ -469,32 +358,8 @@ namespace Ogre {
         pFact->second->destroyInstance(renderer);
 	}
     //-----------------------------------------------------------------------
-    bool ParticleSystemManager::frameStarted(const FrameEvent &evt)
-    {
-		// Apply time factor
-		Real timeSinceLastFrame = mTimeFactor * evt.timeSinceLastFrame;
-
-        // update systems
-        // TODO: only do this for visible systems
-        ParticleSystemMap::iterator i;
-        for (i = mSystems.begin(); i != mSystems.end(); ++i)
-        {
-            i->second->_update(timeSinceLastFrame);
-        }
-
-        return true;
-    }
-    //-----------------------------------------------------------------------
-    bool ParticleSystemManager::frameEnded(const FrameEvent &evt)
-    {
-        return true;
-    }
-    //-----------------------------------------------------------------------
     void ParticleSystemManager::_initialise(void)
     {
-        // Register self as a frame listener
-        Root::getSingleton().addFrameListener(this);
-
         // Create Billboard renderer factory
         mBillboardRendererFactory = new BillboardParticleRendererFactory();
         addRendererFactory(mBillboardRendererFactory);
@@ -641,14 +506,6 @@ namespace Ogre {
 
     }
 	//-----------------------------------------------------------------------
-	Real ParticleSystemManager::getTimeFactor(void) const {
-		return mTimeFactor;
-	}
-	//-----------------------------------------------------------------------
-	void ParticleSystemManager::setTimeFactor(Real tf) {
-		if(tf >= 0) mTimeFactor = tf;
-	}
-	//-----------------------------------------------------------------------
 	ParticleSystemManager::ParticleAffectorFactoryIterator 
 	ParticleSystemManager::getAffectorFactoryIterator(void)
 	{
@@ -683,9 +540,9 @@ namespace Ogre {
 			if (ni != params->end())
 			{
 				String templateName = ni->second;
-				// create using manager, but don't notify SM (we've come from there!)
+				// create using manager
 				return ParticleSystemManager::getSingleton().createSystemImpl(
-						name, templateName, false);
+						name, templateName);
 			}
 		}
 		// Not template based, look for quota & resource name
@@ -704,9 +561,9 @@ namespace Ogre {
 				resourceGroup = ni->second;
 			}
 		}
-		// create using manager, but don't notify SM (we've come from there!)
+		// create using manager
 		return ParticleSystemManager::getSingleton().createSystemImpl(
-				name, quota, resourceGroup, false);
+				name, quota, resourceGroup);
 				
 
 	}
@@ -718,9 +575,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void ParticleSystemFactory::destroyInstance( MovableObject* obj) 
 	{
-		// use manager, but don't notify SM (we've come from there!)
+		// use manager
 		ParticleSystemManager::getSingleton().destroySystemImpl(
-			obj->getName(), false);
+			static_cast<ParticleSystem*>(obj));
 
 	}
     //-----------------------------------------------------------------------

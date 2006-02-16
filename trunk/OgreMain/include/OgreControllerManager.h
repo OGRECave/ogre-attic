@@ -52,7 +52,13 @@ namespace Ogre {
         ControllerList mControllers;
 
         /// Global predefined controller
-        SharedPtr< ControllerValue<Real> > mFrameTimeController;
+        ControllerValueRealPtr mFrameTimeController;
+        
+		/// Global predefined controller
+		ControllerFunctionRealPtr mPassthroughFunction;
+
+		// Last frame number updated
+        unsigned long mLastFrameNumber;
 
     public:
         ControllerManager();
@@ -82,6 +88,9 @@ namespace Ogre {
                 RenderSystem::beginFrame
         */
         const ControllerValueRealPtr& getFrameTimeSource(void) const;
+
+		/** Retrieve a simple passthrough controller function. */
+		const ControllerFunctionRealPtr& getPassthroughControllerFunction(void) const;
 
         /** Creates a texture layer animator controller.
             @remarks

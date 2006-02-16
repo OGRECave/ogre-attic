@@ -265,9 +265,9 @@ namespace Ogre
 		{
 			// Set up fading via frame time controller
 			ControllerManager& mgr = ControllerManager::getSingleton();
-			ControllerFunctionRealPtr func(new PassthroughControllerFunction());
 			mFadeController = mgr.createController(
-				mgr.getFrameTimeSource(), mTimeControllerValue, func);
+				mgr.getFrameTimeSource(), mTimeControllerValue, 
+				mgr.getPassthroughControllerFunction());
 		}
 		else if (mFadeController && !needController)
 		{

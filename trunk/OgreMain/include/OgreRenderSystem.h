@@ -898,7 +898,7 @@ namespace Ogre
         @remarks Only one GpuProgram of each type can be bound at once, binding another
         one will simply replace the exsiting one.
         */
-        virtual void bindGpuProgram(GpuProgram* prg) = 0;
+        virtual void bindGpuProgram(GpuProgram* prg);
 
         /** Bind Gpu program parameters.
         */
@@ -910,7 +910,10 @@ namespace Ogre
         @remarks
             This returns the pipeline to fixed-function processing for this type.
         */
-        virtual void unbindGpuProgram(GpuProgramType gptype) = 0;
+        virtual void unbindGpuProgram(GpuProgramType gptype);
+        
+        /** Returns whether or not a Gpu program of the given type is currently bound. */
+        virtual bool isGpuProgramBound(GpuProgramType gptype);
 
         /** sets the clipping region.
         */
@@ -1109,6 +1112,10 @@ namespace Ogre
 
 		typedef std::list<HardwareOcclusionQuery*> HardwareOcclusionQueryList;
 		HardwareOcclusionQueryList mHwOcclusionQueries;
+		
+		bool mVertexProgramBound;
+		bool mFragmentProgramBound;
+		
 
 
     };

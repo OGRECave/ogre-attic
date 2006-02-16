@@ -2473,6 +2473,8 @@ namespace Ogre
             }
             break;
         };
+        
+        RenderSystem::bindGpuProgram(prg);
 
     }
 	//---------------------------------------------------------------------
@@ -2500,6 +2502,7 @@ namespace Ogre
             }
             break;
         };
+        RenderSystem::unbindGpuProgram(gptype);
     }
 	//---------------------------------------------------------------------
     void D3D9RenderSystem::bindGpuProgramParameters(GpuProgramType gptype, 
@@ -2941,6 +2944,9 @@ namespace Ogre
 
 		// will have lost basic states
 		mBasicStatesInitialised = false;
+        mVertexProgramBound = false;
+        mFragmentProgramBound = false;
+
 
 		// recreate additional swap chains
 		for (sw = mSecondaryWindows.begin(); sw != mSecondaryWindows.end(); ++sw)
@@ -2953,7 +2959,7 @@ namespace Ogre
 			->recreateDefaultPoolResources();
 		static_cast<D3D9HardwareBufferManager*>(mHardwareBufferManager)
 			->recreateDefaultPoolResources();
-
+			
 		LogManager::getSingleton().logMessage("!!! Direct3D Device successfully restored.");
 
 		mDeviceLost = false;

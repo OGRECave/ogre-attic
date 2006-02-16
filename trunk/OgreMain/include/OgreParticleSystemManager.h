@@ -39,26 +39,33 @@ namespace Ogre {
 	// Forward decl
 	class ParticleSystemFactory;
 	
-    /** Manages particle systems, particle system scripts (templates) and the available emitter & affector factories.
+    /** Manages particle systems, particle system scripts (templates) and the 
+		available emitter & affector factories.
     @remarks
-        This singleton class is responsible for creating and managing particle systems. All particle
-        systems must be created and destroyed using this object. Remember that like all other MovableObject
-        subclasses, ParticleSystems do not get rendered until they are attached to a SceneNode object.
+        This singleton class is responsible for creating and managing particle 
+		systems. All particle systems must be created and destroyed using this 
+		object, although the user interface to creating them is via
+		SceneManager. Remember that like all other MovableObject
+        subclasses, ParticleSystems do not get rendered until they are 
+		attached to a SceneNode object.
     @par
-        This class also manages factories for ParticleEmitter and ParticleAffector classes. To enable easy
-        extensions to the types of emitters (particle sources) and affectors (particle modifiers), the
-        ParticleSystemManager lets plugins or applications register factory classes which submit new
-        subclasses to ParticleEmitter and ParticleAffector. Ogre comes with a number of them already provided,
-        such as cone, sphere and box-shaped emitters, and simple affectors such as constant directional force
-        and colour faders. However using this registration process, a plugin can create any behaviour
-        required.
+        This class also manages factories for ParticleEmitter and 
+		ParticleAffector classes. To enable easy extensions to the types of 
+		emitters (particle sources) and affectors (particle modifiers), the
+        ParticleSystemManager lets plugins or applications register factory 
+		classes which submit new subclasses to ParticleEmitter and 
+		ParticleAffector. Ogre comes with a number of them already provided,
+        such as cone, sphere and box-shaped emitters, and simple affectors such
+	   	as constant directional force and colour faders. However using this 
+		registration process, a plugin can create any behaviour required.
     @par
-        This class also manages the loading and parsing of particle system scripts, which are text files
-        describing named particle system templates. Instances of particle systems using these templates can
+        This class also manages the loading and parsing of particle system 
+		scripts, which are text files describing named particle system 
+		templates. Instances of particle systems using these templates can
         then be created easily through the createParticleSystem method.
     */
-    class _OgreExport ParticleSystemManager: public Singleton<ParticleSystemManager>, 
-        public FrameListener, public ScriptLoader
+    class _OgreExport ParticleSystemManager: 
+		public Singleton<ParticleSystemManager>, public ScriptLoader
     {
 		friend class ParticleSystemFactory;
 	public:
@@ -70,10 +77,6 @@ namespace Ogre {
         /// Templates based on scripts
         ParticleTemplateMap mSystemTemplates;
         
-        typedef std::map<String, ParticleSystem*> ParticleSystemMap;
-        /// Actual instantiated particle systems (may be based on template, may be manual)
-        ParticleSystemMap mSystems;
-
         /// Factories for named emitter types (can be extended using plugins)
         ParticleEmitterFactoryMap mEmitterFactories;
 
@@ -84,9 +87,6 @@ namespace Ogre {
 		ParticleSystemRendererFactoryMap mRendererFactories;
 
         StringVector mScriptPatterns;
-
-		/// Controls time
-		Real mTimeFactor;
 
 		// Factory instance
 		ParticleSystemFactory* mFactory;
@@ -108,14 +108,11 @@ namespace Ogre {
 
 		/// Internal implementation of createSystem
         ParticleSystem* createSystemImpl(const String& name, size_t quota, 
-			const String& resourceGroup, bool notifySceneMgr);
+			const String& resourceGroup);
 		/// Internal implementation of createSystem
-        ParticleSystem* createSystemImpl(const String& name, const String& templateName, 
-			bool notifySceneMgr);
+        ParticleSystem* createSystemImpl(const String& name, const String& templateName);
 		/// Internal implementation of destroySystem
-        void destroySystemImpl(const String& name, bool notifySceneMgr);
-		/// Internal implementation of destroySystem
-        void destroySystemImpl(ParticleSystem* sys, bool notifySceneMgr);
+        void destroySystemImpl(ParticleSystem* sys);
 		
 		
     public:
@@ -209,72 +206,6 @@ namespace Ogre {
             from this template.
         */
         ParticleSystem* getTemplate(const String& name);
-
-        /** Basic method for creating a blank particle system.
-        @remarks
-            This method creates a new, blank ParticleSystem instance and returns a pointer to it.
-            The caller should not delete this object, it will be freed at system shutdown, or can
-            be released earlier using the destroySystem method.
-        @par
-            The instance returned from this method won't actually do anything because on creation a
-            particle system has no emitters. The caller should manipulate the instance through it's 
-            ParticleSystem methods to actually create a real particle effect. 
-        @par
-            Creating a particle system does not make it a part of the scene. As with other MovableObject
-            subclasses, a ParticleSystem is not rendered until it is attached to a SceneNode. 
-        @param
-            name The name to give the ParticleSystem.
-        @param 
-            quota The maximum number of particles to allow in this system. 
-        @param
-            resourceGroup The resource group which will be used to load dependent resources
-        */
-        ParticleSystem* createSystem(const String& name, size_t quota = 500, 
-            const String& resourceGroup = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-
-        /** Creates a particle system based on a template.
-        @remarks
-            This method creates a new ParticleSystem instance based on the named template and returns a 
-            pointer to the caller. The caller should not delete this object, it will be freed at system shutdown, 
-            or can be released earlier using the destroySystem method.
-        @par
-            Each system created from a template takes the template's settings at the time of creation, 
-            but is completely separate from the template from there on. 
-        @par
-            Creating a particle system does not make it a part of the scene. As with other MovableObject
-            subclasses, a ParticleSystem is not rendered until it is attached to a SceneNode. 
-        @par
-            This is probably the more useful particle system creation method since it does not require manual
-            setup of the system. Note that the initial quota is based on the template but may be changed later.
-        @param 
-            name The name to give the new particle system instance.
-        @param 
-            templateName The name of the template to base the new instance on.
-        */
-        ParticleSystem* createSystem(const String& name, const String& templateName);
-
-        /** Destroys a particle system, freeing it's memory and removing references to it in this class.
-        @remarks
-            You should ensure that before calling this method, the particle system has been detached from 
-            any SceneNode objects, and that no other objects are referencing it.
-        @param
-            name The name of the ParticleSystem to destroy.
-        */
-        void destroySystem(const String& name);
-
-        /** Destroys a particle system, freeing it's memory and removing references to it in this class.
-        @remarks
-            You should ensure that before calling this method, the particle system has been detached from 
-            any SceneNode objects, and that no other objects are referencing it.
-        @param
-            sys Pointer to the ParticleSystem to be destroyed.
-        */
-        void destroySystem(ParticleSystem* sys);
-
-
-        /** Retrieves a pointer to a system already created. */
-        ParticleSystem* getSystem(const String& name);
-
 
         /** Internal method for creating a new emitter from a factory.
         @remarks
@@ -371,22 +302,6 @@ namespace Ogre {
 		ParticleRendererFactoryIterator getRendererFactoryIterator(void);
 
 
-		/** Return relative speed of time as perceived by particle systems.
-        @remarks
-            See setTimeFactor for full information on the meaning of this value.
-		*/
-		Real getTimeFactor(void) const;
-
-		/** Set the relative speed of time as perceived by particle systems.
-        @remarks
-            Normally particle systems are updated automatically in line with the real 
-            passage of time. This method allows you to change that, so that 
-            particle systems are told that the time is passing slower or faster than it
-            actually is. Use this to globally speed up / slow down particle systems.
-        @param tf The virtual speed of time (1.0 is real time).
-		*/
-		void setTimeFactor(Real tf);
-
         typedef MapIterator<ParticleTemplateMap> ParticleSystemTemplateIterator;
         /** Gets an iterator over the list of particle system templates. */
         ParticleSystemTemplateIterator getTemplateIterator(void)
@@ -437,7 +352,7 @@ namespace Ogre {
 	class _OgreExport ParticleSystemFactory : public MovableObjectFactory
 	{
 	protected:
-		MovableObject* createInstanceImpl( const String& name, const NameValuePairList* params);
+		MovableObject* createInstanceImpl(const String& name, const NameValuePairList* params);
 	public:
 		ParticleSystemFactory() {}
 		~ParticleSystemFactory() {}

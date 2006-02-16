@@ -475,7 +475,7 @@ protected:
 		n4->attachObject( pEnt );
 
 
-		ParticleSystem* pSys2 = ParticleSystemManager::getSingleton().createSystem("smoke", 
+		ParticleSystem* pSys2 = mSceneMgr->createParticleSystem("smoke", 
 			"Examples/Smoke");
 		SceneNode* n5 = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-300, -100, 200));
 		n5->attachObject(pSys2);

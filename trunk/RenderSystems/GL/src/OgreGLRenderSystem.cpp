@@ -2324,6 +2324,7 @@ namespace Ogre {
         {
             mCurrentFragmentProgram = glprg;
         }
+        RenderSystem::bindGpuProgram(prg);
     }
 	//---------------------------------------------------------------------
     void GLRenderSystem::unbindGpuProgram(GpuProgramType gptype)
@@ -2341,6 +2342,7 @@ namespace Ogre {
             mCurrentFragmentProgram->unbindProgram();
             mCurrentFragmentProgram = 0;
         }
+        RenderSystem::unbindGpuProgram(gptype);
 
     }
 	//---------------------------------------------------------------------

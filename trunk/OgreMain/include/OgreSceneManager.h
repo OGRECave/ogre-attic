@@ -256,6 +256,11 @@ namespace Ogre {
 		SpecialCaseRenderQueueList mSpecialCaseQueueList;
 		SpecialCaseRenderQueueMode mSpecialCaseQueueMode;
 		uint8 mWorldGeometryRenderQueue;
+		
+		unsigned long mLastFrameNumber;
+		Matrix4 mTempXform[256];
+		bool mResetIdentityView;
+		bool mResetIdentityProj;
 
 		typedef std::map<String, MovableObject*> MovableObjectMap;
 		typedef std::map<String, MovableObjectMap*> MovableObjectCollectionMap;
@@ -342,12 +347,13 @@ namespace Ogre {
         AnimationList mAnimationsList;
         AnimationStateSet mAnimationStates;
 
-        /** Internal method used by _renderVisibleObjects to deal with renderables
+        /** Internal method used by _renderSingleObject to deal with renderables
             which override the camera's own view / projection materices. */
         void useRenderableViewProjMode(const Renderable* pRend);
-
-        /// Controller flag for determining if we need to set view/proj matrices
-        bool mCamChanged;
+        
+        /** Internal method used by _renderSingleObject to deal with renderables
+            which override the camera's own view / projection matrices. */
+        void resetViewProjMode(void);
 
         typedef std::vector<RenderQueueListener*> RenderQueueListenerList;
         RenderQueueListenerList mRenderQueueListeners;
@@ -883,7 +889,65 @@ namespace Ogre {
 		/** Removes & destroys all RibbonTrails from the SceneManager.
 		*/
 		virtual void destroyAllRibbonTrails(void);		
-        /** Empties the entire scene, inluding all SceneNodes, Entities, Lights, 
+
+        /** Creates a particle system based on a template.
+        @remarks
+            This method creates a new ParticleSystem instance based on the named template
+			(defined through ParticleSystemManager::createTemplate) and returns a 
+            pointer to the caller. The caller should not delete this object, it will be freed at system shutdown, 
+            or can be released earlier using the destroyParticleSystem method.
+        @par
+            Each system created from a template takes the template's settings at the time of creation, 
+            but is completely separate from the template from there on. 
+        @par
+            Creating a particle system does not make it a part of the scene. As with other MovableObject
+            subclasses, a ParticleSystem is not rendered until it is attached to a SceneNode. 
+        @par
+            This is probably the more useful particle system creation method since it does not require manual
+            setup of the system. Note that the initial quota is based on the template but may be changed later.
+        @param 
+            name The name to give the new particle system instance.
+        @param 
+            templateName The name of the template to base the new instance on.
+        */
+        virtual ParticleSystem* createParticleSystem(const String& name,
+			const String& templateName);
+        /** Create a blank particle system.
+        @remarks
+            This method creates a new, blank ParticleSystem instance and returns a pointer to it.
+            The caller should not delete this object, it will be freed at system shutdown, or can
+            be released earlier using the destroyParticleSystem method.
+        @par
+            The instance returned from this method won't actually do anything because on creation a
+            particle system has no emitters. The caller should manipulate the instance through it's 
+            ParticleSystem methods to actually create a real particle effect. 
+        @par
+            Creating a particle system does not make it a part of the scene. As with other MovableObject
+            subclasses, a ParticleSystem is not rendered until it is attached to a SceneNode. 
+        @param
+            name The name to give the ParticleSystem.
+        @param 
+            quota The maximum number of particles to allow in this system. 
+        @param
+            resourceGroup The resource group which will be used to load dependent resources
+        */
+        virtual ParticleSystem* createParticleSystem(const String& name,
+			size_t quota = 500, 
+            const String& resourceGroup = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+        /** Retrieves a pointer to the named ParticleSystem. */
+        virtual ParticleSystem* getParticleSystem(const String& name);
+
+        /** Removes & destroys a ParticleSystem from the SceneManager.
+        */
+        virtual void destroyParticleSystem(ParticleSystem* obj);
+		/** Removes & destroys a ParticleSystem from the SceneManager.
+		*/
+		virtual void destroyParticleSystem(const String& name);
+		/** Removes & destroys all ParticleSystems from the SceneManager.
+		*/
+		virtual void destroyAllParticleSystems(void);		
+
+		/** Empties the entire scene, inluding all SceneNodes, Entities, Lights, 
             BillboardSets etc. Cameras are not deleted at this stage since
             they are still referenced by viewports, which are not destroyed during
             this process.
