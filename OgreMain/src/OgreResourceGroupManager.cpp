@@ -33,9 +33,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-// A reference count of 3 means that only RGM and RM have references
-// RGM has one (this one) and RM has 2 (by name and by handle)
-#define OGRE_RESOURCE_UNUSED_REFERENCE_COUNT 3
     //-----------------------------------------------------------------------
     template<> ResourceGroupManager* Singleton<ResourceGroupManager>::ms_Singleton = 0;
     ResourceGroupManager* ResourceGroupManager::getSingletonPtr(void)
@@ -50,6 +47,9 @@ namespace Ogre {
 	String ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME = "Internal";
 	String ResourceGroupManager::BOOTSTRAP_RESOURCE_GROUP_NAME = "Bootstrap";
 	String ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME = "Autodetect";
+	// A reference count of 3 means that only RGM and RM have references
+	// RGM has one (this one) and RM has 2 (by name and by handle)
+	size_t ResourceGroupManager::RESOURCE_SYSTEM_NUM_REFERENCE_COUNTS = 3;
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     ResourceGroupManager::ResourceGroupManager()
@@ -287,7 +287,7 @@ namespace Ogre {
 			{
 				// A use count of 3 means that only RGM and RM have references
 				// RGM has one (this one) and RM has 2 (by name and by handle)
-				if (l->useCount() == OGRE_RESOURCE_UNUSED_REFERENCE_COUNT)
+				if (l->useCount() == RESOURCE_SYSTEM_NUM_REFERENCE_COUNTS)
 				{
 					Resource* resource = l->get();
 					if (!reloadableOnly || resource->isReloadable())
