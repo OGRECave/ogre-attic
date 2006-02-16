@@ -304,10 +304,10 @@ protected:
 		animState->setEnabled(true);
 		mAnimStateList.push_back(animState);
 
-		trail->addNode(animNode);
 		trail->setInitialColour(0, 1.0, 0.8, 0);
 		trail->setColourChange(0, 0.5, 0.5, 0.5, 0.5);
 		trail->setInitialWidth(0, 5);
+		trail->addNode(animNode);
 
 		// Add light
 		Light* l2 = mSceneMgr->createLight("l2");
@@ -342,10 +342,10 @@ protected:
 		animState->setEnabled(true);
 		mAnimStateList.push_back(animState);
 
-		trail->addNode(animNode);
 		trail->setInitialColour(1, 0.0, 1.0, 0.4);
 		trail->setColourChange(1, 0.5, 0.5, 0.5, 0.5);
 		trail->setInitialWidth(1, 5);
+		trail->addNode(animNode);
 
 
 		// Add light

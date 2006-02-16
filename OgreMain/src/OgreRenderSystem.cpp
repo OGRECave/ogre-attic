@@ -59,6 +59,8 @@ namespace Ogre {
 		, mWBuffer(false)
         , mInvertVertexWinding(false)
         , mCurrentPassIterationCount(0)
+        , mVertexProgramBound(false)
+        , mFragmentProgramBound(false)
     {
         // instanciate RenderSystemCapabilities
         mCapabilities = new RenderSystemCapabilities();
@@ -113,6 +115,9 @@ namespace Ogre {
         // Subclasses should take it from here
         // They should ALL call this superclass method from
         //   their own initialise() implementations.
+        
+        mVertexProgramBound = false;
+        mFragmentProgramBound = false;
 
         return 0;
     }
@@ -505,6 +510,45 @@ namespace Ogre {
 			mHwOcclusionQueries.erase(i);
 			delete hq;
 		}
+	}
+	//-----------------------------------------------------------------------
+	void RenderSystem::bindGpuProgram(GpuProgram* prg)
+	{
+	    switch(prg->getType())
+	    {
+        case GPT_VERTEX_PROGRAM:
+            mVertexProgramBound = true;
+	        break;
+        case GPT_FRAGMENT_PROGRAM:
+            mFragmentProgramBound = true;
+	        break;
+	    };
+	}
+	//-----------------------------------------------------------------------
+	void RenderSystem::unbindGpuProgram(GpuProgramType gptype)
+	{
+	    switch(gptype)
+	    {
+        case GPT_VERTEX_PROGRAM:
+            mVertexProgramBound = false;
+	        break;
+        case GPT_FRAGMENT_PROGRAM:
+            mFragmentProgramBound = false;
+	        break;
+	    };
+	}
+	//-----------------------------------------------------------------------
+	bool RenderSystem::isGpuProgramBound(GpuProgramType gptype)
+	{
+	    switch(gptype)
+	    {
+        case GPT_VERTEX_PROGRAM:
+            return mVertexProgramBound;
+	        break;
+        case GPT_FRAGMENT_PROGRAM:
+            return mFragmentProgramBound;
+	        break;
+	    };
 	}
 
 }

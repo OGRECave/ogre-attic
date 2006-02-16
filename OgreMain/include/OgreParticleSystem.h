@@ -33,6 +33,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringInterface.h"
 #include "OgreMovableObject.h"
 #include "OgreRadixSort.h"
+#include "OgreController.h"
+
 
 namespace Ogre {
 
@@ -46,9 +48,10 @@ namespace Ogre {
         with a shared local origin for emission. The visual aspect of the 
         particles is handled by a ParticleSystemRenderer instance.
     @par
-        Particle systems are created using the ParticleSystemManager methods, never directly.
-        In addition, like all subclasses of MovableObject, the ParticleSystem will only be considered for
-        rendering once it has been attached to a SceneNode. 
+        Particle systems are created using the SceneManager, never directly.
+        In addition, like all subclasses of MovableObject, the ParticleSystem 
+		will only be considered for rendering once it has been attached to a 
+		SceneNode. 
     */
     class _OgreExport ParticleSystem : public StringInterface, public MovableObject
     {
@@ -105,6 +108,20 @@ namespace Ogre {
 		};
 		/** Command object for local space (see ParamCommand).*/
 		class CmdLocalSpace : public ParamCommand
+		{
+		public:
+			String doGet(const void* target) const;
+			void doSet(void* target, const String& val);
+		};
+		/** Command object for iteration interval(see ParamCommand).*/
+		class CmdIterationInterval : public ParamCommand
+		{
+		public:
+			String doGet(const void* target) const;
+			void doSet(void* target, const String& val);
+		};
+		/** Command object for nonvisible timeout (see ParamCommand).*/
+		class CmdNonvisibleTimeout : public ParamCommand
 		{
 		public:
 			String doGet(const void* target) const;
@@ -362,31 +379,63 @@ namespace Ogre {
 
         /** Sets a 'iteration interval' on this particle system.
         @remarks
-            Particle system update interval based on elapsed frame time will cause difference
-            behavior between low frame-rate and high frame-rate. By use this interval, you can
-            control the particle system update in a fixed interval, keep behavior as same as
-            possible, no matter what frame-rate it is.
+            The default Particle system update interval, based on elapsed frame time,
+			will cause different behavior between low frame-rate and high frame-rate. 
+			By using this option, you can make the particle system update at
+			a fixed interval, keeping the behavior the same no matter what frame-rate 
+			is.
         @par
-            When iteration interval set to zero, means update based on elapsed frame time, otherwise
-            each iteration will take the given interval, repeat until eat up all elapsed frame time.
+            When iteration interval is set to zero, it means the update occurs based 
+			on an elapsed frame time, otherwise each iteration will take place 
+			at the given interval, repeating until it has used up all the elapsed 
+			frame time.
         @param
             iterationInterval The iteration interval, default to zero.
         */
-        void setIterationInterval(Real iterationInterval) { mIterationInterval = iterationInterval; }
+        void setIterationInterval(Real iterationInterval);
 
         /** Gets a 'iteration interval' on this particle system.
         */
         Real getIterationInterval(void) const { return mIterationInterval; }
 
-		/** Set the default iteration interval for all future ParticleSystem instances.
+		/** Set the default iteration interval for all ParticleSystem instances.
 		*/
         static void setDefaultIterationInterval(Real iterationInterval) { msDefaultIterationInterval = iterationInterval; }
 
-		/** Get the default iteration interval for all future ParticleSystem instances.
+		/** Get the default iteration interval for all ParticleSystem instances.
 		*/
         static Real getDefaultIterationInterval(void) { return msDefaultIterationInterval; }
 
-        /** Overridden from MovableObject */
+		/** Sets when the particle system should stop updating after it hasn't been
+			visible for a while.
+		@remarks
+			By default, visible particle systems update all the time, even when 
+			not in view. This means that they are guaranteed to be consistent when 
+			they do enter view. However, this comes at a cost, updating particle
+			systems can be expensive, especially if they are perpetual.
+		@par
+			This option lets you set a 'timeout' on the particle system, so that
+			if it isn't visible for this amount of time, it will stop updating
+			until it is next visible.
+		@param timeout The time after which the particle system will be disabled
+			if it is no longer visible. 0 to disable the timeout and always update.
+		*/
+		void setNonVisibleUpdateTimeout(Real timeout);
+		/** Gets when the particle system should stop updating after it hasn't been
+			visible for a while.
+		*/
+		Real getNonVisibleUpdateTimeout(void) const { return mNonvisibleTimeout; }
+
+		/** Set the default nonvisible timeout for all ParticleSystem instances.
+		*/
+		static void setDefaultNonVisibleUpdateTimeout(Real timeout) 
+		{ msDefaultNonvisibleTimeout = timeout; }
+
+		/** Get the default nonvisible timeout for all ParticleSystem instances.
+		*/
+		static Real getDefaultNonVisibleUpdateTimeout(void) { return msDefaultNonvisibleTimeout; }
+
+		/** Overridden from MovableObject */
         const String& getMovableType(void) const;
 
         /** Internal callback used by Particles to notify their parent that they have been resized.
@@ -538,6 +587,8 @@ namespace Ogre {
         static CmdRenderer msRendererCmd;
 		static CmdSorted msSortedCmd;
 		static CmdLocalSpace msLocalSpaceCmd;
+		static CmdIterationInterval msIterationIntervalCmd;
+		static CmdNonvisibleTimeout msNonvisibleTimeoutCmd;
 
 
         AxisAlignedBox mAABB;
@@ -565,10 +616,22 @@ namespace Ogre {
 		Real mSpeedFactor;
         /// Iteration interval
         Real mIterationInterval;
+        /// Iteration interval set? Otherwise track default
+        bool mIterationIntervalSet;
 		/// Particles sorted according to camera?
 		bool mSorted;
 		/// Particles in local space?
 		bool mLocalSpace;
+		/// Update timeout when nonvisible (0 for no timeout)
+		Real mNonvisibleTimeout;
+		/// Update timeout when nonvisible set? Otherwise track default
+		bool mNonvisibleTimeoutSet;
+		/// Amount of time non-visible so far
+		Real mTimeSinceLastVisible;
+		/// Last frame in which known to be visible
+		unsigned long mLastVisibleFrame;
+		/// Controller for time update
+		Controller<Real>* mTimeController;
 
         typedef std::list<Particle*> ActiveParticleList;
         typedef std::list<Particle*> FreeParticleList;
@@ -649,6 +712,8 @@ namespace Ogre {
 
         /// Default iteration interval
         static Real msDefaultIterationInterval;
+        /// Default nonvisible update timeout
+        static Real msDefaultNonvisibleTimeout;
 
         /** Internal method used to expire dead particles. */
         void _expire(Real timeElapsed);

@@ -63,6 +63,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderQueueInvocation.h"
 #include "OgreBillboardChain.h"
 #include "OgreRibbonTrail.h"
+#include "OgreParticleSystemManager.h"
 // This class implements the most basic scene manager
 
 #include <cstdio>
@@ -89,6 +90,7 @@ mSkyDomeEnabled(false),
 mFogMode(FOG_NONE),
 mSpecialCaseQueueMode(SCRQM_EXCLUDE),
 mWorldGeometryRenderQueue(RENDER_QUEUE_WORLD_GEOMETRY_1),
+mLastFrameNumber(0),
 mShadowCasterPlainBlackPass(0),
 mShadowReceiverPass(0),
 mDisplayNodes(false),
@@ -533,6 +535,51 @@ void SceneManager::destroyAllRibbonTrails(void)
 	destroyAllMovableObjectsByType(RibbonTrailFactory::FACTORY_TYPE_NAME);
 }
 //-----------------------------------------------------------------------
+ParticleSystem* SceneManager::createParticleSystem(const String& name,
+	const String& templateName)
+{
+	NameValuePairList params;
+	params["templateName"] = templateName;
+	
+	return static_cast<ParticleSystem*>(
+		createMovableObject(name, ParticleSystemFactory::FACTORY_TYPE_NAME, 
+			&params));
+}
+//-----------------------------------------------------------------------
+ParticleSystem* SceneManager::createParticleSystem(const String& name,
+	size_t quota, const String& group)
+{
+	NameValuePairList params;
+	params["quota"] = StringConverter::toString(quota);
+	params["resourceGroup"] = group;
+	
+	return static_cast<ParticleSystem*>(
+		createMovableObject(name, ParticleSystemFactory::FACTORY_TYPE_NAME, 
+			&params));
+}
+//-----------------------------------------------------------------------
+ParticleSystem* SceneManager::getParticleSystem(const String& name)
+{
+	return static_cast<ParticleSystem*>(
+		getMovableObject(name, ParticleSystemFactory::FACTORY_TYPE_NAME));
+
+}
+//-----------------------------------------------------------------------
+void SceneManager::destroyParticleSystem(ParticleSystem* obj)
+{
+	destroyMovableObject(obj);
+}
+//-----------------------------------------------------------------------
+void SceneManager::destroyParticleSystem(const String& name)
+{
+	destroyMovableObject(name, ParticleSystemFactory::FACTORY_TYPE_NAME);
+}
+//-----------------------------------------------------------------------
+void SceneManager::destroyAllParticleSystems(void)
+{
+	destroyAllMovableObjectsByType(ParticleSystemFactory::FACTORY_TYPE_NAME);
+}
+//-----------------------------------------------------------------------
 void SceneManager::clearScene(void)
 {
 	destroyAllStaticGeometry();
@@ -653,9 +700,6 @@ SceneNode* SceneManager::getSceneNode(const String& name) const
 //-----------------------------------------------------------------------
 const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed)
 {
-    static bool lastUsedVertexProgram = false;
-    static bool lastUsedFragmentProgram = false;
-
 	if (!mSuppressRenderStateChanges || evenIfSuppressed)
 	{
 		if (mIlluminationStage == IRS_RENDER_TO_TEXTURE)
@@ -679,17 +723,15 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed)
 		{
 			mDestRenderSystem->bindGpuProgram(pass->getVertexProgram()->_getBindingDelegate());
 			// bind parameters later since they can be per-object
-			lastUsedVertexProgram = true;
 			// does the vertex program want surface and light params passed to rendersystem?
 			passSurfaceAndLightParams = pass->getVertexProgram()->getPassSurfaceAndLightStates();
 		}
 		else
 		{
 			// Unbind program?
-			if (lastUsedVertexProgram)
+			if (mDestRenderSystem->isGpuProgramBound(GPT_VERTEX_PROGRAM))
 			{
 				mDestRenderSystem->unbindGpuProgram(GPT_VERTEX_PROGRAM);
-				lastUsedVertexProgram = false;
 			}
 			// Set fixed-function vertex parameters
 		}
@@ -718,15 +760,13 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed)
 			mDestRenderSystem->bindGpuProgram(
 				pass->getFragmentProgram()->_getBindingDelegate());
 			// bind parameters later since they can be per-object
-			lastUsedFragmentProgram = true;
 		}
 		else
 		{
 			// Unbind program?
-			if (lastUsedFragmentProgram)
+			if (mDestRenderSystem->isGpuProgramBound(GPT_FRAGMENT_PROGRAM))
 			{
 				mDestRenderSystem->unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
-				lastUsedFragmentProgram = false;
 			}
 
 			// Set fixed-function fragment settings
@@ -899,19 +939,18 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
     }
 
     mCameraInProgress = camera;
-    mCamChanged = true;
 
+
+    // Update controllers 
+    ControllerManager::getSingleton().updateAllControllers();
 
     // Update the scene, only do this once per frame
-    static unsigned long lastFrameNumber = 0;
     unsigned long thisFrameNumber = Root::getSingleton().getCurrentFrameNumber();
-    if (thisFrameNumber != lastFrameNumber)
+    if (thisFrameNumber != mLastFrameNumber)
     {
-        // Update controllers 
-        ControllerManager::getSingleton().updateAllControllers();
         // Update animations
         _applySceneAnimations();
-        lastFrameNumber = thisFrameNumber;
+        mLastFrameNumber = thisFrameNumber;
     }
 
     // Update scene graph for this camera (can happen multiple times per frame)
@@ -948,7 +987,6 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
             prepareShadowTextures(camera, vp);
             // reset the cameras because of the re-entrant call
             mCameraInProgress = camera;
-            mCamChanged = true;
         }
     }
 
@@ -1027,6 +1065,10 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
 
     // Set rasterisation mode
     mDestRenderSystem->_setPolygonMode(camera->getPolygonMode());
+
+	// Set initial camera state
+	mDestRenderSystem->_setProjectionMatrix(mCameraInProgress->getProjectionMatrixRS());
+	mDestRenderSystem->_setViewMatrix(mCameraInProgress->getViewMatrix(true));
 
     // Render scene content 
     _renderVisibleObjects();
@@ -1581,7 +1623,6 @@ void SceneManager::renderVisibleObjectsDefaultSequence(void)
                 break;
             }
 
-			// TODO sjs Drive ordering from RenderQueueInvocation
 			_renderQueueGroupObjects(pGroup, QueuedRenderableCollection::OM_PASS_GROUP);
 
             // Fire queue ended event
@@ -2274,11 +2315,7 @@ void SceneManager::renderTransparentShadowCasterObjects(
 void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass, 
                                       bool doLightIteration, const LightList* manualLightList)
 {
-    static Matrix4 xform[256];
     unsigned short numMatrices;
-    static bool normalisedNormals = false;
-    PolygonMode camPolyMode = mCameraInProgress->getPolygonMode();
-    static PolygonMode lastPolyMode = camPolyMode;
     static RenderOperation ro;
     static LightList localLightList;
 
@@ -2289,15 +2326,15 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
     ro.srcRenderable = rend;
 
     // Set world transformation
-    rend->getWorldTransforms(xform);
+    rend->getWorldTransforms(mTempXform);
     numMatrices = rend->getNumWorldTransforms();
     if (numMatrices > 1)
     {
-        mDestRenderSystem->_setWorldMatrices(xform, numMatrices);
+        mDestRenderSystem->_setWorldMatrices(mTempXform, numMatrices);
     }
     else
     {
-        mDestRenderSystem->_setWorldMatrix(*xform);
+        mDestRenderSystem->_setWorldMatrix(*mTempXform);
     }
 
     // Issue view / projection changes if any
@@ -2332,12 +2369,7 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
         }
 
         // Sort out normalisation
-        bool thisNormalise = rend->getNormaliseNormals();
-        if (thisNormalise != normalisedNormals)
-        {
-            mDestRenderSystem->setNormaliseNormals(thisNormalise);
-            normalisedNormals = thisNormalise;
-        }
+        mDestRenderSystem->setNormaliseNormals(rend->getNormaliseNormals());
 
         // Set up the solid / wireframe override
 		// Precedence is Camera, Object, Material
@@ -2345,6 +2377,7 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 		PolygonMode reqMode = pass->getPolygonMode();
 		if (rend->getPolygonModeOverrideable())
 		{
+            PolygonMode camPolyMode = mCameraInProgress->getPolygonMode();
 			// check camera detial only when render detail is overridable
 			if (reqMode > camPolyMode)
 			{
@@ -2352,11 +2385,7 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 				reqMode = camPolyMode;
 			}
 		}
-		if (reqMode != lastPolyMode)
-		{
-			mDestRenderSystem->_setPolygonMode(reqMode);
-			lastPolyMode = reqMode;
-		}
+		mDestRenderSystem->_setPolygonMode(reqMode);
 
 		mDestRenderSystem->setClipPlanes(rend->getClipPlanes());
 
@@ -2472,6 +2501,10 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 		mDestRenderSystem->setCurrentPassIterationCount(1);
 		mDestRenderSystem->_render(ro);
 	}
+	
+    // Reset view / projection changes if any
+    resetViewProjMode();
+
 }
 //-----------------------------------------------------------------------
 void SceneManager::setAmbientLight(const ColourValue& colour)
@@ -2701,44 +2734,46 @@ void SceneManager::manualRender(RenderOperation* rend,
 void SceneManager::useRenderableViewProjMode(const Renderable* pRend)
 {
     // Check view matrix
-    static bool lastViewWasIdentity = false;
     bool useIdentityView = pRend->useIdentityView();
-    if (useIdentityView && (mCamChanged || !lastViewWasIdentity))
+    if (useIdentityView)
     {
         // Using identity view now, change it
         mDestRenderSystem->_setViewMatrix(Matrix4::IDENTITY);
-        lastViewWasIdentity = true;
-    }
-    else if (!useIdentityView && (mCamChanged || lastViewWasIdentity))
-    {
-        // Coming back to normal from identity view
-        mDestRenderSystem->_setViewMatrix(mCameraInProgress->getViewMatrix(true));
-        lastViewWasIdentity = false;
+        mResetIdentityView = true;
     }
 
-    static bool lastProjWasIdentity = false;
     bool useIdentityProj = pRend->useIdentityProjection();
-
-    if (useIdentityProj && (mCamChanged || !lastProjWasIdentity))
+    if (useIdentityProj)
     {
         // Use identity projection matrix, still need to take RS depth into account.
         Matrix4 mat;
         mDestRenderSystem->_convertProjectionMatrix(Matrix4::IDENTITY, mat);
         mDestRenderSystem->_setProjectionMatrix(mat);
 
-        lastProjWasIdentity = true;
+        mResetIdentityProj = true;
     }
-    else if (!useIdentityProj && (mCamChanged || lastProjWasIdentity))
+
+    
+}
+//---------------------------------------------------------------------
+void SceneManager::resetViewProjMode(void)
+{
+    if (mResetIdentityView)
+    {
+        // Coming back to normal from identity view
+        mDestRenderSystem->_setViewMatrix(mCameraInProgress->getViewMatrix(true));
+        mResetIdentityView = false;
+    }
+    
+    if (mResetIdentityProj)
     {
         // Coming back from flat projection
         mDestRenderSystem->_setProjectionMatrix(mCameraInProgress->getProjectionMatrixRS());
-        lastProjWasIdentity = false;
+        mResetIdentityProj = false;
     }
-
-    mCamChanged = false;
+    
 
 }
-
 //---------------------------------------------------------------------
 void SceneManager::_queueSkiesForRendering(Camera* cam)
 {
@@ -4615,7 +4650,7 @@ MovableObject* SceneManager::createMovableObject(const String& name,
 			"SceneManager::createMovableObject");
 	}
 
-	MovableObject* newObj = factory->createInstance(name, params);
+	MovableObject* newObj = factory->createInstance(name, this, params);
 	(*objectMap)[name] = newObj;
 
 	return newObj;
@@ -4645,7 +4680,11 @@ void SceneManager::destroyAllMovableObjectsByType(const String& typeName)
 	MovableObjectMap::iterator i = objectMap->begin();
 	for (; i != objectMap->end(); ++i)
 	{
-		factory->destroyInstance(i->second);
+		// Only destroy our own
+		if (i->second->_getManager() == this)
+		{
+			factory->destroyInstance(i->second);
+		}
 	}
 	objectMap->clear();
 
@@ -4665,7 +4704,10 @@ void SceneManager::destroyAllMovableObjects(void)
 			MovableObjectMap::iterator i = ci->second->begin();
 			for (; i != ci->second->end(); ++i)
 			{
-				factory->destroyInstance(i->second);
+				if (i->second->_getManager() == this)
+				{
+					factory->destroyInstance(i->second);
+				}
 			}
 		}
 		ci->second->clear();

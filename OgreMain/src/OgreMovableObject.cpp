@@ -40,19 +40,20 @@ namespace Ogre {
 	uint32 MovableObject::msDefaultVisibilityFlags = 0xFFFFFFFF;
     //-----------------------------------------------------------------------
     MovableObject::MovableObject()
-		: mCreator(0), mParentNode(0), mParentIsTagPoint(false), mVisible(true), 
-		 mUpperDistance(0), mSquaredUpperDistance(0), mBeyondFarDistance(false),
-         mRenderQueueID(RENDER_QUEUE_MAIN),
-         mRenderQueueIDSet(false), mQueryFlags(msDefaultQueryFlags),
-		 mVisibilityFlags(msDefaultVisibilityFlags), mCastShadows (true)
+		: mCreator(0), mManager(0), mParentNode(0), mParentIsTagPoint(false), 
+		mVisible(true), mUpperDistance(0), mSquaredUpperDistance(0), 
+		mBeyondFarDistance(false), mRenderQueueID(RENDER_QUEUE_MAIN),
+		mRenderQueueIDSet(false), mQueryFlags(msDefaultQueryFlags),
+		mVisibilityFlags(msDefaultVisibilityFlags), mCastShadows (true)
     {
 		mWorldAABB.setNull();
         
     }
 	//-----------------------------------------------------------------------
 	MovableObject::MovableObject(const String& name) 
-		: mName(name), mCreator(0), mParentNode(0), mParentIsTagPoint(false), 
-		mVisible(true), mUpperDistance(0), mSquaredUpperDistance(0), 
+		: mName(name), mCreator(0), mManager(0), mParentNode(0), 
+		mParentIsTagPoint(false), mVisible(true), mUpperDistance(0), 
+		mSquaredUpperDistance(0), 
 		mBeyondFarDistance(false), mRenderQueueID(RENDER_QUEUE_MAIN),
 		mRenderQueueIDSet(false), mQueryFlags(msDefaultQueryFlags),
 		mVisibilityFlags(msDefaultVisibilityFlags),
@@ -273,10 +274,12 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
 	MovableObject* MovableObjectFactory::createInstance(
-		const String& name, const NameValuePairList* params)
+		const String& name, SceneManager* manager, 
+		const NameValuePairList* params)
 	{
 		MovableObject* m = createInstanceImpl(name, params);
 		m->_notifyCreator(this);
+		m->_notifyManager(manager);
 		return m;
 	}
 

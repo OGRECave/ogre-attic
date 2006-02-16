@@ -614,7 +614,7 @@ protected:
 		waterOverlay->show();
 		
         // Let there be rain
-        particleSystem = ParticleSystemManager::getSingleton().createSystem("rain", 
+        particleSystem = mSceneMgr->createParticleSystem("rain", 
             "Examples/Water/Rain");
 		particleEmitter = particleSystem->getEmitter(0);
         SceneNode* rNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();

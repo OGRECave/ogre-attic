@@ -71,7 +71,7 @@ protected:
         mFountainNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
 
         // smoke
-        ParticleSystem* pSys2 = ParticleSystemManager::getSingleton().createSystem("fountain1", 
+        ParticleSystem* pSys2 = mSceneMgr->createParticleSystem("fountain1", 
             "Examples/Smoke");
         // Point the fountain at an angle
         SceneNode* fNode = static_cast<SceneNode*>(mFountainNode->createChild());

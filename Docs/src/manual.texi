@@ -1943,6 +1943,10 @@ For a detailed description of the core particle system attributes, see the list 
 @ref{particle_point_rendering, point_rendering}
 @item
 @ref{particle_accurate_facing, accurate_facing}
+@item 
+@ref{iteration_interval}
+@item 
+@ref{nonvisible_update_timeout}
 @end itemize
 See also: @ref{Particle Emitters}, @ref{Particle Affectors}
 
@@ -2136,8 +2140,32 @@ You will almost certainly want to enable in your material pass both point attenu
 @anchor{particle_accurate_facing}
 @subheading accurate_facing
 
-This is actually an attribute of the 'billboard' particle renderer (the default), and sets whether or not the billboardset will use a slower but more accurate calculation for facing the billboard to the camera. Bt default it uses the camera direction, which is faster but means the billboards don't stay in the same orientation as you rotate the camera. The 'accurate_facing true' option makes the calculation based on a vector from each billboard to the camera, which means the orientation is constant even whilst the camera rotates. 
+This is actually an attribute of the 'billboard' particle renderer (the default), and sets whether or not the billboardset will use a slower but more accurate calculation for facing the billboard to the camera. Bt default it uses the camera direction, which is faster but means the billboards don't stay in the same orientation as you rotate the camera. The 'accurate_facing true' option makes the calculation based on a vector from each billboard to the camera, which means the orientation is constant even whilst the camera rotates. @*@*
 
+format: accurate_facing on|off@*
+default: accurate_facing off 0@*
+@*@*
+
+
+@anchor{iteration_interval}
+@subheading iteration_interval
+Usually particle systems are updated based on the frame rate; however this can give variable results with more extreme frame rate ranges, particularly at lower frame rates. You can use this option to make the update frequency a fixed interval, whereby at lower frame rates, the particle update will be repeated at the fixed interval until the frame time is used up. A value of 0 means the default frame time iteration. @*@*
+
+format: iteration_interval <secs>@*
+example: iteration_interval 0.01@*
+default: iteration_interval 0@*
+@*@*
+
+@anchor{nonvisible_update_timeout}
+@subheading nonvisible_update_timeout
+Sets when the particle system should stop updating after it hasn't been visible for a while. By default, visible particle systems update all the time, even when not in view. This means that they are guaranteed to be consistent when they do enter view. However, this comes at a cost, updating particle systems can be expensive, especially if they are perpetual. 
+@*@*
+This option lets you set a 'timeout' on the particle system, so that if it isn't visible for this amount of time, it will stop updating	until it is next visible. A value of 0 disables the timeout and always updates.@*@*
+
+format: nonvisible_update_timeout <secs>@*
+example: nonvisible_update_timeout 10@*
+default: nonvisible_update_timeout 0@*
+@*@*
 
 @node Particle Emitters
 @subsection Particle Emitters

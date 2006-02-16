@@ -27,7 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreLogManager.h"
 #include "OgreTextureUnitState.h"
-
+#include "OgreRoot.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -43,6 +43,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     ControllerManager::ControllerManager()
 		: mFrameTimeController(new FrameTimeControllerValue())
+		, mPassthroughFunction(new PassthroughControllerFunction())
+		, mLastFrameNumber(0)
     {
 
     }
@@ -64,10 +66,16 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ControllerManager::updateAllControllers(void)
     {
-        ControllerList::const_iterator ci;
-        for (ci = mControllers.begin(); ci != mControllers.end(); ++ci)
+        // Only update once per frame
+        unsigned long thisFrameNumber = Root::getSingleton().getCurrentFrameNumber();
+        if (thisFrameNumber != mLastFrameNumber)
         {
-            (*ci)->update();
+            ControllerList::const_iterator ci;
+            for (ci = mControllers.begin(); ci != mControllers.end(); ++ci)
+            {
+                (*ci)->update();
+            }
+            mLastFrameNumber = thisFrameNumber;
         }
     }
     //-----------------------------------------------------------------------
@@ -81,10 +89,15 @@ namespace Ogre {
         mControllers.clear();
     }
     //-----------------------------------------------------------------------
-    const SharedPtr< ControllerValue<Real> >& ControllerManager::getFrameTimeSource(void) const
+    const ControllerValueRealPtr& ControllerManager::getFrameTimeSource(void) const
     {
         return mFrameTimeController;
     }
+	//-----------------------------------------------------------------------
+	const ControllerFunctionRealPtr& ControllerManager::getPassthroughControllerFunction(void) const
+	{
+		return mPassthroughFunction;
+	}
     //-----------------------------------------------------------------------
     Controller<Real>* ControllerManager::createTextureAnimator(TextureUnitState* layer, Real sequenceTime)
     {

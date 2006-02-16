@@ -40,6 +40,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreParticleSystemRenderer.h"
 #include "OgreMaterialManager.h"
 #include "OgreSceneManager.h"
+#include "OgreControllerManager.h"
+#include "OgreRoot.h"
 
 namespace Ogre {
     // Init statics
@@ -51,11 +53,28 @@ namespace Ogre {
     ParticleSystem::CmdRenderer ParticleSystem::msRendererCmd;
 	ParticleSystem::CmdSorted ParticleSystem::msSortedCmd;
 	ParticleSystem::CmdLocalSpace ParticleSystem::msLocalSpaceCmd;
+	ParticleSystem::CmdIterationInterval ParticleSystem::msIterationIntervalCmd;
+	ParticleSystem::CmdNonvisibleTimeout ParticleSystem::msNonvisibleTimeoutCmd;
 
     RadixSort<ParticleSystem::ActiveParticleList, Particle*, float> ParticleSystem::mRadixSorter;
 
     Real ParticleSystem::msDefaultIterationInterval = 0;
+    Real ParticleSystem::msDefaultNonvisibleTimeout = 0;
 
+	//-----------------------------------------------------------------------
+	// Local class for updating based on time
+	class ParticleSystemUpdateValue : public ControllerValue<Real>
+	{
+	protected:
+		ParticleSystem* mTarget;
+	public:
+		ParticleSystemUpdateValue(ParticleSystem* target) : mTarget(target) {}
+
+		Real getValue(void) const { return 0; } // N/A
+
+		void setValue(Real value) { mTarget->_update(value); }
+
+	};
     //-----------------------------------------------------------------------
     ParticleSystem::ParticleSystem() 
       : mBoundsAutoUpdate(true),
@@ -64,9 +83,14 @@ namespace Ogre {
         mResourceGroupName(ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME),
         mIsRendererConfigured(false),
         mSpeedFactor(1.0f),
-        mIterationInterval(msDefaultIterationInterval),
+        mIterationInterval(0),
+		mIterationIntervalSet(false),
         mSorted(false),
         mLocalSpace(false),
+		mNonvisibleTimeout(0),
+		mNonvisibleTimeoutSet(false),
+		mTimeSinceLastVisible(0),
+		mLastVisibleFrame(0),
         mRenderer(0),
         mCullIndividual(false),
         mPoolSize(0)
@@ -92,8 +116,13 @@ namespace Ogre {
         mResourceGroupName(resourceGroup),
         mIsRendererConfigured(false),
         mSpeedFactor(1.0f),
-        mIterationInterval(msDefaultIterationInterval),
+        mIterationInterval(0),
+		mIterationIntervalSet(false),
         mSorted(false),
+		mNonvisibleTimeout(0),
+		mNonvisibleTimeoutSet(false),
+		mTimeSinceLastVisible(0),
+		mLastVisibleFrame(Root::getSingleton().getCurrentFrameNumber()),
         mLocalSpace(false),
         mRenderer(0), 
 		mCullIndividual(false),
@@ -113,10 +142,19 @@ namespace Ogre {
 
         // Default to billboard renderer
         setRenderer("billboard");
+
+		// Create time controller for a real instance
+		ControllerManager& mgr = ControllerManager::getSingleton(); 
+		ControllerValueRealPtr updValue(new ParticleSystemUpdateValue(this));
+		mTimeController = mgr.createController(
+			mgr.getFrameTimeSource(), updValue, mgr.getPassthroughControllerFunction());
     }
     //-----------------------------------------------------------------------
     ParticleSystem::~ParticleSystem()
     {
+		// destroy controller
+		ControllerManager::getSingleton().destroyController(mTimeController);
+
 		// Arrange for the deletion of emitters & affectors
         removeAllEmitters();
         removeAllAffectors();
@@ -241,6 +279,11 @@ namespace Ogre {
         mCullIndividual = rhs.mCullIndividual;
 		mSorted = rhs.mSorted;
 		mLocalSpace = rhs.mLocalSpace;
+		mIterationInterval = rhs.mIterationInterval;
+		mIterationIntervalSet = rhs.mIterationIntervalSet;
+		mNonvisibleTimeout = rhs.mNonvisibleTimeout;
+		mNonvisibleTimeoutSet = rhs.mNonvisibleTimeoutSet;
+		// last frame visible and time since last visible should be left default
 
         setRenderer(rhs.getRendererName());
         // Copy settings
@@ -276,31 +319,65 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
+	void ParticleSystem::setNonVisibleUpdateTimeout(Real timeout)
+	{
+		mNonvisibleTimeout = timeout;
+		mNonvisibleTimeoutSet = true;
+	}
+    //-----------------------------------------------------------------------
+	void ParticleSystem::setIterationInterval(Real interval)
+	{
+		mIterationInterval = interval;
+		mIterationIntervalSet = true;
+	}
+    //-----------------------------------------------------------------------
     void ParticleSystem::_update(Real timeElapsed)
     {
-		// Scale incoming speed
+		Real nonvisibleTimeout = mNonvisibleTimeoutSet ?
+			mNonvisibleTimeout : msDefaultNonvisibleTimeout;
+		
+		if (mParentNode && nonvisibleTimeout > 0)
+		{
+			// Check whether it's been more than one frame (update is ahead of
+			// camera notification by one frame because of the ordering)
+			long frameDiff = Root::getSingleton().getCurrentFrameNumber() - mLastVisibleFrame;
+			if (frameDiff > 1 || frameDiff < 0) // < 0 if wrap only
+			{
+				mTimeSinceLastVisible += timeElapsed;
+				if (mTimeSinceLastVisible >= nonvisibleTimeout)
+				{
+					// No update
+					return;
+				}
+			}
+
+		}
+
+		// Scale incoming speed for the rest of the calculation
 		timeElapsed *= mSpeedFactor;
 
         // Init renderer if not done already
         configureRenderer();
 
-		// Only update if attached to a node
+		// Only update if attached to a node, and not timed out
 		if (mParentNode)
 		{
-            if (mIterationInterval > 0)
+			Real iterationInterval = mIterationIntervalSet ? 
+				mIterationInterval : msDefaultIterationInterval;
+            if (iterationInterval > 0)
             {
                 mUpdateRemainTime += timeElapsed;
 
-                while (mUpdateRemainTime >= mIterationInterval)
+                while (mUpdateRemainTime >= iterationInterval)
                 {
 			        // Update existing particles
-        	        _expire(mIterationInterval);
-        	        _triggerAffectors(mIterationInterval);
-        	        _applyMotion(mIterationInterval);
+        	        _expire(iterationInterval);
+        	        _triggerAffectors(iterationInterval);
+        	        _applyMotion(iterationInterval);
 			        // Emit new particles
-        	        _triggerEmitters(mIterationInterval);
+        	        _triggerEmitters(iterationInterval);
 
-                    mUpdateRemainTime -= mIterationInterval;
+                    mUpdateRemainTime -= iterationInterval;
                 }
             }
             else
@@ -549,6 +626,18 @@ namespace Ogre {
 				"emitted into world space. ",
 				PT_BOOL),
 				&msLocalSpaceCmd);
+
+			dict->addParameter(ParameterDef("iteration_interval", 
+				"Sets a fixed update interval for the system, or 0 for the frame rate. ",
+				PT_REAL),
+				&msIterationIntervalCmd);
+
+			dict->addParameter(ParameterDef("nonvisible_update_timeout", 
+				"Sets a timeout on updates to the system if the system is not visible "
+				"for the given number of seconds (0 to always update)",
+				PT_REAL),
+				&msNonvisibleTimeoutCmd);
+
         }
     }
     //-----------------------------------------------------------------------
@@ -688,6 +777,10 @@ namespace Ogre {
     void ParticleSystem::_notifyCurrentCamera(Camera* cam)
     {
 		MovableObject::_notifyCurrentCamera(cam);
+
+		// Record visible
+		mLastVisibleFrame = Root::getSingleton().getCurrentFrameNumber();
+		mTimeSinceLastVisible = 0.0f;
 
         if (mSorted)
 		{
@@ -1016,7 +1109,29 @@ namespace Ogre {
 		static_cast<ParticleSystem*>(target)->setKeepParticlesInLocalSpace(
 			StringConverter::parseBool(val));
 	}
-    //-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	String ParticleSystem::CmdIterationInterval::doGet(const void* target) const
+	{
+		return StringConverter::toString(
+			static_cast<const ParticleSystem*>(target)->getIterationInterval());
+	}
+	void ParticleSystem::CmdIterationInterval::doSet(void* target, const String& val)
+	{
+		static_cast<ParticleSystem*>(target)->setIterationInterval(
+			StringConverter::parseReal(val));
+	}
+	//-----------------------------------------------------------------------
+	String ParticleSystem::CmdNonvisibleTimeout::doGet(const void* target) const
+	{
+		return StringConverter::toString(
+			static_cast<const ParticleSystem*>(target)->getNonVisibleUpdateTimeout());
+	}
+	void ParticleSystem::CmdNonvisibleTimeout::doSet(void* target, const String& val)
+	{
+		static_cast<ParticleSystem*>(target)->setNonVisibleUpdateTimeout(
+			StringConverter::parseReal(val));
+	}
+   //-----------------------------------------------------------------------
     ParticleAffector::~ParticleAffector() 
     {
     }

@@ -490,7 +490,8 @@ namespace Ogre {
             "Cannot initialise - no render "
             "system has been selected.", "Root::initialise");
 
-        mControllerManager = new ControllerManager();
+        if (!mControllerManager)
+			mControllerManager = new ControllerManager();
 
         mAutoWindow =  mActiveRenderer->initialise(autoCreateWindow, windowTitle);
 
@@ -714,9 +715,6 @@ namespace Ogre {
         ShadowVolumeExtrudeProgram::shutdown();
 		mResourceBackgroundQueue->shutdown();
         ResourceGroupManager::getSingleton().shutdownAll();
-
-		delete mControllerManager;
-		mControllerManager = 0;
 
 		mIsInitialised = false;
 

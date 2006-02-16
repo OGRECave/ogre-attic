@@ -54,6 +54,8 @@ namespace Ogre {
 		String mName;
 		/// Creator of this object (if created by a factory)
 		MovableObjectFactory* mCreator;
+		/// SceneManager holding this object (if applicable)
+		SceneManager* mManager;
         /// node to which this object is attached
         Node* mParentNode;
         bool mParentIsTagPoint;
@@ -103,6 +105,10 @@ namespace Ogre {
 
 		/** Notify the object of it's creator (internal use only) */
 		virtual void _notifyCreator(MovableObjectFactory* fact) { mCreator = fact; }
+		/** Notify the object of it's manager (internal use only) */
+		virtual void _notifyManager(SceneManager* man) { mManager = man; }
+		/** Get the manager of this object, if any (internal use only) */
+		virtual SceneManager* _getManager(void) const { return mManager; }
 
         /** Returns the name of this object. */
 		virtual const String& getName(void) const { return mName; }
@@ -373,11 +379,14 @@ namespace Ogre {
 
 		/** Create a new instance of the object.
 		@param name The name of the new object
+		@param manager The SceneManager instance that will be holding the
+			instance once created.
 		@param params Name/value pair list of additional parameters required to 
 			construct the object (defined per subtype). Optional.
 		*/
 		virtual MovableObject* createInstance(
-			const String& name, const NameValuePairList* params = 0);
+			const String& name, SceneManager* manager, 
+			const NameValuePairList* params = 0);
 		/** Destroy an instance of the object */
 		virtual void destroyInstance(MovableObject* obj) = 0;
 

@@ -110,10 +110,20 @@ namespace Ogre
 		
         // Internal functions for calcs
         virtual void calcProjectionParameters(Real& left, Real& right, Real& bottom, Real& top) const;
+		/// Update frustum if out of date
         virtual void updateFrustum(void) const;
+		/// Update view if out of date
         virtual void updateView(void) const;
+		/// Implementation of updateFrustum (called if out of date)
+		virtual void updateFrustumImpl(void) const;
+		/// Implementation of updateView (called if out of date)
+		virtual void updateViewImpl(void) const;
         virtual void updateFrustumPlanes(void) const;
+		/// Implementation of updateFrustumPlanes (called if out of date)
+		virtual void updateFrustumPlanesImpl(void) const;
         virtual void updateWorldSpaceCorners(void) const;
+		/// Implementation of updateWorldSpaceCorners (called if out of date)
+		virtual void updateWorldSpaceCornersImpl(void) const;
         virtual void updateVertexData(void) const;
         virtual bool isViewOutOfDate(void) const;
         virtual bool isFrustumOutOfDate(void) const;
