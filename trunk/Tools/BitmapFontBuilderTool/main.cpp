@@ -52,7 +52,8 @@ int main(int argc, char** argv)
             posy += charSize;
         }
 
-        int width = fgetc(fp);
+		// Little endian only, but this tool isn't available for OSX anyway
+        int width = fgetc(fp) + (fgetc(fp) << 8);
         float thisx_start = posx + halfWidth - (width / 2);
         float thisx_end = posx + halfWidth + (width / 2);
 
