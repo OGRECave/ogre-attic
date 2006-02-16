@@ -4265,38 +4265,61 @@ void SceneManager::createShadowTextures(unsigned short size,
     for (unsigned short t = 0; t < count; ++t)
     {
         String targName = baseName + StringConverter::toString(t);
-        String matName = baseName + "Mat" + StringConverter::toString(t);
         String camName = baseName + "Cam" + StringConverter::toString(t);
+        String matName = baseName + "Mat" + StringConverter::toString(t);
 
-        TexturePtr shadowTex;
-        RenderTexture *shadowRTT = 0;
-        if (isShadowTechniqueTextureBased())
-        {
-            shadowTex = TextureManager::getSingleton().createManual( targName, 
-                ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
-                size, size, 0, mShadowTextureFormat, TU_RENDERTARGET);
-                
-            // Ensure texture loaded
-            shadowTex->load();
+		// try to get existing texture first, since we share these between
+		// potentially multiple SMs
+		TexturePtr shadowTex = TextureManager::getSingleton().getByName(targName);
+		if (shadowTex.isNull())
+		{
+			shadowTex = TextureManager::getSingleton().createManual(
+				targName, 
+				ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, 
+				TEX_TYPE_2D, size, size, 0, mShadowTextureFormat, 
+				TU_RENDERTARGET);
+		}
+		else if (shadowTex->getWidth() != size 
+			|| shadowTex->getHeight() != size
+			|| shadowTex->getFormat() != mShadowTextureFormat)
+		{
+			StringUtil::StrStreamType s;
+			s << "Warning: shadow texture #" << t << " is shared "
+				<< "between scene managers but the sizes / formats "
+				<< "do not agree. Consider rationalising your scene manager "
+				<< "shadow texture settings.";
+			LogManager::getSingleton().logMessage(s.str());
+		}
+				
+		// Ensure texture loaded
+		shadowTex->load();
 
-            shadowRTT = shadowTex->getBuffer()->getRenderTarget();
-        }
+		RenderTexture *shadowRTT = shadowTex->getBuffer()->getRenderTarget();
 
-        // Create a camera to go with this texture
-        Camera* cam = createCamera(camName);
+		// Create camera for this texture, but note that we have to rebind
+		// in prepareShadowTextures to coexist with multiple SMs
+		Camera* cam = createCamera(camName);
         cam->setAspectRatio(1.0f);
 		// Don't use rendering distance for light cameras; we don't want shadows
 		// for visible objects disappearing, especially for directional lights
 		cam->setUseRenderingDistance(false);
-        // Create a viewport
-        Viewport *v = shadowRTT->addViewport(cam);
-        v->setClearEveryFrame(true);
-        // remove overlays
-        v->setOverlaysEnabled(false);
+		mShadowTextureCameras.push_back(cam);
+		
+        // Create a viewport, if not there already
+		if (shadowRTT->getNumViewports() == 0)
+		{
+			// Note camera assignment is transient when multiple SMs
+			Viewport *v = shadowRTT->addViewport(cam);
+			v->setClearEveryFrame(true);
+			// remove overlays
+			v->setOverlaysEnabled(false);
+		}
+		
         // Don't update automatically - we'll do it when required
         shadowRTT->setAutoUpdated(false);
         
         mShadowTextures.push_back(shadowTex);
+
 
         // Also create corresponding Material used for rendering this shadow
         MaterialPtr mat = MaterialManager::getSingleton().getByName(matName);
@@ -4323,19 +4346,28 @@ void SceneManager::createShadowTextures(unsigned short size,
 void SceneManager::destroyShadowTextures(void)
 {
     ShadowTextureList::iterator i, iend;
+    ShadowTextureCameraList::iterator ci;
     iend = mShadowTextures.end();
-    for (i = mShadowTextures.begin(); i != iend; ++i)
+    ci = mShadowTextureCameras.begin();
+    for (i = mShadowTextures.begin(); i != iend; ++i, ++ci)
     {
         TexturePtr &shadowTex = *i;
-        RenderTarget *shadowRTT = shadowTex->getBuffer()->getRenderTarget();
+		// If the reference count on this texture is 1 over the resource system
+		// overhead, then we can remove the texture
+		if (shadowTex.useCount() == 
+			ResourceGroupManager::RESOURCE_SYSTEM_NUM_REFERENCE_COUNTS + 1)
+		{
+	        // destroy texture
+    	    TextureManager::getSingleton().remove(shadowTex->getName());
+		}
 
-        // remove camera and destroy texture
-        destroyCamera(shadowRTT->getViewport(0)->getCamera());
-        
-        // destroy texture
-        TextureManager::getSingleton().remove(shadowTex->getName());
+		// Always destroy camera since they are local to this SM
+   		destroyCamera(*ci);
     }
     mShadowTextures.clear();
+	mShadowTextureCameras.clear();
+
+        
 }
 //---------------------------------------------------------------------
 void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
@@ -4365,21 +4397,26 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
 
     LightList::iterator i, iend;
     ShadowTextureList::iterator si, siend;
+	ShadowTextureCameraList::iterator ci;
     iend = mLightsAffectingFrustum.end();
     siend = mShadowTextures.end();
+	ci = mShadowTextureCameras.begin();
     for (i = mLightsAffectingFrustum.begin(), si = mShadowTextures.begin();
         i != iend && si != siend; ++i)
     {
         Light* light = *i;
-        TexturePtr &shadowTex = *si;
-        RenderTarget *shadowRTT = shadowTex->getBuffer()->getRenderTarget();
-        Viewport *shadowView = shadowRTT->getViewport(0);
-        Camera *texCam = shadowView->getCamera();
-        
+
         // Skip non-shadowing lights
         if (!light->getCastShadows())
             continue;
 
+		TexturePtr &shadowTex = *si;
+        RenderTarget *shadowRTT = shadowTex->getBuffer()->getRenderTarget();
+        Viewport *shadowView = shadowRTT->getViewport(0);
+        Camera *texCam = *ci;
+		// rebind camera, incase another SM in use which has switched to its cam
+		shadowView->setCamera(texCam);
+        
         Vector3 pos, dir;
 
         // Directional lights 
@@ -4502,7 +4539,8 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
         // Update target
         shadowRTT->update();
 
-        ++si;
+        ++si; // next shadow texture
+		++ci; // next camera
     }
     // Set the illumination stage, prevents recursive calls
     mIlluminationStage = savedStage;

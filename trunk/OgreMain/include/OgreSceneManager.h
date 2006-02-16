@@ -421,6 +421,8 @@ namespace Ogre {
 		PixelFormat mShadowTextureFormat;
         typedef std::vector<TexturePtr> ShadowTextureList;
         ShadowTextureList mShadowTextures;
+		typedef std::vector<Camera*> ShadowTextureCameraList;
+		ShadowTextureCameraList mShadowTextureCameras;
         Texture* mCurrentShadowTexture;
 		bool mShadowUseInfiniteFarPlane;
 
