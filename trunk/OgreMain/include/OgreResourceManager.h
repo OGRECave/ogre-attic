@@ -124,42 +124,58 @@ namespace Ogre {
 			Unloaded resources are not removed, they simply free up their memory
 			as much as they can and wait to be reloaded.
 			@see ResourceGroupManager for unloading of resource groups.
-		*/
-		virtual void unloadAll(void);
-
-		/** Unloads all resources.
-		@remarks
-			Unloaded resources are not removed, they simply free up their memory
-			as much as they can and wait to be reloaded.
-			@see ResourceGroupManager for unloading of resource groups.
-		@param reloadableOnly If set to true, only unload the resource that is
-			reloadable. Because some resources isn't reloadable, they will be
+		@param reloadableOnly If true (the default), only unload the resource that
+            is reloadable. Because some resources isn't reloadable, they will be
 			unloaded but can't load them later. Thus, you might not want to them
 			unloaded. Or, you might unload all of them, and then populate them
 			manually later.
 			@see Resource::isReloadable for resource is reloadable.
 		*/
-		virtual void unloadAll(bool reloadableOnly);
+		virtual void unloadAll(bool reloadableOnly = true);
 
 		/** Caused all currently loaded resources to be reloaded.
 		@remarks
 			All resources currently being held in this manager which are also
 			marked as currently loaded will be unloaded, then loaded again.
-		*/
-		virtual void reloadAll(void);
-
-		/** Caused all currently loaded resources to be reloaded.
-		@remarks
-			All resources currently being held in this manager which are also
-			marked as currently loaded will be unloaded, then loaded again.
-		@param reloadableOnly If set to true, only reload the resource that is
-			reloadable. Because some resources isn't reloadable, they will be
+		@param reloadableOnly If true (the default), only reload the resource that
+            is reloadable. Because some resources isn't reloadable, they will be
 			unloaded but can't loaded again. Thus, you might not want to them
 			unloaded. Or, you might unload all of them, and then populate them
 			manually later.
 			@see Resource::isReloadable for resource is reloadable.
 		*/
-		virtual void reloadAll(bool reloadableOnly);
+		virtual void reloadAll(bool reloadableOnly = true);
+
+		/** Unload all resources which are not referenced by any other object.
+		@remarks
+			This method behaves like unloadAll, except that it only unloads resources
+            which are not in use, ie not referenced by other objects. This allows you
+            to free up some memory selectively whilst still keeping the group around
+            (and the resources present, just not using much memory).
+        @par
+            Some referenced resource may exists 'weak' pointer to their sub-components
+            (e.g. Entity held pointer to SubMesh), in this case, unload or reload that
+            resource will cause dangerous pointer access. Use this function instead of
+            unloadAll allows you avoid fail in those situations.
+		@param reloadableOnly If true (the default), only unloads resources
+			which can be subsequently automatically reloaded.
+		*/
+		virtual void unloadUnreferencedResources(bool reloadableOnly = true);
+
+		/** Caused all currently loaded but not referenced by any other object
+            resources to be reloaded.
+		@remarks
+			This method behaves like reloadAll, except that it only reloads resources
+            which are not in use, ie not referenced by other objects.
+        @par
+            Some referenced resource may exists 'weak' pointer to their sub-components
+            (e.g. Entity held pointer to SubMesh), in this case, unload or reload that
+            resource will cause dangerous pointer access. Use this function instead of
+            reloadAll allows you avoid fail in those situations.
+		@param reloadableOnly If true (the default), only reloads resources
+			which can be subsequently automatically reloaded.
+		*/
+		virtual void reloadUnreferencedResources(bool reloadableOnly = true);
 
 		/** Remove a single resource.
 		@remarks

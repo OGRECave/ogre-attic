@@ -154,11 +154,6 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------
-	void ResourceManager::unloadAll(void)
-	{
-		unloadAll(false);
-	}
-	//-----------------------------------------------------------------------
 	void ResourceManager::unloadAll(bool reloadableOnly)
 	{
 		OGRE_LOCK_AUTO_MUTEX
@@ -173,11 +168,6 @@ namespace Ogre {
 			}
 		}
 
-	}
-	//-----------------------------------------------------------------------
-	void ResourceManager::reloadAll(void)
-	{
-		reloadAll(false);
 	}
 	//-----------------------------------------------------------------------
 	void ResourceManager::reloadAll(bool reloadableOnly)
@@ -195,6 +185,48 @@ namespace Ogre {
 		}
 
 	}
+    //-----------------------------------------------------------------------
+    void ResourceManager::unloadUnreferencedResources(bool reloadableOnly)
+    {
+        OGRE_LOCK_AUTO_MUTEX
+
+        ResourceMap::iterator i, iend;
+        iend = mResources.end();
+        for (i = mResources.begin(); i != iend; ++i)
+        {
+            // A use count of 3 means that only RGM and RM have references
+            // RGM has one (this one) and RM has 2 (by name and by handle)
+            if (i->second.useCount() == ResourceGroupManager::RESOURCE_SYSTEM_NUM_REFERENCE_COUNTS)
+            {
+                Resource* res = i->second.get();
+                if (!reloadableOnly || res->isReloadable())
+                {
+                    res->unload();
+                }
+            }
+        }
+    }
+    //-----------------------------------------------------------------------
+    void ResourceManager::reloadUnreferencedResources(bool reloadableOnly)
+    {
+        OGRE_LOCK_AUTO_MUTEX
+
+        ResourceMap::iterator i, iend;
+        iend = mResources.end();
+        for (i = mResources.begin(); i != iend; ++i)
+        {
+            // A use count of 3 means that only RGM and RM have references
+            // RGM has one (this one) and RM has 2 (by name and by handle)
+            if (i->second.useCount() == ResourceGroupManager::RESOURCE_SYSTEM_NUM_REFERENCE_COUNTS)
+            {
+                Resource* res = i->second.get();
+                if (!reloadableOnly || res->isReloadable())
+                {
+                    res->reload();
+                }
+            }
+        }
+    }
     //-----------------------------------------------------------------------
     void ResourceManager::remove(ResourcePtr& res)
     {
