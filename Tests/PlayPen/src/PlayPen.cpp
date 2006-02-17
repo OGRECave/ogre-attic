@@ -2048,7 +2048,7 @@ protected:
         mTestNode[2]->attachObject( pEnt );
 
 
-        ParticleSystem* pSys2 = ParticleSystemManager::getSingleton().createSystem("smoke", 
+        ParticleSystem* pSys2 = mSceneMgr->createParticleSystem("smoke", 
             "Examples/Smoke");
         mTestNode[4] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-300, -100, 200));
         mTestNode[4]->attachObject(pSys2);
@@ -2213,7 +2213,7 @@ protected:
 
 
 
-        ParticleSystem* pSys2 = ParticleSystemManager::getSingleton().createSystem("smoke", 
+        ParticleSystem* pSys2 = mSceneMgr->createParticleSystem("smoke", 
             "Examples/Smoke");
         mTestNode[4] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-300, -100, 200));
         mTestNode[4]->attachObject(pSys2);
@@ -2902,14 +2902,14 @@ protected:
 
 
 		// point billboards
-		ParticleSystem* pSys2 = ParticleSystemManager::getSingleton().createSystem("fountain1", 
+		ParticleSystem* pSys2 = mSceneMgr->createParticleSystem("fountain1", 
 			"Examples/Smoke");
 		// Point the fountain at an angle
 		SceneNode* fNode = static_cast<SceneNode*>(rootNode->createChild());
 		fNode->attachObject(pSys2);
 
 		// oriented_self billboards
-		ParticleSystem* pSys3 = ParticleSystemManager::getSingleton().createSystem("fountain2", 
+		ParticleSystem* pSys3 = mSceneMgr->createParticleSystem("fountain2", 
 			"Examples/PurpleFountain");
 		// Point the fountain at an angle
 		fNode = rootNode->createChildSceneNode();
@@ -2920,7 +2920,7 @@ protected:
 
 
 		// oriented_common billboards
-		ParticleSystem* pSys4 = ParticleSystemManager::getSingleton().createSystem("rain", 
+		ParticleSystem* pSys4 = mSceneMgr->createParticleSystem("rain", 
 			"Examples/Rain");
 		SceneNode* rNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		rNode->translate(0,1000,0);
