@@ -228,15 +228,6 @@ namespace Ogre
         */
         void addRenderSystem(RenderSystem* newRend);
 
-        /** Sets the passed in SceneManager to be the one responsible for
-            the indicated type of scene.
-            @remarks
-                This method is provided for application writers and plugin
-                authors to use to attach their SceneManager subclasses to the
-                engine. See the SceneManager class for more information.
-        */
-        void setSceneManager(SceneType sType, SceneManager* sm);
-
         /** Retrieve a list of the available render systems.
             @remarks
                 Retrieves a pointer to the list of available renderers as a
@@ -296,33 +287,43 @@ namespace Ogre
 		/** Returns whether the system is initialised or not. */
 		bool isInitialised(void) const { return mIsInitialised; }
 
-        /** Gets a reference to a SceneManager object.
-            @remarks
-                The SceneManager class (and any subclasses) is a key class
-                which controls the contents of the scene, and is responsible
-                for issuing rendering commands to the RenderSystem to draw
-                it. The SceneManager is the class which an application using
-                Ogre will interact with most, since controlling the contents
-                of the scene is the most frequent action of an application.
-            @par
-                As described in the SceneManager documentation, different
-                subclasses can be specialised for rendering particular types
-                of scene e.g. landscapes or indoor enviroments.
-            @note
-                <br>This function delegates it's implementation to the
-                SceneManagerEnumerator class. This class can be customised to
-                include new SceneType entries and to create new subclasses of
-                SceneManager if they are introduced. This is done because the
-                customisation of the Root class is strongly discouraged and
-                in the future it may be locked down.
-            @param
-                sceneType A value from the SceneType enumeration. The method
-                will return a SceneManager which is most appropriate for this
-                type of scene.
-            @see
-                SceneManager, SceneManagerEnumerator
-        */
-        SceneManager* getSceneManager(SceneType sceneType);
+		/** @copydoc SceneManagerEnumerator::addFactory
+		*/
+		void addSceneManagerFactory(SceneManagerFactory* fact);
+
+		/** @copydoc SceneManagerEnumerator::removeFactory
+		*/
+		void removeSceneManagerFactory(SceneManagerFactory* fact);
+
+		/** @copydoc SceneManagerEnumerator::getMetaData
+		*/
+		const SceneManagerMetaData* getSceneManagerMetaData(const String& typeName) const;
+
+		/** @copydoc SceneManagerEnumerator::getMetaDataIterator
+		*/
+		SceneManagerEnumerator::MetaDataIterator getSceneManagerMetaDataIterator(void) const;
+
+		/** @copydoc SceneManagerEnumerator::createSceneManager(const String& typeName, const String& instanceName = StringUtil::BLANK)
+		*/
+		SceneManager* createSceneManager(const String& typeName, 
+			const String& instanceName = StringUtil::BLANK);
+
+		/** @copydoc SceneManagerEnumerator::createSceneManager(SceneTypeMask typeMask, const String& instanceName = StringUtil::BLANK)
+		*/
+		SceneManager* createSceneManager(SceneTypeMask typeMask, 
+			const String& instanceName = StringUtil::BLANK);
+
+		/** @copydoc SceneManagerEnumerator::destroySceneManager
+		*/
+		void destroySceneManager(SceneManager* sm);
+
+		/** @copydoc SceneManagerEnumerator::getSceneManager
+		*/
+		SceneManager* getSceneManager(const String& instanceName) const;
+
+		/** @copydoc SceneManagerEnumerator::getSceneManagerIterator
+		*/
+		SceneManagerEnumerator::SceneManagerIterator getSceneManagerIterator(void);
 
         /** Retrieves a reference to the current TextureManager.
             @remarks

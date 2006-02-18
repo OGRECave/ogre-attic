@@ -50,6 +50,7 @@ Enhancements 2003 - 2004 (C) The OGRE Team
 #include "OgreLogManager.h"
 #include "OgreResourceGroupManager.h"
 #include "OgreMaterialManager.h"
+#include "OgreHeightmapTerrainPageSource.h"
 #include <fstream>
 
 #define TERRAIN_MATERIAL_NAME "TerrainSceneManager/Terrain"
@@ -57,10 +58,9 @@ Enhancements 2003 - 2004 (C) The OGRE Team
 namespace Ogre
 {
     //-------------------------------------------------------------------------
-    TerrainOptions TerrainSceneManager::mOptions;
     //-------------------------------------------------------------------------
-    //-------------------------------------------------------------------------
-    TerrainSceneManager::TerrainSceneManager() : OctreeSceneManager( )
+    TerrainSceneManager::TerrainSceneManager(const String& name) 
+		: OctreeSceneManager(name)
     {
         //setDisplaySceneNodes( true );
         //setShowBoxes( true );
@@ -72,29 +72,31 @@ namespace Ogre
         mActivePageSource = 0;
         mPagingEnabled = false;
         mLivePageMargin = 0;
-        mBufferedPageMargin = 0;
-		// Construct listener manager singleton
-		new TerrainPageSourceListenerManager();
-		
+        mBufferedPageMargin = 0;		
 
 
     }
+	//-------------------------------------------------------------------------
+	const String& TerrainSceneManager::getTypeName(void) const
+	{
+		return TerrainSceneManagerFactory::FACTORY_TYPE_NAME;
+	}
 	//-------------------------------------------------------------------------
 	void TerrainSceneManager::shutdown(void)
 	{
 		// Make sure the indexes are destroyed during orderly shutdown
 		// and not when statics are destroyed (may be too late)
-		TerrainRenderable::_getIndexCache().shutdown();
+		mIndexCache.shutdown();
+		destroyLevelIndexes();
 
 		// Make sure we free up material (static)
 		mOptions.terrainMaterial.setNull();
 
-		// destroy listener manager
-		delete TerrainPageSourceListenerManager::getSingletonPtr();
 	}
     //-------------------------------------------------------------------------
     TerrainSceneManager::~TerrainSceneManager()
     {
+		shutdown();
     }
     //-------------------------------------------------------------------------
     void TerrainSceneManager::loadConfig(DataStreamPtr& stream)
@@ -273,8 +275,11 @@ namespace Ogre
                 MaterialManager::getSingleton().getByName(TERRAIN_MATERIAL_NAME);
             if (mOptions.terrainMaterial.isNull())
             {
+				// Make unique terrain material name
+				StringUtil::StrStreamType s;
+				s << mName << "/Terrain";
                 mOptions.terrainMaterial = MaterialManager::getSingleton().create(
-                    "TerrainSceneManager/Terrain",
+                    s.str(),
                     ResourceGroupManager::getSingleton().getWorldResourceGroupName());
 
             }
@@ -478,9 +483,11 @@ namespace Ogre
             ResourceGroupManager::getSingleton().clearResourceGroup(
                 ResourceGroupManager::getSingleton().getWorldResourceGroupName());
         }
+		destroyLevelIndexes();
         mTerrainPages.clear();
         // Load the configuration
         loadConfig(stream);
+		initLevelIndexes();
 
         // Resize the octree, allow for 1 page for now
         float max_x = mOptions.scale.x * mOptions.pageSize;
@@ -498,6 +505,7 @@ namespace Ogre
     {
         OctreeSceneManager::clearScene();
         mTerrainPages.clear();
+		destroyLevelIndexes();
         // Octree has destroyed our root
         mTerrainRoot = 0;
     }
@@ -866,6 +874,29 @@ namespace Ogre
     {
         return mOptions.maxGeoMipMapLevel;
     }
+	//-----------------------------------------------------------------------
+	void TerrainSceneManager::initLevelIndexes()
+	{
+		if ( mLevelIndex.size() == 0 )
+		{
+			for ( int i = 0; i < 16; i++ )
+			{
+
+				mLevelIndex.push_back( new IndexMap() );
+
+			}
+
+		}
+	}
+	//-----------------------------------------------------------------------
+	void TerrainSceneManager::destroyLevelIndexes()
+	{
+		for ( int i = 0; i < mLevelIndex.size(); i++ )
+		{
+			delete mLevelIndex[i];
+		}
+		mLevelIndex.clear();
+	}
     //-------------------------------------------------------------------------
     //-------------------------------------------------------------------------
     RaySceneQuery* 
@@ -889,8 +920,7 @@ namespace Ogre
     //-------------------------------------------------------------------------
     void TerrainRaySceneQuery::execute(RaySceneQueryListener* listener)
     {
-        static WorldFragment worldFrag;
-        worldFrag.fragmentType = SceneQuery::WFT_SINGLE_INTERSECTION;
+        mWorldFrag.fragmentType = SceneQuery::WFT_SINGLE_INTERSECTION;
 
         const Vector3& dir = mRay.getDirection();
         const Vector3& origin = mRay.getOrigin();
@@ -901,11 +931,11 @@ namespace Ogre
                 origin.x, origin.z);
             if (height != -1 && (height <= origin.y && dir.y < 0) || (height >= origin.y && dir.y > 0))
             {
-                worldFrag.singleIntersection.x = origin.x;
-                worldFrag.singleIntersection.z = origin.z;
-                worldFrag.singleIntersection.y = height;
-                if (!listener->queryResult(&worldFrag, 
-                    (worldFrag.singleIntersection - origin).length()))
+                mWorldFrag.singleIntersection.x = origin.x;
+                mWorldFrag.singleIntersection.z = origin.z;
+                mWorldFrag.singleIntersection.y = height;
+                if (!listener->queryResult(&mWorldFrag, 
+                    (mWorldFrag.singleIntersection - origin).length()))
 					return;
             }
         }
@@ -913,10 +943,10 @@ namespace Ogre
         {
             // Perform arbitrary query
             if (static_cast<TerrainSceneManager*>(mParentSceneMgr)->intersectSegment(
-                origin, origin + (dir * 100000), &worldFrag.singleIntersection))
+                origin, origin + (dir * 100000), &mWorldFrag.singleIntersection))
             {
-                if (!listener->queryResult(&worldFrag, 
-                    (worldFrag.singleIntersection - origin).length()))
+                if (!listener->queryResult(&mWorldFrag, 
+                    (mWorldFrag.singleIntersection - origin).length()))
 					return;
             }
 
@@ -952,6 +982,50 @@ namespace Ogre
 			}
 		}
 
+	}
+
+	//-----------------------------------------------------------------------
+	const String TerrainSceneManagerFactory::FACTORY_TYPE_NAME = "TerrainSceneManager";
+	//-----------------------------------------------------------------------
+	TerrainSceneManagerFactory::TerrainSceneManagerFactory()
+	{
+	}
+	//-----------------------------------------------------------------------
+	TerrainSceneManagerFactory::~TerrainSceneManagerFactory()
+	{
+		for (TerrainPageSources::iterator i = mTerrainPageSources.begin();
+			i != mTerrainPageSources.end(); ++i)
+		{
+			delete *i;
+		}
+		mTerrainPageSources.clear();
+	}
+	//-----------------------------------------------------------------------
+	void TerrainSceneManagerFactory::initMetaData(void) const
+	{
+		mMetaData.typeName = FACTORY_TYPE_NAME;
+		mMetaData.description = "Scene manager which generally organises the scene on "
+			"the basis of an octree, but also supports terrain world geometry. ";
+		mMetaData.sceneTypeMask = ST_EXTERIOR_CLOSE; // previous compatiblity
+		mMetaData.worldGeometrySupported = true;
+	}
+	//-----------------------------------------------------------------------
+	SceneManager* TerrainSceneManagerFactory::createInstance(
+		const String& instanceName)
+	{
+		TerrainSceneManager* tsm = new TerrainSceneManager(instanceName);
+		// Create & register default sources (one per manager)
+		HeightmapTerrainPageSource* ps = new HeightmapTerrainPageSource();
+		mTerrainPageSources.push_back(ps);
+		tsm->registerPageSource("Heightmap", ps);
+
+		return tsm;
+
+	}
+	//-----------------------------------------------------------------------
+	void TerrainSceneManagerFactory::destroyInstance(SceneManager* instance)
+	{
+		delete instance;
 	}
 
 

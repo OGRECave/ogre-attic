@@ -129,7 +129,7 @@ protected:
     virtual void chooseSceneManager(void)
     {
         // Get the SceneManager, in this case a generic one
-        mSceneMgr = mRoot->getSceneManager(ST_GENERIC);
+        mSceneMgr = mRoot->createSceneManager(ST_GENERIC, "RefAppSMInstance");
     }
     virtual void createCamera(void)
     {

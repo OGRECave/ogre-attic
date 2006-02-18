@@ -105,7 +105,7 @@ protected:
     
     void chooseSceneManager(void)
     {
-        mSceneMgr = mRoot->getSceneManager( ST_INTERIOR );
+        mSceneMgr = mRoot->createSceneManager("BspSceneManager");
     }
     void createWorld(void)
     {

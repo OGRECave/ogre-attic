@@ -2793,8 +2793,6 @@ Within an overlay, you can include any number of 2D or 3D elements. You do this 
 if you want to define a 2D element which cannot have children of it's own
 @item 'container'
 if you want to define a 2D container object (which may itself have nested containers or elements)
-@item 'entity'
-if you want to include a 3D element (can only occur directly under the overlay, not under a 2D element)
 @end table
 @*
 The element and container blocks are pretty identical apart from their ability to store nested blocks.
@@ -2836,29 +2834,10 @@ The properties which can be included within the braces depend on the custom type
 @ref{caption}
 @end itemize
 
-@subheading 'entity' blocks
-
-These are delimited by curly braces. The format for the header preceding the first brace is:@*@*
-
-entity <mesh_name> ( <entity_name>)@*
-{ ...@*@*
-
-@table @asis
-@item mesh_name
-The name of a .mesh file defining the entity geometry
-@item entity_name
-The name to give the entity created, must be unique to this entity.
-@item position
-The position of the entity, as an x, y, z triple.
-@item rotation
-The rotation of the entity, expressed as <angle_in_degrees> <axis_x> <axis_y> <axis_z>
-@end table
-
-This is treated like any other Entity, @xref{Entities}.
 
 @heading Templates
 
-You can use templates to create numerous elements with the same properties. A template is an abstract element and it is not added to an overlay. It acts as a base class that elements can inherit and get its default properties. To create a template, the keyword 'template' must be the first word in the element definition (before container, element, or entity). The template element is created in the topmost scope - it is NOT specified in an Overlay. It is recommended that you define templates in a separate overlay though this is not essential. Having templates defined in a separate file will allow different look & feels to be easily substituted.@*@*
+You can use templates to create numerous elements with the same properties. A template is an abstract element and it is not added to an overlay. It acts as a base class that elements can inherit and get its default properties. To create a template, the keyword 'template' must be the first word in the element definition (before container or element). The template element is created in the topmost scope - it is NOT specified in an Overlay. It is recommended that you define templates in a separate overlay though this is not essential. Having templates defined in a separate file will allow different look & feels to be easily substituted.@*@*
 
 Elements can inherit a template in a similar way to C++ inheritance - by using the : operator on the element definition. The : operator is placed after the closing bracket of the name (separated by a space). The name of the template to inherit is then placed after the : operator (also separated by a space).@*@*
 

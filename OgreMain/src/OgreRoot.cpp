@@ -465,11 +465,6 @@ namespace Ogre {
         mRenderers.push_back(newRend);
     }
     //-----------------------------------------------------------------------
-    void Root::setSceneManager(SceneType sType, SceneManager *sm)
-    {
-        SceneManagerEnumerator::getSingleton().setSceneManager(sType, sm);
-    }
-    //-----------------------------------------------------------------------
 	void Root::_setCurrentSceneManager(SceneManager* sm)
 	{
 		mCurrentSceneManager = sm;
@@ -525,18 +520,55 @@ namespace Ogre {
             return "";
 
     }
-    //-----------------------------------------------------------------------
-    SceneManager* Root::getSceneManager(SceneType sceneType)
-    {
-        // Delegate
-		SceneManager* sm = mSceneManagerEnum->getSceneManager(sceneType);
-		if (!mCurrentSceneManager)
-		{
-			// Make sure we've got one
-			_setCurrentSceneManager(sm);
-		}
-		return sm;
-    }
+	//-----------------------------------------------------------------------
+	void Root::addSceneManagerFactory(SceneManagerFactory* fact)
+	{
+		mSceneManagerEnum->addFactory(fact);
+	}
+	//-----------------------------------------------------------------------
+	void Root::removeSceneManagerFactory(SceneManagerFactory* fact)
+	{
+		mSceneManagerEnum->removeFactory(fact);
+	}
+	//-----------------------------------------------------------------------
+	const SceneManagerMetaData* Root::getSceneManagerMetaData(const String& typeName) const
+	{
+		return mSceneManagerEnum->getMetaData(typeName);
+	}
+	//-----------------------------------------------------------------------
+	SceneManagerEnumerator::MetaDataIterator 
+	Root::getSceneManagerMetaDataIterator(void) const
+	{
+		return mSceneManagerEnum->getMetaDataIterator();
+
+	}
+	//-----------------------------------------------------------------------
+	SceneManager* Root::createSceneManager(const String& typeName, 
+		const String& instanceName)
+	{
+		return mSceneManagerEnum->createSceneManager(typeName, instanceName);
+	}
+	//-----------------------------------------------------------------------
+	SceneManager* Root::createSceneManager(SceneTypeMask typeMask, 
+		const String& instanceName)
+	{
+		return mSceneManagerEnum->createSceneManager(typeMask, instanceName);
+	}
+	//-----------------------------------------------------------------------
+	void Root::destroySceneManager(SceneManager* sm)
+	{
+		mSceneManagerEnum->destroySceneManager(sm);
+	}
+	//-----------------------------------------------------------------------
+	SceneManager* Root::getSceneManager(const String& instanceName) const
+	{
+		return mSceneManagerEnum->getSceneManager(instanceName);
+	}
+	//-----------------------------------------------------------------------
+	SceneManagerEnumerator::SceneManagerIterator Root::getSceneManagerIterator(void)
+	{
+		return mSceneManagerEnum->getSceneManagerIterator();
+	}
     //-----------------------------------------------------------------------
     TextureManager* Root::getTextureManager(void)
     {
@@ -709,9 +741,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Root::shutdown(void)
     {
+		SceneManagerEnumerator::getSingleton().shutdownAll();
 		shutdownPlugins();
 
-		SceneManagerEnumerator::getSingleton().shutdownAll();
         ShadowVolumeExtrudeProgram::shutdown();
 		mResourceBackgroundQueue->shutdown();
         ResourceGroupManager::getSingleton().shutdownAll();

@@ -78,7 +78,8 @@ uint32 SceneManager::STATICGEOMETRY_TYPE_MASK   = 0x10000000;
 uint32 SceneManager::LIGHT_TYPE_MASK			= 0x08000000;
 uint32 SceneManager::USER_TYPE_MASK_LIMIT         = SceneManager::LIGHT_TYPE_MASK;
 //-----------------------------------------------------------------------
-SceneManager::SceneManager() :
+SceneManager::SceneManager(const String& name) :
+mName(name),
 mRenderQueue(0),
 mSkyPlaneEntity(0),
 mSkyPlaneNode(0),

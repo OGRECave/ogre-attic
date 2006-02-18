@@ -26,37 +26,35 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <OgreOctreeSceneManager.h>
 #include <OgreTerrainSceneManager.h>
 #include <OgreRoot.h>
-#include "OgreHeightmapTerrainPageSource.h"
 
 namespace Ogre
 {
-OctreeSceneManager* octreePlugin;
-TerrainSceneManager* terrainPlugin;
-HeightmapTerrainPageSource* heightmapTerrainPageSource;
+OctreeSceneManagerFactory* octreePlugin;
+TerrainSceneManagerFactory* terrainPlugin;
 
 extern "C" void _OgreTerrainExport dllStartPlugin( void )
 {
     // Create new scene manager
-    octreePlugin = new OctreeSceneManager();
-    terrainPlugin = new TerrainSceneManager();
-    heightmapTerrainPageSource = new HeightmapTerrainPageSource();
+    octreePlugin = new OctreeSceneManagerFactory();
+    terrainPlugin = new TerrainSceneManagerFactory();
+	// Construct listener manager singleton
+	new TerrainPageSourceListenerManager();
 
     // Register
-    Root::getSingleton().setSceneManager( ST_GENERIC, octreePlugin );
-    Root::getSingleton().setSceneManager( ST_EXTERIOR_CLOSE, terrainPlugin );
-    //Root::getSingleton().setSceneManager( ST_EXTERIOR_FAR, terrainPlugin );
+    Root::getSingleton().addSceneManagerFactory(octreePlugin);
+    Root::getSingleton().addSceneManagerFactory(terrainPlugin);
 
-    terrainPlugin->registerPageSource("Heightmap", heightmapTerrainPageSource);
 }
 extern "C" void _OgreTerrainExport dllShutdownPlugin( void )
 {
-	terrainPlugin->shutdown();
-	heightmapTerrainPageSource->shutdown();
+	Root::getSingleton().removeSceneManagerFactory(terrainPlugin);
+	Root::getSingleton().removeSceneManagerFactory(octreePlugin);
+	// destroy listener manager
+	delete TerrainPageSourceListenerManager::getSingletonPtr();
 }
 
 extern "C" void _OgreTerrainExport dllStopPlugin( void )
 {
-    delete heightmapTerrainPageSource;
     delete octreePlugin;
     delete terrainPlugin;
 }

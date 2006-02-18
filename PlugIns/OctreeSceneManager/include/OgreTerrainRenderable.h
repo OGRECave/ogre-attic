@@ -159,7 +159,7 @@ namespace Ogre
     {
     public:
 
-        TerrainRenderable(const String& name);
+        TerrainRenderable(const String& name, TerrainSceneManager* tsm);
         ~TerrainRenderable();
 
         void deleteGeometry();
@@ -285,26 +285,24 @@ namespace Ogre
         void _updateCustomGpuParameter(
             const GpuProgramParameters::AutoConstantEntry& constantEntry,
             GpuProgramParameters* params) const;
-        /// Get the static list of indexes cached (internal use only)
-        static TerrainBufferCache& _getIndexCache(void) {return msIndexCache;}
 		/// @see MovableObject
 		uint32 getTypeFlags(void) const;
     protected:
-        /// Static list of index buffers
-        static TerrainBufferCache msIndexCache;
-        /// Static link to static shared options
-        static const TerrainOptions* msOptions;
+		/// Parent SceneManager
+		TerrainSceneManager* mSceneManager;
+        /// Link to shared options
+        const TerrainOptions* mOptions;
 
         /** Returns the index into the height array for the given coords. */
         inline size_t _index( int x, int z ) const
         {
-            return ( x + z * msOptions->tileSize );
+            return ( x + z * mOptions->tileSize );
         };
 
         /** Returns the  vertex coord for the given coordinates */
         inline float _vertex( int x, int z, int n )
         {
-            return mPositionBuffer[x * 3 + z * msOptions->tileSize * 3 + n];
+            return mPositionBuffer[x * 3 + z * mOptions->tileSize * 3 + n];
         };
 
 
@@ -334,9 +332,6 @@ namespace Ogre
         }
 
         void _adjustRenderLevel( int i );
-
-        void _initLevelIndexes();
-        void _destroyLevelIndexes();
 
         bool _checkSize( int n );
 
@@ -372,10 +367,6 @@ namespace Ogre
         MaterialPtr mMaterial;    
         /// Whether this tile has been initialised    
         bool mInit;
-        /// Shared array of IndexData (reuse indexes across tiles)
-        static LevelArray mLevelIndex;
-        /// Whether the level array as been initialised yet
-        static bool mLevelInit;
         /// The buffer with all the renderable geometry in it
         HardwareVertexBufferSharedPtr mMainBuffer;
         /// Optional set of delta buffers, used to morph from one LOD to the next

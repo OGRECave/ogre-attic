@@ -28,20 +28,24 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    BspSceneManager* bspPlugin;
+    BspSceneManagerFactory* bspFactory;
     //-----------------------------------------------------------------------
     extern "C" void dllStartPlugin(void)
     {
         // Create new scene manager
-        bspPlugin = new BspSceneManager();
+        bspFactory = new BspSceneManagerFactory();
 
         // Register
-        Root::getSingleton().setSceneManager(ST_INTERIOR, bspPlugin);
+        Root::getSingleton().addSceneManagerFactory(bspFactory);
 
 
     }
-    extern "C" void dllStopPlugin(void)
+	extern "C" void dllShutdownPlugin( void )
+	{
+		Root::getSingleton().removeSceneManagerFactory(bspFactory);
+	}    
+	extern "C" void dllStopPlugin(void)
     {
-        delete bspPlugin;
+        delete bspFactory;
     }
 }

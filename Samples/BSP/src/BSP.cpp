@@ -92,7 +92,7 @@ protected:
 	// Override scene manager (use indoor instead of generic)
 	void chooseSceneManager(void)
 	{
-		mSceneMgr = mRoot->getSceneManager(ST_INTERIOR);
+		mSceneMgr = mRoot->createSceneManager("BspSceneManager");
 	}
 	// Scene creation
 	void createScene(void)

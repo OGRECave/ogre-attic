@@ -90,6 +90,13 @@ namespace Ogre {
 		/** Load direct from stream */
 		void load(DataStreamPtr& stream);
 
+		/** Is sky enabled? */
+		bool isSkyEnabled(void) const;
+		/** Get Sky material name */
+		const String& getSkyMaterialName(void) const;
+		/** Get sky curvature */
+		Real getSkyCurvature(void) const;
+
         /** Utility class just to enable queueing of patches */
     protected:
         /** @copydoc Resource::loadImpl. */
@@ -203,6 +210,13 @@ namespace Ogre {
         size_t mPatchVertexCount;
         // Total number of indexes required for all patches
         size_t mPatchIndexCount;
+		// Sky enabled?
+		bool mSkyEnabled;
+		// Sky material
+		String mSkyMaterial;
+		// Sky details
+		Real mSkyCurvature;
+
 
         void initQuake3Patches(const Quake3Level & q3lvl, VertexDeclaration* decl);
         void buildQuake3Patches(size_t vertOffset, size_t indexOffset);

@@ -257,7 +257,7 @@ namespace Ogre {
             if (mSceneManager)
             {
                 mPage = buildPage(heightData, 
-                    TerrainSceneManager::getOptions().terrainMaterial);
+                    mSceneManager->getOptions().terrainMaterial);
                 mSceneManager->attachPage(0, 0, mPage);
             }
 
