@@ -144,6 +144,7 @@ namespace Ogre
 		bool depthBuffer = true;
 		String border = "";
 		bool outerSize = false;
+		mUseNVPerfHUD = false;
 
 		if(miscParams)
 		{
@@ -201,6 +202,11 @@ namespace Ogre
 			opt = miscParams->find("outerDimensions");
 			if(opt != miscParams->end())
 				outerSize = StringConverter::parseBool(opt->second);
+			// NV perf HUD?
+			opt = miscParams->find("useNVPerfHUD");
+			if(opt != miscParams->end())
+				mUseNVPerfHUD = StringConverter::parseBool(opt->second);
+			 
 		}
 
 		// Destroy current window if any
@@ -459,22 +465,43 @@ namespace Ogre
 				if (opti != options.end() && opti->second.currentValue == "Consistent")
 					extraFlags |= D3DCREATE_FPU_PRESERVE;
 
-				hr = pD3D->CreateDevice( mDriver->getAdapterNumber(), devType, mHWnd,
+				// Set default settings (use the one Ogre discovered as a default)
+				UINT adapterToUse = mDriver->getAdapterNumber();
+
+				if (mUseNVPerfHUD)
+				{
+					// Look for 'NVIDIA NVPerfHUD' adapter
+					// If it is present, override default settings
+					for (UINT adapter=0; adapter < mDriver->getD3D()->GetAdapterCount(); ++adapter)
+					{
+						D3DADAPTER_IDENTIFIER9 identifier;
+						HRESULT res;
+						res = mDriver->getD3D()->GetAdapterIdentifier(adapter,0,&identifier);
+						if (strcmp(identifier.Description,"NVIDIA NVPerfHUD") == 0)
+						{
+							adapterToUse = adapter;
+							devType = D3DDEVTYPE_REF;
+							break;
+						}
+					}
+				}
+
+				hr = pD3D->CreateDevice(adapterToUse, devType, mHWnd,
 					D3DCREATE_HARDWARE_VERTEXPROCESSING | extraFlags, &md3dpp, &mpD3DDevice );
 				if (FAILED(hr))
 				{
 					// Try a second time, may fail the first time due to back buffer count,
 					// which will be corrected down to 1 by the runtime
-					hr = pD3D->CreateDevice( mDriver->getAdapterNumber(), devType, mHWnd,
+					hr = pD3D->CreateDevice( adapterToUse, devType, mHWnd,
 						D3DCREATE_HARDWARE_VERTEXPROCESSING | extraFlags, &md3dpp, &mpD3DDevice );
 				}
 				if( FAILED( hr ) )
 				{
-					hr = pD3D->CreateDevice( mDriver->getAdapterNumber(), devType, mHWnd,
+					hr = pD3D->CreateDevice( adapterToUse, devType, mHWnd,
 						D3DCREATE_MIXED_VERTEXPROCESSING | extraFlags, &md3dpp, &mpD3DDevice );
 					if( FAILED( hr ) )
 					{
-						hr = pD3D->CreateDevice( mDriver->getAdapterNumber(), devType, mHWnd,
+						hr = pD3D->CreateDevice( adapterToUse, devType, mHWnd,
 							D3DCREATE_SOFTWARE_VERTEXPROCESSING | extraFlags, &md3dpp, &mpD3DDevice );
 					}
 				}

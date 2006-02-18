@@ -336,6 +336,11 @@ namespace Ogre
 				outer window, rather than the content area
 				Values: true, false
 				Default: false 
+				**
+				Key: "useNVPerfHUD" [DX9 specific]
+				Description: Enable the use of nVidia NVPerfHUD
+				Values: true, false
+				Default: false
         */
 		virtual RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, 
 			bool fullScreen, const NameValuePairList *miscParams = 0) = 0;

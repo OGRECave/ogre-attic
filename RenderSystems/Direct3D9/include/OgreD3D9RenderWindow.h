@@ -109,6 +109,7 @@ namespace Ogre
 		D3DMULTISAMPLE_TYPE mFSAAType;
 		DWORD mFSAAQuality;
 		bool mVSync;
+		bool mUseNVPerfHUD;
 
 		// just check if the multisampling requested is supported by the device
 		bool _checkMultiSampleQuality(D3DMULTISAMPLE_TYPE type, DWORD *outQuality, D3DFORMAT format, UINT adapterNum, D3DDEVTYPE deviceType, BOOL fullScreen);
