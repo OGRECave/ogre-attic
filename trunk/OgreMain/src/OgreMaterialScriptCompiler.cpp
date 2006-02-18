@@ -593,11 +593,11 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     ColourValue MaterialScriptCompiler::_parseColourValue(void)
     {
-        return ColourValue(
-            getNextTokenValue() ,
-            getNextTokenValue() ,
-            getNextTokenValue() ,
-            (getRemainingTokensForAction()==1) ? getNextTokenValue() : 1.0f ) ;
+        Real r = getNextTokenValue();
+        Real g = getNextTokenValue();
+        Real b = getNextTokenValue();
+        Real a = getRemainingTokensForAction() == 1 ? getNextTokenValue() : 1.0f;
+        return ColourValue(r, g, b, a);
     }
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseAmbient(void)
@@ -671,11 +671,11 @@ namespace Ogre {
         }
         else if(paramCount == 4 || paramCount == 5)
         {
-            mScriptContext.pass->setSpecular(
-                getNextTokenValue(),
-                getNextTokenValue(),
-                getNextTokenValue(),
-                paramCount == 5 ? getNextTokenValue() : 1.0f);
+            Real r = getNextTokenValue();
+            Real g = getNextTokenValue();
+            Real b = getNextTokenValue();
+            Real a = paramCount == 5 ? getNextTokenValue() : 1.0f;
+            mScriptContext.pass->setSpecular(r, g, b, a);
             mScriptContext.pass->setVertexColourTracking(mScriptContext.pass->getVertexColourTracking() & ~TVC_SPECULAR);
             mScriptContext.pass->setShininess( getNextTokenValue() );
         }
@@ -994,7 +994,7 @@ namespace Ogre {
 		    ++mScriptContext.stateLev;
         }
 
-        if (mScriptContext.pass->getNumTextureUnitStates() > mScriptContext.stateLev)
+        if (mScriptContext.pass->getNumTextureUnitStates() > static_cast<size_t>(mScriptContext.stateLev))
         {
             mScriptContext.textureUnit = mScriptContext.pass->getTextureUnitState(mScriptContext.stateLev);
         }
