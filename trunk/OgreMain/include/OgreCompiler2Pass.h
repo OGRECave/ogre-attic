@@ -169,14 +169,16 @@ namespace Ogre {
             bool hasAction;            /// has an action associated with it. only applicable to terminal tokens
             bool isNonTerminal;        /// if true then token is non-terminal
 	        size_t ruleID;				/// index into Rule database for non-terminal token rulepath and lexeme
+	        bool isCaseSensitive;        /// if true use case sensitivity when comparing lexeme to source
             String lexeme;             /// text representation of token or valid characters for label parsing
 
-            LexemeTokenDef(void) : ID(0), hasAction(false), isNonTerminal(false), ruleID(0) {}
-            LexemeTokenDef( const size_t ID, const String& lexeme, const bool hasAction = false, const bool nonterminal = false, const size_t ruleID = 0 )
+            LexemeTokenDef(void) : ID(0), hasAction(false), isNonTerminal(false), ruleID(0), isCaseSensitive(false) {}
+            LexemeTokenDef( const size_t ID, const String& lexeme, const bool hasAction = false, const bool caseSensitive = false )
                 : ID(ID)
                 , hasAction(hasAction)
-                , isNonTerminal(nonterminal)
-                , ruleID(ruleID)
+                , isNonTerminal(false)
+                , ruleID(0)
+                , isCaseSensitive(caseSensitive)
                 , lexeme(lexeme)
             {
             }
@@ -212,7 +214,7 @@ namespace Ogre {
 	        TokenRuleContainer       rootRulePath;
             LexemeTokenMap           lexemeTokenMap;
         };
-
+        String mClientGrammerName;
         TokenState* mClientTokenState;
 
 	    /// Active token que, definitions, rules currntly being used by parser
@@ -323,8 +325,12 @@ namespace Ogre {
         /** Add a lexeme token association.  The backend compiler uses the associations between lexeme
             and token when building the rule base from the BNF script so all associations must  be done
             prior to compiling a source.
+        @param lexeme is the name of the token and use when parsing the source to determin a match for a token.
+        @param token is the ID associated with the lexeme
+        @param hasAction must be set true if the client wants an action triggered when this token is generated
+        @param caseSensitive should be set true if lexeme match should use case sensitivity
         */
-        void addLexemeToken(const String& lexeme, const size_t token, const bool hasAction = false);
+        void addLexemeToken(const String& lexeme, const size_t token, const bool hasAction = false, const bool caseSensitive = false);
 
         /** sets up the parser rules for the client based on the BNF Grammer text passed in.
             Raises an exception if the grammer did not compile successfully.  This method should be called
@@ -360,11 +366,12 @@ namespace Ogre {
         bool isCharacterLabel(const size_t rulepathIDX);
 	    /** check to see if the text is in the lexeme text library
 	    @param lexeme points to begining of text where a lexem token might exist
+	    @param caseSensitive set to true if match should be case sensitive
 	    @return
 		    true if a matching token could be found in the token type library
 		    false if could not be tokenized
 	    */
-	    bool isLexemeMatch(const String& lexeme) const;
+	    bool isLexemeMatch(const String& lexeme, const bool caseSensitive) const;
 	    /// position to the next possible valid sysmbol
 	    bool positionToNextLexeme();
 	    /** process input source text using rulepath to determine allowed tokens
