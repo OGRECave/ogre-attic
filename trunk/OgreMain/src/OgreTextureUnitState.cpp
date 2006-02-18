@@ -509,7 +509,11 @@ namespace Ogre {
         // Ensure controller pointer is null
         effect.controller = 0;
 
-        if (effect.type == ET_ENVIRONMENT_MAP || effect.type == ET_SCROLL || effect.type == ET_ROTATE
+        if (effect.type == ET_ENVIRONMENT_MAP 
+			|| effect.type == ET_UVSCROLL
+			|| effect.type == ET_USCROLL
+			|| effect.type == ET_VSCROLL
+			|| effect.type == ET_ROTATE
             || effect.type == ET_PROJECTIVE_TEXTURE)
         {
             // Replace - must be unique
@@ -767,14 +771,33 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureUnitState::setScrollAnimation(Real uSpeed, Real vSpeed)
     {
-        // Remove existing effect
-        removeEffect(ET_SCROLL);
+        // Remove existing effects
+        removeEffect(ET_UVSCROLL);
+        removeEffect(ET_USCROLL);
+        removeEffect(ET_VSCROLL);
         // Create new effect
         TextureEffect eff;
-        eff.type = ET_SCROLL;
+	if(uSpeed == vSpeed) 
+	{
+		eff.type = ET_UVSCROLL;
+		eff.arg1 = uSpeed;
+		addEffect(eff);
+	}
+	else
+	{
+		if(uSpeed)
+		{
+			eff.type = ET_USCROLL;
         eff.arg1 = uSpeed;
-        eff.arg2 = vSpeed;
         addEffect(eff);
+    }
+		if(vSpeed)
+		{
+			eff.type = ET_VSCROLL;
+			eff.arg1 = vSpeed;
+			addEffect(eff);
+		}
+	}
     }
     //-----------------------------------------------------------------------
     void TextureUnitState::setRotateAnimation(Real speed)
@@ -857,8 +880,14 @@ namespace Ogre {
         ControllerManager& cMgr = ControllerManager::getSingleton();
         switch (effect.type)
         {
-        case ET_SCROLL:
-            effect.controller = cMgr.createTextureScroller(this, effect.arg1, effect.arg2);
+        case ET_UVSCROLL:
+            effect.controller = cMgr.createTextureUVScroller(this, effect.arg1);
+            break;
+        case ET_USCROLL:
+            effect.controller = cMgr.createTextureUScroller(this, effect.arg1);
+            break;
+        case ET_VSCROLL:
+            effect.controller = cMgr.createTextureVScroller(this, effect.arg1);
             break;
         case ET_ROTATE:
             effect.controller = cMgr.createTextureRotater(this, effect.arg1);
