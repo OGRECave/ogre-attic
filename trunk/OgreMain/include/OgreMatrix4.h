@@ -492,6 +492,20 @@ namespace Ogre
 		Real determinant() const;
 		Matrix4 inverse() const;
 
+        /** Building a Matrix4 from orientation / scale / position.
+        @remarks
+            Transform is performed in the order scale, rotate, translation, i.e. translation is independent
+            of orientation axes, scale does not affect size of translation, rotation and scaling are always
+            centered on the origin.
+        */
+        void makeTransform(const Vector3& position, const Vector3& scale, const Quaternion& orientation);
+
+        /** Building an inverse Matrix4 from orientation / scale / position.
+        @remarks
+            As makeTransform except it build the inverse given the same data as makeTransform, so
+            performing -translation, -rotate, 1/scale in that order.
+        */
+        void makeInverseTransform(const Vector3& position, const Vector3& scale, const Quaternion& orientation);
     };
 
     /* Removed from Vector4 and made a non-member here because otherwise

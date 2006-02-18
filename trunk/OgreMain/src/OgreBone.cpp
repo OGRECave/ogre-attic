@@ -70,8 +70,10 @@ namespace Ogre {
         setInitialState();
 
         // Save inverse derived, used for mesh transform later (assumes _update() has been called by Skeleton)
-        makeInverseTransform(_getDerivedPosition(), _getDerivedScale(),
-            _getDerivedOrientation(), mBindDerivedInverseTransform);
+        mBindDerivedInverseTransform.makeInverseTransform(
+            _getDerivedPosition(),
+            _getDerivedScale(),
+            _getDerivedOrientation());
     }
     //---------------------------------------------------------------------
     void Bone::reset(void)

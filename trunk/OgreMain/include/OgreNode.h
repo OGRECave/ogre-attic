@@ -119,6 +119,9 @@ namespace Ogre {
         /// Stores the scaling factor applied to this node
         Vector3 mScale;
 
+        /// Stores whether this node inherits orientation from it's parent
+        bool mInheritOrientation;
+
         /// Stores whether this node inherits scale from it's parent
         bool mInheritScale;
 
@@ -168,29 +171,6 @@ namespace Ogre {
 
         /** Internal method for creating a new child node - must be overridden per subclass. */
         virtual Node* createChildImpl(const String& name) = 0;
-
-        /** Internal method for building a Matrix4 from orientation / scale / position. 
-        @remarks
-            Transform is performed in the order rotate, scale, translation, i.e. translation is independent
-            of orientation axes, scale does not affect size of translation, rotation and scaling are always
-            centered on the origin.
-        */
-        void makeTransform(
-            const Vector3& position, 
-            const Vector3& scale, 
-            const Quaternion& orientation, 
-            Matrix4& destMatrix ) const;
-
-        /** Internal method for building an inverse Matrix4 from orientation / scale / position. 
-        @remarks
-            As makeTransform except it build the inverse given the same data as makeTransform, so
-            performing -translation, 1/scale, -rotate in that order.
-        */
-        void makeInverseTransform(
-            const Vector3& position, 
-            const Vector3& scale, 
-            const Quaternion& orientation, 
-            Matrix4& destMatrix );
 
         /// The position to use as a base for keyframe animation
         Vector3 mInitialPosition;
@@ -245,14 +225,47 @@ namespace Ogre {
         virtual const Quaternion & getOrientation() const;
 
         /** Sets the orientation of this node via a quaternion.
+        @remarks
+            Orientatings, unlike other transforms, are not always inherited by child nodes.
+            Whether or not orientatings affect the orientation of the child nodes depends on
+            the setInheritOrientation option of the child. In some cases you want a orientating
+            of a parent node to apply to a child node (e.g. where the child node is a part of
+            the same object, so you want it to be the same relative orientation based on the
+            parent's orientation), but not in other cases (e.g. where the child node is just
+            for positioning another object, you want it to maintain it's own orientation).
+            The default is to inherit as with other transforms.
+        @par
+            Note that rotations are oriented around the node's origin.
         */
         virtual void setOrientation( const Quaternion& q );
 
         /** Sets the orientation of this node via quaternion parameters.
+        @remarks
+            Orientatings, unlike other transforms, are not always inherited by child nodes.
+            Whether or not orientatings affect the orientation of the child nodes depends on
+            the setInheritOrientation option of the child. In some cases you want a orientating
+            of a parent node to apply to a child node (e.g. where the child node is a part of
+            the same object, so you want it to be the same relative orientation based on the
+            parent's orientation), but not in other cases (e.g. where the child node is just
+            for positioning another object, you want it to maintain it's own orientation).
+            The default is to inherit as with other transforms.
+        @par
+            Note that rotations are oriented around the node's origin.
         */
         virtual void setOrientation( Real w, Real x, Real y, Real z);
 
         /** Resets the nodes orientation (local axes as world axes, no rotation).
+        @remarks
+            Orientatings, unlike other transforms, are not always inherited by child nodes.
+            Whether or not orientatings affect the orientation of the child nodes depends on
+            the setInheritOrientation option of the child. In some cases you want a orientating
+            of a parent node to apply to a child node (e.g. where the child node is a part of
+            the same object, so you want it to be the same relative orientation based on the
+            parent's orientation), but not in other cases (e.g. where the child node is just
+            for positioning another object, you want it to maintain it's own orientation).
+            The default is to inherit as with other transforms.
+        @par
+            Note that rotations are oriented around the node's origin.
         */
         virtual void resetOrientation(void);
 
@@ -301,6 +314,36 @@ namespace Ogre {
         /** Gets the scaling factor of this node.
         */
         virtual const Vector3 & getScale(void) const;
+
+        /** Tells the node whether it should inherit orientation from it's parent node.
+        @remarks
+            Orientatings, unlike other transforms, are not always inherited by child nodes.
+            Whether or not orientatings affect the orientation of the child nodes depends on
+            the setInheritOrientation option of the child. In some cases you want a orientating
+            of a parent node to apply to a child node (e.g. where the child node is a part of
+            the same object, so you want it to be the same relative orientation based on the
+            parent's orientation), but not in other cases (e.g. where the child node is just
+            for positioning another object, you want it to maintain it's own orientation).
+            The default is to inherit as with other transforms.
+        @param inherit If true, this node's orientation will be affected by its parent's orientation.
+            If false, it will not be affected.
+        */
+        virtual void setInheritOrientation(bool inherit);
+
+        /** Returns true if this node is affected by orientation applied to the parent node. 
+        @remarks
+            Orientatings, unlike other transforms, are not always inherited by child nodes.
+            Whether or not orientatings affect the orientation of the child nodes depends on
+            the setInheritOrientation option of the child. In some cases you want a orientating
+            of a parent node to apply to a child node (e.g. where the child node is a part of
+            the same object, so you want it to be the same relative orientation based on the
+            parent's orientation), but not in other cases (e.g. where the child node is just
+            for positioning another object, you want it to maintain it's own orientation).
+            The default is to inherit as with other transforms.
+        @remarks
+            See setInheritOrientation for more info.
+        */
+        virtual bool getInheritOrientation(void) const;
 
         /** Tells the node whether it should inherit scaling factors from it's parent node.
         @remarks
