@@ -522,7 +522,7 @@ namespace Ogre {
         case GPT_FRAGMENT_PROGRAM:
             mFragmentProgramBound = true;
 	        break;
-	    };
+	    }
 	}
 	//-----------------------------------------------------------------------
 	void RenderSystem::unbindGpuProgram(GpuProgramType gptype)
@@ -535,7 +535,7 @@ namespace Ogre {
         case GPT_FRAGMENT_PROGRAM:
             mFragmentProgramBound = false;
 	        break;
-	    };
+	    }
 	}
 	//-----------------------------------------------------------------------
 	bool RenderSystem::isGpuProgramBound(GpuProgramType gptype)
@@ -544,11 +544,11 @@ namespace Ogre {
 	    {
         case GPT_VERTEX_PROGRAM:
             return mVertexProgramBound;
-	        break;
         case GPT_FRAGMENT_PROGRAM:
             return mFragmentProgramBound;
-	        break;
-	    };
+	    }
+        // Make compiler happy
+        return false;
 	}
 
 }
