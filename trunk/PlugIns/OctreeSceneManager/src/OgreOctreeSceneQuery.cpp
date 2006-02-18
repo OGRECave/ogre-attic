@@ -76,10 +76,10 @@ void OctreeIntersectionSceneQuery::execute(IntersectionSceneQueryListener* liste
 			//find the nodes that intersect the AAB
 			static_cast<OctreeSceneManager*>( mParentSceneMgr ) -> findNodesIn( e->getWorldBoundingBox(), list, 0 );
 			//grab all moveables from the node that intersect...
-			std::list < SceneNode * >::iterator it = list.begin();
-			while( it != list.end() )
+			std::list < SceneNode * >::iterator nit = list.begin();
+			while( nit != list.end() )
 			{
-				SceneNode::ObjectIterator oit = (*it) -> getAttachedObjectIterator();
+				SceneNode::ObjectIterator oit = (*nit) -> getAttachedObjectIterator();
 				while( oit.hasMoreElements() )
 				{
 					MovableObject * m = oit.getNext();
@@ -112,7 +112,7 @@ void OctreeIntersectionSceneQuery::execute(IntersectionSceneQueryListener* liste
 					set.insert( MovablePair(e,m) );
 
 				}
-				++it;
+				++nit;
 			}
 
 		}
