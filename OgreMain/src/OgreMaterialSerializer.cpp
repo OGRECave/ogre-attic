@@ -3007,13 +3007,17 @@ namespace Ogre
             }
         }
         endSection(0);
+        mBuffer += "\n";
     }
     //-----------------------------------------------------------------------
     void MaterialSerializer::writeTechnique(const Technique* pTech)
     {
         // Technique header
         writeAttribute(1, "technique");
-        writeValue(pTech->getName());
+        // only output technique name if it exists.
+        if (!pTech->getName().empty())
+            writeValue(pTech->getName());
+
         beginSection(1);
         {
             // Iterate over passes
