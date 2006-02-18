@@ -278,7 +278,9 @@ namespace Ogre {
                     anyCalcs = true;
                 }
                 break;
-            case TextureUnitState::ET_SCROLL:
+            case TextureUnitState::ET_UVSCROLL:
+			case TextureUnitState::ET_USCROLL:
+			case TextureUnitState::ET_VSCROLL:
             case TextureUnitState::ET_ROTATE:
             case TextureUnitState::ET_TRANSFORM:
                 break;

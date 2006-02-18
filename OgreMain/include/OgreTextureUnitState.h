@@ -65,7 +65,11 @@ namespace Ogre {
             /// Generate texture coords based on a frustum
             ET_PROJECTIVE_TEXTURE,
             /// Constant u/v scrolling effect
-            ET_SCROLL,
+            ET_UVSCROLL,
+			/// Constant u scrolling effect
+            ET_USCROLL,
+			/// Constant u/v scrolling effect
+            ET_VSCROLL,
             /// Constant rotation
             ET_ROTATE,
             /// More complex transform

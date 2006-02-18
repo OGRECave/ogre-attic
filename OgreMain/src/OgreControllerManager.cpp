@@ -107,32 +107,48 @@ namespace Ogre {
         return createController(mFrameTimeController, texVal, animFunc);
     }
     //-----------------------------------------------------------------------
-    Controller<Real>* ControllerManager::createTextureScroller(TextureUnitState* layer, Real uSpeed, Real vSpeed)
+    Controller<Real>* ControllerManager::createTextureUVScroller(TextureUnitState* layer, Real speed)
+    {
+		Controller<Real>* ret = 0;
+
+		if (speed != 0)
+        {
+			SharedPtr< ControllerValue<Real> > val;
+			SharedPtr< ControllerFunction<Real> > func;
+
+			// We do both scrolls with a single controller
+			val.bind(new TexCoordModifierControllerValue(layer, true, true));
+			// Create function: use -speed since we're altering texture coords so they have reverse effect
+            func.bind(new ScaleControllerFunction(-speed, true));
+            ret = createController(mFrameTimeController, val, func);
+		}
+
+		return ret;
+	}
+    //-----------------------------------------------------------------------
+    Controller<Real>* ControllerManager::createTextureUScroller(TextureUnitState* layer, Real uSpeed)
     {
         Controller<Real>* ret = 0;
 
-        // Set up 1 or 2 controllers to manage the scrolling texture
         if (uSpeed != 0)
         {
 			SharedPtr< ControllerValue<Real> > uVal;
 			SharedPtr< ControllerFunction<Real> > uFunc;
 
-            if (uSpeed == vSpeed)
-            {
-                // Cool, we can do both scrolls with a single controller
-                uVal.bind(new TexCoordModifierControllerValue(layer, true, true));
-            }
-            else
-            {
-                // Just do u, v will take a second controller
                 uVal.bind(new TexCoordModifierControllerValue(layer, true));
-            }
             // Create function: use -speed since we're altering texture coords so they have reverse effect
             uFunc.bind(new ScaleControllerFunction(-uSpeed, true));
             ret = createController(mFrameTimeController, uVal, uFunc);
         }
 
-        if (vSpeed != 0 && (uSpeed == 0 || vSpeed != uSpeed))
+        return ret;
+    }
+	//-----------------------------------------------------------------------
+    Controller<Real>* ControllerManager::createTextureVScroller(TextureUnitState* layer, Real vSpeed)
+    {
+		Controller<Real>* ret = 0;
+
+		if (vSpeed != 0)
         {
 			SharedPtr< ControllerValue<Real> > vVal;
 			SharedPtr< ControllerFunction<Real> > vFunc;

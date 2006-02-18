@@ -3665,6 +3665,10 @@ namespace Ogre
 				}
 			}
 
+			// Used to store the u and v speeds of scroll animation effects
+			float scrollAnimU = 0;
+			float scrollAnimV = 0;
+
             EffectMap m_ef = pTex->getEffects();
             if (!m_ef.empty())
             {
@@ -3680,8 +3684,14 @@ namespace Ogre
                     case TextureUnitState::ET_ROTATE :
                         writeRotationEffect(ef, pTex);
                         break;
-                    case TextureUnitState::ET_SCROLL :
-                        writeScrollEffect(ef, pTex);
+					case TextureUnitState::ET_UVSCROLL :
+						scrollAnimU = scrollAnimV = ef.arg1;
+						break;
+                    case TextureUnitState::ET_USCROLL :
+						scrollAnimU = ef.arg1;
+						break;
+					case TextureUnitState::ET_VSCROLL :
+						scrollAnimV = ef.arg1;                        
                         break;
                     case TextureUnitState::ET_TRANSFORM :
                         writeTransformEffect(ef, pTex);
@@ -3691,6 +3701,14 @@ namespace Ogre
                     }
                 }
             }
+			
+			// u and v scroll animation speeds merged, if present serialize scroll_anim
+			if(scrollAnimU || scrollAnimV) {
+				TextureUnitState::TextureEffect texEffect;
+				texEffect.arg1 = scrollAnimU;
+				texEffect.arg2 = scrollAnimV;
+				writeScrollEffect(texEffect, pTex);
+			}
         }
         endSection(3);
 

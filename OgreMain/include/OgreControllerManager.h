@@ -103,19 +103,43 @@ namespace Ogre {
         */
         Controller<Real>* createTextureAnimator(TextureUnitState* layer, Real sequenceTime);
 
-        /** Creates a basic time-based texture coordinate modifier designed for creating scrolling textures.
+		/** Creates a basic time-based texture uv coordinate modifier designed for creating scrolling textures.
             @remarks
-                This simple method allows you to easily create constant-speed scrolling textures. If you want more
+                This simple method allows you to easily create constant-speed uv scrolling textures. If you want to 
+				specify different speed values for horizontal and vertical scroll, use the specific methods
+				ControllerManager::createTextureUScroller and ControllerManager::createTextureVScroller.
+				If you want more control, look up the ControllerManager::createTextureWaveTransformer 
+				for more complex wave-based scrollers / stretchers / rotaters.
+            @param
+                layer The texture layer to animate.
+            @param
+                speed Speed of horizontal (u-coord) and vertical (v-coord) scroll, in complete wraps per second
+        */
+        Controller<Real>* createTextureUVScroller(TextureUnitState* layer, Real speed);
+
+        /** Creates a basic time-based texture u coordinate modifier designed for creating scrolling textures.
+            @remarks
+                This simple method allows you to easily create constant-speed u scrolling textures. If you want more
                 control, look up the ControllerManager::createTextureWaveTransformer for more complex wave-based
                 scrollers / stretchers / rotaters.
             @param
                 layer The texture layer to animate.
             @param
                 uSpeed Speed of horizontal (u-coord) scroll, in complete wraps per second
+        */
+        Controller<Real>* createTextureUScroller(TextureUnitState* layer, Real uSpeed);
+
+		/** Creates a basic time-based texture v coordinate modifier designed for creating scrolling textures.
+            @remarks
+                This simple method allows you to easily create constant-speed v scrolling textures. If you want more
+                control, look up the ControllerManager::createTextureWaveTransformer for more complex wave-based
+                scrollers / stretchers / rotaters.
+            @param
+                layer The texture layer to animate.            
             @param
                 vSpeed Speed of vertical (v-coord) scroll, in complete wraps per second
         */
-        Controller<Real>* createTextureScroller(TextureUnitState* layer, Real uSpeed, Real vSpeed);
+        Controller<Real>* createTextureVScroller(TextureUnitState* layer, Real vSpeed);
 
         /** Creates a basic time-based texture coordinate modifier designed for creating rotating textures.
             @return
