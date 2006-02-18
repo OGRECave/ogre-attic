@@ -58,7 +58,8 @@ namespace Ogre {
         mVertexData(0), 
         mLeafFaceGroups(0),
         mFaceGroups(0), 
-        mBrushes(0)
+        mBrushes(0),
+		mSkyEnabled(false)
     {
         mVisData.tableData = 0;
 
@@ -80,6 +81,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BspLevel::loadImpl()
     {
+		mSkyEnabled = false;
+
         // Use Quake3 file loader
         Quake3Level q3;
         DataStreamPtr stream = 
@@ -91,7 +94,21 @@ namespace Ogre {
         loadQuake3Level(q3);
 
     }
-
+	//-----------------------------------------------------------------------
+	bool BspLevel::isSkyEnabled(void) const
+	{
+		return mSkyEnabled;
+	}
+	//-----------------------------------------------------------------------
+	const String& BspLevel::getSkyMaterialName(void) const
+	{
+		return mSkyMaterial;
+	}
+	//-----------------------------------------------------------------------
+	Real BspLevel::getSkyCurvature(void) const
+	{
+		return mSkyCurvature;
+	}
     //-----------------------------------------------------------------------
     void BspLevel::load(DataStreamPtr& stream)
     {
@@ -337,6 +354,13 @@ namespace Ogre {
                 if (pShad)
                 {
                     shadMat = pShad->createAsMaterial(q3lvl.mFaces[face].lm_texture);
+					// Do skydome (use this material)
+					if (pShad->skyDome)
+					{
+						mSkyEnabled = true;
+						mSkyMaterial = shadMat->getName();
+						mSkyCurvature = 20 - (pShad->cloudHeight / 256 * 18);
+					}
                 }
                 else
                 {

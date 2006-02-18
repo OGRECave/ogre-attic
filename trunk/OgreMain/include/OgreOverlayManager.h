@@ -51,7 +51,6 @@ namespace Ogre {
             bool isContainer, Overlay* pOverlay, bool isTemplate, String templateName = String(""), OverlayContainer* container = 0);
         void parseAttrib( const String& line, Overlay* pOverlay);
         void parseElementAttrib( const String& line, Overlay* pOverlay, OverlayElement* pElement );
-        void parseNewMesh(DataStreamPtr& chunk, String& meshName, String& entityName, Overlay* pOverlay);
         void skipToNextCloseBrace(DataStreamPtr& chunk);
         void skipToNextOpenBrace(DataStreamPtr& chunk);
         

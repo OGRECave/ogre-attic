@@ -80,11 +80,14 @@ class OctreeSceneManager : public SceneManager
 public:
     static int intersect_call;
     /** Standard Constructor.  Initializes the octree to -500,-500,-500 to 500,500,500 with unlimited depth. */
-    OctreeSceneManager( );
+    OctreeSceneManager(const String& name);
     /** Standard Constructor */
-    OctreeSceneManager( AxisAlignedBox &box, int max_depth );
+    OctreeSceneManager(const String& name, AxisAlignedBox &box, int max_depth );
     /** Standard desctructor */
     ~OctreeSceneManager();
+
+	/// @copydoc SceneManager::getTypeName
+	const String& getTypeName(void) const;
 
     /** Initializeds the manager to the given box and depth.
     */
@@ -235,6 +238,21 @@ protected:
     Matrix4 mScaleFactor;
 
 };
+
+/// Factory for OctreeSceneManager
+class OctreeSceneManagerFactory : public SceneManagerFactory
+{
+protected:
+	void initMetaData(void) const;
+public:
+	OctreeSceneManagerFactory() {}
+	~OctreeSceneManagerFactory() {}
+	/// Factory type name
+	static const String FACTORY_TYPE_NAME;
+	SceneManager* createInstance(const String& instanceName);
+	void destroyInstance(SceneManager* instance);
+};
+
 
 
 }

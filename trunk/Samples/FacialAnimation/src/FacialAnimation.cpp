@@ -334,7 +334,7 @@ protected:
 
 		// setup GUI system
         mGUIRenderer = new CEGUI::OgreCEGUIRenderer(mWindow, 
-            Ogre::RENDER_QUEUE_OVERLAY, false, 3000);
+            Ogre::RENDER_QUEUE_OVERLAY, false, 3000, mSceneMgr);
 
         mGUISystem = new CEGUI::System(mGUIRenderer);
 

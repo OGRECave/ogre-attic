@@ -52,17 +52,13 @@ namespace Ogre
     #define DELTA_BINDING 1
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    TerrainBufferCache TerrainRenderable::msIndexCache;
     String TerrainRenderable::mType = "TerrainMipMap";
-    LevelArray TerrainRenderable::mLevelIndex;
-    bool TerrainRenderable::mLevelInit = false;
-    const TerrainOptions* TerrainRenderable::msOptions = 0;
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
 
     //-----------------------------------------------------------------------
-    TerrainRenderable::TerrainRenderable(const String& name)
-        : Renderable(), MovableObject(name), mTerrain(0), mDeltaBuffers(0), mPositionBuffer(0)
+    TerrainRenderable::TerrainRenderable(const String& name, TerrainSceneManager* tsm)
+        : Renderable(), MovableObject(name), mSceneManager(tsm), mTerrain(0), mDeltaBuffers(0), mPositionBuffer(0)
     {
         mForcedRenderLevel = -1;
         mLastNextLevel = -1;
@@ -78,7 +74,8 @@ namespace Ogre
             mNeighbors[ i ] = 0;
         }
 
-        _initLevelIndexes();
+		mOptions = &(mSceneManager->getOptions());
+
 
     }
     //-----------------------------------------------------------------------
@@ -86,7 +83,6 @@ namespace Ogre
     {
 
         deleteGeometry();
-        _destroyLevelIndexes();
     }
 	//-----------------------------------------------------------------------
 	uint32 TerrainRenderable::getTypeFlags(void) const
@@ -113,14 +109,12 @@ namespace Ogre
     void TerrainRenderable::initialise(int startx, int startz,  
         Real* pageHeightData)
     {
-        if (!msOptions)
-            msOptions = &(TerrainSceneManager::getOptions());
 
-        if ( msOptions->maxGeoMipMapLevel != 0 )
+        if ( mOptions->maxGeoMipMapLevel != 0 )
         {
-            int i = ( int ) 1 << ( msOptions->maxGeoMipMapLevel - 1 ) ;
+            int i = ( int ) 1 << ( mOptions->maxGeoMipMapLevel - 1 ) ;
 
-            if ( ( i + 1 ) > msOptions->tileSize )
+            if ( ( i + 1 ) > mOptions->tileSize )
             {
                 printf( "Invalid maximum mipmap specifed, must be n, such that 2^(n-1)+1 < tileSize \n" );
                 return ;
@@ -134,7 +128,7 @@ namespace Ogre
 
         mTerrain = new VertexData;
         mTerrain->vertexStart = 0;
-        mTerrain->vertexCount = msOptions->tileSize * msOptions->tileSize;
+        mTerrain->vertexCount = mOptions->tileSize * mOptions->tileSize;
 
         VertexDeclaration* decl = mTerrain->vertexDeclaration;
         VertexBufferBinding* bind = mTerrain->vertexBufferBinding;
@@ -143,7 +137,7 @@ namespace Ogre
         size_t offset = 0;
         decl->addElement(MAIN_BINDING, offset, VET_FLOAT3, VES_POSITION);
         offset += VertexElement::getTypeSize(VET_FLOAT3);
-        if (TerrainSceneManager::getOptions().lit)
+        if (mOptions->lit)
         {
             decl->addElement(MAIN_BINDING, offset, VET_FLOAT3, VES_NORMAL);
             offset += VertexElement::getTypeSize(VET_FLOAT3);
@@ -153,7 +147,7 @@ namespace Ogre
         offset += VertexElement::getTypeSize(VET_FLOAT2);
         decl->addElement(MAIN_BINDING, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 1);
         offset += VertexElement::getTypeSize(VET_FLOAT2);
-        if (TerrainSceneManager::getOptions().coloured)
+        if (mOptions->coloured)
         {
             decl->addElement(MAIN_BINDING, offset, VET_COLOUR, VES_DIFFUSE);
             offset += VertexElement::getTypeSize(VET_COLOUR);
@@ -170,7 +164,7 @@ namespace Ogre
 
         bind->setBinding(MAIN_BINDING, mMainBuffer);
 
-        if (msOptions->lodMorph)
+        if (mOptions->lodMorph)
         {
             // Create additional element for delta
             decl->addElement(DELTA_BINDING, 0, VET_FLOAT1, VES_BLEND_WEIGHTS);
@@ -182,11 +176,11 @@ namespace Ogre
 
         mRenderLevel = 1;
 
-        mMinLevelDistSqr = new Real[ msOptions->maxGeoMipMapLevel ];
+        mMinLevelDistSqr = new Real[ mOptions->maxGeoMipMapLevel ];
 
-        int endx = startx + msOptions->tileSize;
+        int endx = startx + mOptions->tileSize;
 
-        int endz = startz + msOptions->tileSize;
+        int endz = startz + mOptions->tileSize;
 
         Vector3 left, down, here;
 
@@ -206,18 +200,18 @@ namespace Ogre
                 texelem0->baseVertexPointerToElement(pBase, &pTex0);
                 texelem1->baseVertexPointerToElement(pBase, &pTex1);
     
-                Real height = pageHeightData[j * msOptions->pageSize + i];
-                height = height * msOptions->scale.y; // scale height 
+                Real height = pageHeightData[j * mOptions->pageSize + i];
+                height = height * mOptions->scale.y; // scale height 
 
-                *pSysPos++ = *pPos++ = ( float ) i * msOptions->scale.x; //x
+                *pSysPos++ = *pPos++ = ( float ) i * mOptions->scale.x; //x
                 *pSysPos++ = *pPos++ = height; // y
-                *pSysPos++ = *pPos++ = ( float ) j * msOptions->scale.z; //z
+                *pSysPos++ = *pPos++ = ( float ) j * mOptions->scale.z; //z
 
-                *pTex0++ = ( float ) i / ( float ) ( msOptions->pageSize - 1 );
-                *pTex0++ = ( float ) j / ( float ) ( msOptions->pageSize - 1 );
+                *pTex0++ = ( float ) i / ( float ) ( mOptions->pageSize - 1 );
+                *pTex0++ = ( float ) j / ( float ) ( mOptions->pageSize - 1 );
 
-                *pTex1++ = ( ( float ) i / ( float ) ( msOptions->tileSize - 1 ) ) * msOptions->detailTile;
-                *pTex1++ = ( ( float ) j / ( float ) ( msOptions->tileSize - 1 ) ) * msOptions->detailTile;
+                *pTex1++ = ( ( float ) i / ( float ) ( mOptions->tileSize - 1 ) ) * mOptions->detailTile;
+                *pTex1++ = ( ( float ) j / ( float ) ( mOptions->tileSize - 1 ) ) * mOptions->detailTile;
 
                 if ( height < min )
                     min = ( Real ) height;
@@ -232,28 +226,28 @@ namespace Ogre
         mMainBuffer->unlock();
 
         mBounds.setExtents( 
-            ( Real ) startx * msOptions->scale.x, 
+            ( Real ) startx * mOptions->scale.x, 
             min, 
-            ( Real ) startz * msOptions->scale.z,
-            ( Real ) ( endx - 1 ) * msOptions->scale.x, 
+            ( Real ) startz * mOptions->scale.z,
+            ( Real ) ( endx - 1 ) * mOptions->scale.x, 
             max, 
-            ( Real ) ( endz - 1 ) * msOptions->scale.z );
+            ( Real ) ( endz - 1 ) * mOptions->scale.z );
 
 
-        mCenter = Vector3( ( startx * msOptions->scale.x + (endx - 1) * msOptions->scale.x ) / 2,
+        mCenter = Vector3( ( startx * mOptions->scale.x + (endx - 1) * mOptions->scale.x ) / 2,
             ( min + max ) / 2,
-            ( startz * msOptions->scale.z + (endz - 1) * msOptions->scale.z ) / 2 );
+            ( startz * mOptions->scale.z + (endz - 1) * mOptions->scale.z ) / 2 );
 
         mBoundingRadius =
             std::max(max - min,
-                std::max((endx - 1 - startx) * msOptions->scale.x,
-                         (endz - 1 - startz) * msOptions->scale.z)) / 2;
+                std::max((endx - 1 - startx) * mOptions->scale.x,
+                         (endz - 1 - startz) * mOptions->scale.z)) / 2;
 
         // Create delta buffer list if required to morph
-        if (msOptions->lodMorph)
+        if (mOptions->lodMorph)
         {
             // Create delta buffer for all except the lowest mip
-            mDeltaBuffers = new HardwareVertexBufferSharedPtr[msOptions->maxGeoMipMapLevel - 1];
+            mDeltaBuffers = new HardwareVertexBufferSharedPtr[mOptions->maxGeoMipMapLevel - 1];
         }
 
         Real C = _calculateCFactor();
@@ -265,7 +259,7 @@ namespace Ogre
     void TerrainRenderable::_getNormalAt( float x, float z, Vector3 * result )
     {
 
-        assert(msOptions->lit && "No normals present");
+        assert(mOptions->lit && "No normals present");
 
         Vector3 here, left, down;
         here.x = x;
@@ -300,7 +294,7 @@ namespace Ogre
 
         Vector3 norm;
 
-        assert (msOptions->lit && "No normals present");
+        assert (mOptions->lit && "No normals present");
 
         HardwareVertexBufferSharedPtr vbuf = 
             mTerrain->vertexBufferBinding->getBuffer(MAIN_BINDING);
@@ -308,9 +302,9 @@ namespace Ogre
         unsigned char* pBase = static_cast<unsigned char*>( vbuf->lock(HardwareBuffer::HBL_DISCARD) );
         float* pNorm;
 
-        for ( size_t j = 0; j < msOptions->tileSize; j++ )
+        for ( size_t j = 0; j < mOptions->tileSize; j++ )
         {
-            for ( size_t i = 0; i < msOptions->tileSize; i++ )
+            for ( size_t i = 0; i < mOptions->tileSize; i++ )
             {
 
                 _getNormalAt( _vertex( i, j, 0 ), _vertex( i, j, 2 ), &norm );
@@ -348,7 +342,7 @@ namespace Ogre
 
         mRenderLevel = -1;
 
-        for ( int i = 0; i < msOptions->maxGeoMipMapLevel; i++ )
+        for ( int i = 0; i < mOptions->maxGeoMipMapLevel; i++ )
         {
             if ( mMinLevelDistSqr[ i ] > L )
             {
@@ -358,9 +352,9 @@ namespace Ogre
         }
 
         if ( mRenderLevel < 0 )
-            mRenderLevel = msOptions->maxGeoMipMapLevel - 1;
+            mRenderLevel = mOptions->maxGeoMipMapLevel - 1;
 
-        if (msOptions->lodMorph)
+        if (mOptions->lodMorph)
         {
             // Get the next LOD level down
             int nextLevel = mNextLevelDown[mRenderLevel];
@@ -378,8 +372,8 @@ namespace Ogre
                 {
                     Real percent = (L - mMinLevelDistSqr[mRenderLevel]) / range;
                     // scale result so that msLODMorphStart == 0, 1 == 1, clamp to 0 below that
-                    Real rescale = 1.0f / (1.0f - msOptions->lodMorphStart);
-                    mLODMorphFactor = std::max((percent - msOptions->lodMorphStart) * rescale, 
+                    Real rescale = 1.0f / (1.0f - mOptions->lodMorphStart);
+                    mLODMorphFactor = std::max((percent - mOptions->lodMorphStart) * rescale, 
 						static_cast<Real>(0.0));
                 }
                 else
@@ -428,7 +422,7 @@ namespace Ogre
         assert( mInit && "Uninitialized" );
 
         op.useIndexes = true;
-        op.operationType = msOptions->useTriStrips ? 
+        op.operationType = mOptions->useTriStrips ? 
             RenderOperation::OT_TRIANGLE_STRIP : RenderOperation::OT_TRIANGLE_LIST;
         op.vertexData = mTerrain;
         op.indexData = getIndexData();
@@ -469,7 +463,7 @@ namespace Ogre
 
         int i, j;
 
-        for ( int level = 1; level < msOptions->maxGeoMipMapLevel; level++ )
+        for ( int level = 1; level < mOptions->maxGeoMipMapLevel; level++ )
         {
             mMinLevelDistSqr[ level ] = 0;
 
@@ -478,7 +472,7 @@ namespace Ogre
             int higherstep = step >> 1;
 
             float* pDeltas = 0;
-            if (msOptions->lodMorph)
+            if (mOptions->lodMorph)
             {
                 // Create a set of delta values (store at index - 1 since 0 has none)
                 mDeltaBuffers[level - 1]  = createDeltaBuffer();
@@ -487,9 +481,9 @@ namespace Ogre
                     mDeltaBuffers[level - 1]->lock(HardwareBuffer::HBL_NORMAL));
             }
 
-            for ( j = 0; j < msOptions->tileSize - step; j += step )
+            for ( j = 0; j < mOptions->tileSize - step; j += step )
             {
-                for ( i = 0; i < msOptions->tileSize - step; i += step )
+                for ( i = 0; i < mOptions->tileSize - step; i += step )
                 {
                     /* Form planes relating to the lower detail tris to be produced
                     For tri lists and even tri strip rows, they are this shape:
@@ -509,7 +503,7 @@ namespace Ogre
 
                     Plane t1, t2;
                     bool backwardTri = false;
-                    if (!msOptions->useTriStrips || j % 2 == 0)
+                    if (!mOptions->useTriStrips || j % 2 == 0)
                     {
                         t1.redefine(v1, v3, v2);
                         t2.redefine(v2, v3, v4);
@@ -522,11 +516,11 @@ namespace Ogre
                     }
 
                     // include the bottommost row of vertices if this is the last row
-                    int zubound = (j == (msOptions->tileSize - step)? step : step - 1);
+                    int zubound = (j == (mOptions->tileSize - step)? step : step - 1);
                     for ( int z = 0; z <= zubound; z++ )
                     {
                         // include the rightmost col of vertices if this is the last col
-                        int xubound = (i == (msOptions->tileSize - step)? step : step - 1);
+                        int xubound = (i == (mOptions->tileSize - step)? step : step - 1);
                         for ( int x = 0; x <= xubound; x++ )
                         {
                             int fulldetailx = i + x;
@@ -576,12 +570,12 @@ namespace Ogre
 
                             // Should be save height difference?
                             // Don't morph along edges
-                            if (msOptions->lodMorph && 
-                                fulldetailx != 0  && fulldetailx != (msOptions->tileSize - 1) && 
-                                fulldetailz != 0  && fulldetailz != (msOptions->tileSize - 1) )
+                            if (mOptions->lodMorph && 
+                                fulldetailx != 0  && fulldetailx != (mOptions->tileSize - 1) && 
+                                fulldetailz != 0  && fulldetailz != (mOptions->tileSize - 1) )
                             {
                                 // Save height difference 
-                                pDeltas[fulldetailx + (fulldetailz * msOptions->tileSize)] = 
+                                pDeltas[fulldetailx + (fulldetailz * mOptions->tileSize)] = 
                                     interp_h - actual_h;
                             }
 
@@ -592,7 +586,7 @@ namespace Ogre
             }
 
             // Unlock morph deltas if required
-            if (msOptions->lodMorph)
+            if (mOptions->lodMorph)
             {
                 mDeltaBuffers[level - 1]->unlock();
             }
@@ -601,7 +595,7 @@ namespace Ogre
 
 
         // Post validate the whole set
-        for ( i = 1; i < msOptions->maxGeoMipMapLevel; i++ )
+        for ( i = 1; i < mOptions->maxGeoMipMapLevel; i++ )
         {
 
             // Make sure no LOD transition within the tile
@@ -623,9 +617,9 @@ namespace Ogre
         // Now reverse traverse the list setting the 'next level down'
         Real lastDist = -1;
         int lastIndex = 0;
-        for (i = msOptions->maxGeoMipMapLevel - 1; i >= 0; --i)
+        for (i = mOptions->maxGeoMipMapLevel - 1; i >= 0; --i)
         {
-            if (i == msOptions->maxGeoMipMapLevel - 1)
+            if (i == mOptions->maxGeoMipMapLevel - 1)
             {
                 // Last one is always 0
                 lastIndex = i;
@@ -647,39 +641,6 @@ namespace Ogre
 
     }
     //-----------------------------------------------------------------------
-    void TerrainRenderable::_initLevelIndexes()
-    {
-        if ( mLevelInit )
-            return ;
-
-
-        if ( mLevelIndex.size() == 0 )
-        {
-            for ( int i = 0; i < 16; i++ )
-            {
-
-                mLevelIndex.push_back( new IndexMap() );
-
-            }
-
-        }
-
-        mLevelInit = true;
-    }
-    //-----------------------------------------------------------------------
-    void TerrainRenderable::_destroyLevelIndexes()
-    {
-        if ( mLevelInit )
-        {
-            for ( int i = 0; i < 16; i++ )
-            {
-                delete mLevelIndex[i];
-            }
-            mLevelIndex.clear();
-            mLevelInit = false;
-        }
-    }
-    //-----------------------------------------------------------------------
     void TerrainRenderable::_adjustRenderLevel( int i )
     {
 
@@ -690,8 +651,7 @@ namespace Ogre
     {
         Real A, T;
 
-        const TerrainOptions& opts = TerrainSceneManager::getOptions();
-        if (!opts.primaryCamera)
+        if (!mOptions->primaryCamera)
         {
             OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "You have not created a camera yet!", 
@@ -702,9 +662,9 @@ namespace Ogre
         // Turn off detail compression at higher FOVs
         A = 1.0f;
 
-        int vertRes = opts.primaryCamera->getViewport()->getActualHeight();
+        int vertRes = mOptions->primaryCamera->getViewport()->getActualHeight();
 
-        T = 2 * ( Real ) opts.maxPixelError / ( Real ) vertRes;
+        T = 2 * ( Real ) mOptions->maxPixelError / ( Real ) vertRes;
 
         return A / T;
     }
@@ -718,9 +678,9 @@ namespace Ogre
         start.y = _vertex( 0, 0, 1 );
         start.z = _vertex( 0, 0, 2 );
 
-        end.x = _vertex( msOptions->tileSize - 1, msOptions->tileSize - 1, 0 );
-        end.y = _vertex( msOptions->tileSize - 1, msOptions->tileSize - 1, 1 );
-        end.z = _vertex( msOptions->tileSize - 1, msOptions->tileSize - 1, 2 );
+        end.x = _vertex( mOptions->tileSize - 1, mOptions->tileSize - 1, 0 );
+        end.y = _vertex( mOptions->tileSize - 1, mOptions->tileSize - 1, 1 );
+        end.z = _vertex( mOptions->tileSize - 1, mOptions->tileSize - 1, 2 );
 
         /* Safety catch, if the point asked for is outside
         * of this tile, it will ask the appropriate tile
@@ -763,14 +723,14 @@ namespace Ogre
         float x_pct = ( x - start.x ) / ( end.x - start.x );
         float z_pct = ( z - start.z ) / ( end.z - start.z );
 
-        float x_pt = x_pct * ( float ) ( msOptions->tileSize - 1 );
-        float z_pt = z_pct * ( float ) ( msOptions->tileSize - 1 );
+        float x_pt = x_pct * ( float ) ( mOptions->tileSize - 1 );
+        float z_pt = z_pct * ( float ) ( mOptions->tileSize - 1 );
 
         int x_index = ( int ) x_pt;
         int z_index = ( int ) z_pt;
 
         // If we got to the far right / bottom edge, move one back
-        if (x_index == msOptions->tileSize - 1)
+        if (x_index == mOptions->tileSize - 1)
         {
             --x_index;
             x_pct = 1.0f;
@@ -780,7 +740,7 @@ namespace Ogre
             // get remainder
             x_pct = x_pt - x_index;
         }
-        if (z_index == msOptions->tileSize - 1)
+        if (z_index == mOptions->tileSize - 1)
         {
             --z_index;
             z_pct = 1.0f;
@@ -894,9 +854,9 @@ namespace Ogre
             mTerrain->vertexBufferBinding->getBuffer(MAIN_BINDING);
         const VertexElement* elem = mTerrain->vertexDeclaration->findElementBySemantic(VES_DIFFUSE);
         //for each point in the terrain, see if it's in the line of sight for the sun.
-        for ( size_t i = 0; i < msOptions->tileSize; i++ )
+        for ( size_t i = 0; i < mOptions->tileSize; i++ )
         {
-            for ( size_t j = 0; j < msOptions->tileSize; j++ )
+            for ( size_t j = 0; j < mOptions->tileSize; j++ )
             {
                 //  printf( "Checking %f,%f,%f ", pt.x, pt.y, pt.z );
                 pt.x = _vertex( i, j, 0 );
@@ -1007,12 +967,13 @@ namespace Ogre
         }
 
         // Check preexisting
-        IndexMap::iterator ii = mLevelIndex[ mRenderLevel ]->find( stitchFlags );
+		LevelArray& levelIndex = mSceneManager->_getLevelIndex();
+        IndexMap::iterator ii = levelIndex[ mRenderLevel ]->find( stitchFlags );
         IndexData* indexData;
-        if ( ii == mLevelIndex[ mRenderLevel ]->end())
+        if ( ii == levelIndex[ mRenderLevel ]->end())
         {
             // Create
-            if (msOptions->useTriStrips)
+            if (mOptions->useTriStrips)
             {
                 indexData = generateTriStripIndexes(stitchFlags);
             }
@@ -1020,7 +981,7 @@ namespace Ogre
             {
                 indexData = generateTriListIndexes(stitchFlags);
             }
-            mLevelIndex[ mRenderLevel ]->insert(
+            levelIndex[ mRenderLevel ]->insert(
                 IndexMap::value_type(stitchFlags, indexData));
         }
         else
@@ -1046,9 +1007,9 @@ namespace Ogre
         // Calculate the number of indexes required
         // This is the number of 'cells' at this detail level x 2
         // plus 3 degenerates to turn corners
-        int numTrisAcross = (((msOptions->tileSize-1) / step) * 2) + 3;
+        int numTrisAcross = (((mOptions->tileSize-1) / step) * 2) + 3;
         // Num indexes is number of tris + 2
-        int new_length = numTrisAcross * ((msOptions->tileSize-1) / step) + 2;
+        int new_length = numTrisAcross * ((mOptions->tileSize-1) / step) + 2;
         //this is the maximum for a level.  It wastes a little, but shouldn't be a problem.
 
         IndexData* indexData = new IndexData;
@@ -1057,7 +1018,7 @@ namespace Ogre
             HardwareIndexBuffer::IT_16BIT,
             new_length, HardwareBuffer::HBU_STATIC_WRITE_ONLY);//, false);
 
-        msIndexCache.mCache.push_back( indexData );
+        mSceneManager->_getIndexCache().mCache.push_back( indexData );
 
         unsigned short* pIdx = static_cast<unsigned short*>(
             indexData->indexBuffer->lock(0, 
@@ -1065,12 +1026,12 @@ namespace Ogre
             HardwareBuffer::HBL_DISCARD));
 
         // Stripified mesh
-        for ( int j = 0; j < msOptions->tileSize - 1; j += step )
+        for ( int j = 0; j < mOptions->tileSize - 1; j += step )
         {
             int i;
             // Forward strip
             // We just do the |/ here, final | done after
-            for ( i = 0; i < msOptions->tileSize - 1; i += step )
+            for ( i = 0; i < mOptions->tileSize - 1; i += step )
             {
                 int x[4], y[4];
                 x[0] = x[1] = i;
@@ -1108,7 +1069,7 @@ namespace Ogre
                         y[1] -= step;
                     }
                 }
-                if (i == (msOptions->tileSize - 1 - step) && (stitchFlags & STITCH_EAST))
+                if (i == (mOptions->tileSize - 1 - step) && (stitchFlags & STITCH_EAST))
                 {
                     // East tiling means rounding y[2] & y[3]
                     if (y[2] % lowstep != 0)
@@ -1130,11 +1091,11 @@ namespace Ogre
                 *pIdx++ = _index( x[1], y[1] ); numIndexes++;
                 *pIdx++ = _index( x[2], y[2] ); numIndexes++;
 
-                if (i == msOptions->tileSize - 1 - step)
+                if (i == mOptions->tileSize - 1 - step)
                 {
                     // Emit extra index to finish row
                     *pIdx++ = _index( x[3], y[3] ); numIndexes++;
-                    if (j < msOptions->tileSize - 1 - step)
+                    if (j < mOptions->tileSize - 1 - step)
                     {
                         // Emit this index twice more (this is to turn around without
                         // artefacts)
@@ -1148,7 +1109,7 @@ namespace Ogre
             // Increment row
             j += step;
             // Backward strip
-            for ( i = msOptions->tileSize - 1; i > 0 ; i -= step )
+            for ( i = mOptions->tileSize - 1; i > 0 ; i -= step )
             {
                 int x[4], y[4];
                 x[0] = x[1] = i;
@@ -1158,7 +1119,7 @@ namespace Ogre
 
                 // Never get a north tiling on a backward strip (always
                 // start on a forward strip)
-                if (j == (msOptions->tileSize - 1 - step) && (stitchFlags & STITCH_SOUTH))
+                if (j == (mOptions->tileSize - 1 - step) && (stitchFlags & STITCH_SOUTH))
                 {
                     // South reduction means rounding x[1] / x[3]
                     if (x[1] % lowstep != 0)
@@ -1183,7 +1144,7 @@ namespace Ogre
                         y[3] -= step;
                     }
                 }
-                if (i == msOptions->tileSize - 1 && (stitchFlags & STITCH_EAST))
+                if (i == mOptions->tileSize - 1 && (stitchFlags & STITCH_EAST))
                 {
                     // East tiling means rounding y[0] and y[1] on backward strip
                     if (y[0] % lowstep != 0)
@@ -1197,7 +1158,7 @@ namespace Ogre
                 }
 
                 //triangles
-                if (i == msOptions->tileSize)
+                if (i == mOptions->tileSize)
                 {
                     // Starter
                     *pIdx++ = _index( x[0], y[0] ); numIndexes++;
@@ -1209,7 +1170,7 @@ namespace Ogre
                 {
                     // Emit extra index to finish row
                     *pIdx++ = _index( x[3], y[3] ); numIndexes++;
-                    if (j < msOptions->tileSize - 1 - step)
+                    if (j < mOptions->tileSize - 1 - step)
                     {
                         // Emit this index once more (this is to turn around)
                         *pIdx++ = _index( x[3], y[3] ); numIndexes++;
@@ -1240,7 +1201,7 @@ namespace Ogre
         int east = stitchFlags & STITCH_EAST ? step : 0;
         int west = stitchFlags & STITCH_WEST ? step : 0;
 
-        int new_length = ( msOptions->tileSize / step ) * ( msOptions->tileSize / step ) * 2 * 2 * 2 ;
+        int new_length = ( mOptions->tileSize / step ) * ( mOptions->tileSize / step ) * 2 * 2 * 2 ;
         //this is the maximum for a level.  It wastes a little, but shouldn't be a problem.
 
         indexData = new IndexData;
@@ -1249,7 +1210,7 @@ namespace Ogre
             HardwareIndexBuffer::IT_16BIT,
             new_length, HardwareBuffer::HBU_STATIC_WRITE_ONLY);//, false);
 
-        msIndexCache.mCache.push_back( indexData );
+        mSceneManager->_getIndexCache().mCache.push_back( indexData );
 
         unsigned short* pIdx = static_cast<unsigned short*>(
             indexData->indexBuffer->lock(0, 
@@ -1257,9 +1218,9 @@ namespace Ogre
             HardwareBuffer::HBL_DISCARD));
 
         // Do the core vertices, minus stitches
-        for ( int j = north; j < msOptions->tileSize - 1 - south; j += step )
+        for ( int j = north; j < mOptions->tileSize - 1 - south; j += step )
         {
-            for ( int i = west; i < msOptions->tileSize - 1 - east; i += step )
+            for ( int i = west; i < mOptions->tileSize - 1 - east; i += step )
             {
                 //triangles
                 *pIdx++ = _index( i, j ); numIndexes++;
@@ -1311,11 +1272,11 @@ namespace Ogre
         HardwareVertexBufferSharedPtr buf = 
             HardwareBufferManager::getSingleton().createVertexBuffer(
             VertexElement::getTypeSize(VET_FLOAT1), 
-            msOptions->tileSize * msOptions->tileSize,
+            mOptions->tileSize * mOptions->tileSize,
             HardwareBuffer::HBU_STATIC_WRITE_ONLY);
         // Fill the buffer with zeros, we will only fill in delta
         void* pVoid = buf->lock(HardwareBuffer::HBL_DISCARD);
-        memset(pVoid, 0, msOptions->tileSize * msOptions->tileSize * sizeof(float));
+        memset(pVoid, 0, mOptions->tileSize * mOptions->tileSize * sizeof(float));
         buf->unlock();
 
         return buf;
@@ -1390,13 +1351,13 @@ namespace Ogre
         {
         case NORTH:
             startx = starty = 0;
-            endx = msOptions->tileSize - 1;
+            endx = mOptions->tileSize - 1;
             rowstep = step;
             horizontal = true;
             break;
         case SOUTH:
             // invert x AND y direction, helps to keep same winding
-            startx = starty = msOptions->tileSize - 1;
+            startx = starty = mOptions->tileSize - 1;
             endx = 0;
             rowstep = -step;
             step = -step;
@@ -1406,13 +1367,13 @@ namespace Ogre
             break;
         case EAST:
             startx = 0;
-            endx = msOptions->tileSize - 1;
-            starty = msOptions->tileSize - 1;
+            endx = mOptions->tileSize - 1;
+            starty = mOptions->tileSize - 1;
             rowstep = -step;
             horizontal = false;
             break;
         case WEST:
-            startx = msOptions->tileSize - 1;
+            startx = mOptions->tileSize - 1;
             endx = 0;
             starty = 0;
             rowstep = step;

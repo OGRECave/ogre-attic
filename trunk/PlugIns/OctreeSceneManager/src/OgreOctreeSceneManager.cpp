@@ -286,7 +286,7 @@ unsigned short OctreeSceneManager::mIndexes[ 24 ] = {0, 1, 1, 2, 2, 3, 3, 0,    
 unsigned long OctreeSceneManager::mColors[ 8 ] = {white, white, white, white, white, white, white, white };
 
 
-OctreeSceneManager::OctreeSceneManager( ) : SceneManager()
+OctreeSceneManager::OctreeSceneManager(const String& name) : SceneManager(name)
 {
     AxisAlignedBox b( -10000, -10000, -10000, 10000, 10000, 10000 );
     int depth = 8; 
@@ -294,10 +294,16 @@ OctreeSceneManager::OctreeSceneManager( ) : SceneManager()
     init( b, depth );
 }
 
-OctreeSceneManager::OctreeSceneManager( AxisAlignedBox &box, int max_depth ) : SceneManager()
+OctreeSceneManager::OctreeSceneManager(const String& name, AxisAlignedBox &box, int max_depth ) 
+: SceneManager(name)
 {
     mOctree = 0;
     init( box, max_depth );
+}
+
+const String& OctreeSceneManager::getTypeName(void) const
+{
+	return OctreeSceneManagerFactory::FACTORY_TYPE_NAME;
 }
 
 void OctreeSceneManager::init( AxisAlignedBox &box, int depth )
@@ -1170,6 +1176,27 @@ OctreeSceneManager::createIntersectionQuery(unsigned long mask)
     DefaultIntersectionSceneQuery* q = new DefaultIntersectionSceneQuery(this);
     q->setQueryMask(mask);
     return q;
+}
+//-----------------------------------------------------------------------
+const String OctreeSceneManagerFactory::FACTORY_TYPE_NAME = "OctreeSceneManager";
+//-----------------------------------------------------------------------
+void OctreeSceneManagerFactory::initMetaData(void) const
+{
+	mMetaData.typeName = FACTORY_TYPE_NAME;
+	mMetaData.description = "Scene manager organising the scene on the basis of an octree.";
+	mMetaData.sceneTypeMask = 0xFFFF; // support all types
+	mMetaData.worldGeometrySupported = false;
+}
+//-----------------------------------------------------------------------
+SceneManager* OctreeSceneManagerFactory::createInstance(
+	const String& instanceName)
+{
+	return new OctreeSceneManager(instanceName);
+}
+//-----------------------------------------------------------------------
+void OctreeSceneManagerFactory::destroyInstance(SceneManager* instance)
+{
+	delete instance;
 }
 
 

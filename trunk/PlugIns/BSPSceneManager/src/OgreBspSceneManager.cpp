@@ -48,7 +48,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //-----------------------------------------------------------------------
-    BspSceneManager::BspSceneManager()
+    BspSceneManager::BspSceneManager(const String& name)
+		: SceneManager(name)
     {
         // Set features for debugging render
         mShowNodeAABs = false;
@@ -65,7 +66,11 @@ namespace Ogre {
         mLevel.setNull();
 
     }
-
+	//-----------------------------------------------------------------------
+	const String& BspSceneManager::getTypeName(void) const
+	{
+		return BspSceneManagerFactory::FACTORY_TYPE_NAME;
+	}
     //-----------------------------------------------------------------------
     BspSceneManager::~BspSceneManager()
     {
@@ -110,6 +115,20 @@ namespace Ogre {
         mLevel = BspResourceManager::getSingleton().load(filename, 
             ResourceGroupManager::getSingleton().getWorldResourceGroupName());
 
+		if (mLevel->isSkyEnabled())
+		{
+			// Quake3 is always aligned with Z upwards
+			Quaternion q;
+			q.FromAngleAxis(Radian(Math::HALF_PI), Vector3::UNIT_X);
+			// Also draw last, and make close to camera (far clip plane is shorter)
+			setSkyDome(true, mLevel->getSkyMaterialName(),
+				mLevel->getSkyCurvature(), 12, 2000, false, q);
+		}
+		else
+		{
+			setSkyDome(false, StringUtil::BLANK);
+		}
+
         // Init static render operation
         mRenderOp.vertexData = mLevel->mVertexData;
         // index data is per-frame
@@ -137,6 +156,20 @@ namespace Ogre {
         // Load using resource manager
         mLevel = BspResourceManager::getSingleton().load(stream, 
 			ResourceGroupManager::getSingleton().getWorldResourceGroupName());
+
+		if (mLevel->isSkyEnabled())
+		{
+			// Quake3 is always aligned with Z upwards
+			Quaternion q;
+			q.FromAngleAxis(Radian(Math::HALF_PI), Vector3::UNIT_X);
+			// Also draw last, and make close to camera (far clip plane is shorter)
+			setSkyDome(true, mLevel->getSkyMaterialName(),
+				mLevel->getSkyCurvature(), 12, 2000, false, q);
+		}
+		else
+		{
+			setSkyDome(false, StringUtil::BLANK);
+		}
 
         // Init static render operation
         mRenderOp.vertexData = mLevel->mVertexData;
@@ -916,5 +949,27 @@ namespace Ogre {
 
     } 
     //-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	const String BspSceneManagerFactory::FACTORY_TYPE_NAME = "BspSceneManager";
+	//-----------------------------------------------------------------------
+	void BspSceneManagerFactory::initMetaData(void) const
+	{
+		mMetaData.typeName = FACTORY_TYPE_NAME;
+		mMetaData.description = "Scene manager for loading Quake3 .bsp files.";
+		mMetaData.sceneTypeMask = ST_INTERIOR;
+		mMetaData.worldGeometrySupported = true;
+	}
+	//-----------------------------------------------------------------------
+	SceneManager* BspSceneManagerFactory::createInstance(
+		const String& instanceName)
+	{
+		return new BspSceneManager(instanceName);
+	}
+	//-----------------------------------------------------------------------
+	void BspSceneManagerFactory::destroyInstance(SceneManager* instance)
+	{
+		delete instance;
+	}
+
 }
 

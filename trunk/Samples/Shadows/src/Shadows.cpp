@@ -247,11 +247,6 @@ public:
     }
 protected:
 
-    void chooseSceneManager(void)
-    {
-        mSceneMgr = mRoot->getSceneManager( ST_GENERIC );
-    }
-
 
     void generalSceneSetup()
     {

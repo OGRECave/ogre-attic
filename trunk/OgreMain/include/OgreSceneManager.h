@@ -118,20 +118,34 @@ namespace Ogre {
 		
 	};
 
-    /** Manages the rendering of a 'scene' i.e. a collection of primitives.
-        @remarks
-            This class defines the basic behaviour of the 'Scene Manager' family. These classes will
-            organise the objects in the scene and send them to the rendering system, a subclass of
-            RenderSystem. This basic superclass does no sorting, culling or organising of any sort.
-        @par
-            Subclasses may use various techniques to organise the scene depending on how they are
-            designed (e.g. BSPs, octrees etc). As with other classes, methods preceded with '_' are
-            designed to be called by other classes in the Ogre system, not by user applications,
-            although this is not forbidden.
-        @author
-            Steve Streeting
-        @version
-            1.0
+    /** Manages the organisation and rendering of a 'scene' i.e. a collection 
+		of objects and potentially world geometry.
+    @remarks
+		This class defines the interface and the basic behaviour of a 
+		'Scene Manager'. A SceneManager organises the culling and rendering of
+		the scene, in conjunction with the RenderQueue. This class is designed 
+		to be extended through subclassing in order to provide more specialised
+		scene organisation structures for particular needs. The default 
+		SceneManager culls based on a hierarchy of node bounding boxes, other
+		implementations can use an octree (@see OctreeSceneManager), a BSP
+		tree (@see BspSceneManager), and many other options. New SceneManager
+		implementations can be added at runtime by plugins, see 
+		SceneManagerEnumerator for the interfaces for adding new SceneManager
+		types.
+	@par
+		There is a distinction between 'objects' (which subclass MovableObject, 
+		and are movable, discrete objects in the world), and 'world geometry',
+		which is large, generally static geometry. World geometry tends to 
+		influence the SceneManager organisational structure (e.g. lots of indoor
+		static geometry might result in a spatial tree structure) and as such
+		world geometry is generally tied to a given SceneManager implementation,
+		whilst MovableObject instances can be used with any SceneManager.
+		Subclasses are free to define world geometry however they please.
+	@par
+		Multiple SceneManager instances can exist at one time, each one with 
+		a distinct scene. Which SceneManager is used to render a scene is
+		dependent on the Camera, which will always call back the SceneManager
+		which created it to render the scene. 
      */
     class _OgreExport SceneManager
     {
@@ -183,6 +197,8 @@ namespace Ogre {
 			SCRQM_EXCLUDE
 		};
     protected:
+		/// Instance name
+		String mName;
 
         /// Queue of objects for rendering
         RenderQueue* mRenderQueue;
@@ -609,13 +625,24 @@ namespace Ogre {
 		SceneMgrQueuedRenderableVisitor mDefaultQueuedRenderableVisitor;
 
     public:
-        /** Default constructor.
+        /** Constructor.
         */
-        SceneManager();
+        SceneManager(const String& instanceName);
 
         /** Default destructor.
         */
         virtual ~SceneManager();
+
+		/** Return the instance name of this SceneManager. */
+		const String& getName(void) const { return mName; }
+
+		/** Retrieve the type name of this scene manager.
+		@remarks
+			This method has to be implemented by subclasses. It should
+			return the type name of this SceneManager which agrees with 
+			the type name of the SceneManagerFactory which created it.
+		*/
+		virtual const String& getTypeName(void) const = 0;
 
         /** Creates a camera to be managed by this scene manager.
             @remarks
@@ -2306,6 +2333,68 @@ namespace Ogre {
         void execute(SceneQueryListener* listener);
     };
     
+
+	/// Bitmask containing scene types
+	typedef uint16 SceneTypeMask;
+
+	/** Classification of a scene to allow a decision of what type of
+	SceenManager to provide back to the application.
+	*/
+	enum SceneType
+	{
+		ST_GENERIC = 1,
+		ST_EXTERIOR_CLOSE = 2,
+		ST_EXTERIOR_FAR = 4,
+		ST_EXTERIOR_REAL_FAR = 8,
+		ST_INTERIOR = 16
+	};
+
+	/** Structure containing information about a scene manager. */
+	struct SceneManagerMetaData
+	{
+		/// A globally unique string identifying the scene manager type
+		String typeName;
+		/// A text description of the scene manager
+		String description;
+		/// A mask describing which sorts of scenes this manager can handle
+		SceneTypeMask sceneTypeMask;
+		/// Flag indicating whether world geometry is supported
+		bool worldGeometrySupported;
+	};
+
+
+
+	/** Class which will create instances of a given SceneManager. */
+	class _OgreExport SceneManagerFactory
+	{
+	protected:
+		mutable SceneManagerMetaData mMetaData;
+		mutable bool mMetaDataInit;
+		/// Internal method to initialise the metadata, must be implemented
+		virtual void initMetaData(void) const = 0;
+	public:
+		SceneManagerFactory() : mMetaDataInit(true) {}
+		virtual ~SceneManagerFactory() {}
+		/** Get information about the SceneManager type created by this factory. */
+		virtual const SceneManagerMetaData& getMetaData(void) const 
+		{
+			if (mMetaDataInit)
+			{
+				initMetaData();
+				mMetaDataInit = false;
+			}
+			return mMetaData; 
+		}
+		/** Create a new instance of a SceneManager.
+		@remarks
+		Don't call directly, use SceneManagerEnumerator::createSceneManager.
+		*/
+		virtual SceneManager* createInstance(const String& instanceName) = 0;
+		/** Destroy an instance of a SceneManager. */
+		virtual void destroyInstance(SceneManager* instance) = 0;
+
+	};
+
 
 
 } // Namespace

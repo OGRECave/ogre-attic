@@ -48,83 +48,278 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     SceneManagerEnumerator::SceneManagerEnumerator()
+		: mInstanceCreateCount(0), mCurrentRenderSystem(0)
     {
-        // Create default manager
-        mDefaultManager = new SceneManager();
-
-        // All scene types defaulted to begin with (plugins may alter this)
-        setSceneManager(ST_GENERIC, mDefaultManager);
-        setSceneManager(ST_EXTERIOR_REAL_FAR, mDefaultManager);
-        setSceneManager(ST_EXTERIOR_FAR, mDefaultManager);
-        setSceneManager(ST_EXTERIOR_CLOSE, mDefaultManager);
-        setSceneManager(ST_INTERIOR, mDefaultManager);
-
-
 
     }
     //-----------------------------------------------------------------------
     SceneManagerEnumerator::~SceneManagerEnumerator()
     {
-        delete mDefaultManager;
+		// Destroy all remaining instances
+		// Really should have shutdown and unregistered by now, but catch here in case
+		for (Instances::iterator i = mInstances.begin(); i != mInstances.end(); ++i)
+		{
+			// destroy instances
+			for(Factories::iterator f = mFactories.begin(); f != mFactories.end(); ++f)
+			{
+				if ((*f)->getMetaData().typeName == i->second->getTypeName())
+				{
+					(*f)->destroyInstance(i->second);
+					break;
+				}
+			}
+
+		}
+		mInstances.clear();
+
     }
-    //-----------------------------------------------------------------------
-    SceneManager* SceneManagerEnumerator::getSceneManager(SceneType st)
-    {
-        SceneManagerList::iterator i = mSceneManagers.find(st);
+	//-----------------------------------------------------------------------
+	void SceneManagerEnumerator::addFactory(SceneManagerFactory* fact)
+	{
+		mFactories.push_back(fact);
+		// add to metadata
+		mMetaDataList.push_back(&fact->getMetaData());
+	}
+	//-----------------------------------------------------------------------
+	void SceneManagerEnumerator::removeFactory(SceneManagerFactory* fact)
+	{
+		// destroy all instances for this factory
+		for (Instances::iterator i = mInstances.begin(); i != mInstances.end(); )
+		{
+			SceneManager* instance = i->second;
+			if (instance->getTypeName() == fact->getMetaData().typeName)
+			{
+				fact->destroyInstance(instance);
+				Instances::iterator deli = i++;
+				mInstances.erase(deli);
+			}
+			else
+			{
+				++i;
+			}
+		}
+		// remove from metadata
+		for (MetaDataList::iterator m = mMetaDataList.begin(); m != mMetaDataList.end(); ++m)
+		{
+			if(*m == &(fact->getMetaData()))
+			{
+				mMetaDataList.erase(m);
+				break;
+			}
+		}
+		mFactories.remove(fact);
+	}
+	//-----------------------------------------------------------------------
+	const SceneManagerMetaData* SceneManagerEnumerator::getMetaData(const String& typeName) const
+	{
+		for (MetaDataList::const_iterator i = mMetaDataList.begin(); 
+			i != mMetaDataList.end(); ++i)
+		{
+			if (typeName == (*i)->typeName)
+			{
+				return *i;
+			}
+		}
 
-        if (i != mSceneManagers.end())
-        {
-            return i->second;
-        }
-        else
-        {
-            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "Cannot find requested SceneManager.", "SceneManagerEnumerator::getSceneManager");
-        }
-    }
+	}
+	//-----------------------------------------------------------------------
+	SceneManagerEnumerator::MetaDataIterator 
+	SceneManagerEnumerator::getMetaDataIterator(void) const
+	{
+		return MetaDataIterator(mMetaDataList.begin(), mMetaDataList.end());
 
+	}
+	//-----------------------------------------------------------------------
+	SceneManager* SceneManagerEnumerator::createSceneManager(
+		const String& typeName, const String& instanceName)
+	{
+		if (mInstances.find(instanceName) != mInstances.end())
+		{
+			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
+				"SceneManager instance called '" + instanceName + "' already exists",
+				"SceneManagerEnumerator::createSceneManager");
+		}
 
+		SceneManager* inst = 0;
+		for(Factories::iterator i = mFactories.begin(); i != mFactories.end(); ++i)
+		{
+			if ((*i)->getMetaData().typeName == typeName)
+			{
+				if (instanceName.empty())
+				{
+					// generate a name
+					StringUtil::StrStreamType s;
+					s << "SceneManagerInstance" << ++mInstanceCreateCount;
+					inst = (*i)->createInstance(s.str());
+				}
+				else
+				{
+					inst = (*i)->createInstance(instanceName);
+				}
+				break;
+			}
+		}
 
-    //-----------------------------------------------------------------------
+		if (!inst)
+		{
+			// Error!
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+				"No factory found for scene manager of type '" + typeName + "'",
+				"SceneManagerEnumerator::createSceneManager");
+		}
+
+		/// assign rs if already configured
+		if (mCurrentRenderSystem)
+			inst->_setDestinationRenderSystem(mCurrentRenderSystem);
+
+		mInstances[inst->getName()] = inst;
+		
+		return inst;
+		
+
+	}
+	//-----------------------------------------------------------------------
+	SceneManager* SceneManagerEnumerator::createSceneManager(
+		SceneTypeMask typeMask, const String& instanceName)
+	{
+		if (mInstances.find(instanceName) != mInstances.end())
+		{
+			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
+				"SceneManager instance called '" + instanceName + "' already exists",
+				"SceneManagerEnumerator::createSceneManager");
+		}
+
+		SceneManager* inst = 0;
+		String name = instanceName;
+		if (name.empty())
+		{
+			// generate a name
+			StringUtil::StrStreamType s;
+			s << "SceneManagerInstance" << ++mInstanceCreateCount;
+			name = s.str();
+		}
+
+		// Iterate backwards to find the matching factory registered last
+		for(Factories::reverse_iterator i = mFactories.rbegin(); i != mFactories.rend(); ++i)
+		{
+			if ((*i)->getMetaData().sceneTypeMask & typeMask)
+			{
+				inst = (*i)->createInstance(name);
+				break;
+			}
+		}
+
+		// use default factory if none
+		if (!inst)
+			inst = mDefaultFactory.createInstance(name);
+
+		/// assign rs if already configured
+		if (mCurrentRenderSystem)
+			inst->_setDestinationRenderSystem(mCurrentRenderSystem);
+		
+		mInstances[inst->getName()] = inst;
+
+		return inst;
+
+	}
+	//-----------------------------------------------------------------------
+	void SceneManagerEnumerator::destroySceneManager(SceneManager* sm)
+	{
+		// Erase instance from map
+		mInstances.erase(sm->getName());
+
+		// Find factory to destroy
+		for(Factories::iterator i = mFactories.begin(); i != mFactories.end(); ++i)
+		{
+			if ((*i)->getMetaData().typeName == sm->getTypeName())
+			{
+				(*i)->destroyInstance(sm);
+				break;
+			}
+		}
+
+	}
+	//-----------------------------------------------------------------------
+	SceneManager* SceneManagerEnumerator::getSceneManager(const String& instanceName) const
+	{
+		Instances::const_iterator i = mInstances.find(instanceName);
+		if(i != mInstances.end())
+		{
+			return i->second;
+		}
+		else
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+				"SceneManager instance with name '" + instanceName + "' not found.",
+				"SceneManagerEnumerator::getSceneManager");
+		}
+
+	}
+	//-----------------------------------------------------------------------
+	SceneManagerEnumerator::SceneManagerIterator 
+	SceneManagerEnumerator::getSceneManagerIterator(void)
+	{
+		return SceneManagerIterator(mInstances.begin(), mInstances.end());
+
+	}
+	//-----------------------------------------------------------------------
     void SceneManagerEnumerator::setRenderSystem(RenderSystem* rs)
     {
-        std::set<SceneManager*>::iterator i = mUniqueSceneMgrs.begin();
+		mCurrentRenderSystem = rs;
 
-        for(; i != mUniqueSceneMgrs.end(); ++i)
-        {
-            (*i)->_setDestinationRenderSystem(rs);
+		for (Instances::iterator i = mInstances.begin(); i != mInstances.end(); ++i)
+		{
+            i->second->_setDestinationRenderSystem(rs);
         }
 
-    }
-
-    //-----------------------------------------------------------------------
-    void SceneManagerEnumerator::setSceneManager(SceneType st, SceneManager* sm)
-    {
-        // Find entry (may exist)
-        SceneManagerList::iterator i = mSceneManagers.find(st);
-
-        if (i == mSceneManagers.end())
-        {
-            // Insert
-            mSceneManagers.insert(SceneManagerList::value_type(st, sm));
-        }
-        else
-        {
-            // Override
-            i->second = sm;
-        }
-        // Add to unique set
-        mUniqueSceneMgrs.insert(sm);
     }
     //-----------------------------------------------------------------------
     void SceneManagerEnumerator::shutdownAll(void)
     {
-        std::set<SceneManager*>::iterator i;
-        for (i = mUniqueSceneMgrs.begin(); i != mUniqueSceneMgrs.end(); ++i)
-        {
-            (*i)->clearScene();
+		for (Instances::iterator i = mInstances.begin(); i != mInstances.end(); ++i)
+		{
+			// shutdown instances (clear scene)
+			i->second->clearScene();			
         }
 
     }
+    //-----------------------------------------------------------------------
+	const String DefaultSceneManagerFactory::FACTORY_TYPE_NAME = "DefaultSceneManager";
+    //-----------------------------------------------------------------------
+	void DefaultSceneManagerFactory::initMetaData(void) const
+	{
+		mMetaData.typeName = FACTORY_TYPE_NAME;
+		mMetaData.description = "The default scene manager";
+		mMetaData.sceneTypeMask = ST_GENERIC;
+		mMetaData.worldGeometrySupported = false;
+	}
+    //-----------------------------------------------------------------------
+	SceneManager* DefaultSceneManagerFactory::createInstance(
+		const String& instanceName)
+	{
+		return new DefaultSceneManager(instanceName);
+	}
+    //-----------------------------------------------------------------------
+	void DefaultSceneManagerFactory::destroyInstance(SceneManager* instance)
+	{
+		delete instance;
+	}
+    //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
+	DefaultSceneManager::DefaultSceneManager(const String& name)
+		: SceneManager(name)
+	{
+	}
+    //-----------------------------------------------------------------------
+	DefaultSceneManager::~DefaultSceneManager()
+	{
+	}
+    //-----------------------------------------------------------------------
+	const String& DefaultSceneManager::getTypeName(void) const
+	{
+		return DefaultSceneManagerFactory::FACTORY_TYPE_NAME;
+	}
+    //-----------------------------------------------------------------------
 
 
 }

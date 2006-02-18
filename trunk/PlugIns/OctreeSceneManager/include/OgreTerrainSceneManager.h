@@ -55,6 +55,8 @@ typedef std::vector < TerrainPageRow > TerrainPage2D;
 /** Default implementation of RaySceneQuery. */
 class _OgreTerrainExport TerrainRaySceneQuery : public OctreeRaySceneQuery
 {
+protected:
+	WorldFragment mWorldFrag;
 public:
     TerrainRaySceneQuery(SceneManager* creator);
     ~TerrainRaySceneQuery();
@@ -73,8 +75,11 @@ public:
 class _OgreTerrainExport TerrainSceneManager : public OctreeSceneManager
 {
 public:
-    TerrainSceneManager( );
+    TerrainSceneManager(const String& name);
     virtual ~TerrainSceneManager( );
+
+	/// @copydoc SceneManager::getTypeName
+	const String& getTypeName(void) const;
 
     /** Loads the terrain using parameters int he given config file. */
     void setWorldGeometry( const String& filename );
@@ -239,7 +244,7 @@ public:
     */
     Camera* createCamera( const String &name );
     /// Gets the terrain options 
-    static const TerrainOptions& getOptions(void) { return mOptions; }
+    const TerrainOptions& getOptions(void) { return mOptions; }
 
     /** Sets the given option for the SceneManager.
     @remarks
@@ -324,6 +329,15 @@ public:
 	/** Overridden from SceneManager */
 	void setWorldGeometryRenderQueue(uint8 qid);
 
+	/// Get the shared list of indexes cached (internal use only)
+	TerrainBufferCache& _getIndexCache(void) {return mIndexCache;}
+
+	/// Get the shared level index list (internal use only)
+	LevelArray& _getLevelIndex(void) { return mLevelIndex; }
+
+	/// Get the current page count (internal use only)
+	size_t _getPageCount(void) { return mTerrainPages.size(); }
+
 	/// Shutdown cleanly before we get destroyed
 	void shutdown(void);
 
@@ -348,7 +362,7 @@ protected:
     /// The node to which all terrain tiles are attached
     SceneNode * mTerrainRoot;
     /// Terrain size, detail etc
-    static TerrainOptions mOptions;
+    TerrainOptions mOptions;
     /// Should we use an externally-defined custom material?
     bool mUseCustomMaterial;
     /// The name of the custom material to use
@@ -371,6 +385,11 @@ protected:
     unsigned short mBufferedPageMargin;
     /// Grid of buffered pages
     TerrainPage2D mTerrainPages;
+	//-- attributes to share across tiles
+	/// Shared list of index buffers
+	TerrainBufferCache mIndexCache;
+	/// Shared array of IndexData (reuse indexes across tiles)
+	LevelArray mLevelIndex;
     
     /// Internal method for loading configurations settings
     void loadConfig(DataStreamPtr& stream);
@@ -379,6 +398,10 @@ protected:
     void setupTerrainMaterial(void);
     /// Sets up the terrain page slots
     void setupTerrainPages(void);
+	/// Initialise level indexes
+	void initLevelIndexes(void);
+	/// Destroy level indexes
+	void destroyLevelIndexes(void);
 
 
     /// Map of source type -> TerrainPageSource
@@ -386,6 +409,21 @@ protected:
     /// The currently active page source
     TerrainPageSource* mActivePageSource;
 
+};
+/// Factory for TerrainSceneManager
+class TerrainSceneManagerFactory : public SceneManagerFactory
+{
+protected:
+	typedef std::vector<TerrainPageSource*> TerrainPageSources;
+	TerrainPageSources mTerrainPageSources;
+	void initMetaData(void) const;
+public:
+	TerrainSceneManagerFactory();
+	~TerrainSceneManagerFactory();
+	/// Factory type name
+	static const String FACTORY_TYPE_NAME;
+	SceneManager* createInstance(const String& instanceName);
+	void destroyInstance(SceneManager* instance);
 };
 
 }

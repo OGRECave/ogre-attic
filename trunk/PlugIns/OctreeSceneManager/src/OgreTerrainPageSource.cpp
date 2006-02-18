@@ -60,13 +60,14 @@ namespace Ogre {
         }
 	}
     //-------------------------------------------------------------------------
-	void TerrainPageSourceListenerManager::firePageConstructed(size_t pagex, size_t pagez, Real* heightData)
+	void TerrainPageSourceListenerManager::firePageConstructed(
+		TerrainSceneManager* sm, size_t pagex, size_t pagez, Real* heightData)
 	{
         PageSourceListenerList::iterator i, iend;
         iend = mPageSourceListeners.end();
         for(i = mPageSourceListeners.begin(); i != iend; ++i)
         {
-            (*i)->pageConstructed(pagex, pagez, heightData);
+            (*i)->pageConstructed(sm, pagex, pagez, heightData);
         }
 	}
 	//-------------------------------------------------------------------------
@@ -82,8 +83,8 @@ namespace Ogre {
         // Create a node for all tiles to be attached to
         // Note we sequentially name since page can be attached at different points
         // so page x/z is not appropriate
-        static size_t pageIndex = 0;
 		StringUtil::StrStreamType page_str;
+		size_t pageIndex = mSceneManager->_getPageCount();
 		page_str << pageIndex;
         name = "page[";
         name += page_str.str() + "]";
@@ -103,7 +104,7 @@ namespace Ogre {
 				name = new_name_str.str();
 
                 SceneNode *c = page->pageSceneNode->createChildSceneNode( name );
-                TerrainRenderable *tile = new TerrainRenderable(name);
+                TerrainRenderable *tile = new TerrainRenderable(name, mSceneManager);
 				// set queue
 				tile->setRenderQueueGroup(mSceneManager->getWorldGeometryRenderQueue());
                 // Initialise the tile
@@ -125,7 +126,7 @@ namespace Ogre {
         // calculate neighbours for page
         page->linkNeighbours();
 
-		if(TerrainSceneManager::getOptions().lit)
+		if(mSceneManager->getOptions().lit)
 		{
 			q = 0;
 			for ( size_t j = 0; j < mPageSize - 1; j += ( mTileSize - 1 ) )
@@ -146,7 +147,8 @@ namespace Ogre {
     //-------------------------------------------------------------------------
     void TerrainPageSource::firePageConstructed(size_t pagex, size_t pagez, Real* heightData)
     {
-		TerrainPageSourceListenerManager::getSingleton().firePageConstructed(pagex, pagez, heightData);
+		TerrainPageSourceListenerManager::getSingleton().firePageConstructed(
+			mSceneManager, pagex, pagez, heightData);
     }
     //-------------------------------------------------------------------------
     void TerrainPageSource::addListener(TerrainPageSourceListener* pl)

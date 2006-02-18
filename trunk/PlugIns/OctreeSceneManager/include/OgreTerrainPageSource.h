@@ -41,12 +41,13 @@ namespace Ogre {
     {
     public:
         /** Listener method called when a new page is about to be constructed. 
+		@param manager The manager in question
         @param pagex, pagez The index of the page being constructed
         @param heightData Array of normalised height data (0..1). The size of
             this buffer will conform to the scene manager page size. The listener
             may modify the data if it wishes.
         */
-        virtual void pageConstructed(size_t pagex, size_t pagez, Real* heightData) = 0;
+        virtual void pageConstructed(TerrainSceneManager* manager, size_t pagex, size_t pagez, Real* heightData) = 0;
     };
 
 	/** Simple manager class to hold onto a list of page source listeners 
@@ -75,7 +76,7 @@ namespace Ogre {
         void removeListener(TerrainPageSourceListener* pl);
 		
         /// Fire pageContructed events
-        void firePageConstructed(size_t pagex, size_t pagez, Real* heightData);
+        void firePageConstructed(TerrainSceneManager* manager, size_t pagex, size_t pagez, Real* heightData);
 
        /** Override standard Singleton retrieval.
         */
@@ -141,7 +142,7 @@ namespace Ogre {
         unsigned short mTileSize;
 
         /// Internal method for firing pageContructed events
-        static void firePageConstructed(size_t pagex, size_t pagez, Real* heightData);
+        void firePageConstructed(size_t pagex, size_t pagez, Real* heightData);
 
         /** Utility method for building a page of tiles based on some source
         data, wherever that may have come from.

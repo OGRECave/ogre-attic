@@ -99,7 +99,8 @@ class OGRE_GUIRENDERER_API OgreCEGUIRenderer : public Renderer
 public:
 	/*!
 	\brief
-		Constructor for renderer class that uses Ogre for rendering.
+		Constructor for renderer class that uses Ogre for rendering. Note that if
+		you use this option you must call setTargetSceneManager before rendering.
 
 	\param window
 		Pointer to an Ogre::RenderWindow object.
@@ -114,10 +115,10 @@ public:
 	\param max_quads
 		Obsolete.  Set to 0.
 
-	\param scene_type
-		One of the Ogre::SceneType enumerated values specifying the scene manager to be targeted by the GUI renderer.
 	*/
-	OgreCEGUIRenderer(Ogre::RenderWindow* window, Ogre::uint8 queue_id = Ogre::RENDER_QUEUE_OVERLAY, bool post_queue = false, uint max_quads = 0, Ogre::SceneType scene_type = Ogre::ST_GENERIC);
+	OgreCEGUIRenderer(Ogre::RenderWindow* window, 
+		Ogre::uint8 queue_id = Ogre::RENDER_QUEUE_OVERLAY, 
+		bool post_queue = false, uint max_quads = 0);
 
 
 	/*!
@@ -277,23 +278,6 @@ public:
 		vertical resolution of the display in dpi.
 	*/
 	virtual	uint	getVertScreenDPI(void) const	{return 96;}
-
-
-	/*!
-	\brief
-		Set the scene manager to be used for rendering the GUI.
-
-		The GUI system will be unhooked from the current scene manager and attached to what ever
-		is specified here.
-
-	\param scene_type
-		One of the Ogre::SceneType enumerated values indicating the new target Ogre::SceneManager to be
-		used for GUI rendering.
-
-	\return
-		Nothing.
-	*/
-	void	setTargetSceneManager(Ogre::SceneType scene_type);
 
 
 	/*!

@@ -92,12 +92,9 @@ void destroyQuadRenderOp(Ogre::RenderOperation &d_render_op,
 /*************************************************************************
 	Constructor
 *************************************************************************/
-OgreCEGUIRenderer::OgreCEGUIRenderer(Ogre::RenderWindow* window, Ogre::uint8 queue_id, bool post_queue, uint max_quads, Ogre::SceneType scene_type)
+OgreCEGUIRenderer::OgreCEGUIRenderer(Ogre::RenderWindow* window, Ogre::uint8 queue_id, bool post_queue, uint max_quads)
 {
 	constructor_impl(window, queue_id, post_queue, max_quads);
-
-	// hook into ogre rendering system
-	setTargetSceneManager(scene_type);
 }
 
 
@@ -611,15 +608,6 @@ uint32 OgreCEGUIRenderer::colourToOgre(const colour& col) const
 	d_render_sys->convertColourValue(cv, &final);
 
 	return final;
-}
-
-
-/*************************************************************************
-	Set the scene manager to be used for rendering the GUI.	
-*************************************************************************/
-void OgreCEGUIRenderer::setTargetSceneManager(Ogre::SceneType scene_type)
-{
-	setTargetSceneManager(d_ogre_root->getSceneManager(scene_type));
 }
 
 

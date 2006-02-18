@@ -112,8 +112,12 @@ namespace Ogre {
         MovablesForRendering mMovablesForRendering;
 
     public:
-        BspSceneManager();
+        BspSceneManager(const String& name);
         ~BspSceneManager();
+
+
+		/// @copydoc SceneManager::getTypeName
+		const String& getTypeName(void) const;
 
         /** Specialised from SceneManager to support Quake3 bsp files. */
         void setWorldGeometry(const String& filename);
@@ -256,6 +260,20 @@ namespace Ogre {
             Real maxDistance = Math::POS_INFINITY, Real traceDistance = 0.0f);
 
     };
+
+	/// Factory for BspSceneManager
+	class BspSceneManagerFactory : public SceneManagerFactory
+	{
+	protected:
+		void initMetaData(void) const;
+	public:
+		BspSceneManagerFactory() {}
+		~BspSceneManagerFactory() {}
+		/// Factory type name
+		static const String FACTORY_TYPE_NAME;
+		SceneManager* createInstance(const String& instanceName);
+		void destroyInstance(SceneManager* instance);
+	};
 }
 
 #endif
