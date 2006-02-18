@@ -24,6 +24,7 @@ http://www.gnu.org/copyleft/gpl.html.
 */
 #include "OgreStableHeaders.h"
 #include "OgreCompiler2Pass.h"
+#include "OgreLogManager.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -52,31 +53,31 @@ namespace Ogre {
             addLexemeToken("<identifier>", BNF_IDENTIFIER);
             addLexemeToken("<identifier_right>", BNF_IDENTIFIER_RIGHT);
             addLexemeToken("<identifier_characters>", BNF_IDENTIFIER_CHARACTERS);
-            addLexemeToken("<", BNF_ID_BEGIN);
-            addLexemeToken(">", BNF_ID_END);
-            addLexemeToken("<#", BNF_CONSTANT_BEGIN);
-            addLexemeToken("::=", BNF_SET_RULE);
+            addLexemeToken("<", BNF_ID_BEGIN, false, true);
+            addLexemeToken(">", BNF_ID_END, false, true);
+            addLexemeToken("<#", BNF_CONSTANT_BEGIN, false, true);
+            addLexemeToken("::=", BNF_SET_RULE, false, true);
             addLexemeToken("<expression>", BNF_EXPRESSION);
             addLexemeToken("<and_term>", BNF_AND_TERM);
             addLexemeToken("<or_term>", BNF_OR_TERM);
             addLexemeToken("<term>", BNF_TERM);
             addLexemeToken("<term_id>", BNF_TERM_ID);
             addLexemeToken("<constant>", BNF_CONSTANT);
-            addLexemeToken("|", BNF_OR);
+            addLexemeToken("|", BNF_OR, false, true);
             addLexemeToken("<terminal_symbol>", BNF_TERMINAL_SYMBOL);
             addLexemeToken("<repeat_expression>", BNF_REPEAT_EXPRESSION);
-            addLexemeToken("{", BNF_REPEAT_BEGIN);
-            addLexemeToken("}", BNF_REPEAT_END);
+            addLexemeToken("{", BNF_REPEAT_BEGIN, false, true);
+            addLexemeToken("}", BNF_REPEAT_END, false, true);
             addLexemeToken("<set>", BNF_SET);
-            addLexemeToken("(", BNF_SET_BEGIN);
-            addLexemeToken(")", BNF_SET_END);
+            addLexemeToken("(", BNF_SET_BEGIN, false, true);
+            addLexemeToken(")", BNF_SET_END, false, true);
             addLexemeToken("<set_end_exc>", BNF_SET_END_EXC);
             addLexemeToken("<optional_expression>", BNF_OPTIONAL_EXPRESSION);
-            addLexemeToken("[", BNF_OPTIONAL_BEGIN);
-            addLexemeToken("]", BNF_OPTIONAL_END);
+            addLexemeToken("[", BNF_OPTIONAL_BEGIN, false, true);
+            addLexemeToken("]", BNF_OPTIONAL_END, false, true);
             addLexemeToken("<not_test>", BNF_NOT_TEST);
-            addLexemeToken("(?!", BNF_NOT_TEST_BEGIN);
-            addLexemeToken("'", BNF_SINGLEQUOTE);
+            addLexemeToken("(?!", BNF_NOT_TEST_BEGIN, false, true);
+            addLexemeToken("'", BNF_SINGLEQUOTE, false, true);
             addLexemeToken("<any_character>", BNF_ANY_CHARACTER);
             addLexemeToken("<single_quote_exc>", BNF_SINGLE_QUOTE_EXC);
             addLexemeToken("<white_space_chk>", BNF_WHITE_SPACE_CHK);
@@ -86,11 +87,11 @@ namespace Ogre {
             addLexemeToken("<letter>", BNF_LETTER);
             addLexemeToken("<letter_digit>", BNF_LETTER_DIGIT);
             addLexemeToken("<digit>", BNF_DIGIT);
-            addLexemeToken("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", BNF_ALPHA_SET);
-            addLexemeToken("0123456789", BNF_NUMBER_SET);
-            addLexemeToken("`~!@#$%^&*(-_=+\\|[]{}:;\"<>,.?/", BNF_SPECIAL_CHARACTER_SET2);
-            addLexemeToken("$_", BNF_SPECIAL_CHARACTER_SET1);
-            addLexemeToken(" ", BNF_WHITE_SPACE);
+            addLexemeToken("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", BNF_ALPHA_SET, false, true);
+            addLexemeToken("0123456789", BNF_NUMBER_SET, false, true);
+            addLexemeToken("`~!@#$%^&*(-_=+\\|[]{}:;\"<>,.?/", BNF_SPECIAL_CHARACTER_SET2, false, true);
+            addLexemeToken("$_", BNF_SPECIAL_CHARACTER_SET1, false, true);
+            addLexemeToken(" ", BNF_WHITE_SPACE, false, true);
         }
 
         if (mBNFTokenState.rootRulePath.empty())
@@ -468,6 +469,7 @@ namespace Ogre {
         // switch to internal BNF Containers
         // clear client containers
         mClientTokenState = &mClientTokenStates[grammerName];
+        mClientGrammerName = grammerName;
         // attempt to compile the grammer into a rule base if no rules exist
         if (mClientTokenState->rootRulePath.size() == 0)
         {
@@ -654,6 +656,20 @@ namespace Ogre {
 				    mCharPos = OldCharPos;
 				    mCurrentLine = OldLinePos;
 			    }
+			    else
+			    {
+			        // if the rule path was partially completed, one or more tokeks found, then put a
+			        // warning in the log
+                    if (!passed && tokenFound && !mLabelIsActive)
+                    {
+//                        passed = true;
+                        LogManager::getSingleton().logMessage(
+                           "Grammer: " + mClientGrammerName +
+                           " - Parsing error at line " + StringConverter::toString(mCurrentLine) +
+                           " character pos: " + StringConverter::toString(mCharPos) +
+                           " in rule path: " + mActiveTokenState->lexemeTokenDefinitions[ActiveNTTRule].lexeme);
+                    }
+			    }
 			    break;
 
 		    default:
@@ -755,7 +771,7 @@ namespace Ogre {
                     else
                     {
 			            // compare token lexeme text with source text
-                        if (Passed = isLexemeMatch(mActiveTokenState->lexemeTokenDefinitions[tokenID].lexeme))
+                        if (Passed = isLexemeMatch(mActiveTokenState->lexemeTokenDefinitions[tokenID].lexeme, mActiveTokenState->lexemeTokenDefinitions[tokenID].isCaseSensitive))
                             tokenlength = mActiveTokenState->lexemeTokenDefinitions[tokenID].lexeme.length();
                     }
                 }
@@ -842,10 +858,19 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    bool Compiler2Pass::isLexemeMatch(const String& lexeme) const
+    bool Compiler2Pass::isLexemeMatch(const String& lexeme, const bool caseSensitive) const
     {
 	    // compare text at source+charpos with the lexeme : limit testing to lexeme size
-	    return (mSource->compare(mCharPos, lexeme.length(), lexeme) == 0);
+	    if (!caseSensitive)
+	    {
+	        String testItem = mSource->substr(mCharPos, lexeme.length());
+	        StringUtil::toLowerCase(testItem);
+            return (testItem.compare(lexeme) == 0);
+	    }
+	    else
+	    {
+            return (mSource->compare(mCharPos, lexeme.length(), lexeme) == 0);
+	    }
     }
 
     //-----------------------------------------------------------------------
@@ -920,7 +945,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void Compiler2Pass::addLexemeToken(const String& lexeme, const size_t token, const bool hasAction)
+    void Compiler2Pass::addLexemeToken(const String& lexeme, const size_t token, const bool hasAction, const bool caseSensitive)
     {
         if (token >= mActiveTokenState->lexemeTokenDefinitions.size())
             mActiveTokenState->lexemeTokenDefinitions.resize(token + 1);
@@ -929,7 +954,10 @@ namespace Ogre {
         assert(tokenDef.ID == 0);
         tokenDef.ID = token;
         tokenDef.lexeme = lexeme;
+        if (!caseSensitive)
+            StringUtil::toLowerCase(tokenDef.lexeme);
         tokenDef.hasAction = hasAction;
+        tokenDef.isCaseSensitive = caseSensitive;
 
         mActiveTokenState->lexemeTokenMap[lexeme] = token;
     }
