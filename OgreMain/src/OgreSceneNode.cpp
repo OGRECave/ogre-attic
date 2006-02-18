@@ -486,8 +486,13 @@ namespace Ogre {
         switch (relativeTo)
         {
         case TS_PARENT:
-            if (mParent)
-                targetDir = mParent->_getDerivedOrientation() * targetDir;
+            if (mInheritOrientation)
+            {
+                if (mParent)
+                {
+                    targetDir = mParent->_getDerivedOrientation() * targetDir;
+                }
+            }
             break;
         case TS_LOCAL:
             targetDir = _getDerivedOrientation() * targetDir;
@@ -541,7 +546,7 @@ namespace Ogre {
         }
 
         // Set target orientation, transformed to parent space
-        if (mParent)
+        if (mParent && mInheritOrientation)
             setOrientation(mParent->_getDerivedOrientation().UnitInverse() * targetOrientation);
         else
             setOrientation(targetOrientation);

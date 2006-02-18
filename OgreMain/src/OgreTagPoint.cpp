@@ -105,7 +105,10 @@ namespace Ogre {
         Bone::_updateFromParent();
 
         // Save transform for local skeleton
-        makeTransform(mDerivedPosition, mDerivedScale, mDerivedOrientation, mFullLocalTransform);
+        mFullLocalTransform.makeTransform(
+            mDerivedPosition,
+            mDerivedScale,
+            mDerivedOrientation);
 
         // Include Entity transform
         if (mParentEntity)
@@ -113,20 +116,19 @@ namespace Ogre {
             Node* entityParentNode = mParentEntity->getParentNode();
             if (entityParentNode)
             {
+                // Note: orientation/scale inheritance already take care with
+                // _updateFromParent, don't do that with parent entity transform.
+
                 // Combine orientation with that of parent entity
-                Quaternion mParentQ = entityParentNode->_getDerivedOrientation();
-                mDerivedOrientation = mParentQ * mDerivedOrientation;
+                const Quaternion& parentOrientation = entityParentNode->_getDerivedOrientation();
+                mDerivedOrientation = parentOrientation * mDerivedOrientation;
 
-                Vector3 mParentS = entityParentNode->_getDerivedScale();
-
-                if (mInheritScale)
-                {
-                    // Incorporate parent entity scale
-                    mDerivedScale *= mParentS;
-                }
+                // Incorporate parent entity scale
+                const Vector3& parentScale = entityParentNode->_getDerivedScale();
+                mDerivedScale *= parentScale;
 
                 // Change position vector based on parent entity's orientation & scale
-                mDerivedPosition = mParentQ * (mParentS * mDerivedPosition);
+                mDerivedPosition = parentOrientation * (parentScale * mDerivedPosition);
 
                 // Add altered position vector to parent entity
                 mDerivedPosition += entityParentNode->_getDerivedPosition();

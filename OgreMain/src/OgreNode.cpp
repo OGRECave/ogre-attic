@@ -48,6 +48,7 @@ namespace Ogre {
 		mOrientation(Quaternion::IDENTITY),
 		mPosition(Vector3::ZERO),
 		mScale(Vector3::UNIT_SCALE),
+        mInheritOrientation(true),
 		mInheritScale(true),
 		mDerivedOrientation(Quaternion::IDENTITY),
 		mDerivedPosition(Vector3::ZERO),
@@ -77,6 +78,7 @@ namespace Ogre {
 		mOrientation(Quaternion::IDENTITY),
 		mPosition(Vector3::ZERO),
 		mScale(Vector3::UNIT_SCALE),
+        mInheritOrientation(true),
 		mInheritScale(true),
 		mDerivedOrientation(Quaternion::IDENTITY),
 		mDerivedPosition(Vector3::ZERO),
@@ -150,9 +152,10 @@ namespace Ogre {
         if (mCachedTransformOutOfDate)
         {
             // Use derived values
-            makeTransform(
-                _getDerivedPosition(), _getDerivedScale(),
-                _getDerivedOrientation(), mCachedTransform);
+            mCachedTransform.makeTransform(
+                _getDerivedPosition(),
+                _getDerivedScale(),
+                _getDerivedOrientation());
             mCachedTransformOutOfDate = false;
         }
         return mCachedTransform;
@@ -221,27 +224,35 @@ namespace Ogre {
     {
         if (mParent)
         {
-            // Combine orientation with that of parent
-            Quaternion mParentQ = mParent->_getDerivedOrientation();
-            mDerivedOrientation = mParentQ * mOrientation;
-
-            // Change position vector based on parent's orientation & scale
-            mDerivedPosition = mParentQ * (mPosition * mParent->_getDerivedScale());
+            // Update orientation
+            const Quaternion& parentOrientation = mParent->_getDerivedOrientation();
+            if (mInheritOrientation)
+            {
+                // Combine orientation with that of parent
+                mDerivedOrientation = parentOrientation * mOrientation;
+            }
+            else
+            {
+                // No inheritence
+                mDerivedOrientation = mOrientation;
+            }
 
             // Update scale
+            const Vector3& parentScale = mParent->_getDerivedScale();
             if (mInheritScale)
             {
-                // Scale own position by parent scale
-                Vector3 parentScale = mParent->_getDerivedScale();
-                // Set own scale, NB just combine as equivalent axes, no shearing
-                mDerivedScale = mScale * parentScale;
-
+                // Scale own position by parent scale, NB just combine
+                // as equivalent axes, no shearing
+                mDerivedScale = parentScale * mScale;
             }
             else
             {
                 // No inheritence
                 mDerivedScale = mScale;
             }
+
+            // Change position vector based on parent's orientation & scale
+            mDerivedPosition = parentOrientation * (parentScale * mPosition);
 
             // Add altered position vector to parents
             mDerivedPosition += mParent->_getDerivedPosition();
@@ -565,6 +576,17 @@ namespace Ogre {
         return mScale;
     }
     //-----------------------------------------------------------------------
+    void Node::setInheritOrientation(bool inherit)
+    {
+        mInheritOrientation = inherit;
+        needUpdate();
+    }
+    //-----------------------------------------------------------------------
+    bool Node::getInheritOrientation(void) const
+    {
+        return mInheritOrientation;
+    }
+    //-----------------------------------------------------------------------
     void Node::setInheritScale(bool inherit)
     {
         mInheritScale = inherit;
@@ -590,63 +612,6 @@ namespace Ogre {
         mScale.z *= z;
         needUpdate();
 
-    }
-    //-----------------------------------------------------------------------
-    void Node::makeTransform(const Vector3& position, const Vector3& scale, const Quaternion& orientation,
-        Matrix4& destMatrix) const
-    {
-        destMatrix = Matrix4::IDENTITY;
-        // Ordering:
-        //    1. Scale
-        //    2. Rotate
-        //    3. Translate
-
-        // Parent scaling is already applied to derived position
-        // Own scale is applied before rotation
-        Matrix3 rot3x3, scale3x3;
-        orientation.ToRotationMatrix(rot3x3);
-        scale3x3 = Matrix3::ZERO;
-        scale3x3[0][0] = scale.x;
-        scale3x3[1][1] = scale.y;
-        scale3x3[2][2] = scale.z;
-
-        destMatrix = rot3x3 * scale3x3;
-        destMatrix.setTrans(position);
-    }
-    //-----------------------------------------------------------------------
-    void Node::makeInverseTransform(const Vector3& position, const Vector3& scale, const Quaternion& orientation,
-        Matrix4& destMatrix)
-    {
-        destMatrix = Matrix4::IDENTITY;
-
-        // Invert the parameters
-        Vector3 invTranslate = -position;
-        Vector3 invScale;
-        invScale.x = 1 / scale.x;
-        invScale.y = 1 / scale.y;
-        invScale.z = 1 / scale.z;
-
-        Quaternion invRot = orientation.Inverse();
-
-        // Because we're inverting, order is translation, rotation, scale
-        // So make translation relative to scale & rotation
-        invTranslate.x *= invScale.x; // scale
-        invTranslate.y *= invScale.y; // scale
-        invTranslate.z *= invScale.z; // scale
-        invTranslate = invRot * invTranslate; // rotate
-
-        // Next, make a 3x3 rotation matrix and apply inverse scale
-        Matrix3 rot3x3, scale3x3;
-        invRot.ToRotationMatrix(rot3x3);
-        scale3x3 = Matrix3::ZERO;
-        scale3x3[0][0] = invScale.x;
-        scale3x3[1][1] = invScale.y;
-        scale3x3[2][2] = invScale.z;
-
-        // Set up final matrix with scale & rotation
-        destMatrix = scale3x3 * rot3x3;
-
-        destMatrix.setTrans(invTranslate);
     }
     //-----------------------------------------------------------------------
     const String& Node::getName(void) const
