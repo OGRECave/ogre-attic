@@ -223,7 +223,7 @@ namespace Ogre {
         if (action == mTokenActionMap.end())
         {
             // BAD command. BAD!
-            logParseError("Unrecognised command action");
+            logParseError("Unrecognised Material Script command action");
             return;
         }
         else
@@ -257,13 +257,13 @@ namespace Ogre {
             {
                 LogManager::getSingleton().logMessage(
                     "Error in material " + mScriptContext.material->getName() +
-                    " at line " + StringConverter::toString(mScriptContext.lineNo) +
+                    " at line " + StringConverter::toString(mCurrentLine) +
                     " of " + mScriptContext.filename + ": " + error);
             }
             else
             {
                 LogManager::getSingleton().logMessage(
-                    "Error at line " + StringConverter::toString(mScriptContext.lineNo) +
+                    "Error at line " + StringConverter::toString(mCurrentLine) +
                     " of " + mScriptContext.filename + ": " + error);
             }
         }

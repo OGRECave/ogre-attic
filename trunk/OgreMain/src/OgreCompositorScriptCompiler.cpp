@@ -131,7 +131,7 @@ namespace Ogre {
 		if (action == mTokenActionMap.end())
 		{
 			// BAD command. BAD!
-			logParseError("Unrecognised command action");
+			logParseError("Unrecognised compositor script command action");
 			return;
 		}
 		else
@@ -165,13 +165,13 @@ namespace Ogre {
 			{
 				LogManager::getSingleton().logMessage(
 					"Error in compositor " + mScriptContext.compositor->getName() +
-					" at line " + StringConverter::toString(mScriptContext.lineNo) +
+					" at line " + StringConverter::toString(mCurrentLine) +
 					" of " + mScriptContext.filename + ": " + error);
 			}
 			else
 			{
 				LogManager::getSingleton().logMessage(
-					"Error at line " + StringConverter::toString(mScriptContext.lineNo) +
+					"Error at line " + StringConverter::toString(mCurrentLine) +
 					" of " + mScriptContext.filename + ": " + error);
 			}
 		}
