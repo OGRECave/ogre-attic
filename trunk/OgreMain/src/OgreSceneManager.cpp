@@ -1147,7 +1147,7 @@ void SceneManager::setSkyPlane(
 {
     if (enable)
     {
-        String meshName = "SkyPlane";
+        String meshName = mName + "SkyPlane";
         mSkyPlane = plane;
 
         MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
@@ -1260,7 +1260,7 @@ void SceneManager::setSkyBox(
         for (int i = 0; i < 6; ++i)
         {
             MeshPtr planeMesh = createSkyboxPlane((BoxPlane)i, distance, orientation, groupName);
-            String entName = "SkyBoxPlane" + StringConverter::toString(i);
+            String entName = mName + "SkyBoxPlane" + StringConverter::toString(i);
 
             // Create entity 
             if (mSkyBoxEntity[i])
@@ -1374,7 +1374,7 @@ MeshPtr SceneManager::createSkyboxPlane(
     String meshName;
     Vector3 up;
 
-    meshName = "SkyBoxPlane_";
+    meshName = mName + "SkyBoxPlane_";
     // Set up plane equation
     plane.d = distance;
     switch(bp)
@@ -1449,7 +1449,7 @@ MeshPtr SceneManager::createSkydomePlane(
     String meshName;
     Vector3 up;
 
-    meshName = "SkyDomePlane_";
+    meshName = mName + "SkyDomePlane_";
     // Set up plane equation
     plane.d = distance;
     switch(bp)
