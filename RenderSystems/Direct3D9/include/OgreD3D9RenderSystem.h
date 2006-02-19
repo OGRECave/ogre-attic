@@ -71,6 +71,8 @@ namespace Ogre
 		D3D9Driver* mActiveD3DDriver;
 		/// Device caps.
 		D3DCAPS9 mCaps;
+		/// NVPerfHUD allowed?
+		bool mUseNVPerfHUD;
 
 		/// structure holding texture unit settings for every stage
 		struct sD3DTextureStageDesc
