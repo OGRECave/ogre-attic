@@ -144,7 +144,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     MaterialScriptCompiler::MaterialScriptCompiler(void)
     {
-        setClientBNFGrammer("MaterialScript", materialScript_BNF);
     }
     //-----------------------------------------------------------------------
     MaterialScriptCompiler::~MaterialScriptCompiler(void)
