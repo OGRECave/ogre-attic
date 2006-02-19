@@ -34,8 +34,6 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreQuaternion.h"
 #include "OgreColourValue.h"
 #include "OgreCommon.h"
-#include "OgreRenderQueue.h"
-#include "OgreAnimationState.h"
 #include "OgreSceneQuery.h"
 #include "OgreAutoParamDataSource.h"
 #include "OgreAnimationState.h"
