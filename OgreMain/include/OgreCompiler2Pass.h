@@ -228,6 +228,8 @@ namespace Ogre {
 
 	    /// pointer to the source to be compiled
 	    const String* mSource;
+	    /// name of the source to be compiled
+	    String mSourceName;
 	    size_t mEndOfSource;
 
 	    size_t mCurrentLine; /// current line number in source being tokenized
@@ -423,8 +425,9 @@ namespace Ogre {
 
 	    /** scan through all the rules and initialize token definition with index to rules for non-terminal tokens.
             Gets called when internal grammer is being verified or after client grammer has been parsed.
+        @param grammerName is the name of the grammer the token rules are for
 	    */
-	    void verifyTokenRuleLinks(void);
+	    void verifyTokenRuleLinks(const String& grammerName);
 	    /** Checks the last token instruction and if it has an action then it triggers the action of the previously
             found token having an action.
 	    */
@@ -477,7 +480,7 @@ namespace Ogre {
 		    true if Pass 1 and Pass 2 are successfull
 		    false if any errors occur in Pass 1 or Pass 2
 	    */
-	    bool compile(const String& source);
+	    bool compile(const String& source, const String& sourceName);
 
     };
 
