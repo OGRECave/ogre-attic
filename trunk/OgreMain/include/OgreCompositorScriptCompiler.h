@@ -95,8 +95,9 @@ namespace Ogre {
 		typedef TokenActionMap::iterator TokenActionIterator;
 		/** Map of Token value as key to an Action.  An Action converts tokens into
 		the final format.
+            All instances use the same Token Action Map.
 		*/
-		TokenActionMap mTokenActionMap;
+		static TokenActionMap mTokenActionMap;
 
 		/** Execute an Action associated with a token.  Gets called when the compiler finishes tokenizing a
 		section of the source that has been parsed.
