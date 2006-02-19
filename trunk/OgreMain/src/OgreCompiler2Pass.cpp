@@ -35,6 +35,7 @@ namespace Ogre {
     Compiler2Pass::Compiler2Pass()
         : mActiveTokenState(&mBNFTokenState)
         , mSource(0)
+        , mSourceName("system")
     {
 	    // reserve some memory space in the containers being used
 	    mBNFTokenState.tokenQue.reserve(100);
@@ -96,6 +97,8 @@ namespace Ogre {
 
         if (mBNFTokenState.rootRulePath.empty())
         {
+            // first entry is set to unknown in order to trap rule id's not set for non-terminal tokens
+            mBNFTokenState.rootRulePath.resize(1);
             //  used by bootstrap BNF text parser
             //  <>	- non-terminal token
             //  ()  - set of
@@ -147,11 +150,11 @@ namespace Ogre {
                 _or_(BNF_OPTIONAL_EXPRESSION)
             _end_
 
-            // <term_id>    ::= <identifier_right> | <constant> | <terminal_symbol> | <set>
+            // <term_id>    ::= <constant> | <identifier_right> | <terminal_symbol> | <set>
             _rule_(BNF_TERM_ID)
-                _is_(BNF_IDENTIFIER_RIGHT)
+                _is_(BNF_CONSTANT)
+                _or_(BNF_IDENTIFIER_RIGHT)
                 _or_(BNF_TERMINAL_SYMBOL)
-                _or_(BNF_CONSTANT)
                 _or_(BNF_SET)
             _end_
 
@@ -275,14 +278,14 @@ namespace Ogre {
             _end_
 
             // now that all the rules are added, update token definitions with rule links
-            verifyTokenRuleLinks();
+            verifyTokenRuleLinks("system");
         }
         // switch to client state
         mActiveTokenState = mClientTokenState;
     }
 
     //-----------------------------------------------------------------------
-    void Compiler2Pass::verifyTokenRuleLinks()
+    void Compiler2Pass::verifyTokenRuleLinks(const String& grammerName)
     {
 	    size_t token_ID;
 
@@ -294,27 +297,48 @@ namespace Ogre {
 		   if (mActiveTokenState->rootRulePath[i].operation == otRULE)
 		   {
     		   token_ID = mActiveTokenState->rootRulePath[i].tokenID;
+    		   // system token id's can never have a rule assigned to them so no need to check if token is system token
+    		   // but do make sure the id is within defined bounds
                if (token_ID >= mActiveTokenState->lexemeTokenDefinitions.size())
-                    OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "token ID out of token definition range", "Compiler2Pass::verifyTokenRuleLinks");
+                    OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "For grammer: " + grammerName +
+                        ", a token ID was out of token definition range.",
+                        "Compiler2Pass::verifyTokenRuleLinks");
 
-        	   if (mActiveTokenState->lexemeTokenDefinitions[token_ID].ID != token_ID)
-                    OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "lexeme token definition: " +  mActiveTokenState->lexemeTokenDefinitions[token_ID].lexeme + " corrupted", "Compiler2Pass::verifyTokenRuleLinks");
+               LexemeTokenDef& tokenDef = mActiveTokenState->lexemeTokenDefinitions[token_ID];
+        	   if (tokenDef.ID != token_ID)
+                    OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "For grammer: " + grammerName +
+                        ", lexeme non-terminal token definition: " +
+                        tokenDef.lexeme + " is corrupted and does not match its assigned rule.",
+                        "Compiler2Pass::verifyTokenRuleLinks");
 			   // if operation is a rule then update token definition
-               mActiveTokenState->lexemeTokenDefinitions[token_ID].ruleID = i;
-               mActiveTokenState->lexemeTokenDefinitions[token_ID].isNonTerminal = true;
+               tokenDef.ruleID = i;
+               tokenDef.isNonTerminal = true;
 		   }
 	    } // end for
+	    // test all non terminals for valid rule ID
+        const size_t definitionCount = mActiveTokenState->lexemeTokenDefinitions.size();
+        for (token_ID = 0; token_ID < definitionCount; ++token_ID)
+        {
+            const LexemeTokenDef& tokenDef = mActiveTokenState->lexemeTokenDefinitions[token_ID];
+            if (tokenDef.isNonTerminal && (tokenDef.ruleID == 0))
+            {
+                OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR,  "For grammer: " + grammerName +
+                    ", lexeme non-terminal token definition: " +  tokenDef.lexeme +
+                    " has no rule definition or is corrupted.", "Compiler2Pass::verifyTokenRuleLinks");
+            }
+        }
     }
 
     //-----------------------------------------------------------------------
-    bool Compiler2Pass::compile(const String& source)
+    bool Compiler2Pass::compile(const String& source, const String& sourceName)
     {
 	    bool Passed = false;
 
 	    mSource = &source;
+	    mSourceName = sourceName;
         mActiveTokenState = mClientTokenState;
 	    // start compiling if there is a rule base to work with
-        if (!mActiveTokenState->rootRulePath.empty())
+        if (mActiveTokenState->rootRulePath.size() > 1)
 	    {
 		    Passed = doPass1();
 
@@ -351,7 +375,7 @@ namespace Ogre {
 	    // tokenize and check semantics untill an error occurs or end of source is reached
 	    // assume RootRulePath has pointer to rules so start at index + 1 for first rule path
 	    // first rule token would be a rule definition so skip over it
-	    bool passed = processRulePath(0);
+	    bool passed = processRulePath(1);
 	    // if a lexeme in source still exists then the end of source was not reached and there was a problem some where
 	    if (positionToNextLexeme()) passed = false;
         if (passed)
@@ -385,7 +409,8 @@ namespace Ogre {
             const TokenInst& tokenInst = mActiveTokenState->tokenQue[mPass2TokenQuePosition];
             if (expectedTokenID > 0 && (tokenInst.tokenID != expectedTokenID))
             {
-                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "expected token ID not found" ,
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, mClientGrammerName + ":" + mSourceName
+                    + ", expected token ID not found" ,
                     "Compiler2Pass::getNextToken");
             }
 
@@ -393,7 +418,8 @@ namespace Ogre {
         }
         else
             // no more tokens left for pass 2 processing
-            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "no more tokens available for pass 2 processing" ,
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, mClientGrammerName + ":" + mSourceName
+                + ", no more tokens available for pass 2 processing" ,
                 "Compiler2Pass::getNextToken");
     }
     //-----------------------------------------------------------------------
@@ -402,7 +428,8 @@ namespace Ogre {
         if (mPass2TokenQuePosition < mActiveTokenState->tokenQue.size() - 1)
             return mActiveTokenState->tokenQue[mPass2TokenQuePosition];
         else
-            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "no token available, all pass 2 tokens processed" ,
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, mClientGrammerName + ":" + mSourceName
+                + "no token available, all pass 2 tokens processed" ,
                 "Compiler2Pass::getCurrentToken");
     }
     //-----------------------------------------------------------------------
@@ -430,7 +457,7 @@ namespace Ogre {
             return mConstants[mPass2TokenQuePosition];
         else
             // if token is not for a value then throw an exception
-            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "token is not for a value" ,
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "In " + mSourceName + ", token is not for a value" ,
                 "Compiler2Pass::getNextTokenValue");
     }
     //-----------------------------------------------------------------------
@@ -441,7 +468,7 @@ namespace Ogre {
             return mLabels[mPass2TokenQuePosition];
         else
             // if token is not for a label then throw an exception
-            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "token is not for a label" ,
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "In " + mSourceName + ", token is not for a label" ,
                 "Compiler2Pass::getNextTokenLabel");
     }
     //-----------------------------------------------------------------------
@@ -475,6 +502,8 @@ namespace Ogre {
         {
             mClientTokenState->tokenQue.reserve(100);
             mClientTokenState->lexemeTokenDefinitions.reserve(100);
+            // first entry in rule path is set as a bad entry and no token should reference it
+            mClientTokenState->rootRulePath.resize(1);
             // allow the client to setup token definitions prior to
             // compiling the BNF grammer
             // ensure token definitions are added to the client state
@@ -490,12 +519,13 @@ namespace Ogre {
             }
             else
             {
-                OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "BNF Grammar compilation failed", "Compiler2Pass::setClientBNFGrammer");
+                OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "BNF Grammar compilation failed for " +
+                    mClientGrammerName, "Compiler2Pass::setClientBNFGrammer");
             }
             // change token state to client data after compiling grammer
             mActiveTokenState = mClientTokenState;
             // verify the client rule paths and associated terminal and non-terminal lexemes
-            verifyTokenRuleLinks();
+            verifyTokenRuleLinks(mClientGrammerName);
         }
     }
 
@@ -635,6 +665,7 @@ namespace Ogre {
                             mLabels[OldActiveLabelKey] = OldLabel;
                             mLabelIsActive = OldLabelIsActive;
                         }
+
                         // terminate rule production processing
         			    endFound = true;
 			        }
@@ -662,12 +693,15 @@ namespace Ogre {
 			        // warning in the log
                     if (!passed && tokenFound && !mLabelIsActive)
                     {
-//                        passed = true;
+                        passed = true;
                         LogManager::getSingleton().logMessage(
-                           "Grammer: " + mClientGrammerName +
-                           " - Parsing error at line " + StringConverter::toString(mCurrentLine) +
-                           " character pos: " + StringConverter::toString(mCharPos) +
-                           " in rule path: " + mActiveTokenState->lexemeTokenDefinitions[ActiveNTTRule].lexeme);
+                           "\n Grammer: " + mClientGrammerName +
+                           " - Parsing error at line: " + StringConverter::toString(mCurrentLine) +
+                           ", character pos: " + StringConverter::toString(mCharPos) +
+                           ", in rule path: " + mActiveTokenState->lexemeTokenDefinitions[ActiveNTTRule].lexeme);
+                        LogManager::getSingleton().logMessage(
+                            "\n source hint: \"" + mSource->substr(mCharPos, 20) + "\""
+                        );
                     }
 			    }
 			    break;
@@ -678,14 +712,14 @@ namespace Ogre {
 			    endFound = true;
 			    break;
 
-		    }
+		    } // end switch
             // prevent rollback from occuring if a token was found but later part of rule fails
             // this allows pass2 to either fix the problem or report the error
             if (passed)
                 tokenFound = true;
 		    // move on to the next rule in the path
 		    ++rulepathIDX;
-	    }
+	    } // end while
 
 	    return passed;
     }
@@ -1122,6 +1156,20 @@ namespace Ogre {
             mClientTokenState->rootRulePath.push_back(TokenRule(otRULE, tokenID));
             // add new end op token rule
             mClientTokenState->rootRulePath.push_back(TokenRule(otEND, 0));
+            // check to make sure this is the first time this rule is being setup by
+            // verifying isNonTerminal flag is false then set it true
+            LexemeTokenDef& tokenDef = mClientTokenState->lexemeTokenDefinitions[tokenID];
+            if (tokenDef.isNonTerminal)
+            {
+                // this is not the first time for this identifier to be set up as a rule
+                // since duplicate rules can not exist, throw an exception
+                OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "while parsing BNF grammer for: " +
+                    mClientGrammerName +
+                    ", an attempt was made to assign a rule to identifier: " +
+                    tokenDef.lexeme + ", that already had a rule assigned",
+                    "Compiler2Pass::extractNonTerminal");
+            }
+            tokenDef.isNonTerminal = true;
         }
         else
         {
