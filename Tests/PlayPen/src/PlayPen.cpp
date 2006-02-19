@@ -3620,8 +3620,11 @@ protected:
 		String level = cf.getSetting("Map");
 
 		ExampleApplication::setupResources();
+		ResourceGroupManager::getSingleton().createResourceGroup("BSP");
+		ResourceGroupManager::getSingleton().setWorldResourceGroupName("BSP");
 		ResourceGroupManager::getSingleton().addResourceLocation(
 			pk3, "Zip", ResourceGroupManager::getSingleton().getWorldResourceGroupName());
+		ResourceGroupManager::getSingleton().initialiseResourceGroup("BSP");
 		sm3->setWorldGeometry(level);
 		// modify camera for close work
 		camera3->setNearClipDistance(4);
