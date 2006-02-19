@@ -41,6 +41,10 @@ http://www.gnu.org/copyleft/gpl.html.
 namespace Ogre {
 
     //-----------------------------------------------------------------------
+    // Static definitions
+    //-----------------------------------------------------------------------
+    MaterialScriptCompiler::TokenActionMap MaterialScriptCompiler::mTokenActionMap;
+
     String MaterialScriptCompiler::materialScript_BNF =
         "<Script> ::= {<Script_Properties>} \n"
 
