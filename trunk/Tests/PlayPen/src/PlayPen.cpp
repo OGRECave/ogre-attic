@@ -75,6 +75,7 @@ MaterialPtr skin;
 Frustum* frustum = 0;
 Camera* theCam;
 Camera* reflectCam = 0;
+Camera* camera2 = 0;
 
 
 class RefractionTextureListener : public RenderTargetListener
@@ -202,6 +203,11 @@ public:
 		{
 			reflectCam->setOrientation(mCamera->getOrientation());
 			reflectCam->setPosition(mCamera->getPosition());
+		}
+		if (camera2)
+		{
+			camera2->setOrientation(mCamera->getOrientation());
+			camera2->setPosition(mCamera->getPosition());
 		}
 		return ret;
 
@@ -3542,6 +3548,103 @@ protected:
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(bbs);
 	}
 
+	void testMultiSceneManagersSimple()
+	{
+		// Create a secondary scene manager with it's own camera
+		SceneManager* sm2 = Root::getSingleton().createSceneManager(ST_GENERIC);
+		camera2 = sm2->createCamera("cam2");
+		camera2->setPosition(0,0,-500);
+		camera2->lookAt(Vector3::ZERO);
+		Entity* ent = sm2->createEntity("knot2", "knot.mesh");
+		sm2->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+		Light* l = sm2->createLight("l2");
+		l->setPosition(100,50,-100);
+		l->setDiffuseColour(ColourValue::Green);
+		sm2->setAmbientLight(ColourValue(0.2, 0.2, 0.2));
+
+		Viewport* vp = mWindow->addViewport(camera2, 1, 0.67, 0, 0.33, 0.25);
+		vp->setOverlaysEnabled(false);
+
+		// Use original SM for normal scene
+		ent = mSceneMgr->createEntity("head", "ogrehead.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+		l = mSceneMgr->createLight("l2"); // note same name, will work since different SM
+		l->setPosition(100,50,-100);
+		l->setDiffuseColour(ColourValue::Red);
+		mSceneMgr->setAmbientLight(ColourValue(0.2, 0.2, 0.2));
+
+
+	}
+
+	void testMultiSceneManagersComplex()
+	{
+		// Create a secondary scene manager with it's own camera
+		SceneManager* sm2 = Root::getSingleton().createSceneManager("TerrainSceneManager");
+		camera2 = sm2->createCamera("cam2");
+
+		Viewport* vp = mWindow->addViewport(camera2, 1, 0.5, 0, 0.5, 0.5);
+		vp->setOverlaysEnabled(false);
+		// Fog
+		// NB it's VERY important to set this before calling setWorldGeometry 
+		// because the vertex program picked will be different
+		ColourValue fadeColour(0.93, 0.86, 0.76);
+		sm2->setFog( FOG_LINEAR, fadeColour, .001, 500, 1000);
+		vp->setBackgroundColour(fadeColour);
+
+		sm2->setWorldGeometry("terrain.cfg");
+		// Infinite far plane?
+		if (mRoot->getRenderSystem()->getCapabilities()->hasCapability(RSC_INFINITE_FAR_PLANE))
+		{
+			camera2->setFarClipDistance(0);
+		}
+		// Set a nice viewpoint
+		camera2->setPosition(707,3500,528);
+		camera2->lookAt(Vector3::ZERO);
+		camera2->setNearClipDistance( 1 );
+		camera2->setFarClipDistance( 1000 );
+
+
+		// Create a tertiary scene manager with it's own camera
+		SceneManager* sm3 = Root::getSingleton().createSceneManager("BspSceneManager");
+		Camera* camera3 = sm3->createCamera("cam3");
+
+		vp = mWindow->addViewport(camera3, 2, 0.5, 0.5, 0.5, 0.5);
+		vp->setOverlaysEnabled(false);
+
+		// Load Quake3 locations from a file
+		ConfigFile cf;
+
+		cf.load("quake3settings.cfg");
+
+		String pk3 = cf.getSetting("Pak0Location");
+		String level = cf.getSetting("Map");
+
+		ExampleApplication::setupResources();
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			pk3, "Zip", ResourceGroupManager::getSingleton().getWorldResourceGroupName());
+		sm3->setWorldGeometry(level);
+		// modify camera for close work
+		camera3->setNearClipDistance(4);
+		camera3->setFarClipDistance(4000);
+
+		// Also change position, and set Quake-type orientation
+		// Get random player start point
+		ViewPoint viewp = sm3->getSuggestedViewpoint(true);
+		camera3->setPosition(viewp.position);
+		camera3->pitch(Degree(90)); // Quake uses X/Y horizon, Z up
+		camera3->rotate(viewp.orientation);
+		// Don't yaw along variable axis, causes leaning
+		camera3->setFixedYawAxis(true, Vector3::UNIT_Z);
+		camera3->yaw(Degree(-90));
+
+
+
+
+
+		// Use original SM for normal scene
+		testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
+
+	}
     // Just override the mandatory create scene method
     void createScene(void)
     {
@@ -3611,7 +3714,9 @@ protected:
 		//testBillboardChain();
 		//testRibbonTrail();
 		//testSerialisedColour();
-		testBillboardAccurateFacing();
+		//testBillboardAccurateFacing();
+		//testMultiSceneManagersSimple();
+		testMultiSceneManagersComplex();
 
 		
     }
