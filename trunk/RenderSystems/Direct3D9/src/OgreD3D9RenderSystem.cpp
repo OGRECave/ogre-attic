@@ -70,6 +70,7 @@ namespace Ogre
 		mPrimaryWindow = NULL;
 		mDeviceLost = false;
 		mBasicStatesInitialised = false;
+		mUseNVPerfHUD = false;
         //mHLSLProgramFactory = NULL;
 
 		// init lights
@@ -170,6 +171,7 @@ namespace Ogre
 		ConfigOption optVSync;
 		ConfigOption optAA;
 		ConfigOption optFPUMode;
+		ConfigOption optNVPerfHUD;
 
 		driverList = this->getDirect3DDrivers();
 
@@ -219,12 +221,19 @@ namespace Ogre
 		optFPUMode.possibleValues.push_back("Consistent");
 		optFPUMode.immutable = false;
 
+		optNVPerfHUD.currentValue = "No";
+		optNVPerfHUD.immutable = false;
+		optNVPerfHUD.name = "Allow NVPerfHUD";
+		optNVPerfHUD.possibleValues.push_back( "Yes" );
+		optNVPerfHUD.possibleValues.push_back( "No" );
+
 		mOptions[optDevice.name] = optDevice;
 		mOptions[optVideoMode.name] = optVideoMode;
 		mOptions[optFullScreen.name] = optFullScreen;
 		mOptions[optVSync.name] = optVSync;
 		mOptions[optAA.name] = optAA;
 		mOptions[optFPUMode.name] = optFPUMode;
+		mOptions[optNVPerfHUD.name] = optNVPerfHUD;
 
 		refreshD3DSettings();
 
@@ -333,6 +342,14 @@ namespace Ogre
 				mVSync = true;
 			else
 				mVSync = false;
+		}
+
+		if( name == "Allow NVPerfHUD" )
+		{
+			if (value == "Yes")
+				mUseNVPerfHUD = true;
+			else
+				mUseNVPerfHUD = false;
 		}
 
 		if( name == "Video Mode" )
@@ -487,6 +504,7 @@ namespace Ogre
 			miscParams["FSAA"] = StringConverter::toString(mFSAAType);
 			miscParams["FSAAQuality"] = StringConverter::toString(mFSAAQuality);
 			miscParams["vsync"] = StringConverter::toString(mVSync);
+			miscParams["useNVPerfHUD"] = StringConverter::toString(mUseNVPerfHUD);
 
 			autoWindow = this->createRenderWindow( windowTitle, width, height, 
 				fullScreen, &miscParams );
