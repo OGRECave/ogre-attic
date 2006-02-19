@@ -332,6 +332,11 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool Compiler2Pass::compile(const String& source, const String& sourceName)
     {
+        // make sure BNF compiler is setup to compile BNF grammer if required
+        initBNFCompiler();
+        // compile the client's BNF grammer
+        setClientBNFGrammer();
+
 	    bool Passed = false;
 
 	    mSource = &source;
@@ -409,7 +414,7 @@ namespace Ogre {
             const TokenInst& tokenInst = mActiveTokenState->tokenQue[mPass2TokenQuePosition];
             if (expectedTokenID > 0 && (tokenInst.tokenID != expectedTokenID))
             {
-                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, mClientGrammerName + ":" + mSourceName
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, getClientGrammerName() + ":" + mSourceName
                     + ", expected token ID not found" ,
                     "Compiler2Pass::getNextToken");
             }
@@ -418,7 +423,7 @@ namespace Ogre {
         }
         else
             // no more tokens left for pass 2 processing
-            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, mClientGrammerName + ":" + mSourceName
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, getClientGrammerName() + ":" + mSourceName
                 + ", no more tokens available for pass 2 processing" ,
                 "Compiler2Pass::getNextToken");
     }
@@ -428,7 +433,7 @@ namespace Ogre {
         if (mPass2TokenQuePosition < mActiveTokenState->tokenQue.size() - 1)
             return mActiveTokenState->tokenQue[mPass2TokenQuePosition];
         else
-            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, mClientGrammerName + ":" + mSourceName
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, getClientGrammerName() + ":" + mSourceName
                 + "no token available, all pass 2 tokens processed" ,
                 "Compiler2Pass::getCurrentToken");
     }
@@ -491,12 +496,11 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void Compiler2Pass::setClientBNFGrammer(const String& grammerName, const String& bnfGrammer)
+    void Compiler2Pass::setClientBNFGrammer(void)
     {
         // switch to internal BNF Containers
         // clear client containers
-        mClientTokenState = &mClientTokenStates[grammerName];
-        mClientGrammerName = grammerName;
+        mClientTokenState = &mClientTokenStates[getClientGrammerName()];
         // attempt to compile the grammer into a rule base if no rules exist
         if (mClientTokenState->rootRulePath.size() == 0)
         {
@@ -508,10 +512,11 @@ namespace Ogre {
             // compiling the BNF grammer
             // ensure token definitions are added to the client state
             mActiveTokenState = mClientTokenState;
+            // get client to setup token definitions and actions it wants to know about
             setupTokenDefinitions();
             // make sure active token state is for BNF compiling
             mActiveTokenState = &mBNFTokenState;
-            mSource = &bnfGrammer;
+            mSource = &getClientBNFGrammer();
 
             if (doPass1())
             {
@@ -520,12 +525,12 @@ namespace Ogre {
             else
             {
                 OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "BNF Grammar compilation failed for " +
-                    mClientGrammerName, "Compiler2Pass::setClientBNFGrammer");
+                    getClientGrammerName(), "Compiler2Pass::setClientBNFGrammer");
             }
             // change token state to client data after compiling grammer
             mActiveTokenState = mClientTokenState;
             // verify the client rule paths and associated terminal and non-terminal lexemes
-            verifyTokenRuleLinks(mClientGrammerName);
+            verifyTokenRuleLinks(getClientGrammerName());
         }
     }
 
@@ -695,7 +700,7 @@ namespace Ogre {
                     {
                         passed = true;
                         LogManager::getSingleton().logMessage(
-                           "\n Grammer: " + mClientGrammerName +
+                           "\n Grammer: " + getClientGrammerName() +
                            " - Parsing error at line: " + StringConverter::toString(mCurrentLine) +
                            ", character pos: " + StringConverter::toString(mCharPos) +
                            ", in rule path: " + mActiveTokenState->lexemeTokenDefinitions[ActiveNTTRule].lexeme);
@@ -1164,7 +1169,7 @@ namespace Ogre {
                 // this is not the first time for this identifier to be set up as a rule
                 // since duplicate rules can not exist, throw an exception
                 OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "while parsing BNF grammer for: " +
-                    mClientGrammerName +
+                    getClientGrammerName() +
                     ", an attempt was made to assign a rule to identifier: " +
                     tokenDef.lexeme + ", that already had a rule assigned",
                     "Compiler2Pass::extractNonTerminal");

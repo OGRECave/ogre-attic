@@ -214,7 +214,7 @@ namespace Ogre {
 	        TokenRuleContainer       rootRulePath;
             LexemeTokenMap           lexemeTokenMap;
         };
-        String mClientGrammerName;
+
         TokenState* mClientTokenState;
 
 	    /// Active token que, definitions, rules currntly being used by parser
@@ -335,13 +335,14 @@ namespace Ogre {
         void addLexemeToken(const String& lexeme, const size_t token, const bool hasAction = false, const bool caseSensitive = false);
 
         /** sets up the parser rules for the client based on the BNF Grammer text passed in.
-            Raises an exception if the grammer did not compile successfully.  This method should be called
-            prior to a call to compile otherwise nothing will happen since the compiler has no rules to work
-            with.  Setting the grammer only needs to be set once during the lifetime of the compiler unless the
+            Raises an exception if the grammer did not compile successfully.  This method gets called
+            when a call to compile occurs and no compiled BNF grammer exists, otherwise nothing will happen since the compiler has no rules to work
+            with.  The grammer only needs to be set once during the lifetime of the compiler unless the
             grammer changes.
             BNF Grammer rules are cached once the BNF grammer source is compiled.
+            The client should never have to call this method directly.
         */
-        void setClientBNFGrammer(const String& grammerName, const String& bnfGrammer);
+        void setClientBNFGrammer(void);
 
 
 
@@ -481,6 +482,13 @@ namespace Ogre {
 		    false if any errors occur in Pass 1 or Pass 2
 	    */
 	    bool compile(const String& source, const String& sourceName);
+        /** gets BNF Grammer.  Gets called when BNF grammer has to be compiled for the first time.
+        */
+        virtual const String& getClientBNFGrammer(void) = 0;
+
+        /** get the name of the BNF grammer.
+        */
+        virtual const String& getClientGrammerName(void) = 0;
 
     };
 

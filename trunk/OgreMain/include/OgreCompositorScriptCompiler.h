@@ -40,6 +40,14 @@ namespace Ogre {
 		CompositorScriptCompiler(void);
 		~CompositorScriptCompiler(void);
 
+        /** gets BNF Grammer for Compositor script.
+        */
+        virtual const String& getClientBNFGrammer(void) { return compositorScript_BNF; }
+
+        /** get the name of the Compositor script BNF grammer.
+        */
+        virtual const String& getClientGrammerName(void) { static const String grammerName("Compositor Script"); return grammerName; }
+
 	protected:
 		// Token ID enumeration
 		enum TokenID {

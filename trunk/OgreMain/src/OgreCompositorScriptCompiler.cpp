@@ -76,7 +76,6 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	CompositorScriptCompiler::CompositorScriptCompiler(void)
 	{
-		setClientBNFGrammer("CompositorScript", compositorScript_BNF);
 	}
 	//-----------------------------------------------------------------------
 	CompositorScriptCompiler::~CompositorScriptCompiler(void)

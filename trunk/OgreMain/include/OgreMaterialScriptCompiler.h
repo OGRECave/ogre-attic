@@ -41,6 +41,13 @@ namespace Ogre {
     public:
         MaterialScriptCompiler(void);
         ~MaterialScriptCompiler(void);
+        /** gets BNF Grammer for Compositor script.
+        */
+        virtual const String& getClientBNFGrammer(void) { return materialScript_BNF; }
+
+        /** get the name of the BNF grammer.
+        */
+        virtual const String& getClientGrammerName(void) { static const String grammerName("Material Script"); return grammerName; }
 
     protected:
 	    // Token ID enumeration
