@@ -35,6 +35,10 @@ http://www.gnu.org/copyleft/gpl.html.
 namespace Ogre {
 
 	//-----------------------------------------------------------------------
+    // Static definitions
+    //-----------------------------------------------------------------------
+    CompositorScriptCompiler::TokenActionMap CompositorScriptCompiler::mTokenActionMap;
+
 	String CompositorScriptCompiler::compositorScript_BNF =
 		// Top level rule
 		"<Script> ::= {<Script_Properties>} \n"
