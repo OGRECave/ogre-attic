@@ -283,14 +283,13 @@ namespace Ogre {
 
         /** Sets the scaling factor applied to this node.
         @remarks
-            Scaling factors, unlike other transforms, are not always inherited by child nodes. 
-            Whether or not scalings affect both the size and position of the child nodes depends on
-            the setInheritScale option of the child. In some cases you want a scaling factor of a parent node
-            to apply to a child node (e.g. where the child node is a part of the same object, so you
-            want it to be the same relative size and position based on the parent's size), but
-            not in other cases (e.g. where the child node is just for positioning another object,
-            you want it to maintain it's own size and relative position). The default is to inherit
-            as with other transforms.
+            Scaling factors, unlike other transforms, are not always inherited by child nodes.
+            Whether or not scalings affect the size of the child nodes depends on the setInheritScale
+            option of the child. In some cases you want a scaling factor of a parent node to apply to
+            a child node (e.g. where the child node is a part of the same object, so you want it to be
+            the same relative size based on the parent's size), but not in other cases (e.g. where the
+            child node is just for positioning another object, you want it to maintain it's own size).
+            The default is to inherit as with other transforms.
         @par
             Note that like rotations, scalings are oriented around the node's origin.
         */
@@ -298,14 +297,13 @@ namespace Ogre {
 
         /** Sets the scaling factor applied to this node.
         @remarks
-            Scaling factors, unlike other transforms, are not always inherited by child nodes. 
-            Whether or not scalings affect both the size and position of the child nodes depends on
-            the setInheritScale option of the child. In some cases you want a scaling factor of a parent node
-            to apply to a child node (e.g. where the child node is a part of the same object, so you
-            want it to be the same relative size and position based on the parent's size), but
-            not in other cases (e.g. where the child node is just for positioning another object,
-            you want it to maintain it's own size and relative position). The default is to inherit
-            as with other transforms.
+            Scaling factors, unlike other transforms, are not always inherited by child nodes.
+            Whether or not scalings affect the size of the child nodes depends on the setInheritScale
+            option of the child. In some cases you want a scaling factor of a parent node to apply to
+            a child node (e.g. where the child node is a part of the same object, so you want it to be
+            the same relative size based on the parent's size), but not in other cases (e.g. where the
+            child node is just for positioning another object, you want it to maintain it's own size).
+            The default is to inherit as with other transforms.
         @par
             Note that like rotations, scalings are oriented around the node's origin.
         */
@@ -347,15 +345,14 @@ namespace Ogre {
 
         /** Tells the node whether it should inherit scaling factors from it's parent node.
         @remarks
-            Scaling factors, unlike other transforms, are not always inherited by child nodes. 
-            Whether or not scalings affect both the size and position of the child nodes depends on
-            the setInheritScale option of the child. In some cases you want a scaling factor of a parent node
-            to apply to a child node (e.g. where the child node is a part of the same object, so you
-            want it to be the same relative size and position based on the parent's size), but
-            not in other cases (e.g. where the child node is just for positioning another object,
-            you want it to maintain it's own size and relative position). The default is to inherit
-            as with other transforms.
-        @param inherit If true, this node's scale and position will be affected by its parent's scale. If false,
+            Scaling factors, unlike other transforms, are not always inherited by child nodes.
+            Whether or not scalings affect the size of the child nodes depends on the setInheritScale
+            option of the child. In some cases you want a scaling factor of a parent node to apply to
+            a child node (e.g. where the child node is a part of the same object, so you want it to be
+            the same relative size based on the parent's size), but not in other cases (e.g. where the
+            child node is just for positioning another object, you want it to maintain it's own size).
+            The default is to inherit as with other transforms.
+        @param inherit If true, this node's scale will be affected by its parent's scale. If false,
             it will not be affected.
         */
         virtual void setInheritScale(bool inherit);

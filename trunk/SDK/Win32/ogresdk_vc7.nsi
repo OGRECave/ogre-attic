@@ -6,7 +6,7 @@ Section -Samples
   ; We assume copysamples.sh has been run recently enough for these files to be available
   SetOutPath "$INSTDIR\samples\scripts"
   SetOverwrite try
-  File ".\Samples\scripts\*.vcproj"
+  File /x *_vc8.vcproj ".\Samples\scripts\*.vcproj"
   SetOutPath "$INSTDIR\samples\src"
   SetOverwrite try
   File ".\Samples\src\*.cpp"
@@ -17,7 +17,7 @@ Section -Samples
   ; Refapp
   SetOutPath "$INSTDIR\samples\refapp\scripts"
   SetOverwrite try
-  File ".\samples\refapp\scripts\*.vcproj"
+  File /x *_vc8.vcproj ".\samples\refapp\scripts\*.vcproj"
   SetOutPath "$INSTDIR\samples\refapp\src"
   SetOverwrite try
   File "..\..\ReferenceApplication\ReferenceAppLayer\src\*.cpp"

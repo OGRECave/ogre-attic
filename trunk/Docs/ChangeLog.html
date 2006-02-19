@@ -1,6 +1,5 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
-<head>
+<html><head>
 
 
 
@@ -20,8 +19,8 @@
   
   
   
-  <title>OGRE ChangeLog</title>
-  <meta name="GENERATOR" content="OpenOffice.org 2.0 (Win32)">
+  
+  <title>OGRE ChangeLog</title><meta name="GENERATOR" content="OpenOffice.org 2.0 (Win32)">
 
 
 
@@ -55,9 +54,7 @@ P.maincontent { font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-s
 BLOCKQUOTE { color: #000000; font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 10pt }
 A:link { color: #003300 }
 -->
-  </style>
-</head>
-
+  </style></head>
 
 <body style="direction: ltr; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);" lang="en-GB" link="#003300">
 
@@ -76,7 +73,26 @@ Rendering Engine)</p>
 
 
 
-<p class="mainheader" align="left">v1.0.6
+<p class="mainheader" align="left">v1.0.7
+[Azathoth] (12 February 2005)
+- Maintenance Release</p>
+
+
+
+
+<ul><li><span style="font-weight: bold;">D3D9:</span></li><ul><li>Fixed device leak when destroying primary window manually rather than via shutdown()</li><li>Potential D3D9 leaks during fatal error conditions fixed</li><li>Fix potential leak when using DDS textures if premature shutdown encountered</li><li>Fix another trailing state issue on device lost/restore, clear all texture units and vertex streams before resetting</li><li>Don't create any mipmaps when building temp surface in blitToMemory</li><li>Fixed a compile bug in double-precision mode</li><li>Floating point texture support now correctly logged</li><li>Fix vs_2_x/a, ps_2_x/a/b detection</li></ul><li style="font-weight: bold;">D3D7:</li><ul><li style="font-weight: bold;"><span style="font-weight: normal;">Fix crash when </span><span style="font-weight: normal;">D3D7 window is minimised</span></li></ul><li style="font-weight: bold;">GL:</li><ul><li>Fix potential performance problems with NPOT pbuffers</li></ul><li><span style="font-weight: bold;">Terrain plugin:</span></li><ul><li>Light list finding should be specialised for each terrain tile.&nbsp;</li><li>LOD calculation should use minimum distance between terrain tile bounding box and camera position</li></ul><ul><li>Throw exception when registering a page source for a type which is already present</li></ul><li><span style="font-weight: bold;">Nodes:</span></li><ul><li>Fixed
+a bug in SceneNode::setDirection with a local natural facing of
+something other than +/-Z, and when dealing with different spaces</li></ul><ul><li>TagPoint should always reflect parent entity&nbsp;scale changes</li><li>Fixed crash in SceneManager::destroySceneNode when using&nbsp;auto tracking</li></ul><li><span style="font-weight: bold;">Shadows:</span></li><ul><li>Fix rendering of texture shadows not respecting getShadowsEnabled() flag on queue group</li><li>Alpha-blended materials can now cast texture shadows accurately</li><li>Correctly render stencil shadows when oblique depth projection in use (use zfail all the time)</li><li>Free up shadow textures immediately when texture shadows no longer in use to save video memory</li></ul><li style="font-weight: bold;">Materials:</li><ul><li>Fix incorrect output serialisation of 'modulate' and 'colour_blend' scene blend factors&nbsp;from memory to .material files</li></ul><ul><li>Fix splitting of passes when too many texture units used</li><li>Bugfix
+for auto gpu program parameters:'view_direction', 'view_side_vector'
+and 'view_up_vector' should be in world space. Also viewport size
+params were using render target details&nbsp;instead of viewport</li></ul><li style="font-weight: bold;">Particles &amp; billboards:</li><ul><li>Fix billboard orientation when using camera reflection</li><li>AreaEmitter should have a different default 'up' to the default 'direction'</li><li>Fix bug in particle scale affector - should scale from default dimensions in the first instance</li></ul><li>Workaround to avoid std::iostream memory leaks in VC8 (MS bug - until VC8 SP1 arrives)</li><li>Fix Font::StrBBox for strings containing spaces</li><li>Memory manager tweaks to improve shutdown performance when using large containers in debug</li><li>Quaternion now outputs to stream with same element&nbsp;ordering as constructor</li><li>Accessor methods added to retrieve current sky settings on SceneManager</li><li>Add automatic fallback for Vector3.getRotationTo if 180 degree rotation is requested</li><li>Cleaner
+Implementation of occlusion query delete mechanism. Added
+destroyHardwareOcclusionQuery and made RenderSystem clean up any
+remaining queries at shutdown just like RenderTarget</li><li>Eliminate
+potential temp blended buffer checkout bug: occuring when call
+TempBlendedBufferInfo::checkoutTempCopies more than once in same frame.</li><li>Fixed rendersystems setClipPlanes sending of user clip plane equations to device (d was inverted)</li><li>Fix bug in edge list builder when indexStart is used</li><li>Fix bug where Math::ASin returned the wrong value for +1.0 and -1.0</li><li>Fix bug in border panel; uvs for centre panel should be updated at the same time as the border</li><li>XSI exporter significant speed improvements and better progress reporting</li><li>Timer more consistent after performance counter hiccups, and will run continuously over the 49.7 days boundary</li><li>Move zziplib headers so external apps are no longer dependent</li><li>Update controllers before updating scene animations in case users use controllers to manipulate scene animation</li><li>Avoid multi-results of same object from OctreePlaneBoundedVolumeListSceneQuery</li><li>Default
+mMaterialName as well as mpMaterial in SubEntity so they are consistent
+(issue with StaticGeometry if no material set)&nbsp;</li><li>Fix infinite loop when RenderQueueListener tried to skip a queue</li><li>Fix crash when creating / destroying Root more than once</li><li>3D Studio Max exporter now supports Max 8</li><li>New barrel and palette models added</li><li>Many&nbsp;compiler warnings squashed</li><li>Documentation clarifications</li></ul><p class="mainheader" align="left">v1.0.6
 [Azathoth] (20 November 2005)
 - Maintenance Release</p>
 
@@ -12679,5 +12695,4 @@ this stage to work out how I should structure the object model.</p>
 
 
 
-</body>
-</html>
+</body></html>
