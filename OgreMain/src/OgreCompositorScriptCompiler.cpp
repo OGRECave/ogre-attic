@@ -219,12 +219,14 @@ namespace Ogre {
 	void CompositorScriptCompiler::parseCompositor(void)
 	{
 		logParseError("parseCompositor");
+		mScriptContext.section = CSS_COMPOSITOR;
 
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseTechnique(void)
 	{
 		logParseError("parseTechnique");
+		mScriptContext.section = CSS_TECHNIQUE;
 
 	}
 	//-----------------------------------------------------------------------
@@ -236,6 +238,7 @@ namespace Ogre {
 	void CompositorScriptCompiler::parseTarget(void)
 	{
 		logParseError("parseTarget");
+		mScriptContext.section = CSS_TARGET;
 
 	}
 	//-----------------------------------------------------------------------
@@ -260,6 +263,7 @@ namespace Ogre {
 	void CompositorScriptCompiler::parsePass(void)
 	{
 		logParseError("parsePass");
+		mScriptContext.section = CSS_PASS;
 
 	}
 	//-----------------------------------------------------------------------
