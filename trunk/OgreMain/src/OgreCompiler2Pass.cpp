@@ -699,14 +699,21 @@ namespace Ogre {
                     if (!passed && tokenFound && !mLabelIsActive)
                     {
                         passed = true;
+                        // log last valid token found
+                        const TokenInst& tokenInst = mActiveTokenState->tokenQue[mActiveTokenState->tokenQue.size() - 1];
                         LogManager::getSingleton().logMessage(
-                           "\n Grammer: " + getClientGrammerName() +
+                            "Last valid token found was at line: " + StringConverter::toString(tokenInst.line) +
+                            ", character pos: " + StringConverter::toString(tokenInst.pos));
+                        LogManager::getSingleton().logMessage(
+                            "source hint: \"" + mSource->substr(tokenInst.pos, 20) + "\"");
+                        // log parsing error
+                        LogManager::getSingleton().logMessage(
+                           "Grammer: " + getClientGrammerName() +
                            " - Parsing error at line: " + StringConverter::toString(mCurrentLine) +
                            ", character pos: " + StringConverter::toString(mCharPos) +
                            ", in rule path: " + mActiveTokenState->lexemeTokenDefinitions[ActiveNTTRule].lexeme);
                         LogManager::getSingleton().logMessage(
-                            "\n source hint: \"" + mSource->substr(mCharPos, 20) + "\""
-                        );
+                            "source hint: \"" + mSource->substr(mCharPos, 20) + "\"");
                     }
 			    }
 			    break;
@@ -777,6 +784,12 @@ namespace Ogre {
 	    if ( (tokenID >= SystemTokenBase) ||
             !mActiveTokenState->lexemeTokenDefinitions[tokenID].isNonTerminal )
 	    {
+            if (tokenID != _character_)
+            {
+                mLabelIsActive = false;
+                // allow spaces to be skipped for next lexeme processing
+                mNoSpaceSkip = false;
+            }
 	        if (tokenID == _no_space_skip_)
 	        {
                 // don't skip spaces to get to next lexeme
@@ -816,14 +829,9 @@ namespace Ogre {
                 }
 
                 // turn off label processing if token ID was not for _character_
-                if (tokenID != _character_)
+                if (tokenID == _character_)
                 {
-                    mLabelIsActive = false;
-                    // allow spaces to be skipped for next lexeme processing
-                    mNoSpaceSkip = false;
-                }
-                else // _character_ token being processed
-                {
+                    // _character_ token being processed
                     // turn off generation of a new token instruction if this is not
                     // the first _character_ in a sequence of _character_ terminal tokens.
                     // Only want one _character_ token which Identifies a label
