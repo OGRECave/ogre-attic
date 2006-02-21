@@ -50,6 +50,7 @@ namespace Ogre {
     SceneManagerEnumerator::SceneManagerEnumerator()
 		: mInstanceCreateCount(0), mCurrentRenderSystem(0)
     {
+        addFactory(&mDefaultFactory);
 
     }
     //-----------------------------------------------------------------------
@@ -120,6 +121,10 @@ namespace Ogre {
 				return *i;
 			}
 		}
+
+	    OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+		    "No metadata found for scene manager of type '" + typeName + "'",
+		    "SceneManagerEnumerator::createSceneManager");
 
 	}
 	//-----------------------------------------------------------------------
