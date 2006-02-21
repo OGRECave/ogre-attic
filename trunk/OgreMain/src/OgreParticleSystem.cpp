@@ -91,6 +91,7 @@ namespace Ogre {
 		mNonvisibleTimeoutSet(false),
 		mTimeSinceLastVisible(0),
 		mLastVisibleFrame(0),
+        mTimeController(0),
         mRenderer(0),
         mCullIndividual(false),
         mPoolSize(0)
@@ -123,6 +124,7 @@ namespace Ogre {
 		mNonvisibleTimeoutSet(false),
 		mTimeSinceLastVisible(0),
 		mLastVisibleFrame(Root::getSingleton().getCurrentFrameNumber()),
+        mTimeController(0),
         mLocalSpace(false),
         mRenderer(0), 
 		mCullIndividual(false),
@@ -142,18 +144,16 @@ namespace Ogre {
 
         // Default to billboard renderer
         setRenderer("billboard");
-
-		// Create time controller for a real instance
-		ControllerManager& mgr = ControllerManager::getSingleton(); 
-		ControllerValueRealPtr updValue(new ParticleSystemUpdateValue(this));
-		mTimeController = mgr.createController(
-			mgr.getFrameTimeSource(), updValue, mgr.getPassthroughControllerFunction());
     }
     //-----------------------------------------------------------------------
     ParticleSystem::~ParticleSystem()
     {
-		// destroy controller
-		ControllerManager::getSingleton().destroyController(mTimeController);
+        if (mTimeController)
+        {
+            // Destroy controller
+            ControllerManager::getSingleton().destroyController(mTimeController);
+            mTimeController = 0;
+        }
 
 		// Arrange for the deletion of emitters & affectors
         removeAllEmitters();
@@ -333,10 +333,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystem::_update(Real timeElapsed)
     {
+        // Only update if attached to a node
+        if (!mParentNode)
+            return;
+
 		Real nonvisibleTimeout = mNonvisibleTimeoutSet ?
 			mNonvisibleTimeout : msDefaultNonvisibleTimeout;
-		
-		if (mParentNode && nonvisibleTimeout > 0)
+
+		if (nonvisibleTimeout > 0)
 		{
 			// Check whether it's been more than one frame (update is ahead of
 			// camera notification by one frame because of the ordering)
@@ -350,7 +354,6 @@ namespace Ogre {
 					return;
 				}
 			}
-
 		}
 
 		// Scale incoming speed for the rest of the calculation
@@ -359,42 +362,37 @@ namespace Ogre {
         // Init renderer if not done already
         configureRenderer();
 
-		// Only update if attached to a node, and not timed out
-		if (mParentNode)
-		{
-			Real iterationInterval = mIterationIntervalSet ? 
-				mIterationInterval : msDefaultIterationInterval;
-            if (iterationInterval > 0)
+        Real iterationInterval = mIterationIntervalSet ? 
+            mIterationInterval : msDefaultIterationInterval;
+        if (iterationInterval > 0)
+        {
+            mUpdateRemainTime += timeElapsed;
+
+            while (mUpdateRemainTime >= iterationInterval)
             {
-                mUpdateRemainTime += timeElapsed;
+                // Update existing particles
+                _expire(iterationInterval);
+                _triggerAffectors(iterationInterval);
+                _applyMotion(iterationInterval);
+                // Emit new particles
+                _triggerEmitters(iterationInterval);
 
-                while (mUpdateRemainTime >= iterationInterval)
-                {
-			        // Update existing particles
-        	        _expire(iterationInterval);
-        	        _triggerAffectors(iterationInterval);
-        	        _applyMotion(iterationInterval);
-			        // Emit new particles
-        	        _triggerEmitters(iterationInterval);
-
-                    mUpdateRemainTime -= iterationInterval;
-                }
+                mUpdateRemainTime -= iterationInterval;
             }
-            else
-            {
-			    // Update existing particles
-        	    _expire(timeElapsed);
-        	    _triggerAffectors(timeElapsed);
-        	    _applyMotion(timeElapsed);
-			    // Emit new particles
-        	    _triggerEmitters(timeElapsed);
-            }
+        }
+        else
+        {
+            // Update existing particles
+            _expire(timeElapsed);
+            _triggerAffectors(timeElapsed);
+            _applyMotion(timeElapsed);
+            // Emit new particles
+            _triggerEmitters(timeElapsed);
+        }
 
-            if (!mBoundsAutoUpdate && mBoundsUpdateTime > 0.0f)
-                mBoundsUpdateTime -= timeElapsed; // count down 
-            _updateBounds();
-		}
-
+        if (!mBoundsAutoUpdate && mBoundsUpdateTime > 0.0f)
+            mBoundsUpdateTime -= timeElapsed; // count down 
+        _updateBounds();
 
     }
     //-----------------------------------------------------------------------
@@ -802,6 +800,25 @@ namespace Ogre {
         if (mRenderer)
         {
             mRenderer->_notifyAttached(parent, isTagPoint);
+        }
+
+        if (parent && !mTimeController)
+        {
+            // Assume visible
+            mTimeSinceLastVisible = 0;
+            mLastVisibleFrame = Root::getSingleton().getCurrentFrameNumber();
+
+            // Create time controller when attached
+            ControllerManager& mgr = ControllerManager::getSingleton(); 
+            ControllerValueRealPtr updValue(new ParticleSystemUpdateValue(this));
+            mTimeController = mgr.createController(
+                mgr.getFrameTimeSource(), updValue, mgr.getPassthroughControllerFunction());
+        }
+        else if (!parent && mTimeController)
+        {
+            // Destroy controller
+            ControllerManager::getSingleton().destroyController(mTimeController);
+            mTimeController = 0;
         }
     }
     //-----------------------------------------------------------------------
