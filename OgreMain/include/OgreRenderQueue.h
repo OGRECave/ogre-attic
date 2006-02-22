@@ -81,7 +81,7 @@ namespace Ogre {
         typedef MapIterator<RenderQueueGroupMap> QueueGroupIterator;
 		/** Class to listen in on items being added to the render queue. 
 		@remarks
-			Use RenderQueue::addRenderableListener to get callbacks when an item
+			Use RenderQueue::setRenderableListener to get callbacks when an item
 			is added to the render queue.
 		*/
 		class _OgreExport RenderableListener
