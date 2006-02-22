@@ -69,6 +69,11 @@ namespace Ogre {
         Controller<Real>* createController(const ControllerValueRealPtr& src,
             const ControllerValueRealPtr& dest, const ControllerFunctionRealPtr& func);
 
+        /** Creates a new controller use frame time source and passthrough controller function.
+        */
+        Controller<Real>* createFrameTimePassthroughController(
+            const ControllerValueRealPtr& dest);
+
         /** Destroys all the controllers in existence.
         */
         void clearControllers(void);
