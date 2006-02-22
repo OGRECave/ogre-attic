@@ -79,6 +79,33 @@ namespace Ogre {
         typedef std::map< uint8, RenderQueueGroup* > RenderQueueGroupMap;
         /// Iterator over queue groups
         typedef MapIterator<RenderQueueGroupMap> QueueGroupIterator;
+		/** Class to listen in on items being added to the render queue. 
+		@remarks
+			Use RenderQueue::addRenderableListener to get callbacks when an item
+			is added to the render queue.
+		*/
+		class _OgreExport RenderableListener
+		{
+		public:
+			RenderableListener() {}
+			virtual ~RenderableListener() {}
+
+			/** Method called when a Renderable is added to the queue.
+			@remarks
+				You can use this event hook to alter the Technique used to
+				render a Renderable as the item is added to the queue. This is
+				a low-level way to override the material settings for a given
+				Renderable on the fly.
+			@param rend The Renderable being added to the queue
+			@param ppTech A pointer to the pointer to the Technique that is 
+				intended to be used; you can alter this to an alternate Technique
+				if you so wish (the Technique doesn't have to be from the same
+				Material either).
+			@returns true to allow the Renderable to be added to the queue, 
+				false if you want to prevent it being added
+			*/
+			virtual bool renderableQueued(Renderable* rend, Technique** ppTech) = 0;
+		};
     protected:
         RenderQueueGroupMap mGroups;
         /// The current default queue group
@@ -89,6 +116,8 @@ namespace Ogre {
         bool mSplitPassesByLightingType;
         bool mSplitNoShadowPasses;
 		bool mShadowCastersCannotBeReceivers;
+
+		RenderableListener* mRenderableListener;
     public:
         RenderQueue();
         virtual ~RenderQueue();
@@ -199,6 +228,17 @@ namespace Ogre {
 		never receiving shadows. 
 		*/
 		void setShadowCastersCannotBeReceivers(bool ind);
+
+		/** Set a renderable listener on the queue.
+		@remarks
+			There can only be a single renderable listener on the queue, since
+			that listener has complete control over the techniques in use.
+		*/
+		void setRenderableListener(RenderableListener* listener)
+		{ mRenderableListener = listener; }
+
+		RenderableListener* getRenderableListener(void) const
+		{ return mRenderableListener; }
 
     };
 

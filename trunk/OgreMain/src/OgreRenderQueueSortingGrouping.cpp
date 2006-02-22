@@ -24,7 +24,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 #include "OgreRenderQueueSortingGrouping.h"
-#include "OgreMaterialManager.h"
 #include "OgreException.h"
 
 namespace Ogre {
@@ -77,23 +76,8 @@ namespace Ogre {
 		addOrganisationMode(QueuedRenderableCollection::OM_PASS_GROUP);
 	}
 	//-----------------------------------------------------------------------
-    void RenderPriorityGroup::addRenderable(Renderable* rend)
+    void RenderPriorityGroup::addRenderable(Renderable* rend, Technique* pTech)
     {
-        // Check material & technique supplied (the former since the default implementation
-        // of getTechnique is based on it for backwards compatibility
-        Technique* pTech;
-        if(rend->getMaterial().isNull() || !rend->getTechnique())
-        {
-            // Use default base white
-			MaterialPtr baseWhite = MaterialManager::getSingleton().getByName("BaseWhite");
-            pTech = baseWhite->getTechnique(0);
-        }
-        else
-        {
-            // Get technique
-            pTech = rend->getTechnique();
-        }
-
         // Transparent and depth settings mean depth sorting is required?
         if (pTech->isTransparent() && 
             !(pTech->isDepthWriteEnabled() && pTech->isDepthCheckEnabled()) )

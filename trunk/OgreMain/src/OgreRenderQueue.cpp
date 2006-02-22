@@ -30,6 +30,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterial.h"
 #include "OgreRenderQueueSortingGrouping.h"
 #include "OgrePass.h"
+#include "OgreMaterialManager.h"
+
 
 namespace Ogre {
 
@@ -38,6 +40,7 @@ namespace Ogre {
         : mSplitPassesByLightingType(false)
 		, mSplitNoShadowPasses(false)
         , mShadowCastersCannotBeReceivers(false)
+		, mRenderableListener(0)
     {
         // Create the 'main' queue up-front since we'll always need that
         mGroups.insert(
@@ -82,9 +85,38 @@ namespace Ogre {
         // Find group
         RenderQueueGroup* pGroup = getQueueGroup(groupID);
 
-        // tell material it's been used
-        pRend->getMaterial()->touch();
-        pGroup->addRenderable(pRend, priority);
+
+		Technique* pTech;
+
+		// tell material it's been used
+		if (!pRend->getMaterial().isNull())
+			pRend->getMaterial()->touch();
+
+		// Check material & technique supplied (the former since the default implementation
+        // of getTechnique is based on it for backwards compatibility
+        if(pRend->getMaterial().isNull() || !pRend->getTechnique())
+        {
+            // Use default base white
+			MaterialPtr baseWhite = MaterialManager::getSingleton().getByName("BaseWhite");
+            pTech = baseWhite->getTechnique(0);
+        }
+        else
+        {
+            // Get technique
+            pTech = pRend->getTechnique();
+        }
+
+		if (mRenderableListener)
+		{
+			// Allow listener to override technique and to abort
+			if (!mRenderableListener->renderableQueued(pRend, &pTech))
+				return; // rejected
+
+			// tell material it's been used (incase changed)
+			pTech->getParent()->touch();
+		}
+		
+        pGroup->addRenderable(pRend, pTech, priority);
 
     }
     //-----------------------------------------------------------------------
