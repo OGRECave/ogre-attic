@@ -385,7 +385,7 @@ namespace Ogre {
 		*/
 		void addOrganisationMode(QueuedRenderableCollection::OrganisationMode om); 
 
-		/** Setthe  sorting / grouping mode for the solids in this group to the default.
+		/** Set the sorting / grouping mode for the solids in this group to the default.
 		@remarks
 			You can only do this when the group is empty, ie after clearing the 
 			queue.
@@ -394,7 +394,7 @@ namespace Ogre {
 		void defaultOrganisationMode(void); 
 
 		/** Add a renderable to this group. */
-        void addRenderable(Renderable* pRend);
+        void addRenderable(Renderable* pRend, Technique* pTech);
 
 		/** Sorts the objects which have been added to the queue; transparent objects by their 
             depth in relation to the passed in Camera. */
@@ -485,7 +485,7 @@ namespace Ogre {
         }
 
         /** Add a renderable to this group, with the given priority. */
-        void addRenderable(Renderable* pRend, ushort priority)
+        void addRenderable(Renderable* pRend, Technique* pTech, ushort priority)
         {
             // Check if priority group is there
             PriorityMap::iterator i = mPriorityGroups.find(priority);
@@ -505,7 +505,7 @@ namespace Ogre {
             }
 
             // Add
-            pPriorityGrp->addRenderable(pRend);
+            pPriorityGrp->addRenderable(pRend, pTech);
 
         }
 
