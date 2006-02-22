@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 #include "OgreHardwareBufferManager.h"
 #include "OgreVertexIndexData.h"
+#include "OgreLogManager.h"
 
 
 namespace Ogre {
@@ -39,8 +40,11 @@ namespace Ogre {
     {  
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }
+    // Free temporary vertex buffers every 5 minutes on 100fps
+    const size_t HardwareBufferManager::UNDER_USED_FRAME_THRESHOLD = 30000;
     //-----------------------------------------------------------------------
     HardwareBufferManager::HardwareBufferManager()
+        : mUnderUsedFrameCount(0)
     {
     }
     //-----------------------------------------------------------------------
@@ -51,39 +55,52 @@ namespace Ogre {
         destroyAllBindings();
         // No need to destroy main buffers - they will be destroyed by removal of bindings
 
-        // Destroy temp buffers
-        FreeTemporaryVertexBufferMap::iterator i, iend;
-        iend = mFreeTempVertexBufferMap.end();
-        for (i = mFreeTempVertexBufferMap.begin(); i != iend; ++i)
-        {
-            delete i->second;
-        }
+        // No need to destroy temp buffers - they will be destroyed automatically.
     }
     //-----------------------------------------------------------------------
     VertexDeclaration* HardwareBufferManager::createVertexDeclaration(void)
     {
-        VertexDeclaration* decl = new VertexDeclaration();
-        mVertexDeclarations.push_back(decl);
+        VertexDeclaration* decl = createVertexDeclarationImpl();
+        mVertexDeclarations.insert(decl);
         return decl;
-        
     }
     //-----------------------------------------------------------------------
     void HardwareBufferManager::destroyVertexDeclaration(VertexDeclaration* decl)
     {
-        mVertexDeclarations.remove(decl);
-        delete decl;
+        mVertexDeclarations.erase(decl);
+        destroyVertexDeclarationImpl(decl);
     }
     //-----------------------------------------------------------------------
 	VertexBufferBinding* HardwareBufferManager::createVertexBufferBinding(void)
 	{
-		VertexBufferBinding* ret = new VertexBufferBinding();
-		mVertexBufferBindings.push_back(ret);
+		VertexBufferBinding* ret = createVertexBufferBindingImpl();
+		mVertexBufferBindings.insert(ret);
 		return ret;
 	}
     //-----------------------------------------------------------------------
 	void HardwareBufferManager::destroyVertexBufferBinding(VertexBufferBinding* binding)
 	{
-		mVertexBufferBindings.remove(binding);
+		mVertexBufferBindings.erase(binding);
+		destroyVertexBufferBindingImpl(binding);
+	}
+    //-----------------------------------------------------------------------
+    VertexDeclaration* HardwareBufferManager::createVertexDeclarationImpl(void)
+    {
+        return new VertexDeclaration();
+    }
+    //-----------------------------------------------------------------------
+    void HardwareBufferManager::destroyVertexDeclarationImpl(VertexDeclaration* decl)
+    {
+        delete decl;
+    }
+    //-----------------------------------------------------------------------
+	VertexBufferBinding* HardwareBufferManager::createVertexBufferBindingImpl(void)
+	{
+		return new VertexBufferBinding();
+	}
+    //-----------------------------------------------------------------------
+	void HardwareBufferManager::destroyVertexBufferBindingImpl(VertexBufferBinding* binding)
+	{
 		delete binding;
 	}
     //-----------------------------------------------------------------------
@@ -92,10 +109,9 @@ namespace Ogre {
         VertexDeclarationList::iterator decl;
         for (decl = mVertexDeclarations.begin(); decl != mVertexDeclarations.end(); ++decl)
         {
-            delete *decl;
+            destroyVertexDeclarationImpl(*decl);
         }
         mVertexDeclarations.clear();
-
     }
     //-----------------------------------------------------------------------
     void HardwareBufferManager::destroyAllBindings(void)
@@ -103,7 +119,7 @@ namespace Ogre {
         VertexBufferBindingList::iterator bind;
         for (bind = mVertexBufferBindings.begin(); bind != mVertexBufferBindings.end(); ++bind)
         {
-            delete *bind;
+            destroyVertexBufferBindingImpl(*bind);
         }
         mVertexBufferBindings.clear();
     }
@@ -112,24 +128,9 @@ namespace Ogre {
 			const HardwareVertexBufferSharedPtr& sourceBuffer,
 			const HardwareVertexBufferSharedPtr& copy)
 	{
-        // Locate source buffer copy in free list
-        FreeTemporaryVertexBufferMap::iterator vbmi = 
-            mFreeTempVertexBufferMap.find(sourceBuffer.getPointer());
-
-        if (vbmi == mFreeTempVertexBufferMap.end())
-        {
-            // Add new entry
-            FreeTemporaryVertexBufferList *newList = new FreeTemporaryVertexBufferList();
-            std::pair<FreeTemporaryVertexBufferMap::iterator, bool> retPair = 
-                mFreeTempVertexBufferMap.insert(
-                    FreeTemporaryVertexBufferMap::value_type(
-                        sourceBuffer.getPointer(), newList));
-            assert(retPair.second && "Error inserting buffer list");
-            vbmi = retPair.first;
-        }
-
-		// Add copy to free list
-		vbmi->second->push_back(copy);
+		// Add copy to free temporary vertex buffers
+        mFreeTempVertexBufferMap.insert(
+            FreeTemporaryVertexBufferMap::value_type(sourceBuffer.get(), copy));
 	}
 	//-----------------------------------------------------------------------
     HardwareVertexBufferSharedPtr 
@@ -138,25 +139,12 @@ namespace Ogre {
         BufferLicenseType licenseType, HardwareBufferLicensee* licensee,
         bool copyData)
     {
-        // Locate existing buffer copy in free list
-        FreeTemporaryVertexBufferMap::iterator vbmi = 
-            mFreeTempVertexBufferMap.find(sourceBuffer.getPointer());
-
-        if (vbmi == mFreeTempVertexBufferMap.end())
-        {
-            // Add new entry
-            FreeTemporaryVertexBufferList *newList = new FreeTemporaryVertexBufferList();
-            std::pair<FreeTemporaryVertexBufferMap::iterator, bool> retPair = 
-                mFreeTempVertexBufferMap.insert(
-                    FreeTemporaryVertexBufferMap::value_type(
-                        sourceBuffer.getPointer(), newList));
-            assert(retPair.second && "Error inserting buffer list");
-            vbmi = retPair.first;
-        }
-
         HardwareVertexBufferSharedPtr vbuf;
-        // Are there any free buffers?
-        if (vbmi->second->empty())
+
+        // Locate existing buffer copy in temporary vertex buffers
+        FreeTemporaryVertexBufferMap::iterator i = 
+            mFreeTempVertexBufferMap.find(sourceBuffer.get());
+        if (i == mFreeTempVertexBufferMap.end())
         {
             // copy buffer, use shadow buffer and make dynamic
             vbuf = makeBufferCopy(
@@ -167,8 +155,8 @@ namespace Ogre {
         else
         {
             // Allocate existing copy
-            vbuf = vbmi->second->back();
-            vbmi->second->pop_back();
+            vbuf = i->second;
+            mFreeTempVertexBufferMap.erase(i);
         }
 
         // Copy data?
@@ -176,9 +164,12 @@ namespace Ogre {
         {
             vbuf->copyData(*(sourceBuffer.get()), 0, 0, sourceBuffer->getSizeInBytes(), true);
         }
+
         // Insert copy into licensee list
-        mTempVertexBufferLicenses.push_back(
-            VertexBufferLicense(sourceBuffer.getPointer(), licenseType, vbuf, licensee));
+        mTempVertexBufferLicenses.insert(
+            TemporaryVertexBufferLicenseMap::value_type(
+                vbuf.get(),
+                VertexBufferLicense(sourceBuffer.get(), licenseType, vbuf, licensee)));
 
         return vbuf;
     }
@@ -186,88 +177,128 @@ namespace Ogre {
     void HardwareBufferManager::releaseVertexBufferCopy(
         const HardwareVertexBufferSharedPtr& bufferCopy)
     {
-        TemporaryVertexBufferLicenseList::iterator i, iend;
-        iend = mTempVertexBufferLicenses.end();
-        for (i = mTempVertexBufferLicenses.begin(); i != iend; ++i)
+        TemporaryVertexBufferLicenseMap::iterator i =
+            mTempVertexBufferLicenses.find(bufferCopy.get());
+        if (i != mTempVertexBufferLicenses.end())
         {
-            const VertexBufferLicense& vbl = *i;
-            if (vbl.buffer.getPointer() == bufferCopy.getPointer())
+            const VertexBufferLicense& vbl = i->second;
+
+            vbl.licensee->licenseExpired(vbl.buffer.get());
+
+            mFreeTempVertexBufferMap.insert(
+                FreeTemporaryVertexBufferMap::value_type(vbl.originalBufferPtr, vbl.buffer));
+            mTempVertexBufferLicenses.erase(i);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void HardwareBufferManager::_freeUnusedBufferCopies(void)
+    {
+        size_t numFreed = 0;
+
+        // Free unused temporary buffers
+        FreeTemporaryVertexBufferMap::iterator i;
+        i = mFreeTempVertexBufferMap.begin();
+        while (i != mFreeTempVertexBufferMap.end())
+        {
+            FreeTemporaryVertexBufferMap::iterator icur = i++;
+            // Free the temporary buffer that referenced by ourself only.
+            // TODO: Some temporary buffers are bound to vertex buffer bindings
+            // but not checked out, need to sort out method to unbind them.
+            if (icur->second.useCount() <= 1)
             {
-
-                FreeTemporaryVertexBufferMap::iterator vbi =
-                    mFreeTempVertexBufferMap.find(vbl.originalBufferPtr);
-                assert (vbi != mFreeTempVertexBufferMap.end());
-				vbl.licensee->licenseExpired(vbl.buffer.get());
-
-                vbi->second->push_back(vbl.buffer);
-                mTempVertexBufferLicenses.erase(i);
-                break;
-
+                ++numFreed;
+                mFreeTempVertexBufferMap.erase(icur);
             }
         }
 
+        StringUtil::StrStreamType str;
+        if (numFreed)
+        {
+            str << "HardwareBufferManager: Freed " << numFreed << " unused temporary vertex buffers.";
+        }
+        else
+        {
+            str << "HardwareBufferManager: No unused temporary vertex buffers found.";
+        }
+        LogManager::getSingleton().logMessage(str.str());
     }
     //-----------------------------------------------------------------------
-    void HardwareBufferManager::_releaseBufferCopies(void)
+    void HardwareBufferManager::_releaseBufferCopies(bool forceFreeUnused)
     {
-        TemporaryVertexBufferLicenseList::iterator i;
-        i = mTempVertexBufferLicenses.begin(); 
+        size_t numUnused = mFreeTempVertexBufferMap.size();
+        size_t numUsed = mTempVertexBufferLicenses.size();
 
+        // Erase the copies which are automatic licensed out
+        TemporaryVertexBufferLicenseMap::iterator i;
+        i = mTempVertexBufferLicenses.begin(); 
         while (i != mTempVertexBufferLicenses.end()) 
         {
-
-            const VertexBufferLicense& vbl = *i;
+            TemporaryVertexBufferLicenseMap::iterator icur = i++;
+            const VertexBufferLicense& vbl = icur->second;
             if (vbl.licenseType == BLT_AUTOMATIC_RELEASE)
             {
-
-                FreeTemporaryVertexBufferMap::iterator vbi =
-                    mFreeTempVertexBufferMap.find(vbl.originalBufferPtr);
-                assert (vbi != mFreeTempVertexBufferMap.end());
 				vbl.licensee->licenseExpired(vbl.buffer.get());
 
-                vbi->second->push_back(vbl.buffer);
-                i = mTempVertexBufferLicenses.erase(i);
+                mFreeTempVertexBufferMap.insert(
+                    FreeTemporaryVertexBufferMap::value_type(vbl.originalBufferPtr, vbl.buffer));
+                mTempVertexBufferLicenses.erase(icur);
+            }
+        }
 
+        // Check whether or not free unused temporary vertex buffers.
+        if (forceFreeUnused)
+        {
+            _freeUnusedBufferCopies();
+            mUnderUsedFrameCount = 0;
+        }
+        else
+        {
+            if (numUsed < numUnused)
+            {
+                // Free temporary vertex buffers if too many unused for a long time.
+                // Do overall temporary vertex buffers instead of per source buffer
+                // to avoid overhead.
+                ++mUnderUsedFrameCount;
+                if (mUnderUsedFrameCount >= UNDER_USED_FRAME_THRESHOLD)
+                {
+                    _freeUnusedBufferCopies();
+                    mUnderUsedFrameCount = 0;
+                }
             }
             else
             {
-                ++i;
+                mUnderUsedFrameCount = 0;
             }
         }
     }
     //-----------------------------------------------------------------------
     void HardwareBufferManager::_forceReleaseBufferCopies(
+        const HardwareVertexBufferSharedPtr& sourceBuffer)
+    {
+        _forceReleaseBufferCopies(sourceBuffer.get());
+    }
+    //-----------------------------------------------------------------------
+    void HardwareBufferManager::_forceReleaseBufferCopies(
         HardwareVertexBuffer* sourceBuffer)
     {
-        TemporaryVertexBufferLicenseList::iterator i;
-        i = mTempVertexBufferLicenses.begin(); 
-    
         // Erase the copies which are licensed out
+        TemporaryVertexBufferLicenseMap::iterator i;
+        i = mTempVertexBufferLicenses.begin();
         while (i != mTempVertexBufferLicenses.end()) 
         {
-            const VertexBufferLicense& vbl = *i;
+            TemporaryVertexBufferLicenseMap::iterator icur = i++;
+            const VertexBufferLicense& vbl = icur->second;
             if (vbl.originalBufferPtr == sourceBuffer)
             {
                 // Just tell the owner that this is being released
                 vbl.licensee->licenseExpired(vbl.buffer.get());
-                i = mTempVertexBufferLicenses.erase(i);
-            }
-            else
-            {
-                ++i;
+
+                mTempVertexBufferLicenses.erase(icur);
             }
         }
+
         // Erase the free copies
-        // locate the source buffer entry in the FreeTemporaryVertexBufferMap
-        // if there is an entry for this source buffer there will only be one
-        FreeTemporaryVertexBufferMap::iterator fi =
-            mFreeTempVertexBufferMap.find(sourceBuffer);
-        if (fi != mFreeTempVertexBufferMap.end())
-        {
-            // an entry was found so delete it
-            delete fi->second;
-            mFreeTempVertexBufferMap.erase(fi);
-        }
+        mFreeTempVertexBufferMap.erase(sourceBuffer);
     }
 	//-----------------------------------------------------------------------
 	void HardwareBufferManager::_notifyVertexBufferDestroyed(HardwareVertexBuffer* buf)

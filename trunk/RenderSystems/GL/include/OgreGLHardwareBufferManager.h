@@ -44,11 +44,6 @@ namespace Ogre {
             HardwareIndexBuffer::IndexType itype, size_t numIndexes, 
             HardwareBuffer::Usage usage, bool useShadowBuffer = false);
 
-        /// Creates a vertex declaration, may be overridden by certain rendering APIs
-        VertexDeclaration* createVertexDeclaration(void);
-        /// Destroys a vertex declaration, may be overridden by certain rendering APIs
-        void destroyVertexDeclaration(VertexDeclaration* decl);
-
         /// Utility function to get the correct GL usage based on HBU's
         static GLenum getGLUsage(unsigned int usage);
 

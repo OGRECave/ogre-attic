@@ -36,7 +36,10 @@ namespace Ogre {
     protected:
         LPDIRECT3DDEVICE9 mlpD3DDevice;
 
-        void destroyAllDeclarations(void);
+        /// Internal method for creates a new vertex declaration, may be overridden by certain rendering APIs
+        VertexDeclaration* createVertexDeclarationImpl(void);
+        /// Internal method for destroys a vertex declaration, may be overridden by certain rendering APIs
+        void destroyVertexDeclarationImpl(VertexDeclaration* decl);
 
     public:
         D3D9HardwareBufferManager(LPDIRECT3DDEVICE9 device);
@@ -48,10 +51,6 @@ namespace Ogre {
 		HardwareIndexBufferSharedPtr 
             createIndexBuffer(HardwareIndexBuffer::IndexType itype, size_t numIndexes, HardwareBuffer::Usage usage, bool useShadowBuffer = false);
 
-        /// Creates a vertex declaration, may be overridden by certain rendering APIs
-        VertexDeclaration* createVertexDeclaration(void);
-        /// Destroys a vertex declaration, may be overridden by certain rendering APIs
-        void destroyVertexDeclaration(VertexDeclaration* decl);
 		/** Release all buffers in the default memory pool. 
 		@remarks
 			Method for dealing with lost devices.

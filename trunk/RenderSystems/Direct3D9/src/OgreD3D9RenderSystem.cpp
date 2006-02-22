@@ -2931,6 +2931,13 @@ namespace Ogre
 		}
         mLastVertexSourceCount = 0;
 
+        // Release all automatic temporary buffers and free unused
+        // temporary buffers, so we doesn't need to recreate them,
+        // and they will reallocate on demand. This save a lot of
+        // release/recreate of non-managed vertex buffers which
+        // wasn't need at all.
+        mHardwareBufferManager->_releaseBufferCopies(true);
+
 		// We have to deal with non-managed textures and vertex buffers
 		// GPU programs don't have to be restored
 		static_cast<D3D9TextureManager*>(mTextureManager)->releaseDefaultPoolResources();
