@@ -54,19 +54,6 @@ namespace Ogre {
 		return HardwareIndexBufferSharedPtr(
 			new GLHardwareIndexBuffer(itype, numIndexes, usage, useShadowBuffer) );
     }
-    //-----------------------------------------------------------------------
-    VertexDeclaration* GLHardwareBufferManager::createVertexDeclaration(void)
-    {
-        VertexDeclaration* decl = new VertexDeclaration();
-        mVertexDeclarations.push_back(decl);
-        return decl;
-    }
-    //-----------------------------------------------------------------------
-    void GLHardwareBufferManager::destroyVertexDeclaration(VertexDeclaration* decl)
-    {
-        mVertexDeclarations.remove(decl);
-        delete decl;
-    }
     //---------------------------------------------------------------------
     GLenum GLHardwareBufferManager::getGLUsage(unsigned int usage)
     {

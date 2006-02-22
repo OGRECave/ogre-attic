@@ -90,15 +90,27 @@ namespace Ogre {
         friend class HardwareVertexBufferSharedPtr;
         friend class HardwareIndexBufferSharedPtr;
     protected:
-        typedef std::list<VertexDeclaration*> VertexDeclarationList;
-		typedef std::list<VertexBufferBinding*> VertexBufferBindingList;
+        typedef std::set<VertexDeclaration*> VertexDeclarationList;
+		typedef std::set<VertexBufferBinding*> VertexBufferBindingList;
 
         VertexDeclarationList mVertexDeclarations;
 		VertexBufferBindingList mVertexBufferBindings;
 
 
+        /// Internal method for destroys all vertex declarations
         virtual void destroyAllDeclarations(void);
+        /// Internal method for destroys all vertex buffer bindings
         virtual void destroyAllBindings(void);
+
+        /// Internal method for creates a new vertex declaration, may be overridden by certain rendering APIs
+        virtual VertexDeclaration* createVertexDeclarationImpl(void);
+        /// Internal method for destroys a vertex declaration, may be overridden by certain rendering APIs
+        virtual void destroyVertexDeclarationImpl(VertexDeclaration* decl);
+
+		/// Internal method for creates a new VertexBufferBinding, may be overridden by certain rendering APIs
+		virtual VertexBufferBinding* createVertexBufferBindingImpl(void);
+		/// Internal method for destroys a VertexBufferBinding, may be overridden by certain rendering APIs
+		virtual void destroyVertexBufferBindingImpl(VertexBufferBinding* binding);
 
     public:
 
@@ -128,16 +140,18 @@ namespace Ogre {
 
         };
 
-        /// List of free temporary vertex buffers
-        typedef std::vector<HardwareVertexBufferSharedPtr> FreeTemporaryVertexBufferList;
-        /// Map from original buffer to list of temporary buffers
-        typedef std::map<HardwareVertexBuffer*, FreeTemporaryVertexBufferList*> FreeTemporaryVertexBufferMap;
+        /// Map from original buffer to temporary buffers
+        typedef std::multimap<HardwareVertexBuffer*, HardwareVertexBufferSharedPtr> FreeTemporaryVertexBufferMap;
         /// Map of current available temp buffers 
         FreeTemporaryVertexBufferMap mFreeTempVertexBufferMap;
-        /// List of currently licensed temp buffers
-        typedef std::vector<VertexBufferLicense> TemporaryVertexBufferLicenseList;
-        /// List of currently licensed temp buffers
-        TemporaryVertexBufferLicenseList mTempVertexBufferLicenses;
+        /// Map from temporary buffer to details of a license
+        typedef std::map<HardwareVertexBuffer*, VertexBufferLicense> TemporaryVertexBufferLicenseMap;
+        /// Map of currently licensed temporary buffers
+        TemporaryVertexBufferLicenseMap mTempVertexBufferLicenses;
+        /// Number of frames elapsed since temporary buffers utilization was above half the available
+        size_t mUnderUsedFrameCount;
+        /// Number of frames to wait before free unused temporary buffers
+        static const size_t UNDER_USED_FRAME_THRESHOLD;
 
 		typedef std::set<HardwareVertexBuffer*> VertexBufferList;
 		typedef std::set<HardwareIndexBuffer*> IndexBufferList;
@@ -203,9 +217,10 @@ namespace Ogre {
 		virtual HardwareIndexBufferSharedPtr 
             createIndexBuffer(HardwareIndexBuffer::IndexType itype, size_t numIndexes, 
 			HardwareBuffer::Usage usage, bool useShadowBuffer = false) = 0;
-        /// Creates a vertex declaration, may be overridden by certain rendering APIs
+
+        /** Creates a new vertex declaration. */
         virtual VertexDeclaration* createVertexDeclaration(void);
-        /// Destroys a vertex declaration, may be overridden by certain rendering APIs
+        /** Destroys a vertex declaration. */
         virtual void destroyVertexDeclaration(VertexDeclaration* decl);
 
 		/** Creates a new VertexBufferBinding. */
@@ -243,6 +258,7 @@ namespace Ogre {
             BufferLicenseType licenseType,
             HardwareBufferLicensee* licensee,
             bool copyData = false);
+
         /** Manually release a vertex buffer copy for others to subsequently use.
         @remarks
             Only required if the original call to allocateVertexBufferCopy
@@ -254,9 +270,24 @@ namespace Ogre {
         virtual void releaseVertexBufferCopy(
             const HardwareVertexBufferSharedPtr& bufferCopy); 
 
+        /** Free all unused vertex buffer copies.
+        @remarks
+            This method free all temporary vertex buffers that not in used.
+            In normally, temporary vertex buffers are subsequently stored and can
+            be made available for other purposes later without incurring the cost
+            of construction / destruction. But in some cases you want to free them
+            to save hardware memory (e.g. application was runs in a long time, you
+            might free temporary buffers periodically to avoid memory overload).
+        */
+        virtual void _freeUnusedBufferCopies(void);
+
         /** Internal method for releasing all temporary buffers which have been 
-           allocated using BLT_AUTOMATIC_RELEASE; is called by OGRE. */
-        virtual void _releaseBufferCopies(void);
+           allocated using BLT_AUTOMATIC_RELEASE; is called by OGRE.
+        @param forceFreeUnused If true, free all unused temporary buffers.
+            If false, auto detect and free all unused temporary buffers based on
+            temporary buffers utilization.
+        */
+        virtual void _releaseBufferCopies(bool forceFreeUnused = false);
 
         /** Internal method that forces the release of copies of a given buffer.
         @remarks
@@ -268,8 +299,7 @@ namespace Ogre {
             are deleted.
         */
         virtual void _forceReleaseBufferCopies(
-            const HardwareVertexBufferSharedPtr& sourceBuffer)
-        { _forceReleaseBufferCopies(sourceBuffer.get()); }
+            const HardwareVertexBufferSharedPtr& sourceBuffer);
 
         /** Internal method that forces the release of copies of a given buffer.
         @remarks
@@ -280,7 +310,7 @@ namespace Ogre {
         @param sourceBuffer the source buffer as a pointer.  Any buffer copies created from the source buffer
             are deleted.
         */
-        void _forceReleaseBufferCopies(HardwareVertexBuffer* sourceBuffer);
+        virtual void _forceReleaseBufferCopies(HardwareVertexBuffer* sourceBuffer);
 
 		/// Notification that a hardware vertex buffer has been destroyed
 		void _notifyVertexBufferDestroyed(HardwareVertexBuffer* buf);
