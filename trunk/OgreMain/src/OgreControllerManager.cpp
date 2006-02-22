@@ -64,6 +64,12 @@ namespace Ogre {
         return c;
     }
     //-----------------------------------------------------------------------
+    Controller<Real>* ControllerManager::createFrameTimePassthroughController(
+        const ControllerValueRealPtr& dest)
+    {
+        return createController(getFrameTimeSource(), dest, getPassthroughControllerFunction());
+    }
+    //-----------------------------------------------------------------------
     void ControllerManager::updateAllControllers(void)
     {
         // Only update once per frame

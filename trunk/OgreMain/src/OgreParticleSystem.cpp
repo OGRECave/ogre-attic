@@ -811,8 +811,7 @@ namespace Ogre {
             // Create time controller when attached
             ControllerManager& mgr = ControllerManager::getSingleton(); 
             ControllerValueRealPtr updValue(new ParticleSystemUpdateValue(this));
-            mTimeController = mgr.createController(
-                mgr.getFrameTimeSource(), updValue, mgr.getPassthroughControllerFunction());
+            mTimeController = mgr.createFrameTimePassthroughController(updValue);
         }
         else if (!parent && mTimeController)
         {
