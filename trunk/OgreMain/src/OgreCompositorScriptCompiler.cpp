@@ -45,7 +45,7 @@ namespace Ogre {
 		"<Script_Properties> ::= {<CompositorDef>} \n"
 		"<CompositorDef> ::= 'compositor' <Label> '{' <TechniqueDef> '}' \n"
 		// Technique
-		"<TechniqueDef> ::= 'technique' '{' {<TextureDef>} {<TargetDef>} <TargetOuputDef> '}' \n"
+		"<TechniqueDef> ::= 'technique' '{' {<TextureDef>} {<TargetDef>} <TargetOutputDef> '}' \n"
 		"<TextureDef> ::= 'texture' <Label> <WidthOptionDef> <HeightOptionDef> <PixelFormatDef> \n"
 		"<WidthOptionDef> ::= 'target_width' <#width> \n"
 		"<HeightOptionDef> ::= 'target_height' <#height> \n"
