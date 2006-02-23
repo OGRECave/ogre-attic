@@ -31,6 +31,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <list>
 
 class Modifier;
+class INode;
+class IBipMaster;
 
 INT_PTR CALLBACK ExportPropertiesDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -41,6 +43,12 @@ class OgreMaxExport : public SceneExport, public ITreeEnumProc {
 		VW, 
 		WU
 	} Tex2D;
+
+	typedef struct {
+		std::string name;
+		int start;
+		int end;
+	} NamedAnimation;
 
 	friend INT_PTR CALLBACK ExportPropertiesDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -68,17 +76,23 @@ protected:
 	bool m_useSingleSkeleton;
 	bool m_rebuildNormals;
 	bool m_exportMaterial; // alernate is to use default material
+	bool m_skeletonLink;
 	std::string m_defaultMaterialName;
 	bool m_invertNormals;
 	bool m_flipYZ;
 	bool m_exportVertexColors;
 	float m_scale;
+	int m_fps;
+	std::list <NamedAnimation> m_animations;
 
 	Tex2D m_2DTexCoord;
 	std::string m_materialFilename;
+	std::string m_skeletonFilename;
 	std::queue< std::string > m_submeshNames;
 	std::map< std::string, Mtl * > m_materialMap;
 	std::list <INode *> m_nodeList;
+	std::map< std::string, int > m_boneIndexMap;
+	int m_currentBoneIndex;
 
 	HINSTANCE m_hInstance;
 	HWND m_hWndDlgExport;
@@ -92,13 +106,25 @@ protected:
 	// utility methods
 	void updateExportOptions(HWND hDlg);
 	bool export();
+	void addAnimation();
+	void deleteAnimation();
 
+	// mesh file stream functions
 	bool streamFileHeader(std::ostream &of);
 	bool streamFileFooter(std::ostream &of);
-	bool streamSubmesh(std::ostream &of, TriObject *tri, std::string &mtlName);
+	bool streamSubmesh(std::ostream &of, INode *node, std::string &mtlName);
 	bool streamMaterial(std::ostream &of);
 	bool streamPass(std::ostream &of, Mtl *mtl);
+	bool streamBoneAssignments(std::ostream &of, Modifier *mod, INode *node);
+	bool streamAnimTracks(std::ostream &of, TimeValue startFrame, TimeValue endFrame);
+	bool streamKeyframes(std::ostream &of, INode *node, Tab<TimeValue> &keyTimes, Interval &interval, Matrix3 &initTM);
+	bool streamBipedKeyframes(std::ostream &of, IBipMaster *bip, INode *node, Tab<TimeValue> &keyTimes, Interval &interval, Matrix3 &initTM);
+
+	// skeleton file stream functions
 	Modifier *FindPhysiqueModifier (INode* nodePtr);
+	int getBoneIndex(char *name);
+	bool streamSkeleton(std::ostream &of);
+	std::string removeSpaces(const std::string &s);
 };
 
 class OgreMaxExportClassDesc : public ClassDesc {
