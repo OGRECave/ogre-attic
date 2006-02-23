@@ -125,6 +125,8 @@ namespace Ogre {
         // Texture Unit section rules
         "        <Texture_Unit_Def> ::= 'texture_unit' [<Label>] '{' {<TUS_Properties>} '}' \n"
         " "
+        "<Vertex_Program_Def> ::= \n"
+        "<Fragment_Program_Def> ::= \n"
 
         // common rules
         "<On_Off> ::= 'on' | 'off' \n"
