@@ -315,17 +315,29 @@ namespace Ogre {
                tokenDef.isNonTerminal = true;
 		   }
 	    } // end for
+
 	    // test all non terminals for valid rule ID
         const size_t definitionCount = mActiveTokenState->lexemeTokenDefinitions.size();
+        bool errorsFound = false;
+        // report all non-terminals that don't have a rule then throw an exception
         for (token_ID = 0; token_ID < definitionCount; ++token_ID)
         {
             const LexemeTokenDef& tokenDef = mActiveTokenState->lexemeTokenDefinitions[token_ID];
             if (tokenDef.isNonTerminal && (tokenDef.ruleID == 0))
             {
-                OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR,  "For grammer: " + grammerName +
-                    ", lexeme non-terminal token definition: " +  tokenDef.lexeme +
-                    " has no rule definition or is corrupted.", "Compiler2Pass::verifyTokenRuleLinks");
+                errorsFound = true;
+                LogManager::getSingleton().logMessage(
+                "For grammer: " + grammerName +
+                ", lexeme non-terminal token definition: " + tokenDef.lexeme +
+                " found with no rule definition or corrupted."
+                );
             }
+        }
+        if (errorsFound)
+        {
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR,  "For grammer: " + grammerName +
+                ", lexeme non-terminal token definition(s) found with no rule definition or corrupted.",
+                "Compiler2Pass::verifyTokenRuleLinks");
         }
     }
 
@@ -564,6 +576,7 @@ namespace Ogre {
 	    bool passed = true;
         bool tokenFound = false;
 	    bool endFound = false;
+	    bool parseErrorLogged = false;
 
 	    // keep following rulepath until the end is reached
         while (!endFound)
@@ -575,6 +588,18 @@ namespace Ogre {
 			    // only validate if the previous rule passed
 			    if (passed)
 				    passed = ValidateToken(rulepathIDX, ActiveNTTRule);
+				    // log error message if a previouse token was found in this rule path and current token failed
+				    if (tokenFound && !parseErrorLogged && !passed)
+                    {
+                        parseErrorLogged = true;
+                        LogManager::getSingleton().logMessage(
+                        "Was expecting: " + getBNFGrammerTextFromRulePath(rulepathIDX)
+                        );
+                        LogManager::getSingleton().logMessage(
+                        "And Found: " + mSource->substr(mCharPos, 20)
+                        );
+                    }
+
 			    break;
 
 		    case otOR:
@@ -1036,10 +1061,103 @@ namespace Ogre {
             mPreviousActionQuePosition = lastTokenQuePos;
         }
     }
+
+    //-----------------------------------------------------------------------
+    String Compiler2Pass::getBNFGrammerTextFromRulePath(size_t ruleID)
+    {
+
+        String grammerText;
+
+        // default to using Client rule path
+        // check if index is inbounds
+        if (ruleID >= mClientTokenState->rootRulePath.size())
+        {
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "rule ID exceeds client rule path bounds.", "Compiler2Pass::getBNFGrammerRulePathText");
+        }
+        // iterate through rule path and get terminal and non-terminal strings
+        const TokenRuleContainer& rulePath = mClientTokenState->rootRulePath;
+
+        while (rulePath[ruleID].operation != otEND)
+        {
+            // rule text processing - the op instructions, system tokens
+            switch (rulePath[ruleID].operation)
+            {
+            // rule lexeme ::=
+            case otRULE:
+                grammerText += "\n" + getLexemeText(ruleID) + " ::=";
+                break;
+            // no special processing for AND op
+            case otAND:
+                grammerText += " " + getLexemeText(ruleID);
+                break;
+            // or | lexeme
+            case otOR:
+                grammerText += " | " + getLexemeText(ruleID);
+                break;
+            // optional [lexeme]
+            case otOPTIONAL:
+                grammerText += " [" + getLexemeText(ruleID) + "]";
+                break;
+            // repeat {lexeme}
+            case otREPEAT:
+                grammerText += " {" + getLexemeText(ruleID) + "}";
+                break;
+            // not test (?!lexeme)
+            case otNOT_TEST:
+                grammerText += " (?!" + getLexemeText(ruleID) + ")";
+                break;
+            }
+            // lexeme/token text procesing
+            ++ruleID;
+        }
+
+        return grammerText;
+    }
+
     //-----------------------------------------------------------------------
 
     //-----------------------------------------------------------------------
     //              Private Methods
+    //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
+    String Compiler2Pass::getLexemeText(size_t& ruleID)
+    {
+        String lexeme;
+
+        const TokenRuleContainer& rulePath = mClientTokenState->rootRulePath;
+        const size_t tokenID = rulePath[ruleID].tokenID;
+
+        if ( tokenID < SystemTokenBase)
+        {
+            // non-terminal tokens
+            if (mClientTokenState->lexemeTokenDefinitions[tokenID].isNonTerminal)
+            {
+                lexeme = "<" + mClientTokenState->lexemeTokenDefinitions[tokenID].lexeme + ">";
+            }
+            else // terminal tokens
+            {
+                lexeme = "'" + mClientTokenState->lexemeTokenDefinitions[tokenID].lexeme + "'";
+            }
+        }
+        else // system token processing
+        {
+            switch (rulePath[ruleID].tokenID)
+            {
+            case _character_:
+                // need to get next rule instruction for data
+                ++ruleID;
+                // data for _character_ is always a set so put () around text string
+                lexeme = "{" + mClientTokenState->lexemeTokenDefinitions[rulePath[ruleID].tokenID].lexeme + ")";
+                break;
+            case _value_:
+                // <#> - need name of label?
+                lexeme = "<#>";
+                break;
+            }
+        }
+
+        return lexeme;
+    }
     //-----------------------------------------------------------------------
     void Compiler2Pass::activatePreviousTokenAction(void)
     {
@@ -1135,16 +1253,18 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    size_t Compiler2Pass::getClientLexemeTokenID(const String& lexeme)
+    size_t Compiler2Pass::getClientLexemeTokenID(const String& lexeme, const bool isCaseSensitive)
     {
         size_t tokenID = mClientTokenState->lexemeTokenMap[lexeme];
 
         if (tokenID == 0)
         {
+            // lexeme not found so a new entry is made by the system
+            // note that all lexemes added by the system will not/can not have an action
             tokenID = mClientTokenState->lexemeTokenDefinitions.size();
             // add identifier to client lexeme tokens
             mActiveTokenState = mClientTokenState;
-            addLexemeToken(lexeme, tokenID);
+            addLexemeToken(lexeme, tokenID, false, isCaseSensitive);
             mActiveTokenState = &mBNFTokenState;
         }
 
@@ -1158,21 +1278,19 @@ namespace Ogre {
         const String& identifierLabel = getNextTokenLabel();
         // next token should be id end
         getNextToken(BNF_ID_END);
-        // add identifier to lexeme token definitions
-        //
-        const size_t tokenID = getClientLexemeTokenID(identifierLabel);
+        // add identifier to lexeme token definitions but keep case sensitivity
+        const size_t tokenID = getClientLexemeTokenID(identifierLabel, true);
+        LexemeTokenDef& tokenDef = mClientTokenState->lexemeTokenDefinitions[tokenID];
+
         // peek at the next token isntruction to see if this
         // identifier is for a new rule or is part of the current rule
         if (testNextTokenID(BNF_SET_RULE))
         {
+            // consume set rule
             getNextToken(BNF_SET_RULE);
-            mClientTokenState->rootRulePath.push_back(TokenRule(otRULE, tokenID));
-            // add new end op token rule
-            mClientTokenState->rootRulePath.push_back(TokenRule(otEND, 0));
             // check to make sure this is the first time this rule is being setup by
-            // verifying isNonTerminal flag is false then set it true
-            LexemeTokenDef& tokenDef = mClientTokenState->lexemeTokenDefinitions[tokenID];
-            if (tokenDef.isNonTerminal)
+            // verifying rule id is 0
+            if (tokenDef.ruleID != 0)
             {
                 // this is not the first time for this identifier to be set up as a rule
                 // since duplicate rules can not exist, throw an exception
@@ -1182,12 +1300,18 @@ namespace Ogre {
                     tokenDef.lexeme + ", that already had a rule assigned",
                     "Compiler2Pass::extractNonTerminal");
             }
-            tokenDef.isNonTerminal = true;
+            // add new rule to end of rule path
+            mClientTokenState->rootRulePath.push_back(TokenRule(otRULE, tokenID));
+            tokenDef.ruleID = mClientTokenState->rootRulePath.size() - 1;
+            // add new end op token rule
+            mClientTokenState->rootRulePath.push_back(TokenRule(otEND, 0));
         }
-        else
+        else // just a reference to a non-terminal
         {
             modifyLastRule(pendingRuleOp, tokenID);
         }
+
+        tokenDef.isNonTerminal = true;
     }
     //-----------------------------------------------------------------------
     void Compiler2Pass::extractTerminal(const OperationType pendingRuleOp)
