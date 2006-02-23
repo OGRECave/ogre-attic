@@ -18,8 +18,17 @@
 #define IDC_CHK_VERTEX_COLORS           1019
 #define IDC_TXT_SCALE                   1020
 #define IDC_CHK_INVERT_NORMALS          1021
+#define IDC_TXT_SKELETON_FILENAME       1022
 #define IDC_TXT_DEFAULT_MATERIAL        1023
 #define IDC_RADIO_EXPORT_MATERIALS      1024
+#define IDC_LIST_ANIMATIONS             1030
+#define IDC_TXT_FPS                     1031
+#define IDC_TXT_ANIMATION_NAME          1032
+#define IDC_TXT_ANIM_START              1033
+#define IDC_TXT_ANIM_END                1034
+#define IDC_CMD_ADD_ANIMATION           1035
+#define IDC_CMD_DELETE_ANIMATION        1036
+#define IDC_TXT_FRAME_RANGE             1037
 
 // Next default values for new objects
 // 
@@ -27,7 +36,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        102
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1026
+#define _APS_NEXT_CONTROL_VALUE         1038
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

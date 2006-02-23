@@ -4,6 +4,7 @@
 	Version="7.10"
 	Name="OgreMaxExporter"
 	ProjectGUID="{FA3803CF-6433-4959-9517-8EC505C5D919}"
+	RootNamespace="OgreMaxExporter"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -19,8 +20,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OGREEXPORTER_EXPORTS"
+				AdditionalIncludeDirectories="..\..\..\XMLConverter\include;..\..\..\..\OgreMain\include;..\include;&quot;..\..\..\..\..\..\..\Program Files\3dsmax7\maxsdk\include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OGREEXPORTER_EXPORTS;TIXML_USE_STL"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -32,10 +33,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="core.lib comctl32.lib maxutil.lib mesh.lib geom.lib"
+				AdditionalDependencies="core.lib comctl32.lib maxutil.lib mesh.lib geom.lib IGame.lib"
 				OutputFile="$(OutDir)/OgreExporter_d.dle"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\3dsmax7\maxsdk\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\..\..\..\Program Files\3dsmax7\maxsdk\lib&quot;;..\..\..\..\OgreMain\lib\Debug"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/OgreExporter.pdb"
 				SubSystem="2"
@@ -44,7 +45,8 @@
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				CommandLine="copy $(TargetPath) &quot;c:\program files\3dsmax7\plugins\Ogre&quot;"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -70,8 +72,8 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OGREEXPORTER_EXPORTS"
+				AdditionalIncludeDirectories="..\..\..\XMLConverter\include;..\..\..\..\OgreMain\include;..\include;&quot;..\..\..\..\..\..\..\Program Files\3dsmax7\maxsdk\include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OGREEXPORTER_EXPORTS;TIXML_USE_STL"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -81,10 +83,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="core.lib comctl32.lib maxutil.lib mesh.lib geom.lib"
+				AdditionalDependencies="core.lib comctl32.lib maxutil.lib mesh.lib geom.lib IGame.lib"
 				OutputFile="$(OutDir)/OgreExporter.dle"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\3dsmax7\maxsdk\lib&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\..\..\..\Program Files\3dsmax7\maxsdk\lib&quot;;..\..\..\..\OgreMain\lib\Release"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -134,6 +136,100 @@
 			<File
 				RelativePath="..\src\OgreMaxExport.cpp">
 			</File>
+			<Filter
+				Name="OgreXMLConverter"
+				Filter="">
+				<File
+					RelativePath="..\..\..\XMLConverter\src\OgreXMLMeshSerializer.cpp">
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="TRUE">
+						<Tool
+							Name="VCCLCompilerTool"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="TRUE">
+						<Tool
+							Name="VCCLCompilerTool"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\XMLConverter\src\OgreXMLSkeletonSerializer.cpp">
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="TRUE">
+						<Tool
+							Name="VCCLCompilerTool"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="TRUE">
+						<Tool
+							Name="VCCLCompilerTool"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\XMLConverter\src\tinystr.cpp">
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="TRUE">
+						<Tool
+							Name="VCCLCompilerTool"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="TRUE">
+						<Tool
+							Name="VCCLCompilerTool"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\XMLConverter\src\tinyxml.cpp">
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="TRUE">
+						<Tool
+							Name="VCCLCompilerTool"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="TRUE">
+						<Tool
+							Name="VCCLCompilerTool"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\XMLConverter\src\tinyxmlerror.cpp">
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="TRUE">
+						<Tool
+							Name="VCCLCompilerTool"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="TRUE">
+						<Tool
+							Name="VCCLCompilerTool"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\XMLConverter\src\tinyxmlparser.cpp">
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="TRUE">
+						<Tool
+							Name="VCCLCompilerTool"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="TRUE">
+						<Tool
+							Name="VCCLCompilerTool"/>
+					</FileConfiguration>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -145,6 +241,25 @@
 			<File
 				RelativePath="..\include\resource.h">
 			</File>
+			<Filter
+				Name="OgreXMLConverter"
+				Filter="">
+				<File
+					RelativePath="..\..\..\XMLConverter\include\OgreXMLMeshSerializer.h">
+				</File>
+				<File
+					RelativePath="..\..\..\XMLConverter\include\OgreXMLPrerequisites.h">
+				</File>
+				<File
+					RelativePath="..\..\..\XMLConverter\include\OgreXMLSkeletonSerializer.h">
+				</File>
+				<File
+					RelativePath="..\..\..\XMLConverter\include\tinystr.h">
+				</File>
+				<File
+					RelativePath="..\..\..\XMLConverter\include\tinyxml.h">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
