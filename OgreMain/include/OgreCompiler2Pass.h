@@ -433,6 +433,12 @@ namespace Ogre {
             found token having an action.
 	    */
 	    void checkTokenActionTrigger(void);
+	    /** Get the text representation of the rule path.  This is a good way to way to visually verify
+	    that the BNF grammer did compile correctly.
+	    @param ruleID is the index into the rule path.
+	    */
+	    String getBNFGrammerTextFromRulePath(size_t ruleID);
+
 
     private:
         // used for interpreting BNF script
@@ -454,7 +460,7 @@ namespace Ogre {
             it is added to the map and definition container and a new tokenID created.
         @return the ID of the token.
         */
-        size_t getClientLexemeTokenID(const String& lexeme);
+        size_t getClientLexemeTokenID(const String& lexeme, const bool isCaseSensitive = false);
         /// Extract a Non Terminal identifier from the token que
         void extractNonTerminal(const OperationType pendingRuleOp);
         /// Extract a Terminal lexeme from the token que and add to current rule expression
@@ -463,6 +469,7 @@ namespace Ogre {
         void extractSet(const OperationType pendingRuleOp);
         /// Extract a numeric constant from the token que and add it to the current rule expression
         void extractNumericConstant(const OperationType pendingRuleOp);
+        String getLexemeText(size_t& ruleID);
 
     public:
 
