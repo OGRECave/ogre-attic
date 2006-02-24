@@ -23,6 +23,7 @@
 					<Add option="-D_USRDLL" />
 					<Add option="-DOGRE_NONCLIENT_BUILD" />
 					<Add option="-D_STLP_DEBUG" />
+					<Add directory="..\obj\Debug\include" />
 					<Add directory="..\include" />
 					<Add directory="..\..\Dependencies\include" />
 					<Add directory="..\src" />
