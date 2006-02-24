@@ -9,7 +9,7 @@
 				<Option output="..\..\Common\bin\Debug\Demo_VolumeTex.exe" />
 				<Option working_dir="..\..\Common\bin\Debug" />
 				<Option object_output="..\obj\Debug" />
-				<Option external_deps="..\bin\Debug\libRenderSystem_Direct3D9.a;..\bin\Debug\libPlugin_CgProgramManager.a;..\lib\Debug\libOgreMain_d.a;..\bin\Debug\libPlatformManager_Win32.a;..\bin\Debug\libRenderSystem_GL.a;..\bin\Debug\libPlugin_BSPSceneManager.a;..\bin\Debug\libPlugin_OctreeSceneManager.a;..\bin\Debug\libPlugin_ParticleFX.a;" />
+				<Option external_deps="..\..\..\OgreMain\lib\Debug\OgreMain_d.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option includeInTargetAll="1" />
@@ -32,38 +32,29 @@
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="..\bin\Release\Demo_VolumeTex.exe" />
+				<Option output="..\..\Common\bin\Release\Demo_VolumeTex.exe" />
+				<Option working_dir="..\..\Common\bin\Release" />
 				<Option object_output="..\obj\Release" />
-				<Option external_deps="..\bin\Release\libRenderSystem_Direct3D9.a;..\bin\Release\libPlugin_CgProgramManager.a;..\lib\Release\libOgreMain.a;..\bin\Release\libPlatformManager_Win32.a;..\bin\Release\libRenderSystem_GL.a;..\bin\Release\libPlugin_BSPSceneManager.a;..\bin\Release\libPlugin_OctreeSceneManager.a;..\bin\Release\libPlugin_ParticleFX.a;" />
+				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
+				<Option includeInTargetAll="1" />
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
+					<Add option="-O3" />
+					<Add option="-Wall" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
-					<Add option="-W" />
-					<Add option="-g" />
-					<Add option="-O2" />
 					<Add directory="..\include" />
 					<Add directory="..\..\Common\include" />
 					<Add directory="..\..\..\OgreMain\include" />
 				</Compiler>
 				<Linker>
+					<Add option="-s" />
 					<Add library="OgreMain" />
-					<Add library="..\bin\Release\libRenderSystem_Direct3D9.a" />
-					<Add library="..\bin\Release\libPlugin_CgProgramManager.a" />
-					<Add library="..\lib\Release\libOgreMain.a" />
-					<Add library="..\bin\Release\libPlatformManager_Win32.a" />
-					<Add library="..\bin\Release\libRenderSystem_GL.a" />
-					<Add library="..\bin\Release\libPlugin_BSPSceneManager.a" />
-					<Add library="..\bin\Release\libPlugin_OctreeSceneManager.a" />
-					<Add library="..\bin\Release\libPlugin_ParticleFX.a" />
 					<Add directory="..\..\..\OgreMain\lib\Release" />
 				</Linker>
-				<ExtraCommands>
-					<Add after="copy ..\bin\Release\Demo_VolumeTex.exe ..\..\Common\Bin\Release" />
-				</ExtraCommands>
 			</Target>
 		</Build>
 		<Compiler>
