@@ -50,6 +50,11 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     HardwareBufferManager::~HardwareBufferManager()
     {
+        // Clear vertex/index buffer list first, avoid destroyed notify do
+        // unnecessary work, and we'll destroy everything here.
+		mVertexBuffers.clear();
+		mIndexBuffers.clear();
+
         // Destroy everything
         destroyAllDeclarations();
         destroyAllBindings();
@@ -220,7 +225,7 @@ namespace Ogre {
         {
             str << "HardwareBufferManager: No unused temporary vertex buffers found.";
         }
-        LogManager::getSingleton().logMessage(str.str());
+        LogManager::getSingleton().logMessage(str.str(), LML_TRIVIAL);
     }
     //-----------------------------------------------------------------------
     void HardwareBufferManager::_releaseBufferCopies(bool forceFreeUnused)

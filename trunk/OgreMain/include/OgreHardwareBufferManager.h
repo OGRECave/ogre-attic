@@ -90,9 +90,19 @@ namespace Ogre {
         friend class HardwareVertexBufferSharedPtr;
         friend class HardwareIndexBufferSharedPtr;
     protected:
+        /** WARNING: The following two members should place before all other members.
+            Members destruct order is very important here, because destructing other
+            members will cause notify back to this class, and then will access to this
+            two members.
+        */
+        typedef std::set<HardwareVertexBuffer*> VertexBufferList;
+        typedef std::set<HardwareIndexBuffer*> IndexBufferList;
+        VertexBufferList mVertexBuffers;
+        IndexBufferList mIndexBuffers;
+
+
         typedef std::set<VertexDeclaration*> VertexDeclarationList;
 		typedef std::set<VertexBufferBinding*> VertexBufferBindingList;
-
         VertexDeclarationList mVertexDeclarations;
 		VertexBufferBindingList mVertexBufferBindings;
 
@@ -152,11 +162,6 @@ namespace Ogre {
         size_t mUnderUsedFrameCount;
         /// Number of frames to wait before free unused temporary buffers
         static const size_t UNDER_USED_FRAME_THRESHOLD;
-
-		typedef std::set<HardwareVertexBuffer*> VertexBufferList;
-		typedef std::set<HardwareIndexBuffer*> IndexBufferList;
-		VertexBufferList mVertexBuffers;
-		IndexBufferList mIndexBuffers;
 
 
         /// Creates  a new buffer as a copy of the source, does not copy data
