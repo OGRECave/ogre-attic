@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="3" />
+	<Project>
+		<Option title="Demo_CubeMapping" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="..\..\Common\bin\Debug\Demo_CubeMapping.exe" />
+				<Option working_dir="..\..\Common\bin\Debug" />
+				<Option object_output="..\obj\Debug" />
+				<Option external_deps="..\bin\Debug\libRenderSystem_Direct3D9.a;..\bin\Debug\libPlugin_CgProgramManager.a;..\lib\Debug\libOgreMain_d.a;..\bin\Debug\libPlatformManager_Win32.a;..\bin\Debug\libRenderSystem_GL.a;..\bin\Debug\libPlugin_BSPSceneManager.a;..\bin\Debug\libPlugin_OctreeSceneManager.a;..\bin\Debug\libPlugin_ParticleFX.a;" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option includeInTargetAll="1" />
+				<Option projectResourceIncludeDirsRelation="0" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-DWIN32" />
+					<Add option="-D_DEBUG" />
+					<Add option="-D_WINDOWS" />
+					<Add option="-D_STLP_DEBUG" />
+					<Add directory="..\include" />
+					<Add directory="..\..\Common\include" />
+					<Add directory="..\..\..\OgreMain\include" />
+				</Compiler>
+				<Linker>
+					<Add library="stlportstlg.5.0.dll" />
+					<Add library="OgreMain_d" />
+					<Add directory="..\..\..\OgreMain\lib\Debug" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="..\..\Common\bin\Release\Demo_CubeMapping.exe" />
+				<Option working_dir="..\..\Common\bin\Release" />
+				<Option object_output="..\obj\Release" />
+				<Option external_deps="..\bin\Release\libRenderSystem_Direct3D9.a;..\bin\Release\libPlugin_CgProgramManager.a;..\lib\Release\libOgreMain.a;..\bin\Release\libPlatformManager_Win32.a;..\bin\Release\libRenderSystem_GL.a;..\bin\Release\libPlugin_BSPSceneManager.a;..\bin\Release\libPlugin_OctreeSceneManager.a;..\bin\Release\libPlugin_ParticleFX.a;" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option includeInTargetAll="1" />
+				<Option projectResourceIncludeDirsRelation="0" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-Wall" />
+					<Add option="-DWIN32" />
+					<Add option="-DNDEBUG" />
+					<Add option="-D_WINDOWS" />
+					<Add directory="..\include" />
+					<Add directory="..\..\Common\include" />
+					<Add directory="..\..\..\OgreMain\include" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="stlport.5.0.dll" />
+					<Add library="OgreMain" />
+					<Add directory="..\..\..\OgreMain\lib\Release" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-mthreads" />
+			<Add option="-fmessage-length=0" />
+			<Add option="-fexceptions" />
+			<Add option="-fident" />
+			<Add option="-D_STLP_NO_CUSTOM_IO" />
+			<Add option="-D_STLP_USE_DYNAMIC_LIB" />
+			<Add directory="$(#STLPORT_DIR)\stlport" />
+		</Compiler>
+		<Linker>
+			<Add option="-Wl,--enable-auto-image-base" />
+			<Add option="-Wl,--add-stdcall-alias" />
+			<Add directory="$(#STLPORT_DIR)\lib" />
+		</Linker>
+		<Unit filename="..\include\CubeMapping.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\src\CubeMapping.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
