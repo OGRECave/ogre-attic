@@ -52,6 +52,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="stlport.5.0.dll" />
 					<Add library="OgreMain" />
 					<Add directory="..\..\..\OgreMain\lib\Release" />
 				</Linker>
