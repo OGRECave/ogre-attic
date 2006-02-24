@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="Ogre workspace">
-		<Project filename="OgreMain\scripts\OgreMain_stlp.cbp" />
+		<Project filename="OgreMain\scripts\OgreMain_stlp.cbp" active="1" />
 		<Project filename="PlatformManagers\Win32\scripts\PlatformManager_Win32_stlp.cbp" />
 		<Project filename="PlugIns\BSPSceneManager\scripts\Plugin_BSPSceneManager_stlp.cbp" />
 		<Project filename="PlugIns\CgProgramManager\scripts\Plugin_CgProgramManager_stlp.cbp" />
@@ -15,7 +15,7 @@
 			<Depends filename="OgreMain\scripts\OgreMain_stlp.cbp" />
 		</Project>
 		<Project filename="Samples\BSP\scripts\Demo_BSP_stlp.cbp" />
-		<Project filename="ReferenceApplication\BspCollision\scripts\BspCollision_stlp.cbp" active="1" />
+		<Project filename="ReferenceApplication\BspCollision\scripts\BspCollision_stlp.cbp" />
 		<Project filename="Samples\CameraTrack\scripts\Demo_CameraTrack_stlp.cbp">
 			<Depends filename="OgreMain\scripts\OgreMain_stlp.cbp" />
 		</Project>
@@ -41,6 +41,7 @@
 		<Project filename="Samples\Lighting\scripts\Demo_Lighting_stlp.cbp" />
 		<Project filename="Samples\ParticleFX\scripts\Demo_ParticleFX_stlp.cbp" />
 		<Project filename="Samples\RenderToTexture\scripts\Demo_RenderToTexture_stlp.cbp" />
+		<Project filename="Samples\Shadows\scripts\Demo_Shadows_stlp.cbp" />
 		<Project filename="Samples\SkeletalAnimation\scripts\Demo_SkeletalAnimation_stlp.cbp" />
 		<Project filename="Samples\SkyBox\scripts\Demo_SkyBox_stlp.cbp" />
 		<Project filename="Samples\SkyDome\scripts\Demo_SkyDome_stlp.cbp" />
@@ -49,8 +50,7 @@
 		<Project filename="Samples\Terrain\scripts\Demo_Terrain_stlp.cbp" />
 		<Project filename="Samples\TextureFX\scripts\Demo_TextureFX_stlp.cbp" />
 		<Project filename="Samples\Transpacency\scripts\Demo_Transparency_stlp.cbp" />
-		<Project filename="Samples\Water\scripts\Demo_Water_stlp.cbp" />
-		<Project filename="Samples\Shadows\scripts\Demo_Shadows_stlp.cbp" />
 		<Project filename="Samples\VolumeTex\scripts\Demo_VolumeTex_stlp.cbp" />
+		<Project filename="Samples\Water\scripts\Demo_Water_stlp.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
