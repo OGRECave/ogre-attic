@@ -97,7 +97,9 @@ namespace Ogre {
 
 		/** Creates a VertexAnimationTrack for animating vertex position data.
 		@param handle Handle to give the track, used for accessing the track later. 
-		Must be unique within this Animation, and is used to identify the target.
+		Must be unique within this Animation, and is used to identify the target. For example
+		when applied to a Mesh, the handle must reference the index of the geometry being 
+		modified; 0 for the shared geometry, and 1+ for SubMesh geometry with the same index-1.
 		@param animType Either morph or pose animation, 
 		*/
 		VertexAnimationTrack* createVertexTrack(unsigned short handle, VertexAnimationType animType);
