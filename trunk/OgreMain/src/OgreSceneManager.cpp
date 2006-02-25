@@ -124,6 +124,7 @@ mShadowTextureCustomReceiverPass(0),
 mShadowTextureCasterVPDirty(false),
 mShadowTextureReceiverVPDirty(false),
 mVisibilityMask(0xFFFFFFFF),
+mFindVisibleObjects(true),
 mSuppressRenderStateChanges(false),
 mSuppressShadows(false)
 {
@@ -971,7 +972,8 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
     // Are we using any shadows at all?
     if (isShadowTechniqueInUse() && 
         mIlluminationStage != IRS_RENDER_TO_TEXTURE &&
-		vp->getShadowsEnabled())
+		vp->getShadowsEnabled() &&
+		mFindVisibleObjects)
     {
         // Locate any lights which could be affecting the frustum
         findLightsAffectingFrustum(camera);
@@ -1045,16 +1047,19 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
 	// Prepare render queue for receiving new objects
 	prepareRenderQueue();
 
-	// Parse the scene and tag visibles
-    _findVisibleObjects(camera, 
-        mIlluminationStage == IRS_RENDER_TO_TEXTURE? true : false);
+    if (mFindVisibleObjects)
+    {
+        // Parse the scene and tag visibles
+        _findVisibleObjects(camera, 
+            mIlluminationStage == IRS_RENDER_TO_TEXTURE? true : false);
+    }
     // Add overlays, if viewport deems it
     if (vp->getOverlaysEnabled())
     {
         OverlayManager::getSingleton()._queueOverlaysForRendering(camera, getRenderQueue(), vp);
     }
     // Queue skies, if viewport seems it
-    if (vp->getSkiesEnabled())
+    if (vp->getSkiesEnabled() && mFindVisibleObjects)
     {
         _queueSkiesForRendering(camera);
     }

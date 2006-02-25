@@ -167,6 +167,8 @@ namespace Ogre {
 		RQListener mOurListener;
 		/// Store old scene visibility mask
 		uint32 mOldVisibilityMask;
+		/// Store old find visible objects
+		bool mOldFindVisibleObjects;
         /// Store old camera LOD bias      
         float mOldLodBias;      
     };

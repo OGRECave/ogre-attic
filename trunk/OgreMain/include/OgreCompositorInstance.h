@@ -94,7 +94,7 @@ namespace Ogre {
             TargetOperation(RenderTarget *target):
                 target(target), currentQueueGroupID(0), visibilityMask(0xFFFFFFFF),
                 lodBias(1.0f),
-                onlyInitial(false), hasBeenRendered(false)
+                onlyInitial(false), hasBeenRendered(false), findVisibleObjects(false)
             { 
             }
             /// Target
@@ -129,6 +129,9 @@ namespace Ogre {
                 onlyInitial to determine whether to skip this target operation.
             */
             bool hasBeenRendered;
+            /** Whether this op needs to find visible scene objects or not 
+            */
+            bool findVisibleObjects;
         };
         typedef std::vector<TargetOperation> CompiledState;
         
