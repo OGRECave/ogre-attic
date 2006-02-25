@@ -3,14 +3,13 @@
 	<FileVersion major="1" minor="3" />
 	<Project>
 		<Option title="Demo_FacialAnimation" />
-		<Option pch_mode="0" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
 				<Option output="..\..\Common\bin\Debug\Demo_FacialAnimation.exe" />
 				<Option working_dir="..\..\Common\bin\Debug" />
 				<Option object_output="..\obj\Debug" />
-				<Option external_deps="..\..\..\OgreMain\lib\Debug\libOgreMain_d.a;" />
+				<Option external_deps="..\..\..\OgreMain\lib\Debug\libOgreMain_d.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option includeInTargetAll="1" />
@@ -43,6 +42,7 @@
 				<Option output="..\..\Common\bin\Release\Demo_FacialAnimation.exe" />
 				<Option working_dir="..\..\Common\bin\Release\" />
 				<Option object_output="..\obj\Release" />
+				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option includeInTargetAll="1" />
