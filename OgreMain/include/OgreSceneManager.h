@@ -494,6 +494,7 @@ namespace Ogre {
 
 		/// Visibility mask used to show / hide objects
 		uint32 mVisibilityMask;
+		bool mFindVisibleObjects;
 
 		/// Suppress render state changes?
 		bool mSuppressRenderStateChanges;
@@ -2203,6 +2204,19 @@ namespace Ogre {
 			to determine if the object is visible.
 		*/
 		virtual uint32 getVisibilityMask(void) { return mVisibilityMask; }
+
+		/** Sets whether the SceneManager should search for visible objects, or
+            whether they are being manually handled.
+        @remarks
+            This is an advanced function, you should not use this unless you know
+            what you are doing.
+		*/
+		virtual void setFindVisibleObjects(bool find) { mFindVisibleObjects = find; }
+
+		/** Gets whether the SceneManager should search for visible objects, or
+            whether they are being manually handled.
+ 		*/
+		virtual bool getFindVisibleObjects(void) { return mFindVisibleObjects; }
 
 		/** Render something as if it came from the current queue.
 			@param pass		Material pass to use for setting up this quad.

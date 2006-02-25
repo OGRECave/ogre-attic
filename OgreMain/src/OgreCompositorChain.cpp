@@ -184,6 +184,9 @@ void CompositorChain::preTargetOperation(CompositorInstance::TargetOperation &op
 	/// Set visiblity mask
 	mOldVisibilityMask = sm->getVisibilityMask();
 	sm->setVisibilityMask(op.visibilityMask);
+	/// Set whether we find visibles
+	mOldFindVisibleObjects = sm->getFindVisibleObjects();
+	sm->setFindVisibleObjects(op.findVisibleObjects);
     /// Set LOD bias level
     mOldLodBias = cam->getLodBias();
     cam->setLodBias(cam->getLodBias() * op.lodBias);
@@ -202,6 +205,7 @@ void CompositorChain::postTargetOperation(CompositorInstance::TargetOperation &o
 	mOurListener.flushUpTo((uint8)RENDER_QUEUE_COUNT);
 	/// Restore default scene and camera settings
 	sm->setVisibilityMask(mOldVisibilityMask);
+	sm->setFindVisibleObjects(mOldFindVisibleObjects);
     cam->setLodBias(mOldLodBias);
 }
 //-----------------------------------------------------------------------

@@ -158,7 +158,7 @@ void CompositorInstance::collectPasses(TargetOperation &finalState, CompositionT
     Pass *targetpass;
     Technique *srctech;
 	MaterialPtr mat, srcmat;
-
+	
     CompositionTargetPass::PassIterator it = target->getPassIterator();
     while(it.hasMoreElements())
     {
@@ -197,6 +197,7 @@ void CompositorInstance::collectPasses(TargetOperation &finalState, CompositionT
 				finalState.renderQueues.set(x);
 			}
 			finalState.currentQueueGroupID = pass->getLastRenderQueue()+1;
+			finalState.findVisibleObjects = true;
             break;
         case CompositionPass::PT_RENDERQUAD:
             srcmat = pass->getMaterial();
