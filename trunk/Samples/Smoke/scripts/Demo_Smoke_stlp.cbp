@@ -9,7 +9,7 @@
 				<Option output="..\..\Common\bin\Debug\Demo_Smoke.exe" />
 				<Option working_dir="..\..\Common\bin\Debug" />
 				<Option object_output="..\obj\Debug" />
-				<Option external_deps="..\..\..\OgreMain\lib\Debug\libOgreMain_d.a;" />
+				<Option external_deps="..\..\..\OgreMain\lib\Debug\libOgreMain_d.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option includeInTargetAll="1" />
@@ -21,40 +21,32 @@
 					<Add option="-D_DEBUG" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_STLP_DEBUG" />
-					<Add directory="..\include" />
-					<Add directory="..\..\Common\include" />
-					<Add directory="..\..\..\OgreMain\include" />
 				</Compiler>
 				<Linker>
 					<Add library="stlportstlg.5.0.dll" />
 					<Add library="OgreMain_d" />
-					<Add directory="..\..\..\OgreMain\lib\Debug" />
 				</Linker>
 			</Target>
 			<Target title="Release">
 				<Option output="..\..\Common\bin\Release\Demo_Smoke.exe" />
 				<Option working_dir="..\..\Common\bin\Release" />
 				<Option object_output="..\obj\Release" />
-				<Option external_deps="..\bin\Release\libRenderSystem_Direct3D9.a;..\bin\Release\libPlugin_CgProgramManager.a;..\lib\Release\libOgreMain.a;..\bin\Release\libPlatformManager_Win32.a;..\bin\Release\libRenderSystem_GL.a;..\bin\Release\libPlugin_BSPSceneManager.a;..\bin\Release\libPlugin_OctreeSceneManager.a;..\bin\Release\libPlugin_ParticleFX.a;" />
+				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain_d.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option includeInTargetAll="1" />
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-O3" />
 					<Add option="-Wall" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
-					<Add directory="..\include" />
-					<Add directory="..\..\Common\include" />
-					<Add directory="..\..\..\OgreMain\include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add library="stlport.5.0.dll" />
 					<Add library="OgreMain" />
-					<Add directory="..\..\..\OgreMain\lib\Release" />
 				</Linker>
 			</Target>
 		</Build>
@@ -66,11 +58,15 @@
 			<Add option="-D_STLP_NO_CUSTOM_IO" />
 			<Add option="-D_STLP_USE_DYNAMIC_LIB" />
 			<Add directory="$(#STLPORT_DIR)\stlport" />
+			<Add directory="..\include" />
+			<Add directory="..\..\Common\include" />
+			<Add directory="..\..\..\OgreMain\include" />
 		</Compiler>
 		<Linker>
 			<Add option="-Wl,--enable-auto-image-base" />
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="$(#STLPORT_DIR)\lib" />
+			<Add directory="..\..\..\OgreMain\lib\$(TARGET_NAME)" />
 		</Linker>
 		<Unit filename="..\include\Smoke.h">
 			<Option compilerVar="CPP" />
