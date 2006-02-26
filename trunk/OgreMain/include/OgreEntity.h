@@ -254,8 +254,8 @@ namespace Ogre {
 			HardwareVertexBufferSharedPtr mPositionBuffer;
 			// Shared link to w-coord buffer (optional)
 			HardwareVertexBufferSharedPtr mWBuffer;
-			// Link to original vertex data
-			const VertexData* mOriginalVertexData;
+			// Link to current vertex data used to bind (maybe changes)
+			const VertexData* mCurrentVertexData;
 			// Original position buffer source binding
 			unsigned short mOriginalPosBufferBinding;
 			/// Link to SubEntity, only present if SubEntity has it's own geometry
@@ -276,7 +276,7 @@ namespace Ogre {
 			HardwareVertexBufferSharedPtr getPositionBuffer(void) { return mPositionBuffer; }
 			HardwareVertexBufferSharedPtr getWBuffer(void) { return mWBuffer; }
 			/// Rebind the source positions (for temp buffer users)
-			void rebindPositionBuffer(void);
+			void rebindPositionBuffer(const VertexData* vertexData, bool force);
 			/// Overridden from ShadowRenderable
 			bool isVisible(void) const;
 

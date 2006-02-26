@@ -49,10 +49,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     //-----------------------------------------------------------------------
     Entity::Entity ()
-		: mSkelAnimVertexData(0),
+		: mAnimationState(NULL),
+          mSkelAnimVertexData(0),
 		  mSoftwareVertexAnimVertexData(0),
 		  mHardwareVertexAnimVertexData(0),
+          mBoneMatrices(NULL),
+          mNumBoneMatrices(0),
 		  mFrameAnimationLastUpdated(std::numeric_limits<unsigned long>::max()),
+          mFrameBonesLastUpdated(NULL),
 		  mSharedSkeletonEntities(NULL),
 		  mDisplaySkeleton(false),
 	      mHardwareAnimation(false),
@@ -68,21 +72,22 @@ namespace Ogre {
 		  mMaxMaterialLodIndex(0), 		// Backwards, remember low value = high detail
           mSkeletonInstance(0),
 		  mLastParentXform(Matrix4::ZERO),
+          mFullBoundingBox(new AxisAlignedBox),
 		  mNormaliseNormals(false)
     {
-        mFullBoundingBox = new AxisAlignedBox;
-        mFrameBonesLastUpdated = new unsigned long;
-		*mFrameBonesLastUpdated = std::numeric_limits<unsigned long>::max();
-
     }
     //-----------------------------------------------------------------------
     Entity::Entity( const String& name, MeshPtr& mesh) :
 		MovableObject(name),
         mMesh(mesh),
+        mAnimationState(NULL),
 		mSkelAnimVertexData(0),
 		mSoftwareVertexAnimVertexData(0),
 		mHardwareVertexAnimVertexData(0),
+        mBoneMatrices(NULL),
+        mNumBoneMatrices(0),
 		mFrameAnimationLastUpdated(std::numeric_limits<unsigned long>::max()),
+        mFrameBonesLastUpdated(NULL),
         mSharedSkeletonEntities(NULL),
 		mDisplaySkeleton(false),
 		mHardwareAnimation(false),
@@ -98,19 +103,14 @@ namespace Ogre {
 		mMaxMaterialLodIndex(0), 		// Backwards, remember low value = high detail
 		mSkeletonInstance(0),
 		mLastParentXform(Matrix4::ZERO),
+        mFullBoundingBox(new AxisAlignedBox),
 		mNormaliseNormals(false)
-    {
-        mFullBoundingBox = new AxisAlignedBox;
-
+{
         // Is mesh skeletally animated?
         if (mMesh->hasSkeleton() && !mMesh->getSkeleton().isNull())
         {
             mSkeletonInstance = new SkeletonInstance(mMesh->getSkeleton());
             mSkeletonInstance->load();
-        }
-        else
-        {
-            mSkeletonInstance = 0;
         }
 
         // Build main subentity list
@@ -130,24 +130,15 @@ namespace Ogre {
                     usage.manualMesh);
                 mLodEntityList.push_back(lodEnt);
             }
-
         }
 
 
         // Initialise the AnimationState, if Mesh has animation
 		if (hasSkeleton())
 		{
-			mFrameBonesLastUpdated = new unsigned long;
-			*mFrameBonesLastUpdated = std::numeric_limits<unsigned long>::max();
+			mFrameBonesLastUpdated = new unsigned long(std::numeric_limits<unsigned long>::max());
 			mNumBoneMatrices = mSkeletonInstance->getNumBones();
 			mBoneMatrices = new Matrix4[mNumBoneMatrices];
-		}
-		else
-		{
-			mBoneMatrices = 0;
-			mNumBoneMatrices = 0;
-			mFrameBonesLastUpdated  = 0;
-
 		}
         if (hasSkeleton() || hasVertexAnimation())
         {
@@ -155,10 +146,6 @@ namespace Ogre {
             mesh->_initAnimationState(mAnimationState);
             prepareTempBlendBuffers();
         }
-		else
-		{
-			mAnimationState = 0;
-		}
 
         reevaluateVertexProcessing();
 
@@ -558,7 +545,12 @@ namespace Ogre {
 		bool stencilShadows = false;
 		if (root._getCurrentSceneManager())
 			stencilShadows =  root._getCurrentSceneManager()->isShadowTechniqueStencilBased();
-		bool softwareAnimation = !hwSkinning || forcedSwSkinning || stencilShadows;
+        bool hasEnabledAnimation = mAnimationState->hasEnabledAnimationState();
+        // If all animations are disabled, we'll use origin vertex buffer for
+        // rendering. But still perform software animation if user required,
+        // because need to keep same behavior in user standpoint.
+		bool softwareAnimation = forcedSwSkinning ||
+            hasEnabledAnimation && (!hwSkinning || stencilShadows);
 		// Blend normals in s/w only if we're not using h/w skinning,
 		// since shadows only require positions
 		bool blendNormals = !hwSkinning || forcedNormals;
@@ -567,7 +559,7 @@ namespace Ogre {
 		// when using skeletal animation, which is dependent
 		// Or, if we're using software animation and temp buffers are unbound
         if (mFrameAnimationLastUpdated != mAnimationState->getDirtyFrameNumber() ||
-			(mLastParentXform != getParentSceneNode()->_getFullTransform() && hasSkeleton()) ||
+			(hasEnabledAnimation && hasSkeleton() && mLastParentXform != getParentSceneNode()->_getFullTransform()) ||
 			(softwareAnimation && hasVertexAnimation() && !tempVertexAnimBuffersBound()) ||
 			(softwareAnimation && hasSkeleton() && !tempSkelAnimBuffersBound(blendNormals)))
         {
@@ -884,29 +876,6 @@ namespace Ogre {
         unsigned long currentFrameNumber = root.getCurrentFrameNumber();
         if (*mFrameBonesLastUpdated  != currentFrameNumber) {
 
-            // Get the appropriate meshes skeleton here
-            // Can use lower LOD mesh skeleton if mesh LOD is manual
-            // We make the assumption that lower LOD meshes will have
-            //   fewer bones than the full LOD, therefore marix stack will be
-            //   big enough.
-            Mesh* theMesh; // raw to avoid reference counting overhead (don't need it)
-            if (mMesh->isLodManual() && mMeshLodIndex > 1)
-            {
-                // Use lower detail skeleton
-                theMesh = mMesh->getLodLevel(mMeshLodIndex).manualMesh.getPointer();
-                // Lower detail may not have skeleton
-                if (!theMesh->hasSkeleton())
-                {
-                    mNumBoneMatrices = 0;
-                    return;
-                }
-            }
-            else
-            {
-                // Use normal mesh
-                theMesh = mMesh.getPointer();
-            }
-
             mSkeletonInstance->setAnimationState(*mAnimationState);
             mSkeletonInstance->_getBoneMatrices(mBoneMatrices);
             *mFrameBonesLastUpdated  = currentFrameNumber;
@@ -946,8 +915,6 @@ namespace Ogre {
                 mBoneMatrices[i] = worldXform * mBoneMatrices[i];
             }
         }
-
-
     }
     //-----------------------------------------------------------------------
     void Entity::setDisplaySkeleton(bool display)
@@ -1221,35 +1188,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Entity::extractTempBufferInfo(VertexData* sourceData, TempBlendedBufferInfo* info)
     {
-        VertexDeclaration* decl = sourceData->vertexDeclaration;
-        VertexBufferBinding* bind = sourceData->vertexBufferBinding;
-        const VertexElement *posElem = decl->findElementBySemantic(VES_POSITION);
-        const VertexElement *normElem = decl->findElementBySemantic(VES_NORMAL);
-
-        assert(posElem && "Positions are required");
-
-        info->posBindIndex = posElem->getSource();
-        info->srcPositionBuffer = bind->getBuffer(info->posBindIndex);
-
-        if (!normElem)
-        {
-            info->posNormalShareBuffer = false;
-            info->srcNormalBuffer.setNull();
-        }
-        else
-        {
-            info->normBindIndex = normElem->getSource();
-            if (info->normBindIndex == info->posBindIndex)
-            {
-                info->posNormalShareBuffer = true;
-                info->srcNormalBuffer.setNull();
-            }
-            else
-            {
-                info->posNormalShareBuffer = false;
-                info->srcNormalBuffer = bind->getBuffer(info->normBindIndex);
-            }
-        }
+        info->extractFrom(sourceData);
     }
     //-----------------------------------------------------------------------
     VertexData* Entity::cloneVertexDataRemoveBlendInfo(const VertexData* source)
@@ -1423,8 +1362,6 @@ namespace Ogre {
                 extrusionDistance, flags);
         }
 
-        bool hasAnimation = this->hasSkeleton() || this->hasVertexAnimation();
-
 
         // Prep mesh if required
         // NB This seems to result in memory corruptions, having problems
@@ -1441,6 +1378,9 @@ namespace Ogre {
         }
 
 
+        bool hasAnimation = (hasSkeleton() || hasVertexAnimation()) &&
+            mAnimationState->hasEnabledAnimationState();
+
         // Update any animation
         if (hasAnimation)
         {
@@ -1452,7 +1392,7 @@ namespace Ogre {
         // Only use object-space light if we're not doing transforms
         // Since when animating the positions are already transformed into
         // world space so we need world space light position
-        if (!hasSkeleton())
+        if (!hasSkeleton() || !mAnimationState->hasEnabledAnimationState())
         {
             Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
             lightPos =  world2Obj * lightPos;
@@ -1482,19 +1422,18 @@ namespace Ogre {
         egi = edgeList->edgeGroups.begin();
         for (si = mShadowRenderables.begin(); si != siend; ++si, ++egi)
         {
+            const VertexData *pVertData;
+            if (hasAnimation)
+            {
+                // Use temp buffers
+                pVertData = findBlendedVertexData(egi->vertexData);
+            }
+            else
+            {
+                pVertData = egi->vertexData;
+            }
             if (init)
             {
-                const VertexData *pVertData = 0;
-                if (hasAnimation)
-                {
-                    // Use temp buffers
-                    pVertData = findBlendedVertexData(egi->vertexData);
-                }
-                else
-                {
-                    pVertData = egi->vertexData;
-                }
-
                 // Try to find corresponding SubEntity; this allows the
                 // linkage of visibility between ShadowRenderable and SubEntity
                 SubEntity* subent = findSubEntityForVertexData(egi->vertexData);
@@ -1506,14 +1445,14 @@ namespace Ogre {
                 *si = new EntityShadowRenderable(this, indexBuffer, pVertData,
                     mVertexProgramInUse || !extrude, subent);
             }
-            else if (hasAnimation)
+            else
             {
                 // If we have animation, we have no guarantee that the position
                 // buffer we used last frame is the same one we used last frame
                 // since a temporary buffer is requested each frame
                 // therefore, we need to update the EntityShadowRenderable
                 // with the current position buffer
-                static_cast<EntityShadowRenderable*>(*si)->rebindPositionBuffer();
+                static_cast<EntityShadowRenderable*>(*si)->rebindPositionBuffer(pVertData, hasAnimation);
 
             }
             // Get shadow renderable
@@ -1619,12 +1558,6 @@ namespace Ogre {
         if (normalsAlso) {
             mSoftwareSkinningNormalsRequests++;
         }
-        if(!mMesh->isPreparedForShadowVolumes())
-        {
-            mMesh->prepareForShadowVolume();
-            // re-prepare buffers
-            prepareTempBlendBuffers();
-        }
     }
     //-----------------------------------------------------------------------
     void Entity::removeSoftwareSkinningRequest(bool normalsAlso)
@@ -1640,7 +1573,6 @@ namespace Ogre {
         if (normalsAlso) {
             mSoftwareSkinningNormalsRequests--;
         }
-        // TODO: possibly undo "shadow volume" prep if no longer needed
     }
     //-----------------------------------------------------------------------
     void Entity::_notifyAttached(Node* parent, bool isTagPoint)
@@ -1663,7 +1595,7 @@ namespace Ogre {
         : mParent(parent), mSubEntity(subent)
     {
         // Save link to vertex data
-        mOriginalVertexData = vertexData;
+        mCurrentVertexData = vertexData;
 
         // Initialise render op
         mRenderOp.indexData = new IndexData();
@@ -1724,7 +1656,8 @@ namespace Ogre {
     {
         unsigned short numBones = mParent->_getNumBoneMatrices();
 
-        if (!numBones)
+        if (!numBones ||
+            !mParent->getAllAnimationStates()->hasEnabledAnimationState())
         {
             *xform = mParent->_getParentNodeFullTransform();
         }
@@ -1745,16 +1678,19 @@ namespace Ogre {
         return mParent->getParentNode()->_getDerivedPosition();
     }
     //-----------------------------------------------------------------------
-    void Entity::EntityShadowRenderable::rebindPositionBuffer(void)
+    void Entity::EntityShadowRenderable::rebindPositionBuffer(const VertexData* vertexData, bool force)
     {
-        mPositionBuffer = mOriginalVertexData->vertexBufferBinding->getBuffer(
-            mOriginalPosBufferBinding);
-        mRenderOp.vertexData->vertexBufferBinding->setBinding(0, mPositionBuffer);
-        if (mLightCap)
+        if (force || mCurrentVertexData != vertexData)
         {
-            static_cast<EntityShadowRenderable*>(mLightCap)->rebindPositionBuffer();
+            mCurrentVertexData = vertexData;
+            mPositionBuffer = mCurrentVertexData->vertexBufferBinding->getBuffer(
+                mOriginalPosBufferBinding);
+            mRenderOp.vertexData->vertexBufferBinding->setBinding(0, mPositionBuffer);
+            if (mLightCap)
+            {
+                static_cast<EntityShadowRenderable*>(mLightCap)->rebindPositionBuffer(vertexData, force);
+            }
         }
-
     }
     //-----------------------------------------------------------------------
     bool Entity::EntityShadowRenderable::isVisible(void) const
@@ -1868,21 +1804,14 @@ namespace Ogre {
         }
         else
         {
-            //do some cloning
-            /*			mSkeletonInstance = new SkeletonInstance(*mSkeletonInstance);
-            mBoneMatrices = new Matrix4(*mBoneMatrices);
-            mAnimationState = new AnimationStateSet(*mAnimationState);
-            mFrameBonesLastUpdated = new unsigned long(*mFrameBonesLastUpdated);
-            */
-
             mSkeletonInstance = new SkeletonInstance(mMesh->getSkeleton());
             mSkeletonInstance->load();
             mAnimationState = new AnimationStateSet();
             mMesh->_initAnimationState(mAnimationState);
+            mFrameBonesLastUpdated = new unsigned long(std::numeric_limits<unsigned long>::max());
             mNumBoneMatrices = mSkeletonInstance->getNumBones();
             mBoneMatrices = new Matrix4[mNumBoneMatrices];
             prepareTempBlendBuffers();
-            mFrameBonesLastUpdated = new unsigned long;
 
             mSharedSkeletonEntities->erase(this);
             if (mSharedSkeletonEntities->size() == 1)
@@ -1927,6 +1856,12 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	Entity::VertexDataBindChoice Entity::chooseVertexDataForBinding(bool vertexAnim) const
 	{
+        if (!mAnimationState || !mAnimationState->hasEnabledAnimationState())
+        {
+            // no animation or all animations disabled.
+            return BIND_ORIGINAL;
+        }
+
 		if (hasSkeleton())
 		{
 			if (!mHardwareAnimation)

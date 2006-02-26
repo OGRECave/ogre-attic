@@ -90,8 +90,10 @@ namespace Ogre
 				else if (mTimePos > mLength)
 					mTimePos = mLength;
 			}
-			mParent->_notifyDirty();
-		}
+
+            if (mEnabled)
+                mParent->_notifyDirty();
+        }
 
     }
     //---------------------------------------------------------------------
@@ -121,7 +123,9 @@ namespace Ogre
     void AnimationState::setWeight(Real weight)
     {
         mWeight = weight;
-		mParent->_notifyDirty();
+
+        if (mEnabled)
+            mParent->_notifyDirty();
     }
     //---------------------------------------------------------------------
     void AnimationState::addTime(Real offset)
