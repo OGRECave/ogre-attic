@@ -97,6 +97,8 @@ namespace Ogre {
 				a low-level way to override the material settings for a given
 				Renderable on the fly.
 			@param rend The Renderable being added to the queue
+			@param groupID The render queue group this Renderable is being added to
+			@param priority The priority the Renderable has been given
 			@param ppTech A pointer to the pointer to the Technique that is 
 				intended to be used; you can alter this to an alternate Technique
 				if you so wish (the Technique doesn't have to be from the same
@@ -104,7 +106,8 @@ namespace Ogre {
 			@returns true to allow the Renderable to be added to the queue, 
 				false if you want to prevent it being added
 			*/
-			virtual bool renderableQueued(Renderable* rend, Technique** ppTech) = 0;
+			virtual bool renderableQueued(Renderable* rend, uint8 groupID, 
+				ushort priority, Technique** ppTech) = 0;
 		};
     protected:
         RenderQueueGroupMap mGroups;
