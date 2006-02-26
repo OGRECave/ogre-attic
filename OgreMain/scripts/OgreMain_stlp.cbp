@@ -2384,6 +2384,11 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\src\OgreVector4.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\src\OgreVertexIndexData.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
