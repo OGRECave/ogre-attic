@@ -168,6 +168,9 @@ AC_CONFIG_FILES([Makefile \
     Samples/Lighting/Makefile \
     Samples/Lighting/src/Makefile \
     Samples/Lighting/include/Makefile \
+    Samples/OceanDemo/Makefile \
+    Samples/OceanDemo/src/Makefile \
+    Samples/OceanDemo/include/Makefile \
     Samples/ParticleFX/Makefile \
     Samples/ParticleFX/src/Makefile \
     Samples/ParticleFX/include/Makefile \
