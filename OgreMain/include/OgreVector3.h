@@ -44,7 +44,7 @@ namespace Ogre
     public:
         union {
             struct {
-                Real x, y, z;        
+                Real x, y, z;
             };
             Real val[3];
         };
@@ -54,43 +54,51 @@ namespace Ogre
         {
         }
 
-        inline Vector3( Real fX, Real fY, Real fZ ) 
+        inline Vector3( const Real fX, const Real fY, const Real fZ )
             : x( fX ), y( fY ), z( fZ )
         {
         }
 
-        inline Vector3( Real afCoordinate[3] )
+        inline Vector3( const Real afCoordinate[3] )
             : x( afCoordinate[0] ),
               y( afCoordinate[1] ),
               z( afCoordinate[2] )
         {
         }
 
-        inline Vector3( int afCoordinate[3] )
+        inline Vector3( const int afCoordinate[3] )
         {
             x = (Real)afCoordinate[0];
             y = (Real)afCoordinate[1];
             z = (Real)afCoordinate[2];
         }
 
-        inline Vector3( const Real* const r )
+        inline Vector3( Real* const r )
             : x( r[0] ), y( r[1] ), z( r[2] )
         {
         }
+
+        inline Vector3( const Real scaler )
+            : x( scaler )
+            , y( scaler )
+            , z( scaler )
+        {
+        }
+
 
         inline Vector3( const Vector3& rkVector )
             : x( rkVector.x ), y( rkVector.y ), z( rkVector.z )
         {
         }
 
-		inline Real operator [] ( size_t i ) const
+		inline Real operator [] ( const size_t i ) const
         {
             assert( i < 3 );
 
             return *(&x+i);
         }
 
-		inline Real& operator [] ( size_t i )
+		inline Real& operator [] ( const size_t i )
         {
             assert( i < 3 );
 
@@ -105,7 +113,7 @@ namespace Ogre
         {
             x = rkVector.x;
             y = rkVector.y;
-            z = rkVector.z;            
+            z = rkVector.z;
 
             return *this;
         }
@@ -143,7 +151,7 @@ namespace Ogre
             return kDiff;
         }
 
-        inline Vector3 operator * ( Real fScalar ) const
+        inline Vector3 operator * ( const Real fScalar ) const
         {
             Vector3 kProd;
 
@@ -165,7 +173,7 @@ namespace Ogre
             return kProd;
         }
 
-        inline Vector3 operator / ( Real fScalar ) const
+        inline Vector3 operator / ( const Real fScalar ) const
         {
             assert( fScalar != 0.0 );
 
@@ -202,7 +210,8 @@ namespace Ogre
             return kNeg;
         }
 
-        inline friend Vector3 operator * ( Real fScalar, const Vector3& rkVector )
+        // overloaded operators to help Vector3
+        inline friend Vector3 operator * ( const Real fScalar, const Vector3& rkVector )
         {
             Vector3 kProd;
 
@@ -211,6 +220,30 @@ namespace Ogre
             kProd.z = fScalar * rkVector.z;
 
             return kProd;
+        }
+
+        inline friend Vector3 operator + (const Vector3& lhs, const Real rhs)
+        {
+            Vector3 ret(rhs);
+            return ret += lhs;
+        }
+
+        inline friend Vector3 operator + (const Real lhs, const Vector3& rhs)
+        {
+            Vector3 ret(lhs);
+            return ret += rhs;
+        }
+
+        inline friend Vector3 operator - (const Vector3& lhs, const Real rhs)
+        {
+            Vector3 ret = lhs;
+            return ret -= rhs;
+        }
+
+        inline friend Vector3 operator - (const Real lhs, const Vector3& rhs)
+        {
+            Vector3 ret(lhs);
+            return ret -= rhs;
         }
 
         // arithmetic updates
@@ -232,7 +265,7 @@ namespace Ogre
             return *this;
         }
 
-        inline Vector3& operator *= ( Real fScalar )
+        inline Vector3& operator *= ( const Real fScalar )
         {
             x *= fScalar;
             y *= fScalar;
@@ -249,7 +282,7 @@ namespace Ogre
             return *this;
         }
 
-        inline Vector3& operator /= ( Real fScalar )
+        inline Vector3& operator /= ( const Real fScalar )
         {
             assert( fScalar != 0.0 );
 
@@ -359,7 +392,7 @@ namespace Ogre
                 - call Vector3::normalise on the result if you wish this to
                 be done. As for which side the resultant vector will be on, the
                 returned vector will be on the side from which the arc from 'this'
-                to rkVector is anticlockwise, e.g. UNIT_Y.crossProduct(UNIT_Z) 
+                to rkVector is anticlockwise, e.g. UNIT_Y.crossProduct(UNIT_Z)
                 = UNIT_X, whilst UNIT_Z.crossProduct(UNIT_Y) = -UNIT_X.
 				This is because OGRE uses a right-handed coordinate system.
             @par
@@ -387,9 +420,9 @@ namespace Ogre
         */
         inline Vector3 midPoint( const Vector3& vec ) const
         {
-            return Vector3( 
-                ( x + vec.x ) * 0.5, 
-                ( y + vec.y ) * 0.5, 
+            return Vector3(
+                ( x + vec.x ) * 0.5,
+                ( y + vec.y ) * 0.5,
                 ( z + vec.z ) * 0.5 );
         }
 
@@ -413,7 +446,7 @@ namespace Ogre
             return false;
         }
 
-        /** Sets this vector's components to the minimum of its own and the 
+        /** Sets this vector's components to the minimum of its own and the
             ones of the passed in vector.
             @remarks
                 'Minimum' in this case means the combination of the lowest
@@ -427,7 +460,7 @@ namespace Ogre
             if( cmp.z < z ) z = cmp.z;
         }
 
-        /** Sets this vector's components to the maximum of its own and the 
+        /** Sets this vector's components to the maximum of its own and the
             ones of the passed in vector.
             @remarks
                 'Maximum' in this case means the combination of the highest
@@ -444,8 +477,8 @@ namespace Ogre
         /** Generates a vector perpendicular to this vector (eg an 'up' vector).
             @remarks
                 This method will return a vector which is perpendicular to this
-                vector. There are an infinite number of possibilities but this 
-                method will guarantee to generate one of them. If you need more 
+                vector. There are an infinite number of possibilities but this
+                method will guarantee to generate one of them. If you need more
                 control you should use the Quaternion class.
         */
         inline Vector3 perpendicular(void) const
@@ -457,7 +490,7 @@ namespace Ogre
             // Check length
             if( perp.squaredLength() < fSquareZero )
             {
-                /* This vector is the Y axis multiplied by a scalar, so we have 
+                /* This vector is the Y axis multiplied by a scalar, so we have
                    to use another axis.
                 */
                 perp = this->crossProduct( Vector3::UNIT_Y );
@@ -468,20 +501,20 @@ namespace Ogre
         /** Generates a new random vector which deviates from this vector by a
             given angle in a random direction.
             @remarks
-                This method assumes that the random number generator has already 
+                This method assumes that the random number generator has already
                 been seeded appropriately.
-            @param 
+            @param
                 angle The angle at which to deviate
-            @param 
-                up Any vector perpendicular to this one (which could generated 
-                by cross-product of this vector and any other non-colinear 
-                vector). If you choose not to provide this the function will 
-                derive one on it's own, however if you provide one yourself the 
-                function will be faster (this allows you to reuse up vectors if 
-                you call this method more than once) 
-            @returns 
-                A random vector which deviates from this vector by angle. This 
-                vector will not be normalised, normalise it if you wish 
+            @param
+                up Any vector perpendicular to this one (which could generated
+                by cross-product of this vector and any other non-colinear
+                vector). If you choose not to provide this the function will
+                derive one on it's own, however if you provide one yourself the
+                function will be faster (this allows you to reuse up vectors if
+                you call this method more than once)
+            @returns
+                A random vector which deviates from this vector by angle. This
+                vector will not be normalised, normalise it if you wish
                 afterwards.
         */
         inline Vector3 randomDeviant(
@@ -519,14 +552,14 @@ namespace Ogre
 #endif//OGRE_FORCE_ANGLE_TYPES
 
         /** Gets the shortest arc quaternion to rotate this vector to the destination
-            vector. 
+            vector.
         @remarks
             If you call this with a dest vector that is close to the inverse
             of this vector, we will rotate 180 degrees around the 'fallbackAxis'
-			(if specified, or a generated axis if not) since in this case 
-			ANY axis of rotation is valid. 
+			(if specified, or a generated axis if not) since in this case
+			ANY axis of rotation is valid.
         */
-        Quaternion getRotationTo(const Vector3& dest, 
+        Quaternion getRotationTo(const Vector3& dest,
 			const Vector3& fallbackAxis = Vector3::ZERO) const
         {
             // Based on Stan Melax's article in Game Programming Gems
@@ -592,7 +625,7 @@ namespace Ogre
             return ret;
         }
 
-        /** Calculates a reflection vector to the plane with the given normal . 
+        /** Calculates a reflection vector to the plane with the given normal .
         @remarks NB assumes 'this' is pointing AWAY FROM the plane, invert if it is not.
         */
         inline Vector3 reflect(const Vector3& normal) const
@@ -603,7 +636,7 @@ namespace Ogre
 		/** Returns whether this vector is within a positional tolerance
 			of another vector.
 		@param rhs The vector to compare with
-		@param tolerance The amount that each element of the vector may vary by 
+		@param tolerance The amount that each element of the vector may vary by
 			and still be considered equal
 		*/
 		inline bool positionEquals(const Vector3& rhs, Real tolerance = 1e-03) const
@@ -611,7 +644,7 @@ namespace Ogre
 			return Math::RealEqual(x, rhs.x, tolerance) &&
 				Math::RealEqual(y, rhs.y, tolerance) &&
 				Math::RealEqual(z, rhs.z, tolerance);
-			
+
 		}
 		/** Returns whether this vector is within a directional tolerance
 			of another vector.
@@ -619,14 +652,14 @@ namespace Ogre
 		@param tolerance The maximum angle by which the vectors may vary and
 			still be considered equal
 		*/
-		inline bool directionEquals(const Vector3& rhs, 
+		inline bool directionEquals(const Vector3& rhs,
 			const Radian& tolerance) const
 		{
 			Real dot = dotProduct(rhs);
 			Radian angle = Math::ACos(dot);
 
 			return Math::Abs(angle.valueRadians()) <= tolerance.valueRadians();
-			
+
 		}
 
         // special points

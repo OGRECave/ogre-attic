@@ -44,7 +44,7 @@ namespace Ogre
     public:
         union {
             struct {
-                Real x, y;        
+                Real x, y;
             };
             Real val[2];
         };
@@ -54,24 +54,29 @@ namespace Ogre
         {
         }
 
-        inline Vector2( Real fX, Real fY ) 
+        inline Vector2(const Real fX, const Real fY )
             : x( fX ), y( fY )
         {
         }
 
-        inline Vector2( Real afCoordinate[2] )
+        inline Vector2( const Real scaler )
+            : x( scaler), y( scaler )
+        {
+        }
+
+        inline Vector2( const Real afCoordinate[2] )
             : x( afCoordinate[0] ),
               y( afCoordinate[1] )
         {
         }
 
-        inline Vector2( int afCoordinate[2] )
+        inline Vector2( const int afCoordinate[2] )
         {
             x = (Real)afCoordinate[0];
             y = (Real)afCoordinate[1];
         }
 
-        inline Vector2( const Real* const r )
+        inline Vector2( Real* const r )
             : x( r[0] ), y( r[1] )
         {
         }
@@ -81,14 +86,14 @@ namespace Ogre
         {
         }
 
-		inline Real operator [] ( size_t i ) const
+		inline Real operator [] ( const size_t i ) const
         {
             assert( i < 2 );
 
             return *(&x+i);
         }
 
-		inline Real& operator [] ( size_t i )
+		inline Real& operator [] ( const size_t i )
         {
             assert( i < 2 );
 
@@ -102,7 +107,7 @@ namespace Ogre
         inline Vector2& operator = ( const Vector2& rkVector )
         {
             x = rkVector.x;
-            y = rkVector.y;        
+            y = rkVector.y;
 
             return *this;
         }
@@ -138,7 +143,7 @@ namespace Ogre
             return kDiff;
         }
 
-        inline Vector2 operator * ( Real fScalar ) const
+        inline Vector2 operator * ( const Real fScalar ) const
         {
             Vector2 kProd;
 
@@ -158,7 +163,7 @@ namespace Ogre
             return kProd;
         }
 
-        inline Vector2 operator / ( Real fScalar ) const
+        inline Vector2 operator / ( const Real fScalar ) const
         {
             assert( fScalar != 0.0 );
 
@@ -181,7 +186,8 @@ namespace Ogre
             return kNeg;
         }
 
-        inline friend Vector2 operator * ( Real fScalar, const Vector2& rkVector )
+        // overloaded operators to help Vector2
+        inline friend Vector2 operator * ( const Real fScalar, const Vector2& rkVector )
         {
             Vector2 kProd;
 
@@ -191,6 +197,29 @@ namespace Ogre
             return kProd;
         }
 
+        inline friend Vector2 operator + (const Vector2& lhs, const Real rhs)
+        {
+            Vector2 ret(rhs);
+            return ret += lhs;
+        }
+
+        inline friend Vector2 operator + (const Real lhs, const Vector2& rhs)
+        {
+            Vector2 ret(lhs);
+            return ret += rhs;
+        }
+
+        inline friend Vector2 operator - (const Vector2& lhs, const Real rhs)
+        {
+            Vector2 ret = lhs;
+            return ret -= rhs;
+        }
+
+        inline friend Vector2 operator - (const Real lhs, const Vector2& rhs)
+        {
+            Vector2 ret(lhs);
+            return ret -= rhs;
+        }
         // arithmetic updates
         inline Vector2& operator += ( const Vector2& rkVector )
         {
@@ -208,7 +237,7 @@ namespace Ogre
             return *this;
         }
 
-        inline Vector2& operator *= ( Real fScalar )
+        inline Vector2& operator *= ( const Real fScalar )
         {
             x *= fScalar;
             y *= fScalar;
@@ -216,7 +245,7 @@ namespace Ogre
             return *this;
         }
 
-        inline Vector2& operator /= ( Real fScalar )
+        inline Vector2& operator /= ( const Real fScalar )
         {
             assert( fScalar != 0.0 );
 
@@ -298,15 +327,15 @@ namespace Ogre
             return fLength;
         }
 
-    
-   
+
+
         /** Returns a vector at a point half way between this and the passed
             in vector.
         */
         inline Vector2 midPoint( const Vector2& vec ) const
         {
-            return Vector2( 
-                ( x + vec.x ) * 0.5, 
+            return Vector2(
+                ( x + vec.x ) * 0.5,
                 ( y + vec.y ) * 0.5 );
         }
 
@@ -330,7 +359,7 @@ namespace Ogre
             return false;
         }
 
-        /** Sets this vector's components to the minimum of its own and the 
+        /** Sets this vector's components to the minimum of its own and the
             ones of the passed in vector.
             @remarks
                 'Minimum' in this case means the combination of the lowest
@@ -343,7 +372,7 @@ namespace Ogre
             if( cmp.y < y ) y = cmp.y;
         }
 
-        /** Sets this vector's components to the maximum of its own and the 
+        /** Sets this vector's components to the maximum of its own and the
             ones of the passed in vector.
             @remarks
                 'Maximum' in this case means the combination of the highest
@@ -359,12 +388,12 @@ namespace Ogre
         /** Generates a vector perpendicular to this vector (eg an 'up' vector).
             @remarks
                 This method will return a vector which is perpendicular to this
-                vector. There are an infinite number of possibilities but this 
-                method will guarantee to generate one of them. If you need more 
+                vector. There are an infinite number of possibilities but this
+                method will guarantee to generate one of them. If you need more
                 control you should use the Quaternion class.
         */
         inline Vector2 perpendicular(void) const
-        {         
+        {
             return Vector2 (-y, x);
         }
         /** Calculates the 2 dimensional cross-product of 2 vectors, which results
@@ -377,33 +406,33 @@ namespace Ogre
         /** Generates a new random vector which deviates from this vector by a
             given angle in a random direction.
             @remarks
-                This method assumes that the random number generator has already 
+                This method assumes that the random number generator has already
                 been seeded appropriately.
-            @param 
+            @param
                 angle The angle at which to deviate in radians
-            @param 
-                up Any vector perpendicular to this one (which could generated 
-                by cross-product of this vector and any other non-colinear 
-                vector). If you choose not to provide this the function will 
-                derive one on it's own, however if you provide one yourself the 
-                function will be faster (this allows you to reuse up vectors if 
-                you call this method more than once) 
-            @returns 
-                A random vector which deviates from this vector by angle. This 
-                vector will not be normalised, normalise it if you wish 
+            @param
+                up Any vector perpendicular to this one (which could generated
+                by cross-product of this vector and any other non-colinear
+                vector). If you choose not to provide this the function will
+                derive one on it's own, however if you provide one yourself the
+                function will be faster (this allows you to reuse up vectors if
+                you call this method more than once)
+            @returns
+                A random vector which deviates from this vector by angle. This
+                vector will not be normalised, normalise it if you wish
                 afterwards.
         */
         inline Vector2 randomDeviant(
             Real angle) const
         {
-           
+
             angle *=  Math::UnitRandom() * Math::TWO_PI;
             Real cosa = cos(angle);
             Real sina = sin(angle);
             return  Vector2(cosa * x - sina * y,
                             sina * x + cosa * y);
         }
-        
+
         /** Returns true if this vector is zero length. */
         inline bool isZeroLength(void) const
         {
@@ -421,7 +450,7 @@ namespace Ogre
             return ret;
         }
 
-        /** Calculates a reflection vector to the plane with the given normal . 
+        /** Calculates a reflection vector to the plane with the given normal .
         @remarks NB assumes 'this' is pointing AWAY FROM the plane, invert if it is not.
         */
         inline Vector2 reflect(const Vector2& normal) const
@@ -445,6 +474,7 @@ namespace Ogre
             o << "Vector2(" << v.x << ", " << v.y <<  ")";
             return o;
         }
+
     };
 
 }
