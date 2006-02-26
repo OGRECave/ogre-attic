@@ -112,6 +112,14 @@ namespace Ogre
             return *this;
         }
 
+		inline Vector2& operator = ( const Real fScalar)
+		{
+			x = fScalar;
+			y = fScalar;
+
+			return *this;
+		}
+
         inline bool operator == ( const Vector2& rkVector ) const
         {
             return ( x == rkVector.x && y == rkVector.y );
@@ -228,10 +236,26 @@ namespace Ogre
             return *this;
         }
 
+        inline Vector2& operator += ( const Real fScaler )
+        {
+            x += fScaler;
+            y += fScaler;
+
+            return *this;
+        }
+
         inline Vector2& operator -= ( const Vector2& rkVector )
         {
             x -= rkVector.x;
             y -= rkVector.y;
+
+            return *this;
+        }
+
+        inline Vector2& operator -= ( const Real fScaler )
+        {
+            x -= fScaler;
+            y -= fScaler;
 
             return *this;
         }

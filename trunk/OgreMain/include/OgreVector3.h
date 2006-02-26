@@ -118,6 +118,15 @@ namespace Ogre
             return *this;
         }
 
+        inline Vector3& operator = ( const Real fScaler )
+        {
+            x = fScaler;
+            y = fScaler;
+            z = fScaler;
+
+            return *this;
+        }
+
         inline bool operator == ( const Vector3& rkVector ) const
         {
             return ( x == rkVector.x && y == rkVector.y && z == rkVector.z );
@@ -255,12 +264,28 @@ namespace Ogre
             return *this;
         }
 
+        inline Vector3& operator += ( const Real fScalar )
+        {
+            x += fScalar;
+            y += fScalar;
+            z += fScalar;
+            return *this;
+        }
+
         inline Vector3& operator -= ( const Vector3& rkVector )
         {
             x -= rkVector.x;
             y -= rkVector.y;
             z -= rkVector.z;
 
+            return *this;
+        }
+
+        inline Vector3& operator -= ( const Real fScalar )
+        {
+            x -= fScalar;
+            y -= fScalar;
+            z -= fScalar;
             return *this;
         }
 
