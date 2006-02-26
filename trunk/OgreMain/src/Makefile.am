@@ -150,6 +150,7 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgreUserDefinedObject.cpp \
                          OgreVector2.cpp \
                          OgreVector3.cpp \
+                         OgreVector4.cpp \
                          OgreVertexIndexData.cpp \
                          OgreViewport.cpp \
                          OgreWireBoundingBox.cpp \
