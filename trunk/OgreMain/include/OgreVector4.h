@@ -53,7 +53,7 @@ namespace Ogre
         {
         }
 
-        inline Vector4( const Real afCoordinate[4] )
+        inline explicit Vector4( const Real afCoordinate[4] )
             : x( afCoordinate[0] ),
               y( afCoordinate[1] ),
               z( afCoordinate[2] ),
@@ -61,7 +61,7 @@ namespace Ogre
         {
         }
 
-        inline Vector4( const int afCoordinate[4] )
+        inline explicit Vector4( const int afCoordinate[4] )
         {
             x = (Real)afCoordinate[0];
             y = (Real)afCoordinate[1];
@@ -69,8 +69,16 @@ namespace Ogre
             w = (Real)afCoordinate[3];
         }
 
-        inline Vector4( Real* const r )
+        inline explicit Vector4( Real* const r )
             : x( r[0] ), y( r[1] ), z( r[2] ), w( r[3] )
+        {
+        }
+
+        inline explicit Vector4( const Real scaler )
+            : x( scaler )
+            , y( scaler )
+            , z( scaler )
+            , w( scaler )
         {
         }
 
