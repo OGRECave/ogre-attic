@@ -211,8 +211,7 @@ namespace Ogre
 
         inline friend Vector2 operator - (const Vector2& lhs, const Real rhs)
         {
-            Vector2 ret = lhs;
-            return ret -= rhs;
+            return lhs - Vector2(rhs);
         }
 
         inline friend Vector2 operator - (const Real lhs, const Vector2& rhs)
