@@ -164,6 +164,8 @@ namespace Ogre {
 
         /// Internal method respond to enable/disable an animation state
         void _notifyAnimationStateEnabled(AnimationState* target, bool enabled);
+        /// Tests if exists enabled animation state in this set
+        bool hasEnabledAnimationState(void) const { return !mEnabledAnimationStates.empty(); }
 		/// Get an iterator over all the enabled animation states in this set
 		ConstEnabledAnimationStateIterator getEnabledAnimationStateIterator(void) const;
 

@@ -162,22 +162,38 @@ namespace Ogre {
 			// bones
             if (!mParentEntity->isHardwareAnimationEnabled())
             {
-                // Software skinning involves pretransforming
-                // No transform required
-                *xform = Matrix4::IDENTITY;
+                if (mParentEntity->getAllAnimationStates()->hasEnabledAnimationState())
+                {
+                    // Software skinning involves pretransforming
+                    // No transform required
+                    *xform = Matrix4::IDENTITY;
+                }
+                else
+                {
+                    // Software skinning but all animations disabled, origin vertex buffer are used
+                    *xform = mParentEntity->_getParentNodeFullTransform();
+                }
             }
             else
             {
-                // Bones, use cached matrices built when Entity::_updateRenderQueue was called
                 const Mesh::IndexMap& indexMap = mSubMesh->useSharedVertices ?
                     mSubMesh->parent->sharedBlendIndexToBoneIndexMap : mSubMesh->blendIndexToBoneIndexMap;
                 assert(indexMap.size() <= mParentEntity->mNumBoneMatrices);
 
-                Mesh::IndexMap::const_iterator it, itend;
-                itend = indexMap.end();
-                for (it = indexMap.begin(); it != itend; ++it, ++xform)
+                if (mParentEntity->getAllAnimationStates()->hasEnabledAnimationState())
                 {
-                    *xform = mParentEntity->mBoneMatrices[*it];
+                    // Bones, use cached matrices built when Entity::_updateRenderQueue was called
+                    Mesh::IndexMap::const_iterator it, itend;
+                    itend = indexMap.end();
+                    for (it = indexMap.begin(); it != itend; ++it, ++xform)
+                    {
+                        *xform = mParentEntity->mBoneMatrices[*it];
+                    }
+                }
+                else
+                {
+                    // All animations disabled, use parent entity transform only
+                    std::fill_n(xform, indexMap.size(), mParentEntity->_getParentNodeFullTransform());
                 }
             }
         }

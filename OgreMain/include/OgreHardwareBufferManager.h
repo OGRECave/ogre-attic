@@ -57,7 +57,7 @@ namespace Ogre {
     /** Structure for recording the use of temporary blend buffers */
     class _OgreExport TempBlendedBufferInfo : public HardwareBufferLicensee
     {
-    public:
+    private:
         // Pre-blended 
         HardwareVertexBufferSharedPtr srcPositionBuffer;
         HardwareVertexBufferSharedPtr srcNormalBuffer;
@@ -71,14 +71,17 @@ namespace Ogre {
         bool bindPositions;
         bool bindNormals;
 
+    public:
         ~TempBlendedBufferInfo(void);
+        /// Utility method, extract info from the given VertexData
+        void extractFrom(const VertexData* sourceData);
         /// Utility method, checks out temporary copies of src into dest
         void checkoutTempCopies(bool positions = true, bool normals = true);
         /// Utility method, binds dest copies into a given VertexData struct
         void bindTempCopies(VertexData* targetData, bool suppressHardwareUpload);
         /** Overridden member from HardwareBufferLicensee. */
         void licenseExpired(HardwareBuffer* buffer);
-		/** Do we currently have buffer copies checked out? */
+		/** Detect currently have buffer copies checked out and touch it */
 		bool buffersCheckedOut(bool positions = true, bool normals = true) const;
     };
 
@@ -139,14 +142,21 @@ namespace Ogre {
         public:
             HardwareVertexBuffer* originalBufferPtr;
             BufferLicenseType licenseType;
+            size_t expiredDelay;
             HardwareVertexBufferSharedPtr buffer;
             HardwareBufferLicensee* licensee;
             VertexBufferLicense(
                 HardwareVertexBuffer* orig,
                 BufferLicenseType ltype, 
+                size_t delay,
                 HardwareVertexBufferSharedPtr buf, 
                 HardwareBufferLicensee* lic) 
-                : originalBufferPtr(orig), licenseType(ltype), buffer(buf), licensee(lic) {}
+                : originalBufferPtr(orig)
+                , licenseType(ltype)
+                , expiredDelay(delay)
+                , buffer(buf)
+                , licensee(lic)
+            {}
 
         };
 
@@ -162,6 +172,8 @@ namespace Ogre {
         size_t mUnderUsedFrameCount;
         /// Number of frames to wait before free unused temporary buffers
         static const size_t UNDER_USED_FRAME_THRESHOLD;
+        /// Frame delay for BLT_AUTOMATIC_RELEASE temporary buffers
+        static const size_t EXPIRED_DELAY_FRAME_THRESHOLD;
 
 
         /// Creates  a new buffer as a copy of the source, does not copy data
@@ -274,6 +286,19 @@ namespace Ogre {
         */
         virtual void releaseVertexBufferCopy(
             const HardwareVertexBufferSharedPtr& bufferCopy); 
+
+        /** Increase expired delay counter by one for the vertex buffer copy.
+        @remarks
+            Ogre internal keep an expired delay counter of BLT_AUTOMATIC_RELEASE
+            buffers, when the counter count down to zero, it'll release for other
+            purposes later. But you can use this function to reset the counter to
+            the internal configured value, keep the buffer not get released for
+            some frames.
+        @param bufferCopy The buffer copy. The caller is expected to keep this
+            buffer copy for use.
+        */
+        virtual void touchVertexBufferCopy(
+            const HardwareVertexBufferSharedPtr& bufferCopy);
 
         /** Free all unused vertex buffer copies.
         @remarks
