@@ -527,7 +527,7 @@ namespace Ogre {
         }
 
 		// Point size
-		Real ps;
+		float ps;
 		glGetFloatv(GL_POINT_SIZE_MAX, &ps);
 		mCapabilities->setMaxPointSize(ps);
         
