@@ -38,7 +38,7 @@ namespace Ogre
     public:
         union {
             struct {
-                Real x, y, z, w;        
+                Real x, y, z, w;
             };
             Real val[4];
         };
@@ -48,20 +48,20 @@ namespace Ogre
         {
         }
 
-        inline Vector4( Real fX, Real fY, Real fZ, Real fW ) 
+        inline Vector4( const Real fX, const Real fY, const Real fZ, const Real fW )
             : x( fX ), y( fY ), z( fZ ), w( fW)
         {
         }
 
-        inline Vector4( Real afCoordinate[4] )
+        inline Vector4( const Real afCoordinate[4] )
             : x( afCoordinate[0] ),
               y( afCoordinate[1] ),
-              z( afCoordinate[2] ), 
-              w (afCoordinate[3] )
+              z( afCoordinate[2] ),
+              w( afCoordinate[3] )
         {
         }
 
-        inline Vector4( int afCoordinate[4] )
+        inline Vector4( const int afCoordinate[4] )
         {
             x = (Real)afCoordinate[0];
             y = (Real)afCoordinate[1];
@@ -69,7 +69,7 @@ namespace Ogre
             w = (Real)afCoordinate[3];
         }
 
-        inline Vector4( const Real* const r )
+        inline Vector4( Real* const r )
             : x( r[0] ), y( r[1] ), z( r[2] ), w( r[3] )
         {
         }
@@ -79,14 +79,14 @@ namespace Ogre
         {
         }
 
-		inline Real operator [] ( size_t i ) const
+		inline Real operator [] ( const size_t i ) const
         {
             assert( i < 4 );
 
             return *(&x+i);
         }
 
-		inline Real& operator [] ( size_t i )
+		inline Real& operator [] ( const size_t i )
         {
             assert( i < 4 );
 
@@ -101,24 +101,33 @@ namespace Ogre
         {
             x = rkVector.x;
             y = rkVector.y;
-            z = rkVector.z;            
-            w = rkVector.w;            
+            z = rkVector.z;
+            w = rkVector.w;
 
             return *this;
         }
 
+		inline Vector4& operator = ( const Real fScalar)
+		{
+			x = fScalar;
+			y = fScalar;
+			z = fScalar;
+			w = fScalar;
+			return *this;
+		}
+
         inline bool operator == ( const Vector4& rkVector ) const
         {
-            return ( x == rkVector.x && 
-                y == rkVector.y && 
+            return ( x == rkVector.x &&
+                y == rkVector.y &&
                 z == rkVector.z &&
                 w == rkVector.w );
         }
 
         inline bool operator != ( const Vector4& rkVector ) const
         {
-            return ( x != rkVector.x || 
-                y != rkVector.y || 
+            return ( x != rkVector.x ||
+                y != rkVector.y ||
                 z != rkVector.z ||
                 w != rkVector.w );
         }
@@ -157,7 +166,7 @@ namespace Ogre
             return kDiff;
         }
 
-        inline Vector4 operator * ( Real fScalar ) const
+        inline Vector4 operator * ( const Real fScalar ) const
         {
             Vector4 kProd;
 
@@ -181,7 +190,7 @@ namespace Ogre
             return kProd;
         }
 
-        inline Vector4 operator / ( Real fScalar ) const
+        inline Vector4 operator / ( const Real fScalar ) const
         {
             assert( fScalar != 0.0 );
 
@@ -221,7 +230,7 @@ namespace Ogre
             return kNeg;
         }
 
-        inline friend Vector4 operator * ( Real fScalar, const Vector4& rkVector )
+        inline friend Vector4 operator * ( const Real fScalar, const Vector4& rkVector )
         {
             Vector4 kProd;
 
@@ -231,6 +240,34 @@ namespace Ogre
             kProd.w = fScalar * rkVector.w;
 
             return kProd;
+        }
+
+        inline friend Vector4 operator + (const Vector4& lhs, const Real rhs)
+        {
+            Vector4 ret;
+            ret = rhs;
+            return ret += lhs;
+        }
+
+        inline friend Vector4 operator + (const Real lhs, const Vector4& rhs)
+        {
+            Vector4 ret;
+            ret = lhs;
+            return ret += rhs;
+        }
+
+        inline friend Vector4 operator - (const Vector4& lhs, Real rhs)
+        {
+            Vector4 ret;
+            ret = lhs;
+            return ret -= rhs;
+        }
+
+        inline friend Vector4 operator - (const Real lhs, const Vector4& rhs)
+        {
+            Vector4 ret;
+            ret = lhs;
+            return ret -= rhs;
         }
 
         // arithmetic updates
@@ -254,12 +291,30 @@ namespace Ogre
             return *this;
         }
 
-        inline Vector4& operator *= ( Real fScalar )
+        inline Vector4& operator *= ( const Real fScalar )
         {
             x *= fScalar;
             y *= fScalar;
             z *= fScalar;
             w *= fScalar;
+            return *this;
+        }
+
+        inline Vector4& operator += ( const Real fScalar )
+        {
+            x += fScalar;
+            y += fScalar;
+            z += fScalar;
+            w += fScalar;
+            return *this;
+        }
+
+        inline Vector4& operator -= ( const Real fScalar )
+        {
+            x -= fScalar;
+            y -= fScalar;
+            z -= fScalar;
+            w -= fScalar;
             return *this;
         }
 
@@ -273,7 +328,7 @@ namespace Ogre
             return *this;
         }
 
-        inline Vector4& operator /= ( Real fScalar )
+        inline Vector4& operator /= ( const Real fScalar )
         {
             assert( fScalar != 0.0 );
 
@@ -316,6 +371,8 @@ namespace Ogre
             o << "Vector4(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
             return o;
         }
+        // special
+        static const Vector4 ZERO;
     };
 
 }
