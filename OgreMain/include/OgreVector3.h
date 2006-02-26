@@ -59,26 +59,26 @@ namespace Ogre
         {
         }
 
-        inline Vector3( const Real afCoordinate[3] )
+        inline explicit Vector3( const Real afCoordinate[3] )
             : x( afCoordinate[0] ),
               y( afCoordinate[1] ),
               z( afCoordinate[2] )
         {
         }
 
-        inline Vector3( const int afCoordinate[3] )
+        inline explicit Vector3( const int afCoordinate[3] )
         {
             x = (Real)afCoordinate[0];
             y = (Real)afCoordinate[1];
             z = (Real)afCoordinate[2];
         }
 
-        inline Vector3( Real* const r )
+        inline explicit Vector3( Real* const r )
             : x( r[0] ), y( r[1] ), z( r[2] )
         {
         }
 
-        inline Vector3( const Real scaler )
+        inline explicit Vector3( const Real scaler )
             : x( scaler )
             , y( scaler )
             , z( scaler )
