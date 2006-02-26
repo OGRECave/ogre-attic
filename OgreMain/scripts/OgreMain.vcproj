@@ -705,6 +705,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreVector3.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreVector4.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreVertexIndexData.cpp">
 			</File>
 			<File
