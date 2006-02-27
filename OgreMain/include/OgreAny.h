@@ -224,8 +224,8 @@ namespace Ogre
 		}
 
 		AnyNumeric(const AnyNumeric & other)
-			: Any(other)
 		{
+			mContent = other.mContent ? other.mContent->clone() : 0; 
 		}
 	protected:
 		class numplaceholder : public Any::placeholder
@@ -302,6 +302,11 @@ namespace Ogre
 		}
 
 	public:
+		AnyNumeric & operator=(const AnyNumeric & rhs)
+		{
+			AnyNumeric(rhs).swap(*this);
+			return *this;
+		}
 		AnyNumeric operator+(const AnyNumeric& rhs) const
 		{
 			return AnyNumeric(
