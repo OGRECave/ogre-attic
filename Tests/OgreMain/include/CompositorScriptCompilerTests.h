@@ -22,21 +22,21 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#include "OgreMaterialScriptCompiler.h"
+#include "OgreCompositorScriptCompiler.h"
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 using namespace Ogre;
 
 // subclass from MaterialScriptCompiler class so protected methods can be tested
-class MaterialScriptCompilerTests : public CppUnit::TestFixture, MaterialScriptCompiler
+class CompositorScriptCompilerTests : public CppUnit::TestFixture, CompositorScriptCompiler
 {
     // CppUnit macros for setting up the test suite
-    CPPUNIT_TEST_SUITE( MaterialScriptCompilerTests );
+    CPPUNIT_TEST_SUITE( CompositorScriptCompilerTests );
         CPPUNIT_TEST(testPositionToNextSymbol);
         CPPUNIT_TEST(testIsFloatValue);
         CPPUNIT_TEST(testIsLexemeMatch);
-        CPPUNIT_TEST(testCompileMaterialScript);
+        CPPUNIT_TEST(testCompile);
     CPPUNIT_TEST_SUITE_END();
 protected:
 public:
@@ -46,5 +46,5 @@ public:
     void testPositionToNextSymbol();
     void testIsFloatValue();
     void testIsLexemeMatch();
-    void testCompileMaterialScript();
+    void testCompile();
 };

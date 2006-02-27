@@ -22,22 +22,21 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-
-#include "OgreMaterialManager.h"
-#include "MaterialScriptCompilerTests.h"
+#include "CompositorScriptCompilerTests.h"
+#include "OgreCompositorScriptCompiler.h"
 #include "OgreStringConverter.h"
 
 // Regsiter the suite
-CPPUNIT_TEST_SUITE_REGISTRATION( MaterialScriptCompilerTests );
+CPPUNIT_TEST_SUITE_REGISTRATION( CompositorScriptCompilerTests );
 
-void MaterialScriptCompilerTests::setUp()
+void CompositorScriptCompilerTests::setUp()
 {
 }
-void MaterialScriptCompilerTests::tearDown()
+void CompositorScriptCompilerTests::tearDown()
 {
 }
 
-void MaterialScriptCompilerTests::testPositionToNextSymbol()
+void CompositorScriptCompilerTests::testPositionToNextSymbol()
 {
   struct test1result{
     const char character;
@@ -68,7 +67,7 @@ void MaterialScriptCompilerTests::testPositionToNextSymbol()
 
 }
 
-void MaterialScriptCompilerTests::testIsFloatValue(void)
+void CompositorScriptCompilerTests::testIsFloatValue(void)
 {
   struct testfloatresult{
     const String teststr;
@@ -107,10 +106,10 @@ void MaterialScriptCompilerTests::testIsFloatValue(void)
 
 }
 
-void MaterialScriptCompilerTests::testIsLexemeMatch(void)
+void CompositorScriptCompilerTests::testIsLexemeMatch(void)
 {
-  const String TestStr = "material test";
-  const String TestSymbols = "material";
+  const String TestStr = "Compositor test";
+  const String TestSymbols = "compositor";
 
   mSource = &TestStr;
   mCharPos = 0;
@@ -122,17 +121,9 @@ void MaterialScriptCompilerTests::testIsLexemeMatch(void)
 
 }
 
-void MaterialScriptCompilerTests::testCompileMaterialScript()
+void CompositorScriptCompilerTests::testCompile()
 {
-    Math* mth = new Math();
-    ResourceGroupManager* resGrpMgr = new ResourceGroupManager();
-    MaterialManager* matMgr = new MaterialManager();
-    matMgr->initialise();
-
-    const String simpleScript = "material test { technique { pass {} } }";
-    CPPUNIT_ASSERT(compile(simpleScript, "MaterialScriptTest"));
-    delete matMgr;
-    delete resGrpMgr;
-    delete mth;
+    const String simpleScript = "compositor test { technique { target_output {} } }";
+    CPPUNIT_ASSERT(compile(simpleScript, "Test Compositor"));
 }
 
