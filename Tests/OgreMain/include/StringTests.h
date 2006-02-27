@@ -22,11 +22,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#include "Ogre.h"
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
-
-using namespace Ogre;
+#include "OgreString.h"
 
 class StringTests : public CppUnit::TestFixture
 {
@@ -36,7 +34,7 @@ class StringTests : public CppUnit::TestFixture
     CPPUNIT_TEST(testSplitFileNameRelativePath);
     CPPUNIT_TEST(testSplitFileNameAbsolutePath);
     CPPUNIT_TEST(testMatchCaseSensitive);
-    CPPUNIT_TEST(testMatchCaseInSensitive);	
+    CPPUNIT_TEST(testMatchCaseInSensitive);
 	CPPUNIT_TEST(testMatchGlobAll);
     CPPUNIT_TEST(testMatchGlobStart);
     CPPUNIT_TEST(testMatchGlobEnd);
@@ -45,11 +43,11 @@ class StringTests : public CppUnit::TestFixture
     CPPUNIT_TEST(testMatchSuperGlobtastic);
     CPPUNIT_TEST_SUITE_END();
 protected:
-	String testFileNoPath;
-	String testFileRelativePathWindows;
-	String testFileRelativePathUnix;
-	String testFileAbsolutePathWindows;
-	String testFileAbsolutePathUnix;
+	Ogre::String testFileNoPath;
+	Ogre::String testFileRelativePathWindows;
+	Ogre::String testFileRelativePathUnix;
+	Ogre::String testFileAbsolutePathWindows;
+	Ogre::String testFileAbsolutePathUnix;
 public:
     void setUp();
     void tearDown();

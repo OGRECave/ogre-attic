@@ -22,9 +22,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#include "Ogre.h"
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
+#include "OgrePixelFormat.h"
 
 using namespace Ogre;
 
@@ -33,20 +33,20 @@ class PixelFormatTests : public CppUnit::TestFixture
     // CppUnit macros for setting up the test suite
     CPPUNIT_TEST_SUITE( PixelFormatTests );
     CPPUNIT_TEST( testIntegerPackUnpack );
-    CPPUNIT_TEST( testFloatPackUnpack );    
+    CPPUNIT_TEST( testFloatPackUnpack );
     CPPUNIT_TEST( testBulkConversion );
     CPPUNIT_TEST_SUITE_END();
 public:
     void setUp();
     void tearDown();
-    
+
     void testIntegerPackUnpack();
-    void testFloatPackUnpack();    
+    void testFloatPackUnpack();
     void testBulkConversion();
 
     // Utils
     void setupBoxes(PixelFormat srcFormat, PixelFormat dstFormat);
-    void testCase(PixelFormat srcFormat, PixelFormat dstFormat);    
+    void testCase(PixelFormat srcFormat, PixelFormat dstFormat);
 private:
     int size;
     uint8 *randomData;
