@@ -23,7 +23,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "StringTests.h"
-#include "OgreString.h"
+
+using namespace Ogre;
 
 // Regsiter the suite
 CPPUNIT_TEST_SUITE_REGISTRATION( StringTests );

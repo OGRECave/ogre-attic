@@ -23,8 +23,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "PixelFormatTests.h"
-#include "OgrePixelFormat.h"
 #include <cstdlib>
+
 // Register the suite
 CPPUNIT_TEST_SUITE_REGISTRATION( PixelFormatTests );
 
@@ -50,7 +50,7 @@ void PixelFormatTests::tearDown()
 
 void PixelFormatTests::testIntegerPackUnpack()
 {
-    
+
 }
 
 void PixelFormatTests::testFloatPackUnpack()
@@ -63,26 +63,26 @@ void PixelFormatTests::testFloatPackUnpack()
     CPPUNIT_ASSERT_EQUAL(g, 2.0f);
     CPPUNIT_ASSERT_EQUAL(b, 3.0f);
     CPPUNIT_ASSERT_EQUAL(a, 4.0f);
-    
+
     // Float16
     setupBoxes(PF_A8B8G8R8, PF_FLOAT16_RGBA);
     dst2.format = PF_A8B8G8R8;
     unsigned int eob = src.getWidth()*4;
-    
+
     PixelUtil::bulkPixelConversion(src, dst1);
     PixelUtil::bulkPixelConversion(dst1, dst2);
-    
+
     // Locate errors
     std::stringstream s;
     int x;
     for(x=0; x<eob; x++) {
-        if(temp2[x] != randomData[x]) 
+        if(temp2[x] != randomData[x])
             s << std::hex << std::setw(2) << std::setfill('0') << (unsigned int) randomData[x]
               << "!= " << std::hex << std::setw(2) << std::setfill('0') << (unsigned int) temp2[x] << " ";
     }
 
-    // src and dst2 should match    
-    CPPUNIT_ASSERT_MESSAGE("PF_FLOAT16_RGBA<->PF_A8B8G8R8 conversion was not lossless "+s.str(), 
+    // src and dst2 should match
+    CPPUNIT_ASSERT_MESSAGE("PF_FLOAT16_RGBA<->PF_A8B8G8R8 conversion was not lossless "+s.str(),
         memcmp(src.data, dst2.data, eob) == 0);
 }
 
@@ -100,10 +100,10 @@ void naiveBulkPixelConversion(const PixelBox &src, const PixelBox &dst)
 
     int dstRowSkipBytes = dst.getRowSkip()*dstPixelSize;
     int dstSliceSkipBytes = dst.getSliceSkip()*dstPixelSize;
-	
+
 	// The brute force fallback
 	float r,g,b,a;
-	for(size_t z=src.front; z<src.back; z++) 
+	for(size_t z=src.front; z<src.back; z++)
 	{
 		for(size_t y=src.top; y<src.bottom; y++)
 		{
@@ -111,7 +111,7 @@ void naiveBulkPixelConversion(const PixelBox &src, const PixelBox &dst)
 			{
 				PixelUtil::unpackColour(&r, &g, &b, &a, src.format, srcptr);
 				PixelUtil::packColour(r, g, b, a, dst.format, dstptr);
-				srcptr += srcPixelSize; 
+				srcptr += srcPixelSize;
 				dstptr += dstPixelSize;
 			}
 			srcptr += srcRowSkipBytes;
@@ -120,7 +120,7 @@ void naiveBulkPixelConversion(const PixelBox &src, const PixelBox &dst)
 		srcptr += srcSliceSkipBytes;
 		dstptr += dstSliceSkipBytes;
 	}
-	
+
 }
 
 void PixelFormatTests::setupBoxes(PixelFormat srcFormat, PixelFormat dstFormat)
@@ -149,7 +149,7 @@ void PixelFormatTests::testCase(PixelFormat srcFormat, PixelFormat dstFormat)
     // Do pack/unpacking with both naive and optimized version
     PixelUtil::bulkPixelConversion(src, dst1);
     naiveBulkPixelConversion(src, dst2);
-    
+
     CPPUNIT_ASSERT_EQUAL(temp[eob], (unsigned char)0x56);
     CPPUNIT_ASSERT_EQUAL(temp[eob+1], (unsigned char)0x23);
 
@@ -165,12 +165,12 @@ void PixelFormatTests::testCase(PixelFormat srcFormat, PixelFormat dstFormat)
     for(x=0; x<16; x++)
         s << std::hex << std::setw(2) << std::setfill('0') << (unsigned int) temp2[x];
     s << " ";
-    
+
     // Compare result
-    CPPUNIT_ASSERT_MESSAGE("Conversion mismatch ["+PixelUtil::getFormatName(srcFormat)+"->"+PixelUtil::getFormatName(dstFormat)+"] "+s.str(), 
+    CPPUNIT_ASSERT_MESSAGE("Conversion mismatch ["+PixelUtil::getFormatName(srcFormat)+"->"+PixelUtil::getFormatName(dstFormat)+"] "+s.str(),
         memcmp(dst1.data, dst2.data, eob) == 0);
 }
- 
+
 void PixelFormatTests::testBulkConversion()
 {
     // Self match
@@ -188,7 +188,7 @@ void PixelFormatTests::testBulkConversion()
 	testCase(PF_R8G8B8A8,PF_A8R8G8B8);
 	testCase(PF_R8G8B8A8,PF_A8B8G8R8);
 	testCase(PF_R8G8B8A8,PF_B8G8R8A8);
-	
+
     testCase(PF_A8B8G8R8, PF_L8);
     testCase(PF_L8, PF_A8B8G8R8);
     testCase(PF_A8R8G8B8, PF_L8);

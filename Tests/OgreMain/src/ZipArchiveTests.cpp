@@ -25,6 +25,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "ZipArchiveTests.h"
 #include "OgreZip.h"
 
+using namespace Ogre;
+
 // Regsiter the suite
 CPPUNIT_TEST_SUITE_REGISTRATION( ZipArchiveTests );
 
@@ -57,7 +59,7 @@ void ZipArchiveTests::testListRecursive()
     arch.load();
     StringVectorPtr vec = arch.list(true);
 
-    CPPUNIT_ASSERT_EQUAL((size_t)6, vec->size()); 
+    CPPUNIT_ASSERT_EQUAL((size_t)6, vec->size());
     CPPUNIT_ASSERT_EQUAL(String("level1/materials/scripts/file.material"), vec->at(0));
     CPPUNIT_ASSERT_EQUAL(String("level1/materials/scripts/file2.material"), vec->at(1));
     CPPUNIT_ASSERT_EQUAL(String("level2/materials/scripts/file3.material"), vec->at(2));
@@ -92,7 +94,7 @@ void ZipArchiveTests::testListFileInfoRecursive()
     arch.load();
     FileInfoListPtr vec = arch.listFileInfo(true);
 
-    CPPUNIT_ASSERT_EQUAL((size_t)6, vec->size()); 
+    CPPUNIT_ASSERT_EQUAL((size_t)6, vec->size());
     FileInfo& fi3 = vec->at(0);
     CPPUNIT_ASSERT_EQUAL(String("level1/materials/scripts/file.material"), fi3.filename);
     CPPUNIT_ASSERT_EQUAL(String("file.material"), fi3.basename);
@@ -153,7 +155,7 @@ void ZipArchiveTests::testFindRecursive()
     arch.load();
     StringVectorPtr vec = arch.find("*.material", true);
 
-    CPPUNIT_ASSERT_EQUAL((size_t)4, vec->size()); 
+    CPPUNIT_ASSERT_EQUAL((size_t)4, vec->size());
     CPPUNIT_ASSERT_EQUAL(String("level1/materials/scripts/file.material"), vec->at(0));
     CPPUNIT_ASSERT_EQUAL(String("level1/materials/scripts/file2.material"), vec->at(1));
     CPPUNIT_ASSERT_EQUAL(String("level2/materials/scripts/file3.material"), vec->at(2));
@@ -186,7 +188,7 @@ void ZipArchiveTests::testFindFileInfoRecursive()
     arch.load();
     FileInfoListPtr vec = arch.findFileInfo("*.material", true);
 
-    CPPUNIT_ASSERT_EQUAL((size_t)4, vec->size()); 
+    CPPUNIT_ASSERT_EQUAL((size_t)4, vec->size());
 
     FileInfo& fi3 = vec->at(0);
     CPPUNIT_ASSERT_EQUAL(String("level1/materials/scripts/file.material"), fi3.filename);
