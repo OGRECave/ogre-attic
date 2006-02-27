@@ -76,13 +76,13 @@ namespace Ogre {
 		"                              <Point_Size_Def> | <Point_Sprites_Def> | <Point_Size_Attenuation_Def> | "
 		"                              <Point_Size_Min_Def> | <Point_Size_Max_Def> \n"
 
-        "        <Ambient_Def> ::= 'ambient' <Colour_Param_Def> | <Vertexcolour_Def> \n"
-        "        <Diffuse_Def> ::= 'diffuse' <Colour_Param_Def> | <Vertexcolour_Def> \n"
+        "        <Ambient_Def> ::= 'ambient' <Colour_Params> | <Vertexcolour_Def> \n"
+        "        <Diffuse_Def> ::= 'diffuse' <Colour_Params> | <Vertexcolour_Def> \n"
         "        <Specular_Def> ::= 'specular' <Specular_Params> <#shininess> \n"
-        "            <Specular_Params> ::= <Colour_params> | <Vertexcolour_Def> \n"
-        "        <Emissive_Def> ::= 'emissive' <Colour_params> | <Vertexcolour_Def> \n"
+        "            <Specular_Params> ::= <Colour_Params> | <Vertexcolour_Def> \n"
+        "        <Emissive_Def> ::= 'emissive' <Colour_Params> | <Vertexcolour_Def> \n"
 
-        "        <Vertexcolour> ::= 'vertexcolour' \n"
+        "        <Vertexcolour_Def> ::= 'vertexcolour' \n"
 
         "        <Scene_Blend_Def> ::= 'scene_blend' <Simple_Blend> | <User_Blend> \n"
         "          <Simple_Blend> ::= 'add' | 'modulate' | 'colour_blend' | 'alpha_blend' \n"
@@ -124,13 +124,14 @@ namespace Ogre {
         "           <light_type> ::= 'point' | 'directional' | 'spot' \n"
         // Texture Unit section rules
         "        <Texture_Unit_Def> ::= 'texture_unit' [<Label>] '{' {<TUS_Properties>} '}' \n"
+        "        <TUS_Properties> ::= '****FILLER****' \n"
         " "
-        "<Vertex_Program_Def> ::= \n"
-        "<Fragment_Program_Def> ::= \n"
+        "<Vertex_Program_Def> ::= 'vertex_program' \n"
+        "<Fragment_Program_Def> ::= 'fragment_program' \n"
 
         // common rules
         "<On_Off> ::= 'on' | 'off' \n"
-        "<Colour_params> ::= <#red> <#green> <#blue> [<#alpha>] \n"
+        "<Colour_Params> ::= <#red> <#green> <#blue> [<#alpha>] \n"
 
 
         "<Label> ::= <Unquoted_Label> | <Quoted_Label> \n"
