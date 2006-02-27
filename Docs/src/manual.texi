@@ -3021,6 +3021,7 @@ Format: material <name>@*
 Example: material Examples/TestMaterial@*@*
 
 This sets the base material which this element will use. Each type of element may interpret this differently; for example the OGRE element 'Panel' treats this as the background of the panel, whilst 'BorderPanel' interprets this as the material for the center area only. Materials should be defined in .material scripts.@*@*
+Note that using a material in an overlay element automatically disables lighting and depth checking on this material. Therefore you should not use the same material as is used for real 3D objects for an overlay.@*@*
 
 Default: none@*
 
