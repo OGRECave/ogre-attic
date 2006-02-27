@@ -49,7 +49,7 @@ namespace Ogre {
 	//-------------------------------------------------------------------------
 	void XsiMaterialExporter::exportMaterials(MaterialMap& materials, 
 		TextureProjectionMap& texProjMap, const String& filename, 
-		bool copyTextures, const String& materialPrefix)
+		bool copyTextures)
 	{
 		LogOgreAndXSI("** Begin OGRE Material Export **");
 		
@@ -74,7 +74,7 @@ namespace Ogre {
 
 		for (MaterialMap::iterator m = materials.begin(); m != materials.end(); ++m)
 		{
-			exportMaterial(m->second, copyTextures, texturePath, materialPrefix);
+			exportMaterial(m->second, copyTextures, texturePath);
 		}
 
 		mMatSerializer.exportQueued(filename);
@@ -83,12 +83,12 @@ namespace Ogre {
 	}
 	//-------------------------------------------------------------------------
 	void XsiMaterialExporter::exportMaterial(MaterialEntry* matEntry, 
-		bool copyTextures, const String& texturePath, const String& materialPrefix)
+		bool copyTextures, const String& texturePath)
 	{
 		LogOgreAndXSI("Exporting " + matEntry->name);
 
 		MaterialPtr mat = MaterialManager::getSingleton().create(
-			materialPrefix + matEntry->name,
+			matEntry->name,
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		Technique* t = mat->createTechnique();
 
