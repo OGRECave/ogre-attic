@@ -24,6 +24,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "EdgeBuilderTests.h"
 #include "OgreDefaultHardwareBufferManager.h"
+#include "OgreVertexIndexData.h"
+#include "OgreEdgeListBuilder.h"
 
 // Regsiter the suite
 CPPUNIT_TEST_SUITE_REGISTRATION( EdgeBuilderTests );
@@ -31,13 +33,13 @@ CPPUNIT_TEST_SUITE_REGISTRATION( EdgeBuilderTests );
 void EdgeBuilderTests::setUp()
 {
     mBufMgr = new DefaultHardwareBufferManager();
-    mLogMgr = new LogManager();
-    mLogMgr->createLog("EdgeBuilderTests.log", true);
+    //mLogMgr = new LogManager();
+    LogManager::getSingleton().createLog("EdgeBuilderTests.log", true);
 }
 void EdgeBuilderTests::tearDown()
 {
     delete mBufMgr;
-    delete mLogMgr;
+    //delete mLogMgr;
 }
 
 void EdgeBuilderTests::testSingleIndexBufSingleVertexBuf()
@@ -169,7 +171,7 @@ void EdgeBuilderTests::testMultiIndexBufMultiVertexBuf()
 {
     /* This tests the edge builders ability to find shared edges when there are
     both multiple index sets (submeshes) each using a different vertex buffer
-    (not using shared geoemtry). 
+    (not using shared geoemtry).
     */
 
     VertexData vd[4];
@@ -272,9 +274,9 @@ void EdgeBuilderTests::testMultiIndexBufMultiVertexBuf()
     CPPUNIT_ASSERT(edgeData->triangles.size() == 4);
     // 6 edges in total
     CPPUNIT_ASSERT(
-        (edgeData->edgeGroups[0].edges.size() + 
-        edgeData->edgeGroups[1].edges.size() + 
-        edgeData->edgeGroups[2].edges.size() + 
+        (edgeData->edgeGroups[0].edges.size() +
+        edgeData->edgeGroups[1].edges.size() +
+        edgeData->edgeGroups[2].edges.size() +
         edgeData->edgeGroups[3].edges.size())
                     == 6);
 

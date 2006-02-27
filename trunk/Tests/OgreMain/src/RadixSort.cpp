@@ -23,7 +23,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "RadixSortTests.h"
-#include "OgreString.h"
+#include "OgreRadixSort.h"
+#include "OgreMath.h"
+
+using namespace Ogre;
 
 // Regsiter the suite
 CPPUNIT_TEST_SUITE_REGISTRATION( RadixSortTests );
