@@ -392,15 +392,39 @@ namespace Ogre {
 	    // tokenize and check semantics untill an error occurs or end of source is reached
 	    // assume RootRulePath has pointer to rules so start at index + 1 for first rule path
 	    // first rule token would be a rule definition so skip over it
-	    bool passed = processRulePath(1);
-	    // if a lexeme in source still exists then the end of source was not reached and there was a problem some where
-	    if (positionToNextLexeme()) passed = false;
-        if (passed)
-        {
-            // special condition at end of script.  The last action needs to be triggered if
-            // parsing reached the end of the source.
-            activatePreviousTokenAction();
-        }
+	    bool passed = false;
+
+	    try
+	    {
+            passed = processRulePath(1);
+            // if a lexeme in source still exists then the end of source was not reached and there was a problem some where
+            if (positionToNextLexeme()) passed = false;
+            if (passed)
+            {
+                // special condition at end of script.  The last action needs to be triggered if
+                // parsing reached the end of the source.
+                activatePreviousTokenAction();
+            }
+
+	    }
+	    catch (Exception& e)
+	    {
+            LogManager::getSingleton().logMessage( "Exception caught: "
+            + e.getFullDescription()
+            + ", while trying to parse: "
+            + getClientGrammerName()
+            + ": "
+            + mSourceName
+            );
+	    }
+	    catch (...)
+	    {
+            LogManager::getSingleton().logMessage( "Unkown exception while trying to parse: "
+            + getClientGrammerName()
+            + ": "
+            + mSourceName
+            );
+	    }
 
 	    return passed;
 
@@ -1070,12 +1094,12 @@ namespace Ogre {
 
         // default to using Client rule path
         // check if index is inbounds
-        if (ruleID >= mClientTokenState->rootRulePath.size())
+        if (ruleID >= mActiveTokenState->rootRulePath.size())
         {
             OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "rule ID exceeds client rule path bounds.", "Compiler2Pass::getBNFGrammerRulePathText");
         }
         // iterate through rule path and get terminal and non-terminal strings
-        const TokenRuleContainer& rulePath = mClientTokenState->rootRulePath;
+        const TokenRuleContainer& rulePath = mActiveTokenState->rootRulePath;
 
         while (rulePath[ruleID].operation != otEND)
         {
@@ -1122,21 +1146,28 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     String Compiler2Pass::getLexemeText(size_t& ruleID)
     {
+        if (ruleID >= mActiveTokenState->rootRulePath.size())
+        {
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR,
+             "rule ID exceeds client rule path bounds.", "Compiler2Pass::getLexemeText"
+            );
+        }
+
         String lexeme;
 
-        const TokenRuleContainer& rulePath = mClientTokenState->rootRulePath;
+        const TokenRuleContainer& rulePath = mActiveTokenState->rootRulePath;
         const size_t tokenID = rulePath[ruleID].tokenID;
 
         if ( tokenID < SystemTokenBase)
         {
             // non-terminal tokens
-            if (mClientTokenState->lexemeTokenDefinitions[tokenID].isNonTerminal)
+            if (mActiveTokenState->lexemeTokenDefinitions[tokenID].isNonTerminal)
             {
-                lexeme = "<" + mClientTokenState->lexemeTokenDefinitions[tokenID].lexeme + ">";
+                lexeme = "<" + mActiveTokenState->lexemeTokenDefinitions[tokenID].lexeme + ">";
             }
             else // terminal tokens
             {
-                lexeme = "'" + mClientTokenState->lexemeTokenDefinitions[tokenID].lexeme + "'";
+                lexeme = "'" + mActiveTokenState->lexemeTokenDefinitions[tokenID].lexeme + "'";
             }
         }
         else // system token processing
@@ -1147,7 +1178,7 @@ namespace Ogre {
                 // need to get next rule instruction for data
                 ++ruleID;
                 // data for _character_ is always a set so put () around text string
-                lexeme = "{" + mClientTokenState->lexemeTokenDefinitions[rulePath[ruleID].tokenID].lexeme + ")";
+                lexeme = "{" + mActiveTokenState->lexemeTokenDefinitions[rulePath[ruleID].tokenID].lexeme + ")";
                 break;
             case _value_:
                 // <#> - need name of label?
