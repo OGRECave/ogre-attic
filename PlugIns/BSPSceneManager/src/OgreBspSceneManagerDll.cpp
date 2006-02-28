@@ -24,6 +24,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "OgreBspSceneManager.h"
+#include "OgreBspResourceManager.h"
 #include "OgreRoot.h"
 
 namespace Ogre {
@@ -38,11 +39,16 @@ namespace Ogre {
         // Register
         Root::getSingleton().addSceneManagerFactory(bspFactory);
 
+		// Create resource manager (singleton manages)
+		new BspResourceManager();
+
 
     }
 	extern "C" void dllShutdownPlugin( void )
 	{
 		Root::getSingleton().removeSceneManagerFactory(bspFactory);
+		delete BspResourceManager::getSingletonPtr();
+
 	}    
 	extern "C" void dllStopPlugin(void)
     {
