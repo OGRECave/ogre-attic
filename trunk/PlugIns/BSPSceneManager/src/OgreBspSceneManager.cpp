@@ -54,10 +54,6 @@ namespace Ogre {
         // Set features for debugging render
         mShowNodeAABs = false;
 
-        // Instantiate BspResourceManager
-        // Will be managed by singleton
-        mBspResMgr = new BspResourceManager();
-
         // No sky by default
         mSkyPlaneEnabled = false;
         mSkyBoxEnabled = false;
@@ -76,7 +72,6 @@ namespace Ogre {
     {
         freeMemory();
         mLevel.setNull();
-        delete mBspResMgr;
     }
     //-----------------------------------------------------------------------
     size_t BspSceneManager::estimateWorldGeometry(const String& filename)
