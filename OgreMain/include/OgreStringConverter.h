@@ -193,7 +193,7 @@ namespace Ogre {
         static Matrix4 parseMatrix4(const String& val);
         /** Parses a Quaternion out of a String. 
         @remarks
-            Format is "x y z w" (i.e. 4x Real values, space delimited). 
+            Format is "w x y z" (i.e. 4x Real values, space delimited). 
             Failure to parse returns Quaternion::IDENTITY.
 
         */
