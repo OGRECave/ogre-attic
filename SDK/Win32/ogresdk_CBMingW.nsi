@@ -1,5 +1,6 @@
-!define TARGET_COMPILER_DESCRIPTION "Code::Blocks + MingW"
-!define TARGET_COMPILER "CBMingW"
+!define TARGET_COMPILER_DESCRIPTION "Code::Blocks + MingW + STLPort"
+!define TARGET_COMPILER "CBMingW_STLP"
+!define MINGW
 !include ogresdk.nsh
 
 Section -Samples
