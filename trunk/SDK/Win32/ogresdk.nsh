@@ -88,29 +88,53 @@ Section -Libs
   ; Library files
   SetOutPath "$INSTDIR\lib"
   SetOverwrite try
-  File "..\..\OgreMain\lib\Debug\OgreMain_d.lib"
-  File "..\..\OgreMain\lib\Debug\OgreMain_d.pdb"
-  File "..\..\Dependencies\lib\Debug\CEGUIBase_d.lib"
-  ; ode.lib is only one available, no separate release version
-  File "..\..\Dependencies\lib\Debug\ode.lib"
-  File "..\..\Samples\Common\CEGUIRenderer\lib\OgreGUIRenderer_d.lib"
-  File "..\..\Samples\Common\CEGUIRenderer\bin\Debug\OgreGUIRenderer.pdb"
+  !ifdef MINGW
+    ; Debug libs
+    File "..\..\Dependencies\lib\Debug\libOPCODE.a"
+    File "..\..\Dependencies\lib\Debug\libode.a"
+    File "..\..\Dependencies\lib\Debug\libCEGUIBase_d.a"
+    File "..\..\Samples\Common\CEGUIRenderer\bin\debug\libOgreGUIRenderer_d.a"
+    ; Release libs
+    ; File "..\..\OgreMain\lib\Release\libOgreMain.a"
+    File "..\..\Dependencies\lib\Release\libCEGUIBase.a"
+    File "..\..\Samples\Common\CEGUIRenderer\bin\release\libOgreGUIRenderer.a"
+  !else ; MSVC
+    ; Debug libs
+    File "..\..\OgreMain\lib\Debug\OgreMain_d.lib"
+    File "..\..\OgreMain\lib\Debug\OgreMain_d.pdb"
+    ; ode.lib is only one available, no separate release version
+    File "..\..\Dependencies\lib\Debug\ode.lib"
+    File "..\..\Dependencies\lib\Debug\CEGUIBase_d.lib"
+    File "..\..\Samples\Common\CEGUIRenderer\lib\OgreGUIRenderer_d.lib"
+    File "..\..\Samples\Common\CEGUIRenderer\bin\Debug\OgreGUIRenderer.pdb"
+    ; Release libs
+    File "..\..\OgreMain\lib\Release\OgreMain.lib"
+    File "..\..\Dependencies\lib\Release\CEGUIBase.lib"
+    File "..\..\Samples\Common\CEGUIRenderer\lib\OgreGUIRenderer.lib"
+  !endif
 
-  File "..\..\OgreMain\lib\Release\OgreMain.lib"
-  File "..\..\Dependencies\lib\Release\CEGUIBase.lib"
-  File "..\..\Samples\Common\CEGUIRenderer\lib\OgreGUIRenderer.lib"
 
   ; Optional library files (for linking direct to plugins)
   SetOutPath "$INSTDIR\lib\opt\debug"
   SetOverwrite try
-  File "..\..\Plugins\OctreeSceneManager\bin\debug\Plugin_OctreeSceneManager.lib"
-  File "..\..\Plugins\OctreeSceneManager\bin\debug\Plugin_OctreeSceneManager.pdb"
-  File "..\..\Plugins\BspSceneManager\bin\debug\Plugin_BspSceneManager.lib"
-  File "..\..\Plugins\BspSceneManager\bin\debug\Plugin_BspSceneManager.pdb"
+  !ifdef MINGW
+    File "..\..\Plugins\OctreeSceneManager\bin\debug\libPlugin_OctreeSceneManager.a"
+    File "..\..\Plugins\BspSceneManager\bin\debug\libPlugin_BspSceneManager.a"
+  !else ; MSVC
+    File "..\..\Plugins\OctreeSceneManager\bin\debug\Plugin_OctreeSceneManager.lib"
+    File "..\..\Plugins\OctreeSceneManager\bin\debug\Plugin_OctreeSceneManager.pdb"
+    File "..\..\Plugins\BspSceneManager\bin\debug\Plugin_BspSceneManager.lib"
+    File "..\..\Plugins\BspSceneManager\bin\debug\Plugin_BspSceneManager.pdb"
+  !endif
   SetOutPath "$INSTDIR\lib\opt\release"
   SetOverwrite try
-  File "..\..\Plugins\OctreeSceneManager\bin\release\Plugin_OctreeSceneManager.lib"
-  File "..\..\Plugins\BspSceneManager\bin\release\Plugin_BspSceneManager.lib"
+  !ifdef MINGW
+    File "..\..\Plugins\OctreeSceneManager\bin\release\libPlugin_OctreeSceneManager.a"
+    File "..\..\Plugins\BspSceneManager\bin\release\libPlugin_BspSceneManager.a"
+  !else ; MSVC
+    File "..\..\Plugins\OctreeSceneManager\bin\release\Plugin_OctreeSceneManager.lib"
+    File "..\..\Plugins\BspSceneManager\bin\release\Plugin_BspSceneManager.lib"
+  !endif
 
 SectionEnd
 
@@ -119,7 +143,9 @@ Section -Binaries
   ; Binaries - debug
   SetOutPath "$INSTDIR\bin\debug"
   SetOverwrite ifnewer
-  File "..\..\Samples\Common\bin\Debug\ilut.dll"
+  !ifndef MINGW
+    File "..\..\Samples\Common\bin\Debug\ilut.dll"
+  !endif
   File "..\..\Samples\Common\bin\Debug\ilu.dll"
   File "..\..\Samples\Common\bin\Debug\devil.dll"
   File "..\..\Samples\Common\bin\Debug\cg.dll"
@@ -148,7 +174,9 @@ Section -Binaries
   ; Binaries - release
   SetOutPath "$INSTDIR\bin\release"
   SetOverwrite ifnewer
-  File "..\..\Samples\Common\bin\Release\ilut.dll"
+  !ifndef MINGW
+    File "..\..\Samples\Common\bin\Release\ilut.dll"
+  !endif
   File "..\..\Samples\Common\bin\Release\ilu.dll"
   File "..\..\Samples\Common\bin\Release\devil.dll"
   File "..\..\Samples\Common\bin\Release\cg.dll"
