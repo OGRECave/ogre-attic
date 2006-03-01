@@ -49,45 +49,45 @@ namespace Ogre {
         if (mBNFTokenState.lexemeTokenDefinitions.empty())
         {
             addLexemeToken("UNKNOWN", BNF_UNKOWN);
-            addLexemeToken("<syntax>", BNF_SYNTAX);
-            addLexemeToken("<rule>", BNF_RULE);
-            addLexemeToken("<identifier>", BNF_IDENTIFIER);
-            addLexemeToken("<identifier_right>", BNF_IDENTIFIER_RIGHT);
-            addLexemeToken("<identifier_characters>", BNF_IDENTIFIER_CHARACTERS);
+            addLexemeToken("syntax", BNF_SYNTAX);
+            addLexemeToken("rule", BNF_RULE);
+            addLexemeToken("identifier", BNF_IDENTIFIER);
+            addLexemeToken("identifier_right", BNF_IDENTIFIER_RIGHT);
+            addLexemeToken("identifier_characters", BNF_IDENTIFIER_CHARACTERS);
             addLexemeToken("<", BNF_ID_BEGIN, false, true);
             addLexemeToken(">", BNF_ID_END, false, true);
             addLexemeToken("<#", BNF_CONSTANT_BEGIN, false, true);
             addLexemeToken("::=", BNF_SET_RULE, false, true);
-            addLexemeToken("<expression>", BNF_EXPRESSION);
-            addLexemeToken("<and_term>", BNF_AND_TERM);
-            addLexemeToken("<or_term>", BNF_OR_TERM);
-            addLexemeToken("<term>", BNF_TERM);
-            addLexemeToken("<term_id>", BNF_TERM_ID);
-            addLexemeToken("<constant>", BNF_CONSTANT);
+            addLexemeToken("expression", BNF_EXPRESSION);
+            addLexemeToken("and_term", BNF_AND_TERM);
+            addLexemeToken("or_term", BNF_OR_TERM);
+            addLexemeToken("term", BNF_TERM);
+            addLexemeToken("term_id", BNF_TERM_ID);
+            addLexemeToken("constant", BNF_CONSTANT);
             addLexemeToken("|", BNF_OR, false, true);
-            addLexemeToken("<terminal_symbol>", BNF_TERMINAL_SYMBOL);
-            addLexemeToken("<repeat_expression>", BNF_REPEAT_EXPRESSION);
+            addLexemeToken("terminal_symbol", BNF_TERMINAL_SYMBOL);
+            addLexemeToken("repeat_expression", BNF_REPEAT_EXPRESSION);
             addLexemeToken("{", BNF_REPEAT_BEGIN, false, true);
             addLexemeToken("}", BNF_REPEAT_END, false, true);
-            addLexemeToken("<set>", BNF_SET);
+            addLexemeToken("set", BNF_SET);
             addLexemeToken("(", BNF_SET_BEGIN, false, true);
             addLexemeToken(")", BNF_SET_END, false, true);
-            addLexemeToken("<set_end_exc>", BNF_SET_END_EXC);
-            addLexemeToken("<optional_expression>", BNF_OPTIONAL_EXPRESSION);
+            addLexemeToken("set_end_exc", BNF_SET_END_EXC);
+            addLexemeToken("optional_expression", BNF_OPTIONAL_EXPRESSION);
             addLexemeToken("[", BNF_OPTIONAL_BEGIN, false, true);
             addLexemeToken("]", BNF_OPTIONAL_END, false, true);
-            addLexemeToken("<not_test>", BNF_NOT_TEST);
+            addLexemeToken("not_test", BNF_NOT_TEST);
             addLexemeToken("(?!", BNF_NOT_TEST_BEGIN, false, true);
             addLexemeToken("'", BNF_SINGLEQUOTE, false, true);
-            addLexemeToken("<any_character>", BNF_ANY_CHARACTER);
-            addLexemeToken("<single_quote_exc>", BNF_SINGLE_QUOTE_EXC);
-            addLexemeToken("<white_space_chk>", BNF_WHITE_SPACE_CHK);
-            addLexemeToken("<special_characters1>", BNF_SPECIAL_CHARACTERS1);
-            addLexemeToken("<special_characters2>", BNF_SPECIAL_CHARACTERS2);
+            addLexemeToken("any_character", BNF_ANY_CHARACTER);
+            addLexemeToken("single_quote_exc", BNF_SINGLE_QUOTE_EXC);
+            addLexemeToken("white_space_chk", BNF_WHITE_SPACE_CHK);
+            addLexemeToken("special_characters1", BNF_SPECIAL_CHARACTERS1);
+            addLexemeToken("special_characters2", BNF_SPECIAL_CHARACTERS2);
 
-            addLexemeToken("<letter>", BNF_LETTER);
-            addLexemeToken("<letter_digit>", BNF_LETTER_DIGIT);
-            addLexemeToken("<digit>", BNF_DIGIT);
+            addLexemeToken("letter", BNF_LETTER);
+            addLexemeToken("letter_digit", BNF_LETTER_DIGIT);
+            addLexemeToken("digit", BNF_DIGIT);
             addLexemeToken("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", BNF_ALPHA_SET, false, true);
             addLexemeToken("0123456789", BNF_NUMBER_SET, false, true);
             addLexemeToken("`~!@#$%^&*(-_=+\\|[]{}:;\"<>,.?/", BNF_SPECIAL_CHARACTER_SET2, false, true);
@@ -617,10 +617,13 @@ namespace Ogre {
                     {
                         parseErrorLogged = true;
                         LogManager::getSingleton().logMessage(
-                        "Was expecting: " + getBNFGrammerTextFromRulePath(rulepathIDX)
+                        "Grammer: " + getClientGrammerName() +
+                        "\nSource: " + mSourceName +
+                        "\nUnkown token found, was expecting: " + getBNFGrammerTextFromRulePath(rulepathIDX)
                         );
                         LogManager::getSingleton().logMessage(
-                        "And Found: " + mSource->substr(mCharPos, 20)
+                        "And Found: \"" + mSource->substr(mCharPos, 20) +
+                        "\", while in rule path: " + mActiveTokenState->lexemeTokenDefinitions[ActiveNTTRule].lexeme
                         );
                     }
 
@@ -751,18 +754,9 @@ namespace Ogre {
                         // log last valid token found
                         const TokenInst& tokenInst = mActiveTokenState->tokenQue[mActiveTokenState->tokenQue.size() - 1];
                         LogManager::getSingleton().logMessage(
-                            "Last valid token found was at line: " + StringConverter::toString(tokenInst.line) +
-                            ", character pos: " + StringConverter::toString(tokenInst.pos));
+                            "Last valid token found was at line: " + StringConverter::toString(tokenInst.line));
                         LogManager::getSingleton().logMessage(
                             "source hint: \"" + mSource->substr(tokenInst.pos, 20) + "\"");
-                        // log parsing error
-                        LogManager::getSingleton().logMessage(
-                           "Grammer: " + getClientGrammerName() +
-                           " - Parsing error at line: " + StringConverter::toString(mCurrentLine) +
-                           ", character pos: " + StringConverter::toString(mCharPos) +
-                           ", in rule path: " + mActiveTokenState->lexemeTokenDefinitions[ActiveNTTRule].lexeme);
-                        LogManager::getSingleton().logMessage(
-                            "source hint: \"" + mSource->substr(mCharPos, 20) + "\"");
                     }
 			    }
 			    break;
