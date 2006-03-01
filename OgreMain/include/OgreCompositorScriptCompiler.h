@@ -76,6 +76,7 @@ namespace Ogre {
 			CSS_COMPOSITOR,
 			CSS_TECHNIQUE,
 			CSS_TARGET,
+			CSS_TARGET_OUTPUT,
 			CSS_PASS
 		};
 		/** Struct for holding the script context while parsing. */
