@@ -287,7 +287,7 @@ namespace Ogre {
         virtual void releaseVertexBufferCopy(
             const HardwareVertexBufferSharedPtr& bufferCopy); 
 
-        /** Increase expired delay counter by one for the vertex buffer copy.
+        /** Tell engine that the vertex buffer copy intent to reuse.
         @remarks
             Ogre internal keep an expired delay counter of BLT_AUTOMATIC_RELEASE
             buffers, when the counter count down to zero, it'll release for other
