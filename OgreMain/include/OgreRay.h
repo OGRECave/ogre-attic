@@ -43,7 +43,6 @@ namespace Ogre {
         Ray():mOrigin(Vector3::ZERO), mDirection(Vector3::UNIT_Z) {}
         Ray(const Vector3& origin, const Vector3& direction)
             :mOrigin(origin), mDirection(direction) {}
-        virtual ~Ray() {}
 
         /** Sets the origin of the ray. */
         void setOrigin(const Vector3& origin) {mOrigin = origin;} 
