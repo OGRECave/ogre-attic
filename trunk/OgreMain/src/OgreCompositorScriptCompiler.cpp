@@ -51,7 +51,7 @@ namespace Ogre {
 		"<HeightOptionDef> ::= 'target_height' <#height> \n"
 		"<PixelFormatDef> ::= <Label> \n"
 		// Target
-		"<TargetDef> ::= 'target' <Label> '{' [<TargetInputDef>] [<OnlyInitialDef>] {<PassDef>} '}' \n"
+		"<TargetDef> ::= 'target ' <Label> '{' [<TargetInputDef>] [<OnlyInitialDef>] {<PassDef>} '}' \n"
 		"<TargetInputDef> ::= 'input' <TargetInputOptionsDef> \n"
 		"<TargetInputOptionsDef> ::= 'none' | 'previous' \n"
 		"<OnlyInitialDef> ::= 'only_initial' <On_Off> \n"
@@ -208,6 +208,10 @@ namespace Ogre {
 			mScriptContext.section = CSS_TECHNIQUE;
 			mScriptContext.target = NULL;
 			break;
+		case CSS_TARGET_OUTPUT:
+			// End of target
+			mScriptContext.section = CSS_TECHNIQUE;
+			break;
 		case CSS_PASS:
 			// End of pass
 			mScriptContext.section = CSS_TARGET;
@@ -251,7 +255,7 @@ namespace Ogre {
 	void CompositorScriptCompiler::parseTargetOutput(void)
 	{
 		logParseError("parseTargetOutput");
-
+		mScriptContext.section = CSS_TARGET_OUTPUT;
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseOnlyInitial(void)
