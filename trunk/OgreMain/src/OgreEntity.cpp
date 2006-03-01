@@ -223,12 +223,12 @@ namespace Ogre {
 		return mMesh->hasVertexAnimation();
 	}
     //-----------------------------------------------------------------------
-    MeshPtr& Entity::getMesh(void)
+    const MeshPtr& Entity::getMesh(void) const
     {
         return mMesh;
     }
     //-----------------------------------------------------------------------
-    SubEntity* Entity::getSubEntity(unsigned int index)
+    SubEntity* Entity::getSubEntity(unsigned int index) const
     {
         if (index >= mSubEntityList.size())
             OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
@@ -237,7 +237,7 @@ namespace Ogre {
         return mSubEntityList[index];
     }
     //-----------------------------------------------------------------------
-    SubEntity* Entity::getSubEntity(const String& name)
+    SubEntity* Entity::getSubEntity(const String& name) const
     {
         ushort index = mMesh->_getSubMeshIndex(name);
         return getSubEntity(index);
@@ -248,7 +248,7 @@ namespace Ogre {
         return static_cast< unsigned int >( mSubEntityList.size() );
     }
     //-----------------------------------------------------------------------
-    Entity* Entity::clone( const String& newName)
+    Entity* Entity::clone( const String& newName) const
     {
    		if (!mManager)
 		{
@@ -258,7 +258,7 @@ namespace Ogre {
 		}
 	    Entity* newEnt = mManager->createEntity(newName, getMesh()->getName() );
         // Copy material settings
-        SubEntityList::iterator i;
+        SubEntityList::const_iterator i;
         unsigned int n = 0;
         for (i = mSubEntityList.begin(); i != mSubEntityList.end(); ++i, ++n)
         {
@@ -266,6 +266,7 @@ namespace Ogre {
         }
         if (mAnimationState)
         {
+            delete newEnt->mAnimationState;
             newEnt->mAnimationState = new AnimationStateSet(*mAnimationState);
         }
         return newEnt;
@@ -473,7 +474,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    AnimationState* Entity::getAnimationState(const String& name)
+    AnimationState* Entity::getAnimationState(const String& name) const
     {
         if (!mAnimationState)
         {
@@ -484,7 +485,7 @@ namespace Ogre {
 		return mAnimationState->getAnimationState(name);
     }
     //-----------------------------------------------------------------------
-    AnimationStateSet* Entity::getAllAnimationStates(void)
+    AnimationStateSet* Entity::getAllAnimationStates(void) const
     {
         return mAnimationState;
     }
@@ -545,12 +546,11 @@ namespace Ogre {
 		bool stencilShadows = false;
 		if (root._getCurrentSceneManager())
 			stencilShadows =  root._getCurrentSceneManager()->isShadowTechniqueStencilBased();
-        bool hasEnabledAnimation = mAnimationState->hasEnabledAnimationState();
         // If all animations are disabled, we'll use origin vertex buffer for
         // rendering. But still perform software animation if user required,
         // because need to keep same behavior in user standpoint.
 		bool softwareAnimation = forcedSwSkinning ||
-            hasEnabledAnimation && (!hwSkinning || stencilShadows);
+            (!hwSkinning || stencilShadows) && _isAnimated();
 		// Blend normals in s/w only if we're not using h/w skinning,
 		// since shadows only require positions
 		bool blendNormals = !hwSkinning || forcedNormals;
@@ -561,7 +561,7 @@ namespace Ogre {
 		// Or, if we're using software animation and temp buffers are unbound
         if (mFrameAnimationLastUpdated != mAnimationState->getDirtyFrameNumber() ||
 			(hasSkeleton() && getSkeleton()->getManualBonesDirty()) ||
-			(hasEnabledAnimation && hasSkeleton() && mLastParentXform != getParentSceneNode()->_getFullTransform()) ||
+			(_isSkeletonAnimated() && mLastParentXform != getParentSceneNode()->_getFullTransform()) ||
 			(softwareAnimation && hasVertexAnimation() && !tempVertexAnimBuffersBound()) ||
 			(softwareAnimation && hasSkeleton() && !tempSkelAnimBuffersBound(blendNormals)))
         {
@@ -680,7 +680,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void Entity::applyVertexAnimation(bool hardwareAnimation, bool stencilShadows)
 	{
-		MeshPtr msh = getMesh();
+		const MeshPtr& msh = getMesh();
 		bool swAnim = !hardwareAnimation || stencilShadows || (mSoftwareSkinningRequests>0);
 
 		// make sure we have enough hardware animation elements to play with
@@ -844,19 +844,31 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------
-	VertexData* Entity::_getSkelAnimVertexData(void)
+    bool Entity::_isAnimated(void) const
+    {
+        return (getAllAnimationStates() && getAllAnimationStates()->hasEnabledAnimationState()) ||
+               (getSkeleton() && getSkeleton()->hasManualBones());
+    }
+	//-----------------------------------------------------------------------
+    bool Entity::_isSkeletonAnimated(void) const
+    {
+        return getSkeleton() &&
+            (getAllAnimationStates()->hasEnabledAnimationState() || getSkeleton()->hasManualBones());
+    }
+	//-----------------------------------------------------------------------
+	VertexData* Entity::_getSkelAnimVertexData(void) const
 	{
 		assert (mSkelAnimVertexData && "Not software skinned!");
         return mSkelAnimVertexData;
 	}
 	//-----------------------------------------------------------------------
-	VertexData* Entity::_getSoftwareVertexAnimVertexData(void)
+	VertexData* Entity::_getSoftwareVertexAnimVertexData(void) const
 	{
 		assert (mSoftwareVertexAnimVertexData && "Not vertex animated!");
 		return mSoftwareVertexAnimVertexData;
 	}
 	//-----------------------------------------------------------------------
-	VertexData* Entity::_getHardwareVertexAnimVertexData(void)
+	VertexData* Entity::_getHardwareVertexAnimVertexData(void) const
 	{
 		assert (mHardwareVertexAnimVertexData && "Not vertex animated!");
 		return mHardwareVertexAnimVertexData;
@@ -1390,11 +1402,10 @@ namespace Ogre {
 
         // Calculate the object space light details
         Vector4 lightPos = light->getAs4DVector();
-        // Only use object-space light if we're not doing transforms
-        // Since when animating the positions are already transformed into
+        // Only use object-space light if we're not doing skeleton animation transforms
+        // Since when skeleton animating the positions are already transformed into
         // world space so we need world space light position
-        if (!hasSkeleton() || !mAnimationState->hasEnabledAnimationState()
-			|| (hasSkeleton() && !getSkeleton()->hasManualBones()))
+        if (!_isSkeletonAnimated())
         {
             Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
             lightPos =  world2Obj * lightPos;
@@ -1419,13 +1430,14 @@ namespace Ogre {
         if (init)
             mShadowRenderables.resize(edgeList->edgeGroups.size());
 
+        bool isAnimated = _isAnimated();
         bool updatedSharedGeomNormals = false;
         siend = mShadowRenderables.end();
         egi = edgeList->edgeGroups.begin();
         for (si = mShadowRenderables.begin(); si != siend; ++si, ++egi)
         {
             const VertexData *pVertData;
-            if (hasAnimation)
+            if (isAnimated)
             {
                 // Use temp buffers
                 pVertData = findBlendedVertexData(egi->vertexData);
@@ -1656,11 +1668,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Entity::EntityShadowRenderable::getWorldTransforms(Matrix4* xform) const
     {
-        unsigned short numBones = mParent->_getNumBoneMatrices();
-
-        if (!numBones ||
-            (!mParent->getAllAnimationStates()->hasEnabledAnimationState()
-			&& !mParent->getSkeleton()->hasManualBones()))
+        if (!mParent->_isSkeletonAnimated())
         {
             *xform = mParent->_getParentNodeFullTransform();
         }
@@ -1859,15 +1867,13 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	Entity::VertexDataBindChoice Entity::chooseVertexDataForBinding(bool vertexAnim) const
 	{
-        if (!mAnimationState || 
-			(!mAnimationState->hasEnabledAnimationState() && 
-			(!hasSkeleton() || !mSkeletonInstance->hasManualBones())))
+        if (!_isAnimated())
         {
             // no animation or all animations disabled.
             return BIND_ORIGINAL;
         }
 
-		if (hasSkeleton())
+		if (_isSkeletonAnimated())
 		{
 			if (!mHardwareAnimation)
 			{

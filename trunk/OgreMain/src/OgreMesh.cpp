@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMesh.h"
 
 #include "OgreSubMesh.h"
-#include "OgreMaterialManager.h"
 #include "OgreLogManager.h"
 #include "OgreMeshSerializer.h"
 #include "OgreSkeletonManager.h"
@@ -36,6 +35,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMeshManager.h"
 #include "OgreEdgeListBuilder.h"
 #include "OgreAnimation.h"
+#include "OgreAnimationState.h"
 #include "OgreAnimationTrack.h"
 
 namespace Ogre {
@@ -440,17 +440,7 @@ namespace Ogre {
 			mSkeleton->_initAnimationState(animSet);
 
 			// Take the opportunity to update the compiled bone assignments
-			if (mBoneAssignmentsOutOfDate)
-				_compileBoneAssignments();
-
-			SubMeshList::iterator i;
-			for (i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
-			{
-				if ((*i)->mBoneAssignmentsOutOfDate)
-				{
-					(*i)->_compileBoneAssignments();
-				}
-			}
+            _updateCompiledBoneAssignments();
 		}
 
 		// Animation states for vertex animation
@@ -469,6 +459,21 @@ namespace Ogre {
 
 		}
 
+    }
+    //-----------------------------------------------------------------------
+    void Mesh::_updateCompiledBoneAssignments(void)
+    {
+        if (mBoneAssignmentsOutOfDate)
+            _compileBoneAssignments();
+
+        SubMeshList::iterator i;
+        for (i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
+        {
+            if ((*i)->mBoneAssignmentsOutOfDate)
+            {
+                (*i)->_compileBoneAssignments();
+            }
+        }
     }
     //-----------------------------------------------------------------------
     typedef std::multimap<Real, Mesh::VertexBoneAssignmentList::iterator> WeightIteratorMap;
@@ -562,14 +567,11 @@ namespace Ogre {
         unsigned short maxBones =
             _rationaliseBoneAssignments(sharedVertexData->vertexCount, mBoneAssignments);
 
-        if (maxBones == 0)
+        if (maxBones != 0)
         {
-            // No bone assignments
-            return;
+            compileBoneAssignments(mBoneAssignments, maxBones, 
+                sharedBlendIndexToBoneIndexMap, sharedVertexData);
         }
-
-        compileBoneAssignments(mBoneAssignments, maxBones,
-            sharedBlendIndexToBoneIndexMap, sharedVertexData);
 
         mBoneAssignmentsOutOfDate = false;
     }

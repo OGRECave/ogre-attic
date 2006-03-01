@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 
 #include "OgreAnimation.h"
+#include "OgreAnimationState.h"
 #include "OgreAnimationTrack.h"
 #include "OgreAny.h"
 #include "OgreArchive.h"

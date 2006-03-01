@@ -163,8 +163,7 @@ namespace Ogre {
 			// bones
             if (!mParentEntity->isHardwareAnimationEnabled())
             {
-                if (mParentEntity->getAllAnimationStates()->hasEnabledAnimationState()
-					|| (mParentEntity->hasSkeleton() && mParentEntity->getSkeleton()->hasManualBones()))
+                if (mParentEntity->_isSkeletonAnimated())
                 {
                     // Software skinning involves pretransforming
                     // No transform required
@@ -172,7 +171,7 @@ namespace Ogre {
                 }
                 else
                 {
-                    // Software skinning but all animations disabled, origin vertex buffer are used
+                    // Software skinning but all skeleton animations disabled, vertex data is in object-space.
                     *xform = mParentEntity->_getParentNodeFullTransform();
                 }
             }
@@ -182,8 +181,7 @@ namespace Ogre {
                     mSubMesh->parent->sharedBlendIndexToBoneIndexMap : mSubMesh->blendIndexToBoneIndexMap;
                 assert(indexMap.size() <= mParentEntity->mNumBoneMatrices);
 
-                if (mParentEntity->getAllAnimationStates()->hasEnabledAnimationState()
-					|| (mParentEntity->hasSkeleton() && mParentEntity->getSkeleton()->hasManualBones()))
+                if (mParentEntity->_isSkeletonAnimated())
                 {
                     // Bones, use cached matrices built when Entity::_updateRenderQueue was called
                     Mesh::IndexMap::const_iterator it, itend;

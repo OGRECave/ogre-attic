@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePass.h"
 #include "OgreTechnique.h"
-#include "OgreMaterialManager.h"
 #include "OgreException.h"
 #include "OgreGpuProgramUsage.h"
 #include "OgreTextureUnitState.h"

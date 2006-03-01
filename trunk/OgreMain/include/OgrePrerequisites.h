@@ -185,6 +185,7 @@ namespace Ogre {
     class Angle;
     class Animation;
     class AnimationState;
+    class AnimationStateSet;
     class AnimationTrack;
     class Archive;
     class ArchiveFactory;

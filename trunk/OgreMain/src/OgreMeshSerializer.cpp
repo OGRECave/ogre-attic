@@ -29,7 +29,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMesh.h"
 #include "OgreSubMesh.h"
 #include "OgreException.h"
-#include "OgreMaterialManager.h"
 #include "OgreLogManager.h"
 #include "OgreSkeleton.h"
 

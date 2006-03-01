@@ -36,6 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterialManager.h"
 #include "OgreRoot.h"
 #include "OgreRenderSystem.h"
+#include "OgreEdgeListBuilder.h"
 
 namespace Ogre {
 
@@ -278,7 +279,7 @@ namespace Ogre {
 	void StaticGeometry::addEntity(Entity* ent, const Vector3& position,
 		const Quaternion& orientation, const Vector3& scale)
 	{
-		MeshPtr& msh = ent->getMesh();
+		const MeshPtr& msh = ent->getMesh();
 		// Validate
 		if (msh->isLodManual())
 		{

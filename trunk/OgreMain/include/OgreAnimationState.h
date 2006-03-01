@@ -34,9 +34,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-	// Forward decl
-	class AnimationStateSet;
-
     /** Represents the state of an animation and the weight of it's influence. 
     @remarks
         Other classes can hold instances of this class to store the state of any animations
