@@ -224,6 +224,7 @@ namespace Ogre
 		}
 
 		AnyNumeric(const AnyNumeric & other)
+            : Any()
 		{
 			mContent = other.mContent ? other.mContent->clone() : 0; 
 		}
