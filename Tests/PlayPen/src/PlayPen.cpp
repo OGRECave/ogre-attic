@@ -76,6 +76,7 @@ Frustum* frustum = 0;
 Camera* theCam;
 Camera* reflectCam = 0;
 Camera* camera2 = 0;
+Bone* manuallyControlledBone = 0;
 
 
 class RefractionTextureListener : public RenderTargetListener
@@ -173,6 +174,11 @@ public:
 
 
         }
+
+		if (manuallyControlledBone)
+		{
+			manuallyControlledBone->yaw(Degree(evt.timeSinceLastFrame*100)); 
+		}
 
 
 		static float reloadtime = 10.0f;
@@ -3648,6 +3654,27 @@ protected:
 		testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
 
 	}
+
+	void testManualBoneMovement(void)
+	{
+		Entity *ent = mSceneMgr->createEntity("robot", "robot.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+		mSceneMgr->setAmbientLight(ColourValue(0.8, 0.8, 0.8));
+
+		//ent->setMaterialName("Examples/Rocky");
+
+		SkeletonInstance* skel = ent->getSkeleton();
+		Animation* anim = skel->getAnimation("Walk");       
+		manuallyControlledBone = skel->getBone("Joint10");
+		manuallyControlledBone->setManuallyControlled(true);
+		anim->destroyNodeTrack(manuallyControlledBone->getHandle());
+
+		//AnimationState* animState = ent->getAnimationState("Walk");
+		//animState->setEnabled(true);
+
+
+
+	}
     // Just override the mandatory create scene method
     void createScene(void)
     {
@@ -3719,7 +3746,8 @@ protected:
 		//testSerialisedColour();
 		//testBillboardAccurateFacing();
 		//testMultiSceneManagersSimple();
-		testMultiSceneManagersComplex();
+		//testMultiSceneManagersComplex();
+		testManualBoneMovement();
 
 		
     }

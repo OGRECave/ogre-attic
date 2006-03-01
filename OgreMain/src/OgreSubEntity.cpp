@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSubEntity.h"
 
 #include "OgreEntity.h"
+#include "OgreSkeletonInstance.h"
 #include "OgreSceneManager.h"
 #include "OgreMaterialManager.h"
 #include "OgreSubMesh.h"
@@ -162,7 +163,8 @@ namespace Ogre {
 			// bones
             if (!mParentEntity->isHardwareAnimationEnabled())
             {
-                if (mParentEntity->getAllAnimationStates()->hasEnabledAnimationState())
+                if (mParentEntity->getAllAnimationStates()->hasEnabledAnimationState()
+					|| (mParentEntity->hasSkeleton() && mParentEntity->getSkeleton()->hasManualBones()))
                 {
                     // Software skinning involves pretransforming
                     // No transform required
@@ -180,7 +182,8 @@ namespace Ogre {
                     mSubMesh->parent->sharedBlendIndexToBoneIndexMap : mSubMesh->blendIndexToBoneIndexMap;
                 assert(indexMap.size() <= mParentEntity->mNumBoneMatrices);
 
-                if (mParentEntity->getAllAnimationStates()->hasEnabledAnimationState())
+                if (mParentEntity->getAllAnimationStates()->hasEnabledAnimationState()
+					|| (mParentEntity->hasSkeleton() && mParentEntity->getSkeleton()->hasManualBones()))
                 {
                     // Bones, use cached matrices built when Entity::_updateRenderQueue was called
                     Mesh::IndexMap::const_iterator it, itend;
