@@ -557,8 +557,10 @@ namespace Ogre {
 
 		// We only do these tasks if animation is dirty or transform has altered
 		// when using skeletal animation, which is dependent
+		// Or, if we're using a skeleton and manual bones have been moved
 		// Or, if we're using software animation and temp buffers are unbound
         if (mFrameAnimationLastUpdated != mAnimationState->getDirtyFrameNumber() ||
+			(hasSkeleton() && getSkeleton()->getManualBonesDirty()) ||
 			(hasEnabledAnimation && hasSkeleton() && mLastParentXform != getParentSceneNode()->_getFullTransform()) ||
 			(softwareAnimation && hasVertexAnimation() && !tempVertexAnimBuffersBound()) ||
 			(softwareAnimation && hasSkeleton() && !tempSkelAnimBuffersBound(blendNormals)))
@@ -1378,8 +1380,7 @@ namespace Ogre {
         }
 
 
-        bool hasAnimation = (hasSkeleton() || hasVertexAnimation()) &&
-            mAnimationState->hasEnabledAnimationState();
+        bool hasAnimation = (hasSkeleton() || hasVertexAnimation());
 
         // Update any animation
         if (hasAnimation)
@@ -1392,7 +1393,8 @@ namespace Ogre {
         // Only use object-space light if we're not doing transforms
         // Since when animating the positions are already transformed into
         // world space so we need world space light position
-        if (!hasSkeleton() || !mAnimationState->hasEnabledAnimationState())
+        if (!hasSkeleton() || !mAnimationState->hasEnabledAnimationState()
+			|| (hasSkeleton() && !getSkeleton()->hasManualBones()))
         {
             Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
             lightPos =  world2Obj * lightPos;
@@ -1657,7 +1659,8 @@ namespace Ogre {
         unsigned short numBones = mParent->_getNumBoneMatrices();
 
         if (!numBones ||
-            !mParent->getAllAnimationStates()->hasEnabledAnimationState())
+            (!mParent->getAllAnimationStates()->hasEnabledAnimationState()
+			&& !mParent->getSkeleton()->hasManualBones()))
         {
             *xform = mParent->_getParentNodeFullTransform();
         }
@@ -1856,7 +1859,9 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	Entity::VertexDataBindChoice Entity::chooseVertexDataForBinding(bool vertexAnim) const
 	{
-        if (!mAnimationState || !mAnimationState->hasEnabledAnimationState())
+        if (!mAnimationState || 
+			(!mAnimationState->hasEnabledAnimationState() && 
+			(!hasSkeleton() || !mSkeletonInstance->hasManualBones())))
         {
             // no animation or all animations disabled.
             return BIND_ORIGINAL;

@@ -98,6 +98,9 @@ namespace Ogre
         */
         const Matrix4& _getBindingPoseInverseTransform(void) const;
 
+		/// @see Node::needUpdate
+		void needUpdate(bool forceParentUpdate = false);
+
 
     protected:
         /// The numeric handle of this bone

@@ -324,6 +324,16 @@ namespace Ogre {
 		virtual LinkedSkeletonAnimSourceIterator 
 			getLinkedSkeletonAnimationSourceIterator(void) const;
 
+		/// Internal method for marking the manual bones as dirty
+		virtual void _notifyManualBonesDirty(void);
+		/// Internal method for notifying that a bone is manual
+		virtual void _notifyManualBoneStateChange(Bone* bone);
+
+		/// Have manual bones been modified since the skeleton was last updated?
+		virtual bool getManualBonesDirty(void) const { return mManualBonesDirty; }
+		/// Are there any manually controlled bones?
+		virtual bool hasManualBones(void) const { return !mManualBones.empty(); }
+
 	protected:
 		SkeletonAnimationBlendMode mBlendState;
         /// Storage of bones, indexed by bone handle
@@ -337,6 +347,11 @@ namespace Ogre {
         mutable BoneList mRootBones;
         /// Bone automatic handles
         unsigned short mNextAutoHandle;
+		typedef std::set<Bone*> BoneSet;
+		/// Manual bones
+		BoneSet mManualBones;
+		/// Manual bones dirty?
+		bool mManualBonesDirty;
 
 
         /// Storage of animations, lookup by name

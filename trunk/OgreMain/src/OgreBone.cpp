@@ -81,8 +81,10 @@ namespace Ogre {
         resetToInitialState();
     }
     //---------------------------------------------------------------------
-    void Bone::setManuallyControlled(bool manuallyControlled) {
-        this->mManuallyControlled = manuallyControlled;
+    void Bone::setManuallyControlled(bool manuallyControlled) 
+	{
+        mManuallyControlled = manuallyControlled;
+		mCreator->_notifyManualBoneStateChange(this);
     }
     //---------------------------------------------------------------------
     bool Bone::isManuallyControlled() const {
@@ -98,6 +100,18 @@ namespace Ogre {
     {
         return mHandle;
     }
+	//---------------------------------------------------------------------
+	void Bone::needUpdate(bool forceParentUpdate)
+	{
+		Node::needUpdate(forceParentUpdate);
+
+		if (isManuallyControlled())
+		{
+			// Dirty the skeleton if manually controlled so animation can be updated
+			mCreator->_notifyManualBonesDirty();
+		}
+
+	}
 
 
 

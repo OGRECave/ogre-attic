@@ -43,7 +43,8 @@ namespace Ogre {
 	Skeleton::Skeleton()
 		: Resource(),
         mBlendState(ANIMBLEND_AVERAGE),
-		mNextAutoHandle(0)
+		mNextAutoHandle(0),
+		mManualBonesDirty(false)
 	{
 	}
 	//---------------------------------------------------------------------
@@ -405,6 +406,19 @@ namespace Ogre {
 			}
 		}
 	}
+	//-----------------------------------------------------------------------
+	void Skeleton::_notifyManualBonesDirty(void)
+	{
+		mManualBonesDirty = true;
+	}
+	//-----------------------------------------------------------------------
+	void Skeleton::_notifyManualBoneStateChange(Bone* bone)
+	{
+		if (bone->isManuallyControlled())
+			mManualBones.insert(bone);
+		else
+			mManualBones.erase(bone);
+	}
     //-----------------------------------------------------------------------
     unsigned short Skeleton::getNumBones(void) const
     {
@@ -600,6 +614,7 @@ namespace Ogre {
         {
             (*i)->_update(true, false);
         }
+		mManualBonesDirty = false;
     }
     //---------------------------------------------------------------------
 	void Skeleton::optimiseAllAnimations(void)
