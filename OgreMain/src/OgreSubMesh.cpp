@@ -113,14 +113,11 @@ namespace Ogre {
         unsigned short maxBones =
             parent->_rationaliseBoneAssignments(vertexData->vertexCount, mBoneAssignments);
 
-        if (maxBones == 0)
+        if (maxBones != 0)
         {
-            // No bone assignments
-            return;
+            parent->compileBoneAssignments(mBoneAssignments, maxBones, 
+                blendIndexToBoneIndexMap, vertexData);
         }
-
-        parent->compileBoneAssignments(mBoneAssignments, maxBones,
-            blendIndexToBoneIndexMap, vertexData);
 
         mBoneAssignmentsOutOfDate = false;
     }

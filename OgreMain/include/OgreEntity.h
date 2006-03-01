@@ -30,7 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreString.h"
 #include "OgreMovableObject.h"
-#include "OgreAnimationState.h"
 #include "OgreQuaternion.h"
 #include "OgreVector3.h"
 #include "OgreHardwareBufferManager.h"
@@ -288,16 +287,16 @@ namespace Ogre {
 
 		/** Gets the Mesh that this Entity is based on.
 		*/
-		MeshPtr& getMesh(void);
+		const MeshPtr& getMesh(void) const;
 
 		/** Gets a pointer to a SubEntity, ie a part of an Entity.
 		*/
-		SubEntity* getSubEntity(unsigned int index);
+		SubEntity* getSubEntity(unsigned int index) const;
 
 		/** Gets a pointer to a SubEntity by name
 		@remarks - names should be initialized during a Mesh creation.
 		*/
-		SubEntity* getSubEntity( const String& name );
+		SubEntity* getSubEntity( const String& name ) const;
 
 		/** Retrieves the number of SubEntity objects making up this entity.
 		*/
@@ -312,7 +311,7 @@ namespace Ogre {
 		@param
 		newName Name for the new entity.
 		*/
-		Entity* clone( const String& newName );
+		Entity* clone( const String& newName ) const;
 
 		/** Sets the material to use for the whole of this entity.
 		@remarks
@@ -351,7 +350,7 @@ namespace Ogre {
 		current state of each animation available to the entity. The AnimationState objects are
 		initialised from the Mesh object.
 		*/
-		AnimationState* getAnimationState(const String& name);
+		AnimationState* getAnimationState(const String& name) const;
 		/** For entities based on animated meshes, gets the AnimationState objects for all animations.
 		@returns
 		In case the entity is animated, this functions returns the pointer to a AnimationStateSet 
@@ -361,7 +360,7 @@ namespace Ogre {
 		current state of each animation available to the entity. The AnimationState objects are
 		initialised from the Mesh object.
 		*/
-		AnimationStateSet* getAllAnimationStates(void);
+		AnimationStateSet* getAllAnimationStates(void) const;
 
 		/** Tells the Entity whether or not it should display it's skeleton, if it has one.
 		*/
@@ -510,13 +509,13 @@ namespace Ogre {
             bool extrudeVertices, Real extrusionDistance, unsigned long flags = 0 );
 
 		/** Internal method for retrieving bone matrix information. */
-		const Matrix4* _getBoneMatrices(void) { return mBoneMatrices;}
+		const Matrix4* _getBoneMatrices(void) const { return mBoneMatrices;}
 		/** Internal method for retrieving bone matrix information. */
-		unsigned short _getNumBoneMatrices(void) { return mNumBoneMatrices; }
+		unsigned short _getNumBoneMatrices(void) const { return mNumBoneMatrices; }
 		/** Returns whether or not this entity is skeletally animated. */
 		bool hasSkeleton(void) const { return mSkeletonInstance != 0; }
 		/** Get this Entity's personal skeleton instance. */
-		SkeletonInstance* getSkeleton(void) { return mSkeletonInstance; }
+		SkeletonInstance* getSkeleton(void) const { return mSkeletonInstance; }
 		/** Returns whether or not hardware animation is enabled.
 		@remarks
 		Because fixed-function indexed vertex blending is rarely supported
@@ -625,16 +624,27 @@ namespace Ogre {
 		*/
 		void _updateAnimation(void);
 
+        /** Tests if any animation applied to this entity.
+        @remarks
+            An entity is animated if any animation state is enabled, or any manual bone
+            applied to the skeleton.
+        */
+        bool _isAnimated(void) const;
+
+        /** Tests if skeleton was animated.
+        */
+        bool _isSkeletonAnimated(void) const;
+
 		/** Advanced method to get the temporarily blended skeletal vertex information
 		for entities which are software skinned. 
 		*/
-		VertexData* _getSkelAnimVertexData(void);
+		VertexData* _getSkelAnimVertexData(void) const;
 		/** Advanced method to get the temporarily blended software vertex animation information
 		*/
-		VertexData* _getSoftwareVertexAnimVertexData(void);
+		VertexData* _getSoftwareVertexAnimVertexData(void) const;
 		/** Advanced method to get the hardware morph vertex information
 		*/
-		VertexData* _getHardwareVertexAnimVertexData(void);
+		VertexData* _getHardwareVertexAnimVertexData(void) const;
 		/** Advanced method to get the temp buffer information for software 
 		skeletal animation.
 		*/

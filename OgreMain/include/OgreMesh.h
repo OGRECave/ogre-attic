@@ -31,7 +31,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreVertexIndexData.h"
 #include "OgreAxisAlignedBox.h"
 #include "OgreVertexBoneAssignment.h"
-#include "OgreAnimationState.h"
 #include "OgreIteratorWrappers.h"
 #include "OgreProgressiveMesh.h"
 #include "OgreHardwareVertexBuffer.h"
@@ -533,6 +532,13 @@ namespace Ogre {
             and re-normalises the remaining assignments.
         */
         void _compileBoneAssignments(void);
+
+        /** Internal method, be called once to update the compiled bone assignments.
+        @remarks
+            The OGRE engine calls this method automatically. It updates the compiled bone
+            assignments if requested.
+        */
+        void _updateCompiledBoneAssignments(void);
 
         /** This method builds a set of tangent vectors for a given mesh into a 3D texture coordinate buffer.
         @remarks
