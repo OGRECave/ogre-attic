@@ -123,7 +123,38 @@ void CompositorScriptCompilerTests::testIsLexemeMatch(void)
 
 void CompositorScriptCompilerTests::testCompile()
 {
-    const String simpleScript = "compositor test { technique { target_output {} } }";
+    const String simpleScript = "compositor Test { technique { target_output { } } }";
     CPPUNIT_ASSERT(compile(simpleScript, "Test Compositor"));
+
+    const String BW_Script =
+        "/// Black and white effect \n"
+        "compositor B&W \n"
+        "{ \n"
+        "    technique \n"
+        "    { \n"
+        "        // Temporary textures \n"
+        "        texture scene target_width 640 target_height 480 PF_A8R8G8B8 \n"
+        " \n"
+        "        target scene \n"
+        "        { \n"
+        "            // Render output from previous compositor (or original scene) \n"
+        "            input previous \n"
+        "        }"
+        "        target_output \n"
+        "        { \n"
+        "            // Start with clear output \n"
+        "            input none \n"
+        "            // Draw a fullscreen quad with the blur \n"
+        "            pass render_quad \n"
+        "            { \n"
+        "                // Renders a fullscreen quad with a material \n"
+        "                material PostFilters/BlackAndWhite \n"
+        "                input 0 scene \n"
+        "            } \n"
+        "        } \n"
+        "    } \n"
+        "} \n";
+
+    CPPUNIT_ASSERT(compile(BW_Script, "Test Compositor 2"));
 }
 
