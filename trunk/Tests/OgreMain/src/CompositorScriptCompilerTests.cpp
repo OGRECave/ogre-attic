@@ -22,6 +22,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
+#include "OgreMaterialManager.h"
+#include "OgreCompositorManager.h"
 #include "CompositorScriptCompilerTests.h"
 #include "OgreCompositorScriptCompiler.h"
 #include "OgreStringConverter.h"
@@ -123,6 +125,12 @@ void CompositorScriptCompilerTests::testIsLexemeMatch(void)
 
 void CompositorScriptCompilerTests::testCompile()
 {
+    ResourceGroupManager* resGrpMgr = new ResourceGroupManager();
+    MaterialManager* matMgr = new MaterialManager();
+    matMgr->initialise();
+    CompositorManager* compositorMgr = new CompositorManager();
+    //compositorMgr->initialise();
+
     const String simpleScript = "compositor Test { technique { target_output { } } }";
     CPPUNIT_ASSERT(compile(simpleScript, "Test Compositor"));
 
@@ -215,5 +223,8 @@ void CompositorScriptCompilerTests::testCompile()
     "} \n";
     CPPUNIT_ASSERT(compile(Bloom_Script, "Test Bloom Script"));
 
+    delete compositorMgr;
+    delete matMgr;
+    delete resGrpMgr;
 }
 
