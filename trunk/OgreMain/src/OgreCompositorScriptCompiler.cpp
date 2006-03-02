@@ -47,8 +47,8 @@ namespace Ogre {
 		// Technique
 		"<TechniqueDef> ::= 'technique' '{' {<TextureDef>} {<TargetDef>} <TargetOutputDef> '}' \n"
 		"<TextureDef> ::= 'texture' <Label> <WidthOptionDef> <HeightOptionDef> <PixelFormatDef> \n"
-		"<WidthOptionDef> ::= 'target_width' <#width> \n"
-		"<HeightOptionDef> ::= 'target_height' <#height> \n"
+		"<WidthOptionDef> ::= 'target_width' | <#width> \n"
+		"<HeightOptionDef> ::= 'target_height' | <#height> \n"
 		"<PixelFormatDef> ::= <Label> \n"
 		// Target
 		"<TargetDef> ::= 'target ' <Label> '{' [<TargetInputDef>] [<OnlyInitialDef>] {<PassDef>} '}' \n"
