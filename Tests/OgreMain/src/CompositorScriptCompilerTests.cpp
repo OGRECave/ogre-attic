@@ -133,7 +133,7 @@ void CompositorScriptCompilerTests::testCompile()
         "    technique \n"
         "    { \n"
         "        // Temporary textures \n"
-        "        texture scene target_width 640 target_height 480 PF_A8R8G8B8 \n"
+        "        texture scene target_width target_height PF_A8R8G8B8 \n"
         " \n"
         "        target scene \n"
         "        { \n"
