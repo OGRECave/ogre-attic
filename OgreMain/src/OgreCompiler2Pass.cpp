@@ -1357,7 +1357,8 @@ namespace Ogre {
         const String& setLabel = getNextTokenLabel();
         // next token should be )
         getNextToken(BNF_SET_END);
-        const size_t tokenID = getClientLexemeTokenID(setLabel);
+        // add set to lexeme token definitions but keep case sensitivity
+        const size_t tokenID = getClientLexemeTokenID(setLabel, true);
         // add operation using this token ID to the current rule expression
         modifyLastRule(pendingRuleOp, _character_);
         // add the data required by the character lookup operation
