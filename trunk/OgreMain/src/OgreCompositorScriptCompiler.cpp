@@ -223,6 +223,10 @@ namespace Ogre {
 	void CompositorScriptCompiler::parseCompositor(void)
 	{
 		logParseError("parseCompositor");
+		const String compositorName = getNextTokenLabel();
+		mScriptContext.compositor = CompositorManager::getSingleton().create(
+            compositorName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+			);
 		mScriptContext.section = CSS_COMPOSITOR;
 
 	}
@@ -230,6 +234,8 @@ namespace Ogre {
 	void CompositorScriptCompiler::parseTechnique(void)
 	{
 		logParseError("parseTechnique");
+
+		mScriptContext.technique = mScriptContext.compositor->createTechnique();
 		mScriptContext.section = CSS_TECHNIQUE;
 
 	}
@@ -237,12 +243,24 @@ namespace Ogre {
 	void CompositorScriptCompiler::parseTexture(void)
 	{
 		logParseError("parseTexture");
+		const String textureName = getNextTokenLabel();
+        CompositionTechnique::TextureDefinition* textureDef = mScriptContext.technique->createTextureDefinition(textureName);
+        // ********* needs fixing ie get params from token stream
+        textureDef->width = 128;
+        textureDef->height = 128;
+        textureDef->format = PF_A8R8G8B8;
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseTarget(void)
 	{
 		logParseError("parseTarget");
 		mScriptContext.section = CSS_TARGET;
+
+		const String targetName = getNextTokenLabel();
+        mScriptContext.target = mScriptContext.technique->createTargetPass();
+        // ********* needs fixing ie get params from token stream
+        //mScriptContext.target->setInputMode(CompositionTargetPass::IM_PREVIOUS);
+        mScriptContext.target->setOutputName(targetName);
 
 	}
 	//-----------------------------------------------------------------------
@@ -267,6 +285,10 @@ namespace Ogre {
 	void CompositorScriptCompiler::parsePass(void)
 	{
 		logParseError("parsePass");
+        mScriptContext.pass = mScriptContext.target->createPass();
+        // ********* needs fixing ie get params from token stream
+        mScriptContext.pass->setType(CompositionPass::PT_RENDERQUAD);
+        //mScriptContext.pass->setInput(0, "rt0");
 		mScriptContext.section = CSS_PASS;
 
 	}
@@ -274,6 +296,7 @@ namespace Ogre {
 	void CompositorScriptCompiler::parseMaterial(void)
 	{
 		logParseError("parseMaterial");
+        mScriptContext.pass->setMaterialName(getNextTokenLabel());
 
 	}
 
