@@ -437,8 +437,8 @@ namespace Ogre {
             // position is relative to parent so transform upwards
             if (mParent)
             {
-                mPosition += mParent->_getDerivedOrientation().Inverse() *
-                    (d / mParent->_getDerivedScale());
+                mPosition += (mParent->_getDerivedOrientation().Inverse() * d)
+                    / mParent->_getDerivedScale();
             }
             else
             {

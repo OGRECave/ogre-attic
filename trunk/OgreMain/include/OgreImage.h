@@ -136,7 +136,7 @@ namespace Ogre {
 			@remarks 
 				The size of the buffer must be numFaces*PixelUtil::getMemorySize(width, height, depth, format)
          */
-		Image& Image::loadDynamicImage( uchar* pData, size_t uWidth, size_t uHeight, 
+		Image& loadDynamicImage( uchar* pData, size_t uWidth, size_t uHeight, 
 							size_t depth,
 							 PixelFormat eFormat, bool autoDelete = false, 
 							 size_t numFaces = 1, size_t numMipMaps = 0);
