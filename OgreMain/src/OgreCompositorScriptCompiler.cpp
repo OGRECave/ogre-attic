@@ -49,7 +49,7 @@ namespace Ogre {
 		"<TextureDef> ::= 'texture' <Label> <WidthOptionDef> <HeightOptionDef> <PixelFormatDef> \n"
 		"<WidthOptionDef> ::= 'target_width' | <#width> \n"
 		"<HeightOptionDef> ::= 'target_height' | <#height> \n"
-		"<PixelFormatDef> ::= <Label> \n"
+		"<PixelFormatDef> ::= 'PF_A8R8G8B8' | 'PF_R8G8B8A8' | 'PF_R8G8B8' \n"
 		// Target
 		"<TargetDef> ::= 'target ' <Label> '{' [<TargetInputDef>] [<OnlyInitialDef>] {<PassDef>} '}' \n"
 		"<TargetInputDef> ::= 'input' <TargetInputOptionsDef> \n"
