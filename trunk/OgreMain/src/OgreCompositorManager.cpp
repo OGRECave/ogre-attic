@@ -64,7 +64,7 @@ CompositorManager::~CompositorManager()
 	ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
 }
 //-----------------------------------------------------------------------
-Resource* CompositorManager::createImpl(const String& name, ResourceHandle handle, 
+Resource* CompositorManager::createImpl(const String& name, ResourceHandle handle,
     const String& group, bool isManual, ManualResourceLoader* loader,
     const NameValuePairList* params)
 {
@@ -110,7 +110,7 @@ void CompositorManager::initialise(void)
 		pass->setFirstRenderQueue(RENDER_QUEUE_SKIES_EARLY);
 		pass->setLastRenderQueue(RENDER_QUEUE_SKIES_LATE);
 	}
-	
+
 }
 //-----------------------------------------------------------------------
 void CompositorManager::parseScript(DataStreamPtr& stream, const String& groupName)
@@ -147,7 +147,7 @@ void CompositorManager::freeChains()
     }
     mChains.clear();
 }
-
+//-----------------------------------------------------------------------
 Renderable *CompositorManager::_getTexturedRectangle2D()
 {
 	if(!mRectangle)
