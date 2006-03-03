@@ -94,6 +94,9 @@ namespace Ogre {
 		addLexemeTokenAction("texture", ID_TEXTURE, &CompositorScriptCompiler::parseTexture);
 		addLexemeTokenAction("target_width", ID_TARGET_WIDTH);
 		addLexemeTokenAction("target_height", ID_TARGET_HEIGHT);
+		addLexemeTokenAction("PF_A8R8G8B8", ID_PF_A8R8G8B8);
+		addLexemeTokenAction("PF_R8G8B8A8", ID_PF_R8G8B8A8);
+		addLexemeTokenAction("PF_R8G8B8", ID_PF_R8G8B8);
 
 		// Target section
 		addLexemeTokenAction("target", ID_TARGET, &CompositorScriptCompiler::parseTarget);
@@ -222,7 +225,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseCompositor(void)
 	{
-		logParseError("parseCompositor");
+		//logParseError("parseCompositor");
 		const String compositorName = getNextTokenLabel();
 		mScriptContext.compositor = CompositorManager::getSingleton().create(
             compositorName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
@@ -233,7 +236,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseTechnique(void)
 	{
-		logParseError("parseTechnique");
+		//logParseError("parseTechnique");
 
 		mScriptContext.technique = mScriptContext.compositor->createTechnique();
 		mScriptContext.section = CSS_TECHNIQUE;
@@ -242,37 +245,95 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseTexture(void)
 	{
-		logParseError("parseTexture");
+		//logParseError("parseTexture");
 		const String textureName = getNextTokenLabel();
         CompositionTechnique::TextureDefinition* textureDef = mScriptContext.technique->createTextureDefinition(textureName);
         // ********* needs fixing ie get params from token stream
-        textureDef->width = 128;
-        textureDef->height = 128;
-        textureDef->format = PF_A8R8G8B8;
+        // if peek next token is target_width then get token and use 0 for width
+        // determine width parameter
+        if (testNextTokenID(ID_TARGET_WIDTH))
+        {
+            getNextToken();
+            // a value of zero causes texture to be size of render target
+            textureDef->width = 0;
+        }
+        else
+        {
+            textureDef->width = static_cast<size_t>(getNextTokenValue());
+        }
+        // determine height parameter
+        if (testNextTokenID(ID_TARGET_HEIGHT))
+        {
+            getNextToken();
+            // a value of zero causes texture to be size of render target
+            textureDef->height = 0;
+        }
+        else
+        {
+            textureDef->height = static_cast<size_t>(getNextTokenValue());
+        }
+        // get pixel factor
+        switch (getNextToken().tokenID)
+        {
+        case ID_PF_A8R8G8B8:
+            textureDef->format = PF_A8R8G8B8;
+            break;
+
+        case ID_PF_R8G8B8A8:
+            textureDef->format = PF_R8G8B8A8;
+            break;
+
+        case ID_PF_R8G8B8:
+            textureDef->format = PF_R8G8B8;
+            break;
+
+        default:
+            // should never get here?
+            break;
+        }
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseTarget(void)
 	{
-		logParseError("parseTarget");
+		//logParseError("parseTarget");
 		mScriptContext.section = CSS_TARGET;
-
+        assert(mScriptContext.technique);
 		const String targetName = getNextTokenLabel();
+
         mScriptContext.target = mScriptContext.technique->createTargetPass();
-        // ********* needs fixing ie get params from token stream
-        //mScriptContext.target->setInputMode(CompositionTargetPass::IM_PREVIOUS);
         mScriptContext.target->setOutputName(targetName);
 
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseInput(void)
 	{
-		logParseError("parseInput");
+		//logParseError("parseInput");
+		// input parameters depends on context either target or pass
+		if (mScriptContext.section == CSS_TARGET)
+		{
+		    // for input in target, there is only one parameter
+		    assert(mScriptContext.target);
+		    if (testNextTokenID(ID_PREVIOUS))
+                mScriptContext.target->setInputMode(CompositionTargetPass::IM_PREVIOUS);
+            else
+                mScriptContext.target->setInputMode(CompositionTargetPass::IM_NONE);
+		}
+		else // assume for pass section context
+		{
+		    // for input in pass, there are two parameters
+		    uint32 id = static_cast<uint32>(getNextTokenValue());
+		    const String& textureName = getNextTokenLabel();
+		    assert(mScriptContext.pass);
+		    mScriptContext.pass->setInput(id, textureName);
+		}
 
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseTargetOutput(void)
 	{
-		logParseError("parseTargetOutput");
+		//logParseError("parseTargetOutput");
+		assert(mScriptContext.technique);
+		mScriptContext.target = mScriptContext.technique->getOutputTargetPass();
 		mScriptContext.section = CSS_TARGET_OUTPUT;
 	}
 	//-----------------------------------------------------------------------
@@ -285,10 +346,33 @@ namespace Ogre {
 	void CompositorScriptCompiler::parsePass(void)
 	{
 		logParseError("parsePass");
+		assert(mScriptContext.target);
         mScriptContext.pass = mScriptContext.target->createPass();
-        // ********* needs fixing ie get params from token stream
-        mScriptContext.pass->setType(CompositionPass::PT_RENDERQUAD);
-        //mScriptContext.pass->setInput(0, "rt0");
+        CompositionPass::PassType passType = CompositionPass::PT_RENDERQUAD;
+        switch (getNextToken().tokenID)
+        {
+        case ID_RENDER_QUAD:
+            passType = CompositionPass::PT_RENDERQUAD;
+            break;
+
+        case ID_CLEAR:
+            passType = CompositionPass::PT_CLEAR;
+            break;
+
+        case ID_STENCIL:
+            passType = CompositionPass::PT_STENCIL;
+            break;
+
+        case ID_RENDER_SCENE:
+            passType = CompositionPass::PT_RENDERSCENE;
+            break;
+
+        default:
+            break;
+        }
+
+        mScriptContext.pass->setType(passType);
+
 		mScriptContext.section = CSS_PASS;
 
 	}
