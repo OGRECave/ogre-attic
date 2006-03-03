@@ -1522,7 +1522,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     const VertexData* Entity::findBlendedVertexData(const VertexData* orig)
     {
-		bool skel = hasSkeleton();
+		bool skel = _isSkeletonAnimated();
 
         if (orig == mMesh->sharedVertexData)
         {
