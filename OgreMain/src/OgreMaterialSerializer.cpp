@@ -2743,6 +2743,15 @@ namespace Ogre
         writeAttribute(1, "technique");
         beginSection(1);
         {
+			// Lod index
+			if (mDefaults || 
+				pTech->getLodIndex() != 0)
+			{
+				writeAttribute(2, "lod_index");
+				writeValue(StringConverter::toString(pTech->getLodIndex()));
+			}
+
+
             // Iterate over passes
             Technique::PassIterator it = const_cast<Technique*>(pTech)->getPassIterator();
             while (it.hasMoreElements())
