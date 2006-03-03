@@ -275,6 +275,8 @@ protected:
 				// Update the pose
 				manualKeyFrame->updatePoseReference(
 					poseIndexes[i], scrollbars[i]->getScrollPosition());
+				// Dirty animation state since we're fudging this manually
+				manualAnimState->getParent()->_notifyDirty();
 			}
 
 		}
