@@ -90,8 +90,6 @@ http://www.gnu.org/copyleft/lesser.txt
 
 #include "OgreMemoryManager.h"
 
-// define the real number values to be used
-// default to use 'float' unless precompiler option set
 namespace Ogre {
     // Define ogre version
     #define OGRE_VERSION_MAJOR 1
@@ -99,6 +97,10 @@ namespace Ogre {
     #define OGRE_VERSION_PATCH 0
     #define OGRE_VERSION_NAME "Dagon"
 
+    #define OGRE_VERSION    ((OGRE_VERSION_MAJOR << 16) | (OGRE_VERSION_MINOR << 8) | OGRE_VERSION_PATCH)
+
+    // define the real number values to be used
+    // default to use 'float' unless precompiler option set
     #if OGRE_DOUBLE_PRECISION == 1
 		/** Software floating point type.
 		@note Not valid as a pointer to GPU buffers / parameters
