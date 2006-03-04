@@ -157,9 +157,17 @@ namespace Ogre {
         bool getCastsShadows(void) const;
 		/** Advanced method to get the temporarily blended vertex information
 		for entities which are software skinned. 
+        @remarks
+            Internal engine will eliminate software animation if possible, this
+            information is unreliable unless added request for software animation
+            via Entity::addSoftwareAnimationRequest.
 		*/
 		VertexData* _getSkelAnimVertexData(void);
 		/** Advanced method to get the temporarily blended software morph vertex information
+        @remarks
+            Internal engine will eliminate software animation if possible, this
+            information is unreliable unless added request for software animation
+            via Entity::addSoftwareAnimationRequest.
 		*/
 		VertexData* _getSoftwareVertexAnimVertexData(void);
 		/** Advanced method to get the hardware morph vertex information
