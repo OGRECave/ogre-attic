@@ -108,6 +108,26 @@ namespace Ogre {
                 ei->getIndex() );
         }
 
+		// Copy hardware shadow buffer if set up
+		if (!hardwareShadowVolWBuffer.isNull())
+		{
+			dest->hardwareShadowVolWBuffer = 
+				HardwareBufferManager::getSingleton().createVertexBuffer(
+					hardwareShadowVolWBuffer->getVertexSize(), 
+					hardwareShadowVolWBuffer->getNumVertices(), 
+					hardwareShadowVolWBuffer->getUsage(),
+					hardwareShadowVolWBuffer->hasShadowBuffer());
+
+			// copy data
+			dest->hardwareShadowVolWBuffer->copyData(
+				*hardwareShadowVolWBuffer, 0, 0, 
+				hardwareShadowVolWBuffer->getSizeInBytes(), true);
+		}
+
+		// copy anim data
+		dest->hwAnimationDataList = hwAnimationDataList;
+		dest->hwAnimDataItemsUsed = hwAnimDataItemsUsed;
+
         
         return dest;
 	}
