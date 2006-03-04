@@ -99,7 +99,7 @@ namespace Ogre {
 		addLexemeTokenAction("PF_R8G8B8", ID_PF_R8G8B8);
 
 		// Target section
-		addLexemeTokenAction("target", ID_TARGET, &CompositorScriptCompiler::parseTarget);
+		addLexemeTokenAction("target ", ID_TARGET, &CompositorScriptCompiler::parseTarget);
 		addLexemeTokenAction("input", ID_INPUT, &CompositorScriptCompiler::parseInput);
 		addLexemeTokenAction("none", ID_NONE);
 		addLexemeTokenAction("previous", ID_PREVIOUS);
@@ -159,7 +159,7 @@ namespace Ogre {
 	void CompositorScriptCompiler::logParseError(const String& error)
 	{
 		// log material name only if filename not specified
-		if (mScriptContext.filename.empty() && !mScriptContext.compositor.isNull())
+		if (mSourceName.empty() && !mScriptContext.compositor.isNull())
 		{
 			LogManager::getSingleton().logMessage(
 				"Error in compositor " + mScriptContext.compositor->getName() +
@@ -172,13 +172,13 @@ namespace Ogre {
 				LogManager::getSingleton().logMessage(
 					"Error in compositor " + mScriptContext.compositor->getName() +
 					" at line " + StringConverter::toString(mCurrentLine) +
-					" of " + mScriptContext.filename + ": " + error);
+					" of " + mSourceName + ": " + error);
 			}
 			else
 			{
 				LogManager::getSingleton().logMessage(
 					"Error at line " + StringConverter::toString(mCurrentLine) +
-					" of " + mScriptContext.filename + ": " + error);
+					" of " + mSourceName + ": " + error);
 			}
 		}
 	}
@@ -197,7 +197,6 @@ namespace Ogre {
 			break;
 		case CSS_COMPOSITOR:
 			// End of compositor
-
 			mScriptContext.section = CSS_NONE;
 			mScriptContext.compositor.setNull();
 			break;
@@ -210,10 +209,6 @@ namespace Ogre {
 			// End of target
 			mScriptContext.section = CSS_TECHNIQUE;
 			mScriptContext.target = NULL;
-			break;
-		case CSS_TARGET_OUTPUT:
-			// End of target
-			mScriptContext.section = CSS_TECHNIQUE;
 			break;
 		case CSS_PASS:
 			// End of pass
@@ -334,7 +329,7 @@ namespace Ogre {
 		//logParseError("parseTargetOutput");
 		assert(mScriptContext.technique);
 		mScriptContext.target = mScriptContext.technique->getOutputTargetPass();
-		mScriptContext.section = CSS_TARGET_OUTPUT;
+		mScriptContext.section = CSS_TARGET;
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseOnlyInitial(void)
@@ -345,7 +340,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parsePass(void)
 	{
-		logParseError("parsePass");
+		//logParseError("parsePass");
 		assert(mScriptContext.target);
         mScriptContext.pass = mScriptContext.target->createPass();
         CompositionPass::PassType passType = CompositionPass::PT_RENDERQUAD;
@@ -379,7 +374,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseMaterial(void)
 	{
-		logParseError("parseMaterial");
+		//logParseError("parseMaterial");
         mScriptContext.pass->setMaterialName(getNextTokenLabel());
 
 	}
