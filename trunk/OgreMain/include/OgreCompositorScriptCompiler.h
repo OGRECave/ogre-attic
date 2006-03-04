@@ -77,7 +77,6 @@ namespace Ogre {
 			CSS_COMPOSITOR,
 			CSS_TECHNIQUE,
 			CSS_TARGET,
-			CSS_TARGET_OUTPUT,
 			CSS_PASS
 		};
 		/** Struct for holding the script context while parsing. */
@@ -88,9 +87,6 @@ namespace Ogre {
 			CompositionTechnique* technique;
 			CompositionTargetPass* target;
 			CompositionPass* pass;
-			// Error reporting state
-			size_t lineNo;
-			String filename;
 		};
 
 		CompositorScriptContext mScriptContext;
