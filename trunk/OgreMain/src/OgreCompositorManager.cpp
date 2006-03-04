@@ -115,6 +115,7 @@ void CompositorManager::initialise(void)
 //-----------------------------------------------------------------------
 void CompositorManager::parseScript(DataStreamPtr& stream, const String& groupName)
 {
+    mSerializer.parseScript(stream, groupName);
 }
 //-----------------------------------------------------------------------
 CompositorChain *CompositorManager::getCompositorChain(Viewport *vp)
