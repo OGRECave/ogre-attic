@@ -64,8 +64,9 @@ namespace Ogre {
 
         // Technique section rules
         "<Technique_Def> ::= 'technique' [<Label>] '{' {<Technique_Properties>} '}' \n"
-        "    <Technique_Properties> ::= <Pass_Def> | <Lod_Index_Def> \n"
+        "    <Technique_Properties> ::= <Pass_Def> | <Lod_Index_Def> | <Scheme_Def> \n"
         "    <Lod_Index_Def> ::= 'lod_index' <#value> \n"
+	"    <Scheme_Def> ::= 'scheme' <Label> \n"
 
         // Pass section rules
         "    <Pass_Def> ::= 'pass' [<Label>] '{' {<Pass_Properties>} '}' \n"
@@ -167,6 +168,7 @@ namespace Ogre {
         addLexemeTokenAction("technique", ID_TECHNIQUE, &MaterialScriptCompiler::parseTechnique);
             addLexemeTokenAction("transparency_casts_shadows", ID_TRANSPARENCY_CASTS_SHADOWS, &MaterialScriptCompiler::parseTransparencyCastsShadows);
             addLexemeTokenAction("receive_shadows", ID_RECEIVE_SHADOWS, &MaterialScriptCompiler::parseReceiveShadows);
+	    
 
         // Pass section
         addLexemeTokenAction("pass", ID_PASS, &MaterialScriptCompiler::parsePass);

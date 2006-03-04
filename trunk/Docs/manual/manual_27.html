@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 10 2006 by texi2html 1.64 -->
+<!-- Created on , 4 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC152"></A>
+<A NAME="SEC158"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC151"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC107"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC160"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC157"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC111"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC166"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,30 +35,30 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H3> 3.2.6 Standard Particle Affectors </H3>
-<!--docid::SEC152::-->
+<!--docid::SEC158::-->
 Ogre comes preconfigured with a few particle affectors. New ones can be added by creating plugins: see the Plugin_ParticleFX project as an example of how you would do this (this is where these affectors are implemented).
 
 <UL>
 <LI>
-<A HREF="manual_27.html#SEC153">Linear Force Affector</A>
+<A HREF="manual_27.html#SEC159">Linear Force Affector</A>
 <LI>
-<A HREF="manual_27.html#SEC154">ColourFader Affector</A>
+<A HREF="manual_27.html#SEC160">ColourFader Affector</A>
 <LI>
-<A HREF="manual_27.html#SEC155">ColourFader2 Affector</A>
+<A HREF="manual_27.html#SEC161">ColourFader2 Affector</A>
 <LI>
-<A HREF="manual_27.html#SEC156">Scaler Affector</A>
+<A HREF="manual_27.html#SEC162">Scaler Affector</A>
 <LI>
-<A HREF="manual_27.html#SEC157">Rotator Affector</A>
+<A HREF="manual_27.html#SEC163">Rotator Affector</A>
 <LI>
-<A HREF="manual_27.html#SEC158">ColourInterpolator Affector</A>
+<A HREF="manual_27.html#SEC164">ColourInterpolator Affector</A>
 <LI>
-<A HREF="manual_27.html#SEC159">ColourImage Affector</A>
+<A HREF="manual_27.html#SEC165">ColourImage Affector</A>
 </UL>
 
 <A NAME="Linear Force Affector"></A>
-<A NAME="SEC153"></A>
+<A NAME="SEC159"></A>
 <H3> Linear Force Affector </H3>
-<!--docid::SEC153::-->
+<!--docid::SEC159::-->
 
 This affector applies a force vector to all particles to modify their trajectory. Can be used for gravity, wind, or any other linear force. It's extra attributes are:<BR><BR>
 <DL COMPACT>
@@ -90,9 +90,9 @@ To create a linear force affector, include a section like this within your parti
 </pre></td></tr></table>Please note that the name of the affector type ('LinearForce') is case-sensitive.
 
 <A NAME="ColourFader Affector"></A>
-<A NAME="SEC154"></A>
+<A NAME="SEC160"></A>
 <H3> ColourFader Affector </H3>
-<!--docid::SEC154::-->
+<!--docid::SEC160::-->
 
 This affector modifies the colour of particles in flight. It's extra attributes are:
 <DL COMPACT>
@@ -124,11 +124,11 @@ To create a colour fader affector, include a section like this within your parti
 }
 </pre></td></tr></table>
 <A NAME="ColourFader2 Affector"></A>
-<A NAME="SEC155"></A>
+<A NAME="SEC161"></A>
 <H3> ColourFader2 Affector </H3>
-<!--docid::SEC155::-->
+<!--docid::SEC161::-->
 
-This affector is similar to the <A HREF="manual_27.html#SEC154">ColourFader Affector</A>, except it introduces two states of colour changes as opposed to just one. The second colour change state is activated once a specified amount of time remains in the particles life.
+This affector is similar to the <A HREF="manual_27.html#SEC160">ColourFader Affector</A>, except it introduces two states of colour changes as opposed to just one. The second colour change state is activated once a specified amount of time remains in the particles life.
 <DL COMPACT>
 <DT>red1
 <DD>Sets the adjustment to be made to the red component of the particle colour per second for the first state.<BR>
@@ -183,9 +183,9 @@ To create a ColourFader2 affector, include a section like this within your parti
 }
 </pre></td></tr></table>
 <A NAME="Scaler Affector"></A>
-<A NAME="SEC156"></A>
+<A NAME="SEC162"></A>
 <H3> Scaler Affector </H3>
-<!--docid::SEC156::-->
+<!--docid::SEC162::-->
 
 This affector scales particles in flight. It's extra attributes are:
 <DL COMPACT>
@@ -199,9 +199,9 @@ To create a scale affector, include a section like this within your particle sys
 }
 </pre></td></tr></table>
 <A NAME="Rotator Affector"></A>
-<A NAME="SEC157"></A>
+<A NAME="SEC163"></A>
 <H3> Rotator Affector </H3>
-<!--docid::SEC157::-->
+<!--docid::SEC163::-->
 
 This affector rotates particles in flight. This is done by rotating the texture. It's extra attributes are:
 <DL COMPACT>
@@ -233,9 +233,9 @@ To create a rotate affector, include a section like this within your particle sy
 }
 </pre></td></tr></table>
 <A NAME="ColourInterpolator Affector"></A>
-<A NAME="SEC158"></A>
+<A NAME="SEC164"></A>
 <H3> ColourInterpolator Affector </H3>
-<!--docid::SEC158::-->
+<!--docid::SEC164::-->
 
 Similar to the ColourFader and ColourFader2 Affector?s, this affector modifies the colour of particles in flight, except it has a variable number of defined stages. It swaps the particle colour for several stages in the life of a particle and interpolates between them. It's extra attributes are:
 <DL COMPACT>
@@ -279,9 +279,9 @@ To create a colour interpolation affector, include a section like this within yo
 }
 </pre></td></tr></table>
 <A NAME="ColourImage Affector"></A>
-<A NAME="SEC159"></A>
+<A NAME="SEC165"></A>
 <H3> ColourImage Affector </H3>
-<!--docid::SEC159::-->
+<!--docid::SEC165::-->
 
 This is another affector that modifies the colour of particles in flight, but instead of programmatically defining colours, the colours are taken from a specified image file. The range of colour values begins from the left side of the image and move to the right over the lifetime of the particle, therefore only the horizontal dimension of the image is used. Its extra attributes are:
 <DL COMPACT>
@@ -301,9 +301,9 @@ To create a ColourImage affector, include a section like this within your partic
 <A NAME="Overlay Scripts"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC151"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC107"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC160"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC157"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC111"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC166"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -312,7 +312,7 @@ To create a ColourImage affector, include a section like this within your partic
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 10 2006</I>
+by <I>Steve Streeting</I> on <I>, 4 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

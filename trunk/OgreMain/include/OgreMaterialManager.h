@@ -73,7 +73,19 @@ namespace Ogre {
 			const String& group, bool isManual, ManualResourceLoader* loader,
             const NameValuePairList* params);
 
+		/// Scheme name -> index. Never shrinks! Should be pretty static anyway
+		typedef std::map<String, unsigned short> SchemeMap;
+		/// List of material schemes
+		SchemeMap mSchemes;
+		/// Current material scheme
+		String mActiveSchemeName;
+		/// Current material scheme
+		unsigned short mActiveSchemeIndex;
+
     public:
+		/// Default material scheme
+		static String DEFAULT_SCHEME_NAME;
+		
         /** Default constructor.
         */
         MaterialManager();
@@ -153,6 +165,29 @@ namespace Ogre {
                 </ul>
         */
 		virtual MaterialPtr getDefaultSettings(void) const { return mDefaultSettings; }
+
+		/** Internal method - returns index for a given material scheme name.
+		@see Technique::setSchemeName
+		*/
+		virtual unsigned short _getSchemeIndex(const String& name);
+		/** Internal method - returns name for a given material scheme index.
+		@see Technique::setSchemeName
+		*/
+		virtual const String& _getSchemeName(unsigned short index);
+		/** Internal method - returns the active scheme index.
+		@see Technique::setSchemeName
+		*/
+		virtual unsigned short _getActiveSchemeIndex(void) const;
+
+		/** Returns the name of the active material scheme. 
+		@see Technique::setSchemeName
+		*/
+		virtual const String& getActiveScheme(void) const;
+		
+		/** Sets the name of the active material scheme. 
+		@see Technique::setSchemeName
+		*/
+		virtual void setActiveScheme(const String& schemeName);
 
         /** Override standard Singleton retrieval.
         @remarks

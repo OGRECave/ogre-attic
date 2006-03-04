@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 11 2006 by texi2html 1.64 -->
+<!-- Created on , 4 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC34"></A>
+<A NAME="SEC35"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_15.html#SEC31"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC60"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC61"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,74 +35,74 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H3> 3.1.2 Passes </H3>
-<!--docid::SEC34::-->
+<!--docid::SEC35::-->
 A pass is a single render of the geometry in question; a single call to the rendering API with a certain set of rendering properties. A technique can have between one and 16 passes, although clearly the more passes you use, the more expensive the technique will be to render.<BR><BR>
 
-To help clearly identify what each pass is used for, the pass can be named but its optional.  Passes not named within the script will take on a name that is the pass index number.  For example: the first pass in a technique is index 0 so its name would be "0" if it was not given a name in the script.  The pass name must be unqiue within the technique or else the final pass is the resulting merge of all passes with the same name in the technique.  A warning message is posted in the Ogre.log if this occurs.  Named passes can help when copying a material and modifying an existing pass: (See section <A HREF="manual_20.html#SEC103">3.1.6 Copying Materials</A>)<BR><BR>
+To help clearly identify what each pass is used for, the pass can be named but its optional.  Passes not named within the script will take on a name that is the pass index number.  For example: the first pass in a technique is index 0 so its name would be "0" if it was not given a name in the script.  The pass name must be unqiue within the technique or else the final pass is the resulting merge of all passes with the same name in the technique.  A warning message is posted in the Ogre.log if this occurs.  Named passes can help when copying a material and modifying an existing pass: (See section <A HREF="manual_20.html#SEC106">3.1.6 Copying Materials</A>)<BR><BR>
 
-Passes have a set of global attributes (described below), zero or more nested texture_unit entries (See section <A HREF="manual_17.html#SEC60">3.1.3 Texture Units</A>), and optionally a reference to a vertex and / or a fragment program (See section <A HREF="manual_19.html#SEC96">3.1.5 Using Vertex and Fragment Programs in a Pass</A>).
+Passes have a set of global attributes (described below), zero or more nested texture_unit entries (See section <A HREF="manual_17.html#SEC61">3.1.3 Texture Units</A>), and optionally a reference to a vertex and / or a fragment program (See section <A HREF="manual_19.html#SEC99">3.1.5 Using Vertex and Fragment Programs in a Pass</A>).
 
 <BR><BR>
 Here are the attributes you can use in a 'pass' section of a .material script:
 
 <UL>
 <LI>
-<A HREF="manual_16.html#SEC36">ambient</A>
+<A HREF="manual_16.html#SEC37">ambient</A>
 <LI>
-<A HREF="manual_16.html#SEC37">diffuse</A>
+<A HREF="manual_16.html#SEC38">diffuse</A>
 <LI>
-<A HREF="manual_16.html#SEC38">specular</A>
+<A HREF="manual_16.html#SEC39">specular</A>
 <LI>
-<A HREF="manual_16.html#SEC39">emissive</A>
+<A HREF="manual_16.html#SEC40">emissive</A>
 <LI>
-<A HREF="manual_16.html#SEC40">scene_blend</A>
+<A HREF="manual_16.html#SEC41">scene_blend</A>
 <LI>
-<A HREF="manual_16.html#SEC41">depth_check</A>
+<A HREF="manual_16.html#SEC42">depth_check</A>
 <LI>
-<A HREF="manual_16.html#SEC42">depth_write</A>
+<A HREF="manual_16.html#SEC43">depth_write</A>
 <LI>
-<A HREF="manual_16.html#SEC43">depth_func</A>
+<A HREF="manual_16.html#SEC44">depth_func</A>
 <LI>
-<A HREF="manual_16.html#SEC44">depth_bias</A>
+<A HREF="manual_16.html#SEC45">depth_bias</A>
 <LI>
-<A HREF="manual_16.html#SEC45">alpha_rejection</A>
+<A HREF="manual_16.html#SEC46">alpha_rejection</A>
 <LI>
-<A HREF="manual_16.html#SEC46">cull_hardware</A>
+<A HREF="manual_16.html#SEC47">cull_hardware</A>
 <LI>
-<A HREF="manual_16.html#SEC47">cull_software</A>
+<A HREF="manual_16.html#SEC48">cull_software</A>
 <LI>
-<A HREF="manual_16.html#SEC48">lighting</A>
+<A HREF="manual_16.html#SEC49">lighting</A>
 <LI>
-<A HREF="manual_16.html#SEC49">shading</A>
+<A HREF="manual_16.html#SEC50">shading</A>
 <LI>
-<A HREF="manual_16.html#SEC50">polygon_mode</A>
+<A HREF="manual_16.html#SEC51">polygon_mode</A>
 <LI>
-<A HREF="manual_16.html#SEC51">fog_override</A>
+<A HREF="manual_16.html#SEC52">fog_override</A>
 <LI>
-<A HREF="manual_16.html#SEC52">colour_write</A>
+<A HREF="manual_16.html#SEC53">colour_write</A>
 <LI>
-<A HREF="manual_16.html#SEC53">max_lights</A>
+<A HREF="manual_16.html#SEC54">max_lights</A>
 <LI>
-<A HREF="manual_16.html#SEC54">iteration</A>
+<A HREF="manual_16.html#SEC55">iteration</A>
 <LI>
-<A HREF="manual_16.html#SEC55">point_size</A>
+<A HREF="manual_16.html#SEC56">point_size</A>
 <LI>
-<A HREF="manual_16.html#SEC56">point_sprites</A>
+<A HREF="manual_16.html#SEC57">point_sprites</A>
 <LI>
-<A HREF="manual_16.html#SEC57">point_size_attenuation</A>
+<A HREF="manual_16.html#SEC58">point_size_attenuation</A>
 <LI>
-<A HREF="manual_16.html#SEC58">point_size_min</A>
+<A HREF="manual_16.html#SEC59">point_size_min</A>
 <LI>
-<A HREF="manual_16.html#SEC59">point_size_max</A>
+<A HREF="manual_16.html#SEC60">point_size_max</A>
 </UL>
 
-<A NAME="SEC35"></A>
-<H2> Attribute Descriptions </H2>
-<!--docid::SEC35::-->
-<A NAME="ambient"></A>
 <A NAME="SEC36"></A>
-<H3> ambient </H3>
+<H2> Attribute Descriptions </H2>
 <!--docid::SEC36::-->
+<A NAME="ambient"></A>
+<A NAME="SEC37"></A>
+<H3> ambient </H3>
+<!--docid::SEC37::-->
 
 Sets the ambient colour reflectance properties of this pass. <STRONG>This attribute has no effect if a asm, CG, or HLSL shader program is used.  With GLSL, the shader can read the OpenGL material state.</STRONG> <BR><BR>
 
@@ -118,9 +118,9 @@ The default is full white, meaning objects are completely globally illuminated. 
 Default: ambient 1.0 1.0 1.0 1.0<BR><BR>
 
 <A NAME="diffuse"></A>
-<A NAME="SEC37"></A>
+<A NAME="SEC38"></A>
 <H3> diffuse </H3>
-<!--docid::SEC37::-->
+<!--docid::SEC38::-->
 
 Sets the diffuse colour reflectance properties of this pass. <STRONG>This attribute has no effect if a asm, CG, or HLSL shader program is used.  With GLSL, the shader can read the OpenGL material state.</STRONG><BR><BR>
 
@@ -136,9 +136,9 @@ The default is full white, meaning objects reflect the maximum white light they 
 Default: diffuse 1.0 1.0 1.0 1.0<BR><BR>
 
 <A NAME="specular"></A>
-<A NAME="SEC38"></A>
+<A NAME="SEC39"></A>
 <H3> specular </H3>
-<!--docid::SEC38::-->
+<!--docid::SEC39::-->
 
 Sets the specular colour reflectance properties of this pass. <STRONG>This attribute has no effect if a asm, CG, or HLSL shader program is used.  With GLSL, the shader can read the OpenGL material state.</STRONG><BR><BR>
 
@@ -154,9 +154,9 @@ The default is to reflect no specular light. The colour of the specular highligh
 Default: specular 0.0 0.0 0.0 0.0 0.0<BR><BR>
 
 <A NAME="emissive"></A>
-<A NAME="SEC39"></A>
+<A NAME="SEC40"></A>
 <H3> emissive </H3>
-<!--docid::SEC39::-->
+<!--docid::SEC40::-->
 
 Sets the amount of self-illumination an object has. <STRONG>This attribute has no effect if a asm, CG, or HLSL shader program is used.  With GLSL, the shader can read the OpenGL material state.</STRONG><BR><BR>
 
@@ -172,9 +172,9 @@ This setting has no effect if dynamic lighting is disabled using the 'lighting o
 Default: emissive 0.0 0.0 0.0 0.0<BR><BR>
 
 <A NAME="scene_blend"></A>
-<A NAME="SEC40"></A>
+<A NAME="SEC41"></A>
 <H3> scene_blend </H3>
-<!--docid::SEC40::-->
+<!--docid::SEC41::-->
 
 Sets the kind of blending this pass has with the existing contents of the scene. Wheras the texture blending operations seen in the texture_unit entries are concerned with blending between texture layers, this blending is about combining the output of this pass as a whole with the existing contents of the rendering target. This blending therefore allows object transparency and other special effects. There are 2 formats, one using predefined blend types, the other allowing a roll-your-own approach using source and destination factors.<BR><BR>
 
@@ -225,9 +225,9 @@ This version of the method allows complete control over the blending operation, 
 Default: scene_blend one zero (opaque)
 <BR>
 <A NAME="depth_check"></A>
-<A NAME="SEC41"></A>
+<A NAME="SEC42"></A>
 <H3> depth_check </H3>
-<!--docid::SEC41::-->
+<!--docid::SEC42::-->
 
 Sets whether or not this pass renders with depth-buffer checking on or not.<BR><BR>
 
@@ -238,9 +238,9 @@ If depth-buffer checking is on, whenever a pixel is about to be written to the f
 Default: depth_check on<BR><BR>
 
 <A NAME="depth_write"></A>
-<A NAME="SEC42"></A>
+<A NAME="SEC43"></A>
 <H3> depth_write </H3>
-<!--docid::SEC42::-->
+<!--docid::SEC43::-->
 
 Sets whether or not this pass renders with depth-buffer writing on or not.<BR>
 
@@ -251,9 +251,9 @@ If depth-buffer writing is on, whenever a pixel is written to the frame buffer t
 Default: depth_write on<BR>
 
 <A NAME="depth_func"></A>
-<A NAME="SEC43"></A>
+<A NAME="SEC44"></A>
 <H3> depth_func </H3>
-<!--docid::SEC43::-->
+<!--docid::SEC44::-->
 
 Sets the function used to compare depth values when depth checking is on.<BR><BR>
 
@@ -282,9 +282,9 @@ If depth checking is enabled (see depth_check) a comparison occurs between the d
 Default: depth_func less_equal
 
 <A NAME="depth_bias"></A>
-<A NAME="SEC44"></A>
+<A NAME="SEC45"></A>
 <H3> depth_bias </H3>
-<!--docid::SEC44::-->
+<!--docid::SEC45::-->
 
 Sets the bias applied to the depth value of this pass. Can be used to make coplanar polygons appear on top of others e.g. for decals. <BR><BR>
 
@@ -293,9 +293,9 @@ Format: depth_bias &#60;value&#62;<BR><BR>
 Where &#60;value&#62; is between 0 and 16, the default being 0. The higher the value, the greater the offset (for if you want to do multiple overlapping decals).<BR><BR>
 
 <A NAME="alpha_rejection"></A>
-<A NAME="SEC45"></A>
+<A NAME="SEC46"></A>
 <H3> alpha_rejection </H3>
-<!--docid::SEC45::-->
+<!--docid::SEC46::-->
 
 Sets the way the pass will have use alpha to totally reject pixels from the pipeline.<BR><BR>
 
@@ -308,9 +308,9 @@ The function parameter can be any of the options listed in the material depth_fu
 Default: alpha_rejection always_pass<BR><BR>
 
 <A NAME="cull_hardware"></A>
-<A NAME="SEC46"></A>
+<A NAME="SEC47"></A>
 <H3> cull_hardware </H3>
-<!--docid::SEC46::-->
+<!--docid::SEC47::-->
 
 Sets the hardware culling mode for this pass.<BR><BR>
 
@@ -322,9 +322,9 @@ Default: cull_hardware clockwise<BR>
 NB this is the same as OpenGL's default but the opposite of Direct3D's default (because Ogre uses a right-handed coordinate system like OpenGL).
 
 <A NAME="cull_software"></A>
-<A NAME="SEC47"></A>
+<A NAME="SEC48"></A>
 <H3> cull_software </H3>
-<!--docid::SEC47::-->
+<!--docid::SEC48::-->
 
 Sets the software culling mode for this pass.<BR><BR>
 
@@ -335,9 +335,9 @@ In some situations the engine will also cull geometry in software before sending
 Default: cull_software back<BR><BR>
 
 <A NAME="lighting"></A>
-<A NAME="SEC48"></A>
+<A NAME="SEC49"></A>
 <H3> lighting </H3>
-<!--docid::SEC48::-->
+<!--docid::SEC49::-->
 
 Sets whether or not dynamic lighting is turned on for this pass or not. If lighting is turned off, all objects rendered using the pass will be fully lit. <STRONG>This attribute has no effect if a vertex program is used.</STRONG><BR><BR>
 
@@ -348,9 +348,9 @@ Turning dynamic lighting off makes any ambient, diffuse, specular, emissive and 
 Default: lighting on<BR><BR>
 
 <A NAME="shading"></A>
-<A NAME="SEC49"></A>
+<A NAME="SEC50"></A>
 <H3> shading </H3>
-<!--docid::SEC49::-->
+<!--docid::SEC50::-->
 
 Sets the kind of shading which should be used for representing dynamic lighting for this pass.<BR><BR>
 
@@ -368,9 +368,9 @@ When dynamic lighting is turned on, the effect is to generate colour values at e
 Default: shading gouraud<BR><BR>
 
 <A NAME="polygon_mode"></A>
-<A NAME="SEC50"></A>
+<A NAME="SEC51"></A>
 <H3> polygon_mode </H3>
-<!--docid::SEC50::-->
+<!--docid::SEC51::-->
 
 Sets how polygons should be rasterised, ie whether they should be filled in, or just drawn as lines or points.<BR><BR>
 
@@ -388,9 +388,9 @@ Default: polygon_mode solid<BR><BR>
 
 
 <A NAME="fog_override"></A>
-<A NAME="SEC51"></A>
+<A NAME="SEC52"></A>
 <H3> fog_override </H3>
-<!--docid::SEC51::-->
+<!--docid::SEC52::-->
 
 Tells the pass whether it should override the scene fog settings, and enforce it's own. Very useful for things that you don't want to be affected by fog when the rest of the scene is fogged, or vice versa.<BR><BR>
 
@@ -418,9 +418,9 @@ If you specify 'true' for the first parameter and you supply the rest of the par
 Example: fog_override true exp 1 1 1 0.002 100 10000
 
 <A NAME="colour_write"></A>
-<A NAME="SEC52"></A>
+<A NAME="SEC53"></A>
 <H3> colour_write </H3>
-<!--docid::SEC52::-->
+<!--docid::SEC53::-->
 
 Sets whether or not this pass renders with colour writing on or not.<BR>
 
@@ -431,21 +431,21 @@ If colour writing is off no visible pixels are written to the screen during this
 Default: colour_write on<BR>
 
 <A NAME="max_lights"></A>
-<A NAME="SEC53"></A>
+<A NAME="SEC54"></A>
 <H3> max_lights </H3>
-<!--docid::SEC53::-->
+<!--docid::SEC54::-->
 
 Sets the maximum number of lights which will be considered for use with this pass.<BR><BR>
 Format: max_lights &#60;number&#62;<BR><BR>
 
-The maximum number of lights which can be used when rendering fixed-function materials is set by the rendering system, and is typically set at 8. When you are using the programmable pipeline (See section <A HREF="manual_19.html#SEC96">3.1.5 Using Vertex and Fragment Programs in a Pass</A>) this limit is dependent on the program you are running, or, if you use 'iteration once_per_light' (See section <A HREF="manual_16.html#SEC54">iteration</A>), it effectively only bounded by the number of passes you are willing to use. Whichever method you use, however, the max_lights limit applies.<BR><BR>
+The maximum number of lights which can be used when rendering fixed-function materials is set by the rendering system, and is typically set at 8. When you are using the programmable pipeline (See section <A HREF="manual_19.html#SEC99">3.1.5 Using Vertex and Fragment Programs in a Pass</A>) this limit is dependent on the program you are running, or, if you use 'iteration once_per_light' (See section <A HREF="manual_16.html#SEC55">iteration</A>), it effectively only bounded by the number of passes you are willing to use. Whichever method you use, however, the max_lights limit applies.<BR><BR>
 
 Default: max_lights 8<BR>
 
 <A NAME="iteration"></A>
-<A NAME="SEC54"></A>
+<A NAME="SEC55"></A>
 <H3> iteration </H3>
-<!--docid::SEC54::-->
+<!--docid::SEC55::-->
 
 Sets whether or not this pass is iterated, ie issued more than once.<BR><BR>
 
@@ -559,11 +559,11 @@ material Fur
 </pre></td></tr></table>Note: use gpu program auto parameters  <A HREF="manual_19.html#pass_number">pass_number</A> and  <A HREF="manual_19.html#pass_iteration_number">pass_iteration_number</A> to tell the vertex or fragment program the pass number and iteration number.<BR><BR>
 
 <A NAME="point_size"></A>
-<A NAME="SEC55"></A>
+<A NAME="SEC56"></A>
 <H3> point_size </H3>
-<!--docid::SEC55::-->
+<!--docid::SEC56::-->
 
-This setting allows you to change the size of points when rendering a point list, or a list of point sprites. The interpretation of this command depends on the <A HREF="manual_16.html#SEC57">point_size_attenuation</A> option - if it is off (the default), the point size is in screen pixels, if it is on, it expressed as normalised screen coordinates (1.0 is the height of the screen) when the point is at the origin.  <BR><BR>
+This setting allows you to change the size of points when rendering a point list, or a list of point sprites. The interpretation of this command depends on the <A HREF="manual_16.html#SEC58">point_size_attenuation</A> option - if it is off (the default), the point size is in screen pixels, if it is on, it expressed as normalised screen coordinates (1.0 is the height of the screen) when the point is at the origin.  <BR><BR>
 
 NOTE: Some drivers have an upper limit on the size of points they support - this can even vary between APIs on the same card! Don't rely on point sizes that cause the points to get very large on screen, since they may get clamped on some cards. Upper sizes can range from 64 to 256 pixels.<BR><BR>
 
@@ -571,9 +571,9 @@ Format: point_size &#60;size&#62;<BR><BR>
 Default: point_size 1.0<BR><BR>
 
 <A NAME="point_sprites"></A>
-<A NAME="SEC56"></A>
+<A NAME="SEC57"></A>
 <H3> point_sprites </H3>
-<!--docid::SEC56::-->
+<!--docid::SEC57::-->
 
 This setting specifies whether or not hardware point sprite rendering is enabled for this pass. Enabling it means that a point list is rendered as a list of quads rather than a list of dots. It is very useful to use this option if you're using a billboardset and only need to use point oriented billboards which are all of the same size. You can also use it for any other point list render. <BR><BR>
 
@@ -581,11 +581,11 @@ Format: point_sprites &#60;on|off&#62;<BR><BR>
 Default: point_sprites off<BR><BR>
 
 <A NAME="point_size_attenuation"></A>
-<A NAME="SEC57"></A>
+<A NAME="SEC58"></A>
 <H3> point_size_attenuation </H3>
-<!--docid::SEC57::-->
+<!--docid::SEC58::-->
 
-Defines whether point size is attenuated with view space distance, and in what fashion. This option is especially useful when you're using point sprites (See section <A HREF="manual_16.html#SEC56">point_sprites</A>) since it defines how they reduce in size as they get further away from the camera. You can also disable this option to make point sprites a constant screen size (like points), or enable it for points so they change size with distance.<BR><BR>
+Defines whether point size is attenuated with view space distance, and in what fashion. This option is especially useful when you're using point sprites (See section <A HREF="manual_16.html#SEC57">point_sprites</A>) since it defines how they reduce in size as they get further away from the camera. You can also disable this option to make point sprites a constant screen size (like points), or enable it for points so they change size with distance.<BR><BR>
 
 You only have to provide the final 3 parameters if you turn attenuation on. The formula for attenuation is that the size of the point is multiplied by 1 / (constant + linear * dist + quadratic * d^2); therefore turning it off is equivalent to (constant = 1, linear = 0, quadratic = 0) and standard perspective attenuation is (constant = 0, linear = 1, quadratic = 0). The latter is assumed if you leave out the final 3 parameters when you specify 'on'.<BR><BR>
 
@@ -595,21 +595,21 @@ Format: point_size_attenuation &#60;on|off&#62; [constant linear quadratic]
 Default: point_size_attenuation off
 
 <A NAME="point_size_min"></A>
-<A NAME="SEC58"></A>
+<A NAME="SEC59"></A>
 <H3> point_size_min </H3>
-<!--docid::SEC58::-->
+<!--docid::SEC59::-->
 
-Sets the minimum point size after attenuation (<A HREF="manual_16.html#SEC57">point_size_attenuation</A>). For details on the size metrics, See section <A HREF="manual_16.html#SEC55">point_size</A>.<BR><BR>
+Sets the minimum point size after attenuation (<A HREF="manual_16.html#SEC58">point_size_attenuation</A>). For details on the size metrics, See section <A HREF="manual_16.html#SEC56">point_size</A>.<BR><BR>
 
 Format: point_size_min &#60;size&#62;
 Default: point_size_min 0
 
 <A NAME="point_size_max"></A>
-<A NAME="SEC59"></A>
+<A NAME="SEC60"></A>
 <H3> point_size_max </H3>
-<!--docid::SEC59::-->
+<!--docid::SEC60::-->
 
-Sets the maximum point size after attenuation (<A HREF="manual_16.html#SEC57">point_size_attenuation</A>). For details on the size metrics, See section <A HREF="manual_16.html#SEC55">point_size</A>. A value of 0 means the maximum is set to the same as the max size reported by the current card. <BR><BR>
+Sets the maximum point size after attenuation (<A HREF="manual_16.html#SEC58">point_size_attenuation</A>). For details on the size metrics, See section <A HREF="manual_16.html#SEC56">point_size</A>. A value of 0 means the maximum is set to the same as the max size reported by the current card. <BR><BR>
 
 Format: point_size_max &#60;size&#62;
 Default: point_size_max 0
@@ -619,7 +619,7 @@ Default: point_size_max 0
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_15.html#SEC31"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC60"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC61"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -628,7 +628,7 @@ Default: point_size_max 0
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 11 2006</I>
+by <I>Steve Streeting</I> on <I>, 4 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

@@ -57,7 +57,12 @@ namespace Ogre {
         Material* mParent; // raw pointer since we don't want child to stop parent's destruction
         bool mIsSupported;
         IlluminationPassesState mIlluminationPassesCompilationPhase;
+		/// LOD level
         unsigned short mLodIndex;
+		/** Scheme index, derived from scheme name but the names are held on
+			MaterialManager, for speed an index is used here.
+		*/
+		unsigned short mSchemeIndex;
         String mName; // optional name for the technique
 
         /// Internal method for clearing illumination pass list
@@ -412,6 +417,32 @@ namespace Ogre {
         /** Gets the level-of-detail index assigned to this Technique. */
         unsigned short getLodIndex(void) const { return mLodIndex; }
 
+		/** Set the 'scheme name' for this technique. 
+		@remarks
+			Material schemes are used to control top-level switching from one
+			set of techniques to another. For example, you might use this to 
+			define 'high', 'medium' and 'low' complexity levels on materials
+		    to allow a user to pick a performance / quality ratio. Another
+			possibility is that you have a fully HDR-enabled pipeline for top
+			machines, rendering all objects using unclamped shaders, and a 
+			simpler pipeline for others; this can be implemented using 
+			schemes.
+		@par
+			Every technique belongs to a scheme - if you don't specify one, the
+			Technique belongs to the scheme called 'Default', which is also the
+			scheme used to render by default. The active scheme is set one of
+			two ways - either by calling Viewport::setMaterialScheme, or
+			by manually calling MaterialManager::setActiveScheme.
+		*/
+		void setSchemeName(const String& schemeName);
+		/** Returns the scheme to which this technique is assigned.
+			@see Technique::setSchemeName
+		*/
+		const String& getSchemeName(void) const;
+		
+		/// Internal method for getting the scheme index
+		unsigned short _getSchemeIndex(void) const;
+		   	
         /** Is depth writing going to occur on this technique? */
         bool isDepthWriteEnabled(void) const;
 

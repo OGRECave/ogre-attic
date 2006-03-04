@@ -2228,7 +2228,7 @@ namespace Ogre
 		// Clear the viewport if required
 		if( mActiveViewport->getClearEveryFrame() )
 		{
-            clearFrameBuffer(FBT_COLOUR | FBT_DEPTH, 
+            clearFrameBuffer(mActiveViewport->getClearBuffers(), 
                 mActiveViewport->getBackgroundColour());
 		}
 

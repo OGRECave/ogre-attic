@@ -93,10 +93,18 @@ namespace Ogre {
         void applyDefaults(void);
 
         typedef std::vector<Technique*> Techniques;
+		/// All techniques, supported and unsupported
         Techniques mTechniques;
+		/// Supported techniques of any sort
         Techniques mSupportedTechniques;
-        typedef std::map<unsigned short, Technique*> BestTechniqueList;
-        BestTechniqueList mBestTechniqueList;
+        typedef std::multimap<unsigned short, Technique*> BestTechniquesByLODList;
+		/** Map of LOD -> possibly many supported techniques, each one should
+			have an assigned 'scheme'. Current scheme is set on MaterialManager,
+			and can be set per Viewport for auto activation.
+		*/
+        BestTechniquesByLODList mBestTechniqueByLODList;
+		/// Actual number of LOD levels contained in techniques
+		unsigned short mNumActualLodLevels;
 
         LodDistanceList mLodDistances;
         bool mReceiveShadows;
@@ -217,7 +225,7 @@ namespace Ogre {
             Note that this will not be up to date until the material has been compiled.
         */
         unsigned short getNumLodLevels(void) const { 
-            return static_cast<unsigned short>(mBestTechniqueList.size()); }
+            return mNumActualLodLevels; }
 
         /** Gets the best supported technique. 
         @remarks

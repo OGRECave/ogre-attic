@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 10 2006 by texi2html 1.64 -->
+<!-- Created on , 4 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC160"></A>
+<A NAME="SEC166"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_27.html#SEC152"> &lt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_27.html#SEC158"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_13.html#SEC22"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_29.html#SEC167"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_29.html#SEC172"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,19 +35,19 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H2> 3.3 Overlay Scripts </H2>
-<!--docid::SEC160::-->
+<!--docid::SEC166::-->
 
 Overlay scripts offer you the ability to define overlays in a script which can be reused easily. Whilst you could set up all overlays for a scene in code using the methods of the SceneManager, Overlay and OverlayElement classes, in practice it's a bit unwieldy. Instead you can store overlay definitions in text files which can then be loaded whenever required.<BR><BR>
 
-<A NAME="SEC161"></A>
+<A NAME="SEC167"></A>
 <H2> Loading scripts   </H2>
-<!--docid::SEC161::-->
+<!--docid::SEC167::-->
 
 Overlay scripts are loaded at initialisation time by the system: by default it looks in all common resource locations (see Root::addResourceLocation) for files with the '.overlay' extension and parses them. If you want to parse files with a different extension, use the OverlayManager::getSingleton().parseAllSources method with your own extension, or if you want to parse an individual file, use OverlayManager::getSingleton().parseScript.<BR><BR>
 
-<A NAME="SEC162"></A>
+<A NAME="SEC168"></A>
 <H2> Format   </H2>
-<!--docid::SEC162::-->
+<!--docid::SEC168::-->
 
 Several overlays may be defined in a single script. The script format is pseudo-C++, with sections delimited by curly braces ({}), comments indicated by starting a line with '//' (note, no nested form comments allowed), and inheritance through the use of templates. The general format is shown below in a typical example:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>// The name of the overlay comes first
@@ -81,9 +81,9 @@ The above example defines a single overlay called 'MyOverlays/ANewOverlay', with
 
 Every overlay in the script must be given a name, which is the line before the first opening '{'. This name must be globally unique. It can include path characters (as in the example) to logically divide up your overlays, and also to avoid duplicate names, but the engine does not treat the name a hierarchical, just as a string. Within the braces are the properties of the overlay, and any nested elements. The overlay itself only has a single property 'zorder' which determines how'high' it is in the stack of overlays if more than one is displayed at the same time. Overlays with higher zorder values are displayed on top.<BR><BR>
 
-<A NAME="SEC163"></A>
+<A NAME="SEC169"></A>
 <H2> Adding elements to the overlay </H2>
-<!--docid::SEC163::-->
+<!--docid::SEC169::-->
 
 Within an overlay, you can include any number of 2D or 3D elements. You do this by defining a nested block headed by:
 <DL COMPACT>
@@ -91,15 +91,13 @@ Within an overlay, you can include any number of 2D or 3D elements. You do this 
 <DD>if you want to define a 2D element which cannot have children of it's own
 <DT>'container'
 <DD>if you want to define a 2D container object (which may itself have nested containers or elements)
-<DT>'entity'
-<DD>if you want to include a 3D element (can only occur directly under the overlay, not under a 2D element)
 </DL>
 <BR>
 The element and container blocks are pretty identical apart from their ability to store nested blocks.
 
-<A NAME="SEC164"></A>
+<A NAME="SEC170"></A>
 <H2> 'container' / 'element' blocks </H2>
-<!--docid::SEC164::-->
+<!--docid::SEC170::-->
 
 These are delimited by curly braces. The format for the header preceding the first brace is:<BR><BR>
 
@@ -117,52 +115,31 @@ These are delimited by curly braces. The format for the header preceding the fir
 The properties which can be included within the braces depend on the custom type. However the following are always valid:
 <UL>
 <LI>
-<A HREF="manual_29.html#SEC168">metrics_mode</A>
+<A HREF="manual_29.html#SEC173">metrics_mode</A>
 <LI>
-<A HREF="manual_29.html#SEC169">horz_align</A>
+<A HREF="manual_29.html#SEC174">horz_align</A>
 <LI>
-<A HREF="manual_29.html#SEC170">vert_align</A>
+<A HREF="manual_29.html#SEC175">vert_align</A>
 <LI>
-<A HREF="manual_29.html#SEC171">left</A>
+<A HREF="manual_29.html#SEC176">left</A>
 <LI>
-<A HREF="manual_29.html#SEC172">top</A>
+<A HREF="manual_29.html#SEC177">top</A>
 <LI>
-<A HREF="manual_29.html#SEC173">width</A>
+<A HREF="manual_29.html#SEC178">width</A>
 <LI>
-<A HREF="manual_29.html#SEC174">height</A>
+<A HREF="manual_29.html#SEC179">height</A>
 <LI>
 <A HREF="manual_29.html#overlay_material">material</A>
 <LI>
-<A HREF="manual_29.html#SEC176">caption</A>
+<A HREF="manual_29.html#SEC181">caption</A>
 </UL>
 
-<A NAME="SEC165"></A>
-<H3> 'entity' blocks </H3>
-<!--docid::SEC165::-->
 
-These are delimited by curly braces. The format for the header preceding the first brace is:<BR><BR>
-
-entity &#60;mesh_name&#62; ( &#60;entity_name&#62;)<BR>
-{ ...<BR><BR>
-
-<DL COMPACT>
-<DT>mesh_name
-<DD>The name of a .mesh file defining the entity geometry
-<DT>entity_name
-<DD>The name to give the entity created, must be unique to this entity.
-<DT>position
-<DD>The position of the entity, as an x, y, z triple.
-<DT>rotation
-<DD>The rotation of the entity, expressed as &#60;angle_in_degrees&#62; &#60;axis_x&#62; &#60;axis_y&#62; &#60;axis_z&#62;
-</DL>
-
-This is treated like any other Entity, See section <A HREF="manual_10.html#SEC13">2.6 Entities</A>.
-
-<A NAME="SEC166"></A>
+<A NAME="SEC171"></A>
 <H2> Templates </H2>
-<!--docid::SEC166::-->
+<!--docid::SEC171::-->
 
-You can use templates to create numerous elements with the same properties. A template is an abstract element and it is not added to an overlay. It acts as a base class that elements can inherit and get its default properties. To create a template, the keyword 'template' must be the first word in the element definition (before container, element, or entity). The template element is created in the topmost scope - it is NOT specified in an Overlay. It is recommended that you define templates in a separate overlay though this is not essential. Having templates defined in a separate file will allow different look &#38; feels to be easily substituted.<BR><BR>
+You can use templates to create numerous elements with the same properties. A template is an abstract element and it is not added to an overlay. It acts as a base class that elements can inherit and get its default properties. To create a template, the keyword 'template' must be the first word in the element definition (before container or element). The template element is created in the topmost scope - it is NOT specified in an Overlay. It is recommended that you define templates in a separate overlay though this is not essential. Having templates defined in a separate file will allow different look &#38; feels to be easily substituted.<BR><BR>
 
 Elements can inherit a template in a similar way to C++ inheritance - by using the : operator on the element definition. The : operator is placed after the closing bracket of the name (separated by a space). The name of the template to inherit is then placed after the : operator (also separated by a space).<BR><BR>
 
@@ -240,14 +217,14 @@ MyOverlays/AnotherOverlay
 
 Also note that the instantiate of a Button needs a template name for the caption attribute. So templates can also be used by elements that need dynamic creation of children elements (the button creates a TextAreaElement in this case for its caption).<BR><BR>
 
-See section <A HREF="manual_29.html#SEC167">3.3.1 OverlayElement Attributes</A>, <A HREF="manual_30.html#SEC178">3.3.2 Standard OverlayElements</A>
+See section <A HREF="manual_29.html#SEC172">3.3.1 OverlayElement Attributes</A>, <A HREF="manual_30.html#SEC183">3.3.2 Standard OverlayElements</A>
 
 <A NAME="OverlayElement Attributes"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_27.html#SEC152"> &lt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_27.html#SEC158"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_13.html#SEC22"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_29.html#SEC167"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_29.html#SEC172"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -256,7 +233,7 @@ See section <A HREF="manual_29.html#SEC167">3.3.1 OverlayElement Attributes</A>,
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 10 2006</I>
+by <I>Steve Streeting</I> on <I>, 4 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
