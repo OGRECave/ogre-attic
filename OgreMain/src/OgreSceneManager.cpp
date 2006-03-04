@@ -2939,6 +2939,8 @@ void SceneManager::setViewport(Viewport* vp)
     mCurrentViewport = vp;
     // Set viewport in render system
     mDestRenderSystem->_setViewport(vp);
+	// Set the active material scheme for this viewport
+	MaterialManager::getSingleton().setActiveScheme(vp->getMaterialScheme());
 }
 //---------------------------------------------------------------------
 void SceneManager::showBoundingBoxes(bool bShow) 

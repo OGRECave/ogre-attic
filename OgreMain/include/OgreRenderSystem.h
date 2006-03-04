@@ -84,13 +84,6 @@ namespace Ogre
         SOP_INVERT
     };
 
-    /** Defines the frame buffers which can be cleared. */
-    enum FrameBufferType {
-        FBT_COLOUR  = 0x1,
-        FBT_DEPTH   = 0x2,
-        FBT_STENCIL = 0x4
-    };
-    
     /** Defines the functionality of a 3D API
         @remarks
             The RenderSystem class provides a base interface

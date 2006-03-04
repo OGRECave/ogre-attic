@@ -415,7 +415,17 @@ To help clearly identify what each technique is used for, the technique can be n
 
 Format: technique name@*@*
 
-Techniques have only one attribute of their own, which indicates which LOD index they belong to (@xref{lod_index}). We also mention an extra Material attribute called @ref{lod_distances} which isn't a Technique attribute but is directly related to the lod_index attribute, so it's listed here for convenience.@*@*
+Techniques have only a small number of attributes of their own, the 'scheme'(@xref{scheme})  they belong to, and the LOD index within that scheme (@xref{lod_index}). We also mention an extra Material attribute called @ref{lod_distances} which isn't a Technique attribute but is directly related to the lod_index attribute, so it's listed here for convenience.@*@*
+
+@anchor{scheme}
+@subheading scheme
+
+Sets the 'scheme' this Technique belongs to. Material schemes are used to control top-level switching from one set of techniques to another. For example, you might use this to define 'high', 'medium' and 'low' complexity levels on materials to allow a user to pick a performance / quality ratio. Another possibility is that you have a fully HDR-enabled pipeline for top machines, rendering all objects using unclamped shaders, and a simpler pipeline for others; this can be implemented using schemes. The active scheme is typically controlled at a viewport level, and the active one defaults to 'Default'.@*@*
+
+Format: scheme <name>@*
+Example: scheme hdr@*
+Default: scheme Default@*@*
+
 
 @anchor{lod_index}
 @subheading lod_index

@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCamera.h"
 #include "OgreMath.h"
 #include "OgreRoot.h"
+#include "OgreMaterialManager.h"
 
 
 namespace Ogre {
@@ -45,11 +46,13 @@ namespace Ogre {
         , mZOrder(ZOrder)
         , mBackColour(ColourValue::Black)
         , mClearEveryFrame(true)
+		, mClearBuffers(0xFF)
         , mUpdated(false)
         , mShowOverlays(true)
         , mShowSkies(true)
 		, mShowShadows(true)
 		, mRQSequence(0)
+		, mMaterialSchemeName(MaterialManager::DEFAULT_SCHEME_NAME)
     {
 
 		StringUtil::StrStreamType msg;
@@ -198,14 +201,20 @@ namespace Ogre {
         return mBackColour;
     }
     //---------------------------------------------------------------------
-    void Viewport::setClearEveryFrame(bool clear)
+    void Viewport::setClearEveryFrame(bool clear, unsigned int buffers)
     {
         mClearEveryFrame = clear;
+		mClearBuffers = buffers;
     }
     //---------------------------------------------------------------------
     bool Viewport::getClearEveryFrame(void) const
     {
         return mClearEveryFrame;
+    }
+    //---------------------------------------------------------------------
+    unsigned int Viewport::getClearBuffers(void) const
+    {
+        return mClearBuffers;
     }
     //---------------------------------------------------------------------
     void Viewport::getActualDimensions(int &left, int&top, int &width, int &height) const

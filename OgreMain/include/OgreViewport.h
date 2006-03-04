@@ -169,19 +169,39 @@ namespace Ogre {
         const ColourValue& getBackgroundColour(void) const;
 
         /** Determines whether to clear the viewport before rendering.
-            @remarks
-                If you expecting every pixel on the viewport to be redrawn
-                every frame, you can save a little time by not clearing the
-                viewport before every frame. Do so by passing 'false' to this
-                method (the default is to clear every frame).
+		@remarks
+			You can use this method to set which buffers are cleared
+			(if any) before rendering every frame.
+        @param clear Whether or not to clear any buffers
+		@param buffers One or more values from FrameBufferType denoting
+			which buffers to clear, if clear is set to true. Note you should
+			not clear the stencil buffer here unless you know what you're doing.
          */
-        void setClearEveryFrame(bool clear);
+        void setClearEveryFrame(bool clear, unsigned int buffers = FBT_COLOUR | FBT_DEPTH);
 
         /** Determines if the viewport is cleared before every frame.
         */
         bool getClearEveryFrame(void) const;
 
-        /** Access to actual dimensions (based on target size).
+		/** Gets which buffers are to be cleared each frame. */
+        unsigned int getClearBuffers(void) const;
+
+		/** Set the material scheme which the viewport should use.
+		@remarks
+			This allows you to tell the system to use a particular
+			material scheme when rendering this viewport, which can 
+			involve using different techniques to render your materials.
+		@see Technique::setSchemeName
+		*/
+		void setMaterialScheme(const String& schemeName)
+		{ mMaterialSchemeName = schemeName; }
+		
+		/** Get the material scheme which the viewport should use.
+		*/
+		const String& getMaterialScheme(void) const
+		{ return mMaterialSchemeName; }
+
+		/** Access to actual dimensions (based on target size).
         */
         void getActualDimensions(
             int &left, int &top, int &width, int &height ) const;
@@ -269,6 +289,7 @@ namespace Ogre {
         /// Background options
         ColourValue mBackColour;
         bool mClearEveryFrame;
+		unsigned int mClearBuffers;
         bool mUpdated;
         bool mShowOverlays;
         bool mShowSkies;
@@ -276,6 +297,8 @@ namespace Ogre {
 		// Render queue invocation sequence name
 		String mRQSequenceName;
 		RenderQueueInvocationSequence* mRQSequence;
+		/// Material scheme
+		String mMaterialSchemeName;
     };
 
 }

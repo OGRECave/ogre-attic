@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 10 2006 by texi2html 1.64 -->
+<!-- Created on , 4 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -27,7 +27,7 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC34"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC35"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -42,23 +42,35 @@ A "technique" section in your material script encapsulates a single method of re
 When a material is used for the first time, it is 'compiled'. That involves scanning the techniques which have been defined, and marking which of them are supportable using the current rendering API and graphics card. If no techniques are supportable, your material will render as blank white. The compilation examines a number of things, such as:
 <UL>
 <LI>The number of texture_unit entries in each pass<BR>
-Note that if the number of texture_unit entries exceeds the number of texture units in the current graphics card, the technique may still be supportable so long as a fragment program is not being used. In this case, Ogre will split the pass which has too many entries into multiple passes for the less capable card, and the multitexture blend will be turned into a multipass blend (See section <A HREF="manual_17.html#SEC73">colour_op_multipass_fallback</A>).
+Note that if the number of texture_unit entries exceeds the number of texture units in the current graphics card, the technique may still be supportable so long as a fragment program is not being used. In this case, Ogre will split the pass which has too many entries into multiple passes for the less capable card, and the multitexture blend will be turned into a multipass blend (See section <A HREF="manual_17.html#SEC75">colour_op_multipass_fallback</A>).
 <LI>Whether vertex or fragment programs are used, and if so which syntax they use (e.g. vs_1_1, ps_2_x, arbfp1 etc)
 <LI>Other effects like cube mapping and dot3 blending
 </UL>
 <BR>
 In a material script, techniques must be listed in order of preference, i.e. the earlier techniques are preferred over the later techniques. This normally means you will list your most advanced, most demanding techniques first in the script, and list fallbacks afterwards.<BR><BR>
 
-To help clearly identify what each technique is used for, the technique can be named but its optional.  Techniques not named within the script will take on a name that is the technique index number.  For example: the first technique in a material is index 0, its name would be "0" if it was not given a name in the script.  The technique name must be unqiue within the material or else the final technique is the resulting merge of all techniques with the same name in the material.  A warning message is posted in the Ogre.log if this occurs.  Named techniques can help when copying a material and modifying an existing technique: (See section <A HREF="manual_20.html#SEC102">3.1.6 Copying Materials</A>)<BR><BR>
+To help clearly identify what each technique is used for, the technique can be named but its optional.  Techniques not named within the script will take on a name that is the technique index number.  For example: the first technique in a material is index 0, its name would be "0" if it was not given a name in the script.  The technique name must be unqiue within the material or else the final technique is the resulting merge of all techniques with the same name in the material.  A warning message is posted in the Ogre.log if this occurs.  Named techniques can help when copying a material and modifying an existing technique: (See section <A HREF="manual_20.html#SEC106">3.1.6 Copying Materials</A>)<BR><BR>
 
 Format: technique name<BR><BR>
 
-Techniques have only one attribute of their own, which indicates which LOD index they belong to (See section <A HREF="manual_15.html#SEC32">lod_index</A>). We also mention an extra Material attribute called <A HREF="manual_15.html#lod_distances">lod_distances</A> which isn't a Technique attribute but is directly related to the lod_index attribute, so it's listed here for convenience.<BR><BR>
+Techniques have only a small number of attributes of their own, the 'scheme'(See section <A HREF="manual_15.html#SEC32">scheme</A>)  they belong to, and the LOD index within that scheme (See section <A HREF="manual_15.html#SEC33">lod_index</A>). We also mention an extra Material attribute called <A HREF="manual_15.html#lod_distances">lod_distances</A> which isn't a Technique attribute but is directly related to the lod_index attribute, so it's listed here for convenience.<BR><BR>
+
+<A NAME="scheme"></A>
+<A NAME="SEC32"></A>
+<H3> scheme </H3>
+<!--docid::SEC32::-->
+
+Sets the 'scheme' this Technique belongs to. Material schemes are used to control top-level switching from one set of techniques to another. For example, you might use this to define 'high', 'medium' and 'low' complexity levels on materials to allow a user to pick a performance / quality ratio. Another possibility is that you have a fully HDR-enabled pipeline for top machines, rendering all objects using unclamped shaders, and a simpler pipeline for others; this can be implemented using schemes. The active scheme is typically controlled at a viewport level, and the active one defaults to 'Default'.<BR><BR>
+
+Format: scheme &#60;name&#62;<BR>
+Example: scheme hdr<BR>
+Default: scheme Default<BR><BR>
+
 
 <A NAME="lod_index"></A>
-<A NAME="SEC32"></A>
+<A NAME="SEC33"></A>
 <H3> lod_index </H3>
-<!--docid::SEC32::-->
+<!--docid::SEC33::-->
 
 Sets the level-of-detail (LOD) index this Technique belongs to. <BR><BR>
 
@@ -73,12 +85,12 @@ The distance at which a LOD level is applied is determined by the lod_distances 
 Default: lod_index 0<BR><BR>
 
 <A NAME="lod_distances"></A>
-<A NAME="SEC33"></A>
+<A NAME="SEC34"></A>
 <H3> lod_distances  </H3>
-<!--docid::SEC33::-->
+<!--docid::SEC34::-->
 <STRONG>Note: this attribute must be specified in the outer material section (ie the parent of all the techniques), but it's specified here since it is most relevant to this section.</STRONG><BR><BR>
 
-By setting this attribute, you indicate that you want this material to alter the Technique that it uses based on distance from the camera. You must give it a list of distances, in ascending order, each one indicating the distance at which the material will switch to the next LOD. Implicitly, all materials activate LOD index 0 for distances less than the smallest of these. You must ensure that there is at least one Technique with a <A HREF="manual_15.html#SEC32">lod_index</A> value for each distance in the list (so if you specify 3 distances, you must have techniques for indexes 1, 2 and 3). Note you must always have at least one Technique at lod_index 0.<BR><BR>
+By setting this attribute, you indicate that you want this material to alter the Technique that it uses based on distance from the camera. You must give it a list of distances, in ascending order, each one indicating the distance at which the material will switch to the next LOD. Implicitly, all materials activate LOD index 0 for distances less than the smallest of these. You must ensure that there is at least one Technique with a <A HREF="manual_15.html#SEC33">lod_index</A> value for each distance in the list (so if you specify 3 distances, you must have techniques for indexes 1, 2 and 3). Note you must always have at least one Technique at lod_index 0.<BR><BR>
 
 Format: lod_distances &#60;distance_1&#62; [&#60;distance_2&#62; ... &#60;distance_n&#62;]<BR>
 
@@ -86,7 +98,7 @@ Example: lod_distances 300.0 600.5 1200<BR><BR>
 
 The above example would cause the material to use the best Technique at lod_index 0 up to a distance of 300 world units, the best from lod_index 1 from 300 up to 600, lod_index 2 from 600 to 1200, and lod_index 3 from 1200 upwards.<BR><BR>
 
-Techniques also contain one or more passes (and there must be at least one), See section <A HREF="manual_16.html#SEC34">3.1.2 Passes</A>.
+Techniques also contain one or more passes (and there must be at least one), See section <A HREF="manual_16.html#SEC35">3.1.2 Passes</A>.
 
 
 
@@ -95,7 +107,7 @@ Techniques also contain one or more passes (and there must be at least one), See
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC34"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC35"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -104,7 +116,7 @@ Techniques also contain one or more passes (and there must be at least one), See
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 10 2006</I>
+by <I>Steve Streeting</I> on <I>, 4 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 10 2006 by texi2html 1.64 -->
+<!-- Created on , 4 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC167"></A>
+<A NAME="SEC172"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC160"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC160"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_30.html#SEC178"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC166"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC166"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_30.html#SEC183"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,14 +35,14 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H3> 3.3.1 OverlayElement Attributes </H3>
-<!--docid::SEC167::-->
+<!--docid::SEC172::-->
 
 These attributes are valid within the braces of a 'container' or 'element' block in an overlay script. They must each be on their own line. Ordering is unimportant.<BR><BR>
 
 <A NAME="metrics_mode"></A>
-<A NAME="SEC168"></A>
+<A NAME="SEC173"></A>
 <H3> metrics_mode </H3>
-<!--docid::SEC168::-->
+<!--docid::SEC173::-->
 
 Sets the units which will be used to size and position this element.<BR><BR>
 
@@ -54,9 +54,9 @@ This can be used to change the way that all measurement attributes in the rest o
 Default: metrics_mode relative<BR>
 
 <A NAME="horz_align"></A>
-<A NAME="SEC169"></A>
+<A NAME="SEC174"></A>
 <H3> horz_align </H3>
-<!--docid::SEC169::-->
+<!--docid::SEC174::-->
 
 Sets the horizontal alignment of this element, in terms of where the horizontal origin is.<BR><BR>
 
@@ -70,9 +70,9 @@ Note that you can use this property in both relative and pixel modes, but it is 
 Default: horz_align left<BR>
 
 <A NAME="vert_align"></A>
-<A NAME="SEC170"></A>
+<A NAME="SEC175"></A>
 <H3> vert_align </H3>
-<!--docid::SEC170::-->
+<!--docid::SEC175::-->
 
 Sets the vertical alignment of this element, in terms of where the vertical origin is.<BR><BR>
 
@@ -86,9 +86,9 @@ Note that you can use this property in both relative and pixel modes, but it is 
 Default: vert_align top<BR>
 
 <A NAME="left"></A>
-<A NAME="SEC171"></A>
+<A NAME="SEC176"></A>
 <H3> left </H3>
-<!--docid::SEC171::-->
+<!--docid::SEC176::-->
 
 Sets the horizontal position of the element relative to it's parent.<BR><BR>
 
@@ -100,9 +100,9 @@ Positions are relative to the parent (the top-left of the screen if the parent i
 Default: left 0<BR>
 
 <A NAME="top"></A>
-<A NAME="SEC172"></A>
+<A NAME="SEC177"></A>
 <H3> top </H3>
-<!--docid::SEC172::-->
+<!--docid::SEC177::-->
 
 Sets the vertical position of the element relative to it's parent.<BR><BR>
 
@@ -114,9 +114,9 @@ Positions are relative to the parent (the top-left of the screen if the parent i
 Default: top 0<BR>
 
 <A NAME="width"></A>
-<A NAME="SEC173"></A>
+<A NAME="SEC178"></A>
 <H3> width </H3>
-<!--docid::SEC173::-->
+<!--docid::SEC178::-->
 
 Sets the width of the element as a proportion of the size of the screen.<BR><BR>
 
@@ -128,9 +128,9 @@ Sizes are relative to the size of the screen, so 0.25 is a quarter of the screen
 Default: width 1<BR>
 
 <A NAME="height"></A>
-<A NAME="SEC174"></A>
+<A NAME="SEC179"></A>
 <H3> height </H3>
-<!--docid::SEC174::-->
+<!--docid::SEC179::-->
 
 Sets the height of the element as a proportion of the size of the screen.<BR><BR>
 
@@ -142,9 +142,9 @@ Sizes are relative to the size of the screen, so 0.25 is a quarter of the screen
 Default: height 1<BR>
 
 <A NAME="overlay_material"></A>
-<A NAME="SEC175"></A>
+<A NAME="SEC180"></A>
 <H3> material  </H3>
-<!--docid::SEC175::-->
+<!--docid::SEC180::-->
 
 Sets the name of the material to use for this element.<BR><BR>
 
@@ -152,13 +152,14 @@ Format: material &#60;name&#62;<BR>
 Example: material Examples/TestMaterial<BR><BR>
 
 This sets the base material which this element will use. Each type of element may interpret this differently; for example the OGRE element 'Panel' treats this as the background of the panel, whilst 'BorderPanel' interprets this as the material for the center area only. Materials should be defined in .material scripts.<BR><BR>
+Note that using a material in an overlay element automatically disables lighting and depth checking on this material. Therefore you should not use the same material as is used for real 3D objects for an overlay.<BR><BR>
 
 Default: none<BR>
 
 <A NAME="caption"></A>
-<A NAME="SEC176"></A>
+<A NAME="SEC181"></A>
 <H3> caption </H3>
-<!--docid::SEC176::-->
+<!--docid::SEC181::-->
 
 Sets a text caption for the element.<BR><BR>
 
@@ -171,9 +172,9 @@ Default: blank<BR>
 
 
 <A NAME="rotation"></A>
-<A NAME="SEC177"></A>
+<A NAME="SEC182"></A>
 <H3> rotation </H3>
-<!--docid::SEC177::-->
+<!--docid::SEC182::-->
 
 Sets the rotation of the element.<BR><BR>
 
@@ -185,9 +186,9 @@ Default: none
 <A NAME="Standard OverlayElements"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC160"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC160"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_30.html#SEC178"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC166"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC166"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_30.html#SEC183"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -196,7 +197,7 @@ Default: none
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 10 2006</I>
+by <I>Steve Streeting</I> on <I>, 4 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

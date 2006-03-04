@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 10 2006 by texi2html 1.64 -->
+<!-- Created on , 4 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC194"></A>
+<A NAME="SEC199"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_38.html#SEC193"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_36.html#SEC191"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_40.html#SEC195"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_38.html#SEC198"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_36.html#SEC196"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_40.html#SEC200"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,7 +35,7 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H2> 5.3 Shadow Buffers </H2>
-<!--docid::SEC194::-->
+<!--docid::SEC199::-->
 As discussed in the previous section, reading data back from a hardware buffer performs very badly. However, if you have a cast-iron need to read the contents of the vertex buffer, you should set the 'shadowBuffer' parameter of createVertexBuffer or createIndexBuffer to 'true'. This causes the hardware buffer to be backed with a system memory copy, which you can read from with no more penalty than reading ordinary memory. The catch is that when you write data into this buffer, it will first update the system memory copy, then it will update the hardware buffer, as separate copying process - therefore this technique has an additional overhead when writing data. Don't use it unless you really need it.
 
 <A NAME="Locking buffers"></A>
@@ -43,7 +43,7 @@ As discussed in the previous section, reading data back from a hardware buffer p
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 10 2006</I>
+by <I>Steve Streeting</I> on <I>, 4 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

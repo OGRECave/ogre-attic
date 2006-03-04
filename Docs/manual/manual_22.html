@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 10 2006 by texi2html 1.64 -->
+<!-- Created on , 4 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC111"></A>
+<A NAME="SEC115"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC107"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC107"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC127"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC111"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC111"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC133"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,13 +35,13 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H3> 3.2.1 Particle System Attributes </H3>
-<!--docid::SEC111::-->
+<!--docid::SEC115::-->
 This section describes to attributes which you can set on every particle system using scripts. All atributes have default values so all settings are optional in your script.<BR><BR>
 
 <A NAME="quota"></A>
-<A NAME="SEC112"></A>
+<A NAME="SEC116"></A>
 <H3> quota </H3>
-<!--docid::SEC112::-->
+<!--docid::SEC116::-->
 
 Sets the maximum number of particles this system is allowed to contain at one time. When this limit is exhausted, the emitters will not be allowed to emit any more particles until some destroyed (e.g. through their time_to_live running out). Note that you will almost always want to change this, since it defaults to a very low value (particle pools are only ever increased in size, never decreased).<BR><BR>
 
@@ -50,9 +50,9 @@ example: quota 10000<BR>
 default: 10<BR>
 
 <A NAME="particle_material"></A>
-<A NAME="SEC113"></A>
+<A NAME="SEC117"></A>
 <H3> material </H3>
-<!--docid::SEC113::-->
+<!--docid::SEC117::-->
 
 Sets the name of the material which all particles in this system will use. All paticles in a system use the same material, although each particle can tint this material through the use of it's colour property.<BR><BR>
 
@@ -61,9 +61,9 @@ example: material Examples/Flare<BR>
 default: none (blank material)<BR>
 
 <A NAME="particle_width"></A>
-<A NAME="SEC114"></A>
+<A NAME="SEC118"></A>
 <H3> particle_width </H3>
-<!--docid::SEC114::-->
+<!--docid::SEC118::-->
 
 Sets the width of particles in world coordinates. Note that this property is absolute when billboard_type (see below) is set to 'point' or 'perpendicular_self', but is scaled by the length of the direction vector when billboard_type is 'oriented_common', 'oriented_self' or 'perpendicular_common'.<BR>
 
@@ -72,9 +72,9 @@ example: particle_width 20<BR>
 default: 100<BR>
 
 <A NAME="particle_height"></A>
-<A NAME="SEC115"></A>
+<A NAME="SEC119"></A>
 <H3> particle_height </H3>
-<!--docid::SEC115::-->
+<!--docid::SEC119::-->
 
 Sets the height of particles in world coordinates. Note that this property is absolute when billboard_type (see below) is set to 'point' or 'perpendicular_self', but is scaled by the length of the direction vector when billboard_type is 'oriented_common', 'oriented_self' or 'perpendicular_common'.<BR>
 
@@ -83,9 +83,9 @@ example: particle_height 20<BR>
 default: 100<BR>
 
 <A NAME="cull_each"></A>
-<A NAME="SEC116"></A>
+<A NAME="SEC120"></A>
 <H3> cull_each </H3>
-<!--docid::SEC116::-->
+<!--docid::SEC120::-->
 
 All particle systems are culled by the bounding box which contains all the particles in the system. This is normally sufficient for fairly locally constrained particle systems where most particles are either visible or not visible together. However, for those that spread particles over a wider area (e.g. a rain system), you may want to actually cull each particle individually to save on time, since it is far more likely that only a subset of the particles will be visible. You do this by setting the cull_each parameter to true.<BR><BR>
 
@@ -94,9 +94,9 @@ example: cull_each true<BR>
 default: false<BR>
 
 <A NAME="particle_renderer"></A>
-<A NAME="SEC117"></A>
+<A NAME="SEC121"></A>
 <H3> renderer </H3>
-<!--docid::SEC117::-->
+<!--docid::SEC121::-->
 
 Particle systems do not render themselves, they do it through ParticleRenderer classes. Those classes are registered with a manager in order to provide particle systems with a particular 'look'. OGRE comes configured with a default billboard-based renderer, but more can be added through plugins. Particle renders are registered with a unique name, and you can use that name in this attribute to determine the renderer to use. The default is 'billboard'.<BR><BR>
 
@@ -106,9 +106,9 @@ format: renderer &#60;renderer_name&#62;<BR>
 default: billboard<BR>
 
 <A NAME="particle_sorted"></A>
-<A NAME="SEC118"></A>
+<A NAME="SEC122"></A>
 <H3> sorted </H3>
-<!--docid::SEC118::-->
+<!--docid::SEC122::-->
 
 By default, particles are not sorted. By setting this attribute to 'true', theparticles will be sorted with respect to the camera, furthest first. This can make certain rendering effects look better at a small sorting expense.<BR><BR>
 
@@ -116,9 +116,9 @@ format: sorted &#60;true|false&#62;<BR>
 default: false<BR>
 
 <A NAME="particle_localspace"></A>
-<A NAME="SEC119"></A>
+<A NAME="SEC123"></A>
 <H3> local_space </H3>
-<!--docid::SEC119::-->
+<!--docid::SEC123::-->
 
 By default, particles are emitted into world space, such that if you transform the node to which the system is attached, it will not affect the particles (only the emitters). This tends to give the normal expected behaviour, which is to model how real world particles travel independently from the objects they are emitted from. However, to create some effects you may want the particles to remain attached to the local space the emitter is in and to follow them directly. This option allows you to do that.<BR><BR>
 
@@ -126,9 +126,9 @@ format: local_space &#60;true|false&#62;<BR>
 default: false<BR>
 
 <A NAME="billboard_type"></A>
-<A NAME="SEC120"></A>
+<A NAME="SEC124"></A>
 <H3> billboard_type </H3>
-<!--docid::SEC120::-->
+<!--docid::SEC124::-->
 
 This is actually an attribute of the 'billboard' particle renderer (the default), and is an example of passing attributes to a particle renderer by declaring them directly within the system declaration. Particles using the default renderer are rendered using billboards, which are rectangles formed by 2 triangles which rotate to face the given direction. However, there is more than 1 way to orient a billboard. The classic approach is for the billboard to directly face the camera: this is the default behaviour. However this arrangement only looks good for particles which are representing something vaguely spherical like a light flare. For more linear effectd like laser fire, you actually want the particle to have an orientation of it's own.<BR><BR>
 
@@ -141,19 +141,19 @@ The options for this parameter are:
 <DT>point
 <DD>	The default arrangement, this approximates spherical particles and the billboards always fully face the camera.
 <DT>oriented_common
-<DD>	Particles are oriented around a common, typically fixed direction vector (see <A HREF="manual_22.html#SEC123">common_direction</A>), which acts as their local Y axis. The billboard rotates only around this axis, giving the particle some sense of direction. Good for rainstorms, starfields etc where the particles will travelling in one direction - this is slightly faster than oriented_self (see below).
+<DD>	Particles are oriented around a common, typically fixed direction vector (see <A HREF="manual_22.html#SEC127">common_direction</A>), which acts as their local Y axis. The billboard rotates only around this axis, giving the particle some sense of direction. Good for rainstorms, starfields etc where the particles will travelling in one direction - this is slightly faster than oriented_self (see below).
 <DT>oriented_self
 <DD>	Particles are oriented around their own direction vector, which acts as their local Y axis. As the particle changes direction, so the billboard reorients itself to face this way. Good for laser fire, fireworks and other 'streaky' particles that should look like they are travelling in their own direction.
 <DT>perpendicular_common
-<DD>	Particles are perpendicular to a common, typically fixed direction vector (see <A HREF="manual_22.html#SEC123">common_direction</A>), which acts as their local Z axis, and their local Y axis coplanar with common direction and the common up vector (see <A HREF="manual_22.html#SEC124">common_up_vector</A>). The billboard never rotates to face the camera, you might use double-side material to ensure particles never culled by back-facing. Good for aureolas, rings etc where the particles will perpendicular to the ground - this is slightly faster than perpendicular_self (see below).
+<DD>	Particles are perpendicular to a common, typically fixed direction vector (see <A HREF="manual_22.html#SEC127">common_direction</A>), which acts as their local Z axis, and their local Y axis coplanar with common direction and the common up vector (see <A HREF="manual_22.html#SEC128">common_up_vector</A>). The billboard never rotates to face the camera, you might use double-side material to ensure particles never culled by back-facing. Good for aureolas, rings etc where the particles will perpendicular to the ground - this is slightly faster than perpendicular_self (see below).
 <DT>perpendicular_self
-<DD>	Particles are perpendicular to their own direction vector, which acts as their local Z axis, and their local Y axis coplanar with their own direction vector and the common up vector (see <A HREF="manual_22.html#SEC124">common_up_vector</A>). The billboard never rotates to face the camera, you might use double-side material to ensure particles never culled by back-facing. Good for rings stack etc where the particles will perpendicular to their travelling direction.
+<DD>	Particles are perpendicular to their own direction vector, which acts as their local Z axis, and their local Y axis coplanar with their own direction vector and the common up vector (see <A HREF="manual_22.html#SEC128">common_up_vector</A>). The billboard never rotates to face the camera, you might use double-side material to ensure particles never culled by back-facing. Good for rings stack etc where the particles will perpendicular to their travelling direction.
 </DL>
 
 <A NAME="billboard_origin"></A>
-<A NAME="SEC121"></A>
+<A NAME="SEC125"></A>
 <H3> billboard_origin </H3>
-<!--docid::SEC121::-->
+<!--docid::SEC125::-->
 
 Specifying the point which acts as the origin point for all billboard particles, controls the fine tuning of where a billboard particle appears in relation to it's position.<BR><BR>
 
@@ -184,9 +184,9 @@ The options for this parameter are:
 </DL>
 
 <A NAME="billboard_rotation_type"></A>
-<A NAME="SEC122"></A>
+<A NAME="SEC126"></A>
 <H3> billboard_rotation_type </H3>
-<!--docid::SEC122::-->
+<!--docid::SEC126::-->
 
 By default, billboard particles will rotate the texture coordinates to according with particle rotation. But rotate texture coordinates has some disadvantage, e.g. the corners of the texture will lost after rotate, and the corners of the billboard will fill with unwant texture area when using wrap address mode or sub-texture sampling. This settings allow you specifying other rotation type.<BR><BR>
 
@@ -203,35 +203,35 @@ The options for this parameter are:
 </DL>
 
 <A NAME="common_direction"></A>
-<A NAME="SEC123"></A>
+<A NAME="SEC127"></A>
 <H3> common_direction </H3>
-<!--docid::SEC123::-->
+<!--docid::SEC127::-->
 
-Only required if <A HREF="manual_22.html#SEC120">billboard_type</A> is set to oriented_common or perpendicular_common, this vector is the common direction vector used to orient all particles in the system.<BR><BR>
+Only required if <A HREF="manual_22.html#SEC124">billboard_type</A> is set to oriented_common or perpendicular_common, this vector is the common direction vector used to orient all particles in the system.<BR><BR>
 
 format: common_direction &#60;x&#62; &#60;y&#62; &#60;z&#62;<BR>
 example: common_direction 0 -1 0<BR>
 default: 0 0 1<BR>
 <BR><BR>
-See also: <A HREF="manual_23.html#SEC127">3.2.2 Particle Emitters</A>, <A HREF="manual_26.html#SEC151">3.2.5 Particle Affectors</A>
+See also: <A HREF="manual_23.html#SEC133">3.2.2 Particle Emitters</A>, <A HREF="manual_26.html#SEC157">3.2.5 Particle Affectors</A>
 
 <A NAME="common_up_vector"></A>
-<A NAME="SEC124"></A>
+<A NAME="SEC128"></A>
 <H3> common_up_vector </H3>
-<!--docid::SEC124::-->
+<!--docid::SEC128::-->
 
-Only required if <A HREF="manual_22.html#SEC120">billboard_type</A> is set to perpendicular_self or perpendicular_common, this vector is the common up vector used to orient all particles in the system.<BR><BR>
+Only required if <A HREF="manual_22.html#SEC124">billboard_type</A> is set to perpendicular_self or perpendicular_common, this vector is the common up vector used to orient all particles in the system.<BR><BR>
 
 format: common_up_vector &#60;x&#62; &#60;y&#62; &#60;z&#62;<BR>
 example: common_up_vector 0 1 0<BR>
 default: 0 1 0<BR>
 <BR><BR>
-See also: <A HREF="manual_23.html#SEC127">3.2.2 Particle Emitters</A>, <A HREF="manual_26.html#SEC151">3.2.5 Particle Affectors</A>
+See also: <A HREF="manual_23.html#SEC133">3.2.2 Particle Emitters</A>, <A HREF="manual_26.html#SEC157">3.2.5 Particle Affectors</A>
 
 <A NAME="particle_point_rendering"></A>
-<A NAME="SEC125"></A>
+<A NAME="SEC129"></A>
 <H3> point_rendering </H3>
-<!--docid::SEC125::-->
+<!--docid::SEC129::-->
 
 This is actually an attribute of the 'billboard' particle renderer (the default), and sets whether or not the billboardset will use point rendering rather than manually generated quads.<BR><BR>
 
@@ -240,7 +240,7 @@ By default a billboardset is rendered by generating geometry for a textured quad
 Using point rendering is faster than generating quads manually, but	is more restrictive. The following restrictions apply:
 <UL>
 <LI>Only the 'point' orientation type is supported
-<LI>Size and appearance of each particle is controlled by the material pass (<A HREF="manual_16.html#SEC54">point_size</A>, <A HREF="manual_16.html#SEC56">point_size_attenuation</A>, <A HREF="manual_16.html#SEC55">point_sprites</A>)
+<LI>Size and appearance of each particle is controlled by the material pass (<A HREF="manual_16.html#SEC56">point_size</A>, <A HREF="manual_16.html#SEC58">point_size_attenuation</A>, <A HREF="manual_16.html#SEC57">point_sprites</A>)
 <LI>Per-particle size is not supported (stems from the above)
 <LI>Per-particle rotation is not supported, and this can only be controlled through texture unit rotation in the material definition
 <LI>Only 'center' origin is supported
@@ -250,19 +250,47 @@ You will almost certainly want to enable in your material pass both point attenu
 
 
 <A NAME="particle_accurate_facing"></A>
-<A NAME="SEC126"></A>
+<A NAME="SEC130"></A>
 <H3> accurate_facing </H3>
-<!--docid::SEC126::-->
+<!--docid::SEC130::-->
 
-This is actually an attribute of the 'billboard' particle renderer (the default), and sets whether or not the billboardset will use a slower but more accurate calculation for facing the billboard to the camera. Bt default it uses the camera direction, which is faster but means the billboards don't stay in the same orientation as you rotate the camera. The 'accurate_facing true' option makes the calculation based on a vector from each billboard to the camera, which means the orientation is constant even whilst the camera rotates. 
+This is actually an attribute of the 'billboard' particle renderer (the default), and sets whether or not the billboardset will use a slower but more accurate calculation for facing the billboard to the camera. Bt default it uses the camera direction, which is faster but means the billboards don't stay in the same orientation as you rotate the camera. The 'accurate_facing true' option makes the calculation based on a vector from each billboard to the camera, which means the orientation is constant even whilst the camera rotates. <BR><BR>
 
+format: accurate_facing on|off<BR>
+default: accurate_facing off 0<BR>
+<BR><BR>
+
+
+<A NAME="iteration_interval"></A>
+<A NAME="SEC131"></A>
+<H3> iteration_interval </H3>
+<!--docid::SEC131::-->
+Usually particle systems are updated based on the frame rate; however this can give variable results with more extreme frame rate ranges, particularly at lower frame rates. You can use this option to make the update frequency a fixed interval, whereby at lower frame rates, the particle update will be repeated at the fixed interval until the frame time is used up. A value of 0 means the default frame time iteration. <BR><BR>
+
+format: iteration_interval &#60;secs&#62;<BR>
+example: iteration_interval 0.01<BR>
+default: iteration_interval 0<BR>
+<BR><BR>
+
+<A NAME="nonvisible_update_timeout"></A>
+<A NAME="SEC132"></A>
+<H3> nonvisible_update_timeout </H3>
+<!--docid::SEC132::-->
+Sets when the particle system should stop updating after it hasn't been visible for a while. By default, visible particle systems update all the time, even when not in view. This means that they are guaranteed to be consistent when they do enter view. However, this comes at a cost, updating particle systems can be expensive, especially if they are perpetual. 
+<BR><BR>
+This option lets you set a 'timeout' on the particle system, so that if it isn't visible for this amount of time, it will stop updating	until it is next visible. A value of 0 disables the timeout and always updates.<BR><BR>
+
+format: nonvisible_update_timeout &#60;secs&#62;<BR>
+example: nonvisible_update_timeout 10<BR>
+default: nonvisible_update_timeout 0<BR>
+<BR><BR>
 
 <A NAME="Particle Emitters"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC107"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC107"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC127"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC111"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC111"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC133"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -271,7 +299,7 @@ This is actually an attribute of the 'billboard' particle renderer (the default)
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 10 2006</I>
+by <I>Steve Streeting</I> on <I>, 4 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

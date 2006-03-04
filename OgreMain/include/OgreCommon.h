@@ -227,6 +227,14 @@ namespace Ogre {
         SM_DISTANCE
     };
 
+    /** Defines the frame buffer types. */
+    enum FrameBufferType {
+        FBT_COLOUR  = 0x1,
+        FBT_DEPTH   = 0x2,
+        FBT_STENCIL = 0x4
+    };
+    
+	
     typedef std::vector<Light*> LightList;
 
     typedef std::map<String, bool> UnaryOptionList;

@@ -48,6 +48,7 @@ namespace Ogre {
     {  
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }
+	String MaterialManager::DEFAULT_SCHEME_NAME = "Default";
     //-----------------------------------------------------------------------
     MaterialManager::MaterialManager()
     {
@@ -68,6 +69,11 @@ namespace Ogre {
 
 		// Register with resource group manager
 		ResourceGroupManager::getSingleton()._registerResourceManager(mResourceType, this);
+
+		// Default scheme
+		mActiveSchemeIndex = 0;
+		mActiveSchemeName = DEFAULT_SCHEME_NAME;
+		mSchemes[mActiveSchemeName] = 0;
 
     }
     //-----------------------------------------------------------------------
@@ -176,4 +182,61 @@ namespace Ogre {
         // to keep compiler happy
         return mDefaultMinFilter;
     }
+    //-----------------------------------------------------------------------
+	unsigned short MaterialManager::_getSchemeIndex(const String& schemeName)
+	{
+		unsigned short ret = 0;
+		SchemeMap::iterator i = mSchemes.find(schemeName);
+		if (i != mSchemes.end())
+		{
+			ret = i->second;
+		}
+		else
+		{
+			// Create new
+			ret = mSchemes.size();
+			mSchemes[schemeName] = ret;			
+		}
+		return ret;
+
+	}
+	//-----------------------------------------------------------------------
+	const String& MaterialManager::_getSchemeName(unsigned short index)
+	{
+		for (SchemeMap::iterator i = mSchemes.begin(); i != mSchemes.end(); ++i)
+		{
+			if (i->second == index)
+				return i->first;
+		}
+		return DEFAULT_SCHEME_NAME;
+	}
+    //-----------------------------------------------------------------------
+	unsigned short MaterialManager::_getActiveSchemeIndex(void) const
+	{
+		return mActiveSchemeIndex;
+	}
+    //-----------------------------------------------------------------------
+	const String& MaterialManager::getActiveScheme(void) const
+	{
+		return mActiveSchemeName;
+	}
+    //-----------------------------------------------------------------------
+	void MaterialManager::setActiveScheme(const String& schemeName)
+	{
+		SchemeMap::iterator i = mSchemes.find(schemeName);
+		if (i == mSchemes.end())
+		{
+			// Invalid scheme, use default
+			mActiveSchemeName = DEFAULT_SCHEME_NAME;
+			mActiveSchemeIndex = 0;
+		}
+		else
+		{
+			mActiveSchemeName = schemeName;
+			mActiveSchemeIndex = i->second;		
+		}
+
+	}
+    //-----------------------------------------------------------------------
+
 }

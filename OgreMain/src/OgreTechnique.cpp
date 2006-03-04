@@ -31,18 +31,19 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderSystem.h"
 #include "OgreRenderSystemCapabilities.h"
 #include "OgreGpuProgramManager.h"
+#include "OgreMaterialManager.h"
 
 
 namespace Ogre {
     //-----------------------------------------------------------------------------
     Technique::Technique(Material* parent)
-        : mParent(parent), mIsSupported(false), mIlluminationPassesCompilationPhase(IPS_NOT_COMPILED), mLodIndex(0)
+        : mParent(parent), mIsSupported(false), mIlluminationPassesCompilationPhase(IPS_NOT_COMPILED), mLodIndex(0), mSchemeIndex(0)
     {
         // See above, defaults to unsupported until examined
     }
     //-----------------------------------------------------------------------------
     Technique::Technique(Material* parent, const Technique& oth)
-        : mParent(parent), mLodIndex(0)
+        : mParent(parent), mLodIndex(0), mSchemeIndex(0)
     {
         // Copy using operator=
         *this = oth;
@@ -297,6 +298,7 @@ namespace Ogre {
         mName = rhs.mName;
 		this->mIsSupported = rhs.mIsSupported;
         this->mLodIndex = rhs.mLodIndex;
+		this->mSchemeIndex = rhs.mSchemeIndex;
 		// copy passes
 		removeAllPasses();
 		Passes::const_iterator i, iend;
@@ -634,6 +636,22 @@ namespace Ogre {
         mLodIndex = index;
         _notifyNeedsRecompile();
     }
+    //-----------------------------------------------------------------------
+	void Technique::setSchemeName(const String& schemeName)
+	{
+		mSchemeIndex = MaterialManager::getSingleton()._getSchemeIndex(schemeName);
+        _notifyNeedsRecompile();
+	}
+    //-----------------------------------------------------------------------
+	const String& Technique::getSchemeName(void) const
+	{
+		return MaterialManager::getSingleton()._getSchemeName(mSchemeIndex);
+	}
+    //-----------------------------------------------------------------------
+	unsigned short Technique::_getSchemeIndex(void) const
+	{
+		return mSchemeIndex;
+	}
     //-----------------------------------------------------------------------
     void Technique::_compileIlluminationPasses(void)
     {

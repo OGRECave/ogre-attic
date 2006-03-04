@@ -1438,6 +1438,12 @@ namespace Ogre
         context.technique->setLodIndex(StringConverter::parseInt(params));
         return false;
     }
+	//-----------------------------------------------------------------------
+	bool parseScheme(String& params, MaterialScriptContext& context)
+	{
+		context.technique->setSchemeName(params);
+		return false;
+	}
     //-----------------------------------------------------------------------
     bool parseSetTextureAlias(String& params, MaterialScriptContext& context)
     {
@@ -2428,6 +2434,7 @@ namespace Ogre
 
         // Set up technique attribute parsers
         mTechniqueAttribParsers.insert(AttribParserList::value_type("lod_index", (ATTRIBUTE_PARSER)parseLodIndex));
+		mTechniqueAttribParsers.insert(AttribParserList::value_type("scheme", (ATTRIBUTE_PARSER)parseScheme));
         mTechniqueAttribParsers.insert(AttribParserList::value_type("pass", (ATTRIBUTE_PARSER)parsePass));
 
         // Set up pass attribute parsers
@@ -3020,6 +3027,22 @@ namespace Ogre
 
         beginSection(1);
         {
+			// Lod index
+			if (mDefaults || 
+				pTech->getLodIndex() != 0)
+			{
+				writeAttribute(2, "lod_index");
+				writeValue(StringConverter::toString(pTech->getLodIndex()));
+			}
+
+			// Scheme name
+			if (mDefaults || 
+				pTech->getSchemeName() != MaterialManager::DEFAULT_SCHEME_NAME)
+			{
+				writeAttribute(2, "scheme");
+				writeValue(pTech->getSchemeName());
+			}
+
             // Iterate over passes
             Technique::PassIterator it = const_cast<Technique*>(pTech)->getPassIterator();
             while (it.hasMoreElements())
