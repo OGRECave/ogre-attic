@@ -328,8 +328,12 @@ namespace Ogre {
         newMesh->mSkeletonName = mSkeletonName;
         newMesh->mSkeleton = mSkeleton;
 
-        // mPreparedForShadowVolumes, mEdgeListsBuilt and edgeData of mMeshLodUsageList
-        // will up to date on demand
+		// Keep prepared shadow volume info (buffers may already be prepared)
+		newMesh->mPreparedForShadowVolumes = mPreparedForShadowVolumes;
+
+		// mEdgeListsBuilt and edgeData of mMeshLodUsageList
+		// will up to date on demand. Not copied since internal references, and mesh
+		// data may be altered
 
         newMesh->load();
         newMesh->touch();
