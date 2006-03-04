@@ -44,7 +44,7 @@ class CompositorFrameListener : public ExampleFrameListener
 {
 protected:
 	float timeoutDelay;
-	bool i0, i1, i2, i3, i4;
+	bool i0, i1, i2, i3, i4, i5;
 	OverlayElement* mDescText;
 
 public:
@@ -52,7 +52,7 @@ public:
         :ExampleFrameListener(window, maincam)
     {
 		timeoutDelay = 0;
-		i0 = i1 = i2 = i3 = i4 = false;
+		i0 = i1 = i2 = i3 = i4 = i5 = false;
 		mDescText = OverlayManager::getSingleton().getOverlayElement("Example/Compositor/ActiveText");
 		mDescText->setCaption("None");
     }
@@ -101,6 +101,13 @@ public:
 				timeoutDelay = 0.5f;
 			}
 
+			if(mInputDevice->isKeyDown(KC_6))
+			{
+				i5 = !i5;
+				CompositorManager::getSingleton().setCompositorEnabled(vp, "OldTV", i4);
+				timeoutDelay = 0.5f;
+			}
+
 			if (timeoutDelay > 0.0f)
 			{
 				StringUtil::StrStreamType txt;
@@ -114,6 +121,8 @@ public:
 					txt << "MotionBlur ";
 				if (i4)
 					txt << "HeatVision ";
+				if (i5)
+					txt << "Old TV ";
 				mDescText->setCaption(txt.str());
 
 
@@ -209,6 +218,7 @@ protected:
 	/// finished.
 	void createEffects()
 	{
+	    // Bloom compositor is loaded from script but here is the hard coded equivalent
 //		CompositorPtr comp = CompositorManager::getSingleton().create(
 //				"Bloom", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
 //			);
@@ -274,6 +284,7 @@ protected:
 				}
 			}
 		}
+	    // Glass compositor is loaded from script but here is the hard coded equivalent
 		/// Glass effect
 //		CompositorPtr comp2 = CompositorManager::getSingleton().create(
 //				"Glass", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
@@ -510,6 +521,7 @@ protected:
 		CompositorManager::getSingleton().addCompositor(vp, "Hurt");
 		CompositorManager::getSingleton().addCompositor(vp, "Glass");
 		CompositorManager::getSingleton().addCompositor(vp, "MotionBlur");
+		CompositorManager::getSingleton().addCompositor(vp, "OldTV");
 		hvListener = new HeatVisionListener();
 		CompositorInstance *instance = CompositorManager::getSingleton().addCompositor(vp, "HeatVision");
 		if(instance)
@@ -521,6 +533,7 @@ protected:
         CompositorManager::getSingleton().setCompositorEnabled(vp, "Glass", false);
         CompositorManager::getSingleton().setCompositorEnabled(vp, "MotionBlur", false);
 		CompositorManager::getSingleton().setCompositorEnabled(vp, "HeatVision", false);
+		CompositorManager::getSingleton().setCompositorEnabled(vp, "OldTV", false);
 
 		// show overlay
 		Overlay* pOver = OverlayManager::getSingleton().getByName("Example/CompositorOverlay");
