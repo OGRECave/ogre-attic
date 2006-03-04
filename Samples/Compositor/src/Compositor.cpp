@@ -521,7 +521,7 @@ protected:
 		CompositorManager::getSingleton().addCompositor(vp, "Hurt");
 		CompositorManager::getSingleton().addCompositor(vp, "Glass");
 		CompositorManager::getSingleton().addCompositor(vp, "MotionBlur");
-		CompositorManager::getSingleton().addCompositor(vp, "OldTV");
+		CompositorManager::getSingleton().addCompositor(vp, "Old TV");
 		hvListener = new HeatVisionListener();
 		CompositorInstance *instance = CompositorManager::getSingleton().addCompositor(vp, "HeatVision");
 		if(instance)
@@ -533,7 +533,7 @@ protected:
         CompositorManager::getSingleton().setCompositorEnabled(vp, "Glass", false);
         CompositorManager::getSingleton().setCompositorEnabled(vp, "MotionBlur", false);
 		CompositorManager::getSingleton().setCompositorEnabled(vp, "HeatVision", false);
-		CompositorManager::getSingleton().setCompositorEnabled(vp, "OldTV", false);
+		CompositorManager::getSingleton().setCompositorEnabled(vp, "Old TV", false);
 
 		// show overlay
 		Overlay* pOver = OverlayManager::getSingleton().getByName("Example/CompositorOverlay");
