@@ -74,7 +74,7 @@ compositor Glass
             pass render_quad
             {
                 material Ogre/Compositor/GlassPass
-                input 0 rto
+                input 0 rt0
             }
         }
     }
