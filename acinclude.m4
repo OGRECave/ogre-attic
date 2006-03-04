@@ -182,12 +182,12 @@ AC_DEFUN([OGRE_GET_CONFIG_TOOLKIT],
 ])
 
 AC_DEFUN([OGRE_GET_PLATFORM],
-[OGRE_PLATFORM=SDL
+[OGRE_PLATFORM=GLX
  AC_ARG_WITH(platform, 
              AC_HELP_STRING([--with-platform=PLATFORM],
                             [the platform to build, currently SDL, GLX, Win32 or gtk]),
              OGRE_PLATFORM=$withval,
-             OGRE_PLATFORM=SDL)
+             OGRE_PLATFORM=GLX)
 
  
   if test ! -d ${srcdir}/PlatformManagers/$OGRE_PLATFORM; then
