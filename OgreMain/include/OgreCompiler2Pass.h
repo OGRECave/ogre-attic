@@ -32,9 +32,6 @@ http://www.gnu.org/copyleft/gpl.html.
 
 namespace Ogre {
 
-    // macro to get the size of a static array
-    #define ARRAYSIZE(array) (sizeof(array)/sizeof(array[0]))
-
     /** Compiler2Pass is a generic 2 pass compiler/assembler
     @remarks
 	    provides a tokenizer in pass 1 and relies on the subclass to provide the virtual method for pass 2
