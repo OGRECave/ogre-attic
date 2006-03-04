@@ -26,8 +26,27 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __CompositorSerializer_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreCompositorScriptCompiler.h"
 
 namespace Ogre {
+    /** Class for serializing Compositors to / from a .compositor script.*/
+    class _OgreExport CompositorSerializer
+    {
+
+    public:
+		/** default constructor*/
+		CompositorSerializer();
+		/** default destructor*/
+		virtual ~CompositorSerializer() {};
+
+        /** Parses a Compositor script file passed as a stream.
+        */
+        void parseScript(DataStreamPtr& stream, const String& groupName);
+
+    protected:
+        CompositorScriptCompiler mScriptCompiler;
+
+    };
 
 }
 

@@ -24,7 +24,17 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 #include "OgreCompositorSerializer.h"
+#include "OgreCompositorScriptCompiler.h"
 
 namespace Ogre {
 //-----------------------------------------------------------------------
+	CompositorSerializer::CompositorSerializer()
+	{
+
+	}
+//-----------------------------------------------------------------------
+    void CompositorSerializer::parseScript(DataStreamPtr& stream, const String& groupName)
+    {
+        mScriptCompiler.compile(stream->getAsString(),  stream->getName());
+    }
 }
