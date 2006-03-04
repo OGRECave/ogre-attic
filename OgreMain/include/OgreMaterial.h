@@ -97,14 +97,13 @@ namespace Ogre {
         Techniques mTechniques;
 		/// Supported techniques of any sort
         Techniques mSupportedTechniques;
-        typedef std::multimap<unsigned short, Technique*> BestTechniquesByLODList;
-		/** Map of LOD -> possibly many supported techniques, each one should
-			have an assigned 'scheme'. Current scheme is set on MaterialManager,
+		typedef std::map<unsigned short, Technique*> LodTechniques;
+        typedef std::map<unsigned short, LodTechniques*> BestTechniquesBySchemeList;
+		/** Map of scheme -> list of LOD techniques. 
+			Current scheme is set on MaterialManager,
 			and can be set per Viewport for auto activation.
 		*/
-        BestTechniquesByLODList mBestTechniqueByLODList;
-		/// Actual number of LOD levels contained in techniques
-		unsigned short mNumActualLodLevels;
+        BestTechniquesBySchemeList mBestTechniquesBySchemeList;
 
         LodDistanceList mLodDistances;
         bool mReceiveShadows;
@@ -112,12 +111,12 @@ namespace Ogre {
         /// Does this material require compilation?
         bool mCompilationRequired;
 
-        /** Fixup the best technique list guarantees no gaps inside.
-        @remarks
-            Iterate over the best technique list, looking for gaps and filling them in
-            guarantees we've got a sequential list with entries in all indexes
-        */
-        void fixupBestTechniqueList(void);
+		/** Insert a supported technique into the local collections. */
+		void insertSupportedTechnique(Technique* t);
+
+		/** Clear the best technique list.
+		*/
+		void clearBestTechniqueList(void);
 
 		/** Overridden from Resource.
 		*/
@@ -219,13 +218,12 @@ namespace Ogre {
 		/** Retrieves the number of supported techniques. */
         unsigned short getNumSupportedTechniques(void) const;
 
-        /** Gets the number of levels-of-detail this material has, based on 
-            Technique::setLodIndex. 
+        /** Gets the number of levels-of-detail this material has in the 
+			given scheme, based on Technique::setLodIndex. 
         @remarks
             Note that this will not be up to date until the material has been compiled.
         */
-        unsigned short getNumLodLevels(void) const { 
-            return mNumActualLodLevels; }
+        unsigned short getNumLodLevels(unsigned short schemeIndex) const;
 
         /** Gets the best supported technique. 
         @remarks
