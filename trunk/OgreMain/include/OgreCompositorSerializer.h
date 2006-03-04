@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 #include "OgreCompositorScriptCompiler.h"
+#include "OgreDataStream.h"
 
 namespace Ogre {
     /** Class for serializing Compositors to / from a .compositor script.*/
