@@ -26,7 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __Viewport_H__
 
 #include "OgrePrerequisites.h"
-
+#include "OgreCommon.h"
 #include "OgreColourValue.h"
 
 namespace Ogre {
