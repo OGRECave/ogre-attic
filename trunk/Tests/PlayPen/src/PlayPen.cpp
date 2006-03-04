@@ -3741,6 +3741,56 @@ protected:
 		vp->setOverlaysEnabled(false);
 
 	}
+	void testMaterialSchemesWithMismatchedLOD()
+	{
+
+		Entity *ent = mSceneMgr->createEntity("robot", "robot.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+		mSceneMgr->setAmbientLight(ColourValue(0.8, 0.8, 0.8));
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("schemetest", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		// default scheme
+		mat->getTechnique(0)->getPass(0)->createTextureUnitState("GreenSkin.jpg");
+
+		// LOD 0, newscheme 
+		Technique* t = mat->createTechnique();
+		t->setSchemeName("newscheme");
+		t->createPass()->createTextureUnitState("rockwall.tga");
+		ent->setMaterialName("schemetest");
+
+		// LOD 1, default
+		t = mat->createTechnique();
+		t->setLodIndex(1);
+		t->createPass()->createTextureUnitState("WeirdEye.png");
+
+		// LOD 2, default
+		t = mat->createTechnique();
+		t->setLodIndex(2);
+		t->createPass()->createTextureUnitState("clouds.jpg");
+
+		// LOD 1, newscheme
+		t = mat->createTechnique();
+		t->setLodIndex(1);
+		t->createPass()->createTextureUnitState("r2skin.jpg");
+		t->setSchemeName("newscheme");
+
+		// No LOD 2 for newscheme! Should fallback on LOD 1
+
+		Material::LodDistanceList ldl;
+		ldl.push_back(250.0f);
+		ldl.push_back(500.0f);
+		mat->setLodLevels(ldl);
+
+
+		ent->setMaterialName("schemetest");
+
+		// create a second viewport using alternate scheme
+		Viewport* vp = mWindow->addViewport(mCamera, 1, 0.75, 0, 0.25, 0.25);
+		vp->setMaterialScheme("newscheme");
+		vp->setOverlaysEnabled(false);
+
+	}
     // Just override the mandatory create scene method
     void createScene(void)
     {
@@ -3815,7 +3865,8 @@ protected:
 		//testMultiSceneManagersComplex();
 		//testManualBoneMovement();
 		//testMaterialSchemes();
-		testMaterialSchemesWithLOD();
+		//testMaterialSchemesWithLOD();
+		testMaterialSchemesWithMismatchedLOD();
 
 		
     }

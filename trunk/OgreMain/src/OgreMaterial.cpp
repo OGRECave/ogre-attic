@@ -40,7 +40,6 @@ namespace Ogre {
 	Material::Material(ResourceManager* creator, const String& name, ResourceHandle handle,
 		const String& group, bool isManual, ManualResourceLoader* loader)
 		:Resource(creator, name, handle, group, isManual, loader),
-		 mNumActualLodLevels(0),
          mReceiveShadows(true),
          mTransparencyCastsShadows(false),
          mCompilationRequired(true)
@@ -83,7 +82,6 @@ namespace Ogre {
 		mLoader = rhs.mLoader;
 	    mHandle = rhs.mHandle;
         mSize = rhs.mSize;
-		mNumActualLodLevels = rhs.mNumActualLodLevels;
         mReceiveShadows = rhs.mReceiveShadows;
         mTransparencyCastsShadows = rhs.mTransparencyCastsShadows;
 
@@ -99,18 +97,9 @@ namespace Ogre {
             *t = *(*i);
             if ((*i)->isSupported())
             {
-                mSupportedTechniques.push_back(t);
-				// All supported techniques by LOD inserted, in order of pref
-				// Use specific insert to guarantee ordering of items with 
-				// same key since not explicitly stated in spec (but common)
-				mBestTechniqueByLODList.insert(
-					mBestTechniqueByLODList.upper_bound(t->getLodIndex()),
-					BestTechniquesByLODList::value_type(t->getLodIndex(), t));
+				insertSupportedTechnique(t);
             }
         }
-
-        // Fixup the best technique list guarantees no gaps inside
-        fixupBestTechniqueList();
 
 		// Also copy LOD information
 		mLodDistances = rhs.mLodDistances;
@@ -277,6 +266,30 @@ namespace Ogre {
     {
 		return static_cast<unsigned short>(mSupportedTechniques.size());
     }
+	//-----------------------------------------------------------------------
+	void Material::insertSupportedTechnique(Technique* t)
+	{
+		mSupportedTechniques.push_back(t);
+		// get scheme
+		unsigned short schemeIndex = t->_getSchemeIndex();
+		BestTechniquesBySchemeList::iterator i =
+			mBestTechniquesBySchemeList.find(schemeIndex);
+		LodTechniques* lodtechs = 0;
+		if (i == mBestTechniquesBySchemeList.end())
+		{
+			lodtechs = new LodTechniques();
+			mBestTechniquesBySchemeList[schemeIndex] = lodtechs;
+		}
+		else
+		{
+			lodtechs = i->second;
+		}
+
+		// Insert won't replace if supported technique for this scheme/lod is
+		// already there, which is what we want
+		lodtechs->insert(LodTechniques::value_type(t->getLodIndex(), t));
+
+	}
 	//-----------------------------------------------------------------------------
     Technique* Material::getBestTechnique(unsigned short lodIndex)
     {
@@ -286,40 +299,52 @@ namespace Ogre {
         }
         else
         {
-			std::pair<BestTechniquesByLODList::iterator,BestTechniquesByLODList::iterator> 
-				rangePair = mBestTechniqueByLODList.equal_range(lodIndex);
-			if (rangePair.first == mBestTechniqueByLODList.end())
+			Technique* ret = 0;
+			// get scheme
+			BestTechniquesBySchemeList::iterator si = 
+				mBestTechniquesBySchemeList.find(
+				MaterialManager::getSingleton()._getActiveSchemeIndex());
+			// scheme not found?
+			if (si == mBestTechniquesBySchemeList.end())
 			{
-				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-					"Lod index " + StringConverter::toString(lodIndex) + 
-					" not found for material " + mName,
-					"Material::getBestTechnique");
+				// get the first item, will be 0 (the default) if default
+				// scheme techniques exist, otherwise the earliest defined
+				si = mBestTechniquesBySchemeList.begin();
 			}
-			
-			// Default to first item in case we don't find scheme
-			Technique* fallback = rangePair.first->second;
-			Technique* defaultScheme = 0;
-			unsigned short activeScheme =
-			   	MaterialManager::getSingleton()._getActiveSchemeIndex();
-			for (BestTechniquesByLODList::iterator i = rangePair.first; 
-					i != rangePair.second; ++i)
+
+			// get LOD
+			LodTechniques* lodtechs = si->second;
+			LodTechniques::iterator li = si->second->find(lodIndex);
+			// LOD not found? 
+			if (li == si->second->end())
 			{
-				unsigned short techScheme = i->second->_getSchemeIndex();
-				if (techScheme == activeScheme)
+				// Use the next LOD level up
+				for (LodTechniques::reverse_iterator rli = si->second->rbegin(); 
+					rli != si->second->rend(); ++rli)
 				{
-					// Found the first instance of scheme we wanted
-					return i->second;
+					if (rli->second->getLodIndex() < lodIndex)
+					{
+						ret = rli->second;
+						break;
+					}
+
 				}
-				if (techScheme == 0)
+				if (!ret)
 				{
-					// default scheme
-					defaultScheme = i->second;
-				}					
-						
+					// shouldn't ever hit this really, unless user defines no LOD 0
+					// pick the first LOD we have (must be at least one to have a scheme entry)
+					ret = si->second->begin()->second;
+				}
+
 			}
-			// If we're here, we didn't find the scheme we wanted
-			// Prefer the default scheme, otherwise just return the first
-			return defaultScheme? defaultScheme : fallback;
+			else
+			{
+				// LOD found
+				ret = li->second;
+			}
+
+			return ret;
+
         }
     }
     //-----------------------------------------------------------------------
@@ -330,7 +355,7 @@ namespace Ogre {
         delete(*i);
         mTechniques.erase(i);
         mSupportedTechniques.clear();
-        mBestTechniqueByLODList.clear();
+		clearBestTechniqueList();
         mCompilationRequired = true;
     }
     //-----------------------------------------------------------------------
@@ -344,7 +369,7 @@ namespace Ogre {
         }
         mTechniques.clear();
         mSupportedTechniques.clear();
-        mBestTechniqueByLODList.clear();
+        clearBestTechniqueList();
         mCompilationRequired = true;
     }
     //-----------------------------------------------------------------------
@@ -375,7 +400,8 @@ namespace Ogre {
     {
         // Compile each technique, then add it to the list of supported techniques
         mSupportedTechniques.clear();
-		mBestTechniqueByLODList.clear();
+		clearBestTechniqueList();
+
 
         Techniques::iterator i, iend;
         iend = mTechniques.end();
@@ -385,17 +411,9 @@ namespace Ogre {
             if ( (*i)->isSupported() )
             {
                 mSupportedTechniques.push_back(*i);
-				// All supported techniques by LOD inserted, in order of pref
-				// Use specific insert to guarantee ordering of items with 
-				// same key since not explicitly stated in spec (but common)
-				mBestTechniqueByLODList.insert(
-					mBestTechniqueByLODList.upper_bound((*i)->getLodIndex()),
-					BestTechniquesByLODList::value_type((*i)->getLodIndex(), *i));
+				insertSupportedTechnique(*i);
             }
         }
-
-        // Fixup the best technique list guarantees no gaps inside
-        fixupBestTechniqueList();
 
         mCompilationRequired = false;
 
@@ -407,37 +425,16 @@ namespace Ogre {
                 "hardware, it will be rendered blank.");
         }
     }
-    //-----------------------------------------------------------------------
-    void Material::fixupBestTechniqueList(void)
-    {
-		BestTechniquesByLODList::iterator bi, biend;
-		biend = mBestTechniqueByLODList.end();
-
-		unsigned short lastIndex = 0;
-		Technique* lastTechnique = 0;
-
-		for (bi = mBestTechniqueByLODList.begin(); bi != biend; ++bi)
+	//-----------------------------------------------------------------------
+	void Material::clearBestTechniqueList(void)
+	{
+		for (BestTechniquesBySchemeList::iterator i = mBestTechniquesBySchemeList.begin();
+			i != mBestTechniquesBySchemeList.end(); ++i)
 		{
-			if (lastIndex < bi->first)
-			{
-				if (!lastTechnique) // hmm, index 0 is missing, use the first one we have
-					lastTechnique = bi->second;
-
-				do
-                {
-					mBestTechniqueByLODList.insert(
-						mBestTechniqueByLODList.upper_bound(lastIndex),
-						BestTechniquesByLODList::value_type(lastIndex, lastTechnique));
-				} while (++lastIndex < bi->first);
-			}
-
-			lastIndex = bi->first;
-			lastTechnique = bi->second;
+			delete i->second;
 		}
-		
-		mNumActualLodLevels = lastIndex + 1;
-
-    }
+		mBestTechniquesBySchemeList.clear();
+	}
     //-----------------------------------------------------------------------
     void Material::setPointSize(Real ps)
     {
