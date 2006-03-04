@@ -61,8 +61,8 @@ namespace Ogre {
 		  mDisplaySkeleton(false),
 	      mHardwareAnimation(false),
 		  mVertexProgramInUse(false),
-		  mSoftwareSkinningRequests(0),
-		  mSoftwareSkinningNormalsRequests(0),
+		  mSoftwareAnimationRequests(0),
+		  mSoftwareAnimationNormalsRequests(0),
 		  mMeshLodIndex(0),
 		  mMeshLodFactorInv(1.0f),
 		  mMinMeshLodIndex(99),
@@ -92,8 +92,8 @@ namespace Ogre {
 		mDisplaySkeleton(false),
 		mHardwareAnimation(false),
 		mVertexProgramInUse(false),
-		mSoftwareSkinningRequests(0),
-		mSoftwareSkinningNormalsRequests(0),
+		mSoftwareAnimationRequests(0),
+		mSoftwareAnimationNormalsRequests(0),
 		mMeshLodIndex(0),
 		mMeshLodFactorInv(1.0f),
 		mMinMeshLodIndex(99),
@@ -540,20 +540,20 @@ namespace Ogre {
     void Entity::updateAnimation(void)
     {
 		Root& root = Root::getSingleton();
-		bool hwSkinning = isHardwareAnimationEnabled();
-		bool forcedSwSkinning = getSoftwareSkinningRequests()>0;
-		bool forcedNormals = getSoftwareSkinningNormalsRequests()>0;
+		bool hwAnimation = isHardwareAnimationEnabled();
+		bool forcedSwAnimation = getSoftwareAnimationRequests()>0;
+		bool forcedNormals = getSoftwareAnimationNormalsRequests()>0;
 		bool stencilShadows = false;
 		if (root._getCurrentSceneManager())
 			stencilShadows =  root._getCurrentSceneManager()->isShadowTechniqueStencilBased();
         // If all animations are disabled, we'll use origin vertex buffer for
         // rendering. But still perform software animation if user required,
         // because need to keep same behavior in user standpoint.
-		bool softwareAnimation = forcedSwSkinning ||
-            (!hwSkinning || stencilShadows) && _isAnimated();
-		// Blend normals in s/w only if we're not using h/w skinning,
+		bool softwareAnimation = forcedSwAnimation ||
+            (!hwAnimation || stencilShadows) && _isAnimated();
+		// Blend normals in s/w only if we're not using h/w animation,
 		// since shadows only require positions
-		bool blendNormals = !hwSkinning || forcedNormals;
+		bool blendNormals = !hwAnimation || forcedNormals;
 
 		// We only do these tasks if animation is dirty or transform has altered
 		// when using skeletal animation, which is dependent
@@ -575,10 +575,10 @@ namespace Ogre {
 					{
 						mTempVertexAnimInfo.checkoutTempCopies(true, false);
 						// NB we suppress hardware upload while doing blend if we're
-						// hardware skinned, because the only reason for doing this
+						// hardware animation, because the only reason for doing this
 						// is for shadow, which need only be uploaded then
 						mTempVertexAnimInfo.bindTempCopies(mSoftwareVertexAnimVertexData,
-							hwSkinning);
+							hwAnimation);
 					}
 					SubEntityList::iterator i, iend;
 					iend = mSubEntityList.end();
@@ -591,12 +591,12 @@ namespace Ogre {
 						{
 							se->mTempVertexAnimInfo.checkoutTempCopies(true, false);
 							se->mTempVertexAnimInfo.bindTempCopies(se->mSoftwareVertexAnimVertexData,
-								hwSkinning);
+								hwAnimation);
 						}
 
 					}
 				}
-				applyVertexAnimation(hwSkinning, stencilShadows);
+				applyVertexAnimation(hwAnimation, stencilShadows);
 			}
 
 			if (hasSkeleton())
@@ -612,11 +612,11 @@ namespace Ogre {
 					{
 						// Blend shared geometry
 						// NB we suppress hardware upload while doing blend if we're
-						// hardware skinned, because the only reason for doing this
+						// hardware animation, because the only reason for doing this
 						// is for shadow, which need only be uploaded then
 						mTempSkelAnimInfo.checkoutTempCopies(true, blendNormals);
 						mTempSkelAnimInfo.bindTempCopies(mSkelAnimVertexData,
-							hwSkinning);
+							hwAnimation);
 						// Blend, taking source from either mesh data or morph data
 						Mesh::softwareVertexBlend(
 							(mMesh->getSharedVertexDataAnimationType() != VAT_NONE) ?
@@ -635,7 +635,7 @@ namespace Ogre {
 						{
 							se->mTempSkelAnimInfo.checkoutTempCopies(true, blendNormals);
 							se->mTempSkelAnimInfo.bindTempCopies(se->mSkelAnimVertexData,
-								hwSkinning);
+								hwAnimation);
 							// Blend, taking source from either mesh data or morph data
 							Mesh::softwareVertexBlend(
 								(se->getSubMesh()->getVertexAnimationType() != VAT_NONE)?
@@ -681,7 +681,7 @@ namespace Ogre {
 	void Entity::applyVertexAnimation(bool hardwareAnimation, bool stencilShadows)
 	{
 		const MeshPtr& msh = getMesh();
-		bool swAnim = !hardwareAnimation || stencilShadows || (mSoftwareSkinningRequests>0);
+		bool swAnim = !hardwareAnimation || stencilShadows || (mSoftwareAnimationRequests>0);
 
 		// make sure we have enough hardware animation elements to play with
 		if (hardwareAnimation)
@@ -1279,7 +1279,7 @@ namespace Ogre {
                 if (hasSkeleton())
 				{
 					// All materials must support skinning for us to consider using
-					// hardware skinning - if one fails we use software
+					// hardware animation - if one fails we use software
 					if (firstPass)
 					{
 						mHardwareAnimation = p->getVertexProgram()->isSkeletalAnimationIncluded();
@@ -1304,7 +1304,7 @@ namespace Ogre {
 				if (animType == VAT_MORPH)
 				{
 					// All materials must support morph animation for us to consider using
-					// hardware skinning - if one fails we use software
+					// hardware animation - if one fails we use software
 					if (firstPass)
 					{
 						mHardwareAnimation = p->getVertexProgram()->isMorphAnimationIncluded();
@@ -1319,7 +1319,7 @@ namespace Ogre {
 				else if (animType == VAT_POSE)
 				{
 					// All materials must support pose animation for us to consider using
-					// hardware skinning - if one fails we use software
+					// hardware animation - if one fails we use software
 					if (firstPass)
 					{
 						mHardwareAnimation = p->getVertexProgram()->isPoseAnimationIncluded();
@@ -1566,26 +1566,26 @@ namespace Ogre {
         return 0;
     }
     //-----------------------------------------------------------------------
-    void Entity::addSoftwareSkinningRequest(bool normalsAlso)
+    void Entity::addSoftwareAnimationRequest(bool normalsAlso)
     {
-        mSoftwareSkinningRequests++;
+        mSoftwareAnimationRequests++;
         if (normalsAlso) {
-            mSoftwareSkinningNormalsRequests++;
+            mSoftwareAnimationNormalsRequests++;
         }
     }
     //-----------------------------------------------------------------------
-    void Entity::removeSoftwareSkinningRequest(bool normalsAlso)
+    void Entity::removeSoftwareAnimationRequest(bool normalsAlso)
     {
-        if (mSoftwareSkinningRequests == 0 ||
-            (normalsAlso && mSoftwareSkinningNormalsRequests == 0))
+        if (mSoftwareAnimationRequests == 0 ||
+            (normalsAlso && mSoftwareAnimationNormalsRequests == 0))
         {
             OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
                         "Attempt to remove nonexistant request.",
-                        "Entity::removeSoftwareSkinningRequest");
+                        "Entity::removeSoftwareAnimationRequest");
         }
-        mSoftwareSkinningRequests--;
+        mSoftwareAnimationRequests--;
         if (normalsAlso) {
-            mSoftwareSkinningNormalsRequests--;
+            mSoftwareAnimationNormalsRequests--;
         }
     }
     //-----------------------------------------------------------------------
