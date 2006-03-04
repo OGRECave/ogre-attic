@@ -25,6 +25,8 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreStableHeaders.h"
 #include "OgreCompiler2Pass.h"
 #include "OgreLogManager.h"
+#include "OgreException.h"
+#include "OgreStringConverter.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
