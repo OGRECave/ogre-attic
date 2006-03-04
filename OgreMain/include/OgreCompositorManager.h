@@ -29,11 +29,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreResourceManager.h"
 #include "OgreCompositor.h"
 #include "OgreRectangle2D.h"
+#include "OgreCompositorSerializer.h"
+
 namespace Ogre {
-    /** Class for managing Compositor settings for Ogre. Compositors provide the means 
+    /** Class for managing Compositor settings for Ogre. Compositors provide the means
         to flexibly "composite" the final rendering result from multiple scene renders
-        and intermediate operations like rendering fullscreen quads. This makes 
-        it possible to apply postfilter effects, HDRI postprocessing, and shadow 
+        and intermediate operations like rendering fullscreen quads. This makes
+        it possible to apply postfilter effects, HDRI postprocessing, and shadow
         effects to a Viewport.
         @par
             When loaded from a script, a Compositor is in an 'unloaded' state and only stores the settings
@@ -48,21 +50,21 @@ namespace Ogre {
     public:
         CompositorManager();
         virtual ~CompositorManager();
-        
+
         /// Overridden from ResourceManager
-        Resource* createImpl(const String& name, ResourceHandle handle, 
+        Resource* createImpl(const String& name, ResourceHandle handle,
             const String& group, bool isManual, ManualResourceLoader* loader,
             const NameValuePairList* params);
-            
-        /** Intialises the Compositor manager, which also triggers it to 
+
+        /** Intialises the Compositor manager, which also triggers it to
             parse all available .compositor scripts. */
         void initialise(void);
-        
+
         /** @see ScriptLoader::parseScript
         */
         void parseScript(DataStreamPtr& stream, const String& groupName);
 
-        /** Get the compositor chain for a Viewport. If there is none yet, a new 
+        /** Get the compositor chain for a Viewport. If there is none yet, a new
 			compositor chain is registered.
 			XXX We need a _notifyViewportRemoved to find out when this viewport disappears,
 			so we can destroy its chain as well.
@@ -82,8 +84,8 @@ namespace Ogre {
 		*/
 		void removeCompositor(Viewport *vp, const String &compositor);
 
-		/** Set the state of a compositor on a viewport to enabled or disabled. 
-			Disabling a compositor stops it from rendering but does not free any resources. 
+		/** Set the state of a compositor on a viewport to enabled or disabled.
+			Disabling a compositor stops it from rendering but does not free any resources.
 			This can be more efficient than using removeCompositor and addCompositor in cases
 			the filter is switched on and off a lot.
 		*/
@@ -95,10 +97,14 @@ namespace Ogre {
 
 		/** Overridden from ResourceManager since we have to clean up chains too. */
 		void removeAll(void);
+
     private:
         typedef std::map<Viewport*, CompositorChain*> Chains;
         Chains mChains;
-        
+
+        /// Serializer
+        CompositorSerializer mSerializer;
+
         /** Clear composition chains for all viewports
          */
         void freeChains();
