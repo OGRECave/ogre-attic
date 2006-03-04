@@ -319,7 +319,37 @@ namespace Ogre {
         }
 
         // Erase the free copies
-        mFreeTempVertexBufferMap.erase(sourceBuffer);
+        //
+        // Why we need this unusual code? It's for resolve reenter problem.
+        //
+        // Using mFreeTempVertexBufferMap.erase(sourceBuffer) directly will
+        // cause reenter into here because vertex buffer destroyed notify.
+        // In most time there are no problem. But when sourceBuffer is the
+        // last item of the mFreeTempVertexBufferMap, some STL multimap
+        // implementation (VC and STLport) will call to clear(), which will
+        // causing intermediate state of mFreeTempVertexBufferMap, in that
+        // time destroyed notify back to here cause illegal accessing in
+        // the end.
+        //
+        // For safely reason, use following code to resolve reenter problem.
+        //
+        typedef FreeTemporaryVertexBufferMap::iterator _Iter;
+        std::pair<_Iter, _Iter> range = mFreeTempVertexBufferMap.equal_range(sourceBuffer);
+        if (range.first != range.second)
+        {
+            std::list<HardwareVertexBufferSharedPtr> holdForDelayDestroy;
+            for (_Iter it = range.first; it != range.second; ++it)
+            {
+                if (it->second.useCount() <= 1)
+                {
+                    holdForDelayDestroy.push_back(it->second);
+                }
+            }
+
+            mFreeTempVertexBufferMap.erase(range.first, range.second);
+
+            // holdForDelayDestroy will destroy auto.
+        }
     }
 	//-----------------------------------------------------------------------
 	void HardwareBufferManager::_notifyVertexBufferDestroyed(HardwareVertexBuffer* buf)
