@@ -13,14 +13,14 @@ LGPL like the rest of the engine.
 */
 
 /**
-    \file 
+    \file
         Compositor.cpp
     \brief
         Shows OGRE's Compositor feature
 	\author
 		W.J. :wumpus: van der Laan
 			Ogre composition framework
-		Manuel Bua 
+		Manuel Bua
 			Postfilter ideas and original out-of-core implementation
 */
 
@@ -52,7 +52,7 @@ public:
         :ExampleFrameListener(window, maincam)
     {
 		timeoutDelay = 0;
-		i0 = i1 = i2 = i3 = i4 = false;      
+		i0 = i1 = i2 = i3 = i4 = false;
 		mDescText = OverlayManager::getSingleton().getOverlayElement("Example/Compositor/ActiveText");
 		mDescText->setCaption("None");
     }
@@ -60,7 +60,7 @@ public:
     {
         bool result = ExampleFrameListener::frameStarted(evt);
 
-        return result;        
+        return result;
     }
 	virtual bool processUnbufferedKeyInput(const FrameEvent& evt)
     {
@@ -105,7 +105,7 @@ public:
 			{
 				StringUtil::StrStreamType txt;
 				if (i0)
-					txt << "Blur ";
+					txt << "Bloom ";
 				if (i1)
 					txt << "Hurt ";
 				if (i2)
@@ -153,7 +153,7 @@ public:
 			// "random_fractions" parameter
 			fpParams->setNamedConstant("random_fractions", Vector4(Math::RangeRandom(0.0, 1.0), Math::RangeRandom(0, 1.0), 0, 0));
 
-			// "depth_modulator" parameter			
+			// "depth_modulator" parameter
 			float inc = ((float)timer->getMilliseconds())/1000.0f;
 			if ( (abs(curr-end) <= 0.001) ) {
 				// take a new value to reach
@@ -194,13 +194,13 @@ protected:
     // render target events
     void preRenderTargetUpdate(const RenderTargetEvent& evt)
     {
-        // Hide plane 
+        // Hide plane
         mPlaneEnt->setVisible(false);
 
     }
     void postRenderTargetUpdate(const RenderTargetEvent& evt)
     {
-        // Show plane 
+        // Show plane
         mPlaneEnt->setVisible(true);
     }
 
@@ -209,56 +209,56 @@ protected:
 	/// finished.
 	void createEffects()
 	{
-		CompositorPtr comp = CompositorManager::getSingleton().create(
-				"Bloom", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
-			);
-		{
-			CompositionTechnique *t = comp->createTechnique();
-			{
-				CompositionTechnique::TextureDefinition *def = t->createTextureDefinition("rt0");
-				def->width = 128;
-				def->height = 128;
-				def->format = PF_A8R8G8B8;
-			}
-			{
-				CompositionTechnique::TextureDefinition *def = t->createTextureDefinition("rt1");
-				def->width = 128;
-				def->height = 128;
-				def->format = PF_A8R8G8B8;
-			}
-			{ 
-				CompositionTargetPass *tp = t->createTargetPass();
-				tp->setInputMode(CompositionTargetPass::IM_PREVIOUS);
-				tp->setOutputName("rt1");
-			}
-			{
-				CompositionTargetPass *tp = t->createTargetPass();
-				tp->setInputMode(CompositionTargetPass::IM_NONE);
-				tp->setOutputName("rt0");
-				CompositionPass *pass = tp->createPass();
-				pass->setType(CompositionPass::PT_RENDERQUAD);
-				pass->setMaterialName("Ogre/Compositor/Blur0");
-				pass->setInput(0, "rt1");
-			}
-			{
-				CompositionTargetPass *tp = t->createTargetPass();
-				tp->setInputMode(CompositionTargetPass::IM_NONE);
-				tp->setOutputName("rt1");
-				CompositionPass *pass = tp->createPass();
-				pass->setType(CompositionPass::PT_RENDERQUAD);
-				pass->setMaterialName("Ogre/Compositor/Blur1");
-				pass->setInput(0, "rt0");
-			}
-			{
-				CompositionTargetPass *tp = t->getOutputTargetPass();
-				tp->setInputMode(CompositionTargetPass::IM_PREVIOUS);
-				{ CompositionPass *pass = tp->createPass();
-				pass->setType(CompositionPass::PT_RENDERQUAD);
-				pass->setMaterialName("Ogre/Compositor/BloomBlend");
-				pass->setInput(0, "rt1");
-				}
-			}
-		}
+//		CompositorPtr comp = CompositorManager::getSingleton().create(
+//				"Bloom", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+//			);
+//		{
+//			CompositionTechnique *t = comp->createTechnique();
+//			{
+//				CompositionTechnique::TextureDefinition *def = t->createTextureDefinition("rt0");
+//				def->width = 128;
+//				def->height = 128;
+//				def->format = PF_A8R8G8B8;
+//			}
+//			{
+//				CompositionTechnique::TextureDefinition *def = t->createTextureDefinition("rt1");
+//				def->width = 128;
+//				def->height = 128;
+//				def->format = PF_A8R8G8B8;
+//			}
+//			{
+//				CompositionTargetPass *tp = t->createTargetPass();
+//				tp->setInputMode(CompositionTargetPass::IM_PREVIOUS);
+//				tp->setOutputName("rt1");
+//			}
+//			{
+//				CompositionTargetPass *tp = t->createTargetPass();
+//				tp->setInputMode(CompositionTargetPass::IM_NONE);
+//				tp->setOutputName("rt0");
+//				CompositionPass *pass = tp->createPass();
+//				pass->setType(CompositionPass::PT_RENDERQUAD);
+//				pass->setMaterialName("Ogre/Compositor/Blur0");
+//				pass->setInput(0, "rt1");
+//			}
+//			{
+//				CompositionTargetPass *tp = t->createTargetPass();
+//				tp->setInputMode(CompositionTargetPass::IM_NONE);
+//				tp->setOutputName("rt1");
+//				CompositionPass *pass = tp->createPass();
+//				pass->setType(CompositionPass::PT_RENDERQUAD);
+//				pass->setMaterialName("Ogre/Compositor/Blur1");
+//				pass->setInput(0, "rt0");
+//			}
+//			{
+//				CompositionTargetPass *tp = t->getOutputTargetPass();
+//				tp->setInputMode(CompositionTargetPass::IM_PREVIOUS);
+//				{ CompositionPass *pass = tp->createPass();
+//				pass->setType(CompositionPass::PT_RENDERQUAD);
+//				pass->setMaterialName("Ogre/Compositor/BloomBlend");
+//				pass->setInput(0, "rt1");
+//				}
+//			}
+//		}
 		/// Just a big red quad
 		CompositorPtr redquad = CompositorManager::getSingleton().create(
 				"Hurt", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
@@ -275,32 +275,32 @@ protected:
 			}
 		}
 		/// Glass effect
-		CompositorPtr comp2 = CompositorManager::getSingleton().create(
-				"Glass", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
-			);
-		{
-			CompositionTechnique *t = comp2->createTechnique();
-			{
-				CompositionTechnique::TextureDefinition *def = t->createTextureDefinition("rt0");
-				def->width = 0;
-				def->height = 0;
-				def->format = PF_R8G8B8;
-			}
-			{ 
-				CompositionTargetPass *tp = t->createTargetPass();
-				tp->setInputMode(CompositionTargetPass::IM_PREVIOUS);
-				tp->setOutputName("rt0");
-			}
-			{
-				CompositionTargetPass *tp = t->getOutputTargetPass();
-				tp->setInputMode(CompositionTargetPass::IM_NONE);
-				{ CompositionPass *pass = tp->createPass();
-				pass->setType(CompositionPass::PT_RENDERQUAD);
-				pass->setMaterialName("Ogre/Compositor/GlassPass");
-				pass->setInput(0, "rt0");
-				}
-			}
-		}
+//		CompositorPtr comp2 = CompositorManager::getSingleton().create(
+//				"Glass", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+//			);
+//		{
+//			CompositionTechnique *t = comp2->createTechnique();
+//			{
+//				CompositionTechnique::TextureDefinition *def = t->createTextureDefinition("rt0");
+//				def->width = 0;
+//				def->height = 0;
+//				def->format = PF_R8G8B8;
+//			}
+//			{
+//				CompositionTargetPass *tp = t->createTargetPass();
+//				tp->setInputMode(CompositionTargetPass::IM_PREVIOUS);
+//				tp->setOutputName("rt0");
+//			}
+//			{
+//				CompositionTargetPass *tp = t->getOutputTargetPass();
+//				tp->setInputMode(CompositionTargetPass::IM_NONE);
+//				{ CompositionPass *pass = tp->createPass();
+//				pass->setType(CompositionPass::PT_RENDERQUAD);
+//				pass->setMaterialName("Ogre/Compositor/GlassPass");
+//				pass->setInput(0, "rt0");
+//				}
+//			}
+//		}
 		/// Motion blur effect
 		CompositorPtr comp3 = CompositorManager::getSingleton().create(
 				"MotionBlur", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
@@ -326,13 +326,13 @@ protected:
 				def->format = PF_R8G8B8;
 			}
 			/// Render scene
-			{ 
+			{
 				CompositionTargetPass *tp = t->createTargetPass();
 				tp->setInputMode(CompositionTargetPass::IM_PREVIOUS);
 				tp->setOutputName("scene");
 			}
 			/// Initialisation pass for sum texture
-			{ 
+			{
 				CompositionTargetPass *tp = t->createTargetPass();
 				tp->setInputMode(CompositionTargetPass::IM_PREVIOUS);
 				tp->setOutputName("sum");
@@ -391,7 +391,7 @@ protected:
 				def->format = PF_R8G8B8;
 			}
 			/// Render scene
-			{ 
+			{
 				CompositionTargetPass *tp = t->createTargetPass();
 				tp->setInputMode(CompositionTargetPass::IM_PREVIOUS);
 				tp->setOutputName("scene");
@@ -401,7 +401,7 @@ protected:
 				CompositionTargetPass *tp = t->createTargetPass();
 				tp->setInputMode(CompositionTargetPass::IM_NONE);
 				tp->setOutputName("temp");
-				{ 
+				{
 					CompositionPass *pass = tp->createPass();
 					pass->setType(CompositionPass::PT_RENDERQUAD);
 					pass->setIdentifier(0xDEADBABE); /// Identify pass for use in listener
@@ -413,7 +413,7 @@ protected:
 			{
 				CompositionTargetPass *tp = t->getOutputTargetPass();
 				tp->setInputMode(CompositionTargetPass::IM_NONE);
-				{ 
+				{
 					CompositionPass *pass = tp->createPass();
 					pass->setType(CompositionPass::PT_RENDERQUAD);
 					pass->setMaterialName("Fury/HeatVision/Blur");
@@ -445,7 +445,7 @@ protected:
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject( pEnt );
 
 		// pre-load to generate tangents
-		MeshPtr msh = MeshManager::getSingleton().load("knot.mesh", 
+		MeshPtr msh = MeshManager::getSingleton().load("knot.mesh",
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		unsigned short src, dest;
 		if (!msh->suggestTangentVectorBuildParams(src, dest))
@@ -461,7 +461,7 @@ protected:
 		SceneNode* n2 = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-200, 0, -200));
 		n2->attachObject( pEnt );
 
-		// Transparent object 
+		// Transparent object
 		pEnt = mSceneMgr->createEntity( "3.5", "knot.mesh" );
 		pEnt->setMaterialName("Examples/TransparentTest");
 		MaterialPtr mat3 = MaterialManager::getSingleton().getByName("Examples/TransparentTest");
@@ -475,7 +475,7 @@ protected:
 		n4->attachObject( pEnt );
 
 
-		ParticleSystem* pSys2 = mSceneMgr->createParticleSystem("smoke", 
+		ParticleSystem* pSys2 = mSceneMgr->createParticleSystem("smoke",
 			"Examples/Smoke");
 		SceneNode* n5 = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-300, -100, 200));
 		n5->attachObject(pSys2);
@@ -497,7 +497,7 @@ protected:
 
 		mCamera->setPosition(180, 54, 823);
 		mCamera->lookAt(0,20,0);
-		
+
 		/// Create the postfilter effects
 		/// This will be replaced with a .compositor script as soon as the script parser is
 		/// finished.
@@ -523,7 +523,7 @@ protected:
 		CompositorManager::getSingleton().setCompositorEnabled(vp, "HeatVision", false);
 
 		// show overlay
-		Overlay* pOver = OverlayManager::getSingleton().getByName("Example/CompositorOverlay");    
+		Overlay* pOver = OverlayManager::getSingleton().getByName("Example/CompositorOverlay");
 		pOver->show();
 
     }
