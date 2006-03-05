@@ -32,7 +32,7 @@ Example/CompositorOverlay
 			height 30
 			font_name TrebuchetMSBold
 			char_height 16
-			caption Use keys 1-5 to toggle the each compositor
+			caption Use keys 1-7 to toggle each compositor
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
