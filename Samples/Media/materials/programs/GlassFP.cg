@@ -2,11 +2,8 @@ sampler RT : register(s0);
 sampler NormalMap : register(s1);
 
 float4 main_ps(float2 iTexCoord : TEXCOORD0) : COLOR
-{	
-	float4 normal=2*(tex2D(NormalMap,iTexCoord*3)-0.5);
+{
+	float4 normal = 2 * (tex2D(NormalMap, iTexCoord * 2.5) - 0.5);
 
-	float4 color=tex2D(RT, iTexCoord+normal.xy*0.05);
-	
-	float4 color2 = tex2D (RT, iTexCoord);
-	return color;
+	return tex2D(RT, iTexCoord + normal.xy * 0.05);
 }
