@@ -44,7 +44,7 @@ class CompositorFrameListener : public ExampleFrameListener
 {
 protected:
 	float timeoutDelay;
-	bool i0, i1, i2, i3, i4, i5, i6;
+	bool i0, i1, i2, i3, i4, i5, i6, i7;
 
 	OverlayElement* mDescText;
 
@@ -53,7 +53,7 @@ public:
         :ExampleFrameListener(window, maincam)
     {
 		timeoutDelay = 0;
-		i0 = i1 = i2 = i3 = i4 = i5 = i6 = false;
+		i0 = i1 = i2 = i3 = i4 = i5 = i6 = i7 = false;
 		mDescText = OverlayManager::getSingleton().getOverlayElement("Example/Compositor/ActiveText");
 		mDescText->setCaption("None");
     }
@@ -116,6 +116,13 @@ public:
 				timeoutDelay = 0.5f;
 			}
 
+			if(mInputDevice->isKeyDown(KC_8))
+			{
+				i7 = !i7;
+				CompositorManager::getSingleton().setCompositorEnabled(vp, "DOF", i7);
+				timeoutDelay = 0.5f;
+			}
+
 			if (timeoutDelay > 0.0f)
 			{
 				StringUtil::StrStreamType txt;
@@ -133,9 +140,11 @@ public:
 					txt << "Old TV ";
 				if (i6)
 					txt << "B&W ";
+				if (i7)
+					txt << "DOF ";
+                if (txt.str().empty())
+                    txt << "None ";
 				mDescText->setCaption(txt.str());
-
-
 			}
 		}
 		return retval;
@@ -533,6 +542,7 @@ protected:
 		CompositorManager::getSingleton().addCompositor(vp, "MotionBlur");
 		CompositorManager::getSingleton().addCompositor(vp, "OldTV");
 		CompositorManager::getSingleton().addCompositor(vp, "B&W");
+		CompositorManager::getSingleton().addCompositor(vp, "DOF");
 
 		hvListener = new HeatVisionListener();
 		CompositorInstance *instance = CompositorManager::getSingleton().addCompositor(vp, "HeatVision");
@@ -547,6 +557,7 @@ protected:
 		CompositorManager::getSingleton().setCompositorEnabled(vp, "HeatVision", false);
 		CompositorManager::getSingleton().setCompositorEnabled(vp, "OldTV", false);
 		CompositorManager::getSingleton().setCompositorEnabled(vp, "B&W", false);
+		CompositorManager::getSingleton().setCompositorEnabled(vp, "DOF", false);
 
 		// show overlay
 		Overlay* pOver = OverlayManager::getSingleton().getByName("Example/CompositorOverlay");
