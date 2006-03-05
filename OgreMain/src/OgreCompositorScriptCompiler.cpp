@@ -67,10 +67,11 @@ namespace Ogre {
 		"<Label> ::= <Unquoted_Label> | <Quoted_Label> \n"
 		"<Quoted_Label> ::= '\"' <Character> {<Alphanumeric_Space>} '\"' \n"
         "<Unquoted_Label> ::= <Character> {<Alphanumeric>} \n"
-		"<Alphanumeric_Space> ::= <Alphanumeric> | ' ' \n"
+		"<Alphanumeric_Space> ::= <Alphanumeric> | <Space> \n"
 		"<Alphanumeric> ::= <Character> | <Number> \n"
 		"<Character> ::= (abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$#%!_*&\\/) \n"
 		"<Number> ::= (0123456789) \n"
+		"<Space> ::= ( ) \n"
 
 		;
 	//-----------------------------------------------------------------------
@@ -334,7 +335,12 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseOnlyInitial(void)
 	{
-		logParseError("parseOnlyInitial");
+		//logParseError("parseOnlyInitial");
+		if (testNextToken(ID_ON)
+		{
+            assert(mScriptContext.target);
+            mScriptContext.target->setOnlyInitial(true);
+		}
 
 	}
 	//-----------------------------------------------------------------------
