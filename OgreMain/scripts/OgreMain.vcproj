@@ -213,6 +213,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreCommon.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreCompiler2Pass.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreCompositionPass.cpp">
 			</File>
 			<File
@@ -232,6 +235,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreCompositorManager.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreCompositorScriptCompiler.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreCompositorSerializer.cpp">
@@ -394,6 +400,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreMaterialManager.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreMaterialScriptCompiler.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreMaterialSerializer.cpp">
@@ -799,6 +808,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreCommon.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreCompiler2Pass.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreCompositionPass.h">
 			</File>
 			<File
@@ -818,6 +830,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreCompositorManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreCompositorScriptCompiler.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreCompositorSerializer.h">
@@ -997,6 +1012,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreMaterialManager.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreMaterialScriptCompiler.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreMaterialSerializer.h">
 			</File>
 			<File
@@ -1151,6 +1169,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreRay.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreRectangle.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreRectangle2D.h">
