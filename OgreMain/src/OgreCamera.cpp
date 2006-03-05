@@ -210,6 +210,12 @@ namespace Ogre {
             mOrientation = rotQuat * mOrientation;
         }
 
+        // transform to parent space
+        if (mParentNode)
+        {
+            mOrientation =
+                mParentNode->_getDerivedOrientation().Inverse() * mOrientation;
+        }
 
         // TODO If we have a fixed yaw axis, we mustn't break it by using the
         // shortest arc because this will sometimes cause a relative yaw
