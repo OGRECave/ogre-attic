@@ -336,7 +336,7 @@ namespace Ogre {
 	void CompositorScriptCompiler::parseOnlyInitial(void)
 	{
 		//logParseError("parseOnlyInitial");
-		if (testNextToken(ID_ON)
+		if (testNextTokenID(ID_ON))
 		{
             assert(mScriptContext.target);
             mScriptContext.target->setOnlyInitial(true);
