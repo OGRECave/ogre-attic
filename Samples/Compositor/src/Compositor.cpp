@@ -44,7 +44,8 @@ class CompositorFrameListener : public ExampleFrameListener
 {
 protected:
 	float timeoutDelay;
-	bool i0, i1, i2, i3, i4, i5;
+	bool i0, i1, i2, i3, i4, i5, i6;
+
 	OverlayElement* mDescText;
 
 public:
@@ -52,7 +53,7 @@ public:
         :ExampleFrameListener(window, maincam)
     {
 		timeoutDelay = 0;
-		i0 = i1 = i2 = i3 = i4 = i5 = false;
+		i0 = i1 = i2 = i3 = i4 = i5 = i6 = false;
 		mDescText = OverlayManager::getSingleton().getOverlayElement("Example/Compositor/ActiveText");
 		mDescText->setCaption("None");
     }
@@ -104,7 +105,14 @@ public:
 			if(mInputDevice->isKeyDown(KC_6))
 			{
 				i5 = !i5;
-				CompositorManager::getSingleton().setCompositorEnabled(vp, "OldTV", i4);
+				CompositorManager::getSingleton().setCompositorEnabled(vp, "OldTV", i5);
+				timeoutDelay = 0.5f;
+			}
+
+			if(mInputDevice->isKeyDown(KC_7))
+			{
+				i6 = !i6;
+				CompositorManager::getSingleton().setCompositorEnabled(vp, "B&W", i6);
 				timeoutDelay = 0.5f;
 			}
 
@@ -123,6 +131,8 @@ public:
 					txt << "HeatVision ";
 				if (i5)
 					txt << "Old TV ";
+				if (i6)
+					txt << "B&W ";
 				mDescText->setCaption(txt.str());
 
 
@@ -521,7 +531,9 @@ protected:
 		CompositorManager::getSingleton().addCompositor(vp, "Hurt");
 		CompositorManager::getSingleton().addCompositor(vp, "Glass");
 		CompositorManager::getSingleton().addCompositor(vp, "MotionBlur");
-		CompositorManager::getSingleton().addCompositor(vp, "Old TV");
+		CompositorManager::getSingleton().addCompositor(vp, "OldTV");
+		CompositorManager::getSingleton().addCompositor(vp, "B&W");
+
 		hvListener = new HeatVisionListener();
 		CompositorInstance *instance = CompositorManager::getSingleton().addCompositor(vp, "HeatVision");
 		if(instance)
@@ -533,7 +545,8 @@ protected:
         CompositorManager::getSingleton().setCompositorEnabled(vp, "Glass", false);
         CompositorManager::getSingleton().setCompositorEnabled(vp, "MotionBlur", false);
 		CompositorManager::getSingleton().setCompositorEnabled(vp, "HeatVision", false);
-		CompositorManager::getSingleton().setCompositorEnabled(vp, "Old TV", false);
+		CompositorManager::getSingleton().setCompositorEnabled(vp, "OldTV", false);
+		CompositorManager::getSingleton().setCompositorEnabled(vp, "B&W", false);
 
 		// show overlay
 		Overlay* pOver = OverlayManager::getSingleton().getByName("Example/CompositorOverlay");
