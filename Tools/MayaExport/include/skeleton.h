@@ -17,6 +17,7 @@ namespace OgreMayaExporter
 		double posx,posy,posz;
 		double angle;
 		double axisx,axisy,axisz;
+		MDagPath jointDag;
 	} joint;
 
 	/***** structure to hold keyframes *****/
@@ -57,9 +58,13 @@ namespace OgreMayaExporter
 		MStatus load(MFnSkinCluster* pSkinCluster,ParamList& params);
 		//load skeletal animations
 		MStatus loadAnims(MDagPath& jointDag,int jointId,ParamList& params);
+		MStatus loadAnims(ParamList& params);
 		//load a clip
+		MStatus loadClip(MString clipName,double start,double stop,double rate,ParamList& params);
 		MStatus loadClip(MDagPath& jointDag,int jointId,MString clipName,double start,
 			double stop,double rate,ParamList& params);
+		//load a keyframe for a particular joint at current time
+		keyframe loadKeyframe(joint& j,double time,ParamList& params);
 		//get joints
 		std::vector<joint>& getJoints();
 		//get animations

@@ -29,6 +29,7 @@ namespace OgreMayaExporter
 		/**************************** LOAD DATA **********************************/
 		if (m_params.exportAll)
 		{	// we are exporting the whole scene
+			std::cout << "Export the whole scene\n";
 			MItDag dagIter;
 			MFnDagNode worldDag (dagIter.root());
 			MDagPath worldPath;
@@ -37,6 +38,7 @@ namespace OgreMayaExporter
 		}
 		else
 		{	// we are translating a selection
+			std::cout << "Export selected objects\n";
 			// get the selection list
 			MSelectionList activeList;
 			stat = MGlobal::getActiveSelectionList(activeList);
@@ -75,14 +77,21 @@ namespace OgreMayaExporter
 		if (m_params.exportSkeleton)
 		{
 			std::cout << "Writing skeleton data to xml file...\n";
-			stat  = m_pMesh->getSkeleton()->writeXML(m_params);
-			if (stat == MS::kSuccess)
-				std::cout << "OK\n";
+			if (m_pMesh->getSkeleton())
+			{
+				stat = m_pMesh->getSkeleton()->writeXML(m_params);
+				if (stat == MS::kSuccess)
+					std::cout << "OK\n";
+				else
+				{
+					std::cout << "Error writing skeleton to XML\n";
+					exit();
+					return MS::kFailure;
+				}
+			}
 			else
 			{
-				std::cout << "Error writing skeleton to XML\n";
-				exit();
-				return MS::kFailure;
+				std::cout << "Mesh has no linked skeleton, creating an empty skeleton file\n";
 			}
 		}
 		// write materials data
@@ -153,8 +162,7 @@ namespace OgreMayaExporter
 					std::cout << "OK\n";
 				else
 				{
-					std::cout << "Error, Aborting operation\n";
-					return MS::kFailure;
+					std::cout << "Error, mesh skipped\n";
 				}
 			}
 		}

@@ -174,7 +174,7 @@ namespace OgreMayaExporter
 			m_faces.push_back(newFace);
 		}
 		// set use32bitIndexes flag
-		if ((m_vertices.size() > 65535) || (m_faces.size() > 65535))
+		if (params.useSharedGeom || (m_vertices.size() > 65535) || (m_faces.size() > 65535))
 			m_use32bitIndexes = true;
 		else
 			m_use32bitIndexes = false;
