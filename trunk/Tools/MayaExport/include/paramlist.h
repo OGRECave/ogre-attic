@@ -15,6 +15,12 @@ namespace OgreMayaExporter
 		MString name;							//clip name
 	} clipInfo;
 
+	typedef enum
+	{
+		NPT_CURFRAME,
+		NPT_BINDPOSE,
+		NPT_FRAME
+	} NeutralPoseType;
 
 	/***** Class ParamList *****/
 	class ParamList
@@ -27,7 +33,7 @@ namespace OgreMayaExporter
 			lightingOff, copyTextures, exportParticles;
 
 		MString meshFilename, skeletonFilename, materialFilename, animFilename, camerasFilename, matPrefix,
-			outputDir, particlesFilename;
+			texOutputDir, particlesFilename;
 
 		std::ofstream outMesh, outMaterial, outAnim, outCameras, outSkeleton, outParticles;
 
@@ -35,8 +41,8 @@ namespace OgreMayaExporter
 
 		std::vector<clipInfo> clipList;
 
-		unsigned short neutralPoseType;		// 0 means use current frame, 1 use bind pose, 2 use specified frame
-		long neutralPoseFrame;				// frame to use as neutral pose
+		NeutralPoseType neutralPoseType;
+		long neutralPoseFrame;				// frame to use as neutral pose (in case NPT_FRAME is the neutral pose type)
 
 		// constructor
 		ParamList()	{
@@ -67,9 +73,9 @@ namespace OgreMayaExporter
 			camerasFilename = "";
 			particlesFilename = "";
 			matPrefix = "";
-			outputDir = "";
+			texOutputDir = "";
 			clipList.clear();
-			neutralPoseType = 0;	// set default to current frame
+			neutralPoseType = NPT_CURFRAME;	// set default to current frame
 			neutralPoseFrame = 0;
 		}
 
@@ -101,7 +107,7 @@ namespace OgreMayaExporter
 			camerasFilename = source.camerasFilename;
 			particlesFilename = source.particlesFilename;
 			matPrefix = source.matPrefix;
-			outputDir = source.outputDir;
+			texOutputDir = source.texOutputDir;
 			clipList.resize(source.clipList.size());
 			for (int i=0; i< clipList.size(); i++)
 			{
