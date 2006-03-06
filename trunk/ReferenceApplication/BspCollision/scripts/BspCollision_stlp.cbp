@@ -84,6 +84,11 @@
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="$(#STLPORT_DIR)\lib" />
 		</Linker>
+		<Unit filename="..\src\BspCollision.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\..\Common\include\ExampleRefAppApplication.h">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
@@ -95,11 +100,6 @@
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\BspCollision.cpp">
-			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
