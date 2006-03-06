@@ -40,197 +40,233 @@ LGPL like the rest of the engine.
 #include <OgreCompositionTargetPass.h>
 
 
-class CompositorFrameListener : public ExampleFrameListener
-{
-protected:
-	float timeoutDelay;
-	bool i0, i1, i2, i3, i4, i5, i6, i7;
+    /** Listener that keeps and updates private parameters for a HeatVision instance.
+    */
+    class HeatVisionListener: public CompositorInstance::Listener
+    {
+    public:
+        HeatVisionListener()
+        {
+            timer = PlatformManager::getSingleton().createTimer();
+            start = end = curr = 0.0f;
+        }
+        virtual ~HeatVisionListener()
+        {
+            PlatformManager::getSingleton().destroyTimer(timer);
+        }
+        virtual void notifyMaterialSetup(uint32 pass_id, MaterialPtr &mat)
+        {
+            if(pass_id == 0xDEADBABE)
+            {
+                timer->reset();
+                fpParams =
+                    mat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
+            }
+        }
+        virtual void notifyMaterialRender(uint32 pass_id, MaterialPtr &mat)
+        {
+            if(pass_id == 0xDEADBABE)
+            {
+                // "random_fractions" parameter
+                fpParams->setNamedConstant("random_fractions", Vector4(Math::RangeRandom(0.0, 1.0), Math::RangeRandom(0, 1.0), 0, 0));
 
-	OverlayElement* mDescText;
+                // "depth_modulator" parameter
+                float inc = ((float)timer->getMilliseconds())/1000.0f;
+                if ( (abs(curr-end) <= 0.001) ) {
+                    // take a new value to reach
+                    end = Math::RangeRandom(0.95, 1.0);
+                    start = curr;
+                } else {
+                    if (curr > end) curr -= inc;
+                    else curr += inc;
+                }
+                timer->reset();
+
+                fpParams->setNamedConstant("depth_modulator", Vector4(curr, 0, 0, 0));
+            }
+        }
+    protected:
+        GpuProgramParametersSharedPtr fpParams;
+        float start, end, curr;
+        Timer *timer;
+    };
+
+    class CompositorFrameListener : public ExampleFrameListener
+    {
+    protected:
+        float timeoutDelay;
+        HeatVisionListener *hvListener;
+
+        struct CompositorEntry
+        {
+            String CompositorName;
+            String DisplayName;
+            bool Enabled;
+            KeyCode KCode;
+
+            CompositorEntry(void) : Enabled(false), KCode(KC_A) {}
+            CompositorEntry(const String& compName, const String& dispName, KeyCode keyCode)
+                : CompositorName(compName)
+                , DisplayName(dispName)
+                , Enabled(false)
+                , KCode(keyCode)
+                {}
+        };
+
+        typedef std::vector<CompositorEntry> CompositorEntryContainer;
+        typedef CompositorEntryContainer::iterator CompositorEntryIterator;
+
+        CompositorEntryContainer mRegisteredCompositors;
+
+        OverlayElement* mDescText;
+
+    public:
+        CompositorFrameListener(RenderWindow* window, Camera* maincam)
+            :ExampleFrameListener(window, maincam)
+            , hvListener(0)
+        {
+            timeoutDelay = 0;
+            mDescText = OverlayManager::getSingleton().getOverlayElement("Example/Compositor/ActiveText");
+            mDescText->setCaption("None");
+            mRegisteredCompositors.reserve(15);
+
+            registerCompositors();
+        }
+        ~CompositorFrameListener()
+        {
+            delete hvListener;
+        }
+
+        void registerCompositors(void)
+        {
+            mRegisteredCompositors.push_back(CompositorEntry("Bloom",       "[Bloom] ",         KC_1));
+            mRegisteredCompositors.push_back(CompositorEntry("Hurt",        "[Hurt] ",          KC_2));
+            mRegisteredCompositors.push_back(CompositorEntry("Glass",       "[Glass] ",         KC_3));
+            mRegisteredCompositors.push_back(CompositorEntry("MotionBlur",  "[Motion Blur] ",   KC_4));
+            mRegisteredCompositors.push_back(CompositorEntry("OldTV",       "[Old TV] ",        KC_6));
+            mRegisteredCompositors.push_back(CompositorEntry("B&W",         "[B&W]",            KC_7));
+            mRegisteredCompositors.push_back(CompositorEntry("DOF",         "[DOF] ",           KC_8));
+            mRegisteredCompositors.push_back(CompositorEntry("Embossed",    "[Embossed] ",      KC_0));
+
+            Viewport *vp = mWindow->getViewport(0);
+
+            CompositorEntryIterator currentCompEntry = mRegisteredCompositors.begin();
+            while (currentCompEntry != mRegisteredCompositors.end())
+            {
+                /// Add compositors to main viewport
+                CompositorManager::getSingleton().addCompositor(vp, currentCompEntry->CompositorName);
+                CompositorManager::getSingleton().setCompositorEnabled(vp, currentCompEntry->CompositorName, false);
+
+                ++currentCompEntry;
+            }
+
+            hvListener = new HeatVisionListener();
+            CompositorInstance *instance = CompositorManager::getSingleton().addCompositor(vp, "HeatVision");
+            mRegisteredCompositors.push_back(CompositorEntry("HeatVision",  "[Heat Vision] ",   KC_5));
+            CompositorManager::getSingleton().setCompositorEnabled(vp, "HeatVision", false);
+            if(instance)
+                instance->addListener(hvListener);
+        }
+
+        bool frameStarted(const FrameEvent& evt)
+        {
+            bool result = ExampleFrameListener::frameStarted(evt);
+
+            return result;
+        }
+
+        virtual bool processUnbufferedKeyInput(const FrameEvent& evt)
+        {
+            bool retval = ExampleFrameListener::processUnbufferedKeyInput(evt);
+            timeoutDelay -= evt.timeSinceLastFrame;
+
+            if(timeoutDelay < 0.0f)
+            {
+
+                timeoutDelay = 0.0f;
+                Viewport *vp = mWindow->getViewport(0);
+
+                CompositorEntryIterator currentCompEntry = mRegisteredCompositors.begin();
+                while (currentCompEntry != mRegisteredCompositors.end())
+                {
+                    if(mInputDevice->isKeyDown(currentCompEntry->KCode))
+                    {
+                        currentCompEntry->Enabled = !currentCompEntry->Enabled;
+                        CompositorManager::getSingleton().setCompositorEnabled(vp, currentCompEntry->CompositorName, currentCompEntry->Enabled);
+                        timeoutDelay = 0.5f;
+                    }
+
+                    ++currentCompEntry;
+                }
+
+                if (timeoutDelay >= 0.5f)
+                {
+                    StringUtil::StrStreamType txt;
+
+                    currentCompEntry = mRegisteredCompositors.begin();
+                    while (currentCompEntry != mRegisteredCompositors.end())
+                    {
+                        if(currentCompEntry->Enabled)
+                        {
+                            txt << currentCompEntry->DisplayName;
+                        }
+
+                        ++currentCompEntry;
+                    }
+
+                    if (txt.str().empty())
+                        txt << "None ";
+
+                    mDescText->setCaption(txt.str());
+                }
+            }
+            return retval;
+        }
+    };
+
+// ********** Currently not used
+//    class SceneEffectController :  public RenderTargetListener
+//    {
+//        void preRenderTargetUpdate(const RenderTargetEvent& evt)
+//        {
+//            // Hide plane
+//            mPlaneEnt->setVisible(false);
+//
+//        }
+//        void postRenderTargetUpdate(const RenderTargetEvent& evt)
+//        {
+//            // Show plane
+//            mPlaneEnt->setVisible(true);
+//        }
+//
+//    protected:
+//
+//        MovablePlane* mPlane;
+//        Entity* mPlaneEnt;
+//        SceneNode* mPlaneNode;
+//
+//    public:
+//        SceneEffectController() : mPlane(0) {}
+//        ~SceneEffectController()
+//        {
+//            delete mPlane;
+//        }
+//
+//
+//    };
+
+class CompositorApplication : public ExampleApplication
+{
 
 public:
-    CompositorFrameListener(RenderWindow* window, Camera* maincam)
-        :ExampleFrameListener(window, maincam)
-    {
-		timeoutDelay = 0;
-		i0 = i1 = i2 = i3 = i4 = i5 = i6 = i7 = false;
-		mDescText = OverlayManager::getSingleton().getOverlayElement("Example/Compositor/ActiveText");
-		mDescText->setCaption("None");
-    }
-    bool frameStarted(const FrameEvent& evt)
-    {
-        bool result = ExampleFrameListener::frameStarted(evt);
-
-        return result;
-    }
-	virtual bool processUnbufferedKeyInput(const FrameEvent& evt)
-    {
-		bool retval = ExampleFrameListener::processUnbufferedKeyInput(evt);
-		timeoutDelay -= evt.timeSinceLastFrame;
-		Viewport *vp = mWindow->getViewport(0);
-		if(timeoutDelay<0.0f)
-		{
-			timeoutDelay = 0.0f;
-			if(mInputDevice->isKeyDown(KC_1))
-			{
-				i0 = !i0;
-				CompositorManager::getSingleton().setCompositorEnabled(vp, "Bloom", i0);
-				timeoutDelay = 0.5f;
-			}
-			if(mInputDevice->isKeyDown(KC_2))
-			{
-				i1 = !i1;
-				CompositorManager::getSingleton().setCompositorEnabled(vp, "Hurt", i1);
-				timeoutDelay = 0.5f;
-			}
-			if(mInputDevice->isKeyDown(KC_3))
-			{
-				i2 = !i2;
-				CompositorManager::getSingleton().setCompositorEnabled(vp, "Glass", i2);
-				timeoutDelay = 0.5f;
-			}
-			if(mInputDevice->isKeyDown(KC_4))
-			{
-				i3 = !i3;
-				CompositorManager::getSingleton().setCompositorEnabled(vp, "MotionBlur", i3);
-				timeoutDelay = 0.5f;
-			}
-			if(mInputDevice->isKeyDown(KC_5))
-			{
-				i4 = !i4;
-				CompositorManager::getSingleton().setCompositorEnabled(vp, "HeatVision", i4);
-				timeoutDelay = 0.5f;
-			}
-
-			if(mInputDevice->isKeyDown(KC_6))
-			{
-				i5 = !i5;
-				CompositorManager::getSingleton().setCompositorEnabled(vp, "OldTV", i5);
-				timeoutDelay = 0.5f;
-			}
-
-			if(mInputDevice->isKeyDown(KC_7))
-			{
-				i6 = !i6;
-				CompositorManager::getSingleton().setCompositorEnabled(vp, "B&W", i6);
-				timeoutDelay = 0.5f;
-			}
-
-			if(mInputDevice->isKeyDown(KC_8))
-			{
-				i7 = !i7;
-				CompositorManager::getSingleton().setCompositorEnabled(vp, "DOF", i7);
-				timeoutDelay = 0.5f;
-			}
-
-			if (timeoutDelay > 0.0f)
-			{
-				StringUtil::StrStreamType txt;
-				if (i0)
-					txt << "Bloom ";
-				if (i1)
-					txt << "Hurt ";
-				if (i2)
-					txt << "Glass ";
-				if (i3)
-					txt << "MotionBlur ";
-				if (i4)
-					txt << "HeatVision ";
-				if (i5)
-					txt << "Old TV ";
-				if (i6)
-					txt << "B&W ";
-				if (i7)
-					txt << "DOF ";
-                if (txt.str().empty())
-                    txt << "None ";
-				mDescText->setCaption(txt.str());
-			}
-		}
-		return retval;
-	}
-};
-
-/** Listener that keeps and updates private parameters for a HeatVision instance.
- */
-class HeatVisionListener: public CompositorInstance::Listener
-{
-public:
-	HeatVisionListener()
-	{
-		timer = PlatformManager::getSingleton().createTimer();
-		start = end = curr = 0.0f;
-	}
-	virtual ~HeatVisionListener()
-	{
-		PlatformManager::getSingleton().destroyTimer(timer);
-	}
-	virtual void notifyMaterialSetup(uint32 pass_id, MaterialPtr &mat)
-	{
-		if(pass_id == 0xDEADBABE)
-		{
-			timer->reset();
-			fpParams =
-				mat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
-		}
-	}
-	virtual void notifyMaterialRender(uint32 pass_id, MaterialPtr &mat)
-	{
-		if(pass_id == 0xDEADBABE)
-		{
-			// "random_fractions" parameter
-			fpParams->setNamedConstant("random_fractions", Vector4(Math::RangeRandom(0.0, 1.0), Math::RangeRandom(0, 1.0), 0, 0));
-
-			// "depth_modulator" parameter
-			float inc = ((float)timer->getMilliseconds())/1000.0f;
-			if ( (abs(curr-end) <= 0.001) ) {
-				// take a new value to reach
-				end = Math::RangeRandom(0.95, 1.0);
-				start = curr;
-			} else {
-				if (curr > end) curr -= inc;
-				else curr += inc;
-			}
-			timer->reset();
-
-			fpParams->setNamedConstant("depth_modulator", Vector4(curr, 0, 0, 0));
-		}
-	}
-protected:
-	GpuProgramParametersSharedPtr fpParams;
-	float start, end, curr;
-	Timer *timer;
-};
-
-class CompositorApplication : public ExampleApplication, public RenderTargetListener
-{
-public:
-    CompositorApplication() : mPlane(0),hvListener(0) {}
+    CompositorApplication() {}
     ~CompositorApplication()
     {
-        delete mPlane;
-		delete hvListener;
     }
 
 protected:
 
-    MovablePlane* mPlane;
-    Entity* mPlaneEnt;
-    SceneNode* mPlaneNode;
-
-	HeatVisionListener *hvListener;
     // render target events
-    void preRenderTargetUpdate(const RenderTargetEvent& evt)
-    {
-        // Hide plane
-        mPlaneEnt->setVisible(false);
-
-    }
-    void postRenderTargetUpdate(const RenderTargetEvent& evt)
-    {
-        // Show plane
-        mPlaneEnt->setVisible(true);
-    }
 
 	/// Create the postfilter effects
 	/// This will be replaced with a .compositor script as soon as the script parser is
@@ -533,31 +569,6 @@ protected:
 		/// finished.
 		createEffects();
 
-		Viewport *vp = mWindow->getViewport(0);
-
-		/// Add compositors to main viewport
-		CompositorManager::getSingleton().addCompositor(vp, "Bloom");
-		CompositorManager::getSingleton().addCompositor(vp, "Hurt");
-		CompositorManager::getSingleton().addCompositor(vp, "Glass");
-		CompositorManager::getSingleton().addCompositor(vp, "MotionBlur");
-		CompositorManager::getSingleton().addCompositor(vp, "OldTV");
-		CompositorManager::getSingleton().addCompositor(vp, "B&W");
-		CompositorManager::getSingleton().addCompositor(vp, "DOF");
-
-		hvListener = new HeatVisionListener();
-		CompositorInstance *instance = CompositorManager::getSingleton().addCompositor(vp, "HeatVision");
-		if(instance)
-			instance->addListener(hvListener);
-
-        /// Initially, disable all Ogre/Compositor
-        CompositorManager::getSingleton().setCompositorEnabled(vp, "Bloom", false);
-        CompositorManager::getSingleton().setCompositorEnabled(vp, "Hurt", false);
-        CompositorManager::getSingleton().setCompositorEnabled(vp, "Glass", false);
-        CompositorManager::getSingleton().setCompositorEnabled(vp, "MotionBlur", false);
-		CompositorManager::getSingleton().setCompositorEnabled(vp, "HeatVision", false);
-		CompositorManager::getSingleton().setCompositorEnabled(vp, "OldTV", false);
-		CompositorManager::getSingleton().setCompositorEnabled(vp, "B&W", false);
-		CompositorManager::getSingleton().setCompositorEnabled(vp, "DOF", false);
 
 		// show overlay
 		Overlay* pOver = OverlayManager::getSingleton().getByName("Example/CompositorOverlay");
