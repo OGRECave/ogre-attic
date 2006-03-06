@@ -152,7 +152,7 @@
 			</Window>
 
 			<Window Type="TaharezLook/Combobox" Name="ShaderCombos">
-				<Property Name="Position" Value="x:0.05 y:0.25" />
+				<Property Name="Position" Value="x:0.05 y:0.27" />
 				<Property Name="RelativeMaxSize" Value="w:0.2 h:0.15" />
 				<Property Name="RelativeMinSize" Value="w:0.2 h:0.15" />
 				<Property Name="Size" Value="w:0.2 h:0.15" />
@@ -174,7 +174,7 @@
 			</Window>
 
 			<Window Type="TaharezLook/Combobox" Name="ModelCombos">
-				<Property Name="Position" Value="x:0.05 y:0.55" />
+				<Property Name="Position" Value="x:0.05 y:0.57" />
 				<Property Name="RelativeMaxSize" Value="w:0.2 h:0.15" />
 				<Property Name="RelativeMinSize" Value="w:0.2 h:0.15" />
 				<Property Name="Size" Value="w:0.2 h:0.15" />
@@ -184,10 +184,10 @@
 			</Window>
 
 			<Window Type="TaharezLook/Button" Name="ExitDemoBtn">
-				<Property Name="Position" Value="x:0.25 y:0.76" />
-				<Property Name="RelativeMaxSize" Value="w:0.12 h:0.03" />
-				<Property Name="RelativeMinSize" Value="w:0.12 h:0.03" />
-				<Property Name="Size" Value="w:0.33 h:0.03" />
+				<Property Name="Position" Value="x:0.25 y:0.79" />
+				<Property Name="RelativeMaxSize" Value="w:0.12 h:0.04" />
+				<Property Name="RelativeMinSize" Value="w:0.12 h:0.04" />
+				<Property Name="Size" Value="w:0.33 h:0.04" />
 				<Property Name="Text" Value="Exit Demo" />
 				<Property Name="InheritsAlpha" Value="False" />
 			</Window>
@@ -227,9 +227,9 @@
 			
 			<Window Type="TaharezLook/RadioButton" Name="CameraRBtn">
 				<Property Name="Position" Value="x:0.1 y:0.2" />
-				<Property Name="RelativeMaxSize" Value="w:0.12 h:0.02" />
-				<Property Name="RelativeMinSize" Value="w:0.12 h:0.02" />
-				<Property Name="Size" Value="w:0.33 h:0.02" />
+				<Property Name="RelativeMaxSize" Value="w:0.12 h:0.03" />
+				<Property Name="RelativeMinSize" Value="w:0.12 h:0.03" />
+				<Property Name="Size" Value="w:0.33 h:0.03" />
 				<Property Name="Text" Value="Camera" />
 				<Property Name="InheritsAlpha" Value="False" />
 				<Property Name="Selected" Value="true" />
@@ -239,9 +239,9 @@
 
 			<Window Type="TaharezLook/RadioButton" Name="ModelRBtn">
 				<Property Name="Position" Value="x:0.1 y:0.4" />
-				<Property Name="RelativeMaxSize" Value="w:0.12 h:0.02" />
-				<Property Name="RelativeMinSize" Value="w:0.12 h:0.02" />
-				<Property Name="Size" Value="w:0.33 h:0.02" />
+				<Property Name="RelativeMaxSize" Value="w:0.12 h:0.03" />
+				<Property Name="RelativeMinSize" Value="w:0.12 h:0.03" />
+				<Property Name="Size" Value="w:0.33 h:0.03" />
 				<Property Name="Text" Value="Model" />
 				<Property Name="InheritsAlpha" Value="False" />
 				<Property Name="Selected" Value="False" />
@@ -250,7 +250,7 @@
 			</Window>
 			
 			<Window Type="TaharezLook/Checkbox" Name="ModelSpinCB">
-				<Property Name="Position" Value="x:0.2 y:0.5" />
+				<Property Name="Position" Value="x:0.2 y:0.53" />
 				<Property Name="RelativeMaxSize" Value="w:0.12 h:0.03" />
 				<Property Name="RelativeMinSize" Value="w:0.12 h:0.03" />
 				<Property Name="Size" Value="w:0.12 h:0.03" />
