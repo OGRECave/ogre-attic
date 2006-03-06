@@ -619,13 +619,14 @@ namespace Ogre {
                     {
                         parseErrorLogged = true;
                         LogManager::getSingleton().logMessage(
-                        "Grammer: " + getClientGrammerName() +
+                        "*** ERROR in : " + getClientGrammerName() +
                         "\nSource: " + mSourceName +
                         "\nUnkown token found, was expecting: " + getBNFGrammerTextFromRulePath(rulepathIDX)
                         );
                         LogManager::getSingleton().logMessage(
-                        "And Found: \"" + mSource->substr(mCharPos, 20) +
-                        "\", while in rule path: " + mActiveTokenState->lexemeTokenDefinitions[ActiveNTTRule].lexeme
+                        " Found: >>>" + mSource->substr(mCharPos, 20) +
+                        "<<<, while in rule path: <" + mActiveTokenState->lexemeTokenDefinitions[ActiveNTTRule].lexeme
+                        + ">"
                         );
                     }
 
@@ -758,7 +759,7 @@ namespace Ogre {
                         LogManager::getSingleton().logMessage(
                             "Last valid token found was at line: " + StringConverter::toString(tokenInst.line));
                         LogManager::getSingleton().logMessage(
-                            "source hint: \"" + mSource->substr(tokenInst.pos, 20) + "\"");
+                            "source hint: >>>" + mSource->substr(tokenInst.pos, 20) + "<<<");
                     }
 			    }
 			    break;
