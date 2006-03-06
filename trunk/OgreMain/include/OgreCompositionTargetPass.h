@@ -73,6 +73,21 @@ namespace Ogre {
         /** Get the scene visiblity mask used by this pass 
         */
         uint32 getVisibilityMask();
+
+		/** Set the material scheme used by this target pass.
+		@remarks
+			Only applicable to targets that render the scene as
+			one of their passes.
+			@see Technique::setScheme.
+		*/
+		void setMaterialScheme(const String& schemeName);
+		/** Get the material scheme used by this target pass.
+		@remarks
+			Only applicable to targets that render the scene as
+			one of their passes.
+			@see Technique::setScheme.
+		*/
+		const String& getMaterialScheme(void) const;
         
         /** Set the scene LOD bias used by this pass. The default is 1.0,
             everything below that means lower quality, higher means higher quality.
@@ -120,6 +135,8 @@ namespace Ogre {
         uint32 mVisibilityMask;
         /// LOD bias of this render
         float mLodBias;
+		/// Material scheme name
+		String mMaterialScheme;
     };
 
 }

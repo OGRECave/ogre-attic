@@ -170,7 +170,9 @@ namespace Ogre {
 		/// Store old find visible objects
 		bool mOldFindVisibleObjects;
         /// Store old camera LOD bias      
-        float mOldLodBias;      
+        float mOldLodBias;     
+		///	Store old viewport material scheme
+		String mOldMaterialScheme;
     };
 }
 

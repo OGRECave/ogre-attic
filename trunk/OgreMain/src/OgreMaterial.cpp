@@ -267,6 +267,26 @@ namespace Ogre {
 		return static_cast<unsigned short>(mSupportedTechniques.size());
     }
 	//-----------------------------------------------------------------------
+	unsigned short Material::getNumLodLevels(unsigned short schemeIndex) const
+	{
+		BestTechniquesBySchemeList::const_iterator i = 
+			mBestTechniquesBySchemeList.find(schemeIndex);
+		if (i != mBestTechniquesBySchemeList.end())
+		{
+			return static_cast<unsigned short>(i->second->size());
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	//-----------------------------------------------------------------------
+	unsigned short Material::getNumLodLevels(const String& schemeName) const
+	{
+		return getNumLodLevels(
+			MaterialManager::getSingleton()._getSchemeIndex(schemeName));
+	}
+	//-----------------------------------------------------------------------
 	void Material::insertSupportedTechnique(Technique* t)
 	{
 		mSupportedTechniques.push_back(t);

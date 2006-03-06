@@ -274,6 +274,7 @@ void CompositorInstance::_compileTargetOperations(CompiledState &compiledState)
         ts.onlyInitial = target->getOnlyInitial();
         ts.visibilityMask = target->getVisibilityMask();
         ts.lodBias = target->getLodBias();
+		ts.materialScheme = target->getMaterialScheme();
         /// Check for input mode previous
         if(target->getInputMode() == CompositionTargetPass::IM_PREVIOUS)
         {
@@ -296,6 +297,7 @@ void CompositorInstance::_compileOutputOperation(TargetOperation &finalState)
     /// Logical-and together the visibilityMask, and multiply the lodBias
     finalState.visibilityMask &= tpass->getVisibilityMask();
     finalState.lodBias *= tpass->getLodBias();
+	finalState.materialScheme = tpass->getMaterialScheme();
     
     if(tpass->getInputMode() == CompositionTargetPass::IM_PREVIOUS)
     {

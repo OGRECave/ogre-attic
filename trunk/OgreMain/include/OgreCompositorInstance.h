@@ -132,6 +132,8 @@ namespace Ogre {
             /** Whether this op needs to find visible scene objects or not 
             */
             bool findVisibleObjects;
+			/** Which material scheme this op will use */
+			String materialScheme;
         };
         typedef std::vector<TargetOperation> CompiledState;
         
