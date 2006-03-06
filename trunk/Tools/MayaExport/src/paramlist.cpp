@@ -26,6 +26,19 @@ namespace OgreMayaExporter
 				exportMaterial = true;
 				materialFilename = args.asString(++i,&stat);
 			}
+			else if ((MString("-matPrefix") == args.asString(i,&stat)) && (MS::kSuccess == stat))
+			{
+				matPrefix = args.asString(++i,&stat);
+			}
+			else if ((MString("-copyTex") == args.asString(i,&stat)) && (MS::kSuccess == stat))
+			{
+				copyTextures = true;
+				texOutputDir = args.asString(++i,&stat);
+			}
+			else if ((MString("-lightOff") == args.asString(i,&stat)) && (MS::kSuccess == stat))
+			{
+				lightingOff = true;
+			}
 			else if ((MString("-skel") == args.asString(i,&stat)) && (MS::kSuccess == stat))
 			{
 				exportSkeleton = true;
@@ -87,51 +100,82 @@ namespace OgreMayaExporter
 			{
 				useSharedGeom = true;
 			}
+			else if ((MString("-np") == args.asString(i,&stat)) && (MS::kSuccess == stat))
+			{
+				MString npType = args.asString(i,&stat);
+				if (npType == "curFrame")
+					neutralPoseType = NPT_CURFRAME;
+				else if (npType == "bindPose")
+					neutralPoseType = NPT_BINDPOSE;
+				else if (npType == "frame")
+				{
+					neutralPoseType = NPT_FRAME;
+					neutralPoseFrame = args.asInt(++i,&stat);
+				}
+			}
+			else if ((MString("-clip") == args.asString(i,&stat)) && (MS::kSuccess == stat))
+			{
+				//get clip name
+				MString clipName = args.asString(++i,&stat);
+				//get clip range
+				MString clipRangeType = args.asString(++i,&stat);
+				double startTime, stopTime;
+				if (clipRangeType == "startEnd")
+				{
+					startTime = args.asDouble(++i,&stat);
+					stopTime = args.asDouble(++i,&stat);
+					MString rangeUnits = args.asString(++i,&stat);
+					if (rangeUnits == "frames")
+					{
+						//range specified in frames => convert to seconds
+						MTime t1(startTime, MTime::uiUnit());
+						MTime t2(stopTime, MTime::uiUnit());
+						startTime = t1.as(MTime::kSeconds);
+						stopTime = t2.as(MTime::kSeconds);
+					}
+				}
+				else
+				{
+					//range specified by time slider
+					MTime t1 = MAnimControl::minTime();
+					MTime t2 = MAnimControl::maxTime();
+					startTime = t1.as(MTime::kSeconds);
+					stopTime = t2.as(MTime::kSeconds);
+				}
+				// get sample rate
+				double rate;
+				MString sampleRateType = args.asString(++i,&stat);
+				if (sampleRateType == "sampleByFrames")
+				{
+					// rate specified in frames
+					int intRate = args.asInt(++i,&stat);
+					MTime t = MTime(intRate, MTime::uiUnit());
+					rate = t.as(MTime::kSeconds);
+				}
+				else
+				{
+					// rate specified in seconds
+					rate = args.asDouble(++i,&stat);
+				}
+				//add clip info
+				clipInfo clip;
+				clip.name = clipName;
+				clip.start = startTime;
+				clip.stop = stopTime;
+				clip.rate = rate;
+				clipList.push_back(clip);
+				std::cout << "clip " << clipName.asChar() << "\n";
+				std::cout << "start: " << startTime << ", stop: " << stopTime << "\n";
+				std::cout << "rate: " << rate << "\n";
+				std::cout << "-----------------\n";
+			}
 		}
-		// Read options from exporter window
-		//output directory
-		MGlobal::executeCommand("textField -query -text OutputDirectory",outputDir);
-		//neutral pose
-		int neutralPoseType_loc;
-		MGlobal::executeCommand("radioButtonGrp -q -select NeutralPoseRadio",neutralPoseType_loc);
-		switch (neutralPoseType_loc)
-		{
-		case 1:
-			neutralPoseType = 0;
-			break;
-		case 2:
-			neutralPoseType = 1;
-			break;
-		case 3:
-			neutralPoseType = 2;
-			int neutralPoseFrame_loc;
-			MGlobal::executeCommand("intField -q -v NeutralPoseFrame",neutralPoseFrame_loc);
-			neutralPoseFrame = neutralPoseFrame_loc;
-			break;
-		}
-		//material options
-		//lighting off
-		int lightOff;
-		MGlobal::executeCommand("checkBox -query -value MatLightingOff",lightOff);
-		if (lightOff)
-			lightingOff = true;
-		else
-			lightingOff = false;
-		//material prefix
-		MGlobal::executeCommand("textField -query -text ExportMaterialPrefix",matPrefix);
-		//copy textures to output dir
-		int copyTex = 0;
-		MGlobal::executeCommand("checkBox -query -value CopyTextures",copyTex);
-		if (copyTex)
-			copyTextures = true;
-		else
-			copyTextures = false;
-
+	/*	// Read options from exporter window
 		// Gather clips data
 		// Read info about the clips we have to transform
 		int numClips,exportClip,rangeType,rateType,rangeUnits;
 		double startTime,stopTime,rate;
-		MString clipName;;
+		MString clipName;
 		//read number of clips
 		MGlobal::executeCommand("eval \"$numClips+=0\"",numClips,false);
 		//read clips data
@@ -212,7 +256,7 @@ namespace OgreMayaExporter
 				std::cout << "rate: " << rate << "\n";
 				std::cout << "-----------------\n";
 			}
-		}
+		}*/
 	}
 
 

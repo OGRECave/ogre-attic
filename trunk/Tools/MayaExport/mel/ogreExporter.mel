@@ -25,6 +25,7 @@ global proc ogreExporter()
 // ===== Export
 global proc runOgreExport()
 {
+	global int $numClips;
 	saveSettings();
 	// ===== Files and directories
 	string $sceneFile    = `file -query -sceneName`;
@@ -105,6 +106,19 @@ global proc runOgreExport()
 	if ($exportMaterial)
 	{
 		$options += " -mat \"" + encodeString(toNativePath($outputDir+$materialFile)) + "\"";
+		string $matPrefix = `textField -query -text ExportMaterialPrefix`;
+		if ($matPrefix != "")
+		{
+			$options += " -matPrefix \"" + $matPrefix + "\"";
+		}
+		if (`checkBox -query -value CopyTextures`)
+		{
+			$options += " -copyTex \"" + encodeString(toNativePath($outputDir)) + "\"";
+		}
+		if (`checkBox -query -value MatLightingOff`)
+		{
+			$options += " -lightOff";
+		}
 	}
 
 	// --- Skeleton export
@@ -112,13 +126,67 @@ global proc runOgreExport()
 	if ($exportSkeleton)
 	{
 		$options += " -skel \"" + encodeString(toNativePath($outputDir+$skeletonFile)) + "\"";
-	}
+	}	
 
 	// --- Animations export
 	int $exportAnims = `checkBox -query -value ExportAnims`;
 	if ($exportAnims)
 	{
 		$options += " -anims";
+	}
+	// neutral pose
+	int $neutralPose = `radioButtonGrp -q -select NeutralPoseRadio`;
+	if ($neutralPose == 1)
+	{
+		$options += " -np curFrame";
+	}
+	else if ($neutralPose == 2)
+	{
+		$options += " -np bindPose";
+	}
+	else if ($neutralPose == 3)
+	{
+		int $nposeFrame = `intField -q -v NeutralPoseFrame`;
+		$options += " -np frame " + $nposeFrame;
+	}
+	// clips
+	int $i;
+	for ($i=1; $i<=$numClips; $i++)
+	{
+		string $command = "checkBox -q -v ExportClip" + $i;
+		if(eval($command))
+		{
+			$options += " -clip ";
+			// clip name
+			$options += eval("textField -q -tx ClipName"+$i);
+			// clip range
+			int $clipRangeType = eval("radioButtonGrp -q -sl ClipRangeRadio"+$i);
+			if ($clipRangeType == 1)
+			{
+				$options += " startEnd ";
+				$options += eval("floatField -q -v ClipRangeStart"+$i);
+				$options += " " + eval("floatField -q -v ClipRangeEnd"+$i);
+				int $rangeUnits = eval("radioButtonGrp -q -sl ClipRangeUnits"+$i);
+				if ($rangeUnits == 1)
+					$options += " frames";
+				else
+					$options += " seconds";
+			}
+			else
+				$options += " timeSlider";
+			// sample rate
+			int $clipRateType = eval("radioButtonGrp -q -sl ClipRateType"+$i);
+			if ($clipRateType == 1)
+			{
+				$options += " sampleByFrames ";
+				$options += eval("intField -q -v ClipRateFrames"+$i);
+			}
+			else
+			{
+				$options += " sampleBySec ";
+				$options += eval("floatField -q -v ClipRateSeconds"+$i);
+			}
+		}
 	}
 
 	// --- Anim Curves export
@@ -994,11 +1062,10 @@ global proc addClip()
 	
 				radioButtonGrp
 					-parent ("ClipRateTypeLayout"+$numClips)
-					-numberOfRadioButtons 3
-					-labelArray3 "Frames" "Seconds" "Time Slider"
+					-numberOfRadioButtons 2
+					-labelArray2 "Frames" "Seconds"
 					-cw 1 65
 					-cw 2 65
-					-cw 3 100
 					-select 1
 					-changeCommand "formatUI()"
 				("ClipRateType"+$numClips);

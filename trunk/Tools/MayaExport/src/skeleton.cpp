@@ -69,16 +69,16 @@ namespace OgreMayaExporter
 					MSelectionList selectionList;
 					MGlobal::getActiveSelectionList(selectionList);
 					// Set Neutral Pose
-					//if type is 1 we want the skin bind pose
-					if (params.neutralPoseFrame == 1)
+					//check if we want the skin bind pose
+					if (params.neutralPoseFrame == NPT_BINDPOSE)
 					{
 						// Note: we reset to the bind pose, then get current matrix
 						// if bind pose could not be restored we use the current pose as a bind pose
 						MGlobal::selectByName(jointDag.partialPathName(),MGlobal::kReplaceList);
 						MGlobal::executeCommand("dagPose -r -g -bp");
 					}
-					//if type is 2 we want specified frame as neutral pose
-					else if (params.neutralPoseType == 2)
+					//check if we want specified frame as neutral pose
+					else if (params.neutralPoseType == NPT_FRAME)
 					{
 						//set time to desired time
 						MTime npTime = (double)params.neutralPoseFrame;
@@ -107,6 +107,9 @@ namespace OgreMayaExporter
 				}
 			}
 		}
+		// load skeleton animation
+		if(params.exportAnims)
+			loadAnims(params);
 
 		return MS::kSuccess;
 	}
@@ -191,14 +194,11 @@ namespace OgreMayaExporter
 			newJoint.axisx = axis.x;
 			newJoint.axisy = axis.y;
 			newJoint.axisz = axis.z;
+			newJoint.jointDag = jointDag;
 			m_joints.push_back(newJoint);
-			// Load joint animations
-			if (params.exportAnims)
-				loadAnims(jointDag,m_joints.size()-1,params);
 			// Get pointer to newly created joint
 			parentJoint = &newJoint;
 		}
-
 		// Load children joints
 		for (i=0; i<jointDag.childCount();i++)
 		{
@@ -208,234 +208,165 @@ namespace OgreMayaExporter
 			childDag.push(child);
 			loadJoint(childDag,parentJoint,params);
 		}
-
 		return MS::kSuccess;
 	}
 
 
 	// Load animations
-	MStatus Skeleton::loadAnims(MDagPath& jointDag,int jointId,ParamList& params)
+	MStatus Skeleton::loadAnims(ParamList& params)
 	{
-		int i;
 		MStatus stat;
-		MFnIkJoint jointFn(jointDag);
-		MObject clipObj;
+		int i;
 		std::cout << "Loading joint animations...\n";
-
 		// save current time for later restore
 		double curtime = MAnimControl::currentTime().as(MTime::kSeconds);
-
-		// load animation clips for current joint
+		// clear animations list
+		m_animations.clear();
+		// load animation clips for the whole skeleton
 		for (i=0; i<params.clipList.size(); i++)
 		{
-			stat = loadClip(jointDag,jointId,params.clipList[i].name,params.clipList[i].start,
+			stat = loadClip(params.clipList[i].name,params.clipList[i].start,
 				params.clipList[i].stop,params.clipList[i].rate,params);
 			if (stat == MS::kSuccess)
 				std::cout << "Clip successfully loaded\n";
 			else
 				std::cout << "Failed loading clip\n";
 		}
-
 		//restore current time
 		MAnimControl::setCurrentTime(MTime(curtime,MTime::kSeconds));
-
 		return MS::kSuccess;
 	}
 
-
-	// Load given animation clip for given joint
-	MStatus Skeleton::loadClip(MDagPath& jointDag,int jointId,MString clipName,double start,double stop,
-		double rate,ParamList& params)
+	
+	// Load an animation clip
+	MStatus Skeleton::loadClip(MString clipName,double start,double stop,double rate,ParamList& params)
 	{
 		MStatus stat;
 		int i,j;
-		MFnIkJoint jointFn(jointDag);
 		MString msg;
-		std::vector<double> times,t1;
-		std::vector<MFnAnimCurve*> animCurves;
-
+		std::vector<double> times;
+		// if skeleton has no joint we can't load the clip
+		if (m_joints.size() < 0)
+			return MS::kFailure;
 		// display clip name
-		std::cout << "animation \"" << clipName.asChar() << "\"\n";
-
-		// get animation (if it doesn't exist we create it)
-		int animIdx = -1;
-		for (i=0; i<m_animations.size(); i++)
-		{
-			if (m_animations[i].name == clipName.asChar())
-				animIdx = i;
-		}
-		if (animIdx < 0)
-		{
-			animation a;
-			a.name = clipName.asChar();
-			a.tracks.clear();
-			a.length = 0;
-			m_animations.push_back(a);
-			animIdx = m_animations.size() - 1;
-		}
-
-		// if no rate is specified we get all the keyframes from the connected curves
-		if (rate <= 0)
-		{
-			animCurves.clear();
-			// get plugs to check for animation
-			MPlugArray plugs;
-			plugs.clear();
-			plugs.append(jointFn.findPlug("tx"));
-			plugs.append(jointFn.findPlug("ty"));
-			plugs.append(jointFn.findPlug("tz"));
-			plugs.append(jointFn.findPlug("rx"));
-			plugs.append(jointFn.findPlug("ry"));
-			plugs.append(jointFn.findPlug("rz"));
-			plugs.append(jointFn.findPlug("sx"));
-			plugs.append(jointFn.findPlug("sy"));
-			plugs.append(jointFn.findPlug("sz"));
-			// get animation curves for the plugs
-			MObjectArray anims;
-			for (i=0; i<9; i++)
-			{
-				// if plug is animated, add the animation curve to the vector
-				if (MAnimUtil::findAnimation(plugs[i],anims))
-				{
-					MFnAnimCurve* pAnimCurve = new MFnAnimCurve(anims[0]);
-					animCurves.push_back(pAnimCurve);
-				}
-				// else add a NULL pointer (to know it's not animated)
-				else
-					animCurves.push_back(NULL);
-			}
-			// create list of times in which we have to evaluate curves
-
-			if (animCurves[0])
-			{
-				for (i=0; i<animCurves[0]->numKeys(); i++)
-					if ((animCurves[0]->time(i).as(MTime::kSeconds) >= start) &&
-						(animCurves[0]->time(i).as(MTime::kSeconds) <= stop))
-						times.push_back(animCurves[0]->time(i).as(MTime::kSeconds));
-			}
-			for (i=1; i<9; i++)
-			{
-				if (animCurves[i])
-				{
-					t1.clear();
-					for (j=0; j<animCurves[i]->numKeys(); j++)
-						if ((animCurves[i]->time(j).as(MTime::kSeconds) >= start) &&
-							(animCurves[i]->time(j).as(MTime::kSeconds) <= stop))
-							t1.push_back(animCurves[i]->time(j).as(MTime::kSeconds));
-					times = mergesorted(times,t1);
-				}
-			}
-		}
-		// calculate times from parameters
-		else
-		{
-			times.clear();
-			for (double t=start; t<stop; t+=rate)
-				times.push_back(t);
-			times.push_back(stop);
-		}
-
+		std::cout << "clip \"" << clipName.asChar() << "\"\n";
+		// calculate times from clip sample rate
+		times.clear();
+		for (double t=start; t<stop; t+=rate)
+			times.push_back(t);
+		times.push_back(stop);
 		// get animation length
 		double length=0;
 		if (times.size() > 0)
 			length = times[times.size()-1] - times[0];
-		if (m_animations[animIdx].length < length)
-			m_animations[animIdx].length = length;
-		// create a track for current clip for current joint
-		track animTrack;
-		animTrack.bone = jointFn.partialPathName();
-		animTrack.keyframes.clear();
-
-		// evaluate animation curves at all keyframes
+		// check if clip length is >0
+		if (length <= 0)
+		{
+			std::cout << "the clip has 0 length, we skip it\n";
+			return MS::kFailure;
+		}
+		// create the animation
+		animation a;
+		a.name = clipName.asChar();
+		a.tracks.clear();
+		a.length = length;
+		m_animations.push_back(a);
+		int animIdx = m_animations.size() - 1;
+		// create a track for current clip for all joints
+		std::vector<track> animTracks;
+		for (i=0; i<m_joints.size(); i++)
+		{
+			track t;
+			t.bone = m_joints[i].name;
+			t.keyframes.clear();
+			animTracks.push_back(t);
+		}
+		// evaluate animation curves at selected times
 		for (i=0; i<times.size(); i++)
 		{
-			//evaluate curves at current time and create a keyframe for current track
-			MTransformationMatrix matrix;
-			MVector position;
-			double scale[3];
-			scale[0] = 1; scale[1] = 1; scale[2] = 1;
-			int parentIdx = m_joints[jointId].parentIndex;
-			//get joint matrix at given time
-			//set time to desired time
+			//set time to wanted sample time
 			MAnimControl::setCurrentTime(MTime(times[i],MTime::kSeconds));
-			matrix = jointDag.inclusiveMatrix();
-			if (parentIdx >= 0)
+			//load a keyframe for every joint at current time
+			for (j=0; j<m_joints.size(); j++)
 			{
-				//calculate inherited scale factor
-				((MTransformationMatrix)jointDag.exclusiveMatrix()).getScale(scale,MSpace::kWorld);
-				//calculate relative matrix
-				matrix = jointDag.inclusiveMatrix() * jointDag.exclusiveMatrixInverse();
+				keyframe key = loadKeyframe(m_joints[j],times[i]-times[0],params);
+				//add keyframe to joint track
+				animTracks[j].keyframes.push_back(key);
 			}
-			else
-			{	// root joint
-				if (params.exportWorldCoords)
-					matrix = jointDag.inclusiveMatrix();
-				else
-					matrix = jointDag.inclusiveMatrix() * jointDag.exclusiveMatrixInverse();
-			}
-			//calculate position of joint at given time
-			position.x = matrix.asMatrix()(3,0) * scale[0];
-			position.y = matrix.asMatrix()(3,1) * scale[1];
-			position.z = matrix.asMatrix()(3,2) * scale[2];
-			//get relative transformation matrix
-			matrix = matrix.asMatrix() * m_joints[jointId].localMatrix.inverse();
-			//calculate rotation
-			double qx,qy,qz,qw;
-			((MTransformationMatrix)matrix).getRotationQuaternion(qx,qy,qz,qw);
-			MQuaternion rotation(qx,qy,qz,qw);
-			double theta;
-			MVector axis;
-			rotation.getAxisAngle(axis,theta);
-			axis.normalize();
-			if (axis.length() < 0.5)
-			{
-				axis.x = 0;
-				axis.y = 1;
-				axis.z = 0;
-				theta = 0;
-			}
-			//create keyframe
-			keyframe key;
-			key.time = times[i] - times[0];
-			key.tx = position.x - m_joints[jointId].posx;
-			key.ty = position.y - m_joints[jointId].posy;
-			key.tz = position.z - m_joints[jointId].posz;
-			key.angle = theta;
-			key.axis_x = axis.x;
-			key.axis_y = axis.y;
-			key.axis_z = axis.z;
-			key.sx = 1;
-			key.sy = 1;
-			key.sz = 1;
-			//add keyframe to current track
-			animTrack.keyframes.push_back(key);
 		}
-
-		// add created track to current clip
-		m_animations[animIdx].tracks.push_back(animTrack);
-
-		if (length >0)
+		// add created tracks to current clip
+		for (i=0; i<animTracks.size(); i++)
 		{
-			// display info
-			std::cout << "length: " << m_animations[animIdx].length << "\n";
-			std::cout << "num keyframes: " << animTrack.keyframes.size() << "\n";
+			m_animations[animIdx].tracks.push_back(animTracks[i]);
 		}
-		//if the clip has no keyframes we delete it
-		else
-		{
-			std::cout << "animation track has no keyframes, so it's deleted\n";
-			m_animations[animIdx].tracks.pop_back();
-			if (m_animations[animIdx].tracks.empty())
-			{
-				m_animations.erase(m_animations.begin()+animIdx);
-			}
-		}
-
-		// free up memory
-		for (i=0; i<animCurves.size(); i++)
-			delete [] animCurves[i];
-
+		// display info
+		std::cout << "length: " << m_animations[animIdx].length << "\n";
+		std::cout << "num keyframes: " << animTracks[0].keyframes.size() << "\n";
+		// clip successfully loaded
 		return MS::kSuccess;
+	}
+
+	
+	// Load a keyframe for a given joint at current time
+	keyframe Skeleton::loadKeyframe(joint& j,double time,ParamList& params)
+	{
+		MFnIkJoint jointFn(j.jointDag);
+		MTransformationMatrix matrix;
+		MVector position;
+		double scale[3];
+		scale[0] = 1; scale[1] = 1; scale[2] = 1;
+		int parentIdx = j.parentIndex;
+		//get joint matrix at current time
+		matrix = j.jointDag.inclusiveMatrix();
+		if (parentIdx >= 0)
+		{
+			//calculate inherited scale factor
+			((MTransformationMatrix)j.jointDag.exclusiveMatrix()).getScale(scale,MSpace::kWorld);
+			//calculate relative matrix
+			matrix = j.jointDag.inclusiveMatrix() * j.jointDag.exclusiveMatrixInverse();
+		}
+		else
+		{	// root joint
+			if (params.exportWorldCoords)
+				matrix = j.jointDag.inclusiveMatrix();
+			else
+				matrix = j.jointDag.inclusiveMatrix() * j.jointDag.exclusiveMatrixInverse();
+		}
+		//calculate position of joint at given time
+		position.x = matrix.asMatrix()(3,0) * scale[0];
+		position.y = matrix.asMatrix()(3,1) * scale[1];
+		position.z = matrix.asMatrix()(3,2) * scale[2];
+		//get relative transformation matrix
+		matrix = matrix.asMatrix() * j.localMatrix.inverse();
+		//calculate rotation
+		double qx,qy,qz,qw;
+		((MTransformationMatrix)matrix).getRotationQuaternion(qx,qy,qz,qw);
+		MQuaternion rotation(qx,qy,qz,qw);
+		double theta;
+		MVector axis;
+		rotation.getAxisAngle(axis,theta);
+		axis.normalize();
+		if (axis.length() < 0.5)
+		{
+			axis.x = 0;
+			axis.y = 1;
+			axis.z = 0;
+			theta = 0;
+		}
+		//create keyframe
+		keyframe key;
+		key.time = time;
+		key.tx = position.x - j.posx;
+		key.ty = position.y - j.posy;
+		key.tz = position.z - j.posz;
+		key.angle = theta;
+		key.axis_x = axis.x;
+		key.axis_y = axis.y;
+		key.axis_z = axis.z;
+		key.sx = 1;
+		key.sy = 1;
+		key.sz = 1;
+		return key;
 	}
 
 

@@ -115,7 +115,7 @@ namespace OgreMayaExporter
 			break;
 		case MT_BLINN:
 			m_specular = pBlinn->specularColor();
-			m_specular.a = 20.0;
+			m_specular.a = 1.0 / pBlinn->eccentricity();
 			break;
 		default:
 			m_specular = MColor(0.0,0.0,0.0,0.0);
@@ -408,7 +408,7 @@ namespace OgreMayaExporter
 			MString command = "copy \"";
 			command += m_textures[i].absFilename;
 			command += "\" \"";
-			command += params.outputDir;
+			command += params.texOutputDir;
 			command += "\"";
 			system(command.asChar());
 		}
