@@ -224,6 +224,12 @@ namespace Ogre {
             Note that this will not be up to date until the material has been compiled.
         */
         unsigned short getNumLodLevels(unsigned short schemeIndex) const;
+        /** Gets the number of levels-of-detail this material has in the 
+			given scheme, based on Technique::setLodIndex. 
+        @remarks
+            Note that this will not be up to date until the material has been compiled.
+        */
+        unsigned short getNumLodLevels(const String& schemeName) const;
 
         /** Gets the best supported technique. 
         @remarks

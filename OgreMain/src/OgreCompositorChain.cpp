@@ -190,6 +190,9 @@ void CompositorChain::preTargetOperation(CompositorInstance::TargetOperation &op
     /// Set LOD bias level
     mOldLodBias = cam->getLodBias();
     cam->setLodBias(cam->getLodBias() * op.lodBias);
+	/// Set material scheme 
+	mOldMaterialScheme = vp->getMaterialScheme();
+	vp->setMaterialScheme(op.materialScheme);
     /// XXX TODO
     //vp->setClearEveryFrame( true );
     //vp->setOverlaysEnabled( false );
@@ -207,6 +210,7 @@ void CompositorChain::postTargetOperation(CompositorInstance::TargetOperation &o
 	sm->setVisibilityMask(mOldVisibilityMask);
 	sm->setFindVisibleObjects(mOldFindVisibleObjects);
     cam->setLodBias(mOldLodBias);
+	vp->setMaterialScheme(mOldMaterialScheme);
 }
 //-----------------------------------------------------------------------
 void CompositorChain::postViewportUpdate(const RenderTargetViewportEvent& evt)

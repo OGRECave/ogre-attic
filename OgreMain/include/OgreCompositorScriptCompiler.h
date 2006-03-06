@@ -58,8 +58,11 @@ namespace Ogre {
 			// Techniques
 			ID_TECHNIQUE, ID_TEXTURE, ID_TARGET_WIDTH, ID_TARGET_HEIGHT,
 			ID_PF_A8R8G8B8, ID_PF_R8G8B8A8, ID_PF_R8G8B8,
+			ID_PF_FLOAT16_R, ID_PF_FLOAT16_RGB, ID_PF_FLOAT16_RGBA,
+			ID_PF_FLOAT32_R, ID_PF_FLOAT32_RGB, ID_PF_FLOAT32_RGBA,
 			// Targets
 			ID_TARGET, ID_INPUT, ID_TARGET_OUTPUT, ID_ONLY_INITIAL,
+			ID_VISIBILITY_MASK, ID_LOD_BIAS, ID_MATERIAL_SCHEME,
 			ID_PREVIOUS, ID_NONE,
 			// Passes
 			ID_PASS,
@@ -126,6 +129,9 @@ namespace Ogre {
 		void parseInput(void);
 		void parseTargetOutput(void);
 		void parseOnlyInitial(void);
+		void parseVisibilityMask(void);
+		void parseLodBias(void);
+		void parseMaterialScheme(void);
 		void parsePass(void);
 		void parseMaterial(void);
 

@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 #include "OgreCompositionTargetPass.h"
 #include "OgreCompositionPass.h"
+#include "OgreMaterialManager.h"
 
 namespace Ogre {
 
@@ -33,7 +34,8 @@ CompositionTargetPass::CompositionTargetPass(CompositionTechnique *parent):
     mInputMode(IM_NONE),
     mOnlyInitial(false),
     mVisibilityMask(0xFFFFFFFF),
-    mLodBias(1.0f)
+    mLodBias(1.0f),
+	mMaterialScheme(MaterialManager::DEFAULT_SCHEME_NAME)
 {
 }
 //-----------------------------------------------------------------------
@@ -90,6 +92,16 @@ void CompositionTargetPass::setLodBias(float bias)
 float CompositionTargetPass::getLodBias()
 {
     return mLodBias;
+}
+//-----------------------------------------------------------------------
+void CompositionTargetPass::setMaterialScheme(const String& schemeName)
+{
+	mMaterialScheme = schemeName;
+}
+//-----------------------------------------------------------------------
+const String& CompositionTargetPass::getMaterialScheme(void) const
+{
+	return mMaterialScheme;
 }
 //-----------------------------------------------------------------------
 CompositionPass *CompositionTargetPass::createPass()

@@ -49,12 +49,16 @@ namespace Ogre {
 		"<TextureDef> ::= 'texture' <Label> <WidthOptionDef> <HeightOptionDef> <PixelFormatDef> \n"
 		"<WidthOptionDef> ::= 'target_width' | <#width> \n"
 		"<HeightOptionDef> ::= 'target_height' | <#height> \n"
-		"<PixelFormatDef> ::= 'PF_A8R8G8B8' | 'PF_R8G8B8A8' | 'PF_R8G8B8' \n"
+		"<PixelFormatDef> ::= 'PF_A8R8G8B8' | 'PF_R8G8B8A8' | 'PF_R8G8B8' | 'PF_FLOAT16_R' | 'PF_FLOAT16_RGB' | 'PF_FLOAT16_RGBA' | 'PF_FLOAT32_R' | 'PF_FLOAT32_RGB' | 'PF_FLOAT32_RGBA' \n"
 		// Target
-		"<TargetDef> ::= 'target ' <Label> '{' [<TargetInputDef>] [<OnlyInitialDef>] {<PassDef>} '}' \n"
+		"<TargetDef> ::= 'target ' <Label> '{' {<TargetOptionsDef>} {<PassDef>} '}' \n"
+	    "<TargetOptionsDef> ::=	[<TargetInputDef>] | [<OnlyInitialDef>]  | [<VisibilityMaskDef>] | [<LodBiasDef>] | [<MaterialSchemeDef>] \n"
 		"<TargetInputDef> ::= 'input' <TargetInputOptionsDef> \n"
 		"<TargetInputOptionsDef> ::= 'none' | 'previous' \n"
 		"<OnlyInitialDef> ::= 'only_initial' <On_Off> \n"
+		"<VisibilityMaskDef> ::= 'visibility_mask' <#mask> \n"
+		"<LodBiasDef> ::= 'lod_bias' <#lodbias> \n"
+		"<MaterialSchemeDef> ::= 'material_scheme' <Label> \n"
 		"<TargetOutputDef> ::= 'target_output' '{' [<TargetInputDef>] {<PassDef>} '}' \n"
 		// Pass
 		"<PassDef> ::= 'pass' <PassTypeDef> '{' <PassOptionsDef> '}' \n"
@@ -98,6 +102,12 @@ namespace Ogre {
 		addLexemeTokenAction("PF_A8R8G8B8", ID_PF_A8R8G8B8);
 		addLexemeTokenAction("PF_R8G8B8A8", ID_PF_R8G8B8A8);
 		addLexemeTokenAction("PF_R8G8B8", ID_PF_R8G8B8);
+		addLexemeTokenAction("PF_FLOAT16_R", ID_PF_FLOAT16_R);
+		addLexemeTokenAction("PF_FLOAT16_RGB", ID_PF_FLOAT16_RGB);
+		addLexemeTokenAction("PF_FLOAT16_RGBA", ID_PF_FLOAT16_RGBA);
+		addLexemeTokenAction("PF_FLOAT32_R", ID_PF_FLOAT32_R);
+		addLexemeTokenAction("PF_FLOAT32_RGB", ID_PF_FLOAT32_RGB);
+		addLexemeTokenAction("PF_FLOAT32_RGBA", ID_PF_FLOAT32_RGBA);
 
 		// Target section
 		addLexemeTokenAction("target ", ID_TARGET, &CompositorScriptCompiler::parseTarget);
@@ -105,7 +115,10 @@ namespace Ogre {
 		addLexemeTokenAction("none", ID_NONE);
 		addLexemeTokenAction("previous", ID_PREVIOUS);
 		addLexemeTokenAction("target_output", ID_TARGET_OUTPUT, &CompositorScriptCompiler::parseTargetOutput);
-		addLexemeTokenAction("only_inital", ID_ONLY_INITIAL, &CompositorScriptCompiler::parseOnlyInitial);
+		addLexemeTokenAction("only_initial", ID_ONLY_INITIAL, &CompositorScriptCompiler::parseOnlyInitial);
+		addLexemeTokenAction("visibility_mask", ID_VISIBILITY_MASK, &CompositorScriptCompiler::parseVisibilityMask);
+		addLexemeTokenAction("lod_bias", ID_LOD_BIAS, &CompositorScriptCompiler::parseLodBias);
+		addLexemeTokenAction("material_scheme", ID_MATERIAL_SCHEME, &CompositorScriptCompiler::parseMaterialScheme);
 
 		// pass section
 		addLexemeTokenAction("pass", ID_PASS, &CompositorScriptCompiler::parsePass);
@@ -282,6 +295,24 @@ namespace Ogre {
         case ID_PF_R8G8B8:
             textureDef->format = PF_R8G8B8;
             break;
+		case ID_PF_FLOAT16_R:
+            textureDef->format = PF_FLOAT16_R;
+            break;
+		case ID_PF_FLOAT16_RGB:
+            textureDef->format = PF_FLOAT16_RGB;
+            break;
+		case ID_PF_FLOAT16_RGBA:
+            textureDef->format = PF_FLOAT16_RGBA;
+            break;
+		case ID_PF_FLOAT32_R:
+            textureDef->format = PF_FLOAT32_R;
+            break;
+		case ID_PF_FLOAT32_RGB:
+            textureDef->format = PF_FLOAT32_RGB;
+            break;
+		case ID_PF_FLOAT32_RGBA:
+            textureDef->format = PF_FLOAT32_RGBA;
+            break;
 
         default:
             // should never get here?
@@ -342,6 +373,26 @@ namespace Ogre {
             mScriptContext.target->setOnlyInitial(true);
 		}
 
+	}
+	//-----------------------------------------------------------------------
+	void CompositorScriptCompiler::parseVisibilityMask(void)
+	{
+		uint32 mask = static_cast<uint32>(getNextTokenValue());
+        assert(mScriptContext.target);
+        mScriptContext.target->setVisibilityMask(mask);
+	}
+	//-----------------------------------------------------------------------
+	void CompositorScriptCompiler::parseLodBias(void)
+	{
+		Real val = getNextTokenValue();
+        assert(mScriptContext.target);
+        mScriptContext.target->setLodBias(val);
+	}
+	//-----------------------------------------------------------------------
+	void CompositorScriptCompiler::parseMaterialScheme(void)
+	{
+		assert(mScriptContext.target);
+		mScriptContext.target->setMaterialScheme(getNextTokenLabel());
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parsePass(void)
