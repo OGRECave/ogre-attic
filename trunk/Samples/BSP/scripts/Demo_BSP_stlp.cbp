@@ -9,7 +9,7 @@
 				<Option output="..\..\Common\bin\Debug\Demo_BSP.exe" />
 				<Option working_dir="..\..\Common\bin\Debug" />
 				<Option object_output="..\obj\Debug" />
-				<Option external_deps="..\..\..\OgreMain\lib\Debug\libOgreMain_d.dll;" />
+				<Option external_deps="..\..\..\OgreMain\lib\Debug\OgreMain_d.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option includeInTargetAll="1" />
@@ -35,7 +35,7 @@
 				<Option output="..\..\Common\bin\Release\Demo_BSP.exe" />
 				<Option working_dir="..\..\Common\bin\Release" />
 				<Option object_output="..\obj\Release" />
-				<Option external_deps="..\..\..\OgreMain\lib\Release\libOgreMain.dll;" />
+				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option includeInTargetAll="1" />
@@ -72,6 +72,11 @@
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="$(#STLPORT_DIR)\lib" />
 		</Linker>
+		<Unit filename="..\src\BSP.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\..\Common\include\ExampleApplication.h">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
@@ -90,11 +95,6 @@
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\BSP.cpp">
-			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
