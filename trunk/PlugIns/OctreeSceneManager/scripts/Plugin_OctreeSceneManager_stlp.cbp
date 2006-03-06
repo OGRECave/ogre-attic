@@ -9,12 +9,10 @@
 			<Target title="Debug">
 				<Option output="..\bin\Debug\Plugin_OctreeSceneManager.dll" />
 				<Option object_output="..\obj\Debug" />
-				<Option external_deps="..\..\..\OgreMain\lib\Release\libOgreMain.a;" />
+				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option includeInTargetAll="1" />
-				<Option createDefFile="1" />
-				<Option createStaticLib="1" />
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
 					<Add option="-Wall" />
@@ -40,12 +38,10 @@
 			<Target title="Release">
 				<Option output="..\bin\Release\Plugin_OctreeSceneManager.dll" />
 				<Option object_output="..\obj\Release" />
-				<Option external_deps="..\..\..\OgreMain\lib\Release\libOgreMain.a;" />
+				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option includeInTargetAll="1" />
-				<Option createDefFile="1" />
-				<Option createStaticLib="1" />
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
 					<Add option="-O2" />
