@@ -9,7 +9,7 @@
 				<Option output="..\..\..\Samples\Common\bin\Debug\Demo_BspCollision.exe" />
 				<Option working_dir="..\..\..\Samples\Common\bin\Debug" />
 				<Option object_output="..\obj\Debug" />
-				<Option external_deps="..\bin\Debug\libRenderSystem_Direct3D9.a;..\bin\Debug\libPlugin_CgProgramManager.a;..\lib\Debug\libOgreMain_d.a;..\bin\Debug\libPlatformManager_Win32.a;..\lib\Debug\libReferenceAppLayer.a;..\bin\Debug\libRenderSystem_GL.a;..\bin\Debug\libPlugin_BSPSceneManager.a;..\bin\Debug\libPlugin_OctreeSceneManager.a;..\bin\Debug\libPlugin_ParticleFX.a;" />
+				<Option external_deps="..\..\..\OgreMain\lib\Debug\OgreMain_d.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option includeInTargetAll="1" />
@@ -41,7 +41,7 @@
 				<Option output="..\..\..\Samples\Common\bin\Release\Demo_BspCollision.exe" />
 				<Option working_dir="..\..\..\Samples\Common\bin\Release" />
 				<Option object_output="..\obj\Release" />
-				<Option external_deps="..\bin\Release\libRenderSystem_Direct3D9.a;..\bin\Release\libPlugin_CgProgramManager.a;..\lib\Release\libOgreMain.a;..\bin\Release\libPlatformManager_Win32.a;..\lib\Release\libReferenceAppLayer.a;..\bin\Release\libRenderSystem_GL.a;..\bin\Release\libPlugin_BSPSceneManager.a;..\bin\Release\libPlugin_OctreeSceneManager.a;..\bin\Release\libPlugin_ParticleFX.a;" />
+				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option includeInTargetAll="1" />
