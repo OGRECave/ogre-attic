@@ -561,7 +561,8 @@ namespace Ogre {
 		// Or, if we're using software animation and temp buffers are unbound
         if (mFrameAnimationLastUpdated != mAnimationState->getDirtyFrameNumber() ||
 			(hasSkeleton() && getSkeleton()->getManualBonesDirty()) ||
-			(_isSkeletonAnimated() && mLastParentXform != getParentSceneNode()->_getFullTransform()) ||
+			((_isSkeletonAnimated() || (forcedSwAnimation && getSkeleton()))
+			 && mLastParentXform != getParentSceneNode()->_getFullTransform()) ||
 			(softwareAnimation && hasVertexAnimation() && !tempVertexAnimBuffersBound()) ||
 			(softwareAnimation && hasSkeleton() && !tempSkelAnimBuffersBound(blendNormals)))
         {
