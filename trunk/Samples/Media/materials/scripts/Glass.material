@@ -9,26 +9,20 @@ material Ogre/Compositor/GlassPass
 {
 	technique
 	{
-	
 		pass
 		{
 			depth_check off
 
 			vertex_program_ref Ogre/Compositor/StdQuad_vp
 			{
-				
 			}
 
 			fragment_program_ref Ogre/Compositor/GlassFP
 			{
-	
-
-			
 			}
 
-			texture_unit
+			texture_unit RT
 			{
-				texture RT
                 tex_coord_set 0
 				tex_address_mode clamp
 				filtering linear linear linear
@@ -41,8 +35,6 @@ material Ogre/Compositor/GlassPass
 				//tex_address_mode clamp
 				filtering linear linear linear
 			}
-
-
 		}
 	}
 }

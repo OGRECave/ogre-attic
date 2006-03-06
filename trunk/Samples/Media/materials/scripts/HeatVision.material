@@ -1,14 +1,14 @@
 ///////////////////////////////////
-//			 PASS 0				
+//			 PASS 0
 //		HEAT CASTERS PASS
 ///////////////////////////////////
 
-vertex_program Fury/HeatVision/HeatCaster_vp cg 
-{ 
-   source HeatVision.cg 
+vertex_program Fury/HeatVision/HeatCaster_vp cg
+{
+   source HeatVision.cg
    entry_point HeatCaster_vp
-   profiles vs_1_1 arbvp1 
-} 
+   profiles vs_1_1 arbvp1
+}
 
 fragment_program Fury/HeatVision/HeatCaster_fp cg
 {
@@ -25,28 +25,28 @@ material Fury/HeatVision/HeatCaster
         {
             vertex_program_ref Fury/HeatVision/HeatCaster_vp
             {
-                param_named_auto eyePosition camera_position_object_space 
-                param_named_auto worldViewProj worldviewproj_matrix 
+                param_named_auto eyePosition camera_position_object_space
+                param_named_auto worldViewProj worldviewproj_matrix
             }
-            
+
             fragment_program_ref Fury/HeatVision/HeatCaster_fp
             {
             }
         }
-    }   
+    }
 }
 
 ///////////////////////////////////
-//			 PASS 0				
+//			 PASS 0
 //		HEAT CASTERS PASS
 ///////////////////////////////////
 
-vertex_program Fury/HeatVision/ColdCaster_vp cg 
-{ 
-   source HeatVision.cg 
+vertex_program Fury/HeatVision/ColdCaster_vp cg
+{
+   source HeatVision.cg
    entry_point ColdCaster_vp
-   profiles vs_1_1 arbvp1 
-} 
+   profiles vs_1_1 arbvp1
+}
 
 fragment_program Fury/HeatVision/ColdCaster_fp cg
 {
@@ -63,15 +63,15 @@ material Fury/HeatVision/ColdCaster
         {
             vertex_program_ref Fury/HeatVision/ColdCaster_vp
             {
-                param_named_auto eyePosition camera_position_object_space 
-                param_named_auto worldViewProj worldviewproj_matrix 
+                param_named_auto eyePosition camera_position_object_space
+                param_named_auto worldViewProj worldviewproj_matrix
             }
-            
+
             fragment_program_ref Fury/HeatVision/ColdCaster_fp
             {
             }
         }
-    }   
+    }
 }
 
 ///////////////////////////////////
@@ -79,17 +79,17 @@ material Fury/HeatVision/ColdCaster
 //  LIGHT TO HEAT CONVERSION PASS
 ///////////////////////////////////
 
-vertex_program Fury/HeatVision/LightToHeat_vp cg 
-{ 
-   source HeatVision.cg 
+vertex_program Fury/HeatVision/LightToHeat_vp cg
+{
+   source HeatVision.cg
    entry_point LightToHeat_vp
-   profiles vs_1_1 arbvp1 
+   profiles vs_1_1 arbvp1
 
     default_params
     {
         param_named_auto flipping render_target_flipping
     }
-} 
+}
 
 fragment_program Fury/HeatVision/LightToHeat_fp cg
 {
@@ -108,7 +108,7 @@ material Fury/HeatVision/LightToHeat
 			cull_hardware none
 			cull_software none
 			depth_func always_pass
-        
+
             vertex_program_ref Fury/HeatVision/LightToHeat_vp
             {
             }
@@ -117,9 +117,9 @@ material Fury/HeatVision/LightToHeat
             {
                 // these should be *really* random!
                 param_named random_fractions float4 0.3 0.7 0 0
-                
+
                 param_named depth_modulator float4 0.6 0 0 0
-                
+
                 // this one can be fixed
                 param_named heatBiasScale float4 0.0 1.0 0 0
             }
@@ -127,10 +127,9 @@ material Fury/HeatVision/LightToHeat
             // INPUT (from scene, where entities has "Fury/HeatVision/Caster" material for heat emanation)
             texture_unit
             {
-                texture Input
                 tex_coord_set 0
                 filtering linear linear none
-                tex_address_mode clamp	
+                tex_address_mode clamp
             }
 
             // Noise map
@@ -140,16 +139,16 @@ material Fury/HeatVision/LightToHeat
                 tex_coord_set 0
             }
 
-            // heat conversion texture            
+            // heat conversion texture
             texture_unit
             {
                 texture HeatLookup.tga
                 tex_coord_set 0
                 filtering point point none
-            }   
+            }
         }
     }
-    
+
 }
 
 
@@ -158,17 +157,17 @@ material Fury/HeatVision/LightToHeat
 //			 BLUR PASS
 ///////////////////////////////////
 
-vertex_program Fury/HeatVision/Blur_vp cg 
-{ 
-   source HeatVision.cg 
+vertex_program Fury/HeatVision/Blur_vp cg
+{
+   source HeatVision.cg
    entry_point Blur_vp
-   profiles vs_1_1 arbvp1 
+   profiles vs_1_1 arbvp1
 
     default_params
     {
         param_named_auto flipping render_target_flipping
     }
-} 
+}
 
 fragment_program Fury/HeatVision/Blur_fp cg
 {
@@ -187,7 +186,7 @@ material Fury/HeatVision/Blur
 			cull_hardware none
 			cull_software none
 			depth_func always_pass
-        
+
             vertex_program_ref Fury/HeatVision/Blur_vp
             {
             }
@@ -203,7 +202,7 @@ material Fury/HeatVision/Blur
                 texture Input
                 tex_coord_set 0
                 filtering linear linear none
-                tex_address_mode clamp	
+                tex_address_mode clamp
             }
         }
     }

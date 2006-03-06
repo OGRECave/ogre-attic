@@ -66,9 +66,8 @@ material Ogre/Compositor/Blur0
 			vertex_program_ref Blur0_vs11
 			{
 			}
-			texture_unit
+			texture_unit RT
 			{
-				texture RT
                 tex_coord_set 0
 				tex_address_mode clamp
 				filtering linear linear linear
@@ -90,9 +89,8 @@ material Ogre/Compositor/Blur0
 			vertex_program_ref Blur0_vs_glsl
 			{
 			}
-			texture_unit
+			texture_unit RT
 			{
-				texture RT
                 tex_coord_set 0
 				tex_address_mode clamp
 				filtering linear linear linear
@@ -168,6 +166,7 @@ material Ogre/Compositor/BloomBlend
             cull_hardware none
             depth_check off
             scene_blend alpha_blend
+
             texture_unit
             {
                 tex_coord_set 0
