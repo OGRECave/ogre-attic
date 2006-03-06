@@ -1,18 +1,14 @@
 // Simple blur filter
 
-const float2 samples[12] = {
-   {-0.326212, -0.405805},
-   {-0.840144, -0.073580},
-   {-0.695914,  0.457137},
-   {-0.203345,  0.620716},
-    {0.962340, -0.194983},
-    {0.473434, -0.480026},
-    {0.519456,  0.767022},
-    {0.185461, -0.893124},
-    {0.507431,  0.064425},
-    {0.896420,  0.412458},
-   {-0.321940, -0.932615},
-   {-0.791559, -0.597705}
+const float2 samples[8] = {
+    {-1, 1},
+    {-1, 0},
+    {-1, -1},
+    {0, -1},
+    {1, -1},
+    {1, 0},
+    {1, 1},
+    {0, 1}
 };
 
 float4 blur(
@@ -24,10 +20,10 @@ float4 blur(
 ) : COLOR
 {
    float4 sum = tex2D(Blur0, texCoord);
-   for (int i = 0; i < 12; i++){
+   for (int i = 0; i < 8; ++i){
       sum += tex2D(Blur0, texCoord + sampleDistance * samples[i]);
    }
-   return sum / 13;
+   return sum / 9;
 }
 
 
@@ -47,5 +43,5 @@ float4 blend
    float4 blur  = tex2D(Blur1, texCoord);
 
    // alpha channel of sharp RT has depth info
-   return lerp(sharp, blur, saturate(range * abs(focus - sharp.r)));
+   return lerp(sharp, blur, saturate(range * abs(focus - sharp.a)));
 }
