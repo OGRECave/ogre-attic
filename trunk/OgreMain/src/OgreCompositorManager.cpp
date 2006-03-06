@@ -170,7 +170,7 @@ CompositorInstance *CompositorManager::addCompositor(Viewport *vp, const String 
 	if(comp.isNull())
 		return 0;
 	CompositorChain *chain = getCompositorChain(vp);
-	return chain->addCompositor(comp, addPosition==-1?CompositorChain::LAST:(size_t)addPosition);
+	return chain->addCompositor(comp, addPosition==-1 ? CompositorChain::LAST : (size_t)addPosition);
 }
 //-----------------------------------------------------------------------
 void CompositorManager::removeCompositor(Viewport *vp, const String &compositor)
