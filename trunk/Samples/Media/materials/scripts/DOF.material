@@ -27,7 +27,7 @@ material Ogre/Compositor/DOF_Blur0
 
 			fragment_program_ref DOF_Blur_ps
 			{
-			    param_named sampleDistance float 0.0192
+			    param_named sampleDistance float 0.1
 			}
 			vertex_program_ref Ogre/Compositor/StdQuad_Tex2a_vp
 			{
@@ -36,7 +36,7 @@ material Ogre/Compositor/DOF_Blur0
 			{
 			    // texture will get added at runtime
                 tex_coord_set 0
-				tex_address_mode clamp
+				tex_address_mode wrap
 				filtering trilinear
 			}
 		}
@@ -55,7 +55,7 @@ material Ogre/Compositor/DOF_Blur1 : Ogre/Compositor/DOF_Blur0
 			fragment_program_ref
 			{
 			    // override value from copied DOF_Blur0 material
-			    param_named sampleDistance float 0.0198
+			    param_named sampleDistance float 0.1
 			}
 		}
 	}
@@ -85,7 +85,7 @@ material Ogre/Compositor/DOF_Blend
             texture_unit Blur1
             {
 			    // texture will get added at runtime
-                tex_coord_set 1
+                tex_coord_set 0
 				tex_address_mode clamp
 				filtering trilinear
             }
