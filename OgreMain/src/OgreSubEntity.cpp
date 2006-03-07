@@ -153,49 +153,35 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SubEntity::getWorldTransforms(Matrix4* xform) const
     {
-        if (!mParentEntity->mNumBoneMatrices)
+        if (!mParentEntity->mNumBoneMatrices ||
+            !mParentEntity->isHardwareAnimationEnabled())
         {
-			// no bones
+            // No skeletal animation, or software skinning
             *xform = mParentEntity->_getParentNodeFullTransform();
         }
         else
         {
-			// bones
-            if (!mParentEntity->isHardwareAnimationEnabled())
+            // Hardware skinning, pass all actually used matrices
+            const Mesh::IndexMap& indexMap = mSubMesh->useSharedVertices ?
+                mSubMesh->parent->sharedBlendIndexToBoneIndexMap : mSubMesh->blendIndexToBoneIndexMap;
+            assert(indexMap.size() <= mParentEntity->mNumBoneMatrices);
+
+            if (mParentEntity->_isSkeletonAnimated())
             {
-                if (mParentEntity->_isSkeletonAnimated())
+                // Bones, use cached matrices built when Entity::_updateRenderQueue was called
+                assert(mParentEntity->mBoneWorldMatrices);
+
+                Mesh::IndexMap::const_iterator it, itend;
+                itend = indexMap.end();
+                for (it = indexMap.begin(); it != itend; ++it, ++xform)
                 {
-                    // Software skinning involves pretransforming
-                    // No transform required
-                    *xform = Matrix4::IDENTITY;
-                }
-                else
-                {
-                    // Software skinning but all skeleton animations disabled, vertex data is in object-space.
-                    *xform = mParentEntity->_getParentNodeFullTransform();
+                    *xform = mParentEntity->mBoneWorldMatrices[*it];
                 }
             }
             else
             {
-                const Mesh::IndexMap& indexMap = mSubMesh->useSharedVertices ?
-                    mSubMesh->parent->sharedBlendIndexToBoneIndexMap : mSubMesh->blendIndexToBoneIndexMap;
-                assert(indexMap.size() <= mParentEntity->mNumBoneMatrices);
-
-                if (mParentEntity->_isSkeletonAnimated())
-                {
-                    // Bones, use cached matrices built when Entity::_updateRenderQueue was called
-                    Mesh::IndexMap::const_iterator it, itend;
-                    itend = indexMap.end();
-                    for (it = indexMap.begin(); it != itend; ++it, ++xform)
-                    {
-                        *xform = mParentEntity->mBoneMatrices[*it];
-                    }
-                }
-                else
-                {
-                    // All animations disabled, use parent entity transform only
-                    std::fill_n(xform, indexMap.size(), mParentEntity->_getParentNodeFullTransform());
-                }
+                // All animations disabled, use parent entity world transform only
+                std::fill_n(xform, indexMap.size(), mParentEntity->_getParentNodeFullTransform());
             }
         }
     }
@@ -216,7 +202,7 @@ namespace Ogre {
         if (!mParentEntity->mNumBoneMatrices ||
             !mParentEntity->isHardwareAnimationEnabled())
         {
-            // No skeletal animation, or software skinning (pretransformed)
+            // No skeletal animation, or software skinning
             return 1;
         }
         else
@@ -226,7 +212,7 @@ namespace Ogre {
                 mSubMesh->parent->sharedBlendIndexToBoneIndexMap : mSubMesh->blendIndexToBoneIndexMap;
             assert(indexMap.size() <= mParentEntity->mNumBoneMatrices);
 
-            return indexMap.size();
+            return static_cast<unsigned short>(indexMap.size());
         }
     }
     //-----------------------------------------------------------------------

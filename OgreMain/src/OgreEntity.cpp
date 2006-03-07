@@ -53,6 +53,7 @@ namespace Ogre {
           mSkelAnimVertexData(0),
 		  mSoftwareVertexAnimVertexData(0),
 		  mHardwareVertexAnimVertexData(0),
+          mBoneWorldMatrices(NULL),
           mBoneMatrices(NULL),
           mNumBoneMatrices(0),
 		  mFrameAnimationLastUpdated(std::numeric_limits<unsigned long>::max()),
@@ -72,7 +73,7 @@ namespace Ogre {
 		  mMaxMaterialLodIndex(0), 		// Backwards, remember low value = high detail
           mSkeletonInstance(0),
 		  mLastParentXform(Matrix4::ZERO),
-          mFullBoundingBox(new AxisAlignedBox),
+          mFullBoundingBox(),
 		  mNormaliseNormals(false)
     {
     }
@@ -84,6 +85,7 @@ namespace Ogre {
 		mSkelAnimVertexData(0),
 		mSoftwareVertexAnimVertexData(0),
 		mHardwareVertexAnimVertexData(0),
+        mBoneWorldMatrices(NULL),
         mBoneMatrices(NULL),
         mNumBoneMatrices(0),
 		mFrameAnimationLastUpdated(std::numeric_limits<unsigned long>::max()),
@@ -103,7 +105,7 @@ namespace Ogre {
 		mMaxMaterialLodIndex(0), 		// Backwards, remember low value = high detail
 		mSkeletonInstance(0),
 		mLastParentXform(Matrix4::ZERO),
-        mFullBoundingBox(new AxisAlignedBox),
+        mFullBoundingBox(),
 		mNormaliseNormals(false)
 {
         // Is mesh skeletally animated?
@@ -176,8 +178,6 @@ namespace Ogre {
             delete (*li);
         }
 
-        delete mFullBoundingBox;
-
         // Delete shadow renderables
         ShadowRenderableList::iterator si, siend;
         siend = mShadowRenderables.end();
@@ -191,20 +191,22 @@ namespace Ogre {
         detachAllObjectsImpl();
 
         if (mSkeletonInstance) {
+            delete [] mBoneWorldMatrices;
+
             if (mSharedSkeletonEntities) {
                 mSharedSkeletonEntities->erase(this);
-                if (mSharedSkeletonEntities->size() == 0) {
+                if (mSharedSkeletonEntities->empty()) {
+                    delete mSharedSkeletonEntities;
+                    delete mFrameBonesLastUpdated;
                     delete mSkeletonInstance;
                     delete [] mBoneMatrices;
                     delete mAnimationState;
-                    delete mFrameBonesLastUpdated;
-                    delete mSharedSkeletonEntities;
                 }
             } else {
+                delete mFrameBonesLastUpdated;
                 delete mSkeletonInstance;
                 delete [] mBoneMatrices;
                 delete mAnimationState;
-                delete mFrameBonesLastUpdated;
             }
         }
 		else if (hasVertexAnimation())
@@ -337,12 +339,12 @@ namespace Ogre {
     const AxisAlignedBox& Entity::getBoundingBox(void) const
     {
         // Get from Mesh
-        *mFullBoundingBox = mMesh->getBounds();
-        mFullBoundingBox->merge(getChildObjectsBoundingBox());
+        mFullBoundingBox = mMesh->getBounds();
+        mFullBoundingBox.merge(getChildObjectsBoundingBox());
 
         // Don't scale here, this is taken into account when world BBox calculation is done
 
-        return *mFullBoundingBox;
+        return mFullBoundingBox;
     }
     //-----------------------------------------------------------------------
     AxisAlignedBox Entity::getChildObjectsBoundingBox(void) const
@@ -554,15 +556,15 @@ namespace Ogre {
 		// Blend normals in s/w only if we're not using h/w animation,
 		// since shadows only require positions
 		bool blendNormals = !hwAnimation || forcedNormals;
+        // Animation dirty if animation state modified or manual bones modified
+        bool animationDirty =
+            (mFrameAnimationLastUpdated != mAnimationState->getDirtyFrameNumber()) ||
+            (hasSkeleton() && getSkeleton()->getManualBonesDirty());
 
-		// We only do these tasks if animation is dirty or transform has altered
-		// when using skeletal animation, which is dependent
+		// We only do these tasks if animation is dirty
 		// Or, if we're using a skeleton and manual bones have been moved
 		// Or, if we're using software animation and temp buffers are unbound
-        if (mFrameAnimationLastUpdated != mAnimationState->getDirtyFrameNumber() ||
-			(hasSkeleton() && getSkeleton()->getManualBonesDirty()) ||
-			((_isSkeletonAnimated() || (forcedSwAnimation && getSkeleton()))
-			 && mLastParentXform != getParentSceneNode()->_getFullTransform()) ||
+        if (animationDirty ||
 			(softwareAnimation && hasVertexAnimation() && !tempVertexAnimBuffersBound()) ||
 			(softwareAnimation && hasSkeleton() && !tempSkelAnimBuffersBound(blendNormals)))
         {
@@ -656,9 +658,29 @@ namespace Ogre {
                 mParentNode->needUpdate();
 
 			mFrameAnimationLastUpdated = mAnimationState->getDirtyFrameNumber();
+        }
 
-			mLastParentXform = getParentSceneNode()->_getFullTransform();
+        // Also calculate bone world matrices, since are used as replacement world matrices,
+        // but only if it's used and changed:
+        //      1. It's used when using hardware animation and skeleton animated.
+        //      2. It's changed when animation dirty or parent node transform has altered.
+        if (hwAnimation && _isSkeletonAnimated() &&
+            (animationDirty || mLastParentXform != getParentSceneNode()->_getFullTransform()))
+        {
+            // Allocate bone world matrices on demand, for better memory footprint
+            // when using software animation.
+            if (!mBoneWorldMatrices)
+            {
+                mBoneWorldMatrices = new Matrix4[mNumBoneMatrices];
+            }
 
+            // Cache last parent transform for next frame use too.
+            mLastParentXform = getParentSceneNode()->_getFullTransform();
+
+            for (unsigned short i = 0; i < mNumBoneMatrices; ++i)
+            {
+                mBoneWorldMatrices[i] = mLastParentXform * mBoneMatrices[i];
+            }
         }
     }
 	//-----------------------------------------------------------------------
@@ -847,14 +869,14 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
     bool Entity::_isAnimated(void) const
     {
-        return (getAllAnimationStates() && getAllAnimationStates()->hasEnabledAnimationState()) ||
+        return (mAnimationState && mAnimationState->hasEnabledAnimationState()) ||
                (getSkeleton() && getSkeleton()->hasManualBones());
     }
 	//-----------------------------------------------------------------------
     bool Entity::_isSkeletonAnimated(void) const
     {
         return getSkeleton() &&
-            (getAllAnimationStates()->hasEnabledAnimationState() || getSkeleton()->hasManualBones());
+            (mAnimationState->hasEnabledAnimationState() || getSkeleton()->hasManualBones());
     }
 	//-----------------------------------------------------------------------
 	VertexData* Entity::_getSkelAnimVertexData(void) const
@@ -916,18 +938,6 @@ namespace Ogre {
                 {
                     (*child_itr).second->getParentNode()->_update(true, true);
                 }
-            }
-
-            // Apply our current world transform to these too, since these are used as
-            // replacement world matrices
-            unsigned short i;
-            Matrix4 worldXform = _getParentNodeFullTransform();
-            assert (mNumBoneMatrices==mSkeletonInstance->getNumBones());
-            mNumBoneMatrices = mSkeletonInstance->getNumBones();
-
-            for (i = 0; i < mNumBoneMatrices; ++i)
-            {
-                mBoneMatrices[i] = worldXform * mBoneMatrices[i];
             }
         }
     }
@@ -1403,14 +1413,8 @@ namespace Ogre {
 
         // Calculate the object space light details
         Vector4 lightPos = light->getAs4DVector();
-        // Only use object-space light if we're not doing skeleton animation transforms
-        // Since when skeleton animating the positions are already transformed into
-        // world space so we need world space light position
-        if (!_isSkeletonAnimated())
-        {
-            Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
-            lightPos =  world2Obj * lightPos;
-        }
+        Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
+        lightPos =  world2Obj * lightPos;
 
         // We need to search the edge list for silhouette edges
         EdgeData* edgeList = getEdgeList();
@@ -1669,15 +1673,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Entity::EntityShadowRenderable::getWorldTransforms(Matrix4* xform) const
     {
-        if (!mParent->_isSkeletonAnimated())
-        {
-            *xform = mParent->_getParentNodeFullTransform();
-        }
-        else
-        {
-            // pretransformed
-            *xform = Matrix4::IDENTITY;
-        }
+        *xform = mParent->_getParentNodeFullTransform();
     }
     //-----------------------------------------------------------------------
     const Quaternion& Entity::EntityShadowRenderable::getWorldOrientation(void) const
