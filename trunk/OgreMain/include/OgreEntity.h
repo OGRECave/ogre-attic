@@ -136,6 +136,8 @@ namespace Ogre {
 		void restoreBuffersForUnusedAnimation(bool hardwareAnimation);
 
 		/// Cached bone matrices, including any world transform
+        Matrix4 *mBoneWorldMatrices;
+        /// Cached bone matrices in skeleton local space, might shares with other entity instances.
 		Matrix4 *mBoneMatrices;
 		unsigned short mNumBoneMatrices;
 		/// Records the last frame in which animation was updated
@@ -238,7 +240,7 @@ namespace Ogre {
 
 
 		/// Bounding box that 'contains' all the mesh of each child entity
-		AxisAlignedBox *mFullBoundingBox;
+		mutable AxisAlignedBox mFullBoundingBox;
 
 		bool mNormaliseNormals;
 
@@ -642,6 +644,8 @@ namespace Ogre {
             Internal engine will eliminate software animation if possible, this
             information is unreliable unless added request for software animation
             via addSoftwareAnimationRequest.
+        @note
+            The positions/normals of the returned vertex data is in object space.
 		*/
 		VertexData* _getSkelAnimVertexData(void) const;
 		/** Advanced method to get the temporarily blended software vertex animation information
@@ -649,9 +653,13 @@ namespace Ogre {
             Internal engine will eliminate software animation if possible, this
             information is unreliable unless added request for software animation
             via addSoftwareAnimationRequest.
+        @note
+            The positions/normals of the returned vertex data is in object space.
 		*/
 		VertexData* _getSoftwareVertexAnimVertexData(void) const;
 		/** Advanced method to get the hardware morph vertex information
+        @note
+            The positions/normals of the returned vertex data is in object space.
 		*/
 		VertexData* _getHardwareVertexAnimVertexData(void) const;
 		/** Advanced method to get the temp buffer information for software 

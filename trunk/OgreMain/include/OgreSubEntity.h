@@ -161,6 +161,8 @@ namespace Ogre {
             Internal engine will eliminate software animation if possible, this
             information is unreliable unless added request for software animation
             via Entity::addSoftwareAnimationRequest.
+        @note
+            The positions/normals of the returned vertex data is in object space.
 		*/
 		VertexData* _getSkelAnimVertexData(void);
 		/** Advanced method to get the temporarily blended software morph vertex information
@@ -168,9 +170,13 @@ namespace Ogre {
             Internal engine will eliminate software animation if possible, this
             information is unreliable unless added request for software animation
             via Entity::addSoftwareAnimationRequest.
+        @note
+            The positions/normals of the returned vertex data is in object space.
 		*/
 		VertexData* _getSoftwareVertexAnimVertexData(void);
 		/** Advanced method to get the hardware morph vertex information
+        @note
+            The positions/normals of the returned vertex data is in object space.
 		*/
 		VertexData* _getHardwareVertexAnimVertexData(void);
 		/** Advanced method to get the temp buffer information for software 
