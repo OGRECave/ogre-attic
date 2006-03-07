@@ -287,6 +287,8 @@ OGRE drives many of its features through scripts in order to make it easier to s
 @item
 @ref{Material Scripts}
 @item
+@ref{Compositor Scripts}
+@item
 @ref{Particle Scripts}
 @item
 @ref{Overlay Scripts}
@@ -1859,6 +1861,8 @@ shadow_receiver_fragment_program_ref myShadowReceiverFragmentProgram
 You should pass the projected shadow coordinates from the custom vertex program. As for textures, texture unit 0 will always be the shadow texture. Any other textures which you bind in your pass will be carried across too, but will be moved up by 1 unit to make room for the shadow texture. Therefore your shadow receiver fragment program is likely to be the same as the bare lighting pass of your normal material, except that you insert an extra texture sampler at index 0, which you will use to adjust the result by (modulating diffuse and specular components).
 
 @include MaterialScriptCopy.inc
+
+@include CompositorScript.inc
 
 @node Particle Scripts
 @section Particle Scripts
