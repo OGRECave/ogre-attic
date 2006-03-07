@@ -77,7 +77,7 @@ compositor Glass
     }
 }
 
-compositor OldTV
+compositor "Old TV"
 {
     technique
     {
