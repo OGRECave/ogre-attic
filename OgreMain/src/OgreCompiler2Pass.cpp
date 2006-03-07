@@ -68,6 +68,7 @@ namespace Ogre {
             addLexemeToken("constant", BNF_CONSTANT);
             addLexemeToken("|", BNF_OR, false, true);
             addLexemeToken("terminal_symbol", BNF_TERMINAL_SYMBOL);
+            addLexemeToken("terminal_start", BNF_TERMINAL_START);
             addLexemeToken("repeat_expression", BNF_REPEAT_EXPRESSION);
             addLexemeToken("{", BNF_REPEAT_BEGIN, false, true);
             addLexemeToken("}", BNF_REPEAT_END, false, true);
@@ -81,6 +82,7 @@ namespace Ogre {
             addLexemeToken("not_test", BNF_NOT_TEST);
             addLexemeToken("(?!", BNF_NOT_TEST_BEGIN, false, true);
             addLexemeToken("'", BNF_SINGLEQUOTE, false, true);
+            addLexemeToken("-'", BNF_NO_TOKEN_START, false, true);
             addLexemeToken("any_character", BNF_ANY_CHARACTER);
             addLexemeToken("single_quote_exc", BNF_SINGLE_QUOTE_EXC);
             addLexemeToken("white_space_chk", BNF_WHITE_SPACE_CHK);
@@ -194,12 +196,18 @@ namespace Ogre {
                 _or_(BNF_SPECIAL_CHARACTERS1)
             _end_
 
-            // <terminal_symbol> ::= "'" @{ <any_character> } "'"
+            // <terminal_symbol> ::= <terminal_start> @{ <any_character> } "'"
             _rule_(BNF_TERMINAL_SYMBOL)
-                _is_(BNF_SINGLEQUOTE)
+                _is_(BNF_TERMINAL_START)
                 _and_(_no_space_skip_)
                 _repeat_(BNF_ANY_CHARACTER)
                 _and_(BNF_SINGLEQUOTE)
+            _end_
+
+            // <terminal_start> ::= "-'" | "'"
+            _rule_(BNF_TERMINAL_START)
+                _is_(BNF_NO_TOKEN_START)
+                _or_(BNF_SINGLEQUOTE)
             _end_
 
             // <constant> ::= "<#" <letter> {<identifier_characters>} ">"
@@ -391,6 +399,8 @@ namespace Ogre {
 	    mActiveTokenState->tokenQue.clear();
 	    mPass2TokenQuePosition = 0;
 	    mPreviousActionQuePosition = 0;
+	    mNoTerminalToken = false;
+	    mNoSpaceSkip = false;
 	    // tokenize and check semantics untill an error occurs or end of source is reached
 	    // assume RootRulePath has pointer to rules so start at index + 1 for first rule path
 	    // first rule token would be a rule definition so skip over it
@@ -836,10 +846,18 @@ namespace Ogre {
                 // allow spaces to be skipped for next lexeme processing
                 mNoSpaceSkip = false;
             }
+
 	        if (tokenID == _no_space_skip_)
 	        {
                 // don't skip spaces to get to next lexeme
                 mNoSpaceSkip = true;
+                // move on to next rule
+                Passed = true;
+	        }
+	        else if (tokenID == _no_token_)
+	        {
+	            // turn on no terminal token processing for next rule
+                mNoTerminalToken = true;
                 // move on to next rule
                 Passed = true;
 	        }
@@ -868,9 +886,17 @@ namespace Ogre {
                     }
                     else
                     {
+
 			            // compare token lexeme text with source text
                         if (Passed = isLexemeMatch(mActiveTokenState->lexemeTokenDefinitions[tokenID].lexeme, mActiveTokenState->lexemeTokenDefinitions[tokenID].isCaseSensitive))
+                        {
                             tokenlength = mActiveTokenState->lexemeTokenDefinitions[tokenID].lexeme.length();
+                            // check if terminal token should be ignored ie not put in instruction que
+                            if (mNoTerminalToken)
+                                tokenID = _no_token_;
+                        }
+                        // always clear no terminal token flag.  it only works for one pending terminal token.
+                        mNoTerminalToken = false;
                     }
                 }
 
@@ -1237,6 +1263,11 @@ namespace Ogre {
                     pendingRuleOp = otREPEAT;
                     break;
 
+                case BNF_NO_TOKEN_START: // '
+                    extractTerminal(pendingRuleOp, true);
+                    pendingRuleOp = otAND;
+                    break;
+
                 case BNF_SINGLEQUOTE: // '
                     extractTerminal(pendingRuleOp);
                     pendingRuleOp = otAND;
@@ -1342,7 +1373,7 @@ namespace Ogre {
         tokenDef.isNonTerminal = true;
     }
     //-----------------------------------------------------------------------
-    void Compiler2Pass::extractTerminal(const OperationType pendingRuleOp)
+    void Compiler2Pass::extractTerminal(const OperationType pendingRuleOp, const bool notoken)
     {
         // begining of label
         // next token should be for a label
@@ -1352,6 +1383,8 @@ namespace Ogre {
         // add terminal to lexeme token definitions
         // note that if label not in the map it is automatically added
         const size_t tokenID = getClientLexemeTokenID(terminalLabel);
+        if (notoken)
+            modifyLastRule(otAND, _no_token_);
         modifyLastRule(pendingRuleOp, tokenID);
     }
     //-----------------------------------------------------------------------

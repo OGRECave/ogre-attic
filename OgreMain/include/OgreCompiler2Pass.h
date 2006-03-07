@@ -146,10 +146,10 @@ namespace Ogre {
 	    enum BNF_ID {BNF_UNKOWN = 0,
             BNF_SYNTAX, BNF_RULE, BNF_IDENTIFIER, BNF_IDENTIFIER_RIGHT, BNF_IDENTIFIER_CHARACTERS, BNF_ID_BEGIN, BNF_ID_END,
             BNF_CONSTANT_BEGIN, BNF_SET_RULE, BNF_EXPRESSION,
-            BNF_AND_TERM, BNF_OR_TERM, BNF_TERM, BNF_TERM_ID, BNF_CONSTANT, BNF_OR, BNF_TERMINAL_SYMBOL,
+            BNF_AND_TERM, BNF_OR_TERM, BNF_TERM, BNF_TERM_ID, BNF_CONSTANT, BNF_OR, BNF_TERMINAL_SYMBOL, BNF_TERMINAL_START,
             BNF_REPEAT_EXPRESSION, BNF_REPEAT_BEGIN, BNF_REPEAT_END, BNF_SET, BNF_SET_BEGIN, BNF_SET_END,
             BNF_NOT_TEST, BNF_NOT_TEST_BEGIN, BNF_OPTIONAL_EXPRESSION,
-            BNF_OPTIONAL_BEGIN, BNF_OPTIONAL_END, BNF_SINGLEQUOTE, BNF_SINGLE_QUOTE_EXC, BNF_SET_END_EXC,
+            BNF_OPTIONAL_BEGIN, BNF_OPTIONAL_END, BNF_NO_TOKEN_START, BNF_SINGLEQUOTE, BNF_SINGLE_QUOTE_EXC, BNF_SET_END_EXC,
             BNF_ANY_CHARACTER, BNF_SPECIAL_CHARACTERS1,
             BNF_SPECIAL_CHARACTERS2, BNF_WHITE_SPACE_CHK,
 
@@ -247,6 +247,9 @@ namespace Ogre {
         /// flag being true indicates that spaces are not to be skipped
         /// automatically gets set to false when mLabelIsActive goes to false
         bool mNoSpaceSkip;
+        /// if flag is true then next terminal token is not added to token que if found
+        /// but does effect rule path flow
+        bool mNoTerminalToken;
 
 	    /// Active Contexts pattern used in pass 1 to determine which tokens are valid for a certain context
 	    uint mActiveContexts;
@@ -461,7 +464,7 @@ namespace Ogre {
         /// Extract a Non Terminal identifier from the token que
         void extractNonTerminal(const OperationType pendingRuleOp);
         /// Extract a Terminal lexeme from the token que and add to current rule expression
-        void extractTerminal(const OperationType pendingRuleOp);
+        void extractTerminal(const OperationType pendingRuleOp, const bool notoken = false);
         /// Extract a set from the token que and add to current rule expression
         void extractSet(const OperationType pendingRuleOp);
         /// Extract a numeric constant from the token que and add it to the current rule expression

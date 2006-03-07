@@ -49,10 +49,12 @@ namespace Ogre {
 		"<TextureDef> ::= 'texture' <Label> <WidthOptionDef> <HeightOptionDef> <PixelFormatDef> \n"
 		"<WidthOptionDef> ::= 'target_width' | <#width> \n"
 		"<HeightOptionDef> ::= 'target_height' | <#height> \n"
-		"<PixelFormatDef> ::= 'PF_A8R8G8B8' | 'PF_R8G8B8A8' | 'PF_R8G8B8' | 'PF_FLOAT16_R' | 'PF_FLOAT16_RGB' | 'PF_FLOAT16_RGBA' | 'PF_FLOAT32_R' | 'PF_FLOAT32_RGB' | 'PF_FLOAT32_RGBA' \n"
+		"<PixelFormatDef> ::= 'PF_A8R8G8B8' | 'PF_R8G8B8A8' | 'PF_R8G8B8' | 'PF_FLOAT16_RGBA' | \n"
+        "   'PF_FLOAT16_RGB' | 'PF_FLOAT16_R' | 'PF_FLOAT32_RGBA' | 'PF_FLOAT32_RGB' | 'PF_FLOAT32_R' \n"
 		// Target
 		"<TargetDef> ::= 'target ' <Label> '{' {<TargetOptionsDef>} {<PassDef>} '}' \n"
-	    "<TargetOptionsDef> ::=	[<TargetInputDef>] | [<OnlyInitialDef>]  | [<VisibilityMaskDef>] | [<LodBiasDef>] | [<MaterialSchemeDef>] \n"
+	    "<TargetOptionsDef> ::=	[<TargetInputDef>] | [<OnlyInitialDef>]  | [<VisibilityMaskDef>] | \n"
+	    "   [<LodBiasDef>] | [<MaterialSchemeDef>] \n"
 		"<TargetInputDef> ::= 'input' <TargetInputOptionsDef> \n"
 		"<TargetInputOptionsDef> ::= 'none' | 'previous' \n"
 		"<OnlyInitialDef> ::= 'only_initial' <On_Off> \n"
@@ -69,7 +71,7 @@ namespace Ogre {
 		// common rules
 		"<On_Off> ::= 'on' | 'off' \n"
 		"<Label> ::= <Unquoted_Label> | <Quoted_Label> \n"
-		"<Quoted_Label> ::= '\"' <Character> {<Alphanumeric_Space>} '\"' \n"
+		"<Quoted_Label> ::= -'\"' <Character> {<Alphanumeric_Space>} -'\"' \n"
         "<Unquoted_Label> ::= <Character> {<Alphanumeric>} \n"
 		"<Alphanumeric_Space> ::= <Alphanumeric> | <Space> \n"
 		"<Alphanumeric> ::= <Character> | <Number> \n"
