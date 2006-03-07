@@ -143,7 +143,7 @@ LGPL like the rest of the engine.
             mRegisteredCompositors.push_back(CompositorEntry("Hurt",        "[Hurt] ",          KC_2));
             mRegisteredCompositors.push_back(CompositorEntry("Glass",       "[Glass] ",         KC_3));
             mRegisteredCompositors.push_back(CompositorEntry("MotionBlur",  "[Motion Blur] ",   KC_4));
-            mRegisteredCompositors.push_back(CompositorEntry("OldTV",       "[Old TV] ",        KC_6));
+            mRegisteredCompositors.push_back(CompositorEntry("Old TV",       "[Old TV] ",        KC_6));
             mRegisteredCompositors.push_back(CompositorEntry("B&W",         "[B&W]",            KC_7));
             mRegisteredCompositors.push_back(CompositorEntry("DOF",         "[DOF] ",           KC_8));
             mRegisteredCompositors.push_back(CompositorEntry("Embossed",    "[Embossed] ",      KC_0));
