@@ -93,11 +93,8 @@ Section -Libs
     File "..\..\Dependencies\lib\Debug\libOPCODE.a"
     File "..\..\Dependencies\lib\Debug\libode.a"
     File "..\..\Dependencies\lib\Debug\libCEGUIBase_d.a"
-    File "..\..\Samples\Common\CEGUIRenderer\bin\debug\libOgreGUIRenderer_d.a"
     ; Release libs
-    ; File "..\..\OgreMain\lib\Release\libOgreMain.a"
     File "..\..\Dependencies\lib\Release\libCEGUIBase.a"
-    File "..\..\Samples\Common\CEGUIRenderer\bin\release\libOgreGUIRenderer.a"
   !else ; MSVC
     ; Debug libs
     File "..\..\OgreMain\lib\Debug\OgreMain_d.lib"
@@ -117,10 +114,7 @@ Section -Libs
   ; Optional library files (for linking direct to plugins)
   SetOutPath "$INSTDIR\lib\opt\debug"
   SetOverwrite try
-  !ifdef MINGW
-    File "..\..\Plugins\OctreeSceneManager\bin\debug\libPlugin_OctreeSceneManager.a"
-    File "..\..\Plugins\BspSceneManager\bin\debug\libPlugin_BspSceneManager.a"
-  !else ; MSVC
+  !ifndef MINGW ; MSVC
     File "..\..\Plugins\OctreeSceneManager\bin\debug\Plugin_OctreeSceneManager.lib"
     File "..\..\Plugins\OctreeSceneManager\bin\debug\Plugin_OctreeSceneManager.pdb"
     File "..\..\Plugins\BspSceneManager\bin\debug\Plugin_BspSceneManager.lib"
@@ -128,10 +122,7 @@ Section -Libs
   !endif
   SetOutPath "$INSTDIR\lib\opt\release"
   SetOverwrite try
-  !ifdef MINGW
-    File "..\..\Plugins\OctreeSceneManager\bin\release\libPlugin_OctreeSceneManager.a"
-    File "..\..\Plugins\BspSceneManager\bin\release\libPlugin_BspSceneManager.a"
-  !else ; MSVC
+  !ifndef MINGW ; MSVC
     File "..\..\Plugins\OctreeSceneManager\bin\release\Plugin_OctreeSceneManager.lib"
     File "..\..\Plugins\BspSceneManager\bin\release\Plugin_BspSceneManager.lib"
   !endif
@@ -161,7 +152,6 @@ Section -Binaries
   File "..\..\Samples\Common\bin\Debug\Plugin_CgProgramManager.dll"
   File "..\..\Samples\Common\bin\Debug\Plugin_OctreeSceneManager.dll"
   File "..\..\Samples\Common\bin\Debug\Plugin_ParticleFX.dll"
-  ;File "..\..\Samples\Common\bin\Debug\RenderSystem_Direct3D7.dll"
   File "..\..\Samples\Common\bin\Debug\RenderSystem_Direct3D9.dll"
   File "..\..\Samples\Common\bin\Debug\RenderSystem_GL.dll"
   File "..\..\Samples\Common\bin\Debug\OgreGUIRenderer_d.dll"
