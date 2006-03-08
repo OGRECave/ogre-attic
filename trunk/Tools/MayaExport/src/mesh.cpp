@@ -119,13 +119,12 @@ namespace OgreMayaExporter
 			if (m_pSkinCluster)
 			{
 				std::cout << "Loading skeleton data...\n";
-				m_pSkeleton = new Skeleton();
+				if (!m_pSkeleton)
+					m_pSkeleton = new Skeleton();
 				stat = m_pSkeleton->load(m_pSkinCluster,params);
 				if (MS::kSuccess != stat)
 				{
 					std::cout << "Error loading skeleton data\n";
-					delete m_pSkeleton;
-					m_pSkeleton = NULL;
 				}
 				else
 					std::cout << "OK\n";

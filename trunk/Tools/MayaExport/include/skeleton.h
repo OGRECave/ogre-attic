@@ -75,12 +75,9 @@ namespace OgreMayaExporter
 	protected:
 		MStatus loadJoint(MDagPath& jointDag, joint* parent, ParamList& params);
 
-		MFnSkinCluster* m_pSkinCluster;
 		std::vector<joint> m_joints;
 		std::vector<animation> m_animations;
 	};
-
-	std::vector<double> mergesorted(const std::vector<double>& v1, const std::vector<double>& v2);
 
 }	//end namespace
 

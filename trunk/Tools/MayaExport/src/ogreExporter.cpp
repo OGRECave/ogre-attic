@@ -58,6 +58,12 @@ namespace OgreMayaExporter
 			}							
 		}
 
+		// load skeleton animation (do it now, so we have loaded all needed joints)
+		if (m_pMesh->getSkeleton() && m_params.exportAnims)
+		{
+			m_pMesh->getSkeleton()->loadAnims(m_params);
+		}
+
 		/**************************** WRITE DATA **********************************/
 		// write mesh data
 		if (m_params.exportMesh)

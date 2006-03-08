@@ -5,7 +5,8 @@ namespace OgreMayaExporter
 	// Constructor
 	Skeleton::Skeleton()
 	{
-		m_pSkinCluster = NULL;
+		m_joints.clear();
+		m_animations.clear();
 	}
 
 
@@ -19,7 +20,6 @@ namespace OgreMayaExporter
 	// Clear skeleton data
 	void Skeleton::clear()
 	{
-		m_pSkinCluster = NULL;
 		m_joints.clear();
 		m_animations.clear();
 	}
@@ -30,9 +30,7 @@ namespace OgreMayaExporter
 	{
 		MStatus stat;
 		//update skin cluster pointer
-		if (pSkinCluster)
-			m_pSkinCluster = pSkinCluster;
-		else
+		if (!pSkinCluster)
 		{
 			std::cout << "Could not load skeleton data, no skin cluster specified\n";
 			return MS::kFailure;
@@ -40,32 +38,37 @@ namespace OgreMayaExporter
 		//retrieve and load joints from the skin cluster
 		MDagPath jointDag,rootDag;
 		MDagPathArray influenceDags;
-		int numInfluenceObjs = m_pSkinCluster->influenceObjects(influenceDags,&stat);
+		int numInfluenceObjs = pSkinCluster->influenceObjects(influenceDags,&stat);
+		std::cout << "num influence objects: " << numInfluenceObjs << "\n";
 		for (int i=0; i<numInfluenceObjs; i++)
 		{
+			jointDag = influenceDags[i];
+			std::cout << "influence object " << i << ": " << jointDag.fullPathName().asChar() << "\n";
 			if (influenceDags[i].hasFn(MFn::kJoint))
 			{
 				//retrieve root joint
-				jointDag = influenceDags[i];
 				rootDag = jointDag;
-				while (jointDag.length())
+				while (jointDag.length()>0)
 				{
 					jointDag.pop();
-					if (jointDag.hasFn(MFn::kJoint))
+					if (jointDag.hasFn(MFn::kJoint) && jointDag.length()>0)
 						rootDag = jointDag;
 				}
 				//check if skeleton has already been loaded
 				bool skip = false;
-				for (int j=0; i<m_joints.size() && !skip; j++)
+				for (int j=0; j<m_joints.size() && !skip; j++)
 				{
 					//skip skeleton if already loaded
 					if (rootDag.partialPathName() == m_joints[j].name)
+					{
 						skip = true;
+						std::cout << "joint already loaded: skipped\n";
+					}
 				}
 				//load joints data from root
 				if (!skip)
 				{
-					std::cout <<  "Loading skeleton with root: " << jointDag.partialPathName().asChar() << "...\n";
+					std::cout <<  "Loading skeleton with root: " << rootDag.partialPathName().asChar() << "...\n";
 					MSelectionList selectionList;
 					MGlobal::getActiveSelectionList(selectionList);
 					// Set Neutral Pose
@@ -86,12 +89,13 @@ namespace OgreMayaExporter
 					}
 					
 					//load joints data
-					stat = loadJoint(jointDag,NULL,params);
+					stat = loadJoint(rootDag,NULL,params);
 					if (MS::kSuccess == stat)
 						std::cout << "OK\n";
 					else
 						std::cout << "Failed\n";
 
+					/*
 					//restore skeleton to neutral pose
 					if (params.neutralPoseFrame == 1)
 					{
@@ -104,12 +108,10 @@ namespace OgreMayaExporter
 						MTime npTime = (double)params.neutralPoseFrame;
 						MAnimControl::setCurrentTime(npTime.as(MTime::kSeconds));
 					}
+					*/
 				}
 			}
 		}
-		// load skeleton animation
-		if(params.exportAnims)
-			loadAnims(params);
 
 		return MS::kSuccess;
 	}
@@ -130,6 +132,8 @@ namespace OgreMayaExporter
 			std::cout << "Loading joint: " << jointFn.partialPathName().asChar();
 			if (parent)
 				std::cout << " (parent: " << parent->name.asChar() << ")\n";
+			else
+				std::cout << "\n";
 			// Get parent index
 			int idx=-1;
 			if (parent)
@@ -471,67 +475,5 @@ namespace OgreMayaExporter
 		return MS::kSuccess;
 	}
 
-
-	// Merge two sorted vectors of doubles
-	std::vector<double> mergesorted(const std::vector<double>& v1, const std::vector<double>& v2)
-	{
-		std::vector<double> res;
-		if (v1.size() == 0)
-			res = v2;
-		else if (v2.size() == 0)
-			res = v1;
-		else
-		{
-			int i=0, j=0, k=0;
-			// set starting element
-			if (v2[j] >= v1[i])
-				res.push_back(v1[i++]);
-			else
-				res.push_back(v2[j++]);
-			// merge the two vectors until one of the two reaches its end
-			while (i<v1.size() && j<v2.size())
-			{
-				if (v1[i]==res[k])
-					i++;
-				else if (v2[j]==res[k])
-					j++;
-				else
-				{
-					if (v2[j] >= v1[i])
-					{
-						res.push_back(v1[i++]);
-						k++;
-					}
-					else
-					{
-						res.push_back(v2[j++]);
-						k++;
-					}
-				}
-			}
-			// merge remaining items
-			while (i<v1.size())
-			{
-				if (v1[i] == res[k])
-					i++;
-				else
-				{
-					res.push_back(v1[i++]);
-					k++;
-				}
-			}
-			while (j<v2.size())
-			{
-				if (v2[j] == res[k])
-					j++;
-				else
-				{
-					res.push_back(v2[j++]);
-					k++;
-				}
-			}
-		}
-		return res;
-	}
 
 };	//end namespace
