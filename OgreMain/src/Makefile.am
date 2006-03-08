@@ -162,8 +162,9 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgreCompositorChain.cpp \
                          OgreCompositorInstance.cpp \
                          OgreCompositorManager.cpp \
-                         OgreCompositorSerializer.cpp
-
+                         OgreCompositorSerializer.cpp \
+                         OgreCompositorScriptCompiler.cpp \
+                         OgreCompiler2Pass.cpp \
 
 if USE_DEVIL
 libOgreMain_la_SOURCES +=OgreILImageCodec.cpp \

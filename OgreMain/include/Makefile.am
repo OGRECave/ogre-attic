@@ -204,4 +204,6 @@ OgreCompositorSerializer.h \
 OgreCompositionTechnique.h \
 OgreCompositionPass.h \
 OgreCompositionTargetPass.h \
+OgreCompositorScriptCompiler.h \
+OgreCompiler2Pass.h \
 asm_math.h
