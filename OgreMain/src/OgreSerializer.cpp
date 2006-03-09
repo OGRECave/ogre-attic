@@ -63,7 +63,7 @@ namespace Ogre {
 		// read header id manually (no conversion)
         stream->read(&dest, sizeof(uint16));
 		// skip back
-		stream->skip(-sizeof(uint16));
+		stream->skip(0 - sizeof(uint16));
 		if (dest == HEADER_STREAM_ID)
 		{
 			mFlipEndian = false;
