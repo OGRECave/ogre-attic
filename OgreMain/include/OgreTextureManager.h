@@ -220,6 +220,34 @@ namespace Ogre {
             return mIs32Bit;
         }
 
+		/** Returns whether this render system can natively support the precise texture 
+			format requested with the given usage options.
+		@remarks
+			You can still create textures with this format even if this method returns
+			false; the texture format will just be altered to one which the device does
+			support.
+		@note
+			Sometimes the device may just slightly change the format, such as reordering the 
+			channels or packing the channels differently, without it making and qualitative 
+			differences to the texture. If you want to just detect whether the quality of a
+			given texture will be reduced, use isEquivalentFormatSupport instead.
+		@param format The pixel format requested
+		@param usage The kind of usage this texture is intended for, a combination of 
+			the TextureUsage flags.
+		@returns true if the format is natively supported, false if a fallback would be used.
+		*/
+		virtual bool isFormatSupported(TextureType ttype, PixelFormat format, int usage);
+
+		/** Returns whether this render system can support the texture format requested
+			with the given usage options, or another format with no quality reduction.
+		*/
+		virtual bool isEquivalentFormatSupported(TextureType ttype, PixelFormat format, int usage);
+
+		/** Gets the format which will be natively used for a requested format given the
+			contraints of the current device.
+		*/
+		virtual PixelFormat getNativeFormat(TextureType ttype, PixelFormat format, int usage) = 0;
+
         /** Sets the default number of mipmaps to be used for loaded textures, for when textures are
             loaded automatically (e.g. by Material class) or when 'load' is called with the default
             parameters by the application.

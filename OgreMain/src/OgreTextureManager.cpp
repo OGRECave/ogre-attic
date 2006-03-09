@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 #include "OgreTextureManager.h"
 #include "OgreException.h"
+#include "OgrePixelFormat.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -148,4 +149,18 @@ namespace Ogre {
     {
         mDefaultNumMipmaps = num;
     }
+    //-----------------------------------------------------------------------
+	bool TextureManager::isFormatSupported(TextureType ttype, PixelFormat format, int usage)
+	{
+		return getNativeFormat(ttype, format, usage) == format;
+	}
+    //-----------------------------------------------------------------------
+	bool TextureManager::isEquivalentFormatSupported(TextureType ttype, PixelFormat format, int usage)
+	{
+		PixelFormat supportedFormat = getNativeFormat(ttype, format, usage);
+
+		// Assume that same or greater number of bits means quality not degraded
+		return PixelUtil::getNumElemBits(supportedFormat) >= PixelUtil::getNumElemBits(format);
+		
+	}
 }

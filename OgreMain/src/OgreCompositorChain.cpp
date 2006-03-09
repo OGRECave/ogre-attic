@@ -36,15 +36,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 CompositorChain::CompositorChain(Viewport *vp):
     mViewport(vp),
+	mOriginalScene(0),
     mDirty(true)
 {
     assert(mViewport);
-    mViewport->getTarget()->addListener(this);
-    
-    /// Create base "original scene" compositor
-    CompositorPtr base = CompositorManager::getSingleton().load("Ogre/Scene",
-        ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME);
-    mOriginalScene = base->getSupportedTechnique(0)->createInstance(this);
 }
 //-----------------------------------------------------------------------
 CompositorChain::~CompositorChain()
@@ -66,7 +61,19 @@ void CompositorChain::destroyResources(void)
 //-----------------------------------------------------------------------
 CompositorInstance* CompositorChain::addCompositor(CompositorPtr filter, size_t addPosition, size_t technique)
 {
-    filter->touch();
+	// Init on demand
+	if (!mOriginalScene)
+	{
+		mViewport->getTarget()->addListener(this);
+		
+		/// Create base "original scene" compositor
+		CompositorPtr base = CompositorManager::getSingleton().load("Ogre/Scene",
+			ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME);
+		mOriginalScene = base->getSupportedTechnique(0)->createInstance(this);
+	}
+
+
+	filter->touch();
     if(technique >= filter->getNumSupportedTechniques())
     {
         /// Warn user

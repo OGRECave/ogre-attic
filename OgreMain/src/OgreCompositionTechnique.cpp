@@ -27,6 +27,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCompositionTargetPass.h"
 #include "OgreCompositorInstance.h"
 #include "OgreCompositorChain.h"
+#include "OgreCompositionPass.h"
+#include "OgreTextureManager.h"
 
 namespace Ogre {
 
@@ -146,10 +148,75 @@ CompositionTargetPass *CompositionTechnique::getOutputTargetPass()
     return mOutputTarget;
 }
 //-----------------------------------------------------------------------
-bool CompositionTechnique::isSupported()
+bool CompositionTechnique::isSupported(bool acceptTextureDegradation)
 {
-    /// TODO
-    return true;
+	// A technique is supported if all materials referenced have a supported
+	// technique, and the intermediate texture formats requested are supported
+	// Material support is a cast-iron requirement, but if no texture formats 
+	// are directly supported we can let the rendersystem create the closest 
+	// match for the least demanding technique
+	
+
+    TargetPasses::iterator pi, piend;
+    piend = mTargetPasses.end();
+    for (pi = mTargetPasses.begin(); pi != piend; ++pi)
+    {
+		CompositionTargetPass* targetPass = *pi;
+		CompositionTargetPass::PassIterator passi = targetPass->getPassIterator();
+
+		while (passi.hasMoreElements())
+		{
+			CompositionPass* pass = passi.getNext();
+			if (pass->getType() == CompositionPass::PT_RENDERQUAD)
+			{
+				MaterialPtr mat = pass->getMaterial();
+				if (mat.isNull())
+				{
+					return false;
+				}
+				else
+				{
+					mat->compile();
+					if (mat->getNumSupportedTechniques() == 0)
+					{
+						return false;
+					}
+				}
+			}
+
+		}
+
+
+	}
+	
+    TextureDefinitions::iterator i, iend;
+    iend = mTextureDefinitions.end();
+	TextureManager& texMgr = TextureManager::getSingleton();
+    for (i = mTextureDefinitions.begin(); i != iend; ++i)
+    {
+		TextureDefinition* td = *i;
+
+		// Check whether equivalent supported
+		if(acceptTextureDegradation)
+		{
+			// Don't care about exact format so long as something is supported
+			if(texMgr.getNativeFormat(TEX_TYPE_2D, td->format, TU_RENDERTARGET) == PF_UNKNOWN)
+			{
+				return false;
+			}
+		}
+		else
+		{
+			// Need a format which is the same number of bits to pass
+			if (!texMgr.isEquivalentFormatSupported(TEX_TYPE_2D, td->format, TU_RENDERTARGET))
+			{
+				return false;
+			}	
+		}
+	}
+	
+	// Must be ok
+	return true;
 }
 //-----------------------------------------------------------------------
 CompositorInstance *CompositionTechnique::createInstance(CompositorChain *chain)

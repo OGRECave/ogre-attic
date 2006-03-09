@@ -24,6 +24,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "OgreGLTextureManager.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
+#include "OgreGLRenderTexture.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------------
@@ -74,6 +77,40 @@ namespace Ogre {
 		// Free memory
 		delete [] data;
 	}
+	//-----------------------------------------------------------------------------
+	PixelFormat GLTextureManager::getNativeFormat(TextureType ttype, PixelFormat format, int usage)
+	{
+		// Adjust requested parameters to capabilities
+        const RenderSystemCapabilities *caps = Root::getSingleton().getRenderSystem()->getCapabilities();
+
+		// Check compressed texture support
+		// if a compressed format not supported, revert to PF_A8R8G8B8
+		if(PixelUtil::isCompressed(format) &&
+            !caps->hasCapability( RSC_TEXTURE_COMPRESSION_DXT ))
+		{
+			return PF_A8R8G8B8;
+		}
+		// if floating point textures not supported, revert to PF_A8R8G8B8
+		if(PixelUtil::isFloatingPoint(format) &&
+            !caps->hasCapability( RSC_TEXTURE_FLOAT ))
+		{
+			return PF_A8R8G8B8;
+		}
+        
+        // Check if this is a valid rendertarget format
+		if( usage & TU_RENDERTARGET )
+        {
+            /// Get closest supported alternative
+            /// If mFormat is supported it's returned
+            return GLRTTManager::getSingleton().getSupportedAlternative(format);
+        }
+
+		// Supported
+		return format;
+
+		
+	}
+
 
 
 }

@@ -58,6 +58,9 @@ namespace Ogre
 		*/
 		void recreateDefaultPoolResources(void);
 
+		/// @copydoc TextureManager::getNativeFormat
+		PixelFormat getNativeFormat(TextureType ttype, PixelFormat format, int usage);
+
 
 	};
 }

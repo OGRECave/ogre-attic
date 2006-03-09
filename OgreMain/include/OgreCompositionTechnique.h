@@ -107,12 +107,9 @@ namespace Ogre {
         CompositionTargetPass *getOutputTargetPass();
         
         /** Determine if this technique is supported on the current rendering device. 
-            This should check:
-            - Support of floating point textures, given texture definition
-            - Support of materials used by Passes
-            - ...
+		@param allowTextureDegradation True to accept a reduction in texture depth
          */
-        virtual bool isSupported();
+        virtual bool isSupported(bool allowTextureDegradation);
         
         /** Create an instance of this technique.
          */

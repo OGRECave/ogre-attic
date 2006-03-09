@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
+#include "OgreD3D9Mappings.h"
 
 namespace Ogre 
 {
@@ -85,6 +86,46 @@ namespace Ogre
 		LogManager::getSingleton().logMessage("D3D9TextureManager recreated:");
 		LogManager::getSingleton().logMessage(
 			StringConverter::toString(count) + " unmanaged textures");
+	}
+
+
+	PixelFormat D3D9TextureManager::getNativeFormat(TextureType ttype, PixelFormat format, int usage)
+	{
+		// Basic filtering
+		D3DFORMAT d3dPF = D3D9Mappings::_getPF(D3D9Mappings::_getClosestSupportedPF(format));
+
+		// Calculate usage
+		DWORD d3dusage = 0;
+		D3DPOOL pool = D3DPOOL_MANAGED;
+		if (usage & TU_RENDERTARGET) 
+		{
+			d3dusage |= D3DUSAGE_RENDERTARGET;
+			pool = D3DPOOL_DEFAULT;
+		}
+		if (usage & TU_DYNAMIC)
+		{
+			d3dusage |= D3DUSAGE_DYNAMIC;
+			pool = D3DPOOL_DEFAULT;
+		}
+
+		// Use D3DX to adjust pixel format
+		switch(ttype)
+		{
+		case TEX_TYPE_1D:
+		case TEX_TYPE_2D:
+			D3DXCheckTextureRequirements(mpD3DDevice, NULL, NULL, NULL, d3dusage, &d3dPF, pool);
+			break;
+		case TEX_TYPE_3D:
+			D3DXCheckVolumeTextureRequirements(mpD3DDevice, NULL, NULL, NULL, NULL, d3dusage, &d3dPF, pool);
+			break;
+		case TEX_TYPE_CUBE_MAP:
+			D3DXCheckCubeTextureRequirements(mpD3DDevice, NULL, NULL, d3dusage, &d3dPF, pool);
+			break;
+		};
+
+		return D3D9Mappings::_getPF(d3dPF);
+
+
 	}
 
 

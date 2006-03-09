@@ -93,35 +93,15 @@ namespace Ogre {
 	//* Creation / loading methods ********************************************
 	void GLTexture::createInternalResourcesImpl(void)
     {
-		// Adjust requested parameters to capabilities
-        const RenderSystemCapabilities *caps = Root::getSingleton().getRenderSystem()->getCapabilities();
-
 		// Convert to nearest power-of-two size if required
         mWidth = GLPixelUtil::optionalPO2(mWidth);      
         mHeight = GLPixelUtil::optionalPO2(mHeight);
         mDepth = GLPixelUtil::optionalPO2(mDepth);
 		
-		// Check compressed texture support
-		// if a compressed format not supported, revert to PF_A8R8G8B8
-		if(PixelUtil::isCompressed(mFormat) &&
-            !caps->hasCapability( RSC_TEXTURE_COMPRESSION_DXT ))
-		{
-			mFormat = PF_A8R8G8B8;
-		}
-		// if floating point textures not supported, revert to PF_A8R8G8B8
-		if(PixelUtil::isFloatingPoint(mFormat) &&
-            !caps->hasCapability( RSC_TEXTURE_FLOAT ))
-		{
-			mFormat = PF_A8R8G8B8;
-		}
-        
-        // Check if this is a valid rendertarget format
-		if( mUsage & TU_RENDERTARGET )
-        {
-            /// Get closest supported alternative
-            /// If mFormat is supported it's returned
-            mFormat = GLRTTManager::getSingleton().getSupportedAlternative(mFormat);
-        }
+
+		// Adjust format if required
+		mFormat = TextureManager::getSingleton().getNativeFormat(mTextureType, mFormat, mUsage);
+		
 		// Check requested number of mipmaps
 		size_t maxMips = GLPixelUtil::getMaxMipmaps(mWidth, mHeight, mDepth, mFormat);
 		mNumMipmaps = mNumRequestedMipmaps;
