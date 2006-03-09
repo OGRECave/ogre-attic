@@ -23,8 +23,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __SDLTextureManager_H__
-#define __SDLTextureManager_H__
+#ifndef __GLTextureManager_H__
+#define __GLTextureManager_H__
 
 #include "OgreGLPrerequisites.h"
 #include "OgreTextureManager.h"
@@ -32,7 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGLSupport.h"
 
 namespace Ogre {
-    /** SDL/GL-specific implementation of a TextureManager */
+    /** GL-specific implementation of a TextureManager */
     class GLTextureManager : public TextureManager
     {
     public:
@@ -40,6 +40,10 @@ namespace Ogre {
         virtual ~GLTextureManager();
 
 		GLuint getWarningTextureID() { return mWarningTextureID; }
+
+		/// @copydoc TextureManager::getNativeFormat
+		PixelFormat getNativeFormat(TextureType ttype, PixelFormat format, int usage);
+		
     protected:
         /// @copydoc ResourceManager::createImpl
         Resource* createImpl(const String& name, ResourceHandle handle, 
