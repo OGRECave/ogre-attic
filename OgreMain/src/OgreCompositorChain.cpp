@@ -37,7 +37,8 @@ namespace Ogre {
 CompositorChain::CompositorChain(Viewport *vp):
     mViewport(vp),
 	mOriginalScene(0),
-    mDirty(true)
+    mDirty(true),
+	mAnyCompositorsEnabled(false)
 {
     assert(mViewport);
 }
@@ -92,6 +93,7 @@ CompositorInstance* CompositorChain::addCompositor(CompositorPtr filter, size_t 
     mInstances.insert(mInstances.begin()+addPosition, t);
     
     mDirty = true;
+	mAnyCompositorsEnabled = true;
     return t;
 }
 //-----------------------------------------------------------------------
@@ -119,6 +121,7 @@ void CompositorChain::removeAllCompositors()
         (*i)->getTechnique()->destroyInstance(*i);
     }
     mInstances.clear();
+	mAnyCompositorsEnabled = false;
     
     mDirty = true;
 }
@@ -149,8 +152,13 @@ void CompositorChain::setCompositorEnabled(size_t position, bool state)
 void CompositorChain::preRenderTargetUpdate(const RenderTargetEvent& evt)
 {
 	/// Compile if state is dirty
-    if(mDirty)
-        _compile();
+	if(mDirty)
+		_compile();
+
+	// Do nothing if no compositors enabled
+	if (!mAnyCompositorsEnabled)
+		return;
+
 	/// Update dependent render targets; this is done in the preRenderTarget 
 	/// and not the preViewportUpdate for a reason: at this time, the
 	/// target Rendertarget will not yet have been set as current. 
@@ -174,11 +182,13 @@ void CompositorChain::preRenderTargetUpdate(const RenderTargetEvent& evt)
 //-----------------------------------------------------------------------
 void CompositorChain::preViewportUpdate(const RenderTargetViewportEvent& evt)
 {
-    if(evt.source != mViewport)
+	// Only set up if there is at least one compositor enabled, and it's this viewport
+    if(evt.source != mViewport || !mAnyCompositorsEnabled)
         return;
-    Camera *cam = mViewport->getCamera();
-    /// Prepare for output operation
-    preTargetOperation(mOutputOperation, mViewport, cam);
+
+	Camera *cam = mViewport->getCamera();
+	/// Prepare for output operation
+	preTargetOperation(mOutputOperation, mViewport, cam);
 }
 //-----------------------------------------------------------------------
 void CompositorChain::preTargetOperation(CompositorInstance::TargetOperation &op, Viewport *vp, Camera *cam)
@@ -222,9 +232,11 @@ void CompositorChain::postTargetOperation(CompositorInstance::TargetOperation &o
 //-----------------------------------------------------------------------
 void CompositorChain::postViewportUpdate(const RenderTargetViewportEvent& evt)
 {
-    if(evt.source != mViewport)
+	// Only tidy up if there is at least one compositor enabled, and it's this viewport
+    if(evt.source != mViewport || !mAnyCompositorsEnabled)
         return;
-    postTargetOperation(mOutputOperation, mViewport, mViewport->getCamera());
+
+	postTargetOperation(mOutputOperation, mViewport, mViewport->getCamera());
 }
 //-----------------------------------------------------------------------
 void CompositorChain::viewportRemoved(const RenderTargetViewportEvent& evt)
@@ -237,6 +249,8 @@ void CompositorChain::viewportRemoved(const RenderTargetViewportEvent& evt)
 //-----------------------------------------------------------------------
 void CompositorChain::_compile()
 {
+	mAnyCompositorsEnabled = false;
+
     /// Set previous CompositorInstance for each compositor in the list
     CompositorInstance *lastComposition = mOriginalScene;
 	mOriginalScene->mPreviousInstance = 0;
@@ -244,6 +258,7 @@ void CompositorChain::_compile()
     {
         if((*i)->getEnabled())
         {
+			mAnyCompositorsEnabled = true;
             (*i)->mPreviousInstance = lastComposition;
             lastComposition = (*i);
         }
