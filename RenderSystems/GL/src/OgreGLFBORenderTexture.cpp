@@ -72,11 +72,14 @@ GLenum depthFormats[]={
     GL_NONE,
     GL_DEPTH_COMPONENT16,
     GL_DEPTH_COMPONENT24,    // Prefer 24 bit depth
-    GL_DEPTH_COMPONENT32
+    GL_DEPTH_COMPONENT32,
+	GL_DEPTH24_STENCIL8_EXT // packed depth / stencil
 };
 size_t depthBits[] = {
-    0,16,24,32
+    0,16,24,32,24
 };
+
+
 #define DEPTHFORMAT_COUNT (sizeof(depthFormats)/sizeof(GLenum))
     
 	GLFBOManager::GLFBOManager(bool atimode):
@@ -105,6 +108,7 @@ size_t depthBits[] = {
     {
         GLuint status, depthRB, stencilRB;
         bool failed = false; // flag on GL errors
+
         if(depthFormat != GL_NONE)
         {
             /// Generate depth renderbuffer
@@ -227,7 +231,9 @@ size_t depthBits[] = {
                     if(_tryFormat(depthFormats[depth], stencilFormats[stencil]))
                     {
                         /// Add mode to allowed modes
-                        str << "D" << depthBits[depth] << "S" << stencilBits[stencil] << " ";
+                        str << "D" << depthBits[depth] << "S" << 
+							(depthFormats[depth] == GL_DEPTH24_STENCIL8_EXT ? 8 : stencilBits[stencil]) 
+							<< " ";
                         FormatProperties::Mode mode;
                         mode.depth = depth;
                         mode.stencil = stencil;
@@ -294,6 +300,8 @@ size_t depthBits[] = {
                 desirability += 2000;
             if(depthBits[props.modes[mode].depth]==24) // Prefer 24 bit for now
                 desirability += 500;
+			if(depthFormats[props.modes[mode].depth]==GL_DEPTH24_STENCIL8_EXT) // Prefer 24/8 packed 
+				desirability += 5000;
             desirability += stencilBits[props.modes[mode].stencil] + depthBits[props.modes[mode].depth];
             
             if(desirability>bestscore)
@@ -370,16 +378,18 @@ size_t depthBits[] = {
             return;
         RBFormat key(surface.buffer->getGLFormat(), surface.buffer->getWidth(), surface.buffer->getHeight());
         RenderBufferMap::iterator it = mRenderBufferMap.find(key);
-        assert(it != mRenderBufferMap.end());
-        // Decrease refcount
-        --it->second.refcount;
-        if(it->second.refcount==0)
-        {
-            // If refcount reaches zero, delete buffer and remove from map
-            delete it->second.buffer;
-            mRenderBufferMap.erase(it);
-            //std::cerr << "Destroyed renderbuffer of format " << std::hex << key.format << std::dec
-            //        << " of " << key.width << "x" << key.height << std::endl;
-        }
+        if(it != mRenderBufferMap.end())
+		{
+			// Decrease refcount
+			--it->second.refcount;
+			if(it->second.refcount==0)
+			{
+				// If refcount reaches zero, delete buffer and remove from map
+				delete it->second.buffer;
+				mRenderBufferMap.erase(it);
+				//std::cerr << "Destroyed renderbuffer of format " << std::hex << key.format << std::dec
+				//        << " of " << key.width << "x" << key.height << std::endl;
+			}
+		}
     }
 }

@@ -29,6 +29,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGLContext.h"
 #include "OgreGLFrameBufferObject.h"
 
+/// Extra GL constants
+#define GL_DEPTH24_STENCIL8_EXT                           0x88F0
+
+
 namespace Ogre {
     class GLFBOManager;
 
