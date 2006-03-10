@@ -2479,10 +2479,8 @@ namespace Ogre {
         {
             flags |= GL_STENCIL_BUFFER_BIT;
 			// Enable buffer for writing if it isn't
-			if (mStencilMask != 0xFFFFFFFF)
-			{
-				glStencilMask(0xFFFFFFFF);
-			}
+			glStencilMask(0xFFFFFFFF);
+
 			glClearStencil(stencil);
         }
 
@@ -2498,7 +2496,7 @@ namespace Ogre {
         {
             glColorMask(mColourWrite[0], mColourWrite[1], mColourWrite[2], mColourWrite[3]);
         }
-		if ((mStencilMask != 0xFFFFFFFF) && (buffers & FBT_STENCIL))
+		if (buffers & FBT_STENCIL)
 		{
 			glStencilMask(mStencilMask);
 		}
@@ -2662,6 +2660,7 @@ namespace Ogre {
         // difference with the really state stored in GL context.
         glDepthMask(mDepthWrite);
         glColorMask(mColourWrite[0], mColourWrite[1], mColourWrite[2], mColourWrite[3]);
+		glStencilMask(mStencilMask);
 
     }
     //---------------------------------------------------------------------
