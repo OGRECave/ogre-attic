@@ -95,7 +95,7 @@ namespace Ogre {
 	}
 
     GLRenderSystem::GLRenderSystem()
-      : mDepthWrite(true), mHardwareBufferManager(0),
+      : mDepthWrite(true), mStencilMask(0xFFFFFFFF), mHardwareBufferManager(0),
         mGpuProgramManager(0),
         mRTTManager(0)
     {
@@ -1627,6 +1627,7 @@ namespace Ogre {
         bool twoSidedOperation)
     {
         bool flip;
+		mStencilMask = mask;
 
         if (twoSidedOperation)
         {
@@ -2450,50 +2451,57 @@ namespace Ogre {
         const ColourValue& colour, Real depth, unsigned short stencil)
     {
 
-        GLbitfield flags = 0;
+		bool colourMask = !mColourWrite[0] || !mColourWrite[1] 
+			|| !mColourWrite[2] || mColourWrite[3]; 
+
+		GLbitfield flags = 0;
         if (buffers & FBT_COLOUR)
         {
             flags |= GL_COLOR_BUFFER_BIT;
+			// Enable buffer for writing if it isn't
+			if (colourMask)
+			{
+				glColorMask(true, true, true, true);
+			}
+			glClearColor(colour.r, colour.g, colour.b, colour.a);
         }
         if (buffers & FBT_DEPTH)
         {
             flags |= GL_DEPTH_BUFFER_BIT;
+			// Enable buffer for writing if it isn't
+			if (!mDepthWrite)
+			{
+				glDepthMask( GL_TRUE );
+			}
+			glClearDepth(depth);
         }
         if (buffers & FBT_STENCIL)
         {
             flags |= GL_STENCIL_BUFFER_BIT;
+			// Enable buffer for writing if it isn't
+			if (!(mStencilMask & stencil))
+			{
+				glStencilMask(0xFFFFFFFF);
+			}
+			glClearStencil(stencil);
         }
 
-
-        // Enable depth & colour buffer for writing if it isn't
-
-        if (!mDepthWrite)
-        {
-            glDepthMask( GL_TRUE );
-        }
-        bool colourMask = !mColourWrite[0] || !mColourWrite[1] 
-        || !mColourWrite[2] || mColourWrite[3]; 
-        if (colourMask)
-        {
-            glColorMask(true, true, true, true);
-        }
-
-        // Set values
-        glClearColor(colour.r, colour.g, colour.b, colour.a);
-        glClearDepth(depth);
-        glClearStencil(stencil);
         // Clear buffers
         glClear(flags);
-        // Reset depth write state if appropriate
-        // Enable depth buffer for writing if it isn't
-        if (!mDepthWrite)
+
+        // Reset buffer write state
+        if (!mDepthWrite && (buffers & FBT_DEPTH))
         {
             glDepthMask( GL_FALSE );
         }
-        if (colourMask)
+        if (colourMask && (buffers & FBT_COLOUR))
         {
             glColorMask(mColourWrite[0], mColourWrite[1], mColourWrite[2], mColourWrite[3]);
         }
+		if (!(mStencilMask & stencil) && (buffers & FBT_STENCIL))
+		{
+			glStencilMask(mStencilMask);
+		}
 
     }
     // ------------------------------------------------------------------

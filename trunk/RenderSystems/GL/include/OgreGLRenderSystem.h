@@ -86,6 +86,8 @@ namespace Ogre {
 
         // Store last depth write state
         bool mDepthWrite;
+		// Store last stencil mask state
+		uint32 mStencilMask;
 		// Store last colour write state
 		bool mColourWrite[4];
 
