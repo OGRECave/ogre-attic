@@ -77,6 +77,10 @@ namespace Ogre {
         /** Get compositor instance by position.
          */
         CompositorInstance *getCompositor(size_t index);
+
+		/** Get the original scene compositor instance for this chain (internal use). 
+		*/
+		CompositorInstance* _getOriginalSceneCompositor(void) { return mOriginalScene; }
     
         /** Get an iterator over the compositor instances. The first compositor in this list is applied first, the last one is applied last.
         */
@@ -123,6 +127,9 @@ namespace Ogre {
         
         /// State needs recompile
         bool mDirty;
+		/// Any compositors enabled?
+		bool mAnyCompositorsEnabled;
+
         /// Compiled state (updated with _compile)
         CompositorInstance::CompiledState mCompiledState;
         CompositorInstance::TargetOperation mOutputOperation;
