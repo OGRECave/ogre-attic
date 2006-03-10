@@ -53,6 +53,7 @@ namespace Ogre {
           mSkelAnimVertexData(0),
 		  mSoftwareVertexAnimVertexData(0),
 		  mHardwareVertexAnimVertexData(0),
+          mPreparedForShadowVolumes(false),
           mBoneWorldMatrices(NULL),
           mBoneMatrices(NULL),
           mNumBoneMatrices(0),
@@ -85,6 +86,7 @@ namespace Ogre {
 		mSkelAnimVertexData(0),
 		mSoftwareVertexAnimVertexData(0),
 		mHardwareVertexAnimVertexData(0),
+        mPreparedForShadowVolumes(false),
         mBoneWorldMatrices(NULL),
         mBoneMatrices(NULL),
         mNumBoneMatrices(0),
@@ -1209,6 +1211,9 @@ namespace Ogre {
 			SubEntity* s = *i;
 			s->prepareTempBlendBuffers();
 		}
+
+        // It's prepared for shadow volumes only if mesh has been prepared for shadow volumes.
+        mPreparedForShadowVolumes = mMesh->isPreparedForShadowVolumes();
     }
     //-----------------------------------------------------------------------
     void Entity::extractTempBufferInfo(VertexData* sourceData, TempBlendedBufferInfo* info)
@@ -1388,11 +1393,8 @@ namespace Ogre {
         }
 
 
-        // Prep mesh if required
-        // NB This seems to result in memory corruptions, having problems
-        // tracking them down. For now, ensure that shadows are enabled
-        // before any entities are created
-        if(!mMesh->isPreparedForShadowVolumes())
+        // Prepare temp buffers if required
+        if (!mPreparedForShadowVolumes)
         {
             mMesh->prepareForShadowVolume();
             // reset frame last updated to force update of animations if they exist

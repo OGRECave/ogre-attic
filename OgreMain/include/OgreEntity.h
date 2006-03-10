@@ -112,6 +112,8 @@ namespace Ogre {
 		VertexData* mHardwareVertexAnimVertexData;
 		/// Have we applied any vertex animation to shared geometry?
 		bool mVertexAnimationAppliedThisFrame;
+        /// Have the temp buffers already had their geometry prepared for use in rendering shadow volumes?
+        bool mPreparedForShadowVolumes;
 
 		/** Internal method - given vertex data which could be from the Mesh or 
 		any submesh, finds the temporary blend copy. */
