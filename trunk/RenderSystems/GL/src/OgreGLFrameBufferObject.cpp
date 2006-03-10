@@ -127,7 +127,16 @@ namespace Ogre {
         
         /// Request surfaces
         mDepth = mManager->requestRenderBuffer(depthFormat, width, height);
-        mStencil = mManager->requestRenderBuffer(stencilFormat, width, height);
+		if (depthFormat == GL_DEPTH24_STENCIL8_EXT)
+		{
+			// bind same buffer to depth and stencil attachments
+			mStencil = mDepth;
+		}
+		else
+		{
+			// separate stencil
+			mStencil = mManager->requestRenderBuffer(stencilFormat, width, height);
+		}
         
         /// Attach/detach surfaces
         if(mDepth.buffer)
