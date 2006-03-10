@@ -87,6 +87,7 @@ namespace Ogre {
         else
         {
             if (mSplitNoShadowPasses &&
+                mParent->getShadowsEnabled() &&
 				(!pTech->getParent()->getReceiveShadows() ||
 				rend->getCastsShadows() && mShadowCastersNotReceivers))
             {
