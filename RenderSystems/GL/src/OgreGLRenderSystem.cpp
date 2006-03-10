@@ -2452,7 +2452,7 @@ namespace Ogre {
     {
 
 		bool colourMask = !mColourWrite[0] || !mColourWrite[1] 
-			|| !mColourWrite[2] || mColourWrite[3]; 
+			|| !mColourWrite[2] || !mColourWrite[3]; 
 
 		GLbitfield flags = 0;
         if (buffers & FBT_COLOUR)
@@ -2479,7 +2479,7 @@ namespace Ogre {
         {
             flags |= GL_STENCIL_BUFFER_BIT;
 			// Enable buffer for writing if it isn't
-			if (!(mStencilMask & stencil))
+			if (mStencilMask != 0xFFFFFFFF)
 			{
 				glStencilMask(0xFFFFFFFF);
 			}
@@ -2498,7 +2498,7 @@ namespace Ogre {
         {
             glColorMask(mColourWrite[0], mColourWrite[1], mColourWrite[2], mColourWrite[3]);
         }
-		if (!(mStencilMask & stencil) && (buffers & FBT_STENCIL))
+		if ((mStencilMask != 0xFFFFFFFF) && (buffers & FBT_STENCIL))
 		{
 			glStencilMask(mStencilMask);
 		}
