@@ -40,6 +40,7 @@ CompositorChain::CompositorChain(Viewport *vp):
     mDirty(true),
 	mAnyCompositorsEnabled(false)
 {
+	mOldClearEveryFrameBuffers = mViewport->getClearBuffers();
     assert(mViewport);
 }
 //-----------------------------------------------------------------------
@@ -121,7 +122,6 @@ void CompositorChain::removeAllCompositors()
         (*i)->getTechnique()->destroyInstance(*i);
     }
     mInstances.clear();
-	mAnyCompositorsEnabled = false;
     
     mDirty = true;
 }
@@ -157,7 +157,10 @@ void CompositorChain::preRenderTargetUpdate(const RenderTargetEvent& evt)
 
 	// Do nothing if no compositors enabled
 	if (!mAnyCompositorsEnabled)
+	{
 		return;
+	}
+
 
 	/// Update dependent render targets; this is done in the preRenderTarget 
 	/// and not the preViewportUpdate for a reason: at this time, the
@@ -249,7 +252,7 @@ void CompositorChain::viewportRemoved(const RenderTargetViewportEvent& evt)
 //-----------------------------------------------------------------------
 void CompositorChain::_compile()
 {
-	mAnyCompositorsEnabled = false;
+	bool compositorsEnabled = false;
 
     /// Set previous CompositorInstance for each compositor in the list
     CompositorInstance *lastComposition = mOriginalScene;
@@ -258,7 +261,7 @@ void CompositorChain::_compile()
     {
         if((*i)->getEnabled())
         {
-			mAnyCompositorsEnabled = true;
+			compositorsEnabled = true;
             (*i)->mPreviousInstance = lastComposition;
             lastComposition = (*i);
         }
@@ -273,6 +276,25 @@ void CompositorChain::_compile()
     
     /// Final target viewport (0)
     lastComposition->_compileOutputOperation(mOutputOperation);
+
+	// Deal with viewport settings
+	if (compositorsEnabled != mAnyCompositorsEnabled)
+	{
+		mAnyCompositorsEnabled = compositorsEnabled;
+		if (mAnyCompositorsEnabled)
+		{
+			// Save old viewport clearing options
+			mOldClearEveryFrameBuffers = mViewport->getClearBuffers();
+			// Don't clear anything every frame since we have our own clear ops
+			mViewport->setClearEveryFrame(false);
+		}
+		else
+		{
+			// Reset clearing options
+			mViewport->setClearEveryFrame(mOldClearEveryFrameBuffers > 0, 
+				mOldClearEveryFrameBuffers);
+		}
+	}
     
     mDirty = false;
 }
