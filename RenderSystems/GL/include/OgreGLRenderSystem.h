@@ -126,10 +126,10 @@ namespace Ogre {
         /* The current GL context */
         GLContext *mCurrentContext;
 
-        /** Manager object for Frame Buffer Objects.
-            0 if hardware does not support this extension. (direct render to texture via
-            GL_EXT_framebuffer_object. This is preferable to pbuffers, which depend on the
-            GL support used and are generally unwieldy and slow.
+        /** Manager object for creating render textures.
+            Direct render to texture via GL_EXT_framebuffer_object is preferable 
+			to pbuffers, which depend on the GL support used and are generally 
+			unwieldy and slow. However, FBO support for stencil buffers is poor.
         */
         GLRTTManager *mRTTManager;
     public:

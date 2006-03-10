@@ -479,9 +479,22 @@ namespace Ogre {
         
         /// Do this after extension function pointers are initialised as the extension
         /// is used to probe further capabilities.
+		ConfigOptionMap::iterator cfi = getConfigOptions().find("RTT Preferred Mode");
+		// RTT Mode: 0 use whatever available, 1 use PBuffers, 2 force use copying
+		int rttMode = 0;
+		if (cfi != getConfigOptions().end())
+		{
+			if (cfi->second.currentValue == "PBuffer")
+			{
+				rttMode = 1;
+			}
+			else if (cfi->second.currentValue == "Copy")
+			{
+				rttMode = 2;
+			}
+		}
          // Check for framebuffer object extension
-        int rttOverride = 0; // override: 0 use whatever available, 1 use PBuffers, 2 force use copying
-        if(GLEW_EXT_framebuffer_object && rttOverride<1)
+        if(GLEW_EXT_framebuffer_object && rttMode < 1)
         {
 			// Probe number of draw buffers
 			// Only makes sense with FBO support, so probe here
@@ -510,7 +523,7 @@ namespace Ogre {
         else
         {
             // Check GLSupport for PBuffer support
-            if(mGLSupport->supportsPBuffers() && rttOverride<2)
+            if(mGLSupport->supportsPBuffers() && rttMode < 2)
             {
                 // Use PBuffers
                 mRTTManager = new GLPBRTTManager(mGLSupport, primary);

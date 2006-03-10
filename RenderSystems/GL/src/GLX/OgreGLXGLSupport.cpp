@@ -47,6 +47,7 @@ void GLXGLSupport::addConfig(void) {
 	ConfigOption optVideoMode;
 	ConfigOption optBitDepth;
     ConfigOption optFSAA;
+	ConfigOption optRTTMode;
 
 	// FS setting possiblities
 	optFullScreen.name = "Full Screen";
@@ -80,10 +81,18 @@ void GLXGLSupport::addConfig(void) {
     optFSAA.currentValue = "0";
     optFSAA.immutable = false;
 
+	optRTTMode.name = "RTT Preferred Mode";
+	optRTTMode.possibleValues.push_back("FBO");
+	optRTTMode.possibleValues.push_back("PBuffer");
+	optRTTMode.possibleValues.push_back("Copy");
+	optRTTMode.currentValue = "FBO";
+	optRTTMode.immutable = false;
+
 
 	mOptions[optFullScreen.name] = optFullScreen;
 	mOptions[optVideoMode.name] = optVideoMode;
     mOptions[optFSAA.name] = optFSAA;
+	mOptions[optRTTMode.name] = optRTTMode;
 }
 
 String GLXGLSupport::validateConfig(void) {

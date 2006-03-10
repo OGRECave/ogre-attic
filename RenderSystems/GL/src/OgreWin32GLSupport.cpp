@@ -48,6 +48,7 @@ namespace Ogre {
 		ConfigOption optDisplayFrequency;
 		ConfigOption optVSync;
 		ConfigOption optFSAA;
+		ConfigOption optRTTMode;
 
 		// FS setting possiblities
 		optFullScreen.name = "Full Screen";
@@ -94,12 +95,21 @@ namespace Ogre {
 			optFSAA.possibleValues.push_back(StringConverter::toString(*it));
 		optFSAA.currentValue = "0";
 
+		optRTTMode.name = "RTT Preferred Mode";
+		optRTTMode.possibleValues.push_back("FBO");
+		optRTTMode.possibleValues.push_back("PBuffer");
+		optRTTMode.possibleValues.push_back("Copy");
+		optRTTMode.currentValue = "FBO";
+		optRTTMode.immutable = false;
+
+
 		mOptions[optFullScreen.name] = optFullScreen;
 		mOptions[optVideoMode.name] = optVideoMode;
 		mOptions[optColourDepth.name] = optColourDepth;
 		mOptions[optDisplayFrequency.name] = optDisplayFrequency;
 		mOptions[optVSync.name] = optVSync;
 		mOptions[optFSAA.name] = optFSAA;
+		mOptions[optRTTMode.name] = optRTTMode;
 
 		refreshConfig();
 	}

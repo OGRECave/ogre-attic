@@ -216,7 +216,9 @@ size_t depthBits[] = {
             if(fmt == GL_NONE || status == GL_FRAMEBUFFER_COMPLETE_EXT)
             {
                 mProps[x].valid = true;
-                //std::cerr << PixelUtil::getFormatName((PixelFormat)x) << " ";
+				StringUtil::StrStreamType str;
+				str << "FBO " << PixelUtil::getFormatName((PixelFormat)x) 
+					<< " depth/stencil support: ";
                 
                 // Continue detection
                 size_t depth=0, stencil=0;
@@ -225,7 +227,7 @@ size_t depthBits[] = {
                     if(_tryFormat(depthFormats[depth], stencilFormats[stencil]))
                     {
                         /// Add mode to allowed modes
-                        //std::cerr << "D" << depthBits[depth] << "S" << stencilBits[stencil] << " ";
+                        str << "D" << depthBits[depth] << "S" << stencilBits[stencil] << " ";
                         FormatProperties::Mode mode;
                         mode.depth = depth;
                         mode.stencil = stencil;
@@ -244,7 +246,8 @@ size_t depthBits[] = {
                         }
                     }
                 }
-                //std::cerr << std::endl;
+				LogManager::getSingleton().logMessage(str.str());
+
             }
             // Delete texture and framebuffer
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
