@@ -897,8 +897,9 @@ namespace Ogre {
 			glPointSize(adjSize);
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 			// HACK - ATI/Linux segfaults when you set point attenuation!
-			// Driver fault!
-			if (mGLSupport->getGLVendor() != "ATI")
+			// Driver fault? Affects both ATI and Tungsten drivers
+			if (mGLSupport->getGLVendor() != "ATI"
+				&& mGLSupport->getGLVendor() != "Tungsten")
 			{
 #endif
 			// XXX: why do I need this for results to be consistent with D3D?
@@ -922,7 +923,8 @@ namespace Ogre {
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 			// HACK - ATI/Linux segfaults when you set point parameters!
 			// Driver fault!
-			if (mGLSupport->getGLVendor() != "ATI")
+			if (mGLSupport->getGLVendor() != "ATI"
+				&& mGLSupport->getGLVendor() != "Tungsten")
 			{
 #endif
 			float val[4] = {1, 0, 0, 1};
@@ -2475,6 +2477,7 @@ namespace Ogre {
         {
             glColorMask(true, true, true, true);
         }
+
         // Set values
         glClearColor(colour.r, colour.g, colour.b, colour.a);
         glClearDepth(depth);
