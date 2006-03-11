@@ -188,7 +188,7 @@ compositor DOF // based on Blur but final pass does depth of field
     }
 }
 
-// Black and white effect
+// Embossed (fake bump) effect
 compositor Embossed
 {
     technique
