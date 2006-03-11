@@ -253,6 +253,8 @@ namespace Ogre {
 			"TanTime0_2PI". Equivalent to RenderMonkey's "Time0_2PI_Packed".
 			*/
 			ACT_TIME_0_2PI_PACKED,
+			/// provides the scaled frame time, returned as a floating point value.
+            ACT_FRAME_TIME,
 			/// provides the calculated frames per second, returned as a floating point value.
 			ACT_FPS,
 			/// viewport-related values
@@ -272,6 +274,10 @@ namespace Ogre {
 			Equivalent to RenderMonkey's "ViewportHeightInverse".
 			*/
 			ACT_INVERSE_VIEWPORT_HEIGHT,
+            /** Packed of "ViewportWidth", "ViewportHeight", "ViewportWidthInverse",
+            "ViewportHeightInverse".
+            */
+            ACT_VIEWPORT_SIZE,
 
 			/// view parameters
 			/** This variable provides the view direction vector (world space).

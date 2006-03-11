@@ -1663,7 +1663,8 @@ namespace Ogre
         case GpuProgramParameters::ACDT_REAL:
             {
                 // special handling for time
-                if (autoConstantDef->acType == GpuProgramParameters::ACT_TIME)
+                if (autoConstantDef->acType == GpuProgramParameters::ACT_TIME ||
+                    autoConstantDef->acType == GpuProgramParameters::ACT_FRAME_TIME)
                 {
                     Real factor = 1.0f;
                     if (vecparams.size() == 3)
@@ -1671,7 +1672,7 @@ namespace Ogre
                         factor = StringConverter::parseReal(vecparams[2]);
                     }
                     
-                    context.programParams->setConstantFromTime(index, factor);
+                    context.programParams->setAutoConstantReal(index, autoConstantDef->acType, factor);
                 }
                 else // normal processing for auto constants that take an extra real value
                 {

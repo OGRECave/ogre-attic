@@ -1769,6 +1769,8 @@ As sintime0_x but scaled to [0..2*Pi]
 As tantime0_x but scaled to [0..2*Pi]
 @item time_0_2pi_packed
 As time0_x_packed but scaled to [0..2*Pi]
+@item frame_time
+The current frame time, factored by the optional parameter (or 1.0f if not supplied).
 @item fps
 The current frames per second
 @item viewport_width
@@ -1779,6 +1781,8 @@ The current viewport height in pixels
 1.0/the current viewport width in pixels
 @item inverse_viewport_height
 1.0/the current viewport height in pixels
+@item viewport_size
+4-element vector of viewport_width, viewport_height, inverse_viewport_width, inverse_viewport_height
 @item view_direction
 View direction vector in object space
 @item view_side_vector
