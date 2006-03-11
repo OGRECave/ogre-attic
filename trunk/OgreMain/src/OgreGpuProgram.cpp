@@ -115,11 +115,13 @@ namespace Ogre
         AutoConstantDefinition(ACT_SINTIME_0_2PI,                 "sintime_0_2pi",                4, ET_REAL, ACDT_REAL),
         AutoConstantDefinition(ACT_TANTIME_0_2PI,                 "tantime_0_2pi",                4, ET_REAL, ACDT_REAL),
         AutoConstantDefinition(ACT_TIME_0_2PI_PACKED,             "time_0_2pi_packed",            4, ET_REAL, ACDT_REAL),
+        AutoConstantDefinition(ACT_FRAME_TIME,                    "frame_time",                   1, ET_REAL, ACDT_REAL),
         AutoConstantDefinition(ACT_FPS,                           "fps",                          1, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_VIEWPORT_WIDTH,                "viewport_width",               1, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_VIEWPORT_HEIGHT,               "viewport_height",              1, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_INVERSE_VIEWPORT_WIDTH,        "inverse_viewport_width",       1, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_INVERSE_VIEWPORT_HEIGHT,       "inverse_viewport_height",      1, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_VIEWPORT_SIZE,                 "viewport_size",                4, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_VIEW_DIRECTION,                "view_direction",               3, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_VIEW_SIDE_VECTOR,              "view_side_vector",             3, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_VIEW_UP_VECTOR,                "view_up_vector",               3, ET_REAL, ACDT_NONE),
@@ -601,6 +603,9 @@ namespace Ogre
             case ACT_TIME_0_2PI_PACKED:
                setConstant(i->index, source.getTime_0_2Pi_packed(i->fData));
                break;
+            case ACT_FRAME_TIME:
+               setConstant(i->index, source.getFrameTime() * i->fData);
+               break;
             case ACT_FPS:
                setConstant(i->index, source.getFPS());
                break;
@@ -615,6 +620,13 @@ namespace Ogre
                break;
             case ACT_INVERSE_VIEWPORT_HEIGHT:
                setConstant(i->index, source.getInverseViewportHeight());
+               break;
+            case ACT_VIEWPORT_SIZE:
+               setConstant(i->index, Vector4(
+                   source.getViewportWidth(),
+                   source.getViewportHeight(),
+                   source.getInverseViewportWidth(),
+                   source.getInverseViewportHeight()));
                break;
             case ACT_VIEW_DIRECTION:
                setConstant(i->index, source.getViewDirection());

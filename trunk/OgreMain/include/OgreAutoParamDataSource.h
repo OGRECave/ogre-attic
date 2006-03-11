@@ -164,6 +164,7 @@ namespace Ogre {
 		Real getSinTime_0_2Pi(Real x) const;
 		Real getTanTime_0_2Pi(Real x) const;
 		Vector4 getTime_0_2Pi_packed(Real x) const;
+        Real getFrameTime(void) const;
 		Real getFPS() const;
 		Real getViewportWidth() const;
 		Real getViewportHeight() const;

@@ -540,6 +540,11 @@ namespace Ogre {
 		return Vector4(t, sin(t), cos(t), tan(t));
 	}
 	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getFrameTime(void) const
+	{
+		return ControllerManager::getSingleton().getFrameTimeSource()->getValue();
+	}
+	//-----------------------------------------------------------------------------
 	Real AutoParamDataSource::getFPS() const
 	{
 		return mCurrentRenderTarget->getLastFPS();
