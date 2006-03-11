@@ -293,7 +293,11 @@ namespace Ogre
 		// Now round up to nearest power of two, max out at 4096
 		size_t roundUpSize = 0;
 		for (i = 0; i < 12 && roundUpSize < tex_side; ++i)
-			roundUpSize = 1 << i;
+            #if  OGRE_COMPILER == OGRE_COMPILER_MSVC &&  OGRE_ARCH_TYPE == OGRE_ARCHITECTURE_64
+                    roundUpSize = 1i64 << i;//  64-bit shift otherwise we get a C4334 warning
+            #else
+                    roundUpSize = 1 << i;
+            #endif
 
 		tex_side = roundUpSize;
 		const size_t pixel_bytes = 2;

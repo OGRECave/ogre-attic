@@ -38,7 +38,11 @@ namespace Ogre
 
 
 
-    BOOL Win32ErrorDialog::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
+#if OGRE_ARCHITECTURE_64 == OGRE_ARCH_TYPE
+    INT_PTR CALLBACK Win32ErrorDialog::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
+#else
+    BOOL CALLBACK Win32ErrorDialog::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
+#endif
     {
         HWND hwndDlgItem;
 

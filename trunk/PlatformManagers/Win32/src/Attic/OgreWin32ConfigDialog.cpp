@@ -33,6 +33,7 @@ namespace
     Ogre::Win32ConfigDialog* dlg;  // This is a pointer to instance, since this is a static member
 }
 
+
 namespace Ogre
 {
     Win32ConfigDialog::Win32ConfigDialog(HINSTANCE hInst)
@@ -41,7 +42,11 @@ namespace Ogre
         mSelectedRenderSystem = 0;
     }
 
+#if OGRE_ARCHITECTURE_64 == OGRE_ARCH_TYPE
+    INT_PTR Win32ConfigDialog::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
+#else
     BOOL Win32ConfigDialog::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
+#endif
     {
         HWND hwndDlgItem;
         static RenderSystemList* lstRend;
@@ -280,6 +285,7 @@ namespace Ogre
         // Don't return to caller until dialog dismissed
         int i;
         dlg = this;
+        
         i = DialogBox(mHInstance, MAKEINTRESOURCE(IDD_DLG_CONFIG), NULL, DlgProc);
 
         if (i == -1)
