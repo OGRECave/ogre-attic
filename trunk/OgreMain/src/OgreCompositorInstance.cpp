@@ -44,9 +44,8 @@ namespace Ogre {
 CompositorInstance::CompositorInstance(Compositor *filter, CompositionTechnique *technique,
     CompositorChain *chain):
     mCompositor(filter), mTechnique(technique), mChain(chain),
-		mEnabled(true)
+		mEnabled(false)
 {
-    createResources();
 }
 //-----------------------------------------------------------------------
 CompositorInstance::~CompositorInstance()
@@ -57,11 +56,23 @@ CompositorInstance::~CompositorInstance()
 //-----------------------------------------------------------------------
 void CompositorInstance::setEnabled(bool value)
 {
-    /// Chain state needs recompile?
-    if(mEnabled != value)
-        mChain->_markDirty();
+    if (mEnabled != value)
+    {
+        mEnabled = value;
 
-    mEnabled = value;    
+        // Create of free resource.
+        if (value)
+        {
+            createResources();
+        }
+        else
+        {
+            freeResources();
+        }
+
+        /// Notify chain state needs recompile.
+        mChain->_markDirty();
+    }
 }
 //-----------------------------------------------------------------------
 bool CompositorInstance::getEnabled()
@@ -374,10 +385,23 @@ static size_t dummyCounter = 0;
         RenderTexture *rtt = tex->getBuffer()->getRenderTarget();
         rtt->setAutoUpdated( false );
 
-        Viewport* v = rtt->addViewport( mChain->getViewport()->getCamera() );
+        Camera* camera = mChain->getViewport()->getCamera();
+
+        // Save last viewport and current aspect ratio
+        Viewport* oldViewport = camera->getViewport();
+        Real aspectRatio = camera->getAspectRatio();
+
+        Viewport* v = rtt->addViewport( camera );
         v->setClearEveryFrame( false );
         v->setOverlaysEnabled( false );
         v->setBackgroundColour( ColourValue( 0, 0, 0, 0 ) );
+
+        // Should restore aspect ratio, in case of auto aspect ratio
+        // enabled, it'll changed when add new viewport.
+        camera->setAspectRatio(aspectRatio);
+        // Should restore last viewport, i.e. never disturb user code
+        // which might based on that.
+        camera->_notifyViewport(oldViewport);
     }
     
 }
