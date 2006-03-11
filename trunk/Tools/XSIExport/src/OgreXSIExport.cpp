@@ -64,7 +64,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 using namespace XSI;
 
-#define OGRE_XSI_EXPORTER_VERSION L"1.1.0"
+#define OGRE_XSI_EXPORTER_VERSION L"1.2.0"
 
 // define columns of animations list
 #define ANIMATION_LIST_EXPORT_COL 0

@@ -1,9 +1,14 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html><head>
+<html>
+<head>
 
 
 
 
+
+
+  
+  
   
   
   
@@ -11,6 +16,8 @@
 
 
 
+
+
   
 
 
@@ -20,11 +27,19 @@
   
   
   
-  <title>OGRE ChangeLog</title><meta name="GENERATOR" content="OpenOffice.org 2.0 (Win32)">
+  
+  
+  
+  <title>OGRE ChangeLog</title>
+  <meta name="GENERATOR" content="OpenOffice.org 2.0 (Win32)">
 
 
 
 
+
+
+  
+  
   
   
   
@@ -33,6 +48,10 @@
 
 
 
+
+
+  
+  
   
   
   
@@ -41,6 +60,10 @@
 
 
 
+
+
+  
+  
   
   
   
@@ -54,16 +77,24 @@ P.maincontent { font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-s
 BLOCKQUOTE { color: #000000; font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 10pt }
 A:link { color: #003300 }
 -->
-  </style></head>
+  </style>
+</head>
+
 
 <body style="direction: ltr; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);" lang="en-GB" link="#003300">
 
 
 
 
+
+
+<p class="header" align="center"><img style="width: 250px; height: 100px;" alt="Logo" src="ogre-logo.gif"></p>
+
 <p class="header" align="center">OGRE
 (Object-Oriented Graphics
 Rendering Engine)</p>
+
+
 
 
 
@@ -73,33 +104,877 @@ Rendering Engine)</p>
 
 
 
+
+
+<p class="mainheader" align="left">v1.2.0
+[Dagon] (RC1: 12 March 2006)
+- Major Release</p>
+
+
+
+
+
+
+1.2.0 is a new major stable release, and therefore has literally shedloads of new features:
+<ul>
+
+  <li><b>Compositing framework</b><span style="font-weight: bold;"></span></li>
+
+  
+  <ul>
+
+    <li>Full-screen post-processing effects made simple</li>
+
+    <li>Easily render to multiple targets, potentially multiple times, and combine the results through shaders</li>
+
+    <li>Chain multiple compositors together flexibly so post-processing results can be combined simply</li>
+
+    <li>Scriptable through .compositor scripts so you can write less code</li>
+
+    <li>Demo_Compositor shows you how to create compositors in code and through script</li>
+
+  
+  </ul>
+
+  <li style="font-weight: bold;">Multiple&nbsp;Render Target (MRT) support</li>
+
+  
+  <ul>
+
+    <li>Render to multiple targets simultaneously in the same rendering operation</li>
+
+    <li>Perform advanced effects like deferred shading (demo included)</li>
+
+    <li>Requires a card which supports MRT</li>
+
+  
+  </ul>
+
+  <li><b>RenderTexture enhancements</b></li>
+
+  
+  <ul>
+
+    <li>RenderTextures are now&nbsp;created like all other textures, with
+TextureManager::getSingleton().createManual; you just need to set a usage&nbsp;parameter of
+TU_RENDERTARGET</li>
+
+    <li>Render to the faces of cube maps and to volume slices</li>
+
+    <li>Retrieve the content of these sub-faces by accessing the
+HardwarePixelBuffer like so:
+tex-&gt;getBuffer(x,y)-&gt;getRenderTarget(z)</li>
+
+    <li> RenderTarget::writeContentsToDisk now implemented for all RenderTextures</li>
+
+    <li> D3D9: RenderTextures of compatible formats now share one DepthStencil surface to conserve memory</li>
+
+    <li> GL: For faster and more flexible rendertextures use GL_EXT_framebuffer_object instead of pbuffers (if available)</li>
+
+    <li> GL: PBuffers only used when rendertarget is smaller than frame buffer. If smaller, the framebuffer is used, as this is faster</li>
+
+    <li> GL: PBuffers are shared between RenderTextures to conserve memory</li>
+
+  
+  </ul>
+
+  <li> <b>MovableObject changes</b>
+    
+    <ul>
+
+      <li> All MovableObjects are now created through
+MovableObjectFactory, and new factories can be registered by plugins.
+Plugging in new object types generically is now simple
+      </li>
+
+      <li> SceneQueries can now exclude entire MovableObject types as well as individual objects
+      </li>
+
+      <li> Added MovableObject::setRenderingDistance which operates like
+the same method of StaticGeometry, effectively limiting the view
+distance of individual objects
+      </li>
+
+      <li> MovableObject::setVisibilityFlags controls the visibility of
+objects based on a mask set in SceneManager::setVisibilityMask, in the
+same way as SceneQuery works. This is yet another way for you to
+control object visibility, and makes it simpler to turn categories of
+object on / off quickly and efficiently
+      </li>
+
+      <li> The default values for MovableObject::setQueryFlags and
+MovableObject::setVisibilityFlags on creation of the MovableObject are
+now defined in the static methods MovableObject::setDefaultQueryFlags
+and MovableObject::setDefaultVisibilityFlags. These defaults start out
+at 0xFFFFFFFF to preserve previous behaviour.
+      </li>
+
+    
+    </ul>
+
+
+  </li>
+
+  <li><b>Billboard / particle enhancements</b>
+    
+    <ul>
+
+      <li> Billboards can now be sorted individually relative to the
+camera to provide correct transparency effects (also applies to
+BillboardParticleRenderer, and a new 'sorted' attribute is available in
+particle scripts) </li>
+
+      <li> ParticleSystemRenderer can now describing their desired sort mode by override '_getSortMode'.
+      </li>
+
+      <li> Billboards can now have their own individual texture
+coordinates to allow you to display subsets of a texture per billboard
+(e.g. for billboard based text)
+      </li>
+
+      <li> Particles can now be kept in local space rather than world space
+      </li>
+
+      <li> Added two new billboard/particle type:
+BBT_PERPENDICULAR_COMMON (perpendicular_common) and
+BBT_PERPENDICULAR_SELF (perpendicular_self). BBT_PERPENDICULAR_COMMON
+make the billboard plane perpendicular to a common direction, and
+BBT_PERPENDICULAR_SELF make the billboard plane perpendicular to their
+own direction. In other words, their facing to the given direction
+instead of the camera. It's useful for an aureola around the player and
+parallel to the ground etc. Both of them use an additional up-vector to
+determine the billboard X and Y axis.
+      </li>
+
+      <li> Added billboard/particle rotation type setting, allowing you
+to rotate vertices or rotate texture coordinates. Defaults to rotate
+texture coordinates to preserve previous behavior. Use new
+'billboard_rotation_type' attribute to set rotate type in particle
+scripts when using BillboardParticleRenderer.
+      </li>
+
+      <li> Billboard particle renderer now supports setting the billboard origin in particle scripts via 'billboard_origin'.
+      </li>
+
+      <li> Particle system now allows the user to configure the sampling
+interval, either fixed or based on frame-rate. Default based on
+frame-rate to preserving previous behavior. Use
+'ParticleSystem::setIterationInterval' to configure iteration interval
+per particle system, or use
+'ParticleSystem::setDefaultIterationInterval' to set the default
+iteration interval for all ParticleSystem instances that don't have
+their own setting. Available in script as 'iteration_interval'.
+      </li>
+
+      <li> ParticleSystem now supports a 'nonvisible update timeout'
+which means that if a particle system is not visible from any camera
+for the time specified, it will cease to update, saving the expense.
+You can set the default for all systems without their own setting
+through ParticleSystem::setDefaultNonvisibleUpdateTimeout, or set it
+per system (through script as 'nonvisible_update_timeout').
+      </li>
+
+      <li> Each billboard can now have its own custom texture
+coordinates instead of merely generated coordinates (which were either
+the whole texture or grid set)
+      </li>
+
+      <li> Billboardset now supports an 'accurate facing' model so that
+billoard orientation is calculated based on the relative positions of
+the camera and each billboard, which is more accurate but slower than
+the default method (which is to use the camera axes for all
+billboards). This option is available through particle systems as
+'accurate_facing true' too.
+      </li>
+
+      <li> BillboardChain and RibbonTrail classes allow you to do 'beam' effects like jet trails and lightning arcs
+      </li>
+
+    
+    </ul>
+
+
+  </li>
+
+  <li> <b>SceneManager enhancements</b>
+    
+    <ul>
+
+      <li> SceneManagers are now constructed from SceneManagerFactory instances, allowing more than one instance of the same type of SM
+      </li>
+
+      <li> SceneManagers must be constructed first using
+Root::createSceneManager, and can be created based on a scene type mask
+(a binary combination of requested types), or an explicit name
+      </li>
+
+      <li> Available SceneManager types can be iterated over using
+Root::getSceneManagerMetaDataIterator, each with a type name,
+description, scene type mask and world geometry support flag
+      </li>
+
+      <li> Using multiple simultaneous SceneManagers, of the same type or different types, is now safe</li>
+
+      <li> SceneManager::setWorldGeometry now accepts a stream as input as well as a filename</li>
+
+    
+    </ul>
+
+
+  </li>
+
+  <li> <b>Material enhancements</b>
+    
+    <ul>
+
+      <li> Techniques, passes, and Texture unit states can now be named
+      </li>
+
+      <li> Materials can now extend other materials, through the script
+syntax 'material DerivedMaterial&nbsp;: BaseMaterial', to allow simple
+refinement of existing materials
+      </li>
+
+      <li> matrix4x4, float4, float9, and float16 in material script now properly load matrices for use with GLSL shader unitforms
+      </li>
+
+      <li> New auto parameter binding 'pass_number'
+      </li>
+
+      <li> Serializer now writes out all shader bindings (for tools)
+      </li>
+
+      <li> Passes can now iterate an arbitrary number of times, either globally or per light
+      </li>
+
+      <li> New auto parameter binding 'pass_iteration_number'
+      </li>
+
+      <li> There is no limit on the number of frames for animated textures. There used to be a limit of 32.
+      </li>
+
+      <li> matrix4x4 in material script now uses same matrix element layout for Cg, HLSL, GLSL
+      </li>
+
+      <li> New TextureUnitState blending option, blend_diffuse_colour,
+allows you to use the RGB luminence of vertex colours as an additional
+blending parametric
+      </li>
+
+      <li> New texture addressing mode 'border' and texture unit
+attribute 'tex_border_colour'. 'border' addressing mode will set to the
+border colour when texture coordinates outside the range [0.0, 1.0].
+      </li>
+
+      <li> New gpu parameter 'render_target_flipping', allow adjust
+position to accord with requires texture flipping when bypassed
+standardise projection transform.
+      </li>
+
+      <li> New gpu parameters 'fog_colour' and 'fog_params', allow access fog parameters by gpu program if need.
+      </li>
+
+      <li> New pass attribute 'polygon_mode', allowing you to specify
+solid, wireframe or point rendering on a per-pass basis (instead of
+just an object basis as before)
+      </li>
+
+      <li> New feature 'material schemes' - every technique can be
+allocated to a scheme ('scheme blah' in technique block), and viewports
+can have a preferred scheme. This allows wholesale switching between
+techniques per viewport, or just globally to do scalable effects, or
+hdr paths etc
+      </li>
+
+      <li> new Ocean Demo added showing use of CEGUI manipulating programable shader parameters in realtime.
+      </li>
+
+      <li> New option on texture loading within texture_unit to load a
+single-channel luminence texture into alpha, useful for fixed-function
+alpha textures
+      </li>
+
+    
+    </ul>
+
+
+  </li>
+
+  <li> <b>Animation enhancements</b>
+    
+    <ul>
+
+      <li><span style="font-weight: bold;">Morph and Pose animation</span></li>
+
+      
+      <ul>
+
+        <li>Animation of vertex positions in either hardware or software</li>
+
+        <li>'Morph' variant is similar to old-skool vertex keyframe
+animation; this is&nbsp;recommended only for legacy applications (e.g.
+MD2)</li>
+
+        <li>'Pose' variant is a modern, blendable pose based system
+which allows you to perform much more sophisticated vertex animation
+such as facial animation (using expression and mouth shape keys), and
+can be combined with skeletal animation.</li>
+
+      
+      </ul>
+
+      <li> Existing animation tracks are now just one type of track, ie NodeAnimationTrack
+      </li>
+
+      <li> New 'NumericAnimationTrack' allows the animation of any numeric value through the AnimableValue abstraction
+      </li>
+
+      <li>Significant number of optimisations means that animation is now faster than before
+      </li>
+
+    
+    </ul>
+
+
+  </li>
+
+  <li> <b>Skinning blending enhancements</b>.
+    
+    <ul>
+
+      <li>Larger skeletons are now possible with hardware skinning.
+OGRE now only passes&nbsp;world matrices for the bones of a subentity
+that are
+actually used, saving shader constants if you split up your mesh,
+should your skeleton get too large for the constraints of the target
+shader model.&nbsp;
+      </li>
+
+      <li> Software skinning is now more efficient</li>
+
+      
+      <ul>
+
+        <li>Temporary blended buffers are now held for a period of time
+per entity before being released back to the pool, which allows better
+frame coherency on these buffers</li>
+
+        <li>software skinning is now done in object space,
+with&nbsp;additional
+special optimisations for frozen/disabled animation, so that
+the&nbsp;software blended
+vertex datacan be kept for as many frames as practical without
+recalculating it (it will only get released when the entity has been
+out of frame for some time)
+        </li>
+
+      
+      </ul>
+
+    
+    </ul>
+
+
+  </li>
+
+  <li> <b>ManualObject added</b> to make custom geometry creation more accessible
+    
+    <ul>
+
+      <li> Closely mirrors the GL immediate mode interface; create geometry using begin(); position(); normal(); texCoord(); end();
+      </li>
+
+      <li> Builds data into regular hardware buffers for performance
+      </li>
+
+      <li> Supports all types of shadows
+      </li>
+
+      <li> Can convert the result to Mesh if desired for instancing
+      </li>
+
+    
+    </ul>
+
+
+  </li>
+
+  <li> <b>Node&nbsp;</b><b>enhancements</b>
+    
+    <ul>
+
+      <li> Node::Listener added so you can use Node::setListener to get callbacks when the transform changes
+      </li>
+
+      <li> Node::setInheritOrientation/getInheritOrientation added
+allows configure the node whether it should inherit orientation from
+it's parent node.
+      </li>
+
+    
+    </ul>
+
+
+  </li>
+
+  <li> <b>Render queue enhancements</b>
+    
+    <ul>
+
+      <li> Render queue groups can now be given an arbitrary uint8 identifier rather than just one of a fixed set of enums
+      </li>
+
+      <li> Custom render queue invocation sequence per viewport if required
+      </li>
+
+      <li> Allow suppression of shadow processing and render state changes during custom invocation
+      </li>
+
+      <li> Ordering / grouping of non-transparents can be changed per invocation
+      </li>
+
+    
+    </ul>
+
+
+  </li>
+
+  <li> <b>Shadow enhancements</b>
+    
+    <ul>
+
+      <li> New shadow type SHADOWTYPE_TEXTURE_ADDITIVE, allowing the
+lighting accuracy of additive shadows with the GPU speed of texture
+shadows
+      </li>
+
+      <li> You can now disable the rendering of shadows per viewport, to save time in mini-maps / RTTs etc
+      </li>
+
+      <li> ShadowListener interface added
+        
+        <ul>
+
+          <li> <i>shadowTexturesUpdated</i> allows you to hook into the time
+when shadow textures have been rendered to, but before they are used.
+You can use this to perform custom shadow behaviour such as filtering
+          </li>
+
+          <li> <i>shadowTextureCasterPreViewProj</i> and <i>shadowTextureReceiverPreViewProj</i>
+fires before the view &amp; projection matrices are set for the shadow
+caster / receiver renders respectively; you can use these hooks to
+provide a specialised camera setup if you want to define custom shadow
+systems
+          </li>
+
+        
+        </ul>
+
+
+      </li>
+
+      <li> Texture shadow casting now fully supports alpha blended / alpha rejection materials
+      </li>
+
+      <li> Both stencil and texture additive shadow technique now fully supports alpha rejection shadow receiver.
+      </li>
+
+      <li> Texture shadow supports point light, used directional light
+look at target mechanism and 120 degree FOV (similar spotlight)
+behavior. </li>
+
+    
+    </ul>
+
+
+  </li>
+
+  <li> <b>Resource management&nbsp;</b><b>enhancements</b>
+    
+    <ul>
+
+      <li> Added a new predefined resource group called
+ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME ("Internal") for
+dealing with resources created internally by the engine; you can now
+safely unload the default resource group if you choose without
+affecting these internal resources.
+      </li>
+
+      <li> Added a new meta resource group called
+ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME ("Autodetect"); if
+you use this group name, the <i>real</i> resource group is detected at
+load time based on where the resource is found in the configured
+resource locations. Entity now uses this method by default to load
+meshes so you no longer have to preload meshes in custom resource
+groups if you don't want to (although preloading is often a good idea
+anyway for performance).
+      </li>
+
+      <li> <b>Resource loading group fallback</b>
+        
+        <ul>
+
+          <li> When a resource is not found in the requested resource group, look for it in the others based on resource locations
+          </li>
+
+          <li> The group ownership of resources changes when this happens
+          </li>
+
+          <li> This allows you to load a material from a custom group and have it load textures into a general resource group dynamically
+          </li>
+
+        
+        </ul>
+
+
+      </li>
+
+      <li> <b>ResourceGroupManager::unloadUnreferencedResourcesInGroup</b> now available to unload only resources which are not currently being used
+      </li>
+
+      <li> <b>ResourceManager::unloadUnreferencedResources</b> / <b>ResourceManager::reloadUnreferencedResources</b> now available to unload / reload only resources which are not currently being used
+      </li>
+
+    
+    </ul>
+
+
+  </li>
+
+</ul>
+
+
+<ul>
+
+  <li> <b>Platform Manager enhancements</b>
+    
+    <ul>
+
+      <li> Added Ogre::PlatformManager::messagePump(RenderWindow*) to the
+platform manager - This moves the Win32 message pump from Ogre::Root to
+the Win32Platform Manager, and the GLX platform messages to the GLX
+Platform manager. On other platforms (Mac &amp; SDL) this has no
+effect. Call this method if not using startRendering (as startRendering
+calls this everyloop for the default renderwindow) to pump messages
+into Ogre while avoiding the OS pcific issues in your own code - allows
+alt-tabbing, etc to work correctly.
+      </li>
+
+      <li> Timer stability on dual core systems
+      </li>
+
+      <li> GLX Platform only listens to Window X events when not using
+Ogre input system - allows ability to plug in other input systems
+easier, while not having to pump specific X events into Ogre manually.</li>
+
+      <li> Added Viewport::setSkiesEnabled() to let users hide skies for
+viewport individually, allow control skies displays or not more easy,
+especially for using multiple viewports.</li>
+
+    
+    </ul>
+
+
+  </li>
+
+  <li><span style="font-weight: bold;">D3D9 enhancements</span></li>
+
+  
+  <ul>
+
+    <li> Triple buffering enabled when vsync is enabled</li>
+
+  
+  </ul>
+
+  <li style="font-weight: bold;">GL enhancements</li>
+
+  
+  <ul>
+
+    <li> Two sided stencil is always supported for GL 2.0 compliant drivers, even ATI
+    </li>
+
+    <li> Fast texture-to-texture blit, blitFromMemory, and hardware
+accelerated bi/trilinear scaling using FBO. This improves loading time
+in the common case that some textures need to be scaled to power-of-two
+size.
+    </li>
+
+    <li> Implement Texture::copyToTexture for GL, which was already
+implemented for DX9 (useful for longer term storage of graphics
+rendered to a texture)
+    </li>
+
+  
+  </ul>
+
+  <li><span style="font-weight: bold;">Camera / Viewport Enhancements</span></li>
+
+  
+  <ul>
+
+    <li>Cameras &amp; Frustums can now have custom view and / or projection matrices if required
+    </li>
+
+    <li> Viewports now have a setting to say which buffers they clear if clearing is enabled (colour, depth, stencil)</li>
+
+    <li>
+Added off-axis perspective projection to Frustum and Camera.
+Related functions: Frustum::setFrustumOffset,
+Frustum::getFrustumOffset, Frustum::setFocalLength,
+Frustum::getFocalLength.</li>
+
+    <li> Added methods to access 'virtual' (reflected if need) or 'real' (unreflected always) world orientation/position of the camera.</li>
+
+  
+  </ul>
+
+  <li> Added <b>radix sorting</b> routines to allow for faster sorting
+  </li>
+
+  <li> CEGUI renderer updated to v0.4.x
+  </li>
+
+  <li> Added IndexData::optimiseVertexCache to allow people to cache-optimise their triangle list indexes
+  </li>
+
+  <li> Added pulse width modulation option to WaveformControllerFunction
+  </li>
+
+  <li> Added Root::setFrameSmoothingPeriod() to let users customise smoothing of frame time fluctuations.
+  </li>
+
+  <li> Every render system config options are stored to configuration file.
+  </li>
+
+  <li> VC6 &amp; VC7.0 (2002) support discontinued; officially supported Microsoft compilers are now VC7.1 (2003) and VC8 (2005)
+  </li>
+
+  <li> Direct3D7 support removed</li>
+
+</ul>
+
+For information on porting your application from previous versions of OGRE, see the <a href="http://www.ogre3d.org/wiki/index.php/DagonNotes#Porting_notes">Dagon Porting Notes</a> in the OGRE Wiki.
 <p class="mainheader" align="left">v1.0.7
-[Azathoth] (12 February 2005)
+[Azathoth] (12 February 2006)
 - Maintenance Release</p>
 
 
 
 
-<ul><li><span style="font-weight: bold;">D3D9:</span></li><ul><li>Fixed device leak when destroying primary window manually rather than via shutdown()</li><li>Potential D3D9 leaks during fatal error conditions fixed</li><li>Fix potential leak when using DDS textures if premature shutdown encountered</li><li>Fix another trailing state issue on device lost/restore, clear all texture units and vertex streams before resetting</li><li>Don't create any mipmaps when building temp surface in blitToMemory</li><li>Fixed a compile bug in double-precision mode</li><li>Floating point texture support now correctly logged</li><li>Fix vs_2_x/a, ps_2_x/a/b detection</li></ul><li style="font-weight: bold;">D3D7:</li><ul><li style="font-weight: bold;"><span style="font-weight: normal;">Fix crash when </span><span style="font-weight: normal;">D3D7 window is minimised</span></li></ul><li style="font-weight: bold;">GL:</li><ul><li>Fix potential performance problems with NPOT pbuffers</li></ul><li><span style="font-weight: bold;">Terrain plugin:</span></li><ul><li>Light list finding should be specialised for each terrain tile.&nbsp;</li><li>LOD calculation should use minimum distance between terrain tile bounding box and camera position</li></ul><ul><li>Throw exception when registering a page source for a type which is already present</li></ul><li><span style="font-weight: bold;">Nodes:</span></li><ul><li>Fixed
+
+
+<ul>
+
+  <li><span style="font-weight: bold;">D3D9:</span></li>
+
+  
+  <ul>
+
+    <li>Fixed device leak when destroying primary window manually rather than via shutdown()</li>
+
+    <li>Potential D3D9 leaks during fatal error conditions fixed</li>
+
+    <li>Fix potential leak when using DDS textures if premature shutdown encountered</li>
+
+    <li>Fix another trailing state issue on device lost/restore, clear all texture units and vertex streams before resetting</li>
+
+    <li>Don't create any mipmaps when building temp surface in blitToMemory</li>
+
+    <li>Fixed a compile bug in double-precision mode</li>
+
+    <li>Floating point texture support now correctly logged</li>
+
+    <li>Fix vs_2_x/a, ps_2_x/a/b detection</li>
+
+  
+  </ul>
+
+  <li style="font-weight: bold;">D3D7:</li>
+
+  
+  <ul>
+
+    <li style="font-weight: bold;"><span style="font-weight: normal;">Fix crash when </span><span style="font-weight: normal;">D3D7 window is minimised</span></li>
+
+  
+  </ul>
+
+  <li style="font-weight: bold;">GL:</li>
+
+  
+  <ul>
+
+    <li>Fix potential performance problems with NPOT pbuffers</li>
+
+  
+  </ul>
+
+  <li><span style="font-weight: bold;">Terrain plugin:</span></li>
+
+  
+  <ul>
+
+    <li>Light list finding should be specialised for each terrain tile.&nbsp;</li>
+
+    <li>LOD calculation should use minimum distance between terrain tile bounding box and camera position</li>
+
+  
+  </ul>
+
+  
+  <ul>
+
+    <li>Throw exception when registering a page source for a type which is already present</li>
+
+  
+  </ul>
+
+  <li><span style="font-weight: bold;">Nodes:</span></li>
+
+  
+  <ul>
+
+    <li>Fixed
 a bug in SceneNode::setDirection with a local natural facing of
-something other than +/-Z, and when dealing with different spaces</li></ul><ul><li>TagPoint should always reflect parent entity&nbsp;scale changes</li><li>Fixed crash in SceneManager::destroySceneNode when using&nbsp;auto tracking</li></ul><li><span style="font-weight: bold;">Shadows:</span></li><ul><li>Fix rendering of texture shadows not respecting getShadowsEnabled() flag on queue group</li><li>Alpha-blended materials can now cast texture shadows accurately</li><li>Correctly render stencil shadows when oblique depth projection in use (use zfail all the time)</li><li>Free up shadow textures immediately when texture shadows no longer in use to save video memory</li></ul><li style="font-weight: bold;">Materials:</li><ul><li>Fix incorrect output serialisation of 'modulate' and 'colour_blend' scene blend factors&nbsp;from memory to .material files</li></ul><ul><li>Fix splitting of passes when too many texture units used</li><li>Bugfix
+something other than +/-Z, and when dealing with different spaces</li>
+
+  
+  </ul>
+
+  
+  <ul>
+
+    <li>TagPoint should always reflect parent entity&nbsp;scale changes</li>
+
+    <li>Fixed crash in SceneManager::destroySceneNode when using&nbsp;auto tracking</li>
+
+  
+  </ul>
+
+  <li><span style="font-weight: bold;">Shadows:</span></li>
+
+  
+  <ul>
+
+    <li>Fix rendering of texture shadows not respecting getShadowsEnabled() flag on queue group</li>
+
+    <li>Alpha-blended materials can now cast texture shadows accurately</li>
+
+    <li>Correctly render stencil shadows when oblique depth projection in use (use zfail all the time)</li>
+
+    <li>Free up shadow textures immediately when texture shadows no longer in use to save video memory</li>
+
+  
+  </ul>
+
+  <li style="font-weight: bold;">Materials:</li>
+
+  
+  <ul>
+
+    <li>Fix incorrect output serialisation of 'modulate' and 'colour_blend' scene blend factors&nbsp;from memory to .material files</li>
+
+  
+  </ul>
+
+  
+  <ul>
+
+    <li>Fix splitting of passes when too many texture units used</li>
+
+    <li>Bugfix
 for auto gpu program parameters:'view_direction', 'view_side_vector'
 and 'view_up_vector' should be in world space. Also viewport size
-params were using render target details&nbsp;instead of viewport</li></ul><li style="font-weight: bold;">Particles &amp; billboards:</li><ul><li>Fix billboard orientation when using camera reflection</li><li>AreaEmitter should have a different default 'up' to the default 'direction'</li><li>Fix bug in particle scale affector - should scale from default dimensions in the first instance</li></ul><li>Workaround to avoid std::iostream memory leaks in VC8 (MS bug - until VC8 SP1 arrives)</li><li>Fix Font::StrBBox for strings containing spaces</li><li>Memory manager tweaks to improve shutdown performance when using large containers in debug</li><li>Quaternion now outputs to stream with same element&nbsp;ordering as constructor</li><li>Accessor methods added to retrieve current sky settings on SceneManager</li><li>Add automatic fallback for Vector3.getRotationTo if 180 degree rotation is requested</li><li>Cleaner
+params were using render target details&nbsp;instead of viewport</li>
+
+  
+  </ul>
+
+  <li style="font-weight: bold;">Particles &amp; billboards:</li>
+
+  
+  <ul>
+
+    <li>Fix billboard orientation when using camera reflection</li>
+
+    <li>AreaEmitter should have a different default 'up' to the default 'direction'</li>
+
+    <li>Fix bug in particle scale affector - should scale from default dimensions in the first instance</li>
+
+  
+  </ul>
+
+  <li>Workaround to avoid std::iostream memory leaks in VC8 (MS bug - until VC8 SP1 arrives)</li>
+
+  <li>Fix Font::StrBBox for strings containing spaces</li>
+
+  <li>Memory manager tweaks to improve shutdown performance when using large containers in debug</li>
+
+  <li>Quaternion now outputs to stream with same element&nbsp;ordering as constructor</li>
+
+  <li>Accessor methods added to retrieve current sky settings on SceneManager</li>
+
+  <li>Add automatic fallback for Vector3.getRotationTo if 180 degree rotation is requested</li>
+
+  <li>Cleaner
 Implementation of occlusion query delete mechanism. Added
 destroyHardwareOcclusionQuery and made RenderSystem clean up any
-remaining queries at shutdown just like RenderTarget</li><li>Eliminate
+remaining queries at shutdown just like RenderTarget</li>
+
+  <li>Eliminate
 potential temp blended buffer checkout bug: occuring when call
-TempBlendedBufferInfo::checkoutTempCopies more than once in same frame.</li><li>Fixed rendersystems setClipPlanes sending of user clip plane equations to device (d was inverted)</li><li>Fix bug in edge list builder when indexStart is used</li><li>Fix bug where Math::ASin returned the wrong value for +1.0 and -1.0</li><li>Fix bug in border panel; uvs for centre panel should be updated at the same time as the border</li><li>XSI exporter significant speed improvements and better progress reporting</li><li>Timer more consistent after performance counter hiccups, and will run continuously over the 49.7 days boundary</li><li>Move zziplib headers so external apps are no longer dependent</li><li>Update controllers before updating scene animations in case users use controllers to manipulate scene animation</li><li>Avoid multi-results of same object from OctreePlaneBoundedVolumeListSceneQuery</li><li>Default
+TempBlendedBufferInfo::checkoutTempCopies more than once in same frame.</li>
+
+  <li>Fixed rendersystems setClipPlanes sending of user clip plane equations to device (d was inverted)</li>
+
+  <li>Fix bug in edge list builder when indexStart is used</li>
+
+  <li>Fix bug where Math::ASin returned the wrong value for +1.0 and -1.0</li>
+
+  <li>Fix bug in border panel; uvs for centre panel should be updated at the same time as the border</li>
+
+  <li>XSI exporter significant speed improvements and better progress reporting</li>
+
+  <li>Timer more consistent after performance counter hiccups, and will run continuously over the 49.7 days boundary</li>
+
+  <li>Move zziplib headers so external apps are no longer dependent</li>
+
+  <li>Update controllers before updating scene animations in case users use controllers to manipulate scene animation</li>
+
+  <li>Avoid multi-results of same object from OctreePlaneBoundedVolumeListSceneQuery</li>
+
+  <li>Default
 mMaterialName as well as mpMaterial in SubEntity so they are consistent
-(issue with StaticGeometry if no material set)&nbsp;</li><li>Fix infinite loop when RenderQueueListener tried to skip a queue</li><li>Fix crash when creating / destroying Root more than once</li><li>3D Studio Max exporter now supports Max 8</li><li>New barrel and palette models added</li><li>Many&nbsp;compiler warnings squashed</li><li>Documentation clarifications</li></ul><p class="mainheader" align="left">v1.0.6
+(issue with StaticGeometry if no material set)&nbsp;</li>
+
+  <li>Fix infinite loop when RenderQueueListener tried to skip a queue</li>
+
+  <li>Fix crash when creating / destroying Root more than once</li>
+
+  <li>3D Studio Max exporter now supports Max 8</li>
+
+  <li>New barrel and palette models added</li>
+
+  <li>Many&nbsp;compiler warnings squashed</li>
+
+  <li>Documentation clarifications</li>
+
+</ul>
+
+<p class="mainheader" align="left">v1.0.6
 [Azathoth] (20 November 2005)
 - Maintenance Release</p>
 
 
 
 
+
+
 <ul>
+
+
 
 
 
@@ -110,7 +985,11 @@ mMaterialName as well as mpMaterial in SubEntity so they are consistent
 
 
 
+
+
   <li><span style="font-weight: bold;">XSI Exporter</span>
+    
+    
     
     
     
@@ -119,7 +998,11 @@ mMaterialName as well as mpMaterial in SubEntity so they are consistent
 
 
 
+
+
       <li>XSI v5 now supported (in addition to v4.0 and 4.2)</li>
+
+
 
 
 
@@ -130,8 +1013,12 @@ transforms correctly </li>
 
 
 
+
+
       <li>Fix for using multiple clusters with envelopes (bone
 assignment groups) spanning them. </li>
+
+
 
 
 
@@ -142,10 +1029,16 @@ polys which are&nbsp; later all reallocated to clusters) </li>
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -155,11 +1048,17 @@ polys which are&nbsp; later all reallocated to clusters) </li>
 
 
 
+
+
   <li><span style="font-weight: bold;">D3D9 fixes</span>:
     
     
     
+    
+    
     <ul>
+
+
 
 
 
@@ -170,7 +1069,11 @@ some bugfixes </li>
 
 
 
+
+
       <li>Avoid a memory leak when GPU programs fail to load</li>
+
+
 
 
       <li>Fix potential surface leak when destroying a secondary window but not the device</li>
@@ -178,10 +1081,16 @@ some bugfixes </li>
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -191,11 +1100,17 @@ some bugfixes </li>
 
 
 
+
+
   <li><span style="font-weight: bold;">GL fixes</span>:
     
     
     
+    
+    
     <ul>
+
+
 
 
 
@@ -206,7 +1121,11 @@ window if current context is available </li>
 
 
 
+
+
       <li>Share lists between render window GL contexts</li>
+
+
 
 
 
@@ -217,17 +1136,27 @@ texture in GL</li>
 
 
 
+
+
       <li>Fixed many gcc warnings on GL atifs compiler</li>
+
+
 
       <li>Type correction for external / parent handles in GLX platform &amp; doc corrections</li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -237,11 +1166,17 @@ texture in GL</li>
 
 
 
+
+
   <li><span style="font-weight: bold;">D3D7 fixes</span>:
     
     
     
+    
+    
     <ul>
+
+
 
 
 
@@ -252,16 +1187,24 @@ fullscreen to windowed and back now works in Dx7 too.</li>
 
 
 
+
+
       <li>Fix oblique projection on D3D7 (fix bad clipping on
 render to texture demo)</li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -271,12 +1214,18 @@ render to texture demo)</li>
 
 
 
+
+
   <li><span style="font-weight: bold;">Mesh / Entity
 fixes</span>:
     
     
     
+    
+    
     <ul>
+
+
 
 
 
@@ -286,10 +1235,16 @@ fixes</span>:
 
 
 
+
+
+      
+      
       
       
       
       <ul>
+
+
 
 
 
@@ -300,6 +1255,10 @@ not 0 to 7 </li>
 
 
 
+
+
+      
+      
       
       
       
@@ -308,10 +1267,16 @@ not 0 to 7 </li>
 
 
 
+
+
+      
+      
       
       
       
       <ul>
+
+
 
 
 
@@ -322,10 +1287,16 @@ DTD</li>
 
 
 
+
+
+      
+      
       
       
       
       </ul>
+
+
 
 
 
@@ -336,8 +1307,12 @@ bounds condition.</li>
 
 
 
+
+
       <li> Unload mesh should clear bone assignments and removes
 reference to skeleton</li>
+
+
 
 
 
@@ -349,10 +1324,16 @@ attach objects).</li>
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -362,12 +1343,18 @@ attach objects).</li>
 
 
 
+
+
   <li><span style="font-weight: bold;">Hardware
 vertex buffer pool fixes</span>:
     
     
     
+    
+    
     <ul>
+
+
 
 
 
@@ -380,6 +1367,8 @@ the scenemanager during rendering prior to frame ended finishing </li>
 
 
 
+
+
       <li>Buffer manager must make sure that no buffer copies or
 free temp vertex buffers exist that are associated with a vertex buffer
 that is being deleted </li>
@@ -387,10 +1376,16 @@ that is being deleted </li>
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -400,12 +1395,18 @@ that is being deleted </li>
 
 
 
+
+
   <li><span style="font-weight: bold;">Logging
 changes</span>:
     
     
     
+    
+    
     <ul>
+
+
 
 
 
@@ -416,16 +1417,24 @@ so people can run logless if they really want. </li>
 
 
 
+
+
       <li>Allow suppression of file output on Log to allow a
 LogListener-only setup </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -435,11 +1444,17 @@ LogListener-only setup </li>
 
 
 
+
+
   <li><span style="font-weight: bold;">Shader fixes</span>:
     
     
     
+    
+    
     <ul>
+
+
 
 
 
@@ -449,8 +1464,12 @@ LogListener-only setup </li>
 
 
 
+
+
       <li>Fix ps_2_x detection; report as ps_2_a/b but assembler
 syntax is still called ps_2_x</li>
+
+
 
 
 
@@ -463,10 +1482,16 @@ never loaded</li>
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -476,7 +1501,11 @@ never loaded</li>
 
 
 
+
+
   <li><span style="font-weight: bold;">Shadow fixes</span>:
+    
+    
     
     
     
@@ -485,8 +1514,12 @@ never loaded</li>
 
 
 
+
+
       <li>Fix missing shadow volume extrude program parameters
 when shadow volume materials initialised somewhere else </li>
+
+
 
 
 
@@ -498,10 +1531,16 @@ position/direction to query for shadow casters </li>
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -511,11 +1550,17 @@ position/direction to query for shadow casters </li>
 
 
 
+
+
   <li><span style="font-weight: bold;">Material fixes</span>:</li>
 
 
 
 
+
+
+  
+  
   
   
   
@@ -524,8 +1569,12 @@ position/direction to query for shadow casters </li>
 
 
 
+
+
     <li>Ensure that custom texture transforms are serialised /
 deserialised into .material scripts</li>
+
+
 
 
 
@@ -537,12 +1586,18 @@ avoid leak because some TUS animation/effect controllers maybe created.</li>
 
 
 
+
+
     <li>Fix cloning problems when using the ACT_TIME auto
 parameter</li>
 
 
 
 
+
+
+  
+  
   
   
   
@@ -551,11 +1606,17 @@ parameter</li>
 
 
 
+
+
   <li><span style="font-weight: bold;">Texture fixes</span>:
     
     
     
+    
+    
     <ul>
+
+
 
 
 
@@ -567,9 +1628,13 @@ texture can't auto reload again.</li>
 
 
 
+
+
       <li>Enable/disable 32-bit textures now work properly even
 if no texture exists, and only reloads the loaded and reloadable
 textures.</li>
+
+
 
 
 
@@ -581,6 +1646,10 @@ final texture dimensions (due to hardware requirements) are different</li>
 
 
 
+
+
+    
+    
     
     
     
@@ -589,7 +1658,11 @@ final texture dimensions (due to hardware requirements) are different</li>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -600,10 +1673,16 @@ updated</span> </li>
 
 
 
+
+
+  
+  
   
   
   
   <ul>
+
+
 
 
 
@@ -613,6 +1692,10 @@ updated</span> </li>
 
 
 
+
+
+  
+  
   
   
   
@@ -621,10 +1704,16 @@ updated</span> </li>
 
 
 
+
+
+  
+  
   
   
   
   <ul>
+
+
 
 
 
@@ -634,6 +1723,10 @@ updated</span> </li>
 
 
 
+
+
+  
+  
   
   
   
@@ -642,10 +1735,16 @@ updated</span> </li>
 
 
 
+
+
+  
+  
   
   
   
   <ul>
+
+
 
 
 
@@ -655,6 +1754,10 @@ updated</span> </li>
 
 
 
+
+
+  
+  
   
   
   
@@ -663,10 +1766,16 @@ updated</span> </li>
 
 
 
+
+
+  
+  
   
   
   
   <ul>
+
+
 
 
 
@@ -677,6 +1786,10 @@ reloading resources from a zip file) </li>
 
 
 
+
+
+  
+  
   
   
   
@@ -685,10 +1798,16 @@ reloading resources from a zip file) </li>
 
 
 
+
+
+  
+  
   
   
   
   <ul>
+
+
 
 
 
@@ -700,10 +1819,16 @@ need the source release, not the SDK)</li>
 
 
 
+
+
+  
+  
   
   
   
   </ul>
+
+
 
 
 
@@ -714,10 +1839,16 @@ systems</span>: </li>
 
 
 
+
+
+  
+  
   
   
   
   <ul>
+
+
 
 
 
@@ -729,6 +1860,10 @@ assuming pixel format </li>
 
 
 
+
+
+  
+  
   
   
   
@@ -737,10 +1872,16 @@ assuming pixel format </li>
 
 
 
+
+
+  
+  
   
   
   
   <ul>
+
+
 
 
 
@@ -751,6 +1892,10 @@ particle system templates, otherwise leakage </li>
 
 
 
+
+
+  
+  
   
   
   
@@ -759,8 +1904,12 @@ particle system templates, otherwise leakage </li>
 
 
 
+
+
   <li>Disable gcc version script which causes problems in gcc
 v4.x </li>
+
+
 
 
 
@@ -773,14 +1922,20 @@ choose to)</li>
 
 
 
+
+
   <li>Fix comparison bug in HardwarePixelBuffer::blit which would
 cause it to scale unnecessarily </li>
 
 
 
 
+
+
   <li>Solve crash when ray scene query is done without landscape
 loaded in TerrainSceneManager </li>
+
+
 
 
 
@@ -792,7 +1947,11 @@ handle limits </li>
 
 
 
+
+
   <li>Allow archives to be unloaded </li>
+
+
 
 
 
@@ -803,12 +1962,18 @@ when this situation happens </li>
 
 
 
+
+
   <li>Fix merging of CEGui flags in Linux build</li>
 
 
 
 
+
+
   <li>Don't allow double-load of plugins</li>
+
+
 
 
 
@@ -819,15 +1984,23 @@ SceneNode name more than once</li>
 
 
 
+
+
   <li>RenderTarget::writeContentsToTimestampedFile now writes out
 the date/time in correct human readable format</li>
 
 
 
 
+
+
   <li>Fix for "unknown property."scale" in $Biped_Object" error
 in 3DSMax exporter</li>
+
+
   <li>OverlayElement parent overlay initialisation fixed</li>
+
+
 
 
 
@@ -837,7 +2010,11 @@ in 3DSMax exporter</li>
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -849,7 +2026,11 @@ in 3DSMax exporter</li>
 
 
 
+
+
 <ul>
+
+
 
 
 
@@ -858,11 +2039,17 @@ in 3DSMax exporter</li>
     
     
     
+    
+    
     <p style="margin-bottom: 0cm;">D3D9:&nbsp; </p>
 
 
 
 
+
+
+    
+    
     
     
     
@@ -871,7 +2058,11 @@ in 3DSMax exporter</li>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -881,12 +2072,18 @@ issue with manual textures with manual loaders. </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -898,12 +2095,18 @@ be loaded by the restore) </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -913,12 +2116,18 @@ specified number of mipmaps after device restore </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -928,15 +2137,23 @@ introduced in 1.0.4 with textures whose dimensions are not power of two</p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -946,7 +2163,11 @@ introduced in 1.0.4 with textures whose dimensions are not power of two</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -955,6 +2176,10 @@ introduced in 1.0.4 with textures whose dimensions are not power of two</p>
 
 
 
+
+
+    
+    
     
     
     
@@ -963,7 +2188,11 @@ introduced in 1.0.4 with textures whose dimensions are not power of two</p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -974,12 +2203,18 @@ because scene manager treat render system as ONE 'context' ONLY. </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -991,12 +2226,18 @@ texture unit </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -1006,15 +2247,23 @@ issue when a viewport doesn't take up the whole of a render texture</p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -1024,7 +2273,11 @@ issue when a viewport doesn't take up the whole of a render texture</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1033,6 +2286,10 @@ issue when a viewport doesn't take up the whole of a render texture</p>
 
 
 
+
+
+    
+    
     
     
     
@@ -1041,7 +2298,11 @@ issue when a viewport doesn't take up the whole of a render texture</p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -1051,12 +2312,18 @@ multiple animations where initial pose is different </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -1066,15 +2333,23 @@ should apply to the exported .mesh as well as the .material</p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -1084,7 +2359,11 @@ should apply to the exported .mesh as well as the .material</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1094,12 +2373,18 @@ software skinning</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1109,12 +2394,18 @@ illumination passes on demand</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1124,12 +2415,18 @@ updating of bounds when creating a new billboard</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1139,12 +2436,18 @@ DInput buffer overflows resolved</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1154,12 +2457,18 @@ should cascade as documented</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1169,12 +2478,18 @@ HardwareBufferLicensee::licenseExpired is called in all cases</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1183,12 +2498,18 @@ HardwareBufferLicensee::licenseExpired is called in all cases</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1198,12 +2519,18 @@ leak during overlay creation</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1213,12 +2540,18 @@ offset mapping shaders to handle directional lights as well</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1228,12 +2561,18 @@ the specular bump mapping shader, looks nicer now</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1243,12 +2582,18 @@ using StaticGeometry &amp; stencil shadows</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1260,12 +2605,18 @@ while cloning TUS</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1275,12 +2626,18 @@ parseAlphaOpEx when using manual blend</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1291,12 +2648,18 @@ factor is zero, if source factor is destination-based</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1307,12 +2670,18 @@ issues</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1322,12 +2691,18 @@ and to PF_FLOATxx_R pixel format</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1337,12 +2712,18 @@ OgreXMLConverter when built with GCC 4.0</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1352,12 +2733,18 @@ compilation bug in CEGuiTexture (affects Linux on PPC and OSX)</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1367,6 +2754,10 @@ clarifications, including: </p>
 
 
 
+
+
+    
+    
     
     
     
@@ -1375,7 +2766,11 @@ clarifications, including: </p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -1385,12 +2780,18 @@ on hardware pixel buffers</p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -1400,7 +2801,11 @@ minimum ATI/nVidia card specifications for shaders of a given profile </p>
 
 
 
+
+
       </li>
+
+
 
 
 
@@ -1409,7 +2814,11 @@ minimum ATI/nVidia card specifications for shaders of a given profile </p>
         
         
         
+        
+        
         <p>Remove / correct old GUI manual pages</p>
+
+
 
 
 
@@ -1419,10 +2828,16 @@ minimum ATI/nVidia card specifications for shaders of a given profile </p>
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -1432,7 +2847,11 @@ minimum ATI/nVidia card specifications for shaders of a given profile </p>
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -1444,12 +2863,18 @@ Maintenance Release</p>
 
 
 
+
+
 <ul>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1459,12 +2884,18 @@ when using basic SceneManager (not octree or bsp) </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1474,12 +2905,18 @@ Demo_Water and Demo_VolumeTex</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1490,12 +2927,18 @@ behaviour</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1505,12 +2948,18 @@ distance comparison bugs</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1520,12 +2969,18 @@ OverlayElement::updateTextureGeometry being called repetitively</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1535,12 +2990,18 @@ _makePerspectiveMatrix fix (left/top/right/bottom version)</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1550,12 +3011,18 @@ loading bug fixed</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1565,12 +3032,18 @@ discrepancy in animation track optimise</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1580,12 +3053,18 @@ SceneQuery::removeQueryFlags</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1595,12 +3074,18 @@ cleaner</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1610,7 +3095,11 @@ software skinning to Entity</p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -1619,11 +3108,17 @@ software skinning to Entity</p>
     
     
     
+    
+    
     <p style="margin-bottom: 0cm;">D3D texture bugfixes </p>
 
 
 
 
+
+
+    
+    
     
     
     
@@ -1632,7 +3127,11 @@ software skinning to Entity</p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -1643,12 +3142,18 @@ dynamic/auto-mipmap texture support </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -1659,12 +3164,18 @@ usage </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -1675,15 +3186,23 @@ enabling the flag</p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -1693,7 +3212,11 @@ enabling the flag</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1704,12 +3227,18 @@ never used, and colour state after restore</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1719,12 +3248,18 @@ best techniques container when material copied</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1734,12 +3269,18 @@ on nVidia to be more reliable</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1749,12 +3290,18 @@ invalidation problem in SceneNode::removeAndDestroyChildren</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1764,12 +3311,18 @@ takes negated quaternion into account, may define the same rotation </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1779,6 +3332,10 @@ fixed: </p>
 
 
 
+
+
+    
+    
     
     
     
@@ -1787,7 +3344,11 @@ fixed: </p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -1797,12 +3358,18 @@ FileStreamDataStream from deleting stack allocated stream </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -1812,15 +3379,23 @@ with converting manual LOD levels </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -1830,7 +3405,11 @@ with converting manual LOD levels </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1840,12 +3419,18 @@ if ESC pressed at config screen</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1855,12 +3440,18 @@ auto aspect ratio bug - use floating point division, not integer</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1870,12 +3461,18 @@ added to RenderSystem to allow external parsing of current targets</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1885,12 +3482,18 @@ in Demo_RenderToTexture to avoid artefacts on some cards</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1901,12 +3504,18 @@ with their parents; now they do</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1916,12 +3525,18 @@ documentation corrections </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1932,12 +3547,18 @@ interpolation over loop</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1948,12 +3569,18 @@ re-read</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1963,12 +3590,18 @@ example shaders now handle directional as well as point lights</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1978,12 +3611,18 @@ it frees shared pointer whether it deleted shared texture or not</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -1994,12 +3633,18 @@ which causes a seg fault if rendering continues</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2009,12 +3654,18 @@ in Matrix3::QLAlgorithm</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2024,12 +3675,18 @@ fixes for VS2005</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2039,7 +3696,11 @@ problem in GL Render system (GLX) solved </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -2048,7 +3709,11 @@ problem in GL Render system (GLX) solved </p>
     
     
     
+    
+    
     <p>Some const correctness and other tidying exercises</p>
+
+
 
 
 
@@ -2058,7 +3723,11 @@ problem in GL Render system (GLX) solved </p>
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -2070,12 +3739,18 @@ Maintenance Release</p>
 
 
 
+
+
 <ul>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2085,12 +3760,18 @@ where GeForce 6x00 range was not enabling infinite projection </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2100,12 +3781,18 @@ exports symbols based on ogremain.map </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2115,12 +3802,18 @@ argument for ./configure </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2131,12 +3824,18 @@ cases where too many texture coordinate sets are used and warn.</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2146,12 +3845,18 @@ removed </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2161,12 +3866,18 @@ device lost / restore process </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2176,12 +3887,18 @@ RTT in D3D9 </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2191,12 +3908,18 @@ constant args for SDL_ShowMouse </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2207,12 +3930,18 @@ GL/D3D since they're useful for people with externally managed windows </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2222,12 +3951,18 @@ returned value from std::string::find_first_of and find_first_not_of </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2237,12 +3972,18 @@ of BillboardSet bounds for billboard injection </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2253,12 +3994,18 @@ compatibility </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2268,12 +4015,18 @@ allow post attach-to-bone modifications </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2283,12 +4036,18 @@ settings per _renderScene call incase we switch contexts in GL </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2298,12 +4057,18 @@ and removed the need for GCC_3_1 compiler flag</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2314,12 +4079,18 @@ shader hardware instead of just GL_MAX_TEXTURE_UNITS</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2329,12 +4100,18 @@ systems to bones&nbsp; </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2344,12 +4121,18 @@ fp30 and fp40 Cg profiles </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2359,12 +4142,18 @@ Serializer::flipEndian </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2375,12 +4164,18 @@ existing reverse conversion </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2390,12 +4185,18 @@ required</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2405,12 +4206,18 @@ ZipDataStream </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2424,12 +4231,18 @@ used. Any inner ones are removed. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2439,12 +4252,18 @@ should take a const reference parameter </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2455,12 +4274,18 @@ list too. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2471,12 +4296,18 @@ the wildcard doesn't correctly consume it ready for later matches </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2486,12 +4317,18 @@ shadowing warnings in gcc </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2501,12 +4338,18 @@ subentities for shadow volumes if they don't have their own geometry </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2517,12 +4360,18 @@ reading exactly the max length properly </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2532,12 +4381,18 @@ TerrainSceneManager incorrectly calculating normals </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2547,12 +4402,18 @@ bugfix for GL render system </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2562,12 +4423,18 @@ in near / far clip plane in world space between rendersystems </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2577,12 +4444,18 @@ getMetrics fixes </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2592,12 +4465,18 @@ particle pools on demand to save memory </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2607,12 +4486,18 @@ support mirrored bones </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2622,12 +4507,18 @@ Collision demo </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2637,12 +4528,18 @@ initialisation issue </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2653,12 +4550,18 @@ shadows properly </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2668,7 +4571,11 @@ of manual loader through Material::applyDefaults</p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -2677,7 +4584,11 @@ of manual loader through Material::applyDefaults</p>
     
     
     
+    
+    
     <p>A few other miscellaneous safety checks</p>
+
+
 
 
 
@@ -2687,7 +4598,11 @@ of manual loader through Material::applyDefaults</p>
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -2699,12 +4614,18 @@ Maintenance Release</p>
 
 
 
+
+
 <ul>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2714,12 +4635,18 @@ now deals with 32-bit indexes </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2730,12 +4657,18 @@ LOD levels </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2745,12 +4678,18 @@ corrected </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2759,12 +4698,18 @@ corrected </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2774,12 +4719,18 @@ optimisations in the rendersystem </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2789,12 +4740,18 @@ in Math - user might want to control random number seeding </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2804,12 +4761,18 @@ in Math - user might want to control random number seeding </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2820,12 +4783,18 @@ non-uniform scale. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2836,12 +4805,18 @@ zero </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2852,12 +4827,18 @@ track. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2867,12 +4848,18 @@ OGRE_DOUBLE_PRECISION fix </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2882,12 +4869,18 @@ getSquaredViewDepth in WireBoundingBox </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2897,12 +4890,18 @@ comparison methods to Vector3 / Quaternion </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2913,12 +4912,18 @@ keyframes (used by default in XML converter) </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2928,12 +4933,18 @@ quake3settings.cfg in SDK distribution </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2942,12 +4953,18 @@ quake3settings.cfg in SDK distribution </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2959,12 +4976,18 @@ the overlays solid by default. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2976,12 +4999,18 @@ the group </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -2991,12 +5020,18 @@ bug on bulk loading </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3006,12 +5041,18 @@ embedded </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3021,12 +5062,18 @@ fixed for boundary numbers </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3036,12 +5083,18 @@ compressed textures delete [] mismatch </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3051,12 +5104,18 @@ QueryPerformanceCounter hiccups on some chipsets </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3066,12 +5125,18 @@ mesh padding factor to nothing to avoid adding extra padding </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3081,12 +5146,18 @@ manual loader and manual flag after applying defaults </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3096,12 +5167,18 @@ Node::getPitch/getRoll/getYaw </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3112,12 +5189,18 @@ unstable for NVidia </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3127,12 +5210,18 @@ exception when no LogManager exists yet </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3144,12 +5233,18 @@ matching skeletons with different sizes </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3159,12 +5254,18 @@ issues resolved </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3175,12 +5276,18 @@ TextureManager::getSingleton().enable32BitTextures(false) </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3190,12 +5297,18 @@ TerrainSceneManager (texture coords wrapped at 1 vertex too high) </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3205,12 +5318,18 @@ Linux distribution (e.g. Gentoo) build fixes </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3220,12 +5339,18 @@ precision issue on nVidia when using GL </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3235,12 +5360,18 @@ times when unloading plugins manually </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3250,12 +5381,18 @@ creating materials in wrong group </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3265,12 +5402,18 @@ member mQueuedForDeletion in Pass </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3280,12 +5423,18 @@ strings fixed </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3296,12 +5445,18 @@ already present, but has been manually unloaded </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3312,12 +5467,18 @@ to check for the existence of the library during ./configure. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3328,12 +5489,18 @@ files. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3343,12 +5510,18 @@ directional lights in GPU programs to be consistent </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3358,12 +5531,18 @@ high-level programs </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3374,12 +5553,18 @@ null shared pointers. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3389,12 +5574,18 @@ no texture units.</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -3406,7 +5597,11 @@ Maintenance Release</p>
 
 
 
+
+
 <ul>
+
+
 
 
 
@@ -3415,7 +5610,11 @@ Maintenance Release</p>
     
     
     
+    
+    
     <p style="margin-bottom: 0cm;">Support for Cg 1.3 </p>
+
+
 
 
 
@@ -3425,7 +5624,11 @@ Maintenance Release</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3435,12 +5638,18 @@ crashes on empty parameter values </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3450,12 +5659,18 @@ sharing skeleton instance between entities </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3466,12 +5681,18 @@ multiple targets. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3481,12 +5702,18 @@ exiting in frameEnded and using software skinned entities </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3496,12 +5723,18 @@ using a Cg-based custom material in TerrainSceneManager </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3512,12 +5745,18 @@ which have missing resources. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3527,12 +5766,18 @@ vertex_program in OgreGLGpuProgramManager.cpp </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3542,12 +5787,18 @@ vertex_program in OgreGLGpuProgramManager.cpp </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3558,12 +5809,18 @@ not loaded yet so just ignore them. D3D9 unaffected. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3574,12 +5831,18 @@ same time in the same texture unit </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3589,12 +5852,18 @@ memory macros if the user doesn't want them or we are in release mode </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3604,12 +5873,18 @@ back into the CEGUIRenderer. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3619,12 +5894,18 @@ contention in Zip </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3634,12 +5915,18 @@ so custom render queue id is properly passed through to renderer </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3649,12 +5936,18 @@ meshes in StaticGeometry </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3664,12 +5957,18 @@ and right flags in StringUtil::trim </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3679,12 +5978,18 @@ for some autotools versions </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3696,12 +6001,18 @@ for printing or logging errors compactly. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3714,12 +6025,18 @@ next iteration. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3729,12 +6046,18 @@ OgreParticleSystemRenderer.h to OgreMain/include/Makefile.am </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3744,12 +6067,18 @@ OgreParticleSystemRenderer.h to OgreMain/include/Makefile.am </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3759,12 +6088,18 @@ colours </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3774,12 +6109,18 @@ exporting in Milkshape </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3790,12 +6131,18 @@ additional swap chains under Direct3D9 </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3806,12 +6153,18 @@ parameter bindings </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3821,12 +6174,18 @@ input system (GGI, SDL) with GLX </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3836,12 +6195,18 @@ or common-oriented billboards that are attached to a rotated node </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3852,12 +6217,18 @@ rendering </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3867,12 +6238,18 @@ animation exporter </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3882,12 +6259,18 @@ vertexbuffer unlock in MeshSerializerImpl::writeGeometry. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3898,12 +6281,18 @@ paramters </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3913,12 +6302,18 @@ updates </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3928,12 +6323,18 @@ support fixes </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3943,12 +6344,18 @@ for D3D9 buffer lock options </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3958,12 +6365,18 @@ lost on mouseup </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3973,12 +6386,18 @@ Listener removal now doesn't invalidate iterators anymore </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -3989,12 +6408,18 @@ the resource didn't exist. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4004,12 +6429,18 @@ mAnimController in the TextureUnitState copy contructor. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4019,12 +6450,18 @@ caused SkeletonInstance::unloadImpl() not to be called on destruction. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4034,12 +6471,18 @@ downcast warnings from MSVC </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4049,12 +6492,18 @@ BspSceneManager when loading multiple maps </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4064,12 +6513,18 @@ work in GL as well as D3D </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4079,12 +6534,18 @@ after D3D9 lost device recovery </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4094,12 +6555,18 @@ state optimisation on some cards </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4109,12 +6576,18 @@ axes.mesh when displaying debug skeletons </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4125,12 +6598,18 @@ correctly in GL </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4140,12 +6619,18 @@ and projects added </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4155,7 +6640,11 @@ now properly excluded from shadow calculations </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -4164,12 +6653,18 @@ now properly excluded from shadow calculations </p>
     
     
     
+    
+    
     <p>FSAA support in Win32 OpenGL </p>
 
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -4179,9 +6674,13 @@ now properly excluded from shadow calculations </p>
 
 
 
+
+
 <p class="mainheader" align="left">v1.0.0 Final
 [Azathoth] (21 February
 2005) - Major Release</p>
+
+
 
 
 
@@ -4196,7 +6695,11 @@ Porting Notes Wiki Page</a>. </p>
 
 
 
+
+
 <p align="left">Bugfixes &amp; changes since RC1:</p>
+
+
 
 
 
@@ -4206,7 +6709,11 @@ Porting Notes Wiki Page</a>. </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4216,12 +6723,18 @@ a couple of memory leaks and a buffer overrun in StaticGeometry</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4231,12 +6744,18 @@ doc introduction page added</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4246,12 +6765,18 @@ version numbers in Linux build system</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4261,12 +6786,18 @@ iterator bugs and memory leak on removing groups fixed</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4276,12 +6807,18 @@ option was not being passed correctly in D3D rendersystems</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4291,12 +6828,18 @@ external access to software blend data in Entity</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4306,12 +6849,18 @@ DynLib .so appending issue on Linux</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4321,12 +6870,18 @@ bias fixed on D3D9 and GL</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4336,12 +6891,18 @@ problem with particle systems in some fullscreen modes</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4351,12 +6912,18 @@ paletted images to RGBA automatically</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4366,12 +6933,18 @@ a skeleton issue when unloading &amp; reloading resources</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4381,12 +6954,18 @@ fog when rendering shadow textures</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4397,12 +6976,18 @@ receiver material and texture format</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4412,12 +6997,18 @@ a shutdown problem when external apps linked directly to octree plugin</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4428,12 +7019,18 @@ simplify dependencies</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4443,12 +7040,18 @@ tolerant of externally created LogManager instances</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4458,12 +7061,18 @@ crash on invalid DXTx surface sizes</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4473,12 +7082,18 @@ based fonts fixed</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4488,12 +7103,18 @@ documentation content and style updates</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4503,12 +7124,18 @@ version of image scaling routines</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4518,7 +7145,11 @@ a bug with the translation of scene_blend modulate</p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -4528,7 +7159,11 @@ a bug with the translation of scene_blend modulate</p>
 
 
 
+
+
 <p style="margin-left: 0.77cm; margin-bottom: 0cm;" align="left"><br>
+
+
 
 
 
@@ -4538,9 +7173,13 @@ a bug with the translation of scene_blend modulate</p>
 
 
 
+
+
 <p class="mainheader" align="left">v1.0.0 RC1
 [Azathoth] (5 February
 2005) - Major Release</p>
+
+
 
 
 
@@ -4556,7 +7195,11 @@ Porting Notes Wiki Page</a>. </p>
 
 
 
+
+
 <p align="left">Enhancements and new Features:</p>
+
+
 
 
 
@@ -4566,7 +7209,11 @@ Porting Notes Wiki Page</a>. </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4576,6 +7223,10 @@ Overhaul: </p>
 
 
 
+
+
+    
+    
     
     
     
@@ -4584,7 +7235,11 @@ Overhaul: </p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -4594,12 +7249,18 @@ addressed through shared pointers </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -4610,12 +7271,18 @@ also set up group-specific search paths and scripting tasks. </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -4627,12 +7294,18 @@ reloads to be possible in all cases </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -4645,12 +7318,18 @@ system. </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -4661,12 +7340,18 @@ implement loading bars </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -4678,15 +7363,23 @@ used by experienced users. </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -4696,7 +7389,11 @@ used by experienced users. </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4706,6 +7403,10 @@ used by experienced users. </p>
 
 
 
+
+
+    
+    
     
     
     
@@ -4714,7 +7415,11 @@ used by experienced users. </p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -4725,12 +7430,18 @@ including mip levels, cube surfaces and volume slices </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -4741,12 +7452,18 @@ been extended, are now unambiguous across endianness, having separate
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -4757,12 +7474,18 @@ compressed formats </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -4772,12 +7495,18 @@ been tidied and enhanced to support composite images (like cube maps) </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -4788,15 +7517,23 @@ optimised templated conversion routines available in capable compilers </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -4806,7 +7543,11 @@ optimised templated conversion routines available in capable compilers </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4816,6 +7557,10 @@ optimised templated conversion routines available in capable compilers </p>
 
 
 
+
+
+    
+    
     
     
     
@@ -4824,7 +7569,11 @@ optimised templated conversion routines available in capable compilers </p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -4834,12 +7583,18 @@ textures in floating-point pixel formats </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -4849,15 +7604,23 @@ textures from disk using the OpenEXR plugin (optional) </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -4867,7 +7630,11 @@ textures from disk using the OpenEXR plugin (optional) </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4881,7 +7648,11 @@ implement alternative particle types like ribbons. </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -4890,11 +7661,17 @@ implement alternative particle types like ribbons. </p>
     
     
     
+    
+    
     <p style="margin-bottom: 0cm;">GUI changes: </p>
 
 
 
 
+
+
+    
+    
     
     
     
@@ -4903,7 +7680,11 @@ implement alternative particle types like ribbons. </p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -4915,12 +7696,18 @@ kind of design principles as Ogre itself (portable, clean OO code). </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -4931,15 +7718,23 @@ overlays remain within OGRE itself, the classes have been renamed
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -4949,7 +7744,11 @@ overlays remain within OGRE itself, the classes have been renamed
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -4958,6 +7757,10 @@ overlays remain within OGRE itself, the classes have been renamed
 
 
 
+
+
+    
+    
     
     
     
@@ -4966,7 +7769,11 @@ overlays remain within OGRE itself, the classes have been renamed
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -4976,12 +7783,18 @@ been moved from the texture_unit to the pass </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -4993,12 +7806,18 @@ of the diffuse, specular, emissive or ambient material attribures,
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5009,15 +7828,23 @@ material script, from '0' to 'unlimited' </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -5027,7 +7854,11 @@ material script, from '0' to 'unlimited' </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5038,12 +7869,18 @@ them far more efficiently than if they were separate movable objects </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5053,12 +7890,18 @@ textures larger than the frame buffer (through pbuffers) </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5069,12 +7912,18 @@ improve display quality especially when using trilinear filtering </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5084,12 +7933,18 @@ that DevIL can load: bmp, gif, hdr, ico, jpeg, pnm, mng and many more </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5099,12 +7954,18 @@ FSAA(Full Scene AntiAliasing) support improved </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5114,12 +7975,18 @@ completely replaceable, if you wish to remove the use of DevIL </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5129,12 +7996,18 @@ and compressed textures </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5144,6 +8017,10 @@ and compressed textures </p>
 
 
 
+
+
+    
+    
     
     
     
@@ -5152,7 +8029,11 @@ and compressed textures </p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5162,12 +8043,18 @@ to procedurally generate textures using the new pixel buffer API </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5178,12 +8065,18 @@ textures </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5194,12 +8087,18 @@ of individual meshes </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5209,15 +8108,23 @@ updated to use Crazy Eddies GUI. </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -5227,7 +8134,11 @@ updated to use Crazy Eddies GUI. </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5238,12 +8149,18 @@ cleaned up and made more flexible </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5253,12 +8170,18 @@ native 64-bit mode (Linux) </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5269,12 +8192,18 @@ OGRE_DOUBLE_PRECISION </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5284,12 +8213,18 @@ automatic shader parameter bindings </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5299,7 +8234,11 @@ system using auto* tools included </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -5308,7 +8247,11 @@ system using auto* tools included </p>
     
     
     
+    
+    
     <p>Visual C++ 2005 Beta support </p>
+
+
 
 
 
@@ -5318,7 +8261,11 @@ system using auto* tools included </p>
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -5328,12 +8275,18 @@ system using auto* tools included </p>
 
 
 
+
+
 <ul>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5343,12 +8296,18 @@ shader parameter binding </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5358,12 +8317,18 @@ texture shadows </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5373,12 +8338,18 @@ skinning vertex shader </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5388,7 +8359,11 @@ frame overflow in animated texture controller </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -5397,7 +8372,11 @@ frame overflow in animated texture controller </p>
     
     
     
+    
+    
     <p>GLX: alt-tab now allows mouse to escape window </p>
+
+
 
 
 
@@ -5407,7 +8386,11 @@ frame overflow in animated texture controller </p>
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -5419,7 +8402,11 @@ Maintenance Release</p>
 
 
 
+
+
 <p align="left">Changes:</p>
+
+
 
 
 
@@ -5429,7 +8416,11 @@ Maintenance Release</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5438,6 +8429,10 @@ Maintenance Release</p>
 
 
 
+
+
+    
+    
     
     
     
@@ -5446,7 +8441,11 @@ Maintenance Release</p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5456,12 +8455,18 @@ improvements </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5473,12 +8478,18 @@ OgreXmlConverter to convert to XML and back. </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5488,15 +8499,23 @@ fixes including in reflected camera scenarios </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -5506,7 +8525,11 @@ fixes including in reflected camera scenarios </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5517,12 +8540,18 @@ setWorldGeometry again </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5533,12 +8562,18 @@ disable auto mipmap generation when mipmaps == 0 </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5548,7 +8583,11 @@ double-free crashes under certain calling orders. </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -5557,11 +8596,17 @@ double-free crashes under certain calling orders. </p>
     
     
     
+    
+    
     <p style="margin-bottom: 0cm;">Camera: </p>
 
 
 
 
+
+
+    
+    
     
     
     
@@ -5570,7 +8615,11 @@ double-free crashes under certain calling orders. </p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5580,12 +8629,18 @@ checks for bad parameters to setDirection </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5595,15 +8650,23 @@ now works for orthographic projection </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -5613,7 +8676,11 @@ now works for orthographic projection </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5622,6 +8689,10 @@ now works for orthographic projection </p>
 
 
 
+
+
+    
+    
     
     
     
@@ -5630,7 +8701,11 @@ now works for orthographic projection </p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5640,12 +8715,18 @@ keyword to GLSupport::setExternalWindowHandle </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5655,15 +8736,23 @@ potential consistency issues in fixed-function lighting states </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -5673,7 +8762,11 @@ potential consistency issues in fixed-function lighting states </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5682,6 +8775,10 @@ potential consistency issues in fixed-function lighting states </p>
 
 
 
+
+
+    
+    
     
     
     
@@ -5690,7 +8787,11 @@ potential consistency issues in fixed-function lighting states </p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5700,12 +8801,18 @@ for world geometry made more explicit </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5715,12 +8822,18 @@ query listeners consistently respected </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5730,12 +8843,18 @@ BspRaySceneQuery for fast BSP ray results </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5745,15 +8864,23 @@ which are attached to detached subtrees of the scene graph </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -5763,7 +8890,11 @@ which are attached to detached subtrees of the scene graph </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5773,12 +8904,18 @@ make on-screen fonts much crisper </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5789,12 +8926,18 @@ window size exceeds the desktop size) </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5805,12 +8948,18 @@ correctly </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5820,12 +8969,18 @@ shutdown in debug mode </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5835,7 +8990,11 @@ to VC6 to avoid compiler out of heap space errors </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -5844,11 +9003,17 @@ to VC6 to avoid compiler out of heap space errors </p>
     
     
     
+    
+    
     <p style="margin-bottom: 0cm;">Blender exporter: </p>
 
 
 
 
+
+
+    
+    
     
     
     
@@ -5857,7 +9022,11 @@ to VC6 to avoid compiler out of heap space errors </p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5867,12 +9036,18 @@ of initial bone rotation. </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5882,12 +9057,18 @@ possibility to export an armature as mesh. </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5897,12 +9078,18 @@ objects local coordinates. </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5912,12 +9099,18 @@ textures to be assigned via a material texture channel. </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5927,12 +9120,18 @@ map support. </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5942,15 +9141,23 @@ OgreXMLConverter automatically </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -5960,7 +9167,11 @@ OgreXMLConverter automatically </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -5969,6 +9180,10 @@ OgreXMLConverter automatically </p>
 
 
 
+
+
+    
+    
     
     
     
@@ -5977,7 +9192,11 @@ OgreXMLConverter automatically </p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -5987,12 +9206,18 @@ export as the a component of the vertex color </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6002,12 +9227,18 @@ bugs in UV export (inc multi-UV export) </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6017,12 +9248,18 @@ export </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6033,12 +9270,18 @@ speed improvements for very big objects. </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6049,12 +9292,18 @@ modifier. </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6064,12 +9313,18 @@ there is a vertex with more than 4 bones assigned. </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6079,12 +9334,18 @@ longer possible. 0.0 is replaced by 1.0 when used. </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6094,15 +9355,23 @@ properly exported when using multiple animations. </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -6112,7 +9381,11 @@ properly exported when using multiple animations. </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6122,7 +9395,11 @@ of memory macros without namespace Ogre </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -6131,11 +9408,17 @@ of memory macros without namespace Ogre </p>
     
     
     
+    
+    
     <p style="margin-bottom: 0cm;">Manual updates: </p>
 
 
 
 
+
+
+    
+    
     
     
     
@@ -6144,7 +9427,11 @@ of memory macros without namespace Ogre </p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6154,12 +9441,18 @@ alpha components to ambient / diffuse / specular / emissive </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6169,15 +9462,23 @@ emitters / affectors </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -6187,7 +9488,11 @@ emitters / affectors </p>
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -6199,7 +9504,11 @@ emitters / affectors </p>
 
 
 
+
+
 <p align="left">Bugfixes:</p>
+
+
 
 
 
@@ -6209,7 +9518,11 @@ emitters / affectors </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6219,12 +9532,18 @@ performance improved </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6234,6 +9553,10 @@ performance improved </p>
 
 
 
+
+
+    
+    
     
     
     
@@ -6242,7 +9565,11 @@ performance improved </p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6252,12 +9579,18 @@ supported </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6267,12 +9600,18 @@ rotation bug fixed </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6282,15 +9621,23 @@ export bug fixed</p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -6300,12 +9647,18 @@ export bug fixed</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
     <p style="margin-bottom: 0cm;">3DS Max exporter fixes
 and enhancements<br>
+
+
 
 
 
@@ -6316,6 +9669,10 @@ the new 'Ogre Exporter' button to your interface)</p>
 
 
 
+
+
+    
+    
     
     
     
@@ -6324,7 +9681,11 @@ the new 'Ogre Exporter' button to your interface)</p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6334,12 +9695,18 @@ now work correctly </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6349,12 +9716,18 @@ vertices assignements will be exported correctly </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6364,12 +9737,18 @@ automatic and is fixed up</p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6380,12 +9759,18 @@ generation </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6395,12 +9780,18 @@ channels supported </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6410,12 +9801,18 @@ support </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -6425,15 +9822,23 @@ support </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -6443,7 +9848,11 @@ support </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6453,12 +9862,18 @@ compatible with 0.15</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6468,12 +9883,18 @@ effects did not remove properly controllers</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6483,12 +9904,18 @@ correctly when using TextureUnitState::setTextureFiltering</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6498,12 +9925,18 @@ LOD to be created even after edge lists have been built </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6513,12 +9946,18 @@ overlays with 3D elements </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6528,12 +9967,18 @@ now deal with null AABBs correctly </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6543,12 +9988,18 @@ when closing a D3D7 or D3D9 window using WM_CLOSE (e.g. the 'X') </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6558,12 +10009,18 @@ toLowerCase call in MaterialSerializer </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6573,12 +10030,18 @@ parameter types and descriptions </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6588,12 +10051,18 @@ _dirtyHash in TextureUnitState constructor </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6603,12 +10072,18 @@ in the manual </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6618,12 +10093,18 @@ undefining OGRE_FORCE_ANGLE_TYPES </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6633,12 +10114,18 @@ ratio of text in relative metrics mode </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6648,12 +10135,18 @@ so it can be excluded / included specifically in scene queries </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6663,12 +10156,18 @@ to ensure use of _STLP_DEBUG is consistent </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6678,7 +10177,11 @@ add billboards back to the free list on clear() </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -6687,12 +10190,18 @@ add billboards back to the free list on clear() </p>
     
     
     
+    
+    
     <p>TerrainSceneManager fix when calling clearScene()</p>
 
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -6702,9 +10211,13 @@ add billboards back to the free list on clear() </p>
 
 
 
+
+
 <p class="mainheader" align="left">v0.15.0 [Hastur]
 (23 October 2004) -
 Major Release</p>
+
+
 
 
 
@@ -6718,7 +10231,11 @@ development branch (which will be released as 1.0) is called
 
 
 
+
+
 <p align="left">Enhancements:</p>
+
+
 
 
 
@@ -6728,7 +10245,11 @@ development branch (which will be released as 1.0) is called
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6748,9 +10269,13 @@ as a result. <br>
 
 
 
+
+
 Bear in mind that the .mesh size will increase because edge lists are
 precomputed and stored by default - if you don't intend to use stencil
 shadows then you can disable this with the '-e' parameter.</p>
+
+
 
 
 
@@ -6760,7 +10285,11 @@ shadows then you can disable this with the '-e' parameter.</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6772,12 +10301,18 @@ GL). </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6795,12 +10330,18 @@ Degree(degreeValue) where you are using basic types to store angles.</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6814,12 +10355,18 @@ such as user clip planes. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6831,12 +10378,18 @@ objects</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6848,12 +10401,18 @@ interpolation is still an option if more accuracy is required.</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6864,12 +10423,18 @@ still retaining stencil shadow integrity </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6879,12 +10444,18 @@ system index and vertex buffers are now deferred loading </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6894,12 +10465,18 @@ exporters updated </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6909,12 +10486,18 @@ option like D3D </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6924,12 +10507,18 @@ queries for the OctreeSceneManager </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6939,12 +10528,18 @@ now more configurable </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6955,12 +10550,18 @@ animated meshes </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6971,12 +10572,18 @@ can now cast texture shadows, if an option is enabled in their material
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -6987,7 +10594,11 @@ instead of the text based one. </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -6997,7 +10608,11 @@ instead of the text based one. </p>
 
 
 
+
+
 <p>Bugfixes:</p>
+
+
 
 
 
@@ -7007,7 +10622,11 @@ instead of the text based one. </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7021,12 +10640,18 @@ the equivalent StringUtil methods.</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7036,12 +10661,18 @@ prefers W buffers over Z buffers unless 16-bit colour is being used </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7051,12 +10682,18 @@ plays nicer with other apps </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7066,12 +10703,18 @@ textures used when a custom number of shadow textures were specified </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7081,12 +10724,18 @@ TS_WORLD Node transform options </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7096,12 +10745,18 @@ in GL </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7111,12 +10766,18 @@ lights so it takes into account bounds of node </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7126,12 +10787,18 @@ issues in GL/Linux by making the shutdown sequence more explicit </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7141,12 +10808,18 @@ shadow materials now works when more than one SceneManager is active </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7157,12 +10830,18 @@ planes in orthographic mode </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7172,12 +10851,18 @@ being read from XML correctly </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7187,12 +10872,18 @@ attaching and detaching objects from bones </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7203,7 +10894,11 @@ there was more than one SubMesh with it's own geometry </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -7212,12 +10907,18 @@ there was more than one SubMesh with it's own geometry </p>
     
     
     
+    
+    
     <p>Various other minor issues</p>
 
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -7227,7 +10928,11 @@ there was more than one SubMesh with it's own geometry </p>
 
 
 
+
+
 <p>Deprecation warnings:</p>
+
+
 
 
 
@@ -7237,7 +10942,11 @@ there was more than one SubMesh with it's own geometry </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7248,12 +10957,18 @@ have been removed. Use SceneNode::attachObject.</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7266,12 +10981,18 @@ overlays, which will still be available in Ogre. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7284,12 +11005,18 @@ terrain rendering options.</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -7301,7 +11028,11 @@ Release</p>
 
 
 
+
+
 <p align="left">Enhancements:</p>
+
+
 
 
 
@@ -7311,7 +11042,11 @@ Release</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7321,6 +11056,10 @@ improved</b></p>
 
 
 
+
+
+    
+    
     
     
     
@@ -7329,7 +11068,11 @@ improved</b></p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -7339,12 +11082,18 @@ morphing allows for almost imperceptible leve l-of-detail changes</p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -7354,12 +11103,18 @@ allows for larger terrains </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -7370,12 +11125,18 @@ triangles</p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -7385,12 +11146,18 @@ materials can now be used </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -7400,12 +11167,18 @@ data sources allow terrain data to come from any source </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -7416,15 +11189,23 @@ terrain</p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -7434,7 +11215,11 @@ terrain</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7444,12 +11229,18 @@ exporters updated </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7460,12 +11251,18 @@ report the texel offset differences between systems (required for <a href="http:
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7477,7 +11274,11 @@ Agency</a> </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -7487,7 +11288,11 @@ Agency</a> </p>
 
 
 
+
+
 <p>Bugfixes:</p>
+
+
 
 
 
@@ -7497,7 +11302,11 @@ Agency</a> </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7507,12 +11316,18 @@ objects attached to the skeleton of an Entity was being ignored </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7522,12 +11337,18 @@ resize() methods of D3D windows </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7537,12 +11358,18 @@ when using constant reduction in interactive mode </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7553,12 +11380,18 @@ use32bitindexes </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7569,12 +11402,18 @@ were transformed incorrectly. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7584,12 +11423,18 @@ crashes on GL</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7599,12 +11444,18 @@ leaks, especially when no rendering is performed before shutdown </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7615,12 +11466,18 @@ custom params to the dictionary twice. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7630,12 +11487,18 @@ have been Math::SymmetricRandom in RingEmitter </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7645,12 +11508,18 @@ TextureUnitState::setAnimatedTextureName </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7661,12 +11530,18 @@ not change. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7676,12 +11551,18 @@ manual LOD entities too </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7692,12 +11573,18 @@ missed if the overlay wasn't visible on startup </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7713,12 +11600,18 @@ tries to find this case first).</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -7730,7 +11623,11 @@ Release</p>
 
 
 
+
+
 <p align="left">Enhancements:</p>
+
+
 
 
 
@@ -7740,7 +11637,11 @@ Release</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7750,6 +11651,10 @@ Release</p>
 
 
 
+
+
+    
+    
     
     
     
@@ -7758,7 +11663,11 @@ Release</p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -7768,6 +11677,10 @@ techniques: </p>
 
 
 
+
+
+        
+        
         
         
         
@@ -7776,7 +11689,11 @@ techniques: </p>
 
 
 
+
+
           <li>
+            
+            
             
             
             
@@ -7786,12 +11703,18 @@ stencil shadows (simple extra pass darkens the shadowed areas) </p>
 
 
 
+
+
           </li>
 
 
 
 
+
+
           <li>
+            
+            
             
             
             
@@ -7803,12 +11726,18 @@ need to rewrite your materials) </p>
 
 
 
+
+
           </li>
 
 
 
 
+
+
           <li>
+            
+            
             
             
             
@@ -7818,15 +11747,23 @@ projective texture shadows </p>
 
 
 
+
+
           </li>
 
 
 
 
+
+
+        
+        
         
         
         
         </ul>
+
+
 
 
 
@@ -7836,7 +11773,11 @@ projective texture shadows </p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -7848,12 +11789,18 @@ methods, 2-sided stencilling, scissor region clipping </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -7864,12 +11811,18 @@ the finite edges of these shadow types</p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -7887,11 +11840,17 @@ this!</p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
@@ -7900,7 +11859,11 @@ this!</p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -7910,12 +11873,18 @@ this!</p>
 
 
 
+
+
 <ul>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7925,6 +11894,10 @@ Skinning</b> </p>
 
 
 
+
+
+    
+    
     
     
     
@@ -7933,7 +11906,11 @@ Skinning</b> </p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -7943,12 +11920,18 @@ can now be driven using vertex programs </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -7958,15 +11941,23 @@ limited only by your target vertex program version</p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -7976,7 +11967,11 @@ limited only by your target vertex program version</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -7990,12 +11985,18 @@ sync the projection of the texture with changes to the frustum. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8008,12 +12009,18 @@ transformations relative to any space. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8027,12 +12034,18 @@ or ragdoll simulations benefit from these enhancements. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8045,12 +12058,18 @@ technique can be used for many other things.</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8060,12 +12079,18 @@ showing you how to embed an Ogre window in a GTK application.</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8076,12 +12101,18 @@ mapped statue</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8091,12 +12122,18 @@ so the plugin has been enabled</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8107,12 +12144,18 @@ they can be reused in other situations like texture projection. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8122,12 +12165,18 @@ Lightwave exporters </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8137,12 +12186,18 @@ have their visibility toggled individually </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8152,7 +12207,11 @@ query support</p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -8161,7 +12220,11 @@ query support</p>
     
     
     
+    
+    
     <p>Animation looping can now be disabled on AnimationState</p>
+
+
 
 
 
@@ -8171,7 +12234,11 @@ query support</p>
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -8181,12 +12248,18 @@ query support</p>
 
 
 
+
+
 <ul>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8196,12 +12269,18 @@ a full account.</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -8213,7 +12292,11 @@ Release</p>
 
 
 
+
+
 <p align="left">Enhancements:</p>
+
+
 
 
 
@@ -8223,7 +12306,11 @@ Release</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8233,7 +12320,11 @@ skeletal animation support</p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -8243,7 +12334,11 @@ skeletal animation support</p>
 
 
 
+
+
 <p align="left">Bugfixes:</p>
+
+
 
 
 
@@ -8253,7 +12348,11 @@ skeletal animation support</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8263,12 +12362,18 @@ Demo_TechDemo.vcproj link from Ogre.sln </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8281,12 +12386,18 @@ some state management problems with SceneManager. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8296,12 +12407,18 @@ records all capabilities (inc cubemapping, anisotropy) </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8312,12 +12429,18 @@ were not always properly visible and/or did not move correctly. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8327,12 +12450,18 @@ ConfigFile when an empty value was specified </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8342,12 +12471,18 @@ should not capture input types which are disabled </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8357,12 +12492,18 @@ should not capture input types which are disabled </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8372,12 +12513,18 @@ AxisAlignedBox::scale </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8387,12 +12534,18 @@ result in stuttery particle emission in some cases </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8403,12 +12556,18 @@ inserting new pass entry into SolidRenderablePassMap" assert. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8418,12 +12577,18 @@ segfault when using objects without an ODE body </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8434,12 +12599,18 @@ index properly. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8449,12 +12620,18 @@ configure.in </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8464,7 +12641,11 @@ with automake 1.8 </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -8473,7 +12654,11 @@ with automake 1.8 </p>
     
     
     
+    
+    
     <p>Relative mouse coordinate fixes on linux </p>
+
+
 
 
 
@@ -8483,7 +12668,11 @@ with automake 1.8 </p>
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -8495,7 +12684,11 @@ Release</p>
 
 
 
+
+
 <p align="left">Changes since 0.12.3:</p>
+
+
 
 
 
@@ -8505,7 +12698,11 @@ Release</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8515,6 +12712,10 @@ upgrade</b>! This is a subsection of it's own.. </p>
 
 
 
+
+
+    
+    
     
     
     
@@ -8523,7 +12724,11 @@ upgrade</b>! This is a subsection of it's own.. </p>
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -8533,6 +12738,10 @@ and fragment programs (shaders), including: </p>
 
 
 
+
+
+        
+        
         
         
         
@@ -8541,7 +12750,11 @@ and fragment programs (shaders), including: </p>
 
 
 
+
+
           <li>
+            
+            
             
             
             
@@ -8553,12 +12766,18 @@ ATI_fragment_shader) </p>
 
 
 
+
+
           </li>
 
 
 
 
+
+
           <li>
+            
+            
             
             
             
@@ -8571,12 +12790,18 @@ ATI_fragment_shader so you can write a single program for all targets. </p>
 
 
 
+
+
           </li>
 
 
 
 
+
+
           <li>
+            
+            
             
             
             
@@ -8587,12 +12812,18 @@ position', 'object space light direction' and many more </p>
 
 
 
+
+
           </li>
 
 
 
 
+
+
           <li>
+            
+            
             
             
             
@@ -8603,15 +12834,23 @@ defined and reused many times with different parameters, all through
 
 
 
+
+
           </li>
 
 
 
 
+
+
+        
+        
         
         
         
         </ul>
+
+
 
 
 
@@ -8621,7 +12860,11 @@ defined and reused many times with different parameters, all through
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -8633,12 +12876,18 @@ preferred shading approach</p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -8651,12 +12900,18 @@ you can tweak it heavily </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -8669,12 +12924,18 @@ light </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
       <li>
+        
+        
         
         
         
@@ -8686,15 +12947,23 @@ automatically update them using the OgreMaterialUpgrade tool </p>
 
 
 
+
+
       </li>
 
 
 
 
+
+
+    
+    
     
     
     
     </ul>
+
+
 
 
 
@@ -8704,7 +12973,11 @@ automatically update them using the OgreMaterialUpgrade tool </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8720,12 +12993,18 @@ iterate using the 'n' nearest lights. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8738,12 +13017,18 @@ format, even in GL. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8753,12 +13038,18 @@ support on Mac OSX</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8768,12 +13059,18 @@ support on VC6 and VC7, this makes compilation a lot faster. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8783,12 +13080,18 @@ exporters</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8800,12 +13103,18 @@ rendering loop instead of using Root::startRendering. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8816,12 +13125,18 @@ filter instead of one abstracted filter type.</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8831,12 +13146,18 @@ texture size has been optimised and filtering tuned </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8849,12 +13170,18 @@ but you should use OgreMeshUpgrade to fix it permanently </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -8866,7 +13193,11 @@ Maintenance Release</p>
 
 
 
+
+
 <p align="left">Changes since 0.12.2:</p>
+
+
 
 
 
@@ -8876,7 +13207,11 @@ Maintenance Release</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8886,12 +13221,18 @@ overlay sizes when using multiple render targets </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8901,12 +13242,18 @@ rate stats when using multiple render targets</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8916,12 +13263,18 @@ conditions in the mesh LOD generation which could cause crashes </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8931,12 +13284,18 @@ pumps events properly in Windows </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8946,12 +13305,18 @@ erroneous characters removed </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8961,12 +13326,18 @@ STLport version (4.6) </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8976,12 +13347,18 @@ leaks in D3D </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -8991,12 +13368,18 @@ problem in TextAreaGuiElement when using '\n'</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9006,12 +13389,18 @@ in VC6 OgreMain</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -9023,7 +13412,11 @@ Maintenance Release</p>
 
 
 
+
+
 <p align="left">Changes since 0.12.1:</p>
+
+
 
 
 
@@ -9033,7 +13426,11 @@ Maintenance Release</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9044,12 +13441,18 @@ animation </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9059,12 +13462,18 @@ updated, now supports the new uv exporting format of 0.98.16b </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9075,12 +13484,18 @@ entities and the world when collision was disabled </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9091,12 +13506,18 @@ rebalanced to just 4 automatically on conversion to .mesh</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9108,12 +13529,18 @@ manifested itself as oddly scaling bones when animating an entity</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9124,12 +13551,18 @@ parallel to the plane </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9139,12 +13572,18 @@ leaks </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9154,12 +13593,18 @@ automatic loading and unloading issues </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9169,12 +13614,18 @@ instead of a packed long </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -9186,7 +13637,11 @@ Maintenance Release</p>
 
 
 
+
+
 <p align="left">Changes since 0.12.0:</p>
+
+
 
 
 
@@ -9196,7 +13651,11 @@ Maintenance Release</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9206,12 +13665,18 @@ Maya exporter from macross and fifty1 </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9222,12 +13687,18 @@ reading </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9238,12 +13709,18 @@ Gentoo </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9253,12 +13730,18 @@ bug in Direct3D9 on some older cards </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9268,12 +13751,18 @@ skeletally animated entities with other entities attached to bones </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9283,12 +13772,18 @@ problem in VC6 release mode</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9298,12 +13793,18 @@ tutorials index </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9314,12 +13815,18 @@ billboard in the latter part of the list </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9329,12 +13836,18 @@ with multiple texture coordinate sets properly </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9344,12 +13857,18 @@ StringConverter's quaternion handling </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9359,12 +13878,18 @@ clears down terrain data properly </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9374,12 +13899,18 @@ used in loading ogre.cfg since some ATI drivers have a trailing space</p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -9391,7 +13922,11 @@ Release </p>
 
 
 
+
+
 <p align="left">Changes since 0.11.0:</p>
+
+
 
 
 
@@ -9401,7 +13936,11 @@ Release </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9415,12 +13954,18 @@ five-fold) due to their particular affinity to this approach. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9434,12 +13979,18 @@ about the details of the changes</a>. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9452,12 +14003,18 @@ off will need to set it in your material scripts </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9468,12 +14025,18 @@ cards supported through the DirectX7 rendersystem or OpenGL </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9483,12 +14046,18 @@ textures and cubic reflection mapping added </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9498,12 +14067,18 @@ mapping added </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9514,12 +14089,18 @@ is now a lot faster </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9530,12 +14111,18 @@ your old meshes, they may not work properly unless you do this </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9545,12 +14132,18 @@ includes parameters to allow you to generate LODs as you convert </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9560,12 +14153,18 @@ rationalises bone assignments so that only 4 are included per vertex </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9575,12 +14174,18 @@ rationalises bone assignments so that only 4 are included per vertex </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9590,12 +14195,18 @@ manager with support for ogre as a Gtk/GL widget </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9605,12 +14216,18 @@ supports IK and Biped </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9620,12 +14237,18 @@ added </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9635,12 +14258,18 @@ added </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9650,12 +14279,18 @@ controllers removed </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9665,7 +14300,11 @@ profiling tool added </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -9674,7 +14313,11 @@ profiling tool added </p>
     
     
     
+    
+    
     <p>Many bugfixes and minor enhancements </p>
+
+
 
 
 
@@ -9684,7 +14327,11 @@ profiling tool added </p>
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -9695,7 +14342,11 @@ profiling tool added </p>
 
 
 
+
+
 <p align="left">Changes since 0.10.0:</p>
+
+
 
 
 
@@ -9705,7 +14356,11 @@ profiling tool added </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9719,12 +14374,18 @@ SphereSceneQuery and others will soon be available too </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9745,12 +14406,18 @@ shortly. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9763,12 +14430,18 @@ longer uses SDL for window management. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9778,12 +14451,18 @@ generation supported in GL 1.3+ </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9793,12 +14472,18 @@ and Demo_Water </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9808,12 +14493,18 @@ now supports pre and post Viewport update events </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9823,12 +14514,18 @@ supports anisotropic texture filtering and dot3 texture operations </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9838,12 +14535,18 @@ the 3D Studio Max exporter, now very mature </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9853,12 +14556,18 @@ exporters / converters: Maya, Wings3D and VRML 97 </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9870,12 +14579,18 @@ animation </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9885,12 +14600,18 @@ generate / update LOD information for meshes too </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9903,12 +14624,18 @@ waist etc. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9919,12 +14646,18 @@ colour affector which changes behaviour based on a particle's TTL) </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9935,12 +14668,18 @@ engine added (NatureSceneManager), supports paging and very large areas
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9951,12 +14690,18 @@ times faster for large skeletons </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9968,12 +14713,18 @@ virtualisation problems </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9984,12 +14735,18 @@ consistency is much better </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -9999,12 +14756,18 @@ now supported in GL as well as D3D </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10014,12 +14777,18 @@ to GLRenderSystem </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10029,12 +14798,18 @@ resurrected, Linux only for now due to Boost problems with VC </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10046,12 +14821,18 @@ classes will shortly be moved into a separate plugin) </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10061,12 +14842,18 @@ between buffered and unbuffered input on demand </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10076,12 +14863,18 @@ added </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10091,12 +14884,18 @@ writing .material scripts from an in-memory version </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10106,12 +14905,18 @@ memory leaks </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -10122,7 +14927,11 @@ memory leaks </p>
 
 
 
+
+
 <p align="left">Changes since 0.9.7:</p>
+
+
 
 
 
@@ -10132,7 +14941,11 @@ memory leaks </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10143,12 +14956,18 @@ at high frame rates. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10159,12 +14978,18 @@ converted to binary using XMLConverter) </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10174,12 +14999,18 @@ Python bindings </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10189,12 +15020,18 @@ to allow references back to external app objects from OGRE objects </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10204,12 +15041,18 @@ Render System </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10220,7 +15063,11 @@ blending </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -10229,7 +15076,11 @@ blending </p>
     
     
     
+    
+    
     <p>Bugfixes &amp; small feature enhancements </p>
+
+
 
 
 
@@ -10239,7 +15090,11 @@ blending </p>
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -10250,7 +15105,11 @@ January 2003)</p>
 
 
 
+
+
 <p align="left">Changes since 0.99f:</p>
+
+
 
 
 
@@ -10260,11 +15119,17 @@ January 2003)</p>
 
 
 
+
+
   <li>
     
     
     
+    
+    
     <p style="margin-bottom: 0cm;">Mac OSX support added </p>
+
+
 
 
 
@@ -10274,7 +15139,11 @@ January 2003)</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10284,12 +15153,18 @@ automatic algorithmic detail reduction, and manual LOD assignment </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10299,12 +15174,18 @@ extended to support generation of LODs </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10314,12 +15195,18 @@ extended to support generation of LODs </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10328,12 +15215,18 @@ extended to support generation of LODs </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10343,12 +15236,18 @@ image loading / saving </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10357,12 +15256,18 @@ image loading / saving </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10372,12 +15277,18 @@ buffered input support </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10387,12 +15298,18 @@ exports </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10402,12 +15319,18 @@ quaternion optimisations </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10417,12 +15340,18 @@ target paths rationalised </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10432,7 +15361,11 @@ lighting and texture effect problems, many memory leaks fixed) </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -10441,7 +15374,11 @@ lighting and texture effect problems, many memory leaks fixed) </p>
     
     
     
+    
+    
     <p>Version numbering change (to more standard format) </p>
+
+
 
 
 
@@ -10451,7 +15388,11 @@ lighting and texture effect problems, many memory leaks fixed) </p>
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -10462,7 +15403,11 @@ December 2002)</p>
 
 
 
+
+
 <p align="left">Changes since 0.99e:</p>
+
+
 
 
 
@@ -10472,7 +15417,11 @@ December 2002)</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10483,12 +15432,18 @@ detail texturing and vertex colouring options </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10498,12 +15453,18 @@ pixel metrics as well as relative metrics, and can be flexibly aligned </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10512,12 +15473,18 @@ pixel metrics as well as relative metrics, and can be flexibly aligned </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10527,12 +15494,18 @@ pixel metrics as well as relative metrics, and can be flexibly aligned </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10542,12 +15515,18 @@ now scale nodes as well as rotate and translate </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10557,12 +15536,18 @@ available as a material option, for doing decals </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10572,12 +15557,18 @@ operations now supported </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10588,12 +15579,18 @@ performed </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10603,7 +15600,11 @@ exporter </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -10612,7 +15613,11 @@ exporter </p>
     
     
     
+    
+    
     <p>Many bugfixes (as usual) </p>
+
+
 
 
 
@@ -10622,7 +15627,11 @@ exporter </p>
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -10633,7 +15642,11 @@ October 2002)</p>
 
 
 
+
+
 <p align="left">Changes since 0.99d:</p>
+
+
 
 
 
@@ -10643,7 +15656,11 @@ October 2002)</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10653,12 +15670,18 @@ menus) </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10667,12 +15690,18 @@ menus) </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10682,12 +15711,18 @@ added </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10698,12 +15733,18 @@ conversion of .mesh and .skeleton files to XML (XML to .mesh and
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10713,12 +15754,18 @@ conversion of .mesh and .skeleton files to XML (XML to .mesh and
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10728,12 +15775,18 @@ animation, both for skeletal animation and for animating any SceneNode </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10743,7 +15796,11 @@ tracking, spline animations can be used to script smooth camera sweeps </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -10752,7 +15809,11 @@ tracking, spline animations can be used to script smooth camera sweeps </p>
     
     
     
+    
+    
     <p>Many bugfixes </p>
+
+
 
 
 
@@ -10762,7 +15823,11 @@ tracking, spline animations can be used to script smooth camera sweeps </p>
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -10773,8 +15838,12 @@ September 2002)</p>
 
 
 
+
+
 <p class="maincontent" align="left">Changes since
 0.99c:</p>
+
+
 
 
 
@@ -10784,11 +15853,17 @@ September 2002)</p>
 
 
 
+
+
   <li>
     
     
     
+    
+    
     <p style="margin-bottom: 0cm;">Full Linux support! </p>
+
+
 
 
 
@@ -10798,7 +15873,11 @@ September 2002)</p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10808,12 +15887,18 @@ tracing memory leaks </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10823,12 +15908,18 @@ support via Animation, AnimationTrack and KeyFrame classes </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10838,12 +15929,18 @@ meshes, including multiple bone assignments and animation blending </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10854,12 +15951,18 @@ sequence into many separate animations </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10870,12 +15973,18 @@ for loading images more generically and can be used for general coding
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10884,7 +15993,11 @@ for loading images more generically and can be used for general coding
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -10893,7 +16006,11 @@ for loading images more generically and can be used for general coding
     
     
     
+    
+    
     <p>New tutorials </p>
+
+
 
 
 
@@ -10903,7 +16020,11 @@ for loading images more generically and can be used for general coding
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -10914,7 +16035,11 @@ for loading images more generically and can be used for general coding
 
 
 
+
+
 <p align="left">Changes since 0.99b:</p>
+
+
 
 
 
@@ -10924,12 +16049,18 @@ for loading images more generically and can be used for general coding
 
 
 
+
+
 <ul>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10940,12 +16071,18 @@ the framework for all future modelling tool exporters </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10959,12 +16096,18 @@ without bones or animation. </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10975,12 +16118,18 @@ inherit parent scale or just use own </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -10992,12 +16141,18 @@ distribute binary libraries </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11007,12 +16162,18 @@ the Dependencies area </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11022,7 +16183,11 @@ Green </blockquote>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -11032,7 +16197,11 @@ Green </blockquote>
 
 
 
+
+
 <blockquote>Work-in-progress:</blockquote>
+
+
 
 
 
@@ -11042,7 +16211,11 @@ Green </blockquote>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11052,12 +16225,18 @@ makefiles now present, buildable with gcc 3+ </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11068,12 +16247,18 @@ almost there </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11083,12 +16268,18 @@ AnimationTrack, KeyFrame, Skeleton, Bone) </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -11098,12 +16289,18 @@ AnimationTrack, KeyFrame, Skeleton, Bone) </blockquote>
 
 
 
+
+
 <ul>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11113,12 +16310,18 @@ now correctly defined </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11128,12 +16331,18 @@ getAsLongARGB alpha bug fixed </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11143,12 +16352,18 @@ behaviour when attached to a SceneNode fixed </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -11159,7 +16374,11 @@ behaviour when attached to a SceneNode fixed </blockquote>
 
 
 
+
+
 <p align="left">Changes since 0.98b:</p>
+
+
 
 
 
@@ -11169,12 +16388,18 @@ behaviour when attached to a SceneNode fixed </blockquote>
 
 
 
+
+
 <ul>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11190,12 +16415,18 @@ lifetimes and much more. </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11206,12 +16437,18 @@ create backgrounds, static light flares etc) </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11222,12 +16459,18 @@ distribution </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11237,12 +16480,18 @@ now cache a file index for more efficient retrieval </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11253,7 +16502,11 @@ classes easier to create </blockquote>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -11263,7 +16516,11 @@ classes easier to create </blockquote>
 
 
 
+
+
 <blockquote>Bugfixes:</blockquote>
+
+
 
 
 
@@ -11273,7 +16530,11 @@ classes easier to create </blockquote>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11285,12 +16546,18 @@ SmoothGroups, and issue with merging multiple objects </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11300,12 +16567,18 @@ mapping bug which caused incorrect wrapping is now fixed </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11317,12 +16590,18 @@ in theMicrosoft STL implementation </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11332,12 +16611,18 @@ position on demand if they are out of date </blockquote>
 
 
 
+
+
   </li>
 
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -11348,7 +16633,11 @@ position on demand if they are out of date </blockquote>
 
 
 
+
+
 <p align="left">Changes since 0.97e:</p>
+
+
 
 
 
@@ -11358,7 +16647,11 @@ position on demand if they are out of date </blockquote>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11371,12 +16664,18 @@ Tutorials for more information. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11390,12 +16689,18 @@ plugged into Ogre. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11406,12 +16711,18 @@ using this facility are under development. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11423,12 +16734,18 @@ triangle counter monitors culling performance. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11439,12 +16756,18 @@ to modify the behaviour more easily without having to duplicate code. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11456,7 +16779,11 @@ the STL standard rather than the Microsoft implementation. </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -11466,7 +16793,11 @@ the STL standard rather than the Microsoft implementation. </p>
 
 
 
+
+
 <p>&nbsp;</p>
+
+
 
 
 
@@ -11477,7 +16808,11 @@ the STL standard rather than the Microsoft implementation. </p>
 
 
 
+
+
 <p>Changes since 0.97b:</p>
+
+
 
 
 
@@ -11487,7 +16822,11 @@ the STL standard rather than the Microsoft implementation. </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11498,12 +16837,18 @@ dynamically-loaded archive codecs! </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11514,12 +16859,18 @@ Archive codec (works with Zip archives) </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11529,12 +16880,18 @@ and the Indoor Engine to work with the new codecs </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11546,12 +16903,18 @@ avoiding unnecesary memory copying (and eventually fragmentation) </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11565,12 +16928,18 @@ PluginName </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11581,12 +16950,18 @@ you shouldn't need to create the necessary directories yourselves </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11597,12 +16972,18 @@ new Archive codecs. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
 </ul>
+
+
 
 
 
@@ -11613,7 +16994,11 @@ new Archive codecs. </p>
 
 
 
+
+
 <p align="left">Changes since 0.96b:</p>
+
+
 
 
 
@@ -11623,7 +17008,11 @@ new Archive codecs. </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11634,12 +17023,18 @@ and scaling. Added support for these to the Quake3 renderer . </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11650,12 +17045,18 @@ types rather than just constant effects </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11665,12 +17066,18 @@ error dialog when an unhandled exception is thrown </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11680,7 +17087,11 @@ in the config dialog which causes crashes </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -11689,12 +17100,18 @@ in the config dialog which causes crashes </p>
     
     
     
+    
+    
     <p>Fogging enabled - scene-wide or customised per material </p>
 
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -11704,13 +17121,19 @@ in the config dialog which causes crashes </p>
 
 
 
+
+
 <p align="left">&nbsp;</p>
+
+
 
 
 
 
 <p class="mainheader" align="left">v0.96b (6
 January 2002)</p>
+
+
 
 
 
@@ -11722,7 +17145,11 @@ regarding changes made between snapshot versions. </p>
 
 
 
+
+
 <p align="left">Changes since 0.95b:</p>
+
+
 
 
 
@@ -11732,7 +17159,11 @@ regarding changes made between snapshot versions. </p>
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11743,12 +17174,18 @@ active at a time. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11762,12 +17199,18 @@ frame timer object. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11778,12 +17221,18 @@ in. No scrolling, rotating or stretching effects yet though </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11793,12 +17242,18 @@ skyboxes are now supported </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11809,12 +17264,18 @@ approach. </p>
 
 
 
+
+
   </li>
 
 
 
 
+
+
   <li>
+    
+    
     
     
     
@@ -11824,7 +17285,11 @@ front of solid objects. </p>
 
 
 
+
+
   </li>
+
+
 
 
 
@@ -11834,7 +17299,11 @@ front of solid objects. </p>
 
 
 
+
+
 <p class="mainheader" align="left">6 January 2002</p>
+
+
 
 
 
@@ -11852,6 +17321,8 @@ the shafts of light, animated flames etc.</p>
 
 
 
+
+
 <p align="left">No MD3 models are being rendered so there
 are a few
 blank spots in the level where a gargoyle, wall sconce etc should be.
@@ -11863,9 +17334,13 @@ no big deal, I never set out to produce a working copy of Q3A.</p>
 
 
 
+
+
 <p align="left">I will be releasing another snapshot based
 on this
 codebase, and also will release binary demos of all the examples.</p>
+
+
 
 
 
@@ -11877,7 +17352,11 @@ the controller classes. Then particle systems. </p>
 
 
 
+
+
 <p class="mainheader" align="left">5 January 2002</p>
+
+
 
 
 
@@ -11887,6 +17366,8 @@ giving you 3
 types of sky to play with. Skyboxes are for static, wrap-around
 environment textures like space, whilst skydomes are like skyplanes,
 but curved.</p>
+
+
 
 
 
@@ -11903,6 +17384,8 @@ single-use approach.</p>
 
 
 
+
+
 <p align="left">One thing I've noticed now the sky is
 being displayed
 is there are 'sparklies' around the curved surfaces visible mostly
@@ -11910,6 +17393,8 @@ when there is a light-coloured sky. Damn. It appears the points
 generated from the bezier patches don't quite match up with the
 surrounding static geometry, meaning there are small gaps. This is a
 TODO.</p>
+
+
 
 
 
@@ -11926,7 +17411,11 @@ that doesn't have lightmaps like gargoyles.</p>
 
 
 
+
+
 <p class="mainheader" align="left">27 December 2001</p>
+
+
 
 
 
@@ -11940,6 +17429,8 @@ allow full wrap-around skies.</p>
 
 
 
+
+
 <p align="left">I have also totally revamped the example
 code that is
 included with the engine. Instead of the single TestApp project,
@@ -11947,6 +17438,8 @@ there is now an Examples folder with multiple projects under this
 which demo each effect. I have also created an object-oriented
 framework for the examples too, meaning they are now a lot better
 structured and hopefully better to understand.</p>
+
+
 
 
 
@@ -11965,7 +17458,11 @@ sorting out the skybox support and other texture effects first.</p>
 
 
 
+
+
 <p class="mainheader" align="left">24 December 2001</p>
+
+
 
 
 
@@ -11973,6 +17470,8 @@ sorting out the skybox support and other texture effects first.</p>
 <p align="left">Refactored the entity rendering routines
 in the base
 SceneManager class to make them easier to reuse in subclasses.</p>
+
+
 
 
 
@@ -11986,6 +17485,8 @@ RenderSystem class. This makes the settings more intuitive to use,
 and ensures that you can have different settings per object if you
 want by assigning different materials, and the SceneManager controls
 the changes to the rendering settings.</p>
+
+
 
 
 
@@ -12006,9 +17507,13 @@ texture but different layer 1 textures next to each other.</p>
 
 
 
+
+
 <p align="left">Started adding sky plane and sky box
 support to the
 SceneManager class, but this is not yet functional.</p>
+
+
 
 
 
@@ -12018,7 +17523,11 @@ SceneManager class, but this is not yet functional.</p>
 
 
 
+
+
 <p class="mainheader" align="left">4 December 2001</p>
+
+
 
 
 
@@ -12030,9 +17539,13 @@ class.</p>
 
 
 
+
+
 <p align="left">Quake3 level loading uses curved surface
 support to
 display Q3A's bezier curves. Custom shader scripts still to be done.</p>
+
+
 
 
 
@@ -12046,7 +17559,11 @@ levels and textures for size and copyright reasons.</p>
 
 
 
+
+
 <p class="mainheader" align="left">11 November 2001</p>
+
+
 
 
 
@@ -12057,7 +17574,11 @@ scripts or curved surfaces yet. </p>
 
 
 
+
+
 <p class="mainheader" align="left">12 October 2001</p>
+
+
 
 
 
@@ -12078,9 +17599,13 @@ modes.</p>
 
 
 
+
+
 <p>Decided to make another point release even without the
 finished
 Quake3 stuff because there's so much that's useful.</p>
+
+
 
 
 
@@ -12090,10 +17615,14 @@ Quake3 stuff because there's so much that's useful.</p>
 
 
 
+
+
 <p>Object/scene blending operations (as opposed to multiple
 texture
 layer blending on the same object) support has been added, allowing
 new effects like transparency.</p>
+
+
 
 
 
@@ -12111,7 +17640,11 @@ I'll get to it.</p>
 
 
 
+
+
 <p class="mainheader" align="left">6 October 2001</p>
+
+
 
 
 
@@ -12134,6 +17667,8 @@ would probably be the odd one.</p>
 
 
 
+
+
 <p>I've done this because I want Ogre to follow industry
 standards
 (e.g. right-handed coordinates, anticlockwise vertex winding) rather
@@ -12148,7 +17683,11 @@ the culling mode, or flipping the texture as above).</p>
 
 
 
+
+
 <p class="mainheader" align="left">5 October 2001</p>
+
+
 
 
 
@@ -12156,6 +17695,8 @@ the culling mode, or flipping the texture as above).</p>
 <p>Progressive updates are being made to the OgreEngineIndoor
 module
 in CVS. Quake3 levels are being loaded and coversion is in progress.</p>
+
+
 
 
 
@@ -12173,7 +17714,11 @@ distances. This has been fixed.</p>
 
 
 
+
+
 <p class="mainheader" align="left">16 September 2001</p>
+
+
 
 
 
@@ -12188,7 +17733,11 @@ V=(1.0 - V) during the conversion. Reconvert your models!</p>
 
 
 
+
+
 <p class="mainheader" align="left">29 August 2001</p>
+
+
 
 
 
@@ -12202,8 +17751,12 @@ type (e.g. textures, meshes).</p>
 
 
 
+
+
 <p>I've also added support for loading TGA images as well, since
 Quake3 maps use them in places. </p>
+
+
 
 
 
@@ -12221,7 +17774,11 @@ else.</p>
 
 
 
+
+
 <p class="mainheader" align="left">10 August 2001</p>
+
+
 
 
 
@@ -12231,6 +17788,8 @@ demonstrates the functionality by loading a base model with a
 standard texture, then adding a second texture layer and applying an
 environment map to it. The keys 0-7 change the texture blending mode
 to show what effects different parameters have.</p>
+
+
 
 
 
@@ -12248,7 +17807,11 @@ have time to do everything I want to! Q3A files first.</p>
 
 
 
+
+
 <p class="mainheader" align="left">5 August 2001</p>
+
+
 
 
 
@@ -12258,10 +17821,14 @@ have time to do everything I want to! Q3A files first.</p>
 
 
 
+
+
 <p>The Camera class now allows a SceneNode to override it's
 position
 and orientation when the Camera is attached to a SceneNode. This will
 allow cameras attached to world objects etc.</p>
+
+
 
 
 
@@ -12277,7 +17844,11 @@ along with new SceneManager subclasses.</p>
 
 
 
+
+
 <p class="mainheader" align="left">21 July 2001</p>
+
+
 
 
 
@@ -12287,6 +17858,8 @@ a
 lot more concise now (instead of storing &amp; trying to update 3
 vectors I just have a single quaternion) and is more predictable and
 hopefully more flexible for the future.&nbsp;</p>
+
+
 
 
 
@@ -12303,7 +17876,11 @@ somewhere would update the orientation of it's SceneNode too).</p>
 
 
 
+
+
 <p class="mainheader" align="left">19 July 2001</p>
+
+
 
 
 
@@ -12323,7 +17900,11 @@ too.</p>
 
 
 
+
+
 <p class="mainheader" align="left">17 July 2001</p>
+
+
 
 
 
@@ -12337,9 +17918,13 @@ the faces which use the vertex. This removes artefacts along model
 
 
 
+
+
 <p>Reimplemented environment mapping using the new
 Material::TextureLayer structure. Started work on adding more
 manipulation features to the SceneNode class (body code still to do).</p>
+
+
 
 
 
@@ -12349,11 +17934,15 @@ manipulation features to the SceneNode class (body code still to do).</p>
 
 
 
+
+
 <p>Python now has full access to the engine, and it's working
 great.
 I've also enabled callbacks into Python from the engine, so you can
 register a Python class as a listener for frame update events so C++
 calls Python every frame. Nice.</p>
+
+
 
 
 
@@ -12368,7 +17957,11 @@ though I'm going back to developing the core engine features .</p>
 
 
 
+
+
 <p class="mainheader" align="left">20 June 2001</p>
+
+
 
 
 
@@ -12386,7 +17979,11 @@ through a custom C++ application (currently TestApp). </p>
 
 
 
+
+
 <p class="mainheader" align="left">13 June 2001</p>
+
+
 
 
 
@@ -12403,6 +18000,8 @@ perfect mechanism to have C++ call Python scripts when events occur. </p>
 
 
 
+
+
 <p>I intend to extend this pattern to other events like
 collisions
 when I implement them. </p>
@@ -12410,7 +18009,11 @@ when I implement them. </p>
 
 
 
+
+
 <p class="mainheader" align="left">10 June 2001</p>
+
+
 
 
 
@@ -12429,6 +18032,8 @@ C++ was getting in the way, and Boost has definitely addressed this.</p>
 
 
 
+
+
 <p align="left">Introduced PythonLink class to expose
 classes to
 Python.</p>
@@ -12436,7 +18041,11 @@ Python.</p>
 
 
 
+
+
 <p class="mainheader" align="left">7 June 2001</p>
+
+
 
 
 
@@ -12450,7 +18059,11 @@ required to expose the full interface to Python however.</p>
 
 
 
+
+
 <p class="mainheader" align="left">31 May 2001</p>
+
+
 
 
 
@@ -12462,7 +18075,11 @@ at SourceForge.</p>
 
 
 
+
+
 <p class="mainheader" align="left">20 May 2001</p>
+
+
 
 
 
@@ -12476,7 +18093,11 @@ hack using DirectInput as a proper platform-specific user input class
 
 
 
+
+
 <p class="mainheader" align="left">15 May 2001</p>
+
+
 
 
 
@@ -12492,7 +18113,11 @@ transparency.</p>
 
 
 
+
+
 <p class="mainheader" align="left">13 May 2001</p>
+
+
 
 
 
@@ -12503,7 +18128,11 @@ now ironed out.</p>
 
 
 
+
+
 <p class="mainheader" align="left">24 April 2001</p>
+
+
 
 
 
@@ -12525,7 +18154,11 @@ if you only use parts of it.</p>
 
 
 
+
+
 <p class="mainheader" align="left">1 April 2001</p>
+
+
 
 
 
@@ -12535,7 +18168,11 @@ if you only use parts of it.</p>
 
 
 
+
+
 <p class="mainheader" align="left">30 March 2001</p>
+
+
 
 
 
@@ -12548,7 +18185,11 @@ cross-referencing anyway and draws nice diagrams.</p>
 
 
 
+
+
 <p class="mainheader" align="left">24 March 2001</p>
+
+
 
 
 
@@ -12562,6 +18203,8 @@ the D3DTexture class as a special case.</p>
 
 
 
+
+
 <p align="left">Improved the handling of non-square
 textures on
 hardware that supports only square textures. The image is now
@@ -12571,7 +18214,11 @@ coordinates are still valid and no black bands appear on the model.</p>
 
 
 
+
+
 <p class="mainheader" align="left">23 March 2001</p>
+
+
 
 
 
@@ -12584,7 +18231,11 @@ possible by placing a smaller viewport on top of another larger one.</p>
 
 
 
+
+
 <p class="mainheader" align="left">11 March 2001</p>
+
+
 
 
 
@@ -12601,6 +18252,8 @@ vertices on the fly. </p>
 
 
 
+
+
 <p align="left">Instead the RenderOperation class now
 takes pointers
 for each component, and a 'span' value determines the gap between
@@ -12611,7 +18264,11 @@ value to skip over values in between).</p>
 
 
 
+
+
 <p class="mainheader" align="left">6 March 2001</p>
+
+
 
 
 
@@ -12633,7 +18290,11 @@ to do if I loaded direct from 3DS inside Ogre.</p>
 
 
 
+
+
 <p class="mainheader" align="left">1 March 2001</p>
+
+
 
 
 
@@ -12649,7 +18310,11 @@ loading, scene management) are needed.</p>
 
 
 
+
+
 <p class="mainheader" align="left">11 February 2001</p>
+
+
 
 
 
@@ -12667,6 +18332,8 @@ important thing.</p>
 
 
 
+
+
 <p align="left">I now have a nice hierarchy crossing the
 OgreEngine and
 OgreWin32Platform modules, with functionality broken down into
@@ -12677,7 +18344,11 @@ Win32RenderWindow maybe with XRenderWindow or MacRenderWindow.</p>
 
 
 
+
+
 <p class="mainheader" align="left">29 December 2000</p>
+
+
 
 
 
@@ -12690,9 +18361,14 @@ this stage to work out how I should structure the object model.</p>
 
 
 
+
+
 <p align="left">&nbsp;</p>
 
 
 
 
-</body></html>
+
+
+</body>
+</html>
