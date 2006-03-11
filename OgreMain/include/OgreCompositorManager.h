@@ -71,6 +71,14 @@ namespace Ogre {
         */
         CompositorChain *getCompositorChain(Viewport *vp);
 
+		/** Returns whether exists compositor chain for a viewport.
+        */
+		bool hasCompositorChain(Viewport *vp);
+
+		/** Remove the compositor chain from a viewport if exists.
+		*/
+        void removeCompositorChain(Viewport *vp);
+
 		/** Add a compositor to a viewport. By default, it is added to end of the chain,
 			after the other compositors.
 			@param vp			Viewport to modify
