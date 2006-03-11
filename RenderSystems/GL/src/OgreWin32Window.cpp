@@ -421,14 +421,14 @@ namespace Ogre {
 		if (uMsg == WM_CREATE)
 		{
 			// Store pointer to Win32Window in user data area
-			SetWindowLong(hWnd, GWL_USERDATA,
+			SetWindowLongPtr(hWnd, GWLP_USERDATA,
 				(LONG)(((LPCREATESTRUCT)lParam)->lpCreateParams));
 			return 0;
 		}
 
 		// look up window instance
 		// note: it is possible to get a WM_SIZE before WM_CREATE
-		Win32Window* win = (Win32Window*)GetWindowLong(hWnd, GWL_USERDATA);
+		Win32Window* win = (Win32Window*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 		if (!win)
 			return DefWindowProc(hWnd, uMsg, wParam, lParam);
 
