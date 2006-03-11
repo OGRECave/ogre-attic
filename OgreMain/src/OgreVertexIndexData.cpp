@@ -113,10 +113,10 @@ namespace Ogre {
 		{
 			dest->hardwareShadowVolWBuffer = 
 				HardwareBufferManager::getSingleton().createVertexBuffer(
-					hardwareShadowVolWBuffer->getVertexSize(), 
-					hardwareShadowVolWBuffer->getNumVertices(), 
-					hardwareShadowVolWBuffer->getUsage(),
-					hardwareShadowVolWBuffer->hasShadowBuffer());
+				hardwareShadowVolWBuffer->getVertexSize(), 
+				hardwareShadowVolWBuffer->getNumVertices(), 
+				hardwareShadowVolWBuffer->getUsage(),
+				hardwareShadowVolWBuffer->hasShadowBuffer());
 
 			// copy data
 			dest->hardwareShadowVolWBuffer->copyData(

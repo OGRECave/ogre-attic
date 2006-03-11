@@ -453,7 +453,7 @@ namespace Ogre {
             Real ratio =  (Real)emissionAllowed / (Real)totalRequested;
             for (i = 0; i < emitterCount; ++i)
             {
-                requested[i] *= (unsigned int)ratio;
+                requested[i] = static_cast<unsigned>(requested[i] * ratio);
             }
         }
 
