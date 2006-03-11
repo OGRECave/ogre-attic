@@ -295,7 +295,7 @@ Here are the attributes you can use in a 'stencil' section of a .compositor scri
 @item
 @ref{compositor_stencil_check,check}
 @item
-@ref{compositor_stencil_comp_funct,comp_funct}
+@ref{compositor_stencil_comp_func,comp_func}
 @item
 @ref{compositor_stencil_ref_value,ref_value}
 @item
@@ -314,47 +314,30 @@ Here are the attributes you can use in a 'stencil' section of a .compositor scri
 Enables or disables the stencil check, thus enabling the use of the rest of the features in this section. The rest of the options in this section do nothing if the stencil check is off.
 Format: check (on | off)@*@*
 
-@anchor{compositor_stencil_comp_funct}
-@subheading comp_funct
+@anchor{compositor_stencil_comp_func}
+@subheading comp_func
 Sets the function used to perform the following comparison:@*@*
-(ref_value & mask) comp_funct (Stencil Buffer Value & mask)@*@*
+(ref_value & mask) comp_func (Stencil Buffer Value & mask)@*@*
 
 What happens as a result of this comparison will be one of 3 actions on the stencil buffer, depending on whether the test fails, succeeds but with the depth buffer check still failing, or succeeds with the depth buffer check passing too. You set the actions in the @ref{compositor_stencil_fail_op,fail_op}, @ref{compositor_stencil_depth_fail_op,depth_fail_op} and @ref{compositor_stencil_pass_op,pass_op} respectively. If the stencil check fails, no colour or depth are written to the frame buffer.@*@*
-Format: comp_funct (always_fail | always_pass | less | less_equal | not_equal | greater_equal | greater)@*@*
-Default: comp_funct always_pass@*@*
+Format: comp_func (always_fail | always_pass | less | less_equal | not_equal | greater_equal | greater)@*@*
+Default: comp_func always_pass@*@*
 
 @anchor{compositor_stencil_ref_value}
 @subheading ref_value
-Sets the reference value used to compare with the stencil buffer as described in @ref{compositor_stencil_comp_funct,comp_funct}.@*@*
+Sets the reference value used to compare with the stencil buffer as described in @ref{compositor_stencil_comp_func,comp_func}.@*@*
 Format: ref_value <value>@*@*
 Default: ref_value 0.0@*@*
 
 @anchor{compositor_stencil_mask}
 @subheading mask
-Sets the mask used to compare with the stencil buffer as described in @ref{compositor_stencil_comp_funct,comp_funct}.@*@*
+Sets the mask used to compare with the stencil buffer as described in @ref{compositor_stencil_comp_func,comp_func}.@*@*
 Format: mask <value>@*@*
 Default: mask 4294967295@*@*
 
-/// Leave the stencil buffer unchanged
-KEEP,
-/// Set the stencil value to zero
-ZERO,
-/// Set the stencil value to the reference value
-REPLACE,
-/// Increase the stencil value by 1, clamping at the maximum value
-INCREMENT,
-/// Decrease the stencil value by 1, clamping at 0
-DECREMENT,
-/// Increase the stencil value by 1, wrapping back to 0 when incrementing the maximum value
-INCREMENT_WRAP,
-/// Decrease the stencil value by 1, wrapping when decrementing 0
-DECREMENT_WRAP,
-/// Invert the bits of the stencil buffer
-INVERT
-
 @anchor{compositor_stencil_fail_op}
 @subheading fail_op
-Sets what to do with the stencil buffer value if the result of the stencil comparison (@ref{compositor_stencil_comp_funct,comp_funct}) and depth comparison is that both fail.@*@*
+Sets what to do with the stencil buffer value if the result of the stencil comparison (@ref{compositor_stencil_comp_func,comp_func}) and depth comparison is that both fail.@*@*
 Format: fail_op (keep | zero | replace | increment | decrement | increment_wrap | decrement_wrap | invert)@*@*
 Default: depth_fail_op keep@*@*
 These actions mean:
@@ -373,19 +356,21 @@ Subtract one from the stencil value, clamping at 0.
 Add one to the stencil value, wrapping back to 0 at the maximum.
 @item decrement_wrap
 Subtract one from the stencil value, wrapping to the maximum below 0.
+@item invert
+invert the stencil value.
 @end table
 
 
 @anchor{compositor_stencil_depth_fail_op}
 @subheading depth_fail_op
-Sets what to do with the stencil buffer value if the result of the stencil comparison (@ref{compositor_stencil_comp_funct,comp_funct}) passes but the depth comparison fails. @*@*
+Sets what to do with the stencil buffer value if the result of the stencil comparison (@ref{compositor_stencil_comp_func,comp_func}) passes but the depth comparison fails. @*@*
 
 Format: depth_fail_op (keep | zero | replace | increment | decrement | increment_wrap | decrement_wrap | invert)@*@*
 Default: depth_fail_op keep@*@*
 
 @anchor{compositor_stencil_pass_op}
 @subheading pass_op
-Sets what to do with the stencil buffer value if the result of the stencil comparison (@ref{compositor_stencil_comp_funct,comp_funct}) and the depth comparison pass. @*@*
+Sets what to do with the stencil buffer value if the result of the stencil comparison (@ref{compositor_stencil_comp_func,comp_func}) and the depth comparison pass. @*@*
 Format: pass_op (keep | zero | replace | increment | decrement | increment_wrap | decrement_wrap | invert)@*@*
 Default: pass_op keep@*@*
 
