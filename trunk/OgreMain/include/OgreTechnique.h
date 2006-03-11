@@ -449,6 +449,9 @@ namespace Ogre {
         /** Is depth checking going to occur on this technique? */
         bool isDepthCheckEnabled(void) const;
 
+        /** Exists colour writing disabled pass on this technique? */
+        bool hasColourWriteDisabled(void) const;
+
         /** Set the name of the technique.
         @remarks
         The use of technique name is optional.  Its usefull in material scripts where a material could inherit

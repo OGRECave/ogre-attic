@@ -353,6 +353,19 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------------
+    bool Technique::hasColourWriteDisabled(void) const
+    {
+        if (mPasses.empty())
+        {
+            return true;
+        }
+        else
+        {
+            // Base decision on the colour write settings of the first pass
+            return !mPasses[0]->getColourWriteEnabled();
+        }
+    }
+    //-----------------------------------------------------------------------------
     void Technique::_load(void)
     {
 		assert (mIsSupported && "This technique is not supported");
