@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 4 2006 by texi2html 1.64 -->
+<!-- Created on , 11 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.1.0: Modulative Shadows</TITLE>
+<TITLE>OGRE Manual v1.2.0 ('Dagon'): Pixel boxes</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.1.0: Modulative Shadows">
-<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Modulative Shadows">
+<META NAME="description" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Pixel boxes">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Pixel boxes">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,35 +23,82 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC257"></A>
+<A NAME="SEC262"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_59.html#SEC246"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_57.html#SEC236"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_61.html#SEC259"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_59.html#SEC259"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_55.html#SEC249"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_61.html#SEC263"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H2> 7.3 Modulative Shadows </H2>
-<!--docid::SEC257::-->
-Modulative shadows work by darkening an already rendered scene with a fixed colour. First, the scene is rendered normally containing all the objects which will be shadowed, then a modulative pass is done per light, which darkens areas in shadow. Finally, objects which do not receive shadows are rendered.<BR><BR>
+<H3> 5.8.5 Pixel boxes </H3>
+<!--docid::SEC262::-->
 
-There are 2 modulative shadow techniques; stencil-based (See section <A HREF="manual_58.html#SEC239">7.1 Stencil Shadows</A> : SHADOWTYPE_STENCIL_MODULATIVE) and texture-based (See section <A HREF="manual_59.html#SEC246">7.2 Texture-based Shadows</A> : SHADOWTYPE_TEXTURE_MODULATIVE). Modulative shadows are an inaccurate lighting model, since they darken the areas of shadow uniformly, irrespective of the amount of light which would have fallen on the shadow area anyway. However, they can give fairly attractive results for a much lower overhead than more 'correct' methods like <A HREF="manual_61.html#SEC259">7.4 Additive Light Masking</A>, and they also combine well with pre-baked static lighting (such as precalculated lightmaps), which additive lighting does not. The main thing to consider is that using multiple light sources can result in overly dark shadows (where shadows overlap, which intuitively looks right in fact, but it's not physically correct) and artefacts when using stencil shadows (See section <A HREF="manual_58.html#SEC243">The Silhouette Edge</A>). <BR><BR>
+All methods in Ogre that take or return raw image data return a PixelBox object.
 
-<A NAME="Shadow Colour"></A>
-<A NAME="SEC258"></A>
-<H3> Shadow Colour </H3>
-<!--docid::SEC258::-->
-The colour which is used to darken the areas in shadow is set by SceneManager::setShadowColour; it defaults to a dark grey (so that the underlying colour still shows through a bit).<BR><BR>
+A PixelBox is a primitive describing a volume (3D), image (2D) or line (1D) of pixels in CPU memory. It describes the location and data format of a region of memory used for image data, but does not do any memory management in itself.
 
-<A NAME="Additive Light Masking"></A>
+Inside the memory pointed to by the <EM>data</EM> member of a pixel box, pixels are stored as a succession of "depth" slices (in Z), each containing "height" rows (Y) of "width" pixels (X).
+
+Dimensions that are not used must be 1. For example, a one dimensional image will have extents (width,1,1). A two dimensional image has extents (width,height,1).
+
+A PixelBox has the following members:
+<DL COMPACT>
+<DT>data
+<DD>The pointer to the first component of the image data in memory.
+<DT>format
+<DD>The pixel format (See section <A HREF="manual_59.html#SEC259">5.8.4 Pixel Formats</A>) of the image data.
+<DT>rowPitch
+<DD>The number of elements between the leftmost pixel of one row and the left pixel of the next. This value must always be equal to getWidth() (consecutive) for compressed formats.
+<DT>slicePitch
+<DD>The number of elements between the top left pixel of one (depth) slice and the top left pixel of the next. Must be a multiple of  rowPitch. This value must always be equal to getWidth()*getHeight() (consecutive)
+for compressed formats.
+<DT>left, top, right, bottom, front, back
+<DD>Extents of the box in three dimensional integer space. Note that the left, top, and front edges are included but the right, bottom and top ones are not. <EM>left</EM> must always be smaller or equal to <EM>right</EM>, <EM>top</EM> must always be smaller or equal to <EM>bottom</EM>, and <EM>front</EM> must always be smaller or equal to <EM>back</EM>.
+</DL>
+
+It also has some useful methods:
+<DL COMPACT>
+<DT>getWidth()
+<DD>Get the width of this box
+<DT>getHeight()
+<DD>Get the height of this box. This is 1 for one dimensional images.
+<DT>getDepth()
+<DD>Get the depth of this box. This is 1 for one and two dimensional images.
+<DT>setConsecutive()
+<DD>Set the rowPitch and slicePitch so that the buffer is laid out consecutive in memory.
+<DT>getRowSkip()
+<DD>Get the number of elements between one past the rightmost pixel of one row and the leftmost pixel of the next row. This is zero if rows are consecutive.
+<DT>getSliceSkip()
+<DD>Get the number of elements between one past the right bottom pixel of one slice and the left top pixel of the next slice. This is zero if slices are consecutive.
+<DT>isConsecutive()
+<DD>Return whether this buffer is laid out consecutive in memory (ie the pitches are equal to the dimensions)
+<DT>getConsecutiveSize()
+<DD>Return the size (in bytes) this image would take if it was laid out consecutive in memory
+<DT>getSubVolume(const Box &#38;def)
+<DD>Return a subvolume of this PixelBox, as a PixelBox.
+</DL>
+
+For more information about these methods consult the API documentation.
+
+<A NAME="External Texture Sources"></A>
 <HR SIZE=1>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_59.html#SEC259"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_55.html#SEC249"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_61.html#SEC263"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 4 2006</I>
+by <I>Steve Streeting</I> on <I>, 11 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

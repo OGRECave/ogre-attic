@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 4 2006 by texi2html 1.64 -->
+<!-- Created on , 11 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.1.0: Mesh Tools</TITLE>
+<TITLE>OGRE Manual v1.2.0 ('Dagon'): Standard Particle Affectors</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.1.0: Mesh Tools">
-<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Mesh Tools">
+<META NAME="description" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Standard Particle Affectors">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Standard Particle Affectors">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,35 +23,312 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC191"></A>
+<A NAME="SEC192"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_31.html#SEC188"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC192"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_31.html#SEC191"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC145"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC200"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H1> 4. Mesh Tools </H1>
-<!--docid::SEC191::-->
-There are a number of mesh tools available with OGRE to help you manipulate your meshes.
-<DL COMPACT>
-<DT><A HREF="manual_33.html#SEC192">4.1 Exporters</A>
-<DD>For getting data out of modellers and into OGRE.
-<DT><A HREF="manual_34.html#SEC194">4.2 XmlConverter</A>
-<DD>For converting meshes and skeletons to/from XML.
-<DT><A HREF="manual_35.html#SEC195">4.3 MeshUpgrader</A>
-<DD>For upgrading binary meshes from one version of OGRE to another.
-</DL>
+<H3> 3.3.6 Standard Particle Affectors </H3>
+<!--docid::SEC192::-->
+Ogre comes preconfigured with a few particle affectors. New ones can be added by creating plugins: see the Plugin_ParticleFX project as an example of how you would do this (this is where these affectors are implemented).
+<P>
 
-<A NAME="Exporters"></A>
+<UL>
+<LI>
+<A HREF="manual_32.html#SEC193">Linear Force Affector</A>
+<LI>
+<A HREF="manual_32.html#SEC194">ColourFader Affector</A>
+<LI>
+<A HREF="manual_32.html#SEC195">ColourFader2 Affector</A>
+<LI>
+<A HREF="manual_32.html#SEC196">Scaler Affector</A>
+<LI>
+<A HREF="manual_32.html#SEC197">Rotator Affector</A>
+<LI>
+<A HREF="manual_32.html#SEC198">ColourInterpolator Affector</A>
+<LI>
+<A HREF="manual_32.html#SEC199">ColourImage Affector</A>
+</UL>
+<P>
+
+<A NAME="Linear Force Affector"></A>
+<A NAME="SEC193"></A>
+<H3> Linear Force Affector </H3>
+<!--docid::SEC193::-->
+<P>
+
+This affector applies a force vector to all particles to modify their trajectory. Can be used for gravity, wind, or any other linear force. It's extra attributes are:<BR><BR>
+<DL COMPACT>
+<DT>force_vector
+<DD>Sets the vector for the force to be applied to every particle. The magnitude of this vector determines how strong the force is.<BR>
+    format: force_vector &#60;x&#62; &#60;y&#62; &#60;z&#62;<BR>
+    example: force_vector 50 0 -50<BR>
+    default: 0 -100 0 (a fair gravity effect)<BR>
+<DT>force_application
+<DD><P>
+
+Sets the way in which the force vector is applied to particle momentum.<BR>
+    format: force_application &#60;add|average&#62;<BR>
+    example: force_application average<BR>
+    default: add<BR>
+The options are:
+<DL COMPACT>
+<DT>average
+<DD>	The resulting momentum is the average of the force vector and the particle's current motion. Is self-stabilising but the speed at which the particle changes direction is non-linear.
+<DT>add
+<DD>	The resulting momentum is the particle's current motion plus the force vector. This is traditional force acceleration but can potentially result in unlimited velocity.
+</DL>
+</DL>
+<BR>
+To create a linear force affector, include a section like this within your particle system script:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector LinearForce
+{
+    // Settings go here
+}
+</pre></td></tr></table>Please note that the name of the affector type ('LinearForce') is case-sensitive.
+<P>
+
+<A NAME="ColourFader Affector"></A>
+<A NAME="SEC194"></A>
+<H3> ColourFader Affector </H3>
+<!--docid::SEC194::-->
+<P>
+
+This affector modifies the colour of particles in flight. It's extra attributes are:
+<DL COMPACT>
+<DT>red
+<DD>Sets the adjustment to be made to the red component of the particle colour per second.<BR>
+    format: red &#60;delta_value&#62;<BR>
+    example: red -0.1<BR>
+    default: 0<BR>
+<DT>green
+<DD>Sets the adjustment to be made to the green component of the particle colour per second.<BR>
+    format: green &#60;delta_value&#62;<BR>
+    example: green -0.1<BR>
+    default: 0<BR>
+<DT>blue
+<DD>Sets the adjustment to be made to the blue component of the particle colour per second.<BR>
+    format: blue &#60;delta_value&#62;<BR>
+    example: blue -0.1<BR>
+    default: 0<BR>
+<DT>alpha
+<DD>Sets the adjustment to be made to the alpha component of the particle colour per second.<BR>
+    format: alpha &#60;delta_value&#62;<BR>
+example: alpha -0.1<BR>
+default: 0<BR>
+</DL>
+To create a colour fader affector, include a section like this within your particle system script:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector ColourFader
+{
+    // Settings go here
+}
+</pre></td></tr></table><P>
+
+<A NAME="ColourFader2 Affector"></A>
+<A NAME="SEC195"></A>
+<H3> ColourFader2 Affector </H3>
+<!--docid::SEC195::-->
+<P>
+
+This affector is similar to the <A HREF="manual_32.html#SEC194">ColourFader Affector</A>, except it introduces two states of colour changes as opposed to just one. The second colour change state is activated once a specified amount of time remains in the particles life.
+<DL COMPACT>
+<DT>red1
+<DD>Sets the adjustment to be made to the red component of the particle colour per second for the first state.<BR>
+    format: red &#60;delta_value&#62;<BR>
+    example: red -0.1<BR>
+    default: 0<BR>
+<DT>green1
+<DD>Sets the adjustment to be made to the green component of the particle colour per second for the first state.<BR>
+    format: green &#60;delta_value&#62;<BR>
+    example: green -0.1<BR>
+    default: 0<BR>
+<DT>blue1
+<DD>Sets the adjustment to be made to the blue component of the particle colour per second for the first state.<BR>
+    format: blue &#60;delta_value&#62;<BR>
+    example: blue -0.1<BR>
+    default: 0<BR>
+<DT>alpha1
+<DD>Sets the adjustment to be made to the alpha component of the particle colour per second for the first state.<BR>
+    format: alpha &#60;delta_value&#62;<BR>
+example: alpha -0.1<BR>
+default: 0<BR>
+<DT>red2
+<DD>Sets the adjustment to be made to the red component of the particle colour per second for the second state.<BR>
+    format: red &#60;delta_value&#62;<BR>
+    example: red -0.1<BR>
+    default: 0<BR>
+<DT>green2
+<DD>Sets the adjustment to be made to the green component of the particle colour per second for the second state.<BR>
+    format: green &#60;delta_value&#62;<BR>
+    example: green -0.1<BR>
+    default: 0<BR>
+<DT>blue2
+<DD>Sets the adjustment to be made to the blue component of the particle colour per second for the second state.<BR>
+    format: blue &#60;delta_value&#62;<BR>
+    example: blue -0.1<BR>
+    default: 0<BR>
+<DT>alpha2
+<DD>Sets the adjustment to be made to the alpha component of the particle colour per second for the second state.<BR>
+    format: alpha &#60;delta_value&#62;<BR>
+example: alpha -0.1<BR>
+default: 0<BR>
+<DT>state_change
+<DD>When a particle has this much time left to live, it will switch to state 2.<BR>
+    format: state_change &#60;seconds&#62;<BR>
+example: state_change 2<BR>
+default: 1<BR>
+</DL>
+To create a ColourFader2 affector, include a section like this within your particle system script:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector ColourFader2
+{
+    // Settings go here
+}
+</pre></td></tr></table><P>
+
+<A NAME="Scaler Affector"></A>
+<A NAME="SEC196"></A>
+<H3> Scaler Affector </H3>
+<!--docid::SEC196::-->
+<P>
+
+This affector scales particles in flight. It's extra attributes are:
+<DL COMPACT>
+<DT>rate
+<DD>The amount by which to scale the particles in both the x and y direction per second.
+</DL>
+To create a scale affector, include a section like this within your particle system script:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector Scaler
+{
+    // Settings go here
+}
+</pre></td></tr></table><P>
+
+<A NAME="Rotator Affector"></A>
+<A NAME="SEC197"></A>
+<H3> Rotator Affector </H3>
+<!--docid::SEC197::-->
+<P>
+
+This affector rotates particles in flight. This is done by rotating the texture. It's extra attributes are:
+<DL COMPACT>
+<DT>rotation_speed_range_start
+<DD>The start of a range of rotation speeds to be assigned to emitted particles.<BR>
+    format: rotation_speed_range_start &#60;degrees_per_second&#62;<BR>
+example: rotation_speed_range_start 90<BR>
+default: 0<BR>
+<DT>rotation_speed_range_end
+<DD>The end of a range of rotation speeds to be assigned to emitted particles.<BR>
+    format: rotation_speed_range_end &#60;degrees_per_second&#62;<BR>
+example: rotation_speed_range_end 180<BR>
+default: 0<BR>
+<DT>rotation_range_start
+<DD>The start of a range of rotation angles to be assigned to emitted particles.<BR>
+    format: rotation_range_start &#60;degrees&#62;<BR>
+example: rotation_range_start 0<BR>
+default: 0<BR>
+<DT>rotation_range_end
+<DD>The end of a range of rotation angles to be assigned to emitted particles.<BR>
+    format: rotation_range_end &#60;degrees&#62;<BR>
+example: rotation_range_end 360<BR>
+default: 0<BR>
+</DL>
+To create a rotate affector, include a section like this within your particle system script:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector Rotator
+{
+    // Settings go here
+}
+</pre></td></tr></table><P>
+
+<A NAME="ColourInterpolator Affector"></A>
+<A NAME="SEC198"></A>
+<H3> ColourInterpolator Affector </H3>
+<!--docid::SEC198::-->
+<P>
+
+Similar to the ColourFader and ColourFader2 Affector?s, this affector modifies the colour of particles in flight, except it has a variable number of defined stages. It swaps the particle colour for several stages in the life of a particle and interpolates between them. It's extra attributes are:
+<DL COMPACT>
+<DT>time0
+<DD>The point in time of stage 0.<BR>
+    format: time0 &#60;0-1 based on lifetime&#62;<BR>
+example: time0 0<BR>
+default: 1<BR>
+<DT>colour0
+<DD>The colour at stage 0.<BR>
+    format: colour0 &#60;r&#62; &#60;g&#62; &#60;b&#62; [&#60;a&#62;]<BR>
+example: colour0 1 0 0 1<BR>
+default: 0.5 0.5 0.5 0.0<BR>
+<DT>time1
+<DD>The point in time of stage 1.<BR>
+    format: time1 &#60;0-1 based on lifetime&#62;<BR>
+example: time1 0.5<BR>
+default: 1<BR>
+<DT>colour1
+<DD>The colour at stage 1.<BR>
+    format: colour1 &#60;r&#62; &#60;g&#62; &#60;b&#62; [&#60;a&#62;]<BR>
+example: colour1 0 1 0 1<BR>
+default: 0.5 0.5 0.5 0.0<BR>
+<DT>time2
+<DD>The point in time of stage 2.<BR>
+    format: time2 &#60;0-1 based on lifetime&#62;<BR>
+example: time2 1<BR>
+default: 1<BR>
+<DT>colour2
+<DD>The colour at stage 2.<BR>
+    format: colour2 &#60;r&#62; &#60;g&#62; &#60;b&#62; [&#60;a&#62;]<BR>
+example: colour2 0 0 1 1<BR>
+default: 0.5 0.5 0.5 0.0<BR>
+<DT>[...]
+<DD></DL>
+The number of stages is variable. The maximal number of stages is 6; where time5 and colour5 are the last possible parameters.
+To create a colour interpolation affector, include a section like this within your particle system script:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector ColourInterpolator
+{
+    // Settings go here
+}
+</pre></td></tr></table><P>
+
+<A NAME="ColourImage Affector"></A>
+<A NAME="SEC199"></A>
+<H3> ColourImage Affector </H3>
+<!--docid::SEC199::-->
+<P>
+
+This is another affector that modifies the colour of particles in flight, but instead of programmatically defining colours, the colours are taken from a specified image file. The range of colour values begins from the left side of the image and move to the right over the lifetime of the particle, therefore only the horizontal dimension of the image is used. Its extra attributes are:
+<DL COMPACT>
+<DT>image
+<DD>The start of a range of rotation speed to be assigned to emitted particles.<BR>
+    format: image &#60;image_name&#62;<BR>
+example: image rainbow.png<BR>
+default: none<BR>
+</DL>
+To create a ColourImage affector, include a section like this within your particle system script:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector ColourImage
+{
+    // Settings go here
+}
+</pre></td></tr></table><P>
+
+<A NAME="Overlay Scripts"></A>
 <HR SIZE=1>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_31.html#SEC191"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC145"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC200"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 4 2006</I>
+by <I>Steve Streeting</I> on <I>, 11 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

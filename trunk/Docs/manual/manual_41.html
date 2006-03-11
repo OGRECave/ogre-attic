@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 4 2006 by texi2html 1.64 -->
+<!-- Created on , 11 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.1.0: Practical Buffer Tips</TITLE>
+<TITLE>OGRE Manual v1.2.0 ('Dagon'): Hardware Buffers</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.1.0: Practical Buffer Tips">
-<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Practical Buffer Tips">
+<META NAME="description" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Hardware Buffers">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Hardware Buffers">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,38 +23,26 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC202"></A>
+<A NAME="SEC230"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_40.html#SEC200"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_36.html#SEC196"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_42.html#SEC203"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_40.html#SEC229"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_42.html#SEC231"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H2> 5.5 Practical Buffer Tips </H2>
-<!--docid::SEC202::-->
-The interplay of usage mode on creation, and locking options when reading / updating is important for performance. Here's some tips:
-<OL>
-<LI>
-Aim for the 'perfect' buffer by creating with HBU_STATIC_WRITE_ONLY, with no shadow buffer, and locking all of it once only with HBL_DISCARD to populate it. Never touch it again.
-<LI>
-If you need to update a buffer regularly, you will have to compromise. Use HBU_DYNAMIC_WRITE_ONLY when creating (still no shadow buffer), and use HBL_DISCARD to lock the entire buffer, or if you can't then use HBL_NO_OVERWRITE to lock parts of it. 
-<LI>
-If you really need to read data from the buffer, create it with a shadow buffer. Make sure you use HBL_READ_ONLY when locking for reading because it will avoid the upload normally associated with unlocking the buffer. You can also combine this with either of the 2 previous points, obviously try for static if you can - remember that the _WRITE_ONLY' part refers to the hardware buffer so can be safely used with a shadow buffer you read from. 
-<LI>
-Split your vertex buffers up if you find that your usage patterns for different elements of the vertex are different. No point having one huge updateable buffer with all the vertex data in it, if all you need to update is the texture coordinates. Split that part out into it's own buffer and make the rest HBU_STATIC_WRITE_ONLY.
-</OL>
-
-
-<A NAME="Hardware Vertex Buffers"></A>
+<H1> 5. Hardware Buffers </H1>
+<!--docid::SEC230::-->
+Vertex buffers, index buffers and pixel buffers inherit most of their features from the HardwareBuffer class. The general premise with a hardware buffer is that it is an area of memory with which you can do whatever you like; there is no format (vertex or otherwise) associated with the buffer itself - that is entirely up to interpretation by the methods that use it - in that way, a HardwareBuffer is just like an area of memory you might allocate using 'malloc' - the difference being that this memory is likely to be located in GPU or AGP memory.
+<A NAME="The Hardware Buffer Manager"></A>
 <HR SIZE=1>
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 4 2006</I>
+by <I>Steve Streeting</I> on <I>, 11 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 4 2006 by texi2html 1.64 -->
+<!-- Created on , 11 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.1.0: Combining Skeletal and Vertex Animation</TITLE>
+<TITLE>OGRE Manual v1.2.0 ('Dagon'): Skeletal Animation</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.1.0: Combining Skeletal and Vertex Animation">
-<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Combining Skeletal and Vertex Animation">
+<META NAME="description" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Skeletal Animation">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Skeletal Animation">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,49 +23,44 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC270"></A>
+<A NAME="SEC297"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_67.html#SEC269"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_65.html#SEC265"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_69.html#SEC273"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_67.html#SEC296"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_67.html#SEC296"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_69.html#SEC298"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H3> 8.3.3 Combining Skeletal and Vertex Animation </H3>
-<!--docid::SEC270::-->
-Skeletal animation and vertex animation (of either subtype) can both be enabled on the same entity at the same time (See section <A HREF="manual_64.html#SEC264">8.2 Animation State</A>). The effect of this is that vertex animation is applied first to the base mesh, then skeletal animation is applied to the result. This allows you, for example, to facially animate a character using pose vertex animation, whilst performing the main movement animation using skeletal animation.<BR><BR>
+<H2> 8.1 Skeletal Animation </H2>
+<!--docid::SEC297::-->
 
-Combining the two is, from a user perspective, as simple as just enabling both animations at the same time. When it comes to using this feature efficiently though, there are a few points to bear in mind:
+Skeletal animation is a process of animating a mesh by moving a set of hierarchical bones within the mesh, which in turn moves the vertices of the model according to the bone assignments stored in each vertex. An alternative term for this approach is 'skinning'. The usual way of creating these animations is with a modelling tool such as Softimage XSI, Milkshape 3D, Blender, 3D Studio or Maya among others. OGRE provides exporters to allow you to get the data out of these modellers and into the engine See section <A HREF="manual_38.html#SEC226">4.1 Exporters</A>.<BR><BR>
 
+There are many grades of skeletal animation, and not all engines (or modellers for that matter) support all of them. OGRE supports the following features:
 <UL>
-<LI><A HREF="manual_68.html#SEC271">Combined Hardware Skinning</A>
-<LI><A HREF="manual_68.html#SEC272">Submesh Splits</A>
+<LI>Each mesh can be linked to a single skeleton
+<LI>Unlimited bones per skeleton
+<LI>Hierarchical forward-kinematics on bones
+<LI>Multiple named animations per skeleton (e.g. 'Walk', 'Run', 'Jump', 'Shoot' etc)
+<LI>Unlimited keyframes per animation
+<LI>Linear or spline-based interpolation between keyframes
+<LI>A vertex can be assigned to multiple bones and assigned weightings for smoother skinning
+<LI>Multiple animations can be applied to a mesh at the same time, again with a blend weighting
 </UL>
+<BR>
+Skeletons and the animations which go with them are held in .skeleton files, which are produced by the OGRE exporters. These files are loaded automatically when you create an Entity based on a Mesh which is linked to the skeleton in question. You then use <A HREF="manual_69.html#SEC298">8.2 Animation State</A> to set the use of animation on the entity in question.
 
-<A NAME="Combined Hardware Skinning"></A>
-<A NAME="SEC271"></A>
-<H2> Combined Hardware Skinning </H2>
-<!--docid::SEC271::-->
-For complex characters it is a very good idea to implement hardware skinning by including a technique in your materials which has a vertex program which can perform the kinds of animation you are using in hardware. See <A HREF="manual_18.html#SEC95">Skeletal Animation in Vertex Programs</A>, <A HREF="manual_18.html#SEC96">Morph Animation in Vertex Programs</A>, <A HREF="manual_18.html#SEC97">Pose Animation in Vertex Programs</A>. <BR><BR>
+Skeletal animation can be performed in software, or implemented in shaders (hardware skinning). Clearly the latter is preferable, since it takes some of the work away from the CPU and gives it to the graphics card, and also means that the vertex data does not need to be re-uploaded every frame. This is especially important for large, detailed models. You should try to use hardware skinning wherever possible; this basically means assigning a material which has a vertex program powered technique. See <A HREF="manual_18.html#SEC95">Skeletal Animation in Vertex Programs</A> for more details. Skeletal animation can be combined with vertex animation, See section <A HREF="manual_73.html#SEC304">8.3.3 Combining Skeletal and Vertex Animation</A>.
 
-When combining animation types, your vertex programs must support both types of animation that the combined mesh needs, otherwise hardware skinning will be disabled. You should implement the animation in the same way that OGRE does, ie perform vertex animation first, then apply skeletal animation to the result of that. Remember that the implementation of morph animation passes 2 absolute snapshot buffers of the from &#38; to keyframes, along with a single parametric, which you have to linearly interpolate, whilst pose animation passes the base vertex data plus 'n' pose offset buffers, and 'n' parametric weight values. <BR><BR>
-
-<A NAME="Submesh Splits"></A>
-<A NAME="SEC272"></A>
-<H2> Submesh Splits </H2>
-<!--docid::SEC272::-->
-
-If you only need to combine vertex and skeletal animation for a small part of your mesh, e.g. the face, you could split your mesh into 2 parts, one which needs the combination and one which does not, to reduce the calculation overhead. Note that it will also reduce vertex buffer usage since vertex keyframe / pose buffers will also be smaller. Note that if you use hardware skinning you should then implement 2 separate vertex programs, one which does only skeletal animation, and the other which does skeletal and vertex animation.
-
-<A NAME="SceneNode Animation"></A>
+<A NAME="Animation State"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_67.html#SEC269"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_65.html#SEC265"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_69.html#SEC273"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_67.html#SEC296"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_67.html#SEC296"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_69.html#SEC298"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -74,7 +69,7 @@ If you only need to combine vertex and skeletal animation for a small part of yo
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 4 2006</I>
+by <I>Steve Streeting</I> on <I>, 11 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

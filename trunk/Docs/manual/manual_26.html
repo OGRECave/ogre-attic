@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 4 2006 by texi2html 1.64 -->
+<!-- Created on , 11 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.1.0: Particle Affectors</TITLE>
+<TITLE>OGRE Manual v1.2.0 ('Dagon'): Particle Scripts</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.1.0: Particle Affectors">
-<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Particle Affectors">
+<META NAME="description" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Particle Scripts">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Particle Scripts">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,32 +23,146 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC157"></A>
+<A NAME="SEC145"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_25.html#SEC150"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC111"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_27.html#SEC158"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_25.html#SEC144"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_13.html#SEC22"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_27.html#SEC149"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H3> 3.2.5 Particle Affectors </H3>
-<!--docid::SEC157::-->
+<H2> 3.3 Particle Scripts </H2>
+<!--docid::SEC145::-->
+<P>
 
-Particle affectors modify particles over their lifetime. They are classified by 'type' e.g. 'LinearForce' affectors apply a force to all particles, whilst 'ColourFader' affectors alter the colour of particles in flight. New affectors can be added to Ogre by creating plugins. You add an affector to a system by nesting another section within it, headed with the keyword 'affector' followed by the name of the type of affector (case sensitive). Ogre currently supports 'LinearForce' and 'ColourFader' affectors.<BR><BR>
+Particle scripts allow you to define particle systems to be instantiated in your code without having to hard-code the settings themselves in your source code, allowing a very quick turnaround on any changes you make. Particle systems which are defined in scripts are used as templates, and multiple actual systems can be created from them at runtime.<BR><BR>
+</P><P>
 
-Particle affectors actually have no universal attributes; they are all specific to the type of affector.<BR><BR>
+<A NAME="SEC146"></A>
+<H2> Loading scripts   </H2>
+<!--docid::SEC146::-->
+<P>
 
-See also: <A HREF="manual_27.html#SEC158">3.2.6 Standard Particle Affectors</A>, <A HREF="manual_21.html#SEC111">3.2 Particle Scripts</A>, <A HREF="manual_23.html#SEC133">3.2.2 Particle Emitters</A>
+Particle system scripts are loaded at initialisation time by the system: by default it looks in all common resource locations (see Root::addResourceLocation) for files with the '.particle' extension and parses them. If you want to parse files with a different extension, use the ParticleSystemManager::getSingleton().parseAllSources method with your own extension, or if you want to parse an individual file, use ParticleSystemManager::getSingleton().parseScript.<BR><BR>
+</P><P>
 
-<A NAME="Standard Particle Affectors"></A>
+Once scripts have been parsed, your code is free to instantiate systems based on them using the ParticleSystemManager::getSingleton().createSystem() method which can take both a name for the new system, and the name of the template to base it on (this template name is in the script).<BR><BR>
+</P><P>
+
+<A NAME="SEC147"></A>
+<H2> Format   </H2>
+<!--docid::SEC147::-->
+<P>
+
+Several particle systems may be defined in a single script. The script format is pseudo-C++, with sections delimited by curly braces ({}), and comments indicated by starting a line with '//' (note, no nested form comments allowed). The general format is shown below in a typical example:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>// A sparkly purple fountain
+Examples/PurpleFountain
+{
+    material Examples/Flare2
+    particle_width 20
+    particle_height 20
+    cull_each false
+    quota 10000
+    billboard_type oriented_self
+
+    // Area emitter
+    emitter Point
+    {
+        angle 15
+        emission_rate 75
+        time_to_live 3
+        direction 0 1 0
+        velocity_min 250
+        velocity_max 300
+        colour_range_start 1 0 0
+        colour_range_end 0 0 1
+    }
+
+    // Gravity
+    affector LinearForce
+    {
+        force_vector 0 -100 0
+        force_application add
+    }
+
+    // Fader
+    affector ColourFader
+    {
+        red -0.25
+        green -0.25
+        blue -0.25
+    }
+}
+</pre></td></tr></table><BR><BR>
+Every particle system in the script must be given a name, which is the line before the first opening '{', in the example this is 'Examples/PurpleFountain'. This name must be globally unique. It can include path characters (as in the example) to logically divide up your particle systems, and also to avoid duplicate names, but the engine does not treat the name as hierarchical, just as a string.<BR><BR>
+</P><P>
+
+A system can have top-level attributes set using the scripting commands available, such as 'quota' to set the maximum number of particles allowed in the system. Emitters (which create particles) and affectors (which modify particles) are added as nested definitions within the script. The parameters available in the emitter and affector sections are entirely dependent on the type of emitter / affector.<BR><BR>
+</P><P>
+
+For a detailed description of the core particle system attributes, see the list below:
+</P><P>
+
+<A NAME="SEC148"></A>
+<H3> Available Particle System Attributes </H3>
+<!--docid::SEC148::-->
+<UL>
+<LI>
+<A HREF="manual_27.html#SEC150">quota</A>
+<LI>
+<A HREF="manual_27.html#particle_material">material</A>
+<LI>
+<A HREF="manual_27.html#SEC152">particle_width</A>
+<LI>
+<A HREF="manual_27.html#SEC153">particle_height</A>
+<LI>
+<A HREF="manual_27.html#SEC154">cull_each</A>
+<LI>
+<A HREF="manual_27.html#SEC158">billboard_type</A>
+<LI>
+<A HREF="manual_27.html#SEC159">billboard_origin</A>
+<LI>
+<A HREF="manual_27.html#SEC160">billboard_rotation_type</A>
+<LI>
+<A HREF="manual_27.html#SEC161">common_direction</A>
+<LI>
+<A HREF="manual_27.html#SEC162">common_up_vector</A>
+<LI>
+<A HREF="manual_27.html#particle_renderer">renderer</A>
+<LI>
+<A HREF="manual_27.html#particle_sorted">sorted</A>
+<LI>
+<A HREF="manual_27.html#particle_localspace">local_space</A>
+<LI>
+<A HREF="manual_27.html#particle_point_rendering">point_rendering</A>
+<LI>
+<A HREF="manual_27.html#particle_accurate_facing">accurate_facing</A>
+<LI>
+<A HREF="manual_27.html#SEC165">iteration_interval</A>
+<LI>
+<A HREF="manual_27.html#SEC166">nonvisible_update_timeout</A>
+</UL>
+See also: <A HREF="manual_28.html#SEC167">3.3.2 Particle Emitters</A>, <A HREF="manual_31.html#SEC191">3.3.5 Particle Affectors</A>
+<P>
+
+<A NAME="Particle System Attributes"></A>
 <HR SIZE=1>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_25.html#SEC144"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_13.html#SEC22"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_27.html#SEC149"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 4 2006</I>
+by <I>Steve Streeting</I> on <I>, 11 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

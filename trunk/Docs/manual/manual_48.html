@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 4 2006 by texi2html 1.64 -->
+<!-- Created on , 11 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.1.0: The IndexData class</TITLE>
+<TITLE>OGRE Manual v1.2.0 ('Dagon'): The VertexData class</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.1.0: The IndexData class">
-<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: The IndexData class">
+<META NAME="description" CONTENT="OGRE Manual v1.2.0 ('Dagon'): The VertexData class">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): The VertexData class">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,66 +23,40 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC212"></A>
+<A NAME="SEC238"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_47.html#SEC211"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_47.html#SEC211"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_49.html#SEC214"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_47.html#SEC237"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_47.html#SEC237"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_49.html#SEC239"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H3> 5.7.1 The IndexData class </H3>
-<!--docid::SEC212::-->
-This class summarises the information required to use a set of indexes to render geometry. It's members are as follows:
+<H3> 5.6.1 The VertexData class </H3>
+<!--docid::SEC238::-->
+The VertexData class collects together all the vertex-related information used to render geometry. The new RenderOperation requires a pointer to a VertexData object, and it is also used in Mesh and SubMesh to store the vertex positions, normals, texture coordinates etc. VertexData can either be used alone (in order to render unindexed geometry, where the stream of vertices defines the triangles), or in combination with IndexData where the triangles are defined by indexes which refer to the entries in VertexData.
+<BR><BR>
+It's worth noting that you don't necessarily have to use VertexData to store your applications geometry; all that is required is that you can build a VertexData structure when it comes to rendering. This is pretty easy since all of VertexData's members are pointers, so you could maintain your vertex buffers and declarations in alternative structures if you like, so long as you can convert them for rendering.<BR><BR>
+The VertexData class has a number of important members:
 <DL COMPACT>
-<DT>indexStart
-<DD>The first index used by this piece of geometry; this can be useful for sharing a single index buffer among several geometry pieces.
-<DT>indexCount
-<DD>The number of indexes used by this particular renderable.
-<DT>indexBuffer
-<DD>The index buffer which is used to source the indexes. 
+<DT>vertexStart
+<DD>The position in the bound buffers to start reading vertex data from. This allows you to use a single buffer for many different renderables.
+<DT>vertexCount
+<DD>The number of vertices to process in this particular rendering group
+<DT>vertexDeclaration
+<DD>A pointer to a VertexDeclaration object which defines the format of the vertex input; note this is created for you by VertexData. See section <A HREF="manual_49.html#SEC239">5.6.2 Vertex Declarations</A> 
+<DT>vertexBufferBinding
+<DD>A pointer to a VertexBufferBinding object which defines which vertex buffers are bound to which sources - again, this is created for you by VertexData. See section <A HREF="manual_50.html#SEC241">5.6.3 Vertex Buffer Bindings</A>
 </DL>
 
-<A NAME="SEC213"></A>
-<H3> Creating an Index Buffer </H3>
-<!--docid::SEC213::-->
-Index buffers are created using See section <A HREF="manual_37.html#SEC197">5.1 The Hardware Buffer Manager</A> just like vertex buffers, here's how:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>HardwareIndexBufferSharedPtr ibuf = HardwareBufferManager::getSingleton().
-	createIndexBuffer(
-		HardwareIndexBuffer::IT_16BIT, // type of index
-		numIndexes, // number of indexes
-		HardwareBuffer::HBU_STATIC_WRITE_ONLY, // usage
-		false); // no shadow buffer	
-</pre></td></tr></table>Once again, notice that the return type is a class rather than a pointer; this is reference counted so that the buffer is automatically destroyed when no more references are made to it. The parameters to the index buffer creation are:
-<DL COMPACT>
-<DT>indexType
-<DD>There are 2 types of index; 16-bit and 32-bit. They both perform the same way, except that the latter can address larger vertex buffers. If your buffer includes more than 65526 vertices, then you will need to use 32-bit indexes. Note that you should only use 32-bit indexes when you need to, since they incur more overhead than 16-bit vertices, and are not supported on some older hardware.
-<DT>numIndexes
-<DD>The number of indexes in the buffer. As with vertex buffers, you should consider whether you can use a shared index buffer which is used by multiple pieces of geometry, since there can be performance advantages to switching index buffers less often. 
-<DT>usage
-<DD>This tells the system how you intend to use the buffer. See section <A HREF="manual_38.html#SEC198">5.2 Buffer Usage</A>
-<DT>useShadowBuffer
-<DD>Tells the system whether you want this buffer backed by a system-memory copy. See section <A HREF="manual_39.html#SEC199">5.3 Shadow Buffers</A>
-</DL>
-
-<A NAME="Updating Index Buffers"></A>
+<A NAME="Vertex Declarations"></A>
 <HR SIZE=1>
-<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_47.html#SEC211"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_47.html#SEC211"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_49.html#SEC214"> &gt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
-</TR></TABLE>
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 4 2006</I>
+by <I>Steve Streeting</I> on <I>, 11 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

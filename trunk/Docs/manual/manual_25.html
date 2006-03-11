@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 4 2006 by texi2html 1.64 -->
+<!-- Created on , 11 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.1.0: Standard Particle Emitters</TITLE>
+<TITLE>OGRE Manual v1.2.0 ('Dagon'): Applying a Compositor</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.1.0: Standard Particle Emitters">
-<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Standard Particle Emitters">
+<META NAME="description" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Applying a Compositor">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Applying a Compositor">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,141 +23,36 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC150"></A>
+<A NAME="SEC144"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC135"> &lt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC124"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC111"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC157"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC145"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H3> 3.2.4 Standard Particle Emitters </H3>
-<!--docid::SEC150::-->
-Ogre comes preconfigured with a few particle emitters. New ones can be added by creating plugins: see the Plugin_ParticleFX project as an example of how you would do this (this is where these emitters are implemented).
+<H3> 3.2.4 Applying a Compositor </H3>
+<!--docid::SEC144::-->
 
-<UL>
-<LI>
-<A HREF="manual_25.html#SEC151">Point Emitter</A>
-<LI>
-<A HREF="manual_25.html#SEC152">Box Emitter</A>
-<LI>
-<A HREF="manual_25.html#SEC153">Cylinder Emitter</A>
-<LI>
-<A HREF="manual_25.html#SEC154">Ellipsoid Emitter</A>
-<LI>
-<A HREF="manual_25.html#SEC155">Hollow Ellipsoid Emitter</A>
-<LI>
-<A HREF="manual_25.html#SEC156">Ring Emitter</A>
-</UL>
-<BR><BR>
-<A NAME="Point Emitter"></A>
-<A NAME="SEC151"></A>
-<H3> Point Emitter </H3>
-<!--docid::SEC151::-->
+Adding a compositor instance to a viewport is very simple. All you need to do is:<BR><BR>
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>CompositorManager::getSingleton().addCompositor(viewport, compositorName);
+</pre></td></tr></table><BR><BR>
+Where viewport is a pointer to your viewport, and compositorName is the name of the compositor to create an instance of. By doing this, a new instance of a compositor will be added to a new compositor chain on that viewport. You can call the method multiple times to add further compositors to the chain on this viewport. By default, each compositor which is added is enabled, but you can change this state by calling:<BR><BR>
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>CompositorManager::getSingleton().setCompositorEnabled(viewport, compositorName, enabledOrDisabled);
+</pre></td></tr></table><BR><BR>
+For more information on defining and using compositors, see Demo_Compositor in the Samples area, together with the Examples.compositor script in the media area.
 
-This emitter emits particles from a single point, which is it's position. This emitter has no additional attributes over an above the standard emitter attributes.<BR><BR>
+<P>
 
-To create a point emitter, include a section like this within your particle system script:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>
-emitter Point
-{
-    // Settings go here
-}
-</pre></td></tr></table><BR>
-Please note that the name of the emitter ('Point') is case-sensitive.
-
-<A NAME="Box Emitter"></A>
-<A NAME="SEC152"></A>
-<H3> Box Emitter </H3>
-<!--docid::SEC152::-->
-
-This emitter emits particles from a random location within a 3-dimensional box. It's extra attributes are:<BR><BR>
-<DL COMPACT>
-<DT>width
-<DD>Sets the width of the box (this is the size of the box along it's local X axis, which is dependent on the 'direction' attribute which forms the box's local Z).<BR>
-format: width &#60;units&#62;<BR>
-example: width 250<BR>
-default: 100<BR>
-<DT>height
-<DD>Sets the height of the box (this is the size of the box along it's local Y axis, which is dependent on the 'direction' attribute which forms the box's local Z).<BR>
-format: height &#60;units&#62;<BR>
-example: height 250<BR>
-default: 100<BR>
-<DT>depth
-<DD>Sets the depth of the box (this is the size of the box along it's local Z axis, which is the same as the 'direction' attribute).<BR>
-format: depth &#60;units&#62;<BR>
-example: depth 250<BR>
-default: 100<BR>
-</DL>
-<BR>
-To create a box emitter, include a section like this within your particle system script:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>emitter Box
-{
-    // Settings go here
-}
-</pre></td></tr></table>
-<A NAME="Cylinder Emitter"></A>
-<A NAME="SEC153"></A>
-<H3> Cylinder Emitter </H3>
-<!--docid::SEC153::-->
-
-This emitter emits particles in a random direction from within a cylinder area, where the cylinder is oriented along the Z-axis. This emitter has exactly the same parameters as the <A HREF="manual_25.html#SEC152">Box Emitter</A> so there are no additional parameters to consider here - the width and height determine the shape of the cylinder along it's axis (if they are different it is an ellipsoid cylinder), the depth determines the length of the cylinder. 
-
-<A NAME="Ellipsoid Emitter"></A>
-<A NAME="SEC154"></A>
-<H3> Ellipsoid Emitter </H3>
-<!--docid::SEC154::-->
-This emitter emits particles from within an ellipsoid shaped area, ie a sphere or squashed-sphere area. The parameters are again identical to the <A HREF="manual_25.html#SEC152">Box Emitter</A>, except that the dimensions describe the widest points along each of the axes.
-
-<A NAME="Hollow Ellipsoid Emitter"></A>
-<A NAME="SEC155"></A>
-<H3> Hollow Ellipsoid Emitter </H3>
-<!--docid::SEC155::-->
-This emitter is just like <A HREF="manual_25.html#SEC154">Ellipsoid Emitter</A> except that there is a hollow area in the centre of the ellipsoid from which no particles are emitted. Therefore it has 3 extra parameters in order to define this area:
-
-<DL COMPACT>
-<DT>inner_width
-<DD>The width of the inner area which does not emit any particles.
-<DT>inner_height
-<DD>The height of the inner area which does not emit any particles.
-<DT>inner_depth
-<DD>The depth of the inner area which does not emit any particles.
-</DL>
-
-<A NAME="Ring Emitter"></A>
-<A NAME="SEC156"></A>
-<H3> Ring Emitter </H3>
-<!--docid::SEC156::-->
-This emitter emits particles from a ring-shaped area, ie a little like <A HREF="manual_25.html#SEC155">Hollow Ellipsoid Emitter</A> except only in 2 dimensions.
-
-<DL COMPACT>
-<DT>inner_width
-<DD>The width of the inner area which does not emit any particles.
-<DT>inner_height
-<DD>The height of the inner area which does not emit any particles.
-</DL>
-<BR><BR>
-
-See also: <A HREF="manual_21.html#SEC111">3.2 Particle Scripts</A>, <A HREF="manual_23.html#SEC133">3.2.2 Particle Emitters</A>
-
-<A NAME="Particle Affectors"></A>
+<A NAME="Particle Scripts"></A>
 <HR SIZE=1>
-<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC135"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC111"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC157"> &gt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
-</TR></TABLE>
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 4 2006</I>
+by <I>Steve Streeting</I> on <I>, 11 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

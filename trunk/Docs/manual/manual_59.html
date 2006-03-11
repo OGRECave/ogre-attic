@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 4 2006 by texi2html 1.64 -->
+<!-- Created on , 11 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.1.0: Texture-based Shadows</TITLE>
+<TITLE>OGRE Manual v1.2.0 ('Dagon'): Pixel Formats</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.1.0: Texture-based Shadows">
-<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Texture-based Shadows">
+<META NAME="description" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Pixel Formats">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Pixel Formats">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,104 +23,110 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC246"></A>
+<A NAME="SEC259"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_58.html#SEC239"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_57.html#SEC236"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_60.html#SEC257"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_58.html#SEC257"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_55.html#SEC249"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_60.html#SEC262"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H2> 7.2 Texture-based Shadows </H2>
-<!--docid::SEC246::-->
+<H3> 5.8.4 Pixel Formats </H3>
+<!--docid::SEC259::-->
 
-Texture shadows involve rendering shadow casters from the point of view of the light into a texture, which is then projected onto shadow casters while rendering the standard view. The main advantage of texture shadows as opposed to <A HREF="manual_58.html#SEC239">7.1 Stencil Shadows</A> is that the overhead of increasing the geometric detail is far lower, since there is no need to perform per-triangle calculations. Most of the work in rendering texture shadows is done by the graphics card, meaning the technique scales well when taking advantage of the latest cards, which are at present outpacing CPUs in terms of their speed of development.<BR><BR>
+A pixel format described the storage format of pixel data. It defines the way pixels are encoded in memory. The following classes of pixel formats (PF_*) are defined:
 
-The main disadvantage to texture shadows is that, because they are simply a texture, they have a fixed resolution which means if stretched, the pixellation of the texture becomes obvious. Filtering can reduce this, but the problem still remains. In addition, because these shadows require a render to texture in the direction of the light, omnidirectional lights (point lights) would require 8 renders to totally cover all the directions shadows might be cast. For this reason, Ogre only supports directional lights and spotlights for generating texture shadows; you should turn off shadow casting for point lights if you're using texture shadows.<BR><BR>
+<DL COMPACT>
+<DT>Native endian formats (PF_A8R8G8B8 and other formats with bit counts)
+<DD>These are native endian (16, 24 and 32 bit) integers in memory. This means that an image with format PF_A8R8G8B8 can be seen as an array of 32 bit integers, defined as 0xAARRGGBB in hexadecimal. The meaning of the letters is described below.
 
-<A NAME="SEC247"></A>
-<H3> Directional Lights </H3>
-<!--docid::SEC247::-->
-Directional lights in theory shadow the entire scene from an infinitely distant light. Now, since we only have a finite texture which will look very poor quality if stretched over the entire scene, clearly a simplification is required. Ogre places a shadow texture over the area immediately in front of the camera, and moves it as the camera moves (although it rounds this movement to multiples of texels so that the slight 'swimming shadow' effect caused by moving the texture is minimised). The range to which this shadow extends, and the offset used to move it in front of the camera, are configurable (See section <A HREF="manual_59.html#SEC250">Configuring Texture Shadows</A>). At the far edge of the shadow, Ogre fades out the shadow based on other configurable parameters so that the termination of the shadow is softened.
+<DT>Byte formats (PF_BYTE_*)
+<DD>These formats have one byte per channel, and their channels in memory are organized in the order they are specified in the format name. For example, PF_BYTE_RGBA consists of blocks of four bytes, one for red, one for green, one for blue, one for alpha.
 
-<A NAME="SEC248"></A>
-<H3> Spotlights </H3>
-<!--docid::SEC248::-->
-Spotlights are much easier to represent as renderable shadow textures than directional lights, since they are naturally a frustum. Ogre represents spotlight directly by rendering the shadow from the light position, in the direction of the light cone; the field-of-view of the texture camera is adjusted based on the spotlight falloff angles. In addition, to hide the fact that the shadow texture is square and has definite edges which could show up outside the spotlight, Ogre uses a second texture unit when projecting the shadow onto the scene which fades out the shadow gradually in a projected circle around the spotlight.
+<DT>Short formats (PF_SHORT_*)
+<DD>These formats have one unsigned short (16 bit integer) per channel, and their channels in memory are organized in the order they are specified in the format name. For example, PF_SHORT_RGBA consists of blocks of four 16 bit integers, one for red, one for green, one for blue, one for alpha.
 
-<A NAME="SEC249"></A>
-<H3> Shadow Casters and Shadow Receivers </H3>
-<!--docid::SEC249::-->
-To enable texture shadows, use the shadow technique SHADOWTYPE_TEXTURE_MODULATIVE or SHADOWTYPE_TEXTURE_ADDITIVE; as the name suggests this produces <A HREF="manual_60.html#SEC257">7.3 Modulative Shadows</A> or <A HREF="manual_61.html#SEC259">7.4 Additive Light Masking</A> respectively. Because the texture is merely projected onto shadow casters, a shadow caster cannot also be a shadow receiver, so self-shadowing is not possible using this method (there is an alternative method called depth shadowmapping which can do this using similar techniques as modulative shadow textures, but these are not supported by Ogre yet).<BR><BR>
-Ogre divides shadow casters and receivers into 2 disjoint groups. Simply by turning off shadow casting on an object, you automatically make it a shadow receiver (although this can be disabled by setting the 'receive_shadows' option to 'false' in a material script. Similarly, if an object is set as a shadow caster, it cannt receive shadows. If you need more complex shadowing you would be advised to look at <A HREF="manual_58.html#SEC239">7.1 Stencil Shadows</A>, but this simplified approach can work well in a lot of situations for a pretty low cost.
+<DT>Float16 formats (PF_FLOAT16_*)
+<DD>These formats have one 16 bit floating point number per channel, and their channels in memory are organized in the order they are specified in the format name. For example, PF_FLOAT16_RGBA consists of blocks of four 16 bit floats, one for red, one for green, one for blue, one for alpha. The 16 bit floats, also called half float) are very similar to the IEEE single-precision floating-point standard of the 32 bits floats, except that they have only 5 exponent bits and 10 mantissa. Note that there is no standard C++ data type or CPU support to work with these efficiently, but GPUs can
+calculate with these much more efficiently than with 32 bit floats.
 
-<A NAME="Configuring Texture Shadows"></A>
-<A NAME="SEC250"></A>
-<H2> Configuring Texture Shadows </H2>
-<!--docid::SEC250::-->
-There are a number of settings which will help you configure your texture-based shadows so that they match your requirements.
+<DT>Float32 formats (PF_FLOAT32_*)
+<DD>These formats have one 32 bit floating point number per channel, and their channels in memory are organized in the order they are specified in the format name. For example, PF_FLOAT32_RGBA consists of blocks of four 32 bit floats, one for red, one for green, one for blue, one for alpha. The C++ data type for these 32 bits floats is just "float".
 
-<UL>
-<LI><A HREF="manual_59.html#SEC251">Maximum number of shadow textures</A>
-<LI><A HREF="manual_59.html#SEC252">Shadow texture size</A>
-<LI><A HREF="manual_59.html#SEC253">Shadow far distance</A>
-<LI><A HREF="manual_59.html#SEC254">Shadow texture offset (Directional Lights)</A>
-<LI><A HREF="manual_59.html#SEC255">Shadow fade settings</A>
-</UL>
+<DT>Compressed formats (PF_DXT[1-5])
+<DD>S3TC compressed texture formats, a good description can be found at | Wikipedia (http://en.wikipedia.org/wiki/S3TC)
 
-<A NAME="Maximum number of shadow textures"></A>
-<A NAME="SEC251"></A>
-<H3> Maximum number of shadow textures </H3>
-<!--docid::SEC251::-->
-Shadow textures take up texture memory, and to avoid stalling the rendering pipeline Ogre does not reuse the same shadow texture for multiple lights within the same frame. This means that each light which is to cast shadows must have its own shadow texture. In practice, if you have a lot of lights in your scene you would not wish to incur that sort of texture overhead.<BR><BR>
-You can adjust this manually by simply turning off shadow casting for lights you do not wish to cast shadows. In addition, you can set a maximum limit on the number of shadow textures Ogre is allowed to use by calling SceneManager::setShadowTextureCount. Each frame, Ogre determines the lights which could be affecting the frustum, and then allocates the number of shadow textures it is allowed to use to the lights on a first-come-first-served basis. Any additional lights will not cast shadows that frame.
-<BR><BR>Note that you can set the number of shadow textures and their size at the same time by using the SceneManager::setShadowTextureSettings method; this is useful because both the individual calls require the potential creation / destruction of texture resources.
+</DL>
 
+<A NAME="SEC260"></A>
+<H3> Colour channels </H3>
+<!--docid::SEC260::-->
 
-<A NAME="Shadow texture size"></A>
-<A NAME="SEC252"></A>
-<H3> Shadow texture size </H3>
-<!--docid::SEC252::-->
+The meaning of the channels R,G,B,A,L and X is defined as
 
-The size of the textures used for rendering the shadow casters into can be altered; clearly using larger textures will give you better quality shadows, but at the expense of greater memory usage. Changing the texture size is done by calling SceneManager::setShadowTextureSize - textures are assumed to be square and you must specify a texture size that is a power of 2. Be aware that each modulative shadow texture will take size*size*3 bytes of texture memory. <BR><BR>
-<STRONG>Important</STRONG>: if you use the GL render system your shadow texture size cannot be larger (in either dimension) than the size of your primary window surface. That means that for window resolutions lower than 1280x1024 your maximum shadow texture size is 512. If you create a shadow texture larger than this, only the area the size of the primary window surface will be updated, causing severe shadowing artefacts. Direct3D does not suffer from this limitation, so if you intend to use Direct3D only you are free to use whatever shadow texture size you want, subject to texture memory constraints.
+<DL COMPACT>
+<DT>R
+<DD>Red colour component, usually ranging from 0.0 (no red) to 1.0 (full red).
+<DT>G
+<DD>Green colour component, usually ranging from 0.0 (no green) to 1.0 (full green).
+<DT>B
+<DD>Blue colour component, usually ranging from 0.0 (no blue) to 1.0 (full blue).
+<DT>A
+<DD>Alpha component, usually ranging from 0.0 (entire transparent) to 1.0 (opaque).
+<DT>L
+<DD>Luminance component, usually ranging from 0.0 (black) to 1.0 (white). The luminance component is duplicated in the R, G, and B channels to achieve a greyscale image.
+<DT>X
+<DD>This component is completely ignored.
+</DL>
 
+If none of red, green and blue components, or luminance is defined in a format, these default to 0. For the alpha channel this is different; if no alpha is defined, it defaults to 1. 
 
-<A NAME="Shadow far distance"></A>
-<A NAME="SEC253"></A>
-<H3> Shadow far distance </H3>
-<!--docid::SEC253::-->
+<A NAME="SEC261"></A>
+<H3> Complete list of pixel formats </H3>
+<!--docid::SEC261::-->
 
-This determines the distance at which shadows are terminated; it also determines how far into the distance the texture shadows for directional lights are stretched - by reducing this value, or increasing the texture size, you can improve the quality of shadows from directional lights at the expense of closer shadow termination or increased memory usage, respectively.
+This pixel formats supported by the current version of Ogre are
 
-<A NAME="Shadow texture offset (Directional Lights)"></A>
-<A NAME="SEC254"></A>
-<H3> Shadow texture offset (Directional Lights) </H3>
-<!--docid::SEC254::-->
-As mentioned above in the directional lights section, the rendering of shadows for directional lights is an approximation that allows us to use a single render to cover a largeish area with shadows. This offset parameter affects how far from the camera position the center of the shadow texture is offset, as a proprtion of the shadow far distance. The greater this value, the more of the shadow texture is 'useful' to you since it's ahead of the camera, but also the further you offset it, the more chance there is of accidentally seeing the edge of the shadow texture at more extreme angles. You change this value by calling SceneManager::setShadowDirLightTextureOffset, the default is 0.6.
+<DL COMPACT>
 
-<A NAME="Shadow fade settings"></A>
-<A NAME="SEC255"></A>
-<H3> Shadow fade settings </H3>
-<!--docid::SEC255::-->
+<DT>Byte formats
+<DD>PF_BYTE_RGB, PF_BYTE_BGR, PF_BYTE_BGRA, PF_BYTE_RGBA, PF_BYTE_L, PF_BYTE_LA, PF_BYTE_A
 
-Shadows fade out before the shadow far distance so that the termination of shadow is not abrupt. You can configure the start and end points of this fade by calling the SceneManager::setShadowTextureFadeStart and SceneManager::setShadowTextureFadeEnd methods, both take distances as a proportion of the shadow far distance. Because of the inaccuracies caused by using a square texture and a radial fade distance, you cannot use 1.0 as the fade end, if you do you'll see artefacts at the extreme edges. The default values are 0.7 and 0.9, which serve most purposes but you can change them if you like.
+<DT>Short formats
+<DD>PF_SHORT_RGBA
 
-<A NAME="SEC256"></A>
-<H2> Texture shadows and vertex / fragment programs </H2>
-<!--docid::SEC256::-->
-When rendering shadow casters into a modulative shadow texture, Ogre turns off all textures, and all lighting contributions except for ambient light, which it sets to the colour of the shadow (<A HREF="manual_60.html#SEC258">Shadow Colour</A>). For additive shadows, it render the casters into a black &#38; white texture instead. This is enough to render shadow casters for fixed-function material techniques, however where a vertex program is used Ogre doesn't have so much control. If you use a vertex program in the <STRONG>first pass</STRONG> of your technique, then you must also tell ogre which vertex program you want it to use when rendering the shadow caster; see <A HREF="manual_19.html#SEC105">Shadows and Vertex Programs</A> for full details.
+<DT>Float16 formats
+<DD>PF_FLOAT16_R, PF_FLOAT16_RGB, PF_FLOAT16_RGBA
 
+<DT>Float32 formats
+<DD>PF_FLOAT32_R, PF_FLOAT32_RGB, PF_FLOAT32_RGBA
 
-<A NAME="Modulative Shadows"></A>
+<DT>8 bit native endian formats
+<DD>PF_L8, PF_A8, PF_A4L4, PF_R3G3B2
+
+<DT>16 bit native endian formats
+<DD>PF_L16, PF_R5G6B5, PF_B5G6R5, PF_A4R4G4B4, PF_A1R5G5B5
+
+<DT>24 bit native endian formats
+<DD>PF_R8G8B8, PF_B8G8R8
+
+<DT>32 bit native endian formats
+<DD>PF_A8R8G8B8, PF_A8B8G8R8, PF_B8G8R8A8, PF_R8G8B8A8, PF_X8R8G8B8, PF_X8B8G8R8, PF_A2R10G10B10 PF_A2B10G10R10
+
+<DT>Compressed formats
+<DD>PF_DXT1, PF_DXT2, PF_DXT3, PF_DXT4, PF_DXT5
+
+</DL>
+
+<A NAME="Pixel boxes"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_58.html#SEC239"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_57.html#SEC236"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_60.html#SEC257"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_58.html#SEC257"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_55.html#SEC249"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_60.html#SEC262"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -129,7 +135,7 @@ When rendering shadow casters into a modulative shadow texture, Ogre turns off a
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 4 2006</I>
+by <I>Steve Streeting</I> on <I>, 11 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
