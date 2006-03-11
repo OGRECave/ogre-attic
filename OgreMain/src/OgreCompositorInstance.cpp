@@ -39,6 +39,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 #include "OgreException.h"
 #include "OgreHardwarePixelBuffer.h"
+#include "OgreCamera.h"
 
 namespace Ogre {
 CompositorInstance::CompositorInstance(Compositor *filter, CompositionTechnique *technique,
