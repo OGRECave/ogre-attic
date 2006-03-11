@@ -369,7 +369,7 @@ AM_CONDITIONAL(BUILD_CGPLUGIN, test x$build_cg = xyes)
 
 AC_DEFUN([OGRE_CHECK_CPPUNIT],
 [
-AM_PATH_CPPUNIT([1.9.0], [build_unit_tests=true])
+AM_PATH_CPPUNIT([1.10.0], [build_unit_tests=true])
 AM_CONDITIONAL([BUILD_UNIT_TESTS], [test x$build_unit_tests = xtrue])
 ])
 
