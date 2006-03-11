@@ -73,7 +73,7 @@ namespace Ogre {
         virtual TexturePtr load( 
             const String& name, const String& group, 
             TextureType texType = TEX_TYPE_2D, int numMipmaps = -1, 
-            Real gamma = 1.0f);
+            Real gamma = 1.0f, bool isAlpha = false);
 
         /** Loads a texture from an Image object.
             @note
@@ -97,7 +97,7 @@ namespace Ogre {
         virtual TexturePtr loadImage( 
             const String &name, const String& group, const Image &img, 
             TextureType texType = TEX_TYPE_2D,
-            int iNumMipmaps = -1, Real gamma = 1.0f);
+            int iNumMipmaps = -1, Real gamma = 1.0f, bool isAlpha = false);
 			
         /** Loads a texture from a raw data stream.
             @note

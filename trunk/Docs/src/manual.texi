@@ -1,7 +1,7 @@
 \input texinfo   @c -*-texinfo-*-
 @c %**start of header
 @setfilename manual.info
-@settitle OGRE Manual v1.1.0
+@settitle OGRE Manual v1.2.0 ('Dagon')
 @c %**end of header
    
 @titlepage
@@ -300,13 +300,11 @@ OGRE drives many of its features through scripts in order to make it easier to s
 
 Material scripts offer you the ability to define complex materials in a script which can be reused easily. Whilst you could set up all materials for a scene in code using the methods of the Material and TextureLayer classes, in practice it's a bit unwieldy. Instead you can store material definitions in text files which can then be loaded whenever required.@*@*
 
-You can also use this facility to replace existing material definitions which get loaded in from resource files. For example, if you have a .3ds model which you converted using 3ds2oof, it contains a number of material definitions. You can replace any of the material definitions from the .3ds file with your own just by adding a material definition with the same name to a script (remember you can also rename materials in a .3ds file with the 3ds2oof utility with the -matnames option), which will override the one loaded from the .3ds file.@*@*
-
 @heading Loading scripts
 
-Material scripts are loaded at initialisation time by the system: by default it looks in all common resource locations (see Root::addResourceLocation) for files with the '.material' extension and parses them. If you want to parse files with a different extension, use the MaterialManager::getSingleton().parseAllSources method with your own extension, or if you want to parse an individual file, use MaterialManager::getSingleton().parseScript.@*@*
+Material scripts are loaded when resource groups are initialised: OGRE looks in all resource locations associated with the group (see Root::addResourceLocation) for files with the '.material' extension and parses them. If you want to parse files manually, use MaterialSerializer::parseScript.@*@*
 
-It's important to realise that materials are not loaded completely by this parsing process: only the definition is loaded, no textures or other resources are loaded. This is because it is common to have a large library of materials, but only use a relatively small subset of them in any one scene. To load every material completely in every script would therefore cause unnecessary memory overhead. You can access a 'deferred load' Material in the normal way (getMaterial() from SceneManager, or MaterialManager::getSingleton().getByName()), but you must call the 'load' method before trying to use it. Ogre does this for you when using the normal material assignment methods of entities etc.@*@*
+It's important to realise that materials are not loaded completely by this parsing process: only the definition is loaded, no textures or other resources are loaded. This is because it is common to have a large library of materials, but only use a relatively small subset of them in any one scene. To load every material completely in every script would therefore cause unnecessary memory overhead. You can access a 'deferred load' Material in the normal way (MaterialManager::getSingleton().getByName()), but you must call the 'load' method before trying to use it. Ogre does this for you when using the normal material assignment methods of entities etc.@*@*
 
 Another important factor is that material names must be unique throughout ALL scripts loaded by the system, since materials are always identified by name.@*@*
 
@@ -1063,7 +1061,7 @@ Default: If a texture_unit has a name then the texture_alias defaults to the tex
 
 Sets the name of the static texture image this layer will use.@*@*
 
-Format: texture <texturename> [<type>]@*@*
+Format: texture <texturename> [<type>] [numMipMaps] [alpha]@*@*
 
 Example: texture funkywall.jpg@*@*
 
@@ -1079,6 +1077,9 @@ A 3 dimensional texture ie volume texture. Your texture has a width, a height, b
 @item cubic
 This texture is made up of 6 2D textures which are pasted around the inside of a cube. Can be addressed with 3D texture coordinates and are useful for cubic reflection maps and normal maps.
 @end table
+The 'numMipMaps' option allows you to specify the number of mipmaps to generate for this texture. The default is 'unlimited' which means mips down to 1x1 size are generated. You can specify a fixed number (even 0) if you like instead. Note that if you use the same texture in many material scripts, the number of mipmaps generated will conform to the number specified in the first texture_unit used to load the texture - so be consistent with your usage.@*@*
+
+Finally, the 'alpha' option allows you to specify that a single channel (luminence) texture should be loaded as alpha, rather than the default which is to load it into the red channel. This can be helpful if you want to use alpha-only textures in the fixed function pipeline.
 
 Default: none@*@*
 

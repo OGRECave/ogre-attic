@@ -39,6 +39,7 @@ namespace Ogre {
         : mParent(parent)
     {
         mIsBlank = true;
+		mIsAlpha = false;
         colourBlendMode.blendType = LBT_COLOUR;
         setColourOperation(LBO_MODULATE);
         setTextureAddressingMode(TAM_WRAP);
@@ -89,6 +90,7 @@ namespace Ogre {
         :mParent(parent)
     {
         mIsBlank = true;
+		mIsAlpha = false;
         colourBlendMode.blendType = LBT_COLOUR;
         setColourOperation(LBO_MODULATE);
         setTextureAddressingMode(TAM_WRAP);
@@ -173,7 +175,7 @@ namespace Ogre {
             return StringUtil::BLANK;
     }
     //-----------------------------------------------------------------------
-    void TextureUnitState::setTextureName( const String& name, TextureType texType, int mipmaps)
+    void TextureUnitState::setTextureName( const String& name, TextureType texType, int mipmaps, bool alpha)
     {
         if (texType == TEX_TYPE_CUBE_MAP)
         {
@@ -188,7 +190,8 @@ namespace Ogre {
             mCubic = false;
             mTextureType = texType;
 			mTextureSrcMipmaps = mipmaps;
-
+            if (alpha)
+                mIsAlpha = alpha;
             if (name == "")
             {
                 mIsBlank = true;
@@ -842,7 +845,7 @@ namespace Ogre {
                 try {
 
                     TextureManager::getSingleton().load(mFrames[i], 
-						mParent->getResourceGroup(), mTextureType, mTextureSrcMipmaps);
+						mParent->getResourceGroup(), mTextureType, mTextureSrcMipmaps, 1.0f, mIsAlpha);
                     mIsBlank = false;
                 }
                 catch (Exception &e) {

@@ -50,9 +50,9 @@ namespace Ogre {
             // mSrcBpp inited later on
             mSrcWidth(0),
             mSrcHeight(0), 
-            mSrcDepth(0), mInternalResourcesCreated(false)
+            mSrcDepth(0), mInternalResourcesCreated(false),
             // mFinalBpp inited later on by enable32bit
-            // mHasAlpha inited later on            
+            mHasAlpha(false)        
     {
 
         enable32Bit(false);
@@ -112,9 +112,17 @@ namespace Ogre {
 		mSrcWidth = mWidth = images[0]->getWidth();
 		mSrcHeight = mHeight = images[0]->getHeight();
 		mSrcDepth = mDepth = images[0]->getDepth();
-		mFormat = images[0]->getFormat();
-		mSrcBpp = PixelUtil::getNumElemBits(mFormat);
-		mHasAlpha = PixelUtil::hasAlpha(mFormat);
+        if (mHasAlpha && images[0]->getFormat() == PF_L8)
+        {
+            mFormat = PF_A8;
+            mSrcBpp = 8;
+        }
+        else
+        {
+            mFormat = images[0]->getFormat();
+            mSrcBpp = PixelUtil::getNumElemBits(mFormat);
+            mHasAlpha = PixelUtil::hasAlpha(mFormat);
+        }
 
 		if (mFinalBpp == 16) 
 		{
@@ -220,6 +228,9 @@ namespace Ogre {
                 {
                     // Load from faces of images[0]
                     src = images[0]->getPixelBox(i, mip);
+
+                    if (mHasAlpha && src.format == PF_L8)
+                        src.format = PF_A8;
                 }
     
                 if(mGamma != 1.0f) {

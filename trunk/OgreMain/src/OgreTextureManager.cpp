@@ -54,7 +54,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     TexturePtr TextureManager::load(const String &name, const String& group,
-        TextureType texType, int numMipmaps, Real gamma)
+        TextureType texType, int numMipmaps, Real gamma, bool isAlpha)
     {
         TexturePtr tex = getByName(name);
 
@@ -65,6 +65,8 @@ namespace Ogre {
             tex->setNumMipmaps((numMipmaps == -1)? mDefaultNumMipmaps :
 				static_cast<size_t>(numMipmaps));
             tex->setGamma(gamma);
+            if (isAlpha)
+                tex->setFormat(PF_A8);
             tex->enable32Bit(mIs32Bit);
         }
         tex->load();
@@ -74,7 +76,7 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     TexturePtr TextureManager::loadImage( const String &name, const String& group,
-        const Image &img, TextureType texType, int numMipmaps, Real gamma)
+        const Image &img, TextureType texType, int numMipmaps, Real gamma, bool isAlpha )
     {
         TexturePtr tex = create(name, group, true);
 
@@ -82,6 +84,8 @@ namespace Ogre {
         tex->setNumMipmaps((numMipmaps == -1)? mDefaultNumMipmaps :
 			static_cast<size_t>(numMipmaps));
         tex->setGamma(gamma);
+        if (isAlpha)
+            tex->setFormat(PF_A8);
         tex->enable32Bit(mIs32Bit);
         tex->loadImage(img);
 
