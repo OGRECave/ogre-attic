@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 4 2006 by texi2html 1.64 -->
+<!-- Created on , 11 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.1.0: Particle Emitter Attributes</TITLE>
+<TITLE>OGRE Manual v1.2.0 ('Dagon'): Compositor Passes</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.1.0: Particle Emitter Attributes">
-<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Particle Emitter Attributes">
+<META NAME="description" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Compositor Passes">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Compositor Passes">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,206 +23,281 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC135"></A>
+<A NAME="SEC124"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC133"> &lt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC117"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC111"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_25.html#SEC150"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_25.html#SEC144"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H3> 3.2.3 Particle Emitter Attributes </H3>
+<H3> 3.2.3 Compositor Passes </H3>
+<!--docid::SEC124::-->
+
+A pass is a single rendering action to be performed in a target pass. <BR><BR>
+Format: 'pass' (render_quad | clear | stencil | render_scene) { }<BR><BR>
+
+There are four types of pass:
+<DL COMPACT>
+<DT>clear
+<DD>This kind of pass sets the contents of one or more buffers in the target to a fixed value. So this could clear the colour buffer to a fixed colour, set the depth buffer to a certain set of contents, fill the stencil buffer with a value, or any combination of the above.
+<DT>stencil
+<DD>This kind of pass configures stencil operations for the subsequent passes. It can set the stencil compare function, operations and reference values for you to perform your own stencil effects.
+<DT>render_scene
+<DD>This kind of pass performs a regular rendering of the scene. It will use the <A HREF="manual_23.html#SEC121">visibility_mask</A>, <A HREF="manual_23.html#compositor_lod_bias">lod_bias</A>, and <A HREF="manual_23.html#SEC123">material_scheme</A> from the parent target pass.
+<DT>render_quad
+<DD>This kind of pass renders a quad over the entire render target, using a given material. You will undoubtedly want to pull in the results of other target passes into this operation to perform fullscreen effects.
+</DL>
+
+Here are the attributes you can use in a 'pass' section of a .compositor script:
+
+<A NAME="SEC125"></A>
+<H2> Available Pass Attributes </H2>
+<!--docid::SEC125::-->
+<UL>
+<LI>
+<A HREF="manual_24.html#SEC126">material</A>
+<LI>
+<A HREF="manual_24.html#compositor_pass_input">input</A>
+<LI>
+<A HREF="manual_24.html#SEC128">first_render_queue</A>
+<LI>
+<A HREF="manual_24.html#SEC129">last_render_queue</A>
+<LI>
+<A HREF="manual_24.html#compositor_clear">clear</A>
+<LI>
+<A HREF="manual_24.html#compositor_stencil">stencil</A>
+</UL>
+
+<A NAME="material"></A>
+<A NAME="SEC126"></A>
+<H3> material </H3>
+<!--docid::SEC126::-->
+For passes of type 'render_quad', sets the material used to render the quad. You will want to use shaders in this material to perform fullscreen effects, and use the <A HREF="manual_24.html#compositor_pass_input">input</A> attribute to map other texture targets into the texture bindings needed by this material.<BR><BR>
+Format: material &#60;Name&#62;<BR><BR>
+
+<A NAME="compositor_pass_input"></A>
+<A NAME="SEC127"></A>
+<H3> input  </H3>
+<!--docid::SEC127::-->
+For passes of type 'render_quad', this is how you map one or more local render textures (See  <A HREF="manual_22.html#compositor_texture">compositor_texture</A>) into the material you're using to render the fullscreen quad. To bind more than one texture, repeat this attribute with different sampler indexes.<BR><BR>
+Format: input &#60;sampler&#62; &#60;Name&#62;<BR><BR>
+<DL COMPACT>
+<DT>sampler
+<DD>The texture sampler to set, must be a number in the range [0, OGRE_MAX_TEXTURE_LAYERS-1].
+<DT>Name
+<DD>The name of the local render texture to bind, as declared in  <A HREF="manual_22.html#compositor_texture">compositor_texture</A> and rendered to in one or more <A HREF="manual_23.html#SEC117">target pass</A>.
+</DL>
+Example: input 0 rt0
+
+<A NAME="first_render_queue"></A>
+<A NAME="SEC128"></A>
+<H3> first_render_queue </H3>
+<!--docid::SEC128::-->
+For passes of type 'render_scene', this sets the first render queue id that is included in the render. Defaults to the value of RENDER_QUEUE_SKIES_EARLY.<BR><BR>
+Format: first_render_queue &#60;id&#62;<BR><BR>
+Default: first_render_queue 5<BR><BR>
+
+<A NAME="last_render_queue"></A>
+<A NAME="SEC129"></A>
+<H3> last_render_queue </H3>
+<!--docid::SEC129::-->
+For passes of type 'render_scene', this sets the last render queue id that is included in the render. Defaults to the value of RENDER_QUEUE_SKIES_LATE.<BR><BR>
+Format: last_render_queue &#60;id&#62;<BR><BR>
+Default: last_render_queue 95
+
+<A NAME="compositor_clear"></A>
+<A NAME="SEC130"></A>
+<H2> Clear Section </H2>
+<!--docid::SEC130::-->
+For passes of type 'clear', this section defines the buffer clearing parameters. <BR><BR>
+Format: clear { }<BR><BR>
+
+Here are the attributes you can use in a 'clear' section of a .compositor script:
+<UL>
+<LI>
+<A HREF="manual_24.html#compositor_clear_buffers">buffers</A>
+<LI>
+<A HREF="manual_24.html#compositor_clear_colour_value">colour_value</A>
+<LI>
+<A HREF="manual_24.html#compositor_clear_depth_value">depth_value</A>
+<LI>
+<A HREF="manual_24.html#compositor_clear_stencil_value">stencil_value</A>
+
+<A NAME="compositor_clear_buffers"></A>
+<A NAME="SEC131"></A>
+<H3> buffers </H3>
+<!--docid::SEC131::-->
+Sets the buffers cleared by this pass.<BR><BR>
+
+Format: buffers [colour] [depth] [stencil]<BR><BR>
+Default: buffers colour depth<BR><BR>
+
+<A NAME="compositor_clear_colour_value"></A>
+<A NAME="SEC132"></A>
+<H3> colour_value </H3>
+<!--docid::SEC132::-->
+Set the colour used to fill the colour buffer by this pass, if the colour buffer is being cleared (<A HREF="manual_24.html#compositor_clear_buffers">buffers</A>). <BR><BR>
+Format: colour_value &#60;red&#62; &#60;green&#62; &#60;blue&#62; &#60;alpha&#62;<BR><BR>
+Default: colour_value 0 0 0 0<BR><BR>
+
+<A NAME="compositor_clear_depth_value"></A>
+<A NAME="SEC133"></A>
+<H3> depth_value </H3>
+<!--docid::SEC133::-->
+Set the depth value used to fill the depth buffer by this pass, if the depth buffer is being cleared (<A HREF="manual_24.html#compositor_clear_buffers">buffers</A>). <BR><BR>
+Format: depth_value &#60;depth&#62;<BR><BR>
+Default: depth_value 1.0<BR><BR>
+
+<A NAME="compositor_clear_stencil_value"></A>
+<A NAME="SEC134"></A>
+<H3> stencil_value </H3>
+<!--docid::SEC134::-->
+Set the stencil value used to fill the stencil buffer by this pass, if the stencil buffer is being cleared (<A HREF="manual_24.html#compositor_clear_buffers">buffers</A>). <BR><BR>
+Format: stencil_value &#60;value&#62;<BR><BR>
+Default: stencil_value 0.0<BR><BR>
+</UL>
+
+<A NAME="compositor_stencil"></A>
+<A NAME="SEC135"></A>
+<H2> Stencil Section </H2>
 <!--docid::SEC135::-->
-This section describes the common attributes of all particle emitters. Specific emitter types may also support their own extra attributes.<BR><BR>
+For passes of type 'stencil', this section defines the stencil operation parameters. <BR><BR>
 
-<A NAME="angle"></A>
+Format: stencil { }<BR><BR>
+
+Here are the attributes you can use in a 'stencil' section of a .compositor script:
+
+<UL>
+<LI>
+<A HREF="manual_24.html#compositor_stencil_check">check</A>
+<LI>
+<A HREF="manual_24.html#compositor_stencil_comp_funct">comp_funct</A>
+<LI>
+<A HREF="manual_24.html#compositor_stencil_ref_value">ref_value</A>
+<LI>
+<A HREF="manual_24.html#compositor_stencil_mask">mask</A>
+<LI>
+<A HREF="manual_24.html#compositor_stencil_fail_op">fail_op</A>
+<LI>
+<A HREF="manual_24.html#compositor_stencil_depth_fail_op">depth_fail_op</A>
+<LI>
+<A HREF="manual_24.html#compositor_stencil_pass_op">pass_op</A>
+<LI>
+<A HREF="manual_24.html#compositor_stencil_two_sided">two_sided</A>
+
+<A NAME="compositor_stencil_check"></A>
 <A NAME="SEC136"></A>
-<H3> angle </H3>
+<H3> check </H3>
 <!--docid::SEC136::-->
+Enables or disables the stencil check, thus enabling the use of the rest of the features in this section. The rest of the options in this section do nothing if the stencil check is off.
+Format: check (on | off)<BR><BR>
 
-Sets the maximum angle (in degrees) which emitted particles may deviate from the direction of the emitter (see direction). Setting this to 10 allows particles to deviate up to 10 degrees in any direction away from the emitter's direction. A value of 180 means emit in any direction, whilst 0 means emit always exactly in the direction of the emitter.<BR><BR>
-
-format: angle &#60;degrees&#62;<BR>
-example: angle 30<BR>
-default: 0<BR>
-
-<A NAME="colour"></A>
+<A NAME="compositor_stencil_comp_funct"></A>
 <A NAME="SEC137"></A>
-<H3> colour </H3>
+<H3> comp_funct </H3>
 <!--docid::SEC137::-->
+Sets the function used to perform the following comparison:<BR><BR>
+(ref_value &#38; mask) comp_funct (Stencil Buffer Value &#38; mask)<BR><BR>
 
-Sets a static colour for all particle emitted. Also see the colour_range_start and colour_range_end attributes for setting a range of colours. The format of the colour parameter is "r g b a", where each component is a value from 0 to 1, and the alpha value is optional (assumes 1 if not specified).<BR><BR>
+What happens as a result of this comparison will be one of 3 actions on the stencil buffer, depending on whether the test fails, succeeds but with the depth buffer check still failing, or succeeds with the depth buffer check passing too. You set the actions in the <A HREF="manual_24.html#compositor_stencil_fail_op">fail_op</A>, <A HREF="manual_24.html#compositor_stencil_depth_fail_op">depth_fail_op</A> and <A HREF="manual_24.html#compositor_stencil_pass_op">pass_op</A> respectively. If the stencil check fails, no colour or depth are written to the frame buffer.<BR><BR>
+Format: comp_funct (always_fail | always_pass | less | less_equal | not_equal | greater_equal | greater)<BR><BR>
+Default: comp_funct always_pass<BR><BR>
 
-format: colour &#60;r&#62; &#60;g&#62; &#60;b&#62; [&#60;a&#62;]<BR>
-example: colour 1 0 0 1<BR>
-default: 1 1 1 1<BR>
-
-<A NAME="colour_range_start"></A>
-<A NAME="colour_range_end"></A>
+<A NAME="compositor_stencil_ref_value"></A>
 <A NAME="SEC138"></A>
-<H3> colour_range_start &#38; colour_range_end </H3>
+<H3> ref_value </H3>
 <!--docid::SEC138::-->
+Sets the reference value used to compare with the stencil buffer as described in <A HREF="manual_24.html#compositor_stencil_comp_funct">comp_funct</A>.<BR><BR>
+Format: ref_value &#60;value&#62;<BR><BR>
+Default: ref_value 0.0<BR><BR>
 
-As the 'colour' attribute, except these 2 attributes must be specified together, and indicate the range of colours available to emitted particles. The actual colour will be randomly chosen between these 2 values.<BR><BR>
-
-format: as colour<BR>
-example (generates random colours between red and blue):<BR>
-    colour_range_start 1 0 0<BR>
-    colour_range_end 0 0 1<BR>
-default: both 1 1 1 1<BR>
-
-<A NAME="direction"></A>
+<A NAME="compositor_stencil_mask"></A>
 <A NAME="SEC139"></A>
-<H3> direction </H3>
+<H3> mask </H3>
 <!--docid::SEC139::-->
+Sets the mask used to compare with the stencil buffer as described in <A HREF="manual_24.html#compositor_stencil_comp_funct">comp_funct</A>.<BR><BR>
+Format: mask &#60;value&#62;<BR><BR>
+Default: mask 4294967295<BR><BR>
 
-Sets the direction of the emitter. This is relative to the SceneNode which the particle system is attached to, meaning that as with other movable objects changing the orientation of the node will also move the emitter.<BR><BR>
+/// Leave the stencil buffer unchanged
+KEEP,
+/// Set the stencil value to zero
+ZERO,
+/// Set the stencil value to the reference value
+REPLACE,
+/// Increase the stencil value by 1, clamping at the maximum value
+INCREMENT,
+/// Decrease the stencil value by 1, clamping at 0
+DECREMENT,
+/// Increase the stencil value by 1, wrapping back to 0 when incrementing the maximum value
+INCREMENT_WRAP,
+/// Decrease the stencil value by 1, wrapping when decrementing 0
+DECREMENT_WRAP,
+/// Invert the bits of the stencil buffer
+INVERT
 
-format: direction &#60;x&#62; &#60;y&#62; &#60;z&#62;<BR>
-example: direction 0 1 0<BR>
-default: 1 0 0<BR>
-
-<A NAME="emission_rate"></A>
+<A NAME="compositor_stencil_fail_op"></A>
 <A NAME="SEC140"></A>
-<H3> emission_rate </H3>
+<H3> fail_op </H3>
 <!--docid::SEC140::-->
+Sets what to do with the stencil buffer value if the result of the stencil comparison (<A HREF="manual_24.html#compositor_stencil_comp_funct">comp_funct</A>) and depth comparison is that both fail.<BR><BR>
+Format: fail_op (keep | zero | replace | increment | decrement | increment_wrap | decrement_wrap | invert)<BR><BR>
+Default: depth_fail_op keep<BR><BR>
+These actions mean:
+<DL COMPACT>
+<DT>keep
+<DD>Leave the stencil buffer unchanged.
+<DT>zero
+<DD>Set the stencil value to zero.
+<DT>replace
+<DD>Set the stencil value to the reference value.
+<DT>increment
+<DD>Add one to the stencil value, clamping at the maximum value.
+<DT>decrement
+<DD>Subtract one from the stencil value, clamping at 0.
+<DT>increment_wrap
+<DD>Add one to the stencil value, wrapping back to 0 at the maximum.
+<DT>decrement_wrap
+<DD>Subtract one from the stencil value, wrapping to the maximum below 0.
+</DL>
 
-Sets how many particles per second should be emitted. The specific emitter does not have to emit these in a continuous burst - this is a relative parameter
-and the emitter may choose to emit all of the second's worth of particles every half-second for example, the behaviour depends on the emitter. The emission rate will also be limited by the particle system's 'quota' setting.<BR><BR>
 
-format: emission_rate &#60;particles_per_second&#62;<BR>
-example: emission_rate 50<BR>
-default: 10<BR>
-
-<A NAME="position"></A>
+<A NAME="compositor_stencil_depth_fail_op"></A>
 <A NAME="SEC141"></A>
-<H3> position </H3>
+<H3> depth_fail_op </H3>
 <!--docid::SEC141::-->
+Sets what to do with the stencil buffer value if the result of the stencil comparison (<A HREF="manual_24.html#compositor_stencil_comp_funct">comp_funct</A>) passes but the depth comparison fails. <BR><BR>
 
-Sets the position of the emitter relative to the SceneNode the particle system is attached to.<BR><BR>
+Format: depth_fail_op (keep | zero | replace | increment | decrement | increment_wrap | decrement_wrap | invert)<BR><BR>
+Default: depth_fail_op keep<BR><BR>
 
-format: position &#60;x&#62; &#60;y&#62; &#60;z&#62;<BR>
-example: position 10 0 40<BR>
-default: 0 0 0<BR>
-
-<A NAME="velocity"></A>
+<A NAME="compositor_stencil_pass_op"></A>
 <A NAME="SEC142"></A>
-<H3> velocity </H3>
+<H3> pass_op </H3>
 <!--docid::SEC142::-->
+Sets what to do with the stencil buffer value if the result of the stencil comparison (<A HREF="manual_24.html#compositor_stencil_comp_funct">comp_funct</A>) and the depth comparison pass. <BR><BR>
+Format: pass_op (keep | zero | replace | increment | decrement | increment_wrap | decrement_wrap | invert)<BR><BR>
+Default: pass_op keep<BR><BR>
 
-Sets a constant velocity for all particles at emission time. See also the velocity_min and velocity_max attributes which allow you to set a range of velocities instead of a fixed one.<BR><BR>
-
-format: velocity &#60;world_units_per_second&#62;<BR>
-example: velocity 100<BR>
-default: 1<BR>
-
-<A NAME="velocity_min"></A>
-<A NAME="velocity_max"></A>
+<A NAME="compositor_stencil_two_sided"></A>
 <A NAME="SEC143"></A>
-<H3> velocity_min &#38; velocity_max </H3>
+<H3> two_sided </H3>
 <!--docid::SEC143::-->
+Enables or disables two-sided stencil operations, which means the inverse of the operations applies to back-facing polygons.<BR><BR>
+Format: two_sided (on | off)<BR><BR>
+Default: two_sided off<BR><BR>
+</UL>
 
-As 'velocity' except these attributes set a velocity range and each particle is emitted with a random velocity within this range.<BR><BR>
-
-format: as velocity<BR>
-example:<BR>
-    velocity_min 50<BR>
-    velocity_max 100<BR>
-default: both 1<BR>
-
-<A NAME="time_to_live"></A>
-<A NAME="SEC144"></A>
-<H3> time_to_live </H3>
-<!--docid::SEC144::-->
-
-Sets the number of seconds each particle will 'live' for before being destroyed. NB it is possible for particle affectors to alter this in flight, but this is the value given to particles on emission. See also the time_to_live_min and time_to_live_max attributes which let you set a lifetime range instead of a fixed one.<BR><BR>
-
-format: time_to_live &#60;seconds&#62;<BR>
-example: time_to_live 10<BR>
-default: 5<BR>
-
-<A NAME="time_to_live_min"></A>
-<A NAME="time_to_live_max"></A>
-<A NAME="SEC145"></A>
-<H3> time_to_live_min &#38; time_to_live_max </H3>
-<!--docid::SEC145::-->
-As time_to_live, except this sets a range of lifetimes and each particle gets a random value inbetween on emission.<BR><BR>
-
-format: as time_to_live<BR>
-example:<BR>
-    time_to_live_min 2<BR>
-    time_to_live_max 5<BR>
-default: both 5<BR>
-<BR>
-
-<A NAME="duration"></A>
-<A NAME="SEC146"></A>
-<H3> duration </H3>
-<!--docid::SEC146::-->
-
-Sets the number of seconds the emitter is active. The emitter can be started again, see <A HREF="manual_24.html#SEC148">repeat_delay</A>. A value of 0 means infinite duration. See also the duration_min and duration_max attributes which let you set a duration range instead of a fixed one.<BR><BR>
-
-format: duration &#60;seconds&#62;<BR>
-example:<BR>
-    duration 2.5<BR>
-default: 0<BR>
-<BR>
-
-<A NAME="duration_min"></A>
-<A NAME="duration_max"></A>
-<A NAME="SEC147"></A>
-<H3> duration_min &#38; duration_max </H3>
-<!--docid::SEC147::-->
-
-As duration, except these attributes set a variable time range between the min and max values each time the emitter is started.<BR><BR>
-
-format: as duration<BR>
-example:<BR>
-    duration_min 2<BR>
-    duration_max 5<BR>
-default: both 0<BR>
-<BR>
-
-<A NAME="repeat_delay"></A>
-<A NAME="SEC148"></A>
-<H3> repeat_delay </H3>
-<!--docid::SEC148::-->
-
-Sets the number of seconds to wait before the emission is repeated when stopped by a limited <A HREF="manual_24.html#SEC146">duration</A>. See also the repeat_delay_min and repeat_delay_max attributes which allow you to set a range of repeat_delays instead of a fixed one.<BR><BR>
-
-format: repeat_delay &#60;seconds&#62;<BR>
-example:<BR>
-    repeat_delay 2.5<BR>
-default: 0<BR>
-<BR>
-
-<A NAME="repeat_delay_min"></A>
-<A NAME="repeat_delay_max"></A>
-<A NAME="SEC149"></A>
-<H3> repeat_delay_min &#38; repeat_delay_max </H3>
-<!--docid::SEC149::-->
-
-As repeat_delay, except this sets a range of repeat delays and each time the emitter is started it gets a random value inbetween.<BR><BR>
-
-format: as repeat_delay<BR>
-example:<BR>
-    repeat_delay 2<BR>
-    repeat_delay 5<BR>
-default: both 0<BR>
-<BR>
-
-See also: <A HREF="manual_25.html#SEC150">3.2.4 Standard Particle Emitters</A>, <A HREF="manual_21.html#SEC111">3.2 Particle Scripts</A>, <A HREF="manual_26.html#SEC157">3.2.5 Particle Affectors</A>
-
-
-<A NAME="Standard Particle Emitters"></A>
+<A NAME="Applying a Compositor"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC133"> &lt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC117"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC111"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_25.html#SEC150"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_25.html#SEC144"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -231,7 +306,7 @@ See also: <A HREF="manual_25.html#SEC150">3.2.4 Standard Particle Emitters</A>, 
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 4 2006</I>
+by <I>Steve Streeting</I> on <I>, 11 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

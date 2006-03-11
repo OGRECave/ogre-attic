@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 4 2006 by texi2html 1.64 -->
+<!-- Created on , 11 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.1.0: Pixel Formats</TITLE>
+<TITLE>OGRE Manual v1.2.0 ('Dagon'): Updating Index Buffers</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.1.0: Pixel Formats">
-<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Pixel Formats">
+<META NAME="description" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Updating Index Buffers">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Updating Index Buffers">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,119 +23,29 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC225"></A>
+<A NAME="SEC248"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_53.html#SEC223"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_50.html#SEC215"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_55.html#SEC228"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_53.html#SEC246"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_52.html#SEC245"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_55.html#SEC249"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H3> 5.8.4 Pixel Formats </H3>
-<!--docid::SEC225::-->
+<H3> 5.7.2 Updating Index Buffers </H3>
+<!--docid::SEC248::-->
+Updating index buffers can only be done when you lock the buffer for writing; See section <A HREF="manual_45.html#SEC234">5.4 Locking buffers</A> for details. Locking returns a void pointer, which must be cast to the apropriate type; with index buffers this is either an unsigned short (for 16-bit indexes) or an unsigned long (for 32-bit indexes). For example:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>unsigned short* pIdx = static_cast&#60;unsigned short*&#62;(ibuf-&#62;lock(HardwareBuffer::HBL_DISCARD));
+</pre></td></tr></table>You can then write to the buffer using the usual pointer semantics, just remember to unlock the buffer when you're finished!
 
-A pixel format described the storage format of pixel data. It defines the way pixels are encoded in memory. The following classes of pixel formats (PF_*) are defined:
-
-<DL COMPACT>
-<DT>Native endian formats (PF_A8R8G8B8 and other formats with bit counts)
-<DD>These are native endian (16, 24 and 32 bit) integers in memory. This means that an image with format PF_A8R8G8B8 can be seen as an array of 32 bit integers, defined as 0xAARRGGBB in hexadecimal. The meaning of the letters is described below.
-
-<DT>Byte formats (PF_BYTE_*)
-<DD>These formats have one byte per channel, and their channels in memory are organized in the order they are specified in the format name. For example, PF_BYTE_RGBA consists of blocks of four bytes, one for red, one for green, one for blue, one for alpha.
-
-<DT>Short formats (PF_SHORT_*)
-<DD>These formats have one unsigned short (16 bit integer) per channel, and their channels in memory are organized in the order they are specified in the format name. For example, PF_SHORT_RGBA consists of blocks of four 16 bit integers, one for red, one for green, one for blue, one for alpha.
-
-<DT>Float16 formats (PF_FLOAT16_*)
-<DD>These formats have one 16 bit floating point number per channel, and their channels in memory are organized in the order they are specified in the format name. For example, PF_FLOAT16_RGBA consists of blocks of four 16 bit floats, one for red, one for green, one for blue, one for alpha. The 16 bit floats, also called half float) are very similar to the IEEE single-precision floating-point standard of the 32 bits floats, except that they have only 5 exponent bits and 10 mantissa. Note that there is no standard C++ data type or CPU support to work with these efficiently, but GPUs can
-calculate with these much more efficiently than with 32 bit floats.
-
-<DT>Float32 formats (PF_FLOAT32_*)
-<DD>These formats have one 32 bit floating point number per channel, and their channels in memory are organized in the order they are specified in the format name. For example, PF_FLOAT32_RGBA consists of blocks of four 32 bit floats, one for red, one for green, one for blue, one for alpha. The C++ data type for these 32 bits floats is just "float".
-
-<DT>Compressed formats (PF_DXT[1-5])
-<DD>S3TC compressed texture formats, a good description can be found at | Wikipedia (http://en.wikipedia.org/wiki/S3TC)
-
-</DL>
-
-<A NAME="SEC226"></A>
-<H3> Colour channels </H3>
-<!--docid::SEC226::-->
-
-The meaning of the channels R,G,B,A,L and X is defined as
-
-<DL COMPACT>
-<DT>R
-<DD>Red colour component, usually ranging from 0.0 (no red) to 1.0 (full red).
-<DT>G
-<DD>Green colour component, usually ranging from 0.0 (no green) to 1.0 (full green).
-<DT>B
-<DD>Blue colour component, usually ranging from 0.0 (no blue) to 1.0 (full blue).
-<DT>A
-<DD>Alpha component, usually ranging from 0.0 (entire transparent) to 1.0 (opaque).
-<DT>L
-<DD>Luminance component, usually ranging from 0.0 (black) to 1.0 (white). The luminance component is duplicated in the R, G, and B channels to achieve a greyscale image.
-<DT>X
-<DD>This component is completely ignored.
-</DL>
-
-If none of red, green and blue components, or luminance is defined in a format, these default to 0. For the alpha channel this is different; if no alpha is defined, it defaults to 1. 
-
-<A NAME="SEC227"></A>
-<H3> Complete list of pixel formats </H3>
-<!--docid::SEC227::-->
-
-This pixel formats supported by the current version of Ogre are
-
-<DL COMPACT>
-
-<DT>Byte formats
-<DD>PF_BYTE_RGB, PF_BYTE_BGR, PF_BYTE_BGRA, PF_BYTE_RGBA, PF_BYTE_L, PF_BYTE_LA, PF_BYTE_A
-
-<DT>Short formats
-<DD>PF_SHORT_RGBA
-
-<DT>Float16 formats
-<DD>PF_FLOAT16_R, PF_FLOAT16_RGB, PF_FLOAT16_RGBA
-
-<DT>Float32 formats
-<DD>PF_FLOAT32_R, PF_FLOAT32_RGB, PF_FLOAT32_RGBA
-
-<DT>8 bit native endian formats
-<DD>PF_L8, PF_A8, PF_A4L4, PF_R3G3B2
-
-<DT>16 bit native endian formats
-<DD>PF_L16, PF_R5G6B5, PF_B5G6R5, PF_A4R4G4B4, PF_A1R5G5B5
-
-<DT>24 bit native endian formats
-<DD>PF_R8G8B8, PF_B8G8R8
-
-<DT>32 bit native endian formats
-<DD>PF_A8R8G8B8, PF_A8B8G8R8, PF_B8G8R8A8, PF_R8G8B8A8, PF_X8R8G8B8, PF_X8B8G8R8, PF_A2R10G10B10 PF_A2B10G10R10
-
-<DT>Compressed formats
-<DD>PF_DXT1, PF_DXT2, PF_DXT3, PF_DXT4, PF_DXT5
-
-</DL>
-
-<A NAME="Pixel boxes"></A>
+<A NAME="Hardware Pixel Buffers"></A>
 <HR SIZE=1>
-<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_53.html#SEC223"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_50.html#SEC215"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_55.html#SEC228"> &gt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
-</TR></TABLE>
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 4 2006</I>
+by <I>Steve Streeting</I> on <I>, 11 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

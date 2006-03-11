@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 4 2006 by texi2html 1.64 -->
+<!-- Created on , 11 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.1.0: External Texture Sources</TITLE>
+<TITLE>OGRE Manual v1.2.0 ('Dagon'): Textures</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.1.0: External Texture Sources">
-<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: External Texture Sources">
+<META NAME="description" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Textures">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Textures">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,107 +23,85 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC229"></A>
+<A NAME="SEC250"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_55.html#SEC228"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_57.html#SEC236"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_55.html#SEC249"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_55.html#SEC249"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_57.html#SEC254"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H1> 6. External Texture Sources </H1>
-<!--docid::SEC229::-->
+<H3> 5.8.1 Textures </H3>
+<!--docid::SEC250::-->
 
-<A NAME="SEC230"></A>
-<H2> Introduction   </H2>
-<!--docid::SEC230::-->
+A texture is an image that can be applied onto the surface of a three dimensional model. In Ogre, textures are represented by the Texture resource class.
 
-This tutorial will provide a brief introduction of ExternalTextureSource and ExternalTextureSourceManager classes, their relationship, and how the PlugIns work. For those interested in developing a Texture Source Plugin or maybe just wanting to know more about this system, take a look the ffmpegVideoSystem plugin, which you can find more about on the OGRE forums.
+<A NAME="SEC251"></A>
+<H3> Creating a texture </H3>
+<!--docid::SEC251::-->
 
-<A NAME="SEC231"></A>
-<H2> What Is An External Texture Source? </H2>
-<!--docid::SEC231::-->
-What is a texture source? Well, a texture source could be anything - png, bmp, jpeg, etc. However, loading textures from traditional bitmap files is already handled by another part OGRE. There are, however, other types of sources to get texture data from - ie. mpeg/avi/etc movie files, flash, run-time generated source, user defined, etc.<BR><BR>
+Textures are created through the TextureManager. In most cases they are created from image files directly by the
+Ogre resource system. If you are reading this, you most probably want to create a texture manually so that you can provide it with image data yourself. This is done through TextureManager::createManual:
 
-How do external texture source plugins benifit OGRE? Well, the main answer is: addding support for any type of texture source does not require changing OGRE to support it... all that is involved is writting a new plugin. Additionally, because the manager uses the StringInterface class to issue commands/params, no change to the material script reader is needs to be made. As a result, if a plugin needs a special parameter set, it just creates a new command in it's Parameter Dictionary. - see ffmpegVideoSystem plugin for an example. To make this work, two classes have been added to OGRE: ExternalTextureSource &#38; ExternalTextureSourceManager.
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>ptex = TextureManager::getSingleton().createManual(
+    "MyManualTexture", // Name of texture
+    "General", // Name of resource group in which the texture should be created
+    TEX_TYPE_2D, // Texture type
+    256, // Width
+    256, // Height
+    1, // Depth (Must be 1 for two dimensional textures)
+    0, // Number of mipmaps
+    PF_A8R8G8B8, // Pixel format
+    TU_DYNAMIC_WRITE_ONLY // usage
+);
+</pre></td></tr></table>
+This example creates a texture named <EM>MyManualTexture</EM> in resource group <EM>General</EM>. It is a
+square <EM>two dimensional</EM> texture, with width 256 and height 256. It has <EM>no mipmaps</EM>, internal
+format <EM>PF_A8R8G8B8</EM> and usage <EM>TU_DYNAMIC_WRITE_ONLY</EM>.
 
+The different texture types will be discussed in <A HREF="manual_58.html#SEC257">5.8.3 Texture Types</A>. Pixel formats are summarised in
+<A HREF="manual_59.html#SEC259">5.8.4 Pixel Formats</A>.
 
-<A NAME="SEC232"></A>
-<H2> ExternalTextureSource Class </H2>
-<!--docid::SEC232::-->
-The ExternalTextureSource class is the base class that Texture Source PlugIns must be derived from. It provides a generic framework (via StringInterface class) with a very limited amount of functionality. The most common of parameters can be set through the TexturePlugInSource class interface or via the StringInterface commands contained within this class. While this may seem like duplication of code, it is not. By using the string command interface, it becomes extremly easy for derived plugins to add any new types of parameters that it may need.<BR><BR>
+<A NAME="SEC252"></A>
+<H3> Texture usages </H3>
+<!--docid::SEC252::-->
 
-Default Command Parameters defined in ExternalTextureSource base class are:
-<UL>
-<LI>Parameter Name: "filename" Argument Type: Ogre::String
-Sets a filename plugin will read from
-<LI>Parameter Name: "play_mode" Argument Type: Ogre::String
-Sets initial play mode to be used by the plugin - "play", "loop", "pause"
-<LI>Parameter Name: "set_T_P_S" Argument Type: Ogre::String
-Used to set the technique, pass, and texture unit level to apply this texture to. As an example: To set a technique level of 1, a pass level of 2, and a texture unit level of 3, send this string "1 2 3".
-<LI>Parameter Name: "frames_per_second" Argument Type: Ogre::String
-Set a Frames per second update speed. (Integer Values only)
-</UL>
+In addition to the hardware buffer usages as described in See section <A HREF="manual_43.html#SEC232">5.2 Buffer Usage</A> there are some usage flags specific to textures:
+<DL COMPACT>
+<DT>TU_AUTOMIPMAP
+<DD>Mipmaps for this texture will be automatically generated by the graphics hardware. The exact algorithm used is not
+defined, but you can assume it to be a 2x2 box filter.
+<DT>TU_RENDERTARGET
+<DD>This texture will be a render target, ie. used as a target for render to texture. Setting this flag will ignore all other texture usages except TU_AUTOMIPMAP.
+<DT>TU_DEFAULT
+<DD>This is actualy a combination of usage flags, and is equivalent to TU_AUTOMIPMAP | TU_STATIC_WRITE_ONLY. The resource
+system uses these flags for textures that are loaded from images.
 
-<A NAME="SEC233"></A>
-<H2> ExternalTextureSourceManager Class </H2>
-<!--docid::SEC233::-->
-ExternalTextureSourceManager is responsible for keeping track of loaded Texture Source PlugIns. It also aids in the creation of texture source textures from scripts. It also is the interface you should use when dealing with texture source plugins.<BR><BR>
+</DL>
 
-Note: The function prototypes shown below are mockups - param names are simplified to better illustrate purpose here...
-Steps needed to create a new texture via ExternalTextureSourceManager:
+<A NAME="SEC253"></A>
+<H3> Getting a PixelBuffer </H3>
+<!--docid::SEC253::-->
 
-<UL>
-<LI>Obviously, the first step is to have the desired plugin included in plugin.cfg for it to be loaded.
-<LI>Set the desired PlugIn as Active via AdvancedTextureManager::getSingleton().SetCurrentPlugIn( String Type ); -- type is whatever the plugin registers as handling (eg. "video", "flash", "whatever", etc).
-<LI>Note: Consult Desired PlugIn to see what params it needs/expects.
-Set params/value pairs via AdvancedTextureManager::getSingleton().getCurrentPlugIn()-&#62;setParameter( String Param, String Value );
-<LI>After required params are set, a simple call to AdvancedTextureManager::getSingleton().getCurrentPlugIn()-&#62;createDefinedTexture( sMaterialName ); will create a texture to the material name given.
-</UL>
-<BR><BR>
+A Texture can consist of multiple PixelBuffers, one for each combo if mipmap level and face number. To get a PixelBuffer from a Texture object the method Texture::getBuffer(face, mipmap) is used:
 
-The manager also provides a method for deleting a texture source material: AdvancedTextureManager::DestroyAdvancedTexture( String sTextureName ); The destroy method works by broadcasting the material name to all loaded TextureSourcePlugIns, and the PlugIn who actually created the material is responsible for the deletion, while other PlugIns will just ignore the request. What this means is that you do not need to worry about which PlugIn created the material, or activating the PlugIn yourself. Just call the manager method to remove the material. Also, all texture plugins should handle cleanup when they are shutdown.
+<EM>face</EM> should be zero for non-cubemap textures. For cubemap textures it identifies the face to use, which is one of the cube faces described in See section <A HREF="manual_58.html#SEC257">5.8.3 Texture Types</A>.
 
-<A NAME="SEC234"></A>
-<H2> Texture Source Material Script </H2>
-<!--docid::SEC234::-->
-As mentioned earlier, the process of defining/creating texture sources can be done within material script file. Here is an example of a material script definition - Note: This example is based off the ffmpegVideoSystem plugin parameters.
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>material Example/MyVideoExample
-{
-	technique
-	{
-		pass
-		{
-			texture_unit
-			{
-				texture_source video
-				{
-					filename mymovie.mpeg
-					play_mode play
-					sound_mode on
-				}
-			}
-		}
-	}		
-}
-</pre></td></tr></table>Notice that the first two param/value pairs are defined in the ExternalTextureSource base class and that the third parameter/value pair is not defined in the base class... That parameter is added to the param dictionary by the ffmpegVideoPlugin... This shows that extending the functionality with the plugins is extremely easy. Also, pay particular attention to the line: texture_source video. This line identifies that this texture unit will come from a texture source plugin. It requires one parameter that determines which texture plugin will be used. In the example shown, the plugin requested is one that registered with "video" name.
+<EM>mipmap</EM> is zero for the zeroth mipmap level, one for the first mipmap level, and so on. On textures that have automatic mipmap generation (TU_AUTOMIPMAP) only level 0 should be accessed, the rest will be taken care of by the rendering API.
 
-<A NAME="SEC235"></A>
-<H2> Simplified Diagram of Process </H2>
-<!--docid::SEC235::-->
-
-This diagram uses ffmpegVideoPlugin as example, but all plug ins will work the same in how they are registered/used here. Also note that TextureSource Plugins are loaded/registered before scripts are parsed. This does not mean that they are initialized... Plugins are not initialized until they are set active! This is to ensure that a rendersystem is setup before the plugins might make a call the rendersystem.
-
-<CENTER><IMG SRC="images/TextureSource.jpg" ALT="images/TextureSource"></CENTER>
-<A NAME="Shadows"></A>
+A simple example of using getBuffer is
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>// Get the PixelBuffer for face 0, mipmap 0.
+HardwarePixelBufferSharedPtr ptr = tex-&#62;getBuffer(0,0);
+</pre></td></tr></table>
+<A NAME="Updating Pixel Buffers"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_55.html#SEC228"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_57.html#SEC236"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_55.html#SEC249"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_55.html#SEC249"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_57.html#SEC254"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -132,7 +110,7 @@ This diagram uses ffmpegVideoPlugin as example, but all plug ins will work the s
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 4 2006</I>
+by <I>Steve Streeting</I> on <I>, 11 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

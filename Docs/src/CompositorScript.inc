@@ -399,13 +399,15 @@ Default: two_sided off@*@*
 @node Applying a Compositor
 @subsection Applying a Compositor
 
-Adding a compositor instance to a viewport is very simple. All you need to do is:
+Adding a compositor instance to a viewport is very simple. All you need to do is:@*@*
 @example
 CompositorManager::getSingleton().addCompositor(viewport, compositorName);
 @end example
-Where viewport is a pointer to your viewport, and compositorName is the name of the compositor to create an instance of. By doing this, a new instance of a compositor will be added to a new compositor chain on that viewport. You can call the method multiple times to add further compositors to the chain on this viewport. By default, each compositor which is added is enabled, but you can change this state by calling:
+@*@*
+Where viewport is a pointer to your viewport, and compositorName is the name of the compositor to create an instance of. By doing this, a new instance of a compositor will be added to a new compositor chain on that viewport. You can call the method multiple times to add further compositors to the chain on this viewport. By default, each compositor which is added is enabled, but you can change this state by calling:@*@*
 @example
 CompositorManager::getSingleton().setCompositorEnabled(viewport, compositorName, enabledOrDisabled);
 @end example
+@*@*
 For more information on defining and using compositors, see Demo_Compositor in the Samples area, together with the Examples.compositor script in the media area.
 

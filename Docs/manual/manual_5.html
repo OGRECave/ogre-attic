@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 4 2006 by texi2html 1.64 -->
+<!-- Created on , 11 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.1.0: The Root Object</TITLE>
+<TITLE>OGRE Manual v1.2.0 ('Dagon'): The Root Object</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.1.0: The Root Object">
-<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: The Root Object">
+<META NAME="description" CONTENT="OGRE Manual v1.2.0 ('Dagon'): The Root Object">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): The Root Object">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -37,19 +37,23 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <H2> 2.1 The Root object </H2>
 <!--docid::SEC8::-->
 The 'Root' object is the entry point to the OGRE system. This object MUST be the first one to be created, and the last one to be destroyed. In the example applications I chose to make an instance of Root a member of my application object which ensured that it was created as soon as my application object was, and deleted when the application object was deleted.<BR><BR>
+<P>
 
 The root object lets you configure the system, for example through the showConfigDialog() method which is an extremely handy method which performs all render system options detection and shows a dialog for the user to customise resolution, colour depth, full screen options etc. It also sets the options the user selects so that you can initialise the system directly afterwards.<BR><BR>
+</P><P>
 
 The root object is also your method for obtaining pointers to other objects in the system, such as the SceneManager, RenderSystem and various other resource managers. See below for details.<BR><BR>
+</P><P>
 
 Finally, if you run OGRE in continuous rendering mode, i.e. you want to always refresh all the rendering targets as fast as possible (the norm for games and demos, but not for windowed utilities), the root object has a method called startRendering, which when called will enter a continuous rendering loop which will only end when all rendering windows are closed, or any FrameListener objects indicate that they want to stop the cycle (see below for details of FrameListener objects).<BR><BR>
+</P><P>
 
 <A NAME="The RenderSystem object"></A>
 <HR SIZE=1>
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 4 2006</I>
+by <I>Steve Streeting</I> on <I>, 11 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

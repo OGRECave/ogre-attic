@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 4 2006 by texi2html 1.64 -->
+<!-- Created on , 11 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.1.0: Updating Pixel Buffers</TITLE>
+<TITLE>OGRE Manual v1.2.0 ('Dagon'): Hardware Index Buffers</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.1.0: Updating Pixel Buffers">
-<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Updating Pixel Buffers">
+<META NAME="description" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Hardware Index Buffers">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Hardware Index Buffers">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,87 +23,27 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC220"></A>
+<A NAME="SEC245"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_51.html#SEC216"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_50.html#SEC215"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_53.html#SEC223"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_51.html#SEC244"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_41.html#SEC230"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_53.html#SEC246"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H3> 5.8.2 Updating Pixel Buffers </H3>
-<!--docid::SEC220::-->
+<H2> 5.7 Hardware Index Buffers </H2>
+<!--docid::SEC245::-->
+Index buffers are used to render geometry by building triangles out of vertices indirectly by reference to their position in the buffer, rather than just building triangles by sequentially reading vertices. Index buffers are simpler than vertex buffers, since they are just a list of indexes at the end of the day, howeverthey can be held on the hardware and shared between multiple pieces of geometry in the same way vertex buffers can, so the rules on creation and locking are the same. See section <A HREF="manual_41.html#SEC230">5. Hardware Buffers</A> for information.
 
-Pixel Buffers can be updated in two different ways; a simple, convient way and a more difficult (but in some cases faster) method. Both methods make use of PixelBox objects (See section <A HREF="manual_55.html#SEC228">5.8.5 Pixel boxes</A>) to represent image data in memory.
-
-<A NAME="SEC221"></A>
-<H3> blitFromMemory </H3>
-<!--docid::SEC221::-->
-
-The easy method to get an image into a PixelBuffer is by using HardwarePixelBuffer::blitFromMemory. This takes a PixelBox object and does all necessary pixel format conversion and scaling for you. For example, to create a manual texture and load an image into it, all you have to do is
-
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>// Manually loads an image and puts the contents in a manually created texture
-Image img;
-img.load("elephant.png", "General");
-// Create RGB texture with 5 mipmaps
-TexturePtr tex = TextureManager::getSingleton().createManual(
-    "elephant",
-    "General",
-    TEX_TYPE_2D,
-    img.getWidth(), img.getHeight(),
-    5, PF_X8R8G8B8);
-// Copy face 0 mipmap 0 of the image to face 0 mipmap 0 of the texture.
-tex-&#62;getBuffer(0,0)-&#62;blitFromMemory(img.getPixelBox(0,0));
-</pre></td></tr></table>
-<A NAME="SEC222"></A>
-<H3> Direct memory locking </H3>
-<!--docid::SEC222::-->
-
-A more advanced method to transfer image data from and to a PixelBuffer is to use locking. By locking a PixelBuffer
-you can directly access its contents in whatever the internal format of the buffer inside the GPU is.
-
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>/// Lock the buffer so we can write to it
-buffer-&#62;lock(HardwareBuffer::HBL_DISCARD);
-const PixelBox &#38;pb = buffer-&#62;getCurrentLock();
-
-/// Update the contents of pb here
-/// Image data starts at pb.data and has format pb.format
-/// Here we assume data.format is PF_X8R8G8B8 so we can address pixels as uint32.
-uint32 *data = static_cast&#60;uint32*&#62;(pb.data);
-size_t height = pb.getHeight();
-size_t width = pb.getWidth();
-size_t rowSkip = pb.getRowSkip(); // Skip between rows of image
-for(size_t y=0; y&#60;height; ++y)
-{
-    for(size_t x=0; x&#60;width; ++x)
-{
-        // 0xRRGGBB -&#62; fill the buffer with yellow pixels
-        data[rowSkip*y + x] = 0x00FFFF00;
-}
-}
-
-/// Unlock the buffer again (frees it for use by the GPU)
-buffer-&#62;unlock();
-</pre></td></tr></table>
-
-<A NAME="Texture Types"></A>
+<A NAME="The IndexData class"></A>
 <HR SIZE=1>
-<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_51.html#SEC216"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_50.html#SEC215"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_53.html#SEC223"> &gt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
-</TR></TABLE>
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 4 2006</I>
+by <I>Steve Streeting</I> on <I>, 11 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
