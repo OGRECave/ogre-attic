@@ -2245,8 +2245,11 @@ void SceneManager::_renderQueueGroupObjects(RenderQueueGroup* pGroup,
         if (mIlluminationStage == IRS_RENDER_TO_TEXTURE)
         {
             // Shadow caster pass
-            if (doShadows)
+            if (mCurrentViewport->getShadowsEnabled() &&
+                !mSuppressShadows && !mSuppressRenderStateChanges)
+            {
                 renderTextureShadowCasterQueueGroupObjects(pGroup, om);
+            }
         }
         else
         {
