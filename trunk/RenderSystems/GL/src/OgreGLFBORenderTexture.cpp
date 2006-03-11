@@ -73,7 +73,7 @@ GLenum depthFormats[]={
     GL_DEPTH_COMPONENT16,
     GL_DEPTH_COMPONENT24,    // Prefer 24 bit depth
     GL_DEPTH_COMPONENT32,
-	GL_DEPTH24_STENCIL8_EXT // packed depth / stencil
+    GL_DEPTH24_STENCIL8_EXT // packed depth / stencil
 };
 size_t depthBits[] = {
     0,16,24,32,24
@@ -226,9 +226,22 @@ size_t depthBits[] = {
                 
                 // Continue detection
                 size_t depth=0, stencil=0;
+				
                 while(true)
                 {
-                    if(_tryFormat(depthFormats[depth], stencilFormats[stencil]))
+					//StringUtil::StrStreamType l;
+					//l << "Trying " << PixelUtil::getFormatName((PixelFormat)x) 
+					//	<< " D" << depthBits[depth] 
+					//	<< "S" << stencilBits[stencil];
+					//LogManager::getSingleton().logMessage(l.str());
+
+					// Only query packed depth/stencil formats for 32-bit
+					// non-floating point formats (ie not R32!) 
+					// Linux nVidia driver segfaults if you query others
+                    if((depthFormats[depth] != GL_DEPTH24_STENCIL8_EXT || 
+						(PixelUtil::getNumElemBits((PixelFormat)x) == 32) && 
+						 !PixelUtil::isFloatingPoint((PixelFormat)x)) && 
+						_tryFormat(depthFormats[depth], stencilFormats[stencil]))
                     {
                         /// Add mode to allowed modes
                         str << "D" << depthBits[depth] << "S" << 
