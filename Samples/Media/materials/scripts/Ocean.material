@@ -186,7 +186,7 @@ material OceanCg
 
 vertex_program Cg/Ocean2VS cg
 { 
-	source ocean2HLSL_Cg.vert 
+	source Ocean2HLSL_Cg.vert 
 	entry_point main 
 	profiles vs_1_1 arbvp1
 	
@@ -200,7 +200,7 @@ vertex_program Cg/Ocean2VS cg
 
 fragment_program Cg/Ocean2FS cg 
 { 
-	source ocean2HLSL_Cg.frag
+	source Ocean2HLSL_Cg.frag
 	entry_point main 
 	profiles ps_2_0 arbfp1
 	 
@@ -256,7 +256,7 @@ material Ocean2_Cg
 
 vertex_program HLSL/Ocean2VS hlsl
 { 
-	source ocean2HLSL_Cg.vert 
+	source Ocean2HLSL_Cg.vert 
 	entry_point main 
 	target vs_1_1
 	
@@ -270,7 +270,7 @@ vertex_program HLSL/Ocean2VS hlsl
 
 fragment_program HLSL/Ocean2FS hlsl
 { 
-	source ocean2HLSL_Cg.frag
+	source Ocean2HLSL_Cg.frag
 	entry_point main 
 	target ps_2_0
 	 
@@ -278,13 +278,13 @@ fragment_program HLSL/Ocean2FS hlsl
 
 vertex_program GLSL/Ocean2VS glsl
 { 
-	source ocean2GLSL.vert 
+	source Ocean2GLSL.vert 
 	
 } 
 
 fragment_program GLSL/Ocean2FS glsl
 { 
-	source ocean2GLSL.frag
+	source Ocean2GLSL.frag
 } 
 
 material Ocean2_HLSL_GLSL
