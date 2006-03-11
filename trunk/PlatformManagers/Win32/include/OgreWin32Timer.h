@@ -28,6 +28,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreWin32Prerequisites.h"
 #include "OgreTimer.h"
 
+#define FREQUENCY_RESAMPLE_RATE 200
+
 namespace Ogre {
 
     class Win32Timer : public Timer
@@ -38,6 +40,12 @@ namespace Ogre {
         LARGE_INTEGER mStartTime;
         LARGE_INTEGER mFrequency;
 
+        DWORD mProcMask;
+        DWORD mSysMask;
+
+        HANDLE mThread;
+
+        DWORD mQueryCount;
     public:
         // overrides standard methods
         virtual void reset();

@@ -33,12 +33,38 @@ namespace Ogre {
         QueryPerformanceCounter(&mStartTime);
         mStartTick = GetTickCount();
         mLastTime = 0;
+		mQueryCount = 0;
+
+        // Save the current process
+        HANDLE mProc = GetCurrentProcess();
+
+        // Get the current Affinity
+        GetProcessAffinityMask(mProc, &mProcMask, &mSysMask);
+
+        mThread = GetCurrentThread();
     }
     //-------------------------------------------------------------------------
     unsigned long Win32Timer::getMilliseconds()
     {
         LARGE_INTEGER curTime;
+
+        // Set affinity to the first core
+        SetThreadAffinityMask(mThread, 1);
+
+        // Query the timer
         QueryPerformanceCounter(&curTime);
+
+        // Reset affinity
+        SetThreadAffinityMask(mThread, mProcMask);
+
+		// Resample the frequency
+        mQueryCount++;
+        if(mQueryCount == FREQUENCY_RESAMPLE_RATE)
+        {
+            mQueryCount = 0;
+            QueryPerformanceFrequency(&mFrequency);
+        }
+
         LONGLONG newTime = curTime.QuadPart - mStartTime.QuadPart;
         
         // scale by 1000 for milliseconds
