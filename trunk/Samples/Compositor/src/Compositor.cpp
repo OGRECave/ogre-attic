@@ -140,13 +140,12 @@ LGPL like the rest of the engine.
         void registerCompositors(void)
         {
             mRegisteredCompositors.push_back(CompositorEntry("Bloom",       "[Bloom] ",         KC_1));
-            mRegisteredCompositors.push_back(CompositorEntry("Hurt",        "[Hurt] ",          KC_2));
+            mRegisteredCompositors.push_back(CompositorEntry("Embossed",    "[Embossed] ",		KC_2));
             mRegisteredCompositors.push_back(CompositorEntry("Glass",       "[Glass] ",         KC_3));
             mRegisteredCompositors.push_back(CompositorEntry("MotionBlur",  "[Motion Blur] ",   KC_4));
-            mRegisteredCompositors.push_back(CompositorEntry("Old TV",       "[Old TV] ",        KC_6));
+            mRegisteredCompositors.push_back(CompositorEntry("Old TV",      "[Old TV] ",        KC_6));
             mRegisteredCompositors.push_back(CompositorEntry("B&W",         "[B&W]",            KC_7));
             mRegisteredCompositors.push_back(CompositorEntry("DOF",         "[DOF] ",           KC_8));
-            mRegisteredCompositors.push_back(CompositorEntry("Embossed",    "[Embossed] ",      KC_0));
 
             Viewport *vp = mWindow->getViewport(0);
 
@@ -324,21 +323,6 @@ protected:
 //				}
 //			}
 //		}
-		/// Just a big red quad
-		CompositorPtr redquad = CompositorManager::getSingleton().create(
-				"Hurt", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
-			);
-		{
-			CompositionTechnique *t = redquad->createTechnique();
-			{
-				CompositionTargetPass *tp = t->getOutputTargetPass();
-				tp->setInputMode(CompositionTargetPass::IM_PREVIOUS);
-				{ CompositionPass *pass = tp->createPass();
-				pass->setType(CompositionPass::PT_RENDERQUAD);
-				pass->setMaterialName("RedQuad");
-				}
-			}
-		}
 	    // Glass compositor is loaded from script but here is the hard coded equivalent
 		/// Glass effect
 //		CompositorPtr comp2 = CompositorManager::getSingleton().create(
@@ -493,6 +477,9 @@ protected:
     void createScene(void)
     {
 		MovableObject::setDefaultVisibilityFlags(0x00000001);
+
+		//mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);
+		//mSceneMgr->setShowDebugShadows(true);
 
 		// Set ambient light
 		mSceneMgr->setAmbientLight(ColourValue(0.0, 0.0, 0.0));
