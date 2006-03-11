@@ -717,14 +717,16 @@ namespace Ogre
     bool parseTexture(String& params, MaterialScriptContext& context)
     {
         StringVector vecparams = StringUtil::split(params, " \t");
-        if (vecparams.size() > 3)
+        const size_t numParams = vecparams.size();
+        if (numParams > 4)
         {
-            logParseError("Invalid texture attribute - expected only 1, 2 or 3 parameters.", 
+            logParseError("Invalid texture attribute - expected only 1, 2, 3 or 4 parameters.", 
                 context);
         }
         TextureType tt = TEX_TYPE_2D;
-		int mips = -1; // When passed to TextureManager::load, this means default to default number of mipmaps
-        if (vecparams.size() >= 2)
+		int mips = MIP_UNLIMITED; // When passed to TextureManager::load, this means default to default number of mipmaps
+        bool isAlpha = false;
+        if (numParams >= 2)
         {
             StringUtil::toLowerCase(vecparams[1]);
             if (vecparams[1] == "1d")
@@ -749,7 +751,7 @@ namespace Ogre
                 context);
 			}
         }
-		if (vecparams.size() >= 3)
+		if (numParams >= 3)
 		{
 			StringUtil::toLowerCase(vecparams[2]);
 			if (vecparams[2] == "unlimited")
@@ -760,8 +762,16 @@ namespace Ogre
 			{
 				mips = StringConverter::parseInt(vecparams[2]);
 			}
-		}
-        context.textureUnit->setTextureName(vecparams[0], tt, mips);
+        }
+        if (numParams >= 4)
+        {
+            StringUtil::toLowerCase(vecparams[3]);
+            if (vecparams[3] == "alpha")
+            {
+                isAlpha = true;
+            }
+        }
+        context.textureUnit->setTextureName(vecparams[0], tt, mips, isAlpha);
         return false;
     }
     //-----------------------------------------------------------------------

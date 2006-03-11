@@ -197,7 +197,7 @@ namespace Ogre {
         @note
         Applies to both fixed-function and programmable pipeline.
         */
-        void setTextureName( const String& name, TextureType ttype = TEX_TYPE_2D, int mipmaps = -1 );
+        void setTextureName( const String& name, TextureType ttype = TEX_TYPE_2D, int mipmaps = -1, bool isAlpha = false);
 
         /** Sets this texture layer to use a combination of 6 texture maps, each one relating to a face of a cube.
         @remarks
@@ -993,6 +993,7 @@ protected:
 
         LayerBlendModeEx alphaBlendMode;
         bool mIsBlank;
+        bool mIsAlpha;
 
         mutable bool mRecalcTexMatrix;
         Real mUMod, mVMod;
