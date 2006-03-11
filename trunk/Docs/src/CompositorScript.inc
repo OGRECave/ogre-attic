@@ -404,7 +404,7 @@ Adding a compositor instance to a viewport is very simple. All you need to do is
 CompositorManager::getSingleton().addCompositor(viewport, compositorName);
 @end example
 @*@*
-Where viewport is a pointer to your viewport, and compositorName is the name of the compositor to create an instance of. By doing this, a new instance of a compositor will be added to a new compositor chain on that viewport. You can call the method multiple times to add further compositors to the chain on this viewport. By default, each compositor which is added is enabled, but you can change this state by calling:@*@*
+Where viewport is a pointer to your viewport, and compositorName is the name of the compositor to create an instance of. By doing this, a new instance of a compositor will be added to a new compositor chain on that viewport. You can call the method multiple times to add further compositors to the chain on this viewport. By default, each compositor which is added is disabled, but you can change this state by calling:@*@*
 @example
 CompositorManager::getSingleton().setCompositorEnabled(viewport, compositorName, enabledOrDisabled);
 @end example
