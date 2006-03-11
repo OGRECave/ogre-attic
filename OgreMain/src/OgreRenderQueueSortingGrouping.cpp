@@ -78,9 +78,13 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
     void RenderPriorityGroup::addRenderable(Renderable* rend, Technique* pTech)
     {
-        // Transparent and depth settings mean depth sorting is required?
+        // Transparent and depth/colour settings mean depth sorting is required?
+        // Note: colour write disabled with depth check/write enabled means
+        //       setup depth buffer for other passes use.
         if (pTech->isTransparent() && 
-            !(pTech->isDepthWriteEnabled() && pTech->isDepthCheckEnabled()) )
+            (!pTech->isDepthWriteEnabled() ||
+             !pTech->isDepthCheckEnabled() ||
+             pTech->hasColourWriteDisabled()))
         {
             addTransparentRenderable(pTech, rend);
         }
