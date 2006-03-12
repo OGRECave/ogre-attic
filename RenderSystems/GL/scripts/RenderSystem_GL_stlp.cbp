@@ -23,13 +23,6 @@
 					<Add option="-D_USRDLL" />
 					<Add option="-DOGRE_GL_USE_MULTITEXTURING" />
 					<Add option="-D_STLP_DEBUG" />
-					<Add directory="..\include" />
-					<Add directory="..\src\win32" />
-					<Add directory="..\..\..\OgreMain\include" />
-					<Add directory="..\src\nvparse" />
-					<Add directory="..\src\nvparse\winheaders" />
-					<Add directory="..\src\atifs\include" />
-					<Add directory="..\src\glsl\include" />
 				</Compiler>
 				<Linker>
 					<Add library="stlportstlg.5.0.dll" />
@@ -37,7 +30,6 @@
 					<Add library="OPENGL32" />
 					<Add library="GLU32" />
 					<Add library="GDI32" />
-					<Add directory="..\..\..\OgreMain\lib\Debug" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="cmd /c copy ..\bin\Debug\RenderSystem_GL.dll ..\..\..\Samples\Common\Bin\Debug" />
@@ -60,14 +52,6 @@
 					<Add option="-D_USRDLL" />
 					<Add option="-DRenderSystem_GL_EXPORTS" />
 					<Add option="-DOGRE_GL_USE_MULTITEXTURING" />
-					<Add directory="..\include" />
-					<Add directory="..\src\win32" />
-					<Add directory="..\..\..\OgreMain\include" />
-					<Add directory="..\..\..\Dependencies\include" />
-					<Add directory="..\src\nvparse" />
-					<Add directory="..\src\nvparse\winheaders" />
-					<Add directory="..\src\atifs\include" />
-					<Add directory="..\src\glsl\include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -76,7 +60,6 @@
 					<Add library="OPENGL32" />
 					<Add library="GLU32" />
 					<Add library="GDI32" />
-					<Add directory="..\..\..\OgreMain\lib\Release" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="cmd /c copy ..\bin\Release\RenderSystem_GL.dll ..\..\..\Samples\Common\Bin\Release" />
@@ -91,12 +74,21 @@
 			<Add option="-D_STLP_NO_CUSTOM_IO" />
 			<Add option="-D_STLP_USE_DYNAMIC_LIB" />
 			<Add directory="$(#STLPORT_DIR)\stlport" />
+			<Add directory="..\include" />
+			<Add directory="..\src\win32" />
+			<Add directory="..\..\..\OgreMain\include" />
+			<Add directory="..\..\..\Dependencies\include" />
+			<Add directory="..\src\nvparse" />
+			<Add directory="..\src\nvparse\winheaders" />
+			<Add directory="..\src\atifs\include" />
+			<Add directory="..\src\glsl\include" />
 		</Compiler>
 		<Linker>
 			<Add option="-Wl,--enable-auto-image-base" />
 			<Add option="-Wl,--export-all-symbols" />
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="$(#STLPORT_DIR)\lib" />
+			<Add directory="..\..\..\OgreMain\lib\$(TARGET_NAME)" />
 		</Linker>
 		<Unit filename="..\..\..\Dependencies\include\GL\gl.h">
 			<Option compilerVar="CPP" />

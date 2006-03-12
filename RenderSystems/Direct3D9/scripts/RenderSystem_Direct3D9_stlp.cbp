@@ -33,7 +33,6 @@
 					<Add library="d3dx9d" />
 					<Add library="dxerr9" />
 					<Add library="dxguid" />
-					<Add directory="..\..\..\OgreMain\lib\Debug" />
 					<Add directory="..\..\..\Dependencies\lib\Debug" />
 				</Linker>
 				<ExtraCommands>
@@ -49,7 +48,7 @@
 				<Option includeInTargetAll="1" />
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-O3" />
 					<Add option="-Wall" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
@@ -66,7 +65,6 @@
 					<Add library="dxerr9" />
 					<Add library="dxguid" />
 					<Add library="d3dx9" />
-					<Add directory="..\..\..\OgreMain\lib\Release" />
 					<Add directory="..\..\..\Dependencies\lib\Release" />
 				</Linker>
 				<ExtraCommands>
@@ -90,6 +88,7 @@
 			<Add option="-Wl,--enable-auto-image-base" />
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="$(#STLPORT_DIR)\lib" />
+			<Add directory="..\..\..\OgreMain\lib\$(TARGET_NAME)" />
 		</Linker>
 		<Unit filename="..\include\OgreD3D9Driver.h">
 			<Option compilerVar="CPP" />

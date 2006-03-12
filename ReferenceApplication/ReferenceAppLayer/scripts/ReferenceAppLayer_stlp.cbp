@@ -17,27 +17,22 @@
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-g" />
-					<Add option="-O0" />
 					<Add option="-DWIN32" />
 					<Add option="-D_DEBUG" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_USRDLL" />
 					<Add option="-DREFERENCEAPPLAYER_EXPORTS" />
 					<Add option="-D_STLP_DEBUG" />
-					<Add directory="..\include" />
-					<Add directory="..\..\..\OgreMain\include" />
-					<Add directory="..\..\..\Dependencies\include" />
 				</Compiler>
 				<Linker>
 					<Add library="stlportstlg.5.0.dll" />
 					<Add library="OgreMain_d" />
 					<Add library="ode" />
 					<Add library="OPCODE" />
-					<Add directory="..\..\..\OgreMain\lib\Debug" />
 					<Add directory="..\..\..\Dependencies\lib\Debug" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="cmd /c copy ..\lib\Debug\ReferenceAppLayer.dll ..\..\..\Samples\Common\bin\Debug" />
+					<Add after='cmd /c copy &quot;..\lib\Debug\ReferenceAppLayer.dll&quot; &quot;..\..\..\Samples\Common\bin\Debug&quot;' />
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
@@ -56,9 +51,6 @@
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_USRDLL" />
 					<Add option="-DREFERENCEAPPLAYER_EXPORTS" />
-					<Add directory="..\include" />
-					<Add directory="..\..\..\OgreMain\include" />
-					<Add directory="..\..\..\Dependencies\include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -66,11 +58,10 @@
 					<Add library="OgreMain" />
 					<Add library="ode" />
 					<Add library="OPCODE" />
-					<Add directory="..\..\..\OgreMain\lib\Release" />
 					<Add directory="..\..\..\Dependencies\lib\Release" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="cmd /c copy ..\lib\Release\ReferenceAppLayer.dll ..\..\..\Samples\Common\bin\Release" />
+					<Add after='cmd /c copy &quot;..\lib\Release\ReferenceAppLayer.dll&quot; &quot;..\..\..\Samples\Common\bin\Release&quot;' />
 				</ExtraCommands>
 			</Target>
 		</Build>
@@ -83,12 +74,16 @@
 			<Add option="-D_STLP_USE_DYNAMIC_LIB" />
 			<Add directory="$(#STLPORT_DIR)\stlport" />
 			<Add directory="..\..\..\Dependencies\include\ode" />
+			<Add directory="..\include" />
+			<Add directory="..\..\..\OgreMain\include" />
+			<Add directory="..\..\..\Dependencies\include" />
 		</Compiler>
 		<Linker>
-			<Add option="-Wl,--add-stdcall-alias" />
+			<Add option="-Wl,--enable-auto-image-base" />
 			<Add option="-Wl,--export-all-symbols" />
-			<Add option="-Wl,--enable-runtime-pseudo-reloc" />
+			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="$(#STLPORT_DIR)\lib" />
+			<Add directory="..\..\..\OgreMain\lib\$(TARGET_NAME)" />
 		</Linker>
 		<Unit filename="..\..\..\Dependencies\include\ode\collision.h">
 			<Option compilerVar="CPP" />
