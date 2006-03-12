@@ -70,6 +70,7 @@ namespace Ogre {
             addLexemeToken("terminal_symbol", BNF_TERMINAL_SYMBOL);
             addLexemeToken("terminal_start", BNF_TERMINAL_START);
             addLexemeToken("repeat_expression", BNF_REPEAT_EXPRESSION);
+            addLexemeToken("not_expression", BNF_NOT_EXPRESSION);
             addLexemeToken("{", BNF_REPEAT_BEGIN, false, true);
             addLexemeToken("}", BNF_REPEAT_END, false, true);
             addLexemeToken("set", BNF_SET);
@@ -80,6 +81,7 @@ namespace Ogre {
             addLexemeToken("[", BNF_OPTIONAL_BEGIN, false, true);
             addLexemeToken("]", BNF_OPTIONAL_END, false, true);
             addLexemeToken("not_test", BNF_NOT_TEST);
+            addLexemeToken("not_chk", BNF_NOT_CHK);
             addLexemeToken("(?!", BNF_NOT_TEST_BEGIN, false, true);
             addLexemeToken("'", BNF_SINGLEQUOTE, false, true);
             addLexemeToken("-'", BNF_NO_TOKEN_START, false, true);
@@ -97,6 +99,7 @@ namespace Ogre {
             addLexemeToken("`~!@#$%^&*(-_=+\\|[]{}:;\"<>,.?/", BNF_SPECIAL_CHARACTER_SET2, false, true);
             addLexemeToken("$_", BNF_SPECIAL_CHARACTER_SET1, false, true);
             addLexemeToken(" ", BNF_WHITE_SPACE, false, true);
+            addLexemeToken("?!", BNF_NOT_CHARS, false, true);
         }
 
         if (mBNFTokenState.rootRulePath.empty())
@@ -147,11 +150,12 @@ namespace Ogre {
                 _is_(BNF_TERM)
                 _repeat_(BNF_TERM)
             _end_
-            // <term>       ::=  <term_id> | <repeat_expression> | <optional_expression>
+            // <term>       ::=  <term_id> | <repeat_expression> | <optional_expression> | <not_expression>
             _rule_(BNF_TERM)
                 _is_(BNF_TERM_ID)
                 _or_(BNF_REPEAT_EXPRESSION)
                 _or_(BNF_OPTIONAL_EXPRESSION)
+                _or_(BNF_NOT_EXPRESSION)
             _end_
 
             // <term_id>    ::= <constant> | <identifier_right> | <terminal_symbol> | <set>
@@ -174,6 +178,13 @@ namespace Ogre {
                 _is_(BNF_OPTIONAL_BEGIN)
                 _and_(BNF_TERM_ID)
                 _and_(BNF_OPTIONAL_END)
+            _end_
+
+            // <not_expression> ::= "(?!" <term_id> ")"
+            _rule_(BNF_NOT_EXPRESSION)
+                _is_(BNF_NOT_TEST_BEGIN)
+                _and_(BNF_TERM_ID)
+                _and_(BNF_SET_END)
             _end_
 
             // <identifier_right> ::= <indentifier> (?!"::=")
@@ -218,14 +229,14 @@ namespace Ogre {
                 _and_(BNF_ID_END)
             _end_
 
-            // <set> ::= "(" @{<any_character>} ")"
+            // <set> ::= "(" (?!<not_chk>) @{<any_character>} ")"
             _rule_(BNF_SET)
                 _is_(BNF_SET_BEGIN)
+                _not_(BNF_NOT_CHK)
                 _and_(_no_space_skip_)
                 _repeat_(BNF_ANY_CHARACTER)
                 _and_(BNF_SET_END)
             _end_
-
 
             // <any_character> ::= <letter_digit> | <special_characters2>
             _rule_(BNF_ANY_CHARACTER)
@@ -285,6 +296,11 @@ namespace Ogre {
             _rule_(BNF_WHITE_SPACE_CHK)
                 _is_(_character_)
                 _data_(BNF_WHITE_SPACE)
+            _end_
+            // <not_chk> ::= (?!)
+            _rule_(BNF_NOT_CHK)
+                _is_(_character_)
+                _data_(BNF_NOT_CHARS)
             _end_
 
             // now that all the rules are added, update token definitions with rule links
@@ -509,9 +525,15 @@ namespace Ogre {
         if (getNextToken().tokenID == _value_)
             return mConstants[mPass2TokenQuePosition];
         else
+        {
+            const TokenInst& token = getCurrentToken();
             // if token is not for a value then throw an exception
-            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "In " + mSourceName + ", token is not for a value" ,
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "In " + mSourceName +
+                ", Line " + StringConverter::toString(token.line) +
+                ", token is not for a value.  Found: >>>" + mSource->substr(token.pos, 20) +
+                        "<<<",
                 "Compiler2Pass::getNextTokenValue");
+        }
     }
     //-----------------------------------------------------------------------
     const String& Compiler2Pass::getNextTokenLabel(void)
@@ -520,9 +542,15 @@ namespace Ogre {
         if (getNextToken().tokenID == _character_)
             return mLabels[mPass2TokenQuePosition];
         else
+        {
+            const TokenInst& token = getCurrentToken();
             // if token is not for a label then throw an exception
-            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "In " + mSourceName + ", token is not for a label" ,
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "In " + mSourceName +
+                ", Line " + StringConverter::toString(token.line) +
+                ", token is not for a label.  Found: >>>" + mSource->substr(token.pos, 20) +
+                        "<<<",
                 "Compiler2Pass::getNextTokenLabel");
+        }
     }
     //-----------------------------------------------------------------------
     size_t Compiler2Pass::getPass2TokenQueCount(void) const
@@ -782,8 +810,11 @@ namespace Ogre {
 
 		    } // end switch
             // prevent rollback from occuring if a token was found but later part of rule fails
-            // this allows pass2 to either fix the problem or report the error
-            if (passed)
+            // this allows pass2 to either fix the problem or report the error and continue on.
+            // Don't do this for _no_token_ since its a special system token and has nothing todo with
+            // a successfull parse of the source.  Can check this by looking at mNoTerminalToken state.
+            // if _no_token had just been validated then mNoTerminalToken will be true.
+            if (passed && !mNoTerminalToken)
                 tokenFound = true;
 		    // move on to the next rule in the path
 		    ++rulepathIDX;
@@ -1070,7 +1101,13 @@ namespace Ogre {
             mActiveTokenState->lexemeTokenDefinitions.resize(token + 1);
         // since resizing guarentees the token definition will exist, just assign values to members
         LexemeTokenDef& tokenDef = mActiveTokenState->lexemeTokenDefinitions[token];
-        assert(tokenDef.ID == 0);
+        if (tokenDef.ID != 0)
+        {
+            OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "In " + getClientGrammerName() +
+                ", lexeme >>>" +
+                lexeme + "<<< already exists in lexeme token definitions",
+                "Compiler2Pass::addLexemeToken");
+        }
         tokenDef.ID = token;
         tokenDef.lexeme = lexeme;
         if (!caseSensitive)
@@ -1287,7 +1324,7 @@ namespace Ogre {
                     break;
 
                 default:
-                    // trap closings ie ] }
+                    // trap closings ie ] } )
                     break;
                 } // end switch
             } // end if
