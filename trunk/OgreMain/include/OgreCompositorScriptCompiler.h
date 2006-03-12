@@ -26,10 +26,11 @@ http://www.gnu.org/copyleft/gpl.html.
 #ifndef __CompositorScriptScompiler_H__
 #define __CompositorScriptScompiler_H__
 
-#include "OgreRenderSystem.h"
-#include "OgreCompiler2Pass.h"
 #include "OgrePrerequisites.h"
+#include "OgreCompiler2Pass.h"
 #include "OgreCompositor.h"
+#include "OgreRenderSystem.h"
+
 
 namespace Ogre {
 

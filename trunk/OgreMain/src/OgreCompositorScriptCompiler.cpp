@@ -23,8 +23,8 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 #include "OgreStableHeaders.h"
-#include "OgreCommon.h"
 #include "OgreCompositorScriptCompiler.h"
+#include "OgreCommon.h"
 #include "OgreStringConverter.h"
 #include "OgreLogManager.h"
 #include "OgreException.h"
