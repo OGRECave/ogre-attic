@@ -1,7 +1,8 @@
-!define TARGET_COMPILER_DESCRIPTION "Code::Blocks + MingW + STLPort"
+!define TARGET_COMPILER_DESCRIPTION "C::B + MingW + STLPort"
 !define TARGET_COMPILER "CBMingW_STLP"
 !define MINGW
 !include ogresdk.nsh
+!define STLPORT_PATH "..\..\..\stlport"
 
 Section -Samples
   ; We assume copysamples.sh has been run recently enough for these files to be available
@@ -31,5 +32,24 @@ Section -Samples
   SetOverwrite try
   File ".\Samples\Samples.workspace"
 
+
+SectionEnd
+
+Section -STLPort
+  SetOutPath "$INSTDIR\stlport\stlport"
+  SetOverwrite try
+  File /r "$(STLPORT_PATH)\stlport\*.*"
+  
+  SetOutPath "$INSTDIR\bin\debug"
+  SetOverwrite try
+  File "$(STLPORT_PATH)\bin\stlportstlg.5.0.dll"
+  SetOutPath "$INSTDIR\bin\release"
+  SetOverwrite try
+  File "$(STLPORT_PATH)\bin\stlport.5.0.dll"
+  
+  SetOutPath "$INSTDIR\stlport\lib"
+  SetOverwrite try
+  File "$(STLPORT_PATH)\lib\libstlport.5.0.dll.a"
+  File "$(STLPORT_PATH)\lib\libstlportstlg.5.0.dll.a"
 
 SectionEnd
