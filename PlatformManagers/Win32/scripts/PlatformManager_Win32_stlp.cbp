@@ -21,9 +21,8 @@
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_USRDLL" />
 					<Add option="-DPLATFORMMANAGER_WIN32_EXPORTS" />
-					<Add option="-D_STLP_NO_CUSTOM_IO" />
-					<Add option="-D_STLP_USE_DYNAMIC_LIB" />
 					<Add option="-D_STLP_DEBUG" />
+					<Add directory="..\..\..\OgreMain\obj\Debug\include" />
 				</Compiler>
 				<Linker>
 					<Add library="stlportstlg.5.0.dll" />
@@ -31,7 +30,6 @@
 					<Add library="dxguid" />
 					<Add library="dinput8" />
 					<Add library="dinput" />
-					<Add directory="..\..\..\OgreMain\lib\Debug" />
 					<Add directory="..\..\..\Dependencies\lib\Debug" />
 				</Linker>
 				<ExtraCommands>
@@ -63,7 +61,6 @@
 					<Add library="dxguid" />
 					<Add library="dinput8" />
 					<Add library="dinput" />
-					<Add directory="..\..\..\OgreMain\lib\Release" />
 					<Add directory="..\..\..\Dependencies\zlib\lib\Release" />
 				</Linker>
 				<ExtraCommands>
@@ -76,6 +73,8 @@
 			<Add option="-fmessage-length=0" />
 			<Add option="-fexceptions" />
 			<Add option="-fident" />
+			<Add option="-D_STLP_NO_CUSTOM_IO" />
+			<Add option="-D_STLP_USE_DYNAMIC_LIB" />
 			<Add directory="$(#STLPORT_DIR)\stlport" />
 			<Add directory="..\include" />
 			<Add directory="..\..\..\OgreMain\include" />
@@ -89,6 +88,7 @@
 			<Add option="-Wl,--export-all-symbols" />
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="$(#STLPORT_DIR)\lib" />
+			<Add directory="..\..\..\OgreMain\lib\$(TARGET_NAME)" />
 		</Linker>
 		<Unit filename="..\include\OgreWin32ConfigDialog.h">
 			<Option compilerVar="CPP" />
