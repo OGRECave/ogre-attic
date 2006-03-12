@@ -24,9 +24,6 @@
 					<Add option="-DOGRE_NONCLIENT_BUILD" />
 					<Add option="-D_STLP_DEBUG" />
 					<Add directory="..\obj\Debug\include" />
-					<Add directory="..\include" />
-					<Add directory="..\..\Dependencies\include" />
-					<Add directory="..\src" />
 				</Compiler>
 				<Linker>
 					<Add library="stlportstlg.5.0.dll" />
@@ -59,9 +56,6 @@
 					<Add option="-D_MT" />
 					<Add option="-DOGRE_NONCLIENT_BUILD" />
 					<Add directory="..\obj\Release\include" />
-					<Add directory="..\include" />
-					<Add directory="..\..\Dependencies\include" />
-					<Add directory="..\src" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -93,6 +87,9 @@
 			<Add option="-D_STLP_NO_CUSTOM_IO" />
 			<Add option="-D_STLP_USE_DYNAMIC_LIB" />
 			<Add directory="$(#STLPORT_DIR)\stlport" />
+			<Add directory="..\include" />
+			<Add directory="..\..\Dependencies\include" />
+			<Add directory="..\src" />
 		</Compiler>
 		<Linker>
 			<Add option="-Wl,--enable-auto-image-base" />
