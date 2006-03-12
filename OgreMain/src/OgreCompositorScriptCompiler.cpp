@@ -23,6 +23,7 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 #include "OgreStableHeaders.h"
+#include "OgreCommon.h"
 #include "OgreCompositorScriptCompiler.h"
 #include "OgreStringConverter.h"
 #include "OgreLogManager.h"
@@ -41,33 +42,61 @@ namespace Ogre {
 
 	String CompositorScriptCompiler::compositorScript_BNF =
 		// Top level rule
-		"<Script> ::= {<Script_Properties>} \n"
-		"<Script_Properties> ::= {<CompositorDef>} \n"
-		"<CompositorDef> ::= 'compositor' <Label> '{' <TechniqueDef> '}' \n"
+		"<Script> ::= {<Compositor>} \n"
+		"<Compositor> ::= 'compositor' <Label> '{' <Technique> '}' \n"
 		// Technique
-		"<TechniqueDef> ::= 'technique' '{' {<TextureDef>} {<TargetDef>} <TargetOutputDef> '}' \n"
-		"<TextureDef> ::= 'texture' <Label> <WidthOptionDef> <HeightOptionDef> <PixelFormatDef> \n"
-		"<WidthOptionDef> ::= 'target_width' | <#width> \n"
-		"<HeightOptionDef> ::= 'target_height' | <#height> \n"
-		"<PixelFormatDef> ::= 'PF_A8R8G8B8' | 'PF_R8G8B8A8' | 'PF_R8G8B8' | 'PF_FLOAT16_RGBA' | \n"
+		"<Technique> ::= 'technique' '{' {<Texture>} {<Target>} <TargetOutput> '}' \n"
+		"<Texture> ::= 'texture' <Label> <WidthOption> <HeightOption> <PixelFormat> \n"
+		"<WidthOption> ::= 'target_width' | <#width> \n"
+		"<HeightOption> ::= 'target_height' | <#height> \n"
+		"<PixelFormat> ::= 'PF_A8R8G8B8' | 'PF_R8G8B8A8' | 'PF_R8G8B8' | 'PF_FLOAT16_RGBA' | \n"
         "   'PF_FLOAT16_RGB' | 'PF_FLOAT16_R' | 'PF_FLOAT32_RGBA' | 'PF_FLOAT32_RGB' | 'PF_FLOAT32_R' \n"
 		// Target
-		"<TargetDef> ::= 'target ' <Label> '{' {<TargetOptionsDef>} {<PassDef>} '}' \n"
-	    "<TargetOptionsDef> ::=	[<TargetInputDef>] | [<OnlyInitialDef>]  | [<VisibilityMaskDef>] | \n"
-	    "   [<LodBiasDef>] | [<MaterialSchemeDef>] \n"
-		"<TargetInputDef> ::= 'input' <TargetInputOptionsDef> \n"
-		"<TargetInputOptionsDef> ::= 'none' | 'previous' \n"
-		"<OnlyInitialDef> ::= 'only_initial' <On_Off> \n"
-		"<VisibilityMaskDef> ::= 'visibility_mask' <#mask> \n"
-		"<LodBiasDef> ::= 'lod_bias' <#lodbias> \n"
-		"<MaterialSchemeDef> ::= 'material_scheme' <Label> \n"
-		"<TargetOutputDef> ::= 'target_output' '{' [<TargetInputDef>] {<PassDef>} '}' \n"
+		"<Target> ::= 'target ' <Label> '{' {<TargetOptions>} {<Pass>} '}' \n"
+	    "<TargetOptions> ::=	<TargetInput> | <OnlyInitial> | <VisibilityMask> | \n"
+	    "   <LodBias> | <MaterialScheme> \n"
+		"<TargetInput> ::= 'input' <TargetInputOptions> \n"
+		"<TargetInputOptions> ::= 'none' | 'previous' \n"
+		"<OnlyInitial> ::= 'only_initial' <On_Off> \n"
+		"<VisibilityMask> ::= 'visibility_mask' <#mask> \n"
+		"<LodBias> ::= 'lod_bias' <#lodbias> \n"
+		"<MaterialScheme> ::= 'material_scheme' <Label> \n"
+		"<TargetOutput> ::= 'target_output' '{' [<TargetInput>] {<Pass>} '}' \n"
 		// Pass
-		"<PassDef> ::= 'pass' <PassTypeDef> '{' <PassOptionsDef> '}' \n"
-		"<PassTypeDef> ::= 'render_quad' | 'clear' | 'stencil' | 'render_scene' \n"
-		"<PassOptionsDef> ::= [<PassMaterialDef>] {<PassInputDef>} \n"
-		"<PassMaterialDef> ::= 'material' <Label> \n"
-		"<PassInputDef> ::= 'input' <#id> <Label> \n"
+		"<Pass> ::= 'pass' <PassTypes> '{' {<PassOptions>} '}' \n"
+		"<PassTypes> ::= 'render_quad' | 'clear' | 'stencil' | 'render_scene' \n"
+		"<PassOptions> ::= <PassMaterial> | <PassInput> | <ClearSection> | <StencilSection> \n"
+		"<PassMaterial> ::= 'material' <Label> \n"
+		"<PassInput> ::= 'input' <#id> <Label> \n"
+		// clear
+		"<ClearSection> ::= -'clear' -'{' {<ClearOptions>} -'}' \n"
+		"<ClearOptions> ::= <Buffers> | <ColourValue> | <DepthValue> | <StencilValue> \n"
+		"<Buffers> ::= 'buffers' {<BufferTypes>} \n"
+		"<BufferTypes> ::= <Colour> | <Depth> | <Stencil> \n"
+		"<Colour> ::= 'colour' (?!<ValueChk>) \n"
+		"<Depth> ::= 'depth' (?!<ValueChk>) \n"
+		"<Stencil> ::= 'stencil' (?!<ValueChk>) \n"
+		"<ValueChk> ::= '_value' \n"
+		"<ColourValue> ::= 'colour_value' <#red> <#green> <#blue> <#alpha> \n"
+		"<DepthValue> ::= 'depth_value' <#depth> \n"
+		"<StencilValue> ::= 'stencil_value' <#val> \n"
+		// stencil
+		"<StencilSection> ::= -'stencil' -'{' {<StencilOptions>} -'}' \n"
+		"<StencilOptions> ::=  <Check> | <CompareFunction> | <RefVal> | <Mask> | <FailOp> | <DepthFailOp> | \n"
+		"   <PassOp> | <TwoSided> \n"
+		"<Check> ::= 'check' <On_Off> \n"
+		"<CompareFunction> ::= 'comp_func' <CompFunc> \n"
+		"<CompFunc> ::= 'always_fail' | 'always_pass' | 'less_equal' | 'less' | 'equal' | \n"
+		"   'not_equal' | 'equal' | 'greater_equal' | 'greater' \n"
+        "<RefVal> ::= 'ref_value' <#val> \n"
+        "<Mask> ::= 'mask' <#mask> \n"
+        "<FailOp> ::= 'fail_op' <StencilOperation> \n"
+        "<DepthFailOp> ::= 'depth_fail_op' <StencilOperation> \n"
+        "<PassOp> ::= 'pass_op' <StencilOperation> \n"
+        "<TwoSided> ::= 'two_sided' <On_Off> \n"
+		"<StencilOperation> ::= 'keep' | 'zero' | 'replace' | 'increment_wrap' | 'increment' | \n"
+		"   'decrement_wrap' | 'decrement' | 'invert' \n"
+
 		// common rules
 		"<On_Off> ::= 'on' | 'off' \n"
 		"<Label> ::= <Unquoted_Label> | <Quoted_Label> \n"
@@ -129,7 +158,44 @@ namespace Ogre {
 		addLexemeTokenAction("clear", ID_CLEAR);
 		addLexemeTokenAction("stencil", ID_STENCIL);
 		addLexemeTokenAction("render_scene", ID_RENDER_SCENE);
+		// pass attributes
 		addLexemeTokenAction("material", ID_MATERIAL, &CompositorScriptCompiler::parseMaterial);
+		addLexemeTokenAction("first_render_queue", ID_FIRST_RQ, &CompositorScriptCompiler::parseFirstRenderQueue);
+		addLexemeTokenAction("last_render_queue", ID_LAST_RQ, &CompositorScriptCompiler::parseLastRenderQueue);
+		// clear
+		addLexemeTokenAction("buffers", ID_CLR_BUFF, &CompositorScriptCompiler::parseClearBuffers);
+		addLexemeTokenAction("colour", ID_CLR_COLOUR);
+		addLexemeTokenAction("depth", ID_CLR_DEPTH);
+		addLexemeTokenAction("colour_value", ID_CLR_COLOUR_VAL, &CompositorScriptCompiler::parseClearColourValue);
+		addLexemeTokenAction("depth_value", ID_CLR_DEPTH_VAL, &CompositorScriptCompiler::parseClearDepthValue);
+		addLexemeTokenAction("stencil_value", ID_CLR_STENCIL_VAL, &CompositorScriptCompiler::parseClearStencilValue);
+		// stencil
+		addLexemeTokenAction("check", ID_ST_CHECK, &CompositorScriptCompiler::parseStencilCheck);
+		addLexemeTokenAction("comp_func", ID_ST_FUNC, &CompositorScriptCompiler::parseStencilFunc);
+		addLexemeTokenAction("ref_value", ID_ST_REF_VAL, &CompositorScriptCompiler::parseStencilRefVal);
+		addLexemeTokenAction("mask", ID_ST_MASK, &CompositorScriptCompiler::parseStencilMask);
+		addLexemeTokenAction("fail_op", ID_ST_FAILOP, &CompositorScriptCompiler::parseStencilFailOp);
+		addLexemeTokenAction("depth_fail_op", ID_ST_DEPTH_FAILOP, &CompositorScriptCompiler::parseStencilDepthFailOp);
+		addLexemeTokenAction("pass_op", ID_ST_PASSOP, &CompositorScriptCompiler::parseStencilPassOp);
+		addLexemeTokenAction("two_sided", ID_ST_TWOSIDED, &CompositorScriptCompiler::parseStencilTwoSided);
+		// compare functions
+		addLexemeTokenAction("always_fail", ID_ST_ALWAYS_FAIL);
+		addLexemeTokenAction("always_pass", ID_ST_ALWAYS_PASS);
+		addLexemeTokenAction("less", ID_ST_LESS);
+		addLexemeTokenAction("less_equal", ID_ST_LESS_EQUAL);
+		addLexemeTokenAction("equal", ID_ST_EQUAL);
+		addLexemeTokenAction("not_equal", ID_ST_NOT_EQUAL);
+		addLexemeTokenAction("greater_equal", ID_ST_GREATER_EQUAL);
+		addLexemeTokenAction("greater", ID_ST_GREATER);
+		// stencil operations
+		addLexemeTokenAction("keep", ID_ST_KEEP);
+		addLexemeTokenAction("zero", ID_ST_ZERO);
+		addLexemeTokenAction("replace", ID_ST_REPLACE);
+		addLexemeTokenAction("increment", ID_ST_INCREMENT);
+		addLexemeTokenAction("decrement", ID_ST_DECREMENT);
+		addLexemeTokenAction("increment_wrap", ID_ST_INCREMENT_WRAP);
+		addLexemeTokenAction("decrement_wrap", ID_ST_DECREMENT_WRAP);
+		addLexemeTokenAction("invert", ID_ST_INVERT);
 
 		// common section
 		addLexemeTokenAction("on", ID_ON);
@@ -236,7 +302,6 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseCompositor(void)
 	{
-		//logParseError("parseCompositor");
 		const String compositorName = getNextTokenLabel();
 		mScriptContext.compositor = CompositorManager::getSingleton().create(
             compositorName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
@@ -247,19 +312,15 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseTechnique(void)
 	{
-		//logParseError("parseTechnique");
-
 		mScriptContext.technique = mScriptContext.compositor->createTechnique();
 		mScriptContext.section = CSS_TECHNIQUE;
-
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseTexture(void)
 	{
-		//logParseError("parseTexture");
+	    assert(mScriptContext.technique);
 		const String textureName = getNextTokenLabel();
         CompositionTechnique::TextureDefinition* textureDef = mScriptContext.technique->createTextureDefinition(textureName);
-        // ********* needs fixing ie get params from token stream
         // if peek next token is target_width then get token and use 0 for width
         // determine width parameter
         if (testNextTokenID(ID_TARGET_WIDTH))
@@ -324,19 +385,16 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseTarget(void)
 	{
-		//logParseError("parseTarget");
-		mScriptContext.section = CSS_TARGET;
         assert(mScriptContext.technique);
-		const String targetName = getNextTokenLabel();
 
+		mScriptContext.section = CSS_TARGET;
         mScriptContext.target = mScriptContext.technique->createTargetPass();
-        mScriptContext.target->setOutputName(targetName);
+        mScriptContext.target->setOutputName(getNextTokenLabel());
 
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseInput(void)
 	{
-		//logParseError("parseInput");
 		// input parameters depends on context either target or pass
 		if (mScriptContext.section == CSS_TARGET)
 		{
@@ -350,9 +408,9 @@ namespace Ogre {
 		else // assume for pass section context
 		{
 		    // for input in pass, there are two parameters
+		    assert(mScriptContext.pass);
 		    uint32 id = static_cast<uint32>(getNextTokenValue());
 		    const String& textureName = getNextTokenLabel();
-		    assert(mScriptContext.pass);
 		    mScriptContext.pass->setInput(id, textureName);
 		}
 
@@ -360,7 +418,6 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseTargetOutput(void)
 	{
-		//logParseError("parseTargetOutput");
 		assert(mScriptContext.technique);
 		mScriptContext.target = mScriptContext.technique->getOutputTargetPass();
 		mScriptContext.section = CSS_TARGET;
@@ -368,27 +425,20 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseOnlyInitial(void)
 	{
-		//logParseError("parseOnlyInitial");
-		if (testNextTokenID(ID_ON))
-		{
-            assert(mScriptContext.target);
-            mScriptContext.target->setOnlyInitial(true);
-		}
-
+        assert(mScriptContext.target);
+        mScriptContext.target->setOnlyInitial(testNextTokenID(ID_ON));
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseVisibilityMask(void)
 	{
-		uint32 mask = static_cast<uint32>(getNextTokenValue());
         assert(mScriptContext.target);
-        mScriptContext.target->setVisibilityMask(mask);
+        mScriptContext.target->setVisibilityMask(static_cast<uint32>(getNextTokenValue()));
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseLodBias(void)
 	{
-		Real val = getNextTokenValue();
         assert(mScriptContext.target);
-        mScriptContext.target->setLodBias(val);
+        mScriptContext.target->setLodBias(getNextTokenValue());
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseMaterialScheme(void)
@@ -399,7 +449,6 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parsePass(void)
 	{
-		//logParseError("parsePass");
 		assert(mScriptContext.target);
         mScriptContext.pass = mScriptContext.target->createPass();
         CompositionPass::PassType passType = CompositionPass::PT_RENDERQUAD;
@@ -433,10 +482,208 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseMaterial(void)
 	{
-		//logParseError("parseMaterial");
+		assert(mScriptContext.pass);
         mScriptContext.pass->setMaterialName(getNextTokenLabel());
-
 	}
+	//-----------------------------------------------------------------------
+	void CompositorScriptCompiler::parseFirstRenderQueue(void)
+	{
+		assert(mScriptContext.pass);
+		mScriptContext.pass->setFirstRenderQueue(static_cast<uint8>(getNextTokenValue()));
+	}
+	//-----------------------------------------------------------------------
+	void CompositorScriptCompiler::parseLastRenderQueue(void)
+	{
+		assert(mScriptContext.pass);
+		mScriptContext.pass->setLastRenderQueue(static_cast<uint8>(getNextTokenValue()));
+	}
+	//-----------------------------------------------------------------------
+    void CompositorScriptCompiler::parseClearBuffers(void)
+    {
+		assert(mScriptContext.pass);
+		// while there are tokens for the action, get next token and set buffer flag
+		uint32 bufferFlags = 0;
 
+		while (getRemainingTokensForAction() > 0)
+		{
+		    switch (getNextToken().tokenID)
+		    {
+            case ID_CLR_COLOUR:
+                bufferFlags |= FBT_COLOUR;
+                break;
+
+            case ID_CLR_DEPTH:
+                bufferFlags |= FBT_DEPTH;
+                break;
+
+            case ID_STENCIL:
+                bufferFlags |= FBT_STENCIL;
+                break;
+
+            default:
+                break;
+		    }
+		}
+		mScriptContext.pass->setClearBuffers(bufferFlags);
+    }
+	//-----------------------------------------------------------------------
+    void CompositorScriptCompiler::parseClearColourValue(void)
+    {
+		assert(mScriptContext.pass);
+		Real red = getNextTokenValue();
+		Real green = getNextTokenValue();
+		Real blue = getNextTokenValue();
+		Real alpha = getNextTokenValue();
+		mScriptContext.pass->setClearColour(ColourValue(red, green, blue, alpha));
+    }
+	//-----------------------------------------------------------------------
+    void CompositorScriptCompiler::parseClearDepthValue(void)
+    {
+		assert(mScriptContext.pass);
+		mScriptContext.pass->setClearDepth(getNextTokenValue());
+    }
+	//-----------------------------------------------------------------------
+    void CompositorScriptCompiler::parseClearStencilValue(void)
+    {
+		assert(mScriptContext.pass);
+		mScriptContext.pass->setClearStencil(static_cast<uint32>(getNextTokenValue()));
+    }
+	//-----------------------------------------------------------------------
+    void CompositorScriptCompiler::parseStencilCheck(void)
+    {
+		assert(mScriptContext.pass);
+		mScriptContext.pass->setStencilCheck(testNextTokenID(ID_ON));
+    }
+	//-----------------------------------------------------------------------
+    void CompositorScriptCompiler::parseStencilFunc(void)
+    {
+		assert(mScriptContext.pass);
+		mScriptContext.pass->setStencilFunc(extractCompareFunc());
+    }
+	//-----------------------------------------------------------------------
+    void CompositorScriptCompiler::parseStencilRefVal(void)
+    {
+		assert(mScriptContext.pass);
+		mScriptContext.pass->setStencilRefValue(static_cast<uint32>(getNextTokenValue()));
+    }
+	//-----------------------------------------------------------------------
+    void CompositorScriptCompiler::parseStencilMask(void)
+    {
+		assert(mScriptContext.pass);
+		mScriptContext.pass->setStencilMask(static_cast<uint32>(getNextTokenValue()));
+    }
+	//-----------------------------------------------------------------------
+    void CompositorScriptCompiler::parseStencilFailOp(void)
+    {
+		assert(mScriptContext.pass);
+		mScriptContext.pass->setStencilFailOp(extractStencilOp());
+    }
+	//-----------------------------------------------------------------------
+    void CompositorScriptCompiler::parseStencilDepthFailOp(void)
+    {
+		assert(mScriptContext.pass);
+		mScriptContext.pass->setStencilDepthFailOp(extractStencilOp());
+    }
+	//-----------------------------------------------------------------------
+    void CompositorScriptCompiler::parseStencilPassOp(void)
+    {
+		assert(mScriptContext.pass);
+		mScriptContext.pass->setStencilPassOp(extractStencilOp());
+    }
+	//-----------------------------------------------------------------------
+    void CompositorScriptCompiler::parseStencilTwoSided(void)
+    {
+		assert(mScriptContext.pass);
+		mScriptContext.pass->setStencilTwoSidedOperation(testNextTokenID(ID_ON));
+    }
+	//-----------------------------------------------------------------------
+	StencilOperation CompositorScriptCompiler::extractStencilOp(void)
+	{
+	    StencilOperation sop = SOP_KEEP;
+
+        switch (getNextToken().tokenID)
+        {
+        case ID_ST_KEEP:
+            sop = SOP_KEEP;
+            break;
+
+        case ID_ST_ZERO:
+            sop = SOP_ZERO;
+            break;
+
+        case ID_ST_REPLACE:
+            sop = SOP_REPLACE;
+            break;
+
+        case ID_ST_INCREMENT:
+            sop = SOP_INCREMENT;
+            break;
+
+        case ID_ST_DECREMENT:
+            sop = SOP_DECREMENT;
+            break;
+
+        case ID_ST_INCREMENT_WRAP:
+            sop = SOP_INCREMENT_WRAP;
+            break;
+
+        case ID_ST_DECREMENT_WRAP:
+            sop = SOP_DECREMENT_WRAP;
+            break;
+
+        case ID_ST_INVERT:
+            sop = SOP_INVERT;
+            break;
+
+        default:
+            break;
+        }
+
+        return sop;
+	}
+    CompareFunction CompositorScriptCompiler::extractCompareFunc(void)
+	{
+	    CompareFunction compFunc = CMPF_ALWAYS_PASS;
+
+        switch (getNextToken().tokenID)
+        {
+        case ID_ST_ALWAYS_FAIL:
+            compFunc = CMPF_ALWAYS_FAIL;
+            break;
+
+        case ID_ST_ALWAYS_PASS:
+            compFunc = CMPF_ALWAYS_PASS;
+            break;
+
+        case ID_ST_LESS:
+            compFunc = CMPF_LESS;
+            break;
+
+        case ID_ST_LESS_EQUAL:
+            compFunc = CMPF_LESS_EQUAL;
+            break;
+
+        case ID_ST_EQUAL:
+            compFunc = CMPF_EQUAL;
+            break;
+
+        case ID_ST_NOT_EQUAL:
+            compFunc = CMPF_NOT_EQUAL;
+            break;
+
+        case ID_ST_GREATER_EQUAL:
+            compFunc = CMPF_GREATER_EQUAL;
+            break;
+
+        case ID_ST_GREATER:
+            compFunc = CMPF_GREATER;
+            break;
+
+        default:
+            break;
+        }
+
+        return compFunc;
+	}
 
 }
