@@ -136,6 +136,8 @@
 		821FCAC007B28DFC000BFD07 /* Julia.h in Resources */ = {isa = PBXBuildFile; fileRef = 821FCABD07B28DFC000BFD07 /* Julia.h */; };
 		821FCAC107B28DFC000BFD07 /* ThingRenderable.h in Resources */ = {isa = PBXBuildFile; fileRef = 821FCABE07B28DFC000BFD07 /* ThingRenderable.h */; };
 		821FCAC207B28DFC000BFD07 /* VolumeRenderable.h in Resources */ = {isa = PBXBuildFile; fileRef = 821FCABF07B28DFC000BFD07 /* VolumeRenderable.h */; };
+		823D8F0809C117F600BFD011 /* MaterialControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 823D8F0609C117F600BFD011 /* MaterialControls.cpp */; };
+		823D8F0909C117F600BFD011 /* OceanDemo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 823D8F0709C117F600BFD011 /* OceanDemo.cpp */; };
 		82AFC35B0705EDD600CF9DB7 /* Bezier.h in Resources */ = {isa = PBXBuildFile; fileRef = 82AFC35A0705EDD600CF9DB7 /* Bezier.h */; };
 		82AFC35D0705EDEE00CF9DB7 /* Bezier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82AFC35C0705EDEE00CF9DB7 /* Bezier.cpp */; };
 		82AFC77E0705EEB100CF9DB7 /* CameraTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82AFC77D0705EEB100CF9DB7 /* CameraTrack.cpp */; };
@@ -367,14 +369,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 820BA62F0999785F009F2A8C /* Compositor */;
+			remoteGlobalIDString = 820BA62F0999785F009F2A8C;
 			remoteInfo = Compositor;
 		};
 		820BA6D209998C2F009F2A8C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 820BA6B109998B9B009F2A8C /* DeferredShading */;
+			remoteGlobalIDString = 820BA6B109998B9B009F2A8C;
 			remoteInfo = DeferredShading;
 		};
 		821FCA9907B28C40000BFD07 /* PBXContainerItemProxy */ = {
@@ -578,6 +580,12 @@
 		821FCABD07B28DFC000BFD07 /* Julia.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Julia.h; path = ../../../Samples/VolumeTex/include/Julia.h; sourceTree = SOURCE_ROOT; };
 		821FCABE07B28DFC000BFD07 /* ThingRenderable.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ThingRenderable.h; path = ../../../Samples/VolumeTex/include/ThingRenderable.h; sourceTree = SOURCE_ROOT; };
 		821FCABF07B28DFC000BFD07 /* VolumeRenderable.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = VolumeRenderable.h; path = ../../../Samples/VolumeTex/include/VolumeRenderable.h; sourceTree = SOURCE_ROOT; };
+		823D8EFD09C117BD00BFD011 /* OceanDemo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = OceanDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		823D8EFF09C117BE00BFD011 /* OceanDemo-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "OceanDemo-Info.plist"; sourceTree = "<group>"; };
+		823D8F0409C117E600BFD011 /* MaterialControls.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MaterialControls.h; path = ../../../Samples/OceanDemo/include/MaterialControls.h; sourceTree = SOURCE_ROOT; };
+		823D8F0509C117E600BFD011 /* OceanDemo.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OceanDemo.h; path = ../../../Samples/OceanDemo/include/OceanDemo.h; sourceTree = SOURCE_ROOT; };
+		823D8F0609C117F600BFD011 /* MaterialControls.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = MaterialControls.cpp; path = ../../../Samples/OceanDemo/src/MaterialControls.cpp; sourceTree = SOURCE_ROOT; };
+		823D8F0709C117F600BFD011 /* OceanDemo.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OceanDemo.cpp; path = ../../../Samples/OceanDemo/src/OceanDemo.cpp; sourceTree = SOURCE_ROOT; };
 		82AFC3560705ED7E00CF9DB7 /* BezierPatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BezierPatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		82AFC3580705ED7E00CF9DB7 /* BezierPatch-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "BezierPatch-Info.plist"; sourceTree = "<group>"; };
 		82AFC35A0705EDD600CF9DB7 /* Bezier.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Bezier.h; path = ../../../Samples/BezierPatch/include/Bezier.h; sourceTree = "<group>"; };
@@ -718,6 +726,13 @@
 			files = (
 				821FCAB307B28D9E000BFD07 /* Ogre.framework in Frameworks */,
 				821FCAB407B28D9E000BFD07 /* SDL.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		823D8EFB09C117BD00BFD011 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -936,6 +951,7 @@
 				820BA6300999785F009F2A8C /* Compositor.app */,
 				820BA6B209998B9B009F2A8C /* DeferredShading.app */,
 				820BA6E109998DFD009F2A8C /* FacialAnimation.app */,
+				823D8EFD09C117BD00BFD011 /* OceanDemo.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1049,6 +1065,18 @@
 			name = VolumeTex;
 			sourceTree = "<group>";
 		};
+		823D8EF809C1174B00BFD011 /* Ocean Demo */ = {
+			isa = PBXGroup;
+			children = (
+				823D8F0609C117F600BFD011 /* MaterialControls.cpp */,
+				823D8F0709C117F600BFD011 /* OceanDemo.cpp */,
+				823D8F0409C117E600BFD011 /* MaterialControls.h */,
+				823D8F0509C117E600BFD011 /* OceanDemo.h */,
+				823D8EFF09C117BE00BFD011 /* OceanDemo-Info.plist */,
+			);
+			name = "Ocean Demo";
+			sourceTree = "<group>";
+		};
 		82AFC3590705ED8900CF9DB7 /* BezierPatch */ = {
 			isa = PBXGroup;
 			children = (
@@ -1105,6 +1133,7 @@
 		82AFC79C0705EF5800CF9DB7 /* Samples */ = {
 			isa = PBXGroup;
 			children = (
+				823D8EF809C1174B00BFD011 /* Ocean Demo */,
 				820BA6F209998E6E009F2A8C /* Facial Animation */,
 				820BA6C209998BDB009F2A8C /* DeferredShading */,
 				820BA62B09997831009F2A8C /* Compositor */,
@@ -1654,6 +1683,66 @@
 	<string>VolumeTex</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.yourcompany.VolumeTex</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>1.0</string>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+</dict>
+</plist>
+";
+			productType = "com.apple.product-type.application";
+		};
+		823D8EFC09C117BD00BFD011 /* OceanDemo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 823D8F0009C117C000BFD011 /* Build configuration list for PBXNativeTarget "OceanDemo" */;
+			buildPhases = (
+				823D8EF909C117BD00BFD011 /* Resources */,
+				823D8EFA09C117BD00BFD011 /* Sources */,
+				823D8EFB09C117BD00BFD011 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			buildSettings = {
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "OceanDemo-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = OceanDemo;
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = YES;
+			};
+			dependencies = (
+			);
+			name = OceanDemo;
+			productName = OceanDemo;
+			productReference = 823D8EFD09C117BD00BFD011 /* OceanDemo.app */;
+			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<plist version=\"1.0\">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>${EXECUTABLE_NAME}</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.yourcompany.OceanDemo</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
@@ -3034,6 +3123,7 @@
 				820BA62F0999785F009F2A8C /* Compositor */,
 				820BA6B109998B9B009F2A8C /* DeferredShading */,
 				820BA6E009998DFD009F2A8C /* FacialAnimation */,
+				823D8EFC09C117BD00BFD011 /* OceanDemo */,
 			);
 		};
 /* End PBXProject section */
@@ -3105,6 +3195,13 @@
 				821FCAC007B28DFC000BFD07 /* Julia.h in Resources */,
 				821FCAC107B28DFC000BFD07 /* ThingRenderable.h in Resources */,
 				821FCAC207B28DFC000BFD07 /* VolumeRenderable.h in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		823D8EF909C117BD00BFD011 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3443,6 +3540,15 @@
 				821FCABA07B28DDC000BFD07 /* ThingRenderable.cpp in Sources */,
 				821FCABB07B28DDC000BFD07 /* VolumeRenderable.cpp in Sources */,
 				821FCABC07B28DDC000BFD07 /* VolumeTex.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		823D8EFA09C117BD00BFD011 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				823D8F0809C117F600BFD011 /* MaterialControls.cpp in Sources */,
+				823D8F0909C117F600BFD011 /* OceanDemo.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4025,6 +4131,78 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = FacialAnimation;
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = YES;
+			};
+			name = Default;
+		};
+		823D8F0109C117C000BFD011 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "OceanDemo-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = OceanDemo;
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = YES;
+			};
+			name = Development;
+		};
+		823D8F0209C117C000BFD011 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "OceanDemo-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = OceanDemo;
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		823D8F0309C117C000BFD011 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "OceanDemo-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = OceanDemo;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = YES;
 			};
@@ -6342,6 +6520,16 @@
 				820BA6E509998DFE009F2A8C /* Development */,
 				820BA6E609998DFE009F2A8C /* Deployment */,
 				820BA6E709998DFE009F2A8C /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		823D8F0009C117C000BFD011 /* Build configuration list for PBXNativeTarget "OceanDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				823D8F0109C117C000BFD011 /* Development */,
+				823D8F0209C117C000BFD011 /* Deployment */,
+				823D8F0309C117C000BFD011 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;

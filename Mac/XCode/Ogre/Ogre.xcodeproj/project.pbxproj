@@ -522,6 +522,9 @@
 		8235028F0853A8EE0018B3FE /* zzip.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82A3A35207A1ABBD001CBF8B /* zzip.framework */; };
 		823CF8340729B51A0048D983 /* OgreOctreeSceneQuery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 823CF8330729B51A0048D983 /* OgreOctreeSceneQuery.cpp */; };
 		823CF8360729B5320048D983 /* OgreOctreeSceneQuery.h in Resources */ = {isa = PBXBuildFile; fileRef = 823CF8350729B5320048D983 /* OgreOctreeSceneQuery.h */; };
+		823D8EE409C112C200BFD011 /* OgreRibbonTrail.h in Headers */ = {isa = PBXBuildFile; fileRef = 823D8EE309C112C100BFD011 /* OgreRibbonTrail.h */; };
+		823D8EE709C112F400BFD011 /* OgreRibbonTrail.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 823D8EE509C112F400BFD011 /* OgreRibbonTrail.cpp */; };
+		823D8EE809C112F400BFD011 /* OgreVector4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 823D8EE609C112F400BFD011 /* OgreVector4.cpp */; };
 		825E953B099952ED00646C88 /* OgreAnimable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 825E952A099952ED00646C88 /* OgreAnimable.cpp */; };
 		825E953C099952ED00646C88 /* OgreBillboardChain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 825E952B099952ED00646C88 /* OgreBillboardChain.cpp */; };
 		825E953D099952ED00646C88 /* OgreCompiler2Pass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 825E952C099952ED00646C88 /* OgreCompiler2Pass.cpp */; };
@@ -1327,10 +1330,13 @@
 		82270D0107011BBD00E6B1F9 /* OgreCgProgramFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreCgProgramFactory.cpp; path = ../../../PlugIns/CgProgramManager/src/OgreCgProgramFactory.cpp; sourceTree = "<group>"; };
 		82270D0207011BBD00E6B1F9 /* OgreCgProgramManagerDll.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreCgProgramManagerDll.cpp; path = ../../../PlugIns/CgProgramManager/src/OgreCgProgramManagerDll.cpp; sourceTree = "<group>"; };
 		82270D0707011C0800E6B1F9 /* Cg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cg.framework; path = /System/Library/Frameworks/Cg.framework; sourceTree = "<absolute>"; };
-		823501AB0853A8780018B3FE /*  */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = ""; sourceTree = BUILT_PRODUCTS_DIR; };
+		823501AB0853A8780018B3FE /* OctreeSceneManager.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OctreeSceneManager.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		823501B70853A8790018B3FE /* OctreeSceneManager-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "OctreeSceneManager-Info.plist"; sourceTree = "<group>"; };
 		823CF8330729B51A0048D983 /* OgreOctreeSceneQuery.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreOctreeSceneQuery.cpp; path = ../../../PlugIns/OctreeSceneManager/src/OgreOctreeSceneQuery.cpp; sourceTree = "<group>"; };
 		823CF8350729B5320048D983 /* OgreOctreeSceneQuery.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreOctreeSceneQuery.h; path = ../../../PlugIns/OctreeSceneManager/include/OgreOctreeSceneQuery.h; sourceTree = "<group>"; };
+		823D8EE309C112C100BFD011 /* OgreRibbonTrail.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreRibbonTrail.h; path = ../../../OgreMain/include/OgreRibbonTrail.h; sourceTree = SOURCE_ROOT; };
+		823D8EE509C112F400BFD011 /* OgreRibbonTrail.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreRibbonTrail.cpp; path = ../../../OgreMain/src/OgreRibbonTrail.cpp; sourceTree = SOURCE_ROOT; };
+		823D8EE609C112F400BFD011 /* OgreVector4.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreVector4.cpp; path = ../../../OgreMain/src/OgreVector4.cpp; sourceTree = SOURCE_ROOT; };
 		825E952A099952ED00646C88 /* OgreAnimable.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreAnimable.cpp; path = ../../../OgreMain/src/OgreAnimable.cpp; sourceTree = SOURCE_ROOT; };
 		825E952B099952ED00646C88 /* OgreBillboardChain.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreBillboardChain.cpp; path = ../../../OgreMain/src/OgreBillboardChain.cpp; sourceTree = SOURCE_ROOT; };
 		825E952C099952ED00646C88 /* OgreCompiler2Pass.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreCompiler2Pass.cpp; path = ../../../OgreMain/src/OgreCompiler2Pass.cpp; sourceTree = SOURCE_ROOT; };
@@ -1469,7 +1475,7 @@
 		82AC4FE407107140007DF5B7 /* OgreMovablePlane.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreMovablePlane.h; path = ../../../OgreMain/include/OgreMovablePlane.h; sourceTree = "<group>"; };
 		82AFC2810705E8E900CF9DB7 /* ogrelogo-small.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "ogrelogo-small.jpg"; path = "../../../Samples/Media/materials/textures/ogrelogo-small.jpg"; sourceTree = "<group>"; };
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		8DC2EF5B0486A6940098B216 /* Ogre.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Ogre.framework; path = build/Ogre.framework; sourceTree = "<group>"; };
+		8DC2EF5B0486A6940098B216 /* Ogre.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Ogre.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1574,7 +1580,7 @@
 				82270CB70701176400E6B1F9 /* Plugin_OctreeSceneManager.bundle */,
 				82270CF307011B4000E6B1F9 /* Plugin_CgProgramManager.bundle */,
 				82A3A30907A1AA89001CBF8B /* Plugin_EXRCodec.bundle */,
-				823501AB0853A8780018B3FE /*  */,
+				823501AB0853A8780018B3FE /* OctreeSceneManager.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1634,6 +1640,8 @@
 		8227011C0700F52400E6B1F9 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				823D8EE509C112F400BFD011 /* OgreRibbonTrail.cpp */,
+				823D8EE609C112F400BFD011 /* OgreVector4.cpp */,
 				825E952A099952ED00646C88 /* OgreAnimable.cpp */,
 				825E952B099952ED00646C88 /* OgreBillboardChain.cpp */,
 				825E952C099952ED00646C88 /* OgreCompiler2Pass.cpp */,
@@ -1809,6 +1817,7 @@
 		8227011D0700F53600E6B1F9 /* Headers */ = {
 			isa = PBXGroup;
 			children = (
+				823D8EE309C112C100BFD011 /* OgreRibbonTrail.h */,
 				825E954C0999532100646C88 /* OgreAnimable.h */,
 				825E954D0999532100646C88 /* OgreAny.h */,
 				825E954E0999532200646C88 /* OgreBillboardChain.h */,
@@ -2654,6 +2663,7 @@
 				825E956D0999532200646C88 /* OgrePose.h in Headers */,
 				825E956E0999532200646C88 /* OgreRadixSort.h in Headers */,
 				825E956F0999532200646C88 /* OgreRenderQueueInvocation.h in Headers */,
+				823D8EE409C112C200BFD011 /* OgreRibbonTrail.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3062,7 +3072,7 @@
 			);
 			name = OctreeSceneManager;
 			productName = OctreeSceneManager;
-			productReference = 823501AB0853A8780018B3FE /*  */;
+			productReference = 823501AB0853A8780018B3FE /* OctreeSceneManager.framework */;
 			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
 <plist version=\"1.0\">
@@ -3719,6 +3729,8 @@
 				825E9549099952ED00646C88 /* OgreMaterialScriptCompiler.cpp in Sources */,
 				825E954A099952ED00646C88 /* OgrePose.cpp in Sources */,
 				825E954B099952ED00646C88 /* OgreRenderQueueInvocation.cpp in Sources */,
+				823D8EE709C112F400BFD011 /* OgreRibbonTrail.cpp in Sources */,
+				823D8EE809C112F400BFD011 /* OgreVector4.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3794,7 +3806,10 @@
 					OGRE_NONCLIENT_BUILD,
 					DEBUG,
 				);
-				HEADER_SEARCH_PATHS = /usr/X11R6/include/freetype2;
+				HEADER_SEARCH_PATHS = (
+					/usr/X11R6/include,
+					/usr/X11R6/include/freetype2,
+				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = /usr/X11R6/lib;
@@ -3823,7 +3838,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Ogre_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = OGRE_NONCLIENT_BUILD;
-				HEADER_SEARCH_PATHS = /usr/X11R6/include/freetype2;
+				HEADER_SEARCH_PATHS = (
+					/usr/X11R6/include,
+					/usr/X11R6/include/freetype2,
+				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = /usr/X11R6/lib;
@@ -3847,7 +3865,10 @@
 				GCC_PFE_FILE_C_DIALECTS = "c++";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Ogre_Prefix.pch;
-				HEADER_SEARCH_PATHS = /usr/X11R6/include/freetype2;
+				HEADER_SEARCH_PATHS = (
+					/usr/X11R6/include,
+					/usr/X11R6/include/freetype2,
+				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = /usr/X11R6/lib;
