@@ -4,9 +4,7 @@
 		<Project filename="scripts\Demo_BezierPatch_stlp.cbp" />
 		<Project filename="scripts\Demo_BSP_stlp.cbp" />
 		<Project filename="scripts\BspCollision_stlp.cbp" />
-		<Project filename="scripts\Demo_CameraTrack_stlp.cbp">
-			<Depends filename="scripts\Demo_Grass_stlp.cbp" />
-		</Project>
+		<Project filename="scripts\Demo_CameraTrack_stlp.cbp" />
 		<Project filename="scripts\Demo_CelShading_stlp.cbp" />
 		<Project filename="scripts\Demo_Compositor_stlp.cbp" />
 		<Project filename="scripts\Demo_CubeMapping_stlp.cbp" />
