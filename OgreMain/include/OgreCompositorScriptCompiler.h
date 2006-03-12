@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #ifndef __CompositorScriptScompiler_H__
 #define __CompositorScriptScompiler_H__
 
+#include "OgreRenderSystem.h"
 #include "OgreCompiler2Pass.h"
 #include "OgrePrerequisites.h"
 #include "OgreCompositor.h"
@@ -68,6 +69,23 @@ namespace Ogre {
 			ID_PASS,
 			ID_MATERIAL,
 			ID_RENDER_QUAD, ID_CLEAR, ID_STENCIL, ID_RENDER_SCENE,
+			ID_FIRST_RQ, ID_LAST_RQ,
+			// clear
+			ID_CLR_BUFF, ID_CLR_COLOUR, ID_CLR_DEPTH,
+			ID_CLR_COLOUR_VAL, ID_CLR_DEPTH_VAL, ID_CLR_STENCIL_VAL,
+			// stencil
+			ID_ST_CHECK, ID_ST_FUNC, ID_ST_REF_VAL, ID_ST_MASK, ID_ST_FAILOP,
+			ID_ST_DEPTH_FAILOP, ID_ST_PASSOP, ID_ST_TWOSIDED,
+
+			// compare functions
+            ID_ST_ALWAYS_FAIL, ID_ST_ALWAYS_PASS, ID_ST_LESS,
+            ID_ST_LESS_EQUAL, ID_ST_EQUAL, ID_ST_NOT_EQUAL,
+            ID_ST_GREATER_EQUAL, ID_ST_GREATER,
+
+            // stencil operations
+            ID_ST_KEEP, ID_ST_ZERO, ID_ST_REPLACE, ID_ST_INCREMENT,
+            ID_ST_DECREMENT, ID_ST_INCREMENT_WRAP, ID_ST_DECREMENT_WRAP,
+            ID_ST_INVERT,
 
 			// general
 			ID_ON, ID_OFF, ID_TRUE, ID_FALSE
@@ -134,7 +152,22 @@ namespace Ogre {
 		void parseMaterialScheme(void);
 		void parsePass(void);
 		void parseMaterial(void);
-
+		void parseFirstRenderQueue(void);
+		void parseLastRenderQueue(void);
+		void parseClearBuffers(void);
+		void parseClearColourValue(void);
+		void parseClearDepthValue(void);
+		void parseClearStencilValue(void);
+		void parseStencilCheck(void);
+		void parseStencilFunc(void);
+		void parseStencilRefVal(void);
+		void parseStencilMask(void);
+		void parseStencilFailOp(void);
+		void parseStencilDepthFailOp(void);
+		void parseStencilPassOp(void);
+		void parseStencilTwoSided(void);
+		StencilOperation extractStencilOp(void);
+        CompareFunction extractCompareFunc(void);
 	};
 }
 
