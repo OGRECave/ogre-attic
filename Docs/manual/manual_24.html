@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 11 2006 by texi2html 1.64 -->
+<!-- Created on , 12 2006 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -175,7 +175,7 @@ Here are the attributes you can use in a 'stencil' section of a .compositor scri
 <LI>
 <A HREF="manual_24.html#compositor_stencil_check">check</A>
 <LI>
-<A HREF="manual_24.html#compositor_stencil_comp_funct">comp_funct</A>
+<A HREF="manual_24.html#compositor_stencil_comp_func">comp_func</A>
 <LI>
 <A HREF="manual_24.html#compositor_stencil_ref_value">ref_value</A>
 <LI>
@@ -196,22 +196,22 @@ Here are the attributes you can use in a 'stencil' section of a .compositor scri
 Enables or disables the stencil check, thus enabling the use of the rest of the features in this section. The rest of the options in this section do nothing if the stencil check is off.
 Format: check (on | off)<BR><BR>
 
-<A NAME="compositor_stencil_comp_funct"></A>
+<A NAME="compositor_stencil_comp_func"></A>
 <A NAME="SEC137"></A>
-<H3> comp_funct </H3>
+<H3> comp_func </H3>
 <!--docid::SEC137::-->
 Sets the function used to perform the following comparison:<BR><BR>
-(ref_value &#38; mask) comp_funct (Stencil Buffer Value &#38; mask)<BR><BR>
+(ref_value &#38; mask) comp_func (Stencil Buffer Value &#38; mask)<BR><BR>
 
 What happens as a result of this comparison will be one of 3 actions on the stencil buffer, depending on whether the test fails, succeeds but with the depth buffer check still failing, or succeeds with the depth buffer check passing too. You set the actions in the <A HREF="manual_24.html#compositor_stencil_fail_op">fail_op</A>, <A HREF="manual_24.html#compositor_stencil_depth_fail_op">depth_fail_op</A> and <A HREF="manual_24.html#compositor_stencil_pass_op">pass_op</A> respectively. If the stencil check fails, no colour or depth are written to the frame buffer.<BR><BR>
-Format: comp_funct (always_fail | always_pass | less | less_equal | not_equal | greater_equal | greater)<BR><BR>
-Default: comp_funct always_pass<BR><BR>
+Format: comp_func (always_fail | always_pass | less | less_equal | not_equal | greater_equal | greater)<BR><BR>
+Default: comp_func always_pass<BR><BR>
 
 <A NAME="compositor_stencil_ref_value"></A>
 <A NAME="SEC138"></A>
 <H3> ref_value </H3>
 <!--docid::SEC138::-->
-Sets the reference value used to compare with the stencil buffer as described in <A HREF="manual_24.html#compositor_stencil_comp_funct">comp_funct</A>.<BR><BR>
+Sets the reference value used to compare with the stencil buffer as described in <A HREF="manual_24.html#compositor_stencil_comp_func">comp_func</A>.<BR><BR>
 Format: ref_value &#60;value&#62;<BR><BR>
 Default: ref_value 0.0<BR><BR>
 
@@ -219,32 +219,15 @@ Default: ref_value 0.0<BR><BR>
 <A NAME="SEC139"></A>
 <H3> mask </H3>
 <!--docid::SEC139::-->
-Sets the mask used to compare with the stencil buffer as described in <A HREF="manual_24.html#compositor_stencil_comp_funct">comp_funct</A>.<BR><BR>
+Sets the mask used to compare with the stencil buffer as described in <A HREF="manual_24.html#compositor_stencil_comp_func">comp_func</A>.<BR><BR>
 Format: mask &#60;value&#62;<BR><BR>
 Default: mask 4294967295<BR><BR>
-
-/// Leave the stencil buffer unchanged
-KEEP,
-/// Set the stencil value to zero
-ZERO,
-/// Set the stencil value to the reference value
-REPLACE,
-/// Increase the stencil value by 1, clamping at the maximum value
-INCREMENT,
-/// Decrease the stencil value by 1, clamping at 0
-DECREMENT,
-/// Increase the stencil value by 1, wrapping back to 0 when incrementing the maximum value
-INCREMENT_WRAP,
-/// Decrease the stencil value by 1, wrapping when decrementing 0
-DECREMENT_WRAP,
-/// Invert the bits of the stencil buffer
-INVERT
 
 <A NAME="compositor_stencil_fail_op"></A>
 <A NAME="SEC140"></A>
 <H3> fail_op </H3>
 <!--docid::SEC140::-->
-Sets what to do with the stencil buffer value if the result of the stencil comparison (<A HREF="manual_24.html#compositor_stencil_comp_funct">comp_funct</A>) and depth comparison is that both fail.<BR><BR>
+Sets what to do with the stencil buffer value if the result of the stencil comparison (<A HREF="manual_24.html#compositor_stencil_comp_func">comp_func</A>) and depth comparison is that both fail.<BR><BR>
 Format: fail_op (keep | zero | replace | increment | decrement | increment_wrap | decrement_wrap | invert)<BR><BR>
 Default: depth_fail_op keep<BR><BR>
 These actions mean:
@@ -263,6 +246,8 @@ These actions mean:
 <DD>Add one to the stencil value, wrapping back to 0 at the maximum.
 <DT>decrement_wrap
 <DD>Subtract one from the stencil value, wrapping to the maximum below 0.
+<DT>invert
+<DD>invert the stencil value.
 </DL>
 
 
@@ -270,7 +255,7 @@ These actions mean:
 <A NAME="SEC141"></A>
 <H3> depth_fail_op </H3>
 <!--docid::SEC141::-->
-Sets what to do with the stencil buffer value if the result of the stencil comparison (<A HREF="manual_24.html#compositor_stencil_comp_funct">comp_funct</A>) passes but the depth comparison fails. <BR><BR>
+Sets what to do with the stencil buffer value if the result of the stencil comparison (<A HREF="manual_24.html#compositor_stencil_comp_func">comp_func</A>) passes but the depth comparison fails. <BR><BR>
 
 Format: depth_fail_op (keep | zero | replace | increment | decrement | increment_wrap | decrement_wrap | invert)<BR><BR>
 Default: depth_fail_op keep<BR><BR>
@@ -279,7 +264,7 @@ Default: depth_fail_op keep<BR><BR>
 <A NAME="SEC142"></A>
 <H3> pass_op </H3>
 <!--docid::SEC142::-->
-Sets what to do with the stencil buffer value if the result of the stencil comparison (<A HREF="manual_24.html#compositor_stencil_comp_funct">comp_funct</A>) and the depth comparison pass. <BR><BR>
+Sets what to do with the stencil buffer value if the result of the stencil comparison (<A HREF="manual_24.html#compositor_stencil_comp_func">comp_func</A>) and the depth comparison pass. <BR><BR>
 Format: pass_op (keep | zero | replace | increment | decrement | increment_wrap | decrement_wrap | invert)<BR><BR>
 Default: pass_op keep<BR><BR>
 
@@ -306,7 +291,7 @@ Default: two_sided off<BR><BR>
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 11 2006</I>
+by <I>Steve Streeting</I> on <I>, 12 2006</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
