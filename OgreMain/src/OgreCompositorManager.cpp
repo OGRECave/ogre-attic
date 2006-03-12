@@ -133,7 +133,7 @@ CompositorChain *CompositorManager::getCompositorChain(Viewport *vp)
     }
 }
 //-----------------------------------------------------------------------
-bool CompositorManager::hasCompositorChain(Viewport *vp)
+bool CompositorManager::hasCompositorChain(Viewport *vp) const
 {
     return mChains.find(vp) != mChains.end();
 }

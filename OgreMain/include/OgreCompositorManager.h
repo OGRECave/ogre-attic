@@ -73,7 +73,7 @@ namespace Ogre {
 
 		/** Returns whether exists compositor chain for a viewport.
         */
-		bool hasCompositorChain(Viewport *vp);
+		bool hasCompositorChain(Viewport *vp) const;
 
 		/** Remove the compositor chain from a viewport if exists.
 		*/
