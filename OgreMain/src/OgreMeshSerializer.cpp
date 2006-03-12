@@ -80,6 +80,8 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void MeshSerializer::importMesh(DataStreamPtr& stream, Mesh* pDest)
     {
+        determineEndianness(stream);
+
         // Read header and determine the version
         unsigned short headerID;
         

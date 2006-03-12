@@ -82,7 +82,7 @@ namespace Ogre {
         stream << val;
         return stream.str();
     }
-#ifdef OGRE_COMPILER_MSVC
+#if OGRE_COMPILER == OGRE_COMPILER_MSVC
     //-----------------------------------------------------------------------
     String StringConverter::toString(unsigned long val, 
         unsigned short width, char fill, std::ios::fmtflags flags)
