@@ -1221,6 +1221,11 @@ void SceneManager::setSkyPlane(
 
     }
 	mSkyPlaneEnabled = enable;
+	mSkyPlaneGenParameters.skyPlaneBow = bow;
+	mSkyPlaneGenParameters.skyPlaneScale = gscale;
+	mSkyPlaneGenParameters.skyPlaneTiling = tiling;
+	mSkyPlaneGenParameters.skyPlaneXSegments = xsegments;
+	mSkyPlaneGenParameters.skyPlaneYSegments = ysegments;
 }
 //-----------------------------------------------------------------------
 void SceneManager::setSkyBox(
@@ -1303,6 +1308,7 @@ void SceneManager::setSkyBox(
 
     }
 	mSkyBoxEnabled = enable;
+	mSkyBoxGenParameters.skyBoxDistance = distance;
 }
 //-----------------------------------------------------------------------
 void SceneManager::setSkyDome(
@@ -1367,6 +1373,12 @@ void SceneManager::setSkyDome(
 
     }
 	mSkyDomeEnabled = enable;
+	mSkyDomeGenParameters.skyDomeCurvature = curvature;
+	mSkyDomeGenParameters.skyDomeDistance = distance;
+	mSkyDomeGenParameters.skyDomeTiling = tiling;
+	mSkyDomeGenParameters.skyDomeXSegments = xsegments;
+	mSkyDomeGenParameters.skyDomeYSegments = ysegments;
+	mSkyDomeGenParameters.skyDomeYSegments_keep = ySegmentsToKeep;
 }
 //-----------------------------------------------------------------------
 MeshPtr SceneManager::createSkyboxPlane(
