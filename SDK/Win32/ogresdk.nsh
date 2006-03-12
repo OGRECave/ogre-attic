@@ -92,9 +92,7 @@ Section -Libs
     ; Debug libs
     File "..\..\Dependencies\lib\Debug\libOPCODE.a"
     File "..\..\Dependencies\lib\Debug\libode.a"
-    File "..\..\Dependencies\lib\Debug\libCEGUIBase_d.a"
     ; Release libs
-    File "..\..\Dependencies\lib\Release\libCEGUIBase.a"
   !else ; MSVC
     ; Debug libs
     File "..\..\OgreMain\lib\Debug\OgreMain_d.lib"
