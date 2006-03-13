@@ -39,7 +39,7 @@ namespace OgreMayaExporter
 		MStatus writeXML(ParamList &params);
 		//copy textures to path specified by params
 		MStatus copyTextures(ParamList &params);
-	protected:
+	public:
 		//load texture data
 		MStatus loadTexture(MFnDependencyNode* pTexNode,TexOpType& opType,MStringArray& uvsets,ParamList& params);
 
