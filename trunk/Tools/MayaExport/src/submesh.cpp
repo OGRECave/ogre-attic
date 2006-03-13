@@ -66,22 +66,31 @@ namespace OgreMayaExporter
 				foundShader = true;
 			}
 		}
-		std::cout << "Found material: " << pShader->name().asChar() << "\n";
-		//check if this material has already been created
-		Material* pMaterial = MaterialSet::getSingleton().getMaterial(pShader->name());
-		//if the material has already been created, update the pointer
-		if (pMaterial)
-			m_pMaterial = pMaterial;
-		//else create it and add it to the material set
+		if (foundShader)
+		{
+			std::cout << "Found material: " << pShader->name().asChar() << "\n";
+			//check if this material has already been created
+			Material* pMaterial = MaterialSet::getSingleton().getMaterial(pShader->name());
+			//if the material has already been created, update the pointer
+			if (pMaterial)
+				m_pMaterial = pMaterial;
+			//else create it and add it to the material set
+			else
+			{
+				pMaterial = new Material();
+				pMaterial->load(pShader,uvsets,params);
+				m_pMaterial = pMaterial;
+				MaterialSet::getSingleton().addMaterial(pMaterial);
+			}
+			//delete temporary shader
+			delete pShader;
+		}
 		else
 		{
-			pMaterial = new Material();
-			pMaterial->load(pShader,uvsets,params);
-			m_pMaterial = pMaterial;
-			MaterialSet::getSingleton().addMaterial(pMaterial);
+			std::cout << "Unsupported material, replacing with default lambert\n";
+			m_pMaterial = MaterialSet::getSingleton().getDefaultMaterial();
 		}
-		//delete temporary shader
-		delete pShader;
+		
 		//loading complete
 		return MS::kSuccess;
 	}
