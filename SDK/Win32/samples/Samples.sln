@@ -112,7 +112,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo_Compositor", "scripts\
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo_DeferredShading", "scripts\Demo_DeferredShading.vcproj", "{109F610E-9B23-4D05-819E-A7F27A42AA94}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo_DeferredShading", "scripts\Demo_DeferredShading.vcproj", "{64715BCF-1A2B-46E0-9E6C-18470FAC8D4D}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -242,10 +242,10 @@ Global
 		{FBD73586-AD33-4191-A604-68AE21278729}.Debug.Build.0 = Debug|Win32
 		{FBD73586-AD33-4191-A604-68AE21278729}.Release.ActiveCfg = Release|Win32
 		{FBD73586-AD33-4191-A604-68AE21278729}.Release.Build.0 = Release|Win32
-		{109F610E-9B23-4D05-819E-A7F27A42AA94}.Debug.ActiveCfg = Debug|Win32
-		{109F610E-9B23-4D05-819E-A7F27A42AA94}.Debug.Build.0 = Debug|Win32
-		{109F610E-9B23-4D05-819E-A7F27A42AA94}.Release.ActiveCfg = Release|Win32
-		{109F610E-9B23-4D05-819E-A7F27A42AA94}.Release.Build.0 = Release|Win32
+		{64715BCF-1A2B-46E0-9E6C-18470FAC8D4D}.Debug.ActiveCfg = Debug|Win32
+		{64715BCF-1A2B-46E0-9E6C-18470FAC8D4D}.Debug.Build.0 = Debug|Win32
+		{64715BCF-1A2B-46E0-9E6C-18470FAC8D4D}.Release.ActiveCfg = Release|Win32
+		{64715BCF-1A2B-46E0-9E6C-18470FAC8D4D}.Release.Build.0 = Release|Win32
 		{7576D7EA-D4C5-4E06-B46E-B9EBF78B265B}.Debug.ActiveCfg = Debug|Win32
 		{7576D7EA-D4C5-4E06-B46E-B9EBF78B265B}.Debug.Build.0 = Debug|Win32
 		{7576D7EA-D4C5-4E06-B46E-B9EBF78B265B}.Release.ActiveCfg = Release|Win32
