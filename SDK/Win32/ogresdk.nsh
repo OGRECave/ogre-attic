@@ -65,9 +65,7 @@ Section -Headers
   SetOutPath "$INSTDIR\include"
   SetOverwrite try
   File "..\..\OgreMain\include\*.h"
-  File "..\..\Samples\Common\include\*.h"
   File "..\..\ReferenceApplication\Common\include\*.h"
-  File "..\..\Samples\Common\CEGUIRenderer\include\*.h"
   ; Dependencies - only ODE and CEGui
   SetOutPath "$INSTDIR\include\CEGUI"
   SetOverwrite try
@@ -132,7 +130,9 @@ Section -Binaries
   ; Binaries - debug
   SetOutPath "$INSTDIR\bin\debug"
   SetOverwrite ifnewer
-  !ifndef MINGW
+  !ifdef MINGW
+    File "..\..\Samples\Common\bin\Debug\mingwm10.dll"
+  !else
     File "..\..\Samples\Common\bin\Debug\ilut.dll"
   !endif
   File "..\..\Samples\Common\bin\Debug\ilu.dll"
@@ -162,7 +162,9 @@ Section -Binaries
   ; Binaries - release
   SetOutPath "$INSTDIR\bin\release"
   SetOverwrite ifnewer
-  !ifndef MINGW
+  !ifdef MINGW
+    File "..\..\Samples\Common\bin\Release\mingwm10.dll"
+  !else
     File "..\..\Samples\Common\bin\Release\ilut.dll"
   !endif
   File "..\..\Samples\Common\bin\Release\ilu.dll"
