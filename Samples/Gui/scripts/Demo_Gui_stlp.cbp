@@ -21,19 +21,12 @@
 					<Add option="-D_DEBUG" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_STLP_DEBUG" />
-					<Add directory="..\include" />
-					<Add directory="..\..\Common\include" />
-					<Add directory="..\..\..\OgreMain\include" />
-					<Add directory="..\..\..\Dependencies\include" />
-					<Add directory="..\..\..\Dependencies\include\CEGUI" />
-					<Add directory="..\..\Common\CEGUIRenderer\include" />
 				</Compiler>
 				<Linker>
 					<Add library="stlportstlg.5.0.dll" />
 					<Add library="OgreMain_d" />
 					<Add library="CEGUIBase_d" />
 					<Add library="OgreGUIRenderer_d" />
-					<Add directory="..\..\..\OgreMain\lib\Debug" />
 					<Add directory="..\..\..\Dependencies\lib\Debug" />
 					<Add directory="..\..\Common\CEGUIRenderer\bin\Debug" />
 				</Linker>
@@ -53,12 +46,6 @@
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
-					<Add directory="..\include" />
-					<Add directory="..\..\Common\include" />
-					<Add directory="..\..\..\OgreMain\include" />
-					<Add directory="..\..\..\Dependencies\include" />
-					<Add directory="..\..\..\Dependencies\include\CEGUI" />
-					<Add directory="..\..\Common\CEGUIRenderer\include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -66,7 +53,6 @@
 					<Add library="OgreMain" />
 					<Add library="CEGUIBase" />
 					<Add library="OgreGUIRenderer" />
-					<Add directory="..\..\..\OgreMain\lib\Release" />
 					<Add directory="..\..\..\Dependencies\lib\Release" />
 					<Add directory="..\..\Common\CEGUIRenderer\bin\release" />
 				</Linker>
@@ -80,11 +66,18 @@
 			<Add option="-D_STLP_NO_CUSTOM_IO" />
 			<Add option="-D_STLP_USE_DYNAMIC_LIB" />
 			<Add directory="$(#STLPORT_DIR)\stlport" />
+			<Add directory="..\include" />
+			<Add directory="..\..\Common\include" />
+			<Add directory="..\..\..\OgreMain\include" />
+			<Add directory="..\..\..\Dependencies\include" />
+			<Add directory="..\..\..\Dependencies\include\CEGUI" />
+			<Add directory="..\..\Common\CEGUIRenderer\include" />
 		</Compiler>
 		<Linker>
 			<Add option="-Wl,--enable-auto-image-base" />
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="$(#STLPORT_DIR)\lib" />
+			<Add directory="..\..\Common\bin\$(TARGET_NAME)" />
 		</Linker>
 		<Unit filename="..\src\Gui.cpp">
 			<Option compilerVar="CPP" />

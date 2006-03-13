@@ -31,7 +31,7 @@
 				<Option output="..\..\Common\bin\Release\Demo_Water.exe" />
 				<Option working_dir="..\..\Common\bin\Release" />
 				<Option object_output="..\obj\Release" />
-				<Option external_deps="..\..\..\OgreMain\lib\Release\libOgreMain.dll;" />
+				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option includeInTargetAll="1" />

@@ -23,17 +23,12 @@
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_USRDLL" />
 					<Add option="-DOGRE_GUIRENDERER_EXPORTS" />
-					<Add directory="..\include" />
-					<Add directory="..\..\..\..\OgreMain\include" />
-					<Add directory="..\..\..\..\Dependencies\include" />
-					<Add directory="..\..\..\..\Dependencies\include\CEGUI" />
 				</Compiler>
 				<Linker>
 					<Add library="stlportstlg.5.0.dll" />
 					<Add library="CEGUIBase_d" />
 					<Add library="Ogremain_d" />
-					<Add directory="..\..\..\..\OgreMain\lib\Debug" />
-					<Add directory="..\..\..\..\dependencies\lib\Debug" />
+					<Add directory="..\..\bin\Debug" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="cmd /c copy ..\bin\Debug\OgreGUIRenderer_d.dll ..\..\..\..\Samples\Common\bin\Debug" />
@@ -48,25 +43,20 @@
 				<Option includeInTargetAll="1" />
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-O3" />
 					<Add option="-Wall" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_USRDLL" />
 					<Add option="-DOGRE_GUIRENDERER_EXPORTS" />
-					<Add directory="..\include" />
-					<Add directory="..\..\..\..\OgreMain\include" />
-					<Add directory="..\..\..\..\Dependencies\include" />
-					<Add directory="..\..\..\..\Dependencies\include\CEGUI" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add library="stlport.5.0.dll" />
 					<Add library="CEGUIBase" />
 					<Add library="Ogremain" />
-					<Add directory="..\..\..\..\OgreMain\lib\Release" />
-					<Add directory="..\..\..\..\dependencies\lib\Release" />
+					<Add directory="..\..\bin\Release" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="cmd /c copy ..\bin\Release\OgreGUIRenderer.dll ..\..\bin\Release" />
@@ -81,11 +71,15 @@
 			<Add option="-D_STLP_NO_CUSTOM_IO" />
 			<Add option="-D_STLP_USE_DYNAMIC_LIB" />
 			<Add directory="$(#STLPORT_DIR)\stlport" />
+			<Add directory="..\include" />
+			<Add directory="..\..\..\..\OgreMain\include" />
+			<Add directory="..\..\..\..\Dependencies\include" />
+			<Add directory="..\..\..\..\Dependencies\include\CEGUI" />
 		</Compiler>
 		<Linker>
-			<Add option="-Wl,--add-stdcall-alias" />
+			<Add option="-Wl,--enable-auto-image-base" />
 			<Add option="-Wl,--export-all-symbols" />
-			<Add option="-Wl,--enable-runtime-pseudo-reloc" />
+			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="$(#STLPORT_DIR)\lib" />
 		</Linker>
 		<Unit filename="..\include\OgreCEGUIRenderer.h">
