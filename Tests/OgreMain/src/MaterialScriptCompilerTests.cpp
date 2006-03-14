@@ -27,6 +27,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "MaterialScriptCompilerTests.h"
 #include "OgreStringConverter.h"
 
+#define ARRAYSIZE(array) (sizeof(array)/sizeof(array[0]))
+
 // Regsiter the suite
 CPPUNIT_TEST_SUITE_REGISTRATION( MaterialScriptCompilerTests );
 
