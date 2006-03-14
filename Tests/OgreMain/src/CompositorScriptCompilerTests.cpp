@@ -28,6 +28,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCompositorScriptCompiler.h"
 #include "OgreStringConverter.h"
 
+#define ARRAYSIZE(array) (sizeof(array)/sizeof(array[0]))
+
 // Regsiter the suite
 CPPUNIT_TEST_SUITE_REGISTRATION( CompositorScriptCompilerTests );
 
@@ -131,7 +133,7 @@ void CompositorScriptCompilerTests::testCompile()
     CompositorManager* compositorMgr = new CompositorManager();
     //compositorMgr->initialise();
 
-    const String simpleScript = "compositor Test { technique { target_output { } } }";
+    const String simpleScript = "compositor \"First Test\" { technique { target_output { } } }";
     CPPUNIT_ASSERT(compile(simpleScript, "Test Compositor"));
 
     const String BW_Script =
