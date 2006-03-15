@@ -56,9 +56,10 @@ namespace Ogre {
             ID_UNKOWN = 0, ID_OPENBRACE, ID_CLOSEBRACE,
             ID_VERTEX_PROGRAM, ID_FRAGMENT_PROGRAM,
             // material
-            ID_MATERIAL, ID_CLONE, ID_TECHNIQUE, ID_SET_TEXTURE_ALIAS, ID_LOD_DISTANCES,
-            ID_RECEIVE_SHADOWS, ID_TRANSPARENCY_CASTS_SHADOWS, ID_LOD_INDEX,
-
+            ID_MATERIAL, ID_CLONE, ID_SET_TEXTURE_ALIAS, ID_LOD_DISTANCES,
+            ID_RECEIVE_SHADOWS, ID_TRANSPARENCY_CASTS_SHADOWS,
+            // technique
+            ID_TECHNIQUE, ID_LOD_INDEX, ID_SCHEME,
             // pass
             ID_PASS, ID_AMBIENT, ID_DIFFUSE, ID_SPECULAR, ID_EMISSIVE,
             ID_VERTEXCOLOUR, ID_SCENE_BLEND, ID_BLEND_ADD, ID_BLEND_MODULATE, ID_COLOUR_BLEND, ID_ALPHA_BLEND,
@@ -75,6 +76,7 @@ namespace Ogre {
 			ID_POINT_SIZE, ID_POINT_SPRITES, ID_POINT_SIZE_ATTENUATION,
 			ID_POINT_SIZE_MIN, ID_POINT_SIZE_MAX,
 
+            // texture unit state
             ID_TEXTURE_UNIT,
 
             // general
@@ -128,9 +130,6 @@ namespace Ogre {
 			    stateLev;
             StringVector defaultParamLines;
 
-		    // Error reporting state
-            size_t lineNo;
-            String filename;
             AliasTextureNamePairList textureAliases;
         };
 
@@ -170,7 +169,9 @@ namespace Ogre {
         void parseCloseBrace(void);
         void parseVertexProgram(void);
         void parseFragmentProgram(void);
+        // material section Actions
         void parseMaterial(void);
+        void parseLodDistances(void);
         // Technique related actions
         void parseTechnique(void);
         void parseTransparencyCastsShadows(void);
