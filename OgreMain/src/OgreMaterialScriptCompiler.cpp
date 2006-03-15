@@ -164,6 +164,7 @@ namespace Ogre {
         addLexemeTokenAction("fragment_program", ID_FRAGMENT_PROGRAM, &MaterialScriptCompiler::parseFragmentProgram);
         addLexemeTokenAction("material", ID_MATERIAL, &MaterialScriptCompiler::parseMaterial);
             addLexemeTokenAction(":", ID_CLONE);
+            addLexemeTokenAction("lod_distances", ID_LOD_DISTANCES, &MaterialScriptCompiler::parseLodDistances);
 
         // Technique section
         addLexemeTokenAction("technique", ID_TECHNIQUE, &MaterialScriptCompiler::parseTechnique);
@@ -254,7 +255,7 @@ namespace Ogre {
     void MaterialScriptCompiler::logParseError(const String& error)
     {
         // log material name only if filename not specified
-        if (mScriptContext.filename.empty() && !mScriptContext.material.isNull())
+        if (mSourceName.empty() && !mScriptContext.material.isNull())
         {
             LogManager::getSingleton().logMessage(
                 "Error in material " + mScriptContext.material->getName() +
@@ -267,13 +268,13 @@ namespace Ogre {
                 LogManager::getSingleton().logMessage(
                     "Error in material " + mScriptContext.material->getName() +
                     " at line " + StringConverter::toString(mCurrentLine) +
-                    " of " + mScriptContext.filename + ": " + error);
+                    " of " + mSourceName + ": " + error);
             }
             else
             {
                 LogManager::getSingleton().logMessage(
                     "Error at line " + StringConverter::toString(mCurrentLine) +
-                    " of " + mScriptContext.filename + ": " + error);
+                    " of " + mSourceName + ": " + error);
             }
         }
     }
@@ -454,7 +455,7 @@ namespace Ogre {
             mScriptContext.material->removeAllTechniques();
         }
 
-		mScriptContext.material->_notifyOrigin(mScriptContext.filename);
+		mScriptContext.material->_notifyOrigin(mSourceName);
 
         // update section
         mScriptContext.section = MSS_MATERIAL;
@@ -522,38 +523,25 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseTransparencyCastsShadows(void)
 	{
-        switch (getNextToken().tokenID)
-        {
-        case ID_ON:
-			mScriptContext.material->setTransparencyCastsShadows(true);
-            break;
-        case ID_OFF:
-			mScriptContext.material->setTransparencyCastsShadows(false);
-            break;
-        default:
-            replaceToken();
-			logParseError(
-			"Bad transparency_casts_shadows attribute, valid parameters are 'on' or 'off'.");
-        }
-
+		mScriptContext.material->setTransparencyCastsShadows(testNextTokenID(ID_ON));
 	}
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseReceiveShadows(void)
     {
-        switch (getNextToken().tokenID)
-        {
-        case ID_ON:
-            mScriptContext.material->setReceiveShadows(true);
-            break;
-        case ID_OFF:
-            mScriptContext.material->setReceiveShadows(false);
-            break;
-        default:
-            replaceToken();
-            logParseError("Bad receive_shadows attribute, valid parameters are 'on' or 'off'.");
-        }
+        mScriptContext.material->setReceiveShadows(testNextTokenID(ID_ON));
     }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseLodDistances(void)
+    {
+        // iterate over the parameters and parse distances out of them
+        Material::LodDistanceList lodList;
+		while (getRemainingTokensForAction() > 0)
+		{
+            lodList.push_back(getNextTokenValue());
+        }
 
+        mScriptContext.material->setLodLevels(lodList);
+    }
 	//-----------------------------------------------------------------------
     void MaterialScriptCompiler::parsePass(void)
     {
@@ -612,15 +600,15 @@ namespace Ogre {
     void MaterialScriptCompiler::parseAmbient(void)
     {
         // Must be 1, 3 or 4 parameters
+        assert(mScriptContext.pass);
         const size_t paramCount = getRemainingTokensForAction();
         if (paramCount == 1) {
-            if(getNextToken().tokenID == ID_VERTEXCOLOUR)
+            if(testNextTokenID(ID_VERTEXCOLOUR))
             {
                 mScriptContext.pass->setVertexColourTracking(mScriptContext.pass->getVertexColourTracking() | TVC_AMBIENT);
             }
             else
             {
-                replaceToken();
                 logParseError("Bad ambient attribute, single parameter flag must be 'vertexcolour'");
             }
         }
@@ -638,15 +626,15 @@ namespace Ogre {
     void MaterialScriptCompiler::parseDiffuse(void)
     {
         // Must be 1, 3 or 4 parameters
+        assert(mScriptContext.pass);
         const size_t paramCount = getRemainingTokensForAction();
         if (paramCount == 1) {
-            if(getNextToken().tokenID == ID_VERTEXCOLOUR)
+            if(testNextTokenID(ID_VERTEXCOLOUR))
             {
                mScriptContext.pass->setVertexColourTracking(mScriptContext.pass->getVertexColourTracking() | TVC_DIFFUSE);
             }
             else
             {
-                replaceToken();
                 logParseError("Bad diffuse attribute, single parameter flag must be 'vertexcolour'");
             }
         }
@@ -664,17 +652,17 @@ namespace Ogre {
     void MaterialScriptCompiler::parseSpecular(void)
     {
         // Must be 2, 4 or 5 parameters
+        assert(mScriptContext.pass);
         const size_t paramCount = getRemainingTokensForAction();
         if(paramCount == 2)
         {
-            if(getNextToken().tokenID == ID_VERTEXCOLOUR)
+            if(testNextTokenID(ID_VERTEXCOLOUR))
             {
                 mScriptContext.pass->setVertexColourTracking(mScriptContext.pass->getVertexColourTracking() | TVC_SPECULAR);
                 mScriptContext.pass->setShininess(getNextTokenValue());
             }
             else
             {
-                replaceToken();
                 logParseError("Bad specular attribute, double parameter statement must be 'vertexcolour <shininess>'");
             }
         }
@@ -697,15 +685,15 @@ namespace Ogre {
     void MaterialScriptCompiler::parseEmissive(void)
     {
         // Must be 1, 3 or 4 parameters
+        assert(mScriptContext.pass);
         const size_t paramCount = getRemainingTokensForAction();
         if (paramCount == 1) {
-            if(getNextToken().tokenID == ID_VERTEXCOLOUR)
+            if(testNextTokenID(ID_VERTEXCOLOUR))
             {
                mScriptContext.pass->setVertexColourTracking(mScriptContext.pass->getVertexColourTracking() | TVC_EMISSIVE);
             }
             else
             {
-                replaceToken();
                 logParseError("Bad emissive attribute, single parameter flag must be 'vertexcolour'");
             }
         }
@@ -722,32 +710,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseDepthCheck(void)
     {
-        switch (getNextToken().tokenID)
-        {
-        case ID_ON:
-            mScriptContext.pass->setDepthCheckEnabled(true);
-            break;
-        case ID_OFF:
-            mScriptContext.pass->setDepthCheckEnabled(false);
-            break;
-        default:
-            logParseError("Bad depth_check attribute, valid parameters are 'on' or 'off'.");
-        }
+        assert(mScriptContext.pass);
+        mScriptContext.pass->setDepthCheckEnabled(testNextTokenID(ID_ON));
     }
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseDepthWrite(void)
     {
-        switch (getNextToken().tokenID)
-        {
-        case ID_ON:
-            mScriptContext.pass->setDepthWriteEnabled(true);
-            break;
-        case ID_OFF:
-            mScriptContext.pass->setDepthWriteEnabled(false);
-            break;
-        default:
-            logParseError("Bad depth_write attribute, valid parameters are 'on' or 'off'.");
-        }
+        assert(mScriptContext.pass);
+        mScriptContext.pass->setDepthWriteEnabled(testNextTokenID(ID_ON));
     }
     //-----------------------------------------------------------------------
     CompareFunction MaterialScriptCompiler::convertCompareFunction(void)
@@ -778,12 +748,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseDepthFunc(void)
     {
-        const CompareFunction func = convertCompareFunction();
-        mScriptContext.pass->setDepthFunction(func);
+        assert(mScriptContext.pass);
+        mScriptContext.pass->setDepthFunction(convertCompareFunction());
     }
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseAlphaRejection(void)
     {
+        assert(mScriptContext.pass);
         const size_t paramCount = getRemainingTokensForAction();
         if (paramCount != 2)
         {
@@ -797,21 +768,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseColourWrite(void)
     {
-        switch (getNextToken().tokenID)
-        {
-        case ID_ON:
-            mScriptContext.pass->setColourWriteEnabled(true);
-            break;
-        case ID_OFF:
-            mScriptContext.pass->setColourWriteEnabled(false);
-            break;
-        default:
-            logParseError("Bad colour_write attribute, valid parameters are 'on' or 'off'.");
-        }
+        assert(mScriptContext.pass);
+        mScriptContext.pass->setColourWriteEnabled(testNextTokenID(ID_ON));
     }
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseCullHardware(void)
     {
+        assert(mScriptContext.pass);
         switch (getNextToken().tokenID)
         {
         case ID_CULL_NONE:
@@ -832,6 +795,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseCullSoftware(void)
     {
+        assert(mScriptContext.pass);
         switch (getNextToken().tokenID)
         {
         case ID_CULL_NONE:
@@ -852,26 +816,19 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseLighting(void)
     {
-        switch (getNextToken().tokenID)
-        {
-        case ID_ON:
-            mScriptContext.pass->setLightingEnabled(true);
-            break;
-        case ID_OFF:
-            mScriptContext.pass->setLightingEnabled(false);
-            break;
-        default:
-            logParseError("Bad lighting attribute, valid parameters are 'on' or 'off'.");
-        }
+        assert(mScriptContext.pass);
+        mScriptContext.pass->setLightingEnabled(testNextTokenID(ID_ON));
     }
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseMaxLights(void)
     {
+        assert(mScriptContext.pass);
 		mScriptContext.pass->setMaxSimultaneousLights(static_cast<int>(getNextTokenValue()));
     }
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseShading(void)
     {
+        assert(mScriptContext.pass);
         switch (getNextToken().tokenID)
         {
         case ID_FLAT:
@@ -896,31 +853,25 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parsePointSprites(void)
 	{
-        switch (getNextToken().tokenID)
-        {
-        case ID_ON:
-            mScriptContext.pass->setPointSpritesEnabled(true);
-            break;
-        case ID_OFF:
-            mScriptContext.pass->setPointSpritesEnabled(false);
-            break;
-        default:
-            logParseError("Bad point_sprites attribute, valid parameters are 'on' or 'off'.");
-        }
+        assert(mScriptContext.pass);
+        mScriptContext.pass->setPointSpritesEnabled(testNextTokenID(ID_ON));
 	}
     //-----------------------------------------------------------------------
 	void MaterialScriptCompiler::parsePointSizeMin(void)
 	{
+        assert(mScriptContext.pass);
         mScriptContext.pass->setPointMinSize(getNextTokenValue());
 	}
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parsePointSizeMax(void)
 	{
+        assert(mScriptContext.pass);
         mScriptContext.pass->setPointMaxSize(getNextTokenValue());
 	}
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parsePointSizeAttenuation(void)
 	{
+        assert(mScriptContext.pass);
         const size_t paramCount = getRemainingTokensForAction();
         if (paramCount != 1 && paramCount != 4)
         {
@@ -1091,7 +1042,7 @@ namespace Ogre {
 		// Set pose animation option
 		gp->setPoseAnimationIncluded(def->supportsPoseAnimation);
 		// set origin
-		gp->_notifyOrigin(mScriptContext.filename);
+		gp->_notifyOrigin(mSourceName);
 
         // Set up to receive default parameters
         if (gp->isSupported()
