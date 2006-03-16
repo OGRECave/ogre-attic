@@ -608,7 +608,7 @@ namespace Ogre {
                 derived transforms have been updated before calling this method.
                 Applications using Ogre should just use the relative transforms.
         */
-        virtual Matrix4 _getFullTransform(void) const;
+        virtual const Matrix4& _getFullTransform(void) const;
 
         /** Internal method to update the Node.
             @note
