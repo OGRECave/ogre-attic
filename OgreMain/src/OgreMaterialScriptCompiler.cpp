@@ -165,11 +165,14 @@ namespace Ogre {
         addLexemeTokenAction("material", ID_MATERIAL, &MaterialScriptCompiler::parseMaterial);
             addLexemeTokenAction(":", ID_CLONE);
             addLexemeTokenAction("lod_distances", ID_LOD_DISTANCES, &MaterialScriptCompiler::parseLodDistances);
+            addLexemeTokenAction("receive_shadows", ID_RECEIVE_SHADOWS, &MaterialScriptCompiler::parseReceiveShadows);
+            addLexemeTokenAction("transparency_casts_shadows", ID_TRANSPARENCY_CASTS_SHADOWS, &MaterialScriptCompiler::parseTransparencyCastsShadows);
+            addLexemeTokenAction("set_texture_alias", ID_SET_TEXTURE_ALIAS, &MaterialScriptCompiler::parseSetTextureAlias);
 
         // Technique section
         addLexemeTokenAction("technique", ID_TECHNIQUE, &MaterialScriptCompiler::parseTechnique);
-            addLexemeTokenAction("transparency_casts_shadows", ID_TRANSPARENCY_CASTS_SHADOWS, &MaterialScriptCompiler::parseTransparencyCastsShadows);
-            addLexemeTokenAction("receive_shadows", ID_RECEIVE_SHADOWS, &MaterialScriptCompiler::parseReceiveShadows);
+            addLexemeTokenAction("scheme", ID_SCHEME, &MaterialScriptCompiler::parseScheme);
+            addLexemeTokenAction("lod_index", ID_LOD_INDEX, &MaterialScriptCompiler::parseLodIndex);
 
 
         // Pass section
@@ -461,6 +464,39 @@ namespace Ogre {
         mScriptContext.section = MSS_MATERIAL;
 
     }
+    //-----------------------------------------------------------------------
+    // material Section Actions
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseLodDistances(void)
+    {
+        // iterate over the parameters and parse distances out of them
+        Material::LodDistanceList lodList;
+		while (getRemainingTokensForAction() > 0)
+		{
+            lodList.push_back(getNextTokenValue());
+        }
+
+        mScriptContext.material->setLodLevels(lodList);
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseReceiveShadows(void)
+    {
+        mScriptContext.material->setReceiveShadows(testNextTokenID(ID_ON));
+    }
+	//-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseTransparencyCastsShadows(void)
+	{
+		mScriptContext.material->setTransparencyCastsShadows(testNextTokenID(ID_ON));
+	}
+	//-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseSetTextureAlias(void)
+	{
+	    const String& aliasName = getNextTokenLabel();
+	    const String& textureName = getNextTokenLabel();
+		mScriptContext.textureAliases[aliasName] = textureName;
+	}
+	//-----------------------------------------------------------------------
+	// Technique section Actions
 	//-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseTechnique(void)
     {
@@ -521,27 +557,19 @@ namespace Ogre {
 
     }
 	//-----------------------------------------------------------------------
-    void MaterialScriptCompiler::parseTransparencyCastsShadows(void)
+	void MaterialScriptCompiler::parseScheme(void)
 	{
-		mScriptContext.material->setTransparencyCastsShadows(testNextTokenID(ID_ON));
+	    assert(mScriptContext.technique);
+		mScriptContext.technique->setSchemeName(getNextTokenLabel());
 	}
     //-----------------------------------------------------------------------
-    void MaterialScriptCompiler::parseReceiveShadows(void)
+    void MaterialScriptCompiler::parseLodIndex(void)
     {
-        mScriptContext.material->setReceiveShadows(testNextTokenID(ID_ON));
+	    assert(mScriptContext.technique);
+        mScriptContext.technique->setLodIndex(static_cast<uint>(getNextTokenValue()));
     }
-    //-----------------------------------------------------------------------
-    void MaterialScriptCompiler::parseLodDistances(void)
-    {
-        // iterate over the parameters and parse distances out of them
-        Material::LodDistanceList lodList;
-		while (getRemainingTokensForAction() > 0)
-		{
-            lodList.push_back(getNextTokenValue());
-        }
-
-        mScriptContext.material->setLodLevels(lodList);
-    }
+	//-----------------------------------------------------------------------
+	// Pass Section Actions
 	//-----------------------------------------------------------------------
     void MaterialScriptCompiler::parsePass(void)
     {

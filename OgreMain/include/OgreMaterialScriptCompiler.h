@@ -56,10 +56,10 @@ namespace Ogre {
             ID_UNKOWN = 0, ID_OPENBRACE, ID_CLOSEBRACE,
             ID_VERTEX_PROGRAM, ID_FRAGMENT_PROGRAM,
             // material
-            ID_MATERIAL, ID_CLONE, ID_SET_TEXTURE_ALIAS, ID_LOD_DISTANCES,
-            ID_RECEIVE_SHADOWS, ID_TRANSPARENCY_CASTS_SHADOWS,
+            ID_MATERIAL, ID_CLONE, ID_LOD_DISTANCES, ID_RECEIVE_SHADOWS,
+            ID_TRANSPARENCY_CASTS_SHADOWS, ID_SET_TEXTURE_ALIAS,
             // technique
-            ID_TECHNIQUE, ID_LOD_INDEX, ID_SCHEME,
+            ID_TECHNIQUE, ID_SCHEME, ID_LOD_INDEX,
             // pass
             ID_PASS, ID_AMBIENT, ID_DIFFUSE, ID_SPECULAR, ID_EMISSIVE,
             ID_VERTEXCOLOUR, ID_SCENE_BLEND, ID_BLEND_ADD, ID_BLEND_MODULATE, ID_COLOUR_BLEND, ID_ALPHA_BLEND,
@@ -172,10 +172,13 @@ namespace Ogre {
         // material section Actions
         void parseMaterial(void);
         void parseLodDistances(void);
+        void parseReceiveShadows(void);
+        void parseTransparencyCastsShadows(void);
+        void parseSetTextureAlias(void);
         // Technique related actions
         void parseTechnique(void);
-        void parseTransparencyCastsShadows(void);
-        void parseReceiveShadows(void);
+        void parseScheme(void);
+        void parseLodIndex(void);
         // Pass related Actions
         void parsePass(void);
         void parseAmbient(void);
