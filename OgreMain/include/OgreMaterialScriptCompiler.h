@@ -62,17 +62,23 @@ namespace Ogre {
             ID_TECHNIQUE, ID_SCHEME, ID_LOD_INDEX,
             // pass
             ID_PASS, ID_AMBIENT, ID_DIFFUSE, ID_SPECULAR, ID_EMISSIVE,
-            ID_VERTEXCOLOUR, ID_SCENE_BLEND, ID_BLEND_ADD, ID_BLEND_MODULATE, ID_COLOUR_BLEND, ID_ALPHA_BLEND,
+            ID_VERTEXCOLOUR,
+            // scene blend
+            ID_SCENE_BLEND, ID_BLEND_ADD, ID_BLEND_MODULATE, ID_COLOUR_BLEND, ID_ALPHA_BLEND,
             ID_BLEND_ONE, ID_BLEND_ZERO, ID_BLEND_DEST_COLOUR,
             ID_BLEND_SRC_COLOUR, ID_BLEND_ONCE_MINUS_DEST_COLOUR, ID_BLEND_ONE_MINUS_SRC_COLOUR,
             ID_BLEND_DEST_ALPHA, ID_BLEND_SRC_ALPHA, ID_BLEND_ONE_MINUS_DEST_ALPHA, ID_BLEND_ONE_MINUS_SRC_ALPHA,
-            ID_DEPTH_CHECK, ID_DEPTH_WRITE, ID_ALPHA_REJECTION, ID_DEPTH_FUNC, ID_ALWAYS_FAIL, ID_ALWAYS_PASS,
+            // Depth
+            ID_DEPTH_CHECK, ID_DEPTH_WRITE, ID_DEPTH_FUNC, ID_DEPTH_BIAS, ID_ALWAYS_FAIL, ID_ALWAYS_PASS,
             ID_LESS_EQUAL, ID_LESS, ID_EQUAL, ID_NOT_EQUAL, ID_GREATER_EQUAL, ID_GREATER,
 
-            ID_COLOUR_WRITE, ID_CULL_HARDWARE, ID_CLOCKWISE, ID_ANTICLOCKWISE, ID_CULL_NONE,
+            ID_ALPHA_REJECTION, ID_CULL_HARDWARE, ID_CLOCKWISE, ID_ANTICLOCKWISE,
             ID_CULL_SOFTWARE, ID_CULL_BACK, ID_CULL_FRONT,
-            ID_SHADING, ID_FLAT, ID_GOURAUD, ID_PHONG,
-            ID_LIGHTING, ID_MAX_LIGHTS, ID_FOG_OVERRIDE,
+            ID_LIGHTING, ID_SHADING, ID_FLAT, ID_GOURAUD, ID_PHONG,
+            ID_POLYGON_MODE, ID_SOLID, ID_WIREFRAME, ID_POINTS,
+            ID_FOG_OVERRIDE, ID_LINEAR, ID_EXP, ID_EXP2,
+            ID_COLOUR_WRITE, ID_MAX_LIGHTS,
+            ID_ITERATION, ID_ONCE, ID_ONCE_PER_LIGHT, ID_PER_LIGHT, ID_POINT, ID_DIRECTIONAL, ID_SPOT,
 			ID_POINT_SIZE, ID_POINT_SPRITES, ID_POINT_SIZE_ATTENUATION,
 			ID_POINT_SIZE_MIN, ID_POINT_SIZE_MAX,
 
@@ -80,7 +86,7 @@ namespace Ogre {
             ID_TEXTURE_UNIT,
 
             // general
-            ID_ON, ID_OFF, ID_TRUE, ID_FALSE
+            ID_ON, ID_OFF, ID_TRUE, ID_FALSE, ID_NONE
         };
 
         /** Enum to identify material sections. */
@@ -185,16 +191,23 @@ namespace Ogre {
         void parseDiffuse(void);
         void parseSpecular(void);
         void parseEmissive(void);
+        void parseSceneBlend(void);
+        SceneBlendFactor convertBlendFactor(void);
         void parseDepthCheck(void);
         void parseDepthWrite(void);
         void parseDepthFunc(void);
+        void parseDepthBias(void);
         void parseAlphaRejection(void);
-        void parseColourWrite(void);
         void parseCullHardware(void);
         void parseCullSoftware(void);
         void parseLighting(void);
-        void parseMaxLights(void);
         void parseShading(void);
+        void parsePolygonMode(void);
+        void parseFogOverride(void);
+        void parseMaxLights(void);
+        void parseIteration(void);
+        void parseIterationLightTypes(void);
+        void parseColourWrite(void);
         void parsePointSize(void);
         void parsePointSprites(void);
         void parsePointSizeMin(void);

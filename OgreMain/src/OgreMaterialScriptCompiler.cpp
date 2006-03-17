@@ -72,8 +72,8 @@ namespace Ogre {
         "    <Pass> ::= 'pass' [<Label>] '{' {<Pass_Properties>} '}' \n"
         "        <Pass_Properties> ::= <Ambient> | <Diffuse> | <Specular> | <Emissive> | \n"
         "                              <Scene_Blend> | <Depth_Check> | <Depth_Write> | "
-        "                              <Depth_Func> | <Colour_Write> | <Cull_Hardware> | "
-        "                              <Cull_Software> | <Lighting> | <Shading> | "
+        "                              <Depth_Func> | <Depth_Bias> | <Cull_Hardware> | <Cull_Software> | "
+        "                              <Lighting> | <Shading> | <PolygonMode> | <Colour_Write> | "
 		"                              <Point_Size> | <Point_Sprites> | <Point_Size_Attenuation> | "
 		"                              <Point_Size_Min> | <Point_Size_Max> \n"
 
@@ -100,25 +100,25 @@ namespace Ogre {
         "        <Alpha_Rejection> ::= 'alpha_rejection' <Compare_Func> <#value> \n"
         "        <Compare_Func> ::= 'always_fail' | 'always_pass' | 'less_equal' | 'less' | \n"
         "                               'equal' | 'not_equal' | 'greater_equal' | 'greater' \n"
-        "        <Colour_Write> ::= 'colour_write' <On_Off> \n"
         "        <Cull_Hardware> ::= 'cull_hardware' 'clockwise' | 'anticlockwise' | 'none' \n"
         "        <Cull_Software> ::= 'cull_software' 'back' | 'front' | 'none' \n"
         "        <Lighting> ::= 'lighting' <On_Off> \n"
         "        <Shading> ::= 'shading' 'flat' | 'gouraud' | 'phong' \n"
+        "        <PolygonMode> ::= 'polygon_mode' 'solid' | 'wireframe' | 'points' \n"
+        "        <Colour_Write> ::= 'colour_write' <On_Off> \n"
 		"        <Point_Size> ::= 'point_size' <#size> \n"
 		"        <Point_Sprites> ::= 'point_sprites' <On_Off> \n"
 		"        <Point_Size_Min> ::= 'point_size_min' <#size> \n"
 		"        <Point_Size_Max> ::= 'point_size_max' <#size> \n"
 		"        <Point_Size_Attenuation> ::= 'point_size_attenuation' <On_Off> [<Point_Size_Att_Params>] \n"
 		"            <Point_Size_Att_Params> ::= <#constant> <#linear> <#quadric> \n"
-        "        <Fog_Override> ::= 'fog_override' <fog_false> | <fog_true> \n"
-        "           <fog_false> ::= 'false' \n"
+        "        <Fog_Override> ::= 'fog_override' 'false' | <fog_true> \n"
         "           <fog_true> ::= 'true' [<Fog_parameters>] \n"
         "               <Fog_parameters> ::= <fog_type> <fog_colour> <#fog_density> <#start> <#end> \n"
-        "                   <fog_type> ::= 'none' | 'linear' | 'exp' | 'exp2' \n"
+        "                   <fog_type> ::= 'none' | 'linear' | 'exp2' | 'exp0.' \n"
         "                   <fog_colour> ::= <#red> <#green> <#blue> \n"
         "        <Max_Lights> ::= 'max_lights' <#number> \n"
-        "        <Iteration> ::= 'iteration' 'once' | <Iteration_Once_Params> | <Iteration_Counted> \n"
+        "        <Iteration> ::= 'iteration' <Iteration_Once_Params> | 'once' | <Iteration_Counted> \n"
         "           <Iteration_Once_Params> ::= 'once_per_light' [<light_type>] \n"
         "           <Iteration_Counted> ::= <#number> [<Per_Light>] \n"
         "               <Per_Light> ::= 'per_light' <light_type> \n"
@@ -184,6 +184,7 @@ namespace Ogre {
             addLexemeTokenAction("depth_check", ID_DEPTH_CHECK, &MaterialScriptCompiler::parseDepthCheck);
             addLexemeTokenAction("depth_write", ID_DEPTH_WRITE, &MaterialScriptCompiler::parseDepthWrite);
             addLexemeTokenAction("depth_func", ID_DEPTH_FUNC, &MaterialScriptCompiler::parseDepthFunc);
+            addLexemeTokenAction("depth_bias", ID_DEPTH_BIAS, &MaterialScriptCompiler::parseDepthBias);
                 addLexemeTokenAction("always_fail", ID_ALWAYS_FAIL);
                 addLexemeTokenAction("always_pass", ID_ALWAYS_PASS);
                 addLexemeTokenAction("less_equal", ID_LESS_EQUAL);
@@ -192,20 +193,35 @@ namespace Ogre {
                 addLexemeTokenAction("not_equal", ID_NOT_EQUAL);
                 addLexemeTokenAction("greater_equal", ID_GREATER_EQUAL);
                 addLexemeTokenAction("greater", ID_GREATER);
-            addLexemeTokenAction("colour_write", ID_COLOUR_WRITE, &MaterialScriptCompiler::parseColourWrite);
+            addLexemeTokenAction("alpha_rejection", ID_ALPHA_REJECTION, &MaterialScriptCompiler::parseAlphaRejection);
             addLexemeTokenAction("cull_hardware", ID_CULL_HARDWARE, &MaterialScriptCompiler::parseCullHardware);
                 addLexemeTokenAction("clockwise", ID_CLOCKWISE);
                 addLexemeTokenAction("anticlockwise", ID_ANTICLOCKWISE);
-                addLexemeTokenAction("none", ID_CULL_NONE);
             addLexemeTokenAction("cull_software", ID_CULL_SOFTWARE, &MaterialScriptCompiler::parseCullSoftware);
                 addLexemeTokenAction("back", ID_CULL_BACK);
                 addLexemeTokenAction("front", ID_CULL_FRONT);
             addLexemeTokenAction("lighting", ID_LIGHTING, &MaterialScriptCompiler::parseLighting);
-            addLexemeTokenAction("max_lights", ID_MAX_LIGHTS, &MaterialScriptCompiler::parseMaxLights);
             addLexemeTokenAction("shading", ID_SHADING, &MaterialScriptCompiler::parseShading);
                 addLexemeTokenAction("flat", ID_FLAT);
                 addLexemeTokenAction("gouraud", ID_GOURAUD);
                 addLexemeTokenAction("phong", ID_PHONG);
+            addLexemeTokenAction("polygon_mode", ID_POLYGON_MODE, &MaterialScriptCompiler::parsePolygonMode);
+                addLexemeTokenAction("solid", ID_SOLID);
+                addLexemeTokenAction("wireframe", ID_WIREFRAME);
+                addLexemeTokenAction("points", ID_POINTS);
+            addLexemeTokenAction("fog_override", ID_FOG_OVERRIDE, &MaterialScriptCompiler::parseFogOverride);
+                addLexemeTokenAction("linear", ID_LINEAR);
+                addLexemeTokenAction("exp", ID_EXP);
+                addLexemeTokenAction("exp2", ID_EXP2);
+            addLexemeTokenAction("colour_write", ID_COLOUR_WRITE, &MaterialScriptCompiler::parseColourWrite);
+            addLexemeTokenAction("max_lights", ID_MAX_LIGHTS, &MaterialScriptCompiler::parseMaxLights);
+            addLexemeTokenAction("iteration", ID_ITERATION, &MaterialScriptCompiler::parseIteration);
+                addLexemeTokenAction("once", ID_ONCE);
+                addLexemeTokenAction("once_per_light", ID_ONCE_PER_LIGHT);
+                addLexemeTokenAction("per_light", ID_PER_LIGHT);
+                addLexemeTokenAction("point", ID_POINT);
+                addLexemeTokenAction("directional", ID_DIRECTIONAL);
+                addLexemeTokenAction("spot", ID_SPOT);
             addLexemeTokenAction("point_size", ID_POINT_SIZE, &MaterialScriptCompiler::parsePointSize);
             addLexemeTokenAction("point_sprites", ID_POINT_SPRITES, &MaterialScriptCompiler::parsePointSprites);
             addLexemeTokenAction("point_size_attenuation", ID_POINT_SIZE_ATTENUATION, &MaterialScriptCompiler::parsePointSizeAttenuation);
@@ -218,6 +234,9 @@ namespace Ogre {
         // common section
         addLexemeTokenAction("on", ID_ON);
         addLexemeTokenAction("off", ID_OFF);
+        addLexemeTokenAction("true", ID_TRUE);
+        addLexemeTokenAction("false", ID_FALSE);
+        addLexemeTokenAction("none", ID_NONE);
 
     }
 
@@ -430,6 +449,7 @@ namespace Ogre {
         const size_t paramCount = getRemainingTokensForAction();
         if (paramCount == 2)
         {
+            // this gets the ':' token which we need to consume to get to the label
             getNextToken();
             // if a second parameter exists then assume its the name of the base material
             // that this new material should clone from
@@ -736,6 +756,78 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
+    SceneBlendFactor MaterialScriptCompiler::convertBlendFactor(void)
+    {
+        switch(getNextToken().tokenID)
+        {
+        case ID_BLEND_ONE:
+            return SBF_ONE;
+        case ID_BLEND_ZERO:
+            return SBF_ZERO;
+        case ID_BLEND_DEST_COLOUR:
+            return SBF_DEST_COLOUR;
+        case ID_BLEND_SRC_COLOUR:
+            return SBF_SOURCE_COLOUR;
+        case ID_BLEND_ONCE_MINUS_DEST_COLOUR:
+            return SBF_ONE_MINUS_DEST_COLOUR;
+        case ID_BLEND_ONE_MINUS_SRC_COLOUR:
+            return SBF_ONE_MINUS_SOURCE_COLOUR;
+        case ID_BLEND_DEST_ALPHA:
+            return SBF_DEST_ALPHA;
+        case ID_BLEND_SRC_ALPHA:
+            return SBF_SOURCE_ALPHA;
+        case ID_BLEND_ONE_MINUS_DEST_ALPHA:
+            return SBF_ONE_MINUS_DEST_ALPHA;
+        case ID_BLEND_ONE_MINUS_SRC_ALPHA:
+            return SBF_ONE_MINUS_SOURCE_ALPHA;
+        default:
+            return SBF_ONE;
+            break;
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseSceneBlend(void)
+    {
+        assert(mScriptContext.pass);
+        const size_t paramCount = getRemainingTokensForAction();
+        // Should be 1 or 2 params
+        if (paramCount == 1)
+        {
+            //simple blend types
+            SceneBlendType sbtype = SBT_REPLACE;
+            switch(getNextToken().tokenID)
+            {
+            case ID_BLEND_ADD:
+                sbtype = SBT_ADD;
+                break;
+            case ID_BLEND_MODULATE:
+                sbtype = SBT_MODULATE;
+                break;
+			case ID_COLOUR_BLEND:
+				sbtype = SBT_TRANSPARENT_COLOUR;
+				break;
+            case ID_ALPHA_BLEND:
+                sbtype = SBT_TRANSPARENT_ALPHA;
+                break;
+            default:
+                break;
+            }
+            mScriptContext.pass->setSceneBlending(sbtype);
+
+        }
+        else if (paramCount == 2)
+        {
+            const SceneBlendFactor src = convertBlendFactor();
+            const SceneBlendFactor dest = convertBlendFactor();
+            mScriptContext.pass->setSceneBlending(src,dest);
+        }
+        else
+        {
+            logParseError(
+                "Bad scene_blend attribute, wrong number of parameters (expected 1 or 2)");
+        }
+    }
+    //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseDepthCheck(void)
     {
         assert(mScriptContext.pass);
@@ -768,9 +860,10 @@ namespace Ogre {
             return CMPF_GREATER_EQUAL;
         case ID_GREATER:
             return CMPF_GREATER;
+        default:
+            return CMPF_LESS_EQUAL;
+            break;
         }
-
-        OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid compare function", "convertCompareFunction");
     }
 
     //-----------------------------------------------------------------------
@@ -780,24 +873,17 @@ namespace Ogre {
         mScriptContext.pass->setDepthFunction(convertCompareFunction());
     }
     //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseDepthBias(void)
+    {
+        assert(mScriptContext.pass);
+        mScriptContext.pass->setDepthBias(static_cast<ushort>(getNextTokenValue()));
+    }
+    //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseAlphaRejection(void)
     {
         assert(mScriptContext.pass);
-        const size_t paramCount = getRemainingTokensForAction();
-        if (paramCount != 2)
-        {
-            logParseError("Bad alpha_rejection attribute, wrong number of parameters (expected 2)");
-            return;
-        }
-
         const CompareFunction cmp = convertCompareFunction();
         mScriptContext.pass->setAlphaRejectSettings(cmp, static_cast<unsigned char>(getNextTokenValue()));
-    }
-    //-----------------------------------------------------------------------
-    void MaterialScriptCompiler::parseColourWrite(void)
-    {
-        assert(mScriptContext.pass);
-        mScriptContext.pass->setColourWriteEnabled(testNextTokenID(ID_ON));
     }
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseCullHardware(void)
@@ -805,7 +891,7 @@ namespace Ogre {
         assert(mScriptContext.pass);
         switch (getNextToken().tokenID)
         {
-        case ID_CULL_NONE:
+        case ID_NONE:
             mScriptContext.pass->setCullingMode(CULL_NONE);
             break;
         case ID_ANTICLOCKWISE:
@@ -815,9 +901,7 @@ namespace Ogre {
             mScriptContext.pass->setCullingMode(CULL_CLOCKWISE);
             break;
         default:
-            logParseError(
-                "Bad cull_hardware attribute, valid parameters are "
-                "'none', 'clockwise' or 'anticlockwise'.");
+            break;
         }
     }
     //-----------------------------------------------------------------------
@@ -826,7 +910,7 @@ namespace Ogre {
         assert(mScriptContext.pass);
         switch (getNextToken().tokenID)
         {
-        case ID_CULL_NONE:
+        case ID_NONE:
             mScriptContext.pass->setManualCullingMode(MANUAL_CULL_NONE);
             break;
         case ID_CULL_BACK:
@@ -836,9 +920,7 @@ namespace Ogre {
             mScriptContext.pass->setManualCullingMode(MANUAL_CULL_FRONT);
             break;
         default:
-            logParseError(
-                "Bad cull_software attribute, valid parameters are 'none', "
-                "'front' or 'back'.");
+            break;
         }
     }
     //-----------------------------------------------------------------------
@@ -846,12 +928,6 @@ namespace Ogre {
     {
         assert(mScriptContext.pass);
         mScriptContext.pass->setLightingEnabled(testNextTokenID(ID_ON));
-    }
-    //-----------------------------------------------------------------------
-    void MaterialScriptCompiler::parseMaxLights(void)
-    {
-        assert(mScriptContext.pass);
-		mScriptContext.pass->setMaxSimultaneousLights(static_cast<int>(getNextTokenValue()));
     }
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseShading(void)
@@ -869,8 +945,157 @@ namespace Ogre {
             mScriptContext.pass->setShadingMode(SO_PHONG);
             break;
         default:
-            logParseError("Bad shading attribute, valid parameters are 'flat', "
-                "'gouraud' or 'phong'.");
+            break;
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parsePolygonMode(void)
+    {
+        assert(mScriptContext.pass);
+        switch (getNextToken().tokenID)
+        {
+        case ID_SOLID:
+            mScriptContext.pass->setPolygonMode(PM_SOLID);
+            break;
+        case ID_WIREFRAME:
+            mScriptContext.pass->setPolygonMode(PM_WIREFRAME);
+            break;
+        case ID_POINTS:
+            mScriptContext.pass->setPolygonMode(PM_POINTS);
+            break;
+        default:
+            break;
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseFogOverride(void)
+    {
+        assert(mScriptContext.pass);
+        if (getNextToken().tokenID == ID_TRUE)
+        {
+            // if true, we need to see if they supplied all arguments, or just the 1... if just the one,
+            // Assume they want to disable the default fog from effecting this material.
+            const size_t paramCount = getRemainingTokensForAction();
+            if( paramCount == 7 )
+            {
+                FogMode fogtype;
+                switch (getNextToken().tokenID)
+                {
+                case ID_LINEAR:
+                    fogtype = FOG_LINEAR;
+                case ID_EXP:
+                    fogtype = FOG_EXP;
+                case ID_EXP2:
+                    fogtype = FOG_EXP2;
+                case ID_NONE:
+                default:
+                    fogtype = FOG_NONE;
+                    break;
+                }
+
+                const Real red = getNextTokenValue();
+                const Real green = getNextTokenValue();
+                const Real blue = getNextTokenValue();
+                const Real density = getNextTokenValue();
+                const Real start = getNextTokenValue();
+                const Real end = getNextTokenValue();
+
+                mScriptContext.pass->setFog(
+                    true,
+                    fogtype,
+                    ColourValue(red, green, blue),
+                    density, start, end
+                    );
+            }
+            else
+            {
+                mScriptContext.pass->setFog(true);
+            }
+        }
+        else
+            mScriptContext.pass->setFog(false);
+
+    }
+   //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseColourWrite(void)
+    {
+        assert(mScriptContext.pass);
+        mScriptContext.pass->setColourWriteEnabled(testNextTokenID(ID_ON));
+    }
+     //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseMaxLights(void)
+    {
+        assert(mScriptContext.pass);
+		mScriptContext.pass->setMaxSimultaneousLights(static_cast<int>(getNextTokenValue()));
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseIterationLightTypes(void)
+    {
+        assert(mScriptContext.pass);
+        // Parse light type
+        switch(getNextToken().tokenID)
+        {
+        case ID_DIRECTIONAL:
+            mScriptContext.pass->setIteratePerLight(true, true, Light::LT_DIRECTIONAL);
+            break;
+        case ID_POINT:
+            mScriptContext.pass->setIteratePerLight(true, true, Light::LT_POINT);
+            break;
+        case ID_SPOT:
+            mScriptContext.pass->setIteratePerLight(true, true, Light::LT_SPOTLIGHT);
+            break;
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseIteration(void)
+    {
+        assert(mScriptContext.pass);
+        // we could have more than one parameter
+        /** combinations could be:
+            iteration once
+            iteration once_per_light [light type]
+            iteration <number>
+            iteration <number> [per_light] [light type]
+        */
+        if (testNextTokenID(ID_ONCE))
+            mScriptContext.pass->setIteratePerLight(false);
+        else if (testNextTokenID(ID_ONCE_PER_LIGHT))
+        {
+            getNextToken();
+            if (getRemainingTokensForAction() == 1)
+            {
+                parseIterationLightTypes();
+            }
+            else
+            {
+                mScriptContext.pass->setIteratePerLight(true, false);
+            }
+
+        }
+        else // could be using form: <number> [per_light] [light type]
+        {
+            uint passIterationCount = static_cast<uint>(getNextTokenValue());
+            if (passIterationCount > 0)
+            {
+                mScriptContext.pass->setPassIterationCount(passIterationCount);
+                if (getRemainingTokensForAction() > 1)
+                {
+                    if (getNextToken().tokenID == ID_PER_LIGHT)
+                    {
+                        if (getRemainingTokensForAction() == 1)
+                        {
+                            parseIterationLightTypes();
+                        }
+                        else
+                        {
+                            mScriptContext.pass->setIteratePerLight(true, false);
+                        }
+                    }
+                    else
+                        logParseError(
+                            "Bad iteration attribute, valid parameters are <number> [per_light] [light type].");
+                }
+            }
         }
     }
     //-----------------------------------------------------------------------
