@@ -1554,11 +1554,18 @@ namespace Ogre {
         // Accumulation vectors
         Vector3 accumVecPos, accumVecNorm;
 
-        float *pSrcPos, *pSrcNorm, *pDestPos, *pDestNorm, *pBlendWeight;
-        unsigned char* pBlendIdx;
-        bool srcPosNormShareBuffer = false;
-        bool destPosNormShareBuffer = false;
-        bool weightsIndexesShareBuffer = false;
+        float *pSrcPos = 0;
+        float *pSrcNorm = 0;
+        float *pDestPos = 0;
+        float *pDestNorm = 0;
+        float *pBlendWeight = 0;
+        unsigned char* pBlendIdx = 0;
+        size_t srcPosStride = 0;
+        size_t srcNormStride = 0;
+        size_t destPosStride = 0;
+        size_t destNormStride = 0;
+        size_t blendWeightStride = 0;
+        size_t blendIdxStride = 0;
 
 
         // Get elements for source
@@ -1585,134 +1592,91 @@ namespace Ogre {
         // Get buffers for source
         HardwareVertexBufferSharedPtr srcPosBuf, srcNormBuf, srcIdxBuf, srcWeightBuf;
         srcPosBuf = sourceVertexData->vertexBufferBinding->getBuffer(srcElemPos->getSource());
+        srcPosStride = srcPosBuf->getVertexSize();
         srcIdxBuf = sourceVertexData->vertexBufferBinding->getBuffer(srcElemBlendIndices->getSource());
+        blendIdxStride = srcIdxBuf->getVertexSize();
         srcWeightBuf = sourceVertexData->vertexBufferBinding->getBuffer(srcElemBlendWeights->getSource());
+        blendWeightStride = srcWeightBuf->getVertexSize();
         if (includeNormals)
         {
             srcNormBuf = sourceVertexData->vertexBufferBinding->getBuffer(srcElemNorm->getSource());
-            srcPosNormShareBuffer = (srcPosBuf.get() == srcNormBuf.get());
+            srcNormStride = srcNormBuf->getVertexSize();
         }
-        weightsIndexesShareBuffer = (srcIdxBuf.get() == srcWeightBuf.get());
         // Get buffers for target
         HardwareVertexBufferSharedPtr destPosBuf, destNormBuf;
         destPosBuf = targetVertexData->vertexBufferBinding->getBuffer(destElemPos->getSource());
+        destPosStride = destPosBuf->getVertexSize();
         if (includeNormals)
         {
             destNormBuf = targetVertexData->vertexBufferBinding->getBuffer(destElemNorm->getSource());
-            destPosNormShareBuffer = (destPosBuf.get() == destNormBuf.get());
+            destNormStride = destNormBuf->getVertexSize();
         }
+
+        void* pBuffer;
 
         // Lock source buffers for reading
-        assert (srcElemPos->getOffset() == 0 &&
-            "Positions must be first element in dedicated buffer!");
-        pSrcPos = static_cast<float*>(
-            srcPosBuf->lock(HardwareBuffer::HBL_READ_ONLY));
+        pBuffer = srcPosBuf->lock(HardwareBuffer::HBL_READ_ONLY);
+        srcElemPos->baseVertexPointerToElement(pBuffer, &pSrcPos);
         if (includeNormals)
         {
-            if (srcPosNormShareBuffer)
-            {
-                // Same buffer, must be packed directly after position
-                assert (srcElemNorm->getOffset() == sizeof(float) * 3 &&
-                    "Normals must be packed directly after positions in buffer!");
-                // pSrcNorm will not be used
-            }
-            else
+            if (srcNormBuf != srcPosBuf)
             {
                 // Different buffer
-                assert (srcElemNorm->getOffset() == 0 &&
-                    "Normals must be first element in dedicated buffer!");
-                pSrcNorm = static_cast<float*>(
-                    srcNormBuf->lock(HardwareBuffer::HBL_READ_ONLY));
+                pBuffer = srcNormBuf->lock(HardwareBuffer::HBL_READ_ONLY);
             }
+            srcElemNorm->baseVertexPointerToElement(pBuffer, &pSrcNorm);
         }
 
-        // Indices must be first in a buffer and be 4 bytes
-        assert(srcElemBlendIndices->getOffset() == 0 &&
-               srcElemBlendIndices->getType() == VET_UBYTE4 &&
-               "Blend indices must be first in a buffer and be VET_UBYTE4");
-        pBlendIdx = static_cast<unsigned char*>(
-            srcIdxBuf->lock(HardwareBuffer::HBL_READ_ONLY));
-        if (weightsIndexesShareBuffer)
+        // Indices must be 4 bytes
+        assert(srcElemBlendIndices->getType() == VET_UBYTE4 &&
+               "Blend indices must be VET_UBYTE4");
+        pBuffer = srcIdxBuf->lock(HardwareBuffer::HBL_READ_ONLY);
+        srcElemBlendIndices->baseVertexPointerToElement(pBuffer, &pBlendIdx);
+        if (srcWeightBuf != srcIdxBuf)
         {
-            // Weights must be packed directly after the indices
-            assert(srcElemBlendWeights->getOffset() == sizeof(unsigned char)*4 &&
-                "Blend weights must be directly after indices in the buffer");
-            srcElemBlendWeights->baseVertexPointerToElement(pBlendIdx, &pBlendWeight);
-        }
-        else
-        {
-            // Weights must be at the start of the buffer
-            assert(srcElemBlendWeights->getOffset() == 0 &&
-                "Blend weights must be at the start of a dedicated buffer");
             // Lock buffer
-            pBlendWeight = static_cast<float*>(
-                srcWeightBuf->lock(HardwareBuffer::HBL_READ_ONLY));
+            pBuffer = srcWeightBuf->lock(HardwareBuffer::HBL_READ_ONLY);
         }
+        srcElemBlendWeights->baseVertexPointerToElement(pBuffer, &pBlendWeight);
         unsigned short numWeightsPerVertex =
             VertexElement::getTypeCount(srcElemBlendWeights->getType());
+        // Adjust blend info strides, since it's specific
+        blendIdxStride -= numWeightsPerVertex * sizeof(*pBlendIdx);
+        blendWeightStride -= numWeightsPerVertex * sizeof(*pBlendWeight);
 
 
         // Lock destination buffers for writing
-        assert (destElemPos->getOffset() == 0 &&
-            "Positions must be first element in dedicated buffer!");
-        pDestPos = static_cast<float*>(
-            destPosBuf->lock(HardwareBuffer::HBL_DISCARD));
+        pBuffer = destPosBuf->lock(
+            (destNormBuf != destPosBuf && destPosBuf->getVertexSize() == destElemPos->getSize()) ||
+            (destNormBuf == destPosBuf && destPosBuf->getVertexSize() == destElemPos->getSize() + destElemNorm->getSize()) ?
+            HardwareBuffer::HBL_DISCARD : HardwareBuffer::HBL_NORMAL);
+        destElemPos->baseVertexPointerToElement(pBuffer, &pDestPos);
         if (includeNormals)
         {
-            if (destPosNormShareBuffer)
+            if (destNormBuf != destPosBuf)
             {
-                // Same buffer, must be packed directly after position
-                assert (destElemNorm->getOffset() == sizeof(float) * 3 &&
-                    "Normals must be packed directly after positions in buffer!");
-                // Must be no other information in the buffer
-                assert(destPosBuf->getVertexSize() ==
-                    destElemPos->getSize() + destElemNorm->getSize() &&
-                    "When software skinning, position & normal buffer must not include "
-                    "any other vertex elements!");
-                // pDestNorm will not be used
+                pBuffer = destNormBuf->lock(
+                    destNormBuf->getVertexSize() == destElemNorm->getSize() ?
+                    HardwareBuffer::HBL_DISCARD : HardwareBuffer::HBL_NORMAL);
             }
-            else
-            {
-                // Different buffer
-                assert (destElemNorm->getOffset() == 0 &&
-                    "Normals must be first element in dedicated buffer!");
-                // Must be no other information in the buffer
-                assert(destPosBuf->getVertexSize() ==
-                    destElemPos->getSize() &&
-                    "When software skinning, dedicated position buffer must not include "
-                    "any other vertex elements!");
-                assert(destNormBuf->getVertexSize() ==
-                    destElemNorm->getSize() &&
-                    "When software skinning, dedicated normal buffer must not include "
-                    "any other vertex elements!");
-                pDestNorm = static_cast<float*>(
-                    destNormBuf->lock(HardwareBuffer::HBL_DISCARD));
-            }
+            destElemNorm->baseVertexPointerToElement(pBuffer, &pDestNorm);
         }
 
         // Loop per vertex
         for (size_t vertIdx = 0; vertIdx < targetVertexData->vertexCount; ++vertIdx)
         {
             // Load source vertex elements
-            sourceVec.x = *pSrcPos++;
-            sourceVec.y = *pSrcPos++;
-            sourceVec.z = *pSrcPos++;
+            sourceVec.x = pSrcPos[0];
+            sourceVec.y = pSrcPos[1];
+            sourceVec.z = pSrcPos[2];
 
             if (includeNormals)
             {
-                if (srcPosNormShareBuffer)
-                {
-                    sourceNorm.x = *pSrcPos++;
-                    sourceNorm.y = *pSrcPos++;
-                    sourceNorm.z = *pSrcPos++;
-                }
-                else
-                {
-                    sourceNorm.x = *pSrcNorm++;
-                    sourceNorm.y = *pSrcNorm++;
-                    sourceNorm.z = *pSrcNorm++;
-                }
+                sourceNorm.x = pSrcNorm[0];
+                sourceNorm.y = pSrcNorm[1];
+                sourceNorm.z = pSrcNorm[2];
             }
+
             // Load accumulators
             accumVecPos = Vector3::ZERO;
             accumVecNorm = Vector3::ZERO;
@@ -1724,7 +1688,8 @@ namespace Ogre {
                 // Blend by multiplying source by blend matrix and scaling by weight
                 // Add to accumulator
                 // NB weights must be normalised!!
-                if (*pBlendWeight != 0.0)
+                Real weight = *pBlendWeight;
+                if (weight)
                 {
                     // Blend position, use 3x4 matrix
                     const Matrix4& mat = pMatrices[pIndexMap[*pBlendIdx]];
@@ -1733,19 +1698,19 @@ namespace Ogre {
                          mat[0][1] * sourceVec.y +
                          mat[0][2] * sourceVec.z +
                          mat[0][3])
-                         * (*pBlendWeight);
+                         * weight;
                     accumVecPos.y +=
                         (mat[1][0] * sourceVec.x +
                          mat[1][1] * sourceVec.y +
                          mat[1][2] * sourceVec.z +
                          mat[1][3])
-                         * (*pBlendWeight);
+                         * weight;
                     accumVecPos.z +=
                         (mat[2][0] * sourceVec.x +
                          mat[2][1] * sourceVec.y +
                          mat[2][2] * sourceVec.z +
                          mat[2][3])
-                         * (*pBlendWeight);
+                         * weight;
                     if (includeNormals)
                     {
                         // Blend normal
@@ -1757,80 +1722,65 @@ namespace Ogre {
                             (mat[0][0] * sourceNorm.x +
                              mat[0][1] * sourceNorm.y +
                              mat[0][2] * sourceNorm.z)
-                             * (*pBlendWeight);
+                             * weight;
                         accumVecNorm.y +=
                             (mat[1][0] * sourceNorm.x +
                              mat[1][1] * sourceNorm.y +
                              mat[1][2] * sourceNorm.z)
-                            * (*pBlendWeight);
+                            * weight;
                         accumVecNorm.z +=
                             (mat[2][0] * sourceNorm.x +
                              mat[2][1] * sourceNorm.y +
                              mat[2][2] * sourceNorm.z)
-                            * (*pBlendWeight);
+                            * weight;
                     }
 
                 }
                 ++pBlendWeight;
                 ++pBlendIdx;
             }
-            // Finish off blend info pointers
-            // Make sure we skip over 4 index elements no matter how many we used
-            pBlendIdx += 4 - numWeightsPerVertex;
-            if(weightsIndexesShareBuffer)
-            {
-                // Skip index over weights
-                pBlendIdx += sizeof(float) * numWeightsPerVertex;
-                // Re-base weights
-                srcElemBlendWeights->baseVertexPointerToElement(pBlendIdx, &pBlendWeight);
-            }
 
 
             // Stored blended vertex in hardware buffer
-            *pDestPos++ = accumVecPos.x;
-            *pDestPos++ = accumVecPos.y;
-            *pDestPos++ = accumVecPos.z;
+            pDestPos[0] = accumVecPos.x;
+            pDestPos[1] = accumVecPos.y;
+            pDestPos[2] = accumVecPos.z;
 
             // Stored blended vertex in temp buffer
             if (includeNormals)
             {
                 // Normalise
                 accumVecNorm.normalise();
-                if (destPosNormShareBuffer)
-                {
-                    // Pack into same buffer
-                    *pDestPos++ = accumVecNorm.x;
-                    *pDestPos++ = accumVecNorm.y;
-                    *pDestPos++ = accumVecNorm.z;
-                }
-                else
-                {
-                    *pDestNorm++ = accumVecNorm.x;
-                    *pDestNorm++ = accumVecNorm.y;
-                    *pDestNorm++ = accumVecNorm.z;
-                }
+                pDestNorm[0] = accumVecNorm.x;
+                pDestNorm[1] = accumVecNorm.y;
+                pDestNorm[2] = accumVecNorm.z;
             }
+
+            // Advance pointers
+            *reinterpret_cast<char**>(&pSrcPos)      += srcPosStride;
+            *reinterpret_cast<char**>(&pSrcNorm)     += srcNormStride;
+            *reinterpret_cast<char**>(&pDestPos)     += destPosStride;
+            *reinterpret_cast<char**>(&pDestNorm)    += destNormStride;
+            *reinterpret_cast<char**>(&pBlendWeight) += blendWeightStride;
+            *reinterpret_cast<char**>(&pBlendIdx)    += blendIdxStride;
         }
         // Unlock source buffers
         srcPosBuf->unlock();
         srcIdxBuf->unlock();
-        if (!weightsIndexesShareBuffer)
+        if (srcWeightBuf != srcIdxBuf)
         {
             srcWeightBuf->unlock();
         }
-        if (includeNormals && !srcPosNormShareBuffer)
+        if (includeNormals && srcNormBuf != srcPosBuf)
         {
             srcNormBuf->unlock();
         }
         // Unlock destination buffers
         destPosBuf->unlock();
-        if (includeNormals && !destPosNormShareBuffer)
+        if (includeNormals && destNormBuf != destPosBuf)
         {
             destNormBuf->unlock();
-
         }
-
-
 
     }
 	//---------------------------------------------------------------------
