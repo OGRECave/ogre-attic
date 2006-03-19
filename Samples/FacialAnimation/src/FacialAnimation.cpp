@@ -359,7 +359,7 @@ protected:
                 (CEGUI::utf8*)"TaharezLookSkin.scheme");
         mGUISystem->setDefaultMouseCursor(
                 (CEGUI::utf8*)"TaharezLook", (CEGUI::utf8*)"MouseArrow");
-        mGUISystem->setDefaultFont((CEGUI::utf8*)"Tahoma-12");
+        mGUISystem->setDefaultFont((CEGUI::utf8*)"BlueHighway-12");
 
         CEGUI::Window* sheet = 
             CEGUI::WindowManager::getSingleton().loadWindowLayout(
