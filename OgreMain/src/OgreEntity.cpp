@@ -663,7 +663,7 @@ namespace Ogre {
         //      1. It's used when using hardware animation and skeleton animated.
         //      2. It's changed when animation dirty or parent node transform has altered.
         if (hwAnimation && _isSkeletonAnimated() &&
-            (animationDirty || mLastParentXform != getParentSceneNode()->_getFullTransform()))
+            (animationDirty || mLastParentXform != _getParentNodeFullTransform()))
         {
             // Allocate bone world matrices on demand, for better memory footprint
             // when using software animation.
@@ -673,7 +673,7 @@ namespace Ogre {
             }
 
             // Cache last parent transform for next frame use too.
-            mLastParentXform = getParentSceneNode()->_getFullTransform();
+            mLastParentXform = _getParentNodeFullTransform();
 
             for (unsigned short i = 0; i < mNumBoneMatrices; ++i)
             {
