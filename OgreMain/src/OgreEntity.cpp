@@ -550,11 +550,7 @@ namespace Ogre {
 		bool stencilShadows = false;
 		if (root._getCurrentSceneManager())
 			stencilShadows =  root._getCurrentSceneManager()->isShadowTechniqueStencilBased();
-        // If all animations are disabled, we'll use origin vertex buffer for
-        // rendering. But still perform software animation if user required,
-        // because need to keep same behavior in user standpoint.
-		bool softwareAnimation = forcedSwAnimation ||
-            (!hwAnimation || stencilShadows) && _isAnimated();
+		bool softwareAnimation = !hwAnimation || stencilShadows || forcedSwAnimation;
 		// Blend normals in s/w only if we're not using h/w animation,
 		// since shadows only require positions
 		bool blendNormals = !hwAnimation || forcedNormals;
@@ -1437,7 +1433,7 @@ namespace Ogre {
         if (init)
             mShadowRenderables.resize(edgeList->edgeGroups.size());
 
-        bool isAnimated = _isAnimated();
+        bool isAnimated = hasAnimation;
         bool updatedSharedGeomNormals = false;
         siend = mShadowRenderables.end();
         egi = edgeList->edgeGroups.begin();
@@ -1529,7 +1525,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     const VertexData* Entity::findBlendedVertexData(const VertexData* orig)
     {
-		bool skel = _isSkeletonAnimated();
+		bool skel = hasSkeleton();
 
         if (orig == mMesh->sharedVertexData)
         {
@@ -1866,13 +1862,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	Entity::VertexDataBindChoice Entity::chooseVertexDataForBinding(bool vertexAnim) const
 	{
-        if (!_isAnimated())
-        {
-            // no animation or all animations disabled.
-            return BIND_ORIGINAL;
-        }
-
-		if (_isSkeletonAnimated())
+		if (hasSkeleton())
 		{
 			if (!mHardwareAnimation)
 			{
