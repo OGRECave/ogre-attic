@@ -142,6 +142,12 @@ namespace Ogre {
             " * Multiple Render Targets: "
             + StringConverter::toString(mNumMultiRenderTargets));
 		pLog->logMessage(
+			" * Point Sprites: "
+			+ StringConverter::toString(hasCapability(RSC_POINT_SPRITES), true));
+		pLog->logMessage(
+			" * Extended point parameters: "
+			+ StringConverter::toString(hasCapability(RSC_POINT_EXTENDED_PARAMETERS), true));
+		pLog->logMessage(
 			" * Max Point Size: "
 			+ StringConverter::toString(mMaxPointSize));
 

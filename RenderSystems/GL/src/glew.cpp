@@ -694,6 +694,12 @@ PFNGLVERTEXATTRIBS4DVNVPROC __glewVertexAttribs4dvNV = NULL;
 PFNGLVERTEXATTRIBS4FVNVPROC __glewVertexAttribs4fvNV = NULL;
 PFNGLVERTEXATTRIBS4SVNVPROC __glewVertexAttribs4svNV = NULL;
 PFNGLVERTEXATTRIBS4UBVNVPROC __glewVertexAttribs4ubvNV = NULL;
+// SJS
+PFNGLPOINTPARAMETERFARBPROC __glewPointParameterfARB = NULL;
+PFNGLPOINTPARAMETERFVARBPROC __glewPointParameterfvARB = NULL;
+PFNGLPOINTPARAMETERFEXTPROC __glewPointParameterfEXT = NULL;
+PFNGLPOINTPARAMETERFVEXTPROC __glewPointParameterfvEXT = NULL;
+// SJS
 
 #endif /* !WIN32 || !GLEW_MX */
 
@@ -747,6 +753,12 @@ GLboolean __GLEW_NV_vertex_program = GL_FALSE;
 GLboolean __GLEW_NV_vertex_program2_option = GL_FALSE;
 GLboolean __GLEW_NV_vertex_program3 = GL_FALSE;
 GLboolean __GLEW_SGIS_generate_mipmap = GL_FALSE;
+// SJS changes for OGRE
+GLboolean __GLEW_EXT_point_sprite = GL_FALSE;
+GLboolean __GLEW_EXT_point_parameters = GL_FALSE;
+GLboolean __GLEW_ARB_point_parameters = GL_FALSE;
+GLboolean __GLEW_ARB_point_sprite = GL_FALSE;
+// End changes
 
 #endif /* !GLEW_MX */
 
@@ -760,7 +772,7 @@ static GLboolean _glewInit_GL_VERSION_1_2 (GLEW_CONTEXT_ARG_DEF_INIT)
   r = ((glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)glewGetProcAddress((const GLubyte*)"glDrawRangeElements")) == NULL) || r;
   r = ((glTexImage3D = (PFNGLTEXIMAGE3DPROC)glewGetProcAddress((const GLubyte*)"glTexImage3D")) == NULL) || r;
   r = ((glTexSubImage3D = (PFNGLTEXSUBIMAGE3DPROC)glewGetProcAddress((const GLubyte*)"glTexSubImage3D")) == NULL) || r;
-
+  
   return r;
 }
 
@@ -1645,6 +1657,46 @@ static GLboolean _glewInit_GL_NV_vertex_program (GLEW_CONTEXT_ARG_DEF_INIT)
 
 #endif /* GL_SGIS_generate_mipmap */
 
+// Begin SJS change for OGRE
+#ifdef GL_ARB_point_parameters
+static GLboolean _glewInit_GL_ARB_point_parameters (GLEW_CONTEXT_ARG_DEF_INIT)
+{
+	GLboolean r = GL_FALSE;
+
+	r = ((glPointParameterfARB = (PFNGLPOINTPARAMETERFPROC)glewGetProcAddress((const GLubyte*)"glPointParameterfARB")) == NULL) || r;
+	r = ((glPointParameterfvARB = (PFNGLPOINTPARAMETERFVPROC)glewGetProcAddress((const GLubyte*)"glPointParameterfvARB")) == NULL) || r;
+	// For convenience, if GL 1.4 not defined, assign same to non-ARB version since interface identical
+	if (!GLEW_VERSION_1_4)
+	{
+		glPointParameterf = glPointParameterfARB;
+		glPointParameterfv = glPointParameterfvARB;
+	}
+
+	return r;
+}
+#endif /* GL_ARB_point_parameters */
+
+#ifdef GL_EXT_point_parameters
+static GLboolean _glewInit_GL_EXT_point_parameters (GLEW_CONTEXT_ARG_DEF_INIT)
+{
+	GLboolean r = GL_FALSE;
+
+	r = ((glPointParameterfEXT = (PFNGLPOINTPARAMETERFPROC)glewGetProcAddress((const GLubyte*)"glPointParameterfEXT")) == NULL) || r;
+	r = ((glPointParameterfvEXT = (PFNGLPOINTPARAMETERFVPROC)glewGetProcAddress((const GLubyte*)"glPointParameterfvEXT")) == NULL) || r;
+	// For convenience, if GL 1.4 not defined, assign same to non-EXT version since interface identical
+	if (!GLEW_VERSION_1_4)
+	{
+		glPointParameterf = glPointParameterfEXT;
+		glPointParameterfv = glPointParameterfvEXT;
+	}
+
+	return r;
+}
+#endif /* GL_EXT_point_parameters */
+
+// End SJS change for OGRE
+
+
 /* ------------------------------------------------------------------------- */
 
 /* 
@@ -1922,6 +1974,20 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
 #ifdef GL_SGIS_generate_mipmap
   GLEW_SGIS_generate_mipmap = glewGetExtension("GL_SGIS_generate_mipmap");
 #endif /* GL_SGIS_generate_mipmap */
+// SJS Changes for OGRE
+#ifdef GL_ARB_point_sprite
+  GLEW_ARB_point_sprite = glewGetExtension("GL_ARB_point_sprite");
+#endif /* GL_ARB_point_sprite */
+#ifdef GL_EXT_point_parameters
+  GLEW_EXT_point_parameters = glewGetExtension("GL_EXT_point_parameters");
+  if (glewExperimental || GLEW_EXT_point_parameters) GLEW_EXT_point_parameters = !_glewInit_GL_EXT_point_parameters(GLEW_CONTEXT_ARG_VAR_INIT);
+#endif /* GL_EXT_point_parameters */
+#ifdef GL_ARB_point_parameters
+  GLEW_ARB_point_parameters = glewGetExtension("GL_ARB_point_parameters");
+  if (glewExperimental || GLEW_ARB_point_parameters) GLEW_ARB_point_parameters = !_glewInit_GL_ARB_point_parameters(GLEW_CONTEXT_ARG_VAR_INIT);
+#endif /* GL_ARB_point_parameters */
+
+// End SJS changes
 
   return GLEW_OK;
 }

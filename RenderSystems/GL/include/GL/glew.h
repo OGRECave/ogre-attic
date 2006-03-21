@@ -3684,6 +3684,41 @@ typedef void (GLAPIENTRY * PFNGLVERTEXATTRIBS4UBVNVPROC) (GLuint index, GLsizei 
 
 /* ------------------------------------------------------------------------- */
 
+// Added for OGRE by SJS
+/* ------------------------ GL_ARB_point_sprite ---------------------------- */
+#ifndef GL_ARB_point_sprite
+#define GL_ARB_point_sprite 1
+// All state enums used are the same as GL 1.4 standard ones
+#define GLEW_ARB_point_sprite GLEW_GET_VAR(__GLEW_ARB_point_sprite)
+
+#endif /* GL_ARB_point_sprite */
+/* ------------------------ GL_ARB_point_parameters ------------------------ */
+#ifndef GL_ARB_point_parameters
+#define GL_ARB_point_parameters 1
+// All state enums used are the same as GL 1.4 standard ones
+typedef void (GLAPIENTRY * PFNGLPOINTPARAMETERFARBPROC) (GLenum pname, GLfloat param);
+typedef void (GLAPIENTRY * PFNGLPOINTPARAMETERFVARBPROC) (GLenum pname, GLfloat *params);
+#define GLEW_ARB_point_parameters GLEW_GET_VAR(__GLEW_ARB_point_parameters)
+#define glPointParameterfARB GLEW_GET_FUN(__glewPointParameterfARB)
+#define glPointParameterfvARB GLEW_GET_FUN(__glewPointParameterfvARB)
+
+#endif /* GL_ARB_point_parameters */
+/* ------------------------------------------------------------------------- */
+/* ------------------------ GL_EXT_point_parameters ------------------------ */
+#ifndef GL_EXT_point_parameters
+#define GL_EXT_point_parameters 1
+// All state enums used are the same as GL 1.4 standard ones
+typedef void (GLAPIENTRY * PFNGLPOINTPARAMETERFEXTPROC) (GLenum pname, GLfloat param);
+typedef void (GLAPIENTRY * PFNGLPOINTPARAMETERFVEXTPROC) (GLenum pname, GLfloat *params);
+#define GLEW_EXT_point_parameters GLEW_GET_VAR(__GLEW_EXT_point_parameters)
+#define glPointParameterfEXT GLEW_GET_FUN(__glewPointParameterfEXT)
+#define glPointParameterfvEXT GLEW_GET_FUN(__glewPointParameterfvEXT)
+
+#endif /* GL_EXT_point_parameters */
+/* ------------------------------------------------------------------------- */
+// End SJS Additions
+
+
 #if defined(GLEW_MX) && defined(_WIN32)
 #define GLEW_FUN_EXPORT
 #else
@@ -4239,6 +4274,12 @@ GLEW_FUN_EXPORT PFNGLVERTEXATTRIBS4DVNVPROC __glewVertexAttribs4dvNV;
 GLEW_FUN_EXPORT PFNGLVERTEXATTRIBS4FVNVPROC __glewVertexAttribs4fvNV;
 GLEW_FUN_EXPORT PFNGLVERTEXATTRIBS4SVNVPROC __glewVertexAttribs4svNV;
 GLEW_FUN_EXPORT PFNGLVERTEXATTRIBS4UBVNVPROC __glewVertexAttribs4ubvNV;
+// SJS
+GLEW_FUN_EXPORT PFNGLPOINTPARAMETERFEXTPROC __glewPointParameterfEXT;
+GLEW_FUN_EXPORT PFNGLPOINTPARAMETERFVEXTPROC __glewPointParameterfvEXT;
+GLEW_FUN_EXPORT PFNGLPOINTPARAMETERFARBPROC __glewPointParameterfARB;
+GLEW_FUN_EXPORT PFNGLPOINTPARAMETERFVARBPROC __glewPointParameterfvARB;
+// SJS
 
 #if defined(GLEW_MX) && !defined(_WIN32)
 struct GLEWContextStruct
@@ -4293,7 +4334,11 @@ GLEW_VAR_EXPORT GLboolean __GLEW_NV_vertex_program;
 GLEW_VAR_EXPORT GLboolean __GLEW_NV_vertex_program2_option;
 GLEW_VAR_EXPORT GLboolean __GLEW_NV_vertex_program3;
 GLEW_VAR_EXPORT GLboolean __GLEW_SGIS_generate_mipmap;
-
+// Added for OGRE by SJS
+GLEW_VAR_EXPORT GLboolean __GLEW_ARB_point_sprite;
+GLEW_VAR_EXPORT GLboolean __GLEW_ARB_point_parameters;
+GLEW_VAR_EXPORT GLboolean __GLEW_EXT_point_parameters;
+// End additions
 #ifdef GLEW_MX
 }; /* GLEWContextStruct */
 #endif /* GLEW_MX */

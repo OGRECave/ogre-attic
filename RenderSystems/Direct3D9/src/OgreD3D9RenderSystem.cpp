@@ -791,8 +791,14 @@ namespace Ogre
 			LogManager::getSingleton().logMessage("Multiple render targets with independent bit depths supported");
 		}
 
-		// Point size
-		mCapabilities->setMaxPointSize(mCaps.MaxPointSize);
+		// Point sprites 
+		if (mCaps.MaxPointSize > 1.0f)
+		{
+			mCapabilities->setCapability(RSC_POINT_SPRITES);
+			// sprites and extended parameters go together in D3D
+			mCapabilities->setCapability(RSC_POINT_EXTENDED_PARAMETERS);
+			mCapabilities->setMaxPointSize(mCaps.MaxPointSize);
+		}
 		
 
 		Log* defaultLog = LogManager::getSingleton().getDefaultLog();

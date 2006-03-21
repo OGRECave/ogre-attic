@@ -289,6 +289,21 @@ namespace Ogre {
             mCapabilities->setCapability(RSC_CUBEMAPPING);
         }
         
+
+		// Point sprites
+		if (GLEW_VERSION_2_0 ||
+			GLEW_ARB_point_sprite)
+		{
+			mCapabilities->setCapability(RSC_POINT_SPRITES);
+		}
+        // Check for point parameters
+        if(GLEW_VERSION_1_4 ||
+			GLEW_ARB_point_parameters ||
+			GLEW_EXT_point_parameters)
+        {
+            mCapabilities->setCapability(RSC_POINT_EXTENDED_PARAMETERS);
+        }
+		
         // Check for hardware stencil support and set bit depth
         GLint stencil;
         glGetIntegerv(GL_STENCIL_BITS,&stencil);
@@ -893,7 +908,8 @@ namespace Ogre {
 		Real minSize, Real maxSize)
     {
 
-		if(attenuationEnabled)
+		if(attenuationEnabled && 
+			mCapabilities->hasCapability(RSC_POINT_EXTENDED_PARAMETERS))
 		{
 			// Point size is still calculated in pixels even when attenuation is
 			// enabled, which is pretty awkward, since you typically want a viewport
@@ -908,13 +924,7 @@ namespace Ogre {
 			else
 				adjMaxSize = maxSize * mActiveViewport->getActualHeight();
 			glPointSize(adjSize);
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-			// HACK - ATI/Linux segfaults when you set point attenuation!
-			// Driver fault? Affects both ATI and Tungsten drivers
-			if (mGLSupport->getGLVendor() != "ATI"
-				&& mGLSupport->getGLVendor() != "Tungsten")
-			{
-#endif
+
 			// XXX: why do I need this for results to be consistent with D3D?
 			// Equations are supposedly the same once you factor in vp height
 			Real correction = 0.005;
@@ -923,32 +933,22 @@ namespace Ogre {
 			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, val);
 			glPointParameterf(GL_POINT_SIZE_MIN, adjMinSize);
 			glPointParameterf(GL_POINT_SIZE_MAX, adjMaxSize);
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-			}
-#endif
-
 		}
 		else
 		{
 			// no scaling required
 			// GL has no disabled flag for this so just set to constant
 			glPointSize(size);
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-			// HACK - ATI/Linux segfaults when you set point parameters!
-			// Driver fault!
-			if (mGLSupport->getGLVendor() != "ATI"
-				&& mGLSupport->getGLVendor() != "Tungsten")
+
+			if (mCapabilities->hasCapability(RSC_POINT_EXTENDED_PARAMETERS))
 			{
-#endif
-			float val[4] = {1, 0, 0, 1};
-			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, val);
-			glPointParameterf(GL_POINT_SIZE_MIN, minSize);
-			if (maxSize == 0.0f)
-				maxSize = mCapabilities->getMaxPointSize();
-			glPointParameterf(GL_POINT_SIZE_MAX, maxSize);
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+				float val[4] = {1, 0, 0, 1};
+				glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, val);
+				glPointParameterf(GL_POINT_SIZE_MIN, minSize);
+				if (maxSize == 0.0f)
+					maxSize = mCapabilities->getMaxPointSize();
+				glPointParameterf(GL_POINT_SIZE_MAX, maxSize);
 			}
-#endif
 		}
 
 
