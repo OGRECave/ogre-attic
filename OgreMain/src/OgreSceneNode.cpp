@@ -110,6 +110,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SceneNode::attachObject(MovableObject* obj)
     {
+        if (obj->isAttached())
+        {
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+                "Object already attached to a SceneNode or a Bone",
+                "SceneNode::attachObject");
+        }
+
         obj->_notifyAttached(this);
 
         // Also add to name index
