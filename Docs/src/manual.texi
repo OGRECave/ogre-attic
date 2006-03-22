@@ -1061,7 +1061,7 @@ Default: If a texture_unit has a name then the texture_alias defaults to the tex
 
 Sets the name of the static texture image this layer will use.@*@*
 
-Format: texture <texturename> [<type>] [numMipMaps] [alpha]@*@*
+Format: texture <texturename> [<type>] [unlimited | numMipMaps] [alpha]@*@*
 
 Example: texture funkywall.jpg@*@*
 
