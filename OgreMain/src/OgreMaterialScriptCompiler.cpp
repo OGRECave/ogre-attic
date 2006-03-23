@@ -1262,7 +1262,7 @@ namespace Ogre {
                 tt = TEX_TYPE_2D;
                 break;
             case ID_3D:
-                tt = TEX_TYPE_2D;
+                tt = TEX_TYPE_3D;
                 break;
             case ID_CUBIC:
                 tt = TEX_TYPE_CUBE_MAP;
