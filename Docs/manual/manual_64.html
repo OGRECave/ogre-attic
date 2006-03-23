@@ -1,14 +1,15 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                      "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 11 2006 by texi2html 1.64 -->
-<!-- 
+<!-- Created on March 23 2006 by texi2html 1.66 -->
+<!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
             Olaf Bachmann <obachman@mathematik.uni-kl.de>
             and many others.
-Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
-Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
- 
+Maintained by: Many creative people <dev@texi2html.cvshome.org>
+Send bugs and suggestions to <users@texi2html.cvshome.org>
+
 -->
 <HEAD>
 <TITLE>OGRE Manual v1.2.0 ('Dagon'): Texture-based Shadows</TITLE>
@@ -17,11 +18,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Texture-based Shadows">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
-<META NAME="Generator" CONTENT="texi2html 1.64">
+<META NAME="Generator" CONTENT="texi2html 1.66">
 <LINK TYPE="text/css" rel="stylesheet" href="../style.css"> 
 </HEAD>
 
-<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+<BODY LANG="en" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
 <A NAME="SEC280"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
@@ -112,7 +113,7 @@ Shadows fade out before the shadow far distance so that the termination of shado
 <A NAME="SEC290"></A>
 <H2> Texture shadows and vertex / fragment programs </H2>
 <!--docid::SEC290::-->
-When rendering shadow casters into a modulative shadow texture, Ogre turns off all textures, and all lighting contributions except for ambient light, which it sets to the colour of the shadow (<A HREF="manual_65.html#SEC292">Shadow Colour</A>). For additive shadows, it render the casters into a black &#38; white texture instead. This is enough to render shadow casters for fixed-function material techniques, however where a vertex program is used Ogre doesn't have so much control. If you use a vertex program in the <STRONG>first pass</STRONG> of your technique, then you must also tell ogre which vertex program you want it to use when rendering the shadow caster; see <A HREF="manual_19.html#SEC105">Shadows and Vertex Programs</A> for full details.
+When rendering shadow casters into a modulative shadow texture, Ogre turns off all textures, and all lighting contributions except for ambient light, which it sets to the colour of the shadow (<A HREF="manual_65.html#SEC292">Shadow Colour</A>). For additive shadows, it render the casters into a black &amp; white texture instead. This is enough to render shadow casters for fixed-function material techniques, however where a vertex program is used Ogre doesn't have so much control. If you use a vertex program in the <STRONG>first pass</STRONG> of your technique, then you must also tell ogre which vertex program you want it to use when rendering the shadow caster; see <A HREF="manual_19.html#SEC105">Shadows and Vertex Programs</A> for full details.
 
 
 <A NAME="Modulative Shadows"></A>
@@ -126,12 +127,12 @@ When rendering shadow casters into a modulative shadow texture, Ogre turns off a
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
-<BR>  
+<BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 11 2006</I>
-using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
-"><I>texi2html</I></A>
+by <I>steve</I> on <I>March 23 2006</I>
+using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
+</FONT>
 
 </BODY>
 </HTML>

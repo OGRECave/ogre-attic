@@ -1,14 +1,15 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                      "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 11 2006 by texi2html 1.64 -->
-<!-- 
+<!-- Created on March 23 2006 by texi2html 1.66 -->
+<!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
             Olaf Bachmann <obachman@mathematik.uni-kl.de>
             and many others.
-Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
-Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
- 
+Maintained by: Many creative people <dev@texi2html.cvshome.org>
+Send bugs and suggestions to <users@texi2html.cvshome.org>
+
 -->
 <HEAD>
 <TITLE>OGRE Manual v1.2.0 ('Dagon'): Copying Materials</TITLE>
@@ -17,11 +18,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Copying Materials">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
-<META NAME="Generator" CONTENT="texi2html 1.64">
+<META NAME="Generator" CONTENT="texi2html 1.66">
 <LINK TYPE="text/css" rel="stylesheet" href="../style.css"> 
 </HEAD>
 
-<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+<BODY LANG="en" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
 <A NAME="SEC106"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
@@ -41,7 +42,7 @@ When creating new materials scripts that are only slight variations of another m
 
 To make a new material that is based on one previously defined, add a <EM>colon</EM> <STRONG>:</STRONG> after the new material name followed by the name of the material that is to be copied.<BR><BR>
 
-Format: material &#60;NewUniqueChildName&#62; : &#60;ReferanceParentMaterial&#62;<BR><BR>
+Format: material &lt;NewUniqueChildName&gt; : &lt;ReferanceParentMaterial&gt;<BR><BR>
 
 The only caveat is that a parent material must have been defined/parsed prior to the child material script being parsed.  The easiest way to achieve this is to place parents at the begining of the material script file.  After material scripts are loaded into Ogre, materials no longer maintain their copy inheritance structure.  If a parent material is modified through code at runtime, the changes have no effect on child materials that were copied from it in the script.<BR><BR>
 
@@ -157,9 +158,9 @@ Texture aliases are usefull for when only the textures used in texture units nee
 
 Using texture aliases within texture units:<BR>
 Format:<BR>
-texture_alias &#60;name&#62;<BR><BR>
+texture_alias &lt;name&gt;<BR><BR>
 
-Default: &#60;name&#62; will default to texture_unit &#60;name&#62; if set
+Default: &lt;name&gt; will default to texture_unit &lt;name&gt; if set
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>texture_unit DiffuseTex
 {
   texture diffuse.jpg
@@ -274,7 +275,7 @@ For demonstration purposes, the GLSL technique makes use of texture_unit naming 
 Now we want to clone the material but only want to change the textures used.  We could copy and paste the whole material but if we decide to change the base material later then we also have to update the copied material in the script.  With set_texture_alias, copying a material is very easy now.  set_texture_alias is specified at the top of the material definition.  All techniques using the specified texture alias will be effected by set_texture_alias.<BR><BR>
 
 Format:<BR>
-set_texture_alias &#60;alias name&#62; = &#60;texture name&#62;<BR>
+set_texture_alias &lt;alias name&gt; = &lt;texture name&gt;<BR>
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>material fxTest : TSNormalSpecMapping
 {
   set_texture_alias NormalMap fxTestNMap.png
@@ -284,7 +285,7 @@ set_texture_alias &#60;alias name&#62; = &#60;texture name&#62;<BR>
 </pre></td></tr></table>
 The textures in both techniques in the child material will automatically get replaced with the new ones we want to use.<BR><BR>
 
-  The same process can be done in code as long you set up the texture alias names so then there is no need to traverse technique/pass/TUS to change a texture.  You just call myMaterialPtr-&#62;applyTextureAliases(myAliasTextureNameList) which will update all textures in all texture units that match the alias names in the map container reference you passed as a parameter.<BR><BR>
+  The same process can be done in code as long you set up the texture alias names so then there is no need to traverse technique/pass/TUS to change a texture.  You just call myMaterialPtr-&gt;applyTextureAliases(myAliasTextureNameList) which will update all textures in all texture units that match the alias names in the map container reference you passed as a parameter.<BR><BR>
 
  You don't have to supply all the textures in the copied material.<BR>
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>material fxTest2 : fxTest
@@ -302,7 +303,6 @@ Another example:
 }
 </pre></td></tr></table>
 fxTest3 will end up with the default textures for the normal map and spec map setup in TSNormalSpecMapping material but will have a different diffuse map.  So your base material can define the default textures to use and then the child materials can override specific textures.<BR><BR>
-<P>
 
 <A NAME="Compositor Scripts"></A>
 <HR SIZE=1>
@@ -315,12 +315,12 @@ fxTest3 will end up with the default textures for the normal map and spec map se
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
-<BR>  
+<BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 11 2006</I>
-using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
-"><I>texi2html</I></A>
+by <I>steve</I> on <I>March 23 2006</I>
+using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
+</FONT>
 
 </BODY>
 </HTML>
