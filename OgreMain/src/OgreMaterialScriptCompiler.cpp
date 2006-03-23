@@ -71,10 +71,13 @@ namespace Ogre {
         // Pass section rules
         "    <Pass> ::= 'pass' [<Label>] '{' {<Pass_Properties>} '}' \n"
         "        <Pass_Properties> ::= <Ambient> | <Diffuse> | <Specular> | <Emissive> | \n"
-        "                              <Scene_Blend> | <Depth_Check> | <Depth_Write> | "
-        "                              <Depth_Func> | <Depth_Bias> | <Cull_Hardware> | <Cull_Software> | "
-        "                              <Lighting> | <Shading> | <PolygonMode> | <Colour_Write> | "
-		"                              <Point_Size> | <Point_Sprites> | <Point_Size_Attenuation> | "
+        "                              <Scene_Blend> | <Depth_Check> | <Depth_Write> | \n"
+        "                              <Texture_Unit> | \n"
+        "                              <Depth_Func> | <Depth_Bias> | <Alpha_Rejection> | \n"
+        "                              <Cull_Hardware> | <Cull_Software> | <Lighting> | \n"
+        "                              <Shading> | <PolygonMode> | <Fog_Override> | <Colour_Write> | \n"
+        "                              <Max_Lights> | <Iteration> | \n"
+		"                              <Point_Size> | <Point_Sprites> | <Point_Size_Attenuation> | \n"
 		"                              <Point_Size_Min> | <Point_Size_Max> \n"
 
         "        <Ambient> ::= 'ambient' <Colour_Params> | <Vertexcolour> \n"
@@ -125,7 +128,10 @@ namespace Ogre {
         "           <light_type> ::= 'point' | 'directional' | 'spot' \n"
         // Texture Unit section rules
         "        <Texture_Unit> ::= 'texture_unit' [<Label>] '{' {<TUS_Properties>} '}' \n"
-        "        <TUS_Properties> ::= '****FILLER****' \n"
+        "        <TUS_Properties> ::= <Texture_Alias> | <Texture> \n"
+        "           <Texture_Alias> ::= 'texture_alias' <Label> \n"
+        "           <Texture> ::= 'texture' <Label> {<Texture_Properties>} \n"
+        "           <Texture_Properties> ::= '1d' | '2d' | '3d' | 'cubic' | 'unlimited' | 'alpha' | <#mipmap> \n"
         " "
         "<Vertex_Program> ::= 'vertex_program' \n"
         "<Fragment_Program> ::= 'fragment_program' \n"
@@ -230,6 +236,14 @@ namespace Ogre {
 
         // Texture Unit section
         addLexemeTokenAction("texture_unit", ID_TEXTURE_UNIT, &MaterialScriptCompiler::parseTextureUnit);
+        addLexemeTokenAction("texture_alias", ID_TEXTURE_ALIAS, &MaterialScriptCompiler::parseTextureAlias);
+        addLexemeTokenAction("texture", ID_TEXTURE, &MaterialScriptCompiler::parseTexture);
+            addLexemeTokenAction("1d", ID_1D);
+            addLexemeTokenAction("2d", ID_2D);
+            addLexemeTokenAction("3d", ID_3D);
+            addLexemeTokenAction("cubic", ID_CUBIC);
+            addLexemeTokenAction("unlimited", ID_UNLIMITED);
+            addLexemeTokenAction("alpha", ID_ALPHA);
 
         // common section
         addLexemeTokenAction("on", ID_ON);
@@ -1220,6 +1234,52 @@ namespace Ogre {
         }
         // update section
         mScriptContext.section = MSS_TEXTUREUNIT;
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseTextureAlias(void)
+    {
+        assert(mScriptContext.textureUnit);
+        mScriptContext.textureUnit->setTextureNameAlias(getNextTokenLabel());
+    }
+    //-----------------------------------------------------------------------
+    // Texture layer attributes
+    void MaterialScriptCompiler::parseTexture(void)
+    {
+        assert(mScriptContext.textureUnit);
+        TextureType tt = TEX_TYPE_2D;
+		int mips = MIP_UNLIMITED; // When passed to TextureManager::load, this means default to default number of mipmaps
+        bool isAlpha = false;
+        const String& textureName = getNextTokenLabel();
+
+		while (getRemainingTokensForAction() > 0)
+		{
+            switch(getNextToken().tokenID)
+            {
+            case ID_1D:
+                tt = TEX_TYPE_1D;
+                break;
+            case ID_2D:
+                tt = TEX_TYPE_2D;
+                break;
+            case ID_3D:
+                tt = TEX_TYPE_2D;
+                break;
+            case ID_CUBIC:
+                tt = TEX_TYPE_CUBE_MAP;
+                break;
+            case ID_UNLIMITED:
+				mips = MIP_UNLIMITED;
+                break;
+            case ID_ALPHA:
+                isAlpha = true;
+                break;
+            case _value_:
+                replaceToken();
+                mips = static_cast<int>(getNextTokenValue());
+                break;
+            }
+		}
+        mScriptContext.textureUnit->setTextureName(textureName, tt, mips, isAlpha);
     }
     //-----------------------------------------------------------------------
 	void MaterialScriptCompiler::finishProgramDefinition(void)

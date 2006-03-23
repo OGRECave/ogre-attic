@@ -83,7 +83,8 @@ namespace Ogre {
 			ID_POINT_SIZE_MIN, ID_POINT_SIZE_MAX,
 
             // texture unit state
-            ID_TEXTURE_UNIT,
+            ID_TEXTURE_UNIT, ID_TEXTURE_ALIAS, ID_TEXTURE, ID_1D, ID_2D, ID_3D, ID_CUBIC, ID_UNLIMITED,
+            ID_ALPHA,
 
             // general
             ID_ON, ID_OFF, ID_TRUE, ID_FALSE, ID_NONE
@@ -213,9 +214,12 @@ namespace Ogre {
         void parsePointSizeMin(void);
         void parsePointSizeMax(void);
         void parsePointSizeAttenuation(void);
-
+        // Texture Unit related Actions
         void parseTextureUnit(void);
+        void parseTextureAlias(void);
+        void parseTexture(void);
         void parseTextureCustomParameter(void);
+
     	void finishProgramDefinition(void);
 
     };
