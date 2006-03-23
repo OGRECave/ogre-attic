@@ -353,6 +353,16 @@ namespace Ogre {
     {
         return StringUtil::split(val);
     }
+	//-----------------------------------------------------------------------
+	bool StringConverter::isNumber(const String& val)
+	{
+		std::istringstream str;
+		// set string - add space to ensure good() returns true for packed values
+		str.str(val + " ");
+		float tst;
+		str >> tst;
+		return str.good();
+	}
 }
 
 

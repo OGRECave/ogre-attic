@@ -726,52 +726,45 @@ namespace Ogre
         TextureType tt = TEX_TYPE_2D;
 		int mips = MIP_UNLIMITED; // When passed to TextureManager::load, this means default to default number of mipmaps
         bool isAlpha = false;
-        if (numParams >= 2)
-        {
-            StringUtil::toLowerCase(vecparams[1]);
-            if (vecparams[1] == "1d")
+		for (size_t p = 1; p < numParams; ++p)
+		{
+            StringUtil::toLowerCase(vecparams[p]);
+            if (vecparams[p] == "1d")
             {
                 tt = TEX_TYPE_1D;
             }
-            else if (vecparams[1] == "2d")
+            else if (vecparams[p] == "2d")
             {
                 tt = TEX_TYPE_2D;
             }
-            else if (vecparams[1] == "3d")
+            else if (vecparams[p] == "3d")
             {
                 tt = TEX_TYPE_3D;
             }
-            else if (vecparams[1] == "cubic")
+            else if (vecparams[p] == "cubic")
             {
                 tt = TEX_TYPE_CUBE_MAP;
             }  
+			else if (vecparams[p] == "unlimited")
+			{
+				mips = MIP_UNLIMITED;
+			}
+			else if (StringConverter::isNumber(vecparams[p]))
+			{
+				mips = StringConverter::parseInt(vecparams[p]);
+			}
+			else if (vecparams[3] == "alpha")
+			{
+				isAlpha = true;
+			}
 			else
 			{
-				logParseError("Invalid texture type - "+vecparams[1]+".", 
+				logParseError("Invalid texture option - "+vecparams[p]+".", 
                 context);
 			}
         }
-		if (numParams >= 3)
-		{
-			StringUtil::toLowerCase(vecparams[2]);
-			if (vecparams[2] == "unlimited")
-            {
-				mips = MIP_UNLIMITED;
-            }
-			else
-			{
-				mips = StringConverter::parseInt(vecparams[2]);
-			}
-        }
-        if (numParams >= 4)
-        {
-            StringUtil::toLowerCase(vecparams[3]);
-            if (vecparams[3] == "alpha")
-            {
-                isAlpha = true;
-            }
-        }
-        context.textureUnit->setTextureName(vecparams[0], tt, mips, isAlpha);
+
+		context.textureUnit->setTextureName(vecparams[0], tt, mips, isAlpha);
         return false;
     }
     //-----------------------------------------------------------------------
