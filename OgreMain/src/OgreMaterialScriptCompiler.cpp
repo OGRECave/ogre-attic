@@ -146,7 +146,7 @@ namespace Ogre {
         "<Unquoted_Label> ::= <Character> {<Alphanumeric>} \n"
 		"<Alphanumeric_Space> ::= <Alphanumeric> | <Space> \n"
 		"<Alphanumeric> ::= <Character> | <Number> \n"
-		"<Character> ::= (abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$#%!_*&\\/) \n"
+		"<Character> ::= (abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$#%!_*&.\\/) \n"
 		"<Number> ::= (0123456789) \n"
 		"<Space> ::= ( ) \n"
 
