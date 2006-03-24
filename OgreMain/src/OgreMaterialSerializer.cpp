@@ -753,7 +753,7 @@ namespace Ogre
 			{
 				mips = StringConverter::parseInt(vecparams[p]);
 			}
-			else if (vecparams[3] == "alpha")
+			else if (vecparams[p] == "alpha")
 			{
 				isAlpha = true;
 			}
