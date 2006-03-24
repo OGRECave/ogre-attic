@@ -24,7 +24,7 @@
 			<Window Type="TaharezLook/StaticText" Name="OPCurrentFPS">
 				<Property Name="FrameEnabled" Value="False" />
 				<Property Name="BackgroundEnabled" Value="False" />
-				<Property Name="Font" Value="Tahoma-8" />
+				<Property Name="Font" Value="BlueHighway-10" />
 				<Property Name="Position" Value="x:0.075 y:0.12" />
 				<Property Name="Size" Value="w:0.85 h:0.25" />
 				<Property Name="TextColours" Value="tl:FF4FF06F tr:FF4FF06F bl:FF4FF06F br:FF4FF06F" />
@@ -43,7 +43,7 @@
 			<Window Type="TaharezLook/StaticText" Name="OPAverageFPS">
 				<Property Name="FrameEnabled" Value="False" />
 				<Property Name="BackgroundEnabled" Value="False" />
-				<Property Name="Font" Value="Tahoma-8" />
+				<Property Name="Font" Value="BlueHighway-10" />
 				<Property Name="Position" Value="x:0.075 y:0.32" />
 				<Property Name="Size" Value="w:1.0 h:0.25" />
 				<Property Name="TextColours" Value="tl:FFFFF5F0 tr:FFFFF5F0 bl:FFFFF510 br:FFFFF5F0" />
@@ -53,7 +53,7 @@
 			<Window Type="TaharezLook/StaticText" Name="OPWorstFPS">
 				<Property Name="FrameEnabled" Value="False" />
 				<Property Name="BackgroundEnabled" Value="False" />
-				<Property Name="Font" Value="Tahoma-8" />
+				<Property Name="Font" Value="BlueHighway-10" />
 				<Property Name="Position" Value="x:0.075 y:0.45" />
 				<Property Name="Size" Value="w:1.0 h:0.25" />
 				<Property Name="TextColours" Value="tl:FFFFF5F0 tr:FFFFF5F0 bl:FFFFF510 br:FFFFF5F0" />
@@ -63,7 +63,7 @@
 			<Window Type="TaharezLook/StaticText" Name="OPBestFPS">
 				<Property Name="FrameEnabled" Value="False" />
 				<Property Name="BackgroundEnabled" Value="False" />
-				<Property Name="Font" Value="Tahoma-8" />
+				<Property Name="Font" Value="BlueHighway-10" />
 				<Property Name="Position" Value="x:0.075 y:0.58" />
 				<Property Name="Size" Value="w:1.0 h:0.25" />
 				<Property Name="TextColours" Value="tl:FFFFF5F0 tr:FFFFF5F0 bl:FFFFF510 br:FFFFF5F0" />
@@ -73,7 +73,7 @@
 			<Window Type="TaharezLook/StaticText" Name="OPTriCount">
 				<Property Name="FrameEnabled" Value="False" />
 				<Property Name="BackgroundEnabled" Value="False" />
-				<Property Name="Font" Value="Tahoma-8" />
+				<Property Name="Font" Value="BlueHighway-10" />
 				<Property Name="Position" Value="x:0.075 y:0.71" />
 				<Property Name="Size" Value="w:1.0 h:0.25" />
 				<Property Name="TextColours" Value="tl:FFFFF5F0 tr:FFFFF5F0 bl:FFFFF510 br:FFFFF5F0" />
@@ -85,7 +85,7 @@
 		<Window Type="TaharezLook/StaticText" Name="OPDebugMsg">
 			<Property Name="FrameEnabled" Value="False" />
 			<Property Name="BackgroundEnabled" Value="False" />
-			<Property Name="Font" Value="Tahoma-8" />
+			<Property Name="Font" Value="BlueHighway-10" />
 			<Property Name="Position" Value="x:0.25 y:0.93" />
 			<Property Name="Size" Value="w:0.65 h:0.07" />
 			<Property Name="TextColours" Value="tl:A0FFFFFF tr:A0FFFFFF bl:A0FFFFFF br:A0FFFFFF" />
