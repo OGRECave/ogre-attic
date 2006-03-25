@@ -1238,7 +1238,7 @@ namespace Ogre {
                 // need to get next rule instruction for data
                 ++ruleID;
                 // data for _character_ is always a set so put () around text string
-                lexeme = "{" + mActiveTokenState->lexemeTokenDefinitions[rulePath[ruleID].tokenID].lexeme + ")";
+                lexeme = "(" + mActiveTokenState->lexemeTokenDefinitions[rulePath[ruleID].tokenID].lexeme + ")";
                 break;
             case _value_:
                 // <#> - need name of label?
