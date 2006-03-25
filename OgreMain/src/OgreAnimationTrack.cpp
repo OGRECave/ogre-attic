@@ -249,6 +249,10 @@ namespace Ogre {
 	void NumericAnimationTrack::applyToAnimable(const AnimableValuePtr& anim, Real timePos,
 		Real weight, Real scale)
 	{
+		// Nothing to do if no keyframes
+		if (mKeyFrames.empty())
+			return;
+
 		NumericKeyFrame kf(0, timePos);
 		getInterpolatedKeyFrame(timePos, &kf);
 		// add to existing. Weights are not relative, but treated as
@@ -384,6 +388,10 @@ namespace Ogre {
     void NodeAnimationTrack::applyToNode(Node* node, Real timePos, Real weight,
 		bool accumulate, Real scl)
     {
+		// Nothing to do if no keyframes
+		if (mKeyFrames.empty())
+			return;
+
         TransformKeyFrame kf(0, timePos);
 		getInterpolatedKeyFrame(timePos, &kf);
 		if (accumulate)
@@ -635,6 +643,10 @@ namespace Ogre {
 	void VertexAnimationTrack::applyToVertexData(VertexData* data,
 		Real timePos, Real weight,  const PoseList* poseList)
 	{
+		// Nothing to do if no keyframes
+		if (mKeyFrames.empty())
+			return;
+
 		// Get keyframes
 		KeyFrame *kf1, *kf2;
 		Real t = getKeyFramesAtTime(timePos, &kf1, &kf2);
