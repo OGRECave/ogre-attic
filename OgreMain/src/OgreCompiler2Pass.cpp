@@ -793,7 +793,7 @@ namespace Ogre {
                     {
                         passed = true;
                         // log last valid token found
-                        const TokenInst& tokenInst = mActiveTokenState->tokenQue[mActiveTokenState->tokenQue.size() - 1];
+                        const TokenInst& tokenInst = mActiveTokenState->tokenQue.back();
                         LogManager::getSingleton().logMessage(
                             "Last valid token found was at line: " + StringConverter::toString(tokenInst.line));
                         LogManager::getSingleton().logMessage(
