@@ -15,13 +15,16 @@ LGPL like the rest of the engine.
 #ifndef _CompositorDemo_H_
 #define _CompositorDemo_H_
 
-#include "CEGUI/CEGUI.h"
-#include "OgreCEGUIRenderer.h"
-
 #include "OgreConfigFile.h"
 #include "OgreStringConverter.h"
 #include "OgreException.h"
 #include "ItemSelectorViewManager.h"
+
+#include "OgreNoMemoryMacros.h"
+#include "CEGUI/CEGUI.h"
+#include "OgreMemoryMacros.h"
+
+#include "OgreCEGUIRenderer.h"
 
 //---------------------------------------------------------------------------
     class CompositorDemo_FrameListener;

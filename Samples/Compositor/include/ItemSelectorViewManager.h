@@ -16,7 +16,10 @@ LGPL like the rest of the engine.
 #define _ItemSelectorViewManager_H_
 
 #include "OgreString.h"
+
+#include "OgreNoMemoryMacros.h"
 #include "CEGUI/CEGUI.h"
+#include "OgreMemoryMacros.h"
 
     /** Provides interface between a View and a Controller.
     */
