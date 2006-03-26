@@ -195,7 +195,7 @@ namespace Ogre {
 			SCRQM_EXCLUDE
 		};
 
-		typedef struct SkyDomeGenParameters
+		struct SkyDomeGenParameters
 		{
 			Real skyDomeCurvature;
 			Real skyDomeTiling;
@@ -204,7 +204,7 @@ namespace Ogre {
 			int skyDomeYSegments;
 			int skyDomeYSegments_keep;
 		};
-		
+
 		struct SkyPlaneGenParameters
 		{
 			Real skyPlaneScale;
@@ -213,11 +213,12 @@ namespace Ogre {
 			int skyPlaneXSegments; 
 			int skyPlaneYSegments; 
 		};
-		
+
 		struct SkyBoxGenParameters
 		{
 			Real skyBoxDistance;
 		};
+
     protected:
 		/// Instance name
 		String mName;
@@ -272,22 +273,23 @@ namespace Ogre {
         SceneNode* mSkyDomeNode;
         SceneNode* mSkyBoxNode;
 
+        // Sky plane
         bool mSkyPlaneEnabled;
         bool mSkyPlaneDrawFirst;
         Plane mSkyPlane;
-	SceneManager::SkyPlaneGenParameters	mSkyPlaneGenParameters;
-	   // Sky box
+        SkyPlaneGenParameters mSkyPlaneGenParameters;
+        // Sky box
         bool mSkyBoxEnabled;
         bool mSkyBoxDrawFirst;
         Quaternion mSkyBoxOrientation;
-		SceneManager::SkyBoxGenParameters	mSkyBoxGenParameters;
-	    // Sky dome
+        SkyBoxGenParameters mSkyBoxGenParameters;
+        // Sky dome
         bool mSkyDomeEnabled;
         bool mSkyDomeDrawFirst;
         Quaternion mSkyDomeOrientation;
-		SceneManager::SkyDomeGenParameters mSkyDomeGenParameters;
-	
-		// Fog
+        SkyDomeGenParameters mSkyDomeGenParameters;
+
+        // Fog
         FogMode mFogMode;
         ColourValue mFogColour;
         Real mFogStart;
@@ -1296,9 +1298,10 @@ namespace Ogre {
 		virtual bool isSkyPlaneEnabled(void) const { return mSkyPlaneEnabled; }
 
 		/** Get the sky plane node, if enabled. */
-		virtual SceneNode* getSkyPlaneNode(void) { return mSkyPlaneNode; }		
+		virtual SceneNode* getSkyPlaneNode(void) const { return mSkyPlaneNode; }
+
 		/** Get the parameters used to construct the SkyPlane, if any **/
-		virtual SceneManager::SkyPlaneGenParameters getSkyPlaneGenParameters(void) const { return mSkyPlaneGenParameters; }
+		virtual const SkyPlaneGenParameters& getSkyPlaneGenParameters(void) const { return mSkyPlaneGenParameters; }
 
         /** Enables / disables a 'sky box' i.e. a 6-sided box at constant
             distance from the camera representing the sky.
@@ -1351,10 +1354,10 @@ namespace Ogre {
 
 		/** Get the skybox node, if enabled. */
 		virtual SceneNode* getSkyBoxNode(void) const { return mSkyBoxNode; }
-		
-		/** Get the parameters used to generate the current SKyBox, if any */
-		virtual SceneManager::SkyBoxGenParameters	getSkyBoxGenParameters(void) const { return mSkyBoxGenParameters; }
-        
+
+		/** Get the parameters used to generate the current SkyBox, if any */
+		virtual const SkyBoxGenParameters& getSkyBoxGenParameters(void) const { return mSkyBoxGenParameters; }
+
 		/** Enables / disables a 'sky dome' i.e. an illusion of a curved sky.
             @remarks
                 A sky dome is actually formed by 5 sides of a cube, but with
@@ -1421,10 +1424,11 @@ namespace Ogre {
 		virtual bool isSkyDomeEnabled(void) const { return mSkyDomeEnabled; }
 
 		/** Get the sky dome node, if enabled. */
-		virtual SceneNode* getSkyDomeNode(void) { return mSkyDomeNode; }	
-		
+		virtual SceneNode* getSkyDomeNode(void) const { return mSkyDomeNode; }
+
 		/** Get the parameters used to generate the current SkyDome, if any */
-		virtual SceneManager::SkyDomeGenParameters	getSkyDomeGenParameters(void) const { return mSkyDomeGenParameters; }
+		virtual const SkyDomeGenParameters& getSkyDomeGenParameters(void) const { return mSkyDomeGenParameters; }
+
 		/** Sets the fogging mode applied to the scene.
             @remarks
                 This method sets up the scene-wide fogging effect. These settings
