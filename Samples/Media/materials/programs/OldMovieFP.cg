@@ -1,0 +1,59 @@
+sampler RT : register(s0);
+
+sampler Texture0 : register(s1);
+sampler Texture1 : register(s2);
+sampler Texture2 : register(s3);
+sampler Texture3 : register(s4);
+
+float4 OldMovie_ps (float2 texCoord  : TEXCOORD0,
+				uniform float time_cycle_period,
+				uniform float flicker,
+				uniform float DirtFrequency,
+				uniform float4 sepia) : COLOR
+{
+
+   // sample background image
+   float4 background = tex2D(RT, texCoord);
+
+   // get time into range [0, 1]
+   float timeScalar = time_cycle_period;
+
+   // get 2 random vectors
+   float4 randVec0 = tex1D(Texture2,timeScalar);
+   float4 randVec1 = tex1D(Texture3,timeScalar );
+
+   // scale address texture
+   float sizeScale = ((randVec0.r + randVec0.g + randVec0.b + randVec0.a) / 4.0f) * 2.0f;
+   texCoord = frac((texCoord + randVec1.xy) / float2(DirtFrequency * (1.0f + sizeScale), 200.0f));
+
+   // normalized sub-texel coords
+   float2 subTexelCoord0 = frac(texCoord.xy * 1024);
+   subTexelCoord0.y = 1.0f - subTexelCoord0.y;
+
+   // get sprite address
+   float3 spriteCoords0 = tex2D (Texture1, texCoord.xy);
+
+   // get sprite address into paged texture coords space
+   spriteCoords0.xy = (spriteCoords0.xy * 8.0f);
+   spriteCoords0.xy = (spriteCoords0.xy - frac(spriteCoords0.xy)) / 8.0f;
+   spriteCoords0.xy = spriteCoords0.xy + (subTexelCoord0 * (1.0f/8.0f));
+
+   float4 o;
+   o.rgba = tex2D(Texture0, spriteCoords0.xy) * sepia;
+
+   // scale by time such that screen flickers (scales from 0.5 to 1.0 and back again)
+
+   // scale by flicker speed
+   float darken = frac(flicker*timeScalar);
+
+   // we want darken to cycle between 0.7 and 1.0
+   darken = abs(darken - 0.5f)*0.3f + 0.7f;
+
+   // scale background to make it flicker
+   background = background * darken;
+
+   // composite dirt onto film
+   o.rgba *= background;
+   return o;
+}
+
