@@ -132,26 +132,20 @@
 		
 		<Window Type="TaharezLook/FrameWindow" Name="CompositorSelectorWin">
 			<Property Name="Position" Value="x:0 y:0" />
-			<Property Name="RelativeMinSize" Value="w:0.23 h:0.23" />
-			<Property Name="Size" Value="w:0.23 h:0.23" />
-			<Property Name="Text" Value="Compositor Selector" />
+			<Property Name="RelativeMinSize" Value="w:0.16 h:0.22" />
+			<Property Name="RelativeMaxSize" Value="w:0.16 h:0.75" />
+			<Property Name="Size" Value="w:0.16 h:0.3" />
+			<Property Name="Text" Value="Compositors" />
 			<Property Name="Alpha" Value="0.75" />
 			<Property Name="CloseButtonEnabled" Value="False" />
 
-			<Window Type="TaharezLook/VerticalScrollbar" Name="VerticalScroll">
-				<Property Name="Position" Value="x:0.94 y:0.2" />
-				<Property Name="Size" Value="w:0.04 h:0.75" />
-				<Property Name="DocumentSize" Value="1" />
-				<Property Name="PageSize" Value="1" />
-				<Property Name="StepSize" Value="0.01" />
-				<Property Name="OverlapSize" Value="0.5" />
-			</Window>
-
 			<Window Type="TaharezLook/Button" Name="ExitDemoBtn">
-				<Property Name="Position" Value="x:0.25 y:0.79" />
-				<Property Name="RelativeMaxSize" Value="w:0.12 h:0.04" />
-				<Property Name="RelativeMinSize" Value="w:0.12 h:0.04" />
-				<Property Name="Size" Value="w:0.33 h:0.04" />
+				<Property Name="VerticalAlignment" Value="Bottom" />
+				<Property Name="HorizontalAlignment" Value="Centre" />
+				<Property Name="Position" Value="x:0 y:0" />
+				<Property Name="RelativeMaxSize" Value="w:0.12 h:0.03" />
+				<Property Name="RelativeMinSize" Value="w:0.12 h:0.03" />
+				<Property Name="Size" Value="w:0.33 h:0.03" />
 				<Property Name="Text" Value="Exit Demo" />
 				<Property Name="InheritsAlpha" Value="False" />
 			</Window>
