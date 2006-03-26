@@ -31,7 +31,7 @@ material Ogre/Compositor/OldMovie
 
 			texture_unit RT
 			{
-                tex_coord_set 5
+                tex_coord_set 0
 				tex_address_mode clamp
 				filtering trilinear
 			}
@@ -39,7 +39,7 @@ material Ogre/Compositor/OldMovie
 			texture_unit
 			{
 				texture 8x8PagesSplotches2.png 2d
-                tex_coord_set 0
+                tex_coord_set 1
 				tex_address_mode wrap
 				filtering trilinear
 			}
@@ -47,7 +47,7 @@ material Ogre/Compositor/OldMovie
 			texture_unit
 			{
 				texture normalNoiseColor.png 2d
-                tex_coord_set 1
+                tex_coord_set 2
 				tex_address_mode wrap
 				filtering point point point
 			}
@@ -55,7 +55,7 @@ material Ogre/Compositor/OldMovie
 			texture_unit
 			{
 				texture 1D_Noise.png 1d
-                tex_coord_set 2
+                tex_coord_set 3
 				tex_address_mode wrap
 				filtering point point none
 			}
@@ -63,7 +63,7 @@ material Ogre/Compositor/OldMovie
 			texture_unit
 			{
 				texture 1D_Noise2.png 1d
-                tex_coord_set 3
+                tex_coord_set 4
 				tex_address_mode wrap
 				filtering point point none
 			}
