@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="windows-1250"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/Zm150"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\..\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
+				AdditionalIncludeDirectories="..\include;..\..\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include;..\..\..\Dependencies\include\CEGUI;..\..\Common\CEGUIRenderer\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -63,10 +63,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain_d.lib"
+				AdditionalDependencies="OgreMain_d.lib CEGUIBase_d.lib OgreGUIRenderer_d.lib"
 				OutputFile="$(OutDir)/Demo_Compositor.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;;"
+				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;;;..\..\Common\CEGUIRenderer\lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/Demo_Compositor.pdb"
 				SubSystem="2"
@@ -130,7 +130,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\include;..\..\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
+				AdditionalIncludeDirectories="..\include;..\..\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include;..\..\..\Dependencies\include\CEGUI;..\..\Common\CEGUIRenderer\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="true"
 				MinimalRebuild="true"
@@ -153,10 +153,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain.lib"
+				AdditionalDependencies="OgreMain.lib CEGUIBase.lib OgreGUIRenderer.lib"
 				OutputFile="$(OutDir)/Demo_Compositor.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;;..\..\Common\CEGUIRenderer\lib"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -210,11 +210,31 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath="..\src\CompositorDemo_FrameListener.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\ItemSelectorViewManager.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc"
 			>
+			<File
+				RelativePath="..\include\Compositor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\CompositorDemo_FrameListener.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\ItemSelectorViewManager.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
