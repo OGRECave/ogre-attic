@@ -1297,8 +1297,12 @@ void SceneManager::setSkyBox(
                 boxMat->load();
             }
             // Set active frame
-            boxMat->getBestTechnique()->getPass(0)->getTextureUnitState(0)
-                ->setCurrentFrame(i);
+			Material::TechniqueIterator ti = boxMat->getSupportedTechniqueIterator();
+			while (ti.hasMoreElements())
+			{
+				Technique* tech = ti.getNext();
+				tech->getPass(0)->getTextureUnitState(0)->setCurrentFrame(i);
+			}
 
             mSkyBoxEntity[i]->setMaterialName(boxMat->getName());
 
