@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="3" />
+	<FileVersion major="1" minor="4" />
 	<Project>
 		<Option title="Demo_Compositor" />
 		<Option compiler="gcc" />
@@ -25,6 +25,8 @@
 				<Linker>
 					<Add library="stlportstlg.5.0.dll" />
 					<Add library="OgreMain_d" />
+					<Add library="OgreGUIRenderer_d" />
+					<Add library="CEGUIBase_d" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -47,6 +49,8 @@
 					<Add option="-s" />
 					<Add library="stlport.5.0.dll" />
 					<Add library="OgreMain" />
+					<Add library="OgreGUIRenderer" />
+					<Add library="CEGUIBase" />
 				</Linker>
 			</Target>
 		</Build>
@@ -61,14 +65,51 @@
 			<Add directory="..\include" />
 			<Add directory="..\..\Common\include" />
 			<Add directory="..\..\..\OgreMain\include" />
+			<Add directory="..\..\..\Dependencies\include" />
+			<Add directory="..\..\..\Dependencies\include\CEGUI" />
+			<Add directory="..\..\..\Dependencies\include\CEGUI\elements" />
+			<Add directory="..\..\Common\CEGUIRenderer\include" />
 		</Compiler>
 		<Linker>
 			<Add option="-Wl,--enable-auto-image-base" />
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="$(#STLPORT_DIR)\lib" />
 			<Add directory="..\..\..\OgreMain\lib\$(TARGET_NAME)" />
+			<Add directory="..\..\Common\CEGUIRenderer\bin\$(TARGET_NAME)" />
+			<Add directory="..\..\Common\bin\$(TARGET_NAME)" />
 		</Linker>
+		<Unit filename="..\include\Compositor.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\include\CompositorDemo_FrameListener.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\include\ItemSelectorViewManager.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\src\Compositor.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\src\CompositorDemo_FrameListener.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\src\ItemSelectorViewManager.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />
