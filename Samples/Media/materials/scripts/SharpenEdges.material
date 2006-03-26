@@ -2,7 +2,7 @@ fragment_program Ogre/Compositor/SharpenEdgesFP cg
 {
 	source SharpenEdgesFP.cg
     entry_point sharpenEdges_fp
-	profiles ps_2_0 arbfp1
+	profiles ps_2_x ps_2_0 arbfp1
 }
 
 material Ogre/Compositor/SharpenEdges
