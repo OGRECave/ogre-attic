@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgreCompiler2Pass.h"
 #include "OgrePrerequisites.h"
+#include "OgreTextureUnitState.h"
 //#include "OgreMaterial.h"
 //#include "OgreBlendMode.h"
 //#include "OgreTextureUnitState.h"
@@ -84,7 +85,8 @@ namespace Ogre {
 
             // texture unit state
             ID_TEXTURE_UNIT, ID_TEXTURE_ALIAS, ID_TEXTURE, ID_1D, ID_2D, ID_3D, ID_CUBIC, ID_UNLIMITED,
-            ID_ALPHA,
+            ID_ALPHA, ID_ANIM_TEXTURE, ID_CUBIC_TEXTURE, ID_SEPARATE_UV, ID_COMBINED_UVW,
+            ID_TEX_COORD_SET, ID_TEX_ADDRESS_MODE, ID_WRAP, ID_CLAMP, ID_MIRROR, ID_BORDER,
 
             // general
             ID_ON, ID_OFF, ID_TRUE, ID_FALSE, ID_NONE
@@ -218,7 +220,13 @@ namespace Ogre {
         void parseTextureUnit(void);
         void parseTextureAlias(void);
         void parseTexture(void);
+        void parseAnimTexture(void);
+        void parseCubicTexture(void);
+        void parseTexCoord(void);
+        TextureUnitState::TextureAddressingMode convTexAddressMode(void);
+        void parseTexAddressMode(void);
         void parseTextureCustomParameter(void);
+
 
     	void finishProgramDefinition(void);
 

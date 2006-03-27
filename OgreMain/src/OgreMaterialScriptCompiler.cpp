@@ -128,10 +128,20 @@ namespace Ogre {
         "           <light_type> ::= 'point' | 'directional' | 'spot' \n"
         // Texture Unit section rules
         "        <Texture_Unit> ::= 'texture_unit' [<Label>] '{' {<TUS_Properties>} '}' \n"
-        "        <TUS_Properties> ::= <Texture_Alias> | <Texture> \n"
+        "        <TUS_Properties> ::= <Texture_Alias> | <Texture> | <Anim_Texture> | <Cubic_Texture> | \n"
+        "               <Tex_Coord_Set> | <Tex_Address_Mode> \n"
         "           <Texture_Alias> ::= 'texture_alias' <Label> \n"
         "           <Texture> ::= 'texture' <Label> {<Texture_Properties>} \n"
         "           <Texture_Properties> ::= '1d' | '2d' | '3d' | 'cubic' | 'unlimited' | 'alpha' | <#mipmap> \n"
+        "           <Anim_Texture> ::= 'anim_texture' <Label> <Anim_Texture_Properties> <#duration>\n"
+        "               <Anim_Texture_Properties> ::= <#frames> | <Seperate_Anim_Textures> \n"
+        "               <Seperate_Anim_Textures> ::= {<Label>} \n"
+        "           <Cubic_Texture> ::= 'cubic_texture' <Label> <Cubic_Texture_Options> \n"
+        "               <Cubic_Texture_Options> ::= 'combineduvw' | 'separateuv' | <Cubic_Seperate> \n"
+        "               <Cubic_Seperate> ::= <Label> <Label> <Label> <Label> <Label> 'separateuv' \n"
+        "           <Tex_Coord_Set> ::= 'tex_coord_set' <#set_num> \n"
+        "           <Tex_Address_Mode> ::= 'tex_address_mode' <UVW_Mode> [<UVW_Mode>] [<UVW_Mode>] \n"
+        "               <UVW_Mode> ::= 'wrap' | 'clamp' | 'mirror' | 'border' \n"
         " "
         "<Vertex_Program> ::= 'vertex_program' \n"
         "<Fragment_Program> ::= 'fragment_program' \n"
@@ -244,6 +254,16 @@ namespace Ogre {
             addLexemeTokenAction("cubic", ID_CUBIC);
             addLexemeTokenAction("unlimited", ID_UNLIMITED);
             addLexemeTokenAction("alpha", ID_ALPHA);
+        addLexemeTokenAction("anim_texture", ID_ANIM_TEXTURE, &MaterialScriptCompiler::parseAnimTexture);
+        addLexemeTokenAction("cubic_texture", ID_CUBIC_TEXTURE, &MaterialScriptCompiler::parseCubicTexture);
+            addLexemeTokenAction("separateuv", ID_SEPARATE_UV);
+            addLexemeTokenAction("combineduvw", ID_COMBINED_UVW);
+        addLexemeTokenAction("tex_coord_set", ID_TEX_COORD_SET, &MaterialScriptCompiler::parseTexCoord);
+        addLexemeTokenAction("tex_address_mode", ID_TEX_ADDRESS_MODE, &MaterialScriptCompiler::parseTexAddressMode);
+            addLexemeTokenAction("wrap", ID_WRAP);
+            addLexemeTokenAction("clamp", ID_CLAMP);
+            addLexemeTokenAction("mirror", ID_MIRROR);
+            addLexemeTokenAction("border", ID_BORDER);
 
         // common section
         addLexemeTokenAction("on", ID_ON);
@@ -1280,6 +1300,123 @@ namespace Ogre {
             }
 		}
         mScriptContext.textureUnit->setTextureName(textureName, tt, mips, isAlpha);
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseAnimTexture(void)
+    {
+        assert(mScriptContext.textureUnit);
+        StringVector vecparams;
+        // first token will be a label
+        vecparams.push_back(getNextTokenLabel());
+        // Determine which form it is
+        // if next token is a value then no more labels to be processed
+        if (testNextTokenID(_value_))
+        {
+            // First form using base name & number of frames
+            unsigned int frameCount = static_cast<unsigned int>(getNextTokenValue());
+            mScriptContext.textureUnit->setAnimatedTextureName(
+                vecparams[0],
+                frameCount,
+                getNextTokenValue());
+        }
+        else
+        {
+            unsigned int numParams = 1;
+            while (getRemainingTokensForAction() > 1)
+            {
+                vecparams.push_back(getNextTokenLabel());
+                ++numParams;
+            }
+            // Second form using individual names
+            mScriptContext.textureUnit->setAnimatedTextureName(
+                (String*)&vecparams[0],
+                numParams,
+                getNextTokenValue());
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseCubicTexture(void)
+    {
+        assert(mScriptContext.textureUnit);
+        StringVector vecparams;
+
+        // first token will be a label
+        vecparams.push_back(getNextTokenLabel());
+        // Determine which form it is
+        // if next token is a label then 5 more labels to be processed
+        if (testNextTokenID(_character_))
+        {
+            // get next five texture names
+            for (int i = 0; i < 5; ++i)
+                vecparams.push_back(getNextTokenLabel());
+        }
+
+        bool useUVW = testNextTokenID(ID_COMBINED_UVW);
+
+        if (vecparams.size() == 1)
+        {
+            mScriptContext.textureUnit->setCubicTextureName(vecparams[0], useUVW);
+        }
+        else
+        {
+            // Second form using individual names
+            // Can use vecparams[0] as array start point
+            mScriptContext.textureUnit->setCubicTextureName((String*)&vecparams[0], useUVW);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseTexCoord(void)
+    {
+        assert(mScriptContext.textureUnit);
+        mScriptContext.textureUnit->setTextureCoordSet(
+            static_cast<unsigned int>(getNextTokenValue()));
+    }
+    //-----------------------------------------------------------------------
+	TextureUnitState::TextureAddressingMode MaterialScriptCompiler::convTexAddressMode(void)
+	{
+	    switch (getNextToken().tokenID)
+	    {
+		case ID_WRAP:
+			return TextureUnitState::TAM_WRAP;
+		case ID_CLAMP:
+			return TextureUnitState::TAM_CLAMP;
+		case ID_MIRROR:
+			return TextureUnitState::TAM_MIRROR;
+		case ID_BORDER:
+			return TextureUnitState::TAM_BORDER;
+		default:
+            return TextureUnitState::TAM_WRAP;
+	    }
+	}
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseTexAddressMode(void)
+    {
+        const size_t paramCount = getRemainingTokensForAction();
+
+		if (paramCount == 1)
+		{
+			// Single-parameter option
+			mScriptContext.textureUnit->setTextureAddressingMode(
+				convTexAddressMode());
+		}
+		else
+		{
+			// 2-3 parameter option
+			TextureUnitState::UVWAddressingMode uvw;
+			uvw.u = convTexAddressMode();
+			uvw.v = convTexAddressMode();
+
+			if (paramCount == 3)
+			{
+				// w
+				uvw.w = convTexAddressMode();
+			}
+			else
+			{
+				uvw.w = TextureUnitState::TAM_WRAP;
+			}
+			mScriptContext.textureUnit->setTextureAddressingMode(uvw);
+		}
     }
     //-----------------------------------------------------------------------
 	void MaterialScriptCompiler::finishProgramDefinition(void)
