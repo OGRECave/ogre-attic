@@ -68,6 +68,9 @@ namespace Ogre {
 		/// Factories capable of creating HighLevelGpuProgram instances
 		FactoryMap mFactories;
 
+		/// Factory for dealing with programs for languages we can't create
+		HighLevelGpuProgramFactory* mNullFactory;
+
 		HighLevelGpuProgramFactory* getFactory(const String& language);
 
         /// @copydoc ResourceManager::createImpl
