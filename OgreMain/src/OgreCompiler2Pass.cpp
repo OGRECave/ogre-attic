@@ -657,14 +657,13 @@ namespace Ogre {
                     {
                         parseErrorLogged = true;
                         LogManager::getSingleton().logMessage(
-                        "*** ERROR in : " + getClientGrammerName() +
-                        "\nSource: " + mSourceName +
-                        "\nUnkown token found, was expecting: " + getBNFGrammerTextFromRulePath(rulepathIDX)
-                        );
-                        LogManager::getSingleton().logMessage(
-                        " Found: >>>" + mSource->substr(mCharPos, 20) +
-                        "<<<, while in rule path: <" + mActiveTokenState->lexemeTokenDefinitions[ActiveNTTRule].lexeme
-                        + ">"
+                        "*** ERROR *** : in " + getClientGrammerName() +
+                        " Source: " + mSourceName +
+                        "\nUnknown token found on line " + StringConverter::toString(mCurrentLine) +
+                        "\nFound: >>>" + mSource->substr(mCharPos, 20) +
+                        "<<<\nbut was expecting form: " + getBNFGrammerTextFromRulePath(rulepathIDX, 2) +
+                        "\nwhile in rule path: <" + mActiveTokenState->lexemeTokenDefinitions[ActiveNTTRule].lexeme +
+                        ">"
                         );
                     }
 
@@ -795,7 +794,7 @@ namespace Ogre {
                         // log last valid token found
                         const TokenInst& tokenInst = mActiveTokenState->tokenQue.back();
                         LogManager::getSingleton().logMessage(
-                            "Last valid token found was at line: " + StringConverter::toString(tokenInst.line));
+                            "Last valid token found was on line " + StringConverter::toString(tokenInst.line));
                         LogManager::getSingleton().logMessage(
                             "source hint: >>>" + mSource->substr(tokenInst.pos, 20) + "<<<");
                     }
@@ -1147,7 +1146,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    String Compiler2Pass::getBNFGrammerTextFromRulePath(size_t ruleID)
+    String Compiler2Pass::getBNFGrammerTextFromRulePath(size_t ruleID, const size_t level)
     {
 
         String grammerText;
@@ -1168,28 +1167,30 @@ namespace Ogre {
             {
             // rule lexeme ::=
             case otRULE:
-                grammerText += "\n" + getLexemeText(ruleID) + " ::=";
+                grammerText += "\n" + getLexemeText(ruleID, level) + " ::=";
                 break;
             // no special processing for AND op
             case otAND:
-                grammerText += " " + getLexemeText(ruleID);
+                grammerText += " " + getLexemeText(ruleID, level);
                 break;
             // or | lexeme
             case otOR:
-                grammerText += " | " + getLexemeText(ruleID);
+                grammerText += " | " + getLexemeText(ruleID, level);
                 break;
             // optional [lexeme]
             case otOPTIONAL:
-                grammerText += " [" + getLexemeText(ruleID) + "]";
+                grammerText += " [" + getLexemeText(ruleID, level) + "]";
                 break;
             // repeat {lexeme}
             case otREPEAT:
-                grammerText += " {" + getLexemeText(ruleID) + "}";
+                grammerText += " {" + getLexemeText(ruleID, level) + "}";
                 break;
             // not test (?!lexeme)
             case otNOT_TEST:
-                grammerText += " (?!" + getLexemeText(ruleID) + ")";
+                grammerText += " (?!" + getLexemeText(ruleID, level) + ")";
                 break;
+            default:
+                grammerText += "*** Unknown Operation ***";
             }
             // lexeme/token text procesing
             ++ruleID;
@@ -1204,7 +1205,7 @@ namespace Ogre {
     //              Private Methods
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    String Compiler2Pass::getLexemeText(size_t& ruleID)
+    String Compiler2Pass::getLexemeText(size_t& ruleID, const size_t level)
     {
         if (ruleID >= mActiveTokenState->rootRulePath.size())
         {
@@ -1223,7 +1224,16 @@ namespace Ogre {
             // non-terminal tokens
             if (mActiveTokenState->lexemeTokenDefinitions[tokenID].isNonTerminal)
             {
-                lexeme = "<" + mActiveTokenState->lexemeTokenDefinitions[tokenID].lexeme + ">";
+                // allow expansion of non-terminals into terminals
+                if (level > 0)
+                {
+                    size_t subRuleID = mActiveTokenState->lexemeTokenDefinitions[tokenID].ruleID + 1;
+                    lexeme = "(" + getBNFGrammerTextFromRulePath(subRuleID, level - 1) + ")";
+                }
+                else
+                {
+                    lexeme = "<" + mActiveTokenState->lexemeTokenDefinitions[tokenID].lexeme + ">";
+                }
             }
             else // terminal tokens
             {

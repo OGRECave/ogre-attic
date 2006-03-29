@@ -436,8 +436,10 @@ namespace Ogre {
 	    /** Get the text representation of the rule path.  This is a good way to way to visually verify
 	    that the BNF grammer did compile correctly.
 	    @param ruleID is the index into the rule path.
+	    @param level is the number of levels a non-terminal will expand to. Defaults to 0 if not set which
+            will cause non-terminals to not expand.
 	    */
-	    String getBNFGrammerTextFromRulePath(size_t ruleID);
+	    String getBNFGrammerTextFromRulePath(size_t ruleID, const size_t level = 0);
 
 
     private:
@@ -469,7 +471,8 @@ namespace Ogre {
         void extractSet(const OperationType pendingRuleOp);
         /// Extract a numeric constant from the token que and add it to the current rule expression
         void extractNumericConstant(const OperationType pendingRuleOp);
-        String getLexemeText(size_t& ruleID);
+        /// get the lexem text of a rule.
+        String getLexemeText(size_t& ruleID, const size_t level = 0);
 
     public:
 
