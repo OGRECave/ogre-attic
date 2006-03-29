@@ -417,6 +417,7 @@ namespace Ogre {
 	    mPreviousActionQuePosition = 0;
 	    mNoTerminalToken = false;
 	    mNoSpaceSkip = false;
+	    mErrorCharPos = 0;
 	    // tokenize and check semantics untill an error occurs or end of source is reached
 	    // assume RootRulePath has pointer to rules so start at index + 1 for first rule path
 	    // first rule token would be a rule definition so skip over it
@@ -640,7 +641,6 @@ namespace Ogre {
 	    bool passed = true;
         bool tokenFound = false;
 	    bool endFound = false;
-	    bool parseErrorLogged = false;
 
 	    // keep following rulepath until the end is reached
         while (!endFound)
@@ -653,9 +653,9 @@ namespace Ogre {
 			    if (passed)
 				    passed = ValidateToken(rulepathIDX, ActiveNTTRule);
 				    // log error message if a previouse token was found in this rule path and current token failed
-				    if (tokenFound && !parseErrorLogged && !passed)
+				    if (tokenFound && (mCharPos != mErrorCharPos) && !passed)
                     {
-                        parseErrorLogged = true;
+                        mErrorCharPos = mCharPos;
                         LogManager::getSingleton().logMessage(
                         "*** ERROR *** : in " + getClientGrammerName() +
                         " Source: " + mSourceName +
@@ -665,6 +665,12 @@ namespace Ogre {
                         "\nwhile in rule path: <" + mActiveTokenState->lexemeTokenDefinitions[ActiveNTTRule].lexeme +
                         ">"
                         );
+                        // log last valid token found
+                        const TokenInst& tokenInst = mActiveTokenState->tokenQue.back();
+                        LogManager::getSingleton().logMessage(
+                            "Last valid token found was on line " + StringConverter::toString(tokenInst.line));
+                        LogManager::getSingleton().logMessage(
+                            "source hint: >>>" + mSource->substr(tokenInst.pos, 20) + "<<<");
                     }
 
 			    break;
@@ -786,17 +792,10 @@ namespace Ogre {
 			    }
 			    else
 			    {
-			        // if the rule path was partially completed, one or more tokeks found, then put a
-			        // warning in the log
+			        // if the rule path was partially completed, one or more tokens found then mark it as passed
                     if (!passed && tokenFound && !mLabelIsActive)
                     {
                         passed = true;
-                        // log last valid token found
-                        const TokenInst& tokenInst = mActiveTokenState->tokenQue.back();
-                        LogManager::getSingleton().logMessage(
-                            "Last valid token found was on line " + StringConverter::toString(tokenInst.line));
-                        LogManager::getSingleton().logMessage(
-                            "source hint: >>>" + mSource->substr(tokenInst.pos, 20) + "<<<");
                     }
 			    }
 			    break;
