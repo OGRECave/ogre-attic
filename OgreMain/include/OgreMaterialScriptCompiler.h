@@ -77,19 +77,20 @@ namespace Ogre {
             ID_CULL_SOFTWARE, ID_CULL_BACK, ID_CULL_FRONT,
             ID_LIGHTING, ID_SHADING, ID_FLAT, ID_GOURAUD, ID_PHONG,
             ID_POLYGON_MODE, ID_SOLID, ID_WIREFRAME, ID_POINTS,
-            ID_FOG_OVERRIDE, ID_LINEAR, ID_EXP, ID_EXP2,
+            ID_FOG_OVERRIDE, ID_EXP, ID_EXP2,
             ID_COLOUR_WRITE, ID_MAX_LIGHTS,
-            ID_ITERATION, ID_ONCE, ID_ONCE_PER_LIGHT, ID_PER_LIGHT, ID_POINT, ID_DIRECTIONAL, ID_SPOT,
+            ID_ITERATION, ID_ONCE, ID_ONCE_PER_LIGHT, ID_PER_LIGHT, ID_DIRECTIONAL, ID_SPOT,
 			ID_POINT_SIZE, ID_POINT_SPRITES, ID_POINT_SIZE_ATTENUATION,
 			ID_POINT_SIZE_MIN, ID_POINT_SIZE_MAX,
 
             // texture unit state
             ID_TEXTURE_UNIT, ID_TEXTURE_ALIAS, ID_TEXTURE, ID_1D, ID_2D, ID_3D, ID_CUBIC, ID_UNLIMITED,
             ID_ALPHA, ID_ANIM_TEXTURE, ID_CUBIC_TEXTURE, ID_SEPARATE_UV, ID_COMBINED_UVW,
-            ID_TEX_COORD_SET, ID_TEX_ADDRESS_MODE, ID_WRAP, ID_CLAMP, ID_MIRROR, ID_BORDER,
+            ID_TEX_COORD_SET, ID_TEX_ADDRESS_MODE, ID_WRAP, ID_CLAMP, ID_MIRROR, ID_BORDER, ID_TEX_BORDER_COLOUR,
+            ID_FILTERING, ID_BILINEAR, ID_TRILINEAR, ID_ANISOTROPIC,
 
             // general
-            ID_ON, ID_OFF, ID_TRUE, ID_FALSE, ID_NONE
+            ID_ON, ID_OFF, ID_TRUE, ID_FALSE, ID_NONE, ID_POINT, ID_LINEAR
         };
 
         /** Enum to identify material sections. */
@@ -225,6 +226,9 @@ namespace Ogre {
         void parseTexCoord(void);
         TextureUnitState::TextureAddressingMode convTexAddressMode(void);
         void parseTexAddressMode(void);
+        void parseTexBorderColour(void);
+        void parseFiltering(void);
+        FilterOptions convertFiltering();
         void parseTextureCustomParameter(void);
 
 
