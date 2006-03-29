@@ -80,18 +80,18 @@ namespace Ogre {
 		"                              <Point_Size> | <Point_Sprites> | <Point_Size_Attenuation> | \n"
 		"                              <Point_Size_Min> | <Point_Size_Max> \n"
 
-        "        <Ambient> ::= 'ambient' <Colour_Params> | <Vertexcolour> \n"
-        "        <Diffuse> ::= 'diffuse' <Colour_Params> | <Vertexcolour> \n"
-        "        <Specular> ::= 'specular' <Specular_Params> <#shininess> \n"
-        "            <Specular_Params> ::= <Colour_Params> | <Vertexcolour> \n"
-        "        <Emissive> ::= 'emissive' <Colour_Params> | <Vertexcolour> \n"
+        "        <Ambient> ::= 'ambient' <ColourOptions> \n"
+        "        <Diffuse> ::= 'diffuse' <ColourOptions> \n"
+        "        <Specular> ::= 'specular' <ColourOptions> <#shininess> \n"
+        "        <Emissive> ::= 'emissive' <ColourOptions> \n"
 
-        "        <Vertexcolour> ::= 'vertexcolour' \n"
+        "        <ColourOptions> ::= <Colour_Params> | 'vertexcolour' \n"
 
-        "        <Scene_Blend> ::= 'scene_blend' <Simple_Blend> | <User_Blend> \n"
-        "          <Simple_Blend> ::= 'add' | 'modulate' | 'colour_blend' | 'alpha_blend' \n"
-        "          <User_Blend> ::= <Blend_Factor> <Blend_Factor> \n"
-        "          <Blend_Factor> ::= 'one' | 'zero' | 'dest_colour' | 'src_colour' | \n"
+        "        <Scene_Blend> ::= 'scene_blend' <SceneBlend_Options> \n"
+        "          <SceneBlend_Options> ::= <Simple_Blend> | <User_Blend> \n"
+        "            <Simple_Blend> ::= 'add' | 'modulate' | 'colour_blend' | 'alpha_blend' \n"
+        "            <User_Blend> ::= <Blend_Factor> <Blend_Factor> \n"
+        "            <Blend_Factor> ::= 'one' | 'zero' | 'dest_colour' | 'src_colour' | \n"
         "                             'one_minus_dest_colour' | 'one_minus_src_colour' | \n"
         "                             'dest_alpha' | 'src_alpha' | 'one_minus_dest_alpha' | \n"
         "                             'one_minus_src_alpha' \n"
@@ -103,11 +103,15 @@ namespace Ogre {
         "        <Alpha_Rejection> ::= 'alpha_rejection' <Compare_Func> <#value> \n"
         "        <Compare_Func> ::= 'always_fail' | 'always_pass' | 'less_equal' | 'less' | \n"
         "                               'equal' | 'not_equal' | 'greater_equal' | 'greater' \n"
-        "        <Cull_Hardware> ::= 'cull_hardware' 'clockwise' | 'anticlockwise' | 'none' \n"
-        "        <Cull_Software> ::= 'cull_software' 'back' | 'front' | 'none' \n"
+        "        <Cull_Hardware> ::= 'cull_hardware' <Cull_Hardware_Otions> \n"
+        "           <Cull_Hardware_Otions> ::= 'clockwise' | 'anticlockwise' | 'none' \n"
+        "        <Cull_Software> ::= 'cull_software' <Cull_Software_Otions> \n"
+        "           <Cull_Software_Otions> ::= 'back' | 'front' | 'none' \n"
         "        <Lighting> ::= 'lighting' <On_Off> \n"
-        "        <Shading> ::= 'shading' 'flat' | 'gouraud' | 'phong' \n"
-        "        <PolygonMode> ::= 'polygon_mode' 'solid' | 'wireframe' | 'points' \n"
+        "        <Shading> ::= 'shading' <Shading_Options> \n"
+        "           <Shading_Options> ::= 'flat' | 'gouraud' | 'phong' \n"
+        "        <PolygonMode> ::= 'polygon_mode' <PolygonMode_Options> \n"
+        "           <PolygonMode_Options> ::= 'solid' | 'wireframe' | 'points' \n"
         "        <Colour_Write> ::= 'colour_write' <On_Off> \n"
 		"        <Point_Size> ::= 'point_size' <#size> \n"
 		"        <Point_Sprites> ::= 'point_sprites' <On_Off> \n"
@@ -115,21 +119,23 @@ namespace Ogre {
 		"        <Point_Size_Max> ::= 'point_size_max' <#size> \n"
 		"        <Point_Size_Attenuation> ::= 'point_size_attenuation' <On_Off> [<Point_Size_Att_Params>] \n"
 		"            <Point_Size_Att_Params> ::= <#constant> <#linear> <#quadric> \n"
-        "        <Fog_Override> ::= 'fog_override' 'false' | <fog_true> \n"
-        "           <fog_true> ::= 'true' [<Fog_parameters>] \n"
+        "        <Fog_Override> ::= 'fog_override' <Fog_Override_Options> \n"
+        "           <Fog_Override_Options> ::= 'false' | <fog_true> \n"
+        "             <fog_true> ::= 'true' [<Fog_parameters>] \n"
         "               <Fog_parameters> ::= <fog_type> <fog_colour> <#fog_density> <#start> <#end> \n"
         "                   <fog_type> ::= 'none' | 'linear' | 'exp2' | 'exp0.' \n"
         "                   <fog_colour> ::= <#red> <#green> <#blue> \n"
         "        <Max_Lights> ::= 'max_lights' <#number> \n"
-        "        <Iteration> ::= 'iteration' <Iteration_Once_Params> | 'once' | <Iteration_Counted> \n"
-        "           <Iteration_Once_Params> ::= 'once_per_light' [<light_type>] \n"
-        "           <Iteration_Counted> ::= <#number> [<Per_Light>] \n"
+        "        <Iteration> ::= 'iteration' <Iteration_Options> \n"
+        "           <Iteration_Options> ::= <Iteration_Once_Params> | 'once' | <Iteration_Counted> \n"
+        "             <Iteration_Once_Params> ::= 'once_per_light' [<light_type>] \n"
+        "             <Iteration_Counted> ::= <#number> [<Per_Light>] \n"
         "               <Per_Light> ::= 'per_light' <light_type> \n"
-        "           <light_type> ::= 'point' | 'directional' | 'spot' \n"
+        "             <light_type> ::= 'point' | 'directional' | 'spot' \n"
         // Texture Unit section rules
         "        <Texture_Unit> ::= 'texture_unit' [<Label>] '{' {<TUS_Properties>} '}' \n"
         "        <TUS_Properties> ::= <Texture_Alias> | <Texture> | <Anim_Texture> | <Cubic_Texture> | \n"
-        "               <Tex_Coord_Set> | <Tex_Address_Mode> \n"
+        "               <Tex_Coord_Set> | <Tex_Address_Mode> | <Tex_Border_Colour> | <Filtering> \n"
         "           <Texture_Alias> ::= 'texture_alias' <Label> \n"
         "           <Texture> ::= 'texture' <Label> {<Texture_Properties>} \n"
         "           <Texture_Properties> ::= '1d' | '2d' | '3d' | 'cubic' | 'unlimited' | 'alpha' | <#mipmap> \n"
@@ -142,6 +148,13 @@ namespace Ogre {
         "           <Tex_Coord_Set> ::= 'tex_coord_set' <#set_num> \n"
         "           <Tex_Address_Mode> ::= 'tex_address_mode' <UVW_Mode> [<UVW_Mode>] [<UVW_Mode>] \n"
         "               <UVW_Mode> ::= 'wrap' | 'clamp' | 'mirror' | 'border' \n"
+        "           <Tex_Border_Colour> ::= 'tex_border_colour' <Colour_Params> \n"
+        "           <Filtering> ::= 'filtering' <Filtering_Options>"
+        "               <Filtering_Options> ::= <Simple_Filter> | <Complex_Filter> \n"
+        "                 <Simple_Filter> ::= 'bilinear' | 'trilinear' | 'anisotropic' | 'none' \n"
+        "                 <Complex_Filter> ::= <MinMagFilter> <MinMagFilter> <MipFilter> \n"
+        "                   <MinMagFilter> ::= 'linear' | 'point' | 'anisotropic' \n"
+        "                   <MipFilter> ::= 'linear' | 'point' | 'none' \n"
         " "
         "<Vertex_Program> ::= 'vertex_program' \n"
         "<Fragment_Program> ::= 'fragment_program' \n"
@@ -197,6 +210,8 @@ namespace Ogre {
             addLexemeTokenAction("diffuse", ID_DIFFUSE, &MaterialScriptCompiler::parseDiffuse);
             addLexemeTokenAction("specular", ID_SPECULAR, &MaterialScriptCompiler::parseSpecular);
             addLexemeTokenAction("emissive", ID_EMISSIVE, &MaterialScriptCompiler::parseEmissive);
+            addLexemeTokenAction("vertexcolour", ID_VERTEXCOLOUR);
+
             addLexemeTokenAction("depth_check", ID_DEPTH_CHECK, &MaterialScriptCompiler::parseDepthCheck);
             addLexemeTokenAction("depth_write", ID_DEPTH_WRITE, &MaterialScriptCompiler::parseDepthWrite);
             addLexemeTokenAction("depth_func", ID_DEPTH_FUNC, &MaterialScriptCompiler::parseDepthFunc);
@@ -226,7 +241,6 @@ namespace Ogre {
                 addLexemeTokenAction("wireframe", ID_WIREFRAME);
                 addLexemeTokenAction("points", ID_POINTS);
             addLexemeTokenAction("fog_override", ID_FOG_OVERRIDE, &MaterialScriptCompiler::parseFogOverride);
-                addLexemeTokenAction("linear", ID_LINEAR);
                 addLexemeTokenAction("exp", ID_EXP);
                 addLexemeTokenAction("exp2", ID_EXP2);
             addLexemeTokenAction("colour_write", ID_COLOUR_WRITE, &MaterialScriptCompiler::parseColourWrite);
@@ -235,7 +249,6 @@ namespace Ogre {
                 addLexemeTokenAction("once", ID_ONCE);
                 addLexemeTokenAction("once_per_light", ID_ONCE_PER_LIGHT);
                 addLexemeTokenAction("per_light", ID_PER_LIGHT);
-                addLexemeTokenAction("point", ID_POINT);
                 addLexemeTokenAction("directional", ID_DIRECTIONAL);
                 addLexemeTokenAction("spot", ID_SPOT);
             addLexemeTokenAction("point_size", ID_POINT_SIZE, &MaterialScriptCompiler::parsePointSize);
@@ -264,6 +277,11 @@ namespace Ogre {
             addLexemeTokenAction("clamp", ID_CLAMP);
             addLexemeTokenAction("mirror", ID_MIRROR);
             addLexemeTokenAction("border", ID_BORDER);
+        addLexemeTokenAction("tex_border_colour", ID_TEX_BORDER_COLOUR, &MaterialScriptCompiler::parseTexBorderColour);
+        addLexemeTokenAction("filtering", ID_FILTERING, &MaterialScriptCompiler::parseFiltering);
+            addLexemeTokenAction("bilinear", ID_BILINEAR);
+            addLexemeTokenAction("trilinear", ID_TRILINEAR);
+            addLexemeTokenAction("anisotropic", ID_ANISOTROPIC);
 
         // common section
         addLexemeTokenAction("on", ID_ON);
@@ -271,6 +289,8 @@ namespace Ogre {
         addLexemeTokenAction("true", ID_TRUE);
         addLexemeTokenAction("false", ID_FALSE);
         addLexemeTokenAction("none", ID_NONE);
+        addLexemeTokenAction("point", ID_POINT);
+        addLexemeTokenAction("linear", ID_LINEAR);
 
     }
 
@@ -1391,6 +1411,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseTexAddressMode(void)
     {
+        assert(mScriptContext.textureUnit);
         const size_t paramCount = getRemainingTokensForAction();
 
 		if (paramCount == 1)
@@ -1417,6 +1438,62 @@ namespace Ogre {
 			}
 			mScriptContext.textureUnit->setTextureAddressingMode(uvw);
 		}
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseTexBorderColour(void)
+    {
+        assert(mScriptContext.textureUnit);
+        mScriptContext.textureUnit->setTextureBorderColour( _parseColourValue() );
+    }
+    //-----------------------------------------------------------------------
+    FilterOptions MaterialScriptCompiler::convertFiltering()
+    {
+        switch (getNextToken().tokenID)
+        {
+        case ID_NONE:
+            return FO_NONE;
+        case ID_POINT:
+            return FO_POINT;
+        case ID_LINEAR:
+            return FO_LINEAR;
+        case ID_ANISOTROPIC:
+            return FO_ANISOTROPIC;
+        default:
+            return FO_POINT;
+        }
+    }
+    void MaterialScriptCompiler::parseFiltering(void)
+    {
+        assert(mScriptContext.textureUnit);
+        // Must be 1 or 3 parameters
+        const size_t paramCount = getRemainingTokensForAction();
+        if (paramCount == 1)
+        {
+            // Simple format
+            switch (getNextToken().tokenID)
+            {
+            case ID_BILINEAR:
+                mScriptContext.textureUnit->setTextureFiltering(TFO_BILINEAR);
+                break;
+            case ID_TRILINEAR:
+                mScriptContext.textureUnit->setTextureFiltering(TFO_TRILINEAR);
+                break;
+            case ID_ANISOTROPIC:
+                mScriptContext.textureUnit->setTextureFiltering(TFO_ANISOTROPIC);
+                break;
+            case ID_NONE:
+                mScriptContext.textureUnit->setTextureFiltering(TFO_NONE);
+                break;
+            }
+        }
+        else
+        {
+            // Complex format
+            const FilterOptions minFO = convertFiltering();
+            const FilterOptions magFO = convertFiltering();
+            const FilterOptions mipFO = convertFiltering();
+            mScriptContext.textureUnit->setTextureFiltering(minFO, magFO, mipFO);
+        }
     }
     //-----------------------------------------------------------------------
 	void MaterialScriptCompiler::finishProgramDefinition(void)
