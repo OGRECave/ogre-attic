@@ -107,7 +107,8 @@ inline Ogre::Quaternion XSItoOgre(const XSI::MATH::CQuaternion& xsiQuat)
 
 inline Ogre::RGBA XSItoOgre(const XSI::CVertexColor& xsiColour)
 {
-	Ogre::ColourValue col(xsiColour.r, xsiColour.g, xsiColour.b, xsiColour.a);
+	Ogre::ColourValue col(xsiColour.r / 255.0f, xsiColour.g / 255.0f, 
+		xsiColour.b / 255.0f, xsiColour.a / 255.0f);
 	return Ogre::VertexElement::convertColourValue(col, 
 		Ogre::VertexElement::getBestColourVertexElementType());
 }
