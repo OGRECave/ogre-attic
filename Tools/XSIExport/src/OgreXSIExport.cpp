@@ -783,16 +783,12 @@ void getAnimations(XSI::Model& root, Ogre::AnimationList& animList)
 		for (; j != animList.end();)
 		{
 			bool remove = false;
-			if (j->endFrame >= i->startFrame)
+			if (j->startFrame <= i->endFrame && j->endFrame >= i->startFrame)
 			{
-				// Merge this one into i, extend i's start to j
+				// Merge this one into i, extend boundaries
 				remove = true;
-				i->startFrame = j->startFrame;
-			}
-			if (j->startFrame <= i->endFrame)
-			{
-				remove = true;
-				i->endFrame = j->endFrame;
+				i->startFrame = std::min(j->startFrame, i->startFrame);
+				i->endFrame = std::max(j->endFrame, i->endFrame);
 			}
 			if (remove)
 			{
