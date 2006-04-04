@@ -73,15 +73,6 @@ http://www.gnu.org/copyleft/lesser.txt
 #	pragma warning( disable: 4996)
 #endif
 
-#if OGRE_COMPILER == OGRE_COMPILER_MSVC
-#   undef _DEFINE_DEPRECATED_HASH_CLASSES
-#   if OGRE_COMP_VER > 1300
-#       define _DEFINE_DEPRECATED_HASH_CLASSES 0
-#   else
-#      define _DEFINE_DEPRECATED_HASH_CLASSES 1
-#   endif
-#endif
-
 /* Include all the standard header *after* all the configuration
    settings have been made.
 */
@@ -93,9 +84,9 @@ http://www.gnu.org/copyleft/lesser.txt
 namespace Ogre {
     // Define ogre version
     #define OGRE_VERSION_MAJOR 1
-    #define OGRE_VERSION_MINOR 3
+    #define OGRE_VERSION_MINOR 2
     #define OGRE_VERSION_PATCH 0
-    #define OGRE_VERSION_NAME "Eihort"
+    #define OGRE_VERSION_NAME "Dagon"
 
     #define OGRE_VERSION    ((OGRE_VERSION_MAJOR << 16) | (OGRE_VERSION_MINOR << 8) | OGRE_VERSION_PATCH)
 
