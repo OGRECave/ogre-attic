@@ -317,6 +317,25 @@ namespace Ogre {
         // Check for VBO support
         if(GLEW_VERSION_1_5 || GLEW_ARB_vertex_buffer_object)
         {
+            // Some buggy driver claim that it is GL 1.5 compliant and
+            // not support ARB_vertex_buffer_object
+            if (!GLEW_ARB_vertex_buffer_object)
+            {
+                // Assign ARB functions same to GL 1.5 version since
+                // interface identical
+                glBindBufferARB = glBindBuffer;
+                glBufferDataARB = glBufferData;
+                glBufferSubDataARB = glBufferSubData;
+                glDeleteBuffersARB = glDeleteBuffers;
+                glGenBuffersARB = glGenBuffers;
+                glGetBufferParameterivARB = glGetBufferParameteriv;
+                glGetBufferPointervARB = glGetBufferPointerv;
+                glGetBufferSubDataARB = glGetBufferSubData;
+                glIsBufferARB = glIsBuffer;
+                glMapBufferARB = glMapBuffer;
+                glUnmapBufferARB = glUnmapBuffer;
+            }
+
             mCapabilities->setCapability(RSC_VBO);
 
             mHardwareBufferManager = new GLHardwareBufferManager;
@@ -339,8 +358,10 @@ namespace Ogre {
             mCapabilities->setMaxVertexProgramVersion("arbvp1");
             mCapabilities->setVertexProgramConstantBoolCount(0);
             mCapabilities->setVertexProgramConstantIntCount(0);
-            mCapabilities->setVertexProgramConstantFloatCount(
-                GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB);
+
+            GLint floatConstantCount;
+            glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB, &floatConstantCount);
+            mCapabilities->setVertexProgramConstantFloatCount(floatConstantCount);
 
             mGpuProgramManager->_pushSyntaxCode("arbvp1");
             mGpuProgramManager->registerProgramFactory("arbvp1", createGLArbGpuProgram);
@@ -396,12 +417,15 @@ namespace Ogre {
         if (GLEW_ARB_fragment_program)
         {
             mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
+
             // Fragment Program Properties
             mCapabilities->setMaxFragmentProgramVersion("arbfp1");
             mCapabilities->setFragmentProgramConstantBoolCount(0);
             mCapabilities->setFragmentProgramConstantIntCount(0);
-            mCapabilities->setFragmentProgramConstantFloatCount(
-                GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB);
+
+            GLint floatConstantCount;
+            glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB, &floatConstantCount);
+            mCapabilities->setFragmentProgramConstantFloatCount(floatConstantCount);
 
             mGpuProgramManager->_pushSyntaxCode("arbfp1");
             mGpuProgramManager->registerProgramFactory("arbfp1", createGLArbGpuProgram);
@@ -466,8 +490,24 @@ namespace Ogre {
         }
 
         // Check for hardware occlusion support
-        if(GLEW_NV_occlusion_query)
+        if(GLEW_VERSION_1_5 || GLEW_ARB_occlusion_query)
         {
+            // Some buggy driver claim that it is GL 1.5 compliant and
+            // not support ARB_occlusion_query
+            if (!GLEW_ARB_occlusion_query)
+            {
+                // Assign ARB functions same to GL 1.5 version since
+                // interface identical
+                glBeginQueryARB = glBeginQuery;
+                glDeleteQueriesARB = glDeleteQueries;
+                glEndQueryARB = glEndQuery;
+                glGenQueriesARB = glGenQueries;
+                glGetQueryObjectivARB = glGetQueryObjectiv;
+                glGetQueryObjectuivARB = glGetQueryObjectuiv;
+                glGetQueryivARB = glGetQueryiv;
+                glIsQueryARB = glIsQuery;
+            }
+
             mCapabilities->setCapability(RSC_HWOCCLUSION);		
         }
 
