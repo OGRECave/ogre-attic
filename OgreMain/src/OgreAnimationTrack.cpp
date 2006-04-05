@@ -34,9 +34,24 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+    namespace {
+        // Locally key frame search helper
+        struct KeyFrameTimeLess
+        {
+            bool operator() (const KeyFrame* kf, Real t) const
+            {
+                return kf->getTime() < t;
+            }
+            bool operator() (Real t, const KeyFrame* kf) const
+            {
+                return t < kf->getTime();
+            }
+        };
+    }
+    //---------------------------------------------------------------------
     //---------------------------------------------------------------------
     AnimationTrack::AnimationTrack(Animation* parent, unsigned short handle) :
-		mMaxKeyFrameTime(-1), mParent(parent), mHandle(handle)
+		mParent(parent), mHandle(handle)
     {
     }
     //---------------------------------------------------------------------
@@ -61,7 +76,6 @@ namespace Ogre {
     Real AnimationTrack::getKeyFramesAtTime(Real timePos, KeyFrame** keyFrame1, KeyFrame** keyFrame2,
             unsigned short* firstKeyIndex) const
     {
-        short firstIndex = -1;
         Real totalAnimationLength = mParent->getLength();
 
         // Wrap time
@@ -70,44 +84,43 @@ namespace Ogre {
             timePos -= totalAnimationLength;
         }
 
-        KeyFrameList::const_iterator i = mKeyFrames.begin();
-        // Find last keyframe before or on current time
-        while (i != mKeyFrames.end() && (*i)->getTime() <= timePos)
-        {
-            *keyFrame1 = *i++;
-            ++firstIndex;
-        }
-
-        // Trap case where there is no key before this time (problem with animation config)
-        // In this case use the first key anyway and pretend it's time index 0
-        if (firstIndex == -1)
-        {
-            *keyFrame1 = *i;
-            ++firstIndex;
-        }
-
-        // Fill index of the first key
-        if (firstKeyIndex != NULL)
-        {
-            *firstKeyIndex = firstIndex;
-        }
-
         // Parametric time
         // t1 = time of previous keyframe
         // t2 = time of next keyframe
         Real t1, t2;
-        // Find first keyframe after the time
-        // If no next keyframe, wrap back to first
+
+        // Find first keyframe after or on current time
+        KeyFrameList::const_iterator i =
+            std::lower_bound(mKeyFrames.begin(), mKeyFrames.end(), timePos, KeyFrameTimeLess());
+
         if (i == mKeyFrames.end())
         {
-            *keyFrame2 = mKeyFrames[0];
-            t2 = totalAnimationLength;
+            // There is no keyframe after this time, wrap back to first
+            *keyFrame2 = mKeyFrames.front();
+            t2 = totalAnimationLength + (*keyFrame2)->getTime();
+
+            // Use last keyframe as previous keyframe
+            --i;
         }
         else
         {
             *keyFrame2 = *i;
             t2 = (*keyFrame2)->getTime();
+
+            // Find last keyframe before or on current time
+            if (i != mKeyFrames.begin() && timePos < (*i)->getTime())
+            {
+                --i;
+            }
         }
+
+        // Fill index of the first key
+        if (firstKeyIndex)
+        {
+            *firstKeyIndex = std::distance(mKeyFrames.begin(), i);
+        }
+
+        *keyFrame1 = *i;
 
         t1 = (*keyFrame1)->getTime();
 
@@ -126,23 +139,10 @@ namespace Ogre {
     {
         KeyFrame* kf = createKeyFrameImpl(timePos);
 
-        // Insert at correct location
-        if (timePos > mMaxKeyFrameTime || (timePos == 0 && mKeyFrames.empty()))
-        {
-            // Quick insert at end
-            mKeyFrames.push_back(kf);
-            mMaxKeyFrameTime = timePos;
-        }
-        else
-        {
-            // Search
-            KeyFrameList::iterator i = mKeyFrames.begin();
-            while ((*i)->getTime() < timePos && i != mKeyFrames.end())
-            {
-                ++i;
-            }
-            mKeyFrames.insert(i, kf);
-        }
+        // Insert just before upper bound
+        KeyFrameList::iterator i =
+            std::upper_bound(mKeyFrames.begin(), mKeyFrames.end(), timePos, KeyFrameTimeLess());
+        mKeyFrames.insert(i, kf);
 
         _keyFrameDataChanged();
 

@@ -150,7 +150,6 @@ namespace Ogre
     protected:
         typedef std::vector<KeyFrame*> KeyFrameList;
         KeyFrameList mKeyFrames;
-        Real mMaxKeyFrameTime;
         Animation* mParent;
 		unsigned short mHandle;
 
