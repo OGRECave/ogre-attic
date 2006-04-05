@@ -134,8 +134,10 @@ namespace Ogre {
 
 #if OGRE_COMPILER == OGRE_COMPILER_GNUC && OGRE_COMP_VER >= 310 && !defined(STLPORT)
     typedef ::__gnu_cxx::hash< _StringBase > _StringHash;
-#else 
+#elif !defined( _STLP_HASH_FUN_H )
 	typedef stdext::hash_compare< _StringBase, std::less< _StringBase > > _StringHash;
+#else
+    typedef std::hash< _StringBase > _StringHash;
 #endif
 
 } // namespace Ogre
