@@ -38,13 +38,9 @@ namespace Ogre {
         // Locally key frame search helper
         struct KeyFrameTimeLess
         {
-            bool operator() (const KeyFrame* kf, Real t) const
+            bool operator() (const KeyFrame* kf, const KeyFrame* kf2) const
             {
-                return kf->getTime() < t;
-            }
-            bool operator() (Real t, const KeyFrame* kf) const
-            {
-                return t < kf->getTime();
+                return kf->getTime() < kf2->getTime();
             }
         };
     }
@@ -90,8 +86,9 @@ namespace Ogre {
         Real t1, t2;
 
         // Find first keyframe after or on current time
+		KeyFrame timeKey(0, timePos);
         KeyFrameList::const_iterator i =
-            std::lower_bound(mKeyFrames.begin(), mKeyFrames.end(), timePos, KeyFrameTimeLess());
+            std::lower_bound(mKeyFrames.begin(), mKeyFrames.end(), &timeKey, KeyFrameTimeLess());
 
         if (i == mKeyFrames.end())
         {
@@ -141,7 +138,7 @@ namespace Ogre {
 
         // Insert just before upper bound
         KeyFrameList::iterator i =
-            std::upper_bound(mKeyFrames.begin(), mKeyFrames.end(), timePos, KeyFrameTimeLess());
+            std::upper_bound(mKeyFrames.begin(), mKeyFrames.end(), kf, KeyFrameTimeLess());
         mKeyFrames.insert(i, kf);
 
         _keyFrameDataChanged();
