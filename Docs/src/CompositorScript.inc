@@ -203,6 +203,8 @@ Here are the attributes you can use in a 'pass' section of a .compositor script:
 @item
 @ref{compositor_pass_input,input}
 @item
+@ref{compositor_pass_identifier,identifier}
+@item
 @ref{first_render_queue}
 @item
 @ref{last_render_queue}
@@ -228,6 +230,13 @@ The texture sampler to set, must be a number in the range [0, OGRE_MAX_TEXTURE_L
 The name of the local render texture to bind, as declared in @ref{compositor_texture} and rendered to in one or more @ref{Compositor Target Passes,target pass}.
 @end table
 Example: input 0 rt0
+
+@anchor{compositor_pass_identifier}
+@subheading identifier
+Associates a numeric identifier with the pass. This is useful for registering a listener with the compositor (CompositorInstance::addListener), and being able to identify which pass it is that's being processed when you get events regarding it. Numbers between 0 and 2^32 are allowed.@*@*
+Format: identifier <number>@*@*
+Example: identifier 99945@*@*
+Default: identifier 0@*@*
 
 @anchor{first_render_queue}
 @subheading first_render_queue

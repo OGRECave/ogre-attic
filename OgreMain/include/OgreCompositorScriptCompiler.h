@@ -71,6 +71,7 @@ namespace Ogre {
 			ID_MATERIAL,
 			ID_RENDER_QUAD, ID_CLEAR, ID_STENCIL, ID_RENDER_SCENE,
 			ID_FIRST_RQ, ID_LAST_RQ,
+			ID_IDENTIFIER,
 			// clear
 			ID_CLR_BUFF, ID_CLR_COLOUR, ID_CLR_DEPTH,
 			ID_CLR_COLOUR_VAL, ID_CLR_DEPTH_VAL, ID_CLR_STENCIL_VAL,
@@ -155,6 +156,7 @@ namespace Ogre {
 		void parseMaterial(void);
 		void parseFirstRenderQueue(void);
 		void parseLastRenderQueue(void);
+		void parseIdentifier(void);
 		void parseClearBuffers(void);
 		void parseClearColourValue(void);
 		void parseClearDepthValue(void);

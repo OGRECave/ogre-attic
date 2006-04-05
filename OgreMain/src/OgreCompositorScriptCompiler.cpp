@@ -65,9 +65,13 @@ namespace Ogre {
 		// Pass
 		"<Pass> ::= 'pass' <PassTypes> '{' {<PassOptions>} '}' \n"
 		"<PassTypes> ::= 'render_quad' | 'clear' | 'stencil' | 'render_scene' \n"
-		"<PassOptions> ::= <PassMaterial> | <PassInput> | <ClearSection> | <StencilSection> \n"
+		"<PassOptions> ::= <PassFirstRenderQueue> | <PassLastRenderQueue> | \n"
+		"    <PassIdentifier> | <PassMaterial> | <PassInput> | <ClearSection> | <StencilSection> \n"
 		"<PassMaterial> ::= 'material' <Label> \n"
 		"<PassInput> ::= 'input' <#id> <Label> \n"
+		"<PassFirstRenderQueue> ::= 'first_render_queue' <#queue> \n"
+		"<PassLastRenderQueue> ::= 'last_render_queue' <#queue> \n"
+		"<PassIdentifier> ::= 'identifier' <#id> \n"
 		// clear
 		"<ClearSection> ::= -'clear' -'{' {<ClearOptions>} -'}' \n"
 		"<ClearOptions> ::= <Buffers> | <ColourValue> | <DepthValue> | <StencilValue> \n"
@@ -162,6 +166,7 @@ namespace Ogre {
 		addLexemeTokenAction("material", ID_MATERIAL, &CompositorScriptCompiler::parseMaterial);
 		addLexemeTokenAction("first_render_queue", ID_FIRST_RQ, &CompositorScriptCompiler::parseFirstRenderQueue);
 		addLexemeTokenAction("last_render_queue", ID_LAST_RQ, &CompositorScriptCompiler::parseLastRenderQueue);
+		addLexemeTokenAction("identifier", ID_IDENTIFIER, &CompositorScriptCompiler::parseIdentifier);
 		// clear
 		addLexemeTokenAction("buffers", ID_CLR_BUFF, &CompositorScriptCompiler::parseClearBuffers);
 		addLexemeTokenAction("colour", ID_CLR_COLOUR);
@@ -496,6 +501,12 @@ namespace Ogre {
 	{
 		assert(mScriptContext.pass);
 		mScriptContext.pass->setLastRenderQueue(static_cast<uint8>(getNextTokenValue()));
+	}
+	//-----------------------------------------------------------------------
+	void CompositorScriptCompiler::parseIdentifier(void)
+	{
+		assert(mScriptContext.pass);
+		mScriptContext.pass->setIdentifier(static_cast<uint32>(getNextTokenValue()));
 	}
 	//-----------------------------------------------------------------------
     void CompositorScriptCompiler::parseClearBuffers(void)
