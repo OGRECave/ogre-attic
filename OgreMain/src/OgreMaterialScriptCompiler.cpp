@@ -89,12 +89,13 @@ namespace Ogre {
 
         "        <Scene_Blend> ::= 'scene_blend' <SceneBlend_Options> \n"
         "          <SceneBlend_Options> ::= <Simple_Blend> | <User_Blend> \n"
-        "            <Simple_Blend> ::= 'add' | 'modulate' | 'colour_blend' | 'alpha_blend' \n"
+        "            <Simple_Blend> ::= <Base_Blend> | 'colour_blend' \n"
+        "            <Base_Blend> ::= 'alpha_blend' | 'modulate' | 'add' \n"
         "            <User_Blend> ::= <Blend_Factor> <Blend_Factor> \n"
-        "            <Blend_Factor> ::= 'one' | 'zero' | 'dest_colour' | 'src_colour' | \n"
-        "                             'one_minus_dest_colour' | 'one_minus_src_colour' | \n"
-        "                             'dest_alpha' | 'src_alpha' | 'one_minus_dest_alpha' | \n"
-        "                             'one_minus_src_alpha' \n"
+        "            <Blend_Factor> ::= 'dest_colour' | 'src_colour' | \n"
+        "                               'one_minus_dest_colour' | 'one_minus_src_colour' | \n"
+        "                               'dest_alpha' | 'src_alpha' | 'one_minus_dest_alpha' | \n"
+        "                               'one_minus_src_alpha' | 'one' | 'zero' \n"
 
         "        <Depth_Check> ::= 'depth_check' <On_Off> \n"
         "        <Depth_Write> ::= 'depth_write' <On_Off> \n"
@@ -102,7 +103,7 @@ namespace Ogre {
         "        <Depth_Bias> ::= 'depth_bias' <#value> \n"
         "        <Alpha_Rejection> ::= 'alpha_rejection' <Compare_Func> <#value> \n"
         "        <Compare_Func> ::= 'always_fail' | 'always_pass' | 'less_equal' | 'less' | \n"
-        "                               'equal' | 'not_equal' | 'greater_equal' | 'greater' \n"
+        "                           'equal' | 'not_equal' | 'greater_equal' | 'greater' \n"
         "        <Cull_Hardware> ::= 'cull_hardware' <Cull_Hardware_Otions> \n"
         "           <Cull_Hardware_Otions> ::= 'clockwise' | 'anticlockwise' | 'none' \n"
         "        <Cull_Software> ::= 'cull_software' <Cull_Software_Otions> \n"
@@ -135,7 +136,10 @@ namespace Ogre {
         // Texture Unit section rules
         "        <Texture_Unit> ::= 'texture_unit' [<Label>] '{' {<TUS_Properties>} '}' \n"
         "        <TUS_Properties> ::= <Texture_Alias> | <Texture> | <Anim_Texture> | <Cubic_Texture> | \n"
-        "               <Tex_Coord_Set> | <Tex_Address_Mode> | <Tex_Border_Colour> | <Filtering> \n"
+        "                             <Tex_Coord_Set> | <Tex_Address_Mode> | <Tex_Border_Colour> | <Filtering> | \n"
+        "                             <Max_Anisotropy> | <Colour_Op_Ex> | <Colour_Op_Multipass_Fallback> | <Colour_Op> | \n"
+        "                             <Alpha_Op_Ex> | <Env_Map> | <Scroll_Anim> | <Scroll> | <Rotate_Anim> | <Rotate> | \n"
+        "                             <Scale> | <Wave_Xform> | <Transform> \n"
         "           <Texture_Alias> ::= 'texture_alias' <Label> \n"
         "           <Texture> ::= 'texture' <Label> {<Texture_Properties>} \n"
         "           <Texture_Properties> ::= '1d' | '2d' | '3d' | 'cubic' | 'unlimited' | 'alpha' | <#mipmap> \n"
@@ -155,6 +159,35 @@ namespace Ogre {
         "                 <Complex_Filter> ::= <MinMagFilter> <MinMagFilter> <MipFilter> \n"
         "                   <MinMagFilter> ::= 'linear' | 'point' | 'anisotropic' \n"
         "                   <MipFilter> ::= 'linear' | 'point' | 'none' \n"
+        "           <Max_Anisotropy> ::= 'max_anisotropy' <#val> \n"
+        "           <Colour_Op> ::= 'colour_op' <Colour_Op_Options> \n"
+        "               <Colour_Op_Options> ::= <Base_Blend> | 'replace' \n"
+        "           <Colour_Op_Ex> ::= 'colour_op_ex' <Combine_Operation> <Source_Option> <Source_Option> \n"
+        "                              [<#manual_factor>] [<#red>] [<#green>] [<#blue>] [<#alpha>] \n"
+        "                              [<#red>] [<#green>] [<#blue>] [<#alpha>] \n"
+        "               <Combine_Operation> ::= 'source1' | 'source2' | 'modulate_x2' | 'modulate_x4' | \n"
+        "                                       'modulate' | 'add_signed' | 'add_smooth' | 'add' | \n"
+        "                                       'subtract' | 'blend_diffuse_alpha' | 'blend_texture_alpha' | \n"
+        "                                       'blend_current_alpha' | 'blend_manual' | 'dotproduct' | \n"
+        "                                       'blend_diffuse_colour' \n"
+        "               <Source_Option> ::= 'src_current' | 'src_texture' | 'src_diffuse' | \n"
+        "                                   'src_specular' | 'src_manual' \n"
+        "           <Colour_Op_Multipass_Fallback> ::= 'colour_op_multipass_fallback' <Blend_Factor> <Blend_Factor> \n"
+        "           <Alpha_Op_Ex> ::= 'alpha_op_ex' <Combine_Operation> <Source_Option> <Source_Option> \n"
+        "                             [<#manual_factor>] [<#manual_alpha>] [<#manual_alpha>] \n"
+        "           <Env_Map> ::= 'env_map' <Env_Map_Option> \n"
+        "               <Env_Map_Option> ::= 'spherical' | 'planar' | 'cubic_reflection' | 'cubic_normal' | 'off' \n"
+        "           <Scroll> ::= 'scroll' <#x> <#y> \n"
+        "           <Scroll_Anim> ::= 'scroll_anim' <#xspeed> <#yspeed> \n"
+        "           <Rotate> ::= 'rotate' <#angle> \n"
+        "           <Rotate_Anim> ::= 'rotate_anim' <#revs_per_second> \n"
+        "           <Scale> ::= 'scale' <#x> <#y> \n"
+        "           <Wave_Xform> ::= 'wave_xform' <Xform_Type> <Wave_Type> <#base> <#frequency> <#phase> <#amplitude> \n"
+        "               <Xform_Type> ::= 'scroll_x' | 'scroll_y' | 'rotate' | 'scale_x' | 'scale_y' \n"
+        "               <Wave_Type> ::= 'sine' | 'triangle' | 'square' | 'sawtooth' | 'inverse_sawtooth' \n"
+        "           <Transform> ::= 'transform' <#m00> <#m01> <#m02> <#m03> <#m10> <#m11> <#m12> <#m13> <#m20> <#m21> <#m22> <#m23> \n"
+        "                           <#m30> <#m31> <#m32> <#m33> \n"
+
         " "
         "<Vertex_Program> ::= 'vertex_program' \n"
         "<Fragment_Program> ::= 'fragment_program' \n"
@@ -211,6 +244,17 @@ namespace Ogre {
             addLexemeTokenAction("specular", ID_SPECULAR, &MaterialScriptCompiler::parseSpecular);
             addLexemeTokenAction("emissive", ID_EMISSIVE, &MaterialScriptCompiler::parseEmissive);
             addLexemeTokenAction("vertexcolour", ID_VERTEXCOLOUR);
+
+            addLexemeTokenAction("scene_blend", ID_SCENE_BLEND, &MaterialScriptCompiler::parseSceneBlend);
+                addLexemeTokenAction("colour_blend", ID_COLOUR_BLEND);
+                addLexemeTokenAction("dest_colour", ID_DEST_COLOUR);
+                addLexemeTokenAction("src_colour", ID_SRC_COLOUR);
+                addLexemeTokenAction("one_minus_dest_colour", ID_ONE_MINUS_DEST_COLOUR);
+                addLexemeTokenAction("one_minus_src_colour", ID_ONE_MINUS_SRC_COLOUR);
+                addLexemeTokenAction("dest_alpha", ID_DEST_ALPHA);
+                addLexemeTokenAction("src_alpha", ID_SRC_ALPHA);
+                addLexemeTokenAction("one_minus_dest_alpha", ID_ONE_MINUS_DEST_ALPHA);
+                addLexemeTokenAction("one_minus_src_alpha", ID_ONE_MINUS_SRC_ALPHA);
 
             addLexemeTokenAction("depth_check", ID_DEPTH_CHECK, &MaterialScriptCompiler::parseDepthCheck);
             addLexemeTokenAction("depth_write", ID_DEPTH_WRITE, &MaterialScriptCompiler::parseDepthWrite);
@@ -282,6 +326,51 @@ namespace Ogre {
             addLexemeTokenAction("bilinear", ID_BILINEAR);
             addLexemeTokenAction("trilinear", ID_TRILINEAR);
             addLexemeTokenAction("anisotropic", ID_ANISOTROPIC);
+        addLexemeTokenAction("max_anisotropy", ID_MAX_ANISOTROPY, &MaterialScriptCompiler::parseMaxAnisotropy);
+        addLexemeTokenAction("colour_op", ID_COLOUR_OP, &MaterialScriptCompiler::parseColourOp);
+            addLexemeTokenAction("replace", ID_REPLACE);
+        addLexemeTokenAction("colour_op_ex", ID_COLOUR_OP_EX, &MaterialScriptCompiler::parseColourOpEx);
+            addLexemeTokenAction("source1", ID_SOURCE1);
+            addLexemeTokenAction("source2", ID_SOURCE2);
+            addLexemeTokenAction("modulate_x2", ID_MODULATE_X2);
+            addLexemeTokenAction("modulate_x4", ID_MODULATE_X4);
+            addLexemeTokenAction("add_signed", ID_ADD_SIGNED);
+            addLexemeTokenAction("add_smooth", ID_ADD_SMOOTH);
+            addLexemeTokenAction("subtract", ID_SUBTRACT);
+            addLexemeTokenAction("blend_diffuse_colour", ID_BLEND_DIFFUSE_COLOUR);
+            addLexemeTokenAction("blend_diffuse_alpha", ID_BLEND_DIFFUSE_ALPHA);
+            addLexemeTokenAction("blend_manual", ID_BLEND_MANUAL);
+            addLexemeTokenAction("dotproduct", ID_DOTPRODUCT);
+            addLexemeTokenAction("src_current", ID_SRC_CURRENT);
+            addLexemeTokenAction("src_texture", ID_SRC_TEXTURE);
+            addLexemeTokenAction("src_diffuse", ID_SRC_DIFFUSE);
+            addLexemeTokenAction("src_specular", ID_SRC_SPECULAR);
+            addLexemeTokenAction("src_manual", ID_SRC_MANUAL);
+        addLexemeTokenAction("colour_op_multipass_fallback", ID_COLOUR_OP_MULTIPASS_FALLBACK,
+            &MaterialScriptCompiler::parseColourOpMultipassFallback);
+        addLexemeTokenAction("alpha_op_ex", ID_ALPHA_OP_EX, &MaterialScriptCompiler::parseAlphaOpEx);
+        addLexemeTokenAction("env_map", ID_ENV_MAP, &MaterialScriptCompiler::parseEnvMap);
+            addLexemeTokenAction("spherical", ID_SPHERICAL);
+            addLexemeTokenAction("planar", ID_PLANAR);
+            addLexemeTokenAction("cubic_reflection", ID_CUBIC_REFLECTION);
+            addLexemeTokenAction("cubic_normal", ID_CUBIC_NORMAL);
+        addLexemeTokenAction("scroll", ID_SCROLL, &MaterialScriptCompiler::parseScroll);
+        addLexemeTokenAction("scroll_anim", ID_SCROLL_ANIM, &MaterialScriptCompiler::parseScrollAnim);
+        addLexemeTokenAction("rotate", ID_ROTATE, &MaterialScriptCompiler::parseRotate);
+        addLexemeTokenAction("rotate_anim", ID_ROTATE_ANIM, &MaterialScriptCompiler::parseRotateAnim);
+        addLexemeTokenAction("scale", ID_SCALE, &MaterialScriptCompiler::parseScale);
+        addLexemeTokenAction("wave_xform", ID_WAVE_XFORM, &MaterialScriptCompiler::parseWaveXform);
+            addLexemeTokenAction("scroll_x", ID_SCROLL_X);
+            addLexemeTokenAction("scroll_y", ID_SCROLL_Y);
+            addLexemeTokenAction("scale_x", ID_SCALE_X);
+            addLexemeTokenAction("scale_y", ID_SCALE_Y);
+            addLexemeTokenAction("sine", ID_SINE);
+            addLexemeTokenAction("triangle", ID_TRIANGLE);
+            addLexemeTokenAction("square", ID_SQUARE);
+            addLexemeTokenAction("sawtooth", ID_SAWTOOTH);
+            addLexemeTokenAction("inverse_sawtooth", ID_INVERSE_SAWTOOTH);
+        addLexemeTokenAction("transform", ID_TRANSFORM, &MaterialScriptCompiler::parseTransform);
+
 
         // common section
         addLexemeTokenAction("on", ID_ON);
@@ -291,6 +380,12 @@ namespace Ogre {
         addLexemeTokenAction("none", ID_NONE);
         addLexemeTokenAction("point", ID_POINT);
         addLexemeTokenAction("linear", ID_LINEAR);
+        addLexemeTokenAction("add", ID_ADD);
+        addLexemeTokenAction("modulate", ID_MODULATE);
+        addLexemeTokenAction("alpha_blend", ID_ALPHA_BLEND);
+        addLexemeTokenAction("one", ID_ONE);
+        addLexemeTokenAction("zero", ID_ZERO);
+
 
     }
 
@@ -814,25 +909,25 @@ namespace Ogre {
     {
         switch(getNextToken().tokenID)
         {
-        case ID_BLEND_ONE:
+        case ID_ONE:
             return SBF_ONE;
-        case ID_BLEND_ZERO:
+        case ID_ZERO:
             return SBF_ZERO;
-        case ID_BLEND_DEST_COLOUR:
+        case ID_DEST_COLOUR:
             return SBF_DEST_COLOUR;
-        case ID_BLEND_SRC_COLOUR:
+        case ID_SRC_COLOUR:
             return SBF_SOURCE_COLOUR;
-        case ID_BLEND_ONCE_MINUS_DEST_COLOUR:
+        case ID_ONE_MINUS_DEST_COLOUR:
             return SBF_ONE_MINUS_DEST_COLOUR;
-        case ID_BLEND_ONE_MINUS_SRC_COLOUR:
+        case ID_ONE_MINUS_SRC_COLOUR:
             return SBF_ONE_MINUS_SOURCE_COLOUR;
-        case ID_BLEND_DEST_ALPHA:
+        case ID_DEST_ALPHA:
             return SBF_DEST_ALPHA;
-        case ID_BLEND_SRC_ALPHA:
+        case ID_SRC_ALPHA:
             return SBF_SOURCE_ALPHA;
-        case ID_BLEND_ONE_MINUS_DEST_ALPHA:
+        case ID_ONE_MINUS_DEST_ALPHA:
             return SBF_ONE_MINUS_DEST_ALPHA;
-        case ID_BLEND_ONE_MINUS_SRC_ALPHA:
+        case ID_ONE_MINUS_SRC_ALPHA:
             return SBF_ONE_MINUS_SOURCE_ALPHA;
         default:
             return SBF_ONE;
@@ -851,10 +946,10 @@ namespace Ogre {
             SceneBlendType sbtype = SBT_REPLACE;
             switch(getNextToken().tokenID)
             {
-            case ID_BLEND_ADD:
+            case ID_ADD:
                 sbtype = SBT_ADD;
                 break;
-            case ID_BLEND_MODULATE:
+            case ID_MODULATE:
                 sbtype = SBT_MODULATE;
                 break;
 			case ID_COLOUR_BLEND:
@@ -1462,6 +1557,7 @@ namespace Ogre {
             return FO_POINT;
         }
     }
+    //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseFiltering(void)
     {
         assert(mScriptContext.textureUnit);
@@ -1495,6 +1591,320 @@ namespace Ogre {
             mScriptContext.textureUnit->setTextureFiltering(minFO, magFO, mipFO);
         }
     }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseMaxAnisotropy(void)
+    {
+        assert(mScriptContext.textureUnit);
+        mScriptContext.textureUnit->setTextureAnisotropy(
+            static_cast<unsigned int>(getNextTokenValue()));
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseColourOp(void)
+    {
+        assert(mScriptContext.textureUnit);
+        switch (getNextToken().tokenID)
+        {
+        case ID_REPLACE:
+            mScriptContext.textureUnit->setColourOperation(LBO_REPLACE);
+            break;
+        case ID_ADD:
+            mScriptContext.textureUnit->setColourOperation(LBO_ADD);
+            break;
+        case ID_MODULATE:
+            mScriptContext.textureUnit->setColourOperation(LBO_MODULATE);
+            break;
+        case ID_ALPHA_BLEND:
+            mScriptContext.textureUnit->setColourOperation(LBO_ALPHA_BLEND);
+            break;
+        }
+    }
+    //-----------------------------------------------------------------------
+    LayerBlendOperationEx MaterialScriptCompiler::convertBlendOpEx(void)
+    {
+        switch(getNextToken().tokenID)
+        {
+        case ID_SOURCE1:
+            return LBX_SOURCE1;
+        case ID_SOURCE2:
+            return LBX_SOURCE2;
+        case ID_MODULATE:
+            return LBX_MODULATE;
+        case ID_MODULATE_X2:
+            return LBX_MODULATE_X2;
+        case ID_MODULATE_X4:
+            return LBX_MODULATE_X4;
+        case ID_ADD:
+            return LBX_ADD;
+        case ID_ADD_SIGNED:
+            return LBX_ADD_SIGNED;
+        case ID_ADD_SMOOTH:
+            return LBX_ADD_SMOOTH;
+        case ID_SUBTRACT:
+            return LBX_SUBTRACT;
+        case ID_BLEND_DIFFUSE_COLOUR:
+            return LBX_BLEND_DIFFUSE_COLOUR;
+        case ID_BLEND_DIFFUSE_ALPHA:
+            return LBX_BLEND_DIFFUSE_ALPHA;
+        case ID_BLEND_TEXTURE_ALPHA:
+            return LBX_BLEND_TEXTURE_ALPHA;
+        case ID_BLEND_CURRENT_ALPHA:
+            return LBX_BLEND_CURRENT_ALPHA;
+        case ID_BLEND_MANUAL:
+            return LBX_BLEND_MANUAL;
+        case ID_DOTPRODUCT:
+            return LBX_DOTPRODUCT;
+        default:
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid blend function", "convertBlendOpEx");
+        }
+    }
+    //-----------------------------------------------------------------------
+    LayerBlendSource MaterialScriptCompiler::convertBlendSource(void)
+    {
+        switch(getNextToken().tokenID)
+        {
+        case ID_SRC_CURRENT:
+            return LBS_CURRENT;
+        case ID_SRC_TEXTURE:
+            return LBS_TEXTURE;
+        case ID_SRC_DIFFUSE:
+            return LBS_DIFFUSE;
+        case ID_SRC_SPECULAR:
+            return LBS_SPECULAR;
+        case ID_SRC_MANUAL:
+            return LBS_MANUAL;
+        default:
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid blend source", "convertBlendSource");
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseColourOpEx(void)
+    {
+
+        assert(mScriptContext.textureUnit);
+
+        LayerBlendOperationEx op;
+        LayerBlendSource src1, src2;
+        Real manual = 0.0;
+        ColourValue colSrc1 = ColourValue::White;
+        ColourValue colSrc2 = ColourValue::White;
+
+        try {
+            op = convertBlendOpEx();
+            src1 = convertBlendSource();
+            src2 = convertBlendSource();
+
+            if (op == LBX_BLEND_MANUAL)
+                manual = getNextTokenValue();
+
+            if (src1 == LBS_MANUAL)
+                colSrc1 = _parseColourValue();
+
+            if (src2 == LBS_MANUAL)
+                colSrc2 = _parseColourValue();
+        }
+        catch (Exception& e)
+        {
+            logParseError("Bad colour_op_ex attribute, " + e.getFullDescription());
+        }
+
+        mScriptContext.textureUnit->setColourOperationEx(op, src1, src2, colSrc1, colSrc2, manual);
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseColourOpMultipassFallback(void)
+    {
+        assert(mScriptContext.textureUnit);
+
+        SceneBlendFactor src = convertBlendFactor();
+        SceneBlendFactor dest = convertBlendFactor();
+        mScriptContext.textureUnit->setColourOpMultipassFallback(src,dest);
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseAlphaOpEx(void)
+    {
+        assert(mScriptContext.textureUnit);
+
+        LayerBlendOperationEx op;
+        LayerBlendSource src1, src2;
+        Real manual = 0.0;
+        Real arg1 = 1.0, arg2 = 1.0;
+
+        try {
+            op = convertBlendOpEx();
+            src1 = convertBlendSource();
+            src2 = convertBlendSource();
+
+            if (op == LBX_BLEND_MANUAL)
+                manual = getNextTokenValue();
+
+            if (src1 == LBS_MANUAL)
+                arg1 = getNextTokenValue();
+
+            if (src2 == LBS_MANUAL)
+                arg2 = getNextTokenValue();
+        }
+        catch (Exception& e)
+        {
+            logParseError("Bad alpha_op_ex attribute, " + e.getFullDescription());
+        }
+
+        mScriptContext.textureUnit->setAlphaOperation(op, src1, src2, arg1, arg2, manual);
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseEnvMap(void)
+    {
+        assert(mScriptContext.textureUnit);
+
+        switch (getNextToken().tokenID)
+        {
+        case ID_OFF:
+            mScriptContext.textureUnit->setEnvironmentMap(false);
+            break;
+        case ID_SPHERICAL:
+            mScriptContext.textureUnit->setEnvironmentMap(true, TextureUnitState::ENV_CURVED);
+            break;
+        case ID_PLANAR:
+            mScriptContext.textureUnit->setEnvironmentMap(true, TextureUnitState::ENV_PLANAR);
+            break;
+        case ID_CUBIC_REFLECTION:
+            mScriptContext.textureUnit->setEnvironmentMap(true, TextureUnitState::ENV_REFLECTION);
+            break;
+        case ID_CUBIC_NORMAL:
+            mScriptContext.textureUnit->setEnvironmentMap(true, TextureUnitState::ENV_NORMAL);
+            break;
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseScroll(void)
+    {
+        assert(mScriptContext.textureUnit);
+
+        const Real x = getNextTokenValue();
+        const Real y = getNextTokenValue();
+
+        mScriptContext.textureUnit->setTextureScroll(x, y);
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseScrollAnim(void)
+    {
+        assert(mScriptContext.textureUnit);
+
+        const Real xspeed = getNextTokenValue();
+        const Real yspeed = getNextTokenValue();
+
+        mScriptContext.textureUnit->setScrollAnimation(xspeed, yspeed);
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseRotate(void)
+    {
+        assert(mScriptContext.textureUnit);
+        mScriptContext.textureUnit->setTextureRotate(Angle(getNextTokenValue()));
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseRotateAnim(void)
+    {
+        assert(mScriptContext.textureUnit);
+        mScriptContext.textureUnit->setRotateAnimation(getNextTokenValue());
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseScale(void)
+    {
+        assert(mScriptContext.textureUnit);
+        const Real xscale = getNextTokenValue();
+        const Real yscale = getNextTokenValue();
+        mScriptContext.textureUnit->setTextureScale(xscale, yscale);
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseWaveXform(void)
+    {
+
+        assert(mScriptContext.textureUnit);
+
+        TextureUnitState::TextureTransformType ttype;
+        WaveformType waveType;
+        // Check transform type
+        switch (getNextToken().tokenID)
+        {
+        case ID_SCROLL_X:
+            ttype = TextureUnitState::TT_TRANSLATE_U;
+            break;
+        case ID_SCROLL_Y:
+            ttype = TextureUnitState::TT_TRANSLATE_V;
+            break;
+        case ID_ROTATE:
+            ttype = TextureUnitState::TT_ROTATE;
+            break;
+        case ID_SCALE_X:
+            ttype = TextureUnitState::TT_SCALE_U;
+            break;
+        case ID_SCALE_Y:
+            ttype = TextureUnitState::TT_SCALE_V;
+            break;
+        }
+        // Check wave type
+        switch (getNextToken().tokenID)
+        {
+        case ID_SINE:
+            waveType = WFT_SINE;
+            break;
+        case ID_TRIANGLE:
+            waveType = WFT_TRIANGLE;
+            break;
+        case ID_SQUARE:
+            waveType = WFT_SQUARE;
+            break;
+        case ID_SAWTOOTH:
+            waveType = WFT_SAWTOOTH;
+            break;
+        case ID_INVERSE_SAWTOOTH:
+            waveType = WFT_INVERSE_SAWTOOTH;
+            break;
+        }
+
+        const Real base = getNextTokenValue();
+        const Real frequency = getNextTokenValue();
+        const Real phase = getNextTokenValue();
+        const Real amplitude = getNextTokenValue();
+
+        mScriptContext.textureUnit->setTransformAnimation(
+            ttype,
+            waveType,
+            base,
+            frequency,
+            phase,
+            amplitude );
+    }
+	//-----------------------------------------------------------------------
+	void MaterialScriptCompiler::parseTransform(void)
+	{
+        assert(mScriptContext.textureUnit);
+
+        Real matrixArray[16];
+
+        for (size_t i = 0; i < 16; ++i)
+        {
+            matrixArray[i] = getNextTokenValue();
+        }
+
+		Matrix4 xform(
+			matrixArray[0],
+			matrixArray[1],
+			matrixArray[2],
+			matrixArray[3],
+			matrixArray[4],
+			matrixArray[5],
+			matrixArray[6],
+			matrixArray[7],
+			matrixArray[8],
+			matrixArray[9],
+			matrixArray[10],
+			matrixArray[11],
+			matrixArray[12],
+			matrixArray[13],
+			matrixArray[14],
+			matrixArray[15]);
+
+		mScriptContext.textureUnit->setTextureTransform(xform);
+	}
     //-----------------------------------------------------------------------
 	void MaterialScriptCompiler::finishProgramDefinition(void)
 	{

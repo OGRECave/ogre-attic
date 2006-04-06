@@ -65,10 +65,9 @@ namespace Ogre {
             ID_PASS, ID_AMBIENT, ID_DIFFUSE, ID_SPECULAR, ID_EMISSIVE,
             ID_VERTEXCOLOUR,
             // scene blend
-            ID_SCENE_BLEND, ID_BLEND_ADD, ID_BLEND_MODULATE, ID_COLOUR_BLEND, ID_ALPHA_BLEND,
-            ID_BLEND_ONE, ID_BLEND_ZERO, ID_BLEND_DEST_COLOUR,
-            ID_BLEND_SRC_COLOUR, ID_BLEND_ONCE_MINUS_DEST_COLOUR, ID_BLEND_ONE_MINUS_SRC_COLOUR,
-            ID_BLEND_DEST_ALPHA, ID_BLEND_SRC_ALPHA, ID_BLEND_ONE_MINUS_DEST_ALPHA, ID_BLEND_ONE_MINUS_SRC_ALPHA,
+            ID_SCENE_BLEND, ID_COLOUR_BLEND, ID_DEST_COLOUR,
+            ID_SRC_COLOUR, ID_ONE_MINUS_DEST_COLOUR, ID_ONE_MINUS_SRC_COLOUR,
+            ID_DEST_ALPHA, ID_SRC_ALPHA, ID_ONE_MINUS_DEST_ALPHA, ID_ONE_MINUS_SRC_ALPHA,
             // Depth
             ID_DEPTH_CHECK, ID_DEPTH_WRITE, ID_DEPTH_FUNC, ID_DEPTH_BIAS, ID_ALWAYS_FAIL, ID_ALWAYS_PASS,
             ID_LESS_EQUAL, ID_LESS, ID_EQUAL, ID_NOT_EQUAL, ID_GREATER_EQUAL, ID_GREATER,
@@ -88,9 +87,21 @@ namespace Ogre {
             ID_ALPHA, ID_ANIM_TEXTURE, ID_CUBIC_TEXTURE, ID_SEPARATE_UV, ID_COMBINED_UVW,
             ID_TEX_COORD_SET, ID_TEX_ADDRESS_MODE, ID_WRAP, ID_CLAMP, ID_MIRROR, ID_BORDER, ID_TEX_BORDER_COLOUR,
             ID_FILTERING, ID_BILINEAR, ID_TRILINEAR, ID_ANISOTROPIC,
+            ID_MAX_ANISOTROPY, ID_COLOUR_OP, ID_REPLACE,
+            ID_COLOUR_OP_EX, ID_SOURCE1, ID_SOURCE2, ID_MODULATE_X2, ID_MODULATE_X4, ID_ADD_SIGNED,
+            ID_ADD_SMOOTH, ID_SUBTRACT, ID_BLEND_DIFFUSE_COLOUR, ID_BLEND_DIFFUSE_ALPHA,
+            ID_BLEND_TEXTURE_ALPHA, ID_BLEND_CURRENT_ALPHA, ID_BLEND_MANUAL, ID_DOTPRODUCT,
+            ID_SRC_CURRENT, ID_SRC_TEXTURE, ID_SRC_DIFFUSE, ID_SRC_SPECULAR, ID_SRC_MANUAL,
+            ID_COLOUR_OP_MULTIPASS_FALLBACK, ID_ALPHA_OP_EX,
+            ID_ENV_MAP, ID_SPHERICAL, ID_PLANAR, ID_CUBIC_REFLECTION, ID_CUBIC_NORMAL,
+            ID_SCROLL, ID_SCROLL_ANIM, ID_ROTATE, ID_ROTATE_ANIM, ID_SCALE, ID_WAVE_XFORM,
+            ID_SCROLL_X, ID_SCROLL_Y, ID_SCALE_X, ID_SCALE_Y, ID_SINE, ID_TRIANGLE,
+            ID_SQUARE, ID_SAWTOOTH, ID_INVERSE_SAWTOOTH,
+            ID_TRANSFORM,
 
             // general
-            ID_ON, ID_OFF, ID_TRUE, ID_FALSE, ID_NONE, ID_POINT, ID_LINEAR
+            ID_ON, ID_OFF, ID_TRUE, ID_FALSE, ID_NONE, ID_POINT, ID_LINEAR, ID_ADD, ID_MODULATE, ID_ALPHA_BLEND,
+            ID_ONE, ID_ZERO
         };
 
         /** Enum to identify material sections. */
@@ -229,6 +240,21 @@ namespace Ogre {
         void parseTexBorderColour(void);
         void parseFiltering(void);
         FilterOptions convertFiltering();
+        void parseMaxAnisotropy(void);
+        void parseColourOp(void);
+        void parseColourOpEx(void);
+        LayerBlendOperationEx convertBlendOpEx(void);
+        LayerBlendSource convertBlendSource(void);
+        void parseColourOpMultipassFallback(void);
+        void parseAlphaOpEx(void);
+        void parseEnvMap(void);
+        void parseScroll(void);
+        void parseScrollAnim(void);
+        void parseRotate(void);
+        void parseRotateAnim(void);
+        void parseScale(void);
+        void parseWaveXform(void);
+        void parseTransform(void);
         void parseTextureCustomParameter(void);
 
 
