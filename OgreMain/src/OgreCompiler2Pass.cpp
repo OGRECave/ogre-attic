@@ -498,8 +498,9 @@ namespace Ogre {
         if (mPass2TokenQuePosition < mActiveTokenState->tokenQue.size() - 1)
             return mActiveTokenState->tokenQue[mPass2TokenQuePosition];
         else
-            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, getClientGrammerName() + ":" + mSourceName
-                + "no token available, all pass 2 tokens processed" ,
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, getClientGrammerName() + ":" + mSourceName +
+                ", Line " + StringConverter::toString(mActiveTokenState->tokenQue.back().line) +
+                "\n no token available, all pass 2 tokens processed" ,
                 "Compiler2Pass::getCurrentToken");
     }
     //-----------------------------------------------------------------------
