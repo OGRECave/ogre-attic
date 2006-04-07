@@ -116,6 +116,8 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	CompositorScriptCompiler::CompositorScriptCompiler(void)
 	{
+        // set default group resource name
+        mScriptContext.groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME;
 	}
 	//-----------------------------------------------------------------------
 	CompositorScriptCompiler::~CompositorScriptCompiler(void)
