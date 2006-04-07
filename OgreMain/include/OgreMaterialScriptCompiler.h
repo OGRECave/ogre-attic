@@ -29,10 +29,11 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreCompiler2Pass.h"
 #include "OgrePrerequisites.h"
 #include "OgreTextureUnitState.h"
-//#include "OgreMaterial.h"
+#include "OgreMaterial.h"
 //#include "OgreBlendMode.h"
 //#include "OgreTextureUnitState.h"
-//#include "OgreGpuProgram.h"
+#include "OgreGpuProgram.h"
+#include "OgreStringVector.h"
 
 namespace Ogre {
 
@@ -49,6 +50,18 @@ namespace Ogre {
         /** get the name of the BNF grammer.
         */
         virtual const String& getClientGrammerName(void) { static const String grammerName("Material Script"); return grammerName; }
+        /** Compile a material script from a data stream using a specific resource group name.
+        @param stream Weak reference to a data stream which is the source of the material script
+        @param groupName The name of the resource group that resources which are
+			parsed are to become a member of. If this group is loaded or unloaded,
+			then the resources discovered in this script will be loaded / unloaded
+			with it.
+        */
+        void parseScript(DataStreamPtr& stream, const String& groupName)
+        {
+            mScriptContext.groupName = groupName;
+            Compiler2Pass::compile(stream->getAsString(),  stream->getName());
+        }
 
     protected:
 	    // Token ID enumeration
