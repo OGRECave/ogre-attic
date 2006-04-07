@@ -66,6 +66,71 @@ LGPL like the rest of the engine.
     }
 //---------------------------------------------------------------------------
 
+	/*************************************************************************
+	HDRListener Methods
+	*************************************************************************/
+	//---------------------------------------------------------------------------
+	HDRListener::HDRListener()
+	{
+	}
+	//---------------------------------------------------------------------------
+	HDRListener::~HDRListener()
+	{
+	}
+	//---------------------------------------------------------------------------
+	void HDRListener::notifyViewportSize(int width, int height)
+	{
+		mVpWidth = width;
+		mVpHeight = height;
+	}
+	//---------------------------------------------------------------------------
+	void HDRListener::notifyCompositor(Ogre::CompositorInstance* instance)
+	{
+		// Get some RTT dimensions for later calculations
+		Ogre::CompositionTechnique::TextureDefinitionIterator defIter = 
+			instance->getTechnique()->getTextureDefinitionIterator();
+		while (defIter.hasMoreElements())
+		{
+			Ogre::CompositionTechnique::TextureDefinition* def = 
+				defIter.getNext();
+			if (def->name == "rt_lum4")
+			{
+				mLum4Width = def->width;
+				mLum4Height = def->height;
+				break;
+			}
+		}
+	}
+	//---------------------------------------------------------------------------
+	void HDRListener::notifyMaterialSetup(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat)
+	{
+		// Prepare the fragment params offsets
+		switch(pass_id)
+		{
+		case 994: // rt_lum4
+			break;
+		case 993: // rt_lum3
+			break;
+		case 992: // rt_lum2
+			break;
+		case 991: // rt_lum1
+			break;
+		case 990: // rt_lum0
+			break;
+		case 800: // rt_brightpass
+			break;
+		case 701: // rt_bloom1
+			break;
+		case 700: // rt_bloom0
+			break;
+
+		}
+	}
+	//---------------------------------------------------------------------------
+	void HDRListener::notifyMaterialRender(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat)
+	{
+	}
+	//---------------------------------------------------------------------------
 
 /*************************************************************************
 	CompositorDemo_FrameListener methods that handle all input for this Compositor demo.
@@ -74,6 +139,7 @@ LGPL like the rest of the engine.
     CompositorDemo_FrameListener::CompositorDemo_FrameListener(CompositorDemo* main)
         : mMain(main)
         , hvListener(0)
+		, hdrListener(0)
         , mTranslateVector(Ogre::Vector3::ZERO)
         , mStatsOn(true)
         , mNumScreenShots(0)
@@ -130,6 +196,7 @@ LGPL like the rest of the engine.
         mRoot	  = CEGUI::WindowManager::getSingleton().getWindow("root");
 
         registerCompositors();
+		initDebugRTTWindow();
         connectEventHandlers();
     }
 //--------------------------------------------------------------------------
@@ -137,6 +204,7 @@ LGPL like the rest of the engine.
     {
         delete mEventProcessor;
         delete hvListener;
+		delete hdrListener;
         delete mCompositorSelectorViewManager;
     }
 //--------------------------------------------------------------------------
@@ -480,12 +548,14 @@ LGPL like the rest of the engine.
         // get the item text and tell compositor manager to set enable state
         Ogre::CompositorManager::getSingleton().setCompositorEnabled(mMain->getRenderWindow()->getViewport(0),
             mCompositorSelectorViewManager->getItemSelectorText(index), state);
+		updateDebugRTTWindow();
     }
 //-----------------------------------------------------------------------------------
     void CompositorDemo_FrameListener::registerCompositors(void)
     {
         Ogre::Viewport *vp = mMain->getRenderWindow()->getViewport(0);
         hvListener = new HeatVisionListener();
+		hdrListener = new HDRListener();
 
         mCompositorSelectorViewManager = new ItemSelectorViewManager("CompositorSelectorWin");
         // tell view manager to notify us when an item changes selection state
@@ -509,6 +579,99 @@ LGPL like the rest of the engine.
             // special handling for Heat Vision which uses a listener
             if(instance && (compositorName == "Heat Vision"))
                 instance->addListener(hvListener);
+			else if(instance && (compositorName == "HDR"))
+			{
+				instance->addListener(hdrListener);
+				hdrListener->notifyViewportSize(vp->getActualWidth(), vp->getActualHeight());
+				hdrListener->notifyCompositor(instance);
+
+			}
         }
     }
+	//---------------------------------------------------------------------
+	void CompositorDemo_FrameListener::initDebugRTTWindow(void)
+	{
+		mDebugRTTStaticImage = static_cast<CEGUI::StaticImage*>(
+			CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"DebugRTTImage"));
+		mDebugRTTListbox = static_cast<CEGUI::Listbox*>(
+			CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"DebugRTTListbox"));
+		mDebugRTTListbox->subscribeEvent(CEGUI::Listbox::EventSelectionChanged, 
+			CEGUI::Event::Subscriber(&CompositorDemo_FrameListener::handleRttSelection, this));
+	}
+	//---------------------------------------------------------------------
+	bool CompositorDemo_FrameListener::handleRttSelection(const CEGUI::EventArgs& e)
+	{
+		if (mDebugRTTListbox->getSelectedCount() > 0)
+		{
+			// image set is in user data
+			CEGUI::Imageset* imgSet = (CEGUI::Imageset*)mDebugRTTListbox->getFirstSelectedItem()->getUserData();
+			
+			mDebugRTTStaticImage->setImage(&imgSet->getImage("RttImage"));
+
+		}
+		else
+		{
+			mDebugRTTStaticImage->setImage(0);
+
+		}
+		return true;
+	}
+	//---------------------------------------------------------------------
+	void CompositorDemo_FrameListener::updateDebugRTTWindow(void)
+	{
+		// Clear listbox
+		mDebugRTTListbox->resetList();
+		// Clear imagesets
+		mDebugRTTStaticImage->setImage(0);
+		for (ImageSetList::iterator isIt = mDebugRTTImageSets.begin(); 
+			isIt != mDebugRTTImageSets.end(); ++isIt)
+		{
+			CEGUI::ImagesetManager::getSingleton().destroyImageset(*isIt);
+		}
+		mDebugRTTImageSets.clear();
+		// Add an entry for each render texture for all active compositors
+		Ogre::Viewport* vp = mMain->getRenderWindow()->getViewport(0);
+		Ogre::CompositorChain* chain = Ogre::CompositorManager::getSingleton().getCompositorChain(vp);
+		Ogre::CompositorChain::InstanceIterator it = chain->getCompositors();
+		while (it.hasMoreElements())
+		{
+			Ogre::CompositorInstance* inst = it.getNext();
+			if (inst->getEnabled())
+			{
+				Ogre::CompositionTechnique::TextureDefinitionIterator texIt = 
+					inst->getTechnique()->getTextureDefinitionIterator();
+				while (texIt.hasMoreElements())
+				{
+					Ogre::CompositionTechnique::TextureDefinition* texDef = texIt.getNext();
+
+					// Get instance name of texture
+					const Ogre::String& instName = inst->getTextureInstanceName(texDef->name);
+					// Create CEGUI texture from name of OGRE texture
+					CEGUI::Texture* tex = mMain->getGuiRenderer()->createTexture(instName);
+					// Create imageset
+					CEGUI::Imageset* imgSet = 
+						CEGUI::ImagesetManager::getSingleton().createImageset(
+							instName, tex);
+					mDebugRTTImageSets.push_back(imgSet);
+					imgSet->defineImage((CEGUI::utf8*)"RttImage", 
+						CEGUI::Point(0.0f, 0.0f),
+						CEGUI::Size(tex->getWidth(), tex->getHeight()),
+						CEGUI::Point(0.0f,0.0f));
+
+
+					CEGUI::ListboxTextItem *item = new CEGUI::ListboxTextItem(texDef->name, 0, imgSet);
+					item->setSelectionBrushImage("TaharezLook", "ListboxSelectionBrush");
+					item->setSelectionColours(CEGUI::colour(0,0,1));
+					mDebugRTTListbox->addItem(item);
+
+				}
+
+			}
+
+		}
+
+		
+
+	}
+
 

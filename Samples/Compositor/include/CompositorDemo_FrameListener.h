@@ -35,6 +35,20 @@ LGPL like the rest of the engine.
         float start, end, curr;
         Ogre::Timer *timer;
     };
+	//---------------------------------------------------------------------------
+	class HDRListener: public Ogre::CompositorInstance::Listener
+	{
+	protected:
+		int mVpWidth, mVpHeight;
+		int mLum4Width, mLum4Height;
+	public:
+		HDRListener();
+		virtual ~HDRListener();
+		void notifyViewportSize(int width, int height);
+		void notifyCompositor(Ogre::CompositorInstance* instance);
+		virtual void notifyMaterialSetup(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat);
+		virtual void notifyMaterialRender(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat);
+	};
 //---------------------------------------------------------------------------
     class CompositorDemo;
 
@@ -49,6 +63,7 @@ LGPL like the rest of the engine.
     protected:
         CompositorDemo* mMain;
         HeatVisionListener *hvListener;
+		HDRListener *hdrListener;
         Ogre::Vector3 mTranslateVector;
         bool mStatsOn;
         unsigned int mNumScreenShots;
@@ -94,11 +109,17 @@ LGPL like the rest of the engine.
         CEGUI::Window* mGuiTris;
         CEGUI::Window* mGuiDbg;
         CEGUI::Window* mRoot;
+		CEGUI::Listbox* mDebugRTTListbox;
+		CEGUI::StaticImage* mDebugRTTStaticImage;
+		typedef std::vector<CEGUI::Imageset*> ImageSetList;
+		ImageSetList mDebugRTTImageSets;
 
         CEGUI::MouseButton convertOgreButtonToCegui(int ogre_button_id);
         void CheckMovementKeys( CEGUI::Key::Scan keycode, bool state );
         void updateStats(void);
         void registerCompositors(void);
+		void initDebugRTTWindow(void);
+		void updateDebugRTTWindow(void);
 
     public:
         CompositorDemo_FrameListener(CompositorDemo* main);
@@ -127,6 +148,7 @@ LGPL like the rest of the engine.
         bool handleMouseWheelEvent(const CEGUI::EventArgs& e);
         bool handleKeyDownEvent(const CEGUI::EventArgs& e);
         bool handleKeyUpEvent(const CEGUI::EventArgs& e);
+		bool handleRttSelection(const CEGUI::EventArgs& e);
         void itemStateChanged(const size_t index, const bool state);
     };
 

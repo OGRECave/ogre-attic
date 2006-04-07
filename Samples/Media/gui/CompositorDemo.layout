@@ -151,7 +151,31 @@
 			</Window>
 
 		</Window>
+		<Window Type="TaharezLook/FrameWindow" Name="DebugRTTs">
+			<Property Name="RollUpState" Value="True" />
+			<Property Name="Position" Value="x:0.70 y:0" />
+			<Property Name="RelativeMinSize" Value="w:0.3 h:0.3" />
+			<Property Name="RelativeMaxSize" Value="w:0.3 h:0.3" />
+			<Property Name="Size" Value="w:0.3 h:0.3" />
+			<Property Name="Text" Value="Debug RTTs" />
+			<Property Name="Alpha" Value="0.75" />
+			<Property Name="CloseButtonEnabled" Value="False" />
+
+			<Window Type="TaharezLook/Listbox" Name="DebugRTTListbox">
+				<Property Name="Position" Value="x:0.02 y:0.1" />
+				<Property Name="RelativeMinSize" Value="w:0.1 h:0.25" />
+				<Property Name="RelativeMaxSize" Value="w:0.1 h:0.25" />
+				<Property Name="Size" Value="w:0.1 h:0.25" />
+			</Window>
+			<Window Type="TaharezLook/StaticImage" Name="DebugRTTImage">
+				<Property Name="Position" Value="x:0.36 y:0.1" />
+				<Property Name="RelativeMinSize" Value="w:0.2 h:0.25" />
+				<Property Name="RelativeMaxSize" Value="w:0.2 h:0.25" />
+				<Property Name="Size" Value="w:0.2 h:0.25" />
+			</Window>
+		</Window>
 	</Window>
+
 
 </Window>
 

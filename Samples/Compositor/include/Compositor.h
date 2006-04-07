@@ -91,6 +91,7 @@ LGPL like the rest of the engine.
         Ogre::SceneManager* getSceneManager(void) const { return mSceneMgr; }
         Ogre::RenderWindow* getRenderWindow(void) const { return mWindow; }
         Ogre::SceneNode* getMainNode(void) const { return mMainNode; }
+		CEGUI::OgreCEGUIRenderer* getGuiRenderer(void) const { return mGUIRenderer; }
 
     };
 

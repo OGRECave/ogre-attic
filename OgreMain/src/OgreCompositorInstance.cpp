@@ -337,6 +337,11 @@ CompositorChain *CompositorInstance::getChain()
 	return mChain;
 }
 //-----------------------------------------------------------------------
+const String& CompositorInstance::getTextureInstanceName(const String& name)
+{
+	return getSourceForTex(name);
+}
+//-----------------------------------------------------------------------
 MaterialPtr CompositorInstance::createLocalMaterial()
 {
 static size_t dummyCounter = 0;

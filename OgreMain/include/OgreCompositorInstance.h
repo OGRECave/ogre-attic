@@ -146,6 +146,17 @@ namespace Ogre {
         */
         bool getEnabled();
 
+		/** Get the instance name for a local texture.
+		@note It is only valid to call this when local textures have been loaded, 
+			which in practice means that the compositor instance is active. Calling
+			it at other times will cause an exception. Note that since textures
+			are cleaned up aggressively, this name is not guaranteed to stay the
+			same if you disable and renable the compositor instance.
+		@param name The name of the texture in the original compositor definition
+		@returns The instance name for the texture, corresponds to a real texture
+		*/
+		const String& getTextureInstanceName(const String& name);
+
 		/** Prepare this instance for re-compilation. Clear all state that has been 
 			set by the last compile.
         */
