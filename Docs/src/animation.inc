@@ -75,6 +75,12 @@ For example, a common set-up for a complex character which needs both skeletal a
 
 To see how to apply vertex animation, @xref{Animation State}.
 
+@heading Vertex buffer arrangements
+
+When using vertex animation in software, vertex buffers need to be arranged such that vertex positions reside in their own hardware buffer. This is to avoid having to upload all the other vertex data when updating, which would quickly saturate the GPU bus. When using the OGRE .mesh format and the tools / exporters that go with it, OGRE organises this for you automatically. But if you create buffers yourself, you need to be aware of the layout arrangements.@*@*
+
+To do this, you have a set of helper functions in Ogre::Mesh. See API Reference entries for Ogre::VertexData::reorganiseBuffers() and Ogre::VertexDeclaration::getAutoOrganisedDeclaration(). The latter will turn a vertex declaration into one which is recommended for the usage you've indicated, and the former will reorganise the contents of a set of buffers to conform to that layout.@*@*
+
 @node Morph Animation
 @subsection Morph Animation
 Morph animation works by storing snapshots of the absolute vertex positions in each keyframe, and interpolating between them. Morph animation is mainly useful for animating objects which could not be adequately handled using skeletal animation; this is mostly objects that have to radically change structure and shape as part of the animation such that a skeletal structure isn't appropriate. @*@*
