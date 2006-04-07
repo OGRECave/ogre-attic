@@ -27,9 +27,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreStringConverter.h"
 #include "OgreLogManager.h"
 #include "OgreException.h"
-#include "OgreMaterial.h"
 #include "OgreBlendMode.h"
-#include "OgreTextureUnitState.h"
 #include "OgreGpuProgram.h"
 #include "OgreTechnique.h"
 #include "OgrePass.h"
@@ -66,7 +64,7 @@ namespace Ogre {
         "<Technique> ::= 'technique' [<Label>] '{' {<Technique_Properties>} '}' \n"
         "    <Technique_Properties> ::= <Pass> | <Lod_Index> | <Scheme> \n"
         "    <Lod_Index> ::= 'lod_index' <#value> \n"
-	"    <Scheme> ::= 'scheme' <Label> \n"
+        "    <Scheme> ::= 'scheme' <Label> \n"
 
         // Pass section rules
         "    <Pass> ::= 'pass' [<Label>] '{' {<Pass_Properties>} '}' \n"
@@ -82,7 +80,10 @@ namespace Ogre {
 
         "        <Ambient> ::= 'ambient' <ColourOptions> \n"
         "        <Diffuse> ::= 'diffuse' <ColourOptions> \n"
-        "        <Specular> ::= 'specular' <ColourOptions> <#shininess> \n"
+        "        <Specular> ::= 'specular' <SpecularOptions> \n"
+        "           <SpecularOptions> ::= <Specular_Colour_Params> | <Specular_Vertex> \n"
+        "           <Specular_Colour_Params> ::= <#red> <#green> <#blue> <#val> [<#val>] \n"
+        "           <Specular_Vertex> ::= 'vertexcolour' <#shininess> \n"
         "        <Emissive> ::= 'emissive' <ColourOptions> \n"
 
         "        <ColourOptions> ::= <Colour_Params> | 'vertexcolour' \n"
@@ -145,10 +146,12 @@ namespace Ogre {
         "           <Texture_Properties> ::= '1d' | '2d' | '3d' | 'cubic' | 'unlimited' | 'alpha' | <#mipmap> \n"
         "           <Anim_Texture> ::= 'anim_texture' <Label> <Anim_Texture_Properties> <#duration>\n"
         "               <Anim_Texture_Properties> ::= <#frames> | <Seperate_Anim_Textures> \n"
-        "               <Seperate_Anim_Textures> ::= {<Label>} \n"
+        "               <Seperate_Anim_Textures> ::= {<anim_frame>} \n"
+        "                   <anim_frame> ::= <Label> [<Seperator>] \n"
         "           <Cubic_Texture> ::= 'cubic_texture' <Label> <Cubic_Texture_Options> \n"
         "               <Cubic_Texture_Options> ::= 'combineduvw' | 'separateuv' | <Cubic_Seperate> \n"
-        "               <Cubic_Seperate> ::= <Label> <Label> <Label> <Label> <Label> 'separateuv' \n"
+        "               <Cubic_Seperate> ::= <Label> [<Seperator>] <Label> [<Seperator>] <Label> \n"
+        "                                    [<Seperator>] <Label> [<Seperator>] <Label> 'separateuv' \n"
         "           <Tex_Coord_Set> ::= 'tex_coord_set' <#set_num> \n"
         "           <Tex_Address_Mode> ::= 'tex_address_mode' <UVW_Mode> [<UVW_Mode>] [<UVW_Mode>] \n"
         "               <UVW_Mode> ::= 'wrap' | 'clamp' | 'mirror' | 'border' \n"
@@ -187,7 +190,7 @@ namespace Ogre {
         "               <Wave_Type> ::= 'sine' | 'triangle' | 'square' | 'sawtooth' | 'inverse_sawtooth' \n"
         "           <Transform> ::= 'transform' <#m00> <#m01> <#m02> <#m03> <#m10> <#m11> <#m12> <#m13> <#m20> <#m21> <#m22> <#m23> \n"
         "                           <#m30> <#m31> <#m32> <#m33> \n"
-
+        // GPU Programs
         " "
         "<Vertex_Program> ::= 'vertex_program' \n"
         "<Fragment_Program> ::= 'fragment_program' \n"
@@ -195,7 +198,7 @@ namespace Ogre {
         // common rules
         "<On_Off> ::= 'on' | 'off' \n"
         "<Colour_Params> ::= <#red> <#green> <#blue> [<#alpha>] \n"
-
+        "<Seperator> ::= -' ' \n"
 
 		"<Label> ::= <Unquoted_Label> | <Quoted_Label> \n"
 		"<Quoted_Label> ::= -'\"' <Character> {<Alphanumeric_Space>} -'\"' \n"
@@ -203,7 +206,7 @@ namespace Ogre {
 		"<Alphanumeric_Space> ::= <Alphanumeric> | <Space> \n"
 		"<Alphanumeric> ::= <Character> | <Number> \n"
 		"<Character> ::= (abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$#%!_*&.\\/) \n"
-		"<Number> ::= (0123456789) \n"
+		"<Number> ::= (0123456789-) \n"
 		"<Space> ::= ( ) \n"
 
         ;
@@ -211,6 +214,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     MaterialScriptCompiler::MaterialScriptCompiler(void)
     {
+        // set default group resource name
+        mScriptContext.groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME;
     }
     //-----------------------------------------------------------------------
     MaterialScriptCompiler::~MaterialScriptCompiler(void)
@@ -853,7 +858,7 @@ namespace Ogre {
         const size_t paramCount = getRemainingTokensForAction();
         if(paramCount == 2)
         {
-            if(testNextTokenID(ID_VERTEXCOLOUR))
+            if(getNextToken().tokenID == ID_VERTEXCOLOUR)
             {
                 mScriptContext.pass->setVertexColourTracking(mScriptContext.pass->getVertexColourTracking() | TVC_SPECULAR);
                 mScriptContext.pass->setShininess(getNextTokenValue());
@@ -1705,6 +1710,7 @@ namespace Ogre {
         catch (Exception& e)
         {
             logParseError("Bad colour_op_ex attribute, " + e.getFullDescription());
+            return;
         }
 
         mScriptContext.textureUnit->setColourOperationEx(op, src1, src2, colSrc1, colSrc2, manual);
@@ -1745,6 +1751,7 @@ namespace Ogre {
         catch (Exception& e)
         {
             logParseError("Bad alpha_op_ex attribute, " + e.getFullDescription());
+            return;
         }
 
         mScriptContext.textureUnit->setAlphaOperation(op, src1, src2, arg1, arg2, manual);
