@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="3" />
+	<FileVersion major="1" minor="4" />
 	<Project>
 		<Option title="TestOgreMain" />
 		<Option compiler="gcc" />
@@ -8,13 +8,12 @@
 			<Target title="Debug">
 				<Option output="..\Samples\Common\bin\Debug\TestOgreMain.exe" />
 				<Option working_dir="..\Samples\Common\bin\Debug" />
-				<Option object_output="..\obj\Debug" />
-				<Option external_deps="..\Samples\Common\bin\Debug\OgreMain_d.dll;" />
+				<Option object_output=".\obj\Debug" />
+				<Option external_deps="..\Samples\Common\bin\Debug\OgreMain_d.dll;..\Samples\Common\bin\Debug\Plugin_ScriptParsers.dll;" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
-					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-DWIN32" />
 					<Add option="-D_DEBUG" />
@@ -26,10 +25,10 @@
 					<Add directory="..\Dependencies\include" />
 				</Compiler>
 				<Linker>
-					<Add library="OgreMain_d" />
 					<Add library="cppunitd" />
-					<Add library="..\..\STLport\lib\libstlportstlg.5.0.dll.a" />
-					<Add directory="..\OgreMain\lib\Debug" />
+					<Add library="OgreMain_d" />
+					<Add library="Plugin_Scriptparsers" />
+					<Add library="stlportstlg.5.0" />
 					<Add directory="..\Dependencies\lib\Debug" />
 				</Linker>
 			</Target>
@@ -41,7 +40,6 @@
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
 					<Add option="-O3" />
-					<Add option="-W" />
 					<Add option="-g" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
@@ -53,14 +51,16 @@
 					<Add directory="..\Dependencies\include" />
 				</Compiler>
 				<Linker>
-					<Add library="OgreMain" />
 					<Add library="cppunit" />
-					<Add directory="..\OgreMain\lib\Release" />
+					<Add library="OgreMain" />
+					<Add library="Plugin_Scriptparsers" />
+					<Add library="stlport.5.0" />
 					<Add directory="..\..\..\Dependencies\lib\Release" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-Wall" />
 			<Add option="-pipe" />
 			<Add option="-mthreads" />
 			<Add option="-fmessage-length=0" />
@@ -73,23 +73,8 @@
 		<Linker>
 			<Add option="-Wl,--enable-auto-image-base" />
 			<Add option="-Wl,--add-stdcall-alias" />
-			<Add directory="$(#STLPORT_DIR)\lib" />
+			<Add directory="..\Samples\Common\bin\$(TARGET_NAME)" />
 		</Linker>
-		<Unit filename="..\OgreMain\src\OgreCompiler2Pass.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\OgreMain\src\OgreCompositorScriptCompiler.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\OgreMain\src\OgreMaterialScriptCompiler.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
 		<Unit filename="OgreMain\include\BitwiseTests.h">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />

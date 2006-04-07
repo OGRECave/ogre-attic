@@ -131,8 +131,62 @@ void MaterialScriptCompilerTests::testCompileMaterialScript()
     MaterialManager* matMgr = new MaterialManager();
     matMgr->initialise();
 
-    const String simpleScript = "material test { technique { pass {} } }";
+    const String simpleScript =
+        "material test2 { technique { \n"
+        " pass pass-1 { \n"
+        "   ambient 0 1 0.5\n"
+        "   ambient 0 1 0.5 1 \n"
+        "   ambient vertexcolour \n"
+        "   diffuse 0.5 1.0 0 0.5 \n"
+        "   specular vertexcolour 40 \n"
+        "   specular 1 1 1 18 \n"
+        "   specular 0 1 0 1 128 \n"
+        "   scene_blend alpha_blend \n"
+        "   scene_blend one src_alpha \n"
+        "   depth_check on \n"
+        "   depth_write off \n"
+        "   depth_func less_equal \n"
+        "   alpha_rejection not_equal 127 \n"
+        "   cull_hardware clockwise \n"
+        "   lighting on \n"
+        "   shading gouraud \n"
+        "   polygon_mode wireframe \n"
+        "   texture_unit first {texture MyAlphaTexture.png alpha tex_coord_set 0 } \n"
+        "   texture_unit first { \n"
+        "       cubic_texture cubemap_fr.jpg cubemap_bk.jpg cubemap_lf.jpg cubemap_rt.jpg cubemap_up.jpg cubemap_dn.jpg separateUV \n"
+        "   } \n"
+        "   texture_unit \"second one\" { \n"
+        "       anim_texture MyAlphaTexture2.png 4 6.5 \n"
+        "       anim_texture MyAlphaTexture2.png MyAlphaTexture6.png MyAlphaTexture9.png 6.5 \n"
+        "       tex_address_mode wrap \n"
+        "       tex_address_mode wrap mirror \n"
+        "       tex_address_mode wrap mirror border \n"
+        "       tex_border_colour 1.0 0.5 0.7 1.0 \n"
+        "       filtering trilinear \n"
+        "       filtering none \n"
+        "       filtering linear point none \n"
+        "       max_anisotropy 5 \n"
+        "       colour_op replace \n"
+        "       colour_op add \n"
+        "       colour_op_ex add_signed src_manual src_texture 1 1 1 1\n"
+        "       colour_op_multipass_fallback one one_minus_dest_alpha \n"
+        "       alpha_op_ex add_signed src_manual src_current 0.5 \n"
+        "       env_map cubic_reflection \n"
+        "       scroll 5 2 \n"
+        "       scroll_anim 3 2 \n"
+        "       rotate 2.3 \n"
+        "       rotate_anim 0.5 \n"
+        "       scale 1 1.4 \n"
+        "       wave_xform scale_x sine 1.0 0.2 0.0 5.0 \n"
+        "       transform 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 \n"
+
+        "       } \n"
+        "   texture_unit \"second one\" { \n"
+        "       anim_texture MyAlphaTexture2.png MyAlphaTexture3.png 6.5} \n"
+        " \n"
+        " } } }";
     CPPUNIT_ASSERT(compile(simpleScript, "MaterialScriptTest"));
+
     delete matMgr;
     delete resGrpMgr;
     delete mth;
