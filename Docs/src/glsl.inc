@@ -112,38 +112,5 @@ material exampleGLSLmatixUniforms
 }
 @end example
 
-@subheading Matrix parameters
-
-Here are some examples of passing matrices to GLSL mat2, mat3, mat4 uniforms:
-
-@example
-material exampleGLSLmatixUniforms
-{
-  technique matrix_passing
-  {
-    pass examples
-    {
-      vertex_program_ref myVertexShader
-      { 
-        // mat4 uniform
-        param_named OcclusionMatrix matrix4x4 1 0 0 0  0 1 0 0  0 0 1 0  0 0 0 0 
-        // or
-        param_named ViewMatrix float16 0 1 0 0  0 0 1 0  0 0 0 1  0 0 0 0 
-        
-        // mat3
-        param_named TextRotMatrix float9 1 0 0  0 1 0  0 0 1  
-      }
-      
-      fragment_program_ref myFragmentShader
-      { 
-        // mat2 uniform
-        param_named skewMatrix float4 0.5 0 -0.5 1.0
-      }
-
-    }
-  }
-}
-@end example
-
 @subheading Accessing OpenGL states in GLSL
 GLSL can access most of the GL states directly so you do not need to pass these states through @ref{param_named_auto} in the material script.  This includes lights, material state, and all the matrices used in the openGL state ie model view matrix, worldview projection matrix etc. @*@*
