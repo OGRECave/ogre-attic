@@ -352,7 +352,7 @@ namespace Ogre {
             textureDef->height = static_cast<size_t>(getNextTokenValue());
         }
         // get pixel factor
-        switch (getNextToken().tokenID)
+        switch (getNextTokenID())
         {
         case ID_PF_A8R8G8B8:
             textureDef->format = PF_A8R8G8B8;
@@ -459,7 +459,7 @@ namespace Ogre {
 		assert(mScriptContext.target);
         mScriptContext.pass = mScriptContext.target->createPass();
         CompositionPass::PassType passType = CompositionPass::PT_RENDERQUAD;
-        switch (getNextToken().tokenID)
+        switch (getNextTokenID())
         {
         case ID_RENDER_QUAD:
             passType = CompositionPass::PT_RENDERQUAD;
@@ -519,7 +519,7 @@ namespace Ogre {
 
 		while (getRemainingTokensForAction() > 0)
 		{
-		    switch (getNextToken().tokenID)
+		    switch (getNextTokenID())
 		    {
             case ID_CLR_COLOUR:
                 bufferFlags |= FBT_COLOUR;
@@ -614,7 +614,7 @@ namespace Ogre {
 	{
 	    StencilOperation sop = SOP_KEEP;
 
-        switch (getNextToken().tokenID)
+        switch (getNextTokenID())
         {
         case ID_ST_KEEP:
             sop = SOP_KEEP;
@@ -658,7 +658,7 @@ namespace Ogre {
 	{
 	    CompareFunction compFunc = CMPF_ALWAYS_PASS;
 
-        switch (getNextToken().tokenID)
+        switch (getNextTokenID())
         {
         case ID_ST_ALWAYS_FAIL:
             compFunc = CMPF_ALWAYS_FAIL;
