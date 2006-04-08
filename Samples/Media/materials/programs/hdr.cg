@@ -7,7 +7,7 @@ void morningskybox_fp (
 	colour = tex2D(tex, uv);
 
 	// blow out the light a bit
-	colour += colour * 1.2;
+	colour *= 1.7;
 }
 
 

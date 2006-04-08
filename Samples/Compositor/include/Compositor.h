@@ -44,6 +44,7 @@ LGPL like the rest of the engine.
         CEGUI::System*        mGUISystem;
 
         size_t				  mCurrentMaterial;
+		Ogre::SceneNode * mSpinny;
 
 //        typedef std::vector< ShaderControlGUIWidget > ShaderControlContainer;
 //        typedef ShaderControlContainer::iterator ShaderControlIterator;

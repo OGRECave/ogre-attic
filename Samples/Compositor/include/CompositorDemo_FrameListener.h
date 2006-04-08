@@ -100,6 +100,7 @@ LGPL like the rest of the engine.
         bool mMoveBck;
         bool mMoveLeft;
         bool mMoveRight;
+		Ogre::SceneNode* mSpinny;
 
         ItemSelectorViewManager* mCompositorSelectorViewManager;
 
@@ -130,6 +131,7 @@ LGPL like the rest of the engine.
     public:
         CompositorDemo_FrameListener(CompositorDemo* main);
         virtual ~CompositorDemo_FrameListener();
+		void setSpinningNode(Ogre::SceneNode* node) { mSpinny = node; }
 
     private:
         void connectEventHandlers(void);

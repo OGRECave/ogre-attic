@@ -170,8 +170,18 @@ LGPL like the rest of the engine.
 				mat->load();
 				Ogre::GpuProgramParametersSharedPtr fparams = 
 					mat->getBestTechnique()->getPass(0)->getFragmentProgramParameters();
-				fparams->setNamedConstant("sampleOffsets[0]", mBloomTexOffsetsHorz[0], 15*4);
-				fparams->setNamedConstant("sampleWeights[0]", mBloomTexWeights[0], 15*4);
+				const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
+				// A bit hacky - Cg & HLSL index arrays via [0], GLSL does not
+				if (progName.find("GLSL") != Ogre::String::npos)
+				{
+					fparams->setNamedConstant("sampleOffsets", mBloomTexOffsetsHorz[0], 15);
+					fparams->setNamedConstant("sampleWeights", mBloomTexWeights[0], 15);
+				}
+				else
+				{
+					fparams->setNamedConstant("sampleOffsets[0]", mBloomTexOffsetsHorz[0], 15);
+					fparams->setNamedConstant("sampleWeights[0]", mBloomTexWeights[0], 15);
+				}
 
 				break;
 			}
@@ -181,8 +191,18 @@ LGPL like the rest of the engine.
 				mat->load();
 				Ogre::GpuProgramParametersSharedPtr fparams = 
 					mat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
-				fparams->setNamedConstant("sampleOffsets[0]", mBloomTexOffsetsVert[0], 15*4);
-				fparams->setNamedConstant("sampleWeights[0]", mBloomTexWeights[0], 15*4);
+				const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
+				// A bit hacky - Cg & HLSL index arrays via [0], GLSL does not
+				if (progName.find("GLSL") != Ogre::String::npos)
+				{
+					fparams->setNamedConstant("sampleOffsets", mBloomTexOffsetsVert[0], 15);
+					fparams->setNamedConstant("sampleWeights", mBloomTexWeights[0], 15);
+				}
+				else
+				{
+					fparams->setNamedConstant("sampleOffsets[0]", mBloomTexOffsetsVert[0], 15);
+					fparams->setNamedConstant("sampleWeights[0]", mBloomTexWeights[0], 15);
+				}
 
 				break;
 			}
@@ -232,6 +252,7 @@ LGPL like the rest of the engine.
         , mMoveBck(false)
         , mMoveLeft(false)
         , mMoveRight(false)
+		, mSpinny(0)
         , mCompositorSelectorViewManager(0)
 
     {
@@ -320,6 +341,10 @@ LGPL like the rest of the engine.
                 mMain->getRenderWindow()->writeContentsToFile("frame_" +
                     Ogre::StringConverter::toString(++mNumScreenShots) + ".png");
             }
+
+			if (mSpinny)
+				mSpinny->yaw(Ogre::Degree(10 * evt.timeSinceLastFrame));
+
             return true;
         }
     }

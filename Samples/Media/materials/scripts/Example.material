@@ -225,6 +225,45 @@ material Examples/MorningSkyBox
 		}
 	}
 }
+material Examples/MorningCubeMap
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+
+			texture_unit
+			{
+				cubic_texture morning.jpg combinedUVW
+				tex_address_mode clamp
+				env_map cubic_reflection
+			}
+		}
+	}
+	// HDR technique (fake)
+	technique
+	{
+		scheme HDR
+
+		pass
+		{
+			lighting off
+
+			fragment_program_ref Examples/MorningSkyBoxHDRfp
+			{
+			}
+
+			texture_unit
+			{
+				cubic_texture morning.jpg combinedUVW
+				tex_address_mode clamp
+				env_map cubic_reflection
+			}
+		}
+	}
+}
+
 
 material Examples/EveningSkyBox
 {
@@ -912,6 +951,21 @@ material Examples/LightRibbonTrail
 				texture ribbonband.png 1d
 				tex_address_mode clamp
 				filtering none
+			}
+		}
+	}
+}
+
+material Examples/TudorHouse
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture fw12b.jpg
+				tex_address_mode clamp
 			}
 		}
 	}

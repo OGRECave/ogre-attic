@@ -178,6 +178,8 @@ void CompositorDemo::createViewports(void)
 //-----------------------------------------------------------------------------------
     void CompositorDemo::createScene(void)
     {
+		mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_MODULATIVE);
+		mSceneMgr->setShadowFarDistance(1000);
         // setup GUI system
         mGUIRenderer = new CEGUI::OgreCEGUIRenderer(mWindow, Ogre::RENDER_QUEUE_OVERLAY, false, 3000, mSceneMgr);
         // load scheme and set up defaults
@@ -188,7 +190,7 @@ void CompositorDemo::createViewports(void)
 		Ogre::MovableObject::setDefaultVisibilityFlags(0x00000001);
 
 		// Set ambient light
-		mSceneMgr->setAmbientLight(Ogre::ColourValue(0.0, 0.0, 0.0));
+		mSceneMgr->setAmbientLight(Ogre::ColourValue(0.3, 0.3, 0.2));
 
 		Ogre::Light* l = mSceneMgr->createLight("Light2");
 		Ogre::Vector3 dir(-1,-1,0);
@@ -200,45 +202,20 @@ void CompositorDemo::createViewports(void)
 
 
 		Ogre::Entity* pEnt;
-		pEnt = mSceneMgr->createEntity( "1", "robot.mesh" );
-		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject( pEnt );
 
-		// pre-load to generate tangents
-		Ogre::MeshPtr msh = Ogre::MeshManager::getSingleton().load("knot.mesh",
-			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-		unsigned short src, dest;
-		if (!msh->suggestTangentVectorBuildParams(src, dest))
-		{
-			msh->buildTangentVectors(src, dest);
-		}
+		// House
+		pEnt = mSceneMgr->createEntity( "1", "tudorhouse.mesh" );
+		Ogre::SceneNode* n1 = mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(350, 450, -200));
+		n1->attachObject( pEnt );
 
-		// Does not receive shadows
-		pEnt = mSceneMgr->createEntity( "3", "knot.mesh" );
-		pEnt->setMaterialName("Examples/EnvMappedRustySteel");
-		Ogre::MaterialPtr mat2 = Ogre::MaterialManager::getSingleton().getByName("Examples/EnvMappedRustySteel");
-		mat2->setReceiveShadows(false);
-		Ogre::SceneNode* n2 = mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(-200, 0, -200));
+		pEnt = mSceneMgr->createEntity( "2", "tudorhouse.mesh" );
+		Ogre::SceneNode* n2 = mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(-350, 450, -200));
 		n2->attachObject( pEnt );
 
-		// Transparent object
-		pEnt = mSceneMgr->createEntity( "3.5", "knot.mesh" );
-		pEnt->setMaterialName("Examples/TransparentTest");
-		Ogre::MaterialPtr mat3 = Ogre::MaterialManager::getSingleton().getByName("Examples/TransparentTest");
-		pEnt->setCastShadows(false);
-		Ogre::SceneNode* n3 = mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(350, 0, -200));
-		n3->attachObject( pEnt );
-
-		pEnt = mSceneMgr->createEntity( "4", "knot.mesh" );
-		pEnt->setMaterialName("Examples/BumpMapping/MultiLightSpecular");
-		Ogre::SceneNode* n4 = mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(100, 0, 200));
-		n4->attachObject( pEnt );
-
-
-		Ogre::ParticleSystem* pSys2 = mSceneMgr->createParticleSystem("smoke",
-			"Examples/Smoke");
-		Ogre::SceneNode* n5 = mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(-300, -100, 200));
-		n5->attachObject(pSys2);
-
+		pEnt = mSceneMgr->createEntity( "3", "knot.mesh" );
+		mSpinny = mSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0, 0, 300));
+		mSpinny->attachObject( pEnt );
+		pEnt->setMaterialName("Examples/MorningCubeMap");
 
 		mSceneMgr->setSkyBox(true, "Examples/MorningSkyBox");
 
@@ -250,12 +227,12 @@ void CompositorDemo::createViewports(void)
 			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
 			1500, 1500, 10, 10, true, 1, 5, 5, Ogre::Vector3::UNIT_Z);
 		Ogre::Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
-		pPlaneEnt->setMaterialName("2 - Default");
+		pPlaneEnt->setMaterialName("Examples/Rockwall");
 		pPlaneEnt->setCastShadows(false);
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 
-		mCamera->setPosition(180, 54, 823);
-		mCamera->lookAt(0,20,0);
+		mCamera->setPosition(-400, 50, 900);
+		mCamera->lookAt(0,80,0);
 
         connectEventHandlers();
 		/// Create a couple of hard coded postfilter effects as an example of how to do it
@@ -266,6 +243,8 @@ void CompositorDemo::createViewports(void)
     void CompositorDemo::createFrameListener(void)
     {
         mFrameListener = new CompositorDemo_FrameListener(this);
+		mFrameListener->setSpinningNode(mSpinny);
+
     }
 //--------------------------------------------------------------------------
     void CompositorDemo::connectEventHandlers(void)
