@@ -46,7 +46,7 @@ namespace Ogre {
     String MaterialScriptCompiler::materialScript_BNF =
         "<Script> ::= {<Script_Properties>} \n"
 
-        "<Script_Properties> ::= <Material> | <Vertex_Program> | <Fragment_Program> \n"
+        "<Script_Properties> ::= <Material> | <GPU_Program> \n"
 
         "<Material> ::= 'material' <Label> [<Material_Clone>] '{' {<Material_Properties>} '}' \n"
 
@@ -55,7 +55,7 @@ namespace Ogre {
         "                          <Transparency_Casts_Shadows> \n"
 
         "    <Material_Clone> ::= ':' <Label> \n"
-        "    <Set_Texture_Alias> ::= 'set_texture_alias' <Label> <Label> \n"
+        "    <Set_Texture_Alias> ::= 'set_texture_alias' <Label> [<Seperator>] <Label> \n"
         "    <Lod_Distances> ::= 'lod_distances' <#distance> {<#distance>} \n"
         "    <Receive_Shadows> ::= 'receive_shadows' <On_Off> \n"
         "    <Transparency_Casts_Shadows> ::= 'transparency_casts_shadows' <On_Off> \n"
@@ -75,8 +75,8 @@ namespace Ogre {
         "                              <Cull_Hardware> | <Cull_Software> | <Lighting> | \n"
         "                              <Shading> | <PolygonMode> | <Fog_Override> | <Colour_Write> | \n"
         "                              <Max_Lights> | <Iteration> | \n"
-		"                              <Point_Size> | <Point_Sprites> | <Point_Size_Attenuation> | \n"
-		"                              <Point_Size_Min> | <Point_Size_Max> \n"
+		"                              <Point_Sprites> | <Point_Size_Attenuation> | \n"
+		"                              <Point_Size_Min> | <Point_Size_Max> | <Point_Size> \n"
 
         "        <Ambient> ::= 'ambient' <ColourOptions> \n"
         "        <Diffuse> ::= 'diffuse' <ColourOptions> \n"
@@ -125,7 +125,7 @@ namespace Ogre {
         "           <Fog_Override_Options> ::= 'false' | <fog_true> \n"
         "             <fog_true> ::= 'true' [<Fog_parameters>] \n"
         "               <Fog_parameters> ::= <fog_type> <fog_colour> <#fog_density> <#start> <#end> \n"
-        "                   <fog_type> ::= 'none' | 'linear' | 'exp2' | 'exp0.' \n"
+        "                   <fog_type> ::= 'none' | 'linear' | 'exp2' | 'exp' \n"
         "                   <fog_colour> ::= <#red> <#green> <#blue> \n"
         "        <Max_Lights> ::= 'max_lights' <#number> \n"
         "        <Iteration> ::= 'iteration' <Iteration_Options> \n"
@@ -192,14 +192,28 @@ namespace Ogre {
         "                           <#m30> <#m31> <#m32> <#m33> \n"
         // GPU Programs
         " "
-        "<Vertex_Program> ::= 'vertex_program' \n"
-        "<Fragment_Program> ::= 'fragment_program' \n"
+        "<GPU_Program> ::= <GPU_Program_Type> <Label> <GPU_Program_Language> '{' {<GPU_Program_Options>}'}' \n"
+        "   <GPU_Program_Type> ::= 'vertex_program' | 'fragment_program' \n"
+        "   <GPU_Program_Language> ::= 'cg' | 'hlsl' | 'glsl' | 'asm' \n"
+        "   <GPU_Program_Options> ::= <Program_Source> | <Entry_Point> | <Syntax> | <Profiles> | <Attach> | \n"
+        "                             <Target> \n"
+        "       <Program_Source> ::= 'source' <Label> \n"
+        "       <Entry_Point> ::= 'entry_point' <Label> \n"
+        "       <Syntax> ::= 'syntax' <Syntax_Options> \n"
+        "           <Syntax_Options> ::= 'vs_1_1' | 'vs_2_0' | 'vs_2_x' | 'vs_3_0' | 'arbvp1' | 'vp20' | 'vp30' | \n"
+        "                                'vp40' | 'ps_1_1' | 'ps_1_2' | 'ps_1_3' | 'ps_1_4' | 'ps_2_0' | 'ps_2_x' | \n"
+        "                                'ps_3_0' | 'ps_3_x' | 'arbfp1' | 'fp20' | 'fp30' | 'fp40' \n"
+        "       <Profiles> ::= 'profiles' <Labels_1_N> \n"
+        "       <Attach> ::= 'attach' <Labels_1_N> \n"
+        "       <Target> ::= 'target' <Label> \n"
 
         // common rules
         "<On_Off> ::= 'on' | 'off' \n"
         "<Colour_Params> ::= <#red> <#green> <#blue> [<#alpha>] \n"
         "<Seperator> ::= -' ' \n"
 
+        "<Labels_1_N> ::= <Label> [<Seperator>] {<More_Labels>} \n"
+        "<More_Labels> ::=  <Label> [<Seperator>] \n"
 		"<Label> ::= <Unquoted_Label> | <Quoted_Label> \n"
 		"<Quoted_Label> ::= -'\"' <Character> {<Alphanumeric_Space>} -'\"' \n"
         "<Unquoted_Label> ::= <Character> {<Alphanumeric>} \n"
@@ -227,8 +241,13 @@ namespace Ogre {
     {
         addLexemeTokenAction("{", ID_OPENBRACE, &MaterialScriptCompiler::parseOpenBrace);
         addLexemeTokenAction("}", ID_CLOSEBRACE, &MaterialScriptCompiler::parseCloseBrace);
-        addLexemeTokenAction("vertex_program", ID_VERTEX_PROGRAM, &MaterialScriptCompiler::parseVertexProgram);
-        addLexemeTokenAction("fragment_program", ID_FRAGMENT_PROGRAM, &MaterialScriptCompiler::parseFragmentProgram);
+        addLexemeTokenAction("vertex_program", ID_VERTEX_PROGRAM, &MaterialScriptCompiler::parseGPUProgram);
+        addLexemeTokenAction("fragment_program", ID_FRAGMENT_PROGRAM, &MaterialScriptCompiler::parseGPUProgram);
+            addLexemeTokenAction("source", ID_SOURCE, &MaterialScriptCompiler::parseProgramSource);
+            addLexemeTokenAction("syntax", ID_SYNTAX, &MaterialScriptCompiler::parseProgramSyntax);
+            addLexemeTokenAction("profiles", ID_PROFILES, &MaterialScriptCompiler::parseTextureCustomParameter);
+            addLexemeTokenAction("attach", ID_ATTACH, &MaterialScriptCompiler::parseTextureCustomParameter);
+            addLexemeTokenAction("target", ID_TARGET, &MaterialScriptCompiler::parseTextureCustomParameter);
         addLexemeTokenAction("material", ID_MATERIAL, &MaterialScriptCompiler::parseMaterial);
             addLexemeTokenAction(":", ID_CLONE);
             addLexemeTokenAction("lod_distances", ID_LOD_DISTANCES, &MaterialScriptCompiler::parseLodDistances);
@@ -538,58 +557,51 @@ namespace Ogre {
         };
     }
     //-----------------------------------------------------------------------
-    void MaterialScriptCompiler::parseVertexProgram(void)
+    void MaterialScriptCompiler::parseGPUProgram(void)
     {
         // update section
         mScriptContext.section = MSS_PROGRAM;
 
 		// Create new program definition-in-progress
 		mScriptContext.programDef = new MaterialScriptProgramDefinition();
-		mScriptContext.programDef->progType = GPT_VERTEX_PROGRAM;
+		mScriptContext.programDef->progType =
+            (getCurrentToken().tokenID == ID_VERTEX_PROGRAM) ? GPT_VERTEX_PROGRAM : GPT_FRAGMENT_PROGRAM;
         mScriptContext.programDef->supportsSkeletalAnimation = false;
 		mScriptContext.programDef->supportsMorphAnimation = false;
 		mScriptContext.programDef->supportsPoseAnimation = 0;
 
 		// Get name and language code
-        const size_t paramCount = getRemainingTokensForAction();
-		if (paramCount != 2)
-		{
-            logParseError("Invalid vertex_program entry - expected "
-				"2 parameters.");
-            return;
-		}
 		// Name, preserve case
 		mScriptContext.programDef->name = getNextTokenLabel();
 		// language code, make lower case
-		mScriptContext.programDef->language = getNextTokenLabel();
+		mScriptContext.programDef->language = getNextTokenLexeme();
 		StringUtil::toLowerCase(mScriptContext.programDef->language);
 	}
     //-----------------------------------------------------------------------
-    void MaterialScriptCompiler::parseFragmentProgram(void)
+    void MaterialScriptCompiler::parseProgramSource(void)
     {
-        // update section
-        mScriptContext.section = MSS_PROGRAM;
+        assert(mScriptContext.programDef);
+		mScriptContext.programDef->source = getNextTokenLabel();
+	}
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseProgramSyntax(void)
+    {
+        assert(mScriptContext.programDef);
+		mScriptContext.programDef->syntax = getNextTokenLexeme();
+	}
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseProgramCustomParameter(void)
+    {
+        assert(mScriptContext.programDef);
 
-		// Create new program definition-in-progress
-		mScriptContext.programDef = new MaterialScriptProgramDefinition();
-		mScriptContext.programDef->progType = GPT_FRAGMENT_PROGRAM;
-		mScriptContext.programDef->supportsSkeletalAnimation = false;
-		mScriptContext.programDef->supportsMorphAnimation = false;
-		mScriptContext.programDef->supportsPoseAnimation = 0;
+        const String& command = getCurrentTokenLexeme();
+        String params = getNextTokenLabel();
 
-		// Get name and language code
-        const size_t paramCount = getRemainingTokensForAction();
-		if (paramCount != 2)
-		{
-            logParseError("Invalid fragment_program entry - expected "
-				"2 parameters.");
-            return;
-		}
-		// Name, preserve case
-		mScriptContext.programDef->name = getNextTokenLabel();
-		// language code, make lower case
-		mScriptContext.programDef->language = getNextTokenLabel();
-		StringUtil::toLowerCase(mScriptContext.programDef->language);
+        while (getRemainingTokensForAction() > 0)
+        {
+            params += " " + getNextTokenLabel();
+        }
+		mScriptContext.programDef->customParameters[command] = params;
 	}
 	//-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseMaterial(void)
@@ -858,7 +870,7 @@ namespace Ogre {
         const size_t paramCount = getRemainingTokensForAction();
         if(paramCount == 2)
         {
-            if(getNextToken().tokenID == ID_VERTEXCOLOUR)
+            if(getNextTokenID() == ID_VERTEXCOLOUR)
             {
                 mScriptContext.pass->setVertexColourTracking(mScriptContext.pass->getVertexColourTracking() | TVC_SPECULAR);
                 mScriptContext.pass->setShininess(getNextTokenValue());
@@ -912,7 +924,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     SceneBlendFactor MaterialScriptCompiler::convertBlendFactor(void)
     {
-        switch(getNextToken().tokenID)
+        switch(getNextTokenID())
         {
         case ID_ONE:
             return SBF_ONE;
@@ -949,7 +961,7 @@ namespace Ogre {
         {
             //simple blend types
             SceneBlendType sbtype = SBT_REPLACE;
-            switch(getNextToken().tokenID)
+            switch(getNextTokenID())
             {
             case ID_ADD:
                 sbtype = SBT_ADD;
@@ -996,7 +1008,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     CompareFunction MaterialScriptCompiler::convertCompareFunction(void)
     {
-        switch (getNextToken().tokenID)
+        switch (getNextTokenID())
         {
         case ID_ALWAYS_FAIL:
             return CMPF_ALWAYS_FAIL;
@@ -1043,7 +1055,7 @@ namespace Ogre {
     void MaterialScriptCompiler::parseCullHardware(void)
     {
         assert(mScriptContext.pass);
-        switch (getNextToken().tokenID)
+        switch (getNextTokenID())
         {
         case ID_NONE:
             mScriptContext.pass->setCullingMode(CULL_NONE);
@@ -1062,7 +1074,7 @@ namespace Ogre {
     void MaterialScriptCompiler::parseCullSoftware(void)
     {
         assert(mScriptContext.pass);
-        switch (getNextToken().tokenID)
+        switch (getNextTokenID())
         {
         case ID_NONE:
             mScriptContext.pass->setManualCullingMode(MANUAL_CULL_NONE);
@@ -1087,7 +1099,7 @@ namespace Ogre {
     void MaterialScriptCompiler::parseShading(void)
     {
         assert(mScriptContext.pass);
-        switch (getNextToken().tokenID)
+        switch (getNextTokenID())
         {
         case ID_FLAT:
             mScriptContext.pass->setShadingMode(SO_FLAT);
@@ -1106,7 +1118,7 @@ namespace Ogre {
     void MaterialScriptCompiler::parsePolygonMode(void)
     {
         assert(mScriptContext.pass);
-        switch (getNextToken().tokenID)
+        switch (getNextTokenID())
         {
         case ID_SOLID:
             mScriptContext.pass->setPolygonMode(PM_SOLID);
@@ -1125,7 +1137,7 @@ namespace Ogre {
     void MaterialScriptCompiler::parseFogOverride(void)
     {
         assert(mScriptContext.pass);
-        if (getNextToken().tokenID == ID_TRUE)
+        if (getNextTokenID() == ID_TRUE)
         {
             // if true, we need to see if they supplied all arguments, or just the 1... if just the one,
             // Assume they want to disable the default fog from effecting this material.
@@ -1133,7 +1145,7 @@ namespace Ogre {
             if( paramCount == 7 )
             {
                 FogMode fogtype;
-                switch (getNextToken().tokenID)
+                switch (getNextTokenID())
                 {
                 case ID_LINEAR:
                     fogtype = FOG_LINEAR;
@@ -1187,7 +1199,7 @@ namespace Ogre {
     {
         assert(mScriptContext.pass);
         // Parse light type
-        switch(getNextToken().tokenID)
+        switch(getNextTokenID())
         {
         case ID_DIRECTIONAL:
             mScriptContext.pass->setIteratePerLight(true, true, Light::LT_DIRECTIONAL);
@@ -1234,7 +1246,7 @@ namespace Ogre {
                 mScriptContext.pass->setPassIterationCount(passIterationCount);
                 if (getRemainingTokensForAction() > 1)
                 {
-                    if (getNextToken().tokenID == ID_PER_LIGHT)
+                    if (getNextTokenID() == ID_PER_LIGHT)
                     {
                         if (getRemainingTokensForAction() == 1)
                         {
@@ -1285,7 +1297,7 @@ namespace Ogre {
             logParseError("Bad point_size_attenuation attribute, wrong number of parameters (expected 1 or 4)");
             return;
         }
-        switch (getNextToken().tokenID)
+        switch (getNextTokenID())
         {
         case ID_ON:
 			if (paramCount == 4)
@@ -1393,7 +1405,7 @@ namespace Ogre {
 
 		while (getRemainingTokensForAction() > 0)
 		{
-            switch(getNextToken().tokenID)
+            switch(getNextTokenID())
             {
             case ID_1D:
                 tt = TEX_TYPE_1D;
@@ -1494,7 +1506,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	TextureUnitState::TextureAddressingMode MaterialScriptCompiler::convTexAddressMode(void)
 	{
-	    switch (getNextToken().tokenID)
+	    switch (getNextTokenID())
 	    {
 		case ID_WRAP:
 			return TextureUnitState::TAM_WRAP;
@@ -1548,7 +1560,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     FilterOptions MaterialScriptCompiler::convertFiltering()
     {
-        switch (getNextToken().tokenID)
+        switch (getNextTokenID())
         {
         case ID_NONE:
             return FO_NONE;
@@ -1571,7 +1583,7 @@ namespace Ogre {
         if (paramCount == 1)
         {
             // Simple format
-            switch (getNextToken().tokenID)
+            switch (getNextTokenID())
             {
             case ID_BILINEAR:
                 mScriptContext.textureUnit->setTextureFiltering(TFO_BILINEAR);
@@ -1607,7 +1619,7 @@ namespace Ogre {
     void MaterialScriptCompiler::parseColourOp(void)
     {
         assert(mScriptContext.textureUnit);
-        switch (getNextToken().tokenID)
+        switch (getNextTokenID())
         {
         case ID_REPLACE:
             mScriptContext.textureUnit->setColourOperation(LBO_REPLACE);
@@ -1626,7 +1638,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     LayerBlendOperationEx MaterialScriptCompiler::convertBlendOpEx(void)
     {
-        switch(getNextToken().tokenID)
+        switch(getNextTokenID())
         {
         case ID_SOURCE1:
             return LBX_SOURCE1;
@@ -1665,7 +1677,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     LayerBlendSource MaterialScriptCompiler::convertBlendSource(void)
     {
-        switch(getNextToken().tokenID)
+        switch(getNextTokenID())
         {
         case ID_SRC_CURRENT:
             return LBS_CURRENT;
@@ -1761,7 +1773,7 @@ namespace Ogre {
     {
         assert(mScriptContext.textureUnit);
 
-        switch (getNextToken().tokenID)
+        switch (getNextTokenID())
         {
         case ID_OFF:
             mScriptContext.textureUnit->setEnvironmentMap(false);
@@ -1829,7 +1841,7 @@ namespace Ogre {
         TextureUnitState::TextureTransformType ttype;
         WaveformType waveType;
         // Check transform type
-        switch (getNextToken().tokenID)
+        switch (getNextTokenID())
         {
         case ID_SCROLL_X:
             ttype = TextureUnitState::TT_TRANSLATE_U;
@@ -1848,7 +1860,7 @@ namespace Ogre {
             break;
         }
         // Check wave type
-        switch (getNextToken().tokenID)
+        switch (getNextTokenID())
         {
         case ID_SINE:
             waveType = WFT_SINE;
