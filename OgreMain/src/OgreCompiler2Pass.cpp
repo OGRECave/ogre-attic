@@ -434,6 +434,17 @@ namespace Ogre {
                 // parsing reached the end of the source.
                 activatePreviousTokenAction();
             }
+            else if (mCharPos != mEndOfSource && mErrorCharPos == 0)
+            {
+                LogManager::getSingleton().logMessage(
+                "*** ERROR *** : in " + getClientGrammerName() +
+                " Source: " + mSourceName +
+                "\nUnknown token found on line " + StringConverter::toString(mCurrentLine) +
+                "\nFound: >>>" + mSource->substr(mCharPos, 20) +
+                "<<<\n"
+                );
+
+            }
 
 	    }
 	    catch (Exception& e)
@@ -467,51 +478,54 @@ namespace Ogre {
 
         return passed;
     }
-
     //-----------------------------------------------------------------------
-    const Compiler2Pass::TokenInst& Compiler2Pass::getNextToken(const size_t expectedTokenID)
+    const Compiler2Pass::TokenInst& Compiler2Pass::getCurrentToken(const size_t expectedTokenID) const
     {
-        //static TokenInst badToken;
-        // advance instruction que index by one then get the current token instruction
-        if (mPass2TokenQuePosition < mActiveTokenState->tokenQue.size() - 1)
+        if (mPass2TokenQuePosition <= mActiveTokenState->tokenQue.size() - 1)
         {
-            ++mPass2TokenQuePosition;
             const TokenInst& tokenInst = mActiveTokenState->tokenQue[mPass2TokenQuePosition];
+
             if (expectedTokenID > 0 && (tokenInst.tokenID != expectedTokenID))
             {
                 OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, getClientGrammerName() + ":" + mSourceName
                     + ", expected token ID not found" ,
-                    "Compiler2Pass::getNextToken");
+                    "Compiler2Pass::getCurrentToken");
             }
 
             return tokenInst;
         }
         else
-            // no more tokens left for pass 2 processing
-            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, getClientGrammerName() + ":" + mSourceName
-                + ", no more tokens available for pass 2 processing" ,
-                "Compiler2Pass::getNextToken");
-    }
-    //-----------------------------------------------------------------------
-    const Compiler2Pass::TokenInst& Compiler2Pass::getCurrentToken(void)
-    {
-        if (mPass2TokenQuePosition < mActiveTokenState->tokenQue.size() - 1)
-            return mActiveTokenState->tokenQue[mPass2TokenQuePosition];
-        else
+        {
             OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, getClientGrammerName() + ":" + mSourceName +
                 ", Line " + StringConverter::toString(mActiveTokenState->tokenQue.back().line) +
                 "\n no token available, all pass 2 tokens processed" ,
                 "Compiler2Pass::getCurrentToken");
+        }
     }
     //-----------------------------------------------------------------------
-    bool Compiler2Pass::testNextTokenID(const size_t expectedTokenID)
+    bool Compiler2Pass::testNextTokenID(const size_t expectedTokenID) const
     {
-        bool passed = false;
         const size_t nextTokenIndex = mPass2TokenQuePosition + 1;
-        if (nextTokenIndex < mActiveTokenState->tokenQue.size() - 1)
-            passed = mActiveTokenState->tokenQue[nextTokenIndex].tokenID == expectedTokenID;
 
-        return passed;
+        if (nextTokenIndex < mActiveTokenState->tokenQue.size() - 1)
+            return mActiveTokenState->tokenQue[nextTokenIndex].tokenID == expectedTokenID;
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    void Compiler2Pass::skipToken(void) const
+    {
+        if (mPass2TokenQuePosition < mActiveTokenState->tokenQue.size() - 1)
+        {
+            ++mPass2TokenQuePosition;
+        }
+        else
+        {
+            // no more tokens left for pass 2 processing
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, getClientGrammerName() + ":" + mSourceName
+                + ", no more tokens available for pass 2 processing" ,
+                "Compiler2Pass::skipToken");
+        }
     }
     //-----------------------------------------------------------------------
     void Compiler2Pass::replaceToken(void)
@@ -521,38 +535,84 @@ namespace Ogre {
             --mPass2TokenQuePosition;
     }
     //-----------------------------------------------------------------------
-    float Compiler2Pass::getNextTokenValue(void)
+    float Compiler2Pass::getCurrentTokenValue(void) const
     {
         // get float value from current token instruction
-        if (getNextToken().tokenID == _value_)
-            return mConstants[mPass2TokenQuePosition];
+        const TokenInst& token = getCurrentToken();
+        if ( token.tokenID == _value_)
+        {
+            std::map<size_t, float>::const_iterator i = mConstants.find(mPass2TokenQuePosition);
+            if (i != mConstants.end())
+            {
+                return i->second;
+            }
+            else
+            {
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "In " + mSourceName +
+                    ", on line " + StringConverter::toString(token.line) +
+                    ", no value was found in : >>>" + mSource->substr(token.pos, 20) +
+                            "<<<",
+                    "Compiler2Pass::getCurrentTokenValue");
+            }
+        }
         else
         {
-            const TokenInst& token = getCurrentToken();
             // if token is not for a value then throw an exception
             OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "In " + mSourceName +
-                ", Line " + StringConverter::toString(token.line) +
+                ", on line " + StringConverter::toString(token.line) +
                 ", token is not for a value.  Found: >>>" + mSource->substr(token.pos, 20) +
                         "<<<",
-                "Compiler2Pass::getNextTokenValue");
+                "Compiler2Pass::getCurrentTokenValue");
         }
     }
     //-----------------------------------------------------------------------
-    const String& Compiler2Pass::getNextTokenLabel(void)
+    const String& Compiler2Pass::getCurrentTokenLabel(void) const
     {
         // get label from current token instruction
-        if (getNextToken().tokenID == _character_)
-            return mLabels[mPass2TokenQuePosition];
+        const TokenInst& token = getCurrentToken();
+        if (token.tokenID == _character_)
+        {
+            std::map<size_t, String>::const_iterator i = mLabels.find(mPass2TokenQuePosition);
+            if (i != mLabels.end())
+            {
+                return i->second;
+            }
+            else
+            {
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "In " + mSourceName +
+                    ", on line " + StringConverter::toString(token.line) +
+                    ", no Label was found in : >>>" + mSource->substr(token.pos, 20) +
+                            "<<<",
+                    "Compiler2Pass::getCurrentTokenLabel");
+            }
+        }
         else
         {
-            const TokenInst& token = getCurrentToken();
             // if token is not for a label then throw an exception
             OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "In " + mSourceName +
-                ", Line " + StringConverter::toString(token.line) +
+                ", on line " + StringConverter::toString(token.line) +
                 ", token is not for a label.  Found: >>>" + mSource->substr(token.pos, 20) +
                         "<<<",
-                "Compiler2Pass::getNextTokenLabel");
+                "Compiler2Pass::getCurrentTokenLabel");
         }
+    }
+    //-----------------------------------------------------------------------
+    const String& Compiler2Pass::getCurrentTokenLexeme(void) const
+    {
+        // get label from current token instruction
+        const TokenInst& token = getCurrentToken();
+        if (token.tokenID < SystemTokenBase)
+            return mActiveTokenState->lexemeTokenDefinitions[token.tokenID].lexeme;
+        else
+        {
+            // if token is for system use then throw an exception
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "In " + mSourceName +
+                ", on line " + StringConverter::toString(token.line) +
+                ", token is for system use only.  Found: >>>" + mSource->substr(token.pos, 20) +
+                        "<<<",
+                "Compiler2Pass::getCurrentTokenLexeme");
+        }
+
     }
     //-----------------------------------------------------------------------
     size_t Compiler2Pass::getPass2TokenQueCount(void) const
@@ -1228,7 +1288,7 @@ namespace Ogre {
                 if (level > 0)
                 {
                     size_t subRuleID = mActiveTokenState->lexemeTokenDefinitions[tokenID].ruleID + 1;
-                    lexeme = "(" + getBNFGrammerTextFromRulePath(subRuleID, level - 1) + ")";
+                    lexeme = getBNFGrammerTextFromRulePath(subRuleID, level - 1);
                 }
                 else
                 {
@@ -1252,7 +1312,7 @@ namespace Ogre {
                 break;
             case _value_:
                 // <#> - need name of label?
-                lexeme = "<#>";
+                lexeme = "<#Number>";
                 break;
             }
         }
