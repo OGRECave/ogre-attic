@@ -258,9 +258,8 @@ void CompositorDemo::createViewports(void)
 		mCamera->lookAt(0,20,0);
 
         connectEventHandlers();
-		/// Create the postfilter effects
-		/// This will be replaced with a .compositor script as soon as the script parser is
-		/// finished.
+		/// Create a couple of hard coded postfilter effects as an example of how to do it
+		/// but the preferred method is to use compositor scripts.
 		createEffects();
     }
 //-----------------------------------------------------------------------------------
