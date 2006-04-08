@@ -8,6 +8,10 @@ fragment_program Ogre/Compositor/HDR/downscale2x2LuminenceHLSL_fp hlsl
 fragment_program Ogre/Compositor/HDR/downscale2x2LuminenceGLSL_fp glsl
 {
 	source hdr_downscale2x2luminence.glsl
+	default_params
+	{
+		param_named inRTT int 0
+	}
 }
 
 material Ogre/Compositor/HDR/Downsample2x2Luminence
@@ -70,6 +74,10 @@ fragment_program Ogre/Compositor/HDR/downscale3x3HLSL_fp hlsl
 fragment_program Ogre/Compositor/HDR/downscale3x3GLSL_fp glsl
 {
 	source hdr_downscale3x3.glsl
+	default_params
+	{
+		param_named inRTT int 0
+	}
 }
 
 
@@ -139,6 +147,11 @@ fragment_program Ogre/Compositor/HDR/downscale3x3brightpassGLSL_fp glsl
 	source hdr_downscale3x3brightpass.glsl
 	// re-use common functions
 	attach Ogre/Compositor/HDR/utils_fp
+	default_params
+	{
+		param_named inRTT int 0
+		param_named inLum int 1
+	}
 }
 
 material Ogre/Compositor/HDR/Downsample3x3Brightpass
@@ -215,6 +228,10 @@ fragment_program Ogre/Compositor/HDR/bloomHLSL_fp hlsl
 fragment_program Ogre/Compositor/HDR/bloomGLSL_fp glsl
 {
 	source hdr_bloom.glsl
+	default_params
+	{
+		param_named inRTT int 0
+	}
 }
 material Ogre/Compositor/HDR/GaussianBloom0
 {
@@ -332,6 +349,12 @@ fragment_program Ogre/Compositor/HDR/finaltonemappingGLSL_fp glsl
 	source hdr_finalToneMapping.glsl
 	// re-use common functions
 	attach Ogre/Compositor/HDR/utils_fp
+	default_params
+	{
+		param_named inRTT int 0
+		param_named inBloom int 1
+		param_named inLum int 2
+	}
 }
 
 material Ogre/Compositor/HDR/ToneMapping
