@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreBone.h"
 #include "OgreSkeleton.h"
-#include "OgreTagPoint.h"
 
 namespace Ogre {
 
@@ -69,11 +68,10 @@ namespace Ogre {
     {
         setInitialState();
 
-        // Save inverse derived, used for mesh transform later (assumes _update() has been called by Skeleton)
-        mBindDerivedInverseTransform.makeInverseTransform(
-            _getDerivedPosition(),
-            _getDerivedScale(),
-            _getDerivedOrientation());
+        // Save inverse derived position/scale/orientation, used for calculate offset transform later
+        mBindDerivedInversePosition = - _getDerivedPosition();
+        mBindDerivedInverseScale = Vector3::UNIT_SCALE / _getDerivedScale();
+        mBindDerivedInverseOrientation = _getDerivedOrientation().Inverse();
     }
     //---------------------------------------------------------------------
     void Bone::reset(void)
@@ -91,9 +89,23 @@ namespace Ogre {
         return mManuallyControlled;
     }
     //---------------------------------------------------------------------
-    const Matrix4& Bone::_getBindingPoseInverseTransform(void) const
+    void Bone::_getOffsetTransform(Matrix4& m) const
     {
-        return mBindDerivedInverseTransform;
+        // Combine scale with binding pose inverse scale,
+        // NB just combine as equivalent axes, no shearing
+        Vector3 scale = _getDerivedScale() * mBindDerivedInverseScale;
+
+        // Combine orientation with binding pose inverse orientation
+        Quaternion rotate = _getDerivedOrientation() * mBindDerivedInverseOrientation;
+
+        // Combine position with binding pose inverse position,
+        // Note that translation is relative to scale & rotation,
+        // so first reverse transform original derived position to
+        // binding pose bone space, and then transform to current
+        // derived bone space.
+        Vector3 translate = _getDerivedPosition() + rotate * (scale * mBindDerivedInversePosition);
+
+        m.makeTransform(translate, scale, rotate);
     }
     //---------------------------------------------------------------------
     unsigned short Bone::getHandle(void) const
