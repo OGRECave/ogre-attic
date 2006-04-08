@@ -49,7 +49,7 @@ namespace Ogre {
 
         /** get the name of the BNF grammer.
         */
-        virtual const String& getClientGrammerName(void) { static const String grammerName("Material Script"); return grammerName; }
+        virtual const String& getClientGrammerName(void) const { static const String grammerName("Material Script"); return grammerName; }
         /** Compile a material script from a data stream using a specific resource group name.
         @param stream Weak reference to a data stream which is the source of the material script
         @param groupName The name of the resource group that resources which are
@@ -68,7 +68,9 @@ namespace Ogre {
 	    enum TokenID {
 		    // Terminal Tokens section
             ID_UNKOWN = 0, ID_OPENBRACE, ID_CLOSEBRACE,
-            ID_VERTEX_PROGRAM, ID_FRAGMENT_PROGRAM,
+            // GPU Program
+            ID_VERTEX_PROGRAM, ID_FRAGMENT_PROGRAM, ID_SOURCE, ID_SYNTAX, ID_ENTRY_POINT,
+            ID_PROFILES, ID_TARGET, ID_ATTACH, ID_DEFAULT_PARAMS,
             // material
             ID_MATERIAL, ID_CLONE, ID_LOD_DISTANCES, ID_RECEIVE_SHADOWS,
             ID_TRANSPARENCY_CASTS_SHADOWS, ID_SET_TEXTURE_ALIAS,
@@ -111,6 +113,8 @@ namespace Ogre {
             ID_SCROLL_X, ID_SCROLL_Y, ID_SCALE_X, ID_SCALE_Y, ID_SINE, ID_TRIANGLE,
             ID_SQUARE, ID_SAWTOOTH, ID_INVERSE_SAWTOOTH,
             ID_TRANSFORM,
+            // GPU program references
+            ID_VERTEX_PROGRAM_REF, ID_FRAGMENT_PROGRAM_REF,
 
             // general
             ID_ON, ID_OFF, ID_TRUE, ID_FALSE, ID_NONE, ID_POINT, ID_LINEAR, ID_ADD, ID_MODULATE, ID_ALPHA_BLEND,
@@ -201,8 +205,6 @@ namespace Ogre {
         // Token Actions which get called when tokens are created during parsing.
         void parseOpenBrace(void);
         void parseCloseBrace(void);
-        void parseVertexProgram(void);
-        void parseFragmentProgram(void);
         // material section Actions
         void parseMaterial(void);
         void parseLodDistances(void);
@@ -269,7 +271,11 @@ namespace Ogre {
         void parseWaveXform(void);
         void parseTransform(void);
         void parseTextureCustomParameter(void);
-
+        // GPU Program
+        void parseGPUProgram(void);
+        void parseProgramSource(void);
+        void parseProgramSyntax(void);
+        void parseProgramCustomParameter(void);
 
     	void finishProgramDefinition(void);
 
