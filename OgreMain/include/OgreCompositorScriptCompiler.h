@@ -48,7 +48,7 @@ namespace Ogre {
 
         /** get the name of the Compositor script BNF grammer.
         */
-        virtual const String& getClientGrammerName(void) { static const String grammerName("Compositor Script"); return grammerName; }
+        virtual const String& getClientGrammerName(void) const { static const String grammerName("Compositor Script"); return grammerName; }
         /** Compile a compositor script from a data stream using a specific resource group name.
         @param stream Weak reference to a data stream which is the source of the material script
         @param groupName The name of the resource group that resources which are
