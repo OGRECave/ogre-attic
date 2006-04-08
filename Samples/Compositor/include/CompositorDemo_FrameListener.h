@@ -41,6 +41,12 @@ LGPL like the rest of the engine.
 	protected:
 		int mVpWidth, mVpHeight;
 		int mLumSize[5];
+		int mBloomSize;
+		// Array params - have to pack in groups of 4 since this is how Cg generates them
+		// also prevents dependent texture read problems if ops don't require swizzle
+		float mBloomTexWeights[15][4];
+		float mBloomTexOffsetsHorz[15][4];
+		float mBloomTexOffsetsVert[15][4];
 	public:
 		HDRListener();
 		virtual ~HDRListener();

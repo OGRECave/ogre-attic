@@ -504,7 +504,7 @@ compositor HDR
 			pass render_quad
 			{
 				// Blur horizontally
-				material Ogre/Compositor/Blur1
+				material Ogre/Compositor/HDR/GaussianBloom1
 				input 0 rt_brightpass
 				identifier 701
 			}
@@ -515,7 +515,7 @@ compositor HDR
 			pass render_quad
 			{
 				// Blur horizontally
-				material Ogre/Compositor/Blur0
+				material Ogre/Compositor/HDR/GaussianBloom0
 				input 0 rt_bloom1
 				identifier 700
 			}
