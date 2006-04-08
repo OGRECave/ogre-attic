@@ -240,7 +240,7 @@ void CompositorDemo::createViewports(void)
 		n5->attachObject(pSys2);
 
 
-		mSceneMgr->setSkyBox(true, "Examples/CloudyNoonSkyBox");
+		mSceneMgr->setSkyBox(true, "Examples/MorningSkyBox");
 
 
 		Ogre::Plane plane;

@@ -40,7 +40,7 @@ LGPL like the rest of the engine.
 	{
 	protected:
 		int mVpWidth, mVpHeight;
-		int mLum4Width, mLum4Height;
+		int mLumSize[5];
 	public:
 		HDRListener();
 		virtual ~HDRListener();

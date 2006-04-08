@@ -1,0 +1,159 @@
+// Downsample a 2x2 area & turn into luminence (unclamped)
+fragment_program Ogre/Compositor/HDR/downscale2x2Luminence_fp cg
+{
+	source hdr.cg
+	entry_point downscale2x2Luminence
+	profiles ps_2_0 arbfp1
+}
+
+material Ogre/Compositor/HDR/Downsample2x2Luminence
+{
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+			cull_software none
+			depth_check off
+
+			vertex_program_ref Ogre/Compositor/StdQuad_Tex2a_vp
+			{
+			}
+			fragment_program_ref Ogre/Compositor/HDR/downscale2x2Luminence_fp
+			{
+			}
+
+			texture_unit
+			{
+                tex_coord_set 0
+				tex_address_mode clamp
+				filtering none 
+			}
+		}
+	}
+}
+
+// Downsample a 3x3 area
+fragment_program Ogre/Compositor/HDR/downscale3x3_fp cg
+{
+	source hdr.cg
+	entry_point downscale3x3
+	profiles ps_2_0 arbfp1
+}
+
+
+material Ogre/Compositor/HDR/Downsample3x3
+{
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+			cull_software none
+			depth_check off
+
+			vertex_program_ref Ogre/Compositor/StdQuad_Tex2a_vp
+			{
+			}
+			fragment_program_ref Ogre/Compositor/HDR/downscale3x3_fp
+			{
+			}
+
+			texture_unit
+			{
+                tex_coord_set 0
+				tex_address_mode clamp
+				filtering none 
+			}
+		}
+	}
+}
+
+// Downsample a 3x3 area and perform a brightness filter pass
+fragment_program Ogre/Compositor/HDR/downscale3x3brightpass_fp cg
+{
+	source hdr.cg
+	entry_point downscale3x3brightpass
+	profiles ps_2_0 arbfp1
+}
+
+material Ogre/Compositor/HDR/Downsample3x3Brightpass
+{
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+			cull_software none
+			depth_check off
+
+			vertex_program_ref Ogre/Compositor/StdQuad_Tex2a_vp
+			{
+			}
+			fragment_program_ref Ogre/Compositor/HDR/downscale3x3brightpass_fp
+			{
+			}
+
+			// Scene 
+			texture_unit
+			{
+                tex_coord_set 0
+				tex_address_mode clamp
+				filtering none 
+			}
+			// Luminence 
+			texture_unit
+			{
+				tex_address_mode clamp
+				filtering none 
+			}
+		}
+	}
+}
+
+// Perform final tone mapping
+fragment_program Ogre/Compositor/HDR/finaltonemapping_fp cg
+{
+	source hdr.cg
+	entry_point finalToneMapping
+	profiles ps_2_0 arbfp1
+}
+
+material Ogre/Compositor/HDR/ToneMapping
+{
+	technique
+	{
+		pass
+		{
+			cull_hardware none
+			cull_software none
+			depth_check off
+
+			vertex_program_ref Ogre/Compositor/StdQuad_Tex2a_vp
+			{
+			}
+			fragment_program_ref Ogre/Compositor/HDR/finaltonemapping_fp
+			{
+			}
+
+			// Scene 
+			texture_unit
+			{
+                tex_coord_set 0
+				tex_address_mode clamp
+			}
+			// Bloom
+			texture_unit
+			{
+				tex_address_mode clamp
+			}
+			// Luminence 
+			texture_unit
+			{
+				tex_address_mode clamp
+			}
+		}
+	}
+}
+
+

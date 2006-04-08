@@ -93,11 +93,11 @@ LGPL like the rest of the engine.
 		{
 			Ogre::CompositionTechnique::TextureDefinition* def = 
 				defIter.getNext();
-			if (def->name == "rt_lum4")
+			// store the sizes of downscaled textures (size can be tweaked in script)
+			if (Ogre::StringUtil::startsWith(def->name, "rt_lum", false))
 			{
-				mLum4Width = def->width;
-				mLum4Height = def->height;
-				break;
+				int idx = Ogre::StringConverter::parseInt(def->name.substr(6,1));
+				mLumSize[idx] = def->width; // should be square
 			}
 		}
 	}
@@ -107,16 +107,21 @@ LGPL like the rest of the engine.
 		// Prepare the fragment params offsets
 		switch(pass_id)
 		{
-		case 994: // rt_lum4
-			break;
+		//case 994: // rt_lum4
 		case 993: // rt_lum3
-			break;
 		case 992: // rt_lum2
-			break;
 		case 991: // rt_lum1
-			break;
 		case 990: // rt_lum0
+		{
+			// Need to set the texel size
+			// Set from source, which is the one higher in the chain
+			Ogre::uint32 idx = pass_id - 990 + 1;
+			float texelSize = 1.0f / (float)mLumSize[idx];
+			Ogre::GpuProgramParametersSharedPtr fparams = 
+				mat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
+			fparams->setNamedConstant("texelSize", texelSize);
 			break;
+		}
 		case 800: // rt_brightpass
 			break;
 		case 701: // rt_bloom1
