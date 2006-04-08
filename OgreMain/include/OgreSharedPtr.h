@@ -51,37 +51,51 @@ namespace Ogre {
 			@remarks
 				<b>Dangerous!</b> You have to call bind() before using the SharedPtr.
 		*/
-		SharedPtr() : pRep(0), pUseCount(0) {}
-		explicit SharedPtr(T* rep) : pRep(rep), pUseCount(new unsigned int(1)) 
+		SharedPtr() : pRep(0), pUseCount(0)
+        {
+            OGRE_SET_AUTO_SHARED_MUTEX_NULL
+        }
+
+		explicit SharedPtr(T* rep) : pRep(rep), pUseCount(new unsigned int(1))
 		{
+            OGRE_SET_AUTO_SHARED_MUTEX_NULL
 			OGRE_NEW_AUTO_SHARED_MUTEX
 		}
-		SharedPtr(const SharedPtr& r) 
+		SharedPtr(const SharedPtr& r)
+            : pRep(0), pUseCount(0)
 		{
 			// lock & copy other mutex pointer
-			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
-			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
-			pRep = r.pRep;
-			pUseCount = r.pUseCount; 
-			// Handle zero pointer gracefully to manage STL containers
-			if(pUseCount)
-			{
-				++(*pUseCount); 
-			}
+            
+            OGRE_SET_AUTO_SHARED_MUTEX_NULL
+            OGRE_MUTEX_CONDITIONAL(r.OGRE_AUTO_MUTEX_NAME)
+            {
+			    OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			    OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+			    pRep = r.pRep;
+			    pUseCount = r.pUseCount; 
+			    // Handle zero pointer gracefully to manage STL containers
+			    if(pUseCount)
+			    {
+				    ++(*pUseCount); 
+			    }
+            }
 		}
 		SharedPtr& operator=(const SharedPtr& r) {
 			if (pRep == r.pRep)
 				return *this;
 			release();
 			// lock & copy other mutex pointer
-			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
-			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
-			pRep = r.pRep;
-			pUseCount = r.pUseCount;
-			if (pUseCount)
-			{
-				++(*pUseCount);
-			}
+            OGRE_MUTEX_CONDITIONAL(r.OGRE_AUTO_MUTEX_NAME)
+            {
+			    OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			    OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+			    pRep = r.pRep;
+			    pUseCount = r.pUseCount;
+			    if (pUseCount)
+			    {
+				    ++(*pUseCount);
+			    }
+            }
 			return *this;
 		}
 		virtual ~SharedPtr() {
@@ -99,14 +113,14 @@ namespace Ogre {
 		*/
 		void bind(T* rep) {
 			assert(!pRep && !pUseCount);
-			OGRE_NEW_AUTO_SHARED_MUTEX
+            OGRE_NEW_AUTO_SHARED_MUTEX
 			OGRE_LOCK_AUTO_SHARED_MUTEX
 			pUseCount = new unsigned int(1);
 			pRep = rep;
 		}
 
-		inline bool unique() const { assert(pUseCount); OGRE_LOCK_AUTO_SHARED_MUTEX return *pUseCount == 1; }
-		inline unsigned int useCount() const { assert(pUseCount); OGRE_LOCK_AUTO_SHARED_MUTEX return *pUseCount; }
+		inline bool unique() const { OGRE_LOCK_AUTO_SHARED_MUTEX assert(pUseCount); return *pUseCount == 1; }
+		inline unsigned int useCount() const { OGRE_LOCK_AUTO_SHARED_MUTEX assert(pUseCount); return *pUseCount; }
 		inline unsigned int* useCountPointer() const { return pUseCount; }
 
 		inline T* getPointer() const { return pRep; }
@@ -120,14 +134,20 @@ namespace Ogre {
 				release();
 				pRep = 0;
 				pUseCount = 0;
-				OGRE_COPY_AUTO_SHARED_MUTEX(0)
 			}
         }
 
     protected:
 
-        inline void release(void) {
+        inline void release(void)
+        {
 			bool destroyThis = false;
+
+            /* If the mutex is not initialized to a non-zero value, then
+               neither is pUseCount nor pRep.
+             */
+
+            OGRE_MUTEX_CONDITIONAL(OGRE_AUTO_MUTEX_NAME)
 			{
 				// lock own mutex in limited scope (must unlock before destroy)
 				OGRE_LOCK_AUTO_SHARED_MUTEX
@@ -141,6 +161,8 @@ namespace Ogre {
             }
 			if (destroyThis)
 				destroy();
+
+            OGRE_SET_AUTO_SHARED_MUTEX_NULL
         }
 
         virtual void destroy(void)
@@ -164,7 +186,8 @@ namespace Ogre {
 	{
 		return a.get() != b.get();
 	}
-
 }
+
+
 
 #endif

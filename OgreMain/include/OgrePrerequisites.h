@@ -155,10 +155,13 @@ namespace Ogre {
 		#define OGRE_LOCK_MUTEX(name) boost::recursive_mutex::scoped_lock ogrenameLock(name);
 		// like OGRE_AUTO_MUTEX but mutex held by pointer
 		#define OGRE_AUTO_SHARED_MUTEX mutable boost::recursive_mutex *OGRE_AUTO_MUTEX_NAME;
-		#define OGRE_LOCK_AUTO_SHARED_MUTEX boost::recursive_mutex::scoped_lock ogreAutoMutexLock(*OGRE_AUTO_MUTEX_NAME);
-		#define OGRE_NEW_AUTO_SHARED_MUTEX OGRE_AUTO_MUTEX_NAME = new boost::recursive_mutex();
-		#define OGRE_DELETE_AUTO_SHARED_MUTEX delete OGRE_AUTO_MUTEX_NAME;
-		#define OGRE_COPY_AUTO_SHARED_MUTEX(from) OGRE_AUTO_MUTEX_NAME = from;
+		#define OGRE_LOCK_AUTO_SHARED_MUTEX assert(OGRE_AUTO_MUTEX_NAME); boost::recursive_mutex::scoped_lock ogreAutoMutexLock(*OGRE_AUTO_MUTEX_NAME);
+		#define OGRE_NEW_AUTO_SHARED_MUTEX assert(!OGRE_AUTO_MUTEX_NAME); OGRE_AUTO_MUTEX_NAME = new boost::recursive_mutex();
+        #define OGRE_DELETE_AUTO_SHARED_MUTEX assert(OGRE_AUTO_MUTEX_NAME); delete OGRE_AUTO_MUTEX_NAME;
+		#define OGRE_COPY_AUTO_SHARED_MUTEX(from) assert(!OGRE_AUTO_MUTEX_NAME); OGRE_AUTO_MUTEX_NAME = from;
+        #define OGRE_SET_AUTO_SHARED_MUTEX_NULL OGRE_AUTO_MUTEX_NAME = 0;
+        #define OGRE_MUTEX_CONDITIONAL(mutex) if (mutex)
+
 	#else
 		#define OGRE_AUTO_MUTEX
 		#define OGRE_LOCK_AUTO_MUTEX
@@ -169,6 +172,8 @@ namespace Ogre {
 		#define OGRE_NEW_AUTO_SHARED_MUTEX
 		#define OGRE_DELETE_AUTO_SHARED_MUTEX
 		#define OGRE_COPY_AUTO_SHARED_MUTEX(from)
+        #define OGRE_SET_AUTO_SHARED_MUTEX_NULL
+        #define OGRE_MUTEX_CONDITIONAL(name)
 	#endif
 
 
