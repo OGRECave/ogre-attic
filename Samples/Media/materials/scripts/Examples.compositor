@@ -399,13 +399,13 @@ compositor HDR
 	{
         // Temporary textures
 		// Fullsize HDR render target, used as tone mapping source
-        texture rt_full target_width target_height PF_FLOAT32_RGB
+        texture rt_full target_width target_height PF_FLOAT16_RGB
 		// Targets used for luminance evaluation (3x3 downsample, point filtering)
-		texture rt_lum0 1 1 PF_FLOAT32_R
-		texture rt_lum1 4 4 PF_FLOAT32_R
-		texture rt_lum2 16 16 PF_FLOAT32_R
-		texture rt_lum3 64 64 PF_FLOAT32_R
-		texture rt_lum4 128 128 PF_FLOAT32_R
+		texture rt_lum0 1 1 PF_FLOAT16_RGB
+		texture rt_lum1 4 4 PF_FLOAT16_RGB
+		texture rt_lum2 16 16 PF_FLOAT16_RGB
+		texture rt_lum3 64 64 PF_FLOAT16_RGB
+		texture rt_lum4 128 128 PF_FLOAT16_RGB
 		// Bright-pass filtered target (tone mapped)
 		texture rt_brightpass 128 128 PF_R8G8B8		
 		// Bloom filter targets 
