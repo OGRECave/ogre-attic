@@ -565,7 +565,7 @@ namespace Ogre {
 		// Create new program definition-in-progress
 		mScriptContext.programDef = new MaterialScriptProgramDefinition();
 		mScriptContext.programDef->progType =
-            (getCurrentToken().tokenID == ID_VERTEX_PROGRAM) ? GPT_VERTEX_PROGRAM : GPT_FRAGMENT_PROGRAM;
+            (getCurrentTokenID() == ID_VERTEX_PROGRAM) ? GPT_VERTEX_PROGRAM : GPT_FRAGMENT_PROGRAM;
         mScriptContext.programDef->supportsSkeletalAnimation = false;
 		mScriptContext.programDef->supportsMorphAnimation = false;
 		mScriptContext.programDef->supportsPoseAnimation = 0;
@@ -573,9 +573,8 @@ namespace Ogre {
 		// Get name and language code
 		// Name, preserve case
 		mScriptContext.programDef->name = getNextTokenLabel();
-		// language code, make lower case
+		// language code - lexeme is already lower case
 		mScriptContext.programDef->language = getNextTokenLexeme();
-		StringUtil::toLowerCase(mScriptContext.programDef->language);
 	}
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseProgramSource(void)
