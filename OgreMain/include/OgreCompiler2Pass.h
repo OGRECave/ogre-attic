@@ -140,7 +140,8 @@ namespace Ogre {
             _no_token_ = SystemTokenBase,
             _character_,
             _value_,
-            _no_space_skip_
+            _no_space_skip_,
+            _insert_token_
         };
 
 	    enum BNF_ID {BNF_UNKOWN = 0,
