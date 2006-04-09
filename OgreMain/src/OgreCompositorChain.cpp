@@ -26,6 +26,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCompositorChain.h"
 #include "OgreCompositionTechnique.h"
 #include "OgreCompositorInstance.h"
+#include "OgreCompositionTargetPass.h"
+#include "OgreCompositionPass.h"
 #include "OgreViewport.h"
 #include "OgreCamera.h"
 #include "OgreRenderTarget.h"
@@ -188,6 +190,11 @@ void CompositorChain::preViewportUpdate(const RenderTargetViewportEvent& evt)
 	// Only set up if there is at least one compositor enabled, and it's this viewport
     if(evt.source != mViewport || !mAnyCompositorsEnabled)
         return;
+
+	// set original scene details from viewport
+	CompositionPass* pass = mOriginalScene->getTechnique()->getOutputTargetPass()->getPass(0);
+	pass->setClearBuffers(mViewport->getClearBuffers());
+	pass->setClearColour(mViewport->getBackgroundColour());
 
 	Camera *cam = mViewport->getCamera();
 	/// Prepare for output operation
