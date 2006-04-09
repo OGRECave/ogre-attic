@@ -321,7 +321,7 @@ namespace Ogre {
         mFogParams.x = expDensity;
         mFogParams.y = linearStart;
         mFogParams.z = linearEnd;
-        mFogParams.w = 1 / (linearEnd - linearStart);
+        mFogParams.w = linearEnd != linearStart ? 1 / (linearEnd - linearStart) : 0;
     }
     //-----------------------------------------------------------------------------
     const ColourValue& AutoParamDataSource::getFogColour(void) const
