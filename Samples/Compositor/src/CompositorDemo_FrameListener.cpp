@@ -661,7 +661,13 @@ LGPL like the rest of the engine.
                 continue;
 
             mCompositorSelectorViewManager->addItemSelector(compositorName);
-            Ogre::CompositorInstance *instance = Ogre::CompositorManager::getSingleton().addCompositor(vp, compositorName);
+			int addPosition = -1;
+			if (compositorName == "HDR")
+			{
+				// HDR must be first in the chain
+				addPosition = 0;
+			}
+            Ogre::CompositorInstance *instance = Ogre::CompositorManager::getSingleton().addCompositor(vp, compositorName, addPosition);
             Ogre::CompositorManager::getSingleton().setCompositorEnabled(vp, compositorName, false);
             // special handling for Heat Vision which uses a listener
             if(instance && (compositorName == "Heat Vision"))
