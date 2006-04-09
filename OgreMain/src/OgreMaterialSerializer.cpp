@@ -36,7 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHighLevelGpuProgramManager.h"
 #include "OgreExternalTextureSourceManager.h"
 
-namespace Ogre 
+namespace Ogre
 {
 
     //-----------------------------------------------------------------------
@@ -48,7 +48,7 @@ namespace Ogre
         if (context.filename.empty() && !context.material.isNull())
         {
             LogManager::getSingleton().logMessage(
-                "Error in material " + context.material->getName() + 
+                "Error in material " + context.material->getName() +
                 " : " + error);
         }
         else
@@ -57,13 +57,13 @@ namespace Ogre
             {
                 LogManager::getSingleton().logMessage(
                     "Error in material " + context.material->getName() +
-                    " at line " + StringConverter::toString(context.lineNo) + 
+                    " at line " + StringConverter::toString(context.lineNo) +
                     " of " + context.filename + ": " + error);
             }
             else
             {
                 LogManager::getSingleton().logMessage(
-                    "Error at line " + StringConverter::toString(context.lineNo) + 
+                    "Error at line " + StringConverter::toString(context.lineNo) +
                     " of " + context.filename + ": " + error);
             }
         }
@@ -103,25 +103,25 @@ namespace Ogre
     bool parseAmbient(String& params, MaterialScriptContext& context)
     {
         StringVector vecparams = StringUtil::split(params, " \t");
-        // Must be 1, 3 or 4 parameters 
+        // Must be 1, 3 or 4 parameters
         if (vecparams.size() == 1) {
             if(vecparams[0] == "vertexcolour") {
                context.pass->setVertexColourTracking(context.pass->getVertexColourTracking() | TVC_AMBIENT);
             } else {
                 logParseError(
-                    "Bad ambient attribute, single parameter flag must be 'vertexcolour'", 
+                    "Bad ambient attribute, single parameter flag must be 'vertexcolour'",
                     context);
             }
-        } 
+        }
         else if (vecparams.size() == 3 || vecparams.size() == 4)
         {
             context.pass->setAmbient( _parseColourValue(vecparams) );
             context.pass->setVertexColourTracking(context.pass->getVertexColourTracking() & ~TVC_AMBIENT);
         }
-        else 
+        else
         {
             logParseError(
-                "Bad ambient attribute, wrong number of parameters (expected 1, 3 or 4)", 
+                "Bad ambient attribute, wrong number of parameters (expected 1, 3 or 4)",
                 context);
         }
         return false;
@@ -130,13 +130,13 @@ namespace Ogre
     bool parseDiffuse(String& params, MaterialScriptContext& context)
     {
         StringVector vecparams = StringUtil::split(params, " \t");
-        // Must be 1, 3 or 4 parameters 
+        // Must be 1, 3 or 4 parameters
         if (vecparams.size() == 1) {
             if(vecparams[0] == "vertexcolour") {
                context.pass->setVertexColourTracking(context.pass->getVertexColourTracking() | TVC_DIFFUSE);
             } else {
                 logParseError(
-                    "Bad diffuse attribute, single parameter flag must be 'vertexcolour'", 
+                    "Bad diffuse attribute, single parameter flag must be 'vertexcolour'",
                     context);
             }
         }
@@ -148,7 +148,7 @@ namespace Ogre
         else
         {
             logParseError(
-                "Bad diffuse attribute, wrong number of parameters (expected 1, 3 or 4)", 
+                "Bad diffuse attribute, wrong number of parameters (expected 1, 3 or 4)",
                 context);
         }        return false;
     }
@@ -156,9 +156,9 @@ namespace Ogre
     bool parseSpecular(String& params, MaterialScriptContext& context)
     {
         StringVector vecparams = StringUtil::split(params, " \t");
-        // Must be 2, 4 or 5 parameters 
-        if(vecparams.size() == 2) 
-        {   
+        // Must be 2, 4 or 5 parameters
+        if(vecparams.size() == 2)
+        {
             if(vecparams[0] == "vertexcolour") {
                 context.pass->setVertexColourTracking(context.pass->getVertexColourTracking() | TVC_SPECULAR);
                 context.pass->setShininess(StringConverter::parseReal(vecparams[1]) );
@@ -166,23 +166,23 @@ namespace Ogre
             else
             {
                 logParseError(
-                    "Bad specular attribute, double parameter statement must be 'vertexcolour <shininess>'", 
+                    "Bad specular attribute, double parameter statement must be 'vertexcolour <shininess>'",
                     context);
             }
-        } 
-        else if(vecparams.size() == 4 || vecparams.size() == 5) 
+        }
+        else if(vecparams.size() == 4 || vecparams.size() == 5)
         {
             context.pass->setSpecular(
-                StringConverter::parseReal(vecparams[0]), 
-                StringConverter::parseReal(vecparams[1]), 
-                StringConverter::parseReal(vecparams[2]), 
-                vecparams.size() == 5? 
+                StringConverter::parseReal(vecparams[0]),
+                StringConverter::parseReal(vecparams[1]),
+                StringConverter::parseReal(vecparams[2]),
+                vecparams.size() == 5?
                     StringConverter::parseReal(vecparams[3]) : 1.0f);
             context.pass->setVertexColourTracking(context.pass->getVertexColourTracking() & ~TVC_SPECULAR);
             context.pass->setShininess(
                 StringConverter::parseReal(vecparams[vecparams.size() - 1]) );
         }
-        else 
+        else
         {
             logParseError(
                 "Bad specular attribute, wrong number of parameters (expected 2, 4 or 5)",
@@ -194,13 +194,13 @@ namespace Ogre
     bool parseEmissive(String& params, MaterialScriptContext& context)
     {
         StringVector vecparams = StringUtil::split(params, " \t");
-        // Must be 1, 3 or 4 parameters 
+        // Must be 1, 3 or 4 parameters
         if (vecparams.size() == 1) {
             if(vecparams[0] == "vertexcolour") {
                context.pass->setVertexColourTracking(context.pass->getVertexColourTracking() | TVC_EMISSIVE);
             } else {
                 logParseError(
-                    "Bad emissive attribute, single parameter flag must be 'vertexcolour'", 
+                    "Bad emissive attribute, single parameter flag must be 'vertexcolour'",
                     context);
             }
         }
@@ -212,7 +212,7 @@ namespace Ogre
         else
         {
             logParseError(
-                "Bad emissive attribute, wrong number of parameters (expected 1, 3 or 4)", 
+                "Bad emissive attribute, wrong number of parameters (expected 1, 3 or 4)",
                 context);
         }
         return false;
@@ -252,7 +252,7 @@ namespace Ogre
     {
         StringUtil::toLowerCase(params);
         StringVector vecparams = StringUtil::split(params, " \t");
-        // Should be 1 or 2 params 
+        // Should be 1 or 2 params
         if (vecparams.size() == 1)
         {
             //simple
@@ -294,7 +294,7 @@ namespace Ogre
         else
         {
             logParseError(
-                "Bad scene_blend attribute, wrong number of parameters (expected 1 or 2)", 
+                "Bad scene_blend attribute, wrong number of parameters (expected 1 or 2)",
                 context);
         }
 
@@ -334,7 +334,7 @@ namespace Ogre
             context.pass->setDepthCheckEnabled(false);
         else
             logParseError(
-            "Bad depth_check attribute, valid parameters are 'on' or 'off'.", 
+            "Bad depth_check attribute, valid parameters are 'on' or 'off'.",
             context);
 
         return false;
@@ -349,7 +349,7 @@ namespace Ogre
             context.pass->setDepthWriteEnabled(false);
         else
             logParseError(
-                "Bad depth_write attribute, valid parameters are 'on' or 'off'.", 
+                "Bad depth_write attribute, valid parameters are 'on' or 'off'.",
                 context);
         return false;
     }
@@ -379,7 +379,7 @@ namespace Ogre
             context.pass->setColourWriteEnabled(false);
         else
             logParseError(
-                "Bad colour_write attribute, valid parameters are 'on' or 'off'.", 
+                "Bad colour_write attribute, valid parameters are 'on' or 'off'.",
                 context);
         return false;
     }
@@ -484,7 +484,7 @@ namespace Ogre
             {
                 parseIterationLightTypes(vecparams[1], context);
             }
-            else 
+            else
             {
                 context.pass->setIteratePerLight(true, false);
             }
@@ -504,7 +504,7 @@ namespace Ogre
                         {
                             parseIterationLightTypes(vecparams[2], context);
                         }
-                        else 
+                        else
                         {
                             context.pass->setIteratePerLight(true, false);
                         }
@@ -556,8 +556,8 @@ namespace Ogre
 		{
 			if (vecparams.size() == 4)
 			{
-				context.pass->setPointAttenuation(true, 
-					StringConverter::parseReal(vecparams[1]), 
+				context.pass->setPointAttenuation(true,
+					StringConverter::parseReal(vecparams[1]),
 					StringConverter::parseReal(vecparams[2]),
 					StringConverter::parseReal(vecparams[3]));
 			}
@@ -566,7 +566,7 @@ namespace Ogre
 				context.pass->setPointAttenuation(true);
 			}
 		}
-		
+
 		return false;
 	}
     //-----------------------------------------------------------------------
@@ -632,7 +632,7 @@ namespace Ogre
             context.pass->setFog(false);
         else
             logParseError(
-                "Bad fog_override attribute, valid parameters are 'true' or 'false'.", 
+                "Bad fog_override attribute, valid parameters are 'true' or 'false'.",
                 context);
 
         return false;
@@ -674,7 +674,7 @@ namespace Ogre
     {
         StringUtil::toLowerCase(params);
         StringVector vecparams = StringUtil::split(params, " \t");
-        // Must be 1 or 3 parameters 
+        // Must be 1 or 3 parameters
         if (vecparams.size() == 1)
         {
             // Simple format
@@ -697,8 +697,8 @@ namespace Ogre
         {
             // Complex format
             context.textureUnit->setTextureFiltering(
-                convertFiltering(vecparams[0]), 
-                convertFiltering(vecparams[1]), 
+                convertFiltering(vecparams[0]),
+                convertFiltering(vecparams[1]),
                 convertFiltering(vecparams[2]));
 
 
@@ -706,7 +706,7 @@ namespace Ogre
         else
         {
             logParseError(
-                "Bad filtering attribute, wrong number of parameters (expected 1 or 3)", 
+                "Bad filtering attribute, wrong number of parameters (expected 1 or 3)",
                 context);
         }
 
@@ -720,7 +720,7 @@ namespace Ogre
         const size_t numParams = vecparams.size();
         if (numParams > 4)
         {
-            logParseError("Invalid texture attribute - expected only 1, 2, 3 or 4 parameters.", 
+            logParseError("Invalid texture attribute - expected only 1, 2, 3 or 4 parameters.",
                 context);
         }
         TextureType tt = TEX_TYPE_2D;
@@ -744,7 +744,7 @@ namespace Ogre
             else if (vecparams[p] == "cubic")
             {
                 tt = TEX_TYPE_CUBE_MAP;
-            }  
+            }
 			else if (vecparams[p] == "unlimited")
 			{
 				mips = MIP_UNLIMITED;
@@ -759,7 +759,7 @@ namespace Ogre
 			}
 			else
 			{
-				logParseError("Invalid texture option - "+vecparams[p]+".", 
+				logParseError("Invalid texture option - "+vecparams[p]+".",
                 context);
 			}
         }
@@ -784,16 +784,16 @@ namespace Ogre
         {
             // First form using base name & number of frames
             context.textureUnit->setAnimatedTextureName(
-                vecparams[0], 
-                StringConverter::parseInt(vecparams[1]), 
+                vecparams[0],
+                StringConverter::parseInt(vecparams[1]),
                 StringConverter::parseReal(vecparams[2]));
         }
         else
         {
             // Second form using individual names
             context.textureUnit->setAnimatedTextureName(
-                (String*)&vecparams[0], 
-                numParams-1, 
+                (String*)&vecparams[0],
+                numParams-1,
                 StringConverter::parseReal(vecparams[numParams-1]));
         }
         return false;
@@ -835,7 +835,7 @@ namespace Ogre
         else
         {
             logParseError(
-                "Bad cubic_texture attribute, wrong number of parameters (expected 2 or 7)", 
+                "Bad cubic_texture attribute, wrong number of parameters (expected 2 or 7)",
                 context);
             return false;
         }
@@ -874,7 +874,7 @@ namespace Ogre
 
         StringVector vecparams = StringUtil::split(params, " \t");
         size_t numParams = vecparams.size();
-		
+
 		if (numParams > 3 || numParams < 1)
 		{
 			logParseError("Invalid number of parameters to tex_address_mode"
@@ -886,7 +886,7 @@ namespace Ogre
 			context.textureUnit->setTextureAddressingMode(
 				convTexAddressMode(vecparams[0], context));
 		}
-		else 
+		else
 		{
 			// 2-3 parameter option
 			TextureUnitState::UVWAddressingMode uvw;
@@ -909,15 +909,15 @@ namespace Ogre
     bool parseTexBorderColour(String& params, MaterialScriptContext& context)
     {
         StringVector vecparams = StringUtil::split(params, " \t");
-        // Must be 3 or 4 parameters 
+        // Must be 3 or 4 parameters
         if (vecparams.size() == 3 || vecparams.size() == 4)
         {
             context.textureUnit->setTextureBorderColour( _parseColourValue(vecparams) );
         }
-        else 
+        else
         {
             logParseError(
-                "Bad tex_border_colour attribute, wrong number of parameters (expected 3 or 4)", 
+                "Bad tex_border_colour attribute, wrong number of parameters (expected 3 or 4)",
                 context);
         }
         return false;
@@ -948,7 +948,7 @@ namespace Ogre
         if (vecparams.size() != 2)
         {
             logParseError(
-                "Bad alpha_rejection attribute, wrong number of parameters (expected 2)", 
+                "Bad alpha_rejection attribute, wrong number of parameters (expected 2)",
                 context);
             return false;
         }
@@ -1029,7 +1029,7 @@ namespace Ogre
         if (numParams < 3 || numParams > 10)
         {
             logParseError(
-                "Bad colour_op_ex attribute, wrong number of parameters (expected 3 to 10)", 
+                "Bad colour_op_ex attribute, wrong number of parameters (expected 3 to 10)",
                 context);
             return false;
         }
@@ -1140,7 +1140,7 @@ namespace Ogre
         }
         catch (Exception& e)
         {
-            logParseError("Bad colour_op_multipass_fallback attribute, " 
+            logParseError("Bad colour_op_multipass_fallback attribute, "
                 + e.getFullDescription(), context);
         }
         return false;
@@ -1185,7 +1185,7 @@ namespace Ogre
                 if (numParams < parIndex)
                 {
                     logParseError(
-                        "Bad alpha_op_ex attribute, wrong number of parameters (expected " + 
+                        "Bad alpha_op_ex attribute, wrong number of parameters (expected " +
                         StringConverter::toString(parIndex - 1) + ")", context);
                     return false;
                 }
@@ -1251,10 +1251,10 @@ namespace Ogre
             return false;
         }
         context.textureUnit->setTextureScroll(
-            StringConverter::parseReal(vecparams[0]), 
+            StringConverter::parseReal(vecparams[0]),
             StringConverter::parseReal(vecparams[1]));
 
-    
+
         return false;
     }
     //-----------------------------------------------------------------------
@@ -1268,7 +1268,7 @@ namespace Ogre
             return false;
         }
         context.textureUnit->setScrollAnimation(
-            StringConverter::parseReal(vecparams[0]), 
+            StringConverter::parseReal(vecparams[0]),
             StringConverter::parseReal(vecparams[1]));
 
         return false;
@@ -1299,7 +1299,7 @@ namespace Ogre
             return false;
         }
         context.textureUnit->setTextureScale(
-            StringConverter::parseReal(vecparams[0]), 
+            StringConverter::parseReal(vecparams[0]),
             StringConverter::parseReal(vecparams[1]));
 
         return false;
@@ -1354,11 +1354,11 @@ namespace Ogre
         }
 
         context.textureUnit->setTransformAnimation(
-            ttype, 
-            waveType, 
-            StringConverter::parseReal(vecparams[2]), 
+            ttype,
+            waveType,
+            StringConverter::parseReal(vecparams[2]),
             StringConverter::parseReal(vecparams[3]),
-            StringConverter::parseReal(vecparams[4]), 
+            StringConverter::parseReal(vecparams[4]),
             StringConverter::parseReal(vecparams[5]) );
 
         return false;
@@ -1373,21 +1373,21 @@ namespace Ogre
 			return false;
 		}
 		Matrix4 xform(
-			StringConverter::parseReal(vecparams[0]), 
-			StringConverter::parseReal(vecparams[1]), 
-			StringConverter::parseReal(vecparams[2]), 
-			StringConverter::parseReal(vecparams[3]), 
-			StringConverter::parseReal(vecparams[4]), 
-			StringConverter::parseReal(vecparams[5]), 
-			StringConverter::parseReal(vecparams[6]), 
-			StringConverter::parseReal(vecparams[7]), 
-			StringConverter::parseReal(vecparams[8]), 
-			StringConverter::parseReal(vecparams[9]), 
-			StringConverter::parseReal(vecparams[10]), 
-			StringConverter::parseReal(vecparams[11]), 
-			StringConverter::parseReal(vecparams[12]), 
-			StringConverter::parseReal(vecparams[13]), 
-			StringConverter::parseReal(vecparams[14]), 
+			StringConverter::parseReal(vecparams[0]),
+			StringConverter::parseReal(vecparams[1]),
+			StringConverter::parseReal(vecparams[2]),
+			StringConverter::parseReal(vecparams[3]),
+			StringConverter::parseReal(vecparams[4]),
+			StringConverter::parseReal(vecparams[5]),
+			StringConverter::parseReal(vecparams[6]),
+			StringConverter::parseReal(vecparams[7]),
+			StringConverter::parseReal(vecparams[8]),
+			StringConverter::parseReal(vecparams[9]),
+			StringConverter::parseReal(vecparams[10]),
+			StringConverter::parseReal(vecparams[11]),
+			StringConverter::parseReal(vecparams[12]),
+			StringConverter::parseReal(vecparams[13]),
+			StringConverter::parseReal(vecparams[14]),
 			StringConverter::parseReal(vecparams[15]) );
 		context.textureUnit->setTextureTransform(xform);
 
@@ -1463,10 +1463,10 @@ namespace Ogre
     }
 
     //-----------------------------------------------------------------------
-    void processManualProgramParam(size_t index, const String& commandname, 
+    void processManualProgramParam(size_t index, const String& commandname,
         StringVector& vecparams, MaterialScriptContext& context)
     {
-        // NB we assume that the first element of vecparams is taken up with either 
+        // NB we assume that the first element of vecparams is taken up with either
         // the index or the parameter name, which we ignore
 
         // Determine type
@@ -1551,7 +1551,7 @@ namespace Ogre
             // Fill up to multiple of 4 with zero
             for (; i < roundedDims; ++i)
             {
-                realBuffer[i] = 0.0f; 
+                realBuffer[i] = 0.0f;
 
             }
 
@@ -1567,14 +1567,14 @@ namespace Ogre
                     );
                 context.programParams->setConstant(index, m4x4);
             }
-            else 
+            else
             {
                 // Set
                 context.programParams->setConstant(index, realBuffer, roundedDims * 0.25);
 
             }
 
-            
+
             delete [] realBuffer;
             // log the parameter
             context.programParams->addConstantDefinition(paramName, index, dims, GpuProgramParameters::ET_REAL);
@@ -1600,10 +1600,10 @@ namespace Ogre
         }
     }
     //-----------------------------------------------------------------------
-    void processAutoProgramParam(size_t index, const String& commandname, 
+    void processAutoProgramParam(size_t index, const String& commandname,
         StringVector& vecparams, MaterialScriptContext& context)
     {
-        // NB we assume that the first element of vecparams is taken up with either 
+        // NB we assume that the first element of vecparams is taken up with either
         // the index or the parameter name, which we ignore
 
         // make sure param is in lower case
@@ -1664,7 +1664,7 @@ namespace Ogre
                     {
                         factor = StringConverter::parseReal(vecparams[2]);
                     }
-                    
+
                     context.programParams->setAutoConstantReal(index, autoConstantDef->acType, factor);
                 }
                 else // normal processing for auto constants that take an extra real value
@@ -1694,7 +1694,7 @@ namespace Ogre
         size_t autoIndex = context.programParams->getAutoConstantCount() - 1;
         // setup autoState which will allocate the proper amount of storage required by constant entries
         context.programParams->setConstantDefinitionAutoState(constantIndex, true, autoIndex);
-        
+
     }
 
     //-----------------------------------------------------------------------
@@ -1710,7 +1710,7 @@ namespace Ogre
         StringVector vecparams = StringUtil::split(params, " \t");
         if (vecparams.size() < 3)
         {
-            logParseError("Invalid param_indexed attribute - expected at least 3 parameters.", 
+            logParseError("Invalid param_indexed attribute - expected at least 3 parameters.",
                 context);
             return false;
         }
@@ -1735,7 +1735,7 @@ namespace Ogre
         StringVector vecparams = StringUtil::split(params, " \t");
         if (vecparams.size() != 2 && vecparams.size() != 3)
         {
-            logParseError("Invalid param_indexed_auto attribute - expected 2 or 3 parameters.", 
+            logParseError("Invalid param_indexed_auto attribute - expected 2 or 3 parameters.",
                 context);
             return false;
         }
@@ -1759,7 +1759,7 @@ namespace Ogre
         StringVector vecparams = StringUtil::split(params, " \t");
         if (vecparams.size() < 3)
         {
-            logParseError("Invalid param_named attribute - expected at least 3 parameters.", 
+            logParseError("Invalid param_named attribute - expected at least 3 parameters.",
                 context);
             return false;
         }
@@ -1796,7 +1796,7 @@ namespace Ogre
         StringVector vecparams = StringUtil::split(params, " \t");
         if (vecparams.size() != 2 && vecparams.size() != 3)
         {
-            logParseError("Invalid param_indexed_auto attribute - expected 2 or 3 parameters.", 
+            logParseError("Invalid param_indexed_auto attribute - expected 2 or 3 parameters.",
                 context);
             return false;
         }
@@ -1845,7 +1845,7 @@ namespace Ogre
         // get rid of leading and trailing white space from material name
         StringUtil::trim(vecparams[0]);
 
-        context.material = 
+        context.material =
 			MaterialManager::getSingleton().create(vecparams[0], context.groupName);
 
         if (!basematerial.isNull())
@@ -1901,7 +1901,7 @@ namespace Ogre
             }
 
         }
-        else 
+        else
         {
             // no name was given in the script so a new technique will be created
 		    // Increase technique level depth
@@ -2036,7 +2036,7 @@ namespace Ogre
             }
         }
 
-        // if context.program was not set then try to get the vertex program using the name 
+        // if context.program was not set then try to get the vertex program using the name
         // passed in params
         if (context.program.isNull())
         {
@@ -2044,18 +2044,18 @@ namespace Ogre
             if (context.program.isNull())
             {
                 // Unknown program
-                logParseError("Invalid vertex_program_ref entry - vertex program " 
+                logParseError("Invalid vertex_program_ref entry - vertex program "
                     + params + " has not been defined.", context);
                 return true;
             }
 
-            context.isProgramShadowCaster = false;
-            context.isVertexProgramShadowReceiver = false;
-			context.isFragmentProgramShadowReceiver = false;
-            
             // Set the vertex program for this pass
             context.pass->setVertexProgram(params);
         }
+
+        context.isProgramShadowCaster = false;
+        context.isVertexProgramShadowReceiver = false;
+        context.isFragmentProgramShadowReceiver = false;
 
         // Create params? Skip this if program is not supported
         if (context.program->isSupported())
@@ -2077,7 +2077,7 @@ namespace Ogre
         if (context.program.isNull())
         {
             // Unknown program
-            logParseError("Invalid shadow_caster_vertex_program_ref entry - vertex program " 
+            logParseError("Invalid shadow_caster_vertex_program_ref entry - vertex program "
                 + params + " has not been defined.", context);
             return true;
         }
@@ -2109,11 +2109,11 @@ namespace Ogre
         if (context.program.isNull())
         {
             // Unknown program
-            logParseError("Invalid shadow_receiver_vertex_program_ref entry - vertex program " 
+            logParseError("Invalid shadow_receiver_vertex_program_ref entry - vertex program "
                 + params + " has not been defined.", context);
             return true;
         }
-        
+
 
         context.isProgramShadowCaster = false;
         context.isVertexProgramShadowReceiver = true;
@@ -2142,7 +2142,7 @@ namespace Ogre
 		if (context.program.isNull())
 		{
 			// Unknown program
-			logParseError("Invalid shadow_receiver_fragment_program_ref entry - fragment program " 
+			logParseError("Invalid shadow_receiver_fragment_program_ref entry - fragment program "
 				+ params + " has not been defined.", context);
 			return true;
 		}
@@ -2182,7 +2182,7 @@ namespace Ogre
             }
         }
 
-        // if context.program was not set then try to get the fragment program using the name 
+        // if context.program was not set then try to get the fragment program using the name
         // passed in params
         if (context.program.isNull())
         {
@@ -2190,11 +2190,11 @@ namespace Ogre
             if (context.program.isNull())
             {
                 // Unknown program
-                logParseError("Invalid fragment_program_ref entry - fragment program " 
+                logParseError("Invalid fragment_program_ref entry - fragment program "
                     + params + " has not been defined.", context);
                 return true;
             }
-            
+
             // Set the vertex program for this pass
             context.pass->setFragmentProgram(params);
         }
@@ -2268,7 +2268,7 @@ namespace Ogre
 
 		// Return TRUE because this must be followed by a {
         return true;
-	
+
 	}
     //-----------------------------------------------------------------------
     bool parseProgramSource(String& params, MaterialScriptContext& context)
@@ -2282,7 +2282,7 @@ namespace Ogre
     bool parseProgramSkeletalAnimation(String& params, MaterialScriptContext& context)
     {
         // Source filename, preserve case
-        context.programDef->supportsSkeletalAnimation 
+        context.programDef->supportsSkeletalAnimation
             = StringConverter::parseBool(params);
 
         return false;
@@ -2291,7 +2291,7 @@ namespace Ogre
 	bool parseProgramMorphAnimation(String& params, MaterialScriptContext& context)
 	{
 		// Source filename, preserve case
-		context.programDef->supportsMorphAnimation 
+		context.programDef->supportsMorphAnimation
 			= StringConverter::parseBool(params);
 
 		return false;
@@ -2300,7 +2300,7 @@ namespace Ogre
 	bool parseProgramPoseAnimation(String& params, MaterialScriptContext& context)
 	{
 		// Source filename, preserve case
-		context.programDef->supportsPoseAnimation 
+		context.programDef->supportsPoseAnimation
 			= StringConverter::parseInt(params);
 
 		return false;
@@ -2324,7 +2324,7 @@ namespace Ogre
 		if (vecparams.size() != 2)
 		{
             logParseError("Invalid custom program parameter entry; "
-				"there must be a parameter name and at least one value.", 
+				"there must be a parameter name and at least one value.",
 				context);
             return false;
 		}
@@ -2353,7 +2353,7 @@ namespace Ogre
 
 			ExternalTextureSourceManager::getSingleton().getCurrentPlugIn()->setParameter( "set_T_P_S", tps );
 		}
-			
+
         // update section
         context.section = MSS_TEXTURESOURCE;
         // Return TRUE because this must be followed by a {
@@ -2369,15 +2369,15 @@ namespace Ogre
 		if (vecparams.size() != 2)
 		{
             logParseError("Invalid texture parameter entry; "
-				"there must be a parameter name and at least one value.", 
+				"there must be a parameter name and at least one value.",
 				context);
             return false;
 		}
-		
+
 		if(	ExternalTextureSourceManager::getSingleton().getCurrentPlugIn() != 0 )
 			////First is command, next could be a string with one or more values
 			ExternalTextureSourceManager::getSingleton().getCurrentPlugIn()->setParameter( vecparams[0], vecparams[1] );
-		
+
 		return false;
 	}
     //-----------------------------------------------------------------------
@@ -2390,7 +2390,7 @@ namespace Ogre
             context.material->setReceiveShadows(false);
         else
             logParseError(
-            "Bad receive_shadows attribute, valid parameters are 'on' or 'off'.", 
+            "Bad receive_shadows attribute, valid parameters are 'on' or 'off'.",
             context);
 
         return false;
@@ -2414,7 +2414,7 @@ namespace Ogre
 			context.material->setTransparencyCastsShadows(false);
 		else
 			logParseError(
-			"Bad transparency_casts_shadows attribute, valid parameters are 'on' or 'off'.", 
+			"Bad transparency_casts_shadows attribute, valid parameters are 'on' or 'off'.",
 			context);
 
 		return false;
@@ -2510,7 +2510,7 @@ namespace Ogre
 		mProgramAttribParsers.insert(AttribParserList::value_type("includes_morph_animation", (ATTRIBUTE_PARSER)parseProgramMorphAnimation));
 		mProgramAttribParsers.insert(AttribParserList::value_type("includes_pose_animation", (ATTRIBUTE_PARSER)parseProgramPoseAnimation));
         mProgramAttribParsers.insert(AttribParserList::value_type("default_params", (ATTRIBUTE_PARSER)parseDefaultParams));
-		
+
         // Set up program default param attribute parsers
         mProgramDefaultParamAttribParsers.insert(AttribParserList::value_type("param_indexed", (ATTRIBUTE_PARSER)parseParamIndexed));
         mProgramDefaultParamAttribParsers.insert(AttribParserList::value_type("param_indexed_auto", (ATTRIBUTE_PARSER)parseParamIndexedAuto));
@@ -2554,9 +2554,9 @@ namespace Ogre
         {
             line = stream->getLine();
             mScriptContext.lineNo++;
-            
+
             // DEBUG LINE
-            // LogManager::getSingleton().logMessage("About to attempt line(#" + 
+            // LogManager::getSingleton().logMessage("About to attempt line(#" +
             //    StringConverter::toString(mScriptContext.lineNo) + "): " + line);
 
             // Ignore comments & blanks
@@ -2604,7 +2604,7 @@ namespace Ogre
             else
             {
                 // find & invoke a parser
-                return invokeParser(line, mRootAttribParsers); 
+                return invokeParser(line, mRootAttribParsers);
             }
             break;
         case MSS_MATERIAL:
@@ -2631,7 +2631,7 @@ namespace Ogre
             else
             {
                 // find & invoke a parser
-                return invokeParser(line, mMaterialAttribParsers); 
+                return invokeParser(line, mMaterialAttribParsers);
             }
             break;
         case MSS_TECHNIQUE:
@@ -2645,7 +2645,7 @@ namespace Ogre
             else
             {
                 // find & invoke a parser
-                return invokeParser(line, mTechniqueAttribParsers); 
+                return invokeParser(line, mTechniqueAttribParsers);
             }
             break;
         case MSS_PASS:
@@ -2659,7 +2659,7 @@ namespace Ogre
             else
             {
                 // find & invoke a parser
-                return invokeParser(line, mPassAttribParsers); 
+                return invokeParser(line, mPassAttribParsers);
             }
             break;
         case MSS_TEXTUREUNIT:
@@ -2672,7 +2672,7 @@ namespace Ogre
             else
             {
                 // find & invoke a parser
-                return invokeParser(line, mTextureUnitAttribParsers); 
+                return invokeParser(line, mTextureUnitAttribParsers);
             }
             break;
 		case MSS_TEXTURESOURCE:
@@ -2703,7 +2703,7 @@ namespace Ogre
             else
             {
                 // find & invoke a parser
-                return invokeParser(line, mProgramRefAttribParsers); 
+                return invokeParser(line, mProgramRefAttribParsers);
             }
             break;
         case MSS_PROGRAM:
@@ -2738,7 +2738,7 @@ namespace Ogre
 					// Use parser with remainder
                     return iparser->second(cmd, mScriptContext );
 				}
-				
+
             }
             break;
         case MSS_DEFAULT_PARAMETERS:
@@ -2781,7 +2781,7 @@ namespace Ogre
 			}
 			// Create
 			gp = GpuProgramManager::getSingleton().
-				createProgram(def->name, mScriptContext.groupName, def->source, 
+				createProgram(def->name, mScriptContext.groupName, def->source,
                     def->progType, def->syntax);
 
 		}
@@ -2795,10 +2795,10 @@ namespace Ogre
 					", you must specify a source file.", mScriptContext);
 			}
 			// Create
-            try 
+            try
             {
 			    HighLevelGpuProgramPtr hgp = HighLevelGpuProgramManager::getSingleton().
-				    createProgram(def->name, mScriptContext.groupName, 
+				    createProgram(def->name, mScriptContext.groupName,
                         def->language, def->progType);
                 // Assign to generalised version
                 gp = hgp;
@@ -2812,7 +2812,7 @@ namespace Ogre
 			    {
 				    if (!hgp->setParameter(i->first, i->second))
 				    {
-					    logParseError("Error in program " + def->name + 
+					    logParseError("Error in program " + def->name +
 						    " parameter " + i->first + " is not valid.", mScriptContext);
 				    }
 			    }
@@ -2836,7 +2836,7 @@ namespace Ogre
 		gp->_notifyOrigin(mScriptContext.filename);
 
         // Set up to receive default parameters
-        if (gp->isSupported() 
+        if (gp->isSupported()
             && !mScriptContext.defaultParamLines.empty())
         {
             mScriptContext.programParams = gp->getDefaultParameters();
@@ -2853,7 +2853,7 @@ namespace Ogre
                 // First, split line on first divisor only
                 StringVector splitCmd = StringUtil::split(*i, " \t", 1);
                 // Find attribute parser
-                AttribParserList::iterator iparser 
+                AttribParserList::iterator iparser
                     = mProgramDefaultParamAttribParsers.find(splitCmd[0]);
                 if (iparser != mProgramDefaultParamAttribParsers.end())
                 {
@@ -2944,7 +2944,7 @@ namespace Ogre
         clearQueue();
     }
     //-----------------------------------------------------------------------
-    void MaterialSerializer::queueForExport(const MaterialPtr& pMat, 
+    void MaterialSerializer::queueForExport(const MaterialPtr& pMat,
 		bool clearQueued, bool exportDefaults)
     {
         if (clearQueued)
@@ -2994,7 +2994,7 @@ namespace Ogre
 
 
             // Shadow receive
-            if (mDefaults || 
+            if (mDefaults ||
                 pMat->getReceiveShadows() != true)
             {
                 writeAttribute(1, "receive_shadows");
@@ -3002,7 +3002,7 @@ namespace Ogre
             }
 
 			// When rendering shadows, treat transparent things as opaque?
-			if (mDefaults || 
+			if (mDefaults ||
 				pMat->getTransparencyCastsShadows() == true)
 			{
 				writeAttribute(1, "transparency_casts_shadows");
@@ -3032,7 +3032,7 @@ namespace Ogre
         beginSection(1);
         {
 			// Lod index
-			if (mDefaults || 
+			if (mDefaults ||
 				pTech->getLodIndex() != 0)
 			{
 				writeAttribute(2, "lod_index");
@@ -3040,7 +3040,7 @@ namespace Ogre
 			}
 
 			// Scheme name
-			if (mDefaults || 
+			if (mDefaults ||
 				pTech->getSchemeName() != MaterialManager::DEFAULT_SCHEME_NAME)
 			{
 				writeAttribute(2, "scheme");
@@ -3069,21 +3069,21 @@ namespace Ogre
         beginSection(2);
         {
             //lighting
-            if (mDefaults || 
+            if (mDefaults ||
                 pPass->getLightingEnabled() != true)
             {
                 writeAttribute(3, "lighting");
                 writeValue(pPass->getLightingEnabled() ? "on" : "off");
             }
 			// max_lights
-            if (mDefaults || 
+            if (mDefaults ||
                 pPass->getMaxSimultaneousLights() != OGRE_MAX_SIMULTANEOUS_LIGHTS)
             {
                 writeAttribute(3, "max_lights");
                 writeValue(StringConverter::toString(pPass->getMaxSimultaneousLights()));
             }
 			// iteration
-            if (mDefaults || 
+            if (mDefaults ||
                 pPass->getIteratePerLight() || (pPass->getPassIterationCount() > 0))
             {
                 writeAttribute(3, "iteration");
@@ -3115,7 +3115,7 @@ namespace Ogre
                     };
                 }
             }
-			
+
 
             if (pPass->getLightingEnabled())
             {
@@ -3237,8 +3237,8 @@ namespace Ogre
             }
 
             // scene blend factor
-            if (mDefaults || 
-                pPass->getSourceBlendFactor() != SBF_ONE || 
+            if (mDefaults ||
+                pPass->getSourceBlendFactor() != SBF_ONE ||
                 pPass->getDestBlendFactor() != SBF_ZERO)
             {
                 writeAttribute(3, "scene_blend");
@@ -3247,14 +3247,14 @@ namespace Ogre
 
 
             //depth check
-            if (mDefaults || 
+            if (mDefaults ||
                 pPass->getDepthCheckEnabled() != true)
             {
                 writeAttribute(3, "depth_check");
                 writeValue(pPass->getDepthCheckEnabled() ? "on" : "off");
             }
 			// alpha_rejection
-			if (mDefaults || 
+			if (mDefaults ||
 				pPass->getAlphaRejectFunction() != CMPF_ALWAYS_PASS ||
 				pPass->getAlphaRejectValue() != 0)
 			{
@@ -3265,7 +3265,7 @@ namespace Ogre
 
 
             //depth write
-            if (mDefaults || 
+            if (mDefaults ||
                 pPass->getDepthWriteEnabled() != true)
             {
                 writeAttribute(3, "depth_write");
@@ -3273,7 +3273,7 @@ namespace Ogre
             }
 
             //depth function
-            if (mDefaults || 
+            if (mDefaults ||
                 pPass->getDepthFunction() != CMPF_LESS_EQUAL)
             {
                 writeAttribute(3, "depth_func");
@@ -3281,7 +3281,7 @@ namespace Ogre
             }
 
             //depth bias
-            if (mDefaults || 
+            if (mDefaults ||
                 pPass->getDepthBias() != 0)
             {
                 writeAttribute(3, "depth_bias");
@@ -3289,7 +3289,7 @@ namespace Ogre
             }
 
             // hardware culling mode
-            if (mDefaults || 
+            if (mDefaults ||
                 pPass->getCullingMode() != CULL_CLOCKWISE)
             {
                 CullingMode hcm = pPass->getCullingMode();
@@ -3309,7 +3309,7 @@ namespace Ogre
             }
 
             // software culling mode
-            if (mDefaults || 
+            if (mDefaults ||
                 pPass->getManualCullingMode() != MANUAL_CULL_BACK)
             {
                 ManualCullingMode scm = pPass->getManualCullingMode();
@@ -3329,7 +3329,7 @@ namespace Ogre
             }
 
             //shading
-            if (mDefaults || 
+            if (mDefaults ||
                 pPass->getShadingMode() != SO_GOURAUD)
             {
                 writeAttribute(3, "shading");
@@ -3348,7 +3348,7 @@ namespace Ogre
             }
 
 
-			if (mDefaults || 
+			if (mDefaults ||
 				pPass->getPolygonMode() != PM_SOLID)
 			{
 				writeAttribute(3, "polygon_mode");
@@ -3367,7 +3367,7 @@ namespace Ogre
 			}
 
             //fog override
-            if (mDefaults || 
+            if (mDefaults ||
                 pPass->getFogOverride() != false)
             {
                 writeAttribute(3, "fog_override");
@@ -3540,7 +3540,7 @@ namespace Ogre
             }
 
             //anisotropy level
-            if (mDefaults || 
+            if (mDefaults ||
                 pTex->getTextureAnisotropy() != 1)
             {
                 writeAttribute(4, "max_anisotropy");
@@ -3548,7 +3548,7 @@ namespace Ogre
             }
 
             //texture coordinate set
-            if (mDefaults || 
+            if (mDefaults ||
                 pTex->getTextureCoordSet() != 0)
             {
                 writeAttribute(4, "tex_coord_set");
@@ -3556,9 +3556,9 @@ namespace Ogre
             }
 
             //addressing mode
-			const TextureUnitState::UVWAddressingMode& uvw = 
+			const TextureUnitState::UVWAddressingMode& uvw =
 				pTex->getTextureAddressingMode();
-            if (mDefaults || 
+            if (mDefaults ||
                 uvw.u != Ogre::TextureUnitState::TAM_WRAP ||
 				uvw.v != Ogre::TextureUnitState::TAM_WRAP ||
 				uvw.w != Ogre::TextureUnitState::TAM_WRAP )
@@ -3590,7 +3590,7 @@ namespace Ogre
             }
 
             //filtering
-            if (mDefaults || 
+            if (mDefaults ||
                 pTex->getTextureFiltering(FT_MIN) != FO_LINEAR ||
                 pTex->getTextureFiltering(FT_MAG) != FO_LINEAR ||
                 pTex->getTextureFiltering(FT_MIP) != FO_POINT)
@@ -3605,7 +3605,7 @@ namespace Ogre
             }
 
             // colour_op_ex
-            if (mDefaults || 
+            if (mDefaults ||
                 pTex->getColourBlendMode().operation != LBX_MODULATE ||
                 pTex->getColourBlendMode().source1 != LBS_TEXTURE ||
                 pTex->getColourBlendMode().source2 != LBS_CURRENT)
@@ -3628,7 +3628,7 @@ namespace Ogre
             }
 
             // alpha_op_ex
-            if (mDefaults || 
+            if (mDefaults ||
                 pTex->getAlphaBlendMode().operation != LBX_MODULATE ||
                 pTex->getAlphaBlendMode().source1 != LBS_TEXTURE ||
                 pTex->getAlphaBlendMode().source2 != LBS_CURRENT)
@@ -3657,7 +3657,7 @@ namespace Ogre
 
             // scroll
             if (mDefaults ||
-                pTex->getTextureUScroll() != 0 || 
+                pTex->getTextureUScroll() != 0 ||
                 pTex->getTextureVScroll() != 0 )
             {
                 writeAttribute(4, "scroll");
@@ -3667,7 +3667,7 @@ namespace Ogre
             }
             // scale
             if (mDefaults ||
-                pTex->getTextureUScale() != 1.0 || 
+                pTex->getTextureUScale() != 1.0 ||
                 pTex->getTextureVScale() != 1.0 )
             {
                 writeAttribute(4, "scale");
@@ -3677,7 +3677,7 @@ namespace Ogre
             }
 
 			// free transform
-			if (!individualTransformElems && 
+			if (!individualTransformElems &&
 				(mDefaults ||
 				pTex->getTextureTransform() != Matrix4::IDENTITY))
 			{
@@ -3718,7 +3718,7 @@ namespace Ogre
 						scrollAnimU = ef.arg1;
 						break;
 					case TextureUnitState::ET_VSCROLL :
-						scrollAnimV = ef.arg1;                        
+						scrollAnimV = ef.arg1;
                         break;
                     case TextureUnitState::ET_TRANSFORM :
                         writeTransformEffect(ef, pTex);
@@ -3728,7 +3728,7 @@ namespace Ogre
                     }
                 }
             }
-			
+
 			// u and v scroll animation speeds merged, if present serialize scroll_anim
 			if(scrollAnimU || scrollAnimV) {
 				TextureUnitState::TextureEffect texEffect;
@@ -4063,7 +4063,7 @@ namespace Ogre
             // assume values are equal
             isEqual = true;
             size_t currentIndex = 0;
-            // iterate through real constants 
+            // iterate through real constants
             while ((currentIndex < elementCount) && isEqual)
             {
                 // compare the values within the constant entry
@@ -4097,7 +4097,7 @@ namespace Ogre
             // assume values are equal
             isEqual = true;
             size_t currentIndex = 0;
-            // iterate through real constants 
+            // iterate through real constants
             while ((currentIndex < elementCount) && isEqual)
             {
                 // compare the values within the constant entry
@@ -4121,8 +4121,8 @@ namespace Ogre
 
     //-----------------------------------------------------------------------
     void MaterialSerializer::writeGPUProgramParameters(
-		const GpuProgramParametersSharedPtr& params, 
-		GpuProgramParameters* defaultParams, const int level, 
+		const GpuProgramParametersSharedPtr& params,
+		GpuProgramParameters* defaultParams, const int level,
 		const bool useMainBuffer)
     {
         // iterate through the constant definitions
@@ -4131,7 +4131,7 @@ namespace Ogre
         while (paramIndex < paramCount)
         {
             // get the constant definition
-            const GpuProgramParameters::ConstantDefinition* constDef = 
+            const GpuProgramParameters::ConstantDefinition* constDef =
 				params->getConstantDefinition(paramIndex);
             // only output if the constant definition exists and its actually being used
             // assume its being used if elementCount > 0
@@ -4142,7 +4142,7 @@ namespace Ogre
                 if (defaultParams)
                 {
                     // find matching default parameter
-                    const GpuProgramParameters::ConstantDefinition* defaultConstDef = 
+                    const GpuProgramParameters::ConstantDefinition* defaultConstDef =
                         defaultParams->findMatchingConstantDefinition(
 							constDef->name, constDef->entryIndex, constDef->elementType);
 
@@ -4150,7 +4150,7 @@ namespace Ogre
                     {
                         // check all the elements for being equal
                         // auto settings must be the same to be equal
-                        if ((defaultConstDef->isAuto && constDef->isAuto) && 
+                        if ((defaultConstDef->isAuto && constDef->isAuto) &&
 							(defaultConstDef->autoIndex == constDef->autoIndex))
                         {
                             defaultExist = true;
@@ -4226,7 +4226,7 @@ namespace Ogre
 
                         if (autoEntry)
                         {
-                            const GpuProgramParameters::AutoConstantDefinition* autoConstDef = 
+                            const GpuProgramParameters::AutoConstantDefinition* autoConstDef =
                                 GpuProgramParameters::getAutoConstantDefinition(autoEntry->paramType);
 
                             assert(autoConstDef && "Bad auto constant Definition Table");
@@ -4260,7 +4260,7 @@ namespace Ogre
                         if (constDef->elementType == GpuProgramParameters::ET_REAL)
                         {
                             writeValue("float" + countLabel, useMainBuffer);
-                            // iterate through real constants 
+                            // iterate through real constants
                             while (currentIndex < elementCount)
                             {
                                 // get the constant entry
@@ -4282,7 +4282,7 @@ namespace Ogre
                         else
                         {
                             writeValue("int" + countLabel, useMainBuffer);
-                            // iterate through int constants 
+                            // iterate through int constants
                             while (currentIndex < elementCount)
                             {
                                 // get the constant entry
