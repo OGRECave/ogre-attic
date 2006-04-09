@@ -1370,7 +1370,7 @@ namespace Ogre {
                     pendingRuleOp = otREPEAT;
                     break;
 
-                case BNF_NO_TOKEN_START: // '
+                case BNF_NO_TOKEN_START: // -'
                     extractTerminal(pendingRuleOp, true);
                     pendingRuleOp = otAND;
                     break;
