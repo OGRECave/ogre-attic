@@ -46,15 +46,15 @@ namespace Ogre {
     String MaterialScriptCompiler::materialScript_BNF =
         "<Script> ::= {<Script_Properties>} \n"
 
-        "<Script_Properties> ::= <Material> | <GPU_Program> \n"
+        "<Script_Properties> ::= <Material> | <Vertex_Program> | <Fragment_Program> \n"
 
-        "<Material> ::= 'material' <Label> [<Material_Clone>] '{' {<Material_Properties>} '}' \n"
+        "<Material> ::= 'material' <Flex_Label> [<Material_Clone>] '{' {<Material_Properties>} '}' \n"
 
         "<Material_Properties> ::= <Technique> | <Set_Texture_Alias> | "
         "                          <Lod_Distances> | <Receive_Shadows> | "
         "                          <Transparency_Casts_Shadows> \n"
 
-        "    <Material_Clone> ::= ':' <Label> \n"
+        "    <Material_Clone> ::= ':' <Flex_Label> \n"
         "    <Set_Texture_Alias> ::= 'set_texture_alias' <Label> [<Seperator>] <Label> \n"
         "    <Lod_Distances> ::= 'lod_distances' <#distance> {<#distance>} \n"
         "    <Receive_Shadows> ::= 'receive_shadows' <On_Off> \n"
@@ -73,6 +73,7 @@ namespace Ogre {
         "                              <Texture_Unit> | \n"
         "                              <Depth_Func> | <Depth_Bias> | <Alpha_Rejection> | \n"
         "                              <Cull_Hardware> | <Cull_Software> | <Lighting> | \n"
+        "                              <GPU_Program_Ref> | \n"
         "                              <Shading> | <PolygonMode> | <Fog_Override> | <Colour_Write> | \n"
         "                              <Max_Lights> | <Iteration> | \n"
 		"                              <Point_Sprites> | <Point_Size_Attenuation> | \n"
@@ -144,7 +145,7 @@ namespace Ogre {
         "           <Texture_Alias> ::= 'texture_alias' <Label> \n"
         "           <Texture> ::= 'texture' <Label> {<Texture_Properties>} \n"
         "           <Texture_Properties> ::= '1d' | '2d' | '3d' | 'cubic' | 'unlimited' | 'alpha' | <#mipmap> \n"
-        "           <Anim_Texture> ::= 'anim_texture' <Label> <Anim_Texture_Properties> <#duration>\n"
+        "           <Anim_Texture> ::= 'anim_texture' <Label> <Anim_Texture_Properties> <#duration> \n"
         "               <Anim_Texture_Properties> ::= <#frames> | <Seperate_Anim_Textures> \n"
         "               <Seperate_Anim_Textures> ::= {<anim_frame>} \n"
         "                   <anim_frame> ::= <Label> [<Seperator>] \n"
@@ -165,9 +166,7 @@ namespace Ogre {
         "           <Max_Anisotropy> ::= 'max_anisotropy' <#val> \n"
         "           <Colour_Op> ::= 'colour_op' <Colour_Op_Options> \n"
         "               <Colour_Op_Options> ::= <Base_Blend> | 'replace' \n"
-        "           <Colour_Op_Ex> ::= 'colour_op_ex' <Combine_Operation> <Source_Option> <Source_Option> \n"
-        "                              [<#manual_factor>] [<#red>] [<#green>] [<#blue>] [<#alpha>] \n"
-        "                              [<#red>] [<#green>] [<#blue>] [<#alpha>] \n"
+        "           <Colour_Op_Ex> ::= 'colour_op_ex' <Combine_Operation> <Source_Option> <Source_Option> {<#val>} \n"
         "               <Combine_Operation> ::= 'source1' | 'source2' | 'modulate_x2' | 'modulate_x4' | \n"
         "                                       'modulate' | 'add_signed' | 'add_smooth' | 'add' | \n"
         "                                       'subtract' | 'blend_diffuse_alpha' | 'blend_texture_alpha' | \n"
@@ -176,8 +175,7 @@ namespace Ogre {
         "               <Source_Option> ::= 'src_current' | 'src_texture' | 'src_diffuse' | \n"
         "                                   'src_specular' | 'src_manual' \n"
         "           <Colour_Op_Multipass_Fallback> ::= 'colour_op_multipass_fallback' <Blend_Factor> <Blend_Factor> \n"
-        "           <Alpha_Op_Ex> ::= 'alpha_op_ex' <Combine_Operation> <Source_Option> <Source_Option> \n"
-        "                             [<#manual_factor>] [<#manual_alpha>] [<#manual_alpha>] \n"
+        "           <Alpha_Op_Ex> ::= 'alpha_op_ex' <Combine_Operation> <Source_Option> <Source_Option> {<#val>} \n"
         "           <Env_Map> ::= 'env_map' <Env_Map_Option> \n"
         "               <Env_Map_Option> ::= 'spherical' | 'planar' | 'cubic_reflection' | 'cubic_normal' | 'off' \n"
         "           <Scroll> ::= 'scroll' <#x> <#y> \n"
@@ -192,30 +190,47 @@ namespace Ogre {
         "                           <#m30> <#m31> <#m32> <#m33> \n"
         // GPU Programs
         " "
-        "<GPU_Program> ::= <GPU_Program_Type> <Label> <GPU_Program_Language> '{' {<GPU_Program_Options>}'}' \n"
-        "   <GPU_Program_Type> ::= 'vertex_program' | 'fragment_program' \n"
-        "   <GPU_Program_Language> ::= 'cg' | 'hlsl' | 'glsl' | 'asm' \n"
-        "   <GPU_Program_Options> ::= <Program_Source> | <Entry_Point> | <Syntax> | <Profiles> | <Attach> | \n"
-        "                             <Target> \n"
+        "<Vertex_Program> ::= 'vertex_program' <Label> [<Seperator>] <Label> '{' {<Vertex_Program_Option>} '}' \n"
+        "   <Vertex_Program_Option> ::= <Vertex_Program_Animation> | <GPU_Program_Options> \n"
+        "   <Vertex_Program_Animation> ::= <Skeletal_Animation> | <Morph_Animation> | <Pose_Animation> \n"
+        "       <Skeletal_Animation> ::= 'includes_skeletal_animation' <True_False> \n"
+        "       <Morph_Animation> ::= 'includes_morph_animation' <True_False> \n"
+        "       <Pose_Animation> ::= 'includes_pose_animation' <#val> \n"
+        "<Fragment_Program> ::= 'fragment_program' <Label> [<Seperator>] <Label> '{' {<GPU_Program_Options>}'}' \n"
+        "   <GPU_Program_Options> ::= <Program_Source> | <Syntax> | <Default_Params> | <Custom_Parameters> \n"
         "       <Program_Source> ::= 'source' <Label> \n"
-        "       <Entry_Point> ::= 'entry_point' <Label> \n"
-        "       <Syntax> ::= 'syntax' <Syntax_Options> \n"
-        "           <Syntax_Options> ::= 'vs_1_1' | 'vs_2_0' | 'vs_2_x' | 'vs_3_0' | 'arbvp1' | 'vp20' | 'vp30' | \n"
-        "                                'vp40' | 'ps_1_1' | 'ps_1_2' | 'ps_1_3' | 'ps_1_4' | 'ps_2_0' | 'ps_2_x' | \n"
-        "                                'ps_3_0' | 'ps_3_x' | 'arbfp1' | 'fp20' | 'fp30' | 'fp40' \n"
-        "       <Profiles> ::= 'profiles' <Labels_1_N> \n"
-        "       <Attach> ::= 'attach' <Labels_1_N> \n"
-        "       <Target> ::= 'target' <Label> \n"
+        "       <Syntax> ::= 'syntax' <Label> \n"
+        "       <Default_Params> ::= 'default_params' '{' {<GPUParams_Option>} '}' \n"
+        "       <Custom_Parameters> ::= <Label> [<Seperator>] <Spaced_Label> \n"
+
+        "   <GPU_Program_Ref> ::= <GPU_Program_Ref_Type> [<Flex_Label>] '{' {<GPUParams_Option>} '}' \n"
+        "       <GPU_Program_Ref_Type> ::= 'vertex_program_ref' | 'fragment_program_ref' | \n"
+        "                                  'shadow_caster_vertex_program_ref' | \n"
+        "                                  'shadow_receiver_vertex_program_ref' | \n"
+        "                                  'shadow_receiver_fragment_program_ref' \n"
+
+        "   <GPUParams_Option> ::= <Param_Named_Auto> | <Param_Named> | <Param_Indexed_Auto> | <Param_Indexed> \n"
+        "       <Param_Named_Auto> ::= 'param_named_auto' <Label> [<Seperator>] <Unquoted_Label> [<#val>] \n"
+        "       <Param_Named> ::= 'param_named' <Label> <Param_Value_Option> \n"
+        "       <Param_Indexed_Auto> ::= 'param_indexed_auto' <#index> <Unquoted_Label> [<#val>] \n"
+        "       <Param_Indexed> ::= 'param_indexed' <#index> <Param_Value_Option> \n"
+        "       <Param_Value_Option> ::= <Param_Value> | <Param_Matrix> \n"
+        "         <Param_Value> ::= <Param_Type> <#val> {<#val>} \n"
+        "           <Param_Type> ::= 'float' | 'int' \n"
+        "         <Param_Matrix> ::= 'matrix4x4' {<#val>} \n"
 
         // common rules
         "<On_Off> ::= 'on' | 'off' \n"
+        "<True_False> ::= 'true' | 'false' \n"
         "<Colour_Params> ::= <#red> <#green> <#blue> [<#alpha>] \n"
         "<Seperator> ::= -' ' \n"
 
         "<Labels_1_N> ::= <Label> [<Seperator>] {<More_Labels>} \n"
         "<More_Labels> ::=  <Label> [<Seperator>] \n"
 		"<Label> ::= <Unquoted_Label> | <Quoted_Label> \n"
+		"<Flex_Label> ::= <Spaced_Label> | <Spaced_Label> \n"
 		"<Quoted_Label> ::= -'\"' <Character> {<Alphanumeric_Space>} -'\"' \n"
+		"<Spaced_Label> ::= <Character> {<Alphanumeric_Space>} \n"
         "<Unquoted_Label> ::= <Character> {<Alphanumeric>} \n"
 		"<Alphanumeric_Space> ::= <Alphanumeric> | <Space> \n"
 		"<Alphanumeric> ::= <Character> | <Number> \n"
@@ -242,12 +257,15 @@ namespace Ogre {
         addLexemeTokenAction("{", ID_OPENBRACE, &MaterialScriptCompiler::parseOpenBrace);
         addLexemeTokenAction("}", ID_CLOSEBRACE, &MaterialScriptCompiler::parseCloseBrace);
         addLexemeTokenAction("vertex_program", ID_VERTEX_PROGRAM, &MaterialScriptCompiler::parseGPUProgram);
+            addLexemeTokenAction("includes_skeletal_animation", ID_INCLUDES_SKELETAL_ANIMATION, &MaterialScriptCompiler::parseProgramSkeletalAnimation);
+            addLexemeTokenAction("includes_morph_animation", ID_INCLUDES_MORPH_ANIMATION, &MaterialScriptCompiler::parseProgramMorphAnimation);
+            addLexemeTokenAction("includes_pose_animation", ID_INCLUDES_POSE_ANIMATION, &MaterialScriptCompiler::parseProgramPoseAnimation);
         addLexemeTokenAction("fragment_program", ID_FRAGMENT_PROGRAM, &MaterialScriptCompiler::parseGPUProgram);
+
             addLexemeTokenAction("source", ID_SOURCE, &MaterialScriptCompiler::parseProgramSource);
             addLexemeTokenAction("syntax", ID_SYNTAX, &MaterialScriptCompiler::parseProgramSyntax);
-            addLexemeTokenAction("profiles", ID_PROFILES, &MaterialScriptCompiler::parseTextureCustomParameter);
-            addLexemeTokenAction("attach", ID_ATTACH, &MaterialScriptCompiler::parseTextureCustomParameter);
-            addLexemeTokenAction("target", ID_TARGET, &MaterialScriptCompiler::parseTextureCustomParameter);
+            addLexemeTokenAction("default_params", ID_DEFAULT_PARAMS, &MaterialScriptCompiler::parseDefaultParams);
+
         addLexemeTokenAction("material", ID_MATERIAL, &MaterialScriptCompiler::parseMaterial);
             addLexemeTokenAction(":", ID_CLONE);
             addLexemeTokenAction("lod_distances", ID_LOD_DISTANCES, &MaterialScriptCompiler::parseLodDistances);
@@ -394,7 +412,17 @@ namespace Ogre {
             addLexemeTokenAction("sawtooth", ID_SAWTOOTH);
             addLexemeTokenAction("inverse_sawtooth", ID_INVERSE_SAWTOOTH);
         addLexemeTokenAction("transform", ID_TRANSFORM, &MaterialScriptCompiler::parseTransform);
-
+        // GPU program reference
+        addLexemeTokenAction("vertex_program_ref", ID_VERTEX_PROGRAM_REF,
+            &MaterialScriptCompiler::parseVertexProgramRef);
+        addLexemeTokenAction("fragment_program_ref", ID_FRAGMENT_PROGRAM_REF,
+            &MaterialScriptCompiler::parseFragmentProgramRef);
+        addLexemeTokenAction("shadow_caster_vertex_program_ref", ID_SHADOW_CASTER_VERTEX_PROGRAM_REF,
+            &MaterialScriptCompiler::parseShadowCasterVertexProgramRef);
+        addLexemeTokenAction("shadow_receiver_vertex_program_ref", ID_SHADOW_RECEIVER_VERTEX_PROGRAM_REF,
+            &MaterialScriptCompiler::parseShadowReceiverVertexProgramRef);
+        addLexemeTokenAction("shadow_receiver_fragment_program_ref", ID_SHADOW_RECEIVER_FRAGMENT_PROGRAM_REF,
+            &MaterialScriptCompiler::parseShadowReceiverFragmentProgramRef);
 
         // common section
         addLexemeTokenAction("on", ID_ON);
@@ -573,8 +601,10 @@ namespace Ogre {
 		// Get name and language code
 		// Name, preserve case
 		mScriptContext.programDef->name = getNextTokenLabel();
-		// language code - lexeme is already lower case
-		mScriptContext.programDef->language = getNextTokenLexeme();
+		// language code
+		mScriptContext.programDef->language = getNextTokenLabel();
+		// make sure language is lower case
+		StringUtil::toLowerCase(mScriptContext.programDef->language);
 	}
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseProgramSource(void)
@@ -586,22 +616,43 @@ namespace Ogre {
     void MaterialScriptCompiler::parseProgramSyntax(void)
     {
         assert(mScriptContext.programDef);
-		mScriptContext.programDef->syntax = getNextTokenLexeme();
+		mScriptContext.programDef->syntax = getNextTokenLabel();
+		// make sure language is lower case
+		StringUtil::toLowerCase(mScriptContext.programDef->syntax);
+	}
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseProgramSkeletalAnimation(void)
+    {
+        assert(mScriptContext.programDef);
+        mScriptContext.programDef->supportsSkeletalAnimation = testNextTokenID(ID_TRUE);
+    }
+	//-----------------------------------------------------------------------
+	void MaterialScriptCompiler::parseProgramMorphAnimation(void)
+	{
+        assert(mScriptContext.programDef);
+		mScriptContext.programDef->supportsMorphAnimation = testNextTokenID(ID_TRUE);
+	}
+	//-----------------------------------------------------------------------
+	void MaterialScriptCompiler::parseProgramPoseAnimation(void)
+	{
+        assert(mScriptContext.programDef);
+		mScriptContext.programDef->supportsPoseAnimation = getNextTokenValue();
 	}
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseProgramCustomParameter(void)
     {
         assert(mScriptContext.programDef);
 
-        const String& command = getCurrentTokenLexeme();
-        String params = getNextTokenLabel();
+        String command = getCurrentTokenLabel();
+		StringUtil::toLowerCase(command);
 
-        while (getRemainingTokensForAction() > 0)
-        {
-            params += " " + getNextTokenLabel();
-        }
-		mScriptContext.programDef->customParameters[command] = params;
+		mScriptContext.programDef->customParameters[command] = getNextTokenLabel();
 	}
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseDefaultParams(void)
+    {
+        mScriptContext.section = MSS_DEFAULT_PARAMETERS;
+    }
 	//-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseMaterial(void)
     {
@@ -1923,6 +1974,260 @@ namespace Ogre {
 
 		mScriptContext.textureUnit->setTextureTransform(xform);
 	}
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseVertexProgramRef(void)
+    {
+        assert(mScriptContext.pass);
+        // update section
+        mScriptContext.section = MSS_PROGRAM_REF;
+        String name;
+
+        // get the name of the program definition if it was set
+        if (getRemainingTokensForAction() == 1)
+            name = getNextTokenLabel();
+
+        // check if pass has a vertex program already
+        if (mScriptContext.pass->hasVertexProgram())
+        {
+            // if existing pass vertex program has same name as params
+            // or params is empty then use current vertex program
+            if (name.empty() || (mScriptContext.pass->getVertexProgramName() == name))
+            {
+                mScriptContext.program = mScriptContext.pass->getVertexProgram();
+            }
+        }
+
+        // if context.program was not set then try to get the vertex program using the name
+        // passed in params
+        if (mScriptContext.program.isNull())
+        {
+            mScriptContext.program = GpuProgramManager::getSingleton().getByName(name);
+            if (mScriptContext.program.isNull())
+            {
+                // Unknown program
+                logParseError("Invalid vertex_program_ref entry - vertex program "
+                    + name + " has not been defined.");
+                return;
+            }
+
+            // Set the vertex program for this pass
+            mScriptContext.pass->setVertexProgram(name);
+        }
+
+        mScriptContext.isProgramShadowCaster = false;
+        mScriptContext.isVertexProgramShadowReceiver = false;
+        mScriptContext.isFragmentProgramShadowReceiver = false;
+
+        // Create params? Skip this if program is not supported
+        if (mScriptContext.program->isSupported())
+        {
+            mScriptContext.programParams = mScriptContext.pass->getVertexProgramParameters();
+			mScriptContext.numAnimationParametrics = 0;
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseShadowCasterVertexProgramRef(void)
+    {
+        assert(mScriptContext.pass);
+        // update section
+        mScriptContext.section = MSS_PROGRAM_REF;
+        String name;
+
+        // get the name of the program definition if it was set
+        if (getRemainingTokensForAction() == 1)
+            name = getNextTokenLabel();
+
+        // check if pass has a shadow caster vertex program already
+        if (mScriptContext.pass->hasShadowCasterVertexProgram())
+        {
+            // if existing pass vertex program has same name as params
+            // or params is empty then use current vertex program
+            if (name.empty() || (mScriptContext.pass->getShadowCasterVertexProgramName() == name))
+            {
+                mScriptContext.program = mScriptContext.pass->getShadowCasterVertexProgram();
+            }
+        }
+
+        // if context.program was not set then try to get the vertex program using the name
+        // passed in params
+        if (mScriptContext.program.isNull())
+        {
+            mScriptContext.program = GpuProgramManager::getSingleton().getByName(name);
+            if (mScriptContext.program.isNull())
+            {
+                // Unknown program
+                logParseError("Invalid shadow_caster_vertex_program_ref entry - vertex program "
+                    + name + " has not been defined.");
+                return;
+            }
+
+            // Set the vertex program for this pass
+            mScriptContext.pass->setShadowCasterVertexProgram(name);
+        }
+
+        mScriptContext.isProgramShadowCaster = true;
+        mScriptContext.isVertexProgramShadowReceiver = false;
+		mScriptContext.isFragmentProgramShadowReceiver = false;
+
+        // Create params? Skip this if program is not supported
+        if (mScriptContext.program->isSupported())
+        {
+            mScriptContext.programParams = mScriptContext.pass->getShadowCasterVertexProgramParameters();
+			mScriptContext.numAnimationParametrics = 0;
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseShadowReceiverVertexProgramRef(void)
+    {
+        assert(mScriptContext.pass);
+        // update section
+        mScriptContext.section = MSS_PROGRAM_REF;
+
+        String name;
+
+        // get the name of the program definition if it was set
+        if (getRemainingTokensForAction() == 1)
+            name = getNextTokenLabel();
+
+        // check if pass has a shadow caster vertex program already
+        if (mScriptContext.pass->hasShadowReceiverVertexProgram())
+        {
+            // if existing pass vertex program has same name as params
+            // or params is empty then use current vertex program
+            if (name.empty() || (mScriptContext.pass->getShadowReceiverVertexProgramName() == name))
+            {
+                mScriptContext.program = mScriptContext.pass->getShadowReceiverVertexProgram();
+            }
+        }
+
+        // if context.program was not set then try to get the vertex program using the name
+        // passed in params
+        if (mScriptContext.program.isNull())
+        {
+            mScriptContext.program = GpuProgramManager::getSingleton().getByName(name);
+            if (mScriptContext.program.isNull())
+            {
+                // Unknown program
+                logParseError("Invalid shadow_receiver_vertex_program_ref entry - vertex program "
+                    + name + " has not been defined.");
+                return;
+            }
+
+            // Set the vertex program for this pass
+            mScriptContext.pass->setShadowReceiverVertexProgram(name);
+        }
+
+        mScriptContext.isProgramShadowCaster = false;
+        mScriptContext.isVertexProgramShadowReceiver = true;
+		mScriptContext.isFragmentProgramShadowReceiver = false;
+
+        // Create params? Skip this if program is not supported
+        if (mScriptContext.program->isSupported())
+        {
+            mScriptContext.programParams = mScriptContext.pass->getShadowReceiverVertexProgramParameters();
+			mScriptContext.numAnimationParametrics = 0;
+        }
+    }
+	//-----------------------------------------------------------------------
+	void MaterialScriptCompiler::parseShadowReceiverFragmentProgramRef(void)
+	{
+        assert(mScriptContext.pass);
+		// update section
+		mScriptContext.section = MSS_PROGRAM_REF;
+
+        String name;
+
+        // get the name of the program definition if it was set
+        if (getRemainingTokensForAction() == 1)
+            name = getNextTokenLabel();
+
+        // check if pass has a fragment program already
+        if (mScriptContext.pass->hasShadowReceiverFragmentProgram())
+        {
+            // if existing pass fragment program has same name as params
+            // or params is empty then use current fragment program
+            if (name.empty() || (mScriptContext.pass->getShadowReceiverFragmentProgramName() == name))
+            {
+                mScriptContext.program = mScriptContext.pass->getShadowReceiverFragmentProgram();
+            }
+        }
+
+        // if context.program was not set then try to get the fragment program using the name
+        // passed in
+        if (mScriptContext.program.isNull())
+        {
+            mScriptContext.program = GpuProgramManager::getSingleton().getByName(name);
+            if (mScriptContext.program.isNull())
+            {
+                // Unknown program
+                logParseError("Invalid shadow_receiver_fragment_program_ref entry - fragment program "
+                    + name + " has not been defined.");
+                return;
+            }
+
+            // Set the vertex program for this pass
+            mScriptContext.pass->setShadowReceiverFragmentProgram(name);
+        }
+
+        mScriptContext.isProgramShadowCaster = false;
+        mScriptContext.isVertexProgramShadowReceiver = false;
+        mScriptContext.isFragmentProgramShadowReceiver = true;
+
+		// Create params? Skip this if program is not supported
+		if (mScriptContext.program->isSupported())
+		{
+			mScriptContext.programParams = mScriptContext.pass->getShadowReceiverFragmentProgramParameters();
+			mScriptContext.numAnimationParametrics = 0;
+		}
+	}
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseFragmentProgramRef(void)
+    {
+        assert(mScriptContext.pass);
+        // update section
+        mScriptContext.section = MSS_PROGRAM_REF;
+
+        String name;
+
+        // get the name of the program definition if it was set
+        if (getRemainingTokensForAction() == 1)
+            name = getNextTokenLabel();
+
+        // check if pass has a fragment program already
+        if (mScriptContext.pass->hasFragmentProgram())
+        {
+            // if existing pass fragment program has same name as params
+            // or params is empty then use current fragment program
+            if (name.empty() || (mScriptContext.pass->getFragmentProgramName() == name))
+            {
+                mScriptContext.program = mScriptContext.pass->getFragmentProgram();
+            }
+        }
+
+        // if context.program was not set then try to get the fragment program using the name
+        // passed in params
+        if (mScriptContext.program.isNull())
+        {
+            mScriptContext.program = GpuProgramManager::getSingleton().getByName(name);
+            if (mScriptContext.program.isNull())
+            {
+                // Unknown program
+                logParseError("Invalid fragment_program_ref entry - fragment program "
+                    + name + " has not been defined.");
+                return;
+            }
+
+            // Set the vertex program for this pass
+            mScriptContext.pass->setFragmentProgram(name);
+        }
+
+        // Create params? Skip this if program is not supported
+        if (mScriptContext.program->isSupported())
+        {
+            mScriptContext.programParams = mScriptContext.pass->getFragmentProgramParameters();
+			mScriptContext.numAnimationParametrics = 0;
+        }
+    }
     //-----------------------------------------------------------------------
 	void MaterialScriptCompiler::finishProgramDefinition(void)
 	{
