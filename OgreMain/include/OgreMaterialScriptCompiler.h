@@ -69,8 +69,9 @@ namespace Ogre {
 		    // Terminal Tokens section
             ID_UNKOWN = 0, ID_OPENBRACE, ID_CLOSEBRACE,
             // GPU Program
-            ID_VERTEX_PROGRAM, ID_FRAGMENT_PROGRAM, ID_SOURCE, ID_SYNTAX, ID_ENTRY_POINT,
-            ID_PROFILES, ID_TARGET, ID_ATTACH, ID_DEFAULT_PARAMS,
+            ID_VERTEX_PROGRAM, ID_FRAGMENT_PROGRAM, ID_SOURCE, ID_SYNTAX, ID_CUSTOM_PARAMETER,
+            ID_DEFAULT_PARAMS,
+            ID_INCLUDES_SKELETAL_ANIMATION, ID_INCLUDES_MORPH_ANIMATION, ID_INCLUDES_POSE_ANIMATION,
             // material
             ID_MATERIAL, ID_CLONE, ID_LOD_DISTANCES, ID_RECEIVE_SHADOWS,
             ID_TRANSPARENCY_CASTS_SHADOWS, ID_SET_TEXTURE_ALIAS,
@@ -114,7 +115,10 @@ namespace Ogre {
             ID_SQUARE, ID_SAWTOOTH, ID_INVERSE_SAWTOOTH,
             ID_TRANSFORM,
             // GPU program references
-            ID_VERTEX_PROGRAM_REF, ID_FRAGMENT_PROGRAM_REF,
+            ID_VERTEX_PROGRAM_REF, ID_FRAGMENT_PROGRAM_REF, ID_SHADOW_CASTER_VERTEX_PROGRAM_REF,
+            ID_SHADOW_RECEIVER_VERTEX_PROGRAM_REF, ID_SHADOW_RECEIVER_FRAGMENT_PROGRAM_REF,
+            // GPU Parameters
+            ID_PARAM_INDEXED_AUTO, ID_PARAM_INDEXED, ID_PARAM_NAMED_AUTO, ID_PARAM_NAMED,
 
             // general
             ID_ON, ID_OFF, ID_TRUE, ID_FALSE, ID_NONE, ID_POINT, ID_LINEAR, ID_ADD, ID_MODULATE, ID_ALPHA_BLEND,
@@ -158,7 +162,8 @@ namespace Ogre {
             TextureUnitState* textureUnit;
             GpuProgramPtr program; // used when referencing a program, not when defining it
             bool isProgramShadowCaster; // when referencing, are we in context of shadow caster
-            bool isProgramShadowReceiver; // when referencing, are we in context of shadow caster
+            bool isVertexProgramShadowReceiver; // when referencing, are we in context of shadow caster
+            bool isFragmentProgramShadowReceiver; // when referencing, are we in context of shadow caster
             GpuProgramParametersSharedPtr programParams;
 			ushort numAnimationParametrics;
 		    MaterialScriptProgramDefinition* programDef; // this is used while defining a program
@@ -276,6 +281,15 @@ namespace Ogre {
         void parseProgramSource(void);
         void parseProgramSyntax(void);
         void parseProgramCustomParameter(void);
+        void parseDefaultParams(void);
+        void parseProgramSkeletalAnimation(void);
+        void parseProgramMorphAnimation(void);
+        void parseProgramPoseAnimation(void);
+        void parseVertexProgramRef(void);
+        void parseFragmentProgramRef(void);
+        void parseShadowCasterVertexProgramRef(void);
+        void parseShadowReceiverVertexProgramRef(void);
+        void parseShadowReceiverFragmentProgramRef(void);
 
     	void finishProgramDefinition(void);
 
