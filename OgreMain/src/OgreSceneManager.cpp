@@ -4158,7 +4158,7 @@ void SceneManager::setShadowIndexBufferSize(size_t size)
         // re-create shadow buffer with new size
         mShadowIndexBuffer = HardwareBufferManager::getSingleton().
             createIndexBuffer(HardwareIndexBuffer::IT_16BIT, 
-            mShadowIndexBufferSize, 
+            size, 
             HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE, 
             false);
     }
