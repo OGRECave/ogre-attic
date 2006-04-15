@@ -507,22 +507,23 @@ namespace Ogre
 					deformer->obj.GetKinematics().GetLocal().GetTransform();
 			}
 
+			double posx, posy, posz;
+			transformation.GetTranslationValues(posx, posy, posz);
+			double sclx, scly, sclz;
+			transformation.GetScalingValues(sclx, scly, sclz);
+
 			// Make relative to initial
 			XSI::MATH::CMatrix4 transformationMatrix = transformation.GetMatrix4();
 			transformationMatrix.MulInPlace(invTrans);
 			transformation.SetMatrix4(transformationMatrix);
 
-			double posx, posy, posz;
-			transformation.GetTranslationValues(posx, posy, posz);
-
 			// create keyframe
 			TransformKeyFrame* kf = track->createNodeKeyFrame(time);
 			// not sure why inverted transform doesn't work for position, but it doesn't
 			// I thought XSI used same transform order as OGRE
-			kf->setTranslate(XSItoOgre(transformation.GetTranslation()));
-			//kf->setTranslate(Vector3(posx - initposx, posy - initposy, posz - initposz));
+			kf->setTranslate(Vector3(posx - initposx, posy - initposy, posz - initposz));
 			kf->setRotation(XSItoOgre(transformation.GetRotationQuaternion()));
-			kf->setScale(XSItoOgre(transformation.GetScaling()));
+			kf->setScale(Vector3(sclx, scly, sclz));
 
 			// Derive AABB of bone positions, for padding animated mesh AABB
 			XSI::MATH::CVector3 bonePos = 
