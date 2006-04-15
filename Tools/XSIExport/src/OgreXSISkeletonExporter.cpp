@@ -77,7 +77,7 @@ namespace Ogre
 	{
 	}
 	//-----------------------------------------------------------------------------
-	void XsiSkeletonExporter::exportSkeleton(const String& skeletonFileName, 
+	const AxisAlignedBox& XsiSkeletonExporter::exportSkeleton(const String& skeletonFileName, 
 		DeformerMap& deformers, float framesPerSecond, AnimationList& animList)
 	{
 		LogOgreAndXSI(L"** Begin OGRE Skeleton Export **");
@@ -95,7 +95,8 @@ namespace Ogre
 		establishInitialTransforms(deformers);
 
 		// create animations 
-		createAnimations(skeleton.get(), deformers, framesPerSecond, animList);
+		mAABB.setNull();
+		createAnimations(skeleton.get(), deformers, framesPerSecond, animList, mAABB);
 		// progress report
 		ProgressManager::getSingleton().progress();
 
@@ -110,6 +111,8 @@ namespace Ogre
 		LogOgreAndXSI(L"** OGRE Skeleton Export Complete **");
 
 		cleanup();
+
+		return mAABB;
 
 	}
 	//-----------------------------------------------------------------------------
@@ -365,7 +368,7 @@ namespace Ogre
 	}
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::createAnimations(Skeleton* pSkel, 
-		DeformerMap& deformers, float fps, AnimationList& animList)
+		DeformerMap& deformers, float fps, AnimationList& animList, AxisAlignedBox& AABBPadding)
 	{
 		for (AnimationList::iterator ai = animList.begin(); ai != animList.end(); ++ai)
 		{
@@ -384,13 +387,13 @@ namespace Ogre
 			LogOgreAndXSI(str.str());
 			Animation* anim = pSkel->createAnimation(animEntry.animationName, animLength);
 
-			createAnimationTracksSampled(anim, animEntry, deformers, fps);
+			createAnimationTracksSampled(anim, animEntry, deformers, fps, AABBPadding);
 			
 		}
 	}
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::createAnimationTracksSampled(Animation* pAnim, 
-		AnimationEntry& animEntry, DeformerMap& deformers, float fps)
+		AnimationEntry& animEntry, DeformerMap& deformers, float fps, AxisAlignedBox& AABBPadding)
 	{
 		// Save the current selection
 		CString seltext(mXsiApp.GetSelection().GetAsText());
@@ -428,12 +431,12 @@ namespace Ogre
 			frame += animEntry.ikSampleInterval)
 		{
 			Real time = (float)(frame - animEntry.startFrame) / fps;
-			sampleAllBones(deformers, deformerTracks, frame, time, fps);
+			sampleAllBones(deformers, deformerTracks, frame, time, fps, AABBPadding);
 
 		}
 		// sample final frame (must be guaranteed to be done)
 		Real time = (float)(animEntry.endFrame - animEntry.startFrame) / fps;
-		sampleAllBones(deformers, deformerTracks, animEntry.endFrame, time, fps);
+		sampleAllBones(deformers, deformerTracks, animEntry.endFrame, time, fps, AABBPadding);
 
 
 	}
@@ -461,7 +464,7 @@ namespace Ogre
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::sampleAllBones(DeformerMap& deformers, 
 		std::vector<NodeAnimationTrack*> deformerTracks, double frame, 
-		Real time, float fps)
+		Real time, float fps, AxisAlignedBox& AABBPadding)
 	{
 		CValueArray args;
 		CValue dummy;
@@ -520,6 +523,13 @@ namespace Ogre
 			//kf->setTranslate(Vector3(posx - initposx, posy - initposy, posz - initposz));
 			kf->setRotation(XSItoOgre(transformation.GetRotationQuaternion()));
 			kf->setScale(XSItoOgre(transformation.GetScaling()));
+
+			// Derive AABB of bone positions, for padding animated mesh AABB
+			XSI::MATH::CVector3 bonePos = 
+				deformer->obj.GetKinematics().GetGlobal().GetTransform().GetTranslation();
+			AABBPadding.merge(XSItoOgre(bonePos));
+
+
 
 		}
 

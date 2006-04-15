@@ -417,19 +417,25 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 
 				// Do the mesh
 				Ogre::DeformerMap& deformers = 
-					meshExporter.exportMesh(meshFileName, mergeSubmeshes, 
+					meshExporter.buildMeshForExport(mergeSubmeshes, 
 						exportChildren, edgeLists, tangents, exportVertexAnimation,
 						selAnimList, fps, materialPrefix,
 						lodData, skelName);
 				// do the skeleton
-				skelExporter.exportSkeleton(skeletonFileName, deformers, fps, selAnimList);
+				const Ogre::AxisAlignedBox& skelAABB = 
+					skelExporter.exportSkeleton(skeletonFileName, deformers, fps, selAnimList);
+
+				// Do final mesh export
+				meshExporter.exportMesh(meshFileName, skelAABB);
 			}
 			else
 			{
+				Ogre::AxisAlignedBox nullbb;
 				// No skeleton
-				meshExporter.exportMesh(meshFileName, mergeSubmeshes, 
+				meshExporter.buildMeshForExport(mergeSubmeshes, 
 					exportChildren, edgeLists, tangents, exportVertexAnimation,
 					selAnimList, fps, materialPrefix, lodData);
+				meshExporter.exportMesh(meshFileName, nullbb);
 			}
 
 			

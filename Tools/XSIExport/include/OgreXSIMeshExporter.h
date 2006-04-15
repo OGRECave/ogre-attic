@@ -65,11 +65,10 @@ namespace Ogre {
 		
 
 		
-		/** Perform an export of the selection to Ogre .mesh.
+		/** Build an OGRe mesh ready for export.
         @remarks
             Every PolygonMesh object is exported as a different SubMesh. Other
             object types are ignored.
-        @param fileName Target file name
 		@param mergeSubMeshes Whether to merge submeshes with the same material
 		@param exportChildren Whether to cascade down each objects children
         @param edgeLists Whether to calculate edge lists
@@ -81,11 +80,18 @@ namespace Ogre {
 		@returns List of deformers (bones) which were found whilst exporting (if
 			skeletonName was provided) which can be used to determine the skeleton.
         */
-        DeformerMap& exportMesh(const String& fileName, 
+        DeformerMap& buildMeshForExport(
             bool mergeSubMeshes, bool exportChildren, bool edgeLists, 
 			bool tangents, bool vertexAnimation, AnimationList& animList, 
 			Real fps, const String& materialPrefix = StringUtil::BLANK,
 			LodData* lod = 0, const String& skeletonName = "");
+
+		/** Perform final export of built mesh. 
+		@param fileName Target file name
+		@param skelAABB AABB of skeleton bones as found in animation, to pad
+			final bounds of mesh.
+		*/
+		void exportMesh(const String& fileName, const AxisAlignedBox& skelAABB);
 
 		/** Get a list of materials which were located during the last call
 		 *  to exportMesh. 
@@ -95,7 +101,7 @@ namespace Ogre {
 		/** Get the map from texture projection names to uv indexes. */
 		TextureProjectionMap& getTextureProjectionMap(void);
     protected:
-
+		MeshPtr mMesh;
         // XSI Objects
         XSI::Application mXsiApp;
         /** This struct represents a unique vertex, identified from a unique 
