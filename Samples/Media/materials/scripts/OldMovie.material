@@ -22,11 +22,12 @@ material Ogre/Compositor/OldMovie
 
 			fragment_program_ref Ogre/Compositor/OldMovieFP
 			{
-				param_named_auto time_cycle_period time 120
-				param_named flicker float 0.07
-				param_named DirtFrequency float 35
-				param_named sepia float4 1.0 0.7 0.3 1.0
-
+				param_named_auto time_cycle_period time 20
+				param_named flicker float 0.4
+				param_named DirtFrequency float 0.0005
+				param_named luminance float3 0.30f 0.59f 0.11f
+				param_named frameJitter float 0.004
+				param_named lumiShift float 0.03
 			}
 
 			texture_unit RT
@@ -36,7 +37,7 @@ material Ogre/Compositor/OldMovie
 				filtering trilinear
 			}
 
-			texture_unit
+			texture_unit SplotchesTx
 			{
 				texture 8x8PagesSplotches2.png 2d
                 tex_coord_set 1
@@ -46,25 +47,18 @@ material Ogre/Compositor/OldMovie
 
 			texture_unit
 			{
-				texture normalNoiseColor.png 2d
-                tex_coord_set 2
-				tex_address_mode wrap
-				filtering point point point
-			}
-
-			texture_unit
-			{
 				texture 1D_Noise.png 1d
-                tex_coord_set 3
+                tex_coord_set 2
 				tex_address_mode wrap
 				filtering point point none
 			}
 
-			texture_unit
+
+			texture_unit SepiaTx
 			{
-				texture 1D_Noise2.png 1d
-                tex_coord_set 4
-				tex_address_mode wrap
+				texture Sepia1D.tga 1d
+                tex_coord_set 3
+				tex_address_mode mirror
 				filtering point point none
 			}
 
