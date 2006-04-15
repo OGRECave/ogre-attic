@@ -281,68 +281,6 @@ namespace Ogre {
         return zzip_file_read(mZzipFile, (char*)buf, count);
     }
     //-----------------------------------------------------------------------
-    size_t ZipDataStream::readLine(char* buf, size_t maxCount, const String& delim)
-    {
-        // read in chunks
-		size_t chunkSize = std::min(maxCount, (size_t)OGRE_STREAM_TEMP_SIZE-1);
-		size_t totalCount = 0;
-		size_t readCount; 
-		// Deal with both Unix & Windows LFs
-		bool trimCR = false;
-		if (delim.find_first_of('\n') != String::npos)
-		{
-			trimCR = true;
-		}
-		while (chunkSize && (readCount = zzip_file_read(mZzipFile, mZipTmpArea, chunkSize)))
-		{
-			// Terminate
-			mZipTmpArea[readCount] = '\0';
-			// Find first delimiter
-			size_t pos = strcspn(mZipTmpArea, delim.c_str());
-
-			if (pos < readCount)
-			{
-				// found terminator
-                // reposition backwards
-                zzip_off_t offset = static_cast<zzip_off_t>(pos) - static_cast<zzip_off_t>(readCount) + 1;
-                zzip_seek(mZzipFile, offset, SEEK_CUR);
-			}
-
-			if (pos > 0)
-			{
-				if (trimCR && mZipTmpArea[pos-1] == '\r')
-				{
-					// strip off CR
-					--pos;
-				}
-				// Are we genuinely copying?
-				if (buf)
-				{
-					memcpy(buf, (const void*)mZipTmpArea, pos);
-                    buf[pos] = '\0';
-				}
-				totalCount += pos;
-			}
-
-            if (pos < readCount)
-            {
-                // Found delimiter, break out
-                break;
-            }
-			// Adjust chunkSize for next time
-			chunkSize = std::min(maxCount-totalCount, (size_t)OGRE_STREAM_TEMP_SIZE-1);
-			
-		}
-		return totalCount;
-    }
-    //-----------------------------------------------------------------------
-    size_t ZipDataStream::skipLine(const String& delim)
-    {
-		// Re-use readLine, but don't copy data
-		char* nullBuf = 0;
-        return readLine(nullBuf, 1024, delim);
-    }
-    //-----------------------------------------------------------------------
     void ZipDataStream::skip(long count)
     {
         zzip_seek(mZzipFile, static_cast<zzip_off_t>(count), SEEK_CUR);

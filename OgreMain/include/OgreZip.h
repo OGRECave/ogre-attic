@@ -102,8 +102,6 @@ namespace Ogre {
     {
     protected:
         ZZIP_FILE* mZzipFile;
-		/// Temporary zip copy area
-		char mZipTmpArea[OGRE_STREAM_TEMP_SIZE];
     public:
         /// Unnamed constructor
         ZipDataStream(ZZIP_FILE* zzipFile, size_t uncompressedSize);
@@ -112,10 +110,6 @@ namespace Ogre {
 		~ZipDataStream();
         /// @copydoc DataStream::read
         size_t read(void* buf, size_t count);
-        /// @copydoc DataStream::read
-        size_t readLine(char* buf, size_t maxCount, const String& delim = "\n");
-        /// @copydoc DataStream::skipLine
-        size_t skipLine(const String& delim = "\n");
         /// @copydoc DataStream::skip
         void skip(long count);
         /// @copydoc DataStream::seek

@@ -59,8 +59,6 @@ namespace Ogre {
         /// Size of the data in the stream (may be 0 if size cannot be determined)
         size_t mSize;
         #define OGRE_STREAM_TEMP_SIZE 128
-        /// Temporary buffer area used for formatted read
-        char mTmpArea[OGRE_STREAM_TEMP_SIZE];
 	public:
 		/// Constructor for creating unnamed streams
         DataStream() : mSize(0) {}
@@ -89,7 +87,7 @@ namespace Ogre {
 		@param delim The delimiter to stop at
 		@returns The number of bytes read, excluding the terminating character
 		*/
-		virtual size_t readLine(char* buf, size_t maxCount, const String& delim = "\n") = 0;
+		virtual size_t readLine(char* buf, size_t maxCount, const String& delim = "\n");
 		
 	    /** Returns a String containing the next line of data, optionally 
 		    trimmed for whitespace. 
@@ -115,7 +113,7 @@ namespace Ogre {
 		@param delim The delimiter(s) to stop at
 		@returns The number of bytes skipped
 		*/
-		virtual size_t skipLine(const String& delim = "\n") = 0;
+		virtual size_t skipLine(const String& delim = "\n");
 
 		/** Skip a defined number of bytes. This can also be a negative value, in which case
 		the file pointer rewinds a defined number of bytes. */
@@ -358,10 +356,6 @@ namespace Ogre {
 		*/
         size_t readLine(char* buf, size_t maxCount, const String& delim = "\n");
 		
-		/** @copydoc DataStream::skipLine
-		*/
-		size_t skipLine(const String& delim = "\n");
-
 		/** @copydoc DataStream::skip
 		*/
 		void skip(long count);
@@ -408,13 +402,6 @@ namespace Ogre {
 		/** @copydoc DataStream::read
 		*/
 		size_t read(void* buf, size_t count);
-		/** @copydoc DataStream::readLine
-		*/
-		size_t readLine(char* buf, size_t maxCount, const String& delim = "\n");
-		
-		/** @copydoc DataStream::skipLine
-		*/
-		size_t skipLine(const String& delim = "\n");
 
 		/** @copydoc DataStream::skip
 		*/

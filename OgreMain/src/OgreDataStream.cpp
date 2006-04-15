@@ -38,16 +38,38 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     String DataStream::getLine(bool trimAfter)
     {
-        StringUtil::StrStreamType str;
-        size_t c = OGRE_STREAM_TEMP_SIZE-1;
+        char tmpBuf[OGRE_STREAM_TEMP_SIZE];
+        String retString;
+        size_t readCount;
         // Keep looping while not hitting delimiter
-        while (c == OGRE_STREAM_TEMP_SIZE-1)
+        while ((readCount = read(tmpBuf, OGRE_STREAM_TEMP_SIZE-1)) != 0)
         {
-            c = readLine(mTmpArea, OGRE_STREAM_TEMP_SIZE-1);
-            str << mTmpArea;
+            // Terminate string
+            tmpBuf[readCount] = '\0';
+
+            char* p = strchr(tmpBuf, '\n');
+            if (p != 0)
+            {
+                // Reposition backwards
+                skip((long)(p + 1 - tmpBuf - readCount));
+                *p = '\0';
+            }
+
+            retString += tmpBuf;
+
+            if (p != 0)
+            {
+                // Trim off trailing CR if this was a CR/LF entry
+                if (retString.length() && retString[retString.length()-1] == '\r')
+                {
+                    retString.erase(retString.length()-1, 1);
+                }
+
+                // Found terminator, break out
+                break;
+            }
         }
 
-        String retString(str.str());
         if (trimAfter)
         {
             StringUtil::trim(retString);
@@ -56,10 +78,99 @@ namespace Ogre {
         return retString;
     }
     //-----------------------------------------------------------------------
+    size_t DataStream::readLine(char* buf, size_t maxCount, const String& delim)
+    {
+		// Deal with both Unix & Windows LFs
+		bool trimCR = false;
+		if (delim.find_first_of('\n') != String::npos)
+		{
+			trimCR = true;
+		}
+
+        char tmpBuf[OGRE_STREAM_TEMP_SIZE];
+        size_t chunkSize = std::min(maxCount, (size_t)OGRE_STREAM_TEMP_SIZE-1);
+        size_t totalCount = 0;
+        size_t readCount; 
+        while (chunkSize && (readCount = read(tmpBuf, chunkSize)))
+        {
+            // Terminate
+            tmpBuf[readCount] = '\0';
+
+            // Find first delimiter
+            size_t pos = strcspn(tmpBuf, delim.c_str());
+
+            if (pos < readCount)
+            {
+                // Found terminator, reposition backwards
+                skip((long)(pos + 1 - readCount));
+            }
+
+            // Are we genuinely copying?
+            if (buf)
+            {
+                memcpy(buf+totalCount, tmpBuf, pos);
+            }
+            totalCount += pos;
+
+            if (pos < readCount)
+            {
+                // Trim off trailing CR if this was a CR/LF entry
+                if (trimCR && totalCount && buf[totalCount-1] == '\r')
+                {
+                    --totalCount;
+                }
+
+                // Found terminator, break out
+                break;
+            }
+
+            // Adjust chunkSize for next time
+            chunkSize = std::min(maxCount-totalCount, (size_t)OGRE_STREAM_TEMP_SIZE-1);
+        }
+
+        // Terminate
+        buf[totalCount] = '\0';
+
+        return totalCount;
+    }
+    //-----------------------------------------------------------------------
+    size_t DataStream::skipLine(const String& delim)
+    {
+        char tmpBuf[OGRE_STREAM_TEMP_SIZE];
+        size_t total = 0;
+        size_t readCount;
+        // Keep looping while not hitting delimiter
+        while ((readCount = read(tmpBuf, OGRE_STREAM_TEMP_SIZE-1)) != 0)
+        {
+            // Terminate string
+            tmpBuf[readCount] = '\0';
+
+            // Find first delimiter
+            size_t pos = strcspn(tmpBuf, delim.c_str());
+
+            if (pos < readCount)
+            {
+                // Found terminator, reposition backwards
+                skip((long)(pos + 1 - readCount));
+
+                total += pos + 1;
+
+                // break out
+                break;
+            }
+
+            total += readCount;
+        }
+
+        return total;
+    }
+    //-----------------------------------------------------------------------
     String DataStream::getAsString(void)
     {
         // Read the entire buffer
         char* pBuf = new char[mSize+1];
+        // Ensure read from begin of stream
+        seek(0);
         read(pBuf, mSize);
         pBuf[mSize] = '\0';
         String str;
@@ -190,42 +301,48 @@ namespace Ogre {
 			trimCR = true;
 		}
 
-        size_t pos = strcspn((const char*)mPos, delim.c_str());
-        if (pos > maxCount)
-            pos = maxCount;
+        size_t pos = 0;
 
         // Make sure pos can never go past the end of the data 
-        if(mPos + pos > mEnd) pos = mEnd - mPos; 
-
-        if (pos > 0)
+        while (pos < maxCount && mPos < mEnd)
         {
-            memcpy(buf, (const void*)mPos, pos);
+            if (delim.find(*mPos) != String::npos)
+            {
+                // Trim off trailing CR if this was a CR/LF entry
+                if (trimCR && pos && buf[pos-1] == '\r')
+                {
+                    // terminate 1 character early
+                    --pos;
+                }
+
+                // Found terminator, skip and break out
+                ++mPos;
+                break;
+            }
+
+            buf[pos++] = *mPos++;
         }
 
-		// reposition pointer
-		mPos += pos + 1;
-
-		// Trim off trailing CR if this was a CR/LF entry
-		if (trimCR && buf[pos-1] == '\r')
-		{
-			// terminate 1 character early
-			--pos;
-		}
-		// terminate
-		buf[pos] = '\0';
-
+        // terminate
+        buf[pos] = '\0';
 
         return pos;
     }
     //-----------------------------------------------------------------------
     size_t MemoryDataStream::skipLine(const String& delim)
     {
-        size_t pos = strcspn( (const char*)mPos, delim.c_str() );
+        size_t pos = 0;
 
         // Make sure pos can never go past the end of the data 
-        if(mPos + pos > mEnd) pos = mEnd - mPos; 
-
-        mPos += pos + 1;
+        while (mPos < mEnd)
+        {
+            ++pos;
+            if (delim.find(*mPos++) != String::npos)
+            {
+                // Found terminator, break out
+                break;
+            }
+        }
 
         return pos;
 
@@ -373,18 +490,6 @@ namespace Ogre {
 		return ret;
 	}
     //-----------------------------------------------------------------------
-    size_t FileStreamDataStream::skipLine(const String& delim)
-    {
-        size_t c = OGRE_STREAM_TEMP_SIZE-1;
-        size_t total = 0;
-        while (c == OGRE_STREAM_TEMP_SIZE-1)
-        {
-            c = readLine(mTmpArea, OGRE_STREAM_TEMP_SIZE-1);
-            total += c;
-        }
-        return total;
-    }
-    //-----------------------------------------------------------------------
     void FileStreamDataStream::skip(long count)
     {
 		mpStream->clear(); //Clear fail status in case eof was set
@@ -449,72 +554,6 @@ namespace Ogre {
     size_t FileHandleDataStream::read(void* buf, size_t count)
     {
         return fread(buf, count, 1, mFileHandle);
-    }
-    //-----------------------------------------------------------------------
-    size_t FileHandleDataStream::readLine(char* buf, size_t maxCount, const String& delim)
-    {
-        // Have to buffer the data
-        // since we have no read up to delimeter method
-
-		// Deal with both Unix & Windows LFs
-		bool trimCR = false;
-		if (delim.find_first_of('\n') != String::npos)
-		{
-			trimCR = true;
-		}
-
-        size_t chunkSize = std::min(maxCount, (size_t)OGRE_STREAM_TEMP_SIZE-1);
-        size_t totalCount = 0;
-        size_t readCount; 
-        while (chunkSize && (readCount = fread(mTmpArea, chunkSize, 1, mFileHandle)))
-        {
-            // Terminate
-            mTmpArea[readCount] = '\0';
-            // Find first delimiter
-            size_t pos = strcspn(mTmpArea, delim.c_str());
-
-            if (pos < readCount)
-            {
-                // found terminator
-                // reposition backwards
-                fseek(mFileHandle, pos - readCount + 1, SEEK_CUR);
-            }
-
-			if (pos > 0)
-            {
-				// terminate early if CR found
-				if (trimCR && mTmpArea[pos-1] == '\r')
-				{
-					--pos;
-				}
-
-                // Are we genuinely copying?
-                if (buf)
-                {
-                    memcpy(buf, (const void*)mTmpArea, pos);
-					buf[pos] = '\0';
-                }
-                totalCount += pos;
-            }
-
-            if (pos < readCount)
-            {
-                break;
-            }
-            // Adjust chunkSize for next time
-            chunkSize = std::min(maxCount-totalCount, (size_t)OGRE_STREAM_TEMP_SIZE-1);
-
-        }
-        return totalCount;
-
-
-    }
-    //-----------------------------------------------------------------------
-    size_t FileHandleDataStream::skipLine(const String& delim)
-    {
-        // Re-use readLine, but don't copy data
-        char* nullBuf = 0;
-        return readLine(nullBuf, 1024, delim);
     }
     //-----------------------------------------------------------------------
     void FileHandleDataStream::skip(long count)
