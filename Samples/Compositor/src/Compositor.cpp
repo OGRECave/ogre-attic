@@ -26,12 +26,13 @@ LGPL like the rest of the engine.
             added gui framework to demo
 */
 
+#include <Ogre.h>
+
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
 #endif
 
-#include <Ogre.h>
 
 #include "Compositor.h"
 #include "CompositorDemo_FrameListener.h"

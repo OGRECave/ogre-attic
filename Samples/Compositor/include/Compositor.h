@@ -21,7 +21,18 @@ LGPL like the rest of the engine.
 #include "ItemSelectorViewManager.h"
 
 #include "OgreNoMemoryMacros.h"
-#include "CEGUI/CEGUI.h"
+#include <CEGUI/CEGUIImageset.h>
+#include <CEGUI/CEGUISystem.h>
+#include <CEGUI/CEGUILogger.h>
+#include <CEGUI/CEGUISchemeManager.h>
+#include <CEGUI/CEGUIWindowManager.h>
+#include <CEGUI/CEGUIWindow.h>
+#include <CEGUI/elements/CEGUICombobox.h>
+#include <CEGUI/elements/CEGUIListbox.h>
+#include <CEGUI/elements/CEGUIListboxTextItem.h>
+#include <CEGUI/elements/CEGUIPushButton.h>
+#include <CEGUI/elements/CEGUIScrollbar.h>
+#include <CEGUI/elements/CEGUIStaticImage.h>
 #include "OgreMemoryMacros.h"
 
 #include "OgreCEGUIRenderer.h"
