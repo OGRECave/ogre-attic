@@ -214,7 +214,7 @@ protected:
 		plane.d = 100;
 		MeshManager::getSingleton().createPlane("Myplane",
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
-			1500,1500,20,20,true,1,15,15,Vector3::UNIT_Z);
+			1500,1500,20,20,true,1,60,60,Vector3::UNIT_Z);
 		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
 		pPlaneEnt->setMaterialName("Examples/Rockwall");
 		pPlaneEnt->setCastShadows(false);
