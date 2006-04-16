@@ -4,7 +4,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "OGRE SDK"
-!define PRODUCT_VERSION "1.2.0_RC1"
+!define PRODUCT_VERSION "1.2.0_RC2"
 !define PRODUCT_PUBLISHER "The OGRE Team"
 !define PRODUCT_WEB_SITE "http://www.ogre3d.org"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
