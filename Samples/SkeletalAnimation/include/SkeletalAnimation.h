@@ -127,6 +127,7 @@ protected:
 			{
 				mSneakStartOffset = startKf->getTranslate() + bone->getInitialPosition();
 				mSneakEndOffset = oldKf.getTranslate() + bone->getInitialPosition();
+				mSneakStartOffset.y = mSneakEndOffset.y;
 				// Adjust spine root relative to new location
 				newKf->setRotation(oldKf.getRotation());
 				newKf->setTranslate(oldKf.getTranslate());
@@ -217,7 +218,7 @@ protected:
 		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
 		pPlaneEnt->setMaterialName("Examples/Rockwall");
 		pPlaneEnt->setCastShadows(false);
-		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0,100,0))->attachObject(pPlaneEnt);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0,99,0))->attachObject(pPlaneEnt);
 
 
 
