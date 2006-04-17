@@ -82,6 +82,9 @@ namespace Ogre {
 			returned, and it is skipped over so the next read will occur
 			after it. The buffer contents will include a
 			terminating character.
+        @note
+            If you used this function, you <b>must</b> open the stream in <b>binary mode</b>,
+            otherwise, it'll produce unexpected results.
 		@param buf Reference to a buffer pointer
 		@param maxCount The maximum length of data to be read, excluding the terminating character
 		@param delim The delimiter to stop at
@@ -96,6 +99,9 @@ namespace Ogre {
 		    retrieve a String object containing the next line of data. The data
 		    is read up to the next newline character and the result trimmed if
 		    required.
+        @note
+            If you used this function, you <b>must</b> open the stream in <b>binary mode</b>,
+            otherwise, it'll produce unexpected results.
 	    @param 
 		    trimAfter If true, the line is trimmed for whitespace (as in 
 		    String.trim(true,true))
@@ -110,6 +116,9 @@ namespace Ogre {
 	    virtual String getAsString(void);
 
 		/** Skip a single line from the stream.
+        @note
+            If you used this function, you <b>must</b> open the stream in <b>binary mode</b>,
+            otherwise, it'll produce unexpected results.
 		@param delim The delimiter(s) to stop at
 		@returns The number of bytes skipped
 		*/
