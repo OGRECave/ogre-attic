@@ -2,7 +2,7 @@
 <Wix xmlns='http://schemas.microsoft.com/wix/2003/01/wi'>
 
   <Product 
-		Name='OGRE Demos 1.2.0RC1' 
+		Name='OGRE Demos 1.2.0RC2' 
 		Id='05A4DFEA-C532-4b43-A946-046314E77D50'
 		Language='1033' Codepage='1252' 
 		Version='1.2.0' Manufacturer='OGRE Project'>
@@ -225,11 +225,12 @@
             </Directory>
             <Directory Id="directory18" Name="fonts">
               <Component Id="MediaFontsComp" DiskId="1" Guid="FA9AC810-72C6-4594-942F-78546D07A0BD">
-                <File Id="file111" Name="FONT_A_1.PNG" LongName="font_arial.png" src="..\..\Media\fonts\font_arial.png" />
-                <File Id="file112" Name="FONT_M_1.PNG" LongName="font_matisse_itc.png" src="..\..\Media\fonts\font_matisse_itc.png" />
-                <File Id="file113" Name="maiden.ttf" src="..\..\Media\fonts\maiden.ttf" />
                 <File Id="file114" Name="SAMPLE_1.FON" LongName="sample.fontdef" src="..\..\Media\fonts\sample.fontdef" />
                 <File Id="file115" Name="solo5.ttf" src="..\..\Media\fonts\solo5.ttf" />
+				<File Id="file116_" Name="bluebold.ttf" src="..\..\Media\fonts\bluebold.ttf" />
+				<File Id="file117_" Name="bluecond.ttf" src="..\..\Media\fonts\bluecond.ttf" />
+				<File Id="file118_" Name="bluehigh.ttf" src="..\..\Media\fonts\bluehigh.ttf" />
+				<File Id="file119_" Name="read_me.htm" LongName="read_me.html" src="..\..\Media\fonts\read_me.html" />
               </Component>
             </Directory>
             <Directory Id="directory20" Name="gui">
@@ -243,17 +244,18 @@
                 <File Id="file129" Name="OCEAND_1.XML" LongName="OceanDemoLayout.xml" src="..\..\Media\gui\OceanDemoLayout.xml" />
                 <File Id="file130" Name="TAHARE_1.IMA" LongName="TaharezLook.imageset" src="..\..\Media\gui\TaharezLook.imageset" />
                 <File Id="file131" Name="TAHARE_1.LOO" LongName="TaharezLook.looknfeel" src="..\..\Media\gui\TaharezLook.looknfeel" />
-                <File Id="file132" Name="TAHARE_1.SCH" LongName="TaharezLook.scheme" src="..\..\Media\gui\TaharezLook.scheme" />
                 <File Id="file133" Name="TAHARE_1.TGA" LongName="TaharezLook.tga" src="..\..\Media\gui\TaharezLook.tga" />
                 <File Id="file134" Name="TAHARE_2.SCH" LongName="TaharezLookSkin.scheme" src="..\..\Media\gui\TaharezLookSkin.scheme" />
                 <File Id="file135" Name="TAHARE_3.SCH" LongName="TaharezLookWidgetAliases.scheme" src="..\..\Media\gui\TaharezLookWidgetAliases.scheme" />
                 <File Id="file136" Name="CEGUI8_1.LAY" LongName="cegui8.layout" src="..\..\Media\gui\cegui8.layout" />
                 <File Id="file137" Name="FACIAL_1.LAY" LongName="facial.layout" src="..\..\Media\gui\facial.layout" />
                 <File Id="file138" Name="OGREGU_1.LAY" LongName="ogregui.layout" src="..\..\Media\gui\ogregui.layout" />
-                <File Id="file139" Name="TAHOMA_1.FON" LongName="tahoma-10.font" src="..\..\Media\gui\tahoma-10.font" />
-                <File Id="file140" Name="TAHOMA_2.FON" LongName="tahoma-12.font" src="..\..\Media\gui\tahoma-12.font" />
-                <File Id="file141" Name="TAHOMA_3.FON" LongName="tahoma-8.font" src="..\..\Media\gui\tahoma-8.font" />
-                <File Id="file142" Name="tahoma.ttf" src="..\..\Media\gui\tahoma.ttf" />
+                <File Id="file139" Name="bluehi_1.FON" LongName="bluehighway-10.font" src="..\..\Media\gui\bluehighway-10.font" />
+                <File Id="file140" Name="bluehi_2.FON" LongName="bluehighway-12.font" src="..\..\Media\gui\bluehighway-12.font" />
+                <File Id="file141" Name="bluehi_3.FON" LongName="bluehighway-8.font" src="..\..\Media\gui\bluehighway-8.font" />
+				<File Id="file143_" Name="Compo_1.lay" LongName="CompositorDemo.layout" src="..\..\Media\gui\CompositorDemo.layout" />
+				<File Id="file144_" Name="Compo_1.con" LongName="CompositorDemoCegui.config" src="..\..\Media\gui\CompositorDemoCegui.config" />
+				
               </Component>
             </Directory>
             <Directory Id="directory22" Name="MATERI_1" LongName="materials">
@@ -292,6 +294,21 @@
                   <File Id="file187" Name="OCEANG_1.VER" LongName="oceanGLSL.vert" src="..\..\Media\materials\programs\oceanGLSL.vert" />
                   <File Id="file188" Name="OCEANH_1.FRA" LongName="oceanHLSL_Cg.frag" src="..\..\Media\materials\programs\oceanHLSL_Cg.frag" />
                   <File Id="file189" Name="OCEANH_1.VER" LongName="oceanHLSL_Cg.vert" src="..\..\Media\materials\programs\oceanHLSL_Cg.vert" />
+                  <File Id="file190_" Name="OldMov_1.cg" LongName="OldMovieFP.cg" src="..\..\Media\materials\programs\OldMovieFP.cg" />
+                  <File Id="file191_" Name="hdr.cg" src="..\..\Media\materials\programs\hdr.cg" />
+                  <File Id="file192_" Name="StdQua_1.gls" LongName="StdQuad_vp.glsl" src="..\..\Media\materials\programs\StdQuad_vp.glsl" />
+				  <File Id="file193_" Name="hdr.hls" LongName="hdr.hlsl" src="..\..\Media\materials\programs\hdr.hlsl" />
+				  <File Id="file194_" Name="hdrbloom.gls" LongName="hdr_bloom.glsl" src="..\..\Media\materials\programs\hdr_bloom.glsl" />
+				  <File Id="file195_" Name="hdrd2x2l.gls" LongName="hdr_downscale2x2luminence.glsl" src="..\..\Media\materials\programs\hdr_downscale2x2luminence.glsl" />
+				  <File Id="file196_" Name="hdrd3x3.gls" LongName="hdr_downscale3x3.glsl" src="..\..\Media\materials\programs\hdr_downscale3x3.glsl" />
+				  <File Id="file197_" Name="hdrd3x3b.gls" LongName="hdr_downscale3x3brightpass.glsl" src="..\..\Media\materials\programs\hdr_downscale3x3brightpass.glsl" />
+				  <File Id="file198_" Name="hdr_tm.gls" LongName="hdr_finalToneMapping.glsl" src="..\..\Media\materials\programs\hdr_finalToneMapping.glsl" />
+				  <File Id="file199_" Name="hdr_util.gls" LongName="hdr_tonemap_util.glsl" src="..\..\Media\materials\programs\hdr_tonemap_util.glsl" />
+				  <File Id="file200_" Name="InvertFP.cg" src="..\..\Media\materials\programs\InvertFP.cg" />
+				  <File Id="file201_" Name="Laplac_1.cg" LongName="LaplaceFP.cg" src="..\..\Media\materials\programs\LaplaceFP.cg" />
+				  <File Id="file202_" Name="Poster_1.cg" LongName="PosterizeFP.cg" src="..\..\Media\materials\programs\PosterizeFP.cg" />
+				  <File Id="file203_" Name="Sharpe_1.cg" LongName="SharpenEdgesFP.cg" src="..\..\Media\materials\programs\SharpenEdgesFP.cg" />
+				  <File Id="file204_" Name="TilingFP.cg" src="..\..\Media\materials\programs\TilingFP.cg" />
                 </Component>
               </Directory>
               <Directory Id="directory26" Name="scripts">
@@ -319,6 +336,13 @@
                   <File Id="file217" Name="SMOKE_1.MAT" LongName="smoke.material" src="..\..\Media\materials\scripts\smoke.material" />
                   <File Id="file218" Name="EXAMPL_1.COM" LongName="Examples.compositor" src="..\..\Media\materials\scripts\Examples.compositor" />
                   <File Id="file219" Name="OCEAN_1.MAT" LongName="Ocean.material" src="..\..\Media\materials\scripts\Ocean.material" />
+				  <File Id="file220_" Name="OldMovie.mat" LongName="OldMovie.material" src="..\..\Media\materials\scripts\OldMovie.material" />
+				  <File Id="file221_" Name="hdr.mat" LongName="hdr.material" src="..\..\Media\materials\scripts\hdr.material" />
+				  <File Id="file222_" Name="Sharpe_1.mat" LongName="SharpenEdges.material" src="..\..\Media\materials\scripts\SharpenEdges.material" />
+				  <File Id="file223_" Name="Invert.mat" LongName="Invert.material" src="..\..\Media\materials\scripts\Invert.material" />
+				  <File Id="file224_" Name="Laplace.mat" LongName="Laplace.material" src="..\..\Media\materials\scripts\Laplace.material" />
+				  <File Id="file225_" Name="Poster_1.mat" LongName="Posterize.material" src="..\..\Media\materials\scripts\Posterize.material" />
+				  <File Id="file226_" Name="Tiling.mat" LongName="Tiling.material" src="..\..\Media\materials\scripts\Tiling.material" />
                 </Component>
               </Directory>
               <Directory Id="directory28" Name="textures">
@@ -406,7 +430,14 @@
                   <File Id="file308" Name="texmap2.jpg" src="..\..\Media\materials\textures\texmap2.jpg" />
                   <File Id="file309" Name="waveNM.png" src="..\..\Media\materials\textures\waveNM.png" />
                   <File Id="file310" Name="waves2.dds" src="..\..\Media\materials\textures\waves2.dds" />
-                </Component>
+				  <File Id="file311_" Name="bluejaiq.jpg" LongName="blue_jaiqua.jpg" src="..\..\Media\materials\textures\blue_jaiqua.jpg" />
+				  <File Id="file312_" Name="Sepia1D.tga" src="..\..\Media\materials\textures\Sepia1D.tga" />
+				  <File Id="file313_" Name="fw12b.jpg" src="..\..\Media\materials\textures\fw12b.jpg" />
+				  <File Id="file314_" Name="1D_Noise.png" src="..\..\Media\materials\textures\1D_Noise.png" />
+				  <File Id="file315_" Name="1D_Noi_2.png" LongName="1D_Noise2.png" src="..\..\Media\materials\textures\1D_Noise2.png" />
+				  <File Id="file316_" Name="8x8Pag_1.png" LongName="8x8PagesSplotches2.png" src="..\..\Media\materials\textures\8x8PagesSplotches2.png" />
+				  <File Id="file317_" Name="normal_1.png" LongName="normalNoiseColor.png" src="..\..\Media\materials\textures\normalNoiseColor.png" />
+             </Component>
               </Directory>
             </Directory>
             <Directory Id="directory30" Name="models">
@@ -430,6 +461,9 @@
                 <File Id="file334" Name="ROBOT_1.MES" LongName="robot.mesh" src="..\..\Media\models\robot.mesh" />
                 <File Id="file335" Name="ROBOT_1.SKE" LongName="robot.skeleton" src="..\..\Media\models\robot.skeleton" />
                 <File Id="file336" Name="SPHERE_1.MES" LongName="sphere.mesh" src="..\..\Media\models\sphere.mesh" />
+				<File Id="file337_" Name="jaiqua.mes" LongName="jaiqua.mesh" src="..\..\Media\models\jaiqua.mesh" />
+				<File Id="file338_" Name="jaiqua.ske" LongName="jaiqua.skeleton" src="..\..\Media\models\jaiqua.skeleton" />
+				<File Id="file339_" Name="tudorhou.mes" LongName="tudorhouse.mesh" src="..\..\Media\models\tudorhouse.mesh" />
               </Component>
             </Directory>
             <Directory Id="directory32" Name="overlays">
@@ -476,7 +510,7 @@
       </Directory>
     </Directory>
 
-    <Feature Id='DemosFeature' Level='1' ConfigurableDirectory="INSTALLDIR" Title='Tools' 
+    <Feature Id='DemosFeature' Level='1' ConfigurableDirectory="INSTALLDIR" Title='Demos' 
       Description='OGRE Demos' 
       Absent='disallow' AllowAdvertise='no'>
       <ComponentRef Id='OgreDemosComp' />

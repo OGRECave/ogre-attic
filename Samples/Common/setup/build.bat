@@ -12,4 +12,4 @@ light -out OgreDemos.msi demos.wixobj %WIX_ROOT%\ui\wixui_featuretree.wixlib
 
 
 :end
-
+pause
