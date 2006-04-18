@@ -4,9 +4,17 @@
 
 #include "mayaExportLayer.h"
 
+// Length units multipliers from Maya internal unit (cm)
+
+#define CM2MM 10.0
+#define CM2CM 1.0
+#define CM2M  0.01
+#define CM2IN 0.393701
+#define CM2FT 0.0328084
+#define CM2YD 0.0109361
+
 namespace OgreMayaExporter
 {
-
 	typedef struct clipInfoTag
 	{
 		double start;							//start time of the clip
@@ -32,6 +40,8 @@ namespace OgreMayaExporter
 			exportSkeleton, exportAnims, exportMeshBin, exportSkelBin, exportWorldCoords, useSharedGeom,
 			lightingOff, copyTextures, exportParticles;
 
+		float lum;	// Length Unit Multiplier
+
 		MString meshFilename, skeletonFilename, materialFilename, animFilename, camerasFilename, matPrefix,
 			texOutputDir, particlesFilename;
 
@@ -46,6 +56,7 @@ namespace OgreMayaExporter
 
 		// constructor
 		ParamList()	{
+			lum = 1.0;
 			exportMesh = false;
 			exportMaterial = false;
 			exportSkeleton = false;
@@ -80,6 +91,7 @@ namespace OgreMayaExporter
 		}
 
 		ParamList& operator=(ParamList& source)	{
+			lum = source.lum;
 			exportMesh = source.exportMesh;
 			exportMaterial = source.exportMaterial;
 			exportSkeleton = source.exportSkeleton;

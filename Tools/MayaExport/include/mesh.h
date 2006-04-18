@@ -31,7 +31,6 @@ namespace OgreMayaExporter
 		std::vector<vertex> m_vertices;
 		std::vector<uvset> m_uvsets;
 		std::vector<Submesh*> m_submeshes;
-		MFnSkinCluster* m_pSkinCluster;
 		Skeleton* m_pSkeleton;
 	};
 

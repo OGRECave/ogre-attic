@@ -1,4 +1,5 @@
 #include "mesh.h"
+#include <maya/MFnMatrixData.h>
 
 namespace OgreMayaExporter
 {
@@ -8,7 +9,6 @@ namespace OgreMayaExporter
 	{
 		m_name = name;
 		m_numTriangles = 0;
-		m_pSkinCluster = NULL;
 		m_pSkeleton = NULL;
 	}
 
@@ -28,9 +28,6 @@ namespace OgreMayaExporter
 		m_vertices.clear();
 		m_uvsets.clear();
 		m_submeshes.clear();
-		if (m_pSkinCluster)
-			delete m_pSkinCluster;
-		m_pSkinCluster = NULL;
 		if (m_pSkeleton)
 			delete m_pSkeleton;
 		m_pSkeleton = NULL;
@@ -47,6 +44,7 @@ namespace OgreMayaExporter
 	 *******************************************************************************/
 	MStatus Mesh::load(MDagPath& meshDag,ParamList &params)
 	{
+		int i,j,k;
 		MStatus stat;
 		// check that given DagPath corresponds to a mesh node
 		if (!meshDag.hasFn(MFn::kMesh))
@@ -59,7 +57,7 @@ namespace OgreMayaExporter
 		std::vector<MIntArray> jointIds;
 		unsigned int numJoints = 0;
 		std::vector<vertexInfo> vertices;
-		MFloatPointArray points;
+		MPointArray points;
 		MFloatVectorArray normals;
 		vertices.resize(mesh.numVertices());
 		weights.resize(mesh.numVertices());
@@ -72,11 +70,12 @@ namespace OgreMayaExporter
 			if (MS::kSuccess != stat)
 			{
 				std::cout << "Error retrieving UV sets names\n";
+				std::cout.flush();
 				return MS::kFailure;
 			}
 		}
 		//Save uvsets info
-		for (int i=m_uvsets.size(); i<uvsets.length(); i++)
+		for (i=m_uvsets.size(); i<uvsets.length(); i++)
 		{
 			uvset uv;
 			uv.size = 2;
@@ -87,47 +86,55 @@ namespace OgreMayaExporter
 		bool opposite = false;
 		mesh.findPlug("opposite",true).getValue(opposite);
 
+		// load the connected skeleton (if present)
+		MFnSkinCluster* pSkinCluster = NULL;
+		MFnMesh* pInputMesh = NULL;
 		if (params.exportVBA || params.exportSkeleton)
 		{
-			// get connected skin cluster (if present)
-			bool foundSkinCluster = false;
+			// get connected skin clusters (if present)
 			MItDependencyNodes kDepNodeIt( MFn::kSkinClusterFilter );            
-			for( ;!kDepNodeIt.isDone() && !foundSkinCluster; kDepNodeIt.next()) 
+			for( ;!kDepNodeIt.isDone() && !pSkinCluster; kDepNodeIt.next()) 
 			{            
 				MObject kObject = kDepNodeIt.item();
-				m_pSkinCluster = new MFnSkinCluster(kObject);
-				unsigned int uiNumGeometries = m_pSkinCluster->numOutputConnections();
-				for(unsigned int uiGeometry = 0; uiGeometry < uiNumGeometries; ++uiGeometry ) 
+				pSkinCluster = new MFnSkinCluster(kObject);
+				unsigned int uiNumGeometries = pSkinCluster->numOutputConnections();
+				unsigned int uiGeometry;
+				for(uiGeometry = 0; uiGeometry < uiNumGeometries && !pInputMesh; ++uiGeometry ) 
 				{
-					unsigned int uiIndex = m_pSkinCluster->indexForOutputConnection(uiGeometry);
-					MObject kOutputObject = m_pSkinCluster->outputShapeAtIndex(uiIndex);
+					unsigned int uiIndex = pSkinCluster->indexForOutputConnection(uiGeometry);
+					MObject kOutputObject = pSkinCluster->outputShapeAtIndex(uiIndex);
 					if(kOutputObject == mesh.object()) 
 					{
-						std:: cout << "Found skin cluster " << m_pSkinCluster->name().asChar() << " for mesh " 
+						std::cout << "Found skin cluster " << pSkinCluster->name().asChar() << " for mesh " 
 							<< mesh.name().asChar() << "\n"; 
-						foundSkinCluster = true;
-					}
+						std::cout.flush();
+					}	
 					else
 					{
-						delete m_pSkinCluster;
-						m_pSkinCluster = NULL;
+						delete pSkinCluster;
+						pSkinCluster = NULL;
 					}
 				}
 			}
 
-			// load connected skeleton (if present)
-			if (m_pSkinCluster)
+			if (pSkinCluster)
 			{
+				// load the skeleton
 				std::cout << "Loading skeleton data...\n";
+				std::cout.flush();
 				if (!m_pSkeleton)
 					m_pSkeleton = new Skeleton();
-				stat = m_pSkeleton->load(m_pSkinCluster,params);
+				stat = m_pSkeleton->load(pSkinCluster,params);
 				if (MS::kSuccess != stat)
 				{
 					std::cout << "Error loading skeleton data\n";
+					std::cout.flush();
 				}
 				else
+				{
 					std::cout << "OK\n";
+					std::cout.flush();
+				}
 			}
 		}
 		// get connected shaders
@@ -137,12 +144,15 @@ namespace OgreMayaExporter
 		if (MS::kSuccess != stat)
 		{
 			std::cout << "Error getting connected shaders\n";
+			std::cout.flush();
 			return MS::kFailure;
 		}
 		std::cout << "Found " << shaders.length() << " connected shaders\n";
+		std::cout.flush();
 		if (shaders.length() <= 0)
 		{
 			std::cout << "No connected shaders, skipping mesh\n";
+			std::cout.flush();
 			return MS::kFailure;
 		}
 
@@ -152,10 +162,10 @@ namespace OgreMayaExporter
 
 		// Get faces data
 		// prepare vertex table
-		for (int i=0; i<vertices.size(); i++)
+		for (i=0; i<vertices.size(); i++)
 			vertices[i].next = -2;
-		//get vertex positions from mesh data
-		if (params.exportWorldCoords)
+		//get vertex positions from mesh
+		if (params.exportWorldCoords || (pSkinCluster && params.exportSkeleton))
 			mesh.getPoints(points,MSpace::kWorld);
 		else
 			mesh.getPoints(points,MSpace::kTransform);
@@ -165,36 +175,78 @@ namespace OgreMayaExporter
 		else
 			mesh.getNormals(normals,MSpace::kTransform);
 		//get list of vertex weights
-		if (m_pSkinCluster)
+		if (pSkinCluster)
 		{
 			std::cout << "Get vbas\n";
+			std::cout.flush();
 			MItGeometry iterGeom(meshDag);
+			std::ofstream out;
+			out.open("C:\\test.txt");
 			for (i=0; !iterGeom.isDone(); iterGeom.next(), i++)
 			{
 				MObject component = iterGeom.component();
 				MFloatArray vertexWeights;
-				stat=m_pSkinCluster->getWeights(meshDag,component,vertexWeights,numJoints);
+				stat=pSkinCluster->getWeights(meshDag,component,vertexWeights,numJoints);
+				//normalize vertex weights
+				int widx;
+				MFloatArray oldw = vertexWeights;
+				// first, truncate the weights to given precision
+				long weightSum = 0;
+				for (widx=0; widx < vertexWeights.length(); widx++)
+				{
+					long w = (long) (((float)vertexWeights[widx]) / ((float)PRECISION));
+					vertexWeights[widx] = w;
+					weightSum += w;
+				}
+				// then divide by the sum of the weights to add up to 1 
+				// (if there is at least one weight > 0)
+				if (weightSum > 0)
+				{
+					float newSum = 0;
+					for (widx=0; widx < vertexWeights.length(); widx++)
+					{
+						long w = (long) ((float)vertexWeights[widx] / ((float)PRECISION));
+						w = (long) (((float)w) / ((float)weightSum));
+						vertexWeights[widx] = (float) (((long)w) * ((float)PRECISION));
+						newSum += vertexWeights[widx];
+					}
+					if (newSum < 1.0f)
+						vertexWeights[vertexWeights.length()-1] += PRECISION;
+				}
+				// else set all weights to 0
+				else
+				{
+					for (widx=0; widx < vertexWeights.length(); widx++)
+						vertexWeights[widx] = 0;
+				}
+				// save the normalized weights
 				weights[i]=vertexWeights;
+				for (widx=0; widx < vertexWeights.length(); widx++)
+				{
+					out << oldw[widx] << "\t" << vertexWeights[widx] << "\n";
+				}
 				if (MS::kSuccess != stat)
 				{
 					std::cout << "Error retrieving vertex weights\n";
+					std::cout.flush();
 				}
 				// get ids for the joints
 				if (m_pSkeleton)
 				{
 					MDagPathArray influenceObjs;
-					m_pSkinCluster->influenceObjects(influenceObjs,&stat);
+					pSkinCluster->influenceObjects(influenceObjs,&stat);
 					if (MS::kSuccess != stat)
 					{
 						std::cout << "Error retrieving influence objects for given skin cluster\n";
+						std::cout.flush();
 					}
 					jointIds[i].setLength(weights[i].length());
-					for (int j=0; j<influenceObjs.length(); j++)
+					for (j=0; j<influenceObjs.length(); j++)
 					{
 						bool foundJoint = false;
-						for (int k=0; k<m_pSkeleton->getJoints().size() && !foundJoint; k++)
+						for (k=0; k<m_pSkeleton->getJoints().size() && !foundJoint; k++)
 						{
-							if (influenceObjs[j].partialPathName() == m_pSkeleton->getJoints()[k].name)
+							if (influenceObjs[j].fullPathName() == m_pSkeleton->getJoints()[k].name)
 							{
 								foundJoint=true;
 								jointIds[i][j] = m_pSkeleton->getJoints()[k].id;
@@ -203,25 +255,32 @@ namespace OgreMayaExporter
 					}
 				}
 			}
+			out.close();
 		}
 		// create an iterator to go through mesh polygons
 		if (mesh.numPolygons() > 0)
 		{
 			std::cout << "Iterate over mesh polygons\n";
+			std::cout.flush();
 			MItMeshPolygon faceIter(mesh.object(),&stat);
 			if (MS::kSuccess != stat)
 			{
 				std::cout << "Error accessing mesh polygons\n";
+				std::cout.flush();
 				return MS::kFailure;
 			}
 			std::cout << "num polygons = " << mesh.numPolygons() << "\n";
+			std::cout.flush();
 			// iterate over mesh polygons
 			for (; !faceIter.isDone(); faceIter.next())
 			{
 				int numTris=0;
+				int iTris;
+				bool different;
+				int vtxIdx, nrmIdx;
 				faceIter.numTriangles(numTris);
 				// for every triangle composing current polygon extract triangle info
-				for (int iTris=0; iTris<numTris; iTris++)
+				for (iTris=0; iTris<numTris; iTris++)
 				{
 					MPointArray triPoints;
 					MIntArray tempTriVertexIdx,triVertexIdx;
@@ -247,11 +306,21 @@ namespace OgreMayaExporter
 						}
 					}
 					// iterate over triangle's vertices
-					for (int i=0; i<3; i++)
+					for (i=0; i<3; i++)
 					{
-						bool different = true;
-						int vtxIdx = faceIter.vertexIndex(triVertexIdx[i]);
-						int nrmIdx = faceIter.normalIndex(triVertexIdx[i]);
+						different = true;
+						vtxIdx = faceIter.vertexIndex(triVertexIdx[i],&stat);
+						if (stat != MS::kSuccess)
+						{
+							std::cout << "Could not access vertex position\n";
+							std::cout.flush();
+						}
+						nrmIdx = faceIter.normalIndex(triVertexIdx[i],&stat);
+						if (stat != MS::kSuccess)
+						{
+							std::cout << "Could not access vertex normal\n";
+							std::cout.flush();
+						}
 
 						// get vertex color
 						MColor color;
@@ -264,12 +333,20 @@ namespace OgreMayaExporter
 							}
 							if (color.r > 1)
 								color.r = 1;
+							else if (color.r < PRECISION)
+								color.r = 0;
 							if (color.g > 1)
 								color.g = 1;
+							else if (color.g < PRECISION)
+								color.g = 0;
 							if (color.b > 1)
 								color.b = 1;
+							else if (color.b < PRECISION)
+								color.b = 0;
 							if (color.a > 1)
 								color.a = 1;
+							else if (color.a < PRECISION)
+								color.a = 0;
 						}
 						else
 						{
@@ -292,18 +369,18 @@ namespace OgreMayaExporter
 							vertices[vtxIdx].v.resize(uvsets.length());
 							// save vbas
 							vertices[vtxIdx].vba.resize(weights[vtxIdx].length());
-							for (int j=0; j<weights[vtxIdx].length(); j++)
+							for (j=0; j<weights[vtxIdx].length(); j++)
 							{
 								vertices[vtxIdx].vba[j] = (weights[vtxIdx])[j];
 							}
 							// save joint ids
 							vertices[vtxIdx].jointIds.resize(jointIds[vtxIdx].length());
-							for (int j=0; j<jointIds[vtxIdx].length(); j++)
+							for (j=0; j<jointIds[vtxIdx].length(); j++)
 							{
 								vertices[vtxIdx].jointIds[j] = (jointIds[vtxIdx])[j];
 							}
 							// save uv sets data
-							for (int j=0; j<uvsets.length(); j++)
+							for (j=0; j<uvsets.length(); j++)
 							{
 								float2 uv;
 								stat = faceIter.getUV(triVertexIdx[i],uv,&uvsets[j]);
@@ -323,7 +400,7 @@ namespace OgreMayaExporter
 						else	// already found at least 1 vertex in this position
 						{
 							// check if a vertex with same attributes has been saved already
-							for (int k=vtxIdx; k!=-1 && different; k=vertices[k].next)
+							for (k=vtxIdx; k!=-1 && different; k=vertices[k].next)
 							{
 								different = false;
 
@@ -345,7 +422,7 @@ namespace OgreMayaExporter
 
 								if (params.exportTexCoord)
 								{
-									for (int j=0; j<uvsets.length(); j++)
+									for (j=0; j<uvsets.length(); j++)
 									{
 										float2 uv;
 										stat = faceIter.getUV(triVertexIdx[i],uv,&uvsets[j]);
@@ -361,6 +438,7 @@ namespace OgreMayaExporter
 										}
 									}
 								}
+
 								idx = k;
 							}
 							// if no identical vertex has been saved, then save the vertex info
@@ -378,7 +456,7 @@ namespace OgreMayaExporter
 								vtx.a = color.a;
 								// save vertex vba
 								vtx.vba.resize(weights[vtxIdx].length());
-								for (int j=0; j<weights[vtxIdx].length(); j++)
+								for (j=0; j<weights[vtxIdx].length(); j++)
 								{
 									vtx.vba[j] = (weights[vtxIdx])[j];
 								}
@@ -400,6 +478,10 @@ namespace OgreMayaExporter
 										uv[0] = 0;
 										uv[1] = 0;
 									}
+									if (fabs(uv[0]) < PRECISION)
+										uv[0] = 0;
+									if (fabs(uv[1]) < PRECISION)
+										uv[1] = 0;
 									vtx.u[j] = uv[0];
 									vtx.v[j] = (-1)*(uv[1]-1);
 								}
@@ -423,31 +505,47 @@ namespace OgreMayaExporter
 			}
 		}
 		std::cout << "done reading mesh triangles\n";
+		std::cout.flush();
 
 		// if we are using shared geometry, then create a list of vertices for the whole mesh
 		if (params.useSharedGeom)
 		{
 			std::cout << "Create list of shared vertices\n";
+			std::cout.flush();
 			for (i=0; i<vertices.size(); i++)
 			{
 				vertex v;
 				vertexInfo vInfo = vertices[i];
-				// save vertex coordinates
-				v.x = points[vInfo.pointIdx].x;
-				v.y = points[vInfo.pointIdx].y;
-				v.z = points[vInfo.pointIdx].z;
+				// save vertex coordinates (rescale to desired length unit)
+				MPoint point = points[vInfo.pointIdx] * params.lum;
+				if (fabs(point.x) < PRECISION)
+					point.x = 0;
+				if (fabs(point.y) < PRECISION)
+					point.y = 0;
+				if (fabs(point.z) < PRECISION)
+					point.z = 0;
+				v.x = point.x * params.lum;
+				v.y = point.y * params.lum;
+				v.z = point.z * params.lum;
 				// save vertex normal
+				MFloatVector normal = normals[vInfo.normalIdx];
+				if (fabs(normal.x) < PRECISION)
+					normal.x = 0;
+				if (fabs(normal.y) < PRECISION)
+					normal.y = 0;
+				if (fabs(normal.z) < PRECISION)
+					normal.z = 0;
 				if (opposite)
 				{
-					v.n.x = -normals[vInfo.normalIdx].x;
-					v.n.y = -normals[vInfo.normalIdx].y;
-					v.n.z = -normals[vInfo.normalIdx].z;
+					v.n.x = -normal.x;
+					v.n.y = -normal.y;
+					v.n.z = -normal.z;
 				}
 				else
 				{
-					v.n.x = normals[vInfo.normalIdx].x;
-					v.n.y = normals[vInfo.normalIdx].y;
-					v.n.z = normals[vInfo.normalIdx].z;
+					v.n.x = normal.x;
+					v.n.y = normal.y;
+					v.n.z = normal.z;
 				}
 				v.n.normalize();
 				// save vertex color
@@ -456,7 +554,7 @@ namespace OgreMayaExporter
 				v.b = vInfo.b;
 				v.a = vInfo.a;
 				// save vertex bone assignements
-				for (int k=0; k<vInfo.vba.size(); k++)
+				for (k=0; k<vInfo.vba.size(); k++)
 				{
 					vba newVba;
 					newVba.jointIdx = vInfo.jointIds[k];
@@ -476,6 +574,7 @@ namespace OgreMayaExporter
 				m_vertices.push_back(v);
 			}
 			std::cout << "done creating vertices list\n";
+			std::cout.flush();
 		}
 
 		// create a submesh for every different shader linked to the mesh
@@ -493,6 +592,7 @@ namespace OgreMayaExporter
 				{
 					MFnDependencyNode shadingGroup(shaders[i]);
 					std::cout << "Error loading submesh linked to shader " << shadingGroup.name().asChar() << "\n";
+					std::cout.flush();
 					return MS::kFailure;
 				}
 
@@ -505,6 +605,11 @@ namespace OgreMayaExporter
 				m_numTriangles += pSubmesh->numTriangles();
 			}
 		}
+		
+		if (pSkinCluster)
+			delete pSkinCluster;
+		if (pInputMesh)
+			delete pInputMesh;
 
 		return MS::kSuccess;
 	}
@@ -513,6 +618,7 @@ namespace OgreMayaExporter
 	// Write mesh data to Ogre XML
 	MStatus Mesh::writeXML(ParamList &params)
 	{
+		int i,j;
 		MStatus stat;
 		// start mesh description
 		params.outMesh << "<mesh>\n";
@@ -536,7 +642,7 @@ namespace OgreMayaExporter
 			else
 				params.outMesh << 0 << "\">\n";
 			// write vertex data
-			for (int i=0; i < m_vertices.size(); i++)
+			for (i=0; i < m_vertices.size(); i++)
 			{
 				params.outMesh << "\t\t\t<vertex>\n";
 				//write vertex position
@@ -569,7 +675,7 @@ namespace OgreMayaExporter
 				}//write vertex texture coordinates
 				if (params.exportTexCoord)
 				{
-					for (int j=0; j<m_uvsets.size(); j++)
+					for (j=0; j<m_uvsets.size(); j++)
 					{
 						if (j < m_vertices[i].texcoords.size())
 						{
@@ -589,7 +695,7 @@ namespace OgreMayaExporter
 		}
 		// write submeshes data
 		params.outMesh << "\t<submeshes>\n";
-		for (int i=0; i < m_submeshes.size(); i++)
+		for (i=0; i < m_submeshes.size(); i++)
 		{
 			stat = m_submeshes[i]->writeXML(params);
 			if (MS::kSuccess != stat)
@@ -614,11 +720,11 @@ namespace OgreMayaExporter
 		if (params.useSharedGeom && params.exportVBA)
 		{
 			params.outMesh << "\t<boneassignments>\n";
-			for (int i=0; i<m_vertices.size(); i++)
+			for (i=0; i<m_vertices.size(); i++)
 			{
-				for (int j=0; j<m_vertices[i].vbas.size(); j++)
+				for (j=0; j<m_vertices[i].vbas.size(); j++)
 				{
-					if (m_vertices[i].vbas[j].weight > 0.001)
+					if (m_vertices[i].vbas[j].weight >= PRECISION)
 					{
 						params.outMesh << "\t\t<vertexboneassignment vertexindex=\"" << i 
 							<< "\" boneindex=\"" << m_vertices[i].vbas[j].jointIdx << "\" weight=\"" 

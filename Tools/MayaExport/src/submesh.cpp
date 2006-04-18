@@ -49,6 +49,7 @@ namespace OgreMayaExporter
 /***** load data *****/
 	MStatus Submesh::loadMaterial(MObject& shader,MStringArray& uvsets,ParamList& params)
 	{
+		int i;
 		MPlug plug;
 		MPlugArray srcplugarray;
 		bool foundShader = false;
@@ -58,7 +59,7 @@ namespace OgreMayaExporter
 		MFnDependencyNode shadingGroup(shader);
 		plug = shadingGroup.findPlug("surfaceShader");
 		plug.connectedTo(srcplugarray,true,false,&stat);
-		for (int i=0; i<srcplugarray.length() && !foundShader; i++)
+		for (i=0; i<srcplugarray.length() && !foundShader; i++)
 		{
 			if (srcplugarray[i].node().hasFn(MFn::kLambert))
 			{
@@ -69,8 +70,23 @@ namespace OgreMayaExporter
 		if (foundShader)
 		{
 			std::cout << "Found material: " << pShader->name().asChar() << "\n";
+			std::cout.flush();
 			//check if this material has already been created
-			Material* pMaterial = MaterialSet::getSingleton().getMaterial(pShader->name());
+			//fix material name, adding the requested prefix
+			MString tmpStr = params.matPrefix;
+			if (tmpStr != "")
+				tmpStr += "/";
+			tmpStr += pShader->name();
+			MStringArray tmpStrArray;
+			tmpStr.split(':',tmpStrArray);
+			MString name = "";
+			for (i=0; i<tmpStrArray.length(); i++)
+			{
+				name += tmpStrArray[i];
+				if (i < tmpStrArray.length()-1)
+					name += "_";
+			}
+			Material* pMaterial = MaterialSet::getSingleton().getMaterial(name);
 			//if the material has already been created, update the pointer
 			if (pMaterial)
 				m_pMaterial = pMaterial;
@@ -88,6 +104,7 @@ namespace OgreMayaExporter
 		else
 		{
 			std::cout << "Unsupported material, replacing with default lambert\n";
+			std::cout.flush();
 			m_pMaterial = MaterialSet::getSingleton().getDefaultMaterial();
 		}
 		
@@ -95,11 +112,14 @@ namespace OgreMayaExporter
 		return MS::kSuccess;
 	}
 
-	MStatus Submesh::load(std::vector<face>& faces, std::vector<vertexInfo>& vertInfo, MFloatPointArray& points, 
+	MStatus Submesh::load(std::vector<face>& faces, std::vector<vertexInfo>& vertInfo, MPointArray& points, 
 		MFloatVectorArray& normals, MStringArray& texcoordsets,ParamList& params,bool opposite)
 	{
+		int i,j,k;
+		std::cout << "Loading submesh associated to material: " << m_pMaterial->name().asChar() << "...";
+		std::cout.flush();
 		//save uvsets info
-		for (int i=m_uvsets.size(); i<texcoordsets.length(); i++)
+		for (i=m_uvsets.size(); i<texcoordsets.length(); i++)
 		{
 			uvset uv;
 			uv.size = 2;
@@ -128,26 +148,40 @@ namespace OgreMayaExporter
 			// otherwise we create a vertex buffer for this submesh
 			else
 			{	// faces are triangles, so retrieve index of the three vertices
-				for (int j=0; j<3; j++)
+				for (j=0; j<3; j++)
 				{
 					vertex v;
 					vertexInfo vInfo = vertInfo[faces[i].v[j]];
-					// save vertex coordinates
-					v.x = points[vInfo.pointIdx].x;
-					v.y = points[vInfo.pointIdx].y;
-					v.z = points[vInfo.pointIdx].z;
+					// save vertex coordinates (rescale to desired length unit)
+					MPoint point = points[vInfo.pointIdx];
+					if (fabs(point.x) < PRECISION)
+						point.x = 0;
+					if (fabs(point.y) < PRECISION)
+						point.y = 0;
+					if (fabs(point.z) < PRECISION)
+						point.z = 0;
+					v.x = point.x * params.lum;
+					v.y = point.y * params.lum;
+					v.z = point.z * params.lum;
 					// save vertex normal
+					MFloatVector normal = normals[vInfo.normalIdx];
+					if (fabs(normal.x) < PRECISION)
+						normal.x = 0;
+					if (fabs(normal.y) < PRECISION)
+						normal.y = 0;
+					if (fabs(normal.z) < PRECISION)
+						normal.z = 0;
 					if (opposite)
 					{
-						v.n.x = -normals[vInfo.normalIdx].x;
-						v.n.y = -normals[vInfo.normalIdx].y;
-						v.n.z = -normals[vInfo.normalIdx].z;
+						v.n.x = -normal.x;
+						v.n.y = -normal.y;
+						v.n.z = -normal.z;
 					}
 					else
 					{
-						v.n.x = normals[vInfo.normalIdx].x;
-						v.n.y = normals[vInfo.normalIdx].y;
-						v.n.z = normals[vInfo.normalIdx].z;
+						v.n.x = normal.x;
+						v.n.y = normal.y;
+						v.n.z = normal.z;
 					}
 					v.n.normalize();
 					// save vertex color
@@ -156,7 +190,7 @@ namespace OgreMayaExporter
 					v.b = vInfo.b;
 					v.a = vInfo.a;
 					// save vertex bone assignements
-					for (int k=0; k<vInfo.vba.size(); k++)
+					for (k=0; k<vInfo.vba.size(); k++)
 					{
 						vba newVba;
 						newVba.jointIdx = vInfo.jointIds[k];
@@ -187,12 +221,15 @@ namespace OgreMayaExporter
 			m_use32bitIndexes = true;
 		else
 			m_use32bitIndexes = false;
+		std::cout << "DONE\n";
+		std::cout.flush();
 		return MS::kSuccess;
 	}
 
 /***** write data *****/
 	MStatus Submesh::writeXML(ParamList &params)
 	{
+		int i;
 		// Start submesh description
 		params.outMesh << "\t\t<submesh ";
 		// Write material name
@@ -216,7 +253,7 @@ namespace OgreMayaExporter
 
 		// Write submesh polygons
 		params.outMesh << "\t\t\t<faces count=\"" << m_faces.size() << "\">\n";
-		for (int i=0; i<m_faces.size(); i++)
+		for (i=0; i<m_faces.size(); i++)
 		{
 			params.outMesh << "\t\t\t\t<face v1=\"" << m_faces[i].v[0] << "\" v2=\"" << m_faces[i].v[1] << "\" "
 				<< "v3=\"" << m_faces[i].v[2] << "\"/>\n";

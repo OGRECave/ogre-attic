@@ -70,7 +70,7 @@ namespace OgreMayaExporter
 		void clear();
 		//load data
 		MStatus loadMaterial(MObject& shader,MStringArray& uvsets,ParamList& params);
-		MStatus load(std::vector<face>& faces, std::vector<vertexInfo>& vertInfo, MFloatPointArray& points,
+		MStatus load(std::vector<face>& faces, std::vector<vertexInfo>& vertInfo, MPointArray& points,
 			MFloatVectorArray& normals, MStringArray& texcoordsets,ParamList& params,bool opposite = false); 
 		//get number of triangles composing the submesh
 		long numTriangles();

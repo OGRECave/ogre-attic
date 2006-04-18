@@ -29,6 +29,8 @@ namespace OgreMayaExporter
 		ParamList m_params;
 		Mesh* m_pMesh;
 		MaterialSet* m_pMaterialSet;
+		MSelectionList m_selList;
+		MTime m_curTime;
 
 		void exit();
 	};
