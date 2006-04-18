@@ -188,6 +188,7 @@ MStatus Particles::FinalizeData( int nMinFrame, int nMaxFrame )
 		if ( nFrames != particlesTrack.size() )
 		{
 			std::cout << "ERROR: particle dosn't exist in some frames (unsupported)!\n";
+			std::cout.flush();
 			return MS::kFailure;
 		}
 		////

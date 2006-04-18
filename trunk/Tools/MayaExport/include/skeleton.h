@@ -12,11 +12,12 @@ namespace OgreMayaExporter
 		MString name;
 		int id;
 		MMatrix localMatrix;
-		MMatrix worldMatrix;
+		MMatrix bindMatrix;
 		int parentIndex;
 		double posx,posy,posz;
 		double angle;
 		double axisx,axisy,axisz;
+		double scalex,scaley,scalez;
 		MDagPath jointDag;
 	} joint;
 
@@ -69,14 +70,18 @@ namespace OgreMayaExporter
 		std::vector<joint>& getJoints();
 		//get animations
 		std::vector<animation>& getAnimations();
+		//restore skeleton pose
+		void restorePose();
 		//write skeleton data to Ogre XML
 		MStatus writeXML(ParamList &params);
 
 	protected:
-		MStatus loadJoint(MDagPath& jointDag, joint* parent, ParamList& params);
+		MStatus loadJoint(MDagPath& jointDag, joint* parent, ParamList& params,MFnSkinCluster* pSkinCluster);
 
 		std::vector<joint> m_joints;
 		std::vector<animation> m_animations;
+		std::vector<int> m_roots;
+		MString m_restorePose;
 	};
 
 }	//end namespace

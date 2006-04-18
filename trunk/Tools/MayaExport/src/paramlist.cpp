@@ -16,6 +16,26 @@ namespace OgreMayaExporter
 				exportAll = true;
 			else if ((MString("-world") == args.asString(i,&stat)) && (MS::kSuccess == stat))
 				exportWorldCoords = true;
+			else if ((MString("-lu") == args.asString(i,&stat)) && (MS::kSuccess == stat))
+			{
+				MString lengthUnit = args.asString(++i,&stat);
+				if (MString("pref") == lengthUnit)
+				{
+					MGlobal::executeCommand("currentUnit -q -l",lengthUnit,false);
+				}
+				if (MString("mm") == lengthUnit)
+					lum = CM2MM;
+				else if (MString("cm") == lengthUnit)
+					lum = CM2CM;
+				else if (MString("m") == lengthUnit)
+					lum = CM2M;
+				else if (MString("in") == lengthUnit)
+					lum = CM2IN;
+				else if (MString("ft") == lengthUnit)
+					lum = CM2FT;
+				else if (MString("yd") == lengthUnit)
+					lum = CM2YD;
+			}
 			else if ((MString("-mesh") == args.asString(i,&stat)) && (MS::kSuccess == stat))
 			{
 				exportMesh = true;
@@ -102,7 +122,7 @@ namespace OgreMayaExporter
 			}
 			else if ((MString("-np") == args.asString(i,&stat)) && (MS::kSuccess == stat))
 			{
-				MString npType = args.asString(i,&stat);
+				MString npType = args.asString(++i,&stat);
 				if (npType == "curFrame")
 					neutralPoseType = NPT_CURFRAME;
 				else if (npType == "bindPose")
@@ -170,93 +190,6 @@ namespace OgreMayaExporter
 				std::cout << "-----------------\n";
 			}
 		}
-	/*	// Read options from exporter window
-		// Gather clips data
-		// Read info about the clips we have to transform
-		int numClips,exportClip,rangeType,rateType,rangeUnits;
-		double startTime,stopTime,rate;
-		MString clipName;
-		//read number of clips
-		MGlobal::executeCommand("eval \"$numClips+=0\"",numClips,false);
-		//read clips data
-		for (int i=1; i<=numClips; i++)
-		{
-			MString command = "checkBox -q -v ExportClip";
-			command += i;
-			MGlobal::executeCommand(command,exportClip,false);
-			if (exportClip)
-			{
-				//get clip name
-				command = "textField -q -tx ClipName";
-				command += i;
-				MGlobal::executeCommand(command,clipName,false);
-				//get clip range
-				command = "radioButtonGrp -q -sl ClipRangeRadio";
-				command += i;
-				MGlobal::executeCommand(command,rangeType,false);
-				if (rangeType == 1)
-				{	//range specified from user
-					command = "floatField -q -v ClipRangeStart";
-					command += i;
-					MGlobal::executeCommand(command,startTime,false);
-					command = "floatField -q -v ClipRangeEnd";
-					command += i;
-					MGlobal::executeCommand(command,stopTime,false);
-					//get range units
-					command = "radioButtonGrp -q -sl ClipRangeUnits";
-					command += i;
-					MGlobal::executeCommand(command,rangeUnits,false);
-					if (rangeUnits == 1)
-					{	//range specified in frames => convert to seconds
-						MTime t1(startTime, MTime::uiUnit());
-						MTime t2(stopTime, MTime::uiUnit());
-						startTime = t1.as(MTime::kSeconds);
-						stopTime = t2.as(MTime::kSeconds);
-					}
-				}
-				else
-				{	//range specified by time slider
-					MTime t1 = MAnimControl::minTime();
-					MTime t2 = MAnimControl::maxTime();
-					startTime = t1.as(MTime::kSeconds);
-					stopTime = t2.as(MTime::kSeconds);
-				}
-				//get sample rate
-				command = "radioButtonGrp -q -sl ClipRateType";
-				command += i;
-				MGlobal::executeCommand(command,rateType,false);
-				MTime t;
-				switch (rateType)
-				{
-				case 1:	//rate specified in frames
-					command = "intField -q -v ClipRateFrames";
-					command += i;
-					MGlobal::executeCommand(command,rate,false);
-					t = MTime(rate, MTime::uiUnit());
-					rate = t.as(MTime::kSeconds);
-					break;
-				case 2:	//rate specified in seconds
-					command = "floatField -q -v ClipRateSeconds";
-					command += i;
-					MGlobal::executeCommand(command,rate,false);
-					break;
-				default://rate not specified, get from time slider
-					rate = -1;
-					break;
-				}
-				//add clip info
-				clipInfo clip;
-				clip.name = clipName;
-				clip.start = startTime;
-				clip.stop = stopTime;
-				clip.rate = rate;
-				clipList.push_back(clip);
-				std::cout << "clip " << clipName.asChar() << "\n";
-				std::cout << "start: " << startTime << ", stop: " << stopTime << "\n";
-				std::cout << "rate: " << rate << "\n";
-				std::cout << "-----------------\n";
-			}
-		}*/
 	}
 
 
