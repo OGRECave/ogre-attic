@@ -37,6 +37,10 @@ ogreExport 	generalOptions
 generalOptions:
 	"-sel" | "-all"		export whole scene or only selected objects
 	"-world" | "-obj"	export in world or object coordinates
+	"-lu " "pref | mm | cm | m | in | ft | yd"	select length unit for export
+							("-lu pref" means to get unit from scene
+								preferences)
+
 	
 meshOptions:
 	["-shared"]		export using shared geometry [optional]
