@@ -510,6 +510,11 @@ namespace Ogre {
 
             mCapabilities->setCapability(RSC_HWOCCLUSION);		
         }
+		else if (GLEW_NV_occlusion_query)
+		{
+			// Support NV extension too for old hardware
+            mCapabilities->setCapability(RSC_HWOCCLUSION);		
+		}
 
 		// UBYTE4 always supported
 		mCapabilities->setCapability(RSC_VERTEX_FORMAT_UBYTE4);
