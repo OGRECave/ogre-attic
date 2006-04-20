@@ -210,7 +210,7 @@ namespace Ogre {
 			const LinkedSkeletonAnimationSource** linker = 0) const;
 
 		/// Internal accessor for animations (returns null if animation does not exist)
-		Animation* _getAnimationImpl(const String& name, 
+		virtual Animation* _getAnimationImpl(const String& name, 
 			const LinkedSkeletonAnimationSource** linker = 0) const;
 
 

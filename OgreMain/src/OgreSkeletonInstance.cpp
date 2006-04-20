@@ -65,6 +65,12 @@ namespace Ogre {
     {
         return mSkeleton->getAnimation(name, linker);
     }
+	//-------------------------------------------------------------------------
+	Animation* SkeletonInstance::_getAnimationImpl(const String& name, 
+		const LinkedSkeletonAnimationSource** linker) const
+	{
+		return mSkeleton->_getAnimationImpl(name, linker);
+	}
     //-------------------------------------------------------------------------
     void SkeletonInstance::removeAnimation(const String& name)
     {

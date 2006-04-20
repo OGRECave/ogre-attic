@@ -223,7 +223,7 @@ namespace Ogre {
         {
             const AnimationState* animState = stateIt.getNext();
             const LinkedSkeletonAnimationSource* linked = 0;
-            Animation* anim = getAnimation(animState->getAnimationName(), &linked);
+            Animation* anim = _getAnimationImpl(animState->getAnimationName(), &linked);
             // tolerate state entries for animations we're not aware of
             if (anim)
             {

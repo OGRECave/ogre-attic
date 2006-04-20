@@ -273,10 +273,9 @@ namespace Ogre {
 			{
 				// Create temporary vertex blend info
 				// Prepare temp vertex data if needed
-				// Clone without copying data, remove blending info
-				// (since blend is performed in software)
-				mSoftwareVertexAnimVertexData = 
-					mParentEntity->cloneVertexDataRemoveBlendInfo(mSubMesh->vertexData);
+				// Clone without copying data, don't remove any blending info
+				// (since if we skeletally animate too, we need it)
+				mSoftwareVertexAnimVertexData = mSubMesh->vertexData->clone(false);
 				mParentEntity->extractTempBufferInfo(mSoftwareVertexAnimVertexData, &mTempVertexAnimInfo);
 
 				// Also clone for hardware usage, don't remove blend info since we'll
