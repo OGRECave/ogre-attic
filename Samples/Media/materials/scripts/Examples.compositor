@@ -218,7 +218,7 @@ compositor Embossed
 }
 
 // SharpenEdges
-compositor "Sharpen Edges"
+compositor Sharpen Edges
 {
     technique
     {
@@ -363,7 +363,7 @@ compositor Tiling
 }
 
 // Old Movie
-compositor "Old Movie"
+compositor Old Movie
 {
     technique
     {
@@ -391,7 +391,7 @@ compositor "Old Movie"
     }
 }
 
-// HDR 
+// HDR
 compositor HDR
 {
 	// floating point only for now
@@ -407,11 +407,11 @@ compositor HDR
 		texture rt_lum3 64 64 PF_FLOAT16_RGB
 		texture rt_lum4 128 128 PF_FLOAT16_RGB
 		// Bright-pass filtered target (tone mapped)
-		texture rt_brightpass 128 128 PF_R8G8B8		
-		// Bloom filter targets 
+		texture rt_brightpass 128 128 PF_R8G8B8
+		// Bloom filter targets
 		texture rt_bloom0 128 128 PF_R8G8B8
 		texture rt_bloom1 128 128 PF_R8G8B8
-		
+
 
 		target rt_full
 		{
@@ -424,7 +424,7 @@ compositor HDR
 			pass render_scene
 			{
 			}
-			
+
 		}
 
 		// Downsample the original HDR scene to extract luminence value
@@ -444,7 +444,7 @@ compositor HDR
             input none
             pass render_quad
             {
-				// Downsample using a 3x3 filter 
+				// Downsample using a 3x3 filter
                 material Ogre/Compositor/HDR/Downsample3x3
                 input 0 rt_lum4
                 identifier 993
@@ -455,7 +455,7 @@ compositor HDR
             input none
             pass render_quad
             {
-                // Downsample using a 3x3 filter 
+                // Downsample using a 3x3 filter
                 material Ogre/Compositor/HDR/Downsample3x3
                 input 0 rt_lum3
                 identifier 992
@@ -466,7 +466,7 @@ compositor HDR
             input none
             pass render_quad
             {
-                // Downsample using a 3x3 filter 
+                // Downsample using a 3x3 filter
                 material Ogre/Compositor/HDR/Downsample3x3
                 input 0 rt_lum2
                 identifier 991
@@ -477,7 +477,7 @@ compositor HDR
             input none
             pass render_quad
             {
-                // Downsample using a 3x3 filter 
+                // Downsample using a 3x3 filter
                 material Ogre/Compositor/HDR/Downsample3x3
                 input 0 rt_lum1
                 identifier 990
@@ -536,8 +536,8 @@ compositor HDR
 				input 2 rt_lum0
 			}
 		}
-		
+
 
 	}
-	
+
 }
