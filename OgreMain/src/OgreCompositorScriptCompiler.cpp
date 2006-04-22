@@ -43,7 +43,7 @@ namespace Ogre {
 	String CompositorScriptCompiler::compositorScript_BNF =
 		// Top level rule
 		"<Script> ::= {<Compositor>} \n"
-		"<Compositor> ::= 'compositor' <Label> '{' <Technique> '}' \n"
+		"<Compositor> ::= 'compositor' <Flex_Label> '{' <Technique> '}' \n"
 		// Technique
 		"<Technique> ::= 'technique' '{' {<Texture>} {<Target>} <TargetOutput> '}' \n"
 		"<Texture> ::= 'texture' <Label> <WidthOption> <HeightOption> <PixelFormat> \n"
@@ -103,14 +103,13 @@ namespace Ogre {
 
 		// common rules
 		"<On_Off> ::= 'on' | 'off' \n"
-		"<Label> ::= <Unquoted_Label> | <Quoted_Label> \n"
-		"<Quoted_Label> ::= -'\"' <Character> {<Alphanumeric_Space>} -'\"' \n"
-        "<Unquoted_Label> ::= <Character> {<Alphanumeric>} \n"
-		"<Alphanumeric_Space> ::= <Alphanumeric> | <Space> \n"
-		"<Alphanumeric> ::= <Character> | <Number> \n"
-		"<Character> ::= (abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$#%!_*&\\/) \n"
-		"<Number> ::= (0123456789) \n"
-		"<Space> ::= ( ) \n"
+		"<Label> ::= <Quoted_Label> | <Unquoted_Label> \n"
+		"<Flex_Label> ::= <Quoted_Label> | <Spaced_Label> \n"
+		"<Quoted_Label> ::= -'\"' <Spaced_Label> -'\"' \n"
+		"<Spaced_Label> ::= <Spaced_Label_Illegals> {<Spaced_Label_Illegals>} \n"
+        "<Unquoted_Label> ::= <Unquoted_Label_Illegals> {<Unquoted_Label_Illegals>} \n"
+		"<Spaced_Label_Illegals> ::= (!,\n\r\t{}\") \n"
+		"<Unquoted_Label_Illegals> ::= (! \n\r\t{}\") \n"
 
 		;
 	//-----------------------------------------------------------------------
