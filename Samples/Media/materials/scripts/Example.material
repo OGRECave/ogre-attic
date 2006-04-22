@@ -225,6 +225,13 @@ material Examples/MorningSkyBox
 		}
 	}
 }
+fragment_program Examples/MorningCubeMapHDRfp cg
+{
+	source hdr.cg
+	entry_point morningcubemap_fp
+	profiles ps_2_0 arbfp1
+
+}
 material Examples/MorningCubeMap
 {
 	technique
@@ -249,10 +256,10 @@ material Examples/MorningCubeMap
 		pass
 		{
 			lighting off
-			fragment_program_ref Examples/MorningSkyBoxHDRfp
+
+			fragment_program_ref Examples/MorningCubeMapHDRfp
 			{
 			}
-
 			texture_unit
 			{
 				cubic_texture morning.jpg combinedUVW

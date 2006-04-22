@@ -9,5 +9,17 @@ void morningskybox_fp (
 	// blow out the light a bit
 	colour *= 1.7;
 }
+void morningcubemap_fp (
+	float3 uv : TEXCOORD0,
+	out float4 colour : COLOR,
+
+	uniform samplerCUBE tex : register(s0) )
+{
+	colour = texCUBE(tex, uv);
+
+	// blow out the light a bit
+	colour *= 1.7;
+}
+
 
 
