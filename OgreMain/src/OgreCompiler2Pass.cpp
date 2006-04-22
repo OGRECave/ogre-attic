@@ -96,7 +96,7 @@ namespace Ogre {
             addLexemeToken("digit", BNF_DIGIT);
             addLexemeToken("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", BNF_ALPHA_SET, false, true);
             addLexemeToken("0123456789", BNF_NUMBER_SET, false, true);
-            addLexemeToken("`~!@#$%^&*(-_=+\\|[]{}:;\"<>,.?/", BNF_SPECIAL_CHARACTER_SET2, false, true);
+            addLexemeToken("`~!@#$%^&*(-_=+\\|[]{}:;\"<>,.?/\n\r\t", BNF_SPECIAL_CHARACTER_SET2, false, true);
             addLexemeToken("$_", BNF_SPECIAL_CHARACTER_SET1, false, true);
             addLexemeToken(" ", BNF_WHITE_SPACE, false, true);
             addLexemeToken("?!", BNF_NOT_CHARS, false, true);
@@ -299,8 +299,8 @@ namespace Ogre {
             _end_
             // <not_chk> ::= (?!)
             _rule_(BNF_NOT_CHK)
-                _is_(_character_)
-                _data_(BNF_NOT_CHARS)
+                _is_(BNF_NOT_CHARS)
+                //_data_(BNF_NOT_CHARS)
             _end_
 
             // now that all the rules are added, update token definitions with rule links
@@ -888,8 +888,9 @@ namespace Ogre {
 	    // assume the test is going to fail
 	    bool Passed = false;
 
-        // get token from next rule operation
-        // token string is list of valid single characters
+        // get token from next rule operation.
+        // token string is list of valid or invalid single characters.
+        // If the token string starts with a ! then the set is for invalid characters.
         // compare character at current cursor position in script to characters in list for a match
         // if match found then add character to active label
         // _character_ will not have  a token definition but the next rule operation should be
@@ -898,7 +899,16 @@ namespace Ogre {
         if (rule.operation == otDATA)
         {
             const size_t TokenID = rule.tokenID;
-            if (mActiveTokenState->lexemeTokenDefinitions[TokenID].lexeme.find((*mSource)[mCharPos]) != String::npos)
+            // check for ! as first character in character set indicating that an input character is
+            // accepted if its not in the character set.
+            // Otherwise a pass occurs if the input character is found in the character set.
+            const String& characterSet = mActiveTokenState->lexemeTokenDefinitions[TokenID].lexeme;
+            if ((characterSet.size() > 1) && characterSet[0] == '!')
+                Passed = characterSet.find((*mSource)[mCharPos], 1) == String::npos;
+            else
+                Passed = characterSet.find((*mSource)[mCharPos]) != String::npos;
+
+            if (Passed)
             {
                 // is a new label starting?
                 // if mLabelIsActive is false then starting a new label so need a new mActiveLabelKey
@@ -913,7 +923,6 @@ namespace Ogre {
                 }
                 // add the single character to the end of the active label
                 mLabels[mActiveLabelKey] += (*mSource)[mCharPos];
-                Passed = true;
             }
         }
 
