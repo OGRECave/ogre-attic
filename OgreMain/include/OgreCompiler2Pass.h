@@ -110,6 +110,13 @@ namespace Ogre {
 
              This will generate a rule that accepts one or more lowercase letters to make up the Label.  The User identifier
              stops collecting the characters into a string when a match cannot be found in the rule.
+        (! ) if the first character in the set is a ! then any input character not found in the set will be
+             accepted.
+             An example:
+             <Label> ::= <AnyCharacter_NoLineBreak> {<AnyCharacter_NoLineBreak>}
+             <AnyCharacter_NoLineBreak> ::= (!\n\r)
+
+             any character but \n or \r is accepted in the input.
     */
     class _OgreExport Compiler2Pass
     {
@@ -252,6 +259,8 @@ namespace Ogre {
         /// if flag is true then next terminal token is not added to token que if found
         /// but does effect rule path flow
         bool mNoTerminalToken;
+        /// TokenID to insert if next rule finds a terminal token
+        size_t mInsertTokenID;
 
 	    /// Active Contexts pattern used in pass 1 to determine which tokens are valid for a certain context
 	    uint mActiveContexts;
