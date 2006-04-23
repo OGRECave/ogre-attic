@@ -47,9 +47,4 @@ Section -STLPort
   SetOverwrite try
   File ".\stlport\bin\libstlport.5.0.dll"
   
-  SetOutPath "$INSTDIR\stlport\lib"
-  SetOverwrite try
-  File ".\stlport\lib\libstlport.5.0.dll.a"
-  File ".\stlport\lib\libstlportstlg.5.0.dll.a"
-
 SectionEnd
