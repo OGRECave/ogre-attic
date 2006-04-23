@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="3" />
+	<FileVersion major="1" minor="4" />
 	<Project>
 		<Option title="Plugin_CgProgramManager" />
 		<Option default_target="-1" />
@@ -15,7 +15,6 @@
 				<Option includeInTargetAll="1" />
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
-					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-DWIN32" />
 					<Add option="-D_DEBUG" />
@@ -25,13 +24,13 @@
 					<Add option="-D_STLP_DEBUG" />
 				</Compiler>
 				<Linker>
-					<Add library="stlportstlg.5.0.dll" />
 					<Add library="OgreMain_d" />
 					<Add library="cg" />
+					<Add library="stlportstlg.5.0" />
 					<Add directory="..\..\..\Dependencies\lib\Debug" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="cmd /c copy ..\bin\Debug\Plugin_CgProgramManager.dll ..\..\..\Samples\Common\bin\Debug" />
+					<Add after="cmd /c copy $($(TARGET_NAME)_OUTPUT_FILE) ..\..\..\Samples\Common\bin\$(TARGET_NAME)" />
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
@@ -44,7 +43,6 @@
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
 					<Add option="-O3" />
-					<Add option="-Wall" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
@@ -53,17 +51,18 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="stlport.5.0.dll" />
 					<Add library="OgreMain" />
 					<Add library="cg" />
+					<Add library="stlport.5.0" />
 					<Add directory="..\..\..\Dependencies\lib\Release" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="cmd /c copy ..\bin\Release\Plugin_CgProgramManager.dll ..\..\..\Samples\Common\bin\Release" />
+					<Add after="cmd /c copy $($(TARGET_NAME)_OUTPUT_FILE) ..\..\..\Samples\Common\bin\$(TARGET_NAME)" />
 				</ExtraCommands>
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-Wall" />
 			<Add option="-mthreads" />
 			<Add option="-fmessage-length=0" />
 			<Add option="-fexceptions" />
@@ -77,10 +76,8 @@
 		</Compiler>
 		<Linker>
 			<Add option="-Wl,--enable-auto-image-base" />
-			<Add option="-Wl,--export-all-symbols" />
 			<Add option="-Wl,--add-stdcall-alias" />
-			<Add directory="$(#STLPORT_DIR)\lib" />
-			<Add directory="..\..\..\OgreMain\lib\$(TARGET_NAME)" />
+			<Add directory="..\..\..\Samples\Common\bin\$(TARGET_NAME)" />
 		</Linker>
 		<Unit filename="..\..\..\Dependencies\include\Cg\cg.h">
 			<Option compilerVar="CPP" />

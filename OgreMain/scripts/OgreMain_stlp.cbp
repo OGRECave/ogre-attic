@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="3" />
+	<FileVersion major="1" minor="4" />
 	<Project>
 		<Option title="OgreMain" />
 		<Option default_target="-1" />
@@ -16,7 +16,6 @@
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Option projectLibDirsRelation="2" />
 				<Compiler>
-					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-DWIN32" />
 					<Add option="-D_DEBUG" />
@@ -26,7 +25,6 @@
 					<Add directory="..\obj\Debug\include" />
 				</Compiler>
 				<Linker>
-					<Add library="stlportstlg.5.0.dll" />
 					<Add library="kernel32" />
 					<Add library="user32" />
 					<Add library="zziplibd" />
@@ -34,11 +32,12 @@
 					<Add library="freetype2110_D" />
 					<Add library="devil" />
 					<Add library="ilu" />
+					<Add library="stlportstlg.5.0" />
 					<Add directory="..\..\Dependencies\lib\Debug" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="cmd /c copy ..\lib\Debug\OgreMain_d.dll ..\..\Samples\Common\bin\Debug" />
-					<Add after="cmd /c copy ..\lib\Debug\OgreMain_d.dll ..\..\Tools\Common\bin\Debug" />
+					<Add after="cmd /c copy $($(TARGET_NAME)_OUTPUT_FILE) ..\..\Samples\Common\bin\$(TARGET_NAME)" />
+					<Add after="cmd /c copy $($(TARGET_NAME)_OUTPUT_FILE) ..\..\Tools\Common\bin\$(TARGET_NAME)" />
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
@@ -49,7 +48,6 @@
 				<Option includeInTargetAll="1" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-Wall" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_USRDLL" />
@@ -59,7 +57,6 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="stlport.5.0.dll" />
 					<Add library="kernel32" />
 					<Add library="user32" />
 					<Add library="zziplib" />
@@ -67,11 +64,12 @@
 					<Add library="freetype2110" />
 					<Add library="devil" />
 					<Add library="ilu" />
+					<Add library="stlport.5.0" />
 					<Add directory="..\..\Dependencies\lib\Release" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="cmd /c copy ..\lib\Release\OgreMain.dll ..\..\Samples\Common\bin\Release" />
-					<Add after="cmd /c copy ..\lib\Release\OgreMain.dll ..\..\Tools\Common\bin\Release" />
+					<Add after="cmd /c copy $($(TARGET_NAME)_OUTPUT_FILE) ..\..\Samples\Common\bin\$(TARGET_NAME)" />
+					<Add after="cmd /c copy $($(TARGET_NAME)_OUTPUT_FILE) ..\..\Tools\Common\bin\$(TARGET_NAME)" />
 				</ExtraCommands>
 			</Target>
 			<Environment>
@@ -79,6 +77,7 @@
 			</Environment>
 		</Build>
 		<Compiler>
+			<Add option="-Wall" />
 			<Add option="-mthreads" />
 			<Add option="-fmessage-length=0" />
 			<Add option="-fexceptions" />
@@ -93,9 +92,8 @@
 		</Compiler>
 		<Linker>
 			<Add option="-Wl,--enable-auto-image-base" />
-			<Add option="-Wl,--export-all-symbols" />
 			<Add option="-Wl,--add-stdcall-alias" />
-			<Add directory="$(#STLPORT_DIR)\lib" />
+			<Add directory="..\..\Samples\Common\bin\$(TARGET_NAME)" />
 		</Linker>
 		<Unit filename="..\include\Ogre.h">
 			<Option compilerVar="CPP" />

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="3" />
+	<FileVersion major="1" minor="4" />
 	<Project>
 		<Option title="Demo_EnvMapping" />
 		<Option compiler="gcc" />
@@ -15,7 +15,6 @@
 				<Option includeInTargetAll="1" />
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
-					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-DWIN32" />
 					<Add option="-D_DEBUG" />
@@ -23,8 +22,8 @@
 					<Add option="-D_STLP_DEBUG" />
 				</Compiler>
 				<Linker>
-					<Add library="stlportstlg.5.0.dll" />
 					<Add library="OgreMain_d" />
+					<Add library="stlportstlg.5.0" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -38,19 +37,19 @@
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
 					<Add option="-O3" />
-					<Add option="-Wall" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="stlport.5.0.dll" />
 					<Add library="OgreMain" />
+					<Add library="stlport.5.0" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-Wall" />
 			<Add option="-mthreads" />
 			<Add option="-fmessage-length=0" />
 			<Add option="-fexceptions" />
@@ -65,8 +64,7 @@
 		<Linker>
 			<Add option="-Wl,--enable-auto-image-base" />
 			<Add option="-Wl,--add-stdcall-alias" />
-			<Add directory="$(#STLPORT_DIR)\lib" />
-			<Add directory="..\..\..\OgreMain\lib\$(TARGET_NAME)" />
+			<Add directory="..\..\Common\bin\$(TARGET_NAME)" />
 		</Linker>
 		<Unit filename="..\include\EnvMapping.h">
 			<Option compilerVar="CPP" />
