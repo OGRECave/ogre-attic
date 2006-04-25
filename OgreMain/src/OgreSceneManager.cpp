@@ -801,11 +801,13 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed)
             newFogEnd = mFogEnd;
             newFogDensity = mFogDensity;
         }
-        // Tell params about current fog
-        mAutoParamDataSource.setFog(
-            newFogMode, newFogColour, newFogDensity, newFogStart, newFogEnd);
         mDestRenderSystem->_setFog(
             newFogMode, newFogColour, newFogDensity, newFogStart, newFogEnd);
+        // Tell params about ORIGINAL fog
+		// Need to be able to override fixed function fog, but still have
+		// original fog parameters available to a shader than chooses to use
+        mAutoParamDataSource.setFog(
+            mFogMode, mFogColour, mFogDensity, mFogStart, mFogEnd);
 
 		// The rest of the settings are the same no matter whether we use programs or not
 
