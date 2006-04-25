@@ -304,19 +304,19 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	VertexData* SubEntity::_getSkelAnimVertexData(void) 
 	{
-		assert (mSkelAnimVertexData && "Not software skinned!");
+		assert (mSkelAnimVertexData && "Not software skinned or has no dedicated geometry!");
 		return mSkelAnimVertexData;
 	}
 	//-----------------------------------------------------------------------
 	VertexData* SubEntity::_getSoftwareVertexAnimVertexData(void)
 	{
-		assert (mSoftwareVertexAnimVertexData && "Not vertex animated!");
+		assert (mSoftwareVertexAnimVertexData && "Not vertex animated or has no dedicated geometry!");
 		return mSoftwareVertexAnimVertexData;
 	}
 	//-----------------------------------------------------------------------
 	VertexData* SubEntity::_getHardwareVertexAnimVertexData(void)
 	{
-		assert (mHardwareVertexAnimVertexData && "Not vertex animated!");
+		assert (mHardwareVertexAnimVertexData && "Not vertex animated or has no dedicated geometry!");
 		return mHardwareVertexAnimVertexData;
 	}
 	//-----------------------------------------------------------------------

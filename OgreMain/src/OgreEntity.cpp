@@ -879,19 +879,19 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	VertexData* Entity::_getSkelAnimVertexData(void) const
 	{
-		assert (mSkelAnimVertexData && "Not software skinned!");
+		assert (mSkelAnimVertexData && "Not software skinned or has no shared vertex data!");
         return mSkelAnimVertexData;
 	}
 	//-----------------------------------------------------------------------
 	VertexData* Entity::_getSoftwareVertexAnimVertexData(void) const
 	{
-		assert (mSoftwareVertexAnimVertexData && "Not vertex animated!");
+		assert (mSoftwareVertexAnimVertexData && "Not vertex animated or has no shared vertex data!");
 		return mSoftwareVertexAnimVertexData;
 	}
 	//-----------------------------------------------------------------------
 	VertexData* Entity::_getHardwareVertexAnimVertexData(void) const
 	{
-		assert (mHardwareVertexAnimVertexData && "Not vertex animated!");
+		assert (mHardwareVertexAnimVertexData && "Not vertex animated or has no shared vertex data!");
 		return mHardwareVertexAnimVertexData;
 	}
 	//-----------------------------------------------------------------------
