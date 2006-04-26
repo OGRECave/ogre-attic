@@ -63,7 +63,7 @@ namespace OgreMayaExporter
 				for (int j=0; j<m_joints.size() && !skip; j++)
 				{
 					//skip skeleton if already loaded
-					if (rootDag.fullPathName() == m_joints[j].name)
+					if (rootDag.partialPathName() == m_joints[j].name)
 					{
 						skip = true;
 					}
@@ -207,7 +207,7 @@ namespace OgreMayaExporter
 			if (fabs(scale[2]) < PRECISION)
 				scale[2] = 0;
 			// Set joint info
-			newJoint.name = jointFn.fullPathName();
+			newJoint.name = jointFn.partialPathName();
 			newJoint.id = m_joints.size();
 			newJoint.parentIndex = idx;
 			newJoint.bindMatrix = bindMatrix;
@@ -219,9 +219,9 @@ namespace OgreMayaExporter
 			newJoint.axisx = axis.x;
 			newJoint.axisy = axis.y;
 			newJoint.axisz = axis.z;
-			newJoint.scalex = scale[0];
-			newJoint.scaley = scale[1];
-			newJoint.scalez = scale[2];
+			newJoint.scalex = 1;
+			newJoint.scaley = 1;
+			newJoint.scalez = 1;
 			newJoint.jointDag = jointDag;
 			m_joints.push_back(newJoint);
 			// If root is a root joint, save it's index in the roots list
