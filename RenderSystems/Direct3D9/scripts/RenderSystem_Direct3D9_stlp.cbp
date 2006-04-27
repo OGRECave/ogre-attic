@@ -20,7 +20,6 @@
 					<Add option="-D_DEBUG" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_USRDLL" />
-					<Add option="-DOGRED3DENGINEDLL_EXPORTS" />
 					<Add option="-DDEBUG_SAVE_TEXTURE" />
 					<Add option="-D_STLP_DEBUG" />
 				</Compiler>
@@ -52,7 +51,6 @@
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_USRDLL" />
-					<Add option="-DOGRED3DENGINEDLL_EXPORTS" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />

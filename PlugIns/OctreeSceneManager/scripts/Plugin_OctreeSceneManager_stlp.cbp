@@ -20,7 +20,6 @@
 					<Add option="-D_DEBUG" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_USRDLL" />
-					<Add option="-DPLUGIN_TERRAIN_EXPORTS" />
 					<Add option="-D_STLP_DEBUG" />
 				</Compiler>
 				<Linker>
@@ -45,7 +44,6 @@
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_USRDLL" />
-					<Add option="-DPLUGIN_TERRAIN_EXPORTS" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
