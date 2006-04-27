@@ -2194,14 +2194,13 @@ void SceneManager::SceneMgrQueuedRenderableVisitor::visit(const RenderablePass* 
 bool SceneManager::validatePassForRendering(const Pass* pass)
 {
     // Bypass if we're doing a texture shadow render and 
-    // this pass is after the first (only 1 pass needed for modulative shadow texture)
+    // this pass is after the first (only 1 pass needed for shadow texture render, and 
+	// one pass for shadow texture receive for modulative technique)
 	// Also bypass if passes above the first if render state changes are
 	// suppressed since we're not actually using this pass data anyway
     if (!mSuppressShadows && mCurrentViewport->getShadowsEnabled() &&
-		isShadowTechniqueModulative() &&
-		(mIlluminationStage == IRS_RENDER_TO_TEXTURE ||
-        mIlluminationStage == IRS_RENDER_RECEIVER_PASS ||
-		mSuppressRenderStateChanges) && 
+		((isShadowTechniqueModulative() && mIlluminationStage == IRS_RENDER_RECEIVER_PASS)
+		 || mIlluminationStage == IRS_RENDER_TO_TEXTURE || mSuppressRenderStateChanges) && 
         pass->getIndex() > 0)
     {
         return false;
@@ -2214,13 +2213,22 @@ bool SceneManager::validateRenderableForRendering(const Pass* pass, const Render
 {
     // Skip this renderable if we're doing modulative texture shadows, it casts shadows
     // and we're doing the render receivers pass and we're not self-shadowing
+	// also if pass number > 0
     if (!mSuppressShadows && mCurrentViewport->getShadowsEnabled() &&
-		isShadowTechniqueTextureBased() && 
-        mIlluminationStage == IRS_RENDER_RECEIVER_PASS && 
-        rend->getCastsShadows() && !mShadowTextureSelfShadow && 
-		isShadowTechniqueModulative())
-    {
-        return false;
+		isShadowTechniqueTextureBased())
+	{
+		if (mIlluminationStage == IRS_RENDER_RECEIVER_PASS && 
+			rend->getCastsShadows() && !mShadowTextureSelfShadow)
+		{
+			return false;
+		}
+		// Some duplication here with validatePassForRendering, for transparents
+		if (((isShadowTechniqueModulative() && mIlluminationStage == IRS_RENDER_RECEIVER_PASS)
+			|| mIlluminationStage == IRS_RENDER_TO_TEXTURE || mSuppressRenderStateChanges) && 
+			pass->getIndex() > 0)
+		{
+			return false;
+		}
     }
 
     return true;
