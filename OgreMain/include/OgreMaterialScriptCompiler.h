@@ -290,6 +290,13 @@ namespace Ogre {
         void parseShadowCasterVertexProgramRef(void);
         void parseShadowReceiverVertexProgramRef(void);
         void parseShadowReceiverFragmentProgramRef(void);
+        void parseParamIndexed(void);
+        void parseParamIndexedAuto(void);
+        void parseParamNamed(void);
+        void parseParamNamedAuto(void);
+        void processManualProgramParam(size_t index, const String& commandname, const String& paramName = "");
+        void processAutoProgramParam(size_t index, const String& commandname, const String& paramName = "");
+
 
     	void finishProgramDefinition(void);
 
