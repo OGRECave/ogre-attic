@@ -124,10 +124,10 @@ namespace Ogre {
 		"            <Point_Size_Att_Params> ::= <#constant> <#linear> <#quadric> \n"
         "        <Fog_Override> ::= 'fog_override' <Fog_Override_Options> \n"
         "           <Fog_Override_Options> ::= 'false' | <fog_true> \n"
-        "             <fog_true> ::= 'true' [<Fog_parameters>] \n"
-        "               <Fog_parameters> ::= <fog_type> <fog_colour> <#fog_density> <#start> <#end> \n"
-        "                   <fog_type> ::= 'none' | 'linear' | 'exp2' | 'exp' \n"
-        "                   <fog_colour> ::= <#red> <#green> <#blue> \n"
+        "             <fog_true> ::= 'true' [<Fog_True_Params>] \n"
+        "               <Fog_True_Params> ::= 'none' | <fog_True_Param_Option> \n"
+        "                   <fog_True_Param_Option> ::= <fog_type> <#red> <#green> <#blue> <#fog_density> <#start> <#end> \n"
+        "                       <fog_type> ::= 'linear' | 'exp2' | 'exp' \n"
         "        <Max_Lights> ::= 'max_lights' <#number> \n"
         "        <Iteration> ::= 'iteration' <Iteration_Options> \n"
         "           <Iteration_Options> ::= <Iteration_Once_Params> | 'once' | <Iteration_Counted> \n"
@@ -227,16 +227,13 @@ namespace Ogre {
 
         "<Labels_1_N> ::= <Label> [<Seperator>] {<More_Labels>} \n"
         "<More_Labels> ::=  <Label> [<Seperator>] \n"
-		"<Label> ::= <Unquoted_Label> | <Quoted_Label> \n"
-		"<Flex_Label> ::= <Spaced_Label> | <Spaced_Label> \n"
-		"<Quoted_Label> ::= -'\"' <Character> {<Alphanumeric_Space>} -'\"' \n"
-		"<Spaced_Label> ::= <Character> {<Alphanumeric_Space>} \n"
-        "<Unquoted_Label> ::= <Character> {<Alphanumeric>} \n"
-		"<Alphanumeric_Space> ::= <Alphanumeric> | <Space> \n"
-		"<Alphanumeric> ::= <Character> | <Number> \n"
-		"<Character> ::= (abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$#%!_*&.\\/) \n"
-		"<Number> ::= (0123456789-) \n"
-		"<Space> ::= ( ) \n"
+		"<Label> ::= <Quoted_Label> | <Unquoted_Label> \n"
+		"<Flex_Label> ::= <Quoted_Label> | <Spaced_Label> \n"
+		"<Quoted_Label> ::= -'\"' <Spaced_Label> -'\"' \n"
+		"<Spaced_Label> ::= <Spaced_Label_Illegals> {<Spaced_Label_Illegals>} \n"
+        "<Unquoted_Label> ::= <Unquoted_Label_Illegals> {<Unquoted_Label_Illegals>} \n"
+		"<Spaced_Label_Illegals> ::= (!,\n\r\t{}\") \n"
+		"<Unquoted_Label_Illegals> ::= (! \n\r\t{}\") \n"
 
         ;
 
@@ -265,6 +262,10 @@ namespace Ogre {
             addLexemeTokenAction("source", ID_SOURCE, &MaterialScriptCompiler::parseProgramSource);
             addLexemeTokenAction("syntax", ID_SYNTAX, &MaterialScriptCompiler::parseProgramSyntax);
             addLexemeTokenAction("default_params", ID_DEFAULT_PARAMS, &MaterialScriptCompiler::parseDefaultParams);
+            addLexemeTokenAction("param_indexed", ID_PARAM_INDEXED, &MaterialScriptCompiler::parseParamIndexed);
+            addLexemeTokenAction("param_indexed_auto", ID_PARAM_INDEXED_AUTO, &MaterialScriptCompiler::parseParamIndexedAuto);
+            addLexemeTokenAction("param_named", ID_PARAM_NAMED, &MaterialScriptCompiler::parseParamNamed);
+            addLexemeTokenAction("param_named_auto", ID_PARAM_NAMED_AUTO, &MaterialScriptCompiler::parseParamNamedAuto);
 
         addLexemeTokenAction("material", ID_MATERIAL, &MaterialScriptCompiler::parseMaterial);
             addLexemeTokenAction(":", ID_CLONE);
@@ -636,7 +637,7 @@ namespace Ogre {
 	void MaterialScriptCompiler::parseProgramPoseAnimation(void)
 	{
         assert(mScriptContext.programDef);
-		mScriptContext.programDef->supportsPoseAnimation = getNextTokenValue();
+		mScriptContext.programDef->supportsPoseAnimation = static_cast<ushort>(getNextTokenValue());
 	}
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseProgramCustomParameter(void)
@@ -2227,6 +2228,316 @@ namespace Ogre {
             mScriptContext.programParams = mScriptContext.pass->getFragmentProgramParameters();
 			mScriptContext.numAnimationParametrics = 0;
         }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::processManualProgramParam(size_t index, const String& commandname, const String& paramName)
+    {
+        // NB we assume that the first element of vecparams is taken up with either
+        // the index or the parameter name, which we ignore
+
+        // Determine type
+        size_t start, dims, roundedDims, i;
+        bool isReal;
+        bool isMatrix4x4 = false;
+        String param(getNextTokenLabel());
+
+        StringUtil::toLowerCase(param);
+
+        if (param == "matrix4x4")
+        {
+            dims = 16;
+            isReal = true;
+            isMatrix4x4 = true;
+        }
+        else if ((start = param.find("float")) != String::npos)
+        {
+            // find the dimensionality
+            start = param.find_first_not_of("float");
+            // Assume 1 if not specified
+            if (start == String::npos)
+            {
+                dims = 1;
+            }
+            else
+            {
+                dims = StringConverter::parseInt(param.substr(start));
+            }
+            isReal = true;
+        }
+        else if ((start = param.find("int")) != String::npos)
+        {
+            // find the dimensionality
+            start = param.find_first_not_of("int");
+            // Assume 1 if not specified
+            if (start == String::npos)
+            {
+                dims = 1;
+            }
+            else
+            {
+                dims = StringConverter::parseInt(param.substr(start));
+            }
+            isReal = false;
+        }
+        else
+        {
+            logParseError("Invalid " + commandname + " attribute - unrecognised "
+                "parameter type " + param);
+            return;
+        }
+
+        if (getRemainingTokensForAction() != dims)
+        {
+            logParseError("Invalid " + commandname + " attribute - you need " +
+                StringConverter::toString(2 + dims) + " parameters for a parameter of "
+                "type " + param);
+        }
+
+        // Round dims to multiple of 4
+        if (dims %4 != 0)
+        {
+            roundedDims = dims + 4 - (dims % 4);
+        }
+        else
+        {
+            roundedDims = dims;
+        }
+
+        // Now parse all the values
+        if (isReal)
+        {
+            Real* realBuffer = new Real[roundedDims];
+            // Do specified values
+            for (i = 0; i < dims; ++i)
+            {
+                realBuffer[i] = getNextTokenValue();
+            }
+            // Fill up to multiple of 4 with zero
+            for (; i < roundedDims; ++i)
+            {
+                realBuffer[i] = 0.0f;
+
+            }
+
+            if (isMatrix4x4)
+            {
+                // its a Matrix4x4 so pass as a Matrix4
+                // use specialized setConstant that takes a matrix so matrix is transposed if required
+                Matrix4 m4x4(
+                    realBuffer[0],  realBuffer[1],  realBuffer[2],  realBuffer[3],
+                    realBuffer[4],  realBuffer[5],  realBuffer[6],  realBuffer[7],
+                    realBuffer[8],  realBuffer[9],  realBuffer[10], realBuffer[11],
+                    realBuffer[12], realBuffer[13], realBuffer[14], realBuffer[15]
+                    );
+                mScriptContext.programParams->setConstant(index, m4x4);
+            }
+            else
+            {
+                // Set
+                mScriptContext.programParams->setConstant(index, realBuffer, static_cast<size_t>(roundedDims * 0.25));
+
+            }
+
+
+            delete [] realBuffer;
+            // log the parameter
+            mScriptContext.programParams->addConstantDefinition(paramName, index, dims, GpuProgramParameters::ET_REAL);
+        }
+        else
+        {
+            int* intBuffer = new int[roundedDims];
+            // Do specified values
+            for (i = 0; i < dims; ++i)
+            {
+                intBuffer[i] = static_cast<int>(getNextTokenValue());
+            }
+            // Fill to multiple of 4 with 0
+            for (; i < roundedDims; ++i)
+            {
+                intBuffer[i] = 0;
+            }
+            // Set
+            mScriptContext.programParams->setConstant(index, intBuffer, static_cast<size_t>(roundedDims * 0.25));
+            delete [] intBuffer;
+            // log the parameter
+            mScriptContext.programParams->addConstantDefinition(paramName, index, dims, GpuProgramParameters::ET_INT);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::processAutoProgramParam(const size_t index, const String& commandname, const String& paramName)
+    {
+
+        String constantName(getNextTokenLabel());
+        // make sure param is in lower case
+        StringUtil::toLowerCase(constantName);
+
+        // lookup the param to see if its a valid auto constant
+        const GpuProgramParameters::AutoConstantDefinition* autoConstantDef =
+            mScriptContext.programParams->getAutoConstantDefinition(constantName);
+
+        // exit with error msg if the auto constant definition wasn't found
+        if (!autoConstantDef)
+		{
+			logParseError("Invalid " + commandname + " attribute - "
+				+ constantName);
+			return;
+		}
+
+        // add AutoConstant based on the type of data it uses
+        switch (autoConstantDef->dataType)
+        {
+        case GpuProgramParameters::ACDT_NONE:
+            mScriptContext.programParams->setAutoConstant(index, autoConstantDef->acType, 0);
+            break;
+
+        case GpuProgramParameters::ACDT_INT:
+            {
+				// Special case animation_parametric, we need to keep track of number of times used
+				if (autoConstantDef->acType == GpuProgramParameters::ACT_ANIMATION_PARAMETRIC)
+				{
+					mScriptContext.programParams->setAutoConstant(
+						index, autoConstantDef->acType, mScriptContext.numAnimationParametrics++);
+				}
+				else
+				{
+
+					if (getRemainingTokensForAction() != 1)
+					{
+						logParseError("Invalid " + commandname + " attribute - "
+							"expected 3 parameters.");
+						return;
+					}
+
+					size_t extraParam = static_cast<size_t>(getNextTokenValue());
+					mScriptContext.programParams->setAutoConstant(
+						index, autoConstantDef->acType, extraParam);
+				}
+            }
+            break;
+
+        case GpuProgramParameters::ACDT_REAL:
+            {
+                // special handling for time
+                if (autoConstantDef->acType == GpuProgramParameters::ACT_TIME ||
+                    autoConstantDef->acType == GpuProgramParameters::ACT_FRAME_TIME)
+                {
+                    Real factor = 1.0f;
+                    if (getRemainingTokensForAction() == 1)
+                    {
+                        factor = getNextTokenValue();
+                    }
+
+                    mScriptContext.programParams->setAutoConstantReal(index, autoConstantDef->acType, factor);
+                }
+                else // normal processing for auto constants that take an extra real value
+                {
+                    if (getRemainingTokensForAction() != 1)
+                    {
+                        logParseError("Invalid " + commandname + " attribute - "
+                            "expected 3 parameters.");
+                        return;
+                    }
+
+			        const Real rData = getNextTokenValue();
+			        mScriptContext.programParams->setAutoConstantReal(index, autoConstantDef->acType, rData);
+                }
+            }
+            break;
+
+        } // end switch
+
+        // add constant definition based on AutoConstant
+        // make element count 0 so that proper allocation occurs when AutoState is set up
+        size_t constantIndex = mScriptContext.programParams->addConstantDefinition(
+			paramName, index, 0, autoConstantDef->elementType);
+        // update constant definition auto settings
+        // since an autoconstant was just added, its the last one in the container
+        size_t autoIndex = mScriptContext.programParams->getAutoConstantCount() - 1;
+        // setup autoState which will allocate the proper amount of storage required by constant entries
+        mScriptContext.programParams->setConstantDefinitionAutoState(constantIndex, true, autoIndex);
+
+    }
+
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseParamIndexed(void)
+    {
+        // NB skip this if the program is not supported or could not be found
+        if (mScriptContext.program.isNull() || !mScriptContext.program->isSupported())
+        {
+            return;
+        }
+
+        // Get start index
+        const size_t index = static_cast<size_t>(getNextTokenValue());
+
+        processManualProgramParam(index, "param_indexed");
+
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseParamIndexedAuto(void)
+    {
+        // NB skip this if the program is not supported or could not be found
+        if (mScriptContext.program.isNull() || !mScriptContext.program->isSupported())
+        {
+            return;
+        }
+        // Get start index
+        const size_t index = static_cast<size_t>(getNextTokenValue());
+
+        processAutoProgramParam(index, "param_indexed_auto");
+
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseParamNamed(void)
+    {
+        // NB skip this if the program is not supported or could not be found
+        if (mScriptContext.program.isNull() || !mScriptContext.program->isSupported())
+        {
+            return;
+        }
+
+        // Get start index from name
+        size_t index;
+        const String& paramName = getNextTokenLabel();
+        try {
+            index = mScriptContext.programParams->getParamIndex(paramName);
+        }
+        catch (Exception& e)
+        {
+            logParseError("Invalid param_named attribute - " + e.getFullDescription());
+            return;
+        }
+
+        // TEST
+        /*
+        LogManager::getSingleton().logMessage("SETTING PARAMETER " + vecparams[0] + " as index " +
+            StringConverter::toString(index));
+        */
+        processManualProgramParam(index, "param_named", paramName);
+
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseParamNamedAuto(void)
+    {
+        // NB skip this if the program is not supported or could not be found
+        if (mScriptContext.program.isNull() || !mScriptContext.program->isSupported())
+        {
+            return;
+        }
+
+        // Get start index from name
+        size_t index;
+        const String& paramNamed = getNextTokenLabel();
+        try {
+            index = mScriptContext.programParams->getParamIndex(paramNamed);
+        }
+        catch (Exception& e)
+        {
+            logParseError("Invalid param_named_auto attribute - " + e.getFullDescription());
+            return;
+        }
+
+        processAutoProgramParam(index, "param_named_auto", paramNamed);
     }
     //-----------------------------------------------------------------------
 	void MaterialScriptCompiler::finishProgramDefinition(void)
