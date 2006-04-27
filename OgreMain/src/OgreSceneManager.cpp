@@ -2185,8 +2185,8 @@ void SceneManager::SceneMgrQueuedRenderableVisitor::visit(const RenderablePass* 
 	// Give SM a chance to eliminate
 	if (targetSceneMgr->validateRenderableForRendering(rp->pass, rp->renderable))
 	{
-		targetSceneMgr->_setPass(rp->pass);
-		targetSceneMgr->renderSingleObject(rp->renderable, rp->pass, autoLights, 
+		mUsedPass = targetSceneMgr->_setPass(rp->pass);
+		targetSceneMgr->renderSingleObject(rp->renderable, mUsedPass, autoLights, 
 			manualLightList);
 	}
 }
