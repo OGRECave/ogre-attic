@@ -30,7 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 //-----------------------------------------------------------------------
 // Windows Settings
 //-----------------------------------------------------------------------
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+#if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(__MINGW32__)
 #   if OGRE_DYNAMIC_LINKAGE == 0
 #       pragma warn( "No dynamic linkage" )
 #       define _OgreParticleFXExport
