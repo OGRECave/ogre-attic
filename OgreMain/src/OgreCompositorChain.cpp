@@ -206,6 +206,7 @@ void CompositorChain::preTargetOperation(CompositorInstance::TargetOperation &op
     SceneManager *sm = cam->getSceneManager();
 	/// Set up render target listener
 	mOurListener.setOperation(&op, sm, sm->getDestinationRenderSystem());
+	mOurListener.notifyViewport(vp);
 	/// Register it
 	sm->addRenderQueueListener(&mOurListener);
 	/// Set visiblity mask
@@ -319,8 +320,9 @@ Viewport *CompositorChain::getViewport()
 void CompositorChain::RQListener::renderQueueStarted(uint8 id, 
 	const String& invocation, bool& skipThisQueue)
 {
-	// Skip shadows invocation, since this is nested within main viewport update
-	if (invocation == RenderQueueInvocation::RENDER_QUEUE_INVOCATION_SHADOWS)
+	// Skip when not matching viewport
+	// shadows update is nested within main viewport update
+	if (mSceneManager->getCurrentViewport() != mViewport)
 		return;
 
 	flushUpTo(id);
