@@ -41,13 +41,14 @@ namespace Ogre
 	private:
 		::Display *mDisplay;		//Pointer to X connection
 		::Window mWindow;		//X Window
-		::Atom mAtomDeleteWindow;	//Used for handling X window closing (todo - dosn't work?)
+		::Atom mAtomDeleteWindow;	//Used for handling X window closing
 		::GLXContext mGlxContext;
 
-		bool mClosed;
-		bool mFullScreen;
-        	bool mTopLevel; // This is false if the Ogre window is embedded
-		int mOldMode;	// Mode before switching to fullscreen
+		bool mClosed;			//Window has been closed
+		bool mVisible;			//Window is visible
+		bool mFullScreen;		//We are full screen
+        	bool mTopLevel;			// This is false if the Ogre window is embedded
+		int mOldMode;			// Mode before switching to fullscreen
 
 		GLXContext   *mContext;
 	public:
@@ -57,15 +58,18 @@ namespace Ogre
 
 		void create(const String& name, unsigned int width, unsigned int height,
 			    bool fullScreen, const NameValuePairList *miscParams);
-		
+
 		/** @copydoc see RenderWindow::destroy */
 		void destroy(void);
-		
+
 		/** @copydoc see RenderWindow::isActive */
 		bool isActive(void) const;
 
 		/** @copydoc see RenderWindow::isClosed */
 		bool isClosed(void) const;
+
+		/** @copydoc see RenderWindow::isVisible */
+		bool isVisible(void) const;
 
 		/** @copydoc see RenderWindow::reposition */
 		void reposition(int left, int top);
@@ -89,9 +93,9 @@ namespace Ogre
 
 		/**
 		@remarks
-			Call this for every X event, so that the window stays up to date with 
-			ConfigureNotify and Deletion events. If you are using neither Root::startRendering
-			nor dispatchEvents() than call this to inject X Events from your X Event polling routine.
+			Called every frame to update X Window status. Called form GLX PlatformManager::messagePump.
+			If you are not using startRendering, and do not want to use messagePump, call this method
+			to update the render window yourself.
 			Only X Events that match the Window ID of this window will be respconded to.
 		*/
 		virtual void injectXEvent(const XEvent &event);

@@ -160,9 +160,9 @@ void GLXInput::initialise(RenderWindow* pWindow, bool useKeyboard, bool useMouse
 	pWindow->getCustomAttribute("GLXWINDOW", &mWindow);
 	pWindow->getCustomAttribute("GLXDISPLAY", &mDisplay);
 
-	//Change input mask to reflect the fact that we want input events (the rendersystem only requests window
+	//Change input mask to reflect the fact that we want input events (the rendersystem only requested window
 	//events)
-	XSelectInput(mDisplay, mWindow, StructureNotifyMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask );
+	XSelectInput(mDisplay, mWindow, StructureNotifyMask | VisibilityChangeMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask );
 
 	// Create hidden cursor
 	// X offers no standard support for this so we need to create a blank pixmap.
