@@ -1,11 +1,12 @@
 Title: Ogre in linux
 Author: Ben Woodhead
-Last Updated: 19 Feb 05
+Last Updated: 26 Apr 06
 License: LGPL
 
 Edited by Steve Streeting following configuration changes.
 Edited by James O'Sullivan following requirement changes.
 Edited by Wladimir J. van der Laan following configuration changes.
+Edited by Phillip Castaneda following configuration changes.
 
 Downloading The Files
 =====================
@@ -13,19 +14,24 @@ Downloading The Files
 If are going to using Ogre for more then just to have a look you will want to have a cvs copy of Ogre. If you are just testing it out, feel free to grab one of the release files. 
 
 Release files can be found: 
-http://ogre.sourceforge.net/modules.php?op=modload&name=Downloads&file=index
+http://www.ogre3d.org/index.php?option=com_remository&Itemid=74
 
 CVS version (anonymous)
 If you are not an ogre developer then use anonymous. You can't write but why would you want to if you are not a developer. Help is always welcome and the occasional thing can be sent with a patch. 
 
 Anyway enough of the talk, you probably are not reading it anyway. 
 
-Login in
-cvs -d:pserver:anonymous@cvs.ogre.sourceforge.net:/cvsroot/ogre login
+Login in:
+cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/ogre login
 password is blank so just press enter.
 
-Getting the module
-cvs -z3 -d:pserver:anonymous@cvs.ogre.sourceforge.net:/cvsroot/ogre co ogrenew
+Getting the module...
+Latest Stable version (Dagon 1.2):
+cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/ogre co -P -rv1-2 ogrenew
+
+CVS Head, not always stable, and not gauranteed to be compilable:
+cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/ogre co -P ogrenew
+
 // Note the new part on ogre, there is an order version in the repository as well (called ogre).. Don't get that one.
 
 
@@ -34,18 +40,18 @@ Dependencies
 
 So additional files that may not be found on your system that ogre will need.
 
-SDL 1.2.x (when not using the GLX platform manager -- see below) - To find out if you have it type sdl-config --version. This will tell you the version, if its not found then you will have to get sdl. sdl can be found at www.libsdl.org. It would be best to insure that this installs into a standard directory. If you are installing from source run ./configure --prefix=/usr. 
+* SDL 1.2.x (when not using the default GLX platform manager ) - To find out if you have it type sdl-config --version. This will tell you the version, if its not found then you will have to get sdl. sdl can be found at www.libsdl.org. It would be best to insure that this installs into a standard directory. If you are installing from source run ./configure --prefix=/usr. 
 
-FreeType2 2.1.x - If you don't have this on your system then you can get it http://www.freetype.org/. Run freetype-config --version, if you have a version lower then 9.1.x, you will have to upgrade. 
+* FreeType2 2.1.09 for Ogre 1.0, or FreeType2 2.1.10 for Ogre 1.2+ - If you don't have this on your system then you can get it http://www.freetype.org/. Run freetype-config --version, if you have a version lower then 9.1.x, you will have to upgrade. 
 
-DevIL 1.5.x or greater - If you don't have this on your system then you can get
-it from http://openil.sourceforge.net/.  UPDATE: DevIL 1.6.6 seems to introduce some problems, stick to 1.6.5 for the moment.
+* DevIL 1.5.x or greater - If you don't have this on your system then you can get
+it from http://openil.sourceforge.net/.  UPDATE: DevIL 1.6.6 seems to introduce some problems, stick to 1.6.5 for the moment. Ogre Dagon uses DevIL 1.6.7
 
-zziplib 0.12.x or above, available from http://zziplib.sourceforge.net.
+* zziplib 0.12.x or above, available from http://zziplib.sourceforge.net.
 
-Cg, preferably version 1.1 since later versions have known bug which have been reported to nVidia. http://developer.nvidia.com/cg
+* Cg, preferably version 1.4 http://developer.nvidia.com/cg. CG can be disabled via configure, but not recommended
 
-*Important* 
+** Important **
 Do not install the binary version of DevIL as this has caused problems for some
 users, install the source distribution instead.  
 
@@ -54,10 +60,8 @@ http://ogre.sourceforge.net/modules.php?op=modload&name=FAQ&file=index&myfaq=yes
 
 Optional Libraries
 ==================
-For the samples gui you will need gnome2, if you don't have gnome2 on your system the you will have to use the command line interface. If you are running gnome 2 then you will need 2 additional libraries. 
-
-Gtkmm2 version 1.3.26 and Glademm2 version 1.3.4, both libraries can be found at http://gtkmm.sourceforge.net/. Gtkmm will also need libsigc (http://libsigc.sourceforge.net/). When configuring gtkmm and glademm insure that you use an appropriate prefix. (ie if gnome is found /usr then run ./configure --prefix=/usr). 
-
+CEGUI 0.4.0 For Ogre Dagon http://sourceforge.net/projects/crayzedsgui, Only if you intend to
+build the Gui demos, or need/want to use CEGUI. Build this before Ogre.
 
 Compiling Ogre
 ==============
@@ -71,33 +75,33 @@ What version of you compiler are you running. (gcc --version will tell you). You
 
 Compiling Ogre
 
-NOTE: if you are running the cvs version then you must run ./bootstrap first. It will setup the configure files for you.  If you have some of the dependent libraries installed in another directory (like /usr/local) you might need to set the ACLOCAL_FLAGS variable to point at the extra aclocal directory.  An example is:  export ACLOCAL_FLAGS="-I /usr/local/share/aclocal"; ./bootstrap
+NOTE: if you are running the cvs version then you must run ./bootstrap first. It will setup the configure files for you.  If you have some of the dependent libraries installed in another directory (like /usr/local) you might need to set the ACLOCAL_FLAGS variable to point at the extra aclocal directory.  An example is:  export ACLOCAL_FLAGS="-I /usr/local/share/aclocal";
 
+./bootstrap
 ./configure
 make 
 make install
 
+* Bootstrap will generate configure scripts
+* Configure sets up the build environment, and finds required lib's
+* Make compiles everything
+* Make install will install the Ogre lib's with libtool, and place the samples in the 
+  ogrenew/Samples/Comon/bin directory
+
 Well you must be thinking that was easy compared to 2.95.3 and you are right. That's part of the reason I decided to upgrade (again changing compilers is a really good way to turn a linux box into a paper wait, if you can't compile what else are you going to do).
 
-GLX platform manager
+GLX platform manager (Default Linux Platform under Ogre Dagon)
 ====================
 
-If you add the options --with-gl-support=GLX --with-platform=GLX to the ./configure statement, the GLX platform manager will be used instead of the default, SDL. This means that OGRE will work without the SDL libraries installed and directly make use of the capabilities of your X server. You will also get a nice X startup screen to select your resolution. There is little reason to use SDL, unless you want to use it for input or sound.
+This means that OGRE will work without the SDL libraries installed and directly make use of the capabilities of your X server. You will also get a nice X startup screen to select your resolution. There is little reason to use SDL, unless you want to use it for input or sound.
 
-Ogre Samples
-============
+Ogre Linux Demos
+================
 
-Alright on to the samples, if you have not used Visual C++ you may find this a little confusing when you start. 
+cd <ogrenew>/Samples/Common/bin/, All demo apps will be installed here
 
-cd <ogrenew>/Samples/Common/bin/ - you will see 2 directories there one is Release and Debug. If you were running windows the files would already be in these directories but with Linux there are files only in the Debug directory. 
+Under the default Platform (GLX), a Config Window pop's up and presents you with some choices. If you built the SDL platform for whatever reason, you will be presented with comand line settings to choose from.
 
-So the first thing is getting all the plugins (this worked for me, but I don't know about you). During the make install all the plugins were copied to /usr/local/lib/ogre except for the OgrePlatform.so which is found in the <ogrenew>/Samples/Common/bin with the samples. This didn't work for me, so I made a few changes. I copied the OgrePlatform.so to /usr/local/lib and the plugins from /usr/local/lib/ogre to /usr/local/lib and ran ldconfig. 
-
-
-Next, in windows you have a nice little popup window that you can say the resolution in, Linux has 2 options, due to the fact that a lot of people are not running gnome2 yet, it has a gtk2 config or a cli (command line interface). CLI is the default and I have not figured out how to change that yet. 
-
-
-Ok so now we have everything in place. The next thing you are going to have to do is try running some of the examples.  You may need to check the case of the textures found in the media directory. 
 
 COMMENTS
 ========
