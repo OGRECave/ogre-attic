@@ -2329,6 +2329,11 @@ namespace Ogre {
 			gets sent
 		*/
 		RenderSystem *getDestinationRenderSystem();
+
+		/** Gets the current viewport being rendered (advanced use only, only 
+			valid during viewport update. */
+		Viewport* getCurrentViewport(void) { return mCurrentViewport; }
+
     };
 
     /** Default implementation of IntersectionSceneQuery. */
