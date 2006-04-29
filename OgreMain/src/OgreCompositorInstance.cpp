@@ -159,7 +159,11 @@ public:
 		Technique::PassIterator i = technique->getPassIterator();
 		while(i.hasMoreElements())
 		{
-			sm->_injectRenderWithPass(i.getNext(), CompositorManager::getSingleton()._getTexturedRectangle2D());
+			sm->_injectRenderWithPass(
+				i.getNext(), 
+				CompositorManager::getSingleton()._getTexturedRectangle2D(),
+				false // don't allow replacement of shadow passes
+				);
 		}
 	}
 };

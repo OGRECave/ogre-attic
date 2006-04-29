@@ -2260,8 +2260,9 @@ namespace Ogre {
 		/** Render something as if it came from the current queue.
 			@param pass		Material pass to use for setting up this quad.
 			@param rend		Renderable to render
+			@param shadowDerivation Whether passes should be replaced with shadow caster / receiver passes
 		 */
-		virtual void _injectRenderWithPass(Pass *pass, Renderable *rend);
+		virtual void _injectRenderWithPass(Pass *pass, Renderable *rend, bool shadowDerivation = true);
 
 		/** Indicates to the SceneManager whether it should suppress changing
 			the RenderSystem states when rendering objects.
@@ -2295,11 +2296,14 @@ namespace Ogre {
 				changes are suppressed; if you are using this to manually set state
 				when render state changes are suppressed, you should set this to 
 				true.
+			@param shadowDerivation If false, disables the derivation of shadow
+				passes from original passes
             @returns
                 A Pass object that was used instead of the one passed in, can
                 happen when rendering shadow passes
         */
-        virtual const Pass* _setPass(const Pass* pass, bool evenIfSuppressed = false);
+        virtual const Pass* _setPass(const Pass* pass, 
+			bool evenIfSuppressed = false, bool shadowDerivation = true);
 
 
 		/** Indicates to the SceneManager whether it should suppress the 

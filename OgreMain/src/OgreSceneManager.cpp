@@ -700,16 +700,17 @@ SceneNode* SceneManager::getSceneNode(const String& name) const
 
 }
 //-----------------------------------------------------------------------
-const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed)
+const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed, 
+								   bool shadowDerivation)
 {
 	if (!mSuppressRenderStateChanges || evenIfSuppressed)
 	{
-		if (mIlluminationStage == IRS_RENDER_TO_TEXTURE)
+		if (mIlluminationStage == IRS_RENDER_TO_TEXTURE && shadowDerivation)
 		{
 			// Derive a special shadow caster pass from this one
 			pass = deriveShadowCasterPass(pass);
 		}
-		else if (mIlluminationStage == IRS_RENDER_RECEIVER_PASS)
+		else if (mIlluminationStage == IRS_RENDER_RECEIVER_PASS && shadowDerivation)
 		{
 			pass = deriveShadowReceiverPass(pass);
 		}
@@ -4849,10 +4850,10 @@ void SceneManager::extractAllMovableObjectsByType(const String& typeName)
 
 }
 //---------------------------------------------------------------------
-void SceneManager::_injectRenderWithPass(Pass *pass, Renderable *rend)
+void SceneManager::_injectRenderWithPass(Pass *pass, Renderable *rend, bool shadowDerivation )
 {
 	// render something as if it came from the current queue
-    const Pass *usedPass = _setPass(pass);
+    const Pass *usedPass = _setPass(pass, false, shadowDerivation);
     renderSingleObject(rend, usedPass, false);
 }
 //---------------------------------------------------------------------
