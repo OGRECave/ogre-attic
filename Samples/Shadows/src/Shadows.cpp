@@ -52,13 +52,14 @@ String mAtheneMaterials[NUM_ATHENE_MATERIALS] =
     "Examples/Athene/NormalMapped",
     "Examples/Athene/Basic"
 };
-#define NUM_SHADOW_TECH 5
+#define NUM_SHADOW_TECH 6
 String mShadowTechDescriptions[NUM_SHADOW_TECH] = 
 {
     "Stencil Shadows (Additive)",
     "Stencil Shadows (Modulative)",
 	"Texture Shadows (Additive)",
     "Texture Shadows (Modulative)",
+	"Texture Shadows (Soft Modulative)",
     "None"
 };
 ShadowTechnique mShadowTech[NUM_SHADOW_TECH] = 
@@ -67,12 +68,24 @@ ShadowTechnique mShadowTech[NUM_SHADOW_TECH] =
     SHADOWTYPE_STENCIL_MODULATIVE,
 	SHADOWTYPE_TEXTURE_ADDITIVE,
     SHADOWTYPE_TEXTURE_MODULATIVE,
+	SHADOWTYPE_TEXTURE_MODULATIVE, // soft shadows
     SHADOWTYPE_NONE
+};
+bool mShadowTechSoft[NUM_SHADOW_TECH] = 
+{
+	false, 
+	false, 
+	false,
+	false, 
+	true, 
+	false
+
 };
 
 
 int mCurrentAtheneMaterial;
 int mCurrentShadowTechnique = 0;
+String SHADOW_COMPOSITOR_NAME("Gaussian Blur");
 
 OverlayElement* mShadowTechniqueInfo;
 OverlayElement* mMaterialInfo;
@@ -139,21 +152,149 @@ Real timeDelay = 0;
 } \
 }
 
+
+//---------------------------------------------------------------------------
+class GaussianListener: public Ogre::CompositorInstance::Listener
+{
+protected:
+	int mVpWidth, mVpHeight;
+	// Array params - have to pack in groups of 4 since this is how Cg generates them
+	// also prevents dependent texture read problems if ops don't require swizzle
+	float mBloomTexWeights[15][4];
+	float mBloomTexOffsetsHorz[15][4];
+	float mBloomTexOffsetsVert[15][4];
+public:
+	GaussianListener() {}
+	virtual ~GaussianListener() {}
+	void notifyViewportSize(int width, int height)
+	{
+		mVpWidth = width;
+		mVpHeight = height;
+		// Calculate gaussian texture offsets & weights
+		float deviation = 3.0f;
+		float texelSize = 1.0f / (float)std::min(mVpWidth, mVpHeight);
+
+		// central sample, no offset
+		mBloomTexOffsetsHorz[0][0] = 0.0f;
+		mBloomTexOffsetsHorz[0][1] = 0.0f;
+		mBloomTexWeights[0][0] = mBloomTexWeights[0][1] = 
+			mBloomTexWeights[0][2] = Ogre::Math::gaussianDistribution(0, 0, deviation);
+		mBloomTexWeights[0][3] = 1.0f;
+
+		// 'pre' samples
+		for(int i = 1; i < 8; ++i)
+		{
+			mBloomTexWeights[i][0] = mBloomTexWeights[i][1] = 
+				mBloomTexWeights[i][2] = Ogre::Math::gaussianDistribution(i, 0, deviation);
+			mBloomTexWeights[i][3] = 1.0f;
+			mBloomTexOffsetsHorz[i][0] = i * texelSize;
+			mBloomTexOffsetsHorz[i][1] = 0.0f;
+			mBloomTexOffsetsVert[i][0] = 0.0f;
+			mBloomTexOffsetsVert[i][1] = i * texelSize;
+		}
+		// 'post' samples
+		for(int i = 8; i < 15; ++i)
+		{
+			mBloomTexWeights[i][0] = mBloomTexWeights[i][1] = 
+				mBloomTexWeights[i][2] = mBloomTexWeights[i - 7][0];
+			mBloomTexWeights[i][3] = 1.0f;
+
+			mBloomTexOffsetsHorz[i][0] = -mBloomTexOffsetsHorz[i - 7][0];
+			mBloomTexOffsetsHorz[i][1] = 0.0f;
+			mBloomTexOffsetsVert[i][0] = 0.0f;
+			mBloomTexOffsetsVert[i][1] = -mBloomTexOffsetsVert[i - 7][1];
+		}
+
+	}
+	virtual void notifyMaterialSetup(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat)
+	{
+		// Prepare the fragment params offsets
+		switch(pass_id)
+		{
+		case 701: // blur horz
+			{
+				// horizontal bloom
+				mat->load();
+				Ogre::GpuProgramParametersSharedPtr fparams = 
+					mat->getBestTechnique()->getPass(0)->getFragmentProgramParameters();
+				const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
+				// A bit hacky - Cg & HLSL index arrays via [0], GLSL does not
+				if (progName.find("GLSL") != Ogre::String::npos)
+				{
+					fparams->setNamedConstant("sampleOffsets", mBloomTexOffsetsHorz[0], 15);
+					fparams->setNamedConstant("sampleWeights", mBloomTexWeights[0], 15);
+				}
+				else
+				{
+					fparams->setNamedConstant("sampleOffsets[0]", mBloomTexOffsetsHorz[0], 15);
+					fparams->setNamedConstant("sampleWeights[0]", mBloomTexWeights[0], 15);
+				}
+
+				break;
+			}
+		case 700: // blur vert
+			{
+				// vertical bloom 
+				mat->load();
+				Ogre::GpuProgramParametersSharedPtr fparams = 
+					mat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
+				const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
+				// A bit hacky - Cg & HLSL index arrays via [0], GLSL does not
+				if (progName.find("GLSL") != Ogre::String::npos)
+				{
+					fparams->setNamedConstant("sampleOffsets", mBloomTexOffsetsVert[0], 15);
+					fparams->setNamedConstant("sampleWeights", mBloomTexWeights[0], 15);
+				}
+				else
+				{
+					fparams->setNamedConstant("sampleOffsets[0]", mBloomTexOffsetsVert[0], 15);
+					fparams->setNamedConstant("sampleWeights[0]", mBloomTexWeights[0], 15);
+				}
+
+				break;
+			}
+		}
+
+	}
+	virtual void notifyMaterialRender(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat)
+	{
+
+	}
+};
+GaussianListener gaussianListener;
+
+
 class ShadowsListener : public ExampleFrameListener
 {
 protected:
     SceneManager* mSceneMgr;
+	Viewport *mShadowVp;
+	CompositorInstance* mShadowCompositor;
 public:
     ShadowsListener(RenderWindow* win, Camera* cam, SceneManager* sm)
-        : ExampleFrameListener(win, cam), mSceneMgr(sm)
+        : ExampleFrameListener(win, cam), mSceneMgr(sm), mShadowVp(0), 
+		mShadowCompositor(0)
     {
     }
 
 
     void changeShadowTechnique()
     {
+		int prevTech = mCurrentShadowTechnique;
         mCurrentShadowTechnique = ++mCurrentShadowTechnique % NUM_SHADOW_TECH;
         mShadowTechniqueInfo->setCaption("Current: " + mShadowTechDescriptions[mCurrentShadowTechnique]);
+
+		if (mShadowTechSoft[prevTech] && !mShadowTechSoft[mCurrentShadowTechnique])
+		{
+			// Clean up compositors
+			mShadowCompositor->removeListener(&gaussianListener);
+			CompositorManager::getSingleton().setCompositorEnabled(mShadowVp, 
+				SHADOW_COMPOSITOR_NAME, false);
+			// Remove entire compositor chain
+			CompositorManager::getSingleton().removeCompositorChain(mShadowVp);
+			mShadowVp = 0;
+			mShadowCompositor = 0;
+		}
 
         mSceneMgr->setShadowTechnique(mShadowTech[mCurrentShadowTechnique]);
         Vector3 dir;
@@ -186,9 +327,8 @@ public:
             break;
         case SHADOWTYPE_TEXTURE_MODULATIVE:
 		case SHADOWTYPE_TEXTURE_ADDITIVE:
-            // Change fixed point light to spotlight
-            // Fixed light, dim
-            mSunLight->setCastShadows(true);
+			// Fixed light, dim
+			mSunLight->setCastShadows(!mShadowTechSoft[mCurrentShadowTechnique]);
 
             // Change moving light to spotlight
             // Point light, movable, reddish
@@ -199,7 +339,24 @@ public:
             mLight->setSpecularColour(1, 1, 1);
             mLight->setAttenuation(8000,1,0.0005,0);
             mLight->setSpotlightRange(Degree(80),Degree(90));
-            break;
+
+
+			if (mShadowTechSoft[mCurrentShadowTechnique])
+			{	
+
+				// set up compositors
+				TexturePtr shadowTex = TextureManager::getSingleton().getByName("Ogre/ShadowTexture0");
+				RenderTarget* shadowRtt = shadowTex->getBuffer()->getRenderTarget();
+				mShadowVp = shadowRtt->getViewport(0);
+				mShadowCompositor = 
+					CompositorManager::getSingleton().addCompositor(mShadowVp, SHADOW_COMPOSITOR_NAME);
+				CompositorManager::getSingleton().setCompositorEnabled(
+					mShadowVp, SHADOW_COMPOSITOR_NAME, true);
+				mShadowCompositor->addListener(&gaussianListener);
+				gaussianListener.notifyViewportSize(mShadowVp->getActualWidth(), mShadowVp->getActualHeight());
+			}
+			
+			break;
         default:
             break;
         };
@@ -398,7 +555,7 @@ protected:
         plane.d = 100;
         MeshManager::getSingleton().createPlane("Myplane",
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
-            1500,1500,20,20,true,1,5,5,Vector3::UNIT_Z);
+            1500,1500,50,50,true,1,5,5,Vector3::UNIT_Z);
         Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
         pPlaneEnt->setMaterialName("Examples/Rockwall");
         pPlaneEnt->setCastShadows(false);
