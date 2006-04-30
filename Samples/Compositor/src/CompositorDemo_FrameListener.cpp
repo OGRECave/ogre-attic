@@ -109,6 +109,8 @@ LGPL like the rest of the engine.
 				// central sample, no offset
 				mBloomTexOffsetsHorz[0][0] = 0.0f;
 				mBloomTexOffsetsHorz[0][1] = 0.0f;
+				mBloomTexOffsetsVert[0][0] = 0.0f;
+				mBloomTexOffsetsVert[0][1] = 0.0f;
 				mBloomTexWeights[0][0] = mBloomTexWeights[0][1] = 
 					mBloomTexWeights[0][2] = Ogre::Math::gaussianDistribution(0, 0, deviation);
 				mBloomTexWeights[0][3] = 1.0f;
@@ -238,6 +240,8 @@ LGPL like the rest of the engine.
 		// central sample, no offset
 		mBloomTexOffsetsHorz[0][0] = 0.0f;
 		mBloomTexOffsetsHorz[0][1] = 0.0f;
+		mBloomTexOffsetsVert[0][0] = 0.0f;
+		mBloomTexOffsetsVert[0][1] = 0.0f;
 		mBloomTexWeights[0][0] = mBloomTexWeights[0][1] = 
 			mBloomTexWeights[0][2] = Ogre::Math::gaussianDistribution(0, 0, deviation);
 		mBloomTexWeights[0][3] = 1.0f;
