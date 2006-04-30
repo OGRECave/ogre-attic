@@ -308,44 +308,55 @@ void GLXInput::capture() {
 		case ButtonPress:
 			button_down = true;
 		case ButtonRelease:
-			switch(event.xbutton.button) {
-			case 1: // LEFT
+			if( event.xbutton.button == 1 ) // LEFT
+			{
 				button_mask = InputEvent::BUTTON0_MASK;
 				button_bits = 1;
-				break;
-			case 2: // MIDDLE
+			}
+			else if( event.xbutton.button == 2 ) // MIDDLE
+			{
 				button_mask = InputEvent::BUTTON1_MASK;
 				button_bits = 2;
-				break;
-			case 3: // RIGHT
+			}
+			else if( event.xbutton.button == 3 ) // RIGHT
+			{
 				button_mask = InputEvent::BUTTON2_MASK;
 				button_bits = 4;
+			}
+			else if( event.xbutton.button == 4 ) // WHEEL UP
+			{
+				//Wheel axis only triggered once (on release), and break out of case
+				if( button_down == false )
+					mMouseState.Zrel += mWheelStep;
+				hasMouseMoved = true;
 				break;
-			case 4: // WHEEL UP
-				mMouseState.Zrel += mWheelStep;
+			}
+			else if( event.xbutton.button == 5 ) // WHEEN DOWN
+			{
+				//Wheel axis only triggered once (on release), and break out of case
+				if( button_down == false )
+					mMouseState.Zrel -= mWheelStep;
+				hasMouseMoved = true;
 				break;
-			case 5: // WHEEN DOWN
-				mMouseState.Zrel -= mWheelStep;
-				break;
-			};
+			}
+
 			// Unbuffered mouse
 			if(button_down)
 				mMouseState.Buttons |= button_bits;
 			else
 				mMouseState.Buttons &= ~button_bits;
 
+
 			// Buffered mouse
-			if(mUseBufferedMouse)
-				triggerMouseButton(button_mask, button_down);
+			if(mUseBufferedMouse) triggerMouseButton(button_mask, button_down);
 
 			// Mouse re-grab
-			if(captureMouse && !warpMouse && button_down &&  event.xbutton.button==1) {
+			if(captureMouse && !warpMouse && button_down &&  event.xbutton.button==1)
 				GrabCursor(true);
-			}
 
 			break;
-		}
-	}
+		} //end switch
+	} //End whie events pending
 
 	if(warpMouse)
 	{
@@ -371,6 +382,7 @@ void GLXInput::capture() {
 		mouseMoved();
 		mCursor->addToX(mMouseState.Xrel * mMouseScale);
 		mCursor->addToY(mMouseState.Yrel * mMouseScale);
+		mCursor->addToZ(mMouseState.Zrel * mMouseScale);
 	}
 
 }
