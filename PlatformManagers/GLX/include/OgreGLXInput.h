@@ -84,12 +84,14 @@ private:
 	Display *mDisplay;
 	Window mWindow;
 	RenderWindow *mRenderWindow;
+	bool mMouseWarped;
 
 	static const unsigned int mWheelStep = 100;
 
 	void GrabCursor(bool grab);
 
-    bool isKeyDownImmediate( KeyCode kc ) const;
+	bool isKeyDownImmediate( KeyCode kc ) const;
+
 };
 
 }; // Namespace

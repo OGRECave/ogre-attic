@@ -34,11 +34,23 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 
-namespace Ogre {
+// Thanks to SDL for this idea
+#define MOUSE_FUDGE_FACTOR 8
 
-GLXInput::GLXInput()
-		: InputReader()
-		{
+namespace Ogre
+{
+
+GLXInput::GLXInput() :
+	InputReader(),
+	captureMouse(false),
+	warpMouse(false),
+	mouseLastX(0),
+	mouseLastY(0),
+	mDisplay(0),
+	mWindow(0),
+	mRenderWindow(0),
+	mMouseWarped(false)
+{
 	mEventQueue = 0;
 	mMouseScale = 0.002f;
 
@@ -206,6 +218,10 @@ void GLXInput::capture() {
 
 	bool hasMouseMoved = false;
 
+	unsigned int width, height, depth;
+	int left, top;
+	w->getMetrics(width, height, depth, left, top);
+
 	// Process X events until event pump exhausted
 	while(XPending(mDisplay) > 0) {
 		XNextEvent(mDisplay,&event);
@@ -273,11 +289,22 @@ void GLXInput::capture() {
 				keyChanged(ogrekey, false);
 			break;
 		case MotionNotify:
-			mMouseState.Xabs = event.xmotion.x;
-			mMouseState.Yabs = event.xmotion.y;
-			hasMouseMoved = true;
-			break;
+			if( mMouseWarped &&
+			    (event.xmotion.x < MOUSE_FUDGE_FACTOR || event.xmotion.x > (width-MOUSE_FUDGE_FACTOR) ||
+			     event.xmotion.y < MOUSE_FUDGE_FACTOR || event.xmotion.y > (height-MOUSE_FUDGE_FACTOR)) )
 
+			{ //Mouse has already warped.. And, value is still off
+				break;
+			}
+			else
+			{ //Mouse values are fine.. regardless of warpage
+				mMouseState.Xabs = event.xmotion.x;
+				mMouseState.Yabs = event.xmotion.y;
+				hasMouseMoved = true;
+				mMouseWarped = false;
+			}
+
+			break;
 		case ButtonPress:
 			button_down = true;
 		case ButtonRelease:
@@ -319,29 +346,24 @@ void GLXInput::capture() {
 			break;
 		}
 	}
-#define MOUSE_FUDGE_FACTOR      8 /* Thanks to SDL for this idea */
 
-	if(warpMouse) {
+	if(warpMouse)
+	{
 		// Calculate the relative motion from the last mouse position and the new one.
 		mMouseState.Xrel = mMouseState.Xabs - mouseLastX;
 		mMouseState.Yrel = mMouseState.Yabs - mouseLastY;
 		mouseLastX = mMouseState.Xabs;
 		mouseLastY = mMouseState.Yabs;
 
-		unsigned int width, height, depth;
-		int left, top;
-		w->getMetrics(width, height, depth, left, top);
-		// If the mouse cursor has reached the border of the window 
-		// (it is closer than MOUSE_FUDGE_FACTOR), warp it back to
-		// the middle.
-		if(	(mMouseState.Xabs < MOUSE_FUDGE_FACTOR) ||
-            	 	(mMouseState.Xabs > (width-MOUSE_FUDGE_FACTOR)) ||
-             		(mMouseState.Yabs < MOUSE_FUDGE_FACTOR) ||
-             		(mMouseState.Yabs > (height-MOUSE_FUDGE_FACTOR)) ) {
+		// If the mouse cursor has reached the border of the window  (it is closer than MOUSE_FUDGE_FACTOR),
+		//warp it back to the middle.
+		if(mMouseState.Xabs < MOUSE_FUDGE_FACTOR || mMouseState.Xabs > (width-MOUSE_FUDGE_FACTOR) ||
+		   mMouseState.Yabs < MOUSE_FUDGE_FACTOR || mMouseState.Yabs > (height-MOUSE_FUDGE_FACTOR) )
+		{
 			mouseLastX = mMouseState.Xabs = width / 2;
 			mouseLastY = mMouseState.Yabs = height / 2;
-			XWarpPointer(mDisplay, None, mWindow, 0, 0, 0, 0,
-                                        mMouseState.Xabs, mMouseState.Yabs);
+			XWarpPointer(mDisplay, None, mWindow, 0, 0, 0, 0, mMouseState.Xabs, mMouseState.Yabs);
+			mMouseWarped = true;
 		}
 	}
 	if(hasMouseMoved && mUseBufferedMouse) {
