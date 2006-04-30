@@ -54,7 +54,7 @@ LGPL like the rest of the engine.
         // set checkbox ID to selector ID
         checkbox->setID(idx);
         checkbox->setMetricsMode(CEGUI::Absolute);
-        checkbox->setSize(CEGUI::Size(100, ITEM_YSIZE));
+        checkbox->setSize(CEGUI::Size(140, ITEM_YSIZE));
         checkbox->setText(displayText.c_str());
         checkbox->setHoverTextColour(CEGUI::colour(1.0, 1.0, 0.0));
         // add event handler for when checkbox state changes
