@@ -193,8 +193,13 @@ void CompositorChain::preViewportUpdate(const RenderTargetViewportEvent& evt)
 
 	// set original scene details from viewport
 	CompositionPass* pass = mOriginalScene->getTechnique()->getOutputTargetPass()->getPass(0);
-	pass->setClearBuffers(mViewport->getClearBuffers());
-	pass->setClearColour(mViewport->getBackgroundColour());
+	if (pass->getClearBuffers() != mViewport->getClearBuffers() ||
+		pass->getClearColour() != mViewport->getBackgroundColour())
+	{
+		pass->setClearBuffers(mViewport->getClearBuffers());
+		pass->setClearColour(mViewport->getBackgroundColour());
+		_compile();
+	}
 
 	Camera *cam = mViewport->getCamera();
 	/// Prepare for output operation
