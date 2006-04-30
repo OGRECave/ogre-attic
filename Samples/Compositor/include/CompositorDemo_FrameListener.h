@@ -55,6 +55,23 @@ LGPL like the rest of the engine.
 		virtual void notifyMaterialSetup(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat);
 		virtual void notifyMaterialRender(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat);
 	};
+	//---------------------------------------------------------------------------
+	class GaussianListener: public Ogre::CompositorInstance::Listener
+	{
+	protected:
+		int mVpWidth, mVpHeight;
+		// Array params - have to pack in groups of 4 since this is how Cg generates them
+		// also prevents dependent texture read problems if ops don't require swizzle
+		float mBloomTexWeights[15][4];
+		float mBloomTexOffsetsHorz[15][4];
+		float mBloomTexOffsetsVert[15][4];
+	public:
+		GaussianListener();
+		virtual ~GaussianListener();
+		void notifyViewportSize(int width, int height);
+		virtual void notifyMaterialSetup(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat);
+		virtual void notifyMaterialRender(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat);
+	};
 //---------------------------------------------------------------------------
     class CompositorDemo;
 
@@ -70,6 +87,7 @@ LGPL like the rest of the engine.
         CompositorDemo* mMain;
         HeatVisionListener *hvListener;
 		HDRListener *hdrListener;
+		GaussianListener *gaussianListener;
         Ogre::Vector3 mTranslateVector;
         bool mStatsOn;
         unsigned int mNumScreenShots;
