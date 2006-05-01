@@ -98,6 +98,13 @@ namespace Ogre
         */
         void _getOffsetTransform(Matrix4& m) const;
 
+		/** Gets the inverted binding pose scale. */
+		const Vector3& _getBindingPoseInverseScale(void) const { return mBindDerivedInverseScale; }
+		/** Gets the inverted binding pose position. */
+		const Vector3& _getBindingPoseInversePosition(void) const { return mBindDerivedInversePosition; }
+		/** Gets the inverted binding pose orientation. */
+		const Quaternion& _getBindingPoseInverseOrientation(void) const { return mBindDerivedInverseOrientation; }
+
 		/// @see Node::needUpdate
 		void needUpdate(bool forceParentUpdate = false);
 
