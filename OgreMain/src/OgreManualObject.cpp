@@ -555,7 +555,8 @@ namespace Ogre {
 			sm->setMaterialName(sec->getMaterialName());
 			// Copy vertex data; replicate buffers too
 			sm->vertexData = rop->vertexData->clone(true);
-			// Copy index data; replicate buffers too
+			// Copy index data; replicate buffers too; delete the default, old one to avoid memory leaks
+			delete sm->indexData;
 			sm->indexData = rop->indexData->clone(true);
 		}
         // update bounds
