@@ -283,7 +283,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 			Parameter param = prop.GetParameters().GetItem(L"objectName");
 			CString objectName = param.GetValue();
 			param = prop.GetParameters().GetItem( L"targetMeshFileName" );
-			Ogre::String meshFileName = XSItoOgre(param.GetValue());
+			Ogre::String meshFileName = XSItoOgre(XSI::CString(param.GetValue()));
 			if (meshFileName.empty())
 			{
 				OGRE_EXCEPT(Ogre::Exception::ERR_INVALIDPARAMS, 
@@ -360,7 +360,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 			
 			// Any material prefix? We need that for mesh linking too
 			param = prop.GetParameters().GetItem( L"materialPrefix" );
-			Ogre::String materialPrefix = XSItoOgre(param.GetValue());
+			Ogre::String materialPrefix = XSItoOgre(XSI::CString(param.GetValue()));
 
 			param = prop.GetParameters().GetItem( L"fps" );
 			float fps = param.GetValue();
@@ -382,7 +382,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 					if (gd.GetCell(ANIMATION_LIST_EXPORT_COL, a) == true)
 					{
 						Ogre::AnimationEntry ae;
-						ae.animationName = XSItoOgre(gd.GetCell(ANIMATION_LIST_NAME_COL, a));
+						ae.animationName = XSItoOgre(XSI::CString(gd.GetCell(ANIMATION_LIST_NAME_COL, a)));
 						ae.ikSampleInterval = gd.GetCell(ANIMATION_LIST_IKFREQ_COL, a);
 						ae.startFrame = gd.GetCell(ANIMATION_LIST_START_COL, a);
 						ae.endFrame = gd.GetCell(ANIMATION_LIST_END_COL, a);
@@ -394,7 +394,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 			if (exportSkeleton)
 			{
 				param = prop.GetParameters().GetItem( L"targetSkeletonFileName" );
-				Ogre::String skeletonFileName = XSItoOgre(param.GetValue());
+				Ogre::String skeletonFileName = XSItoOgre(XSI::CString(param.GetValue()));
 				if (skeletonFileName.empty())
 				{
 					OGRE_EXCEPT(Ogre::Exception::ERR_INVALIDPARAMS, 
@@ -445,7 +445,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 			if (exportMaterials)
 			{
 				param = prop.GetParameters().GetItem( L"targetMaterialFileName" );
-				Ogre::String materialFileName = XSItoOgre(param.GetValue());
+				Ogre::String materialFileName = XSItoOgre(XSI::CString(param.GetValue()));
 				
 				Ogre::XsiMaterialExporter matExporter;
 				try 
@@ -1006,7 +1006,7 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 		if (paramName == L"targetMeshFileName")
 		{
 			// Default skeleton name if blank
-			Ogre::String meshName = XSItoOgre(changed.GetValue());
+			Ogre::String meshName = XSItoOgre(XSI::CString(changed.GetValue()));
 			if (hasSkel && Ogre::StringUtil::endsWith(meshName, "mesh") && 
 				prop.GetParameterValue(L"targetSkeletonFileName") == L"")
 			{
