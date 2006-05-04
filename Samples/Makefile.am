@@ -4,7 +4,7 @@ RenderToTexture Water CubeMapping Dot3Bump Smoke CelShading Fresnel Shadows \
 DynTex VolumeTex Grass DeferredShading Compositor
 
 if HAVE_CEGUI
-SUBDIRS += Gui FacialAnimation OceanDemo
+SUBDIRS += Gui FacialAnimation OceanDemo Compositor
 endif
 
 
