@@ -1003,22 +1003,24 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void ResourceGroupManager::deleteGroup(ResourceGroup* grp)
 	{
-		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME)
-		// delete all the load list entries
-		ResourceGroup::LoadResourceOrderMap::iterator j, jend;
-		jend = grp->loadResourceOrderMap.end();
-		for (j = grp->loadResourceOrderMap.begin(); j != jend; ++j)
-		{
-			// Don't iterate over resources to drop with ResourceManager
-			// Assume this is being done anyway since this is a shutdown method
-			delete j->second;
-		}
-		// Drop location list
-		for (LocationList::iterator ll = grp->locationList.begin();
-			ll != grp->locationList.end(); ++ll)
-		{
-			delete *ll;
-		}
+        {
+		    OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME)
+		    // delete all the load list entries
+		    ResourceGroup::LoadResourceOrderMap::iterator j, jend;
+		    jend = grp->loadResourceOrderMap.end();
+		    for (j = grp->loadResourceOrderMap.begin(); j != jend; ++j)
+		    {
+			    // Don't iterate over resources to drop with ResourceManager
+			    // Assume this is being done anyway since this is a shutdown method
+			    delete j->second;
+		    }
+		    // Drop location list
+		    for (LocationList::iterator ll = grp->locationList.begin();
+			    ll != grp->locationList.end(); ++ll)
+		    {
+			    delete *ll;
+		    }
+        }
 
 		// delete ResourceGroup
 		delete grp;
