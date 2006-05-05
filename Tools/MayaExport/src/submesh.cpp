@@ -112,12 +112,24 @@ namespace OgreMayaExporter
 		return MS::kSuccess;
 	}
 
+<<<<<<< submesh.cpp
+	MStatus Submesh::load(const MDagPath& dag,std::vector<face>& faces, std::vector<vertexInfo>& vertInfo, MPointArray& points, 
+=======
 	MStatus Submesh::load(std::vector<face>& faces, std::vector<vertexInfo>& vertInfo, MPointArray& points, 
+>>>>>>> 1.5
 		MFloatVectorArray& normals, MStringArray& texcoordsets,ParamList& params,bool opposite)
 	{
+<<<<<<< submesh.cpp
+		//save the dag path of the maya node from which this submesh will be created
+		m_dagPath = dag;
 		int i,j,k;
 		std::cout << "Loading submesh associated to material: " << m_pMaterial->name().asChar() << "...";
 		std::cout.flush();
+=======
+		int i,j,k;
+		std::cout << "Loading submesh associated to material: " << m_pMaterial->name().asChar() << "...";
+		std::cout.flush();
+>>>>>>> 1.5
 		//save uvsets info
 		for (i=m_uvsets.size(); i<texcoordsets.length(); i++)
 		{
@@ -152,6 +164,19 @@ namespace OgreMayaExporter
 				{
 					vertex v;
 					vertexInfo vInfo = vertInfo[faces[i].v[j]];
+<<<<<<< submesh.cpp
+					// save vertex coordinates (rescale to desired length unit)
+					MPoint point = points[vInfo.pointIdx] * params.lum;
+					if (fabs(point.x) < PRECISION)
+						point.x = 0;
+					if (fabs(point.y) < PRECISION)
+						point.y = 0;
+					if (fabs(point.z) < PRECISION)
+						point.z = 0;
+					v.x = point.x;
+					v.y = point.y;
+					v.z = point.z;
+=======
 					// save vertex coordinates (rescale to desired length unit)
 					MPoint point = points[vInfo.pointIdx];
 					if (fabs(point.x) < PRECISION)
@@ -163,6 +188,7 @@ namespace OgreMayaExporter
 					v.x = point.x * params.lum;
 					v.y = point.y * params.lum;
 					v.z = point.z * params.lum;
+>>>>>>> 1.5
 					// save vertex normal
 					MFloatVector normal = normals[vInfo.normalIdx];
 					if (fabs(normal.x) < PRECISION)
@@ -206,6 +232,8 @@ namespace OgreMayaExporter
 						newTexCoords.w = 0;
 						v.texcoords.push_back(newTexCoords);
 					}
+					// save vertex index in maya mesh, to retrieve future positions of the same vertex
+					v.index = vInfo.pointIdx;
 					// add newly created vertex to vertex list
 					m_vertices.push_back(v);
 					if (opposite)	// reverse order of face vertices to get correct culling
@@ -221,10 +249,56 @@ namespace OgreMayaExporter
 			m_use32bitIndexes = true;
 		else
 			m_use32bitIndexes = false;
+<<<<<<< submesh.cpp
 		std::cout << "DONE\n";
 		std::cout.flush();
 		return MS::kSuccess;
 	}
+
+
+	// Load a keyframe for this submesh
+	MStatus Submesh::loadKeyframe(Track& t,float time,ParamList& params)
+	{
+		int i;
+		// create a new keyframe
+		vertexKeyframe k;
+		// set keyframe time
+		k.time = time;
+		// get the mesh Fn
+		MFnMesh mesh(m_dagPath);
+		// get vertex positions
+		MFloatPointArray points;
+		if (params.exportWorldCoords)
+			mesh.getPoints(points,MSpace::kWorld);
+		else
+			mesh.getPoints(points,MSpace::kObject);
+		// calculate vertex offsets
+		for (i=0; i<m_vertices.size(); i++)
+		{
+			vertexPosition pos;
+			vertex v = m_vertices[i];
+			pos.x = points[v.index].x;
+			pos.y = points[v.index].y;
+			pos.z = points[v.index].z;
+			if (fabs(pos.x) < PRECISION)
+					pos.x = 0;
+			if (fabs(pos.y) < PRECISION)
+				pos.y = 0;
+			if (fabs(pos.z) < PRECISION)
+				pos.z = 0;
+			k.positions.push_back(pos);
+		}
+		// add keyframe to given track
+		t.addVertexKeyframe(k);
+		// keyframe successfully loaded
+=======
+		std::cout << "DONE\n";
+		std::cout.flush();
+>>>>>>> 1.5
+		return MS::kSuccess;
+	}
+
+
 
 /***** write data *****/
 	MStatus Submesh::writeXML(ParamList &params)

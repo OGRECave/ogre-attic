@@ -89,6 +89,17 @@ namespace OgreMayaExporter
 					//set the skeleton to the desired neutral pose
 					switch(params.neutralPoseType)
 					{
+<<<<<<< skeleton.cpp
+					case NPT_FRAME:
+						MAnimControl::setCurrentTime((float)params.neutralPoseFrame);
+						break;
+					case NPT_BINDPOSE:
+						//disable constraints, IK, etc...
+						MGlobal::executeCommand("doEnableNodeItems false all",true);
+						// Note: we reset to the bind pose
+						MGlobal::executeCommand("dagPose -r -g -bp",true);
+						break;
+=======
 					case NPT_FRAME:
 						MAnimControl::setCurrentTime((double)params.neutralPoseFrame);
 						break;
@@ -98,6 +109,7 @@ namespace OgreMayaExporter
 						// Note: we reset to the bind pose
 						MGlobal::executeCommand("dagPose -r -g -bp",true);
 						break;
+>>>>>>> 1.6
 					}
 					//load joints data
 					stat = loadJoint(rootDag,NULL,params,pSkinCluster);
@@ -258,11 +270,11 @@ namespace OgreMayaExporter
 		std::cout.flush();
 		// clear animations list
 		m_animations.clear();
-		// load animation clips for the whole skeleton
-		for (i=0; i<params.clipList.size(); i++)
+		// load skeleton animation clips for the whole skeleton
+		for (i=0; i<params.skelClipList.size(); i++)
 		{
-			stat = loadClip(params.clipList[i].name,params.clipList[i].start,
-				params.clipList[i].stop,params.clipList[i].rate,params);
+			stat = loadClip(params.skelClipList[i].name,params.skelClipList[i].start,
+				params.skelClipList[i].stop,params.skelClipList[i].rate,params);
 			if (stat == MS::kSuccess)
 			{
 				std::cout << "Clip successfully loaded\n";
@@ -280,13 +292,18 @@ namespace OgreMayaExporter
 	}
 
 	// Load an animation clip
-	MStatus Skeleton::loadClip(MString clipName,double start,double stop,double rate,ParamList& params)
+	MStatus Skeleton::loadClip(MString clipName,float start,float stop,float rate,ParamList& params)
 	{
 		MStatus stat;
 		int i,j;
 		MString msg;
+<<<<<<< skeleton.cpp
+		std::vector<float> times;
+		// if skeleton has no joints we can't load the clip
+=======
 		std::vector<double> times;
 		// if skeleton has no joints we can't load the clip
+>>>>>>> 1.6
 		if (m_joints.size() < 0)
 			return MS::kFailure;
 		// display clip name
@@ -294,12 +311,17 @@ namespace OgreMayaExporter
 		std::cout.flush();
 		// calculate times from clip sample rate
 		times.clear();
-		for (double t=start; t<stop; t+=rate)
+		for (float t=start; t<stop; t+=rate)
 			times.push_back(t);
 		times.push_back(stop);
 		// get animation length
+<<<<<<< skeleton.cpp
+		float length=0;
+		if (times.size() >= 0)
+=======
 		double length=0;
 		if (times.size() >= 0)
+>>>>>>> 1.6
 			length = times[times.size()-1] - times[0];
 		if (length < 0)
 		{
@@ -308,19 +330,20 @@ namespace OgreMayaExporter
 			return MS::kFailure;
 		}
 		// create the animation
-		animation a;
-		a.name = clipName.asChar();
-		a.tracks.clear();
-		a.length = length;
+		Animation a;
+		a.m_name = clipName.asChar();
+		a.m_tracks.clear();
+		a.m_length = length;
 		m_animations.push_back(a);
 		int animIdx = m_animations.size() - 1;
 		// create a track for current clip for all joints
-		std::vector<track> animTracks;
+		std::vector<Track> animTracks;
 		for (i=0; i<m_joints.size(); i++)
 		{
-			track t;
-			t.bone = m_joints[i].name;
-			t.keyframes.clear();
+			Track t;
+			t.m_type = TT_SKELETON;
+			t.m_bone = m_joints[i].name;
+			t.m_skeletonKeyframes.clear();
 			animTracks.push_back(t);
 		}
 		// evaluate animation curves at selected times
@@ -331,26 +354,32 @@ namespace OgreMayaExporter
 			//load a keyframe for every joint at current time
 			for (j=0; j<m_joints.size(); j++)
 			{
-				keyframe key = loadKeyframe(m_joints[j],times[i]-times[0],params);
+				skeletonKeyframe key = loadKeyframe(m_joints[j],times[i]-times[0],params);
 				//add keyframe to joint track
-				animTracks[j].keyframes.push_back(key);
+				animTracks[j].addSkeletonKeyframe(key);
 			}
 		}
 		// add created tracks to current clip
 		for (i=0; i<animTracks.size(); i++)
 		{
-			m_animations[animIdx].tracks.push_back(animTracks[i]);
+			m_animations[animIdx].addTrack(animTracks[i]);
 		}
 		// display info
+<<<<<<< skeleton.cpp
+		std::cout << "length: " << m_animations[animIdx].m_length << "\n";
+		std::cout << "num keyframes: " << animTracks[0].m_skeletonKeyframes.size() << "\n";
+		std::cout.flush();
+=======
 		std::cout << "length: " << m_animations[animIdx].length << "\n";
 		std::cout << "num keyframes: " << animTracks[0].keyframes.size() << "\n";
 		std::cout.flush();
+>>>>>>> 1.6
 		// clip successfully loaded
 		return MS::kSuccess;
 	}
 
 	// Load a keyframe for a given joint at current time
-	keyframe Skeleton::loadKeyframe(joint& j,double time,ParamList& params)
+	skeletonKeyframe Skeleton::loadKeyframe(joint& j,float time,ParamList& params)
 	{
 		MVector position;
 		int parentIdx = j.parentIndex;
@@ -415,7 +444,7 @@ namespace OgreMayaExporter
 		if (fabs(scale[2]) < PRECISION)
 			scale[2] = 0;
 		//create keyframe
-		keyframe key;
+		skeletonKeyframe key;
 		key.time = time;
 		key.tx = translation.x * params.lum;
 		key.ty = translation.y * params.lum;
@@ -465,7 +494,7 @@ namespace OgreMayaExporter
 
 
 	// Get animations
-	std::vector<animation>& Skeleton::getAnimations()
+	std::vector<Animation>& Skeleton::getAnimations()
 	{
 		return m_animations;
 	}
@@ -475,7 +504,11 @@ namespace OgreMayaExporter
 	// Write skeleton data to Ogre XML file
 	MStatus Skeleton::writeXML(ParamList &params)
 	{
+<<<<<<< skeleton.cpp
+		int i,j,k;
+=======
 		int i;
+>>>>>>> 1.6
 		// Start skeleton description
 		params.outSkeleton << "<skeleton>\n";
 
@@ -510,39 +543,40 @@ namespace OgreMayaExporter
 		params.outSkeleton << "\t</bonehierarchy>\n";
 
 		// Write animations description
-		if (params.exportAnims)
+		if (params.exportSkelAnims)
 		{
 			params.outSkeleton << "\t<animations>\n";
 			// For every animation
 			for (i=0; i<m_animations.size(); i++)
 			{
 				// Write animation info
-				params.outSkeleton << "\t\t<animation name=\"" << m_animations[i].name.asChar() << "\" length=\"" << 
-					m_animations[i].length << "\">\n";
+				params.outSkeleton << "\t\t<animation name=\"" << m_animations[i].m_name.asChar() << "\" length=\"" << 
+					m_animations[i].m_length << "\">\n";
 				// Write tracks
 				params.outSkeleton << "\t\t\t<tracks>\n";
 				// Cycle through tracks
-				for (int j=0; j<m_animations[i].tracks.size(); j++)
+				for (j=0; j<m_animations[i].m_tracks.size(); j++)
 				{
-					track t = m_animations[i].tracks[j];
-					params.outSkeleton << "\t\t\t\t<track bone=\"" << t.bone.asChar() << "\">\n";
+					Track t = m_animations[i].m_tracks[j];
+					params.outSkeleton << "\t\t\t\t<track bone=\"" << t.m_bone.asChar() << "\">\n";
 					// Write track keyframes
 					params.outSkeleton << "\t\t\t\t\t<keyframes>\n";
-					for (int k=0; k<t.keyframes.size(); k++)
+					for (k=0; k<t.m_skeletonKeyframes.size(); k++)
 					{
+						skeletonKeyframe key = t.m_skeletonKeyframes[k];
 						// time
-						params.outSkeleton << "\t\t\t\t\t\t<keyframe time=\"" << t.keyframes[k].time << "\">\n";
+						params.outSkeleton << "\t\t\t\t\t\t<keyframe time=\"" << key.time << "\">\n";
 						// translation
-						params.outSkeleton << "\t\t\t\t\t\t\t<translate x=\"" << t.keyframes[k].tx << "\" y=\"" <<
-							t.keyframes[k].ty << "\" z=\"" << t.keyframes[k].tz << "\"/>\n";
+						params.outSkeleton << "\t\t\t\t\t\t\t<translate x=\"" << key.tx << "\" y=\"" <<
+							key.ty << "\" z=\"" << key.tz << "\"/>\n";
 						// rotation
-						params.outSkeleton << "\t\t\t\t\t\t\t<rotate angle=\"" << t.keyframes[k].angle << "\">\n";
-						params.outSkeleton << "\t\t\t\t\t\t\t\t<axis x=\"" << t.keyframes[k].axis_x << "\" y=\"" <<
-							t.keyframes[k].axis_y << "\" z=\"" << t.keyframes[k].axis_z << "\"/>\n";
+						params.outSkeleton << "\t\t\t\t\t\t\t<rotate angle=\"" << key.angle << "\">\n";
+						params.outSkeleton << "\t\t\t\t\t\t\t\t<axis x=\"" << key.axis_x << "\" y=\"" <<
+							key.axis_y << "\" z=\"" << key.axis_z << "\"/>\n";
 						params.outSkeleton << "\t\t\t\t\t\t\t</rotate>\n";
 						//scale
-						params.outSkeleton << "\t\t\t\t\t\t\t<scale x=\"" << t.keyframes[k].sx << "\" y=\"" <<
-							t.keyframes[k].sy << "\" z=\"" << t.keyframes[k].sz << "\"/>\n";
+						params.outSkeleton << "\t\t\t\t\t\t\t<scale x=\"" << key.sx << "\" y=\"" <<
+							key.sy << "\" z=\"" << key.sz << "\"/>\n";
 						params.outSkeleton << "\t\t\t\t\t\t</keyframe>\n";
 					}
 					params.outSkeleton << "\t\t\t\t\t</keyframes>\n";

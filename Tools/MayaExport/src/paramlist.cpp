@@ -64,9 +64,13 @@ namespace OgreMayaExporter
 				exportSkeleton = true;
 				skeletonFilename = args.asString(++i,&stat);
 			}
-			else if ((MString("-anims") == args.asString(i,&stat)) && (MS::kSuccess == stat))
+			else if ((MString("-skeletonAnims") == args.asString(i,&stat)) && (MS::kSuccess == stat))
 			{
-				exportAnims = true;
+				exportSkelAnims = true;
+			}
+			else if ((MString("-vertexAnims") == args.asString(i,&stat)) && (MS::kSuccess == stat))
+			{
+				exportVertAnims = true;
 			}
 			else if ((MString("-animCur") == args.asString(i,&stat)) && (MS::kSuccess == stat))
 			{
@@ -133,13 +137,13 @@ namespace OgreMayaExporter
 					neutralPoseFrame = args.asInt(++i,&stat);
 				}
 			}
-			else if ((MString("-clip") == args.asString(i,&stat)) && (MS::kSuccess == stat))
+			else if ((MString("-skeletonClip") == args.asString(i,&stat)) && (MS::kSuccess == stat))
 			{
 				//get clip name
 				MString clipName = args.asString(++i,&stat);
 				//get clip range
 				MString clipRangeType = args.asString(++i,&stat);
-				double startTime, stopTime;
+				float startTime, stopTime;
 				if (clipRangeType == "startEnd")
 				{
 					startTime = args.asDouble(++i,&stat);
@@ -163,7 +167,7 @@ namespace OgreMayaExporter
 					stopTime = t2.as(MTime::kSeconds);
 				}
 				// get sample rate
-				double rate;
+				float rate;
 				MString sampleRateType = args.asString(++i,&stat);
 				if (sampleRateType == "sampleByFrames")
 				{
@@ -183,13 +187,73 @@ namespace OgreMayaExporter
 				clip.start = startTime;
 				clip.stop = stopTime;
 				clip.rate = rate;
-				clipList.push_back(clip);
-				std::cout << "clip " << clipName.asChar() << "\n";
+				skelClipList.push_back(clip);
+				std::cout << "skeleton clip " << clipName.asChar() << "\n";
+				std::cout << "start: " << startTime << ", stop: " << stopTime << "\n";
+				std::cout << "rate: " << rate << "\n";
+				std::cout << "-----------------\n";
+			}
+<<<<<<< paramlist.cpp
+			else if ((MString("-vertexClip") == args.asString(i,&stat)) && (MS::kSuccess == stat))
+			{
+				//get clip name
+				MString clipName = args.asString(++i,&stat);
+				//get clip range
+				MString clipRangeType = args.asString(++i,&stat);
+				float startTime, stopTime;
+				if (clipRangeType == "startEnd")
+				{
+					startTime = args.asDouble(++i,&stat);
+					stopTime = args.asDouble(++i,&stat);
+					MString rangeUnits = args.asString(++i,&stat);
+					if (rangeUnits == "frames")
+					{
+						//range specified in frames => convert to seconds
+						MTime t1(startTime, MTime::uiUnit());
+						MTime t2(stopTime, MTime::uiUnit());
+						startTime = t1.as(MTime::kSeconds);
+						stopTime = t2.as(MTime::kSeconds);
+					}
+				}
+				else
+				{
+					//range specified by time slider
+					MTime t1 = MAnimControl::minTime();
+					MTime t2 = MAnimControl::maxTime();
+					startTime = t1.as(MTime::kSeconds);
+					stopTime = t2.as(MTime::kSeconds);
+				}
+				// get sample rate
+				float rate;
+				MString sampleRateType = args.asString(++i,&stat);
+				if (sampleRateType == "sampleByFrames")
+				{
+					// rate specified in frames
+					int intRate = args.asInt(++i,&stat);
+					MTime t = MTime(intRate, MTime::uiUnit());
+					rate = t.as(MTime::kSeconds);
+				}
+				else
+				{
+					// rate specified in seconds
+					rate = args.asDouble(++i,&stat);
+				}
+				//add clip info
+				clipInfo clip;
+				clip.name = clipName;
+				clip.start = startTime;
+				clip.stop = stopTime;
+				clip.rate = rate;
+				vertClipList.push_back(clip);
+				std::cout << "vertex clip " << clipName.asChar() << "\n";
 				std::cout << "start: " << startTime << ", stop: " << stopTime << "\n";
 				std::cout << "rate: " << rate << "\n";
 				std::cout << "-----------------\n";
 			}
 		}
+=======
+		}
+>>>>>>> 1.9
 	}
 
 
