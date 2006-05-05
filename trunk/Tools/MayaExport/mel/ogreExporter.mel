@@ -16,7 +16,8 @@ global proc ogreExporter()
 // ===== Export
 global proc runOgreExport()
 {
-	global int $numClips;
+	global int $numSkelClips;
+	global int $numVertClips;
 	// ===== Files and directories
 	string $sceneFile    = `file -query -sceneName`;
 	string $mayaFile     = basename($sceneFile, "");
@@ -143,11 +144,11 @@ global proc runOgreExport()
 		$options += " -skel \"" + encodeString(toNativePath($outputDir+$skeletonFile)) + "\"";
 	}	
 
-	// --- Animations export
+	// --- Skeleton Animations export
 	int $exportAnims = `checkBox -query -value ExportAnims`;
 	if ($exportAnims)
 	{
-		$options += " -anims";
+		$options += " -skeletonAnims";
 
 		// neutral pose
 		int $neutralPose = `radioButtonGrp -q -select NeutralPoseRadio`;
@@ -167,12 +168,12 @@ global proc runOgreExport()
 
 		// clips
 		int $i;
-		for ($i=1; $i<=$numClips; $i++)
+		for ($i=1; $i<=$numSkelClips; $i++)
 		{
 			string $command = "checkBox -q -v ExportClip" + $i;
 			if(eval($command))
 			{	
-				$options += " -clip ";
+				$options += " -skeletonClip ";
 				// clip name
 				$options += eval("textField -q -tx ClipName"+$i);
 				// clip range
@@ -201,6 +202,53 @@ global proc runOgreExport()
 				{
 					$options += " sampleBySec ";
 					$options += eval("floatField -q -v ClipRateSeconds"+$i);
+				}
+			}
+		}
+	}
+
+	// --- Vertex Animations export
+	int $exportVertexAnims = `checkBox -query -value ExportVertexAnims`;
+	if ($exportVertexAnims)
+	{
+		$options += " -vertexAnims";
+
+		// clips
+		int $i;
+		for ($i=1; $i<=$numVertClips; $i++)
+		{
+			string $command = "checkBox -q -v ExportVertexClip" + $i;
+			if(eval($command))
+			{	
+				$options += " -vertexClip ";
+				// clip name
+				$options += eval("textField -q -tx VertexClipName"+$i);
+				// clip range
+				int $clipRangeType = eval("radioButtonGrp -q -sl VertexClipRangeRadio"+$i);
+				if ($clipRangeType == 1)
+				{
+					$options += " startEnd ";
+					$options += eval("floatField -q -v VertexClipRangeStart"+$i);
+					$options += " " + eval("floatField -q -v VertexClipRangeEnd"+$i);
+					int $rangeUnits = eval("radioButtonGrp -q -sl VertexClipRangeUnits"+$i);
+					if ($rangeUnits == 1)
+						$options += " frames";
+					else
+						$options += " seconds";
+				}
+				else
+					$options += " timeSlider";
+				// sample rate
+				int $clipRateType = eval("radioButtonGrp -q -sl VertexClipRateType"+$i);
+				if ($clipRateType == 1)
+				{
+					$options += " sampleByFrames ";
+					$options += eval("intField -q -v VertexClipRateFrames"+$i);
+				}
+				else
+				{
+					$options += " sampleBySec ";
+					$options += eval("floatField -q -v VertexClipRateSeconds"+$i);
 				}
 			}
 		}
@@ -252,6 +300,10 @@ global proc runOgreExport()
 			$commands += "-e ";
 		if (`checkBox -query -value BuildTangents`)
 			$commands += "-t ";
+		if (!`checkBox -query -value OptimizeAnimations`)
+			$commands += "-o ";
+		if (!`checkBox -query -value ReorganizeBuffers`)
+			$commands += "-r ";
 		$commands += "\"" + toNativePath($outputDir+$meshFile) + "\" \"" + toNativePath($outputDir+$meshBinFile) + "\"\n";
 	}
 	if (`checkBox -query -value ExportSkeletonBin`) 
@@ -279,8 +331,10 @@ global proc runOgreExport()
 // (Primarily enabling/disabling controls)
 global proc formatOgreExporterUI()
 {
-	global int $numClips;
+	global int $numSkelClips;
+	global int $numVertClips;
 	// --- Common parameters
+	int $animType = `optionMenu -q -select AnimationTypeMenu`;
 
 	// --- Mesh Export
 	int $exportMesh = `checkBox -q -v ExportMesh`;
@@ -305,9 +359,13 @@ global proc formatOgreExporterUI()
 	{
 		checkBox -edit -value false BuildEdges;
 		checkBox -edit -value false BuildTangents;
+		checkBox -edit -value false OptimizeAnimations;
+		checkBox -edit -value false ReorganizeBuffers;
 	}
 	checkBox -edit -enable $exportMeshBin BuildEdges;
 	checkBox -edit -enable $exportMeshBin BuildTangents;
+	checkBox -edit -enable $exportMeshBin OptimizeAnimations;
+	checkBox -edit -enable $exportMeshBin ReorganizeBuffers;
 	
 	// --- Material Export
 	int $exportMaterial = `checkBox -query -value ExportMaterial`;
@@ -323,6 +381,15 @@ global proc formatOgreExporterUI()
 	checkBox -edit -enable $exportMaterial MatLightingOff;
 
 	// --- Skeleton Export
+	if ($animType == 1)
+	{
+		checkBox -edit -enable true ExportSkeleton;
+	}
+	else
+	{
+		checkBox -edit -value false ExportSkeleton;
+		checkBox -edit -enable false ExportSkeleton;
+	}
 	int $exportSkeleton = `checkBox -query -value ExportSkeleton`;
 	text -edit -enable $exportSkeleton ExportSkeletonFilenameLabel;
 	textField -edit -enable $exportSkeleton ExportSkeletonFilename;
@@ -330,7 +397,7 @@ global proc formatOgreExporterUI()
 		checkBox -edit -value false ExportSkeletonBin;
 	checkBox -edit -enable $exportSkeleton ExportSkeletonBin;
 
-	// --- Animations Export
+	// --- Skeleton Animations Export
 	if (!$exportSkeleton)
 		checkBox -edit -value false ExportAnims;
 	checkBox -edit -enable $exportSkeleton ExportAnims;
@@ -340,7 +407,7 @@ global proc formatOgreExporterUI()
 	int $neutralPoseType = `radioButtonGrp -query -select NeutralPoseRadio`;
 	intField -edit -enable (($neutralPoseType == 3)&&($exportAnims)) NeutralPoseFrame;
 	int $i;
-	for ($i=1; $i<=$numClips; $i++)
+	for ($i=1; $i<=$numSkelClips; $i++)
 	{
 		if (!$exportAnims)
 			checkBox -edit -value false ("ExportClip"+$i);
@@ -363,6 +430,45 @@ global proc formatOgreExporterUI()
 		int $rateType = `radioButtonGrp -query -select ("ClipRateType"+$i)`;
 		intField -edit -enable (($rateType == 1)&&($exportClip)) ("ClipRateFrames"+$i);
 		floatField -edit -enable (($rateType == 2)&&($exportClip)) ("ClipRateSeconds"+$i);
+	} 
+
+	// --- Vertex Animations Export
+	if (!$exportMesh)
+		checkBox -edit -value false ExportVertexAnims;
+	if ($animType == 2)
+	{
+		checkBox -edit -enable $exportMesh ExportVertexAnims;
+	}
+	else
+	{
+		checkBox -edit -value false ExportVertexAnims;
+		checkBox -edit -enable false ExportVertexAnims;
+	}
+	int $exportVertexAnims = `checkBox -query -value ExportVertexAnims`;
+	int $i;
+	for ($i=1; $i<=$numVertClips; $i++)
+	{
+		if (!$exportVertexAnims)
+			checkBox -edit -value false ("ExportVertexClip"+$i);
+		checkBox -edit -enable $exportVertexAnims ("ExportVertexClip"+$i);
+		
+		int $exportVertexClip = `checkBox -query -value ("ExportVertexClip"+$i)`;
+		textField -edit -enable $exportVertexClip ("VertexClipName"+$i);
+		text -edit -enable $exportVertexClip ("VertexClipRangeLabel"+$i);
+		radioButtonGrp -edit -enable $exportVertexClip ("VertexClipRangeRadio"+$i);
+		text -edit -enable $exportVertexClip ("VertexClipRateTypeLabel"+$i);
+		radioButtonGrp -edit -enable $exportVertexClip ("VertexClipRateType"+$i);
+
+		int $rangeType = `radioButtonGrp -query -select ("VertexClipRangeRadio"+$i)`;
+		text -edit -enable (($rangeType == 1)&&($exportVertexClip)) ("VertexClipRangeStartLabel"+$i);
+		floatField -edit -enable (($rangeType == 1)&&($exportVertexClip)) ("VertexClipRangeStart"+$i);
+		text -edit -enable (($rangeType == 1)&&($exportVertexClip)) ("VertexClipRangeEndLabel"+$i);
+		floatField -edit -enable (($rangeType == 1)&&($exportVertexClip)) ("VertexClipRangeEnd"+$i);
+		radioButtonGrp -edit -enable (($rangeType == 1)&&($exportVertexClip)) ("VertexClipRangeUnits"+$i);
+
+		int $rateType = `radioButtonGrp -query -select ("VertexClipRateType"+$i)`;
+		intField -edit -enable (($rateType == 1)&&($exportVertexClip)) ("VertexClipRateFrames"+$i);
+		floatField -edit -enable (($rateType == 2)&&($exportVertexClip)) ("VertexClipRateSeconds"+$i);
 	} 
 		
 	// --- Anim Curves Export
@@ -389,13 +495,15 @@ global proc formatOgreExporterUI()
 // ===== Define UI
 global proc defineOgreExporterUIView()
 {
-	global int $numClips;
-	$numClips = 0;
+	global int $numSkelClips;
+	$numSkelClips = 0;
+	global int $numVertClips;
+	$numVertClips = 0;
 
 	// --- Main window for Ogre exporter
 	if (`window -exists "OgreExportWindow"`)
 	{
-	deleteUI OgreExportWindow;
+		deleteUI OgreExportWindow;
 	}
 	window 
 	-title "Ogre Exporter" 
@@ -444,7 +552,6 @@ global proc defineOgreExporterUIView()
 				ExportTypeLayout;
 
 					text -label "Export:";
-				//	string $radioButton1, $radioButton2;
 					radioCollection ExportTypeCollection;
 					radioButton -label "all" -select RadioButtonAll;
 					radioButton -label "selected" RadioButtonSelected;
@@ -455,24 +562,41 @@ global proc defineOgreExporterUIView()
 				CoordsType;
 
 					text -label "Coordinate space:";
-				//	string $radioButtonWorld, $radioButtonObject;
 					radioCollection CoordsTypeCollection;
 					radioButton -label "world" -select RadioButtonWorld;
 					radioButton -label "object" RadioButtonObject;
 
-				optionMenu -label "Lengh units:"
-					     -parent CommonLayout
-				UnitsMenu;
-			
-					menuItem -label "from prefs";
-					menuItem -label "millimeter";
-					menuItem -label "centimeter";
-					menuItem -label "meter";
-					menuItem -label "inch";
-					menuItem -label "foot";
-					menuItem -label "yard";
+				rowColumnLayout
+					-parent CommonLayout
+					-numberOfColumns 2
+				GeneralOptionsLayout;
 
-				optionMenu -edit -select 1 UnitsMenu;
+					text -label "Length Units:"
+					     -parent GeneralOptionsLayout;
+
+					optionMenu -parent GeneralOptionsLayout UnitsMenu;
+			
+						menuItem -label "from prefs";
+						menuItem -label "millimeter";
+						menuItem -label "centimeter";
+						menuItem -label "meter";
+						menuItem -label "inch";
+						menuItem -label "foot";
+						menuItem -label "yard";
+
+					optionMenu -edit -select 1 UnitsMenu;
+
+					text -label "Animation Type:"
+					     -parent GeneralOptionsLayout;
+
+					optionMenu -parent GeneralOptionsLayout
+					     	     -changeCommand "formatOgreExporterUI"
+					AnimationTypeMenu;
+
+						menuItem -label "Skeleton";
+						menuItem -label "Vertex";
+
+					optionMenu -edit -select 1 AnimationTypeMenu;
 
 		// --- Mesh
 		frameLayout
@@ -570,6 +694,20 @@ global proc defineOgreExporterUIView()
 					-label "Build tangent vectors (for normal maps)"
 				BuildTangents;
 
+				checkBox
+					-parent MeshLayout
+					-value true
+					-enable false
+					-label "Optimize animations"
+				OptimizeAnimations;
+
+				checkBox
+					-parent MeshLayout
+					-value true
+					-enable false
+					-label "Reorganize vertex buffers"
+				ReorganizeBuffers;
+
 		// --- Materials
 		frameLayout 
 			-parent OgreExportLayout
@@ -665,11 +803,11 @@ global proc defineOgreExporterUIView()
 				ExportSkeletonBin;
 
 
-		// --- Animations
+		// --- Skeleton Animations
 		frameLayout
 			-parent OgreExportLayout
 			-collapsable true
-			-label "Animations"
+			-label "Skeleton Animations"
 			-width 329
 		AnimsFrame;
 
@@ -738,6 +876,53 @@ global proc defineOgreExporterUIView()
 						-width 60
 						-command "delOgreExporterClip()"
 					ButtonDelClip;
+
+		// --- Vertex Animations
+		frameLayout
+			-parent OgreExportLayout
+			-collapsable true
+			-label "Vertex Animations"
+			-width 329
+		VertexAnimsFrame;
+
+			columnLayout
+				-parent VertexAnimsFrame
+				-columnAttach "left" 20
+			VertexAnimsLayout;
+
+				checkBox
+					-parent VertexAnimsLayout
+					-value false
+					-changeCommand "formatOgreExporterUI"
+					-label "Export animations (to mesh file)"
+				ExportVertexAnims;
+
+				columnLayout
+					-parent VertexAnimsLayout
+					-columnAttach "left" 0
+				VertexClipsLayout;
+
+				rowLayout
+					-parent VertexAnimsLayout
+					-numberOfColumns 2
+					-columnWidth 1 160
+					-columnWidth 2 60
+					-columnAttach 1 "left" 100
+				VertexClipsButtonsLayout;
+			
+					button
+						-parent VertexClipsButtonsLayout
+						-label "Add Clip"
+						-width 60
+						-command "addOgreExporterVertexClip()"
+					ButtonAddVertexClip;
+
+					button
+						-parent VertexClipsButtonsLayout
+						-label "Delete Clip"
+						-width 60
+						-command "delOgreExporterVertexClip()"
+					ButtonDelVertexClip;
 
 								
 		// --- Anim Curves
@@ -891,86 +1076,88 @@ global proc defineOgreExporterUIView()
 			DefaultSettingsButton;
 
 
-	// --- Add an empty clip
+	// --- Add an empty skeleton clip
 	addOgreExporterClip();
+	// --- Add an empty vertex clip
+	addOgreExporterVertexClip();
 	// --- Show the Window
 	showWindow OgreExportWindow;
 }
 
 global proc addOgreExporterClip()
 {
-	global int $numClips;
-	$numClips++;
+	global int $numSkelClips;
+	$numSkelClips++;
 
 	frameLayout
 		-parent ClipsLayout
 		-width 309
-		-label ("Clip"+$numClips)
-	("ClipFrame"+$numClips);
+		-label ("Clip"+$numSkelClips)
+	("ClipFrame"+$numSkelClips);
 
 		columnLayout
-			-parent ("ClipFrame"+$numClips)
+			-parent ("ClipFrame"+$numSkelClips)
 			-columnAttach "left" 0
-		("ClipLayout"+$numClips);
+		("ClipLayout"+$numSkelClips);
 
 		rowLayout
-			-parent ("ClipLayout"+$numClips)
+			-parent ("ClipLayout"+$numSkelClips)
 			-numberOfColumns 2
 			-columnWidth2 100 200
 			-columnOffset2 5 5
 			-columnAlign 1 "left"
 			-columnAlign 2 "left"
-		("ClipNameLayout"+$numClips);
+		("ClipNameLayout"+$numSkelClips);
 							
 			checkBox
-				-parent ("ClipNameLayout"+$numClips)
+				-parent ("ClipNameLayout"+$numSkelClips)
 				-value false
 				-changeCommand "formatOgreExporterUI"
 				-label "Clip Name"
-			("ExportClip"+$numClips);
+			("ExportClip"+$numSkelClips);
 					
 			textField
-				-parent ("ClipNameLayout"+$numClips)
+				-parent ("ClipNameLayout"+$numSkelClips)
 				-width 200
-				-text ("clip"+$numClips)
-			("ClipName"+$numClips);
+				-text ("clip"+$numSkelClips)
+			("ClipName"+$numSkelClips);
 
 			separator
-				-parent ("ClipLayout"+$numClips) 
+				-parent ("ClipLayout"+$numSkelClips) 
 				-style "in" 
 				-width 309
 				-height 5;
 
 			rowLayout
-				-parent ("ClipLayout"+$numClips)
+				-parent ("ClipLayout"+$numSkelClips)
 				-numberOfColumns 2
 				-columnWidth2 100 200
 				-columnAlign 1 "left"
 				-columnAlign 2 "left"
-			("ClipRangeTypeLayout"+$numClips);
+			("ClipRangeTypeLayout"+$numSkelClips);
 				
 				text
-					-parent ("ClipRangeTypeLayout"+$numClips)
+					-parent ("ClipRangeTypeLayout"+$numSkelClips)
 					-label "Time Range:"
-				("ClipRangeLabel"+$numClips);
+				("ClipRangeLabel"+$numSkelClips);
 			
 				radioButtonGrp
-					-parent ("ClipRangeTypeLayout"+$numClips)
+					-parent ("ClipRangeTypeLayout"+$numSkelClips)
 					-numberOfRadioButtons 2
 					-labelArray2 "Start/End" "Time Slider"
 					-cw 1 100
 					-cw 2 100
 					-select 2
 					-changeCommand "formatOgreExporterUI"
-				("ClipRangeRadio"+$numClips);
+				("ClipRangeRadio"+$numSkelClips);
 
 			columnLayout
-				-parent ("ClipLayout"+$numClips)
+				-parent ("ClipLayout"+$numSkelClips)
 				-columnAttach "left" 70
-			("ClipRangeLayout"+$numClips);
+			("ClipRangeLayout"+$numSkelClips);
 
 				rowLayout
-					-parent ("ClipRangeLayout"+$numClips)
+					-parent ("ClipRangeLayout"+$numSkelClips)
 					-numberOfColumns 2
 					-columnAlign 1 "left"
 					-columnAlign 2 "left"
@@ -979,22 +1166,22 @@ global proc addOgreExporterClip()
 					-columnOffset2 5 5
 					-columnWidth 1 70
 					-columnWidth 2 50
-				("ClipRangeStartLayout"+$numClips);
+				("ClipRangeStartLayout"+$numSkelClips);
 
 					text
-						-parent ("ClipRangeStartLayout"+$numClips)
+						-parent ("ClipRangeStartLayout"+$numSkelClips)
 						-label "Start Time:"
 						-width 50
-					("ClipRangeStartLabel"+$numClips);
+					("ClipRangeStartLabel"+$numSkelClips);
 
 					floatField
-						-parent ("ClipRangeStartLayout"+$numClips)
+						-parent ("ClipRangeStartLayout"+$numSkelClips)
 						-width 50
 						-value 0.000
-					("ClipRangeStart"+$numClips);
+					("ClipRangeStart"+$numSkelClips);
 				
 				rowLayout
-					-parent ("ClipRangeLayout"+$numClips)
+					-parent ("ClipRangeLayout"+$numSkelClips)
 					-numberOfColumns 2
 					-columnAlign 1 "left"
 					-columnAlign 2 "left"
@@ -1003,41 +1190,41 @@ global proc addOgreExporterClip()
 					-columnOffset2 5 5
 					-columnWidth 1 70
 					-columnWidth 2 50
-				("ClipRangeEndLayout"+$numClips);
+				("ClipRangeEndLayout"+$numSkelClips);
 
 					text
-						-parent ("ClipRangeEndLayout"+$numClips)
+						-parent ("ClipRangeEndLayout"+$numSkelClips)
 						-label "End Time:"
-					("ClipRangeEndLabel"+$numClips);
+					("ClipRangeEndLabel"+$numSkelClips);
 
 					floatField
-						-parent ("ClipRangeEndLayout"+$numClips)
+						-parent ("ClipRangeEndLayout"+$numSkelClips)
 						-value 0.000
 						-width 50
-					("ClipRangeEnd"+$numClips);
+					("ClipRangeEnd"+$numSkelClips);
 
 				columnLayout
-					-parent ("ClipRangeLayout"+$numClips)
+					-parent ("ClipRangeLayout"+$numSkelClips)
 					-columnAttach "left" 0
-				("ClipRangeUnitsLayout"+$numClips);
+				("ClipRangeUnitsLayout"+$numSkelClips);
 
 					radioButtonGrp
-						-parent ("ClipRangeUnitsLayout"+$numClips)
+						-parent ("ClipRangeUnitsLayout"+$numSkelClips)
 						-numberOfRadioButtons 2
 						-labelArray2 "Frames" "Seconds"
 						-cw 1 65
 						-cw 2 65 
 						-select 1
-					("ClipRangeUnits"+$numClips);
+					("ClipRangeUnits"+$numSkelClips);
 					
 			separator
-				-parent ("ClipLayout"+$numClips) 
+				-parent ("ClipLayout"+$numSkelClips) 
 				-style "in" 
 				-width 309
 				-height 5;
 
 			rowLayout
-				-parent ("ClipLayout"+$numClips)
+				-parent ("ClipLayout"+$numSkelClips)
 				-numberOfColumns 2
 				-columnWidth 1 70
 				-columnWidth 2 230
@@ -1046,25 +1233,25 @@ global proc addOgreExporterClip()
 				-columnAttach 1 "both" 0
 				-columnAttach 2 "both" 0
 				-columnOffset2 5 5
-			("ClipRateTypeLayout"+$numClips);
+			("ClipRateTypeLayout"+$numSkelClips);
 
 				text
-					-parent ("ClipRateTypeLayout"+$numClips)
+					-parent ("ClipRateTypeLayout"+$numSkelClips)
 					-label "Sample by:"
-				("ClipRateTypeLabel"+$numClips);
+				("ClipRateTypeLabel"+$numSkelClips);
 	
 				radioButtonGrp
-					-parent ("ClipRateTypeLayout"+$numClips)
+					-parent ("ClipRateTypeLayout"+$numSkelClips)
 					-numberOfRadioButtons 2
 					-labelArray2 "Frames" "Seconds"
 					-cw 1 65
 					-cw 2 65
 					-select 1
 					-changeCommand "formatOgreExporterUI"
-				("ClipRateType"+$numClips);
+				("ClipRateType"+$numSkelClips);
 
 			rowLayout
-				-parent ("ClipLayout"+$numClips)
+				-parent ("ClipLayout"+$numSkelClips)
 				-numberOfColumns 2
 				-columnWidth 1 125
 				-columnWidth 2 80
@@ -1072,32 +1259,235 @@ global proc addOgreExporterClip()
 				-columnAlign 2 "left"
 				-columnAttach 1 "left" 75
 				-columnAttach 2 "both" 15
-			("ClipRateLayout"+$numClips);
+			("ClipRateLayout"+$numSkelClips);
 							
 				intField
-					-parent ("ClipRateLayout"+$numClips)
+					-parent ("ClipRateLayout"+$numSkelClips)
 					-width 50
 					-value 1.000
-				("ClipRateFrames"+$numClips);
+				("ClipRateFrames"+$numSkelClips);
 			
 				floatField
-					-parent ("ClipRateLayout"+$numClips)
+					-parent ("ClipRateLayout"+$numSkelClips)
 					-width 50
 					-value 0.100
-				("ClipRateSeconds"+$numClips);
+				("ClipRateSeconds"+$numSkelClips);
 	formatOgreExporterUI();
 }
 
 global proc delOgreExporterClip()
 {
-	global int $numClips;
-	if ($numClips > 1)
+	global int $numSkelClips;
+	if ($numSkelClips > 1)
 	{
-		deleteUI("ClipFrame"+$numClips);
-		$numClips--;
+		deleteUI("ClipFrame"+$numSkelClips);
+		$numSkelClips--;
 	}
 	formatOgreExporterUI();
 }
+
+global proc addOgreExporterVertexClip()
+{
+	global int $numVertClips;
+	$numVertClips++;
+
+	frameLayout
+		-parent VertexClipsLayout
+		-width 309
+		-label ("Clip"+$numVertClips)
+	("VertexClipFrame"+$numVertClips);
+
+		columnLayout
+			-parent ("VertexClipFrame"+$numVertClips)
+			-columnAttach "left" 0
+		("VertexClipLayout"+$numVertClips);
+
+		rowLayout
+			-parent ("VertexClipLayout"+$numVertClips)
+			-numberOfColumns 2
+			-columnWidth2 100 200
+			-columnOffset2 5 5
+			-columnAlign 1 "left"
+			-columnAlign 2 "left"
+		("VertexClipNameLayout"+$numVertClips);
+							
+			checkBox
+				-parent ("VertexClipNameLayout"+$numVertClips)
+				-value false
+				-changeCommand "formatOgreExporterUI"
+				-label "Clip Name"
+			("ExportVertexClip"+$numVertClips);
+					
+			textField
+				-parent ("VertexClipNameLayout"+$numVertClips)
+				-width 200
+				-text ("clip"+$numVertClips)
+			("VertexClipName"+$numVertClips);
+
+			separator
+				-parent ("VertexClipLayout"+$numVertClips) 
+				-style "in" 
+				-width 309
+				-height 5;
+
+			rowLayout
+				-parent ("VertexClipLayout"+$numVertClips)
+				-numberOfColumns 2
+				-columnWidth2 100 200
+				-columnAlign 1 "left"
+				-columnAlign 2 "left"
+			("VertexClipRangeTypeLayout"+$numVertClips);
+				
+				text
+					-parent ("VertexClipRangeTypeLayout"+$numVertClips)
+					-label "Time Range:"
+				("VertexClipRangeLabel"+$numVertClips);
+			
+				radioButtonGrp
+					-parent ("VertexClipRangeTypeLayout"+$numVertClips)
+					-numberOfRadioButtons 2
+					-labelArray2 "Start/End" "Time Slider"
+					-cw 1 100
+					-cw 2 100
+					-select 2
+					-changeCommand "formatOgreExporterUI"
+				("VertexClipRangeRadio"+$numVertClips);
+
+			columnLayout
+				-parent ("VertexClipLayout"+$numVertClips)
+				-columnAttach "left" 70
+			("VertexClipRangeLayout"+$numVertClips);
+
+				rowLayout
+					-parent ("VertexClipRangeLayout"+$numVertClips)
+					-numberOfColumns 2
+					-columnAlign 1 "left"
+					-columnAlign 2 "left"
+					-columnAttach 1 "both" 0
+					-columnAttach 2 "both" 0
+					-columnOffset2 5 5
+					-columnWidth 1 70
+					-columnWidth 2 50
+				("VertexClipRangeStartLayout"+$numVertClips);
+
+					text
+						-parent ("VertexClipRangeStartLayout"+$numVertClips)
+						-label "Start Time:"
+						-width 50
+					("VertexClipRangeStartLabel"+$numVertClips);
+
+					floatField
+						-parent ("VertexClipRangeStartLayout"+$numVertClips)
+						-width 50
+						-value 0.000
+					("VertexClipRangeStart"+$numVertClips);
+				
+				rowLayout
+					-parent ("VertexClipRangeLayout"+$numVertClips)
+					-numberOfColumns 2
+					-columnAlign 1 "left"
+					-columnAlign 2 "left"
+					-columnAttach 1 "both" 0
+					-columnAttach 2 "both" 0
+					-columnOffset2 5 5
+					-columnWidth 1 70
+					-columnWidth 2 50
+				("VertexClipRangeEndLayout"+$numVertClips);
+
+					text
+						-parent ("VertexClipRangeEndLayout"+$numVertClips)
+						-label "End Time:"
+					("VertexClipRangeEndLabel"+$numVertClips);
+
+					floatField
+						-parent ("VertexClipRangeEndLayout"+$numVertClips)
+						-value 0.000
+						-width 50
+					("VertexClipRangeEnd"+$numVertClips);
+
+				columnLayout
+					-parent ("VertexClipRangeLayout"+$numVertClips)
+					-columnAttach "left" 0
+				("VertexClipRangeUnitsLayout"+$numVertClips);
+
+					radioButtonGrp
+						-parent ("VertexClipRangeUnitsLayout"+$numVertClips)
+						-numberOfRadioButtons 2
+						-labelArray2 "Frames" "Seconds"
+						-cw 1 65
+						-cw 2 65 
+						-select 1
+					("VertexClipRangeUnits"+$numVertClips);
+					
+			separator
+				-parent ("VertexClipLayout"+$numVertClips) 
+				-style "in" 
+				-width 309
+				-height 5;
+
+			rowLayout
+				-parent ("VertexClipLayout"+$numVertClips)
+				-numberOfColumns 2
+				-columnWidth 1 70
+				-columnWidth 2 230
+				-columnAlign 1 "left"
+				-columnAlign 2 "left"
+				-columnAttach 1 "both" 0
+				-columnAttach 2 "both" 0
+				-columnOffset2 5 5
+			("VertexClipRateTypeLayout"+$numVertClips);
+
+				text
+					-parent ("VertexClipRateTypeLayout"+$numVertClips)
+					-label "Sample by:"
+				("VertexClipRateTypeLabel"+$numVertClips);
+	
+				radioButtonGrp
+					-parent ("VertexClipRateTypeLayout"+$numVertClips)
+					-numberOfRadioButtons 2
+					-labelArray2 "Frames" "Seconds"
+					-cw 1 65
+					-cw 2 65
+					-select 1
+					-changeCommand "formatOgreExporterUI"
+				("VertexClipRateType"+$numVertClips);
+
+			rowLayout
+				-parent ("VertexClipLayout"+$numVertClips)
+				-numberOfColumns 2
+				-columnWidth 1 125
+				-columnWidth 2 80
+				-columnAlign 1 "left"
+				-columnAlign 2 "left"
+				-columnAttach 1 "left" 75
+				-columnAttach 2 "both" 15
+			("VertexClipRateLayout"+$numVertClips);
+							
+				intField
+					-parent ("VertexClipRateLayout"+$numVertClips)
+					-width 50
+					-value 1.000
+				("VertexClipRateFrames"+$numVertClips);
+			
+				floatField
+					-parent ("VertexClipRateLayout"+$numVertClips)
+					-width 50
+					-value 0.100
+				("VertexClipRateSeconds"+$numVertClips);
+	formatOgreExporterUI();
+}
+
+global proc delOgreExporterVertexClip()
+{
+	global int $numVertClips;
+	if ($numVertClips > 1)
+	{
+		deleteUI("VertexClipFrame"+$numVertClips);
+		$numVertClips--;
+	}
+	formatOgreExporterUI();
+}
+
 
 global proc saveOgreExporterSettings()
 {
@@ -1107,7 +1497,8 @@ global proc saveOgreExporterSettings()
 	fileInfo "ogreExporter_outputDir" `textField -query -fileName OutputDirectory`;
 	fileInfo "ogreExporter_exportType" `radioCollection -q -select ExportTypeCollection`;
 	fileInfo "ogreExporter_coordsType" `radioCollection -q -select CoordsTypeCollection`;
-	fileInfo "ogreExporter_lengthUnit" `optionMenu -q -select UnitsMenu`;		
+	fileInfo "ogreExporter_lengthUnit" `optionMenu -q -select UnitsMenu`;	
+	fileInfo "ogreExporter_animationType" `optionMenu -q -select AnimationTypeMenu`;	
 
 	// Mesh
 	fileInfo "ogreExporter_exportMesh" `checkBox -q -v ExportMesh`;
@@ -1121,6 +1512,8 @@ global proc saveOgreExporterSettings()
 	fileInfo "ogreExporter_exportMeshBin" `checkBox -q -v ExportMeshBin`;
 	fileInfo "ogreExporter_buildEdges" `checkBox -q -v BuildEdges`;
 	fileInfo "ogreExporter_buildTangents" `checkBox -q -v BuildTangents`;
+	fileInfo "ogreExporter_optimizeAnimations" `checkBox -q -v OptimizeAnimations`;
+	fileInfo "ogreExporter_reorganizeBuffers" `checkBox -q -v ReorganizeBuffers`;
 	
 	// Materials
 	fileInfo "ogreExporter_exportMat" `checkBox -q -v ExportMaterial`;
@@ -1134,14 +1527,14 @@ global proc saveOgreExporterSettings()
 	fileInfo "ogreExporter_skelFilename" `textField -q -text ExportSkeletonFilename`; 
 	fileInfo "ogreExporter_exportSkelBin" `checkBox -q -v ExportSkeletonBin`;
 	
-	// Animations
+	// Skeleton Animations
 	fileInfo "ogreExporter_exportAnims" `checkBox -q -v ExportAnims`;
 	fileInfo "ogreExporter_neutralPoseType" `radioButtonGrp -q -select NeutralPoseRadio`;
 	fileInfo "ogreExporter_neutralPoseFrame" `intField -q -v NeutralPoseFrame`;
-	global int $numClips;
-	fileInfo "ogreExporter_numClips" $numClips;
+	global int $numSkelClips;
+	fileInfo "ogreExporter_numSkelClips" $numSkelClips;
 	int $i; 
-	for ($i=1; $i<=$numClips; $i++)
+	for ($i=1; $i<=$numSkelClips; $i++)
 	{
 		fileInfo ("ogreExporter_exportClip"+$i) `checkBox -q -v ("ExportClip"+$i)`;
 		fileInfo ("ogreExporter_clipName"+$i) `textField -q -text ("ClipName"+$i)`;
@@ -1196,6 +1589,12 @@ global proc loadOgreExporterSettings()
 			optionMenu -edit -select 6 UnitsMenu;
 		else if (`gmatch $lengthUnitSel "7"`)
 			optionMenu -edit -select 7 UnitsMenu;
+		$valStrings = `fileInfo -q "ogreExporter_animationType"`;
+		string $animType = $valStrings[0];
+		if (`gmatch $animType "1"`)
+			optionMenu -edit -select 1 AnimationTypeMenu;
+		else
+			optionMenu -edit -select 2 AnimationTypeMenu;
 	
 		// Mesh
 		$valStrings = `fileInfo -q "ogreExporter_exportMesh"`;
@@ -1219,6 +1618,10 @@ global proc loadOgreExporterSettings()
 		checkBox -edit -v `gmatch $valStrings[0] "1"` BuildEdges;
 		$valStrings = `fileInfo -q "ogreExporter_buildTangents"`;
 		checkBox -edit -v `gmatch $valStrings[0] "1"` BuildTangents;
+		$valStrings = `fileInfo -q "ogreExporter_optimizeAnimations"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` OptimizeAnimations;
+		$valStrings = `fileInfo -q "ogreExporter_reorganizeBuffers"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` ReorganizeBuffers;
 	
 		// Materials
 		$valStrings = `fileInfo -q "ogreExporter_exportMat"`;
@@ -1237,7 +1640,7 @@ global proc loadOgreExporterSettings()
 		$valStrings = `fileInfo -q "ogreExporter_exportSkelBin"`;
 		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportSkeletonBin;
 	
-		// Animations
+		// Skeleton Animations
 		$valStrings = `fileInfo -q "ogreExporter_exportAnims"`;
 		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportAnims;
 		$valStrings = `fileInfo -q "ogreExporter_neutralPoseType"`;
@@ -1246,11 +1649,11 @@ global proc loadOgreExporterSettings()
 		$valStrings = `fileInfo -q "ogreExporter_neutralPoseFrame"`;
 		$valInt = $valStrings[0];
 		intField -edit -v $valInt NeutralPoseFrame;
-		$valString = `fileInfo -q "ogreExporter_numClips"`;
+		$valString = `fileInfo -q "ogreExporter_numSkelClips"`;
 		int $n = $valString[0];
 		$valInt = $valString[0];
-		global int $numClips;
-		for (;$numClips>1;delClip());
+		global int $numSkelClips;
+		for (;$numSkelClips>1;delClip());
 		int $i;
 		for ($i=1; $i<=$n; $i++)
 		{
@@ -1312,6 +1715,7 @@ global proc defaultOgreExporterSettings()
 	radioCollection -edit -select "RadioButtonAll" ExportTypeCollection;
 	radioCollection -edit -select "RadioButtonWorld" CoordsTypeCollection;
 	optionMenu -edit -select 1 UnitsMenu;
+	optionMenu -edit -select 1 AnimationTypeMenu;
 
 	// Mesh
 	checkBox -edit -v 0 ExportMesh;
@@ -1325,6 +1729,8 @@ global proc defaultOgreExporterSettings()
 	checkBox -edit -v 0 ExportMeshBin;
 	checkBox -edit -v 0 BuildEdges;
 	checkBox -edit -v 0 BuildTangents;
+	checkBox -edit -v 1 OptimizeAnimations;
+	checkBox -edit -v 1 ReorganizeBuffers;
 
 	// Materials
 	checkBox -edit -v 0 ExportMaterial;
@@ -1338,12 +1744,12 @@ global proc defaultOgreExporterSettings()
 	textField -edit -text "" ExportSkeletonFilename;
 	checkBox -edit -v 0 ExportSkeletonBin;
 
-	// Animations
+	// Skeleton Animations
 	checkBox -edit -v 0 ExportAnims;
 	radioButtonGrp -edit -select 1 NeutralPoseRadio;
 	intField -edit -v 0 NeutralPoseFrame;
-	global int $numClips;
-	for (;$numClips>1;delClip());
+	global int $numSkelClips;
+	for (;$numSkelClips>1;delClip());
 	checkBox -edit -v 0 ExportClip1;
 	textField -edit -text "clip1" ClipName1;
 	radioButtonGrp -edit -select 1 ClipRangeRadio1;
