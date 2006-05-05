@@ -17,9 +17,9 @@ namespace OgreMayaExporter
 {
 	typedef struct clipInfoTag
 	{
-		double start;							//start time of the clip
-		double stop;							//end time of the clip
-		double rate;							//sample rate of anim curves, -1 means auto
+		float start;							//start time of the clip
+		float stop;								//end time of the clip
+		float rate;								//sample rate of anim curves, -1 means auto
 		MString name;							//clip name
 	} clipInfo;
 
@@ -37,7 +37,7 @@ namespace OgreMayaExporter
 		// class members
 		bool exportMesh, exportMaterial, exportAnimCurves, exportCameras, exportAll, exportVBA,
 			exportVertNorm, exportVertCol, exportVertColWhite, exportTexCoord, exportCamerasAnim,
-			exportSkeleton, exportAnims, exportMeshBin, exportSkelBin, exportWorldCoords, useSharedGeom,
+			exportSkeleton, exportSkelAnims, exportVertAnims, exportMeshBin, exportSkelBin, exportWorldCoords, useSharedGeom,
 			lightingOff, copyTextures, exportParticles;
 
 		float lum;	// Length Unit Multiplier
@@ -49,7 +49,8 @@ namespace OgreMayaExporter
 
 		MStringArray writtenMaterials;
 
-		std::vector<clipInfo> clipList;
+		std::vector<clipInfo> skelClipList;
+		std::vector<clipInfo> vertClipList;
 
 		NeutralPoseType neutralPoseType;
 		long neutralPoseFrame;				// frame to use as neutral pose (in case NPT_FRAME is the neutral pose type)
@@ -60,7 +61,8 @@ namespace OgreMayaExporter
 			exportMesh = false;
 			exportMaterial = false;
 			exportSkeleton = false;
-			exportAnims = false;
+			exportSkelAnims = false;
+			exportVertAnims = false;
 			exportAnimCurves = false;
 			exportCameras = false;
 			exportParticles = false;
@@ -85,7 +87,8 @@ namespace OgreMayaExporter
 			particlesFilename = "";
 			matPrefix = "";
 			texOutputDir = "";
-			clipList.clear();
+			skelClipList.clear();
+			vertClipList.clear();
 			neutralPoseType = NPT_CURFRAME;	// set default to current frame
 			neutralPoseFrame = 0;
 		}
@@ -95,7 +98,8 @@ namespace OgreMayaExporter
 			exportMesh = source.exportMesh;
 			exportMaterial = source.exportMaterial;
 			exportSkeleton = source.exportSkeleton;
-			exportAnims = source.exportAnims;
+			exportSkelAnims = source.exportSkelAnims;
+			exportVertAnims = source.exportVertAnims;
 			exportAnimCurves = source.exportAnimCurves;
 			exportCameras = source.exportCameras;
 			exportAll = source.exportAll;
@@ -120,13 +124,21 @@ namespace OgreMayaExporter
 			particlesFilename = source.particlesFilename;
 			matPrefix = source.matPrefix;
 			texOutputDir = source.texOutputDir;
-			clipList.resize(source.clipList.size());
-			for (int i=0; i< clipList.size(); i++)
+			skelClipList.resize(source.skelClipList.size());
+			for (int i=0; i< skelClipList.size(); i++)
 			{
-				clipList[i].name = source.clipList[i].name;
-				clipList[i].start = source.clipList[i].start;
-				clipList[i].stop = source.clipList[i].stop;
-				clipList[i].rate = source.clipList[i].rate;
+				skelClipList[i].name = source.skelClipList[i].name;
+				skelClipList[i].start = source.skelClipList[i].start;
+				skelClipList[i].stop = source.skelClipList[i].stop;
+				skelClipList[i].rate = source.skelClipList[i].rate;
+			}
+			vertClipList.resize(source.vertClipList.size());
+			for (int i=0; i< vertClipList.size(); i++)
+			{
+				vertClipList[i].name = source.vertClipList[i].name;
+				vertClipList[i].start = source.vertClipList[i].start;
+				vertClipList[i].stop = source.vertClipList[i].stop;
+				vertClipList[i].rate = source.vertClipList[i].rate;
 			}
 			neutralPoseType = source.neutralPoseType;
 			neutralPoseFrame = source.neutralPoseFrame;

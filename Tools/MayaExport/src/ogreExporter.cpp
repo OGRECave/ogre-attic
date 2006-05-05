@@ -75,13 +75,17 @@ namespace OgreMayaExporter
 		}
 
 		// load skeleton animation (do it now, so we have loaded all needed joints)
-		if (m_pMesh->getSkeleton() && m_params.exportAnims)
+		if (m_pMesh->getSkeleton() && m_params.exportSkelAnims)
 		{
 			// Restore skeleton to correct pose
 			m_pMesh->getSkeleton()->restorePose();
 			// Load skeleton animations
 			m_pMesh->getSkeleton()->loadAnims(m_params);
 		}
+
+		// load vertex animations
+		if (m_params.exportVertAnims)
+			m_pMesh->loadAnims(m_params);
 
 		/**************************** WRITE DATA **********************************/
 		// write mesh data
@@ -156,8 +160,8 @@ namespace OgreMayaExporter
 	}
 
 
-
-	// Method for iterating over nodes in a dependency graph from top to bottom, translating only meshes
+	/**************************** TRANSLATE A NODE **********************************/
+	// Method for iterating over nodes in a dependency graph from top to bottom
 	MStatus OgreExporter::translateNode(MDagPath& dagPath)
 	{
 		if (m_params.exportAnimCurves)
