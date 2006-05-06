@@ -197,11 +197,12 @@ namespace Ogre {
         "       <Morph_Animation> ::= 'includes_morph_animation' <True_False> \n"
         "       <Pose_Animation> ::= 'includes_pose_animation' <#val> \n"
         "<Fragment_Program> ::= 'fragment_program' <Label> [<Seperator>] <Label> '{' {<GPU_Program_Options>}'}' \n"
-        "   <GPU_Program_Options> ::= <Program_Source> | <Syntax> | <Default_Params> | <Custom_Parameters> \n"
+        // do custom parameters last since it will consume everything on the line in the source
+        "   <GPU_Program_Options> ::= <Program_Source> | <Syntax> | <Default_Params> | <Custom_Parameter> \n"
         "       <Program_Source> ::= 'source' <Label> \n"
         "       <Syntax> ::= 'syntax' <Label> \n"
         "       <Default_Params> ::= 'default_params' '{' {<GPUParams_Option>} '}' \n"
-        "       <Custom_Parameters> ::= <Label> [<Seperator>] <Spaced_Label> \n"
+        "       <Custom_Parameter> ::= 'custom_parameter' : <Unquoted_Label> [<Seperator>] <Spaced_Label> \n"
 
         "   <GPU_Program_Ref> ::= <GPU_Program_Ref_Type> [<Flex_Label>] '{' {<GPUParams_Option>} '}' \n"
         "       <GPU_Program_Ref_Type> ::= 'vertex_program_ref' | 'fragment_program_ref' | \n"
@@ -210,14 +211,11 @@ namespace Ogre {
         "                                  'shadow_receiver_fragment_program_ref' \n"
 
         "   <GPUParams_Option> ::= <Param_Named_Auto> | <Param_Named> | <Param_Indexed_Auto> | <Param_Indexed> \n"
-        "       <Param_Named_Auto> ::= 'param_named_auto' <Label> [<Seperator>] <Unquoted_Label> [<#val>] \n"
-        "       <Param_Named> ::= 'param_named' <Label> <Param_Value_Option> \n"
+        "       <Param_Named_Auto> ::= 'param_named_auto' <Unquoted_Label> [<Seperator>] <Unquoted_Label> [<#val>] \n"
+        "       <Param_Named> ::= 'param_named' <Unquoted_Label> [<Seperator>] <Param_Value_Option> \n"
         "       <Param_Indexed_Auto> ::= 'param_indexed_auto' <#index> <Unquoted_Label> [<#val>] \n"
         "       <Param_Indexed> ::= 'param_indexed' <#index> <Param_Value_Option> \n"
-        "       <Param_Value_Option> ::= <Param_Value> | <Param_Matrix> \n"
-        "         <Param_Value> ::= <Param_Type> <#val> {<#val>} \n"
-        "           <Param_Type> ::= 'float' | 'int' \n"
-        "         <Param_Matrix> ::= 'matrix4x4' {<#val>} \n"
+        "       <Param_Value_Option> ::= <Unquoted_Label> {<#val>} \n"
 
         // common rules
         "<On_Off> ::= 'on' | 'off' \n"
@@ -266,6 +264,7 @@ namespace Ogre {
             addLexemeTokenAction("param_indexed_auto", ID_PARAM_INDEXED_AUTO, &MaterialScriptCompiler::parseParamIndexedAuto);
             addLexemeTokenAction("param_named", ID_PARAM_NAMED, &MaterialScriptCompiler::parseParamNamed);
             addLexemeTokenAction("param_named_auto", ID_PARAM_NAMED_AUTO, &MaterialScriptCompiler::parseParamNamedAuto);
+            addLexemeTokenAction("custom_parameter", ID_CUSTOM_PARAMETER, &MaterialScriptCompiler::parseProgramCustomParameter);
 
         addLexemeTokenAction("material", ID_MATERIAL, &MaterialScriptCompiler::parseMaterial);
             addLexemeTokenAction(":", ID_CLONE);
