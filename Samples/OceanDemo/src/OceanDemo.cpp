@@ -847,7 +847,7 @@ bool OceanDemo::handleModelComboChanged(const CEGUI::EventArgs& e)
 			//true, true
             ); //so we can still read it
         // Build tangent vectors, all our meshes use only 1 texture coordset
-        pMesh->buildTangentVectors(0, 1);
+        //pMesh->buildTangentVectors(0, 1);
         // Create entity
         mCurrentEntity = mSceneMgr->createEntity(meshName, meshName);
     }
@@ -935,10 +935,20 @@ void OceanDemo::createFrameListener(void)
 *************************************************************************/
 
 OceanDemo_FrameListener::OceanDemo_FrameListener(OceanDemo* main)
-    : mMain(main),
-	  mLMBDown(false), mRMBDown(false), mStatsOn(true), mLastMousePositionSet(false),
-	  mMoveFwd(false), mMoveBck(false), mMoveLeft(false), mMoveRight(false), mProcessMovement(false),
-	  mUpdateMovement(false), mSpinModel(true), mSpinLight(false), mWriteToFile(false)
+    : mMain(main)
+    , mStatsOn(true)
+    , mWriteToFile(false)
+    , mLastMousePositionSet(false)
+    , mSpinModel(true)
+    , mSpinLight(false)
+    , mLMBDown(false)
+    , mRMBDown(false)
+    , mProcessMovement(false)
+    , mUpdateMovement(false)
+    , mMoveFwd(false)
+    , mMoveBck(false)
+    , mMoveLeft(false)
+    , mMoveRight(false)
 
 {
     mRotateSpeed = 0;
