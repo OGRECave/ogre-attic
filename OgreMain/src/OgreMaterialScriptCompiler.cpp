@@ -230,8 +230,8 @@ namespace Ogre {
 		"<Quoted_Label> ::= -'\"' <Spaced_Label> -'\"' \n"
 		"<Spaced_Label> ::= <Spaced_Label_Illegals> {<Spaced_Label_Illegals>} \n"
         "<Unquoted_Label> ::= <Unquoted_Label_Illegals> {<Unquoted_Label_Illegals>} \n"
-		"<Spaced_Label_Illegals> ::= (!,\n\r\t{}\") \n"
-		"<Unquoted_Label_Illegals> ::= (! \n\r\t{}\") \n"
+		"<Spaced_Label_Illegals> ::= (!,:\n\r\t{}\") \n"
+		"<Unquoted_Label_Illegals> ::= (! :\n\r\t{}\") \n"
 
         ;
 
@@ -575,7 +575,7 @@ namespace Ogre {
 			finishProgramDefinition();
             mScriptContext.section = MSS_NONE;
             delete mScriptContext.programDef;
-            mScriptContext.defaultParamLines.clear();
+            mScriptContext.pendingDefaultParams.clear();
             mScriptContext.programDef = NULL;
             break;
         case MSS_DEFAULT_PARAMETERS:
@@ -643,7 +643,7 @@ namespace Ogre {
     {
         assert(mScriptContext.programDef);
 
-        String command = getCurrentTokenLabel();
+        String command = getNextTokenLabel();
 		StringUtil::toLowerCase(command);
 
 		mScriptContext.programDef->customParameters[command] = getNextTokenLabel();
@@ -2460,6 +2460,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseParamIndexed(void)
     {
+        if (mScriptContext.section == MSS_DEFAULT_PARAMETERS)
+        {
+            // save the pass2 token que position for later processing
+            mScriptContext.pendingDefaultParams.push_back(getPass2TokenQuePosition());
+            return;
+        }
+
         // NB skip this if the program is not supported or could not be found
         if (mScriptContext.program.isNull() || !mScriptContext.program->isSupported())
         {
@@ -2475,6 +2482,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseParamIndexedAuto(void)
     {
+        if (mScriptContext.section == MSS_DEFAULT_PARAMETERS)
+        {
+            // save the pass2 token que position for later processing
+            mScriptContext.pendingDefaultParams.push_back(getPass2TokenQuePosition());
+            return;
+        }
         // NB skip this if the program is not supported or could not be found
         if (mScriptContext.program.isNull() || !mScriptContext.program->isSupported())
         {
@@ -2489,6 +2502,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseParamNamed(void)
     {
+        if (mScriptContext.section == MSS_DEFAULT_PARAMETERS)
+        {
+            // save the pass2 token que position for later processing
+            mScriptContext.pendingDefaultParams.push_back(getPass2TokenQuePosition());
+            return;
+        }
         // NB skip this if the program is not supported or could not be found
         if (mScriptContext.program.isNull() || !mScriptContext.program->isSupported())
         {
@@ -2518,6 +2537,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseParamNamedAuto(void)
     {
+        if (mScriptContext.section == MSS_DEFAULT_PARAMETERS)
+        {
+            // save the pass2 token que position for later processing
+            mScriptContext.pendingDefaultParams.push_back(getPass2TokenQuePosition());
+            return;
+        }
         // NB skip this if the program is not supported or could not be found
         if (mScriptContext.program.isNull() || !mScriptContext.program->isSupported())
         {
@@ -2616,32 +2641,18 @@ namespace Ogre {
 
         // Set up to receive default parameters
         if (gp->isSupported()
-            && !mScriptContext.defaultParamLines.empty())
+            && !mScriptContext.pendingDefaultParams.empty())
         {
             mScriptContext.programParams = gp->getDefaultParameters();
 			mScriptContext.numAnimationParametrics = 0;
             mScriptContext.program = gp;
-            StringVector::iterator i, iend;
-            iend = mScriptContext.defaultParamLines.end();
-            for (i = mScriptContext.defaultParamLines.begin();
-                i != iend; ++i)
+            size_t i, iend;
+            iend = mScriptContext.pendingDefaultParams.size();
+            for (i = 0;
+                i < iend; ++i)
             {
-                // find & invoke a parser
-                // do this manually because we want to call a custom
-                // routine when the parser is not found
-                // First, split line on first divisor only
-                StringVector splitCmd = StringUtil::split(*i, " \t", 1);
-                // Find attribute parser
-                //******************** FIX THIS
-                //AttribParserList::iterator iparser
-                //    = mProgramDefaultParamAttribParsers.find(splitCmd[0]);
-                //if (iparser != mProgramDefaultParamAttribParsers.end())
-                //{
-                //    String cmd = splitCmd.size() >= 2? splitCmd[1]:StringUtil::BLANK;
-                //    // Use parser with remainder
-                //    iparser->second(cmd, mScriptContext );
-                //}
-
+                // invoke the action for the pending default param in the token que
+                setPass2TokenQuePosition(mScriptContext.pendingDefaultParams[i], true);
             }
             // Reset
             mScriptContext.program.setNull();

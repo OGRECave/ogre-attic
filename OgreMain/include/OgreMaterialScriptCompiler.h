@@ -171,7 +171,8 @@ namespace Ogre {
 		    int techLev,	//Keep track of what tech, pass, and state level we are in
 			    passLev,
 			    stateLev;
-            StringVector defaultParamLines;
+            // container of token que positions for default params that require pass 2 processing
+            std::vector<size_t> pendingDefaultParams;
 
             AliasTextureNamePairList textureAliases;
         };
