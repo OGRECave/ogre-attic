@@ -442,6 +442,9 @@ namespace Ogre {
             action is activated.
         */
         void setPass2TokenQuePosition(size_t pos, const bool activateAction = false);
+        /** Get the current position in the Pass2 Token Que.
+        */
+        size_t getPass2TokenQuePosition(void) const { return mPass2TokenQuePosition; }
         /** Set the position of the next token action in the Pass2 Token Que.
         @remarks
             If the position is not within the que or there is no action associated with
