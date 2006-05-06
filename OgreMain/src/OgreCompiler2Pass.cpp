@@ -84,6 +84,7 @@ namespace Ogre {
             addLexemeToken("not_chk", BNF_NOT_CHK);
             addLexemeToken("(?!", BNF_NOT_TEST_BEGIN, false, true);
             addLexemeToken("'", BNF_SINGLEQUOTE, false, true);
+            addLexemeToken(":", BNF_CONDITIONAL_TOKEN_INSERT, false, true);
             addLexemeToken("-'", BNF_NO_TOKEN_START, false, true);
             addLexemeToken("any_character", BNF_ANY_CHARACTER);
             addLexemeToken("single_quote_exc", BNF_SINGLE_QUOTE_EXC);
@@ -207,12 +208,13 @@ namespace Ogre {
                 _or_(BNF_SPECIAL_CHARACTERS1)
             _end_
 
-            // <terminal_symbol> ::= <terminal_start> @{ <any_character> } "'"
+            // <terminal_symbol> ::= <terminal_start> @{ <any_character> } "'" [":"]
             _rule_(BNF_TERMINAL_SYMBOL)
                 _is_(BNF_TERMINAL_START)
                 _and_(_no_space_skip_)
                 _repeat_(BNF_ANY_CHARACTER)
                 _and_(BNF_SINGLEQUOTE)
+                _optional_(BNF_CONDITIONAL_TOKEN_INSERT)
             _end_
 
             // <terminal_start> ::= "-'" | "'"
@@ -220,6 +222,7 @@ namespace Ogre {
                 _is_(BNF_NO_TOKEN_START)
                 _or_(BNF_SINGLEQUOTE)
             _end_
+
 
             // <constant> ::= "<#" <letter> {<identifier_characters>} ">"
             _rule_(BNF_CONSTANT)
@@ -415,9 +418,11 @@ namespace Ogre {
 	    mActiveTokenState->tokenQue.clear();
 	    mPass2TokenQuePosition = 0;
 	    mPreviousActionQuePosition = 0;
+	    mNextActionQuePosition = 0;
 	    mNoTerminalToken = false;
 	    mNoSpaceSkip = false;
 	    mErrorCharPos = 0;
+	    mInsertTokenID = 0;
 	    // tokenize and check semantics untill an error occurs or end of source is reached
 	    // assume RootRulePath has pointer to rules so start at index + 1 for first rule path
 	    // first rule token would be a rule definition so skip over it
@@ -626,13 +631,71 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     size_t Compiler2Pass::getRemainingTokensForAction(void) const
     {
-        size_t remaingingTokens = getPass2TokenQueCount();
-        // don't count token for next action
-        if (remaingingTokens > 0)
-            --remaingingTokens;
+        size_t remaingingTokens = 0;
+        if (mNextActionQuePosition > mPass2TokenQuePosition)
+        {
+            // don't count next action nor the current position
+            remaingingTokens = mNextActionQuePosition - mPass2TokenQuePosition - 1;
+        }
+
         return remaingingTokens;
     }
+    //-----------------------------------------------------------------------
+    bool Compiler2Pass::setNextActionQuePosition(size_t pos, const bool search)
+    {
+        const size_t lastPos = mActiveTokenState->tokenQue.size();
 
+        if (pos >= lastPos)
+            return false;
+
+        bool nextActionFound = false;
+
+        // if searching then assume no next action will be found so set position to end of que
+        if (search)
+            mNextActionQuePosition = lastPos;
+
+        while (!nextActionFound && (pos < lastPos))
+        {
+            const size_t tokenID = mActiveTokenState->tokenQue[pos].tokenID;
+
+            if ((tokenID < SystemTokenBase) &&
+                mActiveTokenState->lexemeTokenDefinitions.at(tokenID).hasAction)
+            {
+                mNextActionQuePosition = pos;
+                nextActionFound = true;
+            }
+
+            if (search)
+                ++pos;
+            else
+                pos = lastPos;
+        }
+
+        return nextActionFound;
+    }
+    //-----------------------------------------------------------------------
+    void Compiler2Pass::setPass2TokenQuePosition(size_t pos, const bool activateAction)
+    {
+        if (pos < mActiveTokenState->tokenQue.size())
+        {
+            mPass2TokenQuePosition = pos;
+            ++pos;
+            // find the next token with an action
+            setNextActionQuePosition(pos, true);
+
+            // activate action if token has one and it was requested
+            if (activateAction)
+            {
+                const size_t tokenID = mActiveTokenState->tokenQue.at(mPass2TokenQuePosition).tokenID;
+                if ((tokenID < SystemTokenBase) &&
+                    mActiveTokenState->lexemeTokenDefinitions.at(tokenID).hasAction)
+                {
+                    // assume that pass 2 processing will use tokens downstream
+                    executeTokenAction(tokenID);
+                }
+            }
+        }
+    }
     //-----------------------------------------------------------------------
     void Compiler2Pass::setClientBNFGrammer(void)
     {
@@ -702,6 +765,7 @@ namespace Ogre {
 	    bool passed = true;
         bool tokenFound = false;
 	    bool endFound = false;
+	    bool clearInsertTokenID = false;
 
 	    // keep following rulepath until the end is reached
         while (!endFound)
@@ -836,6 +900,11 @@ namespace Ogre {
                 }
                 break;
 
+            case otINSERT_TOKEN:
+                mInsertTokenID = mActiveTokenState->rootRulePath[rulepathIDX].tokenID;
+                clearInsertTokenID = true;
+                break;
+
 		    case otEND:
 			    // end of rule found so time to return
 			    endFound = true;
@@ -873,11 +942,16 @@ namespace Ogre {
             // Don't do this for _no_token_ since its a special system token and has nothing todo with
             // a successfull parse of the source.  Can check this by looking at mNoTerminalToken state.
             // if _no_token had just been validated then mNoTerminalToken will be true.
-            if (passed && !mNoTerminalToken)
+            if (passed && !mNoTerminalToken && !mInsertTokenID)
                 tokenFound = true;
 		    // move on to the next rule in the path
 		    ++rulepathIDX;
 	    } // end while
+
+        // if this rule production requested a token insert, make sure its reset so it does not affect
+        // the parent rule
+        if (clearInsertTokenID)
+            mInsertTokenID = 0;
 
 	    return passed;
     }
@@ -1022,12 +1096,25 @@ namespace Ogre {
                     {
 				        TokenInst newtoken;
 				        // push token onto end of container
-				        newtoken.tokenID = tokenID;
 				        newtoken.NTTRuleID = activeRuleID;
 				        newtoken.line = mCurrentLine;
 				        newtoken.pos = mCharPos;
                         newtoken.found = true;
 
+                        // check to see if a terminal token is waiting to be inserted based on the next
+                        // token being found
+                        if (mInsertTokenID)
+                        {
+                            newtoken.tokenID = tokenID;
+                            mActiveTokenState->tokenQue.push_back(newtoken);
+                            // token action processing
+                            // if the token has an action then fire previous token action
+                            checkTokenActionTrigger();
+                            // reset the token ID that was inserted so that it will not get inserted until set again
+                            mInsertTokenID = 0;
+                        }
+
+                        newtoken.tokenID = tokenID;
 				        mActiveTokenState->tokenQue.push_back(newtoken);
 				        // token action processing
 				        // if the token has an action then fire previous token action
@@ -1195,17 +1282,12 @@ namespace Ogre {
             return;
 
         --lastTokenQuePos;
-        // if last token index is zero and previous action position are zero  or the two are the same then do nothing
+
         if (lastTokenQuePos == mPreviousActionQuePosition)
             return;
 
-        const size_t lastTokenID = mActiveTokenState->tokenQue.at(lastTokenQuePos).tokenID;
-        // dont check actions for system token ID since they are not in lexemeTokenDefinitions
-        if (lastTokenID >= SystemTokenBase)
-            return;
-
         // check action trigger if last token has an action
-        if (mActiveTokenState->lexemeTokenDefinitions.at(lastTokenID).hasAction)
+        if (setNextActionQuePosition(lastTokenQuePos))
         {
             // only activate the action belonging to the token found previously
             activatePreviousTokenAction();
@@ -1402,6 +1484,10 @@ namespace Ogre {
                     pendingRuleOp = otAND;
                     break;
 
+                case BNF_CONDITIONAL_TOKEN_INSERT:
+                    setConditionalTokenInsert();
+                    break;
+
                 default:
                     // trap closings ie ] } )
                     break;
@@ -1502,6 +1588,20 @@ namespace Ogre {
         if (notoken)
             modifyLastRule(otAND, _no_token_);
         modifyLastRule(pendingRuleOp, tokenID);
+    }
+    //-----------------------------------------------------------------------
+    void Compiler2Pass::setConditionalTokenInsert(void)
+    {
+        // get position of rule just before end rule
+        size_t lastIndex = mClientTokenState->rootRulePath.size();
+        if (lastIndex <= 1)
+        {
+            // throw exception since there should have been at least one rule existing
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "BNF Grammar build rules failed: no previous terminal token rule defined",
+                        "Compiler2Pass::setConditionalTokenInsert");
+        }
+        lastIndex -= 2;
+        mClientTokenState->rootRulePath[lastIndex].operation = otINSERT_TOKEN;
     }
     //-----------------------------------------------------------------------
     void Compiler2Pass::extractSet(const OperationType pendingRuleOp)
