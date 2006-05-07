@@ -81,7 +81,7 @@ bool mShadowTechSoft[NUM_SHADOW_TECH] =
 	false
 
 };
-
+bool mSoftShadowsSupported = true;
 
 int mCurrentAtheneMaterial;
 int mCurrentShadowTechnique = 0;
@@ -284,6 +284,11 @@ public:
     {
 		int prevTech = mCurrentShadowTechnique;
         mCurrentShadowTechnique = ++mCurrentShadowTechnique % NUM_SHADOW_TECH;
+		if (!mSoftShadowsSupported && mShadowTechSoft[mCurrentShadowTechnique])
+		{
+			// Skip soft shadows if not supported
+			mCurrentShadowTechnique = ++mCurrentShadowTechnique % NUM_SHADOW_TECH;
+		}
         mShadowTechniqueInfo->setCaption("Current: " + mShadowTechDescriptions[mCurrentShadowTechnique]);
 
 		if (mShadowTechSoft[prevTech] && !mShadowTechSoft[mCurrentShadowTechnique])
@@ -589,6 +594,22 @@ protected:
         mCamera->setFarClipDistance(100000);
 
         //mSceneMgr->setShowDebugShadows(true);
+
+		const RenderSystemCapabilities* caps = Root::getSingleton().getRenderSystem()->getCapabilities();
+		if (!caps->hasCapability(RSC_VERTEX_PROGRAM) || !(caps->hasCapability(RSC_FRAGMENT_PROGRAM)))
+		{
+			mSoftShadowsSupported = false;
+		}
+		else
+		{
+			if (!GpuProgramManager::getSingleton().isSyntaxSupported("glsl") &&
+				!GpuProgramManager::getSingleton().isSyntaxSupported("ps_2_0") 
+				)
+			{
+				mSoftShadowsSupported = false;
+			}
+		}
+
 
 
     }
