@@ -454,7 +454,7 @@ namespace Ogre {
             If the end of the que is reached and no action has been found then NextActionQuePosition
             is set to the end of the que and false is returned.
         */
-        bool Compiler2Pass::setNextActionQuePosition(size_t pos, const bool search = false);
+        bool setNextActionQuePosition(size_t pos, const bool search = false);
         /** Add a lexeme token association.
         @remarks
             The backend compiler uses the associations between lexeme and token when
