@@ -455,7 +455,7 @@ namespace Ogre
     {
 		// try to open in the current folder first
 		std::ifstream fs;
-		fs.open(filename.c_str());
+		fs.open(filename.c_str(), std::ios::in | std::ios::binary);
 		if (fs)
 		{
 			// Wrap as a stream

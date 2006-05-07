@@ -43,15 +43,15 @@ namespace Ogre
 // Windows Settings
 //-----------------------------------------------------------------------
 
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 
-#   ifdef PLUGIN_TERRAIN_EXPORTS 
-#       define _OgreTerrainExport __declspec(dllexport) 
-#   else 
-#       define _OgreTerrainExport __declspec(dllimport) 
-#   endif 
-#else 
-#   define _OgreTerrainExport 
-#endif 
+#if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32 ) && !defined(__MINGW32__)
+#   ifdef PLUGIN_TERRAIN_EXPORTS
+#       define _OgreTerrainExport __declspec(dllexport)
+#   else
+#       define _OgreTerrainExport __declspec(dllimport)
+#   endif
+#else
+#   define _OgreTerrainExport
+#endif
 
 #endif
 

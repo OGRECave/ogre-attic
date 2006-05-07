@@ -528,6 +528,11 @@ namespace Ogre
         /** Calculate a face normal without normalize, no w-information. */
         static Vector3 calculateBasicFaceNormalWithoutNormalize(const Vector3& v1, const Vector3& v2, const Vector3& v3);
 
+		/** Generates a value based on the gaussian (normal) distribution function
+			with the given offset and scale parameters.
+		*/
+		static Real gaussianDistribution(Real x, Real offset = 0.0f, Real scale = 1.0f);
+
         static const Real POS_INFINITY;
         static const Real NEG_INFINITY;
         static const Real PI;

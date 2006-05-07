@@ -801,7 +801,7 @@ namespace Ogre {
         textArea->setHeight(height);
         textArea->setTop(top);
         textArea->setLeft(left);
-        textArea->setParameter("font_name", "TrebuchetMSBold");
+        textArea->setParameter("font_name", "BlueHighway");
         textArea->setParameter("char_height", StringConverter::toString(fontSize));
         textArea->setCaption(caption);
         textArea->setParameter("colour_top", "1 1 1");

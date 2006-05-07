@@ -1,14 +1,15 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                      "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 11 2006 by texi2html 1.64 -->
-<!-- 
+<!-- Created on May 7 2006 by texi2html 1.66 -->
+<!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
             Olaf Bachmann <obachman@mathematik.uni-kl.de>
             and many others.
-Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
-Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
- 
+Maintained by: Many creative people <dev@texi2html.cvshome.org>
+Send bugs and suggestions to <users@texi2html.cvshome.org>
+
 -->
 <HEAD>
 <TITLE>OGRE Manual v1.2.0 ('Dagon'): Shadows</TITLE>
@@ -17,11 +18,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Shadows">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
-<META NAME="Generator" CONTENT="texi2html 1.64">
+<META NAME="Generator" CONTENT="texi2html 1.66">
 <LINK TYPE="text/css" rel="stylesheet" href="../style.css"> 
 </HEAD>
 
-<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+<BODY LANG="en" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
 <A NAME="SEC270"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
@@ -47,7 +48,7 @@ Shadows are disabled by default, here's how you turn them on and configure them 
 <OL>
 <LI>
 Enable a shadow technique on the SceneManager as the <STRONG>first</STRONG> thing you doin your scene setup. It is important that this is done first because the shadow technique can alter the way meshes are loaded. Here's an example:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>mSceneMgr-&#62;setShadowTechnique(SHADOWTYPE_STENCIL_ADDITIVE);
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>mSceneMgr-&gt;setShadowTechnique(SHADOWTYPE_STENCIL_ADDITIVE);
 </pre></td></tr></table><LI>
 Create one or more lights. Note that not all light types are necessarily supported by all shadow techniques, you should check the sections about each technique to check. Note that if certain lights should not cast shadows, you can turn that off by calling setCastShadows(false) on the light, the default is true.
 <LI>
@@ -84,12 +85,12 @@ By default Ogre treats all non-transparent objects as shadow casters and receive
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
-<BR>  
+<BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 11 2006</I>
-using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
-"><I>texi2html</I></A>
+by <I>steve</I> on <I>May 7 2006</I>
+using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
+</FONT>
 
 </BODY>
 </HTML>

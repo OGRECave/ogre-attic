@@ -226,7 +226,24 @@ namespace Ogre {
                                 }
                                 else
                                 {
-							        glUniform4fvARB( currentUniform->mLocation, 1, currentRealConstant->val );
+									// Support arrays of vec4, as supported by Cg and HLSL
+									if (currentUniform->mArraySize > 1)
+									{
+										// Build a combined buffer
+										size_t arr = currentUniform->mArraySize;
+										float* pBuffer = floatBuffer;
+										while (arr--)
+										{
+											memcpy(pBuffer, currentRealConstant++->val, sizeof(float) * 4);
+											pBuffer += 4;
+										}
+										glUniform4fvARB(currentUniform->mLocation, currentUniform->mArraySize, floatBuffer);
+
+									}
+									else
+									{
+										glUniform4fvARB(currentUniform->mLocation, 1, currentRealConstant->val);
+									}
                                 }
                             }
 							break;

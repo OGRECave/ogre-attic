@@ -92,11 +92,18 @@ namespace Ogre
         bool isManuallyControlled() const;
 
         
-        /** Gets the inverse transform which takes bone space to origin from the binding pose. 
+        /** Gets the transform which takes bone space to current from the binding pose. 
         @remarks
             Internal use only.
         */
-        const Matrix4& _getBindingPoseInverseTransform(void) const;
+        void _getOffsetTransform(Matrix4& m) const;
+
+		/** Gets the inverted binding pose scale. */
+		const Vector3& _getBindingPoseInverseScale(void) const { return mBindDerivedInverseScale; }
+		/** Gets the inverted binding pose position. */
+		const Vector3& _getBindingPoseInversePosition(void) const { return mBindDerivedInversePosition; }
+		/** Gets the inverted binding pose orientation. */
+		const Quaternion& _getBindingPoseInverseOrientation(void) const { return mBindDerivedInverseOrientation; }
 
 		/// @see Node::needUpdate
 		void needUpdate(bool forceParentUpdate = false);
@@ -117,11 +124,12 @@ namespace Ogre
         /// Pointer back to creator, for child creation (not smart ptr so child does not preserve parent)
         Skeleton* mCreator;
 
-        /// The inversed derived transform of the bone in the binding pose
-        Matrix4 mBindDerivedInverseTransform;
-
-
-
+        /// The inversed derived scale of the bone in the binding pose
+        Vector3 mBindDerivedInverseScale;
+        /// The inversed derived orientation of the bone in the binding pose
+        Quaternion mBindDerivedInverseOrientation;
+        /// The inversed derived position of the bone in the binding pose
+        Vector3 mBindDerivedInversePosition;
     };
 
 

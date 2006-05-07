@@ -580,7 +580,7 @@
 		821FCABD07B28DFC000BFD07 /* Julia.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Julia.h; path = ../../../Samples/VolumeTex/include/Julia.h; sourceTree = SOURCE_ROOT; };
 		821FCABE07B28DFC000BFD07 /* ThingRenderable.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ThingRenderable.h; path = ../../../Samples/VolumeTex/include/ThingRenderable.h; sourceTree = SOURCE_ROOT; };
 		821FCABF07B28DFC000BFD07 /* VolumeRenderable.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = VolumeRenderable.h; path = ../../../Samples/VolumeTex/include/VolumeRenderable.h; sourceTree = SOURCE_ROOT; };
-		823D8EFD09C117BD00BFD011 /* OceanDemo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = OceanDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		823D8EFD09C117BD00BFD011 /* OceanDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OceanDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		823D8EFF09C117BE00BFD011 /* OceanDemo-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "OceanDemo-Info.plist"; sourceTree = "<group>"; };
 		823D8F0409C117E600BFD011 /* MaterialControls.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MaterialControls.h; path = ../../../Samples/OceanDemo/include/MaterialControls.h; sourceTree = SOURCE_ROOT; };
 		823D8F0509C117E600BFD011 /* OceanDemo.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OceanDemo.h; path = ../../../Samples/OceanDemo/include/OceanDemo.h; sourceTree = SOURCE_ROOT; };
@@ -668,7 +668,7 @@
 		82AFC8D10705F55E00CF9DB7 /* Ogre.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Ogre.framework; path = ../Ogre/build/Ogre.framework; sourceTree = SOURCE_ROOT; };
 		82AFC9360705F79F00CF9DB7 /* ExampleFrameListener.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ExampleFrameListener.h; path = ../../../Samples/Common/include/ExampleFrameListener.h; sourceTree = "<group>"; };
 		82AFCC4607060BBC00CF9DB7 /* terrain.cfg */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = terrain.cfg; path = ../../../Samples/Media/terrain.cfg; sourceTree = "<group>"; };
-		82B17DA6072D8F7400CA2E63 /* media.cfg */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = media.cfg; path = ../../../../ogre/Samples/Common/bin/media.cfg; sourceTree = SOURCE_ROOT; };
+		82B17DA6072D8F7400CA2E63 /* media.cfg */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = media.cfg; path = ../../../Samples/Common/bin/media.cfg; sourceTree = SOURCE_ROOT; };
 		82C985C807074B2D0061A825 /* config.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		82D576A607AD71CC0026BE0D /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = /Library/Frameworks/SDL.framework; sourceTree = "<absolute>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -4309,7 +4309,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -4405,7 +4405,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -4501,7 +4501,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -4597,7 +4597,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -4693,7 +4693,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -4789,7 +4789,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -4885,7 +4885,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -4981,7 +4981,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -5077,7 +5077,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -5173,7 +5173,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -5269,7 +5269,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -5365,7 +5365,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -5461,7 +5461,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -5557,7 +5557,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -5653,7 +5653,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -5749,7 +5749,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -5845,7 +5845,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -5941,7 +5941,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -6133,7 +6133,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -6226,7 +6226,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -6319,7 +6319,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					../Ogre/build,
+					"../Ogre/build/$(CONFIGURATION)",
 					"$(HOME)/Library/Frameworks",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;

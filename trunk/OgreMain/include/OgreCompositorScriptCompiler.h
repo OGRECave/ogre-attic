@@ -48,7 +48,19 @@ namespace Ogre {
 
         /** get the name of the Compositor script BNF grammer.
         */
-        virtual const String& getClientGrammerName(void) { static const String grammerName("Compositor Script"); return grammerName; }
+        virtual const String& getClientGrammerName(void) const { static const String grammerName("Compositor Script"); return grammerName; }
+        /** Compile a compositor script from a data stream using a specific resource group name.
+        @param stream Weak reference to a data stream which is the source of the material script
+        @param groupName The name of the resource group that resources which are
+			parsed are to become a member of. If this group is loaded or unloaded,
+			then the resources discovered in this script will be loaded / unloaded
+			with it.
+        */
+        void parseScript(DataStreamPtr& stream, const String& groupName)
+        {
+            mScriptContext.groupName = groupName;
+            Compiler2Pass::compile(stream->getAsString(),  stream->getName());
+        }
 
 	protected:
 		// Token ID enumeration
@@ -71,6 +83,7 @@ namespace Ogre {
 			ID_MATERIAL,
 			ID_RENDER_QUAD, ID_CLEAR, ID_STENCIL, ID_RENDER_SCENE,
 			ID_FIRST_RQ, ID_LAST_RQ,
+			ID_IDENTIFIER,
 			// clear
 			ID_CLR_BUFF, ID_CLR_COLOUR, ID_CLR_DEPTH,
 			ID_CLR_COLOUR_VAL, ID_CLR_DEPTH_VAL, ID_CLR_STENCIL_VAL,
@@ -105,6 +118,7 @@ namespace Ogre {
 		struct CompositorScriptContext
 		{
 			CompositorScriptSection section;
+		    String groupName;
 			CompositorPtr compositor;
 			CompositionTechnique* technique;
 			CompositionTargetPass* target;
@@ -155,6 +169,7 @@ namespace Ogre {
 		void parseMaterial(void);
 		void parseFirstRenderQueue(void);
 		void parseLastRenderQueue(void);
+		void parseIdentifier(void);
 		void parseClearBuffers(void);
 		void parseClearColourValue(void);
 		void parseClearDepthValue(void);

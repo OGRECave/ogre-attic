@@ -269,6 +269,19 @@ namespace Ogre
 					videoMode = driver->getVideoModeList()->item( k );
 					optVideoMode->possibleValues.push_back( videoMode->getDescription() );
 				}
+
+                // Reset video mode to default if previous doesn't avail in new possible values
+                StringVector::const_iterator itValue =
+                    std::find(optVideoMode->possibleValues.begin(),
+                              optVideoMode->possibleValues.end(),
+                              optVideoMode->currentValue);
+                if (itValue == optVideoMode->possibleValues.end())
+                {
+                    optVideoMode->currentValue = "800 x 600 @ 32-bit colour";
+                }
+
+                // Also refresh FSAA options
+                refreshFSAAOptions();
 			}
 		}
 
@@ -282,6 +295,8 @@ namespace Ogre
         StringUtil::StrStreamType str;
         str << "D3D9 : RenderSystem Option: " << name << " = " << value;
 		LogManager::getSingleton().logMessage(str.str());
+
+        bool viewModeChanged = false;
 
 		// Find option
 		ConfigOptionMap::iterator it = mOptions.find( name );
@@ -305,7 +320,10 @@ namespace Ogre
 			// Video mode is applicable
 			it = mOptions.find( "Video Mode" );
 			if (it->second.currentValue == "")
+            {
 				it->second.currentValue = "800 x 600 @ 32-bit colour";
+                viewModeChanged = true;
+            }
 		}
 
 		if( name == "Anti aliasing" )
@@ -352,56 +370,74 @@ namespace Ogre
 				mUseNVPerfHUD = false;
 		}
 
-		if( name == "Video Mode" )
+		if (viewModeChanged || name == "Video Mode")
 		{
-			ConfigOption* optFSAA;
-			it = mOptions.find( "Anti aliasing" );
-			optFSAA = &it->second;
-			optFSAA->possibleValues.clear();
-			optFSAA->possibleValues.push_back("None");
-
-			it = mOptions.find("Rendering Device");
-			D3D9Driver *driver = getDirect3DDrivers()->item(it->second.currentValue);
-			if (driver)
-			{
-				it = mOptions.find("Video Mode");
-				D3D9VideoMode *videoMode = driver->getVideoModeList()->item(it->second.currentValue);
-				if (videoMode)
-				{
-					// get non maskable FSAA for this VMODE
-					DWORD numLevels = 0;
-					bool bOK = this->_checkMultiSampleQuality(
-						D3DMULTISAMPLE_NONMASKABLE, 
-						&numLevels, 
-						videoMode->getFormat(), 
-						driver->getAdapterNumber(),
-						D3DDEVTYPE_HAL,
-						TRUE);
-					if (bOK && numLevels > 0)
-					{
-						for (DWORD n = 0; n < numLevels; n++)
-							optFSAA->possibleValues.push_back("NonMaskable " + StringConverter::toString(n + 1));
-					}
-
-					// set maskable levels supported
-					for (unsigned int n = 2; n < 17; n++)
-					{
-						bOK = this->_checkMultiSampleQuality(
-							(D3DMULTISAMPLE_TYPE)n, 
-							&numLevels, 
-							videoMode->getFormat(), 
-							driver->getAdapterNumber(),
-							D3DDEVTYPE_HAL,
-							TRUE);
-						if (bOK)
-							optFSAA->possibleValues.push_back("Level " + StringConverter::toString(n));
-					}
-				}
-			}
+            refreshFSAAOptions();
 		}
 
 		OgreUnguard();
 	}
+	//---------------------------------------------------------------------
+    void D3D9RenderSystem::refreshFSAAOptions(void)
+    {
+        OgreGuard( "D3D9RenderSystem::refreshFSAAOptions" );
+
+        ConfigOptionMap::iterator it = mOptions.find( "Anti aliasing" );
+        ConfigOption* optFSAA = &it->second;
+        optFSAA->possibleValues.clear();
+        optFSAA->possibleValues.push_back("None");
+
+        it = mOptions.find("Rendering Device");
+        D3D9Driver *driver = getDirect3DDrivers()->item(it->second.currentValue);
+        if (driver)
+        {
+            it = mOptions.find("Video Mode");
+            D3D9VideoMode *videoMode = driver->getVideoModeList()->item(it->second.currentValue);
+            if (videoMode)
+            {
+                // get non maskable FSAA for this VMODE
+                DWORD numLevels = 0;
+                bool bOK = this->_checkMultiSampleQuality(
+                    D3DMULTISAMPLE_NONMASKABLE, 
+                    &numLevels, 
+                    videoMode->getFormat(), 
+                    driver->getAdapterNumber(),
+                    D3DDEVTYPE_HAL,
+                    TRUE);
+                if (bOK && numLevels > 0)
+                {
+                    for (DWORD n = 0; n < numLevels; n++)
+                        optFSAA->possibleValues.push_back("NonMaskable " + StringConverter::toString(n + 1));
+                }
+
+                // set maskable levels supported
+                for (unsigned int n = 2; n < 17; n++)
+                {
+                    bOK = this->_checkMultiSampleQuality(
+                        (D3DMULTISAMPLE_TYPE)n, 
+                        &numLevels, 
+                        videoMode->getFormat(), 
+                        driver->getAdapterNumber(),
+                        D3DDEVTYPE_HAL,
+                        TRUE);
+                    if (bOK)
+                        optFSAA->possibleValues.push_back("Level " + StringConverter::toString(n));
+                }
+            }
+        }
+
+        // Reset FSAA to none if previous doesn't avail in new possible values
+        StringVector::const_iterator itValue =
+            std::find(optFSAA->possibleValues.begin(),
+                      optFSAA->possibleValues.end(),
+                      optFSAA->currentValue);
+        if (itValue == optFSAA->possibleValues.end())
+        {
+            optFSAA->currentValue = "None";
+        }
+
+        OgreUnguard();
+    }
 	//---------------------------------------------------------------------
 	String D3D9RenderSystem::validateConfigOptions()
 	{
@@ -791,8 +827,14 @@ namespace Ogre
 			LogManager::getSingleton().logMessage("Multiple render targets with independent bit depths supported");
 		}
 
-		// Point size
-		mCapabilities->setMaxPointSize(mCaps.MaxPointSize);
+		// Point sprites 
+		if (mCaps.MaxPointSize > 1.0f)
+		{
+			mCapabilities->setCapability(RSC_POINT_SPRITES);
+			// sprites and extended parameters go together in D3D
+			mCapabilities->setCapability(RSC_POINT_EXTENDED_PARAMETERS);
+			mCapabilities->setMaxPointSize(mCaps.MaxPointSize);
+		}
 		
 
 		Log* defaultLog = LogManager::getSingleton().getDefaultLog();

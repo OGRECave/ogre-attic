@@ -289,6 +289,21 @@ namespace Ogre {
             mCapabilities->setCapability(RSC_CUBEMAPPING);
         }
         
+
+		// Point sprites
+		if (GLEW_VERSION_2_0 ||
+			GLEW_ARB_point_sprite)
+		{
+			mCapabilities->setCapability(RSC_POINT_SPRITES);
+		}
+        // Check for point parameters
+        if(GLEW_VERSION_1_4 ||
+			GLEW_ARB_point_parameters ||
+			GLEW_EXT_point_parameters)
+        {
+            mCapabilities->setCapability(RSC_POINT_EXTENDED_PARAMETERS);
+        }
+		
         // Check for hardware stencil support and set bit depth
         GLint stencil;
         glGetIntegerv(GL_STENCIL_BITS,&stencil);
@@ -302,6 +317,25 @@ namespace Ogre {
         // Check for VBO support
         if(GLEW_VERSION_1_5 || GLEW_ARB_vertex_buffer_object)
         {
+            // Some buggy driver claim that it is GL 1.5 compliant and
+            // not support ARB_vertex_buffer_object
+            if (!GLEW_ARB_vertex_buffer_object)
+            {
+                // Assign ARB functions same to GL 1.5 version since
+                // interface identical
+                glBindBufferARB = glBindBuffer;
+                glBufferDataARB = glBufferData;
+                glBufferSubDataARB = glBufferSubData;
+                glDeleteBuffersARB = glDeleteBuffers;
+                glGenBuffersARB = glGenBuffers;
+                glGetBufferParameterivARB = glGetBufferParameteriv;
+                glGetBufferPointervARB = glGetBufferPointerv;
+                glGetBufferSubDataARB = glGetBufferSubData;
+                glIsBufferARB = glIsBuffer;
+                glMapBufferARB = glMapBuffer;
+                glUnmapBufferARB = glUnmapBuffer;
+            }
+
             mCapabilities->setCapability(RSC_VBO);
 
             mHardwareBufferManager = new GLHardwareBufferManager;
@@ -324,8 +358,10 @@ namespace Ogre {
             mCapabilities->setMaxVertexProgramVersion("arbvp1");
             mCapabilities->setVertexProgramConstantBoolCount(0);
             mCapabilities->setVertexProgramConstantIntCount(0);
-            mCapabilities->setVertexProgramConstantFloatCount(
-                GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB);
+
+            GLint floatConstantCount;
+            glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB, &floatConstantCount);
+            mCapabilities->setVertexProgramConstantFloatCount(floatConstantCount);
 
             mGpuProgramManager->_pushSyntaxCode("arbvp1");
             mGpuProgramManager->registerProgramFactory("arbvp1", createGLArbGpuProgram);
@@ -381,12 +417,15 @@ namespace Ogre {
         if (GLEW_ARB_fragment_program)
         {
             mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
+
             // Fragment Program Properties
             mCapabilities->setMaxFragmentProgramVersion("arbfp1");
             mCapabilities->setFragmentProgramConstantBoolCount(0);
             mCapabilities->setFragmentProgramConstantIntCount(0);
-            mCapabilities->setFragmentProgramConstantFloatCount(
-                GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB);
+
+            GLint floatConstantCount;
+            glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB, &floatConstantCount);
+            mCapabilities->setFragmentProgramConstantFloatCount(floatConstantCount);
 
             mGpuProgramManager->_pushSyntaxCode("arbfp1");
             mGpuProgramManager->registerProgramFactory("arbfp1", createGLArbGpuProgram);
@@ -451,10 +490,31 @@ namespace Ogre {
         }
 
         // Check for hardware occlusion support
-        if(GLEW_NV_occlusion_query)
+        if(GLEW_VERSION_1_5 || GLEW_ARB_occlusion_query)
         {
+            // Some buggy driver claim that it is GL 1.5 compliant and
+            // not support ARB_occlusion_query
+            if (!GLEW_ARB_occlusion_query)
+            {
+                // Assign ARB functions same to GL 1.5 version since
+                // interface identical
+                glBeginQueryARB = glBeginQuery;
+                glDeleteQueriesARB = glDeleteQueries;
+                glEndQueryARB = glEndQuery;
+                glGenQueriesARB = glGenQueries;
+                glGetQueryObjectivARB = glGetQueryObjectiv;
+                glGetQueryObjectuivARB = glGetQueryObjectuiv;
+                glGetQueryivARB = glGetQueryiv;
+                glIsQueryARB = glIsQuery;
+            }
+
             mCapabilities->setCapability(RSC_HWOCCLUSION);		
         }
+		else if (GLEW_NV_occlusion_query)
+		{
+			// Support NV extension too for old hardware
+            mCapabilities->setCapability(RSC_HWOCCLUSION);		
+		}
 
 		// UBYTE4 always supported
 		mCapabilities->setCapability(RSC_VERTEX_FORMAT_UBYTE4);
@@ -893,7 +953,8 @@ namespace Ogre {
 		Real minSize, Real maxSize)
     {
 
-		if(attenuationEnabled)
+		if(attenuationEnabled && 
+			mCapabilities->hasCapability(RSC_POINT_EXTENDED_PARAMETERS))
 		{
 			// Point size is still calculated in pixels even when attenuation is
 			// enabled, which is pretty awkward, since you typically want a viewport
@@ -908,13 +969,7 @@ namespace Ogre {
 			else
 				adjMaxSize = maxSize * mActiveViewport->getActualHeight();
 			glPointSize(adjSize);
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-			// HACK - ATI/Linux segfaults when you set point attenuation!
-			// Driver fault? Affects both ATI and Tungsten drivers
-			if (mGLSupport->getGLVendor() != "ATI"
-				&& mGLSupport->getGLVendor() != "Tungsten")
-			{
-#endif
+
 			// XXX: why do I need this for results to be consistent with D3D?
 			// Equations are supposedly the same once you factor in vp height
 			Real correction = 0.005;
@@ -923,32 +978,22 @@ namespace Ogre {
 			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, val);
 			glPointParameterf(GL_POINT_SIZE_MIN, adjMinSize);
 			glPointParameterf(GL_POINT_SIZE_MAX, adjMaxSize);
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-			}
-#endif
-
 		}
 		else
 		{
 			// no scaling required
 			// GL has no disabled flag for this so just set to constant
 			glPointSize(size);
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-			// HACK - ATI/Linux segfaults when you set point parameters!
-			// Driver fault!
-			if (mGLSupport->getGLVendor() != "ATI"
-				&& mGLSupport->getGLVendor() != "Tungsten")
+
+			if (mCapabilities->hasCapability(RSC_POINT_EXTENDED_PARAMETERS))
 			{
-#endif
-			float val[4] = {1, 0, 0, 1};
-			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, val);
-			glPointParameterf(GL_POINT_SIZE_MIN, minSize);
-			if (maxSize == 0.0f)
-				maxSize = mCapabilities->getMaxPointSize();
-			glPointParameterf(GL_POINT_SIZE_MAX, maxSize);
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+				float val[4] = {1, 0, 0, 1};
+				glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, val);
+				glPointParameterf(GL_POINT_SIZE_MIN, minSize);
+				if (maxSize == 0.0f)
+					maxSize = mCapabilities->getMaxPointSize();
+				glPointParameterf(GL_POINT_SIZE_MAX, maxSize);
 			}
-#endif
 		}
 
 

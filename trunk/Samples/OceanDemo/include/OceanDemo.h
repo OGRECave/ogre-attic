@@ -196,7 +196,7 @@ protected:
 	void setShaderControlVal(const float val, const size_t index);
 
 public:
-	OceanDemo() : mFrameListener(0), mRoot(0), mGUIRenderer(NULL), mGUISystem(0),
+	OceanDemo() : mRoot(0), mFrameListener(0), mGUIRenderer(NULL), mGUISystem(0),
         mCurrentEntity(0), mCurrentMaterial(0), mMouseMovement(mv_CAMERA)
     {
     }

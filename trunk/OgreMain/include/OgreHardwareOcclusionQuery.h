@@ -101,7 +101,7 @@ public:
 	  * Lets you know when query is done, or still be processed by the Hardware
 	  * @return true if query isn't finished.
 	  */
-	 virtual bool HardwareOcclusionQuery::isStillOutstanding(void) = 0; 
+	 virtual bool isStillOutstanding(void) = 0; 
 
 
     //----------------------------------------------------------------------

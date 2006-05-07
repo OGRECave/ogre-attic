@@ -30,11 +30,16 @@ namespace Ogre {
 //-----------------------------------------------------------------------
 	CompositorSerializer::CompositorSerializer()
 	{
-
+        mScriptCompiler = new CompositorScriptCompiler();
+	}
+//-----------------------------------------------------------------------
+	CompositorSerializer::~CompositorSerializer()
+	{
+	    delete mScriptCompiler;
 	}
 //-----------------------------------------------------------------------
     void CompositorSerializer::parseScript(DataStreamPtr& stream, const String& groupName)
     {
-        mScriptCompiler.compile(stream->getAsString(),  stream->getName());
+        mScriptCompiler->parseScript(stream,  groupName);
     }
 }

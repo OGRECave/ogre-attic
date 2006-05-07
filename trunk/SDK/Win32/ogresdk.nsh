@@ -4,7 +4,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "OGRE SDK"
-!define PRODUCT_VERSION "1.2.0_RC1"
+!define PRODUCT_VERSION "1.2.0"
 !define PRODUCT_PUBLISHER "The OGRE Team"
 !define PRODUCT_WEB_SITE "http://www.ogre3d.org"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -22,6 +22,7 @@ SetCompressor lzma
 !define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
 
 ; Welcome page
+!define MUI_WELCOMEPAGE_TITLE_3LINES
 !insertmacro MUI_PAGE_WELCOME
 ; License page
 !define MUI_LICENSEPAGE_CHECKBOX
@@ -39,6 +40,7 @@ var ICONS_GROUP
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
 ; Finish page
+!define MUI_UNPAGE_FINISH_TITLE_3LINES 
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -65,9 +67,7 @@ Section -Headers
   SetOutPath "$INSTDIR\include"
   SetOverwrite try
   File "..\..\OgreMain\include\*.h"
-  File "..\..\Samples\Common\include\*.h"
   File "..\..\ReferenceApplication\Common\include\*.h"
-  File "..\..\Samples\Common\CEGUIRenderer\include\*.h"
   ; Dependencies - only ODE and CEGui
   SetOutPath "$INSTDIR\include\CEGUI"
   SetOverwrite try
@@ -132,7 +132,9 @@ Section -Binaries
   ; Binaries - debug
   SetOutPath "$INSTDIR\bin\debug"
   SetOverwrite ifnewer
-  !ifndef MINGW
+  !ifdef MINGW
+    File "..\..\Samples\Common\bin\Debug\mingwm10.dll"
+  !else
     File "..\..\Samples\Common\bin\Debug\ilut.dll"
   !endif
   File "..\..\Samples\Common\bin\Debug\ilu.dll"
@@ -162,7 +164,9 @@ Section -Binaries
   ; Binaries - release
   SetOutPath "$INSTDIR\bin\release"
   SetOverwrite ifnewer
-  !ifndef MINGW
+  !ifdef MINGW
+    File "..\..\Samples\Common\bin\Release\mingwm10.dll"
+  !else
     File "..\..\Samples\Common\bin\Release\ilut.dll"
   !endif
   File "..\..\Samples\Common\bin\Release\ilu.dll"

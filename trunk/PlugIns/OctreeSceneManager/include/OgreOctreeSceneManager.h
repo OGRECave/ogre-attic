@@ -196,8 +196,8 @@ public:
     /** Overridden from SceneManager */
     void clearScene(void);
 
-    AxisAlignedBoxSceneQuery* OctreeSceneManager::createAABBQuery(const AxisAlignedBox& box, unsigned long mask);
-    SphereSceneQuery* OctreeSceneManager::createSphereQuery(const Sphere& sphere, unsigned long mask);
+    AxisAlignedBoxSceneQuery* createAABBQuery(const AxisAlignedBox& box, unsigned long mask);
+    SphereSceneQuery* createSphereQuery(const Sphere& sphere, unsigned long mask);
     PlaneBoundedVolumeListSceneQuery* createPlaneBoundedVolumeQuery(const PlaneBoundedVolumeList& volumes, unsigned long mask);
     RaySceneQuery* createRayQuery(const Ray& ray, unsigned long mask);
     IntersectionSceneQuery* createIntersectionQuery(unsigned long mask);

@@ -225,7 +225,7 @@ namespace Ogre {
         }
 	
 		/// Get an updateable reference to animable value list
-		StringVector& getAnimableValueNames(void)
+		StringVector& _getAnimableValueNames(void)
 		{
 			AnimableDictionaryMap::iterator i = 
 				msAnimableDictionary.find(getAnimableDictionaryName());

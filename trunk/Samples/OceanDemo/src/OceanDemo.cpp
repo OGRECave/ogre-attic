@@ -65,14 +65,15 @@ Ogre::SceneNode* mLightNodes[NUM_LIGHTS];
 Ogre::SceneNode* mLightPivots[NUM_LIGHTS];
 
 
-#define TEXTWIDGET_SIZE Size(0.16, 0.03)
-#define NUMBERWIDGET_SIZE Size(0.065, 0.03)
+#define TEXTWIDGET_SIZE Size(0.19, 0.06)
+#define NUMBERWIDGET_SIZE Size(0.065, 0.06)
 #define SCROLLWIDGET_SIZE Size(0.21, 0.02)
 
-#define TEXTWIDGET_XPOS 0.02
-#define NUMBERWIDGET_XPOS 0.36
+#define TEXTWIDGET_XPOS 0.01
+#define NUMBERWIDGET_XPOS 0.37
 #define SCROLLWIDGET_XPOS 0.50
 
+#define TEXTWIDGET_YADJUST (-0.05f)
 #define WIDGET_YSTART 0.2f
 #define WIDGET_YOFFSET 0.15f
 
@@ -344,7 +345,7 @@ void OceanDemo::initComboBoxes(void)
 
 	// make first item visible
     if (cbobox->getItemCount() > 0)
-	    cbobox->setItemSelectState((CEGUI::uint)0, true);
+	    cbobox->setItemSelectState((size_t)0, true);
 
     Editbox* eb;
     // set text in combobox
@@ -632,7 +633,8 @@ void OceanDemo::configureShaderControls(void)
 							// add to Shader control window
 							controlWindow->addChildWindow( activeTextWidget );
 							// set position based on its index
-							activeTextWidget->setPosition(Point(TEXTWIDGET_XPOS, WIDGET_YSTART + WIDGET_YOFFSET * float(i)));
+							activeTextWidget->setPosition(Point(TEXTWIDGET_XPOS, WIDGET_YSTART + TEXTWIDGET_YADJUST + WIDGET_YOFFSET * float(i)));
+							activeTextWidget->setVerticalFormatting(StaticText::TopAligned);
 							activeTextWidget->setHorizontalFormatting(StaticText::RightAligned);
 							activeTextWidget->setFrameEnabled(false);
 							activeTextWidget->setInheritsAlpha(false);
@@ -659,8 +661,9 @@ void OceanDemo::configureShaderControls(void)
 							// add to Shader control window
 							controlWindow->addChildWindow( activeNumberWidget );
 							// set position based on its index
-							activeNumberWidget->setPosition(Point(NUMBERWIDGET_XPOS, WIDGET_YSTART + WIDGET_YOFFSET * float(i)));
+							activeNumberWidget->setPosition(Point(NUMBERWIDGET_XPOS, WIDGET_YSTART + TEXTWIDGET_YADJUST + WIDGET_YOFFSET * float(i)));
 							activeNumberWidget->setHorizontalFormatting(StaticText::RightAligned);
+							activeNumberWidget->setVerticalFormatting(StaticText::TopAligned);
 							activeNumberWidget->setFrameEnabled(false);
 							activeNumberWidget->setInheritsAlpha(false);
 							activeNumberWidget->setBackgroundEnabled(false);
@@ -844,7 +847,7 @@ bool OceanDemo::handleModelComboChanged(const CEGUI::EventArgs& e)
 			//true, true
             ); //so we can still read it
         // Build tangent vectors, all our meshes use only 1 texture coordset
-        pMesh->buildTangentVectors(0, 1);
+        //pMesh->buildTangentVectors(0, 1);
         // Create entity
         mCurrentEntity = mSceneMgr->createEntity(meshName, meshName);
     }
@@ -886,8 +889,8 @@ bool OceanDemo::handleScrollControlsWindow(const CEGUI::EventArgs& e)
 	for (size_t i = 0; i < controlCount; i++)
 	{
 		float ypos = WIDGET_YSTART + WIDGET_YOFFSET * float(i) - scrollval;
-		mShaderControlContainer[i].TextWidget->setPosition(Point ( TEXTWIDGET_XPOS, ypos));
-		mShaderControlContainer[i].NumberWidget->setPosition(Point ( NUMBERWIDGET_XPOS, ypos));
+		mShaderControlContainer[i].TextWidget->setPosition(Point ( TEXTWIDGET_XPOS, ypos + TEXTWIDGET_YADJUST));
+		mShaderControlContainer[i].NumberWidget->setPosition(Point ( NUMBERWIDGET_XPOS, ypos + TEXTWIDGET_YADJUST));
 		mShaderControlContainer[i].ScrollWidget->setPosition(Point ( SCROLLWIDGET_XPOS, ypos ));
 	}
 
@@ -932,10 +935,20 @@ void OceanDemo::createFrameListener(void)
 *************************************************************************/
 
 OceanDemo_FrameListener::OceanDemo_FrameListener(OceanDemo* main)
-    : mMain(main),
-	  mLMBDown(false), mRMBDown(false), mStatsOn(true), mLastMousePositionSet(false),
-	  mMoveFwd(false), mMoveBck(false), mMoveLeft(false), mMoveRight(false), mProcessMovement(false),
-	  mUpdateMovement(false), mSpinModel(true), mSpinLight(false), mWriteToFile(false)
+    : mMain(main)
+    , mStatsOn(true)
+    , mWriteToFile(false)
+    , mLastMousePositionSet(false)
+    , mSpinModel(true)
+    , mSpinLight(false)
+    , mLMBDown(false)
+    , mRMBDown(false)
+    , mProcessMovement(false)
+    , mUpdateMovement(false)
+    , mMoveFwd(false)
+    , mMoveBck(false)
+    , mMoveLeft(false)
+    , mMoveRight(false)
 
 {
     mRotateSpeed = 0;

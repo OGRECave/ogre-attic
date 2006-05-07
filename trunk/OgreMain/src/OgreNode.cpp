@@ -147,7 +147,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    Matrix4 Node::_getFullTransform(void) const
+    const Matrix4& Node::_getFullTransform(void) const
     {
         if (mCachedTransformOutOfDate)
         {

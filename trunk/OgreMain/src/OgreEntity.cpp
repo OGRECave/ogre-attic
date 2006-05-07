@@ -550,11 +550,7 @@ namespace Ogre {
 		bool stencilShadows = false;
 		if (root._getCurrentSceneManager())
 			stencilShadows =  root._getCurrentSceneManager()->isShadowTechniqueStencilBased();
-        // If all animations are disabled, we'll use origin vertex buffer for
-        // rendering. But still perform software animation if user required,
-        // because need to keep same behavior in user standpoint.
-		bool softwareAnimation = forcedSwAnimation ||
-            (!hwAnimation || stencilShadows) && _isAnimated();
+		bool softwareAnimation = !hwAnimation || stencilShadows || forcedSwAnimation;
 		// Blend normals in s/w only if we're not using h/w animation,
 		// since shadows only require positions
 		bool blendNormals = !hwAnimation || forcedNormals;
@@ -667,7 +663,7 @@ namespace Ogre {
         //      1. It's used when using hardware animation and skeleton animated.
         //      2. It's changed when animation dirty or parent node transform has altered.
         if (hwAnimation && _isSkeletonAnimated() &&
-            (animationDirty || mLastParentXform != getParentSceneNode()->_getFullTransform()))
+            (animationDirty || mLastParentXform != _getParentNodeFullTransform()))
         {
             // Allocate bone world matrices on demand, for better memory footprint
             // when using software animation.
@@ -677,7 +673,7 @@ namespace Ogre {
             }
 
             // Cache last parent transform for next frame use too.
-            mLastParentXform = getParentSceneNode()->_getFullTransform();
+            mLastParentXform = _getParentNodeFullTransform();
 
             for (unsigned short i = 0; i < mNumBoneMatrices; ++i)
             {
@@ -883,19 +879,19 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	VertexData* Entity::_getSkelAnimVertexData(void) const
 	{
-		assert (mSkelAnimVertexData && "Not software skinned!");
+		assert (mSkelAnimVertexData && "Not software skinned or has no shared vertex data!");
         return mSkelAnimVertexData;
 	}
 	//-----------------------------------------------------------------------
 	VertexData* Entity::_getSoftwareVertexAnimVertexData(void) const
 	{
-		assert (mSoftwareVertexAnimVertexData && "Not vertex animated!");
+		assert (mSoftwareVertexAnimVertexData && "Not vertex animated or has no shared vertex data!");
 		return mSoftwareVertexAnimVertexData;
 	}
 	//-----------------------------------------------------------------------
 	VertexData* Entity::_getHardwareVertexAnimVertexData(void) const
 	{
-		assert (mHardwareVertexAnimVertexData && "Not vertex animated!");
+		assert (mHardwareVertexAnimVertexData && "Not vertex animated or has no shared vertex data!");
 		return mHardwareVertexAnimVertexData;
 	}
 	//-----------------------------------------------------------------------
@@ -1175,10 +1171,9 @@ namespace Ogre {
 			{
 				// Create temporary vertex blend info
 				// Prepare temp vertex data if needed
-				// Clone without copying data, remove blending info
-				// (since blend is performed in software)
-				mSoftwareVertexAnimVertexData =
-					cloneVertexDataRemoveBlendInfo(mMesh->sharedVertexData);
+				// Clone without copying data, don't remove any blending info
+				// (since if we skeletally animate too, we need it)
+				mSoftwareVertexAnimVertexData = mMesh->sharedVertexData->clone(false);
 				extractTempBufferInfo(mSoftwareVertexAnimVertexData, &mTempVertexAnimInfo);
 
 				// Also clone for hardware usage, don't remove blend info since we'll
@@ -1437,7 +1432,7 @@ namespace Ogre {
         if (init)
             mShadowRenderables.resize(edgeList->edgeGroups.size());
 
-        bool isAnimated = _isAnimated();
+        bool isAnimated = hasAnimation;
         bool updatedSharedGeomNormals = false;
         siend = mShadowRenderables.end();
         egi = edgeList->edgeGroups.begin();
@@ -1529,7 +1524,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     const VertexData* Entity::findBlendedVertexData(const VertexData* orig)
     {
-		bool skel = _isSkeletonAnimated();
+		bool skel = hasSkeleton();
 
         if (orig == mMesh->sharedVertexData)
         {
@@ -1866,13 +1861,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	Entity::VertexDataBindChoice Entity::chooseVertexDataForBinding(bool vertexAnim) const
 	{
-        if (!_isAnimated())
-        {
-            // no animation or all animations disabled.
-            return BIND_ORIGINAL;
-        }
-
-		if (_isSkeletonAnimated())
+		if (hasSkeleton())
 		{
 			if (!mHardwareAnimation)
 			{

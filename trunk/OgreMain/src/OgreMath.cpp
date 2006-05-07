@@ -944,4 +944,14 @@ namespace Ogre
         Vector3 normal = (v2 - v1).crossProduct(v3 - v1);
         return normal;
     }
+	//-----------------------------------------------------------------------
+	Real Math::gaussianDistribution(Real x, Real offset, Real scale)
+	{
+		Real nom = Math::Exp(
+			-Math::Sqr(x - offset) / (2 * Math::Sqr(scale)));
+		Real denom = scale * Math::Sqrt(2 * Math::PI);
+
+		return nom / denom;
+
+	}
 }

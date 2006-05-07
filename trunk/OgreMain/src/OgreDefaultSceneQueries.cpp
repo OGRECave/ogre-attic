@@ -87,7 +87,7 @@ namespace Ogre {
 				{
 					SceneManager::MovableObjectIterator objItC = 
 						mParentSceneMgr->getMovableObjectIterator(
-							factIt.getNext()->getType());
+							factItLater.getNext()->getType());
 					while (objItC.hasMoreElements())
 					{
 						MovableObject* c = objItC.getNext();

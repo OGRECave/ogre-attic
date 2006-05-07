@@ -1024,6 +1024,9 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::SkeletonPtr& ogr
                     Ogre::Vector3 kfPos(currPosKey->Position[0], currPosKey->Position[1], currPosKey->Position[2]);
                     Ogre::Quaternion qx, qy, qz, kfQ;
 
+					// Milkshape translations are local to own orientation, not parent
+					kfPos = ogrebone->getOrientation() * kfPos;
+
                     ogrekey->setTranslate(kfPos);
                     qx.FromAngleAxis(Ogre::Radian(currRotKey->Rotation[0]), Ogre::Vector3::UNIT_X);
                     qy.FromAngleAxis(Ogre::Radian(currRotKey->Rotation[1]), Ogre::Vector3::UNIT_Y);

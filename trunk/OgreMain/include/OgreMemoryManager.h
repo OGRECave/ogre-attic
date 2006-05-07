@@ -340,6 +340,13 @@ namespace Ogre {
 */
 static unsigned gProcessID = 0;
 
+// When compiling in Visual C++ (occuring in VS2005 Express but not for VC 7.1) with
+// managed C++, should put the new([])/delete([]) overrides inside unmanaged context,
+// otherwise Visual C++ will link with overridden version of new([]) and CRT version
+// of delete([]), thus, mess up both of OGRE memory manager and CRT memory manager.
+#if defined(__cplusplus_cli)
+#pragma managed(push, off)
+#endif
 //-----------------------------------------------------------------------------
 // Overridden global new([])/delete([]) functions
 //
@@ -365,6 +372,9 @@ inline void operator delete[](void *reportedAddress)
     Ogre::MemoryManager::instance().op_del_vc( reportedAddress, gProcessID );
 }
 //-----------------------------------------------------------------------------
+#if defined(__cplusplus_cli)
+#pragma managed(pop)
+#endif
 
 //-----------------------------------------------------------------------------
 // This header adds the *alloc/free macros, wrapping the C functions

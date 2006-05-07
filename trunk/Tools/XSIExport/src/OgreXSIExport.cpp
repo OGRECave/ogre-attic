@@ -283,7 +283,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 			Parameter param = prop.GetParameters().GetItem(L"objectName");
 			CString objectName = param.GetValue();
 			param = prop.GetParameters().GetItem( L"targetMeshFileName" );
-			Ogre::String meshFileName = XSItoOgre(param.GetValue());
+			Ogre::String meshFileName = XSItoOgre(XSI::CString(param.GetValue()));
 			if (meshFileName.empty())
 			{
 				OGRE_EXCEPT(Ogre::Exception::ERR_INVALIDPARAMS, 
@@ -360,7 +360,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 			
 			// Any material prefix? We need that for mesh linking too
 			param = prop.GetParameters().GetItem( L"materialPrefix" );
-			Ogre::String materialPrefix = XSItoOgre(param.GetValue());
+			Ogre::String materialPrefix = XSItoOgre(XSI::CString(param.GetValue()));
 
 			param = prop.GetParameters().GetItem( L"fps" );
 			float fps = param.GetValue();
@@ -382,7 +382,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 					if (gd.GetCell(ANIMATION_LIST_EXPORT_COL, a) == true)
 					{
 						Ogre::AnimationEntry ae;
-						ae.animationName = XSItoOgre(gd.GetCell(ANIMATION_LIST_NAME_COL, a));
+						ae.animationName = XSItoOgre(XSI::CString(gd.GetCell(ANIMATION_LIST_NAME_COL, a)));
 						ae.ikSampleInterval = gd.GetCell(ANIMATION_LIST_IKFREQ_COL, a);
 						ae.startFrame = gd.GetCell(ANIMATION_LIST_START_COL, a);
 						ae.endFrame = gd.GetCell(ANIMATION_LIST_END_COL, a);
@@ -394,7 +394,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 			if (exportSkeleton)
 			{
 				param = prop.GetParameters().GetItem( L"targetSkeletonFileName" );
-				Ogre::String skeletonFileName = XSItoOgre(param.GetValue());
+				Ogre::String skeletonFileName = XSItoOgre(XSI::CString(param.GetValue()));
 				if (skeletonFileName.empty())
 				{
 					OGRE_EXCEPT(Ogre::Exception::ERR_INVALIDPARAMS, 
@@ -417,19 +417,25 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 
 				// Do the mesh
 				Ogre::DeformerMap& deformers = 
-					meshExporter.exportMesh(meshFileName, mergeSubmeshes, 
+					meshExporter.buildMeshForExport(mergeSubmeshes, 
 						exportChildren, edgeLists, tangents, exportVertexAnimation,
 						selAnimList, fps, materialPrefix,
 						lodData, skelName);
 				// do the skeleton
-				skelExporter.exportSkeleton(skeletonFileName, deformers, fps, selAnimList);
+				const Ogre::AxisAlignedBox& skelAABB = 
+					skelExporter.exportSkeleton(skeletonFileName, deformers, fps, selAnimList);
+
+				// Do final mesh export
+				meshExporter.exportMesh(meshFileName, skelAABB);
 			}
 			else
 			{
+				Ogre::AxisAlignedBox nullbb;
 				// No skeleton
-				meshExporter.exportMesh(meshFileName, mergeSubmeshes, 
+				meshExporter.buildMeshForExport(mergeSubmeshes, 
 					exportChildren, edgeLists, tangents, exportVertexAnimation,
 					selAnimList, fps, materialPrefix, lodData);
+				meshExporter.exportMesh(meshFileName, nullbb);
 			}
 
 			
@@ -439,14 +445,14 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 			if (exportMaterials)
 			{
 				param = prop.GetParameters().GetItem( L"targetMaterialFileName" );
-				Ogre::String materialFileName = XSItoOgre(param.GetValue());
+				Ogre::String materialFileName = XSItoOgre(XSI::CString(param.GetValue()));
 				
 				Ogre::XsiMaterialExporter matExporter;
 				try 
 				{
 					matExporter.exportMaterials(meshExporter.getMaterials(), 
 						meshExporter.getTextureProjectionMap(), 
-						materialFileName, copyTextures, materialPrefix);
+						materialFileName, copyTextures);
 				}
 				catch (Ogre::Exception& e)
 				{
@@ -783,16 +789,12 @@ void getAnimations(XSI::Model& root, Ogre::AnimationList& animList)
 		for (; j != animList.end();)
 		{
 			bool remove = false;
-			if (j->endFrame >= i->startFrame)
+			if (j->startFrame <= i->endFrame && j->endFrame >= i->startFrame)
 			{
-				// Merge this one into i, extend i's start to j
+				// Merge this one into i, extend boundaries
 				remove = true;
-				i->startFrame = j->startFrame;
-			}
-			if (j->startFrame <= i->endFrame)
-			{
-				remove = true;
-				i->endFrame = j->endFrame;
+				i->startFrame = std::min(j->startFrame, i->startFrame);
+				i->endFrame = std::max(j->endFrame, i->endFrame);
 			}
 			if (remove)
 			{
@@ -1004,7 +1006,7 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 		if (paramName == L"targetMeshFileName")
 		{
 			// Default skeleton name if blank
-			Ogre::String meshName = XSItoOgre(changed.GetValue());
+			Ogre::String meshName = XSItoOgre(XSI::CString(changed.GetValue()));
 			if (hasSkel && Ogre::StringUtil::endsWith(meshName, "mesh") && 
 				prop.GetParameterValue(L"targetSkeletonFileName") == L"")
 			{

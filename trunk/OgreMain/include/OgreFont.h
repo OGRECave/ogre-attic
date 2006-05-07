@@ -320,14 +320,17 @@ namespace Ogre
 		FontPtr(const ResourcePtr& r) : SharedPtr<Font>()
 		{
 			// lock & copy other mutex pointer
-			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
-			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
-			pRep = static_cast<Font*>(r.getPointer());
-			pUseCount = r.useCountPointer();
-			if (pUseCount)
-			{
-				++(*pUseCount);
-			}
+            OGRE_MUTEX_CONDITIONAL(r.OGRE_AUTO_MUTEX_NAME)
+            {
+			    OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			    OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+			    pRep = static_cast<Font*>(r.getPointer());
+			    pUseCount = r.useCountPointer();
+			    if (pUseCount)
+			    {
+				    ++(*pUseCount);
+			    }
+            }
 		}
 
 		/// Operator used to convert a ResourcePtr to a FontPtr
@@ -337,14 +340,17 @@ namespace Ogre
 				return *this;
 			release();
 			// lock & copy other mutex pointer
-			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
-			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
-			pRep = static_cast<Font*>(r.getPointer());
-			pUseCount = r.useCountPointer();
-			if (pUseCount)
-			{
-				++(*pUseCount);
-			}
+            OGRE_MUTEX_CONDITIONAL(r.OGRE_AUTO_MUTEX_NAME)
+            {
+                OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			    OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+			    pRep = static_cast<Font*>(r.getPointer());
+			    pUseCount = r.useCountPointer();
+			    if (pUseCount)
+			    {
+				    ++(*pUseCount);
+			    }
+            }
 			return *this;
 		}
 	};

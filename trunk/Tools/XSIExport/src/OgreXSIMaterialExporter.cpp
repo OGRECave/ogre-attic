@@ -338,7 +338,7 @@ namespace Ogre {
 			{
 				// this is a name, need to look up index
 				tex->setTextureCoordSet(
-					getTextureCoordIndex(XSItoOgre(param.GetValue())));
+					getTextureCoordIndex(XSItoOgre(XSI::CString(param.GetValue()))));
 			}
 
 			// filtering & anisotropy
@@ -414,7 +414,7 @@ namespace Ogre {
 		{
 			XSI::ImageClip imgClip(src);
 			String srcTextureName = 
-				XSItoOgre(imgClip.GetParameter(L"SourceFileName").GetValue());
+				XSItoOgre(XSI::CString(imgClip.GetParameter(L"SourceFileName").GetValue()));
 
 			String::size_type pos = srcTextureName.find_last_of("\\");
 			if (pos == String::npos)
@@ -628,7 +628,7 @@ namespace Ogre {
 			{
 				XSI::ImageClip imgClip(src);
 				String srcTextureName = 
-					XSItoOgre(imgClip.GetParameter(L"SourceFileName").GetValue());
+					XSItoOgre(XSI::CString(imgClip.GetParameter(L"SourceFileName").GetValue()));
 
 				String::size_type pos = srcTextureName.find_last_of("\\");
 				if (pos == String::npos)

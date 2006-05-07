@@ -11,7 +11,7 @@
 # Copy this file and make changes to it, if you like.
 # Afterwards, either, load it with command-line option -init_file <your_init_file>
 #
-# $Id: ogretexi2html.init,v 1.2 2003-09-14 23:48:52 sinbad Exp $
+# $Id: ogretexi2html.init,v 1.3 2006-05-07 21:23:35 sinbad Exp $
 
 ######################################################################
 # stuff which can also be set by command-line options
@@ -297,7 +297,7 @@ $T2H_OPTIONS -> {Verbose} =
 # and use ISO 639 language codes (see e.g. perl module Locale-Codes-1.02 
 # for  definitions)
 # Default's to 'en' if not set or no @documentlanguage is specified
-$T2H_LANG = '';
+$T2H_LANG = 'en';
 $T2H_OPTIONS -> {lang} =
 {
  type => '=s',
@@ -806,7 +806,7 @@ sub pretty_date {
     ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime(time);
     $year += ($year < 70) ? 2000 : 1900;
     # obachman: Let's do it as the Americans do
-    return($MONTH_NAMES->{$T2H_LANG}[$mon] . ", " . $mday . " " . $year);
+    return($MONTH_NAMES->{$T2H_LANG}[$mon] . " " . $mday . " " . $year);
 }
 
 

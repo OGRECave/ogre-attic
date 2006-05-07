@@ -201,6 +201,16 @@ namespace Ogre {
         origStream->open(filename.c_str(), std::ios::in | std::ios::binary);
 
         popDirectory();
+
+        // Should check ensure open succeeded, in case fail for some reason.
+        if (origStream->fail())
+        {
+            delete origStream;
+            OGRE_EXCEPT(Exception::ERR_FILE_NOT_FOUND,
+                "Cannot open file: " + filename,
+                "FileSystemArchive::open");
+        }
+
         /// Construct return stream, tell it to delete on destroy
         FileStreamDataStream* stream = new FileStreamDataStream(filename,
             origStream, tagStat.st_size, true);

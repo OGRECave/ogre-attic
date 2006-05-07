@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="Demo_DeferredShading"
-	ProjectGUID="{109F610E-9B23-4D05-819E-A7F27A42AA94}"
+	ProjectGUID="{64715BCF-1A2B-46E0-9E6C-18470FAC8D4D}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

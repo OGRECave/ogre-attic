@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="Samples">
-		<Project filename="scripts\Demo_BezierPatch_stlp.cbp" />
+		<Project filename="scripts\Demo_BezierPatch_stlp.cbp" active="1" />
 		<Project filename="scripts\Demo_BSP_stlp.cbp" />
-		<Project filename="scripts\BspCollision_stlp.cbp" />
+		<Project filename="scripts\BspCollision_stlp.cbp">
+			<Depends filename="refapp\scripts\ReferenceAppLayer_stlp.cbp" />
+		</Project>
 		<Project filename="scripts\Demo_CameraTrack_stlp.cbp" />
 		<Project filename="scripts\Demo_CelShading_stlp.cbp" />
 		<Project filename="scripts\Demo_Compositor_stlp.cbp" />
@@ -30,6 +32,7 @@
 		<Project filename="scripts\Demo_TextureFX_stlp.cbp" />
 		<Project filename="scripts\Demo_Transparency_stlp.cbp" />
 		<Project filename="scripts\Demo_VolumeTex_stlp.cbp" />
-		<Project filename="scripts\Demo_Water_stlp.cbp" active="1" />
+		<Project filename="scripts\Demo_Water_stlp.cbp" />
+		<Project filename="refapp\scripts\ReferenceAppLayer_stlp.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

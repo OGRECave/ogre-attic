@@ -145,6 +145,7 @@ AC_CONFIG_FILES([Makefile \
     Samples/CelShading/src/Makefile \
     Samples/Compositor/Makefile \
     Samples/Compositor/src/Makefile \
+    Samples/Compositor/include/Makefile \
     Samples/CubeMapping/Makefile \
     Samples/CubeMapping/src/Makefile \
     Samples/CubeMapping/include/Makefile \

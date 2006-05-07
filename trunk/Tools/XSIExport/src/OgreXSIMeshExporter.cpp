@@ -101,7 +101,7 @@ namespace Ogre {
 		cleanupMaterialMap();
     }
     //-----------------------------------------------------------------------
-	DeformerMap& XsiMeshExporter::exportMesh(const String& fileName, 
+	DeformerMap& XsiMeshExporter::buildMeshForExport(
 		bool mergeSubMeshes, bool exportChildren, 
 		bool edgeLists, bool tangents, bool vertexAnimation, 
 		AnimationList& animList, Real fps, const String& materialPrefix, 
@@ -113,7 +113,7 @@ namespace Ogre {
         X3DObject sceneRoot(mXsiApp.GetActiveSceneRoot());
 
         // Construct mesh
-        MeshPtr pMesh = MeshManager::getSingleton().createManual("XSIExport", 
+        mMesh = MeshManager::getSingleton().createManual("XSIExport", 
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 		mMaterialPrefix = materialPrefix;
@@ -130,11 +130,11 @@ namespace Ogre {
 		// notify of skeleton beforehand
 		if (!skeletonName.empty())
 		{
-			pMesh->setSkeletonName(skeletonName);
+			mMesh->setSkeletonName(skeletonName);
 		}
 
 		// write the data into a mesh
-		buildMesh(pMesh.getPointer(), mergeSubMeshes, !skeletonName.empty(), 
+		buildMesh(mMesh.getPointer(), mergeSubMeshes, !skeletonName.empty(), 
 			vertexAnimation, animList, fps);
 
 		// progress report
@@ -142,7 +142,7 @@ namespace Ogre {
 
 		if (lod)
 		{
-			pMesh->generateLodLevels(lod->distances, lod->quota, lod->reductionValue);
+			mMesh->generateLodLevels(lod->distances, lod->quota, lod->reductionValue);
 			// progress report
 			ProgressManager::getSingleton().progress();
 		}
@@ -150,7 +150,7 @@ namespace Ogre {
         if(edgeLists)
         {
             LogOgreAndXSI(L"Calculating edge lists");
-            pMesh->buildEdgeList();
+            mMesh->buildEdgeList();
 			// progress report
 			ProgressManager::getSingleton().progress();
         }
@@ -159,9 +159,9 @@ namespace Ogre {
         {
             LogOgreAndXSI(L"Calculating tangents");
             unsigned short src, dest;
-            if (pMesh->suggestTangentVectorBuildParams(src, dest))
+            if (mMesh->suggestTangentVectorBuildParams(src, dest))
             {
-                pMesh->buildTangentVectors(src, dest);
+                mMesh->buildTangentVectors(src, dest);
             }
             else
             {
@@ -172,18 +172,31 @@ namespace Ogre {
 
         }
 
-        MeshSerializer serializer;
-        serializer.exportMesh(pMesh.getPointer(), fileName);
-
-		// progress report
-		ProgressManager::getSingleton().progress();
-
 		cleanupPolygonMeshList();
 
 		LogOgreAndXSI(L"** OGRE Mesh Export Complete **");
 
 		return mXsiDeformerMap;
     }
+	//-----------------------------------------------------------------------
+	void XsiMeshExporter::exportMesh(const String& fileName, const AxisAlignedBox& skelAABB)
+	{
+
+		// Pad bounds
+		AxisAlignedBox currBounds = mMesh->getBounds();
+		currBounds.merge(skelAABB);
+		mMesh->_setBounds(currBounds, false);
+
+		MeshSerializer serializer;
+		serializer.exportMesh(mMesh.getPointer(), fileName);
+
+		// progress report
+		ProgressManager::getSingleton().progress();
+
+		mMesh.setNull();
+
+
+	}
 	//-----------------------------------------------------------------------
 	MaterialMap& XsiMeshExporter::getMaterials(void)
 	{

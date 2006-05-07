@@ -98,7 +98,7 @@ struct ShaderControlGUIWidget
 	CEGUI::StaticText* NumberWidget;
 	CEGUI::Scrollbar*  ScrollWidget;
 
-	ShaderControlGUIWidget() : TextWidget(NULL), ScrollWidget(NULL), NumberWidget(NULL) {}
+	ShaderControlGUIWidget() : TextWidget(NULL), NumberWidget(NULL), ScrollWidget(NULL) {}
 };
 
 //---------------------------------------------------------------------------

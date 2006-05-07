@@ -79,7 +79,11 @@ namespace Ogre {
         /// Supports non-power of two textures
         RSC_NON_POWER_OF_2_TEXTURES = 0x00800000,
 		/// Supports 3d (volume) textures
-		RSC_TEXTURE_3D				= 0x01000000
+		RSC_TEXTURE_3D				= 0x01000000,
+		/// Supports basic point sprite rendering
+		RSC_POINT_SPRITES		    = 0x02000000,
+		/// Supports extra point parameters (minsize, maxsize, attenuation)
+		RSC_POINT_EXTENDED_PARAMETERS = 0x04000000
     };
 
     /** singleton class for storing the capabilities of the graphics card. 

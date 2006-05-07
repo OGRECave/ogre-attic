@@ -4,7 +4,7 @@ This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
-Copyright (c) 2000-2005 The OGRE Team
+Copyright (c) 2000-2006 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -54,9 +54,8 @@ namespace Ogre
 
 //-------------------------------------------------------------------------------------------------//
 GLXWindow::GLXWindow(Display *display) :
-	mDisplay(display), mWindow(0), mGlxContext(0),
-        mClosed(false),mFullScreen(false), mOldMode(-1),
-        mContext(0) 
+	mDisplay(display), mWindow(0), mGlxContext(0), mClosed(false), mVisible(true), 
+	mFullScreen(false), mOldMode(-1), mContext(0) 
 {
 	mActive = false;
 }
@@ -279,7 +278,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 		attr.background_pixel = 0;
 		attr.border_pixel = 0;
 		attr.colormap = XCreateColormap(mDisplay,rootWindow,visualInfo->visual,AllocNone);
-		attr.event_mask = StructureNotifyMask;
+		attr.event_mask = StructureNotifyMask | VisibilityChangeMask;
 		if(fullScreen) {
 			mask = CWBackPixel | CWColormap | CWOverrideRedirect | CWSaveUnder | CWBackingStore | CWEventMask;
 			attr.override_redirect = True;
@@ -408,6 +407,12 @@ bool GLXWindow::isClosed() const
 }
 
 //-------------------------------------------------------------------------------------------------//
+bool GLXWindow::isVisible() const
+{
+	return mVisible;
+}
+
+//-------------------------------------------------------------------------------------------------//
 void GLXWindow::reposition(int left, int top)
 {
 	XMoveWindow(mDisplay,mWindow,left,top);
@@ -431,7 +436,6 @@ void GLXWindow::swapBuffers(bool waitForVSync)
 //-------------------------------------------------------------------------------------------------//
 void GLXWindow::injectXEvent(const XEvent &event)
 {
-	// Process only events for this window
 	switch(event.type) 
 	{
 	case ClientMessage:
@@ -440,10 +444,11 @@ void GLXWindow::injectXEvent(const XEvent &event)
 
 		if(event.xclient.format == 32 && event.xclient.data.l[0] == (long)mAtomDeleteWindow)  
 		{
-			//Window deleted -- oops, this does not work, ogre doesn't register the close
-			//mClosed = true;
-			//mActive = false;
-			//Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
+			//Window Closed (via X button)
+			mClosed = true;
+			mActive = false;
+
+			Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
 		}
 		break;
 	case ConfigureNotify:
@@ -467,6 +472,21 @@ void GLXWindow::injectXEvent(const XEvent &event)
 		// to another workspace, for example)
 		mActive = false;
 		break;
+	case VisibilityNotify:
+		//Visibility status changed
+		switch(event.xvisibility.state)
+		{
+		case VisibilityUnobscured:
+			mActive = mVisible = true;
+			break;
+		case VisibilityPartiallyObscured:
+			mActive = false;
+			mVisible = true;
+			break;
+		case VisibilityFullyObscured:
+			mActive = mVisible = false;
+			break;
+		}
 	}
 }
 

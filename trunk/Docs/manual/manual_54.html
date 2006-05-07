@@ -1,14 +1,15 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                      "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 11 2006 by texi2html 1.64 -->
-<!-- 
+<!-- Created on May 7 2006 by texi2html 1.66 -->
+<!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
             Olaf Bachmann <obachman@mathematik.uni-kl.de>
             and many others.
-Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
-Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
- 
+Maintained by: Many creative people <dev@texi2html.cvshome.org>
+Send bugs and suggestions to <users@texi2html.cvshome.org>
+
 -->
 <HEAD>
 <TITLE>OGRE Manual v1.2.0 ('Dagon'): Updating Index Buffers</TITLE>
@@ -17,11 +18,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Updating Index Buffers">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
-<META NAME="Generator" CONTENT="texi2html 1.64">
+<META NAME="Generator" CONTENT="texi2html 1.66">
 <LINK TYPE="text/css" rel="stylesheet" href="../style.css"> 
 </HEAD>
 
-<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+<BODY LANG="en" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
 <A NAME="SEC248"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
@@ -37,17 +38,17 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <H3> 5.7.2 Updating Index Buffers </H3>
 <!--docid::SEC248::-->
 Updating index buffers can only be done when you lock the buffer for writing; See section <A HREF="manual_45.html#SEC234">5.4 Locking buffers</A> for details. Locking returns a void pointer, which must be cast to the apropriate type; with index buffers this is either an unsigned short (for 16-bit indexes) or an unsigned long (for 32-bit indexes). For example:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>unsigned short* pIdx = static_cast&#60;unsigned short*&#62;(ibuf-&#62;lock(HardwareBuffer::HBL_DISCARD));
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>unsigned short* pIdx = static_cast&lt;unsigned short*&gt;(ibuf-&gt;lock(HardwareBuffer::HBL_DISCARD));
 </pre></td></tr></table>You can then write to the buffer using the usual pointer semantics, just remember to unlock the buffer when you're finished!
 
 <A NAME="Hardware Pixel Buffers"></A>
 <HR SIZE=1>
-<BR>  
+<BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 11 2006</I>
-using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
-"><I>texi2html</I></A>
+by <I>steve</I> on <I>May 7 2006</I>
+using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
+</FONT>
 
 </BODY>
 </HTML>

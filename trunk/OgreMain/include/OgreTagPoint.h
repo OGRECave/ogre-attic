@@ -60,18 +60,14 @@ namespace Ogre	{
 		void setParentEntity(Entity *pEntity);
 		void setChildObject(MovableObject *pObject);
 
-		//Matrix4 getCombinedTransform();
-		Matrix4 getParentEntityTransform();
-
-        void _update(bool updateChildren, bool parentHasChanged);
-
-        /** Gets the transform of this node including the parent entity and skeleton. */
-        Matrix4 _getFullTransform(void);
+		/** Gets the transform of parent entity. */
+		const Matrix4& getParentEntityTransform(void) const;
 
         /** Gets the transform of this node just for the skeleton (not entity) */
-		Matrix4 _getFullLocalTransform(void);
+		const Matrix4& _getFullLocalTransform(void) const;
 
-        void needUpdate();
+        /** @copydoc Node::needUpdate */
+        void needUpdate(bool forceParentUpdate = false);
 
         /** Overridden from Node in order to include parent Entity transform. */
         void _updateFromParent(void) const;

@@ -173,6 +173,14 @@ material Examples/StormySkyBox
 	}
 }
 
+
+fragment_program Examples/MorningSkyBoxHDRfp cg
+{
+	source hdr.cg
+	entry_point morningskybox_fp
+	profiles ps_2_0 arbfp1
+
+}
 material Examples/MorningSkyBox
 {
 	technique
@@ -189,7 +197,79 @@ material Examples/MorningSkyBox
 			}
 		}
 	}
+
+	// HDR technique (fake)
+	technique
+	{
+		scheme HDR
+
+		pass
+		{
+			lighting off
+			depth_write off
+
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named ambient float4 1 1 1 1
+			}
+			fragment_program_ref Examples/MorningSkyBoxHDRfp
+			{
+			}
+
+			texture_unit
+			{
+				cubic_texture morning.jpg separateUV
+				tex_address_mode clamp
+			}
+		}
+	}
 }
+fragment_program Examples/MorningCubeMapHDRfp cg
+{
+	source hdr.cg
+	entry_point morningcubemap_fp
+	profiles ps_2_0 arbfp1
+
+}
+material Examples/MorningCubeMap
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+
+			texture_unit
+			{
+				cubic_texture morning.jpg combinedUVW
+				tex_address_mode clamp
+				env_map cubic_reflection
+			}
+		}
+	}
+	// HDR technique (fake)
+	technique
+	{
+		scheme HDR
+
+		pass
+		{
+			lighting off
+
+			fragment_program_ref Examples/MorningCubeMapHDRfp
+			{
+			}
+			texture_unit
+			{
+				cubic_texture morning.jpg combinedUVW
+				tex_address_mode clamp
+				env_map cubic_reflection
+			}
+		}
+	}
+}
+
 
 material Examples/EveningSkyBox
 {
@@ -609,7 +689,7 @@ material Examples/Ninja
 
 material Examples/Robot
 {
-	// Hardware skinning technique
+	// Hardware skinning techniique
 	technique
 	{
 		pass
@@ -880,4 +960,69 @@ material Examples/LightRibbonTrail
 			}
 		}
 	}
+}
+
+material Examples/TudorHouse
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture fw12b.jpg
+				tex_address_mode clamp
+			}
+		}
+	}
+}
+
+material jaiqua
+{
+	// Hardware skinning techniique
+	technique
+	{
+		pass
+		{
+			vertex_program_ref Ogre/HardwareSkinningTwoWeights
+			{
+				param_named_auto worldMatrix3x4Array[0] world_matrix_array_3x4
+				param_named_auto viewProjectionMatrix viewproj_matrix
+				param_named_auto lightPos[0] light_position 0
+				param_named_auto lightPos[1] light_position 1
+				param_named_auto lightDiffuseColour[0] light_diffuse_colour 0
+				param_named_auto lightDiffuseColour[1] light_diffuse_colour 1
+				param_named_auto ambient ambient_light_colour
+			
+			}
+			// alternate shadow caster program
+			shadow_caster_vertex_program_ref Ogre/HardwareSkinningTwoWeightsShadowCaster
+			{
+				param_named_auto worldMatrix3x4Array[0] world_matrix_array_3x4
+				param_named_auto viewProjectionMatrix viewproj_matrix
+				param_named_auto ambient ambient_light_colour
+			
+			}
+
+			texture_unit
+			{
+				texture blue_jaiqua.jpg
+				tex_address_mode clamp
+			}
+		}
+	}
+
+	// Software blending technique
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture blue_jaiqua.jpg
+				tex_address_mode clamp
+			}
+		}
+	}
+	
 }

@@ -95,7 +95,7 @@ namespace Ogre {
 	
         LogManager::getSingleton().logMessage("SDLWindow::create", LML_TRIVIAL);
         SDL_Surface* screen;
-        int flags = SDL_OPENGL | SDL_HWPALETTE;
+        int flags = SDL_OPENGL | SDL_HWPALETTE | SDL_RESIZABLE;
 		
         SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
         // request good stencil size if 32-bit colour
@@ -132,7 +132,9 @@ namespace Ogre {
 
     void SDLWindow::destroy(void)
     {
-        SDL_FreeSurface(mScreen);
+        // according to http://www.libsdl.org/cgi/docwiki.cgi/SDL_5fSetVideoMode
+        // never free the surface returned from SDL_SetVideoMode
+        //SDL_FreeSurface(mScreen);
         mScreen = NULL;
         mActive = false;
 
@@ -156,6 +158,24 @@ namespace Ogre {
 
     void SDLWindow::resize(unsigned int width, unsigned int height)
     {
+        SDL_Surface* screen;
+        int flags = SDL_OPENGL | SDL_HWPALETTE | SDL_RESIZABLE;
+		
+        LogManager::getSingleton().logMessage("Updating window", LML_TRIVIAL);
+        screen = SDL_SetVideoMode(width, height, mScreen->format->BitsPerPixel, flags);
+        if (!screen)
+        {
+            LogManager::getSingleton().logMessage(LML_CRITICAL, 
+                String("Could not make screen: ") + SDL_GetError());
+            exit(1);
+        }
+        LogManager::getSingleton().logMessage("screen is valid", LML_TRIVIAL);
+        mScreen = screen;
+
+
+        mWidth = width;
+        mHeight = height;
+
         for (ViewportList::iterator it = mViewportList.begin();
              it != mViewportList.end(); ++it)
         {

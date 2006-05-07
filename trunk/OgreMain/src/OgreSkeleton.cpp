@@ -223,7 +223,7 @@ namespace Ogre {
         {
             const AnimationState* animState = stateIt.getNext();
             const LinkedSkeletonAnimationSource* linked = 0;
-            Animation* anim = getAnimation(animState->getAnimationName(), &linked);
+            Animation* anim = _getAnimationImpl(animState->getAnimationName(), &linked);
             // tolerate state entries for animations we're not aware of
             if (anim)
             {
@@ -430,24 +430,23 @@ namespace Ogre {
         // Update derived transforms
         _updateTransforms();
 
-        /* 
+        /*
             Calculating the bone matrices
             -----------------------------
-            Now that we have the derived orientations & positions in the Bone nodes, we have
-            to compute the Matrix4 to apply to the vertices of a mesh.
-            Because any modification of a vertex has to be relative to the bone, we must first
-            reverse transform by the Bone's original derived position/orientation, then transform
-            by the new derived position / orientation.
+            Now that we have the derived scaling factors, orientations & positions in the
+            Bone nodes, we have to compute the Matrix4 to apply to the vertices of a mesh.
+            Because any modification of a vertex has to be relative to the bone, we must
+            first reverse transform by the Bone's original derived position/orientation/scale,
+            then transform by the new derived position/orientation/scale.
+            Also note we combine scale as equivalent axes, no shearing.
         */
 
-        BoneList::iterator i, boneend;
+        BoneList::const_iterator i, boneend;
         boneend = mBoneList.end();
-        
-       
-        for(i = mBoneList.begin();i != boneend; ++i)
+        for (i = mBoneList.begin();i != boneend; ++i)
         {
             Bone* pBone = *i;
-            *pMatrices = pBone->_getFullTransform() *  pBone->_getBindingPoseInverseTransform();
+            pBone->_getOffsetTransform(*pMatrices);
             pMatrices++;
         }
 

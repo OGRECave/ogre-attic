@@ -27,6 +27,54 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+	String sNullLang = "null";
+	class NullProgram : public HighLevelGpuProgram
+	{
+	protected:
+		/** Internal load implementation, must be implemented by subclasses.
+		*/
+		void loadFromSource(void) {}
+		/** Internal method for creating an appropriate low-level program from this
+		high-level program, must be implemented by subclasses. */
+		void createLowLevelImpl(void) {}
+		/// Internal unload implementation, must be implemented by subclasses
+		void unloadHighLevelImpl(void) {}
+		/// Populate the passed parameters with name->index map, must be overridden
+		void populateParameterNames(GpuProgramParametersSharedPtr params) {}
+	public:
+		NullProgram(ResourceManager* creator, 
+			const String& name, ResourceHandle handle, const String& group, 
+			bool isManual, ManualResourceLoader* loader)
+			: HighLevelGpuProgram(creator, name, handle, group, isManual, loader){}
+		~NullProgram() {}
+		/// Overridden from GpuProgram - never supported
+		bool isSupported(void) const { return false; }
+		/// Overridden from GpuProgram
+		const String& getLanguage(void) const { return sNullLang; }
+
+	};
+	class NullProgramFactory : public HighLevelGpuProgramFactory
+	{
+	public:
+		NullProgramFactory() {}
+		~NullProgramFactory() {}
+		/// Get the name of the language this factory creates programs for
+		const String& getLanguage(void) const 
+		{ 
+			return sNullLang;
+		}
+		HighLevelGpuProgram* create(ResourceManager* creator, 
+			const String& name, ResourceHandle handle,
+			const String& group, bool isManual, ManualResourceLoader* loader)
+		{
+			return new NullProgram(creator, name, handle, group, isManual, loader);
+		}
+		void destroy(HighLevelGpuProgram* prog)
+		{
+			delete prog;
+		}
+
+	};
 	//-----------------------------------------------------------------------
 	template<> HighLevelGpuProgramManager* 
 	Singleton<HighLevelGpuProgramManager>::ms_Singleton = 0;
@@ -47,11 +95,15 @@ namespace Ogre {
         mResourceType = "HighLevelGpuProgram";
 
         ResourceGroupManager::getSingleton()._registerResourceManager(mResourceType, this);    
+
+		mNullFactory = new NullProgramFactory();
+		addFactory(mNullFactory);
        
 	}
 	//-----------------------------------------------------------------------
 	HighLevelGpuProgramManager::~HighLevelGpuProgramManager()
 	{
+		delete mNullFactory;
         ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);    
 	}
     //---------------------------------------------------------------------------
@@ -67,9 +119,8 @@ namespace Ogre {
 
 		if (i == mFactories.end())
 		{
-			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-				"Cannot find factory for language '" + language + "'",
-				"HighLevelGpuProgramManager::getFactory");
+			// use the null factory to create programs that will never be supported
+			i = mFactories.find(sNullLang);
 		}
 		return i->second;
 	}
