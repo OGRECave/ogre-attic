@@ -345,7 +345,7 @@ void OceanDemo::initComboBoxes(void)
 
 	// make first item visible
     if (cbobox->getItemCount() > 0)
-	    cbobox->setItemSelectState((CEGUI::uint)0, true);
+	    cbobox->setItemSelectState((size_t)0, true);
 
     Editbox* eb;
     // set text in combobox
