@@ -6,6 +6,10 @@ Examples/GreenyNimbus
     material        Examples/FlarePointSprite
 	point_rendering	true
 	// point rendering means size is controlled by material
+	// provide fallback sizes for hardware that doesn't support point sprite
+    particle_width  30
+    particle_height 30
+    cull_each       false
 	cull_each       false
     quota           10000
     billboard_type  point

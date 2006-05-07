@@ -159,7 +159,11 @@ public:
 		Technique::PassIterator i = technique->getPassIterator();
 		while(i.hasMoreElements())
 		{
-			sm->_injectRenderWithPass(i.getNext(), CompositorManager::getSingleton()._getTexturedRectangle2D());
+			sm->_injectRenderWithPass(
+				i.getNext(), 
+				CompositorManager::getSingleton()._getTexturedRectangle2D(),
+				false // don't allow replacement of shadow passes
+				);
 		}
 	}
 };
@@ -335,6 +339,11 @@ CompositionTechnique *CompositorInstance::getTechnique()
 CompositorChain *CompositorInstance::getChain()
 {
 	return mChain;
+}
+//-----------------------------------------------------------------------
+const String& CompositorInstance::getTextureInstanceName(const String& name)
+{
+	return getSourceForTex(name);
 }
 //-----------------------------------------------------------------------
 MaterialPtr CompositorInstance::createLocalMaterial()

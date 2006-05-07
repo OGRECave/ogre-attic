@@ -242,7 +242,7 @@ For demonstration purposes, the GLSL technique makes use of texture_unit naming 
 Now we want to clone the material but only want to change the textures used.  We could copy and paste the whole material but if we decide to change the base material later then we also have to update the copied material in the script.  With set_texture_alias, copying a material is very easy now.  set_texture_alias is specified at the top of the material definition.  All techniques using the specified texture alias will be effected by set_texture_alias.@*@*
 
 Format:@*
-set_texture_alias <alias name> = <texture name>@*
+set_texture_alias <alias name> <texture name>@*
 @example
 material fxTest : TSNormalSpecMapping
 {

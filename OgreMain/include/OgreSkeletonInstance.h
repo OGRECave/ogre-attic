@@ -54,6 +54,9 @@ namespace Ogre {
 
         /** Gets a single animation by index. */
         Animation* getAnimation(unsigned short index) const;
+		/// Internal accessor for animations (returns null if animation does not exist)
+		Animation* _getAnimationImpl(const String& name, 
+			const LinkedSkeletonAnimationSource** linker = 0) const;
 
         /** Creates a new Animation object for animating this skeleton. 
         @remarks

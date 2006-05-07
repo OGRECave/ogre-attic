@@ -24,9 +24,9 @@
 			<Window Type="TaharezLook/StaticText" Name="OPCurrentFPS">
 				<Property Name="FrameEnabled" Value="False" />
 				<Property Name="BackgroundEnabled" Value="False" />
-				<Property Name="Font" Value="Tahoma-8" />
+				<Property Name="Font" Value="BlueHighway-10" />
 				<Property Name="Position" Value="x:0.075 y:0.12" />
-				<Property Name="Size" Value="w:0.85 h:0.15" />
+				<Property Name="Size" Value="w:0.85 h:0.25" />
 				<Property Name="TextColours" Value="tl:FF4FF06F tr:FF4FF06F bl:FF4FF06F br:FF4FF06F" />
 				<Property Name="HorzFormatting" Value="HorzCentred" />
 				<Property Name="Text" Value="Current FPS: " />
@@ -43,9 +43,9 @@
 			<Window Type="TaharezLook/StaticText" Name="OPAverageFPS">
 				<Property Name="FrameEnabled" Value="False" />
 				<Property Name="BackgroundEnabled" Value="False" />
-				<Property Name="Font" Value="Tahoma-8" />
+				<Property Name="Font" Value="BlueHighway-10" />
 				<Property Name="Position" Value="x:0.075 y:0.32" />
-				<Property Name="Size" Value="w:1.0 h:0.15" />
+				<Property Name="Size" Value="w:1.0 h:0.25" />
 				<Property Name="TextColours" Value="tl:FFFFF5F0 tr:FFFFF5F0 bl:FFFFF510 br:FFFFF5F0" />
 				<Property Name="Text" Value="Average FPS: " />
 			</Window>
@@ -53,9 +53,9 @@
 			<Window Type="TaharezLook/StaticText" Name="OPWorstFPS">
 				<Property Name="FrameEnabled" Value="False" />
 				<Property Name="BackgroundEnabled" Value="False" />
-				<Property Name="Font" Value="Tahoma-8" />
+				<Property Name="Font" Value="BlueHighway-10" />
 				<Property Name="Position" Value="x:0.075 y:0.45" />
-				<Property Name="Size" Value="w:1.0 h:0.15" />
+				<Property Name="Size" Value="w:1.0 h:0.25" />
 				<Property Name="TextColours" Value="tl:FFFFF5F0 tr:FFFFF5F0 bl:FFFFF510 br:FFFFF5F0" />
 				<Property Name="Text" Value="Worst FPS: " />
 			</Window>
@@ -63,9 +63,9 @@
 			<Window Type="TaharezLook/StaticText" Name="OPBestFPS">
 				<Property Name="FrameEnabled" Value="False" />
 				<Property Name="BackgroundEnabled" Value="False" />
-				<Property Name="Font" Value="Tahoma-8" />
+				<Property Name="Font" Value="BlueHighway-10" />
 				<Property Name="Position" Value="x:0.075 y:0.58" />
-				<Property Name="Size" Value="w:1.0 h:0.15" />
+				<Property Name="Size" Value="w:1.0 h:0.25" />
 				<Property Name="TextColours" Value="tl:FFFFF5F0 tr:FFFFF5F0 bl:FFFFF510 br:FFFFF5F0" />
 				<Property Name="Text" Value="Best FPS: " />
 			</Window>
@@ -73,9 +73,9 @@
 			<Window Type="TaharezLook/StaticText" Name="OPTriCount">
 				<Property Name="FrameEnabled" Value="False" />
 				<Property Name="BackgroundEnabled" Value="False" />
-				<Property Name="Font" Value="Tahoma-8" />
+				<Property Name="Font" Value="BlueHighway-10" />
 				<Property Name="Position" Value="x:0.075 y:0.71" />
-				<Property Name="Size" Value="w:1.0 h:0.15" />
+				<Property Name="Size" Value="w:1.0 h:0.25" />
 				<Property Name="TextColours" Value="tl:FFFFF5F0 tr:FFFFF5F0 bl:FFFFF510 br:FFFFF5F0" />
 				<Property Name="Text" Value="Triangle Count: " />
 			</Window>
@@ -85,7 +85,7 @@
 		<Window Type="TaharezLook/StaticText" Name="OPDebugMsg">
 			<Property Name="FrameEnabled" Value="False" />
 			<Property Name="BackgroundEnabled" Value="False" />
-			<Property Name="Font" Value="Tahoma-8" />
+			<Property Name="Font" Value="BlueHighway-10" />
 			<Property Name="Position" Value="x:0.25 y:0.93" />
 			<Property Name="Size" Value="w:0.65 h:0.07" />
 			<Property Name="TextColours" Value="tl:A0FFFFFF tr:A0FFFFFF bl:A0FFFFFF br:A0FFFFFF" />
@@ -140,10 +140,10 @@
 			<Property Name="CloseButtonEnabled" Value="False" />
 
 			<Window Type="TaharezLook/StaticText" Name="ShaderTxt">
-				<Property Name="Position" Value="x:0.05 y:0.15" />
-				<Property Name="RelativeMaxSize" Value="w:0.3 h:0.03" />
-				<Property Name="RelativeMinSize" Value="w:0.3 h:0.03" />
-				<Property Name="Size" Value="w:0.3 h:0.03" />
+				<Property Name="Position" Value="x:0.05 y:0.10" />
+				<Property Name="RelativeMaxSize" Value="w:0.3 h:0.06" />
+				<Property Name="RelativeMinSize" Value="w:0.3 h:0.06" />
+				<Property Name="Size" Value="w:0.3 h:0.06" />
 				<Property Name="HorzFormatting" Value="LeftAligned" />
 				<Property Name="Text" Value="Active Material" />
 				<Property Name="FrameEnabled" Value="False" />
@@ -153,19 +153,19 @@
 
 			<Window Type="TaharezLook/Combobox" Name="ShaderCombos">
 				<Property Name="Position" Value="x:0.05 y:0.27" />
-				<Property Name="RelativeMaxSize" Value="w:0.2 h:0.15" />
-				<Property Name="RelativeMinSize" Value="w:0.2 h:0.15" />
-				<Property Name="Size" Value="w:0.2 h:0.15" />
+				<Property Name="RelativeMaxSize" Value="w:0.2 h:0.25" />
+				<Property Name="RelativeMinSize" Value="w:0.2 h:0.25" />
+				<Property Name="Size" Value="w:0.2 h:0.25" />
 				<Property Name="InheritsAlpha" Value="False" />
 				<Property Name="ReadOnly" Value="True" />
 				<Property Name="ClippedByParent" Value="False" />
 			</Window>
 
 			<Window Type="TaharezLook/StaticText" Name="ModelTxt">
-				<Property Name="Position" Value="x:0.05 y:0.45" />
-				<Property Name="RelativeMaxSize" Value="w:0.3 h:0.03" />
-				<Property Name="RelativeMinSize" Value="w:0.3 h:0.03" />
-				<Property Name="Size" Value="w:0.3 h:0.03" />
+				<Property Name="Position" Value="x:0.05 y:0.40" />
+				<Property Name="RelativeMaxSize" Value="w:0.3 h:0.06" />
+				<Property Name="RelativeMinSize" Value="w:0.3 h:0.06" />
+				<Property Name="Size" Value="w:0.3 h:0.06" />
 				<Property Name="HorzFormatting" Value="LeftAligned" />
 				<Property Name="Text" Value="Active Model" />
 				<Property Name="FrameEnabled" Value="False" />
@@ -175,9 +175,9 @@
 
 			<Window Type="TaharezLook/Combobox" Name="ModelCombos">
 				<Property Name="Position" Value="x:0.05 y:0.57" />
-				<Property Name="RelativeMaxSize" Value="w:0.2 h:0.15" />
-				<Property Name="RelativeMinSize" Value="w:0.2 h:0.15" />
-				<Property Name="Size" Value="w:0.2 h:0.15" />
+				<Property Name="RelativeMaxSize" Value="w:0.2 h:0.25" />
+				<Property Name="RelativeMinSize" Value="w:0.2 h:0.25" />
+				<Property Name="Size" Value="w:0.2 h:0.25" />
 				<Property Name="InheritsAlpha" Value="False" />
 				<Property Name="ReadOnly" Value="True" />
 				<Property Name="ClippedByParent" Value="False" />

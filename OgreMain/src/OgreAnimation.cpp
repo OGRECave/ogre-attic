@@ -388,6 +388,11 @@ namespace Ogre {
 		return mNumericTrackList;
 	}
     //---------------------------------------------------------------------
+    const Animation::VertexTrackList& Animation::_getVertexTrackList(void) const
+    {
+        return mVertexTrackList;
+    }
+    //---------------------------------------------------------------------
     void Animation::setRotationInterpolationMode(RotationInterpolationMode im)
     {
         mRotationInterpolationMode = im;

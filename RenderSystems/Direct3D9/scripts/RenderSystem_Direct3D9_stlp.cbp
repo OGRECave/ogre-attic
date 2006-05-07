@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="3" />
+	<FileVersion major="1" minor="4" />
 	<Project>
 		<Option title="RenderSystem_Direct3D9" />
 		<Option default_target="-1" />
@@ -15,29 +15,26 @@
 				<Option includeInTargetAll="1" />
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
-					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-DWIN32" />
 					<Add option="-D_DEBUG" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_USRDLL" />
-					<Add option="-DOGRED3DENGINEDLL_EXPORTS" />
 					<Add option="-DDEBUG_SAVE_TEXTURE" />
 					<Add option="-D_STLP_DEBUG" />
 				</Compiler>
 				<Linker>
-					<Add library="stlportstlg.5.0.dll" />
 					<Add library="OgreMain_d" />
 					<Add library="gdi32" />
 					<Add library="d3d9" />
 					<Add library="d3dx9d" />
 					<Add library="dxerr9" />
 					<Add library="dxguid" />
-					<Add directory="..\..\..\OgreMain\lib\Debug" />
+					<Add library="stlportstlg.5.0" />
 					<Add directory="..\..\..\Dependencies\lib\Debug" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="cmd /c copy ..\bin\Debug\RenderSystem_Direct3D9.dll ..\..\..\Samples\Common\Bin\Debug" />
+					<Add after="cmd /c copy $($(TARGET_NAME)_OUTPUT_FILE) ..\..\..\Samples\Common\bin\$(TARGET_NAME)" />
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
@@ -49,32 +46,30 @@
 				<Option includeInTargetAll="1" />
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
-					<Add option="-O2" />
-					<Add option="-Wall" />
+					<Add option="-O3" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_USRDLL" />
-					<Add option="-DOGRED3DENGINEDLL_EXPORTS" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="stlport.5.0.dll" />
 					<Add library="OgreMain" />
 					<Add library="gdi32" />
 					<Add library="d3d9" />
 					<Add library="dxerr9" />
 					<Add library="dxguid" />
 					<Add library="d3dx9" />
-					<Add directory="..\..\..\OgreMain\lib\Release" />
+					<Add library="stlport.5.0" />
 					<Add directory="..\..\..\Dependencies\lib\Release" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="cmd /c copy ..\bin\Release\RenderSystem_Direct3D9.dll ..\..\..\Samples\Common\Bin\Release" />
+					<Add after="cmd /c copy $($(TARGET_NAME)_OUTPUT_FILE) ..\..\..\Samples\Common\bin\$(TARGET_NAME)" />
 				</ExtraCommands>
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-Wall" />
 			<Add option="-mthreads" />
 			<Add option="-fmessage-length=0" />
 			<Add option="-fexceptions" />
@@ -89,7 +84,7 @@
 		<Linker>
 			<Add option="-Wl,--enable-auto-image-base" />
 			<Add option="-Wl,--add-stdcall-alias" />
-			<Add directory="$(#STLPORT_DIR)\lib" />
+			<Add directory="..\..\..\Samples\Common\bin\$(TARGET_NAME)" />
 		</Linker>
 		<Unit filename="..\include\OgreD3D9Driver.h">
 			<Option compilerVar="CPP" />

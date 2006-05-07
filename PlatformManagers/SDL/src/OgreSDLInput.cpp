@@ -4,7 +4,7 @@ This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
-Copyright (c) 2000-2005 The OGRE Team
+Copyright (c) 2000-2006 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -31,15 +31,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     SDLInput::SDLInput()
-      : InputReader(), mKeyboardBuffer(0), mMouseX(0), mMouseY(0), 
+      : InputReader(), mRenderWindow(0), mKeyboardBuffer(0), mMouseX(0), mMouseY(0), 
         mMouseRelativeX(0), mMouseRelativeY(0), mMouseRelativeZ(0), 
         _visible(true)
     {
-		mMouseScale = 0.002f;
-		mMouseGrabbed = false;
-		mGrabMouse = false;
-		mMouseLeft = false;
-		mGrabMode = GRAB_NONE;
+	mMouseScale = 0.002f;
+	mMouseGrabbed = false;
+	mGrabMouse = false;
+	mMouseLeft = false;
+	mGrabMode = GRAB_NONE;
         mEventQueue = 0;
 
         _key_map.insert(InputKeyMap::value_type(SDLK_ESCAPE,KC_ESCAPE));
@@ -157,6 +157,7 @@ namespace Ogre {
 
     void SDLInput::initialise(RenderWindow* pWindow, bool useKeyboard, bool useMouse, bool useGameController)
     {
+	mRenderWindow = pWindow;
 		mUseMouse = useMouse;
 		if ( useMouse )
 		{
@@ -256,6 +257,8 @@ namespace Ogre {
 					}
 					break;
 				case SDL_VIDEORESIZE:
+					mRenderWindow->resize (event[i].resize.w, event[i].resize.h);
+					break;
 				case SDL_VIDEOEXPOSE:
 				case SDL_SYSWMEVENT:
 					break;

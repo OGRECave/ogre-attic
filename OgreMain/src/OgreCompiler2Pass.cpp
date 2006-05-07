@@ -84,6 +84,7 @@ namespace Ogre {
             addLexemeToken("not_chk", BNF_NOT_CHK);
             addLexemeToken("(?!", BNF_NOT_TEST_BEGIN, false, true);
             addLexemeToken("'", BNF_SINGLEQUOTE, false, true);
+            addLexemeToken(":", BNF_CONDITIONAL_TOKEN_INSERT, false, true);
             addLexemeToken("-'", BNF_NO_TOKEN_START, false, true);
             addLexemeToken("any_character", BNF_ANY_CHARACTER);
             addLexemeToken("single_quote_exc", BNF_SINGLE_QUOTE_EXC);
@@ -96,7 +97,7 @@ namespace Ogre {
             addLexemeToken("digit", BNF_DIGIT);
             addLexemeToken("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", BNF_ALPHA_SET, false, true);
             addLexemeToken("0123456789", BNF_NUMBER_SET, false, true);
-            addLexemeToken("`~!@#$%^&*(-_=+\\|[]{}:;\"<>,.?/", BNF_SPECIAL_CHARACTER_SET2, false, true);
+            addLexemeToken("`~!@#$%^&*(-_=+\\|[]{}:;\"<>,.?/\n\r\t", BNF_SPECIAL_CHARACTER_SET2, false, true);
             addLexemeToken("$_", BNF_SPECIAL_CHARACTER_SET1, false, true);
             addLexemeToken(" ", BNF_WHITE_SPACE, false, true);
             addLexemeToken("?!", BNF_NOT_CHARS, false, true);
@@ -207,12 +208,13 @@ namespace Ogre {
                 _or_(BNF_SPECIAL_CHARACTERS1)
             _end_
 
-            // <terminal_symbol> ::= <terminal_start> @{ <any_character> } "'"
+            // <terminal_symbol> ::= <terminal_start> @{ <any_character> } "'" [":"]
             _rule_(BNF_TERMINAL_SYMBOL)
                 _is_(BNF_TERMINAL_START)
                 _and_(_no_space_skip_)
                 _repeat_(BNF_ANY_CHARACTER)
                 _and_(BNF_SINGLEQUOTE)
+                _optional_(BNF_CONDITIONAL_TOKEN_INSERT)
             _end_
 
             // <terminal_start> ::= "-'" | "'"
@@ -220,6 +222,7 @@ namespace Ogre {
                 _is_(BNF_NO_TOKEN_START)
                 _or_(BNF_SINGLEQUOTE)
             _end_
+
 
             // <constant> ::= "<#" <letter> {<identifier_characters>} ">"
             _rule_(BNF_CONSTANT)
@@ -299,8 +302,8 @@ namespace Ogre {
             _end_
             // <not_chk> ::= (?!)
             _rule_(BNF_NOT_CHK)
-                _is_(_character_)
-                _data_(BNF_NOT_CHARS)
+                _is_(BNF_NOT_CHARS)
+                //_data_(BNF_NOT_CHARS)
             _end_
 
             // now that all the rules are added, update token definitions with rule links
@@ -415,8 +418,11 @@ namespace Ogre {
 	    mActiveTokenState->tokenQue.clear();
 	    mPass2TokenQuePosition = 0;
 	    mPreviousActionQuePosition = 0;
+	    mNextActionQuePosition = 0;
 	    mNoTerminalToken = false;
 	    mNoSpaceSkip = false;
+	    mErrorCharPos = 0;
+	    mInsertTokenID = 0;
 	    // tokenize and check semantics untill an error occurs or end of source is reached
 	    // assume RootRulePath has pointer to rules so start at index + 1 for first rule path
 	    // first rule token would be a rule definition so skip over it
@@ -432,6 +438,17 @@ namespace Ogre {
                 // special condition at end of script.  The last action needs to be triggered if
                 // parsing reached the end of the source.
                 activatePreviousTokenAction();
+            }
+            else if (mCharPos != mEndOfSource && mErrorCharPos == 0)
+            {
+                LogManager::getSingleton().logMessage(
+                "*** ERROR *** : in " + getClientGrammerName() +
+                " Source: " + mSourceName +
+                "\nUnknown token found on line " + StringConverter::toString(mCurrentLine) +
+                "\nFound: >>>" + mSource->substr(mCharPos, 20) +
+                "<<<\n"
+                );
+
             }
 
 	    }
@@ -466,50 +483,54 @@ namespace Ogre {
 
         return passed;
     }
-
     //-----------------------------------------------------------------------
-    const Compiler2Pass::TokenInst& Compiler2Pass::getNextToken(const size_t expectedTokenID)
+    const Compiler2Pass::TokenInst& Compiler2Pass::getCurrentToken(const size_t expectedTokenID) const
     {
-        //static TokenInst badToken;
-        // advance instruction que index by one then get the current token instruction
-        if (mPass2TokenQuePosition < mActiveTokenState->tokenQue.size() - 1)
+        if (mPass2TokenQuePosition <= mActiveTokenState->tokenQue.size() - 1)
         {
-            ++mPass2TokenQuePosition;
             const TokenInst& tokenInst = mActiveTokenState->tokenQue[mPass2TokenQuePosition];
+
             if (expectedTokenID > 0 && (tokenInst.tokenID != expectedTokenID))
             {
                 OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, getClientGrammerName() + ":" + mSourceName
                     + ", expected token ID not found" ,
-                    "Compiler2Pass::getNextToken");
+                    "Compiler2Pass::getCurrentToken");
             }
 
             return tokenInst;
         }
         else
+        {
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, getClientGrammerName() + ":" + mSourceName +
+                ", Line " + StringConverter::toString(mActiveTokenState->tokenQue.back().line) +
+                "\n no token available, all pass 2 tokens processed" ,
+                "Compiler2Pass::getCurrentToken");
+        }
+    }
+    //-----------------------------------------------------------------------
+    bool Compiler2Pass::testNextTokenID(const size_t expectedTokenID) const
+    {
+        const size_t nextTokenIndex = mPass2TokenQuePosition + 1;
+
+        if (nextTokenIndex < mActiveTokenState->tokenQue.size() - 1)
+            return mActiveTokenState->tokenQue[nextTokenIndex].tokenID == expectedTokenID;
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
+    void Compiler2Pass::skipToken(void) const
+    {
+        if (mPass2TokenQuePosition < mActiveTokenState->tokenQue.size() - 1)
+        {
+            ++mPass2TokenQuePosition;
+        }
+        else
+        {
             // no more tokens left for pass 2 processing
             OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, getClientGrammerName() + ":" + mSourceName
                 + ", no more tokens available for pass 2 processing" ,
-                "Compiler2Pass::getNextToken");
-    }
-    //-----------------------------------------------------------------------
-    const Compiler2Pass::TokenInst& Compiler2Pass::getCurrentToken(void)
-    {
-        if (mPass2TokenQuePosition < mActiveTokenState->tokenQue.size() - 1)
-            return mActiveTokenState->tokenQue[mPass2TokenQuePosition];
-        else
-            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, getClientGrammerName() + ":" + mSourceName
-                + "no token available, all pass 2 tokens processed" ,
-                "Compiler2Pass::getCurrentToken");
-    }
-    //-----------------------------------------------------------------------
-    bool Compiler2Pass::testNextTokenID(const size_t expectedTokenID)
-    {
-        bool passed = false;
-        const size_t nextTokenIndex = mPass2TokenQuePosition + 1;
-        if (nextTokenIndex < mActiveTokenState->tokenQue.size() - 1)
-            passed = mActiveTokenState->tokenQue[nextTokenIndex].tokenID == expectedTokenID;
-
-        return passed;
+                "Compiler2Pass::skipToken");
+        }
     }
     //-----------------------------------------------------------------------
     void Compiler2Pass::replaceToken(void)
@@ -519,38 +540,84 @@ namespace Ogre {
             --mPass2TokenQuePosition;
     }
     //-----------------------------------------------------------------------
-    float Compiler2Pass::getNextTokenValue(void)
+    float Compiler2Pass::getCurrentTokenValue(void) const
     {
         // get float value from current token instruction
-        if (getNextToken().tokenID == _value_)
-            return mConstants[mPass2TokenQuePosition];
+        const TokenInst& token = getCurrentToken();
+        if ( token.tokenID == _value_)
+        {
+            std::map<size_t, float>::const_iterator i = mConstants.find(mPass2TokenQuePosition);
+            if (i != mConstants.end())
+            {
+                return i->second;
+            }
+            else
+            {
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "In " + mSourceName +
+                    ", on line " + StringConverter::toString(token.line) +
+                    ", no value was found in : >>>" + mSource->substr(token.pos, 20) +
+                            "<<<",
+                    "Compiler2Pass::getCurrentTokenValue");
+            }
+        }
         else
         {
-            const TokenInst& token = getCurrentToken();
             // if token is not for a value then throw an exception
             OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "In " + mSourceName +
-                ", Line " + StringConverter::toString(token.line) +
+                ", on line " + StringConverter::toString(token.line) +
                 ", token is not for a value.  Found: >>>" + mSource->substr(token.pos, 20) +
                         "<<<",
-                "Compiler2Pass::getNextTokenValue");
+                "Compiler2Pass::getCurrentTokenValue");
         }
     }
     //-----------------------------------------------------------------------
-    const String& Compiler2Pass::getNextTokenLabel(void)
+    const String& Compiler2Pass::getCurrentTokenLabel(void) const
     {
         // get label from current token instruction
-        if (getNextToken().tokenID == _character_)
-            return mLabels[mPass2TokenQuePosition];
+        const TokenInst& token = getCurrentToken();
+        if (token.tokenID == _character_)
+        {
+            std::map<size_t, String>::const_iterator i = mLabels.find(mPass2TokenQuePosition);
+            if (i != mLabels.end())
+            {
+                return i->second;
+            }
+            else
+            {
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "In " + mSourceName +
+                    ", on line " + StringConverter::toString(token.line) +
+                    ", no Label was found in : >>>" + mSource->substr(token.pos, 20) +
+                            "<<<",
+                    "Compiler2Pass::getCurrentTokenLabel");
+            }
+        }
         else
         {
-            const TokenInst& token = getCurrentToken();
             // if token is not for a label then throw an exception
             OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "In " + mSourceName +
-                ", Line " + StringConverter::toString(token.line) +
+                ", on line " + StringConverter::toString(token.line) +
                 ", token is not for a label.  Found: >>>" + mSource->substr(token.pos, 20) +
                         "<<<",
-                "Compiler2Pass::getNextTokenLabel");
+                "Compiler2Pass::getCurrentTokenLabel");
         }
+    }
+    //-----------------------------------------------------------------------
+    const String& Compiler2Pass::getCurrentTokenLexeme(void) const
+    {
+        // get label from current token instruction
+        const TokenInst& token = getCurrentToken();
+        if (token.tokenID < SystemTokenBase)
+            return mActiveTokenState->lexemeTokenDefinitions[token.tokenID].lexeme;
+        else
+        {
+            // if token is for system use then throw an exception
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "In " + mSourceName +
+                ", on line " + StringConverter::toString(token.line) +
+                ", token is for system use only.  Found: >>>" + mSource->substr(token.pos, 20) +
+                        "<<<",
+                "Compiler2Pass::getCurrentTokenLexeme");
+        }
+
     }
     //-----------------------------------------------------------------------
     size_t Compiler2Pass::getPass2TokenQueCount(void) const
@@ -564,13 +631,71 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     size_t Compiler2Pass::getRemainingTokensForAction(void) const
     {
-        size_t remaingingTokens = getPass2TokenQueCount();
-        // don't count token for next action
-        if (remaingingTokens > 0)
-            --remaingingTokens;
+        size_t remaingingTokens = 0;
+        if (mNextActionQuePosition > mPass2TokenQuePosition)
+        {
+            // don't count next action nor the current position
+            remaingingTokens = mNextActionQuePosition - mPass2TokenQuePosition - 1;
+        }
+
         return remaingingTokens;
     }
+    //-----------------------------------------------------------------------
+    bool Compiler2Pass::setNextActionQuePosition(size_t pos, const bool search)
+    {
+        const size_t lastPos = mActiveTokenState->tokenQue.size();
 
+        if (pos >= lastPos)
+            return false;
+
+        bool nextActionFound = false;
+
+        // if searching then assume no next action will be found so set position to end of que
+        if (search)
+            mNextActionQuePosition = lastPos;
+
+        while (!nextActionFound && (pos < lastPos))
+        {
+            const size_t tokenID = mActiveTokenState->tokenQue[pos].tokenID;
+
+            if ((tokenID < SystemTokenBase) &&
+                mActiveTokenState->lexemeTokenDefinitions.at(tokenID).hasAction)
+            {
+                mNextActionQuePosition = pos;
+                nextActionFound = true;
+            }
+
+            if (search)
+                ++pos;
+            else
+                pos = lastPos;
+        }
+
+        return nextActionFound;
+    }
+    //-----------------------------------------------------------------------
+    void Compiler2Pass::setPass2TokenQuePosition(size_t pos, const bool activateAction)
+    {
+        if (pos < mActiveTokenState->tokenQue.size())
+        {
+            mPass2TokenQuePosition = pos;
+            ++pos;
+            // find the next token with an action
+            setNextActionQuePosition(pos, true);
+
+            // activate action if token has one and it was requested
+            if (activateAction)
+            {
+                const size_t tokenID = mActiveTokenState->tokenQue.at(mPass2TokenQuePosition).tokenID;
+                if ((tokenID < SystemTokenBase) &&
+                    mActiveTokenState->lexemeTokenDefinitions.at(tokenID).hasAction)
+                {
+                    // assume that pass 2 processing will use tokens downstream
+                    executeTokenAction(tokenID);
+                }
+            }
+        }
+    }
     //-----------------------------------------------------------------------
     void Compiler2Pass::setClientBNFGrammer(void)
     {
@@ -640,7 +765,7 @@ namespace Ogre {
 	    bool passed = true;
         bool tokenFound = false;
 	    bool endFound = false;
-	    bool parseErrorLogged = false;
+	    bool clearInsertTokenID = false;
 
 	    // keep following rulepath until the end is reached
         while (!endFound)
@@ -653,19 +778,24 @@ namespace Ogre {
 			    if (passed)
 				    passed = ValidateToken(rulepathIDX, ActiveNTTRule);
 				    // log error message if a previouse token was found in this rule path and current token failed
-				    if (tokenFound && !parseErrorLogged && !passed)
+				    if (tokenFound && (mCharPos != mErrorCharPos) && !passed)
                     {
-                        parseErrorLogged = true;
+                        mErrorCharPos = mCharPos;
                         LogManager::getSingleton().logMessage(
-                        "*** ERROR in : " + getClientGrammerName() +
-                        "\nSource: " + mSourceName +
-                        "\nUnkown token found, was expecting: " + getBNFGrammerTextFromRulePath(rulepathIDX)
+                        "*** ERROR *** : in " + getClientGrammerName() +
+                        " Source: " + mSourceName +
+                        "\nUnknown token found on line " + StringConverter::toString(mCurrentLine) +
+                        "\nFound: >>>" + mSource->substr(mCharPos, 20) +
+                        "<<<\nbut was expecting form: " + getBNFGrammerTextFromRulePath(rulepathIDX, 2) +
+                        "\nwhile in rule path: <" + mActiveTokenState->lexemeTokenDefinitions[ActiveNTTRule].lexeme +
+                        ">"
                         );
+                        // log last valid token found
+                        const TokenInst& tokenInst = mActiveTokenState->tokenQue.back();
                         LogManager::getSingleton().logMessage(
-                        " Found: >>>" + mSource->substr(mCharPos, 20) +
-                        "<<<, while in rule path: <" + mActiveTokenState->lexemeTokenDefinitions[ActiveNTTRule].lexeme
-                        + ">"
-                        );
+                            "Last valid token found was on line " + StringConverter::toString(tokenInst.line));
+                        LogManager::getSingleton().logMessage(
+                            "source hint: >>>" + mSource->substr(tokenInst.pos, 20) + "<<<");
                     }
 
 			    break;
@@ -770,6 +900,11 @@ namespace Ogre {
                 }
                 break;
 
+            case otINSERT_TOKEN:
+                mInsertTokenID = mActiveTokenState->rootRulePath[rulepathIDX].tokenID;
+                clearInsertTokenID = true;
+                break;
+
 		    case otEND:
 			    // end of rule found so time to return
 			    endFound = true;
@@ -787,17 +922,10 @@ namespace Ogre {
 			    }
 			    else
 			    {
-			        // if the rule path was partially completed, one or more tokeks found, then put a
-			        // warning in the log
+			        // if the rule path was partially completed, one or more tokens found then mark it as passed
                     if (!passed && tokenFound && !mLabelIsActive)
                     {
                         passed = true;
-                        // log last valid token found
-                        const TokenInst& tokenInst = mActiveTokenState->tokenQue[mActiveTokenState->tokenQue.size() - 1];
-                        LogManager::getSingleton().logMessage(
-                            "Last valid token found was at line: " + StringConverter::toString(tokenInst.line));
-                        LogManager::getSingleton().logMessage(
-                            "source hint: >>>" + mSource->substr(tokenInst.pos, 20) + "<<<");
                     }
 			    }
 			    break;
@@ -814,11 +942,16 @@ namespace Ogre {
             // Don't do this for _no_token_ since its a special system token and has nothing todo with
             // a successfull parse of the source.  Can check this by looking at mNoTerminalToken state.
             // if _no_token had just been validated then mNoTerminalToken will be true.
-            if (passed && !mNoTerminalToken)
+            if (passed && !mNoTerminalToken && !mInsertTokenID)
                 tokenFound = true;
 		    // move on to the next rule in the path
 		    ++rulepathIDX;
 	    } // end while
+
+        // if this rule production requested a token insert, make sure its reset so it does not affect
+        // the parent rule
+        if (clearInsertTokenID)
+            mInsertTokenID = 0;
 
 	    return passed;
     }
@@ -829,8 +962,9 @@ namespace Ogre {
 	    // assume the test is going to fail
 	    bool Passed = false;
 
-        // get token from next rule operation
-        // token string is list of valid single characters
+        // get token from next rule operation.
+        // token string is list of valid or invalid single characters.
+        // If the token string starts with a ! then the set is for invalid characters.
         // compare character at current cursor position in script to characters in list for a match
         // if match found then add character to active label
         // _character_ will not have  a token definition but the next rule operation should be
@@ -839,7 +973,16 @@ namespace Ogre {
         if (rule.operation == otDATA)
         {
             const size_t TokenID = rule.tokenID;
-            if (mActiveTokenState->lexemeTokenDefinitions[TokenID].lexeme.find((*mSource)[mCharPos]) != String::npos)
+            // check for ! as first character in character set indicating that an input character is
+            // accepted if its not in the character set.
+            // Otherwise a pass occurs if the input character is found in the character set.
+            const String& characterSet = mActiveTokenState->lexemeTokenDefinitions[TokenID].lexeme;
+            if ((characterSet.size() > 1) && characterSet[0] == '!')
+                Passed = characterSet.find((*mSource)[mCharPos], 1) == String::npos;
+            else
+                Passed = characterSet.find((*mSource)[mCharPos]) != String::npos;
+
+            if (Passed)
             {
                 // is a new label starting?
                 // if mLabelIsActive is false then starting a new label so need a new mActiveLabelKey
@@ -854,7 +997,6 @@ namespace Ogre {
                 }
                 // add the single character to the end of the active label
                 mLabels[mActiveLabelKey] += (*mSource)[mCharPos];
-                Passed = true;
             }
         }
 
@@ -954,12 +1096,25 @@ namespace Ogre {
                     {
 				        TokenInst newtoken;
 				        // push token onto end of container
-				        newtoken.tokenID = tokenID;
 				        newtoken.NTTRuleID = activeRuleID;
 				        newtoken.line = mCurrentLine;
 				        newtoken.pos = mCharPos;
                         newtoken.found = true;
 
+                        // check to see if a terminal token is waiting to be inserted based on the next
+                        // token being found
+                        if (mInsertTokenID)
+                        {
+                            newtoken.tokenID = tokenID;
+                            mActiveTokenState->tokenQue.push_back(newtoken);
+                            // token action processing
+                            // if the token has an action then fire previous token action
+                            checkTokenActionTrigger();
+                            // reset the token ID that was inserted so that it will not get inserted until set again
+                            mInsertTokenID = 0;
+                        }
+
+                        newtoken.tokenID = tokenID;
 				        mActiveTokenState->tokenQue.push_back(newtoken);
 				        // token action processing
 				        // if the token has an action then fire previous token action
@@ -1127,17 +1282,12 @@ namespace Ogre {
             return;
 
         --lastTokenQuePos;
-        // if last token index is zero and previous action position are zero  or the two are the same then do nothing
+
         if (lastTokenQuePos == mPreviousActionQuePosition)
             return;
 
-        const size_t lastTokenID = mActiveTokenState->tokenQue.at(lastTokenQuePos).tokenID;
-        // dont check actions for system token ID since they are not in lexemeTokenDefinitions
-        if (lastTokenID >= SystemTokenBase)
-            return;
-
         // check action trigger if last token has an action
-        if (mActiveTokenState->lexemeTokenDefinitions.at(lastTokenID).hasAction)
+        if (setNextActionQuePosition(lastTokenQuePos))
         {
             // only activate the action belonging to the token found previously
             activatePreviousTokenAction();
@@ -1147,7 +1297,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    String Compiler2Pass::getBNFGrammerTextFromRulePath(size_t ruleID)
+    String Compiler2Pass::getBNFGrammerTextFromRulePath(size_t ruleID, const size_t level)
     {
 
         String grammerText;
@@ -1168,28 +1318,30 @@ namespace Ogre {
             {
             // rule lexeme ::=
             case otRULE:
-                grammerText += "\n" + getLexemeText(ruleID) + " ::=";
+                grammerText += "\n" + getLexemeText(ruleID, level) + " ::=";
                 break;
             // no special processing for AND op
             case otAND:
-                grammerText += " " + getLexemeText(ruleID);
+                grammerText += " " + getLexemeText(ruleID, level);
                 break;
             // or | lexeme
             case otOR:
-                grammerText += " | " + getLexemeText(ruleID);
+                grammerText += " | " + getLexemeText(ruleID, level);
                 break;
             // optional [lexeme]
             case otOPTIONAL:
-                grammerText += " [" + getLexemeText(ruleID) + "]";
+                grammerText += " [" + getLexemeText(ruleID, level) + "]";
                 break;
             // repeat {lexeme}
             case otREPEAT:
-                grammerText += " {" + getLexemeText(ruleID) + "}";
+                grammerText += " {" + getLexemeText(ruleID, level) + "}";
                 break;
             // not test (?!lexeme)
             case otNOT_TEST:
-                grammerText += " (?!" + getLexemeText(ruleID) + ")";
+                grammerText += " (?!" + getLexemeText(ruleID, level) + ")";
                 break;
+            default:
+                grammerText += "*** Unknown Operation ***";
             }
             // lexeme/token text procesing
             ++ruleID;
@@ -1204,7 +1356,7 @@ namespace Ogre {
     //              Private Methods
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    String Compiler2Pass::getLexemeText(size_t& ruleID)
+    String Compiler2Pass::getLexemeText(size_t& ruleID, const size_t level)
     {
         if (ruleID >= mActiveTokenState->rootRulePath.size())
         {
@@ -1223,7 +1375,16 @@ namespace Ogre {
             // non-terminal tokens
             if (mActiveTokenState->lexemeTokenDefinitions[tokenID].isNonTerminal)
             {
-                lexeme = "<" + mActiveTokenState->lexemeTokenDefinitions[tokenID].lexeme + ">";
+                // allow expansion of non-terminals into terminals
+                if (level > 0)
+                {
+                    size_t subRuleID = mActiveTokenState->lexemeTokenDefinitions[tokenID].ruleID + 1;
+                    lexeme = getBNFGrammerTextFromRulePath(subRuleID, level - 1);
+                }
+                else
+                {
+                    lexeme = "<" + mActiveTokenState->lexemeTokenDefinitions[tokenID].lexeme + ">";
+                }
             }
             else // terminal tokens
             {
@@ -1238,11 +1399,11 @@ namespace Ogre {
                 // need to get next rule instruction for data
                 ++ruleID;
                 // data for _character_ is always a set so put () around text string
-                lexeme = "{" + mActiveTokenState->lexemeTokenDefinitions[rulePath[ruleID].tokenID].lexeme + ")";
+                lexeme = "(" + mActiveTokenState->lexemeTokenDefinitions[rulePath[ruleID].tokenID].lexeme + ")";
                 break;
             case _value_:
                 // <#> - need name of label?
-                lexeme = "<#>";
+                lexeme = "<#Number>";
                 break;
             }
         }
@@ -1300,7 +1461,7 @@ namespace Ogre {
                     pendingRuleOp = otREPEAT;
                     break;
 
-                case BNF_NO_TOKEN_START: // '
+                case BNF_NO_TOKEN_START: // -'
                     extractTerminal(pendingRuleOp, true);
                     pendingRuleOp = otAND;
                     break;
@@ -1321,6 +1482,10 @@ namespace Ogre {
                 case BNF_SET_BEGIN: // (
                     extractSet(pendingRuleOp);
                     pendingRuleOp = otAND;
+                    break;
+
+                case BNF_CONDITIONAL_TOKEN_INSERT:
+                    setConditionalTokenInsert();
                     break;
 
                 default:
@@ -1423,6 +1588,20 @@ namespace Ogre {
         if (notoken)
             modifyLastRule(otAND, _no_token_);
         modifyLastRule(pendingRuleOp, tokenID);
+    }
+    //-----------------------------------------------------------------------
+    void Compiler2Pass::setConditionalTokenInsert(void)
+    {
+        // get position of rule just before end rule
+        size_t lastIndex = mClientTokenState->rootRulePath.size();
+        if (lastIndex <= 1)
+        {
+            // throw exception since there should have been at least one rule existing
+            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "BNF Grammar build rules failed: no previous terminal token rule defined",
+                        "Compiler2Pass::setConditionalTokenInsert");
+        }
+        lastIndex -= 2;
+        mClientTokenState->rootRulePath[lastIndex].operation = otINSERT_TOKEN;
     }
     //-----------------------------------------------------------------------
     void Compiler2Pass::extractSet(const OperationType pendingRuleOp)

@@ -1,9 +1,9 @@
 <?xml version="1.0" ?>
 <GUIScheme Name="TaharezLookSkin">
 	<Imageset Name="TaharezLook" Filename="TaharezLook.imageset" />
-	<Font Name="Tahoma-12" Filename="tahoma-12.font" />
-	<Font Name="Tahoma-10" Filename="tahoma-10.font" />
-	<Font Name="Tahoma-8" Filename="tahoma-8.font" />
+	<Font Name="BlueHighway-12" Filename="bluehighway-12.font" />
+	<Font Name="BlueHighway-10" Filename="bluehighway-10.font" />
+	<Font Name="BlueHighway-8" Filename="bluehighway-8.font" />
 	<LookNFeel Filename="TaharezLook.looknfeel" />
 	<WindowSet Filename="CEGUIFalagardBase" />
 	<FalagardMapping WindowType="TaharezLook/AlternateProgressBar" TargetType="Falagard/ProgressBar" LookNFeel="TaharezLook/AltProgressBar" />

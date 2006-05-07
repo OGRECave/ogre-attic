@@ -72,7 +72,7 @@ namespace Ogre
     //-------------------------------------------
 	// Windows setttings
 	//-------------------------------------------
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+#if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(__MINGW32__)
 #	if OGRE_DYNAMIC_LINKAGE == 0
 #		pragma warn( "No dynamic linkage" )
 #		define _OgreD3D9Export

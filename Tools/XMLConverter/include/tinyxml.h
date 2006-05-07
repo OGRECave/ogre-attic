@@ -790,7 +790,7 @@ public:
 #endif
 
 	/// Construct.
-	TiXmlDeclaration::TiXmlDeclaration( const char * _version,
+	TiXmlDeclaration( const char * _version,
 										const char * _encoding,
 										const char * _standalone );
 

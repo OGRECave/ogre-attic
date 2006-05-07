@@ -61,31 +61,21 @@ namespace Ogre {
         mChildObject = pObject;
     }
     //-----------------------------------------------------------------------------
-    Matrix4 TagPoint::_getFullTransform(void)
-    {
-        //return getParentEntityTransform() * Node::_getFullTransform();
-        // Now that we're overriding updateFromParent(), this doesn't need to be different
-        return Node::_getFullTransform();
-    }
-    //-----------------------------------------------------------------------------
-    Matrix4 TagPoint::_getFullLocalTransform(void)
+    const Matrix4& TagPoint::_getFullLocalTransform(void) const
     {
         return mFullLocalTransform;
     }
     //-----------------------------------------------------------------------------
-    Matrix4 TagPoint::getParentEntityTransform()
+    const Matrix4& TagPoint::getParentEntityTransform(void) const
     {
 
         return mParentEntity->_getParentNodeFullTransform();
     }
     //-----------------------------------------------------------------------------
-    void TagPoint::_update(bool updateChildren, bool parentHasChanged)
+    void TagPoint::needUpdate(bool forceParentUpdate)
     {
-        Node::_update(updateChildren, parentHasChanged);
-    }
-    //-----------------------------------------------------------------------------
-    void TagPoint::needUpdate()
-    {
+		Bone::needUpdate(forceParentUpdate);
+
         // We need to tell parent entities node
         if (mParentEntity)
         {

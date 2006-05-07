@@ -35,11 +35,6 @@ namespace Ogre
         : mTime(time), mParentTrack(parent)
     {
     }
-    //---------------------------------------------------------------------
-    Real KeyFrame::getTime(void) const
-    {
-        return mTime;
-    }
 	//---------------------------------------------------------------------
 	NumericKeyFrame::NumericKeyFrame(const AnimationTrack* parent, Real time)
 		:KeyFrame(parent, time)

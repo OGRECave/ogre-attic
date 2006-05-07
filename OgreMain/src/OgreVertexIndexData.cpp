@@ -470,7 +470,7 @@ namespace Ogre {
                         destelem.getSemantic(), destelem.getIndex());
                 // get buffer
                 HardwareVertexBufferSharedPtr srcbuf = 
-                    vertexBufferBinding->getBuffer(srcelem->getIndex());
+                    vertexBufferBinding->getBuffer(srcelem->getSource());
                 // improve flexibility only
                 if (srcbuf->getUsage() & HardwareBuffer::HBU_DYNAMIC)
                 {

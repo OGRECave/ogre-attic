@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 #include "OgreVector2.h"
 #include "OgreVector3.h"
+#include "OgreAxisAlignedBox.h"
 #include "OgreXSIHelper.h"
 #include <xsi_x3dobject.h>
 #include <xsi_string.h>
@@ -52,8 +53,9 @@ namespace Ogre {
 		@param deformers The list of deformers (bones) found during mesh traversal
 		@param framesPerSecond The number of frames per second
 		@param animList List of animation splits
+		@returns AABB derived from bone animations, should be used to pad mesh bounds
 		*/
-		void exportSkeleton(const String& skeletonFileName, 
+		const AxisAlignedBox& exportSkeleton(const String& skeletonFileName, 
 			DeformerMap& deformers, float framesPerSecond, 
 			AnimationList& animList);
 	protected:
@@ -66,6 +68,7 @@ namespace Ogre {
 		DeformerMap mLowerCaseDeformerMap;
 		// Actions created as part of IK sampling, will be deleted afterward
 		XSI::CStringArray mIKSampledAnimations;
+		AxisAlignedBox mAABB;
 
 		/// Build the bone hierarchy from a simple list of bones
 		void buildBoneHierarchy(Skeleton* pSkeleton, DeformerMap& deformers, 
@@ -84,17 +87,19 @@ namespace Ogre {
 		void processActionSource(const XSI::ActionSource& source, DeformerMap& deformers);
 		/// Bake animations
 		void createAnimations(Skeleton* pSkel, DeformerMap& deformers, 
-			float framesPerSecond, AnimationList& animList);
+			float framesPerSecond, AnimationList& animList, AxisAlignedBox& AABBPadding);
 		/// Bake animation tracks by sampling
 		void createAnimationTracksSampled(Animation* pAnim, AnimationEntry& animEntry, 
-			DeformerMap& deformers, float fps);
+			DeformerMap& deformers, float fps, AxisAlignedBox& AABBPadding);
 
 		void cleanup(void);
 		void copyDeformerMap(DeformerMap& deformers);
 		/// Get deformer from passed in map or lower case version
 		DeformerEntry* getDeformer(const String& name, DeformerMap& deformers);
+		// Sample all bones, and also sample max global bone position for AABB padding
 		void sampleAllBones(DeformerMap& deformers, 
-			std::vector<NodeAnimationTrack*> deformerTracks, double frame, Real time, float fps);
+			std::vector<NodeAnimationTrack*> deformerTracks, double frame, 
+			Real time, float fps, AxisAlignedBox& AABBPadding);
 		void establishInitialTransforms(DeformerMap& deformers);
 
 	};

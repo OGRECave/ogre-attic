@@ -2,7 +2,7 @@
 	filename: 	OgreCEGUIRenderer.h
 	created:	11/5/2004
 	author:		Paul D Turner
-	
+
 	purpose:	Interface for main Ogre GUI renderer class
 *************************************************************************/
 /*************************************************************************
@@ -29,7 +29,7 @@
 #ifndef _OgreCEGUIRenderer_h_
 #define _OgreCEGUIRenderer_h_
 
-#if defined( __WIN32__ ) || defined( _WIN32 )
+#if (defined( __WIN32__ ) || defined( _WIN32 )) && !defined(__MINGW32__)
 #   ifdef OGRE_GUIRENDERER_EXPORTS
 #       define OGRE_GUIRENDERER_API __declspec(dllexport)
 #   else
@@ -116,8 +116,8 @@ public:
 		Obsolete.  Set to 0.
 
 	*/
-	OgreCEGUIRenderer(Ogre::RenderWindow* window, 
-		Ogre::uint8 queue_id = Ogre::RENDER_QUEUE_OVERLAY, 
+	OgreCEGUIRenderer(Ogre::RenderWindow* window,
+		Ogre::uint8 queue_id = Ogre::RENDER_QUEUE_OVERLAY,
 		bool post_queue = false, uint max_quads = 0);
 
 
@@ -388,7 +388,7 @@ private:
         uint32		        topRightCol;
         uint32		        bottomLeftCol;
         uint32		        bottomRightCol;
-        
+
         QuadSplitMode		splitMode;
 
 		bool operator<(const QuadInfo& other) const
@@ -440,7 +440,7 @@ private:
 	Ogre::SceneManager*			d_sceneMngr;		//!< The scene manager we are hooked into.
 	Ogre::LayerBlendModeEx		d_colourBlendMode;	//!< Controls colour blending mode used.
 	Ogre::LayerBlendModeEx		d_alphaBlendMode;	//!< Controls alpha blending mode used.
-	Ogre::TextureUnitState::UVWAddressingMode d_uvwAddressMode; 
+	Ogre::TextureUnitState::UVWAddressingMode d_uvwAddressMode;
 
 	CEGUIRQListener*			d_ourlistener;
 	bool						d_post_queue;		//!< true if we render after everything else in our queue.

@@ -188,7 +188,7 @@ namespace Ogre {
         return mRenderQueueID;
     }
     //-----------------------------------------------------------------------
-	Matrix4 MovableObject::_getParentNodeFullTransform(void) const
+	const Matrix4& MovableObject::_getParentNodeFullTransform(void) const
 	{
 		
 		if(mParentNode)

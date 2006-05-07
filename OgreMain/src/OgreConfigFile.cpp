@@ -73,7 +73,8 @@ namespace Ogre {
 	{
 		/* Open the configuration file */
 		std::ifstream fp;
-		fp.open(filename.c_str());
+        // Always open in binary mode
+		fp.open(filename.c_str(), std::ios::in | std::ios::binary);
 		if(!fp)
 			OGRE_EXCEPT(
 			Exception::ERR_FILE_NOT_FOUND, "'" + filename + "' file not found!", "ConfigFile::load" );

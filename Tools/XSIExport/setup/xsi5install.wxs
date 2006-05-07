@@ -42,15 +42,15 @@
 							</Component>
 							<Component Id='DevilComp' Guid='4DA618E1-B767-4732-A24D-A2A9C807F6C1'>
 								<File Id='DevilDLL1' Name='devil.dll' DiskId='1'
-									src='..\..\Common\bin\release\devil.dll' Vital='yes' />
+									src='..\..\..\Samples\Common\bin\release\devil.dll' Vital='yes' />
 								<File Id='DevilDLL2' Name='ilu.dll' DiskId='1'
-									src='..\..\Common\bin\release\ilu.dll' Vital='yes' />
+									src='..\..\..\Samples\Common\bin\release\ilu.dll' Vital='yes' />
 								<File Id='DevilDLL3' Name='ilut.dll' DiskId='1'
-									src='..\..\Common\bin\release\ilut.dll' Vital='yes' />
+									src='..\..\..\Samples\Common\bin\release\ilut.dll' Vital='yes' />
 							</Component>
 							<Component Id='ZlibComp' Guid='E20394B5-5686-42A6-B2F5-1F48B678BAD1'>
 								<File Id='ZlibDLL' Name='zlib1.dll' DiskId='1'
-									src='..\..\Common\bin\release\zlib1.dll' Vital='yes' />
+									src='..\..\..\Samples\Common\bin\release\zlib1.dll' Vital='yes' />
 							</Component>
 						</Directory>
 						<Directory Id='XSIPluginDir' Name="Plugins">

@@ -38,8 +38,11 @@ namespace Ogre {
 
 	    PASS 1 - tokenize source: this is a simple brute force lexical scanner/analyzer that also parses
 			    the formed token for proper semantics and context in one pass
-			    it uses Look Ahead Left-Right (LALR) ruling based on Backus - Naur Form (BNF) notation for semantic
-			    checking and also performs	context checking allowing for language dialects
+			    it uses top down (recursive descent) ruling based on Backus - Naur Form (BNF) notation for semantic
+			    checking.
+
+			    During Pass1, if a terminal token is identified as having an action then that action gets triggered
+			    when the next terminal token is uncountered that has an action.
 
 	    PASS 2 - generate application specific instructions ie native instructions based on the tokens in the instruction container.
 
@@ -52,64 +55,95 @@ namespace Ogre {
         The sub class normally supplies a simplified BNF text description in its constructor prior to doing any parsing/tokenizing of source.
         The simplified BNF text description defines the language syntax and rule structure.
         The meta-symbols used in the BNF text description are:
-
+    @par
         ::=  meaning "is defined as". "::=" starts the definition of a rule.  The left side of ::= must contain an <identifier>
-
+    @par
         <>   angle brackets are used to surround syntax rule names. A syntax rule name is also called a non-terminal in that
              it does not generate a terminal token in the instruction container for pass 2 processing.
-
+    @par
         |    meaning "or". if the item on the left of the | fails then the item on the right is tested.
              Example: <true_false> ::= 'true' | 'false';
              whitespace is used to imply AND operation between left and right items.
              Example: <terrain_shadaws> ::= 'terrain_shadows' <true_false>
              the 'terrain_shadows' terminal token must be found and <true_false> rule must pass in order for <terrain_shadows> rule
              to pass.
-
-
+    @par
         []   optional rule identifier is enclosed in meta symbols [ and ].
              Note that only one identifier or terminal token can take [] modifier.
+    @par
         {}   repetitive identifier (zero or more times) is enclosed in meta symbols { and }
              Note that only one identifier or terminal token can take {} modifier.
+    @par
         ''   terminal tokens are surrounded by single quotes.  A terminal token is always one or more characters.
              For example: 'Colour' defines a character sequence that must be matched in whole.  Note that matching is case
              sensitive.
+    @par
         @    turn on single character scanning and don't skip white space.
              Mainly used for label processing that allow white space.
              Example: '@ ' prevents the white space between the quotes from being skipped
+    @par
         -''  no terminal token is generated when a - precedes the first single quote but the text in between the quotes is still
              tested against the characters in the source being parsed.
+    @par
         (?! ) negative lookahead (not test) inspired by Perl 5. Scans ahead for a non-terminal or terminal expression
              that should fail in order to make the rule production pass.
              Does not generate a token or advance the cursur.  If the lookahead result fails ie token is found,
              then the current rule fails and rollback occurs.  Mainly used to solve multiple contexts of a token.
              An Example of where not test is used to solve multiple contexts:
 
-             <rule>       ::=  <identifier>  "::="  <expression>
-             <expression> ::=  <and_term> { <or_term> }
-             <or_term>    ::=  "|" <and_term>
-             <and_term>   ::=  <term> { <term> }
-             <term>       ::=  <identifier_right> | <terminal_symbol> | <repeat_expression> | <optional_expression>
+             <rule>       ::=  <identifier>  "::="  <expression>\n
+             <expression> ::=  <and_term> { <or_term> }\n
+             <or_term>    ::=  "|" <and_term>\n
+             <and_term>   ::=  <term> { <term> }\n
+             <term>       ::=  <identifier_right> | <terminal_symbol> | <repeat_expression> | <optional_expression>\n
              <identifier_right> ::= <identifier> (?!"::=")
 
              <identiefier> appears on both sides of the ::= so (?!"::=") test to make sure that ::= is not on the
              right which would indicate that a new rule was being formed.
 
              Works on both terminals and non-terminals.
-             Note: lookahead failure cause the whole rule to fail and rollback to occur
+             Note: lookahead failure causes the whole rule to fail and rollback to occur
 
+    @par
         <#name> # indicates that a numerical value is to be parsed to form a terminal token.  Name is optional and is just a descriptor
              to help with understanding what the value will be used for.
              Example: <Colour> ::= <#red> <#green> <#blue>
 
+    @par
         ()   parentheses enclose a set of characters that can be used to generate a user identifier. for example:
              (0123456789) matches a single character found in that set.
              An example of a user identifier:
 
-             <Label> ::= <Character> {<Character>}
+    @par
+             <Label> ::= <Character> {<Character>}\n
              <Character> ::= (abcdefghijklmnopqrstuvwxyz)
 
              This will generate a rule that accepts one or more lowercase letters to make up the Label.  The User identifier
              stops collecting the characters into a string when a match cannot be found in the rule.
+
+    @par
+        (! ) if the first character in the set is a ! then any input character not found in the set will be
+             accepted.
+             An example:
+
+             <Label> ::= <AnyCharacter_NoLineBreak> {<AnyCharacter_NoLineBreak>}\n
+             <AnyCharacter_NoLineBreak> ::= (!\n\r)
+
+             any character but \n or \r is accepted in the input.
+
+    @par
+        :   Insert the terminal token on the left before the next terminal token on the right if the next terminal token on right parses.
+             Usefull for when terminal tokens don't have a definate text state but only context state based on another terminal or character token.
+             An example:
+
+             <Last_Resort> ::= 'external_command' : <Special_Label>\n
+             <Special_Label> ::= (!\n\r\t)
+
+             In the example, <Last_Resort> gets processed when all other rules fail to parse.
+             if <Special_Label> parses (reads in any character but \n\r\t) then the terminal token 'external_command'
+             is inserted prior to the Special_Label for pass 2 processing.  'external_command' does not have have an explicit text
+             representation but based on the context of no other rules matching and <Special_Label> parsing, 'external_command' is
+             considered parsed.
     */
     class _OgreExport Compiler2Pass
     {
@@ -117,7 +151,8 @@ namespace Ogre {
     protected:
 
 	    // BNF operation types
-	    enum OperationType {otUNKNOWN, otRULE, otAND, otOR, otOPTIONAL, otREPEAT, otDATA, otNOT_TEST, otEND};
+	    enum OperationType {otUNKNOWN, otRULE, otAND, otOR, otOPTIONAL,
+                            otREPEAT, otDATA, otNOT_TEST, otINSERT_TOKEN, otEND};
 
 	    /** structure used to build rule paths
 
@@ -148,7 +183,8 @@ namespace Ogre {
             BNF_CONSTANT_BEGIN, BNF_SET_RULE, BNF_EXPRESSION,
             BNF_AND_TERM, BNF_OR_TERM, BNF_TERM, BNF_TERM_ID, BNF_CONSTANT, BNF_OR, BNF_TERMINAL_SYMBOL, BNF_TERMINAL_START,
             BNF_REPEAT_EXPRESSION, BNF_REPEAT_BEGIN, BNF_REPEAT_END, BNF_SET, BNF_SET_BEGIN, BNF_SET_END,
-            BNF_NOT_TEST, BNF_NOT_TEST_BEGIN, BNF_OPTIONAL_EXPRESSION, BNF_NOT_EXPRESSION, BNF_NOT_CHK,
+            BNF_NOT_TEST, BNF_NOT_TEST_BEGIN, BNF_CONDITIONAL_TOKEN_INSERT, BNF_OPTIONAL_EXPRESSION,
+            BNF_NOT_EXPRESSION, BNF_NOT_CHK,
             BNF_OPTIONAL_BEGIN, BNF_OPTIONAL_END, BNF_NO_TOKEN_START, BNF_SINGLEQUOTE, BNF_SINGLE_QUOTE_EXC, BNF_SET_END_EXC,
             BNF_ANY_CHARACTER, BNF_SPECIAL_CHARACTERS1,
             BNF_SPECIAL_CHARACTERS2, BNF_WHITE_SPACE_CHK,
@@ -217,11 +253,14 @@ namespace Ogre {
 	    /// Active token que, definitions, rules currntly being used by parser
         TokenState* mActiveTokenState;
         /// the location within the token instruction container where pass 2 is
-        size_t mPass2TokenQuePosition;
+        mutable size_t mPass2TokenQuePosition;
         /** the que position of the previous token that had an action.
             A token's action is fired on the next token having an action.
         */
         size_t mPreviousActionQuePosition;
+        /** the que position for the next token that has an action.
+        */
+        size_t mNextActionQuePosition;
 
 	    /// pointer to the source to be compiled
 	    const String* mSource;
@@ -231,6 +270,7 @@ namespace Ogre {
 
 	    size_t mCurrentLine; /// current line number in source being tokenized
         size_t mCharPos;     /// position in current line in source being tokenized
+        size_t mErrorCharPos; /// character position in source where last error occured
 
 	    /// storage container for constants defined in source
         /// container uses Token index as a key associated with a float constant
@@ -250,6 +290,9 @@ namespace Ogre {
         /// if flag is true then next terminal token is not added to token que if found
         /// but does effect rule path flow
         bool mNoTerminalToken;
+        /// TokenID to insert if next rule finds a terminal token
+        /// if zero then no token inserted
+        size_t mInsertTokenID;
 
 	    /// Active Contexts pattern used in pass 1 to determine which tokens are valid for a certain context
 	    uint mActiveContexts;
@@ -276,6 +319,7 @@ namespace Ogre {
 	    bool doPass2();
 
         /** execute the action associated with the token pointed to by the Pass 2 token instruction position.
+        @remarks
             Its upto the child class to implement how it will associate a token key with and action.
             Actions should be placed at positions withing the BNF grammer (instruction que) that indicate
             enough tokens exist for pass 2 processing to take place.
@@ -284,23 +328,47 @@ namespace Ogre {
         /** setup client token definitions.  Gets called when BNF grammer is being setup.
         */
         virtual void setupTokenDefinitions(void) = 0;
-        /** Gets the next token from the instruction que.  If an unkown token is found then an exception is raised but
+        /** Gets the next token from the instruction que.
+        @remarks
+            If an unkown token is found then an exception is raised but
             the instruction pointer is still moved passed the unknown token.  The subclass should catch the exception,
             provide an error message, and attempt recovery.
 
-        @param expectedTokenID if set then if tokenID does not match then an exception is raised
+        @param expectedTokenID if greater than 0 then an exception is raised if tokenID does not match.
         */
-        const TokenInst& getNextToken(const size_t expectedTokenID = 0);
+        const TokenInst& getNextToken(const size_t expectedTokenID = 0) const
+        {
+            skipToken();
+            return getCurrentToken(expectedTokenID);
+        }
         /** Gets the current token from the instruction que.
+        @remarks
+            If an unkown token is found then an exception is raised.
+            The subclass should catch the exception, provide an error message, and attempt recovery.
+
+        @param expectedTokenID if greater than 0 then an exception is raised if tokenID does not match.
+
         */
-        const TokenInst& getCurrentToken(void);
+        const TokenInst& getCurrentToken(const size_t expectedTokenID = 0) const;
         /** If a next token instruction exist then test if its token ID matches.
+        @remarks
             This method is usefull for peeking ahead during pass 2 to see if a certain
             token exists.
         @param expectedTokenID is the ID of the token to match.
         */
-        bool testNextTokenID(const size_t expectedTokenID);
-        /**
+        bool testNextTokenID(const size_t expectedTokenID) const;
+
+        /** If a current token instruction exist then test if its token ID matches.
+        @param expectedTokenID is the ID of the token to match.
+        */
+        bool testCurrentTokenID(const size_t expectedTokenID) const
+        {
+            return mActiveTokenState->tokenQue[mPass2TokenQuePosition].tokenID == expectedTokenID;
+        }
+        /** skip to the next token in the pass2 queue.
+        */
+        void skipToken(void) const;
+        /** go back to the previous token in the pass2 queue.
         */
         void replaceToken(void);
         /** Gets the next token's associated floating point value in the instruction que that was parsed from the
@@ -308,13 +376,53 @@ namespace Ogre {
             the instruction pointer is still moved passed the unknown token.  The subclass should catch the exception,
             provide an error message, and attempt recovery.
         */
-        float getNextTokenValue(void);
+        float getNextTokenValue(void) const
+        {
+            skipToken();
+            return getCurrentTokenValue();
+        }
+        /** Gets the current token's associated floating point value in the instruction que that was parsed from the
+            text source.
+        @remarks
+            If an unkown token is found or no associated value was found then an exception is raised.
+            The subclass should catch the exception, provide an error message, and attempt recovery.
+        */
+        float getCurrentTokenValue(void) const;
         /** Gets the next token's associated text label in the instruction que that was parsed from the
-            text source.  If an unkown token is found or no associated label was found then an exception is raised but
+            text source.
+        @remarks
+            If an unkown token is found or no associated label was found then an exception is raised but
             the instruction pointer is still moved passed the unknown token.  The subclass should catch the exception,
             provide an error message, and attempt recovery.
         */
-        const String& getNextTokenLabel(void);
+        const String& getNextTokenLabel(void) const
+        {
+            skipToken();
+            return getCurrentTokenLabel();
+        }
+        /** Gets the next token's associated text label in the instruction que that was parsed from the
+            text source.  If an unkown token is found or no associated label was found then an exception is raised.
+            The subclass should catch the exception, provide an error message, and attempt recovery.
+        */
+        const String& getCurrentTokenLabel(void) const;
+        /** Get the next token's ID value.
+        */
+        size_t getNextTokenID(void) const { return getNextToken().tokenID; }
+        /** Get the current token's ID value.
+        */
+        size_t getCurrentTokenID(void) const { return getCurrentToken().tokenID; }
+        /** Get the next token's lexeme string.  Handy when you don't want the ID but want the string
+            representation.
+        */
+        const String& getNextTokenLexeme(void) const
+        {
+            skipToken();
+            return getCurrentTokenLexeme();
+        }
+        /** Get the current token's lexeme string.  Handy when you don't want the ID but want the string
+            representation.
+        */
+        const String& getCurrentTokenLexeme(void) const;
         /** Gets the number of tokens waiting in the instruction que that need to be processed by an token action in pass 2.
         */
         size_t getPass2TokenQueCount(void) const;
@@ -323,9 +431,34 @@ namespace Ogre {
             remaining to be processed in the action.
         */
         size_t getRemainingTokensForAction(void) const;
-
-        /** Add a lexeme token association.  The backend compiler uses the associations between lexeme
-            and token when building the rule base from the BNF script so all associations must  be done
+        /** Manualy set the Pass2 Token que position.
+        @remarks
+            This method will also set the position of the next token in the pass2 que that
+            has an action ensuring that getRemainingTokensForAction works currectly.
+            This method is useful for when the token que must be reprocessed after
+            pass1 and the position in the que must be changed so that an action will be triggered.
+        @param pos is the new position within the Pass2 que
+        @param activateAction if set true and the token at the new position has an action then the
+            action is activated.
+        */
+        void setPass2TokenQuePosition(size_t pos, const bool activateAction = false);
+        /** Get the current position in the Pass2 Token Que.
+        */
+        size_t getPass2TokenQuePosition(void) const { return mPass2TokenQuePosition; }
+        /** Set the position of the next token action in the Pass2 Token Que.
+        @remarks
+            If the position is not within the que or there is no action associated with
+            the token at the position in the que then NextActionQuePosition is not set.
+        @param pos is the position in the Pass2 Token Que where the next action is.
+        @param search if true then the que is searched from pos until an action is found.
+            If the end of the que is reached and no action has been found then NextActionQuePosition
+            is set to the end of the que and false is returned.
+        */
+        bool setNextActionQuePosition(size_t pos, const bool search = false);
+        /** Add a lexeme token association.
+        @remarks
+            The backend compiler uses the associations between lexeme and token when
+            building the rule base from the BNF script so all associations must  be done
             prior to compiling a source.
         @param lexeme is the name of the token and use when parsing the source to determin a match for a token.
         @param token is the ID associated with the lexeme
@@ -334,11 +467,13 @@ namespace Ogre {
         */
         void addLexemeToken(const String& lexeme, const size_t token, const bool hasAction = false, const bool caseSensitive = false);
 
-        /** sets up the parser rules for the client based on the BNF Grammer text passed in.
+        /** Sets up the parser rules for the client based on the BNF Grammer text passed in.
+        @remarks
             Raises an exception if the grammer did not compile successfully.  This method gets called
             when a call to compile occurs and no compiled BNF grammer exists, otherwise nothing will happen since the compiler has no rules to work
             with.  The grammer only needs to be set once during the lifetime of the compiler unless the
             grammer changes.
+        @note
             BNF Grammer rules are cached once the BNF grammer source is compiled.
             The client should never have to call this method directly.
         */
@@ -436,8 +571,10 @@ namespace Ogre {
 	    /** Get the text representation of the rule path.  This is a good way to way to visually verify
 	    that the BNF grammer did compile correctly.
 	    @param ruleID is the index into the rule path.
+	    @param level is the number of levels a non-terminal will expand to. Defaults to 0 if not set which
+            will cause non-terminals to not expand.
 	    */
-	    String getBNFGrammerTextFromRulePath(size_t ruleID);
+	    String getBNFGrammerTextFromRulePath(size_t ruleID, const size_t level = 0);
 
 
     private:
@@ -469,7 +606,10 @@ namespace Ogre {
         void extractSet(const OperationType pendingRuleOp);
         /// Extract a numeric constant from the token que and add it to the current rule expression
         void extractNumericConstant(const OperationType pendingRuleOp);
-        String getLexemeText(size_t& ruleID);
+        /// changes previous terminal token rule into a conditional terminal token insert rule
+        void setConditionalTokenInsert(void);
+        /// get the lexem text of a rule.
+        String getLexemeText(size_t& ruleID, const size_t level = 0);
 
     public:
 
@@ -495,7 +635,7 @@ namespace Ogre {
 
         /** get the name of the BNF grammer.
         */
-        virtual const String& getClientGrammerName(void) = 0;
+        virtual const String& getClientGrammerName(void) const = 0;
 
     };
 

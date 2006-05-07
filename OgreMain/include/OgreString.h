@@ -52,31 +52,6 @@ namespace __gnu_cxx
     };
 }
 
-// If we're using plain vanilla VC7 Std lib
-#elif !defined( _STLP_HASH_FUN_H )
-
-#	if _DEFINE_DEPRECATED_HASH_CLASSES
-namespace std
-#	else
-namespace stdext
-#	endif
-{
-    template<> size_t hash_compare< Ogre::_StringBase, std::less< Ogre::_StringBase > >::operator ()( const Ogre::_StringBase& _stringBase ) const
-    {
-        /* This is the PRO-STL way, but it seems to cause problems with VC7.1
-            and in some other cases (although I can't recreate it)
-        hash<const char*> H;
-        return H(_stringBase.c_str());
-        */
-        /** This is our custom way */
-        register size_t ret = 0;
-        for( Ogre::_StringBase::const_iterator it = _stringBase.begin(); it != _stringBase.end(); ++it )
-            ret = 5 * ret + *it;
-
-        return ret;
-    }
-}
-
 #endif
 
 namespace Ogre {
@@ -160,11 +135,7 @@ namespace Ogre {
 #if OGRE_COMPILER == OGRE_COMPILER_GNUC && OGRE_COMP_VER >= 310 && !defined(STLPORT)
     typedef ::__gnu_cxx::hash< _StringBase > _StringHash;
 #elif !defined( _STLP_HASH_FUN_H )
-#	if _DEFINE_DEPRECATED_HASH_CLASSES
-		typedef std::hash_compare< _StringBase, std::less< _StringBase > > _StringHash;
-#	else
-		typedef stdext::hash_compare< _StringBase, std::less< _StringBase > > _StringHash;
-#	endif
+	typedef stdext::hash_compare< _StringBase, std::less< _StringBase > > _StringHash;
 #else
     typedef std::hash< _StringBase > _StringHash;
 #endif

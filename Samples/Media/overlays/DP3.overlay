@@ -29,7 +29,7 @@ Example/DP3Overlay
 			top 5
 			width 180
 			height 30
-			font_name TrebuchetMSBold
+			font_name BlueHighway
 			char_height 16
 			caption [1,2,3] toggle lights
 			colour_top 0.5 0.7 0.5
@@ -43,7 +43,7 @@ Example/DP3Overlay
 			top 20
 			width 180
 			height 30
-			font_name TrebuchetMSBold
+			font_name BlueHighway
 			char_height 16
 			caption [O] change objects
 			colour_top 0.5 0.7 0.5
@@ -56,7 +56,7 @@ Example/DP3Overlay
 			top 20
 			width 90
 			height 30
-			font_name TrebuchetMSBold
+			font_name BlueHighway
 			char_height 16
 			caption Current:
 			colour_top 0.5 0.7 0.5
@@ -70,7 +70,7 @@ Example/DP3Overlay
 			top 35
 			width 90
 			height 30
-			font_name TrebuchetMSBold
+			font_name BlueHighway
 			char_height 16
 			caption [M] Change material
 			colour_top 0.5 0.7 0.5
@@ -83,7 +83,7 @@ Example/DP3Overlay
 			top 35
 			width 90
 			height 30
-			font_name TrebuchetMSBold
+			font_name BlueHighway
 			char_height 16
 			caption Current:
 			colour_top 0.5 0.7 0.5
@@ -96,7 +96,7 @@ Example/DP3Overlay
 			top 50
 			width 250
 			height 30
-			font_name TrebuchetMSBold
+			font_name BlueHighway
 			char_height 16
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3

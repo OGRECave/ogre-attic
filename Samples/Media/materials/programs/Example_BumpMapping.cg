@@ -108,8 +108,8 @@ void main_fp( float2 uv			: TEXCOORD0,
 			  out float4 colour	: COLOR,
 
 			  uniform float4 lightDiffuse,
-			  uniform sampler2D   normalMap,
-			  uniform samplerCUBE normalCubeMap)
+			  uniform sampler2D   normalMap : register(s0),
+			  uniform samplerCUBE normalCubeMap : register(s1) )
 {
 	// retrieve normalised light vector, expand from range-compressed
 	float3 lightVec = expand(texCUBE(normalCubeMap, TSlightDir).xyz);
@@ -130,9 +130,9 @@ void main_shadowreceiver_fp(
 			  out float4 colour	: COLOR,
 
 			  uniform float4 lightDiffuse,
-			  uniform sampler2D   shadowMap,
-			  uniform sampler2D   normalMap,
-			  uniform samplerCUBE normalCubeMap)
+			  uniform sampler2D   shadowMap : register(s0),
+			  uniform sampler2D   normalMap : register(s1),
+			  uniform samplerCUBE normalCubeMap : register(s2))
 {
 
 
@@ -204,9 +204,9 @@ void specular_fp( float2 uv			: TEXCOORD0,
 
 			  uniform float4 lightDiffuse,
 			  uniform float4 lightSpecular,
-			  uniform sampler2D   normalMap,
-			  uniform samplerCUBE normalCubeMap, 
-			  uniform samplerCUBE normalCubeMap2) // we need this second binding to be compatible with ps_1_1, ps_2_0 could reuse the other
+			  uniform sampler2D   normalMap : register(s0),
+			  uniform samplerCUBE normalCubeMap : register(s1), 
+			  uniform samplerCUBE normalCubeMap2 : register(s2)) // we need this second binding to be compatible with ps_1_1, ps_2_0 could reuse the other
 {
 	// retrieve normalised light vector, expand from range-compressed
 	float3 lightVec = expand(texCUBE(normalCubeMap, TSlightDir).xyz);

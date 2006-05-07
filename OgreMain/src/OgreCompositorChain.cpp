@@ -26,6 +26,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCompositorChain.h"
 #include "OgreCompositionTechnique.h"
 #include "OgreCompositorInstance.h"
+#include "OgreCompositionTargetPass.h"
+#include "OgreCompositionPass.h"
 #include "OgreViewport.h"
 #include "OgreCamera.h"
 #include "OgreRenderTarget.h"
@@ -189,6 +191,16 @@ void CompositorChain::preViewportUpdate(const RenderTargetViewportEvent& evt)
     if(evt.source != mViewport || !mAnyCompositorsEnabled)
         return;
 
+	// set original scene details from viewport
+	CompositionPass* pass = mOriginalScene->getTechnique()->getOutputTargetPass()->getPass(0);
+	if (pass->getClearBuffers() != mViewport->getClearBuffers() ||
+		pass->getClearColour() != mViewport->getBackgroundColour())
+	{
+		pass->setClearBuffers(mViewport->getClearBuffers());
+		pass->setClearColour(mViewport->getBackgroundColour());
+		_compile();
+	}
+
 	Camera *cam = mViewport->getCamera();
 	/// Prepare for output operation
 	preTargetOperation(mOutputOperation, mViewport, cam);
@@ -199,6 +211,7 @@ void CompositorChain::preTargetOperation(CompositorInstance::TargetOperation &op
     SceneManager *sm = cam->getSceneManager();
 	/// Set up render target listener
 	mOurListener.setOperation(&op, sm, sm->getDestinationRenderSystem());
+	mOurListener.notifyViewport(vp);
 	/// Register it
 	sm->addRenderQueueListener(&mOurListener);
 	/// Set visiblity mask
@@ -312,8 +325,9 @@ Viewport *CompositorChain::getViewport()
 void CompositorChain::RQListener::renderQueueStarted(uint8 id, 
 	const String& invocation, bool& skipThisQueue)
 {
-	// Skip shadows invocation, since this is nested within main viewport update
-	if (invocation == RenderQueueInvocation::RENDER_QUEUE_INVOCATION_SHADOWS)
+	// Skip when not matching viewport
+	// shadows update is nested within main viewport update
+	if (mSceneManager->getCurrentViewport() != mViewport)
 		return;
 
 	flushUpTo(id);

@@ -700,16 +700,17 @@ SceneNode* SceneManager::getSceneNode(const String& name) const
 
 }
 //-----------------------------------------------------------------------
-const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed)
+const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed, 
+								   bool shadowDerivation)
 {
 	if (!mSuppressRenderStateChanges || evenIfSuppressed)
 	{
-		if (mIlluminationStage == IRS_RENDER_TO_TEXTURE)
+		if (mIlluminationStage == IRS_RENDER_TO_TEXTURE && shadowDerivation)
 		{
 			// Derive a special shadow caster pass from this one
 			pass = deriveShadowCasterPass(pass);
 		}
-		else if (mIlluminationStage == IRS_RENDER_RECEIVER_PASS)
+		else if (mIlluminationStage == IRS_RENDER_RECEIVER_PASS && shadowDerivation)
 		{
 			pass = deriveShadowReceiverPass(pass);
 		}
@@ -801,11 +802,13 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed)
             newFogEnd = mFogEnd;
             newFogDensity = mFogDensity;
         }
-        // Tell params about current fog
-        mAutoParamDataSource.setFog(
-            newFogMode, newFogColour, newFogDensity, newFogStart, newFogEnd);
         mDestRenderSystem->_setFog(
             newFogMode, newFogColour, newFogDensity, newFogStart, newFogEnd);
+        // Tell params about ORIGINAL fog
+		// Need to be able to override fixed function fog, but still have
+		// original fog parameters available to a shader than chooses to use
+        mAutoParamDataSource.setFog(
+            mFogMode, mFogColour, mFogDensity, mFogStart, mFogEnd);
 
 		// The rest of the settings are the same no matter whether we use programs or not
 
@@ -1297,8 +1300,12 @@ void SceneManager::setSkyBox(
                 boxMat->load();
             }
             // Set active frame
-            boxMat->getBestTechnique()->getPass(0)->getTextureUnitState(0)
-                ->setCurrentFrame(i);
+			Material::TechniqueIterator ti = boxMat->getSupportedTechniqueIterator();
+			while (ti.hasMoreElements())
+			{
+				Technique* tech = ti.getNext();
+				tech->getPass(0)->getTextureUnitState(0)->setCurrentFrame(i);
+			}
 
             mSkyBoxEntity[i]->setMaterialName(boxMat->getName());
 
@@ -2179,8 +2186,8 @@ void SceneManager::SceneMgrQueuedRenderableVisitor::visit(const RenderablePass* 
 	// Give SM a chance to eliminate
 	if (targetSceneMgr->validateRenderableForRendering(rp->pass, rp->renderable))
 	{
-		targetSceneMgr->_setPass(rp->pass);
-		targetSceneMgr->renderSingleObject(rp->renderable, rp->pass, autoLights, 
+		mUsedPass = targetSceneMgr->_setPass(rp->pass);
+		targetSceneMgr->renderSingleObject(rp->renderable, mUsedPass, autoLights, 
 			manualLightList);
 	}
 }
@@ -2188,14 +2195,13 @@ void SceneManager::SceneMgrQueuedRenderableVisitor::visit(const RenderablePass* 
 bool SceneManager::validatePassForRendering(const Pass* pass)
 {
     // Bypass if we're doing a texture shadow render and 
-    // this pass is after the first (only 1 pass needed for modulative shadow texture)
+    // this pass is after the first (only 1 pass needed for shadow texture render, and 
+	// one pass for shadow texture receive for modulative technique)
 	// Also bypass if passes above the first if render state changes are
 	// suppressed since we're not actually using this pass data anyway
     if (!mSuppressShadows && mCurrentViewport->getShadowsEnabled() &&
-		isShadowTechniqueModulative() &&
-		(mIlluminationStage == IRS_RENDER_TO_TEXTURE ||
-        mIlluminationStage == IRS_RENDER_RECEIVER_PASS ||
-		mSuppressRenderStateChanges) && 
+		((isShadowTechniqueModulative() && mIlluminationStage == IRS_RENDER_RECEIVER_PASS)
+		 || mIlluminationStage == IRS_RENDER_TO_TEXTURE || mSuppressRenderStateChanges) && 
         pass->getIndex() > 0)
     {
         return false;
@@ -2208,13 +2214,22 @@ bool SceneManager::validateRenderableForRendering(const Pass* pass, const Render
 {
     // Skip this renderable if we're doing modulative texture shadows, it casts shadows
     // and we're doing the render receivers pass and we're not self-shadowing
+	// also if pass number > 0
     if (!mSuppressShadows && mCurrentViewport->getShadowsEnabled() &&
-		isShadowTechniqueTextureBased() && 
-        mIlluminationStage == IRS_RENDER_RECEIVER_PASS && 
-        rend->getCastsShadows() && !mShadowTextureSelfShadow && 
-		isShadowTechniqueModulative())
-    {
-        return false;
+		isShadowTechniqueTextureBased())
+	{
+		if (mIlluminationStage == IRS_RENDER_RECEIVER_PASS && 
+			rend->getCastsShadows() && !mShadowTextureSelfShadow)
+		{
+			return false;
+		}
+		// Some duplication here with validatePassForRendering, for transparents
+		if (((isShadowTechniqueModulative() && mIlluminationStage == IRS_RENDER_RECEIVER_PASS)
+			|| mIlluminationStage == IRS_RENDER_TO_TEXTURE || mSuppressRenderStateChanges) && 
+			pass->getIndex() > 0)
+		{
+			return false;
+		}
     }
 
     return true;
@@ -4154,7 +4169,7 @@ void SceneManager::setShadowIndexBufferSize(size_t size)
         // re-create shadow buffer with new size
         mShadowIndexBuffer = HardwareBufferManager::getSingleton().
             createIndexBuffer(HardwareIndexBuffer::IT_16BIT, 
-            mShadowIndexBufferSize, 
+            size, 
             HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE, 
             false);
     }
@@ -4835,10 +4850,10 @@ void SceneManager::extractAllMovableObjectsByType(const String& typeName)
 
 }
 //---------------------------------------------------------------------
-void SceneManager::_injectRenderWithPass(Pass *pass, Renderable *rend)
+void SceneManager::_injectRenderWithPass(Pass *pass, Renderable *rend, bool shadowDerivation )
 {
 	// render something as if it came from the current queue
-    const Pass *usedPass = _setPass(pass);
+    const Pass *usedPass = _setPass(pass, false, shadowDerivation);
     renderSingleObject(rend, usedPass, false);
 }
 //---------------------------------------------------------------------

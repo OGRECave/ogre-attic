@@ -53,7 +53,7 @@ namespace Ogre
 		virtual ~KeyFrame() {}
 
         /** Gets the time of this keyframe in the animation sequence. */
-        virtual Real getTime(void) const;
+        Real getTime(void) const { return mTime; }
 
 
     protected:

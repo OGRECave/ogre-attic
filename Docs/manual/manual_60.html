@@ -1,14 +1,15 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                      "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 11 2006 by texi2html 1.64 -->
-<!-- 
+<!-- Created on May 7 2006 by texi2html 1.66 -->
+<!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
             Olaf Bachmann <obachman@mathematik.uni-kl.de>
             and many others.
-Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
-Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
- 
+Maintained by: Many creative people <dev@texi2html.cvshome.org>
+Send bugs and suggestions to <users@texi2html.cvshome.org>
+
 -->
 <HEAD>
 <TITLE>OGRE Manual v1.2.0 ('Dagon'): Pixel boxes</TITLE>
@@ -17,11 +18,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Pixel boxes">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
-<META NAME="Generator" CONTENT="texi2html 1.64">
+<META NAME="Generator" CONTENT="texi2html 1.66">
 <LINK TYPE="text/css" rel="stylesheet" href="../style.css"> 
 </HEAD>
 
-<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+<BODY LANG="en" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
 <A NAME="SEC262"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
@@ -41,7 +42,7 @@ All methods in Ogre that take or return raw image data return a PixelBox object.
 
 A PixelBox is a primitive describing a volume (3D), image (2D) or line (1D) of pixels in CPU memory. It describes the location and data format of a region of memory used for image data, but does not do any memory management in itself.
 
-Inside the memory pointed to by the <EM>data</EM> member of a pixel box, pixels are stored as a succession of "depth" slices (in Z), each containing "height" rows (Y) of "width" pixels (X).
+Inside the memory pointed to by the <EM>data</EM> member of a pixel box, pixels are stored as a succession of &quot;depth&quot; slices (in Z), each containing &quot;height&quot; rows (Y) of &quot;width&quot; pixels (X).
 
 Dimensions that are not used must be 1. For example, a one dimensional image will have extents (width,1,1). A two dimensional image has extents (width,height,1).
 
@@ -78,7 +79,7 @@ It also has some useful methods:
 <DD>Return whether this buffer is laid out consecutive in memory (ie the pitches are equal to the dimensions)
 <DT>getConsecutiveSize()
 <DD>Return the size (in bytes) this image would take if it was laid out consecutive in memory
-<DT>getSubVolume(const Box &#38;def)
+<DT>getSubVolume(const Box &amp;def)
 <DD>Return a subvolume of this PixelBox, as a PixelBox.
 </DL>
 
@@ -95,12 +96,12 @@ For more information about these methods consult the API documentation.
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
-<BR>  
+<BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 11 2006</I>
-using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
-"><I>texi2html</I></A>
+by <I>steve</I> on <I>May 7 2006</I>
+using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
+</FONT>
 
 </BODY>
 </HTML>

@@ -163,12 +163,16 @@ namespace Ogre {
 			/** Set current operation and target */
 			void setOperation(CompositorInstance::TargetOperation *op,SceneManager *sm,RenderSystem *rs);
 
+			/** Notify current destination viewport  */
+			void notifyViewport(Viewport* vp) { mViewport = vp; }
+
 			/** Flush remaining render system operations */
 			void flushUpTo(uint8 id);
 		private:
 			CompositorInstance::TargetOperation *mOperation;
 			SceneManager *mSceneManager;
 			RenderSystem *mRenderSystem;
+			Viewport* mViewport;
 			CompositorInstance::RenderSystemOpPairs::iterator currentOp, lastOp;
 		};
 		RQListener mOurListener;

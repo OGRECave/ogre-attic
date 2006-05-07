@@ -36,6 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_progressbar.h>
 #include <xsi_uitoolkit.h>
 #include <xsi_shader.h>
+#include <xsi_value.h>
 
 #include <stdlib.h>
 #include "OgrePrerequisites.h"
@@ -49,6 +50,24 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHardwareVertexBuffer.h"
 
 #define OGRE_XSI_NUM_MESH_STEPS 200
+
+/// Useful function to convert XSI CValue to an Ogre String
+/*
+inline Ogre::String XSItoOgre(const XSI::CValue& xsival)
+{
+
+	switch(xsival.m_t)
+	{
+	case XSI::CValue::siString:
+		return XSItoOgre(XSI::CString(xsival));
+	case XSI::CValue::siVector3:
+		return XSItoOgre(XSI::MATH::CVector3(xsival));
+	default:
+		return XSItoOgre(XSI::CString(xsival.GetAsText()));
+	};
+
+}
+*/
 
 /// Useful function to convert an XSI CString to an Ogre String
 inline Ogre::String XSItoOgre(const XSI::CString& xsistr)
@@ -107,7 +126,8 @@ inline Ogre::Quaternion XSItoOgre(const XSI::MATH::CQuaternion& xsiQuat)
 
 inline Ogre::RGBA XSItoOgre(const XSI::CVertexColor& xsiColour)
 {
-	Ogre::ColourValue col(xsiColour.r, xsiColour.g, xsiColour.b, xsiColour.a);
+	Ogre::ColourValue col(xsiColour.r / 255.0f, xsiColour.g / 255.0f, 
+		xsiColour.b / 255.0f, xsiColour.a / 255.0f);
 	return Ogre::VertexElement::convertColourValue(col, 
 		Ogre::VertexElement::getBestColourVertexElementType());
 }

@@ -218,6 +218,8 @@ namespace Ogre {
             the output.
         */
         static StringVector parseStringVector(const String& val);
+        /** Checks the String is a valid number value. */
+        static bool isNumber(const String& val);
     };
 
 

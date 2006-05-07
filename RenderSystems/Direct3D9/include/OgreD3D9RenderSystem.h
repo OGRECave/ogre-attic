@@ -95,6 +95,7 @@ namespace Ogre
 
 		D3D9DriverList* getDirect3DDrivers(void);
 		void refreshD3DSettings(void);
+        void refreshFSAAOptions(void);
 		void freeDevice(void);
 
 		inline bool compareDecls( D3DVERTEXELEMENT9* pDecl1, D3DVERTEXELEMENT9* pDecl2, size_t size );

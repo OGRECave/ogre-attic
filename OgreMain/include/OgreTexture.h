@@ -312,13 +312,16 @@ namespace Ogre {
         TexturePtr(const ResourcePtr& r) : SharedPtr<Texture>()
         {
 			// lock & copy other mutex pointer
-			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
-			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
-            pRep = static_cast<Texture*>(r.getPointer());
-            pUseCount = r.useCountPointer();
-            if (pUseCount)
+            OGRE_MUTEX_CONDITIONAL(r.OGRE_AUTO_MUTEX_NAME)
             {
-                ++(*pUseCount);
+			    OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			    OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+                pRep = static_cast<Texture*>(r.getPointer());
+                pUseCount = r.useCountPointer();
+                if (pUseCount)
+                {
+                    ++(*pUseCount);
+                }
             }
         }
 
@@ -329,13 +332,16 @@ namespace Ogre {
                 return *this;
             release();
 			// lock & copy other mutex pointer
-			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
-			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
-            pRep = static_cast<Texture*>(r.getPointer());
-            pUseCount = r.useCountPointer();
-            if (pUseCount)
+            OGRE_MUTEX_CONDITIONAL(r.OGRE_AUTO_MUTEX_NAME)
             {
-                ++(*pUseCount);
+			    OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			    OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+                pRep = static_cast<Texture*>(r.getPointer());
+                pUseCount = r.useCountPointer();
+                if (pUseCount)
+                {
+                    ++(*pUseCount);
+                }
             }
             return *this;
         }

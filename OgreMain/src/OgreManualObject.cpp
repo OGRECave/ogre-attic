@@ -555,7 +555,8 @@ namespace Ogre {
 			sm->setMaterialName(sec->getMaterialName());
 			// Copy vertex data; replicate buffers too
 			sm->vertexData = rop->vertexData->clone(true);
-			// Copy index data; replicate buffers too
+			// Copy index data; replicate buffers too; delete the default, old one to avoid memory leaks
+			delete sm->indexData;
 			sm->indexData = rop->indexData->clone(true);
 		}
         // update bounds
@@ -629,6 +630,13 @@ namespace Ogre {
 		assert((*indexBuffer)->getType() == HardwareIndexBuffer::IT_16BIT &&
 			"Only 16-bit indexes supported for now");
 
+        EdgeData* edgeList = getEdgeList();
+        if (!edgeList)
+        {
+            return ShadowRenderableListIterator(
+                mShadowRenderables.begin(), mShadowRenderables.end());
+        }
+
 		// Calculate the object space light details
 		Vector4 lightPos = light->getAs4DVector();
 		Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
@@ -643,13 +651,19 @@ namespace Ogre {
 		ManualObjectSectionShadowRenderable* esr = 0;
 		SectionList::iterator seci;
 		if (init)
-			mShadowRenderables.resize(mEdgeList->edgeGroups.size());
+			mShadowRenderables.resize(edgeList->edgeGroups.size());
 
 		siend = mShadowRenderables.end();
-		egi = mEdgeList->edgeGroups.begin();
+		egi = edgeList->edgeGroups.begin();
 		seci = mSectionList.begin();
-		for (si = mShadowRenderables.begin(); si != siend; ++si, ++egi, ++seci)
+		for (si = mShadowRenderables.begin(); si != siend; ++seci)
 		{
+            // Skip non-indexed geometry
+            if (!(*seci)->getRenderOperation()->useIndexes)
+            {
+                continue;
+            }
+
 			if (init)
 			{
 				// Create a new renderable, create a separate light cap if
@@ -684,12 +698,14 @@ namespace Ogre {
 
 			}
 
+            ++si;
+            ++egi;
 		}
 		// Calc triangle light facing
-		updateEdgeListLightFacing(mEdgeList, lightPos);
+		updateEdgeListLightFacing(edgeList, lightPos);
 
 		// Generate indexes and update renderables
-		generateShadowVolume(mEdgeList, *indexBuffer, light,
+		generateShadowVolume(edgeList, *indexBuffer, light,
 			mShadowRenderables, flags);
 
 

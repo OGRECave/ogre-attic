@@ -40,7 +40,7 @@ using namespace Ogre;
 
 namespace OgreRefApp {
 
-    #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+    #if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(__MINGW32__)
     // Export control
     #   if defined( REFERENCEAPPLAYER_EXPORTS )
     #       define _OgreRefAppExport __declspec( dllexport )

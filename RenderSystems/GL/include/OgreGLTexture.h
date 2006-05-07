@@ -95,13 +95,16 @@ namespace Ogre {
         GLTexturePtr(const ResourcePtr& r) : SharedPtr<GLTexture>()
         {
 			// lock & copy other mutex pointer
-			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
-			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
-            pRep = static_cast<GLTexture*>(r.getPointer());
-            pUseCount = r.useCountPointer();
-            if (pUseCount)
+            OGRE_MUTEX_CONDITIONAL(r.OGRE_AUTO_MUTEX_NAME)
             {
-                ++(*pUseCount);
+			    OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			    OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+                pRep = static_cast<GLTexture*>(r.getPointer());
+                pUseCount = r.useCountPointer();
+                if (pUseCount)
+                {
+                    ++(*pUseCount);
+                }
             }
         }
 
@@ -112,13 +115,16 @@ namespace Ogre {
                 return *this;
             release();
 			// lock & copy other mutex pointer
-			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
-			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
-            pRep = static_cast<GLTexture*>(r.getPointer());
-            pUseCount = r.useCountPointer();
-            if (pUseCount)
+            OGRE_MUTEX_CONDITIONAL(r.OGRE_AUTO_MUTEX_NAME)
             {
-                ++(*pUseCount);
+			    OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			    OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+                pRep = static_cast<GLTexture*>(r.getPointer());
+                pUseCount = r.useCountPointer();
+                if (pUseCount)
+                {
+                    ++(*pUseCount);
+                }
             }
             return *this;
         }
@@ -129,13 +135,16 @@ namespace Ogre {
                 return *this;
             release();
 			// lock & copy other mutex pointer
-			OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
-			OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
-            pRep = static_cast<GLTexture*>(r.getPointer());
-            pUseCount = r.useCountPointer();
-            if (pUseCount)
+            OGRE_MUTEX_CONDITIONAL(r.OGRE_AUTO_MUTEX_NAME)
             {
-                ++(*pUseCount);
+			    OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			    OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+                pRep = static_cast<GLTexture*>(r.getPointer());
+                pUseCount = r.useCountPointer();
+                if (pUseCount)
+                {
+                    ++(*pUseCount);
+                }
             }
             return *this;
         }
