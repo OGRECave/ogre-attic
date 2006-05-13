@@ -58,6 +58,9 @@ namespace Ogre
 
         DWORD mQueryCount;
     public:
+		Timer();
+		~Timer();
+
 		/** Resets timer */
 		void reset();
 
