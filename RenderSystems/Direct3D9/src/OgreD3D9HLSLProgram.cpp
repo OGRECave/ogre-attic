@@ -156,7 +156,7 @@ namespace Ogre {
                 // Process params
                 if (desc.Type == D3DXPT_FLOAT || desc.Type == D3DXPT_INT || desc.Type == D3DXPT_BOOL)
                 {
-                    size_t paramIndex = desc.RegisterIndex;
+                    size_t paramIndex = desc.RegisterIndex + e * desc.RegisterCount / desc.Elements;
                     String name = prefix + paramName;
                     // If this is an array, need to append element index
                     if (desc.Elements > 1)
