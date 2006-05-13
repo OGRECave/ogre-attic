@@ -430,7 +430,6 @@ namespace Ogre {
             (*i)->_compile(autoManageTextureUnits);
             if ( (*i)->isSupported() )
             {
-                mSupportedTechniques.push_back(*i);
 				insertSupportedTechnique(*i);
             }
         }
