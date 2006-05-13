@@ -82,12 +82,28 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void EdgeListBuilder::addVertexData(const VertexData* vertexData)
     {
+        if (vertexData->vertexStart != 0)
+        {
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+                "The base vertex index of the vertex data must be zero for build edge list.",
+                "EdgeListBuilder::addVertexData");
+        }
+
         mVertexDataList.push_back(vertexData);
     }
     //---------------------------------------------------------------------
     void EdgeListBuilder::addIndexData(const IndexData* indexData, 
         size_t vertexSet, RenderOperation::OperationType opType)
     {
+        if (opType != RenderOperation::OT_TRIANGLE_LIST &&
+            opType != RenderOperation::OT_TRIANGLE_FAN &&
+            opType != RenderOperation::OT_TRIANGLE_STRIP)
+        {
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+                "Only triangle list, fan and strip are supported to build edge list.",
+                "EdgeListBuilder::addIndexData");
+        }
+
         Geometry geometry;
         geometry.indexData = indexData;
         geometry.vertexSet = vertexSet;
@@ -199,7 +215,7 @@ namespace Ogre {
             iterations = indexData->indexCount - 2;
             break;
         default:
-            break;
+            return; // Just in case
         };
 
 
@@ -238,9 +254,9 @@ namespace Ogre {
         unsigned int index[3];
         // Get the triangle start, if we have more than one index set then this
         // will not be zero
-        size_t triStart = mEdgeData->triangles.size();
+        size_t triangleIndex = mEdgeData->triangles.size();
         // Pre-reserve memory for less thrashing
-        mEdgeData->triangles.reserve(triStart + iterations);
+        mEdgeData->triangles.reserve(triangleIndex + iterations);
         for (size_t t = 0; t < iterations; ++t)
         {
             EdgeData::Triangle tri;
@@ -310,15 +326,16 @@ namespace Ogre {
                 // Add triangle to list
                 mEdgeData->triangles.push_back(tri);
                 // Connect or create edges from common list
-                connectOrCreateEdge(vertexSet, triStart + t, 
+                connectOrCreateEdge(vertexSet, triangleIndex, 
                     tri.vertIndex[0], tri.vertIndex[1], 
                     tri.sharedVertIndex[0], tri.sharedVertIndex[1]);
-                connectOrCreateEdge(vertexSet, triStart + t, 
+                connectOrCreateEdge(vertexSet, triangleIndex, 
                     tri.vertIndex[1], tri.vertIndex[2], 
                     tri.sharedVertIndex[1], tri.sharedVertIndex[2]);
-                connectOrCreateEdge(vertexSet, triStart + t, 
+                connectOrCreateEdge(vertexSet, triangleIndex, 
                     tri.vertIndex[2], tri.vertIndex[0], 
                     tri.sharedVertIndex[2], tri.sharedVertIndex[0]);
+                ++triangleIndex;
             }
         }
 
