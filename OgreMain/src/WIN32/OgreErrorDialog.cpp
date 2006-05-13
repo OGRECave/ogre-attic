@@ -34,7 +34,11 @@ namespace Ogre
 {
     ErrorDialog::ErrorDialog()
     {
-        mHInstance = GetModuleHandle(OGRE_PLATFORM_LIB);
+#ifdef OGRE_DEBUG_MODE
+        mHInstance = GetModuleHandle("ogremain_d.dll");
+#else
+        mHInstance = GetModuleHandle("ogremain.dll);
+#endif
     }
 
 #if OGRE_ARCHITECTURE_64 == OGRE_ARCH_TYPE
