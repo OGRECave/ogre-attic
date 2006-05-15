@@ -39,10 +39,10 @@ namespace Ogre
 {
     ConfigDialog::ConfigDialog()
     {
-#ifdef OGRE_DEBUG_MODE
-        mHInstance = GetModuleHandle("ogremain_d.dll");
+#if OGRE_DEBUG_MODE == 1
+        mHInstance = GetModuleHandle("OgreMain_d.dll");
 #else
-        mHInstance = GetModuleHandle("ogremain.dll);
+        mHInstance = GetModuleHandle("OgreMain.dll");
 #endif
         mSelectedRenderSystem = 0;
     }

@@ -51,7 +51,7 @@ namespace Ogre
 	@author
 		Steven J. Streeting
 	*/
-    class ConfigDialog
+    class _OgreExport ConfigDialog
     {
     public:
         ConfigDialog();

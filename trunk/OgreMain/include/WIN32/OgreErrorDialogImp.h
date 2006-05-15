@@ -39,7 +39,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre
 {
     /** Class for displaying the error dialog if Ogre fails badly. */
-    class ErrorDialog
+    class _OgreExport ErrorDialog
     {
     public:
         ErrorDialog();

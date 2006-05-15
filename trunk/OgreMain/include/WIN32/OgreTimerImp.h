@@ -41,7 +41,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre
 {
-    class Timer
+    class _OgreExport Timer
     {
     private:
 		clock_t zeroClock;
