@@ -122,8 +122,7 @@ namespace Ogre {
 
         vbuf->unlock();
 
-        AxisAlignedBox aabb;
-        aabb.setExtents(left, top, 0, right, bottom, 0);
+        mBox.setExtents(left, top, 0, right, bottom, 0);
 
     }
 
