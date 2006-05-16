@@ -204,7 +204,9 @@ namespace Ogre {
         */
         static inline uint16 floatToHalf(float i)
         {
-            return floatToHalfI(*reinterpret_cast<uint32*>(&i));
+            union { float f; uint32 i; } v;
+            v.f = i;
+            return floatToHalfI(v.i);
         }
 		/** Converts float in uint32 format to a a half in uint16 format
 		*/
@@ -253,8 +255,9 @@ namespace Ogre {
          */
         static inline float halfToFloat(uint16 y)
         {
-            uint32 r = halfToFloatI(y);
-            return *reinterpret_cast<float*>(&r);
+            union { float f; uint32 i; } v;
+            v.i = halfToFloatI(y);
+            return v.f;
         }
 		/** Converts a half in uint16 format to a float
 		 	in uint32 format

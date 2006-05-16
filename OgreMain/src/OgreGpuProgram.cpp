@@ -728,6 +728,7 @@ namespace Ogre
 				setConstant(i->index, source.getLight(i->data).getPowerScale());
 				break;
             case ACT_LIGHT_ATTENUATION:
+            {
                 // range, const, linear, quad
                 const Light& l = source.getLight(i->data);
                 vec4.x = l.getAttenuationRange();
@@ -735,6 +736,10 @@ namespace Ogre
                 vec4.z = l.getAttenuationLinear();
                 vec4.w = l.getAttenuationQuadric();
                 setConstant(i->index, vec4);
+                break;
+            }
+            default:
+                // do nothing
                 break;
             }
         }

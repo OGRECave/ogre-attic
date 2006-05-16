@@ -527,10 +527,13 @@ namespace Ogre {
                     if (mGeometryList[i].opType == RenderOperation::OT_TRIANGLE_LIST
                         || j == 0)
                     {
+		    	unsigned int n1 = *p32Idx++;
+		    	unsigned int n2 = *p32Idx++;
+		    	unsigned int n3 = *p32Idx++;
                         l->logMessage("Triangle " + StringConverter::toString(j) + 
-                            ": (" + StringConverter::toString(*p32Idx++) + 
-                            ", " + StringConverter::toString(*p32Idx++) + 
-                            ", " + StringConverter::toString(*p32Idx++) + ")");
+                            ": (" + StringConverter::toString(n1) + 
+                            ", " + StringConverter::toString(n2) + 
+                            ", " + StringConverter::toString(n3) + ")");
                         j += 3;
                     }
                     else
@@ -545,10 +548,13 @@ namespace Ogre {
                     if (mGeometryList[i].opType == RenderOperation::OT_TRIANGLE_LIST
                         || j == 0)
                     {
+		    	unsigned short n1 = *p16Idx++;
+		    	unsigned short n2 = *p16Idx++;
+		    	unsigned short n3 = *p16Idx++;
                         l->logMessage("Index " + StringConverter::toString(j) + 
-                            ": (" + StringConverter::toString(*p16Idx++) + 
-                            ", " + StringConverter::toString(*p16Idx++) + 
-                            ", " + StringConverter::toString(*p16Idx++) + ")");
+                            ": (" + StringConverter::toString(n1) + 
+                            ", " + StringConverter::toString(n2) + 
+                            ", " + StringConverter::toString(n3) + ")");
                         j += 3;
                     }
                     else

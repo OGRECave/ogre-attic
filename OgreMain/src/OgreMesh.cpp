@@ -1118,11 +1118,11 @@ namespace Ogre {
 	    for (int sm = 0; sm < nSubMesh; sm++)
 	    {
 		    // retrieve buffer pointers
-		    uint16			*pVIndices16;	// the face indices buffer, read only
-		    uint32			*pVIndices32;	// the face indices buffer, read only
-		    float			*p2DTC;		// pointer to 2D tex.coords, read only
-		    float			*p3DTC;		// pointer to 3D tex.coords, write/read (discard)
-		    float			*pVPos;		// vertex position buffer, read only
+		    uint16	*pVIndices16 = NULL;    // the face indices buffer, read only
+		    uint32	*pVIndices32 = NULL;    // the face indices buffer, read only
+		    float	*p2DTC;	                // pointer to 2D tex.coords, read only
+		    float	*p3DTC;	                // pointer to 3D tex.coords, write/read (discard)
+		    float	*pVPos;	                // vertex position buffer, read only
 
 		    SubMesh *pSubMesh = getSubMesh(sm);
 
@@ -1760,15 +1760,15 @@ namespace Ogre {
                 pDestNorm[0] = accumVecNorm.x;
                 pDestNorm[1] = accumVecNorm.y;
                 pDestNorm[2] = accumVecNorm.z;
+                pSrcNorm = reinterpret_cast<float*>(reinterpret_cast<char*>(pSrcNorm) + srcNormStride);
+                pDestNorm = reinterpret_cast<float*>(reinterpret_cast<char*>(pDestNorm) + destNormStride);
             }
 
             // Advance pointers
-            *reinterpret_cast<char**>(&pSrcPos)      += srcPosStride;
-            *reinterpret_cast<char**>(&pSrcNorm)     += srcNormStride;
-            *reinterpret_cast<char**>(&pDestPos)     += destPosStride;
-            *reinterpret_cast<char**>(&pDestNorm)    += destNormStride;
-            *reinterpret_cast<char**>(&pBlendWeight) += blendWeightStride;
-            *reinterpret_cast<char**>(&pBlendIdx)    += blendIdxStride;
+            pSrcPos = reinterpret_cast<float*>(reinterpret_cast<char*>(pSrcPos) + srcPosStride);
+            pDestPos = reinterpret_cast<float*>(reinterpret_cast<char*>(pDestPos) + destPosStride);
+            pBlendWeight = reinterpret_cast<float*>(reinterpret_cast<char*>(pBlendWeight) + blendWeightStride);
+            pBlendIdx += blendIdxStride;
         }
         // Unlock source buffers
         srcPosBuf->unlock();

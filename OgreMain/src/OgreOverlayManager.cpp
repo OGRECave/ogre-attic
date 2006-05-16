@@ -229,7 +229,6 @@ namespace Ogre {
                     std::vector<String> params = StringUtil::split(line, "\t\n ()");
 
 
-					uint skipParam = 0;
 				    if (line == "}")
 				    {
 					    // Finished overlay

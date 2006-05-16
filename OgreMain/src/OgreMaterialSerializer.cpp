@@ -1398,7 +1398,7 @@ namespace Ogre
     bool parseDepthBias(String& params, MaterialScriptContext& context)
     {
         context.pass->setDepthBias(
-            StringConverter::parseReal(params));
+            static_cast<unsigned int>(StringConverter::parseReal(params)));
 
         return false;
     }
@@ -1570,7 +1570,8 @@ namespace Ogre
             else
             {
                 // Set
-                context.programParams->setConstant(index, realBuffer, roundedDims * 0.25);
+                context.programParams->setConstant(index, realBuffer,
+		    static_cast<size_t>(roundedDims * 0.25));
 
             }
 
@@ -1593,7 +1594,8 @@ namespace Ogre
                 intBuffer[i] = 0;
             }
             // Set
-            context.programParams->setConstant(index, intBuffer, roundedDims * 0.25);
+            context.programParams->setConstant(index, intBuffer,
+	        static_cast<size_t>(roundedDims * 0.25));
             delete [] intBuffer;
             // log the parameter
             context.programParams->addConstantDefinition(paramName, index, dims, GpuProgramParameters::ET_INT);
@@ -3810,6 +3812,9 @@ namespace Ogre
         case WFT_TRIANGLE:
             writeValue("triangle");
             break;
+        case WFT_PWM:
+            writeValue("pwm");
+            break;
         }
 
         writeValue(StringConverter::toString(effect.base));
@@ -4241,6 +4246,9 @@ namespace Ogre
 
                             case GpuProgramParameters::ACDT_INT:
                                 writeValue(StringConverter::toString(autoEntry->data), useMainBuffer);
+                                break;
+
+                            default:
                                 break;
                             }
                         }

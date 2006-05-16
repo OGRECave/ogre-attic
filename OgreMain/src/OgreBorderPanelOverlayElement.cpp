@@ -232,12 +232,12 @@ namespace Ogre {
         if (mMetricsMode != GMM_RELATIVE)
         {
             mPixelLeftBorderSize = mPixelRightBorderSize = 
-                mPixelTopBorderSize = mPixelBottomBorderSize = size;
+                mPixelTopBorderSize = mPixelBottomBorderSize = static_cast<unsigned>(size);
         }
         else
         {
             mLeftBorderSize = mRightBorderSize = 
-                mTopBorderSize = mBottomBorderSize = size;
+                mTopBorderSize = mBottomBorderSize = static_cast<unsigned>(size);
         }
         mGeomPositionsOutOfDate = true;
     }
@@ -246,13 +246,13 @@ namespace Ogre {
     {
         if (mMetricsMode != GMM_RELATIVE)
         {
-            mPixelLeftBorderSize = mPixelRightBorderSize = sides;
-            mPixelTopBorderSize = mPixelBottomBorderSize = topAndBottom;
+            mPixelLeftBorderSize = mPixelRightBorderSize = static_cast<unsigned>(sides);
+            mPixelTopBorderSize = mPixelBottomBorderSize = static_cast<unsigned>(topAndBottom);
         }
         else
         {
-            mLeftBorderSize = mRightBorderSize = sides;
-            mTopBorderSize = mBottomBorderSize = topAndBottom;
+            mLeftBorderSize = mRightBorderSize = static_cast<unsigned>(sides);
+            mTopBorderSize = mBottomBorderSize = static_cast<unsigned>(topAndBottom);
         }
         mGeomPositionsOutOfDate = true;
 
@@ -263,17 +263,17 @@ namespace Ogre {
     {
         if (mMetricsMode != GMM_RELATIVE)
         {
-            mPixelLeftBorderSize = left;
-            mPixelRightBorderSize = right;
-            mPixelTopBorderSize = top;
-            mPixelBottomBorderSize = bottom;
+            mPixelLeftBorderSize = static_cast<unsigned>(left);
+            mPixelRightBorderSize = static_cast<unsigned>(right);
+            mPixelTopBorderSize = static_cast<unsigned>(top);
+            mPixelBottomBorderSize = static_cast<unsigned>(bottom);
         }
         else
         {
-            mLeftBorderSize = left;
-            mRightBorderSize = right;
-            mTopBorderSize = top;
-            mBottomBorderSize = bottom;
+            mLeftBorderSize = static_cast<unsigned>(left);
+            mRightBorderSize = static_cast<unsigned>(right);
+            mTopBorderSize = static_cast<unsigned>(top);
+            mBottomBorderSize = static_cast<unsigned>(bottom);
         }
         mGeomPositionsOutOfDate = true;
     }
@@ -611,10 +611,10 @@ namespace Ogre {
         PanelOverlayElement::setMetricsMode(gmm);
         if (gmm != GMM_RELATIVE)
         {
-            mPixelBottomBorderSize = mBottomBorderSize;
-            mPixelLeftBorderSize = mLeftBorderSize;
-            mPixelRightBorderSize = mRightBorderSize;
-            mPixelTopBorderSize = mTopBorderSize;
+            mPixelBottomBorderSize = static_cast<unsigned>(mBottomBorderSize);
+            mPixelLeftBorderSize = static_cast<unsigned>(mLeftBorderSize);
+            mPixelRightBorderSize = static_cast<unsigned>(mRightBorderSize);
+            mPixelTopBorderSize = static_cast<unsigned>(mTopBorderSize);
         }
     }
     //-----------------------------------------------------------------------

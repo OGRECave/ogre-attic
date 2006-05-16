@@ -352,11 +352,11 @@ namespace Ogre {
     {
         if (mMetricsMode != GMM_RELATIVE)
         {
-            mPixelCharHeight = height;
+            mPixelCharHeight = static_cast<unsigned>(height);
         }
         else
         {
-            mCharHeight = height;
+            mCharHeight = static_cast<unsigned>(height);
         }
         mGeomPositionsOutOfDate = true;
     }
@@ -376,11 +376,11 @@ namespace Ogre {
     {
         if (mMetricsMode != GMM_RELATIVE)
         {
-            mPixelSpaceWidth = width;
+            mPixelSpaceWidth = static_cast<unsigned>(width);
         }
         else
         {
-            mSpaceWidth = width;
+            mSpaceWidth = static_cast<unsigned>(width);
         }
 
         mGeomPositionsOutOfDate = true;
@@ -533,8 +533,8 @@ namespace Ogre {
         if (gmm != GMM_RELATIVE)
         {
             // Set pixel variables based on viewport multipliers
-            mPixelCharHeight = mCharHeight * vpHeight;
-            mPixelSpaceWidth = mSpaceWidth * vpHeight;
+            mPixelCharHeight = static_cast<unsigned>(mCharHeight * vpHeight);
+            mPixelSpaceWidth = static_cast<unsigned>(mSpaceWidth * vpHeight);
         }
     }
 
