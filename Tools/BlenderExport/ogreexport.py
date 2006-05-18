@@ -2,7 +2,7 @@
 
 """
 Name: 'Ogre XML'
-Blender: 240
+Blender: 241
 Group: 'Export'
 Tooltip: 'Exports selected meshes with armature animations to Ogre3D'
 """
@@ -22,7 +22,7 @@ Read the script manual for further information.
 
 # Ogre exporter written by Jens Hoffmann and Michael Reimpell
 # based on the Cal3D exporter v0.5 written by Jean-Baptiste LAMY
-# modified by Jeff Doyle (nfz) to work with Blender 2.4
+# modified by Jeff Doyle (nfz) to work with Blender 2.41
 
 # Copyright (C) 2004-2005 Michael Reimpell -- <M.Reimpell@tu-bs.de>
 # Copyright (C) 2003 Jens Hoffmann -- <hoffmajs@gmx.de>
@@ -52,7 +52,7 @@ KEEP_SETTINGS = 1
 # OGRE_XML_CONVERTER
 #  the command line used to run the OgreXMLConverter tool.
 #  Set to '' to disable automatical conversion of XML files.
-OGRE_XML_CONVERTER = ''
+OGRE_XML_CONVERTER = 'C:\\softwaredevelopment\\c++\\ogrenew\\tools\\common\\bin\\release\\OgreXMLConverter.exe'
 
 # OGRE_VERTEXCOLOUR_BGRA
 #  workaround for Ogre's vertex colour conversion bug.
@@ -82,7 +82,7 @@ if KEEP_SETTINGS:
 from Blender import Draw
 from Blender import Mathutils
 from Blender.BGL import *
-
+from Blender.Mathutils import *
 ######
 # Classes
 ######
@@ -468,6 +468,7 @@ class ArmatureActionActuatorListView:
         self.startFrameNumberButtonList = []
         self.endFrameNumberButtonList = []
         self.animationNameStringButtonList = []
+        self.poseSamplingEnabled = True
         # scrollbar values:
         #   0:(len(self.armatureActionActuatorList)-1) = listIndex
         #   len(self.armatureActionActuatorList) = addbuttonline
@@ -660,6 +661,8 @@ class ArmatureActionActuatorListView:
             listIndex = relativeEvent - (3 + 4*self.maxActuators)
             self._deleteArmatureActionActuator(listIndex)
             Blender.Draw.Redraw(1)
+        elif (event == BUTTON_EVENT_POSESAMPLINGTOGGLE): # poseSamplingToggle
+            self.poseSamplingEnabled = not self.poseSamplingEnabled
         return
         
     def getArmatureAnimationDictList(self):
@@ -880,7 +883,7 @@ class ExportOptions:
     """Encapsulates export options common to all objects.
     """
     # TODO: Model for GUI
-    def __init__(self, rotXAngle, rotYAngle, rotZAngle, scale, useWorldCoordinates, colouredAmbient, exportPath, materialFilename):
+    def __init__(self, rotXAngle, rotYAngle, rotZAngle, scale, useWorldCoordinates, colouredAmbient, exportPath, materialFilename, materialPath):
         """Constructor.
         """
         # floating point accuracy
@@ -895,6 +898,7 @@ class ExportOptions:
         # file settings
         self.exportPath = exportPath
         self.materialFilename = materialFilename
+        self.materialPath = materialPath
         return
     
     def transformationMatrix(self):
@@ -928,12 +932,6 @@ class ObjectExporter:
         """
         return self.object.matrixWorld
     
-    
-class MeshExporter(ObjectExporter):
-    """
-    """
-    def getName(self):
-        return self.object.getData().name
         
 class ArmatureExporter:
     """Exports an armature of a mesh.
@@ -959,10 +957,12 @@ class ArmatureExporter:
         """
         # convert Armature into Skeleton
         name = None
+        print "AmatureExporter.export"
         if exportOptions.useWorldCoordinates:
             name = self.armatureObject.getData().name
         else:
-            name = self.meshObject.getName() + "-" + self.armatureObject.getData().name
+            name = self.meshObject.getData().name + "-" + self.armatureObject.getData().name
+        print "Skeleton: ", name
         skeleton = Skeleton(name)
         skeleton = self._convertRestpose(skeleton, exportOptions, logger)
         
@@ -978,11 +978,36 @@ class ArmatureExporter:
     def _convertAnimations(self, skeleton, armatureActionActuatorList, exportOptions, exportLogger):
         """Converts ActionActuators to Ogre animations.
         """
+        global poseSamplingToggle
+        
         # frames per second
         fps = Blender.Scene.GetCurrent().getRenderingContext().framesPerSec()
+        actionDict = Blender.Armature.NLA.GetActions()
         # map armatureActionActuatorList to skeleton.animationsDict
         for armatureActionActuator in armatureActionActuatorList:
             # map armatureActionActuator to animation
+            #arm = self.armatureObject.getData()
+            actionDict[armatureActionActuator.armatureAction.name].setActive(self.armatureObject)
+            pose = self.armatureObject.getPose()
+            armatureBonesDict = self.armatureObject.getData().bones
+            
+            obj = self.armatureObject
+            matrix = None
+            matrix_one = Mathutils.Matrix()
+            if exportOptions.useWorldCoordinates:
+                # world coordinates
+                matrix = obj.getMatrix("worldspace")
+            else:
+                # local mesh coordinates
+                armatureMatrix = obj.getMatrix("worldspace")
+                # Blender returns direct access to matrix but we only want a copy
+                # since we will be inverting it
+                inverseMeshMatrix = matrix_one * self.meshObject.getMatrix()
+                inverseMeshMatrix.invert()
+                matrix = armatureMatrix * inverseMeshMatrix
+            # apply additional export transformation
+            matrix = matrix*exportOptions.transformationMatrix()
+                
             if (not skeleton.animationsDict.has_key(armatureActionActuator.name)):
                 # create animation
                 animation = Animation(armatureActionActuator.name)
@@ -991,66 +1016,70 @@ class ArmatureExporter:
                     if (not(animation.tracksDict.has_key(boneName))):
                         # get bone object
                         if skeleton.bonesDict.has_key(boneName):
+                            print boneName
                             # create track
                             track = Track(animation, skeleton.bonesDict[boneName])
                             # map ipocurves to keyframes
                             # get ipo for that bone
                             ipo = armatureActionActuator.armatureAction.ipoDict[boneName]
-                            # map curve names to curvepos
-                            curveId = {}
-                            index = 0
-                            have_quat = 0
-                            for curve in ipo.getCurves():
-                                try:
-                                    name = curve.getName()
-                                    if (name == "LocX" or name == "LocY" or name == "LocZ" or \
-                                    name == "SizeX" or name == "SizeY" or name == "SizeZ" or \
-                                    name == "QuatX" or name == "QuatY" or name == "QuatZ" or name == "QuatW"):
-                                        curveId[name] = index
-                                        index += 1
-                                    else:
-                                    # bug: 2.28 does not return "Quat*"...
-                                        if not have_quat:
-                                            curveId["QuatX"] = index
-                                            curveId["QuatY"] = index+1
-                                            curveId["QuatZ"] = index+2
-                                            curveId["QuatW"] = index+3
-                                            index += 4
-                                            have_quat = 1
-                                except TypeError:
-                                    # blender 2.32 does not implement IpoCurve.getName() for action Ipos
-                                    if not have_quat:
-                                        # no automatic assignments so far
-                                        # guess Ipo Names       
-                                        nIpoCurves = ipo.getNcurves()
-                                        if nIpoCurves in [4,7,10]:
-                                            exportLogger.logWarning("IpoCurve.getName() not available!")
-                                            exportLogger.logWarning("The exporter tries to guess the IpoCurve names.")
-                                            if (nIpoCurves >= 7):
-                                                # not only Quats
-                                                # guess: Quats and Locs
-                                                curveId["LocX"] = index
-                                                curveId["LocY"] = index+1
-                                                curveId["LocZ"] = index+2
-                                                index += 3      
-                                            if (nIpoCurves == 10):
-                                                # all possible Action IpoCurves
-                                                curveId["SizeX"] = index
-                                                curveId["SizeY"] = index+1
-                                                curveId["SizeZ"] = index+2
-                                                index += 3
-                                            if (nIpoCurves >= 4):
-                                                # at least 4 IpoCurves
-                                                # guess: 4 Quats
+                            if poseSamplingToggle.val == 0:
+                                # use ipo curves to get keyframe data
+                                # map curve names to curvepos
+                                curveId = {}
+                                index = 0
+                                have_quat = 0
+                                for curve in ipo.getCurves():
+                                    try:
+                                        name = curve.getName()
+                                        if (name == "LocX" or name == "LocY" or name == "LocZ" or \
+                                        name == "SizeX" or name == "SizeY" or name == "SizeZ" or \
+                                        name == "QuatX" or name == "QuatY" or name == "QuatZ" or name == "QuatW"):
+                                            curveId[name] = index
+                                            index += 1
+                                        else:
+                                        # bug: 2.28 does not return "Quat*"...
+                                            if not have_quat:
                                                 curveId["QuatX"] = index
                                                 curveId["QuatY"] = index+1
                                                 curveId["QuatZ"] = index+2
                                                 curveId["QuatW"] = index+3
                                                 index += 4
-                                            have_quat = 1
-                                        else:
-                                            exportLogger.logError("IpoCurve.getName() not available!")
-                                            exportLogger.logError("Could not guess the IpoCurve names. Other Blender versions may work.")
+                                                have_quat = 1
+                                    except TypeError:
+                                        # blender 2.32 does not implement IpoCurve.getName() for action Ipos
+                                        if not have_quat:
+                                            # no automatic assignments so far
+                                            # guess Ipo Names       
+                                            nIpoCurves = ipo.getNcurves()
+                                            if nIpoCurves in [4,7,10]:
+                                                exportLogger.logWarning("IpoCurve.getName() not available!")
+                                                exportLogger.logWarning("The exporter tries to guess the IpoCurve names.")
+                                                if (nIpoCurves >= 7):
+                                                    # not only Quats
+                                                    # guess: Quats and Locs
+                                                    curveId["LocX"] = index
+                                                    curveId["LocY"] = index+1
+                                                    curveId["LocZ"] = index+2
+                                                    index += 3      
+                                                if (nIpoCurves == 10):
+                                                    # all possible Action IpoCurves
+                                                    curveId["SizeX"] = index
+                                                    curveId["SizeY"] = index+1
+                                                    curveId["SizeZ"] = index+2
+                                                    index += 3
+                                                if (nIpoCurves >= 4):
+                                                    # at least 4 IpoCurves
+                                                    # guess: 4 Quats
+                                                    curveId["QuatX"] = index
+                                                    curveId["QuatY"] = index+1
+                                                    curveId["QuatZ"] = index+2
+                                                    curveId["QuatW"] = index+3
+                                                    index += 4
+                                                have_quat = 1
+                                            else:
+                                                exportLogger.logError("IpoCurve.getName() not available!")
+                                                exportLogger.logError("Could not guess the IpoCurve names. Other Blender versions may work.")
+                                                
                             # get all frame numbers between startFrame and endFrame where this ipo has a point in one of its curves
                             frameNumberDict = {}
                             for curveIndex in range(ipo.getNcurves()):
@@ -1087,52 +1116,107 @@ class ArmatureExporter:
                             # create key frames
                             timeList = frameNumberDict.keys()
                             timeList.sort()
+                            if poseSamplingToggle.val:
+                                #sample pose channels for data
+                                # set the current frame
+                                    
+                                Blender.Set("curframe", 0)
+                                # do a redraw so pose channels get updated
+                                #scene = Blender.Scene.getCurrent() 
+                                #scene.update(1) # <- "1" forces a full update
+                                #redrawing the 3d view forces the pose channels to update
+                                # to current frame. The 3D view must be displayed for this to work.
+                                Blender.Window.Redraw()
+                                
+                            pose_mat = pose.bones[boneName].poseMatrix
+                            bone = skeleton.bonesDict[boneName]
+                            print "current bone: ", bone.name
                             for time in timeList:
                                 # Blender's ordering of transformations is deltaR*deltaS*deltaT
                                 # in the bone's coordinate system.
-                                frame = frameNumberDict[time]
-                                loc = ( 0.0, 0.0, 0.0 )
+                                frame = int(round(frameNumberDict[time]))
+                                loc = Vector([ 0.0, 0.0, 0.0 ])
                                 rotQuat = Mathutils.Quaternion([1.0, 0.0, 0.0, 0.0])
                                 sizeX = 1.0
                                 sizeY = 1.0
                                 sizeZ = 1.0
-                                blenderLoc = [0, 0, 0]
-                                hasLocKey = 0 #false
-                                if curveId.has_key("LocX"):
-                                    blenderLoc[0] = ipo.EvaluateCurveOn(curveId["LocX"], frame)
-                                    hasLocKey = 1 #true
-                                if curveId.has_key("LocY"):
-                                    blenderLoc[1] = ipo.EvaluateCurveOn(curveId["LocY"], frame)
-                                    hasLocKey = 1 #true
-                                if curveId.has_key("LocZ"):
-                                    blenderLoc[2] = ipo.EvaluateCurveOn(curveId["LocZ"], frame)
-                                    hasLocKey = 1 #true
-                                if hasLocKey:
+                                blenderLoc = Vector([0, 0, 0, 1])
+                                if poseSamplingToggle.val:
+                                    #sample pose channels for data
+                                    # set the current frame
+                                        
+                                    Blender.Set("curframe", frame)
+                                    # do a redraw so pose channels get updated
+                                    #scene = Blender.Scene.getCurrent() 
+                                    #scene.update(1) # <- "1" forces a full update
+                                    #redrawing the 3d view forces the pose channels to update
+                                    # to current frame. The 3D view must be displayed for this to work.
+                                    Blender.Window.Redraw()
+                                    # get poseMatrix for active bone
+                                    # pose matrix is in armature object space
+                                    poseMat = matrix * pose_mat
+                                    blenderLoc = poseMat.translationPart().resize4D()
+
+                                    print "blenderLoc: ", blenderLoc
+                                    rotQuat = poseMat.toQuat()
+                                    parent_poseQuat = matrix.toQuat()
+                                    if bone.parent:
+                                        print "Parent Bone: ", bone.parent.name
+                                        # get the parent bone poseMatrix which is in armature object space
+                                        parent_poseMat = matrix * pose.bones[bone.parent.name].poseMatrix
+                                        # calc location in bone local space
+                                        blenderLoc = parent_poseMat.rotationPart() * (blenderLoc - parent_poseMat.translationPart())
+                                        parent_poseQuat = parent_poseMat.toQuat()
+                                    # calc rotation in bone local space
+                                    rotQuat =  Blender.Mathutils.DifferenceQuats(parent_poseQuat, rotQuat)
+                                    print "blenderLoc local space: ", blenderLoc
+                                    # need the change between restpose and current sampled pose
+                                    print "rest bone loc (Ogre): ", bone.loc
+                                    #print "rest bone loc (Blender): ", rest_mat.translationPart()
+                                    blenderLoc = blenderLoc - Mathutils.Vector(bone.loc)
+                                    print "blenderLoc delta: ", blenderLoc
+                                    rotQuat =  Mathutils.DifferenceQuats(bone.rotQuat, rotQuat)
+                                    print "quat delta: ", rotQuat
                                     # Ogre's deltaT is in the bone's parent coordinate system
-                                    loc = point_by_matrix(blenderLoc, skeleton.bonesDict[boneName].conversionMatrix)
-                                if curveId.has_key("QuatX") and curveId.has_key("QuatY") and curveId.has_key("QuatZ") and curveId.has_key("QuatW"):
-                                    if not (Blender.Get("version") == 234):
-                                        rot = [ ipo.EvaluateCurveOn(curveId["QuatW"], frame), \
-                                                ipo.EvaluateCurveOn(curveId["QuatX"], frame), \
-                                                ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
-                                                ipo.EvaluateCurveOn(curveId["QuatZ"], frame) ]
-                                        rotQuat = Mathutils.Quaternion(rot)
-                                    else:
-                                        # Blender 2.34 quaternion naming bug
-                                        rot = [ ipo.EvaluateCurveOn(curveId["QuatX"], frame), \
-                                                ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
-                                                ipo.EvaluateCurveOn(curveId["QuatZ"], frame), \
-                                                ipo.EvaluateCurveOn(curveId["QuatW"], frame) ]
-                                        rotQuat = Mathutils.Quaternion(rot)
-                                    rotQuat.normalize()
-                                if curveId.has_key("SizeX"):
-                                    sizeX = ipo.EvaluateCurveOn(curveId["SizeX"], frame)
-                                if curveId.has_key("SizeY"):
-                                    sizeY = ipo.EvaluateCurveOn(curveId["SizeY"], frame)
-                                if curveId.has_key("SizeZ"):
-                                    sizeZ = ipo.EvaluateCurveOn(curveId["SizeZ"], frame)
+                                    loc = blenderLoc * bone.conversionMatrix
+                                else:
+                                    hasLocKey = 0 #false
+                                    if curveId.has_key("LocX"):
+                                        blenderLoc[0] = ipo.EvaluateCurveOn(curveId["LocX"], frame)
+                                        hasLocKey = 1 #true
+                                    if curveId.has_key("LocY"):
+                                        blenderLoc[1] = ipo.EvaluateCurveOn(curveId["LocY"], frame)
+                                        hasLocKey = 1 #true
+                                    if curveId.has_key("LocZ"):
+                                        blenderLoc[2] = ipo.EvaluateCurveOn(curveId["LocZ"], frame)
+                                        hasLocKey = 1 #true
+                                    if hasLocKey:
+                                        # Ogre's deltaT is in the bone's parent coordinate system
+                                        loc = (blenderLoc * bone.conversionMatrix).resize3D()
+                                    if curveId.has_key("QuatX") and curveId.has_key("QuatY") and curveId.has_key("QuatZ") and curveId.has_key("QuatW"):
+                                        if not (Blender.Get("version") == 234):
+                                            rot = [ ipo.EvaluateCurveOn(curveId["QuatW"], frame), \
+                                                    ipo.EvaluateCurveOn(curveId["QuatX"], frame), \
+                                                    ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
+                                                    ipo.EvaluateCurveOn(curveId["QuatZ"], frame) ]
+                                            rotQuat = Mathutils.Quaternion(rot)
+                                        else:
+                                            # Blender 2.34 quaternion naming bug
+                                            rot = [ ipo.EvaluateCurveOn(curveId["QuatX"], frame), \
+                                                    ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
+                                                    ipo.EvaluateCurveOn(curveId["QuatZ"], frame), \
+                                                    ipo.EvaluateCurveOn(curveId["QuatW"], frame) ]
+                                            rotQuat = Mathutils.Quaternion(rot)
+                                        rotQuat.normalize()
+                                    if curveId.has_key("SizeX"):
+                                        sizeX = ipo.EvaluateCurveOn(curveId["SizeX"], frame)
+                                    if curveId.has_key("SizeY"):
+                                        sizeY = ipo.EvaluateCurveOn(curveId["SizeY"], frame)
+                                    if curveId.has_key("SizeZ"):
+                                        sizeZ = ipo.EvaluateCurveOn(curveId["SizeZ"], frame)
                                 size = (sizeX, sizeY, sizeZ)
                                 KeyFrame(track, time, loc, rotQuat, size)
+                                print "key frame added"
                             # append track
                             animation.tracksDict[boneName] = track
                         else:
@@ -1147,45 +1231,66 @@ class ArmatureExporter:
             else:
                 # animation export name already exists
                 exportLogger.logError("Ambiguous animation name \"%s\"." % armatureActionActuator.name)
+            if poseSamplingToggle.val:
+                #sample pose channels for data
+                # set the current frame
+                    
+                Blender.Set("curframe", 0)
+                # do a redraw so pose channels get updated
+                #scene = Blender.Scene.getCurrent() 
+                #scene.update(1) # <- "1" forces a full update
+                #redrawing the 3d view forces the pose channels to update
+                # to current frame. The 3D view must be displayed for this to work.
+                Blender.Window.Redraw()
         return
     
     def _convertRestpose(self, skeleton, exportOptions, logger):
         """Calculate inital bone positions and rotations.
         """
-        print "convert posed started"
+        global poseSamplingToggle
+        
+        print "convert rest pose started"
+
+        if poseSamplingToggle.val:
+            # set the current frame
+            Blender.Set("curframe", 0)
+            # do a redraw so pose channels get updated
+            # to current frame. The 3D view must be displayed for this to work.
+            Blender.Window.Redraw()
         obj = self.armatureObject
         stack = []
         matrix = None
-        matrix_one = Mathutils.Matrix([1.0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1])
+        # make a 4x4 identity matrix
+        matrix_one = Mathutils.Matrix()
         if exportOptions.useWorldCoordinates:
             # world coordinates
             matrix = obj.getMatrix("worldspace")
         else:
             # local mesh coordinates
-            armatureMatrix = obj.getMatrix("worldspace")
+            #inverseArmatureMatrix = Matrix(obj.getMatrix("worldspace")).invert()
             # Blender returns direct access to matrix but we only want a copy
             # since we will be inverting it
-            inverseMeshMatrix = matrix_one * self.meshObject.getObjectMatrix()
-            inverseMeshMatrix.invert()
-            matrix = armatureMatrix*inverseMeshMatrix
+            #inverseMeshMatrix = Matrix(self.meshObject.getMatrix()).invert()
+            #matrix = inverseArmatureMatrix * inverseMeshMatrix
+            matrix = Matrix(self.meshObject.getMatrix()).invert()
         # apply additional export transformation
-        matrix = matrix*exportOptions.transformationMatrix()
-        loc = [ 0.0, 0, 0 ]
+        matrix = matrix * exportOptions.transformationMatrix()
+        #loc = [ 0, 0, 0 ]
         parent = None
         
         # get parent bones
         #note: in Blender 2.4, bones returns a dictionary of all bones in an armature
         boneDict = obj.getData().bones
         for bbone in boneDict.values():
-            #print bbone, bbone.parent
+            print bbone, bbone.parent
             if bbone.parent == None:
-                stack.append([bbone, parent, matrix, loc, 0, matrix_one])
+                stack.append([bbone, parent, matrix, matrix_one])
                 
-        # iterate through bones and build ogre equivalent bones
+        print "iterate through bones and build ogre equivalent bones"
         # blend bone matrix in armature space is perfect for ogre equivalency
         # 
         while len(stack):
-            bbone, parent, accu_mat, parent_pos, parent_ds, invertedOgreTransformation = stack.pop()
+            bbone, parent, accu_mat, invertedOgreTransformation = stack.pop()
             # preconditions: (R : rotation, T : translation, S : scale, M: general transformation matrix)
             #   accu_mat
             #     points to the tail of the parents bone, i.e. for root bones
@@ -1197,65 +1302,57 @@ class ArmatureExporter:
             #    M^{-1}_{Ogre, parent's parent}*T^{-1}_{Ogre, parent}*R^{-1}_{Ogre, parent} for child bones.
             
             head = bbone.head['BONESPACE']
-            tail = bbone.tail['BONESPACE']
             
-            # get the restmat 
-            R_bmat = bbone.matrix['BONESPACE'].rotationPart()
-            rotQuat = R_bmat.toQuat()
-            R_bmat.resize4x4()
+            # get the rest rotation matrix
+            R_bmat = bbone.matrix['BONESPACE'].rotationPart().resize4x4()
             
             #get the bone's root offset (in the parent's coordinate system)
-            T_root = [ [       1,       0,       0,      0 ],
-            [       0,       1,       0,      0 ],
-            [       0,       0,       1,      0 ],
-            [ head[0], head[1], head[2],      1 ] ]
+            T_root = TranslationMatrix(Vector([ head.x, head.y, head.z ]))
             
             # get the bone length translation (length along y axis)
-            dx, dy, dz = tail[0] - head[0], tail[1] - head[1], tail[2] - head[2]
-            ds = math.sqrt(dx*dx + dy*dy + dz*dz)
-            T_len = [ [ 1,  0,  0,  0 ],
-                [ 0,  1,  0,  0 ],
-                [ 0,  0,  1,  0 ],
-                [ 0, ds,  0,  1 ] ]
+            T_len = TranslationMatrix(Vector([ 0, bbone.length,  0 ]))
             
             # calculate bone points in world coordinates
-            accu_mat = matrix_multiply(accu_mat, T_root)
-            pos = point_by_matrix([ 0, 0, 0 ], accu_mat)
+            # accu_mat = T_{to head}*M_{parent}
+            #print accu_mat
+            accu_mat = T_root * accu_mat
+            pos = accu_mat.translationPart().resize4D()
             
-            accu_mat = tmp_mat = matrix_multiply(accu_mat, R_bmat)
-            # tmp_mat = R_{bone}*T_{to head}*M_{parent}
-            accu_mat = matrix_multiply(accu_mat, T_len)
+            # accu_mat = tmp_mat = R_{bone}*T_{to head}*M_{parent}
+            accu_mat = tmp_mat = R_bmat * accu_mat
+            # accu_mat = T_{length of bone}*R_{bone}*T_{to head}*M_{parent}
+            accu_mat = T_len * accu_mat
             
             # local rotation and distance from parent bone
-            if parent:
-                rotQuat = bbone.matrix['BONESPACE'].rotationPart().toQuat()
-            else:
-                rotQuat = (bbone.matrix['BONESPACE'].rotationPart().resize4x4()*matrix).toQuat()
+            if parent == None:
+                R_bmat = R_bmat * matrix
                 
-            x, y, z = pos
-            # pos = loc * M_{Ogre}
-            loc = point_by_matrix([x, y, z], invertedOgreTransformation)
-            x, y, z = loc
-            ogreTranslationMatrix = [[ 1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [x, y, z, 1]]
-            
-            # R_{Ogre} is either
-            # the rotation part of R_{bone}*T_{to_head}*M_{parent} for root bones or
-            # the rotation part of R_{bone}*T_{to_head} of child bones
-            ogreRotationMatrix = rotQuat.toMatrix()
-            ogreRotationMatrix.resize4x4()
-            invertedOgreTransformation = matrix_multiply(matrix_invert(ogreTranslationMatrix), invertedOgreTransformation)
-            parent = Bone(skeleton, parent, bbone.name, loc, rotQuat, matrix_multiply(invertedOgreTransformation, tmp_mat))
-            #print "bone created:", parent
             # matrix_multiply(invertedOgreTransformation, tmp_mat) is R*T*M_{parent} M^{-1}_{Ogre}T^{-1}_{Ogre}.
             # Necessary, since Ogre's delta location is in the Bone's parent coordinate system, i.e.
             # deltaT_{Blender}*R*T*M = deltaT_{Ogre}*T_{Ogre}*M_{Ogre}
-            invertedOgreTransformation = matrix_multiply(matrix_invert(ogreRotationMatrix), invertedOgreTransformation)
+            # pos = loc * M_{Ogre}
+            # loc = pos * M_{-1}{Ogre}
+            loc = (pos * invertedOgreTransformation).resize3D()
+            #creat inverted translation Matrix
+            invertedOgreTranslationMatrix = TranslationMatrix(-loc)
+            
+            invertedOgreTransformation = invertedOgreTransformation * invertedOgreTranslationMatrix
+            parent = Bone(skeleton, parent, bbone.name, loc, R_bmat.toQuat(), tmp_mat * invertedOgreTransformation)
+            print "bone created:", parent
+
+            # R_{Ogre} is either
+            # the rotation part of R_{bone}*T_{to_head}*M_{parent} for root bones or
+            # the rotation part of R_{bone}*T_{to_head} of child bones
+            invertedOgreRotationMatrix = R_bmat.rotationPart()
+            invertedOgreRotationMatrix.invert()
+            invertedOgreRotationMatrix.resize4x4()
+            invertedOgreTransformation = invertedOgreTransformation * invertedOgreRotationMatrix
             if bbone.children is not None:
                 for child in bbone.children:
                     # make sure child bone is attached to current parent
                     if child.parent is not None:
                         if child.parent.name == bbone.name:
-                            stack.append([child, parent, accu_mat, pos, ds, invertedOgreTransformation])
+                            stack.append([child, parent, accu_mat, invertedOgreTransformation])
         return skeleton
         
     def _toFile(self, skeleton, exportOptions, exportLogger):
@@ -1497,6 +1594,7 @@ armatureToggle = Draw.Create(1)
 worldCoordinatesToggle = Draw.Create(0)
 ambientToggle = Draw.Create(0)
 pathString = Draw.Create(os.path.dirname(Blender.Get('filename')))
+materialPathString = Draw.Create(os.path.dirname(Blender.Get('filename')))
 materialString = Draw.Create(Blender.Scene.GetCurrent().getName()+".material")
 scaleNumber = Draw.Create(1.0)
 fpsNumber = Draw.Create(25)
@@ -1509,6 +1607,7 @@ rotZNumber = Draw.Create(0.0)
 selectedObjectsList = Blender.Object.GetSelected()
 selectedObjectsMenu = Draw.Create(0)
 scrollbar = ReplacementScrollbar(0,0,0,0,0)
+poseSamplingToggle = Draw.Create(0)
 # key: objectName, value: armatureName
 armatureDict = {}
 # key: armatureName, value: armatureActionActuatorListView
@@ -1540,6 +1639,9 @@ BUTTON_EVENT_SRCROLLBARDOWN = 1018
 BUTTON_EVENT_UPDATEBUTTON = 1019
 BUTTON_EVENT_SELECTEDOBJECTSMENU = 1020
 BUTTON_EVENT_ACTUATOR_RANGESTART = 1021
+BUTTON_EVENT_POSESAMPLINGTOGGLE = 1022
+BUTTON_EVENT_MATERIALPATH = 1023
+BUTTON_EVENT_MATERIALPATHBUTTON = 1024
 
 exportLogger = Logger()
 
@@ -2784,7 +2886,7 @@ class Bone:
     
     self.id = len(skeleton.bones)
     skeleton.bones.append(self)
-    skeleton.bonesDict[name] =self
+    skeleton.bonesDict[name] = self
 
 class Animation:
   def __init__(self, name, duration = 0.0):
@@ -2900,7 +3002,7 @@ def process_vert_influences(mesh, skeleton):
 def process_face(face, submesh, mesh, matrix, skeleton=None):
     """Process a face of a mesh.
     
-       @param face Blender.NMesh.NMFace.
+       @param face Blender.Mesh.faces.
        @param submesh SubMesh the face belongs to.
        @param mesh Blender.Mesh.Mesh the face belongs to.
        @param matrix Export translation.
@@ -2912,7 +3014,7 @@ def process_face(face, submesh, mesh, matrix, skeleton=None):
     threshold = 1e-6
     if len(face.v) in [ 3, 4 ]:
         if not face.smooth:
-            # calculate the face normal.
+            #print "calculate the face normal."
             p1 = face.v[0].co
             p2 = face.v[1].co
             p3 = face.v[2].co
@@ -2986,7 +3088,7 @@ def process_face(face, submesh, mesh, matrix, skeleton=None):
         if len(face.v) == 3:
             Face(submesh, face_vertices[0], face_vertices[1], face_vertices[2])
         elif len(face.v) == 4:
-            # Split faces with 4 vertices on the shortest edge
+            #print "Split faces with 4 vertices on the shortest edge"
             differenceVectorList = [[0,0,0],[0,0,0]]
             for indexOffset in range(2):
                 for coordinate in range(3):
@@ -3013,15 +3115,21 @@ def export_mesh(object, exportOptions):
     if (object.getType() == "Mesh"):
         # is this mesh attached to an armature?
         skeleton = None
+        print "Exporting: ", object
         if armatureToggle.val:
+            parent = None
             parent = object.getParent()
+            print parent
             #if parent and parent.getType() == "Armature" and (not skeletonsDict.has_key(parent.getName())):
             if (parent and (parent.getType() == "Armature")):
+                print "is an armature"
                 if armatureActionActuatorListViewDict.has_key(parent.getName()):
+                    print "list view has the key"
                     actionActuatorList = armatureActionActuatorListViewDict[parent.getName()].armatureActionActuatorList
-                    armatureExporter = ArmatureExporter(MeshExporter(object), parent)
+                    armatureExporter = ArmatureExporter(object, parent)
                     armatureExporter.export(actionActuatorList, exportOptions, exportLogger)
                     skeleton = armatureExporter.skeleton
+                    print "skeleton exported"
 
         #Mesh of the object
         #for 2.4 us Mesh instead of NMesh
@@ -3030,8 +3138,8 @@ def export_mesh(object, exportOptions):
         if worldCoordinatesToggle.val:
             matrix = object.getMatrix("worldspace")
         else:
-            matrix = Mathutils.Matrix([1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1])
-        matrix = matrix*BASE_MATRIX
+            matrix = Mathutils.Matrix()
+        matrix = matrix * BASE_MATRIX
         # materials of the object
         # note: ogre assigns different textures and different facemodes
         #       to different materials
@@ -3050,6 +3158,7 @@ def export_mesh(object, exportOptions):
         #if (data.mode & Blender.Mesh.Modes['SUBSURF']):
             #exportLogger.logWarning("Mesh \"%s\" is a subdivision surface. Convert it to mesh, if you want to export the subdivision result." % data.name)
         # create ogre materials
+        print "collecting face materials"
         for face in data.faces:
             faceMaterial = None
             # choose "rendering materials" or "game engine materials"
@@ -3096,21 +3205,24 @@ def export_mesh(object, exportOptions):
                     objectMaterialDict[materialName] = faceMaterial
                     objectMaterialFacesDict[materialName] = [face]
         # process faces
+        print "building submeshes"
         submeshes = []
         for materialKey in objectMaterialDict.keys():
             submesh = SubMesh(objectMaterialDict[materialKey])
             verticesDict = {}
+            print submesh
             for face in objectMaterialFacesDict[materialKey]:
                 process_face(face, submesh, data, matrix, skeleton)
             if len(submesh.faces):
-                # process verticesDict and add bone influences
+                print "process verticesDict and add bone influences"
                 process_vert_influences(data, skeleton)
                 submeshes.append(submesh)
-                # update global materialsDict
+                print "update global materialsDict"
                 material = materialsDict.get(materialKey)
                 if not material:
                     materialsDict[materialKey] = objectMaterialDict[materialKey]
         # write mesh
+        #print "writing mesh"
         if len(submeshes) == 0:
             # no submeshes
             exportLogger.logWarning("Mesh %s has no visible faces!" % data.name)
@@ -3159,7 +3271,7 @@ def write_materials():
     global materialsDict
     file = materialString.val
     exportLogger.logInfo("Materials \"%s\"" % file)
-    f = open(os.path.join(pathString.val, file), "w")
+    f = open(os.path.join(materialPathString.val, file), "w")
     for material in materialsDict.values():
         material.write(f)
     f.close()
@@ -3169,7 +3281,7 @@ def write_materials():
 ## main export
 
 def export(selectedObjectsList):
-    global pathString, scaleNumber, rotXNumber, rotYNumber, rotZNumber
+    global pathString, materialPathString, scaleNumber, rotXNumber, rotYNumber, rotZNumber
     global materialsDict
     global skeletonsDict
     global BASE_MATRIX
@@ -3189,7 +3301,7 @@ def export(selectedObjectsList):
     BASE_MATRIX = rotationMatrix*scaleMatrix
 
     exportOptions = ExportOptions(rotXNumber.val, rotYNumber.val, rotZNumber.val, scaleNumber.val,
-        worldCoordinatesToggle.val, ambientToggle.val, pathString.val, materialString.val)
+        worldCoordinatesToggle.val, ambientToggle.val, pathString.val, materialString.val, materialPathString.val)
 
     if not os.path.exists(pathString.val):
       exportLogger.logError("Invalid path: "+pathString.val)
@@ -3241,7 +3353,7 @@ def saveSettings():
     global worldCoordinatesToggle
     global ambientToggle
     global pathString
-    global materialString
+    global materialString, materialPathString
     global scaleNumber
     global rotXNumber, rotYNumber, rotZNumber
     global fpsNumber
@@ -3257,6 +3369,7 @@ def saveSettings():
     settingsDict['worldCoordinatesToggle'] = worldCoordinatesToggle.val
     settingsDict['ambientToggle'] = ambientToggle.val
     settingsDict['pathString'] = pathString.val
+    settingsDict['materialPathString'] = materialPathString.val
     settingsDict['materialString'] = materialString.val
     settingsDict['scaleNumber'] = scaleNumber.val
     settingsDict['rotXNumber'] = rotXNumber.val
@@ -3319,7 +3432,7 @@ def loadSettings(filename):
     global worldCoordinatesToggle
     global ambientToggle
     global pathString
-    global materialString
+    global materialString, materialPathString
     global scaleNumber
     global rotXNumber, rotYNumber, rotZNumber
     global fpsNumber
@@ -3372,6 +3485,8 @@ def loadSettings(filename):
         worldCoordinatesToggle = Blender.Draw.Create(1)
     if settingsDict.has_key('pathString'):
         pathString = Blender.Draw.Create(settingsDict['pathString'])
+    if settingsDict.has_key('materialPathString'):
+        materialPathString = Blender.Draw.Create(settingsDict['materialPathString'])
     if settingsDict.has_key('materialString'):
         materialString = Blender.Draw.Create(settingsDict['materialString'])
     if settingsDict.has_key('scaleNumber'):
@@ -3475,6 +3590,14 @@ def pathSelectCallback(fileName):
     pathString = Blender.Draw.Create(os.path.dirname(fileName))
     return
     
+def materialPathSelectCallback(fileName):
+    """handles FileSelector output
+    """
+    global materialPathString
+    # strip path from fileName
+    materialPathString = Blender.Draw.Create(os.path.dirname(fileName))
+    return
+
 def eventCallback(event,value):
     """handles keyboard and mouse events
        <p>    
@@ -3504,7 +3627,8 @@ def buttonCallback(event):
     """
     global materialString, doneMessageBox, eventCallback, buttonCallback, scrollbar
     global selectedObjectsList, selectedObjectsMenu, armatureActionActuatorListViewDict, armatureDict
-    global fpsNumber
+    global fpsNumber, poseSamplingToggle, pathString, materialPathString
+    
     # buttonFilter for current ArmatureActionActuatorListView
     if (len(selectedObjectsList) > 0):
         selectedObjectsListIndex = selectedObjectsMenu.val
@@ -3531,7 +3655,10 @@ def buttonCallback(event):
     elif (event == BUTTON_EVENT_ARMATURETOGGLE): # armatureToggle
         Draw.Redraw(1)
     elif (event == BUTTON_EVENT_PATHBUTTON): # pathButton
-        Blender.Window.FileSelector(pathSelectCallback, "Export Directory", pathString.val)
+        Blender.Window.FileSelector(pathSelectCallback, "Mesh Export Directory", pathString.val)
+        Draw.Redraw(1)
+    elif (event == BUTTON_EVENT_MATERIALPATHBUTTON): # material pathButton
+        Blender.Window.FileSelector(materialPathSelectCallback, "Material Export Directory", materialPathString.val)
         Draw.Redraw(1)
     elif (event == BUTTON_EVENT_MATERIALSTRING): # materialString
         materialString = Blender.Draw.Create(PathName(materialString.val).basename())
@@ -3552,6 +3679,7 @@ def buttonCallback(event):
         scrollbar = ReplacementScrollbar(0,0,len(exportLogger.getMessageList())-1,BUTTON_EVENT_SCROLLBARUP,BUTTON_EVENT_SRCROLLBARDOWN)
         Draw.Register(doneMessageBox, eventCallback, buttonCallback)
         Draw.Redraw(1)
+        
     return
 
 def frameDecorator(x, y, width):
@@ -3584,9 +3712,10 @@ def gui():
     """draws the screen
     """
     global gameEngineMaterialsToggle, armatureToggle, worldCoordinatesToggle, \
-        ambientToggle, pathString, materialString, scaleNumber, fpsNumber, \
+        ambientToggle, pathString, materialPathString, materialString, scaleNumber, fpsNumber, \
         scrollbar, rotXNumber, rotYNumber, rotZNumber
-    global selectedObjectsList, selectedObjectsMenu, armatureActionActuatorListViewDict, armatureDict
+    global selectedObjectsList, selectedObjectsMenu, armatureActionActuatorListViewDict, \
+        armatureDict, poseSamplingToggle
     # get size of the window
     guiRectBuffer = Buffer(GL_FLOAT, 4)
     glGetFloatv(GL_SCISSOR_BOX, guiRectBuffer)
@@ -3652,15 +3781,19 @@ def gui():
     remainRect[3] -= 35
     
     # Path setting
-    pathString = Draw.String("Path: ", BUTTON_EVENT_PATHSTRING, \
+    pathString = Draw.String("Mesh Path: ", BUTTON_EVENT_PATHSTRING, \
+            10, 70, guiRect[2]-91, 20, \
+            pathString.val, 255, "the directory where the exported mesh files are saved")
+    Draw.Button("Select", BUTTON_EVENT_PATHBUTTON, guiRect[2]-80, 70, 70, 20, "select the mesh export directory")
+    materialPathString = Draw.String("Material Path: ", BUTTON_EVENT_MATERIALPATH, \
             10, 50, guiRect[2]-91, 20, \
-            pathString.val, 255, "the directory where the exported files are saved")
-    Draw.Button("Select", BUTTON_EVENT_PATHBUTTON, guiRect[2]-80, 50, 70, 20, "select the export directory")
+            materialPathString.val, 255, "the directory where the exported material files are saved")
+    Draw.Button("Select", BUTTON_EVENT_MATERIALPATHBUTTON, guiRect[2]-80, 50, 70, 20, "select the material export directory")
     # button panel
     Draw.Button("Export", BUTTON_EVENT_EXPORT,10,10,100,30,"export selected objects")
     # Draw.Button("Help",BUTTON_EVENT_HELP ,(guiRect[2])/2-50,10,100,30,"notes on usage")    
     Draw.Button("Quit", BUTTON_EVENT_QUIT,guiRect[2]-110,10,100,30,"quit without exporting")
-    remainRect[1] += 70
+    remainRect[1] += 90
     
     # rename animation part    
     #if (armatureToggle.val == 1):
@@ -3681,16 +3814,23 @@ def gui():
     xOffset += 141
     # update button
     Draw.Button("Update", BUTTON_EVENT_UPDATEBUTTON, remainRect[0]+xOffset, remainRect[3]-20, 60, 20, "update list of selected objects")
-    remainRect[3] -= 25
+    xOffset += 62
     if (armatureToggle.val == 1):
         # draw armatureActionActuator
         if (len(selectedObjectsList) > 0):
             selectedObjectsListIndex = selectedObjectsMenu.val
             selectedObjectName = selectedObjectsList[selectedObjectsListIndex].getName()
             if armatureDict.has_key(selectedObjectName):
+                armatureName = armatureDict[selectedObjectName]
+                # draw Use Pose Sampling button
+                poseSamplingToggle = Draw.Toggle("Use Pose Sampling", BUTTON_EVENT_POSESAMPLINGTOGGLE, \
+                    remainRect[0]+xOffset, remainRect[3]-20, 120, 20, \
+                    armatureActionActuatorListViewDict[armatureName].poseSamplingEnabled, \
+                    "use pose sampling so that IK and constraints are used")
+                
+                remainRect[3] -= 25
                 glRasterPos2i(remainRect[0],remainRect[3]+10)
                 Draw.Text(animationText)
-                armatureName = armatureDict[selectedObjectName]
                 armatureActionActuatorListViewDict[armatureName].draw(remainRect[0], remainRect[1], remainRect[2]-remainRect[0], remainRect[3]-remainRect[1])
     return
 
