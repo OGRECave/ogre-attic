@@ -1307,7 +1307,7 @@ class ArmatureExporter:
             R_bmat = bbone.matrix['BONESPACE'].rotationPart().resize4x4()
             
             #get the bone's root offset (in the parent's coordinate system)
-            T_root = TranslationMatrix(Vector([ head.x, head.y, head.z ]))
+            T_head = TranslationMatrix(Vector([ head.x, head.y, head.z ]))
             
             # get the bone length translation (length along y axis)
             T_len = TranslationMatrix(Vector([ 0, bbone.length,  0 ]))
@@ -1315,7 +1315,8 @@ class ArmatureExporter:
             # calculate bone points in world coordinates
             # accu_mat = T_{to head}*M_{parent}
             #print accu_mat
-            accu_mat = T_root * accu_mat
+            accu_mat = T_head * accu_mat
+            # get the translation from root bone head to child head
             pos = accu_mat.translationPart().resize4D()
             
             # accu_mat = tmp_mat = R_{bone}*T_{to head}*M_{parent}
@@ -1335,9 +1336,9 @@ class ArmatureExporter:
             loc = (pos * invertedOgreTransformation).resize3D()
             #creat inverted translation Matrix
             invertedOgreTranslationMatrix = TranslationMatrix(-loc)
-            
+            # calc M^{-1}_{Ogre}T^{-1}_{Ogre}
             invertedOgreTransformation = invertedOgreTransformation * invertedOgreTranslationMatrix
-            parent = Bone(skeleton, parent, bbone.name, loc, R_bmat.toQuat(), tmp_mat * invertedOgreTransformation)
+            parent = Bone(skeleton, parent, bbone.name, -loc, R_bmat.toQuat(), tmp_mat * invertedOgreTransformation)
             print "bone created:", parent
 
             # R_{Ogre} is either
