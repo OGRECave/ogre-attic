@@ -992,21 +992,15 @@ class ArmatureExporter:
             armatureBonesDict = self.armatureObject.getData().bones
             
             obj = self.armatureObject
-            matrix = None
-            matrix_one = Mathutils.Matrix()
-            if exportOptions.useWorldCoordinates:
-                # world coordinates
-                matrix = obj.getMatrix("worldspace")
-            else:
+            #matrix = None
+            matrix_identity = Mathutils.Matrix()
+            #default to world coordinates
+            matrix = obj.getMatrix("worldspace")
+            if not exportOptions.useWorldCoordinates:
                 # local mesh coordinates
-                armatureMatrix = obj.getMatrix("worldspace")
-                # Blender returns direct access to matrix but we only want a copy
-                # since we will be inverting it
-                inverseMeshMatrix = matrix_one * self.meshObject.getMatrix()
-                inverseMeshMatrix.invert()
-                matrix = armatureMatrix * inverseMeshMatrix
+                matrix = matrix * Matrix(self.meshObject.getMatrix()).invert()
             # apply additional export transformation
-            matrix = matrix*exportOptions.transformationMatrix()
+            matrix = matrix * exportOptions.transformationMatrix()
                 
             if (not skeleton.animationsDict.has_key(armatureActionActuator.name)):
                 # create animation
@@ -1259,23 +1253,14 @@ class ArmatureExporter:
             Blender.Window.Redraw()
         obj = self.armatureObject
         stack = []
-        matrix = None
         # make a 4x4 identity matrix
-        matrix_one = Mathutils.Matrix()
-        if exportOptions.useWorldCoordinates:
-            # world coordinates
-            matrix = obj.getMatrix("worldspace")
-        else:
+        matrix_identity = Mathutils.Matrix()
+        matrix = obj.getMatrix("worldspace")
+        if not exportOptions.useWorldCoordinates:
             # local mesh coordinates
-            #inverseArmatureMatrix = Matrix(obj.getMatrix("worldspace")).invert()
-            # Blender returns direct access to matrix but we only want a copy
-            # since we will be inverting it
-            #inverseMeshMatrix = Matrix(self.meshObject.getMatrix()).invert()
-            #matrix = inverseArmatureMatrix * inverseMeshMatrix
-            matrix = Matrix(self.meshObject.getMatrix()).invert()
+            matrix = matrix * Matrix(self.meshObject.getMatrix()).invert()
         # apply additional export transformation
         matrix = matrix * exportOptions.transformationMatrix()
-        #loc = [ 0, 0, 0 ]
         parent = None
         
         # get parent bones
@@ -1284,7 +1269,7 @@ class ArmatureExporter:
         for bbone in boneDict.values():
             print bbone, bbone.parent
             if bbone.parent == None:
-                stack.append([bbone, parent, matrix, matrix_one])
+                stack.append([bbone, parent, matrix, matrix_identity])
                 
         print "iterate through bones and build ogre equivalent bones"
         # blend bone matrix in armature space is perfect for ogre equivalency
@@ -1344,9 +1329,7 @@ class ArmatureExporter:
             # R_{Ogre} is either
             # the rotation part of R_{bone}*T_{to_head}*M_{parent} for root bones or
             # the rotation part of R_{bone}*T_{to_head} of child bones
-            invertedOgreRotationMatrix = R_bmat.rotationPart()
-            invertedOgreRotationMatrix.invert()
-            invertedOgreRotationMatrix.resize4x4()
+            invertedOgreRotationMatrix = R_bmat.rotationPart().invert().resize4x4()
             invertedOgreTransformation = invertedOgreTransformation * invertedOgreRotationMatrix
             if bbone.children is not None:
                 for child in bbone.children:
@@ -1471,14 +1454,12 @@ class ArmatureMeshExporter(ObjectExporter):
         else:
             # local mesh coordinates
             armatureMatrix = obj.getMatrix("worldspace")
-            matrix_one = Mathutils.Matrix([1.0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1])
             # note that blender returns direct access to the objects matrix but we only want
             # a copy so force a copy
-            inverseMeshMatrix = matrix_one * self.getObjectMatrix()
-            inverseMeshMatrix.invert()
+            inverseMeshMatrix = Matrix(self.getObjectMatrix()).invert()
             matrix = armatureMatrix * inverseMeshMatrix
         # apply additional export transformation
-        matrix = matrix*exportOptions.transformationMatrix()
+        matrix = matrix * exportOptions.transformationMatrix()
         loc = [ 0.0, 0, 0 ]
         parent = None
         
