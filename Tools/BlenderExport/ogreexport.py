@@ -997,10 +997,10 @@ class ArmatureExporter:
             #default to world coordinates
             matrix = obj.getMatrix("worldspace")
             if not exportOptions.useWorldCoordinates:
-                # local mesh coordinates
-                matrix = matrix * Matrix(self.meshObject.getMatrix()).invert()
+                # use local mesh coordinates
+                matrix *= Matrix(self.meshObject.getMatrix()).invert()
             # apply additional export transformation
-            matrix = matrix * exportOptions.transformationMatrix()
+            matrix *= exportOptions.transformationMatrix()
                 
             if (not skeleton.animationsDict.has_key(armatureActionActuator.name)):
                 # create animation
@@ -1123,57 +1123,47 @@ class ArmatureExporter:
                                 Blender.Window.Redraw()
                                 
                             pose_mat = pose.bones[boneName].poseMatrix
+                            parent_pose_mat = None
                             bone = skeleton.bonesDict[boneName]
+                            if bone.parent:
+                                parent_pose_mat = pose.bones[bone.parent.name].poseMatrix
+                            else:
+                                parent_pose_mat = Matrix(matrix).invert()
+                                
                             print "current bone: ", bone.name
                             for time in timeList:
                                 # Blender's ordering of transformations is deltaR*deltaS*deltaT
                                 # in the bone's coordinate system.
                                 frame = int(round(frameNumberDict[time]))
-                                loc = Vector([ 0.0, 0.0, 0.0 ])
-                                rotQuat = Mathutils.Quaternion([1.0, 0.0, 0.0, 0.0])
                                 sizeX = 1.0
                                 sizeY = 1.0
                                 sizeZ = 1.0
-                                blenderLoc = Vector([0, 0, 0, 1])
                                 if poseSamplingToggle.val:
                                     #sample pose channels for data
                                     # set the current frame
-                                        
                                     Blender.Set("curframe", frame)
                                     # do a redraw so pose channels get updated
-                                    #scene = Blender.Scene.getCurrent() 
-                                    #scene.update(1) # <- "1" forces a full update
                                     #redrawing the 3d view forces the pose channels to update
                                     # to current frame. The 3D view must be displayed for this to work.
                                     Blender.Window.Redraw()
-                                    # get poseMatrix for active bone
-                                    # pose matrix is in armature object space
-                                    poseMat = matrix * pose_mat
-                                    blenderLoc = poseMat.translationPart().resize4D()
-
-                                    print "blenderLoc: ", blenderLoc
-                                    rotQuat = poseMat.toQuat()
-                                    parent_poseQuat = matrix.toQuat()
-                                    if bone.parent:
-                                        print "Parent Bone: ", bone.parent.name
-                                        # get the parent bone poseMatrix which is in armature object space
-                                        parent_poseMat = matrix * pose.bones[bone.parent.name].poseMatrix
-                                        # calc location in bone local space
-                                        blenderLoc = parent_poseMat.rotationPart() * (blenderLoc - parent_poseMat.translationPart())
-                                        parent_poseQuat = parent_poseMat.toQuat()
-                                    # calc rotation in bone local space
-                                    rotQuat =  Blender.Mathutils.DifferenceQuats(parent_poseQuat, rotQuat)
-                                    print "blenderLoc local space: ", blenderLoc
-                                    # need the change between restpose and current sampled pose
-                                    print "rest bone loc (Ogre): ", bone.loc
-                                    #print "rest bone loc (Blender): ", rest_mat.translationPart()
-                                    blenderLoc = blenderLoc - Mathutils.Vector(bone.loc)
-                                    print "blenderLoc delta: ", blenderLoc
-                                    rotQuat =  Mathutils.DifferenceQuats(bone.rotQuat, rotQuat)
-                                    print "quat delta: ", rotQuat
+                                    
+                                    #print "Parent Bone: ", bone.parent.name
+                                    # get the parent bone poseMatrix which is in armature object space
+                                    # put into world space then invert so that it can be used to put
+                                    # a child pose matrix in bone local space
+                                    parent_invPoseMat = Matrix(parent_pose_mat * matrix).invert()
+                                    # calc transform in bone local space
+                                    boneMat = pose_mat * matrix * parent_invPoseMat
+                                    # calc change in rotation from rest position to current frame
+                                    rotQuat =  Blender.Mathutils.DifferenceQuats(bone.rotQuat, boneMat.rotationPart().toQuat())
+                                    # need the translation change between restpose and current sampled pose
+                                    #print "rest bone loc (Ogre): ", bone.loc
                                     # Ogre's deltaT is in the bone's parent coordinate system
-                                    loc = blenderLoc * bone.conversionMatrix
+                                    loc = boneMat.translationPart() - Mathutils.Vector(bone.loc)
                                 else:
+                                    blenderLoc = Vector([0, 0, 0, 1])
+                                    loc = Vector([ 0.0, 0.0, 0.0 ])
+                                    rotQuat = Mathutils.Quaternion([1.0, 0.0, 0.0, 0.0])
                                     hasLocKey = 0 #false
                                     if curveId.has_key("LocX"):
                                         blenderLoc[0] = ipo.EvaluateCurveOn(curveId["LocX"], frame)
@@ -1201,13 +1191,14 @@ class ArmatureExporter:
                                                     ipo.EvaluateCurveOn(curveId["QuatZ"], frame), \
                                                     ipo.EvaluateCurveOn(curveId["QuatW"], frame) ]
                                             rotQuat = Mathutils.Quaternion(rot)
-                                        rotQuat.normalize()
                                     if curveId.has_key("SizeX"):
                                         sizeX = ipo.EvaluateCurveOn(curveId["SizeX"], frame)
                                     if curveId.has_key("SizeY"):
                                         sizeY = ipo.EvaluateCurveOn(curveId["SizeY"], frame)
                                     if curveId.has_key("SizeZ"):
                                         sizeZ = ipo.EvaluateCurveOn(curveId["SizeZ"], frame)
+                                        
+                                rotQuat.normalize()
                                 size = (sizeX, sizeY, sizeZ)
                                 KeyFrame(track, time, loc, rotQuat, size)
                                 print "key frame added"
@@ -1258,9 +1249,9 @@ class ArmatureExporter:
         matrix = obj.getMatrix("worldspace")
         if not exportOptions.useWorldCoordinates:
             # local mesh coordinates
-            matrix = matrix * Matrix(self.meshObject.getMatrix()).invert()
+            matrix *= Matrix(self.meshObject.getMatrix()).invert()
         # apply additional export transformation
-        matrix = matrix * exportOptions.transformationMatrix()
+        matrix *= exportOptions.transformationMatrix()
         parent = None
         
         # get parent bones
@@ -1311,7 +1302,7 @@ class ArmatureExporter:
             
             # local rotation and distance from parent bone
             if parent == None:
-                R_bmat = R_bmat * matrix
+                R_bmat *= matrix
                 
             # matrix_multiply(invertedOgreTransformation, tmp_mat) is R*T*M_{parent} M^{-1}_{Ogre}T^{-1}_{Ogre}.
             # Necessary, since Ogre's delta location is in the Bone's parent coordinate system, i.e.
@@ -1322,7 +1313,7 @@ class ArmatureExporter:
             #creat inverted translation Matrix
             invertedOgreTranslationMatrix = TranslationMatrix(-loc)
             # calc M^{-1}_{Ogre}T^{-1}_{Ogre}
-            invertedOgreTransformation = invertedOgreTransformation * invertedOgreTranslationMatrix
+            invertedOgreTransformation *= invertedOgreTranslationMatrix
             parent = Bone(skeleton, parent, bbone.name, -loc, R_bmat.toQuat(), tmp_mat * invertedOgreTransformation)
             print "bone created:", parent
 
@@ -1330,7 +1321,7 @@ class ArmatureExporter:
             # the rotation part of R_{bone}*T_{to_head}*M_{parent} for root bones or
             # the rotation part of R_{bone}*T_{to_head} of child bones
             invertedOgreRotationMatrix = R_bmat.rotationPart().invert().resize4x4()
-            invertedOgreTransformation = invertedOgreTransformation * invertedOgreRotationMatrix
+            invertedOgreTransformation *= invertedOgreRotationMatrix
             if bbone.children is not None:
                 for child in bbone.children:
                     # make sure child bone is attached to current parent
@@ -3121,7 +3112,7 @@ def export_mesh(object, exportOptions):
             matrix = object.getMatrix("worldspace")
         else:
             matrix = Mathutils.Matrix()
-        matrix = matrix * BASE_MATRIX
+        matrix *= BASE_MATRIX
         # materials of the object
         # note: ogre assigns different textures and different facemodes
         #       to different materials
