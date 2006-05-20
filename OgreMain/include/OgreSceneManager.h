@@ -517,10 +517,10 @@ namespace Ogre {
 		Pass* mShadowTextureCustomReceiverPass;
 		String mShadowTextureCustomCasterVertexProgram;
 		String mShadowTextureCustomReceiverVertexProgram;
+		String mShadowTextureCustomReceiverFragmentProgram;
 		GpuProgramParametersSharedPtr mShadowTextureCustomCasterVPParams;
 		GpuProgramParametersSharedPtr mShadowTextureCustomReceiverVPParams;
-		bool mShadowTextureCasterVPDirty;
-		bool mShadowTextureReceiverVPDirty;
+		GpuProgramParametersSharedPtr mShadowTextureCustomReceiverFPParams;
 
 		/// Visibility mask used to show / hide objects
 		uint32 mVisibilityMask;

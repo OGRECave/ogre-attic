@@ -759,45 +759,21 @@ protected:
 
 	void testBug()
 	{
-		mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_ADDITIVE);
+		mSceneMgr->setAmbientLight(ColourValue::White);
+		Entity *e = mSceneMgr->createEntity("1", "mrbendy.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
 
-		// Setup lighting
-		mSceneMgr->setAmbientLight(ColourValue(0.2, 0.2, 0.2));
-		Light* light = mSceneMgr->createLight("MainLight");
-		light->setType(Light::LT_DIRECTIONAL);
-		Vector3 dir(-1, -1, 0.5);
-		dir.normalise();
-		light->setDirection(dir);
+		AnimationState* a = e->getAnimationState("Bend");
+		a->setEnabled(true);	
+		mAnimStateList.push_back(a);
+		a = e->getAnimationState("Fatten");
+		a->setEnabled(true);	
+		mAnimStateList.push_back(a);
 
-		// Create a floor plane mesh
-		Plane plane(Vector3::UNIT_Y, 0.0);
-		MeshManager::getSingleton().createPlane(
-			"FloorPlane", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-			plane, 200000, 200000, 20, 20, true, 1, 500, 500, Vector3::UNIT_Z);
 
-		// Add a floor to the scene
-		Entity* entity = mSceneMgr->createEntity("floor", "FloorPlane");
-		entity->setMaterialName("Examples/RustySteel");
-		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(entity);
+		mCamera->setPosition(0,0,100);
+		mCamera->lookAt(Vector3::ZERO);
 
-		// Add the mandatory ogre heads ;)
-		entity = mSceneMgr->createEntity("head0", "ogrehead.mesh");
-		mSceneMgr->getRootSceneNode()->createChildSceneNode(
-			Vector3(0.0, 10.0, 0.0))->attachObject(entity);
-
-		entity = mSceneMgr->createEntity("head1", "ogrehead.mesh");
-		mSceneMgr->getRootSceneNode()->createChildSceneNode(
-			Vector3(-50.0, 10.0, -50.0))->attachObject(entity);
-
-		entity = mSceneMgr->createEntity("head2", "ogrehead.mesh");
-		mSceneMgr->getRootSceneNode()->createChildSceneNode(
-			Vector3(70.0, 10.0, -80.0))->attachObject(entity);
-
-		// Position and orient the camera
-		mCamera->setPosition(-55.0, 40.0, 100.0);
-		mCamera->lookAt(-10.0, 20.0, -35.0); 
-
-		mWindow->addViewport(mCamera, 1, 0.7, 0.0, 0.3, 0.3); 
 	}
 
 	void testTransparencyMipMaps()
@@ -1553,12 +1529,12 @@ protected:
 
 
 
-        Entity *ent = mSceneMgr->createEntity("robot", "scuttlepod.mesh");
+        Entity *ent = mSceneMgr->createEntity("robot", "jaiqua.mesh");
         // Uncomment the below to test software skinning
         //ent->setMaterialName("Examples/Rocky");
         // Add entity to the scene node
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
-        mAnimState = ent->getAnimationState("Walk");
+        mAnimState = ent->getAnimationState("Jaiqua_walk_Preset_Clip");
         mAnimState->setEnabled(true);
 
         // Give it a little ambience with lights
@@ -1653,18 +1629,25 @@ protected:
     void testAttachObjectsToBones()
     {
         Entity *ent;
-        for (int i = 0; i < 5; ++i)
+        for (int i = 0; i < 12; ++i)
         {
             ent = mSceneMgr->createEntity("robot" + StringConverter::toString(i), "robot.mesh");
-            Entity* ent2 = mSceneMgr->createEntity("plane" + StringConverter::toString(i), "razor.mesh");
-            ent->attachObjectToBone("Joint8", ent2);
+			if (false)//i % 2)
+			{
+				Entity* ent2 = mSceneMgr->createEntity("plane" + StringConverter::toString(i), "razor.mesh");
+				ent->attachObjectToBone("Joint8", ent2);
+			}
+			else
+			{
+				ParticleSystem* psys = mSceneMgr->createParticleSystem("psys" + StringConverter::toString(i), "Examples/PurpleFountain");
+				psys->getEmitter(0)->setTimeToLive(0.2);
+				ent->attachObjectToBone("Joint15", psys);
+			}
             // Add entity to the scene node
             mSceneMgr->getRootSceneNode()->createChildSceneNode(
-                Vector3(0,0,(i*50)-(5*50/2)))->attachObject(ent);
-            if (i==4)
-            {
-                ent->getParentNode()->yaw(Degree(45));
-            }
+                Vector3(0,0,(i*200)-(12*200/2)))->attachObject(ent);
+
+			ent->getParentNode()->yaw(Degree(i * 45));
         }
         mAnimState = ent->getAnimationState("Walk");
         mAnimState->setEnabled(true);
@@ -1775,8 +1758,10 @@ protected:
 	{
 		// Load all textures from new resource group "Test"
 		ResourceGroupManager::getSingleton().removeResourceLocation("../../../Media/materials/textures");
+		ResourceGroupManager::getSingleton().removeResourceLocation("../../../Media/models");
 		ResourceGroupManager::getSingleton().createResourceGroup("Test");
 		ResourceGroupManager::getSingleton().addResourceLocation("../../../Media/materials/textures", "FileSystem", "Test");
+		ResourceGroupManager::getSingleton().addResourceLocation("../../../Media/models", "FileSystem", "Test");
 
 		// Load a texture from default group (won't be found there, but should fall back)
 		TextureManager::getSingleton().load("dirt01.jpg", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
@@ -2057,6 +2042,10 @@ protected:
         mTestNode[2] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(100, 0, 200));
         mTestNode[2]->attachObject( pEnt );
 
+		// controller based material
+		pEnt = mSceneMgr->createEntity( "432", "knot.mesh" );
+		pEnt->setMaterialName("Examples/TextureEffect2");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(100, 200, 200))->attachObject( pEnt );
 
         ParticleSystem* pSys2 = mSceneMgr->createParticleSystem("smoke", 
             "Examples/Smoke");
@@ -2080,6 +2069,26 @@ protected:
 
         mCamera->setPosition(180, 34, 223);
         mCamera->setOrientation(Quaternion(0.7265, -0.2064, 0.6304, 0.1791));
+
+		// Create a render texture
+		TexturePtr rtt = TextureManager::getSingleton().createManual("rtt0", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+			TEX_TYPE_2D, 512, 512, 0, PF_R8G8B8, TU_RENDERTARGET);
+		rtt->getBuffer()->getRenderTarget()->addViewport(mCamera);
+		// Create an overlay showing the rtt
+		MaterialPtr debugMat = MaterialManager::getSingleton().create(
+			"DebugRTT", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		debugMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+		TextureUnitState *t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("rtt0");
+		t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+		OverlayContainer* debugPanel = (OverlayContainer*)
+			(OverlayManager::getSingleton().createOverlayElement("Panel", "Ogre/DebugShadowPanel"));
+		debugPanel->_setPosition(0.6, 0);
+		debugPanel->_setDimensions(0.4, 0.6);
+		debugPanel->setMaterialName("DebugRTT");
+		Overlay* debugOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
+		debugOverlay->add2D(debugPanel);
+
 
     }
 
@@ -2121,6 +2130,8 @@ protected:
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 
     }
+
+
     void testTextureShadows(ShadowTechnique tech)
     {
         mSceneMgr->setShadowTextureSize(512);
@@ -2231,6 +2242,354 @@ protected:
 
     }
 
+	void testTextureShadowsCustomCasterMat(ShadowTechnique tech)
+	{
+
+		testTextureShadows(tech);
+
+		String customCasterMatVp = 
+			"void customCasterVp(float4 position : POSITION,\n"
+			"out float4 oPosition : POSITION,\n"
+			"uniform float4x4 worldViewProj)\n"
+			"{\n"
+			"	oPosition = mul(worldViewProj, position);\n"
+			"}\n";
+		String customCasterMatFp = 
+			"void customCasterFp(\n"
+			"out float4 oColor : COLOR)\n"
+			"{\n"
+			"	oColor = float4(1,1,0,1); // just a test\n"
+			"}\n";
+
+		HighLevelGpuProgramPtr vp = HighLevelGpuProgramManager::getSingleton()
+			.createProgram("CustomShadowCasterVp", 
+				ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+				"cg", GPT_VERTEX_PROGRAM);
+		vp->setSource(customCasterMatVp);
+		vp->setParameter("profiles", "vs_1_1 arbvp1");
+		vp->setParameter("entry_point", "customCasterVp");
+		vp->load();
+
+		HighLevelGpuProgramPtr fp = HighLevelGpuProgramManager::getSingleton()
+			.createProgram("CustomShadowCasterFp", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+			"cg", GPT_FRAGMENT_PROGRAM);
+		fp->setSource(customCasterMatFp);
+		fp->setParameter("profiles", "ps_1_1 arbfp1");
+		fp->setParameter("entry_point", "customCasterFp");
+		fp->load();
+		
+		MaterialPtr mat = MaterialManager::getSingleton().create("CustomShadowCaster", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setVertexProgram("CustomShadowCasterVp");
+		p->getVertexProgramParameters()->setNamedAutoConstant(
+			"worldViewProj", GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+		p->setFragmentProgram("CustomShadowCasterFp");
+
+		mSceneMgr->setShadowTextureCasterMaterial("CustomShadowCaster");
+
+
+		
+
+
+	}
+
+	void testTextureShadowsCustomReceiverMat(ShadowTechnique tech)
+	{
+		testTextureShadows(tech);
+
+		String customReceiverMatVp = 
+			"void customReceiverVp(float4 position : POSITION,\n"
+			"out float4 oPosition : POSITION,\n"
+			"out float2 oUV : TEXCOORD0,\n"
+			"uniform float4x4 texViewProj,\n"
+			"uniform float4x4 worldViewProj)\n"
+			"{\n"
+			"	oPosition = mul(worldViewProj, position);\n"
+			"	float4 suv = mul(texViewProj, position);\n"
+			"	oUV = suv.xy / suv.w;\n"
+			"}\n";
+		String customReceiverMatFp = 
+			"void customReceiverFp(\n"
+			"float2 uv : TEXCOORD0,\n"
+			"uniform sampler2D shadowTex : register(s0),\n"
+			"out float4 oColor : COLOR)\n"
+			"{\n"
+			"	float4 shadow = tex2D(shadowTex, uv);\n"
+			"	oColor = shadow * float4(1,0,1,1); // just a test\n"
+			"}\n";
+
+		HighLevelGpuProgramPtr vp = HighLevelGpuProgramManager::getSingleton()
+			.createProgram("CustomShadowReceiverVp", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+			"cg", GPT_VERTEX_PROGRAM);
+		vp->setSource(customReceiverMatVp);
+		vp->setParameter("profiles", "vs_1_1 arbvp1");
+		vp->setParameter("entry_point", "customReceiverVp");
+		vp->load();
+
+		HighLevelGpuProgramPtr fp = HighLevelGpuProgramManager::getSingleton()
+			.createProgram("CustomShadowReceiverFp", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+			"cg", GPT_FRAGMENT_PROGRAM);
+		fp->setSource(customReceiverMatFp);
+		fp->setParameter("profiles", "ps_1_1 arbfp1");
+		fp->setParameter("entry_point", "customReceiverFp");
+		fp->load();
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("CustomShadowReceiver", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setVertexProgram("CustomShadowReceiverVp");
+		p->getVertexProgramParameters()->setNamedAutoConstant(
+			"worldViewProj", GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+		p->getVertexProgramParameters()->setNamedAutoConstant(
+			"texViewProj", GpuProgramParameters::ACT_TEXTURE_VIEWPROJ_MATRIX);
+		p->setFragmentProgram("CustomShadowReceiverFp");
+		p->createTextureUnitState(); // shadow texture will populate
+
+		mSceneMgr->setShadowTextureReceiverMaterial("CustomShadowReceiver");
+
+
+
+	}
+
+
+	//---------------------------------------------------------------------------
+	class GaussianListener: public Ogre::CompositorInstance::Listener
+	{
+	protected:
+		int mVpWidth, mVpHeight;
+		// Array params - have to pack in groups of 4 since this is how Cg generates them
+		// also prevents dependent texture read problems if ops don't require swizzle
+		float mBloomTexWeights[15][4];
+		float mBloomTexOffsetsHorz[15][4];
+		float mBloomTexOffsetsVert[15][4];
+	public:
+		GaussianListener() {}
+		virtual ~GaussianListener() {}
+		void notifyViewportSize(int width, int height)
+		{
+			mVpWidth = width;
+			mVpHeight = height;
+			// Calculate gaussian texture offsets & weights
+			float deviation = 3.0f;
+			float texelSize = 1.0f / (float)std::min(mVpWidth, mVpHeight);
+
+			// central sample, no offset
+			mBloomTexOffsetsHorz[0][0] = 0.0f;
+			mBloomTexOffsetsHorz[0][1] = 0.0f;
+			mBloomTexWeights[0][0] = mBloomTexWeights[0][1] = 
+				mBloomTexWeights[0][2] = Ogre::Math::gaussianDistribution(0, 0, deviation);
+			mBloomTexWeights[0][3] = 1.0f;
+
+			// 'pre' samples
+			for(int i = 1; i < 8; ++i)
+			{
+				mBloomTexWeights[i][0] = mBloomTexWeights[i][1] = 
+					mBloomTexWeights[i][2] = Ogre::Math::gaussianDistribution(i, 0, deviation);
+				mBloomTexWeights[i][3] = 1.0f;
+				mBloomTexOffsetsHorz[i][0] = i * texelSize;
+				mBloomTexOffsetsHorz[i][1] = 0.0f;
+				mBloomTexOffsetsVert[i][0] = 0.0f;
+				mBloomTexOffsetsVert[i][1] = i * texelSize;
+			}
+			// 'post' samples
+			for(int i = 8; i < 15; ++i)
+			{
+				mBloomTexWeights[i][0] = mBloomTexWeights[i][1] = 
+					mBloomTexWeights[i][2] = mBloomTexWeights[i - 7][0];
+				mBloomTexWeights[i][3] = 1.0f;
+
+				mBloomTexOffsetsHorz[i][0] = -mBloomTexOffsetsHorz[i - 7][0];
+				mBloomTexOffsetsHorz[i][1] = 0.0f;
+				mBloomTexOffsetsVert[i][0] = 0.0f;
+				mBloomTexOffsetsVert[i][1] = -mBloomTexOffsetsVert[i - 7][1];
+			}
+
+		}
+		virtual void notifyMaterialSetup(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat)
+		{
+			// Prepare the fragment params offsets
+			switch(pass_id)
+			{
+			case 701: // blur horz
+				{
+					// horizontal bloom
+					mat->load();
+					Ogre::GpuProgramParametersSharedPtr fparams = 
+						mat->getBestTechnique()->getPass(0)->getFragmentProgramParameters();
+					const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
+					// A bit hacky - Cg & HLSL index arrays via [0], GLSL does not
+					if (progName.find("GLSL") != Ogre::String::npos)
+					{
+						fparams->setNamedConstant("sampleOffsets", mBloomTexOffsetsHorz[0], 15);
+						fparams->setNamedConstant("sampleWeights", mBloomTexWeights[0], 15);
+					}
+					else
+					{
+						fparams->setNamedConstant("sampleOffsets[0]", mBloomTexOffsetsHorz[0], 15);
+						fparams->setNamedConstant("sampleWeights[0]", mBloomTexWeights[0], 15);
+					}
+
+					break;
+				}
+			case 700: // blur vert
+				{
+					// vertical bloom 
+					mat->load();
+					Ogre::GpuProgramParametersSharedPtr fparams = 
+						mat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
+					const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
+					// A bit hacky - Cg & HLSL index arrays via [0], GLSL does not
+					if (progName.find("GLSL") != Ogre::String::npos)
+					{
+						fparams->setNamedConstant("sampleOffsets", mBloomTexOffsetsVert[0], 15);
+						fparams->setNamedConstant("sampleWeights", mBloomTexWeights[0], 15);
+					}
+					else
+					{
+						fparams->setNamedConstant("sampleOffsets[0]", mBloomTexOffsetsVert[0], 15);
+						fparams->setNamedConstant("sampleWeights[0]", mBloomTexWeights[0], 15);
+					}
+
+					break;
+				}
+			}
+
+		}
+		virtual void notifyMaterialRender(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat)
+		{
+
+		}
+	};
+	GaussianListener gaussianListener;
+
+	void testCompositorTextureShadows(ShadowTechnique tech)
+	{
+		mSceneMgr->setShadowTextureSize(512);
+		mSceneMgr->setShadowTechnique(tech);
+		mSceneMgr->setShadowFarDistance(1500);
+		mSceneMgr->setShadowColour(ColourValue(0.35, 0.35, 0.35));
+		//mSceneMgr->setShadowFarDistance(800);
+		// Set ambient light
+		mSceneMgr->setAmbientLight(ColourValue(0.3, 0.3, 0.3));
+
+		mLight = mSceneMgr->createLight("MainLight");
+
+		/*
+		// Directional test
+		mLight->setType(Light::LT_DIRECTIONAL);
+		Vector3 vec(-1,-1,0);
+		vec.normalise();
+		mLight->setDirection(vec);
+
+		*/
+		// Spotlight test
+		mLight->setType(Light::LT_SPOTLIGHT);
+		mLight->setDiffuseColour(1.0, 1.0, 0.8);
+		mTestNode[0] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		mTestNode[0]->setPosition(800,600,0);
+		mTestNode[0]->lookAt(Vector3(0,0,0), Node::TS_WORLD, Vector3::UNIT_Z);
+		mTestNode[0]->attachObject(mLight);
+		
+
+		mTestNode[1] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+
+
+		Entity* pEnt;
+		pEnt = mSceneMgr->createEntity( "1", "robot.mesh" );
+		//pEnt->setRenderingDistance(100);
+		mAnimState = pEnt->getAnimationState("Walk");
+		mAnimState->setEnabled(true);
+		//pEnt->setMaterialName("2 - Default");
+		mTestNode[1]->attachObject( pEnt );
+		mTestNode[1]->translate(0,-100,0);
+
+		pEnt = mSceneMgr->createEntity( "3", "knot.mesh" );
+		mTestNode[2] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-200, 0, -200));
+		mTestNode[2]->attachObject( pEnt );
+
+		// Transparent object (can force cast shadows)
+		pEnt = mSceneMgr->createEntity( "3.5", "knot.mesh" );
+		MaterialPtr tmat = MaterialManager::getSingleton().create("TestAlphaTransparency", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		tmat->setTransparencyCastsShadows(true);
+		Pass* tpass = tmat->getTechnique(0)->getPass(0);
+		tpass->setAlphaRejectSettings(CMPF_GREATER, 150);
+		tpass->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		tpass->createTextureUnitState("gras_02.png");
+		tpass->setCullingMode(CULL_NONE);
+
+		pEnt->setMaterialName("TestAlphaTransparency");
+		mTestNode[3] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(350, 0, -200));
+		mTestNode[3]->attachObject( pEnt );
+
+		MeshPtr msh = MeshManager::getSingleton().load("knot.mesh",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		msh->buildTangentVectors();
+		pEnt = mSceneMgr->createEntity( "4", "knot.mesh" );
+		//pEnt->setMaterialName("Examples/BumpMapping/MultiLightSpecular");
+		mTestNode[2] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(100, 0, 200));
+		mTestNode[2]->attachObject( pEnt );
+
+		mSceneMgr->setSkyBox(true, "Examples/CloudyNoonSkyBox");
+
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 100;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt;
+		pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("2 - Default");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		// Set up a debug panel to display the shadow
+		MaterialPtr debugMat = MaterialManager::getSingleton().create(
+			"Ogre/DebugShadowMap", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		debugMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+		TextureUnitState *t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("Ogre/ShadowTexture0");
+		t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+		//t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("spot_shadow_fade.png");
+		//t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+		//t->setColourOperation(LBO_ADD);
+
+		OverlayContainer* debugPanel = (OverlayContainer*)
+			(OverlayManager::getSingleton().createOverlayElement("Panel", "Ogre/DebugShadowPanel"));
+		debugPanel->_setPosition(0.8, 0);
+		debugPanel->_setDimensions(0.2, 0.3);
+		debugPanel->setMaterialName("Ogre/DebugShadowMap");
+		Overlay* debugOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
+		debugOverlay->add2D(debugPanel);
+
+
+
+		ParticleSystem* pSys2 = mSceneMgr->createParticleSystem("smoke", 
+			"Examples/Smoke");
+		mTestNode[4] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-300, -100, 200));
+		mTestNode[4]->attachObject(pSys2);
+
+		TexturePtr shadowTex = TextureManager::getSingleton().getByName("Ogre/ShadowTexture0");
+		RenderTarget* shadowRtt = shadowTex->getBuffer()->getRenderTarget();
+		Viewport* vp = shadowRtt->getViewport(0);
+		Ogre::CompositorInstance *instance = 
+			CompositorManager::getSingleton().addCompositor(vp, "Gaussian Blur");
+		CompositorManager::getSingleton().setCompositorEnabled(
+			vp, "Gaussian Blur", true);
+		instance->addListener(&gaussianListener);
+		gaussianListener.notifyViewportSize(vp->getActualWidth(), vp->getActualHeight());
+
+
+
+
+
+	}
+
     void testOverlayZOrder(void)
     {
         Overlay* o = OverlayManager::getSingleton().getByName("Test/Overlay3");
@@ -2278,7 +2637,7 @@ protected:
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
         createRandomEntityClones(ent, 500, Vector3(-5000,-5000,-5000), Vector3(5000,5000,5000));
 
-        //intersectionQuery = mSceneMgr->createIntersectionQuery();
+        intersectionQuery = mSceneMgr->createIntersectionQuery();
     }
 
     void testRaySceneQuery()
@@ -2370,7 +2729,7 @@ protected:
 
 	void testStaticGeometry(void)
 	{
-		mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);
+		mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_ADDITIVE);
 		//mSceneMgr->setShowDebugShadows(true);
 
 		mSceneMgr->setSkyBox(true, "Examples/EveningSkyBox");
@@ -3851,13 +4210,24 @@ protected:
         pPlaneEnt->setCastShadows(false);
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
     }
-    // Just override the mandatory create scene method
+
+
+	// Just override the mandatory create scene method
     void createScene(void)
     {
 
 		AnyNumeric anyInt1(43);
 		AnyNumeric anyInt2(5);
 		AnyNumeric anyInt3 = anyInt1 + anyInt2;
+
+		bool tst = StringConverter::isNumber("3");
+		tst = StringConverter::isNumber("-0.3");
+		tst = StringConverter::isNumber("");
+		tst = StringConverter::isNumber("  ");
+		tst = StringConverter::isNumber(" -0.3 ");
+		tst = StringConverter::isNumber(" a-0.3 ");
+
+		const StringVector& l = mCamera->getAnimableValueNames();
 
 		std::cout << anyInt3;
 		//Any anyString("test");
@@ -3886,6 +4256,9 @@ protected:
         //testStencilShadows(SHADOWTYPE_STENCIL_MODULATIVE, false, true);
         //testTextureShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
+		//testTextureShadowsCustomCasterMat(SHADOWTYPE_TEXTURE_ADDITIVE);
+		testTextureShadowsCustomReceiverMat(SHADOWTYPE_TEXTURE_ADDITIVE);
+		//testCompositorTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testSplitPassesTooManyTexUnits();
         //testOverlayZOrder();
 		//testReflectedBillboards();
@@ -3927,7 +4300,7 @@ protected:
 		//testMaterialSchemes();
 		//testMaterialSchemesWithLOD();
 		//testMaterialSchemesWithMismatchedLOD();
-        testSkeletonAnimationOptimise();
+        //testSkeletonAnimationOptimise();
 
 		
     }
