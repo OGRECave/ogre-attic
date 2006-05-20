@@ -4404,7 +4404,9 @@ void SceneManager::createShadowTextures(unsigned short size,
             mat->getTechnique(0)->getPass(0)->createTextureUnitState(targName);
         // set projective based on camera
         texUnit->setProjectiveTexturing(true, cam);
-        texUnit->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+		// clamp to border colour
+        texUnit->setTextureAddressingMode(TextureUnitState::TAM_BORDER);
+		texUnit->setTextureBorderColour(ColourValue::White);
         mat->touch();
 
     }
@@ -4455,11 +4457,13 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
 	Real shadowEnd = shadowDist + shadowOffset;
 	Real fadeStart = shadowEnd * mShadowTextureFadeStart;
 	Real fadeEnd = shadowEnd * mShadowTextureFadeEnd;
-	// set fogging to hide the shadow edge 
-	// Additive lighting needs fading too (directional)
-	mShadowReceiverPass->setFog(true, FOG_LINEAR, ColourValue::White, 
-		0, fadeStart, fadeEnd);
-
+	// Additive lighting should not use fogging, since it will overbrighten; use border clamp
+	if (!isShadowTechniqueAdditive())
+	{
+		// set fogging to hide the shadow edge 
+		mShadowReceiverPass->setFog(true, FOG_LINEAR, ColourValue::White, 
+			0, fadeStart, fadeEnd);
+	}
     // Iterate over the lights we've found, max out at the limit of light textures
 
     LightList::iterator i, iend;
