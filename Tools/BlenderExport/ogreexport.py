@@ -1040,13 +1040,13 @@ class ArmatureExporter:
                     maxFrame = armatureActionActuator.endFrame + 1
                     
                 # update animation duration
-                animation.duration = (maxFrame - minFrame)/fps
+                animation.duration = (maxFrame - minFrame - 1)/fps
                 
                 # for first frame to last frame of action
-                for frame in range(minFrame, maxFrame):
+                for frame in range(int(minFrame), int(maxFrame)):
                     print "Frame: ", frame
                     # set frame and update 3D view so pose channels update
-                    Blender.Set("curframe", frame)
+                    Blender.Set("curframe", int(frame))
                     Blender.Window.Redraw()
                     # calc frame time based on frames per second
                     time = (frame - minFrame)/fps
@@ -1054,8 +1054,6 @@ class ArmatureExporter:
                     for bone in skeleton.bones:
                         # only add keyframes to bone track if bone deforms geometry
                         if bone.deformMesh:
-                            # get track for active bone from tack dictionary of active animation
-                            track = animation.tracksDict[bone.name]
             
                             #sample pose channels for data
                                 
@@ -1086,6 +1084,8 @@ class ArmatureExporter:
                             # Ogre's deltaT is in the bone's parent coordinate system
                             loc = boneMat.translationPart() - Vector(bone.loc)
                             size = (sizeX, sizeY, sizeZ)
+                            # get track for active bone from tack dictionary of active animation
+                            track = animation.tracksDict[bone.name]
                             KeyFrame(track, time, loc, rotQuat, size)
                             print "key frame added for bone ", bone.name
                             
