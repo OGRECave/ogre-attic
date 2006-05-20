@@ -1355,10 +1355,13 @@ class ArmatureExporter:
         f = open(os.path.join(exportOptions.exportPath, file), "w")
         f.write(tab(0)+"<skeleton>\n")
         f.write(tab(1)+"<bones>\n")
+        #Ogre requires bone id to go from 0 to N with no gaps
+        # only increment bone id for bones that get exported
+        id = 0
         for bone in skeleton.bones:
             if bone.deformMesh:
-                f.write(tab(2)+"<bone id=\"%d\" name=\"%s\">\n" % (bone.id, bone.name))
-    
+                f.write(tab(2)+"<bone id=\"%d\" name=\"%s\">\n" % (id, bone.name))
+                bone.id = id
                 x, y, z = bone.loc
                 f.write(tab(3)+"<position x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (x, y, z))
     
@@ -1366,6 +1369,7 @@ class ArmatureExporter:
                 f.write(tab(4)+"<axis x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % tuple(bone.rotQuat.axis))
                 f.write(tab(3)+"</rotation>\n")
                 f.write(tab(2)+"</bone>\n")
+                id += 1
         f.write(tab(1)+"</bones>\n")
         
         f.write(tab(1)+"<bonehierarchy>\n")
@@ -2865,7 +2869,7 @@ class Bone:
     if parent:
       parent.children.append(self)
     
-    self.id = len(skeleton.bones)
+    self.id = -1
     skeleton.bones.append(self)
     skeleton.bonesDict[name] = self
 
@@ -2951,8 +2955,9 @@ def process_vert_influences(mesh, skeleton):
                 # get all weights for a bone.  getting weights for a specific vertex trashes
                 # blender after a few hundred calls
                 #print bone.name
-                boneweights = mesh.getVertsFromGroup(bone.name, 1)
-                boneWeightDict[bone.name] = dict(boneweights)
+                if bone.deformMesh:
+                    boneweights = mesh.getVertsFromGroup(bone.name, 1)
+                    boneWeightDict[bone.name] = dict(boneweights)
             except:
                 pass
 
