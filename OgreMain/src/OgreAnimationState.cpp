@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreAnimationState.h"
 #include "OgreException.h"
-#include "OgreRoot.h"
 
 namespace Ogre 
 {
@@ -316,7 +315,7 @@ namespace Ogre
     //---------------------------------------------------------------------
     void AnimationStateSet::_notifyDirty(void)
     {
-        mDirtyFrameNumber = Root::getSingleton().getCurrentFrameNumber();
+        ++mDirtyFrameNumber;
     }
     //---------------------------------------------------------------------
     void AnimationStateSet::_notifyAnimationStateEnabled(AnimationState* target, bool enabled)
