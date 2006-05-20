@@ -1402,8 +1402,9 @@ class ArmatureExporter:
                     
                     f.write(tab(8)+"<axis x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % tuple(keyframe.rotQuat.axis))
                     f.write(tab(7)+"</rotate>\n")
-                    
-                    f.write(tab(7)+"<scale x=\"%f\" y=\"%f\" z=\"%f\"/>\n" % keyframe.scale)
+                    # only output scale if its not the default value
+                    if keyframe.scale != (1, 1, 1):
+                        f.write(tab(7)+"<scale x=\"%f\" y=\"%f\" z=\"%f\"/>\n" % keyframe.scale)
                     
                     f.write(tab(6)+"</keyframe>\n")
                 
