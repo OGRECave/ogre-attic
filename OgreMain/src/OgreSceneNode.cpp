@@ -504,6 +504,9 @@ namespace Ogre {
         case TS_LOCAL:
             targetDir = _getDerivedOrientation() * targetDir;
             break;
+        case TS_WORLD:
+            // default orientation
+            break;
         }
 
         // Calculate target orientation relative to world space

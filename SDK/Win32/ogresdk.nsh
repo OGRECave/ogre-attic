@@ -7,6 +7,11 @@
 !define PRODUCT_VERSION "1.2.0"
 !define PRODUCT_PUBLISHER "The OGRE Team"
 !define PRODUCT_WEB_SITE "http://www.ogre3d.org"
+!ifdef MINGW
+  !define WIKI_LINK "http://www.ogre3d.org/wiki/index.php/CodeBlocks_MingW_STLPort"
+!else
+  !define WIKI_LINK "http://www.ogre3d.org/wiki/index.php/Installing_An_SDK"
+!endif
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 !define PRODUCT_STARTMENU_REGVAL "NSIS:StartMenuDir"
@@ -40,7 +45,10 @@ var ICONS_GROUP
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
 ; Finish page
-!define MUI_UNPAGE_FINISH_TITLE_3LINES 
+!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\docs\ReadMe.html"
+!define MUI_FINISHPAGE_TITLE_3LINES
+!define MUI_FINISHPAGE_LINK "learn more about setting up the SDK"
+!define MUI_FINISHPAGE_LINK_LOCATION "${WIKI_LINK}"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -233,11 +241,13 @@ Section -AdditionalIcons
   SetOutPath $INSTDIR
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
   WriteIniStr "$INSTDIR\OgreWebSite.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
+  WriteIniStr "$INSTDIR\Setup_Help.url" "InternetShortcut" "URL" "${WIKI_LINK}"
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\README.lnk" "$INSTDIR\docs\ReadMe.html"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\OGRE Manual.lnk" "$INSTDIR\docs\manual\index.html"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\OGRE API Reference.lnk" "$INSTDIR\docs\api\OgreAPIReference.chm"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\OGRE Website.lnk" "$INSTDIR\OgreWebSite.url"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Setup Help.lnk" "$INSTDIR\Setup_Help.url"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall.lnk" "$INSTDIR\uninst.exe"
   !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd

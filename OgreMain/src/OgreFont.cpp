@@ -146,9 +146,9 @@ namespace Ogre
 			else
 	            vsX = getGlyphAspectRatio( text[ i ] ) * char_height;
 
-            ret.second += vsX * w;
+            ret.second += vsX * static_cast<float>(w);
             if( vsY * h > ret.first || ( i && text[ i - 1 ] == '\n' ) )
-                ret.first += vsY * h;
+                ret.first += vsY * static_cast<float>(h);
         }
 
         return ret;
@@ -287,7 +287,7 @@ namespace Ogre
 							((max_height >> 6) + char_spacer) *
 							(endGlyph - startGlyph + 1);
 
-		size_t tex_side = Math::Sqrt(rawSize);
+		size_t tex_side = static_cast<size_t>(Math::Sqrt(rawSize));
 		// just in case the size might chop a glyph in half, add another glyph width/height
 		tex_side += std::max(max_width, (max_height>>6));
 		// Now round up to nearest power of two, max out at 4096

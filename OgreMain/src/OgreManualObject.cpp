@@ -442,6 +442,9 @@ namespace Ogre {
 			case VET_COLOUR_ARGB:
 				elem.baseVertexPointerToElement(pBase, &pRGBA);
 				break;
+			default:
+				// nop ?
+				break;
 			};
 
 
@@ -470,6 +473,9 @@ namespace Ogre {
 					rs->convertColourValue(mTempVertex.colour, pRGBA++);
 				else
 					*pRGBA++ = mTempVertex.colour.getAsRGBA(); // pick one!
+				break;
+			default:
+				// nop ?
 				break;
 			};
 

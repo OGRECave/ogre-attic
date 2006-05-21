@@ -31,7 +31,7 @@ if test x$GCC = xyes; then
         AC_SUBST(OGRE_CFLAGS, "-DEXT_HASH")
         AC_MSG_RESULT(yes);
     else
-        AC_MSG_RESULT(no)!
+        AC_MSG_RESULT(no);
     fi
 fi
 

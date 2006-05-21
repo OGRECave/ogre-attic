@@ -333,7 +333,6 @@ namespace Ogre {
 			}
 
 			// get LOD
-			LodTechniques* lodtechs = si->second;
 			LodTechniques::iterator li = si->second->find(lodIndex);
 			// LOD not found? 
 			if (li == si->second->end())
@@ -430,7 +429,6 @@ namespace Ogre {
             (*i)->_compile(autoManageTextureUnits);
             if ( (*i)->isSupported() )
             {
-                mSupportedTechniques.push_back(*i);
 				insertSupportedTechnique(*i);
             }
         }

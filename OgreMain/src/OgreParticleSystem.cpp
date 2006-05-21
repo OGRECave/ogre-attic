@@ -120,12 +120,12 @@ namespace Ogre {
         mIterationInterval(0),
 		mIterationIntervalSet(false),
         mSorted(false),
+        mLocalSpace(false),
 		mNonvisibleTimeout(0),
 		mNonvisibleTimeoutSet(false),
 		mTimeSinceLastVisible(0),
 		mLastVisibleFrame(Root::getSingleton().getCurrentFrameNumber()),
         mTimeController(0),
-        mLocalSpace(false),
         mRenderer(0), 
 		mCullIndividual(false),
         mPoolSize(0)

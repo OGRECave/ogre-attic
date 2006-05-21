@@ -30,7 +30,7 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-	InputEvent::InputEvent(EventTarget* source, int id, long when, int modifiers) :
+	InputEvent::InputEvent(EventTarget* source, int id, Real when, int modifiers) :
 		mWhen(when),
 		mModifiers(modifiers),
 		mSource(source),

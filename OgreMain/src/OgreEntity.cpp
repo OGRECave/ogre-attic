@@ -548,7 +548,7 @@ namespace Ogre {
 		bool forcedSwAnimation = getSoftwareAnimationRequests()>0;
 		bool forcedNormals = getSoftwareAnimationNormalsRequests()>0;
 		bool stencilShadows = false;
-		if (root._getCurrentSceneManager())
+		if (getCastShadows() && root._getCurrentSceneManager())
 			stencilShadows =  root._getCurrentSceneManager()->isShadowTechniqueStencilBased();
 		bool softwareAnimation = !hwAnimation || stencilShadows || forcedSwAnimation;
 		// Blend normals in s/w only if we're not using h/w animation,
@@ -658,26 +658,37 @@ namespace Ogre {
 			mFrameAnimationLastUpdated = mAnimationState->getDirtyFrameNumber();
         }
 
-        // Also calculate bone world matrices, since are used as replacement world matrices,
-        // but only if it's used and changed:
-        //      1. It's used when using hardware animation and skeleton animated.
-        //      2. It's changed when animation dirty or parent node transform has altered.
-        if (hwAnimation && _isSkeletonAnimated() &&
+        // Need to update the child object's transforms when animation dirty
+        // or parent node transform has altered.
+        if (hasSkeleton() &&
             (animationDirty || mLastParentXform != _getParentNodeFullTransform()))
         {
-            // Allocate bone world matrices on demand, for better memory footprint
-            // when using software animation.
-            if (!mBoneWorldMatrices)
-            {
-                mBoneWorldMatrices = new Matrix4[mNumBoneMatrices];
-            }
-
             // Cache last parent transform for next frame use too.
             mLastParentXform = _getParentNodeFullTransform();
 
-            for (unsigned short i = 0; i < mNumBoneMatrices; ++i)
+            //--- Update the child object's transforms
+            ChildObjectList::iterator child_itr = mChildObjectList.begin();
+            ChildObjectList::iterator child_itr_end = mChildObjectList.end();
+            for( ; child_itr != child_itr_end; child_itr++)
             {
-                mBoneWorldMatrices[i] = mLastParentXform * mBoneMatrices[i];
+                (*child_itr).second->getParentNode()->_update(true, true);
+            }
+
+            // Also calculate bone world matrices, since are used as replacement world matrices,
+            // but only if it's used (when using hardware animation and skeleton animated).
+            if (hwAnimation && _isSkeletonAnimated())
+            {
+                // Allocate bone world matrices on demand, for better memory footprint
+                // when using software animation.
+                if (!mBoneWorldMatrices)
+                {
+                    mBoneWorldMatrices = new Matrix4[mNumBoneMatrices];
+                }
+
+                for (unsigned short i = 0; i < mNumBoneMatrices; ++i)
+                {
+                    mBoneWorldMatrices[i] = mLastParentXform * mBoneMatrices[i];
+                }
             }
         }
     }
@@ -914,29 +925,6 @@ namespace Ogre {
             mSkeletonInstance->setAnimationState(*mAnimationState);
             mSkeletonInstance->_getBoneMatrices(mBoneMatrices);
             *mFrameBonesLastUpdated  = currentFrameNumber;
-
-            if (sharesSkeletonInstance()) {
-                //---- update all sharing entities child objects transforms now
-                EntitySet::const_iterator entity_itr = mSharedSkeletonEntities->begin();
-                EntitySet::const_iterator entity_itr_end = mSharedSkeletonEntities->end();
-                for( ; entity_itr != entity_itr_end; entity_itr++)
-                {
-                    ChildObjectList::iterator child_itr = (*entity_itr)->mChildObjectList.begin();
-                    ChildObjectList::iterator child_itr_end = (*entity_itr)->mChildObjectList.end();
-                    for( ; child_itr != child_itr_end; child_itr++)
-                    {
-                        (*child_itr).second->getParentNode()->_update(true, true);
-                    }
-                }
-            } else {
-                //--- Update the child object's transforms
-                ChildObjectList::iterator child_itr = mChildObjectList.begin();
-                ChildObjectList::iterator child_itr_end = mChildObjectList.end();
-                for( ; child_itr != child_itr_end; child_itr++)
-                {
-                    (*child_itr).second->getParentNode()->_update(true, true);
-                }
-            }
         }
     }
     //-----------------------------------------------------------------------
