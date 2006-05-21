@@ -265,8 +265,8 @@ namespace Ogre {
         assert(factor >= 0.0f && factor <= 1.0f);
 
         mSubdivisionFactor = factor;
-        mULevel = factor * mMaxULevel;
-        mVLevel = factor * mMaxVLevel;
+        mULevel = static_cast<size_t>(factor * mMaxULevel);
+        mVLevel = static_cast<size_t>(factor * mMaxVLevel);
 
         makeTriangles();
 
@@ -681,10 +681,10 @@ namespace Ogre {
             elemDiffuse->baseVertexPointerToElement(pLeft, &pLeftChar);
             elemDiffuse->baseVertexPointerToElement(pRight, &pRightChar);
             // 4 bytes to RGBA
-            *pDestChar++ = ((*pLeftChar++) + (*pRightChar++)) * 0.5;
-            *pDestChar++ = ((*pLeftChar++) + (*pRightChar++)) * 0.5;
-            *pDestChar++ = ((*pLeftChar++) + (*pRightChar++)) * 0.5;
-            *pDestChar++ = ((*pLeftChar++) + (*pRightChar++)) * 0.5;
+            *pDestChar++ = static_cast<unsigned char>(((*pLeftChar++) + (*pRightChar++)) * 0.5);
+            *pDestChar++ = static_cast<unsigned char>(((*pLeftChar++) + (*pRightChar++)) * 0.5);
+            *pDestChar++ = static_cast<unsigned char>(((*pLeftChar++) + (*pRightChar++)) * 0.5);
+            *pDestChar++ = static_cast<unsigned char>(((*pLeftChar++) + (*pRightChar++)) * 0.5);
         }
         if (elemTex0)
         {

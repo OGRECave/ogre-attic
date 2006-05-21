@@ -102,6 +102,9 @@ namespace Ogre {
 		option of providing you with a specialised version of this class if it
 		wishes, and also handles the memory management for you like other 
 		classes.
+	@note
+		Warning: this class only works with triangle lists at the moment,
+		do not pass it triangle strips, fans or lines / points.
 	*/
 	class _OgreExport StaticGeometry
 	{

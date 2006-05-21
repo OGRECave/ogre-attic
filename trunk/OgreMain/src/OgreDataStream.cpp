@@ -34,6 +34,7 @@ namespace Ogre {
     template <typename T> DataStream& DataStream::operator >>(T& val)
     {
         read(static_cast<void*>(&val), sizeof(T));
+        return *this;
     }
     //-----------------------------------------------------------------------
     String DataStream::getLine(bool trimAfter)

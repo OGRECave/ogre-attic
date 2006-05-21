@@ -160,6 +160,8 @@ namespace Ogre {
             case IS_DECAL:
                 collection = &mSolidsDecal;
                 break;
+            default:
+                assert(false); // should never happen
             };
 
 			collection->addRenderable(p->pass, rend);

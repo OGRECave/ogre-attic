@@ -31,19 +31,21 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre
 {
-	/** Predefined controller value for getting / setting the frame time
-	*/
-	class _OgreExport TimeControllerValue : public ControllerValue<Real>
-	{
-	protected:
-		RibbonTrail* mTrail;
-	public:
-		TimeControllerValue(RibbonTrail* r) { mTrail = r; }
+    namespace
+    {
+        /** Controller value for pass frame time to RibbonTrail
+        */
+        class _OgrePrivate TimeControllerValue : public ControllerValue<Real>
+        {
+        protected:
+            RibbonTrail* mTrail;
+        public:
+            TimeControllerValue(RibbonTrail* r) { mTrail = r; }
 
-		Real getValue(void) const { return 0; }// not a source 
-		void setValue(Real value) { mTrail->_timeUpdate(value); }
-
-	};
+            Real getValue(void) const { return 0; }// not a source 
+            void setValue(Real value) { mTrail->_timeUpdate(value); }
+        };
+    }
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
 	RibbonTrail::RibbonTrail(const String& name, size_t maxElements, 

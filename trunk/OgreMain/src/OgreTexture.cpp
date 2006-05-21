@@ -50,9 +50,10 @@ namespace Ogre {
             // mSrcBpp inited later on
             mSrcWidth(0),
             mSrcHeight(0), 
-            mSrcDepth(0), mInternalResourcesCreated(false),
+            mSrcDepth(0),
             // mFinalBpp inited later on by enable32bit
-            mHasAlpha(false)        
+            mHasAlpha(false),
+            mInternalResourcesCreated(false)
     {
 
         enable32Bit(false);
@@ -145,6 +146,9 @@ namespace Ogre {
 			case PF_B8G8R8A8:
 				mFormat = PF_A4R4G4B4;
 				break;
+
+			default:
+				break; // use original image format
 			}
 		}
 		
@@ -300,9 +304,9 @@ namespace Ogre {
         size_t numMips = std::min(getNumMipmaps(), target->getNumMipmaps());
         if((mUsage & TU_AUTOMIPMAP) || (target->getUsage()&TU_AUTOMIPMAP))
             numMips = 0;
-        for(int face=0; face<getNumFaces(); face++)
+        for(unsigned int face=0; face<getNumFaces(); face++)
         {
-            for(int mip=0; mip<=numMips; mip++)
+            for(unsigned int mip=0; mip<=numMips; mip++)
             {
                 target->getBuffer(face, mip)->blit(getBuffer(face, mip));
             }

@@ -1471,6 +1471,8 @@ namespace Ogre {
 					case VET_UBYTE4:
 						typeSize = 0; // NO FLIPPING
 						break;
+					default:
+						assert(false); // Should never happen
 				};
                 Serializer::flipEndian(pElem, typeSize,
 					VertexElement::getTypeCount((*ei).getType()));

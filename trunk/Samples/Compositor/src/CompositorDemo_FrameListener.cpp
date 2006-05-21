@@ -51,7 +51,7 @@ LGPL like the rest of the engine.
 
             // "depth_modulator" parameter
             float inc = ((float)timer->getMilliseconds())/1000.0f;
-            if ( (abs(curr-end) <= 0.001) ) {
+            if ( (fabs(curr-end) <= 0.001) ) {
                 // take a new value to reach
                 end = Ogre::Math::RangeRandom(0.95, 1.0);
                 start = curr;

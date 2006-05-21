@@ -134,7 +134,7 @@ namespace Ogre {
 		 * @when the time the event occurred
 		 * @modifiers the modifier keys down while event occurred
 		 */
-		InputEvent(EventTarget* source, int id, long when, int modifiers);
+		InputEvent(EventTarget* source, int id, Real when, int modifiers);
 
 		/**
 		 * Consumes this event so that it will not be processed
