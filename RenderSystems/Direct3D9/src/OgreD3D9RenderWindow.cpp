@@ -477,7 +477,7 @@ namespace Ogre
 						D3DADAPTER_IDENTIFIER9 identifier;
 						HRESULT res;
 						res = mDriver->getD3D()->GetAdapterIdentifier(adapter,0,&identifier);
-						if (strcmp(identifier.Description,"NVIDIA NVPerfHUD") == 0)
+						if (strstr(identifier.Description,"NVPerfHUD") != 0)
 						{
 							adapterToUse = adapter;
 							devType = D3DDEVTYPE_REF;
