@@ -6,7 +6,7 @@ control = Texture Scale Y, textureScale, GPU_VERTEX, 0, 40, 1
 control = Wavelet Speed X, bumpSpeed, GPU_VERTEX, -0.1, 0.1, 0
 control = Wavelet Speed Y, bumpSpeed, GPU_VERTEX, -0.1, 0.1, 1
 control = Wave Frequency, waveFreq, GPU_VERTEX, 0, 0.05, 0
-control = Wave Amplitude, waveAmp, GPU_VERTEX, 0, 6, 0
+control = Wave Amplitude, waveAmp, GPU_VERTEX, 0, 25, 0
 
 control = Deep Color [Red], deepColor, GPU_FRAGMENT, 0, 1, 0
 control = Deep Color [Green], deepColor, GPU_FRAGMENT, 0, 1, 1
@@ -35,7 +35,7 @@ control = Texture Scale Y, textureScale, GPU_VERTEX, 0, 40, 1
 control = Wavelet Speed X, bumpSpeed, GPU_VERTEX, -0.1, 0.1, 0
 control = Wavelet Speed Y, bumpSpeed, GPU_VERTEX, -0.1, 0.1, 1
 control = Wave Frequency, waveFreq, GPU_VERTEX, 0, 0.05, 0
-control = Wave Amplitude, waveAmp, GPU_VERTEX, 0, 6, 0
+control = Wave Amplitude, waveAmp, GPU_VERTEX, 0, 25, 0
 
 control = Deep Color [Red], deepColor, GPU_FRAGMENT, 0, 1, 0
 control = Deep Color [Green], deepColor, GPU_FRAGMENT, 0, 1, 1
