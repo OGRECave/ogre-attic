@@ -21,6 +21,7 @@ control = Reflection Color [Green], reflectionColor, GPU_FRAGMENT, 0, 1, 1
 control = Reflection Color [Blue], reflectionColor, GPU_FRAGMENT, 0, 1, 2
 
 control = Reflection Amount, reflectionAmount, GPU_FRAGMENT, 0, 1, 0
+control = Reflection Blur, reflectionBlur, GPU_FRAGMENT, 0, 8, 0
 control = Water Amount, waterAmount, GPU_FRAGMENT, 0, 1, 0
 control = Fresnel Power, fresnelPower, GPU_FRAGMENT, 0, 10, 0
 control = Fresnel Bias, fresnelBias, GPU_FRAGMENT, 0, 1, 0
@@ -49,6 +50,7 @@ control = Reflection Color [Green], reflectionColor, GPU_FRAGMENT, 0, 1, 1
 control = Reflection Color [Blue], reflectionColor, GPU_FRAGMENT, 0, 1, 2
 
 control = Reflection Amount, reflectionAmount, GPU_FRAGMENT, 0, 1, 0
+control = Reflection Blur, reflectionBlur, GPU_FRAGMENT, 0, 8, 0
 control = Water Amount, waterAmount, GPU_FRAGMENT, 0, 1, 0
 control = Fresnel Power, fresnelPower, GPU_FRAGMENT, 0, 10, 0
 control = Fresnel Bias, fresnelBias, GPU_FRAGMENT, 0, 1, 0
