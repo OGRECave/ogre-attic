@@ -14,7 +14,7 @@ BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 Comments:
 	Simple ocean shader with animated bump map and geometric waves
 	Based partly on "Effective Water Simulation From Physical Models", GPU Gems
-	
+
 11 Aug 05: heavily modified by Jeff Doyle (nfz) for Ogre
 
 ******************************************************************************/
@@ -33,7 +33,7 @@ struct v2f {
 	float2 bumpCoord0 : TEXCOORD3;
 	float2 bumpCoord1 : TEXCOORD4;
 	float2 bumpCoord2 : TEXCOORD5;
-	
+
 	float3 eyeVector  : TEXCOORD6;
 };
 
@@ -62,9 +62,9 @@ v2f main(a2v IN,
 	#define NWAVES 2
 	Wave wave[NWAVES] = {
 		{ 1.0, 1.0, 0.5, float2(-1, 0) },
-		{ 2.0, 0.5, 1.7, float2(-0.7, 0.7) }	
+		{ 2.0, 0.5, 1.7, float2(-0.7, 0.7) }
 	};
-	
+
     wave[0].freq = waveFreq;
     wave[0].amp = waveAmp;
 
@@ -73,11 +73,11 @@ v2f main(a2v IN,
 
     float4 P = IN.Position;
 
-	// sum waves	
+	// sum waves
 	float ddx = 0.0, ddy = 0.0;
 	float deriv;
 	float angle;
-	
+
 	// wave synthesis using two sine waves at different frequencies and phase shift
 	for(int i = 0; i<NWAVES; ++i)
 	{
@@ -85,23 +85,23 @@ v2f main(a2v IN,
 		P.y += wave[i].amp * sin( angle );
 		// calculate derivate of wave function
 		deriv = wave[i].freq * wave[i].amp * cos(angle);
-		ddx += deriv * wave[i].dir.x;
-		ddy += deriv * wave[i].dir.y;
+		ddx -= deriv * wave[i].dir.x;
+		ddy -= deriv * wave[i].dir.y;
 	}
 
+	// compute the 3x3 tranform from tangent space to object space
+	// first rows are the tangent and binormal scaled by the bump scale
+
+	OUT.rotMatrix1.xyz = BumpScale * normalize(float3(1, ddy, 0)); // Binormal
+	OUT.rotMatrix2.xyz = BumpScale * normalize(float3(0, ddx, 1)); // Tangent
+	OUT.rotMatrix3.xyz = normalize(float3(ddx, 1, ddy)); // Normal
+
 	OUT.Position = mul(WorldViewProj, P);
-	
+
 	// calculate texture coordinates for normal map lookup
 	OUT.bumpCoord0.xy = IN.TexCoord*textureScale + time * bumpSpeed;
 	OUT.bumpCoord1.xy = IN.TexCoord*textureScale * 2.0 + time * bumpSpeed * 4.0;
 	OUT.bumpCoord2.xy = IN.TexCoord*textureScale * 4.0 + time * bumpSpeed * 8.0;
-
-	// compute the 3x3 tranform from tangent space to object space
-	// first rows are the tangent and binormal scaled by the bump scale
-	
-	OUT.rotMatrix1.xyz = BumpScale * normalize(float3(1, ddx, 0)); // Binormal
-	OUT.rotMatrix2.xyz = BumpScale * normalize(float3(0, ddy, 1)); // Tangent
-	OUT.rotMatrix3.xyz = normalize(float3(-ddx, 1, -ddy)); // Normal
 
 	OUT.eyeVector = P.xyz - eyePosition; // eye position in vertex space
 	return OUT;
