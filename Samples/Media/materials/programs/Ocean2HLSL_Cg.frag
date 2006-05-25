@@ -14,7 +14,7 @@ BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 Comments:
 	Simple ocean shader with animated bump map and geometric waves
 	Based partly on "Effective Water Simulation From Physical Models", GPU Gems
-	
+
 11 Aug 05: heavily modified by Jeff Doyle (nfz) for Ogre
 
 ******************************************************************************/
@@ -30,7 +30,7 @@ struct v2f {
 	float2 bumpCoord0 : TEXCOORD3;
 	float2 bumpCoord1 : TEXCOORD4;
 	float2 bumpCoord2 : TEXCOORD5;
-	
+
 	float3 eyeVector  : TEXCOORD6;
 };
 
@@ -42,6 +42,7 @@ float4 main(v2f IN,
 			uniform float4 shallowColor,
 			uniform float4 reflectionColor,
 			uniform float reflectionAmount,
+			uniform float reflectionBlur,
 			uniform float waterAmount,
 			uniform float fresnelPower,
 			uniform float fresnelBias,
@@ -59,25 +60,26 @@ float4 main(v2f IN,
     m[0] = IN.rotMatrix1;
     m[1] = IN.rotMatrix2;
     m[2] = IN.rotMatrix3;
-    
+
     N = normalize( mul( N, m ) );
 
 	// reflection
     float3 E = normalize(IN.eyeVector);
-    float3 R = reflect(E, N);
+    float4 R;
+    R.xyz = reflect(E, N);
     // Ogre conversion for cube map lookup
     R.z = -R.z;
-
-    float4 reflection = texCUBE(EnvironmentMap, R);
+    R.w = reflectionBlur;
+    float4 reflection = texCUBEbias(EnvironmentMap, R);
     // cheap hdr effect
     reflection.rgb *= (reflection.r + reflection.g + reflection.b) * hdrMultiplier;
 
-	// fresnel 
+	// fresnel
     float facing = 1.0 - max(dot(-E, N), 0);
     float fresnel = saturate(fresnelBias + pow(facing, fresnelPower));
 
     float4 waterColor = lerp(shallowColor, deepColor, facing) * waterAmount;
-    
+
     reflection = lerp(waterColor,  reflection * reflectionColor, fresnel) * reflectionAmount;
     return waterColor + reflection;
 }
