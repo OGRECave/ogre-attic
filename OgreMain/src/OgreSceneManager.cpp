@@ -1968,7 +1968,7 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(
 						targetPass->removeTextureUnitState(1);
 
                     TextureUnitState* t = 
-                        mShadowReceiverPass->createTextureUnitState("spot_shadow_fade.png");
+                        targetPass->createTextureUnitState("spot_shadow_fade.png");
                     t->setProjectiveTexturing(true, cam);
                     t->setColourOperation(LBO_ADD);
                     t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
