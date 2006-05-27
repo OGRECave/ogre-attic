@@ -683,8 +683,13 @@ namespace Ogre {
         virtual Camera* createCamera(const String& name);
 
         /** Retrieves a pointer to the named camera.
+		@note Throws an exception if the named instance does not exist
         */
         virtual Camera* getCamera(const String& name);
+
+		/** Returns whether a camera with the given name exists.
+		*/
+		virtual bool hasCamera(const String& name) const;
 
         /** Removes a camera from the scene.
             @remarks
@@ -726,10 +731,15 @@ namespace Ogre {
         virtual Light* createLight(const String& name);
 
         /** Returns a pointer to the named Light which has previously been added to the scene.
+		@note Throws an exception if the named instance does not exist
         */
         virtual Light* getLight(const String& name);
 
-        /** Removes the named light from the scene and destroys it.
+		/** Returns whether a light with the given name exists.
+		*/
+		virtual bool hasLight(const String& name) const;
+
+		/** Removes the named light from the scene and destroys it.
             @remarks
                 Any pointers held to this light after calling this method will be invalid.
         */
@@ -830,8 +840,14 @@ namespace Ogre {
             If you chose to name a SceneNode as you created it, or if you
             happened to make a note of the generated name, you can look it
             up wherever it is in the scene graph using this method.
+			@note Throws an exception if the named instance does not exist
         */
         virtual SceneNode* getSceneNode(const String& name) const;
+
+		/** Returns whether a scene node with the given name exists.
+		*/
+		virtual bool hasSceneNode(const String& name) const;
+
 
         /** Create an Entity (instance of a discrete mesh).
             @param
@@ -859,8 +875,13 @@ namespace Ogre {
                 ptype The prefab type.
         */
         virtual Entity* createEntity(const String& entityName, PrefabType ptype);
-        /** Retrieves a pointer to the named Entity. */
+        /** Retrieves a pointer to the named Entity. 
+		@note Throws an exception if the named instance does not exist
+		*/
         virtual Entity* getEntity(const String& name);
+		/** Returns whether an entity with the given name exists.
+		*/
+		virtual bool hasEntity(const String& name) const;
 
         /** Removes & destroys an Entity from the SceneManager.
             @warning
@@ -899,8 +920,13 @@ namespace Ogre {
             name The name to be given to the object (must be unique).
         */
         virtual ManualObject* createManualObject(const String& name);
-        /** Retrieves a pointer to the named ManualObject. */
+        /** Retrieves a pointer to the named ManualObject. 
+		@note Throws an exception if the named instance does not exist
+		*/
         virtual ManualObject* getManualObject(const String& name);
+		/** Returns whether a manual object with the given name exists.
+		*/
+		virtual bool hasManualObject(const String& name) const;
 
         /** Removes & destroys a ManualObject from the SceneManager.
         */
@@ -917,8 +943,13 @@ namespace Ogre {
             name The name to be given to the object (must be unique).
         */
         virtual BillboardChain* createBillboardChain(const String& name);
-        /** Retrieves a pointer to the named BillboardChain. */
+        /** Retrieves a pointer to the named BillboardChain. 
+		@note Throws an exception if the named instance does not exist
+		*/
         virtual BillboardChain* getBillboardChain(const String& name);
+		/** Returns whether a billboard chain with the given name exists.
+		*/
+		virtual bool hasBillboardChain(const String& name) const;
 
         /** Removes & destroys a BillboardChain from the SceneManager.
         */
@@ -935,8 +966,13 @@ namespace Ogre {
             name The name to be given to the object (must be unique).
         */
         virtual RibbonTrail* createRibbonTrail(const String& name);
-        /** Retrieves a pointer to the named RibbonTrail. */
+        /** Retrieves a pointer to the named RibbonTrail. 
+		@note Throws an exception if the named instance does not exist
+		*/
         virtual RibbonTrail* getRibbonTrail(const String& name);
+		/** Returns whether a ribbon trail with the given name exists.
+		*/
+		virtual bool hasRibbonTrail(const String& name) const;
 
         /** Removes & destroys a RibbonTrail from the SceneManager.
         */
@@ -992,8 +1028,13 @@ namespace Ogre {
         virtual ParticleSystem* createParticleSystem(const String& name,
 			size_t quota = 500, 
             const String& resourceGroup = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-        /** Retrieves a pointer to the named ParticleSystem. */
+        /** Retrieves a pointer to the named ParticleSystem. 
+		@note Throws an exception if the named instance does not exist
+		*/
         virtual ParticleSystem* getParticleSystem(const String& name);
+		/** Returns whether a particle system with the given name exists.
+		*/
+		virtual bool hasParticleSystem(const String& name) const;
 
         /** Removes & destroys a ParticleSystem from the SceneManager.
         */
@@ -1498,8 +1539,12 @@ namespace Ogre {
         virtual BillboardSet* createBillboardSet(const String& name, unsigned int poolSize = 20);
 
         /** Retrieves a pointer to the named BillboardSet.
+		@note Throws an exception if the named instance does not exist
         */
         virtual BillboardSet* getBillboardSet(const String& name);
+		/** Returns whether a billboardset with the given name exists.
+		*/
+		virtual bool hasBillboardSet(const String& name) const;
 
         /** Removes & destroys an BillboardSet from the SceneManager.
             @warning
@@ -1561,8 +1606,13 @@ namespace Ogre {
         */
         virtual Animation* createAnimation(const String& name, Real length);
 
-        /** Looks up an Animation object previously created with createAnimation. */
+        /** Looks up an Animation object previously created with createAnimation. 
+		@note Throws an exception if the named instance does not exist
+		*/
         virtual Animation* getAnimation(const String& name) const;
+		/** Returns whether an animation with the given name exists.
+		*/
+		virtual bool hasAnimation(const String& name) const;
 
         /** Destroys an Animation. 
         @remarks
@@ -1599,8 +1649,13 @@ namespace Ogre {
         */
         virtual AnimationState* createAnimationState(const String& animName);
 
-        /** Retrieves animation state as previously created using createAnimationState */
+        /** Retrieves animation state as previously created using createAnimationState. 
+		@note Throws an exception if the named instance does not exist
+		*/
         virtual AnimationState* getAnimationState(const String& animName);
+		/** Returns whether an animation state with the given name exists.
+		*/
+		virtual bool hasAnimationState(const String& name) const;
 
         /** Destroys an AnimationState. 
         @remarks
@@ -2157,8 +2212,12 @@ namespace Ogre {
 		@returns The new StaticGeometry instance
 		*/
 		virtual StaticGeometry* createStaticGeometry(const String& name);
-		/** Retrieve a previously created StaticGeometry instance. */
+		/** Retrieve a previously created StaticGeometry instance. 
+		@note Throws an exception if the named instance does not exist
+		*/
 		virtual StaticGeometry* getStaticGeometry(const String& name) const;
+		/** Returns whether a static geometry instance with the given name exists. */
+		virtual bool hasStaticGeometry(const String& name) const;
 		/** Remove & destroy a StaticGeometry instance. */
 		virtual void destroyStaticGeometry(StaticGeometry* geom);
 		/** Remove & destroy a StaticGeometry instance. */
@@ -2195,8 +2254,12 @@ namespace Ogre {
 		virtual void destroyAllMovableObjectsByType(const String& typeName);
 		/** Destroy all MovableObjects. */
 		virtual void destroyAllMovableObjects(void);
-		/** Get a reference to a previously created MovableObject. */
+		/** Get a reference to a previously created MovableObject. 
+		@note Throws an exception if the named instance does not exist
+		*/
 		virtual MovableObject* getMovableObject(const String& name, const String& typeName);
+		/** Returns whether a movable object instance with the given name exists. */
+		virtual bool hasMovableObject(const String& name, const String& typeName) const;
 		typedef MapIterator<MovableObjectMap> MovableObjectIterator;
 		/** Get an iterator over all MovableObect instances of a given type. */
 		virtual MovableObjectIterator getMovableObjectIterator(const String& typeName);
