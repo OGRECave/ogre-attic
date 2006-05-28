@@ -59,6 +59,14 @@ namespace Ogre {
             ++n;
             return n;
         }
+        /** Determines whether the number is power-of-two or not.
+            @note 0 and 1 are tread as power of two.
+        */
+        template<typename T>
+        static FORCEINLINE bool isPO2(T n)
+        {
+            return (n & (n-1)) == 0;
+        }
         /** Returns the number of bits a pattern must be shifted right by to
             remove right-hand zeroes.
         */
