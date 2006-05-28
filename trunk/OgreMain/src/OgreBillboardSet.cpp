@@ -1347,6 +1347,7 @@ namespace Ogre {
     {
       if( !numCoords || !coords ) {
         setTextureStacksAndSlices( 1, 1 );
+		return;
       }
       //  clear out any previous allocation (as vectors may not shrink)
       TextureCoordSets().swap( mTextureCoords );

@@ -212,6 +212,12 @@ namespace Ogre {
 			the 'head' of the chain
 		*/
 		virtual const Element& getChainElement(size_t chainIndex, size_t elementIndex) const;
+
+		/** Remove all elements of a given chain (but leave the chain intact). */
+		virtual void clearChain(size_t chainIndex);
+		/** Remove all elements from all chains (but leave the chains themselves intact). */
+		virtual void clearAllChains(void);
+
 		/// Get the material name in use
 		virtual const String& getMaterialName(void) const { return mMaterialName; }
 		/// Set the material name to use for rendering

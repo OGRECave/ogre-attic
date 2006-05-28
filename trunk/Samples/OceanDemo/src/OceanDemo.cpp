@@ -322,7 +322,7 @@ void OceanDemo::createScene(void)
     Ogre::MeshManager::getSingleton().createPlane("OceanSurface",
         Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
         oceanSurface,
-        1000, 1000, 40, 40, true, 1, 1, 1, Ogre::Vector3::UNIT_Z);
+        1000, 1000, 50, 50, true, 1, 1, 1, Ogre::Vector3::UNIT_Z);
 
     mOceanSurfaceEnt = mSceneMgr->createEntity( "OceanSurface", "OceanSurface" );
     mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(mOceanSurfaceEnt);

@@ -246,10 +246,14 @@ namespace Ogre {
 		};
 		typedef std::list<ShapeClipEntry> ShapeClipList;
 
+
+		/// List of ProtoSubMeshes that use the same material but are not geometrically compatible
+		typedef std::list<ProtoSubMesh*> ProtoSubMeshList;
+
 		/// List of proto submeshes by material
-		typedef std::map<String, ProtoSubMesh*> ProtoSubMeshList;
+		typedef std::map<String, ProtoSubMeshList*> MaterialProtoSubMeshMap;
 		/// List of proto submeshes by material
-		ProtoSubMeshList mProtoSubmeshList;
+		MaterialProtoSubMeshMap mMaterialProtoSubmeshMap;
 		/// List of deviant proto submeshes by polygon index (clusters)
 		typedef std::map<size_t, ProtoSubMesh*> PolygonToProtoSubMeshList;
 		/// List of deviant proto submeshes by polygon index (clusters)

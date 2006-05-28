@@ -990,6 +990,9 @@ namespace Ogre {
                 {
                     // mActiveLabelKey will be the end of the instruction container ie the size of mTokenInstructions
                     mActiveLabelKey = mActiveTokenState->tokenQue.size();
+                    // if a token insert is pending then use next key
+                    if (mInsertTokenID)
+                        ++mActiveLabelKey;
                     mLabelIsActive = true;
                     mNoSpaceSkip = true;
                     // reset the contents of the label since it might have been used prior to a rollback
@@ -1046,7 +1049,11 @@ namespace Ogre {
 				    if (Passed = isFloatValue(constantvalue, tokenlength))
 				    {
                         // key is the next instruction index
-                        mConstants[mActiveTokenState->tokenQue.size()] = constantvalue;
+                        size_t key = mActiveTokenState->tokenQue.size();
+                        // if a token insert is pending then use next key
+                        if (mInsertTokenID)
+                            ++key;
+                        mConstants[key] = constantvalue;
 				    }
 			    }
                 else // check if user label or valid keyword token
@@ -1105,7 +1112,7 @@ namespace Ogre {
                         // token being found
                         if (mInsertTokenID)
                         {
-                            newtoken.tokenID = tokenID;
+                            newtoken.tokenID = mInsertTokenID;
                             mActiveTokenState->tokenQue.push_back(newtoken);
                             // token action processing
                             // if the token has an action then fire previous token action

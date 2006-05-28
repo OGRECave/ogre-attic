@@ -47,6 +47,7 @@ There are a number of issues to consider which are specific to stencil shadows:
 @item @ref{CPU Overhead}
 @item @ref{Extrusion distance}
 @item @ref{Camera far plane positioning}
+@item @ref{Mesh edge lists}
 @item @ref{The Silhouette Edge}
 @item @ref{Be realistic}
 @item @ref{Stencil Optimisations Performed By Ogre}
@@ -64,6 +65,10 @@ When infinite extrusion is not possible, Ogre uses finite extrusion, either deri
 @anchor{Camera far plane positioning}
 @subheading Camera far plane positioning
 Stencil shadow volumes rely very much on not being clipped by the far plane. When you enable stencil shadows, Ogre internally changes the far plane settings of your cameras such that there is no far plane - ie it is placed at infinity (Camera::setFarClipDistance(0)). This avoids artefacts caused by clipping the dark caps on shadow volumes, at the expense of a (very) small amount of depth precision. 
+
+@anchor{Mesh edge lists}
+@subheading Mesh edge lists
+Stencil shadows can only be calculated when an 'edge list' has been built for all the geometry in a mesh. The official exporters and tools automatically build this for you (or have an option to do so), but if you create your own meshes, you must remember to build edge lists for them before using them with stencil shadows - you can do that by using OgreMeshUpgrade or OgreXmlConverter, or by calling Mesh::buildEdgeList before you export or use the mesh. If a mesh doesn't have edge lists, OGRE assumes that it is not supposed to cast stencil shadows.
 
 @anchor{The Silhouette Edge}
 @subheading The Silhouette Edge

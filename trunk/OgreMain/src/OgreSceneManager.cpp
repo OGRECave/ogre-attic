@@ -272,6 +272,11 @@ Camera* SceneManager::getCamera(const String& name)
         return i->second;
     }
 }
+//-----------------------------------------------------------------------
+bool SceneManager::hasCamera(const String& name) const
+{
+	return (mCameras.find(name) != mCameras.end());
+}
 
 //-----------------------------------------------------------------------
 void SceneManager::destroyCamera(Camera *cam)
@@ -331,6 +336,11 @@ Light* SceneManager::getLight(const String& name)
 {
 	return static_cast<Light*>(
 		getMovableObject(name, LightFactory::FACTORY_TYPE_NAME));
+}
+//-----------------------------------------------------------------------
+bool SceneManager::hasLight(const String& name) const
+{
+	return hasMovableObject(name, LightFactory::FACTORY_TYPE_NAME);
 }
 //-----------------------------------------------------------------------
 void SceneManager::destroyLight(Light *l)
@@ -430,6 +440,11 @@ Entity* SceneManager::getEntity(const String& name)
 	return static_cast<Entity*>(
 		getMovableObject(name, EntityFactory::FACTORY_TYPE_NAME));
 }
+//-----------------------------------------------------------------------
+bool SceneManager::hasEntity(const String& name) const
+{
+	return hasMovableObject(name, EntityFactory::FACTORY_TYPE_NAME);
+}
 
 //-----------------------------------------------------------------------
 void SceneManager::destroyEntity(Entity *e)
@@ -470,6 +485,12 @@ ManualObject* SceneManager::getManualObject(const String& name)
 
 }
 //-----------------------------------------------------------------------
+bool SceneManager::hasManualObject(const String& name) const
+{
+	return hasMovableObject(name, ManualObjectFactory::FACTORY_TYPE_NAME);
+
+}
+//-----------------------------------------------------------------------
 void SceneManager::destroyManualObject(ManualObject* obj)
 {
 	destroyMovableObject(obj);
@@ -498,6 +519,12 @@ BillboardChain* SceneManager::getBillboardChain(const String& name)
 
 }
 //-----------------------------------------------------------------------
+bool SceneManager::hasBillboardChain(const String& name) const
+{
+	return hasMovableObject(name, BillboardChainFactory::FACTORY_TYPE_NAME);
+}
+
+//-----------------------------------------------------------------------
 void SceneManager::destroyBillboardChain(BillboardChain* obj)
 {
 	destroyMovableObject(obj);
@@ -525,6 +552,12 @@ RibbonTrail* SceneManager::getRibbonTrail(const String& name)
 		getMovableObject(name, RibbonTrailFactory::FACTORY_TYPE_NAME));
 
 }
+//-----------------------------------------------------------------------
+bool SceneManager::hasRibbonTrail(const String& name) const
+{
+	return hasMovableObject(name, RibbonTrailFactory::FACTORY_TYPE_NAME);
+}
+
 //-----------------------------------------------------------------------
 void SceneManager::destroyRibbonTrail(RibbonTrail* obj)
 {
@@ -570,6 +603,12 @@ ParticleSystem* SceneManager::getParticleSystem(const String& name)
 		getMovableObject(name, ParticleSystemFactory::FACTORY_TYPE_NAME));
 
 }
+//-----------------------------------------------------------------------
+bool SceneManager::hasParticleSystem(const String& name) const
+{
+	return hasMovableObject(name, ParticleSystemFactory::FACTORY_TYPE_NAME);
+}
+
 //-----------------------------------------------------------------------
 void SceneManager::destroyParticleSystem(ParticleSystem* obj)
 {
@@ -703,6 +742,12 @@ SceneNode* SceneManager::getSceneNode(const String& name) const
     return i->second;
 
 }
+//-----------------------------------------------------------------------
+bool SceneManager::hasSceneNode(const String& name) const
+{
+	return (mSceneNodes.find(name) != mSceneNodes.end());
+}
+
 //-----------------------------------------------------------------------
 const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed, 
 								   bool shadowDerivation)
@@ -1968,7 +2013,7 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(
 						targetPass->removeTextureUnitState(1);
 
                     TextureUnitState* t = 
-                        mShadowReceiverPass->createTextureUnitState("spot_shadow_fade.png");
+                        targetPass->createTextureUnitState("spot_shadow_fade.png");
                     t->setProjectiveTexturing(true, cam);
                     t->setColourOperation(LBO_ADD);
                     t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
@@ -2614,6 +2659,12 @@ BillboardSet* SceneManager::getBillboardSet(const String& name)
 		getMovableObject(name, BillboardSetFactory::FACTORY_TYPE_NAME));
 }
 //-----------------------------------------------------------------------
+bool SceneManager::hasBillboardSet(const String& name) const
+{
+	return hasMovableObject(name, BillboardSetFactory::FACTORY_TYPE_NAME);
+}
+
+//-----------------------------------------------------------------------
 void SceneManager::destroyBillboardSet(BillboardSet* set)
 {
 	destroyMovableObject(set);
@@ -2655,6 +2706,11 @@ Animation* SceneManager::getAnimation(const String& name) const
             "SceneManager::getAnimation");
     }
     return i->second;
+}
+//-----------------------------------------------------------------------
+bool SceneManager::hasAnimation(const String& name) const
+{
+	return (mAnimationsList.find(name) != mAnimationsList.end());
 }
 //-----------------------------------------------------------------------
 void SceneManager::destroyAnimation(const String& name)
@@ -2707,6 +2763,11 @@ AnimationState* SceneManager::getAnimationState(const String& animName)
 {
 	return mAnimationStates.getAnimationState(animName);
 
+}
+//-----------------------------------------------------------------------
+bool SceneManager::hasAnimationState(const String& name) const
+{
+	return mAnimationStates.hasAnimationState(name);
 }
 //-----------------------------------------------------------------------
 void SceneManager::destroyAnimationState(const String& name)
@@ -4645,6 +4706,12 @@ StaticGeometry* SceneManager::getStaticGeometry(const String& name) const
 	}
 	return i->second;
 }
+//-----------------------------------------------------------------------
+bool SceneManager::hasStaticGeometry(const String& name) const
+{
+	return (mStaticGeometryList.find(name) != mStaticGeometryList.end());
+}
+
 //---------------------------------------------------------------------
 void SceneManager::destroyStaticGeometry(StaticGeometry* geom)
 {
@@ -4838,6 +4905,17 @@ MovableObject* SceneManager::getMovableObject(const String& name, const String& 
 	return mi->second;
 	
 }
+//-----------------------------------------------------------------------
+bool SceneManager::hasMovableObject(const String& name, const String& typeName) const
+{
+	MovableObjectCollectionMap::const_iterator i = 
+		mMovableObjectCollectionMap.find(typeName);
+	if (i == mMovableObjectCollectionMap.end())
+		return false;
+
+	return (i->second->find(name) != i->second->end());
+}
+
 //---------------------------------------------------------------------
 SceneManager::MovableObjectIterator 
 SceneManager::getMovableObjectIterator(const String& typeName)

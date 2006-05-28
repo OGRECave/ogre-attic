@@ -14,7 +14,7 @@ BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 Comments:
 	Simple ocean shader with animated bump map and geometric waves
 	Based partly on "Effective Water Simulation From Physical Models", GPU Gems
-	
+
 11 Aug 05: converted from HLSL to GLSL by Jeff Doyle (nfz) to work in Ogre
 
 ******************************************************************************/
@@ -26,6 +26,7 @@ uniform vec4 deepColor;
 uniform vec4 shallowColor;
 uniform vec4 reflectionColor;
 uniform float reflectionAmount;
+uniform float reflectionBlur;
 uniform float waterAmount;
 uniform float fresnelPower;
 uniform float fresnelBias;
@@ -55,16 +56,16 @@ void main(void)
     // Ogre conversion for cube map lookup
     R.z = -R.z;
 
-    vec4 reflection = textureCube(EnvironmentMap, R);
+    vec4 reflection = textureCube(EnvironmentMap, R, reflectionBlur);
     // cheap hdr effect
     reflection.rgb *= (reflection.r + reflection.g + reflection.b) * hdrMultiplier;
 
-	// fresnel 
+	// fresnel
     float facing = 1.0 - dot(-E, N);
     float fresnel = clamp(fresnelBias + pow(facing, fresnelPower), 0.0, 1.0);
 
     vec4 waterColor = mix(shallowColor, deepColor, facing) * waterAmount;
-    
+
     reflection = mix(waterColor,  reflection * reflectionColor, fresnel) * reflectionAmount;
     gl_FragColor = waterColor + reflection;
 }

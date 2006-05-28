@@ -305,6 +305,31 @@ namespace Ogre {
 
 	}
 	//-----------------------------------------------------------------------
+	void BillboardChain::clearChain(size_t chainIndex)
+	{
+		if (chainIndex >= mChainCount)
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
+				"chainIndex out of bounds",
+				"BillboardChain::removeChainElement");
+		}
+		ChainSegment& seg = mChainSegmentList[chainIndex];
+
+		// Just reset head & tail
+		seg.tail = seg.head = SEGMENT_EMPTY;
+
+
+	}
+	//-----------------------------------------------------------------------
+	void BillboardChain::clearAllChains(void)
+	{
+		for (size_t i = 0; i < mChainCount; ++i)
+		{
+			clearChain(i);
+		}
+
+	}
+	//-----------------------------------------------------------------------
 	void BillboardChain::updateChainElement(size_t chainIndex, size_t elementIndex,
 		const BillboardChain::Element& dtls)
 	{
