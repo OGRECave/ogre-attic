@@ -25,7 +25,7 @@ material Ogre/Compositor/OldMovie
 				param_named_auto time_cycle_period time 20
 				param_named flicker float 0.4
 				param_named DirtFrequency float 0.0005
-				param_named luminance float3 0.30f 0.59f 0.11f
+				param_named luminance float3 0.30 0.59 0.11
 				param_named frameJitter float 0.004
 				param_named lumiShift float 0.03
 			}

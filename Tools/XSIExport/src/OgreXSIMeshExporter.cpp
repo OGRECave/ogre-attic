@@ -260,52 +260,58 @@ namespace Ogre {
 		const String& materialName, const String& name, 
 		TextureCoordDimensionList& texCoordDims, bool hasVertexColours)
 	{
-		bool createNew = false;
+		bool createNew = true;
 		ProtoSubMesh* ret = 0;
+		ProtoSubMeshList* protoList = 0;
 		
-		ProtoSubMeshList::iterator pi = mProtoSubmeshList.find(materialName);
-		if (pi == mProtoSubmeshList.end())
+		MaterialProtoSubMeshMap::iterator pi = mMaterialProtoSubmeshMap.find(materialName);
+		if (pi == mMaterialProtoSubmeshMap.end())
 		{
-			createNew = true;
+			protoList = new ProtoSubMeshList();
+			mMaterialProtoSubmeshMap[materialName] = protoList;
 		}
 		else
 		{
-			// Check format is compatible
-			bool compat = true;
-			if (pi->second->textureCoordDimensions.size() != texCoordDims.size())
+			// Iterate over the protos with the same material
+			protoList = pi->second;
+
+			for (ProtoSubMeshList::iterator psi = protoList->begin(); psi != protoList->end(); ++psi)
 			{
-				compat = false;
-			}
-			if (pi->second->hasVertexColours != hasVertexColours)
-			{
-				compat = false;
-			}
-			std::vector<ushort>::iterator t = texCoordDims.begin();
-			std::vector<ushort>::iterator u = pi->second->textureCoordDimensions.begin(); 
-			for (;t != texCoordDims.end(); ++t,++u)
-			{
-				if (*t != *u)
+				ProtoSubMesh* candidate = *psi;
+				// Check format is compatible
+				bool compat = true;
+				if (candidate->textureCoordDimensions.size() != texCoordDims.size())
 				{
 					compat = false;
+				}
+				if (candidate->hasVertexColours != hasVertexColours)
+				{
+					compat = false;
+				}
+				std::vector<ushort>::iterator t = texCoordDims.begin();
+				std::vector<ushort>::iterator u = candidate->textureCoordDimensions.begin(); 
+				for (;t != texCoordDims.end(); ++t,++u)
+				{
+					if (*t != *u)
+					{
+						compat = false;
+						break;
+					}
+				}
+
+				if (compat)
+				{
+					createNew = false;
+					ret = candidate;
 					break;
 				}
-			}
-			
-			if (compat)
-			{
-				ret = pi->second;
-			}
-			else
-			{
-				// Can't merge these - create new
-				createNew = true;
 			}
 		}
 
 		if (createNew)
 		{
 			ret = new ProtoSubMesh();
-			mProtoSubmeshList[materialName] = ret;
+			protoList->push_back(ret);
 			ret->materialName = materialName;
 			ret->name = name;
 			ret->textureCoordDimensions = texCoordDims;
@@ -641,11 +647,16 @@ namespace Ogre {
 	void XsiMeshExporter::postprocessPolygonMesh(PolygonMeshEntry* xsiMesh)
 	{
 		// clear all position index remaps, incase merged
-		for (ProtoSubMeshList::iterator p = mProtoSubmeshList.begin();
-			p != mProtoSubmeshList.end(); ++p)
+		for (MaterialProtoSubMeshMap::iterator m = mMaterialProtoSubmeshMap.begin();
+			m != mMaterialProtoSubmeshMap.end(); ++m)
 		{
-			ProtoSubMesh* ps = p->second;
-			ps->posIndexRemap.clear();
+
+			for (ProtoSubMeshList::iterator p = m->second->begin();
+				p != m->second->end(); ++p)
+			{
+				ProtoSubMesh* ps = *p;
+				ps->posIndexRemap.clear();
+			}
 		}
 
 		// free temp UV data now
@@ -723,49 +734,54 @@ namespace Ogre {
 							continue;
 
 						// Locate ProtoSubMeshes which use this mesh
-						for (ProtoSubMeshList::iterator psi = mProtoSubmeshList.begin();
-							psi != mProtoSubmeshList.end(); ++psi)
+						for (MaterialProtoSubMeshMap::iterator mi = mMaterialProtoSubmeshMap.begin();
+							mi != mMaterialProtoSubmeshMap.end(); ++mi)
 						{
-							ProtoSubMesh* ps = psi->second;
-							ProtoSubMesh::PolygonMeshOffsetMap::iterator poli = 
-								ps->polygonMeshOffsetMap.find(xsiMesh);
-							if (poli != ps->polygonMeshOffsetMap.end())
+							for (ProtoSubMeshList::iterator psi = mi->second->begin();
+								psi != mi->second->end(); ++psi)
 							{
-								// adjust index based on merging
-								size_t adjIndex = positionIndex + poli->second;
-								// look up real index
-								// If it doesn't exist, it's probably on a seam
-								// between clusters and we can safely skip it
-								IndexRemap::iterator remi = ps->posIndexRemap.find(adjIndex);
-								if (remi != ps->posIndexRemap.end())
+								ProtoSubMesh* ps = *psi;
+								ProtoSubMesh::PolygonMeshOffsetMap::iterator poli = 
+									ps->polygonMeshOffsetMap.find(xsiMesh);
+								if (poli != ps->polygonMeshOffsetMap.end())
 								{
-
-									size_t vertIndex = remi->second;
-									bool moreVerts = true;
-									// add UniqueVertex and clones
-									while (moreVerts)
+									// adjust index based on merging
+									size_t adjIndex = positionIndex + poli->second;
+									// look up real index
+									// If it doesn't exist, it's probably on a seam
+									// between clusters and we can safely skip it
+									IndexRemap::iterator remi = ps->posIndexRemap.find(adjIndex);
+									if (remi != ps->posIndexRemap.end())
 									{
-										UniqueVertex& vertex = ps->uniqueVertices[vertIndex];
-										VertexBoneAssignment vba;
-										vba.boneIndex = deformerEntry->boneID;
-										vba.vertexIndex = vertIndex;
-										vba.weight = weight;
-										ps->boneAssignments.insert(
-											Mesh::VertexBoneAssignmentList::value_type(vertIndex, vba));
-										atLeastOneAssignment = true;
 
-										if (vertex.nextIndex == 0)
+										size_t vertIndex = remi->second;
+										bool moreVerts = true;
+										// add UniqueVertex and clones
+										while (moreVerts)
 										{
-											moreVerts = false;
-										}
-										else
-										{
-											vertIndex = vertex.nextIndex;
+											UniqueVertex& vertex = ps->uniqueVertices[vertIndex];
+											VertexBoneAssignment vba;
+											vba.boneIndex = deformerEntry->boneID;
+											vba.vertexIndex = vertIndex;
+											vba.weight = weight;
+											ps->boneAssignments.insert(
+												Mesh::VertexBoneAssignmentList::value_type(vertIndex, vba));
+											atLeastOneAssignment = true;
+
+											if (vertex.nextIndex == 0)
+											{
+												moreVerts = false;
+											}
+											else
+											{
+												vertIndex = vertex.nextIndex;
+											}
 										}
 									}
-								}
 
+								}
 							}
+
 						}
 
 
@@ -848,143 +864,147 @@ namespace Ogre {
 					CClusterPropertyElementArray shapeElements = shapeKey.GetElements();
 
 					// Locate ProtoSubMeshes which use this mesh
-					for (ProtoSubMeshList::iterator psi = mProtoSubmeshList.begin();
-						psi != mProtoSubmeshList.end(); ++psi)
+					for (MaterialProtoSubMeshMap::iterator mi = mMaterialProtoSubmeshMap.begin();
+						mi != mMaterialProtoSubmeshMap.end(); ++mi)
 					{
-						ProtoSubMesh* ps = psi->second;
-						ProtoSubMesh::PolygonMeshOffsetMap::iterator poli = 
-							ps->polygonMeshOffsetMap.find(xsiMesh);
-						if (poli != ps->polygonMeshOffsetMap.end())
+						for (ProtoSubMeshList::iterator psi = mi->second->begin();
+							psi != mi->second->end(); ++psi)
 						{
-							// remap from mesh vertex index to proto vertex index
-							size_t indexAdjustment = poli->second;
-
-							// Create a new pose, target is implied by proto, final
-							// index to be determined later including merging
-							Pose pose(0, XSItoOgre(shapeKey.GetName()));
-
-							// Iterate per vertex affected
-							for (int xi = 0; xi < vertexIndexArray.GetCount(); ++xi)
+							ProtoSubMesh* ps = *psi;
+							ProtoSubMesh::PolygonMeshOffsetMap::iterator poli = 
+								ps->polygonMeshOffsetMap.find(xsiMesh);
+							if (poli != ps->polygonMeshOffsetMap.end())
 							{
-								// Index
-								size_t positionIndex = vertexIndexArray.GetItem(xi);
-								// Now get offset
-								CDoubleArray xsiOffset = shapeElements.GetItem(xi);
-								Vector3 offset(xsiOffset[0], xsiOffset[1], xsiOffset[2]);
+								// remap from mesh vertex index to proto vertex index
+								size_t indexAdjustment = poli->second;
 
-								// Skip zero offsets
-								if (offset == Vector3::ZERO)
-									continue;
+								// Create a new pose, target is implied by proto, final
+								// index to be determined later including merging
+								Pose pose(0, XSItoOgre(shapeKey.GetName()));
 
-
-								if (isLocalSpace)
+								// Iterate per vertex affected
+								for (int xi = 0; xi < vertexIndexArray.GetCount(); ++xi)
 								{
-									// Local reference mode -> object space
-									// Local mode is the most popular since in XSI
-									// it plays nice with skeletal animation, but
-									// it's relative to the _point's_ local space
+									// Index
+									size_t positionIndex = vertexIndexArray.GetItem(xi);
+									// Now get offset
+									CDoubleArray xsiOffset = shapeElements.GetItem(xi);
+									Vector3 offset(xsiOffset[0], xsiOffset[1], xsiOffset[2]);
 
-									// Get local axes
-									// XSI defines local space as:
-									// Y = vertex normal
-									// X = normalised projection of first edge 
-									//     from vertex onto normal plane
-									// Z = cross product of above
-									Point point(pointsArray[positionIndex]);
-									bool normalValid;
-									Vector3 localY = XSItoOgre(point.GetNormal(normalValid));
-									Vertex vertex(verticesArray.GetItem(positionIndex));
-									CEdgeRefArray edgeArray = vertex.GetNeighborEdges();
-									if (normalValid && edgeArray.GetCount() > 0)
+									// Skip zero offsets
+									if (offset == Vector3::ZERO)
+										continue;
+
+
+									if (isLocalSpace)
 									{
+										// Local reference mode -> object space
+										// Local mode is the most popular since in XSI
+										// it plays nice with skeletal animation, but
+										// it's relative to the _point's_ local space
 
-										Edge edge(edgeArray[0]);
-										CVertexRefArray verticesOnEdge = edge.GetNeighborVertices();
-										Vertex otherVertex = 
-											(verticesOnEdge[0] == vertex) ?
-											verticesOnEdge[1] : verticesOnEdge[0];
-										Vector3 edgeVector 
-											= XSItoOgre(otherVertex.GetPosition())
-												- XSItoOgre(vertex.GetPosition());
-										// Project the vector onto the normal plane (d irrelevant)
-										Plane normPlane(localY, 0);
-										Vector3 localX = normPlane.projectVector(edgeVector);
-										localX.normalise();
+										// Get local axes
+										// XSI defines local space as:
+										// Y = vertex normal
+										// X = normalised projection of first edge 
+										//     from vertex onto normal plane
+										// Z = cross product of above
+										Point point(pointsArray[positionIndex]);
+										bool normalValid;
+										Vector3 localY = XSItoOgre(point.GetNormal(normalValid));
+										Vertex vertex(verticesArray.GetItem(positionIndex));
+										CEdgeRefArray edgeArray = vertex.GetNeighborEdges();
+										if (normalValid && edgeArray.GetCount() > 0)
+										{
 
-										Vector3 localZ = localX.crossProduct(localY);
+											Edge edge(edgeArray[0]);
+											CVertexRefArray verticesOnEdge = edge.GetNeighborVertices();
+											Vertex otherVertex = 
+												(verticesOnEdge[0] == vertex) ?
+												verticesOnEdge[1] : verticesOnEdge[0];
+											Vector3 edgeVector 
+												= XSItoOgre(otherVertex.GetPosition())
+													- XSItoOgre(vertex.GetPosition());
+											// Project the vector onto the normal plane (d irrelevant)
+											Plane normPlane(localY, 0);
+											Vector3 localX = normPlane.projectVector(edgeVector);
+											localX.normalise();
 
-										// multiply out position by local axes to form
-										// final position
-										offset = (localX * offset.x) + 
-											(localY * offset.y) + 
-											(localZ * offset.z);
+											Vector3 localZ = localX.crossProduct(localY);
+
+											// multiply out position by local axes to form
+											// final position
+											offset = (localX * offset.x) + 
+												(localY * offset.y) + 
+												(localZ * offset.z);
+
+										}
+
+									}
+									
+									if (!isGlobalSpace)
+									{
+										// shape is in object space, if object is parented
+										// by a null or a static bone, we need to adjust the
+										// shape offset since this inherited transform is
+										// baked into the base OGRE mesh (to preserve
+										// relative positioning of parts)
+
+										// If object is parented
+										// Don't know if anyone really uses this
+										// Convert global to object space
+										MATH::CTransformation xform = 
+											xsiMesh->obj.GetKinematics().GetGlobal().GetTransform();
+										MATH::CVector3 off(offset.x, offset.y, offset.z);
+										off.MulByTransformationInPlace(xform);
+										offset = XSItoOgre(off);
 
 									}
 
-								}
-								
-								if (!isGlobalSpace)
-								{
-									// shape is in object space, if object is parented
-									// by a null or a static bone, we need to adjust the
-									// shape offset since this inherited transform is
-									// baked into the base OGRE mesh (to preserve
-									// relative positioning of parts)
 
-									// If object is parented
-									// Don't know if anyone really uses this
-									// Convert global to object space
-									MATH::CTransformation xform = 
-										xsiMesh->obj.GetKinematics().GetGlobal().GetTransform();
-									MATH::CVector3 off(offset.x, offset.y, offset.z);
-									off.MulByTransformationInPlace(xform);
-									offset = XSItoOgre(off);
-
-								}
-
-
-								// adjust index based on merging
-								size_t adjIndex = positionIndex + indexAdjustment;
-								// look up real index
-								// If it doesn't exist, it's probably on a seam
-								// between clusters and we can safely skip it
-								IndexRemap::iterator remi = ps->posIndexRemap.find(adjIndex);
-								if (remi != ps->posIndexRemap.end())
-								{
-
-									size_t vertIndex = remi->second;
-									bool moreVerts = true;
-
-
-									// add UniqueVertex and clones
-									while (moreVerts)
+									// adjust index based on merging
+									size_t adjIndex = positionIndex + indexAdjustment;
+									// look up real index
+									// If it doesn't exist, it's probably on a seam
+									// between clusters and we can safely skip it
+									IndexRemap::iterator remi = ps->posIndexRemap.find(adjIndex);
+									if (remi != ps->posIndexRemap.end())
 									{
-										UniqueVertex& vertex = ps->uniqueVertices[vertIndex];
 
-										// Create a vertex pose entry
-										pose.addVertex(vertIndex, offset);
+										size_t vertIndex = remi->second;
+										bool moreVerts = true;
 
-										if (vertex.nextIndex == 0)
+
+										// add UniqueVertex and clones
+										while (moreVerts)
 										{
-											moreVerts = false;
-										}
-										else
-										{
-											vertIndex = vertex.nextIndex;
-										}
-									} // more duplicate verts
-								} // found remap?
-							} // for each vertex affected
+											UniqueVertex& vertex = ps->uniqueVertices[vertIndex];
 
-							// Add pose to proto
-							ps->poseList.push_back(pose);
+											// Create a vertex pose entry
+											pose.addVertex(vertIndex, offset);
 
-							// record that we used this shape key
-							ps->shapeKeys.Add(shapeKey);
+											if (vertex.nextIndex == 0)
+											{
+												moreVerts = false;
+											}
+											else
+											{
+												vertIndex = vertex.nextIndex;
+											}
+										} // more duplicate verts
+									} // found remap?
+								} // for each vertex affected
+
+								// Add pose to proto
+								ps->poseList.push_back(pose);
+
+								// record that we used this shape key
+								ps->shapeKeys.Add(shapeKey);
 
 
-						} // proto found?
-					}// for each proto
+							} // proto found?
+						}// for each proto
+					} // for each material/protolist
 				} // shape key cluster property?
 			} // for each cluster property
 		} // for each cluster
@@ -1224,16 +1244,22 @@ namespace Ogre {
 		// Take the list of ProtoSubMesh instances and bake a SubMesh per
 		// instance, then clear the list
 
-		for (ProtoSubMeshList::iterator i = mProtoSubmeshList.begin();
-			i != mProtoSubmeshList.end(); ++i)
+		for (MaterialProtoSubMeshMap::iterator mi = mMaterialProtoSubmeshMap.begin();
+			mi != mMaterialProtoSubmeshMap.end(); ++mi)
 		{
-			// export each one
-			exportProtoSubMesh(pMesh, i->second);
+			for (ProtoSubMeshList::iterator psi = mi->second->begin();
+				psi != mi->second->end(); ++psi)
+			{
+				// export each one
+				exportProtoSubMesh(pMesh, *psi);
 
-			// free it
-			delete i->second;
+				// free it
+				delete *psi;
+			}
+			// delete proto list
+			delete mi->second;
 		}
-		mProtoSubmeshList.clear();
+		mMaterialProtoSubmeshMap.clear();
 	}
 	//-----------------------------------------------------------------------
 	void XsiMeshExporter::exportProtoSubMesh(Mesh* pMesh, ProtoSubMesh* proto)

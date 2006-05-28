@@ -145,10 +145,16 @@ namespace Ogre {
         "           <Texture_Alias> ::= 'texture_alias' <Label> \n"
         "           <Texture> ::= 'texture' <Label> {<Texture_Properties>} \n"
         "           <Texture_Properties> ::= '1d' | '2d' | '3d' | 'cubic' | 'unlimited' | 'alpha' | <#mipmap> \n"
-        "           <Anim_Texture> ::= 'anim_texture' <Label> <Anim_Texture_Properties> <#duration> \n"
-        "               <Anim_Texture_Properties> ::= <#frames> | <Seperate_Anim_Textures> \n"
-        "               <Seperate_Anim_Textures> ::= {<anim_frame>} \n"
-        "                   <anim_frame> ::= <Label> [<Seperator>] \n"
+        "           <Anim_Texture> ::= 'anim_texture' <Label> <Anim_Texture_Properties> \n"
+        "               <Anim_Texture_Properties> ::= <Numbered_Anim_Texture> | <Seperate_Anim_Textures> \n"
+        "               <Numbered_Anim_Texture> ::= <#frames> <#duration> \n"
+        "               <Seperate_Anim_Textures> ::= <anim_frame> {<anim_frame>} \n"
+        "                   <anim_frame> ::= (?!<TUS_Terminators>) <Label> [<Seperator>] \n"
+        "           <TUS_Terminators> ::= '}' | 'texture_alias' | 'texture' | 'anim_texture' | 'cubic_texture' | \n"
+        "                                 'tex_coord_set' | 'tex_address_mode' | 'tex_border_colour' | \n"
+        "                                 'filtering' | 'max_anisotropy' | 'colour_op' | 'colour_op_ex' | \n"
+        "                                 'colour_op_multipass_fallback' | 'alpha_op_ex' | 'env_map' | \n"
+        "                                 'scroll' | 'rotate' | 'scale' | 'wave_xform' | 'transform' \n"
         "           <Cubic_Texture> ::= 'cubic_texture' <Label> <Cubic_Texture_Options> \n"
         "               <Cubic_Texture_Options> ::= 'combineduvw' | 'separateuv' | <Cubic_Seperate> \n"
         "               <Cubic_Seperate> ::= <Label> [<Seperator>] <Label> [<Seperator>] <Label> \n"
@@ -1509,11 +1515,12 @@ namespace Ogre {
                 vecparams.push_back(getNextTokenLabel());
                 ++numParams;
             }
+            // the last label should be a number so convert string label to number
             // Second form using individual names
             mScriptContext.textureUnit->setAnimatedTextureName(
                 (String*)&vecparams[0],
                 numParams,
-                getNextTokenValue());
+                StringConverter::parseReal(getNextTokenLabel()));
         }
     }
     //-----------------------------------------------------------------------

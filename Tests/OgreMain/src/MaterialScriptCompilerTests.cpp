@@ -193,6 +193,8 @@ void MaterialScriptCompilerTests::testCompileMaterialScript()
         "       texture_alias foo-bar \n"
         "       anim_texture MyAlphaTexture2.png 4 6.5 \n"
         "       anim_texture MyAlphaTexture2.png MyAlphaTexture6.png    MyAlphaTexture9.png 6.5 \n"
+        "       anim_texture MyAlphaTexture2.png MyAlphaTexture6.png \n"
+        "           MyAlphaTexture9.png MyAlphaTexture11.png MyAlphaTexture12.png 6.5 \n"
         "       tex_address_mode wrap \n"
         "       tex_address_mode wrap mirror \n"
         "       tex_address_mode wrap mirror border \n"
@@ -216,8 +218,6 @@ void MaterialScriptCompilerTests::testCompileMaterialScript()
         "       transform 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 \n"
 
         "       } \n"
-        "   vertex_program_ref TestVertProg { \n"
-        "   } \n"
         "   texture_unit \"second one\" { \n"
         "       anim_texture MyAlphaTexture2.png MyAlphaTexture3.png 6.5} \n"
         " \n"
