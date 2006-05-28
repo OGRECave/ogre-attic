@@ -217,6 +217,10 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
 			>
 			<File
+				RelativePath="..\src\OgreAlignedAllocator.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreAnimable.cpp"
 				>
 			</File>
@@ -473,6 +477,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreImageResampler.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreInput.cpp"
 				>
 			</File>
@@ -577,6 +585,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreOptimisedUtil.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreOverlay.cpp"
 				>
 			</File>
@@ -637,11 +649,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgrePixelConversions.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgrePixelFormat.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\src\OgrePlane.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgrePlatformInformation.cpp"
 				>
 			</File>
 			<File
@@ -783,6 +803,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreSIMDHelper.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreSimpleRenderable.cpp"
 				>
 			</File>
@@ -909,6 +933,10 @@
 			</File>
 			<File
 				RelativePath="..\include\Ogre.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreAlignedAllocator.h"
 				>
 			</File>
 			<File
@@ -1348,6 +1376,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\OgreOptimisedUtil.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\OgreOverlay.h"
 				>
 			</File>
@@ -1441,6 +1473,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgrePlatform.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgrePlatformInformation.h"
 				>
 			</File>
 			<File

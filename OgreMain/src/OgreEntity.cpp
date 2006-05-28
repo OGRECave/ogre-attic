@@ -45,6 +45,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreEdgeListBuilder.h"
 #include "OgreStringConverter.h"
 #include "OgreAnimation.h"
+#include "OgreAlignedAllocator.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -142,7 +143,7 @@ namespace Ogre {
 		{
 			mFrameBonesLastUpdated = new unsigned long(std::numeric_limits<unsigned long>::max());
 			mNumBoneMatrices = mSkeletonInstance->getNumBones();
-			mBoneMatrices = new Matrix4[mNumBoneMatrices];
+            mBoneMatrices = static_cast<Matrix4*>(AlignedMemory::allocate(sizeof(Matrix4) * mNumBoneMatrices));
 		}
         if (hasSkeleton() || hasVertexAnimation())
         {
@@ -193,7 +194,7 @@ namespace Ogre {
         detachAllObjectsImpl();
 
         if (mSkeletonInstance) {
-            delete [] mBoneWorldMatrices;
+            AlignedMemory::deallocate(mBoneWorldMatrices);
 
             if (mSharedSkeletonEntities) {
                 mSharedSkeletonEntities->erase(this);
@@ -201,13 +202,13 @@ namespace Ogre {
                     delete mSharedSkeletonEntities;
                     delete mFrameBonesLastUpdated;
                     delete mSkeletonInstance;
-                    delete [] mBoneMatrices;
+                    AlignedMemory::deallocate(mBoneMatrices);
                     delete mAnimationState;
                 }
             } else {
                 delete mFrameBonesLastUpdated;
                 delete mSkeletonInstance;
-                delete [] mBoneMatrices;
+                AlignedMemory::deallocate(mBoneMatrices);
                 delete mAnimationState;
             }
         }
@@ -607,6 +608,8 @@ namespace Ogre {
 				// Software blend?
 				if (softwareAnimation)
 				{
+                    const Matrix4* blendMatrices[256];
+
 					// Ok, we need to do a software blend
 					// Firstly, check out working vertex buffers
 					if (mSkelAnimVertexData)
@@ -618,12 +621,15 @@ namespace Ogre {
 						mTempSkelAnimInfo.checkoutTempCopies(true, blendNormals);
 						mTempSkelAnimInfo.bindTempCopies(mSkelAnimVertexData,
 							hwAnimation);
+                        // Prepare blend matrices, TODO: Move out of here
+                        Mesh::prepareMatricesForVertexBlend(blendMatrices,
+                            mBoneMatrices, mMesh->sharedBlendIndexToBoneIndexMap);
 						// Blend, taking source from either mesh data or morph data
 						Mesh::softwareVertexBlend(
 							(mMesh->getSharedVertexDataAnimationType() != VAT_NONE) ?
 								mSoftwareVertexAnimVertexData :	mMesh->sharedVertexData,
 							mSkelAnimVertexData,
-							mBoneMatrices, &mMesh->sharedBlendIndexToBoneIndexMap[0],
+							blendMatrices, mMesh->sharedBlendIndexToBoneIndexMap.size(),
 							blendNormals);
 					}
 					SubEntityList::iterator i, iend;
@@ -637,12 +643,15 @@ namespace Ogre {
 							se->mTempSkelAnimInfo.checkoutTempCopies(true, blendNormals);
 							se->mTempSkelAnimInfo.bindTempCopies(se->mSkelAnimVertexData,
 								hwAnimation);
+                            // Prepare blend matrices, TODO: Move out of here
+                            Mesh::prepareMatricesForVertexBlend(blendMatrices,
+                                mBoneMatrices, se->mSubMesh->blendIndexToBoneIndexMap);
 							// Blend, taking source from either mesh data or morph data
 							Mesh::softwareVertexBlend(
 								(se->getSubMesh()->getVertexAnimationType() != VAT_NONE)?
 									se->mSoftwareVertexAnimVertexData : se->mSubMesh->vertexData,
 								se->mSkelAnimVertexData,
-								mBoneMatrices, &se->mSubMesh->blendIndexToBoneIndexMap[0],
+								blendMatrices, se->mSubMesh->blendIndexToBoneIndexMap.size(),
 								blendNormals);
 						}
 
@@ -682,7 +691,8 @@ namespace Ogre {
                 // when using software animation.
                 if (!mBoneWorldMatrices)
                 {
-                    mBoneWorldMatrices = new Matrix4[mNumBoneMatrices];
+                    mBoneWorldMatrices =
+                        static_cast<Matrix4*>(AlignedMemory::allocate(sizeof(Matrix4) * mNumBoneMatrices));
                 }
 
                 for (unsigned short i = 0; i < mNumBoneMatrices; ++i)
@@ -1744,7 +1754,7 @@ namespace Ogre {
         else
         {
             delete mSkeletonInstance;
-            delete [] mBoneMatrices;
+            AlignedMemory::deallocate(mBoneMatrices);
             delete mAnimationState;
             delete mFrameBonesLastUpdated;
             mSkeletonInstance = entity->mSkeletonInstance;
@@ -1803,7 +1813,7 @@ namespace Ogre {
             mMesh->_initAnimationState(mAnimationState);
             mFrameBonesLastUpdated = new unsigned long(std::numeric_limits<unsigned long>::max());
             mNumBoneMatrices = mSkeletonInstance->getNumBones();
-            mBoneMatrices = new Matrix4[mNumBoneMatrices];
+            mBoneMatrices = static_cast<Matrix4*>(AlignedMemory::allocate(sizeof(Matrix4) * mNumBoneMatrices));
             prepareTempBlendBuffers();
 
             mSharedSkeletonEntities->erase(this);

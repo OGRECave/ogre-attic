@@ -4,6 +4,7 @@
 	Version="7.10"
 	Name="OgreMain"
 	ProjectGUID="{35AFBABB-DF05-43DE-91A7-BB828A874015}"
+	RootNamespace="OgreMain"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -160,6 +161,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
+			<File
+				RelativePath="..\src\OgreAlignedAllocator.cpp">
+			</File>
 			<File
 				RelativePath="..\src\OgreAnimable.cpp">
 			</File>
@@ -359,6 +363,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreImage.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreImageResampler.h">
+			</File>
+			<File
 				RelativePath="..\src\OgreInput.cpp">
 			</File>
 			<File
@@ -458,6 +465,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreNode.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreOptimisedUtil.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreOverlay.cpp">
 			</File>
 			<File
@@ -509,10 +519,16 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgrePatchSurface.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgrePixelConversions.h">
+			</File>
+			<File
 				RelativePath="..\src\OgrePixelFormat.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgrePlane.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgrePlatformInformation.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgrePlatformManager.cpp">
@@ -638,6 +654,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreShadowVolumeExtrudeProgram.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreSIMDHelper.h">
+			</File>
+			<File
 				RelativePath="..\src\OgreSimpleRenderable.cpp">
 			</File>
 			<File
@@ -739,6 +758,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\Ogre.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreAlignedAllocator.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreAnimable.h">
@@ -1071,6 +1093,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreNoMemoryMacros.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreOptimisedUtil.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreOverlay.h">
 			</File>
 			<File
@@ -1141,6 +1166,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgrePlatform.h">
+			</File>
+			<File
+				RelativePath="..\include\OgrePlatformInformation.h">
 			</File>
 			<File
 				RelativePath="..\include\OgrePlatformManager.h">
