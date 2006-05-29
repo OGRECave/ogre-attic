@@ -28,6 +28,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #if OGRE_COMPILER == OGRE_COMPILER_MSVC
 #include <excpt.h>      // For SEH values
+
+#elif OGRE_COMPILER == OGRE_COMPILER_GNUC
+#include <signal.h>
+#include <setjmp.h>
+
 #endif
 
 // Yes, I known, this file looks very ugly, but there hasn't other ways to do it better.
@@ -90,6 +95,26 @@ namespace Ogre {
 
             // Return values in eax, no return statment requirement here for VC.
         }
+
+#elif OGRE_COMPILER == OGRE_COMPILER_GNUC
+        unsigned oldFlags, newFlags;
+        __asm__
+        (
+            "pushfl         \n\t"
+            "pop    %0      \n\t"
+            "mov    %0, %1  \n\t"
+            "xor    %2, %0  \n\t"
+            "push   %0      \n\t"
+            "popfl          \n\t"
+            "pushfl         \n\t"
+            "pop    %0      \n\t"
+            "push   %1      \n\t"
+            "popfl          \n\t"
+            : "=r" (oldFlags), "=r" (newFlags)
+            : "n" (0x200000)
+        );
+        return oldFlags != newFlags;
+
 #else
         // TODO: Supports other compiler
         return false;
@@ -112,6 +137,16 @@ namespace Ogre {
             mov     [edi]._ecx, ecx
             // Return values in eax, no return statment requirement here for VC.
         }
+
+#elif OGRE_COMPILER == OGRE_COMPILER_GNUC
+        __asm__
+        (
+            "cpuid"
+            : "=a" (result._eax), "=b" (result._ebx), "=c" (result._ecx), "=d" (result._edx)
+            : "a" (query)
+        );
+        return result._eax;
+
 #else
         // TODO: Supports other compiler
         return 0;
@@ -124,6 +159,14 @@ namespace Ogre {
 
     //---------------------------------------------------------------------
     // Detect whether or not os support Streaming SIMD Extension.
+#if OGRE_COMPILER == OGRE_COMPILER_GNUC
+    static jmp_buf sIllegalJmpBuf;
+    static void _illegalHandler(int x)
+    {
+        (void)(x); // Unused
+        longjmp(sIllegalJmpBuf, 1);
+    }
+#endif
     static bool _checkOperatingSystemSupportSSE(void)
     {
 #if OGRE_COMPILER == OGRE_COMPILER_MSVC
@@ -151,6 +194,25 @@ namespace Ogre {
         {
             return false;
         }
+
+#elif OGRE_COMPILER == OGRE_COMPILER_GNUC
+        // Does gcc have __try/__except similar mechanism?
+        // Use signal, setjmp/longjmp instead.
+        void (*oldHandler)(int);
+        oldHandler = signal(SIGILL, _illegalHandler);
+
+        if (setjmp(sIllegalJmpBuf))
+        {
+            signal(SIGILL, oldHandler);
+            return false;
+        }
+        else
+        {
+            __asm__ __volatile__ ("orps %xmm0, %xmm0");
+            signal(SIGILL, oldHandler);
+            return true;
+        }
+
 #else
         // TODO: Supports other compiler, assumed is supported by default
         return true;
