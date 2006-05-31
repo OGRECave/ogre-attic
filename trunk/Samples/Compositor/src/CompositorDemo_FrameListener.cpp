@@ -13,6 +13,7 @@ LGPL like the rest of the engine.
 */
 
 #include <Ogre.h>
+#include <OgreTimer.h>
 
 #include "CompositorDemo_FrameListener.h"
 #include "Compositor.h"
@@ -23,13 +24,13 @@ LGPL like the rest of the engine.
 //---------------------------------------------------------------------------
     HeatVisionListener::HeatVisionListener()
     {
-        timer = Ogre::PlatformManager::getSingleton().createTimer();
+		timer = new Ogre::Timer();
         start = end = curr = 0.0f;
     }
 //---------------------------------------------------------------------------
     HeatVisionListener::~HeatVisionListener()
     {
-        Ogre::PlatformManager::getSingleton().destroyTimer(timer);
+       delete timer;
     }
 //---------------------------------------------------------------------------
     void HeatVisionListener::notifyMaterialSetup(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat)
@@ -345,7 +346,8 @@ LGPL like the rest of the engine.
         , mFiltering(Ogre::TFO_BILINEAR)
         , mAniso(1)
         , mQuit(false)
-
+		, mKeyboard(0)
+		, mMouse(0)
         , mMoveScale(0.0f)
         , mRotScale(0.0f)
         , mSpeed(MINSPEED)
@@ -373,13 +375,31 @@ LGPL like the rest of the engine.
         Ogre::Root::getSingleton().addFrameListener(this);
 
         // using buffered input
-        mEventProcessor = new Ogre::EventProcessor();
-        mEventProcessor->initialise(mMain->getRenderWindow());
-        mEventProcessor->startProcessingEvents();
-        mEventProcessor->addKeyListener(this);
-        mEventProcessor->addMouseMotionListener(this);
-        mEventProcessor->addMouseListener(this);
-        mInputDevice = mEventProcessor->getInputReader();
+		OIS::ParamList pl;	
+		size_t windowHnd = 0;
+		std::ostringstream windowHndStr;
+
+		mMain->getRenderWindow()->getCustomAttribute("WINDOW", &windowHnd);
+		windowHndStr << windowHnd;
+		pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
+
+		OIS::InputManager &im = *OIS::InputManager::createInputSystem( pl );
+
+		//Create all devices (We only catch joystick exceptions here, as, most people have Key/Mouse)
+		mKeyboard = static_cast<OIS::Keyboard*>(im.createInputObject( OIS::OISKeyboard, true ));
+		mMouse = static_cast<OIS::Mouse*>(im.createInputObject( OIS::OISMouse, true ));
+
+		unsigned int width, height, depth;
+		int left, top;
+		mMain->getRenderWindow()->getMetrics(width, height, depth, left, top);
+
+		//Set Mouse Region.. if window resizes, we should alter this to reflect as well
+		const OIS::MouseState &ms = mMouse->getMouseState();
+		ms.width = width;
+		ms.height = height;
+
+		mMouse->setEventCallback(this);
+		mKeyboard->setEventCallback(this);
 
         mGuiRenderer = CEGUI::System::getSingleton().getRenderer();
 
@@ -398,7 +418,14 @@ LGPL like the rest of the engine.
 //--------------------------------------------------------------------------
     CompositorDemo_FrameListener::~CompositorDemo_FrameListener()
     {
-        delete mEventProcessor;
+		OIS::InputManager *im = OIS::InputManager::getSingletonPtr();
+		if(im)
+		{
+			im->destroyInputObject(mKeyboard);
+			im->destroyInputObject(mMouse);
+			im->destroyInputSystem();
+		}
+
         delete hvListener;
 		delete hdrListener;
 		delete gaussianListener;
@@ -422,6 +449,9 @@ LGPL like the rest of the engine.
 //--------------------------------------------------------------------------
     bool CompositorDemo_FrameListener::frameStarted(const Ogre::FrameEvent& evt)
     {
+		mMouse->capture();
+		mKeyboard->capture();
+
         if (mQuit)
             return false;
         else
@@ -464,31 +494,24 @@ LGPL like the rest of the engine.
     }
 
 //--------------------------------------------------------------------------
-    void CompositorDemo_FrameListener::mouseMoved (Ogre::MouseEvent *e)
+    bool CompositorDemo_FrameListener::mouseMoved (const OIS::MouseEvent &e)
     {
-        CEGUI::System::getSingleton().injectMouseMove(e->getRelX() * mGuiRenderer->getWidth(), e->getRelY() * mGuiRenderer->getHeight());
-        CEGUI::System::getSingleton().injectMouseWheelChange(e->getRelZ());
-        e->consume();
+        CEGUI::System::getSingleton().injectMouseMove( e.state.relX, e.state.relY );
+		CEGUI::System::getSingleton().injectMouseWheelChange(e.state.relZ);
+		return true;
     }
 
 //--------------------------------------------------------------------------
-    void CompositorDemo_FrameListener::mouseDragged (Ogre::MouseEvent *e)
-    {
-        mouseMoved(e);
-    }
-
-//--------------------------------------------------------------------------
-    void CompositorDemo_FrameListener::keyPressed (Ogre::KeyEvent *e)
+	bool CompositorDemo_FrameListener::keyPressed (const OIS::KeyEvent &e)
     {
         // give 'quitting' priority
-        if (e->getKey() == Ogre::KC_ESCAPE)
+		if (e.key == OIS::KC_ESCAPE)
         {
             mQuit = true;
-            e->consume();
-            return;
+            return false;
         }
 
-        if (e->getKey() == Ogre::KC_SYSRQ )
+        if (e.key == OIS::KC_SYSRQ )
         {
             char tmp[20];
             sprintf(tmp, "screenshot_%d.png", ++mNumScreenShots);
@@ -499,62 +522,43 @@ LGPL like the rest of the engine.
 
         // do event injection
         CEGUI::System& cegui = CEGUI::System::getSingleton();
-
-        // key down
-        cegui.injectKeyDown(e->getKey());
-
-        // now character
-        cegui.injectChar(e->getKeyChar());
-
-        e->consume();
+        cegui.injectKeyDown(e.key);
+		cegui.injectChar(e.text);
+		return true;
     }
 
 //--------------------------------------------------------------------------
-    void CompositorDemo_FrameListener::keyReleased (Ogre::KeyEvent *e)
+    bool CompositorDemo_FrameListener::keyReleased (const OIS::KeyEvent &e)
     {
-        CEGUI::System::getSingleton().injectKeyUp(e->getKey());
+        CEGUI::System::getSingleton().injectKeyUp(e.key);
+		return true;
     }
 
 //--------------------------------------------------------------------------
-    void CompositorDemo_FrameListener::mousePressed (Ogre::MouseEvent *e)
+	bool CompositorDemo_FrameListener::mousePressed (const OIS::MouseEvent &e, OIS::MouseButtonID id)
     {
-        CEGUI::System::getSingleton().injectMouseButtonDown(convertOgreButtonToCegui(e->getButtonID()));
-        e->consume();
+        CEGUI::System::getSingleton().injectMouseButtonDown(convertOISButtonToCegui(id));
+		return true;
+	}
+
+//--------------------------------------------------------------------------
+	bool CompositorDemo_FrameListener::mouseReleased (const OIS::MouseEvent &e, OIS::MouseButtonID id)
+    {
+        CEGUI::System::getSingleton().injectMouseButtonUp(convertOISButtonToCegui(id));
+		return true;
     }
 
 //--------------------------------------------------------------------------
-    void CompositorDemo_FrameListener::mouseReleased (Ogre::MouseEvent *e)
+    CEGUI::MouseButton CompositorDemo_FrameListener::convertOISButtonToCegui(int ois_button_id)
     {
-        CEGUI::System::getSingleton().injectMouseButtonUp(convertOgreButtonToCegui(e->getButtonID()));
-        e->consume();
-    }
-
-//--------------------------------------------------------------------------
-    CEGUI::MouseButton CompositorDemo_FrameListener::convertOgreButtonToCegui(int ogre_button_id)
-    {
-        switch (ogre_button_id)
-        {
-        case Ogre::MouseEvent::BUTTON0_MASK:
-            return CEGUI::LeftButton;
-            break;
-
-        case Ogre::MouseEvent::BUTTON1_MASK:
-            return CEGUI::RightButton;
-            break;
-
-        case Ogre::MouseEvent::BUTTON2_MASK:
-            return CEGUI::MiddleButton;
-            break;
-
-        case Ogre::MouseEvent::BUTTON3_MASK:
-            return CEGUI::X1Button;
-            break;
-
-        default:
-            return CEGUI::LeftButton;
-            break;
-        }
-
+        switch (ois_button_id)
+		{
+		case 0: return CEGUI::LeftButton;
+		case 1: return CEGUI::RightButton;
+		case 2:	return CEGUI::MiddleButton;
+		case 3: return CEGUI::X1Button;
+		default: return CEGUI::LeftButton;
+		}
     }
 
 //--------------------------------------------------------------------------

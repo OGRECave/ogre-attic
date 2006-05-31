@@ -71,7 +71,7 @@ namespace Ogre
 
 		/// @copydoc RenderTarget::update
 		void update(bool swap);
-
+		
 		/** Create (or recreate) the D3D device or SwapChain for this window.
 		*/
 		void createD3DResources();
@@ -90,12 +90,6 @@ namespace Ogre
 		bool	mSizing;
 		bool	mClosed;
 		bool	mIsSwapChain;			// Is this a secondary window?
-
-		static LRESULT CALLBACK WndProc(
-			HWND hWnd,
-			UINT uMsg,
-			WPARAM wParam,
-			LPARAM lParam );
 
 		// -------------------------------------------------------
 		// DirectX-specific

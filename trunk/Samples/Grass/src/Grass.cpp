@@ -31,7 +31,7 @@ LGPL like the rest of the engine.
 
 #define KEY_PRESSED(_key,_timeDelay, _macro) \
 { \
-    if (mInputDevice->isKeyDown(_key) && timeDelay <= 0) \
+    if (mKeyboard->isKeyDown(_key) && timeDelay <= 0) \
     { \
 		timeDelay = _timeDelay; \
         _macro ; \
@@ -174,7 +174,7 @@ public:
 		if (mAnimState)
 			mAnimState->addTime(evt.timeSinceLastFrame);
 
-		KEY_PRESSED(KC_B, 1, 
+		KEY_PRESSED(OIS::KC_B, 1, 
 			mShowBBs = !mShowBBs;
 			mSceneManager->showBoundingBoxes(mShowBBs);
 			)

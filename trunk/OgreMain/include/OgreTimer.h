@@ -22,50 +22,19 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef __Timer_H__
-#define __Timer_H__
+#ifndef __OgreCommonTimer_H__
+#define __OgreCommonTimer_H__
 
 #include "OgrePrerequisites.h"
+#include "OgrePlatform.h"
 
-namespace Ogre
-{
-    /** Platform-independent Timer class. 
-    @remarks
-        You should never create a Timer instance manually; instead, use PlatformManager::createTimer.
-    */
-    class _OgreExport Timer 
-	{
-	protected:	
-		clock_t zeroClock ;
-	
-	public:
-		/** Creates a timer. 
-        @remarks
-            You must call reset() after creating it; the constructor cannot do it because the 
-            call would not be polymorphic.
-		*/
-		Timer() ;
-        virtual ~Timer() { }
-		
-		/** Resets timer 
-		*/
-		virtual void reset();
-		
-		/** Returns milliseconds since initialisation or last reset
-		*/
-		virtual unsigned long getMilliseconds() ;
-		
-		/** Returns milliseconds since initialisation or last reset, only CPU time measured
-		*/	
-		virtual unsigned long getMillisecondsCPU();
-		
-		/** Returns microseconds since initialisation or last reset
-		*/
-		virtual unsigned long getMicroseconds() ;
-		
-		/** Returns microseconds since initialisation or last reset, only CPU time measured
-		*/	
-		virtual unsigned long getMicrosecondsCPU();
-	} ;
-}
+//Bring in the specific platform's header file
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+# include "WIN32/OgreTimerImp.h"
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+# include "GLX/OgreTimerImp.h"
+#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+# include "APPLE/OgreTimerImp.h"
+#endif
+
 #endif

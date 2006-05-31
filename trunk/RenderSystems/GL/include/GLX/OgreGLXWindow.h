@@ -86,19 +86,13 @@ namespace Ogre
 		/**
 		@remarks
 			* Get custom attribute; the following attributes are valid:
-			* GLXWINDOW	The X Window associated with this
-			* GLXDISPLAY	The X Display associated with this
+			* WINDOW	The X Window associated with this
+			* DISPLAY	The X Display associated with this
 		*/
 		void getCustomAttribute(const String& name, void* pData);
 
-		/**
-		@remarks
-			Called every frame to update X Window status. Called form GLX PlatformManager::messagePump.
-			If you are not using startRendering, and do not want to use messagePump, call this method
-			to update the render window yourself.
-			Only X Events that match the Window ID of this window will be respconded to.
-		*/
-		virtual void injectXEvent(const XEvent &event);
+		/** @copydoc RenderWindow::messagePump */
+		void messagePump();
 
 		bool requiresTextureFlipping() const { return false; }
 

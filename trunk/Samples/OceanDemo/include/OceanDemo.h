@@ -19,14 +19,12 @@ LGPL like the rest of the engine.
 #include "OgreCEGUIRenderer.h"
 
 #include "OgreConfigFile.h"
-#include "OgreEventQueue.h"
-#include "OgreKeyEvent.h"
-#include "OgreEventListeners.h"
 #include "OgreStringConverter.h"
 #include "OgreException.h"
 #include "OgreFrameListener.h"
 
 #include "MaterialControls.h"
+#include <OIS/OIS.h>
 
 //---------------------------------------------------------------------------
 enum MovementType
@@ -37,7 +35,7 @@ enum MovementType
 //---------------------------------------------------------------------------
 class OceanDemo;
 
-class OceanDemo_FrameListener : public Ogre::FrameListener, public Ogre::KeyListener, Ogre::MouseMotionListener, Ogre::MouseListener
+class OceanDemo_FrameListener : public Ogre::FrameListener, public OIS::KeyListener, OIS::MouseListener
 {
 #define MINSPEED .150f
 #define MOVESPEED 30
@@ -45,8 +43,6 @@ class OceanDemo_FrameListener : public Ogre::FrameListener, public Ogre::KeyList
 
 
 protected:
-    Ogre::EventProcessor* mEventProcessor;
-    Ogre::InputReader* mInputDevice;
 	OceanDemo* mMain;
 
     Ogre::Vector3 mTranslateVector;
@@ -66,6 +62,9 @@ protected:
 	bool mLastMousePositionSet;
 	bool mSpinModel;
 	bool mSpinLight;
+
+	OIS::Mouse *mMouse;
+	OIS::Keyboard *mKeyboard;
 
     // just to stop toggles flipping too fast
     Ogre::Real mTimeUntilNextToggle ;
@@ -91,7 +90,7 @@ protected:
 	CEGUI::Window* mGuiDbg;
 	CEGUI::Window* mRoot;
 
-	CEGUI::MouseButton convertOgreButtonToCegui(int ogre_button_id);
+	CEGUI::MouseButton convertOISButtonToCegui(int ois_button_id);
 	void CheckMovementKeys( CEGUI::Key::Scan keycode, bool state );
 	void updateStats(void);
 
@@ -101,19 +100,12 @@ public:
 	virtual ~OceanDemo_FrameListener();
 
 
-	virtual void mouseMoved (Ogre::MouseEvent *e);
-	virtual void mouseDragged (Ogre::MouseEvent *e);
-	virtual void keyPressed (Ogre::KeyEvent *e);
-	virtual void keyReleased (Ogre::KeyEvent *e);
-	virtual void mousePressed (Ogre::MouseEvent *e);
-	virtual void mouseReleased (Ogre::MouseEvent *e);
+	virtual bool mouseMoved ( const OIS::MouseEvent &arg );
+	virtual bool mousePressed ( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
+	virtual bool mouseReleased ( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
 
-	// do-nothing events
-	virtual void keyClicked (Ogre::KeyEvent *e) {}
-	virtual void mouseClicked (Ogre::MouseEvent *e) {}
-	virtual void mouseEntered (Ogre::MouseEvent *e) {}
-	virtual void mouseExited (Ogre::MouseEvent *e) {}
-
+	virtual bool keyPressed ( const OIS::KeyEvent &arg );
+	virtual bool keyReleased ( const OIS::KeyEvent &arg );
 
 	bool frameStarted(const Ogre::FrameEvent& evt);
 	bool handleMouseMove(const CEGUI::EventArgs& e);

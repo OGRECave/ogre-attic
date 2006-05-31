@@ -40,6 +40,9 @@ public:
 
     bool frameStarted(const FrameEvent& evt)
     {
+		if( ExampleFrameListener::frameStarted(evt) == false )
+			return false;
+
         static Real timeLapse = 0.0f;
         static Real factor = 0.0;
         static bool wireframe = 0;
@@ -68,7 +71,7 @@ public:
         }
 
         // Call default
-        return ExampleFrameListener::frameStarted(evt);
+        return true;
     }
 };
 

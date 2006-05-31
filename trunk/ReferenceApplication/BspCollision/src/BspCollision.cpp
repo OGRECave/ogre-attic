@@ -61,7 +61,7 @@ public:
         // Call superclass
         bool ret = ExampleRefAppFrameListener::frameEnded(evt);        
 
-        if (mInputDevice->isKeyDown(KC_SPACE) && timeUntilNextToggle <= 0)
+		if (mKeyboard->isKeyDown(OIS::KC_SPACE) && timeUntilNextToggle <= 0)
         {
             timeUntilNextToggle = 2;
             ball->setPosition(mCamera->getPosition() + 
@@ -80,12 +80,7 @@ public:
             targetNode->setPosition(rsq->getRay().getPoint(res.distance));
 
         }
-
-
-
-
         return ret;
-
     }
 };
 

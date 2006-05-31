@@ -132,12 +132,6 @@ namespace Ogre {
     #define vsnprintf _vsnprintf
 #endif
 
-#if OGRE_DEBUG_MODE
-    #define OGRE_PLATFORM_LIB "OgrePlatform_d.dll"
-#else
-    #define OGRE_PLATFORM_LIB "OgrePlatform.dll"
-#endif
-
 #endif
 //----------------------------------------------------------------------------
 

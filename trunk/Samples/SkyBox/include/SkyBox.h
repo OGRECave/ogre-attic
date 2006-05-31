@@ -40,26 +40,26 @@ public:
     {
         bool bOK = ExampleFrameListener::frameStarted( evt );
 
-        if( mInputDevice->isKeyDown( KC_N ) )
+        if( mKeyboard->isKeyDown( OIS::KC_N ) )
         {
             pThrusters->setDefaultDimensions( fDefDim + 0.25, fDefDim + 0.25 );
             fDefDim += 0.25;
         }
 
-        if( mInputDevice->isKeyDown( KC_M ) )
+        if( mKeyboard->isKeyDown( OIS::KC_M ) )
         {
             pThrusters->setDefaultDimensions( fDefDim - 0.25, fDefDim - 0.25 );
             fDefDim -= 0.25;
         }
 
-        if( mInputDevice->isKeyDown( KC_H ) )
+        if( mKeyboard->isKeyDown( OIS::KC_H ) )
         {
             pThrusters->getEmitter( 0 )->setParticleVelocity( fDefVel + 1 );
             pThrusters->getEmitter( 1 )->setParticleVelocity( fDefVel + 1 );
             fDefVel += 1;            
         }
 
-        if( mInputDevice->isKeyDown( KC_J ) && !( fDefVel < 0.0f ) )
+        if( mKeyboard->isKeyDown( OIS::KC_J ) && !( fDefVel < 0.0f ) )
         {
             pThrusters->getEmitter( 0 )->setParticleVelocity( fDefVel - 1 );
             pThrusters->getEmitter( 1 )->setParticleVelocity( fDefVel - 1 );

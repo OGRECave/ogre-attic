@@ -16,9 +16,7 @@ LGPL like the rest of the engine.
 #define _CompositorDemo_FrameListener_H_
 
 #include <OgreFrameListener.h>
-#include <OgreEventQueue.h>
-#include <OgreKeyEvent.h>
-#include <OgreEventListeners.h>
+#include <OIS/OIS.h>
 
 #include "ItemSelectorViewManager.h"
 
@@ -75,8 +73,8 @@ LGPL like the rest of the engine.
 //---------------------------------------------------------------------------
     class CompositorDemo;
 
-    class CompositorDemo_FrameListener : Ogre::FrameListener, Ogre::KeyListener,
-        Ogre::MouseMotionListener, Ogre::MouseListener, ItemSelectorInterface
+    class CompositorDemo_FrameListener : Ogre::FrameListener, OIS::KeyListener,
+        OIS::MouseListener, ItemSelectorInterface
     {
     #define MINSPEED .150f
     #define MOVESPEED 30
@@ -121,10 +119,9 @@ LGPL like the rest of the engine.
 		Ogre::SceneNode* mSpinny;
 
         ItemSelectorViewManager* mCompositorSelectorViewManager;
-
-        Ogre::EventProcessor* mEventProcessor;
-        Ogre::InputReader* mInputDevice;
-
+		
+		OIS::Mouse    *mMouse;
+		OIS::Keyboard *mKeyboard;
 
         CEGUI::Renderer* mGuiRenderer;
         CEGUI::Window* mGuiAvg;
@@ -139,7 +136,7 @@ LGPL like the rest of the engine.
 		typedef std::vector<CEGUI::Imageset*> ImageSetList;
 		ImageSetList mDebugRTTImageSets;
 
-        CEGUI::MouseButton convertOgreButtonToCegui(int ogre_button_id);
+        CEGUI::MouseButton convertOISButtonToCegui(int ois_button_id);
         void CheckMovementKeys( CEGUI::Key::Scan keycode, bool state );
         void updateStats(void);
         void registerCompositors(void);
@@ -153,18 +150,13 @@ LGPL like the rest of the engine.
 
     private:
         void connectEventHandlers(void);
-        virtual void mouseMoved (Ogre::MouseEvent *e);
-        virtual void mouseDragged (Ogre::MouseEvent *e);
-        virtual void keyPressed (Ogre::KeyEvent *e);
-        virtual void keyReleased (Ogre::KeyEvent *e);
-        virtual void mousePressed (Ogre::MouseEvent *e);
-        virtual void mouseReleased (Ogre::MouseEvent *e);
 
-        // do-nothing events
-        virtual void keyClicked (Ogre::KeyEvent *e) {}
-        virtual void mouseClicked (Ogre::MouseEvent *e) {}
-        virtual void mouseEntered (Ogre::MouseEvent *e) {}
-        virtual void mouseExited (Ogre::MouseEvent *e) {}
+		virtual bool mouseMoved(const OIS::MouseEvent &e);
+		virtual bool mousePressed(const OIS::MouseEvent &e, OIS::MouseButtonID id);
+        virtual bool mouseReleased(const OIS::MouseEvent &e, OIS::MouseButtonID id);
+
+        virtual bool keyPressed(const OIS::KeyEvent &e);
+        virtual bool keyReleased(const OIS::KeyEvent &e);
 
         // Event handlers
         bool frameStarted(const Ogre::FrameEvent& evt);

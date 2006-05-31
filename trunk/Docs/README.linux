@@ -1,12 +1,12 @@
 Title: Ogre in linux
 Author: Ben Woodhead
-Last Updated: 26 Apr 06
+Last Updated: 12 May 06
 License: LGPL
 
 Edited by Steve Streeting following configuration changes.
 Edited by James O'Sullivan following requirement changes.
 Edited by Wladimir J. van der Laan following configuration changes.
-Edited by Phillip Castaneda following configuration changes.
+Edited by Phillip Castaneda following configuration changes, dependency changes, and sf.net cvs change
 
 Downloading The Files
 =====================
@@ -22,15 +22,15 @@ If you are not an ogre developer then use anonymous. You can't write but why wou
 Anyway enough of the talk, you probably are not reading it anyway. 
 
 Login in:
-cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/ogre login
+cvs -d:pserver:anonymous@ogre.cvs.sourceforge.net:/cvsroot/ogre login
 password is blank so just press enter.
 
 Getting the module...
 Latest Stable version (Dagon 1.2):
-cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/ogre co -P -rv1-2 ogrenew
+cvs -z3 -d:pserver:anonymous@ogre.cvs.sourceforge.net:/cvsroot/ogre co -P -rv1-2 ogrenew
 
 CVS Head, not always stable, and not gauranteed to be compilable:
-cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/ogre co -P ogrenew
+cvs -z3 -d:pserver:anonymous@ogre.cvs.sourceforge.net:/cvsroot/ogre co -P ogrenew
 
 // Note the new part on ogre, there is an order version in the repository as well (called ogre).. Don't get that one.
 
@@ -40,8 +40,6 @@ Dependencies
 
 So additional files that may not be found on your system that ogre will need.
 
-* SDL 1.2.x (when not using the default GLX platform manager ) - To find out if you have it type sdl-config --version. This will tell you the version, if its not found then you will have to get sdl. sdl can be found at www.libsdl.org. It would be best to insure that this installs into a standard directory. If you are installing from source run ./configure --prefix=/usr. 
-
 * FreeType2 2.1.09 for Ogre 1.0, or FreeType2 2.1.10 for Ogre 1.2+ - If you don't have this on your system then you can get it http://www.freetype.org/. Run freetype-config --version, if you have a version lower then 9.1.x, you will have to upgrade. 
 
 * DevIL 1.5.x or greater - If you don't have this on your system then you can get
@@ -50,6 +48,8 @@ it from http://openil.sourceforge.net/.  UPDATE: DevIL 1.6.6 seems to introduce 
 * zziplib 0.12.x or above, available from http://zziplib.sourceforge.net.
 
 * Cg, preferably version 1.4 http://developer.nvidia.com/cg. CG can be disabled via configure, but not recommended
+
+* OIS - (0.6.0 or newer) http://www.sourceforge.net/projects/wgois
 
 ** Important **
 Do not install the binary version of DevIL as this has caused problems for some
