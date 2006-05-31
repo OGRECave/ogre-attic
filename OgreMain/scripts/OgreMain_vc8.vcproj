@@ -333,6 +333,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\WIN32\OgreConfigDialog.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreConfigFile.cpp"
 				>
 			</File>
@@ -346,10 +350,6 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreControllerManager.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreCursor.cpp"
 				>
 			</File>
 			<File
@@ -381,15 +381,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\OgreEventDispatcher.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreEventProcessor.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreEventQueue.cpp"
+				RelativePath="..\src\WIN32\OgreErrorDialog.cpp"
 				>
 			</File>
 			<File
@@ -481,23 +473,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\OgreInput.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreInputEvent.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreKeyEvent.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\OgreKeyFrame.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreKeyTarget.cpp"
 				>
 			</File>
 			<File
@@ -558,18 +534,6 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreMeshSerializerImpl.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreMouseEvent.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreMouseMotionTarget.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreMouseTarget.cpp"
 				>
 			</File>
 			<File
@@ -662,10 +626,6 @@
 			</File>
 			<File
 				RelativePath="..\src\OgrePlatformInformation.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgrePlatformManager.cpp"
 				>
 			</File>
 			<File
@@ -887,7 +847,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\OgreTimer.cpp"
+				RelativePath="..\src\WIN32\OgreTimer.cpp"
 				>
 			</File>
 			<File
@@ -912,6 +872,10 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreViewport.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreWindowEventUtilities.cpp"
 				>
 			</File>
 			<File
@@ -1080,6 +1044,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\WIN32\OgreConfigDialogImp.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\OgreConfigFile.h"
 				>
 			</File>
@@ -1093,10 +1061,6 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreControllerManager.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreCursor.h"
 				>
 			</File>
 			<File
@@ -1132,27 +1096,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\include\OgreEventDispatcher.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreEventFramework.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreEventListeners.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreEventProcessor.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreEventQueue.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreEventTarget.h"
+				RelativePath="..\include\WIN32\OgreErrorDialogImp.h"
 				>
 			</File>
 			<File
@@ -1256,27 +1200,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\include\OgreInput.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreInputEvent.h"
-				>
-			</File>
-			<File
 				RelativePath="..\include\OgreIteratorWrappers.h"
 				>
 			</File>
 			<File
-				RelativePath="..\include\OgreKeyEvent.h"
-				>
-			</File>
-			<File
 				RelativePath="..\include\OgreKeyFrame.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreKeyTarget.h"
 				>
 			</File>
 			<File
@@ -1345,18 +1273,6 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreMeshSerializerImpl.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreMouseEvent.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreMouseMotionTarget.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreMouseTarget.h"
 				>
 			</File>
 			<File
@@ -1477,10 +1393,6 @@
 			</File>
 			<File
 				RelativePath="..\include\OgrePlatformInformation.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgrePlatformManager.h"
 				>
 			</File>
 			<File
@@ -1752,6 +1664,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\WIN32\OgreTimerImp.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\OgreUserDefinedObject.h"
 				>
 			</File>
@@ -1780,6 +1696,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\OgreWindowEventUtilities.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\OgreWireBoundingBox.h"
 				>
 			</File>
@@ -1787,11 +1707,31 @@
 				RelativePath="..\include\OgreZip.h"
 				>
 			</File>
+			<File
+				RelativePath="..\src\WIN32\resource.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 			>
+			<File
+				RelativePath="..\src\WIN32\ogre.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\src\WIN32\ogrelogo.bmp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\WIN32\OgreWin32Resources.rc"
+				>
+			</File>
+			<File
+				RelativePath="..\src\WIN32\winres.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

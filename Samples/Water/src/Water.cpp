@@ -457,24 +457,25 @@ public:
  
     bool frameStarted(const FrameEvent& evt)
     {
+		using namespace OIS;
+
 		bool retval = ExampleFrameListener::frameStarted(evt); 
-        mAnimState->addTime(evt.timeSinceLastFrame);
+		mAnimState->addTime(evt.timeSinceLastFrame);
 		
 		// process keyboard events
-		mInputDevice->capture();
 		Real changeSpeed = evt.timeSinceLastFrame ;
 		
 		// adjust keyboard speed with SHIFT (increase) and CONTROL (decrease)
-		if (mInputDevice->isKeyDown(KC_LSHIFT) || mInputDevice->isKeyDown(KC_RSHIFT)) {
+		if (mKeyboard->isKeyDown(OIS::KC_LSHIFT) || mKeyboard->isKeyDown(OIS::KC_RSHIFT)) {
 			changeSpeed *= 10.0f ;
 		}
-		if (mInputDevice->isKeyDown(KC_LCONTROL)) { 
+		if (mKeyboard->isKeyDown(OIS::KC_LCONTROL)) { 
 			changeSpeed /= 10.0f ;
 		}
 		
 		// rain
 		processCircles(evt.timeSinceLastFrame);
-		if (mInputDevice->isKeyDown(KC_SPACE)) {
+		if (mKeyboard->isKeyDown(OIS::KC_SPACE)) {
 			particleEmitter->setEmissionRate(20.0f);
 		} else {
 			particleEmitter->setEmissionRate(0.0f);
@@ -482,10 +483,10 @@ public:
 		processParticles();
 
 		// adjust values (some macros for faster change		
-#define ADJUST_RANGE(_value,_keyPlus,_keyMinus,_minVal,_maxVal,_change,_macro) {\
-	if (mInputDevice->isKeyDown(_keyPlus)) \
+#define ADJUST_RANGE(_value,_plus,_minus,_minVal,_maxVal,_change,_macro) {\
+	if (mKeyboard->isKeyDown(_plus)) \
 		{ _value+=_change ; if (_value>=_maxVal) _value = _maxVal ; _macro ; } ; \
-	if (mInputDevice->isKeyDown(_keyMinus)) \
+	if (mKeyboard->isKeyDown(_minus)) \
 		{ _value-=_change; if (_value<=_minVal) _value = _minVal ; _macro ; } ; \
 }
 
@@ -504,7 +505,7 @@ public:
 			timeoutDelay = 0;
 
 #define SWITCH_VALUE(_key,_timeDelay, _macro) { \
-		if (mInputDevice->isKeyDown(_key) && timeoutDelay==0) { \
+		if (mKeyboard->isKeyDown(_key) && timeoutDelay==0) { \
 			timeoutDelay = _timeDelay ; _macro ;} }
 	
 		SWITCH_VALUE(KC_N, 0.5f, switchNormals());

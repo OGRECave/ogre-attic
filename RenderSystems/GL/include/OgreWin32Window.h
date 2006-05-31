@@ -56,8 +56,12 @@ namespace Ogre {
 		
 		// Method for dealing with resize / move & 3d library
 		virtual void windowMovedOrResized(void);
-		
+
 		void getCustomAttribute( const String& name, void* pData );
+
+        /** Used to set the active state of the render target.
+        */
+        virtual void setActive( bool state );
 
 	protected:
 		Win32GLSupport &mGLSupport;
@@ -69,8 +73,6 @@ namespace Ogre {
 		bool	mClosed;
         int     mDisplayFrequency;      // fullscreen only, to restore display
         Win32Context *mContext;
-
-		static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     };
 }
 

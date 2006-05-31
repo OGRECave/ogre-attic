@@ -22,43 +22,19 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef __ERRORDIALOG_H__
-#define __ERRORDIALOG_H__
+#ifndef __COMMON_OGRE_ERRORDIALOG_H__
+#define __COMMON_OGRE_ERRORDIALOG_H__
 
 #include "OgrePrerequisites.h"
+#include "OgrePlatform.h"
 
-#include "OgreString.h"
-
-namespace Ogre {
-
-    /** Class for displaying the error dialog if Ogre fails badly.
-    */
-    class _OgreExport ErrorDialog
-    {
-    public:
-    	virtual ~ErrorDialog();
-    	
-        /** Displays the error dialog.
-            @param
-                errorMessage The error message which has caused the failure.
-            @param
-                logName Optional name of the log to display in the detail
-                pane.
-        */
-        virtual void display(const String& errorMessage, String logName = "") = 0;
-
-    };
-
-    /** Defines the interface a platform-specific library must implement.
-        @remarks
-            Any library (.dll, .so) wishing to implement a platform-specific
-            version of this dialog must export the symbol 'createErrorDialog'
-            with the signature void
-            createPlatformErrorDialog(ErrorDialog** ppDlg)
-    */
-    typedef void (*DLL_CREATEERRORDIALOG)(ErrorDialog** ppDlg);
-}
-
-
+//Bring in the specific platform's header file
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+# include "WIN32/OgreErrorDialogImp.h"
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+# include "GLX/OgreErrorDialogImp.h"
+#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+# include "APPLE/OgreErrorDialogImp.h"
+#endif
 
 #endif

@@ -949,6 +949,8 @@ OceanDemo_FrameListener::OceanDemo_FrameListener(OceanDemo* main)
     , mMoveBck(false)
     , mMoveLeft(false)
     , mMoveRight(false)
+	, mMouse(0)
+	, mKeyboard(0)
 
 {
     mRotateSpeed = 0;
@@ -968,13 +970,29 @@ OceanDemo_FrameListener::OceanDemo_FrameListener(OceanDemo* main)
 	mAvgFrameTime = 0.1;
 
 	// using buffered input
-	mEventProcessor = new Ogre::EventProcessor();
-	mEventProcessor->initialise(mMain->getRenderWindow());
-	mEventProcessor->startProcessingEvents();
-	mEventProcessor->addKeyListener(this);
-	mEventProcessor->addMouseMotionListener(this);
-	mEventProcessor->addMouseListener(this);
-	mInputDevice = mEventProcessor->getInputReader();
+	OIS::ParamList pl;	
+	size_t windowHnd = 0;
+	std::ostringstream windowHndStr;
+	mMain->getRenderWindow()->getCustomAttribute("WINDOW", &windowHnd);
+	windowHndStr << windowHnd;
+	pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
+
+	OIS::InputManager &im = *OIS::InputManager::createInputSystem( pl );
+	//Create all devices (We only catch joystick exceptions here, as, most people have Key/Mouse)
+	mKeyboard = static_cast<OIS::Keyboard*>(im.createInputObject( OIS::OISKeyboard, true ));
+	mMouse = static_cast<OIS::Mouse*>(im.createInputObject( OIS::OISMouse, true ));
+
+	unsigned int width, height, depth;
+	int left, top;
+	mMain->getRenderWindow()->getMetrics(width, height, depth, left, top);
+
+	//Set Mouse Region.. if window resizes, we should alter this to reflect as well
+	const OIS::MouseState &ms = mMouse->getMouseState();
+	ms.width = width;
+	ms.height = height;
+
+	mMouse->setEventCallback(this);
+	mKeyboard->setEventCallback(this);
 
 	mQuit = false;
 	mSkipCount = 0;
@@ -994,13 +1012,22 @@ OceanDemo_FrameListener::OceanDemo_FrameListener(OceanDemo* main)
 //--------------------------------------------------------------------------
 OceanDemo_FrameListener::~OceanDemo_FrameListener()
 {
-	delete mEventProcessor;
+	OIS::InputManager* im = OIS::InputManager::getSingletonPtr();
+	if(im)
+	{
+		im->destroyInputObject(mMouse);
+		im->destroyInputObject(mKeyboard);
+		im->destroyInputSystem();
+	}
 }
 
 
 //--------------------------------------------------------------------------
 bool OceanDemo_FrameListener::frameStarted(const Ogre::FrameEvent& evt)
 {
+	mMouse->capture();
+	mKeyboard->capture();
+
 	if (mQuit)
 		return false;
 	else
@@ -1061,99 +1088,72 @@ bool OceanDemo_FrameListener::frameStarted(const Ogre::FrameEvent& evt)
 }
 
 //--------------------------------------------------------------------------
-void OceanDemo_FrameListener::mouseMoved (Ogre::MouseEvent *e)
+bool OceanDemo_FrameListener::mouseMoved (const OIS::MouseEvent &e)
 {
-	CEGUI::System::getSingleton().injectMouseMove(e->getRelX() * mGuiRenderer->getWidth(), e->getRelY() * mGuiRenderer->getHeight());
-	CEGUI::System::getSingleton().injectMouseWheelChange(e->getRelZ());
-	e->consume();
+	CEGUI::System::getSingleton().injectMouseMove( e.state.relX, e.state.relY );
+	CEGUI::System::getSingleton().injectMouseWheelChange(e.state.relZ);
+	return true;
 }
 
 //--------------------------------------------------------------------------
-void OceanDemo_FrameListener::mouseDragged (Ogre::MouseEvent *e)
+bool OceanDemo_FrameListener::keyPressed (const OIS::KeyEvent &e)
 {
-	mouseMoved(e);
-}
-
-//--------------------------------------------------------------------------
-void OceanDemo_FrameListener::keyPressed (Ogre::KeyEvent *e)
-{
-	// give 'quitting' priority
-	if (e->getKey() == Ogre::KC_ESCAPE)
-	{
-		mQuit = true;
-		e->consume();
-		return;
-	}
-
-	if (e->getKey() == Ogre::KC_SYSRQ )
+    // give 'quitting' priority
+	if (e.key == OIS::KC_ESCAPE)
     {
-		char tmp[20];
-		sprintf(tmp, "screenshot_%d.png", ++mNumScreenShots);
-		mMain->getRenderWindow()->writeContentsToFile(tmp);
-        //mTimeUntilNextToggle = 0.5;
-		mMain->getRenderWindow()->setDebugText(Ogre::String("Wrote ") + tmp);
+        mQuit = true;
+        return false;
     }
 
-	// do event injection
-	CEGUI::System& cegui = CEGUI::System::getSingleton();
+    if (e.key == OIS::KC_SYSRQ )
+    {
+        char tmp[20];
+        sprintf(tmp, "screenshot_%d.png", ++mNumScreenShots);
+        mMain->getRenderWindow()->writeContentsToFile(tmp);
+        //mTimeUntilNextToggle = 0.5;
+        mMain->getRenderWindow()->setDebugText(Ogre::String("Wrote ") + tmp);
+    }
 
-	// key down
-	cegui.injectKeyDown(e->getKey());
-
-	// now character
-	cegui.injectChar(e->getKeyChar());
-
-	e->consume();
+    // do event injection
+    CEGUI::System& cegui = CEGUI::System::getSingleton();
+    cegui.injectKeyDown(e.key);
+	cegui.injectChar(e.text);
+	return true;
 }
 
 //--------------------------------------------------------------------------
-void OceanDemo_FrameListener::keyReleased (Ogre::KeyEvent *e)
+bool OceanDemo_FrameListener::keyReleased (const OIS::KeyEvent &e)
 {
-	CEGUI::System::getSingleton().injectKeyUp(e->getKey());
+	CEGUI::System::getSingleton().injectKeyUp(e.key);
+	return true;
 }
 
 //--------------------------------------------------------------------------
-void OceanDemo_FrameListener::mousePressed (Ogre::MouseEvent *e)
+bool OceanDemo_FrameListener::mousePressed (const OIS::MouseEvent &e, OIS::MouseButtonID id)
 {
-	CEGUI::System::getSingleton().injectMouseButtonDown(convertOgreButtonToCegui(e->getButtonID()));
-	e->consume();
+	CEGUI::System::getSingleton().injectMouseButtonDown(convertOISButtonToCegui(id));
+	return true;
 }
 
 //--------------------------------------------------------------------------
-void OceanDemo_FrameListener::mouseReleased (Ogre::MouseEvent *e)
+bool OceanDemo_FrameListener::mouseReleased (const OIS::MouseEvent &e, OIS::MouseButtonID id)
 {
-	CEGUI::System::getSingleton().injectMouseButtonUp(convertOgreButtonToCegui(e->getButtonID()));
-	e->consume();
+	CEGUI::System::getSingleton().injectMouseButtonUp(convertOISButtonToCegui(id));
+	return true;
 }
 
 //--------------------------------------------------------------------------
-CEGUI::MouseButton OceanDemo_FrameListener::convertOgreButtonToCegui(int ogre_button_id)
+CEGUI::MouseButton OceanDemo_FrameListener::convertOISButtonToCegui(int ois_button_id)
 {
-	switch (ogre_button_id)
-	{
-	case Ogre::MouseEvent::BUTTON0_MASK:
-		return CEGUI::LeftButton;
-		break;
-
-	case Ogre::MouseEvent::BUTTON1_MASK:
-		return CEGUI::RightButton;
-		break;
-
-	case Ogre::MouseEvent::BUTTON2_MASK:
-		return CEGUI::MiddleButton;
-		break;
-
-	case Ogre::MouseEvent::BUTTON3_MASK:
-		return CEGUI::X1Button;
-		break;
-
-	default:
-		return CEGUI::LeftButton;
-		break;
-	}
-
+    switch (ois_button_id)
+    {
+	case 0: return CEGUI::LeftButton;
+	case 1: return CEGUI::RightButton;
+	case 2:	return CEGUI::MiddleButton;
+	case 3: return CEGUI::X1Button;
+	default: return CEGUI::LeftButton;
+    }
 }
-
 //--------------------------------------------------------------------------
 void OceanDemo_FrameListener::updateStats(void)
 {

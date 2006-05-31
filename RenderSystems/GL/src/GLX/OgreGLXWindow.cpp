@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
 #include "OgreGLXUtils.h"
+#include "OgreWindowEventUtilities.h"
 
 #include <iostream>
 #include <algorithm>
@@ -339,6 +340,9 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 	
 		// Make sure the server is up to date and focus the window
 		XFlush(mDisplay);
+
+		//Register only Ogre created windows (users can register their own)
+		WindowEventUtilities::_addRenderWindow(this);
 	}
 	else
 	{
@@ -434,63 +438,6 @@ void GLXWindow::swapBuffers(bool waitForVSync)
 }
 
 //-------------------------------------------------------------------------------------------------//
-void GLXWindow::injectXEvent(const XEvent &event)
-{
-	switch(event.type) 
-	{
-	case ClientMessage:
-		if(event.xclient.display != mDisplay || event.xclient.window != mWindow)
-			break;
-
-		if(event.xclient.format == 32 && event.xclient.data.l[0] == (long)mAtomDeleteWindow)  
-		{
-			//Window Closed (via X button)
-			mClosed = true;
-			mActive = false;
-
-			Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
-		}
-		break;
-	case ConfigureNotify:
-		if(event.xconfigure.display != mDisplay || event.xconfigure.window != mWindow)
-			break;
-
-		resized(event.xconfigure.width,	event.xconfigure.height);
-		break;
-	case MapNotify:
-		if(event.xconfigure.display != mDisplay || event.xconfigure.window != mWindow)
-			break;
-
-		// Window was mapped to the screen
-		mActive = true;
-		break;
-	case UnmapNotify:
-		if(event.xconfigure.display != mDisplay || event.xconfigure.window != mWindow)
-			break;
-
-		// Window was unmapped from the screen (user switched
-		// to another workspace, for example)
-		mActive = false;
-		break;
-	case VisibilityNotify:
-		//Visibility status changed
-		switch(event.xvisibility.state)
-		{
-		case VisibilityUnobscured:
-			mActive = mVisible = true;
-			break;
-		case VisibilityPartiallyObscured:
-			mActive = false;
-			mVisible = true;
-			break;
-		case VisibilityFullyObscured:
-			mActive = mVisible = false;
-			break;
-		}
-	}
-}
-
-//-------------------------------------------------------------------------------------------------//
 void GLXWindow::resized(size_t width, size_t height)
 {
 	// Check if the window size really changed
@@ -512,12 +459,12 @@ void GLXWindow::getCustomAttribute( const String& name, void* pData )
 		*static_cast<GLXContext**>(pData) = mContext;
 		return;
 	} 
-	else if( name == "GLXWINDOW" ) 
+	else if( name == "WINDOW" ) 
 	{
 		*static_cast<Window*>(pData) = mWindow;
 		return;
 	} 
-	else if( name == "GLXDISPLAY" ) 
+	else if( name == "DISPLAY" ) 
 	{
 		*static_cast<Display**>(pData) = mDisplay;
 		return;
@@ -568,6 +515,4 @@ void GLXWindow::writeContentsToFile(const String& filename)
 
 	delete [] pBuffer;
 }
-
 }
-

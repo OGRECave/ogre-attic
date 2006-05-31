@@ -64,7 +64,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain_d.lib CEGUIBase_d.lib OgreGUIRenderer_d.lib"
+				AdditionalDependencies="OgreMain_d.lib OIS_d.lib CEGUIBase_d.lib OgreGUIRenderer_d.lib"
 				OutputFile="$(OutDir)/Demo_Gui.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;;;..\..\Common\CEGUIRenderer\lib"
@@ -155,7 +155,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain.lib CEGUIBase.lib OgreGUIRenderer.lib"
+				AdditionalDependencies="OgreMain.lib OIS.lib CEGUIBase.lib OgreGUIRenderer.lib"
 				OutputFile="$(OutDir)/Demo_Gui.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;;;..\..\Common\CEGUIRenderer\lib"

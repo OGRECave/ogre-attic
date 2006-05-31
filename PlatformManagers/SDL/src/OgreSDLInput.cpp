@@ -146,7 +146,7 @@ namespace Ogre {
         _key_map.insert(InputKeyMap::value_type(SDLK_RSUPER, KC_RWIN));
     }
 
-    SDLInput::~SDLInput()
+7    SDLInput::~SDLInput()
     {
 		if ( mUseMouse )
 		{
@@ -265,7 +265,7 @@ namespace Ogre {
 				}
 			}
 		}
-        
+
 		// Keyboard input
 		if (mUseBufferedKeys)
         {

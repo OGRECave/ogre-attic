@@ -123,7 +123,7 @@ OverlayElement* mInfo;
 
 #define KEY_PRESSED(_key,_timeDelay, _macro) \
 { \
-    if (mInputDevice->isKeyDown(_key) && timeDelay <= 0) \
+    if (mKeyboard->isKeyDown(_key) && timeDelay <= 0) \
     { \
 		timeDelay = _timeDelay; \
         _macro ; \
@@ -149,6 +149,8 @@ public:
     }
     bool frameStarted(const FrameEvent& evt)
     {
+	using namespace OIS;
+
         if(!ExampleFrameListener::frameStarted(evt))
             return false;
         

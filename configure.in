@@ -37,7 +37,6 @@ fi
 
 dnl Other stuff we need
 OGRE_USE_STLPORT
-#AM_PATH_SDL(1.2.0)
 AC_CHECK_FT2(9.0.0)
 
 AC_CHECK_LIB(dl, dlopen)
@@ -53,7 +52,7 @@ PKG_CHECK_MODULES(ZZIPLIB, zziplib)
 AC_SUBST(ZZIPLIB_CFLAGS)
 AC_SUBST(ZZIPLIB_LIBS)
 
-OGRE_GET_CONFIG_TOOLKIT
+dnl Get the GL and Platform libs for target build
 OGRE_GET_PLATFORM
 OGRE_GET_GLSUPPORT
 
@@ -65,6 +64,9 @@ OGRE_CHECK_CG
 OGRE_CHECK_OPENEXR
 OGRE_CHECK_DX9
 
+dnl Check to see if user wants to disable building of demos (defaults is to build) - also checks for OIS
+OGRE_BUILD_DEMOS
+
 dnl Detect endianness
 OGRE_DETECT_ENDIAN
 
@@ -74,9 +76,9 @@ OGRE_CHECK_PIC
 dnl Check to see if CEGUI is installed.
 OGRE_CHECK_CEGUI
 
-CFLAGS="$CFLAGS $SDL_CFLAGS"
-CXXFLAGS="$CXXFLAGS $SDL_CFLAGS"
-LIBS="$LIBS $SDL_LIBS"
+CFLAGS="$CFLAGS"
+CXXFLAGS="$CXXFLAGS"
+LIBS="$LIBS"
 
 dnl versioning info for libtool
 dnl Note this is the ABI version which is not the same as our actual library version
@@ -92,19 +94,7 @@ AC_CONFIG_FILES([Makefile \
     OgreMain/Makefile \
     OgreMain/src/Makefile \
     OgreMain/include/Makefile \
-    PlatformManagers/Makefile \
-    PlatformManagers/SDL/Makefile \
-    PlatformManagers/SDL/src/Makefile
-    PlatformManagers/SDL/include/Makefile
-    PlatformManagers/gtk/Makefile \
-    PlatformManagers/gtk/src/Makefile \
-    PlatformManagers/gtk/include/Makefile \
-    PlatformManagers/GLX/Makefile \
-    PlatformManagers/GLX/src/Makefile \
-    PlatformManagers/GLX/include/Makefile \
-    PlatformManagers/Win32/Makefile \
-    PlatformManagers/Win32/src/Makefile \
-    PlatformManagers/Win32/include/Makefile \
+    OgreMain/include/GLX/Makefile \
     PlugIns/Makefile \
     PlugIns/BSPSceneManager/Makefile \
     PlugIns/BSPSceneManager/src/Makefile \
@@ -149,9 +139,9 @@ AC_CONFIG_FILES([Makefile \
     Samples/CubeMapping/Makefile \
     Samples/CubeMapping/src/Makefile \
     Samples/CubeMapping/include/Makefile \
-	Samples/DeferredShading/Makefile \
-	Samples/DeferredShading/src/Makefile \
-	Samples/DeferredShading/include/Makefile  \
+    Samples/DeferredShading/Makefile \
+    Samples/DeferredShading/src/Makefile \
+    Samples/DeferredShading/include/Makefile  \
     Samples/Dot3Bump/Makefile \
     Samples/Dot3Bump/src/Makefile \
     Samples/EnvMapping/Makefile \
@@ -205,12 +195,12 @@ AC_CONFIG_FILES([Makefile \
     Samples/Water/Makefile \
     Samples/Water/src/Makefile \
     Samples/Water/include/Makefile \
-	Samples/DynTex/Makefile \
-	Samples/DynTex/src/Makefile \
-	Samples/DynTex/include/Makefile \
-	Samples/VolumeTex/Makefile \
-	Samples/VolumeTex/src/Makefile \
-	Samples/VolumeTex/include/Makefile \
+    Samples/DynTex/Makefile \
+    Samples/DynTex/src/Makefile \
+    Samples/DynTex/include/Makefile \
+    Samples/VolumeTex/Makefile \
+    Samples/VolumeTex/src/Makefile \
+    Samples/VolumeTex/include/Makefile \
     Tests/Makefile \
     Tests/src/Makefile \
     Tools/Makefile \

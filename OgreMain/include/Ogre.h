@@ -42,7 +42,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreControllerManager.h"
 #include "OgreDataStream.h"
 #include "OgreEntity.h"
-#include "OgreEventProcessor.h"
 #include "OgreException.h"
 #include "OgreFrustum.h"
 #include "OgreGpuProgram.h"
@@ -55,7 +54,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHardwarePixelBuffer.h"
 #include "OgreHighLevelGpuProgram.h"
 #include "OgreHighLevelGpuProgramManager.h"
-#include "OgreInput.h"
 #include "OgreKeyFrame.h"
 #include "OgreLight.h"
 #include "OgreLogManager.h"
@@ -79,7 +77,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePass.h"
 #include "OgrePatchMesh.h"
 #include "OgrePatchSurface.h"
-#include "OgrePlatformManager.h"
 #include "OgreProfiler.h"
 #include "OgreRadixSort.h"
 #include "OgreRenderQueueInvocation.h"
@@ -119,6 +116,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCompositionTechnique.h"
 #include "OgreCompositionPass.h"
 #include "OgreCompositionTargetPass.h"
+#include "OgreWindowEventUtilities.h"
 // .... more to come
 
 #endif

@@ -36,64 +36,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <d3d9.h>
 #include "OgreMemoryMacros.h"
 #include "OgreRoot.h"
+#include "OgreWindowEventUtilities.h"
 
 namespace Ogre
 {
-	// Window procedure callback
-	// This is a static member, so applies to all windows but we store the
-	// D3D9RenderWindow instance in the window data GetWindowLog/SetWindowLog
-	LRESULT D3D9RenderWindow::WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
-	{
-		if (uMsg == WM_CREATE)
-		{
-			// copy D3D9RenderWindow* from createwindow param to userdata slot
-			SetWindowLong(hWnd, GWL_USERDATA,
-				(LONG)(((LPCREATESTRUCT)lParam)->lpCreateParams));
-			return 0;
-		}
-
-		D3D9RenderWindow* win =
-			(D3D9RenderWindow*)GetWindowLong(hWnd, GWL_USERDATA);
-
-		if (!win)
-			return DefWindowProc(hWnd, uMsg, wParam, lParam);
-
-		switch( uMsg )
-		{
-		case WM_ACTIVATE:
-			win->mActive = (LOWORD(wParam) != WA_INACTIVE);
-			break;
-
-		case WM_ENTERSIZEMOVE:
-			win->mSizing = true;
-			break;
-
-		case WM_EXITSIZEMOVE:
-			win->windowMovedOrResized();
-			win->mSizing = false;
-			break;
-
-		case WM_MOVE:
-		case WM_SIZE:
-			if (!win->mSizing)
-				win->windowMovedOrResized();
-			break;
-
-		case WM_GETMINMAXINFO:
-			// Prevent the window from going smaller than some minimu size
-			((MINMAXINFO*)lParam)->ptMinTrackSize.x = 100;
-			((MINMAXINFO*)lParam)->ptMinTrackSize.y = 100;
-			break;
-
-		case WM_CLOSE:
-			win->destroy(); // cleanup and call DestroyWindow
-			win->mClosed = true;
-			return 0;
-		}
-
-		return DefWindowProc( hWnd, uMsg, wParam, lParam );
-	}
-
 	D3D9RenderWindow::D3D9RenderWindow(HINSTANCE instance, D3D9Driver *driver, LPDIRECT3DDEVICE9 deviceIfSwapChain):
 	mInstance(instance),
 		mDriver(driver)
@@ -213,7 +159,6 @@ namespace Ogre
 		if( mHWnd )
 			destroy();
 
-
 		if (!externalHandle)
 		{
 			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
@@ -271,7 +216,7 @@ namespace Ogre
 
 			// Register the window class
 			// NB allow 4 bytes of window data for D3D9RenderWindow pointer
-			WNDCLASS wc = { 0, WndProc, 0, 0, hInst,
+			WNDCLASS wc = { 0, WindowEventUtilities::_WndProc, 0, 0, hInst,
 				LoadIcon(0, IDI_APPLICATION), LoadCursor(NULL, IDC_ARROW),
 				(HBRUSH)GetStockObject(BLACK_BRUSH), 0, "OgreD3D9Wnd" };
 			RegisterClass(&wc);
@@ -281,6 +226,8 @@ namespace Ogre
 			mIsExternal = false;
 			mHWnd = CreateWindow("OgreD3D9Wnd", title.c_str(), dwStyle,
 				mLeft, mTop, mWidth, mHeight, parentHWnd, 0, hInst, this);
+			
+			WindowEventUtilities::_addRenderWindow(this);
 		}
 		else
 		{
@@ -313,6 +260,7 @@ namespace Ogre
 		createD3DResources();
 
 		mActive = true;
+		mClosed = false;
 	}
 
 	void D3D9RenderWindow::createD3DResources(void)
@@ -544,9 +492,14 @@ namespace Ogre
 	void D3D9RenderWindow::destroy()
 	{
 		if (mHWnd && !mIsExternal)
+		{
+			WindowEventUtilities::_removeRenderWindow(this);
 			DestroyWindow(mHWnd);
+		}
+
 		mHWnd = 0;
 		mActive = false;
+		mClosed = true;
 	}
 
 	bool D3D9RenderWindow::isVisible() const
@@ -693,7 +646,7 @@ namespace Ogre
 	{
 		// Valid attributes and their equvalent native functions:
 		// D3DDEVICE			: getD3DDevice
-		// HWND					: getWindowHandle
+		// WINDOW				: getWindowHandle
 
 		if( name == "D3DDEVICE" )
 		{
@@ -701,7 +654,7 @@ namespace Ogre
 			*pDev = getD3DDevice();
 			return;
 		}
-		else if( name == "HWND" )
+		else if( name == "WINDOW" )
 		{
 			HWND *pHwnd = (HWND*)pData;
 			*pHwnd = getWindowHandle();
