@@ -103,24 +103,6 @@ namespace Ogre {
         typedef int IsValidAlignment
             [0 <= Alignment && Alignment <= 128 && ((Alignment & (Alignment-1)) == 0) ? +1 : -1];
 
-        // compile-time select allocate function based on given alignment.
-        template <unsigned A>
-        struct Selector
-        {
-            static void* allocate(size_t size)
-            {
-                return AlignedMemory::allocate(size, A);
-            }
-        };
-        template <>
-        struct Selector<0>
-        {
-            static void* allocate(size_t size)
-            {
-                return AlignedMemory::allocate(size);
-            }
-        };
-
     public:
         //--- typedefs for STL compatible
 
@@ -176,8 +158,9 @@ namespace Ogre {
         static pointer allocate(const size_type n)
         {
             // use default platform dependent alignment if 'Alignment' equal to zero.
-            const pointer ret = static_cast<pointer>(
-                Selector<Alignment>::allocate(sizeof(T) * n));
+            const pointer ret = static_cast<pointer>(Alignment ?
+                AlignedMemory::allocate(sizeof(T) * n, Alignment) :
+                AlignedMemory::allocate(sizeof(T) * n));
             return ret;
         }
         static pointer allocate(const size_type n, const void * const)
