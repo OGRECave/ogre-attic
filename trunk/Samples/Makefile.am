@@ -1,8 +1,8 @@
-SUBDIRS =
+SUBDIRS = Common
 
 if OGRE_BUILDING_DEMOS
  SUBDIRS += SkeletalAnimation BezierPatch EnvMapping Transpacency Lighting \
-            ParticleFX TextureFX SkyDome BSP Common SkyPlane SkyBox CameraTrack Terrain \
+            ParticleFX TextureFX SkyDome BSP SkyPlane SkyBox CameraTrack Terrain \
             RenderToTexture Water CubeMapping Dot3Bump Smoke CelShading Fresnel Shadows \
             DynTex VolumeTex Grass DeferredShading
 
