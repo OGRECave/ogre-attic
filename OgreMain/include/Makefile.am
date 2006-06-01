@@ -1,4 +1,4 @@
-SUBDIRS = GLX WIN32
+SUBDIRS = $(OGRE_PLATFORM)
 
 pkginclude_HEADERS = Ogre.h \
                      OgreArchive.h \
