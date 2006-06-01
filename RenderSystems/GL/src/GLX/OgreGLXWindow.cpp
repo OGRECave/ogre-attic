@@ -380,6 +380,8 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 //-------------------------------------------------------------------------------------------------//
 void GLXWindow::destroy(void)
 {
+	WindowEventUtilities::_addRenderWindow(this);
+
 	// Unregister and destroy OGRE GLContext
 	delete mContext;
 
@@ -425,21 +427,6 @@ void GLXWindow::reposition(int left, int top)
 //-------------------------------------------------------------------------------------------------//
 void GLXWindow::resize(unsigned int width, unsigned int height)
 {
-	if (!mTopLevel)
-		resized(width, height); /// Embedded
-	else
-		XResizeWindow(mDisplay,mWindow,width,height); /// Ogre handles window
-}
-
-//-------------------------------------------------------------------------------------------------//
-void GLXWindow::swapBuffers(bool waitForVSync)
-{
-	glXSwapBuffers(mDisplay,mWindow);
-}
-
-//-------------------------------------------------------------------------------------------------//
-void GLXWindow::resized(size_t width, size_t height)
-{
 	// Check if the window size really changed
 	if(mWidth == width && mHeight == height)
 		return;
@@ -447,8 +434,21 @@ void GLXWindow::resized(size_t width, size_t height)
 	mWidth = width;
 	mHeight = height;
 
-	for (ViewportList::iterator it = mViewportList.begin();	it != mViewportList.end(); ++it)
-		(*it).second->_updateDimensions();
+	if (!mTopLevel)
+	{
+		for (ViewportList::iterator it = mViewportList.begin();	it != mViewportList.end(); ++it)
+			(*it).second->_updateDimensions();
+	}
+	else
+	{
+		XResizeWindow(mDisplay, mWindow, width, height); /// Ogre handles window
+	}
+}
+
+//-------------------------------------------------------------------------------------------------//
+void GLXWindow::swapBuffers(bool waitForVSync)
+{
+	glXSwapBuffers(mDisplay,mWindow);
 }
 
 //-------------------------------------------------------------------------------------------------//

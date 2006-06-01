@@ -28,9 +28,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreRoot.h"
 
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+#include <X11/Xlib.h>
+void GLXProc( Ogre::RenderWindow* win, ::Display* disp, const XEvent &event );
+#endif
+
 using namespace Ogre;
 
-WindowEventUtilities::WindowEventListeners WindowEventUtilities::msListeners;
+WindowEventUtilities::WindowEventListeners WindowEventUtilities::_msListeners;
 WindowEventUtilities::Windows WindowEventUtilities::msWindows;
 
 //--------------------------------------------------------------------------------//
@@ -49,14 +54,13 @@ void WindowEventUtilities::messagePump()
 	Windows::iterator i = msWindows.begin(), e = msWindows.end();
 	for( ; i != e; ++i )
 	{
-		Display display;
+		::Display* display;
 		XEvent event;
-
-		*i->getCustomAttribute("DISPLAY");
+		(*i)->getCustomAttribute("DISPLAY", display);
 		while(XPending(display) > 0)
 		{
 			XNextEvent(display, &event);
-			_GLXProc(win, display, event);
+			GLXProc(*i, display, event);
 		}
 	}
 #endif
@@ -65,19 +69,19 @@ void WindowEventUtilities::messagePump()
 //--------------------------------------------------------------------------------//
 void WindowEventUtilities::addWindowEventListener( RenderWindow* window, WindowEventListener* listener )
 {
-	msListeners.insert(std::make_pair(window, listener));
+	_msListeners.insert(std::make_pair(window, listener));
 }
 
 //--------------------------------------------------------------------------------//
 void WindowEventUtilities::removeWindowEventListener( RenderWindow* window, WindowEventListener* listener )
 {
-	WindowEventListeners::iterator i = msListeners.begin(), e = msListeners.end();
+	WindowEventListeners::iterator i = _msListeners.begin(), e = _msListeners.end();
 
 	for( ; i != e; ++i )
 	{
 		if( i->first == window && i->second == listener )
 		{
-			msListeners.erase(i);
+			_msListeners.erase(i);
 			break;
 		}
 	}
@@ -115,8 +119,8 @@ LRESULT CALLBACK WindowEventUtilities::_WndProc(HWND hWnd, UINT uMsg, WPARAM wPa
 
 	//LogManager* log = LogManager::getSingletonPtr();
 	//Iterator of all listeners registered to this RenderWindow
-	WindowEventListeners::iterator start = msListeners.lower_bound(win),
-								   end   = msListeners.upper_bound(win);
+	WindowEventListeners::iterator start = _msListeners.lower_bound(win),
+						end = _msListeners.upper_bound(win);
 
 	switch( uMsg )
 	{
@@ -154,7 +158,6 @@ LRESULT CALLBACK WindowEventUtilities::_WndProc(HWND hWnd, UINT uMsg, WPARAM wPa
 	case WM_CLOSE:
 		//log->logMessage("WM_CLOSE");
 		win->destroy();
-
 		for( ; start != end; ++start )
 			(start->second)->windowClosed(win);
 		return 0;
@@ -164,48 +167,62 @@ LRESULT CALLBACK WindowEventUtilities::_WndProc(HWND hWnd, UINT uMsg, WPARAM wPa
 }
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 //--------------------------------------------------------------------------------//
-void WindowEventUtilities::_GLXProc( RenderWindow* win, Display& disp, const XEvent &event )
+void GLXProc( RenderWindow* win, ::Display* disp, const XEvent &event )
 {
+	LogManager* log = LogManager::getSingletonPtr();
+	//Iterator of all listeners registered to this RenderWindow
+	WindowEventUtilities::WindowEventListeners::iterator 
+		start = WindowEventUtilities::_msListeners.lower_bound(win),
+		end   = WindowEventUtilities::_msListeners.upper_bound(win);
+
 	switch(event.type)
 	{
 	case ClientMessage:
-		if(event.xclient.format == 32 && event.xclient.data.l[0] == (long)mAtomDeleteWindow)
-		{
-			//Window Closed (via X button)
-			mClosed = true;
-			mActive = false;
-
-			//Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
-		}
+//		if(event.xclient.format == 32 && event.xclient.data.l[0] == (long)mAtomDeleteWindow)
+//		{
+//			//Window Closed (via X button)
+//			mClosed = true;
+//			mActive = false;
+//			win->destroy();
+//			for( ; start != end; ++start )
+//				(start->second)->windowClosed(win);
+//		}
 		break;
 	case ConfigureNotify:
-		win->resized(event.xconfigure.width, event.xconfigure.height);
-
+		log->logMessage("Size Changing...");
+		win->resize(event.xconfigure.width, event.xconfigure.height);
+		for( ; start != end; ++start )
+			(start->second)->windowResized(win);
 		break;
 	case MapNotify:
-		// Window was mapped to the screen
-		mActive = true;
+		log->logMessage("Window was mapped to the screen");
+		win->setActive( true );
+		for( ; start != end; ++start )
+			(start->second)->windowFocusChange(win);
 		break;
 	case UnmapNotify:
-		// Window was unmapped from the screen (user switched
-		// to another workspace, for example)
-		mActive = false;
+		log->logMessage("Window was unmapped to the screen (lost focus)");
+		win->setActive( true );
+		for( ; start != end; ++start )
+			(start->second)->windowFocusChange(win);
 		break;
 	case VisibilityNotify:
 		//Visibility status changed
 		switch(event.xvisibility.state)
 		{
 		case VisibilityUnobscured:
-			mActive = mVisible = true;
+			win->setActive( true );
+			//win->setVisible( true ); //xxx: Not a method.. Should it be :?:
 			break;
 		case VisibilityPartiallyObscured:
-			mActive = false;
-			mVisible = true;
+			win->setActive( false );
+			//win->setVisible( true ); //xxx: Not a method.. Should it be :?:
 			break;
 		case VisibilityFullyObscured:
-			mActive = mVisible = false;
+			win->setActive( false );
+			//win->setVisible( false ); //xxx: Not a method.. Should it be :?:
 			break;
-		}
-	}
+		} //End switch visibility.state
+	} //End switch event.type
 }
 #endif

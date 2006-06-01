@@ -91,9 +91,6 @@ namespace Ogre
 		*/
 		void getCustomAttribute(const String& name, void* pData);
 
-		/** @copydoc RenderWindow::messagePump */
-		void messagePump();
-
 		bool requiresTextureFlipping() const { return false; }
 
 		/**
@@ -103,14 +100,6 @@ namespace Ogre
 			you are creating your own windows.. In which case you control events
 		*/
 		void exposed(bool active) { mActive = active; }
-
-		/**
-		@remarks
-			Window rsize. Use this to inject a resize event - this is only if you are
-			not sending Events (via PlatformManager::messagePump). This happens normally unless
-			you are creating your own windows.. In which case you control events
-		*/
-		void resized(size_t width, size_t height);
 
 		/**
 		@remarks
