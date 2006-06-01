@@ -94,8 +94,6 @@ namespace Ogre
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 		static LRESULT CALLBACK _WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-		static void _GLXProc( RenderWindow* win, Display& disp, const XEvent &event );
 #endif
 
 	protected:
