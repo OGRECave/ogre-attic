@@ -2,7 +2,8 @@ INCLUDES = $(STLPORT_CFLAGS) $(FT2_CFLAGS) -I$(top_srcdir)/OgreMain/include -DOG
 
 lib_LTLIBRARIES=libOgreMain.la
 
-libOgreMain_la_SOURCES = OgreAnimation.cpp \
+libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
+                         OgreAnimation.cpp \
 			 OgreAnimable.cpp \
                          OgreAnimationState.cpp \
                          OgreAnimationTrack.cpp \
@@ -68,6 +69,7 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgreMovableObject.cpp \
 			 OgreMovablePlane.cpp \
                          OgreNode.cpp \
+                         OgreOptimisedUtil.cpp \
                          OgreOverlay.cpp \
                          OgreOverlayContainer.cpp \
 			 OgreOverlayElement.cpp \
@@ -154,7 +156,8 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgreCompiler2Pass.cpp \
                          $(OGRE_PLATFORM)/OgreTimer.cpp \
                          $(OGRE_PLATFORM)/OgreConfigDialog.cpp \
-                         $(OGRE_PLATFORM)/OgreErrorDialog.cpp
+                         $(OGRE_PLATFORM)/OgreErrorDialog.cpp \
+                         OgreWindowEventUtilities.cpp
 
 if USE_DEVIL
 libOgreMain_la_SOURCES +=OgreILImageCodec.cpp \
