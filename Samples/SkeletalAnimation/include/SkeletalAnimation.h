@@ -158,6 +158,7 @@ protected:
 			mBasePositions[i] = q * Vector3(0,0,-20);
 
             ent = mSceneMgr->createEntity("jaiqua" + StringConverter::toString(i), "jaiqua.mesh");
+            ent->setMaterialName("BaseWhite");
             // Add entity to the scene node
 			mSceneNode[i] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 			mSceneNode[i]->attachObject(ent);

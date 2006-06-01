@@ -34,10 +34,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain_d.lib ReferenceAppLayer.lib"
+				AdditionalDependencies="OgreMain_d.lib OIS_d.lib ReferenceAppLayer.lib"
 				OutputFile="$(OutDir)/Demo_BspCollision.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\Dependencies\lib\$(ConfigurationName)&quot;;&quot;..\..\ReferenceAppLayer\lib\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;;&quot;..\..\ReferenceAppLayer\lib\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Demo_BspCollision.pdb"
 				SubSystem="2"
@@ -95,10 +95,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain.lib ReferenceAppLayer.lib"
+				AdditionalDependencies="OgreMain.lib OIS.lib ReferenceAppLayer.lib"
 				OutputFile="$(OutDir)/Demo_BspCollision.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\Dependencies\lib\$(ConfigurationName)&quot;;&quot;..\..\ReferenceAppLayer\lib\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;;&quot;..\..\ReferenceAppLayer\lib\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="FALSE"
 				SubSystem="2"
 				OptimizeReferences="2"

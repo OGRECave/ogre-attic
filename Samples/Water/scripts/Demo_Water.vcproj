@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				ImproveFloatingPointConsistency="TRUE"
-				AdditionalIncludeDirectories="..\include;..\..\Common\include;..\..\..\OgreMain\include"
+				AdditionalIncludeDirectories="..\include;..\..\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -34,10 +34,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain_d.lib"
+				AdditionalDependencies="OgreMain_d.lib OIS_d.lib"
 				OutputFile="$(OutDir)/Demo_Water.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Demo_Water.pdb"
 				SubSystem="2"
@@ -83,7 +83,7 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="..\include;..\..\Common\include;..\..\..\OgreMain\include"
+				AdditionalIncludeDirectories="..\include;..\..\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="TRUE"
 				MinimalRebuild="TRUE"
@@ -98,10 +98,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain.lib"
+				AdditionalDependencies="OgreMain.lib OIS.lib"
 				OutputFile="$(OutDir)/Demo_Water.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="FALSE"
 				SubSystem="2"
 				OptimizeReferences="2"
