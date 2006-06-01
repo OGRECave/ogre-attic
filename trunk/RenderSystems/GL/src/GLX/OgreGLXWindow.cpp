@@ -373,8 +373,14 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 	mHeight = height;
 	mFullScreen = fullScreen;
 
-    // Create OGRE GL context
-    mContext = new GLXContext(mDisplay, mWindow, mGlxContext);
+	//Get the attributes of the screen
+	XWindowAttributes temp;
+	XGetWindowAttributes(mDisplay, mWindow, &temp);
+	mLeft = temp.x;
+	mTop = temp.y;
+
+	// Create OGRE GL context
+	mContext = new GLXContext(mDisplay, mWindow, mGlxContext);
 }
 
 //-------------------------------------------------------------------------------------------------//
@@ -396,6 +402,7 @@ void GLXWindow::destroy(void)
 	mWindow = 0;
 	mGlxContext = 0;
 	mActive = false;
+	mClosed = true;
 
 	Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
 }
@@ -446,6 +453,29 @@ void GLXWindow::resize(unsigned int width, unsigned int height)
 }
 
 //-------------------------------------------------------------------------------------------------//
+void GLXWindow::windowMovedOrResized()
+{
+	//Get the new attributes of the screen
+	XWindowAttributes temp;
+	XGetWindowAttributes(mDisplay, mWindow, &temp);
+	mLeft = temp.x;
+	mTop  = temp.y;
+
+	//Only update viewport dimensions if they did actually change
+	if (mWidth == temp.width && mHeight == temp.height)
+		return;
+
+	mWidth = temp.width;
+	mHeight = temp.height;
+
+	// Notify viewports of resize
+	ViewportList::iterator it, itend;
+	itend = mViewportList.end();
+	for( it = mViewportList.begin(); it != itend; ++it )
+		(*it).second->_updateDimensions();
+}
+
+//-------------------------------------------------------------------------------------------------//
 void GLXWindow::swapBuffers(bool waitForVSync)
 {
 	glXSwapBuffers(mDisplay,mWindow);
@@ -454,9 +484,14 @@ void GLXWindow::swapBuffers(bool waitForVSync)
 //-------------------------------------------------------------------------------------------------//
 void GLXWindow::getCustomAttribute( const String& name, void* pData )
 {
-	if( name == "GLCONTEXT" ) 
+	if( name == "DISPLAY" ) 
 	{
-		*static_cast<GLXContext**>(pData) = mContext;
+		*static_cast<Display**>(pData) = mDisplay;
+		return;
+	}
+	else if( name == "ATOM" ) 
+	{
+		*static_cast< ::Atom* >(pData) = mAtomDeleteWindow;
 		return;
 	} 
 	else if( name == "WINDOW" ) 
@@ -464,11 +499,11 @@ void GLXWindow::getCustomAttribute( const String& name, void* pData )
 		*static_cast<Window*>(pData) = mWindow;
 		return;
 	} 
-	else if( name == "DISPLAY" ) 
+	else if( name == "GLCONTEXT" ) 
 	{
-		*static_cast<Display**>(pData) = mDisplay;
+		*static_cast<GLXContext**>(pData) = mContext;
 		return;
-	}
+	} 
 }
 
 //-------------------------------------------------------------------------------------------------//

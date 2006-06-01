@@ -77,6 +77,9 @@ namespace Ogre
 		/** @copydoc see RenderWindow::resize */
 		void resize(unsigned int width, unsigned int height);
 
+		/** @copydoc see RenderWindow::windowMovedOrResized */
+		void windowMovedOrResized();
+
 		/** @copydoc see RenderWindow::swapBuffers */
 		void swapBuffers(bool waitForVSync);
 	
@@ -88,6 +91,7 @@ namespace Ogre
 			* Get custom attribute; the following attributes are valid:
 			* WINDOW	The X Window associated with this
 			* DISPLAY	The X Display associated with this
+			* ATOM		The Delete Window signal
 		*/
 		void getCustomAttribute(const String& name, void* pData);
 

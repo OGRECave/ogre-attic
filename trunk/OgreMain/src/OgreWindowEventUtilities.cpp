@@ -169,7 +169,7 @@ LRESULT CALLBACK WindowEventUtilities::_WndProc(HWND hWnd, UINT uMsg, WPARAM wPa
 //--------------------------------------------------------------------------------//
 void GLXProc( RenderWindow* win, ::Display* disp, const XEvent &event )
 {
-	LogManager* log = LogManager::getSingletonPtr();
+	//LogManager* log = LogManager::getSingletonPtr();
 	//Iterator of all listeners registered to this RenderWindow
 	WindowEventUtilities::WindowEventListeners::iterator 
 		start = WindowEventUtilities::_msListeners.lower_bound(win),
@@ -178,30 +178,48 @@ void GLXProc( RenderWindow* win, ::Display* disp, const XEvent &event )
 	switch(event.type)
 	{
 	case ClientMessage:
-//		if(event.xclient.format == 32 && event.xclient.data.l[0] == (long)mAtomDeleteWindow)
-//		{
-//			//Window Closed (via X button)
-//			mClosed = true;
-//			mActive = false;
-//			win->destroy();
-//			for( ; start != end; ++start )
-//				(start->second)->windowClosed(win);
-//		}
+	{
+		::Atom atom;
+		win->getCustomAttribute("ATOM", &atom);
+
+		if(event.xclient.format == 32 && event.xclient.data.l[0] == (long)atom)
+		{	//Window Closed (via X button)
+			//log->logMessage("X Button Closing.. Window being destroyed");
+			win->destroy();
+			for( ; start != end; ++start )
+				(start->second)->windowClosed(win);
+		}
 		break;
-	case ConfigureNotify:
-		log->logMessage("Size Changing...");
-		win->resize(event.xconfigure.width, event.xconfigure.height);
-		for( ; start != end; ++start )
-			(start->second)->windowResized(win);
+	}
+	case ConfigureNotify:	//Moving or Resizing
+		unsigned int width, height, depth;
+		int left, top;
+		win->getMetrics(width, height, depth, left, top);
+
+		//determine if moving or sizing:
+		if( left == event.xconfigure.x && top == event.xconfigure.y )
+		{	//Resize width, height
+			//log->logMessage("Window Resizing...");
+			win->windowMovedOrResized();
+			for( ; start != end; ++start )
+				(start->second)->windowResized(win);
+		}
+		else if( width == event.xconfigure.width && height == event.xconfigure.height )
+		{	//Moving x, y
+			//log->logMessage("Window Moving...");
+			win->windowMovedOrResized();
+			for( ; start != end; ++start )
+				(start->second)->windowMoved(win);
+		}
 		break;
 	case MapNotify:
-		log->logMessage("Window was mapped to the screen");
+		//log->logMessage("Window was mapped to the screen");
 		win->setActive( true );
 		for( ; start != end; ++start )
 			(start->second)->windowFocusChange(win);
 		break;
 	case UnmapNotify:
-		log->logMessage("Window was unmapped to the screen (lost focus)");
+		//log->logMessage("Window was unmapped to the screen (lost focus)");
 		win->setActive( true );
 		for( ; start != end; ++start )
 			(start->second)->windowFocusChange(win);
