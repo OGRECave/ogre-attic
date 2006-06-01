@@ -28,6 +28,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePlatformInformation.h"
 #include "OgreSIMDHelper.h"
+#include "OgreVector3.h"
+#include "OgreMatrix4.h"
 
 //#define __DO_PROFILE__
 #ifdef __DO_PROFILE__
