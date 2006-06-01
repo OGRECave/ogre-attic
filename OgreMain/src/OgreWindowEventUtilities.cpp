@@ -56,7 +56,7 @@ void WindowEventUtilities::messagePump()
 	{
 		::Display* display;
 		XEvent event;
-		(*i)->getCustomAttribute("DISPLAY", display);
+		(*i)->getCustomAttribute("DISPLAY", &display);
 		while(XPending(display) > 0)
 		{
 			XNextEvent(display, &event);
