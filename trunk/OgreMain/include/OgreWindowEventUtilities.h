@@ -96,10 +96,10 @@ namespace Ogre
 		static LRESULT CALLBACK _WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 #endif
 
-	protected:
+		//These are public only so GLXProc can access them
 		typedef std::multimap<RenderWindow*, WindowEventListener*> WindowEventListeners;
-		static WindowEventListeners msListeners;
-
+		static WindowEventListeners _msListeners;
+	protected:
 		typedef std::vector<RenderWindow*> Windows;
 		static Windows msWindows;
 	};
