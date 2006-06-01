@@ -382,10 +382,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OgreGUIRenderer", "Samples\
 		{35AFBABB-DF05-43DE-91A7-BB828A874015} = {35AFBABB-DF05-43DE-91A7-BB828A874015}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlayPen", "Tests\PlayPen\scripts\PlayPen.vcproj", "{430448E6-E03B-4645-B505-A4857368BB93}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo_DeferredShading", "Samples\DeferredShading\scripts\Demo_DeferredShading.vcproj", "{64715BCF-1A2B-46E0-9E6C-18470FAC8D4D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{80DECC17-BDDD-4412-8CF8-F7C1C17A7436} = {80DECC17-BDDD-4412-8CF8-F7C1C17A7436}
@@ -602,10 +598,6 @@ Global
 		{2250CA22-7F4D-4BC0-A8E7-B4400D209B33}.Debug.Build.0 = Debug|Win32
 		{2250CA22-7F4D-4BC0-A8E7-B4400D209B33}.Release.ActiveCfg = Release|Win32
 		{2250CA22-7F4D-4BC0-A8E7-B4400D209B33}.Release.Build.0 = Release|Win32
-		{430448E6-E03B-4645-B505-A4857368BB93}.Debug.ActiveCfg = Debug|Win32
-		{430448E6-E03B-4645-B505-A4857368BB93}.Debug.Build.0 = Debug|Win32
-		{430448E6-E03B-4645-B505-A4857368BB93}.Release.ActiveCfg = Release|Win32
-		{430448E6-E03B-4645-B505-A4857368BB93}.Release.Build.0 = Release|Win32
 		{64715BCF-1A2B-46E0-9E6C-18470FAC8D4D}.Debug.ActiveCfg = Debug|Win32
 		{64715BCF-1A2B-46E0-9E6C-18470FAC8D4D}.Debug.Build.0 = Debug|Win32
 		{64715BCF-1A2B-46E0-9E6C-18470FAC8D4D}.Release.ActiveCfg = Release|Win32
