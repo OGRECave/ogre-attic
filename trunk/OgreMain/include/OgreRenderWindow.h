@@ -94,11 +94,11 @@ namespace Ogre
         */
         virtual void resize(unsigned int width, unsigned int height) = 0;
 
-		/** Notify that the window has been resized externally.
-		@remarks
-			You don't need to call this unless you created the window externally.
-		*/
-		virtual void windowMovedOrResized() {}
+	/** Notify that the window has been resized
+	@remarks
+		You don't need to call this unless you created the window externally.
+	*/
+	virtual void windowMovedOrResized() {}
 
         /** Reposition the window.
         */
