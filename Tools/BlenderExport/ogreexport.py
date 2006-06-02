@@ -1079,6 +1079,7 @@ class ArmatureExporter:
                             boneMat = pose_mat * matrix * parent_invPoseMat
                             # calc change in rotation from rest position to current frame
                             rotQuat =  DifferenceQuats(bone.rotQuat, boneMat.rotationPart().toQuat())
+                            rotQuat.normalize()
                             # need the translation change between restpose and current sampled pose
                             #print "rest bone loc (Ogre): ", bone.loc
                             # Ogre's deltaT is in the bone's parent coordinate system
@@ -1365,7 +1366,7 @@ class ArmatureExporter:
                 x, y, z = bone.loc
                 f.write(tab(3)+"<position x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (x, y, z))
     
-                f.write(tab(3)+"<rotation angle=\"%.6f\">\n" % (bone.rotQuat.angle/360*2*math.pi))
+                f.write(tab(3)+"<rotation angle=\"%.6f\">\n" % (bone.rotQuat.angle/180*math.pi))
                 f.write(tab(4)+"<axis x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % tuple(bone.rotQuat.axis))
                 f.write(tab(3)+"</rotation>\n")
                 f.write(tab(2)+"</bone>\n")
@@ -1398,7 +1399,7 @@ class ArmatureExporter:
                     f.write(tab(6)+"<keyframe time=\"%f\">\n" % keyframe.time)
                     x, y, z = keyframe.loc
                     f.write(tab(7)+"<translate x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (x, y, z))
-                    f.write(tab(7)+"<rotate angle=\"%.6f\">\n" % (keyframe.rotQuat.angle/360*2*math.pi))
+                    f.write(tab(7)+"<rotate angle=\"%.6f\">\n" % (keyframe.rotQuat.angle/180*math.pi))
                     
                     f.write(tab(8)+"<axis x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % tuple(keyframe.rotQuat.axis))
                     f.write(tab(7)+"</rotate>\n")
