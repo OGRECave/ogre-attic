@@ -169,7 +169,6 @@ LRESULT CALLBACK WindowEventUtilities::_WndProc(HWND hWnd, UINT uMsg, WPARAM wPa
 //--------------------------------------------------------------------------------//
 void GLXProc( RenderWindow* win, ::Display* disp, const XEvent &event )
 {
-	//LogManager* log = LogManager::getSingletonPtr();
 	//Iterator of all listeners registered to this RenderWindow
 	WindowEventUtilities::WindowEventListeners::iterator 
 		start = WindowEventUtilities::_msListeners.lower_bound(win),
@@ -184,7 +183,6 @@ void GLXProc( RenderWindow* win, ::Display* disp, const XEvent &event )
 
 		if(event.xclient.format == 32 && event.xclient.data.l[0] == (long)atom)
 		{	//Window Closed (via X button)
-			//log->logMessage("X Button Closing.. Window being destroyed");
 			win->destroy();
 			for( ; start != end; ++start )
 				(start->second)->windowClosed(win);
@@ -199,33 +197,29 @@ void GLXProc( RenderWindow* win, ::Display* disp, const XEvent &event )
 		//determine if moving or sizing:
 		if( left == event.xconfigure.x && top == event.xconfigure.y )
 		{	//Resize width, height
-			//log->logMessage("Window Resizing...");
 			win->windowMovedOrResized();
 			for( ; start != end; ++start )
 				(start->second)->windowResized(win);
 		}
 		else if( width == event.xconfigure.width && height == event.xconfigure.height )
 		{	//Moving x, y
-			//log->logMessage("Window Moving...");
 			win->windowMovedOrResized();
 			for( ; start != end; ++start )
 				(start->second)->windowMoved(win);
 		}
 		break;
-	case MapNotify:
-		//log->logMessage("Window was mapped to the screen");
+	case MapNotify:   //Restored
 		win->setActive( true );
 		for( ; start != end; ++start )
 			(start->second)->windowFocusChange(win);
 		break;
-	case UnmapNotify:
-		//log->logMessage("Window was unmapped to the screen (lost focus)");
-		win->setActive( true );
+	case UnmapNotify: //Minimised
+		win->setActive( false );
+		win->setVisible( false );
 		for( ; start != end; ++start )
 			(start->second)->windowFocusChange(win);
 		break;
 	case VisibilityNotify:
-		//Visibility status changed
 		switch(event.xvisibility.state)
 		{
 		case VisibilityUnobscured:
@@ -240,7 +234,14 @@ void GLXProc( RenderWindow* win, ::Display* disp, const XEvent &event )
 			win->setActive( false );
 			win->setVisible( false );
 			break;
-		} //End switch visibility.state
+		}
+
+		//Notify Listeners that focus of window has changed in some way
+		for( ; start != end; ++start )
+			(start->second)->windowFocusChange(win);
+		break;
+	default:
+		break;
 	} //End switch event.type
 }
 #endif
