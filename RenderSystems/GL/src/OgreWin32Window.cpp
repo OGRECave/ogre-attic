@@ -437,7 +437,10 @@ namespace Ogre {
 		if ( state == false )
 		{	//Restore Desktop
 			mActive = false;
-			ChangeDisplaySettings(NULL, 0);
+			if (mIsFullScreen)
+			{
+				ChangeDisplaySettings(NULL, 0);
+			}
 			ShowWindow(mHWnd, SW_SHOWMINNOACTIVE);
 		}
 		else
@@ -445,18 +448,21 @@ namespace Ogre {
 			mActive = true;
 			ShowWindow(mHWnd, SW_SHOWNORMAL);
 
-			DEVMODE dm;
-			dm.dmSize = sizeof(DEVMODE);
-			dm.dmBitsPerPel = mColourDepth;
-			dm.dmPelsWidth = mWidth;
-			dm.dmPelsHeight = mHeight;
-			dm.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-			if (mDisplayFrequency)
+			if (mIsFullScreen)
 			{
-				dm.dmDisplayFrequency = mDisplayFrequency;
-				dm.dmFields |= DM_DISPLAYFREQUENCY;
+				DEVMODE dm;
+				dm.dmSize = sizeof(DEVMODE);
+				dm.dmBitsPerPel = mColourDepth;
+				dm.dmPelsWidth = mWidth;
+				dm.dmPelsHeight = mHeight;
+				dm.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+				if (mDisplayFrequency)
+				{
+					dm.dmDisplayFrequency = mDisplayFrequency;
+					dm.dmFields |= DM_DISPLAYFREQUENCY;
+				}
+				ChangeDisplaySettings(&dm, CDS_FULLSCREEN);
 			}
-			ChangeDisplaySettings(&dm, CDS_FULLSCREEN);
 		}
 	}
 }
