@@ -230,15 +230,15 @@ void GLXProc( RenderWindow* win, ::Display* disp, const XEvent &event )
 		{
 		case VisibilityUnobscured:
 			win->setActive( true );
-			//win->setVisible( true ); //xxx: Not a method.. Should it be :?:
+			win->setVisible( true );
 			break;
 		case VisibilityPartiallyObscured:
 			win->setActive( false );
-			//win->setVisible( true ); //xxx: Not a method.. Should it be :?:
+			win->setVisible( true );
 			break;
 		case VisibilityFullyObscured:
 			win->setActive( false );
-			//win->setVisible( false ); //xxx: Not a method.. Should it be :?:
+			win->setVisible( false );
 			break;
 		} //End switch visibility.state
 	} //End switch event.type
