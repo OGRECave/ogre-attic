@@ -52,7 +52,7 @@ KEEP_SETTINGS = 1
 # OGRE_XML_CONVERTER
 #  the command line used to run the OgreXMLConverter tool.
 #  Set to '' to disable automatical conversion of XML files.
-OGRE_XML_CONVERTER = 'C:\\softwaredevelopment\\c++\\ogrenew\\tools\\common\\bin\\release\\OgreXMLConverter.exe'
+OGRE_XML_CONVERTER = ''
 
 # OGRE_VERTEXCOLOUR_BGRA
 #  workaround for Ogre's vertex colour conversion bug.
@@ -375,7 +375,6 @@ class ArmatureAction:
            @return a dictionary of ArmatureAction objects with name as key and ArmatureAction as value
         """
         # create bone dict
-        #boneQueue = object.getData().bones
         boneDict = object.getData().bones
 
         boneNameList = boneDict.keys()
@@ -468,7 +467,6 @@ class ArmatureActionActuatorListView:
         self.startFrameNumberButtonList = []
         self.endFrameNumberButtonList = []
         self.animationNameStringButtonList = []
-        self.poseSamplingEnabled = True
         # scrollbar values:
         #   0:(len(self.armatureActionActuatorList)-1) = listIndex
         #   len(self.armatureActionActuatorList) = addbuttonline
@@ -661,8 +659,6 @@ class ArmatureActionActuatorListView:
             listIndex = relativeEvent - (3 + 4*self.maxActuators)
             self._deleteArmatureActionActuator(listIndex)
             Blender.Draw.Redraw(1)
-        elif (event == BUTTON_EVENT_POSESAMPLINGTOGGLE): # poseSamplingToggle
-            self.poseSamplingEnabled = not self.poseSamplingEnabled
         return
         
     def getArmatureAnimationDictList(self):
@@ -924,7 +920,7 @@ class ObjectExporter:
     def getName(self):
         """Returns the name of the object.
         """
-        return self.object.getName()
+        return self.object.name
     
     def getObjectMatrix(self):
         """Returns the object matrix in worldspace.
@@ -944,6 +940,7 @@ class ArmatureExporter:
         """
         self.meshObject = meshObject
         self.armatureObject = armatureObject
+        self.armature = armatureObject.getData()
         self.skeleton = None
         return
     
@@ -959,21 +956,23 @@ class ArmatureExporter:
         name = None
         print "AmatureExporter.export"
         if exportOptions.useWorldCoordinates:
-            name = self.armatureObject.getData(True)
+            name = self.armature.name
         else:
             name = self.meshObject.getData(True) + "-"
-            name += self.armatureObject.getData(True)
+            name += self.armature.name
             
         print "Skeleton: ", name
         skeleton = Skeleton(name)
         skeleton = self._convertRestpose(skeleton, exportOptions, logger)
         
         # convert ActionActuators into Animations
-        
-        if poseSamplingToggle.val:
-            self._convertPoseSampled_Animations(skeleton, actionActuatorList, exportOptions, exportLogger)
-        else:
-            self._convertIPO_Animations(skeleton, actionActuatorList, exportOptions, exportLogger)
+        try:
+            if poseSamplingToggle.val:
+                self._convertPoseSampled_Animations(skeleton, actionActuatorList, exportOptions, exportLogger)
+            else:
+                self._convertIPO_Animations(skeleton, actionActuatorList, exportOptions, exportLogger)
+        except:
+            print "an unknown exception has occured"
         
         # write to file
         self._toFile(skeleton, exportOptions, exportLogger)
@@ -987,7 +986,6 @@ class ArmatureExporter:
         print "in AmatureExporter._convertPoseSampled_Animations()"
         
         #keep track of original frame before sampling starts so that it can be restored at the end of export
-        oFrame = Blender.Get("curframe")
         Blender.Set("curframe", 0)
         # do a redraw so pose channels get updated
         # redrawing the 3d view forces the pose channels to update
@@ -998,19 +996,19 @@ class ArmatureExporter:
         fps = Blender.Scene.GetCurrent().getRenderingContext().framesPerSec()
         actionDict = Blender.Armature.NLA.GetActions()
         # map armatureActionActuatorList to skeleton.animationsDict
-        armatureObj = self.armatureObject
+        
         # for each animation, construct bone tracks then for each frame sample the bone pose channels and add
         # the changes as key frames to the associated bone track
         print "processing armature action actuators"
         for armatureActionActuator in armatureActionActuatorList:
             # map armatureActionActuator to animation
             # activate the armature for current action so that pose channels get setup
-            actionDict[armatureActionActuator.armatureAction.name].setActive(armatureObj)
-            pose = armatureObj.getPose()
-            armatureBonesDict = armatureObj.getData().bones
+            print "processing action: ", armatureActionActuator.armatureAction.name
+            actionDict[armatureActionActuator.armatureAction.name].setActive(self.armatureObject)
+            pose = self.armatureObject.getPose()
             
             #default to world coordinates
-            matrix = armatureObj.getMatrix("worldspace")
+            matrix = self.armatureObject.matrixWorld
             if not exportOptions.useWorldCoordinates:
                 # use local mesh coordinates
                 matrix *= Matrix(self.meshObject.getMatrix()).invert()
@@ -1020,18 +1018,19 @@ class ArmatureExporter:
             # create new animation for active armature action actuator
             
             if (not skeleton.animationsDict.has_key(armatureActionActuator.name)):
-                # create animation
+                print "creating new animation: ", armatureActionActuator.name
                 animation = Animation(armatureActionActuator.name)
                 # map bones to tracks
                 # setup all track:bone relationships for active animation before sampling starts
                 # for each bone in armature
+                print "building tracks for bones that deform the mesh"
                 for bone in skeleton.bones:
                     # only build tracks for those bones that deform geometry
                     if bone.deformMesh:
-                        # creat track for active bone and add to active animation
+                        print "creating track for active bone: ", bone.name
                         Track(animation, bone)
 
-                # calc min and max frames
+                print "calculating min and max frames for animation"
                 if (armatureActionActuator.startFrame > armatureActionActuator.endFrame):
                     minFrame = armatureActionActuator.endFrame
                     maxFrame = armatureActionActuator.startFrame + 1
@@ -1039,10 +1038,10 @@ class ArmatureExporter:
                     minFrame = armatureActionActuator.startFrame
                     maxFrame = armatureActionActuator.endFrame + 1
                     
-                # update animation duration
+                print "updating animation duration"
                 animation.duration = (maxFrame - minFrame - 1)/fps
                 
-                # for first frame to last frame of action
+                print "sampling pose bones for first frame to last frame of action"
                 for frame in range(int(minFrame), int(maxFrame)):
                     print "Frame: ", frame
                     # set frame and update 3D view so pose channels update
@@ -1055,11 +1054,10 @@ class ArmatureExporter:
                         # only add keyframes to bone track if bone deforms geometry
                         if bone.deformMesh:
             
-                            #sample pose channels for data
+                            print "sampling pose channel for poseMatrix of: ", bone.name
                                 
                             pose_mat = pose.bones[bone.name].poseMatrix
                             #parent_pose_mat = None
-                            bone = skeleton.bonesDict[bone.name]
                             if bone.parent:
                                 parent_pose_mat = pose.bones[bone.parent.name].poseMatrix
                             else:
@@ -1087,7 +1085,29 @@ class ArmatureExporter:
                             size = (sizeX, sizeY, sizeZ)
                             # get track for active bone from tack dictionary of active animation
                             track = animation.tracksDict[bone.name]
-                            KeyFrame(track, time, loc, rotQuat, size)
+                            # does a new keyframe need to be added?
+                            prevKeyFrameID = len(track.keyframes) - 1
+                            if (prevKeyFrameID >= 0):
+                                print "getting previous key frame to check for duplication"
+                                prevKeyFrame = track.keyframes[prevKeyFrameID]
+                                print "checking for duplication"
+                                quatEqual = Vector([prevKeyFrame.rotQuat[0], prevKeyFrame.rotQuat[1], prevKeyFrame.rotQuat[2], prevKeyFrame.rotQuat[3]])
+                                quatEqual -= Vector([rotQuat[0], rotQuat[1], rotQuat[2], rotQuat[3]])
+                                quatEqual = quatEqual.length < 0.0001
+                                if ((prevKeyFrame.loc - loc).length < 0.0001) & quatEqual:
+                                    if prevKeyFrame.repeat:
+                                        # advance time of repeating keyframe and don't add new keyframe
+                                        prevKeyFrame.time = time
+                                    else:
+                                        print "adding new repeat keyframe"
+                                        KeyFrame(track, time, loc, rotQuat, size, True)
+                                else:
+                                    print "adding new keyframe"
+                                    KeyFrame(track, time, loc, rotQuat, size)
+                            else:
+                                print "adding first keyframe"
+                                KeyFrame(track, time, loc, rotQuat, size)
+                                
                             print "key frame added for bone ", bone.name
                             
                 # append animation
@@ -1097,7 +1117,7 @@ class ArmatureExporter:
                 exportLogger.logError("Ambiguous animation name \"%s\"." % armatureActionActuator.name)
                 
         # set current frame to original frame prior to export
-        Blender.Set("curframe", oFrame)
+        Blender.Set("curframe", 0)
         Blender.Window.Redraw()
         return
     
@@ -1109,16 +1129,15 @@ class ArmatureExporter:
         fps = Blender.Scene.GetCurrent().getRenderingContext().framesPerSec()
         actionDict = Blender.Armature.NLA.GetActions()
         # map armatureActionActuatorList to skeleton.animationsDict
-        armatureObj = self.armatureObject
+        
         for armatureActionActuator in armatureActionActuatorList:
             # map armatureActionActuator to animation
-            armatureBonesDict = armatureObj.getData().bones
             
             #default to world coordinates
-            matrix = armatureObj.getMatrix("worldspace")
+            matrix = self.armatureObject.matrixWorld
             if not exportOptions.useWorldCoordinates:
                 # use local mesh coordinates
-                matrix *= Matrix(self.meshObject.getMatrix()).invert()
+                matrix *= Matrix(self.meshObject.matrixWorld).invert()
             # apply additional export transformation
             matrix *= exportOptions.transformationMatrix()
                 
@@ -1130,6 +1149,8 @@ class ArmatureExporter:
                     if (not(animation.tracksDict.has_key(boneName))):
                         # get bone object
                         if skeleton.bonesDict.has_key(boneName):
+                            if not skeleton.bonesDict[boneName].deformMesh:
+                                continue
                             print boneName
                             # create track
                             track = Track(animation, skeleton.bonesDict[boneName])
@@ -1261,21 +1282,25 @@ class ArmatureExporter:
             # do a redraw so pose channels get updated
             # to current frame. The 3D view must be displayed for this to work.
             Blender.Window.Redraw()
-        obj = self.armatureObject
+        
         stack = []
         # make a 4x4 identity matrix
-        matrix = obj.getMatrix("worldspace")
+        matrix = self.armatureObject.matrixWorld
         if not exportOptions.useWorldCoordinates:
             # local mesh coordinates
-            matrix *= Matrix(self.meshObject.getMatrix()).invert()
+            matrix *= Matrix(self.meshObject.matrixWorld).invert()
         # apply additional export transformation
         matrix *= exportOptions.transformationMatrix()
         parent = None
         
         # get parent bones
         #note: in Blender 2.4, bones returns a dictionary of all bones in an armature
-        boneDict = obj.getData().bones
-        for bbone in boneDict.values():
+        print "getting armature data from armature object"
+        print self.armatureObject
+        
+        print "getting bones dictionary from armature"
+        print "adding parent bones to stack"
+        for bbone in self.armature.bones.values():
             print bbone, bbone.parent
             if bbone.parent == None:
                 stack.append([bbone, parent, matrix, Matrix()])
@@ -1392,6 +1417,13 @@ class ArmatureExporter:
             
             f.write(tab(3)+"<tracks>\n")
             for track in animation.tracksDict.values():
+                # do not ouput tracks that don't do anything
+                if len(track.keyframes) == 2:
+                    keyframe = track.keyframes[1]
+                    if keyframe.repeat:
+                        if (keyframe.rotQuat.angle == 0.0) & (keyframe.loc.length < 0.0001):
+                            continue
+                        
                 f.write(tab(4)+"<track bone=\"%s\">\n" % track.bone.name)
                 f.write(tab(5)+"<keyframes>\n")
                 
@@ -1454,7 +1486,7 @@ class ArmatureMeshExporter(ObjectExporter):
         self._convertToMesh(materialsDict, exportOptions, logger)
         return materialsDict
     def getName(self):
-        return self.object.getData().name
+        return self.object.getData(True)
     
     def _convertToMesh(self, materialsDict, exportOptions, logger):
         """Creates meshes in form of the armature bones.
@@ -1466,10 +1498,10 @@ class ArmatureMeshExporter(ObjectExporter):
         matrix = None
         if exportOptions.useWorldCoordinates:
             # world coordinates
-            matrix = obj.getMatrix("worldspace")
+            matrix = obj.matrixWorld
         else:
             # local mesh coordinates
-            armatureMatrix = obj.getMatrix("worldspace")
+            armatureMatrix = obj.matrixWorld
             # note that blender returns direct access to the objects matrix but we only want
             # a copy so force a copy
             inverseMeshMatrix = Matrix(self.getObjectMatrix()).invert()
@@ -2891,11 +2923,12 @@ class Track:
     animation.tracksDict[bone.name] = self
     
 class KeyFrame:
-  def __init__(self, track, time, loc, rotQuat, scale):
+  def __init__(self, track, time, loc, rotQuat, scale, repeat = False):
     self.time = time
     self.loc  = loc
     self.rotQuat  = rotQuat
     self.scale = scale
+    self.repeat = repeat
     
     self.track = track
     track.keyframes.append(self)
@@ -3106,15 +3139,14 @@ def export_mesh(object, exportOptions):
         skeleton = None
         print "Exporting: ", object
         if armatureToggle.val:
-            parent = None
-            parent = object.getParent()
+            parent = object.parent
             print parent
             #if parent and parent.getType() == "Armature" and (not skeletonsDict.has_key(parent.getName())):
             if (parent and (parent.getType() == "Armature")):
                 print "is an armature"
-                if armatureActionActuatorListViewDict.has_key(parent.getName()):
-                    print "list view has the key"
-                    actionActuatorList = armatureActionActuatorListViewDict[parent.getName()].armatureActionActuatorList
+                if armatureActionActuatorListViewDict.has_key(parent.name):
+                    print "list view has the key for armature: ", parent.name
+                    actionActuatorList = armatureActionActuatorListViewDict[parent.name].armatureActionActuatorList
                     armatureExporter = ArmatureExporter(object, parent)
                     armatureExporter.export(actionActuatorList, exportOptions, exportLogger)
                     skeleton = armatureExporter.skeleton
@@ -3299,12 +3331,12 @@ def export(selectedObjectsList):
       for obj in selectedObjectsList:
           if obj:
               if obj.getType() == "Mesh":
-                  exportLogger.logInfo("Exporting object \"%s\":" % obj.getName())
+                  exportLogger.logInfo("Exporting object \"%s\":" % obj.name)
                   export_mesh(obj, exportOptions)
                   n = 1
               elif obj.getType() == "Armature":
-                  exportLogger.logInfo("Exporting object \"%s\":" % obj.getName())
-                  actionActuatorList = armatureActionActuatorListViewDict[obj.getName()].armatureActionActuatorList
+                  exportLogger.logInfo("Exporting object \"%s\":" % obj.name)
+                  actionActuatorList = armatureActionActuatorListViewDict[obj.name].armatureActionActuatorList
                   armatureMeshExporter = ArmatureMeshExporter(obj)
                   armatureMeshExporter.export(materialsDict, actionActuatorList, exportOptions, exportLogger)
       if n == 0:
@@ -3374,7 +3406,7 @@ def saveSettings():
     armatureNameList = []
     for object in Blender.Object.Get():
         if (object.getType() == "Armature"):
-            armatureNameList.append(object.getName())
+            armatureNameList.append(object.name)
     for armatureName in armatureAnimationDictListDict.keys():
         if not(armatureName in armatureNameList):
             # remove obsolete settings
@@ -3496,7 +3528,7 @@ def loadSettings(filename):
         armatureNameList = []
         for object in Blender.Object.Get():
             if (object.getType() == "Armature"):
-                armatureNameList.append(object.getName())
+                armatureNameList.append(object.name)
         # create armatureAnimationDictListDict
         armatureAnimationDictListDict = {}
         animationDictListDict = settingsDict['animationDictListDict']
@@ -3530,12 +3562,12 @@ def refreshGUI():
     for object in selectedObjectsList:
         if (object.getType() == "Armature"):
             # add armature to armatureDict
-            armatureDict[object.getName()] = object.getName()
+            armatureDict[object.name] = object.name
         elif (object.getType() == "Mesh"):
-            parent = object.getParent()
+            parent = object.parent
             if parent and parent.getType() == "Armature":
                 # add armature to armatureDict
-                armatureDict[object.getName()] = parent.getName()
+                armatureDict[object.name] = parent.name
     # refresh ArmatureActionActuatorListViews
     for armatureName in armatureDict.values():
         # create armatureActionDict
@@ -3556,6 +3588,7 @@ def initGUI():
     """initialization of the GUI
     """
     global armatureActionActuatorListViewDict
+    print "initializing GUI"
     if KEEP_SETTINGS:
         # load exporter settings
         loadSettings(Blender.Get('filename')+".ogre")
@@ -3597,7 +3630,7 @@ def eventCallback(event,value):
     # eventFilter for current ArmatureActionActuatorListView
     if (len(selectedObjectsList) > 0):
         selectedObjectsListIndex = selectedObjectsMenu.val
-        selectedObjectName = selectedObjectsList[selectedObjectsListIndex].getName()
+        selectedObjectName = selectedObjectsList[selectedObjectsListIndex].name
         if armatureDict.has_key(selectedObjectName):
             armatureName = armatureDict[selectedObjectName]
             armatureActionActuatorListViewDict[armatureName].eventFilter(event, value)
@@ -3792,7 +3825,7 @@ def gui():
     if (len(selectedObjectsList) > 0):
         for object in selectedObjectsList:
             # add menu string
-            selectedObjectsMenuName += object.getName() + " %x" + ("%d" % selectedObjectsMenuIndex) + "|"
+            selectedObjectsMenuName += object.name + " %x" + ("%d" % selectedObjectsMenuIndex) + "|"
             selectedObjectsMenuIndex += 1
     else:
         selectedObjectsMenuName = "No objects selected! %t"
@@ -3813,7 +3846,7 @@ def gui():
                 # draw Use Pose Sampling button
                 poseSamplingToggle = Draw.Toggle("Use Pose Sampling", BUTTON_EVENT_POSESAMPLINGTOGGLE, \
                     remainRect[0]+xOffset, remainRect[3]-20, 120, 20, \
-                    armatureActionActuatorListViewDict[armatureName].poseSamplingEnabled, \
+                    poseSamplingToggle.val, \
                     "use pose sampling so that IK and constraints are used")
                 
                 remainRect[3] -= 25
@@ -3948,5 +3981,6 @@ def doneMessageBox():
 # Main
 ######
 if (__name__ == "__main__"):
+    print "Ogre export script starting..."
     initGUI()
     Draw.Register(gui, eventCallback, buttonCallback)
