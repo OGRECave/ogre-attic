@@ -108,6 +108,10 @@ namespace Ogre
         */
         virtual bool isVisible(void) const { return true; }
 
+        /** Set the visibility state
+        */
+        virtual void setVisible(bool visible) {}
+
         /** Overridden from RenderTarget, flags invisible windows as inactive
         */
         virtual bool isActive(void) const { return mActive && isVisible(); }
