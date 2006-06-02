@@ -108,7 +108,6 @@ pkginclude_HEADERS = Ogre.h \
                      OgrePlaneBoundedVolume.h \
                      OgrePlatform.h \
                      OgrePose.h \
-                     OgrePositionTarget.h \
                      OgrePredefinedControllers.h \
                      OgrePrerequisites.h \
                      OgreProfiler.h \
