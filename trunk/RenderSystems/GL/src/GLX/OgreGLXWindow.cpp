@@ -386,7 +386,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 //-------------------------------------------------------------------------------------------------//
 void GLXWindow::destroy(void)
 {
-	WindowEventUtilities::_addRenderWindow(this);
+	WindowEventUtilities::_removeRenderWindow(this);
 
 	// Unregister and destroy OGRE GLContext
 	delete mContext;
