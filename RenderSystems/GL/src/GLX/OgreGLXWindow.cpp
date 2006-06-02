@@ -402,6 +402,7 @@ void GLXWindow::destroy(void)
 	mWindow = 0;
 	mGlxContext = 0;
 	mActive = false;
+	mVisible = false;
 	mClosed = true;
 
 	Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
@@ -423,6 +424,12 @@ bool GLXWindow::isClosed() const
 bool GLXWindow::isVisible() const
 {
 	return mVisible;
+}
+
+//-------------------------------------------------------------------------------------------------//
+void GLXWindow::setVisible(bool visible)
+{
+	mVisible = visible;
 }
 
 //-------------------------------------------------------------------------------------------------//
