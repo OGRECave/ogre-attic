@@ -1088,27 +1088,27 @@ class ArmatureExporter:
                             # does a new keyframe need to be added?
                             prevKeyFrameID = len(track.keyframes) - 1
                             if (prevKeyFrameID >= 0):
-                                print "getting previous key frame to check for duplication"
                                 prevKeyFrame = track.keyframes[prevKeyFrameID]
-                                print "checking for duplication"
+                                print "checking for key frame duplication"
                                 quatEqual = Vector([prevKeyFrame.rotQuat[0], prevKeyFrame.rotQuat[1], prevKeyFrame.rotQuat[2], prevKeyFrame.rotQuat[3]])
                                 quatEqual -= Vector([rotQuat[0], rotQuat[1], rotQuat[2], rotQuat[3]])
                                 quatEqual = quatEqual.length < 0.0001
                                 if ((prevKeyFrame.loc - loc).length < 0.0001) & quatEqual:
                                     if prevKeyFrame.repeat:
                                         # advance time of repeating keyframe and don't add new keyframe
+                                        #print "updating time on previous repeat keyframe"
                                         prevKeyFrame.time = time
                                     else:
-                                        print "adding new repeat keyframe"
+                                        #print "adding new repeat keyframe"
                                         KeyFrame(track, time, loc, rotQuat, size, True)
                                 else:
-                                    print "adding new keyframe"
+                                    #print "adding new keyframe"
                                     KeyFrame(track, time, loc, rotQuat, size)
                             else:
-                                print "adding first keyframe"
+                                #print "adding first keyframe"
                                 KeyFrame(track, time, loc, rotQuat, size)
                                 
-                            print "key frame added for bone ", bone.name
+                            #print "key frame added for bone ", bone.name
                             
                 # append animation
                 skeleton.animationsDict[armatureActionActuator.name] = animation
@@ -1429,12 +1429,15 @@ class ArmatureExporter:
                 
                 for keyframe in track.keyframes:
                     f.write(tab(6)+"<keyframe time=\"%f\">\n" % keyframe.time)
-                    x, y, z = keyframe.loc
-                    f.write(tab(7)+"<translate x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (x, y, z))
-                    f.write(tab(7)+"<rotate angle=\"%.6f\">\n" % (keyframe.rotQuat.angle/180*math.pi))
-                    
-                    f.write(tab(8)+"<axis x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % tuple(keyframe.rotQuat.axis))
-                    f.write(tab(7)+"</rotate>\n")
+                    # only output translation if its not the default value
+                    if keyframe.loc.length > 0.0001:
+                        x, y, z = keyframe.loc
+                        f.write(tab(7)+"<translate x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (x, y, z))
+                    # only output totation if its not the default value
+                    if keyframe.rotQuat.angle != 0.0:
+                        f.write(tab(7)+"<rotate angle=\"%.6f\">\n" % (keyframe.rotQuat.angle/180*math.pi))
+                        f.write(tab(8)+"<axis x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % tuple(keyframe.rotQuat.axis))
+                        f.write(tab(7)+"</rotate>\n")
                     # only output scale if its not the default value
                     if keyframe.scale != (1, 1, 1):
                         f.write(tab(7)+"<scale x=\"%f\" y=\"%f\" z=\"%f\"/>\n" % keyframe.scale)
