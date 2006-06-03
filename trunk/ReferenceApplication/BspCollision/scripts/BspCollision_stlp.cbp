@@ -24,6 +24,7 @@
 				<Linker>
 					<Add library="OgreMain_d" />
 					<Add library="ReferenceAppLayer" />
+					<Add library="ois_d" />
 					<Add library="stlportstlg.5.0" />
 					<Add directory="..\..\Dependencies\lib\Debug" />
 					<Add directory="..\..\ReferenceAppLayer\lib\Debug" />
@@ -48,6 +49,7 @@
 					<Add option="-s" />
 					<Add library="OgreMain" />
 					<Add library="ReferenceAppLayer" />
+					<Add library="ois" />
 					<Add library="stlport.5.0" />
 					<Add directory="..\..\Dependencies\lib\Release" />
 					<Add directory="..\..\ReferenceAppLayer\lib\Release" />
@@ -69,6 +71,7 @@
 			<Add directory="..\..\..\OgreMain\include" />
 			<Add directory="..\..\..\Dependencies\include" />
 			<Add directory="..\..\ReferenceAppLayer\include" />
+			<Add directory="..\..\..\Dependencies\include\ois" />
 		</Compiler>
 		<Linker>
 			<Add option="-Wl,--enable-auto-image-base" />
