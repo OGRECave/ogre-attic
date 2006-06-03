@@ -233,7 +233,8 @@ public:
     bool frameStarted( const FrameEvent& evt )
     {
 	using namespace OIS;
-        bool bOK = ExampleFrameListener::frameStarted( evt );
+        if( ExampleFrameListener::frameStarted( evt ) == false )
+		return false;
 		
         if( mKeyboard->isKeyDown( KC_1 ) ) {
         	k -= FROMFLOAT(0.005f*evt.timeSinceLastFrame);
@@ -281,7 +282,7 @@ public:
 		buildTexture();
 		swim->addTime(evt.timeSinceLastFrame);
 
-        return bOK;
+        return true;
     }
 
 	virtual ~DynTexFrameListener(void)

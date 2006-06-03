@@ -125,7 +125,8 @@ public:
     {
 	using namespace OIS;
 	static float mTimeUntilNextToggle = 0.0f;
-        bool bOK = ExampleFrameListener::frameStarted( evt );
+        if( ExampleFrameListener::frameStarted( evt ) == false )
+		return false;
 		
 		mTimeUntilNextToggle -= evt.timeSinceLastFrame;
 		
@@ -157,7 +158,7 @@ public:
 		//fnode->roll(Degree(evt.timeSinceLastFrame * 20.0f));
 		static_cast<ThingRenderable*>(trend)->addTime(evt.timeSinceLastFrame * 0.05f);
 		mOgreAnimState->addTime(evt.timeSinceLastFrame);
-        return bOK;
+        return true;
     }
 	~VolumeTexFrameListener()
 	{

@@ -166,7 +166,8 @@ public:
 
 	bool frameStarted(const FrameEvent& evt)
 	{
-		bool ok = ExampleFrameListener::frameStarted(evt);        
+		if( ExampleFrameListener::frameStarted(evt) == false )
+			return false;
 
 		static Real timeDelay = 0;
 		timeDelay -= evt.timeSinceLastFrame;
@@ -181,12 +182,8 @@ public:
 
 		waveGrass(evt.timeSinceLastFrame);
 
-		return ok;
+		return true;
 	}
-
-
-
-
 };
 
 

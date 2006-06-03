@@ -47,6 +47,9 @@ public:
 
     bool frameStarted(const FrameEvent& evt)
     {
+	if( ExampleFrameListener::frameStarted(evt) == false )
+		return false;
+
         for (int i = 0; i < NUM_JAIQUAS; ++i)
         {
 			Real inc = evt.timeSinceLastFrame * mAnimationSpeed[i]; 
@@ -72,9 +75,7 @@ public:
 			}
         }
 
-        // Call default
-        return ExampleFrameListener::frameStarted(evt);
-
+        return true;
     }
 };
 

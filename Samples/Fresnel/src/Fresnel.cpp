@@ -119,6 +119,9 @@ public:
     {}
     bool frameStarted(const FrameEvent &evt)
     {
+	if( ExampleFrameListener::frameStarted(evt) == false )
+		return false;
+
         animTime += evt.timeSinceLastFrame;
         while (animTime > FISH_PATH_LENGTH)
             animTime -= FISH_PATH_LENGTH;
@@ -152,9 +155,7 @@ public:
 
         }
 
-
-
-        return ExampleFrameListener::frameStarted(evt);
+        return true;
     }
 
 };

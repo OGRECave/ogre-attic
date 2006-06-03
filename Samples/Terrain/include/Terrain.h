@@ -38,8 +38,10 @@ public:
 
     bool frameStarted(const FrameEvent& evt)
     {
+        if( ExampleFrameListener::frameStarted(evt) == false )
+		return false;
+
         // clamp to terrain
-        bool ret = ExampleFrameListener::frameStarted(evt);
         static Ray updateRay;
         updateRay.setOrigin(mCamera->getPosition());
         updateRay.setDirection(Vector3::NEGATIVE_UNIT_Y);
@@ -54,7 +56,7 @@ public:
                 mCamera->getPosition().z);
         }
 
-        return ret;
+        return true;
 
     }
 

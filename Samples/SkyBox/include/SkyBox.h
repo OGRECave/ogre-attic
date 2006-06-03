@@ -38,7 +38,8 @@ public:
 
     bool frameStarted( const FrameEvent& evt )
     {
-        bool bOK = ExampleFrameListener::frameStarted( evt );
+        if( ExampleFrameListener::frameStarted( evt ) == false )
+		return false;
 
         if( mKeyboard->isKeyDown( OIS::KC_N ) )
         {
@@ -66,7 +67,7 @@ public:
             fDefVel -= 1;            
         }
 
-        return bOK;
+        return true;
     }
 };
 
