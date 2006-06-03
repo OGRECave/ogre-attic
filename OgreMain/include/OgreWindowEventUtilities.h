@@ -139,9 +139,9 @@ namespace Ogre
 		//These are public only so GLXProc can access them without adding Xlib headers header
 		typedef std::multimap<RenderWindow*, WindowEventListener*> WindowEventListeners;
 		static WindowEventListeners _msListeners;
-	protected:
+
 		typedef std::vector<RenderWindow*> Windows;
-		static Windows msWindows;
+		static Windows _msWindows;
 	};
 }
 #endif
