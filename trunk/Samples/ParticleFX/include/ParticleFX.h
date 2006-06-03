@@ -37,12 +37,13 @@ public:
 
     bool frameStarted(const FrameEvent& evt)
     {
-
+	if( ExampleFrameListener::frameStarted(evt) == false )
+		return true;
         // Rotate fountains
         mFountainNode->yaw(Degree(evt.timeSinceLastFrame * 30));
 
         // Call default
-        return ExampleFrameListener::frameStarted(evt);
+        return true;
 
     }
 };

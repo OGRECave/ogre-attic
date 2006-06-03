@@ -95,7 +95,9 @@ public:
 
 	bool frameStarted(const FrameEvent& evt)
 	{
-		bool result = ExampleFrameListener::frameStarted(evt);
+		if( ExampleFrameListener::frameStarted(evt) == false )
+			return false;
+
 		SharedData::getSingleton().iLastFrameTime = evt.timeSinceLastFrame;
 
 		if (SharedData::getSingleton().mAnimState)
@@ -114,7 +116,7 @@ public:
 		
 		if(somethingChanged)
 			SharedData::getSingleton().iSystem->update();
-		return result;        
+		return true;
 	}
 
 	virtual bool processUnbufferedKeyInput(const FrameEvent& evt) {

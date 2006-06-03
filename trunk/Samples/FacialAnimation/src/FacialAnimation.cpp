@@ -134,8 +134,10 @@ public:
 
 	bool frameStarted(const FrameEvent& evt)
 	{
+		if( ExampleFrameListener::frameStarted(evt) == false )
+			return false;
 		speakAnimState->addTime(evt.timeSinceLastFrame);
-		return ExampleFrameListener::frameStarted(evt);
+		return true;
 
 	}
 	//----------------------------------------------------------------//

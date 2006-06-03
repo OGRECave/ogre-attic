@@ -449,8 +449,11 @@ LGPL like the rest of the engine.
 //--------------------------------------------------------------------------
     bool CompositorDemo_FrameListener::frameStarted(const Ogre::FrameEvent& evt)
     {
-		mMouse->capture();
-		mKeyboard->capture();
+	mMouse->capture();
+	mKeyboard->capture();
+
+	if( mMain->getRenderWindow()->isActive() == false )
+		return false;
 
         if (mQuit)
             return false;

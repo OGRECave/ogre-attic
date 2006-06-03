@@ -459,7 +459,13 @@ public:
     {
 		using namespace OIS;
 
-		bool retval = ExampleFrameListener::frameStarted(evt); 
+		if( ExampleFrameListener::frameStarted(evt) == false )
+		{
+			// check if we are exiting, if so, clear static HardwareBuffers to avoid segfault
+			WaterCircle::clearStaticBuffers();
+			return false;
+		}
+
 		mAnimState->addTime(evt.timeSinceLastFrame);
 		
 		// process keyboard events
@@ -518,13 +524,7 @@ public:
 			
 		waterMesh->updateMesh(evt.timeSinceLastFrame);
 			
-		// check if we are exiting, if so, clear static HardwareBuffers to avoid
-		// segfault
-		if (!retval)
-			WaterCircle::clearStaticBuffers();
-
-        // return result from default
-		return retval ;
+		return true;
     }
 };
 
