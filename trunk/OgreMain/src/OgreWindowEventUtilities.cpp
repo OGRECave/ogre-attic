@@ -27,16 +27,17 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderWindow.h"
 #include "OgreLogManager.h"
 #include "OgreRoot.h"
+#include "OgreException.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 #include <X11/Xlib.h>
-void GLXProc( Ogre::RenderWindow* win, ::Display* disp, const XEvent &event );
+void GLXProc( const XEvent &event );
 #endif
 
 using namespace Ogre;
 
 WindowEventUtilities::WindowEventListeners WindowEventUtilities::_msListeners;
-WindowEventUtilities::Windows WindowEventUtilities::msWindows;
+WindowEventUtilities::Windows WindowEventUtilities::_msWindows;
 
 //--------------------------------------------------------------------------------//
 void WindowEventUtilities::messagePump()
@@ -50,17 +51,18 @@ void WindowEventUtilities::messagePump()
 		DispatchMessage( &msg );
 	}
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-	//GLX Message Pump (Loop through each specific RenderWindow we have registered)
-	Windows::iterator i = msWindows.begin(), e = msWindows.end();
+	//GLX Message Pump (Display is probably Common for all RenderWindows.. But, to be safe loop
+	//through all)
+	Windows::iterator i = _msWindows.begin(), e = _msWindows.end();
 	for( ; i != e; ++i )
 	{
 		::Display* display;
-		XEvent event;
 		(*i)->getCustomAttribute("DISPLAY", &display);
 		while(XPending(display) > 0)
 		{
+			XEvent event;
 			XNextEvent(display, &event);
-			GLXProc(*i, display, event);
+			GLXProc(event);
 		}
 	}
 #endif
@@ -90,15 +92,15 @@ void WindowEventUtilities::removeWindowEventListener( RenderWindow* window, Wind
 //--------------------------------------------------------------------------------//
 void WindowEventUtilities::_addRenderWindow(RenderWindow* window)
 {
-	msWindows.push_back(window);
+	_msWindows.push_back(window);
 }
 
 //--------------------------------------------------------------------------------//
 void WindowEventUtilities::_removeRenderWindow(RenderWindow* window)
 {
-	Windows::iterator i = std::find(msWindows.begin(), msWindows.end(), window);
-	if( i != msWindows.end() )
-		msWindows.erase( i );
+	Windows::iterator i = std::find(_msWindows.begin(), _msWindows.end(), window);
+	if( i != _msWindows.end() )
+		_msWindows.erase( i );
 }
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
@@ -167,9 +169,28 @@ LRESULT CALLBACK WindowEventUtilities::_WndProc(HWND hWnd, UINT uMsg, WPARAM wPa
 }
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 //--------------------------------------------------------------------------------//
-void GLXProc( RenderWindow* win, ::Display* disp, const XEvent &event )
+void GLXProc( const XEvent &event )
 {
-	//Iterator of all listeners registered to this RenderWindow
+	//We have to find appropriate window based on window id ( kindof hackish :/,
+	//but at least this only happens when there is a Window's event - and not that often
+	WindowEventUtilities::Windows::iterator i = WindowEventUtilities::_msWindows.begin(),
+						e = WindowEventUtilities::_msWindows.end();
+	RenderWindow* win = 0;
+	for(; i != e; ++i )
+	{
+		std::size_t wind = 0;
+		(*i)->getCustomAttribute("WINDOW", &wind);
+		if( event.xany.window == wind )
+		{
+			win = *i;
+			break;
+		}
+	}
+
+	//Sometimes, seems we get other windows, so just ignore
+	if( win == 0 ) return;
+
+	//Now that we have the correct RenderWindow for the generated Event, get an iterator for the listeners
 	WindowEventUtilities::WindowEventListeners::iterator 
 		start = WindowEventUtilities::_msListeners.lower_bound(win),
 		end   = WindowEventUtilities::_msListeners.upper_bound(win);
@@ -180,7 +201,6 @@ void GLXProc( RenderWindow* win, ::Display* disp, const XEvent &event )
 	{
 		::Atom atom;
 		win->getCustomAttribute("ATOM", &atom);
-
 		if(event.xclient.format == 32 && event.xclient.data.l[0] == (long)atom)
 		{	//Window Closed (via X button)
 			win->destroy();
@@ -227,7 +247,7 @@ void GLXProc( RenderWindow* win, ::Display* disp, const XEvent &event )
 			win->setVisible( true );
 			break;
 		case VisibilityPartiallyObscured:
-			win->setActive( false );
+			win->setActive( true );
 			win->setVisible( true );
 			break;
 		case VisibilityFullyObscured:
