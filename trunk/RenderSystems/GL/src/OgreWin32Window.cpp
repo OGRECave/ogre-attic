@@ -434,22 +434,19 @@ namespace Ogre {
 
 	void Win32Window::setActive( bool state )
 	{
-		if ( state == false )
-		{	//Restore Desktop
-			mActive = false;
-			if (mIsFullScreen)
-			{
-				ChangeDisplaySettings(NULL, 0);
-			}
-			ShowWindow(mHWnd, SW_SHOWMINNOACTIVE);
-		}
-		else
-		{
-			mActive = true;
-			ShowWindow(mHWnd, SW_SHOWNORMAL);
+		mActive = state;
 
-			if (mIsFullScreen)
-			{
+		if( mIsFullScreen )
+		{
+			if( state == false )
+			{	//Restore Desktop
+				ChangeDisplaySettings(NULL, 0);
+				ShowWindow(mHWnd, SW_SHOWMINNOACTIVE);
+			}
+			else
+			{	//Restore App
+				ShowWindow(mHWnd, SW_SHOWNORMAL);
+
 				DEVMODE dm;
 				dm.dmSize = sizeof(DEVMODE);
 				dm.dmBitsPerPel = mColourDepth;
