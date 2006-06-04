@@ -1,5 +1,9 @@
 INCLUDES = $(STLPORT_CFLAGS) $(FT2_CFLAGS) -I$(top_srcdir)/OgreMain/include -DOGRE_NONCLIENT_BUILD $(ZZIPLIB_CFLAGS) $(DEVIL_CFLAGS) $(PLATFORM_CFLAGS)
 
+noinst_LTLIBRARIES = libSSEsupport.la
+libSSEsupport_la_SOURCES = OgreOptimisedUtilSSE.cpp
+libSSEsupport_la_CPPFLAGS = -msse
+
 lib_LTLIBRARIES=libOgreMain.la
 
 libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
@@ -88,6 +92,7 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
 			 OgrePatchMesh.cpp \
                          OgrePatchSurface.cpp \
                          OgrePlane.cpp \
+                         OgrePlatformInformation.cpp \
 			 OgrePose.cpp \
                          OgrePredefinedControllers.cpp \
 			 OgreProfiler.cpp \
@@ -167,7 +172,7 @@ libOgreMain_la_SOURCES +=OgreILImageCodec.cpp \
 endif
 
 platformdir = $(libdir)
-libOgreMain_la_LIBADD= $(STLPORT_LIBS) $(FT2_LIBS) $(ZZIPLIB_LIBS) $(OGRE_THREAD_LIBS) $(PLATFORM_LIBS)
+libOgreMain_la_LIBADD= $(STLPORT_LIBS) $(FT2_LIBS) $(ZZIPLIB_LIBS) $(OGRE_THREAD_LIBS) $(PLATFORM_LIBS) libSSEsupport.la
 libOgreMain_la_LDFLAGS = $(SHARED_FLAGS) -version-info @OGREMAIN_VERSION_INFO@ -Wl,-rpath,$(platformdir)
 #-Wl,--version-script=$(top_srcdir)/OgreMain/src/ogremain.map
 
