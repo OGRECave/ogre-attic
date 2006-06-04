@@ -271,12 +271,6 @@ namespace Ogre {
         */
         void _destroyRenderer(ParticleSystemRenderer* renderer);
 
-        /** Frame event */
-        bool frameStarted(const FrameEvent &evt);
-
-        /** Frame event */
-        bool frameEnded(const FrameEvent &evt);
-
         /** Init method to be called by OGRE system.
         @remarks
             Due to dependencies between various objects certain initialisation tasks cannot be done
