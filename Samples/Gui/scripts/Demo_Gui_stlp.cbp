@@ -25,6 +25,7 @@
 					<Add library="OgreMain_d" />
 					<Add library="CEGUIBase_d" />
 					<Add library="OgreGUIRenderer_d" />
+					<Add library="ois_d" />
 					<Add library="stlportstlg.5.0" />
 				</Linker>
 			</Target>
@@ -48,6 +49,7 @@
 					<Add library="OgreMain" />
 					<Add library="CEGUIBase" />
 					<Add library="OgreGUIRenderer" />
+					<Add library="ois" />
 					<Add library="stlport.5.0" />
 				</Linker>
 			</Target>
@@ -67,6 +69,7 @@
 			<Add directory="..\..\..\Dependencies\include" />
 			<Add directory="..\..\..\Dependencies\include\CEGUI" />
 			<Add directory="..\..\Common\CEGUIRenderer\include" />
+			<Add directory="..\..\..\Dependencies\include\ois" />
 		</Compiler>
 		<Linker>
 			<Add option="-Wl,--enable-auto-image-base" />
