@@ -127,7 +127,10 @@ protected:
 
         rootNode->createChildSceneNode( "Head" )->attachObject( ogreHead );
 
-        RenderTexture* rttTex = mRoot->getRenderSystem()->createRenderTexture( "RttTex", 512, 512, TEX_TYPE_2D, PF_R8G8B8 );
+		TexturePtr texture = TextureManager::getSingleton().createManual( "RttTex", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
+			512, 512, 0, PF_R8G8B8, TU_RENDERTARGET );
+		RenderTarget *rttTex = texture->getBuffer()->getRenderTarget();
         {
             mReflectCam = mSceneMgr->createCamera("ReflectCam");
             mReflectCam->setNearClipDistance(mCamera->getNearClipDistance());
