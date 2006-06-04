@@ -70,6 +70,7 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
 			 OgreMovablePlane.cpp \
                          OgreNode.cpp \
                          OgreOptimisedUtil.cpp \
+                         OgreOptimisedUtilGeneral.cpp \
                          OgreOverlay.cpp \
                          OgreOverlayContainer.cpp \
 			 OgreOverlayElement.cpp \
