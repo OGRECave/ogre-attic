@@ -203,9 +203,11 @@ void GLXProc( const XEvent &event )
 		win->getCustomAttribute("ATOM", &atom);
 		if(event.xclient.format == 32 && event.xclient.data.l[0] == (long)atom)
 		{	//Window Closed (via X button)
-			win->destroy();
+			//Send message first, to allow app chance to unregister things that need done before
+			//window is shutdown
 			for( ; start != end; ++start )
 				(start->second)->windowClosed(win);
+			win->destroy();
 		}
 		break;
 	}
