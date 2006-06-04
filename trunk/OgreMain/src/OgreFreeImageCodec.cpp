@@ -39,6 +39,18 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
 	FreeImageCodec::RegisteredCodecList FreeImageCodec::msCodecList;
+	//---------------------------------------------------------------------
+	void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message) 
+	{
+		// Callback method as required by FreeImage to report problems
+		StringUtil::StrStreamType str;
+		str << "FreeImage error: '" << message << "' when loading format "
+			<< FreeImage_GetFormatFromFIF(fif);
+
+		LogManager::getSingleton().logMessage(str.str());
+
+	}
+	//---------------------------------------------------------------------
 	void FreeImageCodec::startup(void)
 	{
 		// Note: FreeImage needs no explicit initialisation / deinitialisation 
@@ -86,10 +98,14 @@ namespace Ogre {
 			LML_NORMAL,
 			strExt.str());
 
+		// Set error handler
+		FreeImage_SetOutputMessage(FreeImageErrorHandler);
+
 
 
 
 	}
+	//---------------------------------------------------------------------
 	void FreeImageCodec::shutdown(void)
 	{
 		//FreeImage_DeInitialise();
@@ -255,10 +271,8 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Codec::DecodeResult FreeImageCodec::decode(DataStreamPtr& input) const
     {
-		// TODO: error handling
-		
 		// Buffer stream into memory (TODO: override IO functions instead?)
-		MemoryDataStream memStream(input, false);
+		MemoryDataStream memStream(input, true);
 
 		FIMEMORY* fiMem = 
 			FreeImage_OpenMemory(memStream.getPtr(), memStream.size());
@@ -276,8 +290,6 @@ namespace Ogre {
         imgData->num_mipmaps = 0; // no mipmaps in non-DDS 
         imgData->flags = 0;
 
-		// We want to construct a pixelbox for the source data
-		PixelBox src;
 		// Must derive format first, this may perform conversions
 		
 		FREE_IMAGE_TYPE imageType = FreeImage_GetImageType(fiBitmap);

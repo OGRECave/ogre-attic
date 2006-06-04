@@ -1,4 +1,4 @@
-INCLUDES = $(STLPORT_CFLAGS) $(FT2_CFLAGS) -I$(top_srcdir)/OgreMain/include -DOGRE_NONCLIENT_BUILD $(ZZIPLIB_CFLAGS) $(DEVIL_CFLAGS) $(PLATFORM_CFLAGS)
+INCLUDES = $(STLPORT_CFLAGS) $(FT2_CFLAGS) -I$(top_srcdir)/OgreMain/include -DOGRE_NONCLIENT_BUILD $(ZZIPLIB_CFLAGS) $(DEVIL_CFLAGS) $(FREEIMAGE_CFLAGS) $(PLATFORM_CFLAGS)
 
 noinst_LTLIBRARIES = libSSEsupport.la
 libSSEsupport_la_SOURCES = OgreOptimisedUtilSSE.cpp
@@ -169,6 +169,11 @@ if USE_DEVIL
 libOgreMain_la_SOURCES +=OgreILImageCodec.cpp \
                          OgreILCodecs.cpp \
                          OgreILUtil.cpp
+endif
+
+if USE_FREEIMAGE
+libOgreMain_la_SOURCES += OgreFreeImageCodec.cpp
+
 endif
 
 platformdir = $(libdir)

@@ -63,6 +63,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #if OGRE_NO_DEVIL == 0
 #include "OgreILCodecs.h"
 #endif
+#if OGRE_NO_FREEIMAGE == 0
+#include "OgreFreeImageCodec.h"
+#endif
 
 #include "OgreFontManager.h"
 #include "OgreHardwareBufferManager.h"
@@ -201,6 +204,10 @@ namespace Ogre {
 	    // Register image codecs
 	    ILCodecs::registerCodecs();
 #endif
+#if OGRE_NO_FREEIMAGE == 0
+		// Register image codecs
+		FreeImageCodec::startup();
+#endif
 
         mHighLevelGpuProgramManager = new HighLevelGpuProgramManager();
 
@@ -250,6 +257,9 @@ namespace Ogre {
 		delete mExternalTextureSourceManager;
 #if OGRE_NO_DEVIL == 0
         ILCodecs::deleteCodecs();
+#endif
+#if OGRE_NO_FREEIMAGE == 0
+		FreeImageCodec::shutdown();
 #endif
 #if OGRE_PROFILING
         delete mProfiler;

@@ -44,6 +44,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgreFont.h \
                      OgreFontManager.h \
                      OgreFrameListener.h \
+					 OgreFreeImageCodec.h \
                      OgreFrustum.h \
                      OgreGpuProgram.h \
                      OgreGpuProgramManager.h \
