@@ -345,6 +345,7 @@ AC_DEFUN([OGRE_CHECK_DEVIL],
               [build_il=$enableval],
               [build_il=yes])
 
+
 AM_CONDITIONAL(USE_DEVIL, test x$build_il = xyes)
 
 if test "x$build_il" = "xyes" ; then
@@ -364,6 +365,34 @@ fi
 
 
 ])
+
+AC_DEFUN([OGRE_CHECK_FREEIMAGE],
+[AC_ARG_ENABLE(freeimage,
+              AC_HELP_STRING([--disable-freeimage],
+                             [Don't use FreeImage for image loading. This is not recommended unless you provide your own image loading codecs.]),
+              [build_freeimage=$enableval],
+              [build_freeimage=yes])
+
+
+AM_CONDITIONAL(USE_FREEIMAGE, test x$build_freeimage = xyes)
+
+if test "x$build_freeimage" = "xyes" ; then
+	AC_CHECK_LIB(freeimage, FreeImage_Load,,AC_MSG_ERROR([
+****************************************************************
+* You do not have FreeImage installed.  This is required.      *
+* You may find it at http://freeimage.sourceforge.net/.        *
+* Note: You can also provide --disable-freeimage to the build  *
+* process to build without it. This is an advanced option      *
+* useful only if you provide your own image loading codecs.    *
+****************************************************************]))
+	AC_DEFINE([OGRE_NO_FREEIMAGE], [0], [Build freeimage])
+else
+	AC_DEFINE([OGRE_NO_FREEIMAGE], [1], [Build freeimage])
+fi
+
+
+])
+
 
 
 AC_DEFUN([OGRE_CHECK_PIC],
