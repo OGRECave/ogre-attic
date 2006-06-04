@@ -441,6 +441,12 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreOptimisedUtil.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreOptimisedUtilGeneral.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreOptimisedUtilSSE.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreOverlay.cpp">
 			</File>
 			<File

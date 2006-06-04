@@ -46,6 +46,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 #include "OgreAnimation.h"
 #include "OgreAlignedAllocator.h"
+#include "OgreOptimisedUtil.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -695,10 +696,11 @@ namespace Ogre {
                         static_cast<Matrix4*>(AlignedMemory::allocate(sizeof(Matrix4) * mNumBoneMatrices));
                 }
 
-                for (unsigned short i = 0; i < mNumBoneMatrices; ++i)
-                {
-                    mBoneWorldMatrices[i] = mLastParentXform * mBoneMatrices[i];
-                }
+                OptimisedUtil::getImplementation()->concatenateAffineMatrices(
+                    mLastParentXform,
+                    mBoneMatrices,
+                    mBoneWorldMatrices,
+                    mNumBoneMatrices);
             }
         }
     }

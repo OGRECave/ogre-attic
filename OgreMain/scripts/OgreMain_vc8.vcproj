@@ -553,6 +553,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreOptimisedUtilGeneral.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreOptimisedUtilSSE.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreOverlay.cpp"
 				>
 			</File>

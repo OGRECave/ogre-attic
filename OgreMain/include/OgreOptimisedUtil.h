@@ -35,7 +35,32 @@ namespace Ogre {
     */
     class _OgreExport OptimisedUtil
     {
+    private:
+        /// Privated copy constructor, to prevent misuse
+        OptimisedUtil(const OptimisedUtil& rhs); /* do nothing, should not use */
+        /// Privated operator=, to prevent misuse
+        OptimisedUtil& operator=(const OptimisedUtil& rhs); /* do not use */
+
+    protected:
+        /// Store a pointer to the implementation
+        static OptimisedUtil* msImplementation;
+
+        /// Detect best implementation based on run-time environment
+        static OptimisedUtil* _detectImplementation(void);
+
     public:
+        // Default constructor
+        OptimisedUtil(void) {}
+        // Destructor
+        virtual ~OptimisedUtil() {}
+
+        /** Gets the implementation of this class.
+        @note
+            Don't cache the pointer returned by this function, it'll change due
+            run-time environment detection to pick up the best implementation.
+        */
+        static OptimisedUtil* getImplementation(void) { return msImplementation; }
+
         /** Performs software vertex skinning.
         @param srcPosPtr Pointer to source position buffer.
         @param destPosPtr Pointer to destination position buffer.
@@ -60,7 +85,7 @@ namespace Ogre {
             as for blend indices.
         @param numVertices Number of vertices to blend.
         */
-        static void softwareVertexSkinning(
+        virtual void softwareVertexSkinning(
             const float *srcPosPtr, float *destPosPtr,
             const float *srcNormPtr, float *destNormPtr,
             const float *blendWeightPtr, const unsigned char* blendIndexPtr,
@@ -69,8 +94,43 @@ namespace Ogre {
             size_t srcNormStride, size_t destNormStride,
             size_t blendWeightStride, size_t blendIndexStride,
             size_t numWeightsPerVertex,
-            size_t numVertices);
+            size_t numVertices) = 0;
+
+        /** Concatenate an affine matrix to an array of affine matrices.
+        @note
+            An affine matrix is a 4x4 matrix with row 3 equal to (0, 0, 0, 1),
+            e.g. no projective coefficients.
+        @param baseMatrix The matrix used as first operand.
+        @param srcMatrices An array of matrix used as second operand.
+        @param dstMatrices An array of matrix to store matrix concatenate results.
+        @param numMatrices Number of matrices in the array.
+        */
+        virtual void concatenateAffineMatrices(
+            const Matrix4& baseMatrix,
+            const Matrix4* srcMatrices,
+            Matrix4* dstMatrices,
+            size_t numMatrices) = 0;
     };
+
+    /** Returns raw offseted of the given pointer.
+    @note
+        The offset are in bytes, no matter what type of the pointer.
+    */
+    template <class T>
+    static FORCEINLINE T* rawOffsetPointer(T* ptr, ptrdiff_t offset)
+    {
+        return (T*)((char*)(ptr) + offset);
+    }
+
+    /** Advance the pointer with raw offset.
+    @note
+        The offset are in bytes, no matter what type of the pointer.
+    */
+    template <class T>
+    static FORCEINLINE void advanceRawPointer(T*& ptr, ptrdiff_t offset)
+    {
+        ptr = rawOffsetPointer(ptr, offset);
+    }
 
 }
 

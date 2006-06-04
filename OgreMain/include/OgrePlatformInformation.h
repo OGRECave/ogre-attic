@@ -57,7 +57,7 @@ namespace Ogre {
 #   define OGRE_ALIGNED_DECL(type, var, alignment)  __declspec(align(alignment)) type var
 
 #elif OGRE_COMPILER == OGRE_COMPILER_GNUC
-#   define OGRE_ALIGNED_DECL(type, var, alignment)  type var __attribute__(aligned(alignment))
+#   define OGRE_ALIGNED_DECL(type, var, alignment)  type var __attribute__((__aligned__(alignment)))
 
 #else
 #   define OGRE_ALIGNED_DECL(type, var, alignment)  type var
@@ -75,6 +75,20 @@ namespace Ogre {
 /* Declare variable aligned to SIMD alignment.
 */
 #define OGRE_SIMD_ALIGNED_DECL(type, var)   OGRE_ALIGNED_DECL(type, var, OGRE_SIMD_ALIGNMENT)
+
+/* Define whether or not Ogre compiled with SSE supports.
+*/
+#if OGRE_DOUBLE_PRECISION == 0 && OGRE_CPU == OGRE_CPU_X86 && OGRE_COMPILER == OGRE_COMPILER_MSVC
+#   define __OGRE_HAVE_SSE  1
+#elif OGRE_DOUBLE_PRECISION == 0 && OGRE_CPU == OGRE_CPU_X86 && OGRE_COMPILER == OGRE_COMPILER_GNUC
+#   define __OGRE_HAVE_SSE  1
+#endif
+
+
+#ifndef __OGRE_HAVE_SSE
+#   define __OGRE_HAVE_SSE  0
+#endif
+
 
 
 
