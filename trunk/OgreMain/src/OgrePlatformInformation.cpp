@@ -141,8 +141,11 @@ namespace Ogre {
 #elif OGRE_COMPILER == OGRE_COMPILER_GNUC
         __asm__
         (
-            "cpuid"
-            : "=a" (result._eax), "=b" (result._ebx), "=c" (result._ecx), "=d" (result._edx)
+            "pushl  %%ebx           \n\t"
+            "cpuid                  \n\t"
+            "movl   %%ebx, %%edi    \n\t"
+            "popl   %%ebx           \n\t"
+            : "=a" (result._eax), "=D" (result._ebx), "=c" (result._ecx), "=d" (result._edx)
             : "a" (query)
         );
         return result._eax;
