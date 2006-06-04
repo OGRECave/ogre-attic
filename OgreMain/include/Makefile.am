@@ -193,4 +193,5 @@ pkginclude_HEADERS = Ogre.h \
                      OgreCompositionTargetPass.h \
                      OgreCompositorScriptCompiler.h \
                      OgreCompiler2Pass.h \
-                     asm_math.h
+                     asm_math.h \
+                     OgreWindowEventUtilities.h
