@@ -46,7 +46,7 @@ D:        Step right
 
 using namespace Ogre;
 
-class ExampleFrameListener: public FrameListener
+class ExampleFrameListener: public FrameListener, public WindowEventListener
 {
 protected:
 	void updateStats(void)
@@ -115,20 +115,32 @@ public:
 			mJoy = 0;
 		}
 
-		unsigned int width, height, depth;
-		int left, top;
-		win->getMetrics(width, height, depth, left, top);
-
-		//Set Mouse Region.. if window resizes, we should alter this to reflect as well
-		const MouseState &ms = mMouse->getMouseState();
-		ms.width = width;
-		ms.height = height;
+		//Set initial mouse clipping size
+		windowResized(mWindow);
 
 		showDebugOverlay(true);
+
+		//Register as a Window listener
+		WindowEventUtilities::addWindowEventListener(mWindow, this);
+	}
+
+	//Only window message we really care about right now - to adjust mouse clipping
+	virtual void windowResized(RenderWindow* rw)
+	{
+		unsigned int width, height, depth;
+		int left, top;
+		rw->getMetrics(width, height, depth, left, top);
+
+		const OIS::MouseState &ms = mMouse->getMouseState();
+		ms.width = width;
+		ms.height = height;
 	}
 
 	virtual ~ExampleFrameListener()
 	{
+		//Remove ourself as a Window listener
+		WindowEventUtilities::removeWindowEventListener(mWindow, this);
+
 		using namespace OIS;
 		InputManager* im = InputManager::getSingletonPtr();
 		if( im )
