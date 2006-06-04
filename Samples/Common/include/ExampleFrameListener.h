@@ -124,7 +124,7 @@ public:
 		WindowEventUtilities::addWindowEventListener(mWindow, this);
 	}
 
-	//Only window message we really care about right now - to adjust mouse clipping
+	//Adjust mouse clipping area
 	virtual void windowResized(RenderWindow* rw)
 	{
 		unsigned int width, height, depth;
@@ -136,21 +136,29 @@ public:
 		ms.height = height;
 	}
 
+	//Unattach OIS before window shutdown (very important under Linux)
+	virtual void windowClosed(RenderWindow* rw)
+	{
+		using namespace OIS;
+		//Only close for window that created OIS (mWindow)
+		if( rw == mWindow )
+		{
+			InputManager* im = InputManager::getSingletonPtr();
+			if( im )
+			{
+				im->destroyInputObject( mMouse );
+				im->destroyInputObject( mKeyboard );
+				im->destroyInputObject( mJoy );
+				im->destroyInputSystem();
+			}
+		}
+	}
+
 	virtual ~ExampleFrameListener()
 	{
 		//Remove ourself as a Window listener
 		WindowEventUtilities::removeWindowEventListener(mWindow, this);
-
-		using namespace OIS;
-		InputManager* im = InputManager::getSingletonPtr();
-		if( im )
-		{
-			im->destroyInputObject( mMouse );
-			im->destroyInputObject( mKeyboard );
-			im->destroyInputObject( mJoy );
-
-			im->destroyInputSystem();
-		}
+		windowClosed(mWindow);
 	}
 
 	virtual bool processUnbufferedKeyInput(const FrameEvent& evt)
