@@ -1673,7 +1673,7 @@ namespace Ogre {
             destElemNorm->baseVertexPointerToElement(pBuffer, &pDestNorm);
         }
 
-        OptimisedUtil::softwareVertexSkinning(
+        OptimisedUtil::getImplementation()->softwareVertexSkinning(
             pSrcPos, pDestPos,
             pSrcNorm, pDestNorm,
             pBlendWeight, pBlendIdx,

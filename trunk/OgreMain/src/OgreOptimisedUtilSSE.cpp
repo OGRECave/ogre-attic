@@ -1,0 +1,1239 @@
+/*
+-----------------------------------------------------------------------------
+This source file is part of OGRE
+    (Object-oriented Graphics Rendering Engine)
+For the latest info, see http://www.ogre3d.org/
+
+Copyright (c) 2000-2006 The OGRE Team
+Also see acknowledgements in Readme.html
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place - Suite 330, Boston, MA 02111-1307, USA, or go to
+http://www.gnu.org/copyleft/lesser.txt.
+-----------------------------------------------------------------------------
+*/
+#include "OgreStableHeaders.h"
+
+#include "OgreOptimisedUtil.h"
+#include "OgrePlatformInformation.h"
+
+#if __OGRE_HAVE_SSE
+
+#include "OgreSIMDHelper.h"
+#include "OgreMatrix4.h"
+
+// I'd like to merge this file with OgreOptimisedUtil.cpp, but it's
+// impossible when compile with gcc, due SSE instructions can only
+// enable/disable at file level.
+
+//-------------------------------------------------------------------------
+//
+// The routines implemented in this file are performance oriented,
+// which means saving every penny as possible. This requirement might
+// break some C++/STL-rules.
+//
+//
+// Some rules I'd like to respects:
+//
+// 1. Had better use unpacklo/hi, movelh/hl instead of shuffle because
+//    it can saving one byte of binary code :)
+// 2. Use add/sub instead of mul.
+// 3. Eliminate prolog code of function call.
+//
+// The last, anything recommended by Intel Optimization Reference Manual.
+//
+//-------------------------------------------------------------------------
+
+// Use unrolled SSE version when vertices exceeds this limit
+#define OGRE_SSE_SKINNING_UNROLL_VERTICES  16
+
+namespace Ogre {
+
+//-------------------------------------------------------------------------
+// Local classes
+//-------------------------------------------------------------------------
+
+    /** SSE implementation of OptimisedUtil.
+    @note
+        Don't use this class directly, use OptimisedUtil instead.
+    */
+    class _OgrePrivate OptimisedUtilSSE : public OptimisedUtil
+    {
+    protected:
+        /// Are we running on an AMD processor?
+        bool mIsAMD;
+
+    public:
+        /// Constructor
+        OptimisedUtilSSE(void);
+
+        /// @copydoc OptimisedUtil::softwareVertexSkinning
+        virtual void softwareVertexSkinning(
+            const float *srcPosPtr, float *destPosPtr,
+            const float *srcNormPtr, float *destNormPtr,
+            const float *blendWeightPtr, const unsigned char* blendIndexPtr,
+            const Matrix4* const* blendMatrices,
+            size_t srcPosStride, size_t destPosStride,
+            size_t srcNormStride, size_t destNormStride,
+            size_t blendWeightStride, size_t blendIndexStride,
+            size_t numWeightsPerVertex,
+            size_t numVertices);
+
+        /// @copydoc OptimisedUtil::concatenateAffineMatrices
+        virtual void concatenateAffineMatrices(
+            const Matrix4& baseMatrix,
+            const Matrix4* srcMatrices,
+            Matrix4* dstMatrices,
+            size_t numMatrices);
+    };
+
+#if defined(__OGRE_SIMD_ALIGN_STACK)
+    /** Stack-align implementation of OptimisedUtil.
+    @remarks
+        User code compiled by icc and gcc might not align stack
+        properly, we need ensure stack align to a 16-bytes boundary
+        when execute SSE function.
+    @note
+        Don't use this class directly, use OptimisedUtil instead.
+    */
+    class _OgrePrivate OptimisedUtilWithStackAlign : public OptimisedUtil
+    {
+    protected:
+        /// The actual implementation
+        OptimisedUtil* mImpl;
+
+    public:
+        /// Constructor
+        OptimisedUtilWithStackAlign(OptimisedUtil* impl)
+            : mImpl(impl)
+        {
+        }
+
+        /// @copydoc OptimisedUtil::softwareVertexSkinning
+        virtual void softwareVertexSkinning(
+            const float *srcPosPtr, float *destPosPtr,
+            const float *srcNormPtr, float *destNormPtr,
+            const float *blendWeightPtr, const unsigned char* blendIndexPtr,
+            const Matrix4* const* blendMatrices,
+            size_t srcPosStride, size_t destPosStride,
+            size_t srcNormStride, size_t destNormStride,
+            size_t blendWeightStride, size_t blendIndexStride,
+            size_t numWeightsPerVertex,
+            size_t numVertices)
+        {
+            __OGRE_SIMD_ALIGN_STACK();
+
+            // This is virtual function call, should guarantee call instruction
+            // are used instead of inline underlying function body here.
+            mImpl->softwareVertexSkinning(
+                srcPosPtr, destPosPtr,
+                srcNormPtr, destNormPtr,
+                blendWeightPtr, blendIndexPtr,
+                blendMatrices,
+                srcPosStride, destPosStride,
+                srcNormStride, destNormStride,
+                blendWeightStride, blendIndexStride,
+                numWeightsPerVertex,
+                numVertices);
+        }
+
+        /// @copydoc OptimisedUtil::concatenateAffineMatrices
+        virtual void concatenateAffineMatrices(
+            const Matrix4& baseMatrix,
+            const Matrix4* srcMatrices,
+            Matrix4* dstMatrices,
+            size_t numMatrices)
+        {
+            __OGRE_SIMD_ALIGN_STACK();
+
+            // This is virtual function call, should guarantee call instruction
+            // are used instead of inline underlying function body here.
+            mImpl->concatenateAffineMatrices(
+                baseMatrix,
+                srcMatrices,
+                dstMatrices,
+                numMatrices);
+        }
+    };
+#endif  // !defined(__OGRE_SIMD_ALIGN_STACK)
+
+//---------------------------------------------------------------------
+// Some useful macro for collapse matrices.
+//---------------------------------------------------------------------
+
+#define __LOAD_MATRIX(row0, row1, row2, pMatrix)                        \
+    {                                                                   \
+        row0 = __MM_LOAD_PS((*pMatrix)[0]);                             \
+        row1 = __MM_LOAD_PS((*pMatrix)[1]);                             \
+        row2 = __MM_LOAD_PS((*pMatrix)[2]);                             \
+    }
+
+#define __LERP_MATRIX(row0, row1, row2, weight, pMatrix)                \
+    {                                                                   \
+        row0 = __MM_LERP_PS(weight, row0, __MM_LOAD_PS((*pMatrix)[0])); \
+        row1 = __MM_LERP_PS(weight, row1, __MM_LOAD_PS((*pMatrix)[1])); \
+        row2 = __MM_LERP_PS(weight, row2, __MM_LOAD_PS((*pMatrix)[2])); \
+    }
+
+#define __LOAD_WEIGHTED_MATRIX(row0, row1, row2, weight, pMatrix)       \
+    {                                                                   \
+        row0 = _mm_mul_ps(__MM_LOAD_PS((*pMatrix)[0]), weight);         \
+        row1 = _mm_mul_ps(__MM_LOAD_PS((*pMatrix)[1]), weight);         \
+        row2 = _mm_mul_ps(__MM_LOAD_PS((*pMatrix)[2]), weight);         \
+    }
+
+#define __ACCUM_WEIGHTED_MATRIX(row0, row1, row2, weight, pMatrix)      \
+    {                                                                   \
+        row0 = __MM_MADD_PS(__MM_LOAD_PS((*pMatrix)[0]), weight, row0); \
+        row1 = __MM_MADD_PS(__MM_LOAD_PS((*pMatrix)[1]), weight, row1); \
+        row2 = __MM_MADD_PS(__MM_LOAD_PS((*pMatrix)[2]), weight, row2); \
+    }
+
+//---------------------------------------------------------------------
+// The following macros request variables declared by caller.
+//
+// :) Thank row-major matrix used in Ogre, it make we accessing affine matrix easy.
+//---------------------------------------------------------------------
+
+/** Collapse one-weighted matrix.
+    Eliminated multiply by weight since the weight should be equal to one always
+*/
+#define __COLLAPSE_MATRIX_W1(row0, row1, row2, ppMatrices, pIndices, pWeights)  \
+    {                                                                           \
+        pMatrix0 = blendMatrices[pIndices[0]];                                  \
+        __LOAD_MATRIX(row0, row1, row2, pMatrix0);                              \
+    }
+
+/** Collapse two-weighted matrix.
+    Based on the fact that accumulated weights are equal to one, by use lerp,
+    replaced two multiplies and one additive with one multiplie and two additives.
+*/
+#define __COLLAPSE_MATRIX_W2(row0, row1, row2, ppMatrices, pIndices, pWeights)  \
+    {                                                                           \
+        weight = _mm_load_ps1(pWeights + 1);                                    \
+        pMatrix0 = ppMatrices[pIndices[0]];                                     \
+        __LOAD_MATRIX(row0, row1, row2, pMatrix0);                              \
+        pMatrix1 = ppMatrices[pIndices[1]];                                     \
+        __LERP_MATRIX(row0, row1, row2, weight, pMatrix1);                      \
+    }
+
+/** Collapse three-weighted matrix.
+*/
+#define __COLLAPSE_MATRIX_W3(row0, row1, row2, ppMatrices, pIndices, pWeights)  \
+    {                                                                           \
+        weight = _mm_load_ps1(pWeights + 0);                                    \
+        pMatrix0 = ppMatrices[pIndices[0]];                                     \
+        __LOAD_WEIGHTED_MATRIX(row0, row1, row2, weight, pMatrix0);             \
+        weight = _mm_load_ps1(pWeights + 1);                                    \
+        pMatrix1 = ppMatrices[pIndices[1]];                                     \
+        __ACCUM_WEIGHTED_MATRIX(row0, row1, row2, weight, pMatrix1);            \
+        weight = _mm_load_ps1(pWeights + 2);                                    \
+        pMatrix2 = ppMatrices[pIndices[2]];                                     \
+        __ACCUM_WEIGHTED_MATRIX(row0, row1, row2, weight, pMatrix2);            \
+    }
+
+/** Collapse four-weighted matrix.
+*/
+#define __COLLAPSE_MATRIX_W4(row0, row1, row2, ppMatrices, pIndices, pWeights)  \
+    {                                                                           \
+        /* Load four blend weights at one time, they will be shuffled later */  \
+        weights = _mm_loadu_ps(pWeights);                                       \
+                                                                                \
+        pMatrix0 = ppMatrices[pIndices[0]];                                     \
+        weight = __MM_SELECT(weights, 0);                                       \
+        __LOAD_WEIGHTED_MATRIX(row0, row1, row2, weight, pMatrix0);             \
+        pMatrix1 = ppMatrices[pIndices[1]];                                     \
+        weight = __MM_SELECT(weights, 1);                                       \
+        __ACCUM_WEIGHTED_MATRIX(row0, row1, row2, weight, pMatrix1);            \
+        pMatrix2 = ppMatrices[pIndices[2]];                                     \
+        weight = __MM_SELECT(weights, 2);                                       \
+        __ACCUM_WEIGHTED_MATRIX(row0, row1, row2, weight, pMatrix2);            \
+        pMatrix3 = ppMatrices[pIndices[3]];                                     \
+        weight = __MM_SELECT(weights, 3);                                       \
+        __ACCUM_WEIGHTED_MATRIX(row0, row1, row2, weight, pMatrix3);            \
+    }
+
+
+
+    //---------------------------------------------------------------------
+    // Collapse a matrix at one time. The collapsed matrix are weighted by
+    // blend-weights, and then can use to transform corresponding vertex directly.
+    //
+    // I'd like use inline function instead of macro here, but I also want to
+    // ensure compiler integrate this code into its callers (release build at
+    // least), doesn't matter about specific compile options. Inline function
+    // work fine for VC, but looks like gcc (3.4.4 here) generate function-call
+    // when implemented as inline function, even if compile with "-O3" option.
+    //
+#define _collapseOneMatrix(                                                     \
+        m00, m01, m02,                                                          \
+        pBlendWeight, pBlendIndex,                                              \
+        blendMatrices,                                                          \
+        blendWeightStride, blendIndexStride,                                    \
+        numWeightsPerVertex)                                                    \
+    {                                                                           \
+        /* Important Note: If reuse pMatrixXXX frequently, M$ VC7.1 will */     \
+        /* generate wrong code here!!!                                   */     \
+        const Matrix4* pMatrix0, *pMatrix1, *pMatrix2, *pMatrix3;               \
+        __m128 weight, weights;                                                 \
+                                                                                \
+        switch (numWeightsPerVertex)                                            \
+        {                                                                       \
+        default:    /* Just in case and make compiler happy */                  \
+        case 1:                                                                 \
+            __COLLAPSE_MATRIX_W1(m00, m01, m02, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 0 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 0 * blendWeightStride));         \
+            break;                                                              \
+                                                                                \
+        case 2:                                                                 \
+            __COLLAPSE_MATRIX_W2(m00, m01, m02, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 0 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 0 * blendWeightStride));         \
+            break;                                                              \
+                                                                                \
+        case 3:                                                                 \
+            __COLLAPSE_MATRIX_W3(m00, m01, m02, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 0 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 0 * blendWeightStride));         \
+            break;                                                              \
+                                                                                \
+        case 4:                                                                 \
+            __COLLAPSE_MATRIX_W4(m00, m01, m02, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 0 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 0 * blendWeightStride));         \
+            break;                                                              \
+        }                                                                       \
+    }
+
+    //---------------------------------------------------------------------
+    // Collapse four matrices at one time. The collapsed matrix are weighted by
+    // blend-weights, and then can use to transform corresponding vertex directly. 
+    //
+    // I'd like use inline function instead of macro here, but I also want to
+    // ensure compiler integrate this code into its callers (release build at
+    // least), doesn't matter about specific compile options. Inline function
+    // work fine for VC, but looks like gcc (3.4.4 here) generate function-call
+    // when implemented as inline function, even if compile with "-O3" option.
+    //
+#define _collapseFourMatrices(                                                  \
+        m00, m01, m02,                                                          \
+        m10, m11, m12,                                                          \
+        m20, m21, m22,                                                          \
+        m30, m31, m32,                                                          \
+        pBlendWeight, pBlendIndex,                                              \
+        blendMatrices,                                                          \
+        blendWeightStride, blendIndexStride,                                    \
+        numWeightsPerVertex)                                                    \
+    {                                                                           \
+        /* Important Note: If reuse pMatrixXXX frequently, M$ VC7.1 will */     \
+        /* generate wrong code here!!!                                   */     \
+        const Matrix4* pMatrix0, *pMatrix1, *pMatrix2, *pMatrix3;               \
+        __m128 weight, weights;                                                 \
+                                                                                \
+        switch (numWeightsPerVertex)                                            \
+        {                                                                       \
+        default:    /* Just in case and make compiler happy */                  \
+        case 1:                                                                 \
+            __COLLAPSE_MATRIX_W1(m00, m01, m02, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 0 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 0 * blendWeightStride));         \
+            __COLLAPSE_MATRIX_W1(m10, m11, m12, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 1 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 1 * blendWeightStride));         \
+            __COLLAPSE_MATRIX_W1(m20, m21, m22, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 2 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 2 * blendWeightStride));         \
+            __COLLAPSE_MATRIX_W1(m30, m31, m32, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 3 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 3 * blendWeightStride));         \
+            break;                                                              \
+                                                                                \
+        case 2:                                                                 \
+            __COLLAPSE_MATRIX_W2(m00, m01, m02, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 0 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 0 * blendWeightStride));         \
+            __COLLAPSE_MATRIX_W2(m10, m11, m12, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 1 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 1 * blendWeightStride));         \
+            __COLLAPSE_MATRIX_W2(m20, m21, m22, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 2 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 2 * blendWeightStride));         \
+            __COLLAPSE_MATRIX_W2(m30, m31, m32, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 3 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 3 * blendWeightStride));         \
+            break;                                                              \
+                                                                                \
+        case 3:                                                                 \
+            __COLLAPSE_MATRIX_W3(m00, m01, m02, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 0 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 0 * blendWeightStride));         \
+            __COLLAPSE_MATRIX_W3(m10, m11, m12, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 1 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 1 * blendWeightStride));         \
+            __COLLAPSE_MATRIX_W3(m20, m21, m22, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 2 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 2 * blendWeightStride));         \
+            __COLLAPSE_MATRIX_W3(m30, m31, m32, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 3 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 3 * blendWeightStride));         \
+            break;                                                              \
+                                                                                \
+        case 4:                                                                 \
+            __COLLAPSE_MATRIX_W4(m00, m01, m02, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 0 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 0 * blendWeightStride));         \
+            __COLLAPSE_MATRIX_W4(m10, m11, m12, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 1 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 1 * blendWeightStride));         \
+            __COLLAPSE_MATRIX_W4(m20, m21, m22, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 2 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 2 * blendWeightStride));         \
+            __COLLAPSE_MATRIX_W4(m30, m31, m32, blendMatrices,                  \
+                rawOffsetPointer(pBlendIndex, 3 * blendIndexStride),            \
+                rawOffsetPointer(pBlendWeight, 3 * blendWeightStride));         \
+            break;                                                              \
+        }                                                                       \
+    }
+
+
+
+    //---------------------------------------------------------------------
+    // General SSE version skinning positions, and optional skinning normals.
+    static void softwareVertexSkinning_SSE_General(
+        const float *pSrcPos, float *pDestPos,
+        const float *pSrcNorm, float *pDestNorm,
+        const float *pBlendWeight, const unsigned char* pBlendIndex,
+        const Matrix4* const* blendMatrices,
+        size_t srcPosStride, size_t destPosStride,
+        size_t srcNormStride, size_t destNormStride,
+        size_t blendWeightStride, size_t blendIndexStride,
+        size_t numWeightsPerVertex,
+        size_t numVertices)
+    {
+        for (size_t i = 0; i < numVertices; ++i)
+        {
+            // Collapse matrices
+            __m128 m00, m01, m02;
+            _collapseOneMatrix(
+                m00, m01, m02,
+                pBlendWeight, pBlendIndex,
+                blendMatrices,
+                blendWeightStride, blendIndexStride,
+                numWeightsPerVertex);
+
+            // Advance blend weight and index pointers
+            advanceRawPointer(pBlendWeight, blendWeightStride);
+            advanceRawPointer(pBlendIndex, blendIndexStride);
+
+            //------------------------------------------------------------------
+
+            // Rearrange to column-major matrix with rows shuffled order to: Z 0 X Y
+            __m128 m03 = _mm_setzero_ps();
+            __MM_TRANSPOSE4x4_PS(m02, m03, m00, m01);
+
+            //------------------------------------------------------------------
+            // Transform position
+            //------------------------------------------------------------------
+
+            __m128 s0, s1, s2;
+
+            // Load source position
+            s0 = _mm_load_ps1(pSrcPos + 0);
+            s1 = _mm_load_ps1(pSrcPos + 1);
+            s2 = _mm_load_ps1(pSrcPos + 2);
+
+            // Transform by collapsed matrix
+            __m128 accumPos = __MM_DOT4x3_PS(m02, m03, m00, m01, s0, s1, s2);   // z 0 x y
+
+            // Store blended position, no aligned requirement
+            _mm_storeh_pi((__m64*)pDestPos, accumPos);
+            _mm_store_ss(pDestPos+2, accumPos);
+
+            // Advance source and target position pointers
+            advanceRawPointer(pSrcPos, srcPosStride);
+            advanceRawPointer(pDestPos, destPosStride);
+
+            //------------------------------------------------------------------
+            // Optional blend normal
+            //------------------------------------------------------------------
+
+            if (pSrcNorm)
+            {
+                // Load source normal
+                s0 = _mm_load_ps1(pSrcNorm + 0);
+                s1 = _mm_load_ps1(pSrcNorm + 1);
+                s2 = _mm_load_ps1(pSrcNorm + 2);
+
+                // Transform by collapsed matrix
+                __m128 accumNorm = __MM_DOT3x3_PS(m02, m03, m00, s0, s1, s2);   // z 0 x y
+
+                // Normalise normal
+                __m128 tmp = _mm_mul_ps(accumNorm, accumNorm);                  // z^2 0 x^2 y^2
+                tmp = __MM_ACCUM3_PS(tmp,
+                        _mm_shuffle_ps(tmp, tmp, _MM_SHUFFLE(0,3,1,2)),         // x^2 0 y^2 z^2
+                        _mm_shuffle_ps(tmp, tmp, _MM_SHUFFLE(2,0,1,3)));        // y^2 0 z^2 x^2
+                // Note: zero divided here, but neglectable
+                tmp = __MM_RSQRT_PS(tmp);
+                accumNorm = _mm_mul_ps(accumNorm, tmp);
+
+                // Store blended normal, no aligned requirement
+                _mm_storeh_pi((__m64*)pDestNorm, accumNorm);
+                _mm_store_ss(pDestNorm+2, accumNorm);
+
+                // Advance source and target normal pointers
+                advanceRawPointer(pSrcNorm, srcNormStride);
+                advanceRawPointer(pDestNorm, destNormStride);
+            }
+        }
+    }
+    //---------------------------------------------------------------------
+    // Special SSE version skinning shared buffers of position and normal,
+    // and the buffer are packed.
+    template <bool srcAligned, bool destAligned>
+    struct SoftwareVertexSkinning_SSE_PosNorm_Shared_Packed
+    {
+        static void apply(
+            const float* pSrc, float* pDest,
+            const float* pBlendWeight, const unsigned char* pBlendIndex,
+            const Matrix4* const* blendMatrices,
+            size_t blendWeightStride, size_t blendIndexStride,
+            size_t numWeightsPerVertex,
+            size_t numIterations)
+        {
+            typedef SSEMemoryAccessor<srcAligned> SrcAccessor;
+            typedef SSEMemoryAccessor<destAligned> DestAccessor;
+
+            // Blending 4 vertices per-iteration
+            for (size_t i = 0; i < numIterations; ++i)
+            {
+                // Collapse matrices
+                __m128 m00, m01, m02, m10, m11, m12, m20, m21, m22, m30, m31, m32;
+                _collapseFourMatrices(
+                    m00, m01, m02,
+                    m10, m11, m12,
+                    m20, m21, m22,
+                    m30, m31, m32,
+                    pBlendWeight, pBlendIndex,
+                    blendMatrices,
+                    blendWeightStride, blendIndexStride,
+                    numWeightsPerVertex);
+
+                // Advance 4 vertices
+                advanceRawPointer(pBlendWeight, 4 * blendWeightStride);
+                advanceRawPointer(pBlendIndex, 4 * blendIndexStride);
+
+                //------------------------------------------------------------------
+                // Transform position/normals
+                //------------------------------------------------------------------
+
+                __m128 s0, s1, s2, s3, s4, s5, d0, d1, d2, d3, d4, d5;
+                __m128 t0, t1, t2, t3, t4, t5;
+
+                // Load source position/normals
+                s0 = SrcAccessor::load(pSrc + 0);                       // px0 py0 pz0 nx0
+                s1 = SrcAccessor::load(pSrc + 4);                       // ny0 nz0 px1 py1
+                s2 = SrcAccessor::load(pSrc + 8);                       // pz1 nx1 ny1 nz1
+                s3 = SrcAccessor::load(pSrc + 12);                      // px2 py2 pz2 nx2
+                s4 = SrcAccessor::load(pSrc + 16);                      // ny2 nz2 px3 py3
+                s5 = SrcAccessor::load(pSrc + 20);                      // pz3 nx3 ny3 nz3
+
+                // Rearrange to component-major for batches calculate.
+
+                t0 = _mm_unpacklo_ps(s0, s3);                           // px0 px2 py0 py2
+                t1 = _mm_unpackhi_ps(s0, s3);                           // pz0 pz2 nx0 nx2
+                t2 = _mm_unpacklo_ps(s1, s4);                           // ny0 ny2 nz0 nz2
+                t3 = _mm_unpackhi_ps(s1, s4);                           // px1 px3 py1 py3
+                t4 = _mm_unpacklo_ps(s2, s5);                           // pz1 pz3 nx1 nx3
+                t5 = _mm_unpackhi_ps(s2, s5);                           // ny1 ny3 nz1 nz3
+
+                s0 = _mm_unpacklo_ps(t0, t3);                           // px0 px1 px2 px3
+                s1 = _mm_unpackhi_ps(t0, t3);                           // py0 py1 py2 py3
+                s2 = _mm_unpacklo_ps(t1, t4);                           // pz0 pz1 pz2 pz3
+                s3 = _mm_unpackhi_ps(t1, t4);                           // nx0 nx1 nx2 nx3
+                s4 = _mm_unpacklo_ps(t2, t5);                           // ny0 ny1 ny2 ny3
+                s5 = _mm_unpackhi_ps(t2, t5);                           // nz0 nz1 nz2 nz3
+
+                // Transform by collapsed matrix
+
+                // Shuffle row 0 of four collapsed matrices for calculate X component
+                __MM_TRANSPOSE4x4_PS(m00, m10, m20, m30);
+
+                // Transform X components
+                d0 = __MM_DOT4x3_PS(m00, m10, m20, m30, s0, s1, s2);    // PX0 PX1 PX2 PX3
+                d3 = __MM_DOT3x3_PS(m00, m10, m20, s3, s4, s5);         // NX0 NX1 NX2 NX3
+
+                // Shuffle row 1 of four collapsed matrices for calculate Y component
+                __MM_TRANSPOSE4x4_PS(m01, m11, m21, m31);
+
+                // Transform Y components
+                d1 = __MM_DOT4x3_PS(m01, m11, m21, m31, s0, s1, s2);    // PY0 PY1 PY2 PY3
+                d4 = __MM_DOT3x3_PS(m01, m11, m21, s3, s4, s5);         // NY0 NY1 NY2 NY3
+
+                // Shuffle row 2 of four collapsed matrices for calculate Z component
+                __MM_TRANSPOSE4x4_PS(m02, m12, m22, m32);
+
+                // Transform Z components
+                d2 = __MM_DOT4x3_PS(m02, m12, m22, m32, s0, s1, s2);    // PZ0 PZ1 PZ2 PZ3
+                d5 = __MM_DOT3x3_PS(m02, m12, m22, s3, s4, s5);         // NZ0 NZ1 NZ2 NZ3
+
+                // Normalise normals
+                __m128 tmp = __MM_DOT3x3_PS(d3, d4, d5, d3, d4, d5);
+                tmp = __MM_RSQRT_PS(tmp);
+                d3 = _mm_mul_ps(d3, tmp);
+                d4 = _mm_mul_ps(d4, tmp);
+                d5 = _mm_mul_ps(d5, tmp);
+
+                // Arrange back to continuous format for store results
+
+                t0 = _mm_unpacklo_ps(d0, d1);                           // PX0 PY0 PX1 PY1
+                t1 = _mm_unpackhi_ps(d0, d1);                           // PX2 PY2 PX3 PY3
+                t2 = _mm_unpacklo_ps(d2, d3);                           // PZ0 NX0 PZ1 NX1
+                t3 = _mm_unpackhi_ps(d2, d3);                           // PZ2 NX2 PZ3 NX3
+                t4 = _mm_unpacklo_ps(d4, d5);                           // NY0 NZ0 NY1 NZ1
+                t5 = _mm_unpackhi_ps(d4, d5);                           // NY2 NZ2 NY3 NZ3
+
+                d0 = _mm_movelh_ps(t0, t2);                             // PX0 PY0 PZ0 NX0
+                d1 = _mm_shuffle_ps(t4, t0, _MM_SHUFFLE(3,2,1,0));      // NY0 NZ0 PX1 PY1
+                d2 = _mm_movehl_ps(t4, t2);                             // PZ1 NX1 NY1 NZ1
+                d3 = _mm_movelh_ps(t1, t3);                             // PX2 PY2 PZ2 NX2
+                d4 = _mm_shuffle_ps(t5, t1, _MM_SHUFFLE(3,2,1,0));      // NY2 NZ2 PX3 PY3
+                d5 = _mm_movehl_ps(t5, t3);                             // PZ3 NX3 NY3 NZ3
+
+                // Store blended position/normals
+                DestAccessor::store(pDest + 0, d0);
+                DestAccessor::store(pDest + 4, d1);
+                DestAccessor::store(pDest + 8, d2);
+                DestAccessor::store(pDest + 12, d3);
+                DestAccessor::store(pDest + 16, d4);
+                DestAccessor::store(pDest + 20, d5);
+
+                // Advance 4 vertices
+                pSrc += 4 * (3 + 3);
+                pDest += 4 * (3 + 3);
+            }
+        }
+    };
+    static FORCEINLINE void softwareVertexSkinning_SSE_PosNorm_Shared_Packed(
+            const float* pSrcPos, float* pDestPos,
+            const float* pBlendWeight, const unsigned char* pBlendIndex,
+            const Matrix4* const* blendMatrices,
+            size_t blendWeightStride, size_t blendIndexStride,
+            size_t numWeightsPerVertex,
+            size_t numIterations)
+    {
+        // pSrcPos might can't align to 16 bytes because 8 bytes alignment shift per-vertex
+
+        // Instantiating two version only, since other alignement combination not that important.
+        if (_isAlignedForSSE(pSrcPos) && _isAlignedForSSE(pDestPos))
+        {
+            SoftwareVertexSkinning_SSE_PosNorm_Shared_Packed<true, true>::apply(
+                pSrcPos, pDestPos,
+                pBlendWeight, pBlendIndex,
+                blendMatrices,
+                blendWeightStride, blendIndexStride,
+                numWeightsPerVertex,
+                numIterations);
+        }
+        else
+        {
+            SoftwareVertexSkinning_SSE_PosNorm_Shared_Packed<false, false>::apply(
+                pSrcPos, pDestPos,
+                pBlendWeight, pBlendIndex,
+                blendMatrices,
+                blendWeightStride, blendIndexStride,
+                numWeightsPerVertex,
+                numIterations);
+        }
+    }
+    //---------------------------------------------------------------------
+    // Special SSE version skinning separated buffers of position and normal,
+    // both of position and normal buffer are packed.
+    template <bool srcPosAligned, bool destPosAligned, bool srcNormAligned, bool destNormAligned>
+    struct SoftwareVertexSkinning_SSE_PosNorm_Separated_Packed
+    {
+        static void apply(
+            const float* pSrcPos, float* pDestPos,
+            const float* pSrcNorm, float* pDestNorm,
+            const float* pBlendWeight, const unsigned char* pBlendIndex,
+            const Matrix4* const* blendMatrices,
+            size_t blendWeightStride, size_t blendIndexStride,
+            size_t numWeightsPerVertex,
+            size_t numIterations)
+        {
+            typedef SSEMemoryAccessor<srcPosAligned> SrcPosAccessor;
+            typedef SSEMemoryAccessor<destPosAligned> DestPosAccessor;
+            typedef SSEMemoryAccessor<srcNormAligned> SrcNormAccessor;
+            typedef SSEMemoryAccessor<destNormAligned> DestNormAccessor;
+
+            // Blending 4 vertices per-iteration
+            for (size_t i = 0; i < numIterations; ++i)
+            {
+                // Collapse matrices
+                __m128 m00, m01, m02, m10, m11, m12, m20, m21, m22, m30, m31, m32;
+                _collapseFourMatrices(
+                    m00, m01, m02,
+                    m10, m11, m12,
+                    m20, m21, m22,
+                    m30, m31, m32,
+                    pBlendWeight, pBlendIndex,
+                    blendMatrices,
+                    blendWeightStride, blendIndexStride,
+                    numWeightsPerVertex);
+
+                // Advance 4 vertices
+                advanceRawPointer(pBlendWeight, 4 * blendWeightStride);
+                advanceRawPointer(pBlendIndex, 4 * blendIndexStride);
+
+                //------------------------------------------------------------------
+                // Transform positions
+                //------------------------------------------------------------------
+
+                __m128 s0, s1, s2, d0, d1, d2;
+
+                // Load source positions
+                s0 = SrcPosAccessor::load(pSrcPos + 0);                 // x0 y0 z0 x1
+                s1 = SrcPosAccessor::load(pSrcPos + 4);                 // y1 z1 x2 y2
+                s2 = SrcPosAccessor::load(pSrcPos + 8);                 // z2 x3 y3 z3
+
+                // Arrange to 3x4 component-major for batches calculate
+                __MM_TRANSPOSE4x3_PS(s0, s1, s2);
+
+                // Transform by collapsed matrix
+
+                // Shuffle row 0 of four collapsed matrices for calculate X component
+                __MM_TRANSPOSE4x4_PS(m00, m10, m20, m30);
+
+                // Transform X components
+                d0 = __MM_DOT4x3_PS(m00, m10, m20, m30, s0, s1, s2);    // X0 X1 X2 X3
+
+                // Shuffle row 1 of four collapsed matrices for calculate Y component
+                __MM_TRANSPOSE4x4_PS(m01, m11, m21, m31);
+
+                // Transform Y components
+                d1 = __MM_DOT4x3_PS(m01, m11, m21, m31, s0, s1, s2);    // Y0 Y1 Y2 Y3
+
+                // Shuffle row 2 of four collapsed matrices for calculate Z component
+                __MM_TRANSPOSE4x4_PS(m02, m12, m22, m32);
+
+                // Transform Z components
+                d2 = __MM_DOT4x3_PS(m02, m12, m22, m32, s0, s1, s2);    // Z0 Z1 Z2 Z3
+
+                // Arrange back to 4x3 continuous format for store results
+                __MM_TRANSPOSE3x4_PS(d0, d1, d2);
+
+                // Store blended positions
+                DestPosAccessor::store(pDestPos + 0, d0);
+                DestPosAccessor::store(pDestPos + 4, d1);
+                DestPosAccessor::store(pDestPos + 8, d2);
+
+                // Advance 4 vertices
+                pSrcPos += 4 * 3;
+                pDestPos += 4 * 3;
+
+                //------------------------------------------------------------------
+                // Transform normals
+                //------------------------------------------------------------------
+
+                // Load source normals
+                s0 = SrcNormAccessor::load(pSrcNorm + 0);               // x0 y0 z0 x1
+                s1 = SrcNormAccessor::load(pSrcNorm + 4);               // y1 z1 x2 y2
+                s2 = SrcNormAccessor::load(pSrcNorm + 8);               // z2 x3 y3 z3
+
+                // Arrange to 3x4 component-major for batches calculate
+                __MM_TRANSPOSE4x3_PS(s0, s1, s2);
+
+                // Transform by collapsed and shuffled matrices
+                d0 = __MM_DOT3x3_PS(m00, m10, m20, s0, s1, s2);         // X0 X1 X2 X3
+                d1 = __MM_DOT3x3_PS(m01, m11, m21, s0, s1, s2);         // Y0 Y1 Y2 Y3
+                d2 = __MM_DOT3x3_PS(m02, m12, m22, s0, s1, s2);         // Z0 Z1 Z2 Z3
+
+                // Normalise normals
+                __m128 tmp = __MM_DOT3x3_PS(d0, d1, d2, d0, d1, d2);
+                tmp = __MM_RSQRT_PS(tmp);
+                d0 = _mm_mul_ps(d0, tmp);
+                d1 = _mm_mul_ps(d1, tmp);
+                d2 = _mm_mul_ps(d2, tmp);
+
+                // Arrange back to 4x3 continuous format for store results
+                __MM_TRANSPOSE3x4_PS(d0, d1, d2);
+
+                // Store blended normals
+                DestNormAccessor::store(pDestNorm + 0, d0);
+                DestNormAccessor::store(pDestNorm + 4, d1);
+                DestNormAccessor::store(pDestNorm + 8, d2);
+
+                // Advance 4 vertices
+                pSrcNorm += 4 * 3;
+                pDestNorm += 4 * 3;
+            }
+        }
+    };
+    static FORCEINLINE void softwareVertexSkinning_SSE_PosNorm_Separated_Packed(
+        const float* pSrcPos, float* pDestPos,
+        const float* pSrcNorm, float* pDestNorm,
+        const float* pBlendWeight, const unsigned char* pBlendIndex,
+        const Matrix4* const* blendMatrices,
+        size_t blendWeightStride, size_t blendIndexStride,
+        size_t numWeightsPerVertex,
+        size_t numIterations)
+    {
+        assert(_isAlignedForSSE(pSrcPos));
+
+        // Instantiating two version only, since other alignement combination not that important.
+        if (_isAlignedForSSE(pSrcNorm) && _isAlignedForSSE(pDestPos) && _isAlignedForSSE(pDestNorm))
+        {
+            SoftwareVertexSkinning_SSE_PosNorm_Separated_Packed<true, true, true, true>::apply(
+                pSrcPos, pDestPos,
+                pSrcNorm, pDestNorm,
+                pBlendWeight, pBlendIndex,
+                blendMatrices,
+                blendWeightStride, blendIndexStride,
+                numWeightsPerVertex,
+                numIterations);
+        }
+        else
+        {
+            SoftwareVertexSkinning_SSE_PosNorm_Separated_Packed<true, false, false, false>::apply(
+                pSrcPos, pDestPos,
+                pSrcNorm, pDestNorm,
+                pBlendWeight, pBlendIndex,
+                blendMatrices,
+                blendWeightStride, blendIndexStride,
+                numWeightsPerVertex,
+                numIterations);
+        }
+    }
+    //---------------------------------------------------------------------
+    // Special SSE version skinning position only, the position buffer are
+    // packed.
+    template <bool srcPosAligned, bool destPosAligned>
+    struct SoftwareVertexSkinning_SSE_PosOnly_Packed
+    {
+        static void apply(
+            const float* pSrcPos, float* pDestPos,
+            const float* pBlendWeight, const unsigned char* pBlendIndex,
+            const Matrix4* const* blendMatrices,
+            size_t blendWeightStride, size_t blendIndexStride,
+            size_t numWeightsPerVertex,
+            size_t numIterations)
+        {
+            typedef SSEMemoryAccessor<srcPosAligned> SrcPosAccessor;
+            typedef SSEMemoryAccessor<destPosAligned> DestPosAccessor;
+
+            // Blending 4 vertices per-iteration
+            for (size_t i = 0; i < numIterations; ++i)
+            {
+                // Collapse matrices
+                __m128 m00, m01, m02, m10, m11, m12, m20, m21, m22, m30, m31, m32;
+                _collapseFourMatrices(
+                    m00, m01, m02,
+                    m10, m11, m12,
+                    m20, m21, m22,
+                    m30, m31, m32,
+                    pBlendWeight, pBlendIndex,
+                    blendMatrices,
+                    blendWeightStride, blendIndexStride,
+                    numWeightsPerVertex);
+
+                // Advance 4 vertices
+                advanceRawPointer(pBlendWeight, 4 * blendWeightStride);
+                advanceRawPointer(pBlendIndex, 4 * blendIndexStride);
+
+                //------------------------------------------------------------------
+                // Transform positions
+                //------------------------------------------------------------------
+
+                __m128 s0, s1, s2, d0, d1, d2;
+
+                // Load source positions
+                s0 = SrcPosAccessor::load(pSrcPos + 0);                 // x0 y0 z0 x1
+                s1 = SrcPosAccessor::load(pSrcPos + 4);                 // y1 z1 x2 y2
+                s2 = SrcPosAccessor::load(pSrcPos + 8);                 // z2 x3 y3 z3
+
+                // Arrange to 3x4 component-major for batches calculate
+                __MM_TRANSPOSE4x3_PS(s0, s1, s2);
+
+                // Transform by collapsed matrix
+
+                // Shuffle row 0 of four collapsed matrices for calculate X component
+                __MM_TRANSPOSE4x4_PS(m00, m10, m20, m30);
+
+                // Transform X components
+                d0 = __MM_DOT4x3_PS(m00, m10, m20, m30, s0, s1, s2);    // X0 X1 X2 X3
+
+                // Shuffle row 1 of four collapsed matrices for calculate Y component
+                __MM_TRANSPOSE4x4_PS(m01, m11, m21, m31);
+
+                // Transform Y components
+                d1 = __MM_DOT4x3_PS(m01, m11, m21, m31, s0, s1, s2);    // Y0 Y1 Y2 Y3
+
+                // Shuffle row 2 of four collapsed matrices for calculate Z component
+                __MM_TRANSPOSE4x4_PS(m02, m12, m22, m32);
+
+                // Transform Z components
+                d2 = __MM_DOT4x3_PS(m02, m12, m22, m32, s0, s1, s2);    // Z0 Z1 Z2 Z3
+
+                // Arrange back to 4x3 continuous format for store results
+                __MM_TRANSPOSE3x4_PS(d0, d1, d2);
+
+                // Store blended positions
+                DestPosAccessor::store(pDestPos + 0, d0);
+                DestPosAccessor::store(pDestPos + 4, d1);
+                DestPosAccessor::store(pDestPos + 8, d2);
+
+                // Advance 4 vertices
+                pSrcPos += 4 * 3;
+                pDestPos += 4 * 3;
+            }
+        }
+    };
+    static FORCEINLINE void softwareVertexSkinning_SSE_PosOnly_Packed(
+        const float* pSrcPos, float* pDestPos,
+        const float* pBlendWeight, const unsigned char* pBlendIndex,
+        const Matrix4* const* blendMatrices,
+        size_t blendWeightStride, size_t blendIndexStride,
+        size_t numWeightsPerVertex,
+        size_t numIterations)
+    {
+        assert(_isAlignedForSSE(pSrcPos));
+
+        // Instantiating two version only, since other alignement combination not that important.
+        if (_isAlignedForSSE(pDestPos))
+        {
+            SoftwareVertexSkinning_SSE_PosOnly_Packed<true, true>::apply(
+                pSrcPos, pDestPos,
+                pBlendWeight, pBlendIndex,
+                blendMatrices,
+                blendWeightStride, blendIndexStride,
+                numWeightsPerVertex,
+                numIterations);
+        }
+        else
+        {
+            SoftwareVertexSkinning_SSE_PosOnly_Packed<true, false>::apply(
+                pSrcPos, pDestPos,
+                pBlendWeight, pBlendIndex,
+                blendMatrices,
+                blendWeightStride, blendIndexStride,
+                numWeightsPerVertex,
+                numIterations);
+        }
+    }
+    //---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    OptimisedUtilSSE::OptimisedUtilSSE(void)
+        : mIsAMD(PlatformInformation::getCpuIdentifier() == "AuthenticAMD-X86")
+    {
+    }
+    //---------------------------------------------------------------------
+    void OptimisedUtilSSE::softwareVertexSkinning(
+        const float *pSrcPos, float *pDestPos,
+        const float *pSrcNorm, float *pDestNorm,
+        const float *pBlendWeight, const unsigned char* pBlendIndex,
+        const Matrix4* const* blendMatrices,
+        size_t srcPosStride, size_t destPosStride,
+        size_t srcNormStride, size_t destNormStride,
+        size_t blendWeightStride, size_t blendIndexStride,
+        size_t numWeightsPerVertex,
+        size_t numVertices)
+    {
+        __OGRE_CHECK_STACK_ALIGNED_FOR_SSE();
+
+        // All position/normal pointers should be perfect aligned, but still check here
+        // for avoid hardware buffer which allocated by potential buggy driver doesn't
+        // support alignment properly.
+        // Because we are used meta-function technique here, the code is easy to maintenance
+        // and still provides all possible alignment combination.
+        //
+
+        // Use unrolled routines only if there a lot of vertices
+        if (numVertices > OGRE_SSE_SKINNING_UNROLL_VERTICES)
+        {
+            if (pSrcNorm)
+            {
+                // Blend position and normal
+
+                // For AMD Athlon XP, it's prefer to never use unrolled version for shared
+                // buffers at all, I guess because that version run out of CPU register count,
+                // or L1 cache related problem, causing slight performance loss than general
+                // version.
+                //
+                if (!mIsAMD &&
+                    srcPosStride == sizeof(float) * (3 + 3) && destPosStride == sizeof(float) * (3 + 3) &&
+                    pSrcNorm == pSrcPos + 3 && pDestNorm == pDestPos + 3)
+                {
+                    // Position and normal are sharing with packed buffer
+
+                    size_t srcPosAlign = (size_t)pSrcPos & 15;
+                    assert((srcPosAlign & 3) == 0);
+
+                    // Blend unaligned vertices with general SIMD routine
+                    if (srcPosAlign == 8)   // Because 8 bytes alignment shift per-vertex
+                    {
+                        size_t count = srcPosAlign / 8;
+                        numVertices -= count;
+                        softwareVertexSkinning_SSE_General(
+                            pSrcPos, pDestPos,
+                            pSrcNorm, pDestNorm,
+                            pBlendWeight, pBlendIndex,
+                            blendMatrices,
+                            srcPosStride, destPosStride,
+                            srcNormStride, destNormStride,
+                            blendWeightStride, blendIndexStride,
+                            numWeightsPerVertex,
+                            count);
+
+                        pSrcPos += count * (3 + 3);
+                        pDestPos += count * (3 + 3);
+                        pSrcNorm += count * (3 + 3);
+                        pDestNorm += count * (3 + 3);
+                        advanceRawPointer(pBlendWeight, count * blendWeightStride);
+                        advanceRawPointer(pBlendIndex, count * blendIndexStride);
+                    }
+
+                    // Blend vertices, four vertices per-iteration
+                    size_t numIterations = numVertices / 4;
+                    softwareVertexSkinning_SSE_PosNorm_Shared_Packed(
+                        pSrcPos, pDestPos,
+                        pBlendWeight, pBlendIndex,
+                        blendMatrices,
+                        blendWeightStride, blendIndexStride,
+                        numWeightsPerVertex,
+                        numIterations);
+
+                    // Advance pointers for remaining vertices
+                    numVertices &= 3;
+                    if (numVertices)
+                    {
+                        pSrcPos += numIterations * 4 * (3 + 3);
+                        pDestPos += numIterations * 4 * (3 + 3);
+                        pSrcNorm += numIterations * 4 * (3 + 3);
+                        pDestNorm += numIterations * 4 * (3 + 3);
+                        advanceRawPointer(pBlendWeight, numIterations * 4 * blendWeightStride);
+                        advanceRawPointer(pBlendIndex, numIterations * 4 * blendIndexStride);
+                    }
+                }
+                else if (srcPosStride == sizeof(float) * 3 && destPosStride == sizeof(float) * 3 &&
+                         srcNormStride == sizeof(float) * 3 && destNormStride == sizeof(float) * 3)
+                {
+                    // Position and normal are separate buffers, and all of them are packed
+
+                    size_t srcPosAlign = (size_t)pSrcPos & 15;
+                    assert((srcPosAlign & 3) == 0);
+
+                    // Blend unaligned vertices with general SIMD routine
+                    if (srcPosAlign)
+                    {
+                        size_t count = srcPosAlign / 4;
+                        numVertices -= count;
+                        softwareVertexSkinning_SSE_General(
+                            pSrcPos, pDestPos,
+                            pSrcNorm, pDestNorm,
+                            pBlendWeight, pBlendIndex,
+                            blendMatrices,
+                            srcPosStride, destPosStride,
+                            srcNormStride, destNormStride,
+                            blendWeightStride, blendIndexStride,
+                            numWeightsPerVertex,
+                            count);
+
+                        pSrcPos += count * 3;
+                        pDestPos += count * 3;
+                        pSrcNorm += count * 3;
+                        pDestNorm += count * 3;
+                        advanceRawPointer(pBlendWeight, count * blendWeightStride);
+                        advanceRawPointer(pBlendIndex, count * blendIndexStride);
+                    }
+
+                    // Blend vertices, four vertices per-iteration
+                    size_t numIterations = numVertices / 4;
+                    softwareVertexSkinning_SSE_PosNorm_Separated_Packed(
+                        pSrcPos, pDestPos,
+                        pSrcNorm, pDestNorm,
+                        pBlendWeight, pBlendIndex,
+                        blendMatrices,
+                        blendWeightStride, blendIndexStride,
+                        numWeightsPerVertex,
+                        numIterations);
+
+                    // Advance pointers for remaining vertices
+                    numVertices &= 3;
+                    if (numVertices)
+                    {
+                        pSrcPos += numIterations * 4 * 3;
+                        pDestPos += numIterations * 4 * 3;
+                        pSrcNorm += numIterations * 4 * 3;
+                        pDestNorm += numIterations * 4 * 3;
+                        advanceRawPointer(pBlendWeight, numIterations * 4 * blendWeightStride);
+                        advanceRawPointer(pBlendIndex, numIterations * 4 * blendIndexStride);
+                    }
+                }
+                else    // Not 'packed' form or wrong order between position and normal
+                {
+                    // Should never occuring, do nothing here just in case
+                }
+            }
+            else    // !pSrcNorm
+            {
+                // Blend position only
+
+                if (srcPosStride == sizeof(float) * 3 && destPosStride == sizeof(float) * 3)
+                {
+                    // All buffers are packed
+
+                    size_t srcPosAlign = (size_t)pSrcPos & 15;
+                    assert((srcPosAlign & 3) == 0);
+
+                    // Blend unaligned vertices with general SIMD routine
+                    if (srcPosAlign)
+                    {
+                        size_t count = srcPosAlign / 4;
+                        numVertices -= count;
+                        softwareVertexSkinning_SSE_General(
+                            pSrcPos, pDestPos,
+                            pSrcNorm, pDestNorm,
+                            pBlendWeight, pBlendIndex,
+                            blendMatrices,
+                            srcPosStride, destPosStride,
+                            srcNormStride, destNormStride,
+                            blendWeightStride, blendIndexStride,
+                            numWeightsPerVertex,
+                            count);
+
+                        pSrcPos += count * 3;
+                        pDestPos += count * 3;
+                        advanceRawPointer(pBlendWeight, count * blendWeightStride);
+                        advanceRawPointer(pBlendIndex, count * blendIndexStride);
+                    }
+
+                    // Blend vertices, four vertices per-iteration
+                    size_t numIterations = numVertices / 4;
+                    softwareVertexSkinning_SSE_PosOnly_Packed(
+                        pSrcPos, pDestPos,
+                        pBlendWeight, pBlendIndex,
+                        blendMatrices,
+                        blendWeightStride, blendIndexStride,
+                        numWeightsPerVertex,
+                        numIterations);
+
+                    // Advance pointers for remaining vertices
+                    numVertices &= 3;
+                    if (numVertices)
+                    {
+                        pSrcPos += numIterations * 4 * 3;
+                        pDestPos += numIterations * 4 * 3;
+                        advanceRawPointer(pBlendWeight, numIterations * 4 * blendWeightStride);
+                        advanceRawPointer(pBlendIndex, numIterations * 4 * blendIndexStride);
+                    }
+                }
+                else    // Not 'packed' form
+                {
+                    // Might occuring only if user forced software blending position only
+                }
+            }
+        }
+
+        // Blend remaining vertices, need to do it with SIMD for identical result,
+        // since mixing general floating-point and SIMD algorithm will causing
+        // floating-point error.
+        if (numVertices)
+        {
+            softwareVertexSkinning_SSE_General(
+                pSrcPos, pDestPos,
+                pSrcNorm, pDestNorm,
+                pBlendWeight, pBlendIndex,
+                blendMatrices,
+                srcPosStride, destPosStride,
+                srcNormStride, destNormStride,
+                blendWeightStride, blendIndexStride,
+                numWeightsPerVertex,
+                numVertices);
+        }
+    }
+    //---------------------------------------------------------------------
+    void OptimisedUtilSSE::concatenateAffineMatrices(
+        const Matrix4& baseMatrix,
+        const Matrix4* pSrcMat,
+        Matrix4* pDstMat,
+        size_t numMatrices)
+    {
+        __OGRE_CHECK_STACK_ALIGNED_FOR_SSE();
+
+        assert(_isAlignedForSSE(pSrcMat));
+        assert(_isAlignedForSSE(pDstMat));
+
+        // Load base matrix, unaligned
+        __m128 m0 = _mm_loadu_ps(baseMatrix[0]);
+        __m128 m1 = _mm_loadu_ps(baseMatrix[1]);
+        __m128 m2 = _mm_loadu_ps(baseMatrix[2]);
+        __m128 m3 = _mm_loadu_ps(baseMatrix[3]);        // m3 should be equal to (0, 0, 0, 1)
+
+        for (size_t i = 0; i < numMatrices; ++i)
+        {
+            // Load source matrix, aligned
+            __m128 s0 = __MM_LOAD_PS((*pSrcMat)[0]);
+            __m128 s1 = __MM_LOAD_PS((*pSrcMat)[1]);
+            __m128 s2 = __MM_LOAD_PS((*pSrcMat)[2]);
+
+            ++pSrcMat;
+
+            __m128 t0, t1, t2, t3;
+
+            // Concatenate matrix, and store results
+
+            // Row 0
+            t0 = _mm_mul_ps(__MM_SELECT(m0, 0), s0);
+            t1 = _mm_mul_ps(__MM_SELECT(m0, 1), s1);
+            t2 = _mm_mul_ps(__MM_SELECT(m0, 2), s2);
+            t3 = _mm_mul_ps(m0, m3);    // Compiler should optimise this out of the loop
+            __MM_STORE_PS((*pDstMat)[0], __MM_ACCUM4_PS(t0,t1,t2,t3));
+
+            // Row 1
+            t0 = _mm_mul_ps(__MM_SELECT(m1, 0), s0);
+            t1 = _mm_mul_ps(__MM_SELECT(m1, 1), s1);
+            t2 = _mm_mul_ps(__MM_SELECT(m1, 2), s2);
+            t3 = _mm_mul_ps(m1, m3);    // Compiler should optimise this out of the loop
+            __MM_STORE_PS((*pDstMat)[1], __MM_ACCUM4_PS(t0,t1,t2,t3));
+
+            // Row 2
+            t0 = _mm_mul_ps(__MM_SELECT(m2, 0), s0);
+            t1 = _mm_mul_ps(__MM_SELECT(m2, 1), s1);
+            t2 = _mm_mul_ps(__MM_SELECT(m2, 2), s2);
+            t3 = _mm_mul_ps(m2, m3);    // Compiler should optimise this out of the loop
+            __MM_STORE_PS((*pDstMat)[2], __MM_ACCUM4_PS(t0,t1,t2,t3));
+
+            // Row 3
+            __MM_STORE_PS((*pDstMat)[3], m3);
+
+            ++pDstMat;
+        }
+    }
+    //---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    extern OptimisedUtil* _getOptimisedUtilSSE(void)
+    {
+        static OptimisedUtilSSE msOptimisedUtilSSE;
+#if defined(__OGRE_SIMD_ALIGN_STACK)
+        static OptimisedUtilWithStackAlign msOptimisedUtilWithStackAlign(&msOptimisedUtilSSE);
+        return &msOptimisedUtilWithStackAlign;
+#else
+        return &msOptimisedUtilSSE;
+#endif
+    }
+
+}
+
+#endif // __OGRE_HAVE_SSE

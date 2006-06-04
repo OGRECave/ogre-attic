@@ -26,13 +26,157 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __SIMDHelper_H__
 
 #include "OgrePrerequisites.h"
+#include "OgrePlatformInformation.h"
 
-// Additional platform-dependent header files
+// Stack-alignment hackery.
+//
+// If macro __OGRE_SIMD_ALIGN_STACK defined, means there requests
+// special code to ensure stack align to a 16-bytes boundary.
+//
+// Note:
+//   This macro can only guarantee callee stack pointer (esp) align
+// to a 16-bytes boundary, but not that for frame pointer (ebp).
+// Because most compiler might use frame pointer to access to stack
+// variables, so you need to wrap those alignment required functions
+// with extra function call.
+//
+#if OGRE_CPU == OGRE_CPU_X86 && OGRE_COMPILER == OGRE_COMPILER_GNUC
+//
+// Horrible hack to align the stack to a 16-bytes boundary for gcc.
+//
+// We assume a gcc version >= 2.95 so that
+// -mpreferred-stack-boundary works.  Otherwise, all bets are
+// off.  However, -mpreferred-stack-boundary does not create a
+// stack alignment, but it only preserves it.  Unfortunately,
+// since Ogre are designed as a flexibility library, user might
+// compile their application with wrong stack alignment, even
+// if user taken care with stack alignment, but many versions
+// of libc on linux call main() with the wrong initial stack
+// alignment the result that the code is now pessimally aligned
+// instead of having a 50% chance of being correct.
+//
+#define __OGRE_SIMD_ALIGN_STACK()                                   \
+    {                                                               \
+        /* Use alloca to allocate some memory on the stack.  */     \
+        /* This alerts gcc that something funny is going on, */     \
+        /* so that it does not omit the frame pointer etc.   */     \
+        (void)__builtin_alloca(16);                                 \
+        /* Now align the stack pointer */                           \
+        __asm__ __volatile__ ("andl $-16, %esp");                   \
+    }
+
+#elif defined(__ICC)
+// For intel's compiler, simply calling alloca seems to do the right
+// thing. The size of the allocated block seems to be irrelevant.
+#define __OGRE_SIMD_ALIGN_STACK()   _alloca(16)
+
+#elif defined(_MSC_VER)
+// Fortunately, MSVC will align the stack automatically
+
+#endif
+
+
+// Additional platform-dependent header files and declares.
+//
+// NOTE: Should be sync with __OGRE_HAVE_SSE macro.
+//
 
 #if OGRE_DOUBLE_PRECISION == 0 && OGRE_CPU == OGRE_CPU_X86 && OGRE_COMPILER == OGRE_COMPILER_MSVC
 #include "OgreNoMemoryMacros.h"
 #include <xmmintrin.h>
 #include "OgreMemoryMacros.h"
+
+#elif OGRE_DOUBLE_PRECISION == 0 && OGRE_CPU == OGRE_CPU_X86 && OGRE_COMPILER == OGRE_COMPILER_GNUC
+
+// Simulate VC/ICC intrinsics. Only used intrinsics are declared here.
+
+typedef float __m128 __attribute__ ((mode(V4SF),aligned(16)));
+typedef int __m64 __attribute__ ((mode(V2SI)));
+
+// Shuffle instruction must be declare as macro
+
+#define _MM_SHUFFLE(fp3,fp2,fp1,fp0) \
+    (((fp3) << 6) | ((fp2) << 4) | ((fp1) << 2) | ((fp0)))
+
+#define _mm_shuffle_ps(a, b, imm8) __extension__                                        \
+    ({				                                                                    \
+        __m128 result;								                                    \
+        __asm__("shufps %3, %2, %0" : "=x" (result) : "0" (a), "xm" (b), "N" (imm8));   \
+        result;								                                            \
+    })
+
+
+// Load/store instructions
+
+#define __MM_DECL_LD(name, instruction, type)                               \
+    static FORCEINLINE __m128 _mm_##name(const type *addr)                  \
+    {                                                                       \
+        __m128 result;                                                      \
+        __asm__( #instruction " %1, %0" : "=x" (result) : "m" (*addr));     \
+        return result;                                                      \
+    }
+
+#define __MM_DECL_ST(name, instruction, type)                               \
+    static FORCEINLINE void _mm_##name(type *addr, __m128 val)              \
+    {                                                                       \
+        __asm__( #instruction " %1, %0" : "=m" (*addr) : "x" (val));        \
+    }
+
+__MM_DECL_LD(loadu_ps, movups, float)
+__MM_DECL_ST(storeu_ps, movups, float)
+
+__MM_DECL_LD(load_ss, movss, float)
+__MM_DECL_ST(store_ss, movss, float)
+
+__MM_DECL_ST(storeh_pi, movhps, __m64)
+
+#undef __MM_DECL_LD
+#undef __MM_DECL_ST
+
+// Two operand instructions
+
+#define __MM_DECL_OP2(name, instruction, constraint)                                    \
+    static FORCEINLINE __m128 _mm_##name(__m128 a, __m128 b)                            \
+    {                                                                                   \
+        __m128 result;                                                                  \
+        __asm__( #instruction " %2, %0" : "=x" (result) : "0" (a), #constraint (b));    \
+        return result;                                                                  \
+    }
+
+__MM_DECL_OP2(add_ps, addps, xm)
+__MM_DECL_OP2(sub_ps, subps, xm)
+__MM_DECL_OP2(mul_ps, mulps, xm)
+
+__MM_DECL_OP2(unpacklo_ps, unpcklps, xm)
+__MM_DECL_OP2(unpackhi_ps, unpckhps, xm)
+
+__MM_DECL_OP2(movehl_ps, movhlps, x)
+__MM_DECL_OP2(movelh_ps, movlhps, x)
+
+#undef __MM_DECL_OP2
+
+// Other used instructions
+
+    static FORCEINLINE __m128 _mm_load_ps1(const float *addr)
+    {
+        __m128 tmp = _mm_load_ss(addr);
+        return _mm_shuffle_ps(tmp, tmp, 0);
+    }
+
+    static FORCEINLINE __m128 _mm_setzero_ps(void)
+    {
+        __m128 result;
+        __asm__("xorps %0, %0" : "=x" (result));
+        return result;
+    }
+
+    static FORCEINLINE __m128 _mm_rsqrt_ps(__m128 val)
+    {
+        __m128 result;
+        __asm__("rsqrtps %1, %0" : "=x" (result) : "xm" (val));
+        //__asm__("rsqrtps %0, %0" : "=x" (result) : "0" (val));
+        return result;
+    }
 
 #endif // OGRE_DOUBLE_PRECISION == 0 && OGRE_CPU == OGRE_CPU_X86 && OGRE_COMPILER == OGRE_COMPILER_MSVC
 
@@ -45,7 +189,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-#if OGRE_DOUBLE_PRECISION == 0 && OGRE_CPU == OGRE_CPU_X86 && OGRE_COMPILER == OGRE_COMPILER_MSVC
+#if __OGRE_HAVE_SSE
 
 /** Macro __MM_RSQRT_PS calculate square root, which should be used for
     normalise normals only. It might be use NewtonRaphson reciprocal square
@@ -140,9 +284,21 @@ namespace Ogre {
         v2 = _mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,1,3));  /* r22 r30 r31 r32 */   \
     }
 
+/** Fill vector of single precision floating point with selected value.
+    Argument 'fp' is a digit[0123] that represents the fp of argument 'v'.
+*/
+#define __MM_SELECT(v, fp)                                                          \
+    _mm_shuffle_ps((v), (v), _MM_SHUFFLE((fp),(fp),(fp),(fp)))
+
 /// Accumulate four vector of single precision floating point values.
 #define __MM_ACCUM4_PS(a, b, c, d)                                                  \
     _mm_add_ps(_mm_add_ps(a, b), _mm_add_ps(c, d))
+
+/** Performing dot-product between two of four vector of single precision
+    floating point values.
+*/
+#define __MM_DOT4x4_PS(a0, a1, a2, a3, b0, b1, b2, b3)                              \
+    __MM_ACCUM4_PS(_mm_mul_ps(a0, b0), _mm_mul_ps(a1, b1), _mm_mul_ps(a2, b2), _mm_mul_ps(a3, b3))
 
 /** Performing dot-product between four vector and three vector of single
     precision floating point values.
@@ -167,10 +323,6 @@ namespace Ogre {
 /// Linear interpolation
 #define __MM_LERP_PS(t, a, b)                                                       \
     __MM_MADD_PS(_mm_sub_ps(b, a), t, a)
-
-/// Same as __MM_LERP_PS, but can generate more optimised code in VC somewhere.
-#define __MM_LERP2_PS(t, a, b)                                                      \
-    __MM_MADD_PS(t, _mm_sub_ps(b, a), a)
 
 /// Same as _mm_load_ps, but can help VC generate more optimised code.
 #define __MM_LOAD_PS(p)                                                             \
@@ -228,7 +380,21 @@ namespace Ogre {
             _mm_sub_ps(v3pt0, _mm_mul_ps(_mm_mul_ps(x, t), t)));
     }
 
-#endif  // OGRE_DOUBLE_PRECISION == 0 && OGRE_CPU == OGRE_CPU_X86 && OGRE_COMPILER == OGRE_COMPILER_MSVC
+// Macro to check the stack aligned for SSE
+#if OGRE_DEBUG_MODE
+#define __OGRE_CHECK_STACK_ALIGNED_FOR_SSE()        \
+    {                                               \
+        __m128 test;                                \
+        assert(_isAlignedForSSE(&test));            \
+    }
+
+#else   // !OGRE_DEBUG_MODE
+#define __OGRE_CHECK_STACK_ALIGNED_FOR_SSE()
+
+#endif  // OGRE_DEBUG_MODE
+
+
+#endif  // __OGRE_HAVE_SSE
 
 }
 
