@@ -213,6 +213,25 @@ namespace Ogre {
         mActiveTagPoints.remove(tagPoint);
         mFreeTagPoints.push_back(tagPoint);
     }
+	//-------------------------------------------------------------------------
+	const String& SkeletonInstance::getName(void) const
+	{
+		// delegate
+		return mSkeleton->getName();
+	}
+	//-------------------------------------------------------------------------
+	ResourceHandle SkeletonInstance::getHandle(void) const
+	{
+		// delegate
+		return mSkeleton->getHandle();
+	}
+	//-------------------------------------------------------------------------
+	const String& SkeletonInstance::getGroup(void)
+	{
+		// delegate
+		return mSkeleton->getGroup();
+	}
+
 
 }
 
