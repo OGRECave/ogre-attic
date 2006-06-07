@@ -65,7 +65,7 @@ namespace Ogre {
         /** Set the material used by this pass
 			@note applies when PassType is RENDERQUAD 
 		*/
-        void setMaterial(MaterialPtr mat);
+        void setMaterial(const MaterialPtr& mat);
         /** Set the material used by this pass 
 			@note applies when PassType is RENDERQUAD 
 		*/
@@ -73,7 +73,7 @@ namespace Ogre {
         /** Get the material used by this pass 
 			@note applies when PassType is RENDERQUAD 
 		*/
-        MaterialPtr getMaterial() const;
+        const MaterialPtr& getMaterial() const;
 		/** Set the first render queue to be rendered in this pass (inclusive) 
 			@note applies when PassType is RENDERSCENE
 		*/
@@ -223,6 +223,11 @@ namespace Ogre {
 			@note applies when PassType is RENDERQUAD 
 		*/
         CompositionTargetPass *getParent();
+
+        /** Determine if this target pass is supported on the current rendering device. 
+         */
+        bool _isSupported(void);
+
     private:
         /// Parent technique
         CompositionTargetPass *mParent;

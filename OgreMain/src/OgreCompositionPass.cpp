@@ -73,7 +73,7 @@ uint32 CompositionPass::getIdentifier() const
     return mIdentifier;
 }
 //-----------------------------------------------------------------------
-void CompositionPass::setMaterial(MaterialPtr mat)
+void CompositionPass::setMaterial(const MaterialPtr& mat)
 {
     mMaterial = mat;
 }
@@ -83,7 +83,7 @@ void CompositionPass::setMaterialName(const String &name)
     mMaterial = MaterialManager::getSingleton().getByName(name);
 }
 //-----------------------------------------------------------------------
-MaterialPtr CompositionPass::getMaterial() const
+const MaterialPtr& CompositionPass::getMaterial() const
 {
     return mMaterial;
 }
@@ -244,6 +244,28 @@ void CompositionPass::setStencilTwoSidedOperation(bool value)
 bool CompositionPass::getStencilTwoSidedOperation()
 {
 	return mStencilTwoSidedOperation;
+}
+
+//-----------------------------------------------------------------------
+bool CompositionPass::_isSupported(void)
+{
+    // A pass is supported if material referenced have a supported technique
+
+    if (mType == PT_RENDERQUAD)
+    {
+        if (mMaterial.isNull())
+        {
+            return false;
+        }
+
+        mMaterial->compile();
+        if (mMaterial->getNumSupportedTechniques() == 0)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 }
