@@ -54,6 +54,13 @@ namespace Ogre {
             size_t numWeightsPerVertex,
             size_t numVertices);
 
+        /// @copydoc OptimisedUtil::softwareVertexMorph
+        virtual void softwareVertexMorph(
+            Real t,
+            const float *srcPos1, const float *srcPos2,
+            float *dstPos,
+            size_t numVertices);
+
         /// @copydoc OptimisedUtil::concatenateAffineMatrices
         virtual void concatenateAffineMatrices(
             const Matrix4& baseMatrix,
@@ -224,6 +231,26 @@ namespace Ogre {
 
             ++pSrcMat;
             ++pDstMat;
+        }
+    }
+    //---------------------------------------------------------------------
+    void OptimisedUtilGeneral::softwareVertexMorph(
+        Real t,
+        const float *pSrc1, const float *pSrc2,
+        float *pDst,
+        size_t numVertices)
+    {
+        for (size_t i = 0; i < numVertices; ++i)
+        {
+            // x
+            *pDst++ = *pSrc1 + t * (*pSrc2 - *pSrc1) ;
+            ++pSrc1; ++pSrc2;
+            // y
+            *pDst++ = *pSrc1 + t * (*pSrc2 - *pSrc1) ;
+            ++pSrc1; ++pSrc2;
+            // z
+            *pDst++ = *pSrc1 + t * (*pSrc2 - *pSrc1) ;
+            ++pSrc1; ++pSrc2;
         }
     }
     //---------------------------------------------------------------------

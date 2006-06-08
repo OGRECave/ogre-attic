@@ -93,6 +93,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 typedef float __m128 __attribute__ ((mode(V4SF),aligned(16)));
 typedef int __m64 __attribute__ ((mode(V2SI)));
 
+// Macro for declare intrinsic routines always inline even if in debug build
+#define __ALWAYS_INLINE    FORCEINLINE __attribute__ ((__always_inline__))
+
 // Shuffle instruction must be declare as macro
 
 #define _MM_SHUFFLE(fp3,fp2,fp1,fp0) \
@@ -109,15 +112,23 @@ typedef int __m64 __attribute__ ((mode(V2SI)));
 // Load/store instructions
 
 #define __MM_DECL_LD(name, instruction, type)                               \
-    static FORCEINLINE __m128 _mm_##name(const type *addr)                  \
+    static __ALWAYS_INLINE __m128 _mm_##name(const type *addr)              \
     {                                                                       \
         __m128 result;                                                      \
         __asm__( #instruction " %1, %0" : "=x" (result) : "m" (*addr));     \
         return result;                                                      \
     }
 
+#define __MM_DECL_LD2(name, instruction, type)                                      \
+    static __ALWAYS_INLINE __m128 _mm_##name(__m128 val, const type *addr)          \
+    {                                                                               \
+        __m128 result;                                                              \
+        __asm__( #instruction " %2, %0" : "=x" (result) : "0"(val), "m" (*addr));   \
+        return result;                                                              \
+    }
+
 #define __MM_DECL_ST(name, instruction, type)                               \
-    static FORCEINLINE void _mm_##name(type *addr, __m128 val)              \
+    static __ALWAYS_INLINE void _mm_##name(type *addr, __m128 val)          \
     {                                                                       \
         __asm__( #instruction " %1, %0" : "=m" (*addr) : "x" (val));        \
     }
@@ -128,15 +139,19 @@ __MM_DECL_ST(storeu_ps, movups, float)
 __MM_DECL_LD(load_ss, movss, float)
 __MM_DECL_ST(store_ss, movss, float)
 
+__MM_DECL_ST(storel_pi, movlps, __m64)
 __MM_DECL_ST(storeh_pi, movhps, __m64)
+__MM_DECL_LD2(loadl_pi, movlps, __m64)
+__MM_DECL_LD2(loadh_pi, movhps, __m64)
 
 #undef __MM_DECL_LD
+#undef __MM_DECL_LD2
 #undef __MM_DECL_ST
 
 // Two operand instructions
 
 #define __MM_DECL_OP2(name, instruction, constraint)                                    \
-    static FORCEINLINE __m128 _mm_##name(__m128 a, __m128 b)                            \
+    static __ALWAYS_INLINE __m128 _mm_##name(__m128 a, __m128 b)                        \
     {                                                                                   \
         __m128 result;                                                                  \
         __asm__( #instruction " %2, %0" : "=x" (result) : "0" (a), #constraint (b));    \
@@ -144,8 +159,11 @@ __MM_DECL_ST(storeh_pi, movhps, __m64)
     }
 
 __MM_DECL_OP2(add_ps, addps, xm)
+__MM_DECL_OP2(add_ss, addss, xm)
 __MM_DECL_OP2(sub_ps, subps, xm)
+__MM_DECL_OP2(sub_ss, subss, xm)
 __MM_DECL_OP2(mul_ps, mulps, xm)
+__MM_DECL_OP2(mul_ss, mulss, xm)
 
 __MM_DECL_OP2(unpacklo_ps, unpcklps, xm)
 __MM_DECL_OP2(unpackhi_ps, unpckhps, xm)
@@ -157,20 +175,20 @@ __MM_DECL_OP2(movelh_ps, movlhps, x)
 
 // Other used instructions
 
-    static FORCEINLINE __m128 _mm_load_ps1(const float *addr)
+    static __ALWAYS_INLINE __m128 _mm_load_ps1(const float *addr)
     {
         __m128 tmp = _mm_load_ss(addr);
         return _mm_shuffle_ps(tmp, tmp, 0);
     }
 
-    static FORCEINLINE __m128 _mm_setzero_ps(void)
+    static __ALWAYS_INLINE __m128 _mm_setzero_ps(void)
     {
         __m128 result;
         __asm__("xorps %0, %0" : "=x" (result));
         return result;
     }
 
-    static FORCEINLINE __m128 _mm_rsqrt_ps(__m128 val)
+    static __ALWAYS_INLINE __m128 _mm_rsqrt_ps(__m128 val)
     {
         __m128 result;
         __asm__("rsqrtps %1, %0" : "=x" (result) : "xm" (val));
@@ -323,6 +341,14 @@ namespace Ogre {
 /// Linear interpolation
 #define __MM_LERP_PS(t, a, b)                                                       \
     __MM_MADD_PS(_mm_sub_ps(b, a), t, a)
+
+/// Calculate multiply of two single floating value and plus another floating value
+#define __MM_MADD_SS(a, b, c)                                                       \
+    _mm_add_ss(_mm_mul_ss(a, b), c)
+
+/// Linear interpolation
+#define __MM_LERP_SS(t, a, b)                                                       \
+    __MM_MADD_SS(_mm_sub_ss(b, a), t, a)
 
 /// Same as _mm_load_ps, but can help VC generate more optimised code.
 #define __MM_LOAD_PS(p)                                                             \

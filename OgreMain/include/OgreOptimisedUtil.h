@@ -96,6 +96,25 @@ namespace Ogre {
             size_t numWeightsPerVertex,
             size_t numVertices) = 0;
 
+        /** Performs a software vertex morph, of the kind used for
+            morph animation although it can be used for other purposes. 
+        @remarks
+            This function will linearly interpolate positions between two
+            source buffers, into a third buffer.
+        @param t Parametric distance between the start and end positions
+        @param srcPos1 Pointer to buffer for the start positions
+        @param srcPos2 Pointer to buffer for the end positions
+        @param dstPos Pointer to buffer for the destination positions
+        @param numVertices Number of vertices to morph, which agree with
+            the number in start, end and destination buffer. Bear in mind
+            three floating-point values per vertex
+        */
+        virtual void softwareVertexMorph(
+            float t,
+            const float *srcPos1, const float *srcPos2,
+            float *dstPos,
+            size_t numVertices) = 0;
+
         /** Concatenate an affine matrix to an array of affine matrices.
         @note
             An affine matrix is a 4x4 matrix with row 3 equal to (0, 0, 0, 1),
