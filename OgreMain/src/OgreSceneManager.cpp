@@ -4404,12 +4404,12 @@ void SceneManager::createShadowTextures(unsigned short size,
 			shadowTex = TextureManager::getSingleton().createManual(
 				targName, 
 				ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, 
-				TEX_TYPE_2D, size, size, 0, mShadowTextureFormat, 
+				TEX_TYPE_2D, size, size, 0, fmt, 
 				TU_RENDERTARGET);
 		}
 		else if (shadowTex->getWidth() != size 
 			|| shadowTex->getHeight() != size
-			|| shadowTex->getFormat() != mShadowTextureFormat)
+			|| shadowTex->getFormat() != fmt)
 		{
 			StringUtil::StrStreamType s;
 			s << "Warning: shadow texture #" << t << " is shared "
