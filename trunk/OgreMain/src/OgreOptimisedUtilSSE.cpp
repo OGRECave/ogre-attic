@@ -89,6 +89,13 @@ namespace Ogre {
             size_t numWeightsPerVertex,
             size_t numVertices);
 
+        /// @copydoc OptimisedUtil::softwareVertexMorph
+        virtual void softwareVertexMorph(
+            Real t,
+            const float *srcPos1, const float *srcPos2,
+            float *dstPos,
+            size_t numVertices);
+
         /// @copydoc OptimisedUtil::concatenateAffineMatrices
         virtual void concatenateAffineMatrices(
             const Matrix4& baseMatrix,
@@ -144,6 +151,24 @@ namespace Ogre {
                 srcNormStride, destNormStride,
                 blendWeightStride, blendIndexStride,
                 numWeightsPerVertex,
+                numVertices);
+        }
+
+        /// @copydoc OptimisedUtil::softwareVertexMorph
+        virtual void softwareVertexMorph(
+            Real t,
+            const float *srcPos1, const float *srcPos2,
+            float *dstPos,
+            size_t numVertices)
+        {
+            __OGRE_SIMD_ALIGN_STACK();
+
+            // This is virtual function call, should guarantee call instruction
+            // are used instead of inline underlying function body here.
+            mImpl->softwareVertexMorph(
+                t,
+                srcPos1, srcPos2,
+                dstPos,
                 numVertices);
         }
 
@@ -1160,6 +1185,184 @@ namespace Ogre {
                 blendWeightStride, blendIndexStride,
                 numWeightsPerVertex,
                 numVertices);
+        }
+    }
+    //---------------------------------------------------------------------
+    void OptimisedUtilSSE::softwareVertexMorph(
+        Real t,
+        const float *pSrc1, const float *pSrc2,
+        float *pDst,
+        size_t numVertices)
+    {
+        __OGRE_CHECK_STACK_ALIGNED_FOR_SSE();
+
+        __m128 src01, src02, src11, src12, src21, src22;
+        __m128 dst0, dst1, dst2;
+
+        __m128 t4 = _mm_load_ps1(&t);
+
+        size_t numIterations = numVertices / 4;
+        numVertices &= 3;
+
+        // Never use meta-function technique to accessing memory because looks like
+        // VC7.1 generate a bit inefficient binary code when put following code into
+        // inline function.
+
+        if (_isAlignedForSSE(pSrc1) && _isAlignedForSSE(pSrc2) && _isAlignedForSSE(pDst))
+        {
+            // All data aligned
+
+            // Morph 4 vertices per-iteration. Special designed for use all
+            // available CPU registers as possible (7 registers used here),
+            // and avoid temporary values allocated in stack for suppress
+            // extra memory access.
+            for (size_t i = 0; i < numIterations; ++i)
+            {
+                // 12 floating-point values
+                src01 = __MM_LOAD_PS(pSrc1 + 0);
+                src02 = __MM_LOAD_PS(pSrc2 + 0);
+                src11 = __MM_LOAD_PS(pSrc1 + 4);
+                src12 = __MM_LOAD_PS(pSrc2 + 4);
+                src21 = __MM_LOAD_PS(pSrc1 + 8);
+                src22 = __MM_LOAD_PS(pSrc2 + 8);
+                pSrc1 += 12; pSrc2 += 12;
+
+                dst0 = __MM_LERP_PS(t4, src01, src02);
+                dst1 = __MM_LERP_PS(t4, src11, src12);
+                dst2 = __MM_LERP_PS(t4, src21, src22);
+
+                __MM_STORE_PS(pDst + 0, dst0);
+                __MM_STORE_PS(pDst + 4, dst1);
+                __MM_STORE_PS(pDst + 8, dst2);
+                pDst += 12;
+            }
+
+            // Morph remaining vertices
+            switch (numVertices)
+            {
+            case 3:
+                // 9 floating-point values
+                src01 = __MM_LOAD_PS(pSrc1 + 0);
+                src02 = __MM_LOAD_PS(pSrc2 + 0);
+                src11 = __MM_LOAD_PS(pSrc1 + 4);
+                src12 = __MM_LOAD_PS(pSrc2 + 4);
+                src21 = _mm_load_ss(pSrc1 + 8);
+                src22 = _mm_load_ss(pSrc2 + 8);
+
+                dst0 = __MM_LERP_PS(t4, src01, src02);
+                dst1 = __MM_LERP_PS(t4, src11, src12);
+                dst2 = __MM_LERP_SS(t4, src21, src22);
+
+                __MM_STORE_PS(pDst + 0, dst0);
+                __MM_STORE_PS(pDst + 4, dst1);
+                _mm_store_ss(pDst + 8, dst2);
+                break;
+
+            case 2:
+                // 6 floating-point values
+                src01 = __MM_LOAD_PS(pSrc1 + 0);
+                src02 = __MM_LOAD_PS(pSrc2 + 0);
+                src11 = _mm_loadl_pi(t4, (__m64*)(pSrc1 + 4));  // t4 is meaningless here
+                src12 = _mm_loadl_pi(t4, (__m64*)(pSrc2 + 4));  // t4 is meaningless here
+
+                dst0 = __MM_LERP_PS(t4, src01, src02);
+                dst1 = __MM_LERP_PS(t4, src11, src12);
+
+                __MM_STORE_PS(pDst + 0, dst0);
+                _mm_storel_pi((__m64*)(pDst + 4), dst1);
+                break;
+
+            case 1:
+                // 3 floating-point values
+                src01 = _mm_load_ss(pSrc1 + 2);
+                src02 = _mm_load_ss(pSrc2 + 2);
+                src01 = _mm_loadh_pi(src01, (__m64*)(pSrc1 + 0));
+                src02 = _mm_loadh_pi(src02, (__m64*)(pSrc2 + 0));
+
+                dst0 = __MM_LERP_PS(t4, src01, src02);
+
+                _mm_storeh_pi((__m64*)(pDst + 0), dst0);
+                _mm_store_ss(pDst + 2, dst0);
+                break;
+            }
+        }
+        else    // Should never occuring, just in case buggy driver
+        {
+            // Assume all data unaligned
+
+            // Morph 4 vertices per-iteration. Special designed for use all
+            // available CPU registers as possible (7 registers used here),
+            // and avoid temporary values allocated in stack for suppress
+            // extra memory access.
+            for (size_t i = 0; i < numIterations; ++i)
+            {
+                // 12 floating-point values
+                src01 = _mm_loadu_ps(pSrc1 + 0);
+                src02 = _mm_loadu_ps(pSrc2 + 0);
+                src11 = _mm_loadu_ps(pSrc1 + 4);
+                src12 = _mm_loadu_ps(pSrc2 + 4);
+                src21 = _mm_loadu_ps(pSrc1 + 8);
+                src22 = _mm_loadu_ps(pSrc2 + 8);
+                pSrc1 += 12; pSrc2 += 12;
+
+                dst0 = __MM_LERP_PS(t4, src01, src02);
+                dst1 = __MM_LERP_PS(t4, src11, src12);
+                dst2 = __MM_LERP_PS(t4, src21, src22);
+
+                _mm_storeu_ps(pDst + 0, dst0);
+                _mm_storeu_ps(pDst + 4, dst1);
+                _mm_storeu_ps(pDst + 8, dst2);
+                pDst += 12;
+            }
+
+            // Morph remaining vertices
+            switch (numVertices)
+            {
+            case 3:
+                // 9 floating-point values
+                src01 = _mm_loadu_ps(pSrc1 + 0);
+                src02 = _mm_loadu_ps(pSrc2 + 0);
+                src11 = _mm_loadu_ps(pSrc1 + 4);
+                src12 = _mm_loadu_ps(pSrc2 + 4);
+                src21 = _mm_load_ss(pSrc1 + 8);
+                src22 = _mm_load_ss(pSrc2 + 8);
+
+                dst0 = __MM_LERP_PS(t4, src01, src02);
+                dst1 = __MM_LERP_PS(t4, src11, src12);
+                dst2 = __MM_LERP_SS(t4, src21, src22);
+
+                _mm_storeu_ps(pDst + 0, dst0);
+                _mm_storeu_ps(pDst + 4, dst1);
+                _mm_store_ss(pDst + 8, dst2);
+                break;
+
+            case 2:
+                // 6 floating-point values
+                src01 = _mm_loadu_ps(pSrc1 + 0);
+                src02 = _mm_loadu_ps(pSrc2 + 0);
+                src11 = _mm_loadl_pi(t4, (__m64*)(pSrc1 + 4));  // t4 is meaningless here
+                src12 = _mm_loadl_pi(t4, (__m64*)(pSrc2 + 4));  // t4 is meaningless here
+
+                dst0 = __MM_LERP_PS(t4, src01, src02);
+                dst1 = __MM_LERP_PS(t4, src11, src12);
+
+                _mm_storeu_ps(pDst + 0, dst0);
+                _mm_storel_pi((__m64*)(pDst + 4), dst1);
+                break;
+
+            case 1:
+                // 3 floating-point values
+                src01 = _mm_load_ss(pSrc1 + 2);
+                src02 = _mm_load_ss(pSrc2 + 2);
+                src01 = _mm_loadh_pi(src01, (__m64*)(pSrc1 + 0));
+                src02 = _mm_loadh_pi(src02, (__m64*)(pSrc2 + 0));
+
+                dst0 = __MM_LERP_PS(t4, src01, src02);
+
+                _mm_storeh_pi((__m64*)(pDst + 0), dst0);
+                _mm_store_ss(pDst + 2, dst0);
+                break;
+            }
         }
     }
     //---------------------------------------------------------------------

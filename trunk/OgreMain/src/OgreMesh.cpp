@@ -1722,18 +1722,10 @@ namespace Ogre {
 			"Positions must be in a buffer on their own for morphing");
 		float* pdst = static_cast<float*>(
 			destBuf->lock(HardwareBuffer::HBL_DISCARD));
-		for (size_t i = 0; i < targetVertexData->vertexCount; ++i)
-		{
-			// x
-			*pdst++ = *pb1 + t*(*pb2 - *pb1) ;
-			++pb1; ++pb2;
-			// y
-			*pdst++ = *pb1 + t*(*pb2 - *pb1) ;
-			++pb1; ++pb2;
-			// z
-			*pdst++ = *pb1 + t*(*pb2 - *pb1) ;
-			++pb1; ++pb2;
-		}
+
+        OptimisedUtil::getImplementation()->softwareVertexMorph(
+            t, pb1, pb2, pdst,
+            targetVertexData->vertexCount);
 
 		destBuf->unlock();
 		b1->unlock();
