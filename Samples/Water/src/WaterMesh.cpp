@@ -20,60 +20,60 @@ LGPL like the rest of the engine.
 WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 {
 	int x,y,b; // I prefer to initialize for() variables inside it, but VC doesn't like it ;(
-	
+
 	this->meshName = meshName ;
 	this->complexity =  complexity ;
-	numFaces = 2 * complexity * complexity; 
+	numFaces = 2 * complexity * complexity;
 	numVertices = (complexity + 1) * (complexity + 1) ;
 	lastTimeStamp = 0 ;
 	lastAnimationTimeStamp = 0;
 	lastFrameTime = 0 ;
-	
+
 	// initialize algorithm parameters
-	PARAM_C = 0.3f ; // ripple speed 
+	PARAM_C = 0.3f ; // ripple speed
 	PARAM_D = 0.4f ; // distance
 	PARAM_U = 0.05f ; // viscosity
 	PARAM_T = 0.13f ; // time
 	useFakeNormals = false ;
-	
+
 	// allocate space for normal calculation
 	vNormals = new Vector3[numVertices];
-	
+
 	// create mesh and submesh
-	mesh = MeshManager::getSingleton().createManual(meshName, 
+	mesh = MeshManager::getSingleton().createManual(meshName,
         ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	subMesh = mesh->createSubMesh();
 	subMesh->useSharedVertices=false;
-	
+
 	// Vertex buffers
 	subMesh->vertexData = new VertexData();
 	subMesh->vertexData->vertexStart = 0;
 	subMesh->vertexData->vertexCount = numVertices;
 
-	VertexDeclaration* vdecl = subMesh->vertexData->vertexDeclaration; 
+	VertexDeclaration* vdecl = subMesh->vertexData->vertexDeclaration;
 	VertexBufferBinding* vbind = subMesh->vertexData->vertexBufferBinding;
-	
+
 
 	vdecl->addElement(0, 0, VET_FLOAT3, VES_POSITION);
 	vdecl->addElement(1, 0, VET_FLOAT3, VES_NORMAL);
 	vdecl->addElement(2, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES);
-	
+
 	// Prepare buffer for positions - todo: first attempt, slow
-	posVertexBuffer = 
-         HardwareBufferManager::getSingleton().createVertexBuffer( 
-            3*sizeof(float), 
-			numVertices, 
+	posVertexBuffer =
+         HardwareBufferManager::getSingleton().createVertexBuffer(
+            3*sizeof(float),
+			numVertices,
 			HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 	vbind->setBinding(0, posVertexBuffer);
 
 	// Prepare buffer for normals - write only
-	normVertexBuffer = 
-         HardwareBufferManager::getSingleton().createVertexBuffer( 
-            3*sizeof(float), 
-			numVertices, 
+	normVertexBuffer =
+         HardwareBufferManager::getSingleton().createVertexBuffer(
+            3*sizeof(float),
+			numVertices,
 			HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 	vbind->setBinding(1, normVertexBuffer);
-	
+
 	// Prepare texture coords buffer - static one
 	// todo: optimize to write directly into buffer
 	float *texcoordsBufData = new float[numVertices*2];
@@ -83,25 +83,25 @@ WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 			texcoordsBufData[2*(y*(complexity+1)+x)+1] = 1.0f - ((float)y / (complexity)) ;
 		}
 	}
-	texcoordsVertexBuffer = 
-         HardwareBufferManager::getSingleton().createVertexBuffer( 
-            2*sizeof(float), 
-			numVertices, 
-			HardwareBuffer::HBU_STATIC_WRITE_ONLY); 
-	texcoordsVertexBuffer->writeData(0, 
+	texcoordsVertexBuffer =
+         HardwareBufferManager::getSingleton().createVertexBuffer(
+            2*sizeof(float),
+			numVertices,
+			HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+	texcoordsVertexBuffer->writeData(0,
 		texcoordsVertexBuffer->getSizeInBytes(),
 		texcoordsBufData,
 		true); // true?
 	delete [] texcoordsBufData;
-    vbind->setBinding(2, texcoordsVertexBuffer); 
-	
+    vbind->setBinding(2, texcoordsVertexBuffer);
+
 	// Prepare buffer for indices
-	indexBuffer = 
+	indexBuffer =
 		HardwareBufferManager::getSingleton().createIndexBuffer(
-			HardwareIndexBuffer::IT_16BIT, 
-			3*numFaces, 
+			HardwareIndexBuffer::IT_16BIT,
+			3*numFaces,
 			HardwareBuffer::HBU_STATIC, true);
-	unsigned short *faceVertexIndices = (unsigned short*) 
+	unsigned short *faceVertexIndices = (unsigned short*)
 		indexBuffer->lock(0, numFaces*3*2, HardwareBuffer::HBL_DISCARD);
 	for(y=0 ; y<complexity ; y++) {
 		for(int x=0 ; x<complexity ; x++) {
@@ -123,9 +123,9 @@ WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 	subMesh->indexData->indexBuffer = indexBuffer;
 	subMesh->indexData->indexStart = 0;
 	subMesh->indexData->indexCount = 3*numFaces;
-	
+
 	/*	prepare vertex positions
-	 *	note - we use 3 vertex buffers, since algorighm uses two last phases 
+	 *	note - we use 3 vertex buffers, since algorighm uses two last phases
 	 *	to calculate the next one
 	 */
 	for(b=0;b<3;b++) {
@@ -140,14 +140,14 @@ WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 			}
 		}
 	}
-	
+
 	AxisAlignedBox meshBounds(0,0,0,
 		planeSize,0, planeSize);
 	mesh->_setBounds(meshBounds);
-	
+
 	currentBuffNumber = 0 ;
-	posVertexBuffer->writeData(0, 
-		posVertexBuffer->getSizeInBytes(), // size 
+	posVertexBuffer->writeData(0,
+		posVertexBuffer->getSizeInBytes(), // size
 		vertexBuffers[currentBuffNumber], // source
 		true); // discard?
 
@@ -186,7 +186,7 @@ void WaterMesh::push(Real x, Real y, Real depth, bool absolute)
 	_PREP(0,1);
 	_PREP(1,0);
 	_PREP(1,1);
-#undef _PREP	
+#undef _PREP
 }
 /* ========================================================================= */
 Real WaterMesh::getHeight(Real x, Real y)
@@ -197,7 +197,6 @@ Real WaterMesh::getHeight(Real x, Real y)
 	Real xb = xa + 1 ;
 	Real ya = floor(y);
 	Real yb = ya + 1 ;
-	float *vertex = buf + 3*((int)(ya)*(complexity+1)+(int)(xa));
 	Real yaxavg = hat(xa,ya) * (1.0f-fabs(xa-x)) + hat(xb,ya) * (1.0f-fabs(xb-x));
 	Real ybxavg = hat(xa,yb) * (1.0f-fabs(xa-x)) + hat(xb,yb) * (1.0f-fabs(xb-x));
 	Real yavg = yaxavg * (1.0f-fabs(ya-y)) + ybxavg * (1.0f-fabs(yb-y)) ;
@@ -275,24 +274,24 @@ void WaterMesh::calculateNormals()
 void WaterMesh::updateMesh(Real timeSinceLastFrame)
 {
 	int x, y ;
-	
+
 	lastFrameTime = timeSinceLastFrame ;
 	lastTimeStamp += timeSinceLastFrame ;
-	
+
 	// do rendering to get ANIMATIONS_PER_SECOND
 	while(lastAnimationTimeStamp <= lastTimeStamp) {
-	
+
 		// switch buffer numbers
 		currentBuffNumber = (currentBuffNumber + 1) % 3 ;
 		float *buf = vertexBuffers[currentBuffNumber] + 1 ; // +1 for Y coordinate
-		float *buf1 = vertexBuffers[(currentBuffNumber+2)%3] + 1 ; 
-		float *buf2 = vertexBuffers[(currentBuffNumber+1)%3] + 1; 	
-	
+		float *buf1 = vertexBuffers[(currentBuffNumber+2)%3] + 1 ;
+		float *buf2 = vertexBuffers[(currentBuffNumber+1)%3] + 1;
+
 		/* we use an algorithm from
 		 * http://collective.valve-erc.com/index.php?go=water_simulation
 		 * The params could be dynamically changed every frame ofcourse
 		 */
-		double C = PARAM_C; // ripple speed 
+		double C = PARAM_C; // ripple speed
 		double D = PARAM_D; // distance
 		double U = PARAM_U; // viscosity
 		double T = PARAM_T; // time
@@ -306,12 +305,12 @@ void WaterMesh::updateMesh(Real timeSinceLastFrame)
 			float *row1down = buf1 + 3*(y+1)*(complexity+1) ;
 			float *row2 = buf2 + 3*y*(complexity+1) ;
 			for(x=1;x<complexity;x++) {
-				row[3*x] = TERM1 * row1[3*x] 
+				row[3*x] = TERM1 * row1[3*x]
 					+ TERM2 * row2[3*x]
 					+ TERM3 * ( row1[3*x-3] + row1[3*x+3] + row1up[3*x]+row1down[3*x] ) ;
 			}
 		}
-		
+
 		lastAnimationTimeStamp += (1.0f / ANIMATIONS_PER_SECOND);
 	}
 
@@ -322,8 +321,8 @@ void WaterMesh::updateMesh(Real timeSinceLastFrame)
 	}
 
 	// set vertex buffer
-	posVertexBuffer->writeData(0, 
-		posVertexBuffer->getSizeInBytes(), // size 
+	posVertexBuffer->writeData(0,
+		posVertexBuffer->getSizeInBytes(), // size
 		vertexBuffers[currentBuffNumber], // source
 		true); // discard?
 }
