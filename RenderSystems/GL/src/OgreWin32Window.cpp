@@ -156,13 +156,20 @@ namespace Ogre {
 			}
 			else
 			{
-				if (border == "none")
-					dwStyle |= WS_POPUP;
-				else if (border == "fixed")
-					dwStyle |= WS_OVERLAPPED | WS_BORDER | WS_CAPTION |
-					WS_SYSMENU | WS_MINIMIZEBOX;
+				if (parent)
+				{
+					dwStyle |= WS_CHILD;
+				}
 				else
-					dwStyle |= WS_OVERLAPPEDWINDOW;
+				{
+					if (border == "none")
+						dwStyle |= WS_POPUP;
+					else if (border == "fixed")
+						dwStyle |= WS_OVERLAPPED | WS_BORDER | WS_CAPTION |
+						WS_SYSMENU | WS_MINIMIZEBOX;
+					else
+						dwStyle |= WS_OVERLAPPEDWINDOW;
+				}
 
 				int screenw = GetSystemMetrics(SM_CXSCREEN);
 				int screenh = GetSystemMetrics(SM_CYSCREEN);
