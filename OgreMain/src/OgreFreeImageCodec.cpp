@@ -57,7 +57,12 @@ namespace Ogre {
 		// when using the dynamic library version. If a user decides to use the static
 		// library version (not recommended at this time since it is much larger to 
 		// distribute for us), the library must be initialised and shut down manually
-		//FreeImage_Initialise(false);
+
+		//For linux, FreeImage needs an explicit startup even when using shared lib.. There is
+		//no dllEntry point used under linux (how FreeImage loads up on win32)
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+		FreeImage_Initialise(false);
+#endif
 		LogManager::getSingleton().logMessage(
 			LML_NORMAL,
 			"FreeImage version: " + String(FreeImage_GetVersion()));
@@ -108,7 +113,11 @@ namespace Ogre {
 	//---------------------------------------------------------------------
 	void FreeImageCodec::shutdown(void)
 	{
-		//FreeImage_DeInitialise();
+		//For linux, FreeImage needs an explicit destruction even when using shared lib.. There is
+		//no dllEntry point used under linux (how FreeImage shuts down win32)
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+		FreeImage_DeInitialise();
+#endif
 
 		for (RegisteredCodecList::iterator i = msCodecList.begin();
 			i != msCodecList.end(); ++i)
@@ -230,7 +239,7 @@ namespace Ogre {
 		if (conversionRequired)
 		{
 			// delete temporary conversion area
-			delete [] convBox.data;
+			delete [] static_cast<uchar*>(convBox.data);
 		}
 
 		return ret;
