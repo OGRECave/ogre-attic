@@ -32,6 +32,7 @@
 					<Add library="freetype2110_D" />
 					<Add library="devil" />
 					<Add library="ilu" />
+					<Add library="freeimaged" />
 					<Add library="stlportstlg.5.0" />
 					<Add directory="..\..\Dependencies\lib\Debug" />
 				</Linker>
@@ -64,6 +65,7 @@
 					<Add library="freetype2110" />
 					<Add library="devil" />
 					<Add library="ilu" />
+					<Add library="freeimage" />
 					<Add library="stlport.5.0" />
 					<Add directory="..\..\Dependencies\lib\Release" />
 				</Linker>
@@ -84,6 +86,7 @@
 			<Add option="-fident" />
 			<Add option="-pipe" />
 			<Add option="-Winvalid-pch" />
+			<Add option="-msse" />
 			<Add option="-D_STLP_NO_CUSTOM_IO" />
 			<Add option="-D_STLP_USE_DYNAMIC_LIB" />
 			<Add directory="$(#STLPORT_DIR)\stlport" />
@@ -480,6 +483,13 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreFrameListener.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\include\OgreFreeImageCodec.h">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
@@ -1759,6 +1769,11 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\src\OgreFreeImageCodec.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\src\OgreFrustum.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
@@ -1942,6 +1957,16 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\src\OgreOptimisedUtil.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\src\OgreOptimisedUtilGeneral.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\src\OgreOptimisedUtilSSE.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />
@@ -2394,5 +2419,6 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
