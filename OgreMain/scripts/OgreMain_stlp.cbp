@@ -86,7 +86,6 @@
 			<Add option="-fident" />
 			<Add option="-pipe" />
 			<Add option="-Winvalid-pch" />
-			<Add option="-msse" />
 			<Add option="-D_STLP_NO_CUSTOM_IO" />
 			<Add option="-D_STLP_USE_DYNAMIC_LIB" />
 			<Add directory="$(#STLPORT_DIR)\stlport" />
@@ -1968,6 +1967,7 @@
 		</Unit>
 		<Unit filename="..\src\OgreOptimisedUtilSSE.cpp">
 			<Option compilerVar="CPP" />
+			<Option compiler="gcc" use="1" buildCommand="$compiler $options -msse $includes -c $file -o $object" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
