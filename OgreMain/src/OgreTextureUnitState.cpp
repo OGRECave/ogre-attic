@@ -192,7 +192,7 @@ namespace Ogre {
 			mTextureSrcMipmaps = mipmaps;
             if (alpha)
                 mIsAlpha = alpha;
-            if (name == "")
+            if (name.empty())
             {
                 mIsBlank = true;
                 return;
@@ -745,6 +745,7 @@ namespace Ogre {
         }
 
         mTexModMatrix = xform;
+        mRecalcTexMatrix = false;
 
     }
     //-----------------------------------------------------------------------
@@ -839,7 +840,7 @@ namespace Ogre {
         // Load textures
         for (unsigned int i = 0; i < mFrames.size(); ++i)
         {
-            if (mFrames[i] != "")
+            if (!mFrames[i].empty())
             {
                 // Ensure texture is loaded, specified number of mipmaps and priority
                 try {
