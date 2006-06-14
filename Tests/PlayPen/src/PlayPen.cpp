@@ -757,18 +757,31 @@ protected:
 
     }
 
+	void testManualBlend()
+	{
+		// create material
+		MaterialPtr mat = MaterialManager::getSingleton().create("TestMat", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass * p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		p->createTextureUnitState("Dirt.jpg");
+		TextureUnitState* t = p->createTextureUnitState("PoolFloorLightingMap.png");
+		t->setColourOperationEx(LBX_BLEND_MANUAL, LBS_TEXTURE, LBS_CURRENT, 
+			ColourValue::White, ColourValue::White, 0.75);
+
+		Entity *planeEnt = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(planeEnt);
+		planeEnt->setMaterialName("TestManual");
+
+
+
+	}
+
 	void testBug()
 	{
 		mSceneMgr->setAmbientLight(ColourValue::White);
-		Entity *e = mSceneMgr->createEntity("1", "mrbendy.mesh");
+		Entity *e = mSceneMgr->createEntity("1", "dwarfhouse.mesh");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
-
-		AnimationState* a = e->getAnimationState("Bend");
-		a->setEnabled(true);	
-		mAnimStateList.push_back(a);
-		a = e->getAnimationState("Fatten");
-		a->setEnabled(true);	
-		mAnimStateList.push_back(a);
 
 
 		mCamera->setPosition(0,0,100);
@@ -2145,12 +2158,14 @@ protected:
         mLight = mSceneMgr->createLight("MainLight");
 
         // Directional test
+		/*
         mLight->setType(Light::LT_DIRECTIONAL);
         Vector3 vec(-1,-1,0);
         vec.normalise();
         mLight->setDirection(vec);
+		*/
 
-		/*
+		
         // Spotlight test
         mLight->setType(Light::LT_SPOTLIGHT);
         mLight->setDiffuseColour(1.0, 1.0, 0.8);
@@ -2158,7 +2173,7 @@ protected:
         mTestNode[0]->setPosition(800,600,0);
         mTestNode[0]->lookAt(Vector3(0,0,0), Node::TS_WORLD, Vector3::UNIT_Z);
         mTestNode[0]->attachObject(mLight);
-		*/
+		
 
         mTestNode[1] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 
@@ -4257,7 +4272,7 @@ protected:
         //testTextureShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testTextureShadowsCustomCasterMat(SHADOWTYPE_TEXTURE_ADDITIVE);
-		testTextureShadowsCustomReceiverMat(SHADOWTYPE_TEXTURE_ADDITIVE);
+		//testTextureShadowsCustomReceiverMat(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testCompositorTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testSplitPassesTooManyTexUnits();
         //testOverlayZOrder();
@@ -4283,6 +4298,7 @@ protected:
 		//testPoseAnimation();
 		//testPoseAnimation2();
 		//testBug();
+		testManualBlend();
 		//testManualObjectNonIndexed();
 		//testManualObjectIndexed();
 		//testCustomProjectionMatrix();
@@ -4508,13 +4524,17 @@ public:
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
 
+// External embedded window test
+INT WINAPI EmbeddedMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT );
 
 INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
 #else
 int main(int argc, char **argv)
 #endif
 {
-    // Create application object
+	EmbeddedMain(hInst, 0, strCmdLine, 0);
+
+	// Create application object
     PlayPenApplication app;
 	//MemoryTestApplication app;
 

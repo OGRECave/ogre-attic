@@ -201,6 +201,10 @@
 				RelativePath="..\src\PlayPen.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\src\WindowEmbedding.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
