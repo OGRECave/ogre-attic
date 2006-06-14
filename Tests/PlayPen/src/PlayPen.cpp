@@ -4532,7 +4532,7 @@ INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
 int main(int argc, char **argv)
 #endif
 {
-	EmbeddedMain(hInst, 0, strCmdLine, 0);
+	//EmbeddedMain(hInst, 0, strCmdLine, 0);
 
 	// Create application object
     PlayPenApplication app;
