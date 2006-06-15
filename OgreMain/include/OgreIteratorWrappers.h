@@ -159,7 +159,7 @@ namespace Ogre {
  	    }
         /** Returns a pointer to the next value element in the collection, without 
             advancing to the next afterwards. */
-        typename T::pointer peekNextValuePtr(void)
+        typename T::mapped_type* peekNextValuePtr(void)
         {
             return &(mCurrent->second);
         }
@@ -302,7 +302,7 @@ namespace Ogre {
         }
         /** Returns a pointer to the next value element in the collection, without 
         advancing to the next afterwards. */
-        typename T::const_pointer peekNextValuePtr(void) const
+        typename const T::mapped_type* peekNextValuePtr(void) const
         {
             return &(mCurrent->second);
         }

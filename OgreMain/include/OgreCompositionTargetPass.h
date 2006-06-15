@@ -119,6 +119,11 @@ namespace Ogre {
         
         /** Get parent object */
         CompositionTechnique *getParent();
+
+        /** Determine if this target pass is supported on the current rendering device. 
+         */
+        bool _isSupported(void);
+
     private:
         /// Parent technique
         CompositionTechnique *mParent;

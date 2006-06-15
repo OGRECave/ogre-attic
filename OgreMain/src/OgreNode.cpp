@@ -45,6 +45,7 @@ namespace Ogre {
 		mNeedParentUpdate(false),
 		mNeedChildUpdate(false),
 		mParentNotified(false),
+        mQueuedForUpdate(false),
 		mOrientation(Quaternion::IDENTITY),
 		mPosition(Vector3::ZERO),
 		mScale(Vector3::UNIT_SCALE),
@@ -74,6 +75,7 @@ namespace Ogre {
 		mNeedParentUpdate(false),
 		mNeedChildUpdate(false),
 		mParentNotified(false),
+        mQueuedForUpdate(false),
 		mName(name),
 		mOrientation(Quaternion::IDENTITY),
 		mPosition(Vector3::ZERO),
@@ -109,14 +111,18 @@ namespace Ogre {
 		if(mParent)
 			mParent->removeChild(this);
 
-        // Erase from queued updates
-        QueuedUpdates::iterator it =
-            std::find(msQueuedUpdates.begin(), msQueuedUpdates.end(), this);
-        if (it != msQueuedUpdates.end())
+        if (mQueuedForUpdate)
         {
-            // Optimised algorithm to erase an element from unordered vector.
-            *it = msQueuedUpdates.back();
-            msQueuedUpdates.pop_back();
+            // Erase from queued updates
+            QueuedUpdates::iterator it =
+                std::find(msQueuedUpdates.begin(), msQueuedUpdates.end(), this);
+            assert(it != msQueuedUpdates.end());
+            if (it != msQueuedUpdates.end())
+            {
+                // Optimised algorithm to erase an element from unordered vector.
+                *it = msQueuedUpdates.back();
+                msQueuedUpdates.pop_back();
+            }
         }
 	}
     //-----------------------------------------------------------------------
@@ -837,7 +843,12 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void Node::queueNeedUpdate(Node* n)
 	{
-		msQueuedUpdates.push_back(n);
+        // Don't queue the node more than once
+        if (!n->mQueuedForUpdate)
+        {
+            n->mQueuedForUpdate = true;
+		    msQueuedUpdates.push_back(n);
+        }
 	}
 	//-----------------------------------------------------------------------
 	void Node::processQueuedUpdates(void)
@@ -847,7 +858,9 @@ namespace Ogre {
 		{
 			// Update, and force parent update since chances are we've ended
 			// up with some mixed state in there due to re-entrancy
-			(*i)->needUpdate(true);
+            Node* n = *i;
+            n->mQueuedForUpdate = false;
+			n->needUpdate(true);
 		}
 		msQueuedUpdates.clear();
 	}
