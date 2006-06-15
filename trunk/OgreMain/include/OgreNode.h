@@ -103,6 +103,8 @@ namespace Ogre {
 		mutable bool mNeedChildUpdate;
 		/// Flag indicating that parent has been notified about update request
 	    mutable bool mParentNotified ;
+        /// Flag indicating that the node has been queued for update
+        mutable bool mQueuedForUpdate;
 
         /// Friendly name of this node, can be automatically generated if you don't care
         String mName;

@@ -66,9 +66,13 @@ namespace Ogre {
 #endif
 
 /* See if we can use __forceinline or if we need to use __inline instead */
-#if OGRE_COMPILER == OGRE_COMPILER_MSVC 
+#if OGRE_COMPILER == OGRE_COMPILER_MSVC
 #   if OGRE_COMP_VER >= 1200
 #       define FORCEINLINE __forceinline
+#   endif
+#elif defined(__MINGW32__)
+#   if !defined(FORCEINLINE)
+#       define FORCEINLINE __inline
 #   endif
 #else
 #   define FORCEINLINE __inline
@@ -139,7 +143,7 @@ namespace Ogre {
 // Linux/Apple Settings
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 
-// Enable GCC 4.0 symbol visibility 
+// Enable GCC 4.0 symbol visibility
 #   if OGRE_COMP_VER >= 400
 #       define _OgreExport  __attribute__ ((visibility("default")))
 #       define _OgrePrivate __attribute__ ((visibility("hidden")))

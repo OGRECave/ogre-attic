@@ -257,7 +257,7 @@ namespace Ogre {
         facesNode->SetAttribute("count", 
             StringConverter::toString(numFaces));
         // Write each face in turn
-        ushort i;
+        size_t i;
 		unsigned int* pInt;
 		unsigned short* pShort;
 		HardwareIndexBufferSharedPtr ibuf = s->indexData->indexBuffer;

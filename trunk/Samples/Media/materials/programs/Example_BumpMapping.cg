@@ -188,7 +188,7 @@ void specular_vp(float4 position	: POSITION,
 	oTSLightDir = normalize(mul(rotation, lightDir));
 
 	// Calculate half-angle in tangent space
-	float3 eyeDir = eyePosition - position.xyz;
+	float3 eyeDir = normalize(eyePosition - position.xyz);
 	float3 halfAngle = normalize(eyeDir + lightDir);
 	oTSHalfAngle = mul(rotation, halfAngle);
 	

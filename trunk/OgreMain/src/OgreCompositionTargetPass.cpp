@@ -154,6 +154,23 @@ CompositionTechnique *CompositionTargetPass::getParent()
 {
     return mParent;
 }
+
 //-----------------------------------------------------------------------
+bool CompositionTargetPass::_isSupported(void)
+{
+    // A target pass is supported if all passes are supported
+
+    PassIterator passi = getPassIterator();
+    while (passi.hasMoreElements())
+    {
+        CompositionPass* pass = passi.getNext();
+        if (!pass->_isSupported())
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 }

@@ -607,6 +607,8 @@ namespace Ogre {
 		// Get name and language code
 		// Name, preserve case
 		mScriptContext.programDef->name = getNextTokenLabel();
+		// trim trailing white space only
+		StringUtil::trim(mScriptContext.programDef->name);
 		// language code
 		mScriptContext.programDef->language = getNextTokenLabel();
 		// make sure language is lower case
@@ -651,8 +653,9 @@ namespace Ogre {
 
         String command = getNextTokenLabel();
 		StringUtil::toLowerCase(command);
-
-		mScriptContext.programDef->customParameters[command] = getNextTokenLabel();
+        String params = getNextTokenLabel();
+        StringUtil::trim(params);
+		mScriptContext.programDef->customParameters[command] = params;
 	}
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseDefaultParams(void)
@@ -666,7 +669,8 @@ namespace Ogre {
         // syntax: material name : parentMaterialName
         MaterialPtr basematerial;
 
-        const String materialName = getNextTokenLabel();
+        String materialName = getNextTokenLabel();
+        StringUtil::trim(materialName);
         // Create a brand new material
         const size_t paramCount = getRemainingTokensForAction();
         if (paramCount == 2)
@@ -1991,7 +1995,10 @@ namespace Ogre {
 
         // get the name of the program definition if it was set
         if (getRemainingTokensForAction() == 1)
+        {
             name = getNextTokenLabel();
+            StringUtil::trim(name);
+        }
 
         // check if pass has a vertex program already
         if (mScriptContext.pass->hasVertexProgram())
@@ -2042,7 +2049,10 @@ namespace Ogre {
 
         // get the name of the program definition if it was set
         if (getRemainingTokensForAction() == 1)
+        {
             name = getNextTokenLabel();
+            StringUtil::trim(name);
+        }
 
         // check if pass has a shadow caster vertex program already
         if (mScriptContext.pass->hasShadowCasterVertexProgram())
@@ -2094,7 +2104,10 @@ namespace Ogre {
 
         // get the name of the program definition if it was set
         if (getRemainingTokensForAction() == 1)
+        {
             name = getNextTokenLabel();
+            StringUtil::trim(name);
+        }
 
         // check if pass has a shadow caster vertex program already
         if (mScriptContext.pass->hasShadowReceiverVertexProgram())
@@ -2146,8 +2159,10 @@ namespace Ogre {
 
         // get the name of the program definition if it was set
         if (getRemainingTokensForAction() == 1)
+        {
             name = getNextTokenLabel();
-
+            StringUtil::trim(name);
+        }
         // check if pass has a fragment program already
         if (mScriptContext.pass->hasShadowReceiverFragmentProgram())
         {
@@ -2198,8 +2213,10 @@ namespace Ogre {
 
         // get the name of the program definition if it was set
         if (getRemainingTokensForAction() == 1)
+        {
             name = getNextTokenLabel();
-
+            StringUtil::trim(name);
+        }
         // check if pass has a fragment program already
         if (mScriptContext.pass->hasFragmentProgram())
         {

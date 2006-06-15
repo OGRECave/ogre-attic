@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on May 7 2006 by texi2html 1.66 -->
+<!-- Created on June 10 2006 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -12,10 +12,10 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.2.0 ('Dagon'): Stencil Shadows</TITLE>
+<TITLE>OGRE Manual v1.2.1 ('Dagon'): Stencil Shadows</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Stencil Shadows">
-<META NAME="keywords" CONTENT="OGRE Manual v1.2.0 ('Dagon'): Stencil Shadows">
+<META NAME="description" CONTENT="OGRE Manual v1.2.1 ('Dagon'): Stencil Shadows">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.1 ('Dagon'): Stencil Shadows">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.66">
@@ -28,7 +28,7 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_62.html#SEC270"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_62.html#SEC270"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_64.html#SEC280"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_64.html#SEC281"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -40,16 +40,17 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 Stencil shadows are a method by which a 'mask' is created for the screen using a feature called the stencil buffer. This mask can be used to exclude areas of the screen from subsequent renders, and thus it can be used to either include or exclude areas in shadow. They are enabled by calling SceneManager::setShadowTechnique with a parameter of either <CODE>SHADOWTYPE_STENCIL_ADDITIVE</CODE> or <CODE>SHADOWTYPE_STENCIL_MODULATIVE</CODE>. Because the stencil can only mask areas to be either 'enabled' or 'disabled', stencil shadows have 'hard' edges, that is to say clear dividing lines between light and shadow - it is not possible to soften these edges.<BR><BR>
 
-In order to generate the stencil, 'shadow volumes' are rendered by extruding the silhouette of the shadow caster away from the light. Where these shadow volumes intersect other objects (or the caster, since self-shadowing is supported using this technique), the stencil is updated, allowing subsequent operations to differentiate between light and shadow. How exactly this is used to render the shadows depends on whether <A HREF="manual_65.html#SEC291">7.3 Modulative Shadows</A> or <A HREF="manual_66.html#SEC293">7.4 Additive Light Masking</A> is being used. Objects can both cast and receive stencil shadows, so self-shadowing is possible. <BR><BR>
+In order to generate the stencil, 'shadow volumes' are rendered by extruding the silhouette of the shadow caster away from the light. Where these shadow volumes intersect other objects (or the caster, since self-shadowing is supported using this technique), the stencil is updated, allowing subsequent operations to differentiate between light and shadow. How exactly this is used to render the shadows depends on whether <A HREF="manual_65.html#SEC292">7.3 Modulative Shadows</A> or <A HREF="manual_66.html#SEC294">7.4 Additive Light Masking</A> is being used. Objects can both cast and receive stencil shadows, so self-shadowing is possible. <BR><BR>
 
 There are a number of issues to consider which are specific to stencil shadows:
 <UL>
 <LI><A HREF="manual_63.html#SEC274">CPU Overhead</A>
 <LI><A HREF="manual_63.html#SEC275">Extrusion distance</A>
 <LI><A HREF="manual_63.html#SEC276">Camera far plane positioning</A>
-<LI><A HREF="manual_63.html#SEC277">The Silhouette Edge</A>
-<LI><A HREF="manual_63.html#SEC278">Be realistic</A>
-<LI><A HREF="manual_63.html#SEC279">Stencil Optimisations Performed By Ogre</A>
+<LI><A HREF="manual_63.html#SEC277">Mesh edge lists</A>
+<LI><A HREF="manual_63.html#SEC278">The Silhouette Edge</A>
+<LI><A HREF="manual_63.html#SEC279">Be realistic</A>
+<LI><A HREF="manual_63.html#SEC280">Stencil Optimisations Performed By Ogre</A>
 </UL>
 
 <A NAME="CPU Overhead"></A>
@@ -71,16 +72,22 @@ When infinite extrusion is not possible, Ogre uses finite extrusion, either deri
 <!--docid::SEC276::-->
 Stencil shadow volumes rely very much on not being clipped by the far plane. When you enable stencil shadows, Ogre internally changes the far plane settings of your cameras such that there is no far plane - ie it is placed at infinity (Camera::setFarClipDistance(0)). This avoids artefacts caused by clipping the dark caps on shadow volumes, at the expense of a (very) small amount of depth precision. 
 
-<A NAME="The Silhouette Edge"></A>
+<A NAME="Mesh edge lists"></A>
 <A NAME="SEC277"></A>
-<H3> The Silhouette Edge </H3>
+<H3> Mesh edge lists </H3>
 <!--docid::SEC277::-->
-Stencil shadowing is about finding a silhouette of the mesh, and projecting it away to form a volume. What this means is that there is a definite boundary on the shadow caster between light and shadow; a set of edges where where the triangle on one side is facing toward the light, and one is facing away. This produces a sharp edge around the mesh as the transition occurs. Provided there is little or no other light in the scene, and the mesh has smooth normals to produce a gradual light change in its underlying shading, the silhouette edge can be hidden - this works better the higher the tesselation of the mesh. However, if the scene includes ambient light, then the difference is far more marked. This is especially true when using <A HREF="manual_65.html#SEC291">7.3 Modulative Shadows</A>, because the light contribution of each shadowed area is not taken into account by this simplified approach, and so using 2 or more lights in a scene using modulative stencil shadows is not advisable; the silhouette edges will be very marked. Additive lights do not suffer from this as badly because each light is masked individually, meaning that it is only ambient light which can show up the silhouette edges.
+Stencil shadows can only be calculated when an 'edge list' has been built for all the geometry in a mesh. The official exporters and tools automatically build this for you (or have an option to do so), but if you create your own meshes, you must remember to build edge lists for them before using them with stencil shadows - you can do that by using OgreMeshUpgrade or OgreXmlConverter, or by calling Mesh::buildEdgeList before you export or use the mesh. If a mesh doesn't have edge lists, OGRE assumes that it is not supposed to cast stencil shadows.
+
+<A NAME="The Silhouette Edge"></A>
+<A NAME="SEC278"></A>
+<H3> The Silhouette Edge </H3>
+<!--docid::SEC278::-->
+Stencil shadowing is about finding a silhouette of the mesh, and projecting it away to form a volume. What this means is that there is a definite boundary on the shadow caster between light and shadow; a set of edges where where the triangle on one side is facing toward the light, and one is facing away. This produces a sharp edge around the mesh as the transition occurs. Provided there is little or no other light in the scene, and the mesh has smooth normals to produce a gradual light change in its underlying shading, the silhouette edge can be hidden - this works better the higher the tesselation of the mesh. However, if the scene includes ambient light, then the difference is far more marked. This is especially true when using <A HREF="manual_65.html#SEC292">7.3 Modulative Shadows</A>, because the light contribution of each shadowed area is not taken into account by this simplified approach, and so using 2 or more lights in a scene using modulative stencil shadows is not advisable; the silhouette edges will be very marked. Additive lights do not suffer from this as badly because each light is masked individually, meaning that it is only ambient light which can show up the silhouette edges.
 
 <A NAME="Be realistic"></A>
-<A NAME="SEC278"></A>
+<A NAME="SEC279"></A>
 <H3> Be realistic </H3>
-<!--docid::SEC278::-->
+<!--docid::SEC279::-->
 Don't expect to be able to throw any scene using any hardware at the stencil shadow algorithm and expect to get perfect, optimum speed results. Shadows are a complex and expensive technique, so you should impose some reasonable limitations on your placing of lights and objects; they're not really that restricting, but you should be aware that this is not a complete free-for-all. 
 <UL>
 <LI>Try to avoid letting objects pass very close (or even through) lights - it might look nice but it's one of the cases where artefacts can occur on machines not cabable of running vertex programs.
@@ -92,10 +99,10 @@ Don't expect to be able to throw any scene using any hardware at the stencil sha
 <BR><BR>
 
 <A NAME="Stencil Optimisations Performed By Ogre"></A>
-<A NAME="SEC279"></A>
+<A NAME="SEC280"></A>
 <H3> Stencil Optimisations Performed By Ogre </H3>
-<!--docid::SEC279::-->
-Despite all that, stencil shadows can look very nice (especially with <A HREF="manual_66.html#SEC293">7.4 Additive Light Masking</A>) and can be fast if you respect the rules above. In addition, Ogre comes pre-packed with a lot of optimisations which help to make this as quick as possible. This section is more for developers or people interested in knowing something about the 'under the hood' behaviour of Ogre.
+<!--docid::SEC280::-->
+Despite all that, stencil shadows can look very nice (especially with <A HREF="manual_66.html#SEC294">7.4 Additive Light Masking</A>) and can be fast if you respect the rules above. In addition, Ogre comes pre-packed with a lot of optimisations which help to make this as quick as possible. This section is more for developers or people interested in knowing something about the 'under the hood' behaviour of Ogre.
 <DL COMPACT>
 <DT>Vertex program extrusion
 <DD>As previously mentioned, Ogre performs the extrusion of shadow volumes in hardware on vertex program-capable hardware (e.g. GeForce3, Radeon 8500 or better). This has 2 major benefits; the obvious one being speed, but secondly that vertex programs can extrude points to infinity, which the fixed-function pipeline cannot, at least not without performing all calculations in software. This leads to more robust volumes, and also eliminates more than half the volume triangles on directional lights since all points are projected to a single point at infinity.
@@ -115,7 +122,7 @@ Despite all that, stencil shadows can look very nice (especially with <A HREF="m
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_62.html#SEC270"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_62.html#SEC270"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_64.html#SEC280"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_64.html#SEC281"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -124,7 +131,7 @@ Despite all that, stencil shadows can look very nice (especially with <A HREF="m
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>May 7 2006</I>
+by <I>steve</I> on <I>June 10 2006</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 

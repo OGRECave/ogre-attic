@@ -3753,70 +3753,70 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
                 (*tex) = *(pass->getTextureUnitState(t));
             }
             keepTUCount = origPassTUCount + 1;
-
-			// Will also need fragment programs since this is a complex light setup
-			if (!pass->getShadowReceiverFragmentProgramName().empty())
-			{
-				// Have to merge the shadow receiver vertex program in
-				retPass->setFragmentProgram(
-					pass->getShadowReceiverFragmentProgramName());
-				const GpuProgramPtr& prg = retPass->getFragmentProgram();
-				// Load this program if not done already
-				if (!prg->isLoaded())
-					prg->load();
-				// Copy params
-				retPass->setFragmentProgramParameters(
-					pass->getShadowReceiverFragmentProgramParameters());
-
-				// Did we bind a shadow vertex program?
-				if (pass->hasVertexProgram() && !retPass->hasVertexProgram())
-				{
-					// We didn't bind a receiver-specific program, so bind the original
-					retPass->setVertexProgram(pass->getVertexProgramName());
-					const GpuProgramPtr& prg = retPass->getVertexProgram();
-					// Load this program if required
-					if (!prg->isLoaded())
-						prg->load();
-					// Copy params
-					retPass->setVertexProgramParameters(
-						pass->getVertexProgramParameters());
-
-				}
-			}
-			else 
-			{
-				// Reset any merged fragment programs from last time
-				if (retPass == mShadowTextureCustomReceiverPass)
-				{
-					// reset fp?
-					if (mShadowTextureCustomReceiverPass->getFragmentProgramName() !=
-						mShadowTextureCustomReceiverFragmentProgram)
-					{
-						mShadowTextureCustomReceiverPass->setFragmentProgram(
-							mShadowTextureCustomReceiverFragmentProgram);
-						if(mShadowTextureCustomReceiverPass->hasFragmentProgram())
-						{
-							mShadowTextureCustomReceiverPass->setFragmentProgramParameters(
-								mShadowTextureCustomReceiverFPParams);
-
-						}
-
-					}
-
-				}
-				else
-				{
-					// Standard shadow receiver pass, reset to no fp
-					retPass->setFragmentProgram(StringUtil::BLANK);
-				}
-
-			}
-			
 		}// additive lighting
 		else
 		{
 			// need to keep spotlight fade etc
 			keepTUCount = retPass->getNumTextureUnitStates();
+		}
+
+
+		// Will also need fragment programs since this is a complex light setup
+		if (!pass->getShadowReceiverFragmentProgramName().empty())
+		{
+			// Have to merge the shadow receiver vertex program in
+			retPass->setFragmentProgram(
+				pass->getShadowReceiverFragmentProgramName());
+			const GpuProgramPtr& prg = retPass->getFragmentProgram();
+			// Load this program if not done already
+			if (!prg->isLoaded())
+				prg->load();
+			// Copy params
+			retPass->setFragmentProgramParameters(
+				pass->getShadowReceiverFragmentProgramParameters());
+
+			// Did we bind a shadow vertex program?
+			if (pass->hasVertexProgram() && !retPass->hasVertexProgram())
+			{
+				// We didn't bind a receiver-specific program, so bind the original
+				retPass->setVertexProgram(pass->getVertexProgramName());
+				const GpuProgramPtr& prg = retPass->getVertexProgram();
+				// Load this program if required
+				if (!prg->isLoaded())
+					prg->load();
+				// Copy params
+				retPass->setVertexProgramParameters(
+					pass->getVertexProgramParameters());
+
+			}
+		}
+		else 
+		{
+			// Reset any merged fragment programs from last time
+			if (retPass == mShadowTextureCustomReceiverPass)
+			{
+				// reset fp?
+				if (mShadowTextureCustomReceiverPass->getFragmentProgramName() !=
+					mShadowTextureCustomReceiverFragmentProgram)
+				{
+					mShadowTextureCustomReceiverPass->setFragmentProgram(
+						mShadowTextureCustomReceiverFragmentProgram);
+					if(mShadowTextureCustomReceiverPass->hasFragmentProgram())
+					{
+						mShadowTextureCustomReceiverPass->setFragmentProgramParameters(
+							mShadowTextureCustomReceiverFPParams);
+
+					}
+
+				}
+
+			}
+			else
+			{
+				// Standard shadow receiver pass, reset to no fp
+				retPass->setFragmentProgram(StringUtil::BLANK);
+			}
+
 		}
 
         // Remove any extra texture units
@@ -4404,12 +4404,12 @@ void SceneManager::createShadowTextures(unsigned short size,
 			shadowTex = TextureManager::getSingleton().createManual(
 				targName, 
 				ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, 
-				TEX_TYPE_2D, size, size, 0, mShadowTextureFormat, 
+				TEX_TYPE_2D, size, size, 0, fmt, 
 				TU_RENDERTARGET);
 		}
 		else if (shadowTex->getWidth() != size 
 			|| shadowTex->getHeight() != size
-			|| shadowTex->getFormat() != mShadowTextureFormat)
+			|| shadowTex->getFormat() != fmt)
 		{
 			StringUtil::StrStreamType s;
 			s << "Warning: shadow texture #" << t << " is shared "

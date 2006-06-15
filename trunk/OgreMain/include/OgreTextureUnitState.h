@@ -1001,10 +1001,6 @@ protected:
         Radian mRotate;
         mutable Matrix4 mTexModMatrix;
 
-        // Animation, will be set up as Controllers
-        Real mUScrollAnim, mVScrollAnim;
-        Real mRotateAnim;
-
         /// Texture filtering - minification
         FilterOptions mMinFilter;
         /// Texture filtering - magnification

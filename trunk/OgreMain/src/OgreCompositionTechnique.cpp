@@ -157,38 +157,24 @@ bool CompositionTechnique::isSupported(bool acceptTextureDegradation)
 	// match for the least demanding technique
 	
 
+    // Check output target pass is supported
+    if (!mOutputTarget->_isSupported())
+    {
+        return false;
+    }
+
+    // Check all target passes is supported
     TargetPasses::iterator pi, piend;
     piend = mTargetPasses.end();
     for (pi = mTargetPasses.begin(); pi != piend; ++pi)
     {
-		CompositionTargetPass* targetPass = *pi;
-		CompositionTargetPass::PassIterator passi = targetPass->getPassIterator();
+        CompositionTargetPass* targetPass = *pi;
+        if (!targetPass->_isSupported())
+        {
+            return false;
+        }
+    }
 
-		while (passi.hasMoreElements())
-		{
-			CompositionPass* pass = passi.getNext();
-			if (pass->getType() == CompositionPass::PT_RENDERQUAD)
-			{
-				MaterialPtr mat = pass->getMaterial();
-				if (mat.isNull())
-				{
-					return false;
-				}
-				else
-				{
-					mat->compile();
-					if (mat->getNumSupportedTechniques() == 0)
-					{
-						return false;
-					}
-				}
-			}
-
-		}
-
-
-	}
-	
     TextureDefinitions::iterator i, iend;
     iend = mTextureDefinitions.end();
 	TextureManager& texMgr = TextureManager::getSingleton();
