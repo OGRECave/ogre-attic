@@ -146,6 +146,11 @@ void MaterialScriptCompilerTests::testCompileMaterialScript()
 
 
     const String simpleScript =
+        "vertex_program boo cg { \n"
+        "  source program.cg \n"
+        "  entry_point main \n"
+        "  profiles vs_1_1 arbvp1 \n"
+        " } \n"
         "material test2 { \n"
         " receive_shadows on lod_distances 100 203.6 700 \n"
         " set_texture_alias foo-bar MyTexture.png \n"
@@ -224,10 +229,15 @@ void MaterialScriptCompilerTests::testCompileMaterialScript()
         " } } } \n"
         "material clone 1 : test2 {} \n"
         // GPU Programs
+        "vertex_program miny cg { \n"
+        "  source program.cg \n"
+        "  entry_point main \n"
+        "  profiles vs_1_1 arbvp1 \n"
+        " } \n"
         "vertex_program tiny hlsl { \n"
         "  source program.hlsl \n"
         "  entry_point main \n"
-        "  syntax vs_1_1 \n"
+        "  target vs_1_1 \n"
         "  default_params { \n"
         "    param_named google float4 0 1 2 3 \n"
         "    param_indexed 1 int 0 \n"
