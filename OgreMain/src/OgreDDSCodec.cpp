@@ -247,6 +247,64 @@ namespace Ogre {
 			"DDSCodec::convertPixelFormat");
 
 	}
+	//---------------------------------------------------------------------
+	void DDSCodec::unpackDXTColour(PixelFormat pf, const DXTColourBlock& block, 
+		ColourValue* pCol)
+	{
+		// Note - we assume all values have already been endian swapped
+
+		// Colour lookup table
+		ColourValue derivedColours[4];
+
+		// NOTE: assumes that block has already had any necessary endian adjustments
+		if (pf == PF_DXT1 && block.colour_0 > block.colour_1)
+		{
+			// 1-bit alpha
+			PixelUtil::unpackColour(&(derivedColours[0]), PF_A1R5G5B5, &(block.colour_0));
+			PixelUtil::unpackColour(&(derivedColours[1]), PF_A1R5G5B5, &(block.colour_1));
+			// one intermediate colour, half way between the other two
+			uint16 col2 = (block.colour_0 + block.colour_1) / 2;
+			PixelUtil::unpackColour(&(derivedColours[2]), PF_A1R5G5B5, &col2);
+			// transparent colour
+			derivedColours[3] = ColourValue::ZERO;
+		}
+		else
+		{
+			PixelUtil::unpackColour(&(derivedColours[0]), PF_R5G6B5, &(block.colour_0));
+			PixelUtil::unpackColour(&(derivedColours[1]), PF_R5G6B5, &(block.colour_1));
+			// first interpolated colour, 1/3 of the way along
+			uint16 col = (2 * block.colour_0 + block.colour_1 + 1) / 3;
+			PixelUtil::unpackColour(&(derivedColours[2]), PF_R5G6B5, &col);
+			// second interpolated colour, 2/3 of the way along
+			col = (block.colour_0 + 2 * block.colour_1 + 1) / 3;
+			PixelUtil::unpackColour(&(derivedColours[3]), PF_R5G6B5, &col);
+		}
+
+		// Process 4x4 block of texels
+		for (size_t row = 0; row < 4; ++row)
+		{
+			for (size_t x = 0; x < 16; ++x)
+			{
+				// LSB come first
+				uint8 colIdx = block.indexRow[row] >> (x * 2) & 0x3;
+				pCol[(row * 4) + x] = derivedColours[colIdx];
+			}
+
+		}
+
+
+	}
+	//---------------------------------------------------------------------
+	void DDSCodec::unpackDXTAlpha(PixelFormat pf, 
+		const DXTExplicitAlphaBlock& block, ColourValue* pCol)
+	{
+
+	}
+	//---------------------------------------------------------------------
+	void DDSCodec::unpackDXTAlpha(PixelFormat pf, 
+		const DXTInterpolatedAlphaBlock& block, ColourValue* pCol)
+	{
+	}
     //---------------------------------------------------------------------
     Codec::DecodeResult DDSCodec::decode(DataStreamPtr& stream) const
     {
@@ -434,7 +492,7 @@ namespace Ogre {
 						srcPitch = dstPitch;
 					}
 					assert (dstPitch <= srcPitch);
-					size_t srcAdvance = srcPitch - dstPitch;
+					long srcAdvance = srcPitch - dstPitch;
 
 					for (size_t z = 0; z < imgData->depth; ++z)
 					{

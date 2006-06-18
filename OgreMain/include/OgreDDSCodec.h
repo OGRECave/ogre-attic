@@ -28,6 +28,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreImageCodec.h"
 namespace Ogre {
 
+	// Forward declarations
+	struct DXTColourBlock;
+	struct DXTExplicitAlphaBlock;
+	struct DXTInterpolatedAlphaBlock;
+
     /** Codec specialized in loading DDS (Direct Draw Surface) images.
 	@remarks
 		We implement our own codec here since we need to be able to keep DXT
@@ -44,6 +49,13 @@ namespace Ogre {
 		PixelFormat convertDXTFormat(uint32 fourcc) const;
 		PixelFormat convertPixelFormat(uint32 rgbBits, uint32 rMask, 
 			uint32 gMask, uint32 bMask, uint32 aMask) const;
+
+		/// Unpack DXT colours into array of 16 colour values
+		void unpackDXTColour(PixelFormat pf, const DXTColourBlock& block, ColourValue* pCol);
+		/// Unpack DXT alphas into array of 16 colour values
+		void unpackDXTAlpha(PixelFormat pf, const DXTExplicitAlphaBlock& block, ColourValue* pCol);
+		/// Unpack DXT alphas into array of 16 colour values
+		void unpackDXTAlpha(PixelFormat pf, const DXTInterpolatedAlphaBlock& block, ColourValue* pCol);
 
 		/// Single registered codec instance
 		static DDSCodec* msInstance;
