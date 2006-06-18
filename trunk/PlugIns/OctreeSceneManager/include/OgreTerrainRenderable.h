@@ -269,7 +269,7 @@ namespace Ogre
 
         /** Generates terrain shadows and lighting using vertex colors
         */
-        void _generateVertexLighting( const Vector3 &sun, ColourValue ambient );
+        void _generateVertexLighting( const Vector3 &sunlight, ColourValue ambient );
 
 
         /** Overridden, see Renderable */
