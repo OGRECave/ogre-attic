@@ -209,6 +209,7 @@ AC_DEFUN([OGRE_GET_PLATFORM],
     GLX)
       AC_CHECK_HEADERS([X11/Intrinsic.h],, [AC_MSG_ERROR("libxt headers not found")])
       AC_CHECK_HEADERS([X11/Xaw/Command.h],, [AC_MSG_ERROR("libxaw headers not found")])
+      AC_CHECK_HEADERS([X11/extensions/xf86vmode.h],, [AC_MSG_ERROR("libxf86vm headers not found")],[#include <X11/Xlib.h>])
       AC_CHECK_HEADERS([X11/extensions/Xrandr.h],, [AC_MSG_ERROR("libxrandr headers not found")],[#include <X11/Xlib.h>])
       PLATFORM_CFLAGS="-I/usr/X11R6/include"
       PLATFORM_LIBS="-L/usr/X11R6/lib -lX11 -lXaw"
