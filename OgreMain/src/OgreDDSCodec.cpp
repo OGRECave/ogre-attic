@@ -283,7 +283,7 @@ namespace Ogre {
 		// Process 4x4 block of texels
 		for (size_t row = 0; row < 4; ++row)
 		{
-			for (size_t x = 0; x < 16; ++x)
+			for (size_t x = 0; x < 4; ++x)
 			{
 				// LSB come first
 				uint8 colIdx = block.indexRow[row] >> (x * 2) & 0x3;
