@@ -80,6 +80,32 @@ namespace Ogre {
 		DDSCaps caps;
 		uint32 reserved2;
 	};
+
+	// An 8-byte DXT colour block, represents a 4x4 texel area. Used by all DXT formats
+	struct DXTColourBlock
+	{
+		// 2 colour ranges
+		uint16 colour_0;
+		uint16 colour_1;
+		// 16 2-bit indexes, each byte here is one row
+		uint8 indexRow[4];
+	};
+	// An 8-byte DXT explicit alpha block, represents a 4x4 texel area. Used by DXT2/3
+	struct DXTExplicitAlphaBlock
+	{
+		// 16 4-bit values, each 16-bit value is one row
+		uint16 alphaRow[4];
+	};
+	// An 8-byte DXT interpolated alpha block, represents a 4x4 texel area. Used by DXT4/5
+	struct DXTInterpolatedAlphaBlock
+	{
+		// 2 alpha ranges
+		uint8 alpha_0;
+		uint8 alpha_1;
+		// 16 3-bit indexes. Unfortunately 3 bits doesn't map too well to row bytes
+		// so just stored raw
+		uint8 indexes[6];
+	};
 	
 #if OGRE_COMPILER == OGRE_COMPILER_MSVC
 #pragma pack (pop)
@@ -163,52 +189,27 @@ namespace Ogre {
 			"DDSCodec::codeToFile" ) ;
     }
 	//---------------------------------------------------------------------
-	PixelFormat DDSCodec::convertDXTFormat(uint32 fourcc, bool decompress) const
+	PixelFormat DDSCodec::convertDXTFormat(uint32 fourcc) const
 	{
 		// convert dxt pixel format
-		if (!decompress)
+		switch(fourcc)
 		{
-			switch(fourcc)
-			{
-			case FOURCC('D','X','T','1'):
-				return PF_DXT1;
-			case FOURCC('D','X','T','2'):
-				return PF_DXT2;
-			case FOURCC('D','X','T','3'):
-				return PF_DXT3;
-			case FOURCC('D','X','T','4'):
-				return PF_DXT4;
-			case FOURCC('D','X','T','5'):
-				return PF_DXT5;
-			// We could support 3Dc here, but only ATI cards support it, not nVidia
-			default:
-				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-					"Invalid FourCC format found in DDS file", 
-					"DDSCodec::decode");
-			};
-		}
-		else
-		{
-			switch(fourcc)
-			{
-			case FOURCC('D','X','T','1'):
-				return PF_DXT1;
-			case FOURCC('D','X','T','2'):
-				return PF_DXT2;
-			case FOURCC('D','X','T','3'):
-				return PF_DXT3;
-			case FOURCC('D','X','T','4'):
-				return PF_DXT4;
-			case FOURCC('D','X','T','5'):
-				return PF_DXT5;
-				// We could support 3Dc here, but only ATI cards support it, not nVidia
-			default:
-				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-					"Invalid FourCC format found in DDS file", 
-					"DDSCodec::decode");
-			};
-
-		}
+		case FOURCC('D','X','T','1'):
+			return PF_DXT1;
+		case FOURCC('D','X','T','2'):
+			return PF_DXT2;
+		case FOURCC('D','X','T','3'):
+			return PF_DXT3;
+		case FOURCC('D','X','T','4'):
+			return PF_DXT4;
+		case FOURCC('D','X','T','5'):
+			return PF_DXT5;
+		// We could support 3Dc here, but only ATI cards support it, not nVidia
+		default:
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+				"Invalid FourCC format found in DDS file", 
+				"DDSCodec::decode");
+		};
 
 	}
 	//---------------------------------------------------------------------
@@ -325,9 +326,51 @@ namespace Ogre {
 			imgData->depth = header.depth;
 		}
 		// Pixel format
+		PixelFormat sourceDXTFormat = PF_UNKNOWN;
 		if (header.pixelFormat.flags & DDPF_FOURCC)
 		{
-			imgData->format = convertDXTFormat(header.pixelFormat.fourCC, decompressDXT);
+			sourceDXTFormat = convertDXTFormat(header.pixelFormat.fourCC);
+			if (decompressDXT)
+			{
+				// Convert format
+				switch (sourceDXTFormat)
+				{
+				case PF_DXT1:
+					// source can be either 565 or 5551 depending on whether alpha present
+					// unfortunately you have to read a block to figure out which
+					// Note that we upgrade to 32-bit pixel formats here, even 
+					// though the source is 16-bit; this is because the interpolated
+					// values will benefit from the 32-bit results, and the source
+					// from which the 16-bit samples are calculated may have been
+					// 32-bit so can benefit from this.
+					DXTColourBlock block;
+					stream->read(&block, sizeof(DXTColourBlock));
+					// skip back since we'll need to read this again
+					stream->skip(0 - sizeof(DXTColourBlock));
+					// colour_0 <= colour_1 means transparency in DXT1
+					if (block.colour_0 <= block.colour_1)
+					{
+						imgData->format = PF_BYTE_RGBA;
+					}
+					else
+					{
+						imgData->format = PF_BYTE_RGB;
+					}
+					break;
+				case PF_DXT2:
+				case PF_DXT3:
+				case PF_DXT4:
+				case PF_DXT5:
+					// full alpha present, formats vary only in encoding 
+					imgData->format = PF_BYTE_RGBA;
+					break;
+				}
+			}
+			else
+			{
+				// Use original format
+				imgData->format = sourceDXTFormat;
+			}
 		}
 		else //if (header.pixelFormat.flags & DDPF_RGB)
 		{
