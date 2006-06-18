@@ -843,7 +843,7 @@ namespace Ogre
         }
     }
     //-----------------------------------------------------------------------
-    void TerrainRenderable::_generateVertexLighting( const Vector3 &sun, ColourValue ambient )
+    void TerrainRenderable::_generateVertexLighting( const Vector3 &sunlight, ColourValue ambient )
     {
 
         Vector3 pt;
@@ -863,11 +863,11 @@ namespace Ogre
                 pt.y = _vertex( i, j, 1 );
                 pt.z = _vertex( i, j, 2 );
 
-                light = sun - pt;
+                light = sunlight - pt;
 
                 light.normalise();
 
-                if ( ! intersectSegment( pt, sun, 0 ) )
+                if ( ! intersectSegment( pt, sunlight, 0 ) )
                 {
                     //
                     _getNormalAt( _vertex( i, j, 0 ), _vertex( i, j, 2 ), &normal );
