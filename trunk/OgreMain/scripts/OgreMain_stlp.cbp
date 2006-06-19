@@ -383,6 +383,13 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\include\OgreDDSCodec.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\include\OgreDataStream.h">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
@@ -1699,6 +1706,11 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\src\OgreControllerManager.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\src\OgreDDSCodec.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />
