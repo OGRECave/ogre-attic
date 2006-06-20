@@ -752,6 +752,14 @@ namespace Ogre {
 
 	PixelBox Image::getPixelBox(size_t face, size_t mipmap) const
 	{
+		// Image data is arranged as:
+		// face 0, top level (mip 0)
+		// face 0, mip 1
+		// face 0, mip 2
+		// face 1, top level (mip 0)
+		// face 1, mip 1
+		// face 1, mip 2
+		// etc
 		if(mipmap > getNumMipmaps())
 			OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE,
 			"Mipmap index out of range",
@@ -761,23 +769,35 @@ namespace Ogre {
 			"Image::getPixelBox");
         // Calculate mipmap offset and size
         uint8 *offset = const_cast<uint8*>(getData());
+		// Base offset is number of full faces
         size_t width = getWidth(), height=getHeight(), depth=getDepth();
-        size_t faceSize; // Size of one face of the image
-        for(size_t mip=0; mip<mipmap; ++mip)
+		size_t numMips = getNumMipmaps();
+
+		// Figure out the offsets 
+		size_t fullFaceSize = 0;
+		size_t finalFaceSize = 0;
+		size_t finalWidth, finalHeight, finalDepth;
+		for(size_t mip=0; mip <= numMips; ++mip)
         {
-            faceSize = PixelUtil::getMemorySize(width, height, depth, getFormat());
-            /// Skip all faces of this mipmap
-            offset += faceSize*getNumFaces(); 
+			if (mip == mipmap)
+			{
+				finalFaceSize = fullFaceSize;
+				finalWidth = width;
+				finalHeight = height;
+				finalDepth = depth;
+			}
+            fullFaceSize += PixelUtil::getMemorySize(width, height, depth, getFormat());
+
             /// Half size in each dimension
             if(width!=1) width /= 2;
             if(height!=1) height /= 2;
             if(depth!=1) depth /= 2;
         }
-		// We have advanced to the desired mipmap, offset to right face
-        faceSize = PixelUtil::getMemorySize(width, height, depth, getFormat());
-        offset += faceSize*face;
+		// Advance pointer by number of full faces, plus mip offset into
+		offset += face * fullFaceSize;
+		offset += finalFaceSize;
 		// Return subface as pixelbox
-		PixelBox src(width, height, depth, getFormat(), offset);
+		PixelBox src(finalWidth, finalHeight, finalDepth, getFormat(), offset);
 		return src;
 	}
     //-----------------------------------------------------------------------------    
