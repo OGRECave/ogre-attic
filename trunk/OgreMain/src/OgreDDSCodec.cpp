@@ -451,13 +451,15 @@ namespace Ogre {
 		
 		// Now deal with the data
 		void* destPtr = output->getPtr();
-		size_t width = imgData->width;
-		size_t height = imgData->height;
-		size_t depth = imgData->height;
 
-		for(size_t mip = 0; mip <= imgData->num_mipmaps; ++mip)
+		// all mips for a face, then each face
+		for(size_t i = 0; i < numFaces; ++i)
 		{   
-			for(size_t i = 0; i < numFaces; ++i)
+			size_t width = imgData->width;
+			size_t height = imgData->height;
+			size_t depth = imgData->height;
+
+			for(size_t mip = 0; mip <= imgData->num_mipmaps; ++mip)
 			{
 				if (imgData->flags & IF_COMPRESSED)
 				{
@@ -509,12 +511,12 @@ namespace Ogre {
 				}
 
 				
+				/// Next mip
+				if(width!=1) width /= 2;
+				if(height!=1) height /= 2;
+				if(depth!=1) depth /= 2;
 			}
 
-			/// Next mip
-			if(width!=1) width /= 2;
-			if(height!=1) height /= 2;
-			if(depth!=1) depth /= 2;
 		}
 
 		DecodeResult ret;
