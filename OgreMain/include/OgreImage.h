@@ -113,7 +113,21 @@ namespace Ogre {
                 pixel format will be either greyscale or RGB with an optional
                 Alpha component.
                 The type can be determined by calling getFormat().             
-            @param
+            @note
+				Whilst typically your image is likely to be a simple 2D image,
+				you can define complex images including cube maps, volume maps,
+				and images including custom mip levels. The layout of the 
+				internal memory should be:
+				<ul><li>face 0, mip 0 (top), width x height (x depth)</li>
+				<li>face 0, mip 1, width/2 x height/2 (x depth/2)</li>
+				<li>face 0, mip 2, width/4 x height/4 (x depth/4)</li>
+				<li>.. remaining mips for face 0 .. </li>
+				<li>face 1, mip 0 (top), width x height (x depth)</li
+				<li>.. and so on. </li>
+				</ul>
+				Of course, you will never have multiple faces (cube map) and
+				depth too.
+			@param
                 The data pointer
             @param
 				Width of image
@@ -147,6 +161,20 @@ namespace Ogre {
                 pixel format will be either greyscale or RGB with an optional
                 Alpha component.
                 The type can be determined by calling getFormat().             
+            @note
+				Whilst typically your image is likely to be a simple 2D image,
+				you can define complex images including cube maps
+				and images including custom mip levels. The layout of the 
+				internal memory should be:
+				<ul><li>face 0, mip 0 (top), width x height</li>
+				<li>face 0, mip 1, width/2 x height/2 </li>
+				<li>face 0, mip 2, width/4 x height/4 </li>
+				<li>.. remaining mips for face 0 .. </li>
+				<li>face 1, mip 0 (top), width x height (x depth)</li
+				<li>.. and so on. </li>
+				</ul>
+				Of course, you will never have multiple faces (cube map) and
+				depth too.
             @param
                 The data pointer
             @param
@@ -171,6 +199,20 @@ namespace Ogre {
 			loadDynamicImage for a description of the parameters.
 			@remarks 
 				The size of the buffer must be numFaces*PixelUtil::getMemorySize(width, height, depth, format)
+            @note
+				Whilst typically your image is likely to be a simple 2D image,
+				you can define complex images including cube maps
+				and images including custom mip levels. The layout of the 
+				internal memory should be:
+				<ul><li>face 0, mip 0 (top), width x height (x depth)</li>
+				<li>face 0, mip 1, width/2 x height/2 (x depth/2)</li>
+				<li>face 0, mip 2, width/4 x height/4 (x depth/4)</li>
+				<li>.. remaining mips for face 0 .. </li>
+				<li>face 1, mip 0 (top), width x height (x depth)</li
+				<li>.. and so on. </li>
+				</ul>
+				Of course, you will never have multiple faces (cube map) and
+				depth too.
         */
         Image & loadRawData( 
             DataStreamPtr& stream, 
@@ -181,6 +223,20 @@ namespace Ogre {
 			@remarks This function is deprecated; one should really use the
 				Image::loadRawData(stream, width, height, depth, format, ...) to be compatible
 				with future Ogre versions.
+            @note
+				Whilst typically your image is likely to be a simple 2D image,
+				you can define complex images including cube maps
+				and images including custom mip levels. The layout of the 
+				internal memory should be:
+				<ul><li>face 0, mip 0 (top), width x height</li>
+				<li>face 0, mip 1, width/2 x height/2 </li>
+				<li>face 0, mip 2, width/4 x height/4 </li>
+				<li>.. remaining mips for face 0 .. </li>
+				<li>face 1, mip 0 (top), width x height (x depth)</li
+				<li>.. and so on. </li>
+				</ul>
+				Of course, you will never have multiple faces (cube map) and
+				depth too.
         */
         Image & loadRawData( 
             DataStreamPtr& stream, 
@@ -192,9 +248,10 @@ namespace Ogre {
 
         /** Loads an image file.
             @remarks
-                This method loads an image into memory held in the object. The 
-                pixel format will be either greyscale or RGB with an optional
-                Alpha component.
+                This method loads an image into memory. Any format for which 
+				and associated ImageCodec is registered can be loaded. 
+				This can include complex formats like DDS with embedded custom 
+				mipmaps, cube faces and volume textures.
                 The type can be determined by calling getFormat().             
             @param
                 strFileName Name of a file file to load.
@@ -212,6 +269,11 @@ namespace Ogre {
                 method except it loads the image from a DataStream object. 
 				This DataStream is expected to contain the 
                 encoded data as it would be held in a file. 
+                Any format for which and associated ImageCodec is registered 
+				can be loaded. 
+				This can include complex formats like DDS with embedded custom 
+				mipmaps, cube faces and volume textures.
+                The type can be determined by calling getFormat().             
             @param
                 stream The source data.
             @param
@@ -226,10 +288,18 @@ namespace Ogre {
         void save(const String& filename);
 
         /** Returns a pointer to the internal image buffer.
+		@remarks
+			Be careful with this method. You will almost certainly
+			prefer to use getPixelBox, especially with complex images
+			which include many faces or custom mipmaps.
         */
         uchar* getData(void);
 
         /** Returns a const pointer to the internal image buffer.
+		@remarks
+			Be careful with this method. You will almost certainly
+			prefer to use getPixelBox, especially with complex images
+			which include many faces or custom mipmaps.
         */
         const uchar * getData() const;       
 
