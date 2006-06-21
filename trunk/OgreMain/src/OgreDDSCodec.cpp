@@ -457,7 +457,7 @@ namespace Ogre {
 		{   
 			size_t width = imgData->width;
 			size_t height = imgData->height;
-			size_t depth = imgData->height;
+			size_t depth = imgData->depth;
 
 			for(size_t mip = 0; mip <= imgData->num_mipmaps; ++mip)
 			{
