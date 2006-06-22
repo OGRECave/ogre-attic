@@ -171,6 +171,8 @@ __MM_DECL_OP2(unpackhi_ps, unpckhps, xm)
 __MM_DECL_OP2(movehl_ps, movhlps, x)
 __MM_DECL_OP2(movelh_ps, movlhps, x)
 
+__MM_DECL_OP2(cmpnle_ps, cmpnleps, xm)
+
 #undef __MM_DECL_OP2
 
 // Other used instructions
@@ -193,6 +195,13 @@ __MM_DECL_OP2(movelh_ps, movlhps, x)
         __m128 result;
         __asm__("rsqrtps %1, %0" : "=x" (result) : "xm" (val));
         //__asm__("rsqrtps %0, %0" : "=x" (result) : "0" (val));
+        return result;
+    }
+
+    static __ALWAYS_INLINE int _mm_movemask_ps(__m128 val)
+    {
+        int result;
+        __asm__("movmskps %1, %0" : "=r" (result) : "xm" (val));
         return result;
     }
 

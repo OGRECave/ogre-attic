@@ -129,6 +129,28 @@ namespace Ogre {
             const Matrix4* srcMatrices,
             Matrix4* dstMatrices,
             size_t numMatrices) = 0;
+
+        /** Calculate the light facing state of the triangle's face normals
+        @remarks
+            This is normally the first stage of calculating a silhouette, ie
+            establishing which tris are facing the light and which are facing
+            away.
+        @param lightPos 4D position of the light in object space, note that
+            for directional lights (which have no position), the w component
+            is 0 and the x/y/z position are the direction.
+        @param faceNormals An array of face normals for the triangles, the face
+            normal are unit vector othogonal to the triangles, plus distance
+            from origin. This array must be aligned to SIMD alignment.
+        @param lightFacings An array of flags for store light facing state
+            results, the result flag is true if corresponding face normal facing
+            the light, false otherwise. This array no alignment requires.
+        @param numFaces Number of face normals to calculate.
+        */
+        virtual void calculateLightFacing(
+            const Vector4& lightPos,
+            const Vector4* faceNormals,
+            char* lightFacings,
+            size_t numFaces) = 0;
     };
 
     /** Returns raw offseted of the given pointer.

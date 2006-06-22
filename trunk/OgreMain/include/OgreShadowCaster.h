@@ -47,12 +47,12 @@ namespace Ogre {
         RenderOperation mRenderOp;
         ShadowRenderable* mLightCap; // used only if isLightCapSeparate == true
     public:
-        ShadowRenderable() : mMaterial(0), mLightCap(0) {}
+        ShadowRenderable() : mMaterial(), mLightCap(0) {}
         virtual ~ShadowRenderable() { delete mLightCap; }
         /** Set the material to be used by the shadow, should be set by the caller 
           before adding to a render queue
         */
-        void setMaterial(MaterialPtr& mat) { mMaterial = mat; }
+        void setMaterial(const MaterialPtr& mat) { mMaterial = mat; }
         /// Overridden from Renderable
         const MaterialPtr& getMaterial(void) const { return mMaterial; }
         /// Overridden from Renderable
@@ -160,7 +160,7 @@ namespace Ogre {
         represents a directional light
         @param extrudeDist The distance to extrude
         */
-        static void extrudeVertices(HardwareVertexBufferSharedPtr vertexBuffer, 
+        static void extrudeVertices(const HardwareVertexBufferSharedPtr& vertexBuffer, 
             size_t originalVertexCount, const Vector4& lightPos, Real extrudeDist);
         /** Get the distance to extrude for a point/spot light */
         virtual Real getPointExtrusionDistance(const Light* l) const = 0;
@@ -191,7 +191,7 @@ namespace Ogre {
         @param flags Additional controller flags, see ShadowRenderableFlags
         */
         virtual void generateShadowVolume(EdgeData* edgeData, 
-            HardwareIndexBufferSharedPtr indexBuffer, const Light* light,
+            const HardwareIndexBufferSharedPtr& indexBuffer, const Light* light,
             ShadowRenderableList& shadowRenderables, unsigned long flags);
         /** Utility method for extruding a bounding box. 
         @param box Original bounding box, will be updated in-place

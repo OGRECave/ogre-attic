@@ -1586,8 +1586,9 @@ namespace Ogre {
                 writeInts(&count, 1);
                 // Triangle* triangleList
                 // Iterate rather than writing en-masse to allow endian conversion
-                for (EdgeData::TriangleList::const_iterator t = edgeData->triangles.begin();
-                    t != edgeData->triangles.end(); ++t)
+                EdgeData::TriangleList::const_iterator t = edgeData->triangles.begin();
+                EdgeData::TriangleFaceNormalList::const_iterator fni = edgeData->triangleFaceNormals.begin();
+                for ( ; t != edgeData->triangles.end(); ++t, ++fni)
                 {
                     const EdgeData::Triangle& tri = *t;
                     // unsigned long indexSet;
@@ -1608,7 +1609,7 @@ namespace Ogre {
                     tmp[2] = tri.sharedVertIndex[2];
                     writeInts(tmp, 3);
                     // float normal[4];
-                    writeFloats(&(tri.normal.x), 4);
+                    writeFloats(&(fni->x), 4);
 
                 }
                 // Write the groups
@@ -1683,6 +1684,8 @@ namespace Ogre {
                     readInts(stream, &numTriangles, 1);
                     // Allocate correct amount of memory
                     usage.edgeData->triangles.resize(numTriangles);
+                    usage.edgeData->triangleFaceNormals.resize(numTriangles);
+                    usage.edgeData->triangleLightFacings.resize(numTriangles);
                     // unsigned long numEdgeGroups
                     uint32 numEdgeGroups;
                     readInts(stream, &numEdgeGroups, 1);
@@ -1710,7 +1713,7 @@ namespace Ogre {
                         tri.sharedVertIndex[1] = tmp[1];
                         tri.sharedVertIndex[2] = tmp[2];
                         // float normal[4]
-                        readFloats(stream, &(tri.normal.x), 4);
+                        readFloats(stream, &(usage.edgeData->triangleFaceNormals[t].x), 4);
 
                     }
 
