@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 #include "OgreVertexIndexData.h"
 #include "OgreException.h"
+#include "OgreOptimisedUtil.h"
 
 namespace Ogre {
 
@@ -188,6 +189,9 @@ namespace Ogre {
             buildTrianglesEdges(*i);
         }
 
+        // Allocate memory for light facing calculate
+        mEdgeData->triangleLightFacings.resize(mEdgeData->triangles.size());
+
         // Log
         //log(LogManager::getSingleton().createLog("EdgeListBuilder.log"));
 
@@ -257,6 +261,7 @@ namespace Ogre {
         size_t triangleIndex = mEdgeData->triangles.size();
         // Pre-reserve memory for less thrashing
         mEdgeData->triangles.reserve(triangleIndex + iterations);
+        mEdgeData->triangleFaceNormals.reserve(triangleIndex + iterations);
         for (size_t t = 0; t < iterations; ++t)
         {
             EdgeData::Triangle tri;
@@ -322,7 +327,8 @@ namespace Ogre {
             {
                 // Calculate triangle normal (NB will require recalculation for 
                 // skeletally animated meshes)
-                tri.normal = Math::calculateFaceNormalWithoutNormalize(v[0], v[1], v[2]);
+                mEdgeData->triangleFaceNormals.push_back(
+                    Math::calculateFaceNormalWithoutNormalize(v[0], v[1], v[2]));
                 // Add triangle to list
                 mEdgeData->triangles.push_back(tri);
                 // Connect or create edges from common list
@@ -407,38 +413,38 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void EdgeData::updateTriangleLightFacing(const Vector4& lightPos)
     {
-        // Iterate over the triangles, and determine if they are light facing
-        EdgeData::TriangleList::iterator ti, tiend;
-        tiend = triangles.end();
-        Vector3 vertToLight;
-        for (ti = triangles.begin(); ti != tiend; ++ti)
-        {
-            EdgeData::Triangle& t = *ti;
-            // Get pointer to positions, and reference the first position
+        // Triangle face normals should be 1:1 with light facing flags
+        assert(triangleFaceNormals.size() == triangleLightFacings.size());
 
-            Real dp = t.normal.dotProduct(lightPos);
-            t.lightFacing = (dp > 0);
-
-        }
-
+        // Use optimised util to determine if triangle's face normal are light facing
+        OptimisedUtil::getImplementation()->calculateLightFacing(
+            lightPos,
+            &triangleFaceNormals.front(),
+            &triangleLightFacings.front(),
+            triangleLightFacings.size());
     }
     //---------------------------------------------------------------------
     void EdgeData::updateFaceNormals(size_t vertexSet, 
-        HardwareVertexBufferSharedPtr positionBuffer)
+        const HardwareVertexBufferSharedPtr& positionBuffer)
     {
         assert (positionBuffer->getVertexSize() == sizeof(float) * 3
             && "Position buffer should contain only positions!");
+
+        // Triangle face normals should be 1:1 with triangles
+        assert(triangleFaceNormals.size() == triangles.size());
 
         // Lock buffer for reading
         float* pVert = static_cast<float*>(
             positionBuffer->lock(HardwareBuffer::HBL_READ_ONLY));
 
         // Iterate over the triangles
-        EdgeData::TriangleList::iterator i, iend;
+        EdgeData::TriangleList::const_iterator i, iend;
+        EdgeData::TriangleFaceNormalList::iterator fni;
         iend = triangles.end();
-        for (i = triangles.begin(); i != iend; ++i)
+        fni = triangleFaceNormals.begin();
+        for (i = triangles.begin(); i != iend; ++i, ++fni)
         {
-            Triangle& t = *i;
+            const Triangle& t = *i;
             // Only update tris which are using this vertex set
             if (t.vertexSet == vertexSet)
             {
@@ -451,7 +457,7 @@ namespace Ogre {
                 offset = t.vertIndex[2]*3;
                 Vector3 v3(pVert[offset], pVert[offset+1], pVert[offset+2]);
 
-                t.normal = Math::calculateFaceNormalWithoutNormalize(v1, v2, v3);
+                *fni = Math::calculateFaceNormalWithoutNormalize(v1, v2, v3);
             }
         }
 

@@ -67,6 +67,13 @@ namespace Ogre {
             const Matrix4* srcMatrices,
             Matrix4* dstMatrices,
             size_t numMatrices);
+
+        /// @copydoc OptimisedUtil::calculateLightFacing
+        virtual void calculateLightFacing(
+            const Vector4& lightPos,
+            const Vector4* faceNormals,
+            char* lightFacings,
+            size_t numFaces);
     };
     //---------------------------------------------------------------------
     //---------------------------------------------------------------------
@@ -251,6 +258,18 @@ namespace Ogre {
             // z
             *pDst++ = *pSrc1 + t * (*pSrc2 - *pSrc1) ;
             ++pSrc1; ++pSrc2;
+        }
+    }
+    //---------------------------------------------------------------------
+    void OptimisedUtilGeneral::calculateLightFacing(
+        const Vector4& lightPos,
+        const Vector4* faceNormals,
+        char* lightFacings,
+        size_t numFaces)
+    {
+        for (size_t i = 0; i < numFaces; ++i)
+        {
+            *lightFacings++ = (lightPos.dotProduct(*faceNormals++) > 0);
         }
     }
     //---------------------------------------------------------------------

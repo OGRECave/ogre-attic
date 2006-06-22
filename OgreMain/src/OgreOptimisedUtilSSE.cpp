@@ -102,6 +102,13 @@ namespace Ogre {
             const Matrix4* srcMatrices,
             Matrix4* dstMatrices,
             size_t numMatrices);
+
+        /// @copydoc OptimisedUtil::calculateLightFacing
+        virtual void calculateLightFacing(
+            const Vector4& lightPos,
+            const Vector4* faceNormals,
+            char* lightFacings,
+            size_t numFaces);
     };
 
 #if defined(__OGRE_SIMD_ALIGN_STACK)
@@ -110,6 +117,10 @@ namespace Ogre {
         User code compiled by icc and gcc might not align stack
         properly, we need ensure stack align to a 16-bytes boundary
         when execute SSE function.
+    @par
+        We implemeted as align stack following a virtual function call,
+        then should guarantee call instruction are used instead of inline
+        underlying function body here (which might causing problem).
     @note
         Don't use this class directly, use OptimisedUtil instead.
     */
@@ -140,8 +151,6 @@ namespace Ogre {
         {
             __OGRE_SIMD_ALIGN_STACK();
 
-            // This is virtual function call, should guarantee call instruction
-            // are used instead of inline underlying function body here.
             mImpl->softwareVertexSkinning(
                 srcPosPtr, destPosPtr,
                 srcNormPtr, destNormPtr,
@@ -163,8 +172,6 @@ namespace Ogre {
         {
             __OGRE_SIMD_ALIGN_STACK();
 
-            // This is virtual function call, should guarantee call instruction
-            // are used instead of inline underlying function body here.
             mImpl->softwareVertexMorph(
                 t,
                 srcPos1, srcPos2,
@@ -181,13 +188,27 @@ namespace Ogre {
         {
             __OGRE_SIMD_ALIGN_STACK();
 
-            // This is virtual function call, should guarantee call instruction
-            // are used instead of inline underlying function body here.
             mImpl->concatenateAffineMatrices(
                 baseMatrix,
                 srcMatrices,
                 dstMatrices,
                 numMatrices);
+        }
+
+        /// @copydoc OptimisedUtil::calculateLightFacing
+        virtual void calculateLightFacing(
+            const Vector4& lightPos,
+            const Vector4* faceNormals,
+            char* lightFacings,
+            size_t numFaces)
+        {
+            __OGRE_SIMD_ALIGN_STACK();
+
+            mImpl->calculateLightFacing(
+                lightPos,
+                faceNormals,
+                lightFacings,
+                numFaces);
         }
     };
 #endif  // !defined(__OGRE_SIMD_ALIGN_STACK)
@@ -1421,6 +1442,147 @@ namespace Ogre {
             __MM_STORE_PS((*pDstMat)[3], m3);
 
             ++pDstMat;
+        }
+    }
+    //---------------------------------------------------------------------
+    void OptimisedUtilSSE::calculateLightFacing(
+        const Vector4& lightPos,
+        const Vector4* faceNormals,
+        char* lightFacings,
+        size_t numFaces)
+    {
+        __OGRE_CHECK_STACK_ALIGNED_FOR_SSE();
+
+        assert(_isAlignedForSSE(faceNormals));
+
+        // Map to convert 4-bits mask to 4 byte values
+        static const char msMaskMapping[16][4] =
+        {
+            0, 0, 0, 0,   1, 0, 0, 0,   0, 1, 0, 0,   1, 1, 0, 0,
+            0, 0, 1, 0,   1, 0, 1, 0,   0, 1, 1, 0,   1, 1, 1, 0,
+            0, 0, 0, 1,   1, 0, 0, 1,   0, 1, 0, 1,   1, 1, 0, 1,
+            0, 0, 1, 1,   1, 0, 1, 1,   0, 1, 1, 1,   1, 1, 1, 1,
+        };
+
+        __m128 n0, n1, n2, n3;
+        __m128 t0, t1;
+        __m128 dp;
+        int bitmask;
+
+        // Load light vector, unaligned
+        __m128 lp = _mm_loadu_ps(&lightPos.x);
+
+        // Perload zero to register for compare dot product values
+        __m128 zero = _mm_setzero_ps();
+
+        size_t numIterations = numFaces / 4;
+        numFaces &= 3;
+
+        // Four faces per-iteration
+        for (size_t i = 0; i < numIterations; ++i)
+        {
+            // Load face normals, aligned
+            n0 = __MM_LOAD_PS(&faceNormals[0].x);
+            n1 = __MM_LOAD_PS(&faceNormals[1].x);
+            n2 = __MM_LOAD_PS(&faceNormals[2].x);
+            n3 = __MM_LOAD_PS(&faceNormals[3].x);
+            faceNormals += 4;
+
+            // Multiply by light vector
+            n0 = _mm_mul_ps(n0, lp);        // x0 y0 z0 w0
+            n1 = _mm_mul_ps(n1, lp);        // x1 y1 z1 w1
+            n2 = _mm_mul_ps(n2, lp);        // x2 y2 z2 w2
+            n3 = _mm_mul_ps(n3, lp);        // x3 y3 z3 w3
+
+            // Horizontal add four vector values.
+            t0 = _mm_add_ps(                                            // x0+z0 x1+z1 y0+w0 y1+w1
+                _mm_unpacklo_ps(n0, n1),    // x0 x1 y0 y1
+                _mm_unpackhi_ps(n0, n1));   // z0 z1 w0 w1
+            t1 = _mm_add_ps(                                            // x2+z2 x3+z3 y2+w2 y3+w3
+                _mm_unpacklo_ps(n2, n3),    // x2 x3 y2 y3
+                _mm_unpackhi_ps(n2, n3));   // z2 z3 w2 w3
+            dp = _mm_add_ps(                                            // dp0 dp1 dp2 dp3
+                _mm_movelh_ps(t0, t1),      // x0+z0 x1+z1 x2+z2 x3+z3
+                _mm_movehl_ps(t1, t0));     // y0+w0 y1+w1 y2+w2 y3+w3
+
+            // Compare greater than zero and setup 4-bits mask. Use '_mm_cmpnle_ps'
+            // instead of '_mm_cmpgt_ps' here because we want keep 'zero' untouch,
+            // i.e. it's 2nd operand of the assembly instruction. And in fact
+            // '_mm_cmpgt_ps' was implemented as 'CMPLTPS' with operands swapped
+            // in VC7.1.
+            bitmask = _mm_movemask_ps(_mm_cmpnle_ps(dp, zero));
+
+            // Convert 4-bits mask to 4 bytes, and store results.
+            *reinterpret_cast<uint32*>(lightFacings) =
+                *reinterpret_cast<const uint32*>(msMaskMapping[bitmask]);
+            lightFacings += 4;
+        }
+
+        // Dealing with remaining faces
+        switch (numFaces)
+        {
+        case 3:
+            n0 = __MM_LOAD_PS(&faceNormals[0].x);
+            n1 = __MM_LOAD_PS(&faceNormals[1].x);
+            n2 = __MM_LOAD_PS(&faceNormals[2].x);
+
+            n0 = _mm_mul_ps(n0, lp);        // x0 y0 z0 w0
+            n1 = _mm_mul_ps(n1, lp);        // x1 y1 z1 w1
+            n2 = _mm_mul_ps(n2, lp);        // x2 y2 z2 w2
+
+            t0 = _mm_add_ps(                                            // x0+z0 x1+z1 y0+w0 y1+w1
+                _mm_unpacklo_ps(n0, n1),    // x0 x1 y0 y1
+                _mm_unpackhi_ps(n0, n1));   // z0 z1 w0 w1
+            t1 = _mm_add_ps(                                            // x2+z2 x2+z2 y2+w2 y2+w2
+                _mm_unpacklo_ps(n2, n2),    // x2 x2 y2 y2
+                _mm_unpackhi_ps(n2, n2));   // z2 z2 w2 w2
+            dp = _mm_add_ps(                                            // dp0 dp1 dp2 dp2
+                _mm_movelh_ps(t0, t1),      // x0+z0 x1+z1 x2+z2 x2+z2
+                _mm_movehl_ps(t1, t0));     // y0+w0 y1+w1 y2+w2 y2+w2
+
+            bitmask = _mm_movemask_ps(_mm_cmpnle_ps(dp, zero));
+
+            lightFacings[0] = msMaskMapping[bitmask][0];
+            lightFacings[1] = msMaskMapping[bitmask][1];
+            lightFacings[2] = msMaskMapping[bitmask][2];
+            break;
+
+        case 2:
+            n0 = __MM_LOAD_PS(&faceNormals[0].x);
+            n1 = __MM_LOAD_PS(&faceNormals[1].x);
+
+            n0 = _mm_mul_ps(n0, lp);        // x0 y0 z0 w0
+            n1 = _mm_mul_ps(n1, lp);        // x1 y1 z1 w1
+
+            t0 = _mm_add_ps(                                            // x0+z0 x1+z1 y0+w0 y1+w1
+                _mm_unpacklo_ps(n0, n1),    // x0 x1 y0 y1
+                _mm_unpackhi_ps(n0, n1));   // z0 z1 w0 w1
+            dp = _mm_add_ps(                                            // dp0 dp1 dp0 dp1
+                _mm_movelh_ps(t0, t0),      // x0+z0 x1+z1 x0+z0 x1+z1
+                _mm_movehl_ps(t0, t0));     // y0+w0 y1+w1 y0+w0 y1+w1
+
+            bitmask = _mm_movemask_ps(_mm_cmpnle_ps(dp, zero));
+
+            lightFacings[0] = msMaskMapping[bitmask][0];
+            lightFacings[1] = msMaskMapping[bitmask][1];
+            break;
+
+        case 1:
+            n0 = __MM_LOAD_PS(&faceNormals[0].x);
+
+            n0 = _mm_mul_ps(n0, lp);        // x0 y0 z0 w0
+
+            t0 = _mm_add_ps(                                            // x0+z0 x0+z0 y0+w0 y0+w0
+                _mm_unpacklo_ps(n0, n0),    // x0 x0 y0 y0
+                _mm_unpackhi_ps(n0, n0));   // z0 z0 w0 w0
+            dp = _mm_add_ps(                                            // dp0 dp0 dp0 dp0
+                _mm_movelh_ps(t0, t0),      // x0+z0 x0+z0 x0+z0 x0+z0
+                _mm_movehl_ps(t0, t0));     // y0+w0 y0+w0 y0+w0 y0+w0
+
+            bitmask = _mm_movemask_ps(_mm_cmpnle_ps(dp, zero));
+
+            lightFacings[0] = msMaskMapping[bitmask][0];
+            break;
         }
     }
     //---------------------------------------------------------------------

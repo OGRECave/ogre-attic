@@ -41,21 +41,21 @@ namespace Ogre {
     }
     // ------------------------------------------------------------------------
     void ShadowCaster::generateShadowVolume(EdgeData* edgeData, 
-        HardwareIndexBufferSharedPtr indexBuffer, const Light* light,
+        const HardwareIndexBufferSharedPtr& indexBuffer, const Light* light,
         ShadowRenderableList& shadowRenderables, unsigned long flags)
     {
         // Edge groups should be 1:1 with shadow renderables
         assert(edgeData->edgeGroups.size() == shadowRenderables.size());
 
-        EdgeData::EdgeGroupList::iterator egi, egiend;
-        ShadowRenderableList::iterator si;
+        EdgeData::EdgeGroupList::const_iterator egi, egiend;
+        ShadowRenderableList::const_iterator si;
 
         Light::LightTypes lightType = light->getType();
 
         // Lock index buffer for writing
         unsigned short* pIdx = static_cast<unsigned short*>(
             indexBuffer->lock(HardwareBuffer::HBL_DISCARD));
-        size_t indexStart = 0;
+        size_t numIndices = 0;
 
         // Iterate over the groups and form renderables for each based on their
         // lightFacing
@@ -63,32 +63,30 @@ namespace Ogre {
         egiend = edgeData->edgeGroups.end();
         for (egi = edgeData->edgeGroups.begin(); egi != egiend; ++egi, ++si)
         {
-            EdgeData::EdgeGroup& eg = *egi;
-            RenderOperation* lightShadOp = 0;
-            // Initialise the index bounds for this shadow renderable
-            RenderOperation* shadOp = (*si)->getRenderOperationForUpdate();
-            shadOp->indexData->indexCount = 0;
-            shadOp->indexData->indexStart = indexStart;
+            const EdgeData::EdgeGroup& eg = *egi;
+            // Initialise the index start for this shadow renderable
+            IndexData* indexData = (*si)->getRenderOperationForUpdate()->indexData;
+            indexData->indexStart = numIndices;
             // original number of verts (without extruded copy)
             size_t originalVertexCount = eg.vertexData->vertexCount;
             bool  firstDarkCapTri = true;
             unsigned short darkCapStart;
 
-            EdgeData::EdgeList::iterator i, iend;
+            EdgeData::EdgeList::const_iterator i, iend;
             iend = eg.edges.end();
             for (i = eg.edges.begin(); i != iend; ++i)
             {
-                EdgeData::Edge& edge = *i;
+                const EdgeData::Edge& edge = *i;
 
                 // Silhouette edge, when two tris has opposite light facing, or
                 // degenerate edge where only tri 1 is valid and the tri light facing
-                EdgeData::Triangle &t1 = edgeData->triangles[edge.triIndex[0]];
-                if ((edge.degenerate && t1.lightFacing) ||
-                    (!edge.degenerate && (t1.lightFacing ^ edgeData->triangles[edge.triIndex[1]].lightFacing)))
+                char lightFacing = edgeData->triangleLightFacings[edge.triIndex[0]];
+                if ((edge.degenerate && lightFacing) ||
+                    (!edge.degenerate && (lightFacing != edgeData->triangleLightFacings[edge.triIndex[1]])))
                 {
                     size_t v0 = edge.vertIndex[0];
                     size_t v1 = edge.vertIndex[1];
-                    if (!t1.lightFacing)
+                    if (!lightFacing)
                     {
                         // Inverse edge indexes when t1 is light away
                         std::swap(v0, v1);
@@ -112,7 +110,7 @@ namespace Ogre {
                     *pIdx++ = v1;
                     *pIdx++ = v0;
                     *pIdx++ = v0 + originalVertexCount;
-                    shadOp->indexData->indexCount += 3;
+                    numIndices += 3;
 
                     // Are we extruding to infinity?
                     if (!(lightType == Light::LT_DIRECTIONAL &&
@@ -122,8 +120,9 @@ namespace Ogre {
                         *pIdx++ = v0 + originalVertexCount;
                         *pIdx++ = v1 + originalVertexCount;
                         *pIdx++ = v1;
-                        shadOp->indexData->indexCount += 3;
+                        numIndices += 3;
                     }
+
                     // Do dark cap tri
                     // Use McGuire et al method, a triangle fan covering all silhouette
                     // edges and one point (taken from the initial tri)
@@ -139,7 +138,7 @@ namespace Ogre {
                             *pIdx++ = darkCapStart;
                             *pIdx++ = v1 + originalVertexCount;
                             *pIdx++ = v0 + originalVertexCount;
-                            shadOp->indexData->indexCount += 3;
+                            numIndices += 3;
                         }
 
                     }
@@ -150,49 +149,39 @@ namespace Ogre {
             // Do light cap
             if (flags & SRF_INCLUDE_LIGHT_CAP) 
             {
-                ShadowRenderable* lightCapRend = 0;
-
+                // separate light cap?
                 if ((*si)->isLightCapSeparate())
                 {
-                    // separate light cap
-                    lightCapRend = (*si)->getLightCapRenderable();
-                    lightShadOp = lightCapRend->getRenderOperationForUpdate();
-                    lightShadOp->indexData->indexCount = 0;
+                    // update index count for this shadow renderable
+                    indexData->indexCount = numIndices - indexData->indexStart;
+
+                    // get light cap index data for update
+                    indexData = (*si)->getLightCapRenderable()->getRenderOperationForUpdate()->indexData;
                     // start indexes after the current total
-                    // NB we don't update the total here since that's done below
-                    lightShadOp->indexData->indexStart = 
-                        indexStart + shadOp->indexData->indexCount;
+                    indexData->indexStart = numIndices;
                 }
 
-                EdgeData::TriangleList::iterator ti, tiend;
+                EdgeData::TriangleList::const_iterator ti, tiend;
+                EdgeData::TriangleLightFacingList::const_iterator lfi;
                 tiend = edgeData->triangles.end();
-                for (ti = edgeData->triangles.begin(); ti != tiend; ++ti)
+                lfi = edgeData->triangleLightFacings.begin();
+                for (ti = edgeData->triangles.begin(); ti != tiend; ++ti, ++lfi)
                 {
-                    EdgeData::Triangle& t = *ti;
+                    const EdgeData::Triangle& t = *ti;
                     // Light facing, and vertex set matches
-                    if (t.lightFacing && t.vertexSet == eg.vertexSet)
+                    if (*lfi && t.vertexSet == eg.vertexSet)
                     {
                         *pIdx++ = t.vertIndex[0];
                         *pIdx++ = t.vertIndex[1];
                         *pIdx++ = t.vertIndex[2];
-                        if (lightShadOp)
-                        {
-                            lightShadOp->indexData->indexCount += 3;
-                        }
-                        else
-                        {
-                            shadOp->indexData->indexCount += 3;
-                        }
+                        numIndices += 3;
                     }
                 }
 
             }
-            // update next indexStart (all renderables sharing the buffer)
-            indexStart += shadOp->indexData->indexCount;
-            // Add on the light cap too
-            if (lightShadOp)
-                indexStart += lightShadOp->indexData->indexCount;
 
+            // update index count for current index data (either this shadow renderable or its light cap)
+            indexData->indexCount = numIndices - indexData->indexStart;
 
         }
 
@@ -201,14 +190,14 @@ namespace Ogre {
         indexBuffer->unlock();
 
 		// In debug mode, check we didn't overrun the index buffer
-		assert(indexStart <= indexBuffer->getNumIndexes() &&
+		assert(numIndices <= indexBuffer->getNumIndexes() &&
             "Index buffer overrun while generating shadow volume!! "
 			"You must increase the size of the shadow index buffer.");
 
     }
     // ------------------------------------------------------------------------
     void ShadowCaster::extrudeVertices(
-        HardwareVertexBufferSharedPtr vertexBuffer, 
+        const HardwareVertexBufferSharedPtr& vertexBuffer, 
         size_t originalVertexCount, const Vector4& light, Real extrudeDist)
     {
         assert (vertexBuffer->getVertexSize() == sizeof(float) * 3
