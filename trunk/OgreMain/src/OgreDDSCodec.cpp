@@ -365,7 +365,7 @@ namespace Ogre {
 		// Ok, now we've built the reference values, process the indexes
 		for (size_t i = 0; i < 16; ++i)
 		{
-			size_t baseByte = i / 3;
+			size_t baseByte = (i * 3) / 8;
 			size_t baseBit = (i * 3) % 8;
 			uint8 bits = static_cast<uint8>(block.indexes[baseByte] >> baseBit & 0x7);
 			// do we need to stitch in next byte too?
