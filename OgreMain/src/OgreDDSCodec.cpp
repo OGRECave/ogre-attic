@@ -286,7 +286,7 @@ namespace Ogre {
 			for (size_t x = 0; x < 4; ++x)
 			{
 				// LSB come first
-				uint8 colIdx = block.indexRow[row] >> (x * 2) & 0x3;
+				uint8 colIdx = static_cast<uint8>(block.indexRow[row] >> (x * 2) & 0x3);
 				pCol[(row * 4) + x] = derivedColours[colIdx];
 			}
 
@@ -298,12 +298,86 @@ namespace Ogre {
 	void DDSCodec::unpackDXTAlpha(PixelFormat pf, 
 		const DXTExplicitAlphaBlock& block, ColourValue* pCol)
 	{
+		// Note - we assume all values have already been endian swapped
+		
+		// This is an explicit alpha block, 4 bits per pixel, LSB first
+		for (size_t row = 0; row < 4; ++row)
+		{
+			for (size_t x = 0; x < 4; ++x)
+			{
+				// Shift and mask off to 4 bits
+				uint8 val = static_cast<uint8>(block.alphaRow[row] >> (x * 4) & 0xF);
+				// Convert to [0,1]
+				pCol->a = (Real)val / (Real)0xF;
+				
+			}
+			
+		}
 
 	}
 	//---------------------------------------------------------------------
 	void DDSCodec::unpackDXTAlpha(PixelFormat pf, 
 		const DXTInterpolatedAlphaBlock& block, ColourValue* pCol)
 	{
+		// 8 derived alpha values to be indexed
+		Real derivedAlphas[8];
+
+		// Explicit extremes
+		derivedAlphas[0] = block.alpha_0 / (Real)0xFF;
+		derivedAlphas[1] = block.alpha_1 / (Real)0xFF;
+		
+		
+		if (block.alpha_0 <= block.alpha_1)
+		{
+			// 4 interpolated alphas, plus zero and one			
+			// full range including extremes at [0] and [5]
+			// we want to fill in [1] through [4] at weights ranging
+			// from 1/5 to 4/5
+			Real denom = 1.0f / 5.0f;
+			for (size_t i = 0; i < 4; ++i) 
+			{
+				Real factor0 = (4 - i) * denom;
+				Real factor1 = (i + 1) * denom;
+				derivedAlphas[i + 2] = 
+					(factor0 * block.alpha_0) + (factor1 * block.alpha_1);
+			}
+			derivedAlphas[6] = 0.0f;
+			derivedAlphas[7] = 1.0f;
+
+		}
+		else
+		{
+			// 6 interpolated alphas
+			// full range including extremes at [0] and [7]
+			// we want to fill in [1] through [6] at weights ranging
+			// from 1/7 to 6/7
+			Real denom = 1.0f / 7.0f;
+			for (size_t i = 0; i < 6; ++i) 
+			{
+				Real factor0 = (6 - i) * denom;
+				Real factor1 = (i + 1) * denom;
+				derivedAlphas[i + 2] = 
+					(factor0 * block.alpha_0) + (factor1 * block.alpha_1);
+			}
+			
+		}
+
+		// Ok, now we've built the reference values, process the indexes
+		for (size_t i = 0; i < 16; ++i)
+		{
+			size_t baseByte = i / 3;
+			size_t baseBit = (i * 3) % 8;
+			uint8 bits = static_cast<uint8>(block.indexes[baseByte] >> baseBit & 0x7);
+			// do we need to stitch in next byte too?
+			if (baseBit > 5)
+			{
+				uint8 extraBits = static_cast<uint8>(block.indexes[baseByte+1] << (8 - baseBit));
+				bits |= extraBits & 0x7;
+			}
+			pCol[i].a = derivedAlphas[bits];
+
+		}
+
 	}
     //---------------------------------------------------------------------
     Codec::DecodeResult DDSCodec::decode(DataStreamPtr& stream) const
