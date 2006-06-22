@@ -249,7 +249,7 @@ namespace Ogre {
 	}
 	//---------------------------------------------------------------------
 	void DDSCodec::unpackDXTColour(PixelFormat pf, const DXTColourBlock& block, 
-		ColourValue* pCol)
+		ColourValue* pCol) const
 	{
 		// Note - we assume all values have already been endian swapped
 
@@ -295,8 +295,8 @@ namespace Ogre {
 
 	}
 	//---------------------------------------------------------------------
-	void DDSCodec::unpackDXTAlpha(PixelFormat pf, 
-		const DXTExplicitAlphaBlock& block, ColourValue* pCol)
+	void DDSCodec::unpackDXTAlpha(
+		const DXTExplicitAlphaBlock& block, ColourValue* pCol) const
 	{
 		// Note - we assume all values have already been endian swapped
 		
@@ -316,8 +316,8 @@ namespace Ogre {
 
 	}
 	//---------------------------------------------------------------------
-	void DDSCodec::unpackDXTAlpha(PixelFormat pf, 
-		const DXTInterpolatedAlphaBlock& block, ColourValue* pCol)
+	void DDSCodec::unpackDXTAlpha(
+		const DXTInterpolatedAlphaBlock& block, ColourValue* pCol) const
 	{
 		// 8 derived alpha values to be indexed
 		Real derivedAlphas[8];
@@ -535,12 +535,79 @@ namespace Ogre {
 
 			for(size_t mip = 0; mip <= imgData->num_mipmaps; ++mip)
 			{
+				size_t dstPitch = width * PixelUtil::getNumElemBytes(imgData->format);
+
 				if (imgData->flags & IF_COMPRESSED)
 				{
 					// Compressed data
 					if (decompressDXT)
 					{
-						// todo
+						DXTColourBlock col;
+						DXTInterpolatedAlphaBlock iAlpha;
+						DXTExplicitAlphaBlock eAlpha;
+						// 4x4 block of decompressed colour
+						ColourValue tempColours[16];
+						size_t destBpp = PixelUtil::getNumElemBytes(imgData->format);
+						size_t destPitchMinus4 = dstPitch - destBpp * 4;
+						// slices are done individually
+						for(size_t z = 0; z < depth; ++z)
+						{
+							// 4x4 blocks in x/y
+							for (size_t y = 0; y < height; y += 4)
+							{
+								for (size_t x = 0; x < width; x += 4)
+								{
+									// always read colour
+									stream->read(&col, sizeof(DXTColourBlock));
+									unpackDXTColour(sourceDXTFormat, col, tempColours);
+									if (sourceDXTFormat == PF_DXT2 || 
+										sourceDXTFormat == PF_DXT3)
+									{
+										// explicit alpha
+										stream->read(&eAlpha, sizeof(DXTExplicitAlphaBlock));
+										unpackDXTAlpha(eAlpha, tempColours) ;
+									}
+									else if (sourceDXTFormat == PF_DXT4 || 
+										sourceDXTFormat == PF_DXT5)
+									{
+										// interpolated alpha
+										stream->read(&iAlpha, sizeof(DXTInterpolatedAlphaBlock));
+										unpackDXTAlpha(iAlpha, tempColours) ;
+									}
+
+									// write 4x4 block to uncompressed version
+									for (size_t by = 0; by < 4; ++by)
+									{
+										for (size_t bx = 0; bx < 4; ++bx)
+										{
+											PixelUtil::packColour(tempColours[by*4+bx],
+												imgData->format, destPtr);
+											destPtr = static_cast<void*>(
+												static_cast<uchar*>(destPtr) + destBpp);
+										}
+										// advance to next row
+										destPtr = static_cast<void*>(
+											static_cast<uchar*>(destPtr) + destPitchMinus4);
+									}
+									// next block
+									if (x + 4 == width)
+									{
+										// being just after the bottom-right of the
+										// previous 4x4 block is fine, no change
+									}
+									else
+									{
+										// Jump back up 4 rows to be at the next 
+										// block to the right
+										destPtr = static_cast<void*>(
+											static_cast<uchar*>(destPtr) - dstPitch * 4);
+
+									}
+
+								}
+
+							}
+						}
 
 					}
 					else
@@ -556,11 +623,11 @@ namespace Ogre {
 				else
 				{
 					// Final data - trim incoming pitch
-					size_t dstPitch = imgData->width * PixelUtil::getNumElemBytes(imgData->format);
 					size_t srcPitch;
 					if (header.flags & DDSD_PITCH)
 					{
-						srcPitch = header.sizeOrPitch;
+						srcPitch = header.sizeOrPitch / 
+							std::max((size_t)1, mip * 2);
 					}
 					else
 					{
