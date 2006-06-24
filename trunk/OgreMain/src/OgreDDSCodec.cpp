@@ -257,7 +257,7 @@ namespace Ogre {
 		ColourValue derivedColours[4];
 
 		// NOTE: assumes that block has already had any necessary endian adjustments
-		if (pf == PF_DXT1 && block.colour_0 > block.colour_1)
+		if (pf == PF_DXT1 && block.colour_0 <= block.colour_1)
 		{
 			// 1-bit alpha
 			PixelUtil::unpackColour(&(derivedColours[0]), PF_A1R5G5B5, &(block.colour_0));
@@ -531,7 +531,7 @@ namespace Ogre {
 			{
 				size_t dstPitch = width * PixelUtil::getNumElemBytes(imgData->format);
 
-				if (imgData->flags & IF_COMPRESSED)
+				if (sourceDXTFormat != PF_UNKNOWN)
 				{
 					// Compressed data
 					if (decompressDXT)
@@ -588,18 +588,21 @@ namespace Ogre {
 										destPtr = static_cast<void*>(
 											static_cast<uchar*>(destPtr) + destPitchMinus4);
 									}
-									// next block
+									// next block. Our dest pointer is 4 lines down
+									// from where it started
 									if (x + 4 == width)
 									{
-										// being just after the bottom-right of the
-										// previous 4x4 block is fine, no change
+										// Jump back to the start of the line
+										destPtr = static_cast<void*>(
+											static_cast<uchar*>(destPtr) - destPitchMinus4);
 									}
 									else
 									{
-										// Jump back up 4 rows to be at the next 
-										// block to the right
+										// Jump back up 4 rows and 4 pixels to the
+										// right to be at the next block to the right
+										size_t diff = (uchar*)destPtr - output->getPtr();
 										destPtr = static_cast<void*>(
-											static_cast<uchar*>(destPtr) - dstPitch * 4);
+											static_cast<uchar*>(destPtr) - dstPitch * 4 + destBpp * 4);
 
 									}
 
