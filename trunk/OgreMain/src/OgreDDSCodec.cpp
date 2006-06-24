@@ -432,21 +432,6 @@ namespace Ogre {
 
 		bool decompressDXT = false;
 		// Figure out basic image type
-		if (header.flags & DDSD_LINEARSIZE)
-		{
-			// compressed data
-			if (Root::getSingleton().getRenderSystem()->getCapabilities()
-				->hasCapability(RSC_TEXTURE_COMPRESSION_DXT))
-			{
-				// Keep DXT data compressed
-				imgData->flags |= IF_COMPRESSED;
-			}
-			else
-			{
-				// We'll need to decompress
-				decompressDXT = true;
-			}
-		}
 		if (header.caps.caps2 & DDSCAPS2_CUBEMAP)
 		{
 			imgData->flags |= IF_CUBEMAP;
@@ -459,11 +444,16 @@ namespace Ogre {
 		}
 		// Pixel format
 		PixelFormat sourceDXTFormat = PF_UNKNOWN;
+
 		if (header.pixelFormat.flags & DDPF_FOURCC)
 		{
 			sourceDXTFormat = convertDXTFormat(header.pixelFormat.fourCC);
-			if (decompressDXT)
+
+			if (!Root::getSingleton().getRenderSystem()->getCapabilities()
+				->hasCapability(RSC_TEXTURE_COMPRESSION_DXT))
 			{
+				// We'll need to decompress
+				decompressDXT = true;
 				// Convert format
 				switch (sourceDXTFormat)
 				{
@@ -504,6 +494,8 @@ namespace Ogre {
 			{
 				// Use original format
 				imgData->format = sourceDXTFormat;
+				// Keep DXT data compressed
+				imgData->flags |= IF_COMPRESSED;
 			}
 		}
 		else //if (header.pixelFormat.flags & DDPF_RGB)
@@ -620,8 +612,8 @@ namespace Ogre {
 					else
 					{
 						// load directly
-						size_t dxtSize = header.sizeOrPitch / 
-							std::max((size_t)1, mip * 4);
+						// DDS format lies! sizeOrPitch is not always set for DXT!!
+						size_t dxtSize = PixelUtil::getMemorySize(width, height, depth, imgData->format);
 						stream->read(destPtr, dxtSize);
 						destPtr = static_cast<void*>(static_cast<uchar*>(destPtr) + dxtSize);
 					}
