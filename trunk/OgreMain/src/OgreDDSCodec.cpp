@@ -477,6 +477,8 @@ namespace Ogre {
 					// 32-bit so can benefit from this.
 					DXTColourBlock block;
 					stream->read(&block, sizeof(DXTColourBlock));
+					flipEndian(&(block.colour_0), sizeof(uint16), 1);
+					flipEndian(&(block.colour_1), sizeof(uint16), 1);
 					// skip back since we'll need to read this again
 					stream->skip(0 - sizeof(DXTColourBlock));
 					// colour_0 <= colour_1 means transparency in DXT1
@@ -559,12 +561,15 @@ namespace Ogre {
 								{
 									// always read colour
 									stream->read(&col, sizeof(DXTColourBlock));
+									flipEndian(&(col.colour_0), sizeof(uint16), 1);
+									flipEndian(&(col.colour_1), sizeof(uint16), 1);
 									unpackDXTColour(sourceDXTFormat, col, tempColours);
 									if (sourceDXTFormat == PF_DXT2 || 
 										sourceDXTFormat == PF_DXT3)
 									{
 										// explicit alpha
 										stream->read(&eAlpha, sizeof(DXTExplicitAlphaBlock));
+										flipEndian(eAlpha.alphaRow, sizeof(uint16), 4);
 										unpackDXTAlpha(eAlpha, tempColours) ;
 									}
 									else if (sourceDXTFormat == PF_DXT4 || 
@@ -572,6 +577,8 @@ namespace Ogre {
 									{
 										// interpolated alpha
 										stream->read(&iAlpha, sizeof(DXTInterpolatedAlphaBlock));
+										flipEndian(&(iAlpha.alpha_0), sizeof(uint16), 1);
+										flipEndian(&(iAlpha.alpha_1), sizeof(uint16), 1);
 										unpackDXTAlpha(iAlpha, tempColours) ;
 									}
 
