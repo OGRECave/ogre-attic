@@ -30,6 +30,7 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreController.cpp \
                          OgreControllerManager.cpp \
                          OgreDataStream.cpp \
+                         OgreDDSCodec.cpp \
                          OgreDefaultHardwareBufferManager.cpp \
 			 OgreDefaultSceneQueries.cpp \
                          OgreDynLib.cpp \
@@ -164,12 +165,6 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          $(OGRE_PLATFORM)/OgreConfigDialog.cpp \
                          $(OGRE_PLATFORM)/OgreErrorDialog.cpp \
                          OgreWindowEventUtilities.cpp
-
-if USE_DEVIL
-libOgreMain_la_SOURCES +=OgreILImageCodec.cpp \
-                         OgreILCodecs.cpp \
-                         OgreILUtil.cpp
-endif
 
 if USE_FREEIMAGE
 libOgreMain_la_SOURCES += OgreFreeImageCodec.cpp

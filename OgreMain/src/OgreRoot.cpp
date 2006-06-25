@@ -60,11 +60,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreManualObject.h"
 #include "OgreRenderQueueInvocation.h"
 
-#if OGRE_NO_DEVIL == 0
-#include "OgreILCodecs.h"
-#endif
 #if OGRE_NO_FREEIMAGE == 0
 #include "OgreFreeImageCodec.h"
+#endif
+#if OGRE_NO_DDS_CODEC == 0
+#include "OgreDDSCodec.h"
 #endif
 
 #include "OgreFontManager.h"
@@ -200,13 +200,13 @@ namespace Ogre {
         ArchiveManager::getSingleton().addArchiveFactory( mFileSystemArchiveFactory );
         mZipArchiveFactory = new ZipArchiveFactory();
         ArchiveManager::getSingleton().addArchiveFactory( mZipArchiveFactory );
-#if OGRE_NO_DEVIL == 0
-	    // Register image codecs
-	    ILCodecs::registerCodecs();
-#endif
 #if OGRE_NO_FREEIMAGE == 0
 		// Register image codecs
 		FreeImageCodec::startup();
+#endif
+#if OGRE_NO_DDS_CODEC == 0
+		// Register image codecs
+		DDSCodec::startup();
 #endif
 
         mHighLevelGpuProgramManager = new HighLevelGpuProgramManager();
@@ -255,11 +255,11 @@ namespace Ogre {
 		destroyAllRenderQueueInvocationSequences();
         delete mCompositorManager;
 		delete mExternalTextureSourceManager;
-#if OGRE_NO_DEVIL == 0
-        ILCodecs::deleteCodecs();
-#endif
 #if OGRE_NO_FREEIMAGE == 0
 		FreeImageCodec::shutdown();
+#endif
+#if OGRE_NO_DDS_CODEC == 0
+		DDSCodec::shutdown();
 #endif
 #if OGRE_PROFILING
         delete mProfiler;

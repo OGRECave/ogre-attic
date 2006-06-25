@@ -68,7 +68,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib zziplibd.lib zdll.lib freetype2110_D.lib devil.lib ilu.lib freeimaged.lib"
+				AdditionalDependencies="kernel32.lib user32.lib zziplibd.lib zdll.lib freetype2110_D.lib freeimaged.lib"
 				OutputFile="$(OutDir)/OgreMain_d.dll"
 				Version="0.99"
 				LinkIncremental="2"
@@ -166,7 +166,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib zziplib.lib zdll.lib freetype2110.lib devil.lib ilu.lib freeimage.lib"
+				AdditionalDependencies="kernel32.lib user32.lib zziplib.lib zdll.lib freetype2110.lib freeimage.lib"
 				OutputFile="$(OutDir)/OgreMain.dll"
 				Version="0.99"
 				LinkIncremental="1"
@@ -357,6 +357,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreDDSCodec.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreDefaultHardwareBufferManager.cpp"
 				>
 			</File>
@@ -454,18 +458,6 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreHighLevelGpuProgramManager.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreILCodecs.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreILImageCodec.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreILUtil.cpp"
 				>
 			</File>
 			<File
@@ -1080,6 +1072,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\OgreDDSCodec.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\OgreDefaultHardwareBufferManager.h"
 				>
 			</File>
@@ -1193,18 +1189,6 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreHighLevelGpuProgramManager.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreILCodecs.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreILImageCodec.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreILUtil.h"
 				>
 			</File>
 			<File

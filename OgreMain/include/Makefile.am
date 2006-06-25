@@ -30,6 +30,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgreController.h \
                      OgreControllerManager.h \
                      OgreDataStream.h \
+                     OgreDDSCodec.h \
                      OgreDefaultHardwareBufferManager.h \
                      OgreDynLib.h \
                      OgreDynLibManager.h \
@@ -57,8 +58,6 @@ pkginclude_HEADERS = Ogre.h \
                      OgreHardwareVertexBuffer.h \
                      OgreHighLevelGpuProgram.h \
                      OgreHighLevelGpuProgramManager.h \
-                     OgreILCodecs.h \
-                     OgreILImageCodec.h \
                      OgreImage.h \
                      OgreImageCodec.h \
                      OgreIteratorWrappers.h \
