@@ -34,7 +34,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    String MeshSerializer::msCurrentVersion = "[MeshSerializer_v1.30]";
+    String MeshSerializer::msCurrentVersion = "[MeshSerializer_v1.40]";
     const unsigned short HEADER_CHUNK_ID = 0x1000;
     //---------------------------------------------------------------------
     MeshSerializer::MeshSerializer()
@@ -47,6 +47,10 @@ namespace Ogre {
         mImplementations.insert(
             MeshSerializerImplMap::value_type("[MeshSerializer_v1.20]", 
             new MeshSerializerImpl_v1_2() ) );
+
+        mImplementations.insert(
+            MeshSerializerImplMap::value_type("[MeshSerializer_v1.30]", 
+            new MeshSerializerImpl_v1_3() ) );
 
         mImplementations.insert(
             MeshSerializerImplMap::value_type(msCurrentVersion, 

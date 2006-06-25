@@ -168,7 +168,7 @@ namespace Ogre {
         */
 
         // Sort the geometries in the order of vertex set, so we can grouping
-        // triangles by vertex set easy, and improve memory access as well.
+        // triangles by vertex set easy.
         std::sort(mGeometryList.begin(), mGeometryList.end(), geometryLess());
         // Initialize edge data
         mEdgeData = new EdgeData();
@@ -179,6 +179,8 @@ namespace Ogre {
         {
             mEdgeData->edgeGroups[vSet].vertexSet = vSet;
             mEdgeData->edgeGroups[vSet].vertexData = mVertexDataList[vSet];
+            mEdgeData->edgeGroups[vSet].triStart = 0;
+            mEdgeData->edgeGroups[vSet].triCount = 0;
         }
 
         // Build triangles and edge list
@@ -192,11 +194,9 @@ namespace Ogre {
         // Allocate memory for light facing calculate
         mEdgeData->triangleLightFacings.resize(mEdgeData->triangles.size());
 
-        // Log
-        //log(LogManager::getSingleton().createLog("EdgeListBuilder.log"));
+        // Record closed, ie the mesh is manifold
+        mEdgeData->isClosed = mEdgeMap.empty();
 
-		// Record closed - uncomment this when .mesh format includes isClosed
-		//mEdgeData->isClosed = mEdgeMap.empty();
         return mEdgeData;
     }
     //---------------------------------------------------------------------
@@ -222,7 +222,8 @@ namespace Ogre {
             return; // Just in case
         };
 
-
+        // The edge group now we are dealing with.
+        EdgeData::EdgeGroup& eg = mEdgeData->edgeGroups[vertexSet];
 
 		// locate position element & the buffer to go with it
         const VertexData* vertexData = mVertexDataList[vertexSet];
@@ -259,6 +260,12 @@ namespace Ogre {
         // Get the triangle start, if we have more than one index set then this
         // will not be zero
         size_t triangleIndex = mEdgeData->triangles.size();
+        // If it's first time dealing with the edge group, setup triStart for it.
+        // Note that we are assume geometries sorted by vertex set.
+        if (!eg.triCount)
+        {
+            eg.triStart = triangleIndex;
+        }
         // Pre-reserve memory for less thrashing
         mEdgeData->triangles.reserve(triangleIndex + iterations);
         mEdgeData->triangleFaceNormals.reserve(triangleIndex + iterations);
@@ -344,6 +351,10 @@ namespace Ogre {
                 ++triangleIndex;
             }
         }
+
+        // Update triCount for the edge group. Note that we are assume
+        // geometries sorted by vertex set.
+        eg.triCount = triangleIndex - eg.triStart;
 
         indexData->indexBuffer->unlock();
         vbuf->unlock();
@@ -437,30 +448,13 @@ namespace Ogre {
         float* pVert = static_cast<float*>(
             positionBuffer->lock(HardwareBuffer::HBL_READ_ONLY));
 
-        // Iterate over the triangles
-        EdgeData::TriangleList::const_iterator i, iend;
-        EdgeData::TriangleFaceNormalList::iterator fni;
-        iend = triangles.end();
-        fni = triangleFaceNormals.begin();
-        for (i = triangles.begin(); i != iend; ++i, ++fni)
-        {
-            const Triangle& t = *i;
-            // Only update tris which are using this vertex set
-            if (t.vertexSet == vertexSet)
-            {
-                size_t offset = t.vertIndex[0]*3;
-                Vector3 v1(pVert[offset], pVert[offset+1], pVert[offset+2]);
-
-                offset = t.vertIndex[1]*3;
-                Vector3 v2(pVert[offset], pVert[offset+1], pVert[offset+2]);
-
-                offset = t.vertIndex[2]*3;
-                Vector3 v3(pVert[offset], pVert[offset+1], pVert[offset+2]);
-
-                *fni = Math::calculateFaceNormalWithoutNormalize(v1, v2, v3);
-            }
-        }
-
+        // Calculate triangles which are using this vertex set
+        const EdgeData::EdgeGroup& eg = edgeGroups[vertexSet];
+        OptimisedUtil::getImplementation()->calculateFaceNormals(
+            pVert,
+            &triangles[eg.triStart],
+            &triangleFaceNormals[eg.triStart],
+            eg.triCount);
 
         // unlock the buffer
         positionBuffer->unlock();

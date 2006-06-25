@@ -141,6 +141,7 @@ namespace Ogre {
             unsigned short lodNum, MeshLodUsage& usage);
         virtual void readBoundsInfo(DataStreamPtr& stream, Mesh* pMesh);
         virtual void readEdgeList(DataStreamPtr& stream, Mesh* pMesh);
+        virtual void readEdgeListLodInfo(DataStreamPtr& stream, EdgeData* edgeData);
 		virtual void readPoses(DataStreamPtr& stream, Mesh* pMesh);
 		virtual void readPose(DataStreamPtr& stream, Mesh* pMesh);
 		virtual void readAnimations(DataStreamPtr& stream, Mesh* pMesh);
@@ -163,8 +164,21 @@ namespace Ogre {
 
     };
 
+    /** Class for providing backwards-compatibility for loading version 1.3 of the .mesh format. */
+    class _OgrePrivate MeshSerializerImpl_v1_3 : public MeshSerializerImpl
+    {
+    public:
+        MeshSerializerImpl_v1_3();
+        ~MeshSerializerImpl_v1_3();
+    protected:
+        virtual void readEdgeListLodInfo(DataStreamPtr& stream, EdgeData* edgeData);
+
+        /// Reorganise triangles of the edge list to group by vertex set
+        virtual void reorganiseTriangles(EdgeData* edgeData);
+    };
+
     /** Class for providing backwards-compatibility for loading version 1.2 of the .mesh format. */
-    class _OgrePrivate MeshSerializerImpl_v1_2 : public MeshSerializerImpl
+    class _OgrePrivate MeshSerializerImpl_v1_2 : public MeshSerializerImpl_v1_3
     {
     public:
         MeshSerializerImpl_v1_2();

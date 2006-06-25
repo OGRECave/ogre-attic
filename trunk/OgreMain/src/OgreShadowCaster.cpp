@@ -161,15 +161,18 @@ namespace Ogre {
                     indexData->indexStart = numIndices;
                 }
 
+                // Iterate over the triangles which are using this vertex set
                 EdgeData::TriangleList::const_iterator ti, tiend;
                 EdgeData::TriangleLightFacingList::const_iterator lfi;
-                tiend = edgeData->triangles.end();
-                lfi = edgeData->triangleLightFacings.begin();
-                for (ti = edgeData->triangles.begin(); ti != tiend; ++ti, ++lfi)
+                ti = edgeData->triangles.begin() + eg.triStart;
+                tiend = ti + eg.triCount;
+                lfi = edgeData->triangleLightFacings.begin() + eg.triStart;
+                for ( ; ti != tiend; ++ti, ++lfi)
                 {
                     const EdgeData::Triangle& t = *ti;
-                    // Light facing, and vertex set matches
-                    if (*lfi && t.vertexSet == eg.vertexSet)
+                    assert(t.vertexSet == eg.vertexSet);
+                    // Check it's light facing
+                    if (*lfi)
                     {
                         *pIdx++ = t.vertIndex[0];
                         *pIdx++ = t.vertIndex[1];

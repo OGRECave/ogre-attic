@@ -136,6 +136,7 @@ namespace Ogre {
 				M_EDGE_LIST_LOD = 0xB100,
 					// unsigned short lodIndex
 					// bool isManual			// If manual, no edge data here, loaded from manual mesh
+                        // bool isClosed
                         // unsigned long numTriangles
                         // unsigned long numEdgeGroups
 						// Triangle* triangleList
@@ -147,6 +148,8 @@ namespace Ogre {
 
                         M_EDGE_GROUP = 0xB110,
                             // unsigned long vertexSet
+                            // unsigned long triStart
+                            // unsigned long triCount
                             // unsigned long numEdges
 						    // Edge* edgeList
                                 // unsigned long  triIndex[2]
