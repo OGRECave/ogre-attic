@@ -216,12 +216,6 @@ namespace Ogre {
 	PixelFormat DDSCodec::convertPixelFormat(uint32 rgbBits, uint32 rMask, 
 		uint32 gMask, uint32 bMask, uint32 aMask) const
 	{
-		// NB on big-endian machines the masks will have been flipped, so flip back
-		flipEndian(&rMask, sizeof(uint32));
-		flipEndian(&gMask, sizeof(uint32));
-		flipEndian(&bMask, sizeof(uint32));
-		flipEndian(&aMask, sizeof(uint32));
-
 		// General search through pixel formats
 		for (int i = PF_UNKNOWN + 1; i < PF_COUNT; ++i)
 		{
@@ -256,15 +250,13 @@ namespace Ogre {
 		// Colour lookup table
 		ColourValue derivedColours[4];
 
-		// NOTE: assumes that block has already had any necessary endian adjustments
 		if (pf == PF_DXT1 && block.colour_0 <= block.colour_1)
 		{
 			// 1-bit alpha
 			PixelUtil::unpackColour(&(derivedColours[0]), PF_A1R5G5B5, &(block.colour_0));
 			PixelUtil::unpackColour(&(derivedColours[1]), PF_A1R5G5B5, &(block.colour_1));
 			// one intermediate colour, half way between the other two
-			uint16 col2 = (block.colour_0 + block.colour_1) / 2;
-			PixelUtil::unpackColour(&(derivedColours[2]), PF_A1R5G5B5, &col2);
+			derivedColours[2] = (derivedColours[0] + derivedColours[1]) / 2;
 			// transparent colour
 			derivedColours[3] = ColourValue::ZERO;
 		}
@@ -273,11 +265,9 @@ namespace Ogre {
 			PixelUtil::unpackColour(&(derivedColours[0]), PF_R5G6B5, &(block.colour_0));
 			PixelUtil::unpackColour(&(derivedColours[1]), PF_R5G6B5, &(block.colour_1));
 			// first interpolated colour, 1/3 of the way along
-			uint16 col = (2 * block.colour_0 + block.colour_1 + 1) / 3;
-			PixelUtil::unpackColour(&(derivedColours[2]), PF_R5G6B5, &col);
+			derivedColours[2] = (2 * derivedColours[0] + derivedColours[1]) / 3;
 			// second interpolated colour, 2/3 of the way along
-			col = (block.colour_0 + 2 * block.colour_1 + 1) / 3;
-			PixelUtil::unpackColour(&(derivedColours[3]), PF_R5G6B5, &col);
+			derivedColours[3] = (derivedColours[0] + 2 * derivedColours[1]) / 3;
 		}
 
 		// Process 4x4 block of texels
@@ -287,7 +277,19 @@ namespace Ogre {
 			{
 				// LSB come first
 				uint8 colIdx = static_cast<uint8>(block.indexRow[row] >> (x * 2) & 0x3);
-				pCol[(row * 4) + x] = derivedColours[colIdx];
+				if (pf == PF_DXT1)
+				{
+					// Overwrite entire colour
+					pCol[(row * 4) + x] = derivedColours[colIdx];
+				}
+				else
+				{
+					// alpha has already been read (alpha precedes colour)
+					ColourValue& col = pCol[(row * 4) + x];
+					col.r = derivedColours[colIdx].r;
+					col.g = derivedColours[colIdx].g;
+					col.b = derivedColours[colIdx].b;
+				}
 			}
 
 		}
@@ -551,11 +553,6 @@ namespace Ogre {
 							{
 								for (size_t x = 0; x < width; x += 4)
 								{
-									// always read colour
-									stream->read(&col, sizeof(DXTColourBlock));
-									flipEndian(&(col.colour_0), sizeof(uint16), 1);
-									flipEndian(&(col.colour_1), sizeof(uint16), 1);
-									unpackDXTColour(sourceDXTFormat, col, tempColours);
 									if (sourceDXTFormat == PF_DXT2 || 
 										sourceDXTFormat == PF_DXT3)
 									{
@@ -573,6 +570,11 @@ namespace Ogre {
 										flipEndian(&(iAlpha.alpha_1), sizeof(uint16), 1);
 										unpackDXTAlpha(iAlpha, tempColours) ;
 									}
+									// always read colour
+									stream->read(&col, sizeof(DXTColourBlock));
+									flipEndian(&(col.colour_0), sizeof(uint16), 1);
+									flipEndian(&(col.colour_1), sizeof(uint16), 1);
+									unpackDXTColour(sourceDXTFormat, col, tempColours);
 
 									// write 4x4 block to uncompressed version
 									for (size_t by = 0; by < 4; ++by)
