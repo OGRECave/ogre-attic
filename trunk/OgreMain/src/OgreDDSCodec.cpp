@@ -373,7 +373,8 @@ namespace Ogre {
 			// do we need to stitch in next byte too?
 			if (baseBit > 5)
 			{
-				uint8 extraBits = static_cast<uint8>(block.indexes[baseByte+1] << (8 - baseBit));
+				uint8 extraBits = static_cast<uint8>(
+					(block.indexes[baseByte+1] << (8 - baseBit)) & 0xFF);
 				bits |= extraBits & 0x7;
 			}
 			pCol[i].a = derivedAlphas[bits];
