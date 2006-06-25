@@ -30,8 +30,6 @@
 					<Add library="zziplibd" />
 					<Add library="zlib" />
 					<Add library="freetype2110_D" />
-					<Add library="devil" />
-					<Add library="ilu" />
 					<Add library="freeimaged" />
 					<Add library="stlportstlg.5.0" />
 					<Add directory="..\..\Dependencies\lib\Debug" />
@@ -63,8 +61,6 @@
 					<Add library="zziplib" />
 					<Add library="zlib" />
 					<Add library="freetype2110" />
-					<Add library="devil" />
-					<Add library="ilu" />
 					<Add library="freeimage" />
 					<Add library="stlport.5.0" />
 					<Add directory="..\..\Dependencies\lib\Release" />
@@ -580,27 +576,6 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreHighLevelGpuProgramManager.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreILCodecs.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreILImageCodec.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreILUtil.h">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
@@ -1836,21 +1811,6 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\src\OgreHighLevelGpuProgramManager.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreILCodecs.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreILImageCodec.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreILUtil.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />
