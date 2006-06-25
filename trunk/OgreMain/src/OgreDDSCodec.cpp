@@ -253,8 +253,8 @@ namespace Ogre {
 		if (pf == PF_DXT1 && block.colour_0 <= block.colour_1)
 		{
 			// 1-bit alpha
-			PixelUtil::unpackColour(&(derivedColours[0]), PF_A1R5G5B5, &(block.colour_0));
-			PixelUtil::unpackColour(&(derivedColours[1]), PF_A1R5G5B5, &(block.colour_1));
+			PixelUtil::unpackColour(&(derivedColours[0]), PF_R5G6B5, &(block.colour_0));
+			PixelUtil::unpackColour(&(derivedColours[1]), PF_R5G6B5, &(block.colour_1));
 			// one intermediate colour, half way between the other two
 			derivedColours[2] = (derivedColours[0] + derivedColours[1]) / 2;
 			// transparent colour
