@@ -387,7 +387,7 @@ namespace Ogre {
 
     //---------------------------------------------------------------------
     // Collapse four matrices at one time. The collapsed matrix are weighted by
-    // blend-weights, and then can use to transform corresponding vertex directly. 
+    // blend-weights, and then can use to transform corresponding vertex directly.
     //
     // I'd like use inline function instead of macro here, but I also want to
     // ensure compiler integrate this code into its callers (release build at
@@ -1624,10 +1624,10 @@ namespace Ogre {
         // Map to convert 4-bits mask to 4 byte values
         static const char msMaskMapping[16][4] =
         {
-            0, 0, 0, 0,   1, 0, 0, 0,   0, 1, 0, 0,   1, 1, 0, 0,
-            0, 0, 1, 0,   1, 0, 1, 0,   0, 1, 1, 0,   1, 1, 1, 0,
-            0, 0, 0, 1,   1, 0, 0, 1,   0, 1, 0, 1,   1, 1, 0, 1,
-            0, 0, 1, 1,   1, 0, 1, 1,   0, 1, 1, 1,   1, 1, 1, 1,
+            {0, 0, 0, 0},   {1, 0, 0, 0},   {0, 1, 0, 0},   {1, 1, 0, 0},
+            {0, 0, 1, 0},   {1, 0, 1, 0},   {0, 1, 1, 0},   {1, 1, 1, 0},
+            {0, 0, 0, 1},   {1, 0, 0, 1},   {0, 1, 0, 1},   {1, 1, 0, 1},
+            {0, 0, 1, 1},   {1, 0, 1, 1},   {0, 1, 1, 1},   {1, 1, 1, 1},
         };
 
         __m128 n0, n1, n2, n3;
