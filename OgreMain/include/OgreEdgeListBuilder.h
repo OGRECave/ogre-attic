@@ -89,6 +89,13 @@ namespace Ogre {
             size_t vertexSet;
             /** Pointer to vertex data used by this edge group. */
             const VertexData* vertexData;
+            /** Index to main triangles array, indicate the first triangle of this edge
+                group, and all triangles of this edge group are stored continuous in
+                main triangles array.
+            */
+            size_t triStart;
+            /** Number triangles of this edge group. */
+            size_t triCount;
             /** The edges themselves. */
             EdgeList edges;
 
@@ -96,13 +103,18 @@ namespace Ogre {
 
         typedef std::vector<EdgeGroup> EdgeGroupList;
 
+        /** Main triangles array, stores all triangles of this edge list. Note that
+            triangles are grouping against edge group.
+        */
         TriangleList triangles;
+        /** All triangle face normals. It should be 1:1 with triangles. */
         TriangleFaceNormalList triangleFaceNormals;
+        /** Triangle light facing states. It should be 1:1 with triangles. */
         TriangleLightFacingList triangleLightFacings;
+        /** All edge groups of this edge list. */
         EdgeGroupList edgeGroups;
-		// manifold? NB This value is not stored in the  binary Mesh format yet so
-		// cannot be relied upon unless this has been calculated interactively.
-		//bool isClosed; // manifold?
+        /** Flag indicate the mesh is manifold. */
+        bool isClosed;
 
 
         /** Calculate the light facing state of the triangles in this edge list

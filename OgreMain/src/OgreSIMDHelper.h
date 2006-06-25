@@ -165,6 +165,8 @@ __MM_DECL_OP2(sub_ss, subss, xm)
 __MM_DECL_OP2(mul_ps, mulps, xm)
 __MM_DECL_OP2(mul_ss, mulss, xm)
 
+__MM_DECL_OP2(xor_ps, xorps, xm)
+
 __MM_DECL_OP2(unpacklo_ps, unpcklps, xm)
 __MM_DECL_OP2(unpackhi_ps, unpckhps, xm)
 

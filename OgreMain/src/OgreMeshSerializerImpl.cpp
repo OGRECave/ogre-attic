@@ -55,7 +55,7 @@ namespace Ogre {
     {
 
         // Version number
-        mVersion = "[MeshSerializer_v1.30]";
+        mVersion = "[MeshSerializer_v1.40]";
     }
     //---------------------------------------------------------------------
     MeshSerializerImpl::~MeshSerializerImpl()
@@ -1513,6 +1513,8 @@ namespace Ogre {
         size += sizeof(bool);
         if (!isManual)
         {
+            // bool isClosed
+            size += sizeof(bool);
             // unsigned long numTriangles
             size += sizeof(uint32);
             // unsigned long numEdgeGroups
@@ -1547,6 +1549,10 @@ namespace Ogre {
 
         // unsigned long vertexSet
         size += sizeof(uint32);
+        // unsigned long triStart
+        size += sizeof(uint32);
+        // unsigned long triCount
+        size += sizeof(uint32);
         // unsigned long numEdges
         size += sizeof(uint32);
         // Edge* edgeList
@@ -1578,6 +1584,8 @@ namespace Ogre {
             writeBools(&isManual, 1);
             if (!isManual)
             {
+                // bool isClosed
+                writeBools(&edgeData->isClosed, 1);
                 // unsigned long  numTriangles
                 uint32 count = static_cast<uint32>(edgeData->triangles.size());
                 writeInts(&count, 1);
@@ -1621,6 +1629,12 @@ namespace Ogre {
                     // unsigned long vertexSet
                     uint32 vertexSet = static_cast<uint32>(edgeGroup.vertexSet);
                     writeInts(&vertexSet, 1);
+                    // unsigned long triStart
+                    uint32 triStart = static_cast<uint32>(edgeGroup.triStart);
+                    writeInts(&triStart, 1);
+                    // unsigned long triCount
+                    uint32 triCount = static_cast<uint32>(edgeGroup.triCount);
+                    writeInts(&triCount, 1);
                     // unsigned long numEdges
                     count = static_cast<uint32>(edgeGroup.edges.size());
                     writeInts(&count, 1);
@@ -1679,81 +1693,16 @@ namespace Ogre {
                     MeshLodUsage& usage = const_cast<MeshLodUsage&>(pMesh->getLodLevel(lodIndex));
 
                     usage.edgeData = new EdgeData();
-                    // unsigned long numTriangles
-                    uint32 numTriangles;
-                    readInts(stream, &numTriangles, 1);
-                    // Allocate correct amount of memory
-                    usage.edgeData->triangles.resize(numTriangles);
-                    usage.edgeData->triangleFaceNormals.resize(numTriangles);
-                    usage.edgeData->triangleLightFacings.resize(numTriangles);
-                    // unsigned long numEdgeGroups
-                    uint32 numEdgeGroups;
-                    readInts(stream, &numEdgeGroups, 1);
-                    // Allocate correct amount of memory
-                    usage.edgeData->edgeGroups.resize(numEdgeGroups);
-                    // Triangle* triangleList
-                    uint32 tmp[3];
-                    for (size_t t = 0; t < numTriangles; ++t)
+
+                    // Read detail information of the edge list
+                    readEdgeListLodInfo(stream, usage.edgeData);
+
+                    // Postprocessing edge groups
+                    EdgeData::EdgeGroupList::iterator egi, egend;
+                    egend = usage.edgeData->edgeGroups.end();
+                    for (egi = usage.edgeData->edgeGroups.begin(); egi != egend; ++egi)
                     {
-                        EdgeData::Triangle& tri = usage.edgeData->triangles[t];
-                        // unsigned long indexSet
-                        readInts(stream, tmp, 1);
-                        tri.indexSet = tmp[0];
-                        // unsigned long vertexSet
-                        readInts(stream, tmp, 1);
-                        tri.vertexSet = tmp[0];
-                        // unsigned long vertIndex[3]
-                        readInts(stream, tmp, 3);
-                        tri.vertIndex[0] = tmp[0];
-                        tri.vertIndex[1] = tmp[1];
-                        tri.vertIndex[2] = tmp[2];
-                        // unsigned long sharedVertIndex[3]
-                        readInts(stream, tmp, 3);
-                        tri.sharedVertIndex[0] = tmp[0];
-                        tri.sharedVertIndex[1] = tmp[1];
-                        tri.sharedVertIndex[2] = tmp[2];
-                        // float normal[4]
-                        readFloats(stream, &(usage.edgeData->triangleFaceNormals[t].x), 4);
-
-                    }
-
-                    for (uint32 eg = 0; eg < numEdgeGroups; ++eg)
-                    {
-                        streamID = readChunk(stream);
-                        if (streamID != M_EDGE_GROUP)
-                        {
-                            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR,
-                                "Missing M_EDGE_GROUP stream",
-                                "MeshSerializerImpl::readEdgeList");
-                        }
-                        EdgeData::EdgeGroup& edgeGroup = usage.edgeData->edgeGroups[eg];
-
-                        // unsigned long vertexSet
-                        readInts(stream, tmp, 1);
-                        edgeGroup.vertexSet = tmp[0];
-                        // unsigned long numEdges
-                        uint32 numEdges;
-                        readInts(stream, &numEdges, 1);
-                        edgeGroup.edges.resize(numEdges);
-                        // Edge* edgeList
-                        for (uint32 e = 0; e < numEdges; ++e)
-                        {
-                            EdgeData::Edge& edge = edgeGroup.edges[e];
-                            // unsigned long  triIndex[2]
-                            readInts(stream, tmp, 2);
-                            edge.triIndex[0] = tmp[0];
-                            edge.triIndex[1] = tmp[1];
-                            // unsigned long  vertIndex[2]
-                            readInts(stream, tmp, 2);
-                            edge.vertIndex[0] = tmp[0];
-                            edge.vertIndex[1] = tmp[1];
-                            // unsigned long  sharedVertIndex[2]
-                            readInts(stream, tmp, 2);
-                            edge.sharedVertIndex[0] = tmp[0];
-                            edge.sharedVertIndex[1] = tmp[1];
-                            // bool degenerate
-                            readBools(stream, &(edge.degenerate), 1);
-                        }
+                        EdgeData::EdgeGroup& edgeGroup = *egi;
                         // Populate edgeGroup.vertexData pointers
                         // If there is shared vertex data, vertexSet 0 is that,
                         // otherwise 0 is first dedicated
@@ -1775,7 +1724,6 @@ namespace Ogre {
                                 edgeGroup.vertexSet)->vertexData;
                         }
                     }
-
                 }
 
                 if (!stream->eof())
@@ -1791,10 +1739,97 @@ namespace Ogre {
             }
         }
 
-
-
         pMesh->mEdgeListsBuilt = true;
 	}
+	//---------------------------------------------------------------------
+    void MeshSerializerImpl::readEdgeListLodInfo(DataStreamPtr& stream,
+        EdgeData* edgeData)
+    {
+        // bool isClosed
+        readBools(stream, &edgeData->isClosed, 1);
+        // unsigned long numTriangles
+        uint32 numTriangles;
+        readInts(stream, &numTriangles, 1);
+        // Allocate correct amount of memory
+        edgeData->triangles.resize(numTriangles);
+        edgeData->triangleFaceNormals.resize(numTriangles);
+        edgeData->triangleLightFacings.resize(numTriangles);
+        // unsigned long numEdgeGroups
+        uint32 numEdgeGroups;
+        readInts(stream, &numEdgeGroups, 1);
+        // Allocate correct amount of memory
+        edgeData->edgeGroups.resize(numEdgeGroups);
+        // Triangle* triangleList
+        uint32 tmp[3];
+        for (size_t t = 0; t < numTriangles; ++t)
+        {
+            EdgeData::Triangle& tri = edgeData->triangles[t];
+            // unsigned long indexSet
+            readInts(stream, tmp, 1);
+            tri.indexSet = tmp[0];
+            // unsigned long vertexSet
+            readInts(stream, tmp, 1);
+            tri.vertexSet = tmp[0];
+            // unsigned long vertIndex[3]
+            readInts(stream, tmp, 3);
+            tri.vertIndex[0] = tmp[0];
+            tri.vertIndex[1] = tmp[1];
+            tri.vertIndex[2] = tmp[2];
+            // unsigned long sharedVertIndex[3]
+            readInts(stream, tmp, 3);
+            tri.sharedVertIndex[0] = tmp[0];
+            tri.sharedVertIndex[1] = tmp[1];
+            tri.sharedVertIndex[2] = tmp[2];
+            // float normal[4]
+            readFloats(stream, &(edgeData->triangleFaceNormals[t].x), 4);
+
+        }
+
+        for (uint32 eg = 0; eg < numEdgeGroups; ++eg)
+        {
+            unsigned short streamID = readChunk(stream);
+            if (streamID != M_EDGE_GROUP)
+            {
+                OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR,
+                    "Missing M_EDGE_GROUP stream",
+                    "MeshSerializerImpl::readEdgeListLodInfo");
+            }
+            EdgeData::EdgeGroup& edgeGroup = edgeData->edgeGroups[eg];
+
+            // unsigned long vertexSet
+            readInts(stream, tmp, 1);
+            edgeGroup.vertexSet = tmp[0];
+            // unsigned long triStart
+            readInts(stream, tmp, 1);
+            edgeGroup.triStart = tmp[0];
+            // unsigned long triCount
+            readInts(stream, tmp, 1);
+            edgeGroup.triCount = tmp[0];
+            // unsigned long numEdges
+            uint32 numEdges;
+            readInts(stream, &numEdges, 1);
+            edgeGroup.edges.resize(numEdges);
+            // Edge* edgeList
+            for (uint32 e = 0; e < numEdges; ++e)
+            {
+                EdgeData::Edge& edge = edgeGroup.edges[e];
+                // unsigned long  triIndex[2]
+                readInts(stream, tmp, 2);
+                edge.triIndex[0] = tmp[0];
+                edge.triIndex[1] = tmp[1];
+                // unsigned long  vertIndex[2]
+                readInts(stream, tmp, 2);
+                edge.vertIndex[0] = tmp[0];
+                edge.vertIndex[1] = tmp[1];
+                // unsigned long  sharedVertIndex[2]
+                readInts(stream, tmp, 2);
+                edge.sharedVertIndex[0] = tmp[0];
+                edge.sharedVertIndex[1] = tmp[1];
+                // bool degenerate
+                readBools(stream, &(edge.degenerate), 1);
+            }
+        }
+    }
 	//---------------------------------------------------------------------
 	size_t MeshSerializerImpl::calcAnimationsSize(const Mesh* pMesh)
 	{
@@ -2350,6 +2385,236 @@ namespace Ogre {
 		}
 
 	}
+    //---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    MeshSerializerImpl_v1_3::MeshSerializerImpl_v1_3()
+    {
+        // Version number
+        mVersion = "[MeshSerializer_v1.30]";
+    }
+    //---------------------------------------------------------------------
+    MeshSerializerImpl_v1_3::~MeshSerializerImpl_v1_3()
+    {
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl_v1_3::readEdgeListLodInfo(DataStreamPtr& stream,
+        EdgeData* edgeData)
+    {
+        // unsigned long numTriangles
+        uint32 numTriangles;
+        readInts(stream, &numTriangles, 1);
+        // Allocate correct amount of memory
+        edgeData->triangles.resize(numTriangles);
+        edgeData->triangleFaceNormals.resize(numTriangles);
+        edgeData->triangleLightFacings.resize(numTriangles);
+        // unsigned long numEdgeGroups
+        uint32 numEdgeGroups;
+        readInts(stream, &numEdgeGroups, 1);
+        // Allocate correct amount of memory
+        edgeData->edgeGroups.resize(numEdgeGroups);
+        // Triangle* triangleList
+        uint32 tmp[3];
+        for (size_t t = 0; t < numTriangles; ++t)
+        {
+            EdgeData::Triangle& tri = edgeData->triangles[t];
+            // unsigned long indexSet
+            readInts(stream, tmp, 1);
+            tri.indexSet = tmp[0];
+            // unsigned long vertexSet
+            readInts(stream, tmp, 1);
+            tri.vertexSet = tmp[0];
+            // unsigned long vertIndex[3]
+            readInts(stream, tmp, 3);
+            tri.vertIndex[0] = tmp[0];
+            tri.vertIndex[1] = tmp[1];
+            tri.vertIndex[2] = tmp[2];
+            // unsigned long sharedVertIndex[3]
+            readInts(stream, tmp, 3);
+            tri.sharedVertIndex[0] = tmp[0];
+            tri.sharedVertIndex[1] = tmp[1];
+            tri.sharedVertIndex[2] = tmp[2];
+            // float normal[4]
+            readFloats(stream, &(edgeData->triangleFaceNormals[t].x), 4);
+
+        }
+
+        // Assume the mesh is closed, it will update later
+        edgeData->isClosed = true;
+
+        for (uint32 eg = 0; eg < numEdgeGroups; ++eg)
+        {
+            unsigned short streamID = readChunk(stream);
+            if (streamID != M_EDGE_GROUP)
+            {
+                OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR,
+                    "Missing M_EDGE_GROUP stream",
+                    "MeshSerializerImpl_v1_3::readEdgeListLodInfo");
+            }
+            EdgeData::EdgeGroup& edgeGroup = edgeData->edgeGroups[eg];
+
+            // unsigned long vertexSet
+            readInts(stream, tmp, 1);
+            edgeGroup.vertexSet = tmp[0];
+            // unsigned long numEdges
+            uint32 numEdges;
+            readInts(stream, &numEdges, 1);
+            edgeGroup.edges.resize(numEdges);
+            // Edge* edgeList
+            for (uint32 e = 0; e < numEdges; ++e)
+            {
+                EdgeData::Edge& edge = edgeGroup.edges[e];
+                // unsigned long  triIndex[2]
+                readInts(stream, tmp, 2);
+                edge.triIndex[0] = tmp[0];
+                edge.triIndex[1] = tmp[1];
+                // unsigned long  vertIndex[2]
+                readInts(stream, tmp, 2);
+                edge.vertIndex[0] = tmp[0];
+                edge.vertIndex[1] = tmp[1];
+                // unsigned long  sharedVertIndex[2]
+                readInts(stream, tmp, 2);
+                edge.sharedVertIndex[0] = tmp[0];
+                edge.sharedVertIndex[1] = tmp[1];
+                // bool degenerate
+                readBools(stream, &(edge.degenerate), 1);
+
+                // The mesh is closed only if no degenerate edge here
+                if (edge.degenerate)
+                {
+                    edgeData->isClosed = false;
+                }
+            }
+        }
+
+        reorganiseTriangles(edgeData);
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl_v1_3::reorganiseTriangles(EdgeData* edgeData)
+    {
+        size_t numTriangles = edgeData->triangles.size();
+
+        if (edgeData->edgeGroups.size() == 1)
+        {
+            // Special case for only one edge group in the edge list, which occuring
+            // most time. In this case, all triangles belongs to that group.
+            edgeData->edgeGroups.front().triStart = 0;
+            edgeData->edgeGroups.front().triCount = numTriangles;
+        }
+        else
+        {
+            EdgeData::EdgeGroupList::iterator egi, egend;
+            egend = edgeData->edgeGroups.end();
+
+            // Calculate number of triangles for edge groups
+
+            for (egi = edgeData->edgeGroups.begin(); egi != egend; ++egi)
+            {
+                egi->triStart = 0;
+                egi->triCount = 0;
+            }
+
+            bool isGrouped = true;
+            EdgeData::EdgeGroup* lastEdgeGroup = 0;
+            for (size_t t = 0; t < numTriangles; ++t)
+            {
+                // Gets the edge group that the triangle belongs to
+                const EdgeData::Triangle& tri = edgeData->triangles[t];
+                EdgeData::EdgeGroup* edgeGroup = &edgeData->edgeGroups[tri.vertexSet];
+
+                // Does edge group changes from last edge group?
+                if (isGrouped && edgeGroup != lastEdgeGroup)
+                {
+                    // Remember last edge group
+                    lastEdgeGroup = edgeGroup;
+
+                    // Is't first time encounter this edge group?
+                    if (!edgeGroup->triCount && !edgeGroup->triStart)
+                    {
+                        // setup first triangle of this edge group
+                        edgeGroup->triStart = t;
+                    }
+                    else
+                    {
+                        // original triangles doesn't grouping by edge group
+                        isGrouped = false;
+                    }
+                }
+
+                // Count number of triangles for this edge group
+                ++edgeGroup->triCount;
+            }
+
+            //
+            // Note that triangles has been sorted by vertex set for a long time,
+            // but never stored to old version mesh file.
+            //
+            // Adopt this fact to avoid remap triangles here.
+            //
+
+            // Does triangles grouped by vertex set?
+            if (!isGrouped)
+            {
+                // Ok, the triangles of this edge list isn't grouped by vertex set
+                // perfectly, seems ancient mesh file.
+                //
+                // We need work hardly to group triangles by vertex set.
+                //
+
+                // Calculate triStart and reset triCount to zero for each edge group first
+                size_t triStart = 0;
+                for (egi = edgeData->edgeGroups.begin(); egi != egend; ++egi)
+                {
+                    egi->triStart = triStart;
+                    triStart += egi->triCount;
+                    egi->triCount = 0;
+                }
+
+                // The map used to mapping original triangle index to new index
+                typedef std::vector<size_t> TriangleIndexRemap;
+                TriangleIndexRemap triangleIndexRemap(numTriangles);
+
+                // New triangles information that should be group by vertex set.
+                EdgeData::TriangleList newTriangles(numTriangles);
+                EdgeData::TriangleFaceNormalList newTriangleFaceNormals(numTriangles);
+
+                // Calculate triangle index map and organise triangles information
+                for (size_t t = 0; t < numTriangles; ++t)
+                {
+                    // Gets the edge group that the triangle belongs to
+                    const EdgeData::Triangle& tri = edgeData->triangles[t];
+                    EdgeData::EdgeGroup& edgeGroup = edgeData->edgeGroups[tri.vertexSet];
+
+                    // Calculate new index
+                    size_t newIndex = edgeGroup.triStart + edgeGroup.triCount;
+                    ++edgeGroup.triCount;
+
+                    // Setup triangle index mapping entry
+                    triangleIndexRemap[t] = newIndex;
+
+                    // Copy triangle info to new placement
+                    newTriangles[newIndex] = tri;
+                    newTriangleFaceNormals[newIndex] = edgeData->triangleFaceNormals[t];
+                }
+
+                // Replace with new triangles information
+                edgeData->triangles.swap(newTriangles);
+                edgeData->triangleFaceNormals.swap(newTriangleFaceNormals);
+
+                // Now, update old triangle indices to new index
+                for (egi = edgeData->edgeGroups.begin(); egi != egend; ++egi)
+                {
+                    EdgeData::EdgeList::iterator ei, eend;
+                    eend = egi->edges.end();
+                    for (ei = egi->edges.begin(); ei != eend; ++ei)
+                    {
+                        ei->triIndex[0] = triangleIndexRemap[ei->triIndex[0]];
+                        ei->triIndex[1] = triangleIndexRemap[ei->triIndex[1]];
+                    }
+                }
+            }
+        }
+    }
 	//---------------------------------------------------------------------
     //---------------------------------------------------------------------
     //---------------------------------------------------------------------

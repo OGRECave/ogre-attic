@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __OptimisedUtil_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreEdgeListBuilder.h"
 
 namespace Ogre {
 
@@ -129,6 +130,23 @@ namespace Ogre {
             const Matrix4* srcMatrices,
             Matrix4* dstMatrices,
             size_t numMatrices) = 0;
+
+        /** Calculate the face normals for the triangles based on position
+            information.
+        @param positions Pointer to position information, which packed in
+            (x, y, z) format, indexing by vertex index in the triangle. No
+            alignment requests.
+        @param triangles The triangles need to calculate face normal, the vertex
+            positions is indexed by vertex index to position information.
+        @param faceNormals The array of Vector4 used to store triangles face normal,
+            Must be aligned to SIMD alignment.
+        @param numTriangles Number of triangles to calculate face normal.
+        */
+        virtual void calculateFaceNormals(
+            const float *positions,
+            const EdgeData::Triangle *triangles,
+            Vector4 *faceNormals,
+            size_t numTriangles) = 0;
 
         /** Calculate the light facing state of the triangle's face normals
         @remarks

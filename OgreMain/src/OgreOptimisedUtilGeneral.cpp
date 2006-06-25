@@ -68,6 +68,13 @@ namespace Ogre {
             Matrix4* dstMatrices,
             size_t numMatrices);
 
+        /// @copydoc OptimisedUtil::calculateFaceNormals
+        virtual void calculateFaceNormals(
+            const float *positions,
+            const EdgeData::Triangle *triangles,
+            Vector4 *faceNormals,
+            size_t numTriangles);
+
         /// @copydoc OptimisedUtil::calculateLightFacing
         virtual void calculateLightFacing(
             const Vector4& lightPos,
@@ -258,6 +265,30 @@ namespace Ogre {
             // z
             *pDst++ = *pSrc1 + t * (*pSrc2 - *pSrc1) ;
             ++pSrc1; ++pSrc2;
+        }
+    }
+    //---------------------------------------------------------------------
+    void OptimisedUtilGeneral::calculateFaceNormals(
+        const float *positions,
+        const EdgeData::Triangle *triangles,
+        Vector4 *faceNormals,
+        size_t numTriangles)
+    {
+        for ( ; numTriangles; --numTriangles)
+        {
+            const EdgeData::Triangle& t = *triangles++;
+            size_t offset;
+
+            offset = t.vertIndex[0] * 3;
+            Vector3 v1(positions[offset+0], positions[offset+1], positions[offset+2]);
+
+            offset = t.vertIndex[1] * 3;
+            Vector3 v2(positions[offset+0], positions[offset+1], positions[offset+2]);
+
+            offset = t.vertIndex[2] * 3;
+            Vector3 v3(positions[offset+0], positions[offset+1], positions[offset+2]);
+
+            *faceNormals++ = Math::calculateFaceNormalWithoutNormalize(v1, v2, v3);
         }
     }
     //---------------------------------------------------------------------

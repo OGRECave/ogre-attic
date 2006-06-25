@@ -103,6 +103,13 @@ namespace Ogre {
             Matrix4* dstMatrices,
             size_t numMatrices);
 
+        /// @copydoc OptimisedUtil::calculateFaceNormals
+        virtual void calculateFaceNormals(
+            const float *positions,
+            const EdgeData::Triangle *triangles,
+            Vector4 *faceNormals,
+            size_t numTriangles);
+
         /// @copydoc OptimisedUtil::calculateLightFacing
         virtual void calculateLightFacing(
             const Vector4& lightPos,
@@ -193,6 +200,22 @@ namespace Ogre {
                 srcMatrices,
                 dstMatrices,
                 numMatrices);
+        }
+
+        /// @copydoc OptimisedUtil::calculateFaceNormals
+        virtual void calculateFaceNormals(
+            const float *positions,
+            const EdgeData::Triangle *triangles,
+            Vector4 *faceNormals,
+            size_t numTriangles)
+        {
+            __OGRE_SIMD_ALIGN_STACK();
+
+            mImpl->calculateFaceNormals(
+                positions,
+                triangles,
+                faceNormals,
+                numTriangles);
         }
 
         /// @copydoc OptimisedUtil::calculateLightFacing
@@ -1443,6 +1466,149 @@ namespace Ogre {
 
             ++pDstMat;
         }
+    }
+    //---------------------------------------------------------------------
+    void OptimisedUtilSSE::calculateFaceNormals(
+        const float *positions,
+        const EdgeData::Triangle *triangles,
+        Vector4 *faceNormals,
+        size_t numTriangles)
+    {
+        __OGRE_CHECK_STACK_ALIGNED_FOR_SSE();
+
+        assert(_isAlignedForSSE(faceNormals));
+
+// Load Vector3 as: (x, 0, y, z)
+#define __LOAD_VECTOR3(p)   _mm_loadh_pi(_mm_load_ss(p), (__m64*)((p)+1))
+
+        // Mask used to changes sign of single precision floating point values.
+        OGRE_SIMD_ALIGNED_DECL(static const uint32, msSignMask[4]) =
+        {
+            0x80000000, 0x80000000, 0x80000000, 0x80000000,
+        };
+
+        size_t numIterations = numTriangles / 4;
+        numTriangles &= 3;
+
+        // Four triangles per-iteration
+        for (size_t i = 0; i < numIterations; ++i)
+        {
+
+// Load four Vector3 as: (x0, x1, x2, x3), (y0, y1, y2, y3), (z0, z1, z2, z3)
+#define __LOAD_FOUR_VECTOR3(x, y, z, p0, p1, p2, p3)                    \
+            {                                                           \
+                __m128 v0 = __LOAD_VECTOR3(p0);     /* x0 -- y0 z0 */   \
+                __m128 v1 = __LOAD_VECTOR3(p1);     /* x1 -- y1 z1 */   \
+                __m128 v2 = __LOAD_VECTOR3(p2);     /* x2 -- y2 z2 */   \
+                __m128 v3 = __LOAD_VECTOR3(p3);     /* x3 -- y3 z3 */   \
+                __m128 t0, t1;                                          \
+                                                                        \
+                t0 = _mm_unpacklo_ps(v0, v2);       /* x0 x2 -- -- */   \
+                t1 = _mm_unpacklo_ps(v1, v3);       /* x1 x3 -- -- */   \
+                x  = _mm_unpacklo_ps(t0, t1);       /* x0 x1 x2 x3 */   \
+                                                                        \
+                t0 = _mm_unpackhi_ps(v0, v2);       /* y0 y2 z0 z2 */   \
+                t1 = _mm_unpackhi_ps(v1, v3);       /* y1 y3 z1 z3 */   \
+                y  = _mm_unpacklo_ps(t0, t1);       /* y0 y1 y2 y3 */   \
+                z  = _mm_unpackhi_ps(t0, t1);       /* z0 z1 z2 z3 */   \
+            }
+
+            __m128 x0, x1, x2, y0, y1, y2, z0, z1, z2;
+
+            // Load vertex 0 of four triangles, packed as component-major format: xxxx yyyy zzzz
+            __LOAD_FOUR_VECTOR3(x0, y0, z0,
+                positions + triangles[0].vertIndex[0] * 3,
+                positions + triangles[1].vertIndex[0] * 3,
+                positions + triangles[2].vertIndex[0] * 3,
+                positions + triangles[3].vertIndex[0] * 3);
+
+            // Load vertex 1 of four triangles, packed as component-major format: xxxx yyyy zzzz
+            __LOAD_FOUR_VECTOR3(x1, y1, z1,
+                positions + triangles[0].vertIndex[1] * 3,
+                positions + triangles[1].vertIndex[1] * 3,
+                positions + triangles[2].vertIndex[1] * 3,
+                positions + triangles[3].vertIndex[1] * 3);
+
+            // Load vertex 2 of four triangles, packed as component-major format: xxxx yyyy zzzz
+            __LOAD_FOUR_VECTOR3(x2, y2, z2,
+                positions + triangles[0].vertIndex[2] * 3,
+                positions + triangles[1].vertIndex[2] * 3,
+                positions + triangles[2].vertIndex[2] * 3,
+                positions + triangles[3].vertIndex[2] * 3);
+
+            triangles += 4;
+
+            // Calculate triangle face normals
+
+            // a = v1 - v0
+            __m128 ax = _mm_sub_ps(x1, x0);
+            __m128 ay = _mm_sub_ps(y1, y0);
+            __m128 az = _mm_sub_ps(z1, z0);
+
+            // b = v2 - v0
+            __m128 bx = _mm_sub_ps(x2, x0);
+            __m128 by = _mm_sub_ps(y2, y0);
+            __m128 bz = _mm_sub_ps(z2, z0);
+
+            // n = a cross b
+            __m128 nx = _mm_sub_ps(_mm_mul_ps(ay, bz), _mm_mul_ps(az, by));
+            __m128 ny = _mm_sub_ps(_mm_mul_ps(az, bx), _mm_mul_ps(ax, bz));
+            __m128 nz = _mm_sub_ps(_mm_mul_ps(ax, by), _mm_mul_ps(ay, bx));
+
+            // w = - (n dot v0)
+            __m128 nw = _mm_xor_ps(
+                __MM_DOT3x3_PS(nx, ny, nz, x0, y0, z0),
+                *(const __m128 *)&msSignMask);
+
+            // Arrange to per-triangle face normal major format
+            __MM_TRANSPOSE4x4_PS(nx, ny, nz, nw);
+
+            // Store results
+            __MM_STORE_PS(&faceNormals[0].x, nx);
+            __MM_STORE_PS(&faceNormals[1].x, ny);
+            __MM_STORE_PS(&faceNormals[2].x, nz);
+            __MM_STORE_PS(&faceNormals[3].x, nw);
+            faceNormals += 4;
+
+#undef __LOAD_FOUR_VECTOR3
+        }
+
+        // Dealing with remaining triangles
+        for (size_t j = 0; j < numTriangles; ++j)
+        {
+            // Load vertices of the triangle
+            __m128 v0 = __LOAD_VECTOR3(positions + triangles->vertIndex[0] * 3);
+            __m128 v1 = __LOAD_VECTOR3(positions + triangles->vertIndex[1] * 3);
+            __m128 v2 = __LOAD_VECTOR3(positions + triangles->vertIndex[2] * 3);
+            ++triangles;
+
+            // Calculate face normal
+
+            __m128 t0, t1;
+
+            __m128 a = _mm_sub_ps(v1, v0);                      // ax 0 ay az
+            __m128 b = _mm_sub_ps(v2, v0);                      // bx 0 by bz
+            t0 = _mm_shuffle_ps(a, a, _MM_SHUFFLE(2,0,1,3));    // az 0 ax ay
+            t1 = _mm_shuffle_ps(a, a, _MM_SHUFFLE(0,3,1,2));    // ay 0 az ax
+            t0 = _mm_mul_ps(t0, b);                             // az*bx 0 ax*by ay*bz
+            t1 = _mm_mul_ps(t1, b);                             // ay*bx 0 az*by ax*bz
+            t0 = _mm_shuffle_ps(t0, t0, _MM_SHUFFLE(2,0,1,3));  // ay*bz 0 az*bx ax*by
+            t1 = _mm_shuffle_ps(t1, t1, _MM_SHUFFLE(0,3,1,2));  // az*by 0 ax*bz ay*bx
+
+            __m128 n = _mm_sub_ps(t0, t1);                      // nx 0  ny nz
+            __m128 d = _mm_mul_ps(v0, n);                       // dx 0  dy dz
+            n = _mm_sub_ps(_mm_sub_ps(_mm_sub_ps(               // nx ny nz -(dx+dy+dz)
+                _mm_shuffle_ps(n, n, _MM_SHUFFLE(1,3,2,0)),     // nx ny nz 0
+                _mm_shuffle_ps(d, d, _MM_SHUFFLE(0,1,1,1))),    // 0  0  0  dx
+                _mm_shuffle_ps(d, d, _MM_SHUFFLE(2,1,1,1))),    // 0  0  0  dy
+                _mm_shuffle_ps(d, d, _MM_SHUFFLE(3,1,1,1)));    // 0  0  0  dz
+
+            // Store result
+            __MM_STORE_PS(&faceNormals->x, n);
+            ++faceNormals;
+        }
+
+#undef __LOAD_VECTOR3
     }
     //---------------------------------------------------------------------
     void OptimisedUtilSSE::calculateLightFacing(

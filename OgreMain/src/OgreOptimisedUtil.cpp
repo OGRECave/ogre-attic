@@ -210,6 +210,41 @@ namespace Ogre {
             ++index;    // So we can put break point here even if in release build
         }
 
+        /// @copydoc OptimisedUtil::calculateFaceNormals
+        virtual void calculateFaceNormals(
+            const float *positions,
+            const EdgeData::Triangle *triangles,
+            Vector4 *faceNormals,
+            size_t numTriangles)
+        {
+            static ProfileItems results;
+            static size_t index;
+            index = Root::getSingleton().getCurrentFrameNumber() % mOptimisedUtils.size();
+            OptimisedUtil* impl = mOptimisedUtils[index];
+            ProfileItem& profile = results[index];
+
+            profile.begin();
+            impl->calculateFaceNormals(
+                positions,
+                triangles,
+                faceNormals,
+                numTriangles);
+            profile.end();
+
+            //
+            //   Dagon SkeletonAnimation sample test results (CPU timestamp per-function call):
+            //
+            //                  Pentium 4 3.0G HT       Athlon XP 2500+
+            //
+            //      General     657080                  486494
+            //      SSE         223559                  399495
+            //
+
+            // You can put break point here while running test application, to
+            // watch profile results.
+            ++index;    // So we can put break point here even if in release build
+        }
+
         /// @copydoc OptimisedUtil::calculateLightFacing
         virtual void calculateLightFacing(
             const Vector4& lightPos,
