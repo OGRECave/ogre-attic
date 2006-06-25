@@ -107,14 +107,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define OGRE_THREAD_SUPPORT 0
 #endif
 
-/** Disables use of the DevIL image library for loading images.
-    WARNING: Use only when you want to provide your own image loading code via codecs.
-	TODO: remove
-*/
-#ifndef OGRE_NO_DEVIL
-#define OGRE_NO_DEVIL 0
-#endif
-
 /** Disables use of the FreeImage image library for loading images.
 WARNING: Use only when you want to provide your own image loading code via codecs.
 */
@@ -122,5 +114,11 @@ WARNING: Use only when you want to provide your own image loading code via codec
 #define OGRE_NO_FREEIMAGE 0
 #endif
 
+/** Disables use of the internal image codec for loading DDS files.
+WARNING: Use only when you want to provide your own image loading code via codecs.
+*/
+#ifndef OGRE_NO_DDS_CODEC
+#define OGRE_NO_DDS_CODEC 0
+#endif
 
 #endif

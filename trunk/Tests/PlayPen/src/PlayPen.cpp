@@ -78,6 +78,7 @@ Camera* reflectCam = 0;
 Camera* camera2 = 0;
 Bone* manuallyControlledBone = 0;
 
+using namespace OIS;
 
 class RefractionTextureListener : public RenderTargetListener
 {
@@ -110,35 +111,6 @@ public:
     }
 
 };
-
-class UberSimpleFrameListener : public FrameListener
-{
-protected:
-	InputReader* mInputDevice;
-
-public:
-	UberSimpleFrameListener(RenderWindow* win, Camera* cam)
-	{
-		mInputDevice = PlatformManager::getSingleton().createInputReader();
-		mInputDevice->initialise(win,true, true);
-	}
-	~UberSimpleFrameListener()
-	{
-		PlatformManager::getSingleton().destroyInputReader( mInputDevice );
-	}
-
-	bool frameStarted(const FrameEvent& evt)
-	{
-		mInputDevice->capture();
-		if (mInputDevice->isKeyDown(KC_ESCAPE))
-		{
-			return false;
-		}
-		return true;
-
-	}
-};
-
 
 
 class PlayPenListener : public ExampleFrameListener
@@ -242,7 +214,7 @@ public:
             timeUntilNextToggle -= evt.timeSinceLastFrame;
 
 		static bool mWireframe = false;
-		if (mInputDevice->isKeyDown(KC_G) && timeUntilNextToggle <= 0)
+		if (mKeyboard->isKeyDown(KC_G) && timeUntilNextToggle <= 0)
         {
 			mWireframe = !mWireframe;
 			if (mWireframe)
@@ -275,12 +247,12 @@ public:
 			(*animi)->addTime(evt.timeSinceLastFrame);
 		}
 
-        if (mInputDevice->isKeyDown(KC_R) && timeUntilNextToggle <= 0)
+        if (mKeyboard->isKeyDown(KC_R) && timeUntilNextToggle <= 0)
         {
             rotate = !rotate;
             timeUntilNextToggle = 0.5;
         }
-        if (mInputDevice->isKeyDown(KC_1) && timeUntilNextToggle <= 0)
+        if (mKeyboard->isKeyDown(KC_1) && timeUntilNextToggle <= 0)
         {
             animate = !animate;
             timeUntilNextToggle = 0.5;
@@ -357,7 +329,7 @@ public:
         }
 
         /*
-		if (mInputDevice->isKeyDown(KC_V) && timeUntilNextToggle <= 0)
+		if (mKeyboard->isKeyDown(KC_V) && timeUntilNextToggle <= 0)
         {
             static bool isVP = false;
             if (!isVP)
@@ -375,40 +347,40 @@ public:
         }
         */
 
-		if (mInputDevice->isKeyDown(KC_P))
+		if (mKeyboard->isKeyDown(KC_P))
         {
             mTestNode[0]->yaw(Degree(-evt.timeSinceLastFrame * 30));
         }
-		if (mInputDevice->isKeyDown(KC_O))
+		if (mKeyboard->isKeyDown(KC_O))
         {
             mTestNode[0]->yaw(Degree(evt.timeSinceLastFrame * 30));
         }
-		if (mInputDevice->isKeyDown(KC_K))
+		if (mKeyboard->isKeyDown(KC_K))
         {
             mTestNode[0]->roll(Degree(-evt.timeSinceLastFrame * 30));
         }
-		if (mInputDevice->isKeyDown(KC_L))
+		if (mKeyboard->isKeyDown(KC_L))
         {
             mTestNode[0]->roll(Degree(evt.timeSinceLastFrame * 30));
         }
-		if (mInputDevice->isKeyDown(KC_U))
+		if (mKeyboard->isKeyDown(KC_U))
         {
             mTestNode[0]->translate(0,0,-evt.timeSinceLastFrame * 30);
         }
-		if (mInputDevice->isKeyDown(KC_J))
+		if (mKeyboard->isKeyDown(KC_J))
         {
             mTestNode[0]->translate(0,0,evt.timeSinceLastFrame * 30);
         }
-		if (mInputDevice->isKeyDown(KC_M))
+		if (mKeyboard->isKeyDown(KC_M))
         {
             mTestNode[0]->translate(0,evt.timeSinceLastFrame * 30, 0);
         }
-		if (mInputDevice->isKeyDown(KC_N))
+		if (mKeyboard->isKeyDown(KC_N))
         {
             mTestNode[0]->translate(0,-evt.timeSinceLastFrame * 30, 0);
         }
 
-        if (mInputDevice->isKeyDown(KC_0) && timeUntilNextToggle <= 0)
+        if (mKeyboard->isKeyDown(KC_0) && timeUntilNextToggle <= 0)
         {
             mAnimState->setEnabled(!mAnimState->getEnabled());
             timeUntilNextToggle = 0.5;
@@ -757,18 +729,31 @@ protected:
 
     }
 
+	void testManualBlend()
+	{
+		// create material
+		MaterialPtr mat = MaterialManager::getSingleton().create("TestMat", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass * p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		p->createTextureUnitState("Dirt.jpg");
+		TextureUnitState* t = p->createTextureUnitState("PoolFloorLightingMap.png");
+		t->setColourOperationEx(LBX_BLEND_MANUAL, LBS_TEXTURE, LBS_CURRENT, 
+			ColourValue::White, ColourValue::White, 0.75);
+
+		Entity *planeEnt = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(planeEnt);
+		planeEnt->setMaterialName("TestManual");
+
+
+
+	}
+
 	void testBug()
 	{
 		mSceneMgr->setAmbientLight(ColourValue::White);
-		Entity *e = mSceneMgr->createEntity("1", "mrbendy.mesh");
+		Entity *e = mSceneMgr->createEntity("1", "dwarfhouse.mesh");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
-
-		AnimationState* a = e->getAnimationState("Bend");
-		a->setEnabled(true);	
-		mAnimStateList.push_back(a);
-		a = e->getAnimationState("Fatten");
-		a->setEnabled(true);	
-		mAnimStateList.push_back(a);
 
 
 		mCamera->setPosition(0,0,100);
@@ -2145,12 +2130,14 @@ protected:
         mLight = mSceneMgr->createLight("MainLight");
 
         // Directional test
+		/*
         mLight->setType(Light::LT_DIRECTIONAL);
         Vector3 vec(-1,-1,0);
         vec.normalise();
         mLight->setDirection(vec);
+		*/
 
-		/*
+		
         // Spotlight test
         mLight->setType(Light::LT_SPOTLIGHT);
         mLight->setDiffuseColour(1.0, 1.0, 0.8);
@@ -2158,7 +2145,7 @@ protected:
         mTestNode[0]->setPosition(800,600,0);
         mTestNode[0]->lookAt(Vector3(0,0,0), Node::TS_WORLD, Vector3::UNIT_Z);
         mTestNode[0]->attachObject(mLight);
-		*/
+		
 
         mTestNode[1] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 
@@ -3512,6 +3499,113 @@ protected:
 		mSceneMgr->showBoundingBoxes(true);
 	}
 
+	void testCubeDDS()
+	{
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../../Tests/Media", "FileSystem");
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("testcube", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		TextureUnitState* t = p->createTextureUnitState();
+		t->setTextureName("grace_cube.dds", TEX_TYPE_CUBE_MAP);
+		t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+		t->setEnvironmentMap(true, TextureUnitState::ENV_REFLECTION);
+		Entity* e = mSceneMgr->createEntity("1", "sphere.mesh");
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+
+		mCamera->setPosition(300,0,0);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
+
+	void testDxt1()
+	{
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../../Tests/Media", "FileSystem");
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("testdxt", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		p->setCullingMode(CULL_NONE);
+		TextureUnitState* t = p->createTextureUnitState("BumpyMetal_dxt1.dds");
+		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+
+		mCamera->setPosition(0,0,-300);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
+	void testDxt1Alpha()
+	{
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../../Tests/Media", "FileSystem");
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("testdxt", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		p->setAlphaRejectSettings(CMPF_GREATER, 128);
+		p->setLightingEnabled(false);
+		p->setCullingMode(CULL_NONE);
+		TextureUnitState* t = p->createTextureUnitState("gras_02_dxt1.dds");
+		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+
+		mCamera->setPosition(0,0,300);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
+	void testDxt3()
+	{
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../../Tests/Media", "FileSystem");
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("testdxt", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		p->setCullingMode(CULL_NONE);
+		p->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		TextureUnitState* t = p->createTextureUnitState("ogreborderUp_dxt3.dds");
+		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		mWindow->getViewport(0)->setBackgroundColour(ColourValue::Red);
+
+		mCamera->setPosition(0,0,300);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
+	void testDxt5()
+	{
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../../Tests/Media", "FileSystem");
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("testdxt", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		p->setCullingMode(CULL_NONE);
+		p->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		TextureUnitState* t = p->createTextureUnitState("ogreborderUp_dxt5.dds");
+		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		mWindow->getViewport(0)->setBackgroundColour(ColourValue::Red);
+
+		mCamera->setPosition(0,0,300);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
+
+
+
 	void testRibbonTrail()
 	{
 		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
@@ -4257,7 +4351,7 @@ protected:
         //testTextureShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testTextureShadowsCustomCasterMat(SHADOWTYPE_TEXTURE_ADDITIVE);
-		testTextureShadowsCustomReceiverMat(SHADOWTYPE_TEXTURE_ADDITIVE);
+		//testTextureShadowsCustomReceiverMat(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testCompositorTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testSplitPassesTooManyTexUnits();
         //testOverlayZOrder();
@@ -4283,6 +4377,7 @@ protected:
 		//testPoseAnimation();
 		//testPoseAnimation2();
 		//testBug();
+		//testManualBlend();
 		//testManualObjectNonIndexed();
 		//testManualObjectIndexed();
 		//testCustomProjectionMatrix();
@@ -4302,6 +4397,12 @@ protected:
 		//testMaterialSchemesWithMismatchedLOD();
         //testSkeletonAnimationOptimise();
 
+		testCubeDDS();
+		//testDxt1();
+		//testDxt1Alpha();
+		//testDxt3();
+		//testDxt5();
+
 		
     }
     // Create new frame listener
@@ -4310,7 +4411,6 @@ protected:
         mFrameListener= new PlayPenListener(mSceneMgr, mWindow, mCamera);
         mFrameListener->showDebugOverlay(true);
 		mRoot->addFrameListener(mFrameListener);
-		//FrameListener* fl = new UberSimpleFrameListener(mWindow, mCamera);
         //mRoot->addFrameListener(fl);
 
     }
@@ -4334,31 +4434,42 @@ public:
 bool gReload;
 
 // Listener class for frame updates
-class MemoryTestFrameListener : public FrameListener, public KeyListener
+class MemoryTestFrameListener : public FrameListener
 {
 protected:
 	Real time;
-	EventProcessor* mEventProcessor;
-	InputReader* mInputDevice;
+	Keyboard* mKeyboard;
 public:
 	MemoryTestFrameListener(RenderWindow * win)
 	{
 		time = 0;
-		mEventProcessor = new EventProcessor();
-		mEventProcessor->initialise(win);
-		mEventProcessor->startProcessingEvents();
-		mEventProcessor->addKeyListener(this);
-		mInputDevice = mEventProcessor->getInputReader();
+		ParamList pl;	
+		size_t windowHnd = 0;
+		std::ostringstream windowHndStr;
+
+		win->getCustomAttribute("WINDOW", &windowHnd);
+		windowHndStr << windowHnd;
+		pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
+
+		InputManager &im = *InputManager::createInputSystem( pl );
+
+		//Create all devices (We only catch joystick exceptions here, as, most people have Key/Mouse)
+		mKeyboard = static_cast<Keyboard*>(im.createInputObject( OISKeyboard, false ));
 	}
 	virtual ~MemoryTestFrameListener()
 	{
 		time = 0;            
-		delete mEventProcessor;
+		InputManager* im = InputManager::getSingletonPtr();
+		if( im )
+		{
+			im->destroyInputObject( mKeyboard );
+			im->destroyInputSystem();
+		}
 	}
 
 	bool frameStarted(const FrameEvent& evt)
 	{
-		if( mInputDevice->isKeyDown( KC_ESCAPE) )
+		if( mKeyboard->isKeyDown( KC_ESCAPE) )
 		{
 			gReload = false;
 			return false;
@@ -4508,19 +4619,23 @@ public:
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
 
+// External embedded window test
+INT WINAPI EmbeddedMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT );
 
 INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
 #else
 int main(int argc, char **argv)
 #endif
 {
-    // Create application object
+	//EmbeddedMain(hInst, 0, strCmdLine, 0);
+
+	// Create application object
     PlayPenApplication app;
 	//MemoryTestApplication app;
 
     try {
         app.go();
-    } catch( Exception& e ) {
+	} catch( Ogre::Exception& e ) {
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
         MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
 #else
