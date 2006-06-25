@@ -311,6 +311,7 @@ namespace Ogre {
 				uint8 val = static_cast<uint8>(block.alphaRow[row] >> (x * 4) & 0xF);
 				// Convert to [0,1]
 				pCol->a = (Real)val / (Real)0xF;
+				pCol++;
 				
 			}
 			
