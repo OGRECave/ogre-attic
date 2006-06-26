@@ -375,6 +375,8 @@ class ArmatureAction:
            @return a dictionary of ArmatureAction objects with name as key and ArmatureAction as value
         """
         # create bone dict
+        print "Creating Armature Action Dictionary for: "
+        print object.getData().name
         boneDict = object.getData().bones
 
         boneNameList = boneDict.keys()
@@ -509,6 +511,7 @@ class ArmatureActionActuatorListView:
         """draw actuatorList
            use scrollbar if needed
         """
+        print "ArmatureActionActuatorListView.draw start"
         # black border
         minX = x
         minY = y
@@ -542,15 +545,21 @@ class ArmatureActionActuatorListView:
             # construct actionMenu name
             menuValue = 0
             menuName = ""
+            print "building menuName selection list"
             for key in self.armatureActionDict.keys():
-                menuName += key + " %x" + ("%d" % menuValue) + "|"
+                #keyVal = ("%d" % menuValue)
+                menuName += key + " %x" + str(menuValue) + "|"
                 menuValue +=1
             # first line
+            print "finished building menuName selection list"
             lineY = y + height - 20
             lineX = x
             listIndex = self.scrollbar.getCurrentValue()
+            print "listIndex: ", listIndex
+            print "Drawing action names"
             while ((listIndex < len(self.armatureActionActuatorList)) and (lineY >= y)):
                 # still armatureActionActuators left to draw
+                print lineY
                 lineX = x
                 armatureActionActuator = self.armatureActionActuatorList[listIndex]
                 # draw actionMenu
@@ -591,6 +600,7 @@ class ArmatureActionActuatorListView:
         if (width > minWidth):
             # align left
             self.scrollbar.draw(maxX - 20, minY, 20, (maxY - minY))
+        print "ArmatureActionActuatorListView.draw finished"
         return
 
     def eventFilter(self, event, value):
@@ -938,10 +948,14 @@ class ArmatureExporter:
           @param meshObject ObjectExporter.
           @param armatureObject Blender armature object.
         """
+        print "Started ArmatureExporter creation"
         self.meshObject = meshObject
         self.armatureObject = armatureObject
+        print armatureObject
+        print Blender.Armature.Get()
         self.armature = armatureObject.getData()
         self.skeleton = None
+        print "ArmatureExporter created"
         return
 
     def export(self, actionActuatorList, exportOptions, logger):
@@ -995,8 +1009,12 @@ class ArmatureExporter:
         # frames per second
         fps = Blender.Scene.GetCurrent().getRenderingContext().framesPerSec()
         actionDict = Blender.Armature.NLA.GetActions()
-        # map armatureActionActuatorList to skeleton.animationsDict
-
+        useEvaluatePose = True;
+        pose = self.armatureObject.getPose()
+        try:
+            self.armatureObject.evaluatePose(0)
+        except:
+            useEvaluatePose = False
         # for each animation, construct bone tracks then for each frame sample the bone pose channels and add
         # the changes as key frames to the associated bone track
         print "processing armature action actuators"
@@ -1005,7 +1023,6 @@ class ArmatureExporter:
             # activate the armature for current action so that pose channels get setup
             print "processing action: ", armatureActionActuator.armatureAction.name
             actionDict[armatureActionActuator.armatureAction.name].setActive(self.armatureObject)
-            pose = self.armatureObject.getPose()
 
             #default to world coordinates
             matrix = self.armatureObject.matrixWorld
@@ -1044,7 +1061,11 @@ class ArmatureExporter:
                 print "sampling pose bones for first frame to last frame of action"
                 for frame in range(int(minFrame), int(maxFrame)):
                     print "Frame: ", frame
-                    # set frame and update 3D view so pose channels update
+                    # set frame and update 3D view so pose channels update in Blender 2.41
+                    # evaluatePose only available in Blender 2.42 and above
+                    # evaluatePose ensures pose channels are updated even if 3D view is not visible
+                    if (useEvaluatePose):
+                        self.armatureObject.evaluatePose(int(frame))
                     Blender.Set("curframe", int(frame))
                     Blender.Window.Redraw()
                     # calc frame time based on frames per second
@@ -3150,6 +3171,8 @@ def export_mesh(object, exportOptions):
                 if armatureActionActuatorListViewDict.has_key(parent.name):
                     print "list view has the key for armature: ", parent.name
                     actionActuatorList = armatureActionActuatorListViewDict[parent.name].armatureActionActuatorList
+                    print Blender.Armature.Get()
+                    print Blender.Armature.Get(parent.name)
                     armatureExporter = ArmatureExporter(object, parent)
                     armatureExporter.export(actionActuatorList, exportOptions, exportLogger)
                     skeleton = armatureExporter.skeleton
@@ -3581,7 +3604,7 @@ def refreshGUI():
                 armatureDict[object.name] = parent.name
     # refresh ArmatureActionActuatorListViews
     for armatureName in armatureDict.values():
-        # create armatureActionDict
+        print "creating armatureActionDict for armature: ", armatureName
         armatureActionDict = ArmatureAction.createArmatureActionDict(Blender.Object.Get(armatureName))
         # get animationDictList
         armatureAnimationDictList = None
@@ -3593,6 +3616,7 @@ def refreshGUI():
         else:
             # create armatureActionActuatorListView
             armatureActionActuatorListViewDict[armatureName] = ArmatureActionActuatorListView(armatureActionDict, MAXACTUATORS, BUTTON_EVENT_ACTUATOR_RANGESTART, armatureAnimationDictList)
+    print "finished GUI refresh"
     return
 
 def initGUI():
@@ -3743,6 +3767,7 @@ def frameDecorator(x, y, width):
 def gui():
     """draws the screen
     """
+    print "GUI screen update"
     global gameEngineMaterialsToggle, armatureToggle, worldCoordinatesToggle, \
         ambientToggle, pathString, materialPathString, materialString, scaleNumber, fpsNumber, \
         scrollbar, rotXNumber, rotYNumber, rotZNumber
@@ -3864,6 +3889,7 @@ def gui():
                 glRasterPos2i(remainRect[0],remainRect[3]+10)
                 Draw.Text(animationText)
                 armatureActionActuatorListViewDict[armatureName].draw(remainRect[0], remainRect[1], remainRect[2]-remainRect[0], remainRect[3]-remainRect[1])
+    print "finished GUI update"
     return
 
 def exportMessageBox():
@@ -3993,5 +4019,7 @@ def doneMessageBox():
 ######
 if (__name__ == "__main__"):
     print "Ogre export script starting..."
+    print "Available armatures for export: "
+    print Blender.Armature.Get()
     initGUI()
     Draw.Register(gui, eventCallback, buttonCallback)
