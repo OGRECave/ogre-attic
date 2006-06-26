@@ -56,7 +56,6 @@
 			<Add directory="$(#STLPORT_DIR)\stlport" />
 			<Add directory="..\include" />
 			<Add directory="..\..\..\OgreMain\include" />
-			<Add directory="..\..\..\Dependencies\include" />
 		</Compiler>
 		<Linker>
 			<Add option="-Wl,--enable-auto-image-base" />
