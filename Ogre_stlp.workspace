@@ -14,7 +14,9 @@
 		<Project filename="PlugIns\OctreeSceneManager\scripts\Plugin_OctreeSceneManager_stlp.cbp">
 			<Depends filename="OgreMain\scripts\OgreMain_stlp.cbp" />
 		</Project>
-		<Project filename="PlugIns\ParticleFX\scripts\Plugin_ParticleFX_stlp.cbp" />
+		<Project filename="PlugIns\ParticleFX\scripts\Plugin_ParticleFX_stlp.cbp">
+			<Depends filename="OgreMain\scripts\OgreMain_stlp.cbp" />
+		</Project>
 		<Project filename="RenderSystems\Direct3D9\scripts\RenderSystem_Direct3D9_stlp.cbp">
 			<Depends filename="OgreMain\scripts\OgreMain_stlp.cbp" />
 		</Project>
@@ -333,6 +335,9 @@
 			<Depends filename="RenderSystems\GL\scripts\RenderSystem_GL_stlp.cbp" />
 		</Project>
 		<Project filename="Tools\XMLConverter\scripts\XMLConverter_stlp.cbp">
+			<Depends filename="OgreMain\scripts\OgreMain_stlp.cbp" />
+		</Project>
+		<Project filename="Tools\MeshUpgrader\scripts\MeshUpgrader_stlp.cbp">
 			<Depends filename="OgreMain\scripts\OgreMain_stlp.cbp" />
 		</Project>
 	</Workspace>
