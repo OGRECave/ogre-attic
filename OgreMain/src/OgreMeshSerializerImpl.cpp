@@ -2609,7 +2609,10 @@ namespace Ogre {
                     for (ei = egi->edges.begin(); ei != eend; ++ei)
                     {
                         ei->triIndex[0] = triangleIndexRemap[ei->triIndex[0]];
-                        ei->triIndex[1] = triangleIndexRemap[ei->triIndex[1]];
+                        if (!ei->degenerate)
+                        {
+                            ei->triIndex[1] = triangleIndexRemap[ei->triIndex[1]];
+                        }
                     }
                 }
             }
