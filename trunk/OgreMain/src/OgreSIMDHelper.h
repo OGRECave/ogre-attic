@@ -203,7 +203,11 @@ __MM_DECL_OP2(cmpnle_ps, cmpnleps, xm)
     static __ALWAYS_INLINE int _mm_movemask_ps(__m128 val)
     {
         int result;
+#if defined(__MINGW32__)
+        __asm__("movmskps %1, %0" : "=r" (result) : "x" (val));
+#else
         __asm__("movmskps %1, %0" : "=r" (result) : "xm" (val));
+#endif
         return result;
     }
 
