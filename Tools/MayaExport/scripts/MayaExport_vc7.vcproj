@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="MayaExport_fg"
+	Name="MayaExport"
 	ProjectGUID="{B8E79576-F7E4-4E50-97DB-08FF62F206AD}"
 	SccProjectName=""
 	SccLocalPath=""
@@ -160,7 +160,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Alias\Maya6.0\include&quot;"
+				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Alias\Maya6.0\include&quot;;&quot;$(OGRE_HOME)\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;NT_PLUGIN"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -178,11 +178,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/export:initializePlugin /export:uninitializePlugin "
-				AdditionalDependencies="Foundation.lib OpenMaya.lib OpenMayaAnim.lib OpenMayaRender.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="OgreMain.lib Foundation.lib OpenMaya.lib OpenMayaAnim.lib OpenMayaRender.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
 				OutputFile="..\bin\6.0\ogreExporter.mll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\Alias\Maya6.0\lib&quot;"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\Alias\Maya6.0\lib&quot;;&quot;$(OGRE_HOME)\lib&quot;"
 				ProgramDatabaseFile=".\Release_6.0/ogreExporter.pdb"
 				SubSystem="2"
 				ImportLibrary=".\Release_6.0/ogreExporter.lib"
@@ -228,7 +228,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Alias\Maya6.5\include&quot;"
+				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Alias\Maya6.5\include&quot;;&quot;$(OGRE_HOME)\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;NT_PLUGIN"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -246,11 +246,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/export:initializePlugin /export:uninitializePlugin "
-				AdditionalDependencies="Foundation.lib OpenMaya.lib OpenMayaAnim.lib OpenMayaRender.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="OgreMain.lib Foundation.lib OpenMaya.lib OpenMayaAnim.lib OpenMayaRender.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
 				OutputFile="..\bin\6.5\ogreExporter.mll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\Alias\Maya6.5\lib&quot;"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\Alias\Maya6.5\lib&quot;;&quot;$(OGRE_HOME)\lib&quot;"
 				ProgramDatabaseFile=".\Release_6.5/ogreExporter.pdb"
 				SubSystem="2"
 				ImportLibrary=".\Release_6.5/ogreExporter.lib"
@@ -296,7 +296,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Alias\Maya7.0\include&quot;"
+				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Alias\Maya7.0\include&quot;;&quot;$(OGRE_HOME)\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;NT_PLUGIN"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -314,11 +314,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/export:initializePlugin /export:uninitializePlugin "
-				AdditionalDependencies="Foundation.lib OpenMaya.lib OpenMayaAnim.lib OpenMayaRender.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="OgreMain.lib Foundation.lib OpenMaya.lib OpenMayaAnim.lib OpenMayaRender.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
 				OutputFile="..\bin\7.0\ogreExporter.mll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\Alias\Maya7.0\lib&quot;"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\Alias\Maya7.0\lib&quot;;&quot;$(OGRE_HOME)\lib&quot;"
 				ProgramDatabaseFile=".\Release_7.0/ogreExporter.pdb"
 				SubSystem="2"
 				ImportLibrary=".\Release_7.0/ogreExporter.lib"
@@ -359,6 +359,9 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			<File
+				RelativePath="..\src\blendshape.cpp">
+			</File>
 			<File
 				RelativePath="..\src\material.cpp">
 			</File>
@@ -416,9 +419,6 @@
 				RelativePath="..\src\particles.cpp">
 			</File>
 			<File
-				RelativePath="..\src\singleton.cpp">
-			</File>
-			<File
 				RelativePath="..\src\skeleton.cpp">
 			</File>
 			<File
@@ -429,7 +429,13 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
+				RelativePath="..\include\_singleton.h">
+			</File>
+			<File
 				RelativePath="..\include\animation.h">
+			</File>
+			<File
+				RelativePath="..\include\blendshape.h">
 			</File>
 			<File
 				RelativePath="..\include\material.h">
@@ -453,13 +459,13 @@
 				RelativePath="..\include\particles.h">
 			</File>
 			<File
-				RelativePath="..\include\singleton.h">
-			</File>
-			<File
 				RelativePath="..\include\skeleton.h">
 			</File>
 			<File
 				RelativePath="..\include\submesh.h">
+			</File>
+			<File
+				RelativePath="..\include\vertex.h">
 			</File>
 		</Filter>
 		<Filter
