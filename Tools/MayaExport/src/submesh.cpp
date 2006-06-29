@@ -288,16 +288,10 @@ namespace OgreMayaExporter
 		else
 			pSubmesh = pMesh->createSubMesh();
 		// Set material
-		std::cout << "1\n";
-		std::cout.flush();
         pSubmesh->setMaterialName(m_pMaterial->name().asChar());
-		std::cout << "2\n";
-		std::cout.flush();
         // Set use shared geometry flag
 		pSubmesh->useSharedVertices = params.useSharedGeom;
 		// Create vertex data for current submesh
-		std::cout << "3\n";
-		std::cout.flush();
 		pSubmesh->vertexData = new Ogre::VertexData();
         // Set number of indexes
         pSubmesh->indexData->indexCount = 3*m_faces.size();
@@ -306,25 +300,17 @@ namespace OgreMayaExporter
 		bool use32BitIndexes = false;
 		if (m_vertices.size() > 65536)
 		{
-			std::cout << "4\n";
-			std::cout.flush();
 			use32BitIndexes = true;
 		}
 		// Create a new index buffer
-		std::cout << "5\n";
-		std::cout.flush();
 		pSubmesh->indexData->indexBuffer = 
 			Ogre::HardwareBufferManager::getSingleton().createIndexBuffer(
 				use32BitIndexes ? Ogre::HardwareIndexBuffer::IT_32BIT : Ogre::HardwareIndexBuffer::IT_16BIT,
 				pSubmesh->indexData->indexCount,
 				Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-		std::cout << "6\n";
-		std::cout.flush();
 		// Fill the index buffer with faces data
 		if (use32BitIndexes)
         {
-			std::cout << "7\n";
-			std::cout.flush();
 			Ogre::uint32* pIdx = static_cast<Ogre::uint32*>(
 				pSubmesh->indexData->indexBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD));
 			for (i=0; i<m_faces.size(); i++)
@@ -334,13 +320,9 @@ namespace OgreMayaExporter
 				*pIdx++ = static_cast<Ogre::uint32>(m_faces[i].v[2]);
 			}
 			pSubmesh->indexData->indexBuffer->unlock();
-			std::cout << "8\n";
-			std::cout.flush();
         }
         else
         {
-			std::cout << "9\n";
-			std::cout.flush();
             Ogre::uint16* pIdx = static_cast<Ogre::uint16*>(
 				pSubmesh->indexData->indexBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD));
             for (i=0; i<m_faces.size(); i++)
@@ -350,20 +332,14 @@ namespace OgreMayaExporter
 				*pIdx++ = static_cast<Ogre::uint16>(m_faces[i].v[2]);
 			}
 			pSubmesh->indexData->indexBuffer->unlock();
-			std::cout << "10\n";
-			std::cout.flush();
 		}
 		// Define vertex declaration (only if we're not using shared geometry)
 		if(!params.useSharedGeom)
 		{
-			std::cout << "11\n";
-			std::cout.flush();
 			Ogre::VertexDeclaration* pDecl = pSubmesh->vertexData->vertexDeclaration;
 			unsigned buf = 0;
 			size_t offset = 0;
 			// Add vertex position
-			std::cout << "12\n";
-			std::cout.flush();
 			pDecl->addElement(buf, offset, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
 			offset += Ogre::VertexElement::getTypeSize(Ogre::VET_FLOAT3);
 			// Add vertex normal
@@ -388,11 +364,7 @@ namespace OgreMayaExporter
 			Ogre::VertexDeclaration* pOptimalDecl = pDecl->getAutoOrganisedDeclaration(
 				params.exportVBA,params.exportBlendShapes || params.exportVertAnims);
 			// Fill the vertex buffer using the newly created vertex declaration
-			std::cout << "13\n";
-			std::cout.flush();
 			stat = createOgreVertexBuffer(pSubmesh,pDecl,m_vertices);
-			std::cout << "14\n";
-			std::cout.flush();
 			// Write vertex bone assignements list
 			if (params.exportVBA)
 			{
@@ -430,17 +402,11 @@ namespace OgreMayaExporter
 	// Create an Ogre compatible vertex buffer
 	MStatus Submesh::createOgreVertexBuffer(Ogre::SubMesh* pSubmesh,Ogre::VertexDeclaration* pDecl,const std::vector<vertex>& vertices)
 	{
-		std::cout << "1\n";
-		std::cout.flush();
 		Ogre::HardwareVertexBufferSharedPtr vbuf = 
 			Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(pDecl->getVertexSize(0),
 			pSubmesh->vertexData->vertexCount, 
 			Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-		std::cout << "2\n";
-		std::cout.flush();
 		pSubmesh->vertexData->vertexBufferBinding->setBinding(0, vbuf);
-		std::cout << "3\n";
-		std::cout.flush();
 		size_t vertexSize = pDecl->getVertexSize(0);
 		char* pBase = static_cast<char*>(vbuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
 		Ogre::VertexDeclaration::VertexElementList elems = pDecl->findElementsBySource(0);
@@ -452,13 +418,9 @@ namespace OgreMayaExporter
 		long vi;
 		Ogre::ColourValue col;
 		float ucoord, vcoord;
-		std::cout << "vertices: " << vertices.size() << "\n";
-		std::cout.flush();
 		for (vi=0; vi<vertices.size(); vi++)
 		{
 			int iTexCoord = 0;
-			std::cout << vi << "\n";
-			std::cout.flush();
 			vertex v = vertices[vi];
 			for (ei = elems.begin(); ei != eiend; ++ei)
 			{
@@ -493,14 +455,8 @@ namespace OgreMayaExporter
 				}
 			}
 			pBase += vertexSize;
-			std::cout << "ok\n";
-			std::cout.flush();
 		}
-		std::cout << "4\n";
-		std::cout.flush();
 		vbuf->unlock();
-		std::cout << "5\n";
-		std::cout.flush();
 		return MS::kSuccess;
 	}
 
