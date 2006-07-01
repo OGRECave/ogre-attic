@@ -108,33 +108,4 @@ namespace Ogre {
 	        mDefaultLog->setLogDetail(ll);
 		}
     }
-	//-----------------------------------------------------------------------
-	void LogManager::_routeMessage(	const String& name,
-									const String& message, 
-									LogMessageLevel lml, 
-									bool maskDebug )
-	{
-		// Reroute the messages.
-		for( size_t i = 0; i < mListeners.size(); i++ )
-		{
-			mListeners[i]->write( name,message,lml,maskDebug );
-		}
-	}
-	//-----------------------------------------------------------------------
-	void LogManager::addListener( LogListener * listener )
-	{
-		mListeners.push_back( listener );
-	}
-
-	//-----------------------------------------------------------------------
-	void LogManager::removeListener( LogListener * listener )
-	{
-		mListeners.erase(std::find(mListeners.begin(), 
-			mListeners.end(), 
-			listener));
-	}
-	//-----------------------------------------------------------------------
-	LogListener::~LogListener()
-	{
-	}
 }
