@@ -1,6 +1,7 @@
 SUBDIRS = $(OGRE_PLATFORM)
 
 pkginclude_HEADERS = Ogre.h \
+                     OgreAlignedAllocator.h \
                      OgreArchive.h \
                      OgreAnimable.h \
                      OgreAnimation.h \
