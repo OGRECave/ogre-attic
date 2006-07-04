@@ -511,7 +511,7 @@ class ArmatureActionActuatorListView:
         """draw actuatorList
            use scrollbar if needed
         """
-        print "ArmatureActionActuatorListView.draw start"
+        #print "ArmatureActionActuatorListView.draw start"
         # black border
         minX = x
         minY = y
@@ -545,36 +545,33 @@ class ArmatureActionActuatorListView:
             # construct actionMenu name
             menuValue = 0
             menuName = ""
-            print "building menuName selection list"
+            #print "building menuName selection list"
             for key in self.armatureActionDict.keys():
                 #keyVal = ("%d" % menuValue)
                 menuName += key + " %x" + str(menuValue) + "|"
                 menuValue +=1
             # first line
-            print "finished building menuName selection list"
+            #print "finished building menuName selection list"
             lineY = y + height - 20
             lineX = x
             listIndex = self.scrollbar.getCurrentValue()
-            print "listIndex: ", listIndex
-            print "Drawing action names"
             while ((listIndex < len(self.armatureActionActuatorList)) and (lineY >= y)):
                 # still armatureActionActuators left to draw
-                print lineY
                 lineX = x
                 armatureActionActuator = self.armatureActionActuatorList[listIndex]
                 # draw actionMenu
                 event = self.buttonEventRangeStart + 3 + listIndex
                 menuValue = self.armatureActionDict.keys().index(armatureActionActuator.armatureAction.name)
-                self.armatureActionMenuList[listIndex] = Blender.Draw.Menu(menuName,event, x, lineY, 105, 20, menuValue, "Action name")
+                self.armatureActionMenuList[listIndex] = Draw.Menu(menuName,event, x, lineY, 105, 20, menuValue, "Action name")
                 lineX += 107
                 # draw startFrameNumberButton
                 event = self.buttonEventRangeStart + 3 + self.maxActuators + listIndex
-                self.startFrameNumberButtonList[listIndex] = Blender.Draw.Number("Sta: ", event, lineX, lineY, 80, 20, \
+                self.startFrameNumberButtonList[listIndex] = Draw.Number("Sta: ", event, lineX, lineY, 80, 20, \
                                                          armatureActionActuator.startFrame, -18000, 18000, "Start frame")
                 lineX += 82
                 # draw endFrameNumberButton
                 event = self.buttonEventRangeStart + 3 + 2*self.maxActuators + listIndex
-                self.endFrameNumberButtonList[listIndex] = Blender.Draw.Number("End: ", event, lineX, lineY, 80, 20, \
+                self.endFrameNumberButtonList[listIndex] = Draw.Number("End: ", event, lineX, lineY, 80, 20, \
                                                          armatureActionActuator.endFrame, -18000, 18000, "End frame")
                 lineX += 82
                 # compute animationNameWidht
@@ -583,8 +580,8 @@ class ArmatureActionActuatorListView:
                     animationNameWidth = 80
                 # draw animationNameStringButton
                 event = self.buttonEventRangeStart + 3 + 3*self.maxActuators + listIndex
-                self.animationNameStringButtonList[listIndex] = Blender.Draw.String("",event, lineX, lineY, animationNameWidth, 20, \
-                                                                armatureActionActuator.name, 1000, "Animation export name")
+                self.animationNameStringButtonList[listIndex] = Draw.String("", event, lineX, lineY, animationNameWidth, 20, \
+                                                                armatureActionActuator.name, 255, "Animation export name")
                 lineX += animationNameWidth + 2
                 # draw deleteButton
                 event = self.buttonEventRangeStart + 3 + 4*self.maxActuators + listIndex
@@ -600,7 +597,7 @@ class ArmatureActionActuatorListView:
         if (width > minWidth):
             # align left
             self.scrollbar.draw(maxX - 20, minY, 20, (maxY - minY))
-        print "ArmatureActionActuatorListView.draw finished"
+        #print "ArmatureActionActuatorListView.draw finished"
         return
 
     def eventFilter(self, event, value):
@@ -951,11 +948,11 @@ class ArmatureExporter:
         print "Started ArmatureExporter creation"
         self.meshObject = meshObject
         self.armatureObject = armatureObject
-        print armatureObject
-        print Blender.Armature.Get()
+        #print armatureObject
+        #print Blender.Armature.Get()
         self.armature = armatureObject.getData()
         self.skeleton = None
-        print "ArmatureExporter created"
+        #print "ArmatureExporter created"
         return
 
     def export(self, actionActuatorList, exportOptions, logger):
@@ -968,14 +965,14 @@ class ArmatureExporter:
         global poseSamplingToggle
         # convert Armature into Skeleton
         name = None
-        print "AmatureExporter.export"
+        #print "AmatureExporter.export"
         if exportOptions.useWorldCoordinates:
             name = self.armature.name
         else:
             name = self.meshObject.getData(True) + "-"
             name += self.armature.name
 
-        print "Skeleton: ", name
+        #print "Skeleton: ", name
         skeleton = Skeleton(name)
         skeleton = self._convertRestpose(skeleton, exportOptions, logger)
 
@@ -997,7 +994,7 @@ class ArmatureExporter:
     def _convertPoseSampled_Animations(self, skeleton, armatureActionActuatorList, exportOptions, exportLogger):
         """Converts ActionActuators to Ogre animations using pose sampling method.
         """
-        print "in AmatureExporter._convertPoseSampled_Animations()"
+        #print "in AmatureExporter._convertPoseSampled_Animations()"
 
         #keep track of original frame before sampling starts so that it can be restored at the end of export
         Blender.Set("curframe", 0)
@@ -1017,11 +1014,11 @@ class ArmatureExporter:
             useEvaluatePose = False
         # for each animation, construct bone tracks then for each frame sample the bone pose channels and add
         # the changes as key frames to the associated bone track
-        print "processing armature action actuators"
+        #print "processing armature action actuators"
         for armatureActionActuator in armatureActionActuatorList:
             # map armatureActionActuator to animation
             # activate the armature for current action so that pose channels get setup
-            print "processing action: ", armatureActionActuator.armatureAction.name
+            #print "processing action: ", armatureActionActuator.armatureAction.name
             actionDict[armatureActionActuator.armatureAction.name].setActive(self.armatureObject)
 
             #default to world coordinates
@@ -1035,19 +1032,19 @@ class ArmatureExporter:
             # create new animation for active armature action actuator
 
             if (not skeleton.animationsDict.has_key(armatureActionActuator.name)):
-                print "creating new animation: ", armatureActionActuator.name
+                #print "creating new animation: ", armatureActionActuator.name
                 animation = Animation(armatureActionActuator.name)
                 # map bones to tracks
                 # setup all track:bone relationships for active animation before sampling starts
                 # for each bone in armature
-                print "building tracks for bones that deform the mesh"
+                #print "building tracks for bones that deform the mesh"
                 for bone in skeleton.bones:
                     # only build tracks for those bones that deform geometry
                     if bone.deformMesh:
-                        print "creating track for active bone: ", bone.name
+                        #print "creating track for active bone: ", bone.name
                         Track(animation, bone)
 
-                print "calculating min and max frames for animation"
+                #print "calculating min and max frames for animation"
                 if (armatureActionActuator.startFrame > armatureActionActuator.endFrame):
                     minFrame = armatureActionActuator.endFrame
                     maxFrame = armatureActionActuator.startFrame + 1
@@ -1055,12 +1052,12 @@ class ArmatureExporter:
                     minFrame = armatureActionActuator.startFrame
                     maxFrame = armatureActionActuator.endFrame + 1
 
-                print "updating animation duration"
+                #print "updating animation duration"
                 animation.duration = (maxFrame - minFrame - 1)/fps
 
-                print "sampling pose bones for first frame to last frame of action"
+                #print "sampling pose bones for first frame to last frame of action"
                 for frame in range(int(minFrame), int(maxFrame)):
-                    print "Frame: ", frame
+                    #print "Frame: ", frame
                     # set frame and update 3D view so pose channels update in Blender 2.41
                     # evaluatePose only available in Blender 2.42 and above
                     # evaluatePose ensures pose channels are updated even if 3D view is not visible
@@ -1075,7 +1072,7 @@ class ArmatureExporter:
                         # only add keyframes to bone track if bone deforms geometry
                         if bone.deformMesh:
 
-                            print "sampling pose channel for poseMatrix of: ", bone.name
+                            #print "sampling pose channel for poseMatrix of: ", bone.name
 
                             pose_mat = pose.bones[bone.name].poseMatrix
                             #parent_pose_mat = None
@@ -1110,7 +1107,7 @@ class ArmatureExporter:
                             prevKeyFrameID = len(track.keyframes) - 1
                             if (prevKeyFrameID >= 0):
                                 prevKeyFrame = track.keyframes[prevKeyFrameID]
-                                print "checking for key frame duplication"
+                                #print "checking for key frame duplication"
                                 quatEqual = Vector([prevKeyFrame.rotQuat[0], prevKeyFrame.rotQuat[1], prevKeyFrame.rotQuat[2], prevKeyFrame.rotQuat[3]])
                                 quatEqual -= Vector([rotQuat[0], rotQuat[1], rotQuat[2], rotQuat[3]])
                                 quatEqual = quatEqual.length < 0.0001
@@ -1146,7 +1143,7 @@ class ArmatureExporter:
         """Converts ActionActuators to Ogre animations using IPO curve sampling method.
         """
         # frames per second
-        print "in AmatureExporter._convertIPO_Animations()"
+        #print "in AmatureExporter._convertIPO_Animations()"
         fps = Blender.Scene.GetCurrent().getRenderingContext().framesPerSec()
         actionDict = Blender.Armature.NLA.GetActions()
         # map armatureActionActuatorList to skeleton.animationsDict
@@ -1172,7 +1169,7 @@ class ArmatureExporter:
                         if skeleton.bonesDict.has_key(boneName):
                             if not skeleton.bonesDict[boneName].deformMesh:
                                 continue
-                            print boneName
+                            #print boneName
                             # create track
                             track = Track(animation, skeleton.bonesDict[boneName])
                             # map ipocurves to keyframes
@@ -1272,7 +1269,7 @@ class ArmatureExporter:
                                 rotQuat.normalize()
                                 size = (sizeX, sizeY, sizeZ)
                                 KeyFrame(track, time, loc, rotQuat, size)
-                                print "key frame added"
+                                #print "key frame added"
                             # append track
                             animation.tracksDict[boneName] = track
                         else:
@@ -1295,7 +1292,7 @@ class ArmatureExporter:
         """
         global poseSamplingToggle
 
-        print "convert rest pose started"
+        #print "convert rest pose started"
 
         if poseSamplingToggle.val:
             # set the current frame
@@ -1316,17 +1313,17 @@ class ArmatureExporter:
 
         # get parent bones
         #note: in Blender 2.4, bones returns a dictionary of all bones in an armature
-        print "getting armature data from armature object"
-        print self.armatureObject
+        #print "getting armature data from armature object"
+        #print self.armatureObject
 
-        print "getting bones dictionary from armature"
-        print "adding parent bones to stack"
+        #print "getting bones dictionary from armature"
+        #print "adding parent bones to stack"
         for bbone in self.armature.bones.values():
-            print bbone, bbone.parent
+            #print bbone, bbone.parent
             if bbone.parent == None:
                 stack.append([bbone, parent, matrix, Matrix()])
 
-        print "iterate through bones and build ogre equivalent bones"
+        #print "iterate through bones and build ogre equivalent bones"
         # blend bone matrix in armature space is perfect for ogre equivalency
         #
         while len(stack):
@@ -1378,14 +1375,14 @@ class ArmatureExporter:
             invertedOgreTransformation *= invertedOgreTranslationMatrix
             parent = Bone(skeleton, parent, bbone.name, -loc, R_bmat.toQuat(), \
                 tmp_mat * invertedOgreTransformation, not(Blender.Armature.NO_DEFORM in bbone.options))
-            print "bone created:", parent
+            #print "bone created:", parent
 
             # R_{Ogre} is either
             # the rotation part of R_{bone}*T_{to_head}*M_{parent} for root bones or
             # the rotation part of R_{bone}*T_{to_head} of child bones
             invertedOgreRotationMatrix = R_bmat.rotationPart().invert().resize4x4()
             invertedOgreTransformation *= invertedOgreRotationMatrix
-            print "adding child bones"
+            #print "adding child bones"
             if bbone.children is not None:
                 for child in bbone.children:
                     # make sure child bone is attached to current parent
@@ -3161,18 +3158,18 @@ def export_mesh(object, exportOptions):
     if (object.getType() == "Mesh"):
         # is this mesh attached to an armature?
         skeleton = None
-        print "Exporting: ", object
+        #print "Exporting: ", object
         if armatureToggle.val:
             parent = object.parent
-            print parent
+            #print parent
             #if parent and parent.getType() == "Armature" and (not skeletonsDict.has_key(parent.getName())):
             if (parent and (parent.getType() == "Armature")):
-                print "is an armature"
+                #print "is an armature"
                 if armatureActionActuatorListViewDict.has_key(parent.name):
-                    print "list view has the key for armature: ", parent.name
+                    #print "list view has the key for armature: ", parent.name
                     actionActuatorList = armatureActionActuatorListViewDict[parent.name].armatureActionActuatorList
-                    print Blender.Armature.Get()
-                    print Blender.Armature.Get(parent.name)
+                    #print Blender.Armature.Get()
+                    #print Blender.Armature.Get(parent.name)
                     armatureExporter = ArmatureExporter(object, parent)
                     armatureExporter.export(actionActuatorList, exportOptions, exportLogger)
                     skeleton = armatureExporter.skeleton
@@ -3257,14 +3254,14 @@ def export_mesh(object, exportOptions):
         for materialKey in objectMaterialDict.keys():
             submesh = SubMesh(objectMaterialDict[materialKey])
             verticesDict = {}
-            print submesh
+            #print submesh
             for face in objectMaterialFacesDict[materialKey]:
                 process_face(face, submesh, data, matrix, skeleton)
             if len(submesh.faces):
-                print "process verticesDict and add bone influences"
+                #print "process verticesDict and add bone influences"
                 process_vert_influences(data, skeleton)
                 submeshes.append(submesh)
-                print "update global materialsDict"
+                #print "update global materialsDict"
                 material = materialsDict.get(materialKey)
                 if not material:
                     materialsDict[materialKey] = objectMaterialDict[materialKey]
@@ -3604,7 +3601,7 @@ def refreshGUI():
                 armatureDict[object.name] = parent.name
     # refresh ArmatureActionActuatorListViews
     for armatureName in armatureDict.values():
-        print "creating armatureActionDict for armature: ", armatureName
+        #print "creating armatureActionDict for armature: ", armatureName
         armatureActionDict = ArmatureAction.createArmatureActionDict(Blender.Object.Get(armatureName))
         # get animationDictList
         armatureAnimationDictList = None
@@ -3616,7 +3613,7 @@ def refreshGUI():
         else:
             # create armatureActionActuatorListView
             armatureActionActuatorListViewDict[armatureName] = ArmatureActionActuatorListView(armatureActionDict, MAXACTUATORS, BUTTON_EVENT_ACTUATOR_RANGESTART, armatureAnimationDictList)
-    print "finished GUI refresh"
+    #print "finished GUI refresh"
     return
 
 def initGUI():
@@ -3767,7 +3764,7 @@ def frameDecorator(x, y, width):
 def gui():
     """draws the screen
     """
-    print "GUI screen update"
+    #print "GUI screen update"
     global gameEngineMaterialsToggle, armatureToggle, worldCoordinatesToggle, \
         ambientToggle, pathString, materialPathString, materialString, scaleNumber, fpsNumber, \
         scrollbar, rotXNumber, rotYNumber, rotZNumber
@@ -3889,7 +3886,7 @@ def gui():
                 glRasterPos2i(remainRect[0],remainRect[3]+10)
                 Draw.Text(animationText)
                 armatureActionActuatorListViewDict[armatureName].draw(remainRect[0], remainRect[1], remainRect[2]-remainRect[0], remainRect[3]-remainRect[1])
-    print "finished GUI update"
+    #print "finished GUI update"
     return
 
 def exportMessageBox():
