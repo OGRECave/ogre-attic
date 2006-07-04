@@ -150,6 +150,20 @@ namespace Ogre {
 		pLog->logMessage(
 			" * Max Point Size: "
 			+ StringConverter::toString(mMaxPointSize));
+		pLog->logMessage(
+			" * Vertex texture fetch: "
+			+ StringConverter::toString(hasCapability(RSC_VERTEX_TEXTURE_FETCH), true));
+		if (hasCapability(RSC_VERTEX_TEXTURE_FETCH))
+		{
+			pLog->logMessage(
+				"   - Max vertex textures: "
+					+ StringConverter::toString(mNumVertexTextureUnits));
+			pLog->logMessage(
+				"   - Vertex textures shared: "
+				+ StringConverter::toString(mVertexTextureUnitsShared, true));
+
+		}
+
 
     }
 };

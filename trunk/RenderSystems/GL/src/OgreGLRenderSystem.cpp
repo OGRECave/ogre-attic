@@ -603,6 +603,17 @@ namespace Ogre {
 		float ps;
 		glGetFloatv(GL_POINT_SIZE_MAX, &ps);
 		mCapabilities->setMaxPointSize(ps);
+
+		// Vertex texture fetching
+		GLint vUnits;
+		glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS_ARB, &vUnits);
+		mCapabilities->setNumVertexTextureUnits(static_cast<ushort>(vUnits));
+		if (vUnits > 0)
+		{
+			mCapabilities->setCapability(RSC_VERTEX_TEXTURE_FETCH);
+		}
+		// GL always shares vertex and fragment texture units (for now?)
+		mCapabilities->setVertexTextureUnitsShared(true);
         
 		Log* defaultLog = LogManager::getSingleton().getDefaultLog();
 		if (defaultLog)

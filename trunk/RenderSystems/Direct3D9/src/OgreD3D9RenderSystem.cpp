@@ -835,6 +835,15 @@ namespace Ogre
 			mCapabilities->setCapability(RSC_POINT_EXTENDED_PARAMETERS);
 			mCapabilities->setMaxPointSize(mCaps.MaxPointSize);
 		}
+
+		// Vertex textures
+		if (mGpuProgramManager->isSyntaxSupported("vs_3_0"))
+		{
+			mCapabilities->setCapability(RSC_VERTEX_TEXTURE_FETCH);
+			// always 4 vertex texture units in vs_3_0, and never shared
+			mCapabilities->setNumVertexTextureUnits(4);
+			mCapabilities->setVertexTextureUnitsShared(false);
+		}
 		
 
 		Log* defaultLog = LogManager::getSingleton().getDefaultLog();
