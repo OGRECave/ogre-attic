@@ -178,6 +178,10 @@ namespace Ogre {
                 }
             }
         }
+		D3D9TexturePtr(const TexturePtr& r) : SharedPtr<D3D9Texture>()
+		{
+			*this = r;
+		}
 
         /// Operator used to convert a ResourcePtr to a D3D9TexturePtr
         D3D9TexturePtr& operator=(const ResourcePtr& r)

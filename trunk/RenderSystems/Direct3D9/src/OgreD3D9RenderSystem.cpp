@@ -1468,10 +1468,10 @@ namespace Ogre
 		}
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTexture( size_t stage, bool enabled, const String &texname )
+	void D3D9RenderSystem::_setTexture( size_t stage, bool enabled, const TexturePtr& tex )
 	{
 		HRESULT hr;
-		D3D9TexturePtr dt = TextureManager::getSingleton().getByName(texname);
+		D3D9TexturePtr dt = tex;
 		if (enabled && !dt.isNull())
 		{
             // note used
@@ -1483,7 +1483,7 @@ namespace Ogre
 				hr = mpD3DDevice->SetTexture(stage, pTex);
 				if( hr != S_OK )
 				{
-					String str = "Unable to set texture '" + texname + "' in D3D9";
+					String str = "Unable to set texture '" + tex->getName() + "' in D3D9";
 					OGRE_EXCEPT( hr, str, "D3D9RenderSystem::_setTexture" );
 				}
 				
@@ -1499,7 +1499,7 @@ namespace Ogre
 				hr = mpD3DDevice->SetTexture(stage, 0);
 				if( hr != S_OK )
 				{
-					String str = "Unable to disable texture '" + texname + "' in D3D9";
+					String str = "Unable to disable texture '" + StringConverter::toString(stage) + "' in D3D9";
 					OGRE_EXCEPT( hr, str, "D3D9RenderSystem::_setTexture" );
 				}
 			}
@@ -1507,7 +1507,7 @@ namespace Ogre
 			hr = this->__SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_DISABLE);
 			if( hr != S_OK )
 			{
-				String str = "Unable to disable texture '" + texname + "' in D3D9";
+				String str = "Unable to disable texture '" + StringConverter::toString(stage) + "' in D3D9";
 				OGRE_EXCEPT( hr, str, "D3D9RenderSystem::_setTexture" );
 			}
 

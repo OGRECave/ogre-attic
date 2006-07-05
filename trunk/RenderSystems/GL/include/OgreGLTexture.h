@@ -107,6 +107,10 @@ namespace Ogre {
                 }
             }
         }
+		GLTexturePtr(const TexturePtr& r) : SharedPtr<GLTexture>()
+		{
+			*this = r;
+		}
 
         /// Operator used to convert a ResourcePtr to a GLTexturePtr
         GLTexturePtr& operator=(const ResourcePtr& r)

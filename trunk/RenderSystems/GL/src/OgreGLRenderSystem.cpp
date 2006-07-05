@@ -1034,9 +1034,9 @@ namespace Ogre {
 
 	}
     //-----------------------------------------------------------------------------
-    void GLRenderSystem::_setTexture(size_t stage, bool enabled, const String &texname)
+    void GLRenderSystem::_setTexture(size_t stage, bool enabled, const TexturePtr &texPtr)
     {
-        GLTexturePtr tex = TextureManager::getSingleton().getByName(texname);
+        GLTexturePtr tex = texPtr;
 
         GLenum lastTextureType = mTextureTypes[stage];
 

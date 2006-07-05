@@ -245,7 +245,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _setTexture(size_t unit, bool enabled, const String &texname);
+        void _setTexture(size_t unit, bool enabled, const TexturePtr &tex);
         /** See
           RenderSystem
          */

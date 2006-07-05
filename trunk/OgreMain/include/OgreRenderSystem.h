@@ -514,22 +514,33 @@ namespace Ogre
 
 
         /**
-          Sets the status of a single texture stage.
+          Sets the texture to bind to a given texture unit.
 
-          Sets the details of a texture stage, to be used for all primitives
-          rendered afterwards. User processes would
-          not normally call this direct unless rendering
-          primitives themselves - the SubEntity class
-          is designed to manage materials for objects.
-          Note that this method is called by _setMaterial.
+          User processes would not normally call this direct unless rendering
+          primitives themselves.
 
-          @param unit The index of the texture unit to modify. Multitexturing hardware
-          can support multiple units (see RenderSystemCapabilites::numTextureUnits)
+          @param unit The index of the texture unit to modify. Multitexturing 
+		  	hardware can support multiple units (see 
+			RenderSystemCapabilites::getNumTextureUnits)
+          @param enabled Boolean to turn the unit on/off
+          @param texPtr Pointer to the texture to use.
+         */
+        virtual void _setTexture(size_t unit, bool enabled, 
+			const TexturePtr &texPtr) = 0;
+        /**
+          Sets the texture to bind to a given texture unit.
+
+          User processes would not normally call this direct unless rendering
+          primitives themselves.
+
+          @param unit The index of the texture unit to modify. Multitexturing 
+		  	hardware can support multiple units (see 
+			RenderSystemCapabilites::getNumTextureUnits)
           @param enabled Boolean to turn the unit on/off
           @param texname The name of the texture to use - this should have
               already been loaded with TextureManager::load.
          */
-        virtual void _setTexture(size_t unit, bool enabled, const String &texname) = 0;
+        virtual void _setTexture(size_t unit, bool enabled, const String &texname);
 
         /**
           Sets the texture coordinate set to use for a texture unit.
