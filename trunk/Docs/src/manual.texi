@@ -1,7 +1,7 @@
 \input texinfo   @c -*-texinfo-*-
 @c %**start of header
 @setfilename manual.info
-@settitle OGRE Manual v1.2.1 ('Dagon')
+@settitle OGRE Manual v1.4.0 ('Eihort')
 @c %**end of header
    
 @titlepage
@@ -1006,6 +1006,8 @@ Here are the attributes you can use in a 'texture_unit' section of a .material s
 @item
 @ref{cubic_texture}
 @item
+@ref{vertex_texture}
+@item
 @ref{tex_coord_set}
 @item
 @ref{tex_address_mode}
@@ -1124,6 +1126,11 @@ In both cases the final parameter means the following:
 @end table
 @*
 Default: none
+
+@anchor{vertex_texture}
+@subheading vertex_texture
+
+Binds a texture to the vertex texture sampler associated with this texture unit.On current generation hardware, this allows you to sample a specific subset of texture types inside a vertex program, rather than in the fragment processing step, for performing things like displacement mapping. Using vertex textures has a number of caveats and ideosyncracies which are covered in the @ref{Vertex Texture Fetch} section.
 
 @anchor{tex_coord_set}
 @subheading tex_coord_set
@@ -1864,6 +1871,24 @@ shadow_receiver_fragment_program_ref myShadowReceiverFragmentProgram
 }
 @end example
 You should pass the projected shadow coordinates from the custom vertex program. As for textures, texture unit 0 will always be the shadow texture. Any other textures which you bind in your pass will be carried across too, but will be moved up by 1 unit to make room for the shadow texture. Therefore your shadow receiver fragment program is likely to be the same as the bare lighting pass of your normal material, except that you insert an extra texture sampler at index 0, which you will use to adjust the result by (modulating diffuse and specular components).
+
+@node Vertex Texture Fetch
+@subsection Vertex Texture Fetch
+
+@subheading Introduction
+More recent generations of video card allow you to perform a read from a texture in the vertex program rather than just the fragment program, as is traditional. This allows you to, for example, read the contents of a texture and displace vertices based on the intensity of the colour contained within.@*@*
+
+@subheading Render system API differences
+Unfortunately the method for binding textures so that they are available to a vertex program is not well standardised. As at the time of writing, Shader Model 3.0 (SM3.0) hardware under DirectX9 include 4 separate sampler bindings for the purposes of vertex textures. OpenGL, on the other hand, is able to access vertex textures in GLSL (and in assembler through NV_vertex_program_3, although this is less popular), but the textures are shared with the fragment pipeline. I expect DirectX to move to the GL model with the advent of DirectX10, since a unified shader architecture implies sharing of texture resources between the two stages. As it is right now though, we're stuck with an inconsistent situation.@*@*
+
+This led to the introduction of the @ref{vertex_texture} directive in texture_unit. Under DirectX9, you can use this directive in the same texture_unit as a @ref{texture} directive, and 2 different textures can be bound. Under OpenGL, @ref{vertex_texture} is an alias of @ref{texture} and thus if you (mistakenly) use both, the later one encountered will apply. @*@*
+
+In practice this means that you will have to write 2 material techniques if you want to use vertex texture fetch with cross-API compatibility, which you should differentiate from each other with their shader profiles (GLSL and HLSL).@*@*
+
+You should still use the @ref{vertex_texture} directive rather than @ref{texture}, even in OpenGL and when you intend to share the texture. This is because it will tell Ogre what you intend to use it for, and if the card that you're running on doesn't support vertex textures, it will mark this technique as not supported and fall back on the next one. This is especially important since GLSL doesn't have graduations of support identifying this option (like vs_3_0 in DirectX9).
+
+@subheading Texture format limitations
+Again as at the time of writing, the types of texture you can use in a vertex program are limited to 1- or 4-component, full precision floating point formats. In code that equates to PF_FLOAT32_R or PF_FLOAT32_RGBA. No other formats are supported. In addition, the textures must be regular 2D textures (no cube or volume maps) and mipmapping and filtering is not supported, although you can perform filtering in your vertex program if you wish by sampling multiple times.
 
 @include MaterialScriptCopy.inc
 

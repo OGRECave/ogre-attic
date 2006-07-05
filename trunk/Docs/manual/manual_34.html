@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on June 10 2006 by texi2html 1.66 -->
+<!-- Created on July 5 2006 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -12,10 +12,10 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.2.1 ('Dagon'): OverlayElement Attributes</TITLE>
+<TITLE>OGRE Manual v1.4.0 ('Eihort'): Overlay Scripts</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.2.1 ('Dagon'): OverlayElement Attributes">
-<META NAME="keywords" CONTENT="OGRE Manual v1.2.1 ('Dagon'): OverlayElement Attributes">
+<META NAME="description" CONTENT="OGRE Manual v1.4.0 ('Eihort'): Overlay Scripts">
+<META NAME="keywords" CONTENT="OGRE Manual v1.4.0 ('Eihort'): Overlay Scripts">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.66">
@@ -24,172 +24,238 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 <BODY LANG="en" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC206"></A>
+<A NAME="SEC205"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC200"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC200"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_35.html#SEC217"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC197"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_13.html#SEC22"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_35.html#SEC211"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H3> 3.4.1 OverlayElement Attributes </H3>
+<H2> 3.4 Overlay Scripts </H2>
+<!--docid::SEC205::-->
+<P>
+
+Overlay scripts offer you the ability to define overlays in a script which can be reused easily. Whilst you could set up all overlays for a scene in code using the methods of the SceneManager, Overlay and OverlayElement classes, in practice it's a bit unwieldy. Instead you can store overlay definitions in text files which can then be loaded whenever required.<BR><BR>
+</P>
+<P>
+
+<A NAME="SEC206"></A>
+<H2> Loading scripts    </H2>
 <!--docid::SEC206::-->
+<P>
 
-These attributes are valid within the braces of a 'container' or 'element' block in an overlay script. They must each be on their own line. Ordering is unimportant.<BR><BR>
+Overlay scripts are loaded at initialisation time by the system: by default it looks in all common resource locations (see Root::addResourceLocation) for files with the '.overlay' extension and parses them. If you want to parse files with a different extension, use the OverlayManager::getSingleton().parseAllSources method with your own extension, or if you want to parse an individual file, use OverlayManager::getSingleton().parseScript.<BR><BR>
+</P>
+<P>
 
-<A NAME="metrics_mode"></A>
 <A NAME="SEC207"></A>
-<H3> metrics_mode </H3>
+<H2> Format    </H2>
 <!--docid::SEC207::-->
+<P>
 
-Sets the units which will be used to size and position this element.<BR><BR>
+Several overlays may be defined in a single script. The script format is pseudo-C++, with sections delimited by curly braces ({}), comments indicated by starting a line with '//' (note, no nested form comments allowed), and inheritance through the use of templates. The general format is shown below in a typical example:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>// The name of the overlay comes first
+MyOverlays/ANewOverlay
+{
+    zorder 200
 
-Format: metrics_mode &lt;pixels|relative&gt;<BR>
-Example: metrics_mode pixels<BR>
+    container Panel(MyOverlayElements/TestPanel)
+    {
+        // Center it horzontally, put it at the top
+        left 0.25
+        top 0
+        width 0.5
+        height 0.1
+        material MyMaterials/APanelMaterial
 
-This can be used to change the way that all measurement attributes in the rest of this element are interpreted. In relative mode, they are interpreted as being a parametric value from 0 to 1, as a proportion of the width / height of the screen. In pixels mode, they are simply pixel offsets.<BR><BR>
+        // Another panel nested in this one
+        container Panel(MyOverlayElements/AnotherPanel)
+        {
+             left 0
+             top 0
+             width 0.1
+             height 0.1
+             material MyMaterials/NestedPanel
+        }
+    }
 
-Default: metrics_mode relative<BR>
+}
+</pre></td></tr></table><P>
 
-<A NAME="horz_align"></A>
+The above example defines a single overlay called 'MyOverlays/ANewOverlay', with 2 panels in it, one nested under the other. It uses relative metrics (the default if no metrics_mode option is found).<BR><BR>
+</P>
+<P>
+
+Every overlay in the script must be given a name, which is the line before the first opening '{'. This name must be globally unique. It can include path characters (as in the example) to logically divide up your overlays, and also to avoid duplicate names, but the engine does not treat the name a hierarchical, just as a string. Within the braces are the properties of the overlay, and any nested elements. The overlay itself only has a single property 'zorder' which determines how'high' it is in the stack of overlays if more than one is displayed at the same time. Overlays with higher zorder values are displayed on top.<BR><BR>
+</P>
+<P>
+
 <A NAME="SEC208"></A>
-<H3> horz_align </H3>
+<H2> Adding elements to the overlay </H2>
 <!--docid::SEC208::-->
+<P>
 
-Sets the horizontal alignment of this element, in terms of where the horizontal origin is.<BR><BR>
+Within an overlay, you can include any number of 2D or 3D elements. You do this by defining a nested block headed by:
+</P>
+<DL COMPACT>
+<DT>'element'
+<DD>if you want to define a 2D element which cannot have children of it's own
+<DT>'container'
+<DD>if you want to define a 2D container object (which may itself have nested containers or elements)
+</DL>
+<BR>
+The element and container blocks are pretty identical apart from their ability to store nested blocks.
+<P>
 
-Format: horz_align &lt;left|center|right&gt;<BR>
-Example: horz_align center<BR><BR>
-
-This can be used to change where the origin is deemed to be for the purposes of any horizontal positioning attributes of this element. By default the origin is deemed to be the left edge of the screen, but if you change this you can center or right-align your elements. Note that setting the alignment to center or right does not automatically force your elements to appear in the center or the right edge, you just have to treat that point as the origin and adjust your coordinates appropriately. This is more flexible because you can choose to position your element anywhere relative to that origin. For example, if your element was 10 pixels wide, you would use a 'left' property of -10 to align it exactly to the right edge, or -20 to leave a gap but still make it stick to the right edge.<BR><BR>
-
-Note that you can use this property in both relative and pixel modes, but it is most useful in pixel mode.<BR><BR>
-
-Default: horz_align left<BR>
-
-<A NAME="vert_align"></A>
 <A NAME="SEC209"></A>
-<H3> vert_align </H3>
+<H2> 'container' / 'element' blocks </H2>
 <!--docid::SEC209::-->
+<P>
 
-Sets the vertical alignment of this element, in terms of where the vertical origin is.<BR><BR>
+These are delimited by curly braces. The format for the header preceding the first brace is:<BR><BR>
+</P>
+<P>
 
-Format: vert_align &lt;top|center|bottom&gt;<BR>
-Example: vert_align center<BR><BR>
+[container | element] &lt;type_name&gt; ( &lt;instance_name&gt;) [: &lt;template_name&gt;]<BR>
+{ ...<BR><BR>
+</P>
+<DL COMPACT>
+<DT>type_name
+<DD>Must resolve to the name of a OverlayElement type which has been registered with the OverlayManager. Plugins register with the OverlayManager to advertise their ability to create elements, and at this time advertise the name of the type. OGRE comes preconfigured with types 'Panel', 'BorderPanel' and 'TextArea'.
+<DT>instance_name
+<DD>Must be a name unique among all other elements / containers by which to identify the element. Note that you can obtain a pointer to any named element by calling OverlayManager::getSingleton().getOverlayElement(name).
+<DT>template_name
+<DD>Optional template on which to base this item. See templates.
+</DL>
+<P>
 
-This can be used to change where the origin is deemed to be for the purposes of any vertical positioning attributes of this element. By default the origin is deemed to be the top edge of the screen, but if you change this you can center or bottom-align your elements. Note that setting the alignment to center or bottom does not automatically force your elements to appear in the center or the bottom edge, you just have to treat that point as the origin and adjust your coordinates appropriately. This is more flexible because you can choose to position your element anywhere relative to that origin. For example, if your element was 50 pixels high, you would use a 'top' property of -50 to align it exactly to the bottom edge, or -70 to leave a gap but still make it stick to the bottom edge.<BR><BR>
+The properties which can be included within the braces depend on the custom type. However the following are always valid:
+<UL>
+<LI>
+<A HREF="manual_35.html#SEC212">metrics_mode</A>
+<LI>
+<A HREF="manual_35.html#SEC213">horz_align</A>
+<LI>
+<A HREF="manual_35.html#SEC214">vert_align</A>
+<LI>
+<A HREF="manual_35.html#SEC215">left</A>
+<LI>
+<A HREF="manual_35.html#SEC216">top</A>
+<LI>
+<A HREF="manual_35.html#SEC217">width</A>
+<LI>
+<A HREF="manual_35.html#SEC218">height</A>
+<LI>
+<A HREF="manual_35.html#overlay_material">material</A>
+<LI>
+<A HREF="manual_35.html#SEC220">caption</A>
+</UL>
+<P>
 
-Note that you can use this property in both relative and pixel modes, but it is most useful in pixel mode.<BR><BR>
-
-Default: vert_align top<BR>
-
-<A NAME="left"></A>
 <A NAME="SEC210"></A>
-<H3> left </H3>
+<H2> Templates </H2>
 <!--docid::SEC210::-->
+<P>
 
-Sets the horizontal position of the element relative to it's parent.<BR><BR>
+You can use templates to create numerous elements with the same properties. A template is an abstract element and it is not added to an overlay. It acts as a base class that elements can inherit and get its default properties. To create a template, the keyword 'template' must be the first word in the element definition (before container or element). The template element is created in the topmost scope - it is NOT specified in an Overlay. It is recommended that you define templates in a separate overlay though this is not essential. Having templates defined in a separate file will allow different look &amp; feels to be easily substituted.<BR><BR>
+</P>
+<P>
 
-Format: left &lt;value&gt;<BR>
-Example: left 0.5<BR><BR>
+Elements can inherit a template in a similar way to C++ inheritance - by using the : operator on the element definition. The : operator is placed after the closing bracket of the name (separated by a space). The name of the template to inherit is then placed after the : operator (also separated by a space).<BR><BR>
+</P>
+<P>
 
-Positions are relative to the parent (the top-left of the screen if the parent is an overlay, the top-left of the parent otherwise) and are expressed in terms of a proportion of screen size. Therefore 0.5 is half-way across the screen.<BR><BR>
+A template can contain template children which are created when the template is subclassed and instantiated. Using the template keyword for the children of a template is optional but recommended for clarity, as the children of a template are always going to be templates themselves.<BR><BR>
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>template container BorderPanel(MyTemplates/BasicBorderPanel)
+{
+    left 0
+    top 0
+    width 1
+    height 1
 
-Default: left 0<BR>
+// setup the texture UVs for a borderpanel
 
-<A NAME="top"></A>
-<A NAME="SEC211"></A>
-<H3> top </H3>
-<!--docid::SEC211::-->
+// do this in a template so it doesn't need to be redone everywhere
+    material Core/StatsBlockCenter
+    border_size 0.05 0.05 0.06665 0.06665
+    border_material Core/StatsBlockBorder
+    border_topleft_uv 0.0000 1.0000 0.1914 0.7969
+    border_top_uv 0.1914 1.0000 0.8086 0.7969
+    border_topright_uv 0.8086 1.0000 1.0000 0.7969
+    border_left_uv 0.0000 0.7969 0.1914 0.2148
+    border_right_uv 0.8086 0.7969 1.0000 0.2148
+    border_bottomleft_uv 0.0000 0.2148 0.1914 0.0000
+    border_bottom_uv 0.1914 0.2148 0.8086 0.0000
+    border_bottomright_uv 0.8086 0.2148 1.0000 0.0000
+}
+template container Button(MyTemplates/BasicButton) : MyTemplates/BasicBorderPanel
+{
+    left 0.82
+    top 0.45
+    width 0.16
+    height 0.13
+    material Core/StatsBlockCenter
+    border_up_material Core/StatsBlockBorder/Up
+    border_down_material Core/StatsBlockBorder/Down
+}
+template element TextArea(MyTemplates/BasicText)
+{
+    font_name Ogre
+    char_height 0.08
+    colour_top 1 1 0
+    colour_bottom 1 0.2 0.2
+    left 0.03
+    top 0.02
+    width 0.12
+    height 0.09
+}
 
-Sets the vertical position of the element relative to it's parent.<BR><BR>
+MyOverlays/AnotherOverlay
+{
+    zorder 490
+    container BorderPanel(MyElements/BackPanel) : MyTemplates/BasicBorderPanel
+    {
+        left 0
+        top 0
+        width 1
+        height 1
 
-Format: top &lt;value&gt;<BR>
-Example: top 0.5<BR><BR>
+        container Button(MyElements/HostButton) : MyTemplates/BasicButton
+        {
+            left 0.82
+            top 0.45
+            caption MyTemplates/BasicText HOST
+        }
 
-Positions are relative to the parent (the top-left of the screen if the parent is an overlay, the top-left of the parent otherwise) and are expressed in terms of a proportion of screen size. Therefore 0.5 is half-way down the screen.<BR><BR>
+        container Button(MyElements/JoinButton) : MyTemplates/BasicButton
+        {
+            left 0.82
+            top 0.60
+            caption MyTemplates/BasicText JOIN
+        }
+    }
+}
+</pre></td></tr></table>The above example uses templates to define a button. Note that the button template inherits from the borderPanel template. This reduces the number of attributes needed to instantiate a button.<BR><BR>
+<P>
 
-Default: top 0<BR>
+Also note that the instantiate of a Button needs a template name for the caption attribute. So templates can also be used by elements that need dynamic creation of children elements (the button creates a TextAreaElement in this case for its caption).<BR><BR>
+</P>
+<P>
 
-<A NAME="width"></A>
-<A NAME="SEC212"></A>
-<H3> width </H3>
-<!--docid::SEC212::-->
+See section <A HREF="manual_35.html#SEC211">3.4.1 OverlayElement Attributes</A>, <A HREF="manual_36.html#SEC222">3.4.2 Standard OverlayElements</A>
+</P>
+<P>
 
-Sets the width of the element as a proportion of the size of the screen.<BR><BR>
-
-Format: width &lt;value&gt;<BR>
-Example: width 0.25<BR><BR>
-
-Sizes are relative to the size of the screen, so 0.25 is a quarter of the screen. Sizes are not relative to the parent; this is common in windowing systems where the top and left are relative but the size is absolute.<BR><BR>
-
-Default: width 1<BR>
-
-<A NAME="height"></A>
-<A NAME="SEC213"></A>
-<H3> height </H3>
-<!--docid::SEC213::-->
-
-Sets the height of the element as a proportion of the size of the screen.<BR><BR>
-
-Format: height &lt;value&gt;<BR>
-Example: height 0.25<BR><BR>
-
-Sizes are relative to the size of the screen, so 0.25 is a quarter of the screen. Sizes are not relative to the parent; this is common in windowing systems where the top and left are relative but the size is absolute.<BR><BR>
-
-Default: height 1<BR>
-
-<A NAME="overlay_material"></A>
-<A NAME="SEC214"></A>
-<H3> material   </H3>
-<!--docid::SEC214::-->
-
-Sets the name of the material to use for this element.<BR><BR>
-
-Format: material &lt;name&gt;<BR>
-Example: material Examples/TestMaterial<BR><BR>
-
-This sets the base material which this element will use. Each type of element may interpret this differently; for example the OGRE element 'Panel' treats this as the background of the panel, whilst 'BorderPanel' interprets this as the material for the center area only. Materials should be defined in .material scripts.<BR><BR>
-Note that using a material in an overlay element automatically disables lighting and depth checking on this material. Therefore you should not use the same material as is used for real 3D objects for an overlay.<BR><BR>
-
-Default: none<BR>
-
-<A NAME="caption"></A>
-<A NAME="SEC215"></A>
-<H3> caption </H3>
-<!--docid::SEC215::-->
-
-Sets a text caption for the element.<BR><BR>
-
-Format: caption &lt;string&gt;<BR>
-Example: caption This is a caption<BR><BR>
-
-Not all elements support captions, so each element is free to disregard this if it wants. However, a general text caption is so common to many elements that it is included in the generic interface to make it simpler to use. This is a common feature in GUI systems.<BR><BR>
-
-Default: blank<BR>
-
-
-<A NAME="rotation"></A>
-<A NAME="SEC216"></A>
-<H3> rotation </H3>
-<!--docid::SEC216::-->
-
-Sets the rotation of the element.<BR><BR>
-
-Format: rotation &lt;angle_in_degrees&gt; &lt;axis_x&gt; &lt;axis_y&gt; &lt;axis_z&gt;
-Example: rotation 30 0 0 1
-
-Default: none 
-
-<A NAME="Standard OverlayElements"></A>
+<A NAME="OverlayElement Attributes"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC200"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC200"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_35.html#SEC217"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC197"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_13.html#SEC22"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_35.html#SEC211"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -198,7 +264,7 @@ Default: none
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>June 10 2006</I>
+by <I>steve</I> on <I>July 5 2006</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 
