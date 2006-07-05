@@ -144,6 +144,7 @@ namespace Ogre {
         memcpy( this, &oth, (uchar *)(&oth.mFrames) - (uchar *)(&oth) );
         // copy complex members
         mFrames  = oth.mFrames;
+		mFramePtrs = oth.mFramePtrs;
         mName    = oth.mName;
         mEffects = oth.mEffects;
 
@@ -185,7 +186,9 @@ namespace Ogre {
         else
         {
             mFrames.resize(1);
+			mFramePtrs.resize(1);
             mFrames[0] = name;
+			// defer load until used, so don't grab pointer yet
             mCurrentFrame = 0;
             mCubic = false;
             mTextureType = texType;
@@ -239,6 +242,8 @@ namespace Ogre {
     void TextureUnitState::setCubicTextureName(const String* const names, bool forUVW)
     {
         mFrames.resize(forUVW ? 1 : 6);
+		// resize pointers, but don't populate until asked for
+        mFramePtrs.resize(forUVW ? 1 : 6);
         mCurrentFrame = 0;
         mCubic = true;
         mTextureType = forUVW ? TEX_TYPE_CUBE_MAP : TEX_TYPE_2D;
@@ -273,6 +278,8 @@ namespace Ogre {
         if (frameNumber < mFrames.size())
         {
             mFrames[frameNumber] = name;
+			// reset pointer (don't populate until requested)
+			mFramePtrs[frameNumber].setNull();	
 
             if (isLoaded())
             {
@@ -292,6 +299,8 @@ namespace Ogre {
     void TextureUnitState::addFrameTextureName(const String& name)
     {
         mFrames.push_back(name);
+		// Add blank pointer, load on demand
+		mFramePtrs.push_back(TexturePtr());
 
         // Load immediately if Material loaded
         if (isLoaded())
@@ -308,6 +317,7 @@ namespace Ogre {
         if (frameNumber < mFrames.size())
         {
             mFrames.erase(mFrames.begin() + frameNumber);
+            mFramePtrs.erase(mFramePtrs.begin() + frameNumber);
 
             if (mFrames.empty())
                 mIsBlank = true;
@@ -337,6 +347,8 @@ namespace Ogre {
         ext = name.substr(pos);
 
         mFrames.resize(numFrames);
+		// resize pointers, but don't populate until needed
+        mFramePtrs.resize(numFrames);
         mAnimDuration = duration;
         mCurrentFrame = 0;
         mCubic = false;
@@ -361,6 +373,8 @@ namespace Ogre {
     void TextureUnitState::setAnimatedTextureName(const String* const names, unsigned int numFrames, Real duration)
     {
         mFrames.resize(numFrames);
+		// resize pointers, but don't populate until needed
+        mFramePtrs.resize(numFrames);
         mAnimDuration = duration;
         mCurrentFrame = 0;
         mCubic = false;
@@ -381,21 +395,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     std::pair< uint, uint > TextureUnitState::getTextureDimensions( unsigned int frame ) const
     {
-        if (frame < mFrames.size())
-        {
-            TexturePtr tex = TextureManager::getSingleton().getByName( mFrames[ frame ] );
+		
+		TexturePtr tex = _getTexturePtr(frame);
+	    if (tex.isNull())
+		    OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, "Could not find texture " + mFrames[ frame ],
+		    "TextureUnitState::getTextureDimensions" );
 
-		    if (tex.isNull())
-			    OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, "Could not find texture " + mFrames[ frame ],
-				    "TextureUnitState::getTextureDimensions" );
-            return std::pair< uint, uint >( tex->getWidth(), tex->getHeight() );
-        }
-        else // frame exceeds the number of frames stored
-        {
-		    OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, "frame number exceeded number of stored frames" ,
-			    "TextureUnitState::getTextureDimensions" );
-        }
-
+		return std::pair< uint, uint >( tex->getWidth(), tex->getHeight() );
     }
     //-----------------------------------------------------------------------
     void TextureUnitState::setCurrentFrame(unsigned int frameNumber)
@@ -840,23 +846,7 @@ namespace Ogre {
         // Load textures
         for (unsigned int i = 0; i < mFrames.size(); ++i)
         {
-            if (!mFrames[i].empty())
-            {
-                // Ensure texture is loaded, specified number of mipmaps and priority
-                try {
-
-                    TextureManager::getSingleton().load(mFrames[i], 
-						mParent->getResourceGroup(), mTextureType, mTextureSrcMipmaps, 1.0f, mIsAlpha);
-                    mIsBlank = false;
-                }
-                catch (Exception &e) {
-                    String msg;
-                    msg = msg + "Error loading texture " + mFrames[i]  + 
-					". Texture layer will be blank. Loading the texture failed with the following exception: "+e.getFullDescription();
-                    LogManager::getSingleton().logMessage(msg);
-                    mIsBlank = true;
-                }
-            }
+			ensureLoaded(i);
         }
         // Animation controller
         if (mAnimDuration != 0)
@@ -870,6 +860,60 @@ namespace Ogre {
         }
 
     }
+    //-----------------------------------------------------------------------
+	const TexturePtr& TextureUnitState::_getTexturePtr(void) const
+	{
+		return _getTexturePtr(mCurrentFrame);
+	}
+    //-----------------------------------------------------------------------
+	const TexturePtr& TextureUnitState::_getTexturePtr(size_t frame) const
+	{
+        if (frame < mFrames.size())
+        {
+			ensureLoaded(frame);
+			return mFramePtrs[frame];
+		}
+		else
+		{
+			// Silent fail with empty texture for internal method
+			static TexturePtr nullTexPtr;
+			return nullTexPtr;
+		}
+		
+	}
+    //-----------------------------------------------------------------------
+	void TextureUnitState::ensureLoaded(size_t frame) const
+	{
+		if (!mFrames[frame].empty())
+		{
+			// Ensure texture is loaded, specified number of mipmaps and
+			// priority
+			if (mFramePtrs[frame].isNull())
+			{
+				try {
+					mFramePtrs[frame] = 
+						TextureManager::getSingleton().load(mFrames[frame], 
+							mParent->getResourceGroup(), mTextureType, 
+							mTextureSrcMipmaps, 1.0f, mIsAlpha);
+					mIsBlank = false;
+				}
+				catch (Exception &e) {
+					String msg;
+					msg = msg + "Error loading texture " + mFrames[frame]  + 
+						". Texture layer will be blank. Loading the texture "
+						"failed with the following exception: " 
+						+ e.getFullDescription();
+					LogManager::getSingleton().logMessage(msg);
+					mIsBlank = true;
+				}	
+			}
+			else
+			{
+				// Just ensure existing pointer is loaded
+				mFramePtrs[frame]->load();
+			}
+		}
+	}
     //-----------------------------------------------------------------------
     void TextureUnitState::createAnimController(void)
     {

@@ -970,6 +970,11 @@ namespace Ogre {
 
 		/** Notify this object that its parent has changed */
 		void _notifyParent(Pass* parent);
+
+		/** Get the texture pointer for the current frame. */
+		const TexturePtr& _getTexturePtr(void) const;
+		/** Get the texture pointer for a given frame. */
+		const TexturePtr& _getTexturePtr(size_t frame) const;
 	
 protected:
         // State
@@ -992,7 +997,7 @@ protected:
         SceneBlendFactor colourBlendFallbackDest;
 
         LayerBlendModeEx alphaBlendMode;
-        bool mIsBlank;
+        mutable bool mIsBlank;
         bool mIsAlpha;
 
         mutable bool mRecalcTexMatrix;
@@ -1019,6 +1024,7 @@ protected:
         // allow for fast copying of the basic members.
         //
         std::vector<String> mFrames;
+		mutable std::vector<TexturePtr> mFramePtrs;
         String mName;               // optional name for the TUS
         String mTextureNameAlias;       // optional alias for texture frames
         EffectMap mEffects;
@@ -1044,6 +1050,9 @@ protected:
         /** Internal method for creating texture effect controller.
         */
         void createEffectController(TextureEffect& effect);
+
+		/** Internal method for ensuring the texture for a given frame is loaded. */
+		void ensureLoaded(size_t frame) const;
 
 
     };
