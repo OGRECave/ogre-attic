@@ -401,6 +401,11 @@ namespace Ogre
 
 	}
 	//-----------------------------------------------------------------------
+	const String& RibbonTrail::getMovableType(void) const
+	{
+		return RibbonTrailFactory::FACTORY_TYPE_NAME;
+	}
+	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
 	String RibbonTrailFactory::FACTORY_TYPE_NAME = "RibbonTrail";
 	//-----------------------------------------------------------------------
