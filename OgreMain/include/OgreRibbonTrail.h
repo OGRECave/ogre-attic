@@ -158,6 +158,9 @@ namespace Ogre {
 		/// Perform any fading / width delta required; internal method
 		virtual void _timeUpdate(Real time);
 
+        /** Overridden from MovableObject */
+        const String& getMovableType(void) const;
+
 	protected:
 		/// List of nodes being trailed
 		NodeList mNodeList;

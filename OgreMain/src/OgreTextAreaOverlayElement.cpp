@@ -356,7 +356,7 @@ namespace Ogre {
         }
         else
         {
-            mCharHeight = static_cast<unsigned>(height);
+            mCharHeight = height;
         }
         mGeomPositionsOutOfDate = true;
     }
@@ -380,7 +380,7 @@ namespace Ogre {
         }
         else
         {
-            mSpaceWidth = static_cast<unsigned>(width);
+            mSpaceWidth = width;
         }
 
         mGeomPositionsOutOfDate = true;

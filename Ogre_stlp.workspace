@@ -304,5 +304,8 @@
 		<Project filename="Tools\XMLConverter\scripts\XMLConverter_stlp.cbp">
 			<Depends filename="OgreMain\scripts\OgreMain_stlp.cbp" />
 		</Project>
+		<Project filename="Tools\MeshUpgrader\scripts\MeshUpgrader_stlp.cbp">
+			<Depends filename="OgreMain\scripts\OgreMain_stlp.cbp" />
+		</Project>
 	</Workspace>
 </CodeBlocks_workspace_file>

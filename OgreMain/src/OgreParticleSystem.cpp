@@ -409,8 +409,7 @@ namespace Ogre {
             if (pParticle->timeToLive < timeElapsed)
             {
                 // Destroy this one
-                mFreeParticles.push_back( *i );
-                i = mActiveParticles.erase( i );
+                mFreeParticles.splice(mFreeParticles.end(), mActiveParticles, i++);
             }
             else
             {
@@ -797,7 +796,7 @@ namespace Ogre {
     void ParticleSystem::_notifyAttached(Node* parent, bool isTagPoint)
     {
         MovableObject::_notifyAttached(parent, isTagPoint);
-        if (mRenderer)
+        if (mRenderer && mIsRendererConfigured)
         {
             mRenderer->_notifyAttached(parent, isTagPoint);
         }
@@ -839,11 +838,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystem::clear()
     {
-        // Insert actives into free list
-        mFreeParticles.insert(mFreeParticles.end(), mActiveParticles.begin(), mActiveParticles.end());
-
-        // Remove all active instances
-        mActiveParticles.clear(); 
+        // Move actives to free list
+        mFreeParticles.splice(mFreeParticles.end(), mActiveParticles);
 
         // Reset update remain time
         mUpdateRemainTime = 0;
@@ -891,8 +887,7 @@ namespace Ogre {
         if (mRenderer && !mIsRendererConfigured)
         {
             mRenderer->_notifyParticleQuota(mParticlePool.size());
-            if (mParentNode)
-                mRenderer->_notifyAttached(mParentNode, mParentIsTagPoint);
+            mRenderer->_notifyAttached(mParentNode, mParentIsTagPoint);
             mRenderer->_notifyDefaultDimensions(mDefaultWidth, mDefaultHeight);
             createVisualParticles(0, mParticlePool.size());
             MaterialPtr mat = MaterialManager::getSingleton().load(

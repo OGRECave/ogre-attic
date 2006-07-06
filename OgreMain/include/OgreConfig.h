@@ -54,7 +54,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 /** If set to 1, Real is typedef'ed to double. Otherwise, Real is typedef'ed
     to float. Setting this allows you to perform mathematical operations in the
 	CPU (Quaternion, Vector3 etc) with more precision, but bear in mind that the
-	GPU still operates in single-precision mode. 
+	GPU still operates in single-precision mode.
 */
 #ifndef OGRE_DOUBLE_PRECISION
 #define OGRE_DOUBLE_PRECISION 0
@@ -69,11 +69,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #define OGRE_MAX_TEXTURE_COORD_SETS 6
 
-/** Define max number of texture layers allowed per pass on any card. 
+/** Define max number of texture layers allowed per pass on any card.
 */
 #define OGRE_MAX_TEXTURE_LAYERS 16
 
-/** Define max number of lights allowed per pass. 
+/** Define max number of lights allowed per pass.
 */
 #define OGRE_MAX_SIMULTANEOUS_LIGHTS 8
 
@@ -81,7 +81,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #define OGRE_MAX_BLEND_WEIGHTS 4
 
-/** Set this to zero if you want to link OGRE as a static lib. 
+/** Set this to zero if you want to link OGRE as a static lib.
 */
 #define OGRE_DYNAMIC_LINKAGE 1
 
@@ -89,16 +89,17 @@ http://www.gnu.org/copyleft/lesser.txt.
 /** Set this to 0 if you want to use the standard memory manager in Debug builds
     Release builds always use the standard memory manager
 */
+#ifndef OGRE_DEBUG_MEMORY_MANAGER
 #define OGRE_DEBUG_MEMORY_MANAGER 1
-
+#endif
 /** Define max number of multiple render targets (MRTs) to render to at once.
 */
 #define OGRE_MAX_MULTIPLE_RENDER_TARGETS 8
 
 /** Indicate general support for multithreading.
 	This will enable threading support in certain parts of the
-	engine, mainly resource loading and SharedPtr handling. 
-	The places where threading is available are clearly 
+	engine, mainly resource loading and SharedPtr handling.
+	The places where threading is available are clearly
 	marked, you should assume state is NOT thread safe unless otherwise
 	stated in relation to this flag.
     WARNING: highly experimental, use with caution
