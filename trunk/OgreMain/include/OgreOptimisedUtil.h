@@ -169,6 +169,27 @@ namespace Ogre {
             const Vector4* faceNormals,
             char* lightFacings,
             size_t numFaces) = 0;
+
+        /** Extruding vertices by a fixed distance based on light position.
+        @param lightPos 4D light position, when w=0.0f this represents a
+            directional light, otherwise, w must be equal to 1.0f, which
+            represents a point light.
+        @param extrudeDist The distance to extrude.
+        @param srcPositions Pointer to source vertex's position buffer, which
+            the position is a 3D vector packed in xyz format. No SIMD alignment
+            requirement but loss performance for unaligned data.
+        @param destPositions Pointer to destination vertex's position buffer,
+            which the position is a 3D vector packed in xyz format. No SIMD
+            alignment requirement but loss performance for unaligned data.
+        @param numVertices Number of vertices need to extruding, which agree
+            with source and destination buffers.
+        */
+        virtual void extrudeVertices(
+            const Vector4& lightPos,
+            Real extrudeDist,
+            const float* srcPositions,
+            float* destPositions,
+            size_t numVertices) = 0;
     };
 
     /** Returns raw offseted of the given pointer.

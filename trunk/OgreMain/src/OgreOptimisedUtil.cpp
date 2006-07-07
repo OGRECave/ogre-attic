@@ -280,6 +280,45 @@ namespace Ogre {
             ++index;    // So we can put break point here even if in release build
         }
 
+        virtual void extrudeVertices(
+            const Vector4& lightPos,
+            Real extrudeDist,
+            const float* srcPositions,
+            float* destPositions,
+            size_t numVertices)
+        {
+            static ProfileItems results;
+            static size_t index;
+            index = Root::getSingleton().getCurrentFrameNumber() % mOptimisedUtils.size();
+            OptimisedUtil* impl = mOptimisedUtils[index];
+            ProfileItem& profile = results[index];
+
+            profile.begin();
+            impl->extrudeVertices(
+                lightPos,
+                extrudeDist,
+                srcPositions,
+                destPositions,
+                numVertices);
+            profile.end();
+
+            //
+            //   Dagon SkeletonAnimation sample test results (CPU timestamp per-function call):
+            //
+            //                                  Pentium 4 3.0G HT   Athlon XP 2500+
+            //
+            //      Directional Light, General   38106               92306
+            //      Directional Light, SSE       27292               67055
+            //
+            //      Point Light, General        224209              155483
+            //      Point Light, SSE             56817              106663
+            //
+
+            // You can put break point here while running test application, to
+            // watch profile results.
+            ++index;    // So we can put break point here even if in release build
+        }
+
     };
 #endif // __DO_PROFILE__
 
