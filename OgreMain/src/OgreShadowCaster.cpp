@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 #include "OgreLight.h"
 #include "OgreEdgeListBuilder.h"
+#include "OgreOptimisedUtil.h"
 
 namespace Ogre {
     const LightList& ShadowRenderable::getLights(void) const 
@@ -213,27 +214,14 @@ namespace Ogre {
         float* pSrc = static_cast<float*>(
             vertexBuffer->lock(HardwareBuffer::HBL_NORMAL));
 
+        // TODO: We should add extra (ununsed) vertices ensure source and
+        // destination buffer have same alignment for slight performance gain.
         float* pDest = pSrc + originalVertexCount * 3;
-        // Assume directional light, extrusion is along light direction
-        Vector3 extrusionDir(-light.x, -light.y, -light.z);
-        extrusionDir.normalise();
-        extrusionDir *= extrudeDist;
-        for (size_t vert = 0; vert < originalVertexCount; ++vert)
-        {
-            if (light.w != 0.0f)
-            {
-                // Point light, adjust extrusionDir
-                extrusionDir.x = pSrc[0] - light.x;
-                extrusionDir.y = pSrc[1] - light.y;
-                extrusionDir.z = pSrc[2] - light.z;
-                extrusionDir.normalise();
-                extrusionDir *= extrudeDist;
-            }
-            *pDest++ = *pSrc++ + extrusionDir.x;
-            *pDest++ = *pSrc++ + extrusionDir.y;
-            *pDest++ = *pSrc++ + extrusionDir.z;
 
-        }
+        OptimisedUtil::getImplementation()->extrudeVertices(
+            light, extrudeDist,
+            pSrc, pDest, originalVertexCount);
+
         vertexBuffer->unlock();
 
     }

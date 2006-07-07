@@ -116,6 +116,14 @@ namespace Ogre {
             const Vector4* faceNormals,
             char* lightFacings,
             size_t numFaces);
+
+        /// @copydoc OptimisedUtil::extrudeVertices
+        virtual void extrudeVertices(
+            const Vector4& lightPos,
+            Real extrudeDist,
+            const float* srcPositions,
+            float* destPositions,
+            size_t numVertices);
     };
 
 #if defined(__OGRE_SIMD_ALIGN_STACK)
@@ -232,6 +240,24 @@ namespace Ogre {
                 faceNormals,
                 lightFacings,
                 numFaces);
+        }
+
+        /// @copydoc OptimisedUtil::extrudeVertices
+        virtual void extrudeVertices(
+            const Vector4& lightPos,
+            Real extrudeDist,
+            const float* srcPositions,
+            float* destPositions,
+            size_t numVertices)
+        {
+            __OGRE_SIMD_ALIGN_STACK();
+
+            mImpl->extrudeVertices(
+                lightPos,
+                extrudeDist,
+                srcPositions,
+                destPositions,
+                numVertices);
         }
     };
 #endif  // !defined(__OGRE_SIMD_ALIGN_STACK)
@@ -1749,6 +1775,269 @@ namespace Ogre {
 
             lightFacings[0] = msMaskMapping[bitmask][0];
             break;
+        }
+    }
+    //---------------------------------------------------------------------
+    // Template to extrude vertices for directional light.
+    template <bool srcAligned, bool destAligned>
+    struct ExtrudeVertices_SSE_DirectionalLight
+    {
+        static void apply(
+            const Vector4& lightPos,
+            Real extrudeDist,
+            const float* pSrcPos,
+            float* pDestPos,
+            size_t numVertices)
+        {
+            typedef SSEMemoryAccessor<srcAligned> SrcAccessor;
+            typedef SSEMemoryAccessor<destAligned> DestAccessor;
+
+            // Directional light, extrusion is along light direction
+
+            // Load light vector, unaligned
+            __m128 lp = _mm_loadu_ps(&lightPos.x);
+
+            // Calculate extrusion direction, note that we use inverted direction here
+            // for eliminate an extra negative instruction, we'll compensate for that
+            // by use subtract instruction instead later.
+            __m128 tmp = _mm_mul_ps(lp, lp);
+            tmp = _mm_add_ss(_mm_add_ss(tmp, _mm_shuffle_ps(tmp, tmp, 1)), _mm_movehl_ps(tmp, tmp));
+            // Looks like VC7.1 generate a bit inefficient code for 'rsqrtss', so use 'rsqrtps' instead
+            tmp = _mm_mul_ss(_mm_rsqrt_ps(tmp), _mm_load_ss(&extrudeDist));
+            __m128 dir = _mm_mul_ps(lp, __MM_SELECT(tmp, 0));               // X Y Z -
+
+            // Prepare extrude direction for extruding 4 vertices parallelly
+            __m128 dir0 = _mm_shuffle_ps(dir, dir, _MM_SHUFFLE(0,2,1,0));   // X Y Z X
+            __m128 dir1 = _mm_shuffle_ps(dir, dir, _MM_SHUFFLE(1,0,2,1));   // Y Z X Y
+            __m128 dir2 = _mm_shuffle_ps(dir, dir, _MM_SHUFFLE(2,1,0,2));   // Z X Y Z
+
+            __m128 s0, s1, s2;
+            __m128 d0, d1, d2;
+
+            size_t numIterations = numVertices / 4;
+            numVertices &= 3;
+
+            // Extruding 4 vertices per-iteration
+            for (size_t i = 0; i < numIterations; ++i)
+            {
+                s0 = SrcAccessor::load(pSrcPos + 0);
+                s1 = SrcAccessor::load(pSrcPos + 4);
+                s2 = SrcAccessor::load(pSrcPos + 8);
+                pSrcPos += 12;
+
+                // The extrusion direction is inverted, use subtract instruction here
+                d0 = _mm_sub_ps(s0, dir0);                      // X0 Y0 Z0 X1
+                d1 = _mm_sub_ps(s1, dir1);                      // Y1 Z1 X2 Y2
+                d2 = _mm_sub_ps(s2, dir2);                      // Z2 X3 Y3 Z3
+
+                DestAccessor::store(pDestPos + 0, d0);
+                DestAccessor::store(pDestPos + 4, d1);
+                DestAccessor::store(pDestPos + 8, d2);
+                pDestPos += 12;
+            }
+
+            // Dealing with remaining vertices
+            switch (numVertices)
+            {
+            case 3:
+                // 9 floating-point values
+                s0 = SrcAccessor::load(pSrcPos + 0);
+                s1 = SrcAccessor::load(pSrcPos + 4);
+                s2 = _mm_load_ss(pSrcPos + 8);
+
+                // The extrusion direction is inverted, use subtract instruction here
+                d0 = _mm_sub_ps(s0, dir0);                      // X0 Y0 Z0 X1
+                d1 = _mm_sub_ps(s1, dir1);                      // Y1 Z1 X2 Y2
+                d2 = _mm_sub_ss(s2, dir2);                      // Z2 -- -- --
+
+                DestAccessor::store(pDestPos + 0, d0);
+                DestAccessor::store(pDestPos + 4, d1);
+                _mm_store_ss(pDestPos + 8, d2);
+                break;
+
+            case 2:
+                // 6 floating-point values
+                s0 = SrcAccessor::load(pSrcPos + 0);
+                s1 = _mm_loadl_pi(dir1, (__m64*)(pSrcPos + 4)); // dir1 is meaningless here
+
+                // The extrusion direction is inverted, use subtract instruction here
+                d0 = _mm_sub_ps(s0, dir0);                      // X0 Y0 Z0 X1
+                d1 = _mm_sub_ps(s1, dir1);                      // Y1 Z1 -- --
+
+                DestAccessor::store(pDestPos + 0, d0);
+                _mm_storel_pi((__m64*)(pDestPos + 4), d1);
+                break;
+
+            case 1:
+                // 3 floating-point values
+                s0 = _mm_loadl_pi(dir0, (__m64*)(pSrcPos + 0)); // dir0 is meaningless here
+                s1 = _mm_load_ss(pSrcPos + 2);
+
+                // The extrusion direction is inverted, use subtract instruction here
+                d0 = _mm_sub_ps(s0, dir0);                      // X0 Y0 -- --
+                d1 = _mm_sub_ss(s1, dir2);                      // Z0 -- -- --
+
+                _mm_storel_pi((__m64*)(pDestPos + 0), d0);
+                _mm_store_ss(pDestPos + 2, d1);
+                break;
+            }
+        }
+    };
+    //---------------------------------------------------------------------
+    // Template to extrude vertices for point light.
+    template <bool srcAligned, bool destAligned>
+    struct ExtrudeVertices_SSE_PointLight
+    {
+        static void apply(
+            const Vector4& lightPos,
+            Real extrudeDist,
+            const float* pSrcPos,
+            float* pDestPos,
+            size_t numVertices)
+        {
+            typedef SSEMemoryAccessor<srcAligned> SrcAccessor;
+            typedef SSEMemoryAccessor<destAligned> DestAccessor;
+
+            // Point light, will calculate extrusion direction for every vertex
+
+            // Load light vector, unaligned
+            __m128 lp = _mm_loadu_ps(&lightPos.x);
+
+            // Load extrude distance
+            __m128 extrudeDist4 = _mm_load_ps1(&extrudeDist);
+
+            size_t numIterations = numVertices / 4;
+            numVertices &= 3;
+
+            // Extruding 4 vertices per-iteration
+            for (size_t i = 0; i < numIterations; ++i)
+            {
+                // Load source positions
+                __m128 s0 = SrcAccessor::load(pSrcPos + 0);     // x0 y0 z0 x1
+                __m128 s1 = SrcAccessor::load(pSrcPos + 4);     // y1 z1 x2 y2
+                __m128 s2 = SrcAccessor::load(pSrcPos + 8);     // z2 x3 y3 z3
+                pSrcPos += 12;
+
+                // Arrange to 3x4 component-major for batches calculate
+                __MM_TRANSPOSE4x3_PS(s0, s1, s2);
+
+                // Calculate unnormalised extrusion direction
+                __m128 dx = _mm_sub_ps(s0, __MM_SELECT(lp, 0)); // X0 X1 X2 X3
+                __m128 dy = _mm_sub_ps(s1, __MM_SELECT(lp, 1)); // Y0 Y1 Y2 Y3
+                __m128 dz = _mm_sub_ps(s2, __MM_SELECT(lp, 2)); // Z0 Z1 Z2 Z3
+
+                // Normalise extrusion direction and multiply by extrude distance
+                __m128 tmp = __MM_DOT3x3_PS(dx, dy, dz, dx, dy, dz);
+                tmp = _mm_mul_ps(_mm_rsqrt_ps(tmp), extrudeDist4);
+                dx = _mm_mul_ps(dx, tmp);
+                dy = _mm_mul_ps(dy, tmp);
+                dz = _mm_mul_ps(dz, tmp);
+
+                // Calculate extruded positions
+                __m128 d0 = _mm_add_ps(dx, s0);
+                __m128 d1 = _mm_add_ps(dy, s1);
+                __m128 d2 = _mm_add_ps(dz, s2);
+
+                // Arrange back to 4x3 continuous format for store results
+                __MM_TRANSPOSE3x4_PS(d0, d1, d2);
+
+                // Store extruded positions
+                DestAccessor::store(pDestPos + 0, d0);
+                DestAccessor::store(pDestPos + 4, d1);
+                DestAccessor::store(pDestPos + 8, d2);
+                pDestPos += 12;
+            }
+
+            // Dealing with remaining vertices
+            for (size_t j = 0; j  < numVertices; ++j)
+            {
+                // Load source position
+                __m128 src = _mm_loadh_pi(_mm_load_ss(pSrcPos + 0), (__m64*)(pSrcPos + 1)); // x 0 y z
+                pSrcPos += 3;
+
+                // Calculate unnormalised extrusion direction
+                __m128 dir = _mm_sub_ps(src, _mm_shuffle_ps(lp, lp, _MM_SHUFFLE(2,1,3,0))); // X 1 Y Z
+
+                // Normalise extrusion direction and multiply by extrude distance
+                __m128 tmp = _mm_mul_ps(dir, dir);
+                tmp = _mm_add_ss(_mm_add_ss(tmp, _mm_movehl_ps(tmp, tmp)), _mm_shuffle_ps(tmp, tmp, 3));
+                // Looks like VC7.1 generate a bit inefficient code for 'rsqrtss', so use 'rsqrtps' instead
+                tmp = _mm_mul_ss(_mm_rsqrt_ps(tmp), extrudeDist4);
+                dir = _mm_mul_ps(dir, __MM_SELECT(tmp, 0));
+
+                // Calculate extruded position
+                __m128 dst = _mm_add_ps(dir, src);
+
+                // Store extruded position
+                _mm_store_ss(pDestPos + 0, dst);
+                _mm_storeh_pi((__m64*)(pDestPos + 1), dst);
+                pDestPos += 3;
+            }
+        }
+    };
+    //---------------------------------------------------------------------
+    void OptimisedUtilSSE::extrudeVertices(
+        const Vector4& lightPos,
+        Real extrudeDist,
+        const float* pSrcPos,
+        float* pDestPos,
+        size_t numVertices)
+    {
+        __OGRE_CHECK_STACK_ALIGNED_FOR_SSE();
+
+        // Note: Since pDestPos is following tail of pSrcPos, we can't assume
+        // it's aligned to SIMD alignment properly, so must check for it here.
+        //
+        // TODO: Add extra vertex to the vertex buffer for make sure pDestPos
+        // aligned same as pSrcPos.
+        //
+
+        // We are use SSE reciprocal square root directly while calculating
+        // extrusion direction, since precision loss not that important here.
+        //
+        if (lightPos.w == 0.0f)
+        {
+            if (_isAlignedForSSE(pSrcPos))
+            {
+                if (_isAlignedForSSE(pDestPos))
+                    ExtrudeVertices_SSE_DirectionalLight<true, true>::apply(
+                        lightPos, extrudeDist, pSrcPos, pDestPos, numVertices);
+                else
+                    ExtrudeVertices_SSE_DirectionalLight<true, false>::apply(
+                        lightPos, extrudeDist, pSrcPos, pDestPos, numVertices);
+            }
+            else
+            {
+                if (_isAlignedForSSE(pDestPos))
+                    ExtrudeVertices_SSE_DirectionalLight<false, true>::apply(
+                        lightPos, extrudeDist, pSrcPos, pDestPos, numVertices);
+                else
+                    ExtrudeVertices_SSE_DirectionalLight<false, false>::apply(
+                        lightPos, extrudeDist, pSrcPos, pDestPos, numVertices);
+            }
+        }
+        else
+        {
+            assert(lightPos.w == 1.0f);
+
+            if (_isAlignedForSSE(pSrcPos))
+            {
+                if (_isAlignedForSSE(pDestPos))
+                    ExtrudeVertices_SSE_PointLight<true, true>::apply(
+                        lightPos, extrudeDist, pSrcPos, pDestPos, numVertices);
+                else
+                    ExtrudeVertices_SSE_PointLight<true, false>::apply(
+                        lightPos, extrudeDist, pSrcPos, pDestPos, numVertices);
+            }
+            else
+            {
+                if (_isAlignedForSSE(pDestPos))
+                    ExtrudeVertices_SSE_PointLight<false, true>::apply(
+                        lightPos, extrudeDist, pSrcPos, pDestPos, numVertices);
+                else
+                    ExtrudeVertices_SSE_PointLight<false, false>::apply(
+                        lightPos, extrudeDist, pSrcPos, pDestPos, numVertices);
+            }
         }
     }
     //---------------------------------------------------------------------

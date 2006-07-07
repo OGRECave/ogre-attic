@@ -81,6 +81,14 @@ namespace Ogre {
             const Vector4* faceNormals,
             char* lightFacings,
             size_t numFaces);
+
+        /// @copydoc OptimisedUtil::extrudeVertices
+        virtual void extrudeVertices(
+            const Vector4& lightPos,
+            Real extrudeDist,
+            const float* srcPositions,
+            float* destPositions,
+            size_t numVertices);
     };
     //---------------------------------------------------------------------
     //---------------------------------------------------------------------
@@ -301,6 +309,52 @@ namespace Ogre {
         for (size_t i = 0; i < numFaces; ++i)
         {
             *lightFacings++ = (lightPos.dotProduct(*faceNormals++) > 0);
+        }
+    }
+    //---------------------------------------------------------------------
+    void OptimisedUtilGeneral::extrudeVertices(
+        const Vector4& lightPos,
+        Real extrudeDist,
+        const float* pSrcPos,
+        float* pDestPos,
+        size_t numVertices)
+    {
+        if (lightPos.w == 0.0f)
+        {
+            // Directional light, extrusion is along light direction
+
+            Vector3 extrusionDir(
+                -lightPos.x,
+                -lightPos.y,
+                -lightPos.z);
+            extrusionDir.normalise();
+            extrusionDir *= extrudeDist;
+
+            for (size_t vert = 0; vert < numVertices; ++vert)
+            {
+                *pDestPos++ = *pSrcPos++ + extrusionDir.x;
+                *pDestPos++ = *pSrcPos++ + extrusionDir.y;
+                *pDestPos++ = *pSrcPos++ + extrusionDir.z;
+            }
+        }
+        else
+        {
+            // Point light, calculate extrusionDir for every vertex
+            assert(lightPos.w == 1.0f);
+
+            for (size_t vert = 0; vert < numVertices; ++vert)
+            {
+                Vector3 extrusionDir(
+                    pSrcPos[0] - lightPos.x,
+                    pSrcPos[1] - lightPos.y,
+                    pSrcPos[2] - lightPos.z);
+                extrusionDir.normalise();
+                extrusionDir *= extrudeDist;
+
+                *pDestPos++ = *pSrcPos++ + extrusionDir.x;
+                *pDestPos++ = *pSrcPos++ + extrusionDir.y;
+                *pDestPos++ = *pSrcPos++ + extrusionDir.z;
+            }
         }
     }
     //---------------------------------------------------------------------
