@@ -95,6 +95,7 @@ namespace Ogre
 			mTexStageDesc[n].coordIndex = 0;
 			mTexStageDesc[n].texType = D3D9Mappings::D3D_TEX_TYPE_NORMAL;
 			mTexStageDesc[n].pTex = 0;
+			mTexStageDesc[n].pVertexTex = 0;
 		}
 
 		mLastVertexSourceCount = 0;
@@ -1517,6 +1518,57 @@ namespace Ogre
 			mTexStageDesc[stage].coordIndex = 0;
 			mTexStageDesc[stage].texType = D3D9Mappings::D3D_TEX_TYPE_NORMAL;
 		}
+	}
+	//---------------------------------------------------------------------
+	void D3D9RenderSystem::_setVertexTexture(size_t stage, const TexturePtr& tex)
+	{
+		if (tex.isNull())
+		{
+
+			if (mTexStageDesc[stage].pVertexTex != 0)
+			{
+				HRESULT hr = mpD3DDevice->SetTexture(D3DVERTEXTEXTURESAMPLER0 + stage, 0);
+				if( hr != S_OK )
+				{
+					String str = "Unable to disable vertex texture '" 
+						+ StringConverter::toString(stage) + "' in D3D9";
+					OGRE_EXCEPT( hr, str, "D3D9RenderSystem::_setVertexTexture" );
+				}
+			}
+
+			// set stage desc. to defaults
+			mTexStageDesc[stage].pVertexTex = 0;
+		}
+		else
+		{
+			D3D9TexturePtr dt = tex;
+			// note used
+			dt->touch();
+
+			IDirect3DBaseTexture9 *pTex = dt->getTexture();
+			if (mTexStageDesc[stage].pVertexTex != pTex)
+			{
+				HRESULT hr = mpD3DDevice->SetTexture(D3DVERTEXTEXTURESAMPLER0 + stage, pTex);
+				if( hr != S_OK )
+				{
+					String str = "Unable to set vertex texture '" + tex->getName() + "' in D3D9";
+					OGRE_EXCEPT( hr, str, "D3D9RenderSystem::_setVertexTexture" );
+				}
+
+				// set stage desc.
+				mTexStageDesc[stage].pVertexTex = pTex;
+			}
+
+		}
+
+	}
+	//---------------------------------------------------------------------
+	void D3D9RenderSystem::_disableTextureUnit(size_t texUnit)
+	{
+		RenderSystem::_disableTextureUnit(texUnit);
+		// also disable vertex texture unit
+		static TexturePtr nullPtr;
+		_setVertexTexture(texUnit, nullPtr);
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTextureCoordSet( size_t stage, size_t index )

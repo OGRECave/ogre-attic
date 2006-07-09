@@ -188,6 +188,7 @@ namespace Ogre {
             mFrames.resize(1);
 			mFramePtrs.resize(1);
             mFrames[0] = name;
+			mFramePtrs[0].setNull();
 			// defer load until used, so don't grab pointer yet
             mCurrentFrame = 0;
             mCubic = false;
@@ -211,6 +212,25 @@ namespace Ogre {
         }
 
     }
+	//---------------------------------------------------------------------
+	void TextureUnitState::setVertexTextureName(const String& name)
+	{
+		mVertexTexture = name;
+		mVertexTexturePtr.setNull();
+
+		// Load immediately ?
+		if (isLoaded())
+		{
+			_load(); // reload
+			// no need to dirty hash
+		}
+
+	}
+	//---------------------------------------------------------------------
+	const String& TextureUnitState::getVertexTextureName(void) const
+	{
+		return mVertexTexture;
+	}
     //-----------------------------------------------------------------------
     void TextureUnitState::setCubicTextureName( const String& name, bool forUVW)
     {
@@ -251,6 +271,7 @@ namespace Ogre {
         for (unsigned int i = 0; i < mFrames.size(); ++i)
         {
             mFrames[i] = names[i];
+			mFramePtrs[i].setNull();
         }
         // Tell parent we need recompiling, will cause reload too
         mParent->_notifyNeedsRecompile();
@@ -358,6 +379,7 @@ namespace Ogre {
 			StringUtil::StrStreamType str;
             str << baseName << "_" << i << ext;
             mFrames[i] = str.str();
+			mFramePtrs[i].setNull();
         }
 
         // Load immediately if Material loaded
@@ -382,6 +404,7 @@ namespace Ogre {
         for (unsigned int i = 0; i < mFrames.size(); ++i)
         {
             mFrames[i] = names[i];
+			mFramePtrs[i].setNull();
         }
 
         // Load immediately if Material loaded
@@ -880,6 +903,37 @@ namespace Ogre {
 			return nullTexPtr;
 		}
 		
+	}
+	//-----------------------------------------------------------------------
+	const TexturePtr& TextureUnitState::_getVertexTexturePtr(void) const
+	{
+		if (!mVertexTexture.empty())
+		{
+			// Ensure texture is loaded
+			// Only 2D supported, no mips
+			if (mVertexTexturePtr.isNull())
+			{
+				try {
+					mVertexTexturePtr = 
+						TextureManager::getSingleton().load(mVertexTexture, 
+						mParent->getResourceGroup(), TEX_TYPE_2D, 
+						0, 1.0f, false);
+				}
+				catch (Exception &e) {
+					String msg;
+					msg = msg + "Error loading vertex texture " + mVertexTexture  + 
+							": "  + e.getFullDescription();
+					LogManager::getSingleton().logMessage(msg);
+				}	
+			}
+			else
+			{
+				// Just ensure existing pointer is loaded
+				mVertexTexturePtr->load();
+			}
+		}
+
+		return mVertexTexturePtr;
 	}
     //-----------------------------------------------------------------------
 	void TextureUnitState::ensureLoaded(size_t frame) const
