@@ -930,10 +930,31 @@ namespace Ogre {
 			String doGet(const void* target) const;
 			void doSet(void* target, const String& val);
 		};
+		class _OgreExport CmdMorph : public ParamCommand
+		{
+		public:
+			String doGet(const void* target) const;
+			void doSet(void* target, const String& val);
+		};
+		class _OgreExport CmdPose : public ParamCommand
+		{
+		public:
+			String doGet(const void* target) const;
+			void doSet(void* target, const String& val);
+		};
+		class _OgreExport CmdVTF : public ParamCommand
+		{
+		public:
+			String doGet(const void* target) const;
+			void doSet(void* target, const String& val);
+		};
 		// Command object for setting / getting parameters
 		static CmdType msTypeCmd;
 		static CmdSyntax msSyntaxCmd;
 		static CmdSkeletal msSkeletalCmd;
+		static CmdMorph msMorphCmd;
+		static CmdPose msPoseCmd;
+		static CmdVTF msVTFCmd;
 	
 		/// The type of the program
 		GpuProgramType mType;
@@ -951,6 +972,8 @@ namespace Ogre {
 		bool mMorphAnimation;
 		/// Does this (vertex) program include pose animation (count of number of poses supported)
 		ushort mPoseAnimation;
+		/// Does this (vertex) program require support for vertex texture fetch?
+		bool mVertexTextureFetch;
 		/// The default parameters for use with this object
 		GpuProgramParametersSharedPtr mDefaultParams;
 		/// Does this program want light states passed through fixed pipeline
@@ -1078,6 +1101,14 @@ namespace Ogre {
 			blend, for use in pose animation.
         */
         virtual ushort getNumberOfPosesIncluded(void) const { return mPoseAnimation; }
+		/** Sets whether this vertex program requires support for vertex 
+			texture fetch from the hardware.
+		*/
+		virtual void setVertexTextureFetchRequired(bool r) { mVertexTextureFetch = r; }
+		/** Returns whether this vertex program requires support for vertex 
+			texture fetch from the hardware.
+		*/
+		virtual bool isVertexTextureFetchRequired(void) const { return mVertexTextureFetch; }
 
 		/** Get a reference to the default parameters which are to be used for all
 			uses of this program.

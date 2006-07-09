@@ -396,6 +396,26 @@ namespace Ogre {
         */
         unsigned int getNumFrames(void) const;
 
+		/** Sets the name of the texture to use for binding to a separate vertex 
+			texture unit. 
+		@remarks
+			This method only applies if the hardware supports separate vertex
+			texture samplers (e.g. Direct3D9). For hardware that uses a unified
+			sampler model (e.g. OpenGL), you should continue to use the regular
+			setTexture* methods on this class.
+		*/
+		void setVertexTextureName(const String& name);
+
+		/** Gets the name of the texture to use for binding to a separate vertex 
+			texture unit. 
+		@remarks
+			This method only applies if the hardware supports separate vertex
+			texture samplers (e.g. Direct3D9). For hardware that uses a unified
+			sampler model (e.g. OpenGL), you should continue to use the regular
+			setTexture* methods on this class.
+		*/
+		const String& getVertexTextureName(void) const;
+
         /** Returns true if this texture unit is either a series of 6 2D textures, each
             in it's own frame, or is a full 3D cube map. You can tell which by checking
             getTextureType.
@@ -975,6 +995,12 @@ namespace Ogre {
 		const TexturePtr& _getTexturePtr(void) const;
 		/** Get the texture pointer for a given frame. */
 		const TexturePtr& _getTexturePtr(size_t frame) const;
+		/** Get the vertex texture pointer for this unit. 
+		@remarks
+			Separate vertex texture will only be used if rendersystem supports
+			separate vertex texture bindings.
+		*/
+		const TexturePtr& _getVertexTexturePtr(void) const;
 	
 protected:
         // State
@@ -1025,6 +1051,9 @@ protected:
         //
         std::vector<String> mFrames;
 		mutable std::vector<TexturePtr> mFramePtrs;
+		// Vertex texture - only applicable for hardware with separate vertex texture bindings
+		String mVertexTexture;
+		mutable TexturePtr mVertexTexturePtr;
         String mName;               // optional name for the TUS
         String mTextureNameAlias;       // optional alias for texture frames
         EffectMap mEffects;

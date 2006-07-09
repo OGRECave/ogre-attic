@@ -41,6 +41,9 @@ namespace Ogre
     GpuProgram::CmdType GpuProgram::msTypeCmd;
     GpuProgram::CmdSyntax GpuProgram::msSyntaxCmd;
     GpuProgram::CmdSkeletal GpuProgram::msSkeletalCmd;
+	GpuProgram::CmdMorph GpuProgram::msMorphCmd;
+	GpuProgram::CmdPose GpuProgram::msPoseCmd;
+	GpuProgram::CmdVTF GpuProgram::msVTFCmd;
 
 
     GpuProgramParameters::AutoConstantDefinition GpuProgramParameters::AutoConstantDictionary[] = {
@@ -140,7 +143,7 @@ namespace Ogre
         const String& group, bool isManual, ManualResourceLoader* loader) 
         :Resource(creator, name, handle, group, isManual, loader),
         mType(GPT_VERTEX_PROGRAM), mLoadFromFile(true), mSkeletalAnimation(false),
-        mPassSurfaceAndLightStates(false)
+        mVertexTextureFetch(false), mPassSurfaceAndLightStates(false)
     {
     }
     //-----------------------------------------------------------------------------
@@ -187,13 +190,22 @@ namespace Ogre
     //-----------------------------------------------------------------------------
     bool GpuProgram::isSupported(void) const
     {
+		const RenderSystemCapabilities* caps = 
+			Root::getSingleton().getRenderSystem()->getCapabilities();
         // If skeletal animation is being done, we need support for UBYTE4
         if (isSkeletalAnimationIncluded() && 
-            !Root::getSingleton().getRenderSystem()->getCapabilities()
-                ->hasCapability(RSC_VERTEX_FORMAT_UBYTE4))
+            !caps->hasCapability(RSC_VERTEX_FORMAT_UBYTE4))
         {
             return false;
         }
+
+		// Vertex texture fetch required?
+		if (isVertexTextureFetchRequired() && 
+			!caps->hasCapability(RSC_VERTEX_TEXTURE_FETCH))
+		{
+			return false;
+		}
+
         return GpuProgramManager::getSingleton().isSyntaxSupported(mSyntaxCode);
     }
     //-----------------------------------------------------------------------------
@@ -231,6 +243,18 @@ namespace Ogre
             ParameterDef("includes_skeletal_animation", 
             "Whether this vertex program includes skeletal animation", PT_BOOL), 
             &msSkeletalCmd);
+		dict->addParameter(
+			ParameterDef("includes_morph_animation", 
+			"Whether this vertex program includes morph animation", PT_BOOL), 
+			&msMorphCmd);
+		dict->addParameter(
+			ParameterDef("includes_pose_animation", 
+			"The number of poses this vertex program supports for pose animation", PT_INT), 
+			&msPoseCmd);
+		dict->addParameter(
+			ParameterDef("uses_vertex_texture_fetch", 
+			"Whether this vertex program requires vertex texture fetch support.", PT_BOOL), 
+			&msVTFCmd);
     }
 
     //-----------------------------------------------------------------------
@@ -1230,6 +1254,39 @@ namespace Ogre
         GpuProgram* t = static_cast<GpuProgram*>(target);
         t->setSkeletalAnimationIncluded(StringConverter::parseBool(val));
     }
+	//-----------------------------------------------------------------------
+	String GpuProgram::CmdMorph::doGet(const void* target) const
+	{
+		const GpuProgram* t = static_cast<const GpuProgram*>(target);
+		return StringConverter::toString(t->isMorphAnimationIncluded());
+	}
+	void GpuProgram::CmdMorph::doSet(void* target, const String& val)
+	{
+		GpuProgram* t = static_cast<GpuProgram*>(target);
+		t->setMorphAnimationIncluded(StringConverter::parseBool(val));
+	}
+	//-----------------------------------------------------------------------
+	String GpuProgram::CmdPose::doGet(const void* target) const
+	{
+		const GpuProgram* t = static_cast<const GpuProgram*>(target);
+		return StringConverter::toString(t->getNumberOfPosesIncluded());
+	}
+	void GpuProgram::CmdPose::doSet(void* target, const String& val)
+	{
+		GpuProgram* t = static_cast<GpuProgram*>(target);
+		t->setPoseAnimationIncluded(StringConverter::parseUnsignedInt(val));
+	}
+	//-----------------------------------------------------------------------
+	String GpuProgram::CmdVTF::doGet(const void* target) const
+	{
+		const GpuProgram* t = static_cast<const GpuProgram*>(target);
+		return StringConverter::toString(t->isVertexTextureFetchRequired());
+	}
+	void GpuProgram::CmdVTF::doSet(void* target, const String& val)
+	{
+		GpuProgram* t = static_cast<GpuProgram*>(target);
+		t->setVertexTextureFetchRequired(StringConverter::parseBool(val));
+	}
     //-----------------------------------------------------------------------
     GpuProgramPtr& GpuProgramPtr::operator=(const HighLevelGpuProgramPtr& r)
     {

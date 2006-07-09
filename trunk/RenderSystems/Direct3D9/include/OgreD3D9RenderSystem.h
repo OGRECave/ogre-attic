@@ -87,6 +87,8 @@ namespace Ogre
             const Frustum *frustum;
 			/// texture 
 			IDirect3DBaseTexture9 *pTex;
+			/// vertex texture 
+			IDirect3DBaseTexture9 *pVertexTex;
 		} mTexStageDesc[OGRE_MAX_TEXTURE_LAYERS];
 
 		// Array of up to 8 lights, indexed as per API
@@ -229,6 +231,8 @@ namespace Ogre
 		void _setPointParameters(Real size, bool attenuationEnabled, 
 			Real constant, Real linear, Real quadratic, Real minSize, Real maxSize);
 		void _setTexture(size_t unit, bool enabled, const TexturePtr &texPtr);
+		void _setVertexTexture(size_t unit, const TexturePtr& tex);
+		void _disableTextureUnit(size_t texUnit);
 		void _setTextureCoordSet( size_t unit, size_t index );
         void _setTextureCoordCalculation(size_t unit, TexCoordCalcMethod m, 
             const Frustum* frustum = 0);

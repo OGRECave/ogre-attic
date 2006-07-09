@@ -1130,7 +1130,7 @@ Default: none
 @anchor{vertex_texture}
 @subheading vertex_texture
 
-Binds a texture to the vertex texture sampler associated with this texture unit.On current generation hardware, this allows you to sample a specific subset of texture types inside a vertex program, rather than in the fragment processing step, for performing things like displacement mapping. Using vertex textures has a number of caveats and ideosyncracies which are covered in the @ref{Vertex Texture Fetch} section.
+Binds a texture to the @strong{separate} vertex texture sampler associated with this texture unit. This requires a rendersystem which has support for vertex texture samplers which are separate from the normal fragment pipeline texture samplers - if the rendersystem you are using doesn't operate this way, the technique containing this texture unit will be marked as unsupported and technique fallback will ensue. Using textures in vertex programs has a number of caveats and ideosyncracies which are covered in the @ref{Vertex Texture Fetch} section.
 
 @anchor{tex_coord_set}
 @subheading tex_coord_set
@@ -1595,6 +1595,13 @@ You can implement pose animation (blending between multiple poses based on weigh
 @end example
 Note that ALL submeshes must be assigned a material which implements this, and that if you combine skeletal animation with vertex animation (@xref{Animation}) then all techniques must be hardware accelerated for any to be.
 
+@subheading Vertex texture fetching
+If your vertex program makes use of @ref{Vertex Texture Fetch}, you should declare that with the 'uses_vertex_texture_fetch' directive. This is enough to tell Ogre that your program uses this feature and that hardware support for it should be checked.
+@example
+	uses_vertex_texture_fetch true
+@end example
+	
+
 @subheading Vertex Programs With Shadows
 When using shadows (@xref{Shadows}), the use of vertex programs can add some additional complexities, because Ogre can only automatically deal with everything when using the fixed-function pipeline. If you use vertex programs, and you are also using shadows, you may need to make some adjustments. @*@*
 
@@ -1878,14 +1885,13 @@ You should pass the projected shadow coordinates from the custom vertex program.
 @subheading Introduction
 More recent generations of video card allow you to perform a read from a texture in the vertex program rather than just the fragment program, as is traditional. This allows you to, for example, read the contents of a texture and displace vertices based on the intensity of the colour contained within.@*@*
 
-@subheading Render system API differences
+@subheading Declaring the use of vertex texture fetching
+Since hardware support for vertex texture fetching is not ubiquitous, you should use the @ref{uses_vertex_texture_fetch} directive when declaring your vertex programs which use vertex textures, so that if it is not supported, technique fallback can be enabled. This is not strictly necessary for DirectX-targetted shaders, since vertex texture fetching is only supported in vs_3_0, which can be stated as a required syntax in your shader definition, but for OpenGL (GLSL), there are cards which support GLSL but not vertex textures, so you should be explicit about your need for them.
+
+@subheading Render system texture binding differences
 Unfortunately the method for binding textures so that they are available to a vertex program is not well standardised. As at the time of writing, Shader Model 3.0 (SM3.0) hardware under DirectX9 include 4 separate sampler bindings for the purposes of vertex textures. OpenGL, on the other hand, is able to access vertex textures in GLSL (and in assembler through NV_vertex_program_3, although this is less popular), but the textures are shared with the fragment pipeline. I expect DirectX to move to the GL model with the advent of DirectX10, since a unified shader architecture implies sharing of texture resources between the two stages. As it is right now though, we're stuck with an inconsistent situation.@*@*
 
-This led to the introduction of the @ref{vertex_texture} directive in texture_unit. Under DirectX9, you can use this directive in the same texture_unit as a @ref{texture} directive, and 2 different textures can be bound. Under OpenGL, @ref{vertex_texture} is an alias of @ref{texture} and thus if you (mistakenly) use both, the later one encountered will apply. @*@*
-
-In practice this means that you will have to write 2 material techniques if you want to use vertex texture fetch with cross-API compatibility, which you should differentiate from each other with their shader profiles (GLSL and HLSL).@*@*
-
-You should still use the @ref{vertex_texture} directive rather than @ref{texture}, even in OpenGL and when you intend to share the texture. This is because it will tell Ogre what you intend to use it for, and if the card that you're running on doesn't support vertex textures, it will mark this technique as not supported and fall back on the next one. This is especially important since GLSL doesn't have graduations of support identifying this option (like vs_3_0 in DirectX9).
+This difference means that you can't write a single technique that will operate the same way on DirectX9 and OpenGL. Under DirectX9, you should use the @ref{vertex_texture} directive in texture_unit. You can use this directive in the same texture_unit as a @ref{texture} directive, and 2 different textures can be bound. Under OpenGL, @ref{vertex_texture} is unsupported and as such, use of it will cause the technique to be marked as unsupported, which then allows you to write a fallback technique which uses only @ref{texture}, which binds textures to a common unit both vertex and fragment programs can access. Of course, you might also reference API-specific shaders (HLSL / GLSL) which could cause this fallback to occur anyway, but if you don't, make sure you list the DirectX9 technique first (so the absence of vertex_texture support can be detected).@*@*
 
 @subheading Texture format limitations
 Again as at the time of writing, the types of texture you can use in a vertex program are limited to 1- or 4-component, full precision floating point formats. In code that equates to PF_FLOAT32_R or PF_FLOAT32_RGBA. No other formats are supported. In addition, the textures must be regular 2D textures (no cube or volume maps) and mipmapping and filtering is not supported, although you can perform filtering in your vertex program if you wish by sampling multiple times.

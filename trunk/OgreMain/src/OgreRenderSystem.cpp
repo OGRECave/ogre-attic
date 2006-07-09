@@ -241,6 +241,13 @@ namespace Ogre {
         // Texture border colour
         _setTextureBorderColour(texUnit, tl.getTextureBorderColour());
 
+		// Separate vertex texture, if any
+		if (mCapabilities->hasCapability(RSC_VERTEX_TEXTURE_FETCH) && 
+			!mCapabilities->getVertexTextureUnitsShared())
+		{
+			_setVertexTexture(texUnit, tl._getVertexTexturePtr());
+		}
+
         // Set texture effects
         TextureUnitState::EffectMap::iterator effi;
         // Iterate over new effects
@@ -303,10 +310,21 @@ namespace Ogre {
 		TexturePtr t = TextureManager::getSingleton().getByName(texname);
 		_setTexture(unit, enabled, t);
 	}
+	//-----------------------------------------------------------------------
+	void RenderSystem::_setVertexTexture(size_t unit, const TexturePtr& tex)
+	{
+		OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, 
+			"This rendersystem does not support separate vertex texture samplers, "
+			"you should use the regular texture samplers which are shared between "
+			"the vertex and fragment units.", 
+			"RenderSystem::_setVertexTexture");
+	}
     //-----------------------------------------------------------------------
     void RenderSystem::_disableTextureUnit(size_t texUnit)
     {
-        _setTexture(texUnit, false, "");
+		static TexturePtr nullPtr;
+
+        _setTexture(texUnit, false, nullPtr);
         _setTextureMatrix(texUnit, Matrix4::IDENTITY);
     }
     //---------------------------------------------------------------------
