@@ -4305,6 +4305,98 @@ protected:
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
     }
 
+	void testVertexTexture()
+	{
+
+		// NOTE: DirectX only right now
+
+		Light* l = mSceneMgr->createLight("MainLight");
+		l->setType(Light::LT_POINT);
+		l->setPosition(0, 200, 0);
+
+
+		// Create single-channel floating point texture, no mips
+		TexturePtr tex = TextureManager::getSingleton().createManual(
+			"vertexTexture", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
+			128, 128, 0, PF_FLOAT32_R);
+		float* pData = static_cast<float*>(
+			tex->getBuffer()->lock(HardwareBuffer::HBL_DISCARD));
+		// write concentric circles into the texture
+		for (int y  = -64; y < 64; ++y)
+		{
+			for (int x = -64; x < 64; ++x)
+			{
+
+				float val = Math::Sqrt(x*x + y*y);
+				// repeat every 20 pixels
+				val = val * Math::TWO_PI / 20.0f;
+				*pData++ = Math::Sin(val);
+			}
+		}
+		tex->getBuffer()->unlock();
+
+		String progSource = 
+			"void main(\n"
+				"float4 pos : POSITION,\n"
+				"float2 uv1 : TEXCOORD0,\n"
+				"uniform float4x4 world, \n"
+				"uniform float4x4 viewProj,\n"
+				"uniform float heightscale,\n"
+				"uniform sampler2D heightmap,\n"
+				"out float4 oPos : POSITION,\n"
+				"out float2 oUv1 : TEXCOORD1,\n"
+				"out float4 col : COLOR)\n"
+			"{\n"
+				"oPos = mul(world, pos);\n"
+				"// tex2Dlod since no mip\n"
+				"float4 t = float4(0,0,0,0);\n"
+				"t.xy = uv1.xy;\n"
+				"float height = tex2Dlod(heightmap, t);\n"
+				"oPos.y = oPos.y + (height * heightscale);\n"
+				"oPos = mul(viewProj, oPos);\n"
+				"oUv1 = uv1;\n"
+				"col = float4(1,1,1,1);\n"
+			"}\n";
+		HighLevelGpuProgramPtr prog = HighLevelGpuProgramManager::getSingleton().createProgram(
+			"TestVertexTextureFetch", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+			"hlsl", GPT_VERTEX_PROGRAM);
+		prog->setSource(progSource);
+		prog->setParameter("target", "vs_3_0");
+		prog->setVertexTextureFetchRequired(true);
+		prog->setParameter("entry_point", "main");
+		prog->load();
+
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("TestVertexTexture", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* pass = mat->getTechnique(0)->getPass(0);
+		pass->setLightingEnabled(false);
+		pass->setVertexProgram("TestVertexTextureFetch");
+		GpuProgramParametersSharedPtr vp = pass->getVertexProgramParameters();
+		vp->setNamedAutoConstant("world", GpuProgramParameters::ACT_WORLD_MATRIX);
+		vp->setNamedAutoConstant("viewProj", GpuProgramParameters::ACT_VIEWPROJ_MATRIX);
+		vp->setNamedConstant("heightscale", 30.0f);
+		// vertex texture
+		TextureUnitState* t = pass->createTextureUnitState("vertexTexture");
+		t->setBindingType(TextureUnitState::BT_VERTEX);
+		// regular texture
+		pass->createTextureUnitState("BumpyMetal.jpg");
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 100;
+		// 128 x 128 segment plane
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			1500,1500,128,128,true,1,1,1,Vector3::UNIT_Z);
+		Entity* pPlaneEnt;
+		pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("TestVertexTexture");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+	}
+
 
 	// Just override the mandatory create scene method
     void createScene(void)
@@ -4397,11 +4489,13 @@ protected:
 		//testMaterialSchemesWithMismatchedLOD();
         //testSkeletonAnimationOptimise();
 
-		testCubeDDS();
+		//testCubeDDS();
 		//testDxt1();
 		//testDxt1Alpha();
 		//testDxt3();
 		//testDxt5();
+
+		testVertexTexture();
 
 		
     }
