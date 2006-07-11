@@ -36,42 +36,39 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     TextureUnitState::TextureUnitState(Pass* parent)
-        : mParent(parent)
+        : mCurrentFrame(0)
+		, mAnimDuration(0)
+		, mCubic(false)
+		, mTextureType(TEX_TYPE_2D)
+		, mTextureSrcMipmaps(-1)
+		, mTextureCoordSetIndex(0)
+		, mBorderColour(ColourValue::Black)
+		, mIsBlank(true)
+		, mIsAlpha(false)
+		, mRecalcTexMatrix(false)
+		, mUMod(0)
+		, mVMod(0)
+		, mUScale(1)
+		, mVScale(1)
+		, mRotate(0)
+		, mTexModMatrix(Matrix4::IDENTITY)
+		, mMinFilter(FO_LINEAR)
+		, mMagFilter(FO_LINEAR)
+		, mMipFilter(FO_POINT)
+		, mMaxAniso(MaterialManager::getSingleton().getDefaultAnisotropy())
+		, mIsDefaultAniso(true)
+		, mIsDefaultFiltering(true)
+		, mBindingType(BT_FRAGMENT)
+		, mParent(parent)
+		, mAnimController(0)
     {
-        mIsBlank = true;
-		mIsAlpha = false;
-        colourBlendMode.blendType = LBT_COLOUR;
-        setColourOperation(LBO_MODULATE);
-        setTextureAddressingMode(TAM_WRAP);
-        mBorderColour = ColourValue::Black;
-
-        alphaBlendMode.operation = LBX_MODULATE;
-        alphaBlendMode.blendType = LBT_ALPHA;
-        alphaBlendMode.source1 = LBS_TEXTURE;
-        alphaBlendMode.source2 = LBS_CURRENT;
-		
-		//default filtering
-		mMinFilter = FO_LINEAR;
-		mMagFilter = FO_LINEAR;
-		mMipFilter = FO_POINT;
-		mMaxAniso = MaterialManager::getSingleton().getDefaultAnisotropy();
-        mIsDefaultAniso = true;
-        mIsDefaultFiltering = true;
-
-		mUMod = mVMod = 0;
-        mUScale = mVScale = 1;
-        mRotate = 0;
-        mTexModMatrix = Matrix4::IDENTITY;
-        mRecalcTexMatrix = false;
-
-        mAnimDuration = 0;
-        mAnimController = 0;
-        mCubic = false;
-        mTextureType = TEX_TYPE_2D;
-		mTextureSrcMipmaps = -1;
-        mTextureCoordSetIndex = 0;
-
-        mCurrentFrame = 0;
+		mColourBlendMode.blendType = LBT_COLOUR;
+		mAlphaBlendMode.operation = LBX_MODULATE;
+		mAlphaBlendMode.blendType = LBT_ALPHA;
+		mAlphaBlendMode.source1 = LBS_TEXTURE;
+		mAlphaBlendMode.source2 = LBS_CURRENT;
+		setColourOperation(LBO_MODULATE);
+		setTextureAddressingMode(TAM_WRAP);
 
         mParent->_dirtyHash();
 
@@ -87,39 +84,32 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     TextureUnitState::TextureUnitState( Pass* parent, const String& texName, unsigned int texCoordSet)
-        :mParent(parent)
+		: mCurrentFrame(0)
+		, mAnimDuration(0)
+		, mCubic(false)
+		, mTextureType(TEX_TYPE_2D)
+		, mTextureSrcMipmaps(-1)
+		, mTextureCoordSetIndex(0)
+		, mBorderColour(ColourValue::Black)
+		, mIsBlank(true)
+		, mIsAlpha(false)
+		, mRecalcTexMatrix(false)
+		, mUMod(0)
+		, mVMod(0)
+		, mUScale(1)
+		, mVScale(1)
+		, mRotate(0)
+		, mTexModMatrix(Matrix4::IDENTITY)
+		, mMinFilter(FO_LINEAR)
+		, mMagFilter(FO_LINEAR)
+		, mMipFilter(FO_POINT)
+		, mMaxAniso(MaterialManager::getSingleton().getDefaultAnisotropy())
+		, mIsDefaultAniso(true)
+		, mIsDefaultFiltering(true)
+		, mBindingType(BT_FRAGMENT)
+		, mParent(parent)
+		, mAnimController(0)
     {
-        mIsBlank = true;
-		mIsAlpha = false;
-        colourBlendMode.blendType = LBT_COLOUR;
-        setColourOperation(LBO_MODULATE);
-        setTextureAddressingMode(TAM_WRAP);
-        mBorderColour = ColourValue::Black;
-
-        alphaBlendMode.operation = LBX_MODULATE;
-        alphaBlendMode.blendType = LBT_ALPHA;
-        alphaBlendMode.source1 = LBS_TEXTURE;
-        alphaBlendMode.source2 = LBS_CURRENT;
-
-		//default filtering && anisotropy
-		mMinFilter = FO_LINEAR;
-		mMagFilter = FO_LINEAR;
-		mMipFilter = FO_POINT;
-		mMaxAniso = MaterialManager::getSingleton().getDefaultAnisotropy();
-        mIsDefaultAniso = true;
-        mIsDefaultFiltering = true;
-
-		mUMod = mVMod = 0;
-        mUScale = mVScale = 1;
-        mRotate = 0;
-        mAnimDuration = 0;
-        mAnimController = 0;
-        mTexModMatrix = Matrix4::IDENTITY;
-        mRecalcTexMatrix = false;
-
-        mCubic = false;
-        mTextureType = TEX_TYPE_2D;
-        mTextureCoordSetIndex = 0;
 
         setTextureName(texName);
         setTextureCoordSet(texCoordSet);
@@ -212,24 +202,16 @@ namespace Ogre {
         }
 
     }
-	//---------------------------------------------------------------------
-	void TextureUnitState::setVertexTextureName(const String& name)
+	//-----------------------------------------------------------------------
+	void TextureUnitState::setBindingType(TextureUnitState::BindingType bt)
 	{
-		mVertexTexture = name;
-		mVertexTexturePtr.setNull();
-
-		// Load immediately ?
-		if (isLoaded())
-		{
-			_load(); // reload
-			// no need to dirty hash
-		}
+		mBindingType = bt;
 
 	}
-	//---------------------------------------------------------------------
-	const String& TextureUnitState::getVertexTextureName(void) const
+	//-----------------------------------------------------------------------
+	TextureUnitState::BindingType TextureUnitState::getBindingType(void) const
 	{
-		return mVertexTexture;
+		return mBindingType;
 	}
     //-----------------------------------------------------------------------
     void TextureUnitState::setCubicTextureName( const String& name, bool forUVW)
@@ -481,12 +463,12 @@ namespace Ogre {
         const ColourValue& arg2,
         Real manualBlend)
     {
-        colourBlendMode.operation = op;
-        colourBlendMode.source1 = source1;
-        colourBlendMode.source2 = source2;
-        colourBlendMode.colourArg1 = arg1;
-        colourBlendMode.colourArg2 = arg2;
-        colourBlendMode.factor = manualBlend;
+        mColourBlendMode.operation = op;
+        mColourBlendMode.source1 = source1;
+        mColourBlendMode.source2 = source2;
+        mColourBlendMode.colourArg1 = arg1;
+        mColourBlendMode.colourArg2 = arg2;
+        mColourBlendMode.factor = manualBlend;
     }
     //-----------------------------------------------------------------------
     void TextureUnitState::setColourOperation(LayerBlendOperation op)
@@ -517,8 +499,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureUnitState::setColourOpMultipassFallback(SceneBlendFactor sourceFactor, SceneBlendFactor destFactor)
     {
-        colourBlendFallbackSrc = sourceFactor;
-        colourBlendFallbackDest = destFactor;
+        mColourBlendFallbackSrc = sourceFactor;
+        mColourBlendFallbackDest = destFactor;
     }
     //-----------------------------------------------------------------------
     void TextureUnitState::setAlphaOperation(LayerBlendOperationEx op,
@@ -528,12 +510,12 @@ namespace Ogre {
         Real arg2,
         Real manualBlend)
     {
-        alphaBlendMode.operation = op;
-        alphaBlendMode.source1 = source1;
-        alphaBlendMode.source2 = source2;
-        alphaBlendMode.alphaArg1 = arg1;
-        alphaBlendMode.alphaArg2 = arg2;
-        alphaBlendMode.factor = manualBlend;
+        mAlphaBlendMode.operation = op;
+        mAlphaBlendMode.source1 = source1;
+        mAlphaBlendMode.source2 = source2;
+        mAlphaBlendMode.alphaArg1 = arg1;
+        mAlphaBlendMode.alphaArg2 = arg2;
+        mAlphaBlendMode.factor = manualBlend;
     }
     //-----------------------------------------------------------------------
     void TextureUnitState::addEffect(TextureEffect& effect)
@@ -599,22 +581,22 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     SceneBlendFactor TextureUnitState::getColourBlendFallbackSrc(void) const
     {
-        return colourBlendFallbackSrc;
+        return mColourBlendFallbackSrc;
     }
     //-----------------------------------------------------------------------
     SceneBlendFactor TextureUnitState::getColourBlendFallbackDest(void) const
     {
-        return colourBlendFallbackDest;
+        return mColourBlendFallbackDest;
     }
     //-----------------------------------------------------------------------
     const LayerBlendModeEx& TextureUnitState::getColourBlendMode(void) const
     {
-        return colourBlendMode;
+        return mColourBlendMode;
     }
     //-----------------------------------------------------------------------
     const LayerBlendModeEx& TextureUnitState::getAlphaBlendMode(void) const
     {
-        return alphaBlendMode;
+        return mAlphaBlendMode;
     }
     //-----------------------------------------------------------------------
     const TextureUnitState::UVWAddressingMode& 
@@ -903,37 +885,6 @@ namespace Ogre {
 			return nullTexPtr;
 		}
 		
-	}
-	//-----------------------------------------------------------------------
-	const TexturePtr& TextureUnitState::_getVertexTexturePtr(void) const
-	{
-		if (!mVertexTexture.empty())
-		{
-			// Ensure texture is loaded
-			// Only 2D supported, no mips
-			if (mVertexTexturePtr.isNull())
-			{
-				try {
-					mVertexTexturePtr = 
-						TextureManager::getSingleton().load(mVertexTexture, 
-						mParent->getResourceGroup(), TEX_TYPE_2D, 
-						0, 1.0f, false);
-				}
-				catch (Exception &e) {
-					String msg;
-					msg = msg + "Error loading vertex texture " + mVertexTexture  + 
-							": "  + e.getFullDescription();
-					LogManager::getSingleton().logMessage(msg);
-				}	
-			}
-			else
-			{
-				// Just ensure existing pointer is loaded
-				mVertexTexturePtr->load();
-			}
-		}
-
-		return mVertexTexturePtr;
 	}
     //-----------------------------------------------------------------------
 	void TextureUnitState::ensureLoaded(size_t frame) const

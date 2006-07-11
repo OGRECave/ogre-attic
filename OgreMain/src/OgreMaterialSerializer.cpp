@@ -768,9 +768,21 @@ namespace Ogre
         return false;
     }
 	//---------------------------------------------------------------------
-	bool parseVertexTexture(String& params, MaterialScriptContext& context)
+	bool parseBindingType(String& params, MaterialScriptContext& context)
 	{
-		context.textureUnit->setVertexTextureName(params);
+		if (params == "fragment")
+		{
+			context.textureUnit->setBindingType(TextureUnitState::BT_FRAGMENT);
+		}
+		else if (params == "vertex")
+		{
+			context.textureUnit->setBindingType(TextureUnitState::BT_VERTEX);
+		}
+		else
+		{
+			logParseError("Invalid binding_type option - "+params+".",
+				context);
+		}
 		return false;
 	}
     //-----------------------------------------------------------------------
@@ -2497,7 +2509,7 @@ namespace Ogre
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("texture", (ATTRIBUTE_PARSER)parseTexture));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("anim_texture", (ATTRIBUTE_PARSER)parseAnimTexture));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("cubic_texture", (ATTRIBUTE_PARSER)parseCubicTexture));
-		mTextureUnitAttribParsers.insert(AttribParserList::value_type("vertex_texture", (ATTRIBUTE_PARSER)parseVertexTexture));
+		mTextureUnitAttribParsers.insert(AttribParserList::value_type("binding_type", (ATTRIBUTE_PARSER)parseBindingType));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("tex_coord_set", (ATTRIBUTE_PARSER)parseTexCoord));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("tex_address_mode", (ATTRIBUTE_PARSER)parseTexAddressMode));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("tex_border_colour", (ATTRIBUTE_PARSER)parseTexBorderColour));
@@ -3759,6 +3771,25 @@ namespace Ogre
 				texEffect.arg2 = scrollAnimV;
 				writeScrollEffect(texEffect, pTex);
 			}
+
+			// Binding type
+			TextureUnitState::BindingType bt = pTex->getBindingType();
+			if (mDefaults ||
+				bt != TextureUnitState::BT_FRAGMENT)
+			{
+				writeAttribute(4, "binding_type");
+				switch(bt)
+				{
+				case TextureUnitState::BT_FRAGMENT:
+					writeValue("fragment");
+					break;
+				case TextureUnitState::BT_VERTEX:
+					writeValue("vertex");
+					break;
+				};
+		
+			}
+
         }
         endSection(3);
 

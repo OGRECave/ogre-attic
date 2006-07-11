@@ -216,8 +216,33 @@ namespace Ogre {
         // This method is only ever called to set a texture unit to valid details
         // The method _disableTextureUnit is called to turn a unit off
 
-        // Bind texture (may be blank)
-		_setTexture(texUnit, true, tl._getTexturePtr());
+		// Vertex texture binding?
+		static TexturePtr nullPtr;
+		if (mCapabilities->hasCapability(RSC_VERTEX_TEXTURE_FETCH) && 
+			!mCapabilities->getVertexTextureUnitsShared())
+		{
+			if (tl.getBindingType() == TextureUnitState::BT_VERTEX)
+			{
+				// bind nothing to fragment unit (hardware isn't shared but fragment
+				// unit can't be using the same index
+				_setTexture(texUnit, true, nullPtr);
+				// Bind vertex texture
+				_setVertexTexture(texUnit, tl._getTexturePtr());
+			}
+			else
+			{
+				// vice versa
+				_setTexture(texUnit, true, tl._getTexturePtr());
+				_setVertexTexture(texUnit, nullPtr);
+
+			}
+		}
+		else
+		{
+			// Shared vertex / fragment textures or no vertex texture support
+			// Bind texture (may be blank)
+			_setTexture(texUnit, true, tl._getTexturePtr());
+		}
 
         // Set texture coordinate set
         _setTextureCoordSet(texUnit, tl.getTextureCoordSet());
@@ -240,13 +265,6 @@ namespace Ogre {
         _setTextureAddressingMode(texUnit, tl.getTextureAddressingMode() );
         // Texture border colour
         _setTextureBorderColour(texUnit, tl.getTextureBorderColour());
-
-		// Separate vertex texture, if any
-		if (mCapabilities->hasCapability(RSC_VERTEX_TEXTURE_FETCH) && 
-			!mCapabilities->getVertexTextureUnitsShared())
-		{
-			_setVertexTexture(texUnit, tl._getVertexTexturePtr());
-		}
 
         // Set texture effects
         TextureUnitState::EffectMap::iterator effi;

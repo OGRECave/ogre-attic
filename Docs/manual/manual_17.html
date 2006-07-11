@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on July 5 2006 by texi2html 1.66 -->
+<!-- Created on July 11 2006 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -56,8 +56,6 @@ Here are the attributes you can use in a 'texture_unit' section of a .material s
 <LI>
 <A HREF="manual_17.html#SEC67">cubic_texture</A>
 <LI>
-<A HREF="manual_17.html#SEC68">vertex_texture</A>
-<LI>
 <A HREF="manual_17.html#SEC69">tex_coord_set</A>
 <LI>
 <A HREF="manual_17.html#SEC70">tex_address_mode</A>
@@ -91,10 +89,12 @@ Here are the attributes you can use in a 'texture_unit' section of a .material s
 <A HREF="manual_17.html#SEC84">wave_xform</A>
 <LI>
 <A HREF="manual_17.html#SEC85">transform</A>
+<LI>
+<A HREF="manual_17.html#SEC68">binding_type</A>
 </UL>
 <P>
 
-You can also use a nested 'texture_source' section in order to use a special add-in as a source of texture data, See section <A HREF="manual_62.html#SEC268">6. External Texture Sources</A> for details.
+You can also use a nested 'texture_source' section in order to use a special add-in as a source of texture data, See section <A HREF="manual_62.html#SEC271">6. External Texture Sources</A> for details.
 </P>
 <P>
 
@@ -119,7 +119,7 @@ Example: texture_alias NormalMap<BR><BR>
 </P>
 <P>
 
-Setting the texture alias name is usefull if this material is to be copied by other other materials and only the textures will be changed in the new material.(See section <A HREF="manual_21.html#SEC110">3.1.7 Copying Materials</A>)<BR><BR>
+Setting the texture alias name is usefull if this material is to be copied by other other materials and only the textures will be changed in the new material.(See section <A HREF="manual_21.html#SEC113">3.1.7 Copying Materials</A>)<BR><BR>
 Default: If a texture_unit has a name then the texture_alias defaults to the texture_unit name.
 </P>
 <P>
@@ -242,13 +242,18 @@ In both cases the final parameter means the following:
 Default: none
 <P>
 
-<A NAME="vertex_texture"></A>
+<A NAME="binding_type"></A>
 <A NAME="SEC68"></A>
-<H3> vertex_texture </H3>
+<H3> binding_type </H3>
 <!--docid::SEC68::-->
 <P>
 
-Binds a texture to the vertex texture sampler associated with this texture unit.On current generation hardware, this allows you to sample a specific subset of texture types inside a vertex program, rather than in the fragment processing step, for performing things like displacement mapping. Using vertex textures has a number of caveats and ideosyncracies which are covered in the <A HREF="manual_20.html#SEC106">3.1.6 Vertex Texture Fetch</A> section.
+Tells this texture unit to bind to either the fragment processing unit or the vertex processing unit (for <A HREF="manual_20.html#SEC107">3.1.6 Vertex Texture Fetch</A>). <BR><BR>
+</P>
+<P>
+
+Format: binding_type &lt;vertex|fragment&gt;
+Default: binding_type fragment
 </P>
 <P>
 
@@ -734,7 +739,7 @@ The indexes of the 4x4 matrix value above are expressed as m&lt;row&gt;&lt;col&g
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>July 5 2006</I>
+by <I>steve</I> on <I>July 11 2006</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 
