@@ -69,8 +69,8 @@ namespace Ogre {
 		/** Returns whether or not this sphere interects another sphere. */
 		bool intersects(const Sphere& s) const
 		{
-			return (s.mCenter - mCenter).length() <=
-				(s.mRadius + mRadius);
+            return (s.mCenter - mCenter).squaredLength() <=
+                Math::Sqr(s.mRadius + mRadius);
 		}
 		/** Returns whether or not this sphere interects a box. */
 		bool intersects(const AxisAlignedBox& box) const
@@ -85,7 +85,7 @@ namespace Ogre {
 		/** Returns whether or not this sphere interects a point. */
 		bool intersects(const Vector3& v) const
 		{
-			return ((v - mCenter).length() <= mRadius);
+            return ((v - mCenter).squaredLength() <= Math::Sqr(mRadius));
 		}
         
 
