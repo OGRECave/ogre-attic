@@ -396,25 +396,31 @@ namespace Ogre {
         */
         unsigned int getNumFrames(void) const;
 
-		/** Sets the name of the texture to use for binding to a separate vertex 
-			texture unit. 
-		@remarks
-			This method only applies if the hardware supports separate vertex
-			texture samplers (e.g. Direct3D9). For hardware that uses a unified
-			sampler model (e.g. OpenGL), you should continue to use the regular
-			setTexture* methods on this class.
-		*/
-		void setVertexTextureName(const String& name);
 
-		/** Gets the name of the texture to use for binding to a separate vertex 
-			texture unit. 
+		/** The type of unit to bind the texture settings to. */
+		enum BindingType
+		{
+			/** Regular fragment processing unit - the default. */
+			BT_FRAGMENT = 0,
+			/** Vertex processing unit - indicates this unit will be used for 
+				a vertex texture fetch.
+			*/
+			BT_VERTEX = 1
+		};
+		/** Sets the type of unit these texture settings should be bound to. 
 		@remarks
-			This method only applies if the hardware supports separate vertex
-			texture samplers (e.g. Direct3D9). For hardware that uses a unified
-			sampler model (e.g. OpenGL), you should continue to use the regular
-			setTexture* methods on this class.
+			Some render systems, when implementing vertex texture fetch, separate
+			the binding of textures for use in the vertex program versus those
+			used in fragment programs. This setting allows you to target the
+			vertex processing unit with a texture binding, in those cases. For
+			rendersystems which have a unified binding for the vertex and fragment
+			units, this setting makes no difference.
 		*/
-		const String& getVertexTextureName(void) const;
+		void setBindingType(BindingType bt);
+
+		/** Gets the type of unit these texture settings should be bound to.  
+		*/
+		BindingType getBindingType(void) const;
 
         /** Returns true if this texture unit is either a series of 6 2D textures, each
             in it's own frame, or is a full 3D cube map. You can tell which by checking
@@ -995,12 +1001,6 @@ namespace Ogre {
 		const TexturePtr& _getTexturePtr(void) const;
 		/** Get the texture pointer for a given frame. */
 		const TexturePtr& _getTexturePtr(size_t frame) const;
-		/** Get the vertex texture pointer for this unit. 
-		@remarks
-			Separate vertex texture will only be used if rendersystem supports
-			separate vertex texture bindings.
-		*/
-		const TexturePtr& _getVertexTexturePtr(void) const;
 	
 protected:
         // State
@@ -1018,11 +1018,11 @@ protected:
         UVWAddressingMode mAddressMode;
         ColourValue mBorderColour;
 
-        LayerBlendModeEx colourBlendMode;
-        SceneBlendFactor colourBlendFallbackSrc;
-        SceneBlendFactor colourBlendFallbackDest;
+        LayerBlendModeEx mColourBlendMode;
+        SceneBlendFactor mColourBlendFallbackSrc;
+        SceneBlendFactor mColourBlendFallbackDest;
 
-        LayerBlendModeEx alphaBlendMode;
+        LayerBlendModeEx mAlphaBlendMode;
         mutable bool mIsBlank;
         bool mIsAlpha;
 
@@ -1043,6 +1043,8 @@ protected:
 
         bool mIsDefaultAniso;
         bool mIsDefaultFiltering;
+		/// Binding type (fragment or vertex pipeline)
+		BindingType mBindingType;
 
 
         //-----------------------------------------------------------------------------
@@ -1051,9 +1053,6 @@ protected:
         //
         std::vector<String> mFrames;
 		mutable std::vector<TexturePtr> mFramePtrs;
-		// Vertex texture - only applicable for hardware with separate vertex texture bindings
-		String mVertexTexture;
-		mutable TexturePtr mVertexTexturePtr;
         String mName;               // optional name for the TUS
         String mTextureNameAlias;       // optional alias for texture frames
         EffectMap mEffects;

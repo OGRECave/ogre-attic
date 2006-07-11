@@ -141,6 +141,7 @@ namespace Ogre
 
         void convertVertexShaderCaps(void);
         void convertPixelShaderCaps(void);
+		bool checkVertexTextureFormats(void);
 
         unsigned short mCurrentLights;
         /// Saved last view matrix
@@ -323,6 +324,7 @@ namespace Ogre
 		/** Clear all cached depth stencil surfaces
 		*/
 		void _cleanupDepthStencils();
+
 	};
 }
 #endif
