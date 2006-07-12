@@ -185,7 +185,7 @@ namespace Ogre {
         ~Mesh();
 
 		/// @copydoc Resource::load
-		void load(void);
+		void load(bool backgroundThread = false);
 
 		// NB All methods below are non-virtual since they will be
         // called in the rendering loop - speed is of the essence.
