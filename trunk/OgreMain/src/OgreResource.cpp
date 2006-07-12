@@ -35,7 +35,8 @@ namespace Ogre
 	Resource::Resource(ResourceManager* creator, const String& name, ResourceHandle handle,
 		const String& group, bool isManual, ManualResourceLoader* loader)
 		: mCreator(creator), mName(name), mGroup(group), mHandle(handle), 
-		mIsLoaded(false), mSize(0), mIsManual(isManual), mLoader(loader)
+		mIsLoaded(false), mIsBackgroundLoaded(false), mIsLoadingInProgress(false),
+		mSize(0), mIsManual(isManual), mLoader(loader)
 	{
 	}
 	//-----------------------------------------------------------------------
@@ -43,11 +44,28 @@ namespace Ogre
 	{ 
 	}
 	//-----------------------------------------------------------------------
-	void Resource::load(void)
+	void Resource::load(bool background)
 	{
-		OGRE_LOCK_AUTO_MUTEX
-		if (!mIsLoaded)
+		// Scope lock over load status
 		{
+			// Don't load if:
+			// 1. We're already loaded
+			// 2. Another thread is loading right now
+			// 3. We're marked for background loading and this is not the background
+			//    loading thread we're being called by
+			OGRE_LOCK_MUTEX(mLoadingStatusMutex)
+			if (mIsLoaded || mIsLoadingInProgress || (mIsBackgroundLoaded && !background))
+			{
+				// no loading to be done
+				return;
+			}
+			mIsLoadingInProgress = true;
+		}
+
+		// Scope lock for actual loading
+		{
+
+			OGRE_LOCK_AUTO_MUTEX
 			if (mIsManual)
 			{
 				// Load from manual loader
@@ -72,18 +90,26 @@ namespace Ogre
 					// Derive resource group
 					changeGroupOwnership(
 						ResourceGroupManager::getSingleton()
-							.findGroupContainingResource(mName));
+						.findGroupContainingResource(mName));
 				}
 				loadImpl();
 			}
 			// Calculate resource size
 			mSize = calculateSize();
+		}
+
+		// Scope lock for loading progress
+		{
+			OGRE_LOCK_MUTEX(mLoadingStatusMutex)
+		
 			// Now loaded
 			mIsLoaded = true;
-			// Notify manager
-			if(mCreator)
-				mCreator->_notifyResourceLoaded(this);
+			mIsLoadingInProgress = false;
 		}
+		// Notify manager
+		if(mCreator)
+			mCreator->_notifyResourceLoaded(this);
+
 
 	}
 	//-----------------------------------------------------------------------
@@ -100,15 +126,35 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void Resource::unload(void) 
 	{ 
-		OGRE_LOCK_AUTO_MUTEX
-		if (mIsLoaded)
+		// Scope lock for loading status
 		{
-			unloadImpl();
-			mIsLoaded = false;
-			// Notify manager
-			if(mCreator)
-				mCreator->_notifyResourceUnloaded(this);
+			OGRE_LOCK_MUTEX(mLoadingStatusMutex)
+			if (mIsLoadingInProgress)
+			{
+				OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
+					"Cannot unload resource " + mName + " whilst loading is in progress!", 
+					"Resource::unload");
+			}
+			if (!mIsLoaded)
+				return; // nothing to do
 		}
+
+		// Scope lock for actual unload
+		{
+			OGRE_LOCK_AUTO_MUTEX
+			unloadImpl();
+		}
+
+		// Scope lock for loading status
+		{
+			OGRE_LOCK_MUTEX(mLoadingStatusMutex)
+			mIsLoaded = false;
+		}
+
+		// Notify manager
+		if(mCreator)
+			mCreator->_notifyResourceUnloaded(this);
+
 	}
 	//-----------------------------------------------------------------------
 	void Resource::reload(void) 

@@ -79,6 +79,12 @@ namespace Ogre {
         ResourceHandle mHandle;
 		/// Is the resource currently loaded?
         bool mIsLoaded;
+		/// Is this resource going to be background loaded? Only applicable for multithreaded
+		bool mIsBackgroundLoaded;
+		/// Is loading in progress
+		bool mIsLoadingInProgress;
+		/// Mutex to cover the status of loading
+		OGRE_MUTEX(mLoadStatusMutex)
 		/// The size of the resource in bytes
         size_t mSize;
 		/// Is this file manually loaded?
@@ -91,7 +97,8 @@ namespace Ogre {
 		/** Protected unnamed constructor to prevent default construction. 
 		*/
 		Resource() 
-			: mCreator(0), mHandle(0), mIsLoaded(false), mSize(0), mIsManual(0), mLoader(0)
+			: mCreator(0), mHandle(0), mIsLoaded(false), mIsBackgroundLoaded(false),
+			mIsLoadingInProgress(false), mSize(0), mIsManual(0), mLoader(0)
 		{ 
 		}
 
@@ -136,10 +143,12 @@ namespace Ogre {
 			If the resource is loaded from a file, loading is automatic. If not,
 			if for example this resource gained it's data from procedural calls
 			rather than loading from a file, then this resource will not reload 
-			on it's own
+			on it's own.
+		@param backgroundThread Indicates whether the caller of this method is
+			the background resource loading thread. 
 			
         */
-        virtual void load(void);
+        virtual void load(bool backgroundThread = false);
 
 		/** Reloads the resource, if it is already loaded.
 		@remarks
@@ -194,9 +203,32 @@ namespace Ogre {
         */
         bool isLoaded(void) const 
         { 
-			OGRE_LOCK_AUTO_MUTEX
+			// Lock load status mutex rather than main mutex to reduce check contention
+			OGRE_LOCK_MUTEX(mLoadStatusMutex)
             return mIsLoaded; 
         }
+
+		/** Returns whether this Resource has been earmarked for background loading.
+		@remarks
+			This option only makes sense when you have built Ogre with 
+			thread support (OGRE_THREAD_SUPPORT). If a resource has been marked
+			for background loading, then it won't load on demand like normal
+			when load() is called. Instead, it will ignore request to load()
+			except if the caller indicates it is the background loader. Any
+			other users of this resource should check isLoaded(), and if that
+			returns false, don't use the resource and come back later.
+		*/
+		bool isBackgroundLoaded(void) const { return mIsBackgroundLoaded; }
+
+		/** Tells the resource whether it is background loaded or not.
+		@remarks
+			@see Resource::isBackgroundLoaded . Note that calling this only
+			defers the normal on-demand loading behaviour of a resource, it
+			does not actually set up a thread to make sure the resource gets
+			loaded in the background. You should use ResourceBackgroundLoadingQueue
+			to manage the actual loading (which will call this method itself).
+		*/
+		void setBackgroundLoaded(bool bl) { mIsBackgroundLoaded = bl; }
 
 		/// Gets the group which this resource is a member of
 		const String& getGroup(void) { return mGroup; }
