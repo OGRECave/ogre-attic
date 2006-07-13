@@ -298,7 +298,7 @@ namespace OgreMayaExporter
 		pSubmesh->vertexData->vertexCount = m_vertices.size();
 		// Check if we need to use 32 bit indexes
 		bool use32BitIndexes = false;
-		if (m_vertices.size() > 65536)
+		if (m_vertices.size() > 65536 || params.useSharedGeom)
 		{
 			use32BitIndexes = true;
 		}
