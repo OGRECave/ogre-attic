@@ -242,6 +242,13 @@ namespace Ogre {
         /// Group name for world resources
         String mWorldGroupName;
 
+		typedef std::pair<Resource::Listener*, Resource*> ResourceListenerPair;
+		typedef std::list<ResourceListenerPair> BackgroundLoadNotifQueue;
+		/// Queued notifications of background loading being finished
+		BackgroundLoadNotifQueue mBackgroundLoadNotifQueue;
+		/// Mutex to protect the background event queue]
+		OGRE_MUTEX(mBackgroundLoadNotifQueueMutex)
+
 		/** Parses all the available scripts found in the resource locations
 		for the given group, for all ResourceManagers.
 		@remarks
@@ -781,6 +788,30 @@ namespace Ogre {
 		@returns A copy of list of currently defined resources.
 		*/
 		ResourceDeclarationList getResourceDeclarationList(const String& groupName);
+
+		/** Queue the firing of the 'background loading complete' event to
+			listeners.
+		@remarks
+			The purpose of this is to allow the background loading thread to 
+			call this method to queue the notification to listeners waiting on
+			the background loading of a resource. Rather than allow the resource
+			background loading thread to directly call these listeners, which 
+			would require all the listeners to be thread-safe, this method
+			implements a thread-safe queue which can be processed in the main
+			frame loop thread each frame to clear the events in a simpler 
+			manner.
+		@param listener The listener to be notified
+		@param res The resource listened on
+		*/
+		void _queueFireBackgroundLoadingComplete(Resource::Listener* listener, 
+			Resource* res);
+
+		/** Fires all the queued events for background loaded resources.
+		@remarks
+			You should call this from the thread that runs the main frame loop 
+			to avoid having to make the receivers of this event thread-safe.
+		*/
+		void _fireBackgroundLoadingComplete(void);
 
 		/** Override standard Singleton retrieval.
         @remarks

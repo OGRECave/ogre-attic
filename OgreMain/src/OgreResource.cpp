@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreResource.h"
 #include "OgreResourceManager.h"
+#include "OgreResourceGroupManager.h"
 #include "OgreLogManager.h"
 
 namespace Ogre 
@@ -110,6 +111,10 @@ namespace Ogre
 		if(mCreator)
 			mCreator->_notifyResourceLoaded(this);
 
+		// Fire (deferred) events
+		if (mIsBackgroundLoaded)
+			queueFireBackgroundLoadingComplete();
+
 
 	}
 	//-----------------------------------------------------------------------
@@ -177,6 +182,26 @@ namespace Ogre
 			mCreator->_notifyResourceTouched(this);
 	}
 	//-----------------------------------------------------------------------
+	void Resource::addListener(Resource::Listener* lis)
+	{
+		mListenerList.push_back(lis);
+	}
+	//-----------------------------------------------------------------------
+	void Resource::removeListener(Resource::Listener* lis)
+	{
+		// O(n) but not called very often
+		mListenerList.remove(lis);
+	}
+	//-----------------------------------------------------------------------
+	void Resource::queueFireBackgroundLoadingComplete(void)
+	{
+		ResourceGroupManager& rgmgr = ResourceGroupManager::getSingleton();
+		for (ListenerList::iterator i = mListenerList.begin();
+			i != mListenerList.end(); ++i)
+		{
+			rgmgr._queueFireBackgroundLoadingComplete(*i, this);
+		}
+	}
 
 
 }

@@ -648,6 +648,10 @@ namespace Ogre {
         if (HardwareBufferManager::getSingletonPtr())
             HardwareBufferManager::getSingleton()._releaseBufferCopies();
 
+		// Also tell the ResourceGroupManager to propagate background load events
+		if (ResourceGroupManager::getSingletonPtr())
+			ResourceGroupManager::getSingleton()._fireBackgroundLoadingComplete();
+
         return ret;
     }
     //-----------------------------------------------------------------------
