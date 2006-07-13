@@ -349,7 +349,7 @@ namespace Ogre {
         return mCreator->createSceneNode(name);
     }
     //-----------------------------------------------------------------------
-    AxisAlignedBox SceneNode::_getWorldAABB(void) const
+    const AxisAlignedBox& SceneNode::_getWorldAABB(void) const
     {
         return mWorldAABB;
     }

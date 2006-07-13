@@ -405,7 +405,7 @@ bool OctreeSceneManager::getOptionKeys( StringVector & refKeys )
 
 void OctreeSceneManager::_updateOctreeNode( OctreeNode * onode )
 {
-    AxisAlignedBox box = onode -> _getWorldAABB();
+    const AxisAlignedBox& box = onode -> _getWorldAABB();
 
     if ( box.isNull() )
         return ;
@@ -451,7 +451,7 @@ void OctreeSceneManager::_removeOctreeNode( OctreeNode * n )
 void OctreeSceneManager::_addOctreeNode( OctreeNode * n, Octree *octant, int depth )
 {
 
-    AxisAlignedBox bx = n -> _getWorldAABB();
+    const AxisAlignedBox& bx = n -> _getWorldAABB();
 
 
     //if the octree is twice as big as the scene node,
