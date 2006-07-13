@@ -86,113 +86,7 @@ namespace OgreMayaExporter
 			m_pMesh->loadBlendShapes(m_params);
 
 		/**************************** WRITE DATA **********************************/
-		/*
-		// Write mesh xml
-		if (m_params.exportMesh)
-		{
-			std::cout << "Writing mesh data to xml file...\n";
-			std::cout.flush();
-			stat  = m_pMesh->writeXML(m_params);
-			if (stat == MS::kSuccess)
-			{
-				std::cout << "OK\n";
-				std::cout.flush();
-			}
-			else
-			{
-				std::cout << "Error writing mesh to XML\n";
-				std::cout.flush();
-				exit();
-				return MS::kFailure;
-			}
-		}
-		*/
-		/*
-		// Write skeleton xml
-		if (m_params.exportSkeleton)
-		{
-			std::cout << "Writing skeleton data to xml file...\n";
-			std::cout.flush();
-			if (m_pMesh->getSkeleton())
-			{
-				stat = m_pMesh->getSkeleton()->writeXML(m_params);
-				if (stat == MS::kSuccess)
-				{
-					std::cout << "OK\n";
-					std::cout.flush();
-				}
-				else
-				{
-					std::cout << "Error writing skeleton to XML\n";
-					std::cout.flush();
-					exit();
-					return MS::kFailure;
-				}
-			}
-			else
-			{
-				std::cout << "Mesh has no linked skeleton, creating an empty skeleton file\n";
-				std::cout.flush();
-			}
-		}
-		*/
-
-		// Create singletons
-		Ogre::Root ogreRoot;
-		Ogre::ResourceGroupManager resGroupMgr;
-		Ogre::MeshManager meshMgr;
-		Ogre::SkeletonManager skelMgr;
-		Ogre::MaterialManager matMgr;
-		Ogre::DefaultHardwareBufferManager hardwareBufMgr;
-
-		// Write mesh binary
-		if (m_params.exportMesh)
-		{
-			std::cout << "Writing mesh binary...\n";
-			std::cout.flush();
-			stat = m_pMesh->writeOgreBinary(m_params);
-			if (stat != MS::kSuccess)
-			{
-				std::cout << "Error writing mesh binary file\n";
-				std::cout.flush();
-			}
-		}
-
-		// Write skeleton binary
-		if (m_params.exportSkeleton)
-		{
-			if (m_pMesh->getSkeleton())
-			{
-				std::cout << "Writing skeleton binary...\n";
-				std::cout.flush();
-				stat = m_pMesh->getSkeleton()->writeOgreBinary(m_params);
-				if (stat != MS::kSuccess)
-				{
-					std::cout << "Error writing mesh binary file\n";
-					std::cout.flush();
-				}
-			}
-		}
-		
-		// Write materials data
-		if (m_params.exportMaterial)
-		{
-			std::cout << "Writing materials data...\n";
-			std::cout.flush();
-			stat  = m_pMaterialSet->writeOgreScript(m_params);
-			if (stat == MS::kSuccess)
-			{
-				std::cout << "OK\n";
-				std::cout.flush();
-			}
-			else
-			{
-				std::cout << "Error writing materials file\n";
-				std::cout.flush();
-				exit();
-				return MS::kFailure;
-			}
-		}
+		stat = writeOgreData();
 
 		std::cout << "Export completed succesfully\n";
 		std::cout.flush();
@@ -559,6 +453,61 @@ namespace OgreMayaExporter
 			delete cameraTransform;
 		if (animCurve != NULL)
 			delete animCurve;
+		return MS::kSuccess;
+	}
+
+	/********************************************************************************************************
+	*                           Method to write data to OGRE format                                         *
+	********************************************************************************************************/
+	MStatus OgreExporter::writeOgreData()
+	{
+		// Create Ogre Root
+		Ogre::Root ogreRoot;
+		// Create singletons
+		Ogre::DefaultHardwareBufferManager hardwareBufMgr;
+
+		// Write mesh binary
+		if (m_params.exportMesh)
+		{
+			std::cout << "Writing mesh binary...\n";
+			std::cout.flush();
+			stat = m_pMesh->writeOgreBinary(m_params);
+			if (stat != MS::kSuccess)
+			{
+				std::cout << "Error writing mesh binary file\n";
+				std::cout.flush();
+			}
+		}
+
+		// Write skeleton binary
+		if (m_params.exportSkeleton)
+		{
+			if (m_pMesh->getSkeleton())
+			{
+				std::cout << "Writing skeleton binary...\n";
+				std::cout.flush();
+				stat = m_pMesh->getSkeleton()->writeOgreBinary(m_params);
+				if (stat != MS::kSuccess)
+				{
+					std::cout << "Error writing mesh binary file\n";
+					std::cout.flush();
+				}
+			}
+		}
+		
+		// Write materials data
+		if (m_params.exportMaterial)
+		{
+			std::cout << "Writing materials data...\n";
+			std::cout.flush();
+			stat  = m_pMaterialSet->writeOgreScript(m_params);
+			if (stat != MS::kSuccess)
+			{
+				std::cout << "Error writing materials file\n";
+				std::cout.flush();
+			}
+		}
+
 		return MS::kSuccess;
 	}
 

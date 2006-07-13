@@ -22,6 +22,7 @@ namespace OgreMayaExporter
 		MStatus translateNode(MDagPath& dagPath);
 		MStatus writeAnim(MFnAnimCurve& anim);
 		MStatus writeCamera(MFnCamera& camera);
+		MStatus writeOgreData();
 
 	private:
 		// private members
