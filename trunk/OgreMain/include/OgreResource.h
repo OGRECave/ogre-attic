@@ -68,6 +68,25 @@ namespace Ogre {
     {
 	public:
 		OGRE_AUTO_MUTEX // public to allow external locking
+		class Listener
+		{
+		public:
+		   	Listener() {}
+			virtual ~Listener() {}
+
+			/** Callback to indicate that background loading has completed.
+			@remarks
+				This callback is only relevant when a Resource has been
+				marked as background loaded (@see Resource::setBackgroundLoaded)
+				, and occurs when that loading has completed. The call itself
+				does not itself occur in the thread which is doing the loading;
+				when loading is complete a response indicator is placed with the
+				ResourceGroupManager, which will then be sent back to the 
+				listener as part of the application's primary frame loop thread.
+			*/
+			virtual void backgroundLoadingComplete(Resource* res) {}
+			
+		};
     protected:
 		/// Creator
 		ResourceManager* mCreator;
@@ -94,6 +113,9 @@ namespace Ogre {
 		/// Optional manual loader; if provided, data is loaded from here instead of a file
 		ManualResourceLoader* mLoader;
 
+		typedef std::list<Listener*> ListenerList;
+		ListenerList mListenerList;
+
 		/** Protected unnamed constructor to prevent default construction. 
 		*/
 		Resource() 
@@ -112,6 +134,9 @@ namespace Ogre {
 		virtual void unloadImpl(void) = 0;
 		/** Calculate the size of a resource; this will only be called after 'load' */
 		virtual size_t calculateSize(void) const = 0;
+
+		/// Queue the firing of background loading complete event
+		virtual void queueFireBackgroundLoadingComplete(void);
 
     public:
 		/** Standard constructor.
@@ -229,6 +254,16 @@ namespace Ogre {
 			to manage the actual loading (which will call this method itself).
 		*/
 		void setBackgroundLoaded(bool bl) { mIsBackgroundLoaded = bl; }
+
+		/** Register a listener on this resource.
+			@see Resource::Listener
+		*/
+		void addListener(Listener* lis);
+
+		/** Remove a listener on this resource.
+			@see Resource::Listener
+		*/
+		void removeListener(Listener* lis);
 
 		/// Gets the group which this resource is a member of
 		const String& getGroup(void) { return mGroup; }

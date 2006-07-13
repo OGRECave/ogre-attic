@@ -1410,6 +1410,26 @@ namespace Ogre {
 		return grp->resourceDeclarations;
 	}
     //-----------------------------------------------------------------------
+	void ResourceGroupManager::_queueFireBackgroundLoadingComplete(
+		Resource::Listener* listener, Resource* res)
+	{
+		OGRE_LOCK_MUTEX(mBackgroundLoadNotifQueueMutex);
+		mBackgroundLoadNotifQueue.push_back(ResourceListenerPair(listener, res));
+
+	}    
+    //-----------------------------------------------------------------------
+	void ResourceGroupManager::_fireBackgroundLoadingComplete()
+	{
+		OGRE_LOCK_MUTEX(mBackgroundLoadNotifQueueMutex);
+		for (BackgroundLoadNotifQueue::iterator i = mBackgroundLoadNotifQueue.begin();
+			i != mBackgroundLoadNotifQueue.end(); ++i)
+		{
+			i->first->backgroundLoadingComplete(i->second);
+		}
+		mBackgroundLoadNotifQueue.clear();
+
+	}
+	//-----------------------------------------------------------------------
 	ScriptLoader::~ScriptLoader()
 	{
 	}
