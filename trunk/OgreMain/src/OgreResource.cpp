@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreResourceManager.h"
 #include "OgreResourceGroupManager.h"
 #include "OgreLogManager.h"
+#include "OgreException.h"
 
 namespace Ogre 
 {
