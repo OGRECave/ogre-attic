@@ -128,6 +128,8 @@ namespace Ogre {
         if (!fullScreen)
             SDL_WM_SetCaption(title.c_str(), 0);
 
+        glXGetVideoSyncSGI = (int (*)(unsigned int *))SDL_GL_GetProcAddress("glXGetVideoSyncSGI");
+        glXWaitVideoSyncSGI = (int (*)(int, int, unsigned int *))SDL_GL_GetProcAddress("glXWaitVideoSyncSGI");
     }
 
     void SDLWindow::destroy(void)
@@ -185,6 +187,13 @@ namespace Ogre {
 
     void SDLWindow::swapBuffers(bool waitForVSync)
     {
+        if ( waitForVSync && glXGetVideoSyncSGI && glXWaitVideoSyncSGI )
+        {
+            unsigned int retraceCount;
+            glXGetVideoSyncSGI( &retraceCount );
+            glXWaitVideoSyncSGI( 2, ( retraceCount + 1 ) & 1, &retraceCount);
+        }
+
         SDL_GL_SwapBuffers();
         // XXX More?
     }
