@@ -133,99 +133,101 @@ namespace Ogre
         // arithmetic operations
         inline Vector2 operator + ( const Vector2& rkVector ) const
         {
-            Vector2 kSum;
-
-            kSum.x = x + rkVector.x;
-            kSum.y = y + rkVector.y;
-
-            return kSum;
+            return Vector2(
+                x + rkVector.x,
+                y + rkVector.y);
         }
 
         inline Vector2 operator - ( const Vector2& rkVector ) const
         {
-            Vector2 kDiff;
-
-            kDiff.x = x - rkVector.x;
-            kDiff.y = y - rkVector.y;
-
-            return kDiff;
+            return Vector2(
+                x - rkVector.x,
+                y - rkVector.y);
         }
 
         inline Vector2 operator * ( const Real fScalar ) const
         {
-            Vector2 kProd;
-
-            kProd.x = fScalar*x;
-            kProd.y = fScalar*y;
-
-            return kProd;
+            return Vector2(
+                x * fScalar,
+                y * fScalar);
         }
 
         inline Vector2 operator * ( const Vector2& rhs) const
         {
-            Vector2 kProd;
-
-            kProd.x = rhs.x * x;
-            kProd.y = rhs.y * y;
-
-            return kProd;
+            return Vector2(
+                x * rhs.x,
+                y * rhs.y);
         }
 
         inline Vector2 operator / ( const Real fScalar ) const
         {
             assert( fScalar != 0.0 );
 
-            Vector2 kDiv;
-
             Real fInv = 1.0 / fScalar;
-            kDiv.x = x * fInv;
-            kDiv.y = y * fInv;
 
-            return kDiv;
+            return Vector2(
+                x * fInv,
+                y * fInv);
+        }
+
+        inline Vector2 operator / ( const Vector2& rhs) const
+        {
+            return Vector2(
+                x / rhs.x,
+                y / rhs.y);
+        }
+
+        inline const Vector2& operator + () const
+        {
+            return *this;
         }
 
         inline Vector2 operator - () const
         {
-            Vector2 kNeg;
-
-            kNeg.x = -x;
-            kNeg.y = -y;
-
-            return kNeg;
+            return Vector2(-x, -y);
         }
 
         // overloaded operators to help Vector2
         inline friend Vector2 operator * ( const Real fScalar, const Vector2& rkVector )
         {
-            Vector2 kProd;
+            return Vector2(
+                fScalar * rkVector.x,
+                fScalar * rkVector.y);
+        }
 
-            kProd.x = fScalar * rkVector.x;
-            kProd.y = fScalar * rkVector.y;
-
-            return kProd;
+        inline friend Vector2 operator / ( const Real fScalar, const Vector2& rkVector )
+        {
+            return Vector2(
+                fScalar / rkVector.x,
+                fScalar / rkVector.y);
         }
 
         inline friend Vector2 operator + (const Vector2& lhs, const Real rhs)
         {
-            Vector2 ret(rhs);
-            return ret += lhs;
+            return Vector2(
+                lhs.x + rhs,
+                lhs.y + rhs);
         }
 
         inline friend Vector2 operator + (const Real lhs, const Vector2& rhs)
         {
-            Vector2 ret(lhs);
-            return ret += rhs;
+            return Vector2(
+                lhs + rhs.x,
+                lhs + rhs.y);
         }
 
         inline friend Vector2 operator - (const Vector2& lhs, const Real rhs)
         {
-            return lhs - Vector2(rhs);
+            return Vector2(
+                lhs.x - rhs,
+                lhs.y - rhs);
         }
 
         inline friend Vector2 operator - (const Real lhs, const Vector2& rhs)
         {
-            Vector2 ret(lhs);
-            return ret -= rhs;
+            return Vector2(
+                lhs - rhs.x,
+                lhs - rhs.y);
         }
         // arithmetic updates
         inline Vector2& operator += ( const Vector2& rkVector )
@@ -268,6 +270,14 @@ namespace Ogre
             return *this;
         }
 
+        inline Vector2& operator *= ( const Vector2& rkVector )
+        {
+            x *= rkVector.x;
+            y *= rkVector.y;
+
+            return *this;
+        }
+
         inline Vector2& operator /= ( const Real fScalar )
         {
             assert( fScalar != 0.0 );
@@ -276,6 +286,14 @@ namespace Ogre
 
             x *= fInv;
             y *= fInv;
+
+            return *this;
+        }
+
+        inline Vector2& operator /= ( const Vector2& rkVector )
+        {
+            x /= rkVector.x;
+            y /= rkVector.y;
 
             return *this;
         }

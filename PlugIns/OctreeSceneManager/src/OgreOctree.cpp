@@ -41,7 +41,7 @@ namespace Ogre
 
 /** Returns true is the box will fit in a child.
 */
-bool Octree::_isTwiceSize( AxisAlignedBox &box )
+bool Octree::_isTwiceSize( const AxisAlignedBox &box ) const
 {
     const Vector3 * pts1 = mBox.getAllCorners();
     const Vector3 * pts2 = box.getAllCorners();
@@ -56,7 +56,7 @@ bool Octree::_isTwiceSize( AxisAlignedBox &box )
 * a child.  Since it's a loose octree, only the centers need to be
 * compared to find the appropriate node.
 */
-void Octree::_getChildIndexes( AxisAlignedBox &box, int *x, int *y, int *z )
+void Octree::_getChildIndexes( const AxisAlignedBox &box, int *x, int *y, int *z ) const
 {
     Vector3 max = mBox.getMaximum();
     Vector3 min = box.getMinimum();
@@ -142,7 +142,7 @@ void Octree::_removeNode( OctreeNode * n )
     _unref();
 }
 
-void Octree::_getCullBounds( AxisAlignedBox *b )
+void Octree::_getCullBounds( AxisAlignedBox *b ) const
 {
     const Vector3 * corners = mBox.getAllCorners();
     b -> setExtents( corners[ 0 ] - mHalfSize, corners[ 4 ] + mHalfSize );
