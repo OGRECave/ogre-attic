@@ -82,6 +82,11 @@ namespace Ogre
         {
         }
 
+        inline explicit Vector4(const Vector3& rhs)
+            : x(rhs.x), y(rhs.y), z(rhs.z), w(1.0f)
+        {
+        }
+
         inline Vector4( const Vector4& rkVector )
             : x( rkVector.x ), y( rkVector.y ), z( rkVector.z ), w (rkVector.w)
         {
@@ -152,130 +157,124 @@ namespace Ogre
         // arithmetic operations
         inline Vector4 operator + ( const Vector4& rkVector ) const
         {
-            Vector4 kSum;
-
-            kSum.x = x + rkVector.x;
-            kSum.y = y + rkVector.y;
-            kSum.z = z + rkVector.z;
-            kSum.w = w + rkVector.w;
-
-            return kSum;
+            return Vector4(
+                x + rkVector.x,
+                y + rkVector.y,
+                z + rkVector.z,
+                w + rkVector.w);
         }
 
         inline Vector4 operator - ( const Vector4& rkVector ) const
         {
-            Vector4 kDiff;
-
-            kDiff.x = x - rkVector.x;
-            kDiff.y = y - rkVector.y;
-            kDiff.z = z - rkVector.z;
-            kDiff.w = w - rkVector.w;
-
-            return kDiff;
+            return Vector4(
+                x - rkVector.x,
+                y - rkVector.y,
+                z - rkVector.z,
+                w - rkVector.w);
         }
 
         inline Vector4 operator * ( const Real fScalar ) const
         {
-            Vector4 kProd;
-
-            kProd.x = fScalar*x;
-            kProd.y = fScalar*y;
-            kProd.z = fScalar*z;
-            kProd.w = fScalar*w;
-
-            return kProd;
+            return Vector4(
+                x * fScalar,
+                y * fScalar,
+                z * fScalar,
+                w * fScalar);
         }
 
         inline Vector4 operator * ( const Vector4& rhs) const
         {
-            Vector4 kProd;
-
-            kProd.x = rhs.x * x;
-            kProd.y = rhs.y * y;
-            kProd.z = rhs.z * z;
-            kProd.w = rhs.w * w;
-
-            return kProd;
+            return Vector4(
+                rhs.x * x,
+                rhs.y * y,
+                rhs.z * z,
+                rhs.w * w);
         }
 
         inline Vector4 operator / ( const Real fScalar ) const
         {
             assert( fScalar != 0.0 );
 
-            Vector4 kDiv;
-
             Real fInv = 1.0 / fScalar;
-            kDiv.x = x * fInv;
-            kDiv.y = y * fInv;
-            kDiv.z = z * fInv;
-            kDiv.w = w * fInv;
 
-            return kDiv;
+            return Vector4(
+                x * fInv,
+                y * fInv,
+                z * fInv,
+                w * fInv);
         }
 
         inline Vector4 operator / ( const Vector4& rhs) const
         {
-            Vector4 kDiv;
-
-            kDiv.x = x / rhs.x;
-            kDiv.y = y / rhs.y;
-            kDiv.z = z / rhs.z;
-            kDiv.w = w / rhs.w;
-
-            return kDiv;
+            return Vector4(
+                x / rhs.x,
+                y / rhs.y,
+                z / rhs.z,
+                w / rhs.w);
         }
 
+        inline const Vector4& operator + () const
+        {
+            return *this;
+        }
 
         inline Vector4 operator - () const
         {
-            Vector4 kNeg;
-
-            kNeg.x = -x;
-            kNeg.y = -y;
-            kNeg.z = -z;
-            kNeg.w = -w;
-
-            return kNeg;
+            return Vector4(-x, -y, -z, -w);
         }
 
         inline friend Vector4 operator * ( const Real fScalar, const Vector4& rkVector )
         {
-            Vector4 kProd;
+            return Vector4(
+                fScalar * rkVector.x,
+                fScalar * rkVector.y,
+                fScalar * rkVector.z,
+                fScalar * rkVector.w);
+        }
 
-            kProd.x = fScalar * rkVector.x;
-            kProd.y = fScalar * rkVector.y;
-            kProd.z = fScalar * rkVector.z;
-            kProd.w = fScalar * rkVector.w;
-
-            return kProd;
+        inline friend Vector4 operator / ( const Real fScalar, const Vector4& rkVector )
+        {
+            return Vector4(
+                fScalar / rkVector.x,
+                fScalar / rkVector.y,
+                fScalar / rkVector.z,
+                fScalar / rkVector.w);
         }
 
         inline friend Vector4 operator + (const Vector4& lhs, const Real rhs)
         {
-            Vector4 ret;
-            ret = rhs;
-            return ret += lhs;
+            return Vector4(
+                lhs.x + rhs,
+                lhs.y + rhs,
+                lhs.z + rhs,
+                lhs.w + rhs);
         }
 
         inline friend Vector4 operator + (const Real lhs, const Vector4& rhs)
         {
-            Vector4 ret;
-            ret = lhs;
-            return ret += rhs;
+            return Vector4(
+                lhs + rhs.x,
+                lhs + rhs.y,
+                lhs + rhs.z,
+                lhs + rhs.w);
         }
 
         inline friend Vector4 operator - (const Vector4& lhs, Real rhs)
         {
-            Vector4 ret;
-            ret = lhs;
-            return ret -= rhs;
+            return Vector4(
+                lhs.x - rhs,
+                lhs.y - rhs,
+                lhs.z - rhs,
+                lhs.w - rhs);
         }
 
         inline friend Vector4 operator - (const Real lhs, const Vector4& rhs)
         {
-            Vector4 ret;
-            ret = lhs;
-            return ret -= rhs;
+            return Vector4(
+                lhs - rhs.x,
+                lhs - rhs.y,
+                lhs - rhs.z,
+                lhs - rhs.w);
         }
 
         // arithmetic updates

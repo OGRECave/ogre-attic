@@ -140,118 +140,113 @@ namespace Ogre
         // arithmetic operations
         inline Vector3 operator + ( const Vector3& rkVector ) const
         {
-            Vector3 kSum;
-
-            kSum.x = x + rkVector.x;
-            kSum.y = y + rkVector.y;
-            kSum.z = z + rkVector.z;
-
-            return kSum;
+            return Vector3(
+                x + rkVector.x,
+                y + rkVector.y,
+                z + rkVector.z);
         }
 
         inline Vector3 operator - ( const Vector3& rkVector ) const
         {
-            Vector3 kDiff;
-
-            kDiff.x = x - rkVector.x;
-            kDiff.y = y - rkVector.y;
-            kDiff.z = z - rkVector.z;
-
-            return kDiff;
+            return Vector3(
+                x - rkVector.x,
+                y - rkVector.y,
+                z - rkVector.z);
         }
 
         inline Vector3 operator * ( const Real fScalar ) const
         {
-            Vector3 kProd;
-
-            kProd.x = fScalar*x;
-            kProd.y = fScalar*y;
-            kProd.z = fScalar*z;
-
-            return kProd;
+            return Vector3(
+                x * fScalar,
+                y * fScalar,
+                z * fScalar);
         }
 
         inline Vector3 operator * ( const Vector3& rhs) const
         {
-            Vector3 kProd;
-
-            kProd.x = rhs.x * x;
-            kProd.y = rhs.y * y;
-            kProd.z = rhs.z * z;
-
-            return kProd;
+            return Vector3(
+                x * rhs.x,
+                y * rhs.y,
+                z * rhs.z);
         }
 
         inline Vector3 operator / ( const Real fScalar ) const
         {
             assert( fScalar != 0.0 );
 
-            Vector3 kDiv;
-
             Real fInv = 1.0 / fScalar;
-            kDiv.x = x * fInv;
-            kDiv.y = y * fInv;
-            kDiv.z = z * fInv;
 
-            return kDiv;
+            return Vector3(
+                x * fInv,
+                y * fInv,
+                z * fInv);
         }
 
         inline Vector3 operator / ( const Vector3& rhs) const
         {
-            Vector3 kDiv;
-
-            kDiv.x = x / rhs.x;
-            kDiv.y = y / rhs.y;
-            kDiv.z = z / rhs.z;
-
-            return kDiv;
+            return Vector3(
+                x / rhs.x,
+                y / rhs.y,
+                z / rhs.z);
         }
 
+        inline const Vector3& operator + () const
+        {
+            return *this;
+        }
 
         inline Vector3 operator - () const
         {
-            Vector3 kNeg;
-
-            kNeg.x = -x;
-            kNeg.y = -y;
-            kNeg.z = -z;
-
-            return kNeg;
+            return Vector3(-x, -y, -z);
         }
 
         // overloaded operators to help Vector3
         inline friend Vector3 operator * ( const Real fScalar, const Vector3& rkVector )
         {
-            Vector3 kProd;
+            return Vector3(
+                fScalar * rkVector.x,
+                fScalar * rkVector.y,
+                fScalar * rkVector.z);
+        }
 
-            kProd.x = fScalar * rkVector.x;
-            kProd.y = fScalar * rkVector.y;
-            kProd.z = fScalar * rkVector.z;
-
-            return kProd;
+        inline friend Vector3 operator / ( const Real fScalar, const Vector3& rkVector )
+        {
+            return Vector3(
+                fScalar / rkVector.x,
+                fScalar / rkVector.y,
+                fScalar / rkVector.z);
         }
 
         inline friend Vector3 operator + (const Vector3& lhs, const Real rhs)
         {
-            Vector3 ret(rhs);
-            return ret += lhs;
+            return Vector3(
+                lhs.x + rhs,
+                lhs.y + rhs,
+                lhs.z + rhs);
         }
 
         inline friend Vector3 operator + (const Real lhs, const Vector3& rhs)
         {
-            Vector3 ret(lhs);
-            return ret += rhs;
+            return Vector3(
+                lhs + rhs.x,
+                lhs + rhs.y,
+                lhs + rhs.z);
         }
 
         inline friend Vector3 operator - (const Vector3& lhs, const Real rhs)
         {
-            return lhs - Vector3(rhs);
+            return Vector3(
+                lhs.x - rhs,
+                lhs.y - rhs,
+                lhs.z - rhs);
         }
 
         inline friend Vector3 operator - (const Real lhs, const Vector3& rhs)
         {
-            Vector3 ret(lhs);
-            return ret -= rhs;
+            return Vector3(
+                lhs - rhs.x,
+                lhs - rhs.y,
+                lhs - rhs.z);
         }
 
         // arithmetic updates
@@ -430,13 +425,10 @@ namespace Ogre
         */
         inline Vector3 crossProduct( const Vector3& rkVector ) const
         {
-            Vector3 kCross;
-
-            kCross.x = y * rkVector.z - z * rkVector.y;
-            kCross.y = z * rkVector.x - x * rkVector.z;
-            kCross.z = x * rkVector.y - y * rkVector.x;
-
-            return kCross;
+            return Vector3(
+                y * rkVector.z - z * rkVector.y,
+                z * rkVector.x - x * rkVector.z,
+                x * rkVector.y - y * rkVector.x);
         }
 
         /** Returns a vector at a point half way between this and the passed

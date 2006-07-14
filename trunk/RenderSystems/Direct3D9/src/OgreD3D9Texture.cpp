@@ -223,11 +223,31 @@ namespace Ogre
 					mName, mGroup, true, this);
             MemoryDataStream stream( dstream );
 
-            HRESULT hr = D3DXCreateCubeTextureFromFileInMemory(
-                mpDev,
-                stream.getPtr(),
-                stream.size(),
-                &mpCubeTex);
+			DWORD usage = 0;
+			UINT numMips = mNumRequestedMipmaps + 1;
+			// check if mip map volume textures are supported
+			if (!mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPCUBEMAP)
+			{
+				// no mip map support for this kind of textures :(
+				mNumMipmaps = 0;
+				numMips = 1;
+			}
+
+			HRESULT hr = D3DXCreateCubeTextureFromFileInMemoryEx(
+				mpDev,
+				stream.getPtr(),
+				stream.size(),
+				D3DX_DEFAULT, // dims (square)
+				numMips,
+				usage,
+				D3DFMT_FROM_FILE,
+				D3DPOOL_MANAGED,
+				D3DX_DEFAULT,
+				D3DX_DEFAULT,
+				0,  // colour key
+				NULL, // src box
+				NULL, // palette
+				&mpCubeTex); 
 
             if (FAILED(hr))
 		    {
@@ -294,11 +314,31 @@ namespace Ogre
 					mName, mGroup, true, this);
 			MemoryDataStream stream(dstream);
 	
-			HRESULT hr = D3DXCreateVolumeTextureFromFileInMemory(
+			DWORD usage = 0;
+			UINT numMips = mNumRequestedMipmaps + 1;
+			// check if mip map volume textures are supported
+			if (!mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPVOLUMEMAP)
+			{
+				// no mip map support for this kind of textures :(
+				mNumMipmaps = 0;
+				numMips = 1;
+			}
+
+			HRESULT hr = D3DXCreateVolumeTextureFromFileInMemoryEx(
 				mpDev,
 				stream.getPtr(),
 				stream.size(),
-				&mpVolumeTex);
+				D3DX_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, // dims
+				numMips,
+				usage,
+				D3DFMT_FROM_FILE,
+				D3DPOOL_MANAGED,
+				D3DX_DEFAULT,
+				D3DX_DEFAULT,
+				0,  // colour key
+				NULL, // src box
+				NULL, // palette
+				&mpVolumeTex); 
 	
 			if (FAILED(hr))
 			{
@@ -353,11 +393,31 @@ namespace Ogre
 					mName, mGroup, true, this);
 			MemoryDataStream stream(dstream);
 	
-			HRESULT hr = D3DXCreateTextureFromFileInMemory(
+			DWORD usage = 0;
+			UINT numMips = mNumRequestedMipmaps + 1;
+			// check if mip map volume textures are supported
+			if (!mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPMAP)
+			{
+				// no mip map support for this kind of textures :(
+				mNumMipmaps = 0;
+				numMips = 1;
+			}
+
+			HRESULT hr = D3DXCreateTextureFromFileInMemoryEx(
 				mpDev,
 				stream.getPtr(),
 				stream.size(),
-				&mpNormTex);
+				D3DX_DEFAULT, D3DX_DEFAULT, // dims
+				numMips,
+				usage,
+				D3DFMT_FROM_FILE,
+				D3DPOOL_MANAGED,
+				D3DX_DEFAULT,
+				D3DX_DEFAULT,
+				0,  // colour key
+				NULL, // src box
+				NULL, // palette
+				&mpNormTex); 
 	
 			if (FAILED(hr))
 			{
