@@ -214,7 +214,7 @@ AC_DEFUN([OGRE_GET_GLSUPPORT],
   case $OGRE_GLSUPPORT in 
     GLX)
 	GLSUPPORT_CFLAGS="-I/usr/X11R6/include"
-	GLSUPPORT_LIBS="-L/usr/X11R6/lib -lX11 -lXext -lGL -lXrandr"
+	GLSUPPORT_LIBS="-L/usr/X11R6/lib -lX11 -lXext -lGL -lXrandr -lXxf86vm"
     ;;
     win32)
 	GLSUPPORT_CFLAGS=""
