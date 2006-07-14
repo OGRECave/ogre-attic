@@ -205,7 +205,7 @@ namespace Ogre {
 			modulative approach and this is especially apparant when using coloured lights 
 			or bump mapping.
         */
-        SHADOWTYPE_TEXTURE_ADDITIVE = 0x21,
+        SHADOWTYPE_TEXTURE_ADDITIVE = 0x21
     };
 
     /** An enumeration describing which material properties should track the vertex colours */

@@ -320,7 +320,7 @@ namespace Ogre {
 			/** Provides a parametric animation value [0..1], only available
 				where the renderable specifically implements it.
 			*/
-			ACT_ANIMATION_PARAMETRIC,
+			ACT_ANIMATION_PARAMETRIC
 
         };
 
