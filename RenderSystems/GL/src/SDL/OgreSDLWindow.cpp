@@ -57,8 +57,10 @@ namespace Ogre {
 
     SDLWindow::~SDLWindow()
     {
-        if (mScreen != NULL)
-            SDL_FreeSurface(mScreen);
+        // according to http://www.libsdl.org/cgi/docwiki.cgi/SDL_5fSetVideoMode
+        // never free the surface returned from SDL_SetVideoMode
+        /*if (mScreen != NULL)
+            SDL_FreeSurface(mScreen);*/
 
     }
 
