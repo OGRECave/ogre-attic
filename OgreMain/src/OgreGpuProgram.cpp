@@ -721,28 +721,28 @@ namespace Ogre
                 break;
             case ACT_LIGHT_POSITION_OBJECT_SPACE:
                 setConstant(i->index, 
-                    source.getInverseWorldMatrix() * source.getLight(i->data).getAs4DVector());
+                    source.getInverseWorldMatrix().transformAffine(source.getLight(i->data).getAs4DVector()));
                 break;
             case ACT_LIGHT_DIRECTION_OBJECT_SPACE:
-                vec3 = source.getInverseWorldMatrix() * 
-                    source.getLight(i->data).getDerivedDirection();
+                vec3 = source.getInverseWorldMatrix().transformAffine(
+                    source.getLight(i->data).getDerivedDirection());
                 vec3.normalise();
                 // Set as 4D vector for compatibility
                 setConstant(i->index, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
                 break;
 			case ACT_LIGHT_POSITION_VIEW_SPACE:
                 setConstant(i->index, 
-                    source.getWorldViewMatrix() * source.getLight(i->data).getAs4DVector());
+                    source.getWorldViewMatrix().transformAffine(source.getLight(i->data).getAs4DVector()));
                 break;
             case ACT_LIGHT_DIRECTION_VIEW_SPACE:
-                vec3 = source.getWorldViewMatrix() * 
-                    source.getLight(i->data).getDerivedDirection();
+                vec3 = source.getWorldViewMatrix().transformAffine(
+                    source.getLight(i->data).getDerivedDirection());
                 vec3.normalise();
                 // Set as 4D vector for compatibility
                 setConstant(i->index, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
                 break;
             case ACT_LIGHT_DISTANCE_OBJECT_SPACE:
-                vec3 = source.getInverseWorldMatrix() * source.getLight(i->data).getDerivedPosition();
+                vec3 = source.getInverseWorldMatrix().transformAffine(source.getLight(i->data).getDerivedPosition());
                 setConstant(i->index, vec3.length());
                 break;
             case ACT_SHADOW_EXTRUSION_DISTANCE:

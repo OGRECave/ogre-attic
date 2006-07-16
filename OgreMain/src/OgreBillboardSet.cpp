@@ -927,7 +927,7 @@ namespace Ogre {
 
         getWorldTransforms(&xworld);
 
-        sph.setCenter(xworld * bill.mPosition);
+        sph.setCenter(xworld.transformAffine(bill.mPosition));
 
         if (bill.mOwnDimensions)
         {

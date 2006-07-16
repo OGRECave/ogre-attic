@@ -299,6 +299,37 @@ namespace Ogre {
 
 	    }
 
+	    /** Transforms the box according to the affine matrix supplied.
+		    @remarks
+			    By calling this method you get the axis-aligned box which
+			    surrounds the transformed version of this box. Therefore each
+			    corner of the box is transformed by the matrix, then the
+			    extents are mapped back onto the axes to produce another
+			    AABB. Useful when you have a local AABB for an object which
+			    is then transformed.
+            @note
+                The matrix must be an affine matrix. @see Matrix4::isAffine.
+	    */
+	    void transformAffine(const Matrix4& m)
+	    {
+            assert(m.isAffine());
+
+		    // Do nothing if current null
+		    if (mNull)
+			    return;
+
+            Vector3 centre = getCenter();
+            Vector3 halfSize = getHalfSize();
+
+            Vector3 newCentre = m.transformAffine(centre);
+            Vector3 newHalfSize(
+                Math::Abs(m[0][0]) * halfSize.x + Math::Abs(m[0][1]) * halfSize.y + Math::Abs(m[0][2]) * halfSize.z, 
+                Math::Abs(m[1][0]) * halfSize.x + Math::Abs(m[1][1]) * halfSize.y + Math::Abs(m[1][2]) * halfSize.z,
+                Math::Abs(m[2][0]) * halfSize.x + Math::Abs(m[2][1]) * halfSize.y + Math::Abs(m[2][2]) * halfSize.z);
+
+            setExtents(newCentre - newHalfSize, newCentre + newHalfSize);
+        }
+
 	    /** Sets the box to a 'null' value i.e. not a box.
 	    */
 	    inline void setNull()
@@ -426,7 +457,26 @@ namespace Ogre {
 		/// Gets the centre of the box
 		Vector3 getCenter(void) const
 		{
-			return Vector3((mMaximum + mMinimum) * 0.5);
+		    return Vector3(
+		        (mMaximum.x + mMinimum.x) * 0.5,
+		        (mMaximum.y + mMinimum.y) * 0.5,
+		        (mMaximum.z + mMinimum.z) * 0.5);
+		}
+		/// Gets the size of the box
+		Vector3 getSize(void) const
+		{
+		    return Vector3(
+		        (mMaximum.x - mMinimum.x),
+		        (mMaximum.y - mMinimum.y),
+		        (mMaximum.z - mMinimum.z));
+		}
+		/// Gets the half-size of the box
+		Vector3 getHalfSize(void) const
+		{
+		    return Vector3(
+		        (mMaximum.x - mMinimum.x) * 0.5,
+		        (mMaximum.y - mMinimum.y) * 0.5,
+		        (mMaximum.z - mMinimum.z) * 0.5);
 		}
 
 

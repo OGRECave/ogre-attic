@@ -361,7 +361,7 @@ namespace Ogre {
 				mDerivedOrientation = dir.getRotationTo(rdir, up) * mRealOrientation;
 
                 // Calculate reflected position.
-                mDerivedPosition = mReflectMatrix * mRealPosition;
+                mDerivedPosition = mReflectMatrix.transformAffine(mRealPosition);
             }
             else
             {
@@ -633,12 +633,12 @@ namespace Ogre {
         Vector3 vp_bl (wvpLeft, wvpBottom, -mNearDist);
         Vector3 vp_br (wvpRight, wvpBottom, -mNearDist);
 
-        Matrix4 inv = mViewMatrix.inverse();
+        Matrix4 inv = mViewMatrix.inverseAffine();
 
-        Vector3 vw_ul = inv * vp_ul;
-        Vector3 vw_ur = inv * vp_ur;
-        Vector3 vw_bl = inv * vp_bl;
-        Vector3 vw_br = inv * vp_br;
+        Vector3 vw_ul = inv.transformAffine(vp_ul);
+        Vector3 vw_ur = inv.transformAffine(vp_ur);
+        Vector3 vw_bl = inv.transformAffine(vp_bl);
+        Vector3 vw_br = inv.transformAffine(vp_br);
 
         if (mProjType == PT_PERSPECTIVE)
         {

@@ -506,6 +506,81 @@ namespace Ogre
             performing -translation, -rotate, 1/scale in that order.
         */
         void makeInverseTransform(const Vector3& position, const Vector3& scale, const Quaternion& orientation);
+
+        /** Check whether or not the matrix is affine matrix.
+            @remarks
+                An affine matrix is a 4x4 matrix with row 3 equal to (0, 0, 0, 1),
+                e.g. no projective coefficients.
+        */
+        inline bool isAffine(void) const
+        {
+            return m[3][0] == 0 && m[3][1] == 0 && m[3][2] == 0 && m[3][3] == 1;
+        }
+
+        /** Returns the inverse of the affine matrix.
+            @note
+                The matrix must be an affine matrix. @see Matrix4::isAffine.
+        */
+        Matrix4 inverseAffine(void) const;
+
+        /** Concatenate two affine matrix.
+            @note
+                The matrices must be affine matrix. @see Matrix4::isAffine.
+        */
+        inline Matrix4 concatenateAffine(const Matrix4 &m2) const
+        {
+            assert(isAffine() && m2.isAffine());
+
+            return Matrix4(
+                m[0][0] * m2.m[0][0] + m[0][1] * m2.m[1][0] + m[0][2] * m2.m[2][0],
+                m[0][0] * m2.m[0][1] + m[0][1] * m2.m[1][1] + m[0][2] * m2.m[2][1],
+                m[0][0] * m2.m[0][2] + m[0][1] * m2.m[1][2] + m[0][2] * m2.m[2][2],
+                m[0][0] * m2.m[0][3] + m[0][1] * m2.m[1][3] + m[0][2] * m2.m[2][3] + m[0][3],
+
+                m[1][0] * m2.m[0][0] + m[1][1] * m2.m[1][0] + m[1][2] * m2.m[2][0],
+                m[1][0] * m2.m[0][1] + m[1][1] * m2.m[1][1] + m[1][2] * m2.m[2][1],
+                m[1][0] * m2.m[0][2] + m[1][1] * m2.m[1][2] + m[1][2] * m2.m[2][2],
+                m[1][0] * m2.m[0][3] + m[1][1] * m2.m[1][3] + m[1][2] * m2.m[2][3] + m[1][3],
+
+                m[2][0] * m2.m[0][0] + m[2][1] * m2.m[1][0] + m[2][2] * m2.m[2][0],
+                m[2][0] * m2.m[0][1] + m[2][1] * m2.m[1][1] + m[2][2] * m2.m[2][1],
+                m[2][0] * m2.m[0][2] + m[2][1] * m2.m[1][2] + m[2][2] * m2.m[2][2],
+                m[2][0] * m2.m[0][3] + m[2][1] * m2.m[1][3] + m[2][2] * m2.m[2][3] + m[2][3],
+
+                0, 0, 0, 1);
+        }
+
+        /** 3-D Vector transformation specially for affine matrix.
+            @remarks
+                Transforms the given 3-D vector by the matrix, projecting the 
+                result back into <i>w</i> = 1.
+            @note
+                The matrix must be an affine matrix. @see Matrix4::isAffine.
+        */
+        inline Vector3 transformAffine(const Vector3& v) const
+        {
+            assert(isAffine());
+
+            return Vector3(
+                    m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3], 
+                    m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3],
+                    m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3]);
+        }
+
+        /** 4-D Vector transformation specially for affine matrix.
+            @note
+                The matrix must be an affine matrix. @see Matrix4::isAffine.
+        */
+        inline Vector4 transformAffine(const Vector4& v) const
+        {
+            assert(isAffine());
+
+            return Vector4(
+                m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3] * v.w, 
+                m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3] * v.w,
+                m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3] * v.w,
+                v.w);
+        }
     };
 
     /* Removed from Vector4 and made a non-member here because otherwise
