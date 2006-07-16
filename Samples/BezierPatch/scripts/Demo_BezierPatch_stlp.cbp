@@ -82,5 +82,6 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
