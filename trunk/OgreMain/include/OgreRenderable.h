@@ -78,6 +78,9 @@ namespace Ogre {
                 This method will populate xform with 1 matrix if it does not use vertex blending. If it
                 does use vertex blending it will fill the passed in pointer with an array of matrices,
                 the length being the value returned from getNumWorldTransforms.
+            @note
+                Internal Ogre never supports non-affine matrix for world transform matrix/matrices,
+                the behavior is undefined if returns non-affine matrix here. @see Matrix4::isAffine.
         */
         virtual void getWorldTransforms(Matrix4* xform) const = 0;
         /** Gets the worldspace orientation of this renderable; this is used in order to
