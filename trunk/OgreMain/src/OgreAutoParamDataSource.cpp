@@ -198,7 +198,7 @@ namespace Ogre {
     {
         if (mWorldViewMatrixDirty)
         {
-            mWorldViewMatrix = getViewMatrix() * getWorldMatrix();
+            mWorldViewMatrix = getViewMatrix().concatenateAffine(getWorldMatrix());
             mWorldViewMatrixDirty = false;
         }
         return mWorldViewMatrix;
@@ -218,7 +218,7 @@ namespace Ogre {
     {
         if (mInverseWorldMatrixDirty)
         {
-            mInverseWorldMatrix = getWorldMatrix().inverse();
+            mInverseWorldMatrix = getWorldMatrix().inverseAffine();
             mInverseWorldMatrixDirty = false;
         }
         return mInverseWorldMatrix;
@@ -228,7 +228,7 @@ namespace Ogre {
     {
         if (mInverseWorldViewMatrixDirty)
         {
-            mInverseWorldViewMatrix = getWorldViewMatrix().inverse();
+            mInverseWorldViewMatrix = getWorldViewMatrix().inverseAffine();
             mInverseWorldViewMatrixDirty = false;
         }
         return mInverseWorldViewMatrix;
@@ -238,7 +238,7 @@ namespace Ogre {
     {
         if (mInverseViewMatrixDirty)
         {
-            mInverseViewMatrix = getViewMatrix().inverse();
+            mInverseViewMatrix = getViewMatrix().inverseAffine();
             mInverseViewMatrixDirty = false;
         }
         return mInverseViewMatrix;
@@ -283,7 +283,7 @@ namespace Ogre {
         if (mCameraPositionObjectSpaceDirty)
         {
             mCameraPositionObjectSpace = 
-                getInverseWorldMatrix() * mCurrentCamera->getDerivedPosition();
+                getInverseWorldMatrix().transformAffine(mCurrentCamera->getDerivedPosition());
             mCameraPositionObjectSpaceDirty = false;
         }
         return mCameraPositionObjectSpace;
@@ -386,8 +386,7 @@ namespace Ogre {
 		{
 			// Calculate based on object space light distance
 			// compared to light attenuation range
-			Vector3 objPos = getInverseWorldMatrix() * 
-				l.getDerivedPosition();
+			Vector3 objPos = getInverseWorldMatrix().transformAffine(l.getDerivedPosition());
 			return l.getAttenuationRange() - objPos.length();
 		}
 	}

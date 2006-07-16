@@ -401,7 +401,7 @@ namespace Ogre {
             aa_box = child_itr->second->getBoundingBox();
             TagPoint* tp = (TagPoint*)child_itr->second->getParentNode();
             // Use transform local to skeleton since world xform comes later
-            aa_box.transform(tp->_getFullLocalTransform());
+            aa_box.transformAffine(tp->_getFullLocalTransform());
 
             full_aa_box.merge(aa_box);
         }
@@ -1451,8 +1451,8 @@ namespace Ogre {
 
         // Calculate the object space light details
         Vector4 lightPos = light->getAs4DVector();
-        Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
-        lightPos =  world2Obj * lightPos;
+        Matrix4 world2Obj = mParentNode->_getFullTransform().inverseAffine();
+        lightPos = world2Obj.transformAffine(lightPos);
 
         // We need to search the edge list for silhouette edges
         EdgeData* edgeList = getEdgeList();

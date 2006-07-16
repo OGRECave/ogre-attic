@@ -344,8 +344,9 @@ namespace Ogre
 		@param enable If true, the custom view matrix passed as the second 
 			parameter will be used in preference to an auto calculated one. If
 			false, the frustum will revert to auto calculating the view matrix.
-		@param viewMatrix The custom view matrix to use
-		@see Frustum::setCustomProjectionMatrix
+		@param viewMatrix The custom view matrix to use, the matrix must be an
+            affine matrix.
+		@see Frustum::setCustomProjectionMatrix, Matrix4::isAffine
 		*/
 		virtual void setCustomViewMatrix(bool enable, 
 			const Matrix4& viewMatrix = Matrix4::IDENTITY);

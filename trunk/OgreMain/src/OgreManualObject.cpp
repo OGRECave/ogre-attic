@@ -645,8 +645,8 @@ namespace Ogre {
 
 		// Calculate the object space light details
 		Vector4 lightPos = light->getAs4DVector();
-		Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
-		lightPos =  world2Obj * lightPos;
+		Matrix4 world2Obj = mParentNode->_getFullTransform().inverseAffine();
+		lightPos = world2Obj.transformAffine(lightPos);
 
 
 		// Init shadow renderable list if required (only allow indexed)
