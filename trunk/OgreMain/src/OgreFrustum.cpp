@@ -1106,6 +1106,7 @@ namespace Ogre {
 		mCustomViewMatrix = enable;
 		if (enable)
 		{
+            assert(viewMatrix.isAffine());
 			mViewMatrix = viewMatrix;
 		}
 		invalidateView();
