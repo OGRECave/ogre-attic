@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreGLPrerequisites.h"
 #include "OgreGpuProgram.h"
+#include "OgreHardwareVertexBuffer.h"
 
 namespace Ogre {
 
@@ -59,11 +60,24 @@ namespace Ogre {
 		GLhandleARB mGLHandle;
 		/// flag indicating that the program object has been successfully linked
 		GLint		mLinked;
+		// Custom attribute bindings
+		/// 'tangent' attribute
+		GLuint mTangentAttrib;
+		/// 'binormal' attribute
+		GLuint mBinormalAttrib;
+		/// 'blendIndices' attribute
+		GLuint mBlendIndicesAttrib;
+		/// 'blendWeights' attribute
+		GLuint mBlendWeightsAttrib;
         /// flag indicating skeletal animation is being performed
         bool mSkeletalAnimation;
 
 		/// build uniform references from active named uniforms
 		void buildUniformReferences(void);
+		/// extract attributes
+		void extractAttributes(void);
+
+		
 
 	public:
 		/// constructor should only be used by GLSLLinkProgramManager
@@ -100,6 +114,11 @@ namespace Ogre {
             skeletal animation, it will expect the vertex program to do it.
         */
         bool isSkeletalAnimationIncluded(void) const { return mSkeletalAnimation; }
+
+		/// Get the index of a non-standard attribute bound in the linked code
+		GLuint getAttributeIndex(VertexElementSemantic semantic);
+		/// Is a non-standard attribute bound in the linked code?
+		bool isAttributeValid(VertexElementSemantic semantic);
 
 	};
 

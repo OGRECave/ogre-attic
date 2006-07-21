@@ -29,10 +29,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
 	//-----------------------------------------------------------------------
-
+#define NO_ATTRIB 0xFFFF
 	GLSLLinkProgram::GLSLLinkProgram(void)
         : mUniformRefsBuilt(false)
         , mLinked(false)
+		, mTangentAttrib(NO_ATTRIB)
+		, mBinormalAttrib(NO_ATTRIB)
+		, mBlendIndicesAttrib(NO_ATTRIB)
+		, mBlendWeightsAttrib(NO_ATTRIB)
+
 	{
 			checkForGLSLError( "GLSLLinkProgram::GLSLLinkProgram", "Error prior to Creating GLSL Program Object", 0 );
 		    mGLHandle = glCreateProgramObjectARB();
@@ -52,14 +57,6 @@ namespace Ogre {
 	{
 		if (!mLinked)
 		{
-            // if performing skeletal animation (hardware skinning) then bind default vertex attribute names
-            // note that attribute binding has to occur prior to final link of shader objects
-            if (mSkeletalAnimation)
-            {
-                glBindAttribLocationARB(mGLHandle, 7, "BlendIndex");
-                glBindAttribLocationARB(mGLHandle, 1, "BlendWeight");
-            }
-
 			glLinkProgramARB( mGLHandle );
 			glGetObjectParameterivARB( mGLHandle, GL_OBJECT_LINK_STATUS_ARB, &mLinked );
 			// force logging and raise exception if not linked
@@ -69,6 +66,7 @@ namespace Ogre {
 			{
 				logObjectInfo( String("GLSL link result : "), mGLHandle );
 				buildUniformReferences();
+				extractAttributes();
 			}
 
 		}
@@ -79,6 +77,57 @@ namespace Ogre {
 		}
 	}
 
+	//-----------------------------------------------------------------------
+	void GLSLLinkProgram::extractAttributes(void)
+	{
+		GLint attrib = glGetAttribLocationARB(mGLHandle, "tangent");
+		mTangentAttrib = (attrib == -1)? NO_ATTRIB : (GLuint)attrib;
+		
+		attrib = glGetAttribLocationARB(mGLHandle, "binormal");
+		mBinormalAttrib = (attrib == -1)? NO_ATTRIB : (GLuint)attrib;
+
+		attrib = glGetAttribLocationARB(mGLHandle, "blendIndices");
+		mBlendIndicesAttrib = (attrib == -1)? NO_ATTRIB : (GLuint)attrib;
+
+		attrib = glGetAttribLocationARB(mGLHandle, "blendWeights");
+		mBlendWeightsAttrib = (attrib == -1)? NO_ATTRIB : (GLuint)attrib;
+
+	}
+	//-----------------------------------------------------------------------
+	GLuint GLSLLinkProgram::getAttributeIndex(VertexElementSemantic semantic)
+	{
+		switch(semantic)
+		{
+		case VES_TANGENT:
+			return mTangentAttrib;
+		case VES_BINORMAL:
+			return mBinormalAttrib;
+		case VES_BLEND_WEIGHTS:
+			return mBlendWeightsAttrib;
+		case VES_BLEND_INDICES:
+			return mBlendIndicesAttrib;
+		default:
+			assert(false && "Shouldn't be calling this with standard attribs!");
+			return 0;
+		};
+	}
+	//-----------------------------------------------------------------------
+	bool GLSLLinkProgram::isAttributeValid(VertexElementSemantic semantic)
+	{
+		switch(semantic)
+		{
+		case VES_TANGENT:
+			return mTangentAttrib != NO_ATTRIB;
+		case VES_BINORMAL:
+			return mBinormalAttrib != NO_ATTRIB;
+		case VES_BLEND_WEIGHTS:
+			return mBlendWeightsAttrib != NO_ATTRIB;
+		case VES_BLEND_INDICES:
+			return mBlendIndicesAttrib != NO_ATTRIB;
+		default:
+			return false;
+		};
+	}
 	//-----------------------------------------------------------------------
 	void GLSLLinkProgram::buildUniformReferences(void)
 	{

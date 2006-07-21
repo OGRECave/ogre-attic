@@ -2018,9 +2018,9 @@ protected:
         MeshPtr msh = MeshManager::getSingleton().load("knot.mesh", 
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         unsigned short src, dest;
-        if (!msh->suggestTangentVectorBuildParams(src, dest))
+        if (!msh->suggestTangentVectorBuildParams(VES_TANGENT, src, dest))
         {
-            msh->buildTangentVectors(src, dest);
+            msh->buildTangentVectors(VES_TANGENT, src, dest);
         }
         pEnt = mSceneMgr->createEntity( "4", "knot.mesh" );
         pEnt->setMaterialName("Examples/BumpMapping/MultiLightSpecular");
@@ -2180,7 +2180,7 @@ protected:
 
         MeshPtr msh = MeshManager::getSingleton().load("knot.mesh",
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-        msh->buildTangentVectors();
+        msh->buildTangentVectors(VES_TANGENT, 0, 0);
         pEnt = mSceneMgr->createEntity( "4", "knot.mesh" );
         //pEnt->setMaterialName("Examples/BumpMapping/MultiLightSpecular");
         mTestNode[2] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(100, 0, 200));
@@ -2515,7 +2515,7 @@ protected:
 
 		MeshPtr msh = MeshManager::getSingleton().load("knot.mesh",
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-		msh->buildTangentVectors();
+		msh->buildTangentVectors(VES_TANGENT, 0, 0);
 		pEnt = mSceneMgr->createEntity( "4", "knot.mesh" );
 		//pEnt->setMaterialName("Examples/BumpMapping/MultiLightSpecular");
 		mTestNode[2] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(100, 0, 200));
@@ -2687,6 +2687,14 @@ protected:
 		Entity* ent = mSceneMgr->createEntity("test", "xsicylinder.mesh");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
 
+	}
+
+	void testGLSLTangent()
+	{
+
+		Entity* ent = mSceneMgr->createEntity("test", "athene.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+		ent->setMaterialName("testglsl");
 	}
 
 	void test2Windows(void)
@@ -4495,7 +4503,8 @@ protected:
 		//testDxt3();
 		//testDxt5();
 
-		testVertexTexture();
+		//testVertexTexture();
+		testGLSLTangent();
 
 		
     }

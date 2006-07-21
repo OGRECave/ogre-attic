@@ -2215,8 +2215,8 @@ namespace Ogre {
             }
 
             unsigned int i = 0;
-
-            switch(elem->getSemantic())
+			VertexElementSemantic sem = elem->getSemantic();
+            switch(sem)
             {
             case VES_POSITION:
                 glVertexPointer(VertexElement::getTypeCount(
@@ -2266,26 +2266,22 @@ namespace Ogre {
                 }
                 break;
             case VES_BLEND_INDICES:
-                assert(mCapabilities->hasCapability(RSC_VERTEX_PROGRAM));
-                glVertexAttribPointerARB(
-                    7, // matrix indices are vertex attribute 7 (no def?)
-                    VertexElement::getTypeCount(elem->getType()), 
-                    GLHardwareBufferManager::getGLType(elem->getType()), 
-                    GL_FALSE, // normalisation disabled
-                    static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
-                    pBufferData);
-                glEnableVertexAttribArrayARB(7);
-                break;
             case VES_BLEND_WEIGHTS:
-                assert(mCapabilities->hasCapability(RSC_VERTEX_PROGRAM));
-                glVertexAttribPointerARB(
-                    1, // weights are vertex attribute 1 (no def?)
-                    VertexElement::getTypeCount(elem->getType()), 
-                    GLHardwareBufferManager::getGLType(elem->getType()), 
-                    GL_FALSE, // normalisation disabled
-                    static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
-                    pBufferData);
-                glEnableVertexAttribArrayARB(1);
+			case VES_TANGENT:
+			case VES_BINORMAL:
+				if (mCurrentVertexProgram)
+				{
+					GLuint attrib = mCurrentVertexProgram->getAttributeIndex(sem);
+	                glVertexAttribPointerARB(
+    	                attrib,
+        	            VertexElement::getTypeCount(elem->getType()), 
+            	        GLHardwareBufferManager::getGLType(elem->getType()), 
+                	    GL_FALSE, // normalisation disabled
+                    	static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+	                    pBufferData);
+    	            glEnableVertexAttribArrayARB(attrib);
+					
+				}
                 break;
             default:
                 break;
@@ -2363,10 +2359,33 @@ namespace Ogre {
         glDisableClientState( GL_NORMAL_ARRAY );
         glDisableClientState( GL_COLOR_ARRAY );
         glDisableClientState( GL_SECONDARY_COLOR_ARRAY );
-        if (mCapabilities->hasCapability(RSC_VERTEX_PROGRAM))
+        if (mCurrentVertexProgram)
         {
-            glDisableVertexAttribArrayARB(7); // disable indices
-            glDisableVertexAttribArrayARB(1); // disable weights
+			// unbind any custom attributes
+			if (mCurrentVertexProgram->isAttributeValid(VES_BLEND_INDICES))
+			{
+				glDisableVertexAttribArrayARB(
+					mCurrentVertexProgram->getAttributeIndex(
+						VES_BLEND_INDICES)); 
+			}
+			if (mCurrentVertexProgram->isAttributeValid(VES_BLEND_WEIGHTS))
+			{
+				glDisableVertexAttribArrayARB(
+					mCurrentVertexProgram->getAttributeIndex(
+						VES_BLEND_WEIGHTS)); 
+			}
+			if (mCurrentVertexProgram->isAttributeValid(VES_TANGENT))
+			{
+				glDisableVertexAttribArrayARB(
+					mCurrentVertexProgram->getAttributeIndex(
+						VES_TANGENT)); 
+			}
+			if (mCurrentVertexProgram->isAttributeValid(VES_BINORMAL))
+			{
+				glDisableVertexAttribArrayARB(
+					mCurrentVertexProgram->getAttributeIndex(
+						VES_BINORMAL)); 
+			}
         }
         glColor4f(1,1,1,1);
         glSecondaryColor3fEXT(0.0f, 0.0f, 0.0f);
