@@ -105,6 +105,8 @@ namespace Ogre {
 
 		/** Notify the object of it's creator (internal use only) */
 		virtual void _notifyCreator(MovableObjectFactory* fact) { mCreator = fact; }
+		/** Get the creator of this object, if any (internal use only) */
+		virtual MovableObjectFactory*  _getCreator(void) const { return mCreator; }
 		/** Notify the object of it's manager (internal use only) */
 		virtual void _notifyManager(SceneManager* man) { mManager = man; }
 		/** Get the manager of this object, if any (internal use only) */
@@ -190,11 +192,18 @@ namespace Ogre {
 		*/
         virtual void setVisible(bool visible);
 
+        /** Gets this object whether to be visible or not, if it has a renderable component. 
+        @remarks
+            Returns the value set by MovableObject::setVisible only.
+        */
+        virtual bool getVisible(void) const;
+
         /** Returns whether or not this object is supposed to be visible or not. 
 		@remarks
 			Takes into account both upper rendering distance and visible flag.
 		*/
         virtual bool isVisible(void) const;
+
 		/** Sets the distance at which the object is no longer rendered.
 		@param dist Distance beyond which the object will not be rendered 
 			(the default is 0, which means objects are always rendered).
