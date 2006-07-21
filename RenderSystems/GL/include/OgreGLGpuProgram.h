@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgreGLPrerequisites.h"
 #include "OgreGpuProgram.h"
+#include "OgreHardwareVertexBuffer.h"
 
 namespace Ogre {
 
@@ -55,6 +56,16 @@ namespace Ogre {
         /// Get the assigned GL program id
         const GLuint getProgramID(void) const
         { return mProgramID; }
+
+		/** Get the attribute index for a given semantic. 
+		@remarks
+			This can be used to identify the attribute index to bind non-builtin
+			attributes like tangent and binormal.
+		*/
+		virtual GLuint getAttributeIndex(VertexElementSemantic semantic);
+		/** Test whether attribute index for a given semantic is valid. 
+		*/
+		virtual bool isAttributeValid(VertexElementSemantic semantic);
 
     protected:
         /// @copydoc Resource::unloadImpl

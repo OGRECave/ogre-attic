@@ -1021,43 +1021,43 @@ namespace Ogre {
 	}
     //---------------------------------------------------------------------
     void Mesh::organiseTangentsBuffer(VertexData *vertexData,
-        unsigned short destCoordSet)
+        VertexElementSemantic targetSemantic, unsigned short index, 
+		unsigned short sourceTexCoordSet)
     {
 	    VertexDeclaration *vDecl = vertexData->vertexDeclaration ;
 	    VertexBufferBinding *vBind = vertexData->vertexBufferBinding ;
 
-	    const VertexElement *tex3D = vDecl->findElementBySemantic(VES_TEXTURE_COORDINATES, destCoordSet);
+	    const VertexElement *tangentsElem = vDecl->findElementBySemantic(targetSemantic, index);
 	    bool needsToBeCreated = false;
 
-	    if (!tex3D)
+	    if (!tangentsElem)
         { // no tex coords with index 1
 			    needsToBeCreated = true ;
 	    }
-        else if (tex3D->getType() != VET_FLOAT3)
+        else if (tangentsElem->getType() != VET_FLOAT3)
         {
-            // tex buffer exists, but not 3D
+            //  buffer exists, but not 3D
             OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-                "Texture coordinate set " + StringConverter::toString(destCoordSet) +
-                "already exists but is not 3D, therefore cannot contain tangents. Pick "
-                "an alternative destination coordinate set. ",
+                "Target semantic set already exists but is not 3D, therefore "
+				"cannot contain tangents. Pick an alternative destination semantic. ",
                 "Mesh::organiseTangentsBuffer");
 	    }
 
 	    HardwareVertexBufferSharedPtr newBuffer;
 	    if (needsToBeCreated)
         {
-            // What we need to do, to be most efficient with our vertex streams,
-            // is to tack the new 3D coordinate set onto the same buffer as the
-            // previous texture coord set
+            // To be most efficient with our vertex streams,
+            // tack the new tangents onto the same buffer as the
+            // source texture coord set
             const VertexElement* prevTexCoordElem =
                 vertexData->vertexDeclaration->findElementBySemantic(
-                    VES_TEXTURE_COORDINATES, destCoordSet - 1);
+                    VES_TEXTURE_COORDINATES, sourceTexCoordSet);
             if (!prevTexCoordElem)
             {
                 OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
-                    "Cannot locate the texture coordinate element preceding the "
-                    "destination texture coordinate set to which to append the new "
-                    "tangents.", "Mesh::orgagniseTangentsBuffer");
+                    "Cannot locate the first texture coordinate element to "
+					"which to append the new tangents.", 
+					"Mesh::orgagniseTangentsBuffer");
             }
             // Find the buffer associated with  this element
             HardwareVertexBufferSharedPtr origBuffer =
@@ -1075,8 +1075,8 @@ namespace Ogre {
                 prevTexCoordElem->getSource(),
                 origBuffer->getVertexSize(),
                 VET_FLOAT3,
-                VES_TEXTURE_COORDINATES,
-                destCoordSet);
+                targetSemantic,
+                index);
             // Now copy the original data across
             unsigned char* pSrc = static_cast<unsigned char*>(
                 origBuffer->lock(HardwareBuffer::HBL_READ_ONLY));
@@ -1101,15 +1101,15 @@ namespace Ogre {
 	    }
     }
     //---------------------------------------------------------------------
-    void Mesh::buildTangentVectors(unsigned short sourceTexCoordSet,
-        unsigned short destTexCoordSet)
+    void Mesh::buildTangentVectors(VertexElementSemantic targetSemantic, 
+		unsigned short sourceTexCoordSet, unsigned short index)
     {
-        if (destTexCoordSet == 0)
-        {
-            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-                "Destination texture coordinate set must be greater than 0",
-                "Mesh::buildTangentVectors");
-        }
+		if (index == 0 && targetSemantic == VES_TEXTURE_COORDINATES)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"Destination texture coordinate set must be greater than 0",
+				"Mesh::buildTangentVectors");
+		}
 
 	    // our temp. buffers
 	    uint32			vertInd[3];
@@ -1161,12 +1161,14 @@ namespace Ogre {
 
 
 		    // make sure we have a 3D coord to place data in
-		    organiseTangentsBuffer(usedVertexData, destTexCoordSet);
+			organiseTangentsBuffer(usedVertexData, targetSemantic, index, sourceTexCoordSet);
 
             // Get the target element
-            const VertexElement* destElem = vDecl->findElementBySemantic(VES_TEXTURE_COORDINATES, destTexCoordSet);
+            const VertexElement* destElem = vDecl->findElementBySemantic(
+				targetSemantic, index);
             // Get the source element
-            const VertexElement* srcElem = vDecl->findElementBySemantic(VES_TEXTURE_COORDINATES, sourceTexCoordSet);
+            const VertexElement* srcElem = vDecl->findElementBySemantic(
+				VES_TEXTURE_COORDINATES, sourceTexCoordSet);
 
             if (!srcElem || srcElem->getType() != VET_FLOAT2)
             {
@@ -1302,12 +1304,13 @@ namespace Ogre {
     }
 
     //---------------------------------------------------------------------
-    bool Mesh::suggestTangentVectorBuildParams(unsigned short& outSourceCoordSet,
-        unsigned short& outDestCoordSet)
+    bool Mesh::suggestTangentVectorBuildParams(VertexElementSemantic targetSemantic,
+		unsigned short& outSourceCoordSet, unsigned short& outIndex)
     {
         // Go through all the vertex data and locate source and dest (must agree)
         bool sharedGeometryDone = false;
         bool foundExisting = false;
+		VertexElementSemantic foundSemantic = VES_TEXTURE_COORDINATES;
         bool firstOne = true;
         SubMeshList::iterator i, iend;
         iend = mSubMeshList.end();
@@ -1329,13 +1332,12 @@ namespace Ogre {
             }
 
             const VertexElement *sourceElem = 0;
-            //unsigned short proposedDest = 0;
-            unsigned short t = 0;
-            for (t = 0; t < OGRE_MAX_TEXTURE_COORD_SETS; ++t)
+            unsigned short targetIndex = 0;
+            for (targetIndex = 0; targetIndex < OGRE_MAX_TEXTURE_COORD_SETS; ++targetIndex)
             {
                 const VertexElement* testElem =
                     vertexData->vertexDeclaration->findElementBySemantic(
-                        VES_TEXTURE_COORDINATES, t);
+                        VES_TEXTURE_COORDINATES, targetIndex);
                 if (!testElem)
                     break; // finish if we've run out, t will be the target
 
@@ -1356,11 +1358,27 @@ namespace Ogre {
                     {
                         // This is a 3D set, might be tangents
                         foundExisting = true;
+						foundSemantic = VES_TEXTURE_COORDINATES;
                     }
 
                 }
 
             }
+
+			if (!foundExisting && targetSemantic != VES_TEXTURE_COORDINATES)
+			{
+				targetIndex = 0;
+				// Look for existing semantic
+				const VertexElement* testElem =
+					vertexData->vertexDeclaration->findElementBySemantic(
+					targetSemantic, targetIndex);
+				if (testElem)
+				{
+					foundExisting = true;
+					foundSemantic = targetSemantic;
+				}
+
+			}
 
             // After iterating, we should have a source and a possible destination (t)
             if (!sourceElem)
@@ -1382,7 +1400,7 @@ namespace Ogre {
                         "This ambiguity must be rectified before tangents can be generated.",
                         "Mesh::suggestTangentVectorBuildParams");
                 }
-                if (t != outDestCoordSet)
+                if (targetIndex != outIndex)
                 {
                     OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
                         "Multiple sets of vertex data in this mesh disagree on "
@@ -1394,7 +1412,7 @@ namespace Ogre {
 
             // Otherwise, save this result
             outSourceCoordSet = sourceElem->getIndex();
-            outDestCoordSet = t;
+            outIndex = targetIndex;
 
             firstOne = false;
 

@@ -604,7 +604,7 @@ void XMLToBinary(XmlOptions opts)
         if (opts.generateTangents)
         {
             unsigned short srcTex, destTex;
-            bool existing = newMesh->suggestTangentVectorBuildParams(srcTex, destTex);
+            bool existing = newMesh->suggestTangentVectorBuildParams(VES_TANGENT, srcTex, destTex);
             if (existing)
             {
                 std::cout << "\nThis mesh appears to already have a set of 3D texture coordinates, " <<
@@ -635,7 +635,7 @@ void XMLToBinary(XmlOptions opts)
 				{
                     std::cout << "Generating tangent vectors...." << std::endl;
                 }
-                newMesh->buildTangentVectors(srcTex, destTex);
+                newMesh->buildTangentVectors(VES_TANGENT, srcTex, destTex);
             }
         }
 

@@ -68,8 +68,10 @@
 	texture_coord_dimensions_4 	(0|1|2|3)		 	"2"
 	texture_coord_dimensions_5 	(0|1|2|3)		 	"2"
 	texture_coord_dimensions_6 	(0|1|2|3)		 	"2"
-	texture_coord_dimensions_7 	(0|1|2|3)		 	"2">
-<!ELEMENT vertex (position, normal?, colour_diffuse?, colour_specular?, 
+	texture_coord_dimensions_7 	(0|1|2|3)		 	"2"
+	tangents					(true|false)	"false"
+	binormals					(true|false)	"false">
+<!ELEMENT vertex (position, normal?, tangent?, binormal?, colour_diffuse?, colour_specular?, 
 	texcoord*)>
 <!ELEMENT position EMPTY>
 <!ATTLIST position 
@@ -78,6 +80,16 @@
 	z	CDATA	#REQUIRED >
 <!ELEMENT normal EMPTY>
 <!ATTLIST normal 
+	x	CDATA	#REQUIRED	
+	y	CDATA	#REQUIRED	
+	z	CDATA	#REQUIRED >
+<!ELEMENT tangent EMPTY>
+<!ATTLIST tangent 
+	x	CDATA	#REQUIRED	
+	y	CDATA	#REQUIRED	
+	z	CDATA	#REQUIRED >
+<!ELEMENT binormal EMPTY>
+<!ATTLIST binormal 
 	x	CDATA	#REQUIRED	
 	y	CDATA	#REQUIRED	
 	z	CDATA	#REQUIRED >

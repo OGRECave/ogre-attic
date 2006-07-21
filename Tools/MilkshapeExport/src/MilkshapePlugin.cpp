@@ -527,7 +527,7 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
 
     if (generateTangents)
     {
-        ogreMesh->buildTangentVectors();
+		ogreMesh->buildTangentVectors(Ogre::VES_TANGENT, 0, 0);
     }
 
     // Export

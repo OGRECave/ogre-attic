@@ -431,9 +431,9 @@ protected:
 		MeshPtr m = MeshManager::getSingleton().load("ogrehead.mesh", 
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		unsigned short src, dest;
-		if (!m->suggestTangentVectorBuildParams(src, dest))
+		if (!m->suggestTangentVectorBuildParams(VES_TANGENT, src, dest))
 		{
-			m->buildTangentVectors(src, dest);
+			m->buildTangentVectors(VES_TANGENT, src, dest);
 		}
 		e = mSceneMgr->createEntity("head", "ogrehead.mesh");
 		e->setMaterialName("Examples/OffsetMapping/Specular");

@@ -130,6 +130,40 @@ namespace Ogre {
 		linkProgram->updatePassIterationUniforms( params );
 		
 	}
+	//-----------------------------------------------------------------------------
+	GLuint GLSLGpuProgram::getAttributeIndex(VertexElementSemantic semantic)
+	{
+		// get link program - only call this in the context of bound program
+		GLSLLinkProgram* linkProgram = GLSLLinkProgramManager::getSingleton().getActiveLinkProgram();
+
+		if (linkProgram->isAttributeValid(semantic))
+		{
+			return linkProgram->getAttributeIndex(semantic);
+		}
+		else
+		{
+			// fall back to default implementation, allow default bindings
+			return GLGpuProgram::getAttributeIndex(semantic);
+		}
+		
+	}
+	//-----------------------------------------------------------------------------
+	bool GLSLGpuProgram::isAttributeValid(VertexElementSemantic semantic)
+	{
+		// get link program - only call this in the context of bound program
+		GLSLLinkProgram* linkProgram = GLSLLinkProgramManager::getSingleton().getActiveLinkProgram();
+
+		if (linkProgram->isAttributeValid(semantic))
+		{
+			return true;
+		}
+		else
+		{
+			// fall back to default implementation, allow default bindings
+			return GLGpuProgram::isAttributeValid(semantic);
+		}
+	}
+
 
 
 }

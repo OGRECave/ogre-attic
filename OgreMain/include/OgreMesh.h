@@ -102,8 +102,10 @@ namespace Ogre {
         */
         SubMeshList mSubMeshList;
 	
-        /** Internal method for making the space for a 3D texture coord buffer to hold tangents. */
-        void organiseTangentsBuffer(VertexData *vertexData, unsigned short destCoordSet);
+        /** Internal method for making the space for a vertex element to hold tangents. */
+        void organiseTangentsBuffer(VertexData *vertexData, 
+			VertexElementSemantic targetSemantic, unsigned short index, 
+			unsigned short sourceTexCoordSet);
 
     public:
 		/** A hashmap used to store optional SubMesh names.
@@ -551,27 +553,37 @@ namespace Ogre {
         @par
             The prerequisites for calling this method include that the vertex data used by every
             SubMesh has both vertex normals and 2D texture coordinates.
+		@param targetSemantic The semantic to store the tangents in. Defaults to 
+			a texture coordinate, since that's the most portable for compatibility
+			with all shader types, but you could also use VES_TANGENT if you intend
+			to use shaders which support that binding.
         @param sourceTexCoordSet The texture coordinate index which should be used as the source
             of 2D texture coordinates, with which to calculate the tangents.
-        @param destTexCoordSet The texture coordinate set which should be used to store the 3D
-            coordinates representing a tangent vector per vertex. If this already exists, it
-            will be overwritten.
+        @param index The element index, ie the texture coordinate set which should be used to store the 3D
+            coordinates representing a tangent vector per vertex, if targetSemantic is 
+			VES_TEXTURE_COORDINATES. If this already exists, it will be overwritten.
         */
-        void buildTangentVectors(unsigned short sourceTexCoordSet = 0, unsigned short destTexCoordSet = 1);
+        void buildTangentVectors(VertexElementSemantic targetSemantic = VES_TANGENT,
+			unsigned short sourceTexCoordSet = 0, unsigned short index = 0);
 
-        /** Ask the mesh to suggest parameters to a future buildTangentVectors call. 
+        /** Ask the mesh to suggest parameters to a future buildTangentVectors call, 
+			should you wish to use texture coordinates to store the tangents. 
         @remarks
             This helper method will suggest source and destination texture coordinate sets
             for a call to buildTangentVectors. It will detect when there are inappropriate
             conditions (such as multiple geometry sets which don't agree). 
             Moreover, it will return 'true' if it detects that there are aleady 3D 
             coordinates in the mesh, and therefore tangents may have been prepared already.
+		@param targetSemantic The semantic you intend to use to store the tangents
+			if they are not already present;
+			most likely options are VES_TEXTURE_COORDINATES or VES_TANGENT
         @param outSourceCoordSet Reference to a source texture coordinate set which 
             will be populated
-        @param outDestCoordSet Reference to a destination texture coordinate set which 
-            will be populated
+        @param outIndex Reference to a destination element index (e.g. texture coord set)
+			which will be populated
         */
-        bool suggestTangentVectorBuildParams(unsigned short& outSourceCoordSet, unsigned short& outDestCoordSet);
+        bool suggestTangentVectorBuildParams(VertexElementSemantic targetSemantic,
+			unsigned short& outSourceCoordSet, unsigned short& outIndex);
 
         /** Builds an edge list for this mesh, which can be used for generating a shadow volume
             among other things.

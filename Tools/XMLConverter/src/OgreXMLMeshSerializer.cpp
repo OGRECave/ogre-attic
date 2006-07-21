@@ -372,6 +372,12 @@ namespace Ogre {
 				case VES_NORMAL:
 					vbNode->SetAttribute("normals","true");
                     break;
+				case VES_TANGENT:
+					vbNode->SetAttribute("tangents","true");
+					break;
+				case VES_BINORMAL:
+					vbNode->SetAttribute("binormals","true");
+					break;
 				case VES_DIFFUSE:
 					vbNode->SetAttribute("colours_diffuse","true");
                     break;
@@ -384,6 +390,7 @@ namespace Ogre {
                         StringConverter::toString(VertexElement::getTypeCount(elem.getType())));
                     ++numTextureCoords;
                     break;
+
                 default:
                     break;
                 }
@@ -417,6 +424,22 @@ namespace Ogre {
 						elem.baseVertexPointerToElement(pVert, &pFloat);
 						dataNode = 
 							vertexNode->InsertEndChild(TiXmlElement("normal"))->ToElement();
+						dataNode->SetAttribute("x", StringConverter::toString(pFloat[0]));
+						dataNode->SetAttribute("y", StringConverter::toString(pFloat[1]));
+						dataNode->SetAttribute("z", StringConverter::toString(pFloat[2]));
+						break;
+					case VES_TANGENT:
+						elem.baseVertexPointerToElement(pVert, &pFloat);
+						dataNode = 
+							vertexNode->InsertEndChild(TiXmlElement("tangent"))->ToElement();
+						dataNode->SetAttribute("x", StringConverter::toString(pFloat[0]));
+						dataNode->SetAttribute("y", StringConverter::toString(pFloat[1]));
+						dataNode->SetAttribute("z", StringConverter::toString(pFloat[2]));
+						break;
+					case VES_BINORMAL:
+						elem.baseVertexPointerToElement(pVert, &pFloat);
+						dataNode = 
+							vertexNode->InsertEndChild(TiXmlElement("binormal"))->ToElement();
 						dataNode->SetAttribute("x", StringConverter::toString(pFloat[0]));
 						dataNode->SetAttribute("y", StringConverter::toString(pFloat[1]));
 						dataNode->SetAttribute("z", StringConverter::toString(pFloat[2]));
@@ -705,6 +728,20 @@ namespace Ogre {
                 decl->addElement(bufCount, offset, VET_FLOAT3, VES_NORMAL);
                 offset += VertexElement::getTypeSize(VET_FLOAT3);
             }
+			attrib = vbElem->Attribute("tangents");
+			if (attrib && StringConverter::parseBool(attrib))
+			{
+				// Add element
+				decl->addElement(bufCount, offset, VET_FLOAT3, VES_TANGENT);
+				offset += VertexElement::getTypeSize(VET_FLOAT3);
+			}
+			attrib = vbElem->Attribute("binormals");
+			if (attrib && StringConverter::parseBool(attrib))
+			{
+				// Add element
+				decl->addElement(bufCount, offset, VET_FLOAT3, VES_BINORMAL);
+				offset += VertexElement::getTypeSize(VET_FLOAT3);
+			}
             attrib = vbElem->Attribute("colours_diffuse");
             if (attrib && StringConverter::parseBool(attrib))
             {
@@ -824,6 +861,38 @@ namespace Ogre {
                         *pFloat++ = StringConverter::parseReal(
                             xmlElem->Attribute("z"));
                         break;
+					case VES_TANGENT:
+						xmlElem = vertexElem->FirstChildElement("tangent");
+						if (!xmlElem)
+						{
+							OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Missing <tangent> element.",
+								"XMLSerializer::readGeometry");
+						}
+						elem.baseVertexPointerToElement(pVert, &pFloat);
+
+						*pFloat++ = StringConverter::parseReal(
+							xmlElem->Attribute("x"));
+						*pFloat++ = StringConverter::parseReal(
+							xmlElem->Attribute("y"));
+						*pFloat++ = StringConverter::parseReal(
+							xmlElem->Attribute("z"));
+						break;
+					case VES_BINORMAL:
+						xmlElem = vertexElem->FirstChildElement("binormal");
+						if (!xmlElem)
+						{
+							OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Missing <binormal> element.",
+								"XMLSerializer::readGeometry");
+						}
+						elem.baseVertexPointerToElement(pVert, &pFloat);
+
+						*pFloat++ = StringConverter::parseReal(
+							xmlElem->Attribute("x"));
+						*pFloat++ = StringConverter::parseReal(
+							xmlElem->Attribute("y"));
+						*pFloat++ = StringConverter::parseReal(
+							xmlElem->Attribute("z"));
+						break;
                     case VES_DIFFUSE:
                         xmlElem = vertexElem->FirstChildElement("colour_diffuse");
                         if (!xmlElem)

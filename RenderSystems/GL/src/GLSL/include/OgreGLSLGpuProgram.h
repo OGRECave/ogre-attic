@@ -53,7 +53,7 @@ namespace Ogre {
 		/// keep track of the number of fragment shaders created
 		static GLuint mFragmentShaderCount;
 
-	public:
+		public:
         GLSLGpuProgram(GLSLProgram* parent);
 		~GLSLGpuProgram();
 
@@ -78,6 +78,13 @@ namespace Ogre {
 
 		/// get the GLSLProgram for the shader object
 		GLSLProgram* getGLSLProgram(void) const { return mGLSLProgram; }
+
+		/// @copydoc GLGpuProgram::getAttributeIndex
+		GLuint getAttributeIndex(VertexElementSemantic semantic);
+		
+		/// @copydoc GLGpuProgram::isAttributeValid
+		bool isAttributeValid(VertexElementSemantic semantic);
+		
 
     protected:
         /// Overridden from GpuProgram

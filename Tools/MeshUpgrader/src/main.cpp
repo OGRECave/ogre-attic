@@ -900,7 +900,7 @@ int main(int numargs, char** args)
     if (opts.generateTangents)
     {
         unsigned short srcTex, destTex;
-        bool existing = mesh.suggestTangentVectorBuildParams(srcTex, destTex);
+        bool existing = mesh.suggestTangentVectorBuildParams(VES_TANGENT, srcTex, destTex);
         if (existing)
         {
 			if (opts.interactive)
@@ -936,7 +936,7 @@ int main(int numargs, char** args)
         if (opts.generateTangents)
         {
             cout << "Generating tangent vectors...." << std::endl;
-            mesh.buildTangentVectors(srcTex, destTex);
+            mesh.buildTangentVectors(VES_TANGENT, srcTex, 0);
         }
     }
 
