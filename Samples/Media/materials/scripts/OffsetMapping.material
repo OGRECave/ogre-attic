@@ -31,7 +31,6 @@ material Examples/OffsetMapping/Specular
    technique 
    { 
       // do the lighting  and bump mapping with parallax pass 
-      // NB we don't do decal texture here because this is repeated per light 
       pass 
       { 
        
@@ -74,7 +73,6 @@ material Examples/OffsetMapping/Specular
    technique 
    { 
       // do the lighting  and bump mapping with parallax pass 
-      // NB we don't do decal texture here because this is repeated per light 
       pass 
       { 
        
