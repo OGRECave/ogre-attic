@@ -968,6 +968,8 @@ namespace Ogre
 	//-------------------------------------------------------------------------
 	void TerrainSceneManager::setWorldGeometryRenderQueue(uint8 qid)
 	{
+		OctreeSceneManager::setWorldGeometryRenderQueue(qid);
+
 		for (TerrainPage2D::iterator pi = mTerrainPages.begin(); 
 			pi != mTerrainPages.end(); ++pi)
 		{
