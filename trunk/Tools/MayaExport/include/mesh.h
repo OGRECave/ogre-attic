@@ -46,8 +46,6 @@ namespace OgreMayaExporter
 		MStatus loadBlendShapeAnimations(ParamList& params);
 		//write to a OGRE binary mesh
 		MStatus writeOgreBinary(ParamList &params);
-		//write mesh data to maya XML
-	//	MStatus writeXML(ParamList &params);
 
 	protected:
 		//get uvsets info from the maya mesh

@@ -45,8 +45,6 @@ namespace OgreMayaExporter
 		void restorePose();
 		//write to an OGRE binary skeleton
 		MStatus writeOgreBinary(ParamList &params);
-		//write skeleton data to Ogre XML
-	//	MStatus writeXML(ParamList &params);
 
 	protected:
 		//load a joint

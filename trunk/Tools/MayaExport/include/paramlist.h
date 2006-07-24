@@ -15,6 +15,8 @@
 
 namespace OgreMayaExporter
 {
+	class Submesh;
+
 	typedef struct clipInfoTag
 	{
 		float start;							//start time of the clip
@@ -55,6 +57,8 @@ namespace OgreMayaExporter
 
 		NeutralPoseType neutralPoseType;
 
+		std::vector<Submesh*> loadedSubmeshes;
+
 		// constructor
 		ParamList()	{
 			lum = 1.0;
@@ -92,10 +96,12 @@ namespace OgreMayaExporter
 			neutralPoseType = NPT_CURFRAME;
 			buildEdges = false;
 			buildTangents = false;
+			loadedSubmeshes.clear();
 		}
 
 		ParamList& operator=(ParamList& source)	
 		{
+			int i;
 			lum = source.lum;
 			exportMesh = source.exportMesh;
 			exportMaterial = source.exportMaterial;
@@ -128,7 +134,7 @@ namespace OgreMayaExporter
 			buildEdges = source.buildEdges;
 			buildTangents = source.buildTangents;
 			skelClipList.resize(source.skelClipList.size());
-			for (int i=0; i< skelClipList.size(); i++)
+			for (i=0; i< skelClipList.size(); i++)
 			{
 				skelClipList[i].name = source.skelClipList[i].name;
 				skelClipList[i].start = source.skelClipList[i].start;
@@ -136,7 +142,7 @@ namespace OgreMayaExporter
 				skelClipList[i].rate = source.skelClipList[i].rate;
 			}
 			BSClipList.resize(source.BSClipList.size());
-			for (int i=0; i< BSClipList.size(); i++)
+			for (i=0; i< BSClipList.size(); i++)
 			{
 				BSClipList[i].name = source.BSClipList[i].name;
 				BSClipList[i].start = source.BSClipList[i].start;
@@ -144,7 +150,7 @@ namespace OgreMayaExporter
 				BSClipList[i].rate = source.BSClipList[i].rate;
 			}
 			vertClipList.resize(source.vertClipList.size());
-			for (int i=0; i< vertClipList.size(); i++)
+			for (i=0; i< vertClipList.size(); i++)
 			{
 				vertClipList[i].name = source.vertClipList[i].name;
 				vertClipList[i].start = source.vertClipList[i].start;
@@ -152,6 +158,9 @@ namespace OgreMayaExporter
 				vertClipList[i].rate = source.vertClipList[i].rate;
 			}
 			neutralPoseType = source.neutralPoseType;
+			for (i=0; i<source.loadedSubmeshes.size(); i++)
+				loadedSubmeshes.push_back(source.loadedSubmeshes[i]);
+
 			return *this;
 		}
 

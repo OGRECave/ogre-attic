@@ -1,4 +1,5 @@
 #include "blendshape.h"
+#include "submesh.h"
 
 namespace OgreMayaExporter
 {
@@ -206,8 +207,16 @@ namespace OgreMayaExporter
 			poseref.poseWeight = envelope * m_pBlendShapeFn->weight(indexList[i]);
 			key.poserefs.push_back(poseref);
 		}
+		// Update bounding boxes of loaded submeshes
+		for (i=0; i<params.loadedSubmeshes.size(); i++)
+		{
+			MFnMesh mesh(params.loadedSubmeshes[i]->m_dagPath);
+			MBoundingBox bbox = mesh.boundingBox();
+			params.loadedSubmeshes[i]->m_boundingBox.expand(bbox);
+		}
 		return key;
 	}
+
 	// Get blend shape deformer name
 	MString BlendShape::getName()
 	{

@@ -1,4 +1,5 @@
 #include "skeleton.h"
+#include "submesh.h"
 #include <maya/MFnMatrixData.h>
 
 namespace OgreMayaExporter
@@ -337,6 +338,13 @@ namespace OgreMayaExporter
 				//add keyframe to joint track
 				animTracks[j].addSkeletonKeyframe(key);
 			}
+			// Update bounding boxes of loaded submeshes
+			for (j=0; j<params.loadedSubmeshes.size(); j++)
+			{
+				MFnMesh mesh(params.loadedSubmeshes[j]->m_dagPath);
+				MBoundingBox bbox = mesh.boundingBox();
+				params.loadedSubmeshes[j]->m_boundingBox.expand(bbox);
+			}
 		}
 		// add created tracks to current clip
 		for (i=0; i<animTracks.size(); i++)
@@ -499,6 +507,7 @@ namespace OgreMayaExporter
 				std::cout.flush();
 			}
 		}
+		pSkeleton->setBindingPose();
 		// Optimise animations
 		pSkeleton->optimiseAllAnimations();
 		// Export skeleton binary
@@ -584,96 +593,5 @@ namespace OgreMayaExporter
 		return MS::kSuccess;
 	}
 
-	// Write skeleton data to Ogre XML file
-/*	MStatus Skeleton::writeXML(ParamList &params)
-	{
-		int i,j,k;
-		// Start skeleton description
-		params.outSkeleton << "<skeleton>\n";
-
-		// Write bones list
-		params.outSkeleton << "\t<bones>\n";
-		// For each joint write it's description
-		for (i=0; i<m_joints.size(); i++)
-		{
-			params.outSkeleton << "\t\t<bone id=\"" << m_joints[i].id << "\" name=\"" << m_joints[i].name.asChar() << "\">\n";
-			params.outSkeleton << "\t\t\t<position x=\"" << m_joints[i].posx << "\" y=\"" << m_joints[i].posy
-				<< "\" z=\"" << m_joints[i].posz << "\"/>\n";
-			params.outSkeleton << "\t\t\t<rotation angle=\"" << m_joints[i].angle << "\">\n";
-			params.outSkeleton << "\t\t\t\t<axis x=\"" << m_joints[i].axisx << "\" y=\"" << m_joints[i].axisy
-				<< "\" z=\"" << m_joints[i].axisz << "\"/>\n";
-			params.outSkeleton << "\t\t\t</rotation>\n";
-			params.outSkeleton << "\t\t\t<scale x=\"" << m_joints[i].scalex << "\" y=\"" << m_joints[i].scaley
-				<< "\" z=\"" << m_joints[i].scalez << "\"/>\n";
-			params.outSkeleton << "\t\t</bone>\n";
-		}
-		params.outSkeleton << "\t</bones>\n";
-
-		// Write bone hierarchy
-		params.outSkeleton << "\t<bonehierarchy>\n";
-		for (i=0; i<m_joints.size(); i++)
-		{
-			if (m_joints[i].parentIndex>=0)
-			{
-				params.outSkeleton << "\t\t<boneparent bone=\"" << m_joints[i].name.asChar() << "\" parent=\""
-					<< m_joints[m_joints[i].parentIndex].name.asChar() << "\"/>\n";
-			}
-		}
-		params.outSkeleton << "\t</bonehierarchy>\n";
-
-		// Write animations description
-		if (params.exportSkelAnims)
-		{
-			params.outSkeleton << "\t<animations>\n";
-			// For every animation
-			for (i=0; i<m_animations.size(); i++)
-			{
-				// Write animation info
-				params.outSkeleton << "\t\t<animation name=\"" << m_animations[i].m_name.asChar() << "\" length=\"" << 
-					m_animations[i].m_length << "\">\n";
-				// Write tracks
-				params.outSkeleton << "\t\t\t<tracks>\n";
-				// Cycle through tracks
-				for (j=0; j<m_animations[i].m_tracks.size(); j++)
-				{
-					Track t = m_animations[i].m_tracks[j];
-					params.outSkeleton << "\t\t\t\t<track bone=\"" << t.m_bone.asChar() << "\">\n";
-					// Write track keyframes
-					params.outSkeleton << "\t\t\t\t\t<keyframes>\n";
-					for (k=0; k<t.m_skeletonKeyframes.size(); k++)
-					{
-						skeletonKeyframe key = t.m_skeletonKeyframes[k];
-						// time
-						params.outSkeleton << "\t\t\t\t\t\t<keyframe time=\"" << key.time << "\">\n";
-						// translation
-						params.outSkeleton << "\t\t\t\t\t\t\t<translate x=\"" << key.tx << "\" y=\"" <<
-							key.ty << "\" z=\"" << key.tz << "\"/>\n";
-						// rotation
-						params.outSkeleton << "\t\t\t\t\t\t\t<rotate angle=\"" << key.angle << "\">\n";
-						params.outSkeleton << "\t\t\t\t\t\t\t\t<axis x=\"" << key.axis_x << "\" y=\"" <<
-							key.axis_y << "\" z=\"" << key.axis_z << "\"/>\n";
-						params.outSkeleton << "\t\t\t\t\t\t\t</rotate>\n";
-						//scale
-						params.outSkeleton << "\t\t\t\t\t\t\t<scale x=\"" << key.sx << "\" y=\"" <<
-							key.sy << "\" z=\"" << key.sz << "\"/>\n";
-						params.outSkeleton << "\t\t\t\t\t\t</keyframe>\n";
-					}
-					params.outSkeleton << "\t\t\t\t\t</keyframes>\n";
-					params.outSkeleton << "\t\t\t\t</track>\n";
-				}
-				// End tracks description
-				params.outSkeleton << "\t\t\t</tracks>\n";
-				// End animation description
-				params.outSkeleton << "\t\t</animation>\n";
-			}
-			params.outSkeleton << "\t</animations>\n";
-		}
-
-		// End skeleton description
-		params.outSkeleton << "</skeleton>\n";
-
-		return MS::kSuccess;
-	}
-*/
 
 };	//end namespace

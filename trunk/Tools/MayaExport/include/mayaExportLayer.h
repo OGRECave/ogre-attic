@@ -46,6 +46,7 @@
 #include <maya/MRenderUtil.h>
 #include <maya/MQuaternion.h>
 #include <maya/MFnBlendShapeDeformer.h>
+#include <maya/MBoundingBox.h>
 
 // OGRE API
 #include "Ogre.h"
