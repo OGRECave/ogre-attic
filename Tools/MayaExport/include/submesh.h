@@ -36,8 +36,6 @@ namespace OgreMayaExporter
 		MStatus createOgreSubmesh(Ogre::MeshPtr pMesh,const ParamList& params);
 		//create an Ogre compatible vertex buffer
 		MStatus createOgreVertexBuffer(Ogre::SubMesh* pSubmesh,Ogre::VertexDeclaration* pDecl,const std::vector<vertex>& vertices);
-		//write submesh data to Ogre XML
-	//	MStatus writeOgreXML(ParamList &params);
 
 	public:
 		//public members
@@ -51,6 +49,7 @@ namespace OgreMayaExporter
 		bool m_use32bitIndexes;
 		MDagPath m_dagPath;
 		BlendShape* m_pBlendShape;
+		MBoundingBox m_boundingBox;
 	};
 
 }; // end of namespace

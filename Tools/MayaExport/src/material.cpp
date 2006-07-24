@@ -40,7 +40,7 @@ namespace OgreMayaExporter
 
 
 	// Load material data
-	MStatus Material::load(MFnLambertShader* pShader,MStringArray& uvsets,ParamList& params)
+	MStatus Material::load(MFnDependencyNode* pShader,MStringArray& uvsets,ParamList& params)
 	{
 		int i;
 		MStatus stat;
@@ -63,76 +63,30 @@ namespace OgreMayaExporter
 		//check if we want to export with lighting off option
 		m_lightingOff = params.lightingOff;
 
-		MFnPhongShader* pPhong = NULL;
-		MFnBlinnShader* pBlinn = NULL;
-		MPlugArray colorSrcPlugs;
-		MPlugArray texSrcPlugs;
-		MPlugArray placetexSrcPlugs;
-
 		// GET MATERIAL DATA
 
 		// Check material type
 		if (pShader->object().hasFn(MFn::kPhong))
 		{
-			m_type = MT_PHONG;
-			pPhong = new MFnPhongShader(pShader->object());
+			stat = loadPhong(pShader);
 		}
 		else if (pShader->object().hasFn(MFn::kBlinn))
 		{
-			m_type = MT_BLINN;
-			pBlinn = new MFnBlinnShader(pShader->object());
+			stat = loadBlinn(pShader);
 		}
-
-		// Check if material is textured
-		pShader->findPlug("color").connectedTo(colorSrcPlugs,true,false);
-		for (i=0; i<colorSrcPlugs.length(); i++)
+		else if (pShader->object().hasFn(MFn::kLambert))
 		{
-			if (colorSrcPlugs[i].node().hasFn(MFn::kFileTexture))
-			{
-				m_isTextured = true;
-				continue;
-			}
-			else if (colorSrcPlugs[i].node().hasFn(MFn::kLayeredTexture))
-			{
-				m_isTextured = true;
-				m_isMultiTextured = true;
-				continue;
-			}
+			stat = loadLambert(pShader);
 		}
-
-		// Check if material is transparent
-		if (pShader->findPlug("transparency").isConnected() || pShader->transparency().r>0.0f)
-			m_isTransparent = true;
-
-		// Get material colours
-		//diffuse colour
-		if (m_isTextured)
-			m_diffuse = MColor(1.0,1.0,1.0,1.0);
 		else
 		{
-			m_diffuse = pShader->color();
-			m_diffuse.a = 1.0 - pShader->transparency().r;
-		}
-		//ambient colour
-		m_ambient = m_diffuse;
-		//emissive colour
-		m_emissive = pShader->incandescence();
-		//specular colour
-		switch(m_type)
-		{
-		case MT_PHONG:
-			m_specular = pPhong->specularColor();
-			m_specular.a = pPhong->cosPower();
-			break;
-		case MT_BLINN:
-			m_specular = pBlinn->specularColor();
-			m_specular.a = 1.0 / pBlinn->eccentricity();
-			break;
-		default:
-			m_specular = MColor(0.0,0.0,0.0,0.0);
+			stat = loadSurfaceShader(pShader);
 		}
 
 		// Get textures data
+		MPlugArray colorSrcPlugs;
+		MPlugArray texSrcPlugs;
+		MPlugArray placetexSrcPlugs;
 		if (m_isTextured)
 		{
 			// Translate multiple textures if material is multitextured
@@ -140,7 +94,10 @@ namespace OgreMayaExporter
 			{
 				// Get layered texture node
 				MFnDependencyNode* pLayeredTexNode = NULL;
-				pShader->findPlug("color").connectedTo(colorSrcPlugs,true,false);
+				if (m_type == MT_SURFACE_SHADER)
+					pShader->findPlug("outColor").connectedTo(colorSrcPlugs,true,false);
+				else
+					pShader->findPlug("color").connectedTo(colorSrcPlugs,true,false);
 				for (i=0; i<colorSrcPlugs.length(); i++)
 				{
 					if (colorSrcPlugs[i].node().hasFn(MFn::kLayeredTexture))
@@ -212,7 +169,10 @@ namespace OgreMayaExporter
 			{
 				// Get texture node
 				MFnDependencyNode* pTextureNode = NULL;
-				pShader->findPlug("color").connectedTo(colorSrcPlugs,true,false);
+				if (m_type == MT_SURFACE_SHADER)
+					pShader->findPlug("outColor").connectedTo(colorSrcPlugs,true,false);
+				else
+					pShader->findPlug("color").connectedTo(colorSrcPlugs,true,false);
 				for (i=0; i<colorSrcPlugs.length(); i++)
 				{
 					if (colorSrcPlugs[i].node().hasFn(MFn::kFileTexture))
@@ -235,15 +195,200 @@ namespace OgreMayaExporter
 				}
 			}
 		}
-		// Free up memory
-		if (pPhong)
-			delete pPhong;
-		if (pBlinn)
-			delete pBlinn;
 
 		return MS::kSuccess;
 	}
 
+
+	// Load a surface shader
+	MStatus Material::loadSurfaceShader(MFnDependencyNode *pShader)
+	{
+		int i;
+		m_type = MT_SURFACE_SHADER;
+		MPlugArray colorSrcPlugs;
+		// Check if material is textured
+		pShader->findPlug("outColor").connectedTo(colorSrcPlugs,true,false);
+		for (i=0; i<colorSrcPlugs.length(); i++)
+		{
+			if (colorSrcPlugs[i].node().hasFn(MFn::kFileTexture))
+			{
+				m_isTextured = true;
+				continue;
+			}
+			else if (colorSrcPlugs[i].node().hasFn(MFn::kLayeredTexture))
+			{
+				m_isTextured = true;
+				m_isMultiTextured = true;
+				continue;
+			}
+		}
+
+		// Check if material is transparent
+		float trasp;
+		pShader->findPlug("outTransparencyR").getValue(trasp);
+		if (pShader->findPlug("outTransparency").isConnected() || trasp>0.0f)
+			m_isTransparent = true;
+
+		// Get material colours
+		if (m_isTextured)
+			m_diffuse = MColor(1.0,1.0,1.0,1.0);
+		else
+		{
+			pShader->findPlug("outColorR").getValue(m_diffuse.r);
+			pShader->findPlug("outColorG").getValue(m_diffuse.g);
+			pShader->findPlug("outColorB").getValue(m_diffuse.b);
+			float trasp;
+			pShader->findPlug("outTransparencyR").getValue(trasp);
+			m_diffuse.a = 1.0 - trasp;
+		}
+		m_ambient = MColor(0,0,0,1);
+		m_emissive = MColor(0,0,0,1);
+		m_specular = MColor(0,0,0,1);
+		return MS::kSuccess;
+	}
+
+	// Load a lambert shader
+	MStatus Material::loadLambert(MFnDependencyNode *pShader)
+	{
+		int i;
+		MPlugArray colorSrcPlugs;
+		m_type = MT_LAMBERT;
+		MFnLambertShader* pLambert = new MFnLambertShader(pShader->object());
+		// Check if material is textured
+		pLambert->findPlug("color").connectedTo(colorSrcPlugs,true,false);
+		for (i=0; i<colorSrcPlugs.length(); i++)
+		{
+			if (colorSrcPlugs[i].node().hasFn(MFn::kFileTexture))
+			{
+				m_isTextured = true;
+				continue;
+			}
+			else if (colorSrcPlugs[i].node().hasFn(MFn::kLayeredTexture))
+			{
+				m_isTextured = true;
+				m_isMultiTextured = true;
+				continue;
+			}
+		}
+
+		// Check if material is transparent
+		if (pLambert->findPlug("transparency").isConnected() || pLambert->transparency().r>0.0f)
+			m_isTransparent = true;
+
+		// Get material colours
+		//diffuse colour
+		if (m_isTextured)
+			m_diffuse = MColor(1.0,1.0,1.0,1.0);
+		else
+		{
+			m_diffuse = pLambert->color();
+			m_diffuse.a = 1.0 - pLambert->transparency().r;
+		}
+		//ambient colour
+		m_ambient = pLambert->ambientColor();
+		//emissive colour
+		m_emissive = pLambert->incandescence();
+		//specular colour
+		m_specular = MColor(0,0,0,1);
+		delete pLambert;
+		return MS::kSuccess;
+	}
+
+	// Load a phong shader
+	MStatus Material::loadPhong(MFnDependencyNode *pShader)
+	{
+		int i;
+		MPlugArray colorSrcPlugs;
+		m_type = MT_PHONG;
+		MFnPhongShader* pPhong = new MFnPhongShader(pShader->object());
+		// Check if material is textured
+		pPhong->findPlug("color").connectedTo(colorSrcPlugs,true,false);
+		for (i=0; i<colorSrcPlugs.length(); i++)
+		{
+			if (colorSrcPlugs[i].node().hasFn(MFn::kFileTexture))
+			{
+				m_isTextured = true;
+				continue;
+			}
+			else if (colorSrcPlugs[i].node().hasFn(MFn::kLayeredTexture))
+			{
+				m_isTextured = true;
+				m_isMultiTextured = true;
+				continue;
+			}
+		}
+
+		// Check if material is transparent
+		if (pPhong->findPlug("transparency").isConnected() || pPhong->transparency().r>0.0f)
+			m_isTransparent = true;
+
+		// Get material colours
+		//diffuse colour
+		if (m_isTextured)
+			m_diffuse = MColor(1.0,1.0,1.0,1.0);
+		else
+		{
+			m_diffuse = pPhong->color();
+			m_diffuse.a = 1.0 - pPhong->transparency().r;
+		}
+		//ambient colour
+		m_ambient = pPhong->ambientColor();
+		//emissive colour
+		m_emissive = pPhong->incandescence();
+		//specular colour
+		m_specular = pPhong->specularColor();
+		m_specular.a = pPhong->cosPower();
+		delete pPhong;
+		return MS::kSuccess;
+	}
+
+	// load a blinn shader
+	MStatus Material::loadBlinn(MFnDependencyNode *pShader)
+	{
+		int i;
+		MPlugArray colorSrcPlugs;
+		m_type = MT_BLINN;
+		MFnBlinnShader* pBlinn = new MFnBlinnShader(pShader->object());
+		// Check if material is textured
+		pBlinn->findPlug("color").connectedTo(colorSrcPlugs,true,false);
+		for (i=0; i<colorSrcPlugs.length(); i++)
+		{
+			if (colorSrcPlugs[i].node().hasFn(MFn::kFileTexture))
+			{
+				m_isTextured = true;
+				continue;
+			}
+			else if (colorSrcPlugs[i].node().hasFn(MFn::kLayeredTexture))
+			{
+				m_isTextured = true;
+				m_isMultiTextured = true;
+				continue;
+			}
+		}
+
+		// Check if material is transparent
+		if (pBlinn->findPlug("transparency").isConnected() || pBlinn->transparency().r>0.0f)
+			m_isTransparent = true;
+
+		// Get material colours
+		//diffuse colour
+		if (m_isTextured)
+			m_diffuse = MColor(1.0,1.0,1.0,1.0);
+		else
+		{
+			m_diffuse = pBlinn->color();
+			m_diffuse.a = 1.0 - pBlinn->transparency().r;
+		}
+		//ambient colour
+		m_ambient = pBlinn->ambientColor();
+		//emissive colour
+		m_emissive = pBlinn->incandescence();
+		//specular colour
+		m_specular = pBlinn->specularColor();
+		m_specular.a = 1.0 / pBlinn->eccentricity();
+		delete pBlinn;
+		return MS::kSuccess;
+	}
 
 	// Load texture data from a texture node
 	MStatus Material::loadTexture(MFnDependencyNode* pTexNode,TexOpType& opType,MStringArray& uvsets,ParamList& params)

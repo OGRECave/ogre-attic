@@ -58,16 +58,16 @@ namespace OgreMayaExporter
 		MPlugArray srcplugarray;
 		bool foundShader = false;
 		MStatus stat;
-		MFnLambertShader* pShader;
+		MFnDependencyNode* pShader;
 		//get shader from shading group
 		MFnDependencyNode shadingGroup(shader);
 		plug = shadingGroup.findPlug("surfaceShader");
 		plug.connectedTo(srcplugarray,true,false,&stat);
 		for (i=0; i<srcplugarray.length() && !foundShader; i++)
 		{
-			if (srcplugarray[i].node().hasFn(MFn::kLambert))
+			if (srcplugarray[i].node().hasFn(MFn::kLambert) || srcplugarray[i].node().hasFn(MFn::kSurfaceShader) )
 			{
-				pShader = new MFnLambertShader(srcplugarray[i].node());
+				pShader = new MFnDependencyNode(srcplugarray[i].node());
 				foundShader = true;
 			}
 		}
@@ -121,6 +121,8 @@ namespace OgreMayaExporter
 	{
 		//save the dag path of the maya node from which this submesh will be created
 		m_dagPath = dag;
+		//create the mesh Fn
+		MFnMesh mesh(dag);
 		int i,j,k;
 		std::cout << "Loading submesh associated to material: " << m_pMaterial->name().asChar() << "...";
 		std::cout.flush();
@@ -229,6 +231,11 @@ namespace OgreMayaExporter
 			m_use32bitIndexes = true;
 		else
 			m_use32bitIndexes = false;
+		// get submesh bounding box
+		m_boundingBox = mesh.boundingBox();
+		// add submesh pointer to parameters list
+		params.loadedSubmeshes.push_back(this);
+
 		std::cout << "DONE\n";
 		std::cout.flush();
 		return MS::kSuccess;
@@ -269,6 +276,8 @@ namespace OgreMayaExporter
 		}
 		// add keyframe to given track
 		t.addVertexKeyframe(k);
+		// update bounding box
+		m_boundingBox.expand(mesh.boundingBox());
 		// keyframe successfully loaded
 		return MS::kSuccess;
 	}
@@ -460,128 +469,4 @@ namespace OgreMayaExporter
 		return MS::kSuccess;
 	}
 
-/*	// Write submesh data to an Ogre XML mesh file
-	MStatus Submesh::writeOgreXML(ParamList &params)
-	{
-		int i;
-		// Start submesh description
-		params.outMesh << "\t\t<submesh ";
-		// Write material name
-		params.outMesh << "material=\"" << m_pMaterial->name().asChar() << "\" ";
-		// Write use32bitIndexes flag
-		params.outMesh << "use32bitindexes=\"";
-		if (m_use32bitIndexes)
-			params.outMesh << "true";
-		else
-			params.outMesh << "false";
-		params.outMesh << "\" ";
-		// Write use32bitIndexes flag
-		params.outMesh << "usesharedvertices=\"";
-		if (params.useSharedGeom)
-			params.outMesh << "true";
-		else
-			params.outMesh << "false";
-		params.outMesh << "\" ";
-		// Write operation type flag
-		params.outMesh << "operationtype=\"triangle_list\">\n";
-
-		// Write submesh polygons
-		params.outMesh << "\t\t\t<faces count=\"" << m_faces.size() << "\">\n";
-		for (i=0; i<m_faces.size(); i++)
-		{
-			params.outMesh << "\t\t\t\t<face v1=\"" << m_faces[i].v[0] << "\" v2=\"" << m_faces[i].v[1] << "\" "
-				<< "v3=\"" << m_faces[i].v[2] << "\"/>\n";
-		}
-		params.outMesh << "\t\t\t</faces>\n";
-
-		// Write mesh geometry
-		if (!params.useSharedGeom)
-		{
-			params.outMesh << "\t\t\t<geometry vertexcount=\"" << m_vertices.size() << "\">\n";
-			params.outMesh << "\t\t\t\t<vertexbuffer positions=\"true\" normals=";
-			if (params.exportVertNorm)
-				params.outMesh << "\"true\"";
-			else 
-				params.outMesh << "\"false\"";
-			params.outMesh << " colours_diffuse=";
-			if (params.exportVertCol)
-				params.outMesh << "\"true\"";
-			else
-				params.outMesh << "\"false\"";
-			params.outMesh << " colours_specular=\"false\" texture_coords=\"";
-			if (params.exportTexCoord)
-				params.outMesh << m_uvsets.size() << "\">\n";
-			else
-				params.outMesh << 0 << "\">\n";
-			//write vertex data
-			for (i=0; i<m_vertices.size(); i++)
-			{
-				params.outMesh << "\t\t\t\t\t<vertex>\n";
-				//write vertex position
-				params.outMesh << "\t\t\t\t\t\t<position x=\"" << m_vertices[i].x << "\" y=\"" 
-					<< m_vertices[i].y << "\" " << "z=\"" << m_vertices[i].z << "\"/>\n";
-				//write vertex normal
-				if (params.exportVertNorm)
-				{
-					params.outMesh << "\t\t\t\t\t\t<normal x=\"" << m_vertices[i].n.x << "\" y=\"" 
-						<< m_vertices[i].n.y << "\" " << "z=\"" << m_vertices[i].n.z << "\"/>\n";
-				}
-				//write vertex colour
-				if (params.exportVertCol)
-				{
-					float r,g,b,a;
-					if (params.exportVertColWhite)
-					{
-						r = g = b = a = 1.0f;
-					}
-					else
-					{
-						r = m_vertices[i].r;
-						g = m_vertices[i].g;
-						b = m_vertices[i].b;
-						a = m_vertices[i].a;
-					}
-
-					params.outMesh << "\t\t\t\t\t\t<colour_diffuse value=\"" << r << " " << g 
-						<< " " << b << " " << a << "\"/>\n";
-				}//write vertex texture coordinates
-				if (params.exportTexCoord)
-				{
-					for (int j=0; j<m_uvsets.size(); j++)
-					{
-						params.outMesh << "\t\t\t\t\t\t<texcoord u=\"" << m_vertices[i].texcoords[j].u << "\" v=\"" << 
-							m_vertices[i].texcoords[j].v << "\"/>\n";
-					}
-				}
-				params.outMesh << "\t\t\t\t\t</vertex>\n";
-			}
-			//end vertex data
-			params.outMesh << "\t\t\t\t</vertexbuffer>\n";
-			//end geometry description
-			params.outMesh << "\t\t\t</geometry>\n";
-
-			// Write bone assignments
-			if (params.exportVBA)
-			{
-				params.outMesh << "\t\t\t<boneassignments>\n";
-				for (i=0; i<m_vertices.size(); i++)
-				{
-					for (int j=0; j<m_vertices[i].vbas.size(); j++)
-					{
-						if (m_vertices[i].vbas[j].weight > 0.001)
-						{
-							params.outMesh << "\t\t\t\t<vertexboneassignment vertexindex=\"" << i 
-								<< "\" boneindex=\"" << m_vertices[i].vbas[j].jointIdx << "\" weight=\"" 
-								<< m_vertices[i].vbas[j].weight <<"\"/>\n";
-						}
-					}
-				}
-				params.outMesh << "\t\t\t</boneassignments>\n";
-			}
-		}
-		// End submesh description
-		params.outMesh << "\t\t</submesh>\n";
-		return MS::kSuccess;
-	}
-*/
 }; //end of namespace

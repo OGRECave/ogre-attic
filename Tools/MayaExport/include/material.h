@@ -7,7 +7,7 @@
 namespace OgreMayaExporter
 {
 
-	typedef enum {MT_LAMBERT,MT_PHONG,MT_BLINN} MaterialType;
+	typedef enum {MT_SURFACE_SHADER,MT_LAMBERT,MT_PHONG,MT_BLINN} MaterialType;
 
 	typedef enum {TOT_REPLACE,TOT_MODULATE,TOT_ADD,TOT_ALPHABLEND} TexOpType;
 
@@ -40,7 +40,12 @@ namespace OgreMayaExporter
 		//clear material data
 		void clear();
 		//load material data
-		MStatus load(MFnLambertShader* pShader,MStringArray& uvsets,ParamList& params);
+		MStatus load(MFnDependencyNode* pShader,MStringArray& uvsets,ParamList& params);
+		//load a specific material type
+		MStatus loadSurfaceShader(MFnDependencyNode* pShader);
+		MStatus loadLambert(MFnDependencyNode* pShader);
+		MStatus loadPhong(MFnDependencyNode* pShader);
+		MStatus loadBlinn(MFnDependencyNode* pShader);
 		//write material data to Ogre material script
 		MStatus writeOgreScript(ParamList &params);
 		//copy textures to path specified by params
