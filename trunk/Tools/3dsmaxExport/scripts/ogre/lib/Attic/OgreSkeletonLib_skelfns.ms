@@ -56,7 +56,7 @@ function writeTrack sk boneId firstframe lastframe length scale flipYZ outFile=
 	-- gets bone acording to the parameter boneId
 	bname= skinOps.GetBoneName sk boneId 1 ;
 	replaceSpaces bname ;
-	d = execute ("$" + bname) ;
+	d = getNodeByName bname ;
 	
 	-- gets keyframe list
 	timelist = getTimeList d firstframe lastframe ;
@@ -154,7 +154,7 @@ function writeB sk id scale flipYZ outFile =
 	-- gets bone acording to the parameter boneId
 	bname= skinOps.GetBoneName sk id 1 ;
 	replaceSpaces bname ;
-	d = execute ("$" + bname) ;
+	d = getNodeByName bname ;
 	
 	-- gets initial transform at frame 0f
 	format("\t\t<bone id=\"%\" name=\"%\">\n") id (replaceSpaces d.name) to:outFile ;

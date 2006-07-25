@@ -46,8 +46,6 @@ namespace Ogre {
 		mRenderQueueIDSet(false), mQueryFlags(msDefaultQueryFlags),
 		mVisibilityFlags(msDefaultVisibilityFlags), mCastShadows (true)
     {
-		mWorldAABB.setNull();
-        
     }
 	//-----------------------------------------------------------------------
 	MovableObject::MovableObject(const String& name) 
@@ -59,7 +57,6 @@ namespace Ogre {
 		mVisibilityFlags(msDefaultVisibilityFlags),
 		mCastShadows (true)
 	{
-		mWorldAABB.setNull();
 	}
 	//-----------------------------------------------------------------------
     MovableObject::~MovableObject()
@@ -136,6 +133,11 @@ namespace Ogre {
     void MovableObject::setVisible(bool visible)
     {
         mVisible = visible;
+    }
+    //-----------------------------------------------------------------------
+    bool MovableObject::getVisible(void) const
+    {
+        return mVisible;
     }
     //-----------------------------------------------------------------------
     bool MovableObject::isVisible(void) const

@@ -145,7 +145,7 @@ function keepLoneValues a b= (
 ---------------------------------------------------------------------
 -- replaces " " by "_" in a string.
 -- when a name is for example Left Biceps max knows it at Left_Biceps
--- and execute fonction will not work if you don't use this function
+-- and execute function will not work if you don't use this function
 ---------------------------------------------------------------------
 function replaceSpaces s =
 (
@@ -231,7 +231,7 @@ function getRoots skin =
 	(
 		c= skinOps.GetBoneName skin i 1 ;
 		replaceSpaces c ;
-		d = execute ("$" + c) ;
+		d = getNodeByName c ;
 		if (isRoot d) then
 			append rootstab d ;
 	)
@@ -251,7 +251,7 @@ function getRootsId skin =
 	(
 		c= skinOps.GetBoneName skin i 1 ;
 		replaceSpaces c ;
-		d = execute ("$" + c) ;
+		d = getNodeByName c ;
 		if (isRoot d) then
 			append rootstab i ;
 	)

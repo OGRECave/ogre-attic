@@ -412,7 +412,7 @@ namespace Ogre
         // Notify need to calculate light list when our sending to render queue
         mLightListDirty = true;
 
-        queue->addRenderable( this );
+        queue->addRenderable(this, mRenderQueueID);
     }
     //-----------------------------------------------------------------------
     void TerrainRenderable::getRenderOperation( RenderOperation& op )

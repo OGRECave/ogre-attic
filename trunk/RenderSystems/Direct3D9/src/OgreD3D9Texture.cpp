@@ -48,6 +48,7 @@ namespace Ogre
         mpCubeTex(NULL),
 		mpVolumeTex(NULL),
         mpTex(NULL),
+        mD3DPool(D3DPOOL_MANAGED),
 		mDynamicTextures(false)
 	{
         _initDevice();
@@ -183,6 +184,14 @@ namespace Ogre
 			return;
 		}
 
+        if (!mInternalResourcesCreated)
+        {
+            // NB: Need to initialise pool to some value other than D3DPOOL_DEFAULT,
+            // otherwise, if the texture loading failed, it might re-create as empty
+            // texture when device lost/restore. The actual pool will determine later.
+            mD3DPool = D3DPOOL_MANAGED;
+        }
+
 		// load based on tex.type
 		switch (this->getTextureType())
 		{
@@ -226,12 +235,23 @@ namespace Ogre
 			DWORD usage = 0;
 			UINT numMips = mNumRequestedMipmaps + 1;
 			// check if mip map volume textures are supported
-			if (!mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPCUBEMAP)
+			if (!(mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPCUBEMAP))
 			{
 				// no mip map support for this kind of textures :(
 				mNumMipmaps = 0;
 				numMips = 1;
 			}
+
+            // Determine D3D pool to use
+            D3DPOOL pool;
+            if (mUsage & TU_DYNAMIC)
+            {
+                pool = D3DPOOL_DEFAULT;
+            }
+            else
+            {
+                pool = D3DPOOL_MANAGED;
+            }
 
 			HRESULT hr = D3DXCreateCubeTextureFromFileInMemoryEx(
 				mpDev,
@@ -241,7 +261,7 @@ namespace Ogre
 				numMips,
 				usage,
 				D3DFMT_FROM_FILE,
-				D3DPOOL_MANAGED,
+				pool,
 				D3DX_DEFAULT,
 				D3DX_DEFAULT,
 				0,  // colour key
@@ -265,6 +285,7 @@ namespace Ogre
 
             D3DSURFACE_DESC texDesc;
             mpCubeTex->GetLevelDesc(0, &texDesc);
+            mD3DPool = texDesc.Pool;
             // set src and dest attributes to the same, we can't know
             _setSrcAttributes(texDesc.Width, texDesc.Height, 1, D3D9Mappings::_getPF(texDesc.Format));
             _setFinalAttributes(texDesc.Width, texDesc.Height, 1,  D3D9Mappings::_getPF(texDesc.Format));
@@ -317,12 +338,23 @@ namespace Ogre
 			DWORD usage = 0;
 			UINT numMips = mNumRequestedMipmaps + 1;
 			// check if mip map volume textures are supported
-			if (!mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPVOLUMEMAP)
+			if (!(mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPVOLUMEMAP))
 			{
 				// no mip map support for this kind of textures :(
 				mNumMipmaps = 0;
 				numMips = 1;
 			}
+
+            // Determine D3D pool to use
+            D3DPOOL pool;
+            if (mUsage & TU_DYNAMIC)
+            {
+                pool = D3DPOOL_DEFAULT;
+            }
+            else
+            {
+                pool = D3DPOOL_MANAGED;
+            }
 
 			HRESULT hr = D3DXCreateVolumeTextureFromFileInMemoryEx(
 				mpDev,
@@ -332,7 +364,7 @@ namespace Ogre
 				numMips,
 				usage,
 				D3DFMT_FROM_FILE,
-				D3DPOOL_MANAGED,
+				pool,
 				D3DX_DEFAULT,
 				D3DX_DEFAULT,
 				0,  // colour key
@@ -357,7 +389,7 @@ namespace Ogre
 	
 			D3DVOLUME_DESC texDesc;
 			hr = mpVolumeTex->GetLevelDesc(0, &texDesc);
-	
+            mD3DPool = texDesc.Pool;
 			// set src and dest attributes to the same, we can't know
 			_setSrcAttributes(texDesc.Width, texDesc.Height, texDesc.Depth, D3D9Mappings::_getPF(texDesc.Format));
 			_setFinalAttributes(texDesc.Width, texDesc.Height, texDesc.Depth, D3D9Mappings::_getPF(texDesc.Format));
@@ -396,12 +428,23 @@ namespace Ogre
 			DWORD usage = 0;
 			UINT numMips = mNumRequestedMipmaps + 1;
 			// check if mip map volume textures are supported
-			if (!mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPMAP)
+			if (!(mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPMAP))
 			{
 				// no mip map support for this kind of textures :(
 				mNumMipmaps = 0;
 				numMips = 1;
 			}
+
+            // Determine D3D pool to use
+            D3DPOOL pool;
+            if (mUsage & TU_DYNAMIC)
+            {
+                pool = D3DPOOL_DEFAULT;
+            }
+            else
+            {
+                pool = D3DPOOL_MANAGED;
+            }
 
 			HRESULT hr = D3DXCreateTextureFromFileInMemoryEx(
 				mpDev,
@@ -411,7 +454,7 @@ namespace Ogre
 				numMips,
 				usage,
 				D3DFMT_FROM_FILE,
-				D3DPOOL_MANAGED,
+				pool,
 				D3DX_DEFAULT,
 				D3DX_DEFAULT,
 				0,  // colour key
@@ -436,6 +479,7 @@ namespace Ogre
 	
 			D3DSURFACE_DESC texDesc;
 			mpNormTex->GetLevelDesc(0, &texDesc);
+            mD3DPool = texDesc.Pool;
 			// set src and dest attributes to the same, we can't know
 			_setSrcAttributes(texDesc.Width, texDesc.Height, 1, D3D9Mappings::_getPF(texDesc.Format));
 			_setFinalAttributes(texDesc.Width, texDesc.Height, 1, D3D9Mappings::_getPF(texDesc.Format));

@@ -120,7 +120,7 @@ macroScript showOgreExportTools
 		
 		)		
 	)
-	
+
 	rollout OgreExportObject "Object" width:270 height:259
 	(
 		label lbl01 "Selected Object :" pos:[6,35] width:260 height:17
@@ -208,7 +208,7 @@ macroScript showOgreExportTools
 		on export pressed  do
 		(
 			sliderTime = 0 ;
-			m = execute ("$" + (replaceSpaces editObject.text)) ;
+			m = getNodeByName editObject.text ;
 			if (editFilename.text == "" or m == undefined ) then
 			(
 				messageBox "You have to choose a filename and a valid object." ;
@@ -408,7 +408,7 @@ macroScript showOgreExportTools
 		(
 			name = OgreExportObject.editObject.text;
 			replaceSpaces name;
-			d = execute ("$" + name);
+			d = getNodeByName name ;
 			num_channels = (meshOp.getNumMaps d) - 1;
 			if (state > num_channels) then
 				SPchannels.value = num_channels;

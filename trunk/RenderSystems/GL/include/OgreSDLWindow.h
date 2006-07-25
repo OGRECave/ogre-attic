@@ -39,6 +39,10 @@ namespace Ogre {
             
         // Process pending events
         void processEvents(void);
+
+        int (*glXGetVideoSyncSGI) (unsigned int *);
+        int (*glXWaitVideoSyncSGI) (int, int, unsigned int *);
+
     public:
         SDLWindow();
         ~SDLWindow();

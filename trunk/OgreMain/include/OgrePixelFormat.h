@@ -427,6 +427,6 @@ namespace Ogre {
         static void bulkPixelConversion(const PixelBox &src, const PixelBox &dst);
     };
 
-};
+}
 
 #endif

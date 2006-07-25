@@ -3972,7 +3972,7 @@ void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera
         }
 
 		// Determine whether zfail is required
-        if (nearClipVol.intersects(caster->getWorldBoundingBox()))
+        if (zfailAlgo || nearClipVol.intersects(caster->getWorldBoundingBox()))
         {
             // We use zfail for this object only because zfail
 	        // compatible with zpass algorithm

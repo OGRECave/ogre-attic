@@ -120,7 +120,7 @@ function writeTrack bone_name boneId firstframe lastframe samplerate IKsamplerat
 	-- gets bone acording to the parameter boneId
 	bname = bone_name ;
 	replaceSpaces bname ;
-	d = execute ("$" + bname) ;
+	d = getNodeByName bname ;
 	
 	-- gets keyframe list
 	timelist = getTimeList d firstframe lastframe samplerate IKsamplerate;
@@ -229,7 +229,7 @@ global RootsList=#()
 function computeBList b sk phy exportHelpers =
 (
 	bname = b ;
-	bone = execute ("$" + bname) ;
+	bone = getNodeByName bname ;
 	if (findItem BonesList bname == 0) then
 		if (isKindOf bone BoneGeometry or iskindOf bone Biped_Object or (exportHelpers and (isPartOfModifier bone sk phy)) ) then
 			append BonesList bname ;
@@ -249,7 +249,7 @@ function addHelpersToHierarchy phy sk =
 		(
 			bname = skinOps.GetBoneName sk i 1 ;
 			replaceSpaces bname ;
-			d = execute ("$" + bname) ;
+			d = getNodeByName bname ;
 
 			if (iskindof d helper) then
 				append BonesList bname ;
@@ -261,7 +261,7 @@ function addHelpersToHierarchy phy sk =
 		(
 			bname = (physiqueOps.GetBones $)[i].name;
 			replaceSpaces bname ;
-			d = execute ("$" + bname) ;
+			d = getNodeByName bname ;
 		
 			if (iskindof d helper) then
 				append BonesList bname ;
@@ -282,7 +282,7 @@ function getHierarchyRoots phy sk exportHelpers =
 		(
 			bname= skinOps.GetBoneName sk i 1 ;
 			replaceSpaces bname ;
-			d = execute ("$" + bname) ;
+			d = getNodeByName bname ;
 		
 			while (d.parent!=undefined and (iskindof d.parent BoneGeometry or iskindOf d.parent Biped_Object or (exportHelpers and (isPartOfModifier d.parent sk phy)) )) do
 			(
@@ -315,7 +315,7 @@ function getHierarchyRoots phy sk exportHelpers =
 		(
 			bname = (physiqueOps.GetBones $)[i].name;
 			replaceSpaces bname ;
-			d = execute ("$" + bname) ;
+			d = getNodeByName bname ;
 		
 			while (d.parent!=undefined and (iskindof d.parent BoneGeometry or iskindOf d.parent Biped_Object  or (exportHelpers and (isPartOfModifier d.parent sk phy)) )) do
 			(
@@ -371,7 +371,7 @@ function writeB bone_name id scale flipYZ outFile =
 	-- gets bone acording to the parameter boneId
 	bname = bone_name ;
 	replaceSpaces bname;
-	d = execute ("$" + bname) ;
+	d = getNodeByName bname ;
 	
 	-- gets initial transform at frame 0f
 	format("\t\t<bone id=\"%\" name=\"%\">\n") (id-1) bname to:outFile ;
@@ -465,7 +465,7 @@ function writeHierarchy outFile =
 	(
 		OgreExportObject.exportProgress.value = (100.0*i/BonesList.count);
 
-		b = execute ("$" + (replaceSpaces BonesList[i])) ;
+		b = getNodeByName BonesList[i] ;
 		writeH b outFile ;	
 	)
 
