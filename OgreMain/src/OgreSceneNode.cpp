@@ -627,7 +627,7 @@ namespace Ogre {
         oiend = mObjectsByName.end();
         for (oi = mObjectsByName.begin(); oi != oiend; ++oi)
         {
-            oi->second->setVisible(!oi->second->isVisible());
+            oi->second->setVisible(!oi->second->getVisible());
         }
 
         if (cascade)

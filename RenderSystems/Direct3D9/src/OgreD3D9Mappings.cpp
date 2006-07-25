@@ -589,54 +589,20 @@ namespace Ogre
 		// Transpose matrix
 		// D3D9 uses row vectors i.e. V*M
 		// Ogre, OpenGL and everything else uses column vectors i.e. M*V
-		D3DXMATRIX d3dMat;
-		d3dMat.m[0][0] = mat[0][0];
-		d3dMat.m[0][1] = mat[1][0];
-		d3dMat.m[0][2] = mat[2][0];
-		d3dMat.m[0][3] = mat[3][0];
-
-		d3dMat.m[1][0] = mat[0][1];
-		d3dMat.m[1][1] = mat[1][1];
-		d3dMat.m[1][2] = mat[2][1];
-		d3dMat.m[1][3] = mat[3][1];
-
-		d3dMat.m[2][0] = mat[0][2];
-		d3dMat.m[2][1] = mat[1][2];
-		d3dMat.m[2][2] = mat[2][2];
-		d3dMat.m[2][3] = mat[3][2];
-
-		d3dMat.m[3][0] = mat[0][3];
-		d3dMat.m[3][1] = mat[1][3];
-		d3dMat.m[3][2] = mat[2][3];
-		d3dMat.m[3][3] = mat[3][3];
-
-		return d3dMat;
+		return D3DXMATRIX(
+            mat[0][0], mat[1][0], mat[2][0], mat[3][0],
+            mat[0][1], mat[1][1], mat[2][1], mat[3][1],
+            mat[0][2], mat[1][2], mat[2][2], mat[3][2],
+            mat[0][3], mat[1][3], mat[2][3], mat[3][3]);
 	}
 	//---------------------------------------------------------------------
 	Matrix4 D3D9Mappings::convertD3DXMatrix( const D3DXMATRIX& mat )
 	{
-		Matrix4 ogreMat;
-		ogreMat[0][0] = mat.m[0][0];
-		ogreMat[1][0] = mat.m[0][1];
-		ogreMat[2][0] = mat.m[0][2];
-		ogreMat[3][0] = mat.m[0][3];
-
-		ogreMat[0][1] = mat.m[1][0];
-		ogreMat[1][1] = mat.m[1][1];
-		ogreMat[2][1] = mat.m[1][2];
-		ogreMat[3][1] = mat.m[1][3];
-
-		ogreMat[0][2] = mat.m[2][0];
-		ogreMat[1][2] = mat.m[2][1];
-		ogreMat[2][2] = mat.m[2][2];
-		ogreMat[3][2] = mat.m[2][3];
-
-		ogreMat[0][3] = mat.m[3][0];
-		ogreMat[1][3] = mat.m[3][1];
-		ogreMat[2][3] = mat.m[3][2];
-		ogreMat[3][3] = mat.m[3][3];
-
-		return ogreMat;
+		return Matrix4(
+            mat.m[0][0], mat.m[1][0], mat.m[2][0], mat.m[3][0],
+            mat.m[0][1], mat.m[1][1], mat.m[2][1], mat.m[3][1],
+            mat.m[0][2], mat.m[1][2], mat.m[2][2], mat.m[3][2],
+            mat.m[0][3], mat.m[1][3], mat.m[2][3], mat.m[3][3]);
 	}
 	/****************************************************************************************/
 	PixelFormat D3D9Mappings::_getPF(D3DFORMAT d3dPF)

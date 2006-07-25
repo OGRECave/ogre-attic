@@ -164,56 +164,58 @@ namespace Ogre {
 						newUniformReference.mElementCount = 1;
 						break;
 
-					case GL_FLOAT_VEC2_ARB:
+					case GL_FLOAT_VEC2:
 						newUniformReference.isReal = true;
 						newUniformReference.mElementCount = 2;
 						break;
 
-					case GL_FLOAT_VEC3_ARB:
+					case GL_FLOAT_VEC3:
 						newUniformReference.isReal = true;
 						newUniformReference.mElementCount = 3;
 						break;
 
-					case GL_FLOAT_VEC4_ARB:
+					case GL_FLOAT_VEC4:
 						newUniformReference.isReal = true;
 						newUniformReference.mElementCount = 4;
 						break;
 
 					case GL_INT:
-					case GL_SAMPLER_1D_ARB:
-					case GL_SAMPLER_2D_ARB:
-					case GL_SAMPLER_3D_ARB:
-					case GL_SAMPLER_CUBE_ARB:
+					case GL_SAMPLER_1D:
+					case GL_SAMPLER_2D:
+					case GL_SAMPLER_3D:
+					case GL_SAMPLER_CUBE:
+					case GL_SAMPLER_1D_SHADOW:
+					case GL_SAMPLER_2D_SHADOW:
 						newUniformReference.isReal = false;
 						newUniformReference.mElementCount = 1;
 						break;
 
-					case GL_INT_VEC2_ARB:
+					case GL_INT_VEC2:
 						newUniformReference.isReal = false;
 						newUniformReference.mElementCount = 2;
 						break;
 
-					case GL_INT_VEC3_ARB:
+					case GL_INT_VEC3:
 						newUniformReference.isReal = false;
 						newUniformReference.mElementCount = 3;
 						break;
 
-					case GL_INT_VEC4_ARB:
+					case GL_INT_VEC4:
 						newUniformReference.isReal = false;
 						newUniformReference.mElementCount = 4;
 						break;
 
-                    case GL_FLOAT_MAT2_ARB:
+                    case GL_FLOAT_MAT2:
 						newUniformReference.isReal = true;
 						newUniformReference.mElementCount = 4;
 						break;
 
-                    case GL_FLOAT_MAT3_ARB:
+                    case GL_FLOAT_MAT3:
 						newUniformReference.isReal = true;
 						newUniformReference.mElementCount = 9;
 						break;
 
-                    case GL_FLOAT_MAT4_ARB:
+                    case GL_FLOAT_MAT4:
 						newUniformReference.isReal = true;
 						newUniformReference.mElementCount = 16;
 						break;
@@ -269,7 +271,7 @@ namespace Ogre {
 
 						case 4:
                             {
-                                if (currentUniform->mType == GL_FLOAT_MAT2_ARB)
+                                if (currentUniform->mType == GL_FLOAT_MAT2)
                                 {
                                     glUniformMatrix2fvARB( currentUniform->mLocation, 1, GL_TRUE, currentRealConstant->val);
                                 }

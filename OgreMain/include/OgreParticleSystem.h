@@ -517,7 +517,7 @@ namespace Ogre {
         /** Set the (initial) bounds of the particle system manually. 
         @remarks
             If you can, set the bounds of a particle system up-front and 
-            call setBoundsUpdatePeriod(0); this is the most efficient way to
+            call setBoundsAutoUpdated(false); this is the most efficient way to
             organise it. Otherwise, set an initial bounds and let the bounds increase
             for a little while (the default is 5 seconds), after which time the 
             AABB is fixed to save time.
@@ -562,7 +562,7 @@ namespace Ogre {
         /** Internal method for updating the bounds of the particle system.
         @remarks
             This is called automatically for a period of time after the system's
-            creation (5 seconds by default, settable by setBoundsUpdatePeriod) 
+            creation (10 seconds by default, settable by setBoundsAutoUpdated) 
             to increase (and only increase) the bounds of the system according 
             to the emitted and affected particles. After this period, the 
             system is assumed to achieved its maximum size, and the bounds are

@@ -2,7 +2,7 @@
 	filename: 	OgreCEGUIResourceProvider.cpp
 	created:	8/7/2004
 	author:		James '_mental_' O'Sullivan
-	
+
 	purpose:	Implements the Resource Provider common functionality
 *************************************************************************/
 /*************************************************************************
@@ -66,7 +66,7 @@ namespace CEGUI
         else
             orpGroup = resourceGroup;
 
-        Ogre::DataStreamPtr input = 
+        Ogre::DataStreamPtr input =
             Ogre::ResourceGroupManager::getSingleton().openResource(filename.c_str(), orpGroup.c_str());
 
 		if (input.isNull())
@@ -76,14 +76,19 @@ namespace CEGUI
         }
 
 		Ogre::String buf = input->getAsString();
-		size_t buffsz = buf.length();
-        unsigned char* mem = new unsigned char[buffsz];
-        memcpy(mem, buf.c_str(), buffsz);
+		// when copying the string buffer we want to include the null terminator.
+		// Only TinyXML makes use of the null terminator to determine if end of buffer has been reached.
+		// The other XML parsers that can be used in CEGUI use the buffer size which does not include the null terminator.
+		const size_t dataLength = buf.length();
+		const size_t memBuffSize = dataLength + 1;
+
+        unsigned char* mem = new unsigned char[memBuffSize];
+        memcpy(mem, buf.c_str(), memBuffSize);
 
         output.setData(mem);
-        output.setSize(buffsz);
+        output.setSize(dataLength);
     }
-	
+
 	void OgreCEGUIResourceProvider::unloadRawDataContainer(RawDataContainer& data)
 	{
 		if (data.getDataPtr())
