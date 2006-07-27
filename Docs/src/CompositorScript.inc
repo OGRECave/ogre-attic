@@ -320,8 +320,9 @@ Here are the attributes you can use in a 'stencil' section of a .compositor scri
 
 @anchor{compositor_stencil_check}
 @subheading check
-Enables or disables the stencil check, thus enabling the use of the rest of the features in this section. The rest of the options in this section do nothing if the stencil check is off.
+Enables or disables the stencil check, thus enabling the use of the rest of the features in this section. The rest of the options in this section do nothing if the stencil check is off.@*@*
 Format: check (on | off)@*@*
+Default: check off@*@*
 
 @anchor{compositor_stencil_comp_func}
 @subheading comp_func
