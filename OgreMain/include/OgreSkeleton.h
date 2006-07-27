@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreQuaternion.h"
 #include "OgreVector3.h"
 #include "OgreIteratorWrappers.h"
+#include "OgreStringVector.h"
 
 namespace Ogre {
 
@@ -333,6 +334,60 @@ namespace Ogre {
 		virtual bool getManualBonesDirty(void) const { return mManualBonesDirty; }
 		/// Are there any manually controlled bones?
 		virtual bool hasManualBones(void) const { return !mManualBones.empty(); }
+
+        /// Map to translate bone handle from one skeleton to another skeleton.
+        typedef std::vector<ushort> BoneHandleMap;
+
+        /** Merge animations from another Skeleton object into this skeleton.
+        @remarks
+            This function allow merge two structures compatible skeletons. The
+            'compatible' here means identically bones will have same hierarchy,
+            but skeletons are not necessary to have same number of bones (if
+            number bones of source skeleton's more than this skeleton, they will
+            copied as is, except that duplicate names are unallowed; and in the
+            case of bones missing in source skeleton, nothing happen for those
+            bones).
+        @par
+            There are also unnecessary to have same binding poses, this function
+            will adjust keyframes of the source skeleton to match this skeleton
+            automatically.
+        @par
+            It's useful for export skeleton animations seperately. i.e. export
+            mesh and 'master' skeleton at the same time, and then other animations
+            will export seperately (even if used completely difference binding
+            pose), finally, merge seperately exported animations into 'master'
+            skeleton.
+        @param
+            source Pointer to source skeleton. It'll keep unmodified.
+        @param
+            boneHandleMap A map to translate identically bone's handle from source
+            skeleton to this skeleton. If mapped bone handle doesn't exists in this
+            skeleton, it'll created. You can populate bone handle map manually, or
+            use predefined functions build bone handle map for you. (@see 
+            _buildMapBoneByHandle, _buildMapBoneByName)
+        @param
+            animations A list name of animations to merge, if empty, all animations
+            of source skeleton are used to merge. Note that the animation names
+            must not presented in this skeleton, and will NOT pick up animations
+            in linked skeletons (@see addLinkedSkeletonAnimationSource).
+        */
+        virtual void _mergeSkeletonAnimations(const Skeleton* source,
+            const BoneHandleMap& boneHandleMap,
+            const StringVector& animations = StringVector());
+
+        /** Build the bone handle map to use with Skeleton::_mergeSkeletonAnimations.
+        @remarks
+            Identically bones are determine by handle.
+        */
+        virtual void _buildMapBoneByHandle(const Skeleton* source,
+            BoneHandleMap& boneHandleMap) const;
+
+        /** Build the bone handle map to use with Skeleton::_mergeSkeletonAnimations.
+        @remarks
+            Identically bones are determine by name.
+        */
+        virtual void _buildMapBoneByName(const Skeleton* source,
+            BoneHandleMap& boneHandleMap) const;
 
 	protected:
 		SkeletonAnimationBlendMode mBlendState;
