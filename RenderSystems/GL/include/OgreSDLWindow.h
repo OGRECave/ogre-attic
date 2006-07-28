@@ -73,7 +73,12 @@ namespace Ogre {
             // NOOP
         }
 
-		bool requiresTextureFlipping() const { return false; }
+        bool requiresTextureFlipping() const { return false; }
+
+        bool isFullScreen(void) const
+        {
+            return ( mScreen->flags & SDL_FULLSCREEN ) == SDL_FULLSCREEN;
+        }
     };
 }
 
