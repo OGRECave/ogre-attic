@@ -599,7 +599,7 @@ namespace Ogre {
 		{
 			mLight->setSpotlightInnerAngle(Radian(val));
 		}
-		void applyDeltaValue(const Real& val)
+		void applyDeltaValue(Real val)
 		{
 			setValue(mLight->getSpotlightInnerAngle().valueRadians() + val);
 		}
@@ -621,7 +621,7 @@ namespace Ogre {
 		{
 			mLight->setSpotlightOuterAngle(Radian(val));
 		}
-		void applyDeltaValue(const Real& val)
+		void applyDeltaValue(Real val)
 		{
 			setValue(mLight->getSpotlightOuterAngle().valueRadians() + val);
 		}
@@ -643,7 +643,7 @@ namespace Ogre {
 		{
 			mLight->setSpotlightFalloff(val);
 		}
-		void applyDeltaValue(const Real& val)
+		void applyDeltaValue(Real val)
 		{
 			setValue(mLight->getSpotlightFalloff() + val);
 		}
