@@ -47,13 +47,11 @@ namespace Ogre {
           mAttenuationQuad(0.0f),
 		  mPowerScale(1.0f),
           mDerivedPosition(Vector3::ZERO),
-          mDerivedDirection(Vector3::UNIT_Z)
+          mDerivedDirection(Vector3::UNIT_Z),
+          mLastParentOrientation(Quaternion::IDENTITY),
+          mLastParentPosition(Vector3::ZERO),
+          mLocalTransformDirty(false)
     {
-        // Default to point light, white diffuse light, linear attenuation, fair range
-
-        mParentNode = NULL;
-        mLocalTransformDirty = false;
-
     }
     //-----------------------------------------------------------------------
 	Light::Light(const String& name) : MovableObject(name),
@@ -71,11 +69,11 @@ namespace Ogre {
         mAttenuationQuad(0.0f),
 		mPowerScale(1.0f),
         mDerivedPosition(Vector3::ZERO),
-        mDerivedDirection(Vector3::UNIT_Z)
+        mDerivedDirection(Vector3::UNIT_Z),
+        mLastParentOrientation(Quaternion::IDENTITY),
+        mLastParentPosition(Vector3::ZERO),
+        mLocalTransformDirty(false)
     {
-
-        mParentNode = NULL;
-
     }
     //-----------------------------------------------------------------------
     Light::~Light()
