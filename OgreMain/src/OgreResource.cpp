@@ -65,6 +65,7 @@ namespace Ogre
 		}
 
 		// Scope lock for actual loading
+        try
 		{
 
 			OGRE_LOCK_AUTO_MUTEX
@@ -99,6 +100,14 @@ namespace Ogre
 			// Calculate resource size
 			mSize = calculateSize();
 		}
+        catch (...)
+        {
+            // Reset loading in-progress flag in case failed for some reason
+            OGRE_LOCK_MUTEX(mLoadingStatusMutex)
+            mIsLoadingInProgress = false;
+            // Re-throw
+            throw;
+        }
 
 		// Scope lock for loading progress
 		{
@@ -108,6 +117,7 @@ namespace Ogre
 			mIsLoaded = true;
 			mIsLoadingInProgress = false;
 		}
+
 		// Notify manager
 		if(mCreator)
 			mCreator->_notifyResourceLoaded(this);
