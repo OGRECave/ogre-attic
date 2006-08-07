@@ -20,6 +20,8 @@
 #define IDC_NUM_LODS                    1014
 #define IDC_EDGE_LISTS                  1016
 #define IDC_TANGENT_VECTORS             1017
+#define IDC_TANGENTS_TARGET             1019
+
 
 
 // Next default values for new objects

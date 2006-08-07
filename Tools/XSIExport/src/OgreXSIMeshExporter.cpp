@@ -103,8 +103,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	DeformerMap& XsiMeshExporter::buildMeshForExport(
 		bool mergeSubMeshes, bool exportChildren, 
-		bool edgeLists, bool tangents, bool vertexAnimation, 
-		AnimationList& animList, Real fps, const String& materialPrefix, 
+		bool edgeLists, bool tangents, VertexElementSemantic tangentSemantic, 
+		bool vertexAnimation, AnimationList& animList, Real fps, const String& materialPrefix, 
 		LodData* lod, const String& skeletonName)
     {
 
@@ -159,9 +159,9 @@ namespace Ogre {
         {
             LogOgreAndXSI(L"Calculating tangents");
             unsigned short src, dest;
-            if (mMesh->suggestTangentVectorBuildParams(VES_TANGENT, src, dest))
+            if (!mMesh->suggestTangentVectorBuildParams(tangentSemantic, src, dest))
             {
-                mMesh->buildTangentVectors(VES_TANGENT, src, dest);
+                mMesh->buildTangentVectors(tangentSemantic, src, dest);
             }
             else
             {
