@@ -96,6 +96,7 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
 #endif
 {
     HWND hwndDlgItem;
+	int sel;
 
     switch (iMsg)
     {
@@ -137,6 +138,14 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
         // Check skeleton export
         hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_SKEL);
         SendMessage(hwndDlgItem, BM_SETCHECK, BST_CHECKED,0);
+
+		// Set tangents option
+		hwndDlgItem = GetDlgItem(hDlg, IDC_TANGENTS_TARGET);
+		SendMessage(hwndDlgItem, CB_ADDSTRING, 0, (LPARAM)"Tangent Semantic");
+		SendMessage(hwndDlgItem, CB_ADDSTRING, 0, (LPARAM)"Texture Coord Semantic");
+		SendMessage(hwndDlgItem, CB_SETCURSEL, 0, 0);
+
+
 
         // Set default FPS
         hwndDlgItem = GetDlgItem(hDlg, IDC_FPS);
@@ -183,7 +192,7 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
                         return TRUE;
                     }
                     hwndDlgItem = GetDlgItem(hDlg, IDC_CBO_LOD_STYLE);
-                    int sel = SendMessage(hwndDlgItem, CB_GETCURSEL,0,0);
+                    sel = SendMessage(hwndDlgItem, CB_GETCURSEL,0,0);
                     if (sel == 0)
                     {
                         // percent
@@ -209,6 +218,18 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
 
                 hwndDlgItem = GetDlgItem(hDlg, IDC_TANGENT_VECTORS);
                 plugin->generateTangents = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
+				hwndDlgItem = GetDlgItem(hDlg, IDC_TANGENTS_TARGET);
+				sel = SendMessage(hwndDlgItem, CB_GETCURSEL,0,0);
+				if (sel == 0)
+				{
+					// tangents
+					plugin->tangentSemantic = Ogre::VES_TANGENT;
+				}
+				else
+				{
+					// texture coords
+					plugin->tangentSemantic = Ogre::VES_TEXTURE_COORDINATES;
+				}
 
                 hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_SKEL);
                 plugin->exportSkeleton = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
@@ -527,7 +548,9 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
 
     if (generateTangents)
     {
-		ogreMesh->buildTangentVectors(Ogre::VES_TANGENT, 0, 0);
+		unsigned short src, dest;
+		ogreMesh->suggestTangentVectorBuildParams(tangentSemantic, src, dest);
+		ogreMesh->buildTangentVectors(tangentSemantic, src, dest);
     }
 
     // Export

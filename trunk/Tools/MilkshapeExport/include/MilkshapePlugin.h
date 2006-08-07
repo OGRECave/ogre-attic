@@ -66,6 +66,7 @@ public:
     bool generateLods;
     bool generateEdgeLists;
     bool generateTangents;
+	Ogre::VertexElementSemantic tangentSemantic;
     unsigned short numLods;
     float lodDepthIncrement;
     Ogre::ProgressiveMesh::VertexReductionQuota lodReductionMethod;

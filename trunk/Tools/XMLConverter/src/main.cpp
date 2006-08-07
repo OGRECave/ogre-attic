@@ -52,6 +52,7 @@ struct XmlOptions
     bool usePercent;
     bool generateEdgeLists;
     bool generateTangents;
+	VertexElementSemantic tangentSemantic;
     bool reorganiseBuffers;
 	bool optimiseAnimations;
 	bool quietMode;
@@ -64,7 +65,7 @@ void help(void)
 {
     // Print help message
     cout << endl << "OgreXMLConvert: Converts data between XML and OGRE binary formats." << endl;
-    cout << "Provided for OGRE by Steve Streeting 2002" << endl << endl;
+    cout << "Provided for OGRE by Steve Streeting" << endl << endl;
     cout << "Usage: OgreXMLConverter [options] sourcefile [destfile] " << endl;
 	cout << endl << "Available options:" << endl;
     cout << "-i             = interactive mode - prompt for options" << endl;
@@ -76,6 +77,8 @@ void help(void)
     cout << "-e             = DON'T generate edge lists (for stencil shadows)" << endl;
     cout << "-r             = DON'T reorganise vertex buffers to OGRE recommended format." << endl;
     cout << "-t             = Generate tangents (for normal mapping)" << endl;
+	cout << "-td [uvw|tangent]" << endl;
+	cout << "           = Tangent vertex semantic destination (default tangent)" << endl;
     cout << "-o             = DON'T optimise out redundant tracks & keyframes" << endl;
 	cout << "-d3d           = Prefer D3D packed colour formats (default on Windows)" << endl;
 	cout << "-gl            = Prefer GL packed colour formats (default on non-Windows)" << endl;
@@ -105,6 +108,7 @@ XmlOptions parseArgs(int numArgs, char **args)
     opts.usePercent = true;
     opts.generateEdgeLists = true;
     opts.generateTangents = false;
+	opts.tangentSemantic = VES_TANGENT;
     opts.reorganiseBuffers = true;
 	opts.optimiseAnimations = true;
 	opts.quietMode = false;
@@ -132,6 +136,7 @@ XmlOptions parseArgs(int numArgs, char **args)
     binOpt["-f"] = "";
     binOpt["-E"] = "";
     binOpt["-log"] = "OgreXMLConverter.log";
+	binOpt["-td"] = "";
 
     int startIndex = findCommandLineOpts(numArgs, args, unOpt, binOpt);
     UnaryOptionList::iterator ui;
@@ -167,6 +172,14 @@ XmlOptions parseArgs(int numArgs, char **args)
         {
             opts.generateTangents = true;
         }
+		bi = binOpt.find("-td");
+		if (!bi->second.empty())
+		{
+			if (bi->second == "uvw")
+				opts.tangentSemantic = VES_TEXTURE_COORDINATES;
+			else
+				opts.tangentSemantic = VES_TANGENT;
+		}
 
         ui = unOpt.find("-o");
         if (ui->second)
@@ -604,7 +617,7 @@ void XMLToBinary(XmlOptions opts)
         if (opts.generateTangents)
         {
             unsigned short srcTex, destTex;
-            bool existing = newMesh->suggestTangentVectorBuildParams(VES_TANGENT, srcTex, destTex);
+            bool existing = newMesh->suggestTangentVectorBuildParams(opts.tangentSemantic, srcTex, destTex);
             if (existing)
             {
                 std::cout << "\nThis mesh appears to already have a set of 3D texture coordinates, " <<
@@ -635,7 +648,7 @@ void XMLToBinary(XmlOptions opts)
 				{
                     std::cout << "Generating tangent vectors...." << std::endl;
                 }
-                newMesh->buildTangentVectors(VES_TANGENT, srcTex, destTex);
+                newMesh->buildTangentVectors(opts.tangentSemantic, srcTex, destTex);
             }
         }
 

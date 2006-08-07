@@ -554,9 +554,9 @@ namespace Ogre {
             The prerequisites for calling this method include that the vertex data used by every
             SubMesh has both vertex normals and 2D texture coordinates.
 		@param targetSemantic The semantic to store the tangents in. Defaults to 
-			a texture coordinate, since that's the most portable for compatibility
-			with all shader types, but you could also use VES_TANGENT if you intend
-			to use shaders which support that binding.
+			the explicit tangent binding, but note that this is only usable on more
+			modern hardware (Shader Model 2), so if you need portability with older
+			cards you should change this to a texture coordinate binding instead.
         @param sourceTexCoordSet The texture coordinate index which should be used as the source
             of 2D texture coordinates, with which to calculate the tangents.
         @param index The element index, ie the texture coordinate set which should be used to store the 3D
@@ -576,7 +576,9 @@ namespace Ogre {
             coordinates in the mesh, and therefore tangents may have been prepared already.
 		@param targetSemantic The semantic you intend to use to store the tangents
 			if they are not already present;
-			most likely options are VES_TEXTURE_COORDINATES or VES_TANGENT
+			most likely options are VES_TEXTURE_COORDINATES or VES_TANGENT; you should
+			use texture coordinates if you want compatibility with older, pre-SM2
+			graphics cards, and the tangent binding otherwise.
         @param outSourceCoordSet Reference to a source texture coordinate set which 
             will be populated
         @param outIndex Reference to a destination element index (e.g. texture coord set)

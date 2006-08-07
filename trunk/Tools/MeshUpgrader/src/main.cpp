@@ -49,6 +49,8 @@ void help(void)
 	cout << "-f lodnumtris  = Fixed vertex reduction per LOD" << endl;
     cout << "-e         = DON'T generate edge lists (for stencil shadows)" << endl;
     cout << "-t         = Generate tangents (for normal mapping)" << endl;
+	cout << "-td [uvw|tangent]" << endl;
+	cout << "           = Tangent vertex semantic destination (default tangent)" << endl;
 	cout << "-r         = DON'T reorganise buffers to recommended format" << endl;
 	cout << "-d3d       = Convert to D3D colour formats" << endl;
 	cout << "-gl        = Convert to GL colour formats" << endl;
@@ -67,6 +69,7 @@ struct UpgradeOptions
 	bool interactive;
 	bool suppressEdgeLists;
 	bool generateTangents;
+	VertexElementSemantic tangentSemantic;
 	bool dontReorganise;
 	bool destColourFormatSet;
 	VertexElementType destColourFormat;
@@ -101,6 +104,7 @@ void parseOpts(UnaryOptionList& unOpts, BinaryOptionList& binOpts)
 	opts.interactive = false;
 	opts.suppressEdgeLists = false;
 	opts.generateTangents = false;
+	opts.tangentSemantic = VES_TANGENT;
 	opts.dontReorganise = false;
 	opts.endian = Serializer::ENDIAN_NATIVE;
 	opts.destColourFormatSet = false;
@@ -184,7 +188,14 @@ void parseOpts(UnaryOptionList& unOpts, BinaryOptionList& binOpts)
 	    else 
             opts.endian = Serializer::ENDIAN_NATIVE;
     }
-
+	bi = binOpts.find("-td");
+	if (!bi->second.empty())
+	{
+		if (bi->second == "uvw")
+			opts.tangentSemantic = VES_TEXTURE_COORDINATES;
+		else // if (bi->second == "tangent"), or anything else
+			opts.tangentSemantic = VES_TANGENT;
+	}
 }
 
 String describeSemantic(VertexElementSemantic sem)
@@ -837,6 +848,7 @@ int main(int numargs, char** args)
 	binOptList["-p"] = "";
 	binOptList["-f"] = "";
 	binOptList["-E"] = "";
+	binOptList["-td"] = "";
 
     int startIdx = findCommandLineOpts(numargs, args, unOptList, binOptList);
 	parseOpts(unOptList, binOptList);
@@ -900,12 +912,12 @@ int main(int numargs, char** args)
     if (opts.generateTangents)
     {
         unsigned short srcTex, destTex;
-        bool existing = mesh.suggestTangentVectorBuildParams(VES_TANGENT, srcTex, destTex);
+        bool existing = mesh.suggestTangentVectorBuildParams(opts.tangentSemantic, srcTex, destTex);
         if (existing)
         {
 			if (opts.interactive)
 			{
-				std::cout << "\nThis mesh appears to already have a set of 3D texture coordinates, " <<
+				std::cout << "\nThis mesh appears to already have a set of tangents, " <<
 					"which would suggest tangent vectors have already been calculated. Do you really " <<
 					"want to generate new tangent vectors (may duplicate)? (y/n)";
 				while (response == "")
@@ -936,7 +948,7 @@ int main(int numargs, char** args)
         if (opts.generateTangents)
         {
             cout << "Generating tangent vectors...." << std::endl;
-            mesh.buildTangentVectors(VES_TANGENT, srcTex, 0);
+            mesh.buildTangentVectors(opts.tangentSemantic, srcTex, destTex);
         }
     }
 
