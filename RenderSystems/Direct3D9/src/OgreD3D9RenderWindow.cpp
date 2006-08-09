@@ -105,6 +105,7 @@ namespace Ogre
 		mActive = false;
 		mSizing = false;
 		mClosed = false;
+		mDisplayFrequency = 0;
 	}
 
 	D3D9RenderWindow::~D3D9RenderWindow()
@@ -136,7 +137,6 @@ namespace Ogre
 		mFSAAType = D3DMULTISAMPLE_NONE;
 		mFSAAQuality = 0;
 		mVSync = false;
-		unsigned int displayFrequency = 0;
 		String title = name;
 		unsigned int colourDepth = 32;
 		int left = -1; // Defaults to screen center
@@ -177,7 +177,7 @@ namespace Ogre
 			// displayFrequency
 			opt = miscParams->find("displayFrequency");
 			if(opt != miscParams->end())
-				displayFrequency = StringConverter::parseUnsignedInt(opt->second);
+				mDisplayFrequency = StringConverter::parseUnsignedInt(opt->second);
 			// colourDepth
 			opt = miscParams->find("colourDepth");
 			if(opt != miscParams->end())
@@ -341,6 +341,8 @@ namespace Ogre
 		md3dpp.hDeviceWindow			= mHWnd;
 		md3dpp.BackBufferWidth			= mWidth;
 		md3dpp.BackBufferHeight			= mHeight;
+		md3dpp.FullScreen_RefreshRateInHz = mIsFullScreen ? mDisplayFrequency : 0;
+		
 
 		if (mVSync)
 		{
