@@ -103,7 +103,8 @@ namespace Ogre {
         mBoneList.clear();
         mBoneListByName.clear();
 		mRootBones.clear();
-
+        mManualBones.clear();
+        mManualBonesDirty = false;
 
         // Destroy animations
         AnimationList::iterator ai;
@@ -113,12 +114,8 @@ namespace Ogre {
         }
         mAnimationsList.clear();
 
-		LinkedSkeletonAnimSourceList::iterator li;
-		for (li = mLinkedSkeletonAnimSourceList.begin(); 
-			li != mLinkedSkeletonAnimSourceList.end(); ++li)
-		{
-			li->pSkeleton.setNull();
-		}
+        // Remove all linked skeletons
+        mLinkedSkeletonAnimSourceList.clear();
     }
     //---------------------------------------------------------------------
     Bone* Skeleton::createBone(void)

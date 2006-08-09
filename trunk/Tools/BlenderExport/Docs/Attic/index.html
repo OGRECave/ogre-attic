@@ -213,7 +213,7 @@ XML files.
 
 <p>The script supports sticky and per face vertex uv coordinates,
 smoothed and non-smoothed normals, vertex colours. Each rectangle face
-is automatically converted into two triangle faces in the exported mesh.</p>
+is automatically converted into two triangle faces in the exported mesh. The exporter defaults to using 16 bit indices but if the submesh vectex count exceeds the 16 bit limit then 32 bit indices are used.</p>
 
 <p>The script does not support subdivision surface (SubSurf) options.
 To export a SubSurf object, you have to convert it into a Mesh object,

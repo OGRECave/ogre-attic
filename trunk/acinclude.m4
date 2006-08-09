@@ -414,12 +414,14 @@ AC_MSG_CHECKING([whether to use double floating point precision])
         yes)
 			AC_DEFINE([OGRE_DOUBLE_PRECISION], [1], [Build with double precision])
 			AC_MSG_RESULT(yes)
+			OGRE_DOUBLE_PRECISION_FLAGS="-DOGRE_DOUBLE_PRECISION"
         ;;
         *)
 			AC_DEFINE([OGRE_DOUBLE_PRECISION], [0], [Build with double precision])
             AC_MSG_RESULT(no)
         ;;
     esac
+    AC_SUBST(OGRE_DOUBLE_PRECISION_FLAGS)
 ])
 
 AC_DEFUN([OGRE_CHECK_THREADING],

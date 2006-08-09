@@ -523,7 +523,7 @@ namespace Ogre
 			// I thought XSI used same transform order as OGRE
 			kf->setTranslate(Vector3(posx - initposx, posy - initposy, posz - initposz));
 			kf->setRotation(XSItoOgre(transformation.GetRotationQuaternion()));
-			kf->setScale(Vector3(sclx, scly, sclz));
+			kf->setScale(Vector3(sclx / initsclx, scly / initscly, sclz / initsclz));
 
 			// Derive AABB of bone positions, for padding animated mesh AABB
 			XSI::MATH::CVector3 bonePos = 
