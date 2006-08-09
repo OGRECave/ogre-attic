@@ -102,6 +102,7 @@ namespace Ogre
 		LPDIRECT3DSURFACE9 mpRenderZBuffer;
 		D3DMULTISAMPLE_TYPE mFSAAType;
 		DWORD mFSAAQuality;
+		UINT mDisplayFrequency;
 		bool mVSync;
 		bool mUseNVPerfHUD;
 

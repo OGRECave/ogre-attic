@@ -23,6 +23,7 @@ http://www.gnu.org/licenses/lgpl.html.
 */
 
 #include "OgreSDLConfig.h"
+#include "OgreLogManager.h"
 
 #include <libglademm/xml.h>
 
