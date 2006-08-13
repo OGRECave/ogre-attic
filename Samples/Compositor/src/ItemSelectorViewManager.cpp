@@ -12,6 +12,8 @@ LGPL like the rest of the engine.
 -----------------------------------------------------------------------------
 */
 
+#include <CEGUI/CEGUIPropertyHelper.h>
+
 #include "OgreStringConverter.h"
 #include "ItemSelectorViewManager.h"
 
@@ -32,9 +34,9 @@ LGPL like the rest of the engine.
         mScrollablePane = (CEGUI::ScrollablePane*)CEGUI::WindowManager::getSingleton().createWindow("TaharezLook/ScrollablePane",
                                     ("MainScrollPane"));
         mScrollablePane->setHorizontalAlignment(CEGUI::HA_CENTRE);
-        mScrollablePane->setSize(CEGUI::Size(0.9, 0.75));
+        mScrollablePane->setSize(CEGUI::UVector2(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.75, 0)));
         mParentWindow->addChildWindow(mScrollablePane);
-        mScrollablePane->setPosition(CEGUI::Point(WIDGET_XPOS, WIDGET_YSTART));
+        mScrollablePane->setPosition(CEGUI::UVector2(CEGUI::UDim(WIDGET_XPOS, 0), CEGUI::UDim(WIDGET_YSTART, 0)));
         // setup scrollable pane to resize to inside of parent window when parent resizes
         // scrollbars should only become visible when required
         // automatically handled by scrollable pane
@@ -53,13 +55,12 @@ LGPL like the rest of the engine.
                                     ( ("ItemCheckbox" + Ogre::StringConverter::toString(idx)).c_str() ));
         // set checkbox ID to selector ID
         checkbox->setID(idx);
-        checkbox->setMetricsMode(CEGUI::Absolute);
-        checkbox->setSize(CEGUI::Size(140, ITEM_YSIZE));
+        checkbox->setSize(CEGUI::UVector2(CEGUI::UDim(0, 140), CEGUI::UDim(0, ITEM_YSIZE)));
         checkbox->setText(displayText.c_str());
-        checkbox->setHoverTextColour(CEGUI::colour(1.0, 1.0, 0.0));
+        checkbox->setProperty("HoverTextColour", CEGUI::PropertyHelper::colourToString(CEGUI::colour(1.0, 1.0, 0.0)));
         // add event handler for when checkbox state changes
         checkbox->subscribeEvent(CEGUI::Checkbox::EventCheckStateChanged, CEGUI::Event::Subscriber(&ItemSelectorViewManager::handleCheckStateChanged, this ));
-        checkbox->setPosition(CEGUI::Point(0, 12 + (ITEM_YSIZE + ITEM_YSPACING)* static_cast<float>(idx)));
+        checkbox->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 0), CEGUI::UDim(0, 12 + (ITEM_YSIZE + ITEM_YSPACING)* static_cast<float>(idx))));
         // add checkbox to the scroll pane
         mScrollablePane->addChildWindow(checkbox);
     }
@@ -78,7 +79,8 @@ LGPL like the rest of the engine.
                 static_cast<const CEGUI::WindowEventArgs&>(e).window);
             mItemSelectorController->itemStateChanged(checkbox->getID(), checkbox->isSelected());
             float selectColour = checkbox->isSelected() ? 0.0f : 1.0f;
-            checkbox->setNormalTextColour(CEGUI::colour(selectColour, 1.0f, selectColour));
+            checkbox->setProperty("NormalTextColour",
+                CEGUI::PropertyHelper::colourToString(CEGUI::colour(selectColour, 1.0f, selectColour)));
         }
         return true;
     }
