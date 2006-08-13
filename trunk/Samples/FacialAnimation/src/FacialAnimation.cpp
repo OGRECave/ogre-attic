@@ -30,7 +30,6 @@ LGPL like the rest of the engine.
 #include <CEGUI/elements/CEGUIListboxTextItem.h>
 #include <CEGUI/elements/CEGUIPushButton.h>
 #include <CEGUI/elements/CEGUIScrollbar.h>
-#include <CEGUI/elements/CEGUIStaticImage.h>
 #include <CEGUI/elements/CEGUIRadioButton.h>
 #include "OgreCEGUIRenderer.h"
 #include "OgreCEGUIResourceProvider.h"
@@ -188,7 +187,7 @@ private:
 	CEGUI::Scrollbar* mRed;
 	CEGUI::Scrollbar* mGreen;
 	CEGUI::Scrollbar* mBlue;
-	CEGUI::StaticImage* mPreview;
+	CEGUI::Window* mPreview; // StaticImage
 	CEGUI::Window* mTip;
 	CEGUI::Listbox* mList;
 	CEGUI::Window* mEditBox;

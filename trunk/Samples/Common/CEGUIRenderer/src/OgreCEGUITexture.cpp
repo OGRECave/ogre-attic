@@ -141,7 +141,7 @@ void _byteSwap(unsigned char* b, int n)
 }
 #define byteSwap(x) _byteSwap((unsigned char*) &x,sizeof(x))
 
-void OgreCEGUITexture::loadFromMemory(const void* buffPtr, uint buffWidth, uint buffHeight)
+void OgreCEGUITexture::loadFromMemory(const void* buffPtr, uint buffWidth, uint buffHeight, PixelFormat pixelFormat)
 {
 	using namespace Ogre;
 
@@ -163,8 +163,13 @@ void OgreCEGUITexture::loadFromMemory(const void* buffPtr, uint buffWidth, uint 
 	DataStreamPtr odc(new MemoryDataStream(const_cast<void*>(buffPtr), bytesize, false));
 #endif
 
+	// get pixel type for the target texture - the elements here might look wrong, but is just
+	// differences in definition (at the core level, between GL and D3D).
+	Ogre::PixelFormat targetFmt =
+		(pixelFormat == PF_RGBA) ? Ogre::PF_A8R8G8B8 : Ogre::PF_R8G8B8;
+
 	// try to create a Ogre::Texture from the input data
-	d_ogre_texture = TextureManager::getSingleton().loadRawData(getUniqueName(), "General", odc, buffWidth, buffHeight, PF_A8R8G8B8, TEX_TYPE_2D, 0, 1.0f);
+	d_ogre_texture = TextureManager::getSingleton().loadRawData(getUniqueName(), "General", odc, buffWidth, buffHeight, targetFmt , TEX_TYPE_2D, 0, 1.0f);
 
 	// if we got a pointer cache some details
 	if (!d_ogre_texture.isNull())

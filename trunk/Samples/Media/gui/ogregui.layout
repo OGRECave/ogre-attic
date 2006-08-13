@@ -2,35 +2,35 @@
 <GUILayout>
 <Window Type="DefaultGUISheet" Name="root">
     <Window Type="DefaultGUISheet" Name="OgreGuiDemo">
-		<Property Name="Size" Value="w:0.25 h:1" />
+		<Property Name="UnifiedSize" Value="{{0.25,0},{1,0}}" />
 
         <Window Type="TaharezLook/TabControl" Name="OgreGuiDemo/TabCtrl">
-            <Property Name="Position" Value="x:0.0 y:0.0" />
-            <Property Name="Size" Value="w:1 h:0.5" />
+            <Property Name="UnifiedPosition" Value="{{0.0,0},{0.0,0}}" />
+            <Property Name="UnifiedSize" Value="{{1,0},{0.5,0}}" />
 
             <Window Type="DefaultGUISheet" Name="OgreGuiDemo/TabCtrl/Page1">
                 <Property Name="Text" Value="File" />
                 <Window Type="TaharezLook/Button" Name="OgreGuiDemo/TabCtrl/Page1/NewButton">
-                    <Property Name="Position" Value="x:0.1 y:0.1" />
-                    <Property Name="Size" Value="w:0.8 h:0.07" />
+                    <Property Name="UnifiedPosition" Value="{{0.1,0},{0.1,0}}" />
+                    <Property Name="UnifiedSize" Value="{{0.8,0},{0.07,0}}" />
                     <Property Name="Text" Value="New" />
                 </Window>
                 <Window Type="TaharezLook/Button" Name="OgreGuiDemo/TabCtrl/Page1/LoadButton">
-                    <Property Name="Position" Value="x:0.1 y:0.2" />
-                    <Property Name="Size" Value="w:0.8 h:0.07" />
+                    <Property Name="UnifiedPosition" Value="{{0.1,0},{0.2,0}}" />
+                    <Property Name="UnifiedSize" Value="{{0.8,0},{0.07,0}}" />
                     <Property Name="Text" Value="Load Test Layout" />
                 </Window>
                 <Window Type="TaharezLook/Button" Name="OgreGuiDemo/TabCtrl/Page1/QuitButton">
-                    <Property Name="Position" Value="x:0.1 y:0.3" />
-                    <Property Name="Size" Value="w:0.8 h:0.07" />
+                    <Property Name="UnifiedPosition" Value="{{0.1,0},{0.3,0}}" />
+                    <Property Name="UnifiedSize" Value="{{0.8,0},{0.07,0}}" />
                     <Property Name="Text" Value="Quit" />
                 </Window>
             </Window>
             <Window Type="DefaultGUISheet" Name="OgreGuiDemo/TabCtrl/Page2">
                 <Property Name="Text" Value="Objects" />
                 <Window Type="TaharezLook/Combobox" Name="OgreGuiDemo/TabCtrl/Page2/ObjectTypeList">
-                    <Property Name="Position" Value="x:0.1 y:0.1" />
-                    <Property Name="Size" Value="w:0.8 h:0.5" />
+                    <Property Name="UnifiedPosition" Value="{{0.1,0},{0.1,0}}" />
+                    <Property Name="UnifiedSize" Value="{{0.8,0},{0.5,0}}" />
                     <Property Name="Text" Value="Select Type" />
                     <Property Name="ClippedByParent" Value="false" />
                     <Property Name="ReadOnly" Value="true" />
@@ -38,36 +38,36 @@
             </Window>
         </Window>
         <!--<Window Type="TaharezLook/FrameWindow" Name="OgreGuiDemo/WindowPropertiesWindow">
-            <Property Name="Size" Value="w:1 h:0.3" />
-            <Property Name="Position" Value="x:0 y:0.52" />
+            <Property Name="UnifiedSize" Value="{{1,0},{0.3,0}}" />
+            <Property Name="UnifiedPosition" Value="{{0,0},{0.52,0}}" />
             <Property Name="TitlebarEnabled" Value="false" />
             <Property Name="CloseButtonEnabled" Value="false" />
             <Property Name="Visible" Value="false" />
             <Property Name="Text" Value="Editor Window" />
             <Window Type="TaharezLook/StaticText" Name="OgreGuiDemo/WindowProperties/NameText">
-                <Property Name="Position" Value="x:0.05 y:0.2" />
-                <Property Name="Size" Value="w:0.9 h:0.4" />
+                <Property Name="UnifiedPosition" Value="{{0.05,0},{0.2,0}}" />
+                <Property Name="UnifiedSize" Value="{{0.9,0},{0.4,0}}" />
                 <Property Name="Text" Value="Name:" />
             </Window>
 
             <Window Type="TaharezLook/Button" Name="OgreGuiDemo/WindowPropertiesWindow/OKButton">
-                <Property Name="Position" Value="x:0.15 y:0.8" />
-                <Property Name="Size" Value="w:0.3 h:0.1" />
+                <Property Name="UnifiedPosition" Value="{{0.15,0},{0.8,0}}" />
+                <Property Name="UnifiedSize" Value="{{0.3,0},{0.1,0}}" />
                 <Property Name="Text" Value="OK" />
             </Window>
             <Window Type="TaharezLook/Button" Name="OgreGuiDemo/WindowPropertiesWindow/CancelButton">
-                <Property Name="Position" Value="x:0.55 y:0.8" />
-                <Property Name="Size" Value="w:0.3 h:0.1" />
+                <Property Name="UnifiedPosition" Value="{{0.55,0},{0.8,0}}" />
+                <Property Name="UnifiedSize" Value="{{0.3,0},{0.1,0}}" />
                 <Property Name="Text" Value="Cancel" />
             </Window>
         </Window>-->
 	</Window>
     <Window Type="DefaultGUISheet" Name="OgreGuiDemo2">
-		<Property Name="Size" Value="w:0.75 h:1" />
-		<Property Name="Position" Value="x:0.25 y:0" />
+		<Property Name="UnifiedSize" Value="{{0.75,0},{1,0}}" />
+		<Property Name="UnifiedPosition" Value="{{0.25,0},{0,0}}" />
         <Window Type="TaharezLook/FrameWindow" Name="OgreGuiDemo2/MainWindow">
-            <Property Name="Size" Value="w:1 h:1" />
-            <Property Name="Position" Value="x:0 y:0" />
+            <Property Name="UnifiedSize" Value="{{1,0},{1,0}}" />
+            <Property Name="UnifiedPosition" Value="{{0,0},{0,0}}" />
             <Property Name="DragMovingEnabled" Value="false" />
             <Property Name="RollUpEnabled" Value="false" />
             <Property Name="CloseButtonEnabled" Value="false" />

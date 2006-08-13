@@ -32,7 +32,6 @@ LGPL like the rest of the engine.
 #include <CEGUI/elements/CEGUIListboxTextItem.h>
 #include <CEGUI/elements/CEGUIPushButton.h>
 #include <CEGUI/elements/CEGUIScrollbar.h>
-#include <CEGUI/elements/CEGUIStaticImage.h>
 #include "OgreMemoryMacros.h"
 
 #include "OgreCEGUIRenderer.h"

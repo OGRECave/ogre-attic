@@ -14,6 +14,7 @@ LGPL like the rest of the engine.
 
 #include <Ogre.h>
 #include <OgreTimer.h>
+#include <CEGUI/CEGUIPropertyHelper.h>
 
 #include "CompositorDemo_FrameListener.h"
 #include "Compositor.h"
@@ -811,8 +812,7 @@ LGPL like the rest of the engine.
 	//---------------------------------------------------------------------
 	void CompositorDemo_FrameListener::initDebugRTTWindow(void)
 	{
-		mDebugRTTStaticImage = static_cast<CEGUI::StaticImage*>(
-			CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"DebugRTTImage"));
+		mDebugRTTStaticImage = CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"DebugRTTImage");
 		mDebugRTTListbox = static_cast<CEGUI::Listbox*>(
 			CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"DebugRTTListbox"));
 		mDebugRTTListbox->subscribeEvent(CEGUI::Listbox::EventSelectionChanged, 
@@ -826,12 +826,13 @@ LGPL like the rest of the engine.
 			// image set is in user data
 			CEGUI::Imageset* imgSet = (CEGUI::Imageset*)mDebugRTTListbox->getFirstSelectedItem()->getUserData();
 			
-			mDebugRTTStaticImage->setImage(&imgSet->getImage("RttImage"));
+			mDebugRTTStaticImage->setProperty("Image",
+                CEGUI::PropertyHelper::imageToString(&imgSet->getImage("RttImage")));
 
 		}
 		else
 		{
-			mDebugRTTStaticImage->setImage(0);
+			mDebugRTTStaticImage->setProperty("Image", "");
 
 		}
 		return true;
@@ -842,7 +843,7 @@ LGPL like the rest of the engine.
 		// Clear listbox
 		mDebugRTTListbox->resetList();
 		// Clear imagesets
-		mDebugRTTStaticImage->setImage(0);
+		mDebugRTTStaticImage->setProperty("Image", "");
 		for (ImageSetList::iterator isIt = mDebugRTTImageSets.begin(); 
 			isIt != mDebugRTTImageSets.end(); ++isIt)
 		{

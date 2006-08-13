@@ -132,7 +132,7 @@ LGPL like the rest of the engine.
         CEGUI::Window* mGuiDbg;
         CEGUI::Window* mRoot;
 		CEGUI::Listbox* mDebugRTTListbox;
-		CEGUI::StaticImage* mDebugRTTStaticImage;
+		CEGUI::Window* mDebugRTTStaticImage;
 		typedef std::vector<CEGUI::Imageset*> ImageSetList;
 		ImageSetList mDebugRTTImageSets;
 

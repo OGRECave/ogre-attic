@@ -25,12 +25,12 @@ LGPL like the rest of the engine.
 #include <CEGUI/CEGUISchemeManager.h>
 #include <CEGUI/CEGUIWindowManager.h>
 #include <CEGUI/CEGUIWindow.h>
+#include <CEGUI/CEGUIPropertyHelper.h>
 #include <CEGUI/elements/CEGUICombobox.h>
 #include <CEGUI/elements/CEGUIListbox.h>
 #include <CEGUI/elements/CEGUIListboxTextItem.h>
 #include <CEGUI/elements/CEGUIPushButton.h>
 #include <CEGUI/elements/CEGUIScrollbar.h>
-#include <CEGUI/elements/CEGUIStaticImage.h>
 #include "OgreCEGUIRenderer.h"
 #include "OgreCEGUIResourceProvider.h"
 
@@ -127,7 +127,7 @@ private:
 	CEGUI::Scrollbar* mRed;
 	CEGUI::Scrollbar* mGreen;
 	CEGUI::Scrollbar* mBlue;
-	CEGUI::StaticImage* mPreview;
+	CEGUI::Window* mPreview; // StaticImage
 	CEGUI::Window* mTip;
 	CEGUI::Listbox* mList;
 	CEGUI::Window* mEditBox;
@@ -325,8 +325,7 @@ protected:
 			wmgr.getWindow((CEGUI::utf8*)"Demo8/Window1/Controls/Green"));
 		mBlue = static_cast<CEGUI::Scrollbar*>(
 			wmgr.getWindow((CEGUI::utf8*)"Demo8/Window1/Controls/Blue"));
-		mPreview = static_cast<CEGUI::StaticImage*>(
-			wmgr.getWindow((CEGUI::utf8*)"Demo8/Window1/Controls/ColourSample"));
+		mPreview = wmgr.getWindow((CEGUI::utf8*)"Demo8/Window1/Controls/ColourSample");
 		mList = static_cast<CEGUI::Listbox*>(
 			wmgr.getWindow((CEGUI::utf8*)"Demo8/Window1/Listbox"));
 		mEditBox = 
@@ -364,9 +363,10 @@ protected:
         CEGUI::Imageset* rttImageSet = 
             CEGUI::ImagesetManager::getSingleton().getImageset(
                 (CEGUI::utf8*)"RttImageset");
-        CEGUI::StaticImage* si = (CEGUI::StaticImage*)CEGUI::WindowManager::getSingleton().createWindow((CEGUI::utf8*)"TaharezLook/StaticImage", (CEGUI::utf8*)guiObjectName.c_str());
-        si->setSize(CEGUI::Size(0.5f, 0.4f));
-        si->setImage(&rttImageSet->getImage((CEGUI::utf8*)"RttImage"));
+        CEGUI::Window* si = CEGUI::WindowManager::getSingleton().createWindow((CEGUI::utf8*)"TaharezLook/StaticImage", (CEGUI::utf8*)guiObjectName.c_str());
+        si->setSize(CEGUI::UVector2( CEGUI::UDim(0.5f, 0), CEGUI::UDim(0.4f, 0)));
+        si->setProperty("Image", CEGUI::PropertyHelper::imageToString(
+            &rttImageSet->getImage((CEGUI::utf8*)"RttImage")));
 
         rttCounter++;
 
@@ -382,9 +382,10 @@ protected:
             CEGUI::ImagesetManager::getSingleton().getImageset(
                 (CEGUI::utf8*)"TaharezLook");
 
-        CEGUI::StaticImage* si = (CEGUI::StaticImage*)CEGUI::WindowManager::getSingleton().createWindow((CEGUI::utf8*)"TaharezLook/StaticImage", (CEGUI::utf8*)guiObjectName.c_str());
-        si->setSize(CEGUI::Size(0.2f, 0.2f));
-        si->setImage(&imageSet->getImage((CEGUI::utf8*)"ClientBrush"));
+        CEGUI::Window* si = CEGUI::WindowManager::getSingleton().createWindow((CEGUI::utf8*)"TaharezLook/StaticImage", (CEGUI::utf8*)guiObjectName.c_str());
+        si->setSize(CEGUI::UVector2( CEGUI::UDim(0.2f, 0), CEGUI::UDim(0.2f, 0)));
+        si->setProperty("Image", CEGUI::PropertyHelper::imageToString(
+            &imageSet->getImage((CEGUI::utf8*)"ClientBrush")));
 
         siCounter++;
 
@@ -450,26 +451,26 @@ protected:
         case 0:
             guiObjectName = "NewWindow" + StringConverter::toString(windowNumber);
             window = CEGUI::WindowManager::getSingleton().createWindow((CEGUI::utf8*)"TaharezLook/FrameWindow", (CEGUI::utf8*)guiObjectName.c_str());
-            window->setSize(CEGUI::Size(0.3f, 0.3f));
+            window->setSize(CEGUI::UVector2(CEGUI::UDim(0.3f,0), CEGUI::UDim(0.3f,0)));
             window->setText((CEGUI::utf8*)"New Window");
             windowNumber++;
             break;
         case 1:
             guiObjectName = "NewHorizScroll" + StringConverter::toString(horizScrollNumber);
             window = CEGUI::WindowManager::getSingleton().createWindow((CEGUI::utf8*)"TaharezLook/HorizontalScrollbar", (CEGUI::utf8*)guiObjectName.c_str());
-            window->setSize(CEGUI::Size(0.75f, 0.03f));
+            window->setSize(CEGUI::UVector2(CEGUI::UDim(0.75f,0), CEGUI::UDim(0.03f,0)));
             horizScrollNumber++;
             break;
         case 2:
             guiObjectName = "NewVertScroll" + StringConverter::toString(vertScrollNumber);
             window = CEGUI::WindowManager::getSingleton().createWindow((CEGUI::utf8*)"TaharezLook/VerticalScrollbar", (CEGUI::utf8*)guiObjectName.c_str());
-            window->setSize(CEGUI::Size(0.03f, 0.75f));
+            window->setSize(CEGUI::UVector2(CEGUI::UDim(0.03f,0), CEGUI::UDim(0.75f,0)));
             vertScrollNumber++;
             break;
         case 3:
             guiObjectName = "NewStaticText" + StringConverter::toString(textScrollNumber);
             window = CEGUI::WindowManager::getSingleton().createWindow((CEGUI::utf8*)"TaharezLook/StaticText", (CEGUI::utf8*)guiObjectName.c_str());
-            window->setSize(CEGUI::Size(0.25f, 0.1f));
+            window->setSize(CEGUI::UVector2(CEGUI::UDim(0.25f,0), CEGUI::UDim(0.1f,0)));
             window->setText((CEGUI::utf8*)"Example static text");
             textScrollNumber++;
             break;
@@ -482,17 +483,18 @@ protected:
         };
 
         editorWindow->addChildWindow(window);
-        window->setPosition(CEGUI::Point(posX, posY));
+        window->setPosition(CEGUI::UVector2(CEGUI::UDim(posX, 0), CEGUI::UDim(posY, 0)));
 
         return true;
     }
 
 	bool handleColourChanged(const CEGUI::EventArgs& e)
 	{
-		mPreview->setImageColours(CEGUI::colour(
-			mRed->getScrollPosition() / 255.0f,
-			mGreen->getScrollPosition() / 255.0f,
-			mBlue->getScrollPosition() / 255.0f));
+        mPreview->setProperty("ImageColours",
+            CEGUI::PropertyHelper::colourToString(CEGUI::colour(
+                mRed->getScrollPosition() / 255.0f,
+                mGreen->getScrollPosition() / 255.0f,
+                mBlue->getScrollPosition() / 255.0f)));
 
 		return true;
 
@@ -504,7 +506,8 @@ protected:
 			new CEGUI::ListboxTextItem (mEditBox->getText());
 		listboxitem->setSelectionBrushImage("TaharezLook", "ListboxSelectionBrush");
 		listboxitem->setSelected(mList->getItemCount() == 0);
-		listboxitem->setSelectionColours(mPreview->getImageColours());
+		listboxitem->setSelectionColours(
+            CEGUI::PropertyHelper::stringToColourRect(mPreview->getProperty("ImageColours")));
 		mList->addItem(listboxitem);
 		return true;
 	}
