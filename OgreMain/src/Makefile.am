@@ -173,6 +173,7 @@ endif
 
 platformdir = $(libdir)
 libOgreMain_la_LIBADD= $(STLPORT_LIBS) $(FT2_LIBS) $(ZZIPLIB_LIBS) $(OGRE_THREAD_LIBS) $(PLATFORM_LIBS) libSSEsupport.la
-libOgreMain_la_LDFLAGS = $(SHARED_FLAGS) -version-info @OGREMAIN_VERSION_INFO@ -Wl,-rpath,$(platformdir)
+libOgreMain_la_LDFLAGS = $(SHARED_FLAGS) -release @PACKAGE_VERSION@ -Wl,-rpath,$(platformdir)
+#-version-info @OGREMAIN_VERSION_INFO@ -Wl,-rpath,$(platformdir)
 #-Wl,--version-script=$(top_srcdir)/OgreMain/src/ogremain.map
 
