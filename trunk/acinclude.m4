@@ -384,7 +384,7 @@ AC_MSG_CHECKING([whether -fPIC is needed])
 ])
 
 AC_DEFUN([OGRE_CHECK_CEGUI], [
-    PKG_CHECK_MODULES(CEGUI, CEGUI >= 0.3.0, 
+    PKG_CHECK_MODULES(CEGUI, CEGUI >= 0.5.0, 
             [build_cegui_sample=true], [build_cegui_sample=false])
     if test x$build_cegui_sample = xtrue; then
         AC_CONFIG_FILES([Samples/Common/CEGUIRenderer/Makefile \
