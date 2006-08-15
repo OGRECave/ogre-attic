@@ -526,6 +526,11 @@ namespace Ogre {
 			using the real view matrix in order to display the correct debug view.
 		*/
 		const Matrix4& getViewMatrix(bool ownFrustumOnly) const;
+		/** Forward projects frustum rays to find forward intersection with plane.
+		 @remarks
+		    Forward projection may lead to intersections at infinity.
+		*/
+		void forwardIntersect(const Plane& worldPlane, std::vector<Vector4>* intersect3d) const;
 		/** Set whether this camera should use the 'rendering distance' on
 			objects to exclude distant objects from the final image. The
 			default behaviour is to use it.
@@ -536,6 +541,7 @@ namespace Ogre {
 			objects to exclude distant objects from the final image.
 		*/
 		virtual bool getUseRenderingDistance(void) const { return mUseRenderingDistance; }
+
      };
 
 } // namespace Ogre

@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreString.h"
 #include "OgreMovableObject.h"
 #include "OgrePlaneBoundedVolume.h"
+#include "OgreShadowCameraSetup.h"
 
 namespace Ogre {
 
@@ -344,6 +345,12 @@ namespace Ogre {
 		/// @copydoc AnimableObject::createAnimableValue
 		AnimableValuePtr createAnimableValue(const String& valueName);
 
+		/** set the pointer to the custom shadow camera setup. */
+		void setCustomShadowCameraSetup(const ShadowCameraSetupPtr& customShadowSetup);
+
+		/** return a pointer to the custom shadow camera setup. */
+		const ShadowCameraSetupPtr& getCustomShadowCameraSetup(void) const;
+
     protected:
         /// internal method for synchronising with parent node (if any)
         virtual void update(void) const;
@@ -369,6 +376,7 @@ namespace Ogre {
         Real mAttenuationQuad;
 		Real mPowerScale;
 
+
         mutable Vector3 mDerivedPosition;
         mutable Vector3 mDerivedDirection;
         /// Stored versions of parent orientation / position
@@ -383,7 +391,8 @@ namespace Ogre {
         /// Is the local transform dirty?
         mutable bool mLocalTransformDirty;
 
-
+		/// Pointer to a custom shadow camera setup
+		mutable ShadowCameraSetupPtr mCustomShadowCameraSetup;
 
     };
 

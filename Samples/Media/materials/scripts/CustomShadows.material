@@ -1,0 +1,190 @@
+
+// Shadow Caster __________________________________________________
+
+
+vertex_program CustomShadows/ShadowCasterVP/Cg cg
+{
+    source customshadowcastervp.cg
+    entry_point main
+    profiles arbvp1 vs_2_0
+
+    default_params
+    {
+        param_named_auto uModelViewProjection worldviewproj_matrix
+    }
+}
+
+fragment_program CustomShadows/ShadowCasterFP/Cg cg
+{
+    source customshadowcasterfp.cg
+    entry_point main
+    profiles arbfp1 ps_2_0
+
+    default_params
+    {
+        param_named      uDepthOffset float       1.0
+        param_named      uSTexWidth float         512.0
+        param_named      uSTexHeight float        512.0
+        param_named_auto uInvModelViewProjection  inverse_worldviewproj_matrix
+        param_named_auto uProjection              projection_matrix
+    }
+}
+
+vertex_program CustomShadows/ShadowCasterVP/GLSL glsl
+{
+    source customshadowcastervp.vert
+
+    default_params
+    {
+        param_named_auto uModelViewProjection worldviewproj_matrix
+    }
+}
+
+fragment_program CustomShadows/ShadowCasterFP/GLSL glsl
+{
+    source customshadowcasterfp.frag
+
+    default_params
+    {
+        param_named      uDepthOffset float       1.0
+        param_named      uSTexWidth float         512.0
+        param_named      uSTexHeight float        512.0
+        param_named_auto uInvModelViewProjection  inverse_worldviewproj_matrix
+        param_named_auto uProjection              projection_matrix
+    }
+}
+
+
+material CustomShadows/ShadowCaster
+{
+    technique glsl
+    {
+        // Z-write only pass
+        pass Z-write
+        {
+            vertex_program_ref CustomShadows/ShadowCasterVP/GLSL
+            {
+            }
+            fragment_program_ref CustomShadows/ShadowCasterFP/GLSL
+            {
+            }
+        }
+    }
+
+	technique cg
+    {
+        // Z-write only pass
+        pass Z-write
+        {
+            //Instead of using depth_bias, we'll be implementing it manually
+
+            vertex_program_ref CustomShadows/ShadowCasterVP/Cg
+            {
+            }
+            fragment_program_ref CustomShadows/ShadowCasterFP/Cg
+            {
+            }
+        }
+    }
+}
+
+
+
+// Shadow Receiver ________________________________________________
+
+vertex_program CustomShadows/ShadowReceiverVP/Cg cg
+{
+    source customshadowreceivervp.cg
+    entry_point main
+    profiles arbvp1 vs_2_0
+
+    default_params
+    {
+        param_named_auto uModelViewProjection   worldviewproj_matrix
+        param_named_auto uLightPosition         light_position_object_space 0
+        param_named_auto uModel                 world_matrix
+        param_named_auto uTextureViewProjection texture_viewproj_matrix
+    }
+}
+
+fragment_program CustomShadows/ShadowReceiverFP/Cg cg
+{
+    source customshadowreceiverfp.cg
+    entry_point main
+    profiles arbfp1 ps_2_x
+
+    default_params
+    {
+        param_named uSTexWidth  float 512.0
+        param_named uSTexHeight float 512.0
+    }
+}
+
+vertex_program CustomShadows/ShadowReceiverVP/GLSL glsl
+{
+    source customshadowreceiver.vert
+    
+    default_params
+    {
+        param_named_auto uModelViewProjection   worldviewproj_matrix
+        param_named_auto uLightPosition         light_position_object_space 0
+        param_named_auto uModel                 world_matrix
+        param_named_auto uTextureViewProjection texture_viewproj_matrix
+    }
+}
+
+fragment_program CustomShadows/ShadowReceiverFP/GLSL glsl
+{
+    source customshadowreceiver.frag
+
+    default_params
+    {
+        param_named uSTexWidth  float 512.0
+        param_named uSTexHeight float 512.0
+    }
+}
+
+material CustomShadows/ShadowReceiver
+{
+    technique glsl
+    {
+        pass lighting
+        {
+            vertex_program_ref CustomShadows/ShadowReceiverVP/GLSL
+            {
+            }
+
+            fragment_program_ref CustomShadows/ShadowReceiverFP/GLSL
+            {
+                param_named uShadowMap int 0
+            }
+
+            texture_unit ShadowMap
+            {
+                tex_address_mode clamp
+                filtering none
+            }
+        }
+    }
+
+	technique cg
+    {
+        pass lighting
+        {
+            vertex_program_ref CustomShadows/ShadowReceiverVP/Cg
+            {
+            }
+
+            fragment_program_ref CustomShadows/ShadowReceiverFP/Cg
+            {
+            }
+
+            // we won't rely on hardware specific filtering of z-tests
+            texture_unit ShadowMap
+            {
+                tex_address_mode clamp
+                filtering none
+            }
+        }
+    }
+}

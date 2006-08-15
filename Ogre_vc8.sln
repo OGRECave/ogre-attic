@@ -431,6 +431,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo_Ocean", "Samples\Ocean
 		{7D0A20FE-40A6-4E64-AD26-5E34AE391DF4} = {7D0A20FE-40A6-4E64-AD26-5E34AE391DF4}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo_CustomShadowMaps", "Samples\CustomShadowMaps\scripts\Demo_CustomShadowMaps.vcproj", "{4DCE4DBD-4BA5-4FCE-8BA4-BE4BCE7BCE31}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo_PlaneOptimalShadows", "Samples\PlaneOptimalShadows\scripts\Demo_PlaneOptimalShadows.vcproj", "{B4148868-DED0-40DA-9960-B37FC5B65D26}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -613,6 +617,14 @@ Global
 		{E726B7BD-CB22-4CA5-AB6A-124FDDA6C4AC}.Debug|Win32.Build.0 = Debug|Win32
 		{E726B7BD-CB22-4CA5-AB6A-124FDDA6C4AC}.Release|Win32.ActiveCfg = Release|Win32
 		{E726B7BD-CB22-4CA5-AB6A-124FDDA6C4AC}.Release|Win32.Build.0 = Release|Win32
+		{4DCE4DBD-4BA5-4FCE-8BA4-BE4BCE7BCE31}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4DCE4DBD-4BA5-4FCE-8BA4-BE4BCE7BCE31}.Debug|Win32.Build.0 = Debug|Win32
+		{4DCE4DBD-4BA5-4FCE-8BA4-BE4BCE7BCE31}.Release|Win32.ActiveCfg = Release|Win32
+		{4DCE4DBD-4BA5-4FCE-8BA4-BE4BCE7BCE31}.Release|Win32.Build.0 = Release|Win32
+		{B4148868-DED0-40DA-9960-B37FC5B65D26}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B4148868-DED0-40DA-9960-B37FC5B65D26}.Debug|Win32.Build.0 = Debug|Win32
+		{B4148868-DED0-40DA-9960-B37FC5B65D26}.Release|Win32.ActiveCfg = Release|Win32
+		{B4148868-DED0-40DA-9960-B37FC5B65D26}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

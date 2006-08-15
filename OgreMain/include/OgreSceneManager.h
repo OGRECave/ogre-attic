@@ -43,6 +43,8 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgrePixelFormat.h"
 #include "OgreResourceGroupManager.h"
 #include "OgreTexture.h"
+#include "OgreShadowCameraSetup.h"
+
 
 namespace Ogre {
 
@@ -469,6 +471,10 @@ namespace Ogre {
 		ShadowTextureCameraList mShadowTextureCameras;
         Texture* mCurrentShadowTexture;
 		bool mShadowUseInfiniteFarPlane;
+
+		/// default shadow camera setup
+		ShadowCameraSetupPtr mDefaultShadowCameraSetup;
+
 
         /** Internal method for locating a list of lights which could be affecting the frustum. 
         @remarks
@@ -2063,6 +2069,10 @@ namespace Ogre {
             far distance, and the default is 0.6.
         */
         virtual void setShadowDirLightTextureOffset(Real offset) { mShadowTextureOffset = offset;}
+		/** Gets the proportional distance which a texture shadow which is generated from a
+		directional light will be offset into the camera view to make best use of texture space.
+		*/
+		virtual Real getShadowDirLightTextureOffset(void)  const { return mShadowTextureOffset; }
         /** Sets the proportional distance at which texture shadows begin to fade out.
         @remarks
             To hide the edges where texture shadows end (in directional lights)
