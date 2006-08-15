@@ -197,7 +197,7 @@ namespace Ogre {
             Recommended only if you are extending a SceneManager, because the bounding box returned
             from this method is only up to date after the SceneManager has called _update.
         */
-        virtual AxisAlignedBox _getWorldAABB(void) const;
+        virtual const AxisAlignedBox& _getWorldAABB(void) const;
 
         /** Retrieves an iterator which can be used to efficiently step through the objects 
             attached to this node.

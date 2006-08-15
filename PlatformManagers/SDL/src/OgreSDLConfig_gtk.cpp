@@ -23,6 +23,7 @@ http://www.gnu.org/licenses/lgpl.html.
 */
 
 #include "OgreSDLConfig.h"
+#include "OgreLogManager.h"
 
 #include <libglademm/xml.h>
 
@@ -65,17 +66,16 @@ bool SDLConfig::display(void)
     _opt_menu = NULL;
 
     // Hookup signals
-    _winConfig->signal_delete_event().connect(SigC::slot(*this,
-                &SDLConfig::on_window_delete));
+    _winConfig->signal_delete_event().connect(sigc::mem_fun(this, &SDLConfig::on_window_delete));
     _option_selection = _lstOptions->get_selection();
-    _option_selection->signal_changed().connect(SigC::slot(*this,
+    _option_selection->signal_changed().connect(sigc::mem_fun(this,
                 &SDLConfig::on_option_changed));
-    _optRenderer->signal_changed().connect(SigC::slot(*this,
+    _optRenderer->signal_changed().connect(sigc::mem_fun(this,
                 &SDLConfig::on_renderer_changed));
-    _optOptValues->signal_changed().connect(SigC::slot(*this,
+    _optOptValues->signal_changed().connect(sigc::mem_fun(this,
                 &SDLConfig::on_value_changed));
-    btn_ok->signal_clicked().connect(SigC::slot(*this, &SDLConfig::on_btn_ok));
-    btn_cancel->signal_clicked().connect(SigC::slot(&Gtk::Main::quit));
+    btn_ok->signal_clicked().connect(sigc::mem_fun(this, &SDLConfig::on_btn_ok));
+    btn_cancel->signal_clicked().connect(sigc::ptr_fun(&Gtk::Main::quit));
 
 
     // Initialize

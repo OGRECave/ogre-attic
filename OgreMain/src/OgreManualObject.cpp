@@ -522,6 +522,12 @@ namespace Ogre {
 		mCurrentSection = 0;
 		resetTempAreas();
 
+		// Tell parent if present
+		if (mParentNode)
+		{
+			mParentNode->needUpdate();
+		}
+
 	}
 	//-----------------------------------------------------------------------------
 	MeshPtr ManualObject::convertToMesh(const String& meshName, const String& groupName)

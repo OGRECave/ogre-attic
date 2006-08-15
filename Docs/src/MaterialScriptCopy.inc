@@ -167,7 +167,7 @@ material TSNormalSpecMapping
       }
 
       // Base diffuse texture map
-      texture_unit NormalMap
+      texture_unit DiffuseMap
       {
         texture defaultDiff.png
         filtering trilinear

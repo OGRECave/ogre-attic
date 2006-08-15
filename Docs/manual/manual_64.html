@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on June 10 2006 by texi2html 1.66 -->
+<!-- Created on July 22 2006 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -12,10 +12,10 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.2.1 ('Dagon'): Texture-based Shadows</TITLE>
+<TITLE>OGRE Manual v1.2.2 ('Dagon'): Texture-based Shadows</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.2.1 ('Dagon'): Texture-based Shadows">
-<META NAME="keywords" CONTENT="OGRE Manual v1.2.1 ('Dagon'): Texture-based Shadows">
+<META NAME="description" CONTENT="OGRE Manual v1.2.2 ('Dagon'): Texture-based Shadows">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.2 ('Dagon'): Texture-based Shadows">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.66">
@@ -55,7 +55,7 @@ Spotlights are much easier to represent as renderable shadow textures than direc
 <A NAME="SEC284"></A>
 <H3> Shadow Casters and Shadow Receivers </H3>
 <!--docid::SEC284::-->
-To enable texture shadows, use the shadow technique SHADOWTYPE_TEXTURE_MODULATIVE or SHADOWTYPE_TEXTURE_ADDITIVE; as the name suggests this produces <A HREF="manual_65.html#SEC292">7.3 Modulative Shadows</A> or <A HREF="manual_66.html#SEC294">7.4 Additive Light Masking</A> respectively. Because the texture is merely projected onto shadow casters, a shadow caster cannot also be a shadow receiver, so self-shadowing is not possible using this method (there is an alternative method called depth shadowmapping which can do this using similar techniques as modulative shadow textures, but these are not supported by Ogre yet).<BR><BR>
+To enable texture shadows, use the shadow technique SHADOWTYPE_TEXTURE_MODULATIVE or SHADOWTYPE_TEXTURE_ADDITIVE; as the name suggests this produces <A HREF="manual_65.html#SEC292">7.3 Modulative Shadows</A> or <A HREF="manual_66.html#SEC294">7.4 Additive Light Masking</A> respectively. The default fixed-function texture shadow technique does not use depth information, it merely renders casters to a texture and renders this onto receivers - this means self-shadowing is not possible using this method. You can however use custom materials for casters and receivers to perform more complex shadow algorithms, which allows you to perform depth shadow mapping. Whilst fixed-function depth shadow mapping is available in OpenGL, it was never standardised in Direct3D so using vertex and fragment programs in custom caster &amp; receiver materials is the only portable way. <BR><BR>
 Ogre divides shadow casters and receivers into 2 disjoint groups. Simply by turning off shadow casting on an object, you automatically make it a shadow receiver (although this can be disabled by setting the 'receive_shadows' option to 'false' in a material script. Similarly, if an object is set as a shadow caster, it cannt receive shadows. If you need more complex shadowing you would be advised to look at <A HREF="manual_63.html#SEC273">7.1 Stencil Shadows</A>, but this simplified approach can work well in a lot of situations for a pretty low cost.
 
 <A NAME="Configuring Texture Shadows"></A>
@@ -87,7 +87,7 @@ You can adjust this manually by simply turning off shadow casting for lights you
 <!--docid::SEC287::-->
 
 The size of the textures used for rendering the shadow casters into can be altered; clearly using larger textures will give you better quality shadows, but at the expense of greater memory usage. Changing the texture size is done by calling SceneManager::setShadowTextureSize - textures are assumed to be square and you must specify a texture size that is a power of 2. Be aware that each modulative shadow texture will take size*size*3 bytes of texture memory. <BR><BR>
-<STRONG>Important</STRONG>: if you use the GL render system your shadow texture size cannot be larger (in either dimension) than the size of your primary window surface. That means that for window resolutions lower than 1280x1024 your maximum shadow texture size is 512. If you create a shadow texture larger than this, only the area the size of the primary window surface will be updated, causing severe shadowing artefacts. Direct3D does not suffer from this limitation, so if you intend to use Direct3D only you are free to use whatever shadow texture size you want, subject to texture memory constraints.
+<STRONG>Important</STRONG>: if you use the GL render system your shadow texture size can only be larger (in either dimension) than the size of your primary window surface if the hardware supports the Frame Buffer Object (FBO) or Pixel Buffer Object (PBO) extensions. Most modern cards support this now, but be careful of older cards - you can check the ability of the hardware to manage this through ogreRoot-&gt;getRenderSystem()-&gt;getCapabilities()-&gt;hasCapability(RSC_HWRENDER_TO_TEXTURE). If this returns false, if you create a shadow texture larger in any dimension than the primary surface, the rest of the shadow texture will be blank.
 
 
 <A NAME="Shadow far distance"></A>
@@ -130,7 +130,7 @@ When rendering shadow casters into a modulative shadow texture, Ogre turns off a
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>June 10 2006</I>
+by <I>steve</I> on <I>July 22 2006</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 

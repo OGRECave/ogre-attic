@@ -39,6 +39,10 @@ namespace Ogre {
             
         // Process pending events
         void processEvents(void);
+
+        int (*glXGetVideoSyncSGI) (unsigned int *);
+        int (*glXWaitVideoSyncSGI) (int, int, unsigned int *);
+
     public:
         SDLWindow();
         ~SDLWindow();
@@ -69,7 +73,12 @@ namespace Ogre {
             // NOOP
         }
 
-		bool requiresTextureFlipping() const { return false; }
+        bool requiresTextureFlipping() const { return false; }
+
+        bool isFullScreen(void) const
+        {
+            return ( mScreen->flags & SDL_FULLSCREEN ) == SDL_FULLSCREEN;
+        }
     };
 }
 

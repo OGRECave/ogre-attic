@@ -34,7 +34,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
 template<> CompositorManager* Singleton<CompositorManager>::ms_Singleton = 0;
-//-----------------------------------------------------------------------
+CompositorManager* CompositorManager::getSingletonPtr(void)
+{
+	return ms_Singleton;
+}
+CompositorManager& CompositorManager::getSingleton(void)
+{  
+	assert( ms_Singleton );  return ( *ms_Singleton );  
+}//-----------------------------------------------------------------------
 CompositorManager::CompositorManager():
 	mRectangle(0)
 {

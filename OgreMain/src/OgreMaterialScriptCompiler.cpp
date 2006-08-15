@@ -679,7 +679,8 @@ namespace Ogre {
             getNextToken();
             // if a second parameter exists then assume its the name of the base material
             // that this new material should clone from
-            const String parentName = getNextTokenLabel();
+            String parentName = getNextTokenLabel();
+            StringUtil::trim(parentName);
             // make sure base material exists
             basematerial = MaterialManager::getSingleton().getByName(parentName);
             // if it doesn't exist then report error in log and just create a new material
@@ -747,13 +748,12 @@ namespace Ogre {
     void MaterialScriptCompiler::parseTechnique(void)
     {
         String techniqueName;
-        const size_t paramCount = getRemainingTokensForAction();
-        // if params is not empty then see if the technique name already exists
-        if ((paramCount > 0) && (mScriptContext.material->getNumTechniques() > 0))
-        {
-            // find the technique with name = params
+        if (getRemainingTokensForAction() > 0)
             techniqueName = getNextTokenLabel();
-            Technique * foundTechnique = mScriptContext.material->getTechnique(techniqueName);
+        // if params is not empty then see if the technique name already exists
+        if (!techniqueName.empty() && (mScriptContext.material->getNumTechniques() > 0))
+        {
+            Technique* foundTechnique = mScriptContext.material->getTechnique(techniqueName);
             if (foundTechnique)
             {
                 // figure out technique index by iterating through technique container
@@ -820,13 +820,12 @@ namespace Ogre {
     void MaterialScriptCompiler::parsePass(void)
     {
         String passName;
-        const size_t paramCount = getRemainingTokensForAction();
-        // if params is not empty then see if the pass name already exists
-        if ((paramCount > 0) && (mScriptContext.technique->getNumPasses() > 0))
-        {
+        if (getRemainingTokensForAction() > 0)
             passName = getNextTokenLabel();
-            // find the pass with name = params
-            Pass * foundPass = mScriptContext.technique->getPass(passName);
+        // if params is not empty then see if the pass name already exists
+        if (!passName.empty() && (mScriptContext.technique->getNumPasses() > 0))
+        {
+            Pass* foundPass = mScriptContext.technique->getPass(passName);
             if (foundPass)
             {
                 mScriptContext.passLev = foundPass->getIndex();
@@ -1404,16 +1403,16 @@ namespace Ogre {
     void MaterialScriptCompiler::parseTextureUnit(void)
     {
         String tusName;
-        const size_t paramCount = getRemainingTokensForAction();
+        if (getRemainingTokensForAction() > 0)
+            tusName = getNextTokenLabel();
         // if params is a name then see if that texture unit exists
         // if not then log the warning and just move on to the next TU from current
-        if ((paramCount > 0) && (mScriptContext.pass->getNumTextureUnitStates() > 0))
+        if (!tusName.empty() && (mScriptContext.pass->getNumTextureUnitStates() > 0))
         {
             // specifying a TUS name in the script for a TU means that a specific TU is being requested
             // try to get the specific TU
             // if the index requested is not valid, just creat a new TU
             // find the TUS with name
-            tusName = getNextTokenLabel();
             TextureUnitState * foundTUS = mScriptContext.pass->getTextureUnitState(tusName);
             if (foundTUS)
             {

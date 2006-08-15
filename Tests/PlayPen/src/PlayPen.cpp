@@ -787,6 +787,10 @@ protected:
 		mCamera->setPosition(0,0,100);
 		mCamera->lookAt(Vector3::ZERO);
 
+		mAnimState = e->getAnimationState("cube1_ShapeKey_ClusterClip");
+		mAnimState->setEnabled(true);
+
+
 	}
 
 	void testTransparencyMipMaps()
@@ -1542,12 +1546,12 @@ protected:
 
 
 
-        Entity *ent = mSceneMgr->createEntity("robot", "jaiqua.mesh");
+        Entity *ent = mSceneMgr->createEntity("robot", "femCharacter.mesh");
         // Uncomment the below to test software skinning
         //ent->setMaterialName("Examples/Rocky");
         // Add entity to the scene node
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
-        mAnimState = ent->getAnimationState("Jaiqua_walk_Preset_Clip");
+        mAnimState = ent->getAnimationState("FCheeringFc_Clip");
         mAnimState->setEnabled(true);
 
         // Give it a little ambience with lights
@@ -4226,6 +4230,255 @@ protected:
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
     }
 
+	void testGreg()
+	{
+		// create a new billboard set with a pool of 4 billboards
+		BillboardSet* bbset = mSceneMgr->createBillboardSet("BBSet", 4);
+
+		// create a texture coordinate array to address the texture in Figure 10-4
+		FloatRect texCoordArray[] = {
+			FloatRect(0.0, 0.0, 0.5, 0.5),    // address the “A”
+			FloatRect(0.5, 0.0, 1.0, 0.5),    // address the “B”
+			FloatRect(0.0, 0.5, 0.5, 1.0),    // address the “C”
+			FloatRect(0.5, 0.5, 1.0, 1.0),    // address the “D”
+		};
+
+		// provide this array to the billboard set
+		bbset->setTextureCoords(texCoordArray, 4);
+
+		// now create a billboard to display the “D”; this 
+		// is the fourth entry in the array, index=3
+		Billboard* bb = bbset->createBillboard(Vector3(0, 0, 0));
+		bb->setTexcoordIndex(3);
+
+		FloatRect coords(0.5, 0.5, 1.0, 1.0);
+		bb->setTexcoordRect(coords);
+
+	}
+
+
+	void testCompositorBug()
+	{
+		testManualCompositorCreate();
+		testManualCompositorDestroy();
+		testManualCompositorCreate();
+
+
+	}
+
+	void testManualCompositorDestroy()
+	{
+		Viewport* mViewport = mWindow->getViewport(0);
+		Ogre::CompositorManager::getSingleton().setCompositorEnabled( mViewport, "MotionBlurTest", false );
+		Ogre::CompositorManager::getSingleton().removeCompositor( mViewport, "MotionBlurTest" );
+		Ogre::CompositorManager::getSingleton().removeAll();
+
+	}
+	void testManualCompositorCreate()
+	{
+
+		Viewport* mViewport = mWindow->getViewport(0);
+		/* Motion blur effect */
+		{
+			LogManager::getSingleton().logMessage( "Creating motion blur filter ..." );
+			Ogre::CompositorPtr comp3 = Ogre::CompositorManager::getSingleton().create(
+				"MotionBlurTest", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+				);
+			{
+				Ogre::CompositionTechnique *t = comp3->createTechnique();
+				{
+					Ogre::CompositionTechnique::TextureDefinition *def = t->createTextureDefinition("scene");
+					def->width = 0;
+					def->height = 0;
+					def->format = Ogre::PF_R8G8B8;
+				}
+				{
+					Ogre::CompositionTechnique::TextureDefinition *def = t->createTextureDefinition("sum");
+					def->width = 0;
+					def->height = 0;
+					def->format = Ogre::PF_R8G8B8;
+				}
+				{
+					Ogre::CompositionTechnique::TextureDefinition *def = t->createTextureDefinition("temp");
+					def->width = 0;
+					def->height = 0;
+					def->format = Ogre::PF_R8G8B8;
+				}
+				/// Render scene
+				{
+					Ogre::CompositionTargetPass *tp = t->createTargetPass();
+					tp->setInputMode(Ogre::CompositionTargetPass::IM_PREVIOUS);
+					tp->setOutputName("scene");
+				}
+				/// Initialisation pass for sum texture
+				{
+					Ogre::CompositionTargetPass *tp = t->createTargetPass();
+					tp->setInputMode(Ogre::CompositionTargetPass::IM_PREVIOUS);
+					tp->setOutputName("sum");
+					tp->setOnlyInitial(true);
+				}
+				/// Do the motion blur
+				{
+					Ogre::CompositionTargetPass *tp = t->createTargetPass();
+					tp->setInputMode(Ogre::CompositionTargetPass::IM_NONE);
+					tp->setOutputName("temp");
+					{ Ogre::CompositionPass *pass = tp->createPass();
+					pass->setType(Ogre::CompositionPass::PT_RENDERQUAD);
+					pass->setMaterialName("Ogre/Compositor/Combine");
+					pass->setInput(0, "scene");
+					pass->setInput(1, "sum");
+					}
+				}
+				/// Copy back sum texture
+				{
+					Ogre::CompositionTargetPass *tp = t->createTargetPass();
+					tp->setInputMode(Ogre::CompositionTargetPass::IM_NONE);
+					tp->setOutputName("sum");
+					{ Ogre::CompositionPass *pass = tp->createPass();
+					pass->setType(Ogre::CompositionPass::PT_RENDERQUAD);
+					pass->setMaterialName("Ogre/Compositor/Copyback");
+					pass->setInput(0, "temp");
+					}
+				}
+				/// Display result
+				{
+					Ogre::CompositionTargetPass *tp = t->getOutputTargetPass();
+					tp->setInputMode(Ogre::CompositionTargetPass::IM_NONE);
+					{ Ogre::CompositionPass *pass = tp->createPass();
+					pass->setType(Ogre::CompositionPass::PT_RENDERQUAD);
+					pass->setMaterialName("Ogre/Compositor/MotionBlur");
+					pass->setInput(0, "sum");
+					}
+				}
+			}
+			Ogre::CompositorManager::getSingleton().addCompositor( mViewport, "MotionBlurTest" );
+		}
+	}
+
+	void testAlphaThroughLighting()
+	{
+		MaterialPtr mat = MaterialManager::getSingleton().create("1", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setAmbient(ColourValue::ZERO);
+		p->setSpecular(ColourValue::ZERO);
+		p->setSelfIllumination(ColourValue::ZERO);
+		p->setDiffuse(0, 0, 0, 0.5);
+		p->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		mWindow->getViewport(0)->setBackgroundColour(ColourValue::Blue);
+
+		Entity *ent = mSceneMgr->createEntity("robot", "robot.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+		ent->setMaterialName(mat->getName());
+
+
+	}
+
+
+	void testCubeDDS()
+	{
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../../Tests/Media", "FileSystem");
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("testcube", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		TextureUnitState* t = p->createTextureUnitState();
+		t->setTextureName("grace_cube.dds", TEX_TYPE_CUBE_MAP);
+		t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+		t->setEnvironmentMap(true, TextureUnitState::ENV_REFLECTION);
+		Entity* e = mSceneMgr->createEntity("1", "sphere.mesh");
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+
+		mCamera->setPosition(300,0,0);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
+
+	void testDxt1()
+	{
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../../Tests/Media", "FileSystem");
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("testdxt", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		p->setCullingMode(CULL_NONE);
+		TextureUnitState* t = p->createTextureUnitState("BumpyMetal_dxt1.dds");
+		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+
+		mCamera->setPosition(0,0,-300);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
+	void testDxt1Alpha()
+	{
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../../Tests/Media", "FileSystem");
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("testdxt", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		p->setAlphaRejectSettings(CMPF_GREATER, 128);
+		p->setLightingEnabled(false);
+		p->setCullingMode(CULL_NONE);
+		TextureUnitState* t = p->createTextureUnitState("gras_02_dxt1.dds");
+		t->setTextureName("gras_02_dxt1.dds", TEX_TYPE_2D, 1);
+		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+
+		mCamera->setPosition(0,0,300);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
+	void testDxt3()
+	{
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../../Tests/Media", "FileSystem");
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("testdxt", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		p->setCullingMode(CULL_NONE);
+		p->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		TextureUnitState* t = p->createTextureUnitState("ogreborderUp_dxt3.dds");
+		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		mWindow->getViewport(0)->setBackgroundColour(ColourValue::Red);
+
+		mCamera->setPosition(0,0,300);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
+	void testDxt5()
+	{
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../../Tests/Media", "FileSystem");
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("testdxt", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		p->setCullingMode(CULL_NONE);
+		p->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		TextureUnitState* t = p->createTextureUnitState("ogreborderUp_dxt5.dds");
+		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		mWindow->getViewport(0)->setBackgroundColour(ColourValue::Red);
+
+		mCamera->setPosition(0,0,300);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
 
 	// Just override the mandatory create scene method
     void createScene(void)
@@ -4265,6 +4518,9 @@ protected:
         //testSkeletalAnimation();
         //testOrtho();
         //testClearScene();
+		//testCollada();
+		//testCompositorBug();
+		//testAlphaThroughLighting();
 
         //testProjection();
         //testStencilShadows(SHADOWTYPE_STENCIL_ADDITIVE, true, true);
@@ -4298,7 +4554,7 @@ protected:
 		//testPoseAnimation();
 		//testPoseAnimation2();
 		//testBug();
-		testManualBlend();
+		//testManualBlend();
 		//testManualObjectNonIndexed();
 		//testManualObjectIndexed();
 		//testCustomProjectionMatrix();
@@ -4318,6 +4574,8 @@ protected:
 		//testMaterialSchemesWithMismatchedLOD();
         //testSkeletonAnimationOptimise();
 
+		//testCubeDDS();
+		testDxt1Alpha();
 		
     }
     // Create new frame listener

@@ -1,12 +1,12 @@
 AC_PREREQ(2.50)
 
-AC_INIT([OGRE], [1.2.1])
+AC_INIT([OGRE], [1.2.2])
 
 AC_CANONICAL_TARGET
 
 # New syntax, but this is still buggy; PACKAGE gets defined as 'ogre' not 'OGRE'
 #AM_INIT_AUTOMAKE([1.7.0 foreign no-installinfo no-installman subdir-objects])
-AM_INIT_AUTOMAKE([OGRE], 1.2.1)
+AM_INIT_AUTOMAKE([OGRE], 1.2.2)
 AC_CONFIG_HEADERS([OgreMain/include/config.h])
 
 dnl Check for programs
@@ -80,8 +80,8 @@ LIBS="$LIBS $SDL_LIBS"
 
 dnl versioning info for libtool
 dnl Note this is the ABI version which is not the same as our actual library version
-OGREMAIN_CURRENT=11
-OGREMAIN_REVISION=1
+OGREMAIN_CURRENT=12
+OGREMAIN_REVISION=0
 OGREMAIN_AGE=0
 OGREMAIN_VERSION_INFO=$OGREMAIN_CURRENT:$OGREMAIN_REVISION:$OGREMAIN_AGE
 AC_SUBST(OGREMAIN_VERSION_INFO)

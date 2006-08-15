@@ -159,7 +159,7 @@ namespace Ogre {
         {
             LogOgreAndXSI(L"Calculating tangents");
             unsigned short src, dest;
-            if (mMesh->suggestTangentVectorBuildParams(src, dest))
+            if (!mMesh->suggestTangentVectorBuildParams(src, dest))
             {
                 mMesh->buildTangentVectors(src, dest);
             }

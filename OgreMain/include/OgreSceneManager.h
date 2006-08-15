@@ -1645,6 +1645,10 @@ namespace Ogre {
             origin. If you want the base state of the SceneNode to be elsewhere, make your changes
             to the node using the standard transform methods, then call setInitialState to 
             'bake' this reference position into the node.
+		@par
+			If the target of your animation is to be a generic AnimableValue, you
+			should ensure that it has a base value set (unlike nodes this has no
+			default). @see AnimableValue::setAsBaseValue.
         @param animName The name of an animation created already with createAnimation.
         */
         virtual AnimationState* createAnimationState(const String& animName);

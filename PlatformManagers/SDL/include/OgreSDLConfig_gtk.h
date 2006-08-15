@@ -40,7 +40,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
     /** GTK+ config */
-    class SDLConfig : public ConfigDialog, public SigC::Object
+    class SDLConfig : public ConfigDialog, public sigc::trackable
     {
     public:
         SDLConfig()

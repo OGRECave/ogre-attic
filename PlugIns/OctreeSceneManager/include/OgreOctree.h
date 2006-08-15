@@ -107,7 +107,7 @@ public:
     This method is used by the OctreeSceneManager to determine if the given
     box will fit into a child of this octree.
     */
-    bool _isTwiceSize( AxisAlignedBox &box );
+    bool _isTwiceSize( const AxisAlignedBox &box ) const;
 
     /**  Returns the appropriate indexes for the child of this octree into which the box will fit.
     @remarks
@@ -115,13 +115,13 @@ public:
     finding the appropriate octree to insert the box.  Since it is a loose octree, only the
     center of the box is checked to determine the octant.
     */
-    void _getChildIndexes( AxisAlignedBox &, int *x, int *y, int *z );
+    void _getChildIndexes( const AxisAlignedBox &, int *x, int *y, int *z ) const;
 
     /** Creates the AxisAlignedBox used for culling this octree.
     @remarks
     Since it's a loose octree, the culling bounds can be different than the actual bounds of the octree.
     */
-    void _getCullBounds( AxisAlignedBox * );
+    void _getCullBounds( AxisAlignedBox * ) const;
 
 
     /** Public list of SceneNodes attached to this particular octree

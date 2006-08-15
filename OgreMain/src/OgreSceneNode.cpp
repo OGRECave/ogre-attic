@@ -349,7 +349,7 @@ namespace Ogre {
         return mCreator->createSceneNode(name);
     }
     //-----------------------------------------------------------------------
-    AxisAlignedBox SceneNode::_getWorldAABB(void) const
+    const AxisAlignedBox& SceneNode::_getWorldAABB(void) const
     {
         return mWorldAABB;
     }
@@ -627,7 +627,7 @@ namespace Ogre {
         oiend = mObjectsByName.end();
         for (oi = mObjectsByName.begin(); oi != oiend; ++oi)
         {
-            oi->second->setVisible(!oi->second->isVisible());
+            oi->second->setVisible(!oi->second->getVisible());
         }
 
         if (cascade)

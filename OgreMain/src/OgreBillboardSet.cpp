@@ -176,11 +176,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BillboardSet::clear()
     {
-		// Insert actives into free list
-		mFreeBillboards.insert(mFreeBillboards.end(), mActiveBillboards.begin(), mActiveBillboards.end());
-
-		// Remove all active instances
-      	mActiveBillboards.clear();
+		// Move actives to free list
+		mFreeBillboards.splice(mFreeBillboards.end(), mActiveBillboards);
     }
 
     //-----------------------------------------------------------------------
@@ -232,15 +229,19 @@ namespace Ogre {
             for( it = mActiveBillboards.begin(); index; --index, ++it );
         }
 
-        mFreeBillboards.push_back( *it );
-        mActiveBillboards.erase( it );
+        mFreeBillboards.splice(mFreeBillboards.end(), mActiveBillboards, it);
     }
 
     //-----------------------------------------------------------------------
     void BillboardSet::removeBillboard( Billboard* pBill )
     {
-        mActiveBillboards.remove( pBill );
-        mFreeBillboards.push_back( pBill );
+        ActiveBillboardList::iterator it =
+            std::find(mActiveBillboards.begin(), mActiveBillboards.end(), pBill);
+        assert(
+            it != mActiveBillboards.end() &&
+            "Billboard isn't in the active list." );
+
+        mFreeBillboards.splice(mFreeBillboards.end(), mActiveBillboards, it);
     }
 
     //-----------------------------------------------------------------------
@@ -419,7 +420,7 @@ namespace Ogre {
 			// Generate axes etc up-front if not oriented per-billboard
 			if (mBillboardType != BBT_ORIENTED_SELF &&
 				mBillboardType != BBT_PERPENDICULAR_SELF && 
-				!mAccurateFacing)
+				!(mAccurateFacing && mBillboardType != BBT_PERPENDICULAR_COMMON))
 			{
 				genBillboardAxes(&mCamX, &mCamY);
 
@@ -450,7 +451,7 @@ namespace Ogre {
         if (!mPointRendering &&
 			(mBillboardType == BBT_ORIENTED_SELF ||
             mBillboardType == BBT_PERPENDICULAR_SELF ||
-            mAccurateFacing))
+            (mAccurateFacing && mBillboardType != BBT_PERPENDICULAR_COMMON)))
         {
             // Have to generate axes & offsets per billboard
             genBillboardAxes(&mCamX, &mCamY, &bb);
@@ -467,7 +468,7 @@ namespace Ogre {
             if (!mPointRendering &&
 				(mBillboardType == BBT_ORIENTED_SELF ||
            		mBillboardType == BBT_PERPENDICULAR_SELF ||
-           		mAccurateFacing))
+           		(mAccurateFacing && mBillboardType != BBT_PERPENDICULAR_COMMON)))
             {
                 genVertOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff,
                     mDefaultWidth, mDefaultHeight, mCamX, mCamY, mVOffset);
@@ -481,7 +482,7 @@ namespace Ogre {
             if (mBillboardType == BBT_ORIENTED_SELF ||
                 mBillboardType == BBT_PERPENDICULAR_SELF ||
                 bb.mOwnDimensions ||
-                mAccurateFacing)
+                (mAccurateFacing && mBillboardType != BBT_PERPENDICULAR_COMMON))
             {
                 // Generate using own dimensions
                 genVertOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff,

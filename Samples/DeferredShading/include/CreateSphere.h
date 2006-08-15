@@ -25,7 +25,7 @@ void createSphere(const std::string& strName, const float r, const int nRings = 
 	HardwareVertexBufferSharedPtr vBuf = HardwareBufferManager::getSingleton().createVertexBuffer(vertexDecl->getVertexSize(0), vertexData->vertexCount, HardwareBuffer::HBU_STATIC_WRITE_ONLY, false);
 	VertexBufferBinding* binding = vertexData->vertexBufferBinding;
 	binding->setBinding(0, vBuf);
-	Real* pVertex = static_cast<Real*>(vBuf->lock(HardwareBuffer::HBL_DISCARD));
+	float* pVertex = static_cast<float*>(vBuf->lock(HardwareBuffer::HBL_DISCARD));
 
 	// allocate index buffer
 	pSphereVertex->indexData->indexCount = 6 * nRings * (nSegments + 1);

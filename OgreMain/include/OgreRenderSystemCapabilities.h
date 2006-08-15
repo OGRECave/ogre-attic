@@ -321,7 +321,7 @@ namespace Ogre {
 
 
     };
-};
+}
 
 #endif // __RenderSystemCapabilities__
 

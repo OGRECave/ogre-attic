@@ -139,7 +139,7 @@ namespace Ogre {
 			/// Tex coord in elements is treated as the 'u' texture coordinate
 			TCD_U,
 			/// Tex coord in elements is treated as the 'v' texture coordinate
-			TCD_V,
+			TCD_V
 		};
 		/** Sets the direction in which texture coords specified on each element
 			are deemed to run along the length of the chain.
