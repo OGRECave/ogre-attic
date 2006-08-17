@@ -117,6 +117,15 @@ namespace Ogre {
 		_initialise();
     }
 	//-----------------------------------------------------------------------
+	void Entity::backgroundLoadingComplete(Resource* res)
+	{
+		if (res == mMesh.get())
+		{
+			// mesh loading has finished, we can construct ourselves now
+			_initialise();
+		}
+	}
+	//-----------------------------------------------------------------------
 	void Entity::_initialise(bool forceReinitialise)
 	{
 		if (forceReinitialise)
@@ -125,11 +134,19 @@ namespace Ogre {
 		if (mInitialised)
 			return;
 
+		if (mMesh->isBackgroundLoaded() && !mMesh->isLoaded())
+		{
+			// register for a callback when mesh is finished loading
+			// do this before asking for load to happen to avoid race
+			mMesh->addListener(this);
+		}
+		
 		// On-demand load
 		mMesh->load();
-		// Check whether Mesh is deferred loading and has not been loaded yet.
+		// If loading failed, or deferred loading isn't done yet, defer
+		// Will get a callback in the case of deferred loading
 		// Skeletons are cascade-loaded so no issues there
-		if (mMesh->isBackgroundLoaded() && !mMesh->isLoaded())
+		if (!mMesh->isLoaded())
 			return;
 
 		// Is mesh skeletally animated?
