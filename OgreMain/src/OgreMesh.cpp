@@ -1123,6 +1123,7 @@ namespace Ogre {
 		    float	*p2DTC;	                // pointer to 2D tex.coords, read only
 		    float	*p3DTC;	                // pointer to 3D tex.coords, write/read (discard)
 		    float	*pVPos;	                // vertex position buffer, read only
+			float	*pVNorm;	            // vertex normal buffer, read only
 
 		    SubMesh *pSubMesh = getSubMesh(sm);
 
@@ -1172,9 +1173,9 @@ namespace Ogre {
                     " has no 2D texture coordinates at the selected set, therefore we cannot calculate tangents.",
                     "Mesh::buildTangentVectors");
             }
-            HardwareVertexBufferSharedPtr srcBuf, destBuf, posBuf;
-            unsigned char *pSrcBase, *pDestBase, *pPosBase;
-            size_t srcInc, destInc, posInc;
+            HardwareVertexBufferSharedPtr srcBuf, destBuf, posBuf, normBuf;
+            unsigned char *pSrcBase, *pDestBase, *pPosBase, *pNormBase;
+            size_t srcInc, destInc, posInc, normInc;
 
             srcBuf = vBind->getBuffer(srcElem->getSource());
             // Is the source and destination buffer the same?
@@ -1218,6 +1219,31 @@ namespace Ogre {
                     posBuf->lock(HardwareBuffer::HBL_READ_ONLY));
                 posInc = posBuf->getVertexSize();
             }
+			// find a normal buffer
+			const VertexElement *elemVNorm = vDecl->findElementBySemantic(VES_NORMAL);
+			if (!elemVNorm)
+				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+					"No VES_NORMAL vertex element found", 
+					"Mesh::buildTangentVectors");
+
+			if (elemVNorm->getSource() == srcElem->getSource())
+			{
+				pNormBase = pSrcBase;
+				normInc = srcInc;
+			}
+			else if (elemVNorm->getSource() == destElem->getSource())
+			{
+				pNormBase = pDestBase;
+				normInc = destInc;
+			}
+			else
+			{
+				// A different buffer
+				normBuf = vBind->getBuffer(elemVNorm->getSource());
+				pNormBase = static_cast<unsigned char*>(
+					normBuf->lock(HardwareBuffer::HBL_READ_ONLY));
+				normInc = normBuf->getVertexSize();
+			}
 
 		    size_t numFaces = indexData->indexCount / 3 ;
 
@@ -1274,8 +1300,19 @@ namespace Ogre {
                 destElem->baseVertexPointerToElement(pDestBase, &p3DTC);
 			    // read the vertex
 			    Vector3 temp(p3DTC[0], p3DTC[1], p3DTC[2]);
-			    // normalize the vertex
+				// Orthogonalise with the vertex normal since it's currently
+				// orthogonal with the face normals, but will be close to ortho
+				// with vertex normal
+				// Get normal				
+				unsigned char* vBase = pNormBase + (normInc * n);
+				elemVNorm->baseVertexPointerToElement(vBase, &pVNorm);
+				Vector3 normal(pVNorm[0], pVNorm[1], pVNorm[2]);
+				// Apply Gram-Schmidt orthogonalise
+				temp = temp - (normal * normal.dotProduct(temp));
+				
+				// normalize the vertex
 			    temp.normalise();
+
 			    // write it back
 			    p3DTC[0] = temp.x;
 			    p3DTC[1] = temp.y;
@@ -1293,6 +1330,10 @@ namespace Ogre {
             {
                 posBuf->unlock();
             }
+			if (!normBuf.isNull())
+			{
+				normBuf->unlock();
+			}
 		    buffIndex->unlock();
 	    }
 
