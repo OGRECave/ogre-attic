@@ -67,7 +67,7 @@ namespace Ogre {
 	@note
 	No functions were declared virtual to improve performance.
 	*/
-	class _OgreExport Entity: public MovableObject
+	class _OgreExport Entity: public MovableObject, public Resource::Listener
 	{
 		// Allow EntityFactory full access
 		friend class EntityFactory;
@@ -720,6 +720,11 @@ namespace Ogre {
 		void _initialise(bool forceReinitialise = false);
 		/** Tear down the internal structures of this Entity, rendering it uninitialised. */
 		void _deinitialise(void);
+
+		/** Resource::Listener hook to notify Entity that a delay-loaded Mesh is
+			complete.
+		*/
+		void backgroundLoadingComplete(Resource* res);
 
 
 
