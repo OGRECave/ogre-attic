@@ -1837,7 +1837,18 @@ namespace Ogre {
 		VertexData* targetVertexData)
 	{
 		float* pb1 = static_cast<float*>(b1->lock(HardwareBuffer::HBL_READ_ONLY));
-		float* pb2 = static_cast<float*>(b2->lock(HardwareBuffer::HBL_READ_ONLY));
+		float* pb2;
+		if (b1.get() != b2.get())
+		{
+			pb2 = static_cast<float*>(b2->lock(HardwareBuffer::HBL_READ_ONLY));
+		}
+		else
+		{
+			// Same buffer - track with only one entry or time index exactly matching
+			// one keyframe
+			// For simplicity of main code, interpolate still but with same val
+			pb2 = pb1;
+		}
 
 		const VertexElement* posElem =
 			targetVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
@@ -1864,7 +1875,8 @@ namespace Ogre {
 
 		destBuf->unlock();
 		b1->unlock();
-		b2->unlock();
+		if (b1.get() != b2.get())
+			b2->unlock();
 	}
 	//---------------------------------------------------------------------
 	void Mesh::softwareVertexPoseBlend(Real weight,
