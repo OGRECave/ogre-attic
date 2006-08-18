@@ -34,6 +34,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderSystem.h"
 #include "OgreRenderSystemCapabilities.h"
 #include "OgreStringConverter.h"
+#include "OgreLogManager.h"
 
 namespace Ogre
 {
@@ -143,7 +144,7 @@ namespace Ogre
         const String& group, bool isManual, ManualResourceLoader* loader) 
         :Resource(creator, name, handle, group, isManual, loader),
         mType(GPT_VERTEX_PROGRAM), mLoadFromFile(true), mSkeletalAnimation(false),
-        mVertexTextureFetch(false), mPassSurfaceAndLightStates(false)
+        mVertexTextureFetch(false), mPassSurfaceAndLightStates(false), mCompileError(false)
     {
     }
     //-----------------------------------------------------------------------------
@@ -162,6 +163,7 @@ namespace Ogre
         mFilename = filename;
         mSource = "";
         mLoadFromFile = true;
+		mCompileError = false;
     }
     //-----------------------------------------------------------------------------
     void GpuProgram::setSource(const String& source)
@@ -169,6 +171,7 @@ namespace Ogre
         mSource = source;
         mFilename = "";
         mLoadFromFile = false;
+		mCompileError = false;
     }
 
     //-----------------------------------------------------------------------------
@@ -184,7 +187,20 @@ namespace Ogre
         }
 
         // Call polymorphic load
-        loadFromSource();
+		try 
+		{
+			loadFromSource();
+		}
+		catch(Exception &e)
+		{
+			// will already have been logged
+			StringUtil::StrStreamType str;
+			str << "Gpu program " << mName << " encountered an error "
+				<< "during loading and is thus not supported.";
+			LogManager::getSingleton().logMessage(str.str());
+
+			mCompileError = true;
+		}
 
     }
     //-----------------------------------------------------------------------------
@@ -193,8 +209,10 @@ namespace Ogre
 		const RenderSystemCapabilities* caps = 
 			Root::getSingleton().getRenderSystem()->getCapabilities();
         // If skeletal animation is being done, we need support for UBYTE4
-        if (isSkeletalAnimationIncluded() && 
-            !caps->hasCapability(RSC_VERTEX_FORMAT_UBYTE4))
+        if ((isSkeletalAnimationIncluded() && 
+            !Root::getSingleton().getRenderSystem()->getCapabilities()
+                ->hasCapability(RSC_VERTEX_FORMAT_UBYTE4)) ||  
+			mCompileError)
         {
             return false;
         }

@@ -1257,7 +1257,7 @@ namespace Ogre {
 		uint8 group, Real camDistanceSquared)
 	{
 		// Determine the current material technique
-		mTechnique = mMaterial->getTechnique(
+		mTechnique = mMaterial->getBestTechnique(
 			mMaterial->getLodIndexSquaredDepth(camDistanceSquared));
 
 		GeometryBucketList::iterator i, iend;

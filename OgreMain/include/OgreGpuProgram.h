@@ -978,6 +978,8 @@ namespace Ogre {
 		GpuProgramParametersSharedPtr mDefaultParams;
 		/// Does this program want light states passed through fixed pipeline
 		bool mPassSurfaceAndLightStates;
+		/// Did we encounter a compilation error?
+		bool mCompileError;
 
 		/** Internal method for setting up the basic parameter definitions for a subclass. 
 		@remarks
@@ -1147,6 +1149,13 @@ namespace Ogre {
         */
         virtual const String& getLanguage(void) const;
 
+		/** Did this program encounter a compile error when loading?
+		*/
+		virtual bool hasCompileError(void) const { return mCompileError; }
+
+		/** Reset a compile error if it occurred, allowing the load to be retried
+		*/
+		virtual void resetCompileError(void) { mCompileError = false; }
     protected:
         /// Virtual method which must be implemented by subclasses, load from mSource
         virtual void loadFromSource(void) = 0;

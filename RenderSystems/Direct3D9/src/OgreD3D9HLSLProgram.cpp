@@ -284,9 +284,10 @@ namespace Ogre {
     bool D3D9HLSLProgram::isSupported(void) const
     {
 		// If skeletal animation is being done, we need support for UBYTE4
-		if (isSkeletalAnimationIncluded() && 
+		if ((isSkeletalAnimationIncluded() && 
 			!Root::getSingleton().getRenderSystem()->getCapabilities()
-				->hasCapability(RSC_VERTEX_FORMAT_UBYTE4))
+				->hasCapability(RSC_VERTEX_FORMAT_UBYTE4)) ||  
+			mCompileError)
 		{
 			return false;
 		}
