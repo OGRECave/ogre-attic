@@ -260,7 +260,7 @@ namespace Ogre
 				D3DX_DEFAULT, // dims (square)
 				numMips,
 				usage,
-				D3DFMT_FROM_FILE,
+				D3DFMT_UNKNOWN,
 				pool,
 				D3DX_DEFAULT,
 				D3DX_DEFAULT,
@@ -363,7 +363,7 @@ namespace Ogre
 				D3DX_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, // dims
 				numMips,
 				usage,
-				D3DFMT_FROM_FILE,
+				D3DFMT_UNKNOWN,
 				pool,
 				D3DX_DEFAULT,
 				D3DX_DEFAULT,
@@ -453,7 +453,7 @@ namespace Ogre
 				D3DX_DEFAULT, D3DX_DEFAULT, // dims
 				numMips,
 				usage,
-				D3DFMT_FROM_FILE,
+				D3DFMT_UNKNOWN,
 				pool,
 				D3DX_DEFAULT,
 				D3DX_DEFAULT,

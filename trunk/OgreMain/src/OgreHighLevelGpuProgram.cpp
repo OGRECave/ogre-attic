@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHighLevelGpuProgram.h"
 #include "OgreException.h"
 #include "OgreGpuProgramManager.h"
+#include "OgreLogManager.h"
 
 namespace Ogre
 {
@@ -77,7 +78,11 @@ namespace Ogre
 		if (this->isSupported())
 		{
 			loadHighLevel();
-			populateParameterNames(params);
+			// Errors during load may have prevented compile
+			if (this->isSupported())
+			{
+				populateParameterNames(params);
+			}
 		}
 		// Copy in default parameters if present
 		if (!mDefaultParams.isNull())
@@ -89,8 +94,21 @@ namespace Ogre
     {
         if (!mHighLevelLoaded)
         {
-            loadHighLevelImpl();
-            mHighLevelLoaded = true;
+			try 
+			{
+				loadHighLevelImpl();
+				mHighLevelLoaded = true;
+			}
+			catch(Exception &e)
+			{
+				// will already have been logged
+				StringUtil::StrStreamType str;
+				str << "High-level program " << mName << " encountered an error "
+					<< "during loading and is thus not supported.";
+				LogManager::getSingleton().logMessage(str.str());
+
+				mCompileError = true;
+			}
         }
     }
     //---------------------------------------------------------------------------
