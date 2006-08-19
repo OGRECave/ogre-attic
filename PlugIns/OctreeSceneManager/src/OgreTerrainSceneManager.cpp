@@ -92,6 +92,12 @@ namespace Ogre
 		// Make sure we free up material (static)
 		mOptions.terrainMaterial.setNull();
 
+		// Shut down page source to free terrain pages
+		if (mActivePageSource)
+		{
+			mActivePageSource->shutdown();
+		}
+
 	}
     //-------------------------------------------------------------------------
     TerrainSceneManager::~TerrainSceneManager()
