@@ -177,7 +177,8 @@ namespace Ogre {
         static unsigned long parseUnsignedLong(const String& val);
         /** Converts a String to a boolean. 
         @remarks
-            Accepts 'true' or 'false' as input.
+            Returns true if case-insensitive match of the start of the string
+			matches "true" or "yes", false otherwise.
         */
         static bool parseBool(const String& val);
         /** Parses a Vector3 out of a String.
