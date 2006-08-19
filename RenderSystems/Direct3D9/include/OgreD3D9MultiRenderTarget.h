@@ -4,7 +4,7 @@ This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
-Copyright (c) 2000-2005 The OGRE Team
+Copyright (c) 2000-2006 Torus Knot Software Ltd
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -48,7 +48,10 @@ namespace Ogre {
 		/** @copydoc MultiRenderTarget::bindSurface */
 		virtual void bindSurface(size_t attachment, RenderTexture *target);
 
+
+
 		/** @copydoc MultiRenderTarget::unbindSurface */
+
 		virtual void unbindSurface(size_t attachment);
 
 		virtual void getCustomAttribute( const String& name, void *pData );
