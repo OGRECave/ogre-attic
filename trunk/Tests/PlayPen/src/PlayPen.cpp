@@ -4,7 +4,7 @@ This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
-Copyright (c) 2000-2005 The OGRE Team
+Copyright (c) 2000-2006 Torus Knot Software Ltd
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -1514,12 +1514,12 @@ protected:
 
 
 
-        Entity *ent = mSceneMgr->createEntity("robot", "jaiqua.mesh");
+        Entity *ent = mSceneMgr->createEntity("robot", "test.mesh");
         // Uncomment the below to test software skinning
         //ent->setMaterialName("Examples/Rocky");
         // Add entity to the scene node
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
-        mAnimState = ent->getAnimationState("Jaiqua_walk_Preset_Clip");
+        mAnimState = ent->getAnimationState("Default");
         mAnimState->setEnabled(true);
 
         // Give it a little ambience with lights
@@ -4441,7 +4441,7 @@ protected:
         //testWindowedViewportMode();
         //testSubEntityVisibility();
         //testAttachObjectsToBones();
-        //testSkeletalAnimation();
+        testSkeletalAnimation();
         //testOrtho();
         //testClearScene();
 
@@ -4504,7 +4504,7 @@ protected:
 		//testDxt5();
 
 		//testVertexTexture();
-		testGLSLTangent();
+		//testGLSLTangent();
 
 		
     }
