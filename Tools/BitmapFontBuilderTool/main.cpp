@@ -15,6 +15,7 @@ int main(int argc, char** argv)
 {
     int size;
     std::string datName, newName, fontName, imageName, genGlyph;
+    int addLeftPixels, addRightPixels;
 
 		cout << "Enter unique font name: ";
 		cin >> fontName;
@@ -24,6 +25,18 @@ int main(int argc, char** argv)
     cin >> size;
     cout << "Enter name of file containing binary widths: ";
     cin >> datName;
+
+    cout << endl;
+    cout << "If you've modified the output from BitmapFontBuilder, e.g. by adding a\n"
+            "dropshadow, you'll need to widen the glyphs a little. If you used\n"
+            "BitmapFontBuilder's output directly, just answer 0 in the following two\n"
+            "questions.\n";
+    cout << "Enter number of pixels to add to the left of all glyphs: ";
+    cin >> addLeftPixels;
+    cout << "Enter number of pixels to add to the right of all glyphs: ";
+    cin >> addRightPixels;
+    cout << endl;
+
 		cout << "Generate all glyph statements(Not Recommended)(Y/N): ";
 		cin >> genGlyph;
     cout << "Enter name of new text file to create: ";
@@ -52,10 +65,13 @@ int main(int argc, char** argv)
             posy += charSize;
         }
 
-		// Little endian only, but this tool isn't available for OSX anyway
-        int width = fgetc(fp) + (fgetc(fp) << 8);
-        float thisx_start = posx + halfWidth - (width / 2);
-        float thisx_end = posx + halfWidth + (width / 2);
+        // Read width from binary file
+        int w1 = fgetc(fp) & 0xFF;      // NOTE: These two fgetc() have to be in seperate statements to ensure ordering!
+        int w2 = fgetc(fp) & 0xFF;
+        int width = w1 + (w2 << 8);     // Little endian only, but this tool isn't available for OSX anyway
+
+        float thisx_start = posx + halfWidth - (width / 2) - addLeftPixels;
+        float thisx_end = posx + halfWidth + (width / 2) + addRightPixels;
 
         float u1, u2, v1, v2;
         u1 = thisx_start / (float)(size) ;
