@@ -577,6 +577,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreNumerics.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreOverlay.cpp"
 				>
 			</File>
@@ -1349,6 +1353,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreNoMemoryMacros.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreNumerics.h"
 				>
 			</File>
 			<File

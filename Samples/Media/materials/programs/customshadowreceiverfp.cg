@@ -97,7 +97,7 @@ Fragment main(Vertex        In,
 
     // ------------------------------------------------------------------------------
 
-    // Non-PCF code (comment out above section and uncomment the following two lines)
+    // Non-PCF code (comment out above section and uncomment the following three lines)
 
     //float zvalue = tex2D(ShadowMap, scoord.xy).x;
     //float visibility = (zvalue <= scoord.z) ? 0.0 : 1.0;

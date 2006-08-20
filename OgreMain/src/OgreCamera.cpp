@@ -821,52 +821,6 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------
-
-	// the following two static functions are helpers for forwardIntersect.
-
-	//_______________________________________________________
-	//|														|
-	//|	getInverseRot										|
-	//|	-----------------------								|
-	//| create a rotation matrix that will align the given	|
-	//| vector with the z axis after rotation.				|
-	//|	create a rotation matrix that has x,y axes in the	|
-	//| plane perpendicular to the rotated z axis given by	|
-	//| the cosx_cosy, neg_sinx, and cosx_siny values.		|
-	//|	This matrix happens to also be the matrix that		|
-	//| chooses the axes such that the ellipse formed by	|
-	//| intersecting a cone around the original z axis and	|
-	//| the plane perpendicular to the rotated z axis will	|
-	//| have major and minor axes correspond to the x,y		|
-	//| axes.												|
-	//|_____________________________________________________|
-	//
-	static Matrix3 getInverseRot(const Plane& plane)
-	{
-		Matrix3 mat;
-
-		Real cosxSiny	= plane.normal.x;
-		Real negSinx	= plane.normal.y;
-		Real cosxCosy	= plane.normal.z;
-
-		if(fabs(cosxCosy) >= 1.0)
-		{
-			// set matrix to be identity
-			return Matrix3::IDENTITY;
-		}
-		else
-		{
-			Real norm = sqrt(1.0 - cosxCosy * cosxCosy);
-			Real nfactor = 1.0 / norm;
-
-			mat = Matrix3(	negSinx * nfactor, -cosxSiny * nfactor, 0.0,
-				cosxSiny * cosxCosy * nfactor, cosxCosy * negSinx * nfactor, -norm,
-				cosxSiny, negSinx, cosxCosy );
-		}
-
-		return mat;
-	}
-
 	//_______________________________________________________
 	//|														|
 	//|	getRayForwardIntersect								|
@@ -878,7 +832,7 @@ namespace Ogre {
 	//| coordinate system in which this is true.			|
 	//|_____________________________________________________|
 	//
-	static std::vector<Vector4> getRayForwardIntersect(const Vector3& anchor, const Vector3 *dir, Real planeOffset)
+	std::vector<Vector4> Camera::getRayForwardIntersect(const Vector3& anchor, const Vector3 *dir, Real planeOffset) const
 	{
 		std::vector<Vector4> res;
 
@@ -978,7 +932,7 @@ namespace Ogre {
 			pval.normal *= -1.0;
 			pval.d *= -1.0;
 		}
-		Matrix3 invPlaneRot = getInverseRot(pval);
+		Matrix3 invPlaneRot = pval.getCanonicalInverseRotation();
 
 		// get rotated light
 		Vector3 lPos = invPlaneRot * getDerivedPosition();
@@ -1004,7 +958,6 @@ namespace Ogre {
 			}
 		}
 	}
-
 	//-----------------------------------------------------------------------
 
 

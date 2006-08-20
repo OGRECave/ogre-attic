@@ -103,6 +103,32 @@ namespace Ogre {
 
 	}
     //-----------------------------------------------------------------------
+	Matrix3 Plane::getCanonicalInverseRotation(void) const
+	{
+		Matrix3 mat;
+
+		Real cosxSiny	= normal.x;
+		Real negSinx	= normal.y;
+		Real cosxCosy	= normal.z;
+
+		if(fabs(cosxCosy) >= 1.0)
+		{
+			// set matrix to be identity
+			return Matrix3::IDENTITY;
+		}
+		else
+		{
+			Real norm = sqrt(1.0 - cosxCosy * cosxCosy);
+			Real nfactor = 1.0 / norm;
+
+			mat = Matrix3(	negSinx * nfactor, -cosxSiny * nfactor, 0.0,
+				cosxSiny * cosxCosy * nfactor, cosxCosy * negSinx * nfactor, -norm,
+				cosxSiny, negSinx, cosxCosy );
+		}
+
+		return mat;
+	}
+	//-----------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& o, Plane& p)
     {
         o << "Plane(normal=" << p.normal << ", d=" << p.d << ")";

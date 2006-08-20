@@ -393,6 +393,7 @@ int main(int argc, char **argv)
 	//----------------------------------------------------
 	// 10 clean 
 	//----------------------------------------------------
+	delete dummyPlane;
 	delete frameListener; 
 	delete keyListener; 
 	delete eventProcessor; 

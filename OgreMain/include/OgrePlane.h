@@ -103,6 +103,12 @@ namespace Ogre {
             return (rhs.d == d && rhs.normal == normal);
         }
 
+		/** Computes a rotation matrix that maps the normal to the positive z direction
+		@remarks Given a plane with normal pointing in the positive z halfspace, this will
+		         find the rotation matrix that will rotate it to the +z axis.
+		*/
+		virtual Matrix3 getCanonicalInverseRotation(void) const;
+
         _OgreExport friend std::ostream& operator<< (std::ostream& o, Plane& p);
     };
 

@@ -54,6 +54,33 @@ fragment_program CustomShadows/ShadowCasterFP/GLSL glsl
     }
 }
 
+vertex_program CustomShadows/ShadowCasterVP/HLSL hlsl
+{
+    source customshadowcastervp.hlsl
+    entry_point main
+    target vs_2_0
+
+    default_params
+    {
+        param_named_auto uModelViewProjection worldviewproj_matrix
+    }
+}
+
+fragment_program CustomShadows/ShadowCasterFP/HLSL hlsl
+{
+    source customshadowcasterfp.hlsl
+    entry_point main
+    target ps_2_0
+
+    default_params
+    {
+        param_named      uDepthOffset float       1.0
+        param_named      uSTexWidth float         512.0
+        param_named      uSTexHeight float        512.0
+        param_named_auto uInvModelViewProjection  inverse_worldviewproj_matrix
+        param_named_auto uProjection              projection_matrix
+    }
+}
 
 material CustomShadows/ShadowCaster
 {
@@ -66,6 +93,22 @@ material CustomShadows/ShadowCaster
             {
             }
             fragment_program_ref CustomShadows/ShadowCasterFP/GLSL
+            {
+            }
+        }
+    }
+
+    technique hlsl
+    {
+        // Z-write only pass
+        pass Z-write
+        {
+            //Instead of using depth_bias, we'll be implementing it manually
+
+            vertex_program_ref CustomShadows/ShadowCasterVP/HLSL
+            {
+            }
+            fragment_program_ref CustomShadows/ShadowCasterFP/HLSL
             {
             }
         }
@@ -144,6 +187,34 @@ fragment_program CustomShadows/ShadowReceiverFP/GLSL glsl
     }
 }
 
+vertex_program CustomShadows/ShadowReceiverVP/HLSL hlsl
+{
+    source customshadowreceivervp.hlsl
+    entry_point main
+    target vs_2_0
+
+    default_params
+    {
+        param_named_auto uModelViewProjection   worldviewproj_matrix
+        param_named_auto uLightPosition         light_position_object_space 0
+        param_named_auto uModel                 world_matrix
+        param_named_auto uTextureViewProjection texture_viewproj_matrix
+    }
+}
+
+fragment_program CustomShadows/ShadowReceiverFP/HLSL hlsl
+{
+    source customshadowreceiverfp.hlsl
+    entry_point main
+    target ps_3_0
+
+    default_params
+    {
+        param_named uSTexWidth  float 512.0
+        param_named uSTexHeight float 512.0
+    }
+}
+
 material CustomShadows/ShadowReceiver
 {
     technique glsl
@@ -159,6 +230,27 @@ material CustomShadows/ShadowReceiver
                 param_named uShadowMap int 0
             }
 
+            texture_unit ShadowMap
+            {
+                tex_address_mode clamp
+                filtering none
+            }
+        }
+    }
+
+    technique hlsl
+    {
+        pass lighting
+        {
+            vertex_program_ref CustomShadows/ShadowReceiverVP/HLSL
+            {
+            }
+
+            fragment_program_ref CustomShadows/ShadowReceiverFP/HLSL
+            {
+            }
+
+            // we won't rely on hardware specific filtering of z-tests
             texture_unit ShadowMap
             {
                 tex_address_mode clamp

@@ -161,6 +161,8 @@ namespace Ogre {
         /** Get the derived orientation of this frustum. */
         const Quaternion& getOrientationForViewUpdate(void) const;
 
+		/** Helper function for forwardIntersect that intersects rays with canonical plane */
+		virtual std::vector<Vector4> getRayForwardIntersect(const Vector3& anchor, const Vector3 *dir, Real planeOffset) const;
 
     public:
         /** Standard constructor.
@@ -498,6 +500,12 @@ namespace Ogre {
 		/** Returns the custom culling frustum in use. */
 		Frustum* getCullingFrustum(void) { return mCullFrustum; }
 
+		/** Forward projects frustum rays to find forward intersection with plane.
+		 @remarks
+		    Forward projection may lead to intersections at infinity.
+		*/
+		virtual void forwardIntersect(const Plane& worldPlane, std::vector<Vector4>* intersect3d) const;
+
 		/// @copydoc Frustum::isVisible
 		bool isVisible(const AxisAlignedBox& bound, FrustumPlane* culledBy = 0) const;
 		/// @copydoc Frustum::isVisible
@@ -526,11 +534,6 @@ namespace Ogre {
 			using the real view matrix in order to display the correct debug view.
 		*/
 		const Matrix4& getViewMatrix(bool ownFrustumOnly) const;
-		/** Forward projects frustum rays to find forward intersection with plane.
-		 @remarks
-		    Forward projection may lead to intersections at infinity.
-		*/
-		void forwardIntersect(const Plane& worldPlane, std::vector<Vector4>* intersect3d) const;
 		/** Set whether this camera should use the 'rendering distance' on
 			objects to exclude distant objects from the final image. The
 			default behaviour is to use it.
