@@ -35,6 +35,11 @@ using namespace Ogre;
 
 // G L O B A L S /////////////////////////////////////////////////////////
 
+// uncomment for directx version that uses a simple shader instead of
+// fixed pipeline.  the simple shader is not full-featured by far, but
+// will show some texture.
+//#define DX_HLSL_VERSION
+
 static SceneManager*	sceneMgr		= 0;	// scene manager
 static Camera*			camera			= 0;	// view camera (eye)
 static Viewport*		viewPort		= 0;	// viewport
@@ -293,7 +298,7 @@ int main(int argc, char **argv)
 	// create the lights; most of the properties are superfluous since our custom shaders
 	// will be determining the eventual look
 	sceneMgr->setAmbientLight(ColourValue(0.0,0.0,0.0));
-	lightRBT.makeTransform(Vector3(0,300,0), Vector3(1,1,1), Quaternion(Radian(0.0),Vector3(1,0,0)));
+	lightRBT.makeTransform(Vector3(0,400,0), Vector3(1,1,1), Quaternion(Radian(0.0),Vector3(1,0,0)));
 	Vector4 lightPt = lightRBT * Vector4(0,0,0,1);
 	Vector3 dir(-lightPt.x, -lightPt.y, -lightPt.z);
 	dir.normalise();
@@ -309,6 +314,9 @@ int main(int argc, char **argv)
 	Entity *ogreHead = sceneMgr->createEntity("OgreHead", "ogrehead.mesh");
 	SceneNode *ogreNode = sceneMgr->getRootSceneNode()->createChildSceneNode("OgreNode");
 	ogreNode->attachObject(ogreHead);
+#ifdef DX_HLSL_VERSION
+	ogreHead->setMaterialName("Ogre/CustomShadows/SimpleSkin");
+#endif
 	
 	// create ground plane
 	Plane plane( Vector3::UNIT_Y, -80.0 );
@@ -319,6 +327,9 @@ int main(int argc, char **argv)
 	SceneNode *groundNode = sceneMgr->getRootSceneNode()->createChildSceneNode("GroundNode");
 	groundNode->attachObject(ground);
 	ground->setMaterialName("Examples/Rockwall");
+#ifdef DX_HLSL_VERSION
+	ground->setMaterialName("Ogre/CustomShadows/SimpleRock");
+#endif
     ground->setCastShadows(false);
 
 	// create a dummy node; could unify with ground plane or keep separate to allow for optimizing
@@ -334,6 +345,7 @@ int main(int argc, char **argv)
 	dummyPlaneNode->attachObject(dummyPlaneEntity);
 	SharedPtr<ShadowCameraSetup> planeOptPtr(planeOptShadowCamera);
 	spotlight->setCustomShadowCameraSetup(planeOptPtr);
+
 	
 	// Use Ogre's custom shadow mapping ability
 	sceneMgr->setShadowTexturePixelFormat(PF_FLOAT32_R);
@@ -359,7 +371,7 @@ int main(int argc, char **argv)
 	camera->setPosition(camPt.x, camPt.y, camPt.z);
 	camera->lookAt(0.0, 0.0, 0.0);
 	camera->setNearClipDistance(5);
-	camera->setFarClipDistance(5000.0);
+	camera->setFarClipDistance(2000.0);
 	camera->setAutoAspectRatio(true);
 
 	//----------------------------------------------------- 

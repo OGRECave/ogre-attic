@@ -259,7 +259,7 @@ material CustomShadows/ShadowReceiver
         }
     }
 
-	technique cg
+    technique cg
     {
         pass lighting
         {
@@ -279,4 +279,88 @@ material CustomShadows/ShadowReceiver
             }
         }
     }
+
 }
+
+
+// Simple Shader __________________________________________________
+
+vertex_program CustomShadows/SimpleShaderVP/HLSL hlsl
+{
+    source SimpleShaderVP.hlsl
+    entry_point main
+    target vs_2_0
+
+    default_params
+    {
+        param_named_auto uModelViewProjection   worldviewproj_matrix
+        param_named_auto uLightPosition         light_position_object_space 0
+    }
+}
+
+fragment_program CustomShadows/SimpleShaderFP/HLSL hlsl
+{
+    source SimpleShaderFP.hlsl
+    entry_point main
+    target ps_2_0
+
+    default_params
+    {
+    }
+}
+
+
+material Ogre/CustomShadows/SimpleSkin
+{
+	technique hlsl
+	{
+		pass lighting
+		{
+
+			vertex_program_ref CustomShadows/SimpleShaderVP/HLSL
+            		{
+            		}
+
+            		fragment_program_ref CustomShadows/SimpleShaderFP/HLSL
+            		{
+            		}
+
+			cull_hardware none
+
+			texture_unit
+			{
+				texture GreenSkin.jpg
+				tex_address_mode mirror
+			}
+		}
+	}
+}
+
+material Ogre/CustomShadows/SimpleRock
+{
+	technique hlsl
+	{
+		pass lighting
+		{
+   			ambient 0.2 0.2 0.2 
+			diffuse 1 1 1
+			specular 0 0 0
+
+			vertex_program_ref CustomShadows/SimpleShaderVP/HLSL
+            		{
+            		}
+
+            		fragment_program_ref CustomShadows/SimpleShaderFP/HLSL
+            		{
+            		}
+
+			cull_hardware none
+
+			texture_unit
+			{
+				texture rockwall.tga
+			}
+		}
+	}
+}
+

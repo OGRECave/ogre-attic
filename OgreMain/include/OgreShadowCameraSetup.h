@@ -88,6 +88,7 @@ namespace Ogre {
 	private:
 		PlaneOptimalShadowCameraSetup() {}	///< Default constructor is private
 
+		/// helper function computing projection matrix given constraints
 		Matrix4 computeConstrainedProjection( const Vector4& pinhole, 
 											  const std::vector<Vector4>& fpoint, 
 											  const std::vector<Vector2>& constraint) const;
