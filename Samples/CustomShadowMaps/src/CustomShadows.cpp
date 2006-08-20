@@ -332,9 +332,10 @@ int main(int argc, char **argv)
 	SceneNode *planeCasterNode = sceneMgr->getRootSceneNode()->createChildSceneNode("PlanecasterNode");
 	planeCasterNode->attachObject(planeCaster);
 	planeCaster->setCastShadows(true);
-	planeCaster->setMaterialName("Examples/Rockwall");
 #ifdef DX_HLSL_VERSION
 	planeCaster->setMaterialName("Ogre/CustomShadows/SimpleRock");
+#else
+	planeCaster->setMaterialName("Examples/Rockwall");
 #endif
 	
 	// Use Ogre's custom shadow mapping ability
