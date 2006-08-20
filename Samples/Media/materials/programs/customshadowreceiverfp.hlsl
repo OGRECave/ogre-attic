@@ -17,7 +17,7 @@ struct Vertex
 {
   float4 position       : POSITION;     // fragment position in post projective space
   float4 shadowCoord    : TEXCOORD0;    // fragment position in shadow map coordinates
-  float  diffuse        : TEXCOORD1;    // diffuse shading value
+  float  diffuse        : TEXCOORD1;    	// diffuse shading value
 };
 
 struct Fragment
