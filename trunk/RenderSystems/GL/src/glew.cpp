@@ -758,6 +758,7 @@ GLboolean __GLEW_EXT_point_sprite = GL_FALSE;
 GLboolean __GLEW_EXT_point_parameters = GL_FALSE;
 GLboolean __GLEW_ARB_point_parameters = GL_FALSE;
 GLboolean __GLEW_ARB_point_sprite = GL_FALSE;
+GLboolean __GLEW_EXT_texture_lod_bias = GL_FALSE;
 // End changes
 
 #endif /* !GLEW_MX */
@@ -1986,6 +1987,9 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
   GLEW_ARB_point_parameters = glewGetExtension("GL_ARB_point_parameters");
   if (glewExperimental || GLEW_ARB_point_parameters) GLEW_ARB_point_parameters = !_glewInit_GL_ARB_point_parameters(GLEW_CONTEXT_ARG_VAR_INIT);
 #endif /* GL_ARB_point_parameters */
+#ifdef GL_EXT_texture_lod_bias
+  GLEW_EXT_texture_lod_bias = glewGetExtension("GL_EXT_texture_lod_bias");
+#endif /* GL_EXT_texture_lod_bias */
 
 // End SJS changes
 

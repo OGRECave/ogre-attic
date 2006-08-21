@@ -256,6 +256,9 @@ namespace Ogre {
         // Set texture layer filtering
         _setTextureLayerAnisotropy(texUnit, tl.getTextureAnisotropy());
 
+		// Set mipmap biasing
+		_setTextureMipmapBias(texUnit, tl.getTextureMipmapBias());
+
 		// Set blend modes
 		// Note, colour before alpha is important
         _setTextureBlendMode(texUnit, tl.getColourBlendMode());

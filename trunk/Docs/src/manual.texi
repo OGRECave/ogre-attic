@@ -1016,6 +1016,8 @@ Here are the attributes you can use in a 'texture_unit' section of a .material s
 @item
 @ref{max_anisotropy}
 @item
+@ref{mipmap_bias}
+@item
 @ref{colour_op}
 @item
 @ref{colour_op_ex}
@@ -1219,6 +1221,16 @@ In order for this to be used, you have to set the minification and/or the magnif
 
 Format: max_anisotropy <value>@*
 Default: max_anisotropy 1
+
+@anchor{mipmap_bias}
+@subheading mipmap_bias
+
+Sets the bias value applied to the mipmapping calculation, thus allowing you to alter the decision of which level of detail of the texture to use at any distance. The bias value is applied after the regular distance calculation, and adjusts the mipmap level by 1 level for each unit of bias. Negative bias values force larger mip levels to be used, positive bias values force smaller mip levels to be used. The bias is a floating point value so you can use values in between whole numbers for fine tuning.@*@*
+In order for this option to be used, your hardware has to support mipmap biasing (exposed through the render system capabilities), and your minification @ref{filtering} has to be set to point or linear.
+
+Format: mipmap_bias <value>@*
+Default: mipmap_bias 0
+
 
 @anchor{colour_op}
 @subheading colour_op

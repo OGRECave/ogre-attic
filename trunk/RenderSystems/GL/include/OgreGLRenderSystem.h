@@ -267,6 +267,10 @@ namespace Ogre {
           RenderSystem
          */
         void _setTextureBorderColour(size_t stage, const ColourValue& colour);
+		/** See
+		RenderSystem
+		*/
+		void _setTextureMipmapBias(size_t unit, float bias);
         /** See
           RenderSystem
          */

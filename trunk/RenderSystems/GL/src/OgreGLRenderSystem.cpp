@@ -614,6 +614,13 @@ namespace Ogre {
 		}
 		// GL always shares vertex and fragment texture units (for now?)
 		mCapabilities->setVertexTextureUnitsShared(true);
+
+		// Mipmap LOD biasing?
+		if (GLEW_VERSION_1_4 || GLEW_EXT_texture_lod_bias)
+		{
+			mCapabilities->setCapability(RSC_MIPMAP_LOD_BIAS);
+		}
+
         
 		Log* defaultLog = LogManager::getSingleton().getDefaultLog();
 		if (defaultLog)
@@ -1267,7 +1274,18 @@ namespace Ogre {
         glTexParameterfv( mTextureTypes[stage], GL_TEXTURE_BORDER_COLOR, border);
         glActiveTextureARB( GL_TEXTURE0 );
     }
-    //-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
+	void GLRenderSystem::_setTextureMipmapBias(size_t stage, float bias)
+	{
+		if (mCapabilities->hasCapability(RSC_MIPMAP_LOD_BIAS))
+		{
+			glActiveTextureARB( GL_TEXTURE0 + stage );
+			glTexEnvf(GL_TEXTURE_FILTER_CONTROL_EXT, GL_TEXTURE_LOD_BIAS_EXT, bias);
+			glActiveTextureARB( GL_TEXTURE0 );
+		}
+
+	}
+	//-----------------------------------------------------------------------------
     void GLRenderSystem::_setTextureMatrix(size_t stage, const Matrix4& xform)
     {
 		if (stage >= mFixedFunctionTextureUnits)

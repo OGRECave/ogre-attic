@@ -855,6 +855,12 @@ namespace Ogre
 
 			}
 		}
+
+		// Mipmap LOD biasing?
+		if (mCaps.RasterCaps & D3DPRASTERCAPS_MIPMAPLODBIAS)
+		{
+			mCapabilities->setCapability(RSC_MIPMAP_LOD_BIAS);
+		}
 		
 
 		Log* defaultLog = LogManager::getSingleton().getDefaultLog();
@@ -1623,7 +1629,7 @@ namespace Ogre
 
 		hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3D9Mappings::get(mTexStageDesc[stage].autoTexCoordType, mCaps) | index );
 		if( FAILED( hr ) )
-			OGRE_EXCEPT( hr, "Unable to set texture coord. set index", "D3D8RenderSystem::_setTextureCoordSet" );
+			OGRE_EXCEPT( hr, "Unable to set texture coord. set index", "D3D9RenderSystem::_setTextureCoordSet" );
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTextureCoordCalculation( size_t stage, TexCoordCalcMethod m,
@@ -1636,9 +1642,23 @@ namespace Ogre
 
 		hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3D9Mappings::get(m, mCaps) | mTexStageDesc[stage].coordIndex );
 		if(FAILED(hr))
-			OGRE_EXCEPT( hr, "Unable to set texture auto tex.coord. generation mode", "D3D8RenderSystem::_setTextureCoordCalculation" );
+			OGRE_EXCEPT( hr, "Unable to set texture auto tex.coord. generation mode", "D3D9RenderSystem::_setTextureCoordCalculation" );
 	}
-    //---------------------------------------------------------------------
+	//---------------------------------------------------------------------
+	void D3D9RenderSystem::_setTextureMipmapBias(size_t unit, float bias)
+	{
+		if (mCapabilities->hasCapability(RSC_MIPMAP_LOD_BIAS))
+		{
+			// ugh - have to pass float data through DWORD with no conversion
+			HRESULT hr = __SetSamplerState(unit, D3DSAMP_MIPMAPLODBIAS, 
+				*(DWORD*)&bias);
+			if(FAILED(hr))
+				OGRE_EXCEPT( hr, "Unable to set texture mipmap bias", 
+				"D3D9RenderSystem::_setTextureMipmapBias" );
+
+		}
+	}
+	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTextureMatrix( size_t stage, const Matrix4& xForm )
 	{
 		HRESULT hr;

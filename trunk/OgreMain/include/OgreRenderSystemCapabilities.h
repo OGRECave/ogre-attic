@@ -85,7 +85,10 @@ namespace Ogre {
 		/// Supports extra point parameters (minsize, maxsize, attenuation)
 		RSC_POINT_EXTENDED_PARAMETERS = 0x04000000,
 		/// Supports vertex texture fetch
-		RSC_VERTEX_TEXTURE_FETCH = 0x08000000
+		RSC_VERTEX_TEXTURE_FETCH = 0x08000000, 
+		/// Supports mipmap LOD biasing
+		RSC_MIPMAP_LOD_BIAS = 0x10000000, 
+
     };
 
     /** singleton class for storing the capabilities of the graphics card. 
