@@ -1435,6 +1435,14 @@ namespace Ogre
 
         return false;
     }
+	//-----------------------------------------------------------------------
+	bool parseMipmapBias(String& params, MaterialScriptContext& context)
+	{
+		context.textureUnit->setTextureMipmapBias(
+			(float)StringConverter::parseReal(params));
+
+		return false;
+	}
     //-----------------------------------------------------------------------
     bool parseLodDistances(String& params, MaterialScriptContext& context)
     {
@@ -2528,6 +2536,7 @@ namespace Ogre
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("filtering", (ATTRIBUTE_PARSER)parseFiltering));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("max_anisotropy", (ATTRIBUTE_PARSER)parseAnisotropy));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("texture_alias", (ATTRIBUTE_PARSER)parseTextureAlias));
+		mTextureUnitAttribParsers.insert(AttribParserList::value_type("mipmap_bias", (ATTRIBUTE_PARSER)parseMipmapBias));
 
         // Set up program reference attribute parsers
         mProgramRefAttribParsers.insert(AttribParserList::value_type("param_indexed", (ATTRIBUTE_PARSER)parseParamIndexed));
@@ -3638,6 +3647,15 @@ namespace Ogre
                     + " "
                     + convertFiltering(pTex->getTextureFiltering(FT_MIP)));
             }
+
+			// Mip biasing
+			if (mDefaults ||
+				pTex->getTextureMipmapBias() != 0.0f)
+			{
+				writeAttribute(4, "mipmap_bias");
+				writeValue(
+					StringConverter::toString(pTex->getTextureMipmapBias()));
+			}
 
             // colour_op_ex
             if (mDefaults ||

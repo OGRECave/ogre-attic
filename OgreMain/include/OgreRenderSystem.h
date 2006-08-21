@@ -607,7 +607,17 @@ namespace Ogre
 		/** Sets the texture border colour for a texture unit.*/
         virtual void _setTextureBorderColour(size_t unit, const ColourValue& colour) = 0;
 
-        /** Sets the texture coordinate transformation matrix for a texture unit.
+		/** Sets the mipmap bias value for a given texture unit.
+		@remarks
+			This allows you to adjust the mipmap calculation up or down for a
+			given texture unit. Negative values force a larger mipmap to be used, 
+			positive values force a smaller mipmap to be used. Units are in numbers
+			of levels, so +1 forces the mipmaps to one smaller level.
+		@note Only does something if render system has capability RSC_MIPMAP_LOD_BIAS.
+		*/
+		virtual void _setTextureMipmapBias(size_t unit, float bias) = 0;
+
+		/** Sets the texture coordinate transformation matrix for a texture unit.
             @param unit Texture unit to affect
             @param xform The 4x4 matrix
         */

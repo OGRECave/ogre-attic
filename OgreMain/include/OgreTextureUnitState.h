@@ -946,6 +946,24 @@ namespace Ogre {
         // get this layer texture anisotropy level
         unsigned int getTextureAnisotropy() const;
 
+		/** Sets the bias value applied to the mipmap calculation.
+		@remarks
+			You can alter the mipmap calculation by biasing the result with a 
+			single floating point value. After the mip level has been calculated,
+			this bias value is added to the result to give the final mip level.
+			Lower mip levels are larger (higher detail), so a negative bias will
+			force the larger mip levels to be used, and a positive bias
+			will cause smaller mip levels to be used. The bias values are in 
+			mip levels, so a -1 bias will force mip levels one larger than by the
+			default calculation.
+		@param bias The bias value as described above, can be positive or negative.
+		*/
+		void setTextureMipmapBias(float bias) { mMipmapBias = bias; }
+		/** Gets the bias value applied to the mipmap calculation.
+		@see TextureUnitState::setTextureMipmapBias
+		*/
+		float getTextureMipmapBias(void) const { return mMipmapBias; }
+
         /// Gets the parent Pass object
         Pass* getParent(void) const { return mParent; }
 
@@ -1040,6 +1058,8 @@ protected:
         FilterOptions mMipFilter;
         ///Texture anisotropy
         unsigned int mMaxAniso;
+		/// Mipmap bias (always float, not Real)
+		float mMipmapBias;
 
         bool mIsDefaultAniso;
         bool mIsDefaultFiltering;

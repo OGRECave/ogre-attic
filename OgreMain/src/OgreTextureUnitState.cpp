@@ -56,6 +56,7 @@ namespace Ogre {
 		, mMagFilter(FO_LINEAR)
 		, mMipFilter(FO_POINT)
 		, mMaxAniso(MaterialManager::getSingleton().getDefaultAnisotropy())
+		, mMipmapBias(0)
 		, mIsDefaultAniso(true)
 		, mIsDefaultFiltering(true)
 		, mBindingType(BT_FRAGMENT)

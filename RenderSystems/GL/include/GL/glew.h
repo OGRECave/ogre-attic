@@ -3716,6 +3716,18 @@ typedef void (GLAPIENTRY * PFNGLPOINTPARAMETERFVEXTPROC) (GLenum pname, GLfloat 
 
 #endif /* GL_EXT_point_parameters */
 /* ------------------------------------------------------------------------- */
+/* ------------------------ GL_EXT_texture_lod_bias ---------------------------- */
+#ifndef GL_EXT_texture_lod_bias
+#define GL_EXT_texture_lod_bias 1
+
+#define GL_MAX_TEXTURE_LOD_BIAS_EXT       0x84FD
+#define GL_TEXTURE_FILTER_CONTROL_EXT     0x8500
+#define GL_TEXTURE_LOD_BIAS_EXT           0x8501
+
+#define GLEW_EXT_texture_lod_bias GLEW_GET_VAR(__GLEW_EXT_texture_lod_bias)
+
+#endif /* GL_EXT_texture_lod_bias */
+
 // End SJS Additions
 
 
@@ -4338,6 +4350,7 @@ GLEW_VAR_EXPORT GLboolean __GLEW_SGIS_generate_mipmap;
 GLEW_VAR_EXPORT GLboolean __GLEW_ARB_point_sprite;
 GLEW_VAR_EXPORT GLboolean __GLEW_ARB_point_parameters;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_point_parameters;
+GLEW_VAR_EXPORT GLboolean __GLEW_EXT_texture_lod_bias;
 // End additions
 #ifdef GLEW_MX
 }; /* GLEWContextStruct */
