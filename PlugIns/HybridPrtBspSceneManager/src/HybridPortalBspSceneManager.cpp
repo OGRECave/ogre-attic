@@ -40,6 +40,7 @@ HybridPortalBspSceneManager::HybridPortalBspSceneManager(const String &instanceN
 	mOccludersRootSceneNode = getRootSceneNode()->createChildSceneNode("OCCLUDERS_ROOT");
 	mPortalsRootSceneNode = getRootSceneNode()->createChildSceneNode("PORTALS_ROOT");
 	mMoversRootSceneNode = getRootSceneNode()->createChildSceneNode("MOVERS_ROOT");
+	mCellsRootSceneNode = getRootSceneNode()->createChildSceneNode("CELLS_ROOT");
 }
 
 //-----------------------------------------------------------------------------
@@ -163,7 +164,7 @@ void HybridPortalBspSceneManager::_findVisibleObjects(Camera *cam, bool onlyShad
 		
 	//SceneManager::_findVisibleObjects(cam, onlyShadowCasters);
 }
-
+/*
 //-----------------------------------------------------------------------------
 SceneNode* HybridPortalBspSceneManager::createPortalSceneNode(String &name)
 {
@@ -258,6 +259,7 @@ int HybridPortalBspSceneManager::addOccluderSceneNode(SceneNode *node)
 
 	return static_cast<int>(mPortals.size() - 1);
 }
+*/
 
 //-----------------------------------------------------------------------------
 int HybridPortalBspSceneManager::getCellCount()
@@ -403,6 +405,117 @@ SceneNode* HybridPortalBspSceneManager::getMoversRootSceneNode()
 	return mMoversRootSceneNode;
 }
 
+//-----------------------------------------------------------------------------
+void HybridPortalBspSceneManager::_setCellPortals(int cellId, const std::vector<int> &portalId)
+{
+	if (cellId < 0 || cellId >= static_cast<int>(mCells.size()))
+		throw "Cell index out of range";
+
+	mCells[cellId].portals = portalId;
+}
+
+//-----------------------------------------------------------------------------
+void HybridPortalBspSceneManager::_setPortalCells(int portalId, int cellId1, int cellId2)
+{
+	if (portalId < 0 || portalId >= static_cast<int>(mPortals.size()))
+		throw "portal index out of range";
+	mPortals[portalId].cells[0] = cellId1;
+	mPortals[portalId].cells[1] = cellId2;
+}
+
+//-----------------------------------------------------------------------------
+SceneNode* HybridPortalBspSceneManager::_createPortalSceneNode(int id, const String &name)
+{
+	if(id < 0 || id >= static_cast<int>(mPortals.size()))
+		throw "portal index out of range";
+
+	mPortals[id].node = mPortalsRootSceneNode->createChildSceneNode(name);
+
+	return mPortals[id].node;
+}
+
+//-----------------------------------------------------------------------------
+SceneNode* HybridPortalBspSceneManager::_createOccluderSceneNode(int id, const String &name)
+{
+	if(id < 0 || id >= static_cast<int>(mOccluders.size()))
+		throw "occluder index out of range";
+
+	mOccluders[id] = mOccludersRootSceneNode->createChildSceneNode(name);
+
+	return mOccluders[id];
+}
+
+//-----------------------------------------------------------------------------
+SceneNode* HybridPortalBspSceneManager::_createCellSceneNode(int id, const String &name)
+{
+	if(id < 0 || id >= static_cast<int>(mCells.size()))
+		throw "cell index out of range";
+
+	mCells[id].node = mCellsRootSceneNode->createChildSceneNode(name);
+
+	return mCells[id].node;
+}
+
+//-----------------------------------------------------------------------------
+void HybridPortalBspSceneManager::resetAllInternals()
+{	
+	// clear all the objects
+	clearScene();
+
+	// and recreate the root nodes
+	mOccludersRootSceneNode = getRootSceneNode()->createChildSceneNode("OCCLUDERS_ROOT");
+	mPortalsRootSceneNode = getRootSceneNode()->createChildSceneNode("PORTALS_ROOT");
+	mMoversRootSceneNode = getRootSceneNode()->createChildSceneNode("MOVERS_ROOT");
+	mCellsRootSceneNode = getRootSceneNode()->createChildSceneNode("CELLS_ROOT");
+
+	// delete all occlusion queries
+	for ( size_t i = 0; i < mPortals.size(); i++ )
+		delete mPortals[i].query;
+
+	// set the level presets to 0
+	_setLevelPresets(0, 0, 0);
+}
+
+//-----------------------------------------------------------------------------
+void HybridPortalBspSceneManager::_setLevelPresets(int numPortals, int numCells, int numOccluders)
+{
+	int i;
+
+	// resize everything to 0 (faster than clearing)
+	mPortals.resize(0);
+	mOccluders.resize(0);
+	mCells.resize(0);
+
+	// create the portals
+	for( i = 0; i < numPortals; i++ )
+	{
+		Portal portal;
+
+		portal.isVisible = true;
+		portal.cells[0] = portal.cells[1] = -1;
+		portal.node = NULL;
+		portal.query = Root::getSingleton().getRenderSystem()->createHardwareOcclusionQuery();
+		mPortals.push_back(portal);
+	}
+
+	// create the cells space
+	for( i = 0; i < numCells; i++ )
+	{
+		Cell cell;
+
+		cell.isVisible = true;
+		cell.node = NULL;
+		cell.sm = NULL;
+
+		mCells.push_back(cell);
+	}
+
+	// create the occluders space
+	for ( i = 0; i < numOccluders; i++ )
+	{
+		mOccluders.push_back(NULL);
+	}
+}
 
 //-----------------------------------------------------------------------------
 // HybridPortalBspSceneManagerFactory

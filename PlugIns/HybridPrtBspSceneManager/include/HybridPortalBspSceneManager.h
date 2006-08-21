@@ -60,7 +60,7 @@ namespace Ogre {
 		@returns a portal SceneNode pointer
 		@remarks the created portal SceneNode is attached to the root SceneNode
 		*/
-		virtual SceneNode* createPortalSceneNode(String &name);
+		//virtual SceneNode* createPortalSceneNode(String &name);
 
 		/**
 		create a cell SceneNode
@@ -68,7 +68,7 @@ namespace Ogre {
 		@returns a cell SceneNode pointer
 		@remarks the created cell SceneNode is attached to the root SceneNode
 		*/
-		virtual SceneNode* createCellSceneNode(String &name);
+		//virtual SceneNode* createCellSceneNode(String &name);
 
 		/**
 		create an occluder SceneNode
@@ -76,28 +76,28 @@ namespace Ogre {
 		@returns occluder SceneNode pointer
 		@remarks the created occluder SceneNode is attached to the root SceneNode
 		*/
-		virtual SceneNode* createOccluderSceneNode(String &name);
+		//virtual SceneNode* createOccluderSceneNode(String &name);
 
 		/**
 		add a portal SceneNode to the root node
 		@param node portal SceneNode
 		@returns node index
 		*/
-		virtual int addPortalSceneNode(SceneNode *node);
+		//virtual int addPortalSceneNode(SceneNode *node);
 
 		/**
 		add a cell SceneNode to the root node
 		@param node cell SceneNode
 		@returns node index
 		*/
-		virtual int addCellSceneNode(SceneNode *node);
+		//virtual int addCellSceneNode(SceneNode *node);
 
 		/**
 		add an occluder SceneNode to the root node
 		@param node occluder SceneNode
 		@returns node index
 		*/
-		virtual int addOccluderSceneNode(SceneNode *node);
+		//virtual int addOccluderSceneNode(SceneNode *node);
 
 		/**
 		get the portal count
@@ -239,6 +239,11 @@ namespace Ogre {
 		*/
 		virtual void getNeighboringPortals(int portalId, std::vector<int> &outNeighbors);
 
+		/**
+		reset all internals
+		*/
+		virtual void resetAllInternals();
+
 	protected:
 		/// the root of all occluders
 		SceneNode* mOccludersRootSceneNode;
@@ -248,6 +253,9 @@ namespace Ogre {
 
 		/// the root of all movers
 		SceneNode* mMoversRootSceneNode;
+
+		/// the root for all cells
+		SceneNode* mCellsRootSceneNode;
 
 		/// BspObject to determine where a point spacially lies (which cell)
 		BspObject mBspObject;
