@@ -78,7 +78,7 @@ FragmentOut main( VertexOut        In,                     // fragment to proces
     // our depth bias.  The depth bias depends on how uncertain we are about the z value
     // plus some constant push in the z direction.  The exact coefficients to use are
     // up to you, but at least it should be somewhat intuitive now what the tradeoffs are.
-    float depthval = postproj.z + (3.8 * dzlen)+ (uDepthOffset * ddepth);
+    float depthval = postproj.z + (3.2 * dzlen)+ (uDepthOffset * 5.0 * ddepth);
     depthval = (0.5 * depthval) + 0.5; // put into [0,1] range instead of [-1,1] 
 
     

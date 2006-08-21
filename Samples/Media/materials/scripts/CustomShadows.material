@@ -22,7 +22,7 @@ fragment_program CustomShadows/ShadowCasterFP/Cg cg
 
     default_params
     {
-        param_named      uDepthOffset float       1.0
+        param_named      uDepthOffset float       2.0
         param_named      uSTexWidth float         512.0
         param_named      uSTexHeight float        512.0
         param_named_auto uInvModelViewProjection  inverse_worldviewproj_matrix
@@ -179,6 +179,7 @@ vertex_program CustomShadows/ShadowReceiverVP/GLSL glsl
 fragment_program CustomShadows/ShadowReceiverFP/GLSL glsl
 {
     source customshadowreceiver.frag
+    //source CustomSoftShadowReceiver.frag
 
     default_params
     {
@@ -242,6 +243,9 @@ material CustomShadows/ShadowReceiver
     {
         pass lighting
         {
+
+            scene_blend add
+
             vertex_program_ref CustomShadows/ShadowReceiverVP/HLSL
             {
             }
@@ -285,6 +289,50 @@ material CustomShadows/ShadowReceiver
 
 // Simple Shader __________________________________________________
 
+vertex_program CustomShadows/SimpleShaderVP/GLSL glsl
+{
+    source SimpleShaderVP.vert
+
+    default_params
+    {
+        param_named_auto uModelViewProjection   worldviewproj_matrix
+        param_named_auto uLightPosition         light_position_object_space 0
+    }
+}
+
+fragment_program CustomShadows/SimpleShaderFP/GLSL glsl
+{
+    source SimpleShaderFP.frag
+
+    default_params
+    {
+    }
+}
+
+vertex_program CustomShadows/SimpleShaderVP/Cg cg
+{
+    source SimpleShaderVP.cg
+    entry_point main
+    profile vs_2_0 arbvp1
+
+    default_params
+    {
+        param_named_auto uModelViewProjection   worldviewproj_matrix
+        param_named_auto uLightPosition         light_position_object_space 0
+    }
+}
+
+fragment_program CustomShadows/SimpleShaderFP/Cg cg
+{
+    source SimpleShaderFP.cg
+    entry_point main
+    profile ps_2_0 arbfp1
+
+    default_params
+    {
+    }
+}
+
 vertex_program CustomShadows/SimpleShaderVP/HLSL hlsl
 {
     source SimpleShaderVP.hlsl
@@ -312,6 +360,26 @@ fragment_program CustomShadows/SimpleShaderFP/HLSL hlsl
 
 material Ogre/CustomShadows/SimpleSkin
 {
+    technique glsl
+    {
+        pass lighting
+        {
+            vertex_program_ref CustomShadows/SimpleShaderVP/GLSL
+            {
+            }
+
+            fragment_program_ref CustomShadows/SimpleShaderFP/GLSL
+            {
+                param_named TextureMap int 0
+            }
+
+            texture_unit 
+            {
+                texture GreenSkin.jpg
+            }
+        }
+    }
+
 	technique hlsl
 	{
 		pass lighting
@@ -330,21 +398,63 @@ material Ogre/CustomShadows/SimpleSkin
 			texture_unit
 			{
 				texture GreenSkin.jpg
-				tex_address_mode mirror
+				
 			}
 		}
 	}
+
+	technique cg
+	{
+		pass lighting
+		{
+
+			vertex_program_ref CustomShadows/SimpleShaderVP/Cg
+            		{
+            		}
+
+            		fragment_program_ref CustomShadows/SimpleShaderFP/Cg
+            		{
+            		}
+
+			cull_hardware none
+
+			texture_unit
+			{
+				texture GreenSkin.jpg
+				
+			}
+		}
+	}
+
 }
 
 material Ogre/CustomShadows/SimpleRock
 {
+    technique glsl
+    {
+        pass lighting
+        {
+            vertex_program_ref CustomShadows/SimpleShaderVP/GLSL
+            {
+            }
+
+            fragment_program_ref CustomShadows/SimpleShaderFP/GLSL
+            {
+                param_named TextureMap int 0
+            }
+
+            texture_unit 
+            {
+                texture rockwall.tga
+            }
+        }
+    }
+
 	technique hlsl
 	{
 		pass lighting
 		{
-   			ambient 0.2 0.2 0.2 
-			diffuse 1 1 1
-			specular 0 0 0
+              		//scene_blend add
 
 			vertex_program_ref CustomShadows/SimpleShaderVP/HLSL
             		{
@@ -354,7 +464,7 @@ material Ogre/CustomShadows/SimpleRock
             		{
             		}
 
-			cull_hardware none
+			//cull_hardware none
 
 			texture_unit
 			{
@@ -362,5 +472,29 @@ material Ogre/CustomShadows/SimpleRock
 			}
 		}
 	}
+
+	technique cg
+	{
+		pass lighting
+		{
+              		//scene_blend add
+
+			vertex_program_ref CustomShadows/SimpleShaderVP/Cg
+            		{
+            		}
+
+            		fragment_program_ref CustomShadows/SimpleShaderFP/Cg
+            		{
+            		}
+
+			//cull_hardware none
+
+			texture_unit
+			{
+				texture rockwall.tga
+			}
+		}
+	}
+
 }
 

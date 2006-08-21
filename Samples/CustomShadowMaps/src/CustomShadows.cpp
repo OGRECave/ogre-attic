@@ -27,10 +27,11 @@ using namespace Ogre;
 
 // G L O B A L S /////////////////////////////////////////////////////////
 
-// uncomment for directx version that uses a simple shader instead of
-// fixed pipeline.  the simple shader is not full-featured by far, but
-// will show some texture.
-//#define DX_HLSL_VERSION
+// DirectX's hlsl does not support position invariance when mixing
+// fixed function and shader computations, so we need to replace
+// the fixed function pipeline with some simple shaders.  OpenGL
+// can use either.  Comment out the #define to use the richer materials.
+#define REPLACE_FIXED_WITH_SHADERS
 
 static SceneManager*	sceneMgr		= 0;	// scene manager
 static Camera*			camera			= 0;	// view camera (eye)
@@ -305,7 +306,7 @@ int main(int argc, char **argv)
 	Entity *ogreHead = sceneMgr->createEntity("OgreHead", "ogrehead.mesh");
 	SceneNode *ogreNode = sceneMgr->getRootSceneNode()->createChildSceneNode("OgreNode");
 	ogreNode->attachObject(ogreHead);
-#ifdef DX_HLSL_VERSION
+#ifdef REPLACE_FIXED_WITH_SHADERS
 	ogreHead->setMaterialName("Ogre/CustomShadows/SimpleSkin");
 #endif
 
@@ -317,11 +318,12 @@ int main(int argc, char **argv)
 	Entity *ground = sceneMgr->createEntity( "Ground", "plane.mesh" );
 	SceneNode *groundNode = sceneMgr->getRootSceneNode()->createChildSceneNode("GroundNode");
 	groundNode->attachObject(ground);
-	ground->setMaterialName("Examples/Rockwall");
-#ifdef DX_HLSL_VERSION
+	ground->setCastShadows(false);
+#ifdef REPLACE_FIXED_WITH_SHADERS
 	ground->setMaterialName("Ogre/CustomShadows/SimpleRock");
+#else
+	ground->setMaterialName("Examples/Rockwall");
 #endif
-    ground->setCastShadows(false);
 
 	// create secondary plane
 	Plane plane2( Vector3::UNIT_Y, -20.0 );
@@ -332,7 +334,7 @@ int main(int argc, char **argv)
 	SceneNode *planeCasterNode = sceneMgr->getRootSceneNode()->createChildSceneNode("PlanecasterNode");
 	planeCasterNode->attachObject(planeCaster);
 	planeCaster->setCastShadows(true);
-#ifdef DX_HLSL_VERSION
+#ifdef REPLACE_FIXED_WITH_SHADERS
 	planeCaster->setMaterialName("Ogre/CustomShadows/SimpleRock");
 #else
 	planeCaster->setMaterialName("Examples/Rockwall");

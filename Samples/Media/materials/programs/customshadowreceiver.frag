@@ -60,10 +60,10 @@ void main(void)
     vec2 t00, t01, t10, t11;
     float invWidth  = 1.0 / uSTexWidth;
     float invHeight = 1.0 / uSTexHeight;
-    t00 = float2((x0+0.5) * invWidth, (y0+0.5) * invHeight);
-    t10 = float2((x1+0.5) * invWidth, (y0+0.5) * invHeight);
-    t01 = float2((x0+0.5) * invWidth, (y1+0.5) * invHeight);
-    t11 = float2((x1+0.5) * invWidth, (y1+0.5) * invHeight);
+    t00 = vec2((x0+0.5) * invWidth, (y0+0.5) * invHeight);
+    t10 = vec2((x1+0.5) * invWidth, (y0+0.5) * invHeight);
+    t01 = vec2((x0+0.5) * invWidth, (y1+0.5) * invHeight);
+    t11 = vec2((x1+0.5) * invWidth, (y1+0.5) * invHeight);
     
     // grab the samples
     float z00 = texture2D(uShadowMap, t00).x;
