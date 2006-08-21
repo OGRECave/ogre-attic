@@ -59,9 +59,9 @@ GLuint GLGpuProgram::getAttributeIndex(VertexElementSemantic semantic)
 			assert(false && "Shouldn't be calling this for standard attributes!");
 			break;
 		case VES_BLEND_INDICES:
-			return 1; // default binding
-		case VES_BLEND_WEIGHTS:
 			return 7; // default binding
+		case VES_BLEND_WEIGHTS:
+			return 1; // default binding
 		case VES_TANGENT:
 			return 14; // default binding
 		case VES_BINORMAL:
