@@ -134,6 +134,26 @@ LRESULT CALLBACK WindowEventUtilities::_WndProc(HWND hWnd, UINT uMsg, WPARAM wPa
 			(start->second)->windowFocusChange(win);
 		break;
 	}
+	case WM_SYSKEYDOWN:
+		switch( wParam )
+		{
+		case VK_CONTROL:
+		case VK_SHIFT:
+		case VK_MENU: //ALT
+			//return zero to bypass defProc and signal we processed the message
+			return 0;
+		}
+		break;
+	case WM_SYSKEYUP:
+		switch( wParam )
+		{
+		case VK_CONTROL:
+		case VK_SHIFT:
+		case VK_MENU: //ALT
+			//return zero to bypass defProc and signal we processed the message
+			return 0;
+		}
+		break;
 	case WM_ENTERSIZEMOVE:
 		//log->logMessage("WM_ENTERSIZEMOVE");
 		break;
