@@ -222,6 +222,9 @@ namespace Ogre {
         // Null boxes always invisible
         if (bound.isNull()) return false;
 
+        // Infinite boxes always visible
+        if (bound.isInfinite()) return true;
+
         // Make any pending updates to the calculated frustum planes
         updateFrustumPlanes();
 

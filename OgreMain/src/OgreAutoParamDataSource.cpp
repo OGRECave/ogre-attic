@@ -145,7 +145,7 @@ namespace Ogre {
     {
         if (mViewMatrixDirty)
         {
-            if (mCurrentRenderable && mCurrentRenderable->useIdentityView())
+            if (mCurrentRenderable && mCurrentRenderable->getUseIdentityView())
                 mViewMatrix = Matrix4::IDENTITY;
             else
                 mViewMatrix = mCurrentCamera->getViewMatrix(true);
@@ -170,7 +170,7 @@ namespace Ogre {
         {
             // NB use API-independent projection matrix since GPU programs
             // bypass the API-specific handedness and use right-handed coords
-            if (mCurrentRenderable && mCurrentRenderable->useIdentityProjection())
+            if (mCurrentRenderable && mCurrentRenderable->getUseIdentityProjection())
             {
                 // Use identity projection matrix, still need to take RS depth into account.
                 RenderSystem* rs = Root::getSingleton().getRenderSystem();

@@ -311,15 +311,17 @@ namespace Ogre {
         BorderPanelOverlayElement* mParent;
     public:
         /** Constructed with pointers to parent. */
-        BorderRenderable(BorderPanelOverlayElement* parent) : mParent(parent) {}
+        BorderRenderable(BorderPanelOverlayElement* parent) : mParent(parent)
+        {
+            mUseIdentityProjection = true;
+            mUseIdentityView = true;
+        }
         const MaterialPtr& getMaterial(void) const { return mParent->mpBorderMaterial; }
         void getRenderOperation(RenderOperation& op) { op = mParent->mRenderOp2; }
         void getWorldTransforms(Matrix4* xform) const { mParent->getWorldTransforms(xform); }
         const Quaternion& getWorldOrientation(void) const { return Quaternion::IDENTITY; }
         const Vector3& getWorldPosition(void) const { return Vector3::ZERO; }
         unsigned short getNumWorldTransforms(void) const { return 1; }
-        bool useIdentityProjection(void) const { return true; }
-        bool useIdentityView(void) const { return true; }
         Real getSquaredViewDepth(const Camera* cam) const { return mParent->getSquaredViewDepth(cam); }
         const LightList& getLights(void) const
         {

@@ -35,6 +35,10 @@ namespace Ogre {
 
     Rectangle2D::Rectangle2D(bool includeTextureCoords) 
     {
+        // use identity projection and view matrices
+        mUseIdentityProjection = true;
+        mUseIdentityView = true;
+
         mRenderOp.vertexData = new VertexData();
 
         mRenderOp.indexData = 0;

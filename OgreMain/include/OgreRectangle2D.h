@@ -65,10 +65,6 @@ namespace Ogre {
         Real getSquaredViewDepth(const Camera* cam) const { return 0; }
 
         Real getBoundingRadius(void) const { return 0; }
-        /// Identity view and projection
-        bool useIdentityProjection(void) const { return true; }
-        /// Identity view and projection
-        bool useIdentityView(void) const { return true; }
 
     };
 

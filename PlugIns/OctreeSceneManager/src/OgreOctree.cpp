@@ -43,6 +43,9 @@ namespace Ogre
 */
 bool Octree::_isTwiceSize( const AxisAlignedBox &box ) const
 {
+    if (box.isInfinite())
+        return false;
+
     const Vector3 * pts1 = mBox.getAllCorners();
     const Vector3 * pts2 = box.getAllCorners();
 

@@ -287,12 +287,6 @@ namespace Ogre {
         /** @copydoc Renderable::getWorldPosition */
         const Vector3& getWorldPosition(void) const;
 
-        /** See Renderable */
-        bool useIdentityProjection(void) const;
-
-        /** See Renderable */
-        bool useIdentityView(void) const;
-
         /** Tell the object to recalculate */
         virtual void _positionsOutOfDate(void);
 
