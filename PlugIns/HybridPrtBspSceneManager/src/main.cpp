@@ -115,6 +115,8 @@ protected:
 
 	void createScene(void)
 	{
+		mHPBsp = HpBspDotSceneLoader::getSingleton();
+
 		mHPBsp->_load(reinterpret_cast<HybridPortalBspSceneManager*>(mSceneMgr), "ex_3_2.scene", "General");
 		
 		LogManager::getSingleton().logMessage(String("[createScene] ") + StringConverter::toString(reinterpret_cast<HybridPortalBspSceneManager*>(mSceneMgr)->getPortalCount()));
@@ -140,7 +142,7 @@ protected:
 	}
 
 	HybridPortalBspFrameListener *mHPBspFrameListener;
-	HybridPortalBspSceneLoader	*mHPBsp;
+	HpBspDotSceneLoader	*mHPBsp;
 };
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32

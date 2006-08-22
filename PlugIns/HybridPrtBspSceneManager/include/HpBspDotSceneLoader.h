@@ -65,9 +65,13 @@ namespace Ogre
 		get the singleton class
 		@returns singleton class
 		*/
-		virtual HpBspDotSceneLoader* getSingleton();
+		static HpBspDotSceneLoader* getSingleton();
 
 	protected:
+
+		/// singleton holder
+		static HpBspDotSceneLoader* singleton;
+
 		/// constructor
 		HpBspDotSceneLoader();
 
@@ -112,6 +116,12 @@ namespace Ogre
 		decompose the resulting polygons into different cells
 		*/
 		virtual void buildScene();
+
+		/// number of portals
+		int mNumPortals;
+
+		/// number of occluders
+		int mNumOccluders;
 
 		/// scene manager
 		HybridPortalBspSceneManager* mSM;

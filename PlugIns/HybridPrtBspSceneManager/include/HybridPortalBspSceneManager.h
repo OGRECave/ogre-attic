@@ -55,51 +55,6 @@ namespace Ogre {
 		virtual const String& getTypeName(void) const;
 
 		/**
-		create a portal SceneNode
-		@param name portal name
-		@returns a portal SceneNode pointer
-		@remarks the created portal SceneNode is attached to the root SceneNode
-		*/
-		//virtual SceneNode* createPortalSceneNode(String &name);
-
-		/**
-		create a cell SceneNode
-		@param name cell name
-		@returns a cell SceneNode pointer
-		@remarks the created cell SceneNode is attached to the root SceneNode
-		*/
-		//virtual SceneNode* createCellSceneNode(String &name);
-
-		/**
-		create an occluder SceneNode
-		@param name occluder name
-		@returns occluder SceneNode pointer
-		@remarks the created occluder SceneNode is attached to the root SceneNode
-		*/
-		//virtual SceneNode* createOccluderSceneNode(String &name);
-
-		/**
-		add a portal SceneNode to the root node
-		@param node portal SceneNode
-		@returns node index
-		*/
-		//virtual int addPortalSceneNode(SceneNode *node);
-
-		/**
-		add a cell SceneNode to the root node
-		@param node cell SceneNode
-		@returns node index
-		*/
-		//virtual int addCellSceneNode(SceneNode *node);
-
-		/**
-		add an occluder SceneNode to the root node
-		@param node occluder SceneNode
-		@returns node index
-		*/
-		//virtual int addOccluderSceneNode(SceneNode *node);
-
-		/**
 		get the portal count
 		@returns portal count
 		*/
@@ -332,7 +287,7 @@ namespace Ogre {
 		HybridPortalBspSceneLoader() {}
 
 		/// destructor
-		virtual ~HybridPortalBspSceneLoader() = 0;
+		virtual ~HybridPortalBspSceneLoader() {};
 
 		/**
 		load a dotScene file

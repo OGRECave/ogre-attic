@@ -28,10 +28,12 @@
 using namespace std;
 using namespace Ogre;
 
+//-----------------------------------------------------------------------------
 Decomposer::Decomposer()
 {
 }
 
+//-----------------------------------------------------------------------------
 int Decomposer::decompose(vector<BspPolygon> &inPolys)
 {
 	size_t		i;
@@ -65,6 +67,7 @@ int Decomposer::decompose(vector<BspPolygon> &inPolys)
 	return cellId;
 }
 
+//-----------------------------------------------------------------------------
 void Decomposer::addVertex(const Vector3 &vertex, int polyId)
 {
 	Vertex	vert;
@@ -84,6 +87,7 @@ void Decomposer::addVertex(const Vector3 &vertex, int polyId)
 	return;
 }
 
+//-----------------------------------------------------------------------------
 void Decomposer::walkVertex(const Vector3 &vertex, int cellId)
 {
 	mVerts[vertex].cellId	= cellId;

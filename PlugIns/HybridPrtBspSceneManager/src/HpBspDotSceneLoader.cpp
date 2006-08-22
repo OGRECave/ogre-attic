@@ -35,6 +35,54 @@ String mtlCells[4] = {
 	String("PinkCell")
 };
 
+HpBspDotSceneLoader* HpBspDotSceneLoader::singleton = NULL;
+
+//-----------------------------------------------------------------------------
+HpBspDotSceneLoader* HpBspDotSceneLoader::getSingleton()
+{
+	if(singleton == NULL)
+		singleton = new HpBspDotSceneLoader();
+	return singleton;
+}
+
+//-----------------------------------------------------------------------------
+HpBspDotSceneLoader::HpBspDotSceneLoader()
+{
+	mNumPortals = 0;
+	mNumOccluders = 0;
+
+	mSM = NULL;
+	mCSG = NULL;
+	mParentNode = NULL;
+}
+
+//-----------------------------------------------------------------------------
+HpBspDotSceneLoader::~HpBspDotSceneLoader()
+{
+	singleton = NULL;
+}
+
+//-----------------------------------------------------------------------------
+void HpBspDotSceneLoader::resetInternals()
+{
+	mNumPortals = 0;
+	mNumOccluders = 0;
+
+	mSM = NULL;
+
+	mBspCSG = BspObject();
+	mBspOccluders = BspObject();
+	mBspPortals = BspObject();		
+
+	mCSG = NULL;
+	mParentNode = NULL;
+
+	mOrigOccluders.resize(0);
+	mOrigPortals.resize(0);
+	mCells.resize(0);
+	mPortals.resize(0);
+}
+
 //-----------------------------------------------------------------------------
 void getMeshInformation( MeshPtr& mesh,
 						std::vector<Ogre::Vector3> &vertices,
@@ -322,17 +370,19 @@ void HpBspDotSceneLoader::_load(HybridPortalBspSceneManager *sm,
 	buildScene();
 
 	// add portals, cells and occluders
+/*
 	{
 		size_t i;
 		for(i = 0; i < mPortals.size(); i++)
 			mSM->addPortalSceneNode(mOrigPortals[i]);
+
 		for(i = 0; i < mCells.size(); i++)
 			mSM->addCellSceneNode(mCells[i].cell);
 
 		for(i = 0; i < mOrigOccluders.size(); i++)
 			mSM->addOccluderSceneNode(mOrigOccluders[i]);
 	}
-
+*/
 	// Close the XML File
 	delete XMLDoc;
 }
@@ -347,9 +397,26 @@ void HpBspDotSceneLoader::processNode(TiXmlElement *XMLNode, SceneNode *pAttach)
 
 		// Process the current node
 		// Grab the name of the node
-		String NodeName = XMLNode->Attribute("name");
 		// First create the new scene node
-		SceneNode* NewNode = pAttach->createChildSceneNode( NodeName );
+		String NodeName = XMLNode->Attribute("name");
+		SceneNode* NewNode = NULL;
+
+		if ( Ogre::StringUtil::startsWith(NodeName, PORTAL_NAME_PREFIX) )
+		{
+			NewNode = mSM->_createPortalSceneNode(mNumPortals, NodeName);
+			mNumPortals++;
+			LogManager::getSingleton().logMessage("[dotSceneLoader] portal " + NodeName + " is created at slot" + Ogre::StringConverter::toString(mNumPortals));
+		} else if ( Ogre::StringUtil::startsWith(NodeName, OCCLUDER_NAME_PREFIX) )
+		{
+			NewNode = mSM->_createOccluderSceneNode(mNumOccluders, NodeName);
+			mNumOccluders++;
+			LogManager::getSingleton().logMessage("[dotSceneLoader] occluder " + NodeName + " is created at slot" + Ogre::StringConverter::toString(mNumOccluders));
+		} else
+		{
+			NewNode = pAttach->createChildSceneNode(NodeName);
+		}
+
+		// SceneNode* NewNode = pAttach->createChildSceneNode( NodeName );
 		Vector3 TempVec;
 		String TempValue;
 
