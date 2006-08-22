@@ -91,15 +91,7 @@ namespace Ogre {
 		@param sceneLoader the scene loader to use
 		@param sceneName the scene name
 		*/
-		virtual void loadLevel(HybridPortalBspSceneLoader *loader, const String &sceneName);
-
-		/**
-		sets the level presets
-		@param numPortals number of portals
-		@param numCells number of cells
-		@param numOccluders number of occluders
-		*/
-		virtual void _setLevelPresets(int numPortals, int numCells, int numOccluders);
+		virtual void loadLevel(HybridPortalBspSceneLoader *loader, const String &sceneName, const String &groupName);
 
 		/**
 		create the portal scene node
@@ -115,7 +107,7 @@ namespace Ogre {
 		@param name occluder name
 		@returns the occluder scene node
 		*/
-		virtual SceneNode* _createOccluderSceneNode(int id, const String &name);
+		virtual SceneNode* _createOccluderSceneNode(const String &name);
 
 		/**
 		create the cell scene node
@@ -124,6 +116,12 @@ namespace Ogre {
 		@returns the cell scene node
 		*/
 		virtual SceneNode* _createCellSceneNode(int id, const String &name);
+
+		/**
+		set the bsp object
+		@param obj BspObject
+		*/
+		virtual void _setBspObject(const BspObject &obj);
 
 		/**
 		set the portals cells
@@ -256,10 +254,10 @@ namespace Ogre {
 		};
 
 		/// portals
-		std::vector<Portal> mPortals;
+		std::map<int, Portal> mPortals;
 
 		/// cells
-		std::vector<Cell> mCells;
+		std::map<int, Cell> mCells;
 
 		/// occluders
 		std::vector<SceneNode*> mOccluders;

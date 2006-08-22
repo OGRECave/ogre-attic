@@ -35,21 +35,20 @@ String mtlCells[4] = {
 	String("PinkCell")
 };
 
-HpBspDotSceneLoader* HpBspDotSceneLoader::singleton = NULL;
+HpBspDotSceneLoader HpBspDotSceneLoader::singleton;
 
 //-----------------------------------------------------------------------------
 HpBspDotSceneLoader* HpBspDotSceneLoader::getSingleton()
 {
-	if(singleton == NULL)
-		singleton = new HpBspDotSceneLoader();
-	return singleton;
+//	if(singleton == NULL)
+//		singleton = new HpBspDotSceneLoader();
+	return &singleton;
 }
 
 //-----------------------------------------------------------------------------
 HpBspDotSceneLoader::HpBspDotSceneLoader()
 {
 	mNumPortals = 0;
-	mNumOccluders = 0;
 
 	mSM = NULL;
 	mCSG = NULL;
@@ -59,14 +58,13 @@ HpBspDotSceneLoader::HpBspDotSceneLoader()
 //-----------------------------------------------------------------------------
 HpBspDotSceneLoader::~HpBspDotSceneLoader()
 {
-	singleton = NULL;
+//	singleton = NULL;
 }
 
 //-----------------------------------------------------------------------------
 void HpBspDotSceneLoader::resetInternals()
 {
 	mNumPortals = 0;
-	mNumOccluders = 0;
 
 	mSM = NULL;
 
@@ -369,6 +367,9 @@ void HpBspDotSceneLoader::_load(HybridPortalBspSceneManager *sm,
 	// build the scene
 	buildScene();
 
+	// set the bsp object for scene
+	sm->_setBspObject(mBspCSG);
+
 	// add portals, cells and occluders
 /*
 	{
@@ -394,23 +395,21 @@ void HpBspDotSceneLoader::processNode(TiXmlElement *XMLNode, SceneNode *pAttach)
 
 	while( XMLNode )
 	{
-
 		// Process the current node
 		// Grab the name of the node
 		// First create the new scene node
 		String NodeName = XMLNode->Attribute("name");
 		SceneNode* NewNode = NULL;
 
-		if ( Ogre::StringUtil::startsWith(NodeName, PORTAL_NAME_PREFIX) )
+		if ( Ogre::StringUtil::startsWith(NodeName, PORTAL_NAME_PREFIX, false) )
 		{
 			NewNode = mSM->_createPortalSceneNode(mNumPortals, NodeName);
 			mNumPortals++;
-			LogManager::getSingleton().logMessage("[dotSceneLoader] portal " + NodeName + " is created at slot" + Ogre::StringConverter::toString(mNumPortals));
-		} else if ( Ogre::StringUtil::startsWith(NodeName, OCCLUDER_NAME_PREFIX) )
+			LogManager::getSingleton().logMessage("[[[dotSceneLoader]]] portal " + NodeName + " is created at slot" + Ogre::StringConverter::toString(mNumPortals));
+		} else if ( Ogre::StringUtil::startsWith(NodeName, OCCLUDER_NAME_PREFIX, false) )
 		{
-			NewNode = mSM->_createOccluderSceneNode(mNumOccluders, NodeName);
-			mNumOccluders++;
-			LogManager::getSingleton().logMessage("[dotSceneLoader] occluder " + NodeName + " is created at slot" + Ogre::StringConverter::toString(mNumOccluders));
+			NewNode = mSM->_createOccluderSceneNode(NodeName);
+			LogManager::getSingleton().logMessage("[[[dotSceneLoader]]] occluder " + NodeName);
 		} else
 		{
 			NewNode = pAttach->createChildSceneNode(NodeName);

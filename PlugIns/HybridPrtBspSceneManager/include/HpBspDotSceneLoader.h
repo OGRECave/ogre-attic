@@ -70,7 +70,7 @@ namespace Ogre
 	protected:
 
 		/// singleton holder
-		static HpBspDotSceneLoader* singleton;
+		static HpBspDotSceneLoader singleton;
 
 		/// constructor
 		HpBspDotSceneLoader();
@@ -119,9 +119,6 @@ namespace Ogre
 
 		/// number of portals
 		int mNumPortals;
-
-		/// number of occluders
-		int mNumOccluders;
 
 		/// scene manager
 		HybridPortalBspSceneManager* mSM;

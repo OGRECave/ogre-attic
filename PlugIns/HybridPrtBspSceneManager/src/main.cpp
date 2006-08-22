@@ -115,9 +115,8 @@ protected:
 
 	void createScene(void)
 	{
-		mHPBsp = HpBspDotSceneLoader::getSingleton();
-
-		mHPBsp->_load(reinterpret_cast<HybridPortalBspSceneManager*>(mSceneMgr), "ex_3_2.scene", "General");
+		reinterpret_cast<HybridPortalBspSceneManager*>(mSceneMgr)->loadLevel(HpBspDotSceneLoader::getSingleton(),
+			"ex_3_2.scene", "General");
 		
 		LogManager::getSingleton().logMessage(String("[createScene] ") + StringConverter::toString(reinterpret_cast<HybridPortalBspSceneManager*>(mSceneMgr)->getPortalCount()));
 		
@@ -139,6 +138,7 @@ protected:
 	void destroyScene()
 	{
 		Root::getSingleton().removeSceneManagerFactory(factory);
+		delete factory;
 	}
 
 	HybridPortalBspFrameListener *mHPBspFrameListener;

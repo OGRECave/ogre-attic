@@ -406,6 +406,12 @@ SceneNode* HybridPortalBspSceneManager::getMoversRootSceneNode()
 }
 
 //-----------------------------------------------------------------------------
+void HybridPortalBspSceneManager::_setBspObject(const BspObject &obj)
+{
+	mBspObject = obj;
+}
+
+//-----------------------------------------------------------------------------
 void HybridPortalBspSceneManager::_setCellPortals(int cellId, const std::vector<int> &portalId)
 {
 	if (cellId < 0 || cellId >= static_cast<int>(mCells.size()))
@@ -426,34 +432,46 @@ void HybridPortalBspSceneManager::_setPortalCells(int portalId, int cellId1, int
 //-----------------------------------------------------------------------------
 SceneNode* HybridPortalBspSceneManager::_createPortalSceneNode(int id, const String &name)
 {
-	if(id < 0 || id >= static_cast<int>(mPortals.size()))
-		throw "portal index out of range";
+	if(mPortals.find(id) != mPortals.end())
+		throw "portal index already exists";
 
-	mPortals[id].node = mPortalsRootSceneNode->createChildSceneNode(name);
+	Portal portal;
 
-	return mPortals[id].node;
+	portal.isVisible = true;
+	portal.cells[0] = portal.cells[1] = -1;
+	portal.node = mPortalsRootSceneNode->createChildSceneNode(name);
+	portal.query = Root::getSingleton().getRenderSystem()->createHardwareOcclusionQuery();
+
+	mPortals[id] = portal;
+
+	return portal.node;
 }
 
 //-----------------------------------------------------------------------------
-SceneNode* HybridPortalBspSceneManager::_createOccluderSceneNode(int id, const String &name)
+SceneNode* HybridPortalBspSceneManager::_createOccluderSceneNode(const String &name)
 {
-	if(id < 0 || id >= static_cast<int>(mOccluders.size()))
-		throw "occluder index out of range";
+	SceneNode* n = mOccludersRootSceneNode->createChildSceneNode(name);
 
-	mOccluders[id] = mOccludersRootSceneNode->createChildSceneNode(name);
+	mOccluders.push_back(n);
 
-	return mOccluders[id];
+	return n;
 }
 
 //-----------------------------------------------------------------------------
 SceneNode* HybridPortalBspSceneManager::_createCellSceneNode(int id, const String &name)
 {
-	if(id < 0 || id >= static_cast<int>(mCells.size()))
-		throw "cell index out of range";
+	if(mCells.find(id) != mCells.end())
+		throw "cell index is already in use";
 
-	mCells[id].node = mCellsRootSceneNode->createChildSceneNode(name);
+	Cell cell;
 
-	return mCells[id].node;
+	cell.isVisible = true;
+	cell.sm = NULL;
+	cell.node = mCellsRootSceneNode->createChildSceneNode(name);
+
+	mCells[id] = cell;
+
+	return cell.node;
 }
 
 //-----------------------------------------------------------------------------
@@ -469,52 +487,20 @@ void HybridPortalBspSceneManager::resetAllInternals()
 	mCellsRootSceneNode = getRootSceneNode()->createChildSceneNode("CELLS_ROOT");
 
 	// delete all occlusion queries
-	for ( size_t i = 0; i < mPortals.size(); i++ )
-		delete mPortals[i].query;
+	for ( std::map<int, Portal>::iterator i = mPortals.begin(); i != mPortals.end(); i++ )
+		delete i->second.query;
 
-	// set the level presets to 0
-	_setLevelPresets(0, 0, 0);
+	// clear
+	mPortals.clear();
+	mCells.clear();
+	mOccluders.resize(0);
 }
 
 //-----------------------------------------------------------------------------
-void HybridPortalBspSceneManager::_setLevelPresets(int numPortals, int numCells, int numOccluders)
+void HybridPortalBspSceneManager::loadLevel(HybridPortalBspSceneLoader *loader, const String &sceneName, const String &groupName)
 {
-	int i;
-
-	// resize everything to 0 (faster than clearing)
-	mPortals.resize(0);
-	mOccluders.resize(0);
-	mCells.resize(0);
-
-	// create the portals
-	for( i = 0; i < numPortals; i++ )
-	{
-		Portal portal;
-
-		portal.isVisible = true;
-		portal.cells[0] = portal.cells[1] = -1;
-		portal.node = NULL;
-		portal.query = Root::getSingleton().getRenderSystem()->createHardwareOcclusionQuery();
-		mPortals.push_back(portal);
-	}
-
-	// create the cells space
-	for( i = 0; i < numCells; i++ )
-	{
-		Cell cell;
-
-		cell.isVisible = true;
-		cell.node = NULL;
-		cell.sm = NULL;
-
-		mCells.push_back(cell);
-	}
-
-	// create the occluders space
-	for ( i = 0; i < numOccluders; i++ )
-	{
-		mOccluders.push_back(NULL);
-	}
+	this->resetAllInternals();
+	loader->_load(this, sceneName, groupName);
 }
 
 //-----------------------------------------------------------------------------
