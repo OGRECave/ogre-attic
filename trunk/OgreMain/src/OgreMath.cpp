@@ -486,6 +486,7 @@ namespace Ogre
     std::pair<bool, Real> Math::intersects(const Ray& ray, const AxisAlignedBox& box)
     {
         if (box.isNull()) return std::pair<bool, Real>(false, 0);
+        if (box.isInfinite()) return std::pair<bool, Real>(true, 0);
 
         Real lowt = 0.0f;
         Real t;
@@ -615,6 +616,13 @@ namespace Ogre
     {
         if (box.isNull())
             return false;
+
+        if (box.isInfinite())
+        {
+            if (d1) *d1 = 0;
+            if (d2) *d2 = Math::POS_INFINITY;
+            return true;
+        }
 
         const Vector3& min = box.getMinimum();
         const Vector3& max = box.getMaximum();
@@ -795,6 +803,7 @@ namespace Ogre
     bool Math::intersects(const Sphere& sphere, const AxisAlignedBox& box)
     {
         if (box.isNull()) return false;
+        if (box.isInfinite()) return true;
 
         // Use splitting planes
         const Vector3& center = sphere.getCenter();
@@ -844,6 +853,7 @@ namespace Ogre
     bool Math::intersects(const Plane& plane, const AxisAlignedBox& box)
     {
         if (box.isNull()) return false;
+        if (box.isInfinite()) return true;
 
         // Get corners of the box
         const Vector3* pCorners = box.getAllCorners();

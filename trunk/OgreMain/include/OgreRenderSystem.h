@@ -1021,7 +1021,7 @@ namespace Ogre
             When using identity transforms you can manually set the depth
             of a vertex; however the input values required differ per
             rendersystem. This method lets you retrieve the correct value.
-        @see Renderable::useIdentityView, Renderable::useIdentityProjection
+        @see Renderable::getUseIdentityView, Renderable::getUseIdentityProjection
         */
         virtual Real getMinimumDepthInputValue(void) = 0;
         /** Gets the maximum (farthest) depth value to be used when rendering
@@ -1030,7 +1030,7 @@ namespace Ogre
             When using identity transforms you can manually set the depth
             of a vertex; however the input values required differ per
             rendersystem. This method lets you retrieve the correct value.
-        @see Renderable::useIdentityView, Renderable::useIdentityProjection
+        @see Renderable::getUseIdentityView, Renderable::getUseIdentityProjection
         */
         virtual Real getMaximumDepthInputValue(void) = 0;
         /** set the current multi pass count value.  This must be set prior to 

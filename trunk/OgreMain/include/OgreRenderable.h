@@ -52,7 +52,7 @@ namespace Ogre {
     class _OgreExport Renderable
     {
     public:
-		Renderable() : mPolygonModeOverrideable(true) {}
+		Renderable() : mPolygonModeOverrideable(true), mUseIdentityProjection(false), mUseIdentityView(false) {}
         /** Virtual destructor needed as class has virtual methods. */
         virtual ~Renderable() { }
         /** Retrieves a weak reference to the material this renderable object uses.
@@ -106,25 +106,55 @@ namespace Ogre {
         */
         virtual unsigned short getNumWorldTransforms(void) const { return 1; }
 
+        /** Sets whether or not to use an 'identity' projection.
+        @remarks
+            Usually Renderable objects will use a projection matrix as determined
+            by the active camera. However, if they want they can cancel this out
+            and use an identity projection, which effectively projects in 2D using
+            a {-1, 1} view space. Useful for overlay rendering. Normal renderables
+            need not change this. The default is false.
+        @see Renderable::getUseIdentityProjection
+        */
+        void setUseIdentityProjection(bool useIdentityProjection)
+        {
+            mUseIdentityProjection = useIdentityProjection;
+        }
+
         /** Returns whether or not to use an 'identity' projection.
         @remarks
             Usually Renderable objects will use a projection matrix as determined
             by the active camera. However, if they want they can cancel this out
             and use an identity projection, which effectively projects in 2D using
-            a {-1, 1} view space. Useful for overlay rendering. Normal renderables need
-            not override this.
+            a {-1, 1} view space. Useful for overlay rendering. Normal renderables
+            need not change this.
+        @see Renderable::setUseIdentityProjection
         */
-        virtual bool useIdentityProjection(void) const { return false; }
+        bool getUseIdentityProjection(void) const { return mUseIdentityProjection; }
 
-        /** Returns whether or not to use an 'identity' projection.
+        /** Sets whether or not to use an 'identity' view.
         @remarks
             Usually Renderable objects will use a view matrix as determined
             by the active camera. However, if they want they can cancel this out
             and use an identity matrix, which means all geometry is assumed
             to be relative to camera space already. Useful for overlay rendering. 
-            Normal renderables need not override this.
+            Normal renderables need not change this. The default is false.
+        @see Renderable::getUseIdentityView
         */
-        virtual bool useIdentityView(void) const { return false; }
+        void setUseIdentityView(bool useIdentityView)
+        {
+            mUseIdentityView = useIdentityView;
+        }
+
+        /** Returns whether or not to use an 'identity' view.
+        @remarks
+            Usually Renderable objects will use a view matrix as determined
+            by the active camera. However, if they want they can cancel this out
+            and use an identity matrix, which means all geometry is assumed
+            to be relative to camera space already. Useful for overlay rendering. 
+            Normal renderables need not change this.
+        @see Renderable::setUseIdentityView
+        */
+        bool getUseIdentityView(void) const { return mUseIdentityView; }
 
 		/** Returns the camera-relative squared depth of this renderable.
 		@remarks
@@ -250,6 +280,8 @@ namespace Ogre {
         typedef std::map<size_t, Vector4> CustomParameterMap;
         CustomParameterMap mCustomParameters;
 		bool mPolygonModeOverrideable;
+        bool mUseIdentityProjection;
+        bool mUseIdentityView;
     };
 
 

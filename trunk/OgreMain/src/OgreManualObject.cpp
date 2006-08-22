@@ -49,7 +49,7 @@ namespace Ogre {
 		  mTempVertexBuffer(0), mTempVertexSize(TEMP_INITIAL_VERTEX_SIZE),
 		  mTempIndexBuffer(0), mTempIndexSize(TEMP_INITIAL_INDEX_SIZE),
 		  mDeclSize(0), mTexCoordIndex(0), mRadius(0), mAnyIndexed(false),
-		  mEdgeList(0)
+		  mEdgeList(0), mUseIdentityProjection(false), mUseIdentityView(false)
 	{
 	}
 	//-----------------------------------------------------------------------------
@@ -178,6 +178,8 @@ namespace Ogre {
 				"ManualObject::begin");
 		}
 		mCurrentSection = new ManualObjectSection(this, materialName, opType);
+		mCurrentSection->setUseIdentityProjection(mUseIdentityProjection);
+		mCurrentSection->setUseIdentityView(mUseIdentityView);
 		mSectionList.push_back(mCurrentSection);
 		mFirstVertex = true;
 		mDeclSize = 0;
@@ -580,6 +582,30 @@ namespace Ogre {
 		return m;
 
 
+	}
+	//-----------------------------------------------------------------------------
+	void ManualObject::setUseIdentityProjection(bool useIdentityProjection)
+	{
+		// Set existing
+		for (SectionList::iterator i = mSectionList.begin(); i != mSectionList.end(); ++i)
+		{
+			(*i)->setUseIdentityProjection(useIdentityProjection);
+		}
+		
+		// Save setting for future sections
+		mUseIdentityProjection = useIdentityProjection;
+	}
+	//-----------------------------------------------------------------------------
+	void ManualObject::setUseIdentityView(bool useIdentityView)
+	{
+		// Set existing
+		for (SectionList::iterator i = mSectionList.begin(); i != mSectionList.end(); ++i)
+		{
+			(*i)->setUseIdentityView(useIdentityView);
+		}
+
+		// Save setting for future sections
+		mUseIdentityView = useIdentityView;
 	}
 	//-----------------------------------------------------------------------------
 	const String& ManualObject::getMovableType(void) const

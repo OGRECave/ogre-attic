@@ -2835,7 +2835,7 @@ void SceneManager::manualRender(RenderOperation* rend,
 void SceneManager::useRenderableViewProjMode(const Renderable* pRend)
 {
     // Check view matrix
-    bool useIdentityView = pRend->useIdentityView();
+    bool useIdentityView = pRend->getUseIdentityView();
     if (useIdentityView)
     {
         // Using identity view now, change it
@@ -2843,7 +2843,7 @@ void SceneManager::useRenderableViewProjMode(const Renderable* pRend)
         mResetIdentityView = true;
     }
 
-    bool useIdentityProj = pRend->useIdentityProjection();
+    bool useIdentityProj = pRend->getUseIdentityProjection();
     if (useIdentityProj)
     {
         // Use identity projection matrix, still need to take RS depth into account.

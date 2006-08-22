@@ -80,6 +80,10 @@ namespace Ogre {
     {
 		// default overlays to preserve their own detail level
 		mPolygonModeOverrideable = false;
+
+        // use identity projection and view matrices
+        mUseIdentityProjection = true;
+        mUseIdentityView = true;
     }
     //---------------------------------------------------------------------
     OverlayElement::~OverlayElement()
@@ -341,17 +345,6 @@ namespace Ogre {
     {
         return mOverlay->getWorldPosition();
     }
-    //---------------------------------------------------------------------
-    bool OverlayElement::useIdentityProjection(void) const
-    {
-        return true;
-    }
-    //---------------------------------------------------------------------
-    bool OverlayElement::useIdentityView(void) const
-    {
-        return true;
-    }
-
     //---------------------------------------------------------------------
 	void OverlayElement::_positionsOutOfDate(void)
 	{
