@@ -1,0 +1,112 @@
+
+vertex_program InstancingVertexOnly cg
+{
+	source instancing.source
+	profiles vs_2_0 arbvp2
+	entry_point VPmainDefault
+}
+
+vertex_program InstancingVertexLighted cg
+{
+	source instancing.source
+	profiles vs_2_0 arbvp2
+	entry_point VPmainLighted
+}
+vertex_program InstancingShadowCaster cg
+{
+   	source instancing.source
+	profiles vs_2_0 arbvp2
+	entry_point instancingCaster_vp
+}
+vertex_program Crowd cg
+{
+	source instancing.source
+	profiles vs_2_0 arbvp2
+	entry_point crowd_vp
+}
+vertex_program CrowdShadowCaster cg
+{
+	source instancing.source
+	profiles vs_2_0 arbvp2
+	entry_point crowdFourWeightCaster_vp
+}
+
+material Instancing
+{
+	technique
+	{
+		
+		pass
+		{
+		
+			
+		
+			vertex_program_ref instancingVertexOnly
+			{
+				
+		
+				param_named_auto WorldViewProjMatrix worldviewproj_matrix
+			}
+		
+			texture_unit
+			{
+				texture nskingr.jpg
+			}
+		}
+	}
+}
+material Instancing/Instancied
+{
+	technique
+	{
+		
+		pass
+		{
+		
+			fragment_program_ref instancingFragmentLighted
+			{
+				
+
+			}
+		
+			vertex_program_ref instancingVertexLighted
+			{
+				
+					
+				param_named_auto ambient ambient_light_colour
+				
+				param_named diffuse float4 1 1 1 1
+				
+				param_named specular float4 0.1 0.1 0.1 0.1
+
+				param_named_auto lightDir light_position_object_space 0
+			
+				param_named_auto view_matrix worldview_matrix
+		
+				param_named_auto WorldViewProjMatrix worldviewproj_matrix
+			}
+		
+			texture_unit
+			{
+				texture nskingr.jpg
+			}
+		}
+	}
+}
+material inst
+{
+    technique
+    {
+        pass
+        {
+            ambient 0.588235 0.588235 0.588235
+            diffuse 0.588235 0.588235 0.588235
+            specular 0.9 0.9 0.9 0.0
+            emissive 0.0 0.0 0.03
+			texture_unit
+			{
+				texture r2skin.jpg
+			}
+        }
+    }
+}

@@ -58,6 +58,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreShadowVolumeExtrudeProgram.h"
 #include "OgreDataStream.h"
 #include "OgreStaticGeometry.h"
+#include "OgreInstancedGeometry.h"
 #include "OgreHardwarePixelBuffer.h"
 #include "OgreManualObject.h"
 #include "OgreRenderQueueInvocation.h"
@@ -3753,70 +3754,70 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
                 (*tex) = *(pass->getTextureUnitState(t));
             }
             keepTUCount = origPassTUCount + 1;
+
+			// Will also need fragment programs since this is a complex light setup
+			if (!pass->getShadowReceiverFragmentProgramName().empty())
+			{
+				// Have to merge the shadow receiver vertex program in
+				retPass->setFragmentProgram(
+					pass->getShadowReceiverFragmentProgramName());
+				const GpuProgramPtr& prg = retPass->getFragmentProgram();
+				// Load this program if not done already
+				if (!prg->isLoaded())
+					prg->load();
+				// Copy params
+				retPass->setFragmentProgramParameters(
+					pass->getShadowReceiverFragmentProgramParameters());
+
+				// Did we bind a shadow vertex program?
+				if (pass->hasVertexProgram() && !retPass->hasVertexProgram())
+				{
+					// We didn't bind a receiver-specific program, so bind the original
+					retPass->setVertexProgram(pass->getVertexProgramName());
+					const GpuProgramPtr& prg = retPass->getVertexProgram();
+					// Load this program if required
+					if (!prg->isLoaded())
+						prg->load();
+					// Copy params
+					retPass->setVertexProgramParameters(
+						pass->getVertexProgramParameters());
+
+				}
+			}
+			else 
+			{
+				// Reset any merged fragment programs from last time
+				if (retPass == mShadowTextureCustomReceiverPass)
+				{
+					// reset fp?
+					if (mShadowTextureCustomReceiverPass->getFragmentProgramName() !=
+						mShadowTextureCustomReceiverFragmentProgram)
+					{
+						mShadowTextureCustomReceiverPass->setFragmentProgram(
+							mShadowTextureCustomReceiverFragmentProgram);
+						if(mShadowTextureCustomReceiverPass->hasFragmentProgram())
+						{
+							mShadowTextureCustomReceiverPass->setFragmentProgramParameters(
+								mShadowTextureCustomReceiverFPParams);
+
+						}
+
+					}
+
+				}
+				else
+				{
+					// Standard shadow receiver pass, reset to no fp
+					retPass->setFragmentProgram(StringUtil::BLANK);
+				}
+
+			}
+			
 		}// additive lighting
 		else
 		{
 			// need to keep spotlight fade etc
 			keepTUCount = retPass->getNumTextureUnitStates();
-		}
-
-
-		// Will also need fragment programs since this is a complex light setup
-		if (!pass->getShadowReceiverFragmentProgramName().empty())
-		{
-			// Have to merge the shadow receiver vertex program in
-			retPass->setFragmentProgram(
-				pass->getShadowReceiverFragmentProgramName());
-			const GpuProgramPtr& prg = retPass->getFragmentProgram();
-			// Load this program if not done already
-			if (!prg->isLoaded())
-				prg->load();
-			// Copy params
-			retPass->setFragmentProgramParameters(
-				pass->getShadowReceiverFragmentProgramParameters());
-
-			// Did we bind a shadow vertex program?
-			if (pass->hasVertexProgram() && !retPass->hasVertexProgram())
-			{
-				// We didn't bind a receiver-specific program, so bind the original
-				retPass->setVertexProgram(pass->getVertexProgramName());
-				const GpuProgramPtr& prg = retPass->getVertexProgram();
-				// Load this program if required
-				if (!prg->isLoaded())
-					prg->load();
-				// Copy params
-				retPass->setVertexProgramParameters(
-					pass->getVertexProgramParameters());
-
-			}
-		}
-		else 
-		{
-			// Reset any merged fragment programs from last time
-			if (retPass == mShadowTextureCustomReceiverPass)
-			{
-				// reset fp?
-				if (mShadowTextureCustomReceiverPass->getFragmentProgramName() !=
-					mShadowTextureCustomReceiverFragmentProgram)
-				{
-					mShadowTextureCustomReceiverPass->setFragmentProgram(
-						mShadowTextureCustomReceiverFragmentProgram);
-					if(mShadowTextureCustomReceiverPass->hasFragmentProgram())
-					{
-						mShadowTextureCustomReceiverPass->setFragmentProgramParameters(
-							mShadowTextureCustomReceiverFPParams);
-
-					}
-
-				}
-
-			}
-			else
-			{
-				// Standard shadow receiver pass, reset to no fp
-				retPass->setFragmentProgram(StringUtil::BLANK);
-			}
-
 		}
 
         // Remove any extra texture units
@@ -3972,7 +3973,7 @@ void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera
         }
 
 		// Determine whether zfail is required
-        if (zfailAlgo || nearClipVol.intersects(caster->getWorldBoundingBox()))
+        if (nearClipVol.intersects(caster->getWorldBoundingBox()))
         {
             // We use zfail for this object only because zfail
 	        // compatible with zpass algorithm
@@ -4404,12 +4405,12 @@ void SceneManager::createShadowTextures(unsigned short size,
 			shadowTex = TextureManager::getSingleton().createManual(
 				targName, 
 				ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, 
-				TEX_TYPE_2D, size, size, 0, fmt, 
+				TEX_TYPE_2D, size, size, 0, mShadowTextureFormat, 
 				TU_RENDERTARGET);
 		}
 		else if (shadowTex->getWidth() != size 
 			|| shadowTex->getHeight() != size
-			|| shadowTex->getFormat() != fmt)
+			|| shadowTex->getFormat() != mShadowTextureFormat)
 		{
 			StringUtil::StrStreamType s;
 			s << "Warning: shadow texture #" << t << " is shared "
@@ -4738,6 +4739,59 @@ void SceneManager::destroyAllStaticGeometry(void)
 		delete i->second;
 	}
 	mStaticGeometryList.clear();
+}
+//---------------------------------------------------------------------
+InstancedGeometry* SceneManager::createInstancedGeometry(const String& name)
+{
+	// Check not existing
+	if (mInstancedGeometryList.find(name) != mInstancedGeometryList.end())
+	{
+		OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
+			"InstancedGeometry with name '" + name + "' already exists!", 
+			"SceneManager::createInstancedGeometry");
+	}
+	InstancedGeometry* ret = new InstancedGeometry(this, name);
+	mInstancedGeometryList[name] = ret;
+	return ret;
+}
+//---------------------------------------------------------------------
+InstancedGeometry* SceneManager::getInstancedGeometry(const String& name) const
+{
+	InstancedGeometryList::const_iterator i = mInstancedGeometryList.find(name);
+	if (i == mInstancedGeometryList.end())
+	{
+		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+			"InstancedGeometry with name '" + name + "' not found", 
+			"SceneManager::createInstancedGeometry");
+	}
+	return i->second;
+}
+//---------------------------------------------------------------------
+void SceneManager::destroyInstancedGeometry(InstancedGeometry* geom)
+{
+	destroyInstancedGeometry(geom->getName());
+}
+//---------------------------------------------------------------------
+void SceneManager::destroyInstancedGeometry(const String& name)
+{
+	InstancedGeometryList::iterator i = mInstancedGeometryList.find(name);
+	if (i != mInstancedGeometryList.end())
+	{
+		delete i->second;
+		mInstancedGeometryList.erase(i);
+	}
+
+}
+//---------------------------------------------------------------------
+void SceneManager::destroyAllInstancedGeometry(void)
+{
+	InstancedGeometryList::iterator i, iend;
+	iend = mInstancedGeometryList.end();
+	for (i = mInstancedGeometryList.begin(); i != iend; ++i)
+	{
+		delete i->second;
+	}
+	mInstancedGeometryList.clear();
 }
 //---------------------------------------------------------------------
 AxisAlignedBoxSceneQuery* 

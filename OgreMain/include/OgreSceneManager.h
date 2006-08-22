@@ -43,7 +43,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgrePixelFormat.h"
 #include "OgreResourceGroupManager.h"
 #include "OgreTexture.h"
-
+#include "OgreInstancedGeometry.h" //tricky include
 namespace Ogre {
 
     /** Structure for holding a position & orientation pair. */
@@ -240,6 +240,8 @@ namespace Ogre {
 
 		typedef std::map<String, StaticGeometry* > StaticGeometryList;
 		StaticGeometryList mStaticGeometryList;
+		typedef std::map<String, InstancedGeometry* > InstancedGeometryList;
+		InstancedGeometryList mInstancedGeometryList;
 
         typedef std::map<String, SceneNode*> SceneNodeList;
 
@@ -1645,10 +1647,6 @@ namespace Ogre {
             origin. If you want the base state of the SceneNode to be elsewhere, make your changes
             to the node using the standard transform methods, then call setInitialState to 
             'bake' this reference position into the node.
-		@par
-			If the target of your animation is to be a generic AnimableValue, you
-			should ensure that it has a base value set (unlike nodes this has no
-			default). @see AnimableValue::setAsBaseValue.
         @param animName The name of an animation created already with createAnimation.
         */
         virtual AnimationState* createAnimationState(const String& animName);
@@ -2228,6 +2226,25 @@ namespace Ogre {
 		virtual void destroyStaticGeometry(const String& name);
 		/** Remove & destroy all StaticGeometry instances. */
 		virtual void destroyAllStaticGeometry(void);
+
+		/** Creates a InstancedGeometry instance suitable for use with this
+			SceneManager.
+		@remarks
+			InstancedGeometry is a way of batching up geometry into a more 
+			efficient form, and still be able to move it. Please 
+			read the InstancedGeometry class documentation for full information.
+		@param name The name to give the new object
+		@returns The new InstancedGeometry instance
+		*/
+		virtual InstancedGeometry* createInstancedGeometry(const String& name);
+		/** Retrieve a previously created InstancedGeometry instance. */
+		virtual InstancedGeometry* getInstancedGeometry(const String& name) const;
+		/** Remove & destroy a InstancedGeometry instance. */
+		virtual void destroyInstancedGeometry(InstancedGeometry* geom);
+		/** Remove & destroy a InstancedGeometry instance. */
+		virtual void destroyInstancedGeometry(const String& name);
+		/** Remove & destroy all InstancedGeometry instances. */
+		virtual void destroyAllInstancedGeometry(void);
 
 
 		/** Create a movable object of the type specified.
