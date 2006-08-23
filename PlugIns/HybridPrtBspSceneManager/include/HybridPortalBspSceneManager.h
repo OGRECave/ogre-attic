@@ -3,8 +3,9 @@
 /*
 ** This source file is part of OGRE (Object-oriented Graphics Rendering Engine)
 ** For the latest info, see http://www.ogre3d.org/
-** 
-** Copyright (c) 2006 Wael El Oraiby
+**
+** OGRE Copyright goes for Ogre Team
+** Hybrid Portal/BSP Scene Manager Copyright (c) 2006 Wael El Oraiby
 ** 
 ** This program is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free Software
@@ -197,6 +198,32 @@ namespace Ogre {
 		*/
 		virtual void resetAllInternals();
 
+		/**
+		when true is passed it'll show visible portals
+		@param bShow if true the visible portals will be shown
+		*/
+		virtual void showVisiblePortals(bool bShow);
+
+		/**
+		when true is passed it'll show visible cells
+		@param bShow if ture the visible cells will be shown
+		*/
+		virtual void showVisibleCells(bool bShow);
+
+		/**
+		sets the cell scene manager
+		@param id the cell's index
+		@param sm the associated scene manager to the cell
+		*/
+		virtual void setCellSceneManager(int id, SceneManager* sm);
+
+		/**
+		gets the cell scene manager
+		@param id the cell's index
+		@returns the associated scene manager
+		*/
+		virtual SceneManager* getCellSceneManager(int id);
+
 	protected:
 		/// the root of all occluders
 		SceneNode* mOccludersRootSceneNode;
@@ -261,6 +288,12 @@ namespace Ogre {
 
 		/// occluders
 		std::vector<SceneNode*> mOccluders;
+
+		/// show visible portals flag
+		bool mShowVisiblePortals;
+
+		/// show visible cells flag
+		bool mShowVisibleCells;
 	};
 
 	//----------------------------------------------------------------------------

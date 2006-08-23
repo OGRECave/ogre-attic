@@ -1,8 +1,9 @@
 /*
 ** This source file is part of OGRE (Object-oriented Graphics Rendering Engine)
 ** For the latest info, see http://www.ogre3d.org/
-** 
-** Copyright (c) 2006 Wael El Oraiby
+**
+** OGRE Copyright goes for Ogre Team
+** Hybrid Portal/BSP Scene Manager Copyright (c) 2006 Wael El Oraiby
 ** 
 ** This program is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free Software
@@ -33,7 +34,7 @@ using namespace std;
 // HybridPortalBspSceneManager
 //-----------------------------------------------------------------------------
 HybridPortalBspSceneManager::HybridPortalBspSceneManager(const String &instanceName):
-	SceneManager(instanceName)
+	SceneManager(instanceName), mShowVisiblePortals(false), mShowVisibleCells(false)
 {
 	LogManager::getSingleton().logMessage("[HybridPortalBspSceneManager(...)] created hybrid portal bsp scene manager instance");
 	
@@ -55,104 +56,144 @@ const String& HybridPortalBspSceneManager::getTypeName(void) const
 }
 
 //-----------------------------------------------------------------------------
+void HybridPortalBspSceneManager::showVisiblePortals(bool bShow)
+{
+	mShowVisiblePortals = bShow;
+}
+
+//-----------------------------------------------------------------------------
+void HybridPortalBspSceneManager::showVisibleCells(bool bShow)
+{
+	mShowVisibleCells = bShow;
+}
+
+//-----------------------------------------------------------------------------
 void HybridPortalBspSceneManager::_findVisibleObjects(Camera *cam, bool onlyShadowCasters)
 {
+	size_t i;
+	std::map<int, Cell>::iterator itc;
+	std::map<int, Portal>::iterator itp;
 
 	RenderQueue *queue = getRenderQueue();
 	RenderSystem *rs = Root::getSingleton().getRenderSystem();
 
-	// issue occlusion queries to find which portals are visible
+	// first all cells are hidden
+	for(itc = mCells.begin(); itc != mCells.end(); itc++)
+		itc->second.isVisible = false;
+
+	// only the cell where the camera is in, is always visible
+	int cellId = getPointCell(cam->getPosition());
+	if ( cellId >= 0 )
+		mCells[cellId].isVisible = true;
+
+	// pull visible portals
+	for( itp = mPortals.begin(); itp != mPortals.end(); itp++ )
 	{
-		queue->clear();
-		
-		size_t i;
-
-		rs->_setViewport(cam->getViewport());
-		rs->clearFrameBuffer(FBT_DEPTH | FBT_COLOUR);
-//		cam->getViewport()->setClearEveryFrame(false);
-
-		rs->_beginFrame();
-
-		for( i = 0; i < mOccluders.size(); i++ )
-			mOccluders[i]->_findVisibleObjects(cam, queue, true, 
-				mDisplayNodes, onlyShadowCasters);
-
-		SceneManager::renderVisibleObjectsDefaultSequence();
-
-		// disable writing to the color/depth buffers
-		rs->_setColourBufferWriteEnabled(false, false, false, false);
-		rs->_setDepthBufferWriteEnabled(false);
-
-
-		// render portals and issue occlusion queries
-		for( i = 0; i < mPortals.size(); i++ )
+		unsigned int n = 0;
+		if(!(itp->second.query->isStillOutstanding()))
 		{
-			mPortals[i].query->beginOcclusionQuery();
-			SceneNode *n = mPortals[i].node;
-/*			
-			{
-				Node::ChildNodeIterator it = n->getChildIterator();
+			itp->second.query->pullOcclusionQuery(&n);
+			if ( n ) 
+			{	
+				// portal is visible
+				itp->second.isVisible = true;
 
-				while( it.hasMoreElements() )
-				{
-					SceneNode *child = (SceneNode*)it.getNext();
-					SceneNode::ObjectIterator obit = child->getAttachedObjectIterator();
-					while(obit.hasMoreElements())
-					{
-						MovableObject *obj = obit.getNext();
-						obj->_updateRenderQueue(queue);
-					}
-				}
+				// extract cell visibility
+				int cell0 = itp->second.cells[0];
+				if( cell0 >= 0 )
+					mCells[cell0].isVisible = true;
+
+				int cell1 = itp->second.cells[1];
+				if( cell1 >= 0 )
+					mCells[cell1].isVisible = true;				
+			} else {
+				itp->second.isVisible = false;
 			}
-			*/
-			queue->clear();
+		}
+	}
+
+	// issue occlusion queries to find which portals are visible for the next frame
+	rs->_setViewport(cam->getViewport());
+	rs->clearFrameBuffer(FBT_DEPTH | FBT_COLOUR);
+//	cam->getViewport()->setClearEveryFrame(false);
+
+	// render all occluders first
+	rs->_beginFrame();
+	queue->clear();
+	for( i = 0; i < mOccluders.size(); i++ )
+		mOccluders[i]->_findVisibleObjects(cam, queue, true, 
+			mDisplayNodes, onlyShadowCasters);
+	SceneManager::renderVisibleObjectsDefaultSequence();
+	queue->clear();
+
+	// disable writing to the color/depth buffers
+	rs->_setColourBufferWriteEnabled(false, false, false, false);
+	rs->_setDepthBufferWriteEnabled(false);
+
+	// render portals and issue occlusion queries
+	for( itp = mPortals.begin(); itp != mPortals.end(); itp++ )
+	{
+		// put it only if it's finished
+		if (!itp->second.query->isStillOutstanding())
+		{
+			itp->second.query->beginOcclusionQuery();
+			SceneNode *n = itp->second.node;
 
 			n->_findVisibleObjects(cam, queue, true, 
 				mDisplayNodes, onlyShadowCasters);
-		
+	
 			SceneManager::renderVisibleObjectsDefaultSequence();
 
+
+			itp->second.query->endOcclusionQuery();
 			queue->clear();
-
-			mPortals[i].query->endOcclusionQuery();
 		}
+	}
+	
+	rs->_endFrame();
 
+	/*
+	now for all visible cells ask all their scene managers to find their
+	visible objects
+	*/
+	for( itc = mCells.begin(); itc != mCells.end(); itc++ )
+	{
+		if( itc->second.sm )
+			itc->second.sm->_findVisibleObjects(cam, onlyShadowCasters);
+	}
 
+	// re-enable writing to the color/depth buffers
+	rs->_setColourBufferWriteEnabled(true, true, true, true);
+	rs->_setDepthBufferWriteEnabled(true);
 
-		// pull visible portals
-		for( i = 0; i < mPortals.size(); i++ )
-		{
-			unsigned int n = 0;
-			while(mPortals[i].query->isStillOutstanding());
-			mPortals[i].query->pullOcclusionQuery(&n);
-			if ( n ) {
-				mPortals[i].isVisible = true;
-			} else {
-				mPortals[i].isVisible = false;
-			}
-		}
-		rs->_endFrame();
-
-		queue->clear();
-
-		// re-enable writing to the color/depth buffers
-		rs->_setColourBufferWriteEnabled(true, true, true, true);
-		rs->_setDepthBufferWriteEnabled(true);
 /*
-		// add occluders to the render queue
-		for( i = 0; i < mOccluders.size(); i++ )
-			mOccluders[i]->_findVisibleObjects(cam, queue, true, 
-				mDisplayNodes, onlyShadowCasters);
+	// add occluders to the render queue
+	for( i = 0; i < mOccluders.size(); i++ )
+		mOccluders[i]->_findVisibleObjects(cam, queue, true, 
+			mDisplayNodes, onlyShadowCasters);
 */
-		// and visible portals
-		for( i = 0; i < mPortals.size(); i++ )
+	// in case we want to debug the visibility of the scene
+	if( mShowVisiblePortals )
+	{
+		for( itp = mPortals.begin(); itp != mPortals.end(); itp++ )
 		{
-			if ( mPortals[i].isVisible ) {
-				mPortals[i].node->_findVisibleObjects(cam, queue, true, 
+			if ( itp->second.isVisible ) {
+				itp->second.node->_findVisibleObjects(cam, queue, true, 
 				mDisplayNodes, onlyShadowCasters);
 			}
 		}
+	}
 
+	// in case we want to debug the visibility of the scene
+	if( mShowVisibleCells )
+	{
+		for( itc = mCells.begin(); itc != mCells.end(); itc++ )
+		{
+			if ( itc->second.isVisible ) {
+				itc->second.node->_findVisibleObjects(cam, queue, true, 
+				mDisplayNodes, onlyShadowCasters);
+			}
+		}
 	}
 
 	//mSceneRoot->getChild
@@ -164,102 +205,22 @@ void HybridPortalBspSceneManager::_findVisibleObjects(Camera *cam, bool onlyShad
 		
 	//SceneManager::_findVisibleObjects(cam, onlyShadowCasters);
 }
-/*
+
 //-----------------------------------------------------------------------------
-SceneNode* HybridPortalBspSceneManager::createPortalSceneNode(String &name)
+void HybridPortalBspSceneManager::setCellSceneManager(int id, SceneManager *sm)
 {
-	Portal portal;
-	portal.node = getRootSceneNode()->createChildSceneNode(name);
-	portal.query = Root::getSingleton().getRenderSystem()->createHardwareOcclusionQuery();
-	portal.cells[0] = portal.cells[1] = -1;
-	portal.isVisible = true;
-
-	mPortals.push_back(portal);
-
-	// TODO: add portal to dictionary
-
-	return portal.node;
+	if(mCells.find(id) == mCells.end())
+		throw "invalid cell index";
+	mCells[id].sm = sm;
 }
 
 //-----------------------------------------------------------------------------
-SceneNode* HybridPortalBspSceneManager::createCellSceneNode(String &name)
+SceneManager* HybridPortalBspSceneManager::getCellSceneManager(int id)
 {
-	Cell cell;
-	cell.node = getRootSceneNode()->createChildSceneNode(name);
-	cell.isVisible = true;
-
-	mCells.push_back(cell);
-
-	// TODO: add cell to dictionary
-
-	return cell.node;
+	if(mCells.find(id) == mCells.end())
+		throw "invalid cell index";
+	return mCells[id].sm;
 }
-
-//-----------------------------------------------------------------------------
-SceneNode* HybridPortalBspSceneManager::createOccluderSceneNode(String &name)
-{
-	SceneNode* occluder = getRootSceneNode()->createChildSceneNode(name);
-
-	mOccluders.push_back(occluder);
-
-	// TODO: add occluder to dictionary
-
-	return occluder;
-}
-
-//-----------------------------------------------------------------------------
-int HybridPortalBspSceneManager::addPortalSceneNode(SceneNode *node)
-{
-	Portal portal;
-
-	node->getParent()->removeChild(node);
-	getRootSceneNode()->addChild(node);
-
-	portal.node = node;
-	portal.query = Root::getSingleton().getRenderSystem()->createHardwareOcclusionQuery();
-	portal.cells[0] = portal.cells[1] = -1;
-	portal.isVisible = true;
-
-	mPortals.push_back(portal);
-
-	// TODO: add portal to dictionary
-
-	return static_cast<int>(mPortals.size() - 1);
-}
-
-//-----------------------------------------------------------------------------
-int HybridPortalBspSceneManager::addCellSceneNode(SceneNode *node)
-{
-	Cell cell;
-
-	node->getParent()->removeChild(node);
-	getRootSceneNode()->addChild(node);
-
-	cell.node = node;
-	cell.isVisible = true;
-
-	mCells.push_back(cell);
-
-	// TODO: add cell to dictionary
-
-	return static_cast<int>(mPortals.size() - 1);
-}
-
-//-----------------------------------------------------------------------------
-int HybridPortalBspSceneManager::addOccluderSceneNode(SceneNode *node)
-{
-	SceneNode* occluder = node;
-
-	node->getParent()->removeChild(node);
-	getRootSceneNode()->addChild(node);
-
-	mOccluders.push_back(occluder);
-
-	// TODO: add occluder to dictionary
-
-	return static_cast<int>(mPortals.size() - 1);
-}
-*/
 
 //-----------------------------------------------------------------------------
 int HybridPortalBspSceneManager::getCellCount()

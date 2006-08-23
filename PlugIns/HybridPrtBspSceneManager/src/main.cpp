@@ -117,11 +117,14 @@ protected:
 	{
 		reinterpret_cast<HybridPortalBspSceneManager*>(mSceneMgr)->loadLevel(HpBspDotSceneLoader::getSingleton(),
 			"ex_3_2.scene", "General");
-		
+		reinterpret_cast<HybridPortalBspSceneManager*>(mSceneMgr)->showVisiblePortals(true);
+		reinterpret_cast<HybridPortalBspSceneManager*>(mSceneMgr)->showVisibleCells(true);
+
 		LogManager::getSingleton().logMessage(String("[createScene] ") + StringConverter::toString(reinterpret_cast<HybridPortalBspSceneManager*>(mSceneMgr)->getPortalCount()));
 		
 		mSceneMgr->setSkyBox(true, "Examples/SpaceSkyBox");
 		mSceneMgr->setAmbientLight(ColourValue(1, 1, 1, 1));
+		
 
 		//mCamera->setPolygonMode(PM_WIREFRAME);
 	}

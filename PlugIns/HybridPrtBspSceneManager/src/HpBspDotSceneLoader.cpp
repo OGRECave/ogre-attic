@@ -1,8 +1,9 @@
 /*
 ** This source file is part of OGRE (Object-oriented Graphics Rendering Engine)
 ** For the latest info, see http://www.ogre3d.org/
-** 
-** Copyright (c) 2006 Wael El Oraiby
+**
+** OGRE Copyright goes for Ogre Team
+** Hybrid Portal/BSP Scene Manager Copyright (c) 2006 Wael El Oraiby
 ** 
 ** This program is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free Software
@@ -51,7 +52,6 @@ HpBspDotSceneLoader::HpBspDotSceneLoader()
 	mNumPortals = 0;
 
 	mSM = NULL;
-	mCSG = NULL;
 	mParentNode = NULL;
 }
 
@@ -72,7 +72,6 @@ void HpBspDotSceneLoader::resetInternals()
 	mBspOccluders = BspObject();
 	mBspPortals = BspObject();		
 
-	mCSG = NULL;
 	mParentNode = NULL;
 
 	mOrigOccluders.resize(0);
@@ -369,6 +368,15 @@ void HpBspDotSceneLoader::_load(HybridPortalBspSceneManager *sm,
 
 	// set the bsp object for scene
 	sm->_setBspObject(mBspCSG);
+
+	// setup portals
+	size_t i;
+	for( i = 0; i < mPortals.size(); i++ )
+		sm->_setPortalCells(static_cast<int>(i), mPortals[i].cellsId[0], mPortals[i].cellsId[1]);
+
+	// setup cells
+	for( i = 0; i < mCells.size(); i++ )
+		sm->_setCellPortals(static_cast<int>(i), mCells[i].portals);
 
 	// add portals, cells and occluders
 /*
@@ -703,22 +711,18 @@ void HpBspDotSceneLoader::buildScene()
 	LogManager::getSingleton().logMessage("[dotSceneLoader] CSG BSP done: " + StringConverter::toString(allPolys.size()));
 
 	// extract portal/cell connectivity
-	extractConnectivity(allPolys, mOrigPortals.size(), numCells);
+	extractConnectivity(allPolys, static_cast<int>(mOrigPortals.size()), numCells);
 
-	// create the CSG Ogre node
-	mCSG = mParentNode->createChildSceneNode("CsgSceneNode");
-
+	// and create the cells
 	for ( int c = 0; c < numCells; c++ )
 	{
 		buildMesh("Cell_" + StringConverter::toString(c), allPolys, c, -1);
 		Entity* e = mSM->createEntity("Cell_" + StringConverter::toString(c), "Cell_" + StringConverter::toString(c));
 		e->setVisible(true);
 
-		SceneNode* child = mCSG->createChildSceneNode("Cell_" + StringConverter::toString(c));
-		child->attachObject(e);
+		mCells[c].cell = mSM->_createCellSceneNode(c, "Cell_" + StringConverter::toString(c));
+		mCells[c].cell->attachObject(e);
 	}
-
-	mCSG->setVisible(true, true);
 }
 
 //-----------------------------------------------------------------------------

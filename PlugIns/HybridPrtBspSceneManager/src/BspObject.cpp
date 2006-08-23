@@ -1,8 +1,9 @@
 /*
 ** This source file is part of OGRE (Object-oriented Graphics Rendering Engine)
 ** For the latest info, see http://www.ogre3d.org/
-** 
-** Copyright (c) 2006 Wael El Oraiby
+**
+** OGRE Copyright goes for Ogre Team
+** Hybrid Portal/BSP Scene Manager Copyright (c) 2006 Wael El Oraiby
 ** 
 ** This program is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free Software
