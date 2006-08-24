@@ -61,8 +61,10 @@ namespace Ogre {
         GLSLGpuProgram(GLSLProgram* parent);
 		~GLSLGpuProgram();
 
-		/// @copydoc Resource::unload
-		void unload(void);
+		/// @copydoc Resource::unloadImpl
+		void unloadImpl(void);
+		/// @copydoc Resource::loadImpl
+		void loadImpl(void);
 
 		/// Execute the binding functions for this program
 		void bindProgram(void);
@@ -76,9 +78,6 @@ namespace Ogre {
 		/// Get the assigned GL program id
 		const GLuint getProgramID(void) const
 		{ return mProgramID; }
-
-		/// overides parent method and does nothing since there is nothing to load
-		void load(void);
 
 		/// get the GLSLProgram for the shader object
 		GLSLProgram* getGLSLProgram(void) const { return mGLSLProgram; }

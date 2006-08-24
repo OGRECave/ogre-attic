@@ -638,7 +638,7 @@ namespace Ogre {
 				return; // don't bother
 		}
 
-		if (mIsLoaded)
+		if (isLoaded())
 		{
 			// Load immediately
 			SkeletonPtr skelPtr = 

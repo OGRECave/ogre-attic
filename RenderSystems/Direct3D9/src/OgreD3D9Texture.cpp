@@ -64,7 +64,7 @@ namespace Ogre
 	{
         // have to call this here reather than in Resource destructor
         // since calling virtual methods in base destructors causes crash
-		if (mIsLoaded)
+		if (isLoaded())
 		{
 			unload(); 
 		}
@@ -186,7 +186,6 @@ namespace Ogre
 		if (mUsage & TU_RENDERTARGET)
 		{
 			createInternalResources();
-			mIsLoaded = true;
 			return;
 		}
 
@@ -295,7 +294,6 @@ namespace Ogre
             // set src and dest attributes to the same, we can't know
             _setSrcAttributes(texDesc.Width, texDesc.Height, 1, D3D9Mappings::_getPF(texDesc.Format));
             _setFinalAttributes(texDesc.Width, texDesc.Height, 1,  D3D9Mappings::_getPF(texDesc.Format));
-			mIsLoaded = true;
 			mInternalResourcesCreated = true;
         }
         else
@@ -399,7 +397,6 @@ namespace Ogre
 			// set src and dest attributes to the same, we can't know
 			_setSrcAttributes(texDesc.Width, texDesc.Height, texDesc.Depth, D3D9Mappings::_getPF(texDesc.Format));
 			_setFinalAttributes(texDesc.Width, texDesc.Height, texDesc.Depth, D3D9Mappings::_getPF(texDesc.Format));
-			mIsLoaded = true;
 			mInternalResourcesCreated = true;
         }
 		else
@@ -489,7 +486,6 @@ namespace Ogre
 			// set src and dest attributes to the same, we can't know
 			_setSrcAttributes(texDesc.Width, texDesc.Height, 1, D3D9Mappings::_getPF(texDesc.Format));
 			_setFinalAttributes(texDesc.Width, texDesc.Height, 1, D3D9Mappings::_getPF(texDesc.Format));
-			mIsLoaded = true;
 			mInternalResourcesCreated = true;
         }
 		else
@@ -1200,7 +1196,7 @@ namespace Ogre
 			// 1. This is a render texture, or
 			// 2. This is a manual texture with no loader, or
 			// 3. This was an unloaded regular texture (preserve unloaded state)
-			if ((mIsManual && !mLoader) || (mUsage & TU_RENDERTARGET) || !mIsLoaded)
+			if ((mIsManual && !mLoader) || (mUsage & TU_RENDERTARGET) || !isLoaded())
 			{
 				// just recreate any internal resources
 				createInternalResources();

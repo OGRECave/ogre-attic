@@ -69,13 +69,13 @@ namespace Ogre {
         unload(); 
     }
 	//-----------------------------------------------------------------------------
-    void GLSLGpuProgram::load(void)
+    void GLSLGpuProgram::loadImpl(void)
     {
-        mIsLoaded = true;
+		// nothing to load
     }
 
 	//-----------------------------------------------------------------------------
-	void GLSLGpuProgram::unload(void)
+	void GLSLGpuProgram::unloadImpl(void)
 	{
 		// nothing to unload
 	}
