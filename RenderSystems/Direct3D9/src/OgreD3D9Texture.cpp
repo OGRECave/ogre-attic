@@ -33,6 +33,8 @@ Torus Knot Software Ltd.
 #include "OgreStringConverter.h"
 #include "OgreBitwise.h"
 #include "OgreD3D9Mappings.h"
+#include "OgreD3D9RenderSystem.h"
+#include "OgreRoot.h"
 
 #include "OgreNoMemoryMacros.h"
 #include <d3dx9.h>
@@ -1226,4 +1228,13 @@ namespace Ogre
 
 
 	/****************************************************************************************/
+    void D3D9RenderTexture::update(void)
+    {
+        D3D9RenderSystem* rs = static_cast<D3D9RenderSystem*>(
+            Root::getSingleton().getRenderSystem());
+        if (rs->isDeviceLost())
+            return;
+
+        RenderTexture::update();
+    }
 }

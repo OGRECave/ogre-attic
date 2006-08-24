@@ -202,14 +202,18 @@ namespace Ogre {
 				for (LoadUnloadResourceList::iterator l = oi->second->begin();
 					l != oi->second->end(); ++l)
 				{
+					// Fire resource events no matter whether resource is already
+					// loaded or not. This ensures that the number of callbacks
+					// matches the number originally estimated, which is important
+					// for progress bars.
+					fireResourceStarted(*l);
+
 					// If loading one of these resources cascade-loads another resource, 
 					// the list will get longer! But these should be loaded immediately
-					if (!(*l)->isLoaded())
-					{
-						fireResourceStarted(*l);
-						(*l)->load();
-						fireResourceEnded();
-					}
+					// Call load regardless, already loaded resources will be skipped
+					(*l)->load();
+
+					fireResourceEnded();
 				}
 			}
 		}
@@ -1407,7 +1411,7 @@ namespace Ogre {
         {
             OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Cannot locate a resource group called '" + group + "'", 
-                "ResourceGroupManager::unlinkWorldGeometryFromResourceGroup");
+                "ResourceGroupManager::getResourceDeclarationList");
         }
 
 		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
