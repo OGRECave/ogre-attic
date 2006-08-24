@@ -124,7 +124,16 @@ protected:
 		
 		mSceneMgr->setSkyBox(true, "Examples/SpaceSkyBox");
 		mSceneMgr->setAmbientLight(ColourValue(1, 1, 1, 1));
-		
+
+		SceneNode* m = reinterpret_cast<HybridPortalBspSceneManager*>(mSceneMgr)->createMoverSceneNode("test0");
+		Entity* ent = mSceneMgr->createEntity( "Ninja", "ninja.mesh" );
+        m->attachObject( ent );
+
+		// inside the green cell
+		m->setScale(0.2f, 0.2f, 0.2f);
+		m->setPosition(-98.0f, 0.0f, 101.0f);
+
+		reinterpret_cast<HybridPortalBspSceneManager*>(mSceneMgr)->updateMoverSceneNode(m);
 
 		//mCamera->setPolygonMode(PM_WIREFRAME);
 	}

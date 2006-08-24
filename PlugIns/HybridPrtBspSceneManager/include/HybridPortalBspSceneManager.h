@@ -4,7 +4,7 @@
 ** This source file is part of OGRE (Object-oriented Graphics Rendering Engine)
 ** For the latest info, see http://www.ogre3d.org/
 **
-** OGRE Copyright goes for Ogre Team
+** OGRE Copyright goes to Ogre Team
 ** Hybrid Portal/BSP Scene Manager Copyright (c) 2006 Wael El Oraiby
 ** 
 ** This program is free software; you can redistribute it and/or modify it under
@@ -224,6 +224,19 @@ namespace Ogre {
 		*/
 		virtual SceneManager* getCellSceneManager(int id);
 
+		/**
+		create a mover scene node
+		@param name mover name
+		@returns the mover scene node
+		*/
+		virtual SceneNode* createMoverSceneNode(const String &name);
+
+		/**
+		update mover scene node position internally (should be called after moving the node)
+		@param node the mover node
+		*/
+		virtual void updateMoverSceneNode(SceneNode* node);
+
 	protected:
 		/// the root of all occluders
 		SceneNode* mOccludersRootSceneNode;
@@ -250,9 +263,6 @@ namespace Ogre {
 			/// portal occlusion query
 			HardwareOcclusionQuery* query;
 
-			/// list of spanning nodes
-			std::map<unsigned int, SceneNode*> spanningNodes;
-
 			/// the cells this portal connects (-1 means skybox)
 			int cells[2];
 
@@ -268,7 +278,7 @@ namespace Ogre {
 			SceneNode* node;
 
 			/// list of movers
-			std::map<unsigned int, SceneNode*> moverObjecs;
+			std::map<unsigned int, SceneNode*> movers;
 
 			// cell SceneManager and holder of the globally static(localy mover) objects
 			SceneManager* sm;
@@ -289,11 +299,31 @@ namespace Ogre {
 		/// occluders
 		std::vector<SceneNode*> mOccluders;
 
+		/**
+		mover information place holder
+		*/
+		struct Mover {
+			/// mover node
+			SceneNode* node;
+
+			/// the last token id when the mover was visible
+			unsigned int token;
+
+			/// the cells this mover maps too
+			std::vector<int> cells;
+		};
+
+		/// movers
+		std::map<unsigned int, Mover> mMovers;
+
 		/// show visible portals flag
 		bool mShowVisiblePortals;
 
 		/// show visible cells flag
 		bool mShowVisibleCells;
+
+		/// token (number incremented each time _findVisibleObjects is called)
+		unsigned int mToken;
 	};
 
 	//----------------------------------------------------------------------------

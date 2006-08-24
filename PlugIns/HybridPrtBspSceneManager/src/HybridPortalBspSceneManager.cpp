@@ -2,7 +2,7 @@
 ** This source file is part of OGRE (Object-oriented Graphics Rendering Engine)
 ** For the latest info, see http://www.ogre3d.org/
 **
-** OGRE Copyright goes for Ogre Team
+** OGRE Copyright goes to Ogre Team
 ** Hybrid Portal/BSP Scene Manager Copyright (c) 2006 Wael El Oraiby
 ** 
 ** This program is free software; you can redistribute it and/or modify it under
@@ -34,7 +34,7 @@ using namespace std;
 // HybridPortalBspSceneManager
 //-----------------------------------------------------------------------------
 HybridPortalBspSceneManager::HybridPortalBspSceneManager(const String &instanceName):
-	SceneManager(instanceName), mShowVisiblePortals(false), mShowVisibleCells(false)
+	SceneManager(instanceName), mShowVisiblePortals(false), mShowVisibleCells(false), mToken(0)
 {
 	LogManager::getSingleton().logMessage("[HybridPortalBspSceneManager(...)] created hybrid portal bsp scene manager instance");
 	
@@ -76,6 +76,9 @@ void HybridPortalBspSceneManager::_findVisibleObjects(Camera *cam, bool onlyShad
 
 	RenderQueue *queue = getRenderQueue();
 	RenderSystem *rs = Root::getSingleton().getRenderSystem();
+
+	// increment token
+	mToken++;
 
 	// first all cells are hidden
 	for(itc = mCells.begin(); itc != mCells.end(); itc++)
@@ -152,6 +155,12 @@ void HybridPortalBspSceneManager::_findVisibleObjects(Camera *cam, bool onlyShad
 	
 	rs->_endFrame();
 
+	// re-enable writing to the color/depth buffers
+	rs->_setColourBufferWriteEnabled(true, true, true, true);
+	rs->_setDepthBufferWriteEnabled(true);
+
+	rs->clearFrameBuffer(FBT_DEPTH | FBT_COLOUR);
+
 	/*
 	now for all visible cells ask all their scene managers to find their
 	visible objects
@@ -160,18 +169,29 @@ void HybridPortalBspSceneManager::_findVisibleObjects(Camera *cam, bool onlyShad
 	{
 		if( itc->second.sm )
 			itc->second.sm->_findVisibleObjects(cam, onlyShadowCasters);
+
+		// render visible movers
+		std::map<unsigned int, SceneNode*>::iterator itm;
+		for(itm = itc->second.movers.begin(); itm != itc->second.movers.end(); itm++)
+		{
+			std::map<unsigned int, Mover>::iterator it_M;
+			it_M = mMovers.find(itm->first);
+
+			// only if the mover exist
+			if(it_M != mMovers.end())
+			{
+				// check to see if it was already rendered
+				if(it_M->second.token != mToken)
+				{
+					it_M->second.token = mToken;
+					it_M->second.node->_findVisibleObjects(cam, queue, true, 
+						mDisplayNodes, onlyShadowCasters);
+				}
+			}
+		}
 	}
 
-	// re-enable writing to the color/depth buffers
-	rs->_setColourBufferWriteEnabled(true, true, true, true);
-	rs->_setDepthBufferWriteEnabled(true);
 
-/*
-	// add occluders to the render queue
-	for( i = 0; i < mOccluders.size(); i++ )
-		mOccluders[i]->_findVisibleObjects(cam, queue, true, 
-			mDisplayNodes, onlyShadowCasters);
-*/
 	// in case we want to debug the visibility of the scene
 	if( mShowVisiblePortals )
 	{
@@ -195,15 +215,6 @@ void HybridPortalBspSceneManager::_findVisibleObjects(Camera *cam, bool onlyShad
 			}
 		}
 	}
-
-	//mSceneRoot->getChild
-    // Tell nodes to find, cascade down all nodes
-    //mSceneRoot->_findVisibleObjects(cam, getRenderQueue(), true, 
-    //    mDisplayNodes, onlyShadowCasters);
-
-	//mSceneRoot->removeAndDestroyAllChildren();
-		
-	//SceneManager::_findVisibleObjects(cam, onlyShadowCasters);
 }
 
 //-----------------------------------------------------------------------------
@@ -382,6 +393,53 @@ void HybridPortalBspSceneManager::_setCellPortals(int cellId, const std::vector<
 }
 
 //-----------------------------------------------------------------------------
+SceneNode* HybridPortalBspSceneManager::createMoverSceneNode(const String &name)
+{
+	Mover mover;
+	
+	mover.node = mMoversRootSceneNode->createChildSceneNode(name);
+	mover.token = 0;
+	
+	mMovers[reinterpret_cast<unsigned int>(mover.node)] = mover;
+
+	updateMoverSceneNode(mover.node);
+
+	return mover.node;
+}
+
+//-----------------------------------------------------------------------------
+void HybridPortalBspSceneManager::updateMoverSceneNode(SceneNode *node)
+{
+	// first remove the mover from all the scene nodes it is in
+	unsigned int key = reinterpret_cast<unsigned int>(node);
+
+	// using iterators for mover as we access it many times (search for it one time)
+	std::map<unsigned int, Mover>::iterator itm;
+
+	// first try to find if the mover exists
+	itm = mMovers.find(key);
+	if(itm == mMovers.end())
+		throw "mover doesn't exist";
+
+	size_t numCells = itm->second.cells.size();
+	for(size_t i = 0; i < numCells; i++)
+		mCells[itm->second.cells[i]].movers.erase(key);
+	
+	// clear all cells
+	itm->second.cells.resize(0);
+
+	// next get the node cell
+	int cellId = mBspObject.getPointCell(node->getPosition());
+	if ( cellId != - 1)
+	{
+		mCells[cellId].movers[key] = node;
+
+		// update the list of cells this mover has
+		itm->second.cells.push_back(cellId);
+	}
+}
+
+//-----------------------------------------------------------------------------
 void HybridPortalBspSceneManager::_setPortalCells(int portalId, int cellId1, int cellId2)
 {
 	if (portalId < 0 || portalId >= static_cast<int>(mPortals.size()))
@@ -454,6 +512,7 @@ void HybridPortalBspSceneManager::resetAllInternals()
 	// clear
 	mPortals.clear();
 	mCells.clear();
+	mMovers.clear();
 	mOccluders.resize(0);
 }
 
