@@ -106,7 +106,7 @@ namespace Ogre {
 			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Cannot load empty vector of images",
 			 "Texture::loadImages");
         
-        if( mIsLoaded )
+        if(isLoaded())
         {
 			LogManager::getSingleton().logMessage( 
 				LML_NORMAL, "Texture: "+mName+": Unloading Image");
@@ -271,7 +271,6 @@ namespace Ogre {
         // Update size (the final size, not including temp space)
         mSize = getNumFaces() * PixelUtil::getMemorySize(mWidth, mHeight, mDepth, mFormat);
 
-        mIsLoaded = true;
     }
 	//-----------------------------------------------------------------------------
 	void Texture::createInternalResources(void)

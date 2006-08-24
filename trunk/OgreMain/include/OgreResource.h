@@ -91,6 +91,17 @@ namespace Ogre {
 			virtual void backgroundLoadingComplete(Resource* res) {}
 			
 		};
+		
+		/// Enum identifying the loading state of the resource
+		enum LoadingState
+		{
+			/// Not loaded
+			LOADSTATE_UNLOADED,
+			/// Loading is in progress
+			LOADSTATE_LOADING,
+			/// Fully loaded
+			LOADSTATE_LOADED
+		};
     protected:
 		/// Creator
 		ResourceManager* mCreator;
@@ -101,11 +112,9 @@ namespace Ogre {
 		/// Numeric handle for more efficient look up than name
         ResourceHandle mHandle;
 		/// Is the resource currently loaded?
-        bool mIsLoaded;
+        LoadingState mLoadingState;
 		/// Is this resource going to be background loaded? Only applicable for multithreaded
 		bool mIsBackgroundLoaded;
-		/// Is loading in progress
-		bool mIsLoadingInProgress;
 		/// Mutex to cover the status of loading
 		OGRE_MUTEX(mLoadStatusMutex)
 		/// The size of the resource in bytes
@@ -123,8 +132,8 @@ namespace Ogre {
 		/** Protected unnamed constructor to prevent default construction. 
 		*/
 		Resource() 
-			: mCreator(0), mHandle(0), mIsLoaded(false), mIsBackgroundLoaded(false),
-			mIsLoadingInProgress(false), mSize(0), mIsManual(0), mLoader(0)
+			: mCreator(0), mHandle(0), mLoadingState(LOADSTATE_UNLOADED), 
+			mIsBackgroundLoaded(false),	mSize(0), mIsManual(0), mLoader(0)
 		{ 
 		}
 
@@ -232,10 +241,26 @@ namespace Ogre {
         */
         bool isLoaded(void) const 
         { 
-			// Lock load status mutex rather than main mutex to reduce check contention
-			OGRE_LOCK_MUTEX(mLoadStatusMutex)
-            return mIsLoaded; 
+			// No lock required to read this state since no modify
+            return (mLoadingState == LOADSTATE_LOADED); 
         }
+
+		/** Returns whether the resource is currently in the process of
+			background loading.
+		*/
+		LoadingState isLoading() const
+		{
+			return mLoadingState;
+		}
+
+		/** Returns the current loading state.
+		*/
+		LoadingState getLoadingState() const
+		{
+			return mLoadingState;
+		}
+
+
 
 		/** Returns whether this Resource has been earmarked for background loading.
 		@remarks
@@ -258,6 +283,17 @@ namespace Ogre {
 			to manage the actual loading (which will call this method itself).
 		*/
 		void setBackgroundLoaded(bool bl) { mIsBackgroundLoaded = bl; }
+
+		/** Escalates the loading of a background loaded resource. 
+		@remarks
+			If a resource is set to load in the background, but something needs
+			it before it's been loaded, there could be a problem. If the user
+			of this resource really can't wait, they can escalate the loading
+			which basically pulls the loading into the current thread immediately.
+			If the resource is already being loaded but just hasn't quite finished
+			then this method will simply wait until the background load is complete.
+		*/
+		void escalateLoading();
 
 		/** Register a listener on this resource.
 			@see Resource::Listener

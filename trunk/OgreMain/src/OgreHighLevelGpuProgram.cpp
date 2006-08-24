@@ -54,7 +54,6 @@ namespace Ogre
 		if (!mAssemblerProgram.isNull())
 		{
 			mAssemblerProgram->load();
-			mIsLoaded = true;
 		}
     }
     //---------------------------------------------------------------------------

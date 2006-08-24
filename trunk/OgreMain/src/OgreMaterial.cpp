@@ -89,7 +89,8 @@ namespace Ogre {
         mReceiveShadows = rhs.mReceiveShadows;
         mTransparencyCastsShadows = rhs.mTransparencyCastsShadows;
 
-        mIsLoaded = rhs.mIsLoaded;
+        mLoadingState = rhs.mLoadingState;
+		mIsBackgroundLoaded = rhs.mIsBackgroundLoaded;
 
         // Copy Techniques
         this->removeAllTechniques();
@@ -110,7 +111,7 @@ namespace Ogre {
         mCompilationRequired = rhs.mCompilationRequired;
         // illumination passes are not compiled right away so
         // mIsLoaded state should still be the same as the original material
-        assert(mIsLoaded == rhs.mIsLoaded);
+        assert(isLoaded() == rhs.isLoaded());
 
 	    return *this;
     }

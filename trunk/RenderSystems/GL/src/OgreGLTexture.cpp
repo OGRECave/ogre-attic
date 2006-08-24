@@ -67,7 +67,7 @@ namespace Ogre {
     {
         // have to call this here reather than in Resource destructor
         // since calling virtual methods in base destructors causes crash
-		if (mIsLoaded)
+		if (isLoaded())
 		{
 			unload(); 
 		}
@@ -255,7 +255,6 @@ namespace Ogre {
         if( mUsage & TU_RENDERTARGET )
         {
             createRenderTexture();
-            mIsLoaded = true;     
         }
         else
         {
