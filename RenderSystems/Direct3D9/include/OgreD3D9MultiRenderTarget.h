@@ -51,6 +51,8 @@ namespace Ogre {
 		/** @copydoc MultiRenderTarget::unbindSurface */
 		virtual void unbindSurface(size_t attachment);
 
+        virtual void update(void);
+
 		virtual void getCustomAttribute( const String& name, void *pData );
 
 		bool requiresTextureFlipping() const { return false; }

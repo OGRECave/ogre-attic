@@ -240,6 +240,8 @@ namespace Ogre {
             mColourDepth = Ogre::PixelUtil::getNumElemBits(mBuffer->getFormat());
         }
 
+        virtual void update(void);
+
 		virtual void getCustomAttribute( const String& name, void *pData )
         {
 			if(name == "DDBACKBUFFER")
