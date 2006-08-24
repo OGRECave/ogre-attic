@@ -90,6 +90,8 @@ protected:
 	CEGUI::Window* mGuiDbg;
 	CEGUI::Window* mRoot;
 
+	std::string mDebugText;
+
 	CEGUI::MouseButton convertOISButtonToCegui(int ois_button_id);
 	void CheckMovementKeys( CEGUI::Key::Scan keycode, bool state );
 	void updateStats(void);

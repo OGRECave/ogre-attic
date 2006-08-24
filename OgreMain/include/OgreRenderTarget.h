@@ -211,12 +211,6 @@ namespace Ogre {
         */
         virtual void getCustomAttribute(const String& name, void* pData);
 
-        /** Adds debug text to this window. */
-        virtual void setDebugText(const String& text);
-
-		/** Returns the debug text. */
-		const String& getDebugText() const;
-
         /** Add a listener to this RenderTarget which will be called back before & after rendering.
         @remarks
             If you want notifications before and after a target is updated by the system, use
@@ -326,7 +320,6 @@ namespace Ogre {
 		FrameStats mStats;
         
         Timer* mTimer ;
-        String mDebugText;
         unsigned long mLastSecond;
         unsigned long mLastTime;
         size_t mFrameCount;

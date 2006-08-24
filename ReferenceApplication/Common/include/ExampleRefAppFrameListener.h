@@ -69,7 +69,7 @@ private:
         guiTris->setCaption(tris + StringConverter::toString(mWindow->getTriangleCount()));
 
         OverlayElement* guiDbg = OverlayManager::getSingleton().getOverlayElement("Core/DebugText");
-        guiDbg->setCaption(mWindow->getDebugText());
+        guiDbg->setCaption(mDebugText);
     }
     
 public:
@@ -107,6 +107,8 @@ public:
 		mTimeUntilNextToggle = 0;
 
         showDebugOverlay(true);
+
+		mDebugText = "Press SPACE to throw the ball";
     }
     virtual ~ExampleRefAppFrameListener()
     {
@@ -159,11 +161,11 @@ public:
 
 		if(mKeyboard->isKeyDown(KC_SYSRQ) && mTimeUntilNextToggle <= 0)
 		{
-			char tmp[20];
-			sprintf( tmp, "screenshot_%d.png", ++mNumScreenShots );
-			mWindow->writeContentsToFile(tmp);
+			std::ostringstream ss;
+			ss << "screenshot_" << ++mNumScreenShots << ".png";
+			mWindow->writeContentsToFile(ss.str());
 			mTimeUntilNextToggle = 0.5;
-			mWindow->setDebugText(String("Wrote ") + tmp);
+			mDebugText = "Saved: " + ss.str();
 		}
 
 
@@ -278,5 +280,6 @@ protected:
     Real mTimeUntilNextToggle ;
     Radian mRotX, mRotY;
 
+	std::string mDebugText;
 };
 #endif

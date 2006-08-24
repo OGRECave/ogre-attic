@@ -65,7 +65,7 @@ public:
             }
 
             patch->setSubdivision(factor);
-            mWindow->setDebugText("Bezier subdivision factor: " + StringConverter::toString(factor));
+            mDebugText = "Bezier subdivision factor: " + StringConverter::toString(factor);
             timeLapse = 0.0f;
 
         }

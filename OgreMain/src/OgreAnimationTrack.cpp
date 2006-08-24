@@ -444,7 +444,7 @@ namespace Ogre {
         }
         String msg = "Time: ";
         msg << timePos;
-        mMainWindow->setDebugText(msg);
+        //mMainWindow->setDebugText(msg); - removed
         */
 
         //node->rotate(kf.getRotation() * weight);

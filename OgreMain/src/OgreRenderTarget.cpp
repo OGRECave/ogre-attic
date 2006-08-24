@@ -274,16 +274,6 @@ namespace Ogre {
         OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Attribute not found.", "RenderTarget::getCustomAttribute");
     }
     //-----------------------------------------------------------------------
-    void RenderTarget::setDebugText(const String& text)
-    {
-        mDebugText = text;
-    }
-    //-----------------------------------------------------------------------
-    const String & RenderTarget::getDebugText() const
-    { 
-        return mDebugText; 
-    }
-    //-----------------------------------------------------------------------
     void RenderTarget::addListener(RenderTargetListener* listener)
     {
         mListeners.push_back(listener);

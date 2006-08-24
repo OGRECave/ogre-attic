@@ -188,8 +188,6 @@ protected:
         rsq = mSceneMgr->createRayQuery(Ray());
         rsq->setSortByDistance(true, 1);
         rsq->setWorldFragmentType(SceneQuery::WFT_SINGLE_INTERSECTION);
-
-        mWindow->setDebugText("Press SPACE to throw the ball");
     }
     // Create new frame listener
     void createFrameListener(void)

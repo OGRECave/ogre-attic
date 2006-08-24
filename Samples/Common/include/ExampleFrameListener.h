@@ -76,7 +76,7 @@ protected:
 			guiTris->setCaption(tris + StringConverter::toString(stats.triangleCount));
 
 			OverlayElement* guiDbg = OverlayManager::getSingleton().getOverlayElement("Core/DebugText");
-			guiDbg->setCaption(mWindow->getDebugText());
+			guiDbg->setCaption(mDebugText);
 		}
 		catch(...) { /* ignore */ }
 	}
@@ -226,11 +226,11 @@ public:
 
 		if(mKeyboard->isKeyDown(KC_SYSRQ) && mTimeUntilNextToggle <= 0)
 		{
-			char tmp[20];
-			sprintf( tmp, "screenshot_%d.png", ++mNumScreenShots );
-			mWindow->writeContentsToFile(tmp);
+			std::ostringstream ss;
+			ss << "screenshot_" << ++mNumScreenShots << ".png";
+			mWindow->writeContentsToFile(ss.str());
 			mTimeUntilNextToggle = 0.5;
-			mWindow->setDebugText(String("Wrote ") + tmp);
+			mDebugText = "Saved: " + ss.str();
 		}
 		
 		if(mKeyboard->isKeyDown(KC_R) && mTimeUntilNextToggle <=0)
@@ -249,13 +249,14 @@ public:
 		{
 			displayCameraDetails = !displayCameraDetails;
 			mTimeUntilNextToggle = 0.5;
-			if (!displayCameraDetails) mWindow->setDebugText("");
+			if (!displayCameraDetails)
+				mDebugText = "";
 		}
 
 		// Print camera details
 		if(displayCameraDetails)
-			mWindow->setDebugText("P: " + StringConverter::toString(mCamera->getDerivedPosition()) + 
-				" " + "O: " + StringConverter::toString(mCamera->getDerivedOrientation()));
+			mDebugText = "P: " + StringConverter::toString(mCamera->getDerivedPosition()) + 
+						 " " + "O: " + StringConverter::toString(mCamera->getDerivedOrientation());
 
 		// Return true to continue rendering
 		return true;
@@ -369,6 +370,8 @@ protected:
 	Vector3 mTranslateVector;
 	RenderWindow* mWindow;
 	bool mStatsOn;
+
+	std::string mDebugText;
 	
 	unsigned int mNumScreenShots;
 	float mMoveScale;
