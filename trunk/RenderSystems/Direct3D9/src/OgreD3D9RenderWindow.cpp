@@ -60,7 +60,7 @@ namespace Ogre
 
 	D3D9RenderWindow::~D3D9RenderWindow()
 	{
-		destroyD3DResources();
+		destroy();
 	}
 
 	bool D3D9RenderWindow::_checkMultiSampleQuality(D3DMULTISAMPLE_TYPE type, DWORD *outQuality, D3DFORMAT format, UINT adapterNum, D3DDEVTYPE deviceType, BOOL fullScreen)
@@ -497,6 +497,8 @@ namespace Ogre
 
 	void D3D9RenderWindow::destroy()
 	{
+		destroyD3DResources();
+
 		if (mHWnd && !mIsExternal)
 		{
 			WindowEventUtilities::_removeRenderWindow(this);

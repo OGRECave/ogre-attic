@@ -32,6 +32,8 @@ Torus Knot Software Ltd.
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
 #include "OgreBitwise.h"
+#include "OgreD3D9RenderSystem.h"
+#include "OgreRoot.h"
 
 namespace Ogre 
 {
@@ -70,7 +72,7 @@ namespace Ogre
 				OGRE_EXCEPT(
 					Exception::ERR_INVALIDPARAMS, 
 					"MultiRenderTarget surfaces are not of same size or pixel format", 
-					"D3D9MultiRenderTarget::checkAndUpdate"
+					"D3D9MultiRenderTarget::bindSurface"
 				);
 			}
 		}
@@ -85,6 +87,16 @@ namespace Ogre
 		targets[attachment] = 0;
 		checkAndUpdate();
 	}
+
+    void D3D9MultiRenderTarget::update(void)
+    {
+        D3D9RenderSystem* rs = static_cast<D3D9RenderSystem*>(
+            Root::getSingleton().getRenderSystem());
+        if (rs->isDeviceLost())
+            return;
+
+        MultiRenderTarget::update();
+    }
 
 	void D3D9MultiRenderTarget::getCustomAttribute(const String& name, void *pData)
     {
