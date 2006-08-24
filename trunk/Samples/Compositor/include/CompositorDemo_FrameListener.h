@@ -82,6 +82,8 @@ LGPL like the rest of the engine.
 
 
     protected:
+        std::string mDebugText;
+
         CompositorDemo* mMain;
         HeatVisionListener *hvListener;
 		HDRListener *hdrListener;

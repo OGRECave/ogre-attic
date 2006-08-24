@@ -40,9 +40,10 @@ class SkeletalAnimationFrameListener : public ExampleFrameListener
 {
 protected:
 public:
-    SkeletalAnimationFrameListener(RenderWindow* win, Camera* cam)
+	SkeletalAnimationFrameListener(RenderWindow* win, Camera* cam, const std::string &debugText)
         : ExampleFrameListener(win, cam)
     {
+		mDebugText = debugText;
     }
 
     bool frameStarted(const FrameEvent& evt)
@@ -87,6 +88,7 @@ public:
     SkeletalApplication() {}
 
 protected:
+	std::string mDebugText;
 
     // Just override the mandatory create scene method
     void createScene(void)
@@ -200,15 +202,10 @@ protected:
         // Report whether hardware skinning is enabled or not
         Technique* t = ent->getSubEntity(0)->getMaterial()->getBestTechnique();
         Pass* p = t->getPass(0);
-        if (p->hasVertexProgram() && 
-            p->getVertexProgram()->isSkeletalAnimationIncluded())
-        {
-            mWindow->setDebugText("Hardware skinning is enabled");
-        }
+        if (p->hasVertexProgram() && p->getVertexProgram()->isSkeletalAnimationIncluded())
+            mDebugText = "Hardware skinning is enabled";
         else
-        {
-            mWindow->setDebugText("Software skinning is enabled");
-        }
+            mDebugText = "Software skinning is enabled";
 
 		Plane plane;
 		plane.normal = Vector3::UNIT_Y;
@@ -229,7 +226,7 @@ protected:
     // Create new frame listener
     void createFrameListener(void)
     {
-        mFrameListener= new SkeletalAnimationFrameListener(mWindow, mCamera);
+        mFrameListener= new SkeletalAnimationFrameListener(mWindow, mCamera, mDebugText);
         mRoot->addFrameListener(mFrameListener);
     }
 

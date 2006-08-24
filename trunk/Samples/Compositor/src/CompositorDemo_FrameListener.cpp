@@ -99,11 +99,11 @@ LGPL like the rest of the engine.
 			if (Ogre::StringUtil::startsWith(def->name, "rt_lum", false))
 			{
 				int idx = Ogre::StringConverter::parseInt(def->name.substr(6,1));
-				mLumSize[idx] = def->width; // should be square
+				mLumSize[idx] = (int)def->width; // should be square
 			}
 			else if(def->name == "rt_bloom0")
 			{
-				mBloomSize = def->width; // should be square
+				mBloomSize = (int)def->width; // should be square
 				// Calculate gaussian texture offsets & weights
 				float deviation = 3.0f;
 				float texelSize = 1.0f / (float)mBloomSize;
@@ -517,11 +517,11 @@ LGPL like the rest of the engine.
 
         if (e.key == OIS::KC_SYSRQ )
         {
-            char tmp[20];
-            sprintf(tmp, "screenshot_%d.png", ++mNumScreenShots);
-            mMain->getRenderWindow()->writeContentsToFile(tmp);
-            //mTimeUntilNextToggle = 0.5;
-            mMain->getRenderWindow()->setDebugText(Ogre::String("Wrote ") + tmp);
+			std::ostringstream ss;
+            ss << "screenshot_" << ++mNumScreenShots << ".png";
+            mMain->getRenderWindow()->writeContentsToFile(ss.str());
+            mDebugText = "Saved: " + ss.str();
+			//mTimeUntilNextToggle = 0.5;
         }
 
         // do event injection
@@ -585,7 +585,7 @@ LGPL like the rest of the engine.
             + " " + Ogre::StringConverter::toString(stats.worstFrameTime)+" ms");
 
         mGuiTris->setText(tris + Ogre::StringConverter::toString(stats.triangleCount));
-        mGuiDbg->setText(mMain->getRenderWindow()->getDebugText());
+        mGuiDbg->setText(mDebugText);
         mAvgFrameTime = 1.0f/(stats.avgFPS + 1.0f);
         if (mAvgFrameTime > 0.1f) mAvgFrameTime = 0.1f;
 

@@ -1107,11 +1107,11 @@ bool OceanDemo_FrameListener::keyPressed (const OIS::KeyEvent &e)
 
     if (e.key == OIS::KC_SYSRQ )
     {
-        char tmp[20];
-        sprintf(tmp, "screenshot_%d.png", ++mNumScreenShots);
-        mMain->getRenderWindow()->writeContentsToFile(tmp);
+		std::ostringstream ss;
+        ss << "screenshot_" << ++mNumScreenShots << ".png";
+        mMain->getRenderWindow()->writeContentsToFile(ss.str());
         //mTimeUntilNextToggle = 0.5;
-        mMain->getRenderWindow()->setDebugText(Ogre::String("Wrote ") + tmp);
+		mDebugText = "Saved: " + ss.str();
     }
 
     // do event injection
@@ -1174,7 +1174,7 @@ void OceanDemo_FrameListener::updateStats(void)
 		+ " " + Ogre::StringConverter::toString(stats.worstFrameTime)+" ms");
 
 	mGuiTris->setText(tris + Ogre::StringConverter::toString(stats.triangleCount));
-	mGuiDbg->setText(mMain->getRenderWindow()->getDebugText());
+	mGuiDbg->setText(mDebugText);
 	mAvgFrameTime = 1.0f/(stats.avgFPS + 1.0f);
 	if (mAvgFrameTime > 0.1f) mAvgFrameTime = 0.1f;
 
