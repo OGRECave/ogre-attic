@@ -100,18 +100,25 @@ void HybridPortalBspSceneManager::_findVisibleObjects(Camera *cam, bool onlyShad
 			{	
 				// portal is visible
 				itp->second.isVisible = true;
-
-				// extract cell visibility
-				int cell0 = itp->second.cells[0];
-				if( cell0 >= 0 )
-					mCells[cell0].isVisible = true;
-
-				int cell1 = itp->second.cells[1];
-				if( cell1 >= 0 )
-					mCells[cell1].isVisible = true;				
 			} else {
 				itp->second.isVisible = false;
 			}
+		}
+	}
+
+	// pull visible portals again (this is to remove flickering)
+	for( itp = mPortals.begin(); itp != mPortals.end(); itp++ )
+	{
+		if (itp->second.isVisible)
+		{
+			// extract cell visibility
+			int cell0 = itp->second.cells[0];
+			if( cell0 >= 0 )
+				mCells[cell0].isVisible = true;
+
+			int cell1 = itp->second.cells[1];
+			if( cell1 >= 0 )
+				mCells[cell1].isVisible = true;	
 		}
 	}
 
