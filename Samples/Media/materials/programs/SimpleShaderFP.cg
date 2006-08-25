@@ -28,7 +28,7 @@ Fragment main(Vertex In)
 {
     Fragment Out;
 
-    Out.color = tex2D(TextureMap, In.texCoord);
+    Out.color = tex2D(TextureMap, In.texCoord.xy/In.texCoord.w);
     // Ogre is automatically handling diffuse lighting for us.
     //Out.color.xyz *= In.diffuse.x;
 
