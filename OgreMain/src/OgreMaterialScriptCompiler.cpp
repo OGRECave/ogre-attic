@@ -204,11 +204,12 @@ namespace Ogre {
         // GPU Programs
         " \n"
         "<Vertex_Program> ::= 'vertex_program' <Label> [<Seperator>] <Label> '{' {<Vertex_Program_Option>} '}' \n"
-        "   <Vertex_Program_Option> ::= <Vertex_Program_Animation> | <GPU_Program_Options> \n"
+        "   <Vertex_Program_Option> ::= <Vertex_Program_Animation> | <Vertex_Texture_Fetch> | <GPU_Program_Options> \n"
         "   <Vertex_Program_Animation> ::= <Skeletal_Animation> | <Morph_Animation> | <Pose_Animation> \n"
         "       <Skeletal_Animation> ::= 'includes_skeletal_animation' <True_False> \n"
         "       <Morph_Animation> ::= 'includes_morph_animation' <True_False> \n"
         "       <Pose_Animation> ::= 'includes_pose_animation' <#val> \n"
+        "       <Vertex_Texture_Fetch> ::= 'uses_vertex_texture_fetch' <True_False> \n"
         "<Fragment_Program> ::= 'fragment_program' <Label> [<Seperator>] <Label> '{' {<GPU_Program_Options>}'}' \n"
         // do custom parameters last since it will consume everything on the line in the source
         "   <GPU_Program_Options> ::= <Program_Source> | <Syntax> | <Default_Params> | <Custom_Parameter> \n"
@@ -268,6 +269,8 @@ namespace Ogre {
             addLexemeTokenAction("includes_skeletal_animation", ID_INCLUDES_SKELETAL_ANIMATION, &MaterialScriptCompiler::parseProgramSkeletalAnimation);
             addLexemeTokenAction("includes_morph_animation", ID_INCLUDES_MORPH_ANIMATION, &MaterialScriptCompiler::parseProgramMorphAnimation);
             addLexemeTokenAction("includes_pose_animation", ID_INCLUDES_POSE_ANIMATION, &MaterialScriptCompiler::parseProgramPoseAnimation);
+            addLexemeTokenAction("uses_vertex_texture_fetch", ID_USES_VERTEX_TEXTURE_FETCH, &MaterialScriptCompiler::parseProgramVertexTextureFetch);
+            
         addLexemeTokenAction("fragment_program", ID_FRAGMENT_PROGRAM, &MaterialScriptCompiler::parseGPUProgram);
 
             addLexemeTokenAction("source", ID_SOURCE, &MaterialScriptCompiler::parseProgramSource);
@@ -614,6 +617,7 @@ namespace Ogre {
         mScriptContext.programDef->supportsSkeletalAnimation = false;
 		mScriptContext.programDef->supportsMorphAnimation = false;
 		mScriptContext.programDef->supportsPoseAnimation = 0;
+        mScriptContext.programDef->usesVertexTextureFetch = false;
 
 		// Get name and language code
 		// Name, preserve case
@@ -656,6 +660,12 @@ namespace Ogre {
 	{
         assert(mScriptContext.programDef);
 		mScriptContext.programDef->supportsPoseAnimation = static_cast<ushort>(getNextTokenValue());
+	}
+	//-----------------------------------------------------------------------
+	void MaterialScriptCompiler::parseProgramVertexTextureFetch(void)
+	{
+        assert(mScriptContext.programDef);
+		mScriptContext.programDef->usesVertexTextureFetch = testNextTokenID(ID_TRUE);
 	}
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseProgramCustomParameter(void)
@@ -2690,6 +2700,9 @@ namespace Ogre {
 		gp->setMorphAnimationIncluded(def->supportsMorphAnimation);
 		// Set pose animation option
 		gp->setPoseAnimationIncluded(def->supportsPoseAnimation);
+        // Set vertex texture usage 
+        gp->setVertexTextureFetchRequired(def->usesVertexTextureFetch); 
+
 		// set origin
 		gp->_notifyOrigin(mSourceName);
 
