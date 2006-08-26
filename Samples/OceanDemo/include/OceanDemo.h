@@ -170,6 +170,7 @@ protected:
     /// Method which will define the source of resources (other than current folder)
     void setupResources(void);
 	void loadResources(void);
+	bool setupGUI(void);
 	void createScene(void);
 	void createFrameListener(void);
 
