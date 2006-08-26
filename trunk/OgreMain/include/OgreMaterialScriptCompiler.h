@@ -76,6 +76,7 @@ namespace Ogre {
             ID_VERTEX_PROGRAM, ID_FRAGMENT_PROGRAM, ID_SOURCE, ID_SYNTAX, ID_CUSTOM_PARAMETER,
             ID_DEFAULT_PARAMS,
             ID_INCLUDES_SKELETAL_ANIMATION, ID_INCLUDES_MORPH_ANIMATION, ID_INCLUDES_POSE_ANIMATION,
+            ID_USES_VERTEX_TEXTURE_FETCH,
             // material
             ID_MATERIAL, ID_CLONE, ID_LOD_DISTANCES, ID_RECEIVE_SHADOWS,
             ID_TRANSPARENCY_CASTS_SHADOWS, ID_SET_TEXTURE_ALIAS,
@@ -153,6 +154,7 @@ namespace Ogre {
             bool supportsSkeletalAnimation;
 		    bool supportsMorphAnimation;
 		    ushort supportsPoseAnimation; // number of simultaneous poses supported
+            bool usesVertexTextureFetch;
 		    std::map<String, String> customParameters;
 	    };
         /** Struct for holding the script context while parsing. */
@@ -293,6 +295,7 @@ namespace Ogre {
         void parseProgramSkeletalAnimation(void);
         void parseProgramMorphAnimation(void);
         void parseProgramPoseAnimation(void);
+        void parseProgramVertexTextureFetch(void);
         void parseVertexProgramRef(void);
         void parseFragmentProgramRef(void);
         void parseShadowCasterVertexProgramRef(void);
