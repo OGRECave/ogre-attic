@@ -103,7 +103,7 @@ namespace Ogre {
             ID_ALPHA, ID_ANIM_TEXTURE, ID_CUBIC_TEXTURE, ID_SEPARATE_UV, ID_COMBINED_UVW,
             ID_TEX_COORD_SET, ID_TEX_ADDRESS_MODE, ID_WRAP, ID_CLAMP, ID_MIRROR, ID_BORDER, ID_TEX_BORDER_COLOUR,
             ID_FILTERING, ID_BILINEAR, ID_TRILINEAR, ID_ANISOTROPIC,
-            ID_MAX_ANISOTROPY, ID_COLOUR_OP, ID_REPLACE,
+            ID_MAX_ANISOTROPY, ID_MIPMAP_BIAS, ID_COLOUR_OP, ID_REPLACE,
             ID_COLOUR_OP_EX, ID_SOURCE1, ID_SOURCE2, ID_MODULATE_X2, ID_MODULATE_X4, ID_ADD_SIGNED,
             ID_ADD_SMOOTH, ID_SUBTRACT, ID_BLEND_DIFFUSE_COLOUR, ID_BLEND_DIFFUSE_ALPHA,
             ID_BLEND_TEXTURE_ALPHA, ID_BLEND_CURRENT_ALPHA, ID_BLEND_MANUAL, ID_DOTPRODUCT,
@@ -113,7 +113,7 @@ namespace Ogre {
             ID_SCROLL, ID_SCROLL_ANIM, ID_ROTATE, ID_ROTATE_ANIM, ID_SCALE, ID_WAVE_XFORM,
             ID_SCROLL_X, ID_SCROLL_Y, ID_SCALE_X, ID_SCALE_Y, ID_SINE, ID_TRIANGLE,
             ID_SQUARE, ID_SAWTOOTH, ID_INVERSE_SAWTOOTH,
-            ID_TRANSFORM,
+            ID_TRANSFORM, ID_BINDING_TYPE, 
             // GPU program references
             ID_VERTEX_PROGRAM_REF, ID_FRAGMENT_PROGRAM_REF, ID_SHADOW_CASTER_VERTEX_PROGRAM_REF,
             ID_SHADOW_RECEIVER_VERTEX_PROGRAM_REF, ID_SHADOW_RECEIVER_FRAGMENT_PROGRAM_REF,
@@ -122,7 +122,7 @@ namespace Ogre {
 
             // general
             ID_ON, ID_OFF, ID_TRUE, ID_FALSE, ID_NONE, ID_POINT, ID_LINEAR, ID_ADD, ID_MODULATE, ID_ALPHA_BLEND,
-            ID_ONE, ID_ZERO
+            ID_ONE, ID_ZERO, ID_VERTEX, ID_FRAGMENT
         };
 
         /** Enum to identify material sections. */
@@ -262,6 +262,7 @@ namespace Ogre {
         void parseFiltering(void);
         FilterOptions convertFiltering();
         void parseMaxAnisotropy(void);
+        void parseMipMapBias(void);
         void parseColourOp(void);
         void parseColourOpEx(void);
         LayerBlendOperationEx convertBlendOpEx(void);
@@ -277,6 +278,8 @@ namespace Ogre {
         void parseWaveXform(void);
         void parseTransform(void);
         void parseTextureCustomParameter(void);
+    	void parseBindingType(void);
+
         // GPU Program
         void parseGPUProgram(void);
         void parseProgramSource(void);
