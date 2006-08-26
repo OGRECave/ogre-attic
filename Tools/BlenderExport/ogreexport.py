@@ -81,6 +81,7 @@ if KEEP_SETTINGS:
 ######
 from Blender import Draw
 from Blender import Mathutils
+from Blender import Modifier
 from Blender.BGL import *
 from Blender.Mathutils import *
 ######
@@ -1081,11 +1082,8 @@ class ArmatureExporter:
                             else:
                                 parent_pose_mat = Matrix(matrix).invert()
 
-                            # calc change in size, location, rotation of bone and add keyframe to active track
+                            # calc change in scale, location, rotation of bone and add keyframe to active track
 
-                            sizeX = 1.0
-                            sizeY = 1.0
-                            sizeZ = 1.0
                             #print "Parent Bone: ", bone.parent.name
                             # get the parent bone poseMatrix which is in armature object space
                             # put into world space then invert so that it can be used to put
@@ -1100,31 +1098,35 @@ class ArmatureExporter:
                             #print "rest bone loc (Ogre): ", bone.loc
                             # Ogre's deltaT is in the bone's parent coordinate system
                             loc = boneMat.translationPart() - Vector(bone.loc)
-                            size = (sizeX, sizeY, sizeZ)
+                            # get the change in size for this PoseBone (no change is 1,1,1)
+                            # although size is a vector its a reference and we want a copy so Vector() is used
+                            scale = boneMat.scalePart() # boneMat.rotationPart().toQuat() * 
+                            #print scale
                             # get track for active bone from tack dictionary of active animation
                             track = animation.tracksDict[bone.name]
                             # does a new keyframe need to be added?
                             prevKeyFrameID = len(track.keyframes) - 1
                             if (prevKeyFrameID >= 0):
                                 prevKeyFrame = track.keyframes[prevKeyFrameID]
-                                #print "checking for key frame duplication"
+                                # print "checking for key frame duplication"
                                 quatEqual = Vector([prevKeyFrame.rotQuat[0], prevKeyFrame.rotQuat[1], prevKeyFrame.rotQuat[2], prevKeyFrame.rotQuat[3]])
                                 quatEqual -= Vector([rotQuat[0], rotQuat[1], rotQuat[2], rotQuat[3]])
                                 quatEqual = quatEqual.length < 0.0001
-                                if ((prevKeyFrame.loc - loc).length < 0.0001) & quatEqual:
+                                # print "prev frame" , prevKeyFrame.scale
+                                if ((prevKeyFrame.loc - loc).length < 0.0001) and quatEqual and (prevKeyFrame.scale == scale):
                                     if prevKeyFrame.repeat:
                                         # advance time of repeating keyframe and don't add new keyframe
                                         #print "updating time on previous repeat keyframe"
                                         prevKeyFrame.time = time
                                     else:
                                         #print "adding new repeat keyframe"
-                                        KeyFrame(track, time, loc, rotQuat, size, True)
+                                        KeyFrame(track, time, loc, rotQuat, scale, True)
                                 else:
                                     #print "adding new keyframe"
-                                    KeyFrame(track, time, loc, rotQuat, size)
+                                    KeyFrame(track, time, loc, rotQuat, scale)
                             else:
                                 #print "adding first keyframe"
-                                KeyFrame(track, time, loc, rotQuat, size)
+                                KeyFrame(track, time, loc, rotQuat, scale)
 
                             #print "key frame added for bone ", bone.name
 
@@ -1226,9 +1228,7 @@ class ArmatureExporter:
                                 # Blender's ordering of transformations is deltaR*deltaS*deltaT
                                 # in the bone's coordinate system.
                                 frame = int(round(frameNumberDict[time]))
-                                sizeX = 1.0
-                                sizeY = 1.0
-                                sizeZ = 1.0
+                                scale = Vector(1,1,1)
                                 blenderLoc = Vector([0, 0, 0, 1])
                                 loc = Vector([ 0.0, 0.0, 0.0 ])
                                 rotQuat = Quaternion([1.0, 0.0, 0.0, 0.0])
@@ -1259,16 +1259,15 @@ class ArmatureExporter:
                                                 ipo.EvaluateCurveOn(curveId["QuatZ"], frame), \
                                                 ipo.EvaluateCurveOn(curveId["QuatW"], frame) ]
                                         rotQuat = Quaternion(rot)
-                                if curveId.has_key("SizeX"):
-                                    sizeX = ipo.EvaluateCurveOn(curveId["SizeX"], frame)
-                                if curveId.has_key("SizeY"):
-                                    sizeY = ipo.EvaluateCurveOn(curveId["SizeY"], frame)
-                                if curveId.has_key("SizeZ"):
-                                    sizeZ = ipo.EvaluateCurveOn(curveId["SizeZ"], frame)
+                                if curveId.has_key("ScaleX"):
+                                    scale.x = ipo.EvaluateCurveOn(curveId["ScaleX"], frame)
+                                if curveId.has_key("ScaleY"):
+                                    scale.y = ipo.EvaluateCurveOn(curveId["ScaleY"], frame)
+                                if curveId.has_key("ScaleZ"):
+                                    scale.z = ipo.EvaluateCurveOn(curveId["ScaleZ"], frame)
 
                                 rotQuat.normalize()
-                                size = (sizeX, sizeY, sizeZ)
-                                KeyFrame(track, time, loc, rotQuat, size)
+                                KeyFrame(track, time, loc, rotQuat, scale)
                                 #print "key frame added"
                             # append track
                             animation.tracksDict[boneName] = track
@@ -1439,7 +1438,7 @@ class ArmatureExporter:
                 if len(track.keyframes) == 2:
                     keyframe = track.keyframes[1]
                     if keyframe.repeat:
-                        if (keyframe.rotQuat.angle == 0.0) & (keyframe.loc.length < 0.0001):
+                        if (keyframe.rotQuat.angle == 0.0) and (keyframe.loc.length < 0.0001) and (keyframe.scale != Vector(1,1,1)):
                             continue
 
                 f.write(tab(4)+"<track bone=\"%s\">\n" % track.bone.name)
@@ -1449,16 +1448,16 @@ class ArmatureExporter:
                     f.write(tab(6)+"<keyframe time=\"%f\">\n" % keyframe.time)
                     # only output translation if its not the default value
                     if keyframe.loc.length > 0.0001:
-                        x, y, z = keyframe.loc
-                        f.write(tab(7)+"<translate x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (x, y, z))
+                        f.write(tab(7)+"<translate x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (keyframe.loc.x, keyframe.loc.y, keyframe.loc.z))
                     # only output totation if its not the default value
                     if keyframe.rotQuat.angle != 0.0:
                         f.write(tab(7)+"<rotate angle=\"%.6f\">\n" % (keyframe.rotQuat.angle/180*math.pi))
                         f.write(tab(8)+"<axis x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % tuple(keyframe.rotQuat.axis))
                         f.write(tab(7)+"</rotate>\n")
                     # only output scale if its not the default value
-                    if keyframe.scale != (1, 1, 1):
-                        f.write(tab(7)+"<scale x=\"%f\" y=\"%f\" z=\"%f\"/>\n" % keyframe.scale)
+                    #print keyframe.scale
+                    if keyframe.scale != Vector(1.0, 1.0, 1.0):
+                        f.write(tab(7) + "<scale x=\"%f\" y=\"%f\" z=\"%f\"/>\n" % (keyframe.scale.x, keyframe.scale.y, keyframe.scale.z))
 
                     f.write(tab(6)+"</keyframe>\n")
 
@@ -3042,7 +3041,7 @@ def process_vert_influences(mesh, skeleton):
             for name, weight in influences:
                 total += weight
             for name, weight in influences:
-                vertex.influences.append(Influence(skeleton.bonesDict[name], weight/total))
+                vertex.influences.append(Influence(skeleton.bonesDict[name], weight))
 
 # remap vertices for faces
 def process_face(face, submesh, mesh, matrix, skeleton=None):
@@ -3150,6 +3149,20 @@ def process_face(face, submesh, mesh, matrix, skeleton=None):
         exportLogger.logWarning("Ignored face with %d edges." % len(face.v))
     return
 
+def getArmatureFromObject(object):
+    armature = None
+    parent = object.parent
+    if (parent and (parent.getType() == "Armature")):
+        armature = parent;
+    # Try to get the armature from the armature modifier since parent failed to provide an armature
+    elif object.modifiers:
+        for modifier in object.modifiers:
+            if (modifier.type == Modifier.Type.ARMATURE):
+                armature = modifier[Modifier.Settings.OBJECT]
+                break
+                    
+    return armature
+
 def export_mesh(object, exportOptions):
     global gameEngineMaterialsToggle
     global armatureToggle
@@ -3160,20 +3173,19 @@ def export_mesh(object, exportOptions):
 
     if (object.getType() == "Mesh"):
         # is this mesh attached to an armature?
+        # armature could be the parent of the mesh or could be a modifier so check for both
         skeleton = None
         #print "Exporting: ", object
         if armatureToggle.val:
-            parent = object.parent
-            #print parent
-            #if parent and parent.getType() == "Armature" and (not skeletonsDict.has_key(parent.getName())):
-            if (parent and (parent.getType() == "Armature")):
+            armature = getArmatureFromObject(object)
+            if (armature != None):
                 #print "is an armature"
-                if armatureActionActuatorListViewDict.has_key(parent.name):
-                    #print "list view has the key for armature: ", parent.name
-                    actionActuatorList = armatureActionActuatorListViewDict[parent.name].armatureActionActuatorList
+                if armatureActionActuatorListViewDict.has_key(armature.name):
+                    #print "list view has the key for armature: ", armature.name
+                    actionActuatorList = armatureActionActuatorListViewDict[armature.name].armatureActionActuatorList
                     #print Blender.Armature.Get()
                     #print Blender.Armature.Get(parent.name)
-                    armatureExporter = ArmatureExporter(object, parent)
+                    armatureExporter = ArmatureExporter(object, armature)
                     armatureExporter.export(actionActuatorList, exportOptions, exportLogger)
                     skeleton = armatureExporter.skeleton
                     print "skeleton exported"
@@ -3598,10 +3610,10 @@ def refreshGUI():
             # add armature to armatureDict
             armatureDict[object.name] = object.name
         elif (object.getType() == "Mesh"):
-            parent = object.parent
-            if parent and parent.getType() == "Armature":
+            armature = getArmatureFromObject(object)
+            if (armature != None):
                 # add armature to armatureDict
-                armatureDict[object.name] = parent.name
+                armatureDict[object.name] = armature.name
     # refresh ArmatureActionActuatorListViews
     for armatureName in armatureDict.values():
         #print "creating armatureActionDict for armature: ", armatureName
