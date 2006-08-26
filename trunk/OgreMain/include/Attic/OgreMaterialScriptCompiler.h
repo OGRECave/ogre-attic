@@ -127,7 +127,10 @@ namespace Ogre {
 
             // general
             ID_ON, ID_OFF, ID_TRUE, ID_FALSE, ID_NONE, ID_POINT, ID_LINEAR, ID_ADD, ID_MODULATE, ID_ALPHA_BLEND,
-            ID_ONE, ID_ZERO, ID_VERTEX, ID_FRAGMENT
+            ID_ONE, ID_ZERO, ID_VERTEX, ID_FRAGMENT,
+
+            // where auto generated tokens start so donot remove
+            ID_AUTOTOKENSTART
         };
 
         /** Enum to identify material sections. */
@@ -203,6 +206,10 @@ namespace Ogre {
             section of the source that has been parsed.
         **/
         virtual void executeTokenAction(const size_t tokenID);
+        /** Get the start position of auto generated token IDs.
+        */
+        virtual size_t getAutoTokenIDStart() const {return ID_AUTOTOKENSTART;}
+
         /** Associate all the lexemes used in a material script with their corresponding tokens and actions.
         **/
         virtual void setupTokenDefinitions(void);
