@@ -191,7 +191,10 @@ namespace Ogre {
 
             BNF_LETTER, BNF_LETTER_DIGIT, BNF_DIGIT, BNF_WHITE_SPACE,
             BNF_ALPHA_SET, BNF_NUMBER_SET, BNF_SPECIAL_CHARACTER_SET1,
-			BNF_SPECIAL_CHARACTER_SET2, BNF_SPECIAL_CHARACTER_SET3, BNF_NOT_CHARS
+			BNF_SPECIAL_CHARACTER_SET2, BNF_SPECIAL_CHARACTER_SET3, BNF_NOT_CHARS,
+
+            // do not remove - this indicates where manually defined tokens end and where auto-gen ones start
+            BNF_AUTOTOKENSTART
         };
 
 
@@ -325,6 +328,13 @@ namespace Ogre {
             enough tokens exist for pass 2 processing to take place.
         */
         virtual void executeTokenAction(const size_t tokenID) = 0;
+        /** Get the start ID for auto generated token IDs.  This is also one pass the end of manually set token IDs.
+            Manually set Token ID are usually setup in the client code through an enum type so its best to make the
+            last entry the auto ID start position and return this enum value.
+            This method gets called automatically just prior to setupTokenDefinitions() to ensure that any tokens that are auto generated are placed after
+            the manually set ones.
+        */
+        virtual size_t getAutoTokenIDStart() const = 0;
         /** setup client token definitions.  Gets called when BNF grammer is being setup.
         */
         virtual void setupTokenDefinitions(void) = 0;
@@ -461,11 +471,12 @@ namespace Ogre {
             building the rule base from the BNF script so all associations must  be done
             prior to compiling a source.
         @param lexeme is the name of the token and use when parsing the source to determin a match for a token.
-        @param token is the ID associated with the lexeme
+        @param token is the ID associated with the lexeme. If token is 0 then the token ID is auto generated and returned.
         @param hasAction must be set true if the client wants an action triggered when this token is generated
         @param caseSensitive should be set true if lexeme match should use case sensitivity
+        @return the ID of the token.  Useful when auto generating token IDs.
         */
-        void addLexemeToken(const String& lexeme, const size_t token, const bool hasAction = false, const bool caseSensitive = false);
+        size_t addLexemeToken(const String& lexeme, const size_t token, const bool hasAction = false, const bool caseSensitive = false);
 
         /** Sets up the parser rules for the client based on the BNF Grammer text passed in.
         @remarks
