@@ -30,7 +30,7 @@
 					<Add directory="..\..\..\OgreMain\include"/>
 				</Compiler>
 				<Linker>
-					<Add library="msModelLibd"/>
+					<Add library="msModelLib"/>
 					<Add library="OgreMain_d"/>
 					<Add directory="..\lib\Debug"/>
 					<Add directory="..\..\..\OgreMain\lib\Debug"/>
