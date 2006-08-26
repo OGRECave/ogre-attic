@@ -352,15 +352,16 @@ class ArmatureAction:
         if self.ipoDict is not None:
             # check all bone Ipos
             for ipo in self.ipoDict.values():
-                # check all IpoCurves
-                for ipoCurve in ipo.getCurves():
-                    # check first and last keyframe
-                    for bezTriple in ipoCurve.getPoints():
-                        iFrame = bezTriple.getPoints()[0]
-                        if ((iFrame < self.firstKeyFrame) or (self.firstKeyFrame is None)):
-                            self.firstKeyFrame = iFrame
-                        if ((iFrame > self.lastKeyFrame) or (self.lastKeyFrame is None)):
-                            self.lastKeyFrame = iFrame
+                # check all IpoCurves if the ipo exists
+                if ipo is not None:
+                    for ipoCurve in ipo.getCurves():
+                        # check first and last keyframe
+                        for bezTriple in ipoCurve.getPoints():
+                            iFrame = bezTriple.getPoints()[0]
+                            if ((iFrame < self.firstKeyFrame) or (self.firstKeyFrame is None)):
+                                self.firstKeyFrame = iFrame
+                            if ((iFrame > self.lastKeyFrame) or (self.lastKeyFrame is None)):
+                                self.lastKeyFrame = iFrame
         if self.firstKeyFrame == None:
             self.firstKeyFrame = 1
         if self.lastKeyFrame == None:
