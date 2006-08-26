@@ -76,17 +76,13 @@ namespace CEGUI
         }
 
 		Ogre::String buf = input->getAsString();
-		// when copying the string buffer we want to include the null terminator.
-		// Only TinyXML makes use of the null terminator to determine if end of buffer has been reached.
-		// The other XML parsers that can be used in CEGUI use the buffer size which does not include the null terminator.
-		const size_t dataLength = buf.length();
-		const size_t memBuffSize = dataLength + 1;
+		const size_t memBuffSize = buf.length();
 
         unsigned char* mem = new unsigned char[memBuffSize];
         memcpy(mem, buf.c_str(), memBuffSize);
 
         output.setData(mem);
-        output.setSize(dataLength);
+        output.setSize(memBuffSize);
     }
 
 	void OgreCEGUIResourceProvider::unloadRawDataContainer(RawDataContainer& data)
