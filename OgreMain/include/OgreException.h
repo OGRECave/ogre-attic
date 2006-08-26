@@ -142,7 +142,7 @@ namespace Ogre {
 
         /** Advanced constructor.
         */
-        Exception( int number, const String& description, const String& source, char* file, long line );
+        Exception( int number, const String& description, const String& source, const char* file, long line );
 
         /** Copy constructor.
         */

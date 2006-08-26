@@ -53,7 +53,7 @@ namespace Ogre {
         last = this;
     }
 
-    Exception::Exception(int num, const String& desc, const String& src, char* fil, long lin) :
+    Exception::Exception(int num, const String& desc, const String& src, const char* fil, long lin) :
         line( lin ),
         number( num ),
         description( desc ),
