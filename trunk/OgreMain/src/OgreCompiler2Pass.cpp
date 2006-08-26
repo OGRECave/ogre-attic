@@ -50,6 +50,10 @@ namespace Ogre {
     {
         if (mBNFTokenState.lexemeTokenDefinitions.empty())
         {
+            /* Every Token ID must be manually generated during the compiler bootstrap phase
+               since the rule base is manually defined.
+           */
+
             addLexemeToken("UNKNOWN", BNF_UNKOWN);
             addLexemeToken("syntax", BNF_SYNTAX);
             addLexemeToken("rule", BNF_RULE);
@@ -1257,12 +1261,27 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void Compiler2Pass::addLexemeToken(const String& lexeme, const size_t token, const bool hasAction, const bool caseSensitive)
+    size_t Compiler2Pass::addLexemeToken(const String& lexeme, const size_t token, const bool hasAction, const bool caseSensitive)
     {
-        if (token >= mActiveTokenState->lexemeTokenDefinitions.size())
-            mActiveTokenState->lexemeTokenDefinitions.resize(token + 1);
+        size_t newTokenID = token;
+        // if token ID is zero then auto-generate a new token ID
+        if (newTokenID == 0)
+        {
+            // assume BNF system bootstrap is current state
+            size_t autoTokenIDStart = BNF_AUTOTOKENSTART;
+            // if in client state then get auto token start position from the client
+            if (mActiveTokenState != &mBNFTokenState)
+                autoTokenIDStart = getAutoTokenIDStart();
+            // make sure new auto gen id starts at autoTokenIDStart or greater
+            newTokenID = (mActiveTokenState->lexemeTokenDefinitions.size() <= autoTokenIDStart ) ? autoTokenIDStart : newTokenID = mActiveTokenState->lexemeTokenDefinitions.size();
+        }
+        
+        if (newTokenID >= mActiveTokenState->lexemeTokenDefinitions.size())
+        {
+            mActiveTokenState->lexemeTokenDefinitions.resize(newTokenID + 1);
+        }
         // since resizing guarentees the token definition will exist, just assign values to members
-        LexemeTokenDef& tokenDef = mActiveTokenState->lexemeTokenDefinitions[token];
+        LexemeTokenDef& tokenDef = mActiveTokenState->lexemeTokenDefinitions[newTokenID];
         if (tokenDef.ID != 0)
         {
             OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "In " + getClientGrammerName() +
@@ -1270,14 +1289,16 @@ namespace Ogre {
                 lexeme + "<<< already exists in lexeme token definitions",
                 "Compiler2Pass::addLexemeToken");
         }
-        tokenDef.ID = token;
+        tokenDef.ID = newTokenID;
         tokenDef.lexeme = lexeme;
         if (!caseSensitive)
             StringUtil::toLowerCase(tokenDef.lexeme);
         tokenDef.hasAction = hasAction;
         tokenDef.isCaseSensitive = caseSensitive;
 
-        mActiveTokenState->lexemeTokenMap[lexeme] = token;
+        mActiveTokenState->lexemeTokenMap[lexeme] = newTokenID;
+
+        return newTokenID;
     }
 
     //-----------------------------------------------------------------------
