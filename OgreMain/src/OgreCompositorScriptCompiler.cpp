@@ -126,86 +126,86 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::setupTokenDefinitions(void)
 	{
-		addLexemeTokenAction("{", ID_OPENBRACE, &CompositorScriptCompiler::parseOpenBrace);
-		addLexemeTokenAction("}", ID_CLOSEBRACE, &CompositorScriptCompiler::parseCloseBrace);
-		addLexemeTokenAction("compositor", ID_COMPOSITOR, &CompositorScriptCompiler::parseCompositor);
+		addLexemeAction("{", &CompositorScriptCompiler::parseOpenBrace);
+		addLexemeAction("}", &CompositorScriptCompiler::parseCloseBrace);
+		addLexemeAction("compositor", &CompositorScriptCompiler::parseCompositor);
 
 		// Technique section
-		addLexemeTokenAction("technique", ID_TECHNIQUE, &CompositorScriptCompiler::parseTechnique);
-		addLexemeTokenAction("texture", ID_TEXTURE, &CompositorScriptCompiler::parseTexture);
-		addLexemeTokenAction("target_width", ID_TARGET_WIDTH);
-		addLexemeTokenAction("target_height", ID_TARGET_HEIGHT);
-		addLexemeTokenAction("PF_A8R8G8B8", ID_PF_A8R8G8B8);
-		addLexemeTokenAction("PF_R8G8B8A8", ID_PF_R8G8B8A8);
-		addLexemeTokenAction("PF_R8G8B8", ID_PF_R8G8B8);
-		addLexemeTokenAction("PF_FLOAT16_R", ID_PF_FLOAT16_R);
-		addLexemeTokenAction("PF_FLOAT16_RGB", ID_PF_FLOAT16_RGB);
-		addLexemeTokenAction("PF_FLOAT16_RGBA", ID_PF_FLOAT16_RGBA);
-		addLexemeTokenAction("PF_FLOAT32_R", ID_PF_FLOAT32_R);
-		addLexemeTokenAction("PF_FLOAT32_RGB", ID_PF_FLOAT32_RGB);
-		addLexemeTokenAction("PF_FLOAT32_RGBA", ID_PF_FLOAT32_RGBA);
+		addLexemeAction("technique", &CompositorScriptCompiler::parseTechnique);
+		addLexemeAction("texture", &CompositorScriptCompiler::parseTexture);
+		addLexemeToken("target_width", ID_TARGET_WIDTH);
+		addLexemeToken("target_height", ID_TARGET_HEIGHT);
+		addLexemeToken("PF_A8R8G8B8", ID_PF_A8R8G8B8);
+		addLexemeToken("PF_R8G8B8A8", ID_PF_R8G8B8A8);
+		addLexemeToken("PF_R8G8B8", ID_PF_R8G8B8);
+		addLexemeToken("PF_FLOAT16_R", ID_PF_FLOAT16_R);
+		addLexemeToken("PF_FLOAT16_RGB", ID_PF_FLOAT16_RGB);
+		addLexemeToken("PF_FLOAT16_RGBA", ID_PF_FLOAT16_RGBA);
+		addLexemeToken("PF_FLOAT32_R", ID_PF_FLOAT32_R);
+		addLexemeToken("PF_FLOAT32_RGB", ID_PF_FLOAT32_RGB);
+		addLexemeToken("PF_FLOAT32_RGBA", ID_PF_FLOAT32_RGBA);
 
 		// Target section
-		addLexemeTokenAction("target ", ID_TARGET, &CompositorScriptCompiler::parseTarget);
-		addLexemeTokenAction("input", ID_INPUT, &CompositorScriptCompiler::parseInput);
-		addLexemeTokenAction("none", ID_NONE);
-		addLexemeTokenAction("previous", ID_PREVIOUS);
-		addLexemeTokenAction("target_output", ID_TARGET_OUTPUT, &CompositorScriptCompiler::parseTargetOutput);
-		addLexemeTokenAction("only_initial", ID_ONLY_INITIAL, &CompositorScriptCompiler::parseOnlyInitial);
-		addLexemeTokenAction("visibility_mask", ID_VISIBILITY_MASK, &CompositorScriptCompiler::parseVisibilityMask);
-		addLexemeTokenAction("lod_bias", ID_LOD_BIAS, &CompositorScriptCompiler::parseLodBias);
-		addLexemeTokenAction("material_scheme", ID_MATERIAL_SCHEME, &CompositorScriptCompiler::parseMaterialScheme);
+		addLexemeAction("target ", &CompositorScriptCompiler::parseTarget);
+		addLexemeAction("input", &CompositorScriptCompiler::parseInput);
+		addLexemeToken("none", ID_NONE);
+		addLexemeToken("previous", ID_PREVIOUS);
+		addLexemeAction("target_output", &CompositorScriptCompiler::parseTargetOutput);
+		addLexemeAction("only_initial", &CompositorScriptCompiler::parseOnlyInitial);
+		addLexemeAction("visibility_mask", &CompositorScriptCompiler::parseVisibilityMask);
+		addLexemeAction("lod_bias", &CompositorScriptCompiler::parseLodBias);
+		addLexemeAction("material_scheme", &CompositorScriptCompiler::parseMaterialScheme);
 
 		// pass section
-		addLexemeTokenAction("pass", ID_PASS, &CompositorScriptCompiler::parsePass);
+		addLexemeAction("pass", &CompositorScriptCompiler::parsePass);
 		// input defined above
-		addLexemeTokenAction("render_quad", ID_RENDER_QUAD);
-		addLexemeTokenAction("clear", ID_CLEAR);
-		addLexemeTokenAction("stencil", ID_STENCIL);
-		addLexemeTokenAction("render_scene", ID_RENDER_SCENE);
+		addLexemeToken("render_quad", ID_RENDER_QUAD);
+		addLexemeToken("clear", ID_CLEAR);
+		addLexemeToken("stencil", ID_STENCIL);
+		addLexemeToken("render_scene", ID_RENDER_SCENE);
 		// pass attributes
-		addLexemeTokenAction("material", ID_MATERIAL, &CompositorScriptCompiler::parseMaterial);
-		addLexemeTokenAction("first_render_queue", ID_FIRST_RQ, &CompositorScriptCompiler::parseFirstRenderQueue);
-		addLexemeTokenAction("last_render_queue", ID_LAST_RQ, &CompositorScriptCompiler::parseLastRenderQueue);
-		addLexemeTokenAction("identifier", ID_IDENTIFIER, &CompositorScriptCompiler::parseIdentifier);
+		addLexemeAction("material", &CompositorScriptCompiler::parseMaterial);
+		addLexemeAction("first_render_queue", &CompositorScriptCompiler::parseFirstRenderQueue);
+		addLexemeAction("last_render_queue", &CompositorScriptCompiler::parseLastRenderQueue);
+		addLexemeAction("identifier", &CompositorScriptCompiler::parseIdentifier);
 		// clear
-		addLexemeTokenAction("buffers", ID_CLR_BUFF, &CompositorScriptCompiler::parseClearBuffers);
-		addLexemeTokenAction("colour", ID_CLR_COLOUR);
-		addLexemeTokenAction("depth", ID_CLR_DEPTH);
-		addLexemeTokenAction("colour_value", ID_CLR_COLOUR_VAL, &CompositorScriptCompiler::parseClearColourValue);
-		addLexemeTokenAction("depth_value", ID_CLR_DEPTH_VAL, &CompositorScriptCompiler::parseClearDepthValue);
-		addLexemeTokenAction("stencil_value", ID_CLR_STENCIL_VAL, &CompositorScriptCompiler::parseClearStencilValue);
+		addLexemeAction("buffers", &CompositorScriptCompiler::parseClearBuffers);
+		addLexemeToken("colour", ID_CLR_COLOUR);
+		addLexemeToken("depth", ID_CLR_DEPTH);
+		addLexemeAction("colour_value", &CompositorScriptCompiler::parseClearColourValue);
+		addLexemeAction("depth_value", &CompositorScriptCompiler::parseClearDepthValue);
+		addLexemeAction("stencil_value", &CompositorScriptCompiler::parseClearStencilValue);
 		// stencil
-		addLexemeTokenAction("check", ID_ST_CHECK, &CompositorScriptCompiler::parseStencilCheck);
-		addLexemeTokenAction("comp_func", ID_ST_FUNC, &CompositorScriptCompiler::parseStencilFunc);
-		addLexemeTokenAction("ref_value", ID_ST_REF_VAL, &CompositorScriptCompiler::parseStencilRefVal);
-		addLexemeTokenAction("mask", ID_ST_MASK, &CompositorScriptCompiler::parseStencilMask);
-		addLexemeTokenAction("fail_op", ID_ST_FAILOP, &CompositorScriptCompiler::parseStencilFailOp);
-		addLexemeTokenAction("depth_fail_op", ID_ST_DEPTH_FAILOP, &CompositorScriptCompiler::parseStencilDepthFailOp);
-		addLexemeTokenAction("pass_op", ID_ST_PASSOP, &CompositorScriptCompiler::parseStencilPassOp);
-		addLexemeTokenAction("two_sided", ID_ST_TWOSIDED, &CompositorScriptCompiler::parseStencilTwoSided);
+		addLexemeAction("check", &CompositorScriptCompiler::parseStencilCheck);
+		addLexemeAction("comp_func", &CompositorScriptCompiler::parseStencilFunc);
+		addLexemeAction("ref_value", &CompositorScriptCompiler::parseStencilRefVal);
+		addLexemeAction("mask", &CompositorScriptCompiler::parseStencilMask);
+		addLexemeAction("fail_op", &CompositorScriptCompiler::parseStencilFailOp);
+		addLexemeAction("depth_fail_op", &CompositorScriptCompiler::parseStencilDepthFailOp);
+		addLexemeAction("pass_op", &CompositorScriptCompiler::parseStencilPassOp);
+		addLexemeAction("two_sided", &CompositorScriptCompiler::parseStencilTwoSided);
 		// compare functions
-		addLexemeTokenAction("always_fail", ID_ST_ALWAYS_FAIL);
-		addLexemeTokenAction("always_pass", ID_ST_ALWAYS_PASS);
-		addLexemeTokenAction("less", ID_ST_LESS);
-		addLexemeTokenAction("less_equal", ID_ST_LESS_EQUAL);
-		addLexemeTokenAction("equal", ID_ST_EQUAL);
-		addLexemeTokenAction("not_equal", ID_ST_NOT_EQUAL);
-		addLexemeTokenAction("greater_equal", ID_ST_GREATER_EQUAL);
-		addLexemeTokenAction("greater", ID_ST_GREATER);
+		addLexemeToken("always_fail", ID_ST_ALWAYS_FAIL);
+		addLexemeToken("always_pass", ID_ST_ALWAYS_PASS);
+		addLexemeToken("less", ID_ST_LESS);
+		addLexemeToken("less_equal", ID_ST_LESS_EQUAL);
+		addLexemeToken("equal", ID_ST_EQUAL);
+		addLexemeToken("not_equal", ID_ST_NOT_EQUAL);
+		addLexemeToken("greater_equal", ID_ST_GREATER_EQUAL);
+		addLexemeToken("greater", ID_ST_GREATER);
 		// stencil operations
-		addLexemeTokenAction("keep", ID_ST_KEEP);
-		addLexemeTokenAction("zero", ID_ST_ZERO);
-		addLexemeTokenAction("replace", ID_ST_REPLACE);
-		addLexemeTokenAction("increment", ID_ST_INCREMENT);
-		addLexemeTokenAction("decrement", ID_ST_DECREMENT);
-		addLexemeTokenAction("increment_wrap", ID_ST_INCREMENT_WRAP);
-		addLexemeTokenAction("decrement_wrap", ID_ST_DECREMENT_WRAP);
-		addLexemeTokenAction("invert", ID_ST_INVERT);
+		addLexemeToken("keep", ID_ST_KEEP);
+		addLexemeToken("zero", ID_ST_ZERO);
+		addLexemeToken("replace", ID_ST_REPLACE);
+		addLexemeToken("increment", ID_ST_INCREMENT);
+		addLexemeToken("decrement", ID_ST_DECREMENT);
+		addLexemeToken("increment_wrap", ID_ST_INCREMENT_WRAP);
+		addLexemeToken("decrement_wrap", ID_ST_DECREMENT_WRAP);
+		addLexemeToken("invert", ID_ST_INVERT);
 
 		// common section
-		addLexemeTokenAction("on", ID_ON);
-		addLexemeTokenAction("off", ID_OFF);
+		addLexemeToken("on", ID_ON);
+		addLexemeToken("off", ID_OFF);
 
 	}
 
@@ -213,8 +213,10 @@ namespace Ogre {
 	void CompositorScriptCompiler::addLexemeTokenAction(const String& lexeme,
 		const size_t token, const CSC_Action action)
 	{
-		addLexemeToken(lexeme, token, action != 0);
-		mTokenActionMap[token] = action;
+		size_t newtokenID = addLexemeToken(lexeme, token, action != 0);
+        // only add actions to the map if they exist
+        if (action)
+		    mTokenActionMap[newtokenID] = action;
 	}
 
 	//-----------------------------------------------------------------------
