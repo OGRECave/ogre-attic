@@ -71,59 +71,61 @@ namespace Ogre {
 	    // Token ID enumeration
 	    enum TokenID {
 		    // Terminal Tokens section
-            ID_UNKOWN = 0, ID_OPENBRACE, ID_CLOSEBRACE,
+            ID_UNKOWN = 0, 
             // GPU Program
-            ID_VERTEX_PROGRAM, ID_FRAGMENT_PROGRAM, ID_SOURCE, ID_SYNTAX, ID_CUSTOM_PARAMETER,
-            ID_DEFAULT_PARAMS,
-            ID_INCLUDES_SKELETAL_ANIMATION, ID_INCLUDES_MORPH_ANIMATION, ID_INCLUDES_POSE_ANIMATION,
-            ID_USES_VERTEX_TEXTURE_FETCH,
+            ID_VERTEX_PROGRAM, ID_FRAGMENT_PROGRAM,
+            
             // material
-            ID_MATERIAL, ID_CLONE, ID_LOD_DISTANCES, ID_RECEIVE_SHADOWS,
-            ID_TRANSPARENCY_CASTS_SHADOWS, ID_SET_TEXTURE_ALIAS,
+            ID_CLONE,
+            
             // technique
-            ID_TECHNIQUE, ID_SCHEME, ID_LOD_INDEX,
+            
             // pass
-            ID_PASS, ID_AMBIENT, ID_DIFFUSE, ID_SPECULAR, ID_EMISSIVE,
+            
             ID_VERTEXCOLOUR,
             // scene blend
-            ID_SCENE_BLEND, ID_COLOUR_BLEND, ID_DEST_COLOUR,
+            ID_COLOUR_BLEND, ID_DEST_COLOUR,
             ID_SRC_COLOUR, ID_ONE_MINUS_DEST_COLOUR, ID_ONE_MINUS_SRC_COLOUR,
             ID_DEST_ALPHA, ID_SRC_ALPHA, ID_ONE_MINUS_DEST_ALPHA, ID_ONE_MINUS_SRC_ALPHA,
             // Depth
-            ID_DEPTH_CHECK, ID_DEPTH_WRITE, ID_DEPTH_FUNC, ID_DEPTH_BIAS, ID_ALWAYS_FAIL, ID_ALWAYS_PASS,
+            ID_ALWAYS_FAIL, ID_ALWAYS_PASS,
             ID_LESS_EQUAL, ID_LESS, ID_EQUAL, ID_NOT_EQUAL, ID_GREATER_EQUAL, ID_GREATER,
-
-            ID_ALPHA_REJECTION, ID_CULL_HARDWARE, ID_CLOCKWISE, ID_ANTICLOCKWISE,
-            ID_CULL_SOFTWARE, ID_CULL_BACK, ID_CULL_FRONT,
-            ID_LIGHTING, ID_SHADING, ID_FLAT, ID_GOURAUD, ID_PHONG,
-            ID_POLYGON_MODE, ID_SOLID, ID_WIREFRAME, ID_POINTS,
-            ID_FOG_OVERRIDE, ID_EXP, ID_EXP2,
-            ID_COLOUR_WRITE, ID_MAX_LIGHTS,
-            ID_ITERATION, ID_ONCE, ID_ONCE_PER_LIGHT, ID_PER_LIGHT, ID_DIRECTIONAL, ID_SPOT,
-			ID_POINT_SIZE, ID_POINT_SPRITES, ID_POINT_SIZE_ATTENUATION,
-			ID_POINT_SIZE_MIN, ID_POINT_SIZE_MAX,
-
+            // culling
+            ID_CLOCKWISE, ID_ANTICLOCKWISE,
+            ID_CULL_BACK, ID_CULL_FRONT,
+            // shading
+            ID_FLAT, ID_GOURAUD, ID_PHONG,
+            // polygon mode
+            ID_SOLID, ID_WIREFRAME, ID_POINTS,
+            // fog overide
+            ID_EXP, ID_EXP2,
+            // iteration
+            ID_ONCE, ID_ONCE_PER_LIGHT, ID_PER_LIGHT, ID_DIRECTIONAL, ID_SPOT,
+			
             // texture unit state
-            ID_TEXTURE_UNIT, ID_TEXTURE_ALIAS, ID_TEXTURE, ID_1D, ID_2D, ID_3D, ID_CUBIC, ID_UNLIMITED,
-            ID_ALPHA, ID_ANIM_TEXTURE, ID_CUBIC_TEXTURE, ID_SEPARATE_UV, ID_COMBINED_UVW,
-            ID_TEX_COORD_SET, ID_TEX_ADDRESS_MODE, ID_WRAP, ID_CLAMP, ID_MIRROR, ID_BORDER, ID_TEX_BORDER_COLOUR,
-            ID_FILTERING, ID_BILINEAR, ID_TRILINEAR, ID_ANISOTROPIC,
-            ID_MAX_ANISOTROPY, ID_MIPMAP_BIAS, ID_COLOUR_OP, ID_REPLACE,
-            ID_COLOUR_OP_EX, ID_SOURCE1, ID_SOURCE2, ID_MODULATE_X2, ID_MODULATE_X4, ID_ADD_SIGNED,
+            // texture
+            ID_1D, ID_2D, ID_3D, ID_CUBIC, ID_UNLIMITED, ID_ALPHA,
+            // cubic texture
+            ID_SEPARATE_UV, ID_COMBINED_UVW,
+            // address mode
+            ID_WRAP, ID_CLAMP, ID_MIRROR, ID_BORDER, 
+            // filtering
+            ID_BILINEAR, ID_TRILINEAR, ID_ANISOTROPIC,
+            // color op
+            ID_REPLACE,
+            ID_SOURCE1, ID_SOURCE2, ID_MODULATE_X2, ID_MODULATE_X4, ID_ADD_SIGNED,
             ID_ADD_SMOOTH, ID_SUBTRACT, ID_BLEND_DIFFUSE_COLOUR, ID_BLEND_DIFFUSE_ALPHA,
             ID_BLEND_TEXTURE_ALPHA, ID_BLEND_CURRENT_ALPHA, ID_BLEND_MANUAL, ID_DOTPRODUCT,
             ID_SRC_CURRENT, ID_SRC_TEXTURE, ID_SRC_DIFFUSE, ID_SRC_SPECULAR, ID_SRC_MANUAL,
-            ID_COLOUR_OP_MULTIPASS_FALLBACK, ID_ALPHA_OP_EX,
-            ID_ENV_MAP, ID_SPHERICAL, ID_PLANAR, ID_CUBIC_REFLECTION, ID_CUBIC_NORMAL,
-            ID_SCROLL, ID_SCROLL_ANIM, ID_ROTATE, ID_ROTATE_ANIM, ID_SCALE, ID_WAVE_XFORM,
+            
+            // env map
+            ID_SPHERICAL, ID_PLANAR, ID_CUBIC_REFLECTION, ID_CUBIC_NORMAL,
+            // wave transform
             ID_SCROLL_X, ID_SCROLL_Y, ID_SCALE_X, ID_SCALE_Y, ID_SINE, ID_TRIANGLE,
-            ID_SQUARE, ID_SAWTOOTH, ID_INVERSE_SAWTOOTH,
-            ID_TRANSFORM, ID_BINDING_TYPE, 
+            ID_SQUARE, ID_SAWTOOTH, ID_INVERSE_SAWTOOTH, ID_ROTATE,
+             
             // GPU program references
-            ID_VERTEX_PROGRAM_REF, ID_FRAGMENT_PROGRAM_REF, ID_SHADOW_CASTER_VERTEX_PROGRAM_REF,
-            ID_SHADOW_RECEIVER_VERTEX_PROGRAM_REF, ID_SHADOW_RECEIVER_FRAGMENT_PROGRAM_REF,
             // GPU Parameters
-            ID_PARAM_INDEXED_AUTO, ID_PARAM_INDEXED, ID_PARAM_NAMED_AUTO, ID_PARAM_NAMED,
 
             // general
             ID_ON, ID_OFF, ID_TRUE, ID_FALSE, ID_NONE, ID_POINT, ID_LINEAR, ID_ADD, ID_MODULATE, ID_ALPHA_BLEND,
@@ -214,6 +216,10 @@ namespace Ogre {
         **/
         virtual void setupTokenDefinitions(void);
         void addLexemeTokenAction(const String& lexeme, const size_t token, const MSC_Action action = 0);
+        /** Associate all the lexemes used in a material script with their corresponding actions and have
+            token IDs auto-generated.
+        **/
+        void addLexemeAction(const String& lexeme, const MSC_Action action) {addLexemeTokenAction(lexeme, 0, action);}
 
         void logParseError(const String& error);
 
