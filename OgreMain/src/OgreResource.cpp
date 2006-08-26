@@ -59,14 +59,19 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void Resource::load(bool background)
 	{
+		// Early-out without lock (mitigate perf cost of ensuring loaded)
+		// Don't load if:
+		// 1. We're already loaded
+		// 2. Another thread is loading right now
+		// 3. We're marked for background loading and this is not the background
+		//    loading thread we're being called by
+		if (mLoadingState != LOADSTATE_UNLOADED || (mIsBackgroundLoaded && !background))
+			return;
+
 		// Scope lock over load status
 		{
-			// Don't load if:
-			// 1. We're already loaded
-			// 2. Another thread is loading right now
-			// 3. We're marked for background loading and this is not the background
-			//    loading thread we're being called by
 			OGRE_LOCK_MUTEX(mLoadingStatusMutex)
+			// Check again just in case status changed (since we didn't lock above)
 			if (mLoadingState != LOADSTATE_UNLOADED || (mIsBackgroundLoaded && !background))
 			{
 				// no loading to be done
@@ -152,6 +157,10 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void Resource::unload(void) 
 	{ 
+		// Early-out without lock (mitigate perf cost of ensuring unloaded)
+		if (mLoadingState == LOADSTATE_LOADED)
+			return;
+
 		// Scope lock for loading status
 		{
 			OGRE_LOCK_MUTEX(mLoadingStatusMutex)
