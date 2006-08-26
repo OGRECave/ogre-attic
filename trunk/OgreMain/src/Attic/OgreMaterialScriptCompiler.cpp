@@ -139,9 +139,9 @@ namespace Ogre {
         "        <Texture_Unit> ::= 'texture_unit' [<Label>] '{' {<TUS_Properties>} '}' \n"
         "        <TUS_Properties> ::= <Texture_Alias> | <Texture> | <Anim_Texture> | <Cubic_Texture> | \n"
         "                             <Tex_Coord_Set> | <Tex_Address_Mode> | <Tex_Border_Colour> | <Filtering> | \n"
-        "                             <Max_Anisotropy> | <Colour_Op_Ex> | <Colour_Op_Multipass_Fallback> | <Colour_Op> | \n"
+        "                             <Max_Anisotropy> | <MipMap_Bias> | <Colour_Op_Ex> | <Colour_Op_Multipass_Fallback> | <Colour_Op> | \n"
         "                             <Alpha_Op_Ex> | <Env_Map> | <Scroll_Anim> | <Scroll> | <Rotate_Anim> | <Rotate> | \n"
-        "                             <Scale> | <Wave_Xform> | <Transform> \n"
+        "                             <Scale> | <Wave_Xform> | <Transform> | <Binding_Type> \n"
         "           <Texture_Alias> ::= 'texture_alias' <Label> \n"
         "           <Texture> ::= 'texture' <Label> {<Texture_Properties>} \n"
         "           <Texture_Properties> ::= '1d' | '2d' | '3d' | 'cubic' | 'unlimited' | 'alpha' | <#mipmap> \n"
@@ -152,9 +152,9 @@ namespace Ogre {
         "                   <anim_frame> ::= (?!<TUS_Terminators>) <Label> [<Seperator>] \n"
         "           <TUS_Terminators> ::= '}' | 'texture_alias' | 'texture' | 'anim_texture' | 'cubic_texture' | \n"
         "                                 'tex_coord_set' | 'tex_address_mode' | 'tex_border_colour' | \n"
-        "                                 'filtering' | 'max_anisotropy' | 'colour_op' | 'colour_op_ex' | \n"
+        "                                 'filtering' | 'max_anisotropy' | 'mipmap_bias' | 'colour_op' | 'colour_op_ex' | \n"
         "                                 'colour_op_multipass_fallback' | 'alpha_op_ex' | 'env_map' | \n"
-        "                                 'scroll' | 'rotate' | 'scale' | 'wave_xform' | 'transform' \n"
+        "                                 'scroll' | 'rotate' | 'scale' | 'wave_xform' | 'transform' | 'binding_type' \n"
         "           <Cubic_Texture> ::= 'cubic_texture' <Label> <Cubic_Texture_Options> \n"
         "               <Cubic_Texture_Options> ::= 'combineduvw' | 'separateuv' | <Cubic_Seperate> \n"
         "               <Cubic_Seperate> ::= <Label> [<Seperator>] <Label> [<Seperator>] <Label> \n"
@@ -170,6 +170,8 @@ namespace Ogre {
         "                   <MinMagFilter> ::= 'linear' | 'point' | 'anisotropic' \n"
         "                   <MipFilter> ::= 'linear' | 'point' | 'none' \n"
         "           <Max_Anisotropy> ::= 'max_anisotropy' <#val> \n"
+        "           <MipMap_Bias> ::= 'mipmap_bias' <MipMap_Bias_Options> \n"
+        "           <MipMap_Bias_Options> ::= 'vertex' | 'fragment' \n"
         "           <Colour_Op> ::= 'colour_op' <Colour_Op_Options> \n"
         "               <Colour_Op_Options> ::= <Base_Blend> | 'replace' \n"
         "           <Colour_Op_Ex> ::= 'colour_op_ex' <Combine_Operation> <Source_Option> <Source_Option> {<#val>} \n"
@@ -194,8 +196,9 @@ namespace Ogre {
         "               <Wave_Type> ::= 'sine' | 'triangle' | 'square' | 'sawtooth' | 'inverse_sawtooth' \n"
         "           <Transform> ::= 'transform' <#m00> <#m01> <#m02> <#m03> <#m10> <#m11> <#m12> <#m13> <#m20> <#m21> <#m22> <#m23> \n"
         "                           <#m30> <#m31> <#m32> <#m33> \n"
+        "           <Binding_Type> ::= 'binding_type' <#value> \n"
         // GPU Programs
-        " "
+        " \n"
         "<Vertex_Program> ::= 'vertex_program' <Label> [<Seperator>] <Label> '{' {<Vertex_Program_Option>} '}' \n"
         "   <Vertex_Program_Option> ::= <Vertex_Program_Animation> | <GPU_Program_Options> \n"
         "   <Vertex_Program_Animation> ::= <Skeletal_Animation> | <Morph_Animation> | <Pose_Animation> \n"
@@ -375,6 +378,7 @@ namespace Ogre {
             addLexemeTokenAction("trilinear", ID_TRILINEAR);
             addLexemeTokenAction("anisotropic", ID_ANISOTROPIC);
         addLexemeTokenAction("max_anisotropy", ID_MAX_ANISOTROPY, &MaterialScriptCompiler::parseMaxAnisotropy);
+        addLexemeTokenAction("mipmap_bias", ID_MIPMAP_BIAS, &MaterialScriptCompiler::parseMipMapBias);
         addLexemeTokenAction("colour_op", ID_COLOUR_OP, &MaterialScriptCompiler::parseColourOp);
             addLexemeTokenAction("replace", ID_REPLACE);
         addLexemeTokenAction("colour_op_ex", ID_COLOUR_OP_EX, &MaterialScriptCompiler::parseColourOpEx);
@@ -418,6 +422,7 @@ namespace Ogre {
             addLexemeTokenAction("sawtooth", ID_SAWTOOTH);
             addLexemeTokenAction("inverse_sawtooth", ID_INVERSE_SAWTOOTH);
         addLexemeTokenAction("transform", ID_TRANSFORM, &MaterialScriptCompiler::parseTransform);
+        addLexemeTokenAction("binding_type", ID_BINDING_TYPE, &MaterialScriptCompiler::parseBindingType);
         // GPU program reference
         addLexemeTokenAction("vertex_program_ref", ID_VERTEX_PROGRAM_REF,
             &MaterialScriptCompiler::parseVertexProgramRef);
@@ -443,6 +448,8 @@ namespace Ogre {
         addLexemeTokenAction("alpha_blend", ID_ALPHA_BLEND);
         addLexemeTokenAction("one", ID_ONE);
         addLexemeTokenAction("zero", ID_ZERO);
+        addLexemeTokenAction("vertex", ID_VERTEX);
+        addLexemeTokenAction("fragment", ID_FRAGMENT);
 
 
     }
@@ -1676,6 +1683,12 @@ namespace Ogre {
             static_cast<unsigned int>(getNextTokenValue()));
     }
     //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseMipMapBias(void)
+    {
+        assert(mScriptContext.textureUnit);
+        mScriptContext.textureUnit->setTextureMipmapBias(getNextTokenValue());
+    }
+    //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseColourOp(void)
     {
         assert(mScriptContext.textureUnit);
@@ -1984,6 +1997,20 @@ namespace Ogre {
 
 		mScriptContext.textureUnit->setTextureTransform(xform);
 	}
+	//-----------------------------------------------------------------------
+	void MaterialScriptCompiler::parseBindingType(void)
+	{
+        assert(mScriptContext.textureUnit);
+        switch (getNextTokenID())
+        {
+        case ID_VERTEX:
+            mScriptContext.textureUnit->setBindingType(TextureUnitState::BT_VERTEX);
+            break;
+        case ID_FRAGMENT:
+            mScriptContext.textureUnit->setBindingType(TextureUnitState::BT_FRAGMENT);
+            break;
+        }
+    }
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseVertexProgramRef(void)
     {
