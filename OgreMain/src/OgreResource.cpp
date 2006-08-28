@@ -31,7 +31,7 @@ Torus Knot Software Ltd.
 
 #include "OgreResource.h"
 #include "OgreResourceManager.h"
-#include "OgreResourceGroupManager.h"
+#include "OgreResourceBackgroundQueue.h"
 #include "OgreLogManager.h"
 #include "OgreException.h"
 
@@ -225,11 +225,11 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void Resource::queueFireBackgroundLoadingComplete(void)
 	{
-		ResourceGroupManager& rgmgr = ResourceGroupManager::getSingleton();
+		ResourceBackgroundQueue& rbq = ResourceBackgroundQueue::getSingleton();
 		for (ListenerList::iterator i = mListenerList.begin();
 			i != mListenerList.end(); ++i)
 		{
-			rgmgr._queueFireBackgroundLoadingComplete(*i, this);
+			rbq._queueFireBackgroundLoadingComplete(*i, this);
 		}
 	}
 

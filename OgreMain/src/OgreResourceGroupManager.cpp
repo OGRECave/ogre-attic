@@ -773,7 +773,7 @@ namespace Ogre {
                             su->parseScript(stream, grp->name);
                         }
                     }
-				    fireScriptEnded();
+				    fireScriptEnded(fii->filename);
 			    }
             }
 		}
@@ -1054,13 +1054,13 @@ namespace Ogre {
 		}
 	}
     //-----------------------------------------------------------------------
-    void ResourceGroupManager::fireScriptEnded(void)
+    void ResourceGroupManager::fireScriptEnded(const String& scriptName)
     {
         OGRE_LOCK_AUTO_MUTEX
             for (ResourceGroupListenerList::iterator l = mResourceGroupListenerList.begin();
                 l != mResourceGroupListenerList.end(); ++l)
             {
-                (*l)->scriptParseEnded();
+                (*l)->scriptParseEnded(scriptName);
             }
     }
 	//-----------------------------------------------------------------------
@@ -1416,26 +1416,6 @@ namespace Ogre {
 
 		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
 		return grp->resourceDeclarations;
-	}
-    //-----------------------------------------------------------------------
-	void ResourceGroupManager::_queueFireBackgroundLoadingComplete(
-		Resource::Listener* listener, Resource* res)
-	{
-		OGRE_LOCK_MUTEX(mBackgroundLoadNotifQueueMutex);
-		mBackgroundLoadNotifQueue.push_back(ResourceListenerPair(listener, res));
-
-	}    
-    //-----------------------------------------------------------------------
-	void ResourceGroupManager::_fireBackgroundLoadingComplete()
-	{
-		OGRE_LOCK_MUTEX(mBackgroundLoadNotifQueueMutex);
-		for (BackgroundLoadNotifQueue::iterator i = mBackgroundLoadNotifQueue.begin();
-			i != mBackgroundLoadNotifQueue.end(); ++i)
-		{
-			i->first->backgroundLoadingComplete(i->second);
-		}
-		mBackgroundLoadNotifQueue.clear();
-
 	}
 	//-----------------------------------------------------------------------
 	ScriptLoader::~ScriptLoader()

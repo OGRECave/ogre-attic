@@ -70,6 +70,11 @@ namespace Ogre {
         virtual ~ResourceGroupListener() {}
 
 		/** This event is fired when a resource group begins parsing scripts.
+		@note
+			Remember that if you are loading resources through ResourceBackgroundQueue,
+			these callbacks will occur in the background thread, so you should
+			not perform any thread-unsafe actions in this callback if that's the
+			case (check the group name / script name).
 		@param groupName The name of the group 
 		@param scriptCount The number of scripts which will be parsed
 		*/
@@ -80,7 +85,7 @@ namespace Ogre {
 		virtual void scriptParseStarted(const String& scriptName) = 0;
 		/** This event is fired when the script has been fully parsed.
 		*/
-		virtual void scriptParseEnded(void) = 0;
+		virtual void scriptParseEnded(const String& scriptName) = 0;
 		/** This event is fired when a resource group finished parsing scripts. */
 		virtual void resourceGroupScriptingEnded(const String& groupName) = 0;
 
@@ -246,13 +251,6 @@ namespace Ogre {
         /// Group name for world resources
         String mWorldGroupName;
 
-		typedef std::pair<Resource::Listener*, Resource*> ResourceListenerPair;
-		typedef std::list<ResourceListenerPair> BackgroundLoadNotifQueue;
-		/// Queued notifications of background loading being finished
-		BackgroundLoadNotifQueue mBackgroundLoadNotifQueue;
-		/// Mutex to protect the background event queue]
-		OGRE_MUTEX(mBackgroundLoadNotifQueueMutex)
-
 		/** Parses all the available scripts found in the resource locations
 		for the given group, for all ResourceManagers.
 		@remarks
@@ -279,7 +277,7 @@ namespace Ogre {
 		/// Internal event firing method
 		void fireScriptStarted(const String& scriptName);
         /// Internal event firing method
-        void fireScriptEnded(void);
+        void fireScriptEnded(const String& scriptName);
 		/// Internal event firing method
 		void fireResourceGroupScriptingEnded(const String& groupName);
 		/// Internal event firing method
@@ -793,29 +791,6 @@ namespace Ogre {
 		*/
 		ResourceDeclarationList getResourceDeclarationList(const String& groupName);
 
-		/** Queue the firing of the 'background loading complete' event to
-			listeners.
-		@remarks
-			The purpose of this is to allow the background loading thread to 
-			call this method to queue the notification to listeners waiting on
-			the background loading of a resource. Rather than allow the resource
-			background loading thread to directly call these listeners, which 
-			would require all the listeners to be thread-safe, this method
-			implements a thread-safe queue which can be processed in the main
-			frame loop thread each frame to clear the events in a simpler 
-			manner.
-		@param listener The listener to be notified
-		@param res The resource listened on
-		*/
-		void _queueFireBackgroundLoadingComplete(Resource::Listener* listener, 
-			Resource* res);
-
-		/** Fires all the queued events for background loaded resources.
-		@remarks
-			You should call this from the thread that runs the main frame loop 
-			to avoid having to make the receivers of this event thread-safe.
-		*/
-		void _fireBackgroundLoadingComplete(void);
 
 		/** Override standard Singleton retrieval.
         @remarks
