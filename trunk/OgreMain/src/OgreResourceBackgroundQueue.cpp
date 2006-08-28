@@ -92,7 +92,7 @@ namespace Ogre {
 	}
 	//------------------------------------------------------------------------
 	BackgroundProcessTicket ResourceBackgroundQueue::initialiseResourceGroup(
-		const String& name, ResourceBackgroundQueueListener* listener)
+		const String& name, ResourceBackgroundQueue::Listener* listener)
 	{
 #if OGRE_THREAD_SUPPORT
 		if (!mThread)
@@ -116,7 +116,7 @@ namespace Ogre {
 	//------------------------------------------------------------------------
 	BackgroundProcessTicket 
 	ResourceBackgroundQueue::initialiseAllResourceGroups( 
-		ResourceBackgroundQueueListener* listener)
+		ResourceBackgroundQueue::Listener* listener)
 	{
 #if OGRE_THREAD_SUPPORT
 		if (!mThread)
@@ -138,7 +138,7 @@ namespace Ogre {
 	}
 	//------------------------------------------------------------------------
 	BackgroundProcessTicket ResourceBackgroundQueue::loadResourceGroup(
-		const String& name, ResourceBackgroundQueueListener* listener)
+		const String& name, ResourceBackgroundQueue::Listener* listener)
 	{
 #if OGRE_THREAD_SUPPORT
 		if (!mThread)
@@ -165,7 +165,7 @@ namespace Ogre {
 		const String& group, bool isManual, 
 		ManualResourceLoader* loader, 
 		const NameValuePairList* loadParams, 
-		ResourceBackgroundQueueListener* listener)
+		ResourceBackgroundQueue::Listener* listener)
 	{
 #if OGRE_THREAD_SUPPORT
 		if (!mThread)
@@ -274,7 +274,14 @@ namespace Ogre {
 				break;
 			};
 
+			// Queue notification
+			if (req->listener)
+			{
+				ResourceBackgroundQueue::getSingleton()
+					._queueFireBackgroundOperationComplete(req->listener, req->ticketID);
+			}
 
+			
 			{
 				// re-lock to consume completed request
 				boost::recursive_mutex::scoped_lock queueLock(
@@ -292,6 +299,37 @@ namespace Ogre {
 		
 	}
 #endif
+	//-----------------------------------------------------------------------
+	void ResourceBackgroundQueue::_queueFireBackgroundLoadingComplete(
+		Resource::Listener* listener, Resource* res)
+	{
+		OGRE_LOCK_MUTEX(mNotificationQueueMutex);
+		mNotificationQueue.push_back(QueuedNotification(listener, res));
+
+	}
+	//-----------------------------------------------------------------------
+	void ResourceBackgroundQueue::_queueFireBackgroundOperationComplete(
+		ResourceBackgroundQueue::Listener* listener, BackgroundProcessTicket ticket)
+	{
+		OGRE_LOCK_MUTEX(mNotificationQueueMutex);
+		mNotificationQueue.push_back(QueuedNotification(listener, ticket));
+
+	}
+	//-----------------------------------------------------------------------
+	void ResourceBackgroundQueue::_fireBackgroundLoadingComplete()
+	{
+		OGRE_LOCK_MUTEX(mNotificationQueueMutex);
+		for (NotificationQueue::iterator i = mNotificationQueue.begin();
+			i != mNotificationQueue.end(); ++i)
+		{
+			if (i->resource)
+				i->resourceListener->backgroundLoadingComplete(i->resource);
+			else
+				i->opListener->operationCompleted(i->ticket);
+		}
+		mNotificationQueue.clear();
+
+	}
 	//------------------------------------------------------------------------
 
 }

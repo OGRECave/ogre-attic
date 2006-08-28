@@ -136,7 +136,7 @@ public:
 		mLoadingCommentElement->setCaption(scriptName);
 		mWindow->update();
 	}
-	void scriptParseEnded(void)
+	void scriptParseEnded(const String& scriptName)
 	{
 		mLoadingBarElement->setWidth(
 			mLoadingBarElement->getWidth() + mProgressBarInc);

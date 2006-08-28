@@ -116,7 +116,7 @@ namespace Ogre {
 		/// Is this resource going to be background loaded? Only applicable for multithreaded
 		bool mIsBackgroundLoaded;
 		/// Mutex to cover the status of loading
-		OGRE_MUTEX(mLoadStatusMutex)
+		OGRE_MUTEX(mLoadingStatusMutex)
 		/// The size of the resource in bytes
         size_t mSize;
 		/// Is this file manually loaded?
