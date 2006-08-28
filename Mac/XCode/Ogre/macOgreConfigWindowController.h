@@ -25,17 +25,78 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #import <Cocoa/Cocoa.h>
 
-@interface OgreConfigWindowController : NSWindowController {
-    id messageTextField;
-    id optionsPopUp;
-    
-    BOOL done;
-    int chosen;
+// Here is our controller for the NSTableView it provides the data to the table.
+@interface myTableViewController : NSObject
+{
+	NSMutableArray * tableArray;
 }
+
+// just returns the item for the right row
+- (id)tableView:(NSTableView *) aTableView 
+		objectValueForTableColumn:(NSTableColumn *) aTableColumn
+		row:(int) rowIndex;
+
+// just returns the number of items we have.
+- (int)numberOfRowsInTableView:(NSTableView *)aTableView;
+
+// Add an entry to our array
+- (void)addEntry:(NSString *)entryText;
+
+// Update an entry in our array
+- (void)updateEntry: (NSString *) index : (NSString *) entryText;
+
+// Get name at index
+- (NSString *)getEntry:(int)index;
+
+// Clear our array
+- (void)clearArray;
+
+// Create the class, I heared tale of an init() function that is like a constructor
+// TODO: Use Object-C's real constructor...
+- (void)create;
+
+// Cleanup the data we used, also a dealloc() function?
+// TODO: Use Object-C's real destructor
+- (void)cleanup;
+@end
+
+// Our window definition
+@interface OgreConfigWindowController : NSWindowController {
+	// these hold our objects from the NIB file
+    id renderSystemPopup;
+	id messageTextField;
+    id optionsPopUp;
+	id optionsTableView;
+	    
+    BOOL done;
+	
+	// Our data provider to the table
+	myTableViewController* tableDataSource;
+	// The current available options
+	NSMutableDictionary* optionData;
+	// Our current settings
+	NSMutableDictionary* currentSettings;
+}
+
+// The callback method for when the index changes in NSTableView
+- (void)tableViewSelectionDidChange:(NSNotification *)aNotification;
+
+// The callback for our optionPopUp NSPopupButton
+- (void) optionPopUpAction:(id) sender;
+
+- (void)prepareWindow;
+- (void)displayWindow;
+- (void)destroyWindow;
+- (BOOL)getReadyFlag;
 - (void)setMessage: (NSString *)message;
+- (void)addRenderSystem: (NSString *)message;
+- (int)getRenderSystem;
 - (void)addOption: (NSString *)name;
-- (void)setDefault;
-- (int)pickOption;
+- (void)populateOptionPopup: (NSString *)name;
+- (void)addOptionKey: (NSString *) optionKey andEntry: (NSString *) optionString;
+- (void)addOptionTable: (NSString *)optionName;
+- (NSMutableDictionary*)getCurrentSettings;
+- (void)addCurrentSettings: (NSString *) key andVal: (NSString *) valString; 
 
 -(void)okClicked: (id)sender;
 -(void)cancelClicked: (id)sender;

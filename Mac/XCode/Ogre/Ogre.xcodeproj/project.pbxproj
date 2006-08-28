@@ -7,23 +7,33 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
+		00AF558C0A9321C200B4139D /* Bundle Resources */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 00AF55EE0A9321E100B4139D /* Build configuration list for PBXAggregateTarget "Bundle Resources" */;
+			buildPhases = (
+				00AF558B0A9321C200B4139D /* CopyFiles */,
+			);
+			dependencies = (
+			);
+			name = "Bundle Resources";
+			productName = "Bundle Resources";
+		};
+		00AF55F90A93225300B4139D /* Copy to Library/Frameworks */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 00AF56000A93228600B4139D /* Build configuration list for PBXAggregateTarget "Copy to Library/Frameworks" */;
+			buildPhases = (
+				00AF55F80A93225300B4139D /* CopyFiles */,
+			);
+			dependencies = (
+			);
+			name = "Copy to Library/Frameworks";
+			productName = "Copy to Library/Frameworks";
+		};
 		82D48EDF07012F9F003974B9 /* Ogre Framework */ = {
 			isa = PBXAggregateTarget;
 			buildConfigurationList = 825E95180999523F00646C88 /* Build configuration list for PBXAggregateTarget "Ogre Framework" */;
 			buildPhases = (
 			);
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = "Ogre Framework";
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 				82D48EE107012FA5003974B9 /* PBXTargetDependency */,
 				82D48EE307012FA5003974B9 /* PBXTargetDependency */,
@@ -32,6 +42,8 @@
 				82D48EEF07012FA5003974B9 /* PBXTargetDependency */,
 				82D48EF307012FA5003974B9 /* PBXTargetDependency */,
 				82D48EF507012FA5003974B9 /* PBXTargetDependency */,
+				00AF55FE0A93226800B4139D /* PBXTargetDependency */,
+				005D8CE30AA378F6004274D7 /* PBXTargetDependency */,
 			);
 			name = "Ogre Framework";
 			productName = "Ogre Framework";
@@ -39,6 +51,19 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		0083165D0A9AC230008B0C6B /* Cg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0083165C0A9AC230008B0C6B /* Cg.framework */; };
+		00AF51B30A93033700B4139D /* freetype.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00AF51B10A93033700B4139D /* freetype.framework */; };
+		00AF55F20A9321E300B4139D /* RenderSystem_GL.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 822708BC070105CD00E6B1F9 /* RenderSystem_GL.bundle */; };
+		00AF55F30A9321E300B4139D /* OgrePlatform.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82270ADD07010C8100E6B1F9 /* OgrePlatform.bundle */; };
+		00AF55F40A9321E300B4139D /* Plugin_ParticleFX.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82270BB1070112B900E6B1F9 /* Plugin_ParticleFX.bundle */; };
+		00AF55F50A9321E300B4139D /* Plugin_BSPSceneManager.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82270C550701156F00E6B1F9 /* Plugin_BSPSceneManager.bundle */; };
+		00AF55F60A9321E300B4139D /* Plugin_OctreeSceneManager.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82270CB70701176400E6B1F9 /* Plugin_OctreeSceneManager.bundle */; };
+		00AF55F70A9321E300B4139D /* Plugin_CgProgramManager.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82270CF307011B4000E6B1F9 /* Plugin_CgProgramManager.bundle */; };
+		00AF55FA0A93225E00B4139D /* Ogre.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Ogre.framework */; };
+		00AF59AC0A932EE700B4139D /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
+		00E67C0F0A9D00CF005B229C /* zzip.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E67C0E0A9D00CF005B229C /* zzip.framework */; };
+		00E67C100A9D00CF005B229C /* zzip.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E67C0E0A9D00CF005B229C /* zzip.framework */; };
+		00E67DAC0A9D0F05005B229C /* Ogre_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 00E67DAB0A9D0F05005B229C /* Ogre_Prefix.pch */; };
 		8215212B07B184A80049D4A1 /* OgreILUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 8215212A07B184A80049D4A1 /* OgreILUtil.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8215212D07B184BE0049D4A1 /* OgreImageResampler.h in Headers */ = {isa = PBXBuildFile; fileRef = 8215212C07B184BE0049D4A1 /* OgreImageResampler.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8215212F07B184D00049D4A1 /* OgreILUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8215212E07B184D00049D4A1 /* OgreILUtil.cpp */; };
@@ -345,9 +370,8 @@
 		822708560700FA3F00E6B1F9 /* OgreZip.h in Headers */ = {isa = PBXBuildFile; fileRef = 822707960700FA3E00E6B1F9 /* OgreZip.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8227085E0700FB1500E6B1F9 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 8227085D0700FB1500E6B1F9 /* config.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		822708880700FE8B00E6B1F9 /* macPlugins.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 822708870700FE8B00E6B1F9 /* macPlugins.cpp */; };
-		8227088A0700FE9900E6B1F9 /* macPlugins.h in Headers */ = {isa = PBXBuildFile; fileRef = 822708890700FE9900E6B1F9 /* macPlugins.h */; };
+		8227088A0700FE9900E6B1F9 /* macPlugins.h in Headers */ = {isa = PBXBuildFile; fileRef = 822708890700FE9900E6B1F9 /* macPlugins.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		822708AB0701048F00E6B1F9 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 822708AA0701048F00E6B1F9 /* libz.dylib */; };
-		822708B0070104E600E6B1F9 /* libfreetype.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 822708AF070104E600E6B1F9 /* libfreetype.dylib */; };
 		822708B50701054900E6B1F9 /* IL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 822708B40701054900E6B1F9 /* IL.framework */; };
 		822708EE0701066400E6B1F9 /* OgreGLATIFSInit.h in Resources */ = {isa = PBXBuildFile; fileRef = 822708DB0701066400E6B1F9 /* OgreGLATIFSInit.h */; };
 		822708EF0701066400E6B1F9 /* OgreGLDefaultHardwareBufferManager.h in Resources */ = {isa = PBXBuildFile; fileRef = 822708DC0701066400E6B1F9 /* OgreGLDefaultHardwareBufferManager.h */; };
@@ -510,16 +534,12 @@
 		82270D0407011BBD00E6B1F9 /* OgreCgProgramFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82270D0107011BBD00E6B1F9 /* OgreCgProgramFactory.cpp */; };
 		82270D0507011BBD00E6B1F9 /* OgreCgProgramManagerDll.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82270D0207011BBD00E6B1F9 /* OgreCgProgramManagerDll.cpp */; };
 		82270D0607011BC400E6B1F9 /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Ogre.framework */; };
-		82270D0807011C0800E6B1F9 /* Cg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82270D0707011C0800E6B1F9 /* Cg.framework */; };
-		8232607E07C5A6B900667287 /* zzip.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82A3A35207A1ABBD001CBF8B /* zzip.framework */; };
-		8232607F07C5A84200667287 /* zzip.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82A3A35207A1ABBD001CBF8B /* zzip.framework */; };
 		823501B80853A8BB0018B3FE /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* Ogre.framework */; };
 		823502890853A8D50018B3FE /* OgreOctree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82270CD50701183000E6B1F9 /* OgreOctree.cpp */; };
 		8235028A0853A8D50018B3FE /* OgreOctreeCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82270CD60701183000E6B1F9 /* OgreOctreeCamera.cpp */; };
 		8235028B0853A8D50018B3FE /* OgreOctreeNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82270CD70701183000E6B1F9 /* OgreOctreeNode.cpp */; };
 		8235028C0853A8D50018B3FE /* OgreOctreeSceneManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82270CD80701183000E6B1F9 /* OgreOctreeSceneManager.cpp */; };
 		8235028E0853A8D50018B3FE /* OgreOctreeSceneQuery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 823CF8330729B51A0048D983 /* OgreOctreeSceneQuery.cpp */; };
-		8235028F0853A8EE0018B3FE /* zzip.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82A3A35207A1ABBD001CBF8B /* zzip.framework */; };
 		823CF8340729B51A0048D983 /* OgreOctreeSceneQuery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 823CF8330729B51A0048D983 /* OgreOctreeSceneQuery.cpp */; };
 		823CF8360729B5320048D983 /* OgreOctreeSceneQuery.h in Resources */ = {isa = PBXBuildFile; fileRef = 823CF8350729B5320048D983 /* OgreOctreeSceneQuery.h */; };
 		823D8EE409C112C200BFD011 /* OgreRibbonTrail.h in Headers */ = {isa = PBXBuildFile; fileRef = 823D8EE309C112C100BFD011 /* OgreRibbonTrail.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -545,7 +565,7 @@
 		825E955E0999532200646C88 /* OgreAnimable.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E954C0999532100646C88 /* OgreAnimable.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		825E955F0999532200646C88 /* OgreAny.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E954D0999532100646C88 /* OgreAny.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		825E95600999532200646C88 /* OgreBillboardChain.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E954E0999532200646C88 /* OgreBillboardChain.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		825E95610999532200646C88 /* OgreCompiler2Pass.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E954F0999532200646C88 /* OgreCompiler2Pass.h */; };
+		825E95610999532200646C88 /* OgreCompiler2Pass.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E954F0999532200646C88 /* OgreCompiler2Pass.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		825E95620999532200646C88 /* OgreCompositionPass.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E95500999532200646C88 /* OgreCompositionPass.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		825E95630999532200646C88 /* OgreCompositionTargetPass.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E95510999532200646C88 /* OgreCompositionTargetPass.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		825E95640999532200646C88 /* OgreCompositionTechnique.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E95520999532200646C88 /* OgreCompositionTechnique.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -553,10 +573,10 @@
 		825E95660999532200646C88 /* OgreCompositorChain.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E95540999532200646C88 /* OgreCompositorChain.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		825E95670999532200646C88 /* OgreCompositorInstance.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E95550999532200646C88 /* OgreCompositorInstance.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		825E95680999532200646C88 /* OgreCompositorManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E95560999532200646C88 /* OgreCompositorManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		825E95690999532200646C88 /* OgreCompositorScriptCompiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E95570999532200646C88 /* OgreCompositorScriptCompiler.h */; };
+		825E95690999532200646C88 /* OgreCompositorScriptCompiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E95570999532200646C88 /* OgreCompositorScriptCompiler.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		825E956A0999532200646C88 /* OgreCompositorSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E95580999532200646C88 /* OgreCompositorSerializer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		825E956B0999532200646C88 /* OgreManualObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E95590999532200646C88 /* OgreManualObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		825E956C0999532200646C88 /* OgreMaterialScriptCompiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E955A0999532200646C88 /* OgreMaterialScriptCompiler.h */; };
+		825E956C0999532200646C88 /* OgreMaterialScriptCompiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E955A0999532200646C88 /* OgreMaterialScriptCompiler.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		825E956D0999532200646C88 /* OgrePose.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E955B0999532200646C88 /* OgrePose.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		825E956E0999532200646C88 /* OgreRadixSort.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E955C0999532200646C88 /* OgreRadixSort.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		825E956F0999532200646C88 /* OgreRenderQueueInvocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 825E955D0999532200646C88 /* OgreRenderQueueInvocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -579,11 +599,6 @@
 		825E960B0999588D00646C88 /* OgreDeflectorPlaneAffectorFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 825E96070999588D00646C88 /* OgreDeflectorPlaneAffectorFactory.h */; };
 		825E960C0999588D00646C88 /* OgreDirectionRandomiserAffector.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 825E96080999588D00646C88 /* OgreDirectionRandomiserAffector.h */; };
 		825E960D0999588D00646C88 /* OgreDirectionRandomiserAffectorFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 825E96090999588D00646C88 /* OgreDirectionRandomiserAffectorFactory.h */; };
-		828D14A907A3073000FC0614 /* zzip.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82A3A35207A1ABBD001CBF8B /* zzip.framework */; };
-		828D14BB07A3078300FC0614 /* zzip.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82A3A35207A1ABBD001CBF8B /* zzip.framework */; };
-		828D14BC07A307CE00FC0614 /* zzip.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82A3A35207A1ABBD001CBF8B /* zzip.framework */; };
-		828D14BF07A3080600FC0614 /* zzip.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82A3A35207A1ABBD001CBF8B /* zzip.framework */; };
-		828D14C207A3086900FC0614 /* zzip.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82A3A35207A1ABBD001CBF8B /* zzip.framework */; };
 		82A04DE2072F4A9900D7C2E8 /* Ogre_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 82A04DE1072F4A9900D7C2E8 /* Ogre_Prefix.pch */; settings = {ATTRIBUTES = (Public, ); }; };
 		82A3A29F07A1A97F001CBF8B /* _ps1.0_parser.h in Resources */ = {isa = PBXBuildFile; fileRef = 82A3A28307A1A97F001CBF8B /* _ps1.0_parser.h */; };
 		82A3A2A007A1A97F001CBF8B /* _rc1.0_lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82A3A28407A1A97F001CBF8B /* _rc1.0_lexer.cpp */; };
@@ -635,7 +650,7 @@
 		82A3A2F307A1AA74001CBF8B /* OgreBillboardParticleRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 82A3A2E007A1AA73001CBF8B /* OgreBillboardParticleRenderer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		82A3A2F407A1AA74001CBF8B /* OgreBorderPanelOverlayElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 82A3A2E107A1AA73001CBF8B /* OgreBorderPanelOverlayElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		82A3A2F507A1AA74001CBF8B /* OgreDataStream.h in Headers */ = {isa = PBXBuildFile; fileRef = 82A3A2E207A1AA73001CBF8B /* OgreDataStream.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		82A3A2F607A1AA74001CBF8B /* OgreFileSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 82A3A2E307A1AA73001CBF8B /* OgreFileSystem.h */; };
+		82A3A2F607A1AA74001CBF8B /* OgreFileSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 82A3A2E307A1AA73001CBF8B /* OgreFileSystem.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		82A3A2F707A1AA74001CBF8B /* OgreHardwarePixelBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 82A3A2E407A1AA73001CBF8B /* OgreHardwarePixelBuffer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		82A3A2F807A1AA74001CBF8B /* OgreOverlayContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = 82A3A2E507A1AA73001CBF8B /* OgreOverlayContainer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		82A3A2F907A1AA74001CBF8B /* OgreOverlayElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 82A3A2E607A1AA73001CBF8B /* OgreOverlayElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -647,7 +662,7 @@
 		82A3A2FF07A1AA74001CBF8B /* OgreResourceBackgroundQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 82A3A2EC07A1AA73001CBF8B /* OgreResourceBackgroundQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		82A3A30007A1AA74001CBF8B /* OgreResourceGroupManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 82A3A2ED07A1AA73001CBF8B /* OgreResourceGroupManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		82A3A30107A1AA74001CBF8B /* OgreScriptLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 82A3A2EE07A1AA73001CBF8B /* OgreScriptLoader.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		82A3A30207A1AA74001CBF8B /* OgreSearchOps.h in Headers */ = {isa = PBXBuildFile; fileRef = 82A3A2EF07A1AA73001CBF8B /* OgreSearchOps.h */; };
+		82A3A30207A1AA74001CBF8B /* OgreSearchOps.h in Headers */ = {isa = PBXBuildFile; fileRef = 82A3A2EF07A1AA73001CBF8B /* OgreSearchOps.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		82A3A30307A1AA74001CBF8B /* OgreTextAreaOverlayElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 82A3A2F007A1AA73001CBF8B /* OgreTextAreaOverlayElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		82A3A30407A1AA74001CBF8B /* OgreVector2.h in Headers */ = {isa = PBXBuildFile; fileRef = 82A3A2F107A1AA73001CBF8B /* OgreVector2.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		82A3A31407A1AAEA001CBF8B /* O_IStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82A3A31007A1AAEA001CBF8B /* O_IStream.cpp */; };
@@ -656,7 +671,6 @@
 		82A3A31707A1AAEA001CBF8B /* OgreEXRCodecDll.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82A3A31307A1AAEA001CBF8B /* OgreEXRCodecDll.cpp */; };
 		82A3A31907A1AB00001CBF8B /* OgreEXRCodec.h in Resources */ = {isa = PBXBuildFile; fileRef = 82A3A31807A1AB00001CBF8B /* OgreEXRCodec.h */; };
 		82A3A35007A1AB7B001CBF8B /* Plugin_EXRCodec.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82A3A30907A1AA89001CBF8B /* Plugin_EXRCodec.bundle */; };
-		82A3A35307A1ABBD001CBF8B /* zzip.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82A3A35207A1ABBD001CBF8B /* zzip.framework */; };
 		82A3A35707A1AE6E001CBF8B /* OgreGLContext.h in Resources */ = {isa = PBXBuildFile; fileRef = 82A3A35407A1AE6E001CBF8B /* OgreGLContext.h */; };
 		82A3A35807A1AE6E001CBF8B /* OgreGLHardwarePixelBuffer.h in Resources */ = {isa = PBXBuildFile; fileRef = 82A3A35507A1AE6E001CBF8B /* OgreGLHardwarePixelBuffer.h */; };
 		82A3A35907A1AE6E001CBF8B /* OgreGLPixelFormat.h in Resources */ = {isa = PBXBuildFile; fileRef = 82A3A35607A1AE6E001CBF8B /* OgreGLPixelFormat.h */; };
@@ -677,44 +691,21 @@
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXBuildStyle section */
-		014CEA440018CDF011CA2923 /* Development */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PFE_FILE_C_DIALECTS = "c++";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = Ogre_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					OGRE_NONCLIENT_BUILD,
-					DEBUG,
-				);
-				OTHER_CFLAGS = "-DDEBUG";
-				OTHER_CPLUSPLUSFLAGS = "-DDEBUG";
-				ZERO_LINK = YES;
-			};
-			name = Development;
-		};
-		014CEA450018CDF011CA2923 /* Deployment */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_PFE_FILE_C_DIALECTS = "c++";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = Ogre_Prefix.pch;
-				GCC_PREPROCESSOR_DEFINITIONS = OGRE_NONCLIENT_BUILD;
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-/* End PBXBuildStyle section */
-
 /* Begin PBXContainerItemProxy section */
+		005D8CE20AA378F6004274D7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 00AF55F90A93225300B4139D /* Copy to Library/Frameworks */;
+			remoteInfo = "Copy to Library/Frameworks";
+		};
+		00AF55FD0A93226800B4139D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 00AF558C0A9321C200B4139D;
+			remoteInfo = "Bundle Resources";
+		};
 		82D48EE007012FA5003974B9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
@@ -767,6 +758,31 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		00AF558B0A9321C200B4139D /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Ogre.framework/Resources;
+			dstSubfolderSpec = 16;
+			files = (
+				00AF55F20A9321E300B4139D /* RenderSystem_GL.bundle in CopyFiles */,
+				00AF55F30A9321E300B4139D /* OgrePlatform.bundle in CopyFiles */,
+				00AF55F40A9321E300B4139D /* Plugin_ParticleFX.bundle in CopyFiles */,
+				00AF55F50A9321E300B4139D /* Plugin_BSPSceneManager.bundle in CopyFiles */,
+				00AF55F60A9321E300B4139D /* Plugin_OctreeSceneManager.bundle in CopyFiles */,
+				00AF55F70A9321E300B4139D /* Plugin_CgProgramManager.bundle in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		00AF55F80A93225300B4139D /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /Library/Frameworks;
+			dstSubfolderSpec = 0;
+			files = (
+				00AF55FA0A93225E00B4139D /* Ogre.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		82A3A34F07A1AB50001CBF8B /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -850,6 +866,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0083165C0A9AC230008B0C6B /* Cg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cg.framework; path = /Library/Frameworks/Cg.framework; sourceTree = "<absolute>"; };
+		00AF51B10A93033700B4139D /* freetype.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = freetype.framework; path = /Library/Frameworks/freetype.framework; sourceTree = "<absolute>"; };
+		00E67C0E0A9D00CF005B229C /* zzip.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = zzip.framework; path = /Library/Frameworks/zzip.framework; sourceTree = "<absolute>"; };
+		00E67DAB0A9D0F05005B229C /* Ogre_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Ogre_Prefix.pch; sourceTree = "<group>"; };
 		089C1667FE841158C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		8215212A07B184A80049D4A1 /* OgreILUtil.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreILUtil.h; path = ../../../OgreMain/include/OgreILUtil.h; sourceTree = SOURCE_ROOT; };
@@ -1160,8 +1180,7 @@
 		822708870700FE8B00E6B1F9 /* macPlugins.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = macPlugins.cpp; sourceTree = SOURCE_ROOT; };
 		822708890700FE9900E6B1F9 /* macPlugins.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = macPlugins.h; sourceTree = SOURCE_ROOT; };
 		822708AA0701048F00E6B1F9 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
-		822708AF070104E600E6B1F9 /* libfreetype.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.dylib; path = /usr/X11R6/lib/libfreetype.dylib; sourceTree = "<absolute>"; };
-		822708B40701054900E6B1F9 /* IL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IL.framework; path = /Library/Frameworks/IL.framework; sourceTree = "<absolute>"; };
+		822708B40701054900E6B1F9 /* IL.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; name = IL.framework; path = /Library/Frameworks/IL.framework; sourceTree = "<absolute>"; };
 		822708BC070105CD00E6B1F9 /* RenderSystem_GL.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RenderSystem_GL.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		822708BD070105CD00E6B1F9 /* GL Render System-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "GL Render System-Info.plist"; sourceTree = "<group>"; };
 		822708DB0701066400E6B1F9 /* OgreGLATIFSInit.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreGLATIFSInit.h; path = ../../../RenderSystems/GL/include/OgreGLATIFSInit.h; sourceTree = "<group>"; };
@@ -1329,7 +1348,6 @@
 		82270D0007011BBD00E6B1F9 /* OgreCgProgram.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreCgProgram.cpp; path = ../../../PlugIns/CgProgramManager/src/OgreCgProgram.cpp; sourceTree = "<group>"; };
 		82270D0107011BBD00E6B1F9 /* OgreCgProgramFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreCgProgramFactory.cpp; path = ../../../PlugIns/CgProgramManager/src/OgreCgProgramFactory.cpp; sourceTree = "<group>"; };
 		82270D0207011BBD00E6B1F9 /* OgreCgProgramManagerDll.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreCgProgramManagerDll.cpp; path = ../../../PlugIns/CgProgramManager/src/OgreCgProgramManagerDll.cpp; sourceTree = "<group>"; };
-		82270D0707011C0800E6B1F9 /* Cg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cg.framework; path = /System/Library/Frameworks/Cg.framework; sourceTree = "<absolute>"; };
 		823501AB0853A8780018B3FE /* OctreeSceneManager.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OctreeSceneManager.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		823501B70853A8790018B3FE /* OctreeSceneManager-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "OctreeSceneManager-Info.plist"; sourceTree = "<group>"; };
 		823CF8330729B51A0048D983 /* OgreOctreeSceneQuery.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreOctreeSceneQuery.cpp; path = ../../../PlugIns/OctreeSceneManager/src/OgreOctreeSceneQuery.cpp; sourceTree = "<group>"; };
@@ -1463,7 +1481,6 @@
 		82A3A31207A1AAEA001CBF8B /* OgreEXRCodec.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreEXRCodec.cpp; path = ../../../PlugIns/EXRCodec/src/OgreEXRCodec.cpp; sourceTree = SOURCE_ROOT; };
 		82A3A31307A1AAEA001CBF8B /* OgreEXRCodecDll.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreEXRCodecDll.cpp; path = ../../../PlugIns/EXRCodec/src/OgreEXRCodecDll.cpp; sourceTree = SOURCE_ROOT; };
 		82A3A31807A1AB00001CBF8B /* OgreEXRCodec.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreEXRCodec.h; path = ../../../PlugIns/EXRCodec/include/OgreEXRCodec.h; sourceTree = SOURCE_ROOT; };
-		82A3A35207A1ABBD001CBF8B /* zzip.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; name = zzip.framework; path = /Library/Frameworks/zzip.framework; sourceTree = "<absolute>"; };
 		82A3A35407A1AE6E001CBF8B /* OgreGLContext.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreGLContext.h; path = ../../../RenderSystems/GL/include/OgreGLContext.h; sourceTree = SOURCE_ROOT; };
 		82A3A35507A1AE6E001CBF8B /* OgreGLHardwarePixelBuffer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreGLHardwarePixelBuffer.h; path = ../../../RenderSystems/GL/include/OgreGLHardwarePixelBuffer.h; sourceTree = SOURCE_ROOT; };
 		82A3A35607A1AE6E001CBF8B /* OgreGLPixelFormat.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreGLPixelFormat.h; path = ../../../RenderSystems/GL/include/OgreGLPixelFormat.h; sourceTree = SOURCE_ROOT; };
@@ -1484,7 +1501,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				825E9597099955C800646C88 /* Ogre.framework in Frameworks */,
-				8232607E07C5A6B900667287 /* zzip.framework in Frameworks */,
 				8227095607010AC300E6B1F9 /* SDL.framework in Frameworks */,
 				8227095A07010AE300E6B1F9 /* OpenGL.framework in Frameworks */,
 			);
@@ -1494,9 +1510,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8232607F07C5A84200667287 /* zzip.framework in Frameworks */,
+				00AF59AC0A932EE700B4139D /* Cocoa.framework in Frameworks */,
 				82270B200701109900E6B1F9 /* Ogre.framework in Frameworks */,
 				82270B1607010F2200E6B1F9 /* SDL.framework in Frameworks */,
+				00E67C100A9D00CF005B229C /* zzip.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1504,7 +1521,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				828D14A907A3073000FC0614 /* zzip.framework in Frameworks */,
 				82270C0F070113B000E6B1F9 /* Ogre.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1513,7 +1529,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				828D14BB07A3078300FC0614 /* zzip.framework in Frameworks */,
 				82270C820701161400E6B1F9 /* Ogre.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1522,7 +1537,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				828D14BF07A3080600FC0614 /* zzip.framework in Frameworks */,
 				82270CEA0701184500E6B1F9 /* Ogre.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1531,9 +1545,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				828D14BC07A307CE00FC0614 /* zzip.framework in Frameworks */,
 				82270D0607011BC400E6B1F9 /* Ogre.framework in Frameworks */,
-				82270D0807011C0800E6B1F9 /* Cg.framework in Frameworks */,
+				0083165D0A9AC230008B0C6B /* Cg.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1541,7 +1554,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8235028F0853A8EE0018B3FE /* zzip.framework in Frameworks */,
 				823501B80853A8BB0018B3FE /* Ogre.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1550,7 +1562,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				828D14C207A3086900FC0614 /* zzip.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1560,9 +1571,9 @@
 			files = (
 				8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */,
 				822708AB0701048F00E6B1F9 /* libz.dylib in Frameworks */,
-				822708B0070104E600E6B1F9 /* libfreetype.dylib in Frameworks */,
 				822708B50701054900E6B1F9 /* IL.framework in Frameworks */,
-				82A3A35307A1ABBD001CBF8B /* zzip.framework in Frameworks */,
+				00AF51B30A93033700B4139D /* freetype.framework in Frameworks */,
+				00E67C0F0A9D00CF005B229C /* zzip.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1607,12 +1618,12 @@
 		0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				82A3A35207A1ABBD001CBF8B /* zzip.framework */,
-				82270D0707011C0800E6B1F9 /* Cg.framework */,
+				00E67C0E0A9D00CF005B229C /* zzip.framework */,
+				0083165C0A9AC230008B0C6B /* Cg.framework */,
+				00AF51B10A93033700B4139D /* freetype.framework */,
 				8227095907010AE300E6B1F9 /* OpenGL.framework */,
 				8227095507010AC300E6B1F9 /* SDL.framework */,
 				822708B40701054900E6B1F9 /* IL.framework */,
-				822708AF070104E600E6B1F9 /* libfreetype.dylib */,
 				822708AA0701048F00E6B1F9 /* libz.dylib */,
 				1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */,
 			);
@@ -1631,6 +1642,7 @@
 		8227011B0700F51F00E6B1F9 /* OgreMain */ = {
 			isa = PBXGroup;
 			children = (
+				00E67DAB0A9D0F05005B229C /* Ogre_Prefix.pch */,
 				8227011C0700F52400E6B1F9 /* Source */,
 				8227011D0700F53600E6B1F9 /* Headers */,
 			);
@@ -2664,6 +2676,7 @@
 				825E956E0999532200646C88 /* OgreRadixSort.h in Headers */,
 				825E956F0999532200646C88 /* OgreRenderQueueInvocation.h in Headers */,
 				823D8EE409C112C200BFD011 /* OgreRibbonTrail.h in Headers */,
+				00E67DAC0A9D0F05005B229C /* Ogre_Prefix.pch in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2681,58 +2694,11 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(HOME)/Library/Frameworks",
-					"/Users/temas/work/zziplib-0.10.82/Xcode/build",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
-				HEADER_SEARCH_PATHS = ../../../RenderSystems/GL/include;
-				INFOPLIST_FILE = "GL Render System-Info.plist";
-				LIBRARY_SEARCH_PATHS = ../../../RenderSystems/GL/src;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					Carbon,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = RenderSystem_GL;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 			);
 			name = "GL Render System";
 			productName = "GL Render System";
 			productReference = 822708BC070105CD00E6B1F9 /* RenderSystem_GL.bundle */;
-			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
-<plist version=\"1.0\">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundleExecutable</key>
-	<string>GL Render System</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.GL_Render_System</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>1.0</string>
-	<key>CSResourcesFileMapped</key>
-	<string>yes</string>
-</dict>
-</plist>
-";
 			productType = "com.apple.product-type.bundle";
 		};
 		82270ADC07010C8100E6B1F9 /* SDL Platform Manager */ = {
@@ -2746,56 +2712,11 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(HOME)/Library/Frameworks",
-					"/Users/temas/work/zziplib-0.10.82/Xcode/build",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
-				INFOPLIST_FILE = "SDL Platform Manager-Info.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = OgrePlatform;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 			);
 			name = "SDL Platform Manager";
 			productName = "SDL Platform Manager";
 			productReference = 82270ADD07010C8100E6B1F9 /* OgrePlatform.bundle */;
-			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
-<plist version=\"1.0\">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundleExecutable</key>
-	<string>SDL Platform Manager</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.SDL_Platform_Manager</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>1.0</string>
-	<key>CSResourcesFileMapped</key>
-	<string>yes</string>
-</dict>
-</plist>
-";
 			productType = "com.apple.product-type.bundle";
 		};
 		82270BB0070112B900E6B1F9 /* ParticleFX Plugin */ = {
@@ -2809,53 +2730,11 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
-				INFOPLIST_FILE = "ParticleFX Plugin-Info.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					Carbon,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Plugin_ParticleFX;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 			);
 			name = "ParticleFX Plugin";
 			productName = "ParticleFX Plugin";
 			productReference = 82270BB1070112B900E6B1F9 /* Plugin_ParticleFX.bundle */;
-			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
-<plist version=\"1.0\">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundleExecutable</key>
-	<string>ParticleFX Plugin</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.ParticleFX_Plugin</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>1.0</string>
-	<key>CSResourcesFileMapped</key>
-	<string>yes</string>
-</dict>
-</plist>
-";
 			productType = "com.apple.product-type.bundle";
 		};
 		82270C540701156F00E6B1F9 /* BSPSceneManager Plugin */ = {
@@ -2869,53 +2748,11 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
-				INFOPLIST_FILE = "BSPSceneManager Plugin-Info.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					Carbon,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Plugin_BSPSceneManager;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 			);
 			name = "BSPSceneManager Plugin";
 			productName = "BSPSceneManager Plugin";
 			productReference = 82270C550701156F00E6B1F9 /* Plugin_BSPSceneManager.bundle */;
-			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
-<plist version=\"1.0\">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundleExecutable</key>
-	<string>BSPSceneManager Plugin</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.BSPSceneManager_Plugin</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>1.0</string>
-	<key>CSResourcesFileMapped</key>
-	<string>yes</string>
-</dict>
-</plist>
-";
 			productType = "com.apple.product-type.bundle";
 		};
 		82270CB60701176400E6B1F9 /* OctreeSceneManager Plugin */ = {
@@ -2929,50 +2766,11 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
-				INFOPLIST_FILE = "OctreeSceneManager Plugin-Info.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Plugin_OctreeSceneManager;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 			);
 			name = "OctreeSceneManager Plugin";
 			productName = "OctreeSceneManager Plugin";
 			productReference = 82270CB70701176400E6B1F9 /* Plugin_OctreeSceneManager.bundle */;
-			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
-<plist version=\"1.0\">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundleExecutable</key>
-	<string>OctreeSceneManager Plugin</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.OctreeSceneManager_Plugin</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>1.0</string>
-	<key>CSResourcesFileMapped</key>
-	<string>yes</string>
-</dict>
-</plist>
-";
 			productType = "com.apple.product-type.bundle";
 		};
 		82270CF207011B4000E6B1F9 /* CgProgramManager Plugin */ = {
@@ -2986,53 +2784,11 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
-				INFOPLIST_FILE = "CgProgramManager Plugin-Info.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					Carbon,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Plugin_CgProgramManager;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 			);
 			name = "CgProgramManager Plugin";
 			productName = "CgProgramManager Plugin";
 			productReference = 82270CF307011B4000E6B1F9 /* Plugin_CgProgramManager.bundle */;
-			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
-<plist version=\"1.0\">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundleExecutable</key>
-	<string>CgProgramManager Plugin</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.CgProgramManager_Plugin</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>1.0</string>
-	<key>CSResourcesFileMapped</key>
-	<string>yes</string>
-</dict>
-</plist>
-";
 			productType = "com.apple.product-type.bundle";
 		};
 		823501AA0853A8780018B3FE /* OctreeSceneManager */ = {
@@ -3046,54 +2802,11 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
-				FRAMEWORK_VERSION = A;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
-				INFOPLIST_FILE = "OctreeSceneManager-Info.plist";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				OTHER_CFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PREBINDING = NO;
-				PRODUCT_NAME = OctreeSceneManager;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 			);
 			name = OctreeSceneManager;
 			productName = OctreeSceneManager;
 			productReference = 823501AB0853A8780018B3FE /* OctreeSceneManager.framework */;
-			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
-<plist version=\"1.0\">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundleExecutable</key>
-	<string>OctreeSceneManager</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.OctreeSceneManager</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundlePackageType</key>
-	<string>FMWK</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>1.0</string>
-</dict>
-</plist>
-";
 			productType = "com.apple.product-type.framework";
 		};
 		82A3A30807A1AA89001CBF8B /* EXRCodec Plugin */ = {
@@ -3107,54 +2820,11 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
-				INFOPLIST_FILE = "EXRCodec Plugin-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-framework",
-					Carbon,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Plugin_EXRCodec;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 			);
 			name = "EXRCodec Plugin";
 			productName = "EXRCodec Plugin";
 			productReference = 82A3A30907A1AA89001CBF8B /* Plugin_EXRCodec.bundle */;
-			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
-<plist version=\"1.0\">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundleExecutable</key>
-	<string>EXRCodec Plugin</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.EXRCodec_Plugin</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>1.0</string>
-	<key>CSResourcesFileMapped</key>
-	<string>yes</string>
-</dict>
-</plist>
-";
 			productType = "com.apple.product-type.bundle";
 		};
 		8DC2EF4F0486A6940098B216 /* Ogre */ = {
@@ -3168,24 +2838,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
-				FRAMEWORK_VERSION = A;
-				GCC_ENABLE_PASCAL_STRINGS = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_PFE_FILE_C_DIALECTS = "c++";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = Ogre_Prefix.pch;
-				HEADER_SEARCH_PATHS = /usr/X11R6/include/freetype2;
-				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = /usr/X11R6/lib;
-				LIBRARY_STYLE = DYNAMIC;
-				PRODUCT_NAME = Ogre;
-				WRAPPER_EXTENSION = framework;
-			};
 			dependencies = (
 			);
 			name = Ogre;
@@ -3200,12 +2852,6 @@
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = 825E95240999523F00646C88 /* Build configuration list for PBXProject "Ogre" */;
-			buildSettings = {
-			};
-			buildStyles = (
-				014CEA440018CDF011CA2923 /* Development */,
-				014CEA450018CDF011CA2923 /* Deployment */,
-			);
 			hasScannedForEncodings = 1;
 			mainGroup = 0867D691FE84028FC02AAC07 /* Ogre */;
 			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
@@ -3221,6 +2867,8 @@
 				82270CF207011B4000E6B1F9 /* CgProgramManager Plugin */,
 				82A3A30807A1AA89001CBF8B /* EXRCodec Plugin */,
 				823501AA0853A8780018B3FE /* OctreeSceneManager */,
+				00AF558C0A9321C200B4139D /* Bundle Resources */,
+				00AF55F90A93225300B4139D /* Copy to Library/Frameworks */,
 			);
 		};
 /* End PBXProject section */
@@ -3737,6 +3385,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		005D8CE30AA378F6004274D7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 00AF55F90A93225300B4139D /* Copy to Library/Frameworks */;
+			targetProxy = 005D8CE20AA378F6004274D7 /* PBXContainerItemProxy */;
+		};
+		00AF55FE0A93226800B4139D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 00AF558C0A9321C200B4139D /* Bundle Resources */;
+			targetProxy = 00AF55FD0A93226800B4139D /* PBXContainerItemProxy */;
+		};
 		82D48EE107012FA5003974B9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8DC2EF4F0486A6940098B216 /* Ogre */;
@@ -3786,15 +3444,75 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		00AF55EF0A9321E100B4139D /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = "Bundle Resources";
+			};
+			name = Development;
+		};
+		00AF55F00A9321E100B4139D /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				PRODUCT_NAME = "Bundle Resources";
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		00AF55F10A9321E100B4139D /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "Bundle Resources";
+			};
+			name = Default;
+		};
+		00AF56010A93228600B4139D /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = "Copy to Library/Frameworks";
+			};
+			name = Development;
+		};
+		00AF56020A93228600B4139D /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				PRODUCT_NAME = "Copy to Library/Frameworks";
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		00AF56030A93228600B4139D /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "Copy to Library/Frameworks";
+			};
+			name = Default;
+		};
 		825E94FD0999523F00646C88 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
-					"@executable_path/../Frameworks",
-					"$(HOME)/Library/Frameworks",
 					/Library/Frameworks,
 					/System/Library/Frameworks,
 				);
@@ -3812,31 +3530,40 @@
 					DEBUG,
 				);
 				HEADER_SEARCH_PATHS = (
-					/usr/X11R6/include,
-					/usr/X11R6/include/freetype2,
+					/Library/Frameworks/freetype.framework/Headers,
+					/Library/Frameworks/freetype.framework/Headers/freetype2,
+					/Library/Frameworks/zzip.framework/Headers,
+					/Library/Frameworks/IL.framework/Headers,
 				);
 				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = /usr/X11R6/lib;
+				INSTALL_PATH = /Library/Frameworks;
+				LIBRARY_SEARCH_PATHS = "";
 				LIBRARY_STYLE = DYNAMIC;
 				MACH_O_TYPE = mh_dylib;
 				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_CPLUSPLUSFLAGS = "-DDEBUG";
+				OTHER_LDFLAGS = (
+					"-framework",
+					IL,
+				);
 				PRODUCT_NAME = Ogre;
+				USER_HEADER_SEARCH_PATHS = /Library/Frameworks/IL.framework/Headers;
 				WRAPPER_EXTENSION = framework;
-				ZERO_LINK = YES;
+				ZERO_LINK = NO;
 			};
 			name = Development;
 		};
 		825E94FE0999523F00646C88 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
-					"@executable_path/../Frameworks",
-					"$(HOME)/Library/Frameworks",
 					/Library/Frameworks,
 					/System/Library/Frameworks,
 				);
@@ -3849,15 +3576,22 @@
 				GCC_PREFIX_HEADER = Ogre_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = OGRE_NONCLIENT_BUILD;
 				HEADER_SEARCH_PATHS = (
-					/usr/X11R6/include,
-					/usr/X11R6/include/freetype2,
+					/Library/Frameworks/freetype.framework/Headers,
+					/Library/Frameworks/freetype.framework/Headers/freetype2,
+					/Library/Frameworks/zzip.framework/Headers,
+					/Library/Frameworks/IL.framework/Headers,
 				);
 				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = /usr/X11R6/lib;
+				INSTALL_PATH = /Library/Frameworks;
+				LIBRARY_SEARCH_PATHS = "";
 				LIBRARY_STYLE = DYNAMIC;
 				MACH_O_TYPE = mh_dylib;
+				OTHER_LDFLAGS = (
+					"-framework",
+					IL,
+				);
 				PRODUCT_NAME = Ogre;
+				USER_HEADER_SEARCH_PATHS = /Library/Frameworks/IL.framework/Headers;
 				WRAPPER_EXTENSION = framework;
 				ZERO_LINK = NO;
 			};
@@ -3866,11 +3600,13 @@
 		825E94FF0999523F00646C88 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
-					"@executable_path/../Frameworks",
-					"$(HOME)/Library/Frameworks",
 					/Library/Frameworks,
 					/System/Library/Frameworks,
 				);
@@ -3881,26 +3617,36 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Ogre_Prefix.pch;
 				HEADER_SEARCH_PATHS = (
-					/usr/X11R6/include,
-					/usr/X11R6/include/freetype2,
+					/Library/Frameworks/freetype.framework/Headers,
+					/Library/Frameworks/freetype.framework/Headers/freetype2,
+					/Library/Frameworks/zzip.framework/Headers,
+					/Library/Frameworks/IL.framework/Headers,
 				);
 				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = "@executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = /usr/X11R6/lib;
+				INSTALL_PATH = /Library/Frameworks;
+				LIBRARY_SEARCH_PATHS = "";
 				LIBRARY_STYLE = DYNAMIC;
 				MACH_O_TYPE = mh_dylib;
+				OTHER_LDFLAGS = (
+					"-framework",
+					IL,
+				);
 				PRODUCT_NAME = Ogre;
+				USER_HEADER_SEARCH_PATHS = /Library/Frameworks/IL.framework/Headers;
 				WRAPPER_EXTENSION = framework;
+				ZERO_LINK = NO;
 			};
 			name = Default;
 		};
 		825E95010999523F00646C88 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					"@executable_path/../Frameworks",
-					"$(HOME)/Library/Frameworks",
 					/Library/Frameworks,
 					/System/Library/Frameworks,
 				);
@@ -3917,6 +3663,7 @@
 				);
 				HEADER_SEARCH_PATHS = ../../../RenderSystems/GL/include;
 				INFOPLIST_FILE = "GL Render System-Info.plist";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources;
 				LIBRARY_SEARCH_PATHS = ../../../RenderSystems/GL/src;
 				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_CPLUSPLUSFLAGS = "-DDEBUG";
@@ -3932,17 +3679,19 @@
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
-				ZERO_LINK = YES;
+				ZERO_LINK = NO;
 			};
 			name = Development;
 		};
 		825E95020999523F00646C88 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = YES;
 				FRAMEWORK_SEARCH_PATHS = (
-					"@executable_path/../Frameworks",
-					"$(HOME)/Library/Frameworks",
 					/Library/Frameworks,
 					/System/Library/Frameworks,
 				);
@@ -3953,6 +3702,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = OGRE_NONCLIENT_BUILD;
 				HEADER_SEARCH_PATHS = ../../../RenderSystems/GL/include;
 				INFOPLIST_FILE = "GL Render System-Info.plist";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources;
 				LIBRARY_SEARCH_PATHS = ../../../RenderSystems/GL/src;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
@@ -3974,9 +3724,11 @@
 		825E95030999523F00646C88 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				FRAMEWORK_SEARCH_PATHS = (
-					"@executable_path/../Frameworks",
-					"$(HOME)/Library/Frameworks",
 					/Library/Frameworks,
 					/System/Library/Frameworks,
 				);
@@ -3984,6 +3736,7 @@
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				HEADER_SEARCH_PATHS = ../../../RenderSystems/GL/include;
 				INFOPLIST_FILE = "GL Render System-Info.plist";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources;
 				LIBRARY_SEARCH_PATHS = ../../../RenderSystems/GL/src;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
@@ -3998,17 +3751,19 @@
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
+				ZERO_LINK = NO;
 			};
 			name = Default;
 		};
 		825E95050999523F00646C88 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(HOME)/Library/Frameworks",
-					"/Users/temas/work/zziplib-0.10.82/Xcode/build",
+				ARCHS = (
+					ppc,
+					i386,
 				);
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = /Library/Frameworks;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -4021,38 +3776,45 @@
 					DEBUG,
 				);
 				INFOPLIST_FILE = "SDL Platform Manager-Info.plist";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources;
 				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_CPLUSPLUSFLAGS = "-DDEBUG";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Cocoa,
+					"-framework",
+					SDL,
 				);
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = OgrePlatform;
 				SECTORDER_FLAGS = "";
+				SKIP_INSTALL = NO;
+				USER_HEADER_SEARCH_PATHS = /Library/Frameworks/zziplib.framework/Headers;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
-				ZERO_LINK = YES;
+				ZERO_LINK = NO;
 			};
 			name = Development;
 		};
 		825E95060999523F00646C88 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(HOME)/Library/Frameworks",
-					"/Users/temas/work/zziplib-0.10.82/Xcode/build",
+				ARCHS = (
+					ppc,
+					i386,
 				);
+				COPY_PHASE_STRIP = YES;
+				FRAMEWORK_SEARCH_PATHS = /Library/Frameworks;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PFE_FILE_C_DIALECTS = "c++";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Ogre_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = OGRE_NONCLIENT_BUILD;
 				INFOPLIST_FILE = "SDL Platform Manager-Info.plist";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4061,6 +3823,8 @@
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = OgrePlatform;
 				SECTORDER_FLAGS = "";
+				SKIP_INSTALL = NO;
+				USER_HEADER_SEARCH_PATHS = /Library/Frameworks/zziplib.framework/Headers;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
@@ -4073,13 +3837,15 @@
 		825E95070999523F00646C88 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(HOME)/Library/Frameworks",
-					"/Users/temas/work/zziplib-0.10.82/Xcode/build",
+				ARCHS = (
+					ppc,
+					i386,
 				);
+				FRAMEWORK_SEARCH_PATHS = /Library/Frameworks;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				INFOPLIST_FILE = "SDL Platform Manager-Info.plist";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4088,19 +3854,26 @@
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = OgrePlatform;
 				SECTORDER_FLAGS = "";
+				SKIP_INSTALL = NO;
+				USER_HEADER_SEARCH_PATHS = /Library/Frameworks/zziplib.framework/Headers;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
+				ZERO_LINK = NO;
 			};
 			name = Default;
 		};
 		825E95090999523F00646C88 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = /Library/Frameworks;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -4113,6 +3886,7 @@
 					DEBUG,
 				);
 				INFOPLIST_FILE = "ParticleFX Plugin-Info.plist";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources;
 				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_CPLUSPLUSFLAGS = "-DDEBUG";
 				OTHER_LDFLAGS = (
@@ -4122,26 +3896,32 @@
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = Plugin_ParticleFX;
 				SECTORDER_FLAGS = "";
+				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
-				ZERO_LINK = YES;
+				ZERO_LINK = NO;
 			};
 			name = Development;
 		};
 		825E950A0999523F00646C88 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = /Library/Frameworks;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PFE_FILE_C_DIALECTS = "c++";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Ogre_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = OGRE_NONCLIENT_BUILD;
 				INFOPLIST_FILE = "ParticleFX Plugin-Info.plist";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4150,6 +3930,7 @@
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = Plugin_ParticleFX;
 				SECTORDER_FLAGS = "";
+				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
@@ -4162,10 +3943,15 @@
 		825E950B0999523F00646C88 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				FRAMEWORK_SEARCH_PATHS = /Library/Frameworks;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				INFOPLIST_FILE = "ParticleFX Plugin-Info.plist";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4174,19 +3960,25 @@
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = Plugin_ParticleFX;
 				SECTORDER_FLAGS = "";
+				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
+				ZERO_LINK = NO;
 			};
 			name = Default;
 		};
 		825E950D0999523F00646C88 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = /Library/Frameworks;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -4199,6 +3991,7 @@
 					DEBUG,
 				);
 				INFOPLIST_FILE = "BSPSceneManager Plugin-Info.plist";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources;
 				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_CPLUSPLUSFLAGS = "-DDEBUG";
 				OTHER_LDFLAGS = (
@@ -4208,26 +4001,32 @@
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = Plugin_BSPSceneManager;
 				SECTORDER_FLAGS = "";
+				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
-				ZERO_LINK = YES;
+				ZERO_LINK = NO;
 			};
 			name = Development;
 		};
 		825E950E0999523F00646C88 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = /Library/Frameworks;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PFE_FILE_C_DIALECTS = "c++";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Ogre_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = OGRE_NONCLIENT_BUILD;
 				INFOPLIST_FILE = "BSPSceneManager Plugin-Info.plist";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4236,6 +4035,7 @@
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = Plugin_BSPSceneManager;
 				SECTORDER_FLAGS = "";
+				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
@@ -4248,10 +4048,15 @@
 		825E950F0999523F00646C88 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				FRAMEWORK_SEARCH_PATHS = /Library/Frameworks;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				INFOPLIST_FILE = "BSPSceneManager Plugin-Info.plist";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4260,19 +4065,25 @@
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = Plugin_BSPSceneManager;
 				SECTORDER_FLAGS = "";
+				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
+				ZERO_LINK = NO;
 			};
 			name = Default;
 		};
 		825E95110999523F00646C88 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = /Library/Frameworks;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -4285,37 +4096,45 @@
 					DEBUG,
 				);
 				INFOPLIST_FILE = "OctreeSceneManager Plugin-Info.plist";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources/;
 				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_CPLUSPLUSFLAGS = "-DDEBUG";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = Plugin_OctreeSceneManager;
 				SECTORDER_FLAGS = "";
+				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
-				ZERO_LINK = YES;
+				ZERO_LINK = NO;
 			};
 			name = Development;
 		};
 		825E95120999523F00646C88 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = /Library/Frameworks;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PFE_FILE_C_DIALECTS = "c++";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Ogre_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = OGRE_NONCLIENT_BUILD;
 				INFOPLIST_FILE = "OctreeSceneManager Plugin-Info.plist";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources/;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = Plugin_OctreeSceneManager;
 				SECTORDER_FLAGS = "";
+				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
@@ -4328,28 +4147,42 @@
 		825E95130999523F00646C88 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				FRAMEWORK_SEARCH_PATHS = /Library/Frameworks;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				INFOPLIST_FILE = "OctreeSceneManager Plugin-Info.plist";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources/;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = Plugin_OctreeSceneManager;
 				SECTORDER_FLAGS = "";
+				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
+				ZERO_LINK = NO;
 			};
 			name = Default;
 		};
 		825E95150999523F00646C88 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = (
+					/System/Library/Frameworks,
+					/Library/Frameworks,
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -4361,7 +4194,9 @@
 					OGRE_NONCLIENT_BUILD,
 					DEBUG,
 				);
+				HEADER_SEARCH_PATHS = /System/Library/Frameworks/Cg.framework/Headers;
 				INFOPLIST_FILE = "CgProgramManager Plugin-Info.plist";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources;
 				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_CPLUSPLUSFLAGS = "-DDEBUG";
 				OTHER_LDFLAGS = (
@@ -4371,26 +4206,36 @@
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = Plugin_CgProgramManager;
 				SECTORDER_FLAGS = "";
+				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
-				ZERO_LINK = YES;
+				ZERO_LINK = NO;
 			};
 			name = Development;
 		};
 		825E95160999523F00646C88 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = (
+					/System/Library/Frameworks,
+					/Library/Frameworks,
+				);
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PFE_FILE_C_DIALECTS = "c++";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Ogre_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = OGRE_NONCLIENT_BUILD;
+				HEADER_SEARCH_PATHS = /System/Library/Frameworks/Cg.framework/Headers;
 				INFOPLIST_FILE = "CgProgramManager Plugin-Info.plist";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4399,6 +4244,7 @@
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = Plugin_CgProgramManager;
 				SECTORDER_FLAGS = "";
+				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
@@ -4411,10 +4257,19 @@
 		825E95170999523F00646C88 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				FRAMEWORK_SEARCH_PATHS = (
+					/System/Library/Frameworks,
+					/Library/Frameworks,
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
+				HEADER_SEARCH_PATHS = /System/Library/Frameworks/Cg.framework/Headers;
 				INFOPLIST_FILE = "CgProgramManager Plugin-Info.plist";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4423,11 +4278,13 @@
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = Plugin_CgProgramManager;
 				SECTORDER_FLAGS = "";
+				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
+				ZERO_LINK = NO;
 			};
 			name = Default;
 		};
@@ -4503,8 +4360,12 @@
 		825E951D0999523F00646C88 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = /Library/Frameworks;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -4517,7 +4378,7 @@
 					DEBUG,
 				);
 				INFOPLIST_FILE = "EXRCodec Plugin-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources;
 				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_CPLUSPLUSFLAGS = "-DDEBUG";
 				OTHER_LDFLAGS = (
@@ -4532,22 +4393,26 @@
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
-				ZERO_LINK = YES;
+				ZERO_LINK = NO;
 			};
 			name = Development;
 		};
 		825E951E0999523F00646C88 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = /Library/Frameworks;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PFE_FILE_C_DIALECTS = "c++";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Ogre_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = OGRE_NONCLIENT_BUILD;
 				INFOPLIST_FILE = "EXRCodec Plugin-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4568,11 +4433,15 @@
 		825E951F0999523F00646C88 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				FRAMEWORK_SEARCH_PATHS = /Library/Frameworks;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				INFOPLIST_FILE = "EXRCodec Plugin-Info.plist";
-				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				INSTALL_PATH = /Library/Frameworks/Ogre.framework/Resources;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4586,12 +4455,17 @@
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
+				ZERO_LINK = NO;
 			};
 			name = Default;
 		};
 		825E95210999523F00646C88 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -4622,13 +4496,17 @@
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
-				ZERO_LINK = YES;
+				ZERO_LINK = NO;
 			};
 			name = Development;
 		};
 		825E95220999523F00646C88 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -4660,6 +4538,10 @@
 		825E95230999523F00646C88 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
@@ -4680,30 +4562,69 @@
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
+				ZERO_LINK = NO;
 			};
 			name = Default;
 		};
 		825E95250999523F00646C88 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				INSTALL_PATH = /Library/Frameworks;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Development;
 		};
 		825E95260999523F00646C88 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				INSTALL_PATH = /Library/Frameworks;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Deployment;
 		};
 		825E95270999523F00646C88 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				INSTALL_PATH = /Library/Frameworks;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Default;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		00AF55EE0A9321E100B4139D /* Build configuration list for PBXAggregateTarget "Bundle Resources" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00AF55EF0A9321E100B4139D /* Development */,
+				00AF55F00A9321E100B4139D /* Deployment */,
+				00AF55F10A9321E100B4139D /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		00AF56000A93228600B4139D /* Build configuration list for PBXAggregateTarget "Copy to Library/Frameworks" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00AF56010A93228600B4139D /* Development */,
+				00AF56020A93228600B4139D /* Deployment */,
+				00AF56030A93228600B4139D /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
 		825E94FC0999523F00646C88 /* Build configuration list for PBXNativeTarget "Ogre" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
