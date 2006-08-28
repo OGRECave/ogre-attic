@@ -35,6 +35,7 @@ Torus Knot Software Ltd.
 #include "OgreDataStream.h"
 #include "OgreResource.h"
 #include "OgreArchive.h"
+#include "OgreIteratorWrappers.h"
 
 namespace Ogre {
 
@@ -191,9 +192,10 @@ namespace Ogre {
         };
         /// List of resource declarations
         typedef std::list<ResourceDeclaration> ResourceDeclarationList;
+		typedef std::map<String, ResourceManager*> ResourceManagerMap;
+		typedef MapIterator<ResourceManagerMap> ResourceManagerIterator;
     protected:
 		/// Map of resource types (strings) to ResourceManagers, used to notify them to load / unload group contents
-		typedef std::map<String, ResourceManager*> ResourceManagerMap;
         ResourceManagerMap mResourceManagerMap;
 
 		/// Map of loading order (Real) to ScriptLoader, used to order script parsing
@@ -723,6 +725,11 @@ namespace Ogre {
         */
         void _unregisterResourceManager(const String& resourceType);
 
+		/** Get an iterator over the registered resource managers.
+		*/
+		ResourceManagerIterator getResourceManagerIterator()
+		{ return ResourceManagerIterator(
+			mResourceManagerMap.begin(), mResourceManagerMap.end()); }
 
         /** Internal method for registering a ScriptLoader.
 		@remarks ScriptLoaders parse scripts when resource groups are initialised.
