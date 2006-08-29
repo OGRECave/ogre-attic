@@ -1048,7 +1048,19 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::SkeletonPtr& ogr
                     Ogre::TransformKeyFrame *ogrekey = ogretrack->createNodeKeyFrame(realTime);
                     logMgr.logMessage("KeyFrame created");
 
-                    Ogre::Vector3 kfPos(currPosKey->Position[0], currPosKey->Position[1], currPosKey->Position[2]);
+					Ogre::Vector3 kfPos;
+					// Imported milkshape animations may not have positions 
+					// for all rotation keys
+					if ( currKeyIdx < bone->nNumPositionKeys ) {
+						kfPos.x = currPosKey->Position[0];
+						kfPos.y = currPosKey->Position[1];
+						kfPos.z = currPosKey->Position[2];
+					}
+					else {
+						kfPos.x = bone->Position[0];
+						kfPos.y = bone->Position[1];
+						kfPos.z = bone->Position[2];
+					}
                     Ogre::Quaternion qx, qy, qz, kfQ;
 
 					// Milkshape translations are local to own orientation, not parent

@@ -62,7 +62,7 @@ typedef float   msVec2[2];
 
 /* msFlag */
 typedef enum {
-    eSelected = 1, eSelected2 = 2, eHidden = 4, eDirty = 8, eAveraged = 16, eUnused = 32
+    eSelected = 1, eSelected2 = 2, eHidden = 4, eDirty = 8, eAveraged = 16, eKeepVertex = 32, eSphereMap = 0x80, eHasAlpha = 0x40
 } msFlag;
 
 /* msVertex */
@@ -74,8 +74,15 @@ typedef struct msVertex
     char        nBoneIndex;
 } msVertex;
 
+/* msVertexEx */
+typedef struct msVertexEx
+{
+	char		nBoneIndices[3];
+	byte		nBoneWeights[3];
+} msVertexEx;
+
 /* msTriangle */
-typedef struct
+typedef struct msTriangle
 {
     word        nFlags;
     word        nVertexIndices[3];
@@ -83,6 +90,13 @@ typedef struct
     msVec3      Normal;
     byte        nSmoothingGroup;
 } msTriangle;
+
+/* msTriangleEx */
+typedef struct msTriangleEx
+{
+	msVec3		Normals[3];
+	msVec2		TexCoords[3];
+} msTriangleEx;
 
 /* msMesh */
 typedef struct msMesh
@@ -102,6 +116,10 @@ typedef struct msMesh
     word        nNumTriangles;
     word        nNumAllocedTriangles;
     msTriangle* pTriangles;
+
+	char*       pszComment;
+	msVertexEx *pVertexExs;
+	msTriangleEx *pTriangleExs;
 } msMesh;
 
 /* msMaterial */
@@ -118,6 +136,7 @@ typedef struct msMaterial
     char        szDiffuseTexture[MS_MAX_PATH];
     char        szAlphaTexture[MS_MAX_PATH];
     int         nName;
+	char*       pszComment;
 } msMaterial;
 
 /* msPositionKey */
@@ -150,6 +169,7 @@ typedef struct msBone
     int             nNumRotationKeys;
     int             nNumAllocedRotationKeys;
     msRotationKey*  pRotationKeys;
+	char*			pszComment;
 } msBone;
 
 /* msModel */
@@ -172,6 +192,11 @@ typedef struct msModel
 
     msVec3      Position;
     msVec3      Rotation;
+
+	msVec3		CameraPosition;
+	msVec2		CameraRotationXY;
+
+	char*       pszComment;
 } msModel;
 
 
@@ -211,6 +236,10 @@ MSLIB_API void          msModel_SetPosition (msModel *pModel, msVec3 Position);
 MSLIB_API void          msModel_GetPosition (msModel *pModel, msVec3 Position);
 MSLIB_API void          msModel_SetRotation (msModel *pModel, msVec3 Rotation);
 MSLIB_API void          msModel_GetRotation (msModel *pModel, msVec3 Rotation);
+MSLIB_API void          msModel_SetCamera (msModel *pModel, msVec3 Position, msVec2 RotationXY);
+MSLIB_API void          msModel_GetCamera (msModel *pModel, msVec3 Position, msVec2 RotationXY);
+MSLIB_API void          msModel_SetComment (msModel *pModel, const char *pszComment);
+MSLIB_API int           msModel_GetComment (msModel *pModel, char *pszComment, int nMaxCommentLength);
 
 /**********************************************************************
  * msMesh
@@ -227,17 +256,21 @@ MSLIB_API int           msMesh_GetMaterialIndex (msMesh *pMesh);
 MSLIB_API int           msMesh_GetVertexCount (msMesh *pMesh);
 MSLIB_API int           msMesh_AddVertex (msMesh *pMesh);
 MSLIB_API msVertex*     msMesh_GetVertexAt (msMesh *pMesh, int nIndex);
+MSLIB_API msVertexEx*   msMesh_GetVertexExAt (msMesh *pMesh, int nIndex);
 MSLIB_API msVertex*     msMesh_GetInterpolatedVertexAt (msMesh *pMesh, int nIndex); // NOT YET IMPLEMENTED
 
 MSLIB_API int           msMesh_GetTriangleCount (msMesh *pMesh);
 MSLIB_API int           msMesh_AddTriangle (msMesh *pMesh);
 MSLIB_API msTriangle*   msMesh_GetTriangleAt (msMesh *pMesh, int nIndex);
+MSLIB_API msTriangleEx* msMesh_GetTriangleExAt (msMesh *pMesh, int nIndex);
 
 MSLIB_API int           msMesh_GetVertexNormalCount (msMesh *pMesh);
 MSLIB_API int           msMesh_AddVertexNormal (msMesh *pMesh);
 MSLIB_API void          msMesh_SetVertexNormalAt (msMesh *pMesh, int nIndex, msVec3 Normal);
 MSLIB_API void          msMesh_GetVertexNormalAt (msMesh *pMesh, int nIndex, msVec3 Normal);
 MSLIB_API void          msMesh_GetInterpolatedVertexNormalAt (msMesh *pMesh, int nIndex, msVec3 Normal); // NOT YET IMPLEMENTED
+MSLIB_API void          msMesh_SetComment (msMesh *pMesh, const char *pszComment);
+MSLIB_API int           msMesh_GetComment (msMesh *pMesh, char *pszComment, int nMaxCommentLength);
 
 /**********************************************************************
  * msTriangle
@@ -253,6 +286,14 @@ MSLIB_API void          msTriangle_SetSmoothingGroup (msTriangle *pTriangle, byt
 MSLIB_API byte          msTriangle_GetSmoothingGroup (msTriangle *pTriangle);
 
 /**********************************************************************
+ * msTriangleEx
+ **********************************************************************/
+MSLIB_API void          msTriangleEx_SetNormal (msTriangleEx *pTriangle, int nIndex, msVec3 Normal);
+MSLIB_API void          msTriangleEx_GetNormal (msTriangleEx *pTriangle, int nIndex, msVec3 Normal);
+MSLIB_API void          msTriangleEx_SetTexCoord (msTriangleEx *pTriangle, int nIndex, msVec2 TexCoord);
+MSLIB_API void          msTriangleEx_GetTexCoord (msTriangleEx *pTriangle, int nIndex, msVec2 TexCoord);
+
+/**********************************************************************
  * msVertex
  **********************************************************************/
 
@@ -266,9 +307,20 @@ MSLIB_API int           msVertex_SetBoneIndex (msVertex* pVertex, int nBoneIndex
 MSLIB_API int           msVertex_GetBoneIndex (msVertex* pVertex);
 
 /**********************************************************************
+ * msVertexEx
+ **********************************************************************/
+
+MSLIB_API int           msVertexEx_SetBoneIndices (msVertexEx* pVertex, int nIndex, int nBoneIndex);
+MSLIB_API int           msVertexEx_GetBoneIndices (msVertexEx* pVertex, int nIndex);
+MSLIB_API int           msVertexEx_SetBoneWeights (msVertexEx* pVertex, int nIndex, int nWeight);
+MSLIB_API int           msVertexEx_GetBoneWeights (msVertexEx* pVertex, int nIndex);
+
+/**********************************************************************
  * msMaterial
  **********************************************************************/
 
+MSLIB_API void          msMaterial_SetFlags (msMaterial *pMaterial, int nFlags);
+MSLIB_API int           msMaterial_GetFlags (msMaterial *pMaterial);
 MSLIB_API void          msMaterial_SetName (msMaterial *pMaterial, const char *szName);
 MSLIB_API void          msMaterial_GetName (msMaterial *pMaterial, char *szName, int nMaxLength);
 MSLIB_API void          msMaterial_SetAmbient (msMaterial *pMaterial, msVec4 Ambient);
@@ -288,6 +340,8 @@ MSLIB_API void          msMaterial_SetDiffuseTexture (msMaterial *pMaterial, con
 MSLIB_API void          msMaterial_GetDiffuseTexture (msMaterial *pMaterial, char *szDiffuseTexture, int nMaxLength);
 MSLIB_API void          msMaterial_SetAlphaTexture (msMaterial *pMaterial, const char *szAlphaTexture);
 MSLIB_API void          msMaterial_GetAlphaTexture (msMaterial *pMaterial, char *szAlphaTexture, int nMaxLength);
+MSLIB_API void          msMaterial_SetComment (msMaterial *pMaterial, const char *pszComment);
+MSLIB_API int           msMaterial_GetComment (msMaterial *pMaterial, char *pszComment, int nMaxCommentLength);
 
 /**********************************************************************
  * msBone
@@ -314,6 +368,8 @@ MSLIB_API msPositionKey* msBone_GetPositionKeyAt (msBone *pBone, int nIndex);
 MSLIB_API int           msBone_GetRotationKeyCount (msBone *pBone);
 MSLIB_API int           msBone_AddRotationKey (msBone *pBone, float fTime, msVec3 Rotation);
 MSLIB_API msRotationKey* msBone_GetRotationKeyAt (msBone *pBone, int nIndex);
+MSLIB_API void          msBone_SetComment (msBone *pBone, const char *pszComment);
+MSLIB_API int           msBone_GetComment (msBone *pBone, char *pszComment, int nMaxCommentLength);
 
 
 

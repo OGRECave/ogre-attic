@@ -5,9 +5,15 @@
             ACTIONS = {cancelClicked = id; okClicked = id; }; 
             CLASS = OgreConfigWindowController; 
             LANGUAGE = ObjC; 
-            OUTLETS = {messageTextField = id; optionsPopUp = id; }; 
+            OUTLETS = {
+                messageTextField = id; 
+                optionsPopUp = id; 
+                optionsTableView = id; 
+                renderSystemPopup = id; 
+            }; 
             SUPERCLASS = NSWindowController; 
-        }
+        }, 
+        {CLASS = myTableViewController; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
     ); 
     IBVersion = 1; 
 }

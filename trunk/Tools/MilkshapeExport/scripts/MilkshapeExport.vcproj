@@ -34,7 +34,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msModelLibd.lib OgreMain_d.lib"
+				AdditionalDependencies="msModelLib.lib OgreMain_d.lib"
 				OutputFile="$(OutDir)/msOGREExporter.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\lib\Debug;..\..\..\OgreMain\lib\Debug"
