@@ -195,19 +195,30 @@ namespace Ogre {
 			for (oi = grp->loadResourceOrderMap.begin(); 
 				oi != grp->loadResourceOrderMap.end(); ++oi)
 			{
+				size_t n = 0;
 				for (LoadUnloadResourceList::iterator l = oi->second->begin();
-					l != oi->second->end(); ++l)
+					l != oi->second->end(); ++l, ++n)
 				{
+					ResourcePtr res = *l;
+
 					// Fire resource events no matter whether resource is already
 					// loaded or not. This ensures that the number of callbacks
 					// matches the number originally estimated, which is important
 					// for progress bars.
-					fireResourceStarted(*l);
+					fireResourceStarted(res);
 
 					// If loading one of these resources cascade-loads another resource, 
 					// the list will get longer! But these should be loaded immediately
 					// Call load regardless, already loaded resources will be skipped
-					(*l)->load();
+					res->load();
+
+					// Did the resource change group? if so, our iterator will have
+					// been invalidated
+					if (res->getGroup() != name)
+					{
+						l = oi->second->begin();
+						std::advance(l, n);
+					}
 
 					fireResourceEnded();
 				}
