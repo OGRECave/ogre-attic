@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="4" />
+	<FileVersion major="1" minor="5" />
 	<Project>
 		<Option title="Demo_BspCollision" />
+		<Option default_target="" />
 		<Option compiler="gcc" />
+		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
 				<Option output="..\..\..\Samples\Common\bin\Debug\Demo_BspCollision.exe" />
@@ -12,7 +14,6 @@
 				<Option external_deps="..\..\..\OgreMain\lib\Debug\OgreMain_d.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
-				<Option includeInTargetAll="1" />
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
 					<Add option="-g" />
@@ -25,7 +26,7 @@
 					<Add library="OgreMain_d" />
 					<Add library="ReferenceAppLayer" />
 					<Add library="ois_d" />
-					<Add library="stlportstlg.5.0" />
+					<Add library="stlportstlg.5.1" />
 					<Add directory="..\..\Dependencies\lib\Debug" />
 					<Add directory="..\..\ReferenceAppLayer\lib\Debug" />
 				</Linker>
@@ -37,7 +38,6 @@
 				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
-				<Option includeInTargetAll="1" />
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
 					<Add option="-O3" />
@@ -50,12 +50,15 @@
 					<Add library="OgreMain" />
 					<Add library="ReferenceAppLayer" />
 					<Add library="ois" />
-					<Add library="stlport.5.0" />
+					<Add library="stlport.5.1" />
 					<Add directory="..\..\Dependencies\lib\Release" />
 					<Add directory="..\..\ReferenceAppLayer\lib\Release" />
 				</Linker>
 			</Target>
 		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="Debug;Release;" />
+		</VirtualTargets>
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-mthreads" />
@@ -97,5 +100,6 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="4" />
+	<FileVersion major="1" minor="5" />
 	<Project>
 		<Option title="ReferenceAppLayer" />
-		<Option default_target="-1" />
+		<Option default_target="" />
 		<Option compiler="gcc" />
+		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
 				<Option output="..\lib\Debug\ReferenceAppLayer.dll" />
@@ -12,7 +13,6 @@
 				<Option external_deps="..\..\..\OgreMain\lib\Debug\OgreMain_d.dll;" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option includeInTargetAll="1" />
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
 					<Add option="-g" />
@@ -26,7 +26,7 @@
 					<Add library="OgreMain_d" />
 					<Add library="ode" />
 					<Add library="OPCODE" />
-					<Add library="stlportstlg.5.0" />
+					<Add library="stlportstlg.5.1" />
 					<Add directory="..\..\..\Dependencies\lib\Debug" />
 				</Linker>
 				<ExtraCommands>
@@ -39,7 +39,6 @@
 				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option includeInTargetAll="1" />
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
 					<Add option="-O3" />
@@ -53,7 +52,7 @@
 					<Add library="OgreMain" />
 					<Add library="ode" />
 					<Add library="OPCODE" />
-					<Add library="stlport.5.0" />
+					<Add library="stlport.5.1" />
 					<Add directory="..\..\..\Dependencies\lib\Release" />
 				</Linker>
 				<ExtraCommands>
@@ -61,6 +60,9 @@
 				</ExtraCommands>
 			</Target>
 		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="Debug;Release;" />
+		</VirtualTargets>
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-mthreads" />
@@ -307,5 +309,6 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
