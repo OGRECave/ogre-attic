@@ -39,6 +39,13 @@ Torus Knot Software Ltd.
 #include "OgrePass.h"
 #include "OgreTextureUnitState.h"
 #include "OgreException.h"
+#include "OgreMaterialScriptCompiler.h"
+
+/** Set this to 0 if having problems with the new Material Script Compiler and want to use the original one.
+*/
+#ifndef OGRE_MATERIAL_SCRIPT_COMPILER
+#define OGRE_MATERIAL_SCRIPT_COMPILER 0
+#endif
 
 namespace Ogre {
 
@@ -60,6 +67,10 @@ namespace Ogre {
 	    mDefaultMagFilter = FO_LINEAR;
 	    mDefaultMipFilter = FO_POINT;
 		mDefaultMaxAniso = 1;
+
+#if OGRE_MATERIAL_SCRIPT_COMPILER
+        mScriptCompiler = new MaterialScriptCompiler();
+#endif
 
         // Loading order
         mLoadOrder = 100.0f;
@@ -88,6 +99,10 @@ namespace Ogre {
 		// Unregister with resource group manager
 		ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);
 		ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
+#if OGRE_MATERIAL_SCRIPT_COMPILER
+        delete mScriptCompiler;
+#endif
+
     }
 	//-----------------------------------------------------------------------
 	Resource* MaterialManager::createImpl(const String& name, ResourceHandle handle, 
@@ -116,7 +131,11 @@ namespace Ogre {
     void MaterialManager::parseScript(DataStreamPtr& stream, const String& groupName)
     {
         // Delegate to serializer
+#if OGRE_MATERIAL_SCRIPT_COMPILER
+        mScriptCompiler->parseScript(stream, groupName);
+#else
         mSerializer.parseScript(stream, groupName);
+#endif
     }
     //-----------------------------------------------------------------------
 	void MaterialManager::setDefaultTextureFiltering(TextureFilterOptions fo)
