@@ -37,6 +37,7 @@ Torus Knot Software Ltd.
 #include "OgreStringVector.h"
 #include "OgreMaterialSerializer.h"
 
+
 namespace Ogre {
 
 
@@ -68,6 +69,7 @@ namespace Ogre {
         /// Default Texture anisotropy
         unsigned int mDefaultMaxAniso;
 
+        MaterialScriptCompiler* mScriptCompiler;
         /// Serializer
         MaterialSerializer mSerializer;
 		/// Default settings
