@@ -71,6 +71,7 @@ RaySceneQuery* rayQuery = 0;
 Entity* ball = 0;
 Vector3 ballVector;
 bool testreload = false;
+String testBackgroundLoadGroup;
 
 // Hacky globals
 GpuProgramParametersSharedPtr fragParams;
@@ -117,7 +118,7 @@ public:
 };
 
 
-class PlayPenListener : public ExampleFrameListener
+class PlayPenListener : public ExampleFrameListener, public ResourceBackgroundQueue::Listener
 {
 protected:
 	SceneManager* mSceneMgr;
@@ -127,6 +128,13 @@ public:
     {
     }
 
+
+	/// Background load completed
+	void operationCompleted(BackgroundProcessTicket ticket)
+	{
+		mDebugText = "Background load complete";
+
+	}
 
     bool frameStarted(const FrameEvent& evt)
     {
@@ -174,6 +182,19 @@ public:
 				testreload = false;
 
 			}
+		}
+
+		static float backgroundLoadTime = 5.0f;
+		if (!testBackgroundLoadGroup.empty())
+		{
+			backgroundLoadTime -= evt.timeSinceLastFrame;
+			if (backgroundLoadTime < 0)
+			{
+				ResourceBackgroundQueue::getSingleton().loadResourceGroup(testBackgroundLoadGroup, this);
+				testBackgroundLoadGroup.clear();
+				mDebugText = "Background load queued";
+			}
+
 		}
 
 
@@ -412,8 +433,8 @@ public:
         */
 
         // Print camera details
-        mWindow->setDebugText("P: " + StringConverter::toString(mCamera->getDerivedPosition()) + " " + 
-            "O: " + StringConverter::toString(mCamera->getDerivedOrientation()));
+        //mWindow->setDebugText("P: " + StringConverter::toString(mCamera->getDerivedPosition()) + " " + 
+        //    "O: " + StringConverter::toString(mCamera->getDerivedOrientation()));
         return ExampleFrameListener::frameStarted(evt) && ExampleFrameListener::frameEnded(evt);        
 
     }
@@ -1553,14 +1574,15 @@ protected:
         // Report whether hardware skinning is enabled or not
         Technique* t = ent->getSubEntity(0)->getMaterial()->getBestTechnique();
         Pass* p = t->getPass(0);
+		OverlayElement* guiDbg = OverlayManager::getSingleton().getOverlayElement("Core/DebugText");
         if (p->hasVertexProgram() && 
             p->getVertexProgram()->isSkeletalAnimationIncluded())
         {
-            mWindow->setDebugText("Hardware skinning is enabled");
+			guiDbg->setCaption("Hardware skinning is enabled");
         }
         else
         {
-            mWindow->setDebugText("Software skinning is enabled");
+            guiDbg->setCaption("Software skinning is enabled");
         }
 
 
@@ -4492,6 +4514,49 @@ protected:
 		pPlaneEnt->setCastShadows(false);
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 
+
+	}
+
+	void testBackgroundLoadResourceGroup()
+	{
+		ResourceGroupManager& rgm = ResourceGroupManager::getSingleton();
+		TextureManager& tm = TextureManager::getSingleton();
+
+		testBackgroundLoadGroup = "Deferred";
+
+		rgm.createResourceGroup(testBackgroundLoadGroup);
+
+		// define a bunch of textures as deferred loading
+		rgm.declareResource("egyptrockyfull.jpg", tm.getResourceType(), testBackgroundLoadGroup);
+		rgm.declareResource("fw12b.jpg", tm.getResourceType(), testBackgroundLoadGroup);
+		rgm.declareResource("grass_1024.jpg", tm.getResourceType(), testBackgroundLoadGroup);
+		rgm.declareResource("GreenSkin.jpg", tm.getResourceType(), testBackgroundLoadGroup);
+		rgm.declareResource("MtlPlat2.jpg", tm.getResourceType(), testBackgroundLoadGroup);
+		rgm.declareResource("NMBumpsOut.png", tm.getResourceType(), testBackgroundLoadGroup);
+		// Note: initialise resource group in main thread for this test
+		// We will be able to initialise in the background thread too eventually,
+		// once resources can be created thread safely as well as loaded
+		rgm.initialiseResourceGroup(testBackgroundLoadGroup);
+
+		// we won't load it yet, we'll wait for 5 seconds
+
+
+		// Create a basic plane to have something in the scene to look at
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 100;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt;
+		pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("2 - Default");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+
+
+
 	}
 
 
@@ -4533,7 +4598,7 @@ protected:
         //testSkeletalAnimation();
         //testOrtho();
         //testClearScene();
-		testInfiniteAAB();
+		//testInfiniteAAB();
 
         //testProjection();
         //testStencilShadows(SHADOWTYPE_STENCIL_ADDITIVE, true, true);
@@ -4595,7 +4660,7 @@ protected:
 
 		//testVertexTexture();
 		//testGLSLTangent();
-
+		testBackgroundLoadResourceGroup();
 		
     }
     // Create new frame listener

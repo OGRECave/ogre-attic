@@ -89,6 +89,7 @@ Torus Knot Software Ltd.
 #include "OgreRenderTargetListener.h"
 #include "OgreRenderTexture.h"
 #include "OgreRenderWindow.h"
+#include "OgreResourceBackgroundQueue.h"
 #include "OgreResourceGroupManager.h"
 #include "OgreRibbonTrail.h"
 #include "OgreRoot.h"
