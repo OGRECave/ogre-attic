@@ -224,6 +224,7 @@ namespace Ogre {
 		ResourceBackgroundQueue& queueInstance = 
 			ResourceBackgroundQueue::getSingleton();
 
+		LogManager::getSingleton().logMessage("ResourceBackgroundQueue - thread starting.");
 		bool shuttingDown = false;
 		// Spin forever until we're told to shut down
 		while (!shuttingDown)
@@ -271,6 +272,8 @@ namespace Ogre {
 			case RT_SHUTDOWN:
 				// That's all folks
 				shuttingDown = true;
+				LogManager::getSingleton().logMessage("ResourceBackgroundQueue - thread stopping.");
+
 				break;
 			};
 
@@ -294,6 +297,8 @@ namespace Ogre {
 
 
 		}
+
+		LogManager::getSingleton().logMessage("ResourceBackgroundQueue - thread stopped.");
 
 	
 		
