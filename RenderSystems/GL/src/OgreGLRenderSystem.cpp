@@ -2056,6 +2056,9 @@ namespace Ogre {
         case LBX_ADD_SIGNED:
             cmd = GL_ADD_SIGNED;
             break;
+		case LBX_ADD_SMOOTH:
+			cmd = GL_INTERPOLATE;
+			break;
         case LBX_SUBTRACT:
             cmd = GL_SUBTRACT;
             break;
