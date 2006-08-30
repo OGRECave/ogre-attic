@@ -42,7 +42,7 @@ namespace Ogre {
             mWidth(512),
             mDepth(1),
 			mNumRequestedMipmaps(0),
-            mNumMipmaps(),
+            mNumMipmaps(0),
 			mMipmapsHardwareGenerated(false),
             mGamma(1.0f),
             mTextureType(TEX_TYPE_2D),            
