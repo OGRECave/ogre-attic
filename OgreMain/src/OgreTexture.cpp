@@ -57,6 +57,8 @@ namespace Ogre {
             mInternalResourcesCreated(false)
     {
 
+		enable32Bit(false);
+
         if (createParamDictionary("Texture"))
         {
             // Define the parameters that have to be present to load
