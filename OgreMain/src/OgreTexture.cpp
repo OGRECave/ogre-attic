@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTexture.h"
 #include "OgreException.h"
 #include "OgreResourceManager.h"
+#include "OgreTextureManager.h"
 
 namespace Ogre {
 	//--------------------------------------------------------------------------
@@ -41,7 +42,7 @@ namespace Ogre {
             mWidth(512),
             mDepth(1),
 			mNumRequestedMipmaps(0),
-            mNumMipmaps(0),
+            mNumMipmaps(),
 			mMipmapsHardwareGenerated(false),
             mGamma(1.0f),
             mTextureType(TEX_TYPE_2D),            
@@ -56,8 +57,6 @@ namespace Ogre {
             mInternalResourcesCreated(false)
     {
 
-        enable32Bit(false);
-
         if (createParamDictionary("Texture"))
         {
             // Define the parameters that have to be present to load
@@ -65,6 +64,14 @@ namespace Ogre {
             // predeclaring, you use a texture file which includes all the
             // information required.
         }
+
+		// Set some defaults for default load path
+		if (TextureManager::getSingletonPtr())
+		{
+			TextureManager& tmgr = TextureManager::getSingleton();
+			setNumMipmaps(tmgr.getDefaultNumMipmaps());
+			enable32Bit(tmgr.isEnable32BitTextures());
+		}
 
         
     }
