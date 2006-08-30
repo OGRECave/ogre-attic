@@ -671,6 +671,7 @@ namespace Ogre
 		@param rhs The vector to compare with
 		@param tolerance The maximum angle by which the vectors may vary and
 			still be considered equal
+		@note Both vectors should be normalised.
 		*/
 		inline bool directionEquals(const Vector3& rhs,
 			const Radian& tolerance) const
