@@ -497,6 +497,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreMaterialScriptCompiler.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreMaterialSerializer.cpp"
 				>
 			</File>
@@ -1229,6 +1233,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreMaterialManager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreMaterialScriptCompiler.h"
 				>
 			</File>
 			<File
