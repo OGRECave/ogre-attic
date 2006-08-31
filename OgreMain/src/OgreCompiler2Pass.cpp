@@ -781,26 +781,26 @@ namespace Ogre {
 			    // only validate if the previous rule passed
 			    if (passed)
 				    passed = ValidateToken(rulepathIDX, ActiveNTTRule);
-				    // log error message if a previouse token was found in this rule path and current token failed
-				    if (tokenFound && (mCharPos != mErrorCharPos) && !passed)
-                    {
-                        mErrorCharPos = mCharPos;
-                        LogManager::getSingleton().logMessage(
-                        "*** ERROR *** : in " + getClientGrammerName() +
-                        " Source: " + mSourceName +
-                        "\nUnknown token found on line " + StringConverter::toString(mCurrentLine) +
-                        "\nFound: >>>" + mSource->substr(mCharPos, 20) +
-                        "<<<\nbut was expecting form: " + getBNFGrammerTextFromRulePath(rulepathIDX, 2) +
-                        "\nwhile in rule path: <" + mActiveTokenState->lexemeTokenDefinitions[ActiveNTTRule].lexeme +
-                        ">"
-                        );
-                        // log last valid token found
-                        const TokenInst& tokenInst = mActiveTokenState->tokenQue.back();
-                        LogManager::getSingleton().logMessage(
-                            "Last valid token found was on line " + StringConverter::toString(tokenInst.line));
-                        LogManager::getSingleton().logMessage(
-                            "source hint: >>>" + mSource->substr(tokenInst.pos, 20) + "<<<");
-                    }
+                // log error message if a previouse token was found in this rule path and current token failed
+                if (tokenFound && (mCharPos != mErrorCharPos) && !passed)
+                {
+                    mErrorCharPos = mCharPos;
+                    LogManager::getSingleton().logMessage(
+                    "*** ERROR *** : in " + getClientGrammerName() +
+                    " Source: " + mSourceName +
+                    "\nUnknown token found on line " + StringConverter::toString(mCurrentLine) +
+                    "\nFound: >>>" + mSource->substr(mCharPos, 20) +
+                    "<<<\nbut was expecting form: " + getBNFGrammerTextFromRulePath(rulepathIDX, 2) +
+                    "\nwhile in rule path: <" + mActiveTokenState->lexemeTokenDefinitions[ActiveNTTRule].lexeme +
+                    ">"
+                    );
+                    // log last valid token found
+                    const TokenInst& tokenInst = mActiveTokenState->tokenQue.back();
+                    LogManager::getSingleton().logMessage(
+                        "Last valid token found was on line " + StringConverter::toString(tokenInst.line));
+                    LogManager::getSingleton().logMessage(
+                        "source hint: >>>" + mSource->substr(tokenInst.pos, 20) + "<<<");
+                }
 
 			    break;
 
