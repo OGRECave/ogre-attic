@@ -173,14 +173,6 @@ namespace Ogre
 		}
 	}
 	/****************************************************************************************/
-	void D3D9Texture::loadImage( const Image &img )
-	{
-		// Use OGRE its own codecs
-		std::vector<const Image*> imagePtrs;
-		imagePtrs.push_back(&img);
-		_loadImages( imagePtrs );
-	}
-	/****************************************************************************************/
 	void D3D9Texture::loadImpl()
 	{
 		if (mUsage & TU_RENDERTARGET)
@@ -305,7 +297,7 @@ namespace Ogre
 			baseName = mName.substr(0, pos);
 			ext = mName.substr(pos+1);
 			std::vector<Image> images(6);
-			std::vector<const Image*> imagePtrs;
+			ConstImagePtrList imagePtrs;
 			static const String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
 
 			for(size_t i = 0; i < 6; i++)
@@ -411,7 +403,11 @@ namespace Ogre
 			String ext = mName.substr(pos+1);
 	
 			img.load(dstream, ext);
-			loadImage(img);
+			// Call internal _loadImages, not loadImage since that's external and 
+			// will determine load status etc again
+			ConstImagePtrList imagePtrs;
+			imagePtrs.push_back(&img);
+			_loadImages( imagePtrs );
 		}
     }
 	/****************************************************************************************/
@@ -501,7 +497,11 @@ namespace Ogre
 			String ext = mName.substr(pos+1);
 			
 			img.load(dstream, ext);
-			loadImage(img);
+			// Call internal _loadImages, not loadImage since that's external and 
+			// will determine load status etc again
+			ConstImagePtrList imagePtrs;
+			imagePtrs.push_back(&img);
+			_loadImages( imagePtrs );
 		}
 	}
 	/****************************************************************************************/

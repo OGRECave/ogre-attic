@@ -241,15 +241,6 @@ namespace Ogre {
         createInternalResources();
     }
 	
-	void GLTexture::loadImage( const Image& img )
-    {
-        std::vector<const Image*> images;
-		
-        images.push_back(&img);
-        _loadImages(images);
-        images.clear();
-    }
-
     void GLTexture::loadImpl()
     {
         if( mUsage & TU_RENDERTARGET )
@@ -288,7 +279,11 @@ namespace Ogre {
 				if(img.getDepth() > 1)
 					mTextureType = TEX_TYPE_3D;
 
-				loadImage( img );
+				// Call internal _loadImages, not loadImage since that's external and 
+				// will determine load status etc again
+				ConstImagePtrList imagePtrs;
+				imagePtrs.push_back(&img);
+				_loadImages( imagePtrs );
             }
             else if (mTextureType == TEX_TYPE_CUBE_MAP)
             {
@@ -304,12 +299,16 @@ namespace Ogre {
 							mName, mGroup, true, this);
 
 	                img.load(dstream, ext);
-					loadImage( img );
+					// Call internal _loadImages, not loadImage since that's external and 
+					// will determine load status etc again
+					ConstImagePtrList imagePtrs;
+					imagePtrs.push_back(&img);
+					_loadImages( imagePtrs );
 				}
 				else
 				{
 					std::vector<Image> images(6);
-					std::vector<const Image*> imagePtrs;
+					ConstImagePtrList imagePtrs;
 					static const String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
 	
 					for(size_t i = 0; i < 6; i++)

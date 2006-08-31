@@ -206,13 +206,34 @@ namespace Ogre {
 		virtual void copyToTexture( TexturePtr& target );
 
         /** Loads the data from an image.
+		@note Important: only call this from outside the load() routine of a 
+			Resource. Don't call it within (including ManualResourceLoader) - use
+			_loadImages() instead. This method is designed to be external, 
+			performs locking and checks the load status before loading.
         */
-        virtual void loadImage( const Image &img ) = 0;
+        virtual void loadImage( const Image &img );
 			
 		/** Loads the data from a raw stream.
+		@note Important: only call this from outside the load() routine of a 
+			Resource. Don't call it within (including ManualResourceLoader) - use
+			_loadImages() instead. This method is designed to be external, 
+			performs locking and checks the load status before loading.
+		@param stream Data stream containing the raw pixel data
+		@param uWidth Width of the image
+		@param uHeight Height of the image
+		@param eFormat The format of the pixel data
 		*/
 		virtual void loadRawData( DataStreamPtr& stream, 
 			ushort uWidth, ushort uHeight, PixelFormat eFormat);
+
+		/** Internal method to load the texture from a set of images. 
+		@note Do NOT call this method unless you are inside the load() routine
+			already, e.g. a ManualResourceLoader. It is not threadsafe and does
+			not check or update resource loading status.
+		*/
+        virtual void _loadImages( const ConstImagePtrList& images );
+
+
 
         virtual void enable32Bit( bool setting = true ) 
         {
@@ -277,16 +298,6 @@ namespace Ogre {
 		/// @copydoc Resource::calculateSize
 		size_t calculateSize(void) const;
 		
-		/** Generic method to load the texture from a set of images. This can be
-		 	used by the specific implementation for convience. Implementations
-			might decide not to use this function if they can use their own image loading
-			functions.
-			@param images	Vector of pointers to Images. If there is only one image
-			in this vector, the faces of that image will be used. If there are multiple
-			images in the vector each image will be loaded as a face.
-		*/
-        virtual void _loadImages( const std::vector<const Image*>& images );
-
 
 		/** Implementation of creating internal texture resources 
 		*/

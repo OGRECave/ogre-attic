@@ -388,7 +388,11 @@ namespace Ogre
 		img.loadRawData( memStream, tex_side, tex_side, PF_BYTE_LA );
 
 		Texture* tex = static_cast<Texture*>(res);
-		tex->loadImage(img);
+		// Call internal _loadImages, not loadImage since that's external and 
+		// will determine load status etc again, and this is a manual loader inside load()
+		ConstImagePtrList imagePtrs;
+		imagePtrs.push_back(&img);
+		tex->_loadImages( imagePtrs );
 
 
 		FT_Done_FreeType(ftLibrary);
