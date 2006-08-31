@@ -129,8 +129,6 @@ namespace Ogre {
 
 		/// overriden from Texture
 		void copyToTexture( TexturePtr& target );
-		/// overriden from Texture
-		void loadImage( const Image &img );
 
 
 		/// @copydoc Texture::getBuffer

@@ -49,7 +49,6 @@ namespace Ogre {
 
         virtual ~GLTexture();      
 
-		void loadImage( const Image& img );
         void createRenderTexture();
 			
 		/// @copydoc Texture::getBuffer

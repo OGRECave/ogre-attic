@@ -81,13 +81,61 @@ namespace Ogre {
 
         
     }
-	//--------------------------------------------------------------------------    //--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------    
 	void Texture::loadRawData( DataStreamPtr& stream, 
 		ushort uWidth, ushort uHeight, PixelFormat eFormat)
 	{
 		Image img;
 		img.loadRawData(stream, uWidth, uHeight, eFormat);
 		loadImage(img);
+	}
+	//--------------------------------------------------------------------------    
+	void Texture::loadImage( const Image &img )
+	{
+		// Scope lock over load status
+		{
+			OGRE_LOCK_MUTEX(mLoadingStatusMutex)
+			if (mLoadingState != LOADSTATE_UNLOADED)
+			{
+				// no loading to be done
+				return;
+			}
+			mLoadingState = LOADSTATE_LOADING;
+		}
+
+		// Scope lock for actual loading
+		try
+		{
+			OGRE_LOCK_AUTO_MUTEX
+			std::vector<const Image*> imagePtrs;
+			imagePtrs.push_back(&img);
+			_loadImages( imagePtrs );
+
+		}
+		catch (...)
+		{
+			// Reset loading in-progress flag in case failed for some reason
+			OGRE_LOCK_MUTEX(mLoadingStatusMutex)
+			mLoadingState = LOADSTATE_UNLOADED;
+			// Re-throw
+			throw;
+		}
+
+		// Scope lock for loading progress
+		{
+			OGRE_LOCK_MUTEX(mLoadingStatusMutex)
+
+			// Now loaded
+			mLoadingState = LOADSTATE_LOADED;
+		}
+
+		// Notify manager
+		if(mCreator)
+			mCreator->_notifyResourceLoaded(this);
+
+		// No deferred loading events since this method is not called in background
+
+
 	}
     //--------------------------------------------------------------------------
     void Texture::setFormat(PixelFormat pf)
@@ -109,19 +157,12 @@ namespace Ogre {
 		return getTextureType() == TEX_TYPE_CUBE_MAP ? 6 : 1;
 	}
 	//--------------------------------------------------------------------------
-    void Texture::_loadImages( const std::vector<const Image*>& images )
+    void Texture::_loadImages( const ConstImagePtrList& images )
     {
 		if(images.size() < 1)
 			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Cannot load empty vector of images",
 			 "Texture::loadImages");
         
-        if(isLoaded())
-        {
-			LogManager::getSingleton().logMessage( 
-				LML_NORMAL, "Texture: "+mName+": Unloading Image");
-            unload();
-        }
-
 		// Set desired texture size and properties from images[0]
 		mSrcWidth = mWidth = images[0]->getWidth();
 		mSrcHeight = mHeight = images[0]->getHeight();
