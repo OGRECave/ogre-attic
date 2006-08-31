@@ -298,7 +298,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Node::addChild(Node* child)
     {
-        assert(!child->mParent);
+        if (child->mParent)
+        {
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+                "Node '" + child->getName() + "' already was a child of '" +
+                child->mParent->getName() + "'.",
+                "Node::addChild");
+        }
 
         mChildren.insert(ChildNodeMap::value_type(child->getName(), child));
         child->setParent(this);
@@ -349,18 +355,17 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Node* Node::removeChild(Node* child)
     {
-        ChildNodeMap::iterator i, iend;
-        iend = mChildren.end();
-        for (i = mChildren.begin(); i != iend; ++i)
+        if (child)
         {
-            if (i->second == child)
+            ChildNodeMap::iterator i = mChildren.find(child->getName());
+            // ensure it's our child
+            if (i != mChildren.end() && i->second == child)
             {
                 // cancel any pending update
                 cancelUpdate(child);
 
                 mChildren.erase(i);
                 child->setParent(NULL);
-                break;
             }
         }
         return child;
@@ -770,7 +775,7 @@ namespace Ogre {
             mRotFromInitial =
                 Quaternion::Slerp(factor, mRotFromInitial, rotate);
             // For scale, find delta from 1.0, factor then add back before applying
-            Vector3 scaleDiff = (scale - Vector3::UNIT_SCALE) * factor;
+            Vector3 scaleDiff = (scale / mScaleFromInitial - Vector3::UNIT_SCALE) * factor;
             mScaleFromInitial = mScaleFromInitial *
                 (scaleDiff + Vector3::UNIT_SCALE);
             mAccumAnimWeight += weight;
