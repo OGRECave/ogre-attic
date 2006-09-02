@@ -51,7 +51,6 @@ CompositorInstance::CompositorInstance(Compositor *filter, CompositionTechnique 
 //-----------------------------------------------------------------------
 CompositorInstance::~CompositorInstance()
 {
-	clearCompilationState();
     freeResources();
 }
 //-----------------------------------------------------------------------
@@ -271,11 +270,6 @@ void CompositorInstance::collectPasses(TargetOperation &finalState, CompositionT
     }
 }
 //-----------------------------------------------------------------------
-void CompositorInstance::_prepareForCompilation()
-{
-	clearCompilationState();
-}
-//-----------------------------------------------------------------------
 void CompositorInstance::_compileTargetOperations(CompiledState &compiledState)
 {
     /// Collect targets of previous state
@@ -452,18 +446,8 @@ void CompositorInstance::queueRenderSystemOp(TargetOperation &finalState, Render
 {
 	/// Store operation for current QueueGroup ID
 	finalState.renderSystemOperations.push_back(RenderSystemOpPair(finalState.currentQueueGroupID, op));
-	/// Save a pointer, so that it will be freed on recompile
-	mRenderSystemOperations.push_back(op);
-}
-//-----------------------------------------------------------------------
-void CompositorInstance::clearCompilationState()
-{
-	RenderSystemOperations::iterator i, iend=mRenderSystemOperations.end();
-    for(i=mRenderSystemOperations.begin(); i!=iend; ++i)
-    {
-		delete (*i);
-    }
-	mRenderSystemOperations.clear();
+	/// Tell parent for deletion
+	mChain->_queuedOperation(op);
 }
 //-----------------------------------------------------------------------
 void CompositorInstance::addListener(Listener *l)
