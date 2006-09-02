@@ -31,11 +31,8 @@ Torus Knot Software Ltd.
 #define __MaterialScriptScompiler_H__
 
 #include "OgreCompiler2Pass.h"
-#include "OgrePrerequisites.h"
 #include "OgreTextureUnitState.h"
 #include "OgreMaterial.h"
-//#include "OgreBlendMode.h"
-//#include "OgreTextureUnitState.h"
 #include "OgreGpuProgram.h"
 #include "OgreStringVector.h"
 
