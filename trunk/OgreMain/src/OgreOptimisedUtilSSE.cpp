@@ -74,8 +74,8 @@ namespace Ogre {
     class _OgrePrivate OptimisedUtilSSE : public OptimisedUtil
     {
     protected:
-        /// Are we running on an AMD processor?
-        bool mIsAMD;
+        /// Does we prefer use general SSE version for position/normals shared buffers?
+        bool mPreferGeneralVersionForSharedBuffers;
 
     public:
         /// Constructor
@@ -1033,8 +1033,25 @@ namespace Ogre {
     //---------------------------------------------------------------------
     //---------------------------------------------------------------------
     OptimisedUtilSSE::OptimisedUtilSSE(void)
-        : mIsAMD(PlatformInformation::getCpuIdentifier() == "AuthenticAMD-X86")
+        : mPreferGeneralVersionForSharedBuffers(false)
     {
+        // For AMD Athlon XP (but not that for Althon 64), it's prefer to never use
+        // unrolled version for shared buffers at all, I guess because that version
+        // run out of usable CPU registers, or L1/L2 cache related problem, causing
+        // slight performance loss than general version.
+        //
+        if (PlatformInformation::getCpuIdentifier() == "AuthenticAMD-X86")
+        {
+            // How can I check it's an Athlon XP but not Althon 64?
+            // Ok, just test whether supports SSE2/SSE3 or not, if not,
+            // assume general version faster than unrolled version :)
+            //
+            if (!(PlatformInformation::getCpuFeatures() &
+                (PlatformInformation::CPU_FEATURE_SSE2 | PlatformInformation::CPU_FEATURE_SSE3)))
+            {
+                mPreferGeneralVersionForSharedBuffers = true;
+            }
+        }
     }
     //---------------------------------------------------------------------
     void OptimisedUtilSSE::softwareVertexSkinning(
@@ -1064,12 +1081,7 @@ namespace Ogre {
             {
                 // Blend position and normal
 
-                // For AMD Athlon XP, it's prefer to never use unrolled version for shared
-                // buffers at all, I guess because that version run out of CPU register count,
-                // or L1 cache related problem, causing slight performance loss than general
-                // version.
-                //
-                if (!mIsAMD &&
+                if (!mPreferGeneralVersionForSharedBuffers &&
                     srcPosStride == sizeof(float) * (3 + 3) && destPosStride == sizeof(float) * (3 + 3) &&
                     pSrcNorm == pSrcPos + 3 && pDestNorm == pDestPos + 3)
                 {
