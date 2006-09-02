@@ -119,15 +119,16 @@ namespace Ogre {
 #if OGRE_CPU == OGRE_CPU_X86
             CPU_FEATURE_SSE         = 1 << 0,
             CPU_FEATURE_SSE2        = 1 << 1,
-            CPU_FEATURE_MMX         = 1 << 2,
-            CPU_FEATURE_MMXEXT      = 1 << 3,
-            CPU_FEATURE_3DNOW       = 1 << 4,
-            CPU_FEATURE_3DNOWEXT    = 1 << 5,
-            CPU_FEATURE_CMOV        = 1 << 6,
-            CPU_FEATURE_TSC         = 1 << 7,
-            CPU_FEATURE_FPU         = 1 << 8,
-            CPU_FEATURE_PRO         = 1 << 9,
-            CPU_FEATURE_HTT         = 1 << 10,
+            CPU_FEATURE_SSE3        = 1 << 2,
+            CPU_FEATURE_MMX         = 1 << 3,
+            CPU_FEATURE_MMXEXT      = 1 << 4,
+            CPU_FEATURE_3DNOW       = 1 << 5,
+            CPU_FEATURE_3DNOWEXT    = 1 << 6,
+            CPU_FEATURE_CMOV        = 1 << 7,
+            CPU_FEATURE_TSC         = 1 << 8,
+            CPU_FEATURE_FPU         = 1 << 9,
+            CPU_FEATURE_PRO         = 1 << 10,
+            CPU_FEATURE_HTT         = 1 << 11,
 #endif
 
             CPU_FEATURE_NONE        = 0

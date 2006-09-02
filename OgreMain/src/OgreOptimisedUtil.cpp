@@ -337,19 +337,19 @@ namespace Ogre {
         //
         //   Dagon SkeletonAnimation sample - softwareVertexSkinning:
         //
-        //                                      Pentium 4 3.0G HT       Athlon XP 2500+
+        //                                      Pentium 4 3.0G HT       Athlon XP 2500+     Athlon 64 X2 Dual Core 3800+
         //
-        //      Shared Buffers, General C       763677                  462903
-        //      Shared Buffers, Unrolled SSE    210030 *best*           369762
-        //      Shared Buffers, General SSE     286202                  352412 *best*
+        //      Shared Buffers, General C       763677                  462903              473038
+        //      Shared Buffers, Unrolled SSE    210030 *best*           369762              228328 *best*
+        //      Shared Buffers, General SSE     286202                  352412 *best*       302796
         //
-        //      Separated Buffers, General C    762640                  464840
-        //      Separated Buffers, Unrolled SSE 219222 *best*           287992 *best*
-        //      Separated Buffers, General SSE  290129                  341614
+        //      Separated Buffers, General C    762640                  464840              478740
+        //      Separated Buffers, Unrolled SSE 219222 *best*           287992 *best*       238770 *best*
+        //      Separated Buffers, General SSE  290129                  341614              307262
         //
-        //      PosOnly, General C              388663                  257350
-        //      PosOnly, Unrolled SSE           139814 *best*           200323 *best*
-        //      PosOnly, General SSE            172693                  213704
+        //      PosOnly, General C              388663                  257350              262831
+        //      PosOnly, Unrolled SSE           139814 *best*           200323 *best*       168995 *best*
+        //      PosOnly, General SSE            172693                  213704              175447
         //
         //   Another my own test scene - softwareVertexSkinning:
         //

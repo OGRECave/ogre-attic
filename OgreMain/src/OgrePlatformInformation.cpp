@@ -240,6 +240,8 @@ namespace Ogre {
 #define CPUID_STD_SSE2              (1<<26)
 #define CPUID_STD_HTT               (1<<28)     // EDX[28] - Bit 28 set indicates  Hyper-Threading Technology is supported in hardware.
 
+#define CPUID_STD_SSE3              (1<<0)      // ECX[0] - Bit 0 of standard function 1 indicate SSE3 supported
+
 #define CPUID_FAMILY_ID_MASK        0x0F00      // EAX[11:8] - Bit 11 thru 8 contains family  processor id
 #define CPUID_EXT_FAMILY_ID_MASK    0x0F00000   // EAX[23:20] - Bit 23 thru 20 contains extended family processor id
 #define CPUID_PENTIUM4_ID           0x0F00      // Pentium 4 family processor id
@@ -306,6 +308,11 @@ namespace Ogre {
                         features |= PlatformInformation::CPU_FEATURE_MMX;
                     if (result._edx & CPUID_STD_SSE)
                         features |= PlatformInformation::CPU_FEATURE_SSE;
+                    if (result._edx & CPUID_STD_SSE2)
+                        features |= PlatformInformation::CPU_FEATURE_SSE2;
+
+                    if (result._ecx & CPUID_STD_SSE3)
+                        features |= PlatformInformation::CPU_FEATURE_SSE3;
 
                     // Has extended feature ?
                     if (_performCpuid(0x80000000, result) > 0x80000000)
@@ -331,10 +338,11 @@ namespace Ogre {
     {
         uint features = queryCpuFeatures();
 
-        if ((features & (PlatformInformation::CPU_FEATURE_SSE|PlatformInformation::CPU_FEATURE_SSE2)) &&
-            !_checkOperatingSystemSupportSSE())
+        const uint sse_features = PlatformInformation::CPU_FEATURE_SSE |
+            PlatformInformation::CPU_FEATURE_SSE2 | PlatformInformation::CPU_FEATURE_SSE3;
+        if ((features & sse_features) && !_checkOperatingSystemSupportSSE())
         {
-            features &= ~(PlatformInformation::CPU_FEATURE_SSE|PlatformInformation::CPU_FEATURE_SSE2);
+            features &= ~sse_features;
         }
 
         return features;
