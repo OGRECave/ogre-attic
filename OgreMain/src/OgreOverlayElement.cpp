@@ -430,11 +430,11 @@ namespace Ogre {
             parentTop = mParent->_getDerivedTop();
             if (mHorzAlign == GHA_CENTER || mHorzAlign == GHA_RIGHT)
             {
-                parentRight = parentLeft + mParent->getWidth();
+                parentRight = parentLeft + mParent->_getRelativeWidth();
             }
             if (mVertAlign == GVA_CENTER || mVertAlign == GVA_BOTTOM)
             {
-                parentBottom = parentTop + mParent->getHeight();
+                parentBottom = parentTop + mParent->_getRelativeHeight();
             }
 
         }
@@ -537,6 +537,16 @@ namespace Ogre {
         }
         return mDerivedTop;
     }
+	//---------------------------------------------------------------------
+	Real OverlayElement::_getRelativeWidth(void)
+	{
+		return mWidth;
+	}
+	//---------------------------------------------------------------------
+	Real OverlayElement::_getRelativeHeight(void)
+	{
+		return mHeight;
+	}
     //---------------------------------------------------------------------    
     void OverlayElement::_getClippingRegion(Rectangle &clippingRegion)
     {
