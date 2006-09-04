@@ -1830,7 +1830,7 @@ global proc saveOgreExporterSettings()
 	// Vertex Animations
 	fileInfo "ogreExporter_exportVertexAnims" `checkBox -q -v ExportVertexAnims`;
 	global int $numVertClips;
-	fileInfo "ogreExporter_numVertClips" $numVertClips;
+	fileInfo "ogreExporter_numSkelClips" $numVertClips;
 	int $i; 
 	for ($i=1; $i<=$numVertClips; $i++)
 	{
@@ -1986,7 +1986,7 @@ global proc loadOgreExporterSettings()
 		for ($i=1; $i<=$n; $i++)
 		{
 			if ($i > 1)
-				addOggreExporterBSClip();
+				addOgreExporterBSClip();
 			$valStrings = `fileInfo -q ("ogreExporter_exportBSClip"+$i)`;
 			checkBox -edit -v `gmatch $valStrings[0] "1"` ("ExportBSClip"+$i);
 			textField -edit -text `fileInfo -q ("ogreExporter_BSClipName"+$i)` ("BSClipName"+$i);
@@ -2025,7 +2025,7 @@ global proc loadOgreExporterSettings()
 		for ($i=1; $i<=$n; $i++)
 		{
 			if ($i > 1)
-				addOggreExporterVertexClip();
+				addOgreExporterVertexClip();
 			$valStrings = `fileInfo -q ("ogreExporter_exportVertexClip"+$i)`;
 			checkBox -edit -v `gmatch $valStrings[0] "1"` ("ExportVertexClip"+$i);
 			textField -edit -text `fileInfo -q ("ogreExporter_vertexSkelClipName"+$i)` ("VertexClipName"+$i);
