@@ -233,6 +233,10 @@ namespace OgreMayaExporter
 			m_use32bitIndexes = false;
 		// get submesh bounding box
 		m_boundingBox = mesh.boundingBox();
+		m_boundingBox.transformUsing(dag.inclusiveMatrix());
+		MPoint min1 = m_boundingBox.min();
+		MPoint max1 = m_boundingBox.max();
+		std::cout << min1.x << ", " << min1.y << ", " << min1.z << "\t\t" << max1.x << ", " << max1.y << ", " << max1.z << "\n";
 		// add submesh pointer to parameters list
 		params.loadedSubmeshes.push_back(this);
 
@@ -360,8 +364,8 @@ namespace OgreMayaExporter
 			// Add vertex colour
 			if(params.exportVertCol)
 			{
-				pDecl->addElement(buf, offset, Ogre::VET_COLOUR, Ogre::VES_DIFFUSE);
-				offset += Ogre::VertexElement::getTypeSize(Ogre::VET_COLOUR);
+				pDecl->addElement(buf, offset, Ogre::VET_FLOAT4, Ogre::VES_DIFFUSE);
+				offset += Ogre::VertexElement::getTypeSize(Ogre::VET_FLOAT4);
 			}
 			// Add texture coordinates
 			for (i=0; i<m_vertices[0].texcoords.size(); i++)
@@ -422,7 +426,6 @@ namespace OgreMayaExporter
 		Ogre::VertexDeclaration::VertexElementList::iterator ei, eiend;
 		eiend = elems.end();
 		float* pFloat;
-		Ogre::RGBA* pRGBA;
 		// Fill the vertex buffer with shared geometry data
 		long vi;
 		Ogre::ColourValue col;
@@ -449,9 +452,11 @@ namespace OgreMayaExporter
 					*pFloat++ = v.n.z;
 					break;
 				case Ogre::VES_DIFFUSE:
-					elem.baseVertexPointerToElement(pBase, &pRGBA);
-					col.r = v.r; col.g = v.g; col.b = v.b; col.a = v.a;
-					*pRGBA = col.getAsRGBA();
+					elem.baseVertexPointerToElement(pBase, &pFloat);
+					*pFloat++ = v.r;
+					*pFloat++ = v.g;
+					*pFloat++ = v.b;
+					*pFloat++ = v.a;
 					break;
 				case Ogre::VES_TEXTURE_COORDINATES:
 					elem.baseVertexPointerToElement(pBase, &pFloat);
