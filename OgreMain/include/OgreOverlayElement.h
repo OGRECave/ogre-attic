@@ -309,6 +309,12 @@ namespace Ogre {
         /** Gets the 'top' position as derived from own left and that of parents. */
         virtual Real _getDerivedTop(void);
 
+		/** Gets the 'width' as derived from own width and metrics mode. */
+		virtual Real _getRelativeWidth(void);
+		/** Gets the 'height' as derived from own height and metrics mode. */
+		virtual Real _getRelativeHeight(void);
+
+
         /** Gets the clipping region of the element */
         virtual void _getClippingRegion(Rectangle &clippingRegion);
 

@@ -505,24 +505,34 @@ namespace Ogre {
 
 		// Bake the real buffers
 		RenderOperation* rop = mCurrentSection->getRenderOperation();
-		HardwareVertexBufferSharedPtr vbuf =
-			HardwareBufferManager::getSingleton().createVertexBuffer(
-				mDeclSize,
-				rop->vertexData->vertexCount,
-				HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-		rop->vertexData->vertexBufferBinding->setBinding(0, vbuf);
-		vbuf->writeData(0, vbuf->getSizeInBytes(), mTempVertexBuffer, true);
-
-		if(rop->useIndexes)
+		if (rop->vertexData->vertexCount == 0)
 		{
-			rop->indexData->indexBuffer =
-				HardwareBufferManager::getSingleton().createIndexBuffer(
-					HardwareIndexBuffer::IT_16BIT,
-					rop->indexData->indexCount,
+			// You're wasting my time sonny
+			// Has already been added to section list, so remove
+			mSectionList.pop_back();
+			delete mCurrentSection;
+		}
+		else
+		{
+			HardwareVertexBufferSharedPtr vbuf =
+				HardwareBufferManager::getSingleton().createVertexBuffer(
+					mDeclSize,
+					rop->vertexData->vertexCount,
 					HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-			rop->indexData->indexBuffer->writeData(
-				0, rop->indexData->indexBuffer->getSizeInBytes(),
-				mTempIndexBuffer, true);
+			rop->vertexData->vertexBufferBinding->setBinding(0, vbuf);
+			vbuf->writeData(0, vbuf->getSizeInBytes(), mTempVertexBuffer, true);
+
+			if(rop->useIndexes)
+			{
+				rop->indexData->indexBuffer =
+					HardwareBufferManager::getSingleton().createIndexBuffer(
+						HardwareIndexBuffer::IT_16BIT,
+						rop->indexData->indexCount,
+						HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+				rop->indexData->indexBuffer->writeData(
+					0, rop->indexData->indexBuffer->getSizeInBytes(),
+					mTempIndexBuffer, true);
+			}
 		}
 
 		mCurrentSection = 0;

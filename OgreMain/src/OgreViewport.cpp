@@ -50,7 +50,7 @@ namespace Ogre {
         , mZOrder(ZOrder)
         , mBackColour(ColourValue::Black)
         , mClearEveryFrame(true)
-		, mClearBuffers(0xFF)
+		, mClearBuffers(FBT_COLOUR | FBT_DEPTH)
         , mUpdated(false)
         , mShowOverlays(true)
         , mShowSkies(true)
