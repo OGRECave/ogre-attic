@@ -57,6 +57,8 @@ CompositorChain::~CompositorChain()
 //-----------------------------------------------------------------------
 void CompositorChain::destroyResources(void)
 {
+	clearCompiledState();
+
 	if (mViewport)
 	{
 		removeAllCompositors();
@@ -136,6 +138,12 @@ void CompositorChain::_removeInstance(CompositorInstance *i)
 {
 	mInstances.erase(std::find(mInstances.begin(), mInstances.end(), i));
 	i->getTechnique()->destroyInstance(i);
+}
+//-----------------------------------------------------------------------
+void CompositorChain::_queuedOperation(CompositorInstance::RenderSystemOperation* op)
+{
+	mRenderSystemOperations.push_back(op);
+
 }
 //-----------------------------------------------------------------------
 CompositorInstance *CompositorChain::getCompositor(size_t index)
@@ -267,8 +275,25 @@ void CompositorChain::viewportRemoved(const RenderTargetViewportEvent& evt)
 
 }
 //-----------------------------------------------------------------------
+void CompositorChain::clearCompiledState()
+{
+	for (RenderSystemOperations::iterator i = mRenderSystemOperations.begin();
+		i != mRenderSystemOperations.end(); ++i)
+	{
+		delete *i;
+	}
+	mRenderSystemOperations.clear();
+
+	/// Clear compiled state
+	mCompiledState.clear();
+	mOutputOperation = CompositorInstance::TargetOperation(0);
+
+}
+//-----------------------------------------------------------------------
 void CompositorChain::_compile()
 {
+	clearCompiledState();
+
 	bool compositorsEnabled = false;
 
     /// Set previous CompositorInstance for each compositor in the list
@@ -284,14 +309,12 @@ void CompositorChain::_compile()
         }
     }
     
-    /// Clear compiled state
-    mCompiledState.clear();
-    mOutputOperation = CompositorInstance::TargetOperation(0);
 
     /// Compile misc targets
     lastComposition->_compileTargetOperations(mCompiledState);
     
     /// Final target viewport (0)
+	mOutputOperation.renderSystemOperations.clear();
     lastComposition->_compileOutputOperation(mOutputOperation);
 
 	// Deal with viewport settings

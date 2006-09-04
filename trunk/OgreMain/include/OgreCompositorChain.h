@@ -118,6 +118,10 @@ namespace Ogre {
 			"weak" remove any instanced of a deleted technique.
         */
         void _removeInstance(CompositorInstance *i);
+
+		/** Internal method for registering a queued operation for deletion later **/
+		void _queuedOperation(CompositorInstance::RenderSystemOperation* op);
+
     protected:    
         /// Viewport affected by this CompositorChain
         Viewport *mViewport;
@@ -137,8 +141,17 @@ namespace Ogre {
         /// Compiled state (updated with _compile)
         CompositorInstance::CompiledState mCompiledState;
         CompositorInstance::TargetOperation mOutputOperation;
+		/// Render System operations queued by last compile, these are created by this
+		/// instance thus managed and deleted by it. The list is cleared with 
+		/// clearCompilationState()
+		typedef std::vector<CompositorInstance::RenderSystemOperation*> RenderSystemOperations;
+		RenderSystemOperations mRenderSystemOperations;
+
         
-        /** Compile this Composition chain into a series of RenderTarget operations.
+		/** Clear compiled state */
+		void clearCompiledState();
+
+		/** Compile this Composition chain into a series of RenderTarget operations.
         */
         void _compile();
         

@@ -161,11 +161,7 @@ namespace Ogre {
 		*/
 		const String& getTextureInstanceName(const String& name);
 
-		/** Prepare this instance for re-compilation. Clear all state that has been 
-			set by the last compile.
-        */
-        virtual void _prepareForCompilation();
-        
+       
         /** Recursively collect target states (except for final Pass).
             @param compiledState    This vector will contain a list of TargetOperation objects
         */
@@ -220,12 +216,6 @@ namespace Ogre {
         typedef std::map<String,TexturePtr> LocalTextureMap;
         LocalTextureMap mLocalTextures;
 
-		/// Render System operations queued by last compile, these are created by this
-		/// instance thus managed and deleted by it. The list is cleared with 
-		/// clearCompilationState()
-		typedef std::vector<RenderSystemOperation*> RenderSystemOperations;
-		RenderSystemOperations mRenderSystemOperations;
-
 		/// Vector of listeners
 		typedef std::vector<Listener*> Listeners;
 		Listeners mListeners;
@@ -252,10 +242,6 @@ namespace Ogre {
         */
         void freeResources();
 
-		/** Destroy locally queued RenderTarget operations
-		*/
-		void clearCompilationState();
-        
         /** Get RenderTarget for a named local texture.
         */
         RenderTarget *getTargetForTex(const String &name);
