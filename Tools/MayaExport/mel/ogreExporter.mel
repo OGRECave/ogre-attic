@@ -1830,7 +1830,7 @@ global proc saveOgreExporterSettings()
 	// Vertex Animations
 	fileInfo "ogreExporter_exportVertexAnims" `checkBox -q -v ExportVertexAnims`;
 	global int $numVertClips;
-	fileInfo "ogreExporter_numSkelClips" $numVertClips;
+	fileInfo "ogreExporter_numVertClips" $numVertClips;
 	int $i; 
 	for ($i=1; $i<=$numVertClips; $i++)
 	{
