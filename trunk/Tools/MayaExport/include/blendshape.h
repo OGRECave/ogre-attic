@@ -40,7 +40,7 @@ namespace OgreMayaExporter
 		// Internal methods
 		//load a blend shape pose
 		MStatus loadPose(MDagPath& meshDag,ParamList &params,std::vector<vertex> &vertices,
-			long numVertices,long offset=0);
+			long numVertices,long offset=0,MString poseName="");
 		//load a blend shape animation keyframe
 		vertexKeyframe loadKeyframe(float time,ParamList& params,int startPoseId);
 

@@ -232,11 +232,15 @@ namespace OgreMayaExporter
 		else
 			m_use32bitIndexes = false;
 		// get submesh bounding box
-		m_boundingBox = mesh.boundingBox();
+		MPoint min = mesh.boundingBox().min();
+		MPoint max = mesh.boundingBox().max();
+		min = min * params.lum;
+		max = max * params.lum;
+		MBoundingBox bbox(min,max);
+		m_boundingBox = bbox;
 		m_boundingBox.transformUsing(dag.inclusiveMatrix());
 		MPoint min1 = m_boundingBox.min();
 		MPoint max1 = m_boundingBox.max();
-		std::cout << min1.x << ", " << min1.y << ", " << min1.z << "\t\t" << max1.x << ", " << max1.y << ", " << max1.z << "\n";
 		// add submesh pointer to parameters list
 		params.loadedSubmeshes.push_back(this);
 
@@ -267,9 +271,9 @@ namespace OgreMayaExporter
 		{
 			vertexPosition pos;
 			vertex v = m_vertices[i];
-			pos.x = points[v.index].x;
-			pos.y = points[v.index].y;
-			pos.z = points[v.index].z;
+			pos.x = points[v.index].x * params.lum;
+			pos.y = points[v.index].y * params.lum;
+			pos.z = points[v.index].z * params.lum;
 			if (fabs(pos.x) < PRECISION)
 					pos.x = 0;
 			if (fabs(pos.y) < PRECISION)
@@ -281,7 +285,12 @@ namespace OgreMayaExporter
 		// add keyframe to given track
 		t.addVertexKeyframe(k);
 		// update bounding box
-		m_boundingBox.expand(mesh.boundingBox());
+		MPoint min = mesh.boundingBox().min();
+		MPoint max = mesh.boundingBox().max();
+		min = min * params.lum;
+		max = max * params.lum;
+		MBoundingBox bbox(min,max);
+		m_boundingBox.expand(bbox);
 		// keyframe successfully loaded
 		return MS::kSuccess;
 	}
