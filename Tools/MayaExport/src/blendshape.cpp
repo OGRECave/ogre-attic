@@ -73,7 +73,11 @@ namespace OgreMayaExporter
 		for (i=0; i<indexList.length(); i++)
 		{
 			m_pBlendShapeFn->setWeight(indexList[i],1);
-			stat = loadPose(meshDag,params,vertices,numVertices,offset);
+			MObjectArray objs;
+			MFnMesh mesh(meshDag);
+			m_pBlendShapeFn->getTargets(mesh.object(),indexList[i],objs);
+			MFnMesh target(objs[0]);
+			stat = loadPose(meshDag,params,vertices,numVertices,offset,target.name());
 			if (stat != MS::kSuccess)
 			{
 				std::cout << "Failed loading target pose " << indexList[i] << "\n";
@@ -93,7 +97,7 @@ namespace OgreMayaExporter
 
 	// Load a single blend shape pose
 	MStatus BlendShape::loadPose(MDagPath& meshDag,ParamList &params,
-		std::vector<vertex> &vertices,long numVertices,long offset)
+		std::vector<vertex> &vertices,long numVertices,long offset,MString poseName)
 	{
 		int i;
 		// get the mesh Fn
@@ -102,7 +106,7 @@ namespace OgreMayaExporter
 		pose p;
 		p.poseTarget = m_target;
 		p.index = m_index;
-		p.name = "";
+		p.name = poseName.asChar();
 		// get vertex positions
 		MFloatPointArray points;
 		if (params.exportWorldCoords)
