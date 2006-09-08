@@ -158,7 +158,7 @@ namespace Ogre
     void GpuProgram::setSourceFile(const String& filename)
     {
         mFilename = filename;
-        mSource = "";
+        mSource.clear();
         mLoadFromFile = true;
 		mCompileError = false;
     }
@@ -166,7 +166,7 @@ namespace Ogre
     void GpuProgram::setSource(const String& source)
     {
         mSource = source;
-        mFilename = "";
+        mFilename.clear();
         mLoadFromFile = false;
 		mCompileError = false;
     }
@@ -188,7 +188,7 @@ namespace Ogre
 		{
 			loadFromSource();
 		}
-		catch(Exception &e)
+		catch (const Exception&)
 		{
 			// will already have been logged
 			StringUtil::StrStreamType str;
@@ -313,17 +313,11 @@ namespace Ogre
         if (mTransposeMatrices)
         {
             Matrix4 t = m.transpose();
-            GpuProgramParameters::setConstant(index++, t[0], 1);
-            GpuProgramParameters::setConstant(index++, t[1], 1);
-            GpuProgramParameters::setConstant(index++, t[2], 1);
-            GpuProgramParameters::setConstant(index, t[3], 1);
+            GpuProgramParameters::setConstant(index, t[0], 4);
         }
         else
         {
-            GpuProgramParameters::setConstant(index++, m[0], 1);
-            GpuProgramParameters::setConstant(index++, m[1], 1);
-            GpuProgramParameters::setConstant(index++, m[2], 1);
-            GpuProgramParameters::setConstant(index, m[3], 1);
+            GpuProgramParameters::setConstant(index, m[0], 4);
         }
 
     }
@@ -331,25 +325,18 @@ namespace Ogre
     void GpuProgramParameters::setConstant(size_t index, const Matrix4* pMatrix, 
         size_t numEntries)
     {
-        for (size_t i = 0; i < numEntries; ++i)
+        if (mTransposeMatrices)
         {
-            const Matrix4& m = pMatrix[i];
-
-            if (mTransposeMatrices)
+            for (size_t i = 0; i < numEntries; ++i)
             {
-                Matrix4 t = m.transpose();
-                GpuProgramParameters::setConstant(index++, t[0], 1);
-                GpuProgramParameters::setConstant(index++, t[1], 1);
-                GpuProgramParameters::setConstant(index++, t[2], 1);
-                GpuProgramParameters::setConstant(index++, t[3], 1);
+                Matrix4 t = pMatrix[i].transpose();
+                GpuProgramParameters::setConstant(index, t[0], 4);
+                index += 4;
             }
-            else
-            {
-                GpuProgramParameters::setConstant(index++, m[0], 1);
-                GpuProgramParameters::setConstant(index++, m[1], 1);
-                GpuProgramParameters::setConstant(index++, m[2], 1);
-                GpuProgramParameters::setConstant(index++, m[3], 1);
-            }
+        }
+        else
+        {
+            GpuProgramParameters::setConstant(index, pMatrix[0][0], 4 * numEntries);
         }
 
     }
@@ -473,9 +460,8 @@ namespace Ogre
                 index = i->index;
                 for (m = 0; m < numMatrices; ++m)
                 {
-                    GpuProgramParameters::setConstant(index++, (*pMatrix)[0], 1);
-                    GpuProgramParameters::setConstant(index++, (*pMatrix)[1], 1);
-                    GpuProgramParameters::setConstant(index++, (*pMatrix)[2], 1);
+                    GpuProgramParameters::setConstant(index, (*pMatrix)[0], 3);
+                    index += 3;
                     ++pMatrix;
                 }
                 
