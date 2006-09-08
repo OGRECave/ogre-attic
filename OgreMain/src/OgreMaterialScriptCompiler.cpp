@@ -2425,19 +2425,19 @@ namespace Ogre {
     void MaterialScriptCompiler::processAutoProgramParam(const size_t index, const String& commandname, const String& paramName)
     {
 
-        String constantName(getNextTokenLabel());
+        String autoConstantName(getNextTokenLabel());
         // make sure param is in lower case
-        StringUtil::toLowerCase(constantName);
+        StringUtil::toLowerCase(autoConstantName);
 
         // lookup the param to see if its a valid auto constant
         const GpuProgramParameters::AutoConstantDefinition* autoConstantDef =
-            mScriptContext.programParams->getAutoConstantDefinition(constantName);
+            mScriptContext.programParams->getAutoConstantDefinition(autoConstantName);
 
         // exit with error msg if the auto constant definition wasn't found
         if (!autoConstantDef)
 		{
 			logParseError("Invalid " + commandname + " attribute - "
-				+ constantName);
+				+ autoConstantName);
 			return;
 		}
 
@@ -2585,11 +2585,6 @@ namespace Ogre {
             return;
         }
 
-        // TEST
-        /*
-        LogManager::getSingleton().logMessage("SETTING PARAMETER " + vecparams[0] + " as index " +
-            StringConverter::toString(index));
-        */
         processManualProgramParam(index, "param_named", paramName);
 
     }
@@ -2710,8 +2705,7 @@ namespace Ogre {
             mScriptContext.program = gp;
             size_t i, iend;
             iend = mScriptContext.pendingDefaultParams.size();
-            for (i = 0;
-                i < iend; ++i)
+            for (i = 0; i < iend; ++i)
             {
                 // invoke the action for the pending default param in the token que
                 setPass2TokenQuePosition(mScriptContext.pendingDefaultParams[i], true);
