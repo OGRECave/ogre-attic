@@ -756,9 +756,9 @@ namespace Ogre {
 
         /** Get the list of lights which could be affecting the frustum.
         @remarks
-            Note that default implementation of this method returns cached light list,
-            which populated when render the scene. So by default the list of lights only
-            available during rendering scene.
+            Note that default implementation of this method returns a cached light list,
+            which is populated when rendering the scene. So by default the list of lights 
+			is only available during scene rendering.
         */
         virtual const LightList& _getLightsAffectingFrustum(void) const;
 

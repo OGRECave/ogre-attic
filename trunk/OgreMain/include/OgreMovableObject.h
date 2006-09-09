@@ -71,16 +71,19 @@ namespace Ogre {
             @returns
                 true if allows queue for rendering, false otherwise.
             */
-            virtual bool objectRendering(MovableObject* object, Camera* camera) { return true; }
-            /** Called when the movable object need to be query light list.
+            virtual bool objectRendering(const MovableObject* object, const Camera* camera) { return true; }
+            /** Called when the movable object needs to query a light list.
             @remarks
-                If you want to customize lights finging, you should override this
+                If you want to customize lights finding, you should override this
                 method and hook into MovableObject via MovableObject::setListener.
+				Be aware that the default method caches results within a frame to 
+				prevent unnecessary recalculation, so if you override this you 
+				should provide your own cacheing to maintain performance.
             @returns
-                A pointer of light list if you populated light list yourself, or
-                NULL to fallback default process.
+                A pointer to a light list if you populated the light list yourself, or
+                NULL to fall back on the default finding process.
             */
-            virtual const LightList* objectQueryLights(MovableObject* object) { return 0; }
+            virtual const LightList* objectQueryLights(const MovableObject* object) { return 0; }
         };
 
     protected:
@@ -376,16 +379,16 @@ namespace Ogre {
 
         /** Gets a list of lights, ordered relative to how close they are to this movable object.
         @remarks
-            By default, this method give listener a chance to populate light list first,
-            if there no listener or Listener::objectQueryLights returns NULL, it'll
-            query light list form parent entity if parent entity presented, or returns
-            SceneNode::findLights if has parent scene node, otherwise it just returns
+            By default, this method gives the listener a chance to populate light list first,
+            if there is no listener or Listener::objectQueryLights returns NULL, it'll
+            query light list from parent entity if it is present, or returns
+            SceneNode::findLights if it has parent scene node, otherwise it just returns
             an empty list.
         @par
-            Multiple access to this method in the same frame when neither the object nor
+            Multiple calls to this method in the same frame when neither the object nor
             the lights have moved will result in the same list being returned without
             recalculation, but if listener exists, it'll called each time, so the listener
-            should implement their own cache mechanism for optimise performance.
+            should implement their own cache mechanism to optimise performance.
         @par
             This method can be useful when implementing Renderable::getLights in case
             the renderable is a part of the movable.

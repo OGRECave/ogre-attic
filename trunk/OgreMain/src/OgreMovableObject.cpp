@@ -274,9 +274,8 @@ namespace Ogre {
         // Try listener first
         if (mListener)
         {
-            // Yes, I know, a bit nasty const cast.
             const LightList* lightList =
-                mListener->objectQueryLights(const_cast<MovableObject*>(this));
+                mListener->objectQueryLights(this);
             if (lightList)
             {
                 return *lightList;
