@@ -2,7 +2,7 @@
 
 """
 Name: 'Ogre XML'
-Blender: 241
+Blender: 242
 Group: 'Export'
 Tooltip: 'Exports selected meshes with armature animations to Ogre3D'
 """
@@ -1870,6 +1870,14 @@ class MaterialInterface:
            @param f Material script file object to write into.
         """
         return
+        
+    def hasVertexColors(self):
+        """Returns the VertexColor state.
+        
+            @return VertexColor state.
+        """
+        return
+        
 
 class DefaultMaterial(MaterialInterface):
     def __init__(self, name):
@@ -1890,11 +1898,14 @@ class DefaultMaterial(MaterialInterface):
         f.write(tab(2) + "}\n") # pass
         f.write(tab(1) + "}\n") # technique
         return
+    def hasVertexColors(self):
+        return False
 
 class GameEngineMaterial(DefaultMaterial):
     def __init__(self, blenderMesh, blenderFace):
         self.mesh = blenderMesh
         self.face = blenderFace
+        self.vertexColors = False;
         # check if a Blender material is assigned
         try:
             blenderMaterial = self.mesh.materials[self.face.mat]
@@ -1902,6 +1913,9 @@ class GameEngineMaterial(DefaultMaterial):
             blenderMaterial = None
         self.material = blenderMaterial
         DefaultMaterial.__init__(self, self._createName())
+        if self.material:
+            self.vertexColors = (self.material.mode & Blender.Material.Modes["VCOL_PAINT"]) or \
+                (self.material.mode & Blender.Material.Modes["VCOL_LIGHT"])
         return
     def writeTechniques(self, f):
         mat = self.material
@@ -1920,8 +1934,8 @@ class GameEngineMaterial(DefaultMaterial):
             # ambient
             # (not used in Blender's game engine)
             if mat:
-                if (not(mat.mode & Blender.Material.Modes["TEXFACE"])
-                    and not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])
+                if (self.mesh.faceUV and not(mat.mode & Blender.Material.Modes["TEXFACE"])
+                    and not(self.vertexColors)
                     and (ambientToggle.val)):
                     ambientRGBList = mat.rgbCol
                 else:
@@ -1940,17 +1954,17 @@ class GameEngineMaterial(DefaultMaterial):
             #  but it's not used.)
             if self.mesh.vertexColors:
                 #TODO: Broken in Blender 2.36.
-                # Blender does not handle "texface" mesh with vertexcolours
+                # Blender does not handle "texface" mesh with vertexColors
                 f.write(tab(3)+"diffuse vertexcolour\n")
             elif mat:
                 if (not(mat.mode & Blender.Material.Modes["TEXFACE"])
-                    and not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])):
+                    and not(self.vertexColors)):
                     # diffuse <- rgbCol
                     diffR = clamp(mat.rgbCol[0])
                     diffG = clamp(mat.rgbCol[1])
                     diffB = clamp(mat.rgbCol[2])
                     f.write(tab(3)+"diffuse %f %f %f\n" % (diffR, diffG, diffB))
-                elif (mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
+                elif (self.vertexColors):
                     f.write(tab(3)+"diffuse vertexcolour\n")
             if mat:
                 # specular <- spec * specCol, hard/4.0
@@ -1962,32 +1976,34 @@ class GameEngineMaterial(DefaultMaterial):
                 # emissive
                 # (not used in Blender's game engine)
                 if(not(mat.mode & Blender.Material.Modes["TEXFACE"])
-                    and not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])):
+                    and not(self.vertexColors)):
                     # emissive <-emit * rgbCol
                     emR = clamp(mat.emit * mat.rgbCol[0])
                     emG = clamp(mat.emit * mat.rgbCol[1])
                     emB = clamp(mat.emit * mat.rgbCol[2])
                     ##f.write(tab(3)+"emissive %f %f %f\n" % (emR, emG, emB))
-            # scene_blend <- transp
-            if (self.face.mode == Blender.NMesh.FaceTranspModes["ALPHA"]):
-                f.write(tab(3)+"scene_blend alpha_blend \n")
-            elif (self.face.mode == Blender.NMesh.FaceTranspModes["ADD"]):
-                #TODO: Broken in Blender 2.36.
-                #f.write(tab(3)+"scene_blend add\n")
-                pass
-            # cull_hardware/cull_software
-            if (self.face.mode & Blender.NMesh.FaceModes['TWOSIDE']):
-                f.write(tab(3) + "cull_hardware none\n")
-                f.write(tab(3) + "cull_software none\n")
-            # shading
-            # (Blender's game engine is initialized with glShadeModel(GL_FLAT))
-            ##f.write(tab(3) + "shading flat\n")
-            # texture
-            if (self.face.mode & Blender.NMesh.FaceModes['TEX']) and (self.face.image):
-                f.write(tab(3)+"texture_unit\n")
-                f.write(tab(3)+"{\n")
-                f.write(tab(4)+"texture %s\n" % PathName(self.face.image.filename).basename())
-                f.write(tab(3)+"}\n") # texture_unit
+            # only process face modes if face has UV data
+            if self.mesh.faceUV:
+                # scene_blend <- transp
+                if (self.face.mode == Blender.NMesh.FaceTranspModes["ALPHA"]):
+                    f.write(tab(3)+"scene_blend alpha_blend \n")
+                elif (self.face.mode == Blender.NMesh.FaceTranspModes["ADD"]):
+                    #TODO: Broken in Blender 2.36.
+                    #f.write(tab(3)+"scene_blend add\n")
+                    pass
+                # cull_hardware/cull_software
+                if (self.face.mode & Blender.NMesh.FaceModes['TWOSIDE']):
+                    f.write(tab(3) + "cull_hardware none\n")
+                    f.write(tab(3) + "cull_software none\n")
+                # shading
+                # (Blender's game engine is initialized with glShadeModel(GL_FLAT))
+                ##f.write(tab(3) + "shading flat\n")
+                # texture
+                if (self.face.mode & Blender.NMesh.FaceModes['TEX']) and (self.face.image):
+                    f.write(tab(3)+"texture_unit\n")
+                    f.write(tab(3)+"{\n")
+                    f.write(tab(4)+"texture %s\n" % PathName(self.face.image.filename).basename())
+                    f.write(tab(3)+"}\n") # texture_unit
             f.write(tab(2)+"}\n") # pass
             f.write(tab(1)+"}\n") # technique
         return
@@ -2010,24 +2026,29 @@ class GameEngineMaterial(DefaultMaterial):
         if self.material:
             materialName += self.material.getName() + '/'
         # blend mode
-        if (self.face.transp == Blender.NMesh.FaceTranspModes['ALPHA']):
-            materialName += 'ALPHA'
-        elif (self.face.transp == Blender.NMesh.FaceTranspModes['ADD']):
-            materialName += 'ADD'
+        if (self.mesh.faceUV):
+            if (self.face.transp == Blender.Mesh.FaceTranspModes['ALPHA']):
+                materialName += 'ALPHA'
+            elif (self.face.transp == Blender.Mesh.FaceTranspModes['ADD']):
+                materialName += 'ADD'
+                
+            # TEX face mode and texture?
+            if (self.face.mode & Blender.Mesh.FaceModes['TEX']):
+                materialName += '/TEX'
+                if self.face.image:
+                    materialName += '/' + PathName(self.face.image.filename).basename()
+            # two sided?
+            if (self.face.mode & Blender.Mesh.FaceModes['TWOSIDE']):
+                materialName += '/TWOSIDE'
         else:
             materialName += 'SOLID'
-        # TEX face mode and texture?
-        if (self.face.mode & Blender.NMesh.FaceModes['TEX']):
-            materialName += '/TEX'
-            if self.face.image:
-                materialName += '/' + PathName(self.face.image.filename).basename()
         # vertex colours?
-        if self.mesh.vertexColors:
+        if self.vertexColors:
             materialName += '/VertCol'
-        # two sided?
-        if (self.face.mode & Blender.NMesh.FaceModes['TWOSIDE']):
-            materialName += '/TWOSIDE'
         return materialName
+
+    def hasVertexColors(self):
+        return self.vertexColors
 
 class RenderingMaterial(DefaultMaterial):
     def __init__(self, blenderMesh, blenderFace):
@@ -2038,6 +2059,7 @@ class RenderingMaterial(DefaultMaterial):
         self.mTexUVNor = None
         self.mTexUVCsp = None
         self.material = self.mesh.materials[self.face.mat]
+        self.vertexColors = False;
         if self.material:
             self._generateKey()
             DefaultMaterial.__init__(self, self._createName())
@@ -2144,7 +2166,7 @@ class RenderingMaterial(DefaultMaterial):
         f.write(tab(2) + "}\n") # pass
         f.write(tab(1) + "}\n") # technique
         return
-    def writeVertexColours(self, f):
+    def writevertexColors(self, f):
         # preconditions: VCOL_PAINT set
         #
         # ambient = Amb*White resp. Amb*VCol if "Coloured Ambient"
@@ -2472,8 +2494,10 @@ class RenderingMaterial(DefaultMaterial):
                 self.key |= self.NONHALO
                 if (self.material.mode & Blender.Material.Modes['VCOL_LIGHT']):
                     self.key |= self.VCOLLIGHT
+                    self.vertexColors = True;
                 if (self.material.mode & Blender.Material.Modes['VCOL_PAINT']):
                     self.key |= self.VCOLPAINT
+                    self.vertexColors = True;
                 if (self.material.mode & Blender.Material.Modes['TEXFACE']):
                     self.key |= self.TEXFACE
                 # textures
@@ -2517,8 +2541,8 @@ class RenderingMaterial(DefaultMaterial):
         NONHALO|TEXFACE|IMAGEUVNOR|IMAGEUVCSP : writeTexFace,
         NONHALO|TEXFACE|VCOLLIGHT|IMAGEUVCOL|IMAGEUVCSP : writeTexFace,
         NONHALO|TEXFACE|VCOLLIGHT|IMAGEUVNOR|IMAGEUVCSP : writeTexFace,
-        NONHALO|VCOLPAINT : writeVertexColours,
-        NONHALO|VCOLPAINT|VCOLLIGHT : writeVertexColours,
+        NONHALO|VCOLPAINT : writevertexColors,
+        NONHALO|VCOLPAINT|VCOLLIGHT : writevertexColors,
         NONHALO|IMAGEUVCOL|IMAGEUVNOR : writeNormalMap,
         NONHALO|IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT : writeNormalMap,
         NONHALO|IMAGEUVCOL|IMAGEUVNOR|VCOLPAINT : writeNormalMap,
@@ -2537,6 +2561,10 @@ class RenderingMaterial(DefaultMaterial):
         NONHALO|IMAGEUVCOL|IMAGEUVNOR|VCOLLIGHT|VCOLPAINT|TEXFACE|IMAGEUVCSP : writeNormalMap
         }
 
+    def hasVertexColors(self):
+        return self.vertexColors
+        
+        
 class Mesh:
     def __init__(self, submeshList, skeleton=None, nmesh=None):
         """Constructor.
@@ -2548,16 +2576,16 @@ class Mesh:
         self.submeshList = submeshList
         self.skeleton = skeleton
         # boolean
-        self.vertexColours = 0
+        self.vertexColors = 0
         # boolean
         self.uvCoordinates = 0
         # parse nmesh
         self._parseMesh(nmesh)
         return
-    def hasVertexColours(self):
-        return self.vertexColours
+    def hasVertexColors(self):
+        return (self.vertexColors == 1)
     def hasUVCoordinates(self):
-        return self.uvCoordinates
+        return (self.uvCoordinates == 1)
     def write(self):
         # write_mesh(name, submeshes, skeleton):
         global pathString, exportLogger
@@ -2585,31 +2613,29 @@ class Mesh:
             f.write(tab(3)+"</faces>\n")
 
             f.write(tab(3)+"<geometry vertexcount=\"%d\">\n" % len(submesh.vertices))
+            outputList = ['normal','position']
             if (armatureToggle.val):
                 # use seperate vertexbuffer for position and normals when animated
                 f.write(tab(4)+"<vertexbuffer positions=\"true\" normals=\"true\">\n")
                 for v in submesh.vertices:
-                    f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['normal','position']))
-                f.write(tab(4)+"</vertexbuffer>\n")
-                if (self.hasUVCoordinates() and self.hasVertexColours()):
-                    f.write(tab(4)+"<vertexbuffer")
-                    f.write(" texture_coord_dimensions_0=\"2\" texture_coords=\"1\"")
+                    f.write(XMLVertexStringView(v.xmlVertex).toString(5, outputList))
+
+                # reset outputList and rebuild it based on options selected
+                outputList = []
+                if self.hasUVCoordinates():
+                    f.write(tab(4)+"<vertexbuffer texture_coord_dimensions_0=\"2\" texture_coords=\"1\">\n")
+                    outputList += ['texcoordList']
+                if self.hasVertexColors():
+                    if not outputList:
+                        f.write(tab(4)+"<vertexbuffer")
                     f.write(" colours_diffuse=\"true\">\n")
+                    outputList += ['colourDiffuse']
+                    
+                if outputList:
                     for v in submesh.vertices:
-                            f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['texcoordList','colourDiffuse']))
+                            f.write(XMLVertexStringView(v.xmlVertex).toString(5, outputList))
                     f.write(tab(4)+"</vertexbuffer>\n")
-                elif self.hasUVCoordinates():
-                    f.write(tab(4)+"<vertexbuffer")
-                    f.write(" texture_coord_dimensions_0=\"2\" texture_coords=\"1\">\n")
-                    for v in submesh.vertices:
-                            f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['texcoordList']))
-                    f.write(tab(4)+"</vertexbuffer>\n")
-                elif self.hasVertexColours():
-                    f.write(tab(4)+"<vertexbuffer")
-                    f.write(" colours_diffuse=\"true\">\n")
-                    for v in submesh.vertices:
-                            f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['colourDiffuse']))
-                    f.write(tab(4)+"</vertexbuffer>\n")
+
             else:
                 # use only one vertex buffer if mesh is not animated
                 f.write(tab(4)+"<vertexbuffer ")
@@ -2617,12 +2643,17 @@ class Mesh:
                 f.write("normals=\"true\"")
                 if self.hasUVCoordinates():
                     f.write(" texture_coord_dimensions_0=\"2\" texture_coords=\"1\"")
-                if self.hasVertexColours():
+                    outputList += ['texcoordList']
+                #print "mesh write: hasVertexColors(): ", self.hasVertexColors()
+                if self.hasVertexColors():
                     f.write(" colours_diffuse=\"true\"")
+                    outputList += ['colourDiffuse']
+                    
                 f.write(">\n")
                 for v in submesh.vertices:
-                    f.write(XMLVertexStringView(v.xmlVertex).toString(5))
+                    f.write(XMLVertexStringView(v.xmlVertex).toString(5, outputList))
                 f.write(tab(4)+"</vertexbuffer>\n")
+            # end of geometry section    
             f.write(tab(3)+"</geometry>\n")
 
             if self.skeleton:
@@ -2649,6 +2680,13 @@ class Mesh:
             self.name = mesh.name
             if mesh.vertexColors:
                 self.vertexColors = 1
+            # check submeshes for use of vertex colors
+            for submesh in self.submeshList:
+                if submesh.vertexColors:
+                    self.vertexColors = 1
+                    # found at least one submesh using vertex colors, thats all we need to know
+                    break
+            #print "Mesh vertexColors: ", self.vertexColors
             if (mesh.faceUV or mesh.vertexUV):
                 self.uvCoordinates = 1
         return
@@ -2658,6 +2696,11 @@ class SubMesh:
     self.material   = material
     self.vertices   = []
     self.faces      = []
+    # start off with using material settings for vertex color support
+    # later when faces get processed, the vertex Color state might get changed to
+    # false if no if no vertex color data is found.
+    self.vertexColors = material.hasVertexColors()
+    #print "submesh vertexColors: ", self.vertexColors
 
   def rename_vertices(self, new_vertices):
     # Rename (change ID) of all vertices, such as self.vertices == new_vertices.
@@ -2851,6 +2894,7 @@ class XMLVertexStringView:
            @see XMLVertex#__init__
         """
         if not keyList:
+            print "no keylist"
             keyList = self.xmlVertex.getElements()
         else:
             # remove unavailable elements
@@ -2882,7 +2926,7 @@ class XMLVertexStringView:
         s += self._indent(indent) + "</vertex>\n"
         return s
     def _indent(self, indent):
-        return "    "*indent
+        return tab(indent)
 
 class Vertex:
   def __init__(self, submesh, xmlVertex):
@@ -3056,6 +3100,7 @@ def process_face(face, submesh, mesh, matrix, skeleton=None):
     """
     global verticesDict
     global exportLogger
+    
     # threshold to compare floats
     threshold = 1e-6
     if len(face.v) in [ 3, 4 ]:
@@ -3071,6 +3116,14 @@ def process_face(face, submesh, mesh, matrix, skeleton=None):
             faceNormal = normal_by_matrix(faceNormal, matrix)
 
         face_vertices = [ 0, 0, 0, 0]
+        hasVertexColors = False;
+        try:
+            if (face.col and submesh.vertexColors):
+                hasVertexColors = True;
+        except:
+            # no face color data found
+            submesh.vertexColors = False;
+        
         for i in range(len(face.v)):
             # position
             position  = point_by_matrix (face.v[i].co, matrix)
@@ -3096,9 +3149,10 @@ def process_face(face, submesh, mesh, matrix, skeleton=None):
                     uv[1] = 1 - face.uv[i][1]
                 xmlVertex.appendTextureCoordinates(uv)
             # vertex colour
-            if (mesh.vertexColors):
+            if hasVertexColors:
                 colour = face.col[i]
                 xmlVertex.setColourDiffuse([colour.r/255.0, colour.g/255.0, colour.b/255.0, colour.a/255.0])
+            
             # check if an equal xmlVertex already exist
             # get vertex
             if verticesDict.has_key(face.v[i].index):
@@ -3236,11 +3290,14 @@ def export_mesh(object, exportOptions):
                     faceMaterial = DefaultMaterial('default')
             else:
                 # game engine materials
-                if face.image:
-                    if (not(face.mode & Blender.Mesh.FaceModes['INVISIBLE'])
-                        and not(face.flag & Blender.Mesh.FaceFlags['HIDE'])):
-                        faceMaterial = GameEngineMaterial(data, face)
-                else:
+                # if a texture was assigned to the face then mesh will have UV data
+                # checking face.image will raise exception if no data
+                if data.faceUV:
+                    if face.image:
+                        if (not(face.mode & Blender.Mesh.FaceModes['INVISIBLE'])
+                            and not(face.flag & Blender.Mesh.FaceFlags['HIDE'])):
+                            faceMaterial = GameEngineMaterial(data, face)
+                if not faceMaterial:
                     # check if a Blender material is assigned
                     try:
                         blenderMaterial = meshMaterialList[face.mat]
