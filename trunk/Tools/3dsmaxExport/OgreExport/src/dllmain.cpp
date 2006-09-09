@@ -27,18 +27,17 @@ Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 
+#include "OgreExport.h"
+
 #include "max.h"
 #include "plugapi.h"
 #include "impexp.h"
-
-#include "OgreExport.h"
 
 static int controlsInit = FALSE;
 static HINSTANCE hInstance;
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL,ULONG fdwReason,LPVOID lpvReserved) {
 	hInstance = hinstDLL;
-
 	if ( !controlsInit ) {
 		controlsInit = TRUE;
 		
@@ -91,6 +90,16 @@ Class_ID OgreMaxExportClassDesc::ClassID() {
 
 const TCHAR* OgreMaxExportClassDesc::Category() { 
 	return _T("Ogre 3DSMax Exporter"); 
+}
+
+
+TCHAR *GetString(int id)
+{
+	static TCHAR buf[256];
+
+	if (hInstance)
+		return LoadString(hInstance, id, buf, sizeof(buf)) ? buf : NULL;
+	return NULL;
 }
 
 extern "C" {

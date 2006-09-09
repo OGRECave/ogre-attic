@@ -27,34 +27,179 @@ Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 
-#pragma once
-#include <string>
-#include <iosfwd>
-#include <map>
-#include <queue>
-#include <list>
 
-class Modifier;
-class INode;
-class IBipMaster;
+#include "OgreMaxConfig.h"
+#include "OgreMaxMaterialExport.h"
+#include "OgreMaxMeshExport.h"
+#include "OgreMaxMeshXMLExport.h"
+
+class OgreMaxExport;
 
 INT_PTR CALLBACK ExportPropertiesDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+INT_PTR CALLBACK GeneralTabDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+INT_PTR CALLBACK MeshTabDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+INT_PTR CALLBACK SkeletalAnimationTabDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+INT_PTR CALLBACK VertexAnimationTabDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+INT_PTR CALLBACK MaterialTabDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
-class OgreMaxExport : public SceneExport, public ITreeEnumProc { 
+// utility functions -- we do these a lot, nice to be able to shortcut them
+inline void disableControl(HWND dlg, INT id) { EnableWindow(GetDlgItem(dlg, id), FALSE); }
+inline void enableControl(HWND dlg, INT id) { EnableWindow(GetDlgItem(dlg, id), TRUE); }
 
-	typedef enum {
-		UV, 
-		VW, 
-		WU
-	} Tex2D;
+// export dialog tab pane handlers -- we delegate the processing of tab pane events to classes because it gets messy
+// in a hurry if we try to handle all of this in a huge monolithic case statement
 
-	typedef struct {
-		std::string name;
-		int start;
-		int end;
-	} NamedAnimation;
+class OgreMaxExport_TabPaneHandler {
+public:
+	HWND getDialogHandle() { return m_hDlg; }
+	void setExportInterface(ExpInterface* ei, Interface* i) { m_ei = ei; m_i = i; }
+	virtual void onInitDialog(HWND hDlg) { m_hDlg = hDlg; }
+	virtual void update() = 0;
+
+protected:
+	HWND m_hDlg;
+	ExpInterface* m_ei;
+	Interface* m_i;
+};
+
+class OgreMaxExport_General : public OgreMaxExport_TabPaneHandler {
+	// this contains the switch/case statement that fires the events that this class handles
+	friend INT_PTR CALLBACK GeneralTabDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+
+public:
+	// config holds all of the settings 
+	OgreMaxExport_General(OgreMax::Config& config, OgreMaxExport* e) : m_config(config), m_exp(e) { }
+	virtual ~OgreMaxExport_General() {}
+
+	// all dialog handlers need to do this -- on demand, read data from their panes
+	void update();
+
+	// all dialog handlers need to catch the WM_DESTROY message too
+	void onDestroy();
+
+	// event handlers
+	void onInitDialog(HWND hDlg);
+	void onExportDirectoryChanged(const std::string& newDirectory);
+	void onInvertYZ(bool checked);
+	void onSetScale(float newScale);
+
+private:
+	OgreMax::Config& m_config;
+	OgreMaxExport* m_exp;
+};
+
+class OgreMaxExport_Mesh : public OgreMaxExport_TabPaneHandler {
+	// this contains the switch/case statement that fires the events that this class handles
+	friend INT_PTR CALLBACK MeshTabDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+
+public:
+	// config holds all of the settings 
+	OgreMaxExport_Mesh(OgreMax::Config& config, OgreMaxExport* e) : m_config(config), m_exp(e) { }
+	virtual ~OgreMaxExport_Mesh() {}
+
+	// all dialog handlers need to do this -- on demand, read data from their panes
+	void update();
+
+	// all dialog handlers need to catch the WM_DESTROY message too
+	void onDestroy();
+
+	// event handlers
+	void onInitDialog(HWND hDlg);
+	void onClickBinaryMesh();
+
+protected:
+	// internal utils
+	void setControlStates();
+
+private:
+	OgreMax::Config& m_config;
+	OgreMaxExport* m_exp;
+};
+
+class OgreMaxExport_SkeletalAnimation : public OgreMaxExport_TabPaneHandler {
+	// this contains the switch/case statement that fires the events that this class handles
+	friend INT_PTR CALLBACK SkeletalAnimationTabDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+
+public:
+	// config holds all of the settings 
+	OgreMaxExport_SkeletalAnimation(OgreMax::Config& config, OgreMaxExport* e) : m_config(config), m_exp(e) { }
+	virtual ~OgreMaxExport_SkeletalAnimation() {}
+
+	// all dialog handlers need to do this -- on demand, read data from their panes
+	void update();
+
+	// all dialog handlers need to catch the WM_DESTROY message too
+	void onDestroy();
+
+	// event handlers
+	void onInitDialog(HWND hDlg);
+	void onAddAnimation();
+	void onDeleteAnimation();
+
+protected:
+	// utility methods
+	void addAnimation();
+	void deleteAnimation();
+
+private:
+	OgreMax::Config& m_config;
+	OgreMaxExport* m_exp;
+};
+
+class OgreMaxExport_VertexAnimation : public OgreMaxExport_TabPaneHandler {
+	// this contains the switch/case statement that fires the events that this class handles
+	friend INT_PTR CALLBACK VertexAnimationTabDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+
+public:
+	// config holds all of the settings 
+	OgreMaxExport_VertexAnimation(OgreMax::Config& config, OgreMaxExport* e) : m_config(config), m_exp(e) { }
+	virtual ~OgreMaxExport_VertexAnimation() {}
+
+	// all dialog handlers need to do this -- on demand, read data from their panes
+	void update();
+
+	// all dialog handlers need to catch the WM_DESTROY message too
+	void onDestroy();
+
+	// event handlers
+	void onInitDialog(HWND hDlg);
+
+private:
+	OgreMax::Config& m_config;
+	OgreMaxExport* m_exp;
+};
+
+class OgreMaxExport_Material : public OgreMaxExport_TabPaneHandler {
+	// this contains the switch/case statement that fires the events that this class handles
+	friend INT_PTR CALLBACK MaterialTabDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+
+public:
+	// config holds all of the settings 
+	OgreMaxExport_Material(OgreMax::Config& config, OgreMaxExport* e) : m_config(config), m_exp(e) { }
+	virtual ~OgreMaxExport_Material() {}
+
+	// all dialog handlers need to do this -- on demand, read data from their panes
+	void update();
+
+	// all dialog handlers need to catch the WM_DESTROY message too
+	void onDestroy();
+
+	// event handlers
+	void onInitDialog(HWND hDlg);
+
+private:
+	OgreMax::Config& m_config;
+	OgreMaxExport* m_exp;
+};
+
+class OgreMaxExport : public SceneExport { 
 
 	friend INT_PTR CALLBACK ExportPropertiesDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	friend class OgreMaxExport_General;
+	friend class OgreMaxExport_Mesh;
+	friend class OgreMaxExport_SkeletalAnimation;
+	friend class OgreMaxExport_VertexAnimation;
+	friend class OgreMaxExport_Material;
 
 public:
 	OgreMaxExport(HINSTANCE hInst);
@@ -72,63 +217,32 @@ public:
 	virtual int	DoExport(const TCHAR *name,ExpInterface *ei,Interface *i, BOOL suppressPrompts=FALSE, DWORD options=0);	// Export file
 	virtual BOOL SupportsOptions(int ext, DWORD options); // Returns TRUE if all option bits set are supported for this extension
 
-	// ITreeEnumProc methods
-	int callback(INode *node);
-	
 protected:
-	bool m_exportMultipleFiles;
-	bool m_useSingleSkeleton;
-	bool m_rebuildNormals;
-	bool m_exportMaterial; // alernate is to use default material
-	bool m_skeletonLink;
-	std::string m_defaultMaterialName;
-	bool m_invertNormals;
-	bool m_flipYZ;
-	bool m_exportVertexColors;
-	float m_scale;
-	int m_fps;
-	std::list <NamedAnimation> m_animations;
-
-	Tex2D m_2DTexCoord;
-	std::string m_materialFilename;
-	std::string m_skeletonFilename;
-	std::queue< std::string > m_submeshNames;
-	std::map< std::string, Mtl * > m_materialMap;
-	std::list <INode *> m_nodeList;
-	std::map< std::string, int > m_boneIndexMap;
-	int m_currentBoneIndex;
+	OgreMax::Config m_config;
+	OgreMax::MaterialMap m_materialMap;
 
 	HINSTANCE m_hInstance;
 	HWND m_hWndDlgExport;
-	std::string m_filename;
-	std::string m_exportPath;
-	std::string m_exportFilename;
-	bool m_exportOnlySelectedNodes;
-	ExpInterface *m_ei;
-	Interface *m_i;
+	OgreMaxExport_TabPaneHandler* m_tabDisplay;
+
+	// Export implementations
+	OgreMax::MeshExporter m_meshExporter;
+	OgreMax::MeshXMLExporter m_meshXMLExporter;
+	OgreMax::MaterialExporter m_materialExporter;
+
+	// Property Page Dialog Handlers
+	OgreMaxExport_General m_tabGeneral;
+	OgreMaxExport_Mesh m_tabMesh;
+	OgreMaxExport_SkeletalAnimation m_tabSkeletalAnimation;
+	OgreMaxExport_VertexAnimation m_tabVertexAnimation;
+	OgreMaxExport_Material m_tabMaterial;
 
 	// utility methods
-	void updateExportOptions(HWND hDlg);
+	BOOL setupExportProperties();
 	bool export();
-	void addAnimation();
-	void deleteAnimation();
 
-	// mesh file stream functions
-	bool streamFileHeader(std::ostream &of);
-	bool streamFileFooter(std::ostream &of);
-	bool streamSubmesh(std::ostream &of, INode *node, std::string &mtlName);
-	bool streamMaterial(std::ostream &of);
-	bool streamPass(std::ostream &of, Mtl *mtl);
-	bool streamBoneAssignments(std::ostream &of, Modifier *mod, INode *node);
-	bool streamAnimTracks(std::ostream &of, TimeValue startFrame, TimeValue endFrame);
-	bool streamKeyframes(std::ostream &of, INode *node, Tab<TimeValue> &keyTimes, Interval &interval, Matrix3 &initTM);
-	bool streamBipedKeyframes(std::ostream &of, IBipMaster *bip, INode *node, Tab<TimeValue> &keyTimes, Interval &interval, Matrix3 &initTM);
-
-	// skeleton file stream functions
-	Modifier *FindPhysiqueModifier (INode* nodePtr);
-	int getBoneIndex(char *name);
-	bool streamSkeleton(std::ostream &of);
-	std::string removeSpaces(const std::string &s);
+	// properties page message handlers
+	void onTabSelectChange(HWND hTabControl, INT iTabId);
 };
 
 class OgreMaxExportClassDesc : public ClassDesc {
