@@ -53,6 +53,36 @@ namespace Ogre {
     */
     class _OgreExport MovableObject : public ShadowCaster, public AnimableObject
     {
+    public:
+        /** Listener which gets called back on MovableObject events.
+        */
+        class _OgreExport Listener
+        {
+        public:
+            Listener(void) {}
+            virtual ~Listener() {}
+            /** MovableObject is being destroyed */
+            virtual void objectDestroyed(MovableObject* object) {};
+            /** MovableObject has been attached to a node */
+            virtual void objectAttached(MovableObject* object) {};
+            /** MovableObject has been detached from a node */
+            virtual void objectDetached(MovableObject* object) {};
+            /** Called when the movable object of the camera to be used for rendering.
+            @returns
+                true if allows queue for rendering, false otherwise.
+            */
+            virtual bool objectRendering(MovableObject* object, Camera* camera) { return true; }
+            /** Called when the movable object need to be query light list.
+            @remarks
+                If you want to customize lights finging, you should override this
+                method and hook into MovableObject via MovableObject::setListener.
+            @returns
+                A pointer of light list if you populated light list yourself, or
+                NULL to fallback default process.
+            */
+            virtual const LightList* objectQueryLights(MovableObject* object) { return 0; }
+        };
+
     protected:
 		/// Name of this object
 		String mName;
@@ -88,6 +118,16 @@ namespace Ogre {
         mutable AxisAlignedBox mWorldDarkCapBounds;
         /// Does this object cast shadows?
         bool mCastShadows;
+
+        /// Does rendering this object disabled by listener?
+        bool mRenderingDisabled;
+        /// MovableObject listener - only one allowed (no list) for size & performance reasons. */
+        Listener* mListener;
+
+        /// List of lights for this object
+        mutable LightList mLightList;
+        /// The last frame that this light list was updated in
+        mutable ulong mLightListUpdated;
 
 		// Static members
 		/// Default query flags
@@ -322,6 +362,36 @@ namespace Ogre {
 		/** Get the default visibility flags for all future MovableObject instances.
 		*/
 		static uint32 getDefaultVisibilityFlags(uint32 flags) { return msDefaultVisibilityFlags; }
+
+        /** Sets a listener for this object.
+        @remarks
+            Note for size and performance reasons only one listener per object
+            is allowed.
+        */
+        virtual void setListener(Listener* listener) { mListener = listener; }
+
+        /** Gets the current listener for this object.
+        */
+        virtual Listener* getListener(void) const { return mListener; }
+
+        /** Gets a list of lights, ordered relative to how close they are to this movable object.
+        @remarks
+            By default, this method give listener a chance to populate light list first,
+            if there no listener or Listener::objectQueryLights returns NULL, it'll
+            query light list form parent entity if parent entity presented, or returns
+            SceneNode::findLights if has parent scene node, otherwise it just returns
+            an empty list.
+        @par
+            Multiple access to this method in the same frame when neither the object nor
+            the lights have moved will result in the same list being returned without
+            recalculation, but if listener exists, it'll called each time, so the listener
+            should implement their own cache mechanism for optimise performance.
+        @par
+            This method can be useful when implementing Renderable::getLights in case
+            the renderable is a part of the movable.
+        @returns The list of lights use to lighting this object.
+        */
+        virtual const LightList& queryLights(void) const;
 
 		/// Define a default implementation of method from ShadowCaster which implements no shadows
         EdgeData* getEdgeList(void) { return NULL; }

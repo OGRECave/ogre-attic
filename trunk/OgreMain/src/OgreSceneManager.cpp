@@ -362,6 +362,11 @@ void SceneManager::destroyAllLights(void)
 	destroyAllMovableObjectsByType(LightFactory::FACTORY_TYPE_NAME);
 }
 //-----------------------------------------------------------------------
+const LightList& SceneManager::_getLightsAffectingFrustum(void) const
+{
+    return mLightsAffectingFrustum;
+}
+//-----------------------------------------------------------------------
 bool SceneManager::lightLess::operator()(const Light* a, const Light* b) const
 {
     return a->tempSquareDist < b->tempSquareDist;
@@ -372,33 +377,35 @@ void SceneManager::_populateLightList(const Vector3& position, Real radius,
 {
     // Really basic trawl of the lights, then sort
     // Subclasses could do something smarter
+
+    // Pick up the lights that affecting frustum only, which should has been
+    // cached, so better than take all lights in the scene into account.
+    const LightList& candidateLights = _getLightsAffectingFrustum();
+
+    // Pre-allocate memory
     destList.clear();
+    destList.reserve(candidateLights.size());
 
-	MovableObjectIterator it = 
-		getMovableObjectIterator(LightFactory::FACTORY_TYPE_NAME);
-
-    while(it.hasMoreElements())
+    LightList::const_iterator it;
+    for (it = candidateLights.begin(); it != candidateLights.end(); ++it)
     {
-        Light* lt = static_cast<Light*>(it.getNext());
-        if (lt->isVisible())
+        Light* lt = *it;
+        if (lt->getType() == Light::LT_DIRECTIONAL)
         {
-            if (lt->getType() == Light::LT_DIRECTIONAL)
+            // No distance
+            lt->tempSquareDist = 0.0f;
+            destList.push_back(lt);
+        }
+        else
+        {
+            // Calc squared distance
+            lt->tempSquareDist = (lt->getDerivedPosition() - position).squaredLength();
+            // only add in-range lights
+            Real range = lt->getAttenuationRange();
+            Real maxDist = range + radius;
+            if (lt->tempSquareDist <= Math::Sqr(maxDist))
             {
-                // No distance
-                lt->tempSquareDist = 0.0f;
                 destList.push_back(lt);
-            }
-            else
-            {
-                // Calc squared distance
-                lt->tempSquareDist = (lt->getDerivedPosition() - position).squaredLength();
-                // only add in-range lights
-                Real range = lt->getAttenuationRange();
-                Real maxDist = range + radius;
-                if (lt->tempSquareDist <= Math::Sqr(maxDist))
-                {
-                    destList.push_back(lt);
-                }
             }
         }
     }
@@ -1025,27 +1032,30 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
     camera->_autoTrack();
 
 
-    // Are we using any shadows at all?
-    if (isShadowTechniqueInUse() && 
-        mIlluminationStage != IRS_RENDER_TO_TEXTURE &&
-		vp->getShadowsEnabled() &&
-		mFindVisibleObjects)
+    if (mIlluminationStage != IRS_RENDER_TO_TEXTURE && mFindVisibleObjects)
     {
         // Locate any lights which could be affecting the frustum
         findLightsAffectingFrustum(camera);
-        if (isShadowTechniqueTextureBased())
+
+        // Are we using any shadows at all?
+        if (isShadowTechniqueInUse() && vp->getShadowsEnabled())
         {
-            // *******
-            // WARNING
-            // *******
-            // This call will result in re-entrant calls to this method
-            // therefore anything which comes before this is NOT 
-            // guaranteed persistent. Make sure that anything which 
-            // MUST be specific to this camera / target is done 
-            // AFTER THIS POINT
-            prepareShadowTextures(camera, vp);
-            // reset the cameras because of the re-entrant call
-            mCameraInProgress = camera;
+            // Prepare shadow textures if texture shadow based shadowing
+            // technique in use
+            if (isShadowTechniqueTextureBased())
+            {
+                // *******
+                // WARNING
+                // *******
+                // This call will result in re-entrant calls to this method
+                // therefore anything which comes before this is NOT 
+                // guaranteed persistent. Make sure that anything which 
+                // MUST be specific to this camera / target is done 
+                // AFTER THIS POINT
+                prepareShadowTextures(camera, vp);
+                // reset the cameras because of the re-entrant call
+                mCameraInProgress = camera;
+            }
         }
     }
 
@@ -2406,7 +2416,6 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 {
     unsigned short numMatrices;
     static RenderOperation ro;
-    static LightList localLightList;
 
     // Set up rendering operation
     // I know, I know, const_cast is nasty but otherwise it requires all internal
@@ -2480,6 +2489,9 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 
 		if (doLightIteration)
 		{
+            // Create single element of light list for faster light iteration setup
+            static LightList localLightList(1);
+
 			// Here's where we issue the rendering operation to the render system
 			// Note that we may do this once per light, therefore it's in a loop
 			// and the light parameters are updated once per traversal through the
@@ -2493,9 +2505,6 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 				// Determine light list to use
 				if (iteratePerLight)
 				{
-					// Change the only element of local light list to be
-					// the light at index i
-					localLightList.clear();
 					// Check whether we need to filter this one out
 					if (pass->getRunOnlyForOneLightType() && 
 						pass->getOnlyLightType() != rendLightList[i]->getType())
@@ -2504,7 +2513,10 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 						continue;
 					}
 
-					localLightList.push_back(rendLightList[i]);
+					// Change the only element of local light list to be
+					// the light at index i
+					localLightList.front() = rendLightList[i];
+
 					pLightListToUse = &localLightList;
 				}
 				else
@@ -3189,10 +3201,17 @@ void SceneManager::updateRenderQueueGroupSplitOptions(RenderQueueGroup* group,
 void SceneManager::findLightsAffectingFrustum(const Camera* camera)
 {
     // Basic iteration for this SM
+
+    MovableObjectMap* lights =
+        getMovableObjectMap(LightFactory::FACTORY_TYPE_NAME);
+
+    // Pre-allocate memory
     mLightsAffectingFrustum.clear();
+    mLightsAffectingFrustum.reserve(lights->size());
+
     Sphere sphere;
-	MovableObjectIterator it = 
-		getMovableObjectIterator(LightFactory::FACTORY_TYPE_NAME);
+	MovableObjectIterator it(lights->begin(), lights->end());
+
     while(it.hasMoreElements())
     {
         Light* l = static_cast<Light*>(it.getNext());

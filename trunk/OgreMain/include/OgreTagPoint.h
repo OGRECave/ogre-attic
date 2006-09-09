@@ -59,7 +59,7 @@ namespace Ogre	{
 		TagPoint(unsigned short handle, Skeleton* creator);
 		virtual ~TagPoint();
 
-		Entity *getParentEntity(void);
+		Entity *getParentEntity(void) const;
 		
 		void setParentEntity(Entity *pEntity);
 		void setChildObject(MovableObject *pObject);

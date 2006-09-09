@@ -734,7 +734,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	const LightList& BillboardChain::getLights(void) const
 	{
-		return getParentSceneNode()->findLights(getBoundingRadius());
+		return queryLights();
 	}
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------

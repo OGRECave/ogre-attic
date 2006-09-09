@@ -673,8 +673,7 @@ namespace Ogre {
 		SceneManager* mgr, uint32 regionID, const Vector3& centre)
 		: MovableObject(name), mParent(parent), mSceneMgr(mgr), mNode(0),
 		mRegionID(regionID), mCentre(centre), mBoundingRadius(0.0f),
-		mCurrentLod(0), mLightListUpdated(0),
-		mEdgeList(0), mVertexProgramInUse(false)
+		mCurrentLod(0), mEdgeList(0), mVertexProgramInUse(false)
 	{
 		// First LOD mandatory, and always from 0
 		mLodSquaredDistances.push_back(0.0f);
@@ -891,20 +890,6 @@ namespace Ogre {
 	StaticGeometry::Region::getLODIterator(void)
 	{
 		return LODIterator(mLodBucketList.begin(), mLodBucketList.end());
-	}
-	//--------------------------------------------------------------------------
-	const LightList& StaticGeometry::Region::getLights(void) const
-	{
-		// Make sure we only update this once per frame no matter how many
-		// times we're asked
-		ulong frame = Root::getSingleton().getCurrentFrameNumber();
-		if (frame > mLightListUpdated)
-		{
-			mLightList = mNode->findLights(mBoundingRadius);
-			mLightListUpdated = frame;
-		}
-		return mLightList;
-
 	}
 	//--------------------------------------------------------------------------
 	ShadowCaster::ShadowRenderableListIterator
@@ -1425,7 +1410,7 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
 	const LightList& StaticGeometry::GeometryBucket::getLights(void) const
 	{
-		return mParent->getParent()->getParent()->getLights();
+		return mParent->getParent()->getParent()->queryLights();
 	}
 	//--------------------------------------------------------------------------
 	bool StaticGeometry::GeometryBucket::getCastsShadows(void) const

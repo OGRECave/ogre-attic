@@ -40,18 +40,26 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
     //-----------------------------------------------------------------------
-    SceneNode::SceneNode(SceneManager* creator) 
-    : Node(), mLightListDirty(true), mWireBoundingBox(0), 
-	mShowBoundingBox(false), mCreator(creator), 
-	mYawFixed(false), mAutoTrackTarget(0), mIsInSceneGraph(false)
+    SceneNode::SceneNode(SceneManager* creator)
+        : Node()
+        , mWireBoundingBox(0)
+        , mShowBoundingBox(false)
+        , mCreator(creator)
+        , mYawFixed(false)
+        , mAutoTrackTarget(0)
+        , mIsInSceneGraph(false)
     {
         needUpdate();
     }
     //-----------------------------------------------------------------------
-    SceneNode::SceneNode(SceneManager* creator, const String& name) 
-    : Node(name), mLightListDirty(true), mWireBoundingBox(0), 
-	mShowBoundingBox(false), mCreator(creator), mYawFixed(false), 
-	mAutoTrackTarget(0), mIsInSceneGraph(false)
+    SceneNode::SceneNode(SceneManager* creator, const String& name)
+        : Node(name)
+        , mWireBoundingBox(0)
+        , mShowBoundingBox(false)
+        , mCreator(creator)
+        , mYawFixed(false)
+        , mAutoTrackTarget(0)
+        , mIsInSceneGraph(false)
     {
         needUpdate();
     }
@@ -78,8 +86,6 @@ namespace Ogre {
     {
         Node::_update(updateChildren, parentHasChanged);
         _updateBounds();
-        mLightListDirty = true;
-
     }
     //-----------------------------------------------------------------------
 	void SceneNode::setParent(Node* parent)
@@ -421,22 +427,24 @@ namespace Ogre {
 		return static_cast<SceneNode*>(this->createChild(name, translate, rotate));
 	}
     //-----------------------------------------------------------------------
-    const LightList& SceneNode::findLights(Real radius) const
+    void SceneNode::findLights(LightList& destList, Real radius) const
     {
-        // TEMP FIX
+        // No any optimisation here, hope inherits more smart for that.
+        //
         // If a scene node is static and lights have moved, light list won't change
         // can't use a simple global boolean flag since this is only called for
         // visible nodes, so temporarily visible nodes will not be updated
         // Since this is only called for visible nodes, skip the check for now
-        //if (mLightListDirty)
+        //
         if (mCreator)
         {
             // Use SceneManager to calculate
-            mCreator->_populateLightList(this->_getDerivedPosition(), radius, mLightList);
-            mLightListDirty = false;
+            mCreator->_populateLightList(this->_getDerivedPosition(), radius, destList);
         }
-        return mLightList;
-
+        else
+        {
+            destList.clear();
+        }
     }
     //-----------------------------------------------------------------------
     void SceneNode::setAutoTracking(bool enabled, SceneNode* target, 
