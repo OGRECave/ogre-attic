@@ -136,13 +136,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     const LightList& SimpleRenderable::getLights(void) const
     {
-        static LightList dummyLightList;
-        // Use parent node
-        SceneNode* n = getParentSceneNode();
-        if (n)
-            return n->findLights(this->getBoundingRadius());
-        else
-            return dummyLightList;
+        // Use movable query lights
+        return queryLights();
     }
 
 }

@@ -44,27 +44,54 @@ namespace Ogre {
 	uint32 MovableObject::msDefaultVisibilityFlags = 0xFFFFFFFF;
     //-----------------------------------------------------------------------
     MovableObject::MovableObject()
-		: mCreator(0), mManager(0), mParentNode(0), mParentIsTagPoint(false), 
-		mVisible(true), mUpperDistance(0), mSquaredUpperDistance(0), 
-		mBeyondFarDistance(false), mRenderQueueID(RENDER_QUEUE_MAIN),
-		mRenderQueueIDSet(false), mQueryFlags(msDefaultQueryFlags),
-		mVisibilityFlags(msDefaultVisibilityFlags), mCastShadows (true)
+        : mCreator(0)
+        , mManager(0)
+        , mParentNode(0)
+        , mParentIsTagPoint(false)
+        , mVisible(true)
+        , mUpperDistance(0)
+        , mSquaredUpperDistance(0)
+        , mBeyondFarDistance(false)
+        , mRenderQueueID(RENDER_QUEUE_MAIN)
+        , mRenderQueueIDSet(false)
+        , mQueryFlags(msDefaultQueryFlags)
+        , mVisibilityFlags(msDefaultVisibilityFlags)
+        , mCastShadows(true)
+        , mRenderingDisabled(false)
+        , mListener(0)
+        , mLightListUpdated(0)
     {
     }
-	//-----------------------------------------------------------------------
-	MovableObject::MovableObject(const String& name) 
-		: mName(name), mCreator(0), mManager(0), mParentNode(0), 
-		mParentIsTagPoint(false), mVisible(true), mUpperDistance(0), 
-		mSquaredUpperDistance(0), 
-		mBeyondFarDistance(false), mRenderQueueID(RENDER_QUEUE_MAIN),
-		mRenderQueueIDSet(false), mQueryFlags(msDefaultQueryFlags),
-		mVisibilityFlags(msDefaultVisibilityFlags),
-		mCastShadows (true)
-	{
-	}
-	//-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
+    MovableObject::MovableObject(const String& name)
+        : mName(name)
+        , mCreator(0)
+        , mManager(0)
+        , mParentNode(0)
+        , mParentIsTagPoint(false)
+        , mVisible(true)
+        , mUpperDistance(0)
+        , mSquaredUpperDistance(0)
+        , mBeyondFarDistance(false)
+        , mRenderQueueID(RENDER_QUEUE_MAIN)
+        , mRenderQueueIDSet(false)
+        , mQueryFlags(msDefaultQueryFlags)
+        , mVisibilityFlags(msDefaultVisibilityFlags)
+        , mCastShadows(true)
+        , mRenderingDisabled(false)
+        , mListener(0)
+        , mLightListUpdated(0)
+    {
+    }
+    //-----------------------------------------------------------------------
     MovableObject::~MovableObject()
     {
+        // Call listener (note, only called if there's something to do)
+        if (mListener)
+        {
+            mListener->objectDestroyed(this);
+        }
+
         if (mParentNode)
         {
             // detach from parent
@@ -85,8 +112,21 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MovableObject::_notifyAttached(Node* parent, bool isTagPoint)
     {
+        assert(!mParentNode || !parent);
+
+        bool different = (parent != mParentNode);
+
         mParentNode = parent;
         mParentIsTagPoint = isTagPoint;
+
+        // Call listener (note, only called if there's something to do)
+        if (mListener && different)
+        {
+            if (mParentNode)
+                mListener->objectAttached(this);
+            else
+                mListener->objectDetached(this);
+        }
     }
     //-----------------------------------------------------------------------
     Node* MovableObject::getParentNode(void) const
@@ -146,14 +186,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool MovableObject::isVisible(void) const
     {
-		bool flagVis = true;
-		if (Root::getSingleton()._getCurrentSceneManager())
-		{
-			flagVis = (mVisibilityFlags & 
-				Root::getSingleton()._getCurrentSceneManager()->getVisibilityMask()) != 0;
-		}
+        if (!mVisible || mBeyondFarDistance || mRenderingDisabled)
+            return false;
 
-		return mVisible && !mBeyondFarDistance && flagVis;
+        SceneManager* sm = Root::getSingleton()._getCurrentSceneManager();
+        if (sm && !(mVisibilityFlags & sm->getVisibilityMask()))
+            return false;
+
+        return true;
     }
 	//-----------------------------------------------------------------------
 	void MovableObject::_notifyCurrentCamera(Camera* cam)
@@ -181,6 +221,7 @@ namespace Ogre {
 			}
 		}
 
+        mRenderingDisabled = mListener && !mListener->objectRendering(this, cam);
 	}
     //-----------------------------------------------------------------------
     void MovableObject::setRenderQueueGroup(uint8 queueID)
@@ -227,7 +268,47 @@ namespace Ogre {
 		}
 		return mWorldBoundingSphere;
 	}
+    //-----------------------------------------------------------------------
+    const LightList& MovableObject::queryLights(void) const
+    {
+        // Try listener first
+        if (mListener)
+        {
+            // Yes, I know, a bit nasty const cast.
+            const LightList* lightList =
+                mListener->objectQueryLights(const_cast<MovableObject*>(this));
+            if (lightList)
+            {
+                return *lightList;
+            }
+        }
 
+        // Query from parent entity if exists
+        if (mParentIsTagPoint)
+        {
+            TagPoint* tp = static_cast<TagPoint*>(mParentNode);
+            return tp->getParentEntity()->queryLights();
+        }
+
+        // Make sure we only update this once per frame no matter how many
+        // times we're asked
+        ulong frame = Root::getSingleton().getCurrentFrameNumber();
+        if (mLightListUpdated != frame)
+        {
+            mLightListUpdated = frame;
+            if (mParentNode)
+            {
+                SceneNode* sn = static_cast<SceneNode*>(mParentNode);
+                sn->findLights(mLightList, this->getBoundingRadius());
+            }
+            else
+            {
+                mLightList.clear();
+            }
+        }
+
+        return mLightList;
+    }
     //-----------------------------------------------------------------------
     ShadowCaster::ShadowRenderableListIterator MovableObject::getShadowVolumeRenderableIterator(
         ShadowTechnique shadowTechnique, const Light* light, 

@@ -1345,7 +1345,7 @@ namespace Ogre {
     {
         // It's actually quite unlikely that this will be called,
         // because most billboards are unlit, but here we go anyway
-        return getParentSceneNode()->findLights(this->getBoundingRadius());
+        return queryLights();
     }
 
     void BillboardSet::setTextureCoords( Ogre::FloatRect const * coords, uint16 numCoords )

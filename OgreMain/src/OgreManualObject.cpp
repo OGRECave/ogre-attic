@@ -834,9 +834,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
 	const LightList& ManualObject::ManualObjectSection::getLights(void) const
 	{
-		SceneNode* n = mParent->getParentSceneNode();
-		assert(n);
-		return n->findLights(mParent->getBoundingRadius());
+		return mParent->queryLights();
 	}
 	//-----------------------------------------------------------------------------
 	//--------------------------------------------------------------------------

@@ -40,17 +40,18 @@ Torus Knot Software Ltd.
 namespace Ogre {
 
     //-----------------------------------------------------------------------------
-    TagPoint::TagPoint(unsigned short handle, Skeleton* creator): Bone(handle, creator)
+    TagPoint::TagPoint(unsigned short handle, Skeleton* creator)
+        : Bone(handle, creator)
+        , mParentEntity(0)
+        , mChildObject(0)
     {
-        mParentEntity = 0; 
-        mChildObject = 0; 
     }
     //-----------------------------------------------------------------------------
     TagPoint::~TagPoint()
     {
     }
     //-----------------------------------------------------------------------------
-    Entity *TagPoint::getParentEntity(void)
+    Entity *TagPoint::getParentEntity(void) const
     {
         return mParentEntity;
     }
@@ -134,7 +135,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     const LightList& TagPoint::getLights(void) const
     {
-        return mParentEntity->getParentSceneNode()->findLights(mParentEntity->getBoundingRadius());
+        return mParentEntity->queryLights();
     }
 
 }

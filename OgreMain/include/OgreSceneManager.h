@@ -754,6 +754,14 @@ namespace Ogre {
         */
         virtual void destroyAllLights(void);
 
+        /** Get the list of lights which could be affecting the frustum.
+        @remarks
+            Note that default implementation of this method returns cached light list,
+            which populated when render the scene. So by default the list of lights only
+            available during rendering scene.
+        */
+        virtual const LightList& _getLightsAffectingFrustum(void) const;
+
         /** Populate a light list with an ordered set of the lights which are closest
         to the position specified.
         @remarks
@@ -763,7 +771,9 @@ namespace Ogre {
             Subclasses of the default SceneManager may wish to take into account other issues
             such as possible visibility of the light if that information is included in their
             data structures. This basic scenemanager simply orders by distance, eliminating 
-            those lights which are out of range.
+            those lights which are out of range or could not be affecting the frustum (i.e.
+            only the lights returned by SceneManager::_getLightsAffectingFrustum are take into
+            account).
         @par
             The number of items in the list max exceed the maximum number of lights supported
             by the renderer, but the extraneous ones will never be used. In fact the limit will

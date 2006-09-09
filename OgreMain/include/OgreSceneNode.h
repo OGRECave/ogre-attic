@@ -55,8 +55,6 @@ namespace Ogre {
 
     protected:
         ObjectMap mObjectsByName;
-        mutable LightList mLightList;
-        mutable bool mLightListDirty;
 
 		/// Pointer to a Wire Bounding Box for this Node
 		WireBoundingBox *mWireBoundingBox;
@@ -307,14 +305,20 @@ namespace Ogre {
 
         /** Allows retrieval of the nearest lights to the centre of this SceneNode.
         @remarks
-            This method allows a list of lights, ordered by proximity to the centre of
-            this SceneNode, to be retrieved. Multiple access to this method when neither 
-            the node nor the lights have moved will result in the same list being returned
-            without recalculation. Can be useful when implementing Renderable::getLights.
-        @param radius Optional parameter to specify lights intersecting a given radius of
+            This method allows a list of lights, ordered by proximity to the centre
+            of this SceneNode, to be retrieved. Can be useful when implementing
+            MovableObject::queryLights and Renderable::getLights.
+        @par
+            Note that only lights could be affecting the frustum will take into
+            account, which cached in scene manager.
+        @see SceneManager::_getLightsAffectingFrustum
+        @see SceneManager::_populateLightList
+        @param destList List to be populated with ordered set of lights; will be
+            cleared by this method before population.
+        @param radius Parameter to specify lights intersecting a given radius of
             this SceneNode's centre.
         */
-        const LightList& findLights(Real radius) const;
+        void findLights(LightList& destList, Real radius) const;
 
         /** Tells the node whether to yaw around it's own local Y axis or a fixed axis of choice.
         @remarks
