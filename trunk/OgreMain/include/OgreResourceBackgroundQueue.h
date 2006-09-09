@@ -33,6 +33,7 @@ Torus Knot Software Ltd.
 #include "OgrePrerequisites.h"
 #include "OgreCommon.h"
 #include "OgreSingleton.h"
+#include "OgreResource.h"
 
 #if OGRE_THREAD_SUPPORT
 #	include <boost/thread/thread.hpp>
