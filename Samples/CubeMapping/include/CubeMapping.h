@@ -626,7 +626,9 @@ public:
 		if (noiseOn)
 			updateNoise();
 
-		return true;
+		objectNode->yaw(Degree(20*evt.timeSinceLastFrame));
+
+        return true;
     }
 	virtual bool processUnbufferedKeyInput(const FrameEvent& evt)
     {
