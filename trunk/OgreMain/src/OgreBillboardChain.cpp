@@ -183,18 +183,21 @@ namespace Ogre {
 	{
 		mMaxElementsPerChain = maxElements;
 		setupChainContainers();
+        mBuffersNeedRecreating = mIndexContentDirty = true;
 	}
 	//-----------------------------------------------------------------------
 	void BillboardChain::setNumberOfChains(size_t numChains)
 	{
 		mChainCount = numChains;
 		setupChainContainers();
+        mBuffersNeedRecreating = mIndexContentDirty = true;
 	}
 	//-----------------------------------------------------------------------
 	void BillboardChain::setUseTextureCoords(bool use)
 	{
 		mUseTexCoords = use;
 		mVertexDeclDirty = mBuffersNeedRecreating = true;
+        mIndexContentDirty = true;
 	}
 	//-----------------------------------------------------------------------
 	void BillboardChain::setTextureCoordDirection(BillboardChain::TexCoordDirection dir)
@@ -212,6 +215,7 @@ namespace Ogre {
 	{
 		mUseVertexColour = use;
 		mVertexDeclDirty = mBuffersNeedRecreating = true;
+        mIndexContentDirty = true;
 	}
 	//-----------------------------------------------------------------------
 	void BillboardChain::setDynamic(bool dyn)
@@ -703,7 +707,10 @@ namespace Ogre {
 
 		if (mIndexData->indexCount > 0)
 		{
-			queue->addRenderable(this);
+            if (mRenderQueueIDSet)
+                queue->addRenderable(this, mRenderQueueID);
+            else
+                queue->addRenderable(this);
 		}
 
 	}

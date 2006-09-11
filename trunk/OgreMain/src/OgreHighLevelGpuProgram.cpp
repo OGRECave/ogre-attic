@@ -102,7 +102,7 @@ namespace Ogre
 				loadHighLevelImpl();
 				mHighLevelLoaded = true;
 			}
-			catch(Exception &e)
+			catch (const Exception&)
 			{
 				// will already have been logged
 				StringUtil::StrStreamType str;

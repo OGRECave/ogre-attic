@@ -67,6 +67,15 @@ namespace Ogre {
         {
         }
 
+        /** Constructor.
+        @remarks
+            Provide a container to initialise.
+        */
+        explicit VectorIterator(T& c)
+            : mCurrent(c.begin()), mEnd(c.end())
+        {
+        }
+
         /** Returns true if there are more items in the collection. */
         bool hasMoreElements(void) const
         {
@@ -130,6 +139,15 @@ namespace Ogre {
         */
         MapIterator(typename T::iterator start, typename T::iterator end)
             : mCurrent(start), mEnd(end)
+        {
+        }
+
+        /** Constructor.
+        @remarks
+            Provide a container to initialise.
+        */
+        explicit MapIterator(T& c)
+            : mCurrent(c.begin()), mEnd(c.end())
         {
         }
 
@@ -210,6 +228,15 @@ namespace Ogre {
         {
         }
 
+        /** Constructor.
+        @remarks
+            Provide a container to initialise.
+        */
+        explicit ConstVectorIterator(const T& c)
+            : mCurrent(c.begin()), mEnd(c.end())
+        {
+        }
+
         /** Returns true if there are more items in the collection. */
         bool hasMoreElements(void) const
         {
@@ -273,6 +300,15 @@ namespace Ogre {
         */
         ConstMapIterator(typename T::const_iterator start, typename T::const_iterator end)
             : mCurrent(start), mEnd(end)
+        {
+        }
+
+        /** Constructor.
+        @remarks
+            Provide a container to initialise.
+        */
+        explicit ConstMapIterator(const T& c)
+            : mCurrent(c.begin()), mEnd(c.end())
         {
         }
 
