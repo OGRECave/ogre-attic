@@ -622,6 +622,8 @@ public:
 		if (noiseOn)
 			updateNoise();
 
+		objectNode->yaw(Degree(20*evt.timeSinceLastFrame));
+
         // Call default
         return ExampleFrameListener::frameStarted(evt);
     }
