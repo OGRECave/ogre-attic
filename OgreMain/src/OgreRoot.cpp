@@ -582,9 +582,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Root::addFrameListener(FrameListener* newListener)
     {
-        // Insert, unique only (set)
-        mFrameListeners.insert(newListener);
+		// Check if the specified listener is scheduled for removal
+		std::set<FrameListener *>::iterator i = mRemovedFrameListeners.find(newListener);
 
+		// If yes, cancel the removal. Otherwise add it to other listeners.
+		if (i != mRemovedFrameListeners.end())
+			mRemovedFrameListeners.erase(*i);
+		else
+			mFrameListeners.insert(newListener); // Insert, unique only (set)
     }
 
     //-----------------------------------------------------------------------
