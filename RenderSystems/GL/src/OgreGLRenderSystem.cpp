@@ -1163,9 +1163,9 @@ namespace Ogre {
             glDisable( GL_TEXTURE_GEN_Q );
 
             // We need an extra texture matrix here
-            // This sets the texture matrix to be the inverse of the modelview matrix
+            // This sets the texture matrix to be the inverse of the view matrix
             mUseAutoTextureMatrix = true;
-            glGetFloatv( GL_MODELVIEW_MATRIX, M );
+			makeGLMatrix( M, mViewMatrix);
 
             // Transpose 3x3 in order to invert matrix (rotation)
             // Note that we need to invert the Z _before_ the rotation
