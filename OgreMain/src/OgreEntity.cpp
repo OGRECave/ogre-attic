@@ -1817,10 +1817,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void Entity::refreshAvailableAnimationState(void)
 	{
-		if (hasSkeleton())
-		{
-			mSkeletonInstance->_refreshAnimationState(mAnimationState);
-		}
+		mMesh->_refreshAnimationState(mAnimationState);
 	}
 	//-----------------------------------------------------------------------
 	uint32 Entity::getTypeFlags(void) const

@@ -470,6 +470,35 @@ namespace Ogre {
 		}
 
     }
+	//---------------------------------------------------------------------
+	void Mesh::_refreshAnimationState(AnimationStateSet* animSet)
+	{
+		if (hasSkeleton())
+		{
+			mSkeleton->_refreshAnimationState(animSet);
+		}
+
+		// Merge in any new vertex animations
+		AnimationList::iterator i;
+		for (i = mAnimationsList.begin(); i != mAnimationsList.end(); ++i)
+		{
+			Animation* anim = i->second;
+			// Create animation at time index 0, default params mean this has weight 1 and is disabled
+			String animName = anim->getName();
+			if (!animSet->hasAnimationState(animName))
+			{
+				animSet->createAnimationState(animName, 0.0, anim->getLength());
+			}
+			else
+			{
+				// Update length incase changed
+				AnimationState* animState = animSet->getAnimationState(animName);
+				animState->setLength(anim->getLength());
+				animState->setTimePosition(std::min(anim->getLength(), animState->getTimePosition()));
+			}
+		}
+
+	}
     //-----------------------------------------------------------------------
     void Mesh::_updateCompiledBoneAssignments(void)
     {

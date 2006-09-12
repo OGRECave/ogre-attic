@@ -391,6 +391,13 @@ namespace Ogre {
 			{
 				animSet->createAnimationState(animName, 0.0, anim->getLength());
 			}
+			else
+			{
+				// Update length incase changed
+				AnimationState* animState = animSet->getAnimationState(animName);
+				animState->setLength(anim->getLength());
+				animState->setTimePosition(std::min(anim->getLength(), animState->getTimePosition()));
+			}
 		}
 		// Also iterate over linked animation
 		LinkedSkeletonAnimSourceList::iterator li;
