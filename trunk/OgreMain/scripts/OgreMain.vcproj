@@ -411,6 +411,10 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreNode.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreNumerics.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreOptimisedUtil.cpp">
 			</File>
 			<File
@@ -568,6 +572,10 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreSerializer.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreShadowCameraSetup.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\src\OgreShadowCaster.cpp">
@@ -973,6 +981,10 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreNoMemoryMacros.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreNumerics.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\OgreOptimisedUtil.h">
 			</File>
 			<File
@@ -1154,6 +1166,10 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreSerializer.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreShadowCameraSetup.h"
+				>
 			</File>
 			<File
 				RelativePath="..\include\OgreShadowCaster.h">

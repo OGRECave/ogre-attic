@@ -755,6 +755,13 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\include\OgreNumerics.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\include\OgreOptimisedUtil.h">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
@@ -1183,6 +1190,13 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSerializer.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\include\OgreShadowCameraSetup.h">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
@@ -1918,6 +1932,11 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\src\OgreNumerics.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\src\OgreOptimisedUtil.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
@@ -2176,6 +2195,11 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\src\OgreSerializer.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\src\OgreShadowCameraSetup.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />

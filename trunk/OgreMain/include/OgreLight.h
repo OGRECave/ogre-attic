@@ -37,6 +37,7 @@ Torus Knot Software Ltd.
 #include "OgreString.h"
 #include "OgreMovableObject.h"
 #include "OgrePlaneBoundedVolume.h"
+#include "OgreShadowCameraSetup.h"
 
 namespace Ogre {
 
@@ -348,6 +349,19 @@ namespace Ogre {
 		/// @copydoc AnimableObject::createAnimableValue
 		AnimableValuePtr createAnimableValue(const String& valueName);
 
+		/** Set the pointer to the custom shadow camera setup. 
+		@see ShadowCameraSetup
+		*/
+		void setCustomShadowCameraSetup(const ShadowCameraSetupPtr& customShadowSetup);
+
+		/** Reset the shadow camera setup to the default. 
+		@see ShadowCameraSetup
+		*/
+		void resetCustomShadowCameraSetup(void);
+
+		/** return a pointer to the custom shadow camera setup. */
+		const ShadowCameraSetupPtr& getCustomShadowCameraSetup(void) const;
+
     protected:
         /// internal method for synchronising with parent node (if any)
         virtual void update(void) const;
@@ -373,6 +387,7 @@ namespace Ogre {
         Real mAttenuationQuad;
 		Real mPowerScale;
 
+
         mutable Vector3 mDerivedPosition;
         mutable Vector3 mDerivedDirection;
         /// Stored versions of parent orientation / position
@@ -387,7 +402,8 @@ namespace Ogre {
         /// Is the local transform dirty?
         mutable bool mLocalTransformDirty;
 
-
+		/// Pointer to a custom shadow camera setup
+		mutable ShadowCameraSetupPtr mCustomShadowCameraSetup;
 
     };
 

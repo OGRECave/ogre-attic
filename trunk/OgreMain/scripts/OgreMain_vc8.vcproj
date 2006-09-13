@@ -561,6 +561,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreNumerics.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreOverlay.cpp"
 				>
 			</File>
@@ -760,6 +764,10 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreSerializer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreShadowCameraSetup.cpp"
 				>
 			</File>
 			<File
@@ -1300,6 +1308,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\OgreNumerics.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\OgreOptimisedUtil.h"
 				>
 			</File>
@@ -1537,6 +1549,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreSerializer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreShadowCameraSetup.h"
 				>
 			</File>
 			<File

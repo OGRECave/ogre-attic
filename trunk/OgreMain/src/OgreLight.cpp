@@ -54,7 +54,8 @@ namespace Ogre {
           mDerivedDirection(Vector3::UNIT_Z),
           mLastParentOrientation(Quaternion::IDENTITY),
           mLastParentPosition(Vector3::ZERO),
-          mLocalTransformDirty(false)
+          mLocalTransformDirty(false),
+		  mCustomShadowCameraSetup(0)
     {
     }
     //-----------------------------------------------------------------------
@@ -76,7 +77,8 @@ namespace Ogre {
         mDerivedDirection(Vector3::UNIT_Z),
         mLastParentOrientation(Quaternion::IDENTITY),
         mLastParentPosition(Vector3::ZERO),
-        mLocalTransformDirty(false)
+        mLocalTransformDirty(false),
+		mCustomShadowCameraSetup(0)
     {
     }
     //-----------------------------------------------------------------------
@@ -692,6 +694,21 @@ namespace Ogre {
 		{
 			return MovableObject::createAnimableValue(valueName);
 		}
+	}
+	//-----------------------------------------------------------------------
+	void Light::setCustomShadowCameraSetup(const ShadowCameraSetupPtr& customShadowSetup)
+	{
+		mCustomShadowCameraSetup = customShadowSetup;
+	}
+	//-----------------------------------------------------------------------
+	void Light::resetCustomShadowCameraSetup()
+	{
+		mCustomShadowCameraSetup.setNull();
+	}
+	//-----------------------------------------------------------------------
+	const ShadowCameraSetupPtr& Light::getCustomShadowCameraSetup() const
+	{
+		return mCustomShadowCameraSetup;
 	}
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------

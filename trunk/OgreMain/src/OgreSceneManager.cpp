@@ -159,6 +159,9 @@ mSuppressShadows(false)
 
 	// Setup default queued renderable visitor
 	mActiveQueuedRenderableVisitor = &mDefaultQueuedRenderableVisitor;
+
+	// set up default shadow camera setup
+	mDefaultShadowCameraSetup.bind(new DefaultShadowCameraSetup);
 }
 //-----------------------------------------------------------------------
 SceneManager::~SceneManager()
@@ -4572,118 +4575,10 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
 		// rebind camera, incase another SM in use which has switched to its cam
 		shadowView->setCamera(texCam);
         
-        Vector3 pos, dir;
-
-        // Directional lights 
-        if (light->getType() == Light::LT_DIRECTIONAL)
-        {
-            // set up the shadow texture
-            // Set ortho projection
-            texCam->setProjectionType(PT_ORTHOGRAPHIC);
-            // set easy FOV and near dist so that texture covers far dist
-            texCam->setFOVy(Degree(90));
-            texCam->setNearClipDistance(shadowDist);
-
-            // Calculate look at position
-            // We want to look at a spot shadowOffset away from near plane
-            // 0.5 is a litle too close for angles
-            Vector3 target = cam->getDerivedPosition() + 
-                (cam->getDerivedDirection() * shadowOffset);
-
-            // Calculate direction, which same as directional light direction
-            dir = - light->getDerivedDirection(); // backwards since point down -z
-            dir.normalise();
-
-            // Calculate position
-            // We want to be in the -ve direction of the light direction
-            // far enough to project for the dir light extrusion distance
-            pos = target + dir * mShadowDirLightExtrudeDist;
-
-            // Round local x/y position based on a world-space texel; this helps to reduce
-            // jittering caused by the projection moving with the camera
-            // Viewport is 2 * near clip distance across (90 degree fov)
-            Real worldTexelSize = (texCam->getNearClipDistance() * 20) / mShadowTextureSize;
-            pos.x -= fmod(pos.x, worldTexelSize);
-            pos.y -= fmod(pos.y, worldTexelSize);
-            pos.z -= fmod(pos.z, worldTexelSize);
-        }
-        // Spotlight
-        else if (light->getType() == Light::LT_SPOTLIGHT)
-        {
-            // Set perspective projection
-            texCam->setProjectionType(PT_PERSPECTIVE);
-            // set FOV slightly larger than the spotlight range to ensure coverage
-            texCam->setFOVy(light->getSpotlightOuterAngle()*1.2);
-            // set near clip the same as main camera, since they are likely
-            // to both reflect the nature of the scene
-            texCam->setNearClipDistance(cam->getNearClipDistance());
-
-            // Calculate position, which same as spotlight position
-            pos = light->getDerivedPosition();
-
-            // Calculate direction, which same as spotlight direction
-            dir = - light->getDerivedDirection(); // backwards since point down -z
-            dir.normalise();
-        }
-        // Point light
-        else
-        {
-            // Set perspective projection
-            texCam->setProjectionType(PT_PERSPECTIVE);
-            // Use 120 degree FOV for point light to ensure coverage more area
-            texCam->setFOVy(Degree(120));
-            // set near clip the same as main camera, since they are likely
-            // to both reflect the nature of the scene
-            texCam->setNearClipDistance(cam->getNearClipDistance());
-
-            // Calculate look at position
-            // We want to look at a spot shadowOffset away from near plane
-            // 0.5 is a litle too close for angles
-            Vector3 target = cam->getDerivedPosition() + 
-                (cam->getDerivedDirection() * shadowOffset);
-
-            // Calculate position, which same as point light position
-            pos = light->getDerivedPosition();
-
-            dir = (pos - target); // backwards since point down -z
-            dir.normalise();
-        }
-
-        // Finally set position
-        texCam->setPosition(pos);
-
-        // Calculate orientation based on direction calculated above
-        /*
-        // Next section (camera oriented shadow map) abandoned
-        // Always point in the same direction, if we don't do this then
-        // we get 'shadow swimming' as camera rotates
-        // As it is, we get swimming on moving but this is less noticeable
-
-        // calculate up vector, we want it aligned with cam direction
-        Vector3 up = cam->getDerivedDirection();
-        // Check it's not coincident with dir
-        if (up.dotProduct(dir) >= 1.0f)
-        {
-        // Use camera up
-        up = cam->getUp();
-        }
-        */
-        Vector3 up = Vector3::UNIT_Y;
-        // Check it's not coincident with dir
-        if (Math::Abs(up.dotProduct(dir)) >= 1.0f)
-        {
-            // Use camera up
-            up = Vector3::UNIT_Z;
-        }
-        // cross twice to rederive, only direction is unaltered
-        Vector3 left = dir.crossProduct(up);
-        left.normalise();
-        up = dir.crossProduct(left);
-        up.normalise();
-        // Derive quaternion from axes
-        Quaternion q;
-        q.FromAxes(left, up, dir);
-        texCam->setOrientation(q);
+		if (light->getCustomShadowCameraSetup().isNull())
+			mDefaultShadowCameraSetup->getShadowCamera(this, cam, vp, light, texCam);
+		else
+			light->getCustomShadowCameraSetup()->getShadowCamera(this, cam, vp, light, texCam);
 
         // Setup background colour
         shadowView->setBackgroundColour(ColourValue::White);

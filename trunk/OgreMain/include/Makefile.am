@@ -84,6 +84,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgreMovablePlane.h \
                      OgreNoMemoryMacros.h \
                      OgreNode.h \
+					 OgreNumerics.h \
                      OgreOverlay.h \
                      OgreOverlayContainer.h \
                      OgreOverlayElement.h \
@@ -144,6 +145,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgreScriptLoader.h \
                      OgreSearchOps.h \
                      OgreSerializer.h \
+					 OgreShadowCameraSetup.h \
                      OgreShadowCaster.h \
                      OgreShadowVolumeExtrudeProgram.h \
                      OgreSharedPtr.h \

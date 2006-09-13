@@ -825,7 +825,144 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------
+	//_______________________________________________________
+	//|														|
+	//|	getRayForwardIntersect								|
+	//|	-----------------------------						|
+	//|	get the intersections of frustum rays with a plane	|
+	//| of interest.  The plane is assumed to have constant	|
+	//| z.  If this is not the case, rays					|
+	//| should be rotated beforehand to work in a			|
+	//| coordinate system in which this is true.			|
+	//|_____________________________________________________|
+	//
+	std::vector<Vector4> Camera::getRayForwardIntersect(const Vector3& anchor, const Vector3 *dir, Real planeOffset) const
+	{
+		std::vector<Vector4> res;
 
+		if(!dir)
+			return res;
+
+		int infpt[4] = {0, 0, 0, 0}; // 0=finite, 1=infinite, 2=straddles infinity
+		Vector3 vec[4];
+
+		// find how much the anchor point must be displaced in the plane's
+		// constant variable
+		Real delta = planeOffset - anchor.z;
+
+		// now set the intersection point and note whether it is a 
+		// point at infinity or straddles infinity
+		unsigned int i;
+		for (i=0; i<4; i++)
+		{
+			Real test = dir[i].z * delta;
+			if (test == 0.0) {
+				vec[i] = dir[i];
+				infpt[i] = 1;
+			}
+			else {
+				Real lambda = delta / dir[i].z;
+				vec[i] = anchor + (lambda * dir[i]);
+				if(test < 0.0)
+					infpt[i] = 2;
+			}
+		}
+
+		for (i=0; i<4; i++)
+		{
+			// store the finite intersection points
+			if (infpt[i] == 0)
+				res.push_back(Vector4(vec[i].x, vec[i].y, vec[i].z, 1.0));
+			else
+			{
+				// handle the infinite points of intersection;
+				// cases split up into the possible frustum planes 
+				// pieces which may contain a finite intersection point
+				int nextind = (i+1) % 4;
+				int prevind = (i+3) % 4;
+				if ((infpt[prevind] == 0) || (infpt[nextind] == 0))
+				{
+					if (infpt[i] == 1)
+						res.push_back(Vector4(vec[i].x, vec[i].y, vec[i].z, 0.0));
+					else
+					{
+						// handle the intersection points that straddle infinity (back-project)
+						if(infpt[prevind] == 0) 
+						{
+							Vector3 temp = vec[prevind] - vec[i];
+							res.push_back(Vector4(temp.x, temp.y, temp.z, 0.0));
+						}
+						if(infpt[nextind] == 0)
+						{
+							Vector3 temp = vec[nextind] - vec[i];
+							res.push_back(Vector4(temp.x, temp.y, temp.z, 0.0));
+						}
+					}
+				} // end if we need to add an intersection point to the list
+			} // end if infinite point needs to be considered
+		} // end loop over frustun corners
+
+		// we end up with either 0, 3, 4, or 5 intersection points
+
+		return res;
+	}
+
+	//_______________________________________________________
+	//|														|
+	//|	forwardIntersect									|
+	//|	-----------------------------						|
+	//|	Forward intersect the camera's frustum rays with	|
+	//| a specified plane of interest.						|
+	//| Note that if the frustum rays shoot out and would	|
+	//| back project onto the plane, this means the forward	|
+	//| intersection of the frustum would occur at the		|
+	//| line at infinity.									|
+	//|_____________________________________________________|
+	//
+	void Camera::forwardIntersect(const Plane& worldPlane, std::vector<Vector4>* intersect3d) const
+	{
+		if(!intersect3d)
+			return;
+
+		Vector3 trCorner = getWorldSpaceCorners()[0];
+		Vector3 tlCorner = getWorldSpaceCorners()[1];
+		Vector3 blCorner = getWorldSpaceCorners()[2];
+		Vector3 brCorner = getWorldSpaceCorners()[3];
+
+		// need some sort of rotation that will bring the plane normal to the z axis
+		Plane pval = worldPlane;
+		if(pval.normal.z < 0.0)
+		{
+			pval.normal *= -1.0;
+			pval.d *= -1.0;
+		}
+		Matrix3 invPlaneRot = pval.getCanonicalInverseRotation();
+
+		// get rotated light
+		Vector3 lPos = invPlaneRot * getDerivedPosition();
+		Vector3 vec[4];
+		vec[0] = invPlaneRot * trCorner - lPos;
+		vec[1] = invPlaneRot * tlCorner - lPos; 
+		vec[2] = invPlaneRot * blCorner - lPos; 
+		vec[3] = invPlaneRot * brCorner - lPos; 
+
+		// compute intersection points on plane
+		std::vector<Vector4> iPnt = getRayForwardIntersect(lPos, vec, -pval.d);
+
+
+		// return wanted data
+		if(intersect3d) 
+		{
+			Matrix4 planeRot = invPlaneRot.Transpose();
+			(*intersect3d).clear();
+			for(unsigned int i=0; i<iPnt.size(); i++)
+			{
+				Vector3 intersection = planeRot * Vector3(iPnt[i].x, iPnt[i].y, iPnt[i].z);
+				(*intersect3d).push_back(Vector4(intersection.x, intersection.y, intersection.z, iPnt[i].w));
+			}
+		}
+	}
+	//-----------------------------------------------------------------------
 
 
 } // namespace Ogre
