@@ -936,7 +936,7 @@ namespace Ogre {
 			pval.normal *= -1.0;
 			pval.d *= -1.0;
 		}
-		Matrix3 invPlaneRot = pval.getCanonicalInverseRotation();
+		Quaternion invPlaneRot = pval.normal.getRotationTo(Vector3::UNIT_Z);
 
 		// get rotated light
 		Vector3 lPos = invPlaneRot * getDerivedPosition();
@@ -953,7 +953,7 @@ namespace Ogre {
 		// return wanted data
 		if(intersect3d) 
 		{
-			Matrix4 planeRot = invPlaneRot.Transpose();
+			Quaternion planeRot = invPlaneRot.Inverse();
 			(*intersect3d).clear();
 			for(unsigned int i=0; i<iPnt.size(); i++)
 			{
