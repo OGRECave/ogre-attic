@@ -74,6 +74,7 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreMovableObject.cpp \
 			 OgreMovablePlane.cpp \
                          OgreNode.cpp \
+						 OgreNumerics.cpp \
                          OgreOptimisedUtil.cpp \
                          OgreOptimisedUtilGeneral.cpp \
                          OgreOverlay.cpp \
@@ -121,6 +122,7 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreSceneQuery.cpp \
                          OgreSearchOps.cpp \
                          OgreSerializer.cpp \
+						 OgreShadowCameraSetup.cpp \
 			 OgreShadowCaster.cpp \
 			 OgreShadowVolumeExtrudeProgram.cpp \
                          OgreSimpleRenderable.cpp \
