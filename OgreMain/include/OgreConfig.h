@@ -109,7 +109,7 @@ Torus Knot Software Ltd.
     WARNING: highly experimental, use with caution
 */
 #ifndef OGRE_THREAD_SUPPORT
-#define OGRE_THREAD_SUPPORT 1
+#define OGRE_THREAD_SUPPORT 0
 #endif
 
 /** Disables use of the FreeImage image library for loading images.
