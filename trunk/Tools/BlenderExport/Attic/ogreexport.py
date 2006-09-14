@@ -2619,6 +2619,7 @@ class Mesh:
                 f.write(tab(4)+"<vertexbuffer positions=\"true\" normals=\"true\">\n")
                 for v in submesh.vertices:
                     f.write(XMLVertexStringView(v.xmlVertex).toString(5, outputList))
+                f.write(tab(4)+"</vertexbuffer>\n")
 
                 # reset outputList and rebuild it based on options selected
                 outputList = []
