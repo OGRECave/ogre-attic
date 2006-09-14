@@ -116,6 +116,7 @@ namespace Ogre {
     Pass& Pass::operator=(const Pass& oth)
     {
         mName = oth.mName;
+        mHash = oth.mHash;
 	    mAmbient = oth.mAmbient;
         mDiffuse = oth.mDiffuse;
 	    mSpecular = oth.mSpecular;
