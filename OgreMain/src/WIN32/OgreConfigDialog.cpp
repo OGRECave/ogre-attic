@@ -68,8 +68,6 @@ namespace Ogre
         String err;
 
         int i, sel, savedSel;
-        static bool fullScreen = true;
-
 
         switch (iMsg)
         {
