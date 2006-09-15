@@ -1,4 +1,4 @@
-bash copysamples.sh
+bash copysamples.sh CBMINGW_STLP
 pushd ..\..\Docs\src
 doxygen html.cfg
 cd ..\api\html
