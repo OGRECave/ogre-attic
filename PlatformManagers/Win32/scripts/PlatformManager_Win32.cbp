@@ -1,140 +1,130 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="3" />
+	<FileVersion major="1" minor="5" />
 	<Project>
 		<Option title="PlatformManager_Win32" />
-		<Option pch_mode="0" />
-		<Option default_target="-1" />
+		<Option default_target="" />
 		<Option compiler="gcc" />
+		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
-				<Option output="..\bin\Debug\PlatformManager_Win32.dll" />
+				<Option output="..\bin\Debug\OgrePlatform_d.dll" />
 				<Option object_output="..\obj\Debug" />
+				<Option external_deps="..\..\..\OgreMain\lib\Debug\OgreMain_d.dll;" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option includeInTargetAll="1" />
-				<Option createStaticLib="1" />
 				<Compiler>
-					<Add option="-W" />
 					<Add option="-g" />
-					<Add option="-DWIN32" />
 					<Add option="-D_DEBUG" />
-					<Add option="-D_WINDOWS" />
-					<Add option="-D_USRDLL" />
-					<Add option="-DPLATFORMMANAGER_WIN32_EXPORTS" />
-					<Add directory="..\include" />
-					<Add directory="..\..\..\OgreMain\include" />
-					<Add directory="..\misc" />
-					<Add directory="..\..\..\Dependencies\include" />
 				</Compiler>
-				<ResourceCompiler>
-					<Add directory="..\misc" />
-					<Add directory="..\include" />
-				</ResourceCompiler>
 				<Linker>
 					<Add library="OgreMain_d" />
 					<Add library="dxguid" />
 					<Add library="dinput8" />
 					<Add library="dinput" />
-					<Add directory="..\..\..\OgreMain\lib\Debug" />
-					<Add directory="..\..\..\Dependencies\lib\Debug" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="cp ..\bin\Debug\PlatformManager_Win32.dll ..\..\..\Samples\Common\Bin\Debug\OgrePlatform_d.dll" />
+					<Add after="cmd /c copy $($(TARGET_NAME)_OUTPUT_FILE) ..\..\..\Samples\Common\bin\$(TARGET_NAME)" />
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
-				<Option output="..\bin\Release\PlatformManager_Win32.dll" />
+				<Option output="..\bin\Release\OgrePlatform.dll" />
 				<Option object_output="..\obj\Release" />
+				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option includeInTargetAll="1" />
-				<Option createStaticLib="1" />
+				<Option projectIncludeDirsRelation="2" />
 				<Compiler>
-					<Add option="-O3" />
-					<Add option="-W" />
-					<Add option="-DWIN32" />
+					<Add option="-O2" />
 					<Add option="-DNDEBUG" />
-					<Add option="-D_WINDOWS" />
-					<Add option="-D_USRDLL" />
-					<Add option="-DPLATFORMMANAGER_WIN32_EXPORTS" />
-					<Add directory="..\include" />
-					<Add directory="..\..\..\OgreMain\include" />
-					<Add directory="..\misc" />
-					<Add directory="..\..\..\Dependencies\include" />
 				</Compiler>
-				<ResourceCompiler>
-					<Add directory="..\misc" />
-					<Add directory="..\include" />
-				</ResourceCompiler>
 				<Linker>
 					<Add option="-s" />
 					<Add library="OgreMain" />
 					<Add library="dxguid" />
 					<Add library="dinput8" />
 					<Add library="dinput" />
-					<Add directory="..\..\..\OgreMain\lib\Release" />
-					<Add directory="..\..\..\Dependencies\lib\Release" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="cp ..\bin\Release\PlatformManager_Win32.dll ..\..\..\Samples\Common\Bin\Release\OgrePlatform.dll" />
+					<Add after="cmd /c copy $($(TARGET_NAME)_OUTPUT_FILE) ..\..\..\Samples\Common\bin\$(TARGET_NAME)" />
 				</ExtraCommands>
 			</Target>
 		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="Debug;Release;" />
+		</VirtualTargets>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-mthreads" />
+			<Add option="-fmessage-length=0" />
+			<Add option="-fexceptions" />
+			<Add option="-fident" />
+			<Add option="-DWIN32" />
+			<Add option="-D_WINDOWS" />
+			<Add option="-D_USRDLL" />
+			<Add directory="..\include" />
+			<Add directory="..\..\..\OgreMain\include" />
+		</Compiler>
+		<ResourceCompiler>
+			<Add directory="..\include" />
+			<Add directory="..\misc" />
+		</ResourceCompiler>
 		<Linker>
-			<Add option="-Wl,--enable-runtime-pseudo-reloc" />
+			<Add option="-Wl,--enable-auto-image-base" />
+			<Add option="-Wl,--add-stdcall-alias" />
+			<Add directory="..\..\..\Samples\Common\bin\$(TARGET_NAME)" />
 		</Linker>
 		<Unit filename="..\include\OgreWin32ConfigDialog.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreWin32ErrorDialog.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreWin32Input.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreWin32Input8.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreWin32Prerequisites.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreWin32Timer.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\resource.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\misc\OgreWin32Platform.def">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
@@ -147,21 +137,14 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\misc\ogre.ico">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\misc\ogrelogo.bmp">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\misc\winres.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />

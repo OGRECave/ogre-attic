@@ -1,45 +1,38 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="3" />
+	<FileVersion major="1" minor="5" />
 	<Project>
 		<Option title="OgreMain" />
-		<Option pch_mode="0" />
-		<Option default_target="-1" />
+		<Option default_target="" />
 		<Option compiler="gcc" />
+		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
 				<Option output="..\lib\Debug\OgreMain_d.dll" />
 				<Option object_output="..\obj\Debug" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option includeInTargetAll="1" />
-				<Option createStaticLib="1" />
+				<Option projectIncludeDirsRelation="2" />
+				<Option projectResourceIncludeDirsRelation="0" />
+				<Option projectLibDirsRelation="2" />
 				<Compiler>
-					<Add option="-W" />
 					<Add option="-g" />
-					<Add option="-DWIN32" />
 					<Add option="-D_DEBUG" />
-					<Add option="-D_USRDLL" />
-					<Add option="-D_MT" />
-					<Add option="-DOGRE_NONCLIENT_BUILD" />
-					<Add directory="..\include" />
-					<Add directory="..\..\Dependencies\include" />
+					<Add directory="..\obj\Debug\include" />
 				</Compiler>
 				<Linker>
 					<Add library="kernel32" />
 					<Add library="user32" />
-					<Add library="zziplib" />
+					<Add library="zziplibd" />
 					<Add library="zlib" />
-					<Add library="libfreetype.dll.a" />
-					<Add library="IL" />
-					<Add library="ILU" />
-					<Add library="ILUT" />
+					<Add library="freetype2110_D" />
+					<Add library="devil" />
+					<Add library="ilu" />
 					<Add directory="..\..\Dependencies\lib\Debug" />
-					<Add directory="..\..\Dependencies\lib\Release" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="cp ..\lib\Debug\OgreMain_d.dll ..\..\Samples\Common\bin\Debug" />
-					<Add after="cp ..\lib\Debug\OgreMain_d.dll ..\..\Tools\Common\bin\Debug" />
+					<Add after="cmd /c copy $($(TARGET_NAME)_OUTPUT_FILE) ..\..\Samples\Common\bin\$(TARGET_NAME)" />
+					<Add after="cmd /c copy $($(TARGET_NAME)_OUTPUT_FILE) ..\..\Tools\Common\bin\$(TARGET_NAME)" />
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
@@ -47,18 +40,10 @@
 				<Option object_output="..\obj\Release" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option includeInTargetAll="1" />
-				<Option createStaticLib="1" />
 				<Compiler>
-					<Add option="-O3" />
-					<Add option="-W" />
-					<Add option="-DWIN32" />
+					<Add option="-O2" />
 					<Add option="-DNDEBUG" />
-					<Add option="-D_USRDLL" />
-					<Add option="-D_MT" />
-					<Add option="-DOGRE_NONCLIENT_BUILD" />
-					<Add directory="..\include" />
-					<Add directory="..\..\Dependencies\include" />
+					<Add directory="..\obj\Release\include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -66,23 +51,41 @@
 					<Add library="user32" />
 					<Add library="zziplib" />
 					<Add library="zlib" />
-					<Add library="libfreetype.dll.a" />
-					<Add library="IL" />
-					<Add library="ILU" />
-					<Add library="ILUT" />
+					<Add library="freetype2110" />
+					<Add library="devil" />
+					<Add library="ilu" />
 					<Add directory="..\..\Dependencies\lib\Release" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="cp ..\lib\Release\OgreMain.dll ..\..\Samples\Common\bin\Release" />
-					<Add after="cp ..\lib\Release\OgreMain.dll ..\..\Tools\Common\bin\Release" />
+					<Add after="cmd /c copy $($(TARGET_NAME)_OUTPUT_FILE) ..\..\Samples\Common\bin\$(TARGET_NAME)" />
+					<Add after="cmd /c copy $($(TARGET_NAME)_OUTPUT_FILE) ..\..\Tools\Common\bin\$(TARGET_NAME)" />
 				</ExtraCommands>
 			</Target>
 		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="Debug;Release;" />
+		</VirtualTargets>
 		<Compiler>
-			<Add option="-W" />
+			<Add option="-Wall" />
+			<Add option="-mthreads" />
+			<Add option="-fmessage-length=0" />
+			<Add option="-fexceptions" />
+			<Add option="-fident" />
+			<Add option="-pipe" />
+			<Add option="-DWIN32" />
+			<Add option="-D_USRDLL" />
+			<Add option="-DOGRE_NONCLIENT_BUILD" />
+			<Add directory="..\include" />
+			<Add directory="..\..\Dependencies\include" />
+			<Add directory="..\src" />
 		</Compiler>
+		<Linker>
+			<Add option="-Wl,--enable-auto-image-base" />
+			<Add option="-Wl,--add-stdcall-alias" />
+			<Add directory="..\..\Samples\Common\bin\$(TARGET_NAME)" />
+		</Linker>
 		<Unit filename="..\include\Ogre.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
@@ -96,70 +99,70 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreAnimation.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreAnimationState.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreAnimationTrack.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreAny.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreArchive.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreArchiveFactory.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreArchiveManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreAutoParamDataSource.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreAxisAlignedBox.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreBillboard.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
@@ -173,70 +176,84 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreBillboardParticleRenderer.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreBillboardSet.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreBitwise.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreBlendMode.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreBone.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreBorderPanelOverlayElement.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreCamera.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreCodec.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\include\OgreCodecFactory.h">
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreColourValue.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreCommon.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\include\OgreCompiler2Pass.h">
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
@@ -291,6 +308,13 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\include\OgreCompositorScriptCompiler.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\include\OgreCompositorSerializer.h">
 			<Option compilerVar="" />
 			<Option compile="0" />
@@ -299,371 +323,385 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreConfig.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreConfigDialog.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreConfigFile.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreConfigOptionMap.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreController.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreControllerManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreCursor.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreDataStream.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreDefaultHardwareBufferManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\include\OgreDllInteface.h">
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreDynLib.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreDynLibManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreEdgeListBuilder.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreEntity.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreErrorDialog.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreEventDispatcher.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\include\OgreEventFramework.h">
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreEventListeners.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreEventProcessor.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreEventQueue.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreEventTarget.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreException.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreExternalTextureSource.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreExternalTextureSourceManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreFactoryObj.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreFileSystem.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreFont.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreFontManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreFrameListener.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreFrustum.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreGpuProgram.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreGpuProgramManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreGpuProgramUsage.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreHardwareBuffer.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreHardwareBufferManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreHardwareIndexBuffer.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreHardwareOcclusionQuery.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreHardwarePixelBuffer.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreHardwareVertexBuffer.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreHighLevelGpuProgram.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreHighLevelGpuProgramManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreILCodecs.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreILImageCodec.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreILUtil.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreImage.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreImageCodec.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreInput.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreInputEvent.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreIteratorWrappers.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreKeyEvent.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreKeyFrame.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreKeyTarget.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreLight.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreLog.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreLogManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
@@ -677,315 +715,315 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreMaterial.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreMaterialManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreMaterialSerializer.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreMath.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreMatrix3.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreMatrix4.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreMemoryMacros.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreMemoryManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreMesh.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreMeshFileFormat.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreMeshManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreMeshSerializer.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreMeshSerializerImpl.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreMouseEvent.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreMouseMotionTarget.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreMouseTarget.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreMovableObject.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreMovablePlane.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreNoMemoryMacros.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreNode.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreOverlay.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreOverlayContainer.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreOverlayElement.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreOverlayElementCommands.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreOverlayElementFactory.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreOverlayManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgrePanelOverlayElement.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreParticle.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreParticleAffector.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreParticleAffectorFactory.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreParticleEmitter.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreParticleEmitterCommands.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreParticleEmitterFactory.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreParticleIterator.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreParticleSystem.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreParticleSystemManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreParticleSystemRenderer.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgrePass.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgrePatchMesh.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgrePatchSurface.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgrePixelFormat.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgrePlane.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgrePlaneBoundedVolume.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgrePlatform.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgrePlatformManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
@@ -999,70 +1037,77 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgrePositionTarget.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgrePredefinedControllers.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgrePrerequisites.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreProfiler.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreProgressiveMesh.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreQuaternion.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\include\OgreRadixSort.h">
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreRay.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreRectangle2D.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreRenderOperation.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreRenderQueue.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
@@ -1076,91 +1121,91 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreRenderQueueListener.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreRenderQueueSortingGrouping.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreRenderSystem.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreRenderSystemCapabilities.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreRenderTarget.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreRenderTargetListener.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreRenderTexture.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreRenderWindow.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreRenderable.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreResource.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreResourceBackgroundQueue.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreResourceGroupManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreResourceManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
@@ -1174,371 +1219,349 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreRoot.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreRotationalSpline.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSceneManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSceneManagerEnumerator.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSceneNode.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSceneQuery.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreScriptLoader.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSerializer.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreShadowCaster.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreShadowVolumeExtrudeProgram.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSharedPtr.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSimpleRenderable.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSimpleSpline.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSingleton.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSkeleton.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSkeletonFileFormat.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSkeletonInstance.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSkeletonManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSkeletonSerializer.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSphere.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSpotShadowFadePng.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreStableHeaders.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
+			<Option compilerVar="CPP" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreStaticFaceGroup.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreStaticGeometry.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreStdHeaders.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreString.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreStringConverter.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreStringInterface.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\include\OgreStringResource.h">
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreStringVector.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSubEntity.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreSubMesh.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreTagPoint.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreTargetManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreTechnique.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreTextAreaOverlayElement.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreTexture.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreTextureManager.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreTextureUnitState.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreTimer.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreUserDefinedObject.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreVector2.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreVector3.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreVector4.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreVertexBoneAssignment.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreVertexIndexData.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreViewport.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreWireBoundingBox.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgreZip.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\asm_math.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\ogrecodecfactory.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\ogredllinteface.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\ogreeventframework.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\ogrestringresource.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
@@ -1634,6 +1657,11 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\src\OgreCompiler2Pass.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\src\OgreCompositionPass.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
@@ -1665,6 +1693,11 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\src\OgreCompositorManager.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\src\OgreCompositorScriptCompiler.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />
@@ -1851,6 +1884,13 @@
 		</Unit>
 		<Unit filename="..\src\OgreImage.cpp">
 			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\src\OgreImageResampler.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
@@ -2335,6 +2375,11 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\src\OgreVector3.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\src\OgreVector4.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />
