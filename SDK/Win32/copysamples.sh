@@ -1,8 +1,14 @@
 #!/bin/bash
 
+# define error codes
+E_NOARGS=65
+E_BADARG=66
+
 # determine the project file extensions to use for each SDK 
+SDKTYPES="[VC7, VC8, CBMINGW, CBMINGW_STLP]"
 case "$1" in
-"") echo "Usage: `basename $0` [VC7, VC8, CB, CB_STLP]"; exit $E_NOARGS ;;
+# if no parameter was passed then exit with usage message
+"") echo "Usage: `basename $0` $SDKTYPES"; exit $E_NOARGS ;;
 
 "CBMINGW") PROJEXT=".cbp" ; RMEXT="_stlp.cbp" ;;
 
@@ -11,6 +17,11 @@ case "$1" in
 "VC7") PROJEXT=".vcproj" ; RMEXT="_vc8.vcproj" ;;
 
 "VC8") PROJEXT="_vc8.vcproj" ; RMEXT= ;;
+
+# parameter is not valid so exit with usage message
+*) echo "SDK: $1 not understood."
+   echo  "Usage: `basename $0` $SDKTYPES"; exit $E_BADARG ;;
+
 esac
 
 echo "copying and processing sample scripts for SDK: $1"
