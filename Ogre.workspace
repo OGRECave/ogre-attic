@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="Ogre workspace">
-		<Project filename="OgreMain\scripts\OgreMain.cbp" />
+		<Project filename="OgreMain\scripts\OgreMain.cbp" active="1" />
 		<Project filename="PlatformManagers\Win32\scripts\PlatformManager_Win32.cbp">
 			<Depends filename="OgreMain\scripts\OgreMain.cbp" />
 		</Project>
@@ -315,7 +315,7 @@
 			<Depends filename="RenderSystems\Direct3D9\scripts\RenderSystem_Direct3D9.cbp" />
 			<Depends filename="RenderSystems\GL\scripts\RenderSystem_GL.cbp" />
 		</Project>
-		<Project filename="Samples\Water\scripts\Demo_Water.cbp" active="1">
+		<Project filename="Samples\Water\scripts\Demo_Water.cbp">
 			<Depends filename="OgreMain\scripts\OgreMain.cbp" />
 			<Depends filename="PlatformManagers\Win32\scripts\PlatformManager_Win32.cbp" />
 			<Depends filename="PlugIns\BSPSceneManager\scripts\Plugin_BSPSceneManager.cbp" />
