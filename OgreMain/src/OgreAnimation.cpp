@@ -476,7 +476,32 @@ namespace Ogre {
 		}
 
 	}
+	//-----------------------------------------------------------------------
+	Animation* Animation::clone(const String& newName) const
+	{
+		Animation* newAnim = new Animation(newName, mLength);
+        newAnim->mInterpolationMode = mInterpolationMode;
+        newAnim->mRotationInterpolationMode = mRotationInterpolationMode;
+		
+		// Clone all tracks
+		for (NodeTrackList::const_iterator i = mNodeTrackList.begin();
+			i != mNodeTrackList.end(); ++i)
+		{
+			newAnim->mNodeTrackList[i->second->getHandle()] = i->second->_clone(newAnim);
+		}
+		for (NumericTrackList::const_iterator i = mNumericTrackList.begin();
+			i != mNumericTrackList.end(); ++i)
+		{
+			newAnim->mNumericTrackList[i->second->getHandle()] = i->second->_clone(newAnim);
+		}
+		for (VertexTrackList::const_iterator i = mVertexTrackList.begin();
+			i != mVertexTrackList.end(); ++i)
+		{
+			newAnim->mVertexTrackList[i->second->getHandle()] = i->second->_clone(newAnim);
+		}
+		return newAnim;
 
+	}
 }
 
 

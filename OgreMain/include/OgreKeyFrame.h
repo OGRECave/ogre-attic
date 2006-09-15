@@ -55,6 +55,9 @@ namespace Ogre
         /** Gets the time of this keyframe in the animation sequence. */
         Real getTime(void) const { return mTime; }
 
+		/** Clone a keyframe (internal use only) */
+		virtual KeyFrame* _clone(AnimationTrack* newParent) const;
+
 
     protected:
         Real mTime;
@@ -79,6 +82,8 @@ namespace Ogre
 		*/
 		virtual void setValue(const AnyNumeric& val);
 
+		/** Clone a keyframe (internal use only) */
+		KeyFrame* _clone(AnimationTrack* newParent) const;
 	protected:
 		AnyNumeric mValue;
 	};
@@ -120,6 +125,9 @@ namespace Ogre
 
 		/** Gets the rotation applied by this keyframe. */
 		virtual const Quaternion& getRotation(void) const;
+
+		/** Clone a keyframe (internal use only) */
+		KeyFrame* _clone(AnimationTrack* newParent) const;
 	protected:
 		Vector3 mTranslate;
 		Vector3 mScale;
@@ -150,6 +158,9 @@ namespace Ogre
 
 		/** Gets the vertex buffer containing positions for this keyframe. */
 		const HardwareVertexBufferSharedPtr& getVertexBuffer(void) const;
+
+		/** Clone a keyframe (internal use only) */
+		KeyFrame* _clone(AnimationTrack* newParent) const;		
 
 	protected:
 		HardwareVertexBufferSharedPtr mBuffer;
@@ -217,6 +228,10 @@ namespace Ogre
 
 		/** Get a const iterator over the pose references. */
 		ConstPoseRefIterator getPoseReferenceIterator(void) const;
+
+		/** Clone a keyframe (internal use only) */
+		KeyFrame* _clone(AnimationTrack* newParent) const;
+		
 	protected:
 		PoseRefList mPoseRefs;
 

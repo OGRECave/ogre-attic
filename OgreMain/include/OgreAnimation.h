@@ -315,6 +315,14 @@ namespace Ogre {
 			then they are just adding overhead and can be removed.
 		*/
 		void optimise(void);
+
+		/** Clone this animation.
+		@note
+			The pointer returned from this method is the only one recorded, 
+			thus it is up to the caller to arrange for the deletion of this
+			object.
+		*/
+		Animation* clone(const String& newName) const;
 		
 
 

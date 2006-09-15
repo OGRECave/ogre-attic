@@ -84,6 +84,11 @@ namespace Ogre {
 
 		/** Get a hardware vertex buffer version of the vertex offsets. */
 		const HardwareVertexBufferSharedPtr& _getHardwareVertexBuffer(size_t numVertices) const;
+
+		/** Clone this pose and create another one configured exactly the same
+			way (only really useful for cloning holders of this class).
+		*/
+		Pose* clone(void) const;
 	protected:
 		/// Target geometry index
 		ushort mTarget;

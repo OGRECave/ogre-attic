@@ -340,6 +340,23 @@ namespace Ogre {
 		// mEdgeListsBuilt and edgeData of mMeshLodUsageList
 		// will up to date on demand. Not copied since internal references, and mesh
 		// data may be altered
+		
+		// Clone vertex animation
+		for (AnimationList::iterator i = mAnimationsList.begin();
+			i != mAnimationsList.end(); ++i)
+		{
+			Animation *newAnim = i->second->clone(i->second->getName());
+			newMesh->mAnimationsList[newName] = newAnim;
+		}
+		// Clone pose list
+		for (PoseList::iterator i = mPoseList.begin(); i != mPoseList.end(); ++i)
+		{
+			Pose* newPose = (*i)->clone();
+			newMesh->mPoseList.push_back(newPose);
+		}
+		newMesh->mSharedVertexDataAnimationType = mSharedVertexDataAnimationType;
+		newMesh->mAnimationTypesDirty = mAnimationTypesDirty;
+
 
         newMesh->load();
         newMesh->touch();
