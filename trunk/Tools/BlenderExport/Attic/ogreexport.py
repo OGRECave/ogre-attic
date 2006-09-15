@@ -2624,13 +2624,14 @@ class Mesh:
                 # reset outputList and rebuild it based on options selected
                 outputList = []
                 if self.hasUVCoordinates():
-                    f.write(tab(4)+"<vertexbuffer texture_coord_dimensions_0=\"2\" texture_coords=\"1\">\n")
+                    f.write(tab(4)+"<vertexbuffer texture_coord_dimensions_0=\"2\" texture_coords=\"1\"")
                     outputList += ['texcoordList']
                 if self.hasVertexColors():
                     if not outputList:
                         f.write(tab(4)+"<vertexbuffer")
-                    f.write(" colours_diffuse=\"true\">\n")
+                    f.write(" colours_diffuse=\"true\"")
                     outputList += ['colourDiffuse']
+                f.write(">\n")
                     
                 if outputList:
                     for v in submesh.vertices:
