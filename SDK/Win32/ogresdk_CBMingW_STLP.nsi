@@ -29,7 +29,7 @@ Section -Samples
   
   SetOutPath "$INSTDIR\samples"
   SetOverwrite try
-  File ".\Samples\Samples.workspace"
+  File ".\Samples\Samples_stlp.workspace"
 
 
 SectionEnd
