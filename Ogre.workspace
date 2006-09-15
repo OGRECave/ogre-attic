@@ -102,7 +102,16 @@
 			<Depends filename="Samples\Common\CEGUIRenderer\scripts\OgreGUIRenderer.cbp" />
 		</Project>
 		<Project filename="Samples\CubeMapping\scripts\Demo_CubeMapping.cbp" />
-		<Project filename="Samples\DeferredShading\scripts\Demo_DeferredShading.cbp" />
+		<Project filename="Samples\DeferredShading\scripts\Demo_DeferredShading.cbp">
+			<Depends filename="OgreMain\scripts\OgreMain.cbp" />
+			<Depends filename="PlatformManagers\Win32\scripts\PlatformManager_Win32.cbp" />
+			<Depends filename="PlugIns\BSPSceneManager\scripts\Plugin_BSPSceneManager.cbp" />
+			<Depends filename="PlugIns\CgProgramManager\scripts\Plugin_CgProgramManager.cbp" />
+			<Depends filename="PlugIns\OctreeSceneManager\scripts\Plugin_OctreeSceneManager.cbp" />
+			<Depends filename="PlugIns\ParticleFX\scripts\Plugin_ParticleFX.cbp" />
+			<Depends filename="RenderSystems\Direct3D9\scripts\RenderSystem_Direct3D9.cbp" />
+			<Depends filename="RenderSystems\GL\scripts\RenderSystem_GL.cbp" />
+		</Project>
 		<Project filename="Samples\Dot3Bump\scripts\Demo_Dot3Bump.cbp">
 			<Depends filename="OgreMain\scripts\OgreMain.cbp" />
 			<Depends filename="PlatformManagers\Win32\scripts\PlatformManager_Win32.cbp" />
