@@ -1,70 +1,68 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="3" />
+	<FileVersion major="1" minor="5" />
 	<Project>
 		<Option title="Demo_TextureFX" />
-		<Option pch_mode="0" />
+		<Option default_target="" />
 		<Option compiler="gcc" />
+		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
-				<Option output="..\bin\Debug\Demo_TextureFX.exe" />
-				<Option working_dir="..\..\Common\bin\Debug\" />
+				<Option output="..\..\Common\bin\Debug\Demo_TextureFX.exe" />
+				<Option working_dir="..\..\Common\bin\Debug" />
 				<Option object_output="..\obj\Debug" />
-				<Option type="1" />
+				<Option external_deps="..\..\..\OgreMain\lib\Debug\OgreMain_d.dll;" />
+				<Option type="0" />
 				<Option compiler="gcc" />
-				<Option includeInTargetAll="1" />
-				<Option projectResourceIncludeDirsRelation="1" />
+				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
-					<Add option="-W" />
 					<Add option="-g" />
-					<Add option="-DWIN32" />
 					<Add option="-D_DEBUG" />
-					<Add option="-D_WINDOWS" />
-					<Add directory="..\include" />
-					<Add directory="..\..\Common\include" />
-					<Add directory="..\..\..\OgreMain\include" />
 				</Compiler>
 				<Linker>
 					<Add library="OgreMain_d" />
-					<Add directory="..\..\..\OgreMain\lib\Debug" />
 				</Linker>
-				<ExtraCommands>
-					<Add after="cp ..\bin\Debug\Demo_TextureFX.exe ..\..\Common\Bin\Debug" />
-				</ExtraCommands>
 			</Target>
 			<Target title="Release">
-				<Option output="..\bin\Release\Demo_TextureFX.exe" />
-				<Option working_dir="..\..\Common\bin\Release\" />
+				<Option output="..\..\Common\bin\Release\Demo_TextureFX.exe" />
+				<Option working_dir="..\..\Common\bin\Release" />
 				<Option object_output="..\obj\Release" />
-				<Option type="1" />
+				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain_d.dll;" />
+				<Option type="0" />
 				<Option compiler="gcc" />
-				<Option includeInTargetAll="1" />
-				<Option projectResourceIncludeDirsRelation="1" />
+				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
 					<Add option="-O3" />
-					<Add option="-W" />
-					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
-					<Add option="-D_WINDOWS" />
-					<Add directory="..\include" />
-					<Add directory="..\..\Common\include" />
-					<Add directory="..\..\..\OgreMain\include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add library="OgreMain" />
-					<Add directory="..\..\..\OgreMain\lib\Release" />
 				</Linker>
-				<ExtraCommands>
-					<Add after="cp ..\bin\Release\Demo_TextureFX.exe ..\..\Common\Bin\Release" />
-				</ExtraCommands>
 			</Target>
 		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="Debug;Release;" />
+		</VirtualTargets>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-mthreads" />
+			<Add option="-fmessage-length=0" />
+			<Add option="-fexceptions" />
+			<Add option="-fident" />
+			<Add option="-DWIN32" />
+			<Add option="-D_WINDOWS" />
+			<Add directory="..\include" />
+			<Add directory="..\..\Common\include" />
+			<Add directory="..\..\..\OgreMain\include" />
+		</Compiler>
 		<Linker>
-			<Add option="-Wl,--enable-runtime-pseudo-reloc" />
+			<Add option="-Wl,--enable-auto-image-base" />
+			<Add option="-Wl,--add-stdcall-alias" />
+			<Add directory="..\..\Common\bin\$(TARGET_NAME)" />
 		</Linker>
 		<Unit filename="..\include\TextureFX.h">
-			<Option compilerVar="" />
+			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
 			<Option target="Debug" />
