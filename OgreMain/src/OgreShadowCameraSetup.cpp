@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLight.h"
 #include "OgreShadowCameraSetup.h"
 #include "OgreNumerics.h"
+#include "OgreCamera.h"
 
 
 namespace Ogre 
