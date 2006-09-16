@@ -814,6 +814,9 @@ namespace Ogre {
             delete mIndexData;
             mIndexData = 0;
         }
+
+        mMainBuf.setNull();
+
 		mBuffersCreated = false;
 
 	}
