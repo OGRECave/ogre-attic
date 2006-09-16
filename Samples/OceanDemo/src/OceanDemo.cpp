@@ -581,7 +581,7 @@ void OceanDemo::configureShaderControls(void)
     if (mMaterialControlsContainer.empty()) return;
 
     mActiveMaterial = Ogre::MaterialManager::getSingleton().getByName( mMaterialControlsContainer[mCurrentMaterial].getMaterialName() );
-    if(!mActiveMaterial.isNull())
+    if(!mActiveMaterial.isNull() && mActiveMaterial->getNumSupportedTechniques())
 	{
         Ogre::Technique* currentTechnique = mActiveMaterial->getSupportedTechnique(0);
 		if(currentTechnique)
