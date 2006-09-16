@@ -922,7 +922,6 @@ namespace Ogre
 					return;
 				}
 
-				// fixed: this only works for not swap chained
 				if (!mIsSwapChain) 
 				{
 					// re-qeuery buffers
@@ -934,31 +933,13 @@ namespace Ogre
 				}
 				else 
 				{
-					mpSwapChain->GetBackBuffer( 0, D3DBACKBUFFER_TYPE_MONO, &mpRenderSurface );
-					if (mIsDepthBuffered) {
-						hr = mpD3DDevice->CreateDepthStencilSurface(
-							mWidth, mHeight,
-							md3dpp.AutoDepthStencilFormat,
-							md3dpp.MultiSampleType,
-							md3dpp.MultiSampleQuality, 
-							(md3dpp.Flags & D3DPRESENTFLAG_DISCARD_DEPTHSTENCIL),
-							&mpRenderZBuffer, NULL
-							);
-
-						if (FAILED(hr)) {
-							OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
-								"Unable to re-create depth buffer for the swap chain",
-								"D3D9RenderWindow::update");
-
-						}
-					} 
-					else
-					{
-						mpRenderZBuffer = 0;
-					}
-
-					// release immediately so we don't hog them
-					mpRenderSurface->Release();
+				    // Update dimensions incase changed
+		            ViewportList::iterator it = mViewportList.begin();
+		            while( it != mViewportList.end() )
+			            (*it++).second->_updateDimensions();
+					// Actual restoration of surfaces will happen in 
+					// D3D9RenderSystem::restoreLostDevice when it calls
+					// createD3DResources for each secondary window
 				}
 			}
 
