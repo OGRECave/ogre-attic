@@ -1160,7 +1160,6 @@ namespace Ogre {
         Real            u[3], v[3];
 	    // setup a new 3D texture coord-set buffer for every sub mesh
 	    int nSubMesh = getNumSubMeshes();
-        bool sharedGeometryDone = false;
 	    for (int sm = 0; sm < nSubMesh; sm++)
 	    {
 		    // retrieve buffer pointers
@@ -1192,11 +1191,7 @@ namespace Ogre {
 		    // then, vertices
 		    VertexData *usedVertexData ;
 		    if (pSubMesh->useSharedVertices) {
-                // Don't do shared geometry more than once
-                if (sharedGeometryDone)
-                    continue;
 			    usedVertexData = sharedVertexData;
-                sharedGeometryDone = true;
 		    } else {
 			    usedVertexData = pSubMesh->vertexData;
 		    }
