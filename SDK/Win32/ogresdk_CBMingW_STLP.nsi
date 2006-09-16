@@ -1,6 +1,7 @@
 !define TARGET_COMPILER_DESCRIPTION "C::B + MingW + STLPort"
 !define TARGET_COMPILER "CBMingW_STLP"
 !define MINGW
+!define STLPORT
 !include ogresdk.nsh
 
 Section -Samples
