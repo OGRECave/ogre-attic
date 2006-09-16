@@ -30,7 +30,10 @@ Torus Knot Software Ltd.
 #define __Common_H__
 // Common stuff
 
+#include "OgreString.h"
 #include <utility>
+#include <vector>
+#include <map>
 
 namespace Ogre {
 
@@ -239,7 +242,8 @@ namespace Ogre {
     };
     
 	
-    typedef std::vector<Light*> LightList;
+    class Light;
+	typedef std::vector<Light*> LightList;
 
     typedef std::map<String, bool> UnaryOptionList;
     typedef std::map<String, String> BinaryOptionList;
