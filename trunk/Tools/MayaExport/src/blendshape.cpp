@@ -216,6 +216,8 @@ namespace OgreMayaExporter
 		{
 			MFnMesh mesh(params.loadedSubmeshes[i]->m_dagPath);
 			MBoundingBox bbox = mesh.boundingBox();
+			if (params.exportWorldCoords)
+				bbox.transformUsing(params.loadedSubmeshes[i]->m_dagPath.inclusiveMatrix());
 			params.loadedSubmeshes[i]->m_boundingBox.expand(bbox);
 		}
 		return key;

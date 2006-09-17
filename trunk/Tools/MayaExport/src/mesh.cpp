@@ -879,7 +879,7 @@ namespace OgreMayaExporter
 	// Build shared geometry
 	MStatus Mesh::buildSharedGeometry(const MDagPath &meshDag,ParamList& params)
 	{
-		int i,k;
+		int i,j,k;
 		std::cout << "Create list of shared vertices\n";
 		std::cout.flush();
 		// save a new entry in the shared geometry map: we associate the index of the first 
@@ -951,6 +951,19 @@ namespace OgreMayaExporter
 			v.index = vInfo.pointIdx;
 			// add newly created vertex to vertices list
 			m_sharedGeom.vertices.push_back(v);
+		}
+		// Make sure all vertices have the same number of texture coordinates
+		for (i=0; i<m_sharedGeom.vertices.size(); i++)
+		{
+			vertex* pV = &m_sharedGeom.vertices[i];
+			for (j=pV->texcoords.size(); j<m_uvsets.size(); j++)
+			{
+				texcoords newTexCoords;
+				newTexCoords.u = 0;
+				newTexCoords.v = 0;
+				newTexCoords.w = 0;
+				pV->texcoords.push_back(newTexCoords);
+			}
 		}
 		// save number of vertices referring to this mesh dag in the dag path map
 		di.numVertices = m_sharedGeom.vertices.size() - di.offset;
@@ -1230,7 +1243,7 @@ namespace OgreMayaExporter
 			bbox.merge(newbbox);
 		}
 		// Define mesh bounds
-		pMesh->_setBounds(bbox,true);
+		pMesh->_setBounds(bbox,false);
 		// Build edges list
 		if (params.buildEdges)
 		{

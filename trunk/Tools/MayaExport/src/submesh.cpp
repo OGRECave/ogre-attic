@@ -65,7 +65,8 @@ namespace OgreMayaExporter
 		plug.connectedTo(srcplugarray,true,false,&stat);
 		for (i=0; i<srcplugarray.length() && !foundShader; i++)
 		{
-			if (srcplugarray[i].node().hasFn(MFn::kLambert) || srcplugarray[i].node().hasFn(MFn::kSurfaceShader) )
+			if (srcplugarray[i].node().hasFn(MFn::kLambert) || srcplugarray[i].node().hasFn(MFn::kSurfaceShader) || 
+				srcplugarray[i].node().hasFn(MFn::kPluginHwShaderNode) )
 			{
 				pShader = new MFnDependencyNode(srcplugarray[i].node());
 				foundShader = true;
@@ -238,9 +239,8 @@ namespace OgreMayaExporter
 		max = max * params.lum;
 		MBoundingBox bbox(min,max);
 		m_boundingBox = bbox;
-		m_boundingBox.transformUsing(dag.inclusiveMatrix());
-		MPoint min1 = m_boundingBox.min();
-		MPoint max1 = m_boundingBox.max();
+		if (params.exportWorldCoords)
+			m_boundingBox.transformUsing(dag.inclusiveMatrix());
 		// add submesh pointer to parameters list
 		params.loadedSubmeshes.push_back(this);
 
@@ -290,6 +290,8 @@ namespace OgreMayaExporter
 		min = min * params.lum;
 		max = max * params.lum;
 		MBoundingBox bbox(min,max);
+		if (params.exportWorldCoords)
+			bbox.transformUsing(m_dagPath.inclusiveMatrix());
 		m_boundingBox.expand(bbox);
 		// keyframe successfully loaded
 		return MS::kSuccess;
