@@ -19,6 +19,33 @@ LGPL like the rest of the engine.
 
 
 /**********************************************************************
+OS X Specific Resource Location Finding
+**********************************************************************/
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+
+Ogre::String bundlePath()
+{
+    char path[1024];
+    CFBundleRef mainBundle = CFBundleGetMainBundle();
+    assert( mainBundle );
+    
+    CFURLRef mainBundleURL = CFBundleCopyBundleURL( mainBundle);
+    assert( mainBundleURL);
+    
+    CFStringRef cfStringRef = CFURLCopyFileSystemPath( mainBundleURL, kCFURLPOSIXPathStyle);
+    assert( cfStringRef);
+    
+    CFStringGetCString( cfStringRef, path, 1024, kCFStringEncodingASCII);
+    
+    CFRelease( mainBundleURL);
+    CFRelease( cfStringRef);
+    
+    return Ogre::String( path);
+}
+
+#endif
+
+/**********************************************************************
   Static declarations
 **********************************************************************/
 // Lights
@@ -95,6 +122,10 @@ public:
 /*********************************************************************
     Main Program Entry Point
 ***********************************************************************/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
@@ -122,6 +153,9 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+#ifdef __cplusplus
+}
+#endif
 
 /*************************************************************************
 	                    OceanDemo Methods
@@ -154,7 +188,16 @@ void OceanDemo::go(void)
 //--------------------------------------------------------------------------
 bool OceanDemo::setup(void)
 {
-    mRoot = new Ogre::Root();
+	#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+        Ogre::String mResourcePath;
+        mResourcePath = bundlePath() + "/Contents/Resources/";
+        mRoot = new Ogre::Root(mResourcePath + "plugins.cfg", 
+                         mResourcePath + "ogre.cfg", mResourcePath + "Ogre.log");
+    #else
+        
+        mRoot = new Ogre::Root();
+        
+    #endif
 
     setupResources();
     bool carryOn = configure();
@@ -239,7 +282,14 @@ void OceanDemo::setupResources(void)
 {
     // Load resource paths from config file
     Ogre::ConfigFile cf;
-    cf.load("resources.cfg");
+	
+    #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+        Ogre::String mResourcePath;
+        mResourcePath = bundlePath() + "/Contents/Resources/";
+        cf.load(mResourcePath + "resources.cfg");
+    #else
+        cf.load("resources.cfg");
+    #endif
 
     // Go through all sections & settings in the file
     Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
@@ -441,9 +491,9 @@ void OceanDemo::doErrorBox(const char* text)
 		// create frame window for box
 		FrameWindow* fwnd = (FrameWindow*)winMgr.createWindow("TaharezLook/FrameWindow", "ErrorBox");
 		root->addChildWindow(fwnd);
-		fwnd->setPosition(Point(0.25, 0.25f));
-		fwnd->setMaximumSize(Size(1.0f, 1.0f));
-		fwnd->setSize(Size(0.5f, 0.5f));
+		fwnd->setPosition(CEGUI::Point(0.25, 0.25f));
+		fwnd->setMaximumSize(CEGUI::Size(1.0f, 1.0f));
+		fwnd->setSize(CEGUI::Size(0.5f, 0.5f));
 		fwnd->setText("CEGUI Demo - Error!");
 		fwnd->setDragMovingEnabled(false);
 		fwnd->setSizingEnabled(false);
@@ -453,8 +503,8 @@ void OceanDemo::doErrorBox(const char* text)
 		// create error text message
 		StaticText* msg = (StaticText*)winMgr.createWindow("TaharezLook/StaticText", "ErrorBox/Message");
 		fwnd->addChildWindow(msg);
-		msg->setPosition(Point(0.1f, 0.1f));
-		msg->setSize(Size(0.8f, 0.5f));
+		msg->setPosition(CEGUI::Point(0.1f, 0.1f));
+		msg->setSize(CEGUI::Size(0.8f, 0.5f));
 		msg->setVerticalFormatting(StaticText::VertCentred);
 		msg->setHorizontalFormatting(StaticText::HorzCentred);
 		msg->setBackgroundEnabled(false);
@@ -463,8 +513,8 @@ void OceanDemo::doErrorBox(const char* text)
 		// create ok button
 		PushButton* btn = (PushButton*)winMgr.createWindow("TaharezLook/Button", "ErrorBox/OkButton");
 		fwnd->addChildWindow(btn);
-		btn->setPosition(Point(0.3f, 0.80f));
-		btn->setSize(Size(0.4f, 0.1f));
+		btn->setPosition(CEGUI::Point(0.3f, 0.80f));
+		btn->setSize(CEGUI::Size(0.4f, 0.1f));
 		btn->setText("Okay!");
 
 		// subscribe event
@@ -633,15 +683,15 @@ void OceanDemo::configureShaderControls(void)
 							// add to Shader control window
 							controlWindow->addChildWindow( activeTextWidget );
 							// set position based on its index
-							activeTextWidget->setPosition(Point(TEXTWIDGET_XPOS, WIDGET_YSTART + TEXTWIDGET_YADJUST + WIDGET_YOFFSET * float(i)));
+							activeTextWidget->setPosition(CEGUI::Point(TEXTWIDGET_XPOS, WIDGET_YSTART + TEXTWIDGET_YADJUST + WIDGET_YOFFSET * float(i)));
 							activeTextWidget->setVerticalFormatting(StaticText::TopAligned);
 							activeTextWidget->setHorizontalFormatting(StaticText::RightAligned);
 							activeTextWidget->setFrameEnabled(false);
 							activeTextWidget->setInheritsAlpha(false);
 							activeTextWidget->setBackgroundEnabled(false);
-							activeTextWidget->setMaximumSize( TEXTWIDGET_SIZE );
-							activeTextWidget->setMinimumSize( TEXTWIDGET_SIZE );
-							activeTextWidget->setSize( TEXTWIDGET_SIZE );
+							activeTextWidget->setMaximumSize( CEGUI::TEXTWIDGET_SIZE );
+							activeTextWidget->setMinimumSize( CEGUI::TEXTWIDGET_SIZE );
+							activeTextWidget->setSize( CEGUI::TEXTWIDGET_SIZE );
 						}
 
 						// set TextWidget text to control name
@@ -661,15 +711,15 @@ void OceanDemo::configureShaderControls(void)
 							// add to Shader control window
 							controlWindow->addChildWindow( activeNumberWidget );
 							// set position based on its index
-							activeNumberWidget->setPosition(Point(NUMBERWIDGET_XPOS, WIDGET_YSTART + TEXTWIDGET_YADJUST + WIDGET_YOFFSET * float(i)));
+							activeNumberWidget->setPosition(CEGUI::Point(NUMBERWIDGET_XPOS, WIDGET_YSTART + TEXTWIDGET_YADJUST + WIDGET_YOFFSET * float(i)));
 							activeNumberWidget->setHorizontalFormatting(StaticText::RightAligned);
 							activeNumberWidget->setVerticalFormatting(StaticText::TopAligned);
 							activeNumberWidget->setFrameEnabled(false);
 							activeNumberWidget->setInheritsAlpha(false);
 							activeNumberWidget->setBackgroundEnabled(false);
-							activeNumberWidget->setMaximumSize( NUMBERWIDGET_SIZE );
-							activeNumberWidget->setMinimumSize( NUMBERWIDGET_SIZE );
-							activeNumberWidget->setSize( NUMBERWIDGET_SIZE );
+							activeNumberWidget->setMaximumSize( CEGUI::NUMBERWIDGET_SIZE );
+							activeNumberWidget->setMinimumSize(CEGUI:: NUMBERWIDGET_SIZE );
+							activeNumberWidget->setSize( CEGUI::NUMBERWIDGET_SIZE );
 						}
 						// make TextWidget visible
 						activeNumberWidget->show();
@@ -685,11 +735,11 @@ void OceanDemo::configureShaderControls(void)
 							// add to Shader control window
 							controlWindow->addChildWindow( activeScrollWidget );
 							// set position based on its index
-							activeScrollWidget->setPosition(Point(SCROLLWIDGET_XPOS, WIDGET_YSTART + WIDGET_YOFFSET * float(i)));
+							activeScrollWidget->setPosition(CEGUI::Point(SCROLLWIDGET_XPOS, WIDGET_YSTART + WIDGET_YOFFSET * float(i)));
 							activeScrollWidget->setInheritsAlpha(false);
-							activeScrollWidget->setMaximumSize( SCROLLWIDGET_SIZE );
-							activeScrollWidget->setMinimumSize( SCROLLWIDGET_SIZE );
-							activeScrollWidget->setSize( SCROLLWIDGET_SIZE );
+							activeScrollWidget->setMaximumSize( CEGUI::SCROLLWIDGET_SIZE );
+							activeScrollWidget->setMinimumSize( CEGUI::SCROLLWIDGET_SIZE );
+							activeScrollWidget->setSize( CEGUI::SCROLLWIDGET_SIZE );
                             activeScrollWidget->setID( static_cast<CEGUI::uint>(i) );
 							activeScrollWidget->setOverlapSize(0);
 							// wire up ScrollWidget position changed event to handleShaderControl
@@ -889,9 +939,9 @@ bool OceanDemo::handleScrollControlsWindow(const CEGUI::EventArgs& e)
 	for (size_t i = 0; i < controlCount; i++)
 	{
 		float ypos = WIDGET_YSTART + WIDGET_YOFFSET * float(i) - scrollval;
-		mShaderControlContainer[i].TextWidget->setPosition(Point ( TEXTWIDGET_XPOS, ypos + TEXTWIDGET_YADJUST));
-		mShaderControlContainer[i].NumberWidget->setPosition(Point ( NUMBERWIDGET_XPOS, ypos + TEXTWIDGET_YADJUST));
-		mShaderControlContainer[i].ScrollWidget->setPosition(Point ( SCROLLWIDGET_XPOS, ypos ));
+		mShaderControlContainer[i].TextWidget->setPosition(CEGUI::Point ( TEXTWIDGET_XPOS, ypos + TEXTWIDGET_YADJUST));
+		mShaderControlContainer[i].NumberWidget->setPosition(CEGUI::Point ( NUMBERWIDGET_XPOS, ypos + TEXTWIDGET_YADJUST));
+		mShaderControlContainer[i].ScrollWidget->setPosition(CEGUI::Point ( SCROLLWIDGET_XPOS, ypos ));
 	}
 
     return true;

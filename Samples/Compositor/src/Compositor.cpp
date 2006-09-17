@@ -37,6 +37,33 @@ LGPL like the rest of the engine.
 #include "Compositor.h"
 #include "CompositorDemo_FrameListener.h"
 
+/**********************************************************************
+OS X Specific Resource Location Finding
+**********************************************************************/
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+
+Ogre::String bundlePath()
+{
+    char path[1024];
+    CFBundleRef mainBundle = CFBundleGetMainBundle();
+    assert(mainBundle);
+    
+    CFURLRef mainBundleURL = CFBundleCopyBundleURL( mainBundle);
+    assert(mainBundleURL);
+    
+    CFStringRef cfStringRef = CFURLCopyFileSystemPath( mainBundleURL, kCFURLPOSIXPathStyle);
+    assert(cfStringRef);
+    
+    CFStringGetCString(cfStringRef, path, 1024, kCFStringEncodingASCII);
+    
+    CFRelease(mainBundleURL);
+    CFRelease(cfStringRef);
+    
+    return Ogre::String(path);
+}
+
+#endif
+
 /*************************************************************************
 	                    CompositorDemo Methods
 *************************************************************************/
@@ -61,7 +88,16 @@ LGPL like the rest of the engine.
 //--------------------------------------------------------------------------
     bool CompositorDemo::setup(void)
     {
-        mRoot = new Ogre::Root();
+		#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+            Ogre::String mResourcePath;
+            mResourcePath = bundlePath() + "/Contents/Resources/";
+            mRoot = new Ogre::Root(mResourcePath + "plugins.cfg", 
+                               mResourcePath + "ogre.cfg", mResourcePath + "Ogre.log");
+        #else
+		
+			mRoot = new Ogre::Root();
+		
+		#endif
 
         setupResources();
         bool carryOn = configure();
@@ -144,7 +180,16 @@ void CompositorDemo::createViewports(void)
     {
         // Load resource paths from config file
         Ogre::ConfigFile cf;
-        cf.load("resources.cfg");
+		
+		#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+                Ogre::String mResourcePath;
+                mResourcePath = bundlePath() + "/Contents/Resources/";
+                cf.load(mResourcePath + "resources.cfg");
+        #else
+		
+			cf.load("resources.cfg");
+		
+		#endif
 
         // Go through all sections & settings in the file
         Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
