@@ -107,6 +107,7 @@ namespace Ogre {
 				}
 			}
 		}
+		mIsInSceneGraph = inGraph;
 	}
 
 }
