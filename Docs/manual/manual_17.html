@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on July 22 2006 by texi2html 1.66 -->
+<!-- Created on September 17 2006 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -12,10 +12,10 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.2.2 ('Dagon'): Texture Units</TITLE>
+<TITLE>OGRE Manual v1.2.3 ('Dagon'): Texture Units</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.2.2 ('Dagon'): Texture Units">
-<META NAME="keywords" CONTENT="OGRE Manual v1.2.2 ('Dagon'): Texture Units">
+<META NAME="description" CONTENT="OGRE Manual v1.2.3 ('Dagon'): Texture Units">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.3 ('Dagon'): Texture Units">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.66">
@@ -271,7 +271,7 @@ This format gives you complete control over the minification, magnification, and
 <H3> max_anisotropy </H3>
 <!--docid::SEC72::-->
 
-Sets the maximum degree of anisotropy that the renderer will try to compensate for when filtering textures. The degree of anisotropy is the ratio between the height of the texture segment visible in a screen space region versus the width - so for example a floor plane, which stretches on into the distance and thus the vertical texture coordinates change much faster than the horizontal ones, has a higher anisotropy than a wall which is facing you head on (which has an anisotropy of 1 if your line of sight is perfectly perpendicular to it). You should set the max_anisotropy value to something greater than 1 to begin compensating; higher values can compensate for more acute angles.<BR><BR>
+Sets the maximum degree of anisotropy that the renderer will try to compensate for when filtering textures. The degree of anisotropy is the ratio between the height of the texture segment visible in a screen space region versus the width - so for example a floor plane, which stretches on into the distance and thus the vertical texture coordinates change much faster than the horizontal ones, has a higher anisotropy than a wall which is facing you head on (which has an anisotropy of 1 if your line of sight is perfectly perpendicular to it). You should set the max_anisotropy value to something greater than 1 to begin compensating; higher values can compensate for more acute angles. The maximum value is determined by the hardware, but it is usually 8 or 16. <BR><BR>
 In order for this to be used, you have to set the minification and/or the magnification <A HREF="manual_17.html#SEC71">filtering</A> option on this texture to anisotropic.
 
 Format: max_anisotropy &lt;value&gt;<BR>
@@ -544,7 +544,7 @@ The indexes of the 4x4 matrix value above are expressed as m&lt;row&gt;&lt;col&g
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>July 22 2006</I>
+by <I>steve</I> on <I>September 17 2006</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 
