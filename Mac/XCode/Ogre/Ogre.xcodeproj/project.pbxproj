@@ -696,7 +696,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 00AF55F90A93225300B4139D /* Copy to Library/Frameworks */;
+			remoteGlobalIDString = 00AF55F90A93225300B4139D;
 			remoteInfo = "Copy to Library/Frameworks";
 		};
 		00AF55FD0A93226800B4139D /* PBXContainerItemProxy */ = {
@@ -3591,6 +3591,8 @@
 					IL,
 				);
 				PRODUCT_NAME = Ogre;
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = debugging;
 				USER_HEADER_SEARCH_PATHS = /Library/Frameworks/IL.framework/Headers;
 				WRAPPER_EXTENSION = framework;
 				ZERO_LINK = NO;
@@ -3712,6 +3714,8 @@
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = RenderSystem_GL;
 				SECTORDER_FLAGS = "";
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = debugging;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
@@ -3824,6 +3828,8 @@
 				PRODUCT_NAME = OgrePlatform;
 				SECTORDER_FLAGS = "";
 				SKIP_INSTALL = NO;
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = debugging;
 				USER_HEADER_SEARCH_PATHS = /Library/Frameworks/zziplib.framework/Headers;
 				WARNING_CFLAGS = (
 					"-Wmost",
@@ -3931,6 +3937,8 @@
 				PRODUCT_NAME = Plugin_ParticleFX;
 				SECTORDER_FLAGS = "";
 				SKIP_INSTALL = NO;
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = debugging;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
@@ -4036,6 +4044,8 @@
 				PRODUCT_NAME = Plugin_BSPSceneManager;
 				SECTORDER_FLAGS = "";
 				SKIP_INSTALL = NO;
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = debugging;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
@@ -4135,6 +4145,8 @@
 				PRODUCT_NAME = Plugin_OctreeSceneManager;
 				SECTORDER_FLAGS = "";
 				SKIP_INSTALL = NO;
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = debugging;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
@@ -4245,6 +4257,8 @@
 				PRODUCT_NAME = Plugin_CgProgramManager;
 				SECTORDER_FLAGS = "";
 				SKIP_INSTALL = NO;
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = debugging;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
@@ -4421,6 +4435,8 @@
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = Plugin_EXRCodec;
 				SECTORDER_FLAGS = "";
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = debugging;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
@@ -4526,6 +4542,8 @@
 				PREBINDING = NO;
 				PRODUCT_NAME = OctreeSceneManager;
 				SECTORDER_FLAGS = "";
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = debugging;
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",

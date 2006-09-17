@@ -1,6 +1,6 @@
 /* Mac/Project builder specific configuration file */
 
-/* Big endian machine? */
+/* Big endian machine */
 #if defined(__BIG_ENDIAN__)
 	#define CONFIG_BIG_ENDIAN 
 #endif
@@ -52,9 +52,6 @@
 
 /* vsnprintf */
 #define HAVE_VSNPRINTF 
-
-/* Disable Multitexture Support */
-#define OGRE_SDL_DISABLE_MULTITEXTURING 
 
 /* Name of package */
 #define PACKAGE "OGRE"
