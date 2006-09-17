@@ -1,7 +1,9 @@
 /* Mac/Project builder specific configuration file */
 
-/* Big endian machine */
-#define CONFIG_BIG_ENDIAN 
+/* Big endian machine? */
+#if defined(__BIG_ENDIAN__)
+	#define CONFIG_BIG_ENDIAN 
+#endif
 
 /* Little endian machine */
 /* #undef CONFIG_LITTLE_ENDIAN */
