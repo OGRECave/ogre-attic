@@ -313,7 +313,7 @@ vertex_program CustomShadows/SimpleShaderVP/Cg cg
 {
     source SimpleShaderVP.cg
     entry_point main
-    profile vs_2_0 arbvp1
+    profiles vs_2_0 arbvp1
 
     default_params
     {
@@ -326,7 +326,7 @@ fragment_program CustomShadows/SimpleShaderFP/Cg cg
 {
     source SimpleShaderFP.cg
     entry_point main
-    profile ps_2_0 arbfp1
+    profiles ps_2_0 arbfp1
 
     default_params
     {
