@@ -1,4 +1,31 @@
 #!/bin/bash
+
+# define error codes
+E_NOARGS=65
+E_BADARG=66
+
+# determine the project file extensions to use for each SDK 
+SDKTYPES="[VC7, VC8, CBMINGW, CBMINGW_STLP]"
+case "$1" in
+# if no parameter was passed then exit with usage message
+"") echo "Usage: `basename $0` $SDKTYPES"; exit $E_NOARGS ;;
+
+"CBMINGW") PROJEXT=".cbp" ; RMEXT="_stlp.cbp" ;;
+
+"CBMINGW_STLP") PROJEXT="_stlp.cbp" ; RMEXT= ;;
+
+"VC7") PROJEXT=".vcproj" ; RMEXT="_vc8.vcproj" ;;
+
+"VC8") PROJEXT="_vc8.vcproj" ; RMEXT= ;;
+
+# parameter is not valid so exit with usage message
+*) echo "SDK: $1 not understood."
+   echo  "Usage: `basename $0` $SDKTYPES"; exit $E_BADARG ;;
+
+esac
+
+echo "copying and processing sample scripts for SDK: $1"
+
 rm -R samples/refapp
 rm -R samples/scripts
 rm -R samples/src
@@ -9,23 +36,19 @@ mkdir samples/refapp/scripts
 mkdir samples/src
 mkdir samples/include
 
-# Do the project files
-/bin/find ../../samples -iname *_stlp.cbp -exec cp \{\} samples/scripts \;
-/bin/find ../../samples -iname *.vcproj -exec cp \{\} samples/scripts \;
-/bin/find ../../samples -iname *_vc8.vcproj.user -exec cp \{\} samples/scripts \;
-cp ../../ReferenceApplication/BspCollision/scripts/*_stlp.cbp samples/scripts
-cp ../../ReferenceApplication/BspCollision/scripts/*.vcproj samples/scripts
-cp ../../ReferenceApplication/BspCollision/scripts/*_vc8.vcproj.user samples/scripts
-cp ../../ReferenceApplication/ReferenceAppLayer/scripts/*_stlp.cbp samples/refapp/scripts
-cp ../../ReferenceApplication/ReferenceAppLayer/scripts/*.vcproj samples/refapp/scripts
-rm samples/scripts/OgreGUIRenderer_stlp.cbp
-rm samples/scripts/OgreGUIRenderer.vcproj
-rm samples/scripts/OgreGUIRenderer_vc8.vcproj
-/bin/find samples/scripts/ -iname *_stlp.cbp -exec sed -i -f altersamples.sed \{\} \;
-/bin/find samples/scripts/ -iname *.vcproj -exec sed -i -f altersamples.sed \{\} \;
-/bin/find samples/scripts/ -iname *_vc8.vcproj.user -exec sed -i -f altersamples.sed \{\} \;
-/bin/find samples/refapp/scripts/ -iname *_stlp.cbp -exec sed -i -f alterrefapp.sed \{\} \;
-/bin/find samples/refapp/scripts/ -iname *.vcproj -exec sed -i -f alterrefapp.sed \{\} \;
+# process the project files but only do the ones required for a specific SDK
+/bin/find ../../samples -iname *$PROJEXT -exec cp \{\} samples/scripts \;
+cp ../../ReferenceApplication/BspCollision/scripts/*$PROJEXT samples/scripts
+cp ../../ReferenceApplication/ReferenceAppLayer/scripts/*$PROJEXT samples/refapp/scripts
+# only proces file deletions if RMEXT was set
+if [ -n "$RMEXT" ]
+then
+ # remove unwanted scripts that got copied over
+ rm samples/scripts/*$RMEXT
+fi
+rm samples/scripts/OgreGUIRenderer$PROJEXT
+/bin/find samples/scripts/ -iname *$PROJEXT -exec sed -i -f altersamples.sed \{\} \;
+/bin/find samples/refapp/scripts/ -iname *$PROJEXT -exec sed -i -f alterrefapp.sed \{\} \;
 
 # Combine the include / src folders; easier to do here than in setup
 /bin/find ../../samples -iname *.cpp -exec cp \{\} samples/src \;

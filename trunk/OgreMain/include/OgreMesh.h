@@ -337,6 +337,11 @@ namespace Ogre {
         */
         void _initAnimationState(AnimationStateSet* animSet);
 
+		/** Refresh an animation set suitable for use with this mesh. 
+		@remarks
+		Only recommended for use inside the engine, not by applications.
+		*/
+		void _refreshAnimationState(AnimationStateSet* animSet);
         /** Assigns a vertex to a bone with a given weight, for skeletal animation. 
         @remarks    
             This method is only valid after calling setSkeletonName.

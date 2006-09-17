@@ -347,6 +347,23 @@ namespace Ogre {
 		// mEdgeListsBuilt and edgeData of mMeshLodUsageList
 		// will up to date on demand. Not copied since internal references, and mesh
 		// data may be altered
+		
+		// Clone vertex animation
+		for (AnimationList::iterator i = mAnimationsList.begin();
+			i != mAnimationsList.end(); ++i)
+		{
+			Animation *newAnim = i->second->clone(i->second->getName());
+			newMesh->mAnimationsList[newName] = newAnim;
+		}
+		// Clone pose list
+		for (PoseList::iterator i = mPoseList.begin(); i != mPoseList.end(); ++i)
+		{
+			Pose* newPose = (*i)->clone();
+			newMesh->mPoseList.push_back(newPose);
+		}
+		newMesh->mSharedVertexDataAnimationType = mSharedVertexDataAnimationType;
+		newMesh->mAnimationTypesDirty = mAnimationTypesDirty;
+
 
         newMesh->load();
         newMesh->touch();
@@ -477,6 +494,35 @@ namespace Ogre {
 		}
 
     }
+	//---------------------------------------------------------------------
+	void Mesh::_refreshAnimationState(AnimationStateSet* animSet)
+	{
+		if (hasSkeleton())
+		{
+			mSkeleton->_refreshAnimationState(animSet);
+		}
+
+		// Merge in any new vertex animations
+		AnimationList::iterator i;
+		for (i = mAnimationsList.begin(); i != mAnimationsList.end(); ++i)
+		{
+			Animation* anim = i->second;
+			// Create animation at time index 0, default params mean this has weight 1 and is disabled
+			String animName = anim->getName();
+			if (!animSet->hasAnimationState(animName))
+			{
+				animSet->createAnimationState(animName, 0.0, anim->getLength());
+			}
+			else
+			{
+				// Update length incase changed
+				AnimationState* animState = animSet->getAnimationState(animName);
+				animState->setLength(anim->getLength());
+				animState->setTimePosition(std::min(anim->getLength(), animState->getTimePosition()));
+			}
+		}
+
+	}
     //-----------------------------------------------------------------------
     void Mesh::_updateCompiledBoneAssignments(void)
     {
@@ -1121,7 +1167,6 @@ namespace Ogre {
         Real            u[3], v[3];
 	    // setup a new 3D texture coord-set buffer for every sub mesh
 	    int nSubMesh = getNumSubMeshes();
-        bool sharedGeometryDone = false;
 	    for (int sm = 0; sm < nSubMesh; sm++)
 	    {
 		    // retrieve buffer pointers
@@ -1153,11 +1198,7 @@ namespace Ogre {
 		    // then, vertices
 		    VertexData *usedVertexData ;
 		    if (pSubMesh->useSharedVertices) {
-                // Don't do shared geometry more than once
-                if (sharedGeometryDone)
-                    continue;
 			    usedVertexData = sharedVertexData;
-                sharedGeometryDone = true;
 		    } else {
 			    usedVertexData = pSubMesh->vertexData;
 		    }

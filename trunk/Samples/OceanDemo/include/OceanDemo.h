@@ -192,7 +192,7 @@ protected:
 
 public:
 	OceanDemo() : mRoot(0), mFrameListener(0), mGUIRenderer(NULL), mGUISystem(0),
-        mCurrentEntity(0), mCurrentMaterial(0), mMouseMovement(mv_CAMERA)
+        mCurrentEntity(0), mCurrentMaterial(0), mActivePass(0), mMouseMovement(mv_CAMERA)
     {
     }
 

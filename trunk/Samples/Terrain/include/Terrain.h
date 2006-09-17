@@ -50,7 +50,6 @@ public:
         RaySceneQueryResult::iterator i = qryResult.begin();
         if (i != qryResult.end() && i->worldFragment)
         {
-            SceneQuery::WorldFragment* wf = i->worldFragment;
             mCamera->setPosition(mCamera->getPosition().x, 
                 i->worldFragment->singleIntersection.y + 10, 
                 mCamera->getPosition().z);

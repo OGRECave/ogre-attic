@@ -62,7 +62,7 @@ namespace Ogre {
 		StringUtil::StrStreamType msg;
 
         msg << "Creating viewport on target '" << target->getName() << "'"
-			<< ", rendering from camera '" << cam->getName() << "'"
+			<< ", rendering from camera '" << (cam != 0 ? cam->getName() : "NULL") << "'"
 			<< ", relative dimensions "	<< std::fixed << std::setprecision(2) 
 			<< "L: " << left << " T: " << top << " W: " << width << " H: " << height
 			<< " ZOrder: " << ZOrder;
@@ -72,7 +72,7 @@ namespace Ogre {
         _updateDimensions();
 
         // notify camera
-        cam->_notifyViewport(this);
+        if(cam) cam->_notifyViewport(this);
     }
     //---------------------------------------------------------------------
     Viewport::~Viewport()
@@ -106,14 +106,14 @@ namespace Ogre {
         // This allows cameras to be used to render to many viewports,
         // which can have their own dimensions and aspect ratios.
 
-        if (mCamera->getAutoAspectRatio()) 
+        if (mCamera && mCamera->getAutoAspectRatio()) 
         {
             mCamera->setAspectRatio((Real) mActWidth / (Real) mActHeight);
         }
 
 		StringUtil::StrStreamType msg;
 
-        msg << "Viewport for camera '" << mCamera->getName() << "'"
+		msg << "Viewport for camera '" << (mCamera != 0 ? mCamera->getName() : "NULL") << "'"
 			<< ", actual dimensions "	<< std::fixed << std::setprecision(2) 
 			<< "L: " << mActLeft << " T: " << mActTop << " W: " << mActWidth << " H: " << mActHeight;
 
@@ -232,13 +232,13 @@ namespace Ogre {
     //---------------------------------------------------------------------
     unsigned int Viewport::_getNumRenderedFaces(void) const
     {
-        return mCamera->_getNumRenderedFaces();
+		return mCamera ? mCamera->_getNumRenderedFaces() : 0;
     }
     //---------------------------------------------------------------------
     void Viewport::setCamera(Camera* cam)
     {
         mCamera = cam;
-
+		if(cam) mCamera->_notifyViewport(this);
     }
     //---------------------------------------------------------------------
     void Viewport::setOverlaysEnabled(bool enabled)

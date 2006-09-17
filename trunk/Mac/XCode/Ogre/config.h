@@ -1,7 +1,9 @@
 /* Mac/Project builder specific configuration file */
 
 /* Big endian machine */
-#define CONFIG_BIG_ENDIAN 
+#if defined(__BIG_ENDIAN__)
+	#define CONFIG_BIG_ENDIAN 
+#endif
 
 /* Little endian machine */
 /* #undef CONFIG_LITTLE_ENDIAN */
@@ -51,9 +53,6 @@
 /* vsnprintf */
 #define HAVE_VSNPRINTF 
 
-/* Disable Multitexture Support */
-#define OGRE_SDL_DISABLE_MULTITEXTURING 
-
 /* Name of package */
 #define PACKAGE "OGRE"
 
@@ -64,16 +63,16 @@
 #define PACKAGE_NAME "OGRE"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "OGRE 0.14.1"
+#define PACKAGE_STRING "OGRE 1.2.3"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "ogre"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.14.1"
+#define PACKAGE_VERSION "1.2.3"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "0.14.1"
+#define VERSION "1.2.3"
