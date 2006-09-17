@@ -41,6 +41,8 @@ mkdir samples/include
 if [[ "$1" == "VC8" ]] 
 then
 	/bin/find ../../samples -iname *_vc8.vcproj.user -exec cp \{\} samples/scripts \;
+	cp ../../ReferenceApplication/BspCollision/scripts/*_vc8.vcproj.user samples/scripts
+	/bin/find samples/scripts/ -iname *_vc8.vcproj.user -exec sed -i -f altersamples.sed \{\} \;
 fi
 cp ../../ReferenceApplication/BspCollision/scripts/*$PROJEXT samples/scripts
 cp ../../ReferenceApplication/ReferenceAppLayer/scripts/*$PROJEXT samples/refapp/scripts
