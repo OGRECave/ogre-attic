@@ -184,6 +184,16 @@ namespace Ogre {
 
     }
 	//---------------------------------------------------------------------
+	void AnimationTrack::populateClone(AnimationTrack* clone) const
+	{
+		for (KeyFrameList::const_iterator i = mKeyFrames.begin();
+			i != mKeyFrames.end(); ++i)
+		{
+			KeyFrame* clonekf = (*i)->_clone(clone);
+			clone->mKeyFrames.push_back(clonekf);
+		}
+	}
+	//---------------------------------------------------------------------
 	//---------------------------------------------------------------------
 	// Numeric specialisations
 	//---------------------------------------------------------------------
@@ -272,6 +282,15 @@ namespace Ogre {
 	NumericKeyFrame* NumericAnimationTrack::getNumericKeyFrame(unsigned short index) const
 	{
 		return static_cast<NumericKeyFrame*>(getKeyFrame(index));
+	}
+    //---------------------------------------------------------------------
+	NumericAnimationTrack* NumericAnimationTrack::_clone(Animation* newParent) const
+	{
+		NumericAnimationTrack* newTrack = 
+			newParent->createNumericTrack(mHandle);
+		newTrack->mTargetAnim = mTargetAnim;
+		populateClone(newTrack);
+		return newTrack;
 	}
     //---------------------------------------------------------------------
 	//---------------------------------------------------------------------
@@ -599,6 +618,15 @@ namespace Ogre {
 	{
 		return static_cast<TransformKeyFrame*>(getKeyFrame(index));
 	}
+    //---------------------------------------------------------------------
+	NodeAnimationTrack* NodeAnimationTrack::_clone(Animation* newParent) const
+	{
+		NodeAnimationTrack* newTrack = 
+			newParent->createNodeTrack(mHandle, mTargetNode);
+		newTrack->mUseShortestRotationPath = mUseShortestRotationPath;
+		populateClone(newTrack);
+		return newTrack;
+	}	
 	//--------------------------------------------------------------------------
 	VertexAnimationTrack::VertexAnimationTrack(Animation* parent,
 		unsigned short handle, VertexAnimationType animType)
@@ -860,6 +888,15 @@ namespace Ogre {
 
 
 	}
+    //---------------------------------------------------------------------
+	VertexAnimationTrack* VertexAnimationTrack::_clone(Animation* newParent) const
+	{
+		VertexAnimationTrack* newTrack = 
+			newParent->createVertexTrack(mHandle, mAnimationType);
+		newTrack->mTargetMode = mTargetMode;
+		populateClone(newTrack);
+		return newTrack;
+	}	
 
 
 }

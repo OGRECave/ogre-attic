@@ -40,6 +40,11 @@ namespace Ogre
     {
     }
 	//---------------------------------------------------------------------
+	KeyFrame* KeyFrame::_clone(AnimationTrack* newParent) const
+	{
+		return new KeyFrame(newParent, mTime);
+	}
+	//---------------------------------------------------------------------
 	NumericKeyFrame::NumericKeyFrame(const AnimationTrack* parent, Real time)
 		:KeyFrame(parent, time)
 	{
@@ -53,6 +58,13 @@ namespace Ogre
 	void NumericKeyFrame::setValue(const AnyNumeric& val)
 	{
 		mValue = val;
+	}
+    //---------------------------------------------------------------------
+	KeyFrame* NumericKeyFrame::_clone(AnimationTrack* newParent) const
+	{
+		NumericKeyFrame* newKf = new NumericKeyFrame(newParent, mTime);
+		newKf->mValue = mValue;
+		return newKf;
 	}
     //---------------------------------------------------------------------
 	TransformKeyFrame::TransformKeyFrame(const AnimationTrack* parent, Real time)
@@ -96,6 +108,15 @@ namespace Ogre
     {
         return mRotate;
     }
+    //---------------------------------------------------------------------
+	KeyFrame* TransformKeyFrame::_clone(AnimationTrack* newParent) const
+	{
+		TransformKeyFrame* newKf = new TransformKeyFrame(newParent, mTime);
+		newKf->mTranslate = mTranslate;
+		newKf->mScale = mScale;
+		newKf->mRotate = mRotate;
+		return newKf;
+	}
 	//---------------------------------------------------------------------
 	VertexMorphKeyFrame::VertexMorphKeyFrame(const AnimationTrack* parent, Real time)
 		: KeyFrame(parent, time)
@@ -112,6 +133,13 @@ namespace Ogre
 	{
 		return mBuffer;
 	}
+    //---------------------------------------------------------------------
+	KeyFrame* VertexMorphKeyFrame::_clone(AnimationTrack* newParent) const
+	{
+		VertexMorphKeyFrame* newKf = new VertexMorphKeyFrame(newParent, mTime);
+		newKf->mBuffer = mBuffer;
+		return newKf;
+	}	
 	//---------------------------------------------------------------------
 	VertexPoseKeyFrame::VertexPoseKeyFrame(const AnimationTrack* parent, Real time)
 		:KeyFrame(parent, time)
@@ -172,6 +200,14 @@ namespace Ogre
 	{
 		return ConstPoseRefIterator(mPoseRefs.begin(), mPoseRefs.end());
 	}
+    //---------------------------------------------------------------------
+	KeyFrame* VertexPoseKeyFrame::_clone(AnimationTrack* newParent) const
+	{
+		VertexPoseKeyFrame* newKf = new VertexPoseKeyFrame(newParent, mTime);
+		// By-value copy ok
+		newKf->mPoseRefs = mPoseRefs;
+		return newKf;
+	}	
 	//---------------------------------------------------------------------
 
 

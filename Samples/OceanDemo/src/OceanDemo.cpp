@@ -19,6 +19,33 @@ LGPL like the rest of the engine.
 
 
 /**********************************************************************
+OS X Specific Resource Location Finding
+**********************************************************************/
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+
+Ogre::String bundlePath()
+{
+    char path[1024];
+    CFBundleRef mainBundle = CFBundleGetMainBundle();
+    assert( mainBundle );
+    
+    CFURLRef mainBundleURL = CFBundleCopyBundleURL( mainBundle);
+    assert( mainBundleURL);
+    
+    CFStringRef cfStringRef = CFURLCopyFileSystemPath( mainBundleURL, kCFURLPOSIXPathStyle);
+    assert( cfStringRef);
+    
+    CFStringGetCString( cfStringRef, path, 1024, kCFStringEncodingASCII);
+    
+    CFRelease( mainBundleURL);
+    CFRelease( cfStringRef);
+    
+    return Ogre::String( path);
+}
+
+#endif
+
+/**********************************************************************
   Static declarations
 **********************************************************************/
 // Lights
@@ -95,6 +122,10 @@ public:
 /*********************************************************************
     Main Program Entry Point
 ***********************************************************************/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
@@ -122,6 +153,9 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+#ifdef __cplusplus
+}
+#endif
 
 /*************************************************************************
 	                    OceanDemo Methods
@@ -154,9 +188,18 @@ void OceanDemo::go(void)
 //--------------------------------------------------------------------------
 bool OceanDemo::setup(void)
 {
-    bool setupCompleted = false;
-    
-    mRoot = new Ogre::Root();
+	bool setupCompleted = false;
+	
+	#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+        Ogre::String mResourcePath;
+        mResourcePath = bundlePath() + "/Contents/Resources/";
+        mRoot = new Ogre::Root(mResourcePath + "plugins.cfg", 
+                         mResourcePath + "ogre.cfg", mResourcePath + "Ogre.log");
+    #else
+        
+        mRoot = new Ogre::Root();
+        
+    #endif
 
     setupResources();
 
@@ -246,7 +289,14 @@ void OceanDemo::setupResources(void)
 {
     // Load resource paths from config file
     Ogre::ConfigFile cf;
-    cf.load("resources.cfg");
+	
+    #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+        Ogre::String mResourcePath;
+        mResourcePath = bundlePath() + "/Contents/Resources/";
+        cf.load(mResourcePath + "resources.cfg");
+    #else
+        cf.load("resources.cfg");
+    #endif
 
     // Go through all sections & settings in the file
     Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
@@ -601,7 +651,7 @@ void OceanDemo::configureShaderControls(void)
     if (mMaterialControlsContainer.empty()) return;
 
     mActiveMaterial = Ogre::MaterialManager::getSingleton().getByName( mMaterialControlsContainer[mCurrentMaterial].getMaterialName() );
-    if(!mActiveMaterial.isNull())
+    if(!mActiveMaterial.isNull() && mActiveMaterial->getNumSupportedTechniques())
 	{
         Ogre::Technique* currentTechnique = mActiveMaterial->getSupportedTechnique(0);
 		if(currentTechnique)

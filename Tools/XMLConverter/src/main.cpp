@@ -410,7 +410,6 @@ void XMLToBinary(XmlOptions opts)
             }
             // Dedicated geometry
             Mesh::SubMeshIterator smIt = newMesh->getSubMeshIterator();
-            unsigned short idx = 0;
             while (smIt.hasMoreElements())
             {
                 SubMesh* sm = smIt.getNext();

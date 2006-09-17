@@ -4,14 +4,19 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "OGRE SDK"
-!define PRODUCT_VERSION "1.2.2"
+!define PRODUCT_VERSION "1.2.3"
 !define PRODUCT_PUBLISHER "The OGRE Team"
 !define PRODUCT_WEB_SITE "http://www.ogre3d.org"
 !ifdef MINGW
-  !define WIKI_LINK "http://www.ogre3d.org/wiki/index.php/CodeBlocks_MingW_STLPort"
+  !ifdef STLPORT
+    !define WIKI_LINK "http://www.ogre3d.org/wiki/index.php/CodeBlocks_MingW_STLPort"
+  !else
+    !define WIKI_LINK "http://www.ogre3d.org/wiki/index.php/Codeblocks_and_MinGW"
+  !endif
 !else
   !define WIKI_LINK "http://www.ogre3d.org/wiki/index.php/Installing_An_SDK"
 !endif
+
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 !define PRODUCT_STARTMENU_REGVAL "NSIS:StartMenuDir"

@@ -160,6 +160,10 @@ namespace Ogre
 		/// Create a keyframe implementation - must be overridden
 		virtual KeyFrame* createKeyFrameImpl(Real time) = 0;
 
+		/// Internal method for clone implementation
+		virtual void populateClone(AnimationTrack* clone) const;
+		
+
 
     };
 
@@ -210,6 +214,9 @@ namespace Ogre
 
 		/** Returns the KeyFrame at the specified index. */
 		NumericKeyFrame* getNumericKeyFrame(unsigned short index) const;
+
+		/** Clone this track (internal use only) */
+		NumericAnimationTrack* _clone(Animation* newParent) const;
 
 
 	protected:
@@ -279,6 +286,9 @@ namespace Ogre
 		/** Optimise the current track by removing any duplicate keyframes. */
 		virtual void optimise(void);
 
+		/** Clone this track (internal use only) */
+		NodeAnimationTrack* _clone(Animation* newParent) const;
+		
 	protected:
 		/// Specialised keyframe creation
 		KeyFrame* createKeyFrameImpl(Real time);
@@ -443,6 +453,8 @@ namespace Ogre
 		/** Optimise the current track by removing any duplicate keyframes. */
 		virtual void optimise(void);
 
+		/** Clone this track (internal use only) */
+		VertexAnimationTrack* _clone(Animation* newParent) const;
 
 	protected:
 		/// Animation type

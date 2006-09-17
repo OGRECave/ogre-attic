@@ -101,6 +101,14 @@ namespace Ogre {
 		}
 		return mBuffer;
 	}
+	//---------------------------------------------------------------------
+	Pose* Pose::clone(void) const
+	{
+		Pose* newPose = new Pose(mTarget, mName);
+		newPose->mVertexOffsetMap = mVertexOffsetMap;
+		// Allow buffer to recreate itself, contents may change anyway
+		return newPose;
+	}
 
 }
 

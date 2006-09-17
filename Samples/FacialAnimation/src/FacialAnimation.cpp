@@ -443,6 +443,10 @@ protected:
 
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
@@ -471,4 +475,6 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-
+#ifdef __cplusplus
+}
+#endif

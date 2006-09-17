@@ -735,6 +735,11 @@ namespace Ogre {
                         newPass->setDiffuse(0, 0, 0, newPass->getDiffuse().a);  // Preserving alpha
                         newPass->setSpecular(ColourValue::Black);
 
+                        // Calculate hash value for new pass, because we are compiling
+                        // illumination passes on demand, which will loss hash calculate
+                        // before it add to render queue first time.
+                        newPass->_recalculateHash();
+
                         iPass = new IlluminationPass();
                         iPass->destroyOnShutdown = true;
                         iPass->originalPass = p;
@@ -752,6 +757,12 @@ namespace Ogre {
                         Pass* newPass = new Pass(this, p->getIndex());
                         newPass->setAmbient(ColourValue::Black);
                         newPass->setDiffuse(ColourValue::Black);
+
+                        // Calculate hash value for new pass, because we are compiling
+                        // illumination passes on demand, which will loss hash calculate
+                        // before it add to render queue first time.
+                        newPass->_recalculateHash();
+
                         iPass = new IlluminationPass();
                         iPass->destroyOnShutdown = true;
                         iPass->originalPass = p;
@@ -811,6 +822,11 @@ namespace Ogre {
                         // must be additive
                         newPass->setSceneBlending(SBF_ONE, SBF_ONE);
 
+                        // Calculate hash value for new pass, because we are compiling
+                        // illumination passes on demand, which will loss hash calculate
+                        // before it add to render queue first time.
+                        newPass->_recalculateHash();
+
                         iPass = new IlluminationPass();
                         iPass->destroyOnShutdown = true;
                         iPass->originalPass = p;
@@ -849,6 +865,11 @@ namespace Ogre {
                         newPass->setLightingEnabled(false);
                         // modulate
                         newPass->setSceneBlending(SBF_DEST_COLOUR, SBF_ZERO);
+
+                        // Calculate hash value for new pass, because we are compiling
+                        // illumination passes on demand, which will loss hash calculate
+                        // before it add to render queue first time.
+                        newPass->_recalculateHash();
 
                         // NB there is nothing we can do about vertex & fragment
                         // programs here, so people will just have to make their
