@@ -78,6 +78,10 @@ namespace OgreMayaExporter
 		{
 			stat = loadLambert(pShader);
 		}
+		else if (pShader->object().hasFn(MFn::kPluginHwShaderNode))
+		{
+			stat = loadCgFxShader(pShader);
+		}
 		else
 		{
 			stat = loadSurfaceShader(pShader);
@@ -387,6 +391,20 @@ namespace OgreMayaExporter
 		m_specular = pBlinn->specularColor();
 		m_specular.a = 1.0 / pBlinn->eccentricity();
 		delete pBlinn;
+		return MS::kSuccess;
+	}
+
+	// load a cgFx shader
+	MStatus Material::loadCgFxShader(MFnDependencyNode *pShader)
+	{
+		m_type = MT_CGFX;
+		// Create a default white lambert
+		m_isTextured = false;
+		m_isMultiTextured = false;
+		m_diffuse = MColor(1.0,1.0,1.0,1.0);
+		m_specular = MColor(0,0,0,1);
+		m_emissive = MColor(0,0,0,1);
+		m_ambient = MColor(0,0,0,1);
 		return MS::kSuccess;
 	}
 

@@ -215,9 +215,9 @@ namespace OgreMayaExporter
 			newJoint.axisx = axis.x;
 			newJoint.axisy = axis.y;
 			newJoint.axisz = axis.z;
-			newJoint.scalex = 1;
-			newJoint.scaley = 1;
-			newJoint.scalez = 1;
+			newJoint.scalex = scale[0];
+			newJoint.scaley = scale[1];
+			newJoint.scalez = scale[2];
 			newJoint.jointDag = jointDag;
 			m_joints.push_back(newJoint);
 			// If root is a root joint, save it's index in the roots list
@@ -343,6 +343,8 @@ namespace OgreMayaExporter
 			{
 				MFnMesh mesh(params.loadedSubmeshes[j]->m_dagPath);
 				MBoundingBox bbox = mesh.boundingBox();
+				if (params.exportWorldCoords)
+					bbox.transformUsing(params.loadedSubmeshes[j]->m_dagPath.inclusiveMatrix());
 				params.loadedSubmeshes[j]->m_boundingBox.expand(bbox);
 			}
 		}
