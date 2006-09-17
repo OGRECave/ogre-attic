@@ -329,33 +329,28 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Serializer::writeObject(const Vector3& vec)
     {
-        writeFloats(&vec.x, 1);
-        writeFloats(&vec.y, 1);
-        writeFloats(&vec.z, 1);
-
+        writeFloats(vec.val, 3);
     }
     //---------------------------------------------------------------------
     void Serializer::writeObject(const Quaternion& q)
     {
-        writeFloats(&q.x, 1);
-        writeFloats(&q.y, 1);
-        writeFloats(&q.z, 1);
-        writeFloats(&q.w, 1);
+        float tmp[4] = { q.x, q.y, q.z, q.w };
+        writeFloats(tmp, 4);
     }
     //---------------------------------------------------------------------
     void Serializer::readObject(DataStreamPtr& stream, Vector3& pDest)
     {
-        readFloats(stream, &pDest.x, 1);
-        readFloats(stream, &pDest.y, 1);
-        readFloats(stream, &pDest.z, 1);
+        readFloats(stream, pDest.val, 3);
     }
     //---------------------------------------------------------------------
     void Serializer::readObject(DataStreamPtr& stream, Quaternion& pDest)
     {
-        readFloats(stream, &pDest.x, 1);
-        readFloats(stream, &pDest.y, 1);
-        readFloats(stream, &pDest.z, 1);
-        readFloats(stream, &pDest.w, 1);
+        float tmp[4];
+        readFloats(stream, tmp, 4);
+        pDest.x = tmp[0];
+        pDest.y = tmp[1];
+        pDest.z = tmp[2];
+        pDest.w = tmp[3];
     }
     //---------------------------------------------------------------------
 
