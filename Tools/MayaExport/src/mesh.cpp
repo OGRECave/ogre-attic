@@ -602,9 +602,13 @@ namespace OgreMayaExporter
 				for (j=0; j<influenceObjs.length(); j++)
 				{
 					bool foundJoint = false;
+					/********************************************************************
+					 *         Thanks to drumicube fot the optimization tip ;)          *
+					 ********************************************************************/
+					MString partialPathName = influenceObjs[j].partialPathName(); 
 					for (k=0; k<m_pSkeleton->getJoints().size() && !foundJoint; k++)
 					{
-						if (influenceObjs[j].partialPathName() == m_pSkeleton->getJoints()[k].name)
+						if (partialPathName == m_pSkeleton->getJoints()[k].name)
 						{
 							foundJoint=true;
 							newjointIds[i][j] = m_pSkeleton->getJoints()[k].id;
