@@ -19,9 +19,9 @@
 					<Add option="-D_DEBUG" />
 				</Compiler>
 				<Linker>
-					<Add library="OgreMain_d" />
 					<Add library="ode" />
 					<Add library="OPCODE" />
+					<Add library="OgreMain_d" />
 					<Add directory="..\..\..\Dependencies\lib\Debug" />
 				</Linker>
 				<ExtraCommands>
@@ -41,9 +41,9 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="OgreMain" />
 					<Add library="ode" />
 					<Add library="OPCODE" />
+					<Add library="OgreMain" />
 					<Add directory="..\..\..\Dependencies\lib\Release" />
 				</Linker>
 				<ExtraCommands>
@@ -60,6 +60,7 @@
 			<Add option="-fmessage-length=0" />
 			<Add option="-fexceptions" />
 			<Add option="-fident" />
+			<Add option="-pipe" />
 			<Add option="-DWIN32" />
 			<Add option="-D_WINDOWS" />
 			<Add option="-D_USRDLL" />
