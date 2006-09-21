@@ -48,6 +48,7 @@ namespace Ogre
     //-----------------------------------------------------------------------
     Log::~Log()
     {
+		OGRE_LOCK_AUTO_MUTEX
 		if (!mSuppressFile)
 		{
 	        mfpLog.close();
@@ -56,6 +57,7 @@ namespace Ogre
     //-----------------------------------------------------------------------
     void Log::logMessage( const String& message, LogMessageLevel lml, bool maskDebug )
     {
+		OGRE_LOCK_AUTO_MUTEX
         if ((mLogLevel + lml) >= OGRE_LOG_THRESHOLD)
         {
             for( mtLogListener::iterator i = mListeners.begin(); i != mListeners.end(); ++i )
@@ -84,18 +86,21 @@ namespace Ogre
     //-----------------------------------------------------------------------
     void Log::setLogDetail(LoggingLevel ll)
     {
+		OGRE_LOCK_AUTO_MUTEX
         mLogLevel = ll;
     }
 
     //-----------------------------------------------------------------------
     void Log::addListener(LogListener* listener)
     {
+		OGRE_LOCK_AUTO_MUTEX
         mListeners.push_back(listener);
     }
 
     //-----------------------------------------------------------------------
     void Log::removeListener(LogListener* listener)
     {
+		OGRE_LOCK_AUTO_MUTEX
         mListeners.erase(std::find(mListeners.begin(), mListeners.end(), listener));
     }
 }

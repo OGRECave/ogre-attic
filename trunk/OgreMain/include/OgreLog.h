@@ -95,6 +95,7 @@ namespace Ogre {
         mtLogListener mListeners;
 
     public:
+		OGRE_AUTO_MUTEX // public to allow external locking
         /**
         @remarks
             Usual constructor - called by LogManager.

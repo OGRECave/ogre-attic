@@ -68,6 +68,8 @@ namespace Ogre
         Log* mDefaultLog;
 
     public:
+		OGRE_AUTO_MUTEX // public to allow external locking
+
         LogManager();
         ~LogManager();
 
