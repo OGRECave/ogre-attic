@@ -3723,7 +3723,6 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 		// If additive, need lighting parameters & standard programs
 		if (isShadowTechniqueAdditive())
 		{
-			keepTUCount = 1;
 			retPass->setLightingEnabled(true);
 			retPass->setAmbient(pass->getAmbient());
 			retPass->setSelfIllumination(pass->getSelfIllumination());
@@ -4525,6 +4524,12 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
 		mShadowReceiverPass->setFog(true, FOG_LINEAR, ColourValue::White, 
 			0, fadeStart, fadeEnd);
 	}
+    else
+    {
+        // disable fogging explicitly
+        mShadowReceiverPass->setFog(true, FOG_NONE);
+    }
+
     // Iterate over the lights we've found, max out at the limit of light textures
 
     LightList::iterator i, iend;
