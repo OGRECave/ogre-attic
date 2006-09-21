@@ -65,6 +65,13 @@ namespace Ogre {
 		callbacks on completion, but these callbacks happen in the background 
 		loading thread (not your calling thread), so should only be used if you
 		really understand multithreading. 
+	@par
+		By default, when threading is enabled this class will start its own 
+		separate thread to perform the actual loading. However, if you would 
+		prefer to use your own existing thread to perform the background load,
+		then be sure to call setStartBackgroundThread(false) before initialise() is
+		called by Root::initialise. Your own thread should call 
+		_doNextQueuedBackgroundProcess to process background requests.
 	@note
 		This class will only perform tasks in a background thread if 
 		OGRE_THREAD_SUPPORT is defined to be 1. Otherwise, all methods will
@@ -149,6 +156,9 @@ namespace Ogre {
 		/// Mutex to protect the background event queue]
 		OGRE_MUTEX(mNotificationQueueMutex)
 
+		/// Whether this class should start it's own thread or not
+		bool mStartThread;
+
 #if OGRE_THREAD_SUPPORT
 		/// The single background thread which will process loading requests
 		boost::thread* mThread;
@@ -158,6 +168,8 @@ namespace Ogre {
 		static void threadFunc(void);
 		/// Internal method for adding a request; also assigns a ticketID
 		BackgroundProcessTicket addRequest(Request& req);
+		/// Thread shutdown?
+		bool mShuttingDown;
 #else
 		/// Dummy
 		void* mThread;
@@ -170,10 +182,37 @@ namespace Ogre {
 		ResourceBackgroundQueue();
 		virtual ~ResourceBackgroundQueue();
 
-		/** Initialise the background queue system. */
+		/** Sets whether or not a thread should be created and started to handle
+			the background loading, or whether a user thread will call the 
+			appropriate hooks.
+		@remarks
+			By default, a new thread will be started to handle the background 
+			load requests. However, the application may well have some threads
+			of its own which is wishes to use to perform the background loading
+			as well as other tasks (for example on most platforms there will be
+			a fixed number of hardware threads which the application will wish
+			to work within). Use this method to turn off the creation of a separate
+			thread if you wish, and call the _doNextQueuedBackgroundProcess
+			method from your own thread to process background requests.
+		@note
+			You <b>must</b> call this method prior to initialisation. Initialisation
+			of this class is automatically done when Root::initialise is called.
+		*/
+		void setStartBackgroundThread(bool startThread) { mStartThread = startThread; }
+
+		/** Gets whether or not a thread should be created and started to handle
+			the background loading, or whether a user thread will call the 
+			appropriate hooks.
+		*/
+		bool getStartBackgroundThread(void) { return mStartThread; }
+		/** Initialise the background queue system. 
+		@note Called automatically by Root::initialise.
+		*/
 		virtual void initialise(void);
 		
-		/** Shut down the background queue system. */
+		/** Shut down the background queue system. 
+		@note Called automatically by Root::shutdown.
+		*/
 		virtual void shutdown(void);
 
 		/** Initialise a resource group in the background.
@@ -246,6 +285,23 @@ namespace Ogre {
 		*/
 		virtual bool isProcessComplete(BackgroundProcessTicket ticket);
 
+		/** Process a single queued background operation. 
+		@remarks
+			If you are using your own thread to perform background loading, calling
+			this method from that thread triggers the processing of a single
+			background loading request from the queue. This method will not 
+			return until the request has been fully processed. It also returns
+			whether it did in fact process anything - if it returned false, there
+			was nothing more in the queue.
+		@note
+			<b>Do not</b> call this method unless you are using your own thread
+			to perform the background loading and called setStartBackgroundThread(false).
+			You must only have one background loading thread.
+		@returns true if a request was processed, false if the queue was empty.
+		*/
+		bool _doNextQueuedBackgroundProcess();
+
+		
 		/** Queue the firing of the 'background loading complete' event to
 			a Resource::Listener event.
 		@remarks
