@@ -105,7 +105,7 @@ namespace Ogre {
     {
         // compile-time check alignment is available.
         typedef int IsValidAlignment
-            [0 <= Alignment && Alignment <= 128 && ((Alignment & (Alignment-1)) == 0) ? +1 : -1];
+            [Alignment <= 128 && ((Alignment & (Alignment-1)) == 0) ? +1 : -1];
 
     public:
         //--- typedefs for STL compatible
