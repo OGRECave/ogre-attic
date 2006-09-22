@@ -310,8 +310,7 @@ namespace Ogre {
 		// Queue notification
 		if (req->listener)
 		{
-			ResourceBackgroundQueue::getSingleton()
-				._queueFireBackgroundOperationComplete(req->listener, req->ticketID);
+			queueFireBackgroundOperationComplete(req->listener, req->ticketID);
 		}
 
 
@@ -336,7 +335,7 @@ namespace Ogre {
 
 	}
 	//-----------------------------------------------------------------------
-	void ResourceBackgroundQueue::_queueFireBackgroundOperationComplete(
+	void ResourceBackgroundQueue::queueFireBackgroundOperationComplete(
 		ResourceBackgroundQueue::Listener* listener, BackgroundProcessTicket ticket)
 	{
 		OGRE_LOCK_MUTEX(mNotificationQueueMutex);

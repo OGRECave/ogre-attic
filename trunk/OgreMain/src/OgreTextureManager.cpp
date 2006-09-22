@@ -60,11 +60,10 @@ namespace Ogre {
     TexturePtr TextureManager::load(const String &name, const String& group,
         TextureType texType, int numMipmaps, Real gamma, bool isAlpha)
     {
-        TexturePtr tex = getByName(name);
+        TexturePtr tex = createOrRetrieve(name, group);
 
-        if(tex.isNull())
+        if(!tex->isLoaded())
         {
-            tex = create(name, group);
             tex->setTextureType(texType);
             tex->setNumMipmaps((numMipmaps == -1)? mDefaultNumMipmaps :
 				static_cast<size_t>(numMipmaps));
@@ -72,8 +71,8 @@ namespace Ogre {
             if (isAlpha)
                 tex->setFormat(PF_A8);
             tex->enable32Bit(mIs32Bit);
+	        tex->load();
         }
-        tex->load();
 
         return tex;
     }
