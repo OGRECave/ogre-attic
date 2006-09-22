@@ -1181,12 +1181,14 @@ namespace Ogre
 
     //-----------------------------------------------------------------------
     const GpuProgramParameters::AutoConstantDefinition* 
-	GpuProgramParameters::getAutoConstantDefinition(const  size_t idx) 
+	GpuProgramParameters::getAutoConstantDefinition(const size_t idx) 
     {
 
         if (idx < getNumAutoConstantDefinitions())
         {
-            assert(idx == AutoConstantDictionary[idx].acType);
+            // verify index is equal to acType
+            // if they are not equal then the dictionary was not setup properly
+            assert(idx == static_cast<size_t>(AutoConstantDictionary[idx].acType));
             return &AutoConstantDictionary[idx];
         }
         else
