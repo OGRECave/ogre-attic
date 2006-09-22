@@ -94,6 +94,23 @@ namespace Ogre {
         virtual ResourcePtr create(const String& name, const String& group, 
             bool isManual = false, ManualResourceLoader* loader = 0, 
             const NameValuePairList* createParams = 0);
+
+		/** Create a new resource, or retrieve an existing one with the same
+			name if it already exists.
+		@remarks
+			This method performs the same task as calling getByName() followed
+			by create() if that returns null. The advantage is that it does it
+			in one call so there are no race conditions if using multiple
+			threads that could cause getByName() to return null, but create() to
+			fail because another thread created a resource in between.
+		@see ResourceManager::create
+		@see ResourceManager::getByName
+		*/
+		virtual ResourcePtr createOrRetrieve(const String& name, 
+			const String& group, bool isManual = false, 
+			ManualResourceLoader* loader = 0, 
+			const NameValuePairList* createParams = 0);
+		
         /** Set a limit on the amount of memory this resource handler may use.
             @remarks
                 If, when asked to load a new resource, the manager believes it will exceed this memory

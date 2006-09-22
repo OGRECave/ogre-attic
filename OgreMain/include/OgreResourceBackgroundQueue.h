@@ -178,6 +178,23 @@ namespace Ogre {
 		/// Private mutex, not allowed to lock from outside
 		OGRE_AUTO_MUTEX
 
+		/** Queue the firing of the 'background loading complete' event to
+			a Resource::Listener event.
+		@remarks
+			The purpose of this is to allow the background loading thread to 
+			call this method to queue the notification to listeners waiting on
+			the background loading of a resource. Rather than allow the resource
+			background loading thread to directly call these listeners, which 
+			would require all the listeners to be thread-safe, this method
+			implements a thread-safe queue which can be processed in the main
+			frame loop thread each frame to clear the events in a simpler 
+			manner.
+		@param listener The listener to be notified
+		@param ticket The ticket for the operation that has completed
+		*/
+		virtual void queueFireBackgroundOperationComplete(Listener* listener,
+			BackgroundProcessTicket ticket);
+
 	public:
 		ResourceBackgroundQueue();
 		virtual ~ResourceBackgroundQueue();
@@ -301,7 +318,6 @@ namespace Ogre {
 		*/
 		bool _doNextQueuedBackgroundProcess();
 
-		
 		/** Queue the firing of the 'background loading complete' event to
 			a Resource::Listener event.
 		@remarks
@@ -319,27 +335,12 @@ namespace Ogre {
 		virtual void _queueFireBackgroundLoadingComplete(Resource::Listener* listener, 
 			Resource* res);
 
-		/** Queue the firing of the 'background loading complete' event to
-			a Resource::Listener event.
-		@remarks
-			The purpose of this is to allow the background loading thread to 
-			call this method to queue the notification to listeners waiting on
-			the background loading of a resource. Rather than allow the resource
-			background loading thread to directly call these listeners, which 
-			would require all the listeners to be thread-safe, this method
-			implements a thread-safe queue which can be processed in the main
-			frame loop thread each frame to clear the events in a simpler 
-			manner.
-		@param listener The listener to be notified
-		@param ticket The ticket for the operation that has completed
-		*/
-		virtual void _queueFireBackgroundOperationComplete(Listener* listener,
-			BackgroundProcessTicket ticket);
-
 		/** Fires all the queued events for background loaded resources.
 		@remarks
 			You should call this from the thread that runs the main frame loop 
 			to avoid having to make the receivers of this event thread-safe.
+			If you use Ogre's built in frame loop you don't need to call this
+			yourself.
 		*/
 		virtual void _fireBackgroundLoadingComplete(void);
 
