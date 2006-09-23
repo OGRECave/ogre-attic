@@ -85,6 +85,8 @@ namespace Ogre
 		{
 
 			OGRE_LOCK_AUTO_MUTEX
+			preLoadImpl();
+
 			if (mIsManual)
 			{
 				// Load from manual loader
@@ -115,6 +117,8 @@ namespace Ogre
 			}
 			// Calculate resource size
 			mSize = calculateSize();
+
+			postLoadImpl();
 		}
         catch (...)
         {
@@ -177,7 +181,9 @@ namespace Ogre
 		// Scope lock for actual unload
 		{
 			OGRE_LOCK_AUTO_MUTEX
+			preUnloadImpl();
 			unloadImpl();
+			postUnloadImpl();
 		}
 
 		// Scope lock for loading status

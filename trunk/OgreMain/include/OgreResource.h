@@ -137,7 +137,32 @@ namespace Ogre {
 		{ 
 		}
 
-		/** Internal implementation of the 'load' action, only called if this 
+		/** Internal hook to perform actions before the load process, but
+			after the resource has been marked as 'loading'.
+		@note Mutex will have already been acquired by the loading thread.
+			Also, this call will occur even when using a ManualResourceLoader 
+			(when loadImpl is not actually called)
+		*/
+		virtual void preLoadImpl(void) {}
+		/** Internal hook to perform actions after the load process, but
+			before the resource has been marked as fully loaded.
+		@note Mutex will have already been acquired by the loading thread.
+			Also, this call will occur even when using a ManualResourceLoader 
+			(when loadImpl is not actually called)
+		*/
+		virtual void postLoadImpl(void) {}
+
+		/** Internal hook to perform actions before the unload process.
+		@note Mutex will have already been acquired by the unloading thread.
+		*/
+		virtual void preUnloadImpl(void) {}
+		/** Internal hook to perform actions after the unload process, but
+		before the resource has been marked as fully unloaded.
+		@note Mutex will have already been acquired by the unloading thread.
+		*/
+		virtual void postUnloadImpl(void) {}
+
+		/** Internal implementation of the meat of the 'load' action, only called if this 
 			resource is not being loaded from a ManualResourceLoader. 
 		*/
 		virtual void loadImpl(void) = 0;
