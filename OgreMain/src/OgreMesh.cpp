@@ -172,16 +172,8 @@ namespace Ogre {
         return mSubMeshList[index];
     }
 	//-----------------------------------------------------------------------
-	void Mesh::load(bool background)
+	void Mesh::postLoadImpl(void)
 	{
-
-		// Overridden to ensure edge lists get built from manual or
-		// loaded meshes
-		Resource::load(background);
-
-		// If we didn't load, abort
-		if (!isLoaded())
-			return;
 
 		// Prepare for shadow volumes?
 		if (MeshManager::getSingleton().getPrepareAllMeshesForShadowVolumes())

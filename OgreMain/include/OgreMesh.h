@@ -174,6 +174,8 @@ namespace Ogre {
 
         /// @copydoc Resource::loadImpl
         void loadImpl(void);
+		/// @copydoc Resource::postLoadImpl
+		void postLoadImpl(void);
         /// @copydoc Resource::unloadImpl
         void unloadImpl(void);
 		/// @copydoc Resource::calculateSize
@@ -189,9 +191,6 @@ namespace Ogre {
         Mesh(ResourceManager* creator, const String& name, ResourceHandle handle,
             const String& group, bool isManual = false, ManualResourceLoader* loader = 0);
         ~Mesh();
-
-		/// @copydoc Resource::load
-		void load(bool backgroundThread = false);
 
 		// NB All methods below are non-virtual since they will be
         // called in the rendering loop - speed is of the essence.
