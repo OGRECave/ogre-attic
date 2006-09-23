@@ -62,11 +62,13 @@ namespace Ogre {
             Listener(void) {}
             virtual ~Listener() {}
             /** MovableObject is being destroyed */
-            virtual void objectDestroyed(MovableObject* object) {};
+            virtual void objectDestroyed(MovableObject* object) {}
             /** MovableObject has been attached to a node */
-            virtual void objectAttached(MovableObject* object) {};
+            virtual void objectAttached(MovableObject* object) {}
             /** MovableObject has been detached from a node */
-            virtual void objectDetached(MovableObject* object) {};
+            virtual void objectDetached(MovableObject* object) {}
+            /** MovableObject has been moved */
+            virtual void objectMoved(MovableObject* object) {}
             /** Called when the movable object of the camera to be used for rendering.
             @returns
                 true if allows queue for rendering, false otherwise.
@@ -193,6 +195,10 @@ namespace Ogre {
 			and this SceneNode / TagPoint is currently in an active part of the
 			scene graph. */
         virtual bool isInScene(void) const;
+
+        /** Internal method called to notify the object that it has been moved.
+        */
+        virtual void _notifyMoved(void);
 
 		/** Internal method to notify the object of the camera to be used for the next rendering operation.
             @remarks
@@ -385,10 +391,10 @@ namespace Ogre {
             SceneNode::findLights if it has parent scene node, otherwise it just returns
             an empty list.
         @par
-            Multiple calls to this method in the same frame when neither the object nor
-            the lights have moved will result in the same list being returned without
-            recalculation, but if listener exists, it'll called each time, so the listener
-            should implement their own cache mechanism to optimise performance.
+            Object internal caching a light list, it'll recalculated only when object have moved,
+            or lights that affecting frustum has been changed (@see SceneManager::_getLightsDirtyCounter),
+            but if listener exists, it'll called each time, so the listener should implement
+            their own cache mechanism to optimise performance.
         @par
             This method can be useful when implementing Renderable::getLights in case
             the renderable is a part of the movable.

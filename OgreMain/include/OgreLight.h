@@ -290,6 +290,12 @@ namespace Ogre {
 		Real getPowerScale(void) const;
 
         /** Overridden from MovableObject */
+        void _notifyAttached(Node* parent, bool isTagPoint = false);
+
+        /** Overridden from MovableObject */
+        void _notifyMoved(void);
+
+        /** Overridden from MovableObject */
         const AxisAlignedBox& getBoundingBox(void) const;
 
         /** Overridden from MovableObject */
@@ -390,17 +396,14 @@ namespace Ogre {
 
         mutable Vector3 mDerivedPosition;
         mutable Vector3 mDerivedDirection;
-        /// Stored versions of parent orientation / position
-        mutable Quaternion mLastParentOrientation;
-        mutable Vector3 mLastParentPosition;
 
         /// Shared class-level name for Movable type
         static String msMovableType;
 
         mutable PlaneBoundedVolume mNearClipVolume;
         mutable PlaneBoundedVolumeList mFrustumClipVolumes;
-        /// Is the local transform dirty?
-        mutable bool mLocalTransformDirty;
+        /// Is the derived transform dirty?
+        mutable bool mDerivedTransformDirty;
 
 		/// Pointer to a custom shadow camera setup
 		mutable ShadowCameraSetupPtr mCustomShadowCameraSetup;

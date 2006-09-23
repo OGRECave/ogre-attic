@@ -67,6 +67,9 @@ namespace Ogre {
         /// World-Axis aligned bounding box, updated only through _update
         AxisAlignedBox mWorldAABB;
 
+        /** @copydoc Node::_updateFromParent. */
+        void _updateFromParent(void) const;
+
         /** See Node. */
         Node* createChildImpl(void);
 
@@ -229,7 +232,7 @@ namespace Ogre {
             This method returns the SceneManager which created this node.
             This can be useful for destroying this node.
         */
-        SceneManager* getCreator(void) const;
+        SceneManager* getCreator(void) const { return mCreator; }
 
         /** This method removes and destroys the named child and all of its children.
         @remarks

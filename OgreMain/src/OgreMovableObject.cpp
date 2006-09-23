@@ -119,6 +119,10 @@ namespace Ogre {
         mParentNode = parent;
         mParentIsTagPoint = isTagPoint;
 
+        // Mark light list being dirty, simply decrease
+        // counter by one for minimise overhead
+        --mLightListUpdated;
+
         // Call listener (note, only called if there's something to do)
         if (mListener && different)
         {
@@ -173,6 +177,19 @@ namespace Ogre {
 			return false;
 		}
 	}
+    //-----------------------------------------------------------------------
+    void MovableObject::_notifyMoved(void)
+    {
+        // Mark light list being dirty, simply decrease
+        // counter by one for minimise overhead
+        --mLightListUpdated;
+
+        // Notify listener if exists
+        if (mListener)
+        {
+            mListener->objectMoved(this);
+        }
+    }
     //-----------------------------------------------------------------------
     void MovableObject::setVisible(bool visible)
     {
@@ -289,21 +306,22 @@ namespace Ogre {
             return tp->getParentEntity()->queryLights();
         }
 
-        // Make sure we only update this once per frame no matter how many
-        // times we're asked
-        ulong frame = Root::getSingleton().getCurrentFrameNumber();
-        if (mLightListUpdated != frame)
+        if (mParentNode)
         {
-            mLightListUpdated = frame;
-            if (mParentNode)
+            SceneNode* sn = static_cast<SceneNode*>(mParentNode);
+
+            // Make sure we only update this only if need.
+            ulong frame = sn->getCreator()->_getLightsDirtyCounter();
+            if (mLightListUpdated != frame)
             {
-                SceneNode* sn = static_cast<SceneNode*>(mParentNode);
+                mLightListUpdated = frame;
+
                 sn->findLights(mLightList, this->getBoundingRadius());
             }
-            else
-            {
-                mLightList.clear();
-            }
+        }
+        else
+        {
+            mLightList.clear();
         }
 
         return mLightList;
