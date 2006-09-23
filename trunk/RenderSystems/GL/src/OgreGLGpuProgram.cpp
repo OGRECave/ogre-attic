@@ -66,7 +66,7 @@ GLuint GLGpuProgram::getAttributeIndex(VertexElementSemantic semantic)
 			return 14; // default binding
 		case VES_BINORMAL:
 			return 15; // default binding
-	};
+	}
 
 	return 0;
 }
@@ -88,7 +88,9 @@ bool GLGpuProgram::isAttributeValid(VertexElementSemantic semantic)
 		case VES_BINORMAL:
 		case VES_TANGENT:
 			return true; // with default binding
-	};
+	}
+
+    return false;
 }
 
 GLArbGpuProgram::GLArbGpuProgram(ResourceManager* creator, const String& name, 
