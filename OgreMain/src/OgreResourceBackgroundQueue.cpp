@@ -49,7 +49,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------	
 	//------------------------------------------------------------------------
 	ResourceBackgroundQueue::ResourceBackgroundQueue()
-		:mNextTicketID(0), mStartThread(true), mThread(0), mShuttingDown(false)
+		:mNextTicketID(0), mStartThread(true), mThread(0)
+#if OGRE_THREAD_SUPPORT
+        , mShuttingDown(false)
+#endif
 	{
 	}
 	//------------------------------------------------------------------------
@@ -303,7 +306,9 @@ namespace Ogre {
 			break;
 		case RT_SHUTDOWN:
 			// That's all folks
+#if OGRE_THREAD_SUPPORT
 			mShuttingDown = true;
+#endif
 			break;
 		};
 
