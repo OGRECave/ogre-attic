@@ -308,6 +308,32 @@ namespace Ogre {
 		bool mResetIdentityView;
 		bool mResetIdentityProj;
 
+        /// Cached light information, used to tracking light's changes
+        struct _OgreExport LightInfo
+        {
+            Light* light;       // Just a pointer for comparison, the light might destroyed for some reason
+            int type;           // Use int instead of Light::LightTypes to avoid header file dependence
+            Real range;         // Sets to zero if directional light
+            Vector3 position;   // Sets to zero if directional light
+
+            bool operator== (const LightInfo& rhs) const
+            {
+                return light == rhs.light && type == rhs.type &&
+                    range == rhs.range && position == rhs.position;
+            }
+
+            bool operator!= (const LightInfo& rhs) const
+            {
+                return !(*this == rhs);
+            }
+        };
+
+        typedef std::vector<LightInfo> LightInfoList;
+
+        LightList mLightsAffectingFrustum;
+        LightInfoList mCachedLightInfos;
+        ulong mLightsDirtyCounter;
+
 		typedef std::map<String, MovableObject*> MovableObjectMap;
 		typedef std::map<String, MovableObjectMap*> MovableObjectCollectionMap;
 		MovableObjectCollectionMap mMovableObjectCollectionMap;
@@ -456,7 +482,6 @@ namespace Ogre {
         Pass* mShadowStencilPass;
         Pass* mShadowModulativePass;
 		bool mShadowMaterialInitDone;
-        LightList mLightsAffectingFrustum;
         HardwareIndexBufferSharedPtr mShadowIndexBuffer;
 		size_t mShadowIndexBufferSize;
         Rectangle2D* mFullScreenQuad;
@@ -759,6 +784,32 @@ namespace Ogre {
         /** Removes and destroys all lights in the scene.
         */
         virtual void destroyAllLights(void);
+
+        /** Advance method to increase the lights dirty counter due lights changed.
+        @remarks
+            Scene manager tracking lights that affecting the frustum, if changes
+            detected (the changes includes light list itself and the light's position
+            and attenuation range), then increase the lights dirty counter.
+        @par
+            For some reason, you can call this method to force whole scene objects
+            re-populate their light list. But near in mind, call to this method
+            will harm performance, so should avoid if possible.
+        */
+        virtual void _notifyLightsDirty(void);
+
+        /** Advance method to gets the lights dirty counter.
+        @remarks
+            Scene manager tracking lights that affecting the frustum, if changes
+            detected (the changes includes light list itself and the light's position
+            and attenuation range), then increase the lights dirty counter.
+        @par
+            When implementing customise lights finding algorithm relied on either
+            SceneManager::_getLightsAffectingFrustum or SceneManager::_populateLightList,
+            might check this value for sure that the light list are really need to
+            re-populate, otherwise, returns cached light list (if exists) for better
+            performance.
+        */
+        ulong _getLightsDirtyCounter(void) const { return mLightsDirtyCounter; }
 
         /** Get the list of lights which could be affecting the frustum.
         @remarks

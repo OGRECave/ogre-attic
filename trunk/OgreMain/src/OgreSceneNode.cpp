@@ -347,6 +347,19 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
+    void SceneNode::_updateFromParent(void) const
+    {
+        Node::_updateFromParent();
+
+        // Notify objects that it has been moved
+        ObjectMap::const_iterator i;
+        for (i = mObjectsByName.begin(); i != mObjectsByName.end(); ++i)
+        {
+            MovableObject* object = i->second;
+            object->_notifyMoved();
+        }
+    }
+    //-----------------------------------------------------------------------
     Node* SceneNode::createChildImpl(void)
     {
         assert(mCreator);
@@ -373,11 +386,6 @@ namespace Ogre {
 	{
 		return ConstObjectIterator(mObjectsByName.begin(), mObjectsByName.end());
 	}
-    //-----------------------------------------------------------------------
-    SceneManager* SceneNode::getCreator(void) const
-    {
-        return mCreator;
-    }
     //-----------------------------------------------------------------------
     void SceneNode::removeAndDestroyChild(const String& name)
     {

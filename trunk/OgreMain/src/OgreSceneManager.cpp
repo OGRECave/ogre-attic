@@ -102,6 +102,7 @@ mWorldGeometryRenderQueue(RENDER_QUEUE_WORLD_GEOMETRY_1),
 mLastFrameNumber(0),
 mResetIdentityView(false),
 mResetIdentityProj(false),
+mLightsDirtyCounter(0),
 mShadowCasterPlainBlackPass(0),
 mShadowReceiverPass(0),
 mDisplayNodes(false),
@@ -3200,6 +3201,11 @@ void SceneManager::updateRenderQueueGroupSplitOptions(RenderQueueGroup* group,
 
 
 }
+//-----------------------------------------------------------------------
+void SceneManager::_notifyLightsDirty(void)
+{
+    ++mLightsDirtyCounter;
+}
 //---------------------------------------------------------------------
 void SceneManager::findLightsAffectingFrustum(const Camera* camera)
 {
@@ -3208,11 +3214,10 @@ void SceneManager::findLightsAffectingFrustum(const Camera* camera)
     MovableObjectMap* lights =
         getMovableObjectMap(LightFactory::FACTORY_TYPE_NAME);
 
+    LightInfoList lightInfos;
     // Pre-allocate memory
-    mLightsAffectingFrustum.clear();
-    mLightsAffectingFrustum.reserve(lights->size());
+    lightInfos.reserve(lights->size());
 
-    Sphere sphere;
 	MovableObjectIterator it(lights->begin(), lights->end());
 
     while(it.hasMoreElements())
@@ -3220,24 +3225,48 @@ void SceneManager::findLightsAffectingFrustum(const Camera* camera)
         Light* l = static_cast<Light*>(it.getNext());
 		if (l->isVisible())
 		{
-			if (l->getType() == Light::LT_DIRECTIONAL)
+            LightInfo lightInfo;
+            lightInfo.light = l;
+            lightInfo.type = l->getType();
+			if (lightInfo.type == Light::LT_DIRECTIONAL)
 			{
 				// Always visible
-				mLightsAffectingFrustum.push_back(l);
+                lightInfo.position = Vector3::ZERO;
+                lightInfo.range = 0;
+                lightInfos.push_back(lightInfo);
 			}
 			else
 			{
 				// NB treating spotlight as point for simplicity
 				// Just see if the lights attenuation range is within the frustum
-				sphere.setCenter(l->getDerivedPosition());
-				sphere.setRadius(l->getAttenuationRange());
+                lightInfo.range = l->getAttenuationRange();
+                lightInfo.position = l->getDerivedPosition();
+				Sphere sphere(lightInfo.position, lightInfo.range);
 				if (camera->isVisible(sphere))
 				{
-					mLightsAffectingFrustum.push_back(l);
+                    lightInfos.push_back(lightInfo);
 				}
-
 			}
 		}
+    }
+
+    // Update lights affecting frustum if changed
+    if (mCachedLightInfos != lightInfos)
+    {
+        mLightsAffectingFrustum.resize(lightInfos.size());
+        LightInfoList::const_iterator i;
+        LightList::iterator j = mLightsAffectingFrustum.begin();
+        for (i = lightInfos.begin(); i != lightInfos.end(); ++i, ++j)
+        {
+            *j = i->light;
+        }
+
+        // Use swap instead of copy operator for efficiently
+        mCachedLightInfos.swap(lightInfos);
+
+        // notify light dirty, so all movable objects will re-populate
+        // their light list next time
+        _notifyLightsDirty();
     }
 
 }

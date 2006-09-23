@@ -52,9 +52,7 @@ namespace Ogre {
 		  mPowerScale(1.0f),
           mDerivedPosition(Vector3::ZERO),
           mDerivedDirection(Vector3::UNIT_Z),
-          mLastParentOrientation(Quaternion::IDENTITY),
-          mLastParentPosition(Vector3::ZERO),
-          mLocalTransformDirty(false),
+          mDerivedTransformDirty(false),
 		  mCustomShadowCameraSetup(0)
     {
     }
@@ -75,9 +73,7 @@ namespace Ogre {
 		mPowerScale(1.0f),
         mDerivedPosition(Vector3::ZERO),
         mDerivedDirection(Vector3::UNIT_Z),
-        mLastParentOrientation(Quaternion::IDENTITY),
-        mLastParentPosition(Vector3::ZERO),
-        mLocalTransformDirty(false),
+        mDerivedTransformDirty(false),
 		mCustomShadowCameraSetup(0)
     {
     }
@@ -101,14 +97,14 @@ namespace Ogre {
         mPosition.x = x;
         mPosition.y = y;
         mPosition.z = z;
-        mLocalTransformDirty = true;
+        mDerivedTransformDirty = true;
 
     }
     //-----------------------------------------------------------------------
     void Light::setPosition(const Vector3& vec)
     {
         mPosition = vec;
-        mLocalTransformDirty = true;
+        mDerivedTransformDirty = true;
     }
     //-----------------------------------------------------------------------
     const Vector3& Light::getPosition(void) const
@@ -121,13 +117,13 @@ namespace Ogre {
         mDirection.x = x;
         mDirection.y = y;
         mDirection.z = z;
-        mLocalTransformDirty = true;
+        mDerivedTransformDirty = true;
     }
     //-----------------------------------------------------------------------
     void Light::setDirection(const Vector3& vec)
     {
         mDirection = vec;
-        mLocalTransformDirty = true;
+        mDerivedTransformDirty = true;
     }
     //-----------------------------------------------------------------------
     const Vector3& Light::getDirection(void) const
@@ -253,27 +249,38 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Light::update(void) const
     {
-        if (mParentNode)
+        if (mDerivedTransformDirty)
         {
-            if (!(mParentNode->_getDerivedOrientation() == mLastParentOrientation &&
-                mParentNode->_getDerivedPosition() == mLastParentPosition)
-                || mLocalTransformDirty)
+            if (mParentNode)
             {
-                // Ok, we're out of date with SceneNode we're attached to
-                mLastParentOrientation = mParentNode->_getDerivedOrientation();
-                mLastParentPosition = mParentNode->_getDerivedPosition();
-                mDerivedDirection = mLastParentOrientation * mDirection;
-                mDerivedPosition = (mLastParentOrientation * mPosition) + mLastParentPosition;
+                // Ok, update with SceneNode we're attached to
+                const Quaternion& parentOrientation = mParentNode->_getDerivedOrientation();
+                const Vector3& parentPosition = mParentNode->_getDerivedPosition();
+                mDerivedDirection = parentOrientation * mDirection;
+                mDerivedPosition = (parentOrientation * mPosition) + parentPosition;
             }
-        }
-        else
-        {
-            mDerivedPosition = mPosition;
-            mDerivedDirection = mDirection;
-        }
+            else
+            {
+                mDerivedPosition = mPosition;
+                mDerivedDirection = mDirection;
+            }
 
-        mLocalTransformDirty = false;
+            mDerivedTransformDirty = false;
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Light::_notifyAttached(Node* parent, bool isTagPoint)
+    {
+        mDerivedTransformDirty = true;
 
+        MovableObject::_notifyAttached(parent, isTagPoint);
+    }
+    //-----------------------------------------------------------------------
+    void Light::_notifyMoved(void)
+    {
+        mDerivedTransformDirty = true;
+
+        MovableObject::_notifyMoved();
     }
     //-----------------------------------------------------------------------
     const AxisAlignedBox& Light::getBoundingBox(void) const
