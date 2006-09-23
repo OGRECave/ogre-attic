@@ -44,7 +44,7 @@ Torus Knot Software Ltd.
 /** Set this to 0 if having problems with the new Material Script Compiler and want to use the original one.
 */
 #ifndef OGRE_MATERIAL_SCRIPT_COMPILER
-#define OGRE_MATERIAL_SCRIPT_COMPILER 0
+#define OGRE_MATERIAL_SCRIPT_COMPILER 1
 #endif
 
 namespace Ogre {
