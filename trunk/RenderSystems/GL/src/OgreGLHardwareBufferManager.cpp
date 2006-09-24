@@ -48,7 +48,10 @@ namespace Ogre {
     {
 		GLHardwareVertexBuffer* buf = 
 			new GLHardwareVertexBuffer(vertexSize, numVerts, usage, useShadowBuffer);
-		mVertexBuffers.insert(buf);
+		{
+			OGRE_LOCK_MUTEX(mVertexBuffersMutex)
+			mVertexBuffers.insert(buf);
+		}
 		return HardwareVertexBufferSharedPtr(buf);
     }
     //-----------------------------------------------------------------------
@@ -59,7 +62,10 @@ namespace Ogre {
     {
 		GLHardwareIndexBuffer* buf = 
 			new GLHardwareIndexBuffer(itype, numIndexes, usage, useShadowBuffer);
-		mIndexBuffers.insert(buf);
+		{
+			OGRE_LOCK_MUTEX(mIndexBuffersMutex)
+			mIndexBuffers.insert(buf);
+		}
 		return HardwareIndexBufferSharedPtr(buf);
     }
     //---------------------------------------------------------------------
