@@ -274,16 +274,20 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	unsigned short Material::getNumLodLevels(unsigned short schemeIndex) const
 	{
+		// Safety check - empty list?
+		if (mBestTechniquesBySchemeList.empty())
+			return 0;
+
 		BestTechniquesBySchemeList::const_iterator i = 
 			mBestTechniquesBySchemeList.find(schemeIndex);
-		if (i != mBestTechniquesBySchemeList.end())
+		if (i == mBestTechniquesBySchemeList.end())
 		{
-			return static_cast<unsigned short>(i->second->size());
+			// get the first item, will be 0 (the default) if default
+			// scheme techniques exist, otherwise the earliest defined
+			i = mBestTechniquesBySchemeList.begin();
 		}
-		else
-		{
-			return 0;
-		}
+
+		return static_cast<unsigned short>(i->second->size());
 	}
 	//-----------------------------------------------------------------------
 	unsigned short Material::getNumLodLevels(const String& schemeName) const
