@@ -147,6 +147,18 @@ namespace Ogre {
             and then all future calls with return internal cached value.
         */
         static uint getCpuFeatures(void);
+
+		/** Gets whether a specific feature is supported by the CPU.
+		@note
+			Actual detecting are performs in the first time call to this function,
+			and then all future calls with return internal cached value.
+		*/
+		static bool hasCpuFeature(CpuFeatures feature);
+
+
+		/** Write the CPU information to the passed in Log */
+		static void log(Log* pLog);
+
     };
 
 }
