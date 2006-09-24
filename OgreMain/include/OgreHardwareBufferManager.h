@@ -113,6 +113,11 @@ namespace Ogre {
         VertexDeclarationList mVertexDeclarations;
 		VertexBufferBindingList mVertexBufferBindings;
 
+		// Mutexes
+		OGRE_MUTEX(mVertexBuffersMutex)
+		OGRE_MUTEX(mIndexBuffersMutex)
+		OGRE_MUTEX(mVertexDeclarationsMutex)
+		OGRE_MUTEX(mVertexBufferBindingsMutex)
 
         /// Internal method for destroys all vertex declarations
         virtual void destroyAllDeclarations(void);
@@ -178,6 +183,8 @@ namespace Ogre {
         static const size_t UNDER_USED_FRAME_THRESHOLD;
         /// Frame delay for BLT_AUTOMATIC_RELEASE temporary buffers
         static const size_t EXPIRED_DELAY_FRAME_THRESHOLD;
+		// Mutexes
+		OGRE_MUTEX(mTempBuffersMutex)
 
 
         /// Creates  a new buffer as a copy of the source, does not copy data

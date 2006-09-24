@@ -203,6 +203,12 @@ namespace Ogre {
                     ++(*pUseCount);
                 }
             }
+			else
+			{
+				// RHS must be a null pointer
+				assert(r.isNull() && "RHS must be null if it has no mutex!");
+				setNull();
+			}
             return *this;
         }
         /// Operator used to convert a TexturePtr to a D3D9TexturePtr
@@ -223,6 +229,12 @@ namespace Ogre {
                     ++(*pUseCount);
                 }
             }
+			else
+			{
+				// RHS must be a null pointer
+				assert(r.isNull() && "RHS must be null if it has no mutex!");
+				setNull();
+			}
             return *this;
         }
     };
