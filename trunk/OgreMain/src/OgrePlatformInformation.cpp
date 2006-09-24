@@ -282,6 +282,9 @@ namespace Ogre {
                     if (result._edx & CPUID_STD_SSE2)
                         features |= PlatformInformation::CPU_FEATURE_SSE2;
 
+                    if (result._ecx & CPUID_STD_SSE3)
+                        features |= PlatformInformation::CPU_FEATURE_SSE3;
+
                     // Check to see if this is a Pentium 4 or later processor
                     if ((result._eax & CPUID_EXT_FAMILY_ID_MASK) ||
                         (result._eax & CPUID_FAMILY_ID_MASK) == CPUID_PENTIUM4_ID)
