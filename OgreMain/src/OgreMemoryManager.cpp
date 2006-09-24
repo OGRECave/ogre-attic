@@ -665,7 +665,7 @@ namespace Ogre
     {
         // If we don't have a process ID yet, get one now
         if( !gProcessID )
-            gProcessID = instance()._getProcessID();
+            gProcessID = _getProcessID();
 
         try
         {
@@ -856,7 +856,7 @@ namespace Ogre
     {
         // If we don't have a process ID yet, get one now
         if( !gProcessID )
-            gProcessID = instance()._getProcessID();
+            gProcessID = _getProcessID();
 
         try
         {
@@ -1437,7 +1437,7 @@ namespace Ogre
         for(;;)
         {
             // Try the allocation
-            void *ptr = MemoryManager::instance().allocMem(file, line, func, m_alloc_new, reportedSize, processID );
+            void *ptr = allocMem(file, line, func, m_alloc_new, reportedSize, processID );
             if( ptr )
             {
                 return ptr;
@@ -1477,7 +1477,7 @@ namespace Ogre
         for(;;)
         {
             // Try the allocation
-            void    *ptr = MemoryManager::instance().allocMem(file, line, func, m_alloc_new_array, reportedSize, processID );
+            void    *ptr = allocMem(file, line, func, m_alloc_new_array, reportedSize, processID );
             if( ptr )
             {
                 return ptr;
@@ -1522,7 +1522,7 @@ namespace Ogre
         {
             // Try the allocation
 
-            void    *ptr = MemoryManager::instance().allocMem(sourceFile, sourceLine, "??", m_alloc_new, reportedSize, processID );
+            void    *ptr = allocMem(sourceFile, sourceLine, "??", m_alloc_new, reportedSize, processID );
             if (ptr)
             {
                 return ptr;
@@ -1564,7 +1564,7 @@ namespace Ogre
         for(;;)
         {
             // Try the allocation
-            void *ptr = MemoryManager::instance().allocMem(
+            void *ptr = allocMem(
                 sourceFile, 
                 sourceLine, 
                 "??", 
@@ -1605,7 +1605,7 @@ namespace Ogre
     {
         // ANSI says: delete & delete[] allow NULL pointers (they do nothing)
         if( reportedAddress )
-            MemoryManager::instance().dllocMem(sourceFile, sourceLine, sourceFunc, m_alloc_delete, reportedAddress, processID );
+            dllocMem(sourceFile, sourceLine, sourceFunc, m_alloc_delete, reportedAddress, processID );
         else if( alwaysLogAll )
             log("[-] ----- %8s of NULL                      by %s", 
             allocationTypes[m_alloc_delete], 
@@ -1622,7 +1622,7 @@ namespace Ogre
     {
         // ANSI says: delete & delete[] allow NULL pointers (they do nothing)
         if (reportedAddress) 
-            MemoryManager::instance().dllocMem(
+            dllocMem(
                 sourceFile, 
                 sourceLine, 
                 sourceFunc, 

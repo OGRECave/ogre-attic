@@ -38,8 +38,15 @@ mkdir samples/include
 
 # process the project files but only do the ones required for a specific SDK
 /bin/find ../../samples -iname *$PROJEXT -exec cp \{\} samples/scripts \;
+if [[ "$1" == "VC8" ]] 
+then
+	/bin/find ../../samples -iname *_vc8.vcproj.user -exec cp \{\} samples/scripts \;
+	cp ../../ReferenceApplication/BspCollision/scripts/*_vc8.vcproj.user samples/scripts
+	/bin/find samples/scripts/ -iname *_vc8.vcproj.user -exec sed -i -f altersamples.sed \{\} \;
+fi
 cp ../../ReferenceApplication/BspCollision/scripts/*$PROJEXT samples/scripts
 cp ../../ReferenceApplication/ReferenceAppLayer/scripts/*$PROJEXT samples/refapp/scripts
+
 # only proces file deletions if RMEXT was set
 if [ -n "$RMEXT" ]
 then

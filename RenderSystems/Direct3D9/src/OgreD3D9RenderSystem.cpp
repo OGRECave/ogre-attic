@@ -181,7 +181,7 @@ namespace Ogre
 		driverList = this->getDirect3DDrivers();
 
 		optDevice.name = "Rendering Device";
-		optDevice.currentValue = "";
+		optDevice.currentValue.clear();
 		optDevice.possibleValues.clear();
 		optDevice.immutable = false;
 
@@ -324,7 +324,7 @@ namespace Ogre
 		{
 			// Video mode is applicable
 			it = mOptions.find( "Video Mode" );
-			if (it->second.currentValue == "")
+			if (it->second.currentValue.empty())
             {
 				it->second.currentValue = "800 x 600 @ 32-bit colour";
                 viewModeChanged = true;
@@ -450,7 +450,7 @@ namespace Ogre
 		
 		// check if video mode is selected
 		it = mOptions.find( "Video Mode" );
-		if( it->second.currentValue == "" )
+		if (it->second.currentValue.empty())
 			return "A video mode must be selected.";
 
 		it = mOptions.find( "Rendering Device" );
@@ -479,7 +479,7 @@ namespace Ogre
 		else
 			mVSync = false;
 
-		return "";
+        return StringUtil::BLANK;
 	}
 	//---------------------------------------------------------------------
 	ConfigOptionMap& D3D9RenderSystem::getConfigOptions()
@@ -513,7 +513,7 @@ namespace Ogre
 			bool fullScreen;
 			opt = mOptions.find( "Full Screen" );
 			if( opt == mOptions.end() )
-				Exception( Exception::ERR_INTERNAL_ERROR, "Can't find full screen option!", "D3D9RenderSystem::initialise" );
+				OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Can't find full screen option!", "D3D9RenderSystem::initialise" );
 			fullScreen = opt->second.currentValue == "Yes";
 
 			D3D9VideoMode* videoMode = NULL;
@@ -522,7 +522,7 @@ namespace Ogre
 
 			opt = mOptions.find( "Video Mode" );
 			if( opt == mOptions.end() )
-				Exception( Exception::ERR_INTERNAL_ERROR, "Can't find Video Mode option!", "D3D9RenderSystem::initialise" );
+				OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Can't find Video Mode option!", "D3D9RenderSystem::initialise" );
 
 			for( unsigned j=0; j < mActiveD3DDriver->getVideoModeList()->count(); j++ )
 			{
@@ -944,7 +944,7 @@ namespace Ogre
             mCapabilities->setVertexProgramConstantFloatCount(mCaps.MaxVertexShaderConst);
             break;
         default:
-            mCapabilities->setMaxVertexProgramVersion("");
+            mCapabilities->setMaxVertexProgramVersion(StringUtil::BLANK);
             break;
         }
 
@@ -1070,7 +1070,7 @@ namespace Ogre
             mCapabilities->setFragmentProgramConstantFloatCount(224);
             break;
         default:
-            mCapabilities->setMaxFragmentProgramVersion("");
+            mCapabilities->setMaxFragmentProgramVersion(StringUtil::BLANK);
             break;
         }
 
@@ -1843,12 +1843,9 @@ namespace Ogre
 			// disable all of this
 			hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE );
 			if( FAILED( hr ) )
-				OGRE_EXCEPT( hr, "Error setting texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
+				OGRE_EXCEPT( hr, "Unable to disable texture coordinate transform", "D3D9RenderSystem::_setTextureMatrix" );
 
-			// set the identity matrix
-			hr = mpD3DDevice->SetTransform( (D3DTRANSFORMSTATETYPE)(D3DTS_TEXTURE0 + stage), &d3dMat );
-			if( FAILED( hr ) )
-				OGRE_EXCEPT( hr, "Error setting texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
+			// Needless to sets texture transform here, it's never used at all
 		}
 	}
 	//---------------------------------------------------------------------
