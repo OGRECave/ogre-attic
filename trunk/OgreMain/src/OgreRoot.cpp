@@ -63,7 +63,8 @@ Torus Knot Software Ltd.
 #include "OgreLight.h"
 #include "OgreManualObject.h"
 #include "OgreRenderQueueInvocation.h"
-
+#include "OgrePlatformInformation.h"
+	
 #if OGRE_NO_FREEIMAGE == 0
 #include "OgreFreeImageCodec.h"
 #endif
@@ -495,7 +496,8 @@ namespace Ogre {
         if (!mControllerManager)
 			mControllerManager = new ControllerManager();
 
-        mAutoWindow =  mActiveRenderer->initialise(autoCreateWindow, windowTitle);
+		PlatformInformation::log(LogManager::getSingleton().getDefaultLog());
+		mAutoWindow =  mActiveRenderer->initialise(autoCreateWindow, windowTitle);
 
 		mResourceBackgroundQueue->initialise();
 
