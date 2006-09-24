@@ -42,17 +42,21 @@ namespace Ogre {
     HardwareVertexBufferSharedPtr GLHardwareBufferManager::createVertexBuffer(
         size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage, bool useShadowBuffer)
     {
-		return HardwareVertexBufferSharedPtr(
-			new GLHardwareVertexBuffer(vertexSize, numVerts, usage, useShadowBuffer) );
+		GLHardwareVertexBuffer* buf = 
+			new GLHardwareVertexBuffer(vertexSize, numVerts, usage, useShadowBuffer);
+		mVertexBuffers.insert(buf);
+		return HardwareVertexBufferSharedPtr(buf);
     }
     //-----------------------------------------------------------------------
     HardwareIndexBufferSharedPtr 
-    GLHardwareBufferManager:: createIndexBuffer(
+    GLHardwareBufferManager::createIndexBuffer(
         HardwareIndexBuffer::IndexType itype, size_t numIndexes, 
         HardwareBuffer::Usage usage, bool useShadowBuffer)
     {
-		return HardwareIndexBufferSharedPtr(
-			new GLHardwareIndexBuffer(itype, numIndexes, usage, useShadowBuffer) );
+		GLHardwareIndexBuffer* buf = 
+			new GLHardwareIndexBuffer(itype, numIndexes, usage, useShadowBuffer);
+		mIndexBuffers.insert(buf);
+		return HardwareIndexBufferSharedPtr(buf);
     }
     //---------------------------------------------------------------------
     GLenum GLHardwareBufferManager::getGLUsage(unsigned int usage)
