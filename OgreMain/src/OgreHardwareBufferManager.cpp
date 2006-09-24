@@ -86,14 +86,14 @@ namespace Ogre {
 	VertexBufferBinding* HardwareBufferManager::createVertexBufferBinding(void)
 	{
 		VertexBufferBinding* ret = createVertexBufferBindingImpl();
-		OGRE_LOCK_MUTEX(mVertexBuffersMutex)
+		OGRE_LOCK_MUTEX(mVertexBufferBindingsMutex)
 		mVertexBufferBindings.insert(ret);
 		return ret;
 	}
     //-----------------------------------------------------------------------
 	void HardwareBufferManager::destroyVertexBufferBinding(VertexBufferBinding* binding)
 	{
-		OGRE_LOCK_MUTEX(mVertexBuffersMutex)
+		OGRE_LOCK_MUTEX(mVertexBufferBindingsMutex)
 		mVertexBufferBindings.erase(binding);
 		destroyVertexBufferBindingImpl(binding);
 	}
@@ -131,7 +131,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void HardwareBufferManager::destroyAllBindings(void)
     {
-		OGRE_LOCK_MUTEX(mVertexBuffersMutex)
+		OGRE_LOCK_MUTEX(mVertexBufferBindingsMutex)
         VertexBufferBindingList::iterator bind;
         for (bind = mVertexBufferBindings.begin(); bind != mVertexBufferBindings.end(); ++bind)
         {
