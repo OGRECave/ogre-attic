@@ -76,7 +76,7 @@ http://www.gnu.org/copyleft/lesser.txt
 /* Include all the standard header *after* all the configuration
    settings have been made.
 */
-#include "OgreStdHeaders.h"
+//#include "OgreStdHeaders.h"
 
 
 #include "OgreMemoryManager.h"
@@ -173,7 +173,7 @@ namespace Ogre {
 		#define OGRE_DELETE_AUTO_SHARED_MUTEX
 		#define OGRE_COPY_AUTO_SHARED_MUTEX(from)
         #define OGRE_SET_AUTO_SHARED_MUTEX_NULL
-        #define OGRE_MUTEX_CONDITIONAL(name)
+        #define OGRE_MUTEX_CONDITIONAL(name) if(true)
 	#endif
 
 
