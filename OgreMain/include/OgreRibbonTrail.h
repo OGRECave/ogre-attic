@@ -101,6 +101,8 @@ namespace Ogre {
 		void setMaxChainElements(size_t maxElements);
 		/** @copydoc BillboardChain::setNumberOfChains */
 		void setNumberOfChains(size_t numChains);
+		/** @copydoc BillboardChain::clearChain */
+		void clearChain(size_t chainIndex);
 
 		/** Set the starting ribbon colour for a given segment. 
 		@param chainIndex The index of the chain
@@ -189,7 +191,10 @@ namespace Ogre {
 		virtual void manageController(void);
 		/// Node has changed position, update
 		virtual void updateTrail(size_t index, const Node* node);
-
+        /// Reset the tracked chain to initial state
+        virtual void resetTrail(size_t index, const Node* node);
+        /// Reset all tracked chains to initial state
+        virtual void resetAllTrails(void);
 
 	};
 

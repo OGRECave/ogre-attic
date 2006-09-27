@@ -322,6 +322,12 @@ namespace Ogre {
 		// Just reset head & tail
 		seg.tail = seg.head = SEGMENT_EMPTY;
 
+		// we removed an entry so indexes need updating
+		mIndexContentDirty = true;
+		mBoundsDirty = true;
+		// tell parent node to update bounds
+		if (mParentNode)
+			mParentNode->needUpdate();
 
 	}
 	//-----------------------------------------------------------------------
