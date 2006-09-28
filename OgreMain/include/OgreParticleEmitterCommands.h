@@ -172,6 +172,21 @@ namespace Ogre  {
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
+		/// Command object for particle emitter  - see ParamCommand
+        class _OgreExport CmdName : public ParamCommand
+        {
+        public:
+            String doGet(const void* target) const;
+            void doSet(void* target, const String& val);
+        };
+
+		/// Command object for particle emitter  - see ParamCommand 
+        class _OgreExport CmdEmittedEmitter : public ParamCommand
+        {
+        public:
+            String doGet(const void* target) const;
+            void doSet(void* target, const String& val);
+        };
 
     }
 

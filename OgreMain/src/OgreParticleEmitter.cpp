@@ -33,7 +33,9 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
-    // Define static members
+	const String ParticleEmitter::PT_EMITTER = "Emitter";
+
+	// Define static members
     EmitterCommands::CmdAngle ParticleEmitter::msAngleCmd;
     EmitterCommands::CmdColour ParticleEmitter::msColourCmd;
     EmitterCommands::CmdColourRangeStart ParticleEmitter::msColourRangeStartCmd;
@@ -53,6 +55,8 @@ namespace Ogre {
     EmitterCommands::CmdRepeatDelay ParticleEmitter::msRepeatDelayCmd;
     EmitterCommands::CmdMinRepeatDelay ParticleEmitter::msMinRepeatDelayCmd;
     EmitterCommands::CmdMaxRepeatDelay ParticleEmitter::msMaxRepeatDelayCmd;
+    EmitterCommands::CmdName ParticleEmitter::msNameCmd;
+    EmitterCommands::CmdEmittedEmitter ParticleEmitter::msEmittedEmitterCmd;
 
 
     //-----------------------------------------------------------------------
@@ -77,7 +81,9 @@ namespace Ogre {
         mColourRangeStart = mColourRangeEnd = ColourValue::White;
         mEnabled = true;
         mRemainder = 0;
-
+		mName = StringUtil::BLANK;
+		mEmittedEmitter = StringUtil::BLANK;
+		mEmitted = false;
     }
     //-----------------------------------------------------------------------
     ParticleEmitter::~ParticleEmitter() 
@@ -160,6 +166,36 @@ namespace Ogre {
     {
         mColourRangeStart = colourStart;
         mColourRangeEnd = colourEnd;
+    }
+	//-----------------------------------------------------------------------
+    const String& ParticleEmitter::getName(void) const
+    {
+        return mName;
+    }
+	//-----------------------------------------------------------------------
+    void ParticleEmitter::setName(const String& newName)
+    {
+		mName = newName;
+    }
+	//-----------------------------------------------------------------------
+    const String& ParticleEmitter::getEmittedEmitter(void) const
+    {
+        return mEmittedEmitter;
+    }
+	//-----------------------------------------------------------------------
+    void ParticleEmitter::setEmittedEmitter(const String& emittedEmitter)
+    {
+        mEmittedEmitter = emittedEmitter;
+    }
+	//-----------------------------------------------------------------------
+	bool ParticleEmitter::isEmitted(void) const
+    {
+		return mEmitted;
+    }
+	//-----------------------------------------------------------------------
+	void ParticleEmitter::setEmitted(bool emitted)
+    {
+        mEmitted = emitted;
     }
     //-----------------------------------------------------------------------
     void ParticleEmitter::genEmissionDirection(Vector3& destVector)
@@ -356,6 +392,14 @@ namespace Ogre {
         dict->addParameter(ParameterDef("repeat_delay_max", 
             "If set, after disabling an emitter will repeat (reenable) after this maximum number of seconds." , PT_REAL),
             &msMaxRepeatDelayCmd);
+
+		dict->addParameter(ParameterDef("name", 
+			"This is the name of the emitter" , PT_STRING),
+			&msNameCmd);
+		
+		dict->addParameter(ParameterDef("emit_emitter", 
+			"If set, this emitter will emit other emitters instead of visual particles" , PT_STRING),
+			&msEmittedEmitterCmd);
     }
     //-----------------------------------------------------------------------
     Real ParticleEmitter::getParticleVelocity(void) const

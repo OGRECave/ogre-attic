@@ -68,6 +68,13 @@ namespace Ogre {
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
+        /** Command object for emittedEmitterQuota (see ParamCommand).*/
+        class _OgrePrivate CmdEmittedEmitterQuota : public ParamCommand
+        {
+        public:
+            String doGet(const void* target) const;
+            void doSet(void* target, const String& val);
+        };
         /** Command object for material (see ParamCommand).*/
         class _OgrePrivate CmdMaterial : public ParamCommand
         {
@@ -262,6 +269,17 @@ namespace Ogre {
 		*/
 		Particle* createParticle(void);
 
+		/** Manually add an emitter particle to the system. 
+		@remarks
+			The purpose of a particle emitter is to emit particles. Besides visual particles, also other other
+			particle types can be emitted, other emitters for example. The emitted emitters have a double role;
+			they behave as particles and can be influenced by affectors, but they are still emitters and capable 
+			to emit other particles (or emitters). It is possible to create a chain of emitters - emitters 
+			emitting other emitters, which also emit emitters.
+		@param emitterName The name of a particle emitter that must be emitted.
+		*/
+		Particle* createEmitterParticle(const String& emitterName);
+
 		/** Retrieve a particle from the system for manual tweaking.
 		@remarks
 			Normally you use an affector to alter particles in flight, but
@@ -288,8 +306,20 @@ namespace Ogre {
         */
         void setParticleQuota(size_t quota);
 
+        /** Returns the maximum number of emitted emitters this system is allowed to have active at once.
+        @remarks
+            See ParticleSystem::setEmittedEmitterQuota for more info.
+        */
+        size_t getEmittedEmitterQuota(void) const;
 
-        /** Assignment operator for copying.
+        /** Sets the maximum number of emitted emitters this system is allowed to have active at once.
+        @remarks
+            Particle systems can have - besides a particle quota - also an emitted emitter quota.
+        @param quota The maximum number of emitted emitters this system is allowed to have.
+        */
+        void setEmittedEmitterQuota(size_t quota);
+
+		/** Assignment operator for copying.
         @remarks
             This operator deep copies all particle emitters and effectors, but not particles. The
             system's name is also not copied.
@@ -587,6 +617,7 @@ namespace Ogre {
         static CmdHeight msHeightCmd;
         static CmdMaterial msMaterialCmd;
         static CmdQuota msQuotaCmd;
+		static CmdEmittedEmitterQuota msEmittedEmitterQuotaCmd;
         static CmdWidth msWidthCmd;
         static CmdRenderer msRendererCmd;
 		static CmdSorted msSortedCmd;
@@ -636,6 +667,8 @@ namespace Ogre {
 		unsigned long mLastVisibleFrame;
 		/// Controller for time update
 		Controller<Real>* mTimeController;
+        /// Indication whether the emitted emitter pool (= pool with particle emitters that are emitted) is initialised
+		bool mEmittedEmitterPoolInitialised;
 
         typedef std::list<Particle*> ActiveParticleList;
         typedef std::list<Particle*> FreeParticleList;
@@ -691,7 +724,36 @@ namespace Ogre {
         */
         ParticlePool mParticlePool;
 
-        typedef std::vector<ParticleEmitter*> ParticleEmitterList;
+		typedef std::list<ParticleEmitter*> FreeEmittedEmitterList;
+		typedef std::list<ParticleEmitter*> ActiveEmittedEmitterList;
+		typedef std::vector<ParticleEmitter*> EmittedEmitterList;
+		typedef std::map<String, FreeEmittedEmitterList> FreeEmittedEmitterMap;
+		typedef std::map<String, EmittedEmitterList> EmittedEmitterPool;
+
+		/** Pool of emitted emitters for use and reuse in the active emitted emitter list.
+        @remarks
+			The emitters in this pool act as particles and as emitters. The pool is a map containing lists 
+			of emitters, identified by their name.
+        @par
+            The emitters in this pool are cloned using emitters that are kept in the main emitter list
+			of the ParticleSystem.
+        */
+		EmittedEmitterPool mEmittedEmitterPool;
+
+        /** Free emitted emitter list.
+            @remarks
+                This contains a list of the emitters free for use as new instances as required by the set.
+        */
+        FreeEmittedEmitterMap mFreeEmittedEmitters;
+
+		/** Active emitted emitter list.
+            @remarks
+                This is a linked list of pointers to emitters in the emitted emitter pool.
+				Emitters that are used are stored (their pointers) in both the list with active particles and in 
+				the list with active emitted emitters.        */
+        ActiveEmittedEmitterList mActiveEmittedEmitters;
+
+		typedef std::vector<ParticleEmitter*> ParticleEmitterList;
         typedef std::vector<ParticleAffector*> ParticleAffectorList;
         
         /// List of particle emitters, ie sources of particles
@@ -711,6 +773,9 @@ namespace Ogre {
         /// The number of particles in the pool.
         size_t mPoolSize;
 
+        /// The number of emitted emitters in the pool.
+        size_t mEmittedEmitterPoolSize;
+
 		/// Optional origin of this particle system (eg script name)
 		String mOrigin;
 
@@ -725,7 +790,11 @@ namespace Ogre {
         /** Spawn new particles based on free quota and emitter requirements. */
         void _triggerEmitters(Real timeElapsed);
 
-        /** Updates existing particle based on their momentum. */
+		/** Helper function that actually performs the emission of particles
+        */
+		void _executeTriggerEmitters(ParticleEmitter* emitter, unsigned requested, Real timeElapsed);
+
+		/** Updates existing particle based on their momentum. */
         void _applyMotion(Real timeElapsed);
 
         /** Applies the effects of affectors. */
@@ -737,7 +806,16 @@ namespace Ogre {
         /** Resize the internal pool of particles. */
         void increasePool(size_t size);
 
-        /** Internal method for initialising string interface. */
+		/** Resize the internal pool of emitted emitters.
+            @remarks
+                The pool consists of multiple vectors containing pointers to particle emitters. Increasing the 
+				pool with ´size´ implies that the vectors are equally increased. The quota of emitted emitters is 
+				defined on a particle system level and not on a particle emitter level. This is to prevent that
+				the number of created emitters becomes too high; the quota is shared amongst the emitted emitters.
+		*/
+		void increaseEmittedEmitterPool(size_t size);
+
+		/** Internal method for initialising string interface. */
         void initParameters(void);
 
         /** Internal method to configure the renderer. */
@@ -748,6 +826,51 @@ namespace Ogre {
 		/// Internal method for destroying ParticleVisualData instances for the pool
 		void destroyVisualParticles(size_t poolstart, size_t poolend);
 
+		/** Create a pool of emitted emitters and assign them to the free emitter list.
+            @remarks
+                The emitters in the pool are grouped by name. This name is the name of the base emitter in the
+				main list with particle emitters, which forms the template of the created emitted emitters.
+        */
+		void initialiseEmittedEmitters(void);
+
+		/** Determine which emitters in the Particle Systems main emitter become a template for creating an
+			pool of emitters that can be emitted.
+        */
+		void initialiseEmittedEmitterPool(void);
+
+		/** Add  emitters from the pool to the free emitted emitter queue. */
+		void addFreeEmittedEmitters(void);
+
+		/** Removes all emitted emitters from this system.	*/
+		void removeAllEmittedEmitters(void);
+
+		/** Find the list with free emitted emitters.
+            @param name The name that identifies the list with free emitted emitters.
+        */
+		FreeEmittedEmitterList* findFreeEmittedEmitter (const String& name);
+
+		/** Removes an emitter from the active emitted emitter list.
+            @remarks
+                The emitter will not be destroyed!
+            @param emitter Pointer to a particle emitter.
+        */
+		void removeFromActiveEmittedEmitters (ParticleEmitter* emitter);
+
+		/** Moves all emitted emitters from the active list to the free list
+            @remarks
+                The active emitted emitter list will not be cleared and still keeps references to the emitters!
+        */
+		void addActiveEmittedEmittersToFreeList (void);
+
+		/** This function clears all data structures that are used in combination with emitted emitters and
+		    sets the flag to indicate that the emitted emitter pool must be initialised again.
+            @remarks
+                This function should be called if new emitters are added to a ParticleSystem or deleted from a
+				ParticleSystem. The emitted emitter data structures become out of sync and need to be build up
+				again. The data structures are not reorganised in this function, but by setting a ´flag´, 
+				they are rebuild in the regular process flow.
+        */
+		void _notifyReorganiseEmittedEmitterData (void);
     };
 
 }

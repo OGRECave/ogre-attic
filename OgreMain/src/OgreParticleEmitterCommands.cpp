@@ -226,6 +226,26 @@ namespace Ogre {
         {
             static_cast<ParticleEmitter*>(target)->setMaxRepeatDelay(StringConverter::parseReal(val));
         }
+        //-----------------------------------------------------------------------
+        String CmdName::doGet(const void* target) const
+        {
+            return 
+                static_cast<const ParticleEmitter*>(target)->getName();
+        }
+        void CmdName::doSet(void* target, const String& val)
+        {
+            static_cast<ParticleEmitter*>(target)->setName(val);
+        }
+        //-----------------------------------------------------------------------
+        String CmdEmittedEmitter::doGet(const void* target) const
+        {
+            return 
+                static_cast<const ParticleEmitter*>(target)->getEmittedEmitter();
+        }
+        void CmdEmittedEmitter::doSet(void* target, const String& val)
+        {
+            static_cast<ParticleEmitter*>(target)->setEmittedEmitter(val);
+        }
  
 
     

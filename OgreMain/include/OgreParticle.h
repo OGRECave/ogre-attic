@@ -60,6 +60,8 @@ namespace Ogre {
 		/// Additional visual data you might want to associate with the Particle
 		ParticleVisualData* mVisual;
     public:
+		/// String representation of ´visual´ particle
+		static const String PT_VISUAL;
         /// Does this particle have it's own dimensions?
         bool mOwnDimensions;
         /// Personal width if mOwnDimensions == true
@@ -82,13 +84,15 @@ namespace Ogre {
         Real totalTimeToLive;
 		/// Speed of rotation in radians/sec
 		Radian rotationSpeed;
+		/// Determines the type of particle.
+		String particleType;
 
 
         Particle()
             : mParentSystem(0), mVisual(0), mOwnDimensions(false), rotation(0), 
             position(Vector3::ZERO), direction(Vector3::ZERO), 
             colour(ColourValue::White), timeToLive(10), totalTimeToLive(10), 
-            rotationSpeed(0)
+            rotationSpeed(0), particleType (PT_VISUAL)
         {
         }
 
