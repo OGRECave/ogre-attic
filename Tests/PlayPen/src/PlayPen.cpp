@@ -4226,6 +4226,66 @@ protected:
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
     }
 
+    void testBuildTangentOnAnimatedMesh(void)
+    {
+        //mSceneMgr->setShadowTextureSize(512);
+        //mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_ADDITIVE);
+        //mSceneMgr->setShadowFarDistance(1500);
+        //mSceneMgr->setShadowColour(ColourValue(0.35, 0.35, 0.35));
+        //mSceneMgr->setShadowFarDistance(800);
+        // Set ambient light
+        mSceneMgr->setAmbientLight(ColourValue(0.3, 0.3, 0.3));
+
+        mLight = mSceneMgr->createLight("MainLight");
+
+/*/
+        // Directional test
+        mLight->setType(Light::LT_DIRECTIONAL);
+        Vector3 vec(-1,-1,0);
+        vec.normalise();
+        mLight->setDirection(vec);
+/*/
+        // Point test
+        mLight->setType(Light::LT_POINT);
+        mLight->setPosition(0, 200, 0);
+//*/
+        MeshPtr pMesh = MeshManager::getSingleton().load("ninja.mesh",
+            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME/*,    
+            HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
+            HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+            true, true*/); //so we can still read it
+        // Build tangent vectors, all our meshes use only 1 texture coordset 
+        unsigned short src, dest;
+        if (!pMesh->suggestTangentVectorBuildParams(src, dest))
+        {
+            pMesh->buildTangentVectors(src, dest);
+        }
+
+        Entity* pEnt = mSceneMgr->createEntity("Ninja", "ninja.mesh");
+
+/*/
+        mAnimState = pEnt->getAnimationState("Walk");
+        mAnimState->setEnabled(true);
+/*/
+        pEnt->getAnimationState("Walk")->setEnabled(true);
+//*/
+        mTestNode[1] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+        mTestNode[1]->attachObject( pEnt );
+        mTestNode[1]->translate(-100,-100,0);
+
+
+        Plane plane;
+        plane.normal = Vector3::UNIT_Y;
+        plane.d = 100;
+        MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+            1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
+        Entity* pPlaneEnt;
+        pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+        pPlaneEnt->setMaterialName("2 - Default");
+        pPlaneEnt->setCastShadows(false);
+        mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+    }
 
 	// Just override the mandatory create scene method
     void createScene(void)
@@ -4317,6 +4377,7 @@ protected:
 		//testMaterialSchemesWithLOD();
 		//testMaterialSchemesWithMismatchedLOD();
         //testSkeletonAnimationOptimise();
+        testBuildTangentOnAnimatedMesh();
 
 		
     }
