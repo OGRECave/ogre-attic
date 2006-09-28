@@ -1277,6 +1277,14 @@ namespace Ogre {
 				pNormBase = pDestBase;
 				normInc = destInc;
 			}
+			else if (elemVNorm->getSource() == elemVPos->getSource())
+			{
+			    // normals are in the same buffer as position
+			    // this condition arises when an animated(skeleton) mesh is not built with 
+			    // an edge list buffer ie no shadows being used.
+			    pNormBase = pPosBase;
+			    normInc = posInc;
+			}
 			else
 			{
 				// A different buffer
