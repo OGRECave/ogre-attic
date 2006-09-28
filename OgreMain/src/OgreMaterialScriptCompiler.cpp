@@ -542,10 +542,6 @@ namespace Ogre {
 
             mScriptContext.section = MSS_NONE;
             mScriptContext.material.setNull();
-			//Reset all levels for next material
-			mScriptContext.passLev = -1;
-			mScriptContext.stateLev= -1;
-			mScriptContext.techLev = -1;
             mScriptContext.textureAliases.clear();
             break;
         case MSS_TECHNIQUE:
@@ -725,6 +721,10 @@ namespace Ogre {
 
         // update section
         mScriptContext.section = MSS_MATERIAL;
+        //Reset all levels since this is the start of the material definition
+        mScriptContext.passLev = -1;
+        mScriptContext.stateLev= -1;
+        mScriptContext.techLev = -1;
 
     }
     //-----------------------------------------------------------------------
