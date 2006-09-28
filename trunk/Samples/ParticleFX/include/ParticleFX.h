@@ -73,10 +73,12 @@ protected:
 
 
         // Green nimbus around Ogre
-        ParticleSystem* pSys1 = mSceneMgr->createParticleSystem("Nimbus",
-            "Examples/GreenyNimbus");
-        mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pSys1);
+        //mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(
+        //        mSceneMgr->createParticleSystem("Nimbus", "Examples/GreenyNimbus"));
 
+        // Create some nice fireworks
+        mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(
+                mSceneMgr->createParticleSystem("Fireworks", "Examples/Fireworks"));
 
         // Create shared node for 2 fountains
         mFountainNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();

@@ -33,7 +33,9 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
-    //-----------------------------------------------------------------------
+	const String Particle::PT_VISUAL = "Visual";
+
+	//-----------------------------------------------------------------------
     void Particle::setRotation(const Radian& rot)
     {
         rotation = rot;

@@ -63,7 +63,7 @@ namespace Ogre {
         with literally infinite combinations of emitter and affector types, and paramters within those
         types.
     */
-    class _OgreExport ParticleEmitter : public StringInterface
+    class _OgreExport ParticleEmitter : public StringInterface, public Particle
     {
     protected:
 
@@ -87,6 +87,8 @@ namespace Ogre {
         static EmitterCommands::CmdRepeatDelay msRepeatDelayCmd;
         static EmitterCommands::CmdMinRepeatDelay msMinRepeatDelayCmd;
         static EmitterCommands::CmdMaxRepeatDelay msMaxRepeatDelayCmd;
+		static EmitterCommands::CmdName msNameCmd;
+		static EmitterCommands::CmdEmittedEmitter msEmittedEmitterCmd;
 
 
         /// Parent particle system
@@ -137,7 +139,17 @@ namespace Ogre {
 		// Fractions of particles wanted to be emitted last time
 		Real mRemainder;
 
-        // NB Method below here are to help out people implementing emitters by providing the
+        /// The name of the emitter. The name is optional unless it is used as an emitter that is emitted itself.
+        String mName;
+
+		/// The name of the emitter to be emitted (optional)
+        String mEmittedEmitter;
+
+		// If 'true', this emitter is emitted by another emitter.
+		// NB. That doesn´t imply that the emitter itself emits other emitters (that could or could not be the case)
+		bool mEmitted;
+
+		// NB Method below here are to help out people implementing emitters by providing the
         // most commonly used approaches as piecemeal methods
 
         /** Internal utility method for generating particle exit direction
@@ -179,7 +191,10 @@ namespace Ogre {
         /** Virtual destructor essential. */
         virtual ~ParticleEmitter();
 
-        /** Sets the position of this emitter relative to the particle system center. */
+        /** String representation of ´emitter´ */
+		static const String PT_EMITTER;
+
+		/** Sets the position of this emitter relative to the particle system center. */
         virtual void setPosition(const Vector3& pos);
 
         /** Returns the position of this emitter relative to thte center of the particle system. */
@@ -466,6 +481,23 @@ namespace Ogre {
         /** Gets the maximum duration of this emitter in seconds (see setRepeatDelay for more details) */
         virtual Real getMaxRepeatDelay(void) const;
 
+		/** Returns the name of the emitter */
+		const String &getName(void) const;
+
+		/** Sets the name of the emitter */
+		virtual void setName(const String& newName);
+
+		/** Returns the name of the emitter to be emitted */
+		const String &getEmittedEmitter(void) const;
+
+		/** Sets the name of the emitter to be emitted*/
+		virtual void setEmittedEmitter(const String& emittedEmitter);
+
+		/** Return ´true´ if the emitter is emitted by another emitter */
+		virtual bool isEmitted(void) const;
+
+		/** Set the indication (true/false) to indicate that the emitter is emitted by another emitter */
+		virtual void setEmitted(bool emitted);
 
 
     };
