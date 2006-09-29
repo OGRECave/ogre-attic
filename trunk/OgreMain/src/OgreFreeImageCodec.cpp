@@ -261,9 +261,14 @@ namespace Ogre {
 		BYTE* data;
 		DWORD size;
 		FreeImage_AcquireMemory(mem, &data, &size);
-		// Wrap data in stream, tell it to free on close since we won't tell FI to do it
-		DataStreamPtr outstream(new MemoryDataStream(data, size, true));
-
+		// Copy data into our own buffer
+		BYTE* ourData = new BYTE[size];
+		memcpy(ourData, data, size);
+		// Wrap data in stream, tell it to free on close 
+		DataStreamPtr outstream(new MemoryDataStream(ourData, size, true));
+		// Now free FreeImage memory buffers
+		FreeImage_CloseMemory(mem);
+		// Unload bitmap
 		FreeImage_Unload(fiBitmap);
 
 		return outstream;
