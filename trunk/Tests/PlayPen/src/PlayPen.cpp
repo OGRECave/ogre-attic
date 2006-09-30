@@ -3493,6 +3493,93 @@ protected:
 
 	}
 
+	void testManualObjectNonIndexedUpdateSmaller()
+	{
+		testManualObjectNonIndexed();
+		ManualObject* man = static_cast<ManualObject*>(
+			mSceneMgr->getMovableObject("test", ManualObjectFactory::FACTORY_TYPE_NAME));
+
+		// Redefine but make smaller (one tri less)
+		man->beginUpdate(0);
+		man->position(-30, 30, 30);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 0);
+
+		man->position(-30, -30, 30);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 1);
+
+		man->position(30, 30, 30);
+		man->normal(0, 0, 1);
+		man->textureCoord(1, 0);
+
+
+		man->end();
+
+	}
+
+	void testManualObjectNonIndexedUpdateLarger()
+	{
+		testManualObjectNonIndexed();
+		ManualObject* man = static_cast<ManualObject*>(
+			mSceneMgr->getMovableObject("test", ManualObjectFactory::FACTORY_TYPE_NAME));
+
+		// Redefine but make larger (2 more tri)
+		man->beginUpdate(0);
+
+		man->position(-20, 20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 0);
+
+		man->position(-20, -20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 1);
+
+		man->position(20, 20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(1, 0);
+
+		man->position(-20, -20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 1);
+
+		man->position(20, -20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(1, 1);
+
+		man->position(20, 20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(1, 0);
+
+
+		man->position(-20, 40, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 0);
+
+		man->position(-20, 20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 1);
+
+		man->position(20, 40, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(1, 0);
+
+		man->position(-20, 20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 1);
+
+		man->position(20, 20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(1, 1);
+
+		man->position(20, 40, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(1, 0);
+
+
+		man->end();
+
+	}
 	void testManualObjectIndexed()
 	{
 		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
@@ -3563,6 +3650,82 @@ protected:
 
 
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(man);
+
+	}
+
+	void testManualObjectIndexedUpdateSmaller()
+	{
+		testManualObjectIndexed();
+		ManualObject* man = static_cast<ManualObject*>(
+			mSceneMgr->getMovableObject("test", ManualObjectFactory::FACTORY_TYPE_NAME));
+
+
+		man->beginUpdate(0);
+		// 1 tri smaller
+		man->position(-20, 20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 0);
+
+		man->position(-20, -20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 1);
+
+		man->position(20, -20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(1, 1);
+
+		man->triangle(0, 1, 2);
+
+		man->end();
+
+	}
+
+	void testManualObjectIndexedUpdateLarger()
+	{
+		testManualObjectIndexed();
+		ManualObject* man = static_cast<ManualObject*>(
+			mSceneMgr->getMovableObject("test", ManualObjectFactory::FACTORY_TYPE_NAME));
+
+
+		man->beginUpdate(0);
+		// 1 quad larger
+		man->position(-20, 20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 0);
+
+		man->position(-20, -20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 1);
+
+		man->position(20, -20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(1, 1);
+
+		man->position(20, 20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(1, 0);
+
+
+		man->position(-20, 40, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 0);
+
+		man->position(-20, 20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 1);
+
+		man->position(20, 20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(1, 1);
+
+		man->position(20, 40, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(1, 0);
+
+		man->quad(0, 1, 2, 3);
+		man->quad(4, 5, 6, 7);
+
+		man->end();
 
 	}
 
@@ -4635,6 +4798,10 @@ protected:
 		//testManualBlend();
 		//testManualObjectNonIndexed();
 		//testManualObjectIndexed();
+		//testManualObjectNonIndexedUpdateSmaller();
+		//testManualObjectNonIndexedUpdateLarger();
+		//testManualObjectIndexedUpdateSmaller();
+		testManualObjectIndexedUpdateLarger();
 		//testCustomProjectionMatrix();
 		//testPointSprites();
 		//testFallbackResourceGroup();
@@ -4660,7 +4827,7 @@ protected:
 
 		//testVertexTexture();
 		//testGLSLTangent();
-		testBackgroundLoadResourceGroup();
+		//testBackgroundLoadResourceGroup();
 		
     }
     // Create new frame listener

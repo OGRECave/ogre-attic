@@ -48,12 +48,13 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
 	ManualObject::ManualObject(const String& name)
 		: MovableObject(name),
-		  mCurrentSection(0), mFirstVertex(true),
+		  mDynamic(false), mCurrentSection(0), mFirstVertex(true),
 		  mTempVertexPending(false),
 		  mTempVertexBuffer(0), mTempVertexSize(TEMP_INITIAL_VERTEX_SIZE),
 		  mTempIndexBuffer(0), mTempIndexSize(TEMP_INITIAL_INDEX_SIZE),
-		  mDeclSize(0), mTexCoordIndex(0), mRadius(0), mAnyIndexed(false),
-		  mEdgeList(0), mUseIdentityProjection(false), mUseIdentityView(false)
+		  mDeclSize(0), mEstVertexCount(0), mEstIndexCount(0), mTexCoordIndex(0), 
+		  mRadius(0), mAnyIndexed(false), mEdgeList(0), 
+		  mUseIdentityProjection(false), mUseIdentityView(false)
 	{
 	}
 	//-----------------------------------------------------------------------------
@@ -165,11 +166,13 @@ namespace Ogre {
 	void ManualObject::estimateVertexCount(size_t vcount)
 	{
 		resizeTempVertexBufferIfNeeded(vcount);
+		mEstVertexCount = vcount;
 	}
 	//-----------------------------------------------------------------------------
 	void ManualObject::estimateIndexCount(size_t icount)
 	{
 		resizeTempIndexBufferIfNeeded(icount);
+		mEstIndexCount = icount;
 	}
 	//-----------------------------------------------------------------------------
 	void ManualObject::begin(const String& materialName,
@@ -182,12 +185,40 @@ namespace Ogre {
 				"ManualObject::begin");
 		}
 		mCurrentSection = new ManualObjectSection(this, materialName, opType);
+		mCurrentUpdating = false;
 		mCurrentSection->setUseIdentityProjection(mUseIdentityProjection);
 		mCurrentSection->setUseIdentityView(mUseIdentityView);
 		mSectionList.push_back(mCurrentSection);
 		mFirstVertex = true;
 		mDeclSize = 0;
 		mTexCoordIndex = 0;
+	}
+	//-----------------------------------------------------------------------------
+	void ManualObject::beginUpdate(size_t sectionIndex)
+	{
+		if (mCurrentSection)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"You cannot call begin() again until after you call end()",
+				"ManualObject::beginUpdate");
+		}
+		if (sectionIndex >= mSectionList.size())
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"Invalid section index - out of range.",
+				"ManualObject::beginUpdate");
+		}
+		mCurrentSection = mSectionList[sectionIndex];
+		mCurrentUpdating = true;
+		mFirstVertex = true;
+		mTexCoordIndex = 0;
+		// reset vertex & index count
+		RenderOperation* rop = mCurrentSection->getRenderOperation();
+		rop->vertexData->vertexCount = 0;
+		if (rop->indexData)
+			rop->indexData->indexCount = 0;
+		rop->useIndexes = false;
+		mDeclSize = rop->vertexData->vertexDeclaration->getVertexSize(0);
 	}
 	//-----------------------------------------------------------------------------
 	void ManualObject::position(const Vector3& pos)
@@ -210,7 +241,7 @@ namespace Ogre {
 			mFirstVertex = false;
 		}
 
-		if (mFirstVertex)
+		if (mFirstVertex && !mCurrentUpdating)
 		{
 			// defining declaration
 			mCurrentSection->getRenderOperation()->vertexData->vertexDeclaration
@@ -245,7 +276,7 @@ namespace Ogre {
 				"You must call begin() before this method",
 				"ManualObject::normal");
 		}
-		if (mFirstVertex)
+		if (mFirstVertex && !mCurrentUpdating)
 		{
 			// defining declaration
 			mCurrentSection->getRenderOperation()->vertexData->vertexDeclaration
@@ -265,7 +296,7 @@ namespace Ogre {
 				"You must call begin() before this method",
 				"ManualObject::textureCoord");
 		}
-		if (mFirstVertex)
+		if (mFirstVertex && !mCurrentUpdating)
 		{
 			// defining declaration
 			mCurrentSection->getRenderOperation()->vertexData->vertexDeclaration
@@ -287,7 +318,7 @@ namespace Ogre {
 				"You must call begin() before this method",
 				"ManualObject::textureCoord");
 		}
-		if (mFirstVertex)
+		if (mFirstVertex && !mCurrentUpdating)
 		{
 			// defining declaration
 			mCurrentSection->getRenderOperation()->vertexData->vertexDeclaration
@@ -309,7 +340,7 @@ namespace Ogre {
 				"You must call begin() before this method",
 				"ManualObject::textureCoord");
 		}
-		if (mFirstVertex)
+		if (mFirstVertex && !mCurrentUpdating)
 		{
 			// defining declaration
 			mCurrentSection->getRenderOperation()->vertexData->vertexDeclaration
@@ -347,7 +378,7 @@ namespace Ogre {
 				"You must call begin() before this method",
 				"ManualObject::colour");
 		}
-		if (mFirstVertex)
+		if (mFirstVertex && !mCurrentUpdating)
 		{
 			// defining declaration
 			mCurrentSection->getRenderOperation()->vertexData->vertexDeclaration
@@ -376,8 +407,8 @@ namespace Ogre {
 		{
 			rop->indexData = new IndexData();
 			rop->indexData->indexCount = 0;
-			rop->useIndexes = true;
 		}
+		rop->useIndexes = true;
 		resizeTempIndexBufferIfNeeded(++rop->indexData->indexCount);
 
 		mTempIndexBuffer[rop->indexData->indexCount - 1] = idx;
@@ -416,7 +447,7 @@ namespace Ogre {
 	{
 		mTempVertexPending = false;
 		RenderOperation* rop = mCurrentSection->getRenderOperation();
-		if (rop->vertexData->vertexCount == 0)
+		if (rop->vertexData->vertexCount == 0 && !mCurrentUpdating)
 		{
 			// first vertex, autoorganise decl
 			VertexDeclaration* oldDcl = rop->vertexData->vertexDeclaration;
@@ -503,37 +534,91 @@ namespace Ogre {
 			copyTempVertexToBuffer();
 		}
 
-		// Bake the real buffers
+
 		RenderOperation* rop = mCurrentSection->getRenderOperation();
-		if (rop->vertexData->vertexCount == 0)
+		// Check for empty content
+		if (rop->vertexData->vertexCount == 0 ||
+			(rop->useIndexes && rop->indexData->indexCount == 0))
 		{
 			// You're wasting my time sonny
-			// Has already been added to section list, so remove
-			mSectionList.pop_back();
-			delete mCurrentSection;
-		}
-		else
-		{
-			HardwareVertexBufferSharedPtr vbuf =
-				HardwareBufferManager::getSingleton().createVertexBuffer(
-					mDeclSize,
-					rop->vertexData->vertexCount,
-					HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-			rop->vertexData->vertexBufferBinding->setBinding(0, vbuf);
-			vbuf->writeData(0, vbuf->getSizeInBytes(), mTempVertexBuffer, true);
-
-			if(rop->useIndexes)
+			if (mCurrentUpdating)
 			{
+				// Can't just undo / remove since may be in the middle
+				// Just allow counts to be 0, will not be issued to renderer
+			}
+			else
+			{
+				// First creation, can really undo
+				// Has already been added to section list end, so remove
+				mSectionList.pop_back();
+				delete mCurrentSection;
+
+			}
+		}
+		else // not an empty section
+		{
+
+			// Bake the real buffers
+			HardwareVertexBufferSharedPtr vbuf;
+			// Check buffer sizes
+			bool vbufNeedsCreating = true;
+			bool ibufNeedsCreating = rop->useIndexes;
+			if (mCurrentUpdating)
+			{
+				// May be able to reuse buffers, check sizes
+				vbuf = rop->vertexData->vertexBufferBinding->getBuffer(0);
+				if (vbuf->getNumVertices() >= rop->vertexData->vertexCount)
+					vbufNeedsCreating = false;
+
+				if (rop->useIndexes)
+				{
+					if (rop->indexData->indexBuffer->getNumIndexes() >= 
+						rop->indexData->indexCount)
+						ibufNeedsCreating = false;
+				}
+
+			}
+			if (vbufNeedsCreating)
+			{
+				// Make the vertex buffer larger if estimated vertex count higher
+				// to allow for user-configured growth area
+				size_t vertexCount = std::max(rop->vertexData->vertexCount, 
+					mEstVertexCount);
+				vbuf =
+					HardwareBufferManager::getSingleton().createVertexBuffer(
+						mDeclSize,
+						vertexCount,
+						mDynamic? HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY : 
+							HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+				rop->vertexData->vertexBufferBinding->setBinding(0, vbuf);
+			}
+			if (ibufNeedsCreating)
+			{
+				// Make the index buffer larger if estimated index count higher
+				// to allow for user-configured growth area
+				size_t indexCount = std::max(rop->indexData->indexCount, 
+					mEstIndexCount);
 				rop->indexData->indexBuffer =
 					HardwareBufferManager::getSingleton().createIndexBuffer(
 						HardwareIndexBuffer::IT_16BIT,
-						rop->indexData->indexCount,
-						HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+						indexCount,
+						mDynamic? HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY : 
+							HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+			}
+			// Write vertex data
+			vbuf->writeData(
+				0, rop->vertexData->vertexCount * vbuf->getVertexSize(), 
+				mTempVertexBuffer, true);
+			// Write index data
+			if(rop->useIndexes)
+			{
 				rop->indexData->indexBuffer->writeData(
-					0, rop->indexData->indexBuffer->getSizeInBytes(),
+					0, 
+					rop->indexData->indexCount 
+						* rop->indexData->indexBuffer->getIndexSize(),
 					mTempIndexBuffer, true);
 			}
-		}
+		} // empty section check
 
 		mCurrentSection = 0;
 		resetTempAreas();
@@ -641,6 +726,12 @@ namespace Ogre {
 	{
 		for (SectionList::iterator i = mSectionList.begin(); i != mSectionList.end(); ++i)
 		{
+			// Skip empty sections (only happens if non-empty first, then updated)
+			RenderOperation* rop = (*i)->getRenderOperation();
+			if (rop->vertexData->vertexCount == 0 ||
+				(rop->useIndexes && rop->indexData->indexCount == 0))
+				continue;
+
 			if (mRenderQueueIDSet)
 				queue->addRenderable(*i, mRenderQueueID);
 			else
@@ -659,7 +750,7 @@ namespace Ogre {
 			{
 				RenderOperation* rop = (*i)->getRenderOperation();
 				// Only indexed geometry supported for stencil shadows
-				if (rop->useIndexes)
+				if (rop->useIndexes && rop->indexData->indexCount != 0)
 				{
 					eb.addVertexData(rop->vertexData);
 					eb.addIndexData(rop->indexData, vertexSet++);

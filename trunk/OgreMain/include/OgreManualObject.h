@@ -44,7 +44,7 @@ namespace Ogre
 		Building one-off geometry objects manually usually requires getting
 		down and dirty with the vertex buffer and vertex declaration API, 
 		which some people find a steep learning curve. This class gives you 
-		a simpler interface specifically for the purpose of building a one-off
+		a simpler interface specifically for the purpose of building a 
 		3D object simply and quickly. Note that if you intend to instance your
 		object you will still need to become familiar with the Mesh class. 
 	@par
@@ -87,6 +87,12 @@ namespace Ogre
 		visible. Other aspects like the relative render order can be controlled
 		using standard MovableObject methods like setRenderQueueGroup.
 	@par
+		You can also use beginUpdate() to alter the geometry later on if you wish.
+		If you do this, you should call setDynamic(true) before your first call 
+		to begin(), and also consider using estimateVertexCount / estimateIndexCount
+		if your geometry is going to be growing, to avoid buffer recreation during
+		growth.
+	@par
 		Note that like all OGRE geometry, triangles should be specified in 
 		anti-clockwise winding order (whether you're doing it with just
 		vertices, or using indexes too). That is to say that the front of the
@@ -100,24 +106,30 @@ namespace Ogre
 
 		/** Completely clear the contents of the object.
 		@remarks
-			This class is not designed for dynamic vertex data, since the 
-			translation it has to perform is not suitable for frame-by-frame
-			updates. However if you do want to modify the contents from time
-			to time you can do so by clearing and re-specifying the data.
+			Clearing the contents of this object and rebuilding from scratch
+			is not the optimal way to manage dynamic vertex data, since the 
+			buffers are recreated. If you want to keep the same structure but
+			update the content within that structure, use beginUpdate() instead 
+			of clear() begin(). However if you do want to modify the structure 
+			from time to time you can do so by clearing and re-specifying the data.
 		*/
 		virtual void clear(void);
 		
 		/** Estimate the number of vertices ahead of time.
 		@remarks
 			Calling this helps to avoid memory reallocation when you define
-			vertices. 
+			vertices. Also very handy when using beginUpdate() to manage dynamic
+			data - you can make the vertex buffers a little larger than their
+			initial needs to allow for growth later with this method.
 		*/
 		virtual void estimateVertexCount(size_t vcount);
 
-		/** Estimate the number of vertices ahead of time.
+		/** Estimate the number of indices ahead of time.
 		@remarks
 			Calling this helps to avoid memory reallocation when you define
-			indices. 
+			indices. Also very handy when using beginUpdate() to manage dynamic
+			data - you can make the index buffer a little larger than the
+			initial need to allow for growth later with this method.
 		*/
 		virtual void estimateIndexCount(size_t icount);
 
@@ -132,6 +144,18 @@ namespace Ogre
 		*/
 		virtual void begin(const String& materialName, 
 			RenderOperation::OperationType opType = RenderOperation::OT_TRIANGLE_LIST);
+		/** Start the definition of an update to a part of the object.
+		@remarks
+			Using this method, you can update an existing section of the object
+			efficiently. You do not have the option of changing the operation type
+			obviously, since it must match the one that was used before. 
+		@note If your sections are changing size, particularly growing, use
+			estimateVertexCount and estimateIndexCount to pre-size the buffers a little
+			larger than the initial needs to avoid buffer reconstruction.
+		@param sectionIndex The index of the section you want to update. The first
+			call to begin() would have created section 0, the second section 1, etc.
+		*/
+		virtual void beginUpdate(size_t sectionIndex);
 		/** Add a vertex position, starting a new vertex at the same time. 
 		@remarks A vertex position is slightly special among the other vertex data
 			methods like normal() and textureCoord(), since calling it indicates
@@ -363,10 +387,14 @@ namespace Ogre
 		typedef std::vector<ManualObjectSection*> SectionList;
 		
 	protected:
+		/// Dynamic?
+		bool mDynamic;
 		/// List of subsections
 		SectionList mSectionList;
 		/// Current section
 		ManualObjectSection* mCurrentSection;
+		/// Are we updating?
+		bool mCurrentUpdating;
 		/// Temporary vertex structure
 		struct TempVertex
 		{
@@ -392,6 +420,10 @@ namespace Ogre
 		size_t mTempIndexSize;
 		/// Current declaration vertex size
 		size_t mDeclSize;
+		/// Estimated vertex count
+		size_t mEstVertexCount;
+		/// Estimated index count
+		size_t mEstIndexCount;
 		/// Current texture coordinate
 		ushort mTexCoordIndex;
 		/// Bounding box
