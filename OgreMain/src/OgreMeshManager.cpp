@@ -85,14 +85,13 @@ namespace Ogre
 		HardwareBuffer::Usage indexBufferUsage, 
 		bool vertexBufferShadowed, bool indexBufferShadowed)
     {
-        MeshPtr pMesh = getByName(filename);
-        if (pMesh.isNull())
+        MeshPtr pMesh = createOrRetrieve(filename, groupName);
+        if (!pMesh->isLoaded())
         {
-            pMesh = this->create(filename, groupName);
 			pMesh->setVertexBufferPolicy(vertexBufferUsage, vertexBufferShadowed);
 			pMesh->setIndexBufferPolicy(indexBufferUsage, indexBufferShadowed);
-        }
         pMesh->load();
+        }
         return pMesh;
 
     }
@@ -100,13 +99,8 @@ namespace Ogre
     MeshPtr MeshManager::createManual( const String& name, const String& groupName, 
         ManualResourceLoader* loader)
     {
-        MeshPtr pMesh = getByName(name);
-        if (pMesh.isNull())
-        {
-            pMesh = create(name, groupName, true, loader);
-        }
-
-        return pMesh;
+		// Don't try to get existing, create should fail if already exists
+        return create(name, groupName, true, loader);
     }
     //-----------------------------------------------------------------------
     MeshPtr MeshManager::createPlane( const String& name, const String& groupName,
