@@ -1476,6 +1476,7 @@ namespace Ogre {
         TextureType tt = TEX_TYPE_2D;
 		int mips = MIP_UNLIMITED; // When passed to TextureManager::load, this means default to default number of mipmaps
         bool isAlpha = false;
+        PixelFormat desiredFormat = PF_UNKNOWN;
         const String& textureName = getNextTokenLabel();
 
 		while (getRemainingTokensForAction() > 0)
@@ -1506,7 +1507,10 @@ namespace Ogre {
                 break;
             }
 		}
-        mScriptContext.textureUnit->setTextureName(textureName, tt, mips, isAlpha);
+        mScriptContext.textureUnit->setTextureName(textureName, tt);
+        mScriptContext.textureUnit->setNumMipmaps(mips);
+        mScriptContext.textureUnit->setIsAlpha(isAlpha);
+        mScriptContext.textureUnit->setDesiredFormat(desiredFormat);
     }
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseAnimTexture(void)

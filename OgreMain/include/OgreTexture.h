@@ -233,28 +233,66 @@ namespace Ogre {
 		*/
         virtual void _loadImages( const ConstImagePtrList& images );
 
-
-
-        virtual void enable32Bit( bool setting = true ) 
-        {
-            setting ? mFinalBpp = 32 : mFinalBpp = 16;
-        }
-
 		/** Returns the pixel format for the texture surface. */
 		virtual PixelFormat getFormat() const
 		{
 			return mFormat;
 		}
 
+        /** Returns the desired pixel format for the texture surface. */
+        virtual PixelFormat getDesiredFormat(void) const
+        {
+            return mDesiredFormat;
+        }
+
+        /** Returns the pixel format of the original input texture (may differ due to
+            hardware requirements and pixel format convertion).
+        */
+        virtual PixelFormat getSrcFormat(void) const
+        {
+            return mSrcFormat;
+        }
+
         /** Sets the pixel format for the texture surface; can only be set before load(). */
         virtual void setFormat(PixelFormat pf);
 
         /** Returns true if the texture has an alpha layer. */
-        virtual bool hasAlpha(void) const
-        {
-            return mHasAlpha;
-        }
-        
+        virtual bool hasAlpha(void) const;
+
+        /** Sets desired bit depth for integer pixel format textures.
+        @note
+            Available values: 0, 16 and 32, where 0 (the default) means keep original format
+            as it is. This value is number of bits for the pixel.
+        */
+        virtual void setDesiredIntegerBitDepth(ushort bits);
+
+        /** gets desired bit depth for integer pixel format textures.
+        */
+        virtual ushort getDesiredIntegerBitDepth(void) const;
+
+        /** Sets desired bit depth for float pixel format textures.
+        @note
+            Available values: 0, 16 and 32, where 0 (the default) means keep original format
+            as it is. This value is number of bits for a channel of the pixel.
+        */
+        virtual void setDesiredFloatBitDepth(ushort bits);
+
+        /** gets desired bit depth for float pixel format textures.
+        */
+        virtual ushort getDesiredFloatBitDepth(void) const;
+
+        /** Sets desired bit depth for integer and float pixel format.
+        */
+        virtual void setDesiredBitDepths(ushort integerBits, ushort floatBits);
+
+        /** Sets whether luminace pixel format will treated as alpha format when load this texture.
+        */
+        virtual void setTreatLuminanceAsAlpha(bool asAlpha);
+
+        /** Gets whether luminace pixel format will treated as alpha format when load this texture.
+        */
+        virtual bool getTreatLuminanceAsAlpha(void) const;
+
         /** Return the number of faces this texture has. This will be 6 for a cubemap
         	texture and 1 for a 1D, 2D or 3D one.
         */
@@ -288,10 +326,13 @@ namespace Ogre {
 		PixelFormat mFormat;
         int mUsage; // Bit field, so this can't be TextureUsage
 
-        unsigned short mSrcBpp;
+        PixelFormat mSrcFormat;
         unsigned long mSrcWidth, mSrcHeight, mSrcDepth;
-        unsigned short mFinalBpp;
-        bool mHasAlpha;
+
+        PixelFormat mDesiredFormat;
+        unsigned short mDesiredIntegerBitDepth;
+        unsigned short mDesiredFloatBitDepth;
+        bool mTreatLuminanceAsAlpha;
 
 		bool mInternalResourcesCreated;
 

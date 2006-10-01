@@ -730,6 +730,7 @@ namespace Ogre
         TextureType tt = TEX_TYPE_2D;
 		int mips = MIP_UNLIMITED; // When passed to TextureManager::load, this means default to default number of mipmaps
         bool isAlpha = false;
+        PixelFormat desiredFormat = PF_UNKNOWN;
 		for (size_t p = 1; p < numParams; ++p)
 		{
             StringUtil::toLowerCase(vecparams[p]);
@@ -761,6 +762,10 @@ namespace Ogre
 			{
 				isAlpha = true;
 			}
+            else if ((desiredFormat = PixelUtil::getFormatFromName(vecparams[p], true)) != PF_UNKNOWN)
+            {
+                // nothing to do here
+            }
 			else
 			{
 				logParseError("Invalid texture option - "+vecparams[p]+".",
@@ -768,7 +773,10 @@ namespace Ogre
 			}
         }
 
-		context.textureUnit->setTextureName(vecparams[0], tt, mips, isAlpha);
+		context.textureUnit->setTextureName(vecparams[0], tt);
+        context.textureUnit->setNumMipmaps(mips);
+        context.textureUnit->setIsAlpha(isAlpha);
+        context.textureUnit->setDesiredFormat(desiredFormat);
         return false;
     }
 	//---------------------------------------------------------------------
@@ -1567,7 +1575,7 @@ namespace Ogre
         }
 
         // set the name of the parameter if it exists
-        String paramName = (commandname == "param_named") ? vecparams[0] : "";
+        String paramName = (commandname == "param_named") ? vecparams[0] : StringUtil::BLANK;
 
         // Now parse all the values
         if (isReal)
@@ -1716,7 +1724,7 @@ namespace Ogre
 
         } // end switch
 
-        String paramName = (commandname == "param_named_auto") ? vecparams[0] : "";
+        String paramName = (commandname == "param_named_auto") ? vecparams[0] : StringUtil::BLANK;
         // add constant definition based on AutoConstant
         // make element count 0 so that proper allocation occurs when AutoState is set up
         size_t constantIndex = context.programParams->addConstantDefinition(
@@ -2570,12 +2578,12 @@ namespace Ogre
         mScriptContext.textureUnit = 0;
         mScriptContext.program.setNull();
         mScriptContext.lineNo = 0;
-        mScriptContext.filename = "";
+        mScriptContext.filename.clear();
 		mScriptContext.techLev = -1;
 		mScriptContext.passLev = -1;
 		mScriptContext.stateLev = -1;
 
-        mBuffer = "";
+        mBuffer.clear();
     }
 
     //-----------------------------------------------------------------------
@@ -2955,7 +2963,7 @@ namespace Ogre
         // write out gpu program definitions to the buffer
         writeGpuPrograms();
 
-        if (mBuffer == "")
+        if (mBuffer.empty())
             OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Queue is empty !", "MaterialSerializer::exportQueued");
 
         LogManager::getSingleton().logMessage("MaterialSerializer : writing material(s) to material script : " + fileName, LML_CRITICAL);
@@ -3004,8 +3012,8 @@ namespace Ogre
     //-----------------------------------------------------------------------
     void MaterialSerializer::clearQueue()
     {
-        mBuffer = "";
-        mGpuProgramBuffer = "";
+        mBuffer.clear();
+        mGpuProgramBuffer.clear();
         mGpuProgramDefinitionContainer.clear();
     }
     //-----------------------------------------------------------------------
@@ -3540,7 +3548,7 @@ namespace Ogre
             }
 
             //texture name
-            if (pTex->getNumFrames() == 1 && pTex->getTextureName() != "" && !pTex->isCubic())
+            if (pTex->getNumFrames() == 1 && !pTex->getTextureName().empty() && !pTex->isCubic())
             {
                 writeAttribute(4, "texture");
                 writeValue(pTex->getTextureName());
@@ -4434,19 +4442,19 @@ namespace Ogre
                         String paramstr = program->getParameter(currentParam->name);
                         if ((currentParam->name == "includes_skeletal_animation")
                             && (paramstr == "false"))
-                            paramstr = "";
+                            paramstr.clear();
 						if ((currentParam->name == "includes_morph_animation")
 							&& (paramstr == "false"))
-							paramstr = "";
+							paramstr.clear();
 						if ((currentParam->name == "includes_pose_animation")
 							&& (paramstr == "0"))
-							paramstr = "";
+							paramstr.clear();
 						if ((currentParam->name == "uses_vertex_texture_fetch")
 							&& (paramstr == "false"))
-							paramstr = "";
+							paramstr.clear();
 
                         if ((language != "asm") && (currentParam->name == "syntax"))
-                            paramstr = "";
+                            paramstr.clear();
 
                         if (!paramstr.empty())
                         {

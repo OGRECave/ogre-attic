@@ -709,6 +709,123 @@ namespace Ogre {
         return des.componentCount;
     }
     //-----------------------------------------------------------------------
+    PixelFormat PixelUtil::getFormatFromName(const String& name, bool accessibleOnly)
+    {
+        for (int i = 0; i < PF_COUNT; ++i)
+        {
+            PixelFormat pf = static_cast<PixelFormat>(i);
+            if (!accessibleOnly || isAccessible(pf))
+            {
+                if (name == getFormatName(pf))
+                    return pf;
+            }
+        }
+        return PF_UNKNOWN;
+    }
+    //-----------------------------------------------------------------------
+    PixelFormat PixelUtil::getFormatForBitDepths(PixelFormat fmt, ushort integerBits, ushort floatBits)
+    {
+        switch (integerBits)
+        {
+        case 16:
+            switch (fmt)
+            {
+            case PF_R8G8B8:
+            case PF_X8R8G8B8:
+                return PF_R5G6B5;
+
+            case PF_B8G8R8:
+            case PF_X8B8G8R8:
+                return PF_B5G6R5;
+
+            case PF_A8R8G8B8:
+            case PF_R8G8B8A8:
+            case PF_A8B8G8R8:
+            case PF_B8G8R8A8:
+                return PF_A4R4G4B4;
+
+            case PF_A2R10G10B10:
+            case PF_A2B10G10R10:
+                return PF_A1R5G5B5;
+
+            default:
+                // use original image format
+                break;
+            }
+            break;
+
+        case 32:
+            switch (fmt)
+            {
+            case PF_R5G6B5:
+                return PF_X8R8G8B8;
+
+            case PF_B5G6R5:
+                return PF_X8B8G8R8;
+
+            case PF_A4R4G4B4:
+                return PF_A8R8G8B8;
+
+            case PF_A1R5G5B5:
+                return PF_A2R10G10B10;
+
+            default:
+                // use original image format
+                break;
+            }
+            break;
+
+        default:
+            // use original image format
+            break;
+        }
+
+        switch (floatBits)
+        {
+        case 16:
+            switch (fmt)
+            {
+            case PF_FLOAT32_R:
+                return PF_FLOAT16_R;
+
+            case PF_FLOAT32_RGB:
+                return PF_FLOAT16_RGB;
+
+            case PF_FLOAT32_RGBA:
+                return PF_FLOAT16_RGBA;
+
+            default:
+                // use original image format
+                break;
+            }
+            break;
+
+        case 32:
+            switch (fmt)
+            {
+            case PF_FLOAT16_R:
+                return PF_FLOAT32_R;
+
+            case PF_FLOAT16_RGB:
+                return PF_FLOAT32_RGB;
+
+            case PF_FLOAT16_RGBA:
+                return PF_FLOAT32_RGBA;
+
+            default:
+                // use original image format
+                break;
+            }
+            break;
+
+        default:
+            // use original image format
+            break;
+        }
+
+        return fmt;
+    }
+    //-----------------------------------------------------------------------
     /*************************************************************************
     * Pixel packing/unpacking utilities
     */
