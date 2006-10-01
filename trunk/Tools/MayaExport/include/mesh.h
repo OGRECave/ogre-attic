@@ -59,7 +59,7 @@ namespace OgreMayaExporter
 		//get vertex data
 		MStatus getVertices(const MDagPath& meshDag,ParamList& params);
 		//get vertex bone assignements
-		MStatus getVertexBoneWeights(const MDagPath& meshDag);
+		MStatus getVertexBoneWeights(const MDagPath& meshDag,OgreMayaExporter::ParamList &params);
 		//get faces data
 		MStatus getFaces(const MDagPath& meshDag,ParamList& params);
 		//build shared geometry

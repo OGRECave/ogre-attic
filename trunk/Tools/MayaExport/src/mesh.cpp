@@ -73,6 +73,7 @@ namespace OgreMayaExporter
 		newpoints.clear();
 		newnormals.clear();
 		newnumJoints = 0;
+		params.currentRootJoints.clear();
 		opposite = false;
 		shaders.clear();
 		shaderPolygonMapping.clear();
@@ -118,7 +119,7 @@ namespace OgreMayaExporter
 		// Get vertex bone weights
 		if (pSkinCluster)
 		{
-			getVertexBoneWeights(meshDag);
+			getVertexBoneWeights(meshDag,params);
 			if (stat != MS::kSuccess)
 			{
 				std::cout << "Error retrieving veretex bone assignements for current mesh\n";
@@ -537,7 +538,7 @@ namespace OgreMayaExporter
 
 
 	// Get vertex bone assignements
-	MStatus Mesh::getVertexBoneWeights(const MDagPath& meshDag)
+	MStatus Mesh::getVertexBoneWeights(const MDagPath& meshDag, OgreMayaExporter::ParamList &params)
 	{
 		int i,j,k;
 		MStatus stat;
@@ -602,9 +603,6 @@ namespace OgreMayaExporter
 				for (j=0; j<influenceObjs.length(); j++)
 				{
 					bool foundJoint = false;
-					/********************************************************************
-					 *         Thanks to drumicube fot the optimization tip ;)          *
-					 ********************************************************************/
 					MString partialPathName = influenceObjs[j].partialPathName(); 
 					for (k=0; k<m_pSkeleton->getJoints().size() && !foundJoint; k++)
 					{
@@ -1198,6 +1196,13 @@ namespace OgreMayaExporter
 	{
 		MStatus stat;
 		int i;
+		// If no mesh have been exported, skip mesh creation
+		if (m_submeshes.size() <= 0)
+		{
+			std::cout << "Warning: No meshes selected for export\n";
+			std::cout.flush();
+			return MS::kFailure;
+		}
 		// Construct mesh
 		Ogre::MeshPtr pMesh = Ogre::MeshManager::getSingleton().createManual(m_name.asChar(), 
 			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);

@@ -10,6 +10,8 @@
 
 namespace OgreMayaExporter
 {
+	static MString MayaVersion;
+
 	class OgreExporter : public MPxCommand
 	{
 	public:
@@ -65,7 +67,7 @@ namespace OgreMayaExporter
 	MStatus initializePlugin( MObject obj )
 	{
 		MStatus   status;
-		MFnPlugin plugin( obj, "OgreExporter", "6.5", "Any");
+		MFnPlugin plugin( obj, "OgreExporter", "7.0", "Any");
 		status = plugin.registerCommand( "ogreExport", OgreExporter::creator );
 		if (!status) {
 			status.perror("registerCommand");

@@ -240,7 +240,7 @@ namespace OgreMayaExporter
 		MBoundingBox bbox(min,max);
 		m_boundingBox = bbox;
 		if (params.exportWorldCoords)
-			m_boundingBox.transformUsing(dag.inclusiveMatrix());
+			m_boundingBox.transformUsing(dag.exclusiveMatrix());
 		// add submesh pointer to parameters list
 		params.loadedSubmeshes.push_back(this);
 
