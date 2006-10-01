@@ -44,6 +44,7 @@ namespace Ogre {
 		, mAnimDuration(0)
 		, mCubic(false)
 		, mTextureType(TEX_TYPE_2D)
+        , mDesiredFormat(PF_UNKNOWN)
 		, mTextureSrcMipmaps(-1)
 		, mTextureCoordSetIndex(0)
 		, mBorderColour(ColourValue::Black)
@@ -93,6 +94,7 @@ namespace Ogre {
 		, mAnimDuration(0)
 		, mCubic(false)
 		, mTextureType(TEX_TYPE_2D)
+        , mDesiredFormat(PF_UNKNOWN)
 		, mTextureSrcMipmaps(-1)
 		, mTextureCoordSetIndex(0)
 		, mBorderColour(ColourValue::Black)
@@ -171,7 +173,7 @@ namespace Ogre {
             return StringUtil::BLANK;
     }
     //-----------------------------------------------------------------------
-    void TextureUnitState::setTextureName( const String& name, TextureType texType, int mipmaps, bool alpha)
+    void TextureUnitState::setTextureName( const String& name, TextureType texType)
     {
         if (texType == TEX_TYPE_CUBE_MAP)
         {
@@ -188,9 +190,6 @@ namespace Ogre {
             mCurrentFrame = 0;
             mCubic = false;
             mTextureType = texType;
-			mTextureSrcMipmaps = mipmaps;
-            if (alpha)
-                mIsAlpha = alpha;
             if (name.empty())
             {
                 mIsBlank = true;
@@ -449,6 +448,36 @@ namespace Ogre {
         }
 
         return mFrames[frameNumber];
+    }
+    //-----------------------------------------------------------------------
+    void TextureUnitState::setDesiredFormat(PixelFormat desiredFormat)
+    {
+        mDesiredFormat = desiredFormat;
+    }
+    //-----------------------------------------------------------------------
+    PixelFormat TextureUnitState::getDesiredFormat(void) const
+    {
+        return mDesiredFormat;
+    }
+    //-----------------------------------------------------------------------
+    void TextureUnitState::setNumMipmaps(int numMipmaps)
+    {
+        mTextureSrcMipmaps = numMipmaps;
+    }
+    //-----------------------------------------------------------------------
+    int TextureUnitState::getNumMipmaps(void) const
+    {
+        return mTextureSrcMipmaps;
+    }
+    //-----------------------------------------------------------------------
+    void TextureUnitState::setIsAlpha(bool isAlpha)
+    {
+        mIsAlpha = isAlpha;
+    }
+    //-----------------------------------------------------------------------
+    bool TextureUnitState::getIsAlpha(void) const
+    {
+        return mIsAlpha;
     }
     //-----------------------------------------------------------------------
     unsigned int TextureUnitState::getTextureCoordSet(void) const
@@ -904,7 +933,7 @@ namespace Ogre {
 					mFramePtrs[frame] = 
 						TextureManager::getSingleton().load(mFrames[frame], 
 							mParent->getResourceGroup(), mTextureType, 
-							mTextureSrcMipmaps, 1.0f, mIsAlpha);
+							mTextureSrcMipmaps, 1.0f, mIsAlpha, mDesiredFormat);
 					mIsBlank = false;
 				}
 				catch (Exception &e) {
@@ -1194,7 +1223,7 @@ namespace Ogre {
                         if (mFrames.size() > 1)
                             setAnimatedTextureName(aliasEntry->second, mFrames.size(), mAnimDuration);
                         else
-                            setTextureName(aliasEntry->second, mTextureType, mTextureSrcMipmaps);
+                            setTextureName(aliasEntry->second, mTextureType);
                     }
                 }
                 

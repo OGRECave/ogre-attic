@@ -367,7 +367,26 @@ namespace Ogre {
             4 (has alpha) in case there is no clear component type like with compressed formats.
          */
         static size_t getComponentCount(PixelFormat fmt);
-        
+
+        /** Gets the format from given name.
+            @param  name            The string of format name
+            @param  accessibleOnly  If true, non-accessible format will treat as invalid format,
+                                    otherwise, all supported format are valid.
+            @returns                The format match the format name, or PF_UNKNOWN if is invalid name.
+        */
+        static PixelFormat getFormatFromName(const String& name, bool accessibleOnly = false);
+
+        /** Returns the similar format but acoording with given bit depths.
+            @param fmt      The original foamt.
+            @param integerBits Preferred bit depth (pixel bits) for integer pixel format.
+                            Available values: 0, 16 and 32, where 0 (the default) means as it is.
+            @param floatBits Preferred bit depth (channel bits) for float pixel format.
+                            Available values: 0, 16 and 32, where 0 (the default) means as it is.
+            @returns        The format that similar original format with bit depth according
+                            with preferred bit depth, or original format if no convertion occuring.
+        */
+        static PixelFormat getFormatForBitDepths(PixelFormat fmt, ushort integerBits, ushort floatBits);
+
         /** Pack a colour value to memory
         	@param colour	The colour
         	@param pf		Pixelformat in which to write the colour

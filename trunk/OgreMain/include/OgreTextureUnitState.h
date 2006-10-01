@@ -201,7 +201,7 @@ namespace Ogre {
         @note
         Applies to both fixed-function and programmable pipeline.
         */
-        void setTextureName( const String& name, TextureType ttype = TEX_TYPE_2D, int mipmaps = -1, bool isAlpha = false);
+        void setTextureName( const String& name, TextureType ttype = TEX_TYPE_2D);
 
         /** Sets this texture layer to use a combination of 6 texture maps, each one relating to a face of a cube.
         @remarks
@@ -445,6 +445,30 @@ namespace Ogre {
         Applies to both fixed-function and programmable pipeline.
         */
         TextureType getTextureType(void) const;
+
+        /** Sets the desired pixel format when load the texture.
+        */
+        void setDesiredFormat(PixelFormat desiredFormat);
+
+        /** Gets the desired pixel format when load the texture.
+        */
+        PixelFormat getDesiredFormat(void) const;
+
+        /** Sets the requests number of mipmaps when load the texture.
+        */
+        void setNumMipmaps(int numMipmaps);
+
+        /** Gets the requests number of mipmaps when load the texture.
+        */
+        int getNumMipmaps(void) const;
+
+        /** Sets whether luminace image should be treat as alpha format when load the texture.
+        */
+        void setIsAlpha(bool isAlpha);
+
+        /** Gets whether luminace image should be treat as alpha format when load the texture.
+        */
+        bool getIsAlpha(void) const;
 
         /** Gets the index of the set of texture co-ords this layer uses.
         @note
@@ -1034,6 +1058,7 @@ protected:
         bool mCubic; // is this a series of 6 2D textures to make up a cube?
 		
         TextureType mTextureType; 
+        PixelFormat mDesiredFormat;
 		int mTextureSrcMipmaps; // Request number of mipmaps
 
         unsigned int mTextureCoordSetIndex;

@@ -50,19 +50,18 @@ namespace Ogre {
 			mMipmapsHardwareGenerated(false),
             mGamma(1.0f),
             mTextureType(TEX_TYPE_2D),            
-            mFormat(PF_A8R8G8B8),
+            mFormat(PF_UNKNOWN),
             mUsage(TU_DEFAULT),
-            // mSrcBpp inited later on
+            mSrcFormat(PF_UNKNOWN),
             mSrcWidth(0),
             mSrcHeight(0), 
             mSrcDepth(0),
-            // mFinalBpp inited later on by enable32bit
-            mHasAlpha(false),
+            mDesiredFormat(PF_UNKNOWN),
+            mDesiredIntegerBitDepth(0),
+            mDesiredFloatBitDepth(0),
+            mTreatLuminanceAsAlpha(false),
             mInternalResourcesCreated(false)
     {
-		
-		enable32Bit(false);
-
         if (createParamDictionary("Texture"))
         {
             // Define the parameters that have to be present to load
@@ -76,12 +75,12 @@ namespace Ogre {
 		{
 			TextureManager& tmgr = TextureManager::getSingleton();
 			setNumMipmaps(tmgr.getDefaultNumMipmaps());
-			enable32Bit(tmgr.isEnable32BitTextures());
+			setDesiredBitDepths(tmgr.getPreferredIntegerBitDepth(), tmgr.getPreferredFloatBitDepth());
 		}
 
         
     }
-	//--------------------------------------------------------------------------    
+	//--------------------------------------------------------------------------
 	void Texture::loadRawData( DataStreamPtr& stream, 
 		ushort uWidth, ushort uHeight, PixelFormat eFormat)
 	{
@@ -141,10 +140,49 @@ namespace Ogre {
     void Texture::setFormat(PixelFormat pf)
     {
         mFormat = pf;
-        // This should probably change with new texture access methods, but
-        // no changes made for now
-        mSrcBpp = PixelUtil::getNumElemBytes(mFormat);
-        mHasAlpha = PixelUtil::getFlags(mFormat) & PFF_HASALPHA;
+        mDesiredFormat = pf;
+        mSrcFormat = pf;
+    }
+    //--------------------------------------------------------------------------
+    bool Texture::hasAlpha(void) const
+    {
+        return PixelUtil::hasAlpha(mFormat);
+    }
+    //--------------------------------------------------------------------------
+    void Texture::setDesiredIntegerBitDepth(ushort bits)
+    {
+        mDesiredIntegerBitDepth = bits;
+    }
+    //--------------------------------------------------------------------------
+    ushort Texture::getDesiredIntegerBitDepth(void) const
+    {
+        return mDesiredIntegerBitDepth;
+    }
+    //--------------------------------------------------------------------------
+    void Texture::setDesiredFloatBitDepth(ushort bits)
+    {
+        mDesiredFloatBitDepth = bits;
+    }
+    //--------------------------------------------------------------------------
+    ushort Texture::getDesiredFloatBitDepth(void) const
+    {
+        return mDesiredFloatBitDepth;
+    }
+    //--------------------------------------------------------------------------
+    void Texture::setDesiredBitDepths(ushort integerBits, ushort floatBits)
+    {
+        mDesiredIntegerBitDepth = integerBits;
+        mDesiredFloatBitDepth = floatBits;
+    }
+    //--------------------------------------------------------------------------
+    void Texture::setTreatLuminanceAsAlpha(bool asAlpha)
+    {
+        mTreatLuminanceAsAlpha = asAlpha;
+    }
+    //--------------------------------------------------------------------------
+    bool Texture::getTreatLuminanceAsAlpha(void) const
+    {
+        return mTreatLuminanceAsAlpha;
     }
     //--------------------------------------------------------------------------
 	size_t Texture::calculateSize(void) const
@@ -167,45 +205,25 @@ namespace Ogre {
 		mSrcWidth = mWidth = images[0]->getWidth();
 		mSrcHeight = mHeight = images[0]->getHeight();
 		mSrcDepth = mDepth = images[0]->getDepth();
-        if (mHasAlpha && images[0]->getFormat() == PF_L8)
+
+        // Get source image format and adjust if required
+        mSrcFormat = images[0]->getFormat();
+        if (mTreatLuminanceAsAlpha && mSrcFormat == PF_L8)
         {
-            mFormat = PF_A8;
-            mSrcBpp = 8;
+            mSrcFormat = PF_A8;
+        }
+
+        if (mDesiredFormat != PF_UNKNOWN)
+        {
+            // If have desired format, use it
+            mFormat = mDesiredFormat;
         }
         else
         {
-            mFormat = images[0]->getFormat();
-            mSrcBpp = PixelUtil::getNumElemBits(mFormat);
-            mHasAlpha = PixelUtil::hasAlpha(mFormat);
+            // Get the format according with desired bit depth
+            mFormat = PixelUtil::getFormatForBitDepths(mSrcFormat, mDesiredIntegerBitDepth, mDesiredFloatBitDepth);
         }
 
-		if (mFinalBpp == 16) 
-		{
-			// Drop down texture internal format
-			switch (mFormat) 
-			{
-			case PF_R8G8B8:
-			case PF_X8R8G8B8:
-				mFormat = PF_R5G6B5;
-				break;
-			
-			case PF_B8G8R8:
-			case PF_X8B8G8R8:
-				mFormat = PF_B5G6R5;
-				break;
-				
-			case PF_A8R8G8B8:
-			case PF_R8G8B8A8:
-    			case PF_A8B8G8R8:
-			case PF_B8G8R8A8:
-				mFormat = PF_A4R4G4B4;
-				break;
-
-			default:
-				break; // use original image format
-			}
-		}
-		
 		// The custom mipmaps in the image have priority over everything
         size_t imageMips = images[0]->getNumMipmaps();
 
@@ -286,11 +304,11 @@ namespace Ogre {
                 {
                     // Load from faces of images[0]
                     src = images[0]->getPixelBox(i, mip);
-
-                    if (mHasAlpha && src.format == PF_L8)
-                        src.format = PF_A8;
                 }
     
+                // Sets to treated format in case is difference
+                src.format = mSrcFormat;
+
                 if(mGamma != 1.0f) {
                     // Apply gamma correction
                     // Do not overwrite original image but do gamma correction in temporary buffer

@@ -882,13 +882,9 @@ namespace Ogre
         mDepth = depth;
 		mFormat = format; 
 
-		// Update size (the final size, not including temp space)
+		// Update size (the final size, including temp space because in consumed memory)
 		// this is needed in Resource class
-		unsigned short bytesPerPixel = mFinalBpp >> 3;
-		if( !mHasAlpha && mFinalBpp == 32 )
-			bytesPerPixel--;
-		mSize = mWidth * mHeight * mDepth * bytesPerPixel 
-            * (mTextureType == TEX_TYPE_CUBE_MAP)? 6 : 1;
+		mSize = calculateSize();
 
 		// say to the world what we are doing
 		if (mWidth != mSrcWidth ||
@@ -909,8 +905,8 @@ namespace Ogre
 		// set source image attributes
 		mSrcWidth = width; 
 		mSrcHeight = height; 
-		mSrcBpp = PixelUtil::getNumElemBits(format); 
-        mHasAlpha = PixelUtil::getFlags(format) & PFF_HASALPHA; 
+		mSrcDepth = depth;
+        mSrcFormat = format;
 		// say to the world what we are doing
 		switch (this->getTextureType())
 		{

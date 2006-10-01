@@ -56,7 +56,7 @@ namespace Ogre {
     {
     public:
 
-        TextureManager(bool enable32Bit = true);
+        TextureManager(void);
         virtual ~TextureManager();
 
         /** Loads a texture from a file.
@@ -77,7 +77,8 @@ namespace Ogre {
         virtual TexturePtr load( 
             const String& name, const String& group, 
             TextureType texType = TEX_TYPE_2D, int numMipmaps = -1, 
-            Real gamma = 1.0f, bool isAlpha = false);
+            Real gamma = 1.0f, bool isAlpha = false,
+            PixelFormat desiredFormat = PF_UNKNOWN);
 
         /** Loads a texture from an Image object.
             @note
@@ -101,7 +102,8 @@ namespace Ogre {
         virtual TexturePtr loadImage( 
             const String &name, const String& group, const Image &img, 
             TextureType texType = TEX_TYPE_2D,
-            int iNumMipmaps = -1, Real gamma = 1.0f, bool isAlpha = false);
+            int iNumMipmaps = -1, Real gamma = 1.0f, bool isAlpha = false,
+            PixelFormat desiredFormat = PF_UNKNOWN);
 			
         /** Loads a texture from a raw data stream.
             @note
@@ -213,16 +215,43 @@ namespace Ogre {
 				num_mips, format, usage, loader);
 		}
 
-        /** Enables / disables 32-bit textures.
+        /** Sets preferred bit depth for integer pixel format textures.
+        @param
+            bits Number of bits. Available values: 0, 16 and 32, where 0 (the default) means keep
+            original format as it is. This value is number of bits for the pixel.
+        @param
+            reloadTextures If true (the default), will reloading all reloadable textures.
         */
-        virtual void enable32BitTextures(bool setting = true);
+        virtual void setPreferredIntegerBitDepth(ushort bits, bool reloadTextures = true);
 
-        /** Checks 32-bit textures enable setting.
+        /** gets preferred bit depth for integer pixel format textures.
         */
-        virtual bool isEnable32BitTextures(void)
-        {
-            return mIs32Bit;
-        }
+        virtual ushort getPreferredIntegerBitDepth(void) const;
+
+        /** Sets preferred bit depth for float pixel format textures.
+        @param
+            bits Number of bits. Available values: 0, 16 and 32, where 0 (the default) means keep
+            original format as it is. This value is number of bits for a channel of the pixel.
+        @param
+            reloadTextures If true (the default), will reloading all reloadable textures.
+        */
+        virtual void setPreferredFloatBitDepth(ushort bits, bool reloadTextures = true);
+
+        /** gets preferred bit depth for float pixel format textures.
+        */
+        virtual ushort getPreferredFloatBitDepth(void) const;
+
+        /** Sets preferred bit depth for integer and float pixel format.
+        @param
+            integerBits Number of bits. Available values: 0, 16 and 32, where 0 (the default) means keep
+            original format as it is. This value is number of bits for the pixel.
+        @param
+            floatBits Number of bits. Available values: 0, 16 and 32, where 0 (the default) means keep
+            original format as it is. This value is number of bits for a channel of the pixel.
+        @param
+            reloadTextures If true (the default), will reloading all reloadable textures.
+        */
+        virtual void setPreferredBitDepths(ushort integerBits, ushort floatBits, bool reloadTextures = true);
 
 		/** Returns whether this render system can natively support the precise texture 
 			format requested with the given usage options.
@@ -304,7 +333,8 @@ namespace Ogre {
 
     protected:
 
-        bool mIs32Bit;
+        ushort mPreferredIntegerBitDepth;
+        ushort mPreferredFloatBitDepth;
         size_t mDefaultNumMipmaps;
     };
 }// Namespace
