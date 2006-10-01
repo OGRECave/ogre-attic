@@ -279,7 +279,7 @@ namespace OgreMayaExporter
 	MStatus Skeleton::loadClip(MString clipName,float start,float stop,float rate,ParamList& params)
 	{
 		MStatus stat;
-		int i,j;
+		int i,j,k;
 		MString msg;
 		std::vector<float> times;
 		// if skeleton has no joints we can't load the clip
@@ -344,7 +344,23 @@ namespace OgreMayaExporter
 				MFnMesh mesh(params.loadedSubmeshes[j]->m_dagPath);
 				MBoundingBox bbox = mesh.boundingBox();
 				if (params.exportWorldCoords)
-					bbox.transformUsing(params.loadedSubmeshes[j]->m_dagPath.inclusiveMatrix());
+					bbox.transformUsing(params.loadedSubmeshes[j]->m_dagPath.exclusiveMatrix());
+				else
+				{
+				/*	for (k=0; k<params.currentRootJoints.size(); k++)
+					{
+						MDagPath rootDag = params.currentRootJoints[k];
+						std::cout << "--------------\n";
+						std::cout << "joint: " << rootDag.fullPathName().asChar() << "\n";
+						MPoint p1 = bbox.min();
+						MPoint p2 = bbox.max();
+						std::cout << "bbox2: " << p1.x << "," << p1.y << "," << p1.z << "\t" << p2.x << "," << p2.y << "," << p2.z << "\n";
+						bbox.transformUsing(rootDag.inclusiveMatrixInverse());
+						p1 = bbox.min();
+						p2 = bbox.max();
+						std::cout << "bbox: " << p1.x << "," << p1.y << "," << p1.z << "\t" << p2.x << "," << p2.y << "," << p2.z << "\n";
+					}*/
+				}
 				params.loadedSubmeshes[j]->m_boundingBox.expand(bbox);
 			}
 		}
@@ -378,10 +394,10 @@ namespace OgreMayaExporter
 		}
 		else
 		{	// Root node of skeleton
-		if (params.exportWorldCoords)
-			localMatrix = worldMatrix;
-		else
-			localMatrix = worldMatrix * j.jointDag.exclusiveMatrixInverse();
+			if (params.exportWorldCoords)
+				localMatrix = worldMatrix;
+			else
+				localMatrix = worldMatrix * j.jointDag.exclusiveMatrixInverse();
 		}
 		// Get relative transformation matrix
 		MMatrix relMatrix = localMatrix * j.localMatrix.inverse();

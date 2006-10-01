@@ -55,6 +55,7 @@
 // standard libraries
 #include <math.h>
 #include <vector>
+#include <set>
 #include <cassert>
 #include <fstream>
 #include <iostream>

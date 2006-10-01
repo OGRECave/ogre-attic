@@ -58,6 +58,7 @@ namespace OgreMayaExporter
 		NeutralPoseType neutralPoseType;
 
 		std::vector<Submesh*> loadedSubmeshes;
+		std::vector<MDagPath> currentRootJoints;
 
 		// constructor
 		ParamList()	{
@@ -97,6 +98,7 @@ namespace OgreMayaExporter
 			buildEdges = false;
 			buildTangents = false;
 			loadedSubmeshes.clear();
+			currentRootJoints.clear();
 		}
 
 		ParamList& operator=(ParamList& source)	
@@ -160,6 +162,8 @@ namespace OgreMayaExporter
 			neutralPoseType = source.neutralPoseType;
 			for (i=0; i<source.loadedSubmeshes.size(); i++)
 				loadedSubmeshes.push_back(source.loadedSubmeshes[i]);
+			for (i=0; i<source.currentRootJoints.size(); i++)
+				currentRootJoints.push_back(source.currentRootJoints[i]);
 
 			return *this;
 		}

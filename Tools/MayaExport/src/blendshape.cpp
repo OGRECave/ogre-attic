@@ -53,7 +53,7 @@ namespace OgreMayaExporter
 		std::vector<vertex> &vertices,long numVertices,long offset,long targetIndex)
 	{
 		MStatus stat;
-		int i;
+		int i,j;
 		// Set blend shape target
 		if (params.useSharedGeom)
 			m_target = T_MESH;
@@ -69,20 +69,38 @@ namespace OgreMayaExporter
 		{
 			m_pBlendShapeFn->setWeight(indexList[i],0);
 		}
+		// Get pose names
+		MStringArray poseNames;
+		MString cmd = "aliasAttr -q " + m_pBlendShapeFn->name();
+		MGlobal::executeCommand(cmd,poseNames,false,false);
 		// Get all poses: set iteratively weight to 1 for current target shape and keep 0 for the other targets
 		for (i=0; i<indexList.length(); i++)
 		{
+			MString poseName = "pose" + i;
+			// get pose name
+			bool foundName = false;
+			for (j=1; j<poseNames.length() && !foundName; j+=2)
+			{
+				int idx = -1;
+				sscanf(poseNames[j].asChar(),"weight[%d]",&idx);
+				if (idx == i)
+				{
+					poseName = poseNames[j-1];
+					foundName = true;
+					std::cout << "pose num: " << i << " name: " << poseName.asChar() << "\n";
+					std::cout.flush();
+				}
+			}
+			// set weight to 1
 			m_pBlendShapeFn->setWeight(indexList[i],1);
-			MObjectArray objs;
-			MFnMesh mesh(meshDag);
-			m_pBlendShapeFn->getTargets(mesh.object(),indexList[i],objs);
-			MFnMesh target(objs[0]);
-			stat = loadPose(meshDag,params,vertices,numVertices,offset,target.name());
+			// load the pose
+			stat = loadPose(meshDag,params,vertices,numVertices,offset,poseName);
 			if (stat != MS::kSuccess)
 			{
 				std::cout << "Failed loading target pose " << indexList[i] << "\n";
 				std::cout.flush();
 			}
+			// set weight to 0
 			m_pBlendShapeFn->setWeight(indexList[i],0);
 		}
 		// Set blend shape envelope to 0
