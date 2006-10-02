@@ -372,9 +372,19 @@ namespace Ogre {
             @param  name            The string of format name
             @param  accessibleOnly  If true, non-accessible format will treat as invalid format,
                                     otherwise, all supported format are valid.
+            @param  caseSensitive   Should be set true if string match should use case sensitivity.
             @returns                The format match the format name, or PF_UNKNOWN if is invalid name.
         */
-        static PixelFormat getFormatFromName(const String& name, bool accessibleOnly = false);
+        static PixelFormat getFormatFromName(const String& name, bool accessibleOnly = false, bool caseSensitive = false);
+
+        /** Gets the BNF expression of the pixel-formats.
+            @note                   The string returned by this function is intented to use as a BNF expression
+                                    to work with Compiler2Pass.
+            @param  accessibleOnly  If true, only accessible pixel format will take into account, otherwise all
+                                    pixel formats list in PixelFormat enumeration will being returned.
+            @returns                A string contains the BNF expression.
+        */
+        static String getBNFExpressionOfPixelFormats(bool accessibleOnly = false);
 
         /** Returns the similar format but acoording with given bit depths.
             @param fmt      The original foamt.

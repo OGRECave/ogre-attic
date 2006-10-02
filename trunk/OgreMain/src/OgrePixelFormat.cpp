@@ -709,18 +709,41 @@ namespace Ogre {
         return des.componentCount;
     }
     //-----------------------------------------------------------------------
-    PixelFormat PixelUtil::getFormatFromName(const String& name, bool accessibleOnly)
+    PixelFormat PixelUtil::getFormatFromName(const String& name, bool accessibleOnly, bool caseSensitive)
     {
+        String tmp = name;
+        if (!caseSensitive)
+        {
+            // We are stored upper-case format names.
+            StringUtil::toUpperCase(tmp);
+        }
+
         for (int i = 0; i < PF_COUNT; ++i)
         {
             PixelFormat pf = static_cast<PixelFormat>(i);
             if (!accessibleOnly || isAccessible(pf))
             {
-                if (name == getFormatName(pf))
+                if (tmp == getFormatName(pf))
                     return pf;
             }
         }
         return PF_UNKNOWN;
+    }
+    //-----------------------------------------------------------------------
+    String PixelUtil::getBNFExpressionOfPixelFormats(bool accessibleOnly)
+    {
+        String result;
+        for (size_t i = 0; i < PF_COUNT; ++i)
+        {
+            PixelFormat pf = static_cast<PixelFormat>(i);
+            if (!accessibleOnly || isAccessible(pf))
+            {
+                if (!result.empty())
+                    result += " | ";
+                result += "'" + PixelUtil::getFormatName(pf) + "'";
+            }
+        }
+        return result;
     }
     //-----------------------------------------------------------------------
     PixelFormat PixelUtil::getFormatForBitDepths(PixelFormat fmt, ushort integerBits, ushort floatBits)

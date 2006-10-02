@@ -1065,7 +1065,7 @@ Default: If a texture_unit has a name then the texture_alias defaults to the tex
 
 Sets the name of the static texture image this layer will use.@*@*
 
-Format: texture <texturename> [<type>] [unlimited | numMipMaps] [alpha]@*@*
+Format: texture <texturename> [<type>] [unlimited | numMipMaps] [alpha] [<PixelFormat>]@*@*
 
 Example: texture funkywall.jpg@*@*
 
@@ -1083,9 +1083,69 @@ This texture is made up of 6 2D textures which are pasted around the inside of a
 @end table
 The 'numMipMaps' option allows you to specify the number of mipmaps to generate for this texture. The default is 'unlimited' which means mips down to 1x1 size are generated. You can specify a fixed number (even 0) if you like instead. Note that if you use the same texture in many material scripts, the number of mipmaps generated will conform to the number specified in the first texture_unit used to load the texture - so be consistent with your usage.@*@*
 
-Finally, the 'alpha' option allows you to specify that a single channel (luminence) texture should be loaded as alpha, rather than the default which is to load it into the red channel. This can be helpful if you want to use alpha-only textures in the fixed function pipeline.
+The 'alpha' option allows you to specify that a single channel (luminence) texture should be loaded as alpha, rather than the default which is to load it into the red channel. This can be helpful if you want to use alpha-only textures in the fixed function pipeline.
 
 Default: none@*@*
+
+The <PixelFormat> option allows you to specify a pixel format of texture to create, which maybe difference with the pixel format of original texture file. Bear in mind that the final pixel format will contraints to hardware requirements. The available options are:
+@table @asis
+@item PF_L8
+8-bit pixel format, all bits luminace.
+@item PF_L16
+16-bit pixel format, all bits luminace.
+@item PF_A8
+8-bit pixel format, all bits alpha.
+@item PF_A4L4
+8-bit pixel format, 4 bits alpha, 4 bits luminace.
+@item PF_BYTE_LA
+2 byte pixel format, 1 byte luminance, 1 byte alpha
+@item PF_R5G6B5
+16-bit pixel format, 5 bits red, 6 bits green, 5 bits blue.
+@item PF_B5G6R5
+16-bit pixel format, 5 bits blue, 6 bits green, 5 bits red.
+@item PF_R3G3B2
+8-bit pixel format, 3 bits red, 3 bits green, 2 bits blue.
+@item PF_A4R4G4B4
+16-bit pixel format, 4 bits for alpha, red, green and blue.
+@item PF_A1R5G5B5
+16-bit pixel format, 1 bit for alpha, 5 bits for red, green and blue.
+@item PF_R8G8B8
+24-bit pixel format, 8 bits for red, green and blue.
+@item PF_B8G8R8
+24-bit pixel format, 8 bits for blue, green and red.
+@item PF_A8R8G8B8
+32-bit pixel format, 8 bits for alpha, red, green and blue.
+@item PF_A8B8G8R8
+32-bit pixel format, 8 bits for alpha, blue, green and red.
+@item PF_B8G8R8A8
+32-bit pixel format, 8 bits for blue, green, red and alpha.
+@item PF_R8G8B8A8
+32-bit pixel format, 8 bits for red, green, blue and alpha.
+@item PF_X8R8G8B8
+32-bit pixel format, 8 bits for red, 8 bits for green, 8 bits for blue
+like PF_A8R8G8B8, but alpha will get discarded
+@item PF_X8B8G8R8
+32-bit pixel format, 8 bits for blue, 8 bits for green, 8 bits for red
+like PF_A8B8G8R8, but alpha will get discarded
+@item PF_A2R10G10B10
+32-bit pixel format, 2 bits for alpha, 10 bits for red, green and blue.
+@item PF_A2B10G10R10
+32-bit pixel format, 2 bits for alpha, 10 bits for blue, green and red.
+@item PF_FLOAT16_R
+16-bit pixel format, 16 bits (float) for red
+@item PF_FLOAT16_RGB
+48-bit pixel format, 16 bits (float) for red, 16 bits (float) for green, 16 bits (float) for blue
+@item PF_FLOAT16_RGBA
+64-bit pixel format, 16 bits (float) for red, 16 bits (float) for green, 16 bits (float) for blue, 16 bits (float) for alpha
+@item PF_FLOAT32_R
+16-bit pixel format, 16 bits (float) for red
+@item PF_FLOAT32_RGB
+96-bit pixel format, 32 bits (float) for red, 32 bits (float) for green, 32 bits (float) for blue
+@item PF_FLOAT32_RGBA
+128-bit pixel format, 32 bits (float) for red, 32 bits (float) for green, 32 bits (float) for blue, 32 bits (float) for alpha
+@item PF_SHORT_RGBA
+64-bit pixel format, 16 bits for red, green, blue and alpha
+@end table
 
 @anchor{anim_texture}
 @subheading anim_texture
