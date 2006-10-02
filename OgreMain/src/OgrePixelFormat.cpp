@@ -688,7 +688,10 @@ namespace Ogre {
         return getDescriptionFor(srcformat).name;
     }
     //-----------------------------------------------------------------------
-    bool PixelUtil::isAccessible(PixelFormat srcformat) {
+    bool PixelUtil::isAccessible(PixelFormat srcformat)
+    {
+        if (srcformat == PF_UNKNOWN)
+            return false;
         unsigned int flags = getFlags(srcformat);
         return !((flags & PFF_COMPRESSED) || (flags & PFF_DEPTH));
     }
