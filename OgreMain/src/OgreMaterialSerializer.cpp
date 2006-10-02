@@ -3570,6 +3570,21 @@ namespace Ogre
                 default:
                     break;
                 };
+
+                if (pTex->getNumMipmaps() != MIP_UNLIMITED)
+                {
+                    writeValue(StringConverter::toString(pTex->getNumMipmaps()));
+                }
+
+                if (pTex->getIsAlpha())
+                {
+                    writeValue("alpha");
+                }
+
+                if (pTex->getDesiredFormat() != PF_UNKNOWN)
+                {
+                    writeValue(PixelUtil::getFormatName(pTex->getDesiredFormat()));
+                }
             }
 
             //anim. texture

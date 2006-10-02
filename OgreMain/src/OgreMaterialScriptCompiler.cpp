@@ -149,6 +149,7 @@ namespace Ogre {
         "           <Texture_Alias> ::= 'texture_alias' <Label> \n"
         "           <Texture> ::= 'texture' <Label> {<Texture_Properties>} \n"
         "           <Texture_Properties> ::= '1d' | '2d' | '3d' | 'cubic' | 'unlimited' | 'alpha' | <#mipmap> \n"
+        "                                    | " + PixelUtil::getBNFExpressionOfPixelFormats(true) + " \n"
         "           <Anim_Texture> ::= 'anim_texture' <Label> <Anim_Texture_Properties> \n"
         "               <Anim_Texture_Properties> ::= <Numbered_Anim_Texture> | <Seperate_Anim_Textures> \n"
         "               <Numbered_Anim_Texture> ::= <#frames> <#duration> \n"
@@ -1504,6 +1505,9 @@ namespace Ogre {
             case _value_:
                 replaceToken();
                 mips = static_cast<int>(getNextTokenValue());
+                break;
+            default:
+                desiredFormat = PixelUtil::getFormatFromName(getCurrentTokenLexeme(), true);
                 break;
             }
 		}
