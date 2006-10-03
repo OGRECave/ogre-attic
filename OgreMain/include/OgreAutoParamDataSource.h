@@ -140,6 +140,7 @@ namespace Ogre {
 		Matrix4 getInverseTransposeViewProjMatrix() const;
 		Matrix4 getTransposeViewProjMatrix() const;
 		Matrix4 getTransposeViewMatrix() const;
+        Matrix4 getInverseTransposeViewMatrix() const;
 		Matrix4 getTransposeProjectionMatrix() const;
 		Matrix4 getInverseProjectionMatrix() const;
 		Matrix4 getInverseTransposeProjectionMatrix() const;
