@@ -152,9 +152,8 @@ namespace Ogre {
 			uint8 *tmpdata = new uint8[size];
 			memset(tmpdata, 0, size);
 			
-			for(int mip=0; mip<=mNumMipmaps; mip++)
+			for(size_t mip=0; mip<=mNumMipmaps; mip++)
 			{
-			//int mip = 0;
 				size = PixelUtil::getMemorySize(width, height, depth, mFormat);
 				switch(mTextureType)
 				{
@@ -191,7 +190,7 @@ namespace Ogre {
 #endif
 		{
 			// Run through this process to pregenerate mipmap piramid
-			for(int mip=0; mip<=mNumMipmaps; mip++)
+			for(size_t mip=0; mip<=mNumMipmaps; mip++)
 			{
 				// Normal formats
 				switch(mTextureType)
@@ -351,9 +350,9 @@ namespace Ogre {
 		// only when mipmap generation is desired.
 		bool doSoftware = wantGeneratedMips && !mMipmapsHardwareGenerated && getNumMipmaps(); 
 		
-		for(int face=0; face<getNumFaces(); face++)
+		for(size_t face=0; face<getNumFaces(); face++)
 		{
-			for(int mip=0; mip<=getNumMipmaps(); mip++)
+			for(size_t mip=0; mip<=getNumMipmaps(); mip++)
 			{
                 GLHardwarePixelBuffer *buf = new GLTextureBuffer(mName, getGLTextureTarget(), mTextureID, face, mip,
 						static_cast<HardwareBuffer::Usage>(mUsage), doSoftware && mip==0);
