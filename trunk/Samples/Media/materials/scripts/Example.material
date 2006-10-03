@@ -826,7 +826,7 @@ material Examples/Aureola
 
 			texture_unit
 			{
-				texture aureola.png
+				texture aureola.png PF_BYTE_LA
 				tex_address_mode clamp
 			}
 		}
