@@ -37,9 +37,72 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 	
+	/** Default pass hash function.
+	@remarks
+		Tries to minimise the number of texture changes.
+	*/
+	struct MinTextureStateChangeHashFunc : public Pass::HashFunc
+	{
+		uint32 operator()(const Pass* p) const
+		{
+
+			_StringHash H;
+			uint32 hash = p->getIndex() << 28;
+			size_t c = p->getNumTextureUnitStates();
+
+			const TextureUnitState* t0 = 0;
+			const TextureUnitState* t1 = 0;
+			if (c)
+				t0 = p->getTextureUnitState(0);
+			if (c > 1)
+				t1 = p->getTextureUnitState(1);
+
+			if (t0 && !t0->isBlank())
+				hash += (H(t0->getTextureName()) % (1 << 14)) << 14;
+			if (t1 && !t1->isBlank())
+				hash += (H(t1->getTextureName()) % (1 << 14));
+
+			return hash;
+		}
+	};
+	MinTextureStateChangeHashFunc sMinTextureStateChangeHashFunc;
+	/** Alternate pass hash function.
+	@remarks
+		Tries to minimise the number of GPU program changes.
+	*/
+	struct MinGpuProgramChangeHashFunc : public Pass::HashFunc
+	{
+		uint32 operator()(const Pass* p) const
+		{
+
+			_StringHash H;
+			uint32 hash = p->getIndex() << 28;
+			if (p->hasVertexProgram())
+				hash += (H(p->getVertexProgramName()) % (1 << 14)) << 14;
+			if (p->hasFragmentProgram())
+				hash += (H(p->getFragmentProgramName()) % (1 << 14));
+
+			return hash;
+		}
+	};
+	MinGpuProgramChangeHashFunc sMinGpuProgramChangeHashFunc;
     //-----------------------------------------------------------------------------
 	Pass::PassSet Pass::msDirtyHashList;
     Pass::PassSet Pass::msPassGraveyard;
+	Pass::HashFunc* Pass::msHashFunc = &sMinTextureStateChangeHashFunc;
+	//-----------------------------------------------------------------------------
+	void Pass::setHashFunction(BuiltinHashFunction builtin)
+	{
+		switch(builtin)
+		{
+		case MIN_TEXTURE_CHANGE:
+			msHashFunc = &sMinTextureStateChangeHashFunc;
+			break;
+		case MIN_GPU_PROGRAM_CHANGE:
+			msHashFunc = &sMinGpuProgramChangeHashFunc;
+			break;
+		}
+	}
     //-----------------------------------------------------------------------------
 	Pass::Pass(Technique* parent, unsigned short index)
         : mParent(parent), mIndex(index), mPassIterationCount(0)
@@ -1058,14 +1121,7 @@ namespace Ogre {
            on the assumption that these are less frequently used; sorting on 
            the first 2 gives us the most benefit for now.
        */
-        _StringHash H;
-        mHash = (mIndex << 28);
-        size_t c = getNumTextureUnitStates();
-
-        if (c && !mTextureUnitStates[0]->isBlank())
-            mHash += (H(mTextureUnitStates[0]->getTextureName()) % (1 << 14)) << 14;
-        if (c > 1 && !mTextureUnitStates[1]->isBlank())
-            mHash += (H(mTextureUnitStates[1]->getTextureName()) % (1 << 14));
+        mHash = (*msHashFunc)(this);
     }
     //-----------------------------------------------------------------------
 	void Pass::_dirtyHash(void)

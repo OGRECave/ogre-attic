@@ -58,6 +58,21 @@ namespace Ogre {
     */
     class _OgreExport Pass
     {
+	public:
+		/** Definition of a functor for calculating the hashcode of a Pass.
+		@remarks
+			The hashcode of a Pass is used to sort Passes for rendering, in order
+			to reduce the number of render state changes. Each Pass represents a
+			single unique set of states, but by ordering them, state changes can
+			be minimised between passes. An implementation of this functor should
+			order passes so that the elements that you want to keep constant are
+			sorted next to each other.
+		@see Pass::setHashFunc
+		*/
+		struct HashFunc
+		{
+			virtual uint32 operator()(const Pass* p) const { return 0; }
+		};
     protected:
         Technique* mParent;
         unsigned short mIndex; // pass index
@@ -158,6 +173,8 @@ namespace Ogre {
 		static PassSet msDirtyHashList;
         /// The place where passes go to die
         static PassSet msPassGraveyard;
+		/// The Pass hash functor
+		static HashFunc* msHashFunc;
     public:
         /// Default constructor
 		Pass(Technique* parent, unsigned short index);
@@ -1152,6 +1169,51 @@ namespace Ogre {
             True if matching texture aliases were found in the pass.
         */
         bool applyTextureAliases(const AliasTextureNamePairList& aliasList, const bool apply = true) const;
+
+
+		/** There are some default hash functions used to order passes so that
+			render state changes are minimised, this enumerates them.
+		*/
+		enum BuiltinHashFunction
+		{
+			/** Try to minimise the number of texture changes. */
+			MIN_TEXTURE_CHANGE,
+			/** Try to minimise the number of GPU program changes.
+			@note Only really useful if you use GPU programs for all of your
+				materials. 
+			*/
+			MIN_GPU_PROGRAM_CHANGE
+		};
+		/** Sets one of the default hash functions to be used.
+		@remarks
+			You absolutely must not change the hash function whilst any Pass instances
+			exist in the render queue. The only time you can do this is either
+			before you render anything, or directly after you manuall call
+			RenderQueue::clear(true) to completely destroy the queue structures.
+			The default is MIN_TEXTURE_CHANGE.
+		@note
+			You can also implement your own hash function, see the alternate version
+			of this method.
+		@see HashFunc
+		*/
+		static void setHashFunction(BuiltinHashFunction builtin);
+
+		/** Set the hash function used for all passes.
+		@remarks
+			You absolutely must not change the hash function whilst any Pass instances
+			exist in the render queue. The only time you can do this is either
+			before you render anything, or directly after you manuall call
+			RenderQueue::clear(true) to completely destroy the queue structures.
+		@note
+			You can also use one of the built-in hash functions, see the alternate version
+			of this method. The default is MIN_TEXTURE_CHANGE.
+		@see HashFunc
+		*/
+		static void setHashFunction(HashFunc* hashFunc) { msHashFunc = hashFunc; }
+
+		/** Get the hash function used for all passes.
+		*/
+		static HashFunc* getHashFunction(void) { return msHashFunc; }
         
     };
 
