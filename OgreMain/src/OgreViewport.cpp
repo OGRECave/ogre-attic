@@ -55,6 +55,7 @@ namespace Ogre {
         , mShowOverlays(true)
         , mShowSkies(true)
 		, mShowShadows(true)
+		, mVisibilityMask(0xFFFFFFFF)
 		, mRQSequence(0)
 		, mMaterialSchemeName(MaterialManager::DEFAULT_SCHEME_NAME)
     {

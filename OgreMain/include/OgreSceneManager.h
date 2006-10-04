@@ -2374,6 +2374,9 @@ namespace Ogre {
 
 		/** Sets a mask which is bitwise 'and'ed with objects own visibility masks
 			to determine if the object is visible.
+		@remarks
+			Note that this is combined with any per-viewport visibility mask
+			through an 'and' operation. @see Viewport::setVisibilityMask
 		*/
 		virtual void setVisibilityMask(uint32 vmask) { mVisibilityMask = vmask; }
 
@@ -2381,6 +2384,11 @@ namespace Ogre {
 			to determine if the object is visible.
 		*/
 		virtual uint32 getVisibilityMask(void) { return mVisibilityMask; }
+
+		/** Internal method for getting the combination between the global visibility
+			mask and the per-viewport visibility mask.
+		*/
+		uint32 _getCombinedVisibilityMask(void) const;
 
 		/** Sets whether the SceneManager should search for visible objects, or
             whether they are being manually handled.
