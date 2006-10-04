@@ -399,6 +399,8 @@ namespace Ogre {
             addLexemeToken("subtract", ID_SUBTRACT);
             addLexemeToken("blend_diffuse_colour", ID_BLEND_DIFFUSE_COLOUR);
             addLexemeToken("blend_diffuse_alpha", ID_BLEND_DIFFUSE_ALPHA);
+            addLexemeToken("blend_texture_alpha", ID_BLEND_TEXTURE_ALPHA);
+            addLexemeToken("blend_current_alpha", ID_BLEND_CURRENT_ALPHA);
             addLexemeToken("blend_manual", ID_BLEND_MANUAL);
             addLexemeToken("dotproduct", ID_DOTPRODUCT);
             addLexemeToken("src_current", ID_SRC_CURRENT);
