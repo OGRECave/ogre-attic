@@ -4924,5 +4924,12 @@ RenderSystem *SceneManager::getDestinationRenderSystem()
 {
 	return mDestRenderSystem;
 }
+//---------------------------------------------------------------------
+uint32 SceneManager::_getCombinedVisibilityMask(void) const
+{
+	return mCurrentViewport ?
+		mCurrentViewport->getVisibilityMask() & mVisibilityMask : mVisibilityMask;
+
+}
 
 }
