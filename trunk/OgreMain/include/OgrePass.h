@@ -71,7 +71,7 @@ namespace Ogre {
 		*/
 		struct HashFunc
 		{
-			virtual uint32 operator()(const Pass* p) const { return 0; }
+			virtual uint32 operator()(const Pass* p) const = 0;
 		};
     protected:
         Technique* mParent;
