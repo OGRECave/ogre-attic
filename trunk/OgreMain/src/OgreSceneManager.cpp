@@ -135,7 +135,8 @@ mShadowTextureCustomReceiverPass(0),
 mVisibilityMask(0xFFFFFFFF),
 mFindVisibleObjects(true),
 mSuppressRenderStateChanges(false),
-mSuppressShadows(false)
+mSuppressShadows(false),
+mCurrentViewport(0)
 {
     // Root scene node
     mSceneRoot = new SceneNode(this, "root node");
