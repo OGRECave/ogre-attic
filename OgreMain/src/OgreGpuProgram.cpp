@@ -509,7 +509,7 @@ namespace Ogre
                setConstant(i->index, source.getTransposeViewMatrix());
                break;
             case ACT_INVERSE_TRANSPOSE_VIEW_MATRIX:
-               setConstant(i->index, source.getTransposeViewMatrix());
+               setConstant(i->index, source.getInverseTransposeViewMatrix());
                break;
 
             case ACT_PROJECTION_MATRIX:

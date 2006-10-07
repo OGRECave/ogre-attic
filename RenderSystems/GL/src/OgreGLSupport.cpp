@@ -86,8 +86,6 @@ namespace Ogre {
         {
             extensionList.insert(str);
         }
-
-        ext.str("");
     }
 
     bool GLSupport::checkMinGLVersion(const String& v) const

@@ -190,12 +190,6 @@ namespace Ogre {
             _updateFromParent();
 			mNeedParentUpdate = false;
 
-			// Call listener (note, only called if there's something to do)
-			if (mListener)
-			{
-				mListener->nodeUpdated(this);
-			}
-
 		}
 
 		if (mNeedChildUpdate || parentHasChanged)
@@ -276,6 +270,14 @@ namespace Ogre {
         }
 
         mCachedTransformOutOfDate = true;
+
+		// Call listener (note, this method only called if there's something to do)
+		if (mListener)
+		{
+			mListener->nodeUpdated(this);
+		}
+
+
 
 
     }
