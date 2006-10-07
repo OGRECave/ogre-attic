@@ -255,7 +255,7 @@ namespace Ogre {
             mInverseTransposeWorldMatrix = getInverseWorldMatrix().transpose();
             mInverseTransposeWorldMatrixDirty = false;
         }
-        return mInverseWorldMatrix;
+        return mInverseTransposeWorldMatrix;
     }
     //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getInverseTransposeWorldViewMatrix(void) const
@@ -265,7 +265,7 @@ namespace Ogre {
             mInverseTransposeWorldViewMatrix = getInverseWorldViewMatrix().transpose();
             mInverseTransposeWorldViewMatrixDirty = false;
         }
-        return mInverseWorldViewMatrix;
+        return mInverseTransposeWorldViewMatrix;
     }
     //-----------------------------------------------------------------------------
     const Vector4& AutoParamDataSource::getCameraPosition(void) const
@@ -418,6 +418,11 @@ namespace Ogre {
 	Matrix4 AutoParamDataSource::getTransposeViewMatrix(void) const
 	{
 		return this->getViewMatrix().transpose();
+	}
+	//-----------------------------------------------------------------------------
+	Matrix4 AutoParamDataSource::getInverseTransposeViewMatrix(void) const
+	{
+		return this->getInverseViewMatrix().transpose();
 	}
 	//-----------------------------------------------------------------------------
 	Matrix4 AutoParamDataSource::getTransposeProjectionMatrix(void) const

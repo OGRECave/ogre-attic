@@ -84,7 +84,7 @@ namespace Ogre {
 		String title = name;
 		bool vsync = false;
 		int fsaa = 0;
-		String border = "";
+		String border;
 		bool outerSize = false;
 
 		if(miscParams)

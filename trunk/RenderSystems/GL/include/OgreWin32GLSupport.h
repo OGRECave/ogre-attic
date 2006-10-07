@@ -63,6 +63,7 @@ namespace Ogre
 		Win32Window *mInitialWindow;
 		std::vector<int> mFSAALevels;
 		bool mHasPixelFormatARB;
+        bool mHasMultisample;
 
 		void refreshConfig();
 		void initialiseWGL();

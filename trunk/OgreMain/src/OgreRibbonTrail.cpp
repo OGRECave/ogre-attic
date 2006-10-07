@@ -97,17 +97,9 @@ namespace Ogre
 				mName + " cannot monitor node " + n->getName() + " since it already has a listener.",
 				"RibbonTrail::addNode");
 		}
-		size_t segIdx = mNodeList.size();
-		ChainSegment& seg = mChainSegmentList[segIdx];
-		// set up this segment
-		seg.head = seg.tail = SEGMENT_EMPTY;
-		// Create new element, v coord is always 0.0f
-		Element e(n->_getDerivedPosition(), 
-			mInitialWidth[segIdx], 0.0f, mInitialColour[segIdx]);
-		// Add the start position
-		addChainElement(segIdx, e);
-		// Add another on the same spot, this will extend
-		addChainElement(segIdx, e);
+
+        // initialise the chain
+        resetTrail(mNodeList.size(), n);
 
 		mNodeList.push_back(n);
 		n->setListener(this);
@@ -142,17 +134,39 @@ namespace Ogre
 		BillboardChain::setMaxChainElements(maxElements);
 		mElemLength = mTrailLength / mMaxElementsPerChain;
 		mSquaredElemLength = mElemLength * mElemLength;
+
+        resetAllTrails();
 	}
 	//-----------------------------------------------------------------------
 	void RibbonTrail::setNumberOfChains(size_t numChains)
 	{
+        if (numChains < mNodeList.size())
+        {
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"Can't shrink the number of chains less than number of tracking nodes",
+                "RibbonTrail::setNumberOfChains");
+        }
+
 		BillboardChain::setNumberOfChains(numChains);
 
 		mInitialColour.resize(numChains, ColourValue::White);
         mDeltaColour.resize(numChains, ColourValue::ZERO);
 		mInitialWidth.resize(numChains, 10);
 		mDeltaWidth.resize(numChains, 0);
+
+        resetAllTrails();
 	}
+	//-----------------------------------------------------------------------
+    void RibbonTrail::clearChain(size_t chainIndex)
+    {
+        BillboardChain::clearChain(chainIndex);
+
+        // Reset if we are tracking for this chain
+        if (chainIndex < mNodeList.size())
+        {
+            resetTrail(chainIndex, mNodeList[chainIndex]);
+        }
+    }
 	//-----------------------------------------------------------------------
 	void RibbonTrail::setInitialColour(size_t chainIndex, const ColourValue& col)
 	{
@@ -404,6 +418,30 @@ namespace Ogre
 		}
 
 	}
+    //-----------------------------------------------------------------------
+    void RibbonTrail::resetTrail(size_t index, const Node* node)
+    {
+        assert(index < mChainCount);
+
+        ChainSegment& seg = mChainSegmentList[index];
+        // set up this segment
+        seg.head = seg.tail = SEGMENT_EMPTY;
+        // Create new element, v coord is always 0.0f
+        Element e(node->_getDerivedPosition(),
+            mInitialWidth[index], 0.0f, mInitialColour[index]);
+        // Add the start position
+        addChainElement(index, e);
+        // Add another on the same spot, this will extend
+        addChainElement(index, e);
+    }
+	//-----------------------------------------------------------------------
+    void RibbonTrail::resetAllTrails(void)
+    {
+        for (size_t i = 0; i < mNodeList.size(); ++i)
+        {
+            resetTrail(i, mNodeList[i]);
+        }
+    }
 	//-----------------------------------------------------------------------
 	const String& RibbonTrail::getMovableType(void) const
 	{

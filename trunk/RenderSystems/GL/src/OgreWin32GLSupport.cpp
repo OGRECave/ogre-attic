@@ -16,8 +16,10 @@ using namespace Ogre;
 GLenum wglewContextInit (Ogre::GLSupport *glSupport);
 
 namespace Ogre {
-	Win32GLSupport::Win32GLSupport():
-		mInitialWindow(0), mHasPixelFormatARB(0)
+	Win32GLSupport::Win32GLSupport()
+        : mInitialWindow(0)
+        , mHasPixelFormatARB(false)
+        , mHasMultisample(false)
     {
 		// immediately test WGL_ARB_pixel_format and FSAA support
 		// so we can set configuration options appropriately
@@ -76,11 +78,11 @@ namespace Ogre {
 
 		optColourDepth.name = "Colour Depth";
 		optColourDepth.immutable = false;
-		optColourDepth.currentValue = "";
+		optColourDepth.currentValue.clear();
 
 		optDisplayFrequency.name = "Display Frequency";
 		optDisplayFrequency.immutable = false;
-		optDisplayFrequency.currentValue = "";
+        optDisplayFrequency.currentValue.clear();
 
 		optVSync.name = "VSync";
 		optVSync.immutable = false;
@@ -181,7 +183,7 @@ namespace Ogre {
 	String Win32GLSupport::validateConfig()
 	{
 		// TODO, DX9
-		return String("");
+		return StringUtil::BLANK;
 	}
 
 	RenderWindow* Win32GLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* renderSystem, const String& windowTitle)
@@ -375,8 +377,6 @@ namespace Ogre {
 				wglGetProcAddress("wglGetExtensionsStringARB");
 			
 			// check for pixel format and multisampling support
-			bool hasMultisample = false;
-			
 			if (_wglGetExtensionsStringARB)
 			{
 				std::istringstream wglexts(_wglGetExtensionsStringARB(hdc));
@@ -386,23 +386,25 @@ namespace Ogre {
 					if (ext == "WGL_ARB_pixel_format")
 						mHasPixelFormatARB = true;
 					else if (ext == "WGL_ARB_multisample")
-						hasMultisample = true;
+						mHasMultisample = true;
 				}
 			}
 
-			if (mHasPixelFormatARB && hasMultisample)
+			if (mHasPixelFormatARB && mHasMultisample)
 			{
-				// enumerate all 32-bit formats w/ multisampling
-				int iattr[] = {
+				// enumerate all formats w/ multisampling
+				static const int iattr[] = {
 					WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
 					WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
 					WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
 					WGL_SAMPLE_BUFFERS_ARB, GL_TRUE,
 					WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
+                    /* We are no matter about the colour, depth and stencil buffers here
 					WGL_COLOR_BITS_ARB, 24,
 					WGL_ALPHA_BITS_ARB, 8,
 					WGL_DEPTH_BITS_ARB, 24,
 					WGL_STENCIL_BITS_ARB, 8,
+                    */
 					WGL_SAMPLES_ARB, 2,
 					0
 				};
@@ -412,20 +414,22 @@ namespace Ogre {
                 // when a valid GL context does not exist and glew is not initialized yet.
                 __wglewChoosePixelFormatARB =
                     (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
-				__wglewChoosePixelFormatARB(hdc, iattr, 0, 256, formats, &count);
-				
-				// determine what multisampling levels are offered
-				int query = WGL_SAMPLES_ARB, samples;
-				for (unsigned int i = 0; i < count; ++i)
-				{
-					PFNWGLGETPIXELFORMATATTRIBIVARBPROC _wglGetPixelFormatAttribivARB =
-						(PFNWGLGETPIXELFORMATATTRIBIVARBPROC)
-						wglGetProcAddress("wglGetPixelFormatAttribivARB");
-					if (_wglGetPixelFormatAttribivARB(hdc, formats[i],
-													0, 1, &query, &samples))
-						mFSAALevels.push_back(samples);
-				}
-				remove_duplicates(mFSAALevels);
+                if (__wglewChoosePixelFormatARB(hdc, iattr, 0, 256, formats, &count))
+                {
+                    // determine what multisampling levels are offered
+                    int query = WGL_SAMPLES_ARB, samples;
+                    for (unsigned int i = 0; i < count; ++i)
+                    {
+                        PFNWGLGETPIXELFORMATATTRIBIVARBPROC _wglGetPixelFormatAttribivARB =
+                            (PFNWGLGETPIXELFORMATATTRIBIVARBPROC)
+                            wglGetProcAddress("wglGetPixelFormatAttribivARB");
+                        if (_wglGetPixelFormatAttribivARB(hdc, formats[i], 0, 1, &query, &samples))
+                        {
+                            mFSAALevels.push_back(samples);
+                        }
+                    }
+                    remove_duplicates(mFSAALevels);
+                }
 			}
 			
 			wglMakeCurrent(0, 0);
@@ -459,8 +463,8 @@ namespace Ogre {
 
 		if (multisample)
 		{
-			// only available at 32bpp with driver support
-			if (colourDepth < 32 || !mHasPixelFormatARB)
+			// only available with driver support
+			if (!mHasMultisample || !mHasPixelFormatARB)
 				return false;
 			
 			int iattr[] = {
@@ -469,8 +473,8 @@ namespace Ogre {
 				WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
 				WGL_SAMPLE_BUFFERS_ARB, GL_TRUE,
 				WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
-				WGL_COLOR_BITS_ARB, 24,
-				WGL_ALPHA_BITS_ARB, 8,
+				WGL_COLOR_BITS_ARB, pfd.cColorBits,
+				WGL_ALPHA_BITS_ARB, pfd.cAlphaBits,
 				WGL_DEPTH_BITS_ARB, 24,
 				WGL_STENCIL_BITS_ARB, 8,
 				WGL_SAMPLES_ARB, multisample,
@@ -481,7 +485,8 @@ namespace Ogre {
             assert(__wglewChoosePixelFormatARB && "failed to get proc address for ChoosePixelFormatARB");
             // ChoosePixelFormatARB proc address was obtained when setting up a dummy GL context in initialiseWGL()
             // since glew hasn't been initialized yet, we have to cheat and use the previously obtained address
-			__wglewChoosePixelFormatARB(hdc, iattr, NULL, 1, &format, &nformats);
+			if (!__wglewChoosePixelFormatARB(hdc, iattr, NULL, 1, &format, &nformats) || nformats <= 0)
+                return false;
 		}
 		else
 		{
@@ -493,7 +498,7 @@ namespace Ogre {
 
 	bool Win32GLSupport::supportsPBuffers()
 	{
-		return __WGLEW_ARB_pbuffer;
+		return __WGLEW_ARB_pbuffer != GL_FALSE;
 	}
     GLPBuffer *Win32GLSupport::createPBuffer(PixelComponentType format, size_t width, size_t height)
 	{
