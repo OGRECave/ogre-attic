@@ -295,6 +295,9 @@ namespace Ogre {
         delete mDynLibManager;
         delete mLogManager;
 
+		mAutoWindow = 0;
+		mFirstTimePostWindowInit = false;
+
 
         StringInterface::cleanupDictionary ();
     }
