@@ -137,6 +137,8 @@ namespace Ogre {
 					case GL_SAMPLER_CUBE:
 					case GL_SAMPLER_1D_SHADOW:
 					case GL_SAMPLER_2D_SHADOW:
+                    case GL_SAMPLER_2D_RECT_ARB:
+                    case GL_SAMPLER_2D_RECT_SHADOW_ARB:
 						newUniformReference.isReal = false;
 						newUniformReference.mElementCount = 1;
 						break;
@@ -170,6 +172,10 @@ namespace Ogre {
 						newUniformReference.isReal = true;
 						newUniformReference.mElementCount = 16;
 						break;
+
+                    default:
+                        // Ignore silently for unknown/unsupported types
+                        continue;
 
 					}// end switch
 
