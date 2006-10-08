@@ -29,8 +29,9 @@ Torus Knot Software Ltd.
 #ifndef __Win32Timer_H__
 #define __Win32Timer_H__
 
-
-#define WIN32_LEAN_AND_MEAN
+#ifndef WIN32_LEAN_AND_MEAN
+#  define WIN32_LEAN_AND_MEAN
+#endif
 #include "windows.h"
 
 //Get around Windows hackery
