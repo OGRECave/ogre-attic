@@ -75,6 +75,10 @@ namespace Ogre
     //---------------------------------------------------------------------------
     GpuProgramParametersSharedPtr HighLevelGpuProgram::createParameters(void)
     {
+		// Lock mutex before allowing this since this is a top-level method
+		// called outside of the load()
+		OGRE_LOCK_AUTO_MUTEX
+
         // Make sure param defs are loaded
         GpuProgramParametersSharedPtr params = GpuProgramManager::getSingleton().createParameters();
 		// Only populate named parameters if we can support this program

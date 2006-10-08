@@ -95,7 +95,7 @@ namespace Ogre {
         @remarks
             Program parameters can be shared between multiple programs if you wish.
         */
-        virtual GpuProgramParametersSharedPtr createParameters(void) = 0;
+        virtual GpuProgramParametersSharedPtr createParameters(void);
         
         /** Create a new, unloaded GpuProgram from a file of assembly. 
         @remarks    
