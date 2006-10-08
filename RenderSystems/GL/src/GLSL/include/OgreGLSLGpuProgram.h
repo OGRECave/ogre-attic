@@ -57,14 +57,10 @@ namespace Ogre {
 		/// keep track of the number of fragment shaders created
 		static GLuint mFragmentShaderCount;
 
-		public:
+	public:
         GLSLGpuProgram(GLSLProgram* parent);
 		~GLSLGpuProgram();
 
-		/// @copydoc Resource::unloadImpl
-		void unloadImpl(void);
-		/// @copydoc Resource::loadImpl
-		void loadImpl(void);
 
 		/// Execute the binding functions for this program
 		void bindProgram(void);
@@ -92,6 +88,10 @@ namespace Ogre {
     protected:
         /// Overridden from GpuProgram
         void loadFromSource(void);
+		/// @copydoc Resource::unloadImpl
+		void unloadImpl(void);
+		/// @copydoc Resource::loadImpl
+		void loadImpl(void);
 
 
     };

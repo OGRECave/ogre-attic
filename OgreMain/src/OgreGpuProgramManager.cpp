@@ -61,10 +61,15 @@ namespace Ogre {
 		const String& groupName, const String& filename, 
 		GpuProgramType gptype, const String& syntaxCode)
     {
-        GpuProgramPtr prg = getByName(name);
-        if (prg.isNull())
-        {
-	        prg = createProgram(name, groupName, filename, gptype, syntaxCode);
+		GpuProgramPtr prg;
+		{
+			OGRE_LOCK_AUTO_MUTEX
+			prg = getByName(name);
+			if (prg.isNull())
+			{
+				prg = createProgram(name, groupName, filename, gptype, syntaxCode);
+			}
+
 		}
         prg->load();
         return prg;
@@ -74,10 +79,15 @@ namespace Ogre {
 		const String& groupName, const String& code, 
         GpuProgramType gptype, const String& syntaxCode)
     {
-        GpuProgramPtr prg = getByName(name);
-        if (prg.isNull())
+		GpuProgramPtr prg;
 		{
-			prg = createProgramFromString(name, groupName, code, gptype, syntaxCode);
+			OGRE_LOCK_AUTO_MUTEX
+			prg = getByName(name);
+			if (prg.isNull())
+			{
+				prg = createProgramFromString(name, groupName, code, gptype, syntaxCode);
+			}
+
 		}
         prg->load();
         return prg;
@@ -144,5 +154,10 @@ namespace Ogre {
         }
         return ResourceManager::getByName(name);
     }
+	//-----------------------------------------------------------------------------
+	GpuProgramParametersSharedPtr GpuProgramManager::createParameters(void)
+	{
+		return GpuProgramParametersSharedPtr(new GpuProgramParameters());
+	}
 
 }

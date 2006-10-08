@@ -54,11 +54,6 @@ bool GLGpuProgramManager::unregisterProgramFactory(const String& syntaxCode)
     return mProgramMap.erase(syntaxCode) != 0;
 }
 
-GpuProgramParametersSharedPtr GLGpuProgramManager::createParameters(void)
-{ 
-    return GpuProgramParametersSharedPtr(new GpuProgramParameters());
-}
-
 /// @copydoc ResourceManager::createImpl
 Resource* GLGpuProgramManager::createImpl(const String& name, ResourceHandle handle, 
                      const String& group, bool isManual, ManualResourceLoader* loader,

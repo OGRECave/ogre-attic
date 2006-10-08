@@ -44,8 +44,6 @@ namespace Ogre {
         virtual void bindProgram(void) {}
         /// Execute the binding functions for this program
         virtual void unbindProgram(void) {}
-        /** Overridden from GpuProgram, do nothing */
-        void loadFromSource(void) {}
 
         /// Execute the param binding functions for this program
         virtual void bindProgramParameters(GpuProgramParametersSharedPtr params) {}
@@ -68,6 +66,8 @@ namespace Ogre {
 		virtual bool isAttributeValid(VertexElementSemantic semantic);
 
     protected:
+		/** Overridden from GpuProgram, do nothing */
+		void loadFromSource(void) {}
         /// @copydoc Resource::unloadImpl
         void unloadImpl(void) {}
 

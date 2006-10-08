@@ -49,11 +49,6 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------------
-    GpuProgramParametersSharedPtr D3D9GpuProgramManager::createParameters(void)
-    {
-        return GpuProgramParametersSharedPtr(new GpuProgramParameters());
-    }
-    //-----------------------------------------------------------------------------
     Resource* D3D9GpuProgramManager::createImpl(const String& name, ResourceHandle handle, 
         const String& group, bool isManual, ManualResourceLoader* loader,
         const NameValuePairList* params)

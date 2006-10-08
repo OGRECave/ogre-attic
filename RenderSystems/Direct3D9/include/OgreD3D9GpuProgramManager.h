@@ -49,8 +49,6 @@ namespace Ogre {
     public:
         D3D9GpuProgramManager(LPDIRECT3DDEVICE9 device);
 		~D3D9GpuProgramManager();
-        /// @copydoc GpuProgramManager::createParameters
-        GpuProgramParametersSharedPtr createParameters(void);
     };
 
 }
