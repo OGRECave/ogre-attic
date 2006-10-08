@@ -1,4 +1,3 @@
-
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
@@ -345,7 +344,7 @@ namespace Ogre {
 						 OverlayManager::getSingleton().createOverlayElement(
 							oldChildElement->getTypeName(), 
 							mName+"/"+oldChildElement->getName());
-					 oldChildElement->copyParametersTo(newChildElement);
+					 newChildElement->copyFromTemplate(oldChildElement);
 					 addChild((OverlayContainer*)newChildElement);
 				 }
 			 }
