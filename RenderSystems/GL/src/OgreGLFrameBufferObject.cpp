@@ -130,6 +130,7 @@ namespace Ogre {
 		if (depthFormat == GL_DEPTH24_STENCIL8_EXT)
 		{
 			// bind same buffer to depth and stencil attachments
+            mManager->requestRenderBuffer(mDepth);
 			mStencil = mDepth;
 		}
 		else
@@ -150,7 +151,7 @@ namespace Ogre {
         }
         if(mStencil.buffer)
         {
-            mStencil.buffer->bindToFramebuffer(GL_STENCIL_ATTACHMENT_EXT, mDepth.zoffset);
+            mStencil.buffer->bindToFramebuffer(GL_STENCIL_ATTACHMENT_EXT, mStencil.zoffset);
         }
         else
         {

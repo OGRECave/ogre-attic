@@ -106,7 +106,7 @@ size_t depthBits[] = {
     */
     GLuint GLFBOManager::_tryFormat(GLenum depthFormat, GLenum stencilFormat)
     {
-        GLuint status, depthRB, stencilRB;
+        GLuint status, depthRB = 0, stencilRB = 0;
         bool failed = false; // flag on GL errors
 
         if(depthFormat != GL_NONE)
@@ -147,14 +147,57 @@ size_t depthBits[] = {
         status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
         /// If status is negative, clean up
         // Detach and destroy
-        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_NONE, 0);
-        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_NONE, 0);
-        glDeleteRenderbuffersEXT(1, &depthRB);
-        glDeleteRenderbuffersEXT(1, &stencilRB);
+        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, 0);
+        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, 0);
+        if (depthRB)
+            glDeleteRenderbuffersEXT(1, &depthRB);
+        if (stencilRB)
+            glDeleteRenderbuffersEXT(1, &stencilRB);
         
         return status == GL_FRAMEBUFFER_COMPLETE_EXT && !failed;
     }
     
+    /** Try a certain packed depth/stencil format, and return the status.
+        @returns true    if this combo is supported
+                 false   if this combo is not supported
+    */
+    bool GLFBOManager::_tryPackedFormat(GLenum packedFormat)
+    {
+        GLuint packedRB;
+        bool failed = false; // flag on GL errors
+
+        /// Generate renderbuffer
+        glGenRenderbuffersEXT(1, &packedRB);
+
+        /// Bind it to FBO
+        glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, packedRB);
+
+        /// Allocate storage for buffer
+        glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, packedFormat, PROBE_SIZE, PROBE_SIZE);
+        glGetError(); // NV hack
+
+        /// Attach depth
+        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
+            GL_RENDERBUFFER_EXT, packedRB);
+        if(glGetError() != GL_NO_ERROR) // NV hack
+            failed = true;
+
+        /// Attach stencil
+        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
+            GL_RENDERBUFFER_EXT, packedRB);
+        if(glGetError() != GL_NO_ERROR) // NV hack
+            failed = true;
+
+        GLuint status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+
+        /// Detach and destroy
+        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, 0);
+        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, 0);
+        glDeleteRenderbuffersEXT(1, &packedRB);
+
+        return status == GL_FRAMEBUFFER_COMPLETE_EXT && !failed;
+    }
+
     /** Detect which internal formats are allowed as RTT
         Also detect what combinations of stencil and depth are allowed with this internal
         format.
@@ -223,49 +266,61 @@ size_t depthBits[] = {
 				StringUtil::StrStreamType str;
 				str << "FBO " << PixelUtil::getFormatName((PixelFormat)x) 
 					<< " depth/stencil support: ";
-                
-                // Continue detection
-                size_t depth=0, stencil=0;
-				
-                while(true)
-                {
-					//StringUtil::StrStreamType l;
-					//l << "Trying " << PixelUtil::getFormatName((PixelFormat)x) 
-					//	<< " D" << depthBits[depth] 
-					//	<< "S" << stencilBits[stencil];
-					//LogManager::getSingleton().logMessage(l.str());
 
-					// Only query packed depth/stencil formats for 32-bit
-					// non-floating point formats (ie not R32!) 
-					// Linux nVidia driver segfaults if you query others
-                    if((depthFormats[depth] != GL_DEPTH24_STENCIL8_EXT || 
-						(PixelUtil::getNumElemBits((PixelFormat)x) == 32) && 
-						 !PixelUtil::isFloatingPoint((PixelFormat)x)) && 
-						_tryFormat(depthFormats[depth], stencilFormats[stencil]))
+                // For each depth/stencil formats
+                for (size_t depth = 0; depth < DEPTHFORMAT_COUNT; ++depth)
+                {
+                    if (depthFormats[depth] != GL_DEPTH24_STENCIL8_EXT)
                     {
-                        /// Add mode to allowed modes
-                        str << "D" << depthBits[depth] << "S" << 
-							(depthFormats[depth] == GL_DEPTH24_STENCIL8_EXT ? 8 : stencilBits[stencil]) 
-							<< " ";
-                        FormatProperties::Mode mode;
-                        mode.depth = depth;
-                        mode.stencil = stencil;
-                        mProps[x].modes.push_back(mode);
-                    }
-                    /// Try next combo
-                    stencil++;
-                    if(stencil == STENCILFORMAT_COUNT)
-                    {
-                        stencil = 0;
-                        depth ++;
-                        if(depth == DEPTHFORMAT_COUNT)
+                        // General depth/stencil combination
+
+                        for (size_t stencil = 0; stencil < STENCILFORMAT_COUNT; ++stencil)
                         {
-                            // We're done
-                            break;
+                            //StringUtil::StrStreamType l;
+                            //l << "Trying " << PixelUtil::getFormatName((PixelFormat)x) 
+                            //	<< " D" << depthBits[depth] 
+                            //	<< "S" << stencilBits[stencil];
+                            //LogManager::getSingleton().logMessage(l.str());
+
+                            if (_tryFormat(depthFormats[depth], stencilFormats[stencil]))
+                            {
+                                /// Add mode to allowed modes
+                                str << "D" << depthBits[depth] << "S" << stencilBits[stencil] << " ";
+                                FormatProperties::Mode mode;
+                                mode.depth = depth;
+                                mode.stencil = stencil;
+                                mProps[x].modes.push_back(mode);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Packed depth/stencil format
+
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+                        // Only query packed depth/stencil formats for 32-bit
+                        // non-floating point formats (ie not R32!) 
+                        // Linux nVidia driver segfaults if you query others
+                        if (PixelUtil::getNumElemBits((PixelFormat)x) != 32 ||
+                            PixelUtil::isFloatingPoint((PixelFormat)x))
+                        {
+                            continue;
+                        }
+#endif
+
+                        if (_tryPackedFormat(depthFormats[depth]))
+                        {
+                            /// Add mode to allowed modes
+                            str << "Packed-D" << depthBits[depth] << "S" << 8 << " ";
+                            FormatProperties::Mode mode;
+                            mode.depth = depth;
+                            mode.stencil = 0;   // unuse
+                            mProps[x].modes.push_back(mode);
                         }
                     }
                 }
-				LogManager::getSingleton().logMessage(str.str());
+
+                LogManager::getSingleton().logMessage(str.str());
 
             }
             // Delete texture and framebuffer
@@ -385,6 +440,22 @@ size_t depthBits[] = {
         //std::cerr << "Requested renderbuffer with format " << std::hex << format << std::dec << " of " << width << "x" << height << " :" << retval.buffer << std::endl;
         return retval;
     }
+    //-----------------------------------------------------------------------
+    void GLFBOManager::requestRenderBuffer(const GLSurfaceDesc &surface)
+    {
+        if(surface.buffer == 0)
+            return;
+        RBFormat key(surface.buffer->getGLFormat(), surface.buffer->getWidth(), surface.buffer->getHeight());
+        RenderBufferMap::iterator it = mRenderBufferMap.find(key);
+        assert(it != mRenderBufferMap.end());
+        if (it != mRenderBufferMap.end())   // Just in case
+        {
+            assert(it->second.buffer == surface.buffer);
+            // Increase refcount
+            ++it->second.refcount;
+        }
+    }
+    //-----------------------------------------------------------------------
     void GLFBOManager::releaseRenderBuffer(const GLSurfaceDesc &surface)
     {
         if(surface.buffer == 0)
