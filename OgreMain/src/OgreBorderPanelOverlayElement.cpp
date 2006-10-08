@@ -237,7 +237,7 @@ namespace Ogre {
         else
         {
             mLeftBorderSize = mRightBorderSize = 
-                mTopBorderSize = mBottomBorderSize = static_cast<unsigned>(size);
+                mTopBorderSize = mBottomBorderSize = size;
         }
         mGeomPositionsOutOfDate = true;
     }
@@ -251,8 +251,8 @@ namespace Ogre {
         }
         else
         {
-            mLeftBorderSize = mRightBorderSize = static_cast<unsigned>(sides);
-            mTopBorderSize = mBottomBorderSize = static_cast<unsigned>(topAndBottom);
+            mLeftBorderSize = mRightBorderSize = sides;
+            mTopBorderSize = mBottomBorderSize = topAndBottom;
         }
         mGeomPositionsOutOfDate = true;
 
@@ -270,10 +270,10 @@ namespace Ogre {
         }
         else
         {
-            mLeftBorderSize = static_cast<unsigned>(left);
-            mRightBorderSize = static_cast<unsigned>(right);
-            mTopBorderSize = static_cast<unsigned>(top);
-            mBottomBorderSize = static_cast<unsigned>(bottom);
+            mLeftBorderSize = left;
+            mRightBorderSize = right;
+            mTopBorderSize = top;
+            mBottomBorderSize = bottom;
         }
         mGeomPositionsOutOfDate = true;
     }
