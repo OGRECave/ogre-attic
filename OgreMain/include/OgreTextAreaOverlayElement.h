@@ -31,20 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt
 
 namespace Ogre
 {
-    /** OverlayElement representing a flat, single-material (or transparent) panel which can contain other elements.
-    @remarks
-    This class subclasses OverlayContainer because it can contain other elements. Like other
-    containers, if hidden it's contents are also hidden, if moved it's contents also move etc. 
-    The panel itself is a 2D rectangle which is either completely transparent, or is rendered 
-    with a single material. The texture(s) on the panel can be tiled depending on your requirements.
-    @par
-    This component is suitable for backgrounds and grouping other elements. Note that because
-    it has a single repeating material it cannot have a discrete border (unless the texture has one and
-    the texture is tiled only once). For a bordered panel, see it's subclass BorderTextAreaOverlayElement.
-    @par
-    Note that the material can have all the usual effects applied to it like multiple texture
-    layers, scrolling / animated textures etc. For multiple texture layers, you have to set 
-    the tiling level for each layer.
+    /** This class implements an overlay element which contains simple unformatted text.
     */
     class _OgreExport TextAreaOverlayElement : public OverlayElement
     {
