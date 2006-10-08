@@ -85,6 +85,7 @@ uint32 SceneManager::USER_TYPE_MASK_LIMIT         = SceneManager::LIGHT_TYPE_MAS
 SceneManager::SceneManager(const String& name) :
 mName(name),
 mRenderQueue(0),
+mCurrentViewport(0),
 mSkyPlaneEntity(0),
 mSkyPlaneNode(0),
 mSkyDomeNode(0),
@@ -135,8 +136,7 @@ mShadowTextureCustomReceiverPass(0),
 mVisibilityMask(0xFFFFFFFF),
 mFindVisibleObjects(true),
 mSuppressRenderStateChanges(false),
-mSuppressShadows(false),
-mCurrentViewport(0)
+mSuppressShadows(false)
 {
     // Root scene node
     mSceneRoot = new SceneNode(this, "root node");
