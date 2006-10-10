@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2006 Torus Knot Software Ltd
@@ -20,9 +20,12 @@ You should have received a copy of the GNU Lesser General Public License along w
 this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
+
+You may alternatively use this source under the terms of a specific version of
+the OGRE Unrestricted License provided you have obtained such a license from
+Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
-
 #ifndef __ShadowCameraSetup_H__
 #define __ShadowCameraSetup_H__
 
@@ -47,6 +50,9 @@ namespace Ogre {
 		/// Function to implement -- must set the shadow camera properties
 		virtual void getShadowCamera (const SceneManager *sm, const Camera *cam, 
 									  const Viewport *vp, const Light *light, Camera *texCam) const = 0;
+		/// Need virtual destructor in case subclasses use it
+		virtual ~ShadowCameraSetup() {}
+
 	};
 
 

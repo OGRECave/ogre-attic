@@ -96,6 +96,9 @@ namespace Ogre {
 			thread, so be careful!
 			*/
 			virtual void operationCompleted(BackgroundProcessTicket ticket) = 0;
+			/// Need virtual destructor in case subclasses use it
+			virtual ~Listener() {}
+
 		};
 	protected:
 		/** Enumerates the type of requests */

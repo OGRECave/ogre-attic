@@ -91,7 +91,7 @@ namespace Ogre {
 		/// Supports vertex texture fetch
 		RSC_VERTEX_TEXTURE_FETCH = 0x08000000, 
 		/// Supports mipmap LOD biasing
-		RSC_MIPMAP_LOD_BIAS = 0x10000000, 
+		RSC_MIPMAP_LOD_BIAS = 0x10000000 
 
     };
 
