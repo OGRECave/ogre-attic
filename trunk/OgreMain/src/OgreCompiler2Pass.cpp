@@ -1194,7 +1194,8 @@ namespace Ogre {
     {
         bool validlexemefound = false;
 	    bool endofsource = mCharPos >= mEndOfSource;
-
+        size_t oldCharPos = mCharPos;
+        
 	    while (!validlexemefound && !endofsource)
 	    {
 		    skipWhiteSpace();
@@ -1202,11 +1203,29 @@ namespace Ogre {
 		    skipComments();
 		    // have we reached the end of the string?
 		    if (mCharPos >= mEndOfSource)
+		    {
 			    endofsource = true;
+		    }
 		    else
 		    {
 			    // if ASCII > space then assume valid character is found
-			    if ((*mSource)[mCharPos] > ' ') validlexemefound = true;
+			    if (static_cast<uchar>((*mSource)[mCharPos]) > static_cast<uchar>(' '))
+			    {
+			        validlexemefound = true;
+			    }
+			    else // maybe a control character has been encountered?
+			    {
+                    // check if the char pos advanced in this iteration.
+                    // If it didn't then we have found a char that
+                    // is not relevent to the parse so skip it so that we don't
+                    // end up in an infinite loop.
+                    if (oldCharPos == mCharPos)
+                        ++mCharPos;
+                        
+			        // endofsource will get checked on next iteration of this loop so no need to check it here
+			        // need to update oldCharPos so that position advancement can be varified on the next iteration
+                    oldCharPos = mCharPos;
+			    }
 		    }
 	    }// end of while
 

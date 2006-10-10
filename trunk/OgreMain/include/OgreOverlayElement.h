@@ -467,7 +467,7 @@ namespace Ogre {
             return ll;
         }
 
-        void copyFromTemplate(OverlayElement* templateOverlay);
+        virtual void copyFromTemplate(OverlayElement* templateOverlay);
         virtual OverlayElement* clone(const String& instanceName);
 
         // Returns the SourceTemplate for this element
