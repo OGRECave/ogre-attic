@@ -2431,15 +2431,48 @@ namespace Ogre {
     void GLRenderSystem::bindGpuProgram(GpuProgram* prg)
     {
         GLGpuProgram* glprg = static_cast<GLGpuProgram*>(prg);
+
+        // Unbind previous gpu program first.
+        //
+        // Note:
+        //  1. Even if both previous and current are the same object, we can't
+        //     bypass re-bind completely since the object itself maybe modified.
+        //     But we can bypass unbind based on the assumption that object
+        //     internally GL program type shouldn't be changed after it has
+        //     been created. The behavior of bind to a GL program type twice
+        //     should be same as unbind and rebind that GL program type, even
+        //     for difference objects.
+        //  2. We also assumed that the program's type (vertex or fragment) should
+        //     not be changed during it's in using. If not, the following switch
+        //     statement will confuse GL state completely, and we can't fix it
+        //     here. To fix this case, we must coding the program implementation
+        //     itself, if type is changing (during load/unload, etc), and it's inuse,
+        //     unbind and notify render system to correct for its state.
+        //
+        switch (glprg->getType())
+        {
+        case GPT_VERTEX_PROGRAM:
+            if (mCurrentVertexProgram != glprg)
+            {
+                if (mCurrentVertexProgram)
+                    mCurrentVertexProgram->unbindProgram();
+                mCurrentVertexProgram = glprg;
+            }
+            break;
+
+        case GPT_FRAGMENT_PROGRAM:
+            if (mCurrentFragmentProgram != glprg)
+            {
+                if (mCurrentFragmentProgram)
+                    mCurrentFragmentProgram->unbindProgram();
+                mCurrentFragmentProgram = glprg;
+            }
+            break;
+        }
+
+        // Bind the program
         glprg->bindProgram();
-        if (glprg->getType() == GPT_VERTEX_PROGRAM)
-        {
-            mCurrentVertexProgram = glprg;
-        }
-        else
-        {
-            mCurrentFragmentProgram = glprg;
-        }
+
         RenderSystem::bindGpuProgram(prg);
     }
 	//---------------------------------------------------------------------

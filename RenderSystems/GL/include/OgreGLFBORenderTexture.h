@@ -92,6 +92,10 @@ namespace Ogre {
         /** Request a render buffer. If format is GL_NONE, return a zero buffer.
         */
         GLSurfaceDesc requestRenderBuffer(GLenum format, size_t width, size_t height);
+        /** Request the specify render buffer in case shared somewhere. Ignore
+            silently if surface.buffer is 0.
+        */
+        void requestRenderBuffer(const GLSurfaceDesc &surface);
         /** Release a render buffer. Ignore silently if surface.buffer is 0.
         */
         void releaseRenderBuffer(const GLSurfaceDesc &surface);
@@ -181,6 +185,7 @@ namespace Ogre {
         /** Detect allowed FBO formats */
         void detectFBOFormats();
         GLuint _tryFormat(GLenum depthFormat, GLenum stencilFormat);
+        bool _tryPackedFormat(GLenum packedFormat);
     };
     
 

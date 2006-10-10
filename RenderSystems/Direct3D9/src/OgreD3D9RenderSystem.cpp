@@ -2481,13 +2481,25 @@ namespace Ogre
         // TODO: attempt to detect duplicates
         const VertexBufferBinding::VertexBufferBindingMap& binds = binding->getBindings();
         VertexBufferBinding::VertexBufferBindingMap::const_iterator i, iend;
+        size_t source = 0;
         iend = binds.end();
-        for (i = binds.begin(); i != iend; ++i)
+        for (i = binds.begin(); i != iend; ++i, ++source)
         {
+            // Unbind gap sources
+            for ( ; source < i->first; ++source)
+            {
+                hr = mpD3DDevice->SetStreamSource(static_cast<UINT>(source), NULL, 0, 0);
+                if (FAILED(hr))
+                {
+                    OGRE_EXCEPT(hr, "Unable to reset unused D3D9 stream source", 
+                        "D3D9RenderSystem::setVertexBufferBinding");
+                }
+            }
+
             const D3D9HardwareVertexBuffer* d3d9buf = 
                 static_cast<const D3D9HardwareVertexBuffer*>(i->second.get());
             hr = mpD3DDevice->SetStreamSource(
-                static_cast<UINT>(i->first),
+                static_cast<UINT>(source),
                 d3d9buf->getD3D9VertexBuffer(),
                 0, // no stream offset, this is handled in _render instead
                 static_cast<UINT>(d3d9buf->getVertexSize()) // stride
@@ -2502,7 +2514,7 @@ namespace Ogre
         }
 
 		// Unbind any unused sources
-		for (size_t unused = binds.size(); unused < mLastVertexSourceCount; ++unused)
+		for (size_t unused = source; unused < mLastVertexSourceCount; ++unused)
 		{
 			
             hr = mpD3DDevice->SetStreamSource(static_cast<UINT>(unused), NULL, 0, 0);
@@ -2513,7 +2525,7 @@ namespace Ogre
             }
 			
 		}
-		mLastVertexSourceCount = binds.size();
+		mLastVertexSourceCount = source;
 		
 
 		
