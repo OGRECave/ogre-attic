@@ -3,10 +3,12 @@
 
 #include "OgrePrerequisites.h"
 
+namespace Ogre
+{
+
 /*=============================================================================
  ASM math routines posted by davepermen et al on flipcode forums
 =============================================================================*/
-
 const float pi = 4.0 * atan( 1.0 );
 const float half_pi = 0.5 * pi;
 
@@ -361,5 +363,5 @@ float asm_ln( float r ) {
 #if  OGRE_COMPILER == OGRE_COMPILER_MSVC &&  OGRE_ARCH_TYPE == OGRE_ARCHITECTURE_32
 #	pragma warning( pop )
 #endif
-
+} // namespace
 #endif
