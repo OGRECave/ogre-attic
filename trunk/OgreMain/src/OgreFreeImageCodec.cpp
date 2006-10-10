@@ -62,9 +62,9 @@ namespace Ogre {
 		// library version (not recommended at this time since it is much larger to 
 		// distribute for us), the library must be initialised and shut down manually
 
-		//For linux, FreeImage needs an explicit startup even when using shared lib.. There is
+		//For linux & OSX, FreeImage needs an explicit startup even when using shared lib.. There is
 		//no dllEntry point used under linux (how FreeImage loads up on win32)
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || defined(FREEIMAGE_LIB)
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE || defined(FREEIMAGE_LIB)
 		FreeImage_Initialise(false);
 #endif
 		LogManager::getSingleton().logMessage(
@@ -117,9 +117,9 @@ namespace Ogre {
 	//---------------------------------------------------------------------
 	void FreeImageCodec::shutdown(void)
 	{
-		//For linux, FreeImage needs an explicit destruction even when using shared lib.. There is
+		//For linux & OSX, FreeImage needs an explicit destruction even when using shared lib.. There is
 		//no dllEntry point used under linux (how FreeImage shuts down win32)
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || defined(FREEIMAGE_LIB)
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE || defined(FREEIMAGE_LIB)
 		FreeImage_DeInitialise();
 #endif
 
