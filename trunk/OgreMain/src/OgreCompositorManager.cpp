@@ -60,6 +60,9 @@ CompositorManager::CompositorManager():
 	// Resource type
 	mResourceType = "Compositor";
 
+	// Create default thread serializer instance (also non-threaded)
+	OGRE_THREAD_POINTER_SET(mSerializer, new CompositorSerializer());
+
 	// Register with resource group manager
 	ResourceGroupManager::getSingleton()._registerResourceManager(mResourceType, this);
 
@@ -69,6 +72,9 @@ CompositorManager::~CompositorManager()
 {
     freeChains();
 	delete mRectangle;
+
+	OGRE_THREAD_POINTER_DELETE(mSerializer);
+
 	// Resources cleared by superclass
 	// Unregister with resource group manager
 	ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);
@@ -126,7 +132,16 @@ void CompositorManager::initialise(void)
 //-----------------------------------------------------------------------
 void CompositorManager::parseScript(DataStreamPtr& stream, const String& groupName)
 {
-    mSerializer.parseScript(stream, groupName);
+#if OGRE_THREAD_SUPPORT
+	// check we have an instance for this thread 
+	if (!mSerializer.get())
+	{
+		// create a new instance for this thread - will get deleted when
+		// the thread dies
+		mSerializer.reset(new CompositorSerializer());
+	}
+#endif
+    mSerializer->parseScript(stream, groupName);
 }
 //-----------------------------------------------------------------------
 CompositorChain *CompositorManager::getCompositorChain(Viewport *vp)

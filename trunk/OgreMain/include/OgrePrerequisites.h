@@ -161,6 +161,10 @@ namespace Ogre {
 		#define OGRE_COPY_AUTO_SHARED_MUTEX(from) assert(!OGRE_AUTO_MUTEX_NAME); OGRE_AUTO_MUTEX_NAME = from;
         #define OGRE_SET_AUTO_SHARED_MUTEX_NULL OGRE_AUTO_MUTEX_NAME = 0;
         #define OGRE_MUTEX_CONDITIONAL(mutex) if (mutex)
+		// Thread-local pointer
+		#define OGRE_THREAD_POINTER(T, var) boost::thread_specific_ptr<T> var
+		#define OGRE_THREAD_POINTER_SET(var, expr) var.reset(expr)
+		#define OGRE_THREAD_POINTER_DELETE(var) var.reset(0)
 
 	#else
 		#define OGRE_AUTO_MUTEX
@@ -174,6 +178,9 @@ namespace Ogre {
 		#define OGRE_COPY_AUTO_SHARED_MUTEX(from)
         #define OGRE_SET_AUTO_SHARED_MUTEX_NULL
         #define OGRE_MUTEX_CONDITIONAL(name) if(true)
+		#define OGRE_THREAD_POINTER(T, var) T* var
+		#define OGRE_THREAD_POINTER_SET(var, expr) var = expr
+		#define OGRE_THREAD_POINTER_DELETE(var) delete var; var = 0
 	#endif
 
 

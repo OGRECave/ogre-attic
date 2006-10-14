@@ -223,10 +223,21 @@ namespace Ogre {
 		/// Resource group entry
 		struct ResourceGroup
 		{
+			enum Status
+			{
+				UNINITIALSED = 0,
+				INITIALISING = 1,
+				INITIALISED = 2,
+				LOADING = 3,
+				LOADED = 4
+			};
+			/// General mutex for dealing with group content
 			OGRE_AUTO_MUTEX
+			/// Status-specific mutex, separate from content-changing mutex
+			OGRE_MUTEX(statusMutex)
 			/// Group name
 			String name;
-			/// Whether group has been initialised
+			/// Group status
 			bool initialised;
 			/// List of possible locations to search
 			LocationList locationList;
