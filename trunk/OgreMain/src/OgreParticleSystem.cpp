@@ -448,7 +448,7 @@ namespace Ogre {
             if (pParticle->timeToLive < timeElapsed)
             {
 				// Identify the particle type
-				if (pParticle->particleType == Particle::PT_VISUAL)
+				if (pParticle->particleType == Particle::Visual)
 				{
 	                // Destroy this one
 		            mFreeParticles.splice(mFreeParticles.end(), mActiveParticles, i++);
@@ -583,7 +583,7 @@ namespace Ogre {
 			// Increment time fragment
 			timePoint += timeInc;
 
-			if (p->particleType == ParticleEmitter::PT_EMITTER)
+			if (p->particleType == Particle::Emitter)
 			{
 				// If the particle is an emitter, the position on the emitter side must also be initialised
 				// Note, that position of the emitter becomes a position in worldspace if mLocalSpace is set 
@@ -606,7 +606,7 @@ namespace Ogre {
             pParticle = static_cast<Particle*>(*i);
             pParticle->position += (pParticle->direction * timeElapsed);
 
-			if (pParticle->particleType == ParticleEmitter::PT_EMITTER)
+			if (pParticle->particleType == Particle::Emitter)
 			{
 				// If it is an emitter, the emitter position must also be updated
 				// Note, that position of the emitter becomes a position in worldspace if mLocalSpace is set 
@@ -689,7 +689,7 @@ namespace Ogre {
 		if (fee && !fee->empty())
 		{
 	        p = fee->front();
-			p->particleType = ParticleEmitter::PT_EMITTER;
+			p->particleType = Particle::Emitter;
 			fee->pop_front();
 			mActiveParticles.push_back(p);
 
