@@ -74,8 +74,6 @@ namespace Ogre {
 
     protected:
 
-        bool mIsSkeletallyAnimated;
-
         // Internal methods
         virtual void writeSubMeshNameTable(const Mesh* pMesh);
         virtual void writeMesh(const Mesh* pMesh);

@@ -787,7 +787,8 @@ namespace Ogre {
         pMesh->mAutoBuildEdgeLists = false;
 
 		// bool skeletallyAnimated
-		readBools(stream, &mIsSkeletallyAnimated, 1);
+		bool skeletallyAnimated;
+		readBools(stream, &skeletallyAnimated, 1);
 
         // Find all substreams
         if (!stream->eof())
