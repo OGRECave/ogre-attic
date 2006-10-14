@@ -68,9 +68,12 @@ namespace Ogre {
 	    mDefaultMipFilter = FO_POINT;
 		mDefaultMaxAniso = 1;
 
+		// Create primary thread copies of script compiler / serializer
+		// other copies for other threads may also be instantiated
 #if OGRE_MATERIAL_SCRIPT_COMPILER
-        mScriptCompiler = new MaterialScriptCompiler();
+        OGRE_THREAD_POINTER_SET(mScriptCompiler, new MaterialScriptCompiler());
 #endif
+		OGRE_THREAD_POINTER_SET(mSerializer, new MaterialSerializer());
 
         // Loading order
         mLoadOrder = 100.0f;
@@ -99,9 +102,13 @@ namespace Ogre {
 		// Unregister with resource group manager
 		ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);
 		ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
+		
+		// delete primary thread instances directly, other threads will delete
+		// theirs automatically when the threads end (part of boost::thread_specific_ptr)
 #if OGRE_MATERIAL_SCRIPT_COMPILER
-        delete mScriptCompiler;
+        OGRE_THREAD_POINTER_DELETE(mScriptCompiler);
 #endif
+		OGRE_THREAD_POINTER_DELETE(mSerializer);
 
     }
 	//-----------------------------------------------------------------------
@@ -132,9 +139,27 @@ namespace Ogre {
     {
         // Delegate to serializer
 #if OGRE_MATERIAL_SCRIPT_COMPILER
+#if OGRE_THREAD_SUPPORT
+		// check we have an instance for this thread (should always have one for main thread)
+		if (!mScriptCompiler.get())
+		{
+			// create a new instance for this thread - will get deleted when
+			// the thread dies
+			mScriptCompiler.reset(new MaterialScriptCompiler());
+		}
+#endif
         mScriptCompiler->parseScript(stream, groupName);
 #else
-        mSerializer.parseScript(stream, groupName);
+#if OGRE_THREAD_SUPPORT
+		// check we have an instance for this thread (should always have one for main thread)
+		if (!mSerializer.get())
+		{
+			// create a new instance for this thread - will get deleted when
+			// the thread dies
+			mSerializer.reset(new MaterialSerializer());
+		}
+#endif
+        mSerializer->parseScript(stream, groupName);
 #endif
     }
     //-----------------------------------------------------------------------

@@ -35,6 +35,10 @@ Torus Knot Software Ltd.
 #include "OgreRectangle2D.h"
 #include "OgreCompositorSerializer.h"
 
+#if OGRE_THREAD_SUPPORT
+#	include <boost/thread/tss.hpp>
+#endif
+
 namespace Ogre {
     /** Class for managing Compositor settings for Ogre. Compositors provide the means
         to flexibly "composite" the final rendering result from multiple scene renders
@@ -148,8 +152,8 @@ namespace Ogre {
         typedef std::map<Viewport*, CompositorChain*> Chains;
         Chains mChains;
 
-        /// Serializer
-        CompositorSerializer mSerializer;
+		/// Serializer - Hold instance per thread if necessary
+		OGRE_THREAD_POINTER(CompositorSerializer, mSerializer);
 
         /** Clear composition chains for all viewports
          */

@@ -37,6 +37,9 @@ Torus Knot Software Ltd.
 #include "OgreStringVector.h"
 #include "OgreMaterialSerializer.h"
 
+#if OGRE_THREAD_SUPPORT
+#	include <boost/thread/tss.hpp>
+#endif
 
 namespace Ogre {
 
@@ -68,10 +71,10 @@ namespace Ogre {
         FilterOptions mDefaultMipFilter;
         /// Default Texture anisotropy
         unsigned int mDefaultMaxAniso;
-
-        MaterialScriptCompiler* mScriptCompiler;
-        /// Serializer
-        MaterialSerializer mSerializer;
+		/// New material compiler. Hold instance per thread if necessary
+        OGRE_THREAD_POINTER(MaterialScriptCompiler, mScriptCompiler);
+        /// Serializer - Hold instance per thread if necessary
+        OGRE_THREAD_POINTER(MaterialSerializer, mSerializer);
 		/// Default settings
 		MaterialPtr mDefaultSettings;
 		/// Overridden from ResourceManager
