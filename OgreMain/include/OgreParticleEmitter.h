@@ -191,9 +191,6 @@ namespace Ogre {
         /** Virtual destructor essential. */
         virtual ~ParticleEmitter();
 
-        /** String representation of ´emitter´ */
-		static const String PT_EMITTER;
-
 		/** Sets the position of this emitter relative to the particle system center. */
         virtual void setPosition(const Vector3& pos);
 

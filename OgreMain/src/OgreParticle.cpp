@@ -31,10 +31,8 @@ Torus Knot Software Ltd.
 #include "OgreParticle.h"
 #include "OgreParticleSystem.h"
 
-namespace Ogre {
-
-	const String Particle::PT_VISUAL = "Visual";
-
+namespace Ogre
+{
 	//-----------------------------------------------------------------------
     void Particle::setRotation(const Radian& rot)
     {
@@ -60,9 +58,4 @@ namespace Ogre {
     {
         mOwnDimensions = false;
     }
-
-
-
-
 }
-

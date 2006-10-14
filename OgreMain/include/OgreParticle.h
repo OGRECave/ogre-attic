@@ -57,11 +57,16 @@ namespace Ogre {
     protected:
         /// Parent ParticleSystem
         ParticleSystem* mParentSystem;
-		/// Additional visual data you might want to associate with the Particle
-		ParticleVisualData* mVisual;
+        /// Additional visual data you might want to associate with the Particle
+        ParticleVisualData* mVisual;
     public:
-		/// String representation of ´visual´ particle
-		static const String PT_VISUAL;
+        /// Type of particle
+        enum ParticleType
+        {
+            Visual,
+            Emitter
+        };
+
         /// Does this particle have it's own dimensions?
         bool mOwnDimensions;
         /// Personal width if mOwnDimensions == true
@@ -82,17 +87,16 @@ namespace Ogre {
         Real timeToLive;
         /// Total Time to live, number of seconds of particles natural life
         Real totalTimeToLive;
-		/// Speed of rotation in radians/sec
-		Radian rotationSpeed;
-		/// Determines the type of particle.
-		String particleType;
-
+        /// Speed of rotation in radians/sec
+        Radian rotationSpeed;
+        /// Determines the type of particle.
+        ParticleType particleType;
 
         Particle()
             : mParentSystem(0), mVisual(0), mOwnDimensions(false), rotation(0), 
             position(Vector3::ZERO), direction(Vector3::ZERO), 
             colour(ColourValue::White), timeToLive(10), totalTimeToLive(10), 
-            rotationSpeed(0), particleType (PT_VISUAL)
+            rotationSpeed(0), particleType(Visual)
         {
         }
 
@@ -136,8 +140,6 @@ namespace Ogre {
 
         /// Utility method to reset this particle
         void resetDimensions(void);
-
-       
     };
 }
 

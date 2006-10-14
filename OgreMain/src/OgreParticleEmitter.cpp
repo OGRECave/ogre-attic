@@ -31,10 +31,8 @@ Torus Knot Software Ltd.
 #include "OgreParticleEmitter.h"
 #include "OgreParticleEmitterFactory.h"
 
-namespace Ogre {
-
-	const String ParticleEmitter::PT_EMITTER = "Emitter";
-
+namespace Ogre
+{
 	// Define static members
     EmitterCommands::CmdAngle ParticleEmitter::msAngleCmd;
     EmitterCommands::CmdColour ParticleEmitter::msColourCmd;
