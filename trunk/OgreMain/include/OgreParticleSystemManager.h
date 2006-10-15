@@ -78,6 +78,7 @@ namespace Ogre {
 		typedef std::map<String, ParticleEmitterFactory*> ParticleEmitterFactoryMap;
 		typedef std::map<String, ParticleSystemRendererFactory*> ParticleSystemRendererFactoryMap;
     protected:
+		OGRE_AUTO_MUTEX
         /// Templates based on scripts
         ParticleTemplateMap mSystemTemplates;
         
