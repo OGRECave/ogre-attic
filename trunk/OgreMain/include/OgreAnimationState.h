@@ -127,6 +127,8 @@ namespace Ogre {
 	class _OgreExport AnimationStateSet
 	{
 	public:
+		/// Mutex, public for external locking if needed
+		OGRE_AUTO_MUTEX
 		/// Create a blank animation state set
 		AnimationStateSet();
 		/// Create an animation set by copying the contents of another
@@ -152,9 +154,19 @@ namespace Ogre {
 		/// Remove all animation states
 		void removeAllAnimationStates(void);
 
-		/// Get an iterator over all the animation states in this set
+		/** Get an iterator over all the animation states in this set.
+		@note
+			The iterator returned from this method is not threadsafe,
+			you will need to manually lock the public mutex on this
+			class to ensure thread safety if you need it.
+		*/
 		AnimationStateIterator getAnimationStateIterator(void);
-		/// Get an iterator over all the animation states in this set
+		/** Get an iterator over all the animation states in this set.
+		@note
+			The iterator returned from this method is not threadsafe,
+			you will need to manually lock the public mutex on this
+			class to ensure thread safety if you need it.
+		*/
 		ConstAnimationStateIterator getAnimationStateIterator(void) const;
 		/// Copy the state of any matching animation states from this to another
 		void copyMatchingState(AnimationStateSet* target) const;
@@ -167,7 +179,12 @@ namespace Ogre {
         void _notifyAnimationStateEnabled(AnimationState* target, bool enabled);
         /// Tests if exists enabled animation state in this set
         bool hasEnabledAnimationState(void) const { return !mEnabledAnimationStates.empty(); }
-		/// Get an iterator over all the enabled animation states in this set
+		/** Get an iterator over all the enabled animation states in this set
+		@note
+			The iterator returned from this method is not threadsafe,
+			you will need to manually lock the public mutex on this
+			class to ensure thread safety if you need it.
+		*/
 		ConstEnabledAnimationStateIterator getEnabledAnimationStateIterator(void) const;
 
 	protected:

@@ -91,11 +91,22 @@ namespace Ogre {
 		class _OgreExport Listener
 		{
 		public:
-			/** Called when a requested operation completes. 
-			@note Called in the <i>background thread</i>, not your queueing
-			thread, so be careful!
+			/** Called when a requested operation completes, queued into main thread. 
+			@note
+				For simplicity, this callback is not issued direct from the background
+				loading thread, it is queued to be sent from the main thread
+				so that you don't have to be concerned about thread safety. 
 			*/
 			virtual void operationCompleted(BackgroundProcessTicket ticket) = 0;
+			/** Called when a requested operation completes, immediate in background thread. 
+			@note
+				This is the advanced version of the background operation notification,
+				it happens immediately when the background operation is completed, and
+				your callback is executed in the <b>background thread</b>. Therefore if 
+				you use this version, you have to be aware of thread safety issues
+				and what you can and cannot do in your callback implementation.
+			*/
+			virtual void operationCompletedInThread(BackgroundProcessTicket ticket) {}
 			/// Need virtual destructor in case subclasses use it
 			virtual ~Listener() {}
 

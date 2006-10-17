@@ -172,12 +172,15 @@ SceneManager::~SceneManager()
     destroyAllCameras();
 
 	// clear down movable object collection map
-	for (MovableObjectCollectionMap::iterator i = mMovableObjectCollectionMap.begin();
-		i != mMovableObjectCollectionMap.end(); ++i)
 	{
-		delete i->second;
+		OGRE_LOCK_MUTEX(mMovableObjectCollectionMapMutex)
+		for (MovableObjectCollectionMap::iterator i = mMovableObjectCollectionMap.begin();
+			i != mMovableObjectCollectionMap.end(); ++i)
+		{
+			delete i->second;
+		}
+		mMovableObjectCollectionMap.clear();
 	}
-	mMovableObjectCollectionMap.clear();
 
 	delete mShadowCasterQueryListener;
     delete mSceneRoot;
@@ -1023,118 +1026,122 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
         mLastFrameNumber = thisFrameNumber;
     }
 
-    // Update scene graph for this camera (can happen multiple times per frame)
-    _updateSceneGraph(camera);
+	{
+		// Lock scene graph mutex, no more changes until we're ready to render
+		OGRE_LOCK_MUTEX(sceneGraphMutex)
 
-    // Auto-track nodes
-    AutoTrackingSceneNodes::iterator atsni, atsniend;
-    atsniend = mAutoTrackingSceneNodes.end();
-    for (atsni = mAutoTrackingSceneNodes.begin(); atsni != atsniend; ++atsni)
-    {
-        (*atsni)->_autoTrack();
-    }
-    // Auto-track camera if required
-    camera->_autoTrack();
+		// Update scene graph for this camera (can happen multiple times per frame)
+		_updateSceneGraph(camera);
 
-
-    if (mIlluminationStage != IRS_RENDER_TO_TEXTURE && mFindVisibleObjects)
-    {
-        // Locate any lights which could be affecting the frustum
-        findLightsAffectingFrustum(camera);
-
-        // Are we using any shadows at all?
-        if (isShadowTechniqueInUse() && vp->getShadowsEnabled())
-        {
-            // Prepare shadow textures if texture shadow based shadowing
-            // technique in use
-            if (isShadowTechniqueTextureBased())
-            {
-                // *******
-                // WARNING
-                // *******
-                // This call will result in re-entrant calls to this method
-                // therefore anything which comes before this is NOT 
-                // guaranteed persistent. Make sure that anything which 
-                // MUST be specific to this camera / target is done 
-                // AFTER THIS POINT
-                prepareShadowTextures(camera, vp);
-                // reset the cameras because of the re-entrant call
-                mCameraInProgress = camera;
-            }
-        }
-    }
-
-    // Invert vertex winding?
-    if (camera->isReflected())
-    {
-        mDestRenderSystem->setInvertVertexWinding(true);
-    }
-    else
-    {
-        mDestRenderSystem->setInvertVertexWinding(false);
-    }
-
-    // Tell params about viewport
-    mAutoParamDataSource.setCurrentViewport(vp);
-    // Set the viewport
-    setViewport(vp);
-
-    // Tell params about camera
-    mAutoParamDataSource.setCurrentCamera(camera);
-    // Set autoparams for finite dir light extrusion
-    mAutoParamDataSource.setShadowDirLightExtrusionDistance(mShadowDirLightExtrudeDist);
-
-    // Tell params about current ambient light
-    mAutoParamDataSource.setAmbientLightColour(mAmbientLight);
-	// Tell rendersystem
-	mDestRenderSystem->setAmbientLight(mAmbientLight.r, mAmbientLight.g, mAmbientLight.b);
-
-    // Tell params about render target
-    mAutoParamDataSource.setCurrentRenderTarget(vp->getTarget());
+		// Auto-track nodes
+		AutoTrackingSceneNodes::iterator atsni, atsniend;
+		atsniend = mAutoTrackingSceneNodes.end();
+		for (atsni = mAutoTrackingSceneNodes.begin(); atsni != atsniend; ++atsni)
+		{
+			(*atsni)->_autoTrack();
+		}
+		// Auto-track camera if required
+		camera->_autoTrack();
 
 
-    // Set camera window clipping planes (if any)
-    if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_USER_CLIP_PLANES))
-    {
-        if (camera->isWindowSet())  
-        {
-            const std::vector<Plane>& planeList = 
-                camera->getWindowPlanes();
-            for (ushort i = 0; i < 4; ++i)
-            {
-                mDestRenderSystem->enableClipPlane(i, true);
-                mDestRenderSystem->setClipPlane(i, planeList[i]);
-            }
-        }
-        else
-        {
-            for (ushort i = 0; i < 4; ++i)
-            {
-                mDestRenderSystem->enableClipPlane(i, false);
-            }
-        }
-    }
+		if (mIlluminationStage != IRS_RENDER_TO_TEXTURE && mFindVisibleObjects)
+		{
+			// Locate any lights which could be affecting the frustum
+			findLightsAffectingFrustum(camera);
 
-	// Prepare render queue for receiving new objects
-	prepareRenderQueue();
+			// Are we using any shadows at all?
+			if (isShadowTechniqueInUse() && vp->getShadowsEnabled())
+			{
+				// Prepare shadow textures if texture shadow based shadowing
+				// technique in use
+				if (isShadowTechniqueTextureBased())
+				{
+					// *******
+					// WARNING
+					// *******
+					// This call will result in re-entrant calls to this method
+					// therefore anything which comes before this is NOT 
+					// guaranteed persistent. Make sure that anything which 
+					// MUST be specific to this camera / target is done 
+					// AFTER THIS POINT
+					prepareShadowTextures(camera, vp);
+					// reset the cameras because of the re-entrant call
+					mCameraInProgress = camera;
+				}
+			}
+		}
 
-    if (mFindVisibleObjects)
-    {
-        // Parse the scene and tag visibles
-        _findVisibleObjects(camera, 
-            mIlluminationStage == IRS_RENDER_TO_TEXTURE? true : false);
-    }
-    // Add overlays, if viewport deems it
-    if (vp->getOverlaysEnabled() && mIlluminationStage != IRS_RENDER_TO_TEXTURE)
-    {
-        OverlayManager::getSingleton()._queueOverlaysForRendering(camera, getRenderQueue(), vp);
-    }
-    // Queue skies, if viewport seems it
-    if (vp->getSkiesEnabled() && mFindVisibleObjects && mIlluminationStage != IRS_RENDER_TO_TEXTURE)
-    {
-        _queueSkiesForRendering(camera);
-    }
+		// Invert vertex winding?
+		if (camera->isReflected())
+		{
+			mDestRenderSystem->setInvertVertexWinding(true);
+		}
+		else
+		{
+			mDestRenderSystem->setInvertVertexWinding(false);
+		}
 
+		// Tell params about viewport
+		mAutoParamDataSource.setCurrentViewport(vp);
+		// Set the viewport
+		setViewport(vp);
+
+		// Tell params about camera
+		mAutoParamDataSource.setCurrentCamera(camera);
+		// Set autoparams for finite dir light extrusion
+		mAutoParamDataSource.setShadowDirLightExtrusionDistance(mShadowDirLightExtrudeDist);
+
+		// Tell params about current ambient light
+		mAutoParamDataSource.setAmbientLightColour(mAmbientLight);
+		// Tell rendersystem
+		mDestRenderSystem->setAmbientLight(mAmbientLight.r, mAmbientLight.g, mAmbientLight.b);
+
+		// Tell params about render target
+		mAutoParamDataSource.setCurrentRenderTarget(vp->getTarget());
+
+
+		// Set camera window clipping planes (if any)
+		if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_USER_CLIP_PLANES))
+		{
+			if (camera->isWindowSet())  
+			{
+				const std::vector<Plane>& planeList = 
+					camera->getWindowPlanes();
+				for (ushort i = 0; i < 4; ++i)
+				{
+					mDestRenderSystem->enableClipPlane(i, true);
+					mDestRenderSystem->setClipPlane(i, planeList[i]);
+				}
+			}
+			else
+			{
+				for (ushort i = 0; i < 4; ++i)
+				{
+					mDestRenderSystem->enableClipPlane(i, false);
+				}
+			}
+		}
+
+		// Prepare render queue for receiving new objects
+		prepareRenderQueue();
+
+		if (mFindVisibleObjects)
+		{
+			// Parse the scene and tag visibles
+			_findVisibleObjects(camera, 
+				mIlluminationStage == IRS_RENDER_TO_TEXTURE? true : false);
+		}
+		// Add overlays, if viewport deems it
+		if (vp->getOverlaysEnabled() && mIlluminationStage != IRS_RENDER_TO_TEXTURE)
+		{
+			OverlayManager::getSingleton()._queueOverlaysForRendering(camera, getRenderQueue(), vp);
+		}
+		// Queue skies, if viewport seems it
+		if (vp->getSkiesEnabled() && mFindVisibleObjects && mIlluminationStage != IRS_RENDER_TO_TEXTURE)
+		{
+			_queueSkiesForRendering(camera);
+		}
+	} // end lock on scene graph mutex
 
     mDestRenderSystem->_beginGeometryCount();
     // Begin the frame
@@ -2703,6 +2710,8 @@ void SceneManager::setDisplaySceneNodes(bool display)
 //-----------------------------------------------------------------------
 Animation* SceneManager::createAnimation(const String& name, Real length)
 {
+	OGRE_LOCK_MUTEX(mAnimationsListMutex)
+
     // Check name not used
     if (mAnimationsList.find(name) != mAnimationsList.end())
     {
@@ -2719,7 +2728,9 @@ Animation* SceneManager::createAnimation(const String& name, Real length)
 //-----------------------------------------------------------------------
 Animation* SceneManager::getAnimation(const String& name) const
 {
-    AnimationList::const_iterator i = mAnimationsList.find(name);
+	OGRE_LOCK_MUTEX(mAnimationsListMutex)
+
+	AnimationList::const_iterator i = mAnimationsList.find(name);
     if (i == mAnimationsList.end())
     {
         OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
@@ -2731,47 +2742,49 @@ Animation* SceneManager::getAnimation(const String& name) const
 //-----------------------------------------------------------------------
 bool SceneManager::hasAnimation(const String& name) const
 {
+	OGRE_LOCK_MUTEX(mAnimationsListMutex)
 	return (mAnimationsList.find(name) != mAnimationsList.end());
 }
 //-----------------------------------------------------------------------
 void SceneManager::destroyAnimation(const String& name)
 {
-    // Also destroy any animation states referencing this animation
+	OGRE_LOCK_MUTEX(mAnimationsListMutex)
+
+	// Also destroy any animation states referencing this animation
 	mAnimationStates.removeAnimationState(name);
 
-    AnimationList::iterator i = mAnimationsList.find(name);
-    if (i == mAnimationsList.end())
-    {
-        OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-            "Cannot find animation with name " + name, 
-            "SceneManager::getAnimation");
-    }
+	AnimationList::iterator i = mAnimationsList.find(name);
+	if (i == mAnimationsList.end())
+	{
+		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+			"Cannot find animation with name " + name, 
+			"SceneManager::getAnimation");
+	}
 
-    // Free memory
-    delete i->second;
+	// Free memory
+	delete i->second;
 
-    mAnimationsList.erase(i);
-
+	mAnimationsList.erase(i);
 
 }
 //-----------------------------------------------------------------------
 void SceneManager::destroyAllAnimations(void)
 {
+	OGRE_LOCK_MUTEX(mAnimationsListMutex)
     // Destroy all states too, since they cannot reference destroyed animations
     destroyAllAnimationStates();
 
-    AnimationList::iterator i;
-    for (i = mAnimationsList.begin(); i != mAnimationsList.end(); ++i)
-    {
-        // destroy
-        delete i->second;
-    }
-    mAnimationsList.clear();
+	AnimationList::iterator i;
+	for (i = mAnimationsList.begin(); i != mAnimationsList.end(); ++i)
+	{
+		// destroy
+		delete i->second;
+	}
+	mAnimationsList.clear();
 }
 //-----------------------------------------------------------------------
 AnimationState* SceneManager::createAnimationState(const String& animName)
 {
-
     // Get animation, this will throw an exception if not found
     Animation* anim = getAnimation(animName);
 
@@ -2803,6 +2816,9 @@ void SceneManager::destroyAllAnimationStates(void)
 //-----------------------------------------------------------------------
 void SceneManager::_applySceneAnimations(void)
 {
+	// manual lock over states (extended duration required)
+	OGRE_LOCK_MUTEX(mAnimationStates.OGRE_AUTO_MUTEX_NAME)
+
     ConstEnabledAnimationStateIterator stateIt = mAnimationStates.getEnabledAnimationStateIterator();
 
     while (stateIt.hasMoreElements())
@@ -3212,44 +3228,48 @@ void SceneManager::findLightsAffectingFrustum(const Camera* camera)
 {
     // Basic iteration for this SM
 
-    MovableObjectMap* lights =
-        getMovableObjectMap(LightFactory::FACTORY_TYPE_NAME);
+    MovableObjectCollection* lights =
+        getMovableObjectCollection(LightFactory::FACTORY_TYPE_NAME);
 
-    LightInfoList lightInfos;
-    // Pre-allocate memory
-    lightInfos.reserve(lights->size());
+	LightInfoList lightInfos;
+	{
+		OGRE_LOCK_MUTEX(lights->mutex)
 
-	MovableObjectIterator it(lights->begin(), lights->end());
+		// Pre-allocate memory
+		lightInfos.reserve(lights->map.size());
 
-    while(it.hasMoreElements())
-    {
-        Light* l = static_cast<Light*>(it.getNext());
-		if (l->isVisible())
+		MovableObjectIterator it(lights->map.begin(), lights->map.end());
+
+		while(it.hasMoreElements())
 		{
-            LightInfo lightInfo;
-            lightInfo.light = l;
-            lightInfo.type = l->getType();
-			if (lightInfo.type == Light::LT_DIRECTIONAL)
+			Light* l = static_cast<Light*>(it.getNext());
+			if (l->isVisible())
 			{
-				// Always visible
-                lightInfo.position = Vector3::ZERO;
-                lightInfo.range = 0;
-                lightInfos.push_back(lightInfo);
-			}
-			else
-			{
-				// NB treating spotlight as point for simplicity
-				// Just see if the lights attenuation range is within the frustum
-                lightInfo.range = l->getAttenuationRange();
-                lightInfo.position = l->getDerivedPosition();
-				Sphere sphere(lightInfo.position, lightInfo.range);
-				if (camera->isVisible(sphere))
+				LightInfo lightInfo;
+				lightInfo.light = l;
+				lightInfo.type = l->getType();
+				if (lightInfo.type == Light::LT_DIRECTIONAL)
 				{
-                    lightInfos.push_back(lightInfo);
+					// Always visible
+					lightInfo.position = Vector3::ZERO;
+					lightInfo.range = 0;
+					lightInfos.push_back(lightInfo);
+				}
+				else
+				{
+					// NB treating spotlight as point for simplicity
+					// Just see if the lights attenuation range is within the frustum
+					lightInfo.range = l->getAttenuationRange();
+					lightInfo.position = l->getDerivedPosition();
+					Sphere sphere(lightInfo.position, lightInfo.range);
+					if (camera->isVisible(sphere))
+					{
+						lightInfos.push_back(lightInfo);
+					}
 				}
 			}
 		}
-    }
+	} // release lock on lights collection
 
     // Update lights affecting frustum if changed
     if (mCachedLightInfos != lightInfos)
@@ -4745,17 +4765,20 @@ void SceneManager::destroyQuery(SceneQuery* query)
     delete query;
 }
 //---------------------------------------------------------------------
-SceneManager::MovableObjectMap* 
-SceneManager::getMovableObjectMap(const String& typeName)
+SceneManager::MovableObjectCollection* 
+SceneManager::getMovableObjectCollection(const String& typeName)
 {
+	// lock collection mutex
+	OGRE_LOCK_MUTEX(mMovableObjectCollectionMapMutex)
+
 	MovableObjectCollectionMap::iterator i = 
 		mMovableObjectCollectionMap.find(typeName);
 	if (i == mMovableObjectCollectionMap.end())
 	{
 		// create
-		MovableObjectMap* newMap = new MovableObjectMap();
-		mMovableObjectCollectionMap[typeName] = newMap;
-		return newMap;
+		MovableObjectCollection* newCollection = new MovableObjectCollection();
+		mMovableObjectCollectionMap[typeName] = newCollection;
+		return newCollection;
 	}
 	else
 	{
@@ -4769,69 +4792,86 @@ MovableObject* SceneManager::createMovableObject(const String& name,
 	MovableObjectFactory* factory = 
 		Root::getSingleton().getMovableObjectFactory(typeName);
 	// Check for duplicate names
-	MovableObjectMap* objectMap = getMovableObjectMap(typeName);
+	MovableObjectCollection* objectMap = getMovableObjectCollection(typeName);
 
-	if (objectMap->find(name) != objectMap->end())
 	{
-		OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
-			"An object of type '" + typeName + "' with name '" + name
-			+ "' already exists.", 
-			"SceneManager::createMovableObject");
+		OGRE_LOCK_MUTEX(objectMap->mutex)
+
+		if (objectMap->map.find(name) != objectMap->map.end())
+		{
+			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
+				"An object of type '" + typeName + "' with name '" + name
+				+ "' already exists.", 
+				"SceneManager::createMovableObject");
+		}
+
+		MovableObject* newObj = factory->createInstance(name, this, params);
+		objectMap->map[name] = newObj;
+		return newObj;
 	}
-
-	MovableObject* newObj = factory->createInstance(name, this, params);
-	(*objectMap)[name] = newObj;
-
-	return newObj;
 
 }
 //---------------------------------------------------------------------
 void SceneManager::destroyMovableObject(const String& name, const String& typeName)
 {
-	MovableObjectMap* objectMap = getMovableObjectMap(typeName);
+	MovableObjectCollection* objectMap = getMovableObjectCollection(typeName);
 	MovableObjectFactory* factory = 
 		Root::getSingleton().getMovableObjectFactory(typeName);
 
-	MovableObjectMap::iterator mi = objectMap->find(name);
-	if (mi != objectMap->end())
 	{
-		factory->destroyInstance(mi->second);
-		objectMap->erase(mi);
-	}
+		OGRE_LOCK_MUTEX(objectMap->mutex)
 
+		MovableObjectMap::iterator mi = objectMap->map.find(name);
+		if (mi != objectMap->map.end())
+		{
+			factory->destroyInstance(mi->second);
+			objectMap->map.erase(mi);
+		}
+	}
 }
 //---------------------------------------------------------------------
 void SceneManager::destroyAllMovableObjectsByType(const String& typeName)
 {
-	MovableObjectMap* objectMap = getMovableObjectMap(typeName);
+	MovableObjectCollection* objectMap = getMovableObjectCollection(typeName);
 	MovableObjectFactory* factory = 
 		Root::getSingleton().getMovableObjectFactory(typeName);
-	MovableObjectMap::iterator i = objectMap->begin();
-	for (; i != objectMap->end(); ++i)
+	
 	{
-		// Only destroy our own
-		if (i->second->_getManager() == this)
+		OGRE_LOCK_MUTEX(objectMap->mutex)
+		MovableObjectMap::iterator i = objectMap->map.begin();
+		for (; i != objectMap->map.end(); ++i)
 		{
-			factory->destroyInstance(i->second);
+			// Only destroy our own
+			if (i->second->_getManager() == this)
+			{
+				factory->destroyInstance(i->second);
+			}
 		}
+		objectMap->map.clear();
 	}
-	objectMap->clear();
-
 }
 //---------------------------------------------------------------------
 void SceneManager::destroyAllMovableObjects(void)
 {
+	// Lock collection mutex
+	OGRE_LOCK_MUTEX(mMovableObjectCollectionMapMutex)
+
 	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.begin();
 
 	for(;ci != mMovableObjectCollectionMap.end(); ++ci)
 	{
+		MovableObjectCollection* coll = ci->second;
+
+		// lock map mutex
+		OGRE_LOCK_MUTEX(coll->mutex)
+
 		if (Root::getSingleton().hasMovableObjectFactory(ci->first))
 		{
 			// Only destroy if we have a factory instance; otherwise must be injected
 			MovableObjectFactory* factory = 
 				Root::getSingleton().getMovableObjectFactory(ci->first);
-			MovableObjectMap::iterator i = ci->second->begin();
-			for (; i != ci->second->end(); ++i)
+			MovableObjectMap::iterator i = coll->map.begin();
+			for (; i != coll->map.end(); ++i)
 			{
 				if (i->second->_getManager() == this)
 				{
@@ -4839,43 +4879,51 @@ void SceneManager::destroyAllMovableObjects(void)
 				}
 			}
 		}
-		ci->second->clear();
+		coll->map.clear();
 	}
 
 }
 //---------------------------------------------------------------------
 MovableObject* SceneManager::getMovableObject(const String& name, const String& typeName)
 {
+	MovableObjectCollection* objectMap = getMovableObjectCollection(typeName);
 	
-	MovableObjectMap* objectMap = getMovableObjectMap(typeName);
-	MovableObjectMap::iterator mi = objectMap->find(name);
-	if (mi == objectMap->end())
 	{
-		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-			"Object named '" + name + "' does not exist.", 
-			"SceneManager::getMovableObject");
+		OGRE_LOCK_MUTEX(objectMap->mutex)
+		MovableObjectMap::iterator mi = objectMap->map.find(name);
+		if (mi == objectMap->map.end())
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+				"Object named '" + name + "' does not exist.", 
+				"SceneManager::getMovableObject");
+		}
+		return mi->second;
 	}
-	return mi->second;
 	
 }
 //-----------------------------------------------------------------------
 bool SceneManager::hasMovableObject(const String& name, const String& typeName) const
 {
+	OGRE_LOCK_MUTEX(mMovableObjectCollectionMapMutex)
+
 	MovableObjectCollectionMap::const_iterator i = 
 		mMovableObjectCollectionMap.find(typeName);
 	if (i == mMovableObjectCollectionMap.end())
 		return false;
-
-	return (i->second->find(name) != i->second->end());
+	
+	{
+		OGRE_LOCK_MUTEX(i->second->mutex)
+		return (i->second->map.find(name) != i->second->map.end());
+	}
 }
 
 //---------------------------------------------------------------------
 SceneManager::MovableObjectIterator 
 SceneManager::getMovableObjectIterator(const String& typeName)
 {
-	MovableObjectMap* objectMap = getMovableObjectMap(typeName);
-
-	return MovableObjectIterator(objectMap->begin(), objectMap->end());
+	MovableObjectCollection* objectMap = getMovableObjectCollection(typeName);
+	// Iterator not thread safe! Warned in header.
+	return MovableObjectIterator(objectMap->map.begin(), objectMap->map.end());
 }
 //---------------------------------------------------------------------
 void SceneManager::destroyMovableObject(MovableObject* m)
@@ -4885,18 +4933,25 @@ void SceneManager::destroyMovableObject(MovableObject* m)
 //---------------------------------------------------------------------
 void SceneManager::injectMovableObject(MovableObject* m)
 {
-	MovableObjectMap* objectMap = getMovableObjectMap(m->getMovableType());
-	(*objectMap)[m->getName()] = m;
+	MovableObjectCollection* objectMap = getMovableObjectCollection(m->getMovableType());
+	{
+		OGRE_LOCK_MUTEX(objectMap->mutex)
+
+		objectMap->map[m->getName()] = m;
+	}
 }
 //---------------------------------------------------------------------
 void SceneManager::extractMovableObject(const String& name, const String& typeName)
 {
-	MovableObjectMap* objectMap = getMovableObjectMap(typeName);
-	MovableObjectMap::iterator mi = objectMap->find(name);
-	if (mi != objectMap->end())
+	MovableObjectCollection* objectMap = getMovableObjectCollection(typeName);
 	{
-		// no delete
-		objectMap->erase(mi);
+		OGRE_LOCK_MUTEX(objectMap->mutex)
+		MovableObjectMap::iterator mi = objectMap->map.find(name);
+		if (mi != objectMap->map.end())
+		{
+			// no delete
+			objectMap->map.erase(mi);
+		}
 	}
 
 }
@@ -4908,10 +4963,12 @@ void SceneManager::extractMovableObject(MovableObject* m)
 //---------------------------------------------------------------------
 void SceneManager::extractAllMovableObjectsByType(const String& typeName)
 {
-	MovableObjectMap* objectMap = getMovableObjectMap(typeName);
-	// no deletion
-	objectMap->clear();
-
+	MovableObjectCollection* objectMap = getMovableObjectCollection(typeName);
+	{
+		OGRE_LOCK_MUTEX(objectMap->mutex)
+		// no deletion
+		objectMap->map.clear();
+	}
 }
 //---------------------------------------------------------------------
 void SceneManager::_injectRenderWithPass(Pass *pass, Renderable *rend, bool shadowDerivation )

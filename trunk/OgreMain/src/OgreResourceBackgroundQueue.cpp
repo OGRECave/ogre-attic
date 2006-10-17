@@ -312,9 +312,13 @@ namespace Ogre {
 			break;
 		};
 
-		// Queue notification
-		if (req->listener)
+		// Queue notification (don't do shutdown since not needed & listeners 
+		// might be being destroyed too
+		if (req->listener && req->type != RT_SHUTDOWN)
 		{
+			// Fire in-thread notification first
+			req->listener->operationCompletedInThread(req->ticketID);
+			// Then queue main thread notification
 			queueFireBackgroundOperationComplete(req->listener, req->ticketID);
 		}
 
@@ -345,7 +349,6 @@ namespace Ogre {
 	{
 		OGRE_LOCK_MUTEX(mNotificationQueueMutex);
 		mNotificationQueue.push_back(QueuedNotification(listener, ticket));
-
 	}
 	//-----------------------------------------------------------------------
 	void ResourceBackgroundQueue::_fireBackgroundLoadingComplete()
