@@ -184,8 +184,6 @@ namespace Ogre {
         {
             // Update transforms from parent
             _updateFromParent();
-			mNeedParentUpdate = false;
-
 		}
 
 		if (mNeedChildUpdate || parentHasChanged)
@@ -266,16 +264,13 @@ namespace Ogre {
         }
 
         mCachedTransformOutOfDate = true;
+        mNeedParentUpdate = false;
 
 		// Call listener (note, this method only called if there's something to do)
 		if (mListener)
 		{
 			mListener->nodeUpdated(this);
 		}
-
-
-
-
     }
     //-----------------------------------------------------------------------
     Node* Node::createChild(const Vector3& translate, const Quaternion& rotate)
@@ -534,7 +529,6 @@ namespace Ogre {
 		if (mNeedParentUpdate)
 		{
         	_updateFromParent();
-			mNeedParentUpdate = false;
 		}
         return mDerivedOrientation;
     }
@@ -544,7 +538,6 @@ namespace Ogre {
 		if (mNeedParentUpdate)
 		{
         	_updateFromParent();
-			mNeedParentUpdate = false;
 		}
         return mDerivedPosition;
     }
@@ -554,7 +547,6 @@ namespace Ogre {
         if (mNeedParentUpdate)
         {
             _updateFromParent();
-            mNeedParentUpdate = false;
         }
         return mDerivedScale;
     }
