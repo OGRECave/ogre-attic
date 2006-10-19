@@ -47,6 +47,8 @@ namespace Ogre
 		::Window mWindow;		//X Window
 		::Atom mAtomDeleteWindow;	//Used for handling X window closing
 		::GLXContext mGlxContext;
+		::XVisualInfo* mVisualInfo;
+		bool mDelVisualInfo;
 
 		bool mClosed;			//Window has been closed
 		bool mVisible;			//Window is visible

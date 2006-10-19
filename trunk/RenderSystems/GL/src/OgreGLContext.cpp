@@ -28,8 +28,6 @@ Torus Knot Software Ltd.
 */
 
 #include "OgreGLContext.h"
-#include "OgreGLRenderSystem.h"
-#include "OgreRoot.h"
 
 namespace Ogre {
     // Empty base class
@@ -38,10 +36,6 @@ namespace Ogre {
     }
     
     GLContext::~GLContext() {        
-        // Unregister and destroy this context
-        // This will disable it if it was still active
-        GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
-        rs->_unregisterContext(this);
     }
     
     void GLContext::endCurrent() {

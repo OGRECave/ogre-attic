@@ -28,6 +28,9 @@ Torus Knot Software Ltd.
 */
 
 #include "OgreWin32Context.h"
+#include "OgreException.h"
+#include "OgreGLRenderSystem.h"
+#include "OgreRoot.h"
 
 namespace Ogre {
 
@@ -40,10 +43,63 @@ namespace Ogre {
     
     Win32Context::~Win32Context()
     {
+		// NB have to do this is subclass to ensure any methods called back
+		// are on this subclass and not half-destructed superclass
+		GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
+		rs->_unregisterContext(this);
     }
         
     void Win32Context::setCurrent()
     {
          wglMakeCurrent(mHDC, mGlrc);      
     }
+	void Win32Context::endCurrent()
+	{
+		wglMakeCurrent(NULL, NULL);
+	}
+
+	String translateError()
+	{
+
+		int winError = GetLastError();
+		char* errDesc;
+		int i;
+
+		errDesc = new char[255];
+		// Try windows errors first
+		i = FormatMessage(
+			FORMAT_MESSAGE_FROM_SYSTEM |
+			FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			winError,
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+			(LPTSTR) errDesc,
+			255,
+			NULL
+			);
+
+		return String(errDesc);
+	}
+	GLContext* Win32Context::clone() const
+	{
+		// Create new context based on own HDC
+		HGLRC newCtx = wglCreateContext(mHDC);
+		
+		if (!newCtx)
+		{
+			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
+				"Error calling wglCreateContext", "Win32Context::clone");
+		}
+
+		wglMakeCurrent(NULL, NULL);
+		// Share lists with old context
+	    if (!wglShareLists(mGlrc, newCtx))
+		{
+			String errorMsg = translateError();
+			wglDeleteContext(newCtx);
+			OGRE_EXCEPT(0, String("wglShareLists() failed: ") + errorMsg, "Win32Context::clone");
+		}
+
+		return new Win32Context(mHDC, newCtx);
+	}
 }

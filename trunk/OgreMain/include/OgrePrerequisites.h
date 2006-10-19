@@ -153,6 +153,7 @@ namespace Ogre {
 		#define OGRE_LOCK_AUTO_MUTEX boost::recursive_mutex::scoped_lock ogreAutoMutexLock(OGRE_AUTO_MUTEX_NAME);
 		#define OGRE_MUTEX(name) mutable boost::recursive_mutex name;
 		#define OGRE_LOCK_MUTEX(name) boost::recursive_mutex::scoped_lock ogrenameLock(name);
+		#define OGRE_LOCK_MUTEX_NAMED(mutexName, lockName) boost::recursive_mutex::scoped_lock lockName(mutexName);
 		// like OGRE_AUTO_MUTEX but mutex held by pointer
 		#define OGRE_AUTO_SHARED_MUTEX mutable boost::recursive_mutex *OGRE_AUTO_MUTEX_NAME;
 		#define OGRE_LOCK_AUTO_SHARED_MUTEX assert(OGRE_AUTO_MUTEX_NAME); boost::recursive_mutex::scoped_lock ogreAutoMutexLock(*OGRE_AUTO_MUTEX_NAME);
@@ -161,16 +162,21 @@ namespace Ogre {
 		#define OGRE_COPY_AUTO_SHARED_MUTEX(from) assert(!OGRE_AUTO_MUTEX_NAME); OGRE_AUTO_MUTEX_NAME = from;
         #define OGRE_SET_AUTO_SHARED_MUTEX_NULL OGRE_AUTO_MUTEX_NAME = 0;
         #define OGRE_MUTEX_CONDITIONAL(mutex) if (mutex)
+		#define OGRE_THREAD_SYNCHRONISER(sync) boost::condition sync;
+		#define OGRE_THREAD_WAIT(sync, lock) sync.wait(lock);
+		#define OGRE_THREAD_NOTIFY_ONE(sync) sync.notify_one(); 
+		#define OGRE_THREAD_NOTIFY_ALL(sync) sync.notify_all(); 
 		// Thread-local pointer
 		#define OGRE_THREAD_POINTER(T, var) boost::thread_specific_ptr<T> var
 		#define OGRE_THREAD_POINTER_SET(var, expr) var.reset(expr)
 		#define OGRE_THREAD_POINTER_DELETE(var) var.reset(0)
-
+		#define OGRE_THREAD_POINTER_GET(var) var.get()
 	#else
 		#define OGRE_AUTO_MUTEX
 		#define OGRE_LOCK_AUTO_MUTEX
 		#define OGRE_MUTEX(name)
 		#define OGRE_LOCK_MUTEX(name)
+		#define OGRE_LOCK_MUTEX_NAMED(mutexName, lockName)
 		#define OGRE_AUTO_SHARED_MUTEX
 		#define OGRE_LOCK_AUTO_SHARED_MUTEX
 		#define OGRE_NEW_AUTO_SHARED_MUTEX
@@ -178,9 +184,14 @@ namespace Ogre {
 		#define OGRE_COPY_AUTO_SHARED_MUTEX(from)
         #define OGRE_SET_AUTO_SHARED_MUTEX_NULL
         #define OGRE_MUTEX_CONDITIONAL(name) if(true)
+		#define OGRE_THREAD_SYNCHRONISER(sync) 
+		#define OGRE_THREAD_WAIT(sync, lock) 
+		#define OGRE_THREAD_NOTIFY_ONE(sync) 
+		#define OGRE_THREAD_NOTIFY_ALL(sync) 
 		#define OGRE_THREAD_POINTER(T, var) T* var
 		#define OGRE_THREAD_POINTER_SET(var, expr) var = expr
 		#define OGRE_THREAD_POINTER_DELETE(var) delete var; var = 0
+		#define OGRE_THREAD_POINTER_GET(var) var
 	#endif
 
 

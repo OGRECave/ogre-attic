@@ -60,7 +60,7 @@ namespace Ogre
 //-------------------------------------------------------------------------------------------------//
 GLXWindow::GLXWindow(Display *display) :
 	mDisplay(display), mWindow(0), mGlxContext(0), mClosed(false), mVisible(true), 
-	mFullScreen(false), mOldMode(-1), mContext(0) 
+	mFullScreen(false), mOldMode(-1), mContext(0), mVisualInfo(0), mDelVisualInfo(false)
 {
 	mActive = false;
 }
@@ -68,6 +68,9 @@ GLXWindow::GLXWindow(Display *display) :
 //-------------------------------------------------------------------------------------------------//
 GLXWindow::~GLXWindow() 
 {
+	if (mDelVisualInfo && mVisualInfo)
+		XFree(mVisualInfo);
+
 	if(mGlxContext)
 		glXDestroyContext(mDisplay, mGlxContext);
 	
@@ -256,7 +259,6 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 	}
 #endif
 
-	XVisualInfo* visualInfo = NULL;
 	if(extVisualHandler == NULL) // user didn't create visual ( and window ) himself 
 	{
 		// Apply some magic algorithm to get the best visual
@@ -273,8 +275,9 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 		XVisualInfo templ;
 		int nmatch;
 		templ.visualid = best_visual;
-		visualInfo = XGetVisualInfo(mDisplay, VisualIDMask, &templ, &nmatch);
-		if(visualInfo==0 || nmatch==0) {
+		mVisualInfo = XGetVisualInfo(mDisplay, VisualIDMask, &templ, &nmatch);
+		mDelVisualInfo = true;
+		if(mVisualInfo==0 || nmatch==0) {
 			OGRE_EXCEPT(999, "GLXWindow: error choosing visual", "GLXWindow::create");
 		}
 
@@ -282,7 +285,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 		unsigned long mask;
 		attr.background_pixel = 0;
 		attr.border_pixel = 0;
-		attr.colormap = XCreateColormap(mDisplay,rootWindow,visualInfo->visual,AllocNone);
+		attr.colormap = XCreateColormap(mDisplay,rootWindow,mVisualInfo->visual,AllocNone);
 		attr.event_mask = StructureNotifyMask | VisibilityChangeMask;
 		if(fullScreen) {
 			mask = CWBackPixel | CWColormap | CWOverrideRedirect | CWSaveUnder | CWBackingStore | CWEventMask;
@@ -295,7 +298,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 			mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
 	
 		// Create window on server
-		mWindow = XCreateWindow(mDisplay,parentWindow,left,top,width,height,0,visualInfo->depth,InputOutput,visualInfo->visual,mask,&attr);
+		mWindow = XCreateWindow(mDisplay,parentWindow,left,top,width,height,0,mVisualInfo->depth,InputOutput,mVisualInfo->visual,mask,&attr);
 		if(!mWindow) {
 			OGRE_EXCEPT(999, "GLXWindow: XCreateWindow failed", "GLXWindow::create");
 		}
@@ -351,7 +354,8 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 	else
 	{
 		LogManager::getSingleton().logMessage("GLXWindow::create -- using external window handle");
-		visualInfo = extVisualHandler;
+		mVisualInfo = extVisualHandler;
+		mDelVisualInfo = false;
 	}
 
 	GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
@@ -360,17 +364,13 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 	{
 		// Finally, create a GL context
 		// we want to share it with main
-		mGlxContext = glXCreateContext(mDisplay,visualInfo,NULL,True);
+		mGlxContext = glXCreateContext(mDisplay,mVisualInfo,NULL,True);
 	}
 		else
-			mGlxContext = glXCreateContext(mDisplay,visualInfo,mainContext->mCtx,True);
+			mGlxContext = glXCreateContext(mDisplay,mVisualInfo,mainContext->mCtx,True);
 	
 	if(!mGlxContext)
 		OGRE_EXCEPT(999, "glXCreateContext failed", "GLXWindow::create");
-
-	// Free visual info
-	if (extVisualHandler == NULL)
-		XFree(visualInfo);
 
 	mName = name;
 	mWidth = width;
@@ -384,7 +384,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 	mTop = temp.y;
 
 	// Create OGRE GL context
-	mContext = new GLXContext(mDisplay, mWindow, mGlxContext);
+	mContext = new GLXContext(mDisplay, mWindow, mGlxContext, mVisualInfo);
 }
 
 //-------------------------------------------------------------------------------------------------//

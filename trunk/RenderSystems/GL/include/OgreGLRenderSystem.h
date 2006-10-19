@@ -125,10 +125,13 @@ namespace Ogre {
         GLGpuProgram* mCurrentVertexProgram;
         GLGpuProgram* mCurrentFragmentProgram;
 
-		/* The main GL context */
+		/* The main GL context - main thread only */
         GLContext *mMainContext;
-        /* The current GL context */
+        /* The current GL context  - main thread only*/
         GLContext *mCurrentContext;
+		typedef std::list<GLContext*> GLContextList;
+		/// List of background thread contexts
+		GLContextList mBackgroundContextList;
 
         /** Manager object for creating render textures.
             Direct render to texture via GL_EXT_framebuffer_object is preferable 
@@ -432,6 +435,10 @@ namespace Ogre {
         Real getVerticalTexelOffset(void);
         Real getMinimumDepthInputValue(void);
         Real getMaximumDepthInputValue(void);
+		void registerThread();
+		void unregisterThread();
+		void preExtraThreadsStarted();
+		void postExtraThreadsStarted();
 
         // ----------------------------------
         // GLRenderSystem specific members
@@ -455,10 +462,8 @@ namespace Ogre {
             GLContext.
          */
         void _unregisterContext(GLContext *context);
-        /** Get the main context. This is generally the context with which 
-            a new context wants to share buffers and textures.
-         */
-        GLContext *_getMainContext();
+		/** Returns the main context */
+		GLContext* _getMainContext() {return mMainContext;} 
     };
 }
 #endif

@@ -52,6 +52,7 @@ namespace Ogre
         ::Display      *_pDpy;
         ::GLXContext   _hGLContext;
         ::GLXPbuffer   _hPBuffer;
+		::GLXFBConfig  mFBConfig; 
         Ogre::GLXContext   *mContext;
         
         /// Find out which extension to use for floating point
