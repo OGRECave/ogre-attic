@@ -366,7 +366,10 @@ OctreeSceneManager::~OctreeSceneManager()
     // --End Changes by Steve
 
     if ( mOctree )
+	{
         delete mOctree;
+		mOctree = 0;
+	}
 }
 
 Camera * OctreeSceneManager::createCamera( const String &name )
@@ -410,6 +413,9 @@ void OctreeSceneManager::_updateOctreeNode( OctreeNode * onode )
     if ( box.isNull() )
         return ;
 
+	// Skip if octree has been destroyed (shutdown conditions)
+	if (!mOctree)
+		return;
 
     if ( onode -> getOctant() == 0 )
     {
@@ -437,6 +443,10 @@ void OctreeSceneManager::_updateOctreeNode( OctreeNode * onode )
 */
 void OctreeSceneManager::_removeOctreeNode( OctreeNode * n )
 {
+	// Skip if octree has been destroyed (shutdown conditions)
+	if (!mOctree)
+		return;
+
     Octree * oct = n -> getOctant();
 
     if ( oct )
@@ -451,7 +461,11 @@ void OctreeSceneManager::_removeOctreeNode( OctreeNode * n )
 void OctreeSceneManager::_addOctreeNode( OctreeNode * n, Octree *octant, int depth )
 {
 
-    const AxisAlignedBox& bx = n -> _getWorldAABB();
+	// Skip if octree has been destroyed (shutdown conditions)
+	if (!mOctree)
+		return;
+
+	const AxisAlignedBox& bx = n -> _getWorldAABB();
 
 
     //if the octree is twice as big as the scene node,
