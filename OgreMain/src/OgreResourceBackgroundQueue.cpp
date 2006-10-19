@@ -32,6 +32,8 @@ Torus Knot Software Ltd.
 #include "OgreException.h"
 #include "OgreResourceGroupManager.h"
 #include "OgreResourceManager.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
 
 namespace Ogre {
 
@@ -66,12 +68,31 @@ namespace Ogre {
 #if OGRE_THREAD_SUPPORT
 		if (mStartThread)
 		{
-			OGRE_LOCK_AUTO_MUTEX
-			mShuttingDown = false;
+			{
+				OGRE_LOCK_AUTO_MUTEX
+				mShuttingDown = false;
+			}
+
+			RenderSystem* rs = Root::getSingleton().getRenderSystem();
+
 			LogManager::getSingleton().logMessage(
 				"ResourceBackgroundQueue - threading enabled, starting own thread");
-			mThread = new boost::thread(
-				boost::function0<void>(&ResourceBackgroundQueue::threadFunc));
+			{
+				OGRE_LOCK_MUTEX_NAMED(initMutex, initLock)
+
+				// Call thread creation pre-hook
+				rs->preExtraThreadsStarted();
+
+				mThread = new boost::thread(
+					boost::function0<void>(&ResourceBackgroundQueue::threadFunc));
+				// Wait for init to finish before allowing main thread to continue
+				// this releases the initMutex until notified
+				OGRE_THREAD_WAIT(initSync, initLock)
+
+				// Call thread creation post-hook
+				rs->postExtraThreadsStarted();
+			}
+
 		}
 		else
 		{
@@ -224,7 +245,7 @@ namespace Ogre {
 		mRequestTicketMap[req.ticketID] = requestInList;
 
 		// Notify to wake up loading thread
-		mCondition.notify_one();
+		OGRE_THREAD_NOTIFY_ONE(mCondition)
 
 		return req.ticketID;
 	}
@@ -237,6 +258,10 @@ namespace Ogre {
 			ResourceBackgroundQueue::getSingleton();
 
 		LogManager::getSingleton().logMessage("ResourceBackgroundQueue - thread starting.");
+
+		// Initialise the thread
+		queueInstance._initThread();
+
 		// Spin forever until we're told to shut down
 		while (!queueInstance.mShuttingDown)
 		{
@@ -268,8 +293,22 @@ namespace Ogre {
 	}
 #endif
 	//-----------------------------------------------------------------------
+	void ResourceBackgroundQueue::_initThread()
+	{
+		// Register the calling thread with RenderSystem
+		// Note how we assume only one thread is processing the queue
+		Root::getSingleton().getRenderSystem()->registerThread();
+		{
+			// notify waiting thread(s)
+			OGRE_LOCK_MUTEX(initMutex)
+			OGRE_THREAD_NOTIFY_ALL(initSync)
+		}
+
+	}
+	//-----------------------------------------------------------------------
 	bool ResourceBackgroundQueue::_doNextQueuedBackgroundProcess()
 	{
+
 		Request* req;
 		// Manual scope block just to define scope of lock
 		{
@@ -308,6 +347,7 @@ namespace Ogre {
 			// That's all folks
 #if OGRE_THREAD_SUPPORT
 			mShuttingDown = true;
+			Root::getSingleton().getRenderSystem()->unregisterThread();
 #endif
 			break;
 		};

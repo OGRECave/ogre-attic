@@ -70,7 +70,8 @@ namespace Ogre {
 		separate thread to perform the actual loading. However, if you would 
 		prefer to use your own existing thread to perform the background load,
 		then be sure to call setStartBackgroundThread(false) before initialise() is
-		called by Root::initialise. Your own thread should call 
+		called by Root::initialise. Your own thread should call _initThread
+		immediately on startup, before any resources are loaded at all, and
 		_doNextQueuedBackgroundProcess to process background requests.
 	@note
 		This class will only perform tasks in a background thread if 
@@ -111,6 +112,11 @@ namespace Ogre {
 			virtual ~Listener() {}
 
 		};
+		/// Init notification mutex (must lock before waiting on initCondition)
+		OGRE_MUTEX(initMutex)
+		/// Synchroniser token to wait / notify on thread init (public incase external thread)
+		OGRE_THREAD_SYNCHRONISER(initSync);
+
 	protected:
 		/** Enumerates the type of requests */
 		enum RequestType
@@ -331,6 +337,23 @@ namespace Ogre {
 		@returns true if a request was processed, false if the queue was empty.
 		*/
 		bool _doNextQueuedBackgroundProcess();
+
+		/** Initialise processing for a background thread.
+		@remarks
+			You must call this method if you use your own thread rather than 
+			letting this class create its own. Moreover, you must call it after
+			initialise() and after you've started your own thread, but before 
+			any resources have been loaded. There are some
+			per-thread tasks which have to be performed on some rendering APIs
+			and it's important that they are done before rendering resources are
+			created.
+		@par
+			You must call this method in your own background thread, not the main
+			thread. It's important to block the main thread whilst this initialisation
+			is happening, use an OGRE_THREAD_WAIT on the public initSync token
+			after locking the initMutex.
+		*/
+		void _initThread();
 
 		/** Queue the firing of the 'background loading complete' event to
 			a Resource::Listener event.

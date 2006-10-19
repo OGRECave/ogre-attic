@@ -42,15 +42,31 @@ namespace Ogre {
     public:
         GLXContext(::Display *dpy,
                     ::GLXDrawable drawable,
-                    ::GLXContext ctx);
+                    ::GLXContext ctx, 
+					::XVisualInfo* visualInfo);
+        GLXContext(::Display *dpy,
+                    ::GLXDrawable drawable,
+                    ::GLXContext ctx, 
+					::GLXFBConfig fbconfig);
+
+
         virtual ~GLXContext();
 
         /** See GLContext */
         virtual void setCurrent();
+		/** See GLContext */
+		virtual void endCurrent();
 
-        ::Display *mDpy;
+		/// @copydoc GLContext::clone
+		GLContext* clone() const;
+
+		::Display *mDpy;
         ::GLXDrawable mDrawable;
         ::GLXContext mCtx;
+		// only valid for window contexts
+		::XVisualInfo* mVisualInfo;
+		// only valid for PBuffer contexts
+		::GLXFBConfig mFBConfig;
     };
 }
 

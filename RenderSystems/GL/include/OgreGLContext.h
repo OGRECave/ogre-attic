@@ -53,10 +53,16 @@ namespace Ogre {
          * This is called before another context is made current. By default,
          * nothing is done here.
          */
-        virtual void endCurrent();
+        virtual void endCurrent() = 0;
         
         bool getInitialized() { return initialized; };
         void setInitialized() { initialized = true; };
+
+		/** Create a new context based on the same window/pbuffer as this
+			context - mostly useful for additional threads.
+		@note The caller is responsible for deleting the returned context.
+		*/
+		virtual GLContext* clone() const = 0;
     protected:
         bool initialized;
     };

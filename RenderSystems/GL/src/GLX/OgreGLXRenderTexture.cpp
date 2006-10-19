@@ -65,7 +65,7 @@ namespace Ogre
     {
         createPBuffer();
         // Create context
-        mContext = new GLXContext(_pDpy, _hPBuffer, _hGLContext);
+        mContext = new GLXContext(_pDpy, _hPBuffer, _hGLContext, mFBConfig);
     }
         
     GLContext *GLXPBuffer::getContext()
@@ -165,7 +165,7 @@ namespace Ogre
         ideal[attrib++] = None;
 
         // Create vector of existing config data formats        
-        GLXFBConfig config = GLXUtils::findBestMatch(_pDpy, screen, attribs, ideal);
+        mFBConfig = GLXUtils::findBestMatch(_pDpy, screen, attribs, ideal);
 
         // Create the pbuffer in the best matching format
         attrib = 0;
@@ -177,16 +177,16 @@ namespace Ogre
         attribs[attrib++] = 1;
         attribs[attrib++] = None;
 
-        FBConfigData configData(_pDpy, config);
+        FBConfigData configData(_pDpy, mFBConfig);
         LogManager::getSingleton().logMessage(
                 LML_NORMAL,
                 "GLXPBuffer::PBuffer chose format "+configData.toString());                   
 
-        _hPBuffer = glXCreatePbuffer(_pDpy, config, attribs);
+        _hPBuffer = glXCreatePbuffer(_pDpy, mFBConfig, attribs);
         if (!_hPBuffer) 
             OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE, "glXCreatePbuffer() failed", "GLRenderTexture::createPBuffer");
 
-        _hGLContext = glXCreateNewContext(_pDpy, config, GLX_RGBA_TYPE, context, True);
+        _hGLContext = glXCreateNewContext(_pDpy, mFBConfig, GLX_RGBA_TYPE, context, True);
         if (!_hGLContext) 
             OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE, "glXCreateContext() failed", "GLRenderTexture::createPBuffer");        
 

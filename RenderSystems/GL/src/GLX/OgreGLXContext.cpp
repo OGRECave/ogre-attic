@@ -28,19 +28,57 @@ Torus Knot Software Ltd.
 */
 
 #include "OgreGLXContext.h"
+#include "OgreGLRenderSystem.h"
+#include "OgreRoot.h"
 
 namespace Ogre {
 
     GLXContext::GLXContext(::Display *dpy,
                 ::GLXDrawable drawable,
-                ::GLXContext ctx):
-        mDpy(dpy), mDrawable(drawable), mCtx(ctx) {
+                ::GLXContext ctx, 
+				::XVisualInfo* visualInfo) :
+        mDpy(dpy), mDrawable(drawable), mCtx(ctx), mVisualInfo(visualInfo)
+	{
+                  
+    }
+    GLXContext::GLXContext(::Display *dpy,
+                ::GLXDrawable drawable,
+                ::GLXContext ctx, 
+				::GLXFBConfig fbconfig) :
+        mDpy(dpy), mDrawable(drawable), mCtx(ctx), mVisualInfo(0), mFBConfig(fbconfig)
+	{
                   
     }
     GLXContext::~GLXContext() {
+		// Unregister and destroy this context
+		// This will disable it if it was still active
+		// NB have to do this is subclass to ensure any methods called back
+		// are on this subclass and not half-destructed superclass
+		GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
+		rs->_unregisterContext(this);
     }
 
     void GLXContext::setCurrent() {
         glXMakeCurrent(mDpy, mDrawable, mCtx);
     }
+	void GLXContext::endCurrent() {
+		glXMakeCurrent(mDpy, None, NULL);
+	}
+
+	GLContext* GLXContext::clone() const
+	{
+		// Create a new context, share lists with existing
+
+		if (mVisualInfo) // window context clone
+		{
+			::GLXContext newCtx = glXCreateContext(mDpy, mVisualInfo, mCtx,True);
+			return new GLXContext(mDpy, mDrawable, newCtx, mVisualInfo);
+		}
+		else // non-window
+		{
+			::GLXContext newCtx = glXCreateNewContext(mDpy, mFBConfig, GLX_RGBA_TYPE, mCtx, True);
+			return new GLXContext(mDpy, mDrawable, newCtx, mFBConfig);
+		}      
+	} 
+
 }

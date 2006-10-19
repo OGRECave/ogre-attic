@@ -658,6 +658,14 @@ namespace Ogre {
         delete mRTTManager;
         mRTTManager = 0;
 
+		// Delete extra threads contexts
+		for (GLContextList::iterator i = mBackgroundContextList.begin(); 
+			i != mBackgroundContextList.end(); ++i)
+		{
+			delete *i;
+		}
+		mBackgroundContextList.clear();
+
         mGLSupport->stop();
         mStopRendering = true;
     }
@@ -2847,10 +2855,6 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    GLContext *GLRenderSystem::_getMainContext() {
-        return mMainContext;
-    }
-    //---------------------------------------------------------------------
     Real GLRenderSystem::getMinimumDepthInputValue(void)
     {
         // Range [-1.0f, 1.0f]
@@ -2862,5 +2866,53 @@ namespace Ogre {
         // Range [-1.0f, 1.0f]
         return 1.0f;
     }
+    //---------------------------------------------------------------------
+	void GLRenderSystem::registerThread()
+	{
+		// This is only valid once we've created the main context
+		if (!mMainContext)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"Cannot register a background thread before the main context "
+				"has been created.", 
+				"GLRenderSystem::registerThread");
+		}
+
+		// Create a new context for this thread. Cloning from the main context
+		// will ensure that resources are shared with the main context
+		// We want a separate context so that we can safely create GL
+		// objects in parallel with the main thread
+		GLContext* newContext = mMainContext->clone();
+		mBackgroundContextList.push_back(newContext);
+
+		// Bind this new context to this thread. 
+		newContext->setCurrent();
+
+		_oneTimeContextInitialization();
+		newContext->setInitialized();
+
+
+	}
+    //---------------------------------------------------------------------
+	void GLRenderSystem::unregisterThread()
+	{
+		// nothing to do here?
+		// Don't need to worry about active context, just make sure we delete
+		// on shutdown.
+
+	}
+	//---------------------------------------------------------------------
+	void GLRenderSystem::preExtraThreadsStarted()
+	{
+		// free context, we'll need this to share lists
+		mCurrentContext->endCurrent();
+	}
+	//---------------------------------------------------------------------
+	void GLRenderSystem::postExtraThreadsStarted()
+	{
+		// reacquire context
+		mCurrentContext->setCurrent();
+	}
+
 
 }

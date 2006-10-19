@@ -502,7 +502,6 @@ namespace Ogre {
 		PlatformInformation::log(LogManager::getSingleton().getDefaultLog());
 		mAutoWindow =  mActiveRenderer->initialise(autoCreateWindow, windowTitle);
 
-		mResourceBackgroundQueue->initialise();
 
         if (autoCreateWindow && !mFirstTimePostWindowInit)
         {
@@ -999,6 +998,8 @@ namespace Ogre {
     {
         if (!mFirstTimePostWindowInit)
         {
+			// Background loader
+			mResourceBackgroundQueue->initialise();
 			// Initialise material manager
 			mMaterialManager->initialise();
             // Init particle systems manager

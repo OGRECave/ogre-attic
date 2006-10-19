@@ -1085,6 +1085,49 @@ namespace Ogre
 		@see RenderSystem::addListener
 		*/
 		virtual const StringVector& getRenderSystemEvents(void) const { return mEventNames; }
+
+		/** Tell the rendersystem to perform any prep tasks it needs to directly
+			before other threads which might access the rendering API are registered.
+		@remarks
+			Call this from your main thread before starting your other threads
+			(which themselves should call registerThread()). Note that if you
+			start your own threads, there is a specific startup sequence which 
+			must be respected and requires synchronisation between the threads:
+			<ol>
+			<li>[Main thread]Call preExtraThreadsStarted</li>
+			<li>[Main thread]Start other thread, wait</li>
+			<li>[Other thread]Call registerThread, notify main thread & continue</li>
+			<li>[Main thread]Wake up & call postExtraThreadsStarted</li>
+			</ol>
+			Once this init sequence is completed the threads are independent but
+			this startup sequence must be respected.
+		*/
+		virtual void preExtraThreadsStarted() = 0;
+
+		/* Tell the rendersystem to perform any tasks it needs to directly
+			after other threads which might access the rendering API are registered.
+		@see RenderSystem::preExtraThreadsStarted
+		*/
+		virtual void postExtraThreadsStarted() = 0;
+		
+		/** Register the an additional thread which may make calls to rendersystem-related 
+			objects.
+		@remarks
+			This method should only be called by additional threads during their
+			initialisation. If they intend to use hardware rendering system resources 
+			they should call this method before doing anything related to the render system.
+			Some rendering APIs require a per-thread setup and this method will sort that
+			out. It is also necessary to call unregisterThread before the thread shuts down.
+		@note
+			This method takes no parameters - it must be called from the thread being
+			registered and that context is enough.
+		*/
+		virtual void registerThread() = 0;
+			
+		/** Unregister an additional thread which may make calls to rendersystem-related objects.
+		@see RenderSystem::registerThread
+		*/
+		virtual void unregisterThread() = 0;
     protected:
 
 		

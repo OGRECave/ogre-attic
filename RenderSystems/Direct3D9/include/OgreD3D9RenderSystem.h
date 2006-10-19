@@ -307,6 +307,10 @@ namespace Ogre
         Real getVerticalTexelOffset(void);
         Real getMinimumDepthInputValue(void);
         Real getMaximumDepthInputValue(void);
+		void registerThread();
+		void unregisterThread();
+		void preExtraThreadsStarted();
+		void postExtraThreadsStarted();
 
 		/** D3D specific method to restore a lost device. */
 		void restoreLostDevice(void);
