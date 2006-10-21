@@ -159,9 +159,9 @@ namespace Ogre {
         if (isLoaded())
         {
             _load();
-            // Tell parent to recalculate hash
-            mParent->_dirtyHash();
         }
+		// Tell parent to recalculate hash
+		mParent->_dirtyHash();
 
         return *this;
     }
@@ -202,9 +202,9 @@ namespace Ogre {
             if (isLoaded())
             {
                 _load(); // reload
-                // Tell parent to recalculate hash
-                mParent->_dirtyHash();
             }
+			// Tell parent to recalculate hash
+			mParent->_dirtyHash();
         }
 
     }
@@ -277,9 +277,9 @@ namespace Ogre {
             if (isLoaded())
             {
                 _load(); // reload
-                // Tell parent to recalculate hash
-                mParent->_dirtyHash();
             }
+			// Tell parent to recalculate hash
+			mParent->_dirtyHash();
         }
         else // raise exception for frameNumber out of bounds
         {
@@ -297,9 +297,9 @@ namespace Ogre {
         if (isLoaded())
         {
             _load();
-            // Tell parent to recalculate hash
-            mParent->_dirtyHash();
         }
+		// Tell parent to recalculate hash
+		mParent->_dirtyHash();
     }
 
     //-----------------------------------------------------------------------
@@ -315,9 +315,9 @@ namespace Ogre {
             if (isLoaded())
             {
                 _load();
-                // Tell parent to recalculate hash
-                mParent->_dirtyHash();
             }
+			// Tell parent to recalculate hash
+			mParent->_dirtyHash();
         }
         else
         {
@@ -352,9 +352,9 @@ namespace Ogre {
         if (isLoaded())
         {
             _load();
-            // Tell parent to recalculate hash
-            mParent->_dirtyHash();
         }
+		// Tell parent to recalculate hash
+		mParent->_dirtyHash();
 
     }
     //-----------------------------------------------------------------------
@@ -374,9 +374,9 @@ namespace Ogre {
         if (isLoaded())
         {
             _load();
-            // Tell parent to recalculate hash
-            mParent->_dirtyHash();
         }
+		// Tell parent to recalculate hash
+		mParent->_dirtyHash();
     }
     //-----------------------------------------------------------------------
     std::pair< uint, uint > TextureUnitState::getTextureDimensions( unsigned int frame ) const
