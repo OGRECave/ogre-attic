@@ -273,7 +273,8 @@ namespace Ogre {
 		// Don't use wglew as if this is the first window, we won't have initialised yet
 		PFNWGLSWAPINTERVALEXTPROC _wglSwapIntervalEXT = 
 			(PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
-		_wglSwapIntervalEXT(vsync? 1 : 0);
+		if (_wglSwapIntervalEXT)
+			_wglSwapIntervalEXT(vsync? 1 : 0);
 
         if (old_context)
         {
