@@ -968,9 +968,6 @@ namespace Ogre {
 			// Load Fragment program
 			mShadowReceiverFragmentProgramUsage->_load();
 		}
-
-        // Recalculate hash
-        _dirtyHash();
 		
 	}
     //-----------------------------------------------------------------------
