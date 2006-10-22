@@ -112,9 +112,9 @@ namespace Ogre {
 		/// Numeric handle for more efficient look up than name
         ResourceHandle mHandle;
 		/// Is the resource currently loaded?
-        LoadingState mLoadingState;
+        volatile LoadingState mLoadingState;
 		/// Is this resource going to be background loaded? Only applicable for multithreaded
-		bool mIsBackgroundLoaded;
+		volatile bool mIsBackgroundLoaded;
 		/// Mutex to cover the status of loading
 		OGRE_MUTEX(mLoadingStatusMutex)
 		/// The size of the resource in bytes
