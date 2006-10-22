@@ -824,10 +824,6 @@ namespace Ogre {
 
 		// Create vertex data which just references position component (and 2 component)
 		mRenderOp.vertexData = new VertexData();
-		mRenderOp.vertexData->vertexDeclaration =
-			HardwareBufferManager::getSingleton().createVertexDeclaration();
-		mRenderOp.vertexData->vertexBufferBinding =
-			HardwareBufferManager::getSingleton().createVertexBufferBinding();
 		// Map in position data
 		mRenderOp.vertexData->vertexDeclaration->addElement(0,0,VET_FLOAT3, VES_POSITION);
 		ushort origPosBind =
