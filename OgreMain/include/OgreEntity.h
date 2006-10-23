@@ -115,10 +115,10 @@ namespace Ogre {
         /// Have the temp buffers already had their geometry prepared for use in rendering shadow volumes?
         bool mPreparedForShadowVolumes;
 
-		/** Internal method - given vertex data which could be from the Mesh or 
+		/** Internal method - given vertex data which could be from the Mesh or
 		any submesh, finds the temporary blend copy. */
 		const VertexData* findBlendedVertexData(const VertexData* orig);
-		/** Internal method - given vertex data which could be from the Mesh or 
+		/** Internal method - given vertex data which could be from the Mesh or
 		any SubMesh, finds the corresponding SubEntity. */
 		SubEntity* findSubEntityForVertexData(const VertexData* orig);
 
@@ -129,10 +129,10 @@ namespace Ogre {
 		VertexData* cloneVertexDataRemoveBlendInfo(const VertexData* source);
 		/** Internal method for preparing this Entity for use in animation. */
 		void prepareTempBlendBuffers(void);
-		/** Mark all vertex data as so far unanimated. 
+		/** Mark all vertex data as so far unanimated.
 		*/
 		void markBuffersUnusedForAnimation(void);
-		/** Internal method to restore original vertex data where we didn't 
+		/** Internal method to restore original vertex data where we didn't
 			perform any vertex animation this frame.
 		*/
 		void restoreBuffersForUnusedAnimation(bool hardwareAnimation);
@@ -196,7 +196,7 @@ namespace Ogre {
 
 		/** List of LOD Entity instances (for manual LODs).
 		We don't know when the mesh is using manual LODs whether one LOD to the next will have the
-		same number of SubMeshes, therefore we have to allow a separate Entity list 
+		same number of SubMeshes, therefore we have to allow a separate Entity list
 		with each alternate one.
 		*/
 		typedef std::vector<Entity*> LODEntityList;
@@ -227,7 +227,7 @@ namespace Ogre {
 		/// Apply vertex animation
 		void applyVertexAnimation(bool hardwareAnimation, bool stencilShadows);
 		/// Initialise the hardware animation elements for given vertex data
-		void initHardwareAnimationElements(VertexData* vdata, 
+		void initHardwareAnimationElements(VertexData* vdata,
 			ushort numberOfElements);
 		/// Are software vertex animation temp buffers bound?
 		bool tempVertexAnimBuffersBound(void) const;
@@ -266,8 +266,8 @@ namespace Ogre {
 
 
 		public:
-			EntityShadowRenderable(Entity* parent, 
-				HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData, 
+			EntityShadowRenderable(Entity* parent,
+				HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData,
 				bool createSeparateLightCap, SubEntity* subent, bool isLightCap = false);
 			~EntityShadowRenderable();
 			/// Overridden from ShadowRenderable
@@ -357,7 +357,7 @@ namespace Ogre {
 		AnimationState* getAnimationState(const String& name) const;
 		/** For entities based on animated meshes, gets the AnimationState objects for all animations.
 		@returns
-		In case the entity is animated, this functions returns the pointer to a AnimationStateSet 
+		In case the entity is animated, this functions returns the pointer to a AnimationStateSet
 		containing all animations of the entries. If the entity is not animated, it returns 0.
 		@remarks
 		You animate an entity by updating the animation state objects. Each of these represents the
@@ -391,23 +391,23 @@ namespace Ogre {
 
 		/** Sets a level-of-detail bias for the mesh detail of this entity.
 		@remarks
-		Level of detail reduction is normally applied automatically based on the Mesh 
+		Level of detail reduction is normally applied automatically based on the Mesh
 		settings. However, it is possible to influence this behaviour for this entity
-		by adjusting the LOD bias. This 'nudges' the mesh level of detail used for this 
+		by adjusting the LOD bias. This 'nudges' the mesh level of detail used for this
 		entity up or down depending on your requirements. You might want to use this
 		if there was a particularly important entity in your scene which you wanted to
 		detail better than the others, such as a player model.
 		@par
-		There are three parameters to this method; the first is a factor to apply; it 
-		defaults to 1.0 (no change), by increasing this to say 2.0, this model would 
+		There are three parameters to this method; the first is a factor to apply; it
+		defaults to 1.0 (no change), by increasing this to say 2.0, this model would
 		take twice as long to reduce in detail, whilst at 0.5 this entity would use lower
-		detail versions twice as quickly. The other 2 parameters are hard limits which 
+		detail versions twice as quickly. The other 2 parameters are hard limits which
 		let you set the maximum and minimum level-of-detail version to use, after all
 		other calculations have been made. This lets you say that this entity should
 		never be simplified, or that it can only use LODs below a certain level even
 		when right next to the camera.
-		@param factor Proportional factor to apply to the distance at which LOD is changed. 
-		Higher values increase the distance at which higher LODs are displayed (2.0 is 
+		@param factor Proportional factor to apply to the distance at which LOD is changed.
+		Higher values increase the distance at which higher LODs are displayed (2.0 is
 		twice the normal distance, 0.5 is half).
 		@param maxDetailIndex The index of the maximum LOD this entity is allowed to use (lower
 		indexes are higher detail: index 0 is the original full detail model).
@@ -419,23 +419,23 @@ namespace Ogre {
 
 		/** Sets a level-of-detail bias for the material detail of this entity.
 		@remarks
-		Level of detail reduction is normally applied automatically based on the Material 
+		Level of detail reduction is normally applied automatically based on the Material
 		settings. However, it is possible to influence this behaviour for this entity
-		by adjusting the LOD bias. This 'nudges' the material level of detail used for this 
+		by adjusting the LOD bias. This 'nudges' the material level of detail used for this
 		entity up or down depending on your requirements. You might want to use this
 		if there was a particularly important entity in your scene which you wanted to
 		detail better than the others, such as a player model.
 		@par
-		There are three parameters to this method; the first is a factor to apply; it 
-		defaults to 1.0 (no change), by increasing this to say 2.0, this entity would 
-		take twice as long to use a lower detail material, whilst at 0.5 this entity 
-		would use lower detail versions twice as quickly. The other 2 parameters are 
-		hard limits which let you set the maximum and minimum level-of-detail index 
-		to use, after all other calculations have been made. This lets you say that 
-		this entity should never be simplified, or that it can only use LODs below 
+		There are three parameters to this method; the first is a factor to apply; it
+		defaults to 1.0 (no change), by increasing this to say 2.0, this entity would
+		take twice as long to use a lower detail material, whilst at 0.5 this entity
+		would use lower detail versions twice as quickly. The other 2 parameters are
+		hard limits which let you set the maximum and minimum level-of-detail index
+		to use, after all other calculations have been made. This lets you say that
+		this entity should never be simplified, or that it can only use LODs below
 		a certain level even when right next to the camera.
-		@param factor Proportional factor to apply to the distance at which LOD is changed. 
-		Higher values increase the distance at which higher LODs are displayed (2.0 is 
+		@param factor Proportional factor to apply to the distance at which LOD is changed.
+		Higher values increase the distance at which higher LODs are displayed (2.0 is
 		twice the normal distance, 0.5 is half).
 		@param maxDetailIndex The index of the maximum LOD this entity is allowed to use (lower
 		indexes are higher detail: index 0 is the original full detail model).
@@ -445,34 +445,40 @@ namespace Ogre {
 		*/
 		void setMaterialLodBias(Real factor, ushort maxDetailIndex = 0, ushort minDetailIndex = 99);
 
-		/** Sets whether the polygon mode of this entire entity may be 
-		overridden by the camera detail settings. 
+		/** Sets whether the polygon mode of this entire entity may be
+		overridden by the camera detail settings.
 		*/
 		void setPolygonModeOverrideable(bool PolygonModeOverrideable);
 		/** Attaches another object to a certain bone of the skeleton which this entity uses.
 		@remarks
 		This method can be used to attach another object to an animated part of this entity,
-		by attaching it to a bone in the skeleton (with an offset if required). As this entity 
+		by attaching it to a bone in the skeleton (with an offset if required). As this entity
 		is animated, the attached object will move relative to the bone to which it is attached.
+		@par
+		An exception is thrown if the movable object is already attached to the bone, another bone or scenenode.
+		If the entity has no skeleton or the bone name cannot be found then an exception is thrown.
 		@param boneName The name of the bone (in the skeleton) to attach this object
 		@param pMovable Pointer to the object to attach
 		@param offsetOrientation An adjustment to the orientation of the attached object, relative to the bone.
 		@param offsetPosition An adjustment to the position of the attached object, relative to the bone.
 		@returns The TagPoint to which the object has been attached
 		*/
-		TagPoint* attachObjectToBone(const String &boneName, 
-			MovableObject *pMovable, 
-			const Quaternion &offsetOrientation = Quaternion::IDENTITY, 
+		TagPoint* attachObjectToBone(const String &boneName,
+			MovableObject *pMovable,
+			const Quaternion &offsetOrientation = Quaternion::IDENTITY,
 			const Vector3 &offsetPosition = Vector3::ZERO);
 
-		/// detach a MovableObject previously attached using attachObjectToBone
+		/** Detach a MovableObject previously attached using attachObjectToBone.
+            If the movable object name is not found then an exception is raised.
+        @param movableName is the name of the movable object to be detached.
+		*/
 		MovableObject* detachObjectFromBone(const String &movableName);
 
 		/** Detaches an object by pointer.
 		@remarks
-		This method is need when destroy a MovableObject which attached to a bone of this entity.
+		Use this method to destroy a MovableObject which is attached to a bone of belonging this entity.
 		But sometimes the object may be not in the child object list because it is a lod entity,
-		this method can safely detect and ignore in this case.
+		this method can safely detect and ignore in this case and won't raise an exception.
 		*/
 		void detachObjectFromBone(MovableObject* obj);
 
@@ -508,8 +514,8 @@ namespace Ogre {
         EdgeData* getEdgeList(void);
         /** Overridden member from ShadowCaster. */
         ShadowRenderableListIterator getShadowVolumeRenderableIterator(
-            ShadowTechnique shadowTechnique, const Light* light, 
-            HardwareIndexBufferSharedPtr* indexBuffer, 
+            ShadowTechnique shadowTechnique, const Light* light,
+            HardwareIndexBufferSharedPtr* indexBuffer,
             bool extrudeVertices, Real extrusionDistance, unsigned long flags = 0 );
 
 		/** Internal method for retrieving bone matrix information. */
@@ -551,23 +557,23 @@ namespace Ogre {
             internal optimise for eliminate software animation. Currently it is not
             possible to force software animation of only normals. Consequently this
             value is always less than or equal to that returned by getSoftwareAnimationRequests().
-            Requests for software animation of normals are made by calling the 
+            Requests for software animation of normals are made by calling the
             addSoftwareAnimationRequest() method with 'true' as the parameter.
         */
         int getSoftwareAnimationNormalsRequests(void) const { return mSoftwareAnimationNormalsRequests; }
         /** Add a request for software animation
         @remarks
             Tells the entity to perform animation calculations for skeletal/vertex
-            animations in software, regardless of the current setting of 
+            animations in software, regardless of the current setting of
             isHardwareAnimationEnabled().  Software animation will be performed
             any time one or more requests have been made.  If 'normalsAlso' is
             'true', then the entity will also do software blending on normal
-            vectors, in addition to positions. This advanced method useful for 
+            vectors, in addition to positions. This advanced method useful for
             situations in which access to actual mesh vertices is required,
-            such as accurate collision detection or certain advanced shading 
-            techniques. When software animation is no longer needed, 
+            such as accurate collision detection or certain advanced shading
+            techniques. When software animation is no longer needed,
             the caller of this method should always remove the request by calling
-            removeSoftwareAnimationRequest(), passing the same value for 
+            removeSoftwareAnimationRequest(), passing the same value for
             'normalsAlso'.
         */
         void addSoftwareAnimationRequest(bool normalsAlso);
@@ -575,7 +581,7 @@ namespace Ogre {
         @remarks
             Calling this decrements the entity's internal counter of the number
             of requests for software animation.  If the counter is already zero
-            then calling this method throws an exception.  The 'normalsAlso' 
+            then calling this method throws an exception.  The 'normalsAlso'
             flag if set to 'true' will also decrement the internal counter of
             number of requests for software animation of normals.
         */
@@ -587,7 +593,7 @@ namespace Ogre {
 		*/
 		void shareSkeletonInstanceWith(Entity* entity);
 
-		/** Returns whether or not this entity is either morph or pose animated. 
+		/** Returns whether or not this entity is either morph or pose animated.
 		*/
 		bool hasVertexAnimation(void) const;
 
@@ -608,14 +614,14 @@ namespace Ogre {
 		*/
 		inline const EntitySet* getSkeletonInstanceSharingSet() const { return mSharedSkeletonEntities; }
 
-		/** Updates the internal animation state set to include the latest 
+		/** Updates the internal animation state set to include the latest
 		available animations from the attached skeleton.
 		@remarks
 		Use this method if you manually add animations to a skeleton, or have
-		linked the skeleton to another for animation purposes since creating 
+		linked the skeleton to another for animation purposes since creating
 		this entity.
 		@note
-		If you have called getAnimationState prior to calling this method, 
+		If you have called getAnimationState prior to calling this method,
 		the pointers will still remain valid.
 		*/
 		void refreshAvailableAnimationState(void);
@@ -641,7 +647,7 @@ namespace Ogre {
         bool _isSkeletonAnimated(void) const;
 
 		/** Advanced method to get the temporarily blended skeletal vertex information
-		for entities which are software skinned. 
+		for entities which are software skinned.
         @remarks
             Internal engine will eliminate software animation if possible, this
             information is unreliable unless added request for software animation
@@ -664,11 +670,11 @@ namespace Ogre {
             The positions/normals of the returned vertex data is in object space.
 		*/
 		VertexData* _getHardwareVertexAnimVertexData(void) const;
-		/** Advanced method to get the temp buffer information for software 
+		/** Advanced method to get the temp buffer information for software
 		skeletal animation.
 		*/
 		TempBlendedBufferInfo* _getSkelAnimTempBufferInfo(void);
-		/** Advanced method to get the temp buffer information for software 
+		/** Advanced method to get the temp buffer information for software
 		morph animation.
 		*/
 		TempBlendedBufferInfo* _getVertexAnimTempBufferInfo(void);
@@ -678,7 +684,7 @@ namespace Ogre {
 		VertexData* getVertexDataForBinding(void);
 
 		/// Identify which vertex data we should be sending to the renderer
-		enum VertexDataBindChoice 
+		enum VertexDataBindChoice
 		{
 			BIND_ORIGINAL,
 			BIND_SOFTWARE_SKELETAL,
@@ -690,7 +696,7 @@ namespace Ogre {
 
 		/** Are buffers already marked as vertex animated? */
 		bool _getBuffersMarkedForAnimation(void) const { return mVertexAnimationAppliedThisFrame; }
-		/** Mark just this vertex data as animated. 
+		/** Mark just this vertex data as animated.
 		*/
 		void _markBuffersUsedForAnimation(void);
 
@@ -709,7 +715,7 @@ namespace Ogre {
 		static String FACTORY_TYPE_NAME;
 
 		const String& getType(void) const;
-		void destroyInstance( MovableObject* obj);  
+		void destroyInstance( MovableObject* obj);
 
 	};
 
