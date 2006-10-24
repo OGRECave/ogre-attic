@@ -48,6 +48,7 @@ namespace Ogre {
 			String mName;
 			GLenum mType;
 			GLint  mLocation;
+			bool isSampler;
 			bool isReal;
 			GLsizei mElementCount;
             GLint mArraySize;
