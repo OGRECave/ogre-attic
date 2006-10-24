@@ -446,11 +446,11 @@ namespace Ogre {
             else if (mCharPos != mEndOfSource && mErrorCharPos == 0)
             {
                 LogManager::getSingleton().logMessage(
-                "*** ERROR *** : in " + getClientGrammerName() +
-                " Source: " + mSourceName +
-                "\nUnknown token found on line " + StringConverter::toString(mCurrentLine) +
-                "\nFound: >>>" + mSource->substr(mCharPos, 20) +
-                "<<<\n"
+                    "*** ERROR *** : in " + getClientGrammerName() +
+                    " Source: " + mSourceName +
+                    "\nUnknown token found on line " + StringConverter::toString(mCurrentLine) +
+                    "\nFound: >>>" + mSource->substr(mCharPos, 20) +
+                    "<<<\n"
                 );
 
             }
@@ -458,12 +458,12 @@ namespace Ogre {
 	    }
 	    catch (Exception& e)
 	    {
-            LogManager::getSingleton().logMessage( "Exception caught: "
-            + e.getFullDescription()
-            + ", while trying to parse: "
-            + getClientGrammerName()
-            + ": "
-            + mSourceName
+            LogManager::getSingleton().logMessage( "Exception caught "
+                " while trying to parse "
+                + getClientGrammerName()
+                + ": "
+                + mSourceName
+                + ". Pass 1 terminated"
             );
 	    }
 	    catch (...)
@@ -1195,7 +1195,7 @@ namespace Ogre {
         bool validlexemefound = false;
 	    bool endofsource = mCharPos >= mEndOfSource;
         size_t oldCharPos = mCharPos;
-        
+
 	    while (!validlexemefound && !endofsource)
 	    {
 		    skipWhiteSpace();
@@ -1221,7 +1221,7 @@ namespace Ogre {
                     // end up in an infinite loop.
                     if (oldCharPos == mCharPos)
                         ++mCharPos;
-                        
+
 			        // endofsource will get checked on next iteration of this loop so no need to check it here
 			        // need to update oldCharPos so that position advancement can be varified on the next iteration
                     oldCharPos = mCharPos;
@@ -1294,7 +1294,7 @@ namespace Ogre {
             // make sure new auto gen id starts at autoTokenIDStart or greater
             newTokenID = (mActiveTokenState->lexemeTokenDefinitions.size() <= autoTokenIDStart ) ? autoTokenIDStart : newTokenID = mActiveTokenState->lexemeTokenDefinitions.size();
         }
-        
+
         if (newTokenID >= mActiveTokenState->lexemeTokenDefinitions.size())
         {
             mActiveTokenState->lexemeTokenDefinitions.resize(newTokenID + 1);
