@@ -20,10 +20,10 @@ You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/gpl.html.
-  
-You may alternatively use this source under the terms of a specific version of 
-the OGRE Unrestricted License provided you have obtained such a license from 
-Torus Knot Software Ltd. 
+
+You may alternatively use this source under the terms of a specific version of
+the OGRE Unrestricted License provided you have obtained such a license from
+Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 #include "OgreStableHeaders.h"
@@ -175,8 +175,7 @@ namespace Ogre {
         "                   <MinMagFilter> ::= 'linear' | 'point' | 'anisotropic' \n"
         "                   <MipFilter> ::= 'linear' | 'point' | 'none' \n"
         "           <Max_Anisotropy> ::= 'max_anisotropy' <#val> \n"
-        "           <MipMap_Bias> ::= 'mipmap_bias' <MipMap_Bias_Options> \n"
-        "           <MipMap_Bias_Options> ::= 'vertex' | 'fragment' \n"
+        "           <MipMap_Bias> ::= 'mipmap_bias' <#val> \n"
         "           <Colour_Op> ::= 'colour_op' <Colour_Op_Options> \n"
         "               <Colour_Op_Options> ::= <Base_Blend> | 'replace' \n"
         "           <Colour_Op_Ex> ::= 'colour_op_ex' <Combine_Operation> <Source_Option> <Source_Option> {<#val>} \n"
@@ -201,7 +200,8 @@ namespace Ogre {
         "               <Wave_Type> ::= 'sine' | 'triangle' | 'square' | 'sawtooth' | 'inverse_sawtooth' \n"
         "           <Transform> ::= 'transform' <#m00> <#m01> <#m02> <#m03> <#m10> <#m11> <#m12> <#m13> <#m20> <#m21> <#m22> <#m23> \n"
         "                           <#m30> <#m31> <#m32> <#m33> \n"
-        "           <Binding_Type> ::= 'binding_type' <#value> \n"
+        "           <Binding_Type> ::= 'binding_type' <Program_Type_Options> \n"
+        "           <Program_Type_Options> ::= 'vertex' | 'fragment' \n"
         // GPU Programs
         " \n"
         "<Vertex_Program> ::= 'vertex_program' <Label> [<Seperator>] <Label> '{' {<Vertex_Program_Option>} '}' \n"
@@ -261,6 +261,15 @@ namespace Ogre {
     {
 
     }
+
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseScript(DataStreamPtr& stream, const String& groupName, const bool allowOverride)
+    {
+        mScriptContext.groupName = groupName;
+        mScriptContext.allowOverride = allowOverride;
+        Compiler2Pass::compile(stream->getAsString(),  stream->getName());
+    }
+
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::setupTokenDefinitions(void)
     {
@@ -271,7 +280,7 @@ namespace Ogre {
             addLexemeAction("includes_morph_animation", &MaterialScriptCompiler::parseProgramMorphAnimation);
             addLexemeAction("includes_pose_animation", &MaterialScriptCompiler::parseProgramPoseAnimation);
             addLexemeAction("uses_vertex_texture_fetch", &MaterialScriptCompiler::parseProgramVertexTextureFetch);
-            
+
         addLexemeTokenAction("fragment_program", ID_FRAGMENT_PROGRAM, &MaterialScriptCompiler::parseGPUProgram);
 
             addLexemeAction("source", &MaterialScriptCompiler::parseProgramSource);
@@ -485,9 +494,21 @@ namespace Ogre {
             }
             catch (Exception& ogreException)
             {
-                // an unknown token found or BNF Grammer rule was not successful
-                // in finding a valid terminal token to complete the rule expression.
-                logParseError(ogreException.getDescription());
+                if (ogreException.getNumber() == Exception::ERR_DUPLICATE_ITEM)
+                {
+                    // an exception for duplicate item was thrown.
+                    // this means that either a material name or gpu program name conflict exists.
+                    // Since it wasn't trapped at a lower level then re-throw in order to terminate parsing
+                    logParseError("Duplicate Item Exception trapped. Parsing terminated for this material script.");
+                    throw;
+                }
+                else
+                {
+                    // an unknown token found or BNF Grammer rule was not successful
+                    // in finding a valid terminal token to complete the rule expression.
+                    // don't relog the exception but do log the material script being parsed and the line number
+                    logParseError("Exception trapped, attempting to continue parsing");
+                }
             }
         }
     }
@@ -706,17 +727,52 @@ namespace Ogre {
             }
         }
 
-        mScriptContext.material =
-			MaterialManager::getSingleton().create(materialName, mScriptContext.groupName);
+        /* attempt to create the material.  If the material name is already in use
+           then MaterialManager throws an exception.
+        */
+        try
+        {
+            mScriptContext.material =
+                MaterialManager::getSingleton().create(materialName, mScriptContext.groupName);
+        }
+        catch (Exception& e)
+        {
+            bool exceptionHandled = false;
+
+            if (mScriptContext.allowOverride && (e.getNumber() == Exception::ERR_DUPLICATE_ITEM))
+            {
+                /* the material already exists log a warning message about it being modified by
+                 another material script
+                */
+                mScriptContext.material = MaterialManager::getSingleton().getByName(materialName);
+                if ( !mScriptContext.material.isNull())
+                {
+                    logParseError("material " + materialName +
+                        ", defined in " + mScriptContext.material->getOrigin() +
+                        ", was overwritten by current material being parsed with same name");
+                    // update group ownership since the original material might have been in a different resource group
+                    mScriptContext.material->changeGroupOwnership(mScriptContext.groupName);
+                    exceptionHandled = true;
+                }
+            }
+            if (!exceptionHandled)
+            {
+                logParseError("material " + materialName +
+                        " was previously defined and can not override.\n"
+                        "Material Manager script override was not enabled." );
+
+                throw;
+            }
+        }
 
         if (!basematerial.isNull())
         {
-            // copy parent material details to new material
+            // copy parent material details to new or pre-existing material
             basematerial->copyDetailsTo(mScriptContext.material);
         }
         else
         {
-            // Remove pre-created technique from defaults
+            // Remove pre-created technique from defaults or original material
             mScriptContext.material->removeAllTechniques();
         }
 
@@ -2633,6 +2689,7 @@ namespace Ogre {
 		// Now it is time to create the program and propagate the parameters
 		MaterialScriptProgramDefinition* def = mScriptContext.programDef;
         GpuProgramPtr gp;
+
 		if (def->language == "asm")
 		{
 			// Native assembler
@@ -2647,11 +2704,63 @@ namespace Ogre {
 				logParseError("Invalid program definition for " + def->name +
 					", you must specify a syntax code.");
 			}
-			// Create
-			gp = GpuProgramManager::getSingleton().
-				createProgram(def->name, mScriptContext.groupName, def->source,
-                    def->progType, def->syntax);
 
+			/*  attempt to create the gpu program.  This could fail if the gpu program name is
+                already being used so must catch the exception and see if its possible to override
+                the existing gpu program.
+            */
+			try
+			{
+                gp = GpuProgramManager::getSingleton().
+                    createProgram(def->name, mScriptContext.groupName, def->source,
+                        def->progType, def->syntax);
+			}
+			catch (Exception& e)
+			{
+			    bool exceptionHandled = false;
+
+			    // attempt recovery if exception was caused by duplicate program name found
+                if (mScriptContext.allowOverride && (e.getNumber() == Exception::ERR_DUPLICATE_ITEM))
+                {
+                    // the gpu program already exists so unload it and then change source and syntax
+                    // the syntax code is not checked here
+                    gp = GpuProgramManager::getSingleton().getByName(def->name);
+                    if (!gp.isNull())
+                    {
+                        if (gp->getType() == def->progType)
+                        {
+                            logParseError("gpu asm program: " + def->name +
+                                ", defined in " + gp->getOrigin() +
+                                ", was overwritten by current gpu program definition being parsed with same name");
+                            gp->unload();
+                            /* updat group ownership since the original gpu program
+                               might have been in a different resource group
+                            */
+                            gp->changeGroupOwnership(mScriptContext.groupName);
+                            gp->setSyntaxCode(def->syntax);
+                            gp->setSource(def->source);
+                            // Need to do something about the existing default parameters
+                            gp->load();
+                            exceptionHandled = true;
+                        }
+                        else
+                        {
+                            // Don't create or override the gpu program due to incompitble program type so ignore the new definition
+                            logParseError("gpu asm program: " + def->name + " program type conflict with current gpu program definition being parsed with same name");
+                        }
+                    }
+                }
+
+                if (!exceptionHandled)
+                {
+                    // exception message already logged so no sense logging them in here and making two entries in the log
+                    logParseError("gpu asm program: " + def->name +
+                        " was previously defined and can not be overridden.\n"
+                        "Material Manager script override was not enabled." );
+                    mScriptContext.program.setNull();
+                    mScriptContext.programParams.setNull();
+                }
+			}
 		}
 		else
 		{
@@ -2662,46 +2771,93 @@ namespace Ogre {
 				logParseError("Invalid program definition for " + def->name +
 					", you must specify a source file.");
 			}
-			// Create
+			/*  attempt to create the high level gpu program.  This could fail if the gpu program name is
+                already being used so must catch the exception and see if its possible to override
+                the existing gpu program.
+            */
+            HighLevelGpuProgramPtr hgp;
             try
             {
-			    HighLevelGpuProgramPtr hgp = HighLevelGpuProgramManager::getSingleton().
-				    createProgram(def->name, mScriptContext.groupName,
+                hgp = HighLevelGpuProgramManager::getSingleton().
+                    createProgram(def->name, mScriptContext.groupName,
                         def->language, def->progType);
-                // Assign to generalised version
-                gp = hgp;
-                // Set source file
-                hgp->setSourceFile(def->source);
-
-			    // Set custom parameters
-			    std::map<String, String>::const_iterator i, iend;
-			    iend = def->customParameters.end();
-			    for (i = def->customParameters.begin(); i != iend; ++i)
-			    {
-				    if (!hgp->setParameter(i->first, i->second))
-				    {
-					    logParseError("Error in program " + def->name +
-						    " parameter " + i->first + " is not valid.");
-				    }
-			    }
             }
             catch (Exception& e)
             {
-                logParseError("Could not create GPU program '"
-                    + def->name + "', error reported was: " + e.getFullDescription());
-				mScriptContext.program.setNull();
-            	mScriptContext.programParams.setNull();
-				return;
+			    bool exceptionHandled = false;
+			    // attempt recovery if exception was caused by duplicate gpu program name found
+                if (mScriptContext.allowOverride && (e.getNumber() == Exception::ERR_DUPLICATE_ITEM))
+                {
+                    hgp = HighLevelGpuProgramManager::getSingleton().getByName(def->name);
+                    if (!hgp.isNull())
+                    {
+                        // the language and program type must still be the same otherwise reuse is not possible
+                        if ((hgp->getLanguage() != def->language) || (hgp->getType() != def->progType))
+                        {
+                            logParseError("gpu high level program: " + def->name +
+                                " already exists and can not be redefined with the language or program type defined in the material script");
+                        }
+                        else
+                        {
+                            logParseError("gpu high level program: " + def->name +
+                                ", defined in " + hgp->getOrigin() +
+                                ", was overwritten by current gpu program definition being parsed with same name");
+                            // unload the previous source that was compiled
+                            hgp->unload();
+                            /* update group ownership since the original gpu program
+                               might have been in a different resource group
+                            */
+                            hgp->changeGroupOwnership(mScriptContext.groupName);
+                            exceptionHandled = true;
+                        }
+                    }
+                }
+
+                if (!exceptionHandled)
+                {
+                    // exception message already logged so no sense logging them in here and making two entries in the log
+                    logParseError("gpu high level program: " + def->name +
+                        " was previously defined and can not be overridden.\n"
+                        "Material Manager script override was not enabled." );
+                    mScriptContext.program.setNull();
+                    mScriptContext.programParams.setNull();
+                }
+            }
+            // if the high level gpu program dosn't exist then don't continue
+            if (hgp.isNull())
+                return;
+
+            // Assign to generalised version
+            gp = hgp;
+
+            // Set source file
+            hgp->setSourceFile(def->source);
+
+            // Set custom parameters
+            std::map<String, String>::const_iterator i, iend;
+            iend = def->customParameters.end();
+            for (i = def->customParameters.begin(); i != iend; ++i)
+            {
+                if (!hgp->setParameter(i->first, i->second))
+                {
+                    logParseError("Error in program " + def->name +
+                        " parameter " + i->first + " is not valid.");
+                }
             }
         }
+
+        // don't continue processing gpu program if it doesn't exist
+        if (gp.isNull())
+            return;
+
         // Set skeletal animation option
         gp->setSkeletalAnimationIncluded(def->supportsSkeletalAnimation);
 		// Set morph animation option
 		gp->setMorphAnimationIncluded(def->supportsMorphAnimation);
 		// Set pose animation option
 		gp->setPoseAnimationIncluded(def->supportsPoseAnimation);
-        // Set vertex texture usage 
-        gp->setVertexTextureFetchRequired(def->usesVertexTextureFetch); 
+        // Set vertex texture usage
+        gp->setVertexTextureFetchRequired(def->usesVertexTextureFetch);
 
 		// set origin
 		gp->_notifyOrigin(mSourceName);
