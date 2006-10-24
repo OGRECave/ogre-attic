@@ -160,30 +160,28 @@ namespace Ogre {
 				{
 					// user defined uniform found, add it to the reference list
 					newUniformReference.mName = String( uniformName );
+					// default to real since most uniforms are real
+					newUniformReference.isReal = true;
+                    newUniformReference.isSampler = false;
 					// decode uniform size and type
 					switch (newUniformReference.mType)
 					{
 					case GL_FLOAT:
-						newUniformReference.isReal = true;
 						newUniformReference.mElementCount = 1;
 						break;
 
 					case GL_FLOAT_VEC2:
-						newUniformReference.isReal = true;
 						newUniformReference.mElementCount = 2;
 						break;
 
 					case GL_FLOAT_VEC3:
-						newUniformReference.isReal = true;
 						newUniformReference.mElementCount = 3;
 						break;
 
 					case GL_FLOAT_VEC4:
-						newUniformReference.isReal = true;
 						newUniformReference.mElementCount = 4;
 						break;
 
-					case GL_INT:
 					case GL_SAMPLER_1D:
 					case GL_SAMPLER_2D:
 					case GL_SAMPLER_3D:
@@ -192,6 +190,8 @@ namespace Ogre {
 					case GL_SAMPLER_2D_SHADOW:
                     case GL_SAMPLER_2D_RECT_ARB:
                     case GL_SAMPLER_2D_RECT_SHADOW_ARB:
+                        newUniformReference.isSampler = true;
+					case GL_INT:
 						newUniformReference.isReal = false;
 						newUniformReference.mElementCount = 1;
 						break;
@@ -212,17 +212,14 @@ namespace Ogre {
 						break;
 
                     case GL_FLOAT_MAT2:
-						newUniformReference.isReal = true;
 						newUniformReference.mElementCount = 4;
 						break;
 
                     case GL_FLOAT_MAT3:
-						newUniformReference.isReal = true;
 						newUniformReference.mElementCount = 9;
 						break;
 
                     case GL_FLOAT_MAT4:
-						newUniformReference.isReal = true;
 						newUniformReference.mElementCount = 16;
 						break;
 
@@ -367,8 +364,6 @@ namespace Ogre {
 				}
 
 			}
-
-
 			// get the next uniform
 			++currentUniform;
 
