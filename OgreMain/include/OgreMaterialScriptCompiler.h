@@ -21,9 +21,9 @@ this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/gpl.html.
 
-You may alternatively use this source under the terms of a specific version of 
-the OGRE Unrestricted License provided you have obtained such a license from 
-Torus Knot Software Ltd. 
+You may alternatively use this source under the terms of a specific version of
+the OGRE Unrestricted License provided you have obtained such a license from
+Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 
@@ -57,28 +57,27 @@ namespace Ogre {
 			parsed are to become a member of. If this group is loaded or unloaded,
 			then the resources discovered in this script will be loaded / unloaded
 			with it.
+        @param allowOverride if material or gpu program name already exists then use definition
+            in the material script being parsed to override the existing instance.  The default
+            value is false which causes an exception to be thrown if a duplicate is found.
         */
-        void parseScript(DataStreamPtr& stream, const String& groupName)
-        {
-            mScriptContext.groupName = groupName;
-            Compiler2Pass::compile(stream->getAsString(),  stream->getName());
-        }
+        void parseScript(DataStreamPtr& stream, const String& groupName, const bool allowOverride = false);
 
     protected:
 	    // Token ID enumeration
 	    enum TokenID {
 		    // Terminal Tokens section
-            ID_UNKOWN = 0, 
+            ID_UNKOWN = 0,
             // GPU Program
             ID_VERTEX_PROGRAM, ID_FRAGMENT_PROGRAM,
-            
+
             // material
             ID_CLONE,
-            
+
             // technique
-            
+
             // pass
-            
+
             ID_VERTEXCOLOUR,
             // scene blend
             ID_COLOUR_BLEND, ID_DEST_COLOUR,
@@ -98,14 +97,14 @@ namespace Ogre {
             ID_EXP, ID_EXP2,
             // iteration
             ID_ONCE, ID_ONCE_PER_LIGHT, ID_PER_LIGHT, ID_DIRECTIONAL, ID_SPOT,
-			
+
             // texture unit state
             // texture
             ID_1D, ID_2D, ID_3D, ID_CUBIC, ID_UNLIMITED, ID_ALPHA,
             // cubic texture
             ID_SEPARATE_UV, ID_COMBINED_UVW,
             // address mode
-            ID_WRAP, ID_CLAMP, ID_MIRROR, ID_BORDER, 
+            ID_WRAP, ID_CLAMP, ID_MIRROR, ID_BORDER,
             // filtering
             ID_BILINEAR, ID_TRILINEAR, ID_ANISOTROPIC,
             // color op
@@ -114,13 +113,13 @@ namespace Ogre {
             ID_ADD_SMOOTH, ID_SUBTRACT, ID_BLEND_DIFFUSE_COLOUR, ID_BLEND_DIFFUSE_ALPHA,
             ID_BLEND_TEXTURE_ALPHA, ID_BLEND_CURRENT_ALPHA, ID_BLEND_MANUAL, ID_DOTPRODUCT,
             ID_SRC_CURRENT, ID_SRC_TEXTURE, ID_SRC_DIFFUSE, ID_SRC_SPECULAR, ID_SRC_MANUAL,
-            
+
             // env map
             ID_SPHERICAL, ID_PLANAR, ID_CUBIC_REFLECTION, ID_CUBIC_NORMAL,
             // wave transform
             ID_SCROLL_X, ID_SCROLL_Y, ID_SCALE_X, ID_SCALE_Y, ID_SINE, ID_TRIANGLE,
             ID_SQUARE, ID_SAWTOOTH, ID_INVERSE_SAWTOOTH, ID_ROTATE,
-             
+
             // GPU program references
             // GPU Parameters
 
@@ -172,6 +171,7 @@ namespace Ogre {
             bool isProgramShadowCaster; // when referencing, are we in context of shadow caster
             bool isVertexProgramShadowReceiver; // when referencing, are we in context of shadow caster
             bool isFragmentProgramShadowReceiver; // when referencing, are we in context of shadow caster
+            bool allowOverride; // if true then allow existing materials and gpu programs to be overriden
             GpuProgramParametersSharedPtr programParams;
 			ushort numAnimationParametrics;
 		    MaterialScriptProgramDefinition* programDef; // this is used while defining a program
