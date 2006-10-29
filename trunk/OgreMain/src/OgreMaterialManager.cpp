@@ -44,7 +44,7 @@ Torus Knot Software Ltd.
 /** Set this to 0 if having problems with the new Material Script Compiler and want to use the original one.
 */
 #ifndef OGRE_MATERIAL_SCRIPT_COMPILER
-#define OGRE_MATERIAL_SCRIPT_COMPILER 1
+#define OGRE_MATERIAL_SCRIPT_COMPILER 0
 #endif
 
 namespace Ogre {
@@ -56,8 +56,8 @@ namespace Ogre {
         return ms_Singleton;
     }
     MaterialManager& MaterialManager::getSingleton(void)
-    {  
-        assert( ms_Singleton );  return ( *ms_Singleton );  
+    {
+        assert( ms_Singleton );  return ( *ms_Singleton );
     }
 	String MaterialManager::DEFAULT_SCHEME_NAME = "Default";
     //-----------------------------------------------------------------------
@@ -102,7 +102,7 @@ namespace Ogre {
 		// Unregister with resource group manager
 		ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);
 		ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
-		
+
 		// delete primary thread instances directly, other threads will delete
 		// theirs automatically when the threads end (part of boost::thread_specific_ptr)
 #if OGRE_MATERIAL_SCRIPT_COMPILER
@@ -112,7 +112,7 @@ namespace Ogre {
 
     }
 	//-----------------------------------------------------------------------
-	Resource* MaterialManager::createImpl(const String& name, ResourceHandle handle, 
+	Resource* MaterialManager::createImpl(const String& name, ResourceHandle handle,
 		const String& group, bool isManual, ManualResourceLoader* loader,
         const NameValuePairList* params)
 	{
@@ -129,7 +129,7 @@ namespace Ogre {
 	    // Set up a lit base white material
 	    create("BaseWhite", ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME);
 	    // Set up an unlit base white material
-        MaterialPtr baseWhiteNoLighting = create("BaseWhiteNoLighting", 
+        MaterialPtr baseWhiteNoLighting = create("BaseWhiteNoLighting",
 			ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME);
         baseWhiteNoLighting->setLightingEnabled(false);
 
@@ -208,7 +208,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void MaterialManager::setDefaultTextureFiltering(FilterOptions minFilter, 
+    void MaterialManager::setDefaultTextureFiltering(FilterOptions minFilter,
         FilterOptions magFilter, FilterOptions mipFilter)
     {
         mDefaultMinFilter = minFilter;
@@ -243,7 +243,7 @@ namespace Ogre {
 		{
 			// Create new
 			ret = mSchemes.size();
-			mSchemes[schemeName] = ret;			
+			mSchemes[schemeName] = ret;
 		}
 		return ret;
 
@@ -281,10 +281,12 @@ namespace Ogre {
 		else
 		{
 			mActiveSchemeName = schemeName;
-			mActiveSchemeIndex = i->second;		
+			mActiveSchemeIndex = i->second;
 		}
 
 	}
     //-----------------------------------------------------------------------
-
+   // bool MaterialManager::get
+    //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
 }
