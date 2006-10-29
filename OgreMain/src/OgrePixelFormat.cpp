@@ -367,19 +367,6 @@ namespace Ogre {
         0, 0, 0, 0, 0, 0, 0, 0
         },
 	//-----------------------------------------------------------------------
-        {"PF_FLOAT16_RGBA",
-        /* Bytes per element */
-        8,
-        /* Flags */
-        PFF_FLOAT,
-        /* Component type and count */
-        PCT_FLOAT16, 4,
-        /* rbits, gbits, bbits, abits */
-        16, 16, 16, 16,
-        /* Masks and shifts */
-        0, 0, 0, 0, 0, 0, 0, 0
-        },
-	//-----------------------------------------------------------------------
         {"PF_FLOAT16_RGB",
         /* Bytes per element */
         6,
@@ -393,15 +380,15 @@ namespace Ogre {
         0, 0, 0, 0, 0, 0, 0, 0
         },
 	//-----------------------------------------------------------------------
-        {"PF_FLOAT32_RGBA",
+        {"PF_FLOAT16_RGBA",
         /* Bytes per element */
-        16,
+        8,
         /* Flags */
         PFF_FLOAT,
         /* Component type and count */
-        PCT_FLOAT32, 4,
+        PCT_FLOAT16, 4,
         /* rbits, gbits, bbits, abits */
-        32, 32, 32, 32,
+        16, 16, 16, 16,
         /* Masks and shifts */
         0, 0, 0, 0, 0, 0, 0, 0
         },
@@ -415,6 +402,19 @@ namespace Ogre {
         PCT_FLOAT32, 3,
         /* rbits, gbits, bbits, abits */
         32, 32, 32, 0,
+        /* Masks and shifts */
+        0, 0, 0, 0, 0, 0, 0, 0
+        },
+	//-----------------------------------------------------------------------
+        {"PF_FLOAT32_RGBA",
+        /* Bytes per element */
+        16,
+        /* Flags */
+        PFF_FLOAT,
+        /* Component type and count */
+        PCT_FLOAT32, 4,
+        /* rbits, gbits, bbits, abits */
+        32, 32, 32, 32,
         /* Masks and shifts */
         0, 0, 0, 0, 0, 0, 0, 0
         },
@@ -735,17 +735,30 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     String PixelUtil::getBNFExpressionOfPixelFormats(bool accessibleOnly)
     {
-        String result;
+        // Collect format names sorted by length, it's required by BNF compiler
+        // that similar tokens need longer ones comes first.
+        typedef std::multimap<String::size_type, String> FormatNameMap;
+        FormatNameMap formatNames;
         for (size_t i = 0; i < PF_COUNT; ++i)
         {
             PixelFormat pf = static_cast<PixelFormat>(i);
             if (!accessibleOnly || isAccessible(pf))
             {
-                if (!result.empty())
-                    result += " | ";
-                result += "'" + PixelUtil::getFormatName(pf) + "'";
+                String formatName = getFormatName(pf);
+                formatNames.insert(std::make_pair(formatName.length(), formatName));
             }
         }
+
+        // Populate the BNF expression in reverse order
+        String result;
+        // Note: Stupid M$ VC7.1 can't dealing operator!= with FormatNameMap::const_reverse_iterator.
+        for (FormatNameMap::reverse_iterator j = formatNames.rbegin(); j != formatNames.rend(); ++j)
+        {
+            if (!result.empty())
+                result += " | ";
+            result += "'" + j->second + "'";
+        }
+
         return result;
     }
     //-----------------------------------------------------------------------
