@@ -50,7 +50,7 @@ namespace Ogre {
     	void flipEndian(void * pData, size_t size, size_t count) const;
 	    void flipEndian(void * pData, size_t size) const;
 
-		PixelFormat convertDXTFormat(uint32 fourcc) const;
+		PixelFormat convertFourCCFormat(uint32 fourcc) const;
 		PixelFormat convertPixelFormat(uint32 rgbBits, uint32 rMask, 
 			uint32 gMask, uint32 bMask, uint32 aMask) const;
 

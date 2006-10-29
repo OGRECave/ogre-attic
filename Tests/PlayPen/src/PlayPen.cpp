@@ -786,13 +786,8 @@ protected:
 
 	void testBug()
 	{
-		mSceneMgr->setAmbientLight(ColourValue::White);
-		Entity *e = mSceneMgr->createEntity("1", "dwarfhouse.mesh");
-		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
-
-
-		mCamera->setPosition(0,0,100);
-		mCamera->lookAt(Vector3::ZERO);
+		TexturePtr tex = TextureManager::getSingleton().load("test128bit.dds", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 	}
 
@@ -3885,6 +3880,88 @@ protected:
 		mCamera->lookAt(Vector3::ZERO);
 
 	}
+	void testFloat64DDS()
+	{
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../../Tests/Media", "FileSystem");
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("testdds", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		p->setCullingMode(CULL_NONE);
+		p->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		TextureUnitState* t = p->createTextureUnitState("ogreborderUp_float64.dds");
+		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		mWindow->getViewport(0)->setBackgroundColour(ColourValue::Red);
+
+		mCamera->setPosition(0,0,300);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
+	void testFloat128DDS()
+	{
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../../Tests/Media", "FileSystem");
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("testdds", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		p->setCullingMode(CULL_NONE);
+		p->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		TextureUnitState* t = p->createTextureUnitState("ogreborderUp_float128.dds");
+		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		mWindow->getViewport(0)->setBackgroundColour(ColourValue::Red);
+
+		mCamera->setPosition(0,0,300);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
+	void testFloat16DDS()
+	{
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../../Tests/Media", "FileSystem");
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("testdds", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		p->setCullingMode(CULL_NONE);
+		TextureUnitState* t = p->createTextureUnitState("BumpyMetal_float16.dds");
+		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		mWindow->getViewport(0)->setBackgroundColour(ColourValue::Red);
+
+		mCamera->setPosition(0,0,300);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
+	void testFloat32DDS()
+	{
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../../Tests/Media", "FileSystem");
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("testdds", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		p->setCullingMode(CULL_NONE);
+		TextureUnitState* t = p->createTextureUnitState("BumpyMetal_float32.dds");
+		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		mWindow->getViewport(0)->setBackgroundColour(ColourValue::Red);
+
+		mCamera->setPosition(0,0,300);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
 
 
 
@@ -4886,12 +4963,16 @@ protected:
 		//testCubeDDS();
 		//testDxt1();
 		//testDxt1Alpha();
-		//testDxt3();
+		testDxt3();
 		//testDxt5();
+		//testFloat64DDS();
+		//testFloat128DDS();
+		//testFloat16DDS();
+		//testFloat32DDS();
 
 		//testVertexTexture();
 		//testGLSLTangent();
-		testBackgroundLoadResourceGroup();
+		//testBackgroundLoadResourceGroup();
 		
     }
     // Create new frame listener

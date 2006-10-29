@@ -144,6 +144,13 @@ namespace Ogre {
 	const uint32 DDSCAPS2_CUBEMAP_NEGATIVEZ = 0x00008000;
 	const uint32 DDSCAPS2_VOLUME = 0x00200000;
 
+	// Special FourCC codes
+	const uint32 D3DFMT_R16F			= 111;
+	const uint32 D3DFMT_A16B16G16R16F	= 113;
+	const uint32 D3DFMT_R32F            = 114;
+	const uint32 D3DFMT_A32B32G32R32F   = 116;
+
+
 	//---------------------------------------------------------------------
 	DDSCodec* DDSCodec::msInstance = 0;
 	//---------------------------------------------------------------------
@@ -193,7 +200,7 @@ namespace Ogre {
 			"DDSCodec::codeToFile" ) ;
     }
 	//---------------------------------------------------------------------
-	PixelFormat DDSCodec::convertDXTFormat(uint32 fourcc) const
+	PixelFormat DDSCodec::convertFourCCFormat(uint32 fourcc) const
 	{
 		// convert dxt pixel format
 		switch(fourcc)
@@ -208,10 +215,18 @@ namespace Ogre {
 			return PF_DXT4;
 		case FOURCC('D','X','T','5'):
 			return PF_DXT5;
+		case D3DFMT_R16F:
+			return PF_FLOAT16_R;
+		case D3DFMT_A16B16G16R16F:
+			return PF_FLOAT16_RGBA;
+		case D3DFMT_R32F:
+			return PF_FLOAT32_R;
+		case D3DFMT_A32B32G32R32F:
+			return PF_FLOAT32_RGBA;
 		// We could support 3Dc here, but only ATI cards support it, not nVidia
 		default:
 			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-				"Invalid FourCC format found in DDS file", 
+				"Unsupported FourCC format found in DDS file", 
 				"DDSCodec::decode");
 		};
 
@@ -451,19 +466,30 @@ namespace Ogre {
 			imgData->depth = header.depth;
 		}
 		// Pixel format
-		PixelFormat sourceDXTFormat = PF_UNKNOWN;
+		PixelFormat sourceFormat = PF_UNKNOWN;
 
 		if (header.pixelFormat.flags & DDPF_FOURCC)
 		{
-			sourceDXTFormat = convertDXTFormat(header.pixelFormat.fourCC);
+			sourceFormat = convertFourCCFormat(header.pixelFormat.fourCC);
+		}
+		else
+		{
+			sourceFormat = convertPixelFormat(header.pixelFormat.rgbBits, 
+				header.pixelFormat.redMask, header.pixelFormat.greenMask, 
+				header.pixelFormat.blueMask, 
+				header.pixelFormat.flags & DDPF_ALPHAPIXELS ? 
+				header.pixelFormat.alphaMask : 0);
+		}
 
+		if (PixelUtil::isCompressed(sourceFormat))
+		{
 			if (!Root::getSingleton().getRenderSystem()->getCapabilities()
 				->hasCapability(RSC_TEXTURE_COMPRESSION_DXT))
 			{
 				// We'll need to decompress
 				decompressDXT = true;
 				// Convert format
-				switch (sourceDXTFormat)
+				switch (sourceFormat)
 				{
 				case PF_DXT1:
 					// source can be either 565 or 5551 depending on whether alpha present
@@ -501,20 +527,16 @@ namespace Ogre {
 			else
 			{
 				// Use original format
-				imgData->format = sourceDXTFormat;
+				imgData->format = sourceFormat;
 				// Keep DXT data compressed
 				imgData->flags |= IF_COMPRESSED;
 			}
 		}
-		else //if (header.pixelFormat.flags & DDPF_RGB)
+		else // not compressed
 		{
 			// Don't test against DDPF_RGB since greyscale DDS doesn't set this
 			// just derive any other kind of format
-			imgData->format = convertPixelFormat(header.pixelFormat.rgbBits, 
-				header.pixelFormat.redMask, header.pixelFormat.greenMask, 
-				header.pixelFormat.blueMask, 
-				header.pixelFormat.flags & DDPF_ALPHAPIXELS ? 
-					header.pixelFormat.alphaMask : 0);
+			imgData->format = sourceFormat;
 		}
 
 		// Calculate total size from number of mipmaps, faces and size
@@ -539,7 +561,7 @@ namespace Ogre {
 			{
 				size_t dstPitch = width * PixelUtil::getNumElemBytes(imgData->format);
 
-				if (sourceDXTFormat != PF_UNKNOWN)
+				if (PixelUtil::isCompressed(sourceFormat))
 				{
 					// Compressed data
 					if (decompressDXT)
@@ -559,16 +581,16 @@ namespace Ogre {
 							{
 								for (size_t x = 0; x < width; x += 4)
 								{
-									if (sourceDXTFormat == PF_DXT2 || 
-										sourceDXTFormat == PF_DXT3)
+									if (sourceFormat == PF_DXT2 || 
+										sourceFormat == PF_DXT3)
 									{
 										// explicit alpha
 										stream->read(&eAlpha, sizeof(DXTExplicitAlphaBlock));
 										flipEndian(eAlpha.alphaRow, sizeof(uint16), 4);
 										unpackDXTAlpha(eAlpha, tempColours) ;
 									}
-									else if (sourceDXTFormat == PF_DXT4 || 
-										sourceDXTFormat == PF_DXT5)
+									else if (sourceFormat == PF_DXT4 || 
+										sourceFormat == PF_DXT5)
 									{
 										// interpolated alpha
 										stream->read(&iAlpha, sizeof(DXTInterpolatedAlphaBlock));
@@ -580,7 +602,7 @@ namespace Ogre {
 									stream->read(&col, sizeof(DXTColourBlock));
 									flipEndian(&(col.colour_0), sizeof(uint16), 1);
 									flipEndian(&(col.colour_1), sizeof(uint16), 1);
-									unpackDXTColour(sourceDXTFormat, col, tempColours);
+									unpackDXTColour(sourceFormat, col, tempColours);
 
 									// write 4x4 block to uncompressed version
 									for (size_t by = 0; by < 4; ++by)
