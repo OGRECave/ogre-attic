@@ -3863,7 +3863,7 @@ namespace Ogre
 					writeValue("named");
 					break;
 				case TextureUnitState::CONTENT_SHADOW:
-					writeValue("named");
+					writeValue("shadow");
 					break;
 				};
 			}
