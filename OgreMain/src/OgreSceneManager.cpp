@@ -900,9 +900,32 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed,
 
 		Pass::ConstTextureUnitStateIterator texIter =  pass->getTextureUnitStateIterator();
 		size_t unit = 0;
+		// Reset the shadow texture index for each pass
+		size_t shadowTexIndex = 0; // TODO - adjust for Pass::getLightStart or iteration
 		while(texIter.hasMoreElements())
 		{
 			TextureUnitState* pTex = texIter.getNext();
+			if (pTex->getContentType() == TextureUnitState::CONTENT_SHADOW)
+			{
+				// Need to bind the correct shadow texture, based on the start light
+				// for this pass and the number of shadow units we've seen
+				if (shadowTexIndex < mShadowTextures.size())
+				{
+					pTex->_setTexturePtr(mShadowTextures[shadowTexIndex]);
+					// Hook up projection frustum
+					Camera *cam = mShadowTextures[shadowTexIndex]->getBuffer()->getRenderTarget()->getViewport(0)->getCamera();
+					pTex->setProjectiveTexturing(true, cam);
+					mAutoParamDataSource.setTextureProjector(cam);
+				}
+				else
+				{
+					// _could_ try to set to a plain white texture, but this might
+					// cause issues with custom shadow texture formats. Really the
+					// application user should design their shaders for the number
+					// of shadow textures they define
+				}
+				++shadowTexIndex;
+			}
 			mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
 			++unit;
 		}
@@ -2009,8 +2032,8 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(
             // Hook up receiver texture
 			Pass* targetPass = mShadowTextureCustomReceiverPass ?
 				mShadowTextureCustomReceiverPass : mShadowReceiverPass;
-            targetPass->getTextureUnitState(0)->setTextureName(
-                mCurrentShadowTexture->getName());
+			targetPass->getTextureUnitState(0)->setTextureName(
+				mCurrentShadowTexture->getName());
             // Hook up projection frustum
             targetPass->getTextureUnitState(0)->setProjectiveTexturing(true, cam);
             mAutoParamDataSource.setTextureProjector(cam);
@@ -2356,12 +2379,12 @@ void SceneManager::_renderQueueGroupObjects(RenderQueueGroup* pGroup,
         else
         {
             // Ordinary + receiver pass
-            if (doShadows)
+            if (doShadows && !isShadowTechniqueCustomSequence())
 			{
 				// Receiver pass(es)
 				if (isShadowTechniqueAdditive())
 				{
-					// Additive
+					// Auto-additive
 					renderAdditiveTextureShadowedQueueGroupObjects(pGroup, om);
 				}
 				else
@@ -3158,7 +3181,8 @@ void SceneManager::updateRenderQueueSplitOptions(void)
 		getRenderQueue()->setShadowCastersCannotBeReceivers(!mShadowTextureSelfShadow);
 	}
 
-	if (isShadowTechniqueAdditive() && mCurrentViewport->getShadowsEnabled())
+	if (isShadowTechniqueAdditive() && !isShadowTechniqueCustomSequence()
+		&& mCurrentViewport->getShadowsEnabled())
 	{
 		// Additive lighting, we need to split everything by illumination stage
 		getRenderQueue()->setSplitPassesByLightingType(true);
@@ -3168,7 +3192,8 @@ void SceneManager::updateRenderQueueSplitOptions(void)
 		getRenderQueue()->setSplitPassesByLightingType(false);
 	}
 
-	if (isShadowTechniqueInUse() && mCurrentViewport->getShadowsEnabled())
+	if (isShadowTechniqueInUse() && mCurrentViewport->getShadowsEnabled()
+		&& !isShadowTechniqueCustomSequence())
 	{
 		// Tell render queue to split off non-shadowable materials
 		getRenderQueue()->setSplitNoShadowPasses(true);
@@ -3195,7 +3220,7 @@ void SceneManager::updateRenderQueueGroupSplitOptions(RenderQueueGroup* group,
 	}
 
 	if (!suppressShadows && mCurrentViewport->getShadowsEnabled() &&
-		isShadowTechniqueAdditive())
+		isShadowTechniqueAdditive() && !isShadowTechniqueCustomSequence())
 	{
 		// Additive lighting, we need to split everything by illumination stage
 		group->setSplitPassesByLightingType(true);

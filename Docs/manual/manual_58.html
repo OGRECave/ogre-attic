@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on July 11 2006 by texi2html 1.66 -->
+<!-- Created on October 30 2006 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -24,11 +24,11 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 <BODY LANG="en" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC262"></A>
+<A NAME="SEC265"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_57.html#SEC258"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_56.html#SEC257"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_59.html#SEC265"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_57.html#SEC261"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_56.html#SEC260"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_59.html#SEC268"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -36,13 +36,13 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 </TR></TABLE>
 <HR SIZE=1>
 <H3> 5.8.2 Updating Pixel Buffers </H3>
-<!--docid::SEC262::-->
+<!--docid::SEC265::-->
 
-Pixel Buffers can be updated in two different ways; a simple, convient way and a more difficult (but in some cases faster) method. Both methods make use of PixelBox objects (See section <A HREF="manual_61.html#SEC270">5.8.5 Pixel boxes</A>) to represent image data in memory.
+Pixel Buffers can be updated in two different ways; a simple, convient way and a more difficult (but in some cases faster) method. Both methods make use of PixelBox objects (See section <A HREF="manual_61.html#SEC273">5.8.5 Pixel boxes</A>) to represent image data in memory.
 
-<A NAME="SEC263"></A>
+<A NAME="SEC266"></A>
 <H3> blitFromMemory </H3>
-<!--docid::SEC263::-->
+<!--docid::SEC266::-->
 
 The easy method to get an image into a PixelBuffer is by using HardwarePixelBuffer::blitFromMemory. This takes a PixelBox object and does all necessary pixel format conversion and scaling for you. For example, to create a manual texture and load an image into it, all you have to do is
 
@@ -59,9 +59,9 @@ TexturePtr tex = TextureManager::getSingleton().createManual(
 // Copy face 0 mipmap 0 of the image to face 0 mipmap 0 of the texture.
 tex-&gt;getBuffer(0,0)-&gt;blitFromMemory(img.getPixelBox(0,0));
 </pre></td></tr></table>
-<A NAME="SEC264"></A>
+<A NAME="SEC267"></A>
 <H3> Direct memory locking </H3>
-<!--docid::SEC264::-->
+<!--docid::SEC267::-->
 
 A more advanced method to transfer image data from and to a PixelBuffer is to use locking. By locking a PixelBuffer
 you can directly access its contents in whatever the internal format of the buffer inside the GPU is.
@@ -93,9 +93,9 @@ buffer-&gt;unlock();
 <A NAME="Texture Types"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_57.html#SEC258"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_56.html#SEC257"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_59.html#SEC265"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_57.html#SEC261"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_56.html#SEC260"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_59.html#SEC268"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -104,7 +104,7 @@ buffer-&gt;unlock();
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>July 11 2006</I>
+by <I>steve</I> on <I>October 30 2006</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 

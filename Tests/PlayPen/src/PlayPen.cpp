@@ -2228,7 +2228,14 @@ protected:
             1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
         Entity* pPlaneEnt;
         pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
-        pPlaneEnt->setMaterialName("2 - Default");
+		if (tech & SHADOWDETAILTYPE_CUSTOM_SEQUENCE)
+		{
+			pPlaneEnt->setMaterialName("Examples/Plane/ShadowsCustomSequence");
+		}
+		else
+		{
+			pPlaneEnt->setMaterialName("2 - Default");
+		}
         pPlaneEnt->setCastShadows(false);
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 
@@ -4866,7 +4873,7 @@ protected:
 	// Just override the mandatory create scene method
     void createScene(void)
     {
-
+		/*
 		AnyNumeric anyInt1(43);
 		AnyNumeric anyInt2(5);
 		AnyNumeric anyInt3 = anyInt1 + anyInt2;
@@ -4881,7 +4888,9 @@ protected:
 		const StringVector& l = mCamera->getAnimableValueNames();
 
 		std::cout << anyInt3;
+
 		//Any anyString("test");
+		*/
 
         //testMatrices();
         //testBsp();
@@ -4908,6 +4917,7 @@ protected:
         //testStencilShadows(SHADOWTYPE_STENCIL_MODULATIVE, false, true);
         //testTextureShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
+		testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE_CUSTOM_SEQUENCE);
 		//testTextureShadowsCustomCasterMat(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testTextureShadowsCustomReceiverMat(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testCompositorTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
@@ -4963,7 +4973,7 @@ protected:
 		//testCubeDDS();
 		//testDxt1();
 		//testDxt1Alpha();
-		testDxt3();
+		//testDxt3();
 		//testDxt5();
 		//testFloat64DDS();
 		//testFloat128DDS();

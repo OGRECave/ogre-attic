@@ -65,6 +65,7 @@ namespace Ogre {
 		, mIsDefaultAniso(true)
 		, mIsDefaultFiltering(true)
 		, mBindingType(BT_FRAGMENT)
+		, mContentType(CONTENT_NAMED)
 		, mParent(parent)
 		, mAnimController(0)
     {
@@ -114,6 +115,7 @@ namespace Ogre {
 		, mIsDefaultAniso(true)
 		, mIsDefaultFiltering(true)
 		, mBindingType(BT_FRAGMENT)
+		, mContentType(CONTENT_NAMED)
 		, mParent(parent)
 		, mAnimController(0)
     {
@@ -175,7 +177,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureUnitState::setTextureName( const String& name, TextureType texType)
     {
-        if (texType == TEX_TYPE_CUBE_MAP)
+		setContentType(CONTENT_NAMED);
+
+		if (texType == TEX_TYPE_CUBE_MAP)
         {
             // delegate to cubic texture implementation
             setCubicTextureName(name, true);
@@ -217,6 +221,24 @@ namespace Ogre {
 	{
 		return mBindingType;
 	}
+	//-----------------------------------------------------------------------
+	void TextureUnitState::setContentType(TextureUnitState::ContentType ct)
+	{
+		mContentType = ct;
+		if (ct == CONTENT_SHADOW)
+		{
+			// Clear out texture frames, not applicable
+			mFrames.clear();
+			// One reference space, set manually through _setTexturePtr
+			mFramePtrs.resize(1);
+			mFramePtrs[0].setNull();
+		}
+	}
+	//-----------------------------------------------------------------------
+	TextureUnitState::ContentType TextureUnitState::getContentType(void) const
+	{
+		return mContentType;
+	}
     //-----------------------------------------------------------------------
     void TextureUnitState::setCubicTextureName( const String& name, bool forUVW)
     {
@@ -226,6 +248,7 @@ namespace Ogre {
         }
         else
         {
+			setContentType(CONTENT_NAMED);
             String ext;
             String suffixes[6] = {"_fr", "_bk", "_lf", "_rt", "_up", "_dn"};
             String baseName;
@@ -247,6 +270,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureUnitState::setCubicTextureName(const String* const names, bool forUVW)
     {
+		setContentType(CONTENT_NAMED);
         mFrames.resize(forUVW ? 1 : 6);
 		// resize pointers, but don't populate until asked for
         mFramePtrs.resize(forUVW ? 1 : 6);
@@ -305,6 +329,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureUnitState::addFrameTextureName(const String& name)
     {
+		setContentType(CONTENT_NAMED);
+
         mFrames.push_back(name);
 		// Add blank pointer, load on demand
 		mFramePtrs.push_back(TexturePtr());
@@ -346,7 +372,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureUnitState::setAnimatedTextureName( const String& name, unsigned int numFrames, Real duration)
     {
-        String ext;
+		setContentType(CONTENT_NAMED);
+
+		String ext;
         String baseName;
 
         size_t pos = name.find_last_of(".");
@@ -380,7 +408,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureUnitState::setAnimatedTextureName(const String* const names, unsigned int numFrames, Real duration)
     {
-        mFrames.resize(numFrames);
+		setContentType(CONTENT_NAMED);
+
+		mFrames.resize(numFrames);
 		// resize pointers, but don't populate until needed
         mFramePtrs.resize(numFrames);
         mAnimDuration = duration;
@@ -907,18 +937,39 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	const TexturePtr& TextureUnitState::_getTexturePtr(size_t frame) const
 	{
-        if (frame < mFrames.size())
-        {
-			ensureLoaded(frame);
-			return mFramePtrs[frame];
+		if (mContentType == CONTENT_NAMED)
+		{
+			if (frame < mFrames.size())
+			{
+				ensureLoaded(frame);
+				return mFramePtrs[frame];
+			}
+			else
+			{
+				// Silent fail with empty texture for internal method
+				static TexturePtr nullTexPtr;
+				return nullTexPtr;
+			}
 		}
 		else
 		{
-			// Silent fail with empty texture for internal method
-			static TexturePtr nullTexPtr;
-			return nullTexPtr;
+			// Manually bound texture, no name or loading
+			assert(frame < mFramePtrs.size());
+			return mFramePtrs[frame];
+
 		}
 		
+	}
+	//-----------------------------------------------------------------------
+	void TextureUnitState::_setTexturePtr(const TexturePtr& texptr)
+	{
+		_setTexturePtr(texptr, mCurrentFrame);
+	}
+	//-----------------------------------------------------------------------
+	void TextureUnitState::_setTexturePtr(const TexturePtr& texptr, size_t frame)
+	{
+		assert(frame < mFramePtrs.size());
+		mFramePtrs[frame] = texptr;
 	}
     //-----------------------------------------------------------------------
 	void TextureUnitState::ensureLoaded(size_t frame) const
