@@ -411,6 +411,16 @@ namespace Ogre {
 			*/
 			BT_VERTEX = 1
 		};
+		/** Enum identifying the type of content this texture unit contains.
+		*/
+		enum ContentType
+		{
+			/// Normal texture identified by name
+			CONTENT_NAMED = 0,
+			/// A shadow texture, automatically bound by engine
+			CONTENT_SHADOW = 1
+		};
+
 		/** Sets the type of unit these texture settings should be bound to. 
 		@remarks
 			Some render systems, when implementing vertex texture fetch, separate
@@ -425,6 +435,15 @@ namespace Ogre {
 		/** Gets the type of unit these texture settings should be bound to.  
 		*/
 		BindingType getBindingType(void) const;
+
+		/** Set the type of content this TextureUnitState references.
+		@remarks
+			The default is to reference a standard named texture, but this unit
+			can also reference automated content like a shadow texture.
+		*/
+		void setContentType(ContentType ct);
+		/** Get the type of content this TextureUnitState references. */
+		ContentType getContentType(void) const;
 
         /** Returns true if this texture unit is either a series of 6 2D textures, each
             in it's own frame, or is a full 3D cube map. You can tell which by checking
@@ -1048,6 +1067,10 @@ namespace Ogre {
 		/** Get the texture pointer for a given frame. */
 		const TexturePtr& _getTexturePtr(size_t frame) const;
 	
+		/** Set the texture pointer for the current frame (internal use only!). */
+		void _setTexturePtr(const TexturePtr& texptr);
+		/** Set the texture pointer for a given frame (internal use only!). */
+		void _setTexturePtr(const TexturePtr& texptr, size_t frame);
 protected:
         // State
         /// The current animation frame.
@@ -1094,7 +1117,8 @@ protected:
         bool mIsDefaultFiltering;
 		/// Binding type (fragment or vertex pipeline)
 		BindingType mBindingType;
-
+		/// Content type of texture (normal loaded texture, auto-texture)
+		ContentType mContentType;
 
         //-----------------------------------------------------------------------------
         // Complex members (those that can't be copied using memcpy) are at the end to 

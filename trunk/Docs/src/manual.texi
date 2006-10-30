@@ -1043,6 +1043,8 @@ Here are the attributes you can use in a 'texture_unit' section of a .material s
 @ref{transform}
 @item
 @ref{binding_type}
+@item
+@ref{content_type}
 @end itemize
 
 You can also use a nested 'texture_source' section in order to use a special add-in as a source of texture data, @xref{External Texture Sources} for details.
@@ -1196,6 +1198,21 @@ Tells this texture unit to bind to either the fragment processing unit or the ve
 
 Format: binding_type <vertex|fragment>
 Default: binding_type fragment
+
+@anchor{content_type}
+@subheading content_type
+
+Tells this texture unit where it should get its content from. The default is to get texture content from a named texture, as defined with the @ref{texture}, @ref{cubic_texture}, @ref{anim_texture} attributes. However you can also pull texture information from other automated sources. The options are:
+
+@table @asis
+@item named
+	The default option, this derives texture content from a texture name, loaded by ordinary means from a file or having been manually created with a given name.
+@item shadow
+	This option allows you to pull in a shadow texture, and is only valid when you use texture shadows and one of the 'custom sequence' shadowing types (@xref{Shadows}). The shadow texture in question will be from the 'n'th closest light that casts shadows, unless you use light-based pass iteration or the light_start option which may start the light index higher. When you use this option in multiple texture units within the same pass, each one references the next shadow texture. The shadow texture index is reset in the next pass, in case you want to take into account the same shadow textures again in another pass (e.g. a separate specular / gloss pass). By using this option, the correct light frustum projection is set up for you for use in fixed-function, if you use shaders just reference the texture_viewproj_matrix auto parameter in your shader.
+@end table
+
+Format: content_type <named|shadow>
+Default: content_type named
 
 @anchor{tex_coord_set}
 @subheading tex_coord_set
@@ -1704,7 +1721,7 @@ The syntax of the link to a vertex program and a fragment program are identical,
 
 For many situations a vertex and fragment program are associated with each other in a pass but this is not cast in stone.  You could have a vertex program that can be used by several different fragment programs.  Another situation that arises is that you can mix fixed pipeline and programmable pipeline (shaders) together. You could use the non-programable vertex fixed function pipeline and then provide a fragment_program_ref in a pass ie there would be no vertex_program_ref section in the pass.  The fragment program referenced in the pass must meet the requirements as defined in the related API in order to read from the outputs of the vertex fixed pipeline.  You could also just have a vertex program that outputs to the fragment fixed function pipeline.@*@*
 
-The requirements to read from or write to the fixed function pipeline are similar between rendering API's (DirectX and OpenGL) but how its actually done in each type of shader (vertex or fragment) depends on the shader language.  For HLSL (DirectX API) and associated asm consult MSDN at @url{http://msdn.microsoft.com/library/). For GLSL (OpenGL), consult section 7.6 of the GLSL spec 1.1 available at @url{http://developer.3dlabs.com/documents/index.htm).  The built in varying variables provided in GLSL allow your program to read/write to the fixed function pipeline varyings.  For Cg consult the Language Profiles section in CgUsersManual.pdf that comes with the Cg Toolkit available at @url(http://developer.nvidia.com/object/cg_toolkit.html).  For HLSL and Cg its the varying bindings that allow your shader programs to read/write to the fixed function pipeline varyings.@*@*
+The requirements to read from or write to the fixed function pipeline are similar between rendering API's (DirectX and OpenGL) but how its actually done in each type of shader (vertex or fragment) depends on the shader language.  For HLSL (DirectX API) and associated asm consult MSDN at @url{http://msdn.microsoft.com/library/}. For GLSL (OpenGL), consult section 7.6 of the GLSL spec 1.1 available at @url{http://developer.3dlabs.com/documents/index.htm}.  The built in varying variables provided in GLSL allow your program to read/write to the fixed function pipeline varyings.  For Cg consult the Language Profiles section in CgUsersManual.pdf that comes with the Cg Toolkit available at @url(http://developer.nvidia.com/object/cg_toolkit.html).  For HLSL and Cg its the varying bindings that allow your shader programs to read/write to the fixed function pipeline varyings.@*@*
 
 @anchor{Program Parameter Specification}
 @subheading Parameter specification

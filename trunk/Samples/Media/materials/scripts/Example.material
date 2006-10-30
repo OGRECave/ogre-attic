@@ -1026,3 +1026,26 @@ material jaiqua
 	}
 	
 }
+
+
+material Examples/Plane/ShadowsCustomSequence
+{
+	technique
+	{
+		pass
+		{
+			// Single-pass shadowing
+			texture_unit
+			{
+				texture MtlPlat2.jpg
+			}
+			texture_unit
+			{
+				// standard modulation blend
+				content_type shadow
+				tex_address_mode clamp
+			}
+		}
+	}
+	
+}

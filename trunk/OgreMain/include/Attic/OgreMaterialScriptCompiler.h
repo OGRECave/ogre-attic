@@ -119,6 +119,8 @@ namespace Ogre {
             // wave transform
             ID_SCROLL_X, ID_SCROLL_Y, ID_SCALE_X, ID_SCALE_Y, ID_SINE, ID_TRIANGLE,
             ID_SQUARE, ID_SAWTOOTH, ID_INVERSE_SAWTOOTH, ID_ROTATE,
+			// content type
+			ID_NAMED, ID_SHADOW,
 
             // GPU program references
             // GPU Parameters
@@ -295,6 +297,7 @@ namespace Ogre {
         void parseTransform(void);
         void parseTextureCustomParameter(void);
     	void parseBindingType(void);
+		void parseContentType(void);
 
         // GPU Program
         void parseGPUProgram(void);

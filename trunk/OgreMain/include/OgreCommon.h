@@ -176,6 +176,9 @@ namespace Ogre {
 		/** Mask for modulative shadows (not for direct use, use  SHADOWTYPE_ enum instead)
 		*/
 		SHADOWDETAILTYPE_MODULATIVE = 0x02,
+		/** Mask for custom sequence shadows (not for direct use, use SHADOWTYPE_ enum instead)
+		*/
+		SHADOWDETAILTYPE_CUSTOM_SEQUENCE = 0x04,
 		/** Mask for stencil shadows (not for direct use, use  SHADOWTYPE_ enum instead)
 		*/
 		SHADOWDETAILTYPE_STENCIL = 0x10,
@@ -204,7 +207,7 @@ namespace Ogre {
         */
         SHADOWTYPE_TEXTURE_MODULATIVE = 0x22,
 		
-        /** Texture-based shadow technique which involves a monochrome render-to-texture
+        /** Texture-based shadow technique which involves a render-to-texture
             of the shadow caster and a projection of that texture onto the 
             shadow receivers, built up per light as additive passes. 
 			This technique can be very fillrate intensive because it requires numLights + 2 
@@ -212,7 +215,40 @@ namespace Ogre {
 			modulative approach and this is especially apparant when using coloured lights 
 			or bump mapping.
         */
-        SHADOWTYPE_TEXTURE_ADDITIVE = 0x21
+        SHADOWTYPE_TEXTURE_ADDITIVE = 0x21,
+
+		/** Texture-based shadow technique which involves a render-to-texture
+		of the shadow caster and a projection of that texture on to the shadow
+		receivers, with the usage of those shadow textures completely controlled
+		by the materials of the receivers.
+		This technique is easily the most flexible of all techniques because 
+		the material author is in complete control over how the shadows are
+		combined with regular rendering. It can perform shadows as accurately
+		as SHADOWTYPE_TEXTURE_ADDITIVE but more efficiently because it requires
+		less passes. However it also requires more expertise to use, and 
+		in almost all cases, shader capable hardware to really use to the full.
+		@note The 'additive' part of this mode means that the colour of
+		the rendered shadow texture is by default plain black. It does
+		not mean it does the adding on your receivers automatically though, how you
+		use that result is up to you.
+		*/
+		SHADOWTYPE_TEXTURE_ADDITIVE_CUSTOM_SEQUENCE = 0x25,
+		/** Texture-based shadow technique which involves a render-to-texture
+			of the shadow caster and a projection of that texture on to the shadow
+			receivers, with the usage of those shadow textures completely controlled
+			by the materials of the receivers.
+			This technique is easily the most flexible of all techniques because 
+			the material author is in complete control over how the shadows are
+			combined with regular rendering. It can perform shadows as accurately
+			as SHADOWTYPE_TEXTURE_ADDITIVE but more efficiently because it requires
+			less passes. However it also requires more expertise to use, and 
+			in almost all cases, shader capable hardware to really use to the full.
+			@note The 'modulative' part of this mode means that the colour of
+			the rendered shadow texture is by default the 'shadow colour'. It does
+			not mean it modulates on your receivers automatically though, how you
+			use that result is up to you.
+		*/
+		SHADOWTYPE_TEXTURE_MODULATIVE_CUSTOM_SEQUENCE = 0x26
     };
 
     /** An enumeration describing which material properties should track the vertex colours */

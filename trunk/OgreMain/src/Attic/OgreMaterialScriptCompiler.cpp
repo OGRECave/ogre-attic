@@ -145,7 +145,7 @@ namespace Ogre {
         "                             <Tex_Coord_Set> | <Tex_Address_Mode> | <Tex_Border_Colour> | <Filtering> | \n"
         "                             <Max_Anisotropy> | <MipMap_Bias> | <Colour_Op_Ex> | <Colour_Op_Multipass_Fallback> | <Colour_Op> | \n"
         "                             <Alpha_Op_Ex> | <Env_Map> | <Scroll_Anim> | <Scroll> | <Rotate_Anim> | <Rotate> | \n"
-        "                             <Scale> | <Wave_Xform> | <Transform> | <Binding_Type> \n"
+		"                             <Scale> | <Wave_Xform> | <Transform> | <Binding_Type> | <Content_Type> \n"
         "           <Texture_Alias> ::= 'texture_alias' <Label> \n"
         "           <Texture> ::= 'texture' <Label> {<Texture_Properties>} \n"
         "           <Texture_Properties> ::= '1d' | '2d' | '3d' | 'cubic' | 'unlimited' | 'alpha' | <#mipmap> \n"
@@ -202,6 +202,8 @@ namespace Ogre {
         "                           <#m30> <#m31> <#m32> <#m33> \n"
         "           <Binding_Type> ::= 'binding_type' <Program_Type_Options> \n"
         "           <Program_Type_Options> ::= 'vertex' | 'fragment' \n"
+		"			<Content_Type> ::= 'content_type' <Content_Type_Options> \n"
+		"           <Content_Type_Options> ::= 'named' | 'shadow' \n"
         // GPU Programs
         " \n"
         "<Vertex_Program> ::= 'vertex_program' <Label> [<Seperator>] <Label> '{' {<Vertex_Program_Option>} '}' \n"
@@ -441,6 +443,9 @@ namespace Ogre {
             addLexemeToken("inverse_sawtooth", ID_INVERSE_SAWTOOTH);
         addLexemeAction("transform", &MaterialScriptCompiler::parseTransform);
         addLexemeAction("binding_type", &MaterialScriptCompiler::parseBindingType);
+		addLexemeAction("content_type", &MaterialScriptCompiler::parseContentType);
+			addLexemeToken("named", ID_NAMED);
+			addLexemeToken("shadow", ID_SHADOW);
         // GPU program reference
         addLexemeAction("vertex_program_ref", &MaterialScriptCompiler::parseVertexProgramRef);
         addLexemeAction("fragment_program_ref", &MaterialScriptCompiler::parseFragmentProgramRef);
@@ -2086,6 +2091,20 @@ namespace Ogre {
             break;
         }
     }
+	//-----------------------------------------------------------------------
+	void MaterialScriptCompiler::parseContentType(void)
+	{
+		assert(mScriptContext.textureUnit);
+		switch (getNextTokenID())
+		{
+		case ID_NAMED:
+			mScriptContext.textureUnit->setContentType(TextureUnitState::CONTENT_NAMED);
+			break;
+		case ID_SHADOW:
+			mScriptContext.textureUnit->setContentType(TextureUnitState::CONTENT_SHADOW);
+			break;
+		}
+	}
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseVertexProgramRef(void)
     {

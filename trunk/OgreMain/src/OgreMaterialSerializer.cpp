@@ -1455,6 +1455,23 @@ namespace Ogre
 
 		return false;
 	}
+	//-----------------------------------------------------------------------
+	bool parseContentType(String& params, MaterialScriptContext& context)
+	{
+		if (params == "named")
+		{
+			context.textureUnit->setContentType(TextureUnitState::CONTENT_NAMED);
+		}
+		else if (params == "shadow")
+		{
+			context.textureUnit->setContentType(TextureUnitState::CONTENT_SHADOW);
+		}
+		else
+		{
+			logParseError("Invalid content_type specified.", context);
+		}
+		return false;
+	}
     //-----------------------------------------------------------------------
     bool parseLodDistances(String& params, MaterialScriptContext& context)
     {
@@ -2549,6 +2566,7 @@ namespace Ogre
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("max_anisotropy", (ATTRIBUTE_PARSER)parseAnisotropy));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("texture_alias", (ATTRIBUTE_PARSER)parseTextureAlias));
 		mTextureUnitAttribParsers.insert(AttribParserList::value_type("mipmap_bias", (ATTRIBUTE_PARSER)parseMipmapBias));
+		mTextureUnitAttribParsers.insert(AttribParserList::value_type("content_type", (ATTRIBUTE_PARSER)parseContentType));
 
         // Set up program reference attribute parsers
         mProgramRefAttribParsers.insert(AttribParserList::value_type("param_indexed", (ATTRIBUTE_PARSER)parseParamIndexed));
@@ -3833,6 +3851,21 @@ namespace Ogre
 					break;
 				};
 		
+			}
+			// Content type
+			if (mDefaults ||
+				pTex->getContentType() != TextureUnitState::CONTENT_NAMED)
+			{
+				writeAttribute(4, "content_type");
+				switch(pTex->getContentType())
+				{
+				case TextureUnitState::CONTENT_NAMED:
+					writeValue("named");
+					break;
+				case TextureUnitState::CONTENT_SHADOW:
+					writeValue("named");
+					break;
+				};
 			}
 
         }

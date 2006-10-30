@@ -2,7 +2,7 @@
 @chapter Shadows
 Shadows are clearly an important part of rendering a believable scene - they provide a more tangible feel to the objects in the scene, and aid the viewer in understanding the spatial relationship between objects. Unfortunately, shadows are also one of the most challenging aspects of 3D rendering, and they are still very much an active area of research. Whilst there are many techniques to render shadows, none is perfect and they all come with advantages and disadvantages. For this reason, Ogre provides multiple shadow implementations, with plenty of configuration settings, so you can choose which technique is most appropriate for your scene.@*@*
 
-Shadow implementations fall into basically 2 broad categories: @ref{Stencil Shadows} and @ref{Texture-based Shadows}. This describes the method by which the shape of the shadow is generated. In addition, there is more than one way to render the shadow into the scene: @ref{Modulative Shadows}, which darkens the scene in areas of shadow, and @ref{Additive Light Masking} which by contrast builds up light contribution in areas which are not in shadow. Ogre supports all these combinations.@*@*
+Shadow implementations fall into basically 2 broad categories: @ref{Stencil Shadows} and @ref{Texture-based Shadows}. This describes the method by which the shape of the shadow is generated. In addition, there is more than one way to render the shadow into the scene: @ref{Modulative Shadows}, which darkens the scene in areas of shadow, and @ref{Additive Light Masking} which by contrast builds up light contribution in areas which are not in shadow. You also have the option of @ref{Custom shadow render sequences} (only available with texture shadows) which gives you complete control over shadow application, allowing for complex single-pass shadowing shaders. Ogre supports all these combinations.@*@*
 
 @subheading Enabling shadows
 Shadows are disabled by default, here's how you turn them on and configure them in the general sense:
@@ -108,13 +108,16 @@ Ogre is pretty good at detecting which lights could be affecting the frustum, an
 
 Texture shadows involve rendering shadow casters from the point of view of the light into a texture, which is then projected onto shadow casters while rendering the standard view. The main advantage of texture shadows as opposed to @ref{Stencil Shadows} is that the overhead of increasing the geometric detail is far lower, since there is no need to perform per-triangle calculations. Most of the work in rendering texture shadows is done by the graphics card, meaning the technique scales well when taking advantage of the latest cards, which are at present outpacing CPUs in terms of their speed of development.@*@*
 
-The main disadvantage to texture shadows is that, because they are simply a texture, they have a fixed resolution which means if stretched, the pixellation of the texture becomes obvious. Filtering can reduce this, but the problem still remains. In addition, because these shadows require a render to texture in the direction of the light, omnidirectional lights (point lights) would require 8 renders to totally cover all the directions shadows might be cast. For this reason, Ogre only supports directional lights and spotlights for generating texture shadows; you should turn off shadow casting for point lights if you're using texture shadows.@*@*
+The main disadvantage to texture shadows is that, because they are simply a texture, they have a fixed resolution which means if stretched, the pixellation of the texture becomes obvious. Filtering can reduce this, and you can also adjust the projection basis of the shadow textures to optimise the texel usage (see the ShadowCameraSetup class) but it is still an issue to consider. In addition, because these shadows require a render to texture in the direction of the light, omnidirectional lights (point lights) would require 6 renders to totally cover all the directions shadows might be cast. For this reason, Ogre primarily supports directional lights and spotlights for generating texture shadows; you can use point lights but they will only work if off-camera since they are essentially turned into a spotlight shining into your camera frustum for the purposes of texture shadows.@*@*
 
 @subheading Directional Lights
 Directional lights in theory shadow the entire scene from an infinitely distant light. Now, since we only have a finite texture which will look very poor quality if stretched over the entire scene, clearly a simplification is required. Ogre places a shadow texture over the area immediately in front of the camera, and moves it as the camera moves (although it rounds this movement to multiples of texels so that the slight 'swimming shadow' effect caused by moving the texture is minimised). The range to which this shadow extends, and the offset used to move it in front of the camera, are configurable (@xref{Configuring Texture Shadows}). At the far edge of the shadow, Ogre fades out the shadow based on other configurable parameters so that the termination of the shadow is softened.
 
 @subheading Spotlights
 Spotlights are much easier to represent as renderable shadow textures than directional lights, since they are naturally a frustum. Ogre represents spotlight directly by rendering the shadow from the light position, in the direction of the light cone; the field-of-view of the texture camera is adjusted based on the spotlight falloff angles. In addition, to hide the fact that the shadow texture is square and has definite edges which could show up outside the spotlight, Ogre uses a second texture unit when projecting the shadow onto the scene which fades out the shadow gradually in a projected circle around the spotlight.
+
+@subheading Point Lights
+As mentioned above, to support point lights properly would require multiple renders (either 6 for a cubic render or perhaps 2 for a less precise parabolic mapping), so rather than do that we approximate point lights as spotlights, where the configuration is changed on the fly to make the light shine from its position over the whole of the viewing frustum. This is not an ideal setup since it means it can only really work if the point light's position is out of view, and in addition the changing parameterisation can cause some 'swimming' of the texture. Generally we recommend avoiding making point lights cast texture shadows.
 
 @subheading Shadow Casters and Shadow Receivers
 To enable texture shadows, use the shadow technique SHADOWTYPE_TEXTURE_MODULATIVE or SHADOWTYPE_TEXTURE_ADDITIVE; as the name suggests this produces @ref{Modulative Shadows} or @ref{Additive Light Masking} respectively. The default fixed-function texture shadow technique does not use depth information, it merely renders casters to a texture and renders this onto receivers - this means self-shadowing is not possible using this method. You can however use custom materials for casters and receivers to perform more complex shadow algorithms, which allows you to perform depth shadow mapping. Whilst fixed-function depth shadow mapping is available in OpenGL, it was never standardised in Direct3D so using vertex and fragment programs in custom caster & receiver materials is the only portable way. @*@*
@@ -130,6 +133,8 @@ There are a number of settings which will help you configure your texture-based 
 @item @ref{Shadow far distance}
 @item @ref{Shadow texture offset (Directional Lights)}
 @item @ref{Shadow fade settings}
+@item @ref{Custom shadow camera setups}
+@item @ref{Custom shadow render sequences}
 @end itemize
 
 @anchor{Maximum number of shadow textures}
@@ -164,6 +169,20 @@ Shadows fade out before the shadow far distance so that the termination of shado
 When rendering shadow casters into a modulative shadow texture, Ogre turns off all textures, and all lighting contributions except for ambient light, which it sets to the colour of the shadow (@ref{Shadow Colour}). For additive shadows, it render the casters into a black & white texture instead. This is enough to render shadow casters for fixed-function material techniques, however where a vertex program is used Ogre doesn't have so much control. If you use a vertex program in the @strong{first pass} of your technique, then you must also tell ogre which vertex program you want it to use when rendering the shadow caster; see @ref{Shadows and Vertex Programs} for full details.
 
 
+@anchor{Custom shadow camera setups}
+@subheading Custom shadow camera setups
+
+As previously mentioned, one of the downsides of texture shadows is that the texture resolution is finite, and it's possible to get aliasing when the size of the shadow texel is larger than a screen pixel, due to the projection of the texture. In order to address this, you can specify alternative projection bases by using or creating subclasses of the ShadowCameraSetup class. The default version is called DefaultShadowCameraSetup and this sets up a simple regular frustum for point and spotlights, and an orthographic frustum for directional lights. There is also a PlaneOptimalShadowCameraSetup class which specialises the projection to a plane, thus giving you much better definition provided your shadow receivers exist mostly in a single plane. Other setup classes (e.g. you might create a perspective or trapezoid shadow mapping version) can be created and plugged in at runtime, either on individual lights or on the SceneManager as a whole.
+
+@anchor{Custom shadow render sequences}
+@subheading Custom shadow render sequences
+
+Texture shadows have one major advantage over stencil shadows - the data used to represent them can be referenced in regular shaders. Whilst the default texture shadow modes (SHADOWTYPE_TEXTURE_MODULATIVE and SHADOWTYPE_TEXTURE_ADDITIVE) automatically render shadows for you, their disadvantage is that because they are generalised add-ons to your own materials, they tend to take more passes of the scene to use. In addition, you don't have a lot of control over the composition of the shadows.@*@*
+
+Here is where 'custom sequence' texture shadows step in. Both of the texture shadow types above have alternative versions called SHADOWTYPE_TEXTURE_MODULATIVE_CUSTOM_SEQUENCE (and the obvious additive version), where instead of rendering the shadows for you, it just creates the texture shadow and then expects you to use that shadow texture as you see fit when rendering objects in the scene. The downside is that you have to take into account shadow receipt in every one of your materials if you use this option - the upside is that you have total control over how the shadow textures are used. The big advantage here is that you can can perform more complex shading, taking into account shadowing, than is possible using the generalised bolt-on approaches, AND you can probably write them in a smaller number of passes, since you know precisely what you need and can combine passes where possible. When you use one of these shadowing approaches, the only difference between additive and modulative is the colour of the casters in the shadow texture (the shadow colour for modulative, black for additive) - the actual calculation of how the texture affects the receivers is of course up to you. No separate modulative pass will be performed, and no splitting of your materials into ambient / per-light / decal etc will occur - absolutely everything is determined by your original material (which may have modulative passes or per-light iteration if you want of course, but it's not required).@*@*
+
+You reference a shadow texture in a material which implements this approach by using the @ref{content_type} directive in your @{texture_unit}. It implictly references a shadow texture based on the number of times you've used this directive in the same pass, and the light_start option or light-based pass iteration, which might start the light index higher than 0.
+
 @node Modulative Shadows
 @section Modulative Shadows
 Modulative shadows work by darkening an already rendered scene with a fixed colour. First, the scene is rendered normally containing all the objects which will be shadowed, then a modulative pass is done per light, which darkens areas in shadow. Finally, objects which do not receive shadows are rendered.@*@*
@@ -173,6 +192,8 @@ There are 2 modulative shadow techniques; stencil-based (@xref{Stencil Shadows} 
 @anchor{Shadow Colour}
 @subheading Shadow Colour
 The colour which is used to darken the areas in shadow is set by SceneManager::setShadowColour; it defaults to a dark grey (so that the underlying colour still shows through a bit).@*@*
+
+Note that if you're using texture shadows you have the additional option of using @ref{Custom shadow render sequences} rather than being forced to have a separate pass of the scene to render shadows. In this case the 'modulative' aspect of the shadow technique just affects the colour of the shadow texture. @*@*
 
 @node Additive Light Masking
 @section Additive Light Masking
@@ -349,9 +370,9 @@ material Examples/BumpMapping/MultiLightSpecular
 }
 @end example
 
-At present only one shadow technique supports additive light masking: @ref{Stencil Shadows} through the use of SHADOWTYPE_STENCIL_ADDITIVE.
+Note that if you're using texture shadows you have the additional option of using @ref{Custom shadow render sequences} rather than being forced to use this explicit sequence - allowing you to compress the number of passes into a much smaller number at the expense of defining an upper number of shadow casting lights. In this case the 'additive' aspect of the shadow technique just affects the colour of the shadow texture and it's up to you to combine the shadow textures in your receivers however you like. @*@*
 
 @subheading Static Lighting
-Despite their power, additive lighting techniques have an additional limitation; they do not combine well with pre-calculated static lighting in the scene. This is because they are based on the principle that shadow is an absence of light, but since static lighting in the scene already includes areas of light and shadow, additive lighting cannot remove light to create new shadows. Therefore, if you use the additive lighting technique you must use it exclusively as your lighting solution (and you can combine it with per-pixel lighting to create a very impressive dynamic lighting solution), you cannot combine it with static lighting. 
+Despite their power, additive lighting techniques have an additional limitation; they do not combine well with pre-calculated static lighting in the scene. This is because they are based on the principle that shadow is an absence of light, but since static lighting in the scene already includes areas of light and shadow, additive lighting cannot remove light to create new shadows. Therefore, if you use the additive lighting technique you must either use it exclusively as your lighting solution (and you can combine it with per-pixel lighting to create a very impressive dynamic lighting solution), or you must use @ref{Custom shadow render sequences} to combine the static lighting according to your chosen approach. 
 
 
