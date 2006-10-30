@@ -27,9 +27,9 @@ Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 
-#include "OgreGLXContext.h"
 #include "OgreGLRenderSystem.h"
 #include "OgreRoot.h"
+#include "OgreGLXContext.h"
 
 namespace Ogre {
 
