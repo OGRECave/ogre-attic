@@ -1,3 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////
+// material.h
+// Author     : Francesco Giordana
+// Start Date : January 13, 2005
+// Copyright  : (C) 2006 by Francesco Giordana
+// Email      : fra.giordana@tiscali.it
+////////////////////////////////////////////////////////////////////////////////
+
+/*********************************************************************************
+*                                                                                *
+*   This program is free software; you can redistribute it and/or modify         *
+*   it under the terms of the GNU Lesser General Public License as published by  *
+*   the Free Software Foundation; either version 2 of the License, or            *
+*   (at your option) any later version.                                          *
+*                                                                                *
+**********************************************************************************/
+
 #ifndef _MATERIAL_H
 #define _MATERIAL_H
 
@@ -13,8 +30,20 @@ namespace OgreMayaExporter
 
 	typedef enum {TAM_CLAMP,TAM_BORDER,TAM_WRAP,TAM_MIRROR} TexAddressMode;
 
-	typedef struct textureTag
+	class Texture
 	{
+	public:
+		//constructor
+		Texture() {
+			scale_u = scale_v = 1;
+			scroll_u = scroll_v = 0;
+			rot = 0;
+			am_u = am_v = TAM_CLAMP;
+		}
+		//destructor
+		~Texture(){};
+	
+		//public members
 		MString filename;
 		MString absFilename;
 		TexOpType opType;
@@ -24,7 +53,7 @@ namespace OgreMayaExporter
 		double scale_u,scale_v;
 		double scroll_u,scroll_v;
 		double rot;
-	} texture;
+	};
 
 
 	/***** Class Material *****/
@@ -62,7 +91,7 @@ namespace OgreMayaExporter
 		bool m_isTransparent;
 		bool m_isTextured;
 		bool m_isMultiTextured;
-		std::vector<texture> m_textures;
+		std::vector<Texture> m_textures;
 	};
 
 };	//end of namespace

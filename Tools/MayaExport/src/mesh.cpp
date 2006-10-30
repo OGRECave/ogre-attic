@@ -1,3 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////
+// mesh.cpp
+// Author     : Francesco Giordana
+// Start Date : January 13, 2005
+// Copyright  : (C) 2006 by Francesco Giordana
+// Email      : fra.giordana@tiscali.it
+////////////////////////////////////////////////////////////////////////////////
+
+/*********************************************************************************
+*                                                                                *
+*   This program is free software; you can redistribute it and/or modify         *
+*   it under the terms of the GNU Lesser General Public License as published by  *
+*   the Free Software Foundation; either version 2 of the License, or            *
+*   (at your option) any later version.                                          *
+*                                                                                *
+**********************************************************************************/
+
 #include "mesh.h"
 #include <maya/MFnMatrixData.h>
 
@@ -520,7 +537,10 @@ namespace OgreMayaExporter
 		newweights.resize(mesh.numVertices());
 		newjointIds.resize(mesh.numVertices());
 		for (i=0; i<newvertices.size(); i++)
+		{
+			newvertices[i].pointIdx = -1;
 			newvertices[i].next = -2;
+		}
 		//get vertex positions from mesh
 		if (params.exportWorldCoords || (pSkinCluster && params.exportSkeleton))
 			mesh.getPoints(newpoints,MSpace::kWorld);
