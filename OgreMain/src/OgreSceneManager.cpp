@@ -419,7 +419,20 @@ void SceneManager::_populateLightList(const Vector3& position, Real radius,
     }
 
     // Sort (stable to guarantee ordering on directional lights)
-    std::stable_sort(destList.begin(), destList.end(), lightLess());
+	if (isShadowTechniqueTextureBased())
+	{
+		// Note that if we're using texture shadows, we actually want to use
+		// the first few lights unchanged from the frustum list, matching the
+		// texture shadows that were generated
+		// Thus we only allow object-relative sorting on the remainder of the list
+		LightList::iterator start = destList.begin();
+		std::advance(start, getShadowTextureCount());
+		std::stable_sort(start, destList.end(), lightLess());
+	}
+	else
+	{
+		std::stable_sort(destList.begin(), destList.end(), lightLess());
+	}
 
 
 }
@@ -901,21 +914,32 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed,
 		Pass::ConstTextureUnitStateIterator texIter =  pass->getTextureUnitStateIterator();
 		size_t unit = 0;
 		// Reset the shadow texture index for each pass
-		size_t shadowTexIndex = 0; // TODO - adjust for Pass::getLightStart or iteration
+		size_t shadowTexIndex = pass->getStartLight(); // all shadow casters are at the start
 		while(texIter.hasMoreElements())
 		{
 			TextureUnitState* pTex = texIter.getNext();
-			if (pTex->getContentType() == TextureUnitState::CONTENT_SHADOW)
+			if (!pass->getIteratePerLight() && 
+				isShadowTechniqueTextureBased() && 
+				pTex->getContentType() == TextureUnitState::CONTENT_SHADOW)
 			{
 				// Need to bind the correct shadow texture, based on the start light
-				// for this pass and the number of shadow units we've seen
+				// Even though the light list can change per object, our restrictions
+				// say that when texture shadows are enabled, the lights up to the
+				// number of texture shadows will be fixed for all objects
+				// to match the shadow textures that have been generated
+				// see ShadowListener::sortLightsAffectingFrustum and
+				// MovableObject::Listener::objectQueryLights
+				// Note that light iteration throws the indexes out so we don't bind here
+				// if that's the case, we have to bind when lights are iterated
+				// in renderSingleObject
+
 				if (shadowTexIndex < mShadowTextures.size())
 				{
 					pTex->_setTexturePtr(mShadowTextures[shadowTexIndex]);
 					// Hook up projection frustum
 					Camera *cam = mShadowTextures[shadowTexIndex]->getBuffer()->getRenderTarget()->getViewport(0)->getCamera();
 					pTex->setProjectiveTexturing(true, cam);
-					mAutoParamDataSource.setTextureProjector(cam);
+					mAutoParamDataSource.setTextureProjector(cam, shadowTexIndex);
 				}
 				else
 				{
@@ -2036,7 +2060,7 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(
 				mCurrentShadowTexture->getName());
             // Hook up projection frustum
             targetPass->getTextureUnitState(0)->setProjectiveTexturing(true, cam);
-            mAutoParamDataSource.setTextureProjector(cam);
+            mAutoParamDataSource.setTextureProjector(cam, 0);
             // if this light is a spotlight, we need to add the spot fader layer
             if (l->getType() == Light::LT_SPOTLIGHT)
             {
@@ -2159,7 +2183,7 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
 						mCurrentShadowTexture->getName());
 					// Hook up projection frustum
 					targetPass->getTextureUnitState(0)->setProjectiveTexturing(true, cam);
-					mAutoParamDataSource.setTextureProjector(cam);
+					mAutoParamDataSource.setTextureProjector(cam, 0);
 					// Remove any spot fader layer
 					if (targetPass->getNumTextureUnitStates() > 1 && 
 						targetPass->getTextureUnitState(1)->getTextureName() 
@@ -2524,40 +2548,107 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 
 		if (doLightIteration)
 		{
-            // Create single element of light list for faster light iteration setup
-            static LightList localLightList(1);
+            // Create local light list for faster light iteration setup
+            static LightList localLightList;
+
 
 			// Here's where we issue the rendering operation to the render system
 			// Note that we may do this once per light, therefore it's in a loop
 			// and the light parameters are updated once per traversal through the
 			// loop
 			const LightList& rendLightList = rend->getLights();
+
 			bool iteratePerLight = pass->getIteratePerLight();
-			size_t numIterations = iteratePerLight ? rendLightList.size() : 1;
+
+			// deliberately unsigned in case start light exceeds number of lights
+			// in which case this pass would be skipped
+			int lightsLeft;
+			if (iteratePerLight)
+				lightsLeft = rendLightList.size() - pass->getStartLight();
+			else
+				lightsLeft = 1; // just to make sure we render once, number irrelevant
+
+
 			const LightList* pLightListToUse;
-			for (size_t i = 0; i < numIterations; ++i)
+			// Start counting from the start light
+			size_t lightIndex = pass->getStartLight();
+
+			while (lightsLeft > 0)
 			{
 				// Determine light list to use
 				if (iteratePerLight)
 				{
-					// Check whether we need to filter this one out
-					if (pass->getRunOnlyForOneLightType() && 
-						pass->getOnlyLightType() != rendLightList[i]->getType())
+					localLightList.resize(pass->getLightCountPerIteration());
+
+					LightList::iterator destit = localLightList.begin();
+					unsigned short numShadowTextureLights = 0;
+					for (; destit != localLightList.end() 
+							&& lightIndex < rendLightList.size(); 
+						++lightIndex, --lightsLeft)
 					{
-						// Skip
-						continue;
+						// Check whether we need to filter this one out
+						if (pass->getRunOnlyForOneLightType() && 
+							pass->getOnlyLightType() != rendLightList[lightIndex]->getType())
+						{
+							// Skip
+							continue;
+						}
+
+						*destit++ = rendLightList[lightIndex];
+						// potentially need to update content_type shadow texunit
+						// corresponding to this light
+						if (isShadowTechniqueTextureBased() && lightIndex < mShadowTextures.size())
+						{
+							// link the numShadowTextureLights'th shadow texture unit
+							unsigned short tuindex = 
+								pass->_getTextureUnitWithContentTypeIndex(
+								TextureUnitState::CONTENT_SHADOW, numShadowTextureLights);
+							if (tuindex < pass->getNumTextureUnitStates())
+							{
+								// I know, nasty const_cast
+								TextureUnitState* tu = 
+									const_cast<TextureUnitState*>(
+										pass->getTextureUnitState(tuindex));
+								tu->_setTexturePtr(mShadowTextures[lightIndex]);
+								Camera *cam = mShadowTextures[lightIndex]->getBuffer()->getRenderTarget()->getViewport(0)->getCamera();
+								tu->setProjectiveTexturing(true, cam);
+								mAutoParamDataSource.setTextureProjector(cam, numShadowTextureLights);
+								++numShadowTextureLights;
+								// Have to set TU on rendersystem right now, although
+								// autoparams will be set later
+								mDestRenderSystem->_setTextureUnitSettings(tuindex, *tu);
+							}
+
+						}
+
+
+
 					}
-
-					// Change the only element of local light list to be
-					// the light at index i
-					localLightList.front() = rendLightList[i];
-
+					// Did we run out of lights before slots? e.g. 5 lights, 2 per iteration
+					if (destit != localLightList.end())
+					{
+						localLightList.erase(destit, localLightList.end());
+						lightsLeft = 0;
+					}
 					pLightListToUse = &localLightList;
 				}
 				else
 				{
-					// Use complete light list
-					pLightListToUse = &rendLightList;
+					// Use complete light list potentially adjusted by start light
+					if (pass->getStartLight())
+					{
+						localLightList.clear();
+						LightList::const_iterator copyStart = rendLightList.begin();
+						std::advance(copyStart, pass->getStartLight());
+						localLightList.insert(localLightList.begin(), 
+							copyStart, rendLightList.end());
+						pLightListToUse = &localLightList;
+					}
+					else
+					{
+						pLightListToUse = &rendLightList;
+					}
+					lightsLeft = 0;
 				}
 
 
@@ -2569,7 +2660,7 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 					mAutoParamDataSource.setCurrentLightList(pLightListToUse);
 					pass->_updateAutoParamsLightsOnly(mAutoParamDataSource);
 					// NOTE: We MUST bind parameters AFTER updating the autos
-					// TEST
+
 					if (pass->hasVertexProgram())
 					{
 						mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
@@ -3249,6 +3340,23 @@ void SceneManager::_notifyLightsDirty(void)
     ++mLightsDirtyCounter;
 }
 //---------------------------------------------------------------------
+bool SceneManager::lightsForShadowTextureLess::operator ()(
+	const Ogre::Light *l1, const Ogre::Light *l2) const
+{
+	if (l1 == l2)
+		return false;
+
+	// sort shadow casting lights ahead of non-shadow casting
+	if (l1->getCastShadows() != l2->getCastShadows())
+	{
+		return l1->getCastShadows();
+	}
+
+	// otherwise sort by distance (directional lights will have 0 here)
+	return l1->tempSquareDist < l2->tempSquareDist;
+
+}
+//---------------------------------------------------------------------
 void SceneManager::findLightsAffectingFrustum(const Camera* camera)
 {
     // Basic iteration for this SM
@@ -3256,12 +3364,13 @@ void SceneManager::findLightsAffectingFrustum(const Camera* camera)
     MovableObjectCollection* lights =
         getMovableObjectCollection(LightFactory::FACTORY_TYPE_NAME);
 
-	LightInfoList lightInfos;
+
 	{
 		OGRE_LOCK_MUTEX(lights->mutex)
 
 		// Pre-allocate memory
-		lightInfos.reserve(lights->map.size());
+		mTestLightInfos.clear();
+		mTestLightInfos.reserve(lights->map.size());
 
 		MovableObjectIterator it(lights->map.begin(), lights->map.end());
 
@@ -3278,7 +3387,7 @@ void SceneManager::findLightsAffectingFrustum(const Camera* camera)
 					// Always visible
 					lightInfo.position = Vector3::ZERO;
 					lightInfo.range = 0;
-					lightInfos.push_back(lightInfo);
+					mTestLightInfos.push_back(lightInfo);
 				}
 				else
 				{
@@ -3289,7 +3398,7 @@ void SceneManager::findLightsAffectingFrustum(const Camera* camera)
 					Sphere sphere(lightInfo.position, lightInfo.range);
 					if (camera->isVisible(sphere))
 					{
-						lightInfos.push_back(lightInfo);
+						mTestLightInfos.push_back(lightInfo);
 					}
 				}
 			}
@@ -3297,18 +3406,48 @@ void SceneManager::findLightsAffectingFrustum(const Camera* camera)
 	} // release lock on lights collection
 
     // Update lights affecting frustum if changed
-    if (mCachedLightInfos != lightInfos)
+    if (mCachedLightInfos != mTestLightInfos)
     {
-        mLightsAffectingFrustum.resize(lightInfos.size());
+        mLightsAffectingFrustum.resize(mTestLightInfos.size());
         LightInfoList::const_iterator i;
         LightList::iterator j = mLightsAffectingFrustum.begin();
-        for (i = lightInfos.begin(); i != lightInfos.end(); ++i, ++j)
+        for (i = mTestLightInfos.begin(); i != mTestLightInfos.end(); ++i, ++j)
         {
             *j = i->light;
+			// add cam distance for sorting if texture shadows
+			if (isShadowTechniqueTextureBased())
+			{
+				(*j)->tempSquareDist = 
+					(camera->getDerivedPosition() - (*j)->getDerivedPosition()).squaredLength();
+			}
         }
 
+		// Sort the lights if using texture shadows, since the first 'n' will be
+		// used to generate shadow textures and we should pick the most appropriate
+		if (isShadowTechniqueTextureBased())
+		{
+			// Allow a ShadowListener to override light sorting
+			// Reverse iterate so last takes precedence
+			bool overridden = false;
+			for (ShadowListenerList::reverse_iterator ri = mShadowListeners.rbegin();
+				ri != mShadowListeners.rend(); ++ri)
+			{
+				overridden = (*ri)->sortLightsAffectingFrustum(mLightsAffectingFrustum);
+				if (overridden)
+					break;
+			}
+			if (!overridden)
+			{
+				// default sort (stable to preserve directional light ordering
+				std::stable_sort(
+					mLightsAffectingFrustum.begin(), mLightsAffectingFrustum.end(), 
+					lightsForShadowTextureLess());
+			}
+			
+		}
+
         // Use swap instead of copy operator for efficiently
-        mCachedLightInfos.swap(lightInfos);
+        mCachedLightInfos.swap(mTestLightInfos);
 
         // notify light dirty, so all movable objects will re-populate
         // their light list next time
@@ -4632,6 +4771,9 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
     }
 
     // Iterate over the lights we've found, max out at the limit of light textures
+	// Note that the light sorting must now place shadow casting lights at the
+	// start of the light list, therefore we do not need to deal with potential
+	// mismatches in the light<->shadow texture list any more
 
     LightList::iterator i, iend;
     ShadowTextureList::iterator si, siend;
@@ -4644,9 +4786,9 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
     {
         Light* light = *i;
 
-        // Skip non-shadowing lights
-        if (!light->getCastShadows())
-            continue;
+
+
+
 
 		TexturePtr &shadowTex = *si;
         RenderTarget *shadowRTT = shadowTex->getBuffer()->getRenderTarget();

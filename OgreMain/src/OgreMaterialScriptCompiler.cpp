@@ -79,7 +79,7 @@ namespace Ogre {
         "                              <Cull_Hardware> | <Cull_Software> | <Lighting> | \n"
         "                              <GPU_Program_Ref> | \n"
         "                              <Shading> | <PolygonMode> | <Fog_Override> | <Colour_Write> | \n"
-        "                              <Max_Lights> | <Iteration> | \n"
+		"                              <Max_Lights> | <Start_Light> | <Iteration> | \n"
 		"                              <Point_Sprites> | <Point_Size_Attenuation> | \n"
 		"                              <Point_Size_Min> | <Point_Size_Max> | <Point_Size> \n"
 
@@ -133,11 +133,14 @@ namespace Ogre {
         "                   <fog_True_Param_Option> ::= <fog_type> <#red> <#green> <#blue> <#fog_density> <#start> <#end> \n"
         "                       <fog_type> ::= 'linear' | 'exp2' | 'exp' \n"
         "        <Max_Lights> ::= 'max_lights' <#number> \n"
+		"        <Start_Light> ::= 'start_light' <#number> \n"
         "        <Iteration> ::= 'iteration' <Iteration_Options> \n"
         "           <Iteration_Options> ::= <Iteration_Once_Params> | 'once' | <Iteration_Counted> \n"
         "             <Iteration_Once_Params> ::= 'once_per_light' [<light_type>] \n"
-        "             <Iteration_Counted> ::= <#number> [<Per_Light>] \n"
-        "               <Per_Light> ::= 'per_light' <light_type> \n"
+        "             <Iteration_Counted> ::= <#number> [<Per_Light_Options>] \n"
+		"               <Per_Light_Options> ::= <Per_Light> | <Per_N_Lights> \n"
+		"                 <Per_Light> ::= 'per_light' [<light_type>] \n"
+		"                 <Per_N_Lights> ::= 'per_n_lights' <#num_lights> [<light_type>] \n"
         "             <light_type> ::= 'point' | 'directional' | 'spot' \n"
         // Texture Unit section rules
         "        <Texture_Unit> ::= 'texture_unit' [<Label>] '{' {<TUS_Properties>} '}' \n"
@@ -359,10 +362,12 @@ namespace Ogre {
                 addLexemeToken("exp2", ID_EXP2);
             addLexemeAction("colour_write", &MaterialScriptCompiler::parseColourWrite);
             addLexemeAction("max_lights", &MaterialScriptCompiler::parseMaxLights);
+			addLexemeAction("start_light", &MaterialScriptCompiler::parseStartLight);
             addLexemeAction("iteration", &MaterialScriptCompiler::parseIteration);
                 addLexemeToken("once", ID_ONCE);
                 addLexemeToken("once_per_light", ID_ONCE_PER_LIGHT);
                 addLexemeToken("per_light", ID_PER_LIGHT);
+				addLexemeToken("per_n_lights", ID_PER_N_LIGHTS);
                 addLexemeToken("directional", ID_DIRECTIONAL);
                 addLexemeToken("spot", ID_SPOT);
             addLexemeAction("point_size", &MaterialScriptCompiler::parsePointSize);
@@ -1333,6 +1338,11 @@ namespace Ogre {
         assert(mScriptContext.pass);
 		mScriptContext.pass->setMaxSimultaneousLights(static_cast<int>(getNextTokenValue()));
     }
+	void MaterialScriptCompiler::parseStartLight(void)
+	{
+		assert(mScriptContext.pass);
+		mScriptContext.pass->setStartLight(static_cast<int>(getNextTokenValue()));
+	}
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseIterationLightTypes(void)
     {
@@ -1361,6 +1371,7 @@ namespace Ogre {
             iteration once_per_light [light type]
             iteration <number>
             iteration <number> [per_light] [light type]
+			iteration <number> [per_n_lights] <number> [light type]
         */
         if (testNextTokenID(ID_ONCE))
             mScriptContext.pass->setIteratePerLight(false);
@@ -1396,9 +1407,22 @@ namespace Ogre {
                             mScriptContext.pass->setIteratePerLight(true, false);
                         }
                     }
+					if (getNextTokenID() == ID_PER_N_LIGHTS)
+					{
+						// Number of lights per iteration
+						mScriptContext.pass->setLightCountPerIteration(getNextTokenValue());
+						if (getRemainingTokensForAction() == 1)
+						{
+							parseIterationLightTypes();
+						}
+						else
+						{
+							mScriptContext.pass->setIteratePerLight(true, false);
+						}
+					}
                     else
                         logParseError(
-                            "Bad iteration attribute, valid parameters are <number> [per_light] [light type].");
+                            "Bad iteration attribute, valid parameters are <number> [per_light|per_n_lights <num_lights>] [light type].");
                 }
             }
         }

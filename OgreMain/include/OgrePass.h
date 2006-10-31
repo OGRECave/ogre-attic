@@ -35,6 +35,7 @@ Torus Knot Software Ltd.
 #include "OgreBlendMode.h"
 #include "OgreCommon.h"
 #include "OgreLight.h"
+#include "OgreTextureUnitState.h"
 
 namespace Ogre {
     /** Class defining a single pass of a Technique (of a Material), ie
@@ -121,8 +122,12 @@ namespace Ogre {
         bool mLightingEnabled;
         /// Max simultaneous lights
         unsigned short mMaxSimultaneousLights;
+		/// Starting light index
+		unsigned short mStartLight;
 		/// Run this pass once per light?
 		bool mIteratePerLight;
+		/// Iterate per how many lights?
+		unsigned short mLightsPerIteration;
         // Should it only be run for a certain light type?
         bool mRunOnlyForOneLightType;
         Light::LightTypes mOnlyLightType;
@@ -168,6 +173,11 @@ namespace Ogre {
 		bool mPointAttenuationEnabled;
 		// constant, linear, quadratic coeffs
 		Real mPointAttenuationCoeffs[3];
+		// TU Content type lookups
+		typedef std::vector<unsigned short> ContentTypeLookup;
+		mutable ContentTypeLookup mShadowContentTypeLookup;
+		mutable bool mContentTypeLookupBuilt;
+
 	public:
 		typedef std::set<Pass*> PassSet;
     protected:
@@ -679,6 +689,20 @@ namespace Ogre {
         /** Gets the maximum number of lights to be used by this pass. */
         unsigned short getMaxSimultaneousLights(void) const;
 
+		/** Sets the light index that this pass will start at in the light list.
+		@remarks
+			Normally the lights passed to a pass will start from the beginning
+			of the light list for this object. This option allows you to make this
+			pass start from a higher light index, for example if one of your earlier
+			passes could deal with lights 0-3, and this pass dealt with lights 4+. 
+			This option also has an interaction with pass iteration, in that
+			if you choose to iterate this pass per light too, the iteration will
+			only begin from light 4.
+		*/
+		void setStartLight(unsigned short startLight);
+		/** Gets the light index that this pass will start at in the light list. */
+		unsigned short getStartLight(void) const;
+
         /** Sets the type of light shading required
         @note
         The default shading method is Gouraud shading.
@@ -808,8 +832,8 @@ namespace Ogre {
         /** Gets the alpha reject value. See setAlphaRejectSettings for more information.
         */
 		unsigned char getAlphaRejectValue(void) const { return mAlphaRejectVal; }
-        /** Sets whether or not this pass should iterate per light which
-		    can affect the object being rendered.
+        /** Sets whether or not this pass should iterate per light or number of
+			lights which can affect the object being rendered.
 		@remarks
 			The default behaviour for a pass (when this option is 'false'), is 
 			for a pass to be rendered only once (or the number of times set in 
@@ -819,7 +843,8 @@ namespace Ogre {
 		@par
 			Setting this option to 'true' changes this behaviour, such that 
 			instead of trying to issue render this pass once per object, it
-			is run <b>per light</b> which can affect this object, the number of
+			is run <b>per light</b>, or for a group of 'n' lights each time
+			which can affect this object, the number of
 			times set in setPassIterationCount (default is once). In
 			this case, only light index 0 is ever used, and is a different light
 			every time the pass is issued, up to the total number of lights
@@ -829,7 +854,7 @@ namespace Ogre {
 			<li>It's easier to write vertex / fragment programs for this because
 			a single program can be used for any number of lights</li>
 			</ul>
-			However, this technique is a lot more expensive, and typically you
+			However, this technique is more expensive, and typically you
 			will want an additional ambient pass, because if no lights are 
 			affecting the object it will not be rendered at all, which will look
 			odd even if ambient light is zero (imagine if there are lit objects
@@ -839,7 +864,11 @@ namespace Ogre {
 		@note
 			The number of times this pass runs is still limited by the maximum
 			number of lights allowed as set in setMaxSimultaneousLights, so
-			you will never get more passes than this.
+			you will never get more passes than this. Also, the iteration is
+			started from the 'start light' as set in Pass::setStartLight, and
+			the number of passes is the number of lights to iterate over divided
+			by the number of lights per iteration (default 1, set by 
+			setLightCountPerIteration).
         @param enabled Whether this feature is enabled
         @param onlyForOneLightType If true, the pass will only be run for a single type
             of light, other light types will be ignored.
@@ -855,6 +884,21 @@ namespace Ogre {
         /** Gets the single light type this pass runs for if  getIteratePerLight and 
             getRunOnlyForOneLightType are both true. */
         Light::LightTypes getOnlyLightType() const { return mOnlyLightType; }
+
+		/** If light iteration is enabled, determine the number of lights per
+			iteration.
+		@remarks
+			The default for this setting is 1, so if you enable light iteration
+			(Pass::setIteratePerLight), the pass is rendered once per light. If
+			you set this value higher, the passes will occur once per 'n' lights.
+			The start of the iteration is set by Pass::setStartLight and the end
+			by Pass::setMaxSimultaneousLights.
+		*/
+		void setLightCountPerIteration(unsigned short c);
+		/** If light iteration is enabled, determine the number of lights per
+		iteration.
+		*/
+		unsigned short getLightCountPerIteration(void) const;
 		
 		/// Gets the parent Technique
         Technique* getParent(void) { return mParent; }
@@ -1094,6 +1138,15 @@ namespace Ogre {
         /** Update any automatic light parameters on this pass */
         void _updateAutoParamsLightsOnly(const AutoParamDataSource& source) const;
 
+		/** Gets the 'nth' texture which references the given content type.
+		@remarks
+			If the 'nth' texture unit which references the content type doesn't
+			exist, then this method returns an arbitrary high-value outside the
+			valid range to index texture units.
+		*/
+		unsigned short _getTextureUnitWithContentTypeIndex(
+			TextureUnitState::ContentType contentType, unsigned short index) const;
+
         /** Set texture filtering for every texture unit 
         @note
             This property actually exists on the TextureUnitState class
@@ -1145,12 +1198,12 @@ namespace Ogre {
         @remarks
             Only applicable for programmable passes.
         @param count number of iterations to perform fast multi pass operations.
-            A value greater than 0 will cause the pass to be executed count number of
+            A value greater than 1 will cause the pass to be executed count number of
             times without changing the render state.  This is very usefull for passes
             that use programmable shaders that have to iterate more than once but don't
             need a render state change.  Using multi pass can dramatically speed up rendering
             for materials that do things like fur, blur.
-            A value of 0 turns off multi pass operation and the pass does
+            A value of 1 turns off multi pass operation and the pass does
             the normal pass operation.
         */
         void setPassIterationCount(const size_t count) { mPassIterationCount = count; }

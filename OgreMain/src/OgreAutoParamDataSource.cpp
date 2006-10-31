@@ -59,16 +59,20 @@ namespace Ogre {
          mInverseTransposeWorldViewMatrixDirty(true),
          mCameraPositionObjectSpaceDirty(true),
          mCameraPositionDirty(true),
-         mTextureViewProjMatrixDirty(true),
          mCurrentRenderable(NULL),
          mCurrentCamera(NULL), 
-         mCurrentTextureProjector(NULL), 
          mCurrentRenderTarget(NULL),
          mCurrentViewport(NULL)
     {
         mBlankLight.setDiffuseColour(ColourValue::Black);
         mBlankLight.setSpecularColour(ColourValue::Black);
         mBlankLight.setAttenuation(0,0,0,0);
+		for(size_t i = 0; i < OGRE_MAX_SIMULTANEOUS_LIGHTS; ++i)
+		{
+			mTextureViewProjMatrixDirty[i] = true;
+			mCurrentTextureProjector[i] = 0;
+		}
+
     }
     //-----------------------------------------------------------------------------
     AutoParamDataSource::~AutoParamDataSource()
@@ -338,24 +342,24 @@ namespace Ogre {
         return mFogParams;
     }
     //-----------------------------------------------------------------------------
-    void AutoParamDataSource::setTextureProjector(const Frustum* frust)
+    void AutoParamDataSource::setTextureProjector(const Frustum* frust, size_t index = 0)
     {
-        mCurrentTextureProjector = frust;
-        mTextureViewProjMatrixDirty = true;
+        mCurrentTextureProjector[index] = frust;
+        mTextureViewProjMatrixDirty[index] = true;
 
     }
     //-----------------------------------------------------------------------------
-    const Matrix4& AutoParamDataSource::getTextureViewProjMatrix(void) const
+    const Matrix4& AutoParamDataSource::getTextureViewProjMatrix(size_t index) const
     {
-        if (mTextureViewProjMatrixDirty)
+        if (mTextureViewProjMatrixDirty[index] && mCurrentTextureProjector[index])
         {
-            mTextureViewProjMatrix = 
+            mTextureViewProjMatrix[index] = 
                 PROJECTIONCLIPSPACE2DTOIMAGESPACE_PERSPECTIVE * 
-                mCurrentTextureProjector->getProjectionMatrixWithRSDepth() * 
-				mCurrentTextureProjector->getViewMatrix();
-            mTextureViewProjMatrixDirty = false;
+                mCurrentTextureProjector[index]->getProjectionMatrixWithRSDepth() * 
+				mCurrentTextureProjector[index]->getViewMatrix();
+            mTextureViewProjMatrixDirty[index] = false;
         }
-        return mTextureViewProjMatrix;
+        return mTextureViewProjMatrix[index];
     }
     //-----------------------------------------------------------------------------
     void AutoParamDataSource::setCurrentRenderTarget(const RenderTarget* target)
