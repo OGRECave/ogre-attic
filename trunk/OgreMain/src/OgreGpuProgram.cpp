@@ -105,7 +105,7 @@ namespace Ogre
         AutoConstantDefinition(ACT_SHADOW_EXTRUSION_DISTANCE,     "shadow_extrusion_distance",    1, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_CAMERA_POSITION,               "camera_position",              3, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_CAMERA_POSITION_OBJECT_SPACE,  "camera_position_object_space", 3, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_TEXTURE_VIEWPROJ_MATRIX,       "texture_viewproj_matrix",     16, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_TEXTURE_VIEWPROJ_MATRIX,       "texture_viewproj_matrix",     16, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_CUSTOM,                        "custom",                       4, ET_REAL, ACDT_INT),  // *** needs to be tested
         AutoConstantDefinition(ACT_TIME,                               "time",                               1, ET_REAL, ACDT_REAL),
         AutoConstantDefinition(ACT_TIME_0_X,                      "time_0_x",                     4, ET_REAL, ACDT_REAL),
@@ -678,9 +678,6 @@ namespace Ogre
             case ACT_FAR_CLIP_DISTANCE:
                setConstant(i->index, source.getFarClipDistance());
                break;
-            case ACT_TEXTURE_VIEWPROJ_MATRIX:
-                setConstant(i->index, source.getTextureViewProjMatrix());
-                break;
             case ACT_PASS_NUMBER:
                 setConstant(i->index, (float)source.getPassNumber());
                 break;
@@ -770,6 +767,10 @@ namespace Ogre
                 setConstant(i->index, vec4);
                 break;
             }
+			case ACT_TEXTURE_VIEWPROJ_MATRIX:
+				// can also be updated in lights
+				setConstant(i->index, source.getTextureViewProjMatrix(i->data));
+				break;
             default:
                 // do nothing
                 break;

@@ -76,11 +76,19 @@ namespace Ogre {
             virtual bool objectRendering(const MovableObject* object, const Camera* camera) { return true; }
             /** Called when the movable object needs to query a light list.
             @remarks
-                If you want to customize lights finding, you should override this
-                method and hook into MovableObject via MovableObject::setListener.
+                If you want to customize light finding for this object, you should override 
+				this method and hook into MovableObject via MovableObject::setListener.
 				Be aware that the default method caches results within a frame to 
 				prevent unnecessary recalculation, so if you override this you 
 				should provide your own cacheing to maintain performance.
+			@note
+				If you use texture shadows, there is an additional restriction - 
+				since the lights which should have shadow textures rendered for
+				them are determined based on the entire frustum, and not per-object,
+				it is important that the lights returned at the start of this 
+				list (up to the number of shadow textures available) are the same 
+				lights that were used to generate the shadow textures, 
+				and they are in the same order (particularly for additive effects).
             @returns
                 A pointer to a light list if you populated the light list yourself, or
                 NULL to fall back on the default finding process.
@@ -387,14 +395,15 @@ namespace Ogre {
         @remarks
             By default, this method gives the listener a chance to populate light list first,
             if there is no listener or Listener::objectQueryLights returns NULL, it'll
-            query light list from parent entity if it is present, or returns
+            query the light list from parent entity if it is present, or returns
             SceneNode::findLights if it has parent scene node, otherwise it just returns
             an empty list.
         @par
-            Object internal caching a light list, it'll recalculated only when object have moved,
-            or lights that affecting frustum has been changed (@see SceneManager::_getLightsDirtyCounter),
-            but if listener exists, it'll called each time, so the listener should implement
-            their own cache mechanism to optimise performance.
+            The object internally caches the light list, so it will recalculate
+			it only when object is moved, or lights that affect the frustum have
+			been changed (@see SceneManager::_getLightsDirtyCounter),
+            but if listener exists, it will be called each time, so the listener 
+			should implement their own cache mechanism to optimise performance.
         @par
             This method can be useful when implementing Renderable::getLights in case
             the renderable is a part of the movable.

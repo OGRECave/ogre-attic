@@ -439,6 +439,12 @@ namespace Ogre
 		context.pass->setMaxSimultaneousLights(StringConverter::parseInt(params));
         return false;
     }
+	//-----------------------------------------------------------------------
+	bool parseStartLight(String& params, MaterialScriptContext& context)
+	{
+		context.pass->setStartLight(StringConverter::parseInt(params));
+		return false;
+	}
     //-----------------------------------------------------------------------
     void parseIterationLightTypes(String& params, MaterialScriptContext& context)
     {
@@ -471,10 +477,11 @@ namespace Ogre
             iteration once_per_light [light type]
             iteration <number>
             iteration <number> [per_light] [light type]
+			iteration <number> [per_n_lights] <num_lights> [light type]
         */
         StringUtil::toLowerCase(params);
         StringVector vecparams = StringUtil::split(params, " \t");
-        if (vecparams.size() < 1 || vecparams.size() > 3)
+        if (vecparams.size() < 1 || vecparams.size() > 4)
         {
             logParseError("Bad iteration attribute, expected 1 to 3 parameters.", context);
             return false;
@@ -513,9 +520,33 @@ namespace Ogre
                             context.pass->setIteratePerLight(true, false);
                         }
                     }
+					else if (vecparams[1] == "per_n_lights")
+					{
+						if (vecparams.size() < 3)
+						{
+							logParseError(
+								"Bad iteration attribute, expected number of lights.", 
+								context);
+						}
+						else
+						{
+							// Parse num lights
+							context.pass->setLightCountPerIteration(
+								StringConverter::parseInt(vecparams[2]));
+							// Light type
+							if (vecparams.size() == 4)
+							{
+								parseIterationLightTypes(vecparams[3], context);
+							}
+							else
+							{
+								context.pass->setIteratePerLight(true, false);
+							}
+						}
+					}
                     else
                         logParseError(
-                            "Bad iteration attribute, valid parameters are <number> [per_light] [light type].", context);
+                            "Bad iteration attribute, valid parameters are <number> [per_light|per_n_lights <num_lights>] [light type].", context);
                 }
             }
             else
@@ -1693,6 +1724,14 @@ namespace Ogre
 					context.programParams->setAutoConstant(
 						index, autoConstantDef->acType, context.numAnimationParametrics++);
 				}
+				// Special case texture projector - assume 0 if data not specified
+				else if (autoConstantDef->acType == GpuProgramParameters::ACT_TEXTURE_VIEWPROJ_MATRIX
+					&& vecparams.size() == 2)
+				{
+					context.programParams->setAutoConstant(
+						index, autoConstantDef->acType, 0);
+
+				}
 				else
 				{
 
@@ -2534,6 +2573,7 @@ namespace Ogre
 		mPassAttribParsers.insert(AttribParserList::value_type("shadow_receiver_fragment_program_ref", (ATTRIBUTE_PARSER)parseShadowReceiverFragmentProgramRef));
         mPassAttribParsers.insert(AttribParserList::value_type("fragment_program_ref", (ATTRIBUTE_PARSER)parseFragmentProgramRef));
         mPassAttribParsers.insert(AttribParserList::value_type("max_lights", (ATTRIBUTE_PARSER)parseMaxLights));
+		mPassAttribParsers.insert(AttribParserList::value_type("start_light", (ATTRIBUTE_PARSER)parseStartLight));
         mPassAttribParsers.insert(AttribParserList::value_type("iteration", (ATTRIBUTE_PARSER)parseIteration));
 		mPassAttribParsers.insert(AttribParserList::value_type("point_size", (ATTRIBUTE_PARSER)parsePointSize));
 		mPassAttribParsers.insert(AttribParserList::value_type("point_sprites", (ATTRIBUTE_PARSER)parsePointSprites));
@@ -3156,17 +3196,35 @@ namespace Ogre
                 writeAttribute(3, "max_lights");
                 writeValue(StringConverter::toString(pPass->getMaxSimultaneousLights()));
             }
+			// start_light
+			if (mDefaults ||
+				pPass->getStartLight() != 0)
+			{
+				writeAttribute(3, "start_light");
+				writeValue(StringConverter::toString(pPass->getStartLight()));
+			}
 			// iteration
             if (mDefaults ||
-                pPass->getIteratePerLight() || (pPass->getPassIterationCount() > 0))
+                pPass->getIteratePerLight() || (pPass->getPassIterationCount() > 1))
             {
                 writeAttribute(3, "iteration");
                 // pass iteration count
-                if (pPass->getPassIterationCount() > 0)
+                if (pPass->getPassIterationCount() > 1 || pPass->getLightCountPerIteration() > 1)
                 {
                     writeValue(StringConverter::toString(pPass->getPassIterationCount()));
                     if (pPass->getIteratePerLight())
-                        writeValue("per_light");
+					{
+						if (pPass->getLightCountPerIteration() > 1)
+						{
+							writeValue("per_n_lights");
+							writeValue(StringConverter::toString(
+								pPass->getLightCountPerIteration()));
+						}
+						else
+						{
+							writeValue("per_light");
+						}
+					}
                 }
                 else
                 {

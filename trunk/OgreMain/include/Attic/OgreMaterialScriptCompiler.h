@@ -96,7 +96,7 @@ namespace Ogre {
             // fog overide
             ID_EXP, ID_EXP2,
             // iteration
-            ID_ONCE, ID_ONCE_PER_LIGHT, ID_PER_LIGHT, ID_DIRECTIONAL, ID_SPOT,
+            ID_ONCE, ID_ONCE_PER_LIGHT, ID_PER_LIGHT, ID_PER_N_LIGHTS, ID_DIRECTIONAL, ID_SPOT,
 
             // texture unit state
             // texture
@@ -259,6 +259,7 @@ namespace Ogre {
         void parsePolygonMode(void);
         void parseFogOverride(void);
         void parseMaxLights(void);
+		void parseStartLight(void);
         void parseIteration(void);
         void parseIterationLightTypes(void);
         void parseColourWrite(void);

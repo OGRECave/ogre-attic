@@ -63,7 +63,7 @@ namespace Ogre {
         mutable Matrix4 mInverseTransposeWorldMatrix;
         mutable Matrix4 mInverseTransposeWorldViewMatrix;
         mutable Vector4 mCameraPositionObjectSpace;
-        mutable Matrix4 mTextureViewProjMatrix;
+        mutable Matrix4 mTextureViewProjMatrix[OGRE_MAX_SIMULTANEOUS_LIGHTS];
         mutable Matrix4 mViewMatrix;
         mutable Matrix4 mProjectionMatrix;
 		mutable Real mDirLightExtrusionDistance;
@@ -82,7 +82,7 @@ namespace Ogre {
         mutable bool mInverseTransposeWorldViewMatrixDirty;
         mutable bool mCameraPositionObjectSpaceDirty;
         mutable bool mCameraPositionDirty;
-        mutable bool mTextureViewProjMatrixDirty;
+        mutable bool mTextureViewProjMatrixDirty[OGRE_MAX_SIMULTANEOUS_LIGHTS];
 		mutable ColourValue mAmbientLight;
         mutable ColourValue mFogColour;
         mutable Vector4 mFogParams;
@@ -91,7 +91,7 @@ namespace Ogre {
         const Renderable* mCurrentRenderable;
         const Camera* mCurrentCamera;
         const LightList* mCurrentLightList;
-        const Frustum* mCurrentTextureProjector;
+        const Frustum* mCurrentTextureProjector[OGRE_MAX_SIMULTANEOUS_LIGHTS];
         const RenderTarget* mCurrentRenderTarget;
         const Viewport* mCurrentViewport;
 
@@ -105,8 +105,8 @@ namespace Ogre {
         void setCurrentCamera(const Camera* cam);
         /** Sets the light list that should be used */
         void setCurrentLightList(const LightList* ll);
-        /** Sets the current texture projector */
-        void setTextureProjector(const Frustum* frust);
+        /** Sets the current texture projector for a index */
+        void setTextureProjector(const Frustum* frust, size_t index);
         /** Sets the current render target */
         void setCurrentRenderTarget(const RenderTarget* target);
         /** Sets the current viewport */
@@ -136,7 +136,7 @@ namespace Ogre {
         void setFog(FogMode mode, const ColourValue& colour, Real expDensity, Real linearStart, Real linearEnd);
         const ColourValue& getFogColour(void) const;
         const Vector4& getFogParams(void) const;
-        const Matrix4& getTextureViewProjMatrix(void) const;
+        const Matrix4& getTextureViewProjMatrix(size_t index) const;
         const RenderTarget* getCurrentRenderTarget(void) const;
         const Renderable* getCurrentRenderable(void) const;
 		Real getShadowExtrusionDistance(void) const;

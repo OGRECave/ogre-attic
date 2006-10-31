@@ -115,6 +115,31 @@ namespace Ogre {
 		*/
 		virtual void shadowTextureReceiverPreViewProj(Light* light, 
 			Frustum* frustum) = 0;
+
+		/** Hook to allow the listener to override the ordering of lights for
+			the entire frustum.
+		@remarks
+			Whilst ordinarily lights are sorted per rendered object 
+			(@see MovableObject::queryLights), texture shadows adds another issue
+			in that, given there is a finite number of shadow textures, we must
+			choose which lights to render texture shadows from based on the entire
+			frustum. These lights should always be listed first in every objects
+			own list, followed by any other lights which will not cast texture 
+			shadows (either because they have shadow casting off, or there aren't
+			enough shadow textures to service them).
+		@par
+			This hook allows you to override the detailed ordering of the lights
+			per frustum. The default ordering is shadow casters first (which you 
+			must also respect if you override this method), and ordered
+			by distance from the camera within those 2 groups. Obviously the closest
+			lights with shadow casting enabled will be listed first. Only lights 
+			within the range of the frustum will be in the list.
+		@param lightList The list of lights within range of the frustum which you
+			may sort.
+		@returns true if you sorted the list, false otherwise.
+		*/
+		virtual bool sortLightsAffectingFrustum(LightList& lightList) { return false; }
+
 		
 	};
 
@@ -332,6 +357,7 @@ namespace Ogre {
 
         LightList mLightsAffectingFrustum;
         LightInfoList mCachedLightInfos;
+		LightInfoList mTestLightInfos; // potentially new list
         ulong mLightsDirtyCounter;
 
 		typedef std::map<String, MovableObject*> MovableObjectMap;
@@ -509,6 +535,19 @@ namespace Ogre {
 
 		/// default shadow camera setup
 		ShadowCameraSetupPtr mDefaultShadowCameraSetup;
+
+		/** Default sorting routine which sorts lights which cast shadows
+			to the front of a list, sub-sorting by distance.
+		@remarks
+			Since shadow textures are generated from lights based on the
+			frustum rather than individual objects, a shadow and camera-wise sort is
+			required to pick the best lights near the start of the list. Up to 
+			the number of shadow textures will be generated from this.
+		*/
+		struct lightsForShadowTextureLess
+		{
+			_OgreExport bool operator()(const Light* l1, const Light* l2) const;
+		};
 
 
         /** Internal method for locating a list of lights which could be affecting the frustum. 

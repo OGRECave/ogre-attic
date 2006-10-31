@@ -105,58 +105,57 @@ namespace Ogre {
 	}
     //-----------------------------------------------------------------------------
 	Pass::Pass(Technique* parent, unsigned short index)
-        : mParent(parent), mIndex(index), mPassIterationCount(0)
+        : mParent(parent)
+		, mIndex(index)
+		, mHash(0)
+		, mAmbient(ColourValue::White)
+		, mDiffuse(ColourValue::White)
+		, mSpecular(ColourValue::Black)
+		, mEmissive(ColourValue::Black)
+		, mShininess(0)
+		, mTracking(TVC_NONE)
+		, mSourceBlendFactor(SBF_ONE)
+		, mDestBlendFactor(SBF_ZERO)
+		, mDepthCheck(true)
+		, mDepthWrite(true)
+		, mDepthFunc(CMPF_LESS_EQUAL)
+		, mDepthBias(0)
+		, mColourWrite(true)
+		, mAlphaRejectFunc(CMPF_ALWAYS_PASS)
+		, mAlphaRejectVal(0)
+		, mCullMode(CULL_CLOCKWISE)
+		, mManualCullMode(MANUAL_CULL_BACK)
+		, mLightingEnabled(true)
+		, mMaxSimultaneousLights(OGRE_MAX_SIMULTANEOUS_LIGHTS)
+		, mStartLight(0)
+		, mIteratePerLight(false)
+		, mLightsPerIteration(1)
+		, mRunOnlyForOneLightType(true)
+		, mOnlyLightType(Light::LT_POINT)
+		, mShadeOptions(SO_GOURAUD)
+		, mPolygonMode(PM_SOLID)
+		, mFogOverride(false)
+		, mFogMode(FOG_NONE)
+		, mFogColour(ColourValue::White)
+		, mFogStart(0.0)
+		, mFogEnd(1.0)
+		, mFogDensity(0.001)
+		, mVertexProgramUsage(0)
+		, mShadowCasterVertexProgramUsage(0)
+		, mShadowReceiverVertexProgramUsage(0)
+		, mFragmentProgramUsage(0)
+		, mShadowReceiverFragmentProgramUsage(0)
+		, mQueuedForDeletion(false)
+		, mPassIterationCount(1)
+		, mPointSize(1.0f)
+		, mPointMinSize(0.0f)
+		, mPointMaxSize(0.0f)
+		, mPointSpritesEnabled(false)
+		, mPointAttenuationEnabled(false)
+		, mContentTypeLookupBuilt(false)
     {
-        // Default to white ambient & diffuse, no specular / emissive
-	    mAmbient = mDiffuse = ColourValue::White;
-	    mSpecular = mEmissive = ColourValue::Black;
-	    mShininess = 0;
-        mPointSize = 1.0f;
-		mPointMinSize = 0.0f;
-		mPointMaxSize = 0.0f;
-		mPointSpritesEnabled = false;
-		mPointAttenuationEnabled = false;
 		mPointAttenuationCoeffs[0] = 1.0f;
 		mPointAttenuationCoeffs[1] = mPointAttenuationCoeffs[2] = 0.0f;
-        mTracking = TVC_NONE;
-        mHash = 0;
-
-        // By default, don't override the scene's fog settings
-        mFogOverride = false;
-        mFogMode = FOG_NONE;
-        mFogColour = ColourValue::White;
-        mFogStart = 0.0;
-        mFogEnd = 1.0;
-        mFogDensity = 0.001;
-
-	    // Default blending (overwrite)
-	    mSourceBlendFactor = SBF_ONE;
-	    mDestBlendFactor = SBF_ZERO;
-
-	    mDepthCheck = true;
-	    mDepthWrite = true;
-        mColourWrite = true;
-	    mDepthFunc = CMPF_LESS_EQUAL;
-        mDepthBias = 0;
-		mAlphaRejectFunc = CMPF_ALWAYS_PASS;
-		mAlphaRejectVal = 0;
-	    mCullMode = CULL_CLOCKWISE;
-	    mManualCullMode = MANUAL_CULL_BACK;
-	    mLightingEnabled = true;
-        mMaxSimultaneousLights = OGRE_MAX_SIMULTANEOUS_LIGHTS;
-		mIteratePerLight = false;
-        mRunOnlyForOneLightType = true;
-        mOnlyLightType = Light::LT_POINT;
-	    mShadeOptions = SO_GOURAUD;
-		mPolygonMode = PM_SOLID;
-
-		mVertexProgramUsage = NULL;
-        mShadowCasterVertexProgramUsage = NULL;
-        mShadowReceiverVertexProgramUsage = NULL;
-		mShadowReceiverFragmentProgramUsage = NULL;
-		mFragmentProgramUsage = NULL;
-
-        mQueuedForDeletion = false;
 
         // default name to index
         mName = StringConverter::toString(mIndex);
@@ -166,7 +165,7 @@ namespace Ogre {
 	
     //-----------------------------------------------------------------------------
 	Pass::Pass(Technique *parent, unsigned short index, const Pass& oth)
-        :mParent(parent), mIndex(index), mQueuedForDeletion(false), mPassIterationCount(0)
+        :mParent(parent), mIndex(index), mQueuedForDeletion(false), mPassIterationCount(1)
     {
         *this = oth;
         mParent = parent;
@@ -214,7 +213,9 @@ namespace Ogre {
 	    mManualCullMode = oth.mManualCullMode;
 	    mLightingEnabled = oth.mLightingEnabled;
         mMaxSimultaneousLights = oth.mMaxSimultaneousLights;
+		mStartLight = oth.mStartLight;
 		mIteratePerLight = oth.mIteratePerLight;
+		mLightsPerIteration = oth.mLightsPerIteration;
         mRunOnlyForOneLightType = oth.mRunOnlyForOneLightType;
         mOnlyLightType = oth.mOnlyLightType;
 	    mShadeOptions = oth.mShadeOptions;
@@ -226,6 +227,8 @@ namespace Ogre {
 		mPointSpritesEnabled = oth.mPointSpritesEnabled;
 		mPointAttenuationEnabled = oth.mPointAttenuationEnabled;
 		memcpy(mPointAttenuationCoeffs, oth.mPointAttenuationCoeffs, sizeof(Real)*3);
+		mShadowContentTypeLookup = oth.mShadowContentTypeLookup;
+		mContentTypeLookupBuilt = oth.mContentTypeLookupBuilt;
 
 
 		if (oth.mVertexProgramUsage)
@@ -464,6 +467,7 @@ namespace Ogre {
     {
         TextureUnitState *t = new TextureUnitState(this);
         addTextureUnitState(t);
+		mContentTypeLookupBuilt = false;
 	    return t;
     }
     //-----------------------------------------------------------------------
@@ -474,6 +478,7 @@ namespace Ogre {
 	    t->setTextureName(textureName);
 	    t->setTextureCoordSet(texCoordSet);
         addTextureUnitState(t);
+		mContentTypeLookupBuilt = false;
 	    return t;
     }
     //-----------------------------------------------------------------------
@@ -505,6 +510,7 @@ namespace Ogre {
 				    "Pass:addTextureUnitState");
 
             }
+			mContentTypeLookupBuilt = false;
         }
 	}
     //-----------------------------------------------------------------------
@@ -621,6 +627,7 @@ namespace Ogre {
             mParent->_notifyNeedsRecompile();
         }
         _dirtyHash();
+		mContentTypeLookupBuilt = false;
     }
     //-----------------------------------------------------------------------
     void Pass::removeAllTextureUnitStates(void)
@@ -638,6 +645,7 @@ namespace Ogre {
             mParent->_notifyNeedsRecompile();
         }
         _dirtyHash();
+		mContentTypeLookupBuilt = false;
     }
     //-----------------------------------------------------------------------
     void Pass::setSceneBlending(SceneBlendType sbt)
@@ -783,6 +791,26 @@ namespace Ogre {
     {
         return mMaxSimultaneousLights;
     }
+	//-----------------------------------------------------------------------
+	void Pass::setStartLight(unsigned short startLight)
+	{
+		mStartLight = startLight;
+	}
+	//-----------------------------------------------------------------------
+	unsigned short Pass::getStartLight(void) const
+	{
+		return mStartLight;
+	}
+	//-----------------------------------------------------------------------
+	void Pass::setLightCountPerIteration(unsigned short c)
+	{
+		mLightsPerIteration = c;
+	}
+	//-----------------------------------------------------------------------
+	unsigned short Pass::getLightCountPerIteration(void) const
+	{
+		return mLightsPerIteration;
+	}
     //-----------------------------------------------------------------------
     void Pass::setIteratePerLight(bool enabled, 
             bool onlyForOneLightType, Light::LightTypes lightType)
@@ -914,6 +942,7 @@ namespace Ogre {
 			// been transferred
 			mTextureUnitStates.erase(istart, iend);
 			_dirtyHash();
+			mContentTypeLookupBuilt = false;
 			return newPass;
 		}
 		return NULL;
@@ -1440,6 +1469,54 @@ namespace Ogre {
         return testResult;
 
     }
+	//-----------------------------------------------------------------------
+	unsigned short Pass::_getTextureUnitWithContentTypeIndex(
+		TextureUnitState::ContentType contentType, unsigned short index) const
+	{
+		if (!mContentTypeLookupBuilt)
+		{
+			mShadowContentTypeLookup.clear();
+			for (unsigned short i = 0; i < mTextureUnitStates.size(); ++i)
+			{
+				if (mTextureUnitStates[i]->getContentType() == TextureUnitState::CONTENT_SHADOW)
+				{
+					mShadowContentTypeLookup.push_back(i);
+				}
+			}
+			mContentTypeLookupBuilt = true;
+		}
+
+		switch(contentType)
+		{
+		case TextureUnitState::CONTENT_SHADOW:
+			if (index < mShadowContentTypeLookup.size())
+			{
+				return mShadowContentTypeLookup[index];
+			}
+			break;
+		default:
+			// Simple iteration
+			for (unsigned short i = 0; i < mTextureUnitStates.size(); ++i)
+			{
+				if (mTextureUnitStates[i]->getContentType() == TextureUnitState::CONTENT_SHADOW)
+				{
+					if (index == 0)
+					{
+						return i;
+					}
+					else
+					{
+						--index;
+					}
+				}
+			}
+			break;
+		}
+
+		// not found - return out of range
+		return mTextureUnitStates.size() + 1;
+
+	}
 
 
 }

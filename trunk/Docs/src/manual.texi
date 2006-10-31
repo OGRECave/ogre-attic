@@ -507,6 +507,8 @@ Here are the attributes you can use in a 'pass' section of a .material script:
 @item
 @ref{max_lights}
 @item
+@ref{start_light}
+@item
 @ref{iteration}
 @item
 @ref{point_size}
@@ -818,6 +820,16 @@ If colour writing is off no visible pixels are written to the screen during this
 
 Default: colour_write on@*
 
+@anchor{start_light}
+@subheading start_light
+
+Sets the first light which will be considered for use with this pass.@*@*
+Format: start_light <number>@*@*
+
+You can use this attribute to offset the starting point of the lights for this pass. In other words, if you set start_light to 2 then the first light to be processed in that pass will be the third actual light in the applicable list. You could use this option to use different passes to process the first couple of lights versus the second couple of lights for example, or use it in conjunction with the @ref{iteration} option to start the iteration from a given point in the list (e.g. doing the first 2 lights in the first pass, and then iterating every 2 lights from then on perhaps). @*@*
+
+Default: start_light 0@*
+
 @anchor{max_lights}
 @subheading max_lights
 
@@ -833,8 +845,9 @@ Default: max_lights 8@*
 
 Sets whether or not this pass is iterated, ie issued more than once.@*@*
 
-Basic Format: iteration <once | once_per_light> [lightType]@*@*
-Advanced Format: iteration <number> [<per_light> [lightType]]@*@*
+Format 1: iteration <once | once_per_light> [lightType]@*@*
+Format 2: iteration <number> [<per_light> [lightType]]@*@*
+Format 3: iteration <number> [<per_n_lights> <num_lights> [lightType]]@*@*
 Examples:
 @table @asis
 @item iteration once
@@ -845,6 +858,8 @@ Examples:
 	The render state for the pass will be setup and then the draw call will execute 5 times.
 @item iteration 5 per_light point
 	The render state for the pass will be setup and then the draw call will execute 5 times.  This will be done for each point light.
+@item iteration 1 per_n_lights 2 point
+	The render state for the pass will be setup and the draw call executed once for every 2 lights.
 @end table
 @*
 
@@ -854,7 +869,7 @@ Using a number instead of "once" instructs the pass to iterate more than once af
 
 If you use once_per_light, you should also add an ambient pass to the technique before this pass, otherwise when no lights are in range of this object it will not get rendered at all; this is important even when you have no ambient light in the scene, because you would still want the objects sihouette to appear.@*@*
 
-The second parameter to the attribute only applies if you use once_per_light or per_light, and restricts the pass to being run for lights of a single type (either 'point', 'directional' or 'spot'). In the example, the pass will be run once per point light. This can be useful because when you're writing a vertex / fragment program it is a lot better if you can assume the kind of lights you'll be dealing with. 
+The lightType parameter to the attribute only applies if you use once_per_light, per_light, or per_n_lights and restricts the pass to being run for lights of a single type (either 'point', 'directional' or 'spot'). In the example, the pass will be run once per point light. This can be useful because when you're writing a vertex / fragment program it is a lot easier if you can assume the kind of lights you'll be dealing with. However at least point and directional lights can be dealt with in one way.
 @*@*
 Default: iteration once@*@*
 
@@ -1907,7 +1922,7 @@ Near clip distance, in world units
 @item far_clip_distance
 Far clip distance, in world units (may be 0 for infinite view projection)
 @item texture_viewproj_matrix
-Only applicable to vertex programs which have been specified as the 'shadow receiver' vertex program alternative; this provides details of the view/projection matrix for the current shadow projector.
+Applicable to vertex programs which have been specified as the 'shadow receiver' vertex program alternative, or where a texture unit is marked as content_type shadow; this provides details of the view/projection matrix for the current shadow projector. The optional 'extra_params' entry specifies which light the projector refers to (for the case of content_type shadow where more than one shadow texture may be present in a single pass), where 0 is the default and refers to the first light referenced in this pass.
 @anchor{pass_number}
 @item pass_number
 Sets the active pass index number in a gpu parameter.  The first pass in a technique has an index of 0, the second an index of 1 and so on.  This is usefull for multipass shaders (ie fur or blur shader) that need to know what pass it is.  By setting up the auto parameter in a @ref{Default Program Parameters} list in a program definition, there is no requirement to set the pass number parameter in each pass and lose track. (@xref{fur_example})

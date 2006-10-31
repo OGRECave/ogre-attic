@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on October 30 2006 by texi2html 1.66 -->
+<!-- Created on October 31 2006 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -43,14 +43,14 @@ A &quot;technique&quot; section in your material script encapsulates a single me
 When a material is used for the first time, it is 'compiled'. That involves scanning the techniques which have been defined, and marking which of them are supportable using the current rendering API and graphics card. If no techniques are supportable, your material will render as blank white. The compilation examines a number of things, such as:
 <UL>
 <LI>The number of texture_unit entries in each pass<BR>
-Note that if the number of texture_unit entries exceeds the number of texture units in the current graphics card, the technique may still be supportable so long as a fragment program is not being used. In this case, Ogre will split the pass which has too many entries into multiple passes for the less capable card, and the multitexture blend will be turned into a multipass blend (See section <A HREF="manual_17.html#SEC78">colour_op_multipass_fallback</A>).
+Note that if the number of texture_unit entries exceeds the number of texture units in the current graphics card, the technique may still be supportable so long as a fragment program is not being used. In this case, Ogre will split the pass which has too many entries into multiple passes for the less capable card, and the multitexture blend will be turned into a multipass blend (See section <A HREF="manual_17.html#SEC79">colour_op_multipass_fallback</A>).
 <LI>Whether vertex or fragment programs are used, and if so which syntax they use (e.g. vs_1_1, ps_2_x, arbfp1 etc)
 <LI>Other effects like cube mapping and dot3 blending
 </UL>
 <BR>
 In a material script, techniques must be listed in order of preference, i.e. the earlier techniques are preferred over the later techniques. This normally means you will list your most advanced, most demanding techniques first in the script, and list fallbacks afterwards.<BR><BR>
 
-To help clearly identify what each technique is used for, the technique can be named but its optional.  Techniques not named within the script will take on a name that is the technique index number.  For example: the first technique in a material is index 0, its name would be &quot;0&quot; if it was not given a name in the script.  The technique name must be unqiue within the material or else the final technique is the resulting merge of all techniques with the same name in the material.  A warning message is posted in the Ogre.log if this occurs.  Named techniques can help when copying a material and modifying an existing technique: (See section <A HREF="manual_21.html#SEC116">3.1.7 Copying Materials</A>)<BR><BR>
+To help clearly identify what each technique is used for, the technique can be named but its optional.  Techniques not named within the script will take on a name that is the technique index number.  For example: the first technique in a material is index 0, its name would be &quot;0&quot; if it was not given a name in the script.  The technique name must be unqiue within the material or else the final technique is the resulting merge of all techniques with the same name in the material.  A warning message is posted in the Ogre.log if this occurs.  Named techniques can help when copying a material and modifying an existing technique: (See section <A HREF="manual_21.html#SEC117">3.1.7 Copying Materials</A>)<BR><BR>
 
 Format: technique name<BR><BR>
 
@@ -117,7 +117,7 @@ Techniques also contain one or more passes (and there must be at least one), See
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>October 30 2006</I>
+by <I>steve</I> on <I>October 31 2006</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 

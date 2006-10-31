@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on October 30 2006 by texi2html 1.66 -->
+<!-- Created on October 31 2006 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -28,7 +28,7 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_15.html#SEC31"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC61"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC62"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -39,9 +39,9 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 <!--docid::SEC35::-->
 A pass is a single render of the geometry in question; a single call to the rendering API with a certain set of rendering properties. A technique can have between one and 16 passes, although clearly the more passes you use, the more expensive the technique will be to render.<BR><BR>
 
-To help clearly identify what each pass is used for, the pass can be named but its optional.  Passes not named within the script will take on a name that is the pass index number.  For example: the first pass in a technique is index 0 so its name would be &quot;0&quot; if it was not given a name in the script.  The pass name must be unqiue within the technique or else the final pass is the resulting merge of all passes with the same name in the technique.  A warning message is posted in the Ogre.log if this occurs.  Named passes can help when copying a material and modifying an existing pass: (See section <A HREF="manual_21.html#SEC116">3.1.7 Copying Materials</A>)<BR><BR>
+To help clearly identify what each pass is used for, the pass can be named but its optional.  Passes not named within the script will take on a name that is the pass index number.  For example: the first pass in a technique is index 0 so its name would be &quot;0&quot; if it was not given a name in the script.  The pass name must be unqiue within the technique or else the final pass is the resulting merge of all passes with the same name in the technique.  A warning message is posted in the Ogre.log if this occurs.  Named passes can help when copying a material and modifying an existing pass: (See section <A HREF="manual_21.html#SEC117">3.1.7 Copying Materials</A>)<BR><BR>
 
-Passes have a set of global attributes (described below), zero or more nested texture_unit entries (See section <A HREF="manual_17.html#SEC61">3.1.3 Texture Units</A>), and optionally a reference to a vertex and / or a fragment program (See section <A HREF="manual_19.html#SEC103">3.1.5 Using Vertex and Fragment Programs in a Pass</A>).
+Passes have a set of global attributes (described below), zero or more nested texture_unit entries (See section <A HREF="manual_17.html#SEC62">3.1.3 Texture Units</A>), and optionally a reference to a vertex and / or a fragment program (See section <A HREF="manual_19.html#SEC104">3.1.5 Using Vertex and Fragment Programs in a Pass</A>).
 
 <BR><BR>
 Here are the attributes you can use in a 'pass' section of a .material script:
@@ -82,19 +82,21 @@ Here are the attributes you can use in a 'pass' section of a .material script:
 <LI>
 <A HREF="manual_16.html#SEC53">colour_write</A>
 <LI>
-<A HREF="manual_16.html#SEC54">max_lights</A>
+<A HREF="manual_16.html#SEC55">max_lights</A>
 <LI>
-<A HREF="manual_16.html#SEC55">iteration</A>
+<A HREF="manual_16.html#SEC54">start_light</A>
 <LI>
-<A HREF="manual_16.html#SEC56">point_size</A>
+<A HREF="manual_16.html#SEC56">iteration</A>
 <LI>
-<A HREF="manual_16.html#SEC57">point_sprites</A>
+<A HREF="manual_16.html#SEC57">point_size</A>
 <LI>
-<A HREF="manual_16.html#SEC58">point_size_attenuation</A>
+<A HREF="manual_16.html#SEC58">point_sprites</A>
 <LI>
-<A HREF="manual_16.html#SEC59">point_size_min</A>
+<A HREF="manual_16.html#SEC59">point_size_attenuation</A>
 <LI>
-<A HREF="manual_16.html#SEC60">point_size_max</A>
+<A HREF="manual_16.html#SEC60">point_size_min</A>
+<LI>
+<A HREF="manual_16.html#SEC61">point_size_max</A>
 </UL>
 
 <A NAME="SEC36"></A>
@@ -431,27 +433,40 @@ If colour writing is off no visible pixels are written to the screen during this
 
 Default: colour_write on<BR>
 
-<A NAME="max_lights"></A>
+<A NAME="start_light"></A>
 <A NAME="SEC54"></A>
-<H3> max_lights </H3>
+<H3> start_light </H3>
 <!--docid::SEC54::-->
+
+Sets the first light which will be considered for use with this pass.<BR><BR>
+Format: start_light &lt;number&gt;<BR><BR>
+
+You can use this attribute to offset the starting point of the lights for this pass. In other words, if you set start_light to 2 then the first light to be processed in that pass will be the third actual light in the applicable list. You could use this option to use different passes to process the first couple of lights versus the second couple of lights for example, or use it in conjunction with the <A HREF="manual_16.html#SEC56">iteration</A> option to start the iteration from a given point in the list (e.g. doing the first 2 lights in the first pass, and then iterating every 2 lights from then on perhaps). <BR><BR>
+
+Default: start_light 0<BR>
+
+<A NAME="max_lights"></A>
+<A NAME="SEC55"></A>
+<H3> max_lights </H3>
+<!--docid::SEC55::-->
 
 Sets the maximum number of lights which will be considered for use with this pass.<BR><BR>
 Format: max_lights &lt;number&gt;<BR><BR>
 
-The maximum number of lights which can be used when rendering fixed-function materials is set by the rendering system, and is typically set at 8. When you are using the programmable pipeline (See section <A HREF="manual_19.html#SEC103">3.1.5 Using Vertex and Fragment Programs in a Pass</A>) this limit is dependent on the program you are running, or, if you use 'iteration once_per_light' (See section <A HREF="manual_16.html#SEC55">iteration</A>), it effectively only bounded by the number of passes you are willing to use. Whichever method you use, however, the max_lights limit applies.<BR><BR>
+The maximum number of lights which can be used when rendering fixed-function materials is set by the rendering system, and is typically set at 8. When you are using the programmable pipeline (See section <A HREF="manual_19.html#SEC104">3.1.5 Using Vertex and Fragment Programs in a Pass</A>) this limit is dependent on the program you are running, or, if you use 'iteration once_per_light' (See section <A HREF="manual_16.html#SEC56">iteration</A>), it effectively only bounded by the number of passes you are willing to use. Whichever method you use, however, the max_lights limit applies.<BR><BR>
 
 Default: max_lights 8<BR>
 
 <A NAME="iteration"></A>
-<A NAME="SEC55"></A>
+<A NAME="SEC56"></A>
 <H3> iteration </H3>
-<!--docid::SEC55::-->
+<!--docid::SEC56::-->
 
 Sets whether or not this pass is iterated, ie issued more than once.<BR><BR>
 
-Basic Format: iteration &lt;once | once_per_light&gt; [lightType]<BR><BR>
-Advanced Format: iteration &lt;number&gt; [&lt;per_light&gt; [lightType]]<BR><BR>
+Format 1: iteration &lt;once | once_per_light&gt; [lightType]<BR><BR>
+Format 2: iteration &lt;number&gt; [&lt;per_light&gt; [lightType]]<BR><BR>
+Format 3: iteration &lt;number&gt; [&lt;per_n_lights&gt; &lt;num_lights&gt; [lightType]]<BR><BR>
 Examples:
 <DL COMPACT>
 <DT>iteration once
@@ -462,6 +477,8 @@ Examples:
 <DD>	The render state for the pass will be setup and then the draw call will execute 5 times.
 <DT>iteration 5 per_light point
 <DD>	The render state for the pass will be setup and then the draw call will execute 5 times.  This will be done for each point light.
+<DT>iteration 1 per_n_lights 2 point
+<DD>	The render state for the pass will be setup and the draw call executed once for every 2 lights.
 </DL>
 <BR>
 
@@ -471,7 +488,7 @@ Using a number instead of &quot;once&quot; instructs the pass to iterate more th
 
 If you use once_per_light, you should also add an ambient pass to the technique before this pass, otherwise when no lights are in range of this object it will not get rendered at all; this is important even when you have no ambient light in the scene, because you would still want the objects sihouette to appear.<BR><BR>
 
-The second parameter to the attribute only applies if you use once_per_light or per_light, and restricts the pass to being run for lights of a single type (either 'point', 'directional' or 'spot'). In the example, the pass will be run once per point light. This can be useful because when you're writing a vertex / fragment program it is a lot better if you can assume the kind of lights you'll be dealing with. 
+The lightType parameter to the attribute only applies if you use once_per_light, per_light, or per_n_lights and restricts the pass to being run for lights of a single type (either 'point', 'directional' or 'spot'). In the example, the pass will be run once per point light. This can be useful because when you're writing a vertex / fragment program it is a lot easier if you can assume the kind of lights you'll be dealing with. However at least point and directional lights can be dealt with in one way.
 <BR><BR>
 Default: iteration once<BR><BR>
 
@@ -560,11 +577,11 @@ material Fur
 </pre></td></tr></table>Note: use gpu program auto parameters  <A HREF="manual_19.html#pass_number">pass_number</A> and  <A HREF="manual_19.html#pass_iteration_number">pass_iteration_number</A> to tell the vertex or fragment program the pass number and iteration number.<BR><BR>
 
 <A NAME="point_size"></A>
-<A NAME="SEC56"></A>
+<A NAME="SEC57"></A>
 <H3> point_size </H3>
-<!--docid::SEC56::-->
+<!--docid::SEC57::-->
 
-This setting allows you to change the size of points when rendering a point list, or a list of point sprites. The interpretation of this command depends on the <A HREF="manual_16.html#SEC58">point_size_attenuation</A> option - if it is off (the default), the point size is in screen pixels, if it is on, it expressed as normalised screen coordinates (1.0 is the height of the screen) when the point is at the origin.  <BR><BR>
+This setting allows you to change the size of points when rendering a point list, or a list of point sprites. The interpretation of this command depends on the <A HREF="manual_16.html#SEC59">point_size_attenuation</A> option - if it is off (the default), the point size is in screen pixels, if it is on, it expressed as normalised screen coordinates (1.0 is the height of the screen) when the point is at the origin.  <BR><BR>
 
 NOTE: Some drivers have an upper limit on the size of points they support - this can even vary between APIs on the same card! Don't rely on point sizes that cause the points to get very large on screen, since they may get clamped on some cards. Upper sizes can range from 64 to 256 pixels.<BR><BR>
 
@@ -572,9 +589,9 @@ Format: point_size &lt;size&gt;<BR><BR>
 Default: point_size 1.0<BR><BR>
 
 <A NAME="point_sprites"></A>
-<A NAME="SEC57"></A>
+<A NAME="SEC58"></A>
 <H3> point_sprites </H3>
-<!--docid::SEC57::-->
+<!--docid::SEC58::-->
 
 This setting specifies whether or not hardware point sprite rendering is enabled for this pass. Enabling it means that a point list is rendered as a list of quads rather than a list of dots. It is very useful to use this option if you're using a billboardset and only need to use point oriented billboards which are all of the same size. You can also use it for any other point list render. <BR><BR>
 
@@ -582,11 +599,11 @@ Format: point_sprites &lt;on|off&gt;<BR><BR>
 Default: point_sprites off<BR><BR>
 
 <A NAME="point_size_attenuation"></A>
-<A NAME="SEC58"></A>
+<A NAME="SEC59"></A>
 <H3> point_size_attenuation </H3>
-<!--docid::SEC58::-->
+<!--docid::SEC59::-->
 
-Defines whether point size is attenuated with view space distance, and in what fashion. This option is especially useful when you're using point sprites (See section <A HREF="manual_16.html#SEC57">point_sprites</A>) since it defines how they reduce in size as they get further away from the camera. You can also disable this option to make point sprites a constant screen size (like points), or enable it for points so they change size with distance.<BR><BR>
+Defines whether point size is attenuated with view space distance, and in what fashion. This option is especially useful when you're using point sprites (See section <A HREF="manual_16.html#SEC58">point_sprites</A>) since it defines how they reduce in size as they get further away from the camera. You can also disable this option to make point sprites a constant screen size (like points), or enable it for points so they change size with distance.<BR><BR>
 
 You only have to provide the final 3 parameters if you turn attenuation on. The formula for attenuation is that the size of the point is multiplied by 1 / (constant + linear * dist + quadratic * d^2); therefore turning it off is equivalent to (constant = 1, linear = 0, quadratic = 0) and standard perspective attenuation is (constant = 0, linear = 1, quadratic = 0). The latter is assumed if you leave out the final 3 parameters when you specify 'on'.<BR><BR>
 
@@ -596,21 +613,21 @@ Format: point_size_attenuation &lt;on|off&gt; [constant linear quadratic]
 Default: point_size_attenuation off
 
 <A NAME="point_size_min"></A>
-<A NAME="SEC59"></A>
+<A NAME="SEC60"></A>
 <H3> point_size_min </H3>
-<!--docid::SEC59::-->
+<!--docid::SEC60::-->
 
-Sets the minimum point size after attenuation (<A HREF="manual_16.html#SEC58">point_size_attenuation</A>). For details on the size metrics, See section <A HREF="manual_16.html#SEC56">point_size</A>.<BR><BR>
+Sets the minimum point size after attenuation (<A HREF="manual_16.html#SEC59">point_size_attenuation</A>). For details on the size metrics, See section <A HREF="manual_16.html#SEC57">point_size</A>.<BR><BR>
 
 Format: point_size_min &lt;size&gt;
 Default: point_size_min 0
 
 <A NAME="point_size_max"></A>
-<A NAME="SEC60"></A>
+<A NAME="SEC61"></A>
 <H3> point_size_max </H3>
-<!--docid::SEC60::-->
+<!--docid::SEC61::-->
 
-Sets the maximum point size after attenuation (<A HREF="manual_16.html#SEC58">point_size_attenuation</A>). For details on the size metrics, See section <A HREF="manual_16.html#SEC56">point_size</A>. A value of 0 means the maximum is set to the same as the max size reported by the current card. <BR><BR>
+Sets the maximum point size after attenuation (<A HREF="manual_16.html#SEC59">point_size_attenuation</A>). For details on the size metrics, See section <A HREF="manual_16.html#SEC57">point_size</A>. A value of 0 means the maximum is set to the same as the max size reported by the current card. <BR><BR>
 
 Format: point_size_max &lt;size&gt;
 Default: point_size_max 0
@@ -620,7 +637,7 @@ Default: point_size_max 0
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_15.html#SEC31"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC61"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC62"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -629,7 +646,7 @@ Default: point_size_max 0
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>October 30 2006</I>
+by <I>steve</I> on <I>October 31 2006</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 
