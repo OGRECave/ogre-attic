@@ -88,7 +88,14 @@ namespace Ogre {
 		page_str << pageIndex;
         name = "page[";
         name += page_str.str() + "]";
-        page->pageSceneNode = mSceneManager->createSceneNode(name);
+		if (mSceneManager->hasSceneNode(name))
+		{
+			page->pageSceneNode = mSceneManager->getSceneNode(name);
+		}
+		else
+		{
+			page->pageSceneNode = mSceneManager->createSceneNode(name);
+		}
         
         size_t q = 0;
         for ( size_t j = 0; j < mPageSize - 1; j += ( mTileSize - 1 ) )
@@ -103,8 +110,19 @@ namespace Ogre {
                 new_name_str << "tile[" << pageIndex << "][" << (int)p << "," << (int)q << "]";
 				name = new_name_str.str();
 
-                SceneNode *c = page->pageSceneNode->createChildSceneNode( name );
-                TerrainRenderable *tile = new TerrainRenderable(name, mSceneManager);
+                SceneNode *c;
+				if (mSceneManager->hasSceneNode(name))
+				{
+					c = mSceneManager->getSceneNode( name );
+					if (c->getParentSceneNode() != page->pageSceneNode)
+						page->pageSceneNode->addChild(c);
+				}
+				else
+				{
+					c = page->pageSceneNode->createChildSceneNode( name );
+				}
+
+				TerrainRenderable *tile = new TerrainRenderable(name, mSceneManager);
 				// set queue
 				tile->setRenderQueueGroup(mSceneManager->getWorldGeometryRenderQueue());
                 // Initialise the tile

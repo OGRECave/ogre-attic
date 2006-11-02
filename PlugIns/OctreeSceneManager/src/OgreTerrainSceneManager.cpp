@@ -279,11 +279,12 @@ namespace Ogre
             // define our own material
             mOptions.terrainMaterial = 
                 MaterialManager::getSingleton().getByName(TERRAIN_MATERIAL_NAME);
+			// Make unique terrain material name
+			StringUtil::StrStreamType s;
+			s << mName << "/Terrain";
+			mOptions.terrainMaterial = MaterialManager::getSingleton().getByName(s.str());
             if (mOptions.terrainMaterial.isNull())
             {
-				// Make unique terrain material name
-				StringUtil::StrStreamType s;
-				s << mName << "/Terrain";
                 mOptions.terrainMaterial = MaterialManager::getSingleton().create(
                     s.str(),
                     ResourceGroupManager::getSingleton().getWorldResourceGroupName());
@@ -535,7 +536,8 @@ namespace Ogre
         // Insert page into list
         mTerrainPages[pageX][pageZ] = page;
         // Attach page to terrain root
-        mTerrainRoot->addChild(page->pageSceneNode);
+		if (page->pageSceneNode->getParentSceneNode() != mTerrainRoot)
+			mTerrainRoot->addChild(page->pageSceneNode);
 
     }
     //-------------------------------------------------------------------------
