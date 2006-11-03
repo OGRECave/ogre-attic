@@ -199,7 +199,15 @@ namespace Ogre {
         */
         void setTextureName( const String& name, TextureType ttype = TEX_TYPE_2D, int mipmaps = -1, bool isAlpha = false);
 
-        /** Sets this texture layer to use a combination of 6 texture maps, each one relating to a face of a cube.
+        /** Gets how many mipmaps have been requested for the texture.
+		*/
+		int getNumRequestedMipMaps() const { return mTextureSrcMipmaps; }
+
+		/** Gets whether this texture is requested to be loaded as alpha if single channel
+		*/
+		bool isAlpha() const { return mIsAlpha; }
+
+		/** Sets this texture layer to use a combination of 6 texture maps, each one relating to a face of a cube.
         @remarks
         Cubic textures are made up of 6 separate texture images. Each one of these is an orthoganal view of the
         world with a FOV of 90 degrees and an aspect ratio of 1:1. You can generate these from 3D Studio by

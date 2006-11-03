@@ -3518,6 +3518,15 @@ namespace Ogre
                 };
             }
 
+			if (pTex->getNumRequestedMipMaps() != MIP_UNLIMITED)
+			{
+				writeValue(StringConverter::toString(pTex->getNumRequestedMipMaps()));
+			}
+			if (pTex->isAlpha())
+			{
+				writeValue("alpha");
+			}
+
             //anim. texture
             if (pTex->getNumFrames() > 1 && !pTex->isCubic())
             {
