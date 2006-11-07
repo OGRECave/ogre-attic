@@ -256,15 +256,15 @@ namespace Ogre {
 	void NumericAnimationTrack::applyToAnimable(const AnimableValuePtr& anim, Real timePos,
 		Real weight, Real scale)
 	{
-		// Nothing to do if no keyframes
-		if (mKeyFrames.empty())
+		// Nothing to do if no keyframes or zero weight, scale
+		if (mKeyFrames.empty() || !weight || !scale)
 			return;
 
 		NumericKeyFrame kf(0, timePos);
 		getInterpolatedKeyFrame(timePos, &kf);
 		// add to existing. Weights are not relative, but treated as
 		// absolute multipliers for the animation
-		AnyNumeric val = kf.getValue() * weight * scale;
+		AnyNumeric val = kf.getValue() * (weight * scale);
 
 		anim->applyDeltaValue(val);
 
@@ -404,8 +404,8 @@ namespace Ogre {
     void NodeAnimationTrack::applyToNode(Node* node, Real timePos, Real weight,
 		bool accumulate, Real scl)
     {
-		// Nothing to do if no keyframes
-		if (mKeyFrames.empty())
+		// Nothing to do if no keyframes or zero weight
+		if (mKeyFrames.empty() || !weight)
 			return;
 
         TransformKeyFrame kf(0, timePos);
