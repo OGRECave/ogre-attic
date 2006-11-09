@@ -148,6 +148,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgreSerializer.h \
 					 OgreShadowCameraSetup.h \
                      OgreShadowCaster.h \
+                     OgreShadowTextureManager.h \
                      OgreShadowVolumeExtrudeProgram.h \
                      OgreSharedPtr.h \
                      OgreSimpleRenderable.h \

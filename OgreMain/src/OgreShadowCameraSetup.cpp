@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreShadowCameraSetup.h"
 #include "OgreNumerics.h"
 #include "OgreCamera.h"
+#include "OgreViewport.h"
 
 
 namespace Ogre 
@@ -83,7 +84,7 @@ namespace Ogre
 			// Round local x/y position based on a world-space texel; this helps to reduce
 			// jittering caused by the projection moving with the camera
 			// Viewport is 2 * near clip distance across (90 degree fov)
-			Real worldTexelSize = (texCam->getNearClipDistance() * 20) / sm->getShadowTextureSize();
+			Real worldTexelSize = (texCam->getNearClipDistance() * 20) / vp->getActualWidth();
 			pos.x -= fmod(pos.x, worldTexelSize);
 			pos.y -= fmod(pos.y, worldTexelSize);
 			pos.z -= fmod(pos.z, worldTexelSize);

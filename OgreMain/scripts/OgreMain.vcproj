@@ -581,6 +581,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreShadowCaster.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreShadowTextureManager.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreShadowVolumeExtrudeProgram.cpp">
 			</File>
 			<File
@@ -1173,6 +1176,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreShadowCaster.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreShadowTextureManager.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreShadowVolumeExtrudeProgram.h">

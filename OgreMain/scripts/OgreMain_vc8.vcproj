@@ -549,6 +549,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreNumerics.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreOptimisedUtil.cpp"
 				>
 			</File>
@@ -558,10 +562,6 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreOptimisedUtilSSE.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreNumerics.cpp"
 				>
 			</File>
 			<File
@@ -772,6 +772,10 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreShadowCaster.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreShadowTextureManager.cpp"
 				>
 			</File>
 			<File
@@ -1557,6 +1561,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreShadowCaster.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreShadowTextureManager.h"
 				>
 			</File>
 			<File

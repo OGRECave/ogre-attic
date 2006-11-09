@@ -384,7 +384,7 @@ public:
 		{
 		case TEXTURE_SOFT_MODULATIVE:
 			// set up compositors
-			shadowTex = TextureManager::getSingleton().getByName("Ogre/ShadowTexture0");
+			shadowTex = mSceneMgr->getShadowTexture(0);
 			shadowRtt = shadowTex->getBuffer()->getRenderTarget();
 			mShadowVp = shadowRtt->getViewport(0);
 			mShadowCompositor = 

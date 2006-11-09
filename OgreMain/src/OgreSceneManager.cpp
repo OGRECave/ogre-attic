@@ -119,9 +119,7 @@ mShadowIndexBufferSize(51200),
 mFullScreenQuad(0),
 mShadowDirLightExtrudeDist(10000),
 mIlluminationStage(IRS_NONE),
-mShadowTextureSize(512),
-mShadowTextureCount(1),
-mShadowTextureFormat(PF_X8R8G8B8),
+mShadowTextureConfigDirty(true),
 mShadowUseInfiniteFarPlane(true),
 mShadowCasterSphereQuery(0),
 mShadowCasterAABBQuery(0),
@@ -164,6 +162,11 @@ mSuppressShadows(false)
 
 	// set up default shadow camera setup
 	mDefaultShadowCameraSetup.bind(new DefaultShadowCameraSetup);
+
+	// init shadow texture config
+	setShadowTextureCount(1);
+
+
 }
 //-----------------------------------------------------------------------
 SceneManager::~SceneManager()
@@ -3238,11 +3241,7 @@ void SceneManager::setShadowTechnique(ShadowTechnique technique)
         }
 	}
 
-    if (isShadowTechniqueTextureBased())
-    {
-        createShadowTextures(mShadowTextureSize, mShadowTextureCount, mShadowTextureFormat);
-    }
-    else
+    if (!isShadowTechniqueTextureBased())
     {
         // Destroy shadow textures to optimise resource usage
         destroyShadowTextures();
@@ -4488,41 +4487,107 @@ void SceneManager::setShadowIndexBufferSize(size_t size)
     mShadowIndexBufferSize = size;
 }
 //---------------------------------------------------------------------
+void SceneManager::setShadowTextureConfig(size_t shadowIndex, unsigned short width, 
+	unsigned short height, PixelFormat format)
+{
+	ShadowTextureConfig conf;
+	conf.width = width;
+	conf.height = height;
+	conf.format = format;
+
+	setShadowTextureConfig(shadowIndex, conf);
+
+
+}
+//---------------------------------------------------------------------
+void SceneManager::setShadowTextureConfig(size_t shadowIndex, 
+	const ShadowTextureConfig& config)
+{
+	if (shadowIndex >= mShadowTextureConfigList.size())
+	{
+		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+			"shadowIndex out of bounds",
+			"SceneManager::setShadowTextureConfig");
+	}
+	mShadowTextureConfigList[shadowIndex] = config;
+
+	mShadowTextureConfigDirty = true;
+}
+//---------------------------------------------------------------------
+ConstShadowTextureConfigIterator SceneManager::getShadowTextureConfigIterator() const
+{
+	return ConstShadowTextureConfigIterator(
+		mShadowTextureConfigList.begin(), mShadowTextureConfigList.end());
+
+}
+//---------------------------------------------------------------------
 void SceneManager::setShadowTextureSize(unsigned short size)
 {
-    // possibly recreate
-    createShadowTextures(size, mShadowTextureCount, mShadowTextureFormat);
-    mShadowTextureSize = size;
+	// default all current
+	for (ShadowTextureConfigList::iterator i = mShadowTextureConfigList.begin();
+		i != mShadowTextureConfigList.end(); ++i)
+	{
+		if (i->width != size || i->height != size)
+		{
+			i->width = i->height = size;
+			mShadowTextureConfigDirty = true;
+		}
+	}
+
 }
 //---------------------------------------------------------------------
 void SceneManager::setShadowTextureCount(unsigned short count)
 {
-    // possibly recreate
-    createShadowTextures(mShadowTextureSize, count, mShadowTextureFormat);
-    mShadowTextureCount = count;
+    // Change size, any new items will take default
+	if (count != mShadowTextureConfigList.size())
+	{
+		mShadowTextureConfigList.resize(count);
+		mShadowTextureConfigDirty = true;
+	}
 }
 //---------------------------------------------------------------------
 void SceneManager::setShadowTexturePixelFormat(PixelFormat fmt)
 {
-	// possibly recreate
-	createShadowTextures(mShadowTextureSize, mShadowTextureCount, fmt);
-	mShadowTextureFormat = fmt;
+	for (ShadowTextureConfigList::iterator i = mShadowTextureConfigList.begin();
+		i != mShadowTextureConfigList.end(); ++i)
+	{
+		if (i->format != fmt)
+		{
+			i->format = fmt;
+			mShadowTextureConfigDirty = true;
+		}
+	}
 }
 //---------------------------------------------------------------------
 void SceneManager::setShadowTextureSettings(unsigned short size, 
 	unsigned short count, PixelFormat fmt)
 {
-    if (!mShadowTextures.empty() && 
-        (count != mShadowTextureCount ||
-        size != mShadowTextureSize ||
-		fmt != mShadowTextureFormat))
-    {
-        // recreate
-        createShadowTextures(size, count, fmt);
-    }
-    mShadowTextureCount = count;
-    mShadowTextureSize = size;
-	mShadowTextureFormat = fmt;
+	setShadowTextureCount(count);
+	for (ShadowTextureConfigList::iterator i = mShadowTextureConfigList.begin();
+		i != mShadowTextureConfigList.end(); ++i)
+	{
+		if (i->width != size || i->height != size || i->format != fmt)
+		{
+			i->width = i->height = size;
+			i->format = fmt;
+			mShadowTextureConfigDirty = true;
+		}
+	}
+}
+//---------------------------------------------------------------------
+const TexturePtr& SceneManager::getShadowTexture(size_t shadowIndex)
+{
+	if (shadowIndex >= mShadowTextureConfigList.size())
+	{
+		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+			"shadowIndex out of bounds",
+			"SceneManager::getShadowTexture");
+	}
+	ensureShadowTexturesCreated();
+
+	return mShadowTextures[shadowIndex];
+
+
 }
 //---------------------------------------------------------------------
 void SceneManager::setShadowTextureSelfShadow(bool selfShadow) 
@@ -4609,111 +4674,82 @@ void SceneManager::setShadowTextureReceiverMaterial(const String& name)
 	}
 }
 //---------------------------------------------------------------------
-void SceneManager::createShadowTextures(unsigned short size,
-	unsigned short count, PixelFormat fmt)
+void SceneManager::ensureShadowTexturesCreated()
 {
-    static const String baseName = "Ogre/ShadowTexture";
-
-    if (!isShadowTechniqueTextureBased() ||
-        !mShadowTextures.empty() && 
-        count == mShadowTextureCount &&
-        size == mShadowTextureSize && 
-		fmt == mShadowTextureFormat)
-    {
-        // no change
-        return;
-    }
+	if (mShadowTextureConfigDirty)
+	{
+		destroyShadowTextures();
+		ShadowTextureManager::getSingleton().getShadowTextures(
+			mShadowTextureConfigList, mShadowTextures);
 
 
-    // destroy existing
-	destroyShadowTextures();
-
-    // Recreate shadow textures
-    for (unsigned short t = 0; t < count; ++t)
-    {
-        String targName = baseName + StringConverter::toString(t);
-        String camName = baseName + "Cam" + StringConverter::toString(t);
-        String matName = baseName + "Mat" + StringConverter::toString(t);
-
-		// try to get existing texture first, since we share these between
-		// potentially multiple SMs
-		TexturePtr shadowTex = TextureManager::getSingleton().getByName(targName);
-		if (shadowTex.isNull())
+		// Recreate shadow textures
+		for (ShadowTextureList::iterator i = mShadowTextures.begin(); 
+			i != mShadowTextures.end(); ++i) 
 		{
-			shadowTex = TextureManager::getSingleton().createManual(
-				targName, 
-				ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, 
-				TEX_TYPE_2D, size, size, 0, fmt, 
-				TU_RENDERTARGET);
+			const TexturePtr& shadowTex = *i;
+
+			// Camera names are local to SM 
+			String camName = shadowTex->getName() + "Cam";
+			// Material names are global to SM, make specific
+			String matName = shadowTex->getName() + "Mat" + getName();
+
+			RenderTexture *shadowRTT = shadowTex->getBuffer()->getRenderTarget();
+
+			// Create camera for this texture, but note that we have to rebind
+			// in prepareShadowTextures to coexist with multiple SMs
+			Camera* cam = createCamera(camName);
+			cam->setAspectRatio(shadowTex->getWidth() / shadowTex->getHeight());
+			// Don't use rendering distance for light cameras; we don't want shadows
+			// for visible objects disappearing, especially for directional lights
+			cam->setUseRenderingDistance(false);
+			mShadowTextureCameras.push_back(cam);
+
+			// Create a viewport, if not there already
+			if (shadowRTT->getNumViewports() == 0)
+			{
+				// Note camera assignment is transient when multiple SMs
+				Viewport *v = shadowRTT->addViewport(cam);
+				v->setClearEveryFrame(true);
+				// remove overlays
+				v->setOverlaysEnabled(false);
+			}
+
+			// Don't update automatically - we'll do it when required
+			shadowRTT->setAutoUpdated(false);
+
+			// Also create corresponding Material used for rendering this shadow
+			MaterialPtr mat = MaterialManager::getSingleton().getByName(matName);
+			if (mat.isNull())
+			{
+				mat = MaterialManager::getSingleton().create(
+					matName, ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME);
+			}
+			Pass* p = mat->getTechnique(0)->getPass(0);
+			if (p->getNumTextureUnitStates() != 1 ||
+				p->getTextureUnitState(0)->_getTexturePtr(0) != shadowTex)
+			{
+				mat->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
+				// create texture unit referring to render target texture
+				TextureUnitState* texUnit = 
+					mat->getTechnique(0)->getPass(0)->createTextureUnitState(shadowTex->getName());
+				// set projective based on camera
+				texUnit->setProjectiveTexturing(true, cam);
+				// clamp to border colour
+				texUnit->setTextureAddressingMode(TextureUnitState::TAM_BORDER);
+				texUnit->setTextureBorderColour(ColourValue::White);
+				mat->touch();
+
+			}
 		}
-		else if (shadowTex->getWidth() != size 
-			|| shadowTex->getHeight() != size
-			|| shadowTex->getFormat() != fmt)
-		{
-			StringUtil::StrStreamType s;
-			s << "Warning: shadow texture #" << t << " is shared "
-				<< "between scene managers but the sizes / formats "
-				<< "do not agree. Consider rationalising your scene manager "
-				<< "shadow texture settings.";
-			LogManager::getSingleton().logMessage(s.str());
-		}
-				
-		// Ensure texture loaded
-		shadowTex->load();
+		mShadowTextureConfigDirty = false;
+	}
 
-		RenderTexture *shadowRTT = shadowTex->getBuffer()->getRenderTarget();
-
-		// Create camera for this texture, but note that we have to rebind
-		// in prepareShadowTextures to coexist with multiple SMs
-		Camera* cam = createCamera(camName);
-        cam->setAspectRatio(1.0f);
-		// Don't use rendering distance for light cameras; we don't want shadows
-		// for visible objects disappearing, especially for directional lights
-		cam->setUseRenderingDistance(false);
-		mShadowTextureCameras.push_back(cam);
-		
-        // Create a viewport, if not there already
-		if (shadowRTT->getNumViewports() == 0)
-		{
-			// Note camera assignment is transient when multiple SMs
-			Viewport *v = shadowRTT->addViewport(cam);
-			v->setClearEveryFrame(true);
-			// remove overlays
-			v->setOverlaysEnabled(false);
-		}
-		
-        // Don't update automatically - we'll do it when required
-        shadowRTT->setAutoUpdated(false);
-        
-        mShadowTextures.push_back(shadowTex);
-
-
-        // Also create corresponding Material used for rendering this shadow
-        MaterialPtr mat = MaterialManager::getSingleton().getByName(matName);
-        if (mat.isNull())
-        {
-            mat = MaterialManager::getSingleton().create(
-                matName, ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME);
-        }
-        else
-        {
-            mat->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
-        }
-        // create texture unit referring to render target texture
-        TextureUnitState* texUnit = 
-            mat->getTechnique(0)->getPass(0)->createTextureUnitState(targName);
-        // set projective based on camera
-        texUnit->setProjectiveTexturing(true, cam);
-		// clamp to border colour
-        texUnit->setTextureAddressingMode(TextureUnitState::TAM_BORDER);
-		texUnit->setTextureBorderColour(ColourValue::White);
-        mat->touch();
-
-    }
 }
 //---------------------------------------------------------------------
 void SceneManager::destroyShadowTextures(void)
 {
+	
     ShadowTextureList::iterator i, iend;
     ShadowTextureCameraList::iterator ci;
     iend = mShadowTextures.end();
@@ -4721,13 +4757,15 @@ void SceneManager::destroyShadowTextures(void)
     for (i = mShadowTextures.begin(); i != iend; ++i, ++ci)
     {
         TexturePtr &shadowTex = *i;
-		// If the reference count on this texture is 1 over the resource system
-		// overhead, then we can remove the texture
-		if (shadowTex.useCount() == 
-			ResourceGroupManager::RESOURCE_SYSTEM_NUM_REFERENCE_COUNTS + 1)
+
+		// Cleanup material that references this texture
+		String matName = shadowTex->getName() + "Mat" + getName();
+		MaterialPtr mat = MaterialManager::getSingleton().getByName(matName);
+		if (!mat.isNull())
 		{
-	        // destroy texture
-    	    TextureManager::getSingleton().remove(shadowTex->getName());
+			// manually clear TUS to ensure texture ref released
+			mat->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
+			MaterialManager::getSingleton().remove(mat->getHandle());
 		}
 
 		// Always destroy camera since they are local to this SM
@@ -4736,11 +4774,18 @@ void SceneManager::destroyShadowTextures(void)
     mShadowTextures.clear();
 	mShadowTextureCameras.clear();
 
+	// Will destroy if no other scene managers referencing
+	ShadowTextureManager::getSingleton().clearUnused();
+
+
         
 }
 //---------------------------------------------------------------------
 void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
 {
+	// create shadow textures if needed
+	ensureShadowTexturesCreated();
+
     // Set the illumination stage, prevents recursive calls
     IlluminationRenderStage savedStage = mIlluminationStage;
     mIlluminationStage = IRS_RENDER_TO_TEXTURE;
@@ -4819,6 +4864,9 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
 
 	fireShadowTexturesUpdated(
 		std::min(mLightsAffectingFrustum.size(), mShadowTextures.size()));
+
+	ShadowTextureManager::getSingleton().clearUnused();
+
 }
 //---------------------------------------------------------------------
 StaticGeometry* SceneManager::createStaticGeometry(const String& name)

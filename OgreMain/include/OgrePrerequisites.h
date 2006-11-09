@@ -339,6 +339,7 @@ namespace Ogre {
     class Serializer;
     class ShadowCaster;
     class ShadowRenderable;
+	class ShadowTextureManager;
     class SimpleRenderable;
     class SimpleSpline;
     class Skeleton;
