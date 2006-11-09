@@ -168,6 +168,8 @@ namespace Ogre {
         mSceneManagerEnum = new SceneManagerEnumerator();
         mCurrentSceneManager = NULL;
 
+		mShadowTextureManager = new ShadowTextureManager();
+
         // ..material manager
         mMaterialManager = new MaterialManager();
 
@@ -256,6 +258,7 @@ namespace Ogre {
     {
         shutdown();
         delete mSceneManagerEnum;
+		delete mShadowTextureManager;
 
 		destroyAllRenderQueueInvocationSequences();
         delete mCompositorManager;

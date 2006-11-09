@@ -1206,6 +1206,13 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\include\OgreShadowTextureManager.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\include\OgreShadowVolumeExtrudeProgram.h">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
@@ -2201,6 +2208,11 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\src\OgreShadowCaster.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\src\OgreShadowTextureManager.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />

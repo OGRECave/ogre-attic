@@ -21,6 +21,10 @@ You should have received a copy of the GNU Lesser General Public License
 along with this library; if not, write to the Free Software Foundation, 
 Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA or go to
 http://www.gnu.org/copyleft/lesser.txt
+
+You may alternatively use this source under the terms of a specific version of
+the OGRE Unrestricted License provided you have obtained such a license from
+Torus Knot Software Ltd.
 -------------------------------------------------------------------------*/
 #ifndef __SceneManager_H__
 #define __SceneManager_H__
@@ -44,7 +48,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreResourceGroupManager.h"
 #include "OgreTexture.h"
 #include "OgreShadowCameraSetup.h"
-
+#include "OgreShadowTextureManager.h"
 
 namespace Ogre {
 
@@ -523,10 +527,8 @@ namespace Ogre {
         Rectangle2D* mFullScreenQuad;
         Real mShadowDirLightExtrudeDist;
         IlluminationRenderStage mIlluminationStage;
-        unsigned short mShadowTextureSize;
-        unsigned short mShadowTextureCount;
-		PixelFormat mShadowTextureFormat;
-        typedef std::vector<TexturePtr> ShadowTextureList;
+		ShadowTextureConfigList mShadowTextureConfigList;
+		bool mShadowTextureConfigDirty;
         ShadowTextureList mShadowTextures;
 		typedef std::vector<Camera*> ShadowTextureCameraList;
 		ShadowTextureCameraList mShadowTextureCameras;
@@ -560,8 +562,7 @@ namespace Ogre {
         /// Internal method for setting up materials for shadows
         virtual void initShadowVolumeMaterials(void);
         /// Internal method for creating shadow textures (texture-based shadows)
-        virtual void createShadowTextures(unsigned short size, unsigned short count, 
-			PixelFormat fmt);
+        virtual void ensureShadowTexturesCreated();
         /// Internal method for destroying shadow textures (texture-based shadows)
         virtual void destroyShadowTextures(void);
         /// Internal method for preparing shadow textures ready for use in a regular render
@@ -2154,15 +2155,35 @@ namespace Ogre {
         /// Get the size of the shadow index buffer
 		virtual size_t getShadowIndexBufferSize(void) const
 		{ return mShadowIndexBufferSize; }
-        /** Set the size of the texture used for texture-based shadows.
+        /** Set the size of the texture used for all texture-based shadows.
         @remarks
             The larger the shadow texture, the better the detail on 
             texture based shadows, but obviously this takes more memory.
             The default size is 512. Sizes must be a power of 2.
+		@note This is the simple form, see setShadowTextureConfig for the more 
+			complex form.
         */
         virtual void setShadowTextureSize(unsigned short size);
-        /// Get the size of the texture used for texture based shadows
-        unsigned short getShadowTextureSize(void) const {return mShadowTextureSize; }
+
+		/** Set the detailed configuration for a shadow texture.
+		@param shadowIndex The index of the texture to configure, must be < the
+			number of shadow textures setting
+		@param width, height The dimensions of the texture
+		@param format The pixel format of the texture
+		*/
+		virtual void setShadowTextureConfig(size_t shadowIndex, unsigned short width, 
+			unsigned short height, PixelFormat format);
+		/** Set the detailed configuration for a shadow texture.
+		@param shadowIndex The index of the texture to configure, must be < the
+			number of shadow textures setting
+		@param config Configuration structure
+		*/
+		virtual void setShadowTextureConfig(size_t shadowIndex, 
+			const ShadowTextureConfig& config);
+
+		/** Get an iterator over the current shadow texture settings. */
+		ConstShadowTextureConfigIterator getShadowTextureConfigIterator() const;
+
         /** Set the pixel format of the textures used for texture-based shadows.
         @remarks
 			By default, a colour texture is used (PF_X8R8G8B8) for texture shadows,
@@ -2171,10 +2192,10 @@ namespace Ogre {
 			setShadowTextureCasterMaterial and setShadowTextureReceiverMaterial
 			to provide shader-based materials to use these customised shadow
 			texture formats.
+		@note This is the simple form, see setShadowTextureConfig for the more 
+			complex form.
         */
         virtual void setShadowTexturePixelFormat(PixelFormat fmt);
-        /// Get the format of the textures used for texture based shadows
-        PixelFormat getShadowTexturePixelFormat(void) const {return mShadowTextureFormat; }
         /** Set the number of textures allocated for texture-based shadows.
         @remarks
             The default number of textures assigned to deal with texture based
@@ -2184,15 +2205,26 @@ namespace Ogre {
         */
         virtual void setShadowTextureCount(unsigned short count);
         /// Get the number of the textures allocated for texture based shadows
-        unsigned short getShadowTextureCount(void) const {return mShadowTextureCount; }
+        unsigned short getShadowTextureCount(void) const {return mShadowTextureConfigList.size(); }
         /** Sets the size and count of textures used in texture-based shadows. 
         @remarks
             @see setShadowTextureSize and setShadowTextureCount for details, this
             method just allows you to change both at once, which can save on 
             reallocation if the textures have already been created.
+		@note This is the simple form, see setShadowTextureConfig for the more 
+			complex form.
         */
         virtual void setShadowTextureSettings(unsigned short size, unsigned short count, 
 			PixelFormat fmt = PF_X8R8G8B8);
+
+		/** Get a reference to the shadow texture currently in use at the given index.
+		@note
+			If you change shadow settings, this reference may no longer
+			be correct, so be sure not to hold the returned reference over 
+			texture shadow configuration changes.
+		*/
+		virtual const TexturePtr& getShadowTexture(size_t shadowIndex);
+
         /** Sets the proportional distance which a texture shadow which is generated from a
             directional light will be offset into the camera view to make best use of texture space.
         @remarks

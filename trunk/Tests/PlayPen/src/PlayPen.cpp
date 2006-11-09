@@ -2243,7 +2243,8 @@ protected:
         MaterialPtr debugMat = MaterialManager::getSingleton().create(
             "Ogre/DebugShadowMap", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         debugMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
-        TextureUnitState *t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("Ogre/ShadowTexture0");
+		TexturePtr shadowTex = mSceneMgr->getShadowTexture(0);
+        TextureUnitState *t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState(shadowTex->getName());
         t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
         //t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("spot_shadow_fade.png");
         //t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
@@ -2578,7 +2579,8 @@ protected:
 		MaterialPtr debugMat = MaterialManager::getSingleton().create(
 			"Ogre/DebugShadowMap", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		debugMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
-		TextureUnitState *t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("Ogre/ShadowTexture0");
+		TexturePtr shadowTex = mSceneMgr->getShadowTexture(0);
+		TextureUnitState *t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState(shadowTex->getName());
 		t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
 		//t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("spot_shadow_fade.png");
 		//t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
@@ -2599,7 +2601,7 @@ protected:
 		mTestNode[4] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-300, -100, 200));
 		mTestNode[4]->attachObject(pSys2);
 
-		TexturePtr shadowTex = TextureManager::getSingleton().getByName("Ogre/ShadowTexture0");
+		TexturePtr shadowTex = mSceneMgr->getShadowTexture(0);
 		RenderTarget* shadowRtt = shadowTex->getBuffer()->getRenderTarget();
 		Viewport* vp = shadowRtt->getViewport(0);
 		Ogre::CompositorInstance *instance = 

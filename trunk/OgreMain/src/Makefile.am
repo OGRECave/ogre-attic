@@ -125,6 +125,7 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreSerializer.cpp \
 						 OgreShadowCameraSetup.cpp \
 			 OgreShadowCaster.cpp \
+			 OgreShadowTextureManager.cpp \
 			 OgreShadowVolumeExtrudeProgram.cpp \
                          OgreSimpleRenderable.cpp \
                          OgreSimpleSpline.cpp \
