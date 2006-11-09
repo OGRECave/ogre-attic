@@ -124,6 +124,8 @@ namespace Ogre {
 			ushort mNumMultiRenderTargets;
 			/// The maximum point size
 			Real mMaxPointSize;
+			/// Are non-POW2 textures feature-limited?
+			bool mNonPOW2TexturesLimited;
 
     	public:	
             RenderSystemCapabilities ();
@@ -311,6 +313,23 @@ namespace Ogre {
 			Real getMaxPointSize(void) const
 			{
 				return mMaxPointSize;
+			}
+			/// Non-POW2 textures limited
+			void setNonPOW2TexturesLimited(bool l)
+			{
+				mNonPOW2TexturesLimited = l;
+			}
+			/** Are non-power of two textures limited in features?
+			@remarks
+				If the RSC_NON_POWER_OF_2_TEXTURES capability is set, but this
+				method returns true, you can use non power of 2 textures only if:
+				<ul><li>You load them explicitly with no mip maps</li>
+				<li>You don't use DXT texture compression</li>
+				<li>You use clamp texture addressing</li></ul>
+			*/
+			bool getNonPOW2TexturesLimited(void) const
+			{
+				return mNonPOW2TexturesLimited;
 			}
 
 

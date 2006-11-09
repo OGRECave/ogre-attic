@@ -34,7 +34,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     RenderSystemCapabilities::RenderSystemCapabilities()
       : mNumWorldMatrices(0), mNumTextureUnits(0), mStencilBufferBitDepth(0),
-        mNumVertexBlendMatrices(0), mCapabilities(0), mNumMultiRenderTargets(1)
+        mNumVertexBlendMatrices(0), mCapabilities(0), mNumMultiRenderTargets(1), 
+		mNonPOW2TexturesLimited(false)
     {
     }
     //-----------------------------------------------------------------------
@@ -134,7 +135,8 @@ namespace Ogre {
             + StringConverter::toString(hasCapability(RSC_TEXTURE_FLOAT), true));
         pLog->logMessage(
             " * Non-power-of-two textures: "
-            + StringConverter::toString(hasCapability(RSC_NON_POWER_OF_2_TEXTURES), true));
+            + StringConverter::toString(hasCapability(RSC_NON_POWER_OF_2_TEXTURES), true)
+			+ (mNonPOW2TexturesLimited ? " (limited)" : ""));
 		pLog->logMessage(
             " * Volume textures: "
             + StringConverter::toString(hasCapability(RSC_TEXTURE_3D), true));
