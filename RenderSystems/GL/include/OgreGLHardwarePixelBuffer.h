@@ -42,6 +42,7 @@ namespace Ogre {
 		// depending on buffer usage
 		PixelBox mBuffer;
         GLenum mGLInternalFormat; // GL internal format
+		LockOptions mCurrentLockOptions;
 		
 		// Buffer allocation/freeage
 		void allocateBuffer();

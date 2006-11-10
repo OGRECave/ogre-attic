@@ -73,17 +73,23 @@ void GLHardwarePixelBuffer::freeBuffer()
 PixelBox GLHardwarePixelBuffer::lockImpl(const Image::Box lockBox,  LockOptions options)
 {
 	allocateBuffer();
-	//if(!(mUsage & HBU_WRITEONLY) && options!=HBU_DISCARD)
-	if(options == HBL_READ_ONLY)
+	if(options != HardwareBuffer::HBL_DISCARD
+		&& mUsage & HardwareBuffer::HBU_WRITE_ONLY == 0) 
+	{
 		// Download the old contents of the texture
 		download(mBuffer);
+	}
+	mCurrentLockOptions = options;
 	return mBuffer.getSubVolume(lockBox);
 }
 //-----------------------------------------------------------------------------  
 void GLHardwarePixelBuffer::unlockImpl(void)
 {
-	// From buffer to card
-	upload(mCurrentLock);
+	if (mCurrentLockOptions != HardwareBuffer::HBL_READ_ONLY)
+	{
+		// From buffer to card, only upload if was locked for writing
+		upload(mCurrentLock);
+	}
 	
 	freeBuffer();
 }
