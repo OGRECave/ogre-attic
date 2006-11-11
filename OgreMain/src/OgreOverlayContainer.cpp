@@ -39,11 +39,17 @@ namespace Ogre {
     //---------------------------------------------------------------------
     OverlayContainer::~OverlayContainer()
     {
+		// remove from parent overlay if root
+		if (mOverlay && !mParent)
+		{
+			mOverlay->remove2D(this);
+		}
+
         OverlayContainer::ChildIterator ci = getChildIterator();
         while (ci.hasMoreElements())
         {
             OverlayElement* child = ci.getNext();
-            child->_setParent(0);
+			child->_notifyParent(0, 0);
         }
     }
     //---------------------------------------------------------------------
