@@ -1051,7 +1051,7 @@ namespace Ogre {
 					XSI::TimeControl timeControl = clip.GetTimeControl();
 					ShapeClipEntry sce;
 					sce.clip = clip;
-					sce.startFrame = timeControl.GetStartOffset();
+					sce.startFrame = sce.originalStartFrame = timeControl.GetStartOffset();
 					long length = (1.0 / timeControl.GetScale()) * 
 						(timeControl.GetClipOut() - timeControl.GetClipIn() + 1);
 					sce.endFrame = sce.startFrame + length - 1;
@@ -1144,7 +1144,7 @@ namespace Ogre {
 							{
 
 								// map the keyframe number to a local number
-								long localFrameNum = frameNum - sce.startFrame *
+								long localFrameNum = frameNum - sce.originalStartFrame *
 									sce.clip.GetTimeControl().GetScale();
 
 								// sample pose influences
@@ -1202,6 +1202,7 @@ namespace Ogre {
 				// Clip overlaps with the animation sampling area and 
 				// applies to this submesh
 				ShapeClipEntry newClipEntry;
+				newClipEntry.originalStartFrame = sce.startFrame;
 				newClipEntry.startFrame = std::max(sce.startFrame, animEntry.startFrame);
 				newClipEntry.endFrame = std::min(sce.endFrame, animEntry.endFrame);
 				newClipEntry.clip = sce.clip;
