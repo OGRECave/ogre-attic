@@ -33,6 +33,7 @@ Description: Somewhere to play in the sand...
 #include "OgreProgressiveMesh.h"
 #include "OgreEdgeListBuilder.h"
 #include "OgreBillboardChain.h"
+#include "OgreTextAreaOverlayElement.h"
 
 /*
 #include "OgreNoMemoryMacros.h"
@@ -289,11 +290,8 @@ public:
 
         if (rayQuery)
         {
-		    static Ray camRay;
 		    static std::set<Entity*> lastEnts;
-		    camRay.setOrigin(mCamera->getPosition());
-		    camRay.setDirection(mCamera->getDirection());
-		    rayQuery->setRay(camRay);
+		    rayQuery->setRay(mCamera->getCameraToViewportRay(0.5, 0.5));
 
 		    // Reset last set
 		    for (std::set<Entity*>::iterator lasti = lastEnts.begin();
@@ -779,8 +777,16 @@ protected:
 
 	void testBug()
 	{
+		Vector3 d1 = Vector3::UNIT_X;
+		Quaternion smallRot(Degree(179.9), Vector3::UNIT_Y);
+		d1 = smallRot * d1;
+
+		Quaternion newRot = d1.getRotationTo(Vector3::UNIT_X);
+		Vector3 d2 = newRot * d1;
+
 		mSceneMgr->setAmbientLight(ColourValue::White);
-		Entity *e = mSceneMgr->createEntity("1", "dwarfhouse.mesh");
+		Entity *e = mSceneMgr->createEntity("1", "edificio_manzana_100.mesh");
+		e->setMaterialName("TestBig");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
 
 
@@ -2671,7 +2677,7 @@ protected:
         createRandomEntityClones(ent, 100, Vector3(-1000,-1000,-1000), Vector3(1000,1000,1000));
 
         rayQuery = mSceneMgr->createRayQuery(
-            Ray(mCamera->getPosition(), mCamera->getDirection()));
+			mCamera->getCameraToViewportRay(0.5, 0.5));
         rayQuery->setSortByDistance(true, 1);
 
         //bool val = true;
@@ -4287,6 +4293,30 @@ protected:
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
     }
 
+	void testOverlayRelativeMode()
+	{
+
+		Overlay* o = OverlayManager::getSingleton().create("Test");
+		OverlayContainer* c = (OverlayContainer*)OverlayManager::getSingleton().createOverlayElement("Panel", "panel1");
+		c->setMetricsMode(GMM_RELATIVE);
+		c->setDimensions(1.0, 1.0);
+		c->setMaterialName("Core/StatsBlockCenter");
+		c->setPosition(0.0, 0.0);
+
+		TextAreaOverlayElement* t = (TextAreaOverlayElement*)OverlayManager::getSingleton().createOverlayElement("TextArea", "text1");
+		t->setMetricsMode(GMM_RELATIVE);
+		t->setCaption("Hello");
+		t->setPosition(0,0);
+		t->setFontName("BlueHighway");
+		t->setDimensions(0.2, 0.5);
+		t->setCharHeight(0.2);
+		c->addChild(t);
+
+		o->add2D(c);
+		o->show();
+
+	}
+
 	// Just override the mandatory create scene method
     void createScene(void)
     {
@@ -4339,7 +4369,7 @@ protected:
 		//testReflectedBillboards();
 		//testBlendDiffuseColour();
 
-        //testRaySceneQuery();
+        testRaySceneQuery();
         //testIntersectionSceneQuery();
 
         //test2Spotlights();
@@ -4358,7 +4388,7 @@ protected:
 		//testPoseAnimation();
 		//testPoseAnimation2();
 		//testBug();
-		testManualBlend();
+		//testManualBlend();
 		//testManualObjectNonIndexed();
 		//testManualObjectIndexed();
 		//testCustomProjectionMatrix();
@@ -4377,7 +4407,8 @@ protected:
 		//testMaterialSchemesWithLOD();
 		//testMaterialSchemesWithMismatchedLOD();
         //testSkeletonAnimationOptimise();
-        testBuildTangentOnAnimatedMesh();
+        //testBuildTangentOnAnimatedMesh();
+		//testOverlayRelativeMode();
 
 		
     }

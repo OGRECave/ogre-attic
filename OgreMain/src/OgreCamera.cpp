@@ -557,41 +557,19 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Ray Camera::getCameraToViewportRay(Real screenX, Real screenY) const
     {
-        Real centeredScreenX = (screenX - 0.5f);
-        Real centeredScreenY = (0.5f - screenY);
+		Matrix4 inverseVP = getViewMatrix(true).inverse() * getProjectionMatrix().inverse();
 
-		Real normalizedSlope = Math::Tan(mFOVy / 2);
-        Real viewportYToWorldY = normalizedSlope * mNearDist * 2;
-        Real viewportXToWorldX = viewportYToWorldY * mAspect;
+		Real nx = (2.0f * screenX) - 1.0f;
+		Real ny = 1.0f - (2.0f * screenY);
+		Vector3 near(nx, ny, -1.f);
 
-		Vector3 rayDirection, rayOrigin;
-		if (mProjType == PT_PERSPECTIVE)
-		{
-			// Frustum offset (at near plane)
-			Real nearFocal = mNearDist / mFocalLength;
-			Real offsetX = mFrustumOffset.x * nearFocal;
-			Real offsetY = mFrustumOffset.y * nearFocal;
-			// From camera centre
-			rayOrigin = getDerivedPosition();
-			// Point to perspective projected position
-			rayDirection.x = centeredScreenX * viewportXToWorldX + offsetX;
-			rayDirection.y = centeredScreenY * viewportYToWorldY + offsetY;
-			rayDirection.z = -mNearDist;
-			rayDirection = getDerivedOrientation() * rayDirection;
-			rayDirection.normalise();
-		}
-		else
-		{
-			// Ortho always parallel to point on screen
-			rayOrigin.x = centeredScreenX * viewportXToWorldX;
-			rayOrigin.y = centeredScreenY * viewportYToWorldY;
-			rayOrigin.z = 0.0f;
-			rayOrigin = getDerivedOrientation() * rayOrigin;
-			rayOrigin = getDerivedPosition() + rayOrigin;
-			rayDirection = getDerivedDirection();
-		}
+		// Get ray origin and ray target on near plane in world space
+		Vector3 rayOrigin = getDerivedPosition();
+		Vector3 rayTarget = inverseVP * near;
+		Vector3 rayDirection = rayTarget - rayOrigin;
+		rayDirection.normalise();
 
-        return Ray(rayOrigin, rayDirection);
+        return Ray(getDerivedPosition(), rayDirection);
     } 
 
     // -------------------------------------------------------------------
