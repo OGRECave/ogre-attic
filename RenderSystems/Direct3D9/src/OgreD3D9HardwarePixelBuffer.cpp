@@ -101,17 +101,46 @@ void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DVolume9 *volu
 // Util functions to convert a D3D locked box to a pixel box
 void fromD3DLock(PixelBox &rval, const D3DLOCKED_RECT &lrect)
 {
-	rval.rowPitch = lrect.Pitch / PixelUtil::getNumElemBytes(rval.format);
-	rval.slicePitch = rval.rowPitch * rval.getHeight();
-	assert((lrect.Pitch % PixelUtil::getNumElemBytes(rval.format))==0);
+	size_t bpp = PixelUtil::getNumElemBytes(rval.format);
+	if (bpp != 0)
+	{
+		rval.rowPitch = lrect.Pitch / bpp;
+		rval.slicePitch = rval.rowPitch * rval.getHeight();
+		assert((lrect.Pitch % bpp)==0);
+	}
+	else if (PixelUtil::isCompressed(rval.format))
+	{
+		rval.rowPitch = rval.getWidth();
+		rval.slicePitch = rval.getWidth() * rval.getHeight();
+	}
+	else
+	{
+		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+			"Invalid pixel format", "fromD3DLock");
+	}
+
 	rval.data = lrect.pBits;
 }
 void fromD3DLock(PixelBox &rval, const D3DLOCKED_BOX &lbox)
 {
-	rval.rowPitch = lbox.RowPitch / PixelUtil::getNumElemBytes(rval.format);
-	rval.slicePitch = lbox.SlicePitch / PixelUtil::getNumElemBytes(rval.format);
-	assert((lbox.RowPitch % PixelUtil::getNumElemBytes(rval.format))==0);
-	assert((lbox.SlicePitch % PixelUtil::getNumElemBytes(rval.format))==0);
+	size_t bpp = PixelUtil::getNumElemBytes(rval.format);
+	if (bpp != 0)
+	{
+		rval.rowPitch = lbox.RowPitch / bpp;
+		rval.slicePitch = lbox.SlicePitch / bpp;
+		assert((lbox.RowPitch % bpp)==0);
+		assert((lbox.SlicePitch % bpp)==0);
+	}
+	else if (PixelUtil::isCompressed(rval.format))
+	{
+		rval.rowPitch = rval.getWidth();
+		rval.slicePitch = rval.getWidth() * rval.getHeight();
+	}
+	else
+	{
+		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+			"Invalid pixel format", "fromD3DLock");
+	}
 	rval.data = lbox.pBits;
 }
 // Convert Ogre integer Box to D3D rectangle
