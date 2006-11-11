@@ -1756,24 +1756,6 @@ namespace Ogre {
             mSharedSkeletonEntities = entity->mSharedSkeletonEntities;
             mSharedSkeletonEntities->insert(this);
         }
-
-		if (mSkelAnimVertexData)
-		{
-			delete mSkelAnimVertexData;
-			mSkelAnimVertexData = 0;
-		}
-		if (mHardwareVertexAnimVertexData)
-		{
-			delete mHardwareVertexAnimVertexData;
-			mHardwareVertexAnimVertexData = 0;
-		}
-		if (mSoftwareVertexAnimVertexData)
-		{
-			delete mSoftwareVertexAnimVertexData;
-			mSoftwareVertexAnimVertexData = 0;
-		}
-
-
     }
     //-----------------------------------------------------------------------
     void Entity::stopSharingSkeletonInstance()
