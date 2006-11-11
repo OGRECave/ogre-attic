@@ -74,7 +74,7 @@ PixelBox GLHardwarePixelBuffer::lockImpl(const Image::Box lockBox,  LockOptions 
 {
 	allocateBuffer();
 	if(options != HardwareBuffer::HBL_DISCARD
-		&& mUsage & HardwareBuffer::HBU_WRITE_ONLY == 0) 
+		&& (mUsage & HardwareBuffer::HBU_WRITE_ONLY) == 0) 
 	{
 		// Download the old contents of the texture
 		download(mBuffer);
