@@ -2,18 +2,18 @@
 <Wix xmlns='http://schemas.microsoft.com/wix/2003/01/wi'>
 
 	<Product 
-  		Name='OGRE XSI v5.0 Exporter' 
+  		Name='OGRE XSI v5.x Exporter' 
 		Id='6F7C886C-AC7C-481B-B244-236DF5D2D312'
 		Language='1033' Codepage='1252' 
-		Version='1.2.2' Manufacturer='OGRE Project'>
+		Version='1.2.4' Manufacturer='OGRE Project'>
 
     	<Package Id='????????-????-????-????-????????????' Keywords='Installer'
-      		Description="OGRE XSI v5.0 Exporter Installer"
-			Comments='Softimage XSI v5.0 Exporter for OGRE' Manufacturer='OGRE Project'
+      		Description="OGRE XSI v5.x Exporter Installer"
+			Comments='Softimage XSI v5.x Exporter for OGRE' Manufacturer='OGRE Project'
       		InstallerVersion='100' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
 
 		<Media Id='1' Cabinet='1.cab' EmbedCab='yes' DiskPrompt="CD 1" />
-		<Property Id='DiskPrompt' Value="OGRE XSI v5.0 Exporter Installer [1]" />
+		<Property Id='DiskPrompt' Value="OGRE XSI v5.x Exporter Installer [1]" />
 		<!-- Can't automatically determine XSI v5 location 
 		This is because Softimage have made the path to the 'InstallRoot' property include a key with
 		the name of the install folder in it!! RegistrySearch doesn't support wildcards.
@@ -33,7 +33,7 @@
 			<Merge Id='CRT Policy' Language='0' src='C:\Program Files\Common Files\Merge Modules\policy_8_0_Microsoft_VC80_CRT_x86.msm' DiskId='1' />
 			<!-- Exporter files -->
 			<Directory Id="SoftimageFolder" LongName="Softimage" Name="Softimg">
-				<Directory Id='INSTALLDIR' Name='XSI_5.0'>
+				<Directory Id='INSTALLDIR' Name='XSI_5.11'>
 					<Directory Id='XSIAppDir' Name="App" LongName="Application">
 						<Directory Id='XSIBinDir' Name="bin">
 							<Component Id='OgreMainComp' Guid='B79A13E2-E64C-47F0-B412-F0D543639161'>

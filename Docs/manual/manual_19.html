@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on September 17 2006 by texi2html 1.66 -->
+<!-- Created on November 11 2006 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -12,10 +12,10 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.2.3 ('Dagon'): Using Vertex and Fragment Programs in a Pass</TITLE>
+<TITLE>OGRE Manual v1.2.4 ('Dagon'): Using Vertex and Fragment Programs in a Pass</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.2.3 ('Dagon'): Using Vertex and Fragment Programs in a Pass">
-<META NAME="keywords" CONTENT="OGRE Manual v1.2.3 ('Dagon'): Using Vertex and Fragment Programs in a Pass">
+<META NAME="description" CONTENT="OGRE Manual v1.2.4 ('Dagon'): Using Vertex and Fragment Programs in a Pass">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.4 ('Dagon'): Using Vertex and Fragment Programs in a Pass">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.66">
@@ -48,7 +48,12 @@ As well as naming the program in question, you can also provide parameters to it
 }
 </pre></td></tr></table>In this example, we bind a vertex program called 'myVertexProgram' (which will be defined elsewhere) to the pass, and give it 2 parameters, one is an 'auto' parameter, meaning we do not have to supply a value as such, just a recognised code (in this case it's the world/view/projection matrix which is kept up to date automatically by Ogre). The second parameter is a manually specified parameter, a 4-element float. The indexes are described later.<BR><BR>
 
-The syntax of the link to a vertex program and a fragment program are identical, the only difference is that 'fragment_program_ref' is used instead of 'vertex_program_ref'.
+The syntax of the link to a vertex program and a fragment program are identical, the only difference is that 'fragment_program_ref' is used instead of 'vertex_program_ref'.<BR><BR>
+
+For many situations a vertex and fragment program are associated with each other in a pass but this is not cast in stone.  You could have a vertex program that can be used by several different fragment programs.  Another situation that arises is that you can mix fixed pipeline and programmable pipeline (shaders) together. You could use the non-programable vertex fixed function pipeline and then provide a fragment_program_ref in a pass ie there would be no vertex_program_ref section in the pass.  The fragment program referenced in the pass must meet the requirements as defined in the related API in order to read from the outputs of the vertex fixed pipeline.  You could also just have a vertex program that outputs to the fragment fixed function pipeline.<BR><BR>
+
+The requirements to read from or write to the fixed function pipeline are similar between rendering API's (DirectX and OpenGL) but how its actually done in each type of shader (vertex or fragment) depends on the shader language.  For HLSL (DirectX API) and associated asm consult MSDN at <A HREF="http://msdn.microsoft.com/library/">http://msdn.microsoft.com/library/</A>. For GLSL (OpenGL), consult section 7.6 of the GLSL spec 1.1 available at <A HREF="http://developer.3dlabs.com/documents/index.htm">http://developer.3dlabs.com/documents/index.htm</A>.  The built in varying variables provided in GLSL allow your program to read/write to the fixed function pipeline varyings.  For Cg consult the Language Profiles section in CgUsersManual.pdf that comes with the Cg Toolkit available at @url(http://developer.nvidia.com/object/cg_toolkit.html).  For HLSL and Cg its the varying bindings that allow your shader programs to read/write to the fixed function pipeline varyings.<BR><BR>
+
 <A NAME="Program Parameter Specification"></A>
 <A NAME="SEC99"></A>
 <H3> Parameter specification </H3>
@@ -322,7 +327,7 @@ When using additive texture shadows, the shadow pass render is actually the ligh
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>September 17 2006</I>
+by <I>steve</I> on <I>November 11 2006</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 
