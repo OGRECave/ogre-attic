@@ -416,10 +416,14 @@ compositor HDR
 		target rt_full
 		{
 			// No input, render differently
-			input previous
+			input none
 
 			// Use float target HDR material scheme (unclamped shaders)
 			material_scheme HDR
+
+			pass clear
+			{
+			}
 
 			pass render_scene
 			{

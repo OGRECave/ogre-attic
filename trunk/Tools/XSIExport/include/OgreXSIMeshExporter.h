@@ -247,6 +247,7 @@ namespace Ogre {
 			ShapeKeyToPoseEntry* keytoPose;
 			long startFrame;
 			long endFrame;
+			long originalStartFrame; // in case clamped
 		};
 		typedef std::list<ShapeClipEntry> ShapeClipList;
 
