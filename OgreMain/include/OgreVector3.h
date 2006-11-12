@@ -590,8 +590,6 @@ namespace Ogre
             v0.normalise();
             v1.normalise();
 
-            Vector3 c = v0.crossProduct(v1);
-
             Real d = v0.dotProduct(v1);
             // If dot == 1, vectors are the same
             if (d >= 1.0f)
@@ -620,10 +618,13 @@ namespace Ogre
 			{
 	            Real invs = 1 / s;
 
+				Vector3 c = v0.crossProduct(v1);
+
     	        q.x = c.x * invs;
         	    q.y = c.y * invs;
             	q.z = c.z * invs;
             	q.w = s * 0.5;
+				q.normalise();
 			}
             return q;
         }

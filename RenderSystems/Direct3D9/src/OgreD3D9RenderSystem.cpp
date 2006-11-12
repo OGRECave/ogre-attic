@@ -798,8 +798,18 @@ namespace Ogre
 			mCapabilities->setCapability(RSC_TEXTURE_3D);
 		}
 		
-        // non-power-of-two texturs always supported
-        mCapabilities->setCapability(RSC_NON_POWER_OF_2_TEXTURES);
+        if ((mCaps.TextureCaps & D3DPTEXTURECAPS_POW2) == 0)
+		{
+			// unrestricted non POW2
+			mCapabilities->setCapability(RSC_NON_POWER_OF_2_TEXTURES);
+		}
+		else if (mCaps.TextureCaps & D3DPTEXTURECAPS_NONPOW2CONDITIONAL)
+		{
+			// Conditional support for non POW2
+			mCapabilities->setCapability(RSC_NON_POWER_OF_2_TEXTURES);
+			mCapabilities->setNonPOW2TexturesLimited(true);
+
+		}
 
 		// We always support rendertextures bigger than the frame buffer
         mCapabilities->setCapability(RSC_HWRENDER_TO_TEXTURE);

@@ -439,7 +439,9 @@ namespace Ogre
                 applications that don't need to constantly refresh the
                 rendering targets (e.g. an editor utility), it is better to
                 manually refresh each render target only when required by
-                calling RenderTarget::update.
+                calling RenderTarget::update, or if you want to run your own
+				render loop you can update all targets on demand using
+				Root::renderOneFrame.
             @note
                 This frees up the CPU to do other things in between
                 refreshes, since in this case frame rate is less important.

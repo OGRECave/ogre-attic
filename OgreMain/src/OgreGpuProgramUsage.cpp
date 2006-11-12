@@ -36,16 +36,16 @@ namespace Ogre
 {
     //-----------------------------------------------------------------------------
     GpuProgramUsage::GpuProgramUsage(GpuProgramType gptype) :
-        mType(gptype), mProgram(NULL)
+        mType(gptype), mProgram()
     {
     }
 	//-----------------------------------------------------------------------------
 	GpuProgramUsage::GpuProgramUsage(const GpuProgramUsage& oth)
-	{
-		mType = oth.mType;
-		mProgram = oth.mProgram;
+        : mType(oth.mType)
+        , mProgram(oth.mProgram)
         // nfz: parameters should be copied not just use a shared ptr to the original
-		mParameters =  GpuProgramParametersSharedPtr(new GpuProgramParameters(*oth.mParameters));
+		, mParameters(new GpuProgramParameters(*oth.mParameters))
+	{
 	}
 	//-----------------------------------------------------------------------------
 	void GpuProgramUsage::setProgramName(const String& name, bool resetParams)

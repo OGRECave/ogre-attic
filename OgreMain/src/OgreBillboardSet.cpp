@@ -50,6 +50,7 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     BillboardSet::BillboardSet() :
+		mBoundingRadius(0.0f), 
         mOriginType( BBO_CENTER ),
         mRotationType( BBR_TEXCOORD ),
         mAllDefaultSize( true ),
@@ -81,6 +82,7 @@ namespace Ogre {
         unsigned int poolSize,
         bool externalData) :
         MovableObject(name),
+		mBoundingRadius(0.0f), 
         mOriginType( BBO_CENTER ),
         mRotationType( BBR_TEXCOORD ),
         mAllDefaultSize( true ),

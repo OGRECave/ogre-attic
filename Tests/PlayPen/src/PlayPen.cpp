@@ -37,6 +37,7 @@ Description: Somewhere to play in the sand...
 #include "OgreProgressiveMesh.h"
 #include "OgreEdgeListBuilder.h"
 #include "OgreBillboardChain.h"
+#include "OgreTextAreaOverlayElement.h"
 
 /*
 #include "OgreNoMemoryMacros.h"
@@ -286,11 +287,8 @@ public:
 
         if (rayQuery)
         {
-		    static Ray camRay;
 		    static std::set<Entity*> lastEnts;
-		    camRay.setOrigin(mCamera->getPosition());
-		    camRay.setDirection(mCamera->getDirection());
-		    rayQuery->setRay(camRay);
+		    rayQuery->setRay(mCamera->getCameraToViewportRay(0.5, 0.5));
 
 		    // Reset last set
 		    for (std::set<Entity*>::iterator lasti = lastEnts.begin();
@@ -2601,7 +2599,6 @@ protected:
 		mTestNode[4] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-300, -100, 200));
 		mTestNode[4]->attachObject(pSys2);
 
-		TexturePtr shadowTex = mSceneMgr->getShadowTexture(0);
 		RenderTarget* shadowRtt = shadowTex->getBuffer()->getRenderTarget();
 		Viewport* vp = shadowRtt->getViewport(0);
 		Ogre::CompositorInstance *instance = 
@@ -2683,7 +2680,7 @@ protected:
         createRandomEntityClones(ent, 100, Vector3(-1000,-1000,-1000), Vector3(1000,1000,1000));
 
         rayQuery = mSceneMgr->createRayQuery(
-            Ray(mCamera->getPosition(), mCamera->getDirection()));
+			mCamera->getCameraToViewportRay(0.5, 0.5));
         rayQuery->setSortByDistance(true, 1);
 
         //bool val = true;
@@ -4872,6 +4869,30 @@ protected:
 
 
 
+	void testOverlayRelativeMode()
+	{
+
+		Overlay* o = OverlayManager::getSingleton().create("Test");
+		OverlayContainer* c = (OverlayContainer*)OverlayManager::getSingleton().createOverlayElement("Panel", "panel1");
+		c->setMetricsMode(GMM_RELATIVE);
+		c->setDimensions(1.0, 1.0);
+		c->setMaterialName("Core/StatsBlockCenter");
+		c->setPosition(0.0, 0.0);
+
+		TextAreaOverlayElement* t = (TextAreaOverlayElement*)OverlayManager::getSingleton().createOverlayElement("TextArea", "text1");
+		t->setMetricsMode(GMM_RELATIVE);
+		t->setCaption("Hello");
+		t->setPosition(0,0);
+		t->setFontName("BlueHighway");
+		t->setDimensions(0.2, 0.5);
+		t->setCharHeight(0.2);
+		c->addChild(t);
+
+		o->add2D(c);
+		o->show();
+
+	}
+
 	// Just override the mandatory create scene method
     void createScene(void)
     {
@@ -4928,7 +4949,7 @@ protected:
 		//testReflectedBillboards();
 		//testBlendDiffuseColour();
 
-        //testRaySceneQuery();
+        testRaySceneQuery();
         //testIntersectionSceneQuery();
 
         //test2Spotlights();
@@ -4971,6 +4992,7 @@ protected:
 		//testMaterialSchemesWithMismatchedLOD();
         //testSkeletonAnimationOptimise();
         //testBuildTangentOnAnimatedMesh();
+		//testOverlayRelativeMode();
 
 		//testCubeDDS();
 		//testDxt1();

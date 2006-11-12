@@ -244,22 +244,28 @@ namespace Ogre {
 		if (mSkeletonInstance) {
 			AlignedMemory::deallocate(mBoneWorldMatrices);
 
-			if (mSharedSkeletonEntities) {
-				mSharedSkeletonEntities->erase(this);
-				if (mSharedSkeletonEntities->empty()) {
-					delete mSharedSkeletonEntities;
-					delete mFrameBonesLastUpdated;
-					delete mSkeletonInstance;
-					AlignedMemory::deallocate(mBoneMatrices);
-					delete mAnimationState;
-				}
-			} else {
-				delete mFrameBonesLastUpdated;
-				delete mSkeletonInstance;
-				AlignedMemory::deallocate(mBoneMatrices);
-				delete mAnimationState;
-			}
-		}
+            if (mSharedSkeletonEntities) {
+                mSharedSkeletonEntities->erase(this);
+                if (mSharedSkeletonEntities->size() == 1)
+                {
+                    (*mSharedSkeletonEntities->begin())->stopSharingSkeletonInstance();
+                }
+                // Should never occuring, just in case
+                else if (mSharedSkeletonEntities->empty())
+                {
+                    delete mSharedSkeletonEntities;
+                    delete mFrameBonesLastUpdated;
+                    delete mSkeletonInstance;
+                    AlignedMemory::deallocate(mBoneMatrices);
+                    delete mAnimationState;
+                }
+            } else {
+                delete mFrameBonesLastUpdated;
+                delete mSkeletonInstance;
+                AlignedMemory::deallocate(mBoneMatrices);
+                delete mAnimationState;
+            }
+        }
 		else if (hasVertexAnimation())
 		{
 			delete mAnimationState;
@@ -1830,24 +1836,6 @@ namespace Ogre {
             mSharedSkeletonEntities = entity->mSharedSkeletonEntities;
             mSharedSkeletonEntities->insert(this);
         }
-
-		if (mSkelAnimVertexData)
-		{
-			delete mSkelAnimVertexData;
-			mSkelAnimVertexData = 0;
-		}
-		if (mHardwareVertexAnimVertexData)
-		{
-			delete mHardwareVertexAnimVertexData;
-			mHardwareVertexAnimVertexData = 0;
-		}
-		if (mSoftwareVertexAnimVertexData)
-		{
-			delete mSoftwareVertexAnimVertexData;
-			mSoftwareVertexAnimVertexData = 0;
-		}
-
-
     }
     //-----------------------------------------------------------------------
     void Entity::stopSharingSkeletonInstance()
@@ -1873,8 +1861,7 @@ namespace Ogre {
             mMesh->_initAnimationState(mAnimationState);
             mFrameBonesLastUpdated = new unsigned long(std::numeric_limits<unsigned long>::max());
             mNumBoneMatrices = mSkeletonInstance->getNumBones();
-            mBoneMatrices = static_cast<Matrix4*>(AlignedMemory::allocate(sizeof(Matrix4) * mNumBoneMatrices));
-            prepareTempBlendBuffers();
+            mBoneMatrices = new Matrix4[mNumBoneMatrices];
 
             mSharedSkeletonEntities->erase(this);
             if (mSharedSkeletonEntities->size() == 1)

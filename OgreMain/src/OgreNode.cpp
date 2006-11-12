@@ -757,6 +757,10 @@ namespace Ogre {
     void Node::_weightedTransform(Real weight, const Vector3& translate,
        const Quaternion& rotate, const Vector3& scale)
     {
+        // Do nothing if zero weight
+        if (!weight)
+            return;
+
         // If no previous transforms, we can just apply
         if (mAccumAnimWeight == 0.0f)
         {

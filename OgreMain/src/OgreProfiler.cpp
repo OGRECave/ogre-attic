@@ -316,6 +316,7 @@ namespace Ogre {
         }
 
         ProfileInstance p;
+		p.hierarchicalLvl = static_cast<uint>(mProfiles.size());
 
         // this is the root, it has no parent
         if (mProfiles.empty()) {
@@ -387,7 +388,6 @@ namespace Ogre {
         p.name = profileName;
         p.currTime = mTimer->getMicroseconds();
         p.accum = 0;
-        p.hierarchicalLvl = (uint) mProfiles.size();
         mProfiles.push_back(p);
 
     }
