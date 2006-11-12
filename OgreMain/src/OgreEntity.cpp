@@ -197,7 +197,13 @@ namespace Ogre {
 
             if (mSharedSkeletonEntities) {
                 mSharedSkeletonEntities->erase(this);
-                if (mSharedSkeletonEntities->empty()) {
+                if (mSharedSkeletonEntities->size() == 1)
+                {
+                    (*mSharedSkeletonEntities->begin())->stopSharingSkeletonInstance();
+                }
+                // Should never occuring, just in case
+                else if (mSharedSkeletonEntities->empty())
+                {
                     delete mSharedSkeletonEntities;
                     delete mFrameBonesLastUpdated;
                     delete mSkeletonInstance;
@@ -1782,7 +1788,6 @@ namespace Ogre {
             mFrameBonesLastUpdated = new unsigned long(std::numeric_limits<unsigned long>::max());
             mNumBoneMatrices = mSkeletonInstance->getNumBones();
             mBoneMatrices = new Matrix4[mNumBoneMatrices];
-            prepareTempBlendBuffers();
 
             mSharedSkeletonEntities->erase(this);
             if (mSharedSkeletonEntities->size() == 1)
