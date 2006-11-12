@@ -791,7 +791,7 @@ namespace Ogre
 			mCapabilities->setCapability(RSC_TEXTURE_3D);
 		}
 		
-        if(mCaps.TextureCaps & D3DPTEXTURECAPS_POW2 == 0)
+        if ((mCaps.TextureCaps & D3DPTEXTURECAPS_POW2) == 0)
 		{
 			// unrestricted non POW2
 			mCapabilities->setCapability(RSC_NON_POWER_OF_2_TEXTURES);
