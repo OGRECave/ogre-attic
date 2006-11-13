@@ -703,8 +703,10 @@ namespace Ogre
                     source.getInverseWorldMatrix() * source.getLight(i->data).getAs4DVector());
                 break;
             case ACT_LIGHT_DIRECTION_OBJECT_SPACE:
-                vec3 = source.getInverseWorldMatrix() * 
-                    source.getLight(i->data).getDerivedDirection();
+				// We need the inverse transpose of the inverse world matrix
+				// == transpose of the world matrix
+				vec3 = source.getWorldMatrix().transpose() * 
+					source.getLight(i->data).getDerivedDirection();
                 vec3.normalise();
                 // Set as 4D vector for compatibility
                 setConstant(i->index, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
@@ -714,8 +716,8 @@ namespace Ogre
                     source.getWorldViewMatrix() * source.getLight(i->data).getAs4DVector());
                 break;
             case ACT_LIGHT_DIRECTION_VIEW_SPACE:
-                vec3 = source.getWorldViewMatrix() * 
-                    source.getLight(i->data).getDerivedDirection();
+				vec3 = source.getInverseTransposeViewMatrix() *
+					source.getLight(i->data).getDerivedDirection();
                 vec3.normalise();
                 // Set as 4D vector for compatibility
                 setConstant(i->index, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
