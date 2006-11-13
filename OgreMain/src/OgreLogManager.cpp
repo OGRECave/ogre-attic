@@ -92,6 +92,31 @@ namespace Ogre {
 
 
     }
+	//-----------------------------------------------------------------------
+	void LogManager::destroyLog(const String& name)
+	{
+		LogList::iterator i = mLogs.find(name);
+		if (i != mLogs.end())
+		{
+			if (mDefaultLog == i->second)
+			{
+				mDefaultLog = 0;
+			}
+			delete i->second;
+			mLogs.erase(i);
+		}
+
+		// Set another default log if this one removed
+		if (!mDefaultLog && !mLogs.empty())
+		{
+			mDefaultLog = mLogs.begin()->second;
+		}
+	}
+	//-----------------------------------------------------------------------
+	void LogManager::destroyLog(Log* log)
+	{
+		destroyLog(log->getName());
+	}
     //-----------------------------------------------------------------------
     void LogManager::logMessage( const String& message, LogMessageLevel lml, bool maskDebug)
     {
