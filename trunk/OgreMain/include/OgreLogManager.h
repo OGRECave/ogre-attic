@@ -100,7 +100,12 @@ namespace Ogre
         */
         Log* getDefaultLog();
 
-        /** Sets the passed in log as the default log.
+		/** Closes and removes a named log. */
+		void destroyLog(const String& name);
+		/** Closes and removes a log. */
+		void destroyLog(Log* log);
+
+		/** Sets the passed in log as the default log.
         @returns The previous default log.
         */
         Log* setDefaultLog(Log* newLog);

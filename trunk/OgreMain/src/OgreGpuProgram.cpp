@@ -730,8 +730,10 @@ namespace Ogre
                     source.getInverseWorldMatrix().transformAffine(source.getLight(i->data).getAs4DVector()));
                 break;
             case ACT_LIGHT_DIRECTION_OBJECT_SPACE:
-                vec3 = source.getInverseWorldMatrix().transformAffine(
-                    source.getLight(i->data).getDerivedDirection());
+				// We need the inverse transpose of the inverse world matrix
+				// == transpose of the world matrix
+				vec3 = source.getWorldMatrix().transpose() * 
+					source.getLight(i->data).getDerivedDirection();
                 vec3.normalise();
                 // Set as 4D vector for compatibility
                 setConstant(i->index, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
@@ -741,8 +743,8 @@ namespace Ogre
                     source.getWorldViewMatrix().transformAffine(source.getLight(i->data).getAs4DVector()));
                 break;
             case ACT_LIGHT_DIRECTION_VIEW_SPACE:
-                vec3 = source.getWorldViewMatrix().transformAffine(
-                    source.getLight(i->data).getDerivedDirection());
+				vec3 = source.getInverseTransposeViewMatrix() *
+					source.getLight(i->data).getDerivedDirection();
                 vec3.normalise();
                 // Set as 4D vector for compatibility
                 setConstant(i->index, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
@@ -774,15 +776,17 @@ namespace Ogre
 				const Light& l = source.getLight(i->data);
 				if (l.getType() == Light::LT_SPOTLIGHT)
 				{
-					vec4.x = l.getSpotlightInnerAngle().valueRadians();
-					vec4.y = l.getSpotlightOuterAngle().valueRadians();
+					vec4.x = Math::Cos(l.getSpotlightInnerAngle().valueRadians() * 0.5);
+					vec4.y = Math::Cos(l.getSpotlightOuterAngle().valueRadians() * 0.5);
 					vec4.z = l.getSpotlightFalloff();
 					vec4.w = 1.0f;
 				}
 				else
 				{
 					// Set angles to full circle for generality
-					vec4.x = vec4.y = Math::TWO_PI;
+					vec4.x = vec4.y = 1.0f;
+					// reduce outer angle slightly to avoid divide by zero
+					vec4.y -= 1e-5f;
 					vec4.z = vec4.w = 0.0f;
 				}
 				setConstant(i->index, vec4);

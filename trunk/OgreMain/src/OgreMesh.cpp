@@ -1593,6 +1593,8 @@ namespace Ogre {
                         mName + "_lod" + StringConverter::toString(lodIndex) +
                         "_prepshadow.log", false, false);
                     usage.edgeData->log(log);
+					// clean up log & close file handle
+					LogManager::getSingleton().destroyLog(log);
                 #endif
 
             }
