@@ -94,6 +94,7 @@ namespace Ogre
         AutoConstantDefinition(ACT_LIGHT_DIFFUSE_COLOUR,          "light_diffuse_colour",         4, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_LIGHT_SPECULAR_COLOUR,         "light_specular_colour",        4, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_LIGHT_ATTENUATION,             "light_attenuation",            4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_SPOTLIGHT_PARAMS,              "spotlight_params",             4, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_LIGHT_POSITION,                "light_position",               4, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_LIGHT_POSITION_OBJECT_SPACE,   "light_position_object_space",  4, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_LIGHT_POSITION_VIEW_SPACE,          "light_position_view_space",    4, ET_REAL, ACDT_INT),
@@ -767,6 +768,26 @@ namespace Ogre
                 setConstant(i->index, vec4);
                 break;
             }
+			case ACT_SPOTLIGHT_PARAMS:
+			{
+				// inner, outer, fallof, isSpot
+				const Light& l = source.getLight(i->data);
+				if (l.getType() == Light::LT_SPOTLIGHT)
+				{
+					vec4.x = l.getSpotlightInnerAngle().valueRadians();
+					vec4.y = l.getSpotlightOuterAngle().valueRadians();
+					vec4.z = l.getSpotlightFalloff();
+					vec4.w = 1.0f;
+				}
+				else
+				{
+					// Set angles to full circle for generality
+					vec4.x = vec4.y = Math::TWO_PI;
+					vec4.z = vec4.w = 0.0f;
+				}
+				setConstant(i->index, vec4);
+				break;
+			}
 			case ACT_TEXTURE_VIEWPROJ_MATRIX:
 				// can also be updated in lights
 				setConstant(i->index, source.getTextureViewProjMatrix(i->data));

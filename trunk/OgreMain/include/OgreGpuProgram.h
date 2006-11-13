@@ -179,6 +179,11 @@ namespace Ogre {
             ACT_LIGHT_SPECULAR_COLOUR,
             /// Light attenuation parameters, Vector4(range, constant, linear, quadric)
             ACT_LIGHT_ATTENUATION,
+			/** Spotlight parameters, Vector4(innerAngleInRadians, outerAngleInRadians, falloff, isSpot)
+				The isSpot parameter is 0.0f for non-spotlights, 1.0f for spotlights.
+				Also for non-spotlights the inner and outer angles are pi*2 for generalisation
+			*/ 
+			ACT_SPOTLIGHT_PARAMS,
             /// A light position in world space (index determined by setAutoConstant call)
             ACT_LIGHT_POSITION,
             /// A light position in object space (index determined by setAutoConstant call)
