@@ -108,9 +108,14 @@ namespace Ogre {
         */
         ~Log();
 
-        /**
-        @remarks
-            Log a message to the debugger and to log file (the default is
+		/// Return the name of the log
+		const String& getName() const { return mLogName; }
+		/// Get whether debug output is enabled for this log
+		bool isDebugOutputEnabled() const { return mDebugOut; }
+		/// Get whether file output is suppressed for this log
+		bool isFileOutputSuppressed() const { return mSuppressFile; }
+
+        /** Log a message to the debugger and to log file (the default is
             "<code>OGRE.log</code>"),
         */
         void logMessage( const String& message, LogMessageLevel lml = LML_NORMAL, bool maskDebug = false );
@@ -120,7 +125,9 @@ namespace Ogre {
             Sets the level of the log detail.
         */
         void setLogDetail(LoggingLevel ll);
-
+		/** Gets the level of the log detail.
+		*/
+		LoggingLevel getLogDetail() const { return mLogLevel; }
         /**
         @remarks
             Register a listener to this log
