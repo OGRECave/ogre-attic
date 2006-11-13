@@ -88,7 +88,7 @@ public:
 		mCamera(cam), mTranslateVector(Vector3::ZERO), mWindow(win), mStatsOn(true), mNumScreenShots(0),
 		mMoveScale(0.0f), mRotScale(0.0f), mTimeUntilNextToggle(0), mFiltering(TFO_BILINEAR),
 		mAniso(1), mSceneDetailIndex(0), mMoveSpeed(100), mRotateSpeed(36), mDebugOverlay(0),
-		mMouse(0), mKeyboard(0), mJoy(0)
+		mInputManager(0), mMouse(0), mKeyboard(0), mJoy(0)
 	{
 		using namespace OIS;
 
@@ -103,13 +103,13 @@ public:
 		windowHndStr << windowHnd;
 		pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
 
-		InputManager &im = *InputManager::createInputSystem( pl );
+		mInputManager = InputManager::createInputSystem( pl );
 
 		//Create all devices (We only catch joystick exceptions here, as, most people have Key/Mouse)
-		mKeyboard = static_cast<Keyboard*>(im.createInputObject( OISKeyboard, bufferedKeys ));
-		mMouse = static_cast<Mouse*>(im.createInputObject( OISMouse, bufferedMouse ));
+		mKeyboard = static_cast<Keyboard*>(mInputManager->createInputObject( OISKeyboard, bufferedKeys ));
+		mMouse = static_cast<Mouse*>(mInputManager->createInputObject( OISMouse, bufferedMouse ));
 		try {
-			mJoy = static_cast<JoyStick*>(im.createInputObject( OISJoyStick, bufferedJoy ));
+			mJoy = static_cast<JoyStick*>(mInputManager->createInputObject( OISJoyStick, bufferedJoy ));
 		}
 		catch(...) {
 			mJoy = 0;
@@ -139,17 +139,17 @@ public:
 	//Unattach OIS before window shutdown (very important under Linux)
 	virtual void windowClosed(RenderWindow* rw)
 	{
-		using namespace OIS;
-		//Only close for window that created OIS (mWindow)
+		//Only close for window that created OIS (the main window in these demos)
 		if( rw == mWindow )
 		{
-			InputManager* im = InputManager::getSingletonPtr();
-			if( im )
+			if( mInputManager )
 			{
-				im->destroyInputObject( mMouse );
-				im->destroyInputObject( mKeyboard );
-				im->destroyInputObject( mJoy );
-				im->destroyInputSystem();
+				mInputManager->destroyInputObject( mMouse );
+				mInputManager->destroyInputObject( mKeyboard );
+				mInputManager->destroyInputObject( mJoy );
+
+				OIS::InputManager::destroyInputSystem();
+				mInputManager = 0;
 			}
 		}
 	}
@@ -388,6 +388,7 @@ protected:
 	Overlay* mDebugOverlay;
 
 	//OIS Input devices
+	OIS::InputManager* mInputManager;
 	OIS::Mouse*    mMouse;
 	OIS::Keyboard* mKeyboard;
 	OIS::JoyStick* mJoy;
