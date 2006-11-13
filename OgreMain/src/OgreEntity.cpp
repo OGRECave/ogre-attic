@@ -1861,7 +1861,7 @@ namespace Ogre {
             mMesh->_initAnimationState(mAnimationState);
             mFrameBonesLastUpdated = new unsigned long(std::numeric_limits<unsigned long>::max());
             mNumBoneMatrices = mSkeletonInstance->getNumBones();
-            mBoneMatrices = new Matrix4[mNumBoneMatrices];
+            mBoneMatrices = static_cast<Matrix4*>(AlignedMemory::allocate(sizeof(Matrix4) * mNumBoneMatrices));
 
             mSharedSkeletonEntities->erase(this);
             if (mSharedSkeletonEntities->size() == 1)
