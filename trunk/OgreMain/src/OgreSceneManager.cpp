@@ -428,9 +428,12 @@ void SceneManager::_populateLightList(const Vector3& position, Real radius,
 		// the first few lights unchanged from the frustum list, matching the
 		// texture shadows that were generated
 		// Thus we only allow object-relative sorting on the remainder of the list
-		LightList::iterator start = destList.begin();
-		std::advance(start, getShadowTextureCount());
-		std::stable_sort(start, destList.end(), lightLess());
+		if (destList.size() > getShadowTextureCount())
+		{
+			LightList::iterator start = destList.begin();
+			std::advance(start, getShadowTextureCount());
+			std::stable_sort(start, destList.end(), lightLess());
+		}
 	}
 	else
 	{
@@ -2640,12 +2643,21 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 					// Use complete light list potentially adjusted by start light
 					if (pass->getStartLight())
 					{
-						localLightList.clear();
-						LightList::const_iterator copyStart = rendLightList.begin();
-						std::advance(copyStart, pass->getStartLight());
-						localLightList.insert(localLightList.begin(), 
-							copyStart, rendLightList.end());
-						pLightListToUse = &localLightList;
+						// out of lights?
+						if (pass->getStartLight() >= rendLightList.size())
+						{
+							lightsLeft = 0;
+							break;
+						}
+						else
+						{
+							localLightList.clear();
+							LightList::const_iterator copyStart = rendLightList.begin();
+							std::advance(copyStart, pass->getStartLight());
+							localLightList.insert(localLightList.begin(), 
+								copyStart, rendLightList.end());
+							pLightListToUse = &localLightList;
+						}
 					}
 					else
 					{
