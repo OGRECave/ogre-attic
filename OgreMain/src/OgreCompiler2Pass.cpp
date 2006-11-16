@@ -876,8 +876,9 @@ namespace Ogre {
 			        if (la_OldLabelIsActive)
 			        {
                         mActiveLabelKey = la_OldActiveLabelKey;
-                        mLabels[la_OldActiveLabelKey] = la_OldLabel;
                         mLabelIsActive = la_OldLabelIsActive;
+                        mActiveLabel = &mLabels[mActiveLabelKey];
+                        *mActiveLabel = la_OldLabel;
 			        }
                     // only perform full rollback if tokens found
 			        if (!passed)
@@ -894,8 +895,9 @@ namespace Ogre {
                         if (OldLabelIsActive)
                         {
                             mActiveLabelKey = OldActiveLabelKey;
-                            mLabels[OldActiveLabelKey] = OldLabel;
                             mLabelIsActive = OldLabelIsActive;
+                            mActiveLabel = &mLabels[mActiveLabelKey];
+                            *mActiveLabel = OldLabel;
                         }
 
                         // terminate rule production processing
@@ -1000,10 +1002,12 @@ namespace Ogre {
                     mLabelIsActive = true;
                     mNoSpaceSkip = true;
                     // reset the contents of the label since it might have been used prior to a rollback
-                    mLabels[mActiveLabelKey] = "";
+                    // and cach string location so don't have to look it up for the rest of the label processing
+                    mActiveLabel = &mLabels[mActiveLabelKey];
+                    mActiveLabel->clear();
                 }
                 // add the single character to the end of the active label
-                mLabels[mActiveLabelKey] += (*mSource)[mCharPos];
+                *mActiveLabel += (*mSource)[mCharPos];
             }
         }
 
