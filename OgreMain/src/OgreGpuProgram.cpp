@@ -402,8 +402,42 @@ namespace Ogre
     //-----------------------------------------------------------------------------
     void GpuProgramParameters::setAutoConstant(size_t index, AutoConstantType acType, size_t extraInfo)
     {
-        mAutoConstants.push_back(AutoConstantEntry(acType, index, extraInfo));
+		// update existing index if it exists
+		bool found = false;
+		for (AutoConstantList::iterator i = mAutoConstants.begin(); 
+			i != mAutoConstants.end(); ++i)
+		{
+			if (i->index == index)
+			{
+				i->paramType = acType;
+				i->data = extraInfo;
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+			mAutoConstants.push_back(AutoConstantEntry(acType, index, extraInfo));
     }
+	//-----------------------------------------------------------------------------
+	void GpuProgramParameters::clearAutoConstant(size_t index)
+	{
+		// update existing index if it exists
+		bool found = false;
+		for (AutoConstantList::iterator i = mAutoConstants.begin(); 
+			i != mAutoConstants.end(); ++i)
+		{
+			if (i->index == index)
+			{
+				mAutoConstants.erase(i);
+				break;
+			}
+		}
+	}
+	//-----------------------------------------------------------------------------
+	void GpuProgramParameters::clearNamedAutoConstant(const String& name)
+	{
+		clearAutoConstant(getParamIndex(name));
+	}
     //-----------------------------------------------------------------------------
     void GpuProgramParameters::clearAutoConstants(void)
     {
@@ -417,7 +451,21 @@ namespace Ogre
     //-----------------------------------------------------------------------------
     void GpuProgramParameters::setAutoConstantReal(size_t index, AutoConstantType acType, Real rData)
     {
-        mAutoConstants.push_back(AutoConstantEntry(acType, index, rData));
+		// update existing index if it exists
+		bool found = false;
+		for (AutoConstantList::iterator i = mAutoConstants.begin(); 
+			i != mAutoConstants.end(); ++i)
+		{
+			if (i->index == index)
+			{
+				i->paramType = acType;
+				i->fData = rData;
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+	        mAutoConstants.push_back(AutoConstantEntry(acType, index, rData));
     }
     //-----------------------------------------------------------------------------
 

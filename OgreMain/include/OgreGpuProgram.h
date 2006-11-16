@@ -602,6 +602,10 @@ namespace Ogre {
         */
         void setAutoConstant(size_t index, AutoConstantType acType, size_t extraInfo = 0);
 		void setAutoConstantReal(size_t index, AutoConstantType acType, Real rData);
+
+		/** Unbind an auto constant so that the constant is manually controlled again. */
+		void clearAutoConstant(size_t index);
+
         /** Sets a named parameter up to track a derivation of the current time.
         @param index The index of the parameter
         @param factor The amount by which to scale the time value
@@ -805,6 +809,10 @@ namespace Ogre {
         @param factor The amount by which to scale the time value
         */  
         void setNamedConstantFromTime(const String& name, Real factor);
+
+		/** Unbind an auto constant so that the constant is manually controlled again. */
+		void clearNamedAutoConstant(const String& name);
+
         /// Internal method for associating a parameter name with an index
         void _mapParameterNameToIndex(const String& name, const size_t index );
 
