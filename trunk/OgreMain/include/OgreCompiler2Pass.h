@@ -280,13 +280,16 @@ namespace Ogre {
 	    std::map<size_t, float> mConstants;
 	    /// storage container for string labels defined in source
         /// container uses Token index as a key associated with a label
-        std::map<size_t, String> mLabels;
+        typedef std::map<size_t, String> LabelContainer;
+        LabelContainer mLabels;
         /// flag indicates when a label is being parsed.
         /// It gets set false when a terminal token not of _character_ is encountered
         bool mLabelIsActive;
         /// the key of the active label being built during pass 1.
         /// a new key is calculated when mLabelIsActive switches from false to true
         size_t mActiveLabelKey;
+        /// The active label that is receiving characters during pass 1.
+        String* mActiveLabel;
         /// flag being true indicates that spaces are not to be skipped
         /// automatically gets set to false when mLabelIsActive goes to false
         bool mNoSpaceSkip;
@@ -619,8 +622,9 @@ namespace Ogre {
         void extractNumericConstant(const OperationType pendingRuleOp);
         /// changes previous terminal token rule into a conditional terminal token insert rule
         void setConditionalTokenInsert(void);
-        /// get the lexem text of a rule.
+        /// get the lexeme text of a rule.
         String getLexemeText(size_t& ruleID, const size_t level = 0);
+
 
     public:
 
