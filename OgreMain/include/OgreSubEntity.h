@@ -124,6 +124,9 @@ namespace Ogre {
         */
         SubMesh* getSubMesh(void);
 
+		/** Accessor to get parent Entity */
+		Entity* getParent(void) const { return mParentEntity; }
+
         /** Overridden - see Renderable.
         */
         const MaterialPtr& getMaterial(void) const;
