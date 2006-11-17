@@ -445,14 +445,38 @@ namespace Ogre {
         return msDefaultRotationInterpolationMode;
     }
     //---------------------------------------------------------------------
-	void Animation::optimise(void)
+	void Animation::optimise(bool discardIdentityNodeTracks)
 	{
-		optimiseNodeTracks();
+		optimiseNodeTracks(discardIdentityNodeTracks);
 		optimiseVertexTracks();
 		
 	}
 	//-----------------------------------------------------------------------
-	void Animation::optimiseNodeTracks(void)
+    void Animation::_collectIdentityNodeTracks(TrackHandleList& tracks) const
+    {
+		NodeTrackList::const_iterator i, iend;
+        iend = mNodeTrackList.end();
+		for (i = mNodeTrackList.begin(); i != iend; ++i)
+		{
+			const NodeAnimationTrack* track = i->second;
+			if (track->hasNonZeroKeyFrames())
+			{
+                tracks.erase(i->first);
+            }
+		}
+    }
+	//-----------------------------------------------------------------------
+    void Animation::_destroyNodeTracks(const TrackHandleList& tracks)
+    {
+        TrackHandleList::const_iterator t, tend;
+        tend = tracks.end();
+		for (t = tracks.begin(); t != tend; ++t)
+		{
+			destroyNodeTrack(*t);
+		}
+    }
+	//-----------------------------------------------------------------------
+	void Animation::optimiseNodeTracks(bool discardIdentityTracks)
 	{
 		// Iterate over the node tracks and identify those with no useful keyframes
 		std::list<unsigned short> tracksToDestroy;
@@ -460,7 +484,7 @@ namespace Ogre {
 		for (i = mNodeTrackList.begin(); i != mNodeTrackList.end(); ++i)
 		{
 			NodeAnimationTrack* track = i->second;
-			if (!track->hasNonZeroKeyFrames())
+			if (discardIdentityTracks && !track->hasNonZeroKeyFrames())
 			{
 				// mark the entire track for destruction
 				tracksToDestroy.push_back(i->first);
