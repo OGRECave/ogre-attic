@@ -624,12 +624,39 @@ namespace Ogre {
 		mManualBonesDirty = false;
     }
     //---------------------------------------------------------------------
-	void Skeleton::optimiseAllAnimations(void)
+	void Skeleton::optimiseAllAnimations(bool preservingIdentityNodeTracks)
 	{
-        AnimationList::iterator ai;
-        for (ai = mAnimationsList.begin(); ai != mAnimationsList.end(); ++ai)
+        AnimationList::iterator ai, aiend;
+        aiend = mAnimationsList.end();
+
+        if (!preservingIdentityNodeTracks)
         {
-			ai->second->optimise();
+            Animation::TrackHandleList tracksToDestroy;
+
+            // Assume all node tracks are identity
+            ushort numBones = getNumBones();
+            for (ushort h = 0; h < numBones; ++h)
+            {
+                tracksToDestroy.insert(h);
+            }
+
+            // Collect identity node tracks for all animations
+            for (ai = mAnimationsList.begin(); ai != aiend; ++ai)
+            {
+                ai->second->_collectIdentityNodeTracks(tracksToDestroy);
+            }
+
+            // Destroy identity node tracks
+            for (ai = mAnimationsList.begin(); ai != aiend; ++ai)
+            {
+                ai->second->_destroyNodeTracks(tracksToDestroy);
+            }
+        }
+
+        for (ai = mAnimationsList.begin(); ai != aiend; ++ai)
+        {
+            // Don't discard identity node tracks here
+			ai->second->optimise(false);
 		}
 	}
 	//---------------------------------------------------------------------

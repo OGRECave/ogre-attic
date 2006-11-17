@@ -280,8 +280,10 @@ namespace Ogre {
 
 		/** Optimise all of this skeleton's animations.
 		@see Animation::optimise
+        @param
+            preservingIdentityNodeTracks If true, don't destroy identity node tracks.
 		*/
-		virtual void optimiseAllAnimations(void);
+		virtual void optimiseAllAnimations(bool preservingIdentityNodeTracks = false);
 
 		/** Allows you to use the animations from another Skeleton object to animate
 			this skeleton.

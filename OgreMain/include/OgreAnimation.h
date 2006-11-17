@@ -317,8 +317,34 @@ namespace Ogre {
 			eliminated from the animation and thus speed up the animation. 
 			In addition, if several keyframes in a row have the same value, 
 			then they are just adding overhead and can be removed.
+        @note
+            Since track-less and identity track has difference behavior for
+            accumulate animation blending if corresponding track presenting at
+            other animation that is non-identity, and in normally this method
+            didn't known about the situation of other animation, it can't deciding
+            whether or not discards identity tracks. So there have a parameter
+            allow you choose what you want, in case you aren't sure how to do that,
+            you should use Skeleton::optimiseAllAnimations instead.
+        @param
+            discardIdentityNodeTracks If true, discard identity node tracks.
 		*/
-		void optimise(void);
+		void optimise(bool discardIdentityNodeTracks = true);
+
+        /// A list of track handles
+        typedef std::set<ushort> TrackHandleList;
+
+        /** Internal method for collecting identity node tracks.
+        @remarks
+            This method remove non-identity node tracks form the track handle list.
+        @param
+            tracks A list of track handle of non-identity node tracks, where this
+            method will remove non-identity node track handles.
+        */
+        void _collectIdentityNodeTracks(TrackHandleList& tracks) const;
+
+        /** Internal method for destroy given node tracks.
+        */
+        void _destroyNodeTracks(const TrackHandleList& tracks);
 
 		/** Clone this animation.
 		@note
@@ -347,7 +373,7 @@ namespace Ogre {
         static InterpolationMode msDefaultInterpolationMode;
         static RotationInterpolationMode msDefaultRotationInterpolationMode;
 
-		void optimiseNodeTracks(void);
+		void optimiseNodeTracks(bool discardIdentityTracks);
 		void optimiseVertexTracks(void);
 
         
