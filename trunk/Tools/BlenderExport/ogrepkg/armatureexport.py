@@ -38,8 +38,10 @@ def GetArmatureObject(bObject):
 	bArmatureObject = None
 	if (bObject.getType() == "Mesh"):
 		# parented armatures get preferred
-		bArmatureObject = bObject.getParent()
-		if not(bArmatureObject and (bArmatureObject.getType() == "Armature")):
+		bParentObject = bObject.getParent()
+		if (bParentObject and (bParentObject.getType() == "Armature")):
+			bArmatureObject = bParentObject
+		else:
 			# check modifier stack, use last armature modifier
 			for modifier in bObject.modifiers:
 				if ((modifier.type == Blender.Modifier.Type['ARMATURE'])

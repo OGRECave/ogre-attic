@@ -817,7 +817,7 @@ else:
 					if (len(bKey.blocks) > 0):
 						isValid = True
 				return isValid
-			@staticmethod
+			# @staticmethod
 			def create(bMeshObject):
 			 	"""Factory method:
 			 		
@@ -829,6 +829,7 @@ else:
 					if (len(bKey.blocks) > 0):
 						manager = PoseAnimationProxyManager(bMeshObject)
 				return manager
+			create = staticmethod(create)
 				
 		class MorphAnimationProxyManager(AnimationProxyManager):
 			"""Manages morph animations of a given Blender mesh object.
@@ -875,7 +876,7 @@ else:
 					if (len(bKey.blocks) > 0):
 						isValid = True
 				return isValid
-			@staticmethod
+			# @staticmethod
 			def create(bMeshObject):
 			 	"""Factory method:
 			 		
@@ -887,6 +888,7 @@ else:
 					if (len(bKey.blocks) > 0):
 						manager = MorphAnimationProxyManager(bMeshObject)
 				return manager
+			create = staticmethod(create)
 		
 		class AnimationProxyManagerView(AddWidgetListLayout, View):
 			"""Base class for view for AnimationProxyMangager.
@@ -1081,7 +1083,7 @@ else:
 										endFrame = animationDict['endFrame']
 										animationList.append([actionName, name, startFrame, endFrame])
 				return animationList
-			@staticmethod
+			# @staticmethod
 			def create(bMeshObject, actionManager):
 			 	"""Factory method:
 			 		
@@ -1091,6 +1093,7 @@ else:
 				if (len(actionManager.getActions(bMeshObject)) > 0):
 					manager = ArmatureAnimationProxyManager(bMeshObject, actionManager)
 				return manager
+			create = staticmethod(create)
 			
 		class ArmatureAnimationProxyManagerView(AnimationProxyManagerView):
 			"""View for MorphAnimationProxyManager.

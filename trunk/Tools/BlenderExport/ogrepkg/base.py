@@ -48,7 +48,7 @@ class Singleton:
 			"Class \"%s\" is a singleton." % self.__class__
 		Singleton.instances[self.__class__] = self
 		return
-	@classmethod
+	# @classmethod
 	def getSingleton(singletonClass):
 		"""Returns singleton instance.
 		"""
@@ -58,6 +58,7 @@ class Singleton:
 		else:
 			instance = singletonClass()
 		return instance
+	getSingleton = classmethod(getSingleton)
 
 class Model:
 	"""Model interface.
@@ -327,8 +328,19 @@ class OgreXMLConverter(Singleton):
 		elif self.findConverter():
 			converter = 'OgreXMLConverter'
 		if converter:
-			dir = os.path.dirname(filename) 
-			commandLine = converter + ' -log ' + os.path.join(dir,'OgreXMLConverter.log') + ' ' + self.converterArgs + ' ' + arguments + ' "' + filename + '"'
+			dir = os.path.dirname(filename)
+			# ensure proper encoding of filenames
+			encodedDir = os.path.normpath(dir)
+			encodedFilename = os.path.normpath(filename)
+			encodedConverter = os.path.normpath(converter)
+			# call the converter
+			commandLine = '"' + encodedConverter + '" -log "' \
+				 + os.path.join(encodedDir, 'OgreXMLConverter.log') \
+				 + '" ' + self.converterArgs + ' ' + arguments \
+				 + ' "' + encodedFilename + '"'
+			if os.name == "nt":
+				# workaround for popen windows bug
+				commandLine = '"' + commandLine + '"'
 			Log.getSingleton().logInfo("Running OgreXMLConverter: " + commandLine)
 			xmlConverter = os.popen(commandLine, 'r')
 			for line in xmlConverter:
