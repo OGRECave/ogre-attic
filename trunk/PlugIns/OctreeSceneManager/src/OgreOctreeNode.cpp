@@ -140,7 +140,17 @@ bool OctreeNode::_isIn( AxisAlignedBox &box )
     Vector3 bmin = box.getMinimum();
     Vector3 bmax = box.getMaximum();
 
-    return ( bmax > center && bmin < center );
+    bool centre = ( bmax > center && bmin < center );
+	if (!centre)
+		return false;
+
+	// Even if covering the centre line, need to make sure this BB is not large
+	// enough to require being moved up into parent. When added, bboxes would
+	// end up in parent due to cascade but when updating need to deal with
+	// bbox growing too large for this child
+	Vector3 octreeSize = bmax - bmin;
+	Vector3 nodeSize = mWorldAABB.getMaximum() - mWorldAABB.getMinimum();
+	return nodeSize < octreeSize;
 
 }
 
