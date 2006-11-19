@@ -78,8 +78,10 @@ namespace Ogre {
     {
         Real totalAnimationLength = mParent->getLength();
 
+		assert(totalAnimationLength > 0.0f && "Invalid animation length!");
+
         // Wrap time
-        while (timePos > totalAnimationLength)
+        while (timePos > totalAnimationLength && totalAnimationLength != 0.0f)
         {
             timePos -= totalAnimationLength;
         }

@@ -2664,6 +2664,10 @@ Ogre comes preconfigured with a few particle affectors. New ones can be added by
 @ref{ColourInterpolator Affector}
 @item
 @ref{ColourImage Affector}
+@item
+@ref{DeflectorPlane Affector}
+@item
+@ref{DirectionRandomiser Affector}
 @end itemize
 
 @anchor{Linear Force Affector}
@@ -2908,6 +2912,40 @@ affector ColourImage
 }
 @end example
 
+
+@anchor{DeflectorPlane Affector}
+@subheading DeflectorPlane Affector
+This affector defines a plane which deflects particles which collide with it. The attributes are:
+@table @asis
+@item plane_point
+A point on the deflector plane. Together with the normal vector it defines the plane.@*
+default: plane_point 0 0 0@*
+@item plane_normal
+The normal vector of the deflector plane. Together with the point it defines the plane.@*
+default: plane_normal 0 1 0@*
+@item bounce
+The amount of bouncing when a particle is deflected. 0 means no deflection and 1 stands for 100 percent reflection.@*
+default: bounce 1.0
+@end table
+
+
+@anchor{DirectionRandomiser Affector}
+@subheading DirectionRandomiser Affector
+This affector applies randomness to the movement of the particles. Its extra attributes are:
+@table @asis
+@item randomness
+The amount of randomness to introduce in each axial direction.@*
+example: randomness 5@*
+default: randomness 1@*
+@item scope
+The percentage of particles affected in each run of the affector.@*
+example: scope 0.5@*
+default: scope 1.0@*
+@item keep_velocity
+Determines whether the velocity of particles is unchanged.@*
+example: keep_velocity true@*
+default: keep_velocity false@*
+@end table
 
 @node Overlay Scripts
 @section Overlay Scripts

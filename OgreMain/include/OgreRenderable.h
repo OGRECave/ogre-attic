@@ -93,7 +93,7 @@ namespace Ogre {
             lights is much more efficient than inverting a complete 4x4 matrix, and also 
             eliminates problems introduced by scaling. */
         virtual const Quaternion& getWorldOrientation(void) const = 0;
-        /** Gets the worldspace orientation of this renderable; this is used in order to
+        /** Gets the worldspace position of this renderable; this is used in order to
             more efficiently update parameters to vertex & fragment programs, since inverting Quaterion
             and Vector in order to derive object-space positions / directions for cameras and
             lights is much more efficient than inverting a complete 4x4 matrix, and also 
