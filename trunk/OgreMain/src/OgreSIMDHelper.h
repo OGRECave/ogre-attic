@@ -92,6 +92,15 @@ Torus Knot Software Ltd.
 
 #elif OGRE_DOUBLE_PRECISION == 0 && OGRE_CPU == OGRE_CPU_X86 && OGRE_COMPILER == OGRE_COMPILER_GNUC
 
+// Don't define ourself version SSE intrinsics if "xmmintrin.h" already included.
+//
+// Note: gcc in some platform already included "xmmintrin.h" for some reason.
+// I pick up macro _XMMINTRIN_H_INCLUDED here which based on the "xmmintrin.h"
+// comes with cygwin gcc 3.4.4, guess it should be solved duplicate definition
+// problem on gcc for x86.
+//
+#if !defined(_XMMINTRIN_H_INCLUDED)
+
 // Simulate VC/ICC intrinsics. Only used intrinsics are declared here.
 
 typedef float __m128 __attribute__ ((mode(V4SF),aligned(16)));
@@ -210,6 +219,8 @@ __MM_DECL_OP2(cmpnle_ps, cmpnleps, xm)
         __asm__("movmskps %1, %0" : "=r" (result) : "x" (val));
         return result;
     }
+
+#endif // !defined(_XMMINTRIN_H_INCLUDED)
 
 #endif // OGRE_DOUBLE_PRECISION == 0 && OGRE_CPU == OGRE_CPU_X86 && OGRE_COMPILER == OGRE_COMPILER_MSVC
 
