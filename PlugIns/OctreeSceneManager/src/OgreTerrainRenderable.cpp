@@ -238,10 +238,10 @@ namespace Ogre
             ( min + max ) / 2,
             ( startz * mOptions->scale.z + (endz - 1) * mOptions->scale.z ) / 2 );
 
-        mBoundingRadius =
-            std::max(max - min,
-                std::max((endx - 1 - startx) * mOptions->scale.x,
-                         (endz - 1 - startz) * mOptions->scale.z)) / 2;
+        mBoundingRadius = Math::Sqrt(
+            Math::Sqr(max - min) +
+            Math::Sqr((endx - 1 - startx) * mOptions->scale.x) +
+            Math::Sqr((endz - 1 - startz) * mOptions->scale.z)) / 2;
 
         // Create delta buffer list if required to morph
         if (mOptions->lodMorph)
