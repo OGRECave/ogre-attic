@@ -33,8 +33,11 @@ Torus Knot Software Ltd.
 
 #if __OGRE_HAVE_SSE
 
-#include "OgreSIMDHelper.h"
 #include "OgreMatrix4.h"
+
+// Should keep this includes at latest to avoid potential "xmmintrin.h" included by
+// other header file on some platform for some reason.
+#include "OgreSIMDHelper.h"
 
 // I'd like to merge this file with OgreOptimisedUtil.cpp, but it's
 // impossible when compile with gcc, due SSE instructions can only
