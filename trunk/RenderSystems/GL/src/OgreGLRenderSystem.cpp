@@ -1436,12 +1436,6 @@ namespace Ogre {
 
         // Activate the viewport clipping
         glEnable(GL_SCISSOR_TEST);
-        // Clear the viewport if required
-        if (mActiveViewport->getClearEveryFrame())
-        {
-            clearFrameBuffer(mActiveViewport->getClearBuffers(), 
-                mActiveViewport->getBackgroundColour());
-        }        
 
         OgreUnguard();
     }

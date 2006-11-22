@@ -2403,13 +2403,6 @@ namespace Ogre
 		if( !mActiveViewport )
 			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Cannot begin frame - no viewport selected.", "D3D9RenderSystem::_beginFrame" );
 
-		// Clear the viewport if required
-		if( mActiveViewport->getClearEveryFrame() )
-		{
-            clearFrameBuffer(mActiveViewport->getClearBuffers(), 
-                mActiveViewport->getBackgroundColour());
-		}
-
 		if( FAILED( hr = mpD3DDevice->BeginScene() ) )
 		{
 			String msg = DXGetErrorDescription9(hr);
