@@ -1197,6 +1197,13 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
 	} // end lock on scene graph mutex
 
     mDestRenderSystem->_beginGeometryCount();
+	// Clear the viewport if required
+	if (mCurrentViewport->getClearEveryFrame())
+	{
+		mDestRenderSystem->clearFrameBuffer(
+			mCurrentViewport->getClearBuffers(), 
+			mCurrentViewport->getBackgroundColour());
+	}        
     // Begin the frame
     mDestRenderSystem->_beginFrame();
 
