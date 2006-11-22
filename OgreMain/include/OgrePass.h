@@ -34,12 +34,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
     /** Class defining a single pass of a Technique (of a Material), ie
-        a single rendering call. 
+        a single rendering call.
     @remarks
         Rendering can be repeated with many passes for more complex effects.
         Each pass is either a fixed-function pass (meaning it does not use
         a vertex or fragment program) or a programmable pass (meaning it does
-        use either a vertex and fragment program, or both). 
+        use either a vertex and fragment program, or both).
     @par
         Programmable passes are complex to define, because they require custom
         programs and you have to set all constant inputs to the programs (like
@@ -63,7 +63,7 @@ namespace Ogre {
         // Colour properties, only applicable in fixed-function passes
         ColourValue mAmbient;
         ColourValue mDiffuse;
-        ColourValue mSpecular;    
+        ColourValue mSpecular;
         ColourValue mEmissive;
         Real mShininess;
         TrackVertexColourType mTracking;
@@ -71,11 +71,11 @@ namespace Ogre {
 
         //-------------------------------------------------------------------------
         // Blending factors
-        SceneBlendFactor mSourceBlendFactor;    
+        SceneBlendFactor mSourceBlendFactor;
         SceneBlendFactor mDestBlendFactor;
         //-------------------------------------------------------------------------
 
-        //-------------------------------------------------------------------------    
+        //-------------------------------------------------------------------------
         // Depth buffer settings
         bool mDepthCheck;
         bool mDepthWrite;
@@ -84,11 +84,11 @@ namespace Ogre {
 
         // Colour buffer settings
         bool mColourWrite;
-		
+
 		// Alpha reject settings
 		CompareFunction mAlphaRejectFunc;
 		unsigned char mAlphaRejectVal;
-        //-------------------------------------------------------------------------    
+        //-------------------------------------------------------------------------
 
         //-------------------------------------------------------------------------
         // Culling mode
@@ -111,7 +111,7 @@ namespace Ogre {
 		/// Polygon mode
 		PolygonMode mPolygonMode;
 
-        //-------------------------------------------------------------------------    
+        //-------------------------------------------------------------------------
         // Fog
         bool mFogOverride;
         FogMode mFogMode;
@@ -119,11 +119,11 @@ namespace Ogre {
         Real mFogStart;
         Real mFogEnd;
         Real mFogDensity;
-        //-------------------------------------------------------------------------    
+        //-------------------------------------------------------------------------
 
-        /// Storage of texture unit states 
+        /// Storage of texture unit states
         typedef std::vector<TextureUnitState*> TextureUnitStates;
-        TextureUnitStates mTextureUnitStates;    
+        TextureUnitStates mTextureUnitStates;
 
 		// Vertex program details
 		GpuProgramUsage *mVertexProgramUsage;
@@ -302,36 +302,36 @@ namespace Ogre {
 
         /** Gets the point size of the pass.
 		@remarks
-			This property determines what point size is used to render a point 
+			This property determines what point size is used to render a point
 			list.
         */
         Real getPointSize(void) const;
 
 		/** Sets the point size of this pass.
 		@remarks
-			This setting allows you to change the size of points when rendering 
-			a point list, or a list of point sprites. The interpretation of this 
-			command depends on the Pass::setPointSizeAttenuation option - if it 
-			is off (the default), the point size is in screen pixels, if it is on, 
-			it expressed as normalised screen coordinates (1.0 is the height of 
+			This setting allows you to change the size of points when rendering
+			a point list, or a list of point sprites. The interpretation of this
+			command depends on the Pass::setPointSizeAttenuation option - if it
+			is off (the default), the point size is in screen pixels, if it is on,
+			it expressed as normalised screen coordinates (1.0 is the height of
 			the screen) when the point is at the origin.
-		@note 
-			Some drivers have an upper limit on the size of points they support 
-			- this can even vary between APIs on the same card! Don't rely on 
-			point sizes that cause the point sprites to get very large on screen, 
-			since they may get clamped on some cards. Upper sizes can range from 
+		@note
+			Some drivers have an upper limit on the size of points they support
+			- this can even vary between APIs on the same card! Don't rely on
+			point sizes that cause the point sprites to get very large on screen,
+			since they may get clamped on some cards. Upper sizes can range from
 			64 to 256 pixels.
 		*/
 		void setPointSize(Real ps);
-		
-		/** Sets whether or not rendering points using OT_POINT_LIST will 
+
+		/** Sets whether or not rendering points using OT_POINT_LIST will
 			render point sprites (textured quads) or plain points (dots).
 		@param enabled True enables point sprites, false returns to normal
 			point rendering.
-		*/	
+		*/
 		void setPointSpritesEnabled(bool enabled);
 
-		/** Returns whether point sprites are enabled when rendering a 
+		/** Returns whether point sprites are enabled when rendering a
 			point list.
 		*/
 		bool getPointSpritesEnabled(void) const;
@@ -342,17 +342,17 @@ namespace Ogre {
 			point size can be attenuated with distance. The equation for
 			doing this is attenuation = 1 / (constant + linear * dist + quadratic * d^2).
 		@par
-			For example, to disable distance attenuation (constant screensize) 
+			For example, to disable distance attenuation (constant screensize)
 			you would set constant to 1, and linear and quadratic to 0. A
 			standard perspective attenuation would be 0, 1, 0 respectively.
-		@note 
+		@note
 			The resulting size is clamped to the minimum and maximum point
 			size.
 		@param enabled Whether point attenuation is enabled
-		@param constant, linear, quadratic Parameters to the attentuation 
+		@param constant, linear, quadratic Parameters to the attentuation
 			function defined above
 		*/
-		void setPointAttenuation(bool enabled, 
+		void setPointAttenuation(bool enabled,
 			Real constant = 0.0f, Real linear = 1.0f, Real quadratic = 0.0f);
 
 		/** Returns whether points are attenuated with distance. */
@@ -369,11 +369,11 @@ namespace Ogre {
 		void setPointMinSize(Real min);
 		/** Get the minimum point size, when point attenuation is in use. */
 		Real getPointMinSize(void) const;
-		/** Set the maximum point size, when point attenuation is in use. 
+		/** Set the maximum point size, when point attenuation is in use.
 		@remarks Setting this to 0 indicates the max size supported by the card.
 		*/
 		void setPointMaxSize(Real max);
-		/** Get the maximum point size, when point attenuation is in use. 
+		/** Get the maximum point size, when point attenuation is in use.
 		@remarks 0 indicates the max size supported by the card.
 		*/
 		Real getPointMaxSize(void) const;
@@ -397,28 +397,28 @@ namespace Ogre {
         /** Gets the 'shininess' property of the pass (affects specular highlights).
         */
         Real getShininess(void) const;
-        
+
         /** Gets which material properties follow the vertex colour
          */
         TrackVertexColourType getVertexColourTracking(void) const;
 
         /** Inserts a new TextureUnitState object into the Pass.
         @remarks
-        This unit is is added on top of all previous units. 
+        This unit is is added on top of all previous units.
         */
         TextureUnitState* createTextureUnitState(void);
         /** Inserts a new TextureUnitState object into the Pass.
         @remarks
-        This unit is is added on top of all previous units. 
+        This unit is is added on top of all previous units.
         @param
         name The basic name of the texture e.g. brickwall.jpg, stonefloor.png
         @param
         texCoordSet The index of the texture coordinate set to use.
-        @note 
+        @note
         Applies to both fixed-function and programmable passes.
         */
         TextureUnitState* createTextureUnitState( const String& textureName, unsigned short texCoordSet = 0);
-		/** Adds the passed in TextureUnitState, to the existing Pass. 
+		/** Adds the passed in TextureUnitState, to the existing Pass.
         @param
         state The Texture Unit State to be attached to this pass.  It must not be attached to another pass.
         @note
@@ -580,10 +580,10 @@ namespace Ogre {
 		@remarks
 			For some effects, you might wish to turn off the colour write operation
 			when rendering geometry; this means that only the depth buffer will be
-			updated (provided you have depth buffer writing enabled, which you 
+			updated (provided you have depth buffer writing enabled, which you
 			probably will do, although you may wish to only update the stencil
 			buffer for example - stencil buffer state is managed at the RenderSystem
-			level only, not the Material since you are likely to want to manage it 
+			level only, not the Material since you are likely to want to manage it
 			at a higher level).
 		*/
 		void setColourWriteEnabled(bool enabled);
@@ -644,13 +644,13 @@ namespace Ogre {
         */
         bool getLightingEnabled(void) const;
 
-        /** Sets the maximum number of lights to be used by this pass. 
+        /** Sets the maximum number of lights to be used by this pass.
         @remarks
             During rendering, if lighting is enabled (or if the pass uses an automatic
-            program parameter based on a light) the engine will request the nearest lights 
+            program parameter based on a light) the engine will request the nearest lights
             to the object being rendered in order to work out which ones to use. This
-            parameter sets the limit on the number of lights which should apply to objects 
-            rendered with this pass. 
+            parameter sets the limit on the number of lights which should apply to objects
+            rendered with this pass.
         */
         void setMaxSimultaneousLights(unsigned short maxLights);
         /** Gets the maximum number of lights to be used by this pass. */
@@ -668,7 +668,7 @@ namespace Ogre {
 
 		/** Sets the type of polygon rendering required
 		@note
-		The default shading method is Solid 
+		The default shading method is Solid
 		*/
 		void setPolygonMode( PolygonMode mode );
 
@@ -696,10 +696,10 @@ namespace Ogre {
         colour The colour of the fog. Either set this to the same as your viewport background colour,
         or to blend in with a skydome or skybox.
         @param
-        expDensity The density of the fog in FOG_EXP or FOG_EXP2 mode, as a value between 0 and 1. 
+        expDensity The density of the fog in FOG_EXP or FOG_EXP2 mode, as a value between 0 and 1.
         The default is 0.001.
         @param
-        linearStart Distance in world units at which linear fog starts to encroach. 
+        linearStart Distance in world units at which linear fog starts to encroach.
         Only applicable if mode is FOG_LINEAR.
         @param
         linearEnd Distance in world units at which linear fog becomes completely opaque.
@@ -788,26 +788,26 @@ namespace Ogre {
         /** Sets whether or not this pass should iterate per light which
 		    can affect the object being rendered.
 		@remarks
-			The default behaviour for a pass (when this option is 'false'), is 
-			for a pass to be rendered only once (or the number of times set in 
+			The default behaviour for a pass (when this option is 'false'), is
+			for a pass to be rendered only once (or the number of times set in
 			setPassIterationCount), with all the lights which could
 			affect this object set at the same time (up to the maximum lights
-			allowed in the render system, which is typically 8). 
+			allowed in the render system, which is typically 8).
 		@par
-			Setting this option to 'true' changes this behaviour, such that 
+			Setting this option to 'true' changes this behaviour, such that
 			instead of trying to issue render this pass once per object, it
 			is run <b>per light</b> which can affect this object, the number of
 			times set in setPassIterationCount (default is once). In
 			this case, only light index 0 is ever used, and is a different light
 			every time the pass is issued, up to the total number of lights
 			which is affecting this object. This has 2 advantages:
-			<ul><li>There is no limit on the number of lights which can be 
+			<ul><li>There is no limit on the number of lights which can be
 			supported</li>
 			<li>It's easier to write vertex / fragment programs for this because
 			a single program can be used for any number of lights</li>
 			</ul>
 			However, this technique is a lot more expensive, and typically you
-			will want an additional ambient pass, because if no lights are 
+			will want an additional ambient pass, because if no lights are
 			affecting the object it will not be rendered at all, which will look
 			odd even if ambient light is zero (imagine if there are lit objects
 			behind it - the objects silhouette would not show up). Therefore,
@@ -822,17 +822,17 @@ namespace Ogre {
             of light, other light types will be ignored.
         @param lightType The single light type which will be considered for this pass
 		*/
-        void setIteratePerLight(bool enabled, 
+        void setIteratePerLight(bool enabled,
             bool onlyForOneLightType = true, Light::LightTypes lightType = Light::LT_POINT);
 
         /** Does this pass run once for every light in range? */
 		bool getIteratePerLight(void) const { return mIteratePerLight; }
         /** Does this pass run only for a single light type (if getIteratePerLight is true). */
         bool getRunOnlyForOneLightType(void) const { return mRunOnlyForOneLightType; }
-        /** Gets the single light type this pass runs for if  getIteratePerLight and 
+        /** Gets the single light type this pass runs for if  getIteratePerLight and
             getRunOnlyForOneLightType are both true. */
         Light::LightTypes getOnlyLightType() const { return mOnlyLightType; }
-		
+
 		/// Gets the parent Technique
         Technique* getParent(void) { return mParent; }
 
@@ -844,15 +844,15 @@ namespace Ogre {
 			Only applicable to programmable passes, this sets the details of
 			the vertex program to use in this pass. The program will not be
 			loaded until the parent Material is loaded.
-		@param name The name of the program - this must have been 
-			created using GpuProgramManager by the time that this Pass 
+		@param name The name of the program - this must have been
+			created using GpuProgramManager by the time that this Pass
 			is loaded. If this parameter is blank, any vertex program in this pass is disabled.
         @param resetParams
             If true, this will create a fresh set of parameters from the
             new program being linked, so if you had previously set parameters
             you will have to set them again. If you set this to false, you must
             be absolutely sure that the parameters match perfectly, and in the
-            case of named parameters refers to the indexes underlying them, 
+            case of named parameters refers to the indexes underlying them,
             not just the names.
 		*/
 		void setVertexProgram(const String& name, bool resetParams = true);
@@ -871,23 +871,23 @@ namespace Ogre {
 		const GpuProgramPtr& getVertexProgram(void) const;
 
 
-        /** Sets the details of the vertex program to use when rendering as a 
+        /** Sets the details of the vertex program to use when rendering as a
         shadow caster.
         @remarks
-        Texture-based shadows require that the caster is rendered to a texture 
+        Texture-based shadows require that the caster is rendered to a texture
         in a solid colour (the shadow colour in the case of modulative texture
-        shadows). Whilst Ogre can arrange this for the fixed function 
+        shadows). Whilst Ogre can arrange this for the fixed function
         pipeline, passes which use vertex programs might need the vertex
         programs still to run in order to preserve any deformation etc
-        that it does. However, lighting calculations must be a lot simpler, 
+        that it does. However, lighting calculations must be a lot simpler,
         with only the ambient colour being used (which the engine will ensure
-        is bound to the shadow colour). 
+        is bound to the shadow colour).
         @par
         Therefore, it is up to implemetors of vertex programs to provide an
         alternative vertex program which can be used to render the object
         to a shadow texture. Do all the same vertex transforms, but set the
-        colour of the vertex to the ambient colour, as bound using the 
-        standard auto parameter binding mechanism. 
+        colour of the vertex to the ambient colour, as bound using the
+        standard auto parameter binding mechanism.
         @note
         Some vertex programs will work without doing this, because Ogre ensures
         that all lights except for ambient are set black. However, the chances
@@ -897,7 +897,7 @@ namespace Ogre {
         @note
         This is only applicable to programmable passes.
         @par
-        The default behaviour is for Ogre to switch to fixed-function 
+        The default behaviour is for Ogre to switch to fixed-function
         rendering if an explict vertex program alternative is not set.
         */
         void setShadowCasterVertexProgram(const String& name);
@@ -912,34 +912,34 @@ namespace Ogre {
         const String& getShadowCasterVertexProgramName(void) const;
         /** Gets the vertex program parameters used by this pass when rendering shadow casters. */
         GpuProgramParametersSharedPtr getShadowCasterVertexProgramParameters(void) const;
-        /** Gets the vertex program used by this pass when rendering shadow casters, 
+        /** Gets the vertex program used by this pass when rendering shadow casters,
             only available after _load(). */
         const GpuProgramPtr& getShadowCasterVertexProgram(void) const;
 
-        /** Sets the details of the vertex program to use when rendering as a 
+        /** Sets the details of the vertex program to use when rendering as a
             shadow receiver.
         @remarks
             Texture-based shadows require that the shadow receiver is rendered using
-            a projective texture. Whilst Ogre can arrange this for the fixed function 
+            a projective texture. Whilst Ogre can arrange this for the fixed function
             pipeline, passes which use vertex programs might need the vertex
             programs still to run in order to preserve any deformation etc
-            that it does. So in this case, we need a vertex program which does the 
+            that it does. So in this case, we need a vertex program which does the
             appropriate vertex transformation, but generates projective texture
-            coordinates. 
+            coordinates.
         @par
             Therefore, it is up to implemetors of vertex programs to provide an
             alternative vertex program which can be used to render the object
             as a shadow receiver. Do all the same vertex transforms, but generate
             <strong>2 sets</strong> of texture coordinates using the auto parameter
-            ACT_TEXTURE_VIEWPROJ_MATRIX, which Ogre will bind to the parameter name / 
-            index you supply as the second parameter to this method. 2 texture 
-            sets are needed because Ogre needs to use 2 texture units for some 
+            ACT_TEXTURE_VIEWPROJ_MATRIX, which Ogre will bind to the parameter name /
+            index you supply as the second parameter to this method. 2 texture
+            sets are needed because Ogre needs to use 2 texture units for some
             shadow effects.
         @note
             This is only applicable to programmable passes.
         @par
-            The default behaviour is for Ogre to switch to fixed-function 
-            rendering if an explict vertex program alternative is not set.         
+            The default behaviour is for Ogre to switch to fixed-function
+            rendering if an explict vertex program alternative is not set.
         */
         void setShadowReceiverVertexProgram(const String& name);
         /** Sets the vertex program parameters for rendering as a shadow receiver.
@@ -951,10 +951,10 @@ namespace Ogre {
         void setShadowReceiverVertexProgramParameters(GpuProgramParametersSharedPtr params);
 
 		/** This method allows you to specify a fragment program for use when
-			rendering a texture shadow receiver. 
+			rendering a texture shadow receiver.
 		@remarks
 			Texture shadows are applied by rendering the receiver. Modulative texture
-			shadows are performed as a post-render darkening pass, and as such 
+			shadows are performed as a post-render darkening pass, and as such
 			fragment programs are generally not required per-object. Additive
 			texture shadows, however, are applied by accumulating light masked
 			out using a texture shadow (black & white by default, unless you
@@ -983,7 +983,7 @@ namespace Ogre {
         const String& getShadowReceiverVertexProgramName(void) const;
         /** Gets the vertex program parameters used by this pass when rendering shadow receivers. */
         GpuProgramParametersSharedPtr getShadowReceiverVertexProgramParameters(void) const;
-        /** Gets the vertex program used by this pass when rendering shadow receivers, 
+        /** Gets the vertex program used by this pass when rendering shadow receivers,
         only available after _load(). */
         const GpuProgramPtr& getShadowReceiverVertexProgram(void) const;
 
@@ -991,7 +991,7 @@ namespace Ogre {
 		const String& getShadowReceiverFragmentProgramName(void) const;
 		/** Gets the fragment program parameters used by this pass when rendering shadow receivers. */
 		GpuProgramParametersSharedPtr getShadowReceiverFragmentProgramParameters(void) const;
-		/** Gets the fragment program used by this pass when rendering shadow receivers, 
+		/** Gets the fragment program used by this pass when rendering shadow receivers,
 		only available after _load(). */
 		const GpuProgramPtr& getShadowReceiverFragmentProgram(void) const;
 
@@ -1000,28 +1000,28 @@ namespace Ogre {
 			Only applicable to programmable passes, this sets the details of
 			the fragment program to use in this pass. The program will not be
 			loaded until the parent Material is loaded.
-		@param name The name of the program - this must have been 
-			created using GpuProgramManager by the time that this Pass 
+		@param name The name of the program - this must have been
+			created using GpuProgramManager by the time that this Pass
 			is loaded. If this parameter is blank, any fragment program in this pass is disabled.
         @param resetParams
             If true, this will create a fresh set of parameters from the
             new program being linked, so if you had previously set parameters
             you will have to set them again. If you set this to false, you must
             be absolutely sure that the parameters match perfectly, and in the
-            case of named parameters refers to the indexes underlying them, 
+            case of named parameters refers to the indexes underlying them,
             not just the names.
 		*/
 		void setFragmentProgram(const String& name, bool resetParams = true);
-		/** Sets the vertex program parameters.
+		/** Sets the fragment program parameters.
 		@remarks
 			Only applicable to programmable passes.
 		*/
 		void setFragmentProgramParameters(GpuProgramParametersSharedPtr params);
 		/** Gets the name of the fragment program used by this pass. */
 		const String& getFragmentProgramName(void) const;
-		/** Gets the vertex program parameters used by this pass. */
+		/** Gets the fragment program parameters used by this pass. */
 		GpuProgramParametersSharedPtr getFragmentProgramParameters(void) const;
-		/** Gets the vertex program used by this pass, only available after _load(). */
+		/** Gets the fragment program used by this pass, only available after _load(). */
 		const GpuProgramPtr& getFragmentProgram(void) const;
 
 		/** Splits this Pass to one which can be handled in the number of
@@ -1032,7 +1032,7 @@ namespace Ogre {
 			for less capable cards.
 		@param numUnits The target number of texture units
 		@returns A new Pass which contains the remaining units, and a scene_blend
-				setting appropriate to approximate the multitexture. This Pass will be 
+				setting appropriate to approximate the multitexture. This Pass will be
 				attached to the parent Technique of this Pass.
 		*/
 		Pass* _split(unsigned short numUnits);
@@ -1071,37 +1071,37 @@ namespace Ogre {
         /** Update any automatic light parameters on this pass */
         void _updateAutoParamsLightsOnly(const AutoParamDataSource& source) const;
 
-        /** Set texture filtering for every texture unit 
+        /** Set texture filtering for every texture unit
         @note
             This property actually exists on the TextureUnitState class
-            For simplicity, this method allows you to set these properties for 
-            every current TeextureUnitState, If you need more precision, retrieve the  
+            For simplicity, this method allows you to set these properties for
+            every current TeextureUnitState, If you need more precision, retrieve the
             TextureUnitState instance and set the property there.
         @see TextureUnitState::setTextureFiltering
         */
         void setTextureFiltering(TextureFilterOptions filterType);
         /** Sets the anisotropy level to be used for all textures.
         @note
-            This property has been moved to the TextureUnitState class, which is accessible via the 
-            Technique and Pass. For simplicity, this method allows you to set these properties for 
-            every current TeextureUnitState, If you need more precision, retrieve the Technique, 
+            This property has been moved to the TextureUnitState class, which is accessible via the
+            Technique and Pass. For simplicity, this method allows you to set these properties for
+            every current TeextureUnitState, If you need more precision, retrieve the Technique,
             Pass and TextureUnitState instances and set the property there.
         @see TextureUnitState::setTextureAnisotropy
         */
         void setTextureAnisotropy(unsigned int maxAniso);
 		/** Static method to retrieve all the Passes which need their
-		    hash values recalculated. 
+		    hash values recalculated.
 		*/
-		static const PassSet& getDirtyHashList(void) 
+		static const PassSet& getDirtyHashList(void)
 		{ return msDirtyHashList; }
         /** Static method to retrieve all the Passes which are pending deletion.
         */
-        static const PassSet& getPassGraveyard(void) 
+        static const PassSet& getPassGraveyard(void)
         { return msPassGraveyard; }
-		/** Static method to reset the list of passes which need their hash 
-		    values recalculated. 
+		/** Static method to reset the list of passes which need their hash
+		    values recalculated.
 		@remarks
-			For performance, the dirty list is not updated progressively as 
+			For performance, the dirty list is not updated progressively as
 			the hashes are recalculated, instead we expect the processor of the
 			dirty hash list to clear the list when they are done.
 		*/
@@ -1132,7 +1132,7 @@ namespace Ogre {
         */
         void setPassIterationCount(const size_t count) { mPassIterationCount = count; }
 
-        /** Gets the multi pass count value.
+        /** Gets the pass iteration count value.
         */
         size_t getPassIterationCount(void) const { return mPassIterationCount; }
 
@@ -1148,7 +1148,7 @@ namespace Ogre {
             True if matching texture aliases were found in the pass.
         */
         bool applyTextureAliases(const AliasTextureNamePairList& aliasList, const bool apply = true) const;
-        
+
     };
 
     enum IlluminationStage
@@ -1162,11 +1162,11 @@ namespace Ogre {
     };
     /** Struct recording a pass which can be used for a specific illumination stage.
     @remarks
-        This structure is used to record categorised passes which fit into a 
-        number of distinct illumination phases - ambient, diffuse / specular 
+        This structure is used to record categorised passes which fit into a
+        number of distinct illumination phases - ambient, diffuse / specular
         (per-light) and decal (post-lighting texturing).
         An original pass may fit into one of these categories already, or it
-        may require splitting into its component parts in order to be categorised 
+        may require splitting into its component parts in order to be categorised
         properly.
     */
     struct IlluminationPass
