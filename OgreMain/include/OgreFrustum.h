@@ -320,7 +320,7 @@ namespace Ogre
         projection matrix which conforms to standard right-handed rules and
         uses depth range [-1,+1].
         @remarks
-            This differs from the rendering-API dependent getRenderSystemProjectionMatrix
+            This differs from the rendering-API dependent getProjectionMatrixRS
             in that it always returns a right-handed projection matrix with depth
             range [-1,+1], result no matter what rendering API is being used - this
             is required for some uniform algebra for example.
