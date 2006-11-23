@@ -355,17 +355,19 @@ namespace OgreMayaExporter
 				//add keyframe to joint track
 				animTracks[j].addSkeletonKeyframe(key);
 			}
-			// Update bounding boxes of loaded submeshes
-			for (j=0; j<params.loadedSubmeshes.size(); j++)
+			if (params.skelBB)
 			{
-				MFnMesh mesh(params.loadedSubmeshes[j]->m_dagPath);
-				MBoundingBox bbox = mesh.boundingBox();
-				if (params.exportWorldCoords)
-					bbox.transformUsing(params.loadedSubmeshes[j]->m_dagPath.exclusiveMatrix());
-				else
+				// Update bounding boxes of loaded submeshes
+				for (j=0; j<params.loadedSubmeshes.size(); j++)
 				{
-				/*	for (k=0; k<params.currentRootJoints.size(); k++)
+					MFnMesh mesh(params.loadedSubmeshes[j]->m_dagPath);
+					MBoundingBox bbox = mesh.boundingBox();
+					if (params.exportWorldCoords)
+						bbox.transformUsing(params.loadedSubmeshes[j]->m_dagPath.exclusiveMatrix());
+					else
 					{
+						/*	for (k=0; k<params.currentRootJoints.size(); k++)
+						{
 						MDagPath rootDag = params.currentRootJoints[k];
 						std::cout << "--------------\n";
 						std::cout << "joint: " << rootDag.fullPathName().asChar() << "\n";
@@ -376,9 +378,10 @@ namespace OgreMayaExporter
 						p1 = bbox.min();
 						p2 = bbox.max();
 						std::cout << "bbox: " << p1.x << "," << p1.y << "," << p1.z << "\t" << p2.x << "," << p2.y << "," << p2.z << "\n";
-					}*/
+						}*/
+					}
+					params.loadedSubmeshes[j]->m_boundingBox.expand(bbox);
 				}
-				params.loadedSubmeshes[j]->m_boundingBox.expand(bbox);
 			}
 		}
 		// add created tracks to current clip

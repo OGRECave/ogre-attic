@@ -301,15 +301,18 @@ namespace OgreMayaExporter
 		}
 		// add keyframe to given track
 		t.addVertexKeyframe(k);
-		// update bounding box
-		MPoint min = mesh.boundingBox().min();
-		MPoint max = mesh.boundingBox().max();
-		min = min * params.lum;
-		max = max * params.lum;
-		MBoundingBox bbox(min,max);
-		if (params.exportWorldCoords)
-			bbox.transformUsing(m_dagPath.inclusiveMatrix());
-		m_boundingBox.expand(bbox);
+		if (params.vertBB)
+		{
+			// update bounding box
+			MPoint min = mesh.boundingBox().min();
+			MPoint max = mesh.boundingBox().max();
+			min = min * params.lum;
+			max = max * params.lum;
+			MBoundingBox bbox(min,max);
+			if (params.exportWorldCoords)
+				bbox.transformUsing(m_dagPath.inclusiveMatrix());
+			m_boundingBox.expand(bbox);
+		}
 		// keyframe successfully loaded
 		return MS::kSuccess;
 	}

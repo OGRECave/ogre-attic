@@ -169,6 +169,18 @@ namespace OgreMayaExporter
 		// add pose to pose list
 		if (p.offsets.size() > 0)
 			m_poses.push_back(p);
+		if (params.bsBB)
+		{
+			// update bounding boxes of loaded submeshes
+			for (i=0; i<params.loadedSubmeshes.size(); i++)
+			{
+				MFnMesh mesh(params.loadedSubmeshes[i]->m_dagPath);
+				MBoundingBox bbox = mesh.boundingBox();
+				if (params.exportWorldCoords)
+					bbox.transformUsing(params.loadedSubmeshes[i]->m_dagPath.inclusiveMatrix());
+				params.loadedSubmeshes[i]->m_boundingBox.expand(bbox);
+			}
+		}
 		// pose loaded succesfully
 		return MS::kSuccess;
 	}
@@ -245,15 +257,6 @@ namespace OgreMayaExporter
 			poseref.poseIndex = startPoseId + i;
 			poseref.poseWeight = envelope * m_pBlendShapeFn->weight(indexList[i]);
 			key.poserefs.push_back(poseref);
-		}
-		// Update bounding boxes of loaded submeshes
-		for (i=0; i<params.loadedSubmeshes.size(); i++)
-		{
-			MFnMesh mesh(params.loadedSubmeshes[i]->m_dagPath);
-			MBoundingBox bbox = mesh.boundingBox();
-			if (params.exportWorldCoords)
-				bbox.transformUsing(params.loadedSubmeshes[i]->m_dagPath.inclusiveMatrix());
-			params.loadedSubmeshes[i]->m_boundingBox.expand(bbox);
 		}
 		return key;
 	}

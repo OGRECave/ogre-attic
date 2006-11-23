@@ -52,6 +52,11 @@ namespace OgreMayaExporter
 				else if (MString("yd") == lengthUnit)
 					lum = CM2YD;
 			}
+			else if ((MString("-scale") == args.asString(i,&stat)) && (MS::kSuccess == stat))
+			{
+				float s = args.asDouble(++i,&stat);
+				lum *= s;
+			}
 			else if ((MString("-mesh") == args.asString(i,&stat)) && (MS::kSuccess == stat))
 			{
 				exportMesh = true;
@@ -95,6 +100,18 @@ namespace OgreMayaExporter
 			else if ((MString("-BSAnims") == args.asString(i,&stat)) && (MS::kSuccess == stat))
 			{
 				exportBSAnims = true;
+			}
+			else if ((MString("-skelBB") == args.asString(i,&stat)) && (MS::kSuccess == stat))
+			{
+				skelBB = true;
+			}
+			else if ((MString("-bsBB") == args.asString(i,&stat)) && (MS::kSuccess == stat))
+			{
+				bsBB = true;
+			}
+			else if ((MString("-vertBB") == args.asString(i,&stat)) && (MS::kSuccess == stat))
+			{
+				vertBB = true;
 			}
 			else if ((MString("-animCur") == args.asString(i,&stat)) && (MS::kSuccess == stat))
 			{

@@ -89,7 +89,6 @@ namespace OgreMayaExporter
 		newuvsets.clear();
 		newpoints.clear();
 		newnormals.clear();
-		newnumJoints = 0;
 		params.currentRootJoints.clear();
 		opposite = false;
 		shaders.clear();
@@ -561,6 +560,7 @@ namespace OgreMayaExporter
 	MStatus Mesh::getVertexBoneWeights(const MDagPath& meshDag, OgreMayaExporter::ParamList &params)
 	{
 		int i,j,k;
+		unsigned int numWeights;
 		MStatus stat;
 		std::cout << "Get vbas\n";
 		std::cout.flush();
@@ -569,10 +569,9 @@ namespace OgreMayaExporter
 		{
 			MObject component = iterGeom.component();
 			MFloatArray vertexWeights;
-			stat=pSkinCluster->getWeights(meshDag,component,vertexWeights,newnumJoints);
-			//normalize vertex weights
+			stat=pSkinCluster->getWeights(meshDag,component,vertexWeights,numWeights);
+	/*		//normalize vertex weights
 			int widx;
-			MFloatArray oldw = vertexWeights;
 			// first, truncate the weights to given precision
 			long weightSum = 0;
 			for (widx=0; widx < vertexWeights.length(); widx++)
@@ -586,7 +585,7 @@ namespace OgreMayaExporter
 			if (weightSum > 0)
 			{
 				float newSum = 0;
-				for (widx=0; widx < vertexWeights.length(); widx++)
+				for (widx=0; widx < numWeights; widx++)
 				{
 					long w = (long) ((float)vertexWeights[widx] / ((float)PRECISION));
 					w = (long) (((float)w) / ((float)weightSum));
@@ -594,14 +593,14 @@ namespace OgreMayaExporter
 					newSum += vertexWeights[widx];
 				}
 				if (newSum < 1.0f)
-					vertexWeights[vertexWeights.length()-1] += PRECISION;
+					vertexWeights[numWeights-1] += PRECISION;
 			}
 			// else set all weights to 0
 			else
 			{
-				for (widx=0; widx < vertexWeights.length(); widx++)
+				for (widx=0; widx < numWeights; widx++)
 					vertexWeights[widx] = 0;
-			}
+			}*/
 			// save the normalized weights
 			newweights[i]=vertexWeights;
 			if (MS::kSuccess != stat)
@@ -1352,7 +1351,8 @@ namespace OgreMayaExporter
 					vba.vertexIndex = i;
 					vba.boneIndex = v.vbas[j].jointIdx;
 					vba.weight = v.vbas[j].weight;
-					vbas.insert(Ogre::Mesh::VertexBoneAssignmentList::value_type(i, vba));
+					if (vba.weight > 0.0f)
+						vbas.insert(Ogre::Mesh::VertexBoneAssignmentList::value_type(i, vba));
 				}
 			}
 			// Rationalise the bone assignements list
