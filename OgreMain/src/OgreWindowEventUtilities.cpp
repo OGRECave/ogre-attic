@@ -69,6 +69,16 @@ void WindowEventUtilities::messagePump()
 			GLXProc(event);
 		}
 	}
+	#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+	// OSX Message Pump
+	EventRef event = NULL;
+	EventTargetRef targetWindow;
+	targetWindow = GetEventDispatcherTarget();
+	if( ReceiveNextEvent( 0, NULL, kEventDurationNoWait, true, &event ) == noErr )
+	{
+		SendEventToEventTarget( event, targetWindow );
+		ReleaseEvent( event );
+	}
 #endif
 }
 
