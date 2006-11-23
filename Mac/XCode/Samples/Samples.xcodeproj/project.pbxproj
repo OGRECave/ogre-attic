@@ -48,6 +48,14 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		006C102C0AD4AAA7001E78B1 /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB90ABCC87C00E29B9F /* Ogre.framework */; };
+		006C10370AD4AAE7001E78B1 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 006C10360AD4AAE6001E78B1 /* Carbon.framework */; };
+		006C11440AD4B1B9001E78B1 /* CameraTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25A740ABCD1030090ADAC /* CameraTrack.cpp */; };
+		006C11450AD4B1C5001E78B1 /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
+		006C11460AD4B1C5001E78B1 /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
+		006C11470AD4B1C5001E78B1 /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
+		006C11480AD4B1D5001E78B1 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 006C10360AD4AAE6001E78B1 /* Carbon.framework */; };
+		006C11490AD4B1D5001E78B1 /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB90ABCC87C00E29B9F /* Ogre.framework */; };
 		00B25A460ABCCF190090ADAC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0C90ABCC89800E29B9F /* AppKit.framework */; };
 		00B25A470ABCCF190090ADAC /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0CD0ABCC8A900E29B9F /* CoreFoundation.framework */; };
 		00B25A480ABCCF190090ADAC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEAA0ABCC83F00E29B9F /* Cocoa.framework */; };
@@ -57,16 +65,10 @@
 		00B25A4C0ABCCF2B0090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25A4D0ABCCF2B0090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
 		00B25A530ABCCF630090ADAC /* BSP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25A520ABCCF630090ADAC /* BSP.cpp */; };
-		00B25A540ABCCF750090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
-		00B25A650ABCD0BD0090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25A660ABCD0C60090ADAC /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
 		00B25A670ABCD0C60090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25A680ABCD0C60090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
-		00B25A690ABCD0D00090ADAC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0C90ABCC89800E29B9F /* AppKit.framework */; };
-		00B25A6A0ABCD0D00090ADAC /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0CD0ABCC8A900E29B9F /* CoreFoundation.framework */; };
 		00B25A6B0ABCD0D00090ADAC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEAA0ABCC83F00E29B9F /* Cocoa.framework */; };
-		00B25A6C0ABCD0D00090ADAC /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB90ABCC87C00E29B9F /* Ogre.framework */; };
-		00B25A6D0ABCD0D00090ADAC /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB80ABCC87C00E29B9F /* SDL.framework */; };
 		00B25A750ABCD1030090ADAC /* CameraTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25A740ABCD1030090ADAC /* CameraTrack.cpp */; };
 		00B25A910ABCD2E10090ADAC /* CelShading.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25A900ABCD2E10090ADAC /* CelShading.cpp */; };
 		00B25A930ABCD2FA0090ADAC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0C90ABCC89800E29B9F /* AppKit.framework */; };
@@ -77,7 +79,6 @@
 		00B25A980ABCD3020090ADAC /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
 		00B25A990ABCD3020090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25A9A0ABCD3020090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
-		00B25A9B0ABCD30C0090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25ABA0ABCD6520090ADAC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0C90ABCC89800E29B9F /* AppKit.framework */; };
 		00B25ABB0ABCD6520090ADAC /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0CD0ABCC8A900E29B9F /* CoreFoundation.framework */; };
 		00B25ABC0ABCD6520090ADAC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEAA0ABCC83F00E29B9F /* Cocoa.framework */; };
@@ -89,7 +90,6 @@
 		00B25AC20ABCD6630090ADAC /* Compositor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25AAA0ABCD3B10090ADAC /* Compositor.cpp */; };
 		00B25AC30ABCD6630090ADAC /* CompositorDemo_FrameListener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25AAB0ABCD3B10090ADAC /* CompositorDemo_FrameListener.cpp */; };
 		00B25AC40ABCD6630090ADAC /* ItemSelectorViewManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25AAC0ABCD3B10090ADAC /* ItemSelectorViewManager.cpp */; };
-		00B25AC50ABCD66A0090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25BCB0ABCD6B00090ADAC /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEBA0ABCC87C00E29B9F /* CEGUI.framework */; };
 		00B25BCC0ABCD6B00090ADAC /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEBB0ABCC87C00E29B9F /* OgreCEGUIRenderer.framework */; };
 		00B25BE40ABCD8A50090ADAC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0C90ABCC89800E29B9F /* AppKit.framework */; };
@@ -97,7 +97,6 @@
 		00B25BE60ABCD8A50090ADAC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEAA0ABCC83F00E29B9F /* Cocoa.framework */; };
 		00B25BE70ABCD8A50090ADAC /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB90ABCC87C00E29B9F /* Ogre.framework */; };
 		00B25BE80ABCD8A50090ADAC /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB80ABCC87C00E29B9F /* SDL.framework */; };
-		00B25BE90ABCD8AA0090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25BEA0ABCD8B20090ADAC /* CubeMapping.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25BD70ABCD8210090ADAC /* CubeMapping.cpp */; };
 		00B25BEB0ABCD8B90090ADAC /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
 		00B25BEC0ABCD8B90090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
@@ -110,7 +109,6 @@
 		00B25C170ABCDA9D0090ADAC /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
 		00B25C180ABCDA9D0090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25C190ABCDA9D0090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
-		00B25C1A0ABCDAA60090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25C1B0ABCDAB50090ADAC /* LightMaterialGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25C030ABCDA330090ADAC /* LightMaterialGenerator.cpp */; };
 		00B25C1C0ABCDAB50090ADAC /* MLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25C040ABCDA330090ADAC /* MLight.cpp */; };
 		00B25C1D0ABCDAB50090ADAC /* MaterialGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25C050ABCDA330090ADAC /* MaterialGenerator.cpp */; };
@@ -124,14 +122,12 @@
 		00B25C3B0ABCDC300090ADAC /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
 		00B25C3C0ABCDC300090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25C3D0ABCDC300090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
-		00B25C3E0ABCDC360090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25C3F0ABCDC3E0090ADAC /* Dot3Bump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25C2B0ABCDB8E0090ADAC /* Dot3Bump.cpp */; };
 		00B25C570ABCE0490090ADAC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0C90ABCC89800E29B9F /* AppKit.framework */; };
 		00B25C580ABCE0490090ADAC /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0CD0ABCC8A900E29B9F /* CoreFoundation.framework */; };
 		00B25C590ABCE0490090ADAC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEAA0ABCC83F00E29B9F /* Cocoa.framework */; };
 		00B25C5A0ABCE0490090ADAC /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB90ABCC87C00E29B9F /* Ogre.framework */; };
 		00B25C5B0ABCE0490090ADAC /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB80ABCC87C00E29B9F /* SDL.framework */; };
-		00B25C5C0ABCE04E0090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25C5D0ABCE0540090ADAC /* DynTex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25C4C0ABCE0180090ADAC /* DynTex.cpp */; };
 		00B25C5E0ABCE05C0090ADAC /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
 		00B25C5F0ABCE05C0090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
@@ -141,7 +137,6 @@
 		00B25C7A0ABCE13E0090ADAC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEAA0ABCC83F00E29B9F /* Cocoa.framework */; };
 		00B25C7B0ABCE13E0090ADAC /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB90ABCC87C00E29B9F /* Ogre.framework */; };
 		00B25C7C0ABCE13E0090ADAC /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB80ABCC87C00E29B9F /* SDL.framework */; };
-		00B25C7D0ABCE1480090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25C7E0ABCE14E0090ADAC /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
 		00B25C7F0ABCE14E0090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25C800ABCE14E0090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
@@ -153,7 +148,6 @@
 		00B25C980ABCE3BC0090ADAC /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB80ABCC87C00E29B9F /* SDL.framework */; };
 		00B25C990ABCE3BC0090ADAC /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEBA0ABCC87C00E29B9F /* CEGUI.framework */; };
 		00B25C9A0ABCE3BC0090ADAC /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEBB0ABCC87C00E29B9F /* OgreCEGUIRenderer.framework */; };
-		00B25C9B0ABCE3C30090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25C9C0ABCE3CE0090ADAC /* FacialAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25C890ABCE2B30090ADAC /* FacialAnimation.cpp */; };
 		00B25C9D0ABCE3D60090ADAC /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
 		00B25C9E0ABCE3D60090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
@@ -166,12 +160,10 @@
 		00B25CC40ABCE5880090ADAC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEAA0ABCC83F00E29B9F /* Cocoa.framework */; };
 		00B25CC50ABCE5880090ADAC /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB90ABCC87C00E29B9F /* Ogre.framework */; };
 		00B25CC60ABCE5880090ADAC /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB80ABCC87C00E29B9F /* SDL.framework */; };
-		00B25CC70ABCE5910090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25CC80ABCE59C0090ADAC /* Fresnel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25CB40ABCE5210090ADAC /* Fresnel.cpp */; };
 		00B25CE20ABCE7CE0090ADAC /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
 		00B25CE30ABCE7CE0090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25CE40ABCE7CE0090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
-		00B25CE50ABCE7DE0090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25CE60ABCE7E40090ADAC /* Grass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25CD70ABCE7970090ADAC /* Grass.cpp */; };
 		00B25CE70ABCE7EB0090ADAC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0C90ABCC89800E29B9F /* AppKit.framework */; };
 		00B25CE80ABCE7EB0090ADAC /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0CD0ABCC8A900E29B9F /* CoreFoundation.framework */; };
@@ -181,7 +173,6 @@
 		00B25D0A0ABCEB010090ADAC /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
 		00B25D0B0ABCEB010090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25D0C0ABCEB010090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
-		00B25D0D0ABCEB080090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25D0E0ABCEB100090ADAC /* Lighting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25CFE0ABCEA920090ADAC /* Lighting.cpp */; };
 		00B25D0F0ABCEB180090ADAC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0C90ABCC89800E29B9F /* AppKit.framework */; };
 		00B25D100ABCEB180090ADAC /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0CD0ABCC8A900E29B9F /* CoreFoundation.framework */; };
@@ -191,7 +182,6 @@
 		00B25D2A0ABCEC070090ADAC /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
 		00B25D2B0ABCEC070090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25D2C0ABCEC070090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
-		00B25D2D0ABCEC0D0090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25D2E0ABCEC160090ADAC /* OceanDemo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25D1E0ABCEB940090ADAC /* OceanDemo.cpp */; };
 		00B25D2F0ABCEC160090ADAC /* MaterialControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25D1F0ABCEB940090ADAC /* MaterialControls.cpp */; };
 		00B25D300ABCEC2C0090ADAC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0C90ABCC89800E29B9F /* AppKit.framework */; };
@@ -205,14 +195,12 @@
 		00B25D8A0ABCF4540090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25D8B0ABCF4540090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
 		00B25D8C0ABCF45F0090ADAC /* ParticleFX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25D7E0ABCF38B0090ADAC /* ParticleFX.cpp */; };
-		00B25D8D0ABCF45F0090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25D8E0ABCF4690090ADAC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0C90ABCC89800E29B9F /* AppKit.framework */; };
 		00B25D8F0ABCF4690090ADAC /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0CD0ABCC8A900E29B9F /* CoreFoundation.framework */; };
 		00B25D900ABCF4690090ADAC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEAA0ABCC83F00E29B9F /* Cocoa.framework */; };
 		00B25D910ABCF4690090ADAC /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB90ABCC87C00E29B9F /* Ogre.framework */; };
 		00B25D920ABCF4690090ADAC /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB80ABCC87C00E29B9F /* SDL.framework */; };
 		00B25DA40ABCF5830090ADAC /* RenderToTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25D990ABCF50E0090ADAC /* RenderToTexture.cpp */; };
-		00B25DA50ABCF5830090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25DA60ABCF58E0090ADAC /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
 		00B25DA70ABCF58E0090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25DA80ABCF58E0090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
@@ -225,7 +213,6 @@
 		00B25DC10ABCF6C40090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25DC20ABCF6C40090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
 		00B25DC30ABCF6CF0090ADAC /* Shadows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25DB50ABCF6660090ADAC /* Shadows.cpp */; };
-		00B25DC40ABCF6CF0090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25DC50ABCF6D80090ADAC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0C90ABCC89800E29B9F /* AppKit.framework */; };
 		00B25DC60ABCF6D80090ADAC /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0CD0ABCC8A900E29B9F /* CoreFoundation.framework */; };
 		00B25DC70ABCF6D80090ADAC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEAA0ABCC83F00E29B9F /* Cocoa.framework */; };
@@ -235,7 +222,6 @@
 		00B25DDD0ABCF7AF0090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25DDE0ABCF7AF0090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
 		00B25DDF0ABCF7B80090ADAC /* SkeletalAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25DD10ABCF7700090ADAC /* SkeletalAnimation.cpp */; };
-		00B25DE00ABCF7B80090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25DE10ABCF7C20090ADAC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0C90ABCC89800E29B9F /* AppKit.framework */; };
 		00B25DE20ABCF7C20090ADAC /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0CD0ABCC8A900E29B9F /* CoreFoundation.framework */; };
 		00B25DE30ABCF7C20090ADAC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEAA0ABCC83F00E29B9F /* Cocoa.framework */; };
@@ -245,14 +231,12 @@
 		00B25DF60ABCF9120090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25DF70ABCF9120090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
 		00B25DF80ABCF91C0090ADAC /* SkyBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25DEA0ABCF8B40090ADAC /* SkyBox.cpp */; };
-		00B25DF90ABCF91C0090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25DFA0ABCF9270090ADAC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0C90ABCC89800E29B9F /* AppKit.framework */; };
 		00B25DFB0ABCF9270090ADAC /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0CD0ABCC8A900E29B9F /* CoreFoundation.framework */; };
 		00B25DFC0ABCF9270090ADAC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEAA0ABCC83F00E29B9F /* Cocoa.framework */; };
 		00B25DFD0ABCF9270090ADAC /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB90ABCC87C00E29B9F /* Ogre.framework */; };
 		00B25DFE0ABCF9270090ADAC /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB80ABCC87C00E29B9F /* SDL.framework */; };
 		00B25E110ABCF9F90090ADAC /* SkyDome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25E060ABCF9BC0090ADAC /* SkyDome.cpp */; };
-		00B25E120ABCF9F90090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25E130ABCFA030090ADAC /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
 		00B25E140ABCFA030090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25E150ABCFA030090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
@@ -262,7 +246,6 @@
 		00B25E190ABCFA0B0090ADAC /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB90ABCC87C00E29B9F /* Ogre.framework */; };
 		00B25E1A0ABCFA0B0090ADAC /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB80ABCC87C00E29B9F /* SDL.framework */; };
 		00B25E2A0ABCFB360090ADAC /* SkyPlane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25E1F0ABCFAC50090ADAC /* SkyPlane.cpp */; };
-		00B25E2B0ABCFB360090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25E2C0ABCFB3E0090ADAC /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
 		00B25E2D0ABCFB3E0090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25E2E0ABCFB3E0090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
@@ -272,7 +255,6 @@
 		00B25E320ABCFB460090ADAC /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB90ABCC87C00E29B9F /* Ogre.framework */; };
 		00B25E330ABCFB460090ADAC /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB80ABCC87C00E29B9F /* SDL.framework */; };
 		00B25E460ABCFBDD0090ADAC /* Smoke.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25E3B0ABCFBB10090ADAC /* Smoke.cpp */; };
-		00B25E470ABCFBDD0090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25E480ABCFBE50090ADAC /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
 		00B25E490ABCFBE50090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25E4A0ABCFBE50090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
@@ -282,7 +264,6 @@
 		00B25E4E0ABCFBEC0090ADAC /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB90ABCC87C00E29B9F /* Ogre.framework */; };
 		00B25E4F0ABCFBEC0090ADAC /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB80ABCC87C00E29B9F /* SDL.framework */; };
 		00B25E5F0ABCFD390090ADAC /* Terrain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25E540ABCFD040090ADAC /* Terrain.cpp */; };
-		00B25E600ABCFD390090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25E610ABCFD550090ADAC /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
 		00B25E620ABCFD550090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25E630ABCFD550090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
@@ -296,7 +277,6 @@
 		00B25E840ABD00C80090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25E850ABD00C80090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
 		00B25E860ABD00D20090ADAC /* TextureFX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25E780ABD00970090ADAC /* TextureFX.cpp */; };
-		00B25E870ABD00D20090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25E880ABD00DE0090ADAC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0C90ABCC89800E29B9F /* AppKit.framework */; };
 		00B25E890ABD00DE0090ADAC /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0CD0ABCC8A900E29B9F /* CoreFoundation.framework */; };
 		00B25E8A0ABD00DE0090ADAC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEAA0ABCC83F00E29B9F /* Cocoa.framework */; };
@@ -306,7 +286,6 @@
 		00B25EA20ABD01C60090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25EA30ABD01C60090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
 		00B25EA40ABD01D10090ADAC /* Transparency.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25E950ABD01860090ADAC /* Transparency.cpp */; };
-		00B25EA50ABD01D10090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25EA60ABD01DC0090ADAC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0C90ABCC89800E29B9F /* AppKit.framework */; };
 		00B25EA70ABD01DC0090ADAC /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0CD0ABCC8A900E29B9F /* CoreFoundation.framework */; };
 		00B25EA80ABD01DC0090ADAC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEAA0ABCC83F00E29B9F /* Cocoa.framework */; };
@@ -318,7 +297,6 @@
 		00B25EC60ABD02AA0090ADAC /* ThingRenderable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25EB60ABD026E0090ADAC /* ThingRenderable.cpp */; };
 		00B25EC70ABD02AA0090ADAC /* VolumeTex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25EB70ABD026E0090ADAC /* VolumeTex.cpp */; };
 		00B25EC80ABD02AA0090ADAC /* VolumeRenderable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25EB80ABD026E0090ADAC /* VolumeRenderable.cpp */; };
-		00B25EC90ABD02AA0090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25ECA0ABD02B70090ADAC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0C90ABCC89800E29B9F /* AppKit.framework */; };
 		00B25ECB0ABD02B70090ADAC /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5B0CD0ABCC8A900E29B9F /* CoreFoundation.framework */; };
 		00B25ECC0ABD02B70090ADAC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEAA0ABCC83F00E29B9F /* Cocoa.framework */; };
@@ -326,7 +304,6 @@
 		00B25ECE0ABD02B70090ADAC /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00E5AEB80ABCC87C00E29B9F /* SDL.framework */; };
 		00B25EE40ABD03600090ADAC /* Water.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25ED80ABD03350090ADAC /* Water.cpp */; };
 		00B25EE50ABD03600090ADAC /* WaterMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B25ED90ABD03350090ADAC /* WaterMesh.cpp */; };
-		00B25EE60ABD03600090ADAC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 		00B25EE70ABD03710090ADAC /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
 		00B25EE80ABD03710090ADAC /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00B25EE90ABD03710090ADAC /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
@@ -346,7 +323,6 @@
 		00E5B1A50ABCC98800E29B9F /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A20ABCC98800E29B9F /* media.cfg */; };
 		00E5B1A60ABCC98800E29B9F /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A30ABCC98800E29B9F /* plugins.cfg */; };
 		00E5B1A70ABCC98800E29B9F /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 00E5B1A40ABCC98800E29B9F /* resources.cfg */; };
-		00E5B1A80ABCC99B00E29B9F /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E5AEA40ABCC77F00E29B9F /* SDLMain.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -549,6 +525,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		006C10360AD4AAE6001E78B1 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
+		006C113E0AD4B19A001E78B1 /* CamaeraTrack2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CamaeraTrack2.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		006C11400AD4B19A001E78B1 /* CamaeraTrack2-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "CamaeraTrack2-Info.plist"; sourceTree = "<group>"; };
 		00B258730ABCCEEB0090ADAC /* BSP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BSP.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		00B25A520ABCCF630090ADAC /* BSP.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = BSP.cpp; path = ../../../Samples/BSP/src/BSP.cpp; sourceTree = SOURCE_ROOT; };
 		00B25A5E0ABCD0920090ADAC /* CameraTrack.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CameraTrack.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -640,12 +619,10 @@
 		00B25ED80ABD03350090ADAC /* Water.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Water.cpp; path = ../../../Samples/Water/src/Water.cpp; sourceTree = SOURCE_ROOT; };
 		00B25ED90ABD03350090ADAC /* WaterMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = WaterMesh.cpp; path = ../../../Samples/Water/src/WaterMesh.cpp; sourceTree = SOURCE_ROOT; };
 		00B25EDE0ABD03440090ADAC /* Water.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Water.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		00E5AE980ABCC6B000E29B9F /* BezierPatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BezierPatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		00E5AE980ABCC6B000E29B9F /* BezierPatch.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = BezierPatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E5AEA00ABCC76000E29B9F /* config.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		00E5AEA10ABCC76000E29B9F /* Samples_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Samples_Prefix.pch; sourceTree = "<group>"; };
 		00E5AEA20ABCC77F00E29B9F /* ExampleApplication.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ExampleApplication.h; path = ../Classes/ExampleApplication.h; sourceTree = SOURCE_ROOT; };
-		00E5AEA30ABCC77F00E29B9F /* SDLMain.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = SDLMain.h; path = ../Classes/SDLMain.h; sourceTree = SOURCE_ROOT; };
-		00E5AEA40ABCC77F00E29B9F /* SDLMain.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = SDLMain.m; path = ../Classes/SDLMain.m; sourceTree = SOURCE_ROOT; };
 		00E5AEA80ABCC7FE00E29B9F /* ExampleFrameListener.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ExampleFrameListener.h; path = ../../../Samples/Common/include/ExampleFrameListener.h; sourceTree = SOURCE_ROOT; };
 		00E5AEA90ABCC7FE00E29B9F /* ExampleLoadingBar.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ExampleLoadingBar.h; path = ../../../Samples/Common/include/ExampleLoadingBar.h; sourceTree = SOURCE_ROOT; };
 		00E5AEAA0ABCC83F00E29B9F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -663,6 +640,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		006C113C0AD4B19A001E78B1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				006C11480AD4B1D5001E78B1 /* Carbon.framework in Frameworks */,
+				006C11490AD4B1D5001E78B1 /* Ogre.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		00B258710ABCCEEB0090ADAC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -679,11 +665,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25A690ABCD0D00090ADAC /* AppKit.framework in Frameworks */,
-				00B25A6A0ABCD0D00090ADAC /* CoreFoundation.framework in Frameworks */,
+				006C102C0AD4AAA7001E78B1 /* Ogre.framework in Frameworks */,
 				00B25A6B0ABCD0D00090ADAC /* Cocoa.framework in Frameworks */,
-				00B25A6C0ABCD0D00090ADAC /* Ogre.framework in Frameworks */,
-				00B25A6D0ABCD0D00090ADAC /* SDL.framework in Frameworks */,
+				006C10370AD4AAE7001E78B1 /* Carbon.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1293,6 +1277,7 @@
 				00B25E9B0ABD01A90090ADAC /* Transparency.app */,
 				00B25EBD0ABD02810090ADAC /* VolumeTex.app */,
 				00B25EDE0ABD03440090ADAC /* Water.app */,
+				006C113E0AD4B19A001E78B1 /* CamaeraTrack2.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1305,8 +1290,6 @@
 				00E5AEA20ABCC77F00E29B9F /* ExampleApplication.h */,
 				00E5AEA00ABCC76000E29B9F /* config.h */,
 				00E5AEA10ABCC76000E29B9F /* Samples_Prefix.pch */,
-				00E5AEA30ABCC77F00E29B9F /* SDLMain.h */,
-				00E5AEA40ABCC77F00E29B9F /* SDLMain.m */,
 			);
 			name = "Common Source";
 			sourceTree = "<group>";
@@ -1314,6 +1297,7 @@
 		00E5AEAE0ABCC84B00E29B9F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				006C10360AD4AAE6001E78B1 /* Carbon.framework */,
 				00E5B0C90ABCC89800E29B9F /* AppKit.framework */,
 				00E5B0CD0ABCC8A900E29B9F /* CoreFoundation.framework */,
 				00E5AEAA0ABCC83F00E29B9F /* Cocoa.framework */,
@@ -1388,12 +1372,30 @@
 				00E5B1A10ABCC97000E29B9F /* Resources */,
 				00E5AEAE0ABCC84B00E29B9F /* Frameworks */,
 				00E5AE990ABCC6B000E29B9F /* Products */,
+				006C11400AD4B19A001E78B1 /* CamaeraTrack2-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		006C113D0AD4B19A001E78B1 /* CamaeraTrack2 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 006C11410AD4B19C001E78B1 /* Build configuration list for PBXNativeTarget "CamaeraTrack2" */;
+			buildPhases = (
+				006C113A0AD4B19A001E78B1 /* Resources */,
+				006C113B0AD4B19A001E78B1 /* Sources */,
+				006C113C0AD4B19A001E78B1 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CamaeraTrack2;
+			productName = CamaeraTrack2;
+			productReference = 006C113E0AD4B19A001E78B1 /* CamaeraTrack2.app */;
+			productType = "com.apple.product-type.application";
+		};
 		00B258720ABCCEEB0090ADAC /* BSP */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00B258760ABCCEEB0090ADAC /* Build configuration list for PBXNativeTarget "BSP" */;
@@ -1910,11 +1912,22 @@
 				00B25E9A0ABD01A90090ADAC /* Transparency */,
 				00B25EBC0ABD02810090ADAC /* VolumeTex */,
 				00B25EDD0ABD03440090ADAC /* Water */,
+				006C113D0AD4B19A001E78B1 /* CamaeraTrack2 */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		006C113A0AD4B19A001E78B1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				006C11450AD4B1C5001E78B1 /* media.cfg in Resources */,
+				006C11460AD4B1C5001E78B1 /* plugins.cfg in Resources */,
+				006C11470AD4B1C5001E78B1 /* resources.cfg in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		00B2586F0ABCCEEB0090ADAC /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2199,11 +2212,18 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		006C113B0AD4B19A001E78B1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				006C11440AD4B1B9001E78B1 /* CameraTrack.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		00B258700ABCCEEB0090ADAC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25A540ABCCF750090ADAC /* SDLMain.m in Sources */,
 				00B25A530ABCCF630090ADAC /* BSP.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2212,7 +2232,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25A650ABCD0BD0090ADAC /* SDLMain.m in Sources */,
 				00B25A750ABCD1030090ADAC /* CameraTrack.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2221,7 +2240,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25A9B0ABCD30C0090ADAC /* SDLMain.m in Sources */,
 				00B25A910ABCD2E10090ADAC /* CelShading.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2230,7 +2248,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25AC50ABCD66A0090ADAC /* SDLMain.m in Sources */,
 				00B25AC20ABCD6630090ADAC /* Compositor.cpp in Sources */,
 				00B25AC30ABCD6630090ADAC /* CompositorDemo_FrameListener.cpp in Sources */,
 				00B25AC40ABCD6630090ADAC /* ItemSelectorViewManager.cpp in Sources */,
@@ -2241,7 +2258,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25BE90ABCD8AA0090ADAC /* SDLMain.m in Sources */,
 				00B25BEA0ABCD8B20090ADAC /* CubeMapping.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2250,7 +2266,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25C1A0ABCDAA60090ADAC /* SDLMain.m in Sources */,
 				00B25C1B0ABCDAB50090ADAC /* LightMaterialGenerator.cpp in Sources */,
 				00B25C1C0ABCDAB50090ADAC /* MLight.cpp in Sources */,
 				00B25C1D0ABCDAB50090ADAC /* MaterialGenerator.cpp in Sources */,
@@ -2263,7 +2278,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25C3E0ABCDC360090ADAC /* SDLMain.m in Sources */,
 				00B25C3F0ABCDC3E0090ADAC /* Dot3Bump.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2272,7 +2286,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25C5C0ABCE04E0090ADAC /* SDLMain.m in Sources */,
 				00B25C5D0ABCE0540090ADAC /* DynTex.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2281,7 +2294,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25C7D0ABCE1480090ADAC /* SDLMain.m in Sources */,
 				00B25C810ABCE1560090ADAC /* EnvMapping.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2291,7 +2303,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				00B25C9C0ABCE3CE0090ADAC /* FacialAnimation.cpp in Sources */,
-				00B25C9B0ABCE3C30090ADAC /* SDLMain.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2299,7 +2310,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25CC70ABCE5910090ADAC /* SDLMain.m in Sources */,
 				00B25CC80ABCE59C0090ADAC /* Fresnel.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2308,7 +2318,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25CE50ABCE7DE0090ADAC /* SDLMain.m in Sources */,
 				00B25CE60ABCE7E40090ADAC /* Grass.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2317,7 +2326,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25D0D0ABCEB080090ADAC /* SDLMain.m in Sources */,
 				00B25D0E0ABCEB100090ADAC /* Lighting.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2326,7 +2334,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25D2D0ABCEC0D0090ADAC /* SDLMain.m in Sources */,
 				00B25D2E0ABCEC160090ADAC /* OceanDemo.cpp in Sources */,
 				00B25D2F0ABCEC160090ADAC /* MaterialControls.cpp in Sources */,
 			);
@@ -2336,7 +2343,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25D8D0ABCF45F0090ADAC /* SDLMain.m in Sources */,
 				00B25D8C0ABCF45F0090ADAC /* ParticleFX.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2345,7 +2351,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25DA50ABCF5830090ADAC /* SDLMain.m in Sources */,
 				00B25DA40ABCF5830090ADAC /* RenderToTexture.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2354,7 +2359,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25DC40ABCF6CF0090ADAC /* SDLMain.m in Sources */,
 				00B25DC30ABCF6CF0090ADAC /* Shadows.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2363,7 +2367,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25DE00ABCF7B80090ADAC /* SDLMain.m in Sources */,
 				00B25DDF0ABCF7B80090ADAC /* SkeletalAnimation.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2372,7 +2375,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25DF90ABCF91C0090ADAC /* SDLMain.m in Sources */,
 				00B25DF80ABCF91C0090ADAC /* SkyBox.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2381,7 +2383,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25E120ABCF9F90090ADAC /* SDLMain.m in Sources */,
 				00B25E110ABCF9F90090ADAC /* SkyDome.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2391,7 +2392,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				00B25E2A0ABCFB360090ADAC /* SkyPlane.cpp in Sources */,
-				00B25E2B0ABCFB360090ADAC /* SDLMain.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2399,7 +2399,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25E470ABCFBDD0090ADAC /* SDLMain.m in Sources */,
 				00B25E460ABCFBDD0090ADAC /* Smoke.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2408,7 +2407,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25E600ABCFD390090ADAC /* SDLMain.m in Sources */,
 				00B25E5F0ABCFD390090ADAC /* Terrain.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2417,7 +2415,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25E870ABD00D20090ADAC /* SDLMain.m in Sources */,
 				00B25E860ABD00D20090ADAC /* TextureFX.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2427,7 +2424,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				00B25EA40ABD01D10090ADAC /* Transparency.cpp in Sources */,
-				00B25EA50ABD01D10090ADAC /* SDLMain.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2435,7 +2431,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25EC90ABD02AA0090ADAC /* SDLMain.m in Sources */,
 				00B25EC60ABD02AA0090ADAC /* ThingRenderable.cpp in Sources */,
 				00B25EC70ABD02AA0090ADAC /* VolumeTex.cpp in Sources */,
 				00B25EC80ABD02AA0090ADAC /* VolumeRenderable.cpp in Sources */,
@@ -2446,7 +2441,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00B25EE60ABD03600090ADAC /* SDLMain.m in Sources */,
 				00B25EE40ABD03600090ADAC /* Water.cpp in Sources */,
 				00B25EE50ABD03600090ADAC /* WaterMesh.cpp in Sources */,
 			);
@@ -2456,7 +2450,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00E5B1A80ABCC99B00E29B9F /* SDLMain.m in Sources */,
 				00E5B1A00ABCC92400E29B9F /* Bezier.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2607,6 +2600,56 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		006C11420AD4B19C001E78B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = ppc;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
+				INFOPLIST_FILE = "CamaeraTrack2-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Carbon,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = CamaeraTrack2;
+				USER_HEADER_SEARCH_PATHS = ../../../OgreMain/include;
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		006C11430AD4B19C001E78B1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = ppc;
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
+				INFOPLIST_FILE = "CamaeraTrack2-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Carbon,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = CamaeraTrack2;
+				USER_HEADER_SEARCH_PATHS = ../../../OgreMain/include;
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 		00B258770ABCCEEB0090ADAC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2660,6 +2703,7 @@
 		00B25A620ABCD0920090ADAC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = ppc;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -2678,6 +2722,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = CameraTrack;
+				USER_HEADER_SEARCH_PATHS = ../../../OgreMain/Include;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = NO;
 			};
@@ -2686,6 +2731,7 @@
 		00B25A630ABCD0920090ADAC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = ppc;
 				COPY_PHASE_STRIP = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
@@ -2702,6 +2748,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = CameraTrack;
+				USER_HEADER_SEARCH_PATHS = ../../../OgreMain/Include;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = NO;
 			};
@@ -4072,6 +4119,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		006C11410AD4B19C001E78B1 /* Build configuration list for PBXNativeTarget "CamaeraTrack2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				006C11420AD4B19C001E78B1 /* Debug */,
+				006C11430AD4B19C001E78B1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		00B258760ABCCEEB0090ADAC /* Build configuration list for PBXNativeTarget "BSP" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
