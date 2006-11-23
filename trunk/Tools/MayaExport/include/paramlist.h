@@ -56,7 +56,7 @@ namespace OgreMayaExporter
 			exportVertNorm, exportVertCol, exportTexCoord, exportCamerasAnim,
 			exportSkeleton, exportSkelAnims, exportBSAnims, exportVertAnims, exportBlendShapes, 
 			exportWorldCoords, useSharedGeom, lightingOff, copyTextures, exportParticles,
-			buildTangents, buildEdges;
+			buildTangents, buildEdges, skelBB, bsBB, vertBB;
 
 		float lum;	// Length Unit Multiplier
 
@@ -99,6 +99,9 @@ namespace OgreMayaExporter
 			useSharedGeom = false;
 			lightingOff = false;
 			copyTextures = false;
+			skelBB = false;
+			bsBB = false;
+			vertBB = false;
 			meshFilename = "";
 			skeletonFilename = "";
 			materialFilename = "";
@@ -141,6 +144,9 @@ namespace OgreMayaExporter
 			useSharedGeom = source.useSharedGeom;
 			lightingOff = source.lightingOff;
 			copyTextures = source.copyTextures;
+			skelBB = source.skelBB;
+			bsBB = source.bsBB;
+			vertBB = source.vertBB;
 			meshFilename = source.meshFilename;
 			skeletonFilename = source.skeletonFilename;
 			materialFilename = source.materialFilename;

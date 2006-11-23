@@ -14,6 +14,8 @@ to the existing userSetup.mel.
 If you don't have a userSetup.mel file in your scripts directory, then copy there the one you find in
 the "scripts" directory of this zip.
 
+5)Launch vcredist_x86.exe to install the latest visual studio 8 dlls
+
 
 For any help or comments check the OGRE forum or e-mail fra.giordana@tiscali.it
 
@@ -35,11 +37,11 @@ ogreExport 	generalOptions
 			export skeleton animations to the .skeleton file 
 			[requires -skel]
 
-		["-vertexAnims" ["-vertexClip" clipName clipOptions] ["-clip" ...] [...] ]
+		["-vertexAnims" vertexAnimOptions ["-vertexClip" clipName clipOptions] ["-clip" ...] [...] ]
 			export vertex animations as morph animations to the .mesh file 
 			[requires -mesh]
 
-		["-blendShapes"]
+		["-blendShapes"] bsOptions
 			export blend shapes as mesh poses to the .mesh file 
 			[requires -mesh]
 
@@ -57,6 +59,7 @@ generalOptions:
 	"-lu " "pref | mm | cm | m | in | ft | yd"	select length unit for export
 							("-lu pref" means to get unit from scene
 								preferences)
+	"-scale" s		scale the whole mesh by s
 
 	
 meshOptions:
@@ -74,7 +77,14 @@ matOptions:
 	["-lightOff"]		export materials with lighting off [optional]
 
 skelAnimsOptions:
+	"-skelBB"		include skeleton animations in bounding box calculation
 	"-np" ( "curFrame" | "bindPose" | "frame" n )	specify neutral pose, can be current frame or bind pose or specified frame
+
+bsOptions:
+	["-bsBB"]		include blend shapes in bounding box calculation
+
+vertexAnimOptions:
+	["-vertBB"]		include vertex animations in bounding box calculation
 
 clipOptions:
 	"startEnd" s e ("frames" | "seconds") | "timeSlider"	specify clip range with start/end time or use time slider range

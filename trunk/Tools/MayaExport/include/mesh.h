@@ -118,7 +118,6 @@ namespace OgreMayaExporter
 		MPointArray newpoints;
 		MFloatVectorArray newnormals;
 		MStringArray newuvsets;
-		unsigned int newnumJoints;
 		MFnSkinCluster* pSkinCluster;
 		BlendShape* pBlendShape;
 		MObjectArray shaders;

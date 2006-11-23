@@ -80,6 +80,9 @@ global proc runOgreExport()
 			$options += " yd";
 			break;	
 	}
+	$options += " -scale ";
+	float $globScale = `floatField -query -value GlobalScale`;
+	$options += $globScale;
 
 	// --- Mesh export
 	int $exportMesh = `checkBox -query -value ExportMesh`;
@@ -154,6 +157,13 @@ global proc runOgreExport()
 	if ($exportSkelAnims)
 	{
 		$options += " -skeletonAnims";
+		
+		// check if we need to include skeleton animations in bounding box calculation
+		int $skelBB = `checkBox -query -value SkelBB`;
+		if ($skelBB)
+		{
+			$options += " -skelBB";
+		}	
 
 		// neutral pose
 		int $neutralPose = `radioButtonGrp -q -select NeutralPoseRadio`;
@@ -212,13 +222,20 @@ global proc runOgreExport()
 	if ($exportBlendShapes)
 	{
 		$options += " -blendShapes";
+		
+		// check if we need to include blendshape animations in bounding box calculation
+		int $bsBB = `checkBox -query -value BsBB`;
+		if ($bsBB)
+		{
+			$options += " -bsBB";
+		}
 	}
 	
 	// --- Blend Shape Animations export
 	int $exportBSAnims = `checkBox -query -value ExportBSAnims`;
 	if ($exportBSAnims)
 	{
-		$options += " -BSAnims";
+		$options += " -BSAnims";	
 
 		// clips
 		int $i;
@@ -266,6 +283,13 @@ global proc runOgreExport()
 	if ($exportVertexAnims)
 	{
 		$options += " -vertexAnims";
+		
+		// check if we need to include vertex animations in bounding box calculation
+		int $vertBB = `checkBox -query -value VertBB`;
+		if ($vertBB)
+		{
+			$options += " -vertBB";
+		}	
 
 		// clips
 		int $i;
@@ -393,6 +417,9 @@ global proc formatOgreExporterUI()
 		checkBox -edit -value false ExportSkelAnims;
 	checkBox -edit -enable $exportSkeleton ExportSkelAnims;
 	int $exportSkelAnims = `checkBox -query -value ExportSkelAnims`;
+	if (!$exportSkelAnims)
+		checkBox -edit -value false SkelBB;
+	checkBox -edit -enable $exportSkelAnims SkelBB;
 	text -edit -enable $exportSkelAnims NeutralPoseLabel;
 	radioButtonGrp -edit -enable $exportSkelAnims NeutralPoseRadio;
 	int $neutralPoseType = `radioButtonGrp -query -select NeutralPoseRadio`;
@@ -434,9 +461,12 @@ global proc formatOgreExporterUI()
 		checkBox -edit -value false ExportBlendShapes;
 		checkBox -edit -enable false ExportBlendShapes;
 	}
+	int $exportBS = `checkBox -query -value ExportBlendShapes`;
+	if (!$exportBS)
+		checkBox -edit -value false BsBB;
+	checkBox -edit -enable $exportBS BsBB;
 	
 	// --- Blend Shape Animations Export
-	int $exportBS = `checkBox -query -value ExportBlendShapes`;
 	if (!$exportBS)
 		checkBox -edit -value false ExportBSAnims;
 	checkBox -edit -enable $exportBS ExportBSAnims;
@@ -480,6 +510,9 @@ global proc formatOgreExporterUI()
 		checkBox -edit -enable false ExportVertexAnims;
 	}
 	int $exportVertexAnims = `checkBox -query -value ExportVertexAnims`;
+	if (!$exportVertexAnims)
+		checkBox -edit -value false VertBB;
+	checkBox -edit -enable $exportVertexAnims VertBB;
 	int $i;
 	for ($i=1; $i<=$numVertClips; $i++)
 	{
@@ -607,14 +640,16 @@ global proc defineOgreExporterUIView()
 					-parent CommonLayout
 					-numberOfColumns 2
 					-columnWidth 1 100
-					-columnWidth 2 200
+					-columnWidth 2 150
 				GeneralOptionsLayout;
 
+					// Length measurement units
+ 
 					text -label "Length Units:"
 					     -parent GeneralOptionsLayout;
 
 					optionMenu -parent GeneralOptionsLayout 
-							   -w 200
+						-w 200
 					UnitsMenu;
 			
 						menuItem -label "from prefs";
@@ -626,6 +661,8 @@ global proc defineOgreExporterUIView()
 						menuItem -label "yard";
 
 					optionMenu -edit -select 1 UnitsMenu;
+
+					// Animation type
 
 					text -label "Animation Type:"
 					     -parent GeneralOptionsLayout;
@@ -639,6 +676,17 @@ global proc defineOgreExporterUIView()
 						menuItem -label "Vertex";
 
 					optionMenu -edit -select 1 AnimationTypeMenu;
+
+					// Global scale
+
+					text -label "Scale all by:"
+					     -parent GeneralOptionsLayout;
+
+					floatField
+						-parent GeneralOptionsLayout
+						-width 50
+						-value 1
+					GlobalScale;
 
 		// --- Mesh
 		frameLayout
@@ -828,6 +876,13 @@ global proc defineOgreExporterUIView()
 					-changeCommand "formatOgreExporterUI"
 					-label "Export animations (requires export of skeleton)"
 				ExportSkelAnims;
+				
+				checkBox
+					-parent SkelAnimsLayout
+					-value false
+					-changeCommand "formatOgreExporterUI"
+					-label "Include animations in bounding box"
+				SkelBB;
 
 				text
 					-parent SkelAnimsLayout
@@ -871,7 +926,7 @@ global proc defineOgreExporterUIView()
 						-command "delOgreExporterSkeletonClip()"
 					ButtonDelSkelClip;
 					
-		// --- Blend Shape
+		// --- Blend Shapes
 		frameLayout
 			-parent OgreExportLayout
 			-collapsable true
@@ -891,7 +946,14 @@ global proc defineOgreExporterUIView()
 					-label "Export blend shapes (to mesh file)"
 				ExportBlendShapes;
 				
-		// --- Blend Shape Animations
+				checkBox
+					-parent BlendShapesLayout
+					-value false
+					-changeCommand "formatOgreExporterUI"
+					-label "Include blend shapes in bounding box"
+				BsBB;
+				
+		// --- Blend Shapes Animations
 		frameLayout
 			-parent OgreExportLayout
 			-collapsable true
@@ -957,6 +1019,13 @@ global proc defineOgreExporterUIView()
 					-changeCommand "formatOgreExporterUI"
 					-label "Export animations (to mesh file)"
 				ExportVertexAnims;
+				
+				checkBox
+					-parent VertexAnimsLayout
+					-value false
+					-changeCommand "formatOgreExporterUI"
+					-label "Include animations in bounding box"
+				VertBB;
 
 				columnLayout
 					-parent VertexAnimsLayout
@@ -1764,6 +1833,7 @@ global proc saveOgreExporterSettings()
 	fileInfo "ogreExporter_coordsType" `radioCollection -q -select CoordsTypeCollection`;
 	fileInfo "ogreExporter_lengthUnit" `optionMenu -q -select UnitsMenu`;	
 	fileInfo "ogreExporter_animationType" `optionMenu -q -select AnimationTypeMenu`;	
+	fileInfo "ogreExporter_globalScale" `floatField -q -v GlobalScale`;
 
 	// Mesh
 	fileInfo "ogreExporter_exportMesh" `checkBox -q -v ExportMesh`;
@@ -1789,6 +1859,7 @@ global proc saveOgreExporterSettings()
 	
 	// Skeleton Animations
 	fileInfo "ogreExporter_exportSkelAnims" `checkBox -q -v ExportSkelAnims`;
+	fileInfo "ogreExporter_skelBB" `checkBox -q -v SkelBB`;
 	fileInfo "ogreExporter_neutralPoseType" `radioButtonGrp -q -select NeutralPoseRadio`;
 	global int $numSkelClips;
 	fileInfo "ogreExporter_numSkelClips" $numSkelClips;
@@ -1806,8 +1877,9 @@ global proc saveOgreExporterSettings()
 		fileInfo ("ogreExporter_skelClipRangeSeconds"+$i) `floatField -q -v ("SkelClipRateSeconds"+$i)`;
 	}
 	
-	// Blend Shape
+	// Blend Shapes
 	fileInfo "ogreExporter_exportBlendShapes" `checkBox -q -v ExportBlendShapes`;
+	fileInfo "ogreExporter_bsBB" `checkBox -q -v BsBB`;
 	
 	// Blend Shape Animations
 	fileInfo "ogreExporter_exportBSAnims" `checkBox -q -v ExportBSAnims`;
@@ -1829,6 +1901,7 @@ global proc saveOgreExporterSettings()
 	
 	// Vertex Animations
 	fileInfo "ogreExporter_exportVertexAnims" `checkBox -q -v ExportVertexAnims`;
+	fileInfo "ogreExporter_vertBB" `checkBox -q -v VertBB`;
 	global int $numVertClips;
 	fileInfo "ogreExporter_numVertClips" $numVertClips;
 	int $i; 
@@ -1893,6 +1966,9 @@ global proc loadOgreExporterSettings()
 			optionMenu -edit -select 1 AnimationTypeMenu;
 		else
 			optionMenu -edit -select 2 AnimationTypeMenu;
+		$valStrings = `fileInfo -q "ogreExporter_globalScale"`;
+		$valFloat = $valStrings[0];
+		floatField -edit -v $valFloat GlobalScale;
 	
 		// Mesh
 		$valStrings = `fileInfo -q "ogreExporter_exportMesh"`;
@@ -1931,6 +2007,8 @@ global proc loadOgreExporterSettings()
 		// Skeleton Animations
 		$valStrings = `fileInfo -q "ogreExporter_exportSkelAnims"`;
 		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportSkelAnims;
+		$valStrings = `fileInfo -q "ogreExporter_skelBB"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` SkelBB;
 		$valStrings = `fileInfo -q "ogreExporter_neutralPoseType"`;
 		$valInt = $valStrings[0];
 		radioButtonGrp -edit -select $valInt NeutralPoseRadio;
@@ -1970,9 +2048,11 @@ global proc loadOgreExporterSettings()
 			floatField -edit -v $valFloat ("SkelClipRateSeconds"+$i);
 		}
 		
-		// Blend Shape
+		// Blend Shapes
 		$valStrings = `fileInfo -q "ogreExporter_exportBlendShapes"` ;
 		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportBlendShapes;
+		$valStrings = `fileInfo -q "ogreExporter_bsBB"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` BsBB;
 		
 		// Blend Shape Animations
 		$valStrings = `fileInfo -q "ogreExporter_exportBSAnims"`;
@@ -2016,6 +2096,8 @@ global proc loadOgreExporterSettings()
 		// Vertex Animations
 		$valStrings = `fileInfo -q "ogreExporter_exportVertexAnims"`;
 		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportVertexAnims;
+		$valStrings = `fileInfo -q "ogreExporter_vertBB"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` VertBB;
 		$valStrings = `fileInfo -q "ogreExporter_numVertClips"`;
 		int $n = $valStrings[0];
 		$valInt = $valStrings[0];
@@ -2083,6 +2165,7 @@ global proc defaultOgreExporterSettings()
 	radioCollection -edit -select "RadioButtonWorld" CoordsTypeCollection;
 	optionMenu -edit -select 1 UnitsMenu;
 	optionMenu -edit -select 1 AnimationTypeMenu;
+	floatField -edit -v 1 GlobalScale;
 
 	// Mesh
 	checkBox -edit -v 0 ExportMesh;
@@ -2108,6 +2191,7 @@ global proc defaultOgreExporterSettings()
 
 	// Skeleton Animations
 	checkBox -edit -v 0 ExportSkelAnims;
+	checkBox -edit -v 0 SkelBB;
 	radioButtonGrp -edit -select 1 NeutralPoseRadio;
 	global int $numSkelClips;
 	for (;$numSkelClips>1;delOgreExporterSkeletonClip());
@@ -2121,8 +2205,9 @@ global proc defaultOgreExporterSettings()
 	intField -edit -v 1 SkelClipRateFrames1;
 	floatField -edit -v 0.1 SkelClipRateSeconds1;
 	
-	// Blend Shape
+	// Blend Shapes
 	checkBox -edit -v 0 ExportBlendShapes;
+	checkBox -edit -v 0 BsBB;
 	
 	// Blend Shape Animations
 	checkBox -edit -v 0 ExportBSAnims;
@@ -2140,6 +2225,7 @@ global proc defaultOgreExporterSettings()
 	
 	// Vertex Animation
 	checkBox -edit -v 0 ExportVertexAnims;
+	checkBox -edit -v 0 VertBB;
 	global int $numVertClips;
 	for (;$numVertClips>1;delOgreExporterVertexClip());
 	checkBox -edit -v 0 ExportSkelClip1;
