@@ -48,8 +48,10 @@ namespace Ogre {
     (defined(__GNUC__) && defined(__i386__))
 #   define OGRE_CPU OGRE_CPU_X86
 
-#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE && defined(__BIG_ENDIAN__)
 #   define OGRE_CPU OGRE_CPU_PPC
+#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+#	define OGRE_CPU OGRE_CPU_X86
 
 #else
 #   define OGRE_CPU OGRE_CPU_UNKNOWN

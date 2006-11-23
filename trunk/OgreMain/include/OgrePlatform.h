@@ -179,12 +179,6 @@ namespace Ogre {
 //For apple, we always have a custom config.h file
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #    include "config.h"
-//SDL_main must be included in the file that contains
-//the application's main() function.
-#ifndef OGRE_NONCLIENT_BUILD
-#   include <SDL/SDL_main.h>
-#endif
-
 #endif
 
 //----------------------------------------------------------------------------
