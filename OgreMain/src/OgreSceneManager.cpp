@@ -3265,6 +3265,18 @@ void SceneManager::setShadowTechnique(ShadowTechnique technique)
         // Destroy shadow textures to optimise resource usage
         destroyShadowTextures();
     }
+	else
+	{
+		// assure no custom shadow matrix is used accidentally in case we switch
+		// from a custom shadow mapping type to a non-custom (uniform shadow mapping)
+		for ( int i = 0; i < mShadowTextureCameras.size(); ++i )
+		{
+			Camera* texCam = mShadowTextureCameras[i];
+
+			texCam->setCustomViewMatrix(false);
+			texCam->setCustomProjectionMatrix(false);
+		}
+	}
 
 }
 //---------------------------------------------------------------------
@@ -4796,7 +4808,7 @@ void SceneManager::destroyShadowTextures(void)
 	// Will destroy if no other scene managers referencing
 	ShadowTextureManager::getSingleton().clearUnused();
 
-
+	mShadowTextureConfigDirty = true;
         
 }
 //---------------------------------------------------------------------
@@ -4850,9 +4862,9 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
     {
         Light* light = *i;
 
-
-
-
+		// skip light if shadows are disabled
+		if (!light->getCastShadows())
+			continue;
 
 		TexturePtr &shadowTex = *si;
         RenderTarget *shadowRTT = shadowTex->getBuffer()->getRenderTarget();
