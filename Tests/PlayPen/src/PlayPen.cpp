@@ -409,6 +409,17 @@ public:
             timeUntilNextToggle = 0.5;
         }
 
+		if (mEntity && mKeyboard->isKeyDown(KC_SPACE) && timeUntilNextToggle <= 0)
+		{
+			mSceneMgr->destroyEntity(mEntity);
+			//mLight->setCastShadows(true);
+			mEntity = mSceneMgr->createEntity("newEnt", "robot.mesh");
+			mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(mEntity);
+			mAnimStateList.clear();
+			AnimationState* anim = mEntity->getAnimationState("Walk");
+			anim->setEnabled(true);
+			mAnimStateList.push_back(anim);
+		}
 
         
         /** Hack to test frustum vols
@@ -1044,13 +1055,13 @@ protected:
         mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.4));
 
         // Create an entity (the plant)
-        ent = mSceneMgr->createEntity("1", "limo.mesh");
+        ent = mSceneMgr->createEntity("1", "skeletonandpose.mesh");
 
         SceneNode* node = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild(Vector3(-50,0,0)));
         node->attachObject(ent);
         node->scale(2,2,2);
 
-        mAnimState = ent->getAnimationState("SteerLeftOn");
+        mAnimState = ent->getAnimationState("pose2_Clip");
         mAnimState->setEnabled(true);
 
         mWindow->getViewport(0)->setBackgroundColour(ColourValue(1,0,0));
@@ -2683,8 +2694,8 @@ protected:
 			mCamera->getCameraToViewportRay(0.5, 0.5));
         rayQuery->setSortByDistance(true, 1);
 
-        //bool val = true;
-        //mSceneMgr->setOption("ShowOctree", &val);
+        bool val = true;
+        mSceneMgr->setOption("ShowOctree", &val);
 
     }
 
@@ -4893,6 +4904,112 @@ protected:
 
 	}
 
+	void testBillboardOrigins()
+	{
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+		Vector3 dir(-1, -1, 0.5);
+		dir.normalise();
+		Light* l = mSceneMgr->createLight("light1");
+		l->setType(Light::LT_DIRECTIONAL);
+		l->setDirection(dir);
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 0;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("2 - Default");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		BillboardSet* bbs = mSceneMgr->createBillboardSet("1");
+		bbs->setDefaultDimensions(50,50);
+		bbs->createBillboard(0, 0, 0);
+		bbs->setBillboardOrigin(BBO_TOP_LEFT);
+		//bbs->setBillboardType(BBT_ORIENTED_COMMON);
+		bbs->setCommonDirection(Vector3::UNIT_Y);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(bbs);
+
+	}
+	void testCustomSequenceTextureShadows()
+	{
+		//mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_ADDITIVE_CUSTOM_SEQUENCE);
+		MaterialManager::getSingleton().setDefaultTextureFiltering(TFO_ANISOTROPIC);
+		MaterialManager::getSingleton().setDefaultAnisotropy(5);
+
+		mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);
+		mSceneMgr->setShadowTextureSettings(1024, 2);
+
+		mSceneMgr->setAmbientLight(ColourValue::Black);
+		Light* l = mSceneMgr->createLight("Spot1");
+		l->setType(Light::LT_SPOTLIGHT);
+		l->setAttenuation(5000,1,0,0);
+		l->setSpotlightRange(Degree(30),Degree(45),1.0f);
+		SceneNode* lightNode1 = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		lightNode1->attachObject(l);
+		lightNode1->setPosition(200, 250, 500);
+		lightNode1->lookAt(Vector3(0,-200,0), Node::TS_WORLD);
+		l->setDirection(Vector3::NEGATIVE_UNIT_Z);
+		l->setDiffuseColour(0.5, 0.7, 0.5);
+
+		l = mSceneMgr->createLight("Spot2");
+		l->setType(Light::LT_SPOTLIGHT);
+		l->setAttenuation(5000,1,0,0);
+		l->setSpotlightRange(Degree(30),Degree(45),1.0f);
+		SceneNode* lightNode2 = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		lightNode2->attachObject(l);
+		lightNode2->setPosition(-500, 200, 500);
+		lightNode2->lookAt(Vector3(0,-200,0), Node::TS_WORLD);
+		l->setDirection(Vector3::NEGATIVE_UNIT_Z);
+		l->setDiffuseColour(1, 0.2, 0.2);
+
+		// Create a basic plane to have something in the scene to look at
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 100;
+		MeshPtr msh = MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			4500,4500,100,100,true,1,40,40,Vector3::UNIT_Z);
+		msh->buildTangentVectors(VES_TANGENT);
+		Entity* pPlaneEnt;
+		pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		//pPlaneEnt->setMaterialName("Examples/OffsetMapping/Specular");
+		pPlaneEnt->setMaterialName("Examples/OffsetMapping/CustomShadows");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		pPlaneEnt = mSceneMgr->createEntity( "plane2", "Myplane" );
+		//pPlaneEnt->setMaterialName("Examples/OffsetMapping/Specular");
+		pPlaneEnt->setMaterialName("Examples/OffsetMapping/CustomShadows");
+		pPlaneEnt->setCastShadows(false);
+		SceneNode* n = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		n->roll(Degree(90));
+		n->translate(100,0,0);
+		//n->attachObject(pPlaneEnt);
+
+		pPlaneEnt = mSceneMgr->createEntity( "plane3", "Myplane" );
+		//pPlaneEnt->setMaterialName("Examples/OffsetMapping/Specular");
+		pPlaneEnt->setMaterialName("Examples/OffsetMapping/CustomShadows");
+		pPlaneEnt->setCastShadows(false);
+		n = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		n->pitch(Degree(90));
+		n->yaw(Degree(-90));
+		n->translate(0,0,-100);
+		//n->attachObject(pPlaneEnt);
+
+		mCamera->setPosition(-50, 500, 1000);
+		mCamera->lookAt(Vector3(-50,-100,0));
+
+		Entity* ent = mSceneMgr->createEntity("athene", "athene.mesh");
+		ent->setMaterialName("Examples/Athene/NormalMapped");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0,-20,0))->attachObject(ent);
+
+
+
+	}
+
 	// Just override the mandatory create scene method
     void createScene(void)
     {
@@ -4940,7 +5057,7 @@ protected:
         //testStencilShadows(SHADOWTYPE_STENCIL_MODULATIVE, false, true);
         //testTextureShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
-		testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE_CUSTOM_SEQUENCE);
+		testCustomSequenceTextureShadows();
 		//testTextureShadowsCustomCasterMat(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testTextureShadowsCustomReceiverMat(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testCompositorTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
@@ -4949,7 +5066,7 @@ protected:
 		//testReflectedBillboards();
 		//testBlendDiffuseColour();
 
-        testRaySceneQuery();
+        //testRaySceneQuery();
         //testIntersectionSceneQuery();
 
         //test2Spotlights();
@@ -4960,7 +5077,8 @@ protected:
 		//testSimpleMesh();
 		//test2Windows();
 		//testStaticGeometry();
-		//testBillboardTextureCoords();
+		testBillboardTextureCoords();
+		//testBillboardOrigins();
 		//testReloadResources();
 		//testTransparencyMipMaps();
 		//testRadixSort();

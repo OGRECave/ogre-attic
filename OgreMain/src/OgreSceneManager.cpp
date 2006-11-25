@@ -4555,7 +4555,7 @@ void SceneManager::setShadowTextureSize(unsigned short size)
 
 }
 //---------------------------------------------------------------------
-void SceneManager::setShadowTextureCount(unsigned short count)
+void SceneManager::setShadowTextureCount(size_t count)
 {
     // Change size, any new items will take default
 	if (count != mShadowTextureConfigList.size())

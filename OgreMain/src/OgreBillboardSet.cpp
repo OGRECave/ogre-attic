@@ -773,11 +773,11 @@ namespace Ogre {
 
 			   Billboard layout relative to camera:
 
-				2-----3
+				0-----1
 				|    /|
 				|  /  |
 				|/    |
-				0-----1
+				2-----3
 			*/
 
 			ushort* pIdx = static_cast<ushort*>(
@@ -795,11 +795,11 @@ namespace Ogre {
 				idxOff = bboard * 4;
 
 				pIdx[idx] = static_cast<unsigned short>(idxOff); // + 0;, for clarity
-				pIdx[idx+1] = static_cast<unsigned short>(idxOff + 1);
-				pIdx[idx+2] = static_cast<unsigned short>(idxOff + 3);
-				pIdx[idx+3] = static_cast<unsigned short>(idxOff + 0);
-				pIdx[idx+4] = static_cast<unsigned short>(idxOff + 3);
-				pIdx[idx+5] = static_cast<unsigned short>(idxOff + 2);
+				pIdx[idx+1] = static_cast<unsigned short>(idxOff + 2);
+				pIdx[idx+2] = static_cast<unsigned short>(idxOff + 1);
+				pIdx[idx+3] = static_cast<unsigned short>(idxOff + 1);
+				pIdx[idx+4] = static_cast<unsigned short>(idxOff + 2);
+				pIdx[idx+5] = static_cast<unsigned short>(idxOff + 3);
 
 			}
 
@@ -854,62 +854,62 @@ namespace Ogre {
             left = 0.0f;
             right = 1.0f;
             top = 0.0f;
-            bottom = 1.0f;
+            bottom = -1.0f;
             break;
 
         case BBO_TOP_CENTER:
             left = -0.5f;
             right = 0.5f;
             top = 0.0f;
-            bottom = 1.0f;
+            bottom = -1.0f;
             break;
 
         case BBO_TOP_RIGHT:
             left = -1.0f;
             right = 0.0f;
             top = 0.0f;
-            bottom = 1.0f;
+            bottom = -1.0f;
             break;
 
         case BBO_CENTER_LEFT:
             left = 0.0f;
             right = 1.0f;
-            top = -0.5f;
-            bottom = 0.5f;
+            top = 0.5f;
+            bottom = -0.5f;
             break;
 
         case BBO_CENTER:
             left = -0.5f;
             right = 0.5f;
-            top = -0.5f;
-            bottom = 0.5f;
+            top = 0.5f;
+            bottom = -0.5f;
             break;
 
         case BBO_CENTER_RIGHT:
             left = -1.0f;
             right = 0.0f;
-            top = -0.5f;
-            bottom = 0.5f;
+            top = 0.5f;
+            bottom = -0.5f;
             break;
 
         case BBO_BOTTOM_LEFT:
             left = 0.0f;
             right = 1.0f;
-            top = -1.0f;
+            top = 1.0f;
             bottom = 0.0f;
             break;
 
         case BBO_BOTTOM_CENTER:
             left = -0.5f;
             right = 0.5f;
-            top = -1.0f;
+            top = 1.0f;
             bottom = 0.0f;
             break;
 
         case BBO_BOTTOM_RIGHT:
             left = -1.0f;
             right = 0.0f;
-            top = -1.0f;
+            top = 1.0f;
             bottom = 0.0f;
             break;
         }
@@ -1111,7 +1111,7 @@ namespace Ogre {
             mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
             // Texture coords
             *mLockPtr++ = r.left;
-            *mLockPtr++ = r.bottom;
+            *mLockPtr++ = r.top;
 
             // Right-top
             // Positions
@@ -1126,7 +1126,7 @@ namespace Ogre {
             mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
             // Texture coords
             *mLockPtr++ = r.right;
-            *mLockPtr++ = r.bottom;
+            *mLockPtr++ = r.top;
 
             // Left-bottom
             // Positions
@@ -1141,7 +1141,7 @@ namespace Ogre {
             mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
             // Texture coords
             *mLockPtr++ = r.left;
-            *mLockPtr++ = r.top;
+            *mLockPtr++ = r.bottom;
 
             // Right-bottom
             // Positions
@@ -1156,7 +1156,7 @@ namespace Ogre {
             mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
             // Texture coords
             *mLockPtr++ = r.right;
-            *mLockPtr++ = r.top;
+            *mLockPtr++ = r.bottom;
         }
         else if (mRotationType == BBR_VERTEX)
         {
@@ -1180,7 +1180,7 @@ namespace Ogre {
             mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
             // Texture coords
             *mLockPtr++ = r.left;
-            *mLockPtr++ = r.bottom;
+            *mLockPtr++ = r.top;
 
             // Right-top
             // Positions
@@ -1196,7 +1196,7 @@ namespace Ogre {
             mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
             // Texture coords
             *mLockPtr++ = r.right;
-            *mLockPtr++ = r.bottom;
+            *mLockPtr++ = r.top;
 
             // Left-bottom
             // Positions
@@ -1212,7 +1212,7 @@ namespace Ogre {
             mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
             // Texture coords
             *mLockPtr++ = r.left;
-            *mLockPtr++ = r.top;
+            *mLockPtr++ = r.bottom;
 
             // Right-bottom
             // Positions
@@ -1228,7 +1228,7 @@ namespace Ogre {
             mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
             // Texture coords
             *mLockPtr++ = r.right;
-            *mLockPtr++ = r.top;
+            *mLockPtr++ = r.bottom;
         }
         else
         {
@@ -1236,9 +1236,9 @@ namespace Ogre {
             const Real      sin_rot  ( Math::Sin(bb.mRotation)   );
 
             float width = (r.right-r.left)/2;
-            float height = (r.top-r.bottom)/2;
+            float height = (r.bottom-r.top)/2;
             float mid_u = r.left+width;
-            float mid_v = r.bottom+height;
+            float mid_v = r.top+height;
 
             float cos_rot_w = cos_rot * width;
             float cos_rot_h = cos_rot * height;

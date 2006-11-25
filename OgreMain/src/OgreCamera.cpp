@@ -566,14 +566,27 @@ namespace Ogre {
 		Real nx = (2.0f * screenX) - 1.0f;
 		Real ny = 1.0f - (2.0f * screenY);
 		Vector3 nearPoint(nx, ny, -1.f);
+		Vector3 farPoint (nx, ny,  1.f);
 
 		// Get ray origin and ray target on near plane in world space
-		Vector3 rayOrigin = getDerivedPosition();
-		Vector3 rayTarget = inverseVP * nearPoint;
+		Vector3 rayOrigin, rayTarget;
+		
+		// Maintain backwards compatibility by making regular rays originate at cam position
+		if (mProjType == PT_PERSPECTIVE && !mCustomProjMatrix)
+		{
+			rayOrigin = getDerivedPosition();
+			rayTarget = inverseVP * nearPoint;
+		}
+		// ortho and custom matrices originate at near plane
+		else
+		{
+			rayOrigin = inverseVP * nearPoint;
+			rayTarget = inverseVP * farPoint;
+		}
 		Vector3 rayDirection = rayTarget - rayOrigin;
 		rayDirection.normalise();
 
-        return Ray(getDerivedPosition(), rayDirection);
+		return Ray(rayOrigin, rayDirection);
     } 
 
     // -------------------------------------------------------------------

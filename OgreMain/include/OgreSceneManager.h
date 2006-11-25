@@ -2203,9 +2203,9 @@ namespace Ogre {
             shadows at the same time. You can increase this number in order to 
             make this more flexible, but be aware of the texture memory it will use.
         */
-        virtual void setShadowTextureCount(unsigned short count);
+        virtual void setShadowTextureCount(size_t count);
         /// Get the number of the textures allocated for texture based shadows
-        unsigned short getShadowTextureCount(void) const {return mShadowTextureConfigList.size(); }
+        size_t getShadowTextureCount(void) const {return mShadowTextureConfigList.size(); }
         /** Sets the size and count of textures used in texture-based shadows. 
         @remarks
             @see setShadowTextureSize and setShadowTextureCount for details, this
