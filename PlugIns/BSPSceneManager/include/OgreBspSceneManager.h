@@ -89,9 +89,10 @@ namespace Ogre {
             @param camera Pointer to the viewpoint.
             @returns The BSP node the camera was found in, for info.
         */
-        BspNode* walkTree(Camera* camera, bool onlyShadowCasters);
+        BspNode* walkTree(Camera* camera, AxisAlignedBox* visibleBounds, bool onlyShadowCasters);
         /** Tags geometry in the leaf specified for later rendering. */
-        void processVisibleLeaf(BspNode* leaf, Camera* cam, bool onlyShadowCasters);
+        void processVisibleLeaf(BspNode* leaf, Camera* cam, AxisAlignedBox* visibleBounds, 
+					bool onlyShadowCasters);
 
         /** Caches a face group for imminent rendering. */
         unsigned int cacheGeometry(unsigned int* pIndexes, const StaticFaceGroup* faceGroup);

@@ -337,6 +337,20 @@ namespace Ogre {
 		bool mResetIdentityView;
 		bool mResetIdentityProj;
 
+		/** Visible objects bounding box list.
+			@remarks
+				Holds an ABB for each camera that contains the physical extends of the visible
+				scene elements by each camera. The map is crutial for shadow algorithms which
+				have a focus step to limit the shadow sample distribution to only valid visible
+				scene elements.
+		*/
+		typedef std::map< const Camera*, AxisAlignedBox >  CamVisibleObjectsMap;
+		CamVisibleObjectsMap mCamVisibleObjectsMap; 
+
+		/** ShadowCamera to light mapping */
+		typedef std::map< const Camera*, const Light* > ShadowCamLightMapping;
+		ShadowCamLightMapping mShadowCamLightMapping;
+
         /// Cached light information, used to tracking light's changes
         struct _OgreExport LightInfo
         {
@@ -1377,7 +1391,7 @@ namespace Ogre {
                 Any visible objects will be added to a rendering queue, which is indexed by material in order
                 to ensure objects with the same material are rendered together to minimise render state changes.
         */
-        virtual void _findVisibleObjects(Camera* cam, bool onlyShadowCasters);
+        virtual void _findVisibleObjects(Camera* cam, AxisAlignedBox* visibleBounds, bool onlyShadowCasters);
 
         /** Internal method for applying animations to scene nodes.
         @remarks
@@ -2600,6 +2614,11 @@ namespace Ogre {
 			valid during viewport update. */
 		Viewport* getCurrentViewport(void) { return mCurrentViewport; }
 
+		/** Returns a visibility boundary box for a specific camera. */
+		const AxisAlignedBox& getVisibilityABBForCam( const Camera* cam ) const;
+
+		/**  Returns the shadow caster AAB for a specific light-camera combination */
+		const AxisAlignedBox& getShadowCastersAABForLight( const Light* light ) const;
     };
 
     /** Default implementation of IntersectionSceneQuery. */

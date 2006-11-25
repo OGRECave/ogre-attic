@@ -268,6 +268,8 @@ Camera* SceneManager::createCamera(const String& name)
     Camera *c = new Camera(name, this);
     mCameras.insert(CameraList::value_type(name, c));
 
+	// create visible bounds aab map entry
+	mCamVisibleObjectsMap[c] = AxisAlignedBox();
 
     return c;
 }
@@ -296,6 +298,16 @@ bool SceneManager::hasCamera(const String& name) const
 //-----------------------------------------------------------------------
 void SceneManager::destroyCamera(Camera *cam)
 {
+	// Remove visible boundary AAB entry
+	CamVisibleObjectsMap::iterator camVisObjIt = mCamVisibleObjectsMap.find( cam );
+	if ( camVisObjIt != mCamVisibleObjectsMap.end() )
+		mCamVisibleObjectsMap.erase( camVisObjIt );
+
+	// Remove light-shadow cam mapping entry
+	ShadowCamLightMapping::iterator camLightIt = mShadowCamLightMapping.find( cam );
+	if ( camLightIt != mShadowCamLightMapping.end() )
+		mShadowCamLightMapping.erase( camLightIt );
+
     // Find in list
     CameraList::iterator i = mCameras.begin();
     for (; i != mCameras.end(); ++i)
@@ -1180,8 +1192,12 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
 
 		if (mFindVisibleObjects)
 		{
+			// Assemble an AAB on the fly which contains the scene elements visible
+			// by the camera.
+			CamVisibleObjectsMap::iterator camVisObjIt = mCamVisibleObjectsMap.find( camera );
+
 			// Parse the scene and tag visibles
-			_findVisibleObjects(camera, 
+			_findVisibleObjects(camera, &(camVisObjIt->second),
 				mIlluminationStage == IRS_RENDER_TO_TEXTURE? true : false);
 		}
 		// Add overlays, if viewport deems it
@@ -1684,10 +1700,11 @@ void SceneManager::_updateSceneGraph(Camera* cam)
 
 }
 //-----------------------------------------------------------------------
-void SceneManager::_findVisibleObjects(Camera* cam, bool onlyShadowCasters)
+void SceneManager::_findVisibleObjects(Camera* cam, AxisAlignedBox* visibleBounds, 
+									   bool onlyShadowCasters)
 {
     // Tell nodes to find, cascade down all nodes
-    mSceneRoot->_findVisibleObjects(cam, getRenderQueue(), true, 
+    mSceneRoot->_findVisibleObjects(cam, getRenderQueue(), visibleBounds, true, 
         mDisplayNodes, onlyShadowCasters);
 
 }
@@ -4713,6 +4730,9 @@ void SceneManager::ensureShadowTexturesCreated()
 		ShadowTextureManager::getSingleton().getShadowTextures(
 			mShadowTextureConfigList, mShadowTextures);
 
+		// clear shadow cam - light mapping
+		mShadowCamLightMapping.clear();
+
 
 		// Recreate shadow textures
 		for (ShadowTextureList::iterator i = mShadowTextures.begin(); 
@@ -4772,6 +4792,9 @@ void SceneManager::ensureShadowTexturesCreated()
 				mat->touch();
 
 			}
+
+			// insert dummy camera-light combination
+			mShadowCamLightMapping[cam] = 0;
 		}
 		mShadowTextureConfigDirty = false;
 	}
@@ -4873,6 +4896,11 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
 		// rebind camera, incase another SM in use which has switched to its cam
 		shadowView->setCamera(texCam);
         
+		// update shadow cam - light mapping
+		ShadowCamLightMapping::iterator camLightIt = mShadowCamLightMapping.find( texCam );
+		assert(camLightIt != mShadowCamLightMapping.end());
+		camLightIt->second = light;
+
 		if (light->getCustomShadowCameraSetup().isNull())
 			mDefaultShadowCameraSetup->getShadowCamera(this, cam, vp, light, texCam);
 		else
@@ -5235,5 +5263,44 @@ uint32 SceneManager::_getCombinedVisibilityMask(void) const
 		mCurrentViewport->getVisibilityMask() & mVisibilityMask : mVisibilityMask;
 
 }
+//---------------------------------------------------------------------
+const AxisAlignedBox& SceneManager::getVisibilityABBForCam( const Camera* cam ) const
+{
+	static AxisAlignedBox nullBox;
 
+	CamVisibleObjectsMap::const_iterator camVisObjIt = mCamVisibleObjectsMap.find( cam );
+
+	if ( camVisObjIt == mCamVisibleObjectsMap.end() )
+		return nullBox;
+	else
+		return camVisObjIt->second;
+}
+//---------------------------------------------------------------------
+const AxisAlignedBox& SceneManager::getShadowCastersAABForLight( const Light* light ) const
+{
+	static AxisAlignedBox nullBox;
+
+	// find light
+	ShadowCamLightMapping::const_iterator it; 
+	for ( it = mShadowCamLightMapping.begin() ; it != mShadowCamLightMapping.end(); ++it )
+	{
+		if ( it->second == light )
+		{
+			// search the camera-aab list for the texture cam
+			CamVisibleObjectsMap::const_iterator camIt = mCamVisibleObjectsMap.find( it->first );
+
+			if ( camIt == mCamVisibleObjectsMap.end() )
+			{
+				return nullBox;
+			}
+			else
+			{
+                return camIt->second;
+			}
+		}
+	}
+
+	// AAB not available
+	return nullBox;
+}
 }

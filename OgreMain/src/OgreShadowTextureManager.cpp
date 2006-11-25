@@ -34,7 +34,23 @@ Torus Knot Software Ltd.
 
 namespace Ogre
 {
+	//-----------------------------------------------------------------------
+	bool operator== ( const ShadowTextureConfig& lhs, const ShadowTextureConfig& rhs )
+	{
+		if ( lhs.width != rhs.width ||
+			lhs.height != rhs.height ||
+			lhs.format != rhs.format )
+		{
+			return false;
+		}
 
+		return true;
+	}
+	//-----------------------------------------------------------------------
+	bool operator!= ( const ShadowTextureConfig& lhs, const ShadowTextureConfig& rhs )
+	{
+		return !( lhs == rhs );
+	}
 	//-----------------------------------------------------------------------
 	template<> ShadowTextureManager* Singleton<ShadowTextureManager>::ms_Singleton = 0;
 	ShadowTextureManager* ShadowTextureManager::getSingletonPtr(void)
