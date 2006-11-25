@@ -566,6 +566,7 @@ namespace Ogre {
 		Real nx = (2.0f * screenX) - 1.0f;
 		Real ny = 1.0f - (2.0f * screenY);
 		Vector3 nearPoint(nx, ny, -1.f);
+		// Use midPoint rather than far point to avoid issues with infinite projection
 		Vector3 midPoint (nx, ny,  0.0f);
 
 		// Get ray origin and ray target on near plane in world space
