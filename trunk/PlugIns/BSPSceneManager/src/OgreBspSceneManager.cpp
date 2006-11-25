@@ -193,9 +193,14 @@ namespace Ogre {
     {
         // Clear unique list of movables for this frame
         mMovablesForRendering.clear();
+
+		// Assemble an AAB on the fly which contains the scene elements visible
+		// by the camera.
+		CamVisibleObjectsMap::iterator findIt = mCamVisibleObjectsMap.find( cam );
+
         // Walk the tree, tag static geometry, return camera's node (for info only)
         // Movables are now added to the render queue in processVisibleLeaf
-        BspNode* cameraNode = walkTree(cam, onlyShadowCasters);
+        BspNode* cameraNode = walkTree(cam, &(findIt->second), onlyShadowCasters);
 
 
     }
@@ -285,7 +290,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    BspNode* BspSceneManager::walkTree(Camera* camera, bool onlyShadowCasters)
+    BspNode* BspSceneManager::walkTree(Camera* camera, AxisAlignedBox *visibleBounds,
+					bool onlyShadowCasters)
     {
 		if (mLevel.isNull()) return 0;
 
@@ -337,7 +343,7 @@ namespace Ogre {
                     //{
                     //    of << "Visible Node: " << *nd << std::endl;
                     //}
-                    processVisibleLeaf(nd, camera, onlyShadowCasters);
+                    processVisibleLeaf(nd, camera, visibleBounds, onlyShadowCasters);
                     if (mShowNodeAABs)
                         addBoundingBox(nd->getBoundingBox(), true);
                 }
@@ -356,7 +362,8 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void BspSceneManager::processVisibleLeaf(BspNode* leaf, Camera* cam, bool onlyShadowCasters)
+    void BspSceneManager::processVisibleLeaf(BspNode* leaf, Camera* cam, 
+							AxisAlignedBox* visibleBounds, bool onlyShadowCasters)
     {
         MaterialPtr pMat;
         // Skip world geometry if we're only supposed to process shadow casters
@@ -426,6 +433,10 @@ namespace Ogre {
                         sn->_addBoundingBoxToQueue(getRenderQueue());
                     }
                     mMovablesForRendering.insert(*oi);
+
+					// update visible boundaries aab
+					if ( visibleBounds != NULL )
+						visibleBounds->merge( (*oi)->getWorldBoundingBox( true ) );
                 }
 
             }

@@ -287,7 +287,7 @@ namespace Ogre {
             ushort oldPriority = queue-> getDefaultRenderablePriority();
             queue->setDefaultQueueGroup(RENDER_QUEUE_OVERLAY);
             queue->setDefaultRenderablePriority((mZOrder*100)-1);
-            mRootNode->_findVisibleObjects(cam, queue, true, false);
+            mRootNode->_findVisibleObjects(cam, queue, NULL, true, false);
             // Reset the group
             queue->setDefaultQueueGroup(oldgrp);
             queue->setDefaultRenderablePriority(oldPriority);

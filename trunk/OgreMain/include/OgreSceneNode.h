@@ -188,13 +188,15 @@ namespace Ogre {
                 cam The active camera
             @param
                 queue The SceneManager's rendering queue
+			@param
+				bounding box created on the fly containing all visible objects by the camera
             @param
                 includeChildren If true, the call is cascaded down to all child nodes automatically.
             @param
                 displayNodes If true, the nodes themselves are rendered as a set of 3 axes as well
                     as the objects being rendered. For debugging purposes.
         */
-        virtual void _findVisibleObjects(Camera* cam, RenderQueue* queue, 
+        virtual void _findVisibleObjects(Camera* cam, RenderQueue* queue, AxisAlignedBox* visibleBounds, 
             bool includeChildren = true, bool displayNodes = false, bool onlyShadowCasters = false);
 
         /** Gets the axis-aligned bounding box of this node (and hence all subnodes).
