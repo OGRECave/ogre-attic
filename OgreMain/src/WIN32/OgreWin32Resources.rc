@@ -108,7 +108,7 @@ BEGIN
     LTEXT           "The Ogre engine has encountered an error from which it cannot recover. The last message was:",
                     IDC_STATIC,7,7,229,19
     LTEXT           "",IDC_ERRMSG,17,29,209,84,SS_SUNKEN
-    LTEXT           "If you cannot resolve this issue yourself, please report it through the web site at http://ogre.sourceforge.net.",
+    LTEXT           "If you cannot resolve this issue yourself, please report it through the web site at http://www.ogre3d.org.",
                     IDC_STATIC,7,118,229,19
     LTEXT           "If you report the error, please include details of your hardware setup, and attach a copy of the 'ogre.log' file which you will find in the local folder.",
                     IDC_STATIC,7,138,229,17
