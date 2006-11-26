@@ -89,11 +89,11 @@ LGPL like the rest of the engine.
 	void HDRListener::notifyCompositor(Ogre::CompositorInstance* instance)
 	{
 		// Get some RTT dimensions for later calculations
-		Ogre::CompositionTechnique::TextureDefinitionIterator defIter = 
+		Ogre::CompositionTechnique::TextureDefinitionIterator defIter =
 			instance->getTechnique()->getTextureDefinitionIterator();
 		while (defIter.hasMoreElements())
 		{
-			Ogre::CompositionTechnique::TextureDefinition* def = 
+			Ogre::CompositionTechnique::TextureDefinition* def =
 				defIter.getNext();
 			// store the sizes of downscaled textures (size can be tweaked in script)
 			if (Ogre::StringUtil::startsWith(def->name, "rt_lum", false))
@@ -113,14 +113,14 @@ LGPL like the rest of the engine.
 				mBloomTexOffsetsHorz[0][1] = 0.0f;
 				mBloomTexOffsetsVert[0][0] = 0.0f;
 				mBloomTexOffsetsVert[0][1] = 0.0f;
-				mBloomTexWeights[0][0] = mBloomTexWeights[0][1] = 
+				mBloomTexWeights[0][0] = mBloomTexWeights[0][1] =
 					mBloomTexWeights[0][2] = Ogre::Math::gaussianDistribution(0, 0, deviation);
 				mBloomTexWeights[0][3] = 1.0f;
 
 				// 'pre' samples
 				for(int i = 1; i < 8; ++i)
 				{
-					mBloomTexWeights[i][0] = mBloomTexWeights[i][1] = 
+					mBloomTexWeights[i][0] = mBloomTexWeights[i][1] =
 						mBloomTexWeights[i][2] = 1.25f * Ogre::Math::gaussianDistribution(i, 0, deviation);
 					mBloomTexWeights[i][3] = 1.0f;
 					mBloomTexOffsetsHorz[i][0] = i * texelSize;
@@ -131,7 +131,7 @@ LGPL like the rest of the engine.
 				// 'post' samples
 				for(int i = 8; i < 15; ++i)
 				{
-					mBloomTexWeights[i][0] = mBloomTexWeights[i][1] = 
+					mBloomTexWeights[i][0] = mBloomTexWeights[i][1] =
 						mBloomTexWeights[i][2] = mBloomTexWeights[i - 7][0];
 					mBloomTexWeights[i][3] = 1.0f;
 
@@ -161,7 +161,7 @@ LGPL like the rest of the engine.
 				mat->load();
 				Ogre::uint32 idx = pass_id - 990 + 1;
 				float texelSize = 1.0f / (float)mLumSize[idx];
-				Ogre::GpuProgramParametersSharedPtr fparams = 
+				Ogre::GpuProgramParametersSharedPtr fparams =
 					mat->getBestTechnique()->getPass(0)->getFragmentProgramParameters();
 				fparams->setNamedConstant("texelSize", texelSize);
 				break;
@@ -172,7 +172,7 @@ LGPL like the rest of the engine.
 			{
 				// horizontal bloom
 				mat->load();
-				Ogre::GpuProgramParametersSharedPtr fparams = 
+				Ogre::GpuProgramParametersSharedPtr fparams =
 					mat->getBestTechnique()->getPass(0)->getFragmentProgramParameters();
 				const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
 				// A bit hacky - Cg & HLSL index arrays via [0], GLSL does not
@@ -191,9 +191,9 @@ LGPL like the rest of the engine.
 			}
 		case 700: // rt_bloom0
 			{
-				// vertical bloom 
+				// vertical bloom
 				mat->load();
-				Ogre::GpuProgramParametersSharedPtr fparams = 
+				Ogre::GpuProgramParametersSharedPtr fparams =
 					mat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
 				const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
 				// A bit hacky - Cg & HLSL index arrays via [0], GLSL does not
@@ -244,14 +244,14 @@ LGPL like the rest of the engine.
 		mBloomTexOffsetsHorz[0][1] = 0.0f;
 		mBloomTexOffsetsVert[0][0] = 0.0f;
 		mBloomTexOffsetsVert[0][1] = 0.0f;
-		mBloomTexWeights[0][0] = mBloomTexWeights[0][1] = 
+		mBloomTexWeights[0][0] = mBloomTexWeights[0][1] =
 			mBloomTexWeights[0][2] = Ogre::Math::gaussianDistribution(0, 0, deviation);
 		mBloomTexWeights[0][3] = 1.0f;
 
 		// 'pre' samples
 		for(int i = 1; i < 8; ++i)
 		{
-			mBloomTexWeights[i][0] = mBloomTexWeights[i][1] = 
+			mBloomTexWeights[i][0] = mBloomTexWeights[i][1] =
 				mBloomTexWeights[i][2] = Ogre::Math::gaussianDistribution(i, 0, deviation);
 			mBloomTexWeights[i][3] = 1.0f;
 			mBloomTexOffsetsHorz[i][0] = i * texelSize;
@@ -262,7 +262,7 @@ LGPL like the rest of the engine.
 		// 'post' samples
 		for(int i = 8; i < 15; ++i)
 		{
-			mBloomTexWeights[i][0] = mBloomTexWeights[i][1] = 
+			mBloomTexWeights[i][0] = mBloomTexWeights[i][1] =
 				mBloomTexWeights[i][2] = mBloomTexWeights[i - 7][0];
 			mBloomTexWeights[i][3] = 1.0f;
 
@@ -282,7 +282,7 @@ LGPL like the rest of the engine.
 			{
 				// horizontal bloom
 				mat->load();
-				Ogre::GpuProgramParametersSharedPtr fparams = 
+				Ogre::GpuProgramParametersSharedPtr fparams =
 					mat->getBestTechnique()->getPass(0)->getFragmentProgramParameters();
 				const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
 				// A bit hacky - Cg & HLSL index arrays via [0], GLSL does not
@@ -301,9 +301,9 @@ LGPL like the rest of the engine.
 			}
 		case 700: // blur vert
 			{
-				// vertical bloom 
+				// vertical bloom
 				mat->load();
-				Ogre::GpuProgramParametersSharedPtr fparams = 
+				Ogre::GpuProgramParametersSharedPtr fparams =
 					mat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
 				const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
 				// A bit hacky - Cg & HLSL index arrays via [0], GLSL does not
@@ -347,8 +347,6 @@ LGPL like the rest of the engine.
         , mFiltering(Ogre::TFO_BILINEAR)
         , mAniso(1)
         , mQuit(false)
-		, mKeyboard(0)
-		, mMouse(0)
         , mMoveScale(0.0f)
         , mRotScale(0.0f)
         , mSpeed(MINSPEED)
@@ -370,13 +368,15 @@ LGPL like the rest of the engine.
         , mMoveRight(false)
 		, mSpinny(0)
         , mCompositorSelectorViewManager(0)
+		, mMouse(0)
+		, mKeyboard(0)
 
     {
 
         Ogre::Root::getSingleton().addFrameListener(this);
 
         // using buffered input
-		OIS::ParamList pl;	
+		OIS::ParamList pl;
 		size_t windowHnd = 0;
 		std::ostringstream windowHndStr;
 
@@ -815,7 +815,7 @@ LGPL like the rest of the engine.
 		mDebugRTTStaticImage = CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"DebugRTTImage");
 		mDebugRTTListbox = static_cast<CEGUI::Listbox*>(
 			CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"DebugRTTListbox"));
-		mDebugRTTListbox->subscribeEvent(CEGUI::Listbox::EventSelectionChanged, 
+		mDebugRTTListbox->subscribeEvent(CEGUI::Listbox::EventSelectionChanged,
 			CEGUI::Event::Subscriber(&CompositorDemo_FrameListener::handleRttSelection, this));
 	}
 	//---------------------------------------------------------------------
@@ -825,7 +825,7 @@ LGPL like the rest of the engine.
 		{
 			// image set is in user data
 			CEGUI::Imageset* imgSet = (CEGUI::Imageset*)mDebugRTTListbox->getFirstSelectedItem()->getUserData();
-			
+
 			mDebugRTTStaticImage->setProperty("Image",
                 CEGUI::PropertyHelper::imageToString(&imgSet->getImage("RttImage")));
 
@@ -844,7 +844,7 @@ LGPL like the rest of the engine.
 		mDebugRTTListbox->resetList();
 		// Clear imagesets
 		mDebugRTTStaticImage->setProperty("Image", "");
-		for (ImageSetList::iterator isIt = mDebugRTTImageSets.begin(); 
+		for (ImageSetList::iterator isIt = mDebugRTTImageSets.begin();
 			isIt != mDebugRTTImageSets.end(); ++isIt)
 		{
 			CEGUI::ImagesetManager::getSingleton().destroyImageset(*isIt);
@@ -859,7 +859,7 @@ LGPL like the rest of the engine.
 			Ogre::CompositorInstance* inst = it.getNext();
 			if (inst->getEnabled())
 			{
-				Ogre::CompositionTechnique::TextureDefinitionIterator texIt = 
+				Ogre::CompositionTechnique::TextureDefinitionIterator texIt =
 					inst->getTechnique()->getTextureDefinitionIterator();
 				while (texIt.hasMoreElements())
 				{
@@ -870,11 +870,11 @@ LGPL like the rest of the engine.
 					// Create CEGUI texture from name of OGRE texture
 					CEGUI::Texture* tex = mMain->getGuiRenderer()->createTexture(instName);
 					// Create imageset
-					CEGUI::Imageset* imgSet = 
+					CEGUI::Imageset* imgSet =
 						CEGUI::ImagesetManager::getSingleton().createImageset(
 							instName, tex);
 					mDebugRTTImageSets.push_back(imgSet);
-					imgSet->defineImage((CEGUI::utf8*)"RttImage", 
+					imgSet->defineImage((CEGUI::utf8*)"RttImage",
 						CEGUI::Point(0.0f, 0.0f),
 						CEGUI::Size(tex->getWidth(), tex->getHeight()),
 						CEGUI::Point(0.0f,0.0f));
@@ -891,7 +891,7 @@ LGPL like the rest of the engine.
 
 		}
 
-		
+
 
 	}
 
