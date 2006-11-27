@@ -204,8 +204,7 @@ void CompositorChain::preViewportUpdate(const RenderTargetViewportEvent& evt)
 	if (pass->getClearBuffers() != mViewport->getClearBuffers() ||
 		pass->getClearColour() != mViewport->getBackgroundColour())
 	{
-		pass->setClearBuffers(mViewport->getClearBuffers());
-		pass->setClearColour(mViewport->getBackgroundColour());
+		// recompile if viewport settings are different
 		_compile();
 	}
 
@@ -295,6 +294,9 @@ void CompositorChain::_compile()
     /// Set previous CompositorInstance for each compositor in the list
     CompositorInstance *lastComposition = mOriginalScene;
 	mOriginalScene->mPreviousInstance = 0;
+	CompositionPass* pass = mOriginalScene->getTechnique()->getOutputTargetPass()->getPass(0);
+	pass->setClearBuffers(mViewport->getClearBuffers());
+	pass->setClearColour(mViewport->getBackgroundColour());
     for(Instances::iterator i=mInstances.begin(); i!=mInstances.end(); ++i)
     {
         if((*i)->getEnabled())
