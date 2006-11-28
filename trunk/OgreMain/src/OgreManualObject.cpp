@@ -631,6 +631,19 @@ namespace Ogre {
 
 	}
 	//-----------------------------------------------------------------------------
+	void ManualObject::setMaterialName(size_t idx, const String& name)
+	{
+		if (idx >= mSectionList.size())
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+				"Index out of bounds!",
+				"ManualObject::setMaterialName");
+		}
+
+		mSectionList[idx]->setMaterialName(name);
+
+	}
+	//-----------------------------------------------------------------------------
 	MeshPtr ManualObject::convertToMesh(const String& meshName, const String& groupName)
 	{
 		if (mCurrentSection)
@@ -893,6 +906,15 @@ namespace Ogre {
 				ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		}
 		return mMaterial;
+	}
+	//-----------------------------------------------------------------------------
+	void ManualObject::ManualObjectSection::setMaterialName(const String& name)
+	{
+		if (mMaterialName != name)
+		{
+			mMaterialName = name;
+			mMaterial.setNull();
+		}
 	}
 	//-----------------------------------------------------------------------------
 	void ManualObject::ManualObjectSection::getRenderOperation(RenderOperation& op)
