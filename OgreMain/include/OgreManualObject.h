@@ -236,6 +236,17 @@ namespace Ogre
 		/** Finish defining the object and compile the final renderable version. */
 		virtual void end(void);
 
+		/** Alter the material for a subsection of this object after it has been
+			specified.
+		@remarks
+			You specify the material to use on a section of this object during the
+			call to begin(), however if you want to change the material afterwards
+			you can do so by calling this method.
+		@param subIndex The index of the subsection to alter
+		@param name The name of the new material to use
+		*/
+		virtual void setMaterialName(size_t subindex, const String& name);
+
 		/** Convert this object to a Mesh. 
 		@remarks
 			After you've finished building this object, you may convert it to 
@@ -340,6 +351,8 @@ namespace Ogre
 			RenderOperation* getRenderOperation(void);
 			/// Retrieve the material name in use
 			const String& getMaterialName(void) const { return mMaterialName; }
+			/// update the material name in use
+			void setMaterialName(const String& name);
 			
 			// Renderable overrides
 			/** @copydoc Renderable::getMaterial. */
