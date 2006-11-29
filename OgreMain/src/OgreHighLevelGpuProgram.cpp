@@ -41,16 +41,19 @@ namespace Ogre
     //---------------------------------------------------------------------------
     void HighLevelGpuProgram::loadImpl()
     {
-        // load self 
-        loadHighLevel();
-
-        // create low-level implementation
-        createLowLevelImpl();
-        // load constructed assembler program (if it exists)
-		if (!mAssemblerProgram.isNull())
+		if (isSupported())
 		{
-			mAssemblerProgram->load();
-			mIsLoaded = true;
+			// load self 
+			loadHighLevel();
+
+			// create low-level implementation
+			createLowLevelImpl();
+			// load constructed assembler program (if it exists)
+			if (!mAssemblerProgram.isNull())
+			{
+				mAssemblerProgram->load();
+				mIsLoaded = true;
+			}
 		}
     }
     //---------------------------------------------------------------------------
