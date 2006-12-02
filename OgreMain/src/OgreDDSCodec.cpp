@@ -522,6 +522,9 @@ namespace Ogre {
 					// full alpha present, formats vary only in encoding 
 					imgData->format = PF_BYTE_RGBA;
 					break;
+                default:
+                    // all other cases need no special format handling
+                    break;
 				}
 			}
 			else
@@ -630,7 +633,6 @@ namespace Ogre {
 									{
 										// Jump back up 4 rows and 4 pixels to the
 										// right to be at the next block to the right
-										size_t diff = (uchar*)destPtr - output->getPtr();
 										destPtr = static_cast<void*>(
 											static_cast<uchar*>(destPtr) - dstPitch * 4 + destBpp * 4);
 
