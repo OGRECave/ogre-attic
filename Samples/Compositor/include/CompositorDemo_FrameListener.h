@@ -121,9 +121,10 @@ LGPL like the rest of the engine.
 		Ogre::SceneNode* mSpinny;
 
         ItemSelectorViewManager* mCompositorSelectorViewManager;
-		
+
 		OIS::Mouse    *mMouse;
 		OIS::Keyboard *mKeyboard;
+		OIS::InputManager* mInputManager;
 
         CEGUI::Renderer* mGuiRenderer;
         CEGUI::Window* mGuiAvg;
