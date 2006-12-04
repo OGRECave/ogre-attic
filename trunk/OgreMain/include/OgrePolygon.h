@@ -43,7 +43,7 @@ namespace Ogre
 		It is made up of 3 or more vertices in a single plane, listed in 
 		counter-clockwise order.
 	*/
-	class Polygon
+	class _OgreExport Polygon
 	{
 
 	public:

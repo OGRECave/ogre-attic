@@ -43,7 +43,7 @@ namespace Ogre
 			planar. Several operations may be applied, ranging from intersection
 			to join where each result it itself a convex body.
 	*/
-	class ConvexBody
+	class _OgreExport ConvexBody
 	{
 	public:
 		typedef std::vector< Polygon* >	PolygonList;
