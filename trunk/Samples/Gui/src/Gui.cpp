@@ -82,7 +82,7 @@ public:
 	//----------------------------------------------------------------//
 	bool mouseMoved( const OIS::MouseEvent &arg )
 	{
-		CEGUI::System::getSingleton().injectMouseMove( arg.state.relX, arg.state.relY );
+		CEGUI::System::getSingleton().injectMouseMove( arg.state.X.rel, arg.state.Y.rel );
 		return true;
 	}
 

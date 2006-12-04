@@ -384,11 +384,11 @@ LGPL like the rest of the engine.
 		windowHndStr << windowHnd;
 		pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
 
-		OIS::InputManager &im = *OIS::InputManager::createInputSystem( pl );
+		mInputManager = OIS::InputManager::createInputSystem( pl );
 
 		//Create all devices (We only catch joystick exceptions here, as, most people have Key/Mouse)
-		mKeyboard = static_cast<OIS::Keyboard*>(im.createInputObject( OIS::OISKeyboard, true ));
-		mMouse = static_cast<OIS::Mouse*>(im.createInputObject( OIS::OISMouse, true ));
+		mKeyboard = static_cast<OIS::Keyboard*>(mInputManager->createInputObject( OIS::OISKeyboard, true ));
+		mMouse = static_cast<OIS::Mouse*>(mInputManager->createInputObject( OIS::OISMouse, true ));
 
 		unsigned int width, height, depth;
 		int left, top;
@@ -419,12 +419,12 @@ LGPL like the rest of the engine.
 //--------------------------------------------------------------------------
     CompositorDemo_FrameListener::~CompositorDemo_FrameListener()
     {
-		OIS::InputManager *im = OIS::InputManager::getSingletonPtr();
-		if(im)
+		if(mInputManager)
 		{
-			im->destroyInputObject(mKeyboard);
-			im->destroyInputObject(mMouse);
-			im->destroyInputSystem();
+			mInputManager->destroyInputObject(mKeyboard);
+			mInputManager->destroyInputObject(mMouse);
+			OIS::InputManager::destroyInputSystem(mInputManager);
+			mInputManager = 0;
 		}
 
         delete hvListener;
@@ -500,8 +500,8 @@ LGPL like the rest of the engine.
 //--------------------------------------------------------------------------
     bool CompositorDemo_FrameListener::mouseMoved (const OIS::MouseEvent &e)
     {
-        CEGUI::System::getSingleton().injectMouseMove( e.state.relX, e.state.relY );
-		CEGUI::System::getSingleton().injectMouseWheelChange(e.state.relZ);
+        CEGUI::System::getSingleton().injectMouseMove( e.state.X.rel, e.state.Y.rel );
+		CEGUI::System::getSingleton().injectMouseWheelChange(e.state.Z.rel);
 		return true;
     }
 

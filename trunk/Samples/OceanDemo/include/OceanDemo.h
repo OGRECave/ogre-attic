@@ -65,6 +65,7 @@ protected:
 
 	OIS::Mouse *mMouse;
 	OIS::Keyboard *mKeyboard;
+    OIS::InputManager* mInputManager;
 
     // just to stop toggles flipping too fast
     Ogre::Real mTimeUntilNextToggle ;
