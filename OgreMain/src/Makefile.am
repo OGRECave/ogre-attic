@@ -29,6 +29,7 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreConfigOptionMap.cpp \
                          OgreController.cpp \
                          OgreControllerManager.cpp \
+						 OgreConvexBody.cpp \
                          OgreDataStream.cpp \
                          OgreDDSCodec.cpp \
                          OgreDefaultHardwareBufferManager.cpp \
@@ -96,6 +97,7 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgrePatchSurface.cpp \
                          OgrePlane.cpp \
                          OgrePlatformInformation.cpp \
+						 OgrePolygon.cpp \
 			 OgrePose.cpp \
                          OgrePredefinedControllers.cpp \
 			 OgreProfiler.cpp \

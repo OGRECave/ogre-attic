@@ -30,6 +30,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgreConfigOptionMap.h \
                      OgreController.h \
                      OgreControllerManager.h \
+					 OgreConvexBody.h \
                      OgreDataStream.h \
                      OgreDDSCodec.h \
                      OgreDefaultHardwareBufferManager.h \
@@ -110,6 +111,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgrePlane.h \
                      OgrePlaneBoundedVolume.h \
                      OgrePlatform.h \
+					 OgrePolygon.h \
                      OgrePose.h \
                      OgrePredefinedControllers.h \
                      OgrePrerequisites.h \
