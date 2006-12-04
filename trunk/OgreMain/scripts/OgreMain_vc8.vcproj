@@ -353,6 +353,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreConvexBody.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreDataStream.cpp"
 				>
 			</File>
@@ -638,6 +642,10 @@
 			</File>
 			<File
 				RelativePath="..\src\OgrePlatformInformation.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgrePolygon.cpp"
 				>
 			</File>
 			<File
@@ -1084,6 +1092,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\OgreConvexBody.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\OgreDataStream.h"
 				>
 			</File>
@@ -1417,6 +1429,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgrePlatformInformation.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgrePolygon.h"
 				>
 			</File>
 			<File

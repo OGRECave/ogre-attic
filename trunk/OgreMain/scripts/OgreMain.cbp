@@ -366,6 +366,13 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\include\OgreConvexBody.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\include\OgreDDSCodec.h">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
@@ -934,6 +941,13 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\include\OgrePlatformInformation.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\include\OgrePolygon.h">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />
@@ -1693,6 +1707,11 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\src\OgreConvexBody.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\src\OgreDDSCodec.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
@@ -2049,6 +2068,11 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\src\OgrePlatformInformation.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\src\OgrePolygon.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />
