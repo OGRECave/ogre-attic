@@ -83,8 +83,8 @@ protected:
 
 public:
 	// Constructor takes a RenderWindow because it uses that to determine input context
-	ExampleFrameListener(RenderWindow* win, Camera* cam, bool bufferedKeys = false, bool bufferedMouse = false, 
-			     bool bufferedJoy = false ) : 
+	ExampleFrameListener(RenderWindow* win, Camera* cam, bool bufferedKeys = false, bool bufferedMouse = false,
+			     bool bufferedJoy = false ) :
 		mCamera(cam), mTranslateVector(Vector3::ZERO), mWindow(win), mStatsOn(true), mNumScreenShots(0),
 		mMoveScale(0.0f), mRotScale(0.0f), mTimeUntilNextToggle(0), mFiltering(TFO_BILINEAR),
 		mAniso(1), mSceneDetailIndex(0), mMoveSpeed(100), mRotateSpeed(36), mDebugOverlay(0),
@@ -95,7 +95,7 @@ public:
 		mDebugOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
 
 		LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
-		ParamList pl;	
+		ParamList pl;
 		size_t windowHnd = 0;
 		std::ostringstream windowHndStr;
 
@@ -148,7 +148,7 @@ public:
 				mInputManager->destroyInputObject( mKeyboard );
 				mInputManager->destroyInputObject( mJoy );
 
-				OIS::InputManager::destroyInputSystem();
+				OIS::InputManager::destroyInputSystem(mInputManager);
 				mInputManager = 0;
 			}
 		}
@@ -185,21 +185,21 @@ public:
 
 		if(mKeyboard->isKeyDown(KC_RIGHT))
 			mCamera->yaw(-mRotScale);
-		
+
 		if(mKeyboard->isKeyDown(KC_LEFT))
 			mCamera->yaw(mRotScale);
 
 		if( mKeyboard->isKeyDown(KC_ESCAPE) || mKeyboard->isKeyDown(KC_Q) )
 			return false;
 
-       	if( mKeyboard->isKeyDown(KC_F) && mTimeUntilNextToggle <= 0 ) 
+       	if( mKeyboard->isKeyDown(KC_F) && mTimeUntilNextToggle <= 0 )
 		{
 			mStatsOn = !mStatsOn;
 			showDebugOverlay(mStatsOn);
 			mTimeUntilNextToggle = 1;
 		}
 
-		if( mKeyboard->isKeyDown(KC_T) && mTimeUntilNextToggle <= 0 ) 
+		if( mKeyboard->isKeyDown(KC_T) && mTimeUntilNextToggle <= 0 )
 		{
 			switch(mFiltering)
 			{
@@ -232,7 +232,7 @@ public:
 			mTimeUntilNextToggle = 0.5;
 			mDebugText = "Saved: " + ss.str();
 		}
-		
+
 		if(mKeyboard->isKeyDown(KC_R) && mTimeUntilNextToggle <=0)
 		{
 			mSceneDetailIndex = (mSceneDetailIndex+1)%3 ;
@@ -255,7 +255,7 @@ public:
 
 		// Print camera details
 		if(displayCameraDetails)
-			mDebugText = "P: " + StringConverter::toString(mCamera->getDerivedPosition()) + 
+			mDebugText = "P: " + StringConverter::toString(mCamera->getDerivedPosition()) +
 						 " " + "O: " + StringConverter::toString(mCamera->getDerivedOrientation());
 
 		// Return true to continue rendering
@@ -271,13 +271,13 @@ public:
 		const MouseState &ms = mMouse->getMouseState();
 		if( ms.buttonDown( MB_Right ) )
 		{
-			mTranslateVector.x += ms.relX * 0.13;
-			mTranslateVector.y -= ms.relY * 0.13;
+			mTranslateVector.x += ms.X.rel * 0.13;
+			mTranslateVector.y -= ms.Y.rel * 0.13;
 		}
 		else
 		{
-			mRotX = Degree(-ms.relX * 0.13);
-			mRotY = Degree(-ms.relY * 0.13);
+			mRotX = Degree(-ms.X.rel * 0.13);
+			mRotY = Degree(-ms.Y.rel * 0.13);
 		}
 
 		return true;
@@ -286,7 +286,7 @@ public:
 	void moveCamera()
 	{
 		// Make all the changes to the camera
-		// Note that YAW direction is around a fixed axis (freelook style) rather than a natural YAW 
+		// Note that YAW direction is around a fixed axis (freelook style) rather than a natural YAW
 		//(e.g. airplane)
 		mCamera->yaw(mRotX);
 		mCamera->pitch(mRotY);
@@ -312,7 +312,7 @@ public:
 		if(mWindow->isClosed())	return false;
 
 		//Need to capture/update each device
-		mKeyboard->capture();		
+		mKeyboard->capture();
 		mMouse->capture();
 		if( mJoy ) mJoy->capture();
 
@@ -322,7 +322,7 @@ public:
 		if( !mMouse->buffered() || !mKeyboard->buffered() || !buffJ )
 		{
 			// one of the input modes is immediate, so setup what is needed for immediate movement
-			if (mTimeUntilNextToggle >= 0) 
+			if (mTimeUntilNextToggle >= 0)
 				mTimeUntilNextToggle -= evt.timeSinceLastFrame;
 
 			// If this is the first frame, pick a speed
@@ -351,7 +351,7 @@ public:
 		if( !mMouse->buffered() )
 			if( processUnbufferedMouseInput(evt) == false )
 				return false;
-		
+
 		if( !mMouse->buffered() || !mKeyboard->buffered() || !buffJ )
 			moveCamera();
 
@@ -372,7 +372,7 @@ protected:
 	bool mStatsOn;
 
 	std::string mDebugText;
-	
+
 	unsigned int mNumScreenShots;
 	float mMoveScale;
 	Degree mRotScale;

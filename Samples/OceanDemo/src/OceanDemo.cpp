@@ -28,18 +28,18 @@ Ogre::String bundlePath()
     char path[1024];
     CFBundleRef mainBundle = CFBundleGetMainBundle();
     assert( mainBundle );
-    
+
     CFURLRef mainBundleURL = CFBundleCopyBundleURL( mainBundle);
     assert( mainBundleURL);
-    
+
     CFStringRef cfStringRef = CFURLCopyFileSystemPath( mainBundleURL, kCFURLPOSIXPathStyle);
     assert( cfStringRef);
-    
+
     CFStringGetCString( cfStringRef, path, 1024, kCFStringEncodingASCII);
-    
+
     CFRelease( mainBundleURL);
     CFRelease( cfStringRef);
-    
+
     return Ogre::String( path);
 }
 
@@ -189,16 +189,16 @@ void OceanDemo::go(void)
 bool OceanDemo::setup(void)
 {
 	bool setupCompleted = false;
-	
+
 	#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
         Ogre::String mResourcePath;
         mResourcePath = bundlePath() + "/Contents/Resources/";
-        mRoot = new Ogre::Root(mResourcePath + "plugins.cfg", 
+        mRoot = new Ogre::Root(mResourcePath + "plugins.cfg",
                          mResourcePath + "ogre.cfg", mResourcePath + "Ogre.log");
     #else
-        
+
         mRoot = new Ogre::Root();
-        
+
     #endif
 
     setupResources();
@@ -212,8 +212,8 @@ bool OceanDemo::setup(void)
         // Set default mipmap level (NB some APIs ignore this)
         Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
         loadResources();
-        
-        
+
+
         if (setupGUI())
         {
             // Create the scene
@@ -228,7 +228,7 @@ bool OceanDemo::setup(void)
             setupCompleted = true;
         }
     }
-    
+
 	return setupCompleted;
 }
 
@@ -289,7 +289,7 @@ void OceanDemo::setupResources(void)
 {
     // Load resource paths from config file
     Ogre::ConfigFile cf;
-	
+
     #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
         Ogre::String mResourcePath;
         mResourcePath = bundlePath() + "/Contents/Resources/";
@@ -344,9 +344,9 @@ bool OceanDemo::setupGUI(void)
 	}
 	catch(...)
 	{
-	    
+
 	}
-	
+
 	return setupGUICompleted;
 }
 //--------------------------------------------------------------------------
@@ -1010,6 +1010,8 @@ OceanDemo_FrameListener::OceanDemo_FrameListener(OceanDemo* main)
     , mLastMousePositionSet(false)
     , mSpinModel(true)
     , mSpinLight(false)
+	, mMouse(0)
+	, mKeyboard(0)
     , mLMBDown(false)
     , mRMBDown(false)
     , mProcessMovement(false)
@@ -1018,8 +1020,6 @@ OceanDemo_FrameListener::OceanDemo_FrameListener(OceanDemo* main)
     , mMoveBck(false)
     , mMoveLeft(false)
     , mMoveRight(false)
-	, mMouse(0)
-	, mKeyboard(0)
 
 {
     mRotateSpeed = 0;
@@ -1046,10 +1046,10 @@ OceanDemo_FrameListener::OceanDemo_FrameListener(OceanDemo* main)
 	windowHndStr << windowHnd;
 	pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
 
-	OIS::InputManager &im = *OIS::InputManager::createInputSystem( pl );
+	mInputManager = OIS::InputManager::createInputSystem( pl );
 	//Create all devices (We only catch joystick exceptions here, as, most people have Key/Mouse)
-	mKeyboard = static_cast<OIS::Keyboard*>(im.createInputObject( OIS::OISKeyboard, true ));
-	mMouse = static_cast<OIS::Mouse*>(im.createInputObject( OIS::OISMouse, true ));
+	mKeyboard = static_cast<OIS::Keyboard*>(mInputManager->createInputObject( OIS::OISKeyboard, true ));
+	mMouse = static_cast<OIS::Mouse*>(mInputManager->createInputObject( OIS::OISMouse, true ));
 
 	unsigned int width, height, depth;
 	int left, top;
@@ -1081,12 +1081,12 @@ OceanDemo_FrameListener::OceanDemo_FrameListener(OceanDemo* main)
 //--------------------------------------------------------------------------
 OceanDemo_FrameListener::~OceanDemo_FrameListener()
 {
-	OIS::InputManager* im = OIS::InputManager::getSingletonPtr();
-	if(im)
+	if(mInputManager)
 	{
-		im->destroyInputObject(mMouse);
-		im->destroyInputObject(mKeyboard);
-		im->destroyInputSystem();
+		mInputManager->destroyInputObject(mMouse);
+		mInputManager->destroyInputObject(mKeyboard);
+		OIS::InputManager::destroyInputSystem(mInputManager);
+		mInputManager = 0;
 	}
 }
 
@@ -1159,8 +1159,8 @@ bool OceanDemo_FrameListener::frameStarted(const Ogre::FrameEvent& evt)
 //--------------------------------------------------------------------------
 bool OceanDemo_FrameListener::mouseMoved (const OIS::MouseEvent &e)
 {
-	CEGUI::System::getSingleton().injectMouseMove( e.state.relX, e.state.relY );
-	CEGUI::System::getSingleton().injectMouseWheelChange(e.state.relZ);
+	CEGUI::System::getSingleton().injectMouseMove( e.state.X.rel, e.state.Y.rel );
+	CEGUI::System::getSingleton().injectMouseWheelChange(e.state.Z.rel);
 	return true;
 }
 
