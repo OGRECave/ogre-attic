@@ -3121,8 +3121,6 @@ Although OGRE's OverlayElement and OverlayContainer classes are designed to be e
 @ref{BorderPanel}
 @item
 @ref{TextArea}
-@item
-@ref{TextBox}
 @end itemize
 @*
 This section describes how you define their custom attributes in an .overlay script, but you can also change these custom properties in code if you wish. You do this by calling setParameter(paramname, value). You may wish to use the StringConverter class to convert your types to and from strings.
@@ -3178,20 +3176,6 @@ A solid colour to render the text in. Often fonts are defined in monochrome, so 
 @item colour_bottom <red> <green> <blue> / colour_top <red> <green> <blue>
 As an alternative to a solid colour, you can colour the text differently at the top and bottom to create a gradient colour effect which can be very effective.
 @end table
-
-@anchor{TextBox}
-@subheading TextBox (element)
-
-This element is a box that allows text input. It is composed of 2 elements, a TextArea, which defines the size, colour etc of the text to be used when typed, and a back panel which is the box-element on which the text is written.@*@*
-
-Attributes:
-@table @asis
-@item text_area <template name> [<caption>]
-The name of the TextArea template to be used as the basis for the TextBox font. The optional caption is the text the textbox is initialised with. 
-@item back_panel <template name>
-The name of the back panel template (e.g. a @ref{BorderPanel}) to be used as the basis for the back panel on which the text is written. This needs to be a container.
-@end table
-
 
 @node Font Definition Scripts
 @section Font Definition Scripts
