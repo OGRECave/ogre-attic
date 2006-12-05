@@ -123,6 +123,9 @@ Torus Knot Software Ltd.
 #include "OgreCompositionTargetPass.h"
 #include "OgreWindowEventUtilities.h"
 #include "OgreShadowCameraSetup.h"
+#include "OgreShadowCameraSetupFocused.h"
+#include "OgreShadowCameraSetupLiSPSM.h"
+#include "OgreShadowCameraSetupPlaneOptimal.h"
 // .... more to come
 
 #endif

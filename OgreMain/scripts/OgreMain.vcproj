@@ -584,6 +584,18 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreShadowCameraSetupFocused.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreShadowCameraSetupLiSPSM.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreShadowCameraSetupPlaneOptimal.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreShadowCaster.cpp">
 			</File>
 			<File
@@ -1184,6 +1196,18 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreShadowCameraSetup.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreShadowCameraSetupFocused.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreShadowCameraSetupLiSPSM.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreShadowCameraSetupPlaneOptimal.h"
 				>
 			</File>
 			<File
