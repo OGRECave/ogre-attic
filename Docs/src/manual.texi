@@ -1565,6 +1565,8 @@ vertex_program myHLSLVertexProgram hlsl
 @end example
 As you can see, the syntax is almost identical, except that instead of 'profiles' with a list of assembler formats, you have a 'target' parameter which allows a single assembler target to be specified - obviously this has to be a DirectX assembler format syntax code.@*@*
 
+@strong{Note:} One thing to bear in mind is that HLSL allows you to use 2 different ways to multiply a veector by a matrix - mul(v,m) or mul(m,v). The only difference between them is that the matrix is effectively transposed. You should use mul(m,v) with the matrices passed in from Ogre - this agrees with the shaders produced from tools like RenderMonkey, and is consistent with Cg too, but disagrees with the Dx9 SDK which uses mul(v,m).
+
 @include glsl.inc
 
 @subheading Skeletal Animation in Vertex Programs
