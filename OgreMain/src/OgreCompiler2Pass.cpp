@@ -512,7 +512,7 @@ namespace Ogre {
     {
         const size_t nextTokenIndex = mPass2TokenQuePosition + 1;
 
-        if (nextTokenIndex < mActiveTokenState->tokenQue.size() - 1)
+        if (nextTokenIndex < mActiveTokenState->tokenQue.size())
             return mActiveTokenState->tokenQue[nextTokenIndex].tokenID == expectedTokenID;
 
         return false;

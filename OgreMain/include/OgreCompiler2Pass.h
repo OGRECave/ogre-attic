@@ -353,7 +353,8 @@ namespace Ogre {
         /** If a next token instruction exist then test if its token ID matches.
         @remarks
             This method is usefull for peeking ahead during pass 2 to see if a certain
-            token exists.
+            token exists.  If the tokens don't match or there is no next token (end of que)
+            then false is returned.
         @param expectedTokenID is the ID of the token to match.
         */
         bool testNextTokenID(const size_t expectedTokenID) const;
