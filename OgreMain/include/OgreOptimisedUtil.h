@@ -115,7 +115,7 @@ namespace Ogre {
             three floating-point values per vertex
         */
         virtual void softwareVertexMorph(
-            float t,
+            Real t,
             const float *srcPos1, const float *srcPos2,
             float *dstPos,
             size_t numVertices) = 0;
