@@ -355,7 +355,10 @@ namespace Ogre {
 		/// @copydoc AnimableObject::createAnimableValue
 		AnimableValuePtr createAnimableValue(const String& valueName);
 
-		/** Set the pointer to the custom shadow camera setup. 
+		/** Set this light to use a custom shadow camera when rendering texture shadows.
+		@remarks
+			This changes the shadow camera setup for just this light,  you can set
+			the shadow camera setup globally using SceneManager::setShadowCameraSetup
 		@see ShadowCameraSetup
 		*/
 		void setCustomShadowCameraSetup(const ShadowCameraSetupPtr& customShadowSetup);
@@ -365,7 +368,7 @@ namespace Ogre {
 		*/
 		void resetCustomShadowCameraSetup(void);
 
-		/** return a pointer to the custom shadow camera setup. */
+		/** return a pointer to the custom shadow camera setup (null means use SceneManager global version). */
 		const ShadowCameraSetupPtr& getCustomShadowCameraSetup(void) const;
 
     protected:
