@@ -36,13 +36,29 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
-    /** Used to implement custom algorithms for generating shadow mapping matrices.  
-        @remarks
-            Shadow map matrices, being projective matrices, have 15 degrees of freedom.
-			3 of these degrees of freedom are fixed by the light's position.  4 are used to
-			affinely affect z values.  6 affinely affect u,v sampling.  2 are projective
-			degrees of freedom.  This class is meant to allow custom methods for 
-			handling optimization.
+    /** This class allows you to plug in new ways to define the camera setup when
+		rendering and projecting shadow textures.
+	@remarks
+		The default projection used when rendering shadow textures is a uniform
+		frustum. This is pretty straight forward but doesn't make the best use of 
+		the space in the shadow map since texels closer to the camera will be larger, 
+		resulting in 'jaggies'. There are several ways to distribute the texels
+		in the shadow texture differently, and this class allows you to override
+		that. 
+	@par
+		Ogre is provided with several alternative shadow camera setups, including
+		LiSPSM (LiSPSMShadowCameraSetup) and Plane Optimal (PlaneOptimalShadowCameraSetup).
+		Others can of course be written to incorporate other algorithms. All you 
+		have to do is instantiate one of these classes and enable it using 
+		SceneManager::setShadowCameraSetup (global) or Light::setCustomShadowCameraSetup
+		(per light). In both cases the instance is wrapped in a SharedPtr which means
+		it will  be deleted automatically when no more references to it exist.
+	@note
+        Shadow map matrices, being projective matrices, have 15 degrees of freedom.
+		3 of these degrees of freedom are fixed by the light's position.  4 are used to
+		affinely affect z values.  6 affinely affect u,v sampling.  2 are projective
+		degrees of freedom.  This class is meant to allow custom methods for 
+		handling optimization.
     */
 	class _OgreExport ShadowCameraSetup
 	{

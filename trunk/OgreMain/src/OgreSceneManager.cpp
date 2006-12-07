@@ -4722,6 +4722,17 @@ void SceneManager::setShadowTextureReceiverMaterial(const String& name)
 	}
 }
 //---------------------------------------------------------------------
+void SceneManager::setShadowCameraSetup(const ShadowCameraSetupPtr& shadowSetup)
+{
+	mDefaultShadowCameraSetup = shadowSetup;
+
+}
+//---------------------------------------------------------------------
+const ShadowCameraSetupPtr& SceneManager::getShadowCameraSetup() const
+{
+	return mDefaultShadowCameraSetup;
+}
+//---------------------------------------------------------------------
 void SceneManager::ensureShadowTexturesCreated()
 {
 	if (mShadowTextureConfigDirty)

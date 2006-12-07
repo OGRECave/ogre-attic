@@ -22,6 +22,8 @@
 				<Linker>
 					<Add library="OgreMain_d" />
 					<Add library="ois_d" />
+					<Add library="CEGUIBase_d" />
+					<Add library="OgreGUIRenderer_d" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -40,6 +42,8 @@
 					<Add option="-s" />
 					<Add library="OgreMain" />
 					<Add library="ois" />
+					<Add library="CEGUIBase" />
+					<Add library="OgreGUIRenderer" />
 				</Linker>
 			</Target>
 		</Build>
@@ -60,6 +64,8 @@
 			<Add directory="..\..\..\OgreMain\include" />
 			<Add directory="..\..\..\Dependencies\include" />
 			<Add directory="..\..\..\Dependencies\include\ois" />
+			<Add directory="..\..\..\Dependencies\include\CEGUI" />
+			<Add directory="..\..\Common\CEGUIRenderer\include" />
 		</Compiler>
 		<Linker>
 			<Add option="-Wl,--enable-auto-image-base" />

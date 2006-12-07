@@ -2338,6 +2338,18 @@ namespace Ogre {
 		*/
 		virtual void setShadowTextureReceiverMaterial(const String& name);
 
+		/** Set the shadow camera setup to use for all lights which don't have
+			their own shadow camera setup.
+		@see ShadowCameraSetup
+		*/
+		virtual void setShadowCameraSetup(const ShadowCameraSetupPtr& shadowSetup);
+
+		/** Get the shadow camera setup in use for all lights which don't have
+			their own shadow camera setup.
+		@see ShadowCameraSetup
+		*/
+		virtual const ShadowCameraSetupPtr& getShadowCameraSetup() const;
+
 		/** Sets whether we should use an inifinite camera far plane
 			when rendering stencil shadows.
 		@remarks
