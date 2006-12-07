@@ -109,7 +109,6 @@ Torus Knot Software Ltd.
 #include "OgreSubMesh.h"
 #include "OgreTechnique.h"
 #include "OgreTextureManager.h"
-#include "OgreTextureManager.h"
 #include "OgreTextureUnitState.h"
 #include "OgreUserDefinedObject.h"
 #include "OgreVector2.h"
