@@ -511,6 +511,8 @@ namespace Ogre {
 		    false if could not be tokenized
 	    */
 	    bool isLexemeMatch(const String& lexeme, const bool caseSensitive) const;
+	    /// Check if pass 1 has parsed to the end of the source
+	    bool isEndOfSource() const { return mCharPos >= mEndOfSource; }
 	    /// position to the next possible valid sysmbol
 	    bool positionToNextLexeme();
 	    /** process input source text using rulepath to determine allowed tokens
