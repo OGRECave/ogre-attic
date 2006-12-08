@@ -200,9 +200,7 @@ namespace Ogre {
 
         // Walk the tree, tag static geometry, return camera's node (for info only)
         // Movables are now added to the render queue in processVisibleLeaf
-        BspNode* cameraNode = walkTree(cam, &(findIt->second), onlyShadowCasters);
-
-
+        walkTree(cam, &(findIt->second), onlyShadowCasters);
     }
     //-----------------------------------------------------------------------
     void BspSceneManager::renderStaticGeometry(void)
