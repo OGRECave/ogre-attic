@@ -97,11 +97,11 @@ namespace Ogre {
 		mTimeSinceLastVisible(0),
 		mLastVisibleFrame(0),
         mTimeController(0),
+		mEmittedEmitterPoolInitialised(false),
         mRenderer(0),
         mCullIndividual(false),
         mPoolSize(0),
-		mEmittedEmitterPoolSize(0),
-		mEmittedEmitterPoolInitialised(false)
+		mEmittedEmitterPoolSize(0)
 	{
         initParameters();
         mAABB.setExtents(-1, -1, -1, 1, 1, 1);
@@ -133,11 +133,11 @@ namespace Ogre {
 		mTimeSinceLastVisible(0),
 		mLastVisibleFrame(Root::getSingleton().getCurrentFrameNumber()),
         mTimeController(0),
+		mEmittedEmitterPoolInitialised(false),
         mRenderer(0), 
 		mCullIndividual(false),
         mPoolSize(0),
-		mEmittedEmitterPoolSize(0),
-		mEmittedEmitterPoolInitialised(false)
+		mEmittedEmitterPoolSize(0)
     {
         setDefaultDimensions( 100, 100 );
         setMaterialName( "BaseWhite" );
@@ -1359,7 +1359,6 @@ namespace Ogre {
 		EmittedEmitterPool::iterator emittedEmitterPoolIterator;
 		EmittedEmitterList::iterator emittedEmitterListIterator;
 		EmittedEmitterList* e = 0;
-		ParticleEmitter* pParticleEmitter = 0;
         for (emittedEmitterPoolIterator = mEmittedEmitterPool.begin(); emittedEmitterPoolIterator != mEmittedEmitterPool.end(); ++emittedEmitterPoolIterator)
         {
 			e = &emittedEmitterPoolIterator->second;
