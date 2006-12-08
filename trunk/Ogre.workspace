@@ -210,6 +210,7 @@
 			<Depends filename="PlugIns\ParticleFX\scripts\Plugin_ParticleFX.cbp" />
 			<Depends filename="RenderSystems\Direct3D9\scripts\RenderSystem_Direct3D9.cbp" />
 			<Depends filename="RenderSystems\GL\scripts\RenderSystem_GL.cbp" />
+			<Depends filename="Samples\Common\CEGUIRenderer\scripts\OgreGUIRenderer.cbp" />
 		</Project>
 		<Project filename="Samples\SkeletalAnimation\scripts\Demo_SkeletalAnimation.cbp">
 			<Depends filename="OgreMain\scripts\OgreMain.cbp" />
