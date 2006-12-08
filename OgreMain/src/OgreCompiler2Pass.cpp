@@ -767,8 +767,8 @@ namespace Ogre {
 	    bool endFound = false;
 	    bool clearInsertTokenID = false;
 
-	    // keep following rulepath until the end is reached
-        while (!endFound)
+	    // keep following rulepath until the end of the rule or the end of the source is reached
+        while (!(endFound || isEndOfSource()))
 	    {
 		    switch (mActiveTokenState->rootRulePath[rulepathIDX].operation)
 		    {
@@ -947,7 +947,7 @@ namespace Ogre {
 		    // move on to the next rule in the path
 		    ++rulepathIDX;
 	    } // end while
-
+	    
         // if this rule production requested a token insert, make sure its reset so it does not affect
         // the parent rule
         if (clearInsertTokenID)
@@ -959,6 +959,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool Compiler2Pass::isCharacterLabel(const size_t rulepathIDX)
     {
+        if (isEndOfSource())
+            return false;
+            
 	    // assume the test is going to fail
 	    bool Passed = false;
 
@@ -1066,7 +1069,6 @@ namespace Ogre {
                     }
                     else
                     {
-
 			            // compare token lexeme text with source text
                         if (Passed = isLexemeMatch(mActiveTokenState->lexemeTokenDefinitions[tokenID].lexeme, mActiveTokenState->lexemeTokenDefinitions[tokenID].isCaseSensitive))
                         {
@@ -1148,17 +1150,20 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool Compiler2Pass::isFloatValue(float& fvalue, size_t& charsize) const
     {
+        if (isEndOfSource())
+            return false;
+            
 	    // check to see if it is a numeric float value
 	    bool valuefound = false;
 
         const char* startptr = mSource->c_str() + mCharPos;
 	    char* endptr = NULL;
 
-	    fvalue = (float)strtod(startptr, &endptr);
+	    fvalue = static_cast<float>(strtod(startptr, &endptr));
 	    // if a valid float was found then endptr will have the pointer to the first invalid character
 	    if (endptr)
 	    {
-		    if (endptr>startptr)
+		    if (endptr > startptr)
 		    {
 			    // a valid value was found so process it
 			    charsize = endptr - startptr;
@@ -1189,20 +1194,15 @@ namespace Ogre {
     bool Compiler2Pass::positionToNextLexeme()
     {
         bool validlexemefound = false;
-	    bool endofsource = mCharPos >= mEndOfSource;
         size_t oldCharPos = mCharPos;
         
-	    while (!validlexemefound && !endofsource)
+	    while (!validlexemefound && !isEndOfSource())
 	    {
 		    skipWhiteSpace();
 		    skipEOL();
 		    skipComments();
-		    // have we reached the end of the string?
-		    if (mCharPos >= mEndOfSource)
-		    {
-			    endofsource = true;
-		    }
-		    else
+		    // have we reached the end of the source?
+            if (!isEndOfSource())
 		    {
 			    // if ASCII > space then assume valid character is found
 			    if (static_cast<uchar>((*mSource)[mCharPos]) > static_cast<uchar>(' '))
@@ -1231,7 +1231,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Compiler2Pass::skipComments()
     {
-        if (mCharPos >= mEndOfSource)
+        if (isEndOfSource())
             return;
         // if current char and next are // then search for EOL
         if (mSource->compare(mCharPos, 2, "//") == 0)
@@ -1241,7 +1241,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Compiler2Pass::findEOL()
     {
-        if (mCharPos >= mEndOfSource)
+        if (isEndOfSource())
             return;
 	    // find eol charter and move to this position
         mCharPos = mSource->find('\n', mCharPos);
@@ -1250,7 +1250,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Compiler2Pass::skipEOL()
     {
-        if (mCharPos >= mEndOfSource)
+        if (isEndOfSource())
             return;
 
 	    if (((*mSource)[mCharPos] == '\n') || ((*mSource)[mCharPos] == '\r'))
@@ -1269,7 +1269,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Compiler2Pass::skipWhiteSpace()
     {
-        if (mCharPos >= mEndOfSource)
+        if (isEndOfSource())
             return;
 
         mCharPos = mSource->find_first_not_of(" \t", mCharPos);
