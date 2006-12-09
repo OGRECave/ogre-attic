@@ -194,7 +194,7 @@ material Examples/OffsetMapping/CustomShadows
 
 		 texture_unit
 		 {
-		 	content_type texture
+		 	content_type shadow
             tex_coord_set 2
 		 }
       } 
