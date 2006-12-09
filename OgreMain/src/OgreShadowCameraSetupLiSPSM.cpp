@@ -286,7 +286,7 @@ namespace Ogre
 		// Gamma specifies the 'tilt angle' between light and view direction.
 		// If this angle approaches null LiSPSM degrades to standard shadow mapping.
 		const Real cosGamma = lightDir.dotProduct(camDir);
-		if (abs(cosGamma) < 0.99)
+		if (std::abs(cosGamma) < 0.99)
 		{
 			// calculate LiSPSM projection
 			LProj = calculateLiSPSM(LProj * LView, bodyB, bodyLVS, *sm, *cam, *light) * LProj;
