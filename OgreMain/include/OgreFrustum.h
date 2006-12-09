@@ -383,13 +383,13 @@ namespace Ogre
 		virtual bool isCustomProjectionMatrixEnabled(void) const
 		{ return mCustomProjMatrix; }
 
-		/** Retrieves the clipping planes of the frustum.
+		/** Retrieves the clipping planes of the frustum (world space).
         @remarks
             The clipping planes are ordered as declared in enumerate constants FrustumPlane.
         */
         virtual const Plane* getFrustumPlanes(void) const;
 
-        /** Retrieves a specified plane of the frustum.
+        /** Retrieves a specified plane of the frustum (world space).
             @remarks
                 Gets a reference to one of the planes which make up the frustum frustum, e.g. for clipping purposes.
         */
@@ -397,7 +397,7 @@ namespace Ogre
 
         /** Tests whether the given container is visible in the Frustum.
             @param
-                bound Bounding box to be checked
+                bound Bounding box to be checked (world space)
             @param
                 culledBy Optional pointer to an int which will be filled by the plane number which culled
                 the box if the result was false;
@@ -410,7 +410,7 @@ namespace Ogre
 
         /** Tests whether the given container is visible in the Frustum.
             @param
-                bound Bounding sphere to be checked
+                bound Bounding sphere to be checked (world space)
             @param
                 culledBy Optional pointer to an int which will be filled by the plane number which culled
                 the box if the result was false;
@@ -423,7 +423,7 @@ namespace Ogre
 
         /** Tests whether the given vertex is visible in the Frustum.
             @param
-                vert Vertex to be checked
+                vert Vertex to be checked (world space)
             @param
                 culledBy Optional pointer to an int which will be filled by the plane number which culled
                 the box if the result was false;

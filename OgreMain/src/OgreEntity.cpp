@@ -1424,6 +1424,14 @@ namespace Ogre {
             }
         }
 
+        // Should be force update of animation if they exists, due reevaluate
+        // vertex processing might switchs between hardware/software animation,
+        // and then we'll end with NULL or incorrect mBoneWorldMatrices, or
+        // incorrect blended software animation buffers.
+        if (mAnimationState)
+        {
+            mFrameAnimationLastUpdated = mAnimationState->getDirtyFrameNumber() - 1;
+        }
     }
     //-----------------------------------------------------------------------
     ShadowCaster::ShadowRenderableListIterator

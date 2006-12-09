@@ -370,7 +370,8 @@ namespace Ogre {
         /** If a next token instruction exist then test if its token ID matches.
         @remarks
             This method is usefull for peeking ahead during pass 2 to see if a certain
-            token exists.
+            token exists.  If the tokens don't match or there is no next token (end of que)
+            then false is returned.
         @param expectedTokenID is the ID of the token to match.
         */
         bool testNextTokenID(const size_t expectedTokenID) const;
@@ -528,6 +529,8 @@ namespace Ogre {
 		    false if could not be tokenized
 	    */
 	    bool isLexemeMatch(const String& lexeme, const bool caseSensitive) const;
+	    /// Check if pass 1 has parsed to the end of the source
+	    bool isEndOfSource() const { return mCharPos >= mEndOfSource; }
 	    /// position to the next possible valid sysmbol
 	    bool positionToNextLexeme();
 	    /** process input source text using rulepath to determine allowed tokens

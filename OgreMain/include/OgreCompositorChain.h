@@ -122,6 +122,9 @@ namespace Ogre {
 		/** Internal method for registering a queued operation for deletion later **/
 		void _queuedOperation(CompositorInstance::RenderSystemOperation* op);
 
+		/** Compile this Composition chain into a series of RenderTarget operations.
+		*/
+		void _compile();
     protected:    
         /// Viewport affected by this CompositorChain
         Viewport *mViewport;
@@ -150,10 +153,6 @@ namespace Ogre {
         
 		/** Clear compiled state */
 		void clearCompiledState();
-
-		/** Compile this Composition chain into a series of RenderTarget operations.
-        */
-        void _compile();
         
         /** Prepare a viewport, the camera and the scene for a rendering operation
          */
