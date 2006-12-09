@@ -2233,11 +2233,14 @@ namespace Ogre {
                 glEnableClientState( GL_COLOR_ARRAY );
                 break;
             case VES_SPECULAR:
-                glSecondaryColorPointerEXT(4, 
-                    GLHardwareBufferManager::getGLType(elem->getType()), 
-                    static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
-                    pBufferData);
-                glEnableClientState( GL_SECONDARY_COLOR_ARRAY );
+				if (GLEW_EXT_secondary_color)
+				{
+					glSecondaryColorPointerEXT(4, 
+						GLHardwareBufferManager::getGLType(elem->getType()), 
+						static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+						pBufferData);
+					glEnableClientState( GL_SECONDARY_COLOR_ARRAY );
+				}
                 break;
             case VES_TEXTURE_COORDINATES:
 
@@ -2354,14 +2357,20 @@ namespace Ogre {
         glClientActiveTextureARB(GL_TEXTURE0);
         glDisableClientState( GL_NORMAL_ARRAY );
         glDisableClientState( GL_COLOR_ARRAY );
-        glDisableClientState( GL_SECONDARY_COLOR_ARRAY );
+		if (GLEW_EXT_secondary_color)
+		{
+			glDisableClientState( GL_SECONDARY_COLOR_ARRAY );
+		}
         if (mCapabilities->hasCapability(RSC_VERTEX_PROGRAM))
         {
             glDisableVertexAttribArrayARB(7); // disable indices
             glDisableVertexAttribArrayARB(1); // disable weights
         }
         glColor4f(1,1,1,1);
-        glSecondaryColor3fEXT(0.0f, 0.0f, 0.0f);
+		if (GLEW_EXT_secondary_color)
+		{
+			glSecondaryColor3fEXT(0.0f, 0.0f, 0.0f);
+		}
 
         // UnGuard
         OgreUnguard();
