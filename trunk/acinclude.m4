@@ -456,7 +456,7 @@ AC_DEFUN([OGRE_BUILD_DEMOS], [
             [build_ogre_demos=$enableval], [build_ogre_demos=yes])
 
     if test "x$build_ogre_demos" = "xyes" ; then
-        PKG_CHECK_MODULES(OIS, OIS >= 0.6.0, [ois_found=yes],[ois_found=no])
+        PKG_CHECK_MODULES(OIS, OIS >= 1.0.0, [ois_found=yes],[ois_found=no])
         AC_SUBST(OIS_CFLAGS)
         AC_SUBST(OIS_LIBS)
 
