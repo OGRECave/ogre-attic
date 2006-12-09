@@ -1396,7 +1396,8 @@ namespace Ogre {
                 mScriptContext.pass->setPassIterationCount(passIterationCount);
                 if (getRemainingTokensForAction() > 1)
                 {
-                    if (getNextTokenID() == ID_PER_LIGHT)
+                    const size_t tokenID = getNextTokenID();
+                    if (tokenID == ID_PER_LIGHT)
                     {
                         if (getRemainingTokensForAction() == 1)
                         {
@@ -1407,10 +1408,10 @@ namespace Ogre {
                             mScriptContext.pass->setIteratePerLight(true, false);
                         }
                     }
-					if (getNextTokenID() == ID_PER_N_LIGHTS)
+					else if (tokenID == ID_PER_N_LIGHTS)
 					{
 						// Number of lights per iteration
-						mScriptContext.pass->setLightCountPerIteration(getNextTokenValue());
+						mScriptContext.pass->setLightCountPerIteration(static_cast<short unsigned int>(getNextTokenValue()));
 						if (getRemainingTokensForAction() == 1)
 						{
 							parseIterationLightTypes();
@@ -2564,6 +2565,14 @@ namespace Ogre {
 				{
 					mScriptContext.programParams->setAutoConstant(
 						index, autoConstantDef->acType, mScriptContext.numAnimationParametrics++);
+				}
+				// Special case texture projector - assume 0 if data not specified
+				else if (autoConstantDef->acType == GpuProgramParameters::ACT_TEXTURE_VIEWPROJ_MATRIX
+					&& getRemainingTokensForAction() == 0)
+				{
+					mScriptContext.programParams->setAutoConstant(
+						index, autoConstantDef->acType, 0);
+
 				}
 				else
 				{
