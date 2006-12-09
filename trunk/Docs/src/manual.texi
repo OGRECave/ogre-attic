@@ -1665,7 +1665,9 @@ fragment_program myCgFragmentProgram cg
 @end example
 There are a few differences between this and the assembler program - to begin with, we declare that the fragment program is of type 'cg' rather than 'asm', which indicates that it's a high-level program using Cg. The 'source' parameter is the same, except this time it's referencing a Cg source file instead of a file of assembler. @*@*
 Here is where things start to change. Firstly, we need to define an 'entry_point', which is the name of a function in the Cg program which will be the first one called as part of the fragment program. Unlike assembler programs, which just run top-to-bottom, Cg programs can include multiple functions and as such you must specify the one which start the ball rolling.@*@*
-Next, instead of a fixed 'syntax' parameter, you specify one or more 'profiles'; profiles are how Cg compiles a program down to the low-level assembler. The profiles have the same names as the assembler syntax codes mentioned above; the main difference is that you can list more than one, thus allowing the program to be compiled down to more low-level syntaxes so you can write a single high-level program which runs on both D3D and GL. You are advised to just enter the simplest profiles under which your programs can be compiled in order to give it the maximum compatibility. The ordering also matters; if a card supports more than one syntax then the one listed first will be used.
+Next, instead of a fixed 'syntax' parameter, you specify one or more 'profiles'; profiles are how Cg compiles a program down to the low-level assembler. The profiles have the same names as the assembler syntax codes mentioned above; the main difference is that you can list more than one, thus allowing the program to be compiled down to more low-level syntaxes so you can write a single high-level program which runs on both D3D and GL. You are advised to just enter the simplest profiles under which your programs can be compiled in order to give it the maximum compatibility. The ordering also matters; if a card supports more than one syntax then the one listed first will be used.@*@*
+
+Lastly, there is a final option called 'compile_arguments', where you can specify arguments exactly as you would to the cgc command-line compiler, should you wish to.
 
 @subheading DirectX9 HLSL
 DirectX9 HLSL has a very similar language syntax to Cg but is tied to the DirectX API. The only benefit over Cg is that it only requires the DirectX 9 render system plugin, not any additional plugins. Declaring a DirectX9 HLSL program is very similar to Cg. Here's an example:
@@ -1677,7 +1679,19 @@ vertex_program myHLSLVertexProgram hlsl
     target vs_2_0
 }
 @end example
-As you can see, the syntax is almost identical, except that instead of 'profiles' with a list of assembler formats, you have a 'target' parameter which allows a single assembler target to be specified - obviously this has to be a DirectX assembler format syntax code.@*@*
+As you can see, the main syntax is almost identical, except that instead of 'profiles' with a list of assembler formats, you have a 'target' parameter which allows a single assembler target to be specified - obviously this has to be a DirectX assembler format syntax code.@*@*
+
+@strong{Important Matrix Ordering Note:} One thing to bear in mind is that HLSL allows you to use 2 different ways to multiply a veector by a matrix - mul(v,m) or mul(m,v). The only difference between them is that the matrix is effectively transposed. You should use mul(m,v) with the matrices passed in from Ogre - this agrees with the shaders produced from tools like RenderMonkey, and is consistent with Cg too, but disagrees with the Dx9 SDK and FX Composer which use mul(v,m) - you will have to switch the parameters to mul() in those shaders.@*@*
+
+Note that if you use the float3x4 / matrix3x4 type in your shader, bound to an OGRE auto-definition (such as bone matrices) you should use the column_major_matrices = false option (discussed below) in your program definition. This is because OGRE passes float3x4 as row-major to save constant space (3 float4's rather than 4 float4's with only the top 3 values used) and this tells OGRE to pass all matrices like this, so that you can use mul(m,v) consistently for all calculations. OGRE will also to tell the shader to compile in row-major form (you don't have to set the /Zpr compile option or #pragma pack(row-major) option, OGRE does this for you). Note that passing bones in float4x3 form is not supported by OGRE, but you don't need it given the above.@*@*
+
+@strong{Advanced options}@*
+@table @asis
+@item preprocessor_defines <defines>
+This allows you to define symbols which can be used inside the HLSL shader code to alter the behaviour (through #ifdef or #if clauses). Definitions are separated by ';' or ',' and may optionally have a '=' operator within them to specify a definition value. Those without an '=' will implicitly have a definition of 1.
+@item column_major_matrices <true|false>
+The default for this option is 'true' so that OGRE passes matrices auto-bound matrices in a form where mul(m,v) works. Setting this option to false does 2 things - it transpose auto-bound 4x4 matrices and also sets the /Zpr (row-major) option on the shader compilation. This means you can still use mul(m,v), but the matrix layout is row-major instead. This is only useful if you need to use bone matrices (float3x4) in a shader since it saves a float4 constant for every bone involved.
+@end table
 
 @include glsl.inc
 
@@ -3266,8 +3280,6 @@ Although OGRE's OverlayElement and OverlayContainer classes are designed to be e
 @ref{BorderPanel}
 @item
 @ref{TextArea}
-@item
-@ref{TextBox}
 @end itemize
 @*
 This section describes how you define their custom attributes in an .overlay script, but you can also change these custom properties in code if you wish. You do this by calling setParameter(paramname, value). You may wish to use the StringConverter class to convert your types to and from strings.
@@ -3323,20 +3335,6 @@ A solid colour to render the text in. Often fonts are defined in monochrome, so 
 @item colour_bottom <red> <green> <blue> / colour_top <red> <green> <blue>
 As an alternative to a solid colour, you can colour the text differently at the top and bottom to create a gradient colour effect which can be very effective.
 @end table
-
-@anchor{TextBox}
-@subheading TextBox (element)
-
-This element is a box that allows text input. It is composed of 2 elements, a TextArea, which defines the size, colour etc of the text to be used when typed, and a back panel which is the box-element on which the text is written.@*@*
-
-Attributes:
-@table @asis
-@item text_area <template name> [<caption>]
-The name of the TextArea template to be used as the basis for the TextBox font. The optional caption is the text the textbox is initialised with. 
-@item back_panel <template name>
-The name of the back panel template (e.g. a @ref{BorderPanel}) to be used as the basis for the back panel on which the text is written. This needs to be a container.
-@end table
-
 
 @node Font Definition Scripts
 @section Font Definition Scripts

@@ -36,7 +36,7 @@ Torus Knot Software Ltd.
 #include "OgreStringConverter.h"
 
 namespace Ogre {
-	
+
 	/** Default pass hash function.
 	@remarks
 		Tries to minimise the number of texture changes.
@@ -162,7 +162,7 @@ namespace Ogre {
 
         _dirtyHash();
    }
-	
+
     //-----------------------------------------------------------------------------
 	Pass::Pass(Technique *parent, unsigned short index, const Pass& oth)
         :mParent(parent), mIndex(index), mQueuedForDeletion(false), mPassIterationCount(1)
@@ -317,7 +317,7 @@ namespace Ogre {
 		return mPointSpritesEnabled;
 	}
     //-----------------------------------------------------------------------
-	void Pass::setPointAttenuation(bool enabled, 
+	void Pass::setPointAttenuation(bool enabled,
 		Real constant, Real linear, Real quadratic)
 	{
 		mPointAttenuationEnabled = enabled;
@@ -499,6 +499,11 @@ namespace Ogre {
                     // its the last entry in the container so its index is size - 1
                     size_t idx = mTextureUnitStates.size() - 1;
                     state->setName( StringConverter::toString(idx) );
+                    /** since the name was never set and a default one has been made, clear the alias name
+                     so that when the texture unit name is set by the user, the alias name will be set to
+                     that name
+                    */
+                    state->setTextureNameAlias(StringUtil::BLANK);
                 }
                 // Needs recompilation
                 mParent->_notifyNeedsRecompile();
@@ -514,7 +519,7 @@ namespace Ogre {
         }
 	}
     //-----------------------------------------------------------------------
-    TextureUnitState* Pass::getTextureUnitState(unsigned short index) 
+    TextureUnitState* Pass::getTextureUnitState(unsigned short index)
     {
         assert (index < mTextureUnitStates.size() && "Index out of bounds");
 	    return mTextureUnitStates[index];
@@ -640,7 +645,7 @@ namespace Ogre {
         }
         mTextureUnitStates.clear();
         if (!mQueuedForDeletion)
-        {        
+        {
             // Needs recompilation
             mParent->_notifyNeedsRecompile();
         }
@@ -692,10 +697,10 @@ namespace Ogre {
     bool Pass::isTransparent(void) const
     {
 		// Transparent if any of the destination colour is taken into account
-		if (mDestBlendFactor == SBF_ZERO && 
-			mSourceBlendFactor != SBF_DEST_COLOUR && 
-			mSourceBlendFactor != SBF_ONE_MINUS_DEST_COLOUR && 
-			mSourceBlendFactor != SBF_DEST_ALPHA && 
+		if (mDestBlendFactor == SBF_ZERO &&
+			mSourceBlendFactor != SBF_DEST_COLOUR &&
+			mSourceBlendFactor != SBF_ONE_MINUS_DEST_COLOUR &&
+			mSourceBlendFactor != SBF_DEST_ALPHA &&
 			mSourceBlendFactor != SBF_ONE_MINUS_DEST_ALPHA)
 		{
 		    return false;
@@ -812,7 +817,7 @@ namespace Ogre {
 		return mLightsPerIteration;
 	}
     //-----------------------------------------------------------------------
-    void Pass::setIteratePerLight(bool enabled, 
+    void Pass::setIteratePerLight(bool enabled,
             bool onlyForOneLightType, Light::LightTypes lightType)
     {
         mIteratePerLight = enabled;
@@ -916,7 +921,7 @@ namespace Ogre {
 		if (mTextureUnitStates.size() > numUnits)
 		{
 			size_t start = mTextureUnitStates.size() - numUnits;
-			
+
 			Pass* newPass = mParent->createPass();
 
 			TextureUnitStates::iterator istart, i, iend;
@@ -997,7 +1002,7 @@ namespace Ogre {
 			// Load Fragment program
 			mShadowReceiverFragmentProgramUsage->_load();
 		}
-		
+
 	}
     //-----------------------------------------------------------------------
 	void Pass::_unload(void)
@@ -1045,8 +1050,8 @@ namespace Ogre {
 	{
 		if (!mVertexProgramUsage)
         {
-            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS, 
-                "This pass does not have a vertex program assigned!", 
+            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS,
+                "This pass does not have a vertex program assigned!",
                 "Pass::setVertexProgramParameters");
         }
 		mVertexProgramUsage->setParameters(params);
@@ -1076,8 +1081,8 @@ namespace Ogre {
 	{
 		if (!mFragmentProgramUsage)
         {
-            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS, 
-                "This pass does not have a fragment program assigned!", 
+            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS,
+                "This pass does not have a fragment program assigned!",
                 "Pass::setFragmentProgramParameters");
         }
 		mFragmentProgramUsage->setParameters(params);
@@ -1095,8 +1100,8 @@ namespace Ogre {
 	{
 		if (!mVertexProgramUsage)
         {
-            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS, 
-                "This pass does not have a vertex program assigned!", 
+            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS,
+                "This pass does not have a vertex program assigned!",
                 "Pass::getVertexProgramParameters");
         }
 		return mVertexProgramUsage->getParameters();
@@ -1144,7 +1149,7 @@ namespace Ogre {
            14     Hashed texture name from unit 1
 
            Note that at the moment we don't sort on the 3rd texture unit plus
-           on the assumption that these are less frequently used; sorting on 
+           on the assumption that these are less frequently used; sorting on
            the first 2 gives us the most benefit for now.
        */
         mHash = (*msHashFunc)(this);
@@ -1271,14 +1276,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool Pass::isAmbientOnly(void) const
     {
-        // treat as ambient if lighting is off, or colour write is off, 
+        // treat as ambient if lighting is off, or colour write is off,
         // or all non-ambient (& emissive) colours are black
         // NB a vertex program could override this, but passes using vertex
-        // programs are expected to indicate they are ambient only by 
-        // setting the state so it matches one of the conditions above, even 
+        // programs are expected to indicate they are ambient only by
+        // setting the state so it matches one of the conditions above, even
         // though this state is not used in rendering.
         return (!mLightingEnabled || !mColourWrite ||
-            (mDiffuse == ColourValue::Black && 
+            (mDiffuse == ColourValue::Black &&
              mSpecular == ColourValue::Black));
     }
     //-----------------------------------------------------------------------
@@ -1306,8 +1311,8 @@ namespace Ogre {
     {
         if (!mShadowCasterVertexProgramUsage)
         {
-            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS, 
-                "This pass does not have a shadow caster vertex program assigned!", 
+            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS,
+                "This pass does not have a shadow caster vertex program assigned!",
                 "Pass::setShadowCasterVertexProgramParameters");
         }
         mShadowCasterVertexProgramUsage->setParameters(params);
@@ -1325,8 +1330,8 @@ namespace Ogre {
     {
         if (!mShadowCasterVertexProgramUsage)
         {
-            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS, 
-                "This pass does not have a shadow caster vertex program assigned!", 
+            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS,
+                "This pass does not have a shadow caster vertex program assigned!",
                 "Pass::getShadowCasterVertexProgramParameters");
         }
         return mShadowCasterVertexProgramUsage->getParameters();
@@ -1361,8 +1366,8 @@ namespace Ogre {
     {
         if (!mShadowReceiverVertexProgramUsage)
         {
-            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS, 
-                "This pass does not have a shadow receiver vertex program assigned!", 
+            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS,
+                "This pass does not have a shadow receiver vertex program assigned!",
                 "Pass::setShadowReceiverVertexProgramParameters");
         }
         mShadowReceiverVertexProgramUsage->setParameters(params);
@@ -1380,8 +1385,8 @@ namespace Ogre {
     {
         if (!mShadowReceiverVertexProgramUsage)
         {
-            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS, 
-                "This pass does not have a shadow receiver vertex program assigned!", 
+            OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS,
+                "This pass does not have a shadow receiver vertex program assigned!",
                 "Pass::getShadowReceiverVertexProgramParameters");
         }
         return mShadowReceiverVertexProgramUsage->getParameters();
@@ -1416,8 +1421,8 @@ namespace Ogre {
 	{
 		if (!mShadowReceiverFragmentProgramUsage)
 		{
-			OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS, 
-				"This pass does not have a shadow receiver fragment program assigned!", 
+			OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS,
+				"This pass does not have a shadow receiver fragment program assigned!",
 				"Pass::setShadowReceiverFragmentProgramParameters");
 		}
 		mShadowReceiverFragmentProgramUsage->setParameters(params);
@@ -1435,8 +1440,8 @@ namespace Ogre {
 	{
 		if (!mShadowReceiverFragmentProgramUsage)
 		{
-			OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS, 
-				"This pass does not have a shadow receiver fragment program assigned!", 
+			OGRE_EXCEPT (Exception::ERR_INVALIDPARAMS,
+				"This pass does not have a shadow receiver fragment program assigned!",
 				"Pass::getShadowReceiverFragmentProgramParameters");
 		}
 		return mShadowReceiverFragmentProgramUsage->getParameters();
