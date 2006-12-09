@@ -1260,7 +1260,10 @@ protected:
 		cbo->getPushButton()->subscribeEvent(CEGUI::Window::EventMouseLeaves, 
 			CEGUI::Event::Subscriber(&ShadowsApplication::handleMouseLeave, this));
 		// Populate projection
+		// Get a select image to be used for highlighting items in listbox when mouse moves over them
+		const CEGUI::Image* selectImage = &CEGUI::ImagesetManager::getSingleton().getImageset("TaharezLook")->getImage("MultiListSelectionBrush");
 		CEGUI::ListboxTextItem* li = new CEGUI::ListboxTextItem("Uniform", UNIFORM);
+        li->setSelectionBrushImage(selectImage);
 		li->setTooltipText("Uniform: Shadows are rendered and projected using a uniform "
 			"frustum for the whole light coverage. Simple and lowest quality.");
 		cbo->addItem(li);
@@ -1268,16 +1271,19 @@ protected:
 		cbo->setText("Uniform");
 		mCurrentProjection = UNIFORM;
 		li = new CEGUI::ListboxTextItem("Uniform Focused", UNIFORM_FOCUSED);
+        li->setSelectionBrushImage(selectImage);
 		li->setTooltipText("Uniform Focused: As Uniform except that the frustum is "
 			"focused on the visible area of the camera. Better quality than Uniform "
 			"at the expense of some 'swimming'.");
 		cbo->addItem(li);
 		li = new CEGUI::ListboxTextItem("LiSPSM", LISPSM);
+        li->setSelectionBrushImage(selectImage);
 		li->setTooltipText("LiSPSM: The frustum is distorted to take into account "
 			"the perspective of the camera, and focused on the visible area. "
 			"Good quality & flexibility.");
 		cbo->addItem(li);
 		li = new CEGUI::ListboxTextItem("Plane Optimal", PLANE_OPTIMAL);
+        li->setSelectionBrushImage(selectImage);
 		li->setTooltipText("Plane Optimal: The frustum is optimised to project "
 			"shadows onto a plane of interest. Best possible quality for the "
 			"plane, less good for other receiver angles.");
