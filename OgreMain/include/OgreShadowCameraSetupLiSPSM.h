@@ -146,7 +146,7 @@ namespace Ogre
 
 		/** Calculates a simpler version than the one above.
 		*/
-		Real LiSPSMShadowCameraSetup::calculateNOptSimple(const PointListBody& bodyLVS, 
+		Real calculateNOptSimple(const PointListBody& bodyLVS, 
 			const Camera& cam) const;
 
 		/** Calculates the visible point on the near plane for the n_opt calculation
