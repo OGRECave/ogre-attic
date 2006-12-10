@@ -85,11 +85,11 @@ public:
 		windowHndStr << windowHnd;
 		pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
 
-		InputManager &im = *InputManager::createInputSystem( pl );
+		mInputManager = InputManager::createInputSystem( pl );
 
 		//Create all devices (We only catch joystick exceptions here, as, most people have Key/Mouse)
-		mKeyboard = static_cast<Keyboard*>(im.createInputObject( OISKeyboard, bufferedKeys ));
-		mMouse = static_cast<Mouse*>(im.createInputObject( OISMouse, bufferedMouse ));
+		mKeyboard = static_cast<Keyboard*>(mInputManager->createInputObject( OISKeyboard, bufferedKeys ));
+		mMouse = static_cast<Mouse*>(mInputManager->createInputObject( OISMouse, bufferedMouse ));
 
 		unsigned int width, height, depth;
 		int left, top;
@@ -112,12 +112,12 @@ public:
     }
     virtual ~ExampleRefAppFrameListener()
     {
-		OIS::InputManager* im = OIS::InputManager::getSingletonPtr();
-		if(im)
+		if(mInputManager)
 		{
-			im->destroyInputObject(mMouse);
-			im->destroyInputObject(mKeyboard);
-			im->destroyInputSystem();
+			mInputManager->destroyInputObject(mMouse);
+			mInputManager->destroyInputObject(mKeyboard);
+			OIS::InputManager::destroyInputSystem(mInputManager);
+			mInputManager = 0;
 		}
     }
 
@@ -182,13 +182,13 @@ public:
 		const MouseState &ms = mMouse->getMouseState();
 		if( ms.buttonDown( MB_Right ) )
 		{
-			mTranslateVector.x += ms.relX * 0.13;
-			mTranslateVector.y -= ms.relY * 0.13;
+			mTranslateVector.x += ms.X.rel * 0.13;
+			mTranslateVector.y -= ms.Y.rel * 0.13;
 		}
 		else
 		{
-			mRotX = Degree(-ms.relX * 0.13);
-			mRotY = Degree(-ms.relY * 0.13);
+			mRotX = Degree(-ms.X.rel * 0.13);
+			mRotY = Degree(-ms.Y.rel * 0.13);
 		}
 
 		return true;
@@ -268,7 +268,8 @@ public:
 protected:
 	OIS::Mouse *mMouse;
 	OIS::Keyboard *mKeyboard;
-
+    OIS::InputManager *mInputManager;
+    
     CollideCamera* mCamera;
     Vector3 mTranslateVector;
     RenderWindow* mWindow;
