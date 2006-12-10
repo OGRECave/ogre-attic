@@ -72,7 +72,7 @@ namespace Ogre {
         iend = m2DElements.end();
         for (i = m2DElements.begin(); i != iend; ++i)
         {
-            (*i)->_notifyZOrder(zorder);
+            (*i)->_notifyZOrder(zorder * 100);
         }
 
     }
