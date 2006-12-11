@@ -61,7 +61,6 @@ namespace Ogre {
 		mInitialPosition(Vector3::ZERO),
 		mInitialOrientation(Quaternion::IDENTITY),
 		mInitialScale(Vector3::UNIT_SCALE),
-		mAccumAnimWeight(0.0f),
 		mCachedTransformOutOfDate(true),
 		mListener(0)
     {
@@ -92,7 +91,6 @@ namespace Ogre {
 		mInitialPosition(Vector3::ZERO),
 		mInitialOrientation(Quaternion::IDENTITY),
 		mInitialScale(Vector3::UNIT_SCALE),
-		mAccumAnimWeight(0.0f),
 		mCachedTransformOutOfDate(true),
 		mListener(0)
 
@@ -684,12 +682,6 @@ namespace Ogre {
         mOrientation = mInitialOrientation;
         mScale = mInitialScale;
 
-        // Reset weights
-        mAccumAnimWeight = 0.0f;
-        mTransFromInitial = Vector3::ZERO;
-        mRotFromInitial = Quaternion::IDENTITY;
-        mScaleFromInitial = Vector3::UNIT_SCALE;
-
         needUpdate();
     }
     //-----------------------------------------------------------------------
@@ -753,44 +745,6 @@ namespace Ogre {
 	{
 		return ConstChildNodeIterator(mChildren.begin(), mChildren.end());
 	}
-    //-----------------------------------------------------------------------
-    void Node::_weightedTransform(Real weight, const Vector3& translate,
-       const Quaternion& rotate, const Vector3& scale)
-    {
-        // Do nothing if zero weight
-        if (!weight)
-            return;
-
-        // If no previous transforms, we can just apply
-        if (mAccumAnimWeight == 0.0f)
-        {
-            mRotFromInitial = rotate;
-            mTransFromInitial = translate;
-            mScaleFromInitial = scale;
-            mAccumAnimWeight = weight;
-        }
-        else
-        {
-            // Blend with existing
-            Real factor = weight / (mAccumAnimWeight + weight);
-            mTransFromInitial += (translate - mTransFromInitial) * factor;
-            mRotFromInitial =
-                Quaternion::Slerp(factor, mRotFromInitial, rotate);
-            // For scale, find delta from 1.0, factor then add back before applying
-            Vector3 scaleDiff = (scale / mScaleFromInitial - Vector3::UNIT_SCALE) * factor;
-            mScaleFromInitial = mScaleFromInitial *
-                (scaleDiff + Vector3::UNIT_SCALE);
-            mAccumAnimWeight += weight;
-
-        }
-
-        // Update final based on bind position + offsets
-        mOrientation = mInitialOrientation * mRotFromInitial;
-        mPosition = mInitialPosition + mTransFromInitial;
-        mScale = mInitialScale * mScaleFromInitial;
-        needUpdate();
-
-    }
     //-----------------------------------------------------------------------
     Real Node::getSquaredViewDepth(const Camera* cam) const
     {

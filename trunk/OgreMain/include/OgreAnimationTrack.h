@@ -130,12 +130,10 @@ namespace Ogre
         @param timePos The time position in the animation to apply.
         @param weight The influence to give to this track, 1.0 for full influence, less to blend with
           other animations.
-		@param acculumate Don't make weights relative to overall weights applied, 
-			make them absolute and just add.
 	    @param scale The scale to apply to translations and scalings, useful for 
 			adapting an animation to a different size target.
         */
-        virtual void apply(Real timePos, Real weight = 1.0, bool accumulate = false, 
+        virtual void apply(Real timePos, Real weight = 1.0,  
 			Real scale = 1.0f) = 0;
 
         /** Internal method used to tell the track that keyframe data has been 
@@ -191,8 +189,7 @@ namespace Ogre
 		void getInterpolatedKeyFrame(Real timeIndex, KeyFrame* kf) const;
 
 		/// @copydoc AnimationTrack::apply
-		void apply(Real timePos, Real weight = 1.0, bool accumulate = false, 
-			Real scale = 1.0f);
+		void apply(Real timePos, Real weight = 1.0, Real scale = 1.0f);
 
         /** Applies an animation track to a given animable value.
 		@param anim The AnimableValue to which to apply the animation
@@ -255,7 +252,7 @@ namespace Ogre
 
 		/** As the 'apply' method but applies to a specified Node instead of associated node. */
 		virtual void applyToNode(Node* node, Real timePos, Real weight = 1.0, 
-			bool accumulate = false, Real scale = 1.0f);
+			Real scale = 1.0f);
 
 		/** Sets the method of rotation calculation */
 		virtual void setUseShortestRotationPath(bool useShortestPath);
@@ -267,8 +264,7 @@ namespace Ogre
 		void getInterpolatedKeyFrame(Real timeIndex, KeyFrame* kf) const;
 
 		/// @copydoc AnimationTrack::apply
-		void apply(Real timePos, Real weight = 1.0, bool accumulate = false, 
-			Real scale = 1.0f);
+		void apply(Real timePos, Real weight = 1.0, Real scale = 1.0f);
 
 		/// @copydoc AnimationTrack::_keyFrameDataChanged
 		void _keyFrameDataChanged(void) const;
@@ -418,8 +414,7 @@ namespace Ogre
 		void getInterpolatedKeyFrame(Real timeIndex, KeyFrame* kf) const {}
 
 		/// @copydoc AnimationTrack::apply
-		void apply(Real timePos, Real weight = 1.0, bool accumulate = false, 
-			Real scale = 1.0f);
+		void apply(Real timePos, Real weight = 1.0, Real scale = 1.0f);
 
 		/** As the 'apply' method but applies to specified VertexData instead of 
 			associated data. */

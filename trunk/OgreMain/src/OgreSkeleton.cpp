@@ -217,6 +217,31 @@ namespace Ogre {
         // Reset bones
         reset();
 
+		Real weightFactor = 1.0f;
+		if (mBlendState == ANIMBLEND_AVERAGE)
+		{
+			// Derive total weights so we can rebalance if > 1.0f
+			Real totalWeights = 0.0f;
+			ConstEnabledAnimationStateIterator stateIt = 
+				animSet.getEnabledAnimationStateIterator();
+			while (stateIt.hasMoreElements())
+			{
+				const AnimationState* animState = stateIt.getNext();
+				// Make sure we have an anim to match implementation
+				const LinkedSkeletonAnimationSource* linked = 0;
+				if (_getAnimationImpl(animState->getAnimationName(), &linked))
+				{
+					totalWeights += animState->getWeight();
+				}
+			}
+
+			// Allow < 1.0f, allows fade out of all anims if required 
+			if (totalWeights > 1.0f)
+			{
+				weightFactor = 1.0f / totalWeights;
+			}
+		}
+
         // Per enabled animation state
         ConstEnabledAnimationStateIterator stateIt = 
             animSet.getEnabledAnimationStateIterator();
@@ -230,13 +255,13 @@ namespace Ogre {
             {
                 if (linked)
                 {
-                    anim->apply(this, animState->getTimePosition(), animState->getWeight(), 
-                        mBlendState == ANIMBLEND_CUMULATIVE, linked->scale);
+                    anim->apply(this, animState->getTimePosition(), 
+						animState->getWeight() * weightFactor, linked->scale);
                 }
                 else
                 {
-                    anim->apply(this, animState->getTimePosition(), animState->getWeight(), 
-                        mBlendState == ANIMBLEND_CUMULATIVE);
+                    anim->apply(this, animState->getTimePosition(), 
+						animState->getWeight() * weightFactor);
                 }
             }
         }
