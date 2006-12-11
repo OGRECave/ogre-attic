@@ -36,6 +36,7 @@ Torus Knot Software Ltd.
 #include "OgreLight.h"
 #include "OgrePlane.h"
 #include "OgreConvexBody.h"
+#include "OgreLogManager.h"
 
 
 namespace Ogre
@@ -194,21 +195,64 @@ namespace Ogre
 
 		// get V
 		bodyB.define(cam);
+		// TEST
+		/*
+		{
+			StringUtil::StrStreamType str;
+			str << "Initial camera body: " << std::endl;
+			str << bodyB;
+			LogManager::getSingleton().logMessage(str.str());
+		}
+		*/
 
 		if (light.getType() != Light::LT_DIRECTIONAL)
 		{
 			// clip bodyB with sceneBB
-			// (!) valid elements of the scene may be clipped accidentally during the final focus step 
-			// (!) when the body is clipped here with the 'normal' sceneBB
-			// (!) (leave the following line commented out - see method description for more info)
-			//bodyB.clipWithAAB(sceneBB);
+			/* Note, Matthias' original code states this:
+			"The procedure ((V \cap S) + l) \cap S \cap L (Wimmer et al.) leads in some 
+			cases to disappearing shadows. Valid parts of the scene are clipped, so shadows 
+			are partly incomplete. The cause may be the	transformation into light space that 
+			is only done for the corner points which may not contain the whole scene afterwards 
+			any more. So we fall back to the method of Stamminger et al. (V + l) \cap S \cap L 
+			which does not show these anomalies."
+
+			.. leading to the commenting out of the below clip. However, ift makes a major
+			difference to the quality of the focus, and so far I haven't noticed
+			the clipping issues described. Intuitively I would have thought that
+			any clipping issue would be due to the findCastersForLight not being
+			quite right, since if the sceneBB includes those there is no reason for
+			this clip instruction to omit a genuine shadow caster.
+
+			I have uncommented this line of code since the quality effect is
+			major. Review the caster finding code if we get the issues he describes.
+			*/
+			bodyB.clip(sceneBB);
 
 			// form a convex hull of bodyB with the light position
 			bodyB.extend(light.getDerivedPosition());
 
+			// TEST
+			/*
+			{
+				StringUtil::StrStreamType str;
+				str << "After extend to light point at " << light.getDerivedPosition() << std::endl;
+				str << bodyB;
+				LogManager::getSingleton().logMessage(str.str());
+			}
+			*/
+
 			// clip bodyB with sceneBB
 			bodyB.clip(sceneBB);
 
+			// TEST
+			/*
+			{
+				StringUtil::StrStreamType str;
+				str << "After clip with sceneBB " << sceneBB << std::endl;
+				str << bodyB;
+				LogManager::getSingleton().logMessage(str.str());
+			}
+			*/
 			// clip with the light frustum
 			// set up light camera to clip with the resulting frustum planes
 			calculateShadowMappingMatrix(sm, cam, light, NULL, NULL, mTempCamera);
@@ -216,6 +260,16 @@ namespace Ogre
 
 			// extract bodyB vertices
 			out_bodyB->build(bodyB);
+
+			// TEST
+			/*
+			{
+				StringUtil::StrStreamType str;
+				str << "Final intersection: " << std::endl;
+				str << bodyB;
+				LogManager::getSingleton().logMessage(str.str());
+			}
+			*/
 		}
 		else
 		{

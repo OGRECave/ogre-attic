@@ -162,13 +162,6 @@ namespace Ogre {
 		bodyB points towards the negative light direction. The rays are intersected 
 		by a maximum bounding box and added to the bodyB points to form the final 
 		intersection bodyB point list.
-		@note
-		The procedure ((V \cap S) + l) \cap S \cap L (Wimmer et al.) leads in some 
-		cases to disappearing shadows. Valid parts of the scene are clipped, so shadows 
-		are partly incomplete. The cause may be the	transformation into light space that 
-		is only done for the corner points which may not contain the whole scene afterwards 
-		any more. So we fall back to the method of Stamminger et al. (V + l) \cap S \cap L 
-		which does not show these anomalies.
 		@param sm: scene manager
 		@param cam: currently active camera
 		@param light: currently active light
