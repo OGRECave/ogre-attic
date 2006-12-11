@@ -292,35 +292,35 @@ namespace Ogre {
         return mName;
     }
     //---------------------------------------------------------------------
-	void Animation::apply(Real timePos, Real weight, bool accumulate, Real scale)
+	void Animation::apply(Real timePos, Real weight, Real scale)
     {
         NodeTrackList::iterator i;
         for (i = mNodeTrackList.begin(); i != mNodeTrackList.end(); ++i)
         {
-            i->second->apply(timePos, weight, accumulate, scale);
+            i->second->apply(timePos, weight, scale);
         }
 		NumericTrackList::iterator j;
 		for (j = mNumericTrackList.begin(); j != mNumericTrackList.end(); ++j)
 		{
-			j->second->apply(timePos, weight, accumulate, scale);
+			j->second->apply(timePos, weight, scale);
 		}
 		VertexTrackList::iterator k;
 		for (k = mVertexTrackList.begin(); k != mVertexTrackList.end(); ++k)
 		{
-			k->second->apply(timePos, weight, accumulate, scale);
+			k->second->apply(timePos, weight, scale);
 		}
 
     }
     //---------------------------------------------------------------------
     void Animation::apply(Skeleton* skel, Real timePos, Real weight, 
-		bool accumulate, Real scale)
+		Real scale)
     {
         NodeTrackList::iterator i;
         for (i = mNodeTrackList.begin(); i != mNodeTrackList.end(); ++i)
         {
             // get bone to apply to 
             Bone* b = skel->getBone(i->first);
-            i->second->applyToNode(b, timePos, weight, accumulate, scale);
+            i->second->applyToNode(b, timePos, weight, scale);
         }
 
 
