@@ -331,6 +331,7 @@ public:
 
 		mRootGuiPanel = CEGUI::WindowManager::getSingleton().getWindow("Shadows");
 
+		/*
 		// Set up a debug panel to display the shadow
 		MaterialPtr debugMat = MaterialManager::getSingleton().create(
 			"Ogre/DebugShadowMap", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
@@ -349,6 +350,7 @@ public:
 		debugPanel->setMaterialName("Ogre/DebugShadowMap");
 		Overlay* debugOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
 		debugOverlay->add2D(debugPanel);
+		*/
 
     }
 
@@ -1022,45 +1024,39 @@ protected:
         mAthene = mSceneMgr->createEntity( "athene", "athene.mesh" );
         mAthene->setMaterialName("Examples/Athene/NormalMapped");
         node->attachObject( mAthene );
-        node->translate(0,-20, 0);
+        node->translate(0,-27, 0);
         node->yaw(Degree(90));
 
         Entity* pEnt;
+		// Columns
+		for (int x = -2; x <= 2; ++x)
+		{
+			for (int z = -2; z <= 2; ++z)
+			{
+				if (x != 0 || z != 0)
+				{
+					StringUtil::StrStreamType str;
+					str << "col" << x << "_" << z;
+					node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+					pEnt = mSceneMgr->createEntity( str.str(), "column.mesh" );
+					pEnt->setMaterialName(BASIC_ROCKWALL_MATERIAL);
+					pColumns.push_back(pEnt);
+					node->attachObject( pEnt );
+					node->translate(x*300,0, z*300);
 
-        node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-        pEnt = mSceneMgr->createEntity( "col1", "column.mesh" );
-        pEnt->setMaterialName(BASIC_ROCKWALL_MATERIAL);
-		pColumns.push_back(pEnt);
-        node->attachObject( pEnt );
-        node->translate(200,0, -200);
+				}
+			}
 
-        node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-        pEnt = mSceneMgr->createEntity( "col2", "column.mesh" );
-        pEnt->setMaterialName(BASIC_ROCKWALL_MATERIAL);
-		pColumns.push_back(pEnt);
-        node->attachObject( pEnt );
-        node->translate(200,0, 200);
+		}
 
-        node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-        pEnt = mSceneMgr->createEntity( "col3", "column.mesh" );
-		pColumns.push_back(pEnt);
-        pEnt->setMaterialName(BASIC_ROCKWALL_MATERIAL);
-        node->attachObject( pEnt );
-        node->translate(-200,0, -200);
 
-        node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-        pEnt = mSceneMgr->createEntity( "col4", "column.mesh" );
-		pColumns.push_back(pEnt);
-        pEnt->setMaterialName(BASIC_ROCKWALL_MATERIAL);
-        node->attachObject( pEnt );
-        node->translate(-200,0, 200);
         // Skybox
         mSceneMgr->setSkyBox(true, "Examples/StormySkyBox");
 
         // Floor plane (use POSM plane def)
 		mPlane = new MovablePlane("*mPlane");
         mPlane->normal = Vector3::UNIT_Y;
-        mPlane->d = 100;
+        mPlane->d = 107;
         MeshManager::getSingleton().createPlane("Myplane",
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, *mPlane,
             1500,1500,50,50,true,1,5,5,Vector3::UNIT_Z);
@@ -1102,6 +1098,9 @@ protected:
 				mShadowTechSupported[CUSTOM_DEPTH_SHADOWMAPPING] = false;
 			}
 		}
+
+		mCamera->setPosition(500, 70, 600);
+		mCamera->lookAt(0, 20, 0);
 
 
     }
