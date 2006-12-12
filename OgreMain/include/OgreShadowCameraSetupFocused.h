@@ -46,7 +46,7 @@ namespace Ogre {
 		shadow map texel usage, at the expense of some 'swimming' of the shadow
 		texture on receivers as the basis is constantly being reevaluated.
 	@note
-		Implementation by Matthias Fink <matthias.fink@web.de>, 2006.
+		Original implementation by Matthias Fink <matthias.fink@web.de>, 2006.
 	*/
 	class _OgreExport FocusedShadowCameraSetup : public ShadowCameraSetup
 	{
@@ -70,6 +70,9 @@ namespace Ogre {
 		*/
 		Camera* mLightFrustumCamera;
 		mutable bool mLightFrustumCameraCalculated;
+
+		/// Use tighter focus region?
+		bool mUseAggressiveRegion;
 
 		/** Internal class holding a point list representation of a convex body.
 		*/
@@ -247,6 +250,24 @@ namespace Ogre {
 		*/
 		virtual void getShadowCamera(const SceneManager *sm, const Camera *cam, 
 			const Viewport *vp, const Light *light, Camera *texCam) const;
+
+		/** Sets whether or not to use the more agressive approach to deciding on
+			the focus region or not.
+		@note
+			There are 2 approaches that can  be used to define the focus region,
+			the more aggressive way introduced by Wimmer et al, or the original
+			way as described in Stamminger et al. Wimmer et al's way tends to 
+			come up with a tighter focus region but in rare cases (mostly highly
+			glancing angles) can cause some shadow casters to be clipped 
+			incorrectly. By default the more aggressive approach is used since it
+			leads to significantly better results in most cases, but if you experience
+			clipping issues, you can use the less agressive version.
+		@param aggressive True to use the more agressive approach, false otherwise.
+		*/
+		void setUseAggressiveFocusRegion(bool aggressive) { mUseAggressiveRegion = aggressive; }
+
+		bool getUseAggressiveFocusRegion() const { return mUseAggressiveRegion; }
+
 	};
 
 

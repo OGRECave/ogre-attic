@@ -42,7 +42,7 @@ namespace Ogre
 
 
 	LiSPSMShadowCameraSetup::LiSPSMShadowCameraSetup(void)
-		: mOptAdjustFactor(5.0f), mUseSimpleNOpt(false)
+		: mOptAdjustFactor(0.1f), mUseSimpleNOpt(true)
 	{
 	}
 	//-----------------------------------------------------------------------
