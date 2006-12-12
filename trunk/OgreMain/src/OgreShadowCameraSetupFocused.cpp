@@ -58,6 +58,7 @@ namespace Ogre
 		: mTempFrustum(new Frustum())
 		, mLightFrustumCamera(new Camera("TEMP LIGHT INTERSECT CAM", NULL))
 		, mLightFrustumCameraCalculated(false)
+		, mUseAggressiveRegion(true)
 	{
 		mTempFrustum->setProjectionType(PT_PERSPECTIVE);
 	}
@@ -224,10 +225,11 @@ namespace Ogre
 			quite right, since if the sceneBB includes those there is no reason for
 			this clip instruction to omit a genuine shadow caster.
 
-			I have uncommented this line of code since the quality effect is
-			major. Review the caster finding code if we get the issues he describes.
+			I have made this a user option since the quality effect is major and
+			the clipping problem only seems to occur in some specific cases. 
 			*/
-			bodyB.clip(sceneBB);
+			if (mUseAggressiveRegion)
+				bodyB.clip(sceneBB);
 
 			// form a convex hull of bodyB with the light position
 			bodyB.extend(light.getDerivedPosition());

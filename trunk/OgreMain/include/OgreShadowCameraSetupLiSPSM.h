@@ -88,7 +88,7 @@ namespace Ogre
 	More information can be found on the webpage of the TU Wien: 
 	http://www.cg.tuwien.ac.at/research/vr/lispsm/
 	@note
-	Implementation by Matthias Fink <matthias.fink@web.de>, 2006.
+	Original implementation by Matthias Fink <matthias.fink@web.de>, 2006.
 	*/
 	class _OgreExport LiSPSMShadowCameraSetup : public FocusedShadowCameraSetup
 	{
@@ -199,7 +199,7 @@ namespace Ogre
 		have shown that the warping effect is somewhat too strong. 
 		However this may change from scene to scene, you can use this setter to 
 		tweak it as you need.
-		@param n The adjustment factor - default is 5.0f.
+		@param n The adjustment factor - default is 0.1f.
 		*/
 		virtual void setOptimalAdjustFactor(Real n) { mOptAdjustFactor = n; }
 		/** Get the parameter n used to produce optimal shadows. 
@@ -207,11 +207,11 @@ namespace Ogre
 		*/
 		virtual Real getOptimalAdjustFactor() const { return mOptAdjustFactor; }
 		/** Sets whether or not to use a slightly simpler version of the 
-			camera near point derivation (default is false)
+			camera near point derivation (default is true)
 		*/
 		virtual void setUseSimpleOptimalAdjust(bool s) { mUseSimpleNOpt = s; }
 		/** Gets whether or not to use a slightly simpler version of the 
-		camera near point derivation (default is false)
+		camera near point derivation (default is true)
 		*/
 		virtual bool getUseSimpleOptimalAdjust() const { return mUseSimpleNOpt; }
 
