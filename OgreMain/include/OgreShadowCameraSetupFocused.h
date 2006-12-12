@@ -68,7 +68,8 @@ namespace Ogre {
 
 		/** Temporary preallocated camera to set up a light frustum for clipping in ::calculateB.
 		*/
-		Camera* mTempCamera;
+		Camera* mLightFrustumCamera;
+		mutable bool mLightFrustumCameraCalculated;
 
 		/** Internal class holding a point list representation of a convex body.
 		*/

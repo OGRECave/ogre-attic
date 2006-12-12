@@ -56,7 +56,8 @@ namespace Ogre
 
 	FocusedShadowCameraSetup::FocusedShadowCameraSetup(void)
 		: mTempFrustum(new Frustum())
-		, mTempCamera(new Camera("TEMP LIGHT INTERSECT CAM", NULL))
+		, mLightFrustumCamera(new Camera("TEMP LIGHT INTERSECT CAM", NULL))
+		, mLightFrustumCameraCalculated(false)
 	{
 		mTempFrustum->setProjectionType(PT_PERSPECTIVE);
 	}
@@ -64,7 +65,7 @@ namespace Ogre
 	FocusedShadowCameraSetup::~FocusedShadowCameraSetup(void)
 	{
 		delete mTempFrustum;
-		delete mTempCamera;
+		delete mLightFrustumCamera;
 	}
 	//-----------------------------------------------------------------------
 	void FocusedShadowCameraSetup::calculateShadowMappingMatrix(const SceneManager& sm,
@@ -255,8 +256,12 @@ namespace Ogre
 			*/
 			// clip with the light frustum
 			// set up light camera to clip with the resulting frustum planes
-			calculateShadowMappingMatrix(sm, cam, light, NULL, NULL, mTempCamera);
-			bodyB.clip(*mTempCamera);
+			if (!mLightFrustumCameraCalculated)
+			{
+				calculateShadowMappingMatrix(sm, cam, light, NULL, NULL, mLightFrustumCamera);
+				mLightFrustumCameraCalculated = true;
+			}
+			bodyB.clip(*mLightFrustumCamera);
 
 			// extract bodyB vertices
 			out_bodyB->build(bodyB);
@@ -302,8 +307,12 @@ namespace Ogre
 		{
 			// clip with the light frustum
 			// set up light camera to clip the resulting frustum
-			calculateShadowMappingMatrix(sm, cam, light, NULL, NULL, mTempCamera);
-			bodyLVS.clip(*mTempCamera);
+			if (!mLightFrustumCameraCalculated)
+			{
+				calculateShadowMappingMatrix(sm, cam, light, NULL, NULL, mLightFrustumCamera);
+				mLightFrustumCameraCalculated = true;
+			}
+			bodyLVS.clip(*mLightFrustumCamera);
 		}
 
 		// clip the body with the scene bounding box
@@ -423,6 +432,7 @@ namespace Ogre
 		OgreAssert(cam != NULL, "Camera (viewer) is NULL");
 		OgreAssert(light != NULL, "Light is NULL");
 		OgreAssert(texCam != NULL, "Camera (texture) is NULL");
+		mLightFrustumCameraCalculated = false;
 
 		// calculate standard shadow mapping matrix
 		Matrix4 LView, LProj;
