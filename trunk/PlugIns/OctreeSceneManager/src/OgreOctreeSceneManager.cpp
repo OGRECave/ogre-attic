@@ -685,11 +685,7 @@ void OctreeSceneManager::walkOctree( OctreeCamera *camera, RenderQueue *queue, O
             {
 
                 mNumObjects++;
-                sn -> _addToRenderQueue(camera, queue, onlyShadowCasters );
-
-				// update visible boundaries aab
-				if ( visibleBounds != NULL )
-					visibleBounds->merge( sn->_getWorldAABB() );
+                sn -> _addToRenderQueue(camera, queue, onlyShadowCasters, visibleBounds );
 
                 mVisible.push_back( sn );
 

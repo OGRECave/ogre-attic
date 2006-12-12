@@ -155,7 +155,8 @@ bool OctreeNode::_isIn( AxisAlignedBox &box )
 }
 
 /** Addes the attached objects of this OctreeScene node into the queue. */
-void OctreeNode::_addToRenderQueue( Camera* cam, RenderQueue *queue, bool onlyShadowCasters )
+void OctreeNode::_addToRenderQueue( Camera* cam, RenderQueue *queue, 
+	bool onlyShadowCasters, AxisAlignedBox* visibleBounds )
 {
     ObjectMap::iterator mit = mObjectsByName.begin();
 
@@ -168,6 +169,9 @@ void OctreeNode::_addToRenderQueue( Camera* cam, RenderQueue *queue, bool onlySh
             (!onlyShadowCasters || mo->getCastShadows()))
         {
             mo -> _updateRenderQueue( queue );
+
+			if (visibleBounds)
+				visibleBounds->merge(mo->getWorldBoundingBox(true));
         }
 
         ++mit;
