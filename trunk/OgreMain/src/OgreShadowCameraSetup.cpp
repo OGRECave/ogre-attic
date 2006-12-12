@@ -50,6 +50,10 @@ namespace Ogre
 	{
 		Vector3 pos, dir;
 
+		// reset custom view / projection matrix in case already set
+		texCam->setCustomViewMatrix(false);
+		texCam->setCustomProjectionMatrix(false);
+
 		// get the shadow frustum's far distance
 		Real shadowDist = sm->getShadowFarDistance();
 		if (!shadowDist)

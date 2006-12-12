@@ -227,6 +227,8 @@ namespace Ogre
 		OgreAssert(cam != NULL, "Camera (viewer) is NULL");
 		OgreAssert(light != NULL, "Light is NULL");
 		OgreAssert(texCam != NULL, "Camera (texture) is NULL");
+		mLightFrustumCameraCalculated = false;
+
 
 		// calculate standard shadow mapping matrix
 		Matrix4 LView, LProj;
