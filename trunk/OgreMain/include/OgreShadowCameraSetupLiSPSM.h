@@ -194,12 +194,15 @@ namespace Ogre
 
 		/** Adjusts the parameter n to produce optimal shadows.
 		@remarks
-		If the parameter n is small the perspective warping effect will be strong. As a con-
-		sequence the near shadows will gain quality while the far ones will lose it. Tests
-		have shown that the warping effect is somewhat too strong. 
-		However this may change from scene to scene, you can use this setter to 
-		tweak it as you need.
-		@param n The adjustment factor - default is 0.1f.
+		The smaller the parameter n, the stronger the perspective warping effect.
+		The consequence of a stronger warping is that the near shadows will gain 
+		quality while the far ones will lose it. Depending on your scene and light
+		types you may want to tweak this value - for example directional lights
+		tend to benefit from higher values of n than other types of light, 
+		especially if you expect to see more distant shadows (say if the viewpoint is
+		higher above the ground plane). Remember that you can supply separate
+		ShadowCameraSetup instances configured differently per light if you wish.
+		@param n The adjustment factor - default is 0.1f. 
 		*/
 		virtual void setOptimalAdjustFactor(Real n) { mOptAdjustFactor = n; }
 		/** Get the parameter n used to produce optimal shadows. 
