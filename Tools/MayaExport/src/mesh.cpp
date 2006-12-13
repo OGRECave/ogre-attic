@@ -538,6 +538,7 @@ namespace OgreMayaExporter
 		for (i=0; i<newvertices.size(); i++)
 		{
 			newvertices[i].pointIdx = -1;
+			newvertices[i].normalIdx = -1;
 			newvertices[i].next = -2;
 		}
 		//get vertex positions from mesh

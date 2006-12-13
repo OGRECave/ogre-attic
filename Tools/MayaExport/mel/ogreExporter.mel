@@ -122,6 +122,10 @@ global proc runOgreExport()
 		if (`checkBox -query -value BuildTangents`)
 		{
 			$options += " -tangents";
+			if (`radioButton -query -select TangentSemanticTexCoord`)
+				$options += " -TEXCOORD";
+			else
+				$options += " -TANGENT";
 		}
 	}
 	
@@ -384,6 +388,19 @@ global proc formatOgreExporterUI()
 	textField -edit -enable $exportMesh ExportMeshFilename;
 	checkBox -edit -enable $exportMesh BuildEdges;
 	checkBox -edit -enable $exportMesh BuildTangents;
+	int $buildTangents = `checkBox -query -value BuildTangents`;
+	if ($exportMesh)
+	{
+		text -edit -enable $buildTangents TangentSemanticLabel;
+		radioButton -edit -enable $buildTangents TangentSemanticTexCoord;
+	//	radioButton -edit -enable $buildTangents TangentSemanticTangent;
+	}
+	else
+	{
+		text -edit -enable false TangentSemanticLabel;
+		radioButton -edit -enable false TangentSemanticTexCoord;
+	//	radioButton -edit -enable false TangentSemanticTangent;
+	}
 	
 	// --- Material Export
 	int $exportMaterial = `checkBox -query -value ExportMaterial`;
@@ -767,7 +784,25 @@ global proc defineOgreExporterUIView()
 					-value false
 					-enable false
 					-label "Build tangent vectors (for normal maps)"
+					-changeCommand "formatOgreExporterUI"
 				BuildTangents;
+				
+				rowColumnLayout
+					-parent MeshLayout
+					-numberOfColumns 3
+				TangentSemanticLayout;
+				
+					text
+						-parent TangentSemanticLayout
+						-label "Tangent semantic:"
+						-enable false
+					TangentSemanticLabel;
+					
+					radioCollection TangentSemanticCollection;
+					radioButton -label "TEXCOORD" -enable true -select TangentSemanticTexCoord;
+					radioButton -label "TANGENT" -enable false TangentSemanticTangent;
+					
+					
 
 		// --- Materials
 		frameLayout 
@@ -1845,6 +1880,7 @@ global proc saveOgreExporterSettings()
 	fileInfo "ogreExporter_meshFilename" `textField -q -text ExportMeshFilename`;
 	fileInfo "ogreExporter_buildEdges" `checkBox -q -v BuildEdges`;
 	fileInfo "ogreExporter_buildTangents" `checkBox -q -v BuildTangents`;
+	fileInfo "ogreExporter_tangentSemantic" `radioCollection -q -select TangentSemanticCollection`;
 	
 	// Materials
 	fileInfo "ogreExporter_exportMat" `checkBox -q -v ExportMaterial`;
@@ -1988,6 +2024,7 @@ global proc loadOgreExporterSettings()
 		checkBox -edit -v `gmatch $valStrings[0] "1"` BuildEdges;
 		$valStrings = `fileInfo -q "ogreExporter_buildTangents"`;
 		checkBox -edit -v `gmatch $valStrings[0] "1"` BuildTangents;
+		radioCollection -edit -select `fileInfo -q "ogreExporter_tangentSemantic"` TangentSemanticCollection;
 	
 		// Materials
 		$valStrings = `fileInfo -q "ogreExporter_exportMat"`;
@@ -2177,6 +2214,7 @@ global proc defaultOgreExporterSettings()
 	textField -edit -text "" ExportMeshFilename;
 	checkBox -edit -v 0 BuildEdges;
 	checkBox -edit -v 0 BuildTangents;
+	radioCollection -edit -select "TangentSemanticTexCoord" TangentSemanticCollection;
 
 	// Materials
 	checkBox -edit -v 0 ExportMaterial;

@@ -146,6 +146,11 @@ namespace OgreMayaExporter
 			else if ((MString("-tangents") == args.asString(i,&stat)) && (MS::kSuccess == stat))
 			{
 				buildTangents = true;
+				MString tanSem = args.asString(++i,&stat);
+				if (tanSem == "TECOORD")
+					tangentSemantic = TS_TEXCOORD;
+				else if (tanSem == "TANGENT")
+					tangentSemantic = TS_TANGENT;
 			}
 			else if ((MString("-camAnim") == args.asString(i,&stat)) && (MS::kSuccess == stat))
 			{

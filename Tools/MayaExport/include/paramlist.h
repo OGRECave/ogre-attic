@@ -47,6 +47,12 @@ namespace OgreMayaExporter
 		NPT_BINDPOSE
 	} NeutralPoseType;
 
+	typedef enum
+	{
+		TS_TEXCOORD,
+		TS_TANGENT
+	} TangentSemantic;
+
 	/***** Class ParamList *****/
 	class ParamList
 	{
@@ -72,6 +78,7 @@ namespace OgreMayaExporter
 		std::vector<clipInfo> vertClipList;
 
 		NeutralPoseType neutralPoseType;
+		TangentSemantic tangentSemantic;
 
 		std::vector<Submesh*> loadedSubmeshes;
 		std::vector<MDagPath> currentRootJoints;
@@ -116,6 +123,7 @@ namespace OgreMayaExporter
 			neutralPoseType = NPT_CURFRAME;
 			buildEdges = false;
 			buildTangents = false;
+			tangentSemantic = TS_TANGENT;
 			loadedSubmeshes.clear();
 			currentRootJoints.clear();
 		}
@@ -157,6 +165,7 @@ namespace OgreMayaExporter
 			texOutputDir = source.texOutputDir;
 			buildEdges = source.buildEdges;
 			buildTangents = source.buildTangents;
+			tangentSemantic = source.tangentSemantic;
 			skelClipList.resize(source.skelClipList.size());
 			for (i=0; i< skelClipList.size(); i++)
 			{
