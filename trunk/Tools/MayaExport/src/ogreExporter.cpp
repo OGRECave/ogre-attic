@@ -478,8 +478,13 @@ namespace OgreMayaExporter
 	MStatus OgreExporter::writeOgreData()
 	{
 		// Create Ogre Root
-		Ogre::Root ogreRoot;
+//		Ogre::Root ogreRoot;
 		// Create singletons
+		Ogre::LogManager logMgr;
+		Ogre::ResourceGroupManager rgm;
+		Ogre::MeshManager meshMgr;
+		Ogre::SkeletonManager skelMgr;
+		Ogre::MaterialManager matMgr;
 		Ogre::DefaultHardwareBufferManager hardwareBufMgr;
 
 		// Write mesh binary
