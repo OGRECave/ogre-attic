@@ -35,7 +35,6 @@ Torus Knot Software Ltd.
 #include "OgreCamera.h"
 #include "OgreLight.h"
 #include "OgrePlane.h"
-#include "OgreConvexBody.h"
 #include "OgreLogManager.h"
 
 
@@ -73,7 +72,7 @@ namespace Ogre
 		const Camera& cam, const Light& light, Matrix4 *out_view, Matrix4 *out_proj, 
 		Camera *out_cam) const
 	{
-		Vector3 camDir = cam.getDerivedDirection().normalisedCopy();
+		const Vector3& camDir = cam.getDerivedDirection();
 
 		// get the shadow frustum's far distance
 		Real shadowDist = sm.getShadowFarDistance();
@@ -91,7 +90,7 @@ namespace Ogre
 			if (out_view != NULL)
 			{
 				*out_view = buildViewMatrix(cam.getDerivedPosition(), 
-					light.getDerivedDirection().normalisedCopy(), 
+					light.getDerivedDirection(), 
 					camDir);
 			}
 
@@ -105,7 +104,7 @@ namespace Ogre
 			if (out_cam != NULL)
 			{
 				out_cam->setProjectionType(PT_ORTHOGRAPHIC);
-				out_cam->setDirection(light.getDerivedDirection().normalisedCopy());
+				out_cam->setDirection(light.getDerivedDirection());
 				out_cam->setPosition(cam.getDerivedPosition());
 				out_cam->setFOVy(Degree(90));
 				out_cam->setNearClipDistance(shadowOffset);
@@ -118,8 +117,9 @@ namespace Ogre
 			// We want to look at a spot shadowOffset away from near plane
 			// 0.5 is a little too close for angles
 			Vector3 target = cam.getDerivedPosition() + 
-				(cam.getDerivedDirection().normalisedCopy() * shadowOffset);
+				(cam.getDerivedDirection() * shadowOffset);
 			Vector3 lightDir = target - light.getDerivedPosition();
+			lightDir.normalise();
 
 			// generate view matrix if requested
 			if (out_view != NULL)
@@ -157,7 +157,7 @@ namespace Ogre
 			if (out_view != NULL)
 			{
 				*out_view = buildViewMatrix(light.getDerivedPosition(), 
-					light.getDerivedDirection().normalisedCopy(), 
+					light.getDerivedDirection(), 
 					camDir);
 			}
 
@@ -177,7 +177,7 @@ namespace Ogre
 			if (out_cam != NULL)
 			{
 				out_cam->setProjectionType(PT_PERSPECTIVE);
-				out_cam->setDirection(light.getDerivedDirection().normalisedCopy());
+				out_cam->setDirection(light.getDerivedDirection());
 				out_cam->setPosition(light.getDerivedPosition());
 				out_cam->setFOVy(light.getSpotlightOuterAngle() * 1.2);
 				out_cam->setNearClipDistance(cam.getNearClipDistance());
@@ -192,20 +192,8 @@ namespace Ogre
 
 		/// perform convex intersection of the form B = ((V \cap S) + l) \cap S \cap L
 
-		// temporary intersection object
-		ConvexBody bodyB;
-
 		// get V
-		bodyB.define(cam);
-		// TEST
-		/*
-		{
-			StringUtil::StrStreamType str;
-			str << "Initial camera body: " << std::endl;
-			str << bodyB;
-			LogManager::getSingleton().logMessage(str.str());
-		}
-		*/
+		mBodyB.define(cam);
 
 		if (light.getType() != Light::LT_DIRECTIONAL)
 		{
@@ -229,33 +217,14 @@ namespace Ogre
 			the clipping problem only seems to occur in some specific cases. 
 			*/
 			if (mUseAggressiveRegion)
-				bodyB.clip(sceneBB);
+				mBodyB.clip(sceneBB);
 
 			// form a convex hull of bodyB with the light position
-			bodyB.extend(light.getDerivedPosition());
-
-			// TEST
-			/*
-			{
-				StringUtil::StrStreamType str;
-				str << "After extend to light point at " << light.getDerivedPosition() << std::endl;
-				str << bodyB;
-				LogManager::getSingleton().logMessage(str.str());
-			}
-			*/
+			mBodyB.extend(light.getDerivedPosition());
 
 			// clip bodyB with sceneBB
-			bodyB.clip(sceneBB);
+			mBodyB.clip(sceneBB);
 
-			// TEST
-			/*
-			{
-				StringUtil::StrStreamType str;
-				str << "After clip with sceneBB " << sceneBB << std::endl;
-				str << bodyB;
-				LogManager::getSingleton().logMessage(str.str());
-			}
-			*/
 			// clip with the light frustum
 			// set up light camera to clip with the resulting frustum planes
 			if (!mLightFrustumCameraCalculated)
@@ -263,30 +232,21 @@ namespace Ogre
 				calculateShadowMappingMatrix(sm, cam, light, NULL, NULL, mLightFrustumCamera);
 				mLightFrustumCameraCalculated = true;
 			}
-			bodyB.clip(*mLightFrustumCamera);
+			mBodyB.clip(*mLightFrustumCamera);
 
 			// extract bodyB vertices
-			out_bodyB->build(bodyB);
+			out_bodyB->build(mBodyB);
 
-			// TEST
-			/*
-			{
-				StringUtil::StrStreamType str;
-				str << "Final intersection: " << std::endl;
-				str << bodyB;
-				LogManager::getSingleton().logMessage(str.str());
-			}
-			*/
 		}
 		else
 		{
 			// clip bodyB with sceneBB
-			bodyB.clip(sceneBB);
+			mBodyB.clip(sceneBB);
 
 			// Extrude the intersection bodyB into the inverted light direction and store 
 			// the info in the point list.
 			// The sceneBB holds the maximum extent of the extrusion.
-			out_bodyB->buildAndIncludeDirection(bodyB, 
+			out_bodyB->buildAndIncludeDirection(mBodyB, 
 				sceneBB, 
 				-light.getDerivedDirection());
 		}
@@ -335,7 +295,7 @@ namespace Ogre
 		const Vector3 e_world = getNearCameraPoint_ws(cam.getViewMatrix(), bodyLVS);
 
 		// plus the direction results in a second point
-		const Vector3 b_world = e_world + cam.getDerivedDirection().normalisedCopy();
+		const Vector3 b_world = e_world + cam.getDerivedDirection();
 
 		// transformation into light space
 		const Vector3 e_ls = lightSpace * e_world;
@@ -346,8 +306,9 @@ namespace Ogre
 		// direction into the shadow map plane.
 		Vector3 projectionDir(b_ls - e_ls);
 		projectionDir.y = 0;
+		projectionDir.normalise();
 
-		return projectionDir.normalisedCopy();
+		return projectionDir;
 	}
 	//-----------------------------------------------------------------------
 	Vector3 FocusedShadowCameraSetup::getNearCameraPoint_ws(const Matrix4& viewMatrix, 
@@ -411,15 +372,14 @@ namespace Ogre
 	Matrix4 FocusedShadowCameraSetup::buildViewMatrix(const Vector3& pos, const Vector3& dir, 
 		const Vector3& up) const
 	{
-		Vector3 dirN = dir.normalisedCopy();
-		Vector3 upN  = up.normalisedCopy();
-
-		Vector3 xN = dirN.crossProduct(upN).normalisedCopy();
-		upN = xN.crossProduct(dirN).normalisedCopy();
+		Vector3 xN = dir.crossProduct(up);
+		xN.normalise();
+		Vector3 upN = xN.crossProduct(dir);
+		upN.normalise();
 
 		Matrix4 m(xN.x,		xN.y,		xN.z,		-xN.dotProduct(pos),
 			upN.x,		upN.y,		upN.z,		-upN.dotProduct(pos),
-			-dirN.x,		-dirN.y,	-dirN.z,	dirN.dotProduct(pos),
+			-dir.x,		-dir.y,	-dir.z,	dir.dotProduct(pos),
 			0.0,			0.0,		0.0,		1.0
 			);
 
@@ -455,12 +415,12 @@ namespace Ogre
 		}
 
 		// calculate the intersection body B
-		PointListBody bodyB;
-		calculateB(*sm, *cam, *light, sceneBB, &bodyB);
+		mPointListBodyB.reset();
+		calculateB(*sm, *cam, *light, sceneBB, &mPointListBodyB);
 
 		// in case the bodyB is empty (e.g. nothing visible to the light or the cam)
 		// simply return the standard shadow mapping matrix
-		if (bodyB.getPointCount() == 0)
+		if (mPointListBodyB.getPointCount() == 0)
 		{
 			texCam->setCustomViewMatrix(true, LView);
 			texCam->setCustomProjectionMatrix(true, LProj);
@@ -473,11 +433,11 @@ namespace Ogre
 		// calculate LVS so it does not need to be calculated twice
 		// calculate the body L \cap V \cap S to make sure all returned points are in 
 		// front of the camera
-		PointListBody bodyLVS;
-		calculateLVS(*sm, *cam, *light, sceneBB, &bodyLVS);
+		mPointListBodyLVS.reset();
+		calculateLVS(*sm, *cam, *light, sceneBB, &mPointListBodyLVS);
 
 		// fetch the viewing direction
-		const Vector3 viewDir = getLSProjViewDir(LProj * LView, *cam, bodyLVS);
+		const Vector3 viewDir = getLSProjViewDir(LProj * LView, *cam, mPointListBodyLVS);
 
 		// The light space will be rotated in such a way, that the projected light view 
 		// always points upwards, so the up-vector is the y-axis (we already prepared the
@@ -489,7 +449,7 @@ namespace Ogre
 		LProj = buildViewMatrix(Vector3::ZERO, viewDir, Vector3::UNIT_Y) * LProj;
 
 		// map bodyB to unit cube
-		LProj = transformToUnitCube(LProj * LView, bodyB) * LProj;
+		LProj = transformToUnitCube(LProj * LView, mPointListBodyB) * LProj;
 
 		// transform from light space to normal space: y -> z, z -> -y
 		LProj = msLightSpaceToNormal * LProj;
@@ -504,6 +464,8 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	FocusedShadowCameraSetup::PointListBody::PointListBody()
 	{
+		// Preallocate some space
+		mBodyPoints.reserve(12);
 	}
 	//-----------------------------------------------------------------------
 	FocusedShadowCameraSetup::PointListBody::PointListBody(const ConvexBody& body)
@@ -528,6 +490,9 @@ namespace Ogre
 	{
 		// erase list
 		mBodyPoints.clear();
+
+		// Try to reserve a representative amount of memory
+		mBodyPoints.reserve(body.getPolygonCount() * 6);
 
 		// build new list
 		for (size_t i = 0; i < body.getPolygonCount(); ++i)

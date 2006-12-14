@@ -40,11 +40,12 @@ namespace Ogre
 	: mNormal( Vector3::ZERO )
 	, mIsNormalSet(false)
 	{
+		// reserve space for 6 vertices to reduce allocation cost
+		mVertexList.reserve(6);
 	}
 	//-----------------------------------------------------------------------
 	Polygon::~Polygon()
 	{
-		reset();
 	}
 	//-----------------------------------------------------------------------
 	Polygon::Polygon( const Polygon& cpy )

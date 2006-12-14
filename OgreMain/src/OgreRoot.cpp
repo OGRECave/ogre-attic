@@ -64,6 +64,7 @@ Torus Knot Software Ltd.
 #include "OgreManualObject.h"
 #include "OgreRenderQueueInvocation.h"
 #include "OgrePlatformInformation.h"
+#include "OgreConvexBody.h"
 	
 #if OGRE_NO_FREEIMAGE == 0
 #include "OgreFreeImageCodec.h"
@@ -518,6 +519,9 @@ namespace Ogre {
 		// Init plugins
 		initialisePlugins();
 
+		// Init pools
+		ConvexBody::_initialisePool();
+
 		mIsInitialised = true;
 
         return mAutoWindow;
@@ -770,6 +774,10 @@ namespace Ogre {
         ShadowVolumeExtrudeProgram::shutdown();
 		mResourceBackgroundQueue->shutdown();
         ResourceGroupManager::getSingleton().shutdownAll();
+
+		// Destroy pools
+		ConvexBody::_destroyPool();
+
 
 		mIsInitialised = false;
 
