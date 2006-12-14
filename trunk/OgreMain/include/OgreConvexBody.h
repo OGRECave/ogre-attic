@@ -48,8 +48,14 @@ namespace Ogre
 	public:
 		typedef std::vector< Polygon* >	PolygonList;
 
-	private:
-		PolygonList m_polyVec;
+	protected:
+		PolygonList mPolygons;
+
+		// Static 'free list' of polygons to save reallocation, shared between all bodies
+		static PolygonList msFreePolygons;
+#if OGRE_THREAD_SUPPORT
+		static boost::recursive_mutex msFreePolygonsMutex;
+#endif
 
 	public:
 		ConvexBody();
@@ -143,7 +149,18 @@ namespace Ogre
 		/** Log details of this body */
 		void logInfo() const;
 
+		/// Initialise the internal polygon pool used to minimise allocations
+		static void _initialisePool();
+		/// Tear down the internal polygon pool used to minimise allocations
+		static void _destroyPool();
+
+
 	protected:
+		/** Get a new polygon from the pool.
+		*/
+		static Polygon* allocatePolygon();
+		/** Release a polygon back tot he pool. */
+		static void freePolygon(Polygon* poly);
 		/** Inserts a polygon at a partcular point in the body.
 		@note
 			After this method is called, the ConvexBody 'owns' this Polygon

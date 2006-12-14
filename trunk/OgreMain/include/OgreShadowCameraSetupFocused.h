@@ -33,6 +33,7 @@ Torus Knot Software Ltd.
 #include "OgrePrerequisites.h"
 #include "OgreShadowCameraSetup.h"
 #include "OgrePolygon.h"
+#include "OgreConvexBody.h"
 
 
 namespace Ogre {
@@ -134,6 +135,10 @@ namespace Ogre {
 
 		};
 
+		// Persistent calculations to prevent reallocation
+		mutable ConvexBody mBodyB;
+		mutable PointListBody mPointListBodyB;
+		mutable PointListBody mPointListBodyLVS;
 
 	protected:
 		/** Calculates the standard shadow mapping matrix.

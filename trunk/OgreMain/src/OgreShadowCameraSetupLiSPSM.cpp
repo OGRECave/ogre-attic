@@ -163,7 +163,7 @@ namespace Ogre
 		// and the camera's near clipping plane (ls). We are looking towards the negative 
 		// z-direction, so bodyB_zNear_ls equals bodyB_zMax_ls.
 
-		const Vector3& camDir = cam.getDerivedDirection().normalisedCopy();
+		const Vector3& camDir = cam.getDerivedDirection();
 		const Vector3 e_ls = lightSpace * e;
 
 		// set up a plane with the camera direction as normal and e as a point on the plane
@@ -249,12 +249,12 @@ namespace Ogre
 		}
 
 		// calculate the intersection body B
-		PointListBody bodyB;
-		calculateB(*sm, *cam, *light, sceneBB, &bodyB);
+		mPointListBodyB.reset();
+		calculateB(*sm, *cam, *light, sceneBB, &mPointListBodyB);
 
 		// in case the bodyB is empty (e.g. nothing visible to the light or the cam)
 		// simply return the standard shadow mapping matrix
-		if (bodyB.getPointCount() == 0)
+		if (mPointListBodyB.getPointCount() == 0)
 		{
 			texCam->setCustomViewMatrix(true, LView);
 			texCam->setCustomProjectionMatrix(true, LProj);
@@ -267,11 +267,10 @@ namespace Ogre
 		// calculate LVS so it does not need to be calculated twice
 		// calculate the body L \cap V \cap S to make sure all returned points are in 
 		// front of the camera
-		PointListBody bodyLVS;
-		calculateLVS(*sm, *cam, *light, sceneBB, &bodyLVS);
+		calculateLVS(*sm, *cam, *light, sceneBB, &mPointListBodyLVS);
 
 		// fetch the viewing direction
-		const Vector3 viewDir = getLSProjViewDir(LProj * LView, *cam, bodyLVS);
+		const Vector3 viewDir = getLSProjViewDir(LProj * LView, *cam, mPointListBodyLVS);
 
 		// The light space will be rotated in such a way, that the projected light view 
 		// always points upwards, so the up-vector is the y-axis (we already prepared the
@@ -282,8 +281,8 @@ namespace Ogre
 		// - the up vector is the y-axis
 		LProj = buildViewMatrix(Vector3::ZERO, viewDir, Vector3::UNIT_Y) * LProj;
 
-		const Vector3 lightDir = light->getDerivedDirection().normalisedCopy();
-		const Vector3 camDir   = cam->getDerivedDirection().normalisedCopy();
+		const Vector3& lightDir = light->getDerivedDirection();
+		const Vector3& camDir   = cam->getDerivedDirection();
 
 		// Gamma specifies the 'tilt angle' between light and view direction.
 		// If this angle approaches null LiSPSM degrades to standard shadow mapping.
@@ -291,11 +290,11 @@ namespace Ogre
 		if (std::abs(cosGamma) < 0.99)
 		{
 			// calculate LiSPSM projection
-			LProj = calculateLiSPSM(LProj * LView, bodyB, bodyLVS, *sm, *cam, *light) * LProj;
+			LProj = calculateLiSPSM(LProj * LView, mPointListBodyB, mPointListBodyLVS, *sm, *cam, *light) * LProj;
 		}
 
 		// map bodyB to unit cube
-		LProj = transformToUnitCube(LProj * LView, bodyB) * LProj;
+		LProj = transformToUnitCube(LProj * LView, mPointListBodyB) * LProj;
 
 		// transform from light space to normal space: y -> z, z -> -y
 		LProj = msLightSpaceToNormal * LProj;
