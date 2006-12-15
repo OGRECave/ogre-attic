@@ -8,7 +8,7 @@
 		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
-				<Option output="..\..\Common\bin\Debug\Demo_Compositor.exe" />
+				<Option output="..\..\Common\bin\Debug\Demo_Compositor.exe" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="..\..\Common\bin\Debug\" />
 				<Option object_output="..\obj\Debug" />
 				<Option external_deps="..\..\..\OgreMain\lib\Debug\OgreMain_d.dll;" />
@@ -26,7 +26,7 @@
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="..\..\Common\bin\Release\Demo_Compositor.exe" />
+				<Option output="..\..\Common\bin\Release\Demo_Compositor.exe" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="..\..\Common\bin\Release\" />
 				<Option object_output="..\obj\Release" />
 				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
@@ -106,5 +106,8 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Extensions>
+			<code_completion />
+		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
