@@ -1526,15 +1526,14 @@ namespace Ogre {
         glDepthFunc(convertCompareFunction(func));
     }
     //-----------------------------------------------------------------------------
-    void GLRenderSystem::_setDepthBias(ushort bias)
+    void GLRenderSystem::_setDepthBias(float constantBias, float slopeScaleBias)
     {
-        if (bias > 0)
+        if (constantBias != 0 || slopeScaleBias != 0)
         {
             glEnable(GL_POLYGON_OFFSET_FILL);
             glEnable(GL_POLYGON_OFFSET_POINT);
             glEnable(GL_POLYGON_OFFSET_LINE);
-            // Bias is in {0, 16}, scale the unit addition appropriately
-            glPolygonOffset(0.0f, -bias);
+            glPolygonOffset(-slopeScaleBias, -constantBias);
         }
         else
         {

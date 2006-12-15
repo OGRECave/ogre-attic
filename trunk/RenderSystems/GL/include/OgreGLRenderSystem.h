@@ -325,7 +325,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _setDepthBias(ushort bias);
+        void _setDepthBias(float constantBias, float slopeScaleBias);
         /** See
           RenderSystem
          */

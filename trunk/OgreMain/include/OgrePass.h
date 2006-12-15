@@ -102,7 +102,8 @@ namespace Ogre {
         bool mDepthCheck;
         bool mDepthWrite;
         CompareFunction mDepthFunc;
-        ushort mDepthBias;
+        float mDepthBiasConstant;
+		float mDepthBiasSlopeScale;
 
         // Colour buffer settings
         bool mColourWrite;
@@ -799,13 +800,22 @@ namespace Ogre {
         @par
         A way to combat this problem is to use a depth bias to adjust the depth buffer value
         used for the decal such that it is slightly higher than the true value, ensuring that
-        the decal appears on top.
-        @param bias The bias value, should be between 0 and 16.
-        */
-        void setDepthBias(ushort bias);
+        the decal appears on top. There are two aspects to the biasing, a constant
+		bias value and a slope-relative biasing value, which varies according to the
+		maximum depth slope relative to the camera, ie:
+		<pre>finalBias = maxSlope * slopeScaleBias + constantBias</pre>
+		Note that slope scale bias, whilst more accurate, may be ignored by old hardware.
+        @param constantBias The constant bias value, expressed as a factor of the
+			minimum observable depth
+		@param slopeScaleBias The slope-relative bias value, expressed as a factor
+			of the depth slope
+		*/
+        void setDepthBias(float constantBias, float slopeScaleBias = 0.0f);
 
-        /** Retrieves the depth bias value as set by setDepthValue. */
-        ushort getDepthBias(void) const;
+        /** Retrieves the const depth bias value as set by setDepthBias. */
+        float getDepthBiasConstant(void) const;
+		/** Retrieves the slope-scale depth bias value as set by setDepthBias. */
+		float getDepthBiasSlopeScale(void) const;
 
         /** Sets the way the pass will have use alpha to totally reject pixels from the pipeline.
         @remarks

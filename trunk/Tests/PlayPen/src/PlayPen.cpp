@@ -38,6 +38,7 @@ Description: Somewhere to play in the sand...
 #include "OgreEdgeListBuilder.h"
 #include "OgreBillboardChain.h"
 #include "OgreTextAreaOverlayElement.h"
+#include "AnimationBlender.h"
 
 /*
 #include "OgreNoMemoryMacros.h"
@@ -83,6 +84,10 @@ Camera* theCam;
 Camera* reflectCam = 0;
 Camera* camera2 = 0;
 Bone* manuallyControlledBone = 0;
+AnimationBlender* animBlender = 0;
+String animBlendTarget[2];
+int animBlendTargetIndex;
+MovablePlane movablePlane("APlane");
 
 using namespace OIS;
 
@@ -267,6 +272,21 @@ public:
         
         if (mAnimState && animate)
             mAnimState->addTime(evt.timeSinceLastFrame);
+
+		if (animBlender && animate)
+		{
+			if (animBlender->getProgress() <= 0.0f)
+			{
+				animBlender->init(animBlendTarget[animBlendTargetIndex]);
+				animBlendTargetIndex = (animBlendTargetIndex + 1) % 2;
+				animBlender->blend(animBlendTarget[animBlendTargetIndex], AnimationBlender::BlendWhileAnimating, 10, false);
+			}
+			else
+			{
+				animBlender->addTime(evt.timeSinceLastFrame);
+			}
+		}
+
 		std::vector<AnimationState*>::iterator animi;
 		for (animi = mAnimStateList.begin(); animi != mAnimStateList.end(); ++animi)
 		{
@@ -795,8 +815,9 @@ protected:
 
 	void testBug()
 	{
-		TexturePtr tex = TextureManager::getSingleton().load("test128bit.dds", 
-			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		MaterialPtr m = MaterialManager::getSingleton ().getByName ("BaseWhiteNoLighting"); 
+		m->getBestTechnique();
+
 
 	}
 
@@ -1068,6 +1089,40 @@ protected:
 
 
     }
+
+	void testAnimationBlend()
+	{
+		Light* l = mSceneMgr->createLight("MainLight");
+		l->setPosition(200,110,0);
+		l->setType(Light::LT_POINT);
+		Entity *ent;
+
+		mWindow->getViewport(0)->setBackgroundColour(ColourValue::Red);
+
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.4));
+
+		// Create an entity (the plant)
+		ent = mSceneMgr->createEntity("1", "sticky.mesh");
+
+		SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		node->attachObject(ent);
+		node->scale(2,2,2);
+
+		//mAnimState = ent->getAnimationState("triangle");
+		//mAnimState->setEnabled(true);
+
+		animBlender = new AnimationBlender(ent);
+		animBlendTarget[0] = "still";
+		animBlendTarget[1] = "triangle";
+		animBlendTargetIndex = 1;
+		animBlender->init(animBlendTarget[0]);
+		animBlender->blend(animBlendTarget[1], AnimationBlender::BlendWhileAnimating, 10, false);
+
+		mCamera->setPosition(-50,0,0);
+		mCamera->lookAt(0,0,0);
+
+
+	}
 
     void testGpuPrograms(void)
     {
@@ -2159,8 +2214,15 @@ protected:
 
     void testTextureShadows(ShadowTechnique tech)
     {
-        mSceneMgr->setShadowTextureSize(512);
+        mSceneMgr->setShadowTextureSize(1024);
         mSceneMgr->setShadowTechnique(tech);
+		/*
+		LiSPSMShadowCameraSetup* lispsmSetup = new LiSPSMShadowCameraSetup();
+		lispsmSetup->setOptimalAdjustFactor(0.5);
+		mSceneMgr->setShadowCameraSetup(ShadowCameraSetupPtr(lispsmSetup));
+		*/
+		mSceneMgr->setShadowCameraSetup(ShadowCameraSetupPtr(new PlaneOptimalShadowCameraSetup(&movablePlane)));
+
         mSceneMgr->setShadowFarDistance(1500);
         mSceneMgr->setShadowColour(ColourValue(0.35, 0.35, 0.35));
         //mSceneMgr->setShadowFarDistance(800);
@@ -2170,22 +2232,21 @@ protected:
         mLight = mSceneMgr->createLight("MainLight");
 
         // Directional test
-		/*
         mLight->setType(Light::LT_DIRECTIONAL);
         Vector3 vec(-1,-1,0);
         vec.normalise();
         mLight->setDirection(vec);
-		*/
 
 		
         // Spotlight test
+		/*
         mLight->setType(Light::LT_SPOTLIGHT);
         mLight->setDiffuseColour(1.0, 1.0, 0.8);
         mTestNode[0] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
         mTestNode[0]->setPosition(800,600,0);
         mTestNode[0]->lookAt(Vector3(0,0,0), Node::TS_WORLD, Vector3::UNIT_Z);
         mTestNode[0]->attachObject(mLight);
-		
+		*/
 
         mTestNode[1] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 
@@ -2229,11 +2290,10 @@ protected:
         mSceneMgr->setSkyBox(true, "Examples/CloudyNoonSkyBox");
 
 
-        Plane plane;
-        plane.normal = Vector3::UNIT_Y;
-        plane.d = 100;
+        movablePlane.normal = Vector3::UNIT_Y;
+        movablePlane.d = 100;
         MeshManager::getSingleton().createPlane("Myplane",
-			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, movablePlane,
             1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
         Entity* pPlaneEnt;
         pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
@@ -2696,6 +2756,8 @@ protected:
 
         bool val = true;
         mSceneMgr->setOption("ShowOctree", &val);
+
+		//mCamera->setFarClipDistance(0);
 
     }
 
@@ -4933,6 +4995,59 @@ protected:
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(bbs);
 
 	}
+
+	void testDepthBias()
+	{
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../../Tests/Media", "FileSystem");
+
+		mSceneMgr->setAmbientLight(ColourValue::White);
+		
+		MaterialPtr mat = MaterialManager::getSingleton().create("mat1", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->createTextureUnitState("BumpyMetal.jpg");
+		
+		const String meshName("cube.mesh"); 
+		Entity* entity = mSceneMgr->createEntity("base", meshName);
+		entity->setMaterialName("mat1");
+		mSceneMgr->getRootSceneNode()->attachObject(entity);
+
+
+		entity = mSceneMgr->createEntity("base2", meshName);
+		entity->setMaterialName("Examples/EnvMappedRustySteel");
+		SceneNode* n = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		n->setPosition(-30, 0, 0);
+		n->yaw(Degree(45));
+		n->attachObject(entity);
+
+		for (size_t i = 0; i <= 6;++i)
+		{
+			String name("decal");
+			name += StringConverter::toString(i);
+
+			MaterialPtr pMat = static_cast<MaterialPtr>(MaterialManager::getSingleton().create(
+				name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME));
+
+			pMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+			pMat->getTechnique(0)->getPass(0)->setAlphaRejectSettings(CMPF_GREATER_EQUAL, 128);
+			pMat->getTechnique(0)->getPass(0)->setDepthBias(i);
+			pMat->getTechnique(0)->getPass(0)->createTextureUnitState(name + ".png");
+
+			entity = mSceneMgr->createEntity(name, meshName);
+			entity->setMaterialName(name);
+			mSceneMgr->getRootSceneNode()->attachObject(entity);
+		}
+
+
+
+		mCamera->setPosition(0,0,200);
+		mCamera->lookAt(Vector3::ZERO);
+
+
+	}
+
+
 	void testCustomSequenceTextureShadows()
 	{
 		//mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_ADDITIVE_CUSTOM_SEQUENCE);
@@ -5036,6 +5151,7 @@ protected:
         //testBsp();
         //testAlpha();
         //testAnimation();
+		//testAnimationBlend();
 
         //testGpuPrograms();
         //testMultiViewports();
@@ -5057,7 +5173,7 @@ protected:
         //testStencilShadows(SHADOWTYPE_STENCIL_MODULATIVE, false, true);
         //testTextureShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
-		testCustomSequenceTextureShadows();
+		//testCustomSequenceTextureShadows();
 		//testTextureShadowsCustomCasterMat(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testTextureShadowsCustomReceiverMat(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testCompositorTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
@@ -5070,6 +5186,7 @@ protected:
         //testIntersectionSceneQuery();
 
         //test2Spotlights();
+		testDepthBias();
 
 		//testManualLOD();
 		//testGeneratedLOD();
@@ -5077,7 +5194,7 @@ protected:
 		//testSimpleMesh();
 		//test2Windows();
 		//testStaticGeometry();
-		testBillboardTextureCoords();
+		//testBillboardTextureCoords();
 		//testBillboardOrigins();
 		//testReloadResources();
 		//testTransparencyMipMaps();
@@ -5181,12 +5298,6 @@ public:
 	virtual ~MemoryTestFrameListener()
 	{
 		time = 0;            
-		InputManager* im = InputManager::getSingletonPtr();
-		if( im )
-		{
-			im->destroyInputObject( mKeyboard );
-			im->destroyInputSystem();
-		}
 	}
 
 	bool frameStarted(const FrameEvent& evt)

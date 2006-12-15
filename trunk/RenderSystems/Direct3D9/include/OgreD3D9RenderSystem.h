@@ -257,7 +257,7 @@ namespace Ogre
 		void _setColourBufferWriteEnabled(bool red, bool green, bool blue, bool alpha);
 		void _setDepthBufferWriteEnabled(bool enabled = true);
 		void _setDepthBufferFunction( CompareFunction func = CMPF_LESS_EQUAL );
-		void _setDepthBias(ushort bias);
+		void _setDepthBias(float constantBias, float slopeScaleBias);
 		void _setFog( FogMode mode = FOG_NONE, const ColourValue& colour = ColourValue::White, Real expDensity = 1.0, Real linearStart = 0.0, Real linearEnd = 1.0 );
 		void _convertProjectionMatrix(const Matrix4& matrix,
             Matrix4& dest, bool forGpuProgram = false);

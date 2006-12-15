@@ -636,13 +636,13 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void Material::setDepthBias(ushort bias)
+    void Material::setDepthBias(float constantBias, float slopeScaleBias)
     {
         Techniques::iterator i, iend;
         iend = mTechniques.end();
         for (i = mTechniques.begin(); i != iend; ++i)
         {
-            (*i)->setDepthBias(bias);
+            (*i)->setDepthBias(constantBias, slopeScaleBias);
         }
     }
     //-----------------------------------------------------------------------

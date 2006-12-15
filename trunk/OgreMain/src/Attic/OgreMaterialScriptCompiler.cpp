@@ -106,7 +106,7 @@ namespace Ogre {
         "        <Depth_Check> ::= 'depth_check' <On_Off> \n"
         "        <Depth_Write> ::= 'depth_write' <On_Off> \n"
         "        <Depth_Func> ::= 'depth_func' <Compare_Func> \n"
-        "        <Depth_Bias> ::= 'depth_bias' <#value> \n"
+		"        <Depth_Bias> ::= 'depth_bias' <#constant> [<#slopescale>] \n"
         "        <Alpha_Rejection> ::= 'alpha_rejection' <Compare_Func> <#value> \n"
         "        <Compare_Func> ::= 'always_fail' | 'always_pass' | 'less_equal' | 'less' | \n"
         "                           'equal' | 'not_equal' | 'greater_equal' | 'greater' \n"
@@ -1186,7 +1186,14 @@ namespace Ogre {
     void MaterialScriptCompiler::parseDepthBias(void)
     {
         assert(mScriptContext.pass);
-        mScriptContext.pass->setDepthBias(static_cast<ushort>(getNextTokenValue()));
+		float constantBias = static_cast<float>(getNextTokenValue());
+		float slopeScaleBias = 0.0f;
+		if (getRemainingTokensForAction() == 1)
+		{
+			slopeScaleBias = static_cast<float>(getNextTokenValue());
+		}
+
+        mScriptContext.pass->setDepthBias(constantBias, slopeScaleBias);
     }
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseAlphaRejection(void)
