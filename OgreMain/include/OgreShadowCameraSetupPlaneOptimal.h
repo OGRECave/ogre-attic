@@ -49,6 +49,9 @@ namespace Ogre {
 			point mode to 'Consistent' rather than 'Fastest' to ensure this precision.
 			This does allegedly come with some performance cost but when measuring 
 			it appears to be negligible in modern systems for normal usage.
+		@note Second important note: this projection also only works for lights with
+			a finite position. Therefore you cannot use it for directional lights
+			at this time.
     */
 	class _OgreExport PlaneOptimalShadowCameraSetup : public ShadowCameraSetup
 	{
