@@ -84,6 +84,11 @@ namespace Ogre {
     //---------------------------------------------------------------------
     OverlayElement::~OverlayElement()
     {
+		if (mParent)
+		{
+			mParent->removeChild(mName);
+			mParent = 0;
+		}
     }
     //---------------------------------------------------------------------
     const String& OverlayElement::getName(void) const
