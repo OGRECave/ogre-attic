@@ -119,7 +119,8 @@ namespace Ogre {
 		, mDepthCheck(true)
 		, mDepthWrite(true)
 		, mDepthFunc(CMPF_LESS_EQUAL)
-		, mDepthBias(0)
+		, mDepthBiasConstant(0.0f)
+		, mDepthBiasSlopeScale(0.0f)
 		, mColourWrite(true)
 		, mAlphaRejectFunc(CMPF_ALWAYS_PASS)
 		, mAlphaRejectVal(0)
@@ -208,7 +209,8 @@ namespace Ogre {
 		mAlphaRejectVal = oth.mAlphaRejectVal;
         mColourWrite = oth.mColourWrite;
 	    mDepthFunc = oth.mDepthFunc;
-        mDepthBias = oth.mDepthBias;
+        mDepthBiasConstant = oth.mDepthBiasConstant;
+		mDepthBiasSlopeScale = oth.mDepthBiasSlopeScale;
 	    mCullMode = oth.mCullMode;
 	    mManualCullMode = oth.mManualCullMode;
 	    mLightingEnabled = oth.mLightingEnabled;
@@ -898,16 +900,21 @@ namespace Ogre {
 	    return mFogDensity;
     }
     //-----------------------------------------------------------------------
-    void Pass::setDepthBias(ushort bias)
+    void Pass::setDepthBias(float constantBias, float slopeScaleBias)
     {
-        assert(bias <= 16 && "Depth bias must be between 0 and 16");
-        mDepthBias = bias;
+       mDepthBiasConstant = constantBias;
+	   mDepthBiasSlopeScale = slopeScaleBias;
     }
     //-----------------------------------------------------------------------
-    ushort Pass::getDepthBias(void) const
+    float Pass::getDepthBiasConstant(void) const
     {
-        return mDepthBias;
+        return mDepthBiasConstant;
     }
+	//-----------------------------------------------------------------------
+	float Pass::getDepthBiasSlopeScale(void) const
+	{
+		return mDepthBiasSlopeScale;
+	}
     //-----------------------------------------------------------------------
 	Pass* Pass::_split(unsigned short numUnits)
 	{

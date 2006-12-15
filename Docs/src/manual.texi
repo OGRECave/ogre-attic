@@ -694,9 +694,9 @@ Default: depth_func less_equal
 
 Sets the bias applied to the depth value of this pass. Can be used to make coplanar polygons appear on top of others e.g. for decals. @*@*
 
-Format: depth_bias <value>@*@*
+Format: depth_bias <constant_bias> [<slopescale_bias>]@*@*
 
-Where <value> is between 0 and 16, the default being 0. The higher the value, the greater the offset (for if you want to do multiple overlapping decals).@*@*
+The final depth bias value is constant_bias * minObservableDepth + maxSlope * slopescale_bias. Slope scale biasing is relative to the angle of the polygon to the camera, which makes for a more appropriate bias value, but this is ignored on some older hardware. Constant biasing is expressed as a factor of the minimum depth value, so a value of 1 will nudge the depth by one 'notch' if you will.@*@*
 
 @anchor{alpha_rejection}
 @subheading alpha_rejection

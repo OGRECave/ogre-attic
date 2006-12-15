@@ -731,9 +731,19 @@ namespace Ogre
             A way to combat this problem is to use a depth bias to adjust the depth buffer value
             used for the decal such that it is slightly higher than the true value, ensuring that
             the decal appears on top.
-        @param bias The bias value, should be between 0 and 16.
+		@note
+			The final bias value is a combination of a constant bias and a bias proportional
+			to the maximum depth slope of the polygon being rendered. The final bias
+			is constantBias + slopeScaleBias * maxslope. Slope scale biasing is
+			generally preferable but is not available on older hardware.
+        @param constantBias The constant bias value, expressed as a value in 
+			homogenous depth coordinates.
+		@param slopeScaleBias The bias value which is factored by the maximum slope
+			of the polygon, see the description above. This is not supported by all
+			cards.
+
         */
-        virtual void _setDepthBias(ushort bias) = 0;
+        virtual void _setDepthBias(float constantBias, float slopeScaleBias = 0.0f) = 0;
         /** Sets the fogging mode for future geometry.
             @param mode Set up the mode of fog as described in the FogMode enum, or set to FOG_NONE to turn off.
             @param colour The colour of the fog. Either set this to the same as your viewport background colour,

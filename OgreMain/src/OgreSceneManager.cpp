@@ -979,7 +979,8 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed,
 		mDestRenderSystem->_setDepthBufferFunction(pass->getDepthFunction());
 		mDestRenderSystem->_setDepthBufferCheckEnabled(pass->getDepthCheckEnabled());
 		mDestRenderSystem->_setDepthBufferWriteEnabled(pass->getDepthWriteEnabled());
-		mDestRenderSystem->_setDepthBias(pass->getDepthBias());
+		mDestRenderSystem->_setDepthBias(pass->getDepthBiasConstant(), 
+			pass->getDepthBiasSlopeScale());
 		// Alpha-reject settings
 		mDestRenderSystem->_setAlphaRejectSettings(
 			pass->getAlphaRejectFunction(), pass->getAlphaRejectValue());

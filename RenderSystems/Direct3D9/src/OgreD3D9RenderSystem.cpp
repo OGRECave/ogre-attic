@@ -50,6 +50,7 @@ Torus Knot Software Ltd.
 #include "OgreFrustum.h"
 #include "OgreD3D9MultiRenderTarget.h"
 
+#define FLOAT2DWORD(f) *((DWORD*)&f)
 
 namespace Ogre 
 {
@@ -2080,14 +2081,32 @@ namespace Ogre
 			OGRE_EXCEPT( hr, "Error setting depth buffer test function", "D3D9RenderSystem::_setDepthBufferFunction" );
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setDepthBias(ushort bias)
+	void D3D9RenderSystem::_setDepthBias(float constantBias, float slopeScaleBias)
 	{
-		float bias_float = static_cast<float>(-bias);
-		// scale down - certainly needed for nVidia
-		bias_float /= 250000.0f;
-		HRESULT hr = __SetRenderState(D3DRS_DEPTHBIAS, *(DWORD*)&bias_float);
-		if (FAILED(hr))
-			OGRE_EXCEPT(hr, "Error setting depth bias", "D3D9RenderSystem::_setDepthBias");
+	
+		if (mCaps.RasterCaps & D3DPRASTERCAPS_DEPTHBIAS != 0)
+		{
+			// Negate bias since D3D is backward
+			// D3D also expresses the constant bias as an absolute value, rather than 
+			// relative to minimum depth unit, so scale to fit
+			constantBias = -constantBias / 250000.0f;
+			HRESULT hr = __SetRenderState(D3DRS_DEPTHBIAS, FLOAT2DWORD(constantBias));
+			if (FAILED(hr))
+				OGRE_EXCEPT(hr, "Error setting constant depth bias", 
+				"D3D9RenderSystem::_setDepthBias");
+		}
+
+		if (mCaps.RasterCaps & D3DPRASTERCAPS_SLOPESCALEDEPTHBIAS != 0)
+		{
+			// Negate bias since D3D is backward
+			slopeScaleBias = -slopeScaleBias;
+			HRESULT hr = __SetRenderState(D3DRS_SLOPESCALEDEPTHBIAS, FLOAT2DWORD(slopeScaleBias));
+			if (FAILED(hr))
+				OGRE_EXCEPT(hr, "Error setting slope scale depth bias", 
+				"D3D9RenderSystem::_setDepthBias");
+		}
+
+
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setColourBufferWriteEnabled(bool red, bool green, 

@@ -580,13 +580,13 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void Technique::setDepthBias(ushort bias)
+    void Technique::setDepthBias(float constantBias, float slopeScaleBias)
     {
         Passes::iterator i, iend;
         iend = mPasses.end();
         for (i = mPasses.begin(); i != iend; ++i)
         {
-            (*i)->setDepthBias(bias);
+            (*i)->setDepthBias(constantBias, slopeScaleBias);
         }
     }
     //-----------------------------------------------------------------------

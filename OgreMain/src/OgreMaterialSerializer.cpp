@@ -1458,8 +1458,15 @@ namespace Ogre
     //-----------------------------------------------------------------------
     bool parseDepthBias(String& params, MaterialScriptContext& context)
     {
-        context.pass->setDepthBias(
-            static_cast<unsigned int>(StringConverter::parseReal(params)));
+		StringVector vecparams = StringUtil::split(params, " \t");
+
+		float constantBias = static_cast<float>(StringConverter::parseReal(vecparams[0]));
+		float slopeScaleBias = 0.0f;
+		if (vecparams.size() > 1)
+		{
+			slopeScaleBias = static_cast<float>(StringConverter::parseReal(vecparams[1]));
+		}
+        context.pass->setDepthBias(constantBias, slopeScaleBias);
 
         return false;
     }
@@ -3414,10 +3421,12 @@ namespace Ogre
 
             //depth bias
             if (mDefaults ||
-                pPass->getDepthBias() != 0)
+                pPass->getDepthBiasConstant() != 0 ||
+				pPass->getDepthBiasSlopeScale() != 0)
             {
                 writeAttribute(3, "depth_bias");
-                writeValue(StringConverter::toString(pPass->getDepthBias()));
+                writeValue(StringConverter::toString(pPass->getDepthBiasConstant()));
+				writeValue(StringConverter::toString(pPass->getDepthBiasSlopeScale()));
             }
 
             // hardware culling mode

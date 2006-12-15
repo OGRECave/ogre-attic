@@ -429,7 +429,7 @@ void OgreCEGUIRenderer::initRenderStates(void)
 	// initialise render settings
 	d_render_sys->setLightingEnabled(false);
 	d_render_sys->_setDepthBufferParams(false, false);
-	d_render_sys->_setDepthBias(0);
+	d_render_sys->_setDepthBias(0, 0);
 	d_render_sys->_setCullingMode(CULL_NONE);
 	d_render_sys->_setFog(FOG_NONE);
 	d_render_sys->_setColourBufferWriteEnabled(true, true, true, true);

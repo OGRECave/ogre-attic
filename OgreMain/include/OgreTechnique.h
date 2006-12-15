@@ -360,7 +360,7 @@ namespace Ogre {
             property there.
         @see Pass::setDepthBias
         */
-        void setDepthBias(ushort bias);
+        void setDepthBias(float constantBias, float slopeScaleBias);
 
         /** Set texture filtering for every texture unit in every Pass
         @note
