@@ -447,6 +447,9 @@ namespace Ogre {
             pParticle = static_cast<Particle*>(*i);
             if (pParticle->timeToLive < timeElapsed)
             {
+                // Notify renderer
+                mRenderer->_notifyParticleExpired(pParticle);
+
 				// Identify the particle type
 				if (pParticle->particleType == Particle::Visual)
 				{
@@ -591,6 +594,9 @@ namespace Ogre {
 				ParticleEmitter* pParticleEmitter = static_cast<ParticleEmitter*>(p);
 				pParticleEmitter->setPosition(p->position);
 			}
+
+            // Notify renderer
+            mRenderer->_notifyParticleEmitted(p);
         }
     }
     //-----------------------------------------------------------------------
@@ -616,6 +622,8 @@ namespace Ogre {
 			}
         }
 
+        // Notify renderer
+        mRenderer->_notifyParticleMoved(mActiveParticles);
     }
     //-----------------------------------------------------------------------
     void ParticleSystem::_triggerAffectors(Real timeElapsed)
@@ -977,6 +985,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystem::clear()
     {
+        // Notify renderer if exists
+        if (mRenderer)
+        {
+            mRenderer->_notifyParticleCleared(mActiveParticles);
+        }
+
         // Move actives to free list
         mFreeParticles.splice(mFreeParticles.end(), mActiveParticles);
 

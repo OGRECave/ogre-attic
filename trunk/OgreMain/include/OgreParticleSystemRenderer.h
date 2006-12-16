@@ -73,6 +73,14 @@ namespace Ogre {
         virtual void _notifyParticleQuota(size_t quota) = 0;
         /** Tells the renderer that the particle default size has changed */
         virtual void _notifyDefaultDimensions(Real width, Real height) = 0;
+        /** Optional callback notified when particle emitted */
+        virtual void _notifyParticleEmitted(Particle* particle) {}
+        /** Optional callback notified when particle expired */
+        virtual void _notifyParticleExpired(Particle* particle) {}
+        /** Optional callback notified when particles moved */
+        virtual void _notifyParticleMoved(std::list<Particle*>& currentParticles) {}
+        /** Optional callback notified when particles cleared */
+        virtual void _notifyParticleCleared(std::list<Particle*>& currentParticles) {}
 		/** Create a new ParticleVisualData instance for attachment to a particle.
 		@remarks
 			If this renderer needs additional data in each particle, then this should
