@@ -2084,7 +2084,7 @@ namespace Ogre
 	void D3D9RenderSystem::_setDepthBias(float constantBias, float slopeScaleBias)
 	{
 	
-		if (mCaps.RasterCaps & D3DPRASTERCAPS_DEPTHBIAS != 0)
+		if ((mCaps.RasterCaps & D3DPRASTERCAPS_DEPTHBIAS) != 0)
 		{
 			// Negate bias since D3D is backward
 			// D3D also expresses the constant bias as an absolute value, rather than 
@@ -2096,7 +2096,7 @@ namespace Ogre
 				"D3D9RenderSystem::_setDepthBias");
 		}
 
-		if (mCaps.RasterCaps & D3DPRASTERCAPS_SLOPESCALEDEPTHBIAS != 0)
+		if ((mCaps.RasterCaps & D3DPRASTERCAPS_SLOPESCALEDEPTHBIAS) != 0)
 		{
 			// Negate bias since D3D is backward
 			slopeScaleBias = -slopeScaleBias;
