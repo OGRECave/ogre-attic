@@ -352,7 +352,21 @@ namespace Ogre {
 		*/
 		Animation* clone(const String& newName) const;
 		
+        /** Internal method used to tell the animation that keyframe list has been
+            changed, which may cause it to rebuild some internal data */
+        void _keyFrameListChanged(void) { mKeyFrameTimesDirty = true; }
 
+        /** Internal method used to convert time position to time index object.
+        @note
+            The time index returns by this function are associated with state of
+            the animation object, if the animation object altered (e.g. create/remove
+            keyframe or track), all related time index will invalidated.
+        @param timePos The time position.
+        @returns The time index object which contains wrapped time position (in
+            relation to the whole animation sequence) and lower bound index of
+            global keyframe time list.
+        */
+        TimeIndex _getTimeIndex(Real timePos) const;
 
     protected:
         /// Node tracks, indexed by handle
@@ -371,10 +385,17 @@ namespace Ogre {
         static InterpolationMode msDefaultInterpolationMode;
         static RotationInterpolationMode msDefaultRotationInterpolationMode;
 
+        /// Global keyframe time list used to search global keyframe index.
+        typedef std::vector<Real> KeyFrameTimeList;
+        mutable KeyFrameTimeList mKeyFrameTimes;
+        /// Dirty flag indicate that keyframe time list need to rebuild
+        mutable bool mKeyFrameTimesDirty;
+
 		void optimiseNodeTracks(bool discardIdentityTracks);
 		void optimiseVertexTracks(void);
 
-        
+        /// Internal method to build global keyframe time list
+        void buildKeyFrameTimeList(void) const;
     };
 
 

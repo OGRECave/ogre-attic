@@ -73,34 +73,54 @@ namespace Ogre {
         return mKeyFrames[index];
     }
     //---------------------------------------------------------------------
-    Real AnimationTrack::getKeyFramesAtTime(Real timePos, KeyFrame** keyFrame1, KeyFrame** keyFrame2,
-            unsigned short* firstKeyIndex) const
+    Real AnimationTrack::getKeyFramesAtTime(const TimeIndex& timeIndex, KeyFrame** keyFrame1, KeyFrame** keyFrame2,
+        unsigned short* firstKeyIndex) const
     {
-        Real totalAnimationLength = mParent->getLength();
-
-		assert(totalAnimationLength > 0.0f && "Invalid animation length!");
-
-        // Wrap time
-        while (timePos > totalAnimationLength && totalAnimationLength != 0.0f)
-        {
-            timePos -= totalAnimationLength;
-        }
-
         // Parametric time
         // t1 = time of previous keyframe
         // t2 = time of next keyframe
         Real t1, t2;
 
+        Real timePos = timeIndex.getTimePos();
+
         // Find first keyframe after or on current time
-		KeyFrame timeKey(0, timePos);
-        KeyFrameList::const_iterator i =
-            std::lower_bound(mKeyFrames.begin(), mKeyFrames.end(), &timeKey, KeyFrameTimeLess());
+        KeyFrameList::const_iterator i;
+        if (timeIndex.hasKeyIndex())
+        {
+            // Global keyframe index available, map to local keyframe index directly.
+            assert(timeIndex.getKeyIndex() < mKeyFrameIndexMap.size());
+            i = mKeyFrames.begin() + mKeyFrameIndexMap[timeIndex.getKeyIndex()];
+#ifdef _DEBUG
+            KeyFrame timeKey(0, timePos);
+            if (i != std::lower_bound(mKeyFrames.begin(), mKeyFrames.end(), &timeKey, KeyFrameTimeLess()))
+            {
+                OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR,
+                    "Optimised key frame search failed",
+                    "AnimationTrack::getKeyFramesAtTime");
+            }
+#endif
+        }
+        else
+        {
+            // Wrap time
+            Real totalAnimationLength = mParent->getLength();
+            assert(totalAnimationLength > 0.0f && "Invalid animation length!");
+
+            while (timePos > totalAnimationLength && totalAnimationLength > 0.0f)
+            {
+                timePos -= totalAnimationLength;
+            }
+
+            // No global keyframe index, need to search with local keyframes.
+            KeyFrame timeKey(0, timePos);
+            i = std::lower_bound(mKeyFrames.begin(), mKeyFrames.end(), &timeKey, KeyFrameTimeLess());
+        }
 
         if (i == mKeyFrames.end())
         {
             // There is no keyframe after this time, wrap back to first
             *keyFrame2 = mKeyFrames.front();
-            t2 = totalAnimationLength + (*keyFrame2)->getTime();
+            t2 = mParent->getLength() + (*keyFrame2)->getTime();
 
             // Use last keyframe as previous keyframe
             --i;
@@ -148,6 +168,7 @@ namespace Ogre {
         mKeyFrames.insert(i, kf);
 
         _keyFrameDataChanged();
+        mParent->_keyFrameListChanged();
 
         return kf;
 
@@ -167,6 +188,7 @@ namespace Ogre {
         mKeyFrames.erase(i);
 
         _keyFrameDataChanged();
+        mParent->_keyFrameListChanged();
 
 
     }
@@ -181,9 +203,40 @@ namespace Ogre {
         }
 
         _keyFrameDataChanged();
+        mParent->_keyFrameListChanged();
 
         mKeyFrames.clear();
 
+    }
+    //---------------------------------------------------------------------
+    void AnimationTrack::_collectKeyFrameTimes(std::vector<Real>& keyFrameTimes)
+    {
+        for (KeyFrameList::const_iterator i = mKeyFrames.begin(); i != mKeyFrames.end(); ++i)
+        {
+            Real timePos = (*i)->getTime();
+
+            std::vector<Real>::iterator it =
+                std::lower_bound(keyFrameTimes.begin(), keyFrameTimes.end(), timePos);
+            if (it == keyFrameTimes.end() || *it != timePos)
+            {
+                keyFrameTimes.insert(it, timePos);
+            }
+        }
+    }
+    //---------------------------------------------------------------------
+    void AnimationTrack::_buildKeyFrameIndexMap(const std::vector<Real>& keyFrameTimes)
+    {
+        // Pre-allocate memory
+        mKeyFrameIndexMap.resize(keyFrameTimes.size() + 1);
+
+        size_t i = 0, j = 0;
+        while (j <= keyFrameTimes.size())
+        {
+            mKeyFrameIndexMap[j] = static_cast<ushort>(i);
+            while (i < mKeyFrames.size() && mKeyFrames[i]->getTime() <= keyFrameTimes[j])
+                ++i;
+            ++j;
+        }
     }
 	//---------------------------------------------------------------------
 	void AnimationTrack::populateClone(AnimationTrack* clone) const
@@ -226,7 +279,7 @@ namespace Ogre {
 		return new NumericKeyFrame(this, time);
 	}
 	//---------------------------------------------------------------------
-	void NumericAnimationTrack::getInterpolatedKeyFrame(Real timeIndex,
+	void NumericAnimationTrack::getInterpolatedKeyFrame(const TimeIndex& timeIndex,
 		KeyFrame* kf) const
 	{
 		NumericKeyFrame* kret = static_cast<NumericKeyFrame*>(kf);
@@ -253,20 +306,20 @@ namespace Ogre {
         }
 	}
 	//---------------------------------------------------------------------
-	void NumericAnimationTrack::apply(Real timePos, Real weight, Real scale)
+	void NumericAnimationTrack::apply(const TimeIndex& timeIndex, Real weight, Real scale)
 	{
-		applyToAnimable(mTargetAnim, timePos, weight, scale);
+		applyToAnimable(mTargetAnim, timeIndex, weight, scale);
 	}
 	//---------------------------------------------------------------------
-	void NumericAnimationTrack::applyToAnimable(const AnimableValuePtr& anim, Real timePos,
+	void NumericAnimationTrack::applyToAnimable(const AnimableValuePtr& anim, const TimeIndex& timeIndex,
 		Real weight, Real scale)
 	{
 		// Nothing to do if no keyframes or zero weight, scale
 		if (mKeyFrames.empty() || !weight || !scale)
 			return;
 
-		NumericKeyFrame kf(0, timePos);
-		getInterpolatedKeyFrame(timePos, &kf);
+		NumericKeyFrame kf(0, timeIndex.getTimePos());
+		getInterpolatedKeyFrame(timeIndex, &kf);
 		// add to existing. Weights are not relative, but treated as
 		// absolute multipliers for the animation
 		AnyNumeric val = kf.getValue() * (weight * scale);
@@ -298,19 +351,26 @@ namespace Ogre {
 	// Node specialisations
 	//---------------------------------------------------------------------
 	NodeAnimationTrack::NodeAnimationTrack(Animation* parent, unsigned short handle)
-		: AnimationTrack(parent, handle), mTargetNode(0), mSplineBuildNeeded(false),
-		mUseShortestRotationPath(true)
+		: AnimationTrack(parent, handle), mTargetNode(0)
+        , mSplines(0), mSplineBuildNeeded(false)
+        , mUseShortestRotationPath(true)
 	{
 	}
 	//---------------------------------------------------------------------
 	NodeAnimationTrack::NodeAnimationTrack(Animation* parent, unsigned short handle,
 		Node* targetNode)
-		: AnimationTrack(parent, handle), mTargetNode(targetNode),
-		mSplineBuildNeeded(false), mUseShortestRotationPath(true)
+		: AnimationTrack(parent, handle), mTargetNode(targetNode)
+        , mSplines(0), mSplineBuildNeeded(false)
+        , mUseShortestRotationPath(true)
 	{
 	}
+    //---------------------------------------------------------------------
+    NodeAnimationTrack::~NodeAnimationTrack()
+    {
+        delete mSplines;
+    }
 	//---------------------------------------------------------------------
-    void NodeAnimationTrack::getInterpolatedKeyFrame(Real timeIndex, KeyFrame* kf) const
+    void NodeAnimationTrack::getInterpolatedKeyFrame(const TimeIndex& timeIndex, KeyFrame* kf) const
     {
 		TransformKeyFrame* kret = static_cast<TransformKeyFrame*>(kf);
 
@@ -373,25 +433,24 @@ namespace Ogre {
                 }
 
                 // Rotation, take mUseShortestRotationPath into account
-                kret->setRotation( mRotationSpline.interpolate(firstKeyIndex, t,
+                kret->setRotation( mSplines->rotationSpline.interpolate(firstKeyIndex, t,
 					mUseShortestRotationPath) );
 
                 // Translation
-                kret->setTranslate( mPositionSpline.interpolate(firstKeyIndex, t) );
+                kret->setTranslate( mSplines->positionSpline.interpolate(firstKeyIndex, t) );
 
                 // Scale
-                kret->setScale( mScaleSpline.interpolate(firstKeyIndex, t) );
+                kret->setScale( mSplines->scaleSpline.interpolate(firstKeyIndex, t) );
 
                 break;
             }
 
         }
-
     }
     //---------------------------------------------------------------------
-    void NodeAnimationTrack::apply(Real timePos, Real weight, Real scale)
+    void NodeAnimationTrack::apply(const TimeIndex& timeIndex, Real weight, Real scale)
     {
-        applyToNode(mTargetNode, timePos, weight, scale);
+        applyToNode(mTargetNode, timeIndex, weight, scale);
 
     }
     //---------------------------------------------------------------------
@@ -405,15 +464,15 @@ namespace Ogre {
         mTargetNode = node;
     }
     //---------------------------------------------------------------------
-    void NodeAnimationTrack::applyToNode(Node* node, Real timePos, Real weight,
+    void NodeAnimationTrack::applyToNode(Node* node, const TimeIndex& timeIndex, Real weight,
 		Real scl)
     {
 		// Nothing to do if no keyframes or zero weight
 		if (mKeyFrames.empty() || !weight)
 			return;
 
-        TransformKeyFrame kf(0, timePos);
-		getInterpolatedKeyFrame(timePos, &kf);
+        TransformKeyFrame kf(0, timeIndex.getTimePos());
+		getInterpolatedKeyFrame(timeIndex, &kf);
 
 		// add to existing. Weights are not relative, but treated as absolute multipliers for the animation
         Vector3 translate = kf.getTranslate() * weight * scl;
@@ -446,28 +505,37 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void NodeAnimationTrack::buildInterpolationSplines(void) const
     {
-        // Don't calc automatically, do it on request at the end
-        mPositionSpline.setAutoCalculate(false);
-        mRotationSpline.setAutoCalculate(false);
-        mScaleSpline.setAutoCalculate(false);
+        // Allocate splines if not exists
+        if (!mSplines)
+        {
+            mSplines = new Splines;
+        }
 
-        mPositionSpline.clear();
-        mRotationSpline.clear();
-        mScaleSpline.clear();
+        // Cache to register for optimisation
+        Splines* splines = mSplines;
+
+        // Don't calc automatically, do it on request at the end
+        splines->positionSpline.setAutoCalculate(false);
+        splines->rotationSpline.setAutoCalculate(false);
+        splines->scaleSpline.setAutoCalculate(false);
+
+        splines->positionSpline.clear();
+        splines->rotationSpline.clear();
+        splines->scaleSpline.clear();
 
         KeyFrameList::const_iterator i, iend;
         iend = mKeyFrames.end(); // precall to avoid overhead
         for (i = mKeyFrames.begin(); i != iend; ++i)
         {
 			TransformKeyFrame* kf = static_cast<TransformKeyFrame*>(*i);
-            mPositionSpline.addPoint(kf->getTranslate());
-            mRotationSpline.addPoint(kf->getRotation());
-            mScaleSpline.addPoint(kf->getScale());
+            splines->positionSpline.addPoint(kf->getTranslate());
+            splines->rotationSpline.addPoint(kf->getRotation());
+            splines->scaleSpline.addPoint(kf->getScale());
         }
 
-        mPositionSpline.recalcTangents();
-        mRotationSpline.recalcTangents();
-        mScaleSpline.recalcTangents();
+        splines->positionSpline.recalcTangents();
+        splines->rotationSpline.recalcTangents();
+        splines->scaleSpline.recalcTangents();
 
 
         mSplineBuildNeeded = false;
@@ -633,13 +701,13 @@ namespace Ogre {
 		return static_cast<VertexPoseKeyFrame*>(createKeyFrame(timePos));
 	}
 	//--------------------------------------------------------------------------
-	void VertexAnimationTrack::apply(Real timePos, Real weight, Real scale)
+	void VertexAnimationTrack::apply(const TimeIndex& timeIndex, Real weight, Real scale)
 	{
-		applyToVertexData(mTargetVertexData, timePos, weight);
+		applyToVertexData(mTargetVertexData, timeIndex, weight);
 	}
 	//--------------------------------------------------------------------------
 	void VertexAnimationTrack::applyToVertexData(VertexData* data,
-		Real timePos, Real weight,  const PoseList* poseList)
+		const TimeIndex& timeIndex, Real weight, const PoseList* poseList)
 	{
 		// Nothing to do if no keyframes
 		if (mKeyFrames.empty())
@@ -647,7 +715,7 @@ namespace Ogre {
 
 		// Get keyframes
 		KeyFrame *kf1, *kf2;
-		Real t = getKeyFramesAtTime(timePos, &kf1, &kf2);
+		Real t = getKeyFramesAtTime(timeIndex, &kf1, &kf2);
 
 		if (mAnimationType == VAT_MORPH)
 		{

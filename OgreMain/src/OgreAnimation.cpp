@@ -44,10 +44,13 @@ namespace Ogre {
     Animation::RotationInterpolationMode 
         Animation::msDefaultRotationInterpolationMode = Animation::RIM_LINEAR;
     //---------------------------------------------------------------------
-    Animation::Animation(const String& name, Real length) : mName(name), mLength(length)
+    Animation::Animation(const String& name, Real length)
+        : mName(name)
+        , mLength(length)
+        , mInterpolationMode(msDefaultInterpolationMode)
+        , mRotationInterpolationMode(msDefaultRotationInterpolationMode)
+        , mKeyFrameTimesDirty(false)
     {
-        mInterpolationMode = Animation::msDefaultInterpolationMode;
-        mRotationInterpolationMode = Animation::msDefaultRotationInterpolationMode;
     }
     //---------------------------------------------------------------------
     Animation::~Animation()
@@ -119,6 +122,7 @@ namespace Ogre {
 		{
 			delete i->second;
 			mNodeTrackList.erase(i);
+            _keyFrameListChanged();
 		}
     }
     //---------------------------------------------------------------------
@@ -130,6 +134,7 @@ namespace Ogre {
             delete i->second;
         }
         mNodeTrackList.clear();
+        _keyFrameListChanged();
     }
 	//---------------------------------------------------------------------
 	NumericAnimationTrack* Animation::createNumericTrack(unsigned short handle)
@@ -192,6 +197,7 @@ namespace Ogre {
 		{
 			delete i->second;
 			mNumericTrackList.erase(i);
+            _keyFrameListChanged();
 		}
 	}
 	//---------------------------------------------------------------------
@@ -203,6 +209,7 @@ namespace Ogre {
 			delete i->second;
 		}
 		mNumericTrackList.clear();
+        _keyFrameListChanged();
 	}
 	//---------------------------------------------------------------------
 	VertexAnimationTrack* Animation::createVertexTrack(unsigned short handle, 
@@ -267,6 +274,7 @@ namespace Ogre {
 		{
 			delete i->second;
 			mVertexTrackList.erase(i);
+            _keyFrameListChanged();
 		}
 	}
 	//---------------------------------------------------------------------
@@ -278,6 +286,7 @@ namespace Ogre {
 			delete i->second;
 		}
 		mVertexTrackList.clear();
+        _keyFrameListChanged();
 	}
 	//---------------------------------------------------------------------
 	void Animation::destroyAllTracks(void)
@@ -294,20 +303,23 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	void Animation::apply(Real timePos, Real weight, Real scale)
     {
+        // Calculate time index for fast keyframe search
+        TimeIndex timeIndex = _getTimeIndex(timePos);
+
         NodeTrackList::iterator i;
         for (i = mNodeTrackList.begin(); i != mNodeTrackList.end(); ++i)
         {
-            i->second->apply(timePos, weight, scale);
+            i->second->apply(timeIndex, weight, scale);
         }
 		NumericTrackList::iterator j;
 		for (j = mNumericTrackList.begin(); j != mNumericTrackList.end(); ++j)
 		{
-			j->second->apply(timePos, weight, scale);
+			j->second->apply(timeIndex, weight, scale);
 		}
 		VertexTrackList::iterator k;
 		for (k = mVertexTrackList.begin(); k != mVertexTrackList.end(); ++k)
 		{
-			k->second->apply(timePos, weight, scale);
+			k->second->apply(timeIndex, weight, scale);
 		}
 
     }
@@ -315,12 +327,15 @@ namespace Ogre {
     void Animation::apply(Skeleton* skel, Real timePos, Real weight, 
 		Real scale)
     {
+        // Calculate time index for fast keyframe search
+        TimeIndex timeIndex = _getTimeIndex(timePos);
+
         NodeTrackList::iterator i;
         for (i = mNodeTrackList.begin(); i != mNodeTrackList.end(); ++i)
         {
             // get bone to apply to 
             Bone* b = skel->getBone(i->first);
-            i->second->applyToNode(b, timePos, weight, scale);
+            i->second->applyToNode(b, timeIndex, weight, scale);
         }
 
 
@@ -329,6 +344,9 @@ namespace Ogre {
 	void Animation::apply(Entity* entity, Real timePos, Real weight, 
 		bool software, bool hardware)
 	{
+        // Calculate time index for fast keyframe search
+        TimeIndex timeIndex = _getTimeIndex(timePos);
+
 		VertexTrackList::iterator i;
 		for (i = mVertexTrackList.begin(); i != mVertexTrackList.end(); ++i)
 		{
@@ -376,13 +394,13 @@ namespace Ogre {
 					destBuffer->copyData(*origBuffer.get(), 0, 0, destBuffer->getSizeInBytes(), true);
 				}
 				track->setTargetMode(VertexAnimationTrack::TM_SOFTWARE);
-				track->applyToVertexData(swVertexData, timePos, weight, 
+				track->applyToVertexData(swVertexData, timeIndex, weight, 
 					&(entity->getMesh()->getPoseList()));
 			}
 			if (hardware)
 			{
 				track->setTargetMode(VertexAnimationTrack::TM_HARDWARE);
-				track->applyToVertexData(hwVertexData, timePos, weight, 
+				track->applyToVertexData(hwVertexData, timeIndex, weight, 
 					&(entity->getMesh()->getPoseList()));
 			}
 		}
@@ -555,9 +573,80 @@ namespace Ogre {
 		{
 			newAnim->mVertexTrackList[i->second->getHandle()] = i->second->_clone(newAnim);
 		}
+
+        newAnim->_keyFrameListChanged();
 		return newAnim;
 
 	}
+    //-----------------------------------------------------------------------
+    TimeIndex Animation::_getTimeIndex(Real timePos) const
+    {
+        // Uncomment following statement for work as previous
+        //return timePos;
+
+        // Build keyframe time list on demand
+        if (mKeyFrameTimesDirty)
+        {
+            buildKeyFrameTimeList();
+        }
+
+        // Wrap time
+        Real totalAnimationLength = mLength;
+        assert(totalAnimationLength > 0.0f && "Invalid animation length!");
+
+        while (timePos > totalAnimationLength && totalAnimationLength > 0.0f)
+        {
+            timePos -= totalAnimationLength;
+        }
+
+        // Search for global index
+        KeyFrameTimeList::iterator it =
+            std::lower_bound(mKeyFrameTimes.begin(), mKeyFrameTimes.end(), timePos);
+
+        return TimeIndex(timePos, std::distance(mKeyFrameTimes.begin(), it));
+    }
+    //-----------------------------------------------------------------------
+    void Animation::buildKeyFrameTimeList(void) const
+    {
+        NodeTrackList::const_iterator i;
+		NumericTrackList::const_iterator j;
+		VertexTrackList::const_iterator k;
+
+        // Clear old keyframe times
+        mKeyFrameTimes.clear();
+
+        // Collect all keyframe times from each track
+        for (i = mNodeTrackList.begin(); i != mNodeTrackList.end(); ++i)
+        {
+            i->second->_collectKeyFrameTimes(mKeyFrameTimes);
+        }
+		for (j = mNumericTrackList.begin(); j != mNumericTrackList.end(); ++j)
+		{
+            j->second->_collectKeyFrameTimes(mKeyFrameTimes);
+		}
+		for (k = mVertexTrackList.begin(); k != mVertexTrackList.end(); ++k)
+		{
+            k->second->_collectKeyFrameTimes(mKeyFrameTimes);
+		}
+
+        // Build global index to local index map for each track
+        for (i = mNodeTrackList.begin(); i != mNodeTrackList.end(); ++i)
+        {
+            i->second->_buildKeyFrameIndexMap(mKeyFrameTimes);
+        }
+		for (j = mNumericTrackList.begin(); j != mNumericTrackList.end(); ++j)
+		{
+            j->second->_buildKeyFrameIndexMap(mKeyFrameTimes);
+		}
+		for (k = mVertexTrackList.begin(); k != mVertexTrackList.end(); ++k)
+		{
+            k->second->_buildKeyFrameIndexMap(mKeyFrameTimes);
+		}
+
+        // Reset dirty flag
+        mKeyFrameTimesDirty = false;
+    }
+
 }
 
 
