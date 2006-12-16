@@ -361,7 +361,7 @@ namespace Ogre {
         {
             Animation* anim = i->second;
             // Create animation at time index 0, default params mean this has weight 1 and is disabled
-            String animName = anim->getName();
+            const String& animName = anim->getName();
             animSet->createAnimationState(animName, 0.0, anim->getLength());
         }
 
@@ -386,7 +386,7 @@ namespace Ogre {
 		{
 			Animation* anim = i->second;
 			// Create animation at time index 0, default params mean this has weight 1 and is disabled
-			String animName = anim->getName();
+			const String& animName = anim->getName();
 			if (!animSet->hasAnimationState(animName))
 			{
 				animSet->createAnimationState(animName, 0.0, anim->getLength());
