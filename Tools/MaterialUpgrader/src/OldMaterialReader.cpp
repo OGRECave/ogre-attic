@@ -906,7 +906,7 @@ void parseDepthBias(StringVector::iterator& params, int numParams, MaterialPtr& 
 			+ pMat->getName() + ", wrong number of parameters (expected 2)");
 		return;
 	}
-	pMat->setDepthBias(atoi(params[1].c_str()));
+	pMat->setDepthBias(atoi(params[1].c_str()), 0);
 }
 //-----------------------------------------------------------------------
 void parseAnisotropy(StringVector::iterator& params, int numParams, MaterialPtr& pMat)
