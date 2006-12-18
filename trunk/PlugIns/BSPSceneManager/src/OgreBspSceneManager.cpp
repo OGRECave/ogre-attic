@@ -189,7 +189,8 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void BspSceneManager::_findVisibleObjects(Camera* cam, bool onlyShadowCasters)
+    void BspSceneManager::_findVisibleObjects(Camera* cam, 
+		AxisAlignedBox* visibleBounds, bool onlyShadowCasters)
     {
         // Clear unique list of movables for this frame
         mMovablesForRendering.clear();

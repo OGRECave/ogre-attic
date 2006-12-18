@@ -68,12 +68,7 @@ namespace Ogre {
 	    bool operator==(const ColourValue& rhs) const;
 	    bool operator!=(const ColourValue& rhs) const;
 
-        union {
-            struct {
-	            float r,g,b,a;
-            };
-            float val[4];
-        };
+        float r,g,b,a;
 
 	    /** Retrieves colour as RGBA.
 	    */
@@ -140,7 +135,35 @@ namespace Ogre {
             return ret;
         }
 
-        // arithmetic operations
+		/// Array accessor operator
+		inline float operator [] ( const size_t i ) const
+		{
+			assert( i < 4 );
+
+			return *(&r+i);
+		}
+
+		/// Array accessor operator
+		inline float& operator [] ( const size_t i )
+		{
+			assert( i < 4 );
+
+			return *(&r+i);
+		}
+
+		/// Pointer accessor for direct copying
+		inline float* ptr()
+		{
+			return &r;
+		}
+		/// Pointer accessor for direct copying
+		inline const Real* ptr() const
+		{
+			return &r;
+		}
+
+		
+		// arithmetic operations
         inline ColourValue operator + ( const ColourValue& rkVector ) const
         {
             ColourValue kSum;

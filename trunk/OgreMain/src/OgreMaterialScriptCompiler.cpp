@@ -2028,6 +2028,7 @@ namespace Ogre {
         // Check transform type
         switch (getNextTokenID())
         {
+		default:
         case ID_SCROLL_X:
             ttype = TextureUnitState::TT_TRANSLATE_U;
             break;
@@ -2047,6 +2048,7 @@ namespace Ogre {
         // Check wave type
         switch (getNextTokenID())
         {
+		default:
         case ID_SINE:
             waveType = WFT_SINE;
             break;

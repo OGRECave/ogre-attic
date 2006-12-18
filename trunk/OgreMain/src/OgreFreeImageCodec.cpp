@@ -224,10 +224,14 @@ namespace Ogre {
 
 		}
 
-		ret = FreeImage_AllocateT(imageType, pImgData->width, pImgData->height, bpp);
+		ret = FreeImage_AllocateT(
+			imageType, 
+			static_cast<int>(pImgData->width), 
+			static_cast<int>(pImgData->height), 
+			bpp);
 
-		unsigned dstPitch = FreeImage_GetPitch(ret);
-		unsigned srcPitch = pImgData->width * PixelUtil::getNumElemBytes(pImgData->format);
+		size_t dstPitch = FreeImage_GetPitch(ret);
+		size_t srcPitch = pImgData->width * PixelUtil::getNumElemBytes(pImgData->format);
 
 
 		// Copy data, invert scanlines and respect FreeImage pitch
@@ -293,7 +297,7 @@ namespace Ogre {
 		MemoryDataStream memStream(input, true);
 
 		FIMEMORY* fiMem = 
-			FreeImage_OpenMemory(memStream.getPtr(), memStream.size());
+			FreeImage_OpenMemory(memStream.getPtr(), static_cast<DWORD>(memStream.size()));
 
 		FIBITMAP* fiBitmap = FreeImage_LoadFromMemory(
 			(FREE_IMAGE_FORMAT)mFreeImageType, fiMem);
@@ -422,7 +426,7 @@ namespace Ogre {
 		unsigned srcPitch = FreeImage_GetPitch(fiBitmap);
 
 		// Final data - invert image and trim pitch at the same time
-		unsigned dstPitch = imgData->width * PixelUtil::getNumElemBytes(imgData->format);
+		size_t dstPitch = imgData->width * PixelUtil::getNumElemBytes(imgData->format);
 		imgData->size = dstPitch * imgData->height;
         // Bind output buffer
         output.bind(new MemoryDataStream(imgData->size));

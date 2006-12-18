@@ -854,7 +854,7 @@ namespace Ogre
             // Second form using individual names
             context.textureUnit->setAnimatedTextureName(
                 (String*)&vecparams[0],
-                numParams-1,
+                static_cast<unsigned int>(numParams-1),
                 StringConverter::parseReal(vecparams[numParams-1]));
         }
         return false;
@@ -2095,7 +2095,7 @@ namespace Ogre
                 // name was not found so a new TUS is needed
                 // position TUS level to the end index
                 // a new TUS will be created later on
-                context.stateLev = context.pass->getNumTextureUnitStates();
+                context.stateLev = static_cast<int>(context.pass->getNumTextureUnitStates());
             }
         }
         else

@@ -44,8 +44,8 @@ namespace Ogre
 	/** Structure containing the configuration for one shadow texture. */
 	struct ShadowTextureConfig
 	{
-		size_t width;
-		size_t height;
+		unsigned int width;
+		unsigned int height;
 		PixelFormat format;
 
 		ShadowTextureConfig()

@@ -432,7 +432,7 @@ namespace Ogre {
 		mParent->_dirtyHash();
     }
     //-----------------------------------------------------------------------
-    std::pair< uint, uint > TextureUnitState::getTextureDimensions( unsigned int frame ) const
+    std::pair< size_t, size_t > TextureUnitState::getTextureDimensions( unsigned int frame ) const
     {
 		
 		TexturePtr tex = _getTexturePtr(frame);
@@ -440,7 +440,7 @@ namespace Ogre {
 		    OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, "Could not find texture " + mFrames[ frame ],
 		    "TextureUnitState::getTextureDimensions" );
 
-		return std::pair< uint, uint >( tex->getWidth(), tex->getHeight() );
+		return std::pair< size_t, size_t >( tex->getWidth(), tex->getHeight() );
     }
     //-----------------------------------------------------------------------
     void TextureUnitState::setCurrentFrame(unsigned int frameNumber)
@@ -1272,7 +1272,8 @@ namespace Ogre {
                     {
                         // if more than one frame then assume animated frames
                         if (mFrames.size() > 1)
-                            setAnimatedTextureName(aliasEntry->second, mFrames.size(), mAnimDuration);
+                            setAnimatedTextureName(aliasEntry->second, 
+								static_cast<unsigned int>(mFrames.size()), mAnimDuration);
                         else
                             setTextureName(aliasEntry->second, mTextureType);
                     }

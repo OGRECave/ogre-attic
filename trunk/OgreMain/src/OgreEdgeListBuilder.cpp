@@ -392,7 +392,7 @@ namespace Ogre {
 
             // Set only first tri, the other will be completed in connect existing edge
             e.triIndex[0] = triangleIndex;
-            e.triIndex[1] = ~0;
+            e.triIndex[1] = static_cast<size_t>(~0);
             e.sharedVertIndex[0] = sharedVertIndex0;
             e.sharedVertIndex[1] = sharedVertIndex1;
             e.vertIndex[0] = vertIndex0;

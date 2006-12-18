@@ -609,7 +609,7 @@ namespace Ogre {
 		assert(texCoord <= OGRE_MAX_TEXTURE_COORD_SETS);
 
 		// Increase to correct size
-		for (ushort c = hwAnimationDataList.size(); c < count; ++c)
+		for (size_t c = hwAnimationDataList.size(); c < count; ++c)
 		{
 			// Create a new 3D texture coordinate set
 			HardwareAnimationData data;
@@ -665,12 +665,7 @@ namespace Ogre {
 			AB, BC, CA, ANY, NONE
 		};
 
-		union {
-			struct {
-				uint32 a, b, c;		
-			};
-			uint32 val[3];
-		};
+		uint32 a, b, c;		
 
 		inline Triangle()
 		{

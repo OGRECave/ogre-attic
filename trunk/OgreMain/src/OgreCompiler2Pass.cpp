@@ -467,7 +467,9 @@ namespace Ogre {
                 + getClientGrammerName()
                 + ": "
                 + mSourceName
-                + ". Pass 1 terminated"
+                + ". Exception was '"
+				+ e.getFullDescription()
+				+ "'. Pass 1 terminated"
             );
 	    }
 	    catch (...)

@@ -46,12 +46,7 @@ namespace Ogre
     class _OgreExport Vector3
     {
     public:
-        union {
-            struct {
-                Real x, y, z;
-            };
-            Real val[3];
-        };
+		Real x, y, z;
 
     public:
         inline Vector3()
@@ -108,6 +103,16 @@ namespace Ogre
 
             return *(&x+i);
         }
+		/// Pointer accessor for direct copying
+		inline Real* ptr()
+		{
+			return &x;
+		}
+		/// Pointer accessor for direct copying
+		inline const Real* ptr() const
+		{
+			return &x;
+		}
 
         /** Assigns the value of the other vector.
             @param

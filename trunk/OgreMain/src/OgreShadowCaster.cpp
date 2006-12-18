@@ -112,9 +112,11 @@ namespace Ogre {
                     because 'far' verts are in the second half of the 
                     buffer
                     */
-                    *pIdx++ = v1;
-                    *pIdx++ = v0;
-                    *pIdx++ = v0 + originalVertexCount;
+					assert(v1 < 65536 && v0 < 65536 && (v0 + originalVertexCount) < 65536 &&
+						"Vertex count exceeds 16-bit index limit!");
+                    *pIdx++ = static_cast<unsigned short>(v1);
+                    *pIdx++ = static_cast<unsigned short>(v0);
+                    *pIdx++ = static_cast<unsigned short>(v0 + originalVertexCount);
                     numIndices += 3;
 
                     // Are we extruding to infinity?
@@ -122,9 +124,9 @@ namespace Ogre {
                         flags & SRF_EXTRUDE_TO_INFINITY))
                     {
                         // additional tri to make quad
-                        *pIdx++ = v0 + originalVertexCount;
-                        *pIdx++ = v1 + originalVertexCount;
-                        *pIdx++ = v1;
+                        *pIdx++ = static_cast<unsigned short>(v0 + originalVertexCount);
+                        *pIdx++ = static_cast<unsigned short>(v1 + originalVertexCount);
+                        *pIdx++ = static_cast<unsigned short>(v1);
                         numIndices += 3;
                     }
 
@@ -135,14 +137,14 @@ namespace Ogre {
                     {
                         if (firstDarkCapTri)
                         {
-                            darkCapStart = v0 + originalVertexCount;
+                            darkCapStart = static_cast<unsigned short>(v0 + originalVertexCount);
                             firstDarkCapTri = false;
                         }
                         else
                         {
                             *pIdx++ = darkCapStart;
-                            *pIdx++ = v1 + originalVertexCount;
-                            *pIdx++ = v0 + originalVertexCount;
+                            *pIdx++ = static_cast<unsigned short>(v1 + originalVertexCount);
+                            *pIdx++ = static_cast<unsigned short>(v0 + originalVertexCount);
                             numIndices += 3;
                         }
 
@@ -179,9 +181,12 @@ namespace Ogre {
                     // Check it's light facing
                     if (*lfi)
                     {
-                        *pIdx++ = t.vertIndex[0];
-                        *pIdx++ = t.vertIndex[1];
-                        *pIdx++ = t.vertIndex[2];
+						assert(t.vertIndex[0] < 65536 && t.vertIndex[1] < 65536 &&
+							t.vertIndex[2] < 65536 && 
+							"16-bit index limit exceeded!");
+                        *pIdx++ = static_cast<unsigned short>(t.vertIndex[0]);
+                        *pIdx++ = static_cast<unsigned short>(t.vertIndex[1]);
+                        *pIdx++ = static_cast<unsigned short>(t.vertIndex[2]);
                         numIndices += 3;
                     }
                 }

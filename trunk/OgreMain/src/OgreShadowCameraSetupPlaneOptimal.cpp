@@ -323,7 +323,7 @@ namespace Ogre
 		if (finiteIndex == -1)
 		{
 			// need to look through extra list for a finite point
-			for (loopIndex=0; loopIndex<extra.size(); loopIndex++)
+			for (loopIndex=0; loopIndex < (int)extra.size(); loopIndex++)
 			{
 				if (extra[loopIndex].w != 0.0)
 					finiteIndex = loopIndex;

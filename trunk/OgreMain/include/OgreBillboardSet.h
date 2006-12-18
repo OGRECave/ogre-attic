@@ -219,7 +219,7 @@ namespace Ogre {
         unsigned short mNumVisibleBillboards;
 
         /// Internal method for increasing pool size
-        virtual void increasePool(unsigned int size);
+        virtual void increasePool(size_t size);
 
 
         //-----------------------------------------------------------------------
@@ -287,7 +287,7 @@ namespace Ogre {
         /// Flag indicating whether the HW buffers have been created.
         bool mBuffersCreated;
         /// The number of billboard in the pool.
-        unsigned int mPoolSize;
+        size_t mPoolSize;
         /// Is external billboard data in use?
         bool mExternalData;
 
@@ -417,7 +417,7 @@ namespace Ogre {
             @param
                 size The new size for the pool.
         */
-        virtual void setPoolSize(unsigned int size);
+        virtual void setPoolSize(size_t size);
 
         /** Returns the current size of the billboard pool.
             @returns

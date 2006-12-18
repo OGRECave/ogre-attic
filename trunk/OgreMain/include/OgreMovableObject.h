@@ -62,18 +62,18 @@ namespace Ogre {
             Listener(void) {}
             virtual ~Listener() {}
             /** MovableObject is being destroyed */
-            virtual void objectDestroyed(MovableObject* object) {}
+            virtual void objectDestroyed(MovableObject*) {}
             /** MovableObject has been attached to a node */
-            virtual void objectAttached(MovableObject* object) {}
+            virtual void objectAttached(MovableObject*) {}
             /** MovableObject has been detached from a node */
-            virtual void objectDetached(MovableObject* object) {}
+            virtual void objectDetached(MovableObject*) {}
             /** MovableObject has been moved */
-            virtual void objectMoved(MovableObject* object) {}
+            virtual void objectMoved(MovableObject*) {}
             /** Called when the movable object of the camera to be used for rendering.
             @returns
                 true if allows queue for rendering, false otherwise.
             */
-            virtual bool objectRendering(const MovableObject* object, const Camera* camera) { return true; }
+            virtual bool objectRendering(const MovableObject*, const Camera*) { return true; }
             /** Called when the movable object needs to query a light list.
             @remarks
                 If you want to customize light finding for this object, you should override 
@@ -93,7 +93,7 @@ namespace Ogre {
                 A pointer to a light list if you populated the light list yourself, or
                 NULL to fall back on the default finding process.
             */
-            virtual const LightList* objectQueryLights(const MovableObject* object) { return 0; }
+            virtual const LightList* objectQueryLights(const MovableObject*) { return 0; }
         };
 
     protected:
@@ -350,7 +350,7 @@ namespace Ogre {
 
 		/** Get the default query flags for all future MovableObject instances.
 		*/
-		static uint32 getDefaultQueryFlags(uint32 flags) { return msDefaultQueryFlags; }
+		static uint32 getDefaultQueryFlags() { return msDefaultQueryFlags; }
 
 		
         /** Sets the visiblity flags for this object.
@@ -378,7 +378,7 @@ namespace Ogre {
 		
 		/** Get the default visibility flags for all future MovableObject instances.
 		*/
-		static uint32 getDefaultVisibilityFlags(uint32 flags) { return msDefaultVisibilityFlags; }
+		static uint32 getDefaultVisibilityFlags() { return msDefaultVisibilityFlags; }
 
         /** Sets a listener for this object.
         @remarks

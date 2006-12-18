@@ -609,7 +609,7 @@ bool OceanDemo::handleShaderControl(const CEGUI::EventArgs& e)
 				{
 					// get the specular values from the material pass
 					ColourValue OldSpec(mActivePass->getSpecular());
-					OldSpec.val[ActiveShaderDef.ElementIndex] = val;
+					OldSpec[ActiveShaderDef.ElementIndex] = val;
 					mActivePass->setSpecular( OldSpec );
 				}
 
@@ -619,7 +619,7 @@ bool OceanDemo::handleShaderControl(const CEGUI::EventArgs& e)
 				{
 					// get the specular values from the material pass
 					ColourValue OldSpec(mActivePass->getDiffuse());
-					OldSpec.val[ActiveShaderDef.ElementIndex] = val;
+					OldSpec[ActiveShaderDef.ElementIndex] = val;
 					mActivePass->setDiffuse( OldSpec );
 				}
 				break;
@@ -628,7 +628,7 @@ bool OceanDemo::handleShaderControl(const CEGUI::EventArgs& e)
 				{
 					// get the specular values from the material pass
 					ColourValue OldSpec(mActivePass->getAmbient());
-					OldSpec.val[ActiveShaderDef.ElementIndex] = val;
+					OldSpec[ActiveShaderDef.ElementIndex] = val;
 					mActivePass->setAmbient( OldSpec );
 				}
 				break;
@@ -804,7 +804,7 @@ void OceanDemo::configureShaderControls(void)
 									// get the specular values from the material pass
 
 									Ogre::ColourValue OldSpec(mActivePass->getSpecular());
-									uniformVal = OldSpec.val[ActiveShaderDef.ElementIndex];
+									uniformVal = OldSpec[ActiveShaderDef.ElementIndex];
 									activeScrollWidget->setScrollPosition( ActiveShaderDef.convertParamToScrollPosition(uniformVal) );
 								}
 								break;
@@ -814,7 +814,7 @@ void OceanDemo::configureShaderControls(void)
 									// get the diffuse values from the material pass
 
 									Ogre::ColourValue OldSpec(mActivePass->getDiffuse());
-									uniformVal = OldSpec.val[ActiveShaderDef.ElementIndex];
+									uniformVal = OldSpec[ActiveShaderDef.ElementIndex];
 									activeScrollWidget->setScrollPosition( ActiveShaderDef.convertParamToScrollPosition(uniformVal) );
 								}
 								break;
@@ -824,7 +824,7 @@ void OceanDemo::configureShaderControls(void)
 									// get the ambient values from the material pass
 
 									Ogre::ColourValue OldSpec(mActivePass->getAmbient());
-									uniformVal = OldSpec.val[ActiveShaderDef.ElementIndex];
+									uniformVal = OldSpec[ActiveShaderDef.ElementIndex];
 									activeScrollWidget->setScrollPosition( ActiveShaderDef.convertParamToScrollPosition(uniformVal) );
 								}
 								break;

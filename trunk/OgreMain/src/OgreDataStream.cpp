@@ -424,7 +424,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     size_t FileStreamDataStream::read(void* buf, size_t count)
     {
-        mpStream->read(static_cast<char*>(buf), count);
+		mpStream->read(static_cast<char*>(buf), static_cast<std::streamsize>(count));
         return mpStream->gcount();
     }
     //-----------------------------------------------------------------------
@@ -448,7 +448,7 @@ namespace Ogre {
 			trimCR = true;
 		}
 		// maxCount + 1 since count excludes terminator in getline
-		mpStream->getline(buf, maxCount+1, delim.at(0));
+		mpStream->getline(buf, static_cast<std::streamsize>(maxCount+1), delim.at(0));
 		size_t ret = mpStream->gcount();
 		// three options
 		// 1) we had an eof before we read a whole line
@@ -517,7 +517,7 @@ namespace Ogre {
     void FileStreamDataStream::seek( size_t pos )
     {
 		mpStream->clear(); //Clear fail status in case eof was set
-        mpStream->seekg(static_cast<std::ifstream::pos_type>(pos), std::ios::beg);
+        mpStream->seekg(static_cast<std::streamoff>(pos), std::ios::beg);
     }
 	//-----------------------------------------------------------------------
     size_t FileStreamDataStream::tell(void) const
@@ -581,7 +581,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void FileHandleDataStream::seek( size_t pos )
     {
-        fseek(mFileHandle, pos, SEEK_SET);
+        fseek(mFileHandle, static_cast<long>(pos), SEEK_SET);
     }
     //-----------------------------------------------------------------------
     size_t FileHandleDataStream::tell(void) const

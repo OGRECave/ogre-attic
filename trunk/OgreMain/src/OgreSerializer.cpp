@@ -118,10 +118,11 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void Serializer::writeChunkHeader(uint16 id, uint32 size)
+    void Serializer::writeChunkHeader(uint16 id, size_t size)
     {
         writeShorts(&id, 1);
-        writeInts(&size, 1);
+		uint32 uint32size = static_cast<uint32>(size);
+        writeInts(&uint32size, 1);
     }
     //---------------------------------------------------------------------
     void Serializer::writeFloats(const float* const pFloat, size_t count)
@@ -333,7 +334,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Serializer::writeObject(const Vector3& vec)
     {
-        writeFloats(vec.val, 3);
+        writeFloats(vec.ptr(), 3);
     }
     //---------------------------------------------------------------------
     void Serializer::writeObject(const Quaternion& q)
@@ -344,7 +345,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Serializer::readObject(DataStreamPtr& stream, Vector3& pDest)
     {
-        readFloats(stream, pDest.val, 3);
+        readFloats(stream, pDest.ptr(), 3);
     }
     //---------------------------------------------------------------------
     void Serializer::readObject(DataStreamPtr& stream, Quaternion& pDest)

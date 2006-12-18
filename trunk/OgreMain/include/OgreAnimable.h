@@ -93,16 +93,16 @@ namespace Ogre {
 		virtual void setAsBaseValue(Real val) { mBaseValueReal[0] = val; }
 		/// Internal method to set a value as base
 		virtual void setAsBaseValue(const Vector2& val) 
-		{ memcpy(mBaseValueReal, val.val, sizeof(Real)*2); }
+		{ memcpy(mBaseValueReal, val.ptr(), sizeof(Real)*2); }
 		/// Internal method to set a value as base
 		virtual void setAsBaseValue(const Vector3& val) 
-		{ memcpy(mBaseValueReal, val.val, sizeof(Real)*3); }
+		{ memcpy(mBaseValueReal, val.ptr(), sizeof(Real)*3); }
 		/// Internal method to set a value as base
 		virtual void setAsBaseValue(const Vector4& val) 
-		{ memcpy(mBaseValueReal, val.val, sizeof(Real)*4); }
+		{ memcpy(mBaseValueReal, val.ptr(), sizeof(Real)*4); }
 		/// Internal method to set a value as base
 		virtual void setAsBaseValue(const Quaternion& val) 
-		{ memcpy(mBaseValueReal, val.val, sizeof(Real)*4); }
+		{ memcpy(mBaseValueReal, val.ptr(), sizeof(Real)*4); }
 		/// Internal method to set a value as base
 		virtual void setAsBaseValue(const Any& val);
 		/// Internal method to set a value as base
@@ -126,31 +126,31 @@ namespace Ogre {
 		virtual void setCurrentStateAsBaseValue(void) = 0;
 
 		/// Set value 
-		virtual void setValue(int val) {
+		virtual void setValue(int) {
 			OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "", "");
 		}
 		/// Set value 
-		virtual void setValue(Real val) {
+		virtual void setValue(Real) {
 			OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "", "");
 		}
 		/// Set value 
-		virtual void setValue(const Vector2& val) {
+		virtual void setValue(const Vector2&) {
 			OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "", "");
 		}
 		/// Set value 
-		virtual void setValue(const Vector3& val) {
+		virtual void setValue(const Vector3&) {
 			OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "", "");
 		}
 		/// Set value 
-		virtual void setValue(const Vector4& val) {
+		virtual void setValue(const Vector4&) {
 			OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "", "");
 		}
 		/// Set value 
-		virtual void setValue(const Quaternion& val) {
+		virtual void setValue(const Quaternion&) {
 			OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "", "");
 		}
 		/// Set value 
-		virtual void setValue(const ColourValue& val) {
+		virtual void setValue(const ColourValue&) {
 			OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "", "");
 		}
 		/// Set value 
@@ -160,31 +160,31 @@ namespace Ogre {
 		virtual void resetToBaseValue(void);
 
 		/// Apply delta value
-		virtual void applyDeltaValue(int val) {
+		virtual void applyDeltaValue(int) {
 			OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "", "");
 		}
 		/// Set value 
-		virtual void applyDeltaValue(Real val) {
+		virtual void applyDeltaValue(Real) {
 			OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "", "");
 		}
 		/// Apply delta value 
-		virtual void applyDeltaValue(const Vector2& val) {
+		virtual void applyDeltaValue(const Vector2&) {
 			OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "", "");
 		}
 		/// Apply delta value 
-		virtual void applyDeltaValue(const Vector3& val) {
+		virtual void applyDeltaValue(const Vector3&) {
 			OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "", "");
 		}
 		/// Apply delta value 
-		virtual void applyDeltaValue(const Vector4& val) {
+		virtual void applyDeltaValue(const Vector4&) {
 			OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "", "");
 		}
 		/// Apply delta value 
-		virtual void applyDeltaValue(const Quaternion& val) {
+		virtual void applyDeltaValue(const Quaternion&) {
 			OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "", "");
 		}
 		/// Apply delta value 
-		virtual void applyDeltaValue(const ColourValue& val) {
+		virtual void applyDeltaValue(const ColourValue&) {
 			OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "", "");
 		}
 		/// Apply delta value 
@@ -249,7 +249,7 @@ namespace Ogre {
 		/** Internal method for initialising dictionary; should be implemented by 
 			subclasses wanting to expose animable parameters.
 		*/
-		virtual void initialiseAnimableDictionary(StringVector& vec) const {}
+		virtual void initialiseAnimableDictionary(StringVector&) const {}
 
 
 	public:

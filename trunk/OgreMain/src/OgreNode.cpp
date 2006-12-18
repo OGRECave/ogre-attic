@@ -231,7 +231,7 @@ namespace Ogre {
                 // Combine orientation with that of parent
                 mDerivedOrientation = parentOrientation * mOrientation;
             }
-            else
+			else
             {
                 // No inheritence
                 mDerivedOrientation = mOrientation;
