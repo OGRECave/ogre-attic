@@ -98,10 +98,38 @@ namespace Ogre {
 		/// Construct a quaternion from 4 manual w/x/y/z values
 		inline Quaternion(Real* valptr)
 		{
-			memcpy(val, valptr, sizeof(Real)*4);
+			memcpy(&w, valptr, sizeof(Real)*4);
 		}
 
-        void FromRotationMatrix (const Matrix3& kRot);
+		/// Array accessor operator
+		inline Real operator [] ( const size_t i ) const
+		{
+			assert( i < 4 );
+
+			return *(&w+i);
+		}
+
+		/// Array accessor operator
+		inline Real& operator [] ( const size_t i )
+		{
+			assert( i < 4 );
+
+			return *(&w+i);
+		}
+
+		/// Pointer accessor for direct copying
+		inline Real* ptr()
+		{
+			return &w;
+		}
+
+		/// Pointer accessor for direct copying
+		inline const Real* ptr() const
+		{
+			return &w;
+		}
+
+		void FromRotationMatrix (const Matrix3& kRot);
         void ToRotationMatrix (Matrix3& kRot) const;
         void FromAngleAxis (const Radian& rfAngle, const Vector3& rkAxis);
         void ToAngleAxis (Radian& rfAngle, Vector3& rkAxis) const;
@@ -206,13 +234,7 @@ namespace Ogre {
         static const Quaternion ZERO;
         static const Quaternion IDENTITY;
 
-        union
-		{
-			struct {
-				Real w, x, y, z;
-			};
-			Real val[4];
-		};
+		Real w, x, y, z;
 
         /** Function for writing to a stream. Outputs "Quaternion(w, x, y, z)" with w,x,y,z
             being the member values of the quaternion.

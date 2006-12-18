@@ -2595,7 +2595,7 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 			// in which case this pass would be skipped
 			int lightsLeft;
 			if (iteratePerLight)
-				lightsLeft = rendLightList.size() - pass->getStartLight();
+				lightsLeft = static_cast<int>(rendLightList.size()) - pass->getStartLight();
 			else
 				lightsLeft = 1; // just to make sure we render once, number irrelevant
 
@@ -3287,7 +3287,7 @@ void SceneManager::setShadowTechnique(ShadowTechnique technique)
 	{
 		// assure no custom shadow matrix is used accidentally in case we switch
 		// from a custom shadow mapping type to a non-custom (uniform shadow mapping)
-		for ( int i = 0; i < mShadowTextureCameras.size(); ++i )
+		for ( size_t i = 0; i < mShadowTextureCameras.size(); ++i )
 		{
 			Camera* texCam = mShadowTextureCameras[i];
 
@@ -3865,8 +3865,8 @@ const Pass* SceneManager::deriveShadowCasterPass(const Pass* pass)
 
 			// So we allow the texture units, but override the colour functions
 			// Copy texture state, shift up one since 0 is shadow texture
-			size_t origPassTUCount = pass->getNumTextureUnitStates();
-			for (size_t t = 0; t < origPassTUCount; ++t)
+			unsigned short origPassTUCount = pass->getNumTextureUnitStates();
+			for (unsigned short t = 0; t < origPassTUCount; ++t)
 			{
 				TextureUnitState* tex;
 				if (retPass->getNumTextureUnitStates() <= t)
@@ -4007,7 +4007,7 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 			}
 		}
 
-        size_t keepTUCount;
+        unsigned short keepTUCount;
 		// If additive, need lighting parameters & standard programs
 		if (isShadowTechniqueAdditive())
 		{
@@ -4024,10 +4024,10 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
             retPass->setAlphaRejectSettings(pass->getAlphaRejectFunction(),
                 pass->getAlphaRejectValue());
             // Copy texture state, shift up one since 0 is shadow texture
-            size_t origPassTUCount = pass->getNumTextureUnitStates();
-            for (size_t t = 0; t < origPassTUCount; ++t)
+            unsigned short origPassTUCount = pass->getNumTextureUnitStates();
+            for (unsigned short t = 0; t < origPassTUCount; ++t)
             {
-                size_t targetIndex = t+1;
+                unsigned short targetIndex = t+1;
                 TextureUnitState* tex;
                 if (retPass->getNumTextureUnitStates() <= targetIndex)
                 {

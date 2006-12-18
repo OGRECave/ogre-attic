@@ -853,7 +853,7 @@ namespace Ogre {
 		mCamDistanceSquared = std::max(static_cast<Real>(0.0), mCamDistanceSquared);
 
 		// Determine active lod
-		mCurrentLod = mLodSquaredDistances.size() - 1;
+		mCurrentLod = static_cast<ushort>(mLodSquaredDistances.size() - 1);
 		for (ushort i = 0; i < mLodSquaredDistances.size(); ++i)
 		{
 			if (mLodSquaredDistances[i] > mCamDistanceSquared)

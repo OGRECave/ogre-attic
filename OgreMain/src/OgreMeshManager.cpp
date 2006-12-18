@@ -492,7 +492,7 @@ namespace Ogre
         Real yTex = (1.0f * params.yTile) / params.ysegments;
         Vector3 vec;
         Vector3 min, max;
-        Real maxSquaredLength;
+        Real maxSquaredLength = 0;
         bool firstTime = true;
 
         for (int y = 0; y < params.ysegments + 1; ++y)
@@ -636,7 +636,7 @@ namespace Ogre
         Vector3 vec;
 
         Vector3 min, max;
-        Real maxSqLen;
+        Real maxSqLen = 0;
         bool first = true;
 
         Real diff_x, diff_y, dist;
@@ -811,7 +811,7 @@ namespace Ogre
         Real halfHeight = params.height / 2;
         Vector3 vec, norm;
         Vector3 min, max;
-        Real maxSquaredLength;
+        Real maxSquaredLength = 0;
         bool firstTime = true;
 
         for (int y = params.ysegments - params.ySegmentsToKeep; y < params.ysegments + 1; ++y)

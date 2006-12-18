@@ -83,13 +83,13 @@ namespace Ogre {
 				be several state-changing calls but only one of these calls, 
 				when the node graph is fully updated.
 			*/
-			virtual void nodeUpdated(const Node* node) {}
+			virtual void nodeUpdated(const Node*) {}
 			/** Node is being destroyed */
-			virtual void nodeDestroyed(const Node* node) {};
+			virtual void nodeDestroyed(const Node*) {};
 			/** Node has been attached to a parent */
-			virtual void nodeAttached(const Node* node) {};
+			virtual void nodeAttached(const Node*) {};
 			/** Node has been detached from a parent */
-			virtual void nodeDetached(const Node* node) {};
+			virtual void nodeDetached(const Node*) {};
 		};
 
     protected:

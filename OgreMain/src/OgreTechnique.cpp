@@ -70,7 +70,7 @@ namespace Ogre {
 		mIsSupported = false;
         // Go through each pass, checking requirements
         Passes::iterator i;
-		size_t passNum = 0;
+		unsigned short passNum = 0;
         for (i = mPasses.begin(); i != mPasses.end(); ++i, ++passNum)
         {
             Pass* currPass = *i;
@@ -270,7 +270,7 @@ namespace Ogre {
             mPasses.insert(i, pass);
 
 			// Adjust passes index
-			size_t beginIndex, endIndex;
+			unsigned short beginIndex, endIndex;
 			if (destinationIndex > sourceIndex)
 			{
 				beginIndex = sourceIndex;
@@ -281,7 +281,7 @@ namespace Ogre {
 				beginIndex = destinationIndex;
 				endIndex = sourceIndex;
 			}
-			for (size_t index = beginIndex; index <= endIndex; ++index)
+			for (unsigned short index = beginIndex; index <= endIndex; ++index)
 			{
 				mPasses[index]->_notifyIndex(index);
 			}

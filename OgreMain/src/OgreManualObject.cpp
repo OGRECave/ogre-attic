@@ -464,8 +464,8 @@ namespace Ogre {
 		for (VertexDeclaration::VertexElementList::const_iterator i = elemList.begin();
 			i != elemList.end(); ++i)
 		{
-			float* pFloat;
-			RGBA* pRGBA;
+			float* pFloat = 0;
+			RGBA* pRGBA = 0;
 			const VertexElement& elem = *i;
 			switch(elem.getType())
 			{
@@ -502,7 +502,7 @@ namespace Ogre {
 			case VES_TEXTURE_COORDINATES:
 				dims = VertexElement::getTypeCount(elem.getType());
 				for (ushort t = 0; t < dims; ++t)
-					*pFloat++ = mTempVertex.texCoord[elem.getIndex()].val[t];
+					*pFloat++ = mTempVertex.texCoord[elem.getIndex()][t];
 				break;
 			case VES_DIFFUSE:
 				rs = Root::getSingleton().getRenderSystem();

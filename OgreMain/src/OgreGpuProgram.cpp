@@ -324,7 +324,7 @@ namespace Ogre
 
     void GpuProgramParameters::setConstant(size_t index, const Vector4& vec)
     {
-        setConstant(index, vec.val, 1);
+        setConstant(index, vec.ptr(), 1);
     }
 	//-----------------------------------------------------------------------------
 	void GpuProgramParameters::setConstant(size_t index, Real val)
@@ -373,7 +373,7 @@ namespace Ogre
     //-----------------------------------------------------------------------------
     void GpuProgramParameters::setConstant(size_t index, const ColourValue& colour)
     {
-        setConstant(index, colour.val, 1);
+        setConstant(index, colour.ptr(), 1);
     }
     //-----------------------------------------------------------------------------
     void GpuProgramParameters::setConstant(size_t index, const float *val, size_t count)

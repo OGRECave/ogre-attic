@@ -348,7 +348,7 @@ namespace Ogre {
 				animIndex < mHardwareVertexAnimVertexData->hwAnimationDataList.size();
 				++i, ++animIndex)
 			{
-				val.val[i] = 
+				val[i] = 
 					mHardwareVertexAnimVertexData->hwAnimationDataList[animIndex].parametric;
 			}
 			// set the parametric morph value

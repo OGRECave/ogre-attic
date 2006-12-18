@@ -53,10 +53,10 @@ namespace Ogre {
 				num_mipmaps(0), flags(0), format(PF_UNKNOWN)
 			{
 			}
-            uint height;
-            uint width;
-			uint depth;
-            uint size;
+            size_t height;
+            size_t width;
+			size_t depth;
+            size_t size;
             
             ushort num_mipmaps;
             uint flags;

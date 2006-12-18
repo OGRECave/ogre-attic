@@ -676,7 +676,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void BillboardSet::setPoolSize( unsigned int size )
+    void BillboardSet::setPoolSize( size_t size )
     {
         // If we're driving this from our own data, allocate billboards
         if (!mExternalData)
@@ -951,7 +951,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void BillboardSet::increasePool(unsigned int size)
+    void BillboardSet::increasePool(size_t size)
     {
         size_t oldSize = mBillboardPool.size();
 

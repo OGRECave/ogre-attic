@@ -58,9 +58,11 @@ namespace Ogre {
 				t1 = p->getTextureUnitState(1);
 
 			if (t0 && !t0->isBlank())
-				hash += (H(t0->getTextureName()) % (1 << 14)) << 14;
+				hash += (static_cast<uint32>(H(t0->getTextureName())) 
+					% (1 << 14)) << 14;
 			if (t1 && !t1->isBlank())
-				hash += (H(t1->getTextureName()) % (1 << 14));
+				hash += (static_cast<uint32>(H(t1->getTextureName()))
+					% (1 << 14));
 
 			return hash;
 		}
@@ -78,9 +80,11 @@ namespace Ogre {
 			_StringHash H;
 			uint32 hash = p->getIndex() << 28;
 			if (p->hasVertexProgram())
-				hash += (H(p->getVertexProgramName()) % (1 << 14)) << 14;
+				hash += (static_cast<uint32>(H(p->getVertexProgramName()))
+					% (1 << 14)) << 14;
 			if (p->hasFragmentProgram())
-				hash += (H(p->getFragmentProgramName()) % (1 << 14));
+				hash += (static_cast<uint32>(H(p->getFragmentProgramName()))
+					% (1 << 14));
 
 			return hash;
 		}
@@ -1526,7 +1530,7 @@ namespace Ogre {
 		}
 
 		// not found - return out of range
-		return mTextureUnitStates.size() + 1;
+		return static_cast<unsigned short>(mTextureUnitStates.size() + 1);
 
 	}
 

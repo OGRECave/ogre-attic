@@ -70,7 +70,7 @@ namespace Ogre {
         /// Overridden from Renderable
         const Vector3& getWorldPosition(void) const = 0;
         /// Overridden from Renderable
-        Real getSquaredViewDepth(const Camera* cam) const{ return 0; /* not used */}
+        Real getSquaredViewDepth(const Camera*) const{ return 0; /* not used */}
         /// Overridden from Renderable
         const LightList& getLights(void) const;
         /** Does this renderable require a separate light cap?

@@ -669,7 +669,7 @@ namespace Ogre {
 						srcPitch = dstPitch;
 					}
 					assert (dstPitch <= srcPitch);
-					long srcAdvance = srcPitch - dstPitch;
+					long srcAdvance = static_cast<long>(srcPitch) - static_cast<long>(dstPitch);
 
 					for (size_t z = 0; z < imgData->depth; ++z)
 					{

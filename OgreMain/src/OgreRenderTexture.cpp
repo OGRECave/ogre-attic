@@ -42,9 +42,10 @@ namespace Ogre
 		mBuffer(buffer), mZOffset(zoffset)
     {
         mPriority = OGRE_REND_TO_TEX_RT_GROUP;
-		mWidth = mBuffer->getWidth();
-		mHeight = mBuffer->getHeight();
-        mColourDepth = Ogre::PixelUtil::getNumElemBits(mBuffer->getFormat());
+		mWidth = static_cast<unsigned int>(mBuffer->getWidth());
+		mHeight = static_cast<unsigned int>(mBuffer->getHeight());
+        mColourDepth = static_cast<unsigned int>(
+			Ogre::PixelUtil::getNumElemBits(mBuffer->getFormat()));
     }
     RenderTexture::~RenderTexture()
     {

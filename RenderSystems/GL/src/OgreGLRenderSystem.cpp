@@ -2179,7 +2179,7 @@ namespace Ogre {
 		float tmp[4] = {vec.x, vec.y, vec.z, vec.w};
 		glLightfv(lightindex, GL_POSITION, tmp);
 #else
-		glLightfv(lightindex, GL_POSITION, vec.val);
+		glLightfv(lightindex, GL_POSITION, vec.ptr());
 #endif
 		// Set spotlight direction
         if (lt->getType() == Light::LT_SPOTLIGHT)
@@ -2191,7 +2191,7 @@ namespace Ogre {
 			float tmp2[4] = {vec.x, vec.y, vec.z, vec.w};
 			glLightfv(lightindex, GL_SPOT_DIRECTION, tmp2);
 #else
-            glLightfv(lightindex, GL_SPOT_DIRECTION, vec.val);
+            glLightfv(lightindex, GL_SPOT_DIRECTION, vec.ptr());
 #endif
         }
     }

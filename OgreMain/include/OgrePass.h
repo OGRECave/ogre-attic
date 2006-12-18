@@ -501,9 +501,9 @@ namespace Ogre {
 
         /** Returns the number of texture unit settings.
         */
-        size_t getNumTextureUnitStates(void) const
+        unsigned short getNumTextureUnitStates(void) const
         {
-            return mTextureUnitStates.size();
+            return static_cast<unsigned short>(mTextureUnitStates.size());
         }
 
         /** Sets the kind of blending this pass has with the existing contents of the scene.

@@ -88,7 +88,7 @@ namespace Ogre {
 				ResourceGroupManager, which will then be sent back to the 
 				listener as part of the application's primary frame loop thread.
 			*/
-			virtual void backgroundLoadingComplete(Resource* res) {}
+			virtual void backgroundLoadingComplete(Resource*) {}
 			
 		};
 		

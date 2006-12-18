@@ -472,7 +472,8 @@ namespace Ogre {
 						e = 0;
 
 					Element& elem = mChainElementList[e + seg.start];
-					uint16 baseIdx = (e + seg.start) * 2;
+					assert (((e + seg.start) * 2) < 65536 && "Too many elements!");
+					uint16 baseIdx = static_cast<uint16>((e + seg.start) * 2);
 
 					// Determine base pointer to vertex #1
 					void* pBase = static_cast<void*>(
@@ -618,8 +619,9 @@ namespace Ogre {
 							e = 0;
 						// indexes of this element are (e * 2) and (e * 2) + 1
 						// indexes of the last element are the same, -2
-						uint16 baseIdx = (e + seg.start) * 2;
-						uint16 lastBaseIdx = (laste + seg.start) * 2;
+						assert (((e + seg.start) * 2) < 65536 && "Too many elements!");
+						uint16 baseIdx = static_cast<uint16>((e + seg.start) * 2);
+						uint16 lastBaseIdx = static_cast<uint16>((laste + seg.start) * 2);
 						*pShort++ = lastBaseIdx;
 						*pShort++ = lastBaseIdx + 1;
 						*pShort++ = baseIdx;

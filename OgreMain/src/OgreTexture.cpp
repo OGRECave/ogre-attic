@@ -321,7 +321,7 @@ namespace Ogre {
                     PixelUtil::bulkPixelConversion(src, corrected);
                     
                     Image::applyGamma(static_cast<uint8*>(corrected.data), mGamma, corrected.getConsecutiveSize(), 
-                        PixelUtil::getNumElemBits(src.format));
+                        static_cast<uchar>(PixelUtil::getNumElemBits(src.format)));
     
                     // Destination: entire texture. blitFromMemory does the scaling to
                     // a power of two for us when needed

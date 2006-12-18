@@ -242,7 +242,7 @@ namespace Ogre {
 		else
 		{
 			// Create new
-			ret = mSchemes.size();
+			ret = static_cast<unsigned short>(mSchemes.size());
 			mSchemes[schemeName] = ret;
 		}
 		return ret;

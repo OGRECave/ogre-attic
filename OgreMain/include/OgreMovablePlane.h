@@ -70,13 +70,13 @@ namespace Ogre {
             const Vector3& rkPoint2);
         ~MovablePlane() {}
         /// Overridden from MovableObject
-        void _notifyCurrentCamera(Camera* cam) { /* don't care */ }
+        void _notifyCurrentCamera(Camera*) { /* don't care */ }
         /// Overridden from MovableObject
         const AxisAlignedBox& getBoundingBox(void) const { return mNullBB; }
         /// Overridden from MovableObject
         Real getBoundingRadius(void) const { return Math::POS_INFINITY; }
         /// Overridden from MovableObject
-        void _updateRenderQueue(RenderQueue* queue) { /* do nothing */}
+        void _updateRenderQueue(RenderQueue*) { /* do nothing */}
         /// Overridden from MovableObject
         const String& getMovableType(void) const;
         /// Get the derived plane as transformed by its parent node. 

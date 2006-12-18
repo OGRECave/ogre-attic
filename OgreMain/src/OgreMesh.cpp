@@ -1902,7 +1902,7 @@ namespace Ogre {
 	{
 		// calculate GPU size
 		size_t ret = 0;
-		size_t i;
+		unsigned short i;
 		// Shared vertices
 		if (sharedVertexData)
 		{
@@ -2065,7 +2065,7 @@ namespace Ogre {
 	//---------------------------------------------------------------------
 	unsigned short Mesh::getNumAnimations(void) const
 	{
-		return mAnimationsList.size();
+		return static_cast<unsigned short>(mAnimationsList.size());
 	}
 	//---------------------------------------------------------------------
 	bool Mesh::hasAnimation(const String& name)

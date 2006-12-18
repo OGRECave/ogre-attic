@@ -2008,7 +2008,7 @@ namespace Ogre {
 			// unsigned long vertexIndex
 			writeInts(&vertexIndex, 1);
 			// float xoffset, yoffset, zoffset
-			writeFloats(offset.val, 3);
+			writeFloats(offset.ptr(), 3);
 		}
 
 
@@ -2176,7 +2176,7 @@ namespace Ogre {
 					// unsigned long vertexIndex
 					readInts(stream, &vertIndex, 1);
 					// float xoffset, yoffset, zoffset
-					readFloats(stream, offset.val, 3);
+					readFloats(stream, offset.ptr(), 3);
 
 					pose->addVertex(vertIndex, offset);
 					break;

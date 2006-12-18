@@ -161,10 +161,10 @@ namespace Ogre {
 			pTempBuffer3 = new uchar[m_uWidth * m_uHeight * 3];
 			for (y = 0; y < m_uHeight; y++)
 			{
-				uint offset = ((y * m_uWidth) + (m_uWidth - 1)) * 3;
+				size_t offset = ((y * m_uWidth) + (m_uWidth - 1)) * 3;
 				dst3 = pTempBuffer3;
 				dst3 += offset;
-				for (ushort x = 0; x < m_uWidth; x++)
+				for (size_t x = 0; x < m_uWidth; x++)
 				{
 					memcpy(dst3, src3, sizeof(uchar) * 3);
 					dst3 -= 3; src3 += 3;
@@ -250,7 +250,7 @@ namespace Ogre {
 		m_uHeight = uHeight;
 		m_uDepth = depth;
 		m_eFormat = eFormat;
-		m_ucPixelSize = PixelUtil::getNumElemBytes( m_eFormat );
+		m_ucPixelSize = static_cast<uchar>(PixelUtil::getNumElemBytes( m_eFormat ));
 		m_uNumMipmaps = numMipMaps;
 		m_uFlags = 0;
 		// Set flags
@@ -344,7 +344,7 @@ namespace Ogre {
 		m_uSize = pData->size;
 		m_eFormat = pData->format;
 		m_uNumMipmaps = pData->num_mipmaps;
-		m_ucPixelSize = PixelUtil::getNumElemBytes( m_eFormat );
+		m_ucPixelSize = static_cast<uchar>(PixelUtil::getNumElemBytes( m_eFormat ));
 		m_uFlags = pData->flags;
 
 		// re-use the decoded buffer
@@ -426,7 +426,7 @@ namespace Ogre {
 
 		// Get the format and compute the pixel size
 		m_eFormat = pData->format;
-		m_ucPixelSize = PixelUtil::getNumElemBytes( m_eFormat );
+		m_ucPixelSize = static_cast<uchar>(PixelUtil::getNumElemBytes( m_eFormat ));
 		// Just use internal buffer of returned memory stream
 		m_pBuffer = res.first->getPtr();
 		// Make sure stream does not delete
