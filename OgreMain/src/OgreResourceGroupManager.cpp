@@ -112,8 +112,8 @@ namespace Ogre {
 		if (!grp->initialised)
 		{
 			// Set current group
-			mCurrentGroup = grp;
 			parseResourceGroupScripts(grp);
+			mCurrentGroup = grp;
 			createDeclaredResources(grp);
 			grp->initialised = true;
 

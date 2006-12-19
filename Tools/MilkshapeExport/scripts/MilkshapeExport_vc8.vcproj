@@ -80,6 +80,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				UseFAT32Workaround="true"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -169,6 +170,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				UseFAT32Workaround="true"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -231,11 +233,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\include\resource.h"
+				RelativePath="..\misc\resource.h"
 				>
 			</File>
 			<File
-				RelativePath="..\misc\resource.h"
+				RelativePath="..\include\resource.h"
 				>
 			</File>
 		</Filter>
