@@ -82,7 +82,9 @@ namespace Ogre {
         // Process format
         int bits=0;
         bool isFloat=false;
+#if 0
 		bool hasAlpha=true;
+#endif
         switch(mFormat)
         {
             case PCT_BYTE:
@@ -118,9 +120,9 @@ namespace Ogre {
 			bttype = PixelUtil::hasAlpha(mInternalFormat)?
 				WGL_BIND_TO_TEXTURE_RGBA_ARB : WGL_BIND_TO_TEXTURE_RGB_ARB;
 		}
-#endif
 		int texformat = hasAlpha?
 			WGL_TEXTURE_RGBA_ARB : WGL_TEXTURE_RGB_ARB;
+#endif
 		// Make a float buffer?
         int pixeltype = isFloat?
 			WGL_TYPE_RGBA_FLOAT_ARB: WGL_TYPE_RGBA_ARB;

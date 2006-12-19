@@ -330,7 +330,7 @@ namespace Ogre {
 
         /** Structure used to define a box in a 3-D integer space.
          	Note that the left, top, and front edges are included but the right, 
-         	bottom and top ones are not.
+         	bottom and back ones are not.
          */
         struct Box
         {
@@ -346,7 +346,7 @@ namespace Ogre {
             	@param	r	x value of right edge
             	@param	b	y value of bottom edge
             	@note Note that the left, top, and front edges are included 
- 		           	but the right, bottom and top ones are not.
+ 		           	but the right, bottom and back ones are not.
             */
             Box( size_t l, size_t t, size_t r, size_t b ):
                 left(l),
@@ -367,7 +367,7 @@ namespace Ogre {
             	@param	b	y value of bottom edge
             	@param  bb  z value of back edge
             	@note Note that the left, top, and front edges are included 
- 		           	but the right, bottom and top ones are not.
+ 		           	but the right, bottom and back ones are not.
             */
             Box( size_t l, size_t t, size_t ff, size_t r, size_t b, size_t bb ):
                 left(l),
