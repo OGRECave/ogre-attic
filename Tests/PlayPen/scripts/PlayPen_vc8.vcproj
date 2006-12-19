@@ -78,6 +78,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				UseFAT32Workaround="true"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -162,12 +163,14 @@
 				EnableCOMDATFolding="2"
 				OptimizeForWindows98="1"
 				TargetMachine="1"
+				FixedBaseAddress="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
+				UseFAT32Workaround="true"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -198,6 +201,20 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
 			>
 			<File
+				RelativePath="..\src\AnimationBlender.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						FloatingPointModel="2"
+						DisableLanguageExtensions="false"
+						WarningLevel="4"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\src\PlayPen.cpp"
 				>
 			</File>
@@ -210,6 +227,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc"
 			>
+			<File
+				RelativePath="..\include\AnimationBlender.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\..\Samples\Common\include\ExampleApplication.h"
 				>
