@@ -1925,6 +1925,8 @@ The current viewport height in pixels
 1.0/the current viewport height in pixels
 @item viewport_size
 4-element vector of viewport_width, viewport_height, inverse_viewport_width, inverse_viewport_height
+@item texel_offsets
+Provides details of the rendersystem-specific texture coordinate offsets required to map texels onto pixels. float4(horizontalOffset, verticalOffset, horizontalOffset / viewport_width, verticalOffset / viewport_height).
 @item view_direction
 View direction vector in object space
 @item view_side_vector
