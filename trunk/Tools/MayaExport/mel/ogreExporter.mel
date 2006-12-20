@@ -189,7 +189,7 @@ global proc runOgreExport()
 			{	
 				$options += " -skeletonClip ";
 				// clip name
-				$options += eval("textField -q -tx SkelClipName"+$i);
+				$options += "\"" + eval("textField -q -tx SkelClipName"+$i) + "\"";
 				// clip range
 				int $skelClipRangeType = eval("radioButtonGrp -q -sl SkelClipRangeRadio"+$i);
 				if ($skelClipRangeType == 1)
@@ -250,7 +250,7 @@ global proc runOgreExport()
 			{	
 				$options += " -BSClip ";
 				// clip name
-				$options += eval("textField -q -tx BSClipName"+$i);
+				$options += "\"" + eval("textField -q -tx BSClipName"+$i) + "\"";
 				// clip range
 				int $clipRangeType = eval("radioButtonGrp -q -sl BSClipRangeRadio"+$i);
 				if ($clipRangeType == 1)
@@ -304,7 +304,7 @@ global proc runOgreExport()
 			{	
 				$options += " -vertexClip ";
 				// clip name
-				$options += eval("textField -q -tx VertexClipName"+$i);
+				$options += "\"" + eval("textField -q -tx VertexClipName"+$i) + "\"";
 				// clip range
 				int $clipRangeType = eval("radioButtonGrp -q -sl VertexClipRangeRadio"+$i);
 				if ($clipRangeType == 1)
