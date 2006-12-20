@@ -217,6 +217,7 @@ namespace Ogre
                 invTrans[1][0] * p.normal.x + invTrans[1][1] * p.normal.y + invTrans[1][2] * p.normal.z;
             ret.normal.z = 
                 invTrans[2][0] * p.normal.x + invTrans[2][1] * p.normal.y + invTrans[2][2] * p.normal.z;
+			ret.normal.normalise();
             Vector3 pt = p.normal * -p.d;
             pt = *this * pt;
             ret.d = - pt.dotProduct(ret.normal);
