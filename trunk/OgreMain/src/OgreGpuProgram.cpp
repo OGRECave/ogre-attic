@@ -140,6 +140,7 @@ namespace Ogre
         AutoConstantDefinition(ACT_PASS_NUMBER,                        "pass_number",                        1, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_PASS_ITERATION_NUMBER,              "pass_iteration_number",              1, ET_REAL, ACDT_NONE),
 		AutoConstantDefinition(ACT_ANIMATION_PARAMETRIC,               "animation_parametric",               4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_TEXEL_OFFSETS,               "texel_offsets",				  4, ET_REAL, ACDT_NONE),
     };
 
     
@@ -709,6 +710,16 @@ namespace Ogre
                    source.getInverseViewportWidth(),
                    source.getInverseViewportHeight()));
                break;
+			case ACT_TEXEL_OFFSETS:
+				{
+					RenderSystem* rsys = Root::getSingleton().getRenderSystem();
+					setConstant(i->index, Vector4(
+						rsys->getHorizontalTexelOffset(), 
+						rsys->getVerticalTexelOffset(), 
+						rsys->getHorizontalTexelOffset() * source.getInverseViewportWidth(),
+						rsys->getVerticalTexelOffset() * source.getInverseViewportHeight()));
+				}
+				break;
             case ACT_VIEW_DIRECTION:
                setConstant(i->index, source.getViewDirection());
                break;

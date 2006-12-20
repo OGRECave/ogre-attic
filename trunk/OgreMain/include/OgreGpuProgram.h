@@ -330,7 +330,14 @@ namespace Ogre {
 			/** Provides a parametric animation value [0..1], only available
 				where the renderable specifically implements it.
 			*/
-			ACT_ANIMATION_PARAMETRIC
+			ACT_ANIMATION_PARAMETRIC,
+
+			/** Provides the texel offsets required by this rendersystem to map
+				texels to pixels. Packed as 
+				float4(absoluteHorizontalOffset, absoluteVerticalOffset, 
+					horizontalOffset / viewportWidth, verticalOffset / viewportHeight)
+			*/
+			ACT_TEXEL_OFFSETS
 
         };
 
