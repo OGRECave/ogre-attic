@@ -23,8 +23,8 @@ fragment_program CustomShadows/ShadowCasterFP/Cg cg
     default_params
     {
         param_named      uDepthOffset float       2.0
-        param_named      uSTexWidth float         512.0
-        param_named      uSTexHeight float        512.0
+        param_named      uSTexWidth float         1024.0
+        param_named      uSTexHeight float        1024.0
         param_named_auto uInvModelViewProjection  inverse_worldviewproj_matrix
         param_named_auto uProjection              projection_matrix
     }
@@ -47,8 +47,8 @@ fragment_program CustomShadows/ShadowCasterFP/GLSL glsl
     default_params
     {
         param_named      uDepthOffset float       1.0
-        param_named      uSTexWidth float         512.0
-        param_named      uSTexHeight float        512.0
+        param_named      uSTexWidth float         1024.0
+        param_named      uSTexHeight float        1024.0
         param_named_auto uInvModelViewProjection  inverse_worldviewproj_matrix
         param_named_auto uProjection              projection_matrix
     }
@@ -75,8 +75,8 @@ fragment_program CustomShadows/ShadowCasterFP/HLSL hlsl
     default_params
     {
         param_named      uDepthOffset float       1.0
-        param_named      uSTexWidth float         512.0
-        param_named      uSTexHeight float        512.0
+        param_named      uSTexWidth float         1024.0
+        param_named      uSTexHeight float        1024.0
         param_named_auto uInvModelViewProjection  inverse_worldviewproj_matrix
         param_named_auto uProjection              projection_matrix
     }
@@ -158,8 +158,8 @@ fragment_program CustomShadows/ShadowReceiverFP/Cg cg
 
     default_params
     {
-        param_named uSTexWidth  float 512.0
-        param_named uSTexHeight float 512.0
+        param_named uSTexWidth  float 1024.0
+        param_named uSTexHeight float 1024.0
     }
 }
 
@@ -183,8 +183,8 @@ fragment_program CustomShadows/ShadowReceiverFP/GLSL glsl
 
     default_params
     {
-        param_named uSTexWidth  float 512.0
-        param_named uSTexHeight float 512.0
+        param_named uSTexWidth  float 1024.0
+        param_named uSTexHeight float 1024.0
     }
 }
 
@@ -211,8 +211,8 @@ fragment_program CustomShadows/ShadowReceiverFP/HLSL hlsl
 
     default_params
     {
-        param_named uSTexWidth  float 512.0
-        param_named uSTexHeight float 512.0
+        param_named uSTexWidth  float 1024.0
+        param_named uSTexHeight float 1024.0
     }
 }
 
