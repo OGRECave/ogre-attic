@@ -58,7 +58,7 @@ Light* mLight;
 Light* mSunLight;
 SceneNode* mLightNode = 0;
 AnimationState* mLightAnimationState = 0;
-ColourValue mMinLightColour(0.3, 0.0, 0);
+ColourValue mMinLightColour(0.2, 0.1, 0.0);
 ColourValue mMaxLightColour(0.5, 0.3, 0.1);
 Real mMinFlareSize = 40;
 Real mMaxFlareSize = 80;
@@ -89,8 +89,17 @@ enum DemoShadowTech
 bool mShadowTechSupported[NUM_SHADOW_TECH];
 
 String SHADOW_COMPOSITOR_NAME("Gaussian Blur");
-String CUSTOM_ROCKWALL_MATERIAL("Ogre/CustomShadows/SimpleRock");	
+//String CUSTOM_ROCKWALL_MATERIAL("Ogre/CustomShadows/SimpleRock");	
+//String CUSTOM_CASTER_MATERIAL("CustomShadows/ShadowCaster");
+//String CUSTOM_RECEIVER_MATERIAL("CustomShadows/ShadowReceiver");
+
+// New depth shadowmapping
+String CUSTOM_ROCKWALL_MATERIAL("Ogre/DepthShadowmap/Receiver/RockWall");
+String CUSTOM_CASTER_MATERIAL("Ogre/DepthShadowmap/Caster/Float");
+String CUSTOM_RECEIVER_MATERIAL("Ogre/DepthShadowmap/Receiver/Float");
+
 String BASIC_ROCKWALL_MATERIAL("Examples/Rockwall");
+
 
 
 OverlayElement* mShadowTechniqueInfo;
@@ -331,26 +340,38 @@ public:
 
 		mRootGuiPanel = CEGUI::WindowManager::getSingleton().getWindow("Shadows");
 
-		/*
+		mMoveSpeed = 50.0f;
+
 		// Set up a debug panel to display the shadow
 		MaterialPtr debugMat = MaterialManager::getSingleton().create(
-			"Ogre/DebugShadowMap", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+			"Ogre/DebugShadowMap0", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		debugMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
-		TexturePtr shadowTex = mSceneMgr->getShadowTexture(1);
+		TexturePtr shadowTex = mSceneMgr->getShadowTexture(0);
 		TextureUnitState *t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState(shadowTex->getName());
 		t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
-		//t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("spot_shadow_fade.png");
-		//t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
-		//t->setColourOperation(LBO_ADD);
+
+		debugMat = MaterialManager::getSingleton().create(
+			"Ogre/DebugShadowMap1", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		debugMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+		shadowTex = mSceneMgr->getShadowTexture(1);
+		t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState(shadowTex->getName());
+		t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
 
 		OverlayContainer* debugPanel = (OverlayContainer*)
-			(OverlayManager::getSingleton().createOverlayElement("Panel", "Ogre/DebugShadowPanel"));
+			(OverlayManager::getSingleton().createOverlayElement("Panel", "Ogre/DebugShadowPanel0"));
 		debugPanel->_setPosition(0.8, 0);
-		debugPanel->_setDimensions(0.2, 0.3);
-		debugPanel->setMaterialName("Ogre/DebugShadowMap");
+		debugPanel->_setDimensions(0.2, 0.2);
+		debugPanel->setMaterialName("Ogre/DebugShadowMap0");
 		Overlay* debugOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
 		debugOverlay->add2D(debugPanel);
-		*/
+		
+		debugPanel = (OverlayContainer*)
+			(OverlayManager::getSingleton().createOverlayElement("Panel", "Ogre/DebugShadowPanel1"));
+		debugPanel->_setPosition(0.8, 0.2);
+		debugPanel->_setDimensions(0.2, 0.2);
+		debugPanel->setMaterialName("Ogre/DebugShadowMap1");
+		debugOverlay->add2D(debugPanel);
+		
 
     }
 
@@ -493,8 +514,8 @@ public:
 		switch(currentTechnique)
 		{
 		case CUSTOM_DEPTH_SHADOWMAPPING:
-			mSceneMgr->setShadowTextureCasterMaterial("CustomShadows/ShadowCaster");
-			mSceneMgr->setShadowTextureReceiverMaterial("CustomShadows/ShadowReceiver");
+			mSceneMgr->setShadowTextureCasterMaterial(CUSTOM_CASTER_MATERIAL);
+			mSceneMgr->setShadowTextureReceiverMaterial(CUSTOM_RECEIVER_MATERIAL);
 			mSceneMgr->setShadowTextureSelfShadow(true);	// NOTE: need to perform depth biasing for this to work
 			// Sort out base materials
 			pPlaneEnt->setMaterialName(CUSTOM_ROCKWALL_MATERIAL);
@@ -610,8 +631,8 @@ public:
 
     bool frameEnded(const FrameEvent& evt)
     {
-		if (mAnimState)
-			mAnimState->addTime(evt.timeSinceLastFrame);
+		//if (mAnimState)
+		//	mAnimState->addTime(evt.timeSinceLastFrame);
 
 		if (mShutdownRequested)
 			return false;
@@ -645,6 +666,10 @@ public:
 	{
 		if( arg.key == OIS::KC_ESCAPE )
 			mShutdownRequested = true;
+
+		if (arg.key == OIS::KC_SYSRQ)
+			mWindow->writeContentsToTimestampedFile("screenshot", ".jpg");
+
 		CEGUI::System::getSingleton().injectKeyDown( arg.key );
 		CEGUI::System::getSingleton().injectChar( arg.text );
 		return true;
@@ -828,14 +853,31 @@ protected:
 		LISPSM,
 		PLANE_OPTIMAL
 	};
+
+	enum ShadowMaterial
+	{
+		MAT_STANDARD,
+		MAT_DEPTH_FLOAT
+	};
 	CEGUI::OgreCEGUIRenderer* mGUIRenderer;
 	CEGUI::System* mGUISystem;
 	CEGUI::Window* mDescWindow;
+	CEGUI::Editbox* mFixedBias;
+	CEGUI::Editbox* mGradientBias;
+	CEGUI::Editbox* mGradientClamp;
+
 	ShadowTechnique mCurrentShadowTechnique;
 	ShadowProjection mCurrentProjection;
+	ShadowMaterial mCurrentMaterial;
+
+	GpuProgramParametersSharedPtr mReceiverVparams;
+	GpuProgramParametersSharedPtr mReceiverFparams;
+
 	ShadowCameraSetupPtr mCurrentShadowCameraSetup;
 	/// Plane that defines plane-optimal shadow mapping basis
 	MovablePlane* mPlane;
+	// transient pointer to LiSPSM setup if present
+	LiSPSMShadowCameraSetup* mLiSPSMSetup;
 
 public:
 	ShadowsApplication() : 
@@ -934,7 +976,7 @@ protected:
         // Fixed light, dim
         mSunLight = mSceneMgr->createLight("SunLight");
         mSunLight->setType(Light::LT_SPOTLIGHT);
-        mSunLight->setPosition(1000,3250,500);
+        mSunLight->setPosition(1500,1750,1300);
         mSunLight->setSpotlightRange(Degree(30), Degree(50));
         Vector3 dir;
         dir = -mSunLight->getPosition();
@@ -971,7 +1013,7 @@ protected:
             contMgr.getFrameTimeSource(), val, func);
 
         //mLight->setPosition(Vector3(300,250,-300));
-        mLightNode->setPosition(Vector3(300,250,-300));
+        mLightNode->setPosition(Vector3(300,450,-700));
 
 
         // Create a track for the light
@@ -982,27 +1024,27 @@ protected:
         NodeAnimationTrack* track = anim->createNodeTrack(0, mLightNode);
         // Setup keyframes
         TransformKeyFrame* key = track->createNodeKeyFrame(0); // A startposition
-        key->setTranslate(Vector3(300,1250,-300));
+        key->setTranslate(Vector3(300,750,-700));
         key = track->createNodeKeyFrame(2);//B
-        key->setTranslate(Vector3(150,1300,-250));
+        key->setTranslate(Vector3(150,800,-250));
         key = track->createNodeKeyFrame(4);//C
-        key->setTranslate(Vector3(-150,1350,-100));
+        key->setTranslate(Vector3(-150,850,-100));
         key = track->createNodeKeyFrame(6);//D
-        key->setTranslate(Vector3(-400,1200,-200));
+        key->setTranslate(Vector3(-400,700,-200));
         key = track->createNodeKeyFrame(8);//E
-        key->setTranslate(Vector3(-200,1200,-400));
+        key->setTranslate(Vector3(-200,700,-400));
         key = track->createNodeKeyFrame(10);//F
-        key->setTranslate(Vector3(-100,1150,-200));
+        key->setTranslate(Vector3(-100,850,-200));
         key = track->createNodeKeyFrame(12);//G
-        key->setTranslate(Vector3(-100,1075,180));
+        key->setTranslate(Vector3(-100,575,180));
         key = track->createNodeKeyFrame(14);//H
-        key->setTranslate(Vector3(0,1250,300));
+        key->setTranslate(Vector3(0,750,300));
         key = track->createNodeKeyFrame(16);//I
-        key->setTranslate(Vector3(100,1350,100));
+        key->setTranslate(Vector3(100,850,100));
         key = track->createNodeKeyFrame(18);//J
-        key->setTranslate(Vector3(250,1300,0));
+        key->setTranslate(Vector3(250,5800,0));
         key = track->createNodeKeyFrame(20);//K == A
-        key->setTranslate(Vector3(300,1250,-300));
+        key->setTranslate(Vector3(300,750,-700));
         // Create a new animation state to track this
         mAnimState = mSceneMgr->createAnimationState("LightTrack");
         mAnimState->setEnabled(true);
@@ -1102,7 +1144,6 @@ protected:
 		mCamera->setPosition(500, 70, 600);
 		mCamera->lookAt(0, 20, 0);
 
-
     }
 	
     // Just override the mandatory create scene method
@@ -1112,6 +1153,11 @@ protected:
         generalSceneSetup();
 
 		setupGUI();
+
+		// Uncomment the below and LiSPSM loses warping factor????!?!?
+
+		//changeShadowTechnique(SHADOWTYPE_TEXTURE_ADDITIVE);
+		//mSceneMgr->setShadowCameraSetup(ShadowCameraSetupPtr(new LiSPSMShadowCameraSetup()));
 
     }
 
@@ -1305,6 +1351,22 @@ protected:
 		cbo->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted,
 			CEGUI::Event::Subscriber(&ShadowsApplication::handleMaterialChanged, this));
 
+		li = new CEGUI::ListboxTextItem("Standard", MAT_STANDARD);
+		li->setSelectionBrushImage(selectImage);
+		li->setTooltipText("Standard Material: Shadows are rendered into a simple RGB texture "
+			" and are received only by objects that are not themselves shadow casters "
+			" (no self-shadowing)");
+		cbo->addItem(li);
+		cbo->setItemSelectState(li, true);
+		cbo->setText("Standard");
+		mCurrentMaterial = MAT_STANDARD;
+
+		li = new CEGUI::ListboxTextItem("Depth Shadowmap (float)", MAT_DEPTH_FLOAT);
+		li->setSelectionBrushImage(selectImage);
+		li->setTooltipText("Depth Shadowmap (float): Shadow caster depth is rendered into a "
+			" floating point texture and a depth comparison is performed on receivers "
+			" (self-shadowing allowed). Requires floating point textures and shader support.");
+		cbo->addItem(li);
 
 		CEGUI::RadioButton* radio = static_cast<CEGUI::RadioButton*>(
 			wmgr.getWindow("Shadows/Stencil"));
@@ -1321,6 +1383,21 @@ protected:
 		radio->setSelected(true);
 		radio->subscribeEvent(CEGUI::RadioButton::EventSelectStateChanged, 
 			CEGUI::Event::Subscriber(&ShadowsApplication::handleShadowTypeChanged, this));
+
+
+
+		mFixedBias = static_cast<CEGUI::Editbox*>(wmgr.getWindow("Shadows/Main/FixedBias"));
+		mFixedBias->setText("0");
+		mFixedBias->subscribeEvent(CEGUI::Editbox::EventTextAccepted, 
+			CEGUI::Event::Subscriber(&ShadowsApplication::handleParamsChanged, this));
+		mGradientBias = static_cast<CEGUI::Editbox*>(wmgr.getWindow("Shadows/Main/GradientBias"));
+		mGradientBias->setText("0");
+		mGradientBias->subscribeEvent(CEGUI::Editbox::EventTextAccepted, 
+			CEGUI::Event::Subscriber(&ShadowsApplication::handleParamsChanged, this));
+		mGradientClamp = static_cast<CEGUI::Editbox*>(wmgr.getWindow("Shadows/Main/GradientClamp"));
+		mGradientClamp->setText("0.098");
+		mGradientClamp->subscribeEvent(CEGUI::Editbox::EventTextAccepted, 
+			CEGUI::Event::Subscriber(&ShadowsApplication::handleParamsChanged, this));
 
 		
 
@@ -1360,6 +1437,18 @@ protected:
 
 		return true;
 	}
+
+	void updateTipForCombo(CEGUI::Combobox* cbo)
+	{
+
+		CEGUI::String text = cbo->getTooltipText();
+
+		text.append(" ");
+		if (cbo->getSelectedItem())
+			text.append(cbo->getSelectedItem()->getTooltipText());
+		mDescWindow->setText(text);
+
+	}
 	/// callback when mouse enters a described field (combo)
 	bool handleMouseEnterCombo(const CEGUI::EventArgs& e)
 	{
@@ -1367,11 +1456,7 @@ protected:
 			static_cast<const CEGUI::WindowEventArgs&>(e);
 		// get tooltip from parent combo (events raised on contained components)
 		CEGUI::Combobox* cbo = static_cast<CEGUI::Combobox*>(winargs.window->getParent());
-		CEGUI::String text = cbo->getTooltipText();
-		text.append(" ");
-		if (cbo->getSelectedItem())
-			text.append(cbo->getSelectedItem()->getTooltipText());
-		mDescWindow->setText(text);
+		updateTipForCombo(cbo);
 
 		return true;
 	}
@@ -1439,8 +1524,11 @@ protected:
 						ShadowCameraSetupPtr(new FocusedShadowCameraSetup());
 					break;
 				case LISPSM:
-					mCurrentShadowCameraSetup = 
-						ShadowCameraSetupPtr(new LiSPSMShadowCameraSetup());
+					{
+						mLiSPSMSetup = new LiSPSMShadowCameraSetup();
+						//mLiSPSMSetup->setUseAggressiveFocusRegion(false);
+						mCurrentShadowCameraSetup = ShadowCameraSetupPtr(mLiSPSMSetup);
+					}
 					break;
 				case PLANE_OPTIMAL:
 					mCurrentShadowCameraSetup = 
@@ -1452,15 +1540,106 @@ protected:
 
 				mSceneMgr->setShadowCameraSetup(mCurrentShadowCameraSetup);
 
+				updateTipForCombo(cbo);
+
 			}
 		}
 
 		return true;
 	}
 
+	void updateDepthShadowParams()
+	{
+		mReceiverVparams->setNamedConstant("fixedDepthBias", 
+			StringConverter::parseReal(mFixedBias->getText().c_str()));
+		mReceiverFparams->setNamedConstant("gradientScaleBias",
+			StringConverter::parseReal(mGradientBias->getText().c_str()));
+		mReceiverFparams->setNamedConstant("gradientClamp",
+			StringConverter::parseReal(mGradientClamp->getText().c_str()));
+	}
+
+	bool handleParamsChanged(const CEGUI::EventArgs& e)
+	{
+		if (!mReceiverVparams.isNull() && !mReceiverFparams.isNull())
+		{
+			updateDepthShadowParams();
+		}
+
+		return true;
+	}
+
+	void rebindDebugShadowOverlays()
+	{
+		MaterialPtr debugMat = 
+			MaterialManager::getSingleton().getByName("Ogre/DebugShadowMap0");
+		TexturePtr shadowTex = mSceneMgr->getShadowTexture(0);
+		debugMat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(shadowTex->getName());
+
+		debugMat = 
+			MaterialManager::getSingleton().getByName("Ogre/DebugShadowMap1");
+		shadowTex = mSceneMgr->getShadowTexture(1);
+		debugMat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(shadowTex->getName());
+	}
+
 	bool handleMaterialChanged(const CEGUI::EventArgs& e)
 	{
-		// TODO
+		const CEGUI::WindowEventArgs& winargs = 
+			static_cast<const CEGUI::WindowEventArgs&>(e);
+		CEGUI::Combobox* cbo = static_cast<CEGUI::Combobox*>(winargs.window);
+
+		if (cbo->getSelectedItem())
+		{
+			ShadowMaterial mat = (ShadowMaterial)cbo->getSelectedItem()->getID();
+			if (mat != mCurrentMaterial)
+			{
+				switch(mat)
+				{
+				case MAT_STANDARD:
+					mSceneMgr->setShadowTexturePixelFormat(PF_L8);
+					mSceneMgr->setShadowTextureCasterMaterial(StringUtil::BLANK);
+					mSceneMgr->setShadowTextureReceiverMaterial(StringUtil::BLANK);
+					mSceneMgr->setShadowTextureSelfShadow(false);	
+					// Sort out base materials
+					pPlaneEnt->setMaterialName(BASIC_ROCKWALL_MATERIAL);
+					for (std::vector<Entity*>::iterator i = pColumns.begin();
+						i != pColumns.end(); ++i)
+					{
+						(*i)->setMaterialName(BASIC_ROCKWALL_MATERIAL);
+					}
+
+					mReceiverVparams.setNull();
+					mReceiverFparams.setNull();
+
+					break;
+				case MAT_DEPTH_FLOAT:
+					mSceneMgr->setShadowTexturePixelFormat(PF_FLOAT16_R);
+					mSceneMgr->setShadowTextureCasterMaterial(CUSTOM_CASTER_MATERIAL);
+					mSceneMgr->setShadowTextureReceiverMaterial(CUSTOM_RECEIVER_MATERIAL);
+					mSceneMgr->setShadowTextureSelfShadow(true);	
+					// Sort out base materials
+					pPlaneEnt->setMaterialName(CUSTOM_ROCKWALL_MATERIAL);
+					for (std::vector<Entity*>::iterator i = pColumns.begin();
+						i != pColumns.end(); ++i)
+					{
+						(*i)->setMaterialName(CUSTOM_ROCKWALL_MATERIAL);
+					}
+
+					MaterialPtr themat = MaterialManager::getSingleton().getByName(CUSTOM_RECEIVER_MATERIAL);
+					mReceiverVparams = themat->getTechnique(0)->getPass(0)->getVertexProgramParameters();
+					mReceiverFparams = themat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
+
+					// set the current params
+					updateDepthShadowParams();
+					break;
+				};
+				mCurrentMaterial = mat;
+
+				updateTipForCombo(cbo);
+				rebindDebugShadowOverlays();
+
+			}
+		}
+
 		return true;
 	}
 
