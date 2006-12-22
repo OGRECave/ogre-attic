@@ -870,8 +870,8 @@ protected:
 	ShadowProjection mCurrentProjection;
 	ShadowMaterial mCurrentMaterial;
 
-	GpuProgramParametersSharedPtr mReceiverVparams;
-	GpuProgramParametersSharedPtr mReceiverFparams;
+	GpuProgramParametersSharedPtr mCustomRockwallVparams;
+	GpuProgramParametersSharedPtr mCustomRockwallFparams;
 
 	ShadowCameraSetupPtr mCurrentShadowCameraSetup;
 	/// Plane that defines plane-optimal shadow mapping basis
@@ -1475,6 +1475,7 @@ protected:
 				// stencil 
 				newTech = static_cast<ShadowTechnique>(
 					(newTech & ~SHADOWDETAILTYPE_TEXTURE) | SHADOWDETAILTYPE_STENCIL);
+				resetMaterials();
 				break;
 			case 2:
 				// texture
@@ -1550,17 +1551,17 @@ protected:
 
 	void updateDepthShadowParams()
 	{
-		mReceiverVparams->setNamedConstant("fixedDepthBias", 
+		mCustomRockwallVparams->setNamedConstant("fixedDepthBias", 
 			StringConverter::parseReal(mFixedBias->getText().c_str()));
-		mReceiverFparams->setNamedConstant("gradientScaleBias",
+		mCustomRockwallFparams->setNamedConstant("gradientScaleBias",
 			StringConverter::parseReal(mGradientBias->getText().c_str()));
-		mReceiverFparams->setNamedConstant("gradientClamp",
+		mCustomRockwallFparams->setNamedConstant("gradientClamp",
 			StringConverter::parseReal(mGradientClamp->getText().c_str()));
 	}
 
 	bool handleParamsChanged(const CEGUI::EventArgs& e)
 	{
-		if (!mReceiverVparams.isNull() && !mReceiverFparams.isNull())
+		if (!mCustomRockwallVparams.isNull() && !mCustomRockwallFparams.isNull())
 		{
 			updateDepthShadowParams();
 		}
@@ -1581,6 +1582,20 @@ protected:
 		debugMat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(shadowTex->getName());
 	}
 
+	void resetMaterials()
+	{
+		// Sort out base materials
+		pPlaneEnt->setMaterialName(BASIC_ROCKWALL_MATERIAL);
+		for (std::vector<Entity*>::iterator i = pColumns.begin();
+			i != pColumns.end(); ++i)
+		{
+			(*i)->setMaterialName(BASIC_ROCKWALL_MATERIAL);
+		}
+
+		mCustomRockwallVparams.setNull();
+		mCustomRockwallFparams.setNull();
+
+	}
 	bool handleMaterialChanged(const CEGUI::EventArgs& e)
 	{
 		const CEGUI::WindowEventArgs& winargs = 
@@ -1599,16 +1614,8 @@ protected:
 					mSceneMgr->setShadowTextureCasterMaterial(StringUtil::BLANK);
 					mSceneMgr->setShadowTextureReceiverMaterial(StringUtil::BLANK);
 					mSceneMgr->setShadowTextureSelfShadow(false);	
-					// Sort out base materials
-					pPlaneEnt->setMaterialName(BASIC_ROCKWALL_MATERIAL);
-					for (std::vector<Entity*>::iterator i = pColumns.begin();
-						i != pColumns.end(); ++i)
-					{
-						(*i)->setMaterialName(BASIC_ROCKWALL_MATERIAL);
-					}
 
-					mReceiverVparams.setNull();
-					mReceiverFparams.setNull();
+					resetMaterials();
 
 					break;
 				case MAT_DEPTH_FLOAT:
@@ -1624,9 +1631,9 @@ protected:
 						(*i)->setMaterialName(CUSTOM_ROCKWALL_MATERIAL);
 					}
 
-					MaterialPtr themat = MaterialManager::getSingleton().getByName(CUSTOM_RECEIVER_MATERIAL);
-					mReceiverVparams = themat->getTechnique(0)->getPass(0)->getVertexProgramParameters();
-					mReceiverFparams = themat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
+					MaterialPtr themat = MaterialManager::getSingleton().getByName(CUSTOM_ROCKWALL_MATERIAL);
+					mCustomRockwallVparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverVertexProgramParameters();
+					mCustomRockwallFparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverFragmentProgramParameters();
 
 					// set the current params
 					updateDepthShadowParams();
