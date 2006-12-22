@@ -112,8 +112,8 @@ public:
     /** Does nothing more */
     virtual void _updateSceneGraph( Camera * cam );
     /** Recurses through the octree determining which nodes are visible. */
-    virtual void _findVisibleObjects ( Camera * cam, AxisAlignedBox* visibleBounds,
-										bool onlyShadowCasters );
+    virtual void _findVisibleObjects ( Camera * cam, 
+		VisibleObjectsBoundsInfo* visibleBounds, bool onlyShadowCasters );
 
     /** Alerts each unculled object, notifying it that it will be drawn.
      * Useful for doing calculations only on nodes that will be drawn, prior
@@ -126,8 +126,9 @@ public:
     If any octant in the octree if completely within the the view frustum,
     all subchildren are automatically added with no visibility tests.
     */
-    void walkOctree( OctreeCamera *, RenderQueue *, Octree *, AxisAlignedBox* visibleBounds,
-					 bool foundvisible, bool onlyShadowCasters);
+    void walkOctree( OctreeCamera *, RenderQueue *, Octree *, 
+		VisibleObjectsBoundsInfo* visibleBounds, bool foundvisible, 
+		bool onlyShadowCasters);
 
     /** Checks the given OctreeNode, and determines if it needs to be moved
     * to a different octant.

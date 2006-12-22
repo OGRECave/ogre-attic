@@ -279,8 +279,8 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     void SceneNode::_findVisibleObjects(Camera* cam, RenderQueue* queue, 
-		AxisAlignedBox* visibleBounds, bool includeChildren, bool displayNodes, 
-		bool onlyShadowCasters)
+		VisibleObjectsBoundsInfo* visibleBounds, bool includeChildren, 
+		bool displayNodes, bool onlyShadowCasters)
     {
         // Check self visible
         if (!cam->isVisible(mWorldAABB))
@@ -299,8 +299,11 @@ namespace Ogre {
                 iobj->second->_updateRenderQueue(queue);
 
 				// update visible boundaries aab
-				if ( visibleBounds != NULL )
-					visibleBounds->merge( iobj->second->getWorldBoundingBox( true ) );
+				if (visibleBounds)
+				{
+					visibleBounds->merge(iobj->second->getWorldBoundingBox(true), 
+						iobj->second->getWorldBoundingSphere(true), cam);
+				}
             }
         }
 

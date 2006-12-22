@@ -49,6 +49,7 @@ Torus Knot Software Ltd.
 #include "OgreTexture.h"
 #include "OgreShadowCameraSetup.h"
 #include "OgreShadowTextureManager.h"
+#include "OgreCamera.h"
 
 namespace Ogre {
 
@@ -64,6 +65,43 @@ namespace Ogre {
 	class DefaultRaySceneQuery;
 	class DefaultSphereSceneQuery;
 	class DefaultAxisAlignedBoxSceneQuery;
+
+	/** Structure collecting together information about the visible objects
+	that have been discovered in a scene.
+	*/
+	struct VisibleObjectsBoundsInfo
+	{
+		/// The axis-aligned bounds of the visible objects
+		AxisAlignedBox aabb;
+		/// The closest a visible object is to the camera
+		Real minDistance;
+		/// The farthest a visible objects is from the camera
+		Real maxDistance;
+
+		VisibleObjectsBoundsInfo()
+		{
+			reset();
+		}
+
+		void reset()
+		{
+			aabb.setNull();
+			minDistance = std::numeric_limits<Real>::infinity();
+			maxDistance = 0;
+		}
+
+		void merge(const AxisAlignedBox& boxBounds, const Sphere& sphereBounds, 
+			const Camera* cam)
+		{
+			aabb.merge(boxBounds);
+			Real camDistToCenter = 
+				(cam->getDerivedPosition() - sphereBounds.getCenter()).length();
+			minDistance = std::min(minDistance, camDistToCenter - sphereBounds.getRadius());
+			maxDistance = std::max(maxDistance, camDistToCenter + sphereBounds.getRadius());
+		}
+
+
+	};
 
 	/** Interface definition for classes which can listen in on the process
 		of rendering shadows, in order to implement custom behaviour.
@@ -337,6 +375,8 @@ namespace Ogre {
 		bool mResetIdentityView;
 		bool mResetIdentityProj;
 
+	protected:
+
 		/** Visible objects bounding box list.
 			@remarks
 				Holds an ABB for each camera that contains the physical extends of the visible
@@ -344,7 +384,7 @@ namespace Ogre {
 				have a focus step to limit the shadow sample distribution to only valid visible
 				scene elements.
 		*/
-		typedef std::map< const Camera*, AxisAlignedBox >  CamVisibleObjectsMap;
+		typedef std::map< const Camera*, VisibleObjectsBoundsInfo> CamVisibleObjectsMap;
 		CamVisibleObjectsMap mCamVisibleObjectsMap; 
 
 		/** ShadowCamera to light mapping */
@@ -1391,7 +1431,7 @@ namespace Ogre {
                 Any visible objects will be added to a rendering queue, which is indexed by material in order
                 to ensure objects with the same material are rendered together to minimise render state changes.
         */
-        virtual void _findVisibleObjects(Camera* cam, AxisAlignedBox* visibleBounds, bool onlyShadowCasters);
+        virtual void _findVisibleObjects(Camera* cam, VisibleObjectsBoundsInfo* visibleBounds, bool onlyShadowCasters);
 
         /** Internal method for applying animations to scene nodes.
         @remarks
@@ -2627,10 +2667,10 @@ namespace Ogre {
 		Viewport* getCurrentViewport(void) { return mCurrentViewport; }
 
 		/** Returns a visibility boundary box for a specific camera. */
-		const AxisAlignedBox& getVisibilityABBForCam( const Camera* cam ) const;
+		const VisibleObjectsBoundsInfo& getVisibileObjectsBoundsInfo(const Camera* cam) const;
 
 		/**  Returns the shadow caster AAB for a specific light-camera combination */
-		const AxisAlignedBox& getShadowCastersAABForLight( const Light* light ) const;
+		const VisibleObjectsBoundsInfo& getShadowCasterBoundsInfo(const Light* light) const;
     };
 
     /** Default implementation of IntersectionSceneQuery. */
