@@ -993,7 +993,7 @@ namespace Ogre
             RealConstantEntry re = ri.getNext();
             if (re.isSet)
             {
-                setConstant(i, re.val, 4);
+                setConstant(i, re.val, 1);
             }
             ++i;
 
@@ -1005,7 +1005,7 @@ namespace Ogre
             IntConstantEntry ie = ii.getNext();
             if (ie.isSet)
             {
-                setConstant(i, ie.val, 4);
+                setConstant(i, ie.val, 1);
             }
             ++i;
         }
