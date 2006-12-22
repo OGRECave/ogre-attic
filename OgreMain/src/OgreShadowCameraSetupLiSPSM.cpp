@@ -281,17 +281,8 @@ namespace Ogre
 		// - the up vector is the y-axis
 		LProj = buildViewMatrix(Vector3::ZERO, viewDir, Vector3::UNIT_Y) * LProj;
 
-		const Vector3& lightDir = light->getDerivedDirection();
-		const Vector3& camDir   = cam->getDerivedDirection();
-
-		// Gamma specifies the 'tilt angle' between light and view direction.
-		// If this angle approaches null LiSPSM degrades to standard shadow mapping.
-		const Real cosGamma = lightDir.dotProduct(camDir);
-		if (std::abs(cosGamma) < 0.99)
-		{
-			// calculate LiSPSM projection
-			LProj = calculateLiSPSM(LProj * LView, mPointListBodyB, mPointListBodyLVS, *sm, *cam, *light) * LProj;
-		}
+		// calculate LiSPSM projection
+		LProj = calculateLiSPSM(LProj * LView, mPointListBodyB, mPointListBodyLVS, *sm, *cam, *light) * LProj;
 
 		// map bodyB to unit cube
 		LProj = transformToUnitCube(LProj * LView, mPointListBodyB) * LProj;
