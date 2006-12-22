@@ -91,7 +91,7 @@ public:
     /** Adds all the attached scenenodes to the render queue
     */
     virtual void _addToRenderQueue( Camera* cam, RenderQueue * q, bool onlyShadowCasters, 
-		AxisAlignedBox* visibleBounds);
+		VisibleObjectsBoundsInfo* visibleBounds);
 
     /** Sets up the LegacyRenderOperation for rendering this scene node as geometry.
     @remarks

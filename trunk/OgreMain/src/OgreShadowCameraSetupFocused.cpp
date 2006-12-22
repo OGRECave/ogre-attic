@@ -401,8 +401,9 @@ namespace Ogre
 		calculateShadowMappingMatrix(*sm, *cam, *light, &LView, &LProj, NULL);
 
 		// build scene bounding box
-		AxisAlignedBox sceneBB = sm->getShadowCastersAABForLight(light);
-		sceneBB.merge(sm->getVisibilityABBForCam(cam));
+		const VisibleObjectsBoundsInfo& visInfo = sm->getShadowCasterBoundsInfo(light);
+		AxisAlignedBox sceneBB = visInfo.aabb;
+		sceneBB.merge(sm->getVisibileObjectsBoundsInfo(cam).aabb);
 		sceneBB.merge(cam->getDerivedPosition());
 
 		// in case the sceneBB is empty (e.g. nothing visible to the cam) simply

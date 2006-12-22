@@ -190,7 +190,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     void BspSceneManager::_findVisibleObjects(Camera* cam, 
-		AxisAlignedBox* visibleBounds, bool onlyShadowCasters)
+		VisibleObjectsBoundsInfo* visibleBounds, bool onlyShadowCasters)
     {
         // Clear unique list of movables for this frame
         mMovablesForRendering.clear();
@@ -289,8 +289,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    BspNode* BspSceneManager::walkTree(Camera* camera, AxisAlignedBox *visibleBounds,
-					bool onlyShadowCasters)
+    BspNode* BspSceneManager::walkTree(Camera* camera, 
+		VisibleObjectsBoundsInfo *visibleBounds, bool onlyShadowCasters)
     {
 		if (mLevel.isNull()) return 0;
 
@@ -362,7 +362,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     void BspSceneManager::processVisibleLeaf(BspNode* leaf, Camera* cam, 
-							AxisAlignedBox* visibleBounds, bool onlyShadowCasters)
+		VisibleObjectsBoundsInfo* visibleBounds, bool onlyShadowCasters)
     {
         MaterialPtr pMat;
         // Skip world geometry if we're only supposed to process shadow casters
@@ -434,8 +434,11 @@ namespace Ogre {
                     mMovablesForRendering.insert(*oi);
 
 					// update visible boundaries aab
-					if ( visibleBounds != NULL )
-						visibleBounds->merge( (*oi)->getWorldBoundingBox( true ) );
+					if (visibleBounds)
+					{
+						visibleBounds->merge((*oi)->getWorldBoundingBox(true), 
+							(*oi)->getWorldBoundingSphere(true), cam);
+					}
                 }
 
             }

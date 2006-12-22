@@ -382,7 +382,7 @@ Camera * OctreeSceneManager::createCamera( const String &name )
     mCameras.insert( CameraList::value_type( name, c ) );
 
 	// create visible bounds aab map entry
-	mCamVisibleObjectsMap[c] = AxisAlignedBox();
+	mCamVisibleObjectsMap[c] = VisibleObjectsBoundsInfo();
 	
     return c;
 }
@@ -584,8 +584,8 @@ void OctreeSceneManager::_alertVisibleObjects( void )
     }
 }
 
-void OctreeSceneManager::_findVisibleObjects( Camera * cam, AxisAlignedBox* visibleBounds,
-												bool onlyShadowCasters )
+void OctreeSceneManager::_findVisibleObjects(Camera * cam, 
+	VisibleObjectsBoundsInfo* visibleBounds, bool onlyShadowCasters )
 {
 
     getRenderQueue()->clear();
@@ -629,8 +629,9 @@ void OctreeSceneManager::_findVisibleObjects( Camera * cam, AxisAlignedBox* visi
     }
 }
 
-void OctreeSceneManager::walkOctree( OctreeCamera *camera, RenderQueue *queue, Octree *octant, 
-						AxisAlignedBox* visibleBounds, bool foundvisible, bool onlyShadowCasters )
+void OctreeSceneManager::walkOctree( OctreeCamera *camera, RenderQueue *queue, 
+	Octree *octant, VisibleObjectsBoundsInfo* visibleBounds, 
+	bool foundvisible, bool onlyShadowCasters )
 {
 
     //return immediately if nothing is in the node.

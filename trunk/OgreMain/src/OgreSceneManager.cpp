@@ -269,7 +269,7 @@ Camera* SceneManager::createCamera(const String& name)
     mCameras.insert(CameraList::value_type(name, c));
 
 	// create visible bounds aab map entry
-	mCamVisibleObjectsMap[c] = AxisAlignedBox();
+	mCamVisibleObjectsMap[c] = VisibleObjectsBoundsInfo();
 
     return c;
 }
@@ -1197,6 +1197,9 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
 			// by the camera.
 			CamVisibleObjectsMap::iterator camVisObjIt = mCamVisibleObjectsMap.find( camera );
 
+			// reset the bounds
+			camVisObjIt->second.reset();
+
 			// Parse the scene and tag visibles
 			_findVisibleObjects(camera, &(camVisObjIt->second),
 				mIlluminationStage == IRS_RENDER_TO_TEXTURE? true : false);
@@ -1701,8 +1704,8 @@ void SceneManager::_updateSceneGraph(Camera* cam)
 
 }
 //-----------------------------------------------------------------------
-void SceneManager::_findVisibleObjects(Camera* cam, AxisAlignedBox* visibleBounds, 
-									   bool onlyShadowCasters)
+void SceneManager::_findVisibleObjects(
+	Camera* cam, VisibleObjectsBoundsInfo* visibleBounds, bool onlyShadowCasters)
 {
     // Tell nodes to find, cascade down all nodes
     mSceneRoot->_findVisibleObjects(cam, getRenderQueue(), visibleBounds, true, 
@@ -5276,9 +5279,10 @@ uint32 SceneManager::_getCombinedVisibilityMask(void) const
 
 }
 //---------------------------------------------------------------------
-const AxisAlignedBox& SceneManager::getVisibilityABBForCam( const Camera* cam ) const
+const VisibleObjectsBoundsInfo& 
+SceneManager::getVisibileObjectsBoundsInfo(const Camera* cam) const
 {
-	static AxisAlignedBox nullBox;
+	static VisibleObjectsBoundsInfo nullBox;
 
 	CamVisibleObjectsMap::const_iterator camVisObjIt = mCamVisibleObjectsMap.find( cam );
 
@@ -5288,9 +5292,10 @@ const AxisAlignedBox& SceneManager::getVisibilityABBForCam( const Camera* cam ) 
 		return camVisObjIt->second;
 }
 //---------------------------------------------------------------------
-const AxisAlignedBox& SceneManager::getShadowCastersAABForLight( const Light* light ) const
+const VisibleObjectsBoundsInfo& 
+SceneManager::getShadowCasterBoundsInfo( const Light* light ) const
 {
-	static AxisAlignedBox nullBox;
+	static VisibleObjectsBoundsInfo nullBox;
 
 	// find light
 	ShadowCamLightMapping::const_iterator it; 
