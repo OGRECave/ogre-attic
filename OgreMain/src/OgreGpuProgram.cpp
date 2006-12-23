@@ -453,7 +453,6 @@ namespace Ogre
 	void GpuProgramParameters::clearAutoConstant(size_t index)
 	{
 		// update existing index if it exists
-		bool found = false;
 		for (AutoConstantList::iterator i = mAutoConstants.begin(); 
 			i != mAutoConstants.end(); ++i)
 		{
