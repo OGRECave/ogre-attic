@@ -8,10 +8,11 @@
 void casterVP(
 	float4 position			: POSITION,
 	out float4 outPos		: POSITION,
-	out float4 outDepth		: TEXCOORD0,
+	out float2 outDepth		: TEXCOORD0,
 
 	uniform float4x4 worldViewProj,
-	uniform float4 texelOffsets
+	uniform float4 texelOffsets,
+	uniform float4 depthRange
 	)
 {
 	outPos = mul(worldViewProj, position);
@@ -20,21 +21,29 @@ void casterVP(
 	outPos.xy += texelOffsets.zw * outPos.w;
 	// linear depth storage
 	// offset / scale range output
-	outDepth = outPos;
+#if LINEAR_RANGE
+	outDepth.x = (outPos.z - depthRange.x) * depthRange.w;
+#else
+	outDepth.x = outPos.z;
+#endif
+	outDepth.y = outPos.w;
 }
 
 
 // Shadow caster fragment program for high-precision single-channel textures	
 void casterFPraw(
-	float4 depth			: TEXCOORD0,
+	float2 depth			: TEXCOORD0,
 	out float4 result		: COLOR)
 	
 {
-	depth = depth / depth.w;
+#if LINEAR_RANGE
+	float finalDepth = depth.x;
+#else
+	float finalDepth = depth.x / depth.y;
+#endif
 	// just smear across all components 
 	// therefore this one needs high individual channel precision
-	//result = depth;
-	result = float4(depth.zzz, 1);
+	result = float4(finalDepth, finalDepth, finalDepth, 1);
 }
 
 
@@ -53,7 +62,8 @@ void receiverVP(
 	uniform float4x4 texViewProj,
 	uniform float4 lightPosition,
 	uniform float4 lightColour,
-	uniform float fixedDepthBias
+	uniform float fixedDepthBias,
+	uniform float4 shadowDepthRange
 	)
 {
 	float4 worldPos = mul(world, position);
@@ -70,7 +80,13 @@ void receiverVP(
 
 	// calculate shadow map coords
 	outShadowUV = mul(texViewProj, worldPos);
-	outShadowUV.z -= fixedDepthBias * outShadowUV.w;
+#if LINEAR_RANGE
+	// adjust by fixed depth bias, rescale into range
+	outShadowUV.z = (outShadowUV.z - fixedDepthBias - shadowDepthRange.x) * shadowDepthRange.w;
+#else
+	outShadowUV.z = outShadowUV.z - fixedDepthBias * outShadowUV.w;
+#endif
+	
 
 
 	
@@ -90,11 +106,15 @@ void receiverFPraw(
 	out float4 result		: COLOR)
 {
 	// point on shadowmap
+#if LINEAR_RANGE
+	shadowUV.xy = shadowUV.xy / shadowUV.w;
+#else
 	shadowUV = shadowUV / shadowUV.w;
+#endif
 	float centerdepth = tex2D(shadowMap, shadowUV.xy).x;
     
     // gradient calculation
-  	float pixeloffset = inverseShadowmapSize * 0.5;    
+  	float pixeloffset = inverseShadowmapSize;
     float4 depths = float4(
     	tex2D(shadowMap, shadowUV.xy + float2(-pixeloffset, 0)).x,
     	tex2D(shadowMap, shadowUV.xy + float2(+pixeloffset, 0)).x,
@@ -103,16 +123,40 @@ void receiverFPraw(
 
 	float2 differences = abs( depths.yw - depths.xz );
 	float gradient = min(gradientClamp, max(differences.x, differences.y));
+	float gradientFactor = gradient * gradientScaleBias;
 
 	// visibility function
-	float delta_z = centerdepth + gradient * gradientScaleBias - shadowUV.z;
-   
-    //float visibility = saturate(1 + delta_z / (gradient * shadowFuzzyWidth));
-	// Hmm, why does this work?
-	float visibility = saturate(1 + delta_z * 5);
-       
+	float finalCenterDepth = centerdepth + gradientFactor;
+
+	// shadowUV.z contains lightspace position of current object
+
+#if FUZZY_TEST
+	// fuzzy test - introduces some ghosting in result and doesn't appear to be needed?
+	//float visibility = saturate(1 + delta_z / (gradient * shadowFuzzyWidth));
+	float visibility = saturate(1 + (finalCenterDepth - shadowUV.z) * shadowFuzzyWidth * shadowUV.w);
 
 	result = vertexColour * visibility;
+#else
+	// hard test
+#if PCF
+	// use depths from prev, calculate diff
+	depths += gradientFactor.xxxx;
+	float final = (finalCenterDepth > shadowUV.z) ? 1.0f : 0.0f;
+	final += (depths.x > shadowUV.z) ? 1.0f : 0.0f;
+	final += (depths.y > shadowUV.z) ? 1.0f : 0.0f;
+	final += (depths.z > shadowUV.z) ? 1.0f : 0.0f;
+	final += (depths.w > shadowUV.z) ? 1.0f : 0.0f;
+	
+	final *= 0.2f;
+
+	result = float4(vertexColour.xyz * final, 1);
+	
+#else
+	result = (finalCenterDepth > shadowUV.z) ? vertexColour : float4(0,0,0,1);
+#endif
+
+#endif
+   
 
 	
 }
