@@ -4,12 +4,13 @@ vertex_program Ogre/DepthShadowmap/CasterVP hlsl
     entry_point casterVP
     target vs_2_0
 
+	preprocessor_defines LINEAR_RANGE=0
+
     default_params
     {
         param_named_auto worldViewProj worldviewproj_matrix
 		param_named_auto texelOffsets texel_offsets
-		//param_named rangeOffset float 1000
-		//param_named rangeScale float 200
+		param_named_auto depthRange scene_depth_range
     }
 }
 
@@ -19,6 +20,8 @@ fragment_program Ogre/DepthShadowmap/CasterFPraw hlsl
     source DepthShadowmap.hlsl
     entry_point casterFPraw
     target ps_2_0
+
+	preprocessor_defines LINEAR_RANGE=0
 
     default_params
     {
@@ -32,6 +35,8 @@ vertex_program Ogre/DepthShadowmap/ReceiverVP hlsl
     entry_point receiverVP
     target vs_2_0
 
+	preprocessor_defines LINEAR_RANGE=0
+
     default_params
     {
         param_named_auto world world_matrix
@@ -40,6 +45,7 @@ vertex_program Ogre/DepthShadowmap/ReceiverVP hlsl
 		param_named_auto texViewProj texture_viewproj_matrix
 		param_named_auto lightPosition light_position 0
 		param_named_auto lightColour light_diffuse_colour 0
+		param_named_auto shadowDepthRange shadow_scene_depth_range 0
 		param_named fixedDepthBias float 0.0005
     }
 }
@@ -51,7 +57,9 @@ fragment_program Ogre/DepthShadowmap/ReceiverFPraw hlsl
     entry_point receiverFPraw
 	target ps_2_0
 
-    default_params
+	preprocessor_defines LINEAR_RANGE=0,FUZZY_TEST=0,PCF=0
+
+	default_params
     {
         param_named inverseShadowmapSize float 0.0009765625
 		param_named gradientClamp float 0.0098
@@ -60,6 +68,22 @@ fragment_program Ogre/DepthShadowmap/ReceiverFPraw hlsl
     }
 }
 
+fragment_program Ogre/DepthShadowmap/ReceiverFPrawPCF hlsl
+{
+    source DepthShadowmap.hlsl
+    entry_point receiverFPraw
+	target ps_2_0
+
+	preprocessor_defines LINEAR_RANGE=0,FUZZY_TEST=0,PCF=1
+
+	default_params
+    {
+        param_named inverseShadowmapSize float 0.0009765625
+		param_named gradientClamp float 0.0098
+		param_named gradientScaleBias float 0
+		param_named shadowFuzzyWidth float 1
+    }
+}
 
 
 // Generic Shadow caster material (floating point shadowmap)
@@ -154,7 +178,7 @@ material Ogre/DepthShadowmap/Receiver/RockWall
 		}
 		// Now do the lighting pass
 		// NB we don't do decal texture here because this is repeated per light
-		pass
+		pass lighting
 		{
 			// base colours, not needed for rendering, but as information
 			// to lighting pass categorisation routine
@@ -213,5 +237,38 @@ material Ogre/DepthShadowmap/Receiver/RockWall
 	}
 
 
+}
+
+
+// Specialisation to use PCF
+material Ogre/DepthShadowmap/Receiver/Float/PCF : Ogre/DepthShadowmap/Receiver/Float
+{
+	technique
+	{
+		pass
+		{
+			// override just receiver program 
+			fragment_program_ref Ogre/DepthShadowmap/ReceiverFPrawPCF
+			{
+			}
+			
+		}
+	}
+}
+
+// Specialisation to use PCF
+material Ogre/DepthShadowmap/Receiver/RockWall/PCF : Ogre/DepthShadowmap/Receiver/RockWall
+{
+	technique
+	{
+		pass lighting
+		{
+			// override just receiver program 
+			shadow_receiver_fragment_program_ref Ogre/DepthShadowmap/ReceiverFPrawPCF
+			{
+			}
+			
+		}
+	}
 }
 

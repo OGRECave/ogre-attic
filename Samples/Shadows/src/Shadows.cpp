@@ -857,7 +857,8 @@ protected:
 	enum ShadowMaterial
 	{
 		MAT_STANDARD,
-		MAT_DEPTH_FLOAT
+		MAT_DEPTH_FLOAT,
+		MAT_DEPTH_FLOAT_PCF
 	};
 	CEGUI::OgreCEGUIRenderer* mGUIRenderer;
 	CEGUI::System* mGUISystem;
@@ -1361,11 +1362,19 @@ protected:
 		cbo->setText("Standard");
 		mCurrentMaterial = MAT_STANDARD;
 
-		li = new CEGUI::ListboxTextItem("Depth Shadowmap (float)", MAT_DEPTH_FLOAT);
+		li = new CEGUI::ListboxTextItem("Depth Shadowmap", MAT_DEPTH_FLOAT);
 		li->setSelectionBrushImage(selectImage);
-		li->setTooltipText("Depth Shadowmap (float): Shadow caster depth is rendered into a "
+		li->setTooltipText("Depth Shadowmap: Shadow caster depth is rendered into a "
 			" floating point texture and a depth comparison is performed on receivers "
 			" (self-shadowing allowed). Requires floating point textures and shader support.");
+		cbo->addItem(li);
+
+		li = new CEGUI::ListboxTextItem("Depth Shadowmap (PCF)", MAT_DEPTH_FLOAT_PCF);
+		li->setSelectionBrushImage(selectImage);
+		li->setTooltipText("Depth Shadowmap (PCF): Shadow caster depth is rendered into a "
+			" floating point texture and a depth comparison is performed on receivers "
+			" (self-shadowing allowed), with a percentage closest filter. Requires "
+			"floating point textures and shader support.");
 		cbo->addItem(li);
 
 		CEGUI::RadioButton* radio = static_cast<CEGUI::RadioButton*>(
@@ -1395,7 +1404,7 @@ protected:
 		mGradientBias->subscribeEvent(CEGUI::Editbox::EventTextAccepted, 
 			CEGUI::Event::Subscriber(&ShadowsApplication::handleParamsChanged, this));
 		mGradientClamp = static_cast<CEGUI::Editbox*>(wmgr.getWindow("Shadows/Main/GradientClamp"));
-		mGradientClamp->setText("0.098");
+		mGradientClamp->setText("0.02");
 		mGradientClamp->subscribeEvent(CEGUI::Editbox::EventTextAccepted, 
 			CEGUI::Event::Subscriber(&ShadowsApplication::handleParamsChanged, this));
 
@@ -1605,6 +1614,7 @@ protected:
 		if (cbo->getSelectedItem())
 		{
 			ShadowMaterial mat = (ShadowMaterial)cbo->getSelectedItem()->getID();
+			MaterialPtr themat;
 			if (mat != mCurrentMaterial)
 			{
 				switch(mat)
@@ -1631,7 +1641,27 @@ protected:
 						(*i)->setMaterialName(CUSTOM_ROCKWALL_MATERIAL);
 					}
 
-					MaterialPtr themat = MaterialManager::getSingleton().getByName(CUSTOM_ROCKWALL_MATERIAL);
+					themat = MaterialManager::getSingleton().getByName(CUSTOM_ROCKWALL_MATERIAL);
+					mCustomRockwallVparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverVertexProgramParameters();
+					mCustomRockwallFparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverFragmentProgramParameters();
+
+					// set the current params
+					updateDepthShadowParams();
+					break;
+				case MAT_DEPTH_FLOAT_PCF:
+					mSceneMgr->setShadowTexturePixelFormat(PF_FLOAT16_R);
+					mSceneMgr->setShadowTextureCasterMaterial(CUSTOM_CASTER_MATERIAL);
+					mSceneMgr->setShadowTextureReceiverMaterial(CUSTOM_RECEIVER_MATERIAL + "/PCF");
+					mSceneMgr->setShadowTextureSelfShadow(true);	
+					// Sort out base materials
+					pPlaneEnt->setMaterialName(CUSTOM_ROCKWALL_MATERIAL + "/PCF");
+					for (std::vector<Entity*>::iterator i = pColumns.begin();
+						i != pColumns.end(); ++i)
+					{
+						(*i)->setMaterialName(CUSTOM_ROCKWALL_MATERIAL);
+					}
+
+					themat = MaterialManager::getSingleton().getByName(CUSTOM_ROCKWALL_MATERIAL + "/PCF");
 					mCustomRockwallVparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverVertexProgramParameters();
 					mCustomRockwallFparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverFragmentProgramParameters();
 
