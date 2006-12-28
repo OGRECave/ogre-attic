@@ -1941,6 +1941,10 @@ Near clip distance, in world units
 Far clip distance, in world units (may be 0 for infinite view projection)
 @item texture_viewproj_matrix
 Applicable to vertex programs which have been specified as the 'shadow receiver' vertex program alternative, or where a texture unit is marked as content_type shadow; this provides details of the view/projection matrix for the current shadow projector. The optional 'extra_params' entry specifies which light the projector refers to (for the case of content_type shadow where more than one shadow texture may be present in a single pass), where 0 is the default and refers to the first light referenced in this pass.
+@item scene_depth_range
+Provides information about the depth range as viewed from the current camera being used to render. Provided as float4(minDepth, maxDepth, depthRange, 1 / depthRange).
+@item shadow_scene_depth_range
+Provides information about the depth range as viewed from the shadow camera relating to a selected light. Requires a light index parameter. Provided as float4(minDepth, maxDepth, depthRange, 1 / depthRange).
 @anchor{pass_number}
 @item pass_number
 Sets the active pass index number in a gpu parameter.  The first pass in a technique has an index of 0, the second an index of 1 and so on.  This is usefull for multipass shaders (ie fur or blur shader) that need to know what pass it is.  By setting up the auto parameter in a @ref{Default Program Parameters} list in a program definition, there is no requirement to set the pass number parameter in each pass and lose track. (@xref{fur_example})

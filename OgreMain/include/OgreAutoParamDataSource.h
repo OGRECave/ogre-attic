@@ -38,6 +38,9 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
+	// forward decls
+	struct VisibleObjectsBoundsInfo;
+
 
     /** This utility class is used to hold the information used to generate the matrices
     and other information required to automatically populate GpuProgramParameters.
@@ -87,6 +90,11 @@ namespace Ogre {
         mutable ColourValue mFogColour;
         mutable Vector4 mFogParams;
         mutable int mPassNumber;
+		mutable Vector4 mSceneDepthRange;
+		mutable bool mSceneDepthRangeDirty;
+		// Ordered by light, populated on demand, dirtied when lights change
+		mutable std::vector<Vector4> mShadowCamDepthRanges;
+		mutable bool mShadowCamDepthRangesDirty;
 
         const Renderable* mCurrentRenderable;
         const Camera* mCurrentCamera;
@@ -94,6 +102,8 @@ namespace Ogre {
         const Frustum* mCurrentTextureProjector[OGRE_MAX_SIMULTANEOUS_LIGHTS];
         const RenderTarget* mCurrentRenderTarget;
         const Viewport* mCurrentViewport;
+		const SceneManager* mCurrentSceneManager;
+		const VisibleObjectsBoundsInfo* mMainCamBoundsInfo;
 
         Light mBlankLight;
     public:
@@ -113,6 +123,12 @@ namespace Ogre {
         void setCurrentViewport(const Viewport* viewport);
 		/** Sets the shadow extrusion distance to be used for point lights. */
 		void setShadowDirLightExtrusionDistance(Real dist);
+		/** Sets the main camera's scene bounding information */
+		void setMainCamBoundsInfo(VisibleObjectsBoundsInfo* info);
+		/** Set the current scene manager for enquiring on demand */
+		void setCurrentSceneManager(const SceneManager* sm);
+
+
 
         const Matrix4& getWorldMatrix(void) const;
         const Matrix4* getWorldMatrixArray(void) const;
@@ -140,6 +156,8 @@ namespace Ogre {
         const RenderTarget* getCurrentRenderTarget(void) const;
         const Renderable* getCurrentRenderable(void) const;
 		Real getShadowExtrusionDistance(void) const;
+		const Vector4& getSceneDepthRange() const;
+		const Vector4& getShadowSceneDepthRange(size_t lightIndex) const;
 		Matrix4 getInverseViewProjMatrix(void) const;
 		Matrix4 getInverseTransposeViewProjMatrix() const;
 		Matrix4 getTransposeViewProjMatrix() const;

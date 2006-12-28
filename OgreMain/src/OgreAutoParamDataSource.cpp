@@ -59,10 +59,14 @@ namespace Ogre {
          mInverseTransposeWorldViewMatrixDirty(true),
          mCameraPositionObjectSpaceDirty(true),
          mCameraPositionDirty(true),
-         mCurrentRenderable(NULL),
-         mCurrentCamera(NULL), 
-         mCurrentRenderTarget(NULL),
-         mCurrentViewport(NULL)
+		 mSceneDepthRangeDirty(true),
+		 mShadowCamDepthRangesDirty(true),
+         mCurrentRenderable(0),
+         mCurrentCamera(0), 
+         mCurrentRenderTarget(0),
+         mCurrentViewport(0), 
+		 mCurrentSceneManager(0),
+		 mMainCamBoundsInfo(0)
     {
         mBlankLight.setDiffuseColour(ColourValue::Black);
         mBlankLight.setSpecularColour(ColourValue::Black);
@@ -114,7 +118,19 @@ namespace Ogre {
     void AutoParamDataSource::setCurrentLightList(const LightList* ll)
     {
         mCurrentLightList = ll;
+		mShadowCamDepthRangesDirty = true;
     }
+	//-----------------------------------------------------------------------------
+	void AutoParamDataSource::setMainCamBoundsInfo(VisibleObjectsBoundsInfo* info)
+	{
+		mMainCamBoundsInfo = info;
+		mSceneDepthRangeDirty = true;
+	}
+	//-----------------------------------------------------------------------------
+	void AutoParamDataSource::setCurrentSceneManager(const SceneManager* sm)
+	{
+		mCurrentSceneManager = sm;
+	}
     //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getWorldMatrix(void) const
     {
@@ -627,6 +643,68 @@ namespace Ogre {
         ++mPassNumber;
     }
 	//-----------------------------------------------------------------------------
+	const Vector4& AutoParamDataSource::getSceneDepthRange() const
+	{
+		if (mSceneDepthRangeDirty)
+		{
+			// calculate depth information
+			mSceneDepthRange.x = mMainCamBoundsInfo->minDistance;
+			mSceneDepthRange.y = mMainCamBoundsInfo->maxDistance;
+			mSceneDepthRange.z = mMainCamBoundsInfo->maxDistance - mMainCamBoundsInfo->minDistance;
+			mSceneDepthRange.w = 1.0f / mSceneDepthRange.z;
+			mSceneDepthRangeDirty = false;
+		}
+
+		return mSceneDepthRange;
+
+	}
+	//-----------------------------------------------------------------------------
+	const Vector4& AutoParamDataSource::getShadowSceneDepthRange(size_t lightIndex) const
+	{
+		static Vector4 dummy(0, 100000, 100000, 1/100000);
+
+		if (!mCurrentSceneManager->isShadowTechniqueTextureBased())
+			return dummy;
+
+		if (mShadowCamDepthRangesDirty)
+		{
+			mShadowCamDepthRanges.clear();
+			for (LightList::const_iterator i = mCurrentLightList->begin();
+				i != mCurrentLightList->end(); ++i)
+			{
+				// stop as soon as we run out of shadow casting lights, they are
+				// all grouped at the beginning
+				if (!(*i)->getCastShadows())
+					break;
+
+				const VisibleObjectsBoundsInfo& info = 
+					mCurrentSceneManager->getShadowCasterBoundsInfo(*i);
+
+				mSceneDepthRange.x = mMainCamBoundsInfo->minDistance;
+				mSceneDepthRange.y = mMainCamBoundsInfo->maxDistance;
+				mSceneDepthRange.z = mMainCamBoundsInfo->maxDistance - mMainCamBoundsInfo->minDistance;
+				mSceneDepthRange.w = 1.0f / mSceneDepthRange.z;
+
+				mShadowCamDepthRanges.push_back(Vector4(
+					info.minDistance, 
+					info.maxDistance, 
+					info.maxDistance - info.minDistance,
+					1.0f / (info.maxDistance - info.minDistance)));
+			}
+
+			mShadowCamDepthRangesDirty = false;
+		}
+
+		if (lightIndex >= mShadowCamDepthRanges.size())
+		{
+			return dummy;
+		}
+		else
+		{
+			return mShadowCamDepthRanges[lightIndex];
+		}
+
+	}
 
 }
 

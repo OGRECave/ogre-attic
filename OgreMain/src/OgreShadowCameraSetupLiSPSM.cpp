@@ -237,7 +237,7 @@ namespace Ogre
 		// build scene bounding box
 		const VisibleObjectsBoundsInfo& visInfo = sm->getShadowCasterBoundsInfo(light);
 		AxisAlignedBox sceneBB = visInfo.aabb;
-		sceneBB.merge(sm->getVisibileObjectsBoundsInfo(cam).aabb);
+		sceneBB.merge(sm->getVisibleObjectsBoundsInfo(cam).aabb);
 		sceneBB.merge(cam->getDerivedPosition());
 
 		// in case the sceneBB is empty (e.g. nothing visible to the cam) simply

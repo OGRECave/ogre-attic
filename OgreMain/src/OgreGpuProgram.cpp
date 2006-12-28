@@ -141,6 +141,8 @@ namespace Ogre
         AutoConstantDefinition(ACT_PASS_ITERATION_NUMBER,              "pass_iteration_number",              1, ET_REAL, ACDT_NONE),
 		AutoConstantDefinition(ACT_ANIMATION_PARAMETRIC,               "animation_parametric",               4, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_TEXEL_OFFSETS,               "texel_offsets",				  4, ET_REAL, ACDT_NONE),
+		AutoConstantDefinition(ACT_SCENE_DEPTH_RANGE,           "scene_depth_range",			  4, ET_REAL, ACDT_NONE),
+		AutoConstantDefinition(ACT_SHADOW_SCENE_DEPTH_RANGE,    "shadow_scene_depth_range",		  4, ET_REAL, ACDT_INT),
     };
 
     
@@ -719,6 +721,9 @@ namespace Ogre
 						rsys->getVerticalTexelOffset() * source.getInverseViewportHeight()));
 				}
 				break;
+			case ACT_SCENE_DEPTH_RANGE:
+				setConstant(i->index, source.getSceneDepthRange());
+				break;
             case ACT_VIEW_DIRECTION:
                setConstant(i->index, source.getViewDirection());
                break;
@@ -814,6 +819,9 @@ namespace Ogre
             case ACT_SHADOW_EXTRUSION_DISTANCE:
                 setConstant(i->index, source.getShadowExtrusionDistance());
                 break;
+			case ACT_SHADOW_SCENE_DEPTH_RANGE:
+				setConstant(i->index, source.getShadowSceneDepthRange(i->data));
+				break;
             case ACT_LIGHT_POWER_SCALE:
 				setConstant(i->index, source.getLight(i->data).getPowerScale());
 				break;
