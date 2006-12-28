@@ -121,6 +121,7 @@ mShadowDirLightExtrudeDist(10000),
 mIlluminationStage(IRS_NONE),
 mShadowTextureConfigDirty(true),
 mShadowUseInfiniteFarPlane(true),
+mShadowCasterRenderBackFaces(true),
 mShadowCasterSphereQuery(0),
 mShadowCasterAABBQuery(0),
 mShadowFarDist(0),
@@ -989,7 +990,19 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed,
 		bool colWrite = pass->getColourWriteEnabled();
 		mDestRenderSystem->_setColourBufferWriteEnabled(colWrite, colWrite, colWrite, colWrite);
 		// Culling mode
-		mDestRenderSystem->_setCullingMode(pass->getCullingMode());
+		if (isShadowTechniqueTextureBased() 
+			&& mIlluminationStage == IRS_RENDER_TO_TEXTURE
+			&& mShadowCasterRenderBackFaces
+			&& pass->getCullingMode() == CULL_CLOCKWISE)
+		{
+			// render back faces into shadow caster, can help with depth comparison
+			mDestRenderSystem->_setCullingMode(CULL_ANTICLOCKWISE);
+		}
+		else
+		{
+			mDestRenderSystem->_setCullingMode(pass->getCullingMode());
+		}
+		
 		// Shading
 		mDestRenderSystem->setShadingType(pass->getShadingMode());
 		// Polygon mode
