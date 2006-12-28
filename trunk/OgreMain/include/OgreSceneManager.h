@@ -96,7 +96,7 @@ namespace Ogre {
 			aabb.merge(boxBounds);
 			Real camDistToCenter = 
 				(cam->getDerivedPosition() - sphereBounds.getCenter()).length();
-			minDistance = std::min(minDistance, camDistToCenter - sphereBounds.getRadius());
+			minDistance = std::min(minDistance, std::max((Real)0, camDistToCenter - sphereBounds.getRadius()));
 			maxDistance = std::max(maxDistance, camDistToCenter + sphereBounds.getRadius());
 		}
 
@@ -2667,7 +2667,7 @@ namespace Ogre {
 		Viewport* getCurrentViewport(void) { return mCurrentViewport; }
 
 		/** Returns a visibility boundary box for a specific camera. */
-		const VisibleObjectsBoundsInfo& getVisibileObjectsBoundsInfo(const Camera* cam) const;
+		const VisibleObjectsBoundsInfo& getVisibleObjectsBoundsInfo(const Camera* cam) const;
 
 		/**  Returns the shadow caster AAB for a specific light-camera combination */
 		const VisibleObjectsBoundsInfo& getShadowCasterBoundsInfo(const Light* light) const;

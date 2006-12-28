@@ -1057,6 +1057,7 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
 {
     Root::getSingleton()._setCurrentSceneManager(this);
 	mActiveQueuedRenderableVisitor->targetSceneMgr = this;
+	mAutoParamDataSource.setCurrentSceneManager(this);
 
     if (isShadowTechniqueInUse())
     {
@@ -1203,6 +1204,8 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
 			// Parse the scene and tag visibles
 			_findVisibleObjects(camera, &(camVisObjIt->second),
 				mIlluminationStage == IRS_RENDER_TO_TEXTURE? true : false);
+
+			mAutoParamDataSource.setMainCamBoundsInfo(&(camVisObjIt->second));
 		}
 		// Add overlays, if viewport deems it
 		if (vp->getOverlaysEnabled() && mIlluminationStage != IRS_RENDER_TO_TEXTURE)
@@ -5280,7 +5283,7 @@ uint32 SceneManager::_getCombinedVisibilityMask(void) const
 }
 //---------------------------------------------------------------------
 const VisibleObjectsBoundsInfo& 
-SceneManager::getVisibileObjectsBoundsInfo(const Camera* cam) const
+SceneManager::getVisibleObjectsBoundsInfo(const Camera* cam) const
 {
 	static VisibleObjectsBoundsInfo nullBox;
 

@@ -337,7 +337,21 @@ namespace Ogre {
 				float4(absoluteHorizontalOffset, absoluteVerticalOffset, 
 					horizontalOffset / viewportWidth, verticalOffset / viewportHeight)
 			*/
-			ACT_TEXEL_OFFSETS
+			ACT_TEXEL_OFFSETS,
+
+			/** Provides information about the depth range of the scene as viewed
+				from the current camera. 
+				Passed as float4(minDepth, maxDepth, depthRange, 1 / depthRange)
+			*/
+			ACT_SCENE_DEPTH_RANGE,
+
+			/** Provides information about the depth range of the scene as viewed
+			from a given shadow camera. Requires an index parameter which maps
+			to a light index relative to the current light list.
+			Passed as float4(minDepth, maxDepth, depthRange, 1 / depthRange)
+			*/
+			ACT_SHADOW_SCENE_DEPTH_RANGE,
+
 
         };
 
