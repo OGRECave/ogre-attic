@@ -464,6 +464,17 @@ namespace Ogre
 				break;
 			}
 		}
+
+		// Also remove from constant definition
+		for (ConstantDefinitionContainer::iterator i = mConstantDefinitions.begin();
+			i != mConstantDefinitions.end(); ++i)
+		{
+			if (i->entryIndex == index)
+			{
+				mConstantDefinitions.erase(i);
+				break;
+			}
+		}
 	}
 	//-----------------------------------------------------------------------------
 	void GpuProgramParameters::clearNamedAutoConstant(const String& name)
@@ -1064,7 +1075,7 @@ namespace Ogre
             RealConstantEntry re = ri.getNext();
             if (re.isSet)
             {
-                setConstant(i, re.val, 4);
+                setConstant(i, re.val, 1);
             }
             ++i;
 
@@ -1076,7 +1087,7 @@ namespace Ogre
             IntConstantEntry ie = ii.getNext();
             if (ie.isSet)
             {
-                setConstant(i, ie.val, 4);
+                setConstant(i, ie.val, 1);
             }
             ++i;
         }
