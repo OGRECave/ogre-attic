@@ -1536,6 +1536,11 @@ namespace Ogre
             roundedDims = dims;
         }
 
+		// clear any auto parameter bound to this constant, it would override this setting
+		// can cause problems overriding materials or changing default params
+		context.programParams->clearAutoConstant(index);
+
+
         // set the name of the parameter if it exists
         String paramName = (commandname == "param_named") ? vecparams[0] : "";
 

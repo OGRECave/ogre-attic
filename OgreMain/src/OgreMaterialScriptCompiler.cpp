@@ -2325,7 +2325,11 @@ namespace Ogre {
             roundedDims = dims;
         }
 
-        // Now parse all the values
+		// clear any auto parameter bound to this constant, it would override this setting
+		// can cause problems overriding materials or changing default params
+		mScriptContext.programParams->clearAutoConstant(index);
+
+		// Now parse all the values
         if (isReal)
         {
             Real* realBuffer = new Real[roundedDims];
