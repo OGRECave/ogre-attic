@@ -671,6 +671,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\Win32\OgreTimer.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreUnifiedHighLevelGpuProgram.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreUserDefinedObject.cpp">
 			</File>
 			<File
@@ -1311,6 +1314,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\Win32\OgreTimerImp.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreUnifiedHighLevelGpuProgram.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreUserDefinedObject.h">

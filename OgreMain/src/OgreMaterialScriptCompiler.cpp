@@ -701,7 +701,8 @@ namespace Ogre {
 		StringUtil::toLowerCase(command);
         String params = getNextTokenLabel();
         StringUtil::trim(params);
-		mScriptContext.programDef->customParameters[command] = params;
+		mScriptContext.programDef->customParameters.push_back(
+			std::pair<String, String>(command, params));
 	}
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseDefaultParams(void)
@@ -2831,7 +2832,7 @@ namespace Ogre {
 		{
 			// High-level program
 			// Validate
-			if (def->source.empty())
+			if (def->source.empty() && def->language != "unified")
 			{
 				logParseError("Invalid program definition for " + def->name +
 					", you must specify a source file.");
@@ -2899,7 +2900,7 @@ namespace Ogre {
             hgp->setSourceFile(def->source);
 
             // Set custom parameters
-            std::map<String, String>::const_iterator i, iend;
+			std::vector<std::pair<String, String> >::const_iterator i, iend;
             iend = def->customParameters.end();
             for (i = def->customParameters.begin(); i != iend; ++i)
             {

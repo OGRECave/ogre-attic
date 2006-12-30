@@ -152,6 +152,7 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreTexture.cpp \
                          OgreTextureManager.cpp \
                          OgreTextureUnitState.cpp \
+						 OgreUnifiedHighLevelGpuProgram.cpp \
                          OgreUserDefinedObject.cpp \
                          OgreVector2.cpp \
                          OgreVector3.cpp \

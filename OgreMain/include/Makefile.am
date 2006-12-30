@@ -184,6 +184,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgreTexture.h \
                      OgreTextureManager.h \
                      OgreTimer.h \
+					 OgreUnifiedHighLevelGpuProgram.h \
                      OgreUserDefinedObject.h \
                      OgreVector2.h \
                      OgreVector3.h \

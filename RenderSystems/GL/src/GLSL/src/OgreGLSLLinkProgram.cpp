@@ -230,6 +230,10 @@ namespace Ogre {
 					}// end switch
 
 					mUniformReferences.push_back(newUniformReference);
+					// also add [0] version since GLSL always supports this, and
+					// makes consistent with Cg & HLSL array access modes
+					newUniformReference.mName = newUniformReference.mName + "[0]";
+					mUniformReferences.push_back(newUniformReference);
 
 				} // end if
 			} // end for

@@ -14,7 +14,7 @@ material Ogre/Compositor/Embossed
 		{
 			depth_check off
 
-			vertex_program_ref Ogre/Compositor/StdQuad_vp
+			vertex_program_ref Ogre/Compositor/StdQuad_Cg_vp
 			{
 			}
 

@@ -158,7 +158,7 @@ namespace Ogre {
 		    bool supportsMorphAnimation;
 		    ushort supportsPoseAnimation; // number of simultaneous poses supported
             bool usesVertexTextureFetch;
-		    std::map<String, String> customParameters;
+			std::vector<std::pair<String, String> > customParameters;
 	    };
         /** Struct for holding the script context while parsing. */
         struct MaterialScriptContext

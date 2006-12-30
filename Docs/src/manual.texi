@@ -1560,7 +1560,7 @@ In order to use a vertex or fragment program in your materials (@xref{Using Vert
 
 The definition of a program can either be embedded in the .material script itself (in which case it must precede any references to it in the script), or if you wish to use the same program across multiple .material files, you can define it in an external .program script. You define the program in exactly the same way whether you use a .program script or a .material script, the only difference is that all .program scripts are guaranteed to have been parsed before @strong{all} .material scripts, so you can guarantee that your program has been defined before any .material script that might use it. Just like .material scripts, .program scripts will be read from any location which is on your resource path, and you can define many programs in a single script.@*@*
 
-Vertex and fragment programs can be low-level (i.e. assembler code written to the specification of a given low level syntax such as vs_1_1 or arbfp1) or high-level such as nVidia's Cg language (@xref{High-level Programs}). High level languages give you a number of advantages, such as being able to write more intuitive code, and possibly being able to target multiple architectures in a single program (for example, the same Cg program might be able to be used in both D3D and GL, whilst the equivalent low-level programs would require separate techniques, each targetting a different API). High-level programs also allow you to use named parameters instead of simply indexed ones, although parameters are not defined here, they are used in the Pass.@*@*
+Vertex and fragment programs can be low-level (i.e. assembler code written to the specification of a given low level syntax such as vs_1_1 or arbfp1) or high-level such as DirectX9 HLSL, Open GL Shader Language, or nVidia's Cg language (@xref{High-level Programs}). High level languages give you a number of advantages, such as being able to write more intuitive code, and possibly being able to target multiple architectures in a single program (for example, the same Cg program might be able to be used in both D3D and GL, whilst the equivalent low-level programs would require separate techniques, each targetting a different API). High-level programs also allow you to use named parameters instead of simply indexed ones, although parameters are not defined here, they are used in the Pass.@*@*
 
 Here is an example of a definition of a low-level vertex program:
 @example
@@ -1651,49 +1651,9 @@ The syntax of the parameter definition is exactly the same as when you define pa
 
 @node High-level Programs
 @heading High-level Programs
-Support for high level vertex and fragment programs is provided through plugins; this is to make sure that an application using OGRE can use as little or as much of the high-level program functionality as they like. OGRE currently supports 3 high-level program types, Cg (an API- and card-independent, high-level language which lets you write programs for both OpenGL and DirectX for lots of cards), DirectX 9 High-Level Shader Language (HLSL), and OpenGL Shader Language (GLSL). HLSL is provided for people who only want to deploy in DirectX, or who don't want to include the Cg plugin for whatever reason. GLSL is only for the OpenGL API and can not be used with the DirectX api.  To support both DirectX and OpenGL you could write your shaders in both HLSL and GLSL along with having seperate techniques in the material script.  To be honest, Cg is a better bet because it lets you stay API independent - and don't be put off by the fact that it's made by nVidia, it will happily compile programs down to vendor-independent standards like DirectX and OpenGL's assembler formats, so you're not limited to nVidia cards.@*@*
+Support for high level vertex and fragment programs is provided through plugins; this is to make sure that an application using OGRE can use as little or as much of the high-level program functionality as they like. OGRE currently supports 3 high-level program types, Cg (@ref{Cg}) (an API- and card-independent, high-level language which lets you write programs for both OpenGL and DirectX for lots of cards), DirectX 9 High-Level Shader Language (@ref{HLSL}), and OpenGL Shader Language (@ref{GLSL}). HLSL can only be used with the DirectX rendersystem, and GLSL can only be used with the GL rendersystem. Cg can be used with both, although experience has shown that more advanced programs, particularly fragment programs which perform a lot of texture fetches, can produce better code in the rendersystem-specific shader langauge. @*@*
 
-@subheading Cg programs
-In order to define Cg programs, you have to have to load Plugin_CgProgramManager.so/.dll at startup, either through plugins.cfg or through your own plugin loading code. They are very easy to define:
-@example
-fragment_program myCgFragmentProgram cg
-{
-    source myCgFragmentProgram.cg
-    entry_point main
-    profiles ps_2_0 arbfp1
-}
-@end example
-There are a few differences between this and the assembler program - to begin with, we declare that the fragment program is of type 'cg' rather than 'asm', which indicates that it's a high-level program using Cg. The 'source' parameter is the same, except this time it's referencing a Cg source file instead of a file of assembler. @*@*
-Here is where things start to change. Firstly, we need to define an 'entry_point', which is the name of a function in the Cg program which will be the first one called as part of the fragment program. Unlike assembler programs, which just run top-to-bottom, Cg programs can include multiple functions and as such you must specify the one which start the ball rolling.@*@*
-Next, instead of a fixed 'syntax' parameter, you specify one or more 'profiles'; profiles are how Cg compiles a program down to the low-level assembler. The profiles have the same names as the assembler syntax codes mentioned above; the main difference is that you can list more than one, thus allowing the program to be compiled down to more low-level syntaxes so you can write a single high-level program which runs on both D3D and GL. You are advised to just enter the simplest profiles under which your programs can be compiled in order to give it the maximum compatibility. The ordering also matters; if a card supports more than one syntax then the one listed first will be used.@*@*
-
-Lastly, there is a final option called 'compile_arguments', where you can specify arguments exactly as you would to the cgc command-line compiler, should you wish to.
-
-@subheading DirectX9 HLSL
-DirectX9 HLSL has a very similar language syntax to Cg but is tied to the DirectX API. The only benefit over Cg is that it only requires the DirectX 9 render system plugin, not any additional plugins. Declaring a DirectX9 HLSL program is very similar to Cg. Here's an example:
-@example
-vertex_program myHLSLVertexProgram hlsl
-{
-    source myHLSLVertexProgram.txt
-    entry_point main
-    target vs_2_0
-}
-@end example
-As you can see, the main syntax is almost identical, except that instead of 'profiles' with a list of assembler formats, you have a 'target' parameter which allows a single assembler target to be specified - obviously this has to be a DirectX assembler format syntax code.@*@*
-
-@strong{Important Matrix Ordering Note:} One thing to bear in mind is that HLSL allows you to use 2 different ways to multiply a veector by a matrix - mul(v,m) or mul(m,v). The only difference between them is that the matrix is effectively transposed. You should use mul(m,v) with the matrices passed in from Ogre - this agrees with the shaders produced from tools like RenderMonkey, and is consistent with Cg too, but disagrees with the Dx9 SDK and FX Composer which use mul(v,m) - you will have to switch the parameters to mul() in those shaders.@*@*
-
-Note that if you use the float3x4 / matrix3x4 type in your shader, bound to an OGRE auto-definition (such as bone matrices) you should use the column_major_matrices = false option (discussed below) in your program definition. This is because OGRE passes float3x4 as row-major to save constant space (3 float4's rather than 4 float4's with only the top 3 values used) and this tells OGRE to pass all matrices like this, so that you can use mul(m,v) consistently for all calculations. OGRE will also to tell the shader to compile in row-major form (you don't have to set the /Zpr compile option or #pragma pack(row-major) option, OGRE does this for you). Note that passing bones in float4x3 form is not supported by OGRE, but you don't need it given the above.@*@*
-
-@strong{Advanced options}@*
-@table @asis
-@item preprocessor_defines <defines>
-This allows you to define symbols which can be used inside the HLSL shader code to alter the behaviour (through #ifdef or #if clauses). Definitions are separated by ';' or ',' and may optionally have a '=' operator within them to specify a definition value. Those without an '=' will implicitly have a definition of 1.
-@item column_major_matrices <true|false>
-The default for this option is 'true' so that OGRE passes matrices auto-bound matrices in a form where mul(m,v) works. Setting this option to false does 2 things - it transpose auto-bound 4x4 matrices and also sets the /Zpr (row-major) option on the shader compilation. This means you can still use mul(m,v), but the matrix layout is row-major instead. This is only useful if you need to use bone matrices (float3x4) in a shader since it saves a float4 constant for every bone involved.
-@end table
-
-@include glsl.inc
+One way to support both HLSL and GLSL is to include seperate techniques in the material script, each one referencing separate programs. However, if the programs are basically the same, with the same parameters, and the techniques are complex this can bloat your material scripts with duplication fairly quickly. Instead, if the only difference is the language of the vertex & fragment program you can use OGRE's @ref{Unified High-level Programs} to automatically pick a program suitable for your rendersystem whilst using a single technique.@*@*
 
 @subheading Skeletal Animation in Vertex Programs
 You can implement skeletal animation in hardware by writing a vertex program which uses the per-vertex blending indices and blending weights, together with an array of world matrices (which will be provided for you by Ogre if you bind the automatic parameter 'world_matrix_array_3x4'). However, you need to communicate this support to Ogre so it does not perform skeletal animation in software for you. You do this by adding the following attribute to your vertex_program definition:
@@ -1729,6 +1689,187 @@ When using shadows (@xref{Shadows}), the use of vertex programs can add some add
 If you use @strong{stencil shadows}, then any vertex programs which do vertex deformation can be a problem, because stencil shadows are calculated on the CPU, which does not have access to the modified vertices. If the vertex program is doing standard skeletal animation, this is ok (see section above) because Ogre knows how to replicate the effect in software, but any other vertex deformation cannot be replicated, and you will either have to accept that the shadow will not reflect this deformation, or you should turn off shadows for that object. @*@*
 
 If you use @strong{texture shadows}, then vertex deformation is acceptable; however, when rendering the object into a shadow texture (the shadow caster pass), the shadow has to be rendered in a solid colour (linked to the ambient colour for modulative shadows, black for additive shadows). You must therefore provide an alternative vertex program, so Ogre provides you with a way of specifying one to use when rendering the caster, @xref{Shadows and Vertex Programs}.
+
+
+@node Cg
+@subsection Cg programs
+In order to define Cg programs, you have to have to load Plugin_CgProgramManager.so/.dll at startup, either through plugins.cfg or through your own plugin loading code. They are very easy to define:
+@example
+fragment_program myCgFragmentProgram cg
+{
+    source myCgFragmentProgram.cg
+    entry_point main
+    profiles ps_2_0 arbfp1
+}
+@end example
+There are a few differences between this and the assembler program - to begin with, we declare that the fragment program is of type 'cg' rather than 'asm', which indicates that it's a high-level program using Cg. The 'source' parameter is the same, except this time it's referencing a Cg source file instead of a file of assembler. @*@*
+Here is where things start to change. Firstly, we need to define an 'entry_point', which is the name of a function in the Cg program which will be the first one called as part of the fragment program. Unlike assembler programs, which just run top-to-bottom, Cg programs can include multiple functions and as such you must specify the one which start the ball rolling.@*@*
+Next, instead of a fixed 'syntax' parameter, you specify one or more 'profiles'; profiles are how Cg compiles a program down to the low-level assembler. The profiles have the same names as the assembler syntax codes mentioned above; the main difference is that you can list more than one, thus allowing the program to be compiled down to more low-level syntaxes so you can write a single high-level program which runs on both D3D and GL. You are advised to just enter the simplest profiles under which your programs can be compiled in order to give it the maximum compatibility. The ordering also matters; if a card supports more than one syntax then the one listed first will be used.@*@*
+
+Lastly, there is a final option called 'compile_arguments', where you can specify arguments exactly as you would to the cgc command-line compiler, should you wish to.
+
+@node HLSL
+@subsection DirectX9 HLSL
+DirectX9 HLSL has a very similar language syntax to Cg but is tied to the DirectX API. The only benefit over Cg is that it only requires the DirectX 9 render system plugin, not any additional plugins. Declaring a DirectX9 HLSL program is very similar to Cg. Here's an example:
+@example
+vertex_program myHLSLVertexProgram hlsl
+{
+    source myHLSLVertexProgram.txt
+    entry_point main
+    target vs_2_0
+}
+@end example
+As you can see, the main syntax is almost identical, except that instead of 'profiles' with a list of assembler formats, you have a 'target' parameter which allows a single assembler target to be specified - obviously this has to be a DirectX assembler format syntax code.@*@*
+
+@strong{Important Matrix Ordering Note:} One thing to bear in mind is that HLSL allows you to use 2 different ways to multiply a veector by a matrix - mul(v,m) or mul(m,v). The only difference between them is that the matrix is effectively transposed. You should use mul(m,v) with the matrices passed in from Ogre - this agrees with the shaders produced from tools like RenderMonkey, and is consistent with Cg too, but disagrees with the Dx9 SDK and FX Composer which use mul(v,m) - you will have to switch the parameters to mul() in those shaders.@*@*
+
+Note that if you use the float3x4 / matrix3x4 type in your shader, bound to an OGRE auto-definition (such as bone matrices) you should use the column_major_matrices = false option (discussed below) in your program definition. This is because OGRE passes float3x4 as row-major to save constant space (3 float4's rather than 4 float4's with only the top 3 values used) and this tells OGRE to pass all matrices like this, so that you can use mul(m,v) consistently for all calculations. OGRE will also to tell the shader to compile in row-major form (you don't have to set the /Zpr compile option or #pragma pack(row-major) option, OGRE does this for you). Note that passing bones in float4x3 form is not supported by OGRE, but you don't need it given the above.@*@*
+
+@strong{Advanced options}@*
+@table @asis
+@item preprocessor_defines <defines>
+This allows you to define symbols which can be used inside the HLSL shader code to alter the behaviour (through #ifdef or #if clauses). Definitions are separated by ';' or ',' and may optionally have a '=' operator within them to specify a definition value. Those without an '=' will implicitly have a definition of 1.
+@item column_major_matrices <true|false>
+The default for this option is 'true' so that OGRE passes matrices auto-bound matrices in a form where mul(m,v) works. Setting this option to false does 2 things - it transpose auto-bound 4x4 matrices and also sets the /Zpr (row-major) option on the shader compilation. This means you can still use mul(m,v), but the matrix layout is row-major instead. This is only useful if you need to use bone matrices (float3x4) in a shader since it saves a float4 constant for every bone involved.
+@end table
+
+@include glsl.inc
+
+@node Unified High-level Programs
+@subsection Unified High-level Programs
+
+As mentioned above, it can often be useful to write both HLSL and GLSL programs to specifically target each platform, but if you do this via multiple material techniques this can cause a bloated material definition when the only difference is the program language. Well, there is another option. You can 'wrap' multiple programs in a 'unified' program definition, which will automatically choose one of a series of 'delegate' programs depending on the rendersystem and hardware support.
+@example
+vertex_program myVertexProgram unified
+{
+	delegate realProgram1
+	delegate realProgram2
+	... etc
+}
+@end example
+This works for both vertex and fragment programs, and you can list as many delegates as you like - the first one to be supported by the current rendersystem & hardware will be used as the real program. This is almost like a mini-technique system, but for a single program and with a much tighter purpose. You can only use this where the programs take all the same inputs, particularly textures and other pass / sampler state. Where the only difference between the programs is the language (or possibly the target in HLSL - you can include multiple HLSL programs with different targets in a single unified program too if you want, or indeed any number of other high-level programs), this can become a very powerful feature. For example, without this feature here's how you'd have to define a programmable material which supported HLSL and GLSL:
+@example
+vertex_program myVertexProgramHLSL hlsl
+{
+	source prog.hlsl
+	entry_point main_vp
+	target vs_2_0
+}
+fragment_program myFragmentProgramHLSL hlsl
+{
+	source prog.hlsl
+	entry_point main_fp
+	target ps_2_0
+}
+vertex_program myVertexProgramGLSL glsl
+{
+	source prog.vert
+}
+fragment_program myFragmentProgramGLSL glsl
+{
+	source prog.frag
+	default_params
+	{
+		param_named tex int 0
+	}
+}
+material SupportHLSLandGLSLwithoutUnified
+{
+	// HLSL technique
+	technique
+	{
+		pass
+		{
+			vertex_program_ref myVertexProgramHLSL
+			{
+				param_named_auto worldViewProj world_view_proj_matrix
+				param_named_auto lightColour light_diffuse_colour 0
+				param_named_auto lightSpecular light_specular_colour 0
+				param_named_auto lightAtten light_attenuation 0
+			}
+			fragment_program_ref myFragmentProgramHLSL
+			{
+			}
+		}
+	}
+	// GLSL technique
+	technique
+	{
+		pass
+		{
+			vertex_program_ref myVertexProgramHLSL
+			{
+				param_named_auto worldViewProj world_view_proj_matrix
+				param_named_auto lightColour light_diffuse_colour 0
+				param_named_auto lightSpecular light_specular_colour 0
+				param_named_auto lightAtten light_attenuation 0
+			}
+			fragment_program_ref myFragmentProgramHLSL
+			{
+			}
+		}
+	}
+}
+@end example
+And that's a really small example. Everything you added to the HLSL technique, you'd have to duplicate in the GLSL technique too. So instead, here's how you'd do it with unified program definitions:
+@example
+vertex_program myVertexProgramHLSL hlsl
+{
+	source prog.hlsl
+	entry_point main_vp
+	target vs_2_0
+}
+fragment_program myFragmentProgramHLSL hlsl
+{
+	source prog.hlsl
+	entry_point main_fp
+	target ps_2_0
+}
+vertex_program myVertexProgramGLSL glsl
+{
+	source prog.vert
+}
+fragment_program myFragmentProgramGLSL glsl
+{
+	source prog.frag
+	default_params
+	{
+		param_named tex int 0
+	}
+}
+// Unified definition
+vertex_program myVertexProgram unified
+{
+	delegate myVertexProgramGLSL
+	delegate myVertexProgramHLSL
+}
+fragment_program myFragmentProgram unified
+{
+	delegate myFragmentProgramGLSL
+	delegate myFragmentProgramHLSL
+}
+material SupportHLSLandGLSLwithUnified
+{
+	// HLSL technique
+	technique
+	{
+		pass
+		{
+			vertex_program_ref myVertexProgram
+			{
+				param_named_auto worldViewProj world_view_proj_matrix
+				param_named_auto lightColour light_diffuse_colour 0
+				param_named_auto lightSpecular light_specular_colour 0
+				param_named_auto lightAtten light_attenuation 0
+			}
+			fragment_program_ref myFragmentProgram
+			{
+			}
+		}
+	}
+}
+@end example
+At runtime, when myVertexProgram or myFragmentProgram are used, OGRE automatically picks a real program to delegate to based on what's supported on the current hardware / rendersystem. If none of the delegates are supported, the entire technique referencing the unified program is marked as unsupported and the next technique in the material is checked fro fallback, just like normal. As your materials get larger, and you find you need to support HLSL and GLSL specifically (or need to write multiple interface-compatible versions of a program for whatever other reason), unified programs can really help reduce duplication.
 
 
 @node Using Vertex and Fragment Programs in a Pass

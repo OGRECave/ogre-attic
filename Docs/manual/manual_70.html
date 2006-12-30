@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on October 31 2006 by texi2html 1.66 -->
+<!-- Created on December 30 2006 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -12,10 +12,10 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.4.0 ('Eihort'): Animation State</TITLE>
+<TITLE>OGRE Manual v1.4.0 ('Eihort'): Modulative Shadows</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.4.0 ('Eihort'): Animation State">
-<META NAME="keywords" CONTENT="OGRE Manual v1.4.0 ('Eihort'): Animation State">
+<META NAME="description" CONTENT="OGRE Manual v1.4.0 ('Eihort'): Modulative Shadows">
+<META NAME="keywords" CONTENT="OGRE Manual v1.4.0 ('Eihort'): Modulative Shadows">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.66">
@@ -24,30 +24,37 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 <BODY LANG="en" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC314"></A>
+<A NAME="SEC309"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_69.html#SEC313"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_68.html#SEC312"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_71.html#SEC315"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_69.html#SEC295"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_67.html#SEC284"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_71.html#SEC311"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H2> 8.2 Animation State </H2>
-<!--docid::SEC314::-->
+<H2> 7.3 Modulative Shadows </H2>
+<!--docid::SEC309::-->
+Modulative shadows work by darkening an already rendered scene with a fixed colour. First, the scene is rendered normally containing all the objects which will be shadowed, then a modulative pass is done per light, which darkens areas in shadow. Finally, objects which do not receive shadows are rendered.<BR><BR>
 
-When an entity containing animation of any type is created, it is given an 'animation state' object per animation to allow you to specify the animation state of that single entity (you can animate multiple entities using the same animation definitions, OGRE sorts the reuse out internally).<BR><BR>
+There are 2 modulative shadow techniques; stencil-based (See section <A HREF="manual_68.html#SEC287">7.1 Stencil Shadows</A> : SHADOWTYPE_STENCIL_MODULATIVE) and texture-based (See section <A HREF="manual_69.html#SEC295">7.2 Texture-based Shadows</A> : SHADOWTYPE_TEXTURE_MODULATIVE). Modulative shadows are an inaccurate lighting model, since they darken the areas of shadow uniformly, irrespective of the amount of light which would have fallen on the shadow area anyway. However, they can give fairly attractive results for a much lower overhead than more 'correct' methods like <A HREF="manual_71.html#SEC311">7.4 Additive Light Masking</A>, and they also combine well with pre-baked static lighting (such as precalculated lightmaps), which additive lighting does not. The main thing to consider is that using multiple light sources can result in overly dark shadows (where shadows overlap, which intuitively looks right in fact, but it's not physically correct) and artefacts when using stencil shadows (See section <A HREF="manual_68.html#SEC292">The Silhouette Edge</A>). <BR><BR>
 
-You can retrieve a pointer to the AnimationState object by calling Entity::getAnimationState. You can then call methods on this returned object to update the animation, probably in the frameStarted event. Each AnimationState needs to be enabled using the setEnabled method before the animation it refers to will take effect, and you can set both the weight and the time position (where appropriate) to affect the application of the animation using correlating methods. AnimationState also has a very simple method 'addTime' which allows you to alter the animation position incrementally, and it will automatically loop for you. addTime can take positive or negative values (so you can reverse the animation if you want).<BR><BR>
+<A NAME="Shadow Colour"></A>
+<A NAME="SEC310"></A>
+<H3> Shadow Colour </H3>
+<!--docid::SEC310::-->
+The colour which is used to darken the areas in shadow is set by SceneManager::setShadowColour; it defaults to a dark grey (so that the underlying colour still shows through a bit).<BR><BR>
 
-<A NAME="Vertex Animation"></A>
+Note that if you're using texture shadows you have the additional option of using <A HREF="manual_69.html#SEC308">Custom shadow render sequences</A> rather than being forced to have a separate pass of the scene to render shadows. In this case the 'modulative' aspect of the shadow technique just affects the colour of the shadow texture. <BR><BR>
+
+<A NAME="Additive Light Masking"></A>
 <HR SIZE=1>
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>October 31 2006</I>
+by <I>steve</I> on <I>December 30 2006</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 

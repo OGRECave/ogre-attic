@@ -1,4 +1,5 @@
-@subheading OpenGL GLSL
+@node GLSL
+@subsection OpenGL GLSL
 OpenGL GLSL has a similar language syntax to HLSL but is tied to the OpenGL API. The are a few benefits over Cg in that it only requires the OpenGL render system plugin, not any additional plugins. Declaring a OpenGL GLSL program is similar to Cg but simpler. Here's an example:
 @example
 vertex_program myGLSLVertexProgram glsl
