@@ -175,17 +175,8 @@ LGPL like the rest of the engine.
 				Ogre::GpuProgramParametersSharedPtr fparams =
 					mat->getBestTechnique()->getPass(0)->getFragmentProgramParameters();
 				const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
-				// A bit hacky - Cg & HLSL index arrays via [0], GLSL does not
-				if (progName.find("GLSL") != Ogre::String::npos)
-				{
-					fparams->setNamedConstant("sampleOffsets", mBloomTexOffsetsHorz[0], 15);
-					fparams->setNamedConstant("sampleWeights", mBloomTexWeights[0], 15);
-				}
-				else
-				{
-					fparams->setNamedConstant("sampleOffsets[0]", mBloomTexOffsetsHorz[0], 15);
-					fparams->setNamedConstant("sampleWeights[0]", mBloomTexWeights[0], 15);
-				}
+				fparams->setNamedConstant("sampleOffsets[0]", mBloomTexOffsetsHorz[0], 15);
+				fparams->setNamedConstant("sampleWeights[0]", mBloomTexWeights[0], 15);
 
 				break;
 			}
@@ -196,17 +187,8 @@ LGPL like the rest of the engine.
 				Ogre::GpuProgramParametersSharedPtr fparams =
 					mat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
 				const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
-				// A bit hacky - Cg & HLSL index arrays via [0], GLSL does not
-				if (progName.find("GLSL") != Ogre::String::npos)
-				{
-					fparams->setNamedConstant("sampleOffsets", mBloomTexOffsetsVert[0], 15);
-					fparams->setNamedConstant("sampleWeights", mBloomTexWeights[0], 15);
-				}
-				else
-				{
-					fparams->setNamedConstant("sampleOffsets[0]", mBloomTexOffsetsVert[0], 15);
-					fparams->setNamedConstant("sampleWeights[0]", mBloomTexWeights[0], 15);
-				}
+				fparams->setNamedConstant("sampleOffsets[0]", mBloomTexOffsetsVert[0], 15);
+				fparams->setNamedConstant("sampleWeights[0]", mBloomTexWeights[0], 15);
 
 				break;
 			}
@@ -285,17 +267,8 @@ LGPL like the rest of the engine.
 				Ogre::GpuProgramParametersSharedPtr fparams =
 					mat->getBestTechnique()->getPass(0)->getFragmentProgramParameters();
 				const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
-				// A bit hacky - Cg & HLSL index arrays via [0], GLSL does not
-				if (progName.find("GLSL") != Ogre::String::npos)
-				{
-					fparams->setNamedConstant("sampleOffsets", mBloomTexOffsetsHorz[0], 15);
-					fparams->setNamedConstant("sampleWeights", mBloomTexWeights[0], 15);
-				}
-				else
-				{
-					fparams->setNamedConstant("sampleOffsets[0]", mBloomTexOffsetsHorz[0], 15);
-					fparams->setNamedConstant("sampleWeights[0]", mBloomTexWeights[0], 15);
-				}
+				fparams->setNamedConstant("sampleOffsets[0]", mBloomTexOffsetsHorz[0], 15);
+				fparams->setNamedConstant("sampleWeights[0]", mBloomTexWeights[0], 15);
 
 				break;
 			}

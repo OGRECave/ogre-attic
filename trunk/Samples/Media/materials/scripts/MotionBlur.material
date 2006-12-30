@@ -22,7 +22,7 @@ material Ogre/Compositor/Combine
 			{
 			}
 
-			vertex_program_ref Ogre/Compositor/StdQuad_vp
+			vertex_program_ref Ogre/Compositor/StdQuad_Cg_vp
 			{
 			}
 

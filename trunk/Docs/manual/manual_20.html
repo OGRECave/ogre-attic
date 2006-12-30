@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on October 31 2006 by texi2html 1.66 -->
+<!-- Created on December 30 2006 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -12,10 +12,10 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.4.0 ('Eihort'): Vertex Texture Fetch</TITLE>
+<TITLE>OGRE Manual v1.4.0 ('Eihort'): HLSL</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.4.0 ('Eihort'): Vertex Texture Fetch">
-<META NAME="keywords" CONTENT="OGRE Manual v1.4.0 ('Eihort'): Vertex Texture Fetch">
+<META NAME="description" CONTENT="OGRE Manual v1.4.0 ('Eihort'): HLSL">
+<META NAME="keywords" CONTENT="OGRE Manual v1.4.0 ('Eihort'): HLSL">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.66">
@@ -24,55 +24,46 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 <BODY LANG="en" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC111"></A>
+<A NAME="SEC98"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC104"> &lt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC97"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC117"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC99"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H3> 3.1.6 Vertex Texture Fetch </H3>
-<!--docid::SEC111::-->
+<H3> 3.1.6 DirectX9 HLSL </H3>
+<!--docid::SEC98::-->
+DirectX9 HLSL has a very similar language syntax to Cg but is tied to the DirectX API. The only benefit over Cg is that it only requires the DirectX 9 render system plugin, not any additional plugins. Declaring a DirectX9 HLSL program is very similar to Cg. Here's an example:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>vertex_program myHLSLVertexProgram hlsl
+{
+    source myHLSLVertexProgram.txt
+    entry_point main
+    target vs_2_0
+}
+</pre></td></tr></table>As you can see, the main syntax is almost identical, except that instead of 'profiles' with a list of assembler formats, you have a 'target' parameter which allows a single assembler target to be specified - obviously this has to be a DirectX assembler format syntax code.<BR><BR>
 
-<A NAME="SEC112"></A>
-<H3> Introduction   </H3>
-<!--docid::SEC112::-->
-More recent generations of video card allow you to perform a read from a texture in the vertex program rather than just the fragment program, as is traditional. This allows you to, for example, read the contents of a texture and displace vertices based on the intensity of the colour contained within.<BR><BR>
+<STRONG>Important Matrix Ordering Note:</STRONG> One thing to bear in mind is that HLSL allows you to use 2 different ways to multiply a veector by a matrix - mul(v,m) or mul(m,v). The only difference between them is that the matrix is effectively transposed. You should use mul(m,v) with the matrices passed in from Ogre - this agrees with the shaders produced from tools like RenderMonkey, and is consistent with Cg too, but disagrees with the Dx9 SDK and FX Composer which use mul(v,m) - you will have to switch the parameters to mul() in those shaders.<BR><BR>
 
-<A NAME="SEC113"></A>
-<H3> Declaring the use of vertex texture fetching </H3>
-<!--docid::SEC113::-->
-Since hardware support for vertex texture fetching is not ubiquitous, you should use the uses_vertex_texture_fetch (See section <A HREF="manual_18.html#SEC102">Vertex texture fetching in vertex programs</A>) directive when declaring your vertex programs which use vertex textures, so that if it is not supported, technique fallback can be enabled. This is not strictly necessary for DirectX-targetted shaders, since vertex texture fetching is only supported in vs_3_0, which can be stated as a required syntax in your shader definition, but for OpenGL (GLSL), there are cards which support GLSL but not vertex textures, so you should be explicit about your need for them.
+Note that if you use the float3x4 / matrix3x4 type in your shader, bound to an OGRE auto-definition (such as bone matrices) you should use the column_major_matrices = false option (discussed below) in your program definition. This is because OGRE passes float3x4 as row-major to save constant space (3 float4's rather than 4 float4's with only the top 3 values used) and this tells OGRE to pass all matrices like this, so that you can use mul(m,v) consistently for all calculations. OGRE will also to tell the shader to compile in row-major form (you don't have to set the /Zpr compile option or #pragma pack(row-major) option, OGRE does this for you). Note that passing bones in float4x3 form is not supported by OGRE, but you don't need it given the above.<BR><BR>
 
-<A NAME="SEC114"></A>
-<H3> Render system texture binding differences </H3>
-<!--docid::SEC114::-->
-Unfortunately the method for binding textures so that they are available to a vertex program is not well standardised. As at the time of writing, Shader Model 3.0 (SM3.0) hardware under DirectX9 include 4 separate sampler bindings for the purposes of vertex textures. OpenGL, on the other hand, is able to access vertex textures in GLSL (and in assembler through NV_vertex_program_3, although this is less popular), but the textures are shared with the fragment pipeline. I expect DirectX to move to the GL model with the advent of DirectX10, since a unified shader architecture implies sharing of texture resources between the two stages. As it is right now though, we're stuck with an inconsistent situation.<BR><BR>
+<STRONG>Advanced options</STRONG><BR>
+<DL COMPACT>
+<DT>preprocessor_defines &lt;defines&gt;
+<DD>This allows you to define symbols which can be used inside the HLSL shader code to alter the behaviour (through #ifdef or #if clauses). Definitions are separated by ';' or ',' and may optionally have a '=' operator within them to specify a definition value. Those without an '=' will implicitly have a definition of 1.
+<DT>column_major_matrices &lt;true|false&gt;
+<DD>The default for this option is 'true' so that OGRE passes matrices auto-bound matrices in a form where mul(m,v) works. Setting this option to false does 2 things - it transpose auto-bound 4x4 matrices and also sets the /Zpr (row-major) option on the shader compilation. This means you can still use mul(m,v), but the matrix layout is row-major instead. This is only useful if you need to use bone matrices (float3x4) in a shader since it saves a float4 constant for every bone involved.
+</DL>
 
-To reflect this, you should use the <A HREF="manual_17.html#SEC69">binding_type</A> attribute in a texture unit to indicate which unit you are targetting with your texture - 'fragment' (the default) or 'vertex'. For render systems that don't have separate bindings, this actually does nothing. But for those that do, it will ensure your texture gets bound to the right processing unit.
-
-Note that whilst DirectX9 has separate bindings for the vertex and fragment pipelines, binding a texture to the vertex processing unit still uses up a 'slot' which is then not available for use in the fragment pipeline. I didn't manage to find this documented anywhere, but the nVidia samples certainly avoid binding a texture to the same index on both vertex and fragment units, and when I tried to do it, the texture did not appear correctly in the fragment unit, whilst it did as soon as I moved it into the next unit.
-
-<A NAME="SEC115"></A>
-<H3> Texture format limitations </H3>
-<!--docid::SEC115::-->
-Again as at the time of writing, the types of texture you can use in a vertex program are limited to 1- or 4-component, full precision floating point formats. In code that equates to PF_FLOAT32_R or PF_FLOAT32_RGBA. No other formats are supported. In addition, the textures must be regular 2D textures (no cube or volume maps) and mipmapping and filtering is not supported, although you can perform filtering in your vertex program if you wish by sampling multiple times.
-
-<A NAME="SEC116"></A>
-<H3> Hardware limitations </H3>
-<!--docid::SEC116::-->
-As at the time of writing (early Q3 2006), ATI do not support texture fetch in their current crop of cards (Radeon X1n00). nVidia do support it in both their 6n00 and 7n00 range. ATI support an alternative called 'Render to Vertex Buffer', but this is not standardised at this time and is very much different in its implementation, so cannot be considered to be a drop-in replacement. This is the case even though the Radeon X1n00 cards claim to support vs_3_0 (which requires vertex texture fetch).
-
-<A NAME="Copying Materials"></A>
+<A NAME="GLSL"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC104"> &lt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC97"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC117"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC99"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -81,7 +72,7 @@ As at the time of writing (early Q3 2006), ATI do not support texture fetch in t
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>October 31 2006</I>
+by <I>steve</I> on <I>December 30 2006</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 

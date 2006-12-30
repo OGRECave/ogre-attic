@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on October 31 2006 by texi2html 1.66 -->
+<!-- Created on December 30 2006 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -12,10 +12,10 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.4.0 ('Eihort'): Particle Scripts</TITLE>
+<TITLE>OGRE Manual v1.4.0 ('Eihort'): Compositor Techniques</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.4.0 ('Eihort'): Particle Scripts">
-<META NAME="keywords" CONTENT="OGRE Manual v1.4.0 ('Eihort'): Particle Scripts">
+<META NAME="description" CONTENT="OGRE Manual v1.4.0 ('Eihort'): Compositor Techniques">
+<META NAME="keywords" CONTENT="OGRE Manual v1.4.0 ('Eihort'): Compositor Techniques">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.66">
@@ -24,127 +24,68 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 <BODY LANG="en" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC157"></A>
+<A NAME="SEC127"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC156"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_13.html#SEC22"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC161"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC123"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC123"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC129"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H2> 3.3 Particle Scripts </H2>
-<!--docid::SEC157::-->
+<H3> 3.2.1 Techniques </H3>
+<!--docid::SEC127::-->
 
-Particle scripts allow you to define particle systems to be instantiated in your code without having to hard-code the settings themselves in your source code, allowing a very quick turnaround on any changes you make. Particle systems which are defined in scripts are used as templates, and multiple actual systems can be created from them at runtime.<BR><BR>
+A compositor technique is much like a <A HREF="manual_15.html#SEC31">material technique</A> in that it describes one approach to achieving the effect you're looking for. A compositor definition can have more than one technique if you wish to provide some fallback should the hardware not support the technique you'd prefer to use. Techniques are evaluated for hardware support based on 2 things:
+<DL COMPACT>
+<DT>Material support
+<DD>All <A HREF="manual_29.html#SEC136">passes</A> that render a fullscreen quad use a material; for the technique to be supported, all of the materials referenced must have at least one supported material technique. If they don't, the compositor technique is marked as unsupported and won't be used.
+<DT>Texture format support
+<DD>This one is slightly more complicated. When you request a <A HREF="manual_27.html#compositor_texture">texture</A> in your technique, you request a pixel format. Not all formats are natively supported by hardware, especially the floating point formats. However, in this case the hardware will typically downgrade the texture format requested to one that the hardware does support - with compositor effects though, you might want to use a different approach if this is the case. So, when evaluating techniques, the compositor will first look for native support for the exact pixel format you've asked for, and will skip onto the next technique if it is not supported, thus allowing you to define other techniques with simpler pixel formats which use a different approach. If it doesn't find any techniques which are natively supported, it tries again, this time allowing the hardware to downgrade the texture format and thus should find at least some support for what you've asked for.
+</DL>
 
-<A NAME="SEC158"></A>
-<H2> Loading scripts   </H2>
-<!--docid::SEC158::-->
+As with material techniques, compositor techniques are evaluated in the order you define them in the script, so techniques declared first are preferred over those declared later.
 
-Particle system scripts are loaded at initialisation time by the system: by default it looks in all common resource locations (see Root::addResourceLocation) for files with the '.particle' extension and parses them. If you want to parse files with a different extension, use the ParticleSystemManager::getSingleton().parseAllSources method with your own extension, or if you want to parse an individual file, use ParticleSystemManager::getSingleton().parseScript.<BR><BR>
+Format: technique { }<BR><BR>
 
-Once scripts have been parsed, your code is free to instantiate systems based on them using the SceneManager::createParticleSystem() method which can take both a name for the new system, and the name of the template to base it on (this template name is in the script).<BR><BR>
-
-<A NAME="SEC159"></A>
-<H2> Format   </H2>
-<!--docid::SEC159::-->
-
-Several particle systems may be defined in a single script. The script format is pseudo-C++, with sections delimited by curly braces ({}), and comments indicated by starting a line with '//' (note, no nested form comments allowed). The general format is shown below in a typical example:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>// A sparkly purple fountain
-Examples/PurpleFountain
-{
-    material Examples/Flare2
-    particle_width 20
-    particle_height 20
-    cull_each false
-    quota 10000
-    billboard_type oriented_self
-
-    // Area emitter
-    emitter Point
-    {
-        angle 15
-        emission_rate 75
-        time_to_live 3
-        direction 0 1 0
-        velocity_min 250
-        velocity_max 300
-        colour_range_start 1 0 0
-        colour_range_end 0 0 1
-    }
-
-    // Gravity
-    affector LinearForce
-    {
-        force_vector 0 -100 0
-        force_application add
-    }
-
-    // Fader
-    affector ColourFader
-    {
-        red -0.25
-        green -0.25
-        blue -0.25
-    }
-}
-</pre></td></tr></table><BR><BR>
-Every particle system in the script must be given a name, which is the line before the first opening '{', in the example this is 'Examples/PurpleFountain'. This name must be globally unique. It can include path characters (as in the example) to logically divide up your particle systems, and also to avoid duplicate names, but the engine does not treat the name as hierarchical, just as a string.<BR><BR>
-
-A system can have top-level attributes set using the scripting commands available, such as 'quota' to set the maximum number of particles allowed in the system. Emitters (which create particles) and affectors (which modify particles) are added as nested definitions within the script. The parameters available in the emitter and affector sections are entirely dependent on the type of emitter / affector.<BR><BR>
-
-For a detailed description of the core particle system attributes, see the list below:
-
-<A NAME="SEC160"></A>
-<H3> Available Particle System Attributes </H3>
-<!--docid::SEC160::-->
+Techniques can have the following nested elements:
 <UL>
-<LI>
-<A HREF="manual_28.html#SEC162">quota</A>
-<LI>
-<A HREF="manual_28.html#particle_material">material</A>
-<LI>
-<A HREF="manual_28.html#SEC164">particle_width</A>
-<LI>
-<A HREF="manual_28.html#SEC165">particle_height</A>
-<LI>
-<A HREF="manual_28.html#SEC166">cull_each</A>
-<LI>
-<A HREF="manual_28.html#SEC170">billboard_type</A>
-<LI>
-<A HREF="manual_28.html#SEC171">billboard_origin</A>
-<LI>
-<A HREF="manual_28.html#SEC172">billboard_rotation_type</A>
-<LI>
-<A HREF="manual_28.html#SEC173">common_direction</A>
-<LI>
-<A HREF="manual_28.html#SEC174">common_up_vector</A>
-<LI>
-<A HREF="manual_28.html#particle_renderer">renderer</A>
-<LI>
-<A HREF="manual_28.html#particle_sorted">sorted</A>
-<LI>
-<A HREF="manual_28.html#particle_localspace">local_space</A>
-<LI>
-<A HREF="manual_28.html#particle_point_rendering">point_rendering</A>
-<LI>
-<A HREF="manual_28.html#particle_accurate_facing">accurate_facing</A>
-<LI>
-<A HREF="manual_28.html#SEC177">iteration_interval</A>
-<LI>
-<A HREF="manual_28.html#SEC178">nonvisible_update_timeout</A>
+<LI><A HREF="manual_27.html#compositor_texture">texture</A>
+<LI><A HREF="manual_28.html#SEC129">target</A>
+<LI><A HREF="manual_28.html#SEC129">target_output</A>
 </UL>
-See also: <A HREF="manual_29.html#SEC179">3.3.2 Particle Emitters</A>, <A HREF="manual_32.html#SEC203">3.3.5 Particle Affectors</A>
 
-<A NAME="Particle System Attributes"></A>
+<A NAME="compositor_texture"></A>
+<A NAME="SEC128"></A>
+<H3> texture  </H3>
+<!--docid::SEC128::-->
+
+This declares a render texture for use in subsequent <A HREF="manual_28.html#SEC129">target passes</A>.
+
+<BR><BR>
+Format: texture &lt;Name&gt; &lt;Width&gt; &lt;Height&gt; &lt;Pixel Format&gt;<BR><BR>
+
+Here is a description of the parameters:
+<DL COMPACT>
+<DT>Name
+<DD>A name to give the render texture, which must be unique within this compositor. This name is used to reference the texture in <A HREF="manual_28.html#SEC129">target passes</A>, when the texture is rendered to, and in <A HREF="manual_29.html#SEC136">passes</A>, when the texture is used as input to a material rendering a fullscreen quad.
+<DT>Width, Height
+<DD>The dimensions of the render texture. You can either specify a fixed width and height, or you can request that the texture matches the physical dimensions of the viewport to which the compositor is attached (specify target_width and target_height instead of numerical dimensions).
+<DT>Pixel Format
+<DD>The pixel format of the render texture. This affects how much memory it will take, what colour channels will be available, and what precision you will have within those channels. The available options are PF_A8R8G8B8, PF_R8G8B8A8, PF_R8G8B8, PF_FLOAT16_RGBA, PF_FLOAT16_RGB, PF_FLOAT16_R, PF_FLOAT32_RGBA, PF_FLOAT32_RGB, and PF_FLOAT32_R.
+</DL>
+
+Example: texture rt0 512 512 PF_R8G8B8A8<BR>
+Example: texture rt1 target_width target_height PF_FLOAT32_RGB<BR><BR>
+
+<A NAME="Compositor Target Passes"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC156"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_13.html#SEC22"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC161"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC123"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC123"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC129"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -153,7 +94,7 @@ See also: <A HREF="manual_29.html#SEC179">3.3.2 Particle Emitters</A>, <A HREF="
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>October 31 2006</I>
+by <I>steve</I> on <I>December 30 2006</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 

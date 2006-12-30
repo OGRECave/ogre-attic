@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on October 31 2006 by texi2html 1.66 -->
+<!-- Created on December 30 2006 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -12,10 +12,10 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.4.0 ('Eihort'): Compositor Passes</TITLE>
+<TITLE>OGRE Manual v1.4.0 ('Eihort'): Copying Materials</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.4.0 ('Eihort'): Compositor Passes">
-<META NAME="keywords" CONTENT="OGRE Manual v1.4.0 ('Eihort'): Compositor Passes">
+<META NAME="description" CONTENT="OGRE Manual v1.4.0 ('Eihort'): Copying Materials">
+<META NAME="keywords" CONTENT="OGRE Manual v1.4.0 ('Eihort'): Copying Materials">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.66">
@@ -24,277 +24,292 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 <BODY LANG="en" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC135"></A>
+<A NAME="SEC118"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC128"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC122"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC156"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC112"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC123"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H3> 3.2.3 Compositor Passes </H3>
-<!--docid::SEC135::-->
+<H3> 3.1.11 Copying Materials </H3>
+<!--docid::SEC118::-->
 
-A pass is a single rendering action to be performed in a target pass. <BR><BR>
-Format: 'pass' (render_quad | clear | stencil | render_scene) { }<BR><BR>
+When creating new materials scripts that are only slight variations of another material script, the script writer resorts to copy and pasting materials within scripts.  For simple materials, the copy/paste method is acceptable.  Complex materials that use multiple passes along with vertex and pixel shaders become very tedious to edit when many variations are needed.  To reduce the tediousness of making new materials that are just slight variations of previously defined materials, new materials can copy from previously defined materials and modify specific techniques, passes, texture units or add new ones.<BR><BR>
 
-There are four types of pass:
-<DL COMPACT>
-<DT>clear
-<DD>This kind of pass sets the contents of one or more buffers in the target to a fixed value. So this could clear the colour buffer to a fixed colour, set the depth buffer to a certain set of contents, fill the stencil buffer with a value, or any combination of the above.
-<DT>stencil
-<DD>This kind of pass configures stencil operations for the subsequent passes. It can set the stencil compare function, operations and reference values for you to perform your own stencil effects.
-<DT>render_scene
-<DD>This kind of pass performs a regular rendering of the scene. It will use the <A HREF="manual_24.html#SEC132">visibility_mask</A>, <A HREF="manual_24.html#compositor_lod_bias">lod_bias</A>, and <A HREF="manual_24.html#SEC134">material_scheme</A> from the parent target pass.
-<DT>render_quad
-<DD>This kind of pass renders a quad over the entire render target, using a given material. You will undoubtedly want to pull in the results of other target passes into this operation to perform fullscreen effects.
-</DL>
+To make a new material that is based on one previously defined, add a <EM>colon</EM> <STRONG>:</STRONG> after the new material name followed by the name of the material that is to be copied.<BR><BR>
 
-Here are the attributes you can use in a 'pass' section of a .compositor script:
+Format: material &lt;NewUniqueChildName&gt; : &lt;ReferanceParentMaterial&gt;<BR><BR>
 
-<A NAME="SEC136"></A>
-<H2> Available Pass Attributes </H2>
-<!--docid::SEC136::-->
-<UL>
-<LI>
-<A HREF="manual_25.html#SEC137">material</A>
-<LI>
-<A HREF="manual_25.html#compositor_pass_input">input</A>
-<LI>
-<A HREF="manual_25.html#compositor_pass_identifier">identifier</A>
-<LI>
-<A HREF="manual_25.html#SEC140">first_render_queue</A>
-<LI>
-<A HREF="manual_25.html#SEC141">last_render_queue</A>
-<LI>
-<A HREF="manual_25.html#compositor_clear">clear</A>
-<LI>
-<A HREF="manual_25.html#compositor_stencil">stencil</A>
-</UL>
+The only caveat is that a parent material must have been defined/parsed prior to the child material script being parsed.  The easiest way to achieve this is to place parents at the begining of the material script file.  After material scripts are loaded into Ogre, materials no longer maintain their copy inheritance structure.  If a parent material is modified through code at runtime, the changes have no effect on child materials that were copied from it in the script.<BR><BR>
 
-<A NAME="material"></A>
-<A NAME="SEC137"></A>
-<H3> material </H3>
-<!--docid::SEC137::-->
-For passes of type 'render_quad', sets the material used to render the quad. You will want to use shaders in this material to perform fullscreen effects, and use the <A HREF="manual_25.html#compositor_pass_input">input</A> attribute to map other texture targets into the texture bindings needed by this material.<BR><BR>
-Format: material &lt;Name&gt;<BR><BR>
+Material copying within the script alleviates some drudgery from copy/paste but having the ability to identify specific techniques, passes, and texture units to modify makes material copying easier.  Techniques, passes, texture units can be identified directly in the child material without having to layout previous techniques, passes, texture units by associating a name with them,  Techniques and passes can take a name and texture units can be numbered within the material script.<BR><BR>
 
-<A NAME="compositor_pass_input"></A>
-<A NAME="SEC138"></A>
-<H3> input  </H3>
-<!--docid::SEC138::-->
-For passes of type 'render_quad', this is how you map one or more local render textures (See  <A HREF="manual_23.html#compositor_texture">compositor_texture</A>) into the material you're using to render the fullscreen quad. To bind more than one texture, repeat this attribute with different sampler indexes.<BR><BR>
-Format: input &lt;sampler&gt; &lt;Name&gt;<BR><BR>
-<DL COMPACT>
-<DT>sampler
-<DD>The texture sampler to set, must be a number in the range [0, OGRE_MAX_TEXTURE_LAYERS-1].
-<DT>Name
-<DD>The name of the local render texture to bind, as declared in  <A HREF="manual_23.html#compositor_texture">compositor_texture</A> and rendered to in one or more <A HREF="manual_24.html#SEC128">target pass</A>.
-</DL>
-Example: input 0 rt0
+<STRONG>NOTE:  Using names is optional so older scripts will still work just fine and you can inherit from them as well.</STRONG><BR><BR>
 
-<A NAME="compositor_pass_identifier"></A>
-<A NAME="SEC139"></A>
-<H3> identifier </H3>
-<!--docid::SEC139::-->
-Associates a numeric identifier with the pass. This is useful for registering a listener with the compositor (CompositorInstance::addListener), and being able to identify which pass it is that's being processed when you get events regarding it. Numbers between 0 and 2^32 are allowed.<BR><BR>
-Format: identifier &lt;number&gt;<BR><BR>
-Example: identifier 99945<BR><BR>
-Default: identifier 0<BR><BR>
+Names become very usefull in materials that copy from other materials.  In order to overide values they must be in the correct technique, pass, texture unit etc.  The script could be layed out using the sequence of techniques, passes, texture units in the child material but if only one paramter needs to change in say the 5th pass then the first four passes prior to the fith would have to be placed in the script:<BR><BR>
 
-<A NAME="first_render_queue"></A>
-<A NAME="SEC140"></A>
-<H3> first_render_queue </H3>
-<!--docid::SEC140::-->
-For passes of type 'render_scene', this sets the first render queue id that is included in the render. Defaults to the value of RENDER_QUEUE_SKIES_EARLY.<BR><BR>
-Format: first_render_queue &lt;id&gt;<BR><BR>
-Default: first_render_queue 5<BR><BR>
+Here is an example:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>material test2 : test1
+{
+  technique
+  {
+    pass
+    {
+    }
 
-<A NAME="last_render_queue"></A>
-<A NAME="SEC141"></A>
-<H3> last_render_queue </H3>
-<!--docid::SEC141::-->
-For passes of type 'render_scene', this sets the last render queue id that is included in the render. Defaults to the value of RENDER_QUEUE_SKIES_LATE.<BR><BR>
-Format: last_render_queue &lt;id&gt;<BR><BR>
-Default: last_render_queue 95
+    pass
+    {
+    }
 
-<A NAME="compositor_clear"></A>
-<A NAME="SEC142"></A>
-<H2> Clear Section </H2>
-<!--docid::SEC142::-->
-For passes of type 'clear', this section defines the buffer clearing parameters. <BR><BR>
-Format: clear { }<BR><BR>
+    pass
+    {
+    }
 
-Here are the attributes you can use in a 'clear' section of a .compositor script:
-<UL>
-<LI>
-<A HREF="manual_25.html#compositor_clear_buffers">buffers</A>
-<LI>
-<A HREF="manual_25.html#compositor_clear_colour_value">colour_value</A>
-<LI>
-<A HREF="manual_25.html#compositor_clear_depth_value">depth_value</A>
-<LI>
-<A HREF="manual_25.html#compositor_clear_stencil_value">stencil_value</A>
+    pass
+    {
+    }
 
-<A NAME="compositor_clear_buffers"></A>
-<A NAME="SEC143"></A>
-<H3> buffers </H3>
-<!--docid::SEC143::-->
-Sets the buffers cleared by this pass.<BR><BR>
+    pass
+    {
+	  ambient 0.5 0.7 0.3 1.0
+    }
+  }
+}
+</pre></td></tr></table>
+This method is tedious for materials that only have slight variations to their parent.
+An easier way is to name the pass directly without listing the previous passes:<BR>
 
-Format: buffers [colour] [depth] [stencil]<BR><BR>
-Default: buffers colour depth<BR><BR>
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>material test2 : test1
+{
+  technique 0
+  {
+    pass 4
+    {
+	  ambient 0.5 0.7 0.3 1.0
+    }
+  }
+}
+</pre></td></tr></table>
+The parent pass name must be known and the pass must be in the correct technique in order for this to work correctly.  Specifying the technique name and the pass name is the best method.  If the parent technique/pass are not named then use their index values for their name as done in the example.<BR><BR>
 
-<A NAME="compositor_clear_colour_value"></A>
-<A NAME="SEC144"></A>
-<H3> colour_value </H3>
-<!--docid::SEC144::-->
-Set the colour used to fill the colour buffer by this pass, if the colour buffer is being cleared (<A HREF="manual_25.html#compositor_clear_buffers">buffers</A>). <BR><BR>
-Format: colour_value &lt;red&gt; &lt;green&gt; &lt;blue&gt; &lt;alpha&gt;<BR><BR>
-Default: colour_value 0 0 0 0<BR><BR>
+<A NAME="SEC119"></A>
+<H3> Adding new Techniques, Passes, to copied materials: </H3>
+<!--docid::SEC119::-->
 
-<A NAME="compositor_clear_depth_value"></A>
-<A NAME="SEC145"></A>
-<H3> depth_value </H3>
-<!--docid::SEC145::-->
-Set the depth value used to fill the depth buffer by this pass, if the depth buffer is being cleared (<A HREF="manual_25.html#compositor_clear_buffers">buffers</A>). <BR><BR>
-Format: depth_value &lt;depth&gt;<BR><BR>
-Default: depth_value 1.0<BR><BR>
+If a new technique or pass needs to be added to a copied material then use a unique name for the technique or pass that does not exist in the parent material.  Using an index for the name that is one greater than the last index in the parent will do the same thing.  The new technique/pass will be added to the end of the techniques/passes copied from the parent material.<BR><BR>
 
-<A NAME="compositor_clear_stencil_value"></A>
-<A NAME="SEC146"></A>
-<H3> stencil_value </H3>
-<!--docid::SEC146::-->
-Set the stencil value used to fill the stencil buffer by this pass, if the stencil buffer is being cleared (<A HREF="manual_25.html#compositor_clear_buffers">buffers</A>). <BR><BR>
-Format: stencil_value &lt;value&gt;<BR><BR>
-Default: stencil_value 0.0<BR><BR>
-</UL>
+Note:  if passes or techniques aren't given a name, they will take on a default name based on their index.  For example the first pass has index 0 so its name will be 0.
 
-<A NAME="compositor_stencil"></A>
-<A NAME="SEC147"></A>
-<H2> Stencil Section </H2>
-<!--docid::SEC147::-->
-For passes of type 'stencil', this section defines the stencil operation parameters. <BR><BR>
+<A NAME="SEC120"></A>
+<H3> Dealing with Program References and Shader Parameters: </H3>
+<!--docid::SEC120::-->
 
-Format: stencil { }<BR><BR>
+For a child material that only needs to change some shader parameters within a pass, do the following:<BR><BR>
 
-Here are the attributes you can use in a 'stencil' section of a .compositor script:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>material furtest2 : furtest1
+{
+  technique ati8500
+  {
+    pass fur3
+    {
+      fragment_program_ref
+      {
+        param_named furlength float 0.5
+      }
+    }
+  }
+}
+</pre></td></tr></table>
+There is no requirement to give the name of the fragment program reference since the parent material has already done this and the same applies to a vertex program reference, but dropping the program reference name only applies if one is defined in the pass copied from the parent material.  If the parent didn't have a program reference then an exception is generated since the material parser has no clue as to what the script intended.<BR><BR>
 
-<UL>
-<LI>
-<A HREF="manual_25.html#compositor_stencil_check">check</A>
-<LI>
-<A HREF="manual_25.html#compositor_stencil_comp_func">comp_func</A>
-<LI>
-<A HREF="manual_25.html#compositor_stencil_ref_value">ref_value</A>
-<LI>
-<A HREF="manual_25.html#compositor_stencil_mask">mask</A>
-<LI>
-<A HREF="manual_25.html#compositor_stencil_fail_op">fail_op</A>
-<LI>
-<A HREF="manual_25.html#compositor_stencil_depth_fail_op">depth_fail_op</A>
-<LI>
-<A HREF="manual_25.html#compositor_stencil_pass_op">pass_op</A>
-<LI>
-<A HREF="manual_25.html#compositor_stencil_two_sided">two_sided</A>
+Program references can be added to copied passes that had no program references.  The whole program reference will have to be defined with in the pass.<BR><BR>
 
-<A NAME="compositor_stencil_check"></A>
-<A NAME="SEC148"></A>
-<H3> check </H3>
-<!--docid::SEC148::-->
-Enables or disables the stencil check, thus enabling the use of the rest of the features in this section. The rest of the options in this section do nothing if the stencil check is off.
-Format: check (on | off)<BR><BR>
+If a different program ref is to be used in the copied pass then just put in the name of the different vertex/fragment program reference.  This is usefull when you want to inherit from a parent material but want to use a different shader program for one of the passes.<BR><BR>
 
-<A NAME="compositor_stencil_comp_func"></A>
-<A NAME="SEC149"></A>
-<H3> comp_func </H3>
-<!--docid::SEC149::-->
-Sets the function used to perform the following comparison:<BR><BR>
-(ref_value &amp; mask) comp_func (Stencil Buffer Value &amp; mask)<BR><BR>
+<A NAME="SEC121"></A>
+<H3> Identifying Texture Units to overide values </H3>
+<!--docid::SEC121::-->
 
-What happens as a result of this comparison will be one of 3 actions on the stencil buffer, depending on whether the test fails, succeeds but with the depth buffer check still failing, or succeeds with the depth buffer check passing too. You set the actions in the <A HREF="manual_25.html#compositor_stencil_fail_op">fail_op</A>, <A HREF="manual_25.html#compositor_stencil_depth_fail_op">depth_fail_op</A> and <A HREF="manual_25.html#compositor_stencil_pass_op">pass_op</A> respectively. If the stencil check fails, no colour or depth are written to the frame buffer.<BR><BR>
-Format: comp_func (always_fail | always_pass | less | less_equal | not_equal | greater_equal | greater)<BR><BR>
-Default: comp_func always_pass<BR><BR>
+A specific texture unit state (TUS) can be given a unique name within a pass of a material so that it can be identified later in cloned materials that need to override specified texture unit states in the pass without declaring previous texture units.  Using a unique name for a Texture unit in a pass of a cloned material adds a new texture unit at the end of the texture unit list for the pass.<BR><BR>
 
-<A NAME="compositor_stencil_ref_value"></A>
-<A NAME="SEC150"></A>
-<H3> ref_value </H3>
-<!--docid::SEC150::-->
-Sets the reference value used to compare with the stencil buffer as described in <A HREF="manual_25.html#compositor_stencil_comp_func">comp_func</A>.<BR><BR>
-Format: ref_value &lt;value&gt;<BR><BR>
-Default: ref_value 0.0<BR><BR>
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>material BumpMap2 : BumpMap1
+{
+  technique ati8500
+  {
+    pass 0
+    {
+      texture_unit NormalMap
+      {
+        texture BumpyMetalNM.png
+      }
+    }
+  }
+}
+</pre></td></tr></table>
+<A NAME="SEC122"></A>
+<H3> Texture Aliases </H3>
+<!--docid::SEC122::-->
 
-<A NAME="compositor_stencil_mask"></A>
-<A NAME="SEC151"></A>
-<H3> mask </H3>
-<!--docid::SEC151::-->
-Sets the mask used to compare with the stencil buffer as described in <A HREF="manual_25.html#compositor_stencil_comp_func">comp_func</A>.<BR><BR>
-Format: mask &lt;value&gt;<BR><BR>
-Default: mask 4294967295<BR><BR>
+Texture aliases are usefull for when only the textures used in texture units need to be specified for a cloned material.  In the source material ie the original material to be cloned, each texture unit can be given a texture alias name.  The cloned material in the script can then specify what textures should be used for each texture alias.<BR><BR>
 
-<A NAME="compositor_stencil_fail_op"></A>
-<A NAME="SEC152"></A>
-<H3> fail_op </H3>
-<!--docid::SEC152::-->
-Sets what to do with the stencil buffer value if the result of the stencil comparison (<A HREF="manual_25.html#compositor_stencil_comp_func">comp_func</A>) and depth comparison is that both fail.<BR><BR>
-Format: fail_op (keep | zero | replace | increment | decrement | increment_wrap | decrement_wrap | invert)<BR><BR>
-Default: depth_fail_op keep<BR><BR>
-These actions mean:
-<DL COMPACT>
-<DT>keep
-<DD>Leave the stencil buffer unchanged.
-<DT>zero
-<DD>Set the stencil value to zero.
-<DT>replace
-<DD>Set the stencil value to the reference value.
-<DT>increment
-<DD>Add one to the stencil value, clamping at the maximum value.
-<DT>decrement
-<DD>Subtract one from the stencil value, clamping at 0.
-<DT>increment_wrap
-<DD>Add one to the stencil value, wrapping back to 0 at the maximum.
-<DT>decrement_wrap
-<DD>Subtract one from the stencil value, wrapping to the maximum below 0.
-<DT>invert
-<DD>invert the stencil value.
-</DL>
+Using texture aliases within texture units:<BR>
+Format:<BR>
+texture_alias &lt;name&gt;<BR><BR>
 
+Default: &lt;name&gt; will default to texture_unit &lt;name&gt; if set
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>texture_unit DiffuseTex
+{
+  texture diffuse.jpg
+}
+</pre></td></tr></table>texture_alias defaults to DiffuseTex.<BR>
 
-<A NAME="compositor_stencil_depth_fail_op"></A>
-<A NAME="SEC153"></A>
-<H3> depth_fail_op </H3>
-<!--docid::SEC153::-->
-Sets what to do with the stencil buffer value if the result of the stencil comparison (<A HREF="manual_25.html#compositor_stencil_comp_func">comp_func</A>) passes but the depth comparison fails. <BR><BR>
+Example: The base material to be cloned:<BR>
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>material TSNormalSpecMapping
+{ 
+  technique GLSL
+  { 
+    pass 
+    { 
+      ambient 0.1 0.1 0.1
+      diffuse 0.7 0.7 0.7
+      specular 0.7 0.7 0.7 128
+		
+      vertex_program_ref GLSLDemo/OffsetMappingVS
+      {
+        param_named_auto lightPosition light_position_object_space 0
+        param_named_auto eyePosition camera_position_object_space
+        param_named textureScale float 1.0
+      }
 
-Format: depth_fail_op (keep | zero | replace | increment | decrement | increment_wrap | decrement_wrap | invert)<BR><BR>
-Default: depth_fail_op keep<BR><BR>
+      fragment_program_ref GLSLDemo/TSNormalSpecMappingFS 
+      { 
+        param_named normalMap int 0
+        param_named diffuseMap int 1
+        param_named fxMap int 2
+      } 
 
-<A NAME="compositor_stencil_pass_op"></A>
-<A NAME="SEC154"></A>
-<H3> pass_op </H3>
-<!--docid::SEC154::-->
-Sets what to do with the stencil buffer value if the result of the stencil comparison (<A HREF="manual_25.html#compositor_stencil_comp_func">comp_func</A>) and the depth comparison pass. <BR><BR>
-Format: pass_op (keep | zero | replace | increment | decrement | increment_wrap | decrement_wrap | invert)<BR><BR>
-Default: pass_op keep<BR><BR>
+      // Normal map
+      texture_unit NormalMap
+      {
+        texture defaultNM.png
+        tex_coord_set 0
+        filtering trilinear
+      }
 
-<A NAME="compositor_stencil_two_sided"></A>
-<A NAME="SEC155"></A>
-<H3> two_sided </H3>
-<!--docid::SEC155::-->
-Enables or disables two-sided stencil operations, which means the inverse of the operations applies to back-facing polygons.<BR><BR>
-Format: two_sided (on | off)<BR><BR>
-Default: two_sided off<BR><BR>
-</UL>
+      // Base diffuse texture map
+      texture_unit DiffuseMap
+      {
+        texture defaultDiff.png
+        filtering trilinear
+        tex_coord_set 1
+      }
 
-<A NAME="Applying a Compositor"></A>
+      // spec map for shinnines
+      texture_unit SpecMap
+      {
+        texture defaultSpec.png
+        filtering trilinear
+        tex_coord_set 2
+      }
+
+    } 
+
+  } 
+
+  technique HLSL_DX9
+  { 
+    pass 
+    { 
+			
+      vertex_program_ref FxMap_HLSL_VS
+      {
+        param_named_auto worldViewProj_matrix worldviewproj_matrix 
+        param_named_auto lightPosition light_position_object_space 0
+        param_named_auto eyePosition camera_position_object_space
+      }
+
+      fragment_program_ref FxMap_HLSL_PS 
+      { 
+        param_named ambientColor float4 0.2 0.2 0.2 0.2
+      } 
+
+      // Normal map
+      texture_unit 
+      {
+        texture_alias NormalMap
+        texture defaultNM.png
+        tex_coord_set 0
+        filtering trilinear
+      }
+
+      // Base diffuse texture map
+      texture_unit 
+      {
+        texture_alias DiffuseMap
+        texture defaultDiff.png
+        filtering trilinear
+        tex_coord_set 1
+      }
+
+      // spec map for shinnines
+      texture_unit
+      {
+        texture_alias SpecMap
+        texture defaultSpec.png
+        filtering trilinear
+        tex_coord_set 2
+      }
+
+    } 
+
+  } 
+}
+</pre></td></tr></table>
+Note that the GLSL and HLSL techniques use the same textures.  For each texture usage type a texture alias is given that describes what the texture is used for.  So the first texture unit in the GLSL technique has the same alias as the TUS in the HLSL technique since its the same texture used. Same goes for the second and third texture units.<BR>
+For demonstration purposes, the GLSL technique makes use of texture_unit naming and therefore the texture_alias name does not have to be set since it defaults to the texture unit name.  So why not use the default all the time since its less typing?  For most situations you can.  Its when you clone a material that and then want to change the alias that you must use the texture_alias command in the script.  You cannot change the name of a texture_unit in a cloned material so texture_alias provides a facility to assign an alias name.<BR><BR>
+
+Now we want to clone the material but only want to change the textures used.  We could copy and paste the whole material but if we decide to change the base material later then we also have to update the copied material in the script.  With set_texture_alias, copying a material is very easy now.  set_texture_alias is specified at the top of the material definition.  All techniques using the specified texture alias will be effected by set_texture_alias.<BR><BR>
+
+Format:<BR>
+set_texture_alias &lt;alias name&gt; &lt;texture name&gt;<BR>
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>material fxTest : TSNormalSpecMapping
+{
+  set_texture_alias NormalMap fxTestNMap.png
+  set_texture_alias DiffuseMap fxTestDiff.png
+  set_texture_alias SpecMap fxTestMap.png
+}
+</pre></td></tr></table>
+The textures in both techniques in the child material will automatically get replaced with the new ones we want to use.<BR><BR>
+
+  The same process can be done in code as long you set up the texture alias names so then there is no need to traverse technique/pass/TUS to change a texture.  You just call myMaterialPtr-&gt;applyTextureAliases(myAliasTextureNameList) which will update all textures in all texture units that match the alias names in the map container reference you passed as a parameter.<BR><BR>
+
+ You don't have to supply all the textures in the copied material.<BR>
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>material fxTest2 : fxTest
+{
+  set_texture_alias DiffuseMap fxTest2Diff.png
+  set_texture_alias SpecMap fxTest2Map.png
+}
+</pre></td></tr></table>
+Material fxTest2 only changes the diffuse and spec maps of material fxTest and uses the same normal map.<BR><BR>
+
+Another example:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>material fxTest3 : TSNormalSpecMapping
+{
+  set_texture_alias DiffuseMap fxTest2Diff.png
+}
+</pre></td></tr></table>
+fxTest3 will end up with the default textures for the normal map and spec map setup in TSNormalSpecMapping material but will have a different diffuse map.  So your base material can define the default textures to use and then the child materials can override specific textures.<BR><BR>
+
+<A NAME="Compositor Scripts"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC128"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC122"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC156"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC112"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC123"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -303,7 +318,7 @@ Default: two_sided off<BR><BR>
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>October 31 2006</I>
+by <I>steve</I> on <I>December 30 2006</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 

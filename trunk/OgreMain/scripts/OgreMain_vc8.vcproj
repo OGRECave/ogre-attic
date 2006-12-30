@@ -893,6 +893,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreUnifiedHighLevelGpuProgram.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreUserDefinedObject.cpp"
 				>
 			</File>
@@ -1735,6 +1739,10 @@
 			</File>
 			<File
 				RelativePath="..\include\WIN32\OgreTimerImp.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreUnifiedHighLevelGpuProgram.h"
 				>
 			</File>
 			<File

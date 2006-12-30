@@ -28,6 +28,7 @@ Torus Knot Software Ltd.
 */
 #include "OgreStableHeaders.h"
 #include "OgreHighLevelGpuProgramManager.h"
+#include "OgreUnifiedHighLevelGpuProgram.h"
 
 namespace Ogre {
 
@@ -102,11 +103,13 @@ namespace Ogre {
 
 		mNullFactory = new NullProgramFactory();
 		addFactory(mNullFactory);
-       
+		mUnifiedFactory = new UnifiedHighLevelGpuProgramFactory();
+		addFactory(mUnifiedFactory);
 	}
 	//-----------------------------------------------------------------------
 	HighLevelGpuProgramManager::~HighLevelGpuProgramManager()
 	{
+		delete mUnifiedFactory;
 		delete mNullFactory;
         ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);    
 	}
