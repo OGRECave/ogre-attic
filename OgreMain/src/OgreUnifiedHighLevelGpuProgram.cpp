@@ -30,6 +30,7 @@ Torus Knot Software Ltd.
 #include "OgreUnifiedHighLevelGpuProgram.h"
 #include "OgreString.h"
 #include "OgreException.h"
+#include "OgreGpuProgramManager.h"
 
 namespace Ogre
 {
@@ -62,6 +63,8 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void UnifiedHighLevelGpuProgram::chooseDelegate() const
 	{
+		OGRE_LOCK_AUTO_MUTEX
+
 		mChosenDelegate.setNull();
 
 		for (StringVector::const_iterator i = mDelegateNames.begin();
@@ -93,6 +96,8 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void UnifiedHighLevelGpuProgram::addDelegateProgram(const String& name)
 	{
+		OGRE_LOCK_AUTO_MUTEX
+
 		mDelegateNames.push_back(name);
 
 		// reset chosen delegate
@@ -102,6 +107,8 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void UnifiedHighLevelGpuProgram::clearDelegatePrograms()
 	{
+		OGRE_LOCK_AUTO_MUTEX
+
 		mDelegateNames.clear();
 		mChosenDelegate.setNull();
 
@@ -109,7 +116,18 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	GpuProgramParametersSharedPtr UnifiedHighLevelGpuProgram::createParameters(void)
 	{
-		return _getDelegate()->createParameters();
+		if (isSupported())
+		{
+			return _getDelegate()->createParameters();
+		}
+		else
+		{
+			// return a default set
+			GpuProgramParametersSharedPtr params = GpuProgramManager::getSingleton().createParameters();
+			// avoid any errors on parameter names that don't exist
+			params->setAutoAddParamName(true);
+			return params;
+		}
 	}
 	//-----------------------------------------------------------------------
 	GpuProgram* UnifiedHighLevelGpuProgram::_getBindingDelegate(void)

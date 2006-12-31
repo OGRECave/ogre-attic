@@ -45,7 +45,11 @@ namespace Ogre {
 		/// Internal unload implementation, must be implemented by subclasses
 		void unloadHighLevelImpl(void) {}
 		/// Populate the passed parameters with name->index map, must be overridden
-		void populateParameterNames(GpuProgramParametersSharedPtr params) {}
+		void populateParameterNames(GpuProgramParametersSharedPtr params)
+		{
+			// Ensure we don't complain about missing parameter names
+			params->setAutoAddParamName(true);
+		}
 	public:
 		NullProgram(ResourceManager* creator, 
 			const String& name, ResourceHandle handle, const String& group, 
@@ -56,6 +60,14 @@ namespace Ogre {
 		bool isSupported(void) const { return false; }
 		/// Overridden from GpuProgram
 		const String& getLanguage(void) const { return sNullLang; }
+
+		/// Overridden from StringInterface
+		bool setParameter(const String& name, const String& value)
+		{
+			// always silently ignore all parameters so as not to report errors on
+			// unsupported platforms
+			return true;
+		}
 
 	};
 	class NullProgramFactory : public HighLevelGpuProgramFactory
