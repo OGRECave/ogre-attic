@@ -252,12 +252,13 @@ namespace OgreMayaExporter
 		// get submesh bounding box
 		MPoint min = mesh.boundingBox().min();
 		MPoint max = mesh.boundingBox().max();
-		min = min * params.lum;
-		max = max * params.lum;
 		MBoundingBox bbox(min,max);
-		m_boundingBox = bbox;
 		if (params.exportWorldCoords)
-			m_boundingBox.transformUsing(dag.exclusiveMatrix());
+			bbox.transformUsing(dag.inclusiveMatrix());
+		min = bbox.min() * params.lum;
+		max = bbox.max() * params.lum;
+		MBoundingBox newbbox(min,max);
+		m_boundingBox = newbbox;
 		// add submesh pointer to parameters list
 		params.loadedSubmeshes.push_back(this);
 
@@ -306,12 +307,13 @@ namespace OgreMayaExporter
 			// update bounding box
 			MPoint min = mesh.boundingBox().min();
 			MPoint max = mesh.boundingBox().max();
-			min = min * params.lum;
-			max = max * params.lum;
 			MBoundingBox bbox(min,max);
 			if (params.exportWorldCoords)
 				bbox.transformUsing(m_dagPath.inclusiveMatrix());
-			m_boundingBox.expand(bbox);
+			min = bbox.min() * params.lum;
+			max = bbox.max() * params.lum;
+			MBoundingBox newbbox(min,max);
+			m_boundingBox.expand(newbbox);
 		}
 		// keyframe successfully loaded
 		return MS::kSuccess;
