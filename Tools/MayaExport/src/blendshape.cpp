@@ -175,10 +175,15 @@ namespace OgreMayaExporter
 			for (i=0; i<params.loadedSubmeshes.size(); i++)
 			{
 				MFnMesh mesh(params.loadedSubmeshes[i]->m_dagPath);
-				MBoundingBox bbox = mesh.boundingBox();
+				MPoint min = mesh.boundingBox().min();
+				MPoint max = mesh.boundingBox().max();
+				MBoundingBox bbox(min,max);
 				if (params.exportWorldCoords)
 					bbox.transformUsing(params.loadedSubmeshes[i]->m_dagPath.inclusiveMatrix());
-				params.loadedSubmeshes[i]->m_boundingBox.expand(bbox);
+				min = bbox.min() * params.lum;
+				max = bbox.max() * params.lum;
+				MBoundingBox newbbox(min,max);
+				params.loadedSubmeshes[i]->m_boundingBox.expand(newbbox);
 			}
 		}
 		// pose loaded succesfully
