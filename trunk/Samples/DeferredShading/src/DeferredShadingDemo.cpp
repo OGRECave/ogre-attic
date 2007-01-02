@@ -235,13 +235,13 @@ protected:
 		const RenderSystemCapabilities* caps = rs->getCapabilities();
         if (!caps->hasCapability(RSC_VERTEX_PROGRAM) || !(caps->hasCapability(RSC_FRAGMENT_PROGRAM)))
         {
-            OGRE_EXCEPT(1, "Your card does not support vertex and fragment programs (or you selected D3D7), so cannot "
+            OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "Your card does not support vertex and fragment programs (or you selected D3D7), so cannot "
                 "run this demo. Sorry!", 
                 "DeferredShading::createScene");
         }
 		if (caps->numMultiRenderTargets()<2)
         {
-            OGRE_EXCEPT(1, "Your card does not support at least two simulataneous render targets, so cannot "
+            OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "Your card does not support at least two simulataneous render targets, so cannot "
                 "run this demo. Sorry!", 
                 "DeferredShading::createScene");
         }
@@ -558,8 +558,6 @@ extern "C" {
 	{
 		// Create application object
 		RenderToTextureApplication app;
-
-		SET_TERM_HANDLER;
 
 		try {
 			app.go();

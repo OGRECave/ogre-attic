@@ -291,7 +291,7 @@ namespace Ogre
             }
             catch (Exception& e)
             {
-                logParseError("Bad scene_blend attribute, " + e.getFullDescription(), context);
+                logParseError("Bad scene_blend attribute, " + e.getDescription(), context);
             }
 
         }
@@ -1172,7 +1172,7 @@ namespace Ogre
         }
         catch (Exception& e)
         {
-            logParseError("Bad colour_op_ex attribute, " + e.getFullDescription(), context);
+            logParseError("Bad colour_op_ex attribute, " + e.getDescription(), context);
             return false;
         }
 
@@ -1202,7 +1202,7 @@ namespace Ogre
         catch (Exception& e)
         {
             logParseError("Bad colour_op_multipass_fallback attribute, "
-                + e.getFullDescription(), context);
+                + e.getDescription(), context);
         }
         return false;
     }
@@ -1275,7 +1275,7 @@ namespace Ogre
         }
         catch (Exception& e)
         {
-            logParseError("Bad alpha_op_ex attribute, " + e.getFullDescription(), context);
+            logParseError("Bad alpha_op_ex attribute, " + e.getDescription(), context);
             return false;
         }
 
@@ -1879,7 +1879,7 @@ namespace Ogre
         }
         catch (Exception& e)
         {
-            logParseError("Invalid param_named attribute - " + e.getFullDescription(), context);
+            logParseError("Invalid param_named attribute - " + e.getDescription(), context);
             return false;
         }
 
@@ -1916,7 +1916,7 @@ namespace Ogre
         }
         catch (Exception& e)
         {
-            logParseError("Invalid param_named_auto attribute - " + e.getFullDescription(), context);
+            logParseError("Invalid param_named_auto attribute - " + e.getDescription(), context);
             return false;
         }
 
@@ -2945,7 +2945,7 @@ namespace Ogre
             catch (Exception& e)
             {
                 logParseError("Could not create GPU program '"
-                    + def->name + "', error reported was: " + e.getFullDescription(), mScriptContext);
+                    + def->name + "', error reported was: " + e.getDescription(), mScriptContext);
 				mScriptContext.program.setNull();
             	mScriptContext.programParams.setNull();
 				return;

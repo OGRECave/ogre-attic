@@ -327,7 +327,7 @@ namespace Ogre {
 				}
             }
             else
-                OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE, "**** Unknown texture type ****", "GLTexture::load" );
+                OGRE_EXCEPT( Exception::ERR_NOT_IMPLEMENTED, "**** Unknown texture type ****", "GLTexture::load" );
         }
     }
 	

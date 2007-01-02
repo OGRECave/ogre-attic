@@ -257,18 +257,18 @@ namespace Ogre {
 		if (!mGLSupport.selectPixelFormat(mHDC, mColourDepth, fsaa))
 		{
 			if (fsaa == 0)
-				OGRE_EXCEPT(0, "selectPixelFormat failed", "Win32Window::create");
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "selectPixelFormat failed", "Win32Window::create");
 
 			LogManager::getSingleton().logMessage(LML_NORMAL, "FSAA level not supported, falling back");
 			if (!mGLSupport.selectPixelFormat(mHDC, mColourDepth, 0))
-				OGRE_EXCEPT(0, "selectPixelFormat failed", "Win32Window::create");
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "selectPixelFormat failed", "Win32Window::create");
 		}
 
 		mGlrc = wglCreateContext(mHDC);
 		if (!mGlrc)
-			OGRE_EXCEPT(0, "wglCreateContext", "Win32Window::create");
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "wglCreateContext", "Win32Window::create");
 		if (!wglMakeCurrent(mHDC, mGlrc))
-			OGRE_EXCEPT(0, "wglMakeCurrent", "Win32Window::create");
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "wglMakeCurrent", "Win32Window::create");
 
 		// Don't use wglew as if this is the first window, we won't have initialised yet
 		PFNWGLSWAPINTERVALEXTPROC _wglSwapIntervalEXT = 
@@ -280,11 +280,11 @@ namespace Ogre {
         {
             // Restore old context
 		    if (!wglMakeCurrent(old_hdc, old_context))
-			    OGRE_EXCEPT(0, "wglMakeCurrent() failed", "Win32Window::create");
+			    OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "wglMakeCurrent() failed", "Win32Window::create");
 
             // Share lists with old context
 		    if (!wglShareLists(old_context, mGlrc))
-			    OGRE_EXCEPT(0, "wglShareLists() failed", " Win32Window::create");
+			    OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "wglShareLists() failed", " Win32Window::create");
         }
 
 		// Create RenderSystem context

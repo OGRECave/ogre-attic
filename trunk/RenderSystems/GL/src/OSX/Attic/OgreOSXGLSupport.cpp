@@ -195,16 +195,16 @@ RenderWindow* OSXGLSupport::createWindow( bool autoCreateWindow, GLRenderSystem*
 	{
 		ConfigOptionMap::iterator opt = mOptions.find( "Full Screen" );
 		if( opt == mOptions.end() )
-			OGRE_EXCEPT( 999, "Can't find full screen options!", "OSXGLSupport::createWindow" );
+			OGRE_EXCEPT( Exception::ERR_RENDERINGAPI_ERROR, "Can't find full screen options!", "OSXGLSupport::createWindow" );
 		bool fullscreen = ( opt->second.currentValue == "Yes" );
 
 		opt = mOptions.find( "Video Mode" );
 		if( opt == mOptions.end() )
-			OGRE_EXCEPT( 999, "Can't find video mode options!", "OSXGLSupport::createWindow" );
+			OGRE_EXCEPT( Exception::ERR_RENDERINGAPI_ERROR, "Can't find video mode options!", "OSXGLSupport::createWindow" );
 		String val = opt->second.currentValue;
 		String::size_type pos = val.find( 'x' );
 		if( pos == String::npos )
-			OGRE_EXCEPT( 999, "Invalid Video Mode provided", "OSXGLSupport::createWindow" );
+			OGRE_EXCEPT( Exception::ERR_RENDERINGAPI_ERROR, "Invalid Video Mode provided", "OSXGLSupport::createWindow" );
 
 		unsigned int w = StringConverter::parseUnsignedInt( val.substr( 0, pos ) );
 		unsigned int h = StringConverter::parseUnsignedInt( val.substr( pos + 1 ) );

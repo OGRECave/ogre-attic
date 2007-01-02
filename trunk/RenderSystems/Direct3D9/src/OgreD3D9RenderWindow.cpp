@@ -463,7 +463,8 @@ namespace Ogre
 				if( FAILED( hr ) )
 				{
 					destroy();
-					OGRE_EXCEPT( hr, "Failed to create Direct3D9 Device: " + 
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"Failed to create Direct3D9 Device: " + 
 						Root::getSingleton().getErrorDescription(hr), 
 						"D3D9RenderWindow::createD3DResources" );
 				}
@@ -582,7 +583,7 @@ namespace Ogre
 					&mpSwapChain);
 
 				if (FAILED(hr))
-					OGRE_EXCEPT( hr, "Reset window to last size failed", "D3D9RenderWindow::resize" );
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Reset window to last size failed", "D3D9RenderWindow::resize" );
 
 			}		
 			else 
@@ -604,7 +605,7 @@ namespace Ogre
 
 				if (FAILED(hr)) 
 				{
-					OGRE_EXCEPT( hr, "Failed to create depth stencil surface for Swap Chain", "D3D9RenderWindow::resize" );
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to create depth stencil surface for Swap Chain", "D3D9RenderWindow::resize" );
 				}
 
 				mpRenderSurface->Release();
@@ -646,7 +647,7 @@ namespace Ogre
 					Root::getSingleton().getRenderSystem())->_notifyDeviceLost();
 			}
 			else if( FAILED(hr) )
-				OGRE_EXCEPT( hr, "Error Presenting surfaces", "D3D9RenderWindow::swapBuffers" );
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Error Presenting surfaces", "D3D9RenderWindow::swapBuffers" );
 		}
 	}
 
@@ -708,7 +709,7 @@ namespace Ogre
 		// get display dimensions
 		// this will be the dimensions of the front buffer
 		if (FAILED(hr = mpD3DDevice->GetDisplayMode(0, &dm)))
-			OGRE_EXCEPT(hr, "Can't get display mode!", "D3D9RenderWindow::writeContentsToFile");
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get display mode!", "D3D9RenderWindow::writeContentsToFile");
 
 		desc.Width = dm.Width;
 		desc.Height = dm.Height;
@@ -721,13 +722,13 @@ namespace Ogre
 			&pTempSurf, 
 			NULL)))
 		{
-			OGRE_EXCEPT(hr, "Cannot create offscreen buffer 1!", "D3D9RenderWindow::writeContentsToFile");
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Cannot create offscreen buffer 1!", "D3D9RenderWindow::writeContentsToFile");
 		}
 
 		if (FAILED(hr = mpD3DDevice->GetFrontBufferData(0, pTempSurf)))
 		{
 			SAFE_RELEASE(pTempSurf);
-			OGRE_EXCEPT(hr, "Can't get front buffer!", "D3D9RenderWindow::writeContentsToFile");
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't get front buffer!", "D3D9RenderWindow::writeContentsToFile");
 		}
 		
 		D3DLOCKED_RECT lockedRect;
@@ -736,7 +737,7 @@ namespace Ogre
 			if (FAILED(hr = pTempSurf->LockRect(&lockedRect, NULL, 
 			D3DLOCK_READONLY | D3DLOCK_NOSYSLOCK)))
 			{
-				OGRE_EXCEPT(hr, "can't lock rect!", "D3D9RenderWindow::writeContentsToFile");
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "can't lock rect!", "D3D9RenderWindow::writeContentsToFile");
 			} 
 		}
 		else
@@ -751,7 +752,7 @@ namespace Ogre
 
 			D3DLOCK_READONLY | D3DLOCK_NOSYSLOCK)))
 			{
-				OGRE_EXCEPT(hr, "can't lock rect!", "D3D9RenderWindow::writeContentsToFile");
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "can't lock rect!", "D3D9RenderWindow::writeContentsToFile");
 			} 
 		}
   

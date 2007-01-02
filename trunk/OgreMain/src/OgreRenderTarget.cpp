@@ -133,7 +133,7 @@ namespace Ogre {
 			str << "Can't create another viewport for "
 				<< mName << " with Z-Order " << ZOrder
 				<< " because a viewport exists with this Z-Order already.";
-            OGRE_EXCEPT(9999, str.str(), "RenderTarget::addViewport");
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, str.str(), "RenderTarget::addViewport");
         }
         // Add viewport to list
         // Order based on Z-Order

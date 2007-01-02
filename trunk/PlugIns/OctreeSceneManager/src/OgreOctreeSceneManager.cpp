@@ -570,7 +570,7 @@ void OctreeSceneManager::_updateSceneGraph( Camera * cam )
 
 void OctreeSceneManager::_alertVisibleObjects( void )
 {
-    OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE,
+    OGRE_EXCEPT( Exception::ERR_NOT_IMPLEMENTED,
         "Function doesn't do as advertised",
         "OctreeSceneManager::_alertVisibleObjects" );
 

@@ -159,7 +159,7 @@ namespace Ogre {
 		// Choose suitable pixel format
 		wglChoosePixelFormatARB(old_hdc,attrib,NULL,1,&format,&count);
 		if(count == 0)
-			OGRE_EXCEPT(0, "wglChoosePixelFormatARB() failed", " Win32PBuffer::createPBuffer");
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "wglChoosePixelFormatARB() failed", " Win32PBuffer::createPBuffer");
 
 		// Analyse pixel format
 		const int piAttributes[]={
@@ -182,26 +182,26 @@ namespace Ogre {
 
 		mPBuffer = wglCreatePbufferARB(old_hdc,format,mWidth,mHeight,pattrib_default);
 		if(!mPBuffer)
-			OGRE_EXCEPT(0, "wglCreatePbufferARB() failed", " Win32PBuffer::createPBuffer");
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "wglCreatePbufferARB() failed", " Win32PBuffer::createPBuffer");
 
 		mHDC = wglGetPbufferDCARB(mPBuffer);
 		if(!mHDC) {
 			wglDestroyPbufferARB(mPBuffer);
-			OGRE_EXCEPT(0, "wglGetPbufferDCARB() failed", " Win32PBuffer::createPBuffer");
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "wglGetPbufferDCARB() failed", " Win32PBuffer::createPBuffer");
 		}
 			
 		mGlrc = wglCreateContext(mHDC);
 		if(!mGlrc) {
 			wglReleasePbufferDCARB(mPBuffer,mHDC);
 			wglDestroyPbufferARB(mPBuffer);
-			OGRE_EXCEPT(0, "wglCreateContext() failed", " Win32PBuffer::createPBuffer");
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "wglCreateContext() failed", " Win32PBuffer::createPBuffer");
 		}
 
 		if(!wglShareLists(old_context,mGlrc)) {
 			wglDeleteContext(mGlrc);
 			wglReleasePbufferDCARB(mPBuffer,mHDC);
 			wglDestroyPbufferARB(mPBuffer);
-			OGRE_EXCEPT(0, "wglShareLists() failed", " Win32PBuffer::createPBuffer");
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "wglShareLists() failed", " Win32PBuffer::createPBuffer");
 		}
 				
 		// Query real width and height

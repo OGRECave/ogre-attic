@@ -44,7 +44,7 @@ template<> GLRTTManager* Singleton<GLRTTManager>::ms_Singleton = 0;
     }
     MultiRenderTarget* GLRTTManager::createMultiRenderTarget(const String & name)
     {
-    	OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE, "MultiRenderTarget can only be used with GL_EXT_framebuffer_object extension", "GLRTTManager::createMultiRenderTarget");
+    	OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "MultiRenderTarget can only be used with GL_EXT_framebuffer_object extension", "GLRTTManager::createMultiRenderTarget");
     }
     PixelFormat GLRTTManager::getSupportedAlternative(PixelFormat format)
     {

@@ -947,7 +947,7 @@ namespace Ogre {
             default:
                 // Not yet supported
                 OGRE_EXCEPT(
-                    Exception::UNIMPLEMENTED_FEATURE,
+                    Exception::ERR_NOT_IMPLEMENTED,
                     "pack to "+getFormatName(pf)+" not implemented",
                     "PixelUtil::packColour");
                 break;
@@ -1071,7 +1071,7 @@ namespace Ogre {
 				break;
             default:
                 // Not yet supported
-                OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE,
+                OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED,
                     "unpack from "+getFormatName(pf)+" not implemented",
                     "PixelUtil::unpackColour");
                 break;
@@ -1105,7 +1105,7 @@ namespace Ogre {
 			}
 			else
 			{
-				OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE,
+				OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED,
 					"This method can not be used to compress or decompress images",
 					"PixelUtil::bulkPixelConversion");
 			}

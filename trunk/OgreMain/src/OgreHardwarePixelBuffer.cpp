@@ -158,7 +158,7 @@ namespace Ogre
 	void HardwarePixelBuffer::readData(size_t offset, size_t length, void* pDest)
 	{
 		// TODO
-		OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE,
+		OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED,
 				"Reading a byte range is not implemented. Use blitToMemory.",
 				"HardwarePixelBuffer::readData");
 	}
@@ -168,7 +168,7 @@ namespace Ogre
 			bool discardWholeBuffer)
 	{
 		// TODO
-		OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE,
+		OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED,
 				"Writing a byte range is not implemented. Use blitFromMemory.",
 				"HardwarePixelBuffer::writeData");
 	}
@@ -176,7 +176,7 @@ namespace Ogre
     
     RenderTexture *HardwarePixelBuffer::getRenderTarget(size_t)
     {
-        OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE,
+        OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED,
 				"Not yet implemented for this rendersystem.",
 				"HardwarePixelBuffer::getRenderTarget");
     }

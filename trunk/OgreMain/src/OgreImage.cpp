@@ -106,8 +106,6 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
 	Image & Image::flipAroundY()
 	{
-		OgreGuard( "Image::flipAroundY" );
-
 		if( !m_pBuffer )
 		{
 			OGRE_EXCEPT( 
@@ -196,14 +194,13 @@ namespace Ogre {
 			break;
 		}
 
-		OgreUnguardRet( *this );
+		return *this;
+
 	}
 
 	//-----------------------------------------------------------------------------
 	Image & Image::flipAroundX()
 	{
-		OgreGuard( "Image::flipAroundX" );
-
 		if( !m_pBuffer )
 		{
 			OGRE_EXCEPT( 
@@ -229,7 +226,7 @@ namespace Ogre {
 
 		delete [] pTempBuffer;
 
-		OgreUnguardRet( *this );
+		return *this;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -238,7 +235,6 @@ namespace Ogre {
 		PixelFormat eFormat, bool autoDelete, 
 		size_t numFaces, size_t numMipMaps)
 	{
-		OgreGuard( "Image::loadDynamicImage" );
 
 		if( m_pBuffer && m_bAutoDelete )
 		{
@@ -269,7 +265,8 @@ namespace Ogre {
 		m_pBuffer = pData;
 		m_bAutoDelete = autoDelete;
 
-		OgreUnguardRet( *this );
+		return *this;
+
 	}
 
 	//-----------------------------------------------------------------------------
@@ -279,7 +276,6 @@ namespace Ogre {
 		PixelFormat eFormat,
 		size_t numFaces, size_t numMipMaps)
 	{
-		OgreGuard( "Image::loadRawData" );
 
 		size_t size = calculateSize(numMipMaps, numFaces, uWidth, uHeight, uDepth, eFormat);
 		if (size != stream->size())
@@ -292,17 +288,15 @@ namespace Ogre {
 		uchar *buffer = new uchar[ size ];
 		stream->read(buffer, size);
 
-		loadDynamicImage(buffer,
+		return loadDynamicImage(buffer,
 			uWidth, uHeight, uDepth,
 			eFormat, true, numFaces, numMipMaps);
 
-		OgreUnguardRet( *this );
 	}
 
 	//-----------------------------------------------------------------------------
 	Image & Image::load(const String& strFileName, const String& group)
 	{
-		OgreGuard( "Image::load" );
 
 		if( m_pBuffer && m_bAutoDelete )
 		{
@@ -352,7 +346,8 @@ namespace Ogre {
 		// ensure we don't delete when stream is closed
 		res.first->setFreeOnClose(false);
 
-		OgreUnguardRet( *this );
+		return *this;
+
 	}
 	//-----------------------------------------------------------------------------
 	void Image::save(const String& filename)
@@ -396,7 +391,6 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
 	Image & Image::load(DataStreamPtr& stream, const String& type )
 	{
-		OgreGuard( "Image::load" );
 		if( m_pBuffer && m_bAutoDelete )
 		{
 			delete[] m_pBuffer;
@@ -432,7 +426,7 @@ namespace Ogre {
 		// Make sure stream does not delete
 		res.first->setFreeOnClose(false);
 
-		OgreUnguardRet( *this );
+		return *this;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -702,7 +696,7 @@ namespace Ogre {
 		// face 1, mip 2
 		// etc
 		if(mipmap > getNumMipmaps())
-			OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE,
+			OGRE_EXCEPT( Exception::ERR_NOT_IMPLEMENTED,
 			"Mipmap index out of range",
 			"Image::getPixelBox" ) ;
 		if(face >= getNumFaces())

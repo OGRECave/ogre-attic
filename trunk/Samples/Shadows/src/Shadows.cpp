@@ -1739,8 +1739,6 @@ int main(int argc, char *argv[])
     // Create application object
     ShadowsApplication app;
 
-    SET_TERM_HANDLER;
-    
     try {
         app.go();
     } catch( Ogre::Exception& e ) {

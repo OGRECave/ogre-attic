@@ -39,12 +39,6 @@ Torus Knot Software Ltd.
 
 #include <exception>
 
-#if OGRE_COMPILER == OGRE_COMPILER_MSVC || OGRE_COMPILER == OGRE_COMPILER_BORL
-#   define SET_TERM_HANDLER { set_terminate( &Ogre::Root::termHandler ); }
-#else
-#   define SET_TERM_HANDLER { std::set_terminate( &Ogre::Root::termHandler ); }
-#endif
-
 namespace Ogre
 {
     typedef std::vector<RenderSystem*> RenderSystemList;
@@ -173,11 +167,16 @@ namespace Ogre
         static void termHandler();
 
         /** Constructor
-            @param
-                pluginFileName The file that contains plugins information.
-                Defaults to "plugins.cfg".
+        @param pluginFileName The file that contains plugins information.
+            Defaults to "plugins.cfg", may be left blank to ignore.
+		@param configFileName The file that contains the configuration to be loaded.
+			Defaults to "ogre.cfg", may be left blank to load nothing.
+		@param logFileName The logfile to create, defaults to Ogre.log, may be 
+			left blank if you've already set up LogManager & Log yourself
 		*/
-        Root(const String& pluginFileName = "plugins.cfg", const String& configFileName = "ogre.cfg", const String& logFileName = "Ogre.log");
+        Root(const String& pluginFileName = "plugins.cfg", 
+			const String& configFileName = "ogre.cfg", 
+			const String& logFileName = "Ogre.log");
         ~Root();
 
         /** Saves the details of the current configuration

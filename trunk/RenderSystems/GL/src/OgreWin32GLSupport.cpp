@@ -122,14 +122,14 @@ namespace Ogre {
 		ConfigOptionMap::iterator moptColourDepth = mOptions.find("Colour Depth");
 		ConfigOptionMap::iterator moptDisplayFrequency = mOptions.find("Display Frequency");
 		if(optVideoMode == mOptions.end() || moptColourDepth == mOptions.end() || moptDisplayFrequency == mOptions.end())
-			OGRE_EXCEPT(999, "Can't find mOptions!", "Win32GLSupport::refreshConfig");
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Can't find mOptions!", "Win32GLSupport::refreshConfig");
 		ConfigOption* optColourDepth = &moptColourDepth->second;
 		ConfigOption* optDisplayFrequency = &moptDisplayFrequency->second;
 
 		const String& val = optVideoMode->second.currentValue;
 		String::size_type pos = val.find('x');
 		if (pos == String::npos)
-			OGRE_EXCEPT(999, "Invalid Video Mode provided", "Win32GLSupport::refreshConfig");
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid Video Mode provided", "Win32GLSupport::refreshConfig");
 		DWORD width = StringConverter::parseUnsignedInt(val.substr(0, pos));
 		DWORD height = StringConverter::parseUnsignedInt(val.substr(pos+1, String::npos));
 
@@ -192,16 +192,16 @@ namespace Ogre {
         {
             ConfigOptionMap::iterator opt = mOptions.find("Full Screen");
             if (opt == mOptions.end())
-                OGRE_EXCEPT(999, "Can't find full screen options!", "Win32GLSupport::createWindow");
+                OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Can't find full screen options!", "Win32GLSupport::createWindow");
             bool fullscreen = (opt->second.currentValue == "Yes");
 
             opt = mOptions.find("Video Mode");
             if (opt == mOptions.end())
-                OGRE_EXCEPT(999, "Can't find video mode options!", "Win32GLSupport::createWindow");
+                OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Can't find video mode options!", "Win32GLSupport::createWindow");
             String val = opt->second.currentValue;
             String::size_type pos = val.find('x');
             if (pos == String::npos)
-                OGRE_EXCEPT(999, "Invalid Video Mode provided", "Win32GLSupport::createWindow");
+                OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid Video Mode provided", "Win32GLSupport::createWindow");
 
 			unsigned int w = StringConverter::parseUnsignedInt(val.substr(0, pos));
             unsigned int h = StringConverter::parseUnsignedInt(val.substr(pos + 1));
@@ -210,21 +210,21 @@ namespace Ogre {
 			NameValuePairList winOptions;
 			opt = mOptions.find("Colour Depth");
 			if (opt == mOptions.end())
-				OGRE_EXCEPT(999, "Can't find Colour Depth options!", "Win32GLSupport::createWindow");
+				OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Can't find Colour Depth options!", "Win32GLSupport::createWindow");
 			unsigned int colourDepth =
 				StringConverter::parseUnsignedInt(opt->second.currentValue);
 			winOptions["colourDepth"] = StringConverter::toString(colourDepth);
 
 			opt = mOptions.find("VSync");
 			if (opt == mOptions.end())
-				OGRE_EXCEPT(999, "Can't find VSync options!", "Win32GLSupport::createWindow");
+				OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Can't find VSync options!", "Win32GLSupport::createWindow");
 			bool vsync = (opt->second.currentValue == "Yes");
 			winOptions["vsync"] = StringConverter::toString(vsync);
 			renderSystem->setWaitForVerticalBlank(vsync);
 
 			opt = mOptions.find("FSAA");
 			if (opt == mOptions.end())
-				OGRE_EXCEPT(999, "Can't find FSAA options!", "Win32GLSupport::createWindow");
+				OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Can't find FSAA options!", "Win32GLSupport::createWindow");
 			unsigned int multisample =
 				StringConverter::parseUnsignedInt(opt->second.currentValue);
 			winOptions["FSAA"] = StringConverter::toString(multisample);
@@ -243,7 +243,7 @@ namespace Ogre {
 	{
 		ConfigOptionMap::iterator opt = mOptions.find("Display Frequency");
 		if (opt == mOptions.end())
-			OGRE_EXCEPT(999, "Can't find Display Frequency options!", "Win32GLSupport::newWindow");
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Can't find Display Frequency options!", "Win32GLSupport::newWindow");
 		unsigned int displayFrequency = StringConverter::parseUnsignedInt(opt->second.currentValue);
 
 		Win32Window* window = new Win32Window(*this);
@@ -345,7 +345,7 @@ namespace Ogre {
 
 		// if a simple CreateWindow fails, then boy are we in trouble...
 		if (hwnd == NULL)
-			OGRE_EXCEPT(0, "CreateWindow() failed", "Win32GLSupport::initializeWGL");
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "CreateWindow() failed", "Win32GLSupport::initializeWGL");
 
 
 		// no chance of failure and no need to release thanks to CS_OWNDC

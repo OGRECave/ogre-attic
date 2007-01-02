@@ -205,14 +205,14 @@ protected:
 		const RenderSystemCapabilities* caps = Root::getSingleton().getRenderSystem()->getCapabilities();
         if (!caps->hasCapability(RSC_VERTEX_PROGRAM))
         {
-            OGRE_EXCEPT(1, "Your card does not support vertex programs, so cannot "
+            OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "Your card does not support vertex programs, so cannot "
                 "run this demo. Sorry!", 
                 "Dot3Bump::createScene");
         }
         if (!(caps->hasCapability(RSC_FRAGMENT_PROGRAM) 
 			|| caps->hasCapability(RSC_DOT3)) )
         {
-            OGRE_EXCEPT(1, "Your card does not support dot3 blending or fragment programs, so cannot "
+            OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "Your card does not support dot3 blending or fragment programs, so cannot "
                 "run this demo. Sorry!", 
                 "Dot3Bump::createScene");
         }
