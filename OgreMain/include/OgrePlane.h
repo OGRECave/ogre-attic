@@ -71,10 +71,17 @@ namespace Ogre {
         {
             NO_SIDE,
             POSITIVE_SIDE,
-            NEGATIVE_SIDE
+            NEGATIVE_SIDE,
+            BOTH_SIDE
         };
 
         Side getSide (const Vector3& rkPoint) const;
+
+        /**
+        returns the side where the aligneBox is. the flag BOTH_SIDE indicates an intersecting box.
+        one corner ON the plane is sufficient to consider the box and the plane intersecting.
+        */
+        Side getSide (const AxisAlignedBox& rkBox) const;
 
         /** This is a pseudodistance. The sign of the return value is
             positive if the point is on the positive side of the plane,
@@ -89,6 +96,9 @@ namespace Ogre {
         /** Redefine this plane based on 3 points. */
         void redefine(const Vector3& rkPoint0, const Vector3& rkPoint1,
             const Vector3& rkPoint2);
+
+		/** Redefine this plane based on a normal and a point. */
+		void redefine(const Vector3& rkNormal, const Vector3& rkPoint);
 
 		/** Project a vector onto the plane. 
 		@remarks This gives you the element of the input vector that is perpendicular 

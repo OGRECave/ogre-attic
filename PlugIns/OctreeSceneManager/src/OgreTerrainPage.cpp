@@ -103,15 +103,14 @@ namespace Ogre {
         while ( tile != 0 )
         {
             AxisAlignedBox b = tile -> getBoundingBox();
-            const Vector3 *corners = b.getAllCorners();
 
-            if ( pt.x < corners[ 0 ].x )
+            if ( pt.x < b.getMinimum().x )
                 tile = tile -> _getNeighbor( TerrainRenderable::WEST );
-            else if ( pt.x > corners[ 4 ].x )
+            else if ( pt.x > b.getMaximum().x )
                 tile = tile -> _getNeighbor( TerrainRenderable::EAST );
-            else if ( pt.z < corners[ 0 ].z )
+            else if ( pt.z < b.getMinimum().z )
                 tile = tile -> _getNeighbor( TerrainRenderable::NORTH );
-            else if ( pt.z > corners[ 4 ].z )
+            else if ( pt.z > b.getMaximum().z )
                 tile = tile -> _getNeighbor( TerrainRenderable::SOUTH );
             else
                 return tile;

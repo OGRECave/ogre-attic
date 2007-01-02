@@ -547,43 +547,26 @@ namespace Ogre
 		// intersect the rays formed by the points in the list with the given direction and
 		// insert them into the list
 
-		// ordering of the AAB points:
-		//		1-----2
-		//	   /|    /|
-		//	  / |   / |
-		//   5-----4  |
-		//   |  0--|--3
-		//   | /   | /
-		//   |/    |/
-		//   6-----7
-
-		const Vector3 *aabPts = aabMax.getAllCorners();
+		// min/max aab points for comparison
+		const Vector3& min = aabMax.getMinimum();
+		const Vector3& max = aabMax.getMaximum();
 
 		// assemble the clipping planes
 		Plane pl[6];
 
 		// front
-		pl[0].redefine(aabPts[4], aabPts[5], aabPts[6]);
-
+		pl[0].redefine(Vector3::UNIT_Z, max);
 		// back
-		pl[1].redefine(aabPts[1], aabPts[2], aabPts[3]);
-
+		pl[1].redefine(Vector3::NEGATIVE_UNIT_Z, min);
 		// left
-		pl[2].redefine(aabPts[1], aabPts[0], aabPts[6]);
-
+		pl[2].redefine(Vector3::NEGATIVE_UNIT_X, min);
 		// right
-		pl[3].redefine(aabPts[2], aabPts[4], aabPts[7]);
-
+		pl[3].redefine(Vector3::UNIT_X, max);
 		// bottom
-		pl[4].redefine(aabPts[0], aabPts[3], aabPts[7]);
-
+		pl[4].redefine(Vector3::NEGATIVE_UNIT_Y, min);
 		// top
-		pl[5].redefine(aabPts[2], aabPts[1], aabPts[5]);
+		pl[5].redefine(Vector3::UNIT_Y, max);
 
-
-		// min/max aab points for comparison
-		const Vector3& min = aabMax.getMinimum();
-		const Vector3& max = aabMax.getMaximum();
 
 		const size_t polyCount = body.getPolygonCount();
 		for (size_t iPoly = 0; iPoly < polyCount; ++iPoly)
@@ -658,12 +641,41 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void FocusedShadowCameraSetup::PointListBody::addAAB(const AxisAlignedBox& aab)
 	{
-		const Vector3 *pts = aab.getAllCorners();
+		const Vector3& min = aab.getMinimum();
+		const Vector3& max = aab.getMaximum();
 
-		for (size_t i = 0; i < 8; ++i)
-		{
-			this->addPoint(pts[ i ]);
-		}
+		Vector3 currentVertex = min;
+		// min min min
+		addPoint(currentVertex);
+
+		// min min max
+		currentVertex.z = max.z;
+		addPoint(currentVertex);
+
+		// min max max
+		currentVertex.y = max.y;
+		addPoint(currentVertex);
+
+		// min max min
+		currentVertex.z = min.z;
+		addPoint(currentVertex);
+
+		// max max min
+		currentVertex.x = max.x;
+		addPoint(currentVertex);
+
+		// max max max
+		currentVertex.z = max.z;
+		addPoint(currentVertex);
+
+		// max min max
+		currentVertex.y = min.y;
+		addPoint(currentVertex);
+
+		// max min min
+		currentVertex.z = min.z;
+		addPoint(currentVertex); 
+
 	}
 	//-----------------------------------------------------------------------	
 	const Vector3& FocusedShadowCameraSetup::PointListBody::getPoint(size_t cnt) const

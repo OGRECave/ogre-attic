@@ -86,7 +86,7 @@ namespace Ogre
 
 		/** Clips the object by the positive half space of a plane
 		*/
-		void clip(const Plane& pl );
+		void clip(const Plane& pl, bool keepNegative = true);
 
 		/** Extends the existing body to incorporate the passed in point as a
 			convex hull.

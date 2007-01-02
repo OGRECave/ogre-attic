@@ -211,59 +211,81 @@ namespace Ogre
 		//   |/    |/
 		//   6-----7
 		
-		const Vector3 *pts = aab.getAllCorners();
+		const Vector3& min = aab.getMinimum();
+		const Vector3& max = aab.getMaximum();
+
+		Vector3 currentVertex = min;
 
 		Polygon *poly;
 
 		// reset body
 		reset();
 
-		// near
-		poly = allocatePolygon();
-		poly->insertVertex( pts[4] );
-		poly->insertVertex( pts[5] );
-		poly->insertVertex( pts[6] );
-		poly->insertVertex( pts[7] );
-		insertPolygon( poly );
-
 		// far
 		poly = allocatePolygon();
-		poly->insertVertex( pts[1] );
-		poly->insertVertex( pts[2] );
-		poly->insertVertex( pts[3] );
-		poly->insertVertex( pts[0] );
+		poly->insertVertex( currentVertex ); // 0 
+		currentVertex.y = max.y;
+		poly->insertVertex( currentVertex ); // 1
+		currentVertex.x = max.x;
+		poly->insertVertex( currentVertex ); // 2
+		currentVertex.y = min.y;
+		poly->insertVertex( currentVertex ); // 3
+		insertPolygon( poly );
+
+		// right
+		poly = allocatePolygon();
+		poly->insertVertex( currentVertex ); // 3
+		currentVertex.y = max.y;
+		poly->insertVertex( currentVertex ); // 2
+		currentVertex.z = max.z;
+		poly->insertVertex( currentVertex ); // 4
+		currentVertex.y = min.y;
+		poly->insertVertex( currentVertex ); // 7
+		insertPolygon( poly ); 
+
+		// near
+		poly = allocatePolygon();
+		poly->insertVertex( currentVertex ); // 7
+		currentVertex.y = max.y;
+		poly->insertVertex( currentVertex ); // 4
+		currentVertex.x = min.x;
+		poly->insertVertex( currentVertex ); // 5
+		currentVertex.y = min.y;
+		poly->insertVertex( currentVertex ); // 6
 		insertPolygon( poly );
 
 		// left
 		poly = allocatePolygon();
-		poly->insertVertex( pts[1] );
-		poly->insertVertex( pts[0] );
-		poly->insertVertex( pts[6] );
-		poly->insertVertex( pts[5] );
-		insertPolygon( poly ); 
-
-		// right
-		poly = allocatePolygon();
-		poly->insertVertex( pts[2] );
-		poly->insertVertex( pts[4] );
-		poly->insertVertex( pts[7] );
-		poly->insertVertex( pts[3] );
+		poly->insertVertex( currentVertex ); // 6
+		currentVertex.y = max.y;
+		poly->insertVertex( currentVertex ); // 5
+		currentVertex.z = min.z;
+		poly->insertVertex( currentVertex ); // 1
+		currentVertex.y = min.y;
+		poly->insertVertex( currentVertex ); // 0
 		insertPolygon( poly ); 
 
 		// bottom
 		poly = allocatePolygon();
-		poly->insertVertex( pts[0] );
-		poly->insertVertex( pts[3] );
-		poly->insertVertex( pts[7] );
-		poly->insertVertex( pts[6] );
+		poly->insertVertex( currentVertex ); // 0 
+		currentVertex.x = max.x;
+		poly->insertVertex( currentVertex ); // 3
+		currentVertex.z = max.z;
+		poly->insertVertex( currentVertex ); // 7 
+		currentVertex.x = min.x;
+		poly->insertVertex( currentVertex ); // 6
 		insertPolygon( poly );
 
 		// top
 		poly = allocatePolygon();
-		poly->insertVertex( pts[2] );
-		poly->insertVertex( pts[1] );
-		poly->insertVertex( pts[5] );
-		poly->insertVertex( pts[4] );
+		currentVertex = max;
+		poly->insertVertex( currentVertex ); // 4
+		currentVertex.z = min.z;
+		poly->insertVertex( currentVertex ); // 2
+		currentVertex.x = min.x;
+		poly->insertVertex( currentVertex ); // 1
+		currentVertex.z = max.z;
+		poly->insertVertex( currentVertex ); // 5
 		insertPolygon( poly );
 		
 	}
@@ -280,81 +302,47 @@ namespace Ogre
 		//   |/    |/
 		//   6-----7
 
-		const Vector3 *pts = aab.getAllCorners();
-
+		const Vector3& min = aab.getMinimum();
+		const Vector3& max = aab.getMaximum();
 
 		// clip object for each plane of the AAB
-		Plane pl[6];
+		Plane p;
+
 
 		// front
-		pl[0].redefine( pts[4], pts[5], pts[6] );
-		
+		p.redefine(Vector3::UNIT_Z, max);
+		clip(p);
+
 		// back
-		pl[1].redefine( pts[1], pts[2], pts[3] );
+		p.redefine(Vector3::NEGATIVE_UNIT_Z, min);
+		clip(p);
 		
 		// left
-		pl[2].redefine( pts[1], pts[0], pts[6] );
+		p.redefine(Vector3::NEGATIVE_UNIT_X, min);
+		clip(p);
 		
 		// right
-		pl[3].redefine( pts[2], pts[4], pts[7] );
+		p.redefine(Vector3::UNIT_X, max);
+		clip(p);
 		
 		// bottom
-		pl[4].redefine( pts[0], pts[3], pts[7] );
+		p.redefine(Vector3::NEGATIVE_UNIT_Y, min);
+		clip(p);
 		
 		// top
-		pl[5].redefine( pts[2], pts[1], pts[5] );
+		p.redefine(Vector3::UNIT_Y, max);
+		clip(p);
 
-
-		// clip the body with each plane
-		for ( size_t i=0; i<6; ++i )
-		{
-			clip(pl[i]);
-		}
 	}
 	//-----------------------------------------------------------------------
 	void ConvexBody::clip(const Frustum& fr)
 	{
-
-		// ordering of the points:
-		// near (0-3), far (4-7); each (top-right, top-left, bottom-left, bottom-right)
-		//	   5-----4
-		//	  /|    /|
-		//	 / |   / |
-		//	1-----0  |
-		//	|  6--|--7
-		//	| /   | /
-		//	|/    |/
-		//	2-----3
-		
-		const Vector3 *pts = fr.getWorldSpaceCorners();
-
-
-		// clip object for each plane of the AAB
-		Plane pl[6];
-
-		// front
-		pl[0].redefine( pts[0], pts[1], pts[2] );
-		
-		// back
-		pl[1].redefine( pts[5], pts[4], pts[7] );
-		
-		// left
-		pl[2].redefine( pts[1], pts[5], pts[6] );
-		
-		// right
-		pl[3].redefine( pts[4], pts[0], pts[3] );
-		
-		// bottom
-		pl[4].redefine( pts[6], pts[7], pts[3] );
-		
-		// top
-		pl[5].redefine( pts[4], pts[5], pts[1] );
-
-
 		// clip the body with each plane
-		for ( size_t i = 0; i < 6; ++i )
+		for ( unsigned short i = 0; i < 6; ++i )
 		{
-			clip(pl[i]);
+			// clip, but keep positive space this time since frustum planes are 
+			// the opposite to other cases (facing inwards rather than outwards)
+			clip(fr.getFrustumPlane(i), false);
 		}
 	}
 	//-----------------------------------------------------------------------
@@ -917,7 +905,7 @@ namespace Ogre
 		}
 	}
 	//-----------------------------------------------------------------------
-	void ConvexBody::clip( const Plane& pl )
+	void ConvexBody::clip( const Plane& pl, bool keepNegative )
 	{
 		if ( getPolygonCount() == 0 )
 			return;
@@ -955,8 +943,9 @@ namespace Ogre
 			// check if polygons lie inside or outside (or on the plane)
 			// for each vertex check where it is situated in regard to the plane
 			// three possibilities appear:
-			// - side is POSITIVE: vertex will be clipped
-			// - side is NEGATIVE: vertex will be untouched
+			Plane::Side clipSide = keepNegative ? Plane::POSITIVE_SIDE : Plane::NEGATIVE_SIDE;
+			// - side is clipSide: vertex will be clipped
+			// - side is !clipSide: vertex will be untouched
 			// - side is NOSIDE:   vertex will be untouched
 			Plane::Side *side = new Plane::Side[ vertexCount ];
 			for ( size_t iVertex = 0; iVertex < vertexCount; ++iVertex )
@@ -979,16 +968,16 @@ namespace Ogre
 				const Vector3& vNext    = p.getVertex( iNextVertex );
 
 				// case 1: both points inside (store next)
-				if ( side[ iVertex ]     != Plane::POSITIVE_SIDE &&		// NEGATIVE or NONE
-					 side[ iNextVertex ] != Plane::POSITIVE_SIDE )		// NEGATIVE or NONE
+				if ( side[ iVertex ]     != clipSide &&		// NEGATIVE or NONE
+					 side[ iNextVertex ] != clipSide )		// NEGATIVE or NONE
 				{
 					// keep the second
 					pNew->insertVertex( vNext );
 				}
 
 				// case 3: inside -> outside (store intersection)
-				else if ( side[ iVertex ]		!= Plane::POSITIVE_SIDE &&
-						  side[ iNextVertex ]	== Plane::POSITIVE_SIDE )
+				else if ( side[ iVertex ]		!= clipSide &&
+						  side[ iNextVertex ]	== clipSide )
 				{
 					// Do an intersection with the plane. We use a ray with a start point and a direction.
 					// The ray is forced to hit the plane with any option available (eigher current or next
@@ -1013,8 +1002,8 @@ namespace Ogre
 				}
 
 				// case 4: outside -> inside (store intersection, store next)
-				else if ( side[ iVertex ]		== Plane::POSITIVE_SIDE &&
-					side[ iNextVertex ]			!= Plane::POSITIVE_SIDE )
+				else if ( side[ iVertex ]		== clipSide &&
+					side[ iNextVertex ]			!= clipSide )
 				{
 					// Do an intersection with the plane. We use a ray with a start point and a direction.
 					// The ray is forced to hit the plane with any option available (eigher current or next

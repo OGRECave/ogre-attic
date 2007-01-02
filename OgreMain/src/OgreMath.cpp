@@ -859,23 +859,7 @@ namespace Ogre
         if (box.isNull()) return false;
         if (box.isInfinite()) return true;
 
-        // Get corners of the box
-        const Vector3* pCorners = box.getAllCorners();
-
-
-        // Test which side of the plane the corners are
-        // Intersection occurs when at least one corner is on the 
-        // opposite side to another
-        Plane::Side lastSide = plane.getSide(pCorners[0]);
-        for (int corner = 1; corner < 8; ++corner)
-        {
-            if (plane.getSide(pCorners[corner]) != lastSide)
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return (plane.getSide(box) == Plane::BOTH_SIDE);
     }
     //-----------------------------------------------------------------------
     bool Math::intersects(const Sphere& sphere, const Plane& plane)
