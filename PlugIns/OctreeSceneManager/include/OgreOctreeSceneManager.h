@@ -38,6 +38,7 @@ Torus Knot Software Ltd.
 #ifndef OCTREESCENEMANAGER_H
 #define OCTREESCENEMANAGER_H
 
+#include "OgreTerrainPrerequisites.h"
 #include "OgreSceneManager.h"
 #include "OgreRenderOperation.h"
 #include "OgreSphere.h"
@@ -73,7 +74,7 @@ and create a camera named "CullCamera".  All culling will be performed using tha
 camera, allowing you to fly around and examine culling.
 */
 
-class OctreeSceneManager : public SceneManager
+class _OgreOctreePluginExport OctreeSceneManager : public SceneManager
 {
     friend class OctreeIntersectionSceneQuery;
     friend class OctreeRaySceneQuery;

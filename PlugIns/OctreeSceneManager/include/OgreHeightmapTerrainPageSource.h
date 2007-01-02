@@ -41,7 +41,7 @@ namespace Ogre {
         This is a simple tile provider that does not support paging; it is
         assumed that the entire heightmap is loaded as one page.
     */
-    class _OgreTerrainExport HeightmapTerrainPageSource : public TerrainPageSource
+    class _OgreOctreePluginExport HeightmapTerrainPageSource : public TerrainPageSource
     {
     protected:
         /// Is this input RAW?

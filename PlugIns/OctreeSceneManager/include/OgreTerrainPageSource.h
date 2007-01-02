@@ -41,7 +41,7 @@ namespace Ogre {
     /** Abstract class which classes can override to receive notifications
         when a page is ready to be added to the terrain manager.
     */
-    class _OgreTerrainExport TerrainPageSourceListener
+    class _OgreOctreePluginExport TerrainPageSourceListener
     {
     public:
         /** Listener method called when a new page is about to be constructed. 
@@ -57,7 +57,7 @@ namespace Ogre {
 	/** Simple manager class to hold onto a list of page source listeners 
 	    across all sources.
 	*/
-	class _OgreTerrainExport TerrainPageSourceListenerManager :
+	class _OgreOctreePluginExport TerrainPageSourceListenerManager :
 		public Singleton<TerrainPageSourceListenerManager>
 	{
 	protected:
@@ -133,7 +133,7 @@ namespace Ogre {
     paging in this manager is not present yet but the system is designed to 
     extend to it. For now, all tiles are requested up-front.
     */
-    class _OgreTerrainExport TerrainPageSource
+    class _OgreOctreePluginExport TerrainPageSource
     {
     protected:
         /// Link back to parent manager

@@ -36,7 +36,7 @@ namespace Ogre
 OctreeSceneManagerFactory* octreePlugin;
 TerrainSceneManagerFactory* terrainPlugin;
 
-extern "C" void _OgreTerrainExport dllStartPlugin( void )
+extern "C" void _OgreOctreePluginExport dllStartPlugin( void )
 {
     // Create new scene manager
     octreePlugin = new OctreeSceneManagerFactory();
@@ -49,7 +49,7 @@ extern "C" void _OgreTerrainExport dllStartPlugin( void )
     Root::getSingleton().addSceneManagerFactory(terrainPlugin);
 
 }
-extern "C" void _OgreTerrainExport dllShutdownPlugin( void )
+extern "C" void _OgreOctreePluginExport dllShutdownPlugin( void )
 {
 	Root::getSingleton().removeSceneManagerFactory(terrainPlugin);
 	Root::getSingleton().removeSceneManagerFactory(octreePlugin);
@@ -57,7 +57,7 @@ extern "C" void _OgreTerrainExport dllShutdownPlugin( void )
 	delete TerrainPageSourceListenerManager::getSingletonPtr();
 }
 
-extern "C" void _OgreTerrainExport dllStopPlugin( void )
+extern "C" void _OgreOctreePluginExport dllStopPlugin( void )
 {
     delete octreePlugin;
     delete terrainPlugin;

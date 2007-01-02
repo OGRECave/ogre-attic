@@ -159,7 +159,7 @@ namespace Ogre
     *@author Jon Anderson
     */
 
-    class _OgreTerrainExport TerrainRenderable : public Renderable, public MovableObject
+    class _OgreOctreePluginExport TerrainRenderable : public Renderable, public MovableObject
     {
     public:
 
