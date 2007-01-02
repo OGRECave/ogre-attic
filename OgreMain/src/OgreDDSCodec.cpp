@@ -187,7 +187,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     DataStreamPtr DDSCodec::code(MemoryDataStreamPtr& input, Codec::CodecDataPtr& pData) const
     {        
-		OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE,
+		OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED,
 			"DDS encoding not supported",
 			"DDSCodec::code" ) ;
     }
@@ -195,7 +195,7 @@ namespace Ogre {
     void DDSCodec::codeToFile(MemoryDataStreamPtr& input, 
         const String& outFileName, Codec::CodecDataPtr& pData) const
     {
-		OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE,
+		OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED,
 			"DDS encoding not supported",
 			"DDSCodec::codeToFile" ) ;
     }

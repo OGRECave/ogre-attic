@@ -105,8 +105,6 @@ namespace Ogre {
     {
         size_t i;
 
-        OgreGuard( "GLRenderSystem::GLRenderSystem" );
-
         LogManager::getSingleton().logMessage(getName() + " created.");
 
         // Get our GLSupport
@@ -147,7 +145,6 @@ namespace Ogre {
 
         mClipPlanes.reserve(6);
 
-        OgreUnguard();
     }
 
     GLRenderSystem::~GLRenderSystem()
@@ -176,9 +173,7 @@ namespace Ogre {
 
     void GLRenderSystem::initConfigOptions(void)
     {
-        OgreGuard("GLRenderSystem::initConfigOptions");
         mGLSupport->addConfig();
-        OgreUnguard();
     }
     
     ConfigOptionMap& GLRenderSystem::getConfigOptions(void)
@@ -1428,16 +1423,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_beginFrame(void)
     {
-        OgreGuard( "GLRenderSystem::_beginFrame" );
-        
         if (!mActiveViewport)
-            OGRE_EXCEPT(999, "Cannot begin frame - no viewport selected.",
+            OGRE_EXCEPT(Exception::ERR_INVALID_STATE, 
+				"Cannot begin frame - no viewport selected.",
                 "GLRenderSystem::_beginFrame");
 
         // Activate the viewport clipping
         glEnable(GL_SCISSOR_TEST);
-
-        OgreUnguard();
     }
    
     //-----------------------------------------------------------------------------
@@ -1878,8 +1870,6 @@ namespace Ogre {
     void GLRenderSystem::_setTextureUnitFiltering(size_t unit, 
         FilterType ftype, FilterOptions fo)
 	{
-        OgreGuard( "GLRenderSystem::_setTextureUnitFiltering" );        
-
 		glActiveTextureARB( GL_TEXTURE0 + unit );
         switch(ftype)
         {
@@ -1921,8 +1911,6 @@ namespace Ogre {
 		}
 
         glActiveTextureARB( GL_TEXTURE0 );
-
-		OgreUnguard();
 	}
 	//---------------------------------------------------------------------
 	GLfloat GLRenderSystem::_getCurrentAnisotropy(size_t unit)
@@ -2206,8 +2194,6 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GLRenderSystem::_render(const RenderOperation& op)
 	{
-        // Guard
-        OgreGuard ("GLRenderSystem::_render");
         // Call super class
         RenderSystem::_render(op);
 
@@ -2425,8 +2411,6 @@ namespace Ogre {
 			glSecondaryColor3fEXT(0.0f, 0.0f, 0.0f);
 		}
 
-        // UnGuard
-        OgreUnguard();
 	}
     //---------------------------------------------------------------------
     void GLRenderSystem::setNormaliseNormals(bool normalise)
@@ -2545,7 +2529,7 @@ namespace Ogre {
 
             if (i >= 6/*GL_MAX_CLIP_PLANES*/)
             {
-                OGRE_EXCEPT(0, "Unable to set clip plane", 
+                OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to set clip plane", 
                     "GLRenderSystem::setClipPlanes");
             }
 

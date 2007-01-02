@@ -102,40 +102,11 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    // Termination handler
-    extern "C" _OgreExport void handleTerminate(void)
-    {
-        LogManager::getSingleton().logMessage("Termination handler: uncaught exception!", LML_CRITICAL);
-
-        Root::getSingleton().shutdown();
-
-        ErrorDialog* dlg = new ErrorDialog();
-
-        Exception* e = Exception::getLastException();
-
-        if (e)
-            dlg->display(e->getFullDescription());
-        else
-            dlg->display("Unknown");
-
-        // Abort
-        exit(-1);
-    }
-
-    void Root::termHandler()
-    {
-        handleTerminate();
-    }
-
-
-    //-----------------------------------------------------------------------
-    Root::Root(const String& pluginFileName, const String& configFileName, const String& logFileName)
+    Root::Root(const String& pluginFileName, const String& configFileName, 
+		const String& logFileName)
       : mLogManager(0), mCurrentFrame(0), mFrameSmoothingTime(0.0f),
 	  mNextMovableObjectTypeFlag(1), mIsInitialised(false)
     {
-        // First create new exception handler
-        SET_TERM_HANDLER;
-
         // superclass will do singleton checking
         String msg;
 
@@ -496,7 +467,7 @@ namespace Ogre {
     RenderWindow* Root::initialise(bool autoCreateWindow, const String& windowTitle)
     {
         if (!mActiveRenderer)
-            OGRE_EXCEPT(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
+            OGRE_EXCEPT(Exception::ERR_INVALID_STATE,
             "Cannot initialise - no render "
             "system has been selected.", "Root::initialise");
 
@@ -900,7 +871,7 @@ namespace Ogre {
 	{
         if (!mActiveRenderer)
         {
-            OGRE_EXCEPT(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
+            OGRE_EXCEPT(Exception::ERR_INVALID_STATE,
             "Cannot create window - no render "
             "system has been selected.", "Root::createRenderWindow");
         }
@@ -922,7 +893,7 @@ namespace Ogre {
     {
         if (!mActiveRenderer)
         {
-            OGRE_EXCEPT(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
+            OGRE_EXCEPT(Exception::ERR_INVALID_STATE,
             "Cannot create window - no render "
             "system has been selected.", "Root::destroyRenderWindow");
         }
@@ -934,7 +905,7 @@ namespace Ogre {
     {
         if (!mActiveRenderer)
         {
-            OGRE_EXCEPT(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
+            OGRE_EXCEPT(Exception::ERR_INVALID_STATE,
             "Cannot create window - no render "
             "system has been selected.", "Root::destroyRenderWindow");
         }
@@ -946,7 +917,7 @@ namespace Ogre {
     {
         if (!mActiveRenderer)
         {
-            OGRE_EXCEPT(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
+            OGRE_EXCEPT(Exception::ERR_INVALID_STATE,
             "Cannot create window - no render "
             "system has been selected.", "Root::getRenderWindow");
         }

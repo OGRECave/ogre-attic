@@ -210,8 +210,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Win32Input8::initialiseImmediateMouse()
 	{
-        OgreGuard( "Win32Input8::initialiseImmediateMouse" );
-
         HRESULT hr;
         DIPROPDWORD dipdw;
         LogManager::getSingleton().logMessage( "Win32Input8: Initializing mouse input in immediate mode." );
@@ -231,7 +229,7 @@ namespace Ogre {
             /* Exclusive when in foreground, steps back when in background. */
             FAILED( hr = mlpDIMouse->SetCooperativeLevel( mHWnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE ) ) )
         {
-            OGRE_EXCEPT( hr, "Unable to initialise mouse", "Win32Input8::initialiseImmediateMouse" );
+            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to initialise mouse", "Win32Input8::initialiseImmediateMouse" );
         }
         /* Note that we did not acquire the mouse in the code above, since the call may fail (ie you're in the
            debugger) and an exception would be thrown. Acquisition happens in the captureMouse() function. */
@@ -244,7 +242,6 @@ namespace Ogre {
 
         LogManager::getSingleton().logMessage( "Win32Input8: Mouse input in immediate mode initialized." );
 
-        OgreUnguard();
 	}
 
     //-----------------------------------------------------------------------

@@ -108,16 +108,16 @@ RenderWindow* GLXGLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* 
 	if (autoCreateWindow) {
 		ConfigOptionMap::iterator opt = mOptions.find("Full Screen");
 		if (opt == mOptions.end())
-			OGRE_EXCEPT(999, "Can't find full screen options!", "GLXGLSupport::createWindow");
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't find full screen options!", "GLXGLSupport::createWindow");
 		bool fullscreen = (opt->second.currentValue == "Yes");
 
 		opt = mOptions.find("Video Mode");
 		if (opt == mOptions.end())
-			OGRE_EXCEPT(999, "Can't find video mode options!", "GLXGLSupport::createWindow");
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't find video mode options!", "GLXGLSupport::createWindow");
 		String val = opt->second.currentValue;
 		String::size_type pos = val.find('x');
 		if (pos == String::npos)
-			OGRE_EXCEPT(999, "Invalid Video Mode provided", "GLXGLSupport::createWindow");
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Invalid Video Mode provided", "GLXGLSupport::createWindow");
 
 		unsigned int w = StringConverter::parseUnsignedInt(val.substr(0, pos));
 		unsigned int h = StringConverter::parseUnsignedInt(val.substr(pos + 1));
@@ -154,7 +154,7 @@ void GLXGLSupport::start() {
 	        "******************************");
 	mDisplay = XOpenDisplay(NULL);
 	if(!mDisplay) {
-		OGRE_EXCEPT(999, "Couldn`t open X display", "GLXGLSupport::start");
+		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Couldn`t open X display", "GLXGLSupport::start");
 	}
 
 }

@@ -592,7 +592,7 @@ public:
 		material = MaterialManager::getSingleton().getByName(MATERIAL_NAME);
 
 		if (material.isNull()) {
-			OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND,
+			OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED,
 				"Can't find material: "+String(MATERIAL_NAME),
 				"CubeMapListener::CubeMapListener");
 		}
@@ -695,7 +695,7 @@ protected:
         // First check that cube mapping is supported
         if (!Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_CUBEMAPPING))
         {
-            OGRE_EXCEPT(1, "Your card does not support cube mapping, so cannot "
+            OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "Your card does not support cube mapping, so cannot "
                 "run this demo. Sorry!", 
                 "CubeMapApplication::createScene");
         }

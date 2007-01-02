@@ -97,7 +97,7 @@ namespace Ogre {
 		{
 			String errorMsg = translateError();
 			wglDeleteContext(newCtx);
-			OGRE_EXCEPT(0, String("wglShareLists() failed: ") + errorMsg, "Win32Context::clone");
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, String("wglShareLists() failed: ") + errorMsg, "Win32Context::clone");
 		}
 
 		return new Win32Context(mHDC, newCtx);

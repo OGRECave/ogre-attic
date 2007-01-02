@@ -1907,7 +1907,7 @@ namespace Ogre {
         }
         catch (Exception& e)
         {
-            logParseError("Bad colour_op_ex attribute, " + e.getFullDescription());
+            logParseError("Bad colour_op_ex attribute, " + e.getDescription());
             return;
         }
 
@@ -1948,7 +1948,7 @@ namespace Ogre {
         }
         catch (Exception& e)
         {
-            logParseError("Bad alpha_op_ex attribute, " + e.getFullDescription());
+            logParseError("Bad alpha_op_ex attribute, " + e.getDescription());
             return;
         }
 
@@ -2713,7 +2713,7 @@ namespace Ogre {
         }
         catch (Exception& e)
         {
-            logParseError("Invalid param_named attribute - " + e.getFullDescription());
+            logParseError("Invalid param_named attribute - " + e.getDescription());
             return;
         }
 
@@ -2743,7 +2743,7 @@ namespace Ogre {
         }
         catch (Exception& e)
         {
-            logParseError("Invalid param_named_auto attribute - " + e.getFullDescription());
+            logParseError("Invalid param_named_auto attribute - " + e.getDescription());
             return;
         }
 

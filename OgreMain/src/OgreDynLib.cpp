@@ -48,12 +48,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     DynLib::DynLib( const String& name )
     {
-        OgreGuard("DynLib::DynLib");
-
         mName = name;
         m_hInst = NULL;
-
-        OgreUnguard();
     }
 
     //-----------------------------------------------------------------------
@@ -64,8 +60,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void DynLib::load()
     {
-        OgreGuard("DynLib::load");
-
         // Log library load
         LogManager::getSingleton().logMessage("Loading library " + mName);
 
@@ -84,15 +78,11 @@ namespace Ogre {
                 "Could not load dynamic library " + mName + 
                 ".  System Error: " + dynlibError(),
                 "DynLib::load" );
-
-        OgreUnguard();
     }
 
     //-----------------------------------------------------------------------
     void DynLib::unload()
     {
-        OgreGuard("DynLib::unload");
-
         // Log library unload
         LogManager::getSingleton().logMessage("Unloading library " + mName);
 
@@ -105,7 +95,6 @@ namespace Ogre {
                 "DynLib::unload");
 		}
 
-        OgreUnguard();
     }
 
     //-----------------------------------------------------------------------

@@ -98,16 +98,16 @@ RenderWindow* GTKGLSupport::createWindow(bool autoCreateWindow,
     {
         ConfigOptionMap::iterator opt = mOptions.find("Full Screen");
         if (opt == mOptions.end())
-            OGRE_EXCEPT(999, "Can't find full screen options!", "GTKGLSupport::createWindow");
+            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't find full screen options!", "GTKGLSupport::createWindow");
         bool fullscreen = (opt->second.currentValue == "Yes");
  
         opt = mOptions.find("Video Mode");
         if (opt == mOptions.end())
-            OGRE_EXCEPT(999, "Can't find video mode options!", "GTKGLSupport::createWindow");
+            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Can't find video mode options!", "GTKGLSupport::createWindow");
         String val = opt->second.currentValue;
         String::size_type pos = val.find('x');
         if (pos == String::npos)
-            OGRE_EXCEPT(999, "Invalid Video Mode provided", "GTKGLSupport::createWindow");
+            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Invalid Video Mode provided", "GTKGLSupport::createWindow");
  
         unsigned int w = StringConverter::parseUnsignedInt(val.substr(0, pos));
         unsigned int h = StringConverter::parseUnsignedInt(val.substr(pos + 1));
@@ -181,7 +181,7 @@ void GTKGLSupport::end_context()
 {
     	--_context_ref;
     	if(_context_ref < 0)
-        	OGRE_EXCEPT(999, "Too many contexts destroyed!", "GTKGLSupport::end_context");
+        	OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Too many contexts destroyed!", "GTKGLSupport::end_context");
     	if (_context_ref == 0)
     	{
 		// XX is this enough? (_main_window might not be the current window,

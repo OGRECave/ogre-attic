@@ -278,7 +278,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 		mVisualInfo = XGetVisualInfo(mDisplay, VisualIDMask, &templ, &nmatch);
 		mDelVisualInfo = true;
 		if(mVisualInfo==0 || nmatch==0) {
-			OGRE_EXCEPT(999, "GLXWindow: error choosing visual", "GLXWindow::create");
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "GLXWindow: error choosing visual", "GLXWindow::create");
 		}
 
 		XSetWindowAttributes attr;
@@ -300,7 +300,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 		// Create window on server
 		mWindow = XCreateWindow(mDisplay,parentWindow,left,top,width,height,0,mVisualInfo->depth,InputOutput,mVisualInfo->visual,mask,&attr);
 		if(!mWindow) {
-			OGRE_EXCEPT(999, "GLXWindow: XCreateWindow failed", "GLXWindow::create");
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "GLXWindow: XCreateWindow failed", "GLXWindow::create");
 		}
 	
 		// Make sure the window is in normal state
@@ -370,7 +370,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 			mGlxContext = glXCreateContext(mDisplay,mVisualInfo,mainContext->mCtx,True);
 	
 	if(!mGlxContext)
-		OGRE_EXCEPT(999, "glXCreateContext failed", "GLXWindow::create");
+		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "glXCreateContext failed", "GLXWindow::create");
 
 	mName = name;
 	mWidth = width;

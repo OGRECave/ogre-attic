@@ -38,40 +38,33 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
-    Exception* Exception::last = NULL;
-
-    String Exception::msFunctionStack[ OGRE_CALL_STACK_DEPTH ];
-    ushort   Exception::msStackDepth = 0;
-
     Exception::Exception(int num, const String& desc, const String& src) :
         line( 0 ),
         number( num ),
         description( desc ),
-        source( src ),
-        stackDepth( msStackDepth )
+        source( src )
     {
         // Log this error - not any more, allow catchers to do it
         //LogManager::getSingleton().logMessage(this->getFullDescription());
-
-        // Set last
-        last = this;
     }
 
-    Exception::Exception(int num, const String& desc, const String& src, const char* fil, long lin) :
+    Exception::Exception(int num, const String& desc, const String& src, 
+		const char* typ, const char* fil, long lin) :
         line( lin ),
         number( num ),
+		typeName(typ),
         description( desc ),
         source( src ),
-        file( fil ),
-        stackDepth( msStackDepth )
+        file( fil )
     {
         // Log this error, mask it from debug though since it may be caught and ignored
         if(LogManager::getSingletonPtr())
-            LogManager::getSingleton().logMessage(this->getFullDescription(), 
+		{
+            LogManager::getSingleton().logMessage(
+				this->getFullDescription(), 
                 LML_CRITICAL, true);
+		}
 
-        // Set last
-        last = this;
     }
 
     Exception::Exception(const Exception& rhs)
@@ -88,42 +81,26 @@ namespace Ogre {
         line = rhs.line;
     }
 
-    String Exception::getFullDescription(void) const
+    const String& Exception::getFullDescription(void) const
     {
-		StringUtil::StrStreamType desc;
+		if (fullDesc.empty())
+		{
 
-        desc <<  "An exception has been thrown!\n"
-                "\n"
-                "-----------------------------------\nDetails:\n-----------------------------------\n"
-                "Error #: " << number
-			<< "\nFunction: " << source
-			<< "\nDescription: " << description 
-			<< ". ";
+			StringUtil::StrStreamType desc;
 
-        if( line > 0 )
-        {
-            desc << "\nFile: " << file;
-            desc << "\nLine: " << line;
-        }
+			desc <<  "OGRE EXCEPTION(" << number << ":" << typeName << "): "
+				<< description 
+				<< " in " << source;
 
-#ifdef OGRE_STACK_UNWINDING
-        desc << "\nStack unwinding: ";
+			if( line > 0 )
+			{
+				desc << " at " << file << " (line " << line << ")";
+			}
 
-        /* Will cause an overflow, that's why we check that it's smaller.
-           Also note that the call stack index may be greater than the actual call
-           stack size - that's why we begin unrolling with the smallest of the two. */
-        for( 
-            ushort stackUnroll = stackDepth <= OGRE_CALL_STACK_DEPTH ? ( stackDepth - 1 ) : ( OGRE_CALL_STACK_DEPTH - 1 ); 
-            stackUnroll < stackDepth; stackUnroll-- )
-        {
-            desc << msFunctionStack[ stackUnroll ];
-            desc << "(..) <- ";
-        }
+			fullDesc = desc.str();
+		}
 
-        desc << "<<beginning of stack>>";
-#endif
-
-        return desc.str();
+		return fullDesc;
     }
 
     int Exception::getNumber(void) const throw()
@@ -131,23 +108,5 @@ namespace Ogre {
         return number;
     }
 
-    Exception* Exception::getLastException(void) throw()
-    {
-        return last;
-    }
-
-    //-----------------------------------------------------------------------
-    void Exception::_pushFunction( const String& strFuncName ) throw()
-    {
-        if( msStackDepth < OGRE_CALL_STACK_DEPTH )
-            msFunctionStack[ msStackDepth ] = strFuncName;
-        msStackDepth++;
-    }
-
-    //-----------------------------------------------------------------------
-    void Exception::_popFunction() throw()
-    {
-        msStackDepth--;
-    }
 }
 
