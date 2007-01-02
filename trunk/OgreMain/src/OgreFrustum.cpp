@@ -232,10 +232,6 @@ namespace Ogre {
         // Make any pending updates to the calculated frustum planes
         updateFrustumPlanes();
 
-        // Get corners of the box
-        const Vector3* pCorners = bound.getAllCorners();
-
-
         // For each plane, see if all points are on the negative side
         // If so, object is not visible
         for (int plane = 0; plane < 6; ++plane)
@@ -244,14 +240,7 @@ namespace Ogre {
             if (mFarDist == 0 && plane == FRUSTUM_PLANE_FAR)
                 continue;
 
-            if (mFrustumPlanes[plane].getSide(pCorners[0]) == Plane::NEGATIVE_SIDE &&
-                mFrustumPlanes[plane].getSide(pCorners[1]) == Plane::NEGATIVE_SIDE &&
-                mFrustumPlanes[plane].getSide(pCorners[2]) == Plane::NEGATIVE_SIDE &&
-                mFrustumPlanes[plane].getSide(pCorners[3]) == Plane::NEGATIVE_SIDE &&
-                mFrustumPlanes[plane].getSide(pCorners[4]) == Plane::NEGATIVE_SIDE &&
-                mFrustumPlanes[plane].getSide(pCorners[5]) == Plane::NEGATIVE_SIDE &&
-                mFrustumPlanes[plane].getSide(pCorners[6]) == Plane::NEGATIVE_SIDE &&
-                mFrustumPlanes[plane].getSide(pCorners[7]) == Plane::NEGATIVE_SIDE)
+            if (mFrustumPlanes[plane].getSide(bound) == Plane::NEGATIVE_SIDE)
             {
                 // ALL corners on negative side therefore out of view
                 if (culledBy)

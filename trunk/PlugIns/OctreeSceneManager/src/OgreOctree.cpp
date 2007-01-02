@@ -47,15 +47,10 @@ namespace Ogre
 */
 bool Octree::_isTwiceSize( const AxisAlignedBox &box ) const
 {
-    if (box.isInfinite())
-        return false;
 
-    const Vector3 * pts1 = mBox.getAllCorners();
-    const Vector3 * pts2 = box.getAllCorners();
-
-    return ( ( pts2[ 4 ].x -pts2[ 0 ].x ) <= ( pts1[ 4 ].x - pts1[ 0 ].x ) / 2 ) &&
-           ( ( pts2[ 4 ].y - pts2[ 0 ].y ) <= ( pts1[ 4 ].y - pts1[ 0 ].y ) / 2 ) &&
-           ( ( pts2[ 4 ].z - pts2[ 0 ].z ) <= ( pts1[ 4 ].z - pts1[ 0 ].z ) / 2 ) ;
+        Vector3 halfMBoxSize = mBox.getHalfSize();
+        Vector3 boxSize = box.getSize();
+        return ((boxSize.x <= halfMBoxSize.x) && (boxSize.y <= halfMBoxSize.y) && (boxSize.z <= halfMBoxSize.z));
 
 }
 
@@ -151,8 +146,7 @@ void Octree::_removeNode( OctreeNode * n )
 
 void Octree::_getCullBounds( AxisAlignedBox *b ) const
 {
-    const Vector3 * corners = mBox.getAllCorners();
-    b -> setExtents( corners[ 0 ] - mHalfSize, corners[ 4 ] + mHalfSize );
+    b -> setExtents( mBox.getMinimum() - mHalfSize, mBox.getMaximum() + mHalfSize );
 }
 
 WireBoundingBox* Octree::getWireBoundingBox()

@@ -79,7 +79,8 @@ Intersection intersect( const Ray &one, const AxisAlignedBox &two )
     if (two.isNull()) return OUTSIDE;
 
     bool inside = true;
-    const Vector3* pCorners = two.getAllCorners();
+    const Vector3& twoMin = two.getMinimum();
+    const Vector3& twoMax = two.getMaximum();
     Vector3 origin = one.getOrigin();
     Vector3 dir = one.getDirection();
 
@@ -88,20 +89,20 @@ Intersection intersect( const Ray &one, const AxisAlignedBox &two )
     int i = 0;
     for(i=0; i<3; i++ )
     {
-        if( origin[i] < pCorners[0][i] )
+        if( origin[i] < twoMin[i] )
         {
             inside = false;
             if( dir[i] > 0 )
             {
-                maxT[i] = (pCorners[0][i] - origin[i])/ dir[i];
+                maxT[i] = (twoMin[i] - origin[i])/ dir[i];
             }
         }
-        else if( origin[i] > pCorners[4][i] )
+        else if( origin[i] > twoMax[i] )
         {
             inside = false;
             if( dir[i] < 0 )
             {
-                maxT[i] = (pCorners[4][i] - origin[i]) / dir[i];
+                maxT[i] = (twoMax[i] - origin[i]) / dir[i];
             }
         }
     }
@@ -125,8 +126,8 @@ Intersection intersect( const Ray &one, const AxisAlignedBox &two )
         if( i!= whichPlane )
         {
             float f = origin[i] + maxT[whichPlane] * dir[i];
-            if ( f < (pCorners[0][i] - 0.00001f) ||
-                    f > (pCorners[4][i] +0.00001f ) )
+            if ( f < (twoMin[i] - 0.00001f) ||
+                    f > (twoMax[i] +0.00001f ) )
             {
                 return OUTSIDE;
             }
@@ -146,36 +147,23 @@ Intersection intersect( const PlaneBoundedVolume &one, const AxisAlignedBox &two
     // Null box?
     if (two.isNull()) return OUTSIDE;
 
-    // Get corners of the box
-    const Vector3* pCorners = two.getAllCorners();
 
     // For each plane, see if all points are on the negative side
     // If so, object is not visible.
     // If one or more are, it's partial.
     // If all aren't, full
-    int corners[ 8 ] = {0, 4, 3, 5, 2, 6, 1, 7};
     bool all_inside = true;
     PlaneList::const_iterator i, iend;
     iend = one.planes.end();
     for (i = one.planes.begin(); i != iend; ++i)
     {
         const Plane& plane = *i;
-        bool all_outside = true;
 
-        float distance = 0;
-
-        for ( int corner = 0; corner < 8; ++corner )
-        {
-            distance = plane.getDistance( pCorners[ corners[ corner ] ] );
-            all_outside = all_outside && ( distance < 0 );
-            all_inside = all_inside && ( distance >= 0 );
-
-            if ( !all_outside && !all_inside )
-                break;
-        }
-
-        if ( all_outside )
-            return OUTSIDE;
+        Plane::Side side = plane.getSide(two);
+        if(side == Plane::NEGATIVE_SIDE)
+                return OUTSIDE;
+        if(side == Plane::BOTH_SIDE)
+                all_inside = false; 
     }
 
     if ( all_inside )
@@ -194,25 +182,28 @@ Intersection intersect( const AxisAlignedBox &one, const AxisAlignedBox &two )
     // Null box?
     if (one.isNull() || two.isNull()) return OUTSIDE;
 
-    const Vector3 * outside = one.getAllCorners();
-    const Vector3 *inside = two.getAllCorners();
+    const Vector3& insideMin = two.getMinimum();
+    const Vector3& insideMax = two.getMaximum();
 
-    if ( inside[ 4 ].x < outside[ 0 ].x ||
-            inside[ 4 ].y < outside[ 0 ].y ||
-            inside[ 4 ].z < outside[ 0 ].z ||
-            inside[ 0 ].x > outside[ 4 ].x ||
-            inside[ 0 ].y > outside[ 4 ].y ||
-            inside[ 0 ].z > outside[ 4 ].z )
+    const Vector3& outsideMin = one.getMinimum();
+    const Vector3& outsideMax = one.getMaximum();
+
+    if (    insideMax.x < outsideMin.x ||
+            insideMax.y < outsideMin.y ||
+            insideMax.z < outsideMin.z ||
+            insideMin.x > outsideMax.x ||
+            insideMin.y > outsideMax.y ||
+            insideMin.z > outsideMax.z )
     {
         return OUTSIDE;
     }
 
-    bool full = ( inside[ 0 ].x > outside[ 0 ].x &&
-                  inside[ 0 ].y > outside[ 0 ].y &&
-                  inside[ 0 ].z > outside[ 0 ].z &&
-                  inside[ 4 ].x < outside[ 4 ].x &&
-                  inside[ 4 ].y < outside[ 4 ].y &&
-                  inside[ 4 ].z < outside[ 4 ].z );
+    bool full = ( insideMin.x > outsideMin.x &&
+                  insideMin.y > outsideMin.y &&
+                  insideMin.z > outsideMin.z &&
+                  insideMax.x < outsideMax.x &&
+                  insideMax.y < outsideMax.y &&
+                  insideMax.z < outsideMax.z );
 
     if ( full )
         return INSIDE;
@@ -235,12 +226,13 @@ Intersection intersect( const Sphere &one, const AxisAlignedBox &two )
 
     Vector3 scenter = one.getCenter();
 
-    const Vector3 *corners = two.getAllCorners();
+    const Vector3& twoMin = two.getMinimum();
+    const Vector3& twoMax = two.getMaximum();
 
     float s, d = 0;
 
-    Vector3 mndistance = ( corners[ 0 ] - scenter );
-    Vector3 mxdistance = ( corners[ 4 ] - scenter );
+    Vector3 mndistance = ( twoMin - scenter );
+    Vector3 mxdistance = ( twoMax - scenter );
 
     if ( mndistance.squaredLength() < sradius &&
             mxdistance.squaredLength() < sradius )
@@ -252,15 +244,15 @@ Intersection intersect( const Sphere &one, const AxisAlignedBox &two )
     //from the sphere to the box
     for ( int i = 0 ; i < 3 ; i++ )
     {
-        if ( scenter[ i ] < corners[ 0 ][ i ] )
+        if ( scenter[ i ] < twoMin[ i ] )
         {
-            s = scenter[ i ] - corners[ 0 ][ i ];
+            s = scenter[ i ] - twoMin[ i ];
             d += s * s;
         }
 
-        else if ( scenter[ i ] > corners[ 4 ][ i ] )
+        else if ( scenter[ i ] > twoMax[ i ] )
         {
-            s = scenter[ i ] - corners[ 4 ][ i ];
+            s = scenter[ i ] - twoMax[ i ];
             d += s * s;
         }
 
@@ -486,44 +478,44 @@ void OctreeSceneManager::_addOctreeNode( OctreeNode * n, Octree *octant, int dep
         if ( octant -> mChildren[ x ][ y ][ z ] == 0 )
         {
             octant -> mChildren[ x ][ y ][ z ] = new Octree( octant );
-
-            const Vector3 *corners = octant -> mBox.getAllCorners();
+            const Vector3& octantMin = octant -> mBox.getMinimum();
+            const Vector3& octantMax = octant -> mBox.getMaximum();
             Vector3 min, max;
 
             if ( x == 0 )
             {
-                min.x = corners[ 0 ].x;
-                max.x = ( corners[ 0 ].x + corners[ 4 ].x ) / 2;
+                min.x = octantMin.x;
+                max.x = ( octantMin.x + octantMax.x ) / 2;
             }
 
             else
             {
-                min.x = ( corners[ 0 ].x + corners[ 4 ].x ) / 2;
-                max.x = corners[ 4 ].x;
+                min.x = ( octantMin.x + octantMax.x ) / 2;
+                max.x = octantMax.x;
             }
 
             if ( y == 0 )
             {
-                min.y = corners[ 0 ].y;
-                max.y = ( corners[ 0 ].y + corners[ 4 ].y ) / 2;
+                min.y = octantMin.y;
+                max.y = ( octantMin.y + octantMax.y ) / 2;
             }
 
             else
             {
-                min.y = ( corners[ 0 ].y + corners[ 4 ].y ) / 2;
-                max.y = corners[ 4 ].y;
+                min.y = ( octantMin.y + octantMax.y ) / 2;
+                max.y = octantMax.y;
             }
 
             if ( z == 0 )
             {
-                min.z = corners[ 0 ].z;
-                max.z = ( corners[ 0 ].z + corners[ 4 ].z ) / 2;
+                min.z = octantMin.z;
+                max.z = ( octantMin.z + octantMax.z ) / 2;
             }
 
             else
             {
-                min.z = ( corners[ 0 ].z + corners[ 4 ].z ) / 2;
-                max.z = corners[ 4 ].z;
+                min.z = ( octantMin.z + octantMax.z ) / 2;
+                max.z = octantMax.z;
             }
 
             octant -> mChildren[ x ][ y ][ z ] -> mBox.setExtents( min, max );

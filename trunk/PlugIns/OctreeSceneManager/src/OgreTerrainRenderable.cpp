@@ -800,16 +800,15 @@ namespace Ogre
         //dir.y *= mScale.y;
         //dir.z *= mScale.z;
 
-        const Vector3 * corners = getBoundingBox().getAllCorners();
-
+        const AxisAlignedBox& box = getBoundingBox();
         //start with the next one...
         ray += dir;
 
 
-        while ( ! ( ( ray.x < corners[ 0 ].x ) ||
-            ( ray.x > corners[ 4 ].x ) ||
-            ( ray.z < corners[ 0 ].z ) ||
-            ( ray.z > corners[ 4 ].z ) ) )
+        while ( ! ( ( ray.x < box.getMinimum().x ) ||
+            ( ray.x > box.getMaximum().x ) ||
+            ( ray.z < box.getMinimum().z ) ||
+            ( ray.z > box.getMaximum().z ) ) )
         {
 
 
@@ -830,13 +829,13 @@ namespace Ogre
 
         }
 
-        if ( ray.x < corners[ 0 ].x && mNeighbors[ WEST ] != 0 )
+        if ( ray.x < box.getMinimum().x && mNeighbors[ WEST ] != 0 )
             return mNeighbors[ WEST ] ->intersectSegment( ray, end, result );
-        else if ( ray.z < corners[ 0 ].z && mNeighbors[ NORTH ] != 0 )
+        else if ( ray.z < box.getMinimum().z && mNeighbors[ NORTH ] != 0 )
             return mNeighbors[ NORTH ] ->intersectSegment( ray, end, result );
-        else if ( ray.x > corners[ 4 ].x && mNeighbors[ EAST ] != 0 )
+        else if ( ray.x > box.getMaximum().x && mNeighbors[ EAST ] != 0 )
             return mNeighbors[ EAST ] ->intersectSegment( ray, end, result );
-        else if ( ray.z > corners[ 4 ].z && mNeighbors[ SOUTH ] != 0 )
+        else if ( ray.z > box.getMaximum().z && mNeighbors[ SOUTH ] != 0 )
             return mNeighbors[ SOUTH ] ->intersectSegment( ray, end, result );
         else
         {

@@ -59,28 +59,15 @@ namespace Ogre {
         inline bool intersects(const AxisAlignedBox& box) const
         {
             if (box.isNull()) return false;
-            // If all points are on outside of any plane, we fail
-            const Vector3* points = box.getAllCorners();
+            if (box.isInfinite()) return true;
+            
             PlaneList::const_iterator i, iend;
             iend = planes.end();
             for (i = planes.begin(); i != iend; ++i)
             {
                 const Plane& plane = *i;
 
-                // Test which side of the plane the corners are
-                // Intersection fails when at all corners are on the
-                // outside of one plane
-                bool splittingPlane = true;
-                for (int corner = 0; corner < 8; ++corner)
-                {
-                    if (plane.getSide(points[corner]) != outside)
-                    {
-                        // this point is on the wrong side
-                        splittingPlane = false;
-                        break;
-                    }
-                }
-                if (splittingPlane)
+                if(plane.getSide(box) == outside)
                 {
                     // Found a splitting plane therefore return not intersecting
                     return false;
