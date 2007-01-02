@@ -57,7 +57,7 @@ typedef std::vector < TerrainPage * > TerrainPageRow;
 typedef std::vector < TerrainPageRow > TerrainPage2D;
 
 /** Default implementation of RaySceneQuery. */
-class _OgreTerrainExport TerrainRaySceneQuery : public OctreeRaySceneQuery
+class _OgreOctreePluginExport TerrainRaySceneQuery : public OctreeRaySceneQuery
 {
 protected:
 	WorldFragment mWorldFrag;
@@ -76,7 +76,7 @@ public:
   *@author Jon Anderson
   */
 
-class _OgreTerrainExport TerrainSceneManager : public OctreeSceneManager
+class _OgreOctreePluginExport TerrainSceneManager : public OctreeSceneManager
 {
 public:
     TerrainSceneManager(const String& name);

@@ -49,12 +49,12 @@ namespace Ogre
 
 #if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32 ) && !defined(__MINGW32__)
 #   ifdef PLUGIN_TERRAIN_EXPORTS
-#       define _OgreTerrainExport __declspec(dllexport)
+#       define _OgreOctreePluginExport __declspec(dllexport)
 #   else
-#       define _OgreTerrainExport __declspec(dllimport)
+#       define _OgreOctreePluginExport __declspec(dllimport)
 #   endif
 #else
-#   define _OgreTerrainExport
+#   define _OgreOctreePluginExport
 #endif
 
 #endif

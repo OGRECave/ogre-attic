@@ -44,7 +44,7 @@ email                : janders@users.sf.net
 namespace Ogre
 {
 /** Octree implementation of IntersectionSceneQuery. */
-class _OgreTerrainExport OctreeIntersectionSceneQuery :  public DefaultIntersectionSceneQuery
+class _OgreOctreePluginExport OctreeIntersectionSceneQuery :  public DefaultIntersectionSceneQuery
 {
 public:
     OctreeIntersectionSceneQuery(SceneManager* creator);
@@ -55,7 +55,7 @@ public:
 };
 
 /** Octree implementation of RaySceneQuery. */
-class _OgreTerrainExport OctreeRaySceneQuery : public DefaultRaySceneQuery
+class _OgreOctreePluginExport OctreeRaySceneQuery : public DefaultRaySceneQuery
 {
 public:
     OctreeRaySceneQuery(SceneManager* creator);
@@ -65,7 +65,7 @@ public:
     void execute(RaySceneQueryListener* listener);
 };
 /** Octree implementation of SphereSceneQuery. */
-class _OgreTerrainExport OctreeSphereSceneQuery : public DefaultSphereSceneQuery
+class _OgreOctreePluginExport OctreeSphereSceneQuery : public DefaultSphereSceneQuery
 {
 public:
     OctreeSphereSceneQuery(SceneManager* creator);
@@ -75,7 +75,7 @@ public:
     void execute(SceneQueryListener* listener);
 };
 /** Octree implementation of PlaneBoundedVolumeListSceneQuery. */
-class _OgreTerrainExport OctreePlaneBoundedVolumeListSceneQuery : public DefaultPlaneBoundedVolumeListSceneQuery
+class _OgreOctreePluginExport OctreePlaneBoundedVolumeListSceneQuery : public DefaultPlaneBoundedVolumeListSceneQuery
 {
 public:
     OctreePlaneBoundedVolumeListSceneQuery(SceneManager* creator);
@@ -85,7 +85,7 @@ public:
     void execute(SceneQueryListener* listener);
 };
 /** Octree implementation of AxisAlignedBoxSceneQuery. */
-class _OgreTerrainExport OctreeAxisAlignedBoxSceneQuery : public DefaultAxisAlignedBoxSceneQuery
+class _OgreOctreePluginExport OctreeAxisAlignedBoxSceneQuery : public DefaultAxisAlignedBoxSceneQuery
 {
 public:
     OctreeAxisAlignedBoxSceneQuery(SceneManager* creator);
