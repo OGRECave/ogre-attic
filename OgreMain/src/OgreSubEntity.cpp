@@ -38,12 +38,13 @@ Torus Knot Software Ltd.
 #include "OgreLogManager.h"
 #include "OgreMesh.h"
 #include "OgreException.h"
+#include "OgreCamera.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
     SubEntity::SubEntity (Entity* parent, SubMesh* subMeshBasis)
         : Renderable(), mParentEntity(parent), mMaterialName("BaseWhite"),
-		mSubMesh(subMeshBasis)
+		mSubMesh(subMeshBasis), mCachedCamera(0)
     {
         mpMaterial = MaterialManager::getSingleton().getByName(mMaterialName);
         mMaterialLodIndex = 0;
@@ -222,9 +223,36 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Real SubEntity::getSquaredViewDepth(const Camera* cam) const
     {
+        // First of all, check the cached value
+		// NB this is manually invalidated by parent each _notifyCurrentCamera call
+		// Done this here rather than there since we only need this for transparent objects
+        if (mCachedCamera == cam)
+            return mCachedCameraDist;
+
         Node* n = mParentEntity->getParentNode();
         assert(n);
-        return n->getSquaredViewDepth(cam);
+        Real dist;
+        if (!mSubMesh->extremityPoints.empty())
+        {
+            const Vector3 &cp = cam->getDerivedPosition();
+            const Matrix4 &l2w = mParentEntity->_getParentNodeFullTransform();
+			dist = std::numeric_limits<Real>::infinity();
+            for (std::vector<Vector3>::const_iterator i = mSubMesh->extremityPoints.begin();
+                 i != mSubMesh->extremityPoints.end (); ++i)
+            {
+                Vector3 v = l2w * (*i);
+                Real d = (v - cp).squaredLength();
+                
+				dist = std::min(d, dist);
+            }
+        }
+        else
+            dist = n->getSquaredViewDepth(cam);
+
+        mCachedCameraDist = dist;
+        mCachedCamera = cam;
+
+        return dist;
     }
     //-----------------------------------------------------------------------
     bool SubEntity::getNormaliseNormals(void) const

@@ -199,7 +199,10 @@ namespace Ogre {
 		if (pMesh->hasVertexAnimation())
 		{
 			writeAnimations(pMesh);
-		}
+        }
+
+        // Write submesh extremes
+        writeExtremes(pMesh);
     }
     //---------------------------------------------------------------------
 	// Added by DrEvil
@@ -290,7 +293,46 @@ namespace Ogre {
 
 
     }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl::writeExtremes(const Mesh *pMesh)
+    {
+        bool has_extremes = false;
+        for (int i = 0; i < pMesh->getNumSubMeshes(); ++i)
+        {
+            SubMesh *sm = pMesh->getSubMesh(i);
+            if (sm->extremityPoints.empty())
+                continue;
+            if (!has_extremes)
+            {
+                has_extremes = true;
+                LogManager::getSingleton().logMessage("Writing submesh extremes...");
+            }
+            writeSubMeshExtremes(i, sm);
+        }
+        if (has_extremes)
+            LogManager::getSingleton().logMessage("Extremes exported.");
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl::writeSubMeshExtremes(unsigned short idx, const SubMesh* s)
+    {
+        size_t chunkSize = STREAM_OVERHEAD_SIZE + sizeof (unsigned short) +
+            s->extremityPoints.size () * sizeof (float) * 3;
+        writeChunkHeader(M_TABLE_EXTREMES, chunkSize);
 
+        writeShorts(&idx, 1);
+
+        float *vertices = new float [s->extremityPoints.size() * 3];
+        for (std::vector<Vector3>::const_iterator i = s->extremityPoints.begin();
+             i != s->extremityPoints.end(); ++i)
+        {
+			*vertices++ = i->x;
+			*vertices++ = i->y;
+			*vertices++ = i->z;
+        }
+
+        writeFloats(vertices, s->extremityPoints.size () * 3);
+        delete [] vertices;
+    }
     //---------------------------------------------------------------------
     void MeshSerializerImpl::writeSubMeshTextureAliases(const SubMesh* s)
     {
@@ -804,7 +846,8 @@ namespace Ogre {
 				 streamID == M_SUBMESH_NAME_TABLE ||
 				 streamID == M_EDGE_LISTS ||
 				 streamID == M_POSES ||
-				 streamID == M_ANIMATIONS))
+				 streamID == M_ANIMATIONS ||
+				 streamID == M_TABLE_EXTREMES))
             {
                 switch(streamID)
                 {
@@ -855,8 +898,10 @@ namespace Ogre {
 					break;
 				case M_ANIMATIONS:
 					readAnimations(stream, pMesh);
-					break;
-
+                    break;
+                case M_TABLE_EXTREMES:
+                    readExtremes(stream, pMesh);
+                    break;
                 }
 
                 if (!stream->eof())
@@ -2623,6 +2668,27 @@ namespace Ogre {
             }
         }
     }
+	//---------------------------------------------------------------------
+	void MeshSerializerImpl::readExtremes(DataStreamPtr& stream, Mesh *pMesh)
+	{
+		unsigned short idx;
+		readShorts(stream, &idx, 1);
+
+		SubMesh *sm = pMesh->getSubMesh (idx);
+
+		int n_floats = (mCurrentstreamLen - STREAM_OVERHEAD_SIZE -
+						sizeof (unsigned short)) / sizeof (float);
+
+        assert ((n_floats % 3) == 0);
+
+        float *vert = new float[n_floats];
+		readFloats(stream, vert, n_floats);
+
+        for (int i = 0; i < n_floats; i += 3)
+			sm->extremityPoints.push_back(Vector3(vert [i], vert [i + 1], vert [i + 2]));
+
+        delete [] vert;
+	}
 	//---------------------------------------------------------------------
     //---------------------------------------------------------------------
     //---------------------------------------------------------------------

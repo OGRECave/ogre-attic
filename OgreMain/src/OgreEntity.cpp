@@ -389,6 +389,9 @@ namespace Ogre {
                 idx = std::max(mMaxMaterialLodIndex, idx);
                 // Apply minimum detail restriction (remember higher = lower detail)
                 (*i)->mMaterialLodIndex = std::min(mMinMaterialLodIndex, idx);
+
+				// Also invalidate any camera distance cache
+				(*i)->_invalidateCameraCache ();
             }
 
 
@@ -400,8 +403,6 @@ namespace Ogre {
         {
             (*child_itr).second->_notifyCurrentCamera(cam);
         }
-
-
     }
     //-----------------------------------------------------------------------
     const AxisAlignedBox& Entity::getBoundingBox(void) const

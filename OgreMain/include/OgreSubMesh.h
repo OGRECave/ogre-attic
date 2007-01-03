@@ -106,6 +106,27 @@ namespace Ogre {
 
         ProgressiveMesh::LODFaceList mLodFaceList;
 
+        /** A list of extreme points on the submesh (optional).
+            @remarks
+                These points are some arbitrary points on the mesh that are used
+                by engine to better sort submeshes by depth. This doesn't matter
+                much for non-transparent submeshes, as Z-buffer takes care of invisible
+                surface culling anyway, but is pretty useful for semi-transparent
+                submeshes because the order in which transparent submeshes must be
+                rendered cannot be always correctly deduced from entity position.
+            @par
+                These points are intelligently chosen from the points that make up
+                the submesh, the criteria for choosing them should be that these points
+                somewhat characterize the submesh outline, e.g. they should not be
+                close to each other, and they should be on the outer hull of the submesh.
+                They can be stored in the .mesh file, or generated at runtime
+                (see generateExtremes ()).
+            @par
+                If this array is empty, submesh sorting is done like in older versions -
+                by comparing the positions of the owning entity.
+         */
+        std::vector<Vector3> extremityPoints;
+
         /// Reference to parent Mesh (not a smart pointer so child does not keep parent alive).
         Mesh* parent;
 
@@ -206,6 +227,12 @@ namespace Ogre {
 		/** Get the type of any vertex animation used by dedicated geometry.
 		*/
 		VertexAnimationType getVertexAnimationType(void) const;
+
+        /** Generate the submesh extremes (@see extremityPoints).
+        @param count
+            Number of extreme points to compute for the submesh.
+        */
+        void generateExtremes(size_t count);
 
     protected:
 

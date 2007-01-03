@@ -87,6 +87,7 @@ namespace Ogre {
 		void writeAnimations(TiXmlElement* meshNode, const Mesh* m);
 		void writeMorphKeyFrames(TiXmlElement* trackNode, const VertexAnimationTrack* track);
 		void writePoseKeyFrames(TiXmlElement* trackNode, const VertexAnimationTrack* track);
+        void writeExtremes(TiXmlElement* mMeshNode, const Mesh* m);
 
         void readSubMeshes(TiXmlElement* mSubmeshesNode);
         void readGeometry(TiXmlElement* mGeometryNode, VertexData* pData);
@@ -104,15 +105,8 @@ namespace Ogre {
 		void readMorphKeyFrames(TiXmlElement* keyframesNode, VertexAnimationTrack* track, 
 			size_t vertexCount);
 		void readPoseKeyFrames(TiXmlElement* keyframesNode, VertexAnimationTrack* track);
-
-
+        void readExtremes(TiXmlElement* extremesNode, Mesh *m);
     };
-
-
-
-
 }
-
-
 
 #endif

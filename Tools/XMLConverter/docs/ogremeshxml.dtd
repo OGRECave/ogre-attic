@@ -1,5 +1,5 @@
 <!ELEMENT mesh (sharedgeometry?, submeshes, 
-	skeletonlink?, boneassignments?, levelofdetail?, submeshnames?, poses?, animations?)>
+	skeletonlink?, boneassignments?, levelofdetail?, submeshnames?, poses?, animations?, extremes?)>
 <!ELEMENT sharedgeometry (vertexbuffer+)>
 <!ATTLIST sharedgeometry
 	vertexcount CDATA #REQUIRED>
@@ -162,6 +162,12 @@
 <!ATTLIST poseref 
 	poseindex	CDATA	#REQUIRED
 	influence	CDATA	"1.0">
+<!-- Optional extremity points on submeshes for sub-object transparency sorting -->
+<!ELEMENT extremes (submesh+)>
+<!ELEMENT submesh_extremes (position+)>
+<!ATTLIST submesh_extremes
+	index	CDATA	#REQUIRED>
+
 	
 
 	

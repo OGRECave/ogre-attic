@@ -53,6 +53,7 @@ struct XmlOptions
     Real lodDist;
     Real lodPercent;
     size_t lodFixed;
+    size_t nuextremityPoints;
     bool usePercent;
     bool generateEdgeLists;
     bool generateTangents;
@@ -87,6 +88,7 @@ void help(void)
 	cout << "-d3d           = Prefer D3D packed colour formats (default on Windows)" << endl;
 	cout << "-gl            = Prefer GL packed colour formats (default on non-Windows)" << endl;
 	cout << "-E endian      = Set endian mode 'big' 'little' or 'native' (default)" << endl;
+	cout << "-x num         = Generate no more than num eXtremes for every submesh (default 0)" << endl;
 	cout << "-q             = Quiet mode, less output" << endl;
     cout << "-log filename  = name of the log file (default: 'OgreXMLConverter.log')" << endl;
     cout << "sourcefile     = name of file to convert" << endl;
@@ -109,13 +111,14 @@ XmlOptions parseArgs(int numArgs, char **args)
     opts.lodFixed = 0;
     opts.lodPercent = 20;
     opts.numLods = 0;
+    opts.nuextremityPoints = 0;
     opts.usePercent = true;
     opts.generateEdgeLists = true;
     opts.generateTangents = false;
 	opts.tangentSemantic = VES_TANGENT;
     opts.reorganiseBuffers = true;
 	opts.optimiseAnimations = true;
-	opts.quietMode = false;
+    opts.quietMode = false;
 	opts.endian = Serializer::ENDIAN_NATIVE;
 
     // ignore program name
@@ -139,6 +142,7 @@ XmlOptions parseArgs(int numArgs, char **args)
     binOpt["-p"] = "";
     binOpt["-f"] = "";
     binOpt["-E"] = "";
+    binOpt["-x"] = "";
     binOpt["-log"] = "OgreXMLConverter.log";
 	binOpt["-td"] = "";
 
@@ -216,6 +220,12 @@ XmlOptions parseArgs(int numArgs, char **args)
         {
             opts.lodFixed = StringConverter::parseInt(bi->second);
             opts.usePercent = false;
+        }
+
+        bi = binOpt.find("-x");
+        if (!bi->second.empty())
+        {
+            opts.nuextremityPoints = StringConverter::parseInt(bi->second);
         }
 
         bi = binOpt.find("-log");
@@ -317,6 +327,8 @@ XmlOptions parseArgs(int numArgs, char **args)
                 cout << "lod reduction    = " << opts.lodFixed << " verts" << endl;
             }
         }
+        if (opts.nuextremityPoints)
+            cout << "Generate extremes per submesh = " << opts.nuextremityPoints << endl;
         cout << "Generate edge lists  = " << opts.generateEdgeLists << endl;
         cout << "Generate tangents = " << opts.generateTangents << endl;
         cout << "Reorganise vertex buffers = " << opts.reorganiseBuffers << endl;
@@ -655,6 +667,15 @@ void XMLToBinary(XmlOptions opts)
             }
         }
 
+        if (opts.nuextremityPoints)
+        {
+            Mesh::SubMeshIterator smIt = newMesh->getSubMeshIterator();
+            while (smIt.hasMoreElements())
+            {
+                SubMesh* sm = smIt.getNext();
+                sm->generateExtremes (opts.nuextremityPoints);
+            }
+        }
 
         meshSerializer->exportMesh(newMesh.getPointer(), opts.dest, opts.endian);
     }

@@ -212,7 +212,203 @@ namespace Ogre {
 		}
 		return mVertexAnimationType;
 	}
+	//---------------------------------------------------------------------
+    /* To find as many points from different domains as we need,
+     * such that those domains are from different parts of the mesh,
+     * we implement a simplified Heckbert quantization algorithm.
+     *
+     * This struct is like AxisAlignedBox with some specialized methods
+     * for doing quantization.
+     */
+    struct Cluster
+    {
+        Vector3 mMin, mMax;
+        std::set<uint32> mIndices;
 
+        Cluster ()
+        { }
 
+        bool empty () const
+        {
+            if (mIndices.empty ())
+                return true;
+            if (mMin == mMax)
+                return true;
+            return false;
+        }
+
+        float volume () const
+        {
+            return (mMax.x - mMin.x) * (mMax.y - mMin.y) * (mMax.z - mMin.z);
+        }
+
+        void extend (float *v)
+        {
+            if (v [0] < mMin.x) mMin.x = v [0];
+            if (v [1] < mMin.y) mMin.y = v [1];
+            if (v [2] < mMin.z) mMin.z = v [2];
+            if (v [0] > mMax.x) mMax.x = v [0];
+            if (v [1] > mMax.y) mMax.y = v [1];
+            if (v [2] > mMax.z) mMax.z = v [2];
+        }
+
+        void computeBBox (const VertexElement *poselem, uint8 *vdata, int vsz)
+        {
+            mMin.x = mMin.y = mMin.z = +1e99;
+            mMax.x = mMax.y = mMax.z = -1e99;
+
+            for (std::set<uint32>::const_iterator i = mIndices.begin ();
+                 i != mIndices.end (); ++i)
+            {
+                float *v;
+                poselem->baseVertexPointerToElement (vdata + *i * vsz, &v);
+                extend (v);
+            }
+        }
+
+        Cluster split (int split_axis, const VertexElement *poselem,
+                       uint8 *vdata, int vsz)
+        {
+            Real r = (mMin [split_axis] + mMax [split_axis]) * 0.5;
+            Cluster newbox;
+
+            // Separate all points that are inside the new bbox
+            for (std::set<uint32>::iterator i = mIndices.begin ();
+                 i != mIndices.end (); )
+            {
+                float *v;
+                poselem->baseVertexPointerToElement (vdata + *i * vsz, &v);
+                if (v [split_axis] > r)
+                {
+                    newbox.mIndices.insert (*i);
+                    std::set<uint32>::iterator x = i++;
+                    mIndices.erase(x);
+                }
+                else
+                    ++i;
+            }
+
+            computeBBox (poselem, vdata, vsz);
+            newbox.computeBBox (poselem, vdata, vsz);
+
+            return newbox;
+        }
+    };
+    //---------------------------------------------------------------------
+    void SubMesh::generateExtremes(size_t count)
+    {
+        extremityPoints.clear();
+
+        /* Currently this uses just one criteria: the points must be
+         * as far as possible from each other. This at least ensures
+         * that the extreme points characterise the submesh as
+         * detailed as it's possible.
+         */
+
+        uint elsz = indexData->indexBuffer->getType () == HardwareIndexBuffer::IT_32BIT ?
+            4 : 2;
+        uint8 *idata = (uint8 *)indexData->indexBuffer->lock (
+            indexData->indexStart * elsz, indexData->indexCount * elsz,
+            HardwareIndexBuffer::HBL_READ_ONLY);
+
+        VertexData *vert = useSharedVertices ?
+            parent->sharedVertexData : vertexData;
+        const VertexElement *poselem = vert->vertexDeclaration->
+            findElementBySemantic (VES_POSITION);
+        HardwareVertexBufferSharedPtr vbuf = vert->vertexBufferBinding->
+            getBuffer (poselem->getSource ());
+        uint8 *vdata = (uint8 *)vbuf->lock (HardwareBuffer::HBL_READ_ONLY);
+        int vsz = vbuf->getVertexSize ();
+
+        std::vector<Cluster> boxes;
+        boxes.reserve (count);
+
+        // First of all, find min and max bounding box of the submesh
+        boxes.push_back (Cluster ());
+        for (size_t i = 0; i < indexData->indexCount; i++)
+        {
+            int idx = (elsz == 2) ? ((uint16 *)idata) [i] : ((uint32 *)idata) [i];
+            boxes [0].mIndices.insert (idx);
+        }
+
+        boxes [0].computeBBox (poselem, vdata, vsz);
+
+        // Remember the geometrical center of the submesh
+        Vector3 center = (boxes [0].mMax + boxes [0].mMin) * 0.5;
+
+        // Ok, now loop until we have as many boxes, as we need extremes
+        while (boxes.size () < count)
+        {
+            // Find the largest box with more than one vertex :)
+            Cluster *split_box = NULL;
+            Real split_volume = -1;
+            for (std::vector<Cluster>::iterator b = boxes.begin ();
+                 b != boxes.end (); ++b)
+            {
+                if (b->empty ())
+                    continue;
+                Real v = b->volume ();
+                if (v > split_volume)
+                {
+                    split_volume = v;
+                    split_box = &*b;
+                }
+            }
+
+            // If we don't have what to split, break
+            if (!split_box)
+                break;
+
+            // Find the coordinate axis to split the box into two
+            int split_axis = 0;
+            Real split_length = split_box->mMax.x - split_box->mMin.x;
+            for (int i = 1; i < 3; i++)
+            {
+                Real l = split_box->mMax [i] - split_box->mMin [i];
+                if (l > split_length)
+                {
+                    split_length = l;
+                    split_axis = i;
+                }
+            }
+
+            // Now split the box into halves
+            boxes.push_back (split_box->split (split_axis, poselem, vdata, vsz));
+        }
+
+        // Fine, now from every cluster choose the vertex that is most
+        // distant from the geometrical center and from other extremes.
+        for (std::vector<Cluster>::const_iterator b = boxes.begin ();
+             b != boxes.end (); ++b)
+        {
+            Real rating = 0;
+            Vector3 best_vertex;
+
+            for (std::set<uint32>::const_iterator i = b->mIndices.begin ();
+                 i != b->mIndices.end (); ++i)
+            {
+                float *v;
+                poselem->baseVertexPointerToElement (vdata + *i * vsz, &v);
+
+                Vector3 vv (v [0], v [1], v [2]);
+                Real r = (vv - center).squaredLength ();
+
+                for (std::vector<Vector3>::const_iterator e = extremityPoints.begin ();
+                     e != extremityPoints.end (); ++e)
+                    r += (*e - vv).squaredLength ();
+                if (r > rating)
+                {
+                    rating = r;
+                    best_vertex = vv;
+                }
+            }
+
+            if (rating > 0)
+                extremityPoints.push_back (best_vertex);
+        }
+
+        vbuf->unlock ();
+        indexData->indexBuffer->unlock ();
+    }
 }
 
