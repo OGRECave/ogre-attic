@@ -44,7 +44,7 @@ namespace Ogre {
 
 /* Find CPU type
 */
-#if ((defined(_MSC_VER) || defined(__ICC)) && defined(_M_IX86)) || \
+#if ((defined(_MSC_VER) || defined(__ICC)) && (defined(_M_IX86) || defined(_M_X64))) || \
     (defined(__GNUC__) && defined(__i386__))
 #   define OGRE_CPU OGRE_CPU_X86
 

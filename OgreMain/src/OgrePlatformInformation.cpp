@@ -34,7 +34,9 @@ Torus Knot Software Ltd.
 
 #if OGRE_COMPILER == OGRE_COMPILER_MSVC
 #include <excpt.h>      // For SEH values
-
+	#if _MSC_VER >= 1400
+		#include <intrin.h>
+	#endif
 #elif OGRE_COMPILER == OGRE_COMPILER_GNUC
 #include <signal.h>
 #include <setjmp.h>
@@ -72,8 +74,14 @@ namespace Ogre {
     // Detect whether CPU supports CPUID instruction, returns non-zero if supported.
     static int _isSupportCpuid(void)
     {
-        // If we can modify flag register bit 21, the cpu is supports CPUID instruction
 #if OGRE_COMPILER == OGRE_COMPILER_MSVC
+		// Visual Studio 2005 & 64-bit compilers always supports __cpuid intrinsic
+		// note that even though this is a build rather than runtime setting, all
+		// 64-bit CPUs support this so since binary is 64-bit only we're ok
+	#if _MSC_VER >= 1400 && defined(_M_X64)
+		return true;
+	#else
+		// If we can modify flag register bit 21, the cpu is supports CPUID instruction
         __asm
         {
             // Read EFLAG
@@ -101,7 +109,7 @@ namespace Ogre {
 
             // Return values in eax, no return statment requirement here for VC.
         }
-
+	#endif
 #elif OGRE_COMPILER == OGRE_COMPILER_GNUC
         unsigned oldFlags, newFlags;
         __asm__
@@ -132,6 +140,15 @@ namespace Ogre {
     static uint _performCpuid(int query, CpuidResult& result)
     {
 #if OGRE_COMPILER == OGRE_COMPILER_MSVC
+	#if _MSC_VER >= 1400 
+		int CPUInfo[4];
+		__cpuid(CPUInfo, query);
+		result._eax = CPUInfo[0];
+		result._ebx = CPUInfo[1];
+		result._ecx = CPUInfo[2];
+		result._edx = CPUInfo[3];
+		return result._eax;
+	#else
         __asm
         {
             mov     edi, result
@@ -143,7 +160,7 @@ namespace Ogre {
             mov     [edi]._ecx, ecx
             // Return values in eax, no return statment requirement here for VC.
         }
-
+	#endif
 #elif OGRE_COMPILER == OGRE_COMPILER_GNUC
         __asm__
         (
@@ -193,7 +210,12 @@ namespace Ogre {
             exception using the (non-standard) __try/__except mechanism
             of Microsoft Visual C/C++.
         */
-
+		// Visual Studio 2005, Both AMD and Intel x64 support SSE
+		// note that even though this is a build rather than runtime setting, all
+		// 64-bit CPUs support this so since binary is 64-bit only we're ok
+	#if _MSC_VER >= 1400 && defined(_M_X64)
+			return true;
+	#else
         __try
         {
             __asm orps  xmm0, xmm0
@@ -203,7 +225,7 @@ namespace Ogre {
         {
             return false;
         }
-
+	#endif
 #elif OGRE_COMPILER == OGRE_COMPILER_GNUC
         // Does gcc have __try/__except similar mechanism?
         // Use signal, setjmp/longjmp instead.
@@ -355,20 +377,59 @@ namespace Ogre {
     //---------------------------------------------------------------------
     static String _detectCpuIdentifier(void)
     {
-        // Supports CPUID instruction ?
-        if (_isSupportCpuid())
-        {
-            CpuidResult result;
+		// Supports CPUID instruction ?
+		if (_isSupportCpuid())
+		{
+			CpuidResult result;
+			uint nExIds;
+			char CPUString[0x20];
+			char CPUBrandString[0x40];
 
-            // Has standard feature ?
-            if (_performCpuid(0, result))
-            {
-                // Returns vendor strings
-                return String((char*)&result._ebx, 12) + "-X86";
-            }
-        }
+			StringUtil::StrStreamType detailedIdentStr;
 
-        return "X86";
+
+			// Has standard feature ?
+			if (_performCpuid(0, result))
+			{
+				memset(CPUString, 0, sizeof(CPUString));
+				memset(CPUBrandString, 0, sizeof(CPUBrandString));
+
+				*((int*)CPUString) = result._ebx;
+				*((int*)(CPUString+4)) = result._edx;
+				*((int*)(CPUString+8)) = result._ecx;
+
+				detailedIdentStr << CPUString;
+				// Only get the brand string on Visual Studio 2005
+			#if _MSC_VER >= 1400
+				// Calling __cpuid with 0x80000000 as the InfoType argument
+				// gets the number of valid extended IDs.
+				int result[4];
+				__cpuid(result, 0x80000000);
+				nExIds = result[0];
+
+				for (uint i=0x80000000; i<=nExIds; ++i)
+				{
+					__cpuid(result, i);
+
+					// Interpret CPU brand string and cache information.
+					if  (i == 0x80000002)
+						memcpy(CPUBrandString, result, sizeof(result));
+					else if  (i == 0x80000003)
+						memcpy(CPUBrandString + 16, result, sizeof(result));
+					else if  (i == 0x80000004)
+						memcpy(CPUBrandString + 32, result, sizeof(result));
+				}
+			#endif
+				String brand(CPUBrandString);
+				StringUtil::trim(brand);
+				if (!brand.empty())
+					detailedIdentStr << ": " << brand;
+
+				return detailedIdentStr.str();
+			}
+		}
+
+		return "X86";
     }
 
 #else   // OGRE_CPU == OGRE_CPU_X86
@@ -413,32 +474,33 @@ namespace Ogre {
 		pLog->logMessage("-------------------------");
 		pLog->logMessage(
 			" *   CPU ID: " + getCpuIdentifier());
-#if OGRE_CPU == OGRE_CPU_X86
-		pLog->logMessage(
-			" *      SSE: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_SSE), true));
-		pLog->logMessage(
-			" *     SSE2: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_SSE2), true));
-		pLog->logMessage(
-			" *     SSE3: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_SSE3), true));
-		pLog->logMessage(
-			" *      MMX: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_MMX), true));
-		pLog->logMessage(
-			" *   MMXEXT: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_MMXEXT), true));
-		pLog->logMessage(
-			" *    3DNOW: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_3DNOW), true));
-		pLog->logMessage(
-			" * 3DNOWEXT: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_3DNOWEXT), true));
-		pLog->logMessage(
-			" *     CMOV: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_CMOV), true));
-		pLog->logMessage(
-			" *      TSC: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_TSC), true));
-		pLog->logMessage(
-			" *      FPU: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_FPU), true));
-		pLog->logMessage(
-			" *      PRO: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_PRO), true));
-		pLog->logMessage(
-			" *       HT: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_HTT), true));
-#endif
+		if(_isSupportCpuid())
+		{
+			pLog->logMessage(
+				" *      SSE: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_SSE), true));
+			pLog->logMessage(
+				" *     SSE2: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_SSE2), true));
+			pLog->logMessage(
+				" *     SSE3: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_SSE3), true));
+			pLog->logMessage(
+				" *      MMX: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_MMX), true));
+			pLog->logMessage(
+				" *   MMXEXT: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_MMXEXT), true));
+			pLog->logMessage(
+				" *    3DNOW: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_3DNOW), true));
+			pLog->logMessage(
+				" * 3DNOWEXT: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_3DNOWEXT), true));
+			pLog->logMessage(
+				" *     CMOV: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_CMOV), true));
+			pLog->logMessage(
+				" *      TSC: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_TSC), true));
+			pLog->logMessage(
+				" *      FPU: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_FPU), true));
+			pLog->logMessage(
+				" *      PRO: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_PRO), true));
+			pLog->logMessage(
+				" *       HT: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_HTT), true));
+		}
 		pLog->logMessage("-------------------------");
 
 	}
