@@ -1043,7 +1043,8 @@ namespace Ogre {
         // run out of usable CPU registers, or L1/L2 cache related problem, causing
         // slight performance loss than general version.
         //
-        if (PlatformInformation::getCpuIdentifier() == "AuthenticAMD-X86")
+
+		if (PlatformInformation::getCpuIdentifier().find("AuthenticAMD") != String::npos)
         {
             // How can I check it's an Athlon XP but not Althon 64?
             // Ok, just test whether supports SSE2/SSE3 or not, if not,
