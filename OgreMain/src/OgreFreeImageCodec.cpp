@@ -230,6 +230,16 @@ namespace Ogre {
 			static_cast<int>(pImgData->height), 
 			bpp);
 
+		if( pImgData->format == PF_L8 || pImgData->format == PF_A8 )
+		{
+			// Must explicitly tell FreeImage that this is greyscale by setting
+			// a "grey" palette (otherwise it will save as a normal RGB
+			// palettized image).
+			FIBITMAP *tmp = FreeImage_ConvertToGreyscale(ret);
+			FreeImage_Unload(ret);
+			ret = tmp;
+		}
+		
 		size_t dstPitch = FreeImage_GetPitch(ret);
 		size_t srcPitch = pImgData->width * PixelUtil::getNumElemBytes(pImgData->format);
 
