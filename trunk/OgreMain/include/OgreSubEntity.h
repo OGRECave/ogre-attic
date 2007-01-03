@@ -101,6 +101,10 @@ namespace Ogre {
 		bool mVertexAnimationAppliedThisFrame;
 		/// Number of hardware blended poses supported by material
 		ushort mHardwarePoseCount;
+		/// Cached distance to last camera for getSquaredViewDepth
+		mutable Real mCachedCameraDist;
+		/// The camera for which the cached distance is valid
+		mutable const Camera *mCachedCamera;
 
         /** Internal method for preparing this Entity for use in animation. */
         void prepareTempBlendBuffers(void);
@@ -214,6 +218,10 @@ namespace Ogre {
 		void _updateCustomGpuParameter(
 			const GpuProgramParameters::AutoConstantEntry& constantEntry,
 			GpuProgramParameters* params) const;
+
+		/** Invalidate the camera distance cache */
+		void _invalidateCameraCache ()
+		{ mCachedCamera = 0; }
     };
 
 }

@@ -99,6 +99,11 @@ namespace Ogre {
 		if (elem)
 			readSubMeshNames(elem, mpMesh);
 
+		// submesh extremes
+		elem = rootElem->FirstChildElement("extremes");
+		if (elem)
+			readExtremes(elem, mpMesh);
+
 		// poses
 		elem = rootElem->FirstChildElement("poses");
 		if (elem)
@@ -123,7 +128,6 @@ namespace Ogre {
 
         mXMLDoc = new TiXmlDocument();
         mXMLDoc->InsertEndChild(TiXmlElement("mesh"));
-        TiXmlElement* rootNode = mXMLDoc->RootElement();
 
         LogManager::getSingleton().logMessage("Populating DOM...");
 
@@ -201,11 +205,8 @@ namespace Ogre {
 		writePoses(rootNode, pMesh);
 		// Write animations
 		writeAnimations(rootNode, pMesh);
-
-
-
-
-
+        // Write extremes
+        writeExtremes(rootNode, pMesh);
     }
     //---------------------------------------------------------------------
     void XMLMeshSerializer::writeSubMesh(TiXmlElement* mSubMeshesNode, const SubMesh* s)
@@ -1202,6 +1203,37 @@ namespace Ogre {
 
 	}
     //---------------------------------------------------------------------
+	void XMLMeshSerializer::writeExtremes(TiXmlElement* mMeshNode, const Mesh* m)
+	{
+		TiXmlElement* extremesNode = NULL;
+		int idx = 0;
+		for (Mesh::SubMeshIterator i = ((Mesh &)*m).getSubMeshIterator ();
+			 i.hasMoreElements (); i.moveNext (), ++idx)
+		{
+			SubMesh *sm = i.peekNext ();
+			if (sm->extremityPoints.empty())
+				continue; // do nothing
+
+			if (!extremesNode)
+				extremesNode = mMeshNode->InsertEndChild(TiXmlElement("extremes"))->ToElement();
+
+			TiXmlElement* submeshNode =
+				extremesNode->InsertEndChild(TiXmlElement("submesh_extremes"))->ToElement();
+
+			submeshNode->SetAttribute("index",  StringConverter::toString(idx));
+
+			for (std::vector<Vector3>::const_iterator v = sm->extremityPoints.begin ();
+				 v != sm->extremityPoints.end (); ++v)
+			{
+				TiXmlElement* vert = submeshNode->InsertEndChild(
+					TiXmlElement("position"))->ToElement();
+				vert->SetAttribute("x", StringConverter::toString(v->x));
+				vert->SetAttribute("y", StringConverter::toString(v->y));
+				vert->SetAttribute("z", StringConverter::toString(v->z));
+			}
+		}
+	}
+	//---------------------------------------------------------------------
 	void XMLMeshSerializer::readLodInfo(TiXmlElement*  lodNode)
 	{
 		
@@ -1333,6 +1365,32 @@ namespace Ogre {
 			faceListElem = faceListElem->NextSiblingElement();
 		}
         
+	}
+	//-----------------------------------------------------------------------------
+	void XMLMeshSerializer::readExtremes(TiXmlElement* extremesNode, Mesh *m)
+	{
+		LogManager::getSingleton().logMessage("Reading extremes...");
+
+		// Iterate over all children (submesh_extreme list)
+		for (TiXmlElement* elem = extremesNode->FirstChildElement();
+			 elem != 0; elem = elem->NextSiblingElement())
+		{
+			int index = StringConverter::parseInt(elem->Attribute("index"));
+
+			SubMesh *sm = m->getSubMesh(index);
+			sm->extremityPoints.clear ();
+			for (TiXmlElement* vert = elem->FirstChildElement();
+				 vert != 0; vert = vert->NextSiblingElement())
+			{
+				Vector3 v;
+				v.x = StringConverter::parseReal(vert->Attribute("x"));
+				v.y = StringConverter::parseReal(vert->Attribute("y"));
+				v.z = StringConverter::parseReal(vert->Attribute("z"));
+				sm->extremityPoints.push_back (v);
+			}
+		}
+
+		LogManager::getSingleton().logMessage("Extremes done.");
 	}
 	//-----------------------------------------------------------------------------
 	void XMLMeshSerializer::readPoses(TiXmlElement* posesNode, Mesh *m)

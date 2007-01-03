@@ -98,6 +98,8 @@ namespace Ogre {
 		virtual void writeMorphKeyframe(const VertexMorphKeyFrame* kf, size_t vertexCount);
 		virtual void writePoseKeyframe(const VertexPoseKeyFrame* kf);
 		virtual void writePoseKeyframePoseRef(const VertexPoseKeyFrame::PoseRef& poseRef);
+        virtual void writeExtremes(const Mesh *pMesh);
+        virtual void writeSubMeshExtremes(unsigned short idx, const SubMesh* s);
 
         virtual size_t calcMeshSize(const Mesh* pMesh);
         virtual size_t calcSubMeshSize(const SubMesh* pSub);
@@ -152,6 +154,7 @@ namespace Ogre {
 			Mesh* pMesh);
 		virtual void readMorphKeyFrame(DataStreamPtr& stream, VertexAnimationTrack* track);
 		virtual void readPoseKeyFrame(DataStreamPtr& stream, VertexAnimationTrack* track);
+		virtual void readExtremes(DataStreamPtr& stream, Mesh *pMesh);
 
 
         /// Flip an entire vertex buffer from little endian

@@ -188,8 +188,11 @@ namespace Ogre {
 							// unsigned short poseIndex 
 							// float influence
 
-		
-	
+			// Optional submesh extreme vertex list chink
+			M_TABLE_EXTREMES = 0xE000,
+			// unsigned short submesh_index;
+			// float extremes [n_extremes][3];
+
 	/* Version 1.2 of the .mesh fornmat (deprecated)
 	enum MeshChunkID {
         M_HEADER                = 0x1000,

@@ -276,6 +276,7 @@ namespace Ogre {
             newSub->mMatInitialised = (*subi)->mMatInitialised;
             newSub->operationType = (*subi)->operationType;
             newSub->useSharedVertices = (*subi)->useSharedVertices;
+            newSub->extremityPoints = (*subi)->extremityPoints;
 
             if (!(*subi)->useSharedVertices)
             {
