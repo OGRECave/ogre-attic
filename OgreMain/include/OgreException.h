@@ -69,8 +69,6 @@ Torus Knot Software Ltd.
 
 #endif
 
-#define OGRE_CALL_STACK_DEPTH 512
-
 namespace Ogre {
     /** When thrown, provides information about an error that has occurred inside the engine.
         @remarks
@@ -126,6 +124,9 @@ namespace Ogre {
         */
         Exception(const Exception& rhs);
 
+		/// Needed for  compatibility with std::exception
+		~Exception() throw() {}
+
         /** Assignment operator.
         */
         void operator = (const Exception& rhs);
@@ -165,7 +166,7 @@ namespace Ogre {
 		virtual const String &getDescription(void) const { return description; }
 
 		/// Override std::exception::what
-		const char* what() const { return getFullDescription().c_str(); }
+		const char* what() const throw() { return getFullDescription().c_str(); }
         
     };
 
@@ -332,8 +333,8 @@ namespace Ogre {
 
 	
 
-#define OGRE_EXCEPT(num, desc, src) throw ExceptionFactory::create( \
-	ExceptionCodeType<num>(), desc, src, __FILE__, __LINE__ );
+#define OGRE_EXCEPT(num, desc, src) throw Ogre::ExceptionFactory::create( \
+	Ogre::ExceptionCodeType<Ogre::num>(), desc, src, __FILE__, __LINE__ );
 
 
 } // Namespace Ogre

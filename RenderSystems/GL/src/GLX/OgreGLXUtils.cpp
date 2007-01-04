@@ -389,7 +389,7 @@ namespace Ogre {
         int nConfigs;
         fbConfigs = glXChooseFBConfig(dpy, scrnum, attribs, &nConfigs);
         if (nConfigs == 0 || !fbConfigs) 
-            OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE, "glXChooseFBConfig() failed: Couldn't find a suitable pixel format", "GLRenderTexture::createPBuffer");
+            OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "glXChooseFBConfig() failed: Couldn't find a suitable pixel format", "GLRenderTexture::createPBuffer");
 
         // Sort by best match
         std::sort(fbConfigs, fbConfigs+nConfigs, FBConfigMatchSort(dpy, idealattribs));
