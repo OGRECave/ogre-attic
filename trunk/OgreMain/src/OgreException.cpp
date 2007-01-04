@@ -79,6 +79,7 @@ namespace Ogre {
         source = rhs.source;
         file = rhs.file;
         line = rhs.line;
+		typeName = rhs.typeName;
     }
 
     const String& Exception::getFullDescription(void) const

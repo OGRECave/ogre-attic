@@ -108,7 +108,7 @@ namespace Ogre
             floatBuffer = detectRTFType();
             if(floatBuffer == RTF_NONE || floatBuffer == RTF_NV)
             {
-                OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE, "Floating point PBuffers not supported on this hardware",  "GLRenderTexture::createPBuffer");
+                OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "Floating point PBuffers not supported on this hardware",  "GLRenderTexture::createPBuffer");
             }
         }
 
@@ -184,11 +184,11 @@ namespace Ogre
 
         _hPBuffer = glXCreatePbuffer(_pDpy, mFBConfig, attribs);
         if (!_hPBuffer) 
-            OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE, "glXCreatePbuffer() failed", "GLRenderTexture::createPBuffer");
+            OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "glXCreatePbuffer() failed", "GLRenderTexture::createPBuffer");
 
         _hGLContext = glXCreateNewContext(_pDpy, mFBConfig, GLX_RGBA_TYPE, context, True);
         if (!_hGLContext) 
-            OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE, "glXCreateContext() failed", "GLRenderTexture::createPBuffer");        
+            OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "glXCreateContext() failed", "GLRenderTexture::createPBuffer");        
 
         // Query real width and height
         GLuint iWidth, iHeight;

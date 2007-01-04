@@ -29,6 +29,7 @@ Torus Knot Software Ltd.
 #include "OgreStableHeaders.h"
 #include "OgrePlane.h"
 #include "OgreMatrix3.h"
+#include "OgreAxisAlignedBox.h" 
 
 namespace Ogre {
 	//-----------------------------------------------------------------------
