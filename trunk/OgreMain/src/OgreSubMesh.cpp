@@ -254,8 +254,8 @@ namespace Ogre {
 
         void computeBBox (const VertexElement *poselem, uint8 *vdata, int vsz)
         {
-            mMin.x = mMin.y = mMin.z = +1e99;
-            mMax.x = mMax.y = mMax.z = -1e99;
+            mMin.x = mMin.y = mMin.z = Math::POS_INFINITY;
+            mMax.x = mMax.y = mMax.z = Math::NEG_INFINITY;
 
             for (std::set<uint32>::const_iterator i = mIndices.begin ();
                  i != mIndices.end (); ++i)
