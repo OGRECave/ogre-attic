@@ -852,6 +852,9 @@ namespace Ogre
 		{
 			mCapabilities->log(defaultLog);
 		}
+
+		mPerStageConstantSupport = (mCaps.PrimitiveMiscCaps & D3DPMISCCAPS_TSSARGTEMP) != 0;
+
     }
     //---------------------------------------------------------------------
     void D3D9RenderSystem::convertVertexShaderCaps(void)
@@ -1756,7 +1759,6 @@ namespace Ogre
 		D3DTEXTURESTAGESTATETYPE tss;
 		D3DCOLOR manualD3D;
 
-
 		// choose type of blend.
 		if( bm.blendType == LBT_COLOUR )
 			tss = D3DTSS_COLOROP;
@@ -1800,12 +1802,21 @@ namespace Ogre
 		// Set manual factor if required
 		if (bm.source1 == LBS_MANUAL)
 		{
-			hr = __SetRenderState( D3DRS_TEXTUREFACTOR, manualD3D );
+			if (mPerStageConstantSupport)
+			{
+				// Per-stage state
+				hr = __SetTextureStageState(stage, D3DTSS_CONSTANT, manualD3D);
+			}
+			else
+			{
+				// Global state
+				hr = __SetRenderState( D3DRS_TEXTUREFACTOR, manualD3D );
+			}
 			if (FAILED(hr))
 				OGRE_EXCEPT( hr, "Failed to set manual factor", "D3D9RenderSystem::_setTextureBlendMode" );
 		}
 		// set source 1
-		hr = __SetTextureStageState( stage, tss, D3D9Mappings::get(bm.source1) );
+		hr = __SetTextureStageState( stage, tss, D3D9Mappings::get(bm.source1, mPerStageConstantSupport) );
 		if (FAILED(hr))
 			OGRE_EXCEPT( hr, "Failed to set source1", "D3D9RenderSystem::_setTextureBlendMode" );
 		
@@ -1827,12 +1838,20 @@ namespace Ogre
 		// Set manual factor if required
 		if (bm.source2 == LBS_MANUAL)
 		{
-			hr = __SetRenderState( D3DRS_TEXTUREFACTOR, manualD3D );
+			if (mPerStageConstantSupport)
+			{
+				// Per-stage state
+				hr = __SetTextureStageState(stage, D3DTSS_CONSTANT, manualD3D);
+			}
+			else
+			{
+				hr = __SetRenderState( D3DRS_TEXTUREFACTOR, manualD3D );
+			}
 			if (FAILED(hr))
 				OGRE_EXCEPT( hr, "Failed to set manual factor", "D3D9RenderSystem::_setTextureBlendMode" );
 		}
 		// Now set source 2
-		hr = __SetTextureStageState( stage, tss, D3D9Mappings::get(bm.source2) );
+		hr = __SetTextureStageState( stage, tss, D3D9Mappings::get(bm.source2, mPerStageConstantSupport) );
 		if (FAILED(hr))
 			OGRE_EXCEPT( hr, "Failed to set source 2", "D3D9RenderSystem::_setTextureBlendMode" );
 
