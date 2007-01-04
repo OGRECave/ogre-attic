@@ -376,6 +376,8 @@ namespace Ogre {
 			bool indexSysMem = false);
 
         void createPrefabPlane(void);
+		void createPrefabCube(void);
+		void createPrefabSphere(void);
     
         /** Enum identifying the types of manual mesh built by this manager */
         enum MeshBuildType

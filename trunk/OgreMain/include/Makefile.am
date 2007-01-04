@@ -114,6 +114,7 @@ pkginclude_HEADERS = Ogre.h \
 					 OgrePolygon.h \
                      OgrePose.h \
                      OgrePredefinedControllers.h \
+					 OgrePrefabFactory.h \
                      OgrePrerequisites.h \
                      OgreProfiler.h \
                      OgreProgressiveMesh.h \

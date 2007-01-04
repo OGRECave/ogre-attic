@@ -100,6 +100,7 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
 						 OgrePolygon.cpp \
 			 OgrePose.cpp \
                          OgrePredefinedControllers.cpp \
+						 OgrePrefabFactory.cpp \
 			 OgreProfiler.cpp \
                          OgreProgressiveMesh.cpp \
                          OgreQuaternion.cpp \
