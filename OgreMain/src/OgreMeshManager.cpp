@@ -40,6 +40,8 @@ Torus Knot Software Ltd.
 #include "OgrePatchSurface.h"
 #include "OgreException.h"
 
+#include "OgrePrefabFactory.h"
+
 namespace Ogre
 {
 	#define PI 3.1415926535897932384626433832795
@@ -76,8 +78,8 @@ namespace Ogre
     {
         // Create prefab objects
         createPrefabPlane();
-
-
+		createPrefabCube();
+		createPrefabSphere();
     }
     //-----------------------------------------------------------------------
     MeshPtr MeshManager::load( const String& filename, const String& groupName, 
@@ -319,96 +321,71 @@ namespace Ogre
         // to preserve previous behaviour, load immediately
         msh->load();
     }
+	//-----------------------------------------------------------------------
+	void MeshManager::createPrefabCube(void)
+	{
+		MeshPtr msh = create(
+			"Prefab_Cube", 
+			ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, 
+			true, // manually loaded
+			this);
+
+		// to preserve previous behaviour, load immediately
+		msh->load();
+	}
+
+	void MeshManager::createPrefabSphere(void)
+	{
+		MeshPtr msh = create(
+			"Prefab_Sphere", 
+			ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, 
+			true, // manually loaded
+			this);
+
+		// to preserve previous behaviour, load immediately
+		msh->load();
+	}
+
     //-----------------------------------------------------------------------
-    void MeshManager::loadResource(Resource* res)
-    {
-        Mesh* msh = static_cast<Mesh*>(res);
-        // Manual resource load
-        if (res->getName() == "Prefab_Plane")
-        {
-            SubMesh* sub = msh->createSubMesh();
-            float vertices[32] = {
-			    -100, -100, 0,	// pos
-			    0,0,1,			// normal
-			    0,1,			// texcoord
-                100, -100, 0,
-                0,0,1,
-                1,1,
-                100,  100, 0,
-                0,0,1,
-                1,0,
-                -100,  100, 0 ,
-			    0,0,1,
-                0,0 
-		    };
-            msh->sharedVertexData = new VertexData();
-            msh->sharedVertexData->vertexCount = 4;
-		    VertexDeclaration* decl = msh->sharedVertexData->vertexDeclaration;
-		    VertexBufferBinding* bind = msh->sharedVertexData->vertexBufferBinding;
+	void MeshManager::loadResource(Resource* res)
+	{
+		Mesh* msh = static_cast<Mesh*>(res);
 
-		    size_t offset = 0;
-		    decl->addElement(0, offset, VET_FLOAT3, VES_POSITION);
-		    offset += VertexElement::getTypeSize(VET_FLOAT3);
-		    decl->addElement(0, offset, VET_FLOAT3, VES_NORMAL);
-		    offset += VertexElement::getTypeSize(VET_FLOAT3);
-		    decl->addElement(0, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
-		    offset += VertexElement::getTypeSize(VET_FLOAT2);
+		// attempt to create a prefab mesh
+		bool createdPrefab = PrefabFactory::createPrefab(msh);
 
-		    HardwareVertexBufferSharedPtr vbuf = 
-			    HardwareBufferManager::getSingleton().createVertexBuffer(
-				    offset, 4, HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-		    bind->setBinding(0, vbuf);
+		// the mesh was not a prefab..
+		if(!createdPrefab)
+		{
+			// Find build parameters
+			MeshBuildParamsMap::iterator ibld = mMeshBuildParams.find(res);
+			if (ibld == mMeshBuildParams.end())
+			{
+				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+					"Cannot find build parameters for " + res->getName(),
+					"MeshManager::loadResource");
+			}
+			MeshBuildParams& params = ibld->second;
 
-		    vbuf->writeData(0, vbuf->getSizeInBytes(), vertices, true);
+			switch(params.type)
+			{
+			case MBT_PLANE:
+				loadManualPlane(msh, params);
+				break;
+			case MBT_CURVED_ILLUSION_PLANE:
+				loadManualCurvedIllusionPlane(msh, params);
+				break;
+			case MBT_CURVED_PLANE:
+				loadManualCurvedPlane(msh, params);
+				break;
+			default:
+				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+					"Unknown build parameters for " + res->getName(),
+					"MeshManager::loadResource");
+			}
+		}
+	}
 
-		    sub->useSharedVertices = true;
-		    HardwareIndexBufferSharedPtr ibuf = HardwareBufferManager::getSingleton().
-			    createIndexBuffer(
-				    HardwareIndexBuffer::IT_16BIT, 
-				    6, 
-				    HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-
-            unsigned short faces[6] = {0,1,2,
-                                    0,2,3 };
-            sub->indexData->indexBuffer = ibuf;
-		    sub->indexData->indexCount = 6;
-		    sub->indexData->indexStart =0;
-            ibuf->writeData(0, ibuf->getSizeInBytes(), faces, true);
-
-            msh->_setBounds(AxisAlignedBox(-100,-100,0,100,100,0), true);
-            msh->_setBoundingSphereRadius(Math::Sqrt(100*100+100*100));
-        }
-        else
-        {
-            // Find build parameters
-            MeshBuildParamsMap::iterator ibld = mMeshBuildParams.find(res);
-            if (ibld == mMeshBuildParams.end())
-            {
-                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-                    "Cannot find build parameters for " + res->getName(),
-                    "MeshManager::loadResource");
-            }
-            MeshBuildParams& params = ibld->second;
-
-            switch(params.type)
-            {
-            case MBT_PLANE:
-                loadManualPlane(msh, params);
-                break;
-            case MBT_CURVED_ILLUSION_PLANE:
-                loadManualCurvedIllusionPlane(msh, params);
-                break;
-            case MBT_CURVED_PLANE:
-                loadManualCurvedPlane(msh, params);
-                break;
-            default:
-                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-                    "Unknown build parameters for " + res->getName(),
-                    "MeshManager::loadResource");
-            }
-        }
-
-    }
     //-----------------------------------------------------------------------
     void MeshManager::loadManualPlane(Mesh* pMesh, MeshBuildParams& params)
     {

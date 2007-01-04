@@ -508,6 +508,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgrePredefinedControllers.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgrePrefabFactory.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreProfiler.cpp">
 			</File>
 			<File
@@ -1097,6 +1100,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgrePredefinedControllers.h">
+			</File>
+			<File
+				RelativePath="..\include\OgrePrefabFactory.h">
 			</File>
 			<File
 				RelativePath="..\include\OgrePrerequisites.h">

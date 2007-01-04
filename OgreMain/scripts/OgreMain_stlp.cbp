@@ -958,6 +958,13 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\include\OgrePrefabFactory.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\include\OgrePrerequisites.h">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
@@ -2077,6 +2084,11 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\src\OgrePredefinedControllers.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\src\OgrePrefabFactory.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />

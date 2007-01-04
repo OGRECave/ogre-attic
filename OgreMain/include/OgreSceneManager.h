@@ -1065,7 +1065,9 @@ namespace Ogre {
                 Add more prefabs (teapots, teapots!!!)
         */
         enum PrefabType {
-            PT_PLANE
+            PT_PLANE,
+			PT_CUBE,
+			PT_SPHERE
         };
 
         /** Create an Entity (instance of a discrete mesh) from a range of prefab shapes.

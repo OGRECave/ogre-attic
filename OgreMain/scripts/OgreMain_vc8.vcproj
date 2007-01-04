@@ -681,6 +681,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgrePrefabFactory.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreProfiler.cpp"
 				>
 			</File>
@@ -1459,6 +1463,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgrePredefinedControllers.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgrePrefabFactory.h"
 				>
 			</File>
 			<File

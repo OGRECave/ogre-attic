@@ -462,6 +462,10 @@ Entity* SceneManager::createEntity(const String& entityName, PrefabType ptype)
     {
     case PT_PLANE:
         return createEntity(entityName, "Prefab_Plane");
+	case PT_CUBE:
+		return createEntity(entityName, "Prefab_Cube");
+	case PT_SPHERE:
+		return createEntity(entityName, "Prefab_Sphere");
 
         break;
     }
