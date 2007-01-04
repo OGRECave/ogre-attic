@@ -60,7 +60,8 @@ namespace Ogre {
             OGRE_SET_AUTO_SHARED_MUTEX_NULL
         }
 
-		explicit SharedPtr(T* rep) : pRep(rep), pUseCount(new unsigned int(1))
+        template< class Y>
+		explicit SharedPtr(Y* rep) : pRep(rep), pUseCount(new unsigned int(1))
 		{
             OGRE_SET_AUTO_SHARED_MUTEX_NULL
 			OGRE_NEW_AUTO_SHARED_MUTEX
@@ -106,6 +107,46 @@ namespace Ogre {
 				assert(r.isNull() && "RHS must be null if it has no mutex!");
 				setNull();
 			}
+			return *this;
+		}
+		
+		template< class Y>
+		SharedPtr(const SharedPtr<Y>& r)
+            : pRep(0), pUseCount(0)
+		{
+			// lock & copy other mutex pointer
+
+            OGRE_SET_AUTO_SHARED_MUTEX_NULL
+            OGRE_MUTEX_CONDITIONAL(r.OGRE_AUTO_MUTEX_NAME)
+            {
+			    OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			    OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+			    pRep = r.getPointer();
+			    pUseCount = r.useCountPointer();
+			    // Handle zero pointer gracefully to manage STL containers
+			    if(pUseCount)
+			    {
+				    ++(*pUseCount);
+			    }
+            }
+		}
+		template< class Y>
+		SharedPtr& operator=(const SharedPtr<Y>& r) {
+			if (pRep == r.pRep)
+				return *this;
+			release();
+			// lock & copy other mutex pointer
+            OGRE_MUTEX_CONDITIONAL(r.OGRE_AUTO_MUTEX_NAME)
+            {
+			    OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			    OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+			    pRep = r.getPointer();
+			    pUseCount = r.useCountPointer();
+			    if (pUseCount)
+			    {
+				    ++(*pUseCount);
+			    }
+            }
 			return *this;
 		}
 		virtual ~SharedPtr() {

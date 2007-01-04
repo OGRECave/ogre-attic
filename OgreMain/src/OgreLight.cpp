@@ -53,7 +53,7 @@ namespace Ogre {
           mDerivedPosition(Vector3::ZERO),
           mDerivedDirection(Vector3::UNIT_Z),
           mDerivedTransformDirty(false),
-		  mCustomShadowCameraSetup(0)
+		  mCustomShadowCameraSetup()
     {
     }
     //-----------------------------------------------------------------------
@@ -74,7 +74,7 @@ namespace Ogre {
         mDerivedPosition(Vector3::ZERO),
         mDerivedDirection(Vector3::UNIT_Z),
         mDerivedTransformDirty(false),
-		mCustomShadowCameraSetup(0)
+		mCustomShadowCameraSetup()
     {
     }
     //-----------------------------------------------------------------------
