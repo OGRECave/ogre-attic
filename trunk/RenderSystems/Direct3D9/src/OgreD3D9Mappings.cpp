@@ -129,7 +129,7 @@ namespace Ogre
 		return  D3DTSS_FORCE_DWORD;
 	}
 	//---------------------------------------------------------------------
-	DWORD D3D9Mappings::get(LayerBlendSource lbs)
+	DWORD D3D9Mappings::get(LayerBlendSource lbs, bool perStageConstants)
 	{
 		switch( lbs )
 		{
@@ -142,7 +142,7 @@ namespace Ogre
 		case LBS_SPECULAR:
 			return D3DTA_SPECULAR;
 		case LBS_MANUAL:
-			return D3DTA_TFACTOR;
+			return perStageConstants ? D3DTA_CONSTANT : D3DTA_TFACTOR;
 		}
 		return 0;
 	}
