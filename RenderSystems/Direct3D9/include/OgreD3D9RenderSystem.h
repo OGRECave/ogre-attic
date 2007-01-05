@@ -77,6 +77,8 @@ namespace Ogre
 		D3DCAPS9 mCaps;
 		/// NVPerfHUD allowed?
 		bool mUseNVPerfHUD;
+		/// Per-stage constant support? (not in main caps since D3D specific & minor)
+		bool mPerStageConstantSupport;
 
 		/// structure holding texture unit settings for every stage
 		struct sD3DTextureStageDesc

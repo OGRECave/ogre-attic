@@ -156,8 +156,8 @@ namespace Ogre
             v.z = atof( val.c_str() );
 
         // Scale x/z relative to pagesize
-        v.x /= mOptions.pageSize;
-        v.z /= mOptions.pageSize;
+        v.x /= mOptions.pageSize - 1;
+        v.z /= mOptions.pageSize - 1;
         setScale(v);
 
         val = config.getSetting( "MaxPixelError" );
