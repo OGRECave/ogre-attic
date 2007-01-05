@@ -44,6 +44,8 @@ namespace Ogre {
         : Bone(handle, creator)
         , mParentEntity(0)
         , mChildObject(0)
+        , mInheritParentEntityOrientation(true)
+        , mInheritParentEntityScale(true)
     {
     }
     //-----------------------------------------------------------------------------
@@ -56,6 +58,11 @@ namespace Ogre {
         return mParentEntity;
     }
     //-----------------------------------------------------------------------------
+    MovableObject* TagPoint::getChildObject(void) const
+    {
+        return mChildObject;
+    }
+    //-----------------------------------------------------------------------------
     void TagPoint::setParentEntity(Entity *pEntity)
     {
         mParentEntity = pEntity;
@@ -64,6 +71,28 @@ namespace Ogre {
     void TagPoint::setChildObject(MovableObject *pObject)
     {
         mChildObject = pObject;
+    }
+    //-----------------------------------------------------------------------------
+    void TagPoint::setInheritParentEntityOrientation(bool inherit)
+    {
+        mInheritParentEntityOrientation = inherit;
+        needUpdate();
+    }
+    //-----------------------------------------------------------------------------
+    bool TagPoint::getInheritParentEntityOrientation(void) const
+    {
+        return mInheritParentEntityOrientation;
+    }
+    //-----------------------------------------------------------------------------
+    void TagPoint::setInheritParentEntityScale(bool inherit)
+    {
+        mInheritParentEntityScale = inherit;
+        needUpdate();
+    }
+    //-----------------------------------------------------------------------------
+    bool TagPoint::getInheritParentEntityScale(void) const
+    {
+        return mInheritParentEntityScale;
     }
     //-----------------------------------------------------------------------------
     const Matrix4& TagPoint::_getFullLocalTransform(void) const
@@ -111,16 +140,22 @@ namespace Ogre {
             Node* entityParentNode = mParentEntity->getParentNode();
             if (entityParentNode)
             {
-                // Note: orientation/scale inheritance already take care with
-                // _updateFromParent, don't do that with parent entity transform.
+                // Note: orientation/scale inherits from parent node already take care with
+                // Bone::_updateFromParent, don't do that with parent entity transform.
 
                 // Combine orientation with that of parent entity
                 const Quaternion& parentOrientation = entityParentNode->_getDerivedOrientation();
-                mDerivedOrientation = parentOrientation * mDerivedOrientation;
+                if (mInheritParentEntityOrientation)
+                {
+                    mDerivedOrientation = parentOrientation * mDerivedOrientation;
+                }
 
                 // Incorporate parent entity scale
                 const Vector3& parentScale = entityParentNode->_getDerivedScale();
-                mDerivedScale *= parentScale;
+                if (mInheritParentEntityScale)
+                {
+                    mDerivedScale *= parentScale;
+                }
 
                 // Change position vector based on parent entity's orientation & scale
                 mDerivedPosition = parentOrientation * (parentScale * mDerivedPosition);
