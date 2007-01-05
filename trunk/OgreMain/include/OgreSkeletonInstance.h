@@ -115,8 +115,7 @@ namespace Ogre {
         /// Pointer back to master Skeleton
         SkeletonPtr mSkeleton;
 
-        typedef std::list<TagPoint*> ActiveTagPointList;
-        typedef std::deque<TagPoint*> FreeTagPointQueue;
+        typedef std::list<TagPoint*> TagPointList;
 
         /** Active tag point list.
         @remarks
@@ -126,16 +125,16 @@ namespace Ogre {
             tag points (required for weapon / equip systems etc)    as well as resuse of TagPoint instances
             without construction & destruction which avoids memory thrashing.
         */
-        ActiveTagPointList mActiveTagPoints;
+        TagPointList mActiveTagPoints;
 
-        /** Free tag point queue.
+        /** Free tag point list.
         @remarks
             This contains a list of the tag points free for use as new instances
             as required by the set. When a TagPoint instances are deactived, there will are referenced on this
-            deque. As they get used this deque reduces, as they get released back to to the set they get added
-            back to the deque.
+            list. As they get used this list reduces, as they get released back to to the set they get added
+            back to the list.
         */
-        FreeTagPointQueue mFreeTagPoints;
+        TagPointList mFreeTagPoints;
 
         /// TagPoint automatic handles
         unsigned short mNextTagPointAutoHandle;

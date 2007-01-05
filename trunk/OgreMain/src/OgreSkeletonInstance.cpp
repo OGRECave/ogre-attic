@@ -35,9 +35,10 @@ Torus Knot Software Ltd.
 namespace Ogre {
     //-------------------------------------------------------------------------
     SkeletonInstance::SkeletonInstance(const SkeletonPtr& masterCopy) 
-        : Skeleton(), mSkeleton(masterCopy)
+        : Skeleton()
+        , mSkeleton(masterCopy)
+        , mNextTagPointAutoHandle(0)
     {
-        mNextTagPointAutoHandle = 0;
     }
     //-------------------------------------------------------------------------
     SkeletonInstance::~SkeletonInstance()
@@ -111,7 +112,7 @@ namespace Ogre {
     void SkeletonInstance::cloneBoneAndChildren(Bone* source, Bone* parent)
     {
         Bone* newBone;
-        if (source->getName() == "")
+        if (source->getName().empty())
         {
             newBone = createBone(source->getHandle());
         }
@@ -161,7 +162,7 @@ namespace Ogre {
         Skeleton::unloadImpl();
 
         // destroy TagPoints
-        for (ActiveTagPointList::const_iterator it = mActiveTagPoints.begin(); it != mActiveTagPoints.end(); ++it)
+        for (TagPointList::const_iterator it = mActiveTagPoints.begin(); it != mActiveTagPoints.end(); ++it)
         {
             TagPoint* tagPoint = *it;
             // Woohoo! The child object all the same attaching this skeleton instance, but is ok we can just
@@ -171,7 +172,7 @@ namespace Ogre {
             delete tagPoint;
         }
         mActiveTagPoints.clear();
-        for (FreeTagPointQueue::const_iterator it2 = mFreeTagPoints.begin(); it2 != mFreeTagPoints.end(); ++it2)
+        for (TagPointList::const_iterator it2 = mFreeTagPoints.begin(); it2 != mFreeTagPoints.end(); ++it2)
         {
             TagPoint* tagPoint = *it2;
             delete tagPoint;
@@ -187,16 +188,19 @@ namespace Ogre {
         TagPoint* ret;
         if (mFreeTagPoints.empty()) {
             ret = new TagPoint(mNextTagPointAutoHandle++, this);
+            mActiveTagPoints.push_back(ret);
         } else {
             ret = mFreeTagPoints.front();
-            mFreeTagPoints.pop_front();
+            mActiveTagPoints.splice(
+                mActiveTagPoints.end(), mFreeTagPoints, mFreeTagPoints.begin());
             // Initial some members ensure identically behavior, avoiding potential bug.
             ret->setParentEntity(0);
             ret->setChildObject(0);
             ret->setInheritOrientation(true);
             ret->setInheritScale(true);
+            ret->setInheritParentEntityOrientation(true);
+            ret->setInheritParentEntityScale(true);
         }
-        mActiveTagPoints.push_back(ret);
 
         ret->setPosition(offsetPosition);
         ret->setOrientation(offsetOrientation);
@@ -209,13 +213,16 @@ namespace Ogre {
     //-------------------------------------------------------------------------
     void SkeletonInstance::freeTagPoint(TagPoint* tagPoint)
     {
-        assert(std::find(mActiveTagPoints.begin(), mActiveTagPoints.end(), tagPoint) != mActiveTagPoints.end());
+        TagPointList::iterator it =
+            std::find(mActiveTagPoints.begin(), mActiveTagPoints.end(), tagPoint);
+        assert(it != mActiveTagPoints.end());
+        if (it != mActiveTagPoints.end())
+        {
+            if (tagPoint->getParent())
+                tagPoint->getParent()->removeChild(tagPoint);
 
-        if (tagPoint->getParent())
-            tagPoint->getParent()->removeChild(tagPoint);
-
-        mActiveTagPoints.remove(tagPoint);
-        mFreeTagPoints.push_back(tagPoint);
+            mFreeTagPoints.splice(mFreeTagPoints.end(), mActiveTagPoints, it);
+        }
     }
 	//-------------------------------------------------------------------------
 	const String& SkeletonInstance::getName(void) const
