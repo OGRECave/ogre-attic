@@ -399,27 +399,39 @@ namespace Ogre {
 				*((int*)(CPUString+8)) = result._ecx;
 
 				detailedIdentStr << CPUString;
-				// Only get the brand string on Visual Studio 2005
-			#if _MSC_VER >= 1400
-				// Calling __cpuid with 0x80000000 as the InfoType argument
+
+				// Calling _performCpuid with 0x80000000 as the query argument
 				// gets the number of valid extended IDs.
-				int result[4];
-				__cpuid(result, 0x80000000);
-				nExIds = result[0];
+				nExIds = _performCpuid(0x80000000, result);
 
 				for (uint i=0x80000000; i<=nExIds; ++i)
 				{
-					__cpuid(result, i);
+					_performCpuid(i, result);
 
 					// Interpret CPU brand string and cache information.
 					if  (i == 0x80000002)
-						memcpy(CPUBrandString, result, sizeof(result));
+                    {
+						memcpy(CPUBrandString + 0, &result._eax, sizeof(result._eax));
+						memcpy(CPUBrandString + 4, &result._ebx, sizeof(result._ebx));
+						memcpy(CPUBrandString + 8, &result._ecx, sizeof(result._ecx));
+						memcpy(CPUBrandString + 12, &result._edx, sizeof(result._edx));
+                    }
 					else if  (i == 0x80000003)
-						memcpy(CPUBrandString + 16, result, sizeof(result));
+                    {
+						memcpy(CPUBrandString + 16 + 0, &result._eax, sizeof(result._eax));
+						memcpy(CPUBrandString + 16 + 4, &result._ebx, sizeof(result._ebx));
+						memcpy(CPUBrandString + 16 + 8, &result._ecx, sizeof(result._ecx));
+						memcpy(CPUBrandString + 16 + 12, &result._edx, sizeof(result._edx));
+                    }
 					else if  (i == 0x80000004)
-						memcpy(CPUBrandString + 32, result, sizeof(result));
+                    {
+						memcpy(CPUBrandString + 32 + 0, &result._eax, sizeof(result._eax));
+						memcpy(CPUBrandString + 32 + 4, &result._ebx, sizeof(result._ebx));
+						memcpy(CPUBrandString + 32 + 8, &result._ecx, sizeof(result._ecx));
+						memcpy(CPUBrandString + 32 + 12, &result._edx, sizeof(result._edx));
+                    }
 				}
-			#endif
+
 				String brand(CPUBrandString);
 				StringUtil::trim(brand);
 				if (!brand.empty())
@@ -474,6 +486,7 @@ namespace Ogre {
 		pLog->logMessage("-------------------------");
 		pLog->logMessage(
 			" *   CPU ID: " + getCpuIdentifier());
+#if OGRE_CPU == OGRE_CPU_X86
 		if(_isSupportCpuid())
 		{
 			pLog->logMessage(
@@ -501,6 +514,7 @@ namespace Ogre {
 			pLog->logMessage(
 				" *       HT: " + StringConverter::toString(hasCpuFeature(CPU_FEATURE_HTT), true));
 		}
+#endif
 		pLog->logMessage("-------------------------");
 
 	}
