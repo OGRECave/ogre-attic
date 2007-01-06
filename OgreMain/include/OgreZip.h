@@ -70,19 +70,21 @@ namespace Ogre {
         DataStreamPtr open(const String& filename) const;
 
         /// @copydoc Archive::list
-        StringVectorPtr list(bool recursive = true );
+        StringVectorPtr list(bool recursive = true, bool dirs = false);
 
         /// @copydoc Archive::listFileInfo
-        FileInfoListPtr listFileInfo(bool recursive = true );
+        FileInfoListPtr listFileInfo(bool recursive = true, bool dirs = false);
 
         /// @copydoc Archive::find
-        StringVectorPtr find(const String& pattern, bool recursive = true);
+        StringVectorPtr find(const String& pattern, bool recursive = true,
+            bool dirs = false);
 
         /// @copydoc Archive::findFileInfo
-        FileInfoListPtr findFileInfo(const String& pattern, bool recursive = true);
+        FileInfoListPtr findFileInfo(const String& pattern, bool recursive = true,
+            bool dirs = false);
 
         /// @copydoc Archive::exists
-		bool exists(const String& filename);
+        bool exists(const String& filename);
     };
 
     /** Specialisation of ArchiveFactory for Zip files. */

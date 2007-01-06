@@ -97,13 +97,19 @@ namespace Ogre {
 				info.archive = this;
                 // Get basename / path
                 StringUtil::splitFilename(zzipEntry.d_name, info.basename, info.path);
-                // ignore folder entries
-                if (info.basename.empty())
-                    continue;
                 info.filename = zzipEntry.d_name;
                 // Get sizes
                 info.compressedSize = static_cast<size_t>(zzipEntry.d_csize);
                 info.uncompressedSize = static_cast<size_t>(zzipEntry.st_size);
+                // folder entries
+                if (info.basename.empty())
+                {
+                    info.filename = info.filename.substr (0, info.filename.length () - 1);
+                    StringUtil::splitFilename(info.filename, info.basename, info.path);
+                    // Set compressed size to -1 for folders; anyway nobody will check
+                    // the compressed size of a folder, and if he does, its useless anyway
+                    info.compressedSize = size_t (-1);
+                }
 
                 mFileList.push_back(info);
 
@@ -149,94 +155,69 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    StringVectorPtr ZipArchive::list(bool recursive)
+    StringVectorPtr ZipArchive::list(bool recursive, bool dirs)
     {
         StringVectorPtr ret = StringVectorPtr(new StringVector());
 
         FileInfoList::iterator i, iend;
         iend = mFileList.end();
         for (i = mFileList.begin(); i != iend; ++i)
-        {
-			if (recursive || i->path.empty())
-            {
+            if ((dirs == (i->compressedSize == size_t (-1))) &&
+                (recursive || i->path.empty()))
                 ret->push_back(i->filename);
-            }
-        }
-        return ret;
 
+        return ret;
     }
     //-----------------------------------------------------------------------
-    FileInfoListPtr ZipArchive::listFileInfo(bool recursive)
+    FileInfoListPtr ZipArchive::listFileInfo(bool recursive, bool dirs)
     {
         FileInfoList* fil = new FileInfoList();
         FileInfoList::const_iterator i, iend;
         iend = mFileList.end();
         for (i = mFileList.begin(); i != iend; ++i)
-        {
-            if (recursive || i->path.empty())
-            {
+            if ((dirs == (i->compressedSize == size_t (-1))) &&
+                (recursive || i->path.empty()))
                 fil->push_back(*i);
-            }
-        }
+
         return FileInfoListPtr(fil);
     }
     //-----------------------------------------------------------------------
-    StringVectorPtr ZipArchive::find(const String& pattern, bool recursive)
+    StringVectorPtr ZipArchive::find(const String& pattern, bool recursive, bool dirs)
     {
         StringVectorPtr ret = StringVectorPtr(new StringVector());
+        // If pattern contains a directory name, do a full match
+        bool full_match = (pattern.find ('/') != String::npos) ||
+                          (pattern.find ('\\') != String::npos);
 
         FileInfoList::iterator i, iend;
         iend = mFileList.end();
         for (i = mFileList.begin(); i != iend; ++i)
-        {
-			if (recursive || i->path.empty())
-            {
+            if ((dirs == (i->compressedSize == size_t (-1))) &&
+                (recursive || full_match || i->path.empty()))
                 // Check basename matches pattern (zip is case insensitive)
-                if (StringUtil::match(i->basename, pattern, false))
-                {
+                if (StringUtil::match(full_match ? i->filename : i->basename, pattern, false))
                     ret->push_back(i->filename);
-                }
-            }
-            else
-            {
-                // Check full name
-                if (StringUtil::match(i->filename, pattern, false))
-                {
-                    ret->push_back(i->filename);
-                }
 
-            }
-        }
         return ret;
     }
     //-----------------------------------------------------------------------
 	FileInfoListPtr ZipArchive::findFileInfo(const String& pattern, 
-        bool recursive)
+        bool recursive, bool dirs)
     {
         FileInfoListPtr ret = FileInfoListPtr(new FileInfoList());
+        // If pattern contains a directory name, do a full match
+        bool full_match = (pattern.find ('/') != String::npos) ||
+                          (pattern.find ('\\') != String::npos);
 
         FileInfoList::iterator i, iend;
         iend = mFileList.end();
         for (i = mFileList.begin(); i != iend; ++i)
-        {
-            if (recursive || i->path.empty())
-            {
+            if ((dirs == (i->compressedSize == size_t (-1))) &&
+                (recursive || full_match || i->path.empty()))
                 // Check name matches pattern (zip is case insensitive)
-                if (StringUtil::match(i->basename, pattern, false))
-                {
+                if (StringUtil::match(full_match ? i->filename : i->basename, pattern, false))
                     ret->push_back(*i);
-                }
-            }
-            else
-            {
-                // Check full name
-                if (StringUtil::match(i->filename, pattern, false))
-                {
-                    ret->push_back(*i);
-                }
 
-            }
-        }
         return ret;
     }
     //-----------------------------------------------------------------------

@@ -41,37 +41,19 @@ namespace Ogre {
     */
     class _OgreExport FileSystemArchive : public Archive 
     {
-	public:
-		OGRE_AUTO_MUTEX
     protected:
-        /// Base path; actually the same as mName, but for clarity
-        String mBasePath;
-
-        /// Directory stack of previous directories
-        typedef std::deque<String> DirectoryStack;
-        mutable DirectoryStack mDirectoryStack;
-
-        #define OGRE_MAX_PATH 256
-        /// temporary C-string to retrieve paths
-        mutable char mTmpPath[OGRE_MAX_PATH];
-
         /** Utility method to retrieve all files in a directory matching pattern.
         @param pattern File pattern
         @param recursive Whether to cascade down directories
+        @param dirs Set to true if you want the directories to be listed
+            instead of files
         @param simpleList Populated if retrieving a simple list
         @param detailList Populated if retrieving a detailed list
         @param currentDir The current directory relative to the base of the 
             archive, for file naming
         */
-        void findFiles(const String& pattern, bool recursive, StringVector* simpleList,
-            FileInfoList* detailList, const String& currentDir = "");
-
-        /// Utility method to change the current directory
-        void changeDirectory(const String& dir) const;
-        /// Utility method to change directory and push the current directory onto a stack
-        void pushDirectory(const String& dir) const;
-        /// Utility method to pop a previous directory off the stack and change to it
-        void popDirectory(void) const;
+        void findFiles(const String& pattern, bool recursive, bool dirs,
+            StringVector* simpleList, FileInfoList* detailList);
 
     public:
         FileSystemArchive(const String& name, const String& archType );
@@ -89,19 +71,21 @@ namespace Ogre {
         DataStreamPtr open(const String& filename) const;
 
         /// @copydoc Archive::list
-        StringVectorPtr list(bool recursive = true );
+        StringVectorPtr list(bool recursive = true, bool dirs = false);
 
         /// @copydoc Archive::listFileInfo
-        FileInfoListPtr listFileInfo(bool recursive = true );
+        FileInfoListPtr listFileInfo(bool recursive = true, bool dirs = false);
 
         /// @copydoc Archive::find
-        StringVectorPtr find(const String& pattern, bool recursive = true);
+        StringVectorPtr find(const String& pattern, bool recursive = true,
+            bool dirs = false);
 
         /// @copydoc Archive::findFileInfo
-        FileInfoListPtr findFileInfo(const String& pattern, bool recursive = true);
+        FileInfoListPtr findFileInfo(const String& pattern, bool recursive = true,
+            bool dirs = false);
 
         /// @copydoc Archive::exists
-		bool exists(const String& filename);
+        bool exists(const String& filename);
 
     };
 

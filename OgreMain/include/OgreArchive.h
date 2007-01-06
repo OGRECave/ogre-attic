@@ -135,42 +135,52 @@ namespace Ogre {
             information using listFileInfo.
         @param recursive Whether all paths of the archive are searched (if the 
             archive has a concept of that)
+        @param dirs Set to true if you want the directories to be listed
+            instead of files
         @returns A list of filenames matching the criteria, all are fully qualified
         */
-        virtual StringVectorPtr list(bool recursive = true ) = 0;
+        virtual StringVectorPtr list(bool recursive = true, bool dirs = false) = 0;
         
         /** List all files in the archive with accompanying information.
         @param recursive Whether all paths of the archive are searched (if the 
             archive has a concept of that)
+        @param dirs Set to true if you want the directories to be listed
+            instead of files
         @returns A list of structures detailing quite a lot of information about
             all the files in the archive.
         */
-        virtual FileInfoListPtr listFileInfo(bool recursive = true ) = 0;
+        virtual FileInfoListPtr listFileInfo(bool recursive = true, bool dirs = false) = 0;
 
-        /** Find all file names matching a given pattern in this archive.
+        /** Find all file or directory names matching a given pattern
+            in this archive.
         @note
             This method only returns filenames, you can also retrieve other
             information using findFileInfo.
         @param pattern The pattern to search for; wildcards (*) are allowed
         @param recursive Whether all paths of the archive are searched (if the 
             archive has a concept of that)
+        @param dirs Set to true if you want the directories to be listed
+            instead of files
         @returns A list of filenames matching the criteria, all are fully qualified
         */
-        virtual StringVectorPtr find(const String& pattern, bool recursive = true) = 0;
+        virtual StringVectorPtr find(const String& pattern, bool recursive = true,
+            bool dirs = false) = 0;
 
         /** Find out if the named file exists (note: fully qualified filename required) */
         virtual bool exists(const String& filename) = 0; 
 
-        /** Find all files matching a given pattern in this archive and get 
-            some detailed information about them.
+        /** Find all files or directories matching a given pattern in this
+            archive and get some detailed information about them.
         @param pattern The pattern to search for; wildcards (*) are allowed
         @param recursive Whether all paths of the archive are searched (if the 
         archive has a concept of that)
+        @param dirs Set to true if you want the directories to be listed
+            instead of files
         @returns A list of file information structures for all files matching 
             the criteria.
         */
         virtual FileInfoListPtr findFileInfo(const String& pattern, 
-            bool recursive = true) = 0;
+            bool recursive = true, bool dirs = false) = 0;
 
         /// Return the type code of this Archive
         const String& getType(void) const { return mType; }
