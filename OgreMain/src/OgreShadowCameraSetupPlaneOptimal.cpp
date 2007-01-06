@@ -369,7 +369,7 @@ namespace Ogre
         {
             // TODO: factor into view and projection pieces.
             // Note: In fact, it's unnecessary to factor into view and projection pieces,
-            // but if we do, we can got more 'academic' result :)
+            // but if we do, we will more according with academic requirement :)
             texCam->setCustomViewMatrix(true, Matrix4::IDENTITY);
             texCam->setCustomProjectionMatrix(true, customMatrix);
             return;
