@@ -62,6 +62,10 @@ namespace Ogre {
         bool mHighLevelLoaded;
         /// The underlying assembler program
         GpuProgramPtr mAssemblerProgram;
+		/// Have we built the name->index parameter map yet?
+		bool mParamNameMapBuilt;
+		/// Parameter name -> index map, shared instance used by all parameter objects
+		GpuProgramParameters::ParamNameMap mParamNameMap;
 
         /// Internal load high-level portion if not loaded
         virtual void loadHighLevel(void);
@@ -76,8 +80,11 @@ namespace Ogre {
         virtual void createLowLevelImpl(void) = 0;
         /// Internal unload implementation, must be implemented by subclasses
         virtual void unloadHighLevelImpl(void) = 0;
-        /// Populate the passed parameters with name->index map, must be overridden
-        virtual void populateParameterNames(GpuProgramParametersSharedPtr params) = 0;
+        /// Populate the passed parameters with name->index map
+        virtual void populateParameterNames(GpuProgramParametersSharedPtr params);
+		/// Build the name->index map, must be overridden
+		virtual void buildParameterNameMap() = 0;
+
         /** @copydoc Resource::loadImpl */
         void loadImpl();
         /** @copydoc Resource::unloadImpl */

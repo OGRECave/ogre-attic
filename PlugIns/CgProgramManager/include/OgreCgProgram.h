@@ -87,7 +87,7 @@ namespace Ogre {
         /// Internal unload implementation, must be implemented by subclasses
         void unloadHighLevelImpl(void);
         /// Populate the passed parameters with name->index map, must be overridden
-        void populateParameterNames(GpuProgramParametersSharedPtr params);
+        void buildParameterNameMap();
 
         StringVector mProfiles;
         String mEntryPoint;

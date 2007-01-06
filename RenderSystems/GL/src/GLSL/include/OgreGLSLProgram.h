@@ -72,6 +72,7 @@ namespace Ogre {
 
 		const GLhandleARB getGLHandle() const { return mGLHandle; }
 		void attachToProgramObject( const GLhandleARB programObject );
+		void detachFromProgramObject( const GLhandleARB programObject );
 		String getAttachedShaderNames() const { return mAttachedShaderNames; }
 
         /** Attach another GLSL Shader to this one. */
@@ -94,7 +95,7 @@ namespace Ogre {
         /// Internal unload implementation, must be implemented by subclasses
         void unloadHighLevelImpl(void);
         /// Populate the passed parameters with name->index map, must be overridden
-        void populateParameterNames(GpuProgramParametersSharedPtr params);
+        void buildParameterNameMap();
 		/// compile source into shader object
 		bool compile( const bool checkErrors = true);
 

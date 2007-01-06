@@ -368,6 +368,13 @@ PFNGLVERTEXATTRIB4UIVPROC __glewVertexAttrib4uiv = NULL;
 PFNGLVERTEXATTRIB4USVPROC __glewVertexAttrib4usv = NULL;
 PFNGLVERTEXATTRIBPOINTERPROC __glewVertexAttribPointer = NULL;
 
+PFNGLUNIFORMMATRIX2X3FVPROC __glewUniformMatrix2x3fv = NULL;
+PFNGLUNIFORMMATRIX3X2FVPROC __glewUniformMatrix3x2fv = NULL;
+PFNGLUNIFORMMATRIX2X4FVPROC __glewUniformMatrix2x4fv = NULL;
+PFNGLUNIFORMMATRIX4X2FVPROC __glewUniformMatrix4x2fv = NULL;
+PFNGLUNIFORMMATRIX3X4FVPROC __glewUniformMatrix3x4fv = NULL;
+PFNGLUNIFORMMATRIX4X3FVPROC __glewUniformMatrix4x3fv = NULL;
+
 PFNGLDRAWBUFFERSARBPROC __glewDrawBuffersARB = NULL;
 
 PFNGLSAMPLECOVERAGEARBPROC __glewSampleCoverageARB = NULL;
@@ -711,6 +718,7 @@ GLboolean __GLEW_VERSION_1_3 = GL_FALSE;
 GLboolean __GLEW_VERSION_1_4 = GL_FALSE;
 GLboolean __GLEW_VERSION_1_5 = GL_FALSE;
 GLboolean __GLEW_VERSION_2_0 = GL_FALSE;
+GLboolean __GLEW_VERSION_2_1 = GL_FALSE;
 GLboolean __GLEW_ARB_draw_buffers = GL_FALSE;
 GLboolean __GLEW_ARB_fragment_program = GL_FALSE;
 GLboolean __GLEW_ARB_fragment_shader = GL_FALSE;
@@ -1029,6 +1037,24 @@ static GLboolean _glewInit_GL_VERSION_2_0 (GLEW_CONTEXT_ARG_DEF_INIT)
 }
 
 #endif /* GL_VERSION_2_0 */
+
+#ifdef GL_VERSION_2_1
+
+static GLboolean _glewInit_GL_VERSION_2_1 (GLEW_CONTEXT_ARG_DEF_INIT)
+{
+  GLboolean r = GL_FALSE;
+
+  r = ((glUniformMatrix2x3fv = (PFNGLUNIFORMMATRIX2X4FVPROC)glewGetProcAddress((const GLubyte*)"glUniformMatrix2x3fv")) == NULL) || r;
+  r = ((glUniformMatrix3x2fv = (PFNGLUNIFORMMATRIX3X2FVPROC)glewGetProcAddress((const GLubyte*)"glUniformMatrix3x2fv")) == NULL) || r;
+  r = ((glUniformMatrix2x4fv = (PFNGLUNIFORMMATRIX2X4FVPROC)glewGetProcAddress((const GLubyte*)"glUniformMatrix2x4fv")) == NULL) || r;
+  r = ((glUniformMatrix4x2fv = (PFNGLUNIFORMMATRIX4X2FVPROC)glewGetProcAddress((const GLubyte*)"glUniformMatrix4x2fv")) == NULL) || r;
+  r = ((glUniformMatrix3x4fv = (PFNGLUNIFORMMATRIX3X4FVPROC)glewGetProcAddress((const GLubyte*)"glUniformMatrix3x4fv")) == NULL) || r;
+  r = ((glUniformMatrix4x3fv = (PFNGLUNIFORMMATRIX4X3FVPROC)glewGetProcAddress((const GLubyte*)"glUniformMatrix4x3fv")) == NULL) || r;
+
+  return r;
+}
+
+#endif /* GL_VERSION_2_1 */
 
 #ifdef GL_ARB_draw_buffers
 
@@ -1739,6 +1765,7 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
       GLEW_VERSION_1_4 = GL_FALSE;
       GLEW_VERSION_1_5 = GL_FALSE;
       GLEW_VERSION_2_0 = GL_FALSE;
+      GLEW_VERSION_2_1 = GL_FALSE;
   }
   else
   {
@@ -1763,6 +1790,14 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
 		GLEW_VERSION_1_4 = GL_TRUE;
 		GLEW_VERSION_1_5 = GL_TRUE;
 		GLEW_VERSION_2_0 = GL_TRUE;
+        if (s[minor] >= '1')
+        {
+          GLEW_VERSION_2_1 = GL_TRUE;
+        }
+        else
+        {
+          GLEW_VERSION_2_1 = GL_FALSE;
+        }
 	  }
 	  else
 	  {
@@ -1774,6 +1809,7 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
 		  GLEW_VERSION_1_4 = GL_TRUE;
 		  GLEW_VERSION_1_5 = GL_TRUE;
 		  GLEW_VERSION_2_0 = GL_FALSE;
+          GLEW_VERSION_2_1 = GL_FALSE;
 		}
 	    if (s[minor] == '4')
 		{
@@ -1783,6 +1819,7 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
 		  GLEW_VERSION_1_4 = GL_TRUE;
 		  GLEW_VERSION_1_5 = GL_FALSE;
 		  GLEW_VERSION_2_0 = GL_FALSE;
+          GLEW_VERSION_2_1 = GL_FALSE;
 		}
 		if (s[minor] == '3')
 		{
@@ -1792,6 +1829,7 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
 		  GLEW_VERSION_1_4 = GL_FALSE;
 		  GLEW_VERSION_1_5 = GL_FALSE;
 		  GLEW_VERSION_2_0 = GL_FALSE;
+          GLEW_VERSION_2_1 = GL_FALSE;
 		}
 		if (s[minor] == '2')
 		{
@@ -1801,6 +1839,7 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
 		  GLEW_VERSION_1_4 = GL_FALSE;
 		  GLEW_VERSION_1_5 = GL_FALSE;
 		  GLEW_VERSION_2_0 = GL_FALSE;
+          GLEW_VERSION_2_1 = GL_FALSE;
 		}
 		if (s[minor] < '2')
 		{
@@ -1810,6 +1849,7 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
 		  GLEW_VERSION_1_4 = GL_FALSE;
 		  GLEW_VERSION_1_5 = GL_FALSE;
 		  GLEW_VERSION_2_0 = GL_FALSE;
+          GLEW_VERSION_2_1 = GL_FALSE;
 		}
 	  }
 	}
@@ -1830,6 +1870,9 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
 #ifdef GL_VERSION_2_0
   if (glewExperimental || GLEW_VERSION_2_0) GLEW_VERSION_2_0 = !_glewInit_GL_VERSION_2_0(GLEW_CONTEXT_ARG_VAR_INIT);
 #endif /* GL_VERSION_2_0 */
+#ifdef GL_VERSION_2_1
+  if (glewExperimental || GLEW_VERSION_2_1) GLEW_VERSION_2_1 = !_glewInit_GL_VERSION_2_1(GLEW_CONTEXT_ARG_VAR_INIT);
+#endif /* GL_VERSION_2_1 */
 #ifdef GL_ARB_draw_buffers
   GLEW_ARB_draw_buffers = glewGetExtension("GL_ARB_draw_buffers");
   if (glewExperimental || GLEW_ARB_draw_buffers) GLEW_ARB_draw_buffers = !_glewInit_GL_ARB_draw_buffers(GLEW_CONTEXT_ARG_VAR_INIT);

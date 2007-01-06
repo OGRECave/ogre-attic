@@ -33,10 +33,12 @@ Torus Knot Software Ltd.
 #include "OgreStringConverter.h"
 #include "OgreGpuProgramManager.h"
 #include "OgreHighLevelGpuProgramManager.h"
+#include "OgreLogManager.h"
 
 #include "OgreGLSLProgram.h"
 #include "OgreGLSLGpuProgram.h"
 #include "OgreGLSLExtSupport.h"
+#include "OgreGLSLLinkProgramManager.h"
 
 namespace Ogre {
 
@@ -120,11 +122,80 @@ namespace Ogre {
     }
 
 	//-----------------------------------------------------------------------
-    void GLSLProgram::populateParameterNames(GpuProgramParametersSharedPtr params)
+    void GLSLProgram::buildParameterNameMap()
     {
-		// can't populate parameter names in GLSL until link time
-		// allow for names read from a material script to be added automatically to the list
-		params->setAutoAddParamName(true);
+		// We need an accurate list of all the uniforms in the shader, but we
+		// can't get at them until we link all the shaders into a program object.
+		UniformReferenceList uniformList;
+
+
+		/*
+		// For vertex shaders, we can temporarily link to extract the uniforms
+		// It doesn't matter that we don't know precisely what GL Ids are retrieved
+		// until final link of all programs; really we need to know just how large
+		// each uniform is in order to allow enough space (arrays)
+		// However this doesn't work for fragment shaders when they use
+		// non-builtins since linking with a matching vertex shader with the same
+		// varying outputs is needed. This is a pain.
+
+		GLhandleARB tempObject = glCreateProgramObjectARB();
+
+		attachToProgramObject(tempObject);
+
+		glLinkProgramARB(tempObject);
+		GLint linked;
+		glGetObjectParameterivARB( tempObject, GL_OBJECT_LINK_STATUS_ARB, &linked );
+		if (!linked)
+		{
+			GLcharARB str[2048];
+			GLsizei len;
+			glGetInfoLogARB(tempObject, 2048, &len, str);
+			StringUtil::StrStreamType msg;
+			msg << "Unable to link " << mName << " for parameter extraction. "
+				<< "Error was '" << str << "'";
+			LogManager::getSingleton().logMessage(msg.str());
+		}
+		GLSLLinkProgramManager::getSingleton().extractUniforms(tempObject, uniformList);
+		detachFromProgramObject(tempObject);
+		glDeleteObjectARB(tempObject);
+		*/
+
+		// Therefore instead, parse the source code manually and extract the uniforms
+		GLSLLinkProgramManager::getSingleton().extractUniforms(mSource, uniformList);
+		String lastBaseName;
+		size_t sameBaseNameCount = 0;
+		size_t currIndex = 0;
+		for (UniformReferenceList::iterator i = uniformList.begin();
+			i != uniformList.end(); ++i)
+		{
+			const UniformReference& ref = *i;
+			StringVector baseName = StringUtil::split(ref.mName, "[", 2);
+			if (baseName[0] == lastBaseName)
+				++sameBaseNameCount;
+			else
+				sameBaseNameCount = 0;
+			// Add this one if not the same base name, or if this is the [0] index, 
+			// or if there are up to 8 of them altogether (allow individuals)
+			if (baseName[0] != lastBaseName
+				|| ref.mArraySize <= 8
+				|| sameBaseNameCount <= 1)
+			{
+				mParamNameMap[ref.mName] = currIndex;
+
+				// Leave enough space
+				size_t size = ref.mElementCount / 4;
+				if (ref.mElementCount % 4 > 0)
+				{
+					// round up
+					++size;
+				}
+				currIndex += size * ref.mArraySize;
+
+				lastBaseName = baseName[0];
+			}
+		}
+
+
 
     }
 
@@ -220,6 +291,24 @@ namespace Ogre {
 
 			childShader->attachToProgramObject( programObject );
 
+			++childprogramcurrent;
+		}
+
+	}
+	//-----------------------------------------------------------------------
+	void GLSLProgram::detachFromProgramObject( const GLhandleARB programObject )
+	{
+		glDetachObjectARB(programObject, mGLHandle);
+		checkForGLSLError( "GLSLLinkProgram::GLSLLinkProgram",
+			"Error detaching " + mName + " shader object from GLSL Program Object", programObject );
+		// attach child objects
+		GLSLProgramContainerIterator childprogramcurrent = mAttachedGLSLPrograms.begin();
+		GLSLProgramContainerIterator childprogramend = mAttachedGLSLPrograms.end();
+
+		while (childprogramcurrent != childprogramend)
+		{
+			GLSLProgram* childShader = *childprogramcurrent;
+			childShader->detachFromProgramObject( programObject );
 			++childprogramcurrent;
 		}
 

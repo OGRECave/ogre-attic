@@ -34,6 +34,20 @@ Torus Knot Software Ltd.
 #include "OgreHardwareVertexBuffer.h"
 
 namespace Ogre {
+	/// structure used to keep track of named uniforms in the linked program object
+	struct UniformReference
+	{
+		String mName;
+		GLenum mType;
+		GLint  mLocation;
+		bool isSampler;
+		bool isReal;
+		GLsizei mElementCount;
+		GLint mArraySize;
+	};
+
+	typedef std::vector<UniformReference> UniformReferenceList;
+	typedef UniformReferenceList::iterator UniformReferenceIterator;
 
 	/** C++ encapsulation of GLSL Program Object
 
@@ -42,20 +56,6 @@ namespace Ogre {
 	class GLSLLinkProgram
 	{
 	private:
-		/// structure used to keep track of named uniforms in the linked program object
-		struct UniformReference
-		{
-			String mName;
-			GLenum mType;
-			GLint  mLocation;
-			bool isSampler;
-			bool isReal;
-			GLsizei mElementCount;
-            GLint mArraySize;
-		};
-
-        typedef std::vector<UniformReference> UniformReferenceList;
-		typedef UniformReferenceList::iterator UniformReferenceIterator;
 		/// container of uniform references that are active in the program object
 		UniformReferenceList mUniformReferences;
 

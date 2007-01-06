@@ -297,7 +297,11 @@ namespace Ogre
     //      GpuProgramParameters Methods
     //-----------------------------------------------------------------------------
     GpuProgramParameters::GpuProgramParameters()
-        : mTransposeMatrices(false), mAutoAddParamName(false), mActivePassIterationEntry(0)
+        : mParamNameMap(0)
+		, mTransposeMatrices(false)
+		, mIgnoreMissingParams(false)
+		, mActivePassIterationEntry(0)
+		
     {
     }
     //-----------------------------------------------------------------------------
@@ -319,12 +323,17 @@ namespace Ogre
         mParamNameMap  = oth.mParamNameMap;
 
         mTransposeMatrices = oth.mTransposeMatrices;
-        mAutoAddParamName  = oth.mAutoAddParamName;
+        mIgnoreMissingParams  = oth.mIgnoreMissingParams;
         mConstantDefinitions = oth.mConstantDefinitions;
 
 		return *this;
     }
-
+	//---------------------------------------------------------------------
+	void GpuProgramParameters::_setParameterNameMap(const ParamNameMap* nameMap)
+	{
+		mParamNameMap = nameMap;
+	}
+	//---------------------------------------------------------------------()
     void GpuProgramParameters::setConstant(size_t index, const Vector4& vec)
     {
         setConstant(index, vec.ptr(), 1);
@@ -880,27 +889,15 @@ namespace Ogre
         }
     }
     //---------------------------------------------------------------------------
-    void GpuProgramParameters::_mapParameterNameToIndex(const String& name, const size_t index)
-    {
-        mParamNameMap[name] = index;
-    }
-    //---------------------------------------------------------------------------
     size_t GpuProgramParameters::getParamIndex(const String& name)
     {
-        ParamNameMap::const_iterator i = mParamNameMap.find(name);
-        if (i == mParamNameMap.end())
+        ParamNameMap::const_iterator i = mParamNameMap->find(name);
+        if (i == mParamNameMap->end())
         {
-            // name not found in map, should it be added to the map?
-            if(mAutoAddParamName)
+            // name not found in map, ignore?
+            if(mIgnoreMissingParams)
             {
-                // determine index
-                // don't know which Constants list the name is for
-                // so pick the largest index - a waste
-                size_t index = (mRealConstants.size() > mIntConstants.size()) ?
-                    mRealConstants.size() : mIntConstants.size();
-
-                _mapParameterNameToIndex(name, index);
-                return index;
+                return 0;
             }
             else
             {
@@ -1030,9 +1027,9 @@ namespace Ogre
     GpuProgramParameters::RealConstantEntry* GpuProgramParameters::getNamedRealConstantEntry(const String& name)
     {
         // check if name is found
-        ParamNameMap::const_iterator i = mParamNameMap.find(name);
+        ParamNameMap::const_iterator i = mParamNameMap->find(name);
 
-        if (i == mParamNameMap.end())
+        if (i == mParamNameMap->end())
         {
             // no valid name found
             return NULL;
@@ -1049,9 +1046,9 @@ namespace Ogre
     GpuProgramParameters::IntConstantEntry* GpuProgramParameters::getNamedIntConstantEntry(const String& name)
     {
         // check if name is found
-        ParamNameMap::const_iterator i = mParamNameMap.find(name);
+        ParamNameMap::const_iterator i = mParamNameMap->find(name);
 
-        if (i == mParamNameMap.end())
+        if (i == mParamNameMap->end())
         {
             // no valid name found
             return NULL;
@@ -1102,8 +1099,6 @@ namespace Ogre
             setAutoConstant(ae.index, ae.paramType, ae.data);
         }
 
-        // need to copy Parameter names from the source
-        mParamNameMap = source.mParamNameMap;
         // copy constant definitions
         mConstantDefinitions = source.mConstantDefinitions;
 

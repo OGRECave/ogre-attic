@@ -56,13 +56,46 @@ vertex_program Ogre/HardwareSkinningTwoWeightsShadowCaster cg
 	includes_skeletal_animation true
 }
 // Basic hardware skinning using two indexed weights per vertex
-vertex_program Ogre/HardwareSkinningTwoWeights cg
+vertex_program Ogre/HardwareSkinningTwoWeightsCg cg
 {
    source Example_Basic.cg
    entry_point hardwareSkinningTwoWeights_vp
    profiles vs_1_1 arbvp1
    includes_skeletal_animation true
+   
+   default_params
+   {
+		param_named_auto worldMatrix3x4Array[0] world_matrix_array_3x4
+		param_named_auto viewProjectionMatrix viewproj_matrix
+		param_named_auto lightPos[0] light_position 0
+		param_named_auto lightPos[1] light_position 1
+		param_named_auto lightDiffuseColour[0] light_diffuse_colour 0
+		param_named_auto lightDiffuseColour[1] light_diffuse_colour 1
+		param_named_auto ambient ambient_light_colour
+	}
 }
+vertex_program Ogre/HardwareSkinningTwoWeightsGLSL glsl
+{
+   source skinningTwoWeightsVp.glsl
+   includes_skeletal_animation true
+   default_params
+   {
+   		param_named_auto worldMatrix world_matrix
+   		param_named_auto worldMatrixArray world_matrix_array_3x4
+		param_named_auto viewProjMatrix viewproj_matrix
+		param_named_auto lightPos[0] light_position 0
+		param_named_auto lightPos[1] light_position 1
+		param_named_auto lightDiffuseColour[0] light_diffuse_colour 0
+		param_named_auto lightDiffuseColour[1] light_diffuse_colour 1
+		param_named_auto ambient ambient_light_colour
+   }
+}
+vertex_program Ogre/HardwareSkinningTwoWeights unified
+{
+	delegate Ogre/HardwareSkinningTwoWeightsGLSL
+	delegate Ogre/HardwareSkinningTwoWeightsCg
+}
+
 // Basic hardware skinning using four indexed weights per vertex
 vertex_program Ogre/HardwareSkinningFourWeights cg
 {
@@ -70,6 +103,7 @@ vertex_program Ogre/HardwareSkinningFourWeights cg
    entry_point hardwareSkinningFourWeights_vp
    profiles vs_1_1 arbvp1
    includes_skeletal_animation true
+
 }
 // Basic hardware morph animation 
 vertex_program Ogre/HardwareMorphAnimation cg

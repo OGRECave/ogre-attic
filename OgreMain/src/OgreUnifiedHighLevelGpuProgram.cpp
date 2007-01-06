@@ -125,7 +125,7 @@ namespace Ogre
 			// return a default set
 			GpuProgramParametersSharedPtr params = GpuProgramManager::getSingleton().createParameters();
 			// avoid any errors on parameter names that don't exist
-			params->setAutoAddParamName(true);
+			params->setIgnoreMissingParams(true);
 			return params;
 		}
 	}
@@ -270,11 +270,11 @@ namespace Ogre
 			"UnifiedHighLevelGpuProgram::unloadHighLevelImpl");
 	}
 	//-----------------------------------------------------------------------
-	void UnifiedHighLevelGpuProgram::populateParameterNames(GpuProgramParametersSharedPtr params)
+	void UnifiedHighLevelGpuProgram::buildParameterNameMap()
 	{
 		OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, 
 			"This method should never get called!",
-			"UnifiedHighLevelGpuProgram::populateParameterNames");
+			"UnifiedHighLevelGpuProgram::buildParameterNameMap");
 	}
 	//-----------------------------------------------------------------------
 	void UnifiedHighLevelGpuProgram::loadFromSource(void)
