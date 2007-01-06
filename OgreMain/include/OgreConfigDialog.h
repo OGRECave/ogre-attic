@@ -32,8 +32,14 @@ Torus Knot Software Ltd.
 #include "OgrePrerequisites.h"
 #include "OgrePlatform.h"
 
-//Bring in the specific platform's header file
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+// Bring in the specific platform's header file: first allow forced override
+#if defined OGRE_GUI_WIN32
+# include "WIN32/OgreConfigDialogImp.h"
+#elif defined OGRE_GUI_gtk
+# include "gtk/OgreConfigDialogImp.h"
+#elif defined OGRE_GUI_GLX
+# include "GLX/OgreConfigDialogImp.h"
+#elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 # include "WIN32/OgreConfigDialogImp.h"
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 # include "GLX/OgreConfigDialogImp.h"

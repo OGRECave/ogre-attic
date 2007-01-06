@@ -1,4 +1,4 @@
-INCLUDES = $(STLPORT_CFLAGS) $(FT2_CFLAGS) -I$(top_srcdir)/OgreMain/include -DOGRE_NONCLIENT_BUILD $(ZZIPLIB_CFLAGS) $(DEVIL_CFLAGS) $(FREEIMAGE_CFLAGS) $(PLATFORM_CFLAGS)
+INCLUDES = $(STLPORT_CFLAGS) $(FT2_CFLAGS) -I$(top_srcdir)/OgreMain/include -DOGRE_NONCLIENT_BUILD $(PLATFORM_CFLAGS) $(ZZIPLIB_CFLAGS) $(DEVIL_CFLAGS) $(FREEIMAGE_CFLAGS) $(GTK_CFLAGS)
 
 noinst_LTLIBRARIES = libSSEsupport.la
 libSSEsupport_la_SOURCES = OgreOptimisedUtilSSE.cpp
@@ -173,8 +173,8 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreCompositorScriptCompiler.cpp \
                          OgreCompiler2Pass.cpp \
                          $(OGRE_PLATFORM)/OgreTimer.cpp \
-                         $(OGRE_PLATFORM)/OgreConfigDialog.cpp \
-                         $(OGRE_PLATFORM)/OgreErrorDialog.cpp \
+                         $(OGRE_GUI)/OgreConfigDialog.cpp \
+                         $(OGRE_GUI)/OgreErrorDialog.cpp \
                          OgreWindowEventUtilities.cpp
 
 if USE_FREEIMAGE
@@ -183,7 +183,7 @@ libOgreMain_la_SOURCES += OgreFreeImageCodec.cpp
 endif
 
 platformdir = $(libdir)
-libOgreMain_la_LIBADD= $(STLPORT_LIBS) $(FT2_LIBS) $(ZZIPLIB_LIBS) $(OGRE_THREAD_LIBS) $(PLATFORM_LIBS) libSSEsupport.la
+libOgreMain_la_LIBADD= $(STLPORT_LIBS) $(FT2_LIBS) $(ZZIPLIB_LIBS) $(GTK_LIBS) $(OGRE_THREAD_LIBS) $(PLATFORM_LIBS) libSSEsupport.la
 libOgreMain_la_LDFLAGS = $(SHARED_FLAGS) -release @PACKAGE_VERSION@ -Wl,-rpath,$(platformdir)
 #-version-info @OGREMAIN_VERSION_INFO@ -Wl,-rpath,$(platformdir)
 #-Wl,--version-script=$(top_srcdir)/OgreMain/src/ogremain.map
