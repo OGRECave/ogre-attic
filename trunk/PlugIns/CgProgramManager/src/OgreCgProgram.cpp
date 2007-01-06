@@ -174,7 +174,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void CgProgram::populateParameterNames(GpuProgramParametersSharedPtr params)
+    void CgProgram::buildParameterNameMap()
     {
         // Derive parameter names from Cg
         assert(mCgProgram && "Cg program not loaded!");
@@ -225,15 +225,7 @@ namespace Ogre {
                     // do nothing, normal constant
                     break;
                 };
-                params->_mapParameterNameToIndex(paramName, index);
-                // setup constant definition
-                // is it float or int
-                GpuProgramParameters::ElementType elementType = GpuProgramParameters::ET_INT;
-                // NOTE: all float enums are grouped together and occur before CG_INT which is the first of the int enums
-                // CG_FIXED1 is the last float type
-                if (paramType <= CG_FIXED1)
-                    elementType = GpuProgramParameters::ET_REAL;
-                params->addConstantDefinition(paramName, index, 0, elementType);
+                mParamNameMap[paramName] = index;
             }
             // Get next
             parameter = cgGetNextLeafParameter(parameter);

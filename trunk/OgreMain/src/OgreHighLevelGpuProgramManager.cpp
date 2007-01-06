@@ -47,8 +47,14 @@ namespace Ogre {
 		/// Populate the passed parameters with name->index map, must be overridden
 		void populateParameterNames(GpuProgramParametersSharedPtr params)
 		{
+			// Skip the normal implementation
 			// Ensure we don't complain about missing parameter names
-			params->setAutoAddParamName(true);
+			params->setIgnoreMissingParams(true);
+
+		}
+		void buildParameterNameMap()
+		{
+			// do nothing
 		}
 	public:
 		NullProgram(ResourceManager* creator, 

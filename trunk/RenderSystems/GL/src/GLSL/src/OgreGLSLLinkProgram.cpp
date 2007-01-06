@@ -29,6 +29,8 @@ Torus Knot Software Ltd.
 
 #include "OgreGLSLExtSupport.h"
 #include "OgreGLSLLinkProgram.h"
+#include "OgreStringConverter.h"
+#include "OgreGLSLLinkProgramManager.h"
 
 namespace Ogre {
 
@@ -137,106 +139,7 @@ namespace Ogre {
 	{
 		if (!mUniformRefsBuilt)
 		{
-			// scan through the active uniforms and add them to the reference list
-			GLint uniformCount;
-
-			#define BUFFERSIZE 100
-			char   uniformName[BUFFERSIZE];
-			//GLint location;
-			UniformReference newUniformReference;
-
-			// get the number of active uniforms
-			glGetObjectParameterivARB(mGLHandle, GL_OBJECT_ACTIVE_UNIFORMS_ARB,
-					&uniformCount);
-
-			// Loop over each of the active uniforms, and add them to the reference container
-			// only do this for user defined uniforms, ignore built in gl state uniforms
-			for (int index = 0; index < uniformCount; index++)
-			{
-				glGetActiveUniformARB(mGLHandle, index, BUFFERSIZE, NULL, &newUniformReference.mArraySize, &newUniformReference.mType, uniformName);
-				// don't add built in uniforms
-				newUniformReference.mLocation = glGetUniformLocationARB(mGLHandle, uniformName);
-				if (newUniformReference.mLocation >= 0)
-				{
-					// user defined uniform found, add it to the reference list
-					newUniformReference.mName = String( uniformName );
-					// default to real since most uniforms are real
-					newUniformReference.isReal = true;
-                    newUniformReference.isSampler = false;
-					// decode uniform size and type
-					switch (newUniformReference.mType)
-					{
-					case GL_FLOAT:
-						newUniformReference.mElementCount = 1;
-						break;
-
-					case GL_FLOAT_VEC2:
-						newUniformReference.mElementCount = 2;
-						break;
-
-					case GL_FLOAT_VEC3:
-						newUniformReference.mElementCount = 3;
-						break;
-
-					case GL_FLOAT_VEC4:
-						newUniformReference.mElementCount = 4;
-						break;
-
-					case GL_SAMPLER_1D:
-					case GL_SAMPLER_2D:
-					case GL_SAMPLER_3D:
-					case GL_SAMPLER_CUBE:
-					case GL_SAMPLER_1D_SHADOW:
-					case GL_SAMPLER_2D_SHADOW:
-                    case GL_SAMPLER_2D_RECT_ARB:
-                    case GL_SAMPLER_2D_RECT_SHADOW_ARB:
-                        newUniformReference.isSampler = true;
-					case GL_INT:
-						newUniformReference.isReal = false;
-						newUniformReference.mElementCount = 1;
-						break;
-
-					case GL_INT_VEC2:
-						newUniformReference.isReal = false;
-						newUniformReference.mElementCount = 2;
-						break;
-
-					case GL_INT_VEC3:
-						newUniformReference.isReal = false;
-						newUniformReference.mElementCount = 3;
-						break;
-
-					case GL_INT_VEC4:
-						newUniformReference.isReal = false;
-						newUniformReference.mElementCount = 4;
-						break;
-
-                    case GL_FLOAT_MAT2:
-						newUniformReference.mElementCount = 4;
-						break;
-
-                    case GL_FLOAT_MAT3:
-						newUniformReference.mElementCount = 9;
-						break;
-
-                    case GL_FLOAT_MAT4:
-						newUniformReference.mElementCount = 16;
-						break;
-
-                    default:
-                        // Ignore silently for unknown/unsupported types
-                        continue;
-
-					}// end switch
-
-					mUniformReferences.push_back(newUniformReference);
-					// also add [0] version since GLSL always supports this, and
-					// makes consistent with Cg & HLSL array access modes
-					newUniformReference.mName = newUniformReference.mName + "[0]";
-					mUniformReferences.push_back(newUniformReference);
-
-				} // end if
-			} // end for
+			GLSLLinkProgramManager::getSingleton().extractUniforms(mGLHandle, mUniformReferences);
 
 			mUniformRefsBuilt = true;
 		}
@@ -246,7 +149,10 @@ namespace Ogre {
 	void GLSLLinkProgram::updateUniforms(GpuProgramParametersSharedPtr params)
 	{
         // float array buffer used to pass arrays to GL
-        static float floatBuffer[256];
+        static float floatBuffer[1024];
+		size_t size;
+        float* pBuffer;		
+        GLint* piBuffer;
 
 		// iterate through uniform reference list and update uniform values
 		UniformReferenceIterator currentUniform = mUniformReferences.begin();
@@ -266,74 +172,189 @@ namespace Ogre {
 				{
 					if (currentRealConstant->isSet)
 					{
+                        pBuffer = floatBuffer;
+  
 						switch (currentUniform->mElementCount)
 						{
 						case 1:
-							glUniform1fvARB( currentUniform->mLocation, 1, currentRealConstant->val );
+                            // Support arrays of float
+                            if (currentUniform->mArraySize > 1)
+                            {
+                                // Build a combined buffer
+								size = 0;
+                                while (currentRealConstant->isSet && size < currentUniform->mArraySize)
+                                {
+                                    *pBuffer++ = currentRealConstant->val[0];
+									++currentRealConstant;
+									++size;
+                                }
+                                glUniform1fvARB(currentUniform->mLocation, size, floatBuffer);
+                            }
+                            else
+                            {
+								glUniform1fvARB(currentUniform->mLocation, 1, currentRealConstant->val);
+                            }
 							break;
 
 						case 2:
-							glUniform2fvARB( currentUniform->mLocation, 1, currentRealConstant->val );
+                            // Support arrays of vec2
+                            if (currentUniform->mArraySize > 1)
+                            {
+                                // Build a combined buffer
+								size = 0;
+								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
+                                {
+                                    memcpy(pBuffer, currentRealConstant->val, sizeof(float) * 2);
+									++currentRealConstant;
+									++size;
+                                    pBuffer += 2;
+                                }
+                                glUniform2fvARB(currentUniform->mLocation, size, floatBuffer);
+                            }
+                            else
+                            {
+								glUniform2fvARB(currentUniform->mLocation, 1, currentRealConstant->val);
+                            }
 							break;
 
 						case 3:
-							glUniform3fvARB( currentUniform->mLocation, 1, currentRealConstant->val );
+                            // Support arrays of vec3
+                            if (currentUniform->mArraySize > 1)
+                            {
+                                // Build a combined buffer
+								size = 0;
+								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
+								{
+									memcpy(pBuffer, currentRealConstant->val, sizeof(float) * 3);
+									++currentRealConstant;
+									++size;
+									pBuffer += 3;
+								}
+                                glUniform3fvARB(currentUniform->mLocation, size, floatBuffer);
+                            }
+                            else
+                            {
+	                            glUniform3fvARB(currentUniform->mLocation, 1, currentRealConstant->val);
+                            }
+                            break;
+
+                        case 4:
+							// Support arrays of vec4 and mat2
+							if (currentUniform->mArraySize > 1)
+							{
+								// Build a combined buffer
+								size = 0;
+								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
+								{
+									memcpy(pBuffer, currentRealConstant->val, sizeof(float) * 4);
+									++currentRealConstant;
+									++size;
+									pBuffer += 4;
+								}
+								// mat2 or vec4?
+								if (currentUniform->mType == GL_FLOAT_MAT2)
+									glUniformMatrix2fvARB(currentUniform->mLocation, size, GL_TRUE, floatBuffer);
+								else
+									glUniform4fvARB(currentUniform->mLocation, size, floatBuffer);
+							}
+							else
+							{
+								// mat2 or vec4?
+								if (currentUniform->mType == GL_FLOAT_MAT2)
+									glUniformMatrix2fvARB( currentUniform->mLocation, 1, GL_TRUE, currentRealConstant->val);
+								else
+									glUniform4fvARB(currentUniform->mLocation, 1, currentRealConstant->val);
+							}
 							break;
 
-						case 4:
-                            {
-                                if (currentUniform->mType == GL_FLOAT_MAT2)
-                                {
-                                    glUniformMatrix2fvARB( currentUniform->mLocation, 1, GL_TRUE, currentRealConstant->val);
-                                }
-                                else
-                                {
-									// Support arrays of vec4, as supported by Cg and HLSL
-									if (currentUniform->mArraySize > 1)
-									{
-										// Build a combined buffer
-										size_t arr = currentUniform->mArraySize;
-										float* pBuffer = floatBuffer;
-										while (arr--)
-										{
-											memcpy(pBuffer, currentRealConstant++->val, sizeof(float) * 4);
-											pBuffer += 4;
-										}
-										glUniform4fvARB(currentUniform->mLocation, currentUniform->mArraySize, floatBuffer);
-
-									}
-									else
-									{
-										glUniform4fvARB(currentUniform->mLocation, 1, currentRealConstant->val);
-									}
-                                }
-                            }
+                        case 6:
+							// 2x3 / 3x2 matrices only supported in GL 2.1
+							if (GLEW_VERSION_2_1)
+							{
+								// Support arrays of mat2x3 and mat3x2
+								size = 0;
+								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
+								{
+									memcpy(pBuffer, currentRealConstant++->val, sizeof(float) * 4);
+									memcpy(pBuffer + 4, currentRealConstant++->val, sizeof(float) * 2);
+									pBuffer += 6;
+									++size;
+								}
+								if (currentUniform->mType == GL_FLOAT_MAT2x3)
+									glUniformMatrix2x3fv(currentUniform->mLocation, size, GL_TRUE, floatBuffer);
+								else
+									glUniformMatrix3x2fv(currentUniform->mLocation, size, GL_TRUE, floatBuffer);
+							}
+                            break;
+  
+                        case 8:
+							// 2x4 / 4x2 matrices only supported in GL 2.1
+							if (GLEW_VERSION_2_1)
+							{
+								// Support arrays of mat2x4and mat4x2
+								size = 0;
+								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
+								{
+									memcpy(pBuffer, currentRealConstant++->val, sizeof(float) * 4);
+									memcpy(pBuffer + 4, currentRealConstant++->val, sizeof(float) * 4);
+									pBuffer += 8;
+									++size;
+								}
+								if (currentUniform->mType == GL_FLOAT_MAT2x4)
+									glUniformMatrix2x4fv(currentUniform->mLocation, size, GL_TRUE, floatBuffer);
+								else
+									glUniformMatrix4x2fv(currentUniform->mLocation, size, GL_TRUE, floatBuffer);
+							}
 							break;
 
                         case 9:
-                            {
-                                //float mat[9];
-                                // assume that the 3x3 matrix is packed
-                                memcpy(floatBuffer, currentRealConstant++->val, sizeof(float) * 4);
-                                memcpy(floatBuffer + 4, currentRealConstant++->val, sizeof(float) * 4);
-                                memcpy(floatBuffer + 4, currentRealConstant->val, sizeof(float) );
-
-                                glUniformMatrix3fvARB( currentUniform->mLocation, 1, GL_TRUE, floatBuffer);
-                                break;
+							size = 0;
+							while (currentRealConstant->isSet && size < currentUniform->mArraySize)
+							{
+                                memcpy(pBuffer, currentRealConstant++->val, sizeof(float) * 4);
+                                memcpy(pBuffer + 4, currentRealConstant++->val, sizeof(float) * 4);
+                                memcpy(pBuffer + 8, currentRealConstant++->val, sizeof(float));
+                                pBuffer += 9;
+								++size;
                             }
+                            glUniformMatrix3fvARB(currentUniform->mLocation, size, GL_TRUE, floatBuffer);
+                            break;
+
+                        case 12:
+							// 3x4 / 4x3 matrices only supported in GL 2.1
+							if (GLEW_VERSION_2_1)
+							{
+								// Support arrays of mat3x4and mat4x3
+								size = 0;
+								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
+								{
+									memcpy(pBuffer, currentRealConstant++->val, sizeof(float) * 4);
+									memcpy(pBuffer + 4, currentRealConstant++->val, sizeof(float) * 4);
+									memcpy(pBuffer + 8, currentRealConstant++->val, sizeof(float) * 4);
+									pBuffer += 12;
+									++size;
+								}
+								if (currentUniform->mType == GL_FLOAT_MAT3x4)
+									glUniformMatrix3x4fv(currentUniform->mLocation, size, GL_TRUE, floatBuffer);
+								else
+									glUniformMatrix4x3fv(currentUniform->mLocation, size, GL_TRUE, floatBuffer);
+							}
+							break;
 
                         case 16:
-                            {
-                                //float mat[16];
-                                memcpy(floatBuffer, currentRealConstant++->val, sizeof(float) * 4);
-                                memcpy(floatBuffer + 4, currentRealConstant++->val, sizeof(float) * 4);
-                                memcpy(floatBuffer + 8, currentRealConstant++->val, sizeof(float) * 4);
-                                memcpy(floatBuffer + 12, currentRealConstant++->val, sizeof(float) * 4);
-
-                                glUniformMatrix4fvARB( currentUniform->mLocation, 1, GL_TRUE, floatBuffer);
-                                break;
+                            // Support arrays of mat4
+							size = 0;
+							while (currentRealConstant->isSet && size < currentUniform->mArraySize)
+							{
+                                memcpy(pBuffer, currentRealConstant++->val, sizeof(float) * 4);
+                                memcpy(pBuffer + 4, currentRealConstant++->val, sizeof(float) * 4);
+                                memcpy(pBuffer + 8, currentRealConstant++->val, sizeof(float) * 4);
+                                memcpy(pBuffer + 12, currentRealConstant++->val, sizeof(float) * 4);
+                                pBuffer += 16;
+								++size;
                             }
-
+                            glUniformMatrix4fvARB(currentUniform->mLocation, size, GL_TRUE, floatBuffer);
+                            break;
 
 						} // end switch
 					}
@@ -346,33 +367,103 @@ namespace Ogre {
 				{
 					if (currentIntConstant->isSet)
 					{
+                        piBuffer = (GLint*)floatBuffer;
+  
 						switch (currentUniform->mElementCount)
 						{
 						case 1:
-							glUniform1ivARB( currentUniform->mLocation, 1, (const GLint*)currentIntConstant->val );
+                            // Support arrays of int
+                            if (currentUniform->mArraySize > 1)
+                            {
+                                // Build a combined buffer
+								size = 0;
+								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
+								{
+                                    memcpy(piBuffer, currentRealConstant++->val, sizeof(GLint));
+                                    piBuffer++;
+									++size;
+                                }
+                                glUniform1ivARB(currentUniform->mLocation, size, (const GLint*)floatBuffer);
+                            }
+                            else
+                            {
+								glUniform1ivARB( currentUniform->mLocation, 1, (const GLint*)currentIntConstant->val );
+                            }
 							break;
 
 						case 2:
-							glUniform2ivARB( currentUniform->mLocation, 1, (const GLint*)currentIntConstant->val );
+                            // Support arrays of ivec2
+                            if (currentUniform->mArraySize > 1)
+                            {
+                                // Build a combined buffer
+								size = 0;
+								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
+								{
+                                    memcpy(pBuffer, currentRealConstant++->val, sizeof(GLint) * 2);
+                                    pBuffer += 2;
+									++size;
+                                }
+                                glUniform2ivARB(currentUniform->mLocation, size, (const GLint*)floatBuffer);
+                            }
+                            else
+                            {
+								glUniform2ivARB( currentUniform->mLocation, 1, (const GLint*)currentIntConstant->val );
+                            }
 							break;
 
 						case 3:
-							glUniform3ivARB( currentUniform->mLocation, 1, (const GLint*)currentIntConstant->val );
+                            // Support arrays of vec3
+                            if (currentUniform->mArraySize > 1)
+                            {
+                                // Build a combined buffer
+								size = 0;
+								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
+								{
+                                    memcpy(pBuffer, currentRealConstant++->val, sizeof(GLint) * 3);
+                                    pBuffer += 3;
+									++size;
+                                }
+                                glUniform3ivARB(currentUniform->mLocation, size, (const GLint*)floatBuffer);
+                            }
+                            else
+                            {
+								glUniform3ivARB( currentUniform->mLocation, 1, (const GLint*)currentIntConstant->val );
+                            }
 							break;
 
 						case 4:
-							glUniform4ivARB( currentUniform->mLocation, 1, (const GLint*)currentIntConstant->val );
+                            // Support arrays of vec4
+                            if (currentUniform->mArraySize > 1)
+                            {
+                                // Build a combined buffer
+								size = 0;
+								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
+								{
+                                    memcpy(pBuffer, currentRealConstant++->val, sizeof(GLint) * 4);
+                                    pBuffer += 4;
+									++size;
+                                }
+                                glUniform4ivARB(currentUniform->mLocation, size, (const GLint*)floatBuffer);
+                            }
+                            else
+                            {
+								glUniform4ivARB( currentUniform->mLocation, 1, (const GLint*)currentIntConstant->val );
+                            }
 							break;
+  
 						} // end switch
 					}
 				}
 
 			}
+  
+  
 			// get the next uniform
 			++currentUniform;
 
 		} // end while
 	}
+
 
 	//-----------------------------------------------------------------------
 	void GLSLLinkProgram::updatePassIterationUniforms(GpuProgramParametersSharedPtr params)

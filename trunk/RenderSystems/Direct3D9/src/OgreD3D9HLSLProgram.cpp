@@ -152,7 +152,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void D3D9HLSLProgram::populateParameterNames(GpuProgramParametersSharedPtr params)
+    void D3D9HLSLProgram::buildParameterNameMap()
     {
         // Derive parameter names from const table
         assert(mpConstTable && "Program not loaded!");
@@ -164,21 +164,21 @@ namespace Ogre {
         {
             OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
                 "Cannot retrieve constant descriptions from HLSL program.", 
-                "D3D9HLSLProgram::populateParameterNames");
+                "D3D9HLSLProgram::buildParameterNameMap");
         }
         // Iterate over the constants
         for (unsigned int i = 0; i < desc.Constants; ++i)
         {
             // Recursively descend through the structure levels
             // Since D3D9 has no nice 'leaf' method like Cg (sigh)
-            processParamElement(NULL, "", i, params);
+            processParamElement(NULL, "", i);
         }
 
         
     }
     //-----------------------------------------------------------------------
     void D3D9HLSLProgram::processParamElement(D3DXHANDLE parent, String prefix, 
-        unsigned int index, GpuProgramParametersSharedPtr params)
+        unsigned int index)
     {
         D3DXHANDLE hConstant = mpConstTable->GetConstant(parent, index);
 
@@ -213,7 +213,7 @@ namespace Ogre {
                 // Cascade into struct
                 for (unsigned int i = 0; i < desc.StructMembers; ++i)
                 {
-                    processParamElement(hConstant, prefix, i, params);
+                    processParamElement(hConstant, prefix, i);
                 }
             }
             else
@@ -227,13 +227,7 @@ namespace Ogre {
                     if (desc.Elements > 1)
                         name += "[" + StringConverter::toString(e) + "]";
                     
-                    params->_mapParameterNameToIndex(name, paramIndex);
-                    // setup constant definition
-                    // is it float or int
-                    GpuProgramParameters::ElementType elementType = GpuProgramParameters::ET_INT;
-                    if (desc.Type == D3DXPT_FLOAT)
-                        elementType = GpuProgramParameters::ET_REAL;
-                    params->addConstantDefinition(name, paramIndex, 0, elementType);
+                    mParamNameMap[name] = paramIndex;
                 }
             }
         }

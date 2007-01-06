@@ -81,7 +81,6 @@ namespace Ogre {
             /// The current array of world matrices, used for blending
             ACT_WORLD_MATRIX_ARRAY,
 
-
             /// The current view matrix
             ACT_VIEW_MATRIX,
 			/// The current view matrix, inverted
@@ -449,7 +448,6 @@ namespace Ogre {
             size_t arraySize;
             ElementType elementType;
             size_t autoIndex;
-            bool   isAllocated;
             bool   isAuto;
 
             ConstantDefinition()
@@ -458,11 +456,12 @@ namespace Ogre {
                 , arraySize(1)
                 , elementType(ET_INT)
                 , autoIndex(0)
-                , isAllocated(false)
                 , isAuto(false)
             {}
 
         };
+		/// Mapping from parameter names to index - high-level programs are expected to populate this
+		typedef std::map<String, size_t> ParamNameMap;
 
     protected:
         static AutoConstantDefinition AutoConstantDictionary[];
@@ -481,13 +480,12 @@ namespace Ogre {
         AutoConstantList mAutoConstants;
         /// Container of parameter definitions
         ConstantDefinitionContainer mConstantDefinitions;
-        /// Mapping from parameter names to NamedConstantEntry - high-level programs are expected to populate this
-        typedef std::map<String, size_t> ParamNameMap;
-        ParamNameMap mParamNameMap;
+        /// Mapping from parameter names to index - high-level programs are expected to populate this
+        const ParamNameMap* mParamNameMap;
         /// Do we need to transpose matrices?
         bool mTransposeMatrices;
-		/// flag to indicate if names not found will be automatically added
-		bool mAutoAddParamName;
+		/// flag to indicate if names not found will be ignored
+		bool mIgnoreMissingParams;
         /// active pass iteration parameter real constant entry;
         RealConstantEntry* mActivePassIterationEntry;
         /// index for active pass iteration parameter real constant entry;
@@ -502,6 +500,9 @@ namespace Ogre {
         GpuProgramParameters(const GpuProgramParameters& oth);
         /// Operator = overload
         GpuProgramParameters& operator=(const GpuProgramParameters& oth);
+
+		/** Internal method for providing a link to a name->index map for parameters. */
+		void _setParameterNameMap(const ParamNameMap* nameMap);
 
 
 		/** Sets a 4-element floating-point parameter to the program.
@@ -662,18 +663,9 @@ namespace Ogre {
         /** Updates the automatic parameters for lights based on the details provided. */
         void _updateAutoParamsLightsOnly(const AutoParamDataSource& source);
 
-		/** Sets the auto add parameter name flag
-		@remarks
-			Not all GPU programs make named parameters available after the high level
-			source is compiled.  GLSL is one such case.  If parameter names are not loaded
-			prior to the material serializer reading in parameter names in a script then
-			an exception is generated.  Set AutoAddParamName to true to have names not found
-			in the map added to the map.
-		@note
-			The index of the parameter name will be set to the end of the Real Constant List.
-		@param state true to enable automatic name
+		/** Tells the program whether to ignore missing parameters or not.
 		*/
-		void setAutoAddParamName(bool state) { mAutoAddParamName = state; }
+		void setIgnoreMissingParams(bool state) { mIgnoreMissingParams = state; }
 
 		/** Sets a single value constant floating-point parameter to the program.
         @remarks
@@ -843,9 +835,6 @@ namespace Ogre {
 
 		/** Unbind an auto constant so that the constant is manually controlled again. */
 		void clearNamedAutoConstant(const String& name);
-
-        /// Internal method for associating a parameter name with an index
-        void _mapParameterNameToIndex(const String& name, const size_t index );
 
         /** Gets the constant index associated with a named parameter. */
         size_t getParamIndex(const String& name);

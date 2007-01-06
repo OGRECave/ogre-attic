@@ -76,7 +76,7 @@ namespace Ogre {
 
 		void createLowLevelImpl(void);
 		void unloadHighLevelImpl(void);
-		void populateParameterNames(GpuProgramParametersSharedPtr params);
+		void buildParameterNameMap();
 		void loadFromSource(void);
 
 	public:

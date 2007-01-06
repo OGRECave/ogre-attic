@@ -33,6 +33,7 @@ Torus Knot Software Ltd.
 #include "OgreSingleton.h"
 
 #include "OgreGLSLExtSupport.h"
+#include "OgreGLSLLinkProgram.h"
 
 namespace Ogre {
 
@@ -64,6 +65,12 @@ namespace Ogre {
 		GLSLGpuProgram* mActiveFragmentGpuProgram;
 		GLSLLinkProgram* mActiveLinkProgram;
 
+		typedef std::map<String, GLenum> StringToEnumMap;
+		StringToEnumMap mTypeEnumMap;
+
+		/// Use type to complete other information
+		void completeUniformInfo(UniformReference& refToUpdate);
+
 	public:
 
 		GLSLLinkProgramManager(void);
@@ -86,6 +93,19 @@ namespace Ogre {
 			Normally called from the GLSLGpuProgram::bindProgram and unbindProgram methods
 		*/
 		void setActiveVertexShader(GLSLGpuProgram* vertexGpuProgram);
+
+		/** Populate a list of uniforms based on a program object.
+		@param programObject Handle to the program object to query
+		@param list The list to populate (will not be cleared before adding, clear
+		it yourself before calling this if that's what you want).
+		*/
+		void extractUniforms(GLhandleARB programObject, UniformReferenceList& list);
+		/** Populate a list of uniforms based on GLSL source.
+		@param src Reference to the source code
+		@param list The list to populate (will not be cleared before adding, clear
+		it yourself before calling this if that's what you want).
+		*/
+		void extractUniforms(const String& src, UniformReferenceList& list);
 
 		static GLSLLinkProgramManager& getSingleton(void);
         static GLSLLinkProgramManager* getSingletonPtr(void);

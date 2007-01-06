@@ -39,7 +39,7 @@ namespace Ogre
         const String& name, ResourceHandle handle, const String& group, 
         bool isManual, ManualResourceLoader* loader)
         : GpuProgram(creator, name, handle, group, isManual, loader), 
-        mHighLevelLoaded(false), mAssemblerProgram(0)
+        mHighLevelLoaded(false), mAssemblerProgram(0), mParamNameMapBuilt(false)
     {
     }
     //---------------------------------------------------------------------------
@@ -145,6 +145,16 @@ namespace Ogre
 
         loadFromSource();
     }
+	//---------------------------------------------------------------------
+	void HighLevelGpuProgram::populateParameterNames(GpuProgramParametersSharedPtr params)
+	{
+		if (!mParamNameMapBuilt)
+		{
+			buildParameterNameMap();
+			mParamNameMapBuilt = true;
+		}
+		params->_setParameterNameMap(&mParamNameMap);
+	}
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
 	HighLevelGpuProgramPtr& HighLevelGpuProgramPtr::operator=(const GpuProgramPtr& r)
