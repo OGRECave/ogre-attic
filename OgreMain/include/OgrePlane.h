@@ -109,12 +109,27 @@ namespace Ogre {
 		*/
 		Vector3 projectVector(const Vector3& v);
 
+        /** Normalises the plane.
+            @remarks
+                This method normalises the plane's normal and the length scale of d
+                is as well.
+            @note
+                This function will not crash for zero-sized vectors, but there
+                will be no changes made to their components.
+            @returns The previous length of the plane's normal.
+        */
+        Real normalise(void);
+
 		Vector3 normal;
         Real d;
         /// Comparison operator
         bool operator==(const Plane& rhs) const
         {
             return (rhs.d == d && rhs.normal == normal);
+        }
+        bool operator!=(const Plane& rhs) const
+        {
+            return (rhs.d != d && rhs.normal != normal);
         }
 
         _OgreExport friend std::ostream& operator<< (std::ostream& o, Plane& p);

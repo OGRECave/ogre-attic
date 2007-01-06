@@ -168,6 +168,21 @@ namespace Ogre {
 
 	}
 	//-----------------------------------------------------------------------
+    Real Plane::normalise(void)
+    {
+        Real fLength = normal.length();
+
+        // Will also work for zero-sized vectors, but will change nothing
+        if (fLength > 1e-08f)
+        {
+            Real fInvLength = 1.0f / fLength;
+            normal *= fInvLength;
+            d *= fInvLength;
+        }
+
+        return fLength;
+    }
+	//-----------------------------------------------------------------------
 	std::ostream& operator<< (std::ostream& o, Plane& p)
 	{
 		o << "Plane(normal=" << p.normal << ", d=" << p.d << ")";

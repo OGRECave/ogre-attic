@@ -85,7 +85,7 @@ namespace Ogre
 		mat[0][0] = pinhole.x;
 		mat[0][1] = pinhole.y;
 		mat[0][2] = pinhole.z;
-		mat[0][3] = 1.0;
+		mat[0][3] = pinhole.w;
 		for(i=4; i<11; i++)
 			mat[0][i] = 0.0;
 		col[0] = 0.0;
@@ -95,14 +95,14 @@ namespace Ogre
 		mat[1][4] = pinhole.x;
 		mat[1][5] = pinhole.y;
 		mat[1][6] = pinhole.z;
-		mat[1][7] = 1.0;
+		mat[1][7] = pinhole.w;
 		col[1] = 0.0;
 
 		PreciseReal larr[4];
 		larr[0] = pinhole.x;
 		larr[1] = pinhole.y;
 		larr[2] = pinhole.z;
-		larr[3] = 1.0;
+		larr[3] = pinhole.w;
 		for(i=0; i<8; i++)
 			mat[2][i] = 0.0;
 		int ind = 8;
@@ -289,77 +289,48 @@ namespace Ogre
 		const Viewport *vp, const Light *light, Camera *texCam) const
 	{
 		// get the plane transformed by the parent node(s)
-		// Also, make sure the normal is normalized and the length scale of d is as well
-		const Plane& refWorldPlane = m_plane->_getDerivedPlane();
-		Plane worldPlane = refWorldPlane;
-		Vector3 planeNormal  = worldPlane.normal;
-		Real normFactor = planeNormal.normalise();
-		normFactor = (normFactor != 0.0) ? 1.0 / normFactor : 0.0;
-		worldPlane.normal *= normFactor;
-		worldPlane.d *= normFactor;
+		// Also, make sure the plane is normalized
+		Plane worldPlane = m_plane->_getDerivedPlane();
+		worldPlane.normalise();
 
 		// get camera's projection matrix
 		Matrix4 camProjection = cam->getProjectionMatrix() * cam->getViewMatrix();
 
 		// get the world points to constrain
 		std::vector<Vector4> vhull;
-		std::vector<Vector4> extra;
 		cam->forwardIntersect(worldPlane, &vhull);
 		if (vhull.size() < 4)
 			return;
-		while(vhull.size() > 4)
-		{
-			extra.push_back(vhull[vhull.size()-1]);
-			vhull.pop_back();
-		}
+
 		// make sure the last point is a finite point (not point at infinity)
-		int finiteIndex = -1;
-		int loopIndex;
-		for (loopIndex=0; loopIndex<4; loopIndex++)
-		{
-			if (vhull[loopIndex].w != 0.0)
-				finiteIndex = loopIndex;
-		}
-		if (finiteIndex == -1)
-		{
-			// need to look through extra list for a finite point
-			for (loopIndex=0; loopIndex < (int)extra.size(); loopIndex++)
-			{
-				if (extra[loopIndex].w != 0.0)
-					finiteIndex = loopIndex;
-			}
-			if (finiteIndex == -1)
-			{
-				// there are no finite points, which means camera doesn't see plane of interest.
-				// so we don't care what the shadow map matrix is
-				// We'll map points off the shadow map so they aren't even stored
-				Matrix4 crazyMat(0.0, 0.0, 0.0, 5.0,
-					0.0, 0.0, 0.0, 5.0,
-					0.0, 0.0, 0.0, 5.0,
-					0.0, 0.0, 0.0, 1.0 );
-				texCam->setCustomViewMatrix(true, Matrix4::IDENTITY);
-				texCam->setCustomProjectionMatrix(true, crazyMat);	
-				return;
-			}
-			// copy the finite point to the last element of vhull
-			vhull.pop_back();
-			vhull.push_back(extra[finiteIndex]);
-		}
-		else
-		{
-			if (finiteIndex != 3)
-			{
-				extra.clear();
-				for(loopIndex=0; loopIndex<4; loopIndex++)
-				{
-					if (loopIndex != finiteIndex)
-						extra.push_back(vhull[loopIndex]);
-				}
-				extra.push_back(vhull[finiteIndex]);
-				vhull.clear();
-				vhull = extra;
-			}
-		}
+        if (vhull[3].w == 0.0)
+        {
+		    int finiteIndex = -1;
+		    for (uint loopIndex = 0; loopIndex < vhull.size(); loopIndex++)
+		    {
+			    if (vhull[loopIndex].w != 0.0)
+                {
+				    finiteIndex = loopIndex;
+                    break;
+                }
+		    }
+		    if (finiteIndex == -1)
+		    {
+                // there are no finite points, which means camera doesn't see plane of interest.
+                // so we don't care what the shadow map matrix is
+                // We'll map points off the shadow map so they aren't even stored
+                Matrix4 crazyMat(0.0, 0.0, 0.0, 5.0,
+                                 0.0, 0.0, 0.0, 5.0,
+                                 0.0, 0.0, 0.0, 5.0,
+                                 0.0, 0.0, 0.0, 1.0);
+                texCam->setCustomViewMatrix(true, Matrix4::IDENTITY);
+                texCam->setCustomProjectionMatrix(true, crazyMat);	
+                return;
+		    }
+            // swap finite point to last point
+            std::swap(vhull[3], vhull[finiteIndex]);
+        }
+        vhull.resize(4);
 
 		// get the post-projective coordinate constraints
 		std::vector<Vector2> constraint;
@@ -371,19 +342,40 @@ namespace Ogre
 		}
 
 		// perturb one point so we don't have coplanarity
-		Vector3 tempPos = light->getDerivedPosition(); 
-		Vector4 pinhole = Vector4(tempPos.x, tempPos.y, tempPos.z, 1.0);
-		Vector4 oldPt = vhull[vhull.size()-1];
-		Vector4 displacement = oldPt - pinhole;
-		Vector3 displace3    = Vector3(displacement.x, displacement.y, displacement.z);
-		Real dotProd = fabs(displace3.dotProduct(planeNormal));
-		vhull.pop_back();
-		static const Real NEAR_FACTOR = 0.05;
-		Vector4 newPt = pinhole + (displacement * (cam->getNearClipDistance() * NEAR_FACTOR / dotProd));
-		vhull.push_back(newPt);
+		const Vector4& pinhole = light->getAs4DVector();
+		const Vector4& oldPt = vhull.back();
+        Vector4 newPt;
+        if (pinhole.w == 0)
+        {
+            // It's directional light
+            static const Real NEAR_SCALE = 100.0;
+            newPt = oldPt + (pinhole * (cam->getNearClipDistance() * NEAR_SCALE));
+        }
+        else
+        {
+            // It's point or spotlight
+		    Vector4 displacement = oldPt - pinhole;
+		    Vector3 displace3    = Vector3(displacement.x, displacement.y, displacement.z);
+		    Real dotProd = fabs(displace3.dotProduct(worldPlane.normal));
+		    static const Real NEAR_FACTOR = 0.05;
+		    newPt = pinhole + (displacement * (cam->getNearClipDistance() * NEAR_FACTOR / dotProd));
+        }
+		vhull.back() = newPt;
 
 		// solve for the matrix that stabilizes the plane
 		Matrix4 customMatrix = computeConstrainedProjection(pinhole, vhull, constraint);
+
+        if (pinhole.w == 0)
+        {
+            // TODO: factor into view and projection pieces.
+            // Note: In fact, it's unnecessary to factor into view and projection pieces,
+            // but if we do, we can got more 'academic' result :)
+            texCam->setCustomViewMatrix(true, Matrix4::IDENTITY);
+            texCam->setCustomProjectionMatrix(true, customMatrix);
+            return;
+        }
+
+        Vector3 tempPos = Vector3(pinhole.x, pinhole.y, pinhole.z);
 
 		// factor into view and projection pieces
 		Matrix4    translation(1.0, 0.0, 0.0,  tempPos.x,
