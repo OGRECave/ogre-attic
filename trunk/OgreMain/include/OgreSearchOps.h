@@ -42,15 +42,6 @@ Torus Knot Software Ltd.
 #include <dirent.h>
 #include <unistd.h>
 #include <fnmatch.h>
-/* The max number of searches to allow at one time */
-#define MAX_FIND_SEARCHES 10
-
-struct _find_search_t
-{
-    int in_use;
-    char *pattern;
-    DIR *dirfd;
-};
 
 /* Our simplified data entry structure */
 struct _finddata_t

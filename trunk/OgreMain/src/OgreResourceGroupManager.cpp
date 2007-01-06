@@ -1157,7 +1157,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    StringVectorPtr ResourceGroupManager::listResourceNames(const String& groupName)
+    StringVectorPtr ResourceGroupManager::listResourceNames(const String& groupName, bool dirs)
     {
         OGRE_LOCK_AUTO_MUTEX
         StringVectorPtr vec(new StringVector());
@@ -1178,7 +1178,7 @@ namespace Ogre {
         iend = grp->locationList.end();
         for (i = grp->locationList.begin(); i != iend; ++i)
         {
-            StringVectorPtr lst = (*i)->archive->list((*i)->recursive);
+            StringVectorPtr lst = (*i)->archive->list((*i)->recursive, dirs);
             vec->insert(vec->end(), lst->begin(), lst->end());
         }
 
@@ -1187,7 +1187,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    FileInfoListPtr ResourceGroupManager::listResourceFileInfo(const String& groupName)
+    FileInfoListPtr ResourceGroupManager::listResourceFileInfo(const String& groupName, bool dirs)
     {
         OGRE_LOCK_AUTO_MUTEX
         FileInfoListPtr vec(new FileInfoList());
@@ -1208,7 +1208,7 @@ namespace Ogre {
         iend = grp->locationList.end();
         for (i = grp->locationList.begin(); i != iend; ++i)
         {
-            FileInfoListPtr lst = (*i)->archive->listFileInfo((*i)->recursive);
+            FileInfoListPtr lst = (*i)->archive->listFileInfo((*i)->recursive, dirs);
             vec->insert(vec->end(), lst->begin(), lst->end());
         }
 
@@ -1217,7 +1217,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     StringVectorPtr ResourceGroupManager::findResourceNames(const String& groupName, 
-        const String& pattern)
+        const String& pattern, bool dirs)
     {
         OGRE_LOCK_AUTO_MUTEX
         StringVectorPtr vec(new StringVector());
@@ -1238,7 +1238,7 @@ namespace Ogre {
         iend = grp->locationList.end();
         for (i = grp->locationList.begin(); i != iend; ++i)
         {
-            StringVectorPtr lst = (*i)->archive->find(pattern, (*i)->recursive);
+            StringVectorPtr lst = (*i)->archive->find(pattern, (*i)->recursive, dirs);
             vec->insert(vec->end(), lst->begin(), lst->end());
         }
 
@@ -1246,7 +1246,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     FileInfoListPtr ResourceGroupManager::findResourceFileInfo(const String& groupName, 
-        const String& pattern)
+        const String& pattern, bool dirs)
     {
         OGRE_LOCK_AUTO_MUTEX
         FileInfoListPtr vec(new FileInfoList());
@@ -1267,7 +1267,7 @@ namespace Ogre {
         iend = grp->locationList.end();
         for (i = grp->locationList.begin(); i != iend; ++i)
         {
-            FileInfoListPtr lst = (*i)->archive->findFileInfo(pattern, (*i)->recursive);
+            FileInfoListPtr lst = (*i)->archive->findFileInfo(pattern, (*i)->recursive, dirs);
             vec->insert(vec->end(), lst->begin(), lst->end());
         }
 

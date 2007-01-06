@@ -618,31 +618,37 @@ namespace Ogre {
 		DataStreamListPtr openResources(const String& pattern, 
 			const String& groupName = DEFAULT_RESOURCE_GROUP_NAME);
 		
-        /** List all file names in a resource group.
+        /** List all file or directory names in a resource group.
         @note
         This method only returns filenames, you can also retrieve other
         information using listFileInfo.
         @param groupName The name of the group
+        @param dirs If true, directory names will be returned instead of file names
         @returns A list of filenames matching the criteria, all are fully qualified
         */
-        StringVectorPtr listResourceNames(const String& groupName);
+        StringVectorPtr listResourceNames(const String& groupName, bool dirs = false);
 
         /** List all files in a resource group with accompanying information.
         @param groupName The name of the group
+        @param dirs If true, directory names will be returned instead of file names
         @returns A list of structures detailing quite a lot of information about
         all the files in the archive.
         */
-        FileInfoListPtr listResourceFileInfo(const String& groupName);
+        FileInfoListPtr listResourceFileInfo(const String& groupName, bool dirs = false);
 
-        /** Find all file names matching a given pattern in a resource group.
+        /** Find all file or directory names matching a given pattern in a
+            resource group.
         @note
         This method only returns filenames, you can also retrieve other
         information using findFileInfo.
         @param groupName The name of the group
         @param pattern The pattern to search for; wildcards (*) are allowed
+        @param dirs Set to true if you want the directories to be listed
+            instead of files
         @returns A list of filenames matching the criteria, all are fully qualified
         */
-        StringVectorPtr findResourceNames(const String& groupName, const String& pattern);
+        StringVectorPtr findResourceNames(const String& groupName, const String& pattern,
+            bool dirs = false);
 
         /** Find out if the named file exists in a group. 
         @param group The name of the resource group
@@ -663,14 +669,17 @@ namespace Ogre {
 		*/
 		const String& findGroupContainingResource(const String& filename);
 
-        /** Find all files matching a given pattern in a group and get 
-        some detailed information about them.
+        /** Find all files or directories matching a given pattern in a group
+            and get some detailed information about them.
         @param group The name of the resource group
         @param pattern The pattern to search for; wildcards (*) are allowed
+        @param dirs Set to true if you want the directories to be listed
+            instead of files
         @returns A list of file information structures for all files matching 
         the criteria.
         */
-        FileInfoListPtr findResourceFileInfo(const String& group, const String& pattern);
+        FileInfoListPtr findResourceFileInfo(const String& group, const String& pattern,
+            bool dirs = false);
 
         
         /** Adds a ResourceGroupListener which will be called back during 
