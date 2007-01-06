@@ -81,6 +81,10 @@ CFLAGS="$CFLAGS"
 CXXFLAGS="$CXXFLAGS"
 LIBS="$LIBS"
 
+dnl Define samples absolute install path
+ogreexecdir='${abs_top_builddir}/Samples/Common/bin'
+AC_SUBST(abs_top_builddir)
+AC_SUBST(ogreexecdir)
 
 dnl Create the makefiles
 AC_CONFIG_FILES([Makefile \

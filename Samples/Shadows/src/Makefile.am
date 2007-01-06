@@ -1,9 +1,6 @@
 INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/OgreMain/include -I$(top_srcdir)/Samples/Common/CEGUIRenderer/include -I$(top_srcdir)/Samples/Common/include @CEGUI_CFLAGS@ $(OIS_CFLAGS) 
 
-noinst_PROGRAMS = Shadows
+ogreexec_PROGRAMS = Shadows
 Shadows_SOURCES = Shadows.cpp
 Shadows_LDFLAGS = -L$(top_builddir)/OgreMain/src -L$(top_builddir)/Samples/Common/CEGUIRenderer/src
 Shadows_LDADD = -lOgreMain @CEGUI_LIBS@ -lCEGUIOgreRenderer $(OIS_LIBS)
-
-install-exec-local:
-	$(INSTALL_PROGRAM) .libs/Shadows $(top_builddir)/Samples/Common/bin/Shadows
