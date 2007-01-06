@@ -7,7 +7,6 @@ attribute vec4 blendWeights;
 // GL 2.0 supports 3x4 matrices
 // Support 24 bones ie 24*3, but use 72 since our parser can pick that out for sizing
 uniform vec4 worldMatrixArray[72];
-uniform vec4 worldMatrix[4];
 uniform mat4 viewProjMatrix;
 uniform vec4 lightPos[2];
 uniform vec3 lightDiffuseColour[2];
