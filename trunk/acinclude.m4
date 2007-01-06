@@ -461,10 +461,9 @@ AC_DEFUN([OGRE_BUILD_DEMOS], [
         AC_SUBST(OIS_LIBS)
 
         if test "x$ois_found" = "xyes" ; then
-           ogre_demos_build=yes
            AC_MSG_NOTICE([*** Ogre Demos will be built ***])
         else
-          ogre_demos_build=no
+          build_ogre_demos=no
           AC_MSG_NOTICE([
 ****************************************************************
 * You do not have OIS installed.  This is required to build    *
@@ -475,9 +474,55 @@ AC_DEFUN([OGRE_BUILD_DEMOS], [
 ****************************************************************])
         fi
     else
-        ogre_demos_build=no
+        build_ogre_demos=no
         AC_MSG_NOTICE([*** Building of Ogre demos disabled ***])
     fi
 
-    AM_CONDITIONAL([OGRE_BUILDING_DEMOS], [test x$ogre_demos_build = xyes])
+    AM_CONDITIONAL([OGRE_BUILDING_DEMOS], [test x$build_ogre_demos = xyes])
+])
+
+dnl GUI selection support for configuration/error dialogs
+AC_DEFUN([OGRE_CHECK_GUI],
+[
+    AC_ARG_WITH([gui],
+        AC_HELP_STRING([--with-gui=type], [Select the GUI type to use for dialogs (win32, gtk, Xt) (default: auto)]),
+        [with_gui=${withval}], [with_gui=auto])
+
+    #remove any old files
+    rm -f OgreMain/src/OgreConfigDialog.lo OgreMain/src/OgreErrorDialog.lo
+
+    # Prefer win32, then gtk, then Xt
+    if test "x$with_gui" == "xauto" && test "x$OGRE_PLATFORM" == "xWIN32"; then
+        with_gui=win32
+    fi
+
+    if test "x$with_gui" == "xauto" || test "x$with_gui" == "xgtk"; then
+        PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.0.0, [with_gui=gtk], [
+            if test "x$with_gui" == "xgtk"; then
+                AC_MSG_ERROR([You chose gtk for the GUI but gtk is not available.])
+            fi
+        ])
+    fi
+
+    if test "x$with_gui" == "xauto"; then
+        with_gui=Xt
+    fi
+
+    if test "x$with_gui" == "xwin32"; then
+        OGRE_GUI=WIN32
+    elif test "x$with_gui" == "xgtk"; then
+        OGRE_GUI=gtk
+    elif test "x$with_gui" == "xXt"; then
+        OGRE_GUI=GLX
+        PLATFORM_LIBS="$PLATFORM_LIBS -lXt -lSM -lICE"
+    else
+        AC_MSG_ERROR([The GUI dialogs for $with_gui are not available.])
+    fi
+    AC_SUBST(OGRE_GUI)
+
+    # Add the OGRE_GUI_xxx flag to compiler command line
+    PLATFORM_CFLAGS="$PLATFORM_CFLAGS -DOGRE_GUI_$OGRE_GUI"
+
+    AC_SUBST(GTK_CFLAGS)
+    AC_SUBST(GTK_LIBS)
 ])
