@@ -203,6 +203,41 @@ namespace Ogre {
 			ACT_LIGHT_DISTANCE_OBJECT_SPACE,
 			/** Light power level, a single scalar as set in Light::setPowerScale  (index determined by setAutoConstant call) */
 			ACT_LIGHT_POWER_SCALE,
+			/// Array of light diffuse colours (count set by extra param)
+			ACT_LIGHT_DIFFUSE_COLOUR_ARRAY,
+			/// Array of light diffuse colours (count set by extra param)
+			ACT_LIGHT_SPECULAR_COLOUR_ARRAY,
+			/// Array of light attenuation parameters, Vector4(range, constant, linear, quadric) (count set by extra param)
+			ACT_LIGHT_ATTENUATION_ARRAY,
+			/// Array of light positions in world space (count set by extra param)
+			ACT_LIGHT_POSITION_ARRAY,
+			/// Array of light positions in object space (count set by extra param)
+			ACT_LIGHT_POSITION_OBJECT_SPACE_ARRAY,
+			/// Array of light positions in view space (count set by extra param)
+			ACT_LIGHT_POSITION_VIEW_SPACE_ARRAY,
+			/// Array of light directions in world space (count set by extra param)
+			ACT_LIGHT_DIRECTION_ARRAY,
+			/// Array of light directions in object space (count set by extra param)
+			ACT_LIGHT_DIRECTION_OBJECT_SPACE_ARRAY,
+			/// Array of light directions in view space (count set by extra param)
+			ACT_LIGHT_DIRECTION_VIEW_SPACE_ARRAY,
+			/** Array of distances of the lights from the center of the object
+			a useful approximation as an alternative to per-vertex distance
+			calculations. (count set by extra param)
+			*/
+			ACT_LIGHT_DISTANCE_OBJECT_SPACE_ARRAY,
+			/** Array of light power levels, a single scalar as set in Light::setPowerScale 
+			 (count set by extra param)
+			*/
+			ACT_LIGHT_POWER_SCALE_ARRAY,
+			/** Spotlight parameters array of Vector4(innerFactor, outerFactor, falloff, isSpot)
+			innerFactor and outerFactor are cos(angle/2)
+			The isSpot parameter is 0.0f for non-spotlights, 1.0f for spotlights.
+			Also for non-spotlights the inner and outer factors are 1 and nearly 1 respectively.
+			(count set by extra param)
+			*/ 
+			ACT_SPOTLIGHT_PARAMS_ARRAY,
+
 			/** The distance a shadow volume should be extruded when using
 			    finite extrusion programs.
 			*/

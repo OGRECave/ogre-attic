@@ -2004,12 +2004,39 @@ The direction of a given light in world space. This requires an index in the 'ex
 The position of a given light in object space (ie when the object is at (0,0,0)). This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes.  Note that this property will work with all kinds of lights, even directional lights, since the parameter is set as a 4D vector. Point lights will be (pos.x, pos.y, pos.z, 1.0f) whilst directional lights will be (-dir.x, -dir.y, -dir.z, 0.0f). Operations like dot products will work consistently on both.
 @item light_direction_object_space
 The direction of a given light in object space (ie when the object is at (0,0,0)). This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes.  DEPRECATED, except for spotlights - for directional lights we recommend that you use light_position_object_space instead since that returns a generic 4D vector.
+@item light_distance_object_space
+The distance of a given light from the centre of the object - this is a useful approximation to per-vertex distance calculations for relatively small objects. This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes.  
 @item light_position_view_space
 The position of a given light in view space (ie when the camera is at (0,0,0)). This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes.  Note that this property will work with all kinds of lights, even directional lights, since the parameter is set as a 4D vector. Point lights will be (pos.x, pos.y, pos.z, 1.0f) whilst directional lights will be (-dir.x, -dir.y, -dir.z, 0.0f). Operations like dot products will work consistently on both.
 @item light_direction_view_space
 The direction of a given light in view space (ie when the camera is at (0,0,0)). This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes.  DEPRECATED, except for spotlights - for directional lights we recommend that you use light_position_view_space instead since that returns a generic 4D vector.
 @item light_power
 The 'power' scaling for a given light, useful in HDR rendering. This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light).
+@item light_diffuse_colour_array
+As light_diffuse_colour, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
+@item light_specular_colour_array
+As light_specular_colour, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
+@item light_attenuation_array
+As light_attenuation, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
+@item spotlight_params_array
+As spotlight_params, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
+@item light_position_array
+As light_position, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
+@item light_direction_array
+As light_direction, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
+@item light_position_object_space_array
+As light_position_object_space, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
+@item light_direction_object_space_array
+As light_direction_object_space, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
+@item light_distance_object_space_array
+As light_distance_object_space, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
+@item light_position_view_space_array
+As light_position_view_space, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
+@item light_direction_view_space_array
+As light_direction_view_space, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
+@item light_power_array
+As light_power, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
+
 @item ambient_light_colour
 The colour of the ambient light currently set in the scene.
 @item fog_colour

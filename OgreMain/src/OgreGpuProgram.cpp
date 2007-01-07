@@ -103,6 +103,18 @@ namespace Ogre
 		AutoConstantDefinition(ACT_LIGHT_DIRECTION_VIEW_SPACE,         "light_direction_view_space",   4, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_LIGHT_DISTANCE_OBJECT_SPACE,   "light_distance_object_space",  1, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_LIGHT_POWER_SCALE,   		  "light_power",  1, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_DIFFUSE_COLOUR_ARRAY,          "light_diffuse_colour_array",         4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_SPECULAR_COLOUR_ARRAY,         "light_specular_colour_array",        4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_ATTENUATION_ARRAY,             "light_attenuation_array",            4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_SPOTLIGHT_PARAMS_ARRAY,              "spotlight_params_array",             4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_POSITION_ARRAY,                "light_position_array",               4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_POSITION_OBJECT_SPACE_ARRAY,   "light_position_object_space_array",  4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_POSITION_VIEW_SPACE_ARRAY,          "light_position_view_space_array",    4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_DIRECTION_ARRAY,               "light_direction_array",              4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_DIRECTION_OBJECT_SPACE_ARRAY,  "light_direction_object_space_array", 4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_DIRECTION_VIEW_SPACE_ARRAY,         "light_direction_view_space_array",   4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_DISTANCE_OBJECT_SPACE_ARRAY,   "light_distance_object_space_array",  1, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_POWER_SCALE_ARRAY,   		  "light_power_array",  1, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_SHADOW_EXTRUSION_DISTANCE,     "shadow_extrusion_distance",    1, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_CAMERA_POSITION,               "camera_position",              3, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_CAMERA_POSITION_OBJECT_SPACE,  "camera_position_object_space", 3, ET_REAL, ACDT_NONE),
@@ -878,6 +890,112 @@ namespace Ogre
 				setConstant(i->index, vec4);
 				break;
 			}
+			case ACT_LIGHT_DIFFUSE_COLOUR_ARRAY:
+				for (size_t l = 0; l < i->data; ++l)
+					setConstant(i->index + l, source.getLight(l).getDiffuseColour());
+				break;
+
+			case ACT_LIGHT_SPECULAR_COLOUR_ARRAY:
+				for (size_t l = 0; l < i->data; ++l)
+					setConstant(i->index + l, source.getLight(l).getSpecularColour());
+				break;
+
+			case ACT_LIGHT_POSITION_ARRAY:
+				// Get as 4D vector, works for directional lights too
+				for (size_t l = 0; l < i->data; ++l)
+					setConstant(i->index + l, source.getLight(l).getAs4DVector());
+				break;
+
+			case ACT_LIGHT_DIRECTION_ARRAY:
+				for (size_t l = 0; l < i->data; ++l)
+				{
+					vec3 = source.getLight(l).getDerivedDirection();
+					// Set as 4D vector for compatibility
+					setConstant(i->index + l, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
+				}
+				break;
+
+			case ACT_LIGHT_POSITION_OBJECT_SPACE_ARRAY:
+				for (size_t l = 0; l < i->data; ++l)
+					setConstant(i->index + l, source.getInverseWorldMatrix().transformAffine(source.getLight(l).getAs4DVector()));
+				break;
+
+			case ACT_LIGHT_DIRECTION_OBJECT_SPACE_ARRAY:
+				for (size_t l = 0; l < i->data; ++l)
+				{
+					vec3 = source.getInverseWorldMatrix().transformAffine(source.getLight(l).getDerivedDirection());
+					vec3.normalise();
+					// Set as 4D vector for compatibility
+					setConstant(i->index + l, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
+				}
+				break;
+
+			case ACT_LIGHT_POSITION_VIEW_SPACE_ARRAY:
+				for (size_t l = 0; l < i->data; ++l)
+					setConstant(i->index + l, source.getWorldViewMatrix().transformAffine(source.getLight(l).getAs4DVector()));
+				break;
+
+			case ACT_LIGHT_DIRECTION_VIEW_SPACE_ARRAY:
+				for (size_t l = 0; l < i->data; ++l)
+				{
+					vec3 = source.getWorldViewMatrix().transformAffine(source.getLight(l).getDerivedDirection());
+					vec3.normalise();
+					// Set as 4D vector for compatibility
+					setConstant(i->index + l, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
+				}
+				break;
+
+			case ACT_LIGHT_DISTANCE_OBJECT_SPACE_ARRAY:
+				for (size_t l = 0; l < i->data; ++l)
+				{
+					vec3 = source.getInverseWorldMatrix().transformAffine(source.getLight(l).getDerivedPosition());
+					setConstant(i->index + l, vec3.length());
+				}
+				break;
+
+			case ACT_LIGHT_POWER_SCALE_ARRAY:
+				for (size_t l = 0; l < i->data; ++l)
+					setConstant(i->index + l, source.getLight(l).getPowerScale());
+				break;
+
+			case ACT_LIGHT_ATTENUATION_ARRAY:
+				for (size_t l = 0; l < i->data; ++l)
+				{
+					// range, const, linear, quad
+					const Light& light = source.getLight(l);
+					vec4.x = light.getAttenuationRange();
+					vec4.y = light.getAttenuationConstant();
+					vec4.z = light.getAttenuationLinear();
+					vec4.w = light.getAttenuationQuadric();
+					setConstant(i->index + l, vec4);
+				}
+				break;
+			case ACT_SPOTLIGHT_PARAMS_ARRAY:
+				{
+					for (size_t l = 0 ; l < i->data; ++l)
+					{
+						// inner, outer, fallof, isSpot
+						const Light& light = source.getLight(l);
+						if (light.getType() == Light::LT_SPOTLIGHT)
+						{
+							vec4.x = Math::Cos(light.getSpotlightInnerAngle().valueRadians() * 0.5);
+							vec4.y = Math::Cos(light.getSpotlightOuterAngle().valueRadians() * 0.5);
+							vec4.z = light.getSpotlightFalloff();
+							vec4.w = 1.0f;
+						}
+						else
+						{
+							// Set angles to full circle for generality
+							vec4.x = vec4.y = 1.0f;
+							// reduce outer angle slightly to avoid divide by zero
+							vec4.y -= 1e-5f;
+							vec4.z = vec4.w = 0.0f;
+						}
+						setConstant(i->index + l, vec4);
+
+					}
+					break;
+				}
 			case ACT_TEXTURE_VIEWPROJ_MATRIX:
 				// can also be updated in lights
 				setConstant(i->index, source.getTextureViewProjMatrix(i->data));
