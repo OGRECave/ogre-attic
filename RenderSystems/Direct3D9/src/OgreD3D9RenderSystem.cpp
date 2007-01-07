@@ -117,13 +117,7 @@ namespace Ogre
 	{
         shutdown();
 
-		
-		
-		SAFE_DELETE( mDriverList );
-		SAFE_DELETE( mTextureManager );
-        SAFE_DELETE(mHardwareBufferManager);
         //SAFE_DELETE(mHLSLProgramFactory);
-		SAFE_DELETE(mGpuProgramManager);
 		SAFE_RELEASE( mpD3D );
 
 		LogManager::getSingleton().logMessage( "D3D9 : " + getName() + " destroyed." );
@@ -586,6 +580,9 @@ namespace Ogre
 		mpD3DDevice = NULL;
 		mBasicStatesInitialised = false;
 		LogManager::getSingleton().logMessage("D3D9 : Shutting down cleanly.");
+		SAFE_DELETE( mTextureManager );
+		SAFE_DELETE( mHardwareBufferManager );
+		SAFE_DELETE( mGpuProgramManager );
 	}
 	//---------------------------------------------------------------------
 	RenderWindow* D3D9RenderSystem::createRenderWindow(const String &name, 

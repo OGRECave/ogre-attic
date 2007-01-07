@@ -159,9 +159,6 @@ namespace Ogre {
         }
         mRenderTargets.clear();
 
-        if (mTextureManager)
-            delete mTextureManager;
-
         delete mGLSupport;
     }
 
@@ -663,6 +660,14 @@ namespace Ogre {
 
         mGLSupport->stop();
         mStopRendering = true;
+
+		delete mTextureManager;
+		mTextureManager = 0;
+
+		// There will be a new initial window and so forth, thus any call to test
+		//  some params will access an invalid pointer, so it is best to reset
+		//  the whole state.
+		mGLInitialized = 0;
     }
 
     void GLRenderSystem::setAmbientLight(float r, float g, float b)
