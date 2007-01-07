@@ -399,17 +399,50 @@ void D3D9HardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const Pixel
 		srcRect = toD3DRECT(srcBox);
 		destRect = toD3DRECTExtent(dst);
 		
-		if(D3DXLoadSurfaceFromSurface(
-			surface, NULL, &destRect, 
-			mSurface, NULL, &srcRect,
-			 D3DX_DEFAULT, 0) != D3D_OK)
-		{
-			surface->Release();
-			tmp->Release();
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromSurface failed",
-		 		"D3D9HardwarePixelBuffer::blitToMemory");
-		}
-		// Lock temp surface and copy it to memory
+        // Get the real temp surface format
+        D3DSURFACE_DESC dstDesc;
+        if(surface->GetDesc(&dstDesc) != D3D_OK)
+            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Could not get surface information",
+            "D3D9HardwarePixelBuffer::blitToMemory");
+        tmpFormat = D3D9Mappings::_getPF(dstDesc.Format);
+
+        D3DSURFACE_DESC srcDesc;
+        if(mSurface->GetDesc(&srcDesc) != D3D_OK)
+            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Could not get surface information",
+            "D3D9HardwarePixelBuffer::blitToMemory");
+
+        // Use fast GetRenderTargetData if we are in its usage conditions
+		bool fastLoadSuccess = false;
+        if (((srcDesc.Usage & D3DUSAGE_RENDERTARGET) != 0) &&
+            (srcBox.getWidth() == dst.getWidth()) && (srcBox.getHeight() == dst.getHeight()) &&
+            (srcBox.getWidth() == getWidth()) && (srcBox.getHeight() == getHeight()) &&
+            (mFormat == tmpFormat))
+        {
+            if(mpDev->GetRenderTargetData(mSurface, surface) != D3D_OK)
+            {
+                surface->Release();
+                tmp->Release();
+            }
+			else
+			{
+				fastLoadSuccess = true;
+			}
+        }
+		if (!fastLoadSuccess)
+        {
+            if(D3DXLoadSurfaceFromSurface(
+                surface, NULL, &destRect, 
+                mSurface, NULL, &srcRect,
+                D3DX_DEFAULT, 0) != D3D_OK)
+            {
+                surface->Release();
+                tmp->Release();
+                OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromSurface failed",
+                    "D3D9HardwarePixelBuffer::blitToMemory");
+            }
+        }
+
+        // Lock temp surface and copy it to memory
 		D3DLOCKED_RECT lrect; // Filled in by D3D
 		if(surface->LockRect(&lrect, NULL,  D3DLOCK_READONLY) != D3D_OK)
 		{
