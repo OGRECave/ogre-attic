@@ -191,6 +191,26 @@ namespace Ogre {
         */
         void addTemplate(const String& name, ParticleSystem* sysTemplate);
 
+        /** Removes a specified template from the ParticleSystemManager.
+        @remarks
+            This method removes a given template from the particle system manager, optionally deleting
+            the template if the deleteTemplate method is called.  Throws an exception if the template
+            could not be found.
+        @param
+            name The name of the template to remove.
+        @param
+            deleteTemplate Whether or not to delete the template before removing it.
+        */
+        void removeTemplate(const String& name, bool deleteTemplate = true);
+
+        /** Removes a specified template from the ParticleSystemManager.
+        @remarks
+            This method removes all templates from the ParticleSystemManager.
+        @param
+            deleteTemplate Whether or not to delete the templates before removing them.
+        */
+        void removeAllTemplates(bool deleteTemplate = true);
+
         /** Create a new particle system template. 
         @remarks
             This method is similar to the addTemplate method, except this just creates a new template

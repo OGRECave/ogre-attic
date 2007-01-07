@@ -220,6 +220,34 @@ namespace Ogre {
         mSystemTemplates[name] = sysTemplate;
     }
     //-----------------------------------------------------------------------
+    void ParticleSystemManager::removeTemplate(const String& name, bool deleteTemplate)
+    {
+		OGRE_LOCK_AUTO_MUTEX
+        ParticleTemplateMap::iterator itr = mSystemTemplates.find(name);
+        if (itr == mSystemTemplates.end())
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
+                "ParticleSystem template with name '" + name + "' cannot be found.",
+                "ParticleSystemManager::removeTemplate");
+
+        if (deleteTemplate)
+            delete itr->second;
+
+        mSystemTemplates.erase(itr);
+    }
+    //-----------------------------------------------------------------------
+    void ParticleSystemManager::removeAllTemplates(bool deleteTemplate)
+    {
+		OGRE_LOCK_AUTO_MUTEX
+        if (deleteTemplate)
+        {
+            ParticleTemplateMap::iterator itr;
+            for (itr = mSystemTemplates.begin(); itr != mSystemTemplates.end(); ++itr)
+                delete itr->second;
+        }
+
+        mSystemTemplates.clear();
+    }
+    //-----------------------------------------------------------------------
     ParticleSystem* ParticleSystemManager::createTemplate(const String& name, 
         const String& resourceGroup)
     {

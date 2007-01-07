@@ -114,11 +114,21 @@ namespace Ogre {
         @param yesNo If set to true, result is 'yes' or 'no' instead of 'true' or 'false'
         */
         static String toString(bool val, bool yesNo = false);
+		/** Converts a Vector2 to a String. 
+        @remarks
+            Format is "x y" (i.e. 2x Real values, space delimited)
+        */
+        static String toString(const Vector2& val);
         /** Converts a Vector3 to a String. 
         @remarks
             Format is "x y z" (i.e. 3x Real values, space delimited)
         */
         static String toString(const Vector3& val);
+		/** Converts a Vector4 to a String. 
+        @remarks
+            Format is "x y z w" (i.e. 4x Real values, space delimited)
+        */
+        static String toString(const Vector4& val);
         /** Converts a Matrix3 to a String. 
         @remarks
             Format is "00 01 02 10 11 12 20 21 22" where '01' means row 0 column 1 etc.

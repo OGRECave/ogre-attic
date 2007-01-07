@@ -139,11 +139,25 @@ namespace Ogre {
         stream << val;
         return stream.str();
     }
+	//-----------------------------------------------------------------------
+    String StringConverter::toString(const Vector2& val)
+    {
+        StringUtil::StrStreamType stream;
+		stream << val.x << " " << val.y;
+        return stream.str();
+    }
     //-----------------------------------------------------------------------
     String StringConverter::toString(const Vector3& val)
     {
         StringUtil::StrStreamType stream;
 		stream << val.x << " " << val.y << " " << val.z;
+        return stream.str();
+    }
+	//-----------------------------------------------------------------------
+    String StringConverter::toString(const Vector4& val)
+    {
+        StringUtil::StrStreamType stream;
+		stream << val.x << " " << val.y << " " << val.z << " " << val.w;
         return stream.str();
     }
     //-----------------------------------------------------------------------
