@@ -262,9 +262,11 @@ namespace Ogre {
 	void Win32GLSupport::stop()
 	{
 		LogManager::getSingleton().logMessage("*** Stopping Win32GL Subsystem ***");
+		mInitialWindow = 0; // Since there is no removeWindow, although there should be...
 	}
 
-	void Win32GLSupport::initialiseExtensions() {
+	void Win32GLSupport::initialiseExtensions()
+	{
 		assert(mInitialWindow);
 		// First, initialise the normal extensions
 		GLSupport::initialiseExtensions();
