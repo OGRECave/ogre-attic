@@ -28,7 +28,9 @@ Torus Knot Software Ltd.
 */
 #include "OgreStableHeaders.h"
 #include "OgreStringConverter.h"
+#include "OgreVector2.h"
 #include "OgreVector3.h"
+#include "OgreVector4.h"
 #include "OgreMatrix3.h"
 #include "OgreMatrix4.h"
 #include "OgreQuaternion.h"
