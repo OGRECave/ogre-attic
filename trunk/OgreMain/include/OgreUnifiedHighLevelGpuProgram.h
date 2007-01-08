@@ -98,6 +98,9 @@ namespace Ogre {
 		/// Get the chosen delegate
 		const HighLevelGpuProgramPtr& _getDelegate() const;
 
+		/** @copydoc GpuProgram::getLanguage */
+        const String& getLanguage(void) const;
+
 		/** Creates a new parameters object compatible with this program definition. 
 		@remarks
 		Unlike low-level assembly programs, parameters objects are specific to the
