@@ -36,6 +36,7 @@ namespace Ogre
 {
 	//-----------------------------------------------------------------------
 	UnifiedHighLevelGpuProgram::CmdDelegate UnifiedHighLevelGpuProgram::msCmdDelegate;
+    static const String sLanguage = "unified";
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
 	UnifiedHighLevelGpuProgram::UnifiedHighLevelGpuProgram(
@@ -113,6 +114,11 @@ namespace Ogre
 		mChosenDelegate.setNull();
 
 	}
+    //-----------------------------------------------------------------------
+    const String& UnifiedHighLevelGpuProgram::getLanguage(void) const
+    {
+        return sLanguage;
+    }
 	//-----------------------------------------------------------------------
 	GpuProgramParametersSharedPtr UnifiedHighLevelGpuProgram::createParameters(void)
 	{
@@ -307,8 +313,7 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	const String& UnifiedHighLevelGpuProgramFactory::getLanguage(void) const
 	{
-		static String lang = "unified";
-		return lang;
+		return sLanguage;
 	}
 	//-----------------------------------------------------------------------
 	HighLevelGpuProgram* UnifiedHighLevelGpuProgramFactory::create(ResourceManager* creator, 
