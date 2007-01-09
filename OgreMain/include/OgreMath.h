@@ -41,19 +41,20 @@ namespace Ogre
 	public:
 		explicit Radian ( Real r=0 ) : mRad(r) {}
 		Radian ( const Degree& d );
-		const Radian& operator = ( const Real& f ) { mRad = f; return *this; }
-		const Radian& operator = ( const Radian& r ) { mRad = r.mRad; return *this; }
-		const Radian& operator = ( const Degree& d );
+		Radian& operator = ( const Real& f ) { mRad = f; return *this; }
+		Radian& operator = ( const Radian& r ) { mRad = r.mRad; return *this; }
+		Radian& operator = ( const Degree& d );
 
 		Real valueDegrees() const; // see bottom of this file
 		Real valueRadians() const { return mRad; }
 		Real valueAngleUnits() const;
 
+        const Radian& operator + () const { return *this; }
 		Radian operator + ( const Radian& r ) const { return Radian ( mRad + r.mRad ); }
 		Radian operator + ( const Degree& d ) const;
 		Radian& operator += ( const Radian& r ) { mRad += r.mRad; return *this; }
 		Radian& operator += ( const Degree& d );
-		Radian operator - () { return Radian(-mRad); }
+		Radian operator - () const { return Radian(-mRad); }
 		Radian operator - ( const Radian& r ) const { return Radian ( mRad - r.mRad ); }
 		Radian operator - ( const Degree& d ) const;
 		Radian& operator -= ( const Radian& r ) { mRad -= r.mRad; return *this; }
@@ -84,19 +85,20 @@ namespace Ogre
 	public:
 		explicit Degree ( Real d=0 ) : mDeg(d) {}
 		Degree ( const Radian& r ) : mDeg(r.valueDegrees()) {}
-		const Degree& operator = ( const Real& f ) { mDeg = f; return *this; }
-		const Degree& operator = ( const Degree& d ) { mDeg = d.mDeg; return *this; }
-		const Degree& operator = ( const Radian& r ) { mDeg = r.valueDegrees(); return *this; }
+		Degree& operator = ( const Real& f ) { mDeg = f; return *this; }
+		Degree& operator = ( const Degree& d ) { mDeg = d.mDeg; return *this; }
+		Degree& operator = ( const Radian& r ) { mDeg = r.valueDegrees(); return *this; }
 
 		Real valueDegrees() const { return mDeg; }
 		Real valueRadians() const; // see bottom of this file
 		Real valueAngleUnits() const;
 
+		const Degree& operator + () const { return *this; }
 		Degree operator + ( const Degree& d ) const { return Degree ( mDeg + d.mDeg ); }
 		Degree operator + ( const Radian& r ) const { return Degree ( mDeg + r.valueDegrees() ); }
 		Degree& operator += ( const Degree& d ) { mDeg += d.mDeg; return *this; }
 		Degree& operator += ( const Radian& r ) { mDeg += r.valueDegrees(); return *this; }
-		Degree operator - () { return Degree(-mDeg); }
+		Degree operator - () const { return Degree(-mDeg); }
 		Degree operator - ( const Degree& d ) const { return Degree ( mDeg - d.mDeg ); }
 		Degree operator - ( const Radian& r ) const { return Degree ( mDeg - r.valueDegrees() ); }
 		Degree& operator -= ( const Degree& d ) { mDeg -= d.mDeg; return *this; }
@@ -126,15 +128,15 @@ namespace Ogre
 		Real mAngle;
 	public:
 		explicit Angle ( Real angle ) : mAngle(angle) {}
-		operator Radian();
-		operator Degree();
+		operator Radian() const;
+		operator Degree() const;
 	};
 
 	// these functions could not be defined within the class definition of class
 	// Radian because they required class Degree to be defined
 	inline Radian::Radian ( const Degree& d ) : mRad(d.valueRadians()) {
 	}
-	inline const Radian& Radian::operator = ( const Degree& d ) {
+	inline Radian& Radian::operator = ( const Degree& d ) {
 		mRad = d.valueRadians(); return *this;
 	}
 	inline Radian Radian::operator + ( const Degree& d ) const {
@@ -566,12 +568,12 @@ namespace Ogre
 		return Math::DegreesToAngleUnits ( mDeg );
 	}
 
-	inline Angle::operator Radian()
+	inline Angle::operator Radian() const
 	{
 		return Radian(Math::AngleUnitsToRadians(mAngle));
 	}
 
-	inline Angle::operator Degree()
+	inline Angle::operator Degree() const
 	{
 		return Degree(Math::AngleUnitsToDegrees(mAngle));
 	}
