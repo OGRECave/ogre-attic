@@ -230,6 +230,9 @@ namespace Ogre {
 	bool ResourceBackgroundQueue::isProcessComplete(
 			BackgroundProcessTicket ticket)
 	{
+		// Lock
+		OGRE_LOCK_AUTO_MUTEX
+
 		return mRequestTicketMap.find(ticket) == mRequestTicketMap.end();
 	}
 	//------------------------------------------------------------------------
@@ -269,17 +272,20 @@ namespace Ogre {
 			// _doNextQueuedBackgroundProcess won't do this since the thread
 			// may be shared
 
-			// Lock; note that 'mCondition.wait()' will free the lock
-			boost::recursive_mutex::scoped_lock queueLock(
-				queueInstance.OGRE_AUTO_MUTEX_NAME);
-			if (queueInstance.mRequestQueue.empty())
-			{
-				// frees lock and suspends the thread
-				queueInstance.mCondition.wait(queueLock);
-			}
-			// When we get back here, it's because we've been notified 
-			// and thus the thread as been woken up. Lock has also been
-			// re-acquired.
+            // Manual scope block just to define scope of lock
+            {
+                // Lock; note that 'mCondition.wait()' will free the lock
+                boost::recursive_mutex::scoped_lock queueLock(
+                    queueInstance.OGRE_AUTO_MUTEX_NAME);
+                if (queueInstance.mRequestQueue.empty())
+                {
+                    // frees lock and suspends the thread
+                    queueInstance.mCondition.wait(queueLock);
+                }
+                // When we get back here, it's because we've been notified 
+                // and thus the thread as been woken up. Lock has also been
+                // re-acquired.
+            } // release lock so queueing can be done while we process one request
 
 			queueInstance._doNextQueuedBackgroundProcess();
 
