@@ -772,7 +772,7 @@ namespace Ogre
                 break;
 			case ACT_LIGHT_POSITION_VIEW_SPACE:
                 setConstant(i->index, 
-                    source.getWorldViewMatrix() * source.getLight(i->data).getAs4DVector());
+                    source.getViewMatrix() * source.getLight(i->data).getAs4DVector());
                 break;
             case ACT_LIGHT_DIRECTION_VIEW_SPACE:
 				vec3 = source.getInverseTransposeViewMatrix() *
