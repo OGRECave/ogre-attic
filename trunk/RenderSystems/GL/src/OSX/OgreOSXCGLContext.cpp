@@ -26,45 +26,46 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
-#ifndef __OgreOSXContext_H__
-#define __OgreOSXContext_H__
 
-#include "OgreGLContext.h"
+#include "OgreOSXCGLContext.h"
+#include "OgreLogManager.h"
 
 namespace Ogre
 {
-	/**
-     * Class that encapsulates an GL context. (IE a window/pbuffer). This is a 
-     * virtual base class which should be implemented in a GLSupport.
-     * This object can also be used to cache renderstate if we decide to do so
-     * in the future.
-     */
-    class OSXContext: public GLContext
-    {
-    public:
-        OSXContext();
-        virtual ~OSXContext();
+	
+	OSXCGLContext::OSXCGLContext(CGLContextObj cglContext): mCGLContext(cglContext)
+	{
+	}
+    
+	OSXCGLContext::~OSXCGLContext()
+	{
+    }
 
-        /** See GLContext */
-        virtual void setCurrent() = 0;
-		/**
-         * This is called before another context is made current. By default,
-         * nothing is done here.
-         */
-        virtual void endCurrent() = 0;
-		/** Create a new context based on the same window/pbuffer as this
-			context - mostly useful for additional threads.
-		@note The caller is responsible for deleting the returned context.
-		*/
-		virtual GLContext* clone() const = 0;
-		/**
-		 * Return the type of context currently assoiciated with this OSXContext,
-		 * this is needed because OSX has several different types of contexts
-		 * depending on the application needs.
-		 @note Return value will be "AGL", "CGL", or "NSOpenGL" accordingly.
-		 */
-		virtual String getContextType() = 0;
-    };
+    void OSXCGLContext::setCurrent()
+	{
+		CGLSetCurrentContext(mCGLContext);
+    }
+		
+	void OSXCGLContext::endCurrent()
+	{
+		CGLClearDrawable(mCGLContext); 
+		CGLDestroyContext(mCGLContext);
+	}
+	
+	GLContext* OSXCGLContext::clone() const
+	{
+		CGLContextObj cglCtxCopy;
+		CGLCopyContext(mCGLContext, cglCtxCopy, NULL);
+		return new OSXCGLContext(cglCtxCopy);
+	}
+	
+	String OSXCGLContext::getContextType()
+	{
+		return "CGL";
+	}
+		
+	CGLContextObj OSXCGLContext::getContext()
+	{
+		return mCGLContext;
+	}
 }
-
-#endif

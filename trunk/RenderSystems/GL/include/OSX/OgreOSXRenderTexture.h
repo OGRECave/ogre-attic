@@ -4,14 +4,14 @@
 #include "OgrePrerequisites.h"
 
 #include "OgreGLPBuffer.h"
-#include "OgreOSXContext.h"
+#include "OgreOSXCarbonContext.h"
 
 namespace Ogre
 {
     class OSXPBuffer : public GLPBuffer
     {
     public:
-        OSXPBuffer( PixelComponentType format, size_t width, size_t height );
+        OSXPBuffer(PixelComponentType format, size_t width, size_t height );
         ~OSXPBuffer();
         
         virtual GLContext *getContext();
@@ -22,8 +22,8 @@ namespace Ogre
 
 	private:
 		AGLPbuffer mPBuffer;
-        Ogre::OSXContext* mContext;
 		AGLContext mAGLContext;
+		OSXCarbonContext* mContext;
     };
 }
 #endif

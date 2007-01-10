@@ -28,286 +28,30 @@ Torus Knot Software Ltd.
 */
 
 #include "OgreOSXWindow.h"
+#include "OgreOSXCGLContext.h"
 #include "OgreRoot.h"
 #include "OgreGLRenderSystem.h"
 #include "OgreImageCodec.h"
 #include "OgreException.h"
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
-#include "OgreWindowEventUtilities.h"
 
 #include <OpenGL/gl.h>
 #define GL_EXT_texture_env_combine 1
 #include <OpenGL/glext.h>
 #include <OpenGL/glu.h>
-#include <AGL/agl.h>
-//#include <GL/gl.h>
-//#include <GL/glu.h>
-//#include <GL/glx.h>
 
 namespace Ogre
 {
 
 //-------------------------------------------------------------------------------------------------//
-OSXWindow::OSXWindow()
+OSXWindow::OSXWindow() : mCGLContext(NULL)
 {
-	LogManager::getSingleton().logMessage( "OSXWindow::OSXWindow()" );
-	mActive = mClosed = mHasResized = false;
-	mAGLContext = NULL;
-	mContext = NULL;
-	mWindow = NULL;
 }
 
 //-------------------------------------------------------------------------------------------------//
 OSXWindow::~OSXWindow()
 {
-	LogManager::getSingleton().logMessage( "OSXWindow::~OSXWindow()" );
-}
-
-//-------------------------------------------------------------------------------------------------//
-void OSXWindow::create( const String& name, unsigned int width, unsigned int height,
-	            bool fullScreen, const NameValuePairList *miscParams )
-{
-	LogManager::getSingleton().logMessage( "OSXWindow::create()" );
-
-	bool hasDepthBuffer;
-	String title = name;
-	size_t fsaa_samples = 0;
-	int left = 0;
-	int top = 0;
-	int depth = 32;
-	
-	if( miscParams )
-	{
-		NameValuePairList::const_iterator opt = NULL;
-		// Full screen anti aliasing
-		opt = miscParams->find( "FSAA" );
-		if( opt != miscParams->end() )
-			fsaa_samples = StringConverter::parseUnsignedInt( opt->second );
-
-		opt = miscParams->find( "left" );
-		if( opt != miscParams->end() )
-			left = StringConverter::parseUnsignedInt( opt->second );
-
-		opt = miscParams->find( "top" );
-		if( opt != miscParams->end() )
-			top = StringConverter::parseUnsignedInt( opt->second );
-
-		opt = miscParams->find( "title" );
-		if( opt != miscParams->end() )
-			title = opt->second;
-
-		opt = miscParams->find( "depthBuffer" );
-		if( opt != miscParams->end() )
-			hasDepthBuffer = StringConverter::parseBool( opt->second );
-		
-		opt = miscParams->find( "colourDepth" );
-		if( opt != miscParams->end() )
-			depth = StringConverter::parseUnsignedInt( opt->second );
-	}
-
-	AGLPixelFormat pixelFormat;
-	GLint attribs[ 20 ];
-	
-	int i = 0;
-	
-	if( fullScreen )
-	{
-		attribs[ i++ ] = AGL_FULLSCREEN;
-	}
-	
-	attribs[ i++ ] = AGL_RGBA;
-	attribs[ i++ ] = AGL_DOUBLEBUFFER;
-	attribs[ i++ ] = AGL_ALPHA_SIZE;
-	attribs[ i++ ] = 0;
-	attribs[ i++ ] = AGL_STENCIL_SIZE;
-	attribs[ i++ ] = 1;
-	attribs[ i++ ] = AGL_DEPTH_SIZE;
-	attribs[ i++ ] = depth;
-	
-	if( fsaa_samples > 1 )
-	{
-		attribs[ i++ ] = AGL_MULTISAMPLE;
-		attribs[ i++ ] = 1;
-		attribs[ i++ ] = AGL_SAMPLE_BUFFERS_ARB;
-		attribs[ i++ ] = fsaa_samples;
-	}
-	
-	attribs[ i++ ] = AGL_NONE;
-	
-	pixelFormat = aglChoosePixelFormat( NULL, 0, attribs );
-	
-	GLRenderSystem *rs = static_cast< GLRenderSystem* >( Root::getSingleton().getRenderSystem() );
-	OSXContext* mainContext = ( OSXContext* ) rs->_getMainContext();
-	AGLContext shareContext = mainContext == 0 ? NULL : mainContext->getContext();
-	mAGLContext = aglCreateContext( pixelFormat, shareContext );
-	
-	// You do not need to create a window in full screen mode, if the user requested full screen
-	// call AGL to do so, however we need to save the current display settings for restoring after
-	// we quit.
-	if(fullScreen)
-	{
-		// TODO: FullScreen
-		aglSetFullScreen(mAGLContext, width, height, 0, 0);
-		//aglSetDrawable( mAGLContext, GetWindowPort( mWindow ) );
-		aglSetCurrentContext( mAGLContext );
-		
-		mName = name;
-		mWidth = width;
-		mHeight = height;
-		mContext = new OSXContext( mAGLContext );
-		
-	}
-	else
-	{
-		// create the window rect in global coords
-		::Rect windowRect;
-		windowRect.left = 0;
-		windowRect.top = 0;
-		windowRect.right = width;
-		windowRect.bottom = height;
-		
-		// set the default attributes for the window
-		WindowAttributes windowAttrs = kWindowStandardDocumentAttributes
-			| kWindowStandardHandlerAttribute 
-			| kWindowInWindowMenuAttribute
-			| kWindowHideOnFullScreenAttribute;
-		
-		// Create the window
-		CreateNewWindow(kDocumentWindowClass, windowAttrs, &windowRect, &mWindow);
-		
-		// Color the window background black
-		SetThemeWindowBackground (mWindow, kThemeBrushBlack, true);
-		
-		// Set the title of our window
-		CFStringRef titleRef = CFStringCreateWithCString( kCFAllocatorDefault, title.c_str(), kCFStringEncodingASCII );
-		SetWindowTitleWithCFString( mWindow, titleRef );
-		
-		// Center our window on the screen
-		RepositionWindow( mWindow, NULL, kWindowCenterOnMainScreen );
-		
-		aglSetDrawable( mAGLContext, GetWindowPort( mWindow ) );
-		aglSetCurrentContext( mAGLContext );
-		
-		mName = name;
-		mWidth = width;
-		mHeight = height;
-		mContext = new OSXContext( mAGLContext );
-
-		WindowEventUtilities::_addRenderWindow( this );
-	
-		InstallStandardEventHandler( GetWindowEventTarget( mWindow ) );
-		ShowWindow( mWindow );
-		SelectWindow( mWindow );
-	}
-		
-	mActive = true;
-}
-
-//-------------------------------------------------------------------------------------------------//
-void OSXWindow::destroy(void)
-{
-	LogManager::getSingleton().logMessage( "OSXWindow::destroy()" );
-
-	delete mContext;
-	
-	WindowEventUtilities::_removeRenderWindow( this );
-
-	if( mWindow )
-		DisposeWindow( mWindow );
-
-	mActive = false;
-
-	Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
-}
-
-//-------------------------------------------------------------------------------------------------//
-bool OSXWindow::isActive() const
-{
-	return mActive;
-}
-
-//-------------------------------------------------------------------------------------------------//
-bool OSXWindow::isClosed() const
-{
-	return false;
-}
-
-//-------------------------------------------------------------------------------------------------//
-void OSXWindow::reposition(int left, int top)
-{
-	LogManager::getSingleton().logMessage( "OSXWindow::reposition()" );
-	if( mWindow )
-		MoveWindow( mWindow, left, top, true );
-}
-
-//-------------------------------------------------------------------------------------------------//
-void OSXWindow::resize(unsigned int width, unsigned int height)
-{
-	LogManager::getSingleton().logMessage( "OSXWindow::resize()" );
-	if( !mWindow )
-		return;
-
-	// Check if the window size really changed
-	if( mWidth == width && mHeight == height )
-		return;
-
-	mWidth = width;
-	mHeight = height;
-
-	SizeWindow( mWindow, width, height, true );
-}
-
-//-------------------------------------------------------------------------------------------------//
-void OSXWindow::windowHasResized()
-{
-	LogManager::getSingleton().logMessage( "OSXWindow::windowHasResized()" );
-	mHasResized = true;
-	aglUpdateContext( mAGLContext );
-}
-
-//-------------------------------------------------------------------------------------------------//
-void OSXWindow::windowResized()
-{
-	LogManager::getSingleton().logMessage( "OSXWindow::windowResized()" );
-	aglUpdateContext( mAGLContext );
-	::Rect rect;
-	GetWindowBounds( mWindow, kWindowContentRgn, &rect );
-	mWidth = rect.left + rect.right;
-	mHeight = rect.top + rect.bottom;
-	mLeft = rect.left;
-	mTop = rect.top;
-
-	for( ViewportList::iterator it = mViewportList.begin(); it != mViewportList.end(); ++it )
-	{
-		( *it ).second->_updateDimensions();
-	}
-}
-
-//-------------------------------------------------------------------------------------------------//
-void OSXWindow::swapBuffers( bool waitForVSync )
-{
-	aglSwapBuffers( mAGLContext );
-	if( mHasResized )
-	{
-		windowResized();
-		mHasResized = false;
-	}
-}
-
-//-------------------------------------------------------------------------------------------------//
-void OSXWindow::getCustomAttribute( const String& name, void* pData )
-{
-	if( name == "GLCONTEXT" ) 
-	{
-		*static_cast< OSXContext** >( pData ) = mContext;
-		return;
-	}
-	else if( name == "WINDOW" )
-	{
-		*static_cast< WindowRef* >( pData ) = mWindow;
-		return;
-	}
 }
 
 //-------------------------------------------------------------------------------------------------//
@@ -340,7 +84,7 @@ void OSXWindow::writeContentsToFile(const String& filename)
 	String extension;
 	if( pos == String::npos )
 		OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS, "Unable to determine image type for '" 
-			+ filename + "' - invalid extension.", "OSXWindow::writeContentsToFile" );
+			+ filename + "' - invalid extension.", "OSXCarbonWindow::writeContentsToFile" );
 
 	while( pos != filename.length() - 1 )
 		extension += filename[++pos];
@@ -354,4 +98,138 @@ void OSXWindow::writeContentsToFile(const String& filename)
 
 	delete [] pBuffer;
 }
+
+//-------------------------------------------------------------------------------------------------//
+void OSXWindow::createCGLFullscreen(unsigned int width, unsigned int height, unsigned int depth, unsigned int fsaa, CGLContextObj sharedContext)
+{
+		// Find the best match to what was requested
+		boolean_t exactMatch;
+		CFDictionaryRef displayMode = CGDisplayBestModeForParameters(kCGDirectMainDisplay, depth, width, height, &exactMatch);
+		
+		if(!exactMatch)
+		{
+			// TODO: Report the size difference
+			// That mode is not available, using the closest match
+			String request = StringConverter::toString(width) + String(" x ") + StringConverter::toString(height) + String(" @ ") + 
+				StringConverter::toString(depth) + "bpp. ";
+				
+			String recieved = StringConverter::toString(width) + String(" x ") + StringConverter::toString(height) + String(" @ ") + 
+				StringConverter::toString(depth) + "bpp. "; 
+				
+			LogManager::getSingleton().logMessage(String("RenderSystem Warning:  You requested a fullscreen mode of ") + request +
+				String(" This mode is not available and you will recieve the closest match."));
+		}
+		
+		// Do the fancy display fading
+		CGDisplayFadeReservationToken reservationToken;
+		CGAcquireDisplayFadeReservation(kCGMaxDisplayReservationInterval,
+											&reservationToken);
+		CGDisplayFade(reservationToken,
+					  0.5,
+					  kCGDisplayBlendNormal,
+					  kCGDisplayBlendSolidColor,
+					  0.0, 0.0, 0.0,
+					  true);
+		
+		// Grab the main display and save it for later.
+		// You could render to any display, but picking what display
+		// to render to could be interesting.
+		CGDisplayCapture(kCGDirectMainDisplay);
+		
+		// Switch to the correct resolution
+		CGDisplaySwitchToMode(kCGDirectMainDisplay, displayMode);
+		
+		// Get a pixel format that best matches what we are looking for
+		CGLPixelFormatAttribute attribs[] = { 
+			kCGLPFADoubleBuffer,
+			kCGLPFAAlphaSize,     (CGLPixelFormatAttribute)8,
+			kCGLPFADepthSize,     (CGLPixelFormatAttribute)depth,
+			kCGLPFAStencilSize,   (CGLPixelFormatAttribute)8,
+			kCGLPFASampleBuffers, (CGLPixelFormatAttribute)0,
+			kCGLPFASamples,       (CGLPixelFormatAttribute)0,
+			kCGLPFAFullScreen,
+			kCGLPFASingleRenderer,
+			kCGLPFAAccelerated,
+			kCGLPFADisplayMask,   (CGLPixelFormatAttribute)CGDisplayIDToOpenGLDisplayMask(kCGDirectMainDisplay),
+			(CGLPixelFormatAttribute)0
+		};
+		
+		// Set up FSAA if it was requested
+		if(fsaa > 1)
+		{
+				// turn on kCGLPFASampleBuffers
+				attribs[8] = (CGLPixelFormatAttribute)1;
+				// set the samples for kCGLPFASamples
+				attribs[10] = (CGLPixelFormatAttribute)fsaa;
+		}
+		
+		// Storage for our pixel format
+		CGLPixelFormatObj pixelFormatObj;
+		long numPixelFormats = 0;
+		
+		// Get a pixelFormatObj from our atributes
+		CGLError err;
+		err = CGLChoosePixelFormat(attribs, &pixelFormatObj, &numPixelFormats); 
+		if(err != 0)
+		{
+			CGReleaseAllDisplays();
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, String("CGL Error: " + String(CGLErrorString(err))), "OSXCarbonWindow::create");
+		}
+
+		// Create the CGLcontext from our pixel format, share it with the sharedContext passed in
+		err = CGLCreateContext(pixelFormatObj, sharedContext, &mCGLContext);
+		if(err != 0)
+		{
+			CGReleaseAllDisplays();
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, String("CGL Error: " + String(CGLErrorString(err))), "OSXCarbonWindow::create");
+		}
+				
+		// Once we have the context we can destroy the pixel format
+		CGLDestroyPixelFormat(pixelFormatObj); 
+				
+		// Set the context to drawable
+		CGLSetFullScreen(mCGLContext);
+		
+		// Set the context as current
+		CGLSetCurrentContext(mCGLContext);
+		
+		// This synchronizes CGL with the vertical retrace
+		// Apple docs suggest that OpenGL blocks rendering calls when waiting for
+		// a vertical retrace anyhow.
+		long swapInterval = 1;
+		CGLSetParameter(mCGLContext, kCGLCPSwapInterval, &swapInterval);
+		
+		// Give a copy of our context to the rendersystem
+		mContext = new OSXCGLContext(mCGLContext);
+		
+		// Let everyone know we are fullscreen now
+		mIsFullScreen = true;
+		
+		CGDisplayFade(reservationToken,
+                  2.0,
+                  kCGDisplayBlendSolidColor,
+                  kCGDisplayBlendNormal,
+                  0.0, 0.0, 0.0,
+                  false);
+		CGReleaseDisplayFadeReservation(reservationToken);
+}
+
+//-------------------------------------------------------------------------------------------------//
+void OSXWindow::destroyCGLFullscreen(void)
+{
+	CGReleaseAllDisplays();
+}
+
+//-------------------------------------------------------------------------------------------------//
+void OSXWindow::swapCGLBuffers(void)
+{
+	CGLFlushDrawable(mCGLContext);
+	CGLContextObj curCtx = CGLGetCurrentContext();
+	if(curCtx != mCGLContext)
+	{
+		CGLSetCurrentContext(mCGLContext);
+		CGLSetFullScreen(mCGLContext);
+	}
+}
+
 }
