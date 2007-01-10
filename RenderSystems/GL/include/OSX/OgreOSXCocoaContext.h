@@ -26,44 +26,43 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
-#ifndef __OgreOSXContext_H__
-#define __OgreOSXContext_H__
+#ifndef __OgreOSXCocoaContext_H__
+#define __OgreOSXCocoaContext_H__
 
-#include "OgreGLContext.h"
+#include "OgreOSXContext.h"
+#import <Cocoa/Cocoa.h>
 
-namespace Ogre
-{
-	/**
-     * Class that encapsulates an GL context. (IE a window/pbuffer). This is a 
-     * virtual base class which should be implemented in a GLSupport.
-     * This object can also be used to cache renderstate if we decide to do so
-     * in the future.
-     */
-    class OSXContext: public GLContext
+namespace Ogre {
+
+    class OSXCocoaContext: public OSXContext
     {
     public:
-        OSXContext();
-        virtual ~OSXContext();
+        OSXCocoaContext(NSOpenGLContext *context);
+
+        virtual ~OSXCocoaContext();
 
         /** See GLContext */
-        virtual void setCurrent() = 0;
+        virtual void setCurrent();
 		/**
          * This is called before another context is made current. By default,
          * nothing is done here.
          */
-        virtual void endCurrent() = 0;
+        virtual void endCurrent();
 		/** Create a new context based on the same window/pbuffer as this
 			context - mostly useful for additional threads.
 		@note The caller is responsible for deleting the returned context.
 		*/
-		virtual GLContext* clone() const = 0;
+		virtual GLContext* clone() const;
 		/**
-		 * Return the type of context currently assoiciated with this OSXContext,
-		 * this is needed because OSX has several different types of contexts
-		 * depending on the application needs.
-		 @note Return value will be "AGL", "CGL", or "NSOpenGL" accordingly.
+		 * Return value will be "NSOpenGL"
 		 */
-		virtual String getContextType() = 0;
+		virtual String getContextType();
+		
+		/** Grab the NSOpenGLContext if it exists */
+		NSOpenGLContext* getContext();
+		
+	private:
+		NSOpenGLContext* mNSGLContext;
     };
 }
 

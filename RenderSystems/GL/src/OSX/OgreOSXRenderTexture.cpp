@@ -8,7 +8,13 @@
 #include "OgreGLRenderSystem.h"
 
 #include "OgreOSXRenderTexture.h"
-#include "OgreOSXContext.h"
+#include "OgreOSXCarbonContext.h"
+
+#include <OpenGL/gl.h>
+#define GL_EXT_texture_env_combine 1
+#include <OpenGL/glext.h>
+#include <OpenGL/glu.h>
+#include <AGL/agl.h>
 
 namespace Ogre
 {
@@ -17,7 +23,7 @@ namespace Ogre
 		LogManager::getSingleton().logMessage( "OSXPBuffer::OSXPBuffer()" );
 		createPBuffer();
 		// Create context
-		mContext = new OSXContext( mAGLContext );
+		mContext = new OSXCarbonContext( mAGLContext );
     }
 	
 	OSXPBuffer::~OSXPBuffer()
@@ -36,8 +42,14 @@ namespace Ogre
 	void OSXPBuffer::createPBuffer()
 	{
 		LogManager::getSingleton().logMessage( "OSXPBuffer::createPBuffer()" );
-		mAGLContext = aglGetCurrentContext();
+		
+		GLint attrib[] = { AGL_NO_RECOVERY, GL_TRUE, AGL_ACCELERATED, GL_TRUE, AGL_RGBA, AGL_NONE };
+		AGLPixelFormat pixelFormat = aglChoosePixelFormat(NULL, 0, attrib);
+		mAGLContext = aglCreateContext(pixelFormat, NULL);
+		
+		//mAGLContext = aglGetCurrentContext();
 		aglCreatePBuffer( mWidth, mHeight, GL_TEXTURE_2D, GL_RGBA, 0, &mPBuffer );
+		
 		GLint vs = aglGetVirtualScreen( mAGLContext );
 		aglSetPBuffer( mAGLContext, mPBuffer, 0, 0, vs ); 
 	}

@@ -27,51 +27,58 @@ Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __OSXWindow_H__
-#define __OSXWindow_H__
+#ifndef __OSXCarbonWindow_H__
+#define __OSXCarbonWindow_H__
 
-#include "OgreRenderWindow.h"
-#include "OgreOSXContext.h"
+#include "OgreOSXWindow.h"
+#include "OgreOSXCarbonContext.h"
+#include "OgreOSXCGLContext.h"
 #include <OpenGL/OpenGL.h>
 #include <OpenGL/CGLTypes.h>
 
 namespace Ogre 
 {
-	class OSXWindow : public RenderWindow
+	class OSXCarbonWindow : public OSXWindow
 	{
 	public:
-		OSXWindow();
-		virtual ~OSXWindow();
+		OSXCarbonWindow();
+		virtual ~OSXCarbonWindow();
 		
-		/** Overridden - see RenderWindow */
-		void create( const String& name, unsigned int width, unsigned int height,
-	            bool fullScreen, const NameValuePairList *miscParams ) = 0;
+		virtual void create( const String& name, unsigned int width, unsigned int height,
+	            bool fullScreen, const NameValuePairList *miscParams );
         /** Overridden - see RenderWindow */
-        virtual void destroy( void ) = 0;
+		virtual void destroy( void );
         /** Overridden - see RenderWindow */
-        virtual bool isActive( void ) const = 0;
+		virtual bool isActive( void ) const;
         /** Overridden - see RenderWindow */
-        virtual bool isClosed( void ) const = 0;
+		virtual bool isClosed( void ) const;
         /** Overridden - see RenderWindow */
-        virtual void reposition( int left, int top ) = 0;
+		virtual void reposition( int left, int top );
         /** Overridden - see RenderWindow */
-        virtual void resize( unsigned int width, unsigned int height ) = 0;
+		virtual void resize( unsigned int width, unsigned int height );
         /** Overridden - see RenderWindow */
-        virtual void swapBuffers( bool waitForVSync ) = 0;
-        /** Overridden - see RenderTarget */
-        virtual void writeContentsToFile( const String& filename );
+		virtual void swapBuffers( bool waitForVSync );
 		/** Overridden - see RenderTarget */
-		virtual void windowMovedOrResized() {};
+		virtual void windowMovedOrResized();
 
-	protected:
-		OSXContext* mContext;
-		CGLContextObj mCGLContext;
-		/** Switch to full screen mode using CGL */
-		void createCGLFullscreen(unsigned int width, unsigned int height, unsigned int depth, unsigned int fsaa, CGLContextObj sharedContext);
-		/** Kill full screen mode, and return to default windowed mode */
-		void destroyCGLFullscreen(void);
-		/** Update the full screen context */
-		void swapCGLBuffers(void);
+		bool requiresTextureFlipping() const { return false; }
+		
+		void windowResized();
+		void windowHasResized();
+		
+		void getCustomAttribute( const String& name, void* pData );
+
+	private:
+		void processEvents();
+		
+	private:
+		WindowRef mWindow;
+		HIViewRef mView;
+		AGLContext mAGLContext;
+		
+		bool mActive;
+		bool mClosed;
+		bool mHasResized;
 	};
 }
 

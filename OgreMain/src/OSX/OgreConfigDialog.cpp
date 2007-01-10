@@ -1,8 +1,6 @@
 #include <Quicktime/Quicktime.h>
-#include "OgreConfigDialog.h"
-#include "OgreException.h"
-#include "OgreImage.h"
 #include "OgreLogManager.h"
+#include "OgreConfigDialog.h"
 
 namespace Ogre {
 
@@ -11,18 +9,15 @@ namespace Ogre {
 
 	ConfigDialog::ConfigDialog() : iSelectedRenderSystem( NULL ), iVideoModeRef( NULL ), iLogoViewRef( NULL ), iWindowRef( NULL ), iNibRef( NULL ), iMenuRef( NULL )
 	{
-		LogManager::getSingleton().logMessage( "ConfigDialog::ConfigDialog()" );
 		dlg = this;
 	}
 	
 	ConfigDialog::~ConfigDialog()
 	{
-		LogManager::getSingleton().logMessage( "ConfigDialog::~OSXContext()" );
 	}
 	
 	void ConfigDialog::initialise()
 	{
-		LogManager::getSingleton().logMessage( "ConfigDialog::initialise()" );
 		Root::getSingleton().restoreConfig();
 		RenderSystemList* renderers = Root::getSingleton().getAvailableRenderers();
 		RenderSystem* renderer = renderers->front();
@@ -35,12 +30,10 @@ namespace Ogre {
 		{
 			if( cfi->second.currentValue == "Yes" )
 			{
-				LogManager::getSingleton().logMessage( "CONFIG <= FullScreen [ Yes ]" );
 				SetControlValue( iFullScreenRef, 1 );
 			}
 			else
 			{
-				LogManager::getSingleton().logMessage( "CONFIG <= FullScreen [ No ]" );
 				SetControlValue( iFullScreenRef, 2 );
 			}
 		}
@@ -50,22 +43,18 @@ namespace Ogre {
 		{
 			if( cfi->second.currentValue == "0" )
 			{
-				LogManager::getSingleton().logMessage( "CONFIG <= FSAA [ 0 ]" );
 				SetControlValue( iFSAARef, 1 );
 			}
 			else if( cfi->second.currentValue == "2" )
 			{
-				LogManager::getSingleton().logMessage( "CONFIG <= FSAA [ 2 ]" );
 				SetControlValue( iFSAARef, 2 );
 			}
 			else if( cfi->second.currentValue == "4" )
 			{
-				LogManager::getSingleton().logMessage( "CONFIG <= FSAA [ 4 ]" );
 				SetControlValue( iFSAARef, 3 );
 			}
 			else if( cfi->second.currentValue == "6" )
 			{
-				LogManager::getSingleton().logMessage( "CONFIG <= FSAA [ 6 ]" );
 				SetControlValue( iFSAARef, 4 );
 			}
 		}
@@ -75,12 +64,10 @@ namespace Ogre {
 		{
 			if( cfi->second.currentValue == "32" )
 			{
-				LogManager::getSingleton().logMessage( "CONFIG <= Depth [ 32 ]" );
 				SetControlValue( iColorDepthRef, 1 );
 			}
 			else
 			{
-				LogManager::getSingleton().logMessage( "CONFIG <= Depth [ 16 ]" );
 				SetControlValue( iColorDepthRef, 2 );
 			}
 		}
@@ -90,26 +77,21 @@ namespace Ogre {
 		{
 			if( cfi->second.currentValue == "FBO" )
 			{
-				LogManager::getSingleton().logMessage( "CONFIG <= RTT Mode [ FBO ]" );
 				SetControlValue( iRTTPrefModeRef, 1 );
 			}
 			else if( cfi->second.currentValue == "PBuffer" )
 			{
-				LogManager::getSingleton().logMessage( "CONFIG <= RTT Mode [ PBuffer ]" );
 				SetControlValue( iRTTPrefModeRef, 2 );
 			}
 			else if( cfi->second.currentValue == "Copy" )
 			{
-				LogManager::getSingleton().logMessage( "CONFIG <= RTT Mode [ Copy ]" );
 				SetControlValue( iRTTPrefModeRef, 3 );
 			}
-		}		
+		}
 	}
 	
 	void ConfigDialog::run()
 	{
-		LogManager::getSingleton().logMessage( "ConfigDialog::run()" );
-
 		RenderSystemList* renderers = Root::getSingleton().getAvailableRenderers();
 		RenderSystem* renderer = renderers->front();
 
@@ -137,15 +119,12 @@ namespace Ogre {
 		switch( value )
 		{
 			case 1:
-				LogManager::getSingleton().logMessage( "CONFIG => FSAA [ 0 ]" );
 				renderer->setConfigOption( "FSAA", "0" );
 				break;
 			case 2:
-				LogManager::getSingleton().logMessage( "CONFIG => FSAA [ 2 ]" );
 				renderer->setConfigOption( "FSAA", "2" );
 				break;
 			case 3:
-				LogManager::getSingleton().logMessage( "CONFIG => FSAA [ 4 ]" );
 				renderer->setConfigOption( "FSAA", "4" );
 				break;
 			case 4:
@@ -153,7 +132,6 @@ namespace Ogre {
 				renderer->setConfigOption( "FSAA", "6" );
 				break;
 			default:
-				LogManager::getSingleton().logMessage( "CONFIG => FSAA [ 0 ] ( default )" );
 				renderer->setConfigOption( "FSAA", "0" );
 				break;
 		}
@@ -162,12 +140,10 @@ namespace Ogre {
 		value = GetControlValue( iColorDepthRef );
 		if( value == 1 )
 		{
-			LogManager::getSingleton().logMessage( "CONFIG => Depth [ 32 ]" );
 			renderer->setConfigOption( "Colour Depth", "32" );
 		}
 		else
 		{
-			LogManager::getSingleton().logMessage( "CONFIG => Depth [ 16 ]" );
 			renderer->setConfigOption( "Colour Depth", "16" );
 		}
 
@@ -176,15 +152,12 @@ namespace Ogre {
 		switch( value )
 		{
 			case 1:
-				LogManager::getSingleton().logMessage( "CONFIG => RTT Mode [ FBO ]" );
 				renderer->setConfigOption( "RTT Preferred Mode", "FBO" );
 				break;
 			case 2:
-				LogManager::getSingleton().logMessage( "CONFIG => RTT Mode [ PBuffer ]" );
 				renderer->setConfigOption( "RTT Preferred Mode", "PBuffer" );
 				break;
 			case 3:
-				LogManager::getSingleton().logMessage( "CONFIG => RTT Mode [ Copy ]" );
 				renderer->setConfigOption( "RTT Preferred Mode", "Copy" );
 				break;
 		}
@@ -199,14 +172,12 @@ namespace Ogre {
 	
 	void ConfigDialog::cancel()
 	{
-		LogManager::getSingleton().logMessage( "ConfigDialog::cancel()" );
 		iDisplayStatus = false;
 		QuitAppModalLoopForWindow( iWindowRef );
 	}
 	
 	pascal OSStatus ConfigDialog::windowEventHandler( EventHandlerCallRef aNextHandler, EventRef aEvent, void* aUserData )
 	{
-		LogManager::getSingleton().logMessage( "ConfigDialog::windowEventHandler()" );
 		#pragma unused ( inCallRef )
 		OSStatus status	= eventNotHandledErr;
 		UInt32 eventKind = GetEventKind( aEvent );
@@ -215,7 +186,6 @@ namespace Ogre {
 		HICommand command;
 		if( eventClass == kEventClassWindow && eventKind == kEventWindowClose )
 		{
-			LogManager::getSingleton().logMessage( "ConfigDialog::windowEventHandler() => kEventWindowClose" );
 			QuitAppModalLoopForWindow( window );
 		}
 		else if( eventClass == kEventClassCommand && eventKind == kEventCommandProcess )
@@ -241,8 +211,25 @@ namespace Ogre {
 	}
 
 	bool ConfigDialog::display()
-	{		
-		LogManager::getSingleton().logMessage( "ConfigDialog::display()" );
+	{
+		// TODO: Fix OS X Config dialog
+		RenderSystemList* renderers = Root::getSingleton().getAvailableRenderers();
+		RenderSystem* renderer = renderers->front();
+			
+		if(!Root::getSingleton().restoreConfig())
+		{
+			// Set some defaults
+			renderer->setConfigOption("Video Mode", "800 x 600");
+			renderer->setConfigOption("Colour Depth", "32");
+			renderer->setConfigOption("FSAA", "0");
+			renderer->setConfigOption("Full Screen", "No");
+			renderer->setConfigOption("RTT Preferred Mode", "PBuffer");
+			// Set the rendersystem and save the config.
+			Root::getSingleton().setRenderSystem(renderer);
+			Root::getSingleton().saveConfig();
+		}
+		return true;
+	/*
 		iDisplayStatus = false;
 		OSStatus status;
 		CFStringRef logoRef = NULL;
@@ -265,7 +252,9 @@ namespace Ogre {
 			{ kEventClassWindow, kEventWindowClose }
 		};
 
-		status	= CreateNibReference( CFSTR( "main" ), &iNibRef );
+		// We need to get the Ogre Bundle
+		CFBundleRef baseBundle = CFBundleGetBundleWithIdentifier(CFSTR("org.ogre3d.Ogre"));
+		status	= CreateNibReferenceWithCFBundle(baseBundle, CFSTR("main"), &iNibRef );
 		require_noerr( status, CantGetNibRef );
 
 		status	= CreateWindowFromNib( iNibRef, CFSTR( "ConfigWindow" ), &iWindowRef );
@@ -274,7 +263,8 @@ namespace Ogre {
 		if( WindowEventHandlerUPP == NULL )
 			WindowEventHandlerUPP = NewEventHandlerUPP( windowEventHandler );
 
-		status	= InstallWindowEventHandler( iWindowRef, WindowEventHandlerUPP, GetEventTypeCount( windowEvents ), windowEvents, iWindowRef, NULL );
+		status = InstallWindowEventHandler( iWindowRef, WindowEventHandlerUPP, GetEventTypeCount( windowEvents ), windowEvents, iWindowRef, NULL );
+		//status = InstallStandardEventHandler(GetWindowEventTarget(iWindowRef));
 		require_noerr( status, CantInstallWindowEventHandler );
 
 		//logoRef = CFStringCreateWithCString( kCFAllocatorDefault, "file:///Users/aljen/Code/OSXConfig/logo.bmp", NULL );
@@ -297,6 +287,7 @@ namespace Ogre {
 		
 		// video mode view
 		status	= HIViewFindByID( HIViewGetRoot( iWindowRef ), videoModeViewID, &iVideoModeRef );
+
 		CreateNewMenu( iMenuID, 0, &iMenuRef );
 
 		if( iMenuRef != NULL )
@@ -334,15 +325,12 @@ namespace Ogre {
 
 		initialise();
 		
-		LogManager::getSingleton().logMessage( "ConfigDialog::display() => RepositionWindow()" );
 		RepositionWindow( iWindowRef, NULL, kWindowCenterOnMainScreen );
-		LogManager::getSingleton().logMessage( "ConfigDialog::display() => ShowWindow()" );
 		TransitionWindow( iWindowRef, kWindowFadeTransitionEffect, kWindowShowTransitionAction, NULL );
 		SelectWindow( iWindowRef );
 		ActivateWindow( iWindowRef, true );
 		RunAppModalLoopForWindow( iWindowRef );
-
-		LogManager::getSingleton().logMessage( "ConfigDialog::display() => HideWindow" );
+		
 		TransitionWindow( iWindowRef, kWindowFadeTransitionEffect, kWindowHideTransitionAction, NULL );
 		DisposeWindow( iWindowRef );
 
@@ -366,25 +354,9 @@ namespace Ogre {
 		LogManager::getSingleton().logMessage( "ConfigDialog::display() => err:SetVisibleFailed" );
 		return( iDisplayStatus );
 
-	/*
-		GLXConfigurator test;
-		Root::getSingleton().restoreConfig();
-		if(Root::getSingleton().getRenderSystem())
-			test.SetRenderSystem(Root::getSingleton().getRenderSystem());
-		if(!test.CreateWindow())
-			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "Could not create configuration dialog",
-				   "GLXConfig::display");
-
-		// Modal loop
-		test.Main();
-		if(!test.accept) // User did not accept
-			return false;
-
-		Root::getSingleton().setRenderSystem(test.mRenderer);
-		Root::getSingleton().saveConfig();
-	*/
 
 		return true;
+	*/
 	}
 
 };
