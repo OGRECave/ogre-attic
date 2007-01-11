@@ -2408,7 +2408,8 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void MaterialScriptCompiler::processManualProgramParam(size_t index, const String& commandname, const String& paramName)
+	void MaterialScriptCompiler::processManualProgramParam(bool isNamed, 
+		const String commandname, size_t index, const String& paramName)
     {
         // NB we assume that the first element of vecparams is taken up with either
         // the index or the parameter name, which we ignore
@@ -2471,19 +2472,22 @@ namespace Ogre {
                 "type " + param);
         }
 
-        // Round dims to multiple of 4
-        if (dims %4 != 0)
-        {
-            roundedDims = dims + 4 - (dims % 4);
-        }
-        else
-        {
-            roundedDims = dims;
-        }
-
 		// clear any auto parameter bound to this constant, it would override this setting
 		// can cause problems overriding materials or changing default params
-		mScriptContext.programParams->clearAutoConstant(index);
+		if (isNamed)
+			mScriptContext.programParams->clearNamedAutoConstant(paramName);
+		else
+			mScriptContext.programParams->clearAutoConstant(index);
+
+		// Round dims to multiple of 4
+		if (dims %4 != 0)
+		{
+			roundedDims = dims + 4 - (dims % 4);
+		}
+		else
+		{
+			roundedDims = dims;
+		}
 
 		// Now parse all the values
         if (isReal)
@@ -2494,12 +2498,12 @@ namespace Ogre {
             {
                 realBuffer[i] = getNextTokenValue();
             }
-            // Fill up to multiple of 4 with zero
-            for (; i < roundedDims; ++i)
-            {
-                realBuffer[i] = 0.0f;
+			// Fill up to multiple of 4 with zero
+			for (; i < roundedDims; ++i)
+			{
+				realBuffer[i] = 0.0f;
 
-            }
+			}
 
             if (isMatrix4x4)
             {
@@ -2511,19 +2515,33 @@ namespace Ogre {
                     realBuffer[8],  realBuffer[9],  realBuffer[10], realBuffer[11],
                     realBuffer[12], realBuffer[13], realBuffer[14], realBuffer[15]
                     );
-                mScriptContext.programParams->setConstant(index, m4x4);
+				if (isNamed)
+					mScriptContext.programParams->setNamedConstant(paramName, m4x4);
+				else
+					mScriptContext.programParams->setConstant(index, m4x4);
             }
             else
             {
                 // Set
-                mScriptContext.programParams->setConstant(index, realBuffer, static_cast<size_t>(roundedDims * 0.25));
+				if (isNamed)
+				{
+					// For named, only set up to the precise number of elements
+					// (no rounding to 4 elements)
+					// GLSL can support sub-float4 elements and we support that
+					// in the buffer now. Note how we set the 'multiple' param to 1
+					mScriptContext.programParams->setNamedConstant(paramName, 
+						realBuffer, dims, 1);
+				}
+				else
+				{
+	                mScriptContext.programParams->setConstant(index, 
+						realBuffer, static_cast<size_t>(roundedDims * 0.25));
+				}
 
             }
 
 
             delete [] realBuffer;
-            // log the parameter
-            mScriptContext.programParams->addConstantDefinition(paramName, index, dims, GpuProgramParameters::ET_REAL);
         }
         else
         {
@@ -2533,20 +2551,32 @@ namespace Ogre {
             {
                 intBuffer[i] = static_cast<int>(getNextTokenValue());
             }
-            // Fill to multiple of 4 with 0
-            for (; i < roundedDims; ++i)
-            {
-                intBuffer[i] = 0;
-            }
+			// Fill to multiple of 4 with 0
+			for (; i < roundedDims; ++i)
+			{
+				intBuffer[i] = 0;
+			}
             // Set
-            mScriptContext.programParams->setConstant(index, intBuffer, static_cast<size_t>(roundedDims * 0.25));
+			if (isNamed)
+			{
+				// For named, only set up to the precise number of elements
+				// (no rounding to 4 elements)
+				// GLSL can support sub-float4 elements and we support that
+				// in the buffer now. Note how we set the 'multiple' param to 1
+				mScriptContext.programParams->setNamedConstant(paramName, intBuffer, 
+					dims, 1);
+			}
+			else
+			{
+				mScriptContext.programParams->setConstant(index, intBuffer, 
+					static_cast<size_t>(roundedDims * 0.25));
+			}
             delete [] intBuffer;
-            // log the parameter
-            mScriptContext.programParams->addConstantDefinition(paramName, index, dims, GpuProgramParameters::ET_INT);
         }
     }
     //-----------------------------------------------------------------------
-    void MaterialScriptCompiler::processAutoProgramParam(const size_t index, const String& commandname, const String& paramName)
+	void MaterialScriptCompiler::processAutoProgramParam(bool isNamed, const String commandname, 
+		size_t index, const String& paramName)
     {
 
         String autoConstantName(getNextTokenLabel());
@@ -2569,7 +2599,10 @@ namespace Ogre {
         switch (autoConstantDef->dataType)
         {
         case GpuProgramParameters::ACDT_NONE:
-            mScriptContext.programParams->setAutoConstant(index, autoConstantDef->acType, 0);
+			if (isNamed)
+				mScriptContext.programParams->setNamedAutoConstant(paramName, autoConstantDef->acType, 0);
+			else
+				mScriptContext.programParams->setAutoConstant(index, autoConstantDef->acType, 0);
             break;
 
         case GpuProgramParameters::ACDT_INT:
@@ -2577,15 +2610,23 @@ namespace Ogre {
 				// Special case animation_parametric, we need to keep track of number of times used
 				if (autoConstantDef->acType == GpuProgramParameters::ACT_ANIMATION_PARAMETRIC)
 				{
-					mScriptContext.programParams->setAutoConstant(
-						index, autoConstantDef->acType, mScriptContext.numAnimationParametrics++);
+					if (isNamed)
+						mScriptContext.programParams->setNamedAutoConstant(
+							paramName, autoConstantDef->acType, mScriptContext.numAnimationParametrics++);
+					else
+						mScriptContext.programParams->setAutoConstant(
+							index, autoConstantDef->acType, mScriptContext.numAnimationParametrics++);
 				}
 				// Special case texture projector - assume 0 if data not specified
 				else if (autoConstantDef->acType == GpuProgramParameters::ACT_TEXTURE_VIEWPROJ_MATRIX
 					&& getRemainingTokensForAction() == 0)
 				{
-					mScriptContext.programParams->setAutoConstant(
-						index, autoConstantDef->acType, 0);
+					if (isNamed)
+						mScriptContext.programParams->setNamedAutoConstant(
+							paramName, autoConstantDef->acType, 0);
+					else
+						mScriptContext.programParams->setAutoConstant(
+							index, autoConstantDef->acType, 0);
 
 				}
 				else
@@ -2599,8 +2640,12 @@ namespace Ogre {
 					}
 
 					size_t extraParam = static_cast<size_t>(getNextTokenValue());
-					mScriptContext.programParams->setAutoConstant(
-						index, autoConstantDef->acType, extraParam);
+					if (isNamed)
+						mScriptContext.programParams->setNamedAutoConstant(
+							paramName, autoConstantDef->acType, extraParam);
+					else
+						mScriptContext.programParams->setAutoConstant(
+							index, autoConstantDef->acType, extraParam);
 				}
             }
             break;
@@ -2617,7 +2662,12 @@ namespace Ogre {
                         factor = getNextTokenValue();
                     }
 
-                    mScriptContext.programParams->setAutoConstantReal(index, autoConstantDef->acType, factor);
+					if (isNamed)
+						mScriptContext.programParams->setNamedAutoConstantReal(
+							paramName, autoConstantDef->acType, factor);
+					else
+						mScriptContext.programParams->setAutoConstantReal(
+							index, autoConstantDef->acType, factor);
                 }
                 else // normal processing for auto constants that take an extra real value
                 {
@@ -2629,22 +2679,18 @@ namespace Ogre {
                     }
 
 			        const Real rData = getNextTokenValue();
-			        mScriptContext.programParams->setAutoConstantReal(index, autoConstantDef->acType, rData);
+					if (isNamed)
+						mScriptContext.programParams->setNamedAutoConstantReal(
+							paramName, autoConstantDef->acType, rData);
+					else
+						mScriptContext.programParams->setAutoConstantReal(
+							index, autoConstantDef->acType, rData);
                 }
             }
             break;
 
         } // end switch
 
-        // add constant definition based on AutoConstant
-        // make element count 0 so that proper allocation occurs when AutoState is set up
-        size_t constantIndex = mScriptContext.programParams->addConstantDefinition(
-			paramName, index, 0, autoConstantDef->elementType);
-        // update constant definition auto settings
-        // since an autoconstant was just added, its the last one in the container
-        size_t autoIndex = mScriptContext.programParams->getAutoConstantCount() - 1;
-        // setup autoState which will allocate the proper amount of storage required by constant entries
-        mScriptContext.programParams->setConstantDefinitionAutoState(constantIndex, true, autoIndex);
 
     }
 
@@ -2667,7 +2713,7 @@ namespace Ogre {
         // Get start index
         const size_t index = static_cast<size_t>(getNextTokenValue());
 
-        processManualProgramParam(index, "param_indexed");
+        processManualProgramParam(false, "param_indexed", index);
 
     }
     //-----------------------------------------------------------------------
@@ -2687,7 +2733,7 @@ namespace Ogre {
         // Get start index
         const size_t index = static_cast<size_t>(getNextTokenValue());
 
-        processAutoProgramParam(index, "param_indexed_auto");
+        processAutoProgramParam(false, "param_indexed_auto", index);
 
     }
     //-----------------------------------------------------------------------
@@ -2706,10 +2752,10 @@ namespace Ogre {
         }
 
         // Get start index from name
-        size_t index;
         const String& paramName = getNextTokenLabel();
         try {
-            index = mScriptContext.programParams->getParamIndex(paramName);
+            const GpuConstantDefinition& def =
+				mScriptContext.programParams->getConstantDefinition(paramName);
         }
         catch (Exception& e)
         {
@@ -2717,7 +2763,7 @@ namespace Ogre {
             return;
         }
 
-        processManualProgramParam(index, "param_named", paramName);
+        processManualProgramParam(true, "param_named", 0, paramName);
 
     }
     //-----------------------------------------------------------------------
@@ -2736,10 +2782,10 @@ namespace Ogre {
         }
 
         // Get start index from name
-        size_t index;
-        const String& paramNamed = getNextTokenLabel();
+        const String& paramName = getNextTokenLabel();
         try {
-            index = mScriptContext.programParams->getParamIndex(paramNamed);
+			const GpuConstantDefinition& def =
+				mScriptContext.programParams->getConstantDefinition(paramName);
         }
         catch (Exception& e)
         {
@@ -2747,7 +2793,7 @@ namespace Ogre {
             return;
         }
 
-        processAutoProgramParam(index, "param_named_auto", paramNamed);
+        processAutoProgramParam(true, "param_named_auto", 0, paramName);
     }
     //-----------------------------------------------------------------------
 	void MaterialScriptCompiler::finishProgramDefinition(void)

@@ -76,7 +76,7 @@ namespace Ogre {
 
 		void createLowLevelImpl(void);
 		void unloadHighLevelImpl(void);
-		void buildParameterNameMap();
+		void buildConstantDefinitions() const;
 		void loadFromSource(void);
 
 	public:

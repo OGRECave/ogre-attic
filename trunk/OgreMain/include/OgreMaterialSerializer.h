@@ -143,8 +143,18 @@ namespace Ogre {
         void writeGpuPrograms(void);
         void writeGPUProgramParameters(const GpuProgramParametersSharedPtr& params, GpuProgramParameters* defaultParams,
             const int level = 4, const bool useMainBuffer = true);
+		void writeNamedGpuProgramParameters(const GpuProgramParametersSharedPtr& params, GpuProgramParameters* defaultParams,
+			const int level = 4, const bool useMainBuffer = true);
+		void writeLowLevelGpuProgramParameters(const GpuProgramParametersSharedPtr& params, GpuProgramParameters* defaultParams,
+			const int level = 4, const bool useMainBuffer = true);
+		void writeGpuProgramParameter(
+			const String& commandName, const String& identifier, 
+			const GpuProgramParameters::AutoConstantEntry* autoEntry, 
+			const GpuProgramParameters::AutoConstantEntry* defaultAutoEntry, 
+			bool isFloat, size_t physicalIndex, size_t physicalSize,
+			const GpuProgramParametersSharedPtr& params, GpuProgramParameters* defaultParams,
+			const int level, const bool useMainBuffer);
 		void writeTextureUnit(const TextureUnitState *pTex);
-
 		void writeSceneBlendFactor(const SceneBlendFactor sbf_src, const SceneBlendFactor sbf_dest);
 		void writeSceneBlendFactor(const SceneBlendFactor sbf);
 		void writeCompareFunction(const CompareFunction cf);

@@ -30,14 +30,18 @@ Torus Knot Software Ltd.
 #include "OgreGLSLExtSupport.h"
 #include "OgreGLSLLinkProgram.h"
 #include "OgreStringConverter.h"
+#include "OgreGLSLGpuProgram.h"
+#include "OgreGLSLProgram.h"
 #include "OgreGLSLLinkProgramManager.h"
 
 namespace Ogre {
 
 	//-----------------------------------------------------------------------
 #define NO_ATTRIB 0xFFFF
-	GLSLLinkProgram::GLSLLinkProgram(void)
-        : mUniformRefsBuilt(false)
+	GLSLLinkProgram::GLSLLinkProgram(GLSLGpuProgram* vertexProgram, GLSLGpuProgram* fragmentProgram)
+        : mVertexProgram(vertexProgram)
+		, mFragmentProgram(fragmentProgram)
+		, mUniformRefsBuilt(false)
         , mLinked(false)
 		, mTangentAttrib(NO_ATTRIB)
 		, mBinormalAttrib(NO_ATTRIB)
@@ -48,6 +52,20 @@ namespace Ogre {
 			checkForGLSLError( "GLSLLinkProgram::GLSLLinkProgram", "Error prior to Creating GLSL Program Object", 0 );
 		    mGLHandle = glCreateProgramObjectARB();
 			checkForGLSLError( "GLSLLinkProgram::GLSLLinkProgram", "Error Creating GLSL Program Object", 0 );
+
+
+			// tell shaders to attach themselves to the LinkProgram
+			// let the shaders do the attaching since they may have several children to attach
+			if (mVertexProgram)
+			{
+				mVertexProgram->getGLSLProgram()->attachToProgramObject(mGLHandle);
+				setSkeletalAnimationIncluded(mVertexProgram->isSkeletalAnimationIncluded());
+			}
+
+			if (mFragmentProgram)
+			{
+				mFragmentProgram->getGLSLProgram()->attachToProgramObject(mGLHandle);
+			}
 
 	}
 
@@ -71,7 +89,7 @@ namespace Ogre {
 			if(mLinked)
 			{
 				logObjectInfo( String("GLSL link result : "), mGLHandle );
-				buildUniformReferences();
+				buildGLUniformReferences();
 				extractAttributes();
 			}
 
@@ -135,368 +153,177 @@ namespace Ogre {
 		};
 	}
 	//-----------------------------------------------------------------------
-	void GLSLLinkProgram::buildUniformReferences(void)
+	void GLSLLinkProgram::buildGLUniformReferences(void)
 	{
 		if (!mUniformRefsBuilt)
 		{
-			GLSLLinkProgramManager::getSingleton().extractUniforms(mGLHandle, mUniformReferences);
+			const GpuConstantDefinitionMap* vertParams = 0;
+			const GpuConstantDefinitionMap* fragParams = 0;
+
+			if (mVertexProgram)
+			{
+				vertParams = &(mVertexProgram->getGLSLProgram()->getConstantDefinitions().map);
+			}
+			if (mFragmentProgram)
+			{
+				fragParams = &(mFragmentProgram->getGLSLProgram()->getConstantDefinitions().map);
+			}
+
+			GLSLLinkProgramManager::getSingleton().extractUniforms(
+				mGLHandle, vertParams, fragParams, mGLUniformReferences);
 
 			mUniformRefsBuilt = true;
 		}
 	}
 
 	//-----------------------------------------------------------------------
-	void GLSLLinkProgram::updateUniforms(GpuProgramParametersSharedPtr params)
+	void GLSLLinkProgram::updateUniforms(GpuProgramParametersSharedPtr params, 
+		GpuProgramType fromProgType)
 	{
-        // float array buffer used to pass arrays to GL
-        static float floatBuffer[1024];
-		size_t size;
-        float* pBuffer;		
-        GLint* piBuffer;
-
 		// iterate through uniform reference list and update uniform values
-		UniformReferenceIterator currentUniform = mUniformReferences.begin();
-		UniformReferenceIterator endUniform = mUniformReferences.end();
+		GLUniformReferenceIterator currentUniform = mGLUniformReferences.begin();
+		GLUniformReferenceIterator endUniform = mGLUniformReferences.end();
 
-		GpuProgramParameters::RealConstantEntry* currentRealConstant;
-		GpuProgramParameters::IntConstantEntry* currentIntConstant;
-
-		while (currentUniform != endUniform)
+		for (;currentUniform != endUniform; ++currentUniform)
 		{
-			// get the index in the parameter real list
-
-			if (currentUniform->isReal)
+			// Only pull values from buffer it's supposed to be in (vertex or fragment)
+			// This method will be called twice, once for vertex program params, 
+			// and once for fragment program params.
+			if (fromProgType == currentUniform->mSourceProgType)
 			{
-				currentRealConstant = params->getNamedRealConstantEntry( currentUniform->mName );
-				if (currentRealConstant != NULL)
+				const GpuConstantDefinition* def = currentUniform->mConstantDef;
+				GLsizei glArraySize = (GLsizei)def->arraySize;
+
+				// get the index in the parameter real list
+				switch (def->constType)
 				{
-					if (currentRealConstant->isSet)
+				case GCT_FLOAT1:
+					glUniform1fvARB(currentUniform->mLocation, glArraySize, 
+						params->getFloatPointer(def->physicalIndex));
+					break;
+				case GCT_FLOAT2:
+					glUniform2fvARB(currentUniform->mLocation, glArraySize, 
+						params->getFloatPointer(def->physicalIndex));
+					break;
+				case GCT_FLOAT3:
+					glUniform3fvARB(currentUniform->mLocation, glArraySize, 
+						params->getFloatPointer(def->physicalIndex));
+					break;
+				case GCT_FLOAT4:
+					glUniform4fvARB(currentUniform->mLocation, glArraySize, 
+						params->getFloatPointer(def->physicalIndex));
+					break;
+				case GCT_MATRIX_2X2:
+					glUniformMatrix2fvARB(currentUniform->mLocation, glArraySize, 
+						GL_TRUE, params->getFloatPointer(def->physicalIndex));
+					break;
+				case GCT_MATRIX_2X3:
+					if (GLEW_VERSION_2_1)
 					{
-                        pBuffer = floatBuffer;
-  
-						switch (currentUniform->mElementCount)
-						{
-						case 1:
-                            // Support arrays of float
-                            if (currentUniform->mArraySize > 1)
-                            {
-                                // Build a combined buffer
-								size = 0;
-                                while (currentRealConstant->isSet && size < currentUniform->mArraySize)
-                                {
-                                    *pBuffer++ = currentRealConstant->val[0];
-									++currentRealConstant;
-									++size;
-                                }
-                                glUniform1fvARB(currentUniform->mLocation, size, floatBuffer);
-                            }
-                            else
-                            {
-								glUniform1fvARB(currentUniform->mLocation, 1, currentRealConstant->val);
-                            }
-							break;
-
-						case 2:
-                            // Support arrays of vec2
-                            if (currentUniform->mArraySize > 1)
-                            {
-                                // Build a combined buffer
-								size = 0;
-								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
-                                {
-                                    memcpy(pBuffer, currentRealConstant->val, sizeof(float) * 2);
-									++currentRealConstant;
-									++size;
-                                    pBuffer += 2;
-                                }
-                                glUniform2fvARB(currentUniform->mLocation, size, floatBuffer);
-                            }
-                            else
-                            {
-								glUniform2fvARB(currentUniform->mLocation, 1, currentRealConstant->val);
-                            }
-							break;
-
-						case 3:
-                            // Support arrays of vec3
-                            if (currentUniform->mArraySize > 1)
-                            {
-                                // Build a combined buffer
-								size = 0;
-								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
-								{
-									memcpy(pBuffer, currentRealConstant->val, sizeof(float) * 3);
-									++currentRealConstant;
-									++size;
-									pBuffer += 3;
-								}
-                                glUniform3fvARB(currentUniform->mLocation, size, floatBuffer);
-                            }
-                            else
-                            {
-	                            glUniform3fvARB(currentUniform->mLocation, 1, currentRealConstant->val);
-                            }
-                            break;
-
-                        case 4:
-							// Support arrays of vec4 and mat2
-							if (currentUniform->mArraySize > 1)
-							{
-								// Build a combined buffer
-								size = 0;
-								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
-								{
-									memcpy(pBuffer, currentRealConstant->val, sizeof(float) * 4);
-									++currentRealConstant;
-									++size;
-									pBuffer += 4;
-								}
-								// mat2 or vec4?
-								if (currentUniform->mType == GL_FLOAT_MAT2)
-									glUniformMatrix2fvARB(currentUniform->mLocation, size, GL_TRUE, floatBuffer);
-								else
-									glUniform4fvARB(currentUniform->mLocation, size, floatBuffer);
-							}
-							else
-							{
-								// mat2 or vec4?
-								if (currentUniform->mType == GL_FLOAT_MAT2)
-									glUniformMatrix2fvARB( currentUniform->mLocation, 1, GL_TRUE, currentRealConstant->val);
-								else
-									glUniform4fvARB(currentUniform->mLocation, 1, currentRealConstant->val);
-							}
-							break;
-
-                        case 6:
-							// 2x3 / 3x2 matrices only supported in GL 2.1
-							if (GLEW_VERSION_2_1)
-							{
-								// Support arrays of mat2x3 and mat3x2
-								size = 0;
-								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
-								{
-									memcpy(pBuffer, currentRealConstant++->val, sizeof(float) * 4);
-									memcpy(pBuffer + 4, currentRealConstant++->val, sizeof(float) * 2);
-									pBuffer += 6;
-									++size;
-								}
-								if (currentUniform->mType == GL_FLOAT_MAT2x3)
-									glUniformMatrix2x3fv(currentUniform->mLocation, size, GL_TRUE, floatBuffer);
-								else
-									glUniformMatrix3x2fv(currentUniform->mLocation, size, GL_TRUE, floatBuffer);
-							}
-                            break;
-  
-                        case 8:
-							// 2x4 / 4x2 matrices only supported in GL 2.1
-							if (GLEW_VERSION_2_1)
-							{
-								// Support arrays of mat2x4and mat4x2
-								size = 0;
-								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
-								{
-									memcpy(pBuffer, currentRealConstant++->val, sizeof(float) * 4);
-									memcpy(pBuffer + 4, currentRealConstant++->val, sizeof(float) * 4);
-									pBuffer += 8;
-									++size;
-								}
-								if (currentUniform->mType == GL_FLOAT_MAT2x4)
-									glUniformMatrix2x4fv(currentUniform->mLocation, size, GL_TRUE, floatBuffer);
-								else
-									glUniformMatrix4x2fv(currentUniform->mLocation, size, GL_TRUE, floatBuffer);
-							}
-							break;
-
-                        case 9:
-							size = 0;
-							while (currentRealConstant->isSet && size < currentUniform->mArraySize)
-							{
-                                memcpy(pBuffer, currentRealConstant++->val, sizeof(float) * 4);
-                                memcpy(pBuffer + 4, currentRealConstant++->val, sizeof(float) * 4);
-                                memcpy(pBuffer + 8, currentRealConstant++->val, sizeof(float));
-                                pBuffer += 9;
-								++size;
-                            }
-                            glUniformMatrix3fvARB(currentUniform->mLocation, size, GL_TRUE, floatBuffer);
-                            break;
-
-                        case 12:
-							// 3x4 / 4x3 matrices only supported in GL 2.1
-							if (GLEW_VERSION_2_1)
-							{
-								// Support arrays of mat3x4and mat4x3
-								size = 0;
-								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
-								{
-									memcpy(pBuffer, currentRealConstant++->val, sizeof(float) * 4);
-									memcpy(pBuffer + 4, currentRealConstant++->val, sizeof(float) * 4);
-									memcpy(pBuffer + 8, currentRealConstant++->val, sizeof(float) * 4);
-									pBuffer += 12;
-									++size;
-								}
-								if (currentUniform->mType == GL_FLOAT_MAT3x4)
-									glUniformMatrix3x4fv(currentUniform->mLocation, size, GL_TRUE, floatBuffer);
-								else
-									glUniformMatrix4x3fv(currentUniform->mLocation, size, GL_TRUE, floatBuffer);
-							}
-							break;
-
-                        case 16:
-                            // Support arrays of mat4
-							size = 0;
-							while (currentRealConstant->isSet && size < currentUniform->mArraySize)
-							{
-                                memcpy(pBuffer, currentRealConstant++->val, sizeof(float) * 4);
-                                memcpy(pBuffer + 4, currentRealConstant++->val, sizeof(float) * 4);
-                                memcpy(pBuffer + 8, currentRealConstant++->val, sizeof(float) * 4);
-                                memcpy(pBuffer + 12, currentRealConstant++->val, sizeof(float) * 4);
-                                pBuffer += 16;
-								++size;
-                            }
-                            glUniformMatrix4fvARB(currentUniform->mLocation, size, GL_TRUE, floatBuffer);
-                            break;
-
-						} // end switch
+						glUniformMatrix2x3fv(currentUniform->mLocation, glArraySize, 
+							GL_TRUE, params->getFloatPointer(def->physicalIndex));
 					}
-				}
-			}
-			else
-			{
-				currentIntConstant = params->getNamedIntConstantEntry( currentUniform->mName );
-				if (currentIntConstant != NULL)
-				{
-					if (currentIntConstant->isSet)
+					break;
+				case GCT_MATRIX_2X4:
+					if (GLEW_VERSION_2_1)
 					{
-                        piBuffer = (GLint*)floatBuffer;
-  
-						switch (currentUniform->mElementCount)
-						{
-						case 1:
-                            // Support arrays of int
-                            if (currentUniform->mArraySize > 1)
-                            {
-                                // Build a combined buffer
-								size = 0;
-								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
-								{
-                                    memcpy(piBuffer, currentRealConstant++->val, sizeof(GLint));
-                                    piBuffer++;
-									++size;
-                                }
-                                glUniform1ivARB(currentUniform->mLocation, size, (const GLint*)floatBuffer);
-                            }
-                            else
-                            {
-								glUniform1ivARB( currentUniform->mLocation, 1, (const GLint*)currentIntConstant->val );
-                            }
-							break;
-
-						case 2:
-                            // Support arrays of ivec2
-                            if (currentUniform->mArraySize > 1)
-                            {
-                                // Build a combined buffer
-								size = 0;
-								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
-								{
-                                    memcpy(pBuffer, currentRealConstant++->val, sizeof(GLint) * 2);
-                                    pBuffer += 2;
-									++size;
-                                }
-                                glUniform2ivARB(currentUniform->mLocation, size, (const GLint*)floatBuffer);
-                            }
-                            else
-                            {
-								glUniform2ivARB( currentUniform->mLocation, 1, (const GLint*)currentIntConstant->val );
-                            }
-							break;
-
-						case 3:
-                            // Support arrays of vec3
-                            if (currentUniform->mArraySize > 1)
-                            {
-                                // Build a combined buffer
-								size = 0;
-								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
-								{
-                                    memcpy(pBuffer, currentRealConstant++->val, sizeof(GLint) * 3);
-                                    pBuffer += 3;
-									++size;
-                                }
-                                glUniform3ivARB(currentUniform->mLocation, size, (const GLint*)floatBuffer);
-                            }
-                            else
-                            {
-								glUniform3ivARB( currentUniform->mLocation, 1, (const GLint*)currentIntConstant->val );
-                            }
-							break;
-
-						case 4:
-                            // Support arrays of vec4
-                            if (currentUniform->mArraySize > 1)
-                            {
-                                // Build a combined buffer
-								size = 0;
-								while (currentRealConstant->isSet && size < currentUniform->mArraySize)
-								{
-                                    memcpy(pBuffer, currentRealConstant++->val, sizeof(GLint) * 4);
-                                    pBuffer += 4;
-									++size;
-                                }
-                                glUniform4ivARB(currentUniform->mLocation, size, (const GLint*)floatBuffer);
-                            }
-                            else
-                            {
-								glUniform4ivARB( currentUniform->mLocation, 1, (const GLint*)currentIntConstant->val );
-                            }
-							break;
-  
-						} // end switch
+						glUniformMatrix2x4fv(currentUniform->mLocation, glArraySize, 
+							GL_TRUE, params->getFloatPointer(def->physicalIndex));
 					}
-				}
+					break;
+					break;
+				case GCT_MATRIX_3X2:
+					if (GLEW_VERSION_2_1)
+					{
+						glUniformMatrix3x2fv(currentUniform->mLocation, glArraySize, 
+							GL_TRUE, params->getFloatPointer(def->physicalIndex));
+					}
+					break;
+				case GCT_MATRIX_3X3:
+					glUniformMatrix3fvARB(currentUniform->mLocation, glArraySize, 
+						GL_TRUE, params->getFloatPointer(def->physicalIndex));
+					break;
+				case GCT_MATRIX_3X4:
+					if (GLEW_VERSION_2_1)
+					{
+						glUniformMatrix3x4fv(currentUniform->mLocation, glArraySize, 
+							GL_TRUE, params->getFloatPointer(def->physicalIndex));
+					}
+					break;
+				case GCT_MATRIX_4X2:
+					if (GLEW_VERSION_2_1)
+					{
+						glUniformMatrix4x2fv(currentUniform->mLocation, glArraySize, 
+							GL_TRUE, params->getFloatPointer(def->physicalIndex));
+					}
+					break;
+				case GCT_MATRIX_4X3:
+					if (GLEW_VERSION_2_1)
+					{
+						glUniformMatrix4x3fv(currentUniform->mLocation, glArraySize, 
+							GL_TRUE, params->getFloatPointer(def->physicalIndex));
+					}
+					break;
+				case GCT_MATRIX_4X4:
+					glUniformMatrix4fvARB(currentUniform->mLocation, glArraySize, 
+						GL_TRUE, params->getFloatPointer(def->physicalIndex));
+					break;
+				case GCT_INT1:
+					glUniform1ivARB(currentUniform->mLocation, glArraySize, 
+						params->getIntPointer(def->physicalIndex));
+					break;
+				case GCT_INT2:
+					glUniform2ivARB(currentUniform->mLocation, glArraySize, 
+						params->getIntPointer(def->physicalIndex));
+					break;
+				case GCT_INT3:
+					glUniform3ivARB(currentUniform->mLocation, glArraySize, 
+						params->getIntPointer(def->physicalIndex));
+					break;
+				case GCT_INT4:
+					glUniform4ivARB(currentUniform->mLocation, glArraySize, 
+						params->getIntPointer(def->physicalIndex));
+					break;
+				case GCT_SAMPLER1D:
+				case GCT_SAMPLER1DSHADOW:
+				case GCT_SAMPLER2D:
+				case GCT_SAMPLER2DSHADOW:
+				case GCT_SAMPLER3D:
+				case GCT_SAMPLERCUBE:
+					// samplers handled like 1-element ints
+					glUniform1ivARB(currentUniform->mLocation, 1, 
+						params->getIntPointer(def->physicalIndex));
+					break;
 
+				} // end switch
 			}
   
-  
-			// get the next uniform
-			++currentUniform;
-
-		} // end while
+  		} // end for
 	}
 
 
 	//-----------------------------------------------------------------------
 	void GLSLLinkProgram::updatePassIterationUniforms(GpuProgramParametersSharedPtr params)
 	{
-		// iterate through uniform reference list and update pass iteration uniform values
-		UniformReferenceIterator currentUniform = mUniformReferences.begin();
-		UniformReferenceIterator endUniform = mUniformReferences.end();
+		if (params->hasPassIterationNumber())
+		{
+			size_t index = params->getPassIterationNumberIndex();
 
-		GpuProgramParameters::RealConstantEntry* currentRealConstant;
-		//GpuProgramParameters::IntConstantEntry* currentIntConstant;
+			GLUniformReferenceIterator currentUniform = mGLUniformReferences.begin();
+			GLUniformReferenceIterator endUniform = mGLUniformReferences.end();
 
-        currentRealConstant = params->getPassIterationEntry();
-        if (currentRealConstant)
-        {
-            // need to find the uniform that matches the multi pass entry
-		    while (currentUniform != endUniform)
-		    {
-			    // get the index in the parameter real list
-
-			    if (currentUniform->isReal)
-			    {
-
-				    if (currentRealConstant == params->getNamedRealConstantEntry( currentUniform->mName ))
-				    {
-                        glUniform1fvARB( currentUniform->mLocation, 1, currentRealConstant->val );
-                        // there will only be one multipass entry
-                        return;
-                    }
-                }
-			    // get the next uniform
-			    ++currentUniform;
-            }
-        }
+			// need to find the uniform that matches the multi pass entry
+			for (;currentUniform != endUniform; ++currentUniform)
+			{
+				// get the index in the parameter real list
+				if (index == currentUniform->mConstantDef->physicalIndex)
+				{
+					glUniform1fvARB( currentUniform->mLocation, 1, params->getFloatPointer(index));
+					// there will only be one multipass entry
+					return;
+				}
+			}
+		}
 
     }
 } // namespace Ogre

@@ -131,36 +131,35 @@ void GLArbGpuProgram::bindProgramParameters(GpuProgramParametersSharedPtr params
     GLenum type = (mType == GPT_VERTEX_PROGRAM) ? 
         GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
     
-    if (params->hasRealConstantParams())
-    {
-        // Iterate over params and set the relevant ones
-        GpuProgramParameters::RealConstantIterator realIt = 
-            params->getRealConstantIterator();
-        unsigned int index = 0;
-        while (realIt.hasMoreElements())
-        {
-            const GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
-            if (e->isSet)
-            {
-                glProgramLocalParameter4fvARB(type, index, e->val);
-            }
-            index++;
-            realIt.moveNext();
-        }
-    }
+	// only supports float constants
+	const GpuLogicalBufferStruct* floatStruct = params->getFloatLogicalBufferStruct();
 
+	for (GpuLogicalIndexUseMap::const_iterator i = floatStruct->map.begin();
+		i != floatStruct->map.end(); ++i)
+	{
+		size_t logicalIndex = i->first;
+		const float* pFloat = params->getFloatPointer(i->second.physicalIndex);
+		// Iterate over the params, set in 4-float chunks (low-level)
+		for (size_t j = 0; j < i->second.currentSize; j+=4)
+		{
+			glProgramLocalParameter4fvARB(type, logicalIndex, pFloat);
+			pFloat += 4;
+			++logicalIndex;
+		}
+	}
 }
 
 void GLArbGpuProgram::bindProgramPassIterationParameters(GpuProgramParametersSharedPtr params)
 {
-    GLenum type = (mType == GPT_VERTEX_PROGRAM) ? 
-        GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
-    
-    GpuProgramParameters::RealConstantEntry* realEntry = params->getPassIterationEntry();
-
-    if (realEntry)
+    if (params->hasPassIterationNumber())
     {
-        glProgramLocalParameter4fvARB(type, (GLuint)params->getPassIterationEntryIndex(), realEntry->val);
+		GLenum type = (mType == GPT_VERTEX_PROGRAM) ? 
+			GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
+
+		size_t physicalIndex = params->getPassIterationNumberIndex();
+		size_t logicalIndex = params->getFloatLogicalIndexForPhysicalIndex(physicalIndex);
+		const float* pFloat = params->getFloatPointer(physicalIndex);
+        glProgramLocalParameter4fvARB(type, (GLuint)logicalIndex, pFloat);
     }
 
 }

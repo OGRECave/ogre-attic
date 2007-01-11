@@ -35,19 +35,18 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 	/// structure used to keep track of named uniforms in the linked program object
-	struct UniformReference
+	struct GLUniformReference
 	{
-		String mName;
-		GLenum mType;
+		/// GL location handle
 		GLint  mLocation;
-		bool isSampler;
-		bool isReal;
-		GLsizei mElementCount;
-		GLint mArraySize;
+		/// Which type of program params will this value come from?
+		GpuProgramType mSourceProgType;
+		/// The constant definition it relates to
+		const GpuConstantDefinition* mConstantDef;
 	};
 
-	typedef std::vector<UniformReference> UniformReferenceList;
-	typedef UniformReferenceList::iterator UniformReferenceIterator;
+	typedef std::vector<GLUniformReference> GLUniformReferenceList;
+	typedef GLUniformReferenceList::iterator GLUniformReferenceIterator;
 
 	/** C++ encapsulation of GLSL Program Object
 
@@ -57,7 +56,12 @@ namespace Ogre {
 	{
 	private:
 		/// container of uniform references that are active in the program object
-		UniformReferenceList mUniformReferences;
+		GLUniformReferenceList mGLUniformReferences;
+
+		/// Linked vertex program
+		GLSLGpuProgram* mVertexProgram;
+		/// Linked fragment program
+		GLSLGpuProgram* mFragmentProgram;
 
 		/// flag to indicate that uniform references have already been built
 		bool		mUniformRefsBuilt;
@@ -78,7 +82,7 @@ namespace Ogre {
         bool mSkeletalAnimation;
 
 		/// build uniform references from active named uniforms
-		void buildUniformReferences(void);
+		void buildGLUniformReferences(void);
 		/// extract attributes
 		void extractAttributes(void);
 
@@ -86,7 +90,7 @@ namespace Ogre {
 
 	public:
 		/// constructor should only be used by GLSLLinkProgramManager
-		GLSLLinkProgram(void);
+		GLSLLinkProgram(GLSLGpuProgram* vertexProgram, GLSLGpuProgram* fragmentProgram);
 		~GLSLLinkProgram(void);
 
 		/** Makes a program object active by making sure it is linked and then putting it in use.
@@ -96,7 +100,7 @@ namespace Ogre {
 		/** updates program object uniforms using data from GpuProgramParamters.
 		normally called by GLSLGpuProgram::bindParameters() just before rendering occurs.
 		*/
-		void updateUniforms(GpuProgramParametersSharedPtr params);
+		void updateUniforms(GpuProgramParametersSharedPtr params, GpuProgramType fromProgType);
 		/** updates program object uniforms using data from pass iteration GpuProgramParamters.
 		normally called by GLSLGpuProgram::bindMultiPassParameters() just before multi pass rendering occurs.
 		*/

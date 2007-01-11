@@ -593,14 +593,8 @@ bool OceanDemo::handleShaderControl(const CEGUI::EventArgs& e)
 
 					if(!activeParameters.isNull())
 					{
-						// use index to get RealConstantEntry
-						GpuProgramParameters::RealConstantEntry* entry = activeParameters->getRealConstantEntry( ActiveShaderDef.ConstantIndex );
-						// get val from array using element index
-						if(entry != NULL)
-						{
-							entry->val[ActiveShaderDef.ElementIndex] = val;
-							entry->isSet = true;
-						}
+						activeParameters->_writeRawConstant(
+							ActiveShaderDef.PhysicalIndex + ActiveShaderDef.ElementIndex, val);
 					}
 				}
 				break;
@@ -784,17 +778,14 @@ void OceanDemo::configureShaderControls(void)
 									if(!activeParameters.isNull())
 									{
 										// use param name to get index : use appropiate paramters ptr
-										size_t entryindex = activeParameters->getParamIndex(ActiveShaderDef.ParamName);
-										ActiveShaderDef.ConstantIndex = entryindex;
+										const Ogre::GpuConstantDefinition& def = 
+											activeParameters->getConstantDefinition(ActiveShaderDef.ParamName);
+										ActiveShaderDef.PhysicalIndex = def.physicalIndex;
 										// use index to get RealConstantEntry
-										Ogre::GpuProgramParameters::RealConstantEntry* entry = activeParameters->getRealConstantEntry( entryindex );
-										// get val from array using element index
-										if(entry != NULL)
-										{
-											// set position of ScrollWidget as param value
-											uniformVal = entry->val[ActiveShaderDef.ElementIndex];
-											activeScrollWidget->setScrollPosition( ActiveShaderDef.convertParamToScrollPosition(uniformVal) );
-										}
+										const float* pFloat = activeParameters->getFloatPointer(ActiveShaderDef.PhysicalIndex);
+										// set position of ScrollWidget as param value
+										uniformVal = pFloat[ActiveShaderDef.ElementIndex];
+										activeScrollWidget->setScrollPosition( ActiveShaderDef.convertParamToScrollPosition(uniformVal) );
 									}
 								}
 								break;

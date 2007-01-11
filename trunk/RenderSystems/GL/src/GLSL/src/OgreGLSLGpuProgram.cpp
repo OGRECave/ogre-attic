@@ -121,7 +121,7 @@ namespace Ogre {
 		// activate the link program object
 		GLSLLinkProgram* linkProgram = GLSLLinkProgramManager::getSingleton().getActiveLinkProgram();
 		// pass on parameters from params to program object uniforms
-		linkProgram->updateUniforms( params );
+		linkProgram->updateUniforms(params, mType);
 		
 	}
 

@@ -817,6 +817,54 @@ protected:
 	{
 		MaterialPtr m = MaterialManager::getSingleton ().getByName ("BaseWhiteNoLighting"); 
 		m->getBestTechnique();
+		TexturePtr tex = TextureManager::getSingleton().getByName("t");
+		size_t x, y;
+		Box box;
+		box.left = x;
+		box.right = x + 1;
+		box.top = y;
+		box.bottom = y + 1;
+		box.front = 0;
+		box.back = 1;
+		const PixelBox& lockBox = tex->getBuffer()->lock(box, HardwareBuffer::HBL_NORMAL);
+		PixelUtil::packColour(ColourValue::White, lockBox.format, lockBox.data);
+		tex->getBuffer()->unlock();
+
+	}
+
+	void testMaterialSerializer()
+	{
+		MaterialSerializer ser;
+
+		// simple material
+		MaterialPtr m = MaterialManager::getSingleton().getByName("Examples/EnvMappedRustySteel");
+		ser.queueForExport(m);
+
+		// scheme-based but otherwise simple material
+		m = MaterialManager::getSingleton().getByName("Examples/MorningSkyBox");
+		ser.queueForExport(m);
+
+		// fairly simple shader, with custom param & default params
+		m = MaterialManager::getSingleton().getByName("Examples/CelShading");
+		ser.queueForExport(m);
+
+		// More complex shader
+		m = MaterialManager::getSingleton().getByName("Examples/BumpMapping/SingleLight");
+		ser.queueForExport(m);
+
+		// more complex shader, with light iteration
+		m = MaterialManager::getSingleton().getByName("Examples/BumpMapping/MultiLight");
+		ser.queueForExport(m);
+
+		// With a unified program
+		m = MaterialManager::getSingleton().getByName("jaiqua");
+		ser.queueForExport(m);
+
+
+		// export
+		ser.exportQueued("testexport.material", true);
+
+		
 
 
 	}
@@ -2515,8 +2563,8 @@ protected:
 					Ogre::GpuProgramParametersSharedPtr fparams = 
 						mat->getBestTechnique()->getPass(0)->getFragmentProgramParameters();
 					const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
-					fparams->setNamedConstant("sampleOffsets[0]", mBloomTexOffsetsHorz[0], 15);
-					fparams->setNamedConstant("sampleWeights[0]", mBloomTexWeights[0], 15);
+					fparams->setNamedConstant("sampleOffsets", mBloomTexOffsetsHorz[0], 15);
+					fparams->setNamedConstant("sampleWeights", mBloomTexWeights[0], 15);
 
 					break;
 				}
@@ -2527,8 +2575,8 @@ protected:
 					Ogre::GpuProgramParametersSharedPtr fparams = 
 						mat->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
 					const Ogre::String& progName = mat->getBestTechnique()->getPass(0)->getFragmentProgramName();
-					fparams->setNamedConstant("sampleOffsets[0]", mBloomTexOffsetsVert[0], 15);
-					fparams->setNamedConstant("sampleWeights[0]", mBloomTexWeights[0], 15);
+					fparams->setNamedConstant("sampleOffsets", mBloomTexOffsetsVert[0], 15);
+					fparams->setNamedConstant("sampleWeights", mBloomTexWeights[0], 15);
 
 					break;
 				}
@@ -5110,6 +5158,9 @@ protected:
 	// Just override the mandatory create scene method
     void createScene(void)
     {
+		Real d = std::numeric_limits<Real>::infinity();
+		d = std::max(1e10f, d);
+		d = std::min(1e5f, d);
 		/*
 		AnyNumeric anyInt1(43);
 		AnyNumeric anyInt2(5);
@@ -5157,7 +5208,7 @@ protected:
 		//testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testCustomSequenceTextureShadows();
 		//testTextureShadowsCustomCasterMat(SHADOWTYPE_TEXTURE_ADDITIVE);
-		testTextureShadowsCustomReceiverMat(SHADOWTYPE_TEXTURE_MODULATIVE);
+		//testTextureShadowsCustomReceiverMat(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testCompositorTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testSplitPassesTooManyTexUnits();
         //testOverlayZOrder();
@@ -5165,6 +5216,7 @@ protected:
 		//testBlendDiffuseColour();
 
         //testRaySceneQuery();
+		testMaterialSerializer();
         //testIntersectionSceneQuery();
 
         //test2Spotlights();

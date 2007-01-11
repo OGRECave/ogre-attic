@@ -78,8 +78,8 @@ namespace Ogre {
         struct _finddata_t tagData;
 
         // pattern can contain a directory name, separate it from mask
-        unsigned int pos1 = pattern.rfind ('/');
-        unsigned int pos2 = pattern.rfind ('\\');
+        size_t pos1 = pattern.rfind ('/');
+        size_t pos2 = pattern.rfind ('\\');
         if (pos1 == pattern.npos || ((pos2 != pattern.npos) && (pos1 < pos2)))
             pos1 = pos2;
         String directory;

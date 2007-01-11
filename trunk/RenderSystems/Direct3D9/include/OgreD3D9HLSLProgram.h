@@ -89,10 +89,11 @@ namespace Ogre {
         /// Internal unload implementation, must be implemented by subclasses
         void unloadHighLevelImpl(void);
         /// Populate the passed parameters with name->index map, must be overridden
-        void buildParameterNameMap();
+        void buildConstantDefinitions() const;
 
         // Recursive utility method for buildParamNameMap
-        void processParamElement(D3DXHANDLE parent, String prefix, unsigned int index);
+        void processParamElement(D3DXHANDLE parent, String prefix, unsigned int index) const;
+		void populateDef(D3DXCONSTANT_DESC& d3dDesc, GpuConstantDefinition& def) const;
 
         String mTarget;
         String mEntryPoint;

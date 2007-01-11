@@ -87,7 +87,12 @@ namespace Ogre {
         /// Internal unload implementation, must be implemented by subclasses
         void unloadHighLevelImpl(void);
         /// Populate the passed parameters with name->index map, must be overridden
-        void buildParameterNameMap();
+        void buildConstantDefinitions() const;
+
+		/// Recurse down structures getting data on parameters
+		void recurseParams(CGparameter param, size_t contextArraySize = 1) const;
+		/// Turn a Cg type into a GpuConstantType and number of elements
+		void mapTypeAndElementSize(CGtype cgType, bool isRegisterCombiner, GpuConstantDefinition& def) const;
 
         StringVector mProfiles;
         String mEntryPoint;

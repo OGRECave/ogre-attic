@@ -172,27 +172,6 @@ public:
 			return HighLevelGpuProgramManager::getSingleton().getByName("DeferredShading/post/glsl/LightMaterial_vs");
 		}
 	}
-	/// This hack is needed for GLSL, don't ask me why
-	void setNamedAutoConstant(const GpuProgramParametersSharedPtr &params, 
-		const String &name, GpuProgramParameters::AutoConstantType acType, size_t extraInfo)
-	{
-		size_t index = params->getParamIndex(name);
-		params->setAutoConstant(index, acType, extraInfo);
-		size_t constantIndex = params->addConstantDefinition(
-			name, index, 0, GpuProgramParameters::ET_REAL);
-        // update constant definition auto settings
-        // since an autoconstant was just added, its the last one in the container
-        size_t autoIndex = params->getAutoConstantCount() - 1;
-        // setup autoState which will allocate the proper amount of storage required by constant entries
-        params->setConstantDefinitionAutoState(constantIndex, true, autoIndex);
-	}
-	void setNamedIntConstant(const GpuProgramParametersSharedPtr &params, 
-		const String &name, int x)
-	{
-		int intBuffer[4];
-		intBuffer[0] = x;
-		params->setConstant(params->getParamIndex(name), intBuffer, 1);
-	}
 	virtual Ogre::GpuProgramPtr generateFragmentShader(Perm permutation)
 	{
 		bool isAttenuated = permutation & MLight::MI_ATTENUATED;
@@ -269,17 +248,15 @@ public:
 		/// Set up default parameters
 		GpuProgramParametersSharedPtr params = program->getDefaultParameters();
 
-		setNamedAutoConstant(params, "worldView", GpuProgramParameters::ACT_WORLDVIEW_MATRIX, 0);
-		setNamedAutoConstant(params, "lightDiffuseColor", GpuProgramParameters::ACT_CUSTOM, 1);
+		params->setNamedAutoConstant("worldView", GpuProgramParameters::ACT_WORLDVIEW_MATRIX, 0);
+		params->setNamedAutoConstant("lightDiffuseColor", GpuProgramParameters::ACT_CUSTOM, 1);
 		if(isSpecular)
-			setNamedAutoConstant(params, "lightSpecularColor", GpuProgramParameters::ACT_CUSTOM, 2);
+			params->setNamedAutoConstant("lightSpecularColor", GpuProgramParameters::ACT_CUSTOM, 2);
 		if(isAttenuated)
-			setNamedAutoConstant(params, "lightFalloff", GpuProgramParameters::ACT_CUSTOM, 3);
+			params->setNamedAutoConstant("lightFalloff", GpuProgramParameters::ACT_CUSTOM, 3);
 
-		setNamedIntConstant(params, "tex0", 0);
-		setNamedIntConstant(params, "tex1", 1);
-		//params->setNamedConstant("tex0", 0);
-		//params->setNamedConstant("tex1", 1);
+		params->setNamedConstant("tex0", 0);
+		params->setNamedConstant("tex1", 1);
 
 		return HighLevelGpuProgramManager::getSingleton().getByName(program->getName());
 	}

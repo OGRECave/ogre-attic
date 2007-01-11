@@ -64,38 +64,35 @@ void ATI_FS_GLGpuProgram::unbindProgram(void)
 
 void ATI_FS_GLGpuProgram::bindProgramParameters(GpuProgramParametersSharedPtr params)
 {
-	// program constants done internally by compiler for local
-    
-    if (params->hasRealConstantParams())
-    {
-        // Iterate over params and set the relevant ones
-        GpuProgramParameters::RealConstantIterator realIt = 
-            params->getRealConstantIterator();
-        unsigned int index = 0;
-		// test
-        while (realIt.hasMoreElements())
-        {
-            const GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
-            if (e->isSet)
-            {
-                glSetFragmentShaderConstantATI( GL_CON_0_ATI + index, e->val);
-            }
-            index++;
-            realIt.moveNext();
-        }
-    }
 
+	// only supports float constants
+	const GpuLogicalBufferStruct* floatStruct = params->getFloatLogicalBufferStruct();
+
+	for (GpuLogicalIndexUseMap::const_iterator i = floatStruct->map.begin();
+		i != floatStruct->map.end(); ++i)
+	{
+		size_t logicalIndex = i->first;
+		const float* pFloat = params->getFloatPointer(i->second.physicalIndex);
+		// Iterate over the params, set in 4-float chunks (low-level)
+		for (size_t j = 0; j < i->second.currentSize; j+=4)
+		{
+			glSetFragmentShaderConstantATI(GL_CON_0_ATI + logicalIndex, pFloat);
+			pFloat += 4;
+			++logicalIndex;
+		}
+	}
 
 }
 
 void ATI_FS_GLGpuProgram::bindProgramPassIterationParameters(GpuProgramParametersSharedPtr params)
 {
-    GpuProgramParameters::RealConstantEntry* realEntry = params->getPassIterationEntry();
-
-    if (realEntry)
-    {
-        glSetFragmentShaderConstantATI( GL_CON_0_ATI + (GLuint)params->getPassIterationEntryIndex(), realEntry->val);
-    }
+	if (params->hasPassIterationNumber())
+	{
+		size_t physicalIndex = params->getPassIterationNumberIndex();
+		size_t logicalIndex = params->getFloatLogicalIndexForPhysicalIndex(physicalIndex);
+		const float* pFloat = params->getFloatPointer(physicalIndex);
+		glSetFragmentShaderConstantATI( GL_CON_0_ATI + (GLuint)logicalIndex, pFloat);
+	}
 }
 
 

@@ -125,22 +125,8 @@ namespace Ogre {
 			// program object not found for key so need to create it
 			if (programFound == LinkPrograms.end())
 			{
-				mActiveLinkProgram = new GLSLLinkProgram();
+				mActiveLinkProgram = new GLSLLinkProgram(mActiveVertexGpuProgram, mActiveFragmentGpuProgram);
 				LinkPrograms[activeKey] = mActiveLinkProgram;
-				// tell shaders to attach themselves to the LinkProgram
-				// let the shaders do the attaching since they may have several children to attach
-				if (mActiveVertexGpuProgram)
-				{
-					mActiveVertexGpuProgram->getGLSLProgram()->attachToProgramObject( mActiveLinkProgram->getGLHandle() );
-                    mActiveLinkProgram->setSkeletalAnimationIncluded(mActiveVertexGpuProgram->isSkeletalAnimationIncluded());
-				}
-
-				if (mActiveFragmentGpuProgram)
-				{
-					mActiveFragmentGpuProgram->getGLSLProgram()->attachToProgramObject( mActiveLinkProgram->getGLHandle() );
-				}
-
-
 			}
 			else
 			{
@@ -182,86 +168,111 @@ namespace Ogre {
 		}
 	}
 	//---------------------------------------------------------------------
-	void GLSLLinkProgramManager::completeUniformInfo(UniformReference& newUniformReference)
+	void GLSLLinkProgramManager::completeDefInfo(GLenum gltype, 
+		GpuConstantDefinition& defToUpdate)
 	{
-		// default to real since most uniforms are real
-		newUniformReference.isReal = true;
-		newUniformReference.isSampler = false;
 		// decode uniform size and type
-		switch (newUniformReference.mType)
+		// Note GLSL never packs rows into float4's(from an API perspective anyway)
+		// therefore all values are tight in the buffer
+		switch (gltype)
 		{
 		case GL_FLOAT:
-			newUniformReference.mElementCount = 1;
+			defToUpdate.constType = GCT_FLOAT1;
+			defToUpdate.elementSize = 1;
 			break;
-
 		case GL_FLOAT_VEC2:
-			newUniformReference.mElementCount = 2;
+			defToUpdate.constType = GCT_FLOAT2;
+			defToUpdate.elementSize = 2;
 			break;
 
 		case GL_FLOAT_VEC3:
-			newUniformReference.mElementCount = 3;
+			defToUpdate.constType = GCT_FLOAT3;
+			defToUpdate.elementSize = 3;
 			break;
 
 		case GL_FLOAT_VEC4:
-			newUniformReference.mElementCount = 4;
+			defToUpdate.constType = GCT_FLOAT4;
+			defToUpdate.elementSize = 4;
 			break;
-
 		case GL_SAMPLER_1D:
+			// need to record samplers for GLSL
+			defToUpdate.constType = GCT_SAMPLER1D;
+			defToUpdate.elementSize = 1;
+			break;
 		case GL_SAMPLER_2D:
-		case GL_SAMPLER_3D:
-		case GL_SAMPLER_CUBE:
-		case GL_SAMPLER_1D_SHADOW:
-		case GL_SAMPLER_2D_SHADOW:
 		case GL_SAMPLER_2D_RECT_ARB:
+			defToUpdate.constType = GCT_SAMPLER2D;
+			defToUpdate.elementSize = 1;
+			break;
+		case GL_SAMPLER_3D:
+			defToUpdate.constType = GCT_SAMPLER3D;
+			defToUpdate.elementSize = 1;
+			break;
+		case GL_SAMPLER_CUBE:
+			defToUpdate.constType = GCT_SAMPLERCUBE;
+			defToUpdate.elementSize = 1;
+			break;
+		case GL_SAMPLER_1D_SHADOW:
+			defToUpdate.constType = GCT_SAMPLER1DSHADOW;
+			defToUpdate.elementSize = 1;
+			break;
+		case GL_SAMPLER_2D_SHADOW:
 		case GL_SAMPLER_2D_RECT_SHADOW_ARB:
-			newUniformReference.isSampler = true;
+			defToUpdate.constType = GCT_SAMPLER2DSHADOW;
+			defToUpdate.elementSize = 1;
+			break;
 		case GL_INT:
-			newUniformReference.isReal = false;
-			newUniformReference.mElementCount = 1;
+			defToUpdate.constType = GCT_INT1;
+			defToUpdate.elementSize = 1;
 			break;
-
 		case GL_INT_VEC2:
-			newUniformReference.isReal = false;
-			newUniformReference.mElementCount = 2;
+			defToUpdate.constType = GCT_INT2;
+			defToUpdate.elementSize = 2;
 			break;
-
 		case GL_INT_VEC3:
-			newUniformReference.isReal = false;
-			newUniformReference.mElementCount = 3;
+			defToUpdate.constType = GCT_INT3;
+			defToUpdate.elementSize = 3;
 			break;
-
 		case GL_INT_VEC4:
-			newUniformReference.isReal = false;
-			newUniformReference.mElementCount = 4;
+			defToUpdate.constType = GCT_INT4;
+			defToUpdate.elementSize = 4;
 			break;
-
 		case GL_FLOAT_MAT2:
-			newUniformReference.mElementCount = 4;
+			defToUpdate.constType = GCT_MATRIX_2X2;
+			defToUpdate.elementSize = 4;
 			break;
-
 		case GL_FLOAT_MAT3:
-			newUniformReference.mElementCount = 9;
+			defToUpdate.constType = GCT_MATRIX_3X3;
+			defToUpdate.elementSize = 9;
 			break;
-
 		case GL_FLOAT_MAT4:
-			newUniformReference.mElementCount = 16;
+			defToUpdate.constType = GCT_MATRIX_4X4;
+			defToUpdate.elementSize = 16;
 			break;
-
 		case GL_FLOAT_MAT2x3:
+			defToUpdate.constType = GCT_MATRIX_2X3;
+			defToUpdate.elementSize = 6;
+			break;
 		case GL_FLOAT_MAT3x2:
-			newUniformReference.mElementCount = 6;
+			defToUpdate.constType = GCT_MATRIX_3X2;
+			defToUpdate.elementSize = 6;
 			break;
-
 		case GL_FLOAT_MAT2x4:
+			defToUpdate.constType = GCT_MATRIX_2X4;
+			defToUpdate.elementSize = 8;
+			break;
 		case GL_FLOAT_MAT4x2:
-			newUniformReference.mElementCount = 8;
+			defToUpdate.constType = GCT_MATRIX_4X2;
+			defToUpdate.elementSize = 8;
 			break;
-
 		case GL_FLOAT_MAT3x4:
-		case GL_FLOAT_MAT4x3:
-			newUniformReference.mElementCount = 12;
+			defToUpdate.constType = GCT_MATRIX_3X4;
+			defToUpdate.elementSize = 12;
 			break;
-
+		case GL_FLOAT_MAT4x3:
+			defToUpdate.constType = GCT_MATRIX_4X3;
+			defToUpdate.elementSize = 12;
+			break;
 		default:
 			// Ignore silently for unknown/unsupported types
 			break;
@@ -270,7 +281,44 @@ namespace Ogre {
 
 	}
 	//---------------------------------------------------------------------
-	void GLSLLinkProgramManager::extractUniforms(GLhandleARB programObject, UniformReferenceList& list)
+	bool GLSLLinkProgramManager::completeParamSource(
+		const String& paramName,
+		const GpuConstantDefinitionMap* vertexConstantDefs, 
+		const GpuConstantDefinitionMap* fragmentConstantDefs, 
+		GLUniformReference& refToUpdate)
+	{
+		if (vertexConstantDefs)
+		{
+			GpuConstantDefinitionMap::const_iterator parami = 
+				vertexConstantDefs->find(paramName);
+			if (parami != vertexConstantDefs->end())
+			{
+				refToUpdate.mSourceProgType = GPT_VERTEX_PROGRAM;
+				refToUpdate.mConstantDef = &(parami->second);
+				return true;
+			}
+
+		}
+		if (fragmentConstantDefs)
+		{
+			GpuConstantDefinitionMap::const_iterator parami = 
+				fragmentConstantDefs->find(paramName);
+			if (parami != fragmentConstantDefs->end())
+			{
+				refToUpdate.mSourceProgType = GPT_FRAGMENT_PROGRAM;
+				refToUpdate.mConstantDef = &(parami->second);
+				return true;
+			}
+		}
+		return false;
+
+
+	}
+	//---------------------------------------------------------------------
+	void GLSLLinkProgramManager::extractUniforms(GLhandleARB programObject, 
+		const GpuConstantDefinitionMap* vertexConstantDefs, 
+		const GpuConstantDefinitionMap* fragmentConstantDefs, 
+		GLUniformReferenceList& list)
 	{
 		// scan through the active uniforms and add them to the reference list
 		GLint uniformCount;
@@ -278,7 +326,7 @@ namespace Ogre {
 		#define BUFFERSIZE 200
 		char   uniformName[BUFFERSIZE];
 		//GLint location;
-		UniformReference newUniformReference;
+		GLUniformReference newGLUniformReference;
 
 		// get the number of active uniforms
 		glGetObjectParameterivARB(programObject, GL_OBJECT_ACTIVE_UNIFORMS_ARB,
@@ -288,59 +336,41 @@ namespace Ogre {
 		// only do this for user defined uniforms, ignore built in gl state uniforms
 		for (int index = 0; index < uniformCount; index++)
 		{
-			glGetActiveUniformARB(programObject, index, BUFFERSIZE, NULL, &newUniformReference.mArraySize, &newUniformReference.mType, uniformName);
+			GLint arraySize;
+			GLenum glType;
+			glGetActiveUniformARB(programObject, index, BUFFERSIZE, NULL, 
+				&arraySize, &glType, uniformName);
 			// don't add built in uniforms
-			newUniformReference.mLocation = glGetUniformLocationARB(programObject, uniformName);
-			if (newUniformReference.mLocation >= 0)
+			newGLUniformReference.mLocation = glGetUniformLocationARB(programObject, uniformName);
+			if (newGLUniformReference.mLocation >= 0)
 			{
 				// user defined uniform found, add it to the reference list
-				newUniformReference.mName = String( uniformName );
+				String paramName = String( uniformName );
 
-				completeUniformInfo(newUniformReference);
+				// find out which params object this comes from
+				bool foundSource = completeParamSource(paramName, 
+					vertexConstantDefs, 
+					fragmentConstantDefs, newGLUniformReference);
 
-
-				list.push_back(newUniformReference);
-
-				if (!newUniformReference.isSampler)
+				// only add this parameter if we found the source
+				if (foundSource)
 				{
-					String origName = newUniformReference.mName;
-					// also add [0] version since GLSL always supports this, and
-					// makes consistent with Cg & HLSL array access modes
-					newUniformReference.mName = origName + "[0]";
-					list.push_back(newUniformReference);
+					assert(arraySize == newGLUniformReference.mConstantDef->arraySize
+						&& "GL doesn't agree with our array size!");
+					list.push_back(newGLUniformReference);
+				}
 
-					// Add parmeters for other array accessors [1+]
-					// However, direct access limited to arrays of size
-					// 8 or less, since very large arrays would cause
-					// excessive lookups in updateUniforms
-					// Count is a bit arbitrary but sounds right, unlikely to
-					// selectively update anything larger than that - larger
-					// arrays will be populated in bulk
-
-					if (newUniformReference.mArraySize <= 8)
-					{
-						size_t i, size;
-						size = newUniformReference.mArraySize;
-						newUniformReference.mArraySize = 1;
-						for (i = 1; i < size; i++)
-						{
-							newUniformReference.mName = origName + "[" + StringConverter::toString(i) + "]";
-							newUniformReference.mLocation = glGetUniformLocationARB(programObject, newUniformReference.mName.c_str());
-							if (newUniformReference.mLocation >= 0)
-							{
-								list.push_back(newUniformReference);
-							}
-						}
-					}
-				} // !isSampler
-
+				// Don't bother adding individual array params, they will be
+				// picked up in the 'parent' parameter can copied all at once
+				// anyway, individual indexes are only needed for lookup from 
+				// user params
 			} // end if
 		} // end for
 
 	}
 	//---------------------------------------------------------------------
-	void GLSLLinkProgramManager::extractUniforms(const String& src, 
-		UniformReferenceList& list)
+	void GLSLLinkProgramManager::extractConstantDefs(const String& src, 
+		GpuNamedConstants& defs)
 	{
 		// Could have done this as a compiler but we don't want to have to 
 		// create a BNF for the whole GLSL syntax, so use a simpler method
@@ -349,100 +379,145 @@ namespace Ogre {
 		currPos = src.find("uniform", currPos);
 		while (currPos != String::npos)
 		{
-			UniformReference newUniform;
+			GpuConstantDefinition def;
+			String paramName;
+
+			// Check that this is not in a comment block
+			bool inComment = false;
+			
+			// block-comments
+			size_t commentStart = src.rfind("/*", currPos);
+			if (commentStart != String::npos)
+			{
+				size_t commentEnd = src.rfind("*/", currPos);
+				if (commentEnd == String::npos || commentEnd < commentStart)
+				{
+					// no ending comment, or ending comment was from a previous batch
+					inComment = true;
+				}
+			}
+			// line-comments
+			if (!inComment)
+			{
+				commentStart = src.rfind("//", currPos);
+				if (commentStart != String::npos)
+				{
+					size_t lineEnd = src.rfind("\r", currPos);
+
+					// On same line as comment? Either no newline or nearest is before comment start
+					if (lineEnd == String::npos || lineEnd < commentStart)
+					{
+						inComment = true;
+					}
+				}
+			}
+
+			// Now check for using the word 'uniform' in a larger string & ignore
+			bool inLargerString = false;
+			if (!inComment)
+			{	
+				if (currPos != 0)
+				{
+					char prev = src.at(currPos - 1);
+					if (prev != ' ' && prev != '\t' && prev != '\r' && prev != '\n'
+						&& prev != ';')
+						inLargerString = true;
+				}
+				if (!inLargerString && currPos + 7 < src.size())
+				{
+					char next = src.at(currPos + 7);
+					if (next != ' ' && next != '\t' && next != '\r' && next != '\n')
+						inLargerString = true;
+				}
+
+			}
 
 			// skip 'uniform'
 			currPos += 7;
-			// find terminating semicolon
-			String::size_type endPos = src.find(";", currPos);
-			if (endPos == String::npos)
-			{
-				// problem, missing semicolon, abort
-				break;
-			}
-			line = src.substr(currPos, endPos - currPos);
 
-			StringVector parts = StringUtil::split(line, " \t\r\n");
-
-			for (StringVector::iterator i = parts.begin(); i != parts.end(); ++i)
+			if (!inComment && !inLargerString)
 			{
-				// Is this a type?
-				StringToEnumMap::iterator typei = mTypeEnumMap.find(*i);
-				if (typei != mTypeEnumMap.end())
+				// find terminating semicolon
+				String::size_type endPos = src.find(";", currPos);
+				if (endPos == String::npos)
 				{
-					newUniform.mType = typei->second;
-					completeUniformInfo(newUniform);
+					// problem, missing semicolon, abort
+					break;
 				}
-				else
+				line = src.substr(currPos, endPos - currPos);
+
+				StringVector parts = StringUtil::split(line, " \t\r\n");
+
+				for (StringVector::iterator i = parts.begin(); i != parts.end(); ++i)
 				{
-					// if this is not a type, and not empty, it should be the name
-					StringUtil::trim(*i);
-					if (i->empty()) continue;
-
-					String::size_type arrayStart = i->find("[", 0);
-					if (arrayStart != String::npos)
+					// Is this a type?
+					StringToEnumMap::iterator typei = mTypeEnumMap.find(*i);
+					if (typei != mTypeEnumMap.end())
 					{
-						// potential name (if butted up to array)
-						String name = i->substr(0, arrayStart);
-						StringUtil::trim(name);
-						if (!name.empty())
-							newUniform.mName = name;
-
-						String::size_type arrayEnd = i->find("]", arrayStart);
-						String arrayDimTerm = i->substr(arrayStart + 1, arrayEnd - arrayStart - 1);
-						StringUtil::trim(arrayDimTerm);
-						// the array term might be a simple number or it might be
-						// an expression (e.g. 24*3) or refer to a constant expression
-						// we'd have to evaluate the expression which could get nasty
-						// TODO
-						newUniform.mArraySize = StringConverter::parseInt(arrayDimTerm);
-
+						completeDefInfo(typei->second, def);
 					}
 					else
 					{
-						newUniform.mName = *i;
-						newUniform.mArraySize = 1;
+						// if this is not a type, and not empty, it should be the name
+						StringUtil::trim(*i);
+						if (i->empty()) continue;
+
+						String::size_type arrayStart = i->find("[", 0);
+						if (arrayStart != String::npos)
+						{
+							// potential name (if butted up to array)
+							String name = i->substr(0, arrayStart);
+							StringUtil::trim(name);
+							if (!name.empty())
+								paramName = name;
+
+							String::size_type arrayEnd = i->find("]", arrayStart);
+							String arrayDimTerm = i->substr(arrayStart + 1, arrayEnd - arrayStart - 1);
+							StringUtil::trim(arrayDimTerm);
+							// the array term might be a simple number or it might be
+							// an expression (e.g. 24*3) or refer to a constant expression
+							// we'd have to evaluate the expression which could get nasty
+							// TODO
+							def.arraySize = StringConverter::parseInt(arrayDimTerm);
+
+						}
+						else
+						{
+							paramName = *i;
+							def.arraySize = 1;
+						}
+
 					}
 
 				}
 
-			}
-
-			list.push_back(newUniform);
-
-			if (!newUniform.isSampler)
-			{
-				String origName = newUniform.mName;
-				// also add [0] version since GLSL always supports this, and
-				// makes consistent with Cg & HLSL array access modes
-				newUniform.mName = origName + "[0]";
-				list.push_back(newUniform);
-
-				// Add parmeters for other array accessors [1+]
-				// However, direct access limited to arrays of size
-				// 8 or less, since very large arrays would cause
-				// excessive lookups in updateUniforms
-				// Count is a bit arbitrary but sounds right, unlikely to
-				// selectively update anything larger than that - larger
-				// arrays will be populated in bulk
-
-				if (newUniform.mArraySize <= 8)
+				// Complete def and add
+				// increment physical buffer location
+				if (def.isFloat())
 				{
-					size_t i, size;
-					size = newUniform.mArraySize;
-					newUniform.mArraySize = 1;
-					for (i = 1; i < size; i++)
-					{
-						newUniform.mName = origName + "[" + StringConverter::toString(i) + "]";
-						list.push_back(newUniform);
-					}
+					def.physicalIndex = defs.floatBufferSize;
+					defs.floatBufferSize += def.arraySize * def.elementSize;
 				}
-			}
+				else
+				{
+					def.physicalIndex = defs.intBufferSize;
+					defs.intBufferSize += def.arraySize * def.elementSize;
+				}
+				defs.map.insert(GpuConstantDefinitionMap::value_type(paramName, def));
+
+				if (!def.isSampler())
+				{
+					// Generate array accessors
+					defs.generateConstantDefinitionArrayEntries(paramName, def);
+				}
+
+			} // not commented or a larger symbol
 
 			// Find next one
 			currPos = src.find("uniform", currPos);
 
 		}
+		
 	}
 
 }

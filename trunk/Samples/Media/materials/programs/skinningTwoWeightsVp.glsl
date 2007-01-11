@@ -9,8 +9,8 @@ attribute vec4 blendWeights;
 uniform vec4 worldMatrixArray[72];
 uniform mat4 viewProjMatrix;
 uniform vec4 lightPos[2];
-uniform vec3 lightDiffuseColour[2];
-uniform vec3 ambient;
+uniform vec4 lightDiffuseColour[2];
+uniform vec4 ambient;
 
 void main()
 {
@@ -46,10 +46,10 @@ void main()
 	vec3 lightDir1 = normalize(
 		lightPos[1].xyz -  (blendPos.xyz * lightPos[1].w));
 	
-	gl_FrontColor = vec4(
-		ambient 
+	gl_FrontColor = ambient 
 		+ clamp(dot(lightDir0, blendNorm), 0.0, 1.0) * lightDiffuseColour[0]
-		+ clamp(dot(lightDir1, blendNorm), 0.0, 1.0) * lightDiffuseColour[1], 1);
+		+ clamp(dot(lightDir1, blendNorm), 0.0, 1.0) * lightDiffuseColour[1];
+
 	gl_TexCoord[0] = gl_MultiTexCoord0;
 	
 }

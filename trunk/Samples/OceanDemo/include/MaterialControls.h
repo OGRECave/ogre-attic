@@ -32,7 +32,7 @@ struct ShaderControl
 	float MinVal;
 	float MaxVal;
 	size_t ElementIndex;
-	mutable size_t ConstantIndex;
+	mutable size_t PhysicalIndex;
 
 	float getRange(void) const { return MaxVal - MinVal; }
 	float convertParamToScrollPosition(const float val) const { return val - MinVal; }
