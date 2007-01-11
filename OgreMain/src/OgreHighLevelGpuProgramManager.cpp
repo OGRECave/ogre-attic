@@ -52,7 +52,7 @@ namespace Ogre {
 			params->setIgnoreMissingParams(true);
 
 		}
-		void buildParameterNameMap()
+		void buildConstantDefinitions() const
 		{
 			// do nothing
 		}

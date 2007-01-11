@@ -39,7 +39,7 @@ namespace Ogre
         const String& name, ResourceHandle handle, const String& group, 
         bool isManual, ManualResourceLoader* loader)
         : GpuProgram(creator, name, handle, group, isManual, loader), 
-        mHighLevelLoaded(false), mAssemblerProgram(0), mParamNameMapBuilt(false)
+        mHighLevelLoaded(false), mAssemblerProgram(0), mConstantDefsBuilt(false)
     {
     }
     //---------------------------------------------------------------------------
@@ -127,6 +127,16 @@ namespace Ogre
         if (mHighLevelLoaded)
         {
             unloadHighLevelImpl();
+			// Clear saved constant defs
+			mConstantDefs.map.clear();
+			mConstantDefs.floatBufferSize = 0;
+			mConstantDefs.intBufferSize = 0;
+			mConstantDefsBuilt = false;
+			mFloatLogicalToPhysical.map.clear();
+			mFloatLogicalToPhysical.bufferSize = 0;
+			mIntLogicalToPhysical.map.clear();
+			mIntLogicalToPhysical.bufferSize = 0;
+
             mHighLevelLoaded = false;
         }
     }
@@ -146,14 +156,22 @@ namespace Ogre
         loadFromSource();
     }
 	//---------------------------------------------------------------------
+	const GpuNamedConstants& HighLevelGpuProgram::getConstantDefinitions() const
+	{
+		if (!mConstantDefsBuilt)
+		{
+			buildConstantDefinitions();
+			mConstantDefsBuilt = true;
+		}
+		return mConstantDefs;
+
+	}
+	//---------------------------------------------------------------------
 	void HighLevelGpuProgram::populateParameterNames(GpuProgramParametersSharedPtr params)
 	{
-		if (!mParamNameMapBuilt)
-		{
-			buildParameterNameMap();
-			mParamNameMapBuilt = true;
-		}
-		params->_setParameterNameMap(&mParamNameMap);
+		params->_setNamedConstants(&getConstantDefinitions());
+		// also set logical / physical maps for programs which use this
+		params->_setLogicalIndexes(&mFloatLogicalToPhysical, &mIntLogicalToPhysical);
 	}
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------

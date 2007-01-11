@@ -380,7 +380,7 @@ namespace Ogre {
 					mHardwareVertexAnimVertexData->hwAnimationDataList[animIndex].parametric;
 			}
 			// set the parametric morph value
-			params->setConstant(constantEntry.index, val);
+			params->_writeRawConstant(constantEntry.physicalIndex, val);
 		}
 		else
 		{

@@ -319,8 +319,10 @@ namespace Ogre {
         void parseParamIndexedAuto(void);
         void parseParamNamed(void);
         void parseParamNamedAuto(void);
-        void processManualProgramParam(size_t index, const String& commandname, const String& paramName = "");
-        void processAutoProgramParam(size_t index, const String& commandname, const String& paramName = "");
+        void processManualProgramParam(bool isNamed, const String commandName, 
+			size_t index = 0, const String& paramName = StringUtil::BLANK);
+		void processAutoProgramParam(bool isNamed, const String commandName, 
+			size_t index, const String& paramName = StringUtil::BLANK);
 
 
     	void finishProgramDefinition(void);

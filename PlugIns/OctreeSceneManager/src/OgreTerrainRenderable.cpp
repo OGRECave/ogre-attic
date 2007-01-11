@@ -1293,7 +1293,7 @@ namespace Ogre
         if (constantEntry.data == MORPH_CUSTOM_PARAM_ID)
         {
             // Update morph LOD factor
-            params->setConstant(constantEntry.index, mLODMorphFactor);
+            params->_writeRawConstant(constantEntry.physicalIndex, mLODMorphFactor);
         }
         else
         {

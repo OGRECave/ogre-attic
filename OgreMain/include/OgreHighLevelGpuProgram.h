@@ -63,9 +63,9 @@ namespace Ogre {
         /// The underlying assembler program
         GpuProgramPtr mAssemblerProgram;
 		/// Have we built the name->index parameter map yet?
-		bool mParamNameMapBuilt;
-		/// Parameter name -> index map, shared instance used by all parameter objects
-		GpuProgramParameters::ParamNameMap mParamNameMap;
+		mutable bool mConstantDefsBuilt;
+		/// Parameter name -> ConstantDefinition map, shared instance used by all parameter objects
+		mutable GpuNamedConstants mConstantDefs;
 
         /// Internal load high-level portion if not loaded
         virtual void loadHighLevel(void);
@@ -82,8 +82,13 @@ namespace Ogre {
         virtual void unloadHighLevelImpl(void) = 0;
         /// Populate the passed parameters with name->index map
         virtual void populateParameterNames(GpuProgramParametersSharedPtr params);
-		/// Build the name->index map, must be overridden
-		virtual void buildParameterNameMap() = 0;
+		/** Build the constant definition map, must be overridden.
+		@note The implementation must fill in the mConstantDefs field at a minimum, 
+			and if the program requires that parameters are bound using logical 
+			parameter indexes then the mFloatLogicalToPhysical and mIntLogicalToPhysical
+			maps must also be populated.
+		*/
+		virtual void buildConstantDefinitions() const = 0;
 
         /** @copydoc Resource::loadImpl */
         void loadImpl();
@@ -106,6 +111,13 @@ namespace Ogre {
         GpuProgramParametersSharedPtr createParameters(void);
         /** @copydoc GpuProgram::getBindingDelegate */
         GpuProgram* _getBindingDelegate(void) { return mAssemblerProgram.getPointer(); }
+
+		/** Get the full list of GpuConstantDefinition instances.
+		@note
+		Only available if this parameters object has named parameters.
+		*/
+		const GpuNamedConstants& getConstantDefinitions() const;
+
 
 
 

@@ -95,7 +95,7 @@ namespace Ogre {
         /// Internal unload implementation, must be implemented by subclasses
         void unloadHighLevelImpl(void);
         /// Populate the passed parameters with name->index map, must be overridden
-        void buildParameterNameMap();
+        void buildConstantDefinitions() const;
 		/// compile source into shader object
 		bool compile( const bool checkErrors = true);
 

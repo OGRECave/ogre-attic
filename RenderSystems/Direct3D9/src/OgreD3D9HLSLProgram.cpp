@@ -152,13 +152,18 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void D3D9HLSLProgram::buildParameterNameMap()
+    void D3D9HLSLProgram::buildConstantDefinitions() const
     {
         // Derive parameter names from const table
         assert(mpConstTable && "Program not loaded!");
         // Get contents of the constant table
         D3DXCONSTANTTABLE_DESC desc;
         HRESULT hr = mpConstTable->GetDesc(&desc);
+
+		mFloatLogicalToPhysical.bufferSize = 0;
+		mIntLogicalToPhysical.bufferSize = 0;
+		mConstantDefs.floatBufferSize = 0;
+		mConstantDefs.intBufferSize = 0;
 
         if (FAILED(hr))
         {
@@ -170,7 +175,6 @@ namespace Ogre {
         for (unsigned int i = 0; i < desc.Constants; ++i)
         {
             // Recursively descend through the structure levels
-            // Since D3D9 has no nice 'leaf' method like Cg (sigh)
             processParamElement(NULL, "", i);
         }
 
@@ -178,7 +182,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     void D3D9HLSLProgram::processParamElement(D3DXHANDLE parent, String prefix, 
-        unsigned int index)
+        unsigned int index) const
     {
         D3DXHANDLE hConstant = mpConstTable->GetConstant(parent, index);
 
@@ -200,39 +204,175 @@ namespace Ogre {
         if (paramName.at(0) == '$')
             paramName.erase(paramName.begin());
 
-        // If it's an array, elements will be > 1
-        for (unsigned int e = 0; e < desc.Elements; ++e)
+		// Also trim the '[0]' suffix if it exists, we will add our own indexing later
+		if (StringUtil::endsWith(paramName, "[0]", false))
+		{
+			paramName.erase(paramName.size() - 3);
+		}
+
+
+        if (desc.Class == D3DXPC_STRUCT)
         {
-            if (desc.Class == D3DXPC_STRUCT)
+            // work out a new prefix for nested members, if it's an array, we need an index
+            prefix = prefix + paramName + ".";
+            // Cascade into struct
+            for (unsigned int i = 0; i < desc.StructMembers; ++i)
             {
-                // work out a new prefix for nested members, if it's an array, we need an index
-                if (desc.Elements > 1)
-                    prefix = prefix + paramName + "[" + StringConverter::toString(e) + "].";
-                else
-                    prefix = prefix + paramName + ".";
-                // Cascade into struct
-                for (unsigned int i = 0; i < desc.StructMembers; ++i)
-                {
-                    processParamElement(hConstant, prefix, i);
-                }
+                processParamElement(hConstant, prefix, i);
             }
-            else
+        }
+        else
+        {
+            // Process params
+            if (desc.Type == D3DXPT_FLOAT || desc.Type == D3DXPT_INT || desc.Type == D3DXPT_BOOL)
             {
-                // Process params
-                if (desc.Type == D3DXPT_FLOAT || desc.Type == D3DXPT_INT || desc.Type == D3DXPT_BOOL)
-                {
-                    size_t paramIndex = desc.RegisterIndex + e * desc.RegisterCount / desc.Elements;
-                    String name = prefix + paramName;
-                    // If this is an array, need to append element index
-                    if (desc.Elements > 1)
-                        name += "[" + StringConverter::toString(e) + "]";
-                    
-                    mParamNameMap[name] = paramIndex;
-                }
+                size_t paramIndex = desc.RegisterIndex;
+                String name = prefix + paramName;
+                
+				GpuConstantDefinition def;
+				// populate type, array size & element size
+				populateDef(desc, def);
+				if (def.isFloat())
+				{
+					def.physicalIndex = mFloatLogicalToPhysical.bufferSize;
+					OGRE_LOCK_MUTEX(mFloatLogicalToPhysical.mutex)
+					mFloatLogicalToPhysical.map.insert(
+						GpuLogicalIndexUseMap::value_type(paramIndex, 
+						GpuLogicalIndexUse(def.physicalIndex, def.arraySize * def.elementSize)));
+					mFloatLogicalToPhysical.bufferSize += def.arraySize * def.elementSize;
+					mConstantDefs.floatBufferSize = mFloatLogicalToPhysical.bufferSize;
+				}
+				else
+				{
+					def.physicalIndex = mIntLogicalToPhysical.bufferSize;
+					OGRE_LOCK_MUTEX(mIntLogicalToPhysical.mutex)
+					mIntLogicalToPhysical.map.insert(
+						GpuLogicalIndexUseMap::value_type(paramIndex, 
+						GpuLogicalIndexUse(def.physicalIndex, def.arraySize * def.elementSize)));
+					mIntLogicalToPhysical.bufferSize += def.arraySize * def.elementSize;
+					mConstantDefs.intBufferSize = mIntLogicalToPhysical.bufferSize;
+				}
+
+                mConstantDefs.map.insert(GpuConstantDefinitionMap::value_type(name, def));
+
+				// Now deal with arrays
+				mConstantDefs.generateConstantDefinitionArrayEntries(name, def);
             }
         }
             
     }
+	//-----------------------------------------------------------------------
+	void D3D9HLSLProgram::populateDef(D3DXCONSTANT_DESC& d3dDesc, GpuConstantDefinition& def) const
+	{
+		def.arraySize = d3dDesc.Elements;
+		switch(d3dDesc.Type)
+		{
+		case D3DXPT_INT:
+			switch(d3dDesc.Columns)
+			{
+			case 1:
+				def.constType = GCT_INT1;
+				def.elementSize = 4; // HLSL always packs
+				break;
+			case 2:
+				def.constType = GCT_INT2;
+				def.elementSize = 4; // HLSL always packs
+				break;
+			case 3:
+				def.constType = GCT_INT3;
+				def.elementSize = 4; // HLSL always packs
+				break;
+			case 4:
+				def.constType = GCT_INT4;
+				def.elementSize = 4; 
+				break;
+			} // columns
+			break;
+		case D3DXPT_FLOAT:
+			switch(d3dDesc.Rows)
+			{
+			case 1:
+				switch(d3dDesc.Columns)
+				{
+				case 1:
+					def.constType = GCT_FLOAT1;
+					def.elementSize = 4; // HLSL always packs
+					break;
+				case 2:
+					def.constType = GCT_FLOAT2;
+					def.elementSize = 4; // HLSL always packs
+					break;
+				case 3:
+					def.constType = GCT_FLOAT3;
+					def.elementSize = 4; // HLSL always packs
+					break;
+				case 4:
+					def.constType = GCT_FLOAT4;
+					def.elementSize = 4; 
+					break;
+				} // columns
+				break;
+			case 2:
+				switch(d3dDesc.Columns)
+				{
+				case 2:
+					def.constType = GCT_MATRIX_2X2;
+					def.elementSize = 8; // HLSL always packs
+					break;
+				case 3:
+					def.constType = GCT_MATRIX_2X3;
+					def.elementSize = 8; // HLSL always packs
+					break;
+				case 4:
+					def.constType = GCT_MATRIX_2X4;
+					def.elementSize = 8; 
+					break;
+				} // columns
+				break;
+			case 3:
+				switch(d3dDesc.Columns)
+				{
+				case 2:
+					def.constType = GCT_MATRIX_3X2;
+					def.elementSize = 12; // HLSL always packs
+					break;
+				case 3:
+					def.constType = GCT_MATRIX_3X3;
+					def.elementSize = 12; // HLSL always packs
+					break;
+				case 4:
+					def.constType = GCT_MATRIX_3X4;
+					def.elementSize = 12; 
+					break;
+				} // columns
+				break;
+			case 4:
+				switch(d3dDesc.Columns)
+				{
+				case 2:
+					def.constType = GCT_MATRIX_4X2;
+					def.elementSize = 16; // HLSL always packs
+					break;
+				case 3:
+					def.constType = GCT_MATRIX_4X3;
+					def.elementSize = 16; // HLSL always packs
+					break;
+				case 4:
+					def.constType = GCT_MATRIX_4X4;
+					def.elementSize = 16; 
+					break;
+				} // columns
+				break;
+
+			} // rows
+			break;
+			
+		default:
+			// not mapping samplers, don't need to take the space 
+			break;
+		};
+
+	}
     //-----------------------------------------------------------------------
     D3D9HLSLProgram::D3D9HLSLProgram(ResourceManager* creator, const String& name, 
         ResourceHandle handle, const String& group, bool isManual, 

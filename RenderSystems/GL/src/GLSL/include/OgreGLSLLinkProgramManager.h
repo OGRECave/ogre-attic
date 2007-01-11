@@ -69,7 +69,12 @@ namespace Ogre {
 		StringToEnumMap mTypeEnumMap;
 
 		/// Use type to complete other information
-		void completeUniformInfo(UniformReference& refToUpdate);
+		void completeDefInfo(GLenum gltype, GpuConstantDefinition& defToUpdate);
+		/// Find where the data for a specific uniform should come from, populate
+		bool completeParamSource(const String& paramName,
+			const GpuConstantDefinitionMap* vertexConstantDefs, 
+			const GpuConstantDefinitionMap* fragmentConstantDefs, 
+			GLUniformReference& refToUpdate);
 
 	public:
 
@@ -96,16 +101,25 @@ namespace Ogre {
 
 		/** Populate a list of uniforms based on a program object.
 		@param programObject Handle to the program object to query
+		@param vertexConstantDefs Definition of the constants extracted from the
+			vertex program, used to match up physical buffer indexes with program
+			uniforms. May be null if there is no vertex program.
+		@param fragmentConstantDefs Definition of the constants extracted from the
+			fragment program, used to match up physical buffer indexes with program
+			uniforms. May be null if there is no fragment program.
 		@param list The list to populate (will not be cleared before adding, clear
 		it yourself before calling this if that's what you want).
 		*/
-		void extractUniforms(GLhandleARB programObject, UniformReferenceList& list);
+		void extractUniforms(GLhandleARB programObject, 
+			const GpuConstantDefinitionMap* vertexConstantDefs, 
+			const GpuConstantDefinitionMap* fragmentConstantDefs, 
+			GLUniformReferenceList& list);
 		/** Populate a list of uniforms based on GLSL source.
 		@param src Reference to the source code
-		@param list The list to populate (will not be cleared before adding, clear
+		@param list The defs to populate (will not be cleared before adding, clear
 		it yourself before calling this if that's what you want).
 		*/
-		void extractUniforms(const String& src, UniformReferenceList& list);
+		void extractConstantDefs(const String& src, GpuNamedConstants& constantDefs);
 
 		static GLSLLinkProgramManager& getSingleton(void);
         static GLSLLinkProgramManager* getSingletonPtr(void);

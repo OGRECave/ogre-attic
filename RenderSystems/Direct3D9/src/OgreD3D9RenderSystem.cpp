@@ -2712,111 +2712,111 @@ namespace Ogre
         GpuProgramParametersSharedPtr params)
     {
         HRESULT hr;
-        unsigned int index;
-        GpuProgramParameters::IntConstantIterator intIt = params->getIntConstantIterator();
-        GpuProgramParameters::RealConstantIterator realIt = params->getRealConstantIterator();
+		const GpuLogicalBufferStruct* floatLogical = params->getFloatLogicalBufferStruct();
+		const GpuLogicalBufferStruct* intLogical = params->getIntLogicalBufferStruct();
 
         switch(gptype)
         {
         case GPT_VERTEX_PROGRAM:
             mActiveVertexGpuProgramParameters = params;
-            // Bind floats
-            if (params->hasRealConstantParams())
-            {
-                // Iterate over params and set the relevant ones
-                index = 0;
-                while (realIt.hasMoreElements())
-                {
-                    const GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
-                    if (e->isSet)
-                    {
-                        if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantF(
-                            index, e->val, 1)))
-                        {
-                            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to upload vertex shader float parameters", 
-                                "D3D9RenderSystem::bindGpuProgramParameters");
-                        }
-                    }
-                    index++;
-                    realIt.moveNext();
-                }
-            }
-            // Bind ints
-            if (params->hasIntConstantParams())
-            {
-                // Iterate over params and set the relevant ones
-                index = 0;
-                while (intIt.hasMoreElements())
-                {
-                    const GpuProgramParameters::IntConstantEntry* e = intIt.peekNextPtr();
-                    if (e->isSet)
-                    {
-                        if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantI(
-                            index, e->val, 1)))
-                        {
-                            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to upload vertex shader float parameters", 
-                                "D3D9RenderSystem::bindGpuProgramParameters");
-                        }
-                    }
-                    index++;
-                    intIt.moveNext();
-                }
-            }
+			{
+				OGRE_LOCK_MUTEX(floatLogical->mutex)
+
+				for (GpuLogicalIndexUseMap::const_iterator i = floatLogical->map.begin();
+					i != floatLogical->map.end(); ++i)
+				{
+					size_t logicalIndex = i->first;
+					const float* pFloat = params->getFloatPointer(i->second.physicalIndex);
+					size_t slotCount = i->second.currentSize / 4;
+					assert (i->second.currentSize % 4 == 0 && "Should not have any "
+						"elements less than 4 wide for D3D9");
+
+					if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantF(
+						logicalIndex, pFloat, slotCount)))
+					{
+						OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+							"Unable to upload vertex shader float parameters", 
+							"D3D9RenderSystem::bindGpuProgramParameters");
+					}
+
+				}
+
+			}
+			// bind ints
+			{
+				OGRE_LOCK_MUTEX(intLogical->mutex)
+
+				for (GpuLogicalIndexUseMap::const_iterator i = intLogical->map.begin();
+					i != intLogical->map.end(); ++i)
+				{
+					size_t logicalIndex = i->first;
+					const int* pInt = params->getIntPointer(i->second.physicalIndex);
+					size_t slotCount = i->second.currentSize / 4;
+					assert (i->second.currentSize % 4 == 0 && "Should not have any "
+						"elements less than 4 wide for D3D9");
+
+					if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantI(
+						logicalIndex, pInt, slotCount)))
+					{
+						OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+							"Unable to upload vertex shader int parameters", 
+							"D3D9RenderSystem::bindGpuProgramParameters");
+					}
+
+				}
+
+			}
+
             break;
         case GPT_FRAGMENT_PROGRAM:
             mActiveFragmentGpuProgramParameters = params;
-            // Bind floats
-            if (params->hasRealConstantParams())
-            {
-                // Iterate over params and set the relevant ones
-                index = 0;
-                while (realIt.hasMoreElements())
-                {
-                    const GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
-                    if (e->isSet)
-                    {
-                        /*
-                        // TEST
-                        LogManager::getSingleton().logMessage(
-                            "  Set Constant " + StringConverter::toString(index) + " to float4(" +
-                            StringConverter::toString(e->val[0]) + ", " + 
-                            StringConverter::toString(e->val[1]) + ", " + 
-                            StringConverter::toString(e->val[2]) + ", " + 
-                            StringConverter::toString(e->val[3]) + ")"); 
-                        */
+			{
+				OGRE_LOCK_MUTEX(floatLogical->mutex)
 
-                        if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantF(
-                            index, e->val, 1)))
-                        {
-                            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to upload pixel shader float parameters", 
-                                "D3D9RenderSystem::bindGpuProgramParameters");
-                        }
-                    }
-                    index++;
-                    realIt.moveNext();
-                }
-            }
-            // Bind ints
-            if (params->hasIntConstantParams())
-            {
-                // Iterate over params and set the relevant ones
-                index = 0;
-                while (intIt.hasMoreElements())
-                {
-                    const GpuProgramParameters::IntConstantEntry* e = intIt.peekNextPtr();
-                    if (e->isSet)
-                    {
-                        if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantI(
-                            index, e->val, 1)))
-                        {
-                            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to upload pixel shader float parameters", 
-                                "D3D9RenderSystem::bindGpuProgramParameters");
-                        }
-                    }
-                    index++;
-                    intIt.moveNext();
-                }
-            }
+				for (GpuLogicalIndexUseMap::const_iterator i = floatLogical->map.begin();
+					i != floatLogical->map.end(); ++i)
+				{
+					size_t logicalIndex = i->first;
+					const float* pFloat = params->getFloatPointer(i->second.physicalIndex);
+					size_t slotCount = i->second.currentSize / 4;
+					assert (i->second.currentSize % 4 == 0 && "Should not have any "
+						"elements less than 4 wide for D3D9");
+
+					if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantF(
+						logicalIndex, pFloat, slotCount)))
+					{
+						OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+							"Unable to upload pixel shader float parameters", 
+							"D3D9RenderSystem::bindGpuProgramParameters");
+					}
+
+				}
+
+			}
+			// bind ints
+			{
+				OGRE_LOCK_MUTEX(intLogical->mutex)
+
+				for (GpuLogicalIndexUseMap::const_iterator i = intLogical->map.begin();
+					i != intLogical->map.end(); ++i)
+				{
+					size_t logicalIndex = i->first;
+					const int* pInt = params->getIntPointer(i->second.physicalIndex);
+					size_t slotCount = i->second.currentSize / 4;
+					assert (i->second.currentSize % 4 == 0 && "Should not have any "
+						"elements less than 4 wide for D3D9");
+
+					if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantI(
+						logicalIndex, pInt, slotCount)))
+					{
+						OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+							"Unable to upload pixel shader int parameters", 
+							"D3D9RenderSystem::bindGpuProgramParameters");
+					}
+
+				}
+
+			}
             break;
         };
     }
@@ -2825,32 +2825,41 @@ namespace Ogre
     {
 
         HRESULT hr;
-        GpuProgramParameters::RealConstantEntry* realEntry;
+		size_t physicalIndex = 0;
+		size_t logicalIndex = 0;
+		const float* pFloat;
 
         switch(gptype)
         {
         case GPT_VERTEX_PROGRAM:
-            realEntry = mActiveVertexGpuProgramParameters->getPassIterationEntry();
-            if (realEntry)
-            {
+			if (mActiveVertexGpuProgramParameters->hasPassIterationNumber())
+			{
+	            physicalIndex = mActiveVertexGpuProgramParameters->getPassIterationNumberIndex();
+				logicalIndex = mActiveVertexGpuProgramParameters->getFloatLogicalIndexForPhysicalIndex(physicalIndex);
+				pFloat = mActiveVertexGpuProgramParameters->getFloatPointer(physicalIndex);
+				
                 if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantF(
-                        mActiveVertexGpuProgramParameters->getPassIterationEntryIndex(), realEntry->val, 1)))
-                {
-                    OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to upload vertex shader multi pass parameters", 
-                    "D3D9RenderSystem::bindGpuProgramMultiPassParameters");
+                        logicalIndex, pFloat, 1)))
+				{
+                    OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"Unable to upload vertex shader multi pass parameters", 
+						"D3D9RenderSystem::bindGpuProgramMultiPassParameters");
                 }
             }
             break;
 
         case GPT_FRAGMENT_PROGRAM:
-            realEntry = mActiveFragmentGpuProgramParameters->getPassIterationEntry();
-            if (realEntry)
+            if (mActiveFragmentGpuProgramParameters->hasPassIterationNumber())
             {
+				physicalIndex = mActiveFragmentGpuProgramParameters->getPassIterationNumberIndex();
+				logicalIndex = mActiveFragmentGpuProgramParameters->getFloatLogicalIndexForPhysicalIndex(physicalIndex);
+				pFloat = mActiveFragmentGpuProgramParameters->getFloatPointer(physicalIndex);
                 if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantF(
-                        mActiveFragmentGpuProgramParameters->getPassIterationEntryIndex(), realEntry->val, 1)))
+                        logicalIndex, pFloat, 1)))
                 {
-                    OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to upload pixel shader multi pass parameters", 
-                    "D3D9RenderSystem::bindGpuProgramMultiPassParameters");
+                    OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+						"Unable to upload pixel shader multi pass parameters", 
+						"D3D9RenderSystem::bindGpuProgramMultiPassParameters");
                 }
             }
             break;

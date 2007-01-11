@@ -276,11 +276,11 @@ namespace Ogre
 			"UnifiedHighLevelGpuProgram::unloadHighLevelImpl");
 	}
 	//-----------------------------------------------------------------------
-	void UnifiedHighLevelGpuProgram::buildParameterNameMap()
+	void UnifiedHighLevelGpuProgram::buildConstantDefinitions() const
 	{
 		OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, 
 			"This method should never get called!",
-			"UnifiedHighLevelGpuProgram::buildParameterNameMap");
+			"UnifiedHighLevelGpuProgram::buildConstantDefinitions");
 	}
 	//-----------------------------------------------------------------------
 	void UnifiedHighLevelGpuProgram::loadFromSource(void)
