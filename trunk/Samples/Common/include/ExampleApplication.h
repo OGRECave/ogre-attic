@@ -25,6 +25,32 @@ Description: Base class for all the OGRE examples
 #include "OgreConfigFile.h"
 #include "ExampleFrameListener.h"
 
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+#include <CoreFoundation/CoreFoundation.h>
+
+// This function will locate the path to our application on OS X,
+// unlike windows you can not rely on the curent working directory
+// for locating your configuration files and resources.
+std::string macBundlePath()
+{
+    char path[1024];
+    CFBundleRef mainBundle = CFBundleGetMainBundle();
+    assert(mainBundle);
+
+    CFURLRef mainBundleURL = CFBundleCopyBundleURL(mainBundle);
+    assert(mainBundleURL);
+
+    CFStringRef cfStringRef = CFURLCopyFileSystemPath( mainBundleURL, kCFURLPOSIXPathStyle);
+    assert(cfStringRef);
+
+    CFStringGetCString(cfStringRef, path, 1024, kCFStringEncodingASCII);
+
+    CFRelease(mainBundleURL);
+    CFRelease(cfStringRef);
+
+    return std::string(path);
+}
+#endif
 
 using namespace Ogre;
 
@@ -67,12 +93,23 @@ protected:
     SceneManager* mSceneMgr;
     ExampleFrameListener* mFrameListener;
     RenderWindow* mWindow;
+	Ogre::String mResourcePath;
 
     // These internal methods package up the stages in the startup process
     /** Sets up the application - returns false if the user chooses to abandon configuration. */
     virtual bool setup(void)
     {
-        mRoot = new Root();
+		// Provide a nice cross platform solution for locating the configuration files
+		// On windows files are searched for in the current working directory, on OS X however
+		// you must provide the full path, the helper function macBundlePath does this for us.
+		#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+		mResourcePath = macBundlePath() + "/Contents/Resources/";
+		#else
+		mResourcePath = "";
+		#endif
+		
+        mRoot = new Root(mResourcePath + "plugins.cfg", 
+            mResourcePath + "ogre.cfg", mResourcePath + "Ogre.log");
 
         setupResources();
 
@@ -162,7 +199,7 @@ protected:
     {
         // Load resource paths from config file
         ConfigFile cf;
-        cf.load("resources.cfg");
+        cf.load(mResourcePath + "resources.cfg");
 
         // Go through all sections & settings in the file
         ConfigFile::SectionIterator seci = cf.getSectionIterator();

@@ -5,7 +5,12 @@
 #include <ctype.h>
 
 #include <OgreGLPrerequisites.h>
-#include <GL/glu.h>
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+#	include <OpenGL/glu.h>
+#else
+#	include <GL/glu.h>
+#endif
+
 
 using namespace std;
 

@@ -17,12 +17,7 @@ LGPL like the rest of the engine.
 #define _WATER_MESH_H_
 
 #include "OgrePlatform.h"
-
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-#   include <Ogre/Ogre.h>
-#else
-#   include "Ogre.h"
-#endif
+#include "Ogre.h"
 
 using namespace Ogre ;
 
