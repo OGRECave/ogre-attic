@@ -366,7 +366,7 @@ namespace Ogre
             @deprecated
                 This method is deprecated, and exists only for backward compatibility. You can create
                 arbitrary rendertextures with the TextureManager::createManual call with usage
-                TU_RENDERTEXTURE.
+                TU_RENDERTARGET.
 		*/
 		RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height,
 		 	TextureType texType = TEX_TYPE_2D, PixelFormat internalFormat = PF_X8R8G8B8, 
