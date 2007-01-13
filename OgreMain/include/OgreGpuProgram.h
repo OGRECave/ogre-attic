@@ -73,7 +73,8 @@ namespace Ogre {
 		GCT_INT1,
 		GCT_INT2,
 		GCT_INT3,
-		GCT_INT4
+		GCT_INT4,
+		GCT_UNKNOWN
 	};
 
 	/** Information about predefined program constants. 
@@ -129,6 +130,12 @@ namespace Ogre {
 			};
 
 		}
+
+		GpuConstantDefinition()
+			: constType(GCT_UNKNOWN)
+			, physicalIndex(std::numeric_limits<size_t>::max())
+			, elementSize(0)
+			, arraySize(1) {}
 	};
 	typedef std::map<String, GpuConstantDefinition> GpuConstantDefinitionMap;
 	typedef ConstMapIterator<GpuConstantDefinitionMap> GpuConstantDefinitionIterator;
@@ -597,17 +604,23 @@ namespace Ogre {
             AutoConstantType paramType;
 			/// The target (physical) constant index
             size_t physicalIndex;
+			/** The number of elements per individual entry in this constant
+				Used in case people used packed elements smaller than 4 (e.g. GLSL)
+				and bind an auto which is 4-element packed to it */
+			size_t elementCount;
             /// Additional information to go with the parameter
 			union{
 				size_t data;
 				Real fData;
 			};
 
-            AutoConstantEntry(AutoConstantType theType, size_t theIndex, size_t theData)
-                : paramType(theType), physicalIndex(theIndex), data(theData) {}
+            AutoConstantEntry(AutoConstantType theType, size_t theIndex, size_t theData, 
+				size_t theElemCount = 4)
+                : paramType(theType), physicalIndex(theIndex), elementCount(theElemCount), data(theData) {}
 
-			AutoConstantEntry(AutoConstantType theType, size_t theIndex, Real theData)
-				: paramType(theType), physicalIndex(theIndex), fData(theData) {}
+			AutoConstantEntry(AutoConstantType theType, size_t theIndex, Real theData, 
+				size_t theElemCount = 4)
+				: paramType(theType), physicalIndex(theIndex), elementCount(theElemCount), fData(theData) {}
 
         };
 		// Auto parameter storage
@@ -790,8 +803,11 @@ namespace Ogre {
 			the named / logical index versions.
 		@param physicalIndex The physical buffer index at which to place the parameter 
 		@param vec The value to set
+		@param count The number of floats to write; if for example
+			the uniform constant 'slot' is smaller than a Vector4
 		*/
-		void _writeRawConstant(size_t physicalIndex, const Vector4& vec);
+		void _writeRawConstant(size_t physicalIndex, const Vector4& vec, 
+			size_t count = 4);
 		/** Write a single floating-point parameter to the program.
 		@note You can use these methods if you have already derived the physical
 		constant buffer location, for a slight speed improvement over using
@@ -838,8 +854,11 @@ namespace Ogre {
 		the named / logical index versions.
 		@param physicalIndex The physical buffer index at which to place the parameter 
 		@param colour The value to set
+		@param count The number of floats to write; if for example
+			the uniform constant 'slot' is smaller than a Vector4
 		*/
-        void _writeRawConstant(size_t physicalIndex, const ColourValue& colour);
+        void _writeRawConstant(size_t physicalIndex, const ColourValue& colour, 
+			size_t count = 4);
 		
 
         /** Gets an iterator over the named GpuConstantDefinition instances as defined
@@ -917,11 +936,13 @@ namespace Ogre {
 		/** As setAutoConstant, but sets up the auto constant directly against a
 			physical buffer index.
 		*/
-		void _setRawAutoConstant(size_t physicalIndex, AutoConstantType acType, size_t extraInfo);
+		void _setRawAutoConstant(size_t physicalIndex, AutoConstantType acType, size_t extraInfo, 
+			size_t elementSize = 4);
 		/** As setAutoConstantReal, but sets up the auto constant directly against a
 		physical buffer index.
 		*/
-		void _setRawAutoConstantReal(size_t physicalIndex, AutoConstantType acType, Real rData);
+		void _setRawAutoConstantReal(size_t physicalIndex, AutoConstantType acType, Real rData, 
+			size_t elementSize = 4);
 
 
 		/** Unbind an auto constant so that the constant is manually controlled again. */

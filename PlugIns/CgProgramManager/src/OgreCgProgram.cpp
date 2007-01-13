@@ -256,6 +256,15 @@ namespace Ogre {
 					GpuConstantDefinition def;
 					def.arraySize = contextArraySize;
 					mapTypeAndElementSize(paramType, isRegisterCombiner, def);
+
+					if (def.constType == GCT_UNKNOWN)
+					{
+						LogManager::getSingleton().logMessage(
+							"Problem parsing the following Cg Uniform: '"
+							+ paramName + "' in file " + mName);
+						// next uniform
+						continue;
+					}
 					if (isRegisterCombiner)
 					{
 						def.physicalIndex = regCombinerPhysicalIndex;
@@ -409,8 +418,7 @@ namespace Ogre {
 				def.elementSize = 4; 
 				break;
 			default:
-				// not mapping samplers, don't need to take the space 
-				assert("We should never get here");
+				def.constType = GCT_UNKNOWN;
 				break;
 			};
 		}
