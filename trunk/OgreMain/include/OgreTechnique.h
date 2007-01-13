@@ -83,8 +83,10 @@ namespace Ogre {
             usually done from Material::compile.
         */
         bool isSupported(void) const;
-        /** Internal compilation method; see Material::compile. */
-        void _compile(bool autoManageTextureUnits);
+        /** Internal compilation method; see Material::compile. 
+		@returns Any information explaining problems with the compile.
+		*/
+        String _compile(bool autoManageTextureUnits);
         /** Internal method for splitting the passes into illumination passes. */        
         void _compileIlluminationPasses(void);
 

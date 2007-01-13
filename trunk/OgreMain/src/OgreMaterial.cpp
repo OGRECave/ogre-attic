@@ -429,17 +429,30 @@ namespace Ogre {
         // Compile each technique, then add it to the list of supported techniques
         mSupportedTechniques.clear();
 		clearBestTechniqueList();
+		mUnsupportedReasons.clear();
 
 
         Techniques::iterator i, iend;
         iend = mTechniques.end();
-        for (i = mTechniques.begin(); i != iend; ++i)
+		size_t techNo = 0;
+        for (i = mTechniques.begin(); i != iend; ++i, ++techNo)
         {
-            (*i)->_compile(autoManageTextureUnits);
+            String compileMessages = (*i)->_compile(autoManageTextureUnits);
             if ( (*i)->isSupported() )
             {
 				insertSupportedTechnique(*i);
             }
+			else
+			{
+				// Log informational
+				StringUtil::StrStreamType str;
+				str << "Material " << mName << " Technique " << techNo;
+				if (!(*i)->getName().empty())
+					str << "(" << (*i)->getName() << ")";
+				str << " is not supported. " << compileMessages;
+				LogManager::getSingleton().logMessage(str.str(), LML_TRIVIAL);
+				mUnsupportedReasons += compileMessages;
+			}
         }
 
         mCompilationRequired = false;
@@ -447,9 +460,10 @@ namespace Ogre {
         // Did we find any?
         if (mSupportedTechniques.empty())
         {
-            LogManager::getSingleton().logMessage(
-                "Warning: material " + mName + " has no supportable Techniques on this "
-                "hardware, it will be rendered blank.");
+			StringUtil::StrStreamType str;
+			str << "WARNING: material " << mName << " has no supportable "
+				"Techniques and will be blank. Explanation: " << std::endl << mUnsupportedReasons;
+            LogManager::getSingleton().logMessage(str.str());               
         }
     }
 	//-----------------------------------------------------------------------

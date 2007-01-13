@@ -114,6 +114,8 @@ namespace Ogre {
 		bool mTransparencyCastsShadows;
         /// Does this material require compilation?
         bool mCompilationRequired;
+		/// Text description of why any techniques are not supported
+		String mUnsupportedReasons;
 
 		/** Insert a supported technique into the local collections. */
 		void insertSupportedTechnique(Technique* t);
@@ -221,6 +223,8 @@ namespace Ogre {
         Technique* getSupportedTechnique(unsigned short index);
 		/** Retrieves the number of supported techniques. */
         unsigned short getNumSupportedTechniques(void) const;
+		/** Gets a string explaining why any techniques are not supported. */
+		const String& getUnsupportedTechniquesExplanation() const { return mUnsupportedReasons; }
 
         /** Gets the number of levels-of-detail this material has in the 
 			given scheme, based on Technique::setLodIndex. 
