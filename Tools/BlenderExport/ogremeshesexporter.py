@@ -457,15 +457,16 @@ else:
 					# check all bone Ipos
 					# ipoDict[boneName] = Blender.Ipo
 					for ipo in ipoDict.values():
-						# check all IpoCurves
-						for ipoCurve in ipo.getCurves():
-							# check first and last keyframe
-							for bezTriple in ipoCurve.getPoints():
-								iFrame = bezTriple.getPoints()[0]
-								if ((iFrame < firstKeyFrame) or (firstKeyFrame is None)):
-									firstKeyFrame = iFrame
-								if ((iFrame > lastKeyFrame) or (lastKeyFrame is None)):
-									lastKeyFrame = iFrame
+						if ipo is not None:
+							# check all IpoCurves
+							for ipoCurve in ipo.getCurves():
+								# check first and last keyframe
+								for bezTriple in ipoCurve.getPoints():
+									iFrame = bezTriple.getPoints()[0]
+									if ((iFrame < firstKeyFrame) or (firstKeyFrame is None)):
+										firstKeyFrame = iFrame
+									if ((iFrame > lastKeyFrame) or (lastKeyFrame is None)):
+										lastKeyFrame = iFrame
 				if firstKeyFrame == None:
 					firstKeyFrame = 1
 				if lastKeyFrame == None:
