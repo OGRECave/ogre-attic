@@ -118,8 +118,10 @@ namespace Ogre {
 		@param src Reference to the source code
 		@param list The defs to populate (will not be cleared before adding, clear
 		it yourself before calling this if that's what you want).
+		@param filename The file name this came from, for logging errors.
 		*/
-		void extractConstantDefs(const String& src, GpuNamedConstants& constantDefs);
+		void extractConstantDefs(const String& src, GpuNamedConstants& constantDefs, 
+			const String& filename);
 
 		static GLSLLinkProgramManager& getSingleton(void);
         static GLSLLinkProgramManager* getSingletonPtr(void);

@@ -866,7 +866,9 @@ namespace Ogre
 			mCapabilities->log(defaultLog);
 		}
 
-		mPerStageConstantSupport = (mCaps.PrimitiveMiscCaps & D3DPMISCCAPS_TSSARGTEMP) != 0;
+		// Do we support per-stage src_manual constants?
+		// HACK - ATI drivers seem to be buggy and don't support per-stage constants properly?
+		mPerStageConstantSupport = (mCaps.PrimitiveMiscCaps & D3DPMISCCAPS_PERSTAGECONSTANT) != 0;
 
     }
     //---------------------------------------------------------------------

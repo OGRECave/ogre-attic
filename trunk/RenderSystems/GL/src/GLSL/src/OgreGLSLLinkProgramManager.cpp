@@ -31,6 +31,7 @@ Torus Knot Software Ltd.
 #include "OgreGLSLGpuProgram.h"
 #include "OgreGLSLProgram.h"
 #include "OgreStringConverter.h"
+#include "OgreLogManager.h"
 
 namespace Ogre {
 
@@ -274,7 +275,7 @@ namespace Ogre {
 			defToUpdate.elementSize = 12;
 			break;
 		default:
-			// Ignore silently for unknown/unsupported types
+			defToUpdate.constType = GCT_UNKNOWN;
 			break;
 
 		}
@@ -370,7 +371,7 @@ namespace Ogre {
 	}
 	//---------------------------------------------------------------------
 	void GLSLLinkProgramManager::extractConstantDefs(const String& src, 
-		GpuNamedConstants& defs)
+		GpuNamedConstants& defs, const String& filename)
 	{
 		// Could have done this as a compiler but we don't want to have to 
 		// create a BNF for the whole GLSL syntax, so use a simpler method
@@ -446,7 +447,8 @@ namespace Ogre {
 				}
 				line = src.substr(currPos, endPos - currPos);
 
-				StringVector parts = StringUtil::split(line, " \t\r\n");
+				// Split into tokens
+				StringVector parts = StringUtil::split(line, ", \t\r\n");
 
 				for (StringVector::iterator i = parts.begin(); i != parts.end(); ++i)
 				{
@@ -458,7 +460,7 @@ namespace Ogre {
 					}
 					else
 					{
-						// if this is not a type, and not empty, it should be the name
+						// if this is not a type, and not empty, it should be a name
 						StringUtil::trim(*i);
 						if (i->empty()) continue;
 
@@ -487,28 +489,41 @@ namespace Ogre {
 							def.arraySize = 1;
 						}
 
+						// Name should be after the type, so complete def and add
+						// We do this now so that comma-separated params will do
+						// this part once for each name mentioned 
+						if (def.constType == GCT_UNKNOWN)
+						{
+							LogManager::getSingleton().logMessage(
+								"Problem parsing the following GLSL Uniform: '"
+								+ line + "' in file " + filename);
+							// next uniform
+							break;
+						}
+
+						// Complete def and add
+						// increment physical buffer location
+						if (def.isFloat())
+						{
+							def.physicalIndex = defs.floatBufferSize;
+							defs.floatBufferSize += def.arraySize * def.elementSize;
+						}
+						else
+						{
+							def.physicalIndex = defs.intBufferSize;
+							defs.intBufferSize += def.arraySize * def.elementSize;
+						}
+						defs.map.insert(GpuConstantDefinitionMap::value_type(paramName, def));
+
+						if (!def.isSampler())
+						{
+							// Generate array accessors
+							defs.generateConstantDefinitionArrayEntries(paramName, def);
+						}
+
+
 					}
 
-				}
-
-				// Complete def and add
-				// increment physical buffer location
-				if (def.isFloat())
-				{
-					def.physicalIndex = defs.floatBufferSize;
-					defs.floatBufferSize += def.arraySize * def.elementSize;
-				}
-				else
-				{
-					def.physicalIndex = defs.intBufferSize;
-					defs.intBufferSize += def.arraySize * def.elementSize;
-				}
-				defs.map.insert(GpuConstantDefinitionMap::value_type(paramName, def));
-
-				if (!def.isSampler())
-				{
-					// Generate array accessors
-					defs.generateConstantDefinitionArrayEntries(paramName, def);
 				}
 
 			} // not commented or a larger symbol

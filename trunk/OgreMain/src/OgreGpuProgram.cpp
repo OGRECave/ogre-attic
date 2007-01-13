@@ -517,10 +517,12 @@ namespace Ogre
 		_writeRawConstants(physicalIndex, val, rawCount);
     }
 	//-----------------------------------------------------------------------------
-	void GpuProgramParameters::_writeRawConstant(size_t physicalIndex, const Vector4& vec)
+	void GpuProgramParameters::_writeRawConstant(size_t physicalIndex, const Vector4& vec,
+		size_t count)
 	{
 		// remember, raw content access uses raw float count rather than float4
-		_writeRawConstants(physicalIndex, vec.ptr(), 4);
+		// write either the number requested (for packed types) or up to 4
+		_writeRawConstants(physicalIndex, vec.ptr(), std::min(count, (size_t)4));
 	}
 	//-----------------------------------------------------------------------------
 	void GpuProgramParameters::_writeRawConstant(size_t physicalIndex, Real val)
@@ -574,9 +576,11 @@ namespace Ogre
 
 	}
 	//-----------------------------------------------------------------------------
-	void GpuProgramParameters::_writeRawConstant(size_t physicalIndex, const ColourValue& colour)
+	void GpuProgramParameters::_writeRawConstant(size_t physicalIndex, 
+		const ColourValue& colour, size_t count)
 	{
-		_writeRawConstants(physicalIndex, colour.ptr(), 4);
+		// write either the number requested (for packed types) or up to 4
+		_writeRawConstants(physicalIndex, colour.ptr(), std::min(count, (size_t)4));
 	}
 	//-----------------------------------------------------------------------------
 	void GpuProgramParameters::_writeRawConstants(size_t physicalIndex, const double* val, size_t count)
@@ -870,7 +874,7 @@ namespace Ogre
     }
 	//-----------------------------------------------------------------------------
 	void GpuProgramParameters::_setRawAutoConstant(size_t physicalIndex, 
-		AutoConstantType acType, size_t extraInfo)
+		AutoConstantType acType, size_t extraInfo, size_t elementSize)
 	{
 		// update existing index if it exists
 		bool found = false;
@@ -881,17 +885,18 @@ namespace Ogre
 			{
 				i->paramType = acType;
 				i->data = extraInfo;
+				i->elementCount = elementSize;
 				found = true;
 				break;
 			}
 		}
 		if (!found)
-			mAutoConstants.push_back(AutoConstantEntry(acType, physicalIndex, extraInfo));
+			mAutoConstants.push_back(AutoConstantEntry(acType, physicalIndex, extraInfo, elementSize));
 
 	}
 	//-----------------------------------------------------------------------------
 	void GpuProgramParameters::_setRawAutoConstantReal(size_t physicalIndex, 
-		AutoConstantType acType, Real rData)
+		AutoConstantType acType, Real rData, size_t elementSize)
 	{
 		// update existing index if it exists
 		bool found = false;
@@ -902,12 +907,13 @@ namespace Ogre
 			{
 				i->paramType = acType;
 				i->fData = rData;
+				i->elementCount = elementSize;
 				found = true;
 				break;
 			}
 		}
 		if (!found)
-			mAutoConstants.push_back(AutoConstantEntry(acType, physicalIndex, rData));
+			mAutoConstants.push_back(AutoConstantEntry(acType, physicalIndex, rData, elementSize));
 
 	}
 	//-----------------------------------------------------------------------------
@@ -1099,21 +1105,22 @@ namespace Ogre
 
             // NB ambient light still here because it's not related to a specific light
             case ACT_AMBIENT_LIGHT_COLOUR: 
-                _writeRawConstant(i->physicalIndex, source.getAmbientLightColour());
+                _writeRawConstant(i->physicalIndex, source.getAmbientLightColour(), 
+					i->elementCount);
                 break;
 
             case ACT_FOG_COLOUR:
                 _writeRawConstant(i->physicalIndex, source.getFogColour());
                 break;
             case ACT_FOG_PARAMS:
-                _writeRawConstant(i->physicalIndex, source.getFogParams());
+                _writeRawConstant(i->physicalIndex, source.getFogParams(), i->elementCount);
                 break;
 
             case ACT_CAMERA_POSITION:
-                _writeRawConstant(i->physicalIndex, source.getCameraPosition());
+                _writeRawConstant(i->physicalIndex, source.getCameraPosition(), i->elementCount);
                 break;
             case ACT_CAMERA_POSITION_OBJECT_SPACE:
-                _writeRawConstant(i->physicalIndex, source.getCameraPositionObjectSpace());
+                _writeRawConstant(i->physicalIndex, source.getCameraPositionObjectSpace(), i->elementCount);
                 break;
 
             case ACT_TIME:
@@ -1132,7 +1139,7 @@ namespace Ogre
                _writeRawConstant(i->physicalIndex, source.getTanTime_0_X(i->fData));
                break;
             case ACT_TIME_0_X_PACKED:
-               _writeRawConstant(i->physicalIndex, source.getTime_0_X_packed(i->fData));
+               _writeRawConstant(i->physicalIndex, source.getTime_0_X_packed(i->fData), i->elementCount);
                break;
             case ACT_TIME_0_1:
                _writeRawConstant(i->physicalIndex, source.getTime_0_1(i->fData));
@@ -1147,7 +1154,7 @@ namespace Ogre
                _writeRawConstant(i->physicalIndex, source.getTanTime_0_1(i->fData));
                break;
             case ACT_TIME_0_1_PACKED:
-               _writeRawConstant(i->physicalIndex, source.getTime_0_1_packed(i->fData));
+               _writeRawConstant(i->physicalIndex, source.getTime_0_1_packed(i->fData), i->elementCount);
                break;
             case ACT_TIME_0_2PI:
                _writeRawConstant(i->physicalIndex, source.getTime_0_2Pi(i->fData));
@@ -1162,7 +1169,7 @@ namespace Ogre
                _writeRawConstant(i->physicalIndex, source.getTanTime_0_2Pi(i->fData));
                break;
             case ACT_TIME_0_2PI_PACKED:
-               _writeRawConstant(i->physicalIndex, source.getTime_0_2Pi_packed(i->fData));
+               _writeRawConstant(i->physicalIndex, source.getTime_0_2Pi_packed(i->fData), i->elementCount);
                break;
             case ACT_FRAME_TIME:
                _writeRawConstant(i->physicalIndex, source.getFrameTime() * i->fData);
@@ -1187,7 +1194,7 @@ namespace Ogre
                    source.getViewportWidth(),
                    source.getViewportHeight(),
                    source.getInverseViewportWidth(),
-                   source.getInverseViewportHeight()));
+                   source.getInverseViewportHeight()), i->elementCount);
                break;
 			case ACT_TEXEL_OFFSETS:
 				{
@@ -1196,11 +1203,12 @@ namespace Ogre
 						rsys->getHorizontalTexelOffset(), 
 						rsys->getVerticalTexelOffset(), 
 						rsys->getHorizontalTexelOffset() * source.getInverseViewportWidth(),
-						rsys->getVerticalTexelOffset() * source.getInverseViewportHeight()));
+						rsys->getVerticalTexelOffset() * source.getInverseViewportHeight()),
+						i->elementCount);
 				}
 				break;
 			case ACT_SCENE_DEPTH_RANGE:
-				_writeRawConstant(i->physicalIndex, source.getSceneDepthRange());
+				_writeRawConstant(i->physicalIndex, source.getSceneDepthRange(), i->elementCount);
 				break;
             case ACT_VIEW_DIRECTION:
                _writeRawConstant(i->physicalIndex, source.getViewDirection());
@@ -1257,17 +1265,21 @@ namespace Ogre
                 break;
             case ACT_LIGHT_POSITION:
                 // Get as 4D vector, works for directional lights too
+				// Use element count in case uniform slot is smaller
                 _writeRawConstant(i->physicalIndex, 
-                    source.getLight(i->data).getAs4DVector());
+                    source.getLight(i->data).getAs4DVector(), i->elementCount);
                 break;
             case ACT_LIGHT_DIRECTION:
                 vec3 = source.getLight(i->data).getDerivedDirection();
                 // Set as 4D vector for compatibility
-                _writeRawConstant(i->physicalIndex, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
+				// Use element count in case uniform slot is smaller
+                _writeRawConstant(i->physicalIndex, Vector4(vec3.x, vec3.y, vec3.z, 1.0f), i->elementCount);
                 break;
             case ACT_LIGHT_POSITION_OBJECT_SPACE:
                 _writeRawConstant(i->physicalIndex, 
-                    source.getInverseWorldMatrix().transformAffine(source.getLight(i->data).getAs4DVector()));
+                    source.getInverseWorldMatrix().transformAffine(
+						source.getLight(i->data).getAs4DVector()), 
+					i->elementCount);
                 break;
             case ACT_LIGHT_DIRECTION_OBJECT_SPACE:
 				// We need the inverse transpose of the inverse world matrix
@@ -1276,18 +1288,18 @@ namespace Ogre
 					source.getLight(i->data).getDerivedDirection();
                 vec3.normalise();
                 // Set as 4D vector for compatibility
-                _writeRawConstant(i->physicalIndex, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
+                _writeRawConstant(i->physicalIndex, Vector4(vec3.x, vec3.y, vec3.z, 1.0f), i->elementCount);
                 break;
 			case ACT_LIGHT_POSITION_VIEW_SPACE:
                 _writeRawConstant(i->physicalIndex, 
-                    source.getViewMatrix().transformAffine(source.getLight(i->data).getAs4DVector()));
+                    source.getViewMatrix().transformAffine(source.getLight(i->data).getAs4DVector()), i->elementCount);
                 break;
             case ACT_LIGHT_DIRECTION_VIEW_SPACE:
 				vec3 = source.getInverseTransposeViewMatrix() *
 					source.getLight(i->data).getDerivedDirection();
                 vec3.normalise();
                 // Set as 4D vector for compatibility
-                _writeRawConstant(i->physicalIndex, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
+                _writeRawConstant(i->physicalIndex, Vector4(vec3.x, vec3.y, vec3.z, 1.0f),i->elementCount);
                 break;
             case ACT_LIGHT_DISTANCE_OBJECT_SPACE:
                 vec3 = source.getInverseWorldMatrix().transformAffine(source.getLight(i->data).getDerivedPosition());
@@ -1310,7 +1322,7 @@ namespace Ogre
                 vec4.y = l.getAttenuationConstant();
                 vec4.z = l.getAttenuationLinear();
                 vec4.w = l.getAttenuationQuadric();
-                _writeRawConstant(i->physicalIndex, vec4);
+                _writeRawConstant(i->physicalIndex, vec4, i->elementCount);
                 break;
             }
 			case ACT_SPOTLIGHT_PARAMS:
@@ -1332,23 +1344,26 @@ namespace Ogre
 					vec4.y -= 1e-5f;
 					vec4.z = vec4.w = 0.0f;
 				}
-				_writeRawConstant(i->physicalIndex, vec4);
+				_writeRawConstant(i->physicalIndex, vec4, i->elementCount);
 				break;
 			}
 			case ACT_LIGHT_DIFFUSE_COLOUR_ARRAY:
 				for (size_t l = 0; l < i->data; ++l)
-					_writeRawConstant(i->physicalIndex + l*4, source.getLight(l).getDiffuseColour());
+					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
+						source.getLight(l).getDiffuseColour(), i->elementCount);
 				break;
 
 			case ACT_LIGHT_SPECULAR_COLOUR_ARRAY:
 				for (size_t l = 0; l < i->data; ++l)
-					_writeRawConstant(i->physicalIndex + l*4, source.getLight(l).getSpecularColour());
+					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
+						source.getLight(l).getSpecularColour(), i->elementCount);
 				break;
 
 			case ACT_LIGHT_POSITION_ARRAY:
 				// Get as 4D vector, works for directional lights too
 				for (size_t l = 0; l < i->data; ++l)
-					_writeRawConstant(i->physicalIndex + l*4, source.getLight(l).getAs4DVector());
+					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
+						source.getLight(l).getAs4DVector(), i->elementCount);
 				break;
 
 			case ACT_LIGHT_DIRECTION_ARRAY:
@@ -1356,13 +1371,17 @@ namespace Ogre
 				{
 					vec3 = source.getLight(l).getDerivedDirection();
 					// Set as 4D vector for compatibility
-					_writeRawConstant(i->physicalIndex + l*4, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
+					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
+						Vector4(vec3.x, vec3.y, vec3.z, 1.0f), i->elementCount);
 				}
 				break;
 
 			case ACT_LIGHT_POSITION_OBJECT_SPACE_ARRAY:
 				for (size_t l = 0; l < i->data; ++l)
-					_writeRawConstant(i->physicalIndex + l*4, source.getInverseWorldMatrix().transformAffine(source.getLight(l).getAs4DVector()));
+					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
+						source.getInverseWorldMatrix().transformAffine(
+							source.getLight(l).getAs4DVector()), 
+						i->elementCount);
 				break;
 
 			case ACT_LIGHT_DIRECTION_OBJECT_SPACE_ARRAY:
@@ -1371,13 +1390,17 @@ namespace Ogre
 					vec3 = source.getInverseWorldMatrix().transformAffine(source.getLight(l).getDerivedDirection());
 					vec3.normalise();
 					// Set as 4D vector for compatibility
-					_writeRawConstant(i->physicalIndex + l*4, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
+					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
+						Vector4(vec3.x, vec3.y, vec3.z, 1.0f), i->elementCount);
 				}
 				break;
 
 			case ACT_LIGHT_POSITION_VIEW_SPACE_ARRAY:
 				for (size_t l = 0; l < i->data; ++l)
-					_writeRawConstant(i->physicalIndex + l*4, source.getWorldViewMatrix().transformAffine(source.getLight(l).getAs4DVector()));
+					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
+						source.getWorldViewMatrix().transformAffine(
+							source.getLight(l).getAs4DVector()),
+						i->elementCount);
 				break;
 
 			case ACT_LIGHT_DIRECTION_VIEW_SPACE_ARRAY:
@@ -1386,7 +1409,8 @@ namespace Ogre
 					vec3 = source.getWorldViewMatrix().transformAffine(source.getLight(l).getDerivedDirection());
 					vec3.normalise();
 					// Set as 4D vector for compatibility
-					_writeRawConstant(i->physicalIndex + l*4, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
+					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
+						Vector4(vec3.x, vec3.y, vec3.z, 1.0f), i->elementCount);
 				}
 				break;
 
@@ -1394,13 +1418,14 @@ namespace Ogre
 				for (size_t l = 0; l < i->data; ++l)
 				{
 					vec3 = source.getInverseWorldMatrix().transformAffine(source.getLight(l).getDerivedPosition());
-					_writeRawConstant(i->physicalIndex + l*4, vec3.length());
+					_writeRawConstant(i->physicalIndex + l*i->elementCount, vec3.length());
 				}
 				break;
 
 			case ACT_LIGHT_POWER_SCALE_ARRAY:
 				for (size_t l = 0; l < i->data; ++l)
-					_writeRawConstant(i->physicalIndex + l*4, source.getLight(l).getPowerScale());
+					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
+						source.getLight(l).getPowerScale());
 				break;
 
 			case ACT_LIGHT_ATTENUATION_ARRAY:
@@ -1412,7 +1437,8 @@ namespace Ogre
 					vec4.y = light.getAttenuationConstant();
 					vec4.z = light.getAttenuationLinear();
 					vec4.w = light.getAttenuationQuadric();
-					_writeRawConstant(i->physicalIndex + l*4, vec4);
+					_writeRawConstant(i->physicalIndex + l*i->elementCount, vec4, 
+						i->elementCount);
 				}
 				break;
 			case ACT_SPOTLIGHT_PARAMS_ARRAY:
@@ -1436,7 +1462,8 @@ namespace Ogre
 							vec4.y -= 1e-5f;
 							vec4.z = vec4.w = 0.0f;
 						}
-						_writeRawConstant(i->physicalIndex + l*4, vec4);
+						_writeRawConstant(i->physicalIndex + l*i->elementCount, vec4, 
+							i->elementCount);
 
 					}
 					break;
@@ -1476,7 +1503,7 @@ namespace Ogre
 		const GpuConstantDefinition* def = 
 			_findNamedConstantDefinition(name, !mIgnoreMissingParams);
 		if (def)
-			_writeRawConstant(def->physicalIndex, vec);
+			_writeRawConstant(def->physicalIndex, vec, def->elementSize);
     }
     //---------------------------------------------------------------------------
     void GpuProgramParameters::setNamedConstant(const String& name, const Vector3& vec)
@@ -1535,7 +1562,7 @@ namespace Ogre
 		const GpuConstantDefinition* def = 
 			_findNamedConstantDefinition(name, !mIgnoreMissingParams);
 		if (def)
-			_writeRawConstant(def->physicalIndex, colour);
+			_writeRawConstant(def->physicalIndex, colour, def->elementSize);
     }
     //---------------------------------------------------------------------------
     void GpuProgramParameters::setNamedConstant(const String& name, 
@@ -1556,7 +1583,7 @@ namespace Ogre
 		const GpuConstantDefinition* def = 
 			_findNamedConstantDefinition(name, !mIgnoreMissingParams);
 		if (def)
-			_setRawAutoConstant(def->physicalIndex, acType, extraInfo);
+			_setRawAutoConstant(def->physicalIndex, acType, extraInfo, def->elementSize);
 
     }
 	//---------------------------------------------------------------------------
@@ -1567,7 +1594,7 @@ namespace Ogre
 		const GpuConstantDefinition* def = 
 			_findNamedConstantDefinition(name, !mIgnoreMissingParams);
 		if (def)
-			_setRawAutoConstantReal(def->physicalIndex, acType, rData);
+			_setRawAutoConstantReal(def->physicalIndex, acType, rData, def->elementSize);
 
 	}
     //---------------------------------------------------------------------------
