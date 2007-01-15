@@ -252,7 +252,7 @@ namespace Ogre {
             if (v [2] > mMax.z) mMax.z = v [2];
         }
 
-        void computeBBox (const VertexElement *poselem, uint8 *vdata, int vsz)
+        void computeBBox (const VertexElement *poselem, uint8 *vdata, size_t vsz)
         {
             mMin.x = mMin.y = mMin.z = Math::POS_INFINITY;
             mMax.x = mMax.y = mMax.z = Math::NEG_INFINITY;
@@ -267,7 +267,7 @@ namespace Ogre {
         }
 
         Cluster split (int split_axis, const VertexElement *poselem,
-                       uint8 *vdata, int vsz)
+                       uint8 *vdata, size_t vsz)
         {
             Real r = (mMin [split_axis] + mMax [split_axis]) * 0.5;
             Cluster newbox;
@@ -318,7 +318,7 @@ namespace Ogre {
         HardwareVertexBufferSharedPtr vbuf = vert->vertexBufferBinding->
             getBuffer (poselem->getSource ());
         uint8 *vdata = (uint8 *)vbuf->lock (HardwareBuffer::HBL_READ_ONLY);
-        int vsz = vbuf->getVertexSize ();
+        size_t vsz = vbuf->getVertexSize ();
 
         std::vector<Cluster> boxes;
         boxes.reserve (count);
