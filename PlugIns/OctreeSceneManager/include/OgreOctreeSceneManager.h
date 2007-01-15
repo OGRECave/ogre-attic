@@ -62,7 +62,7 @@ typedef std::list < unsigned long > ColorList;
 //typedef std::list < SceneNode * > SceneNodeList;
 
 
-/** Specialized SceneManager that divides the geometry into an octree in order to faciliate spatial queries.
+/** Specialized SceneManager that divides the geometry into an octree in order to facilitate spatial queries.
 @remarks
 For debugging purposes, a special "CullCamera" can be defined.  To use it, call setUseCallCamera( true ),
 and create a camera named "CullCamera".  All culling will be performed using that camera, instead of the viewport
@@ -79,17 +79,17 @@ class OctreeSceneManager : public SceneManager
 
 public:
     static int intersect_call;
-    /** Standard Constructor.  Initializes the octree to -500,-500,-500 to 500,500,500 with unlimited depth. */
+    /** Standard Constructor.  Initializes the octree to -10000,-10000,-10000 to 10000,10000,10000 with a depth of 8. */
     OctreeSceneManager(const String& name);
     /** Standard Constructor */
     OctreeSceneManager(const String& name, AxisAlignedBox &box, int max_depth );
-    /** Standard desctructor */
+    /** Standard destructor */
     ~OctreeSceneManager();
 
 	/// @copydoc SceneManager::getTypeName
 	const String& getTypeName(void) const;
 
-    /** Initializeds the manager to the given box and depth.
+    /** Initializes the manager to the given box and depth.
     */
     void init( AxisAlignedBox &box, int d );
 
@@ -118,7 +118,7 @@ public:
 
     /** Walks through the octree, adding any visible objects to the render queue.
     @remarks
-    If any octant in the octree if completely within the the view frustum,
+    If any octant in the octree if completely within the view frustum,
     all subchildren are automatically added with no visibility tests.
     */
     void walkOctree( OctreeCamera *, RenderQueue *, Octree *, bool foundvisible,
@@ -211,21 +211,21 @@ protected:
     /// The root octree
     Octree *mOctree;
 
-    /// list of boxes to be rendered
+    /// List of boxes to be rendered
     BoxList mBoxes;
 
-    /// number of rendered objs
+    /// Number of rendered objs
     int mNumObjects;
 
-    /// max depth for the tree.
+    /// Max depth for the tree
     int mMaxDepth;
     /// Size of the octree
     AxisAlignedBox mBox;
 
-    /// box visibility flag
+    /// Boxes visibility flag
     bool mShowBoxes;
 
-    /// cull camera flag
+    /// Cull camera flag
     bool mCullCamera;
 
 

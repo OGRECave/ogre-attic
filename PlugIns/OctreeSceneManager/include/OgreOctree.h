@@ -87,7 +87,7 @@ public:
     AxisAlignedBox mBox;
     WireBoundingBox* mWireBoundingBox;
     
-    /** Creats the wire frame bounding box for this octant
+    /** Creates the wire frame bounding box for this octant
     */
     WireBoundingBox* getWireBoundingBox();
 
@@ -98,7 +98,7 @@ public:
     /** 3D array of children of this octree.
     @remarks
     Children are dynamically created as needed when nodes are inserted in the Octree.
-    If, later, the all the nodes are removed from the child, it is still kept arround.
+    If, later, all the nodes are removed from the child, it is still kept around.
     */
     Octree * mChildren[ 2 ][ 2 ][ 2 ];
 
@@ -111,7 +111,7 @@ public:
 
     /**  Returns the appropriate indexes for the child of this octree into which the box will fit.
     @remarks
-    This is used by the OCtreeSceneManager to determine which child to traverse next when
+    This is used by the OctreeSceneManager to determine which child to traverse next when
     finding the appropriate octree to insert the box.  Since it is a loose octree, only the
     center of the box is checked to determine the octant.
     */
@@ -130,7 +130,7 @@ public:
 
 protected:
 
-    /** Increments the overall node count of this octree and all it's parents
+    /** Increments the overall node count of this octree and all its parents
     */
     inline void _ref()
     {
@@ -139,7 +139,7 @@ protected:
         if ( mParent != 0 ) mParent -> _ref();
     };
 
-    /** Decrements the overall node count of this octree and all it's parents
+    /** Decrements the overall node count of this octree and all its parents
     */
     inline void _unref()
     {
@@ -148,7 +148,7 @@ protected:
         if ( mParent != 0 ) mParent -> _unref();
     };
 
-    ///number of SceneNodes in this octree and all it's children.
+    ///number of SceneNodes in this octree and all its children.
     int mNumNodes;
 
     ///parent octree
