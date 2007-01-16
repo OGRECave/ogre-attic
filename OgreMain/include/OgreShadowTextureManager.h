@@ -73,6 +73,7 @@ namespace Ogre
 	{
 	protected:
 		ShadowTextureList mTextureList;
+		ShadowTextureList mNullTextureList;
 		size_t mCount;
 
 	public:
@@ -84,6 +85,11 @@ namespace Ogre
 		*/
 		virtual void getShadowTextures(const ShadowTextureConfigList& config, 
 			ShadowTextureList& listToPopulate);
+
+		/** Get an appropriately defined 'null' texture, ie one which will always
+			result in no shadows.
+		*/
+		virtual TexturePtr getNullShadowTexture(PixelFormat format);
 
 		/** Remove any shadow textures that are no longer being referenced.
 		@remarks

@@ -584,6 +584,7 @@ namespace Ogre {
 		ShadowTextureConfigList mShadowTextureConfigList;
 		bool mShadowTextureConfigDirty;
         ShadowTextureList mShadowTextures;
+		TexturePtr mNullShadowTexture;
 		typedef std::vector<Camera*> ShadowTextureCameraList;
 		ShadowTextureCameraList mShadowTextureCameras;
         Texture* mCurrentShadowTexture;
