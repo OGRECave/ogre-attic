@@ -956,21 +956,26 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed,
 				// if that's the case, we have to bind when lights are iterated
 				// in renderSingleObject
 
+				TexturePtr shadowTex;
 				if (shadowTexIndex < mShadowTextures.size())
 				{
-					pTex->_setTexturePtr(mShadowTextures[shadowTexIndex]);
+					shadowTex = getShadowTexture(shadowTexIndex);
 					// Hook up projection frustum
-					Camera *cam = mShadowTextures[shadowTexIndex]->getBuffer()->getRenderTarget()->getViewport(0)->getCamera();
+					Camera *cam = shadowTex->getBuffer()->getRenderTarget()->getViewport(0)->getCamera();
 					pTex->setProjectiveTexturing(true, cam);
 					mAutoParamDataSource.setTextureProjector(cam, shadowTexIndex);
 				}
 				else
 				{
-					// _could_ try to set to a plain white texture, but this might
-					// cause issues with custom shadow texture formats. Really the
-					// application user should design their shaders for the number
-					// of shadow textures they define
+					// Use fallback 'null' shadow texture
+					// no projection since all uniform colour anyway
+					shadowTex = mNullShadowTexture;
+					pTex->setProjectiveTexturing(false);
+					mAutoParamDataSource.setTextureProjector(0, shadowTexIndex);
+
 				}
+				pTex->_setTexturePtr(shadowTex);
+
 				++shadowTexIndex;
 			}
 			mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
@@ -4830,6 +4835,20 @@ void SceneManager::ensureShadowTexturesCreated()
 
 			// insert dummy camera-light combination
 			mShadowCamLightMapping[cam] = 0;
+
+			// Get null shadow texture
+			if (mShadowTextureConfigList.empty())
+			{
+				mNullShadowTexture.setNull();
+			}
+			else
+			{
+				mNullShadowTexture = 
+					ShadowTextureManager::getSingleton().getNullShadowTexture(
+						mShadowTextureConfigList[0].format);
+			}
+
+
 		}
 		mShadowTextureConfigDirty = false;
 	}

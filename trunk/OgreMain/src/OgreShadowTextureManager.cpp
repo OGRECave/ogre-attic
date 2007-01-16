@@ -31,6 +31,7 @@ Torus Knot Software Ltd.
 #include "OgreResourceGroupManager.h"
 #include "OgreTextureManager.h"
 #include "OgreStringConverter.h"
+#include "OgreHardwarePixelBuffer.h"
 
 namespace Ogre
 {
@@ -121,9 +122,60 @@ namespace Ogre
 
 	}
 	//---------------------------------------------------------------------
+	TexturePtr ShadowTextureManager::getNullShadowTexture(PixelFormat format)
+	{
+		for (ShadowTextureList::iterator t = mNullTextureList.begin(); t != mNullTextureList.end(); ++t)
+		{
+			const TexturePtr& tex = *t;
+
+			if (format == tex->getFormat())
+			{
+				// Ok, a match
+				return tex;
+			}
+		}
+
+		// not found, create a new one
+		// A 1x1 texture of the correct format, not a render target
+		static const String baseName = "Ogre/ShadowTextureNull";
+		String targName = baseName + StringConverter::toString(mCount++);
+		TexturePtr shadowTex = TextureManager::getSingleton().createManual(
+			targName, 
+			ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, 
+			TEX_TYPE_2D, 1, 1, 0, format);
+		mNullTextureList.push_back(shadowTex);
+
+		// lock & populate the texture based on format
+		shadowTex->getBuffer()->lock(HardwareBuffer::HBL_DISCARD);
+		const PixelBox& box = shadowTex->getBuffer()->getCurrentLock();
+
+		// set high-values across all bytes of the format
+		memset(box.data, 0xFFFF, PixelUtil::getNumElemBytes(format));
+
+		shadowTex->getBuffer()->unlock();
+
+		return shadowTex;
+	
+	}
+	//---------------------------------------------------------------------
 	void ShadowTextureManager::clearUnused()
 	{
 		for (ShadowTextureList::iterator i = mTextureList.begin(); i != mTextureList.end(); )
+		{
+			// Unreferenced if only this reference and the resource system
+			// Any cached shadow textures should be re-bound each frame dropping
+			// any old references
+			if ((*i).useCount() == ResourceGroupManager::RESOURCE_SYSTEM_NUM_REFERENCE_COUNTS + 1)
+			{
+				TextureManager::getSingleton().remove((*i)->getHandle());
+				i = mTextureList.erase(i);
+			}
+			else
+			{
+				++i;
+			}
+		}
+		for (ShadowTextureList::iterator i = mNullTextureList.begin(); i != mNullTextureList.end(); )
 		{
 			// Unreferenced if only this reference and the resource system
 			// Any cached shadow textures should be re-bound each frame dropping
