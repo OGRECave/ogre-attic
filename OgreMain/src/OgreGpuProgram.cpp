@@ -1338,11 +1338,17 @@ namespace Ogre
 				}
 				else
 				{
-					// Set angles to full circle for generality
-					vec4.x = vec4.y = 1.0f;
-					// reduce outer angle slightly to avoid divide by zero
-					vec4.y -= 1e-5f;
-					vec4.z = vec4.w = 0.0f;
+					// Use safe values which result in no change to point & dir light calcs
+					// The spot factor applied to the usual lighting calc is 
+					// pow((dot(spotDir, lightDir) - y) / (x - y), z)
+					// Therefore if we set z to 0.0f then the factor will always be 1
+					// since pow(anything, 0) == 1
+					// However we also need to ensure we don't overflow because of the division
+					// therefore set x = 1 and y = 0 so divisor doesn't change scale
+					vec4.x = 1.0f;
+					vec4.y = 0.0f;
+					vec4.z = 0.0f; // since the main op is pow(.., vec4.z), this will result in 1.0
+					vec4.w = 1.0f;
 				}
 				_writeRawConstant(i->physicalIndex, vec4, i->elementCount);
 				break;
