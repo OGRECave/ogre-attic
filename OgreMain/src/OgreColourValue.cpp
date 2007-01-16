@@ -174,16 +174,16 @@ namespace Ogre {
         // (RGBA = 8888)
 
         // Red
-        r = static_cast<uint8>(val32 >> 24) / 255.0f;
+        r = ((val32 >> 24) & 0xFF) / 255.0f;
 
         // Green
-        g = static_cast<uint8>(val32 >> 16) / 255.0f;
+        g = ((val32 >> 16) & 0xFF) / 255.0f;
 
         // Blue
-        b = static_cast<uint8>(val32 >> 8) / 255.0f;
+        b = ((val32 >> 8) & 0xFF) / 255.0f;
 
         // Alpha
-        a = static_cast<uint8>(val32) / 255.0f;
+        a = (val32 & 0xFF) / 255.0f;
     }
     //---------------------------------------------------------------------
 #if OGRE_ENDIAN == OGRE_ENDIAN_BIG
@@ -198,16 +198,16 @@ namespace Ogre {
         // (ARGB = 8888)
 
         // Alpha
-        a = static_cast<uint8>(val32 >> 24) / 255.0f;
+        a = ((val32 >> 24) & 0xFF) / 255.0f;
 
         // Red
-        r = static_cast<uint8>(val32 >> 16) / 255.0f;
+        r = ((val32 >> 16) & 0xFF) / 255.0f;
 
         // Green
-        g = static_cast<uint8>(val32 >> 8) / 255.0f;
+        g = ((val32 >> 8) & 0xFF) / 255.0f;
 
         // Blue
-        b = static_cast<uint8>(val32) / 255.0f;
+        b = (val32 & 0xFF) / 255.0f;
     }
 	//---------------------------------------------------------------------
 #if OGRE_ENDIAN == OGRE_ENDIAN_BIG
@@ -222,16 +222,16 @@ namespace Ogre {
 		// (ARGB = 8888)
 
 		// Blue
-		b = static_cast<uint8>(val32 >> 24) / 255.0f;
+		b = ((val32 >> 24) & 0xFF) / 255.0f;
 
 		// Green
-		g = static_cast<uint8>(val32 >> 16) / 255.0f;
+		g = ((val32 >> 16) & 0xFF) / 255.0f;
 
 		// Red
-		r = static_cast<uint8>(val32 >> 8) / 255.0f;
+		r = ((val32 >> 8) & 0xFF) / 255.0f;
 
 		// Alpha
-		a = static_cast<uint8>(val32) / 255.0f;
+		a = (val32 & 0xFF) / 255.0f;
 	}
     //---------------------------------------------------------------------
 #if OGRE_ENDIAN == OGRE_ENDIAN_BIG
@@ -246,16 +246,16 @@ namespace Ogre {
         // (ABGR = 8888)
 
         // Alpha
-        a = static_cast<uint8>(val32 >> 24) / 255.0f;
+        a = ((val32 >> 24) & 0xFF) / 255.0f;
 
         // Blue
-        b = static_cast<uint8>(val32 >> 16) / 255.0f;
+        b = ((val32 >> 16) & 0xFF) / 255.0f;
 
         // Green
-        g = static_cast<uint8>(val32 >> 8) / 255.0f;
+        g = ((val32 >> 8) & 0xFF) / 255.0f;
 
         // Red
-        r = static_cast<uint8>(val32) / 255.0f;
+        r = (val32 & 0xFF) / 255.0f;
     }
     //---------------------------------------------------------------------
     bool ColourValue::operator==(const ColourValue& rhs) const
