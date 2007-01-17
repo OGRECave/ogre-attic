@@ -170,9 +170,9 @@ void nvparse(const char * input_string, int argc /* = 0 */,...)
 #endif
     else
     {
-        errors.set("invalid string.\n \
-                    first characters must be: !!ARBvp1.0 or !!VP1.0 or !!VSP1.0 or !!RC1.0 or !!TS1.0\n \
-                    or it must be a valid DirectX 8.0 Vertex Shader");
+        errors.set("invalid string.\n "
+                   "first characters must be: !!ARBvp1.0 or !!VP1.0 or !!VSP1.0 or !!RC1.0 or !!TS1.0\n "
+                   "or it must be a valid DirectX 8.0 Vertex Shader");
     }
     free(instring);
 }
