@@ -2466,7 +2466,7 @@ void SceneManager::_renderQueueGroupObjects(RenderQueueGroup* pGroup,
         else
         {
             // Ordinary + receiver pass
-            if (doShadows && !isShadowTechniqueCustomSequence())
+            if (doShadows && !isShadowTechniqueIntegrated())
 			{
 				// Receiver pass(es)
 				if (isShadowTechniqueAdditive())
@@ -3352,7 +3352,7 @@ void SceneManager::updateRenderQueueSplitOptions(void)
 		getRenderQueue()->setShadowCastersCannotBeReceivers(!mShadowTextureSelfShadow);
 	}
 
-	if (isShadowTechniqueAdditive() && !isShadowTechniqueCustomSequence()
+	if (isShadowTechniqueAdditive() && !isShadowTechniqueIntegrated()
 		&& mCurrentViewport->getShadowsEnabled())
 	{
 		// Additive lighting, we need to split everything by illumination stage
@@ -3364,7 +3364,7 @@ void SceneManager::updateRenderQueueSplitOptions(void)
 	}
 
 	if (isShadowTechniqueInUse() && mCurrentViewport->getShadowsEnabled()
-		&& !isShadowTechniqueCustomSequence())
+		&& !isShadowTechniqueIntegrated())
 	{
 		// Tell render queue to split off non-shadowable materials
 		getRenderQueue()->setSplitNoShadowPasses(true);
@@ -3391,7 +3391,7 @@ void SceneManager::updateRenderQueueGroupSplitOptions(RenderQueueGroup* group,
 	}
 
 	if (!suppressShadows && mCurrentViewport->getShadowsEnabled() &&
-		isShadowTechniqueAdditive() && !isShadowTechniqueCustomSequence())
+		isShadowTechniqueAdditive() && !isShadowTechniqueIntegrated())
 	{
 		// Additive lighting, we need to split everything by illumination stage
 		group->setSplitPassesByLightingType(true);

@@ -2259,6 +2259,35 @@ protected:
 
     }
 
+	void addTextureShadowDebugOverlay(size_t num)
+	{
+		Overlay* debugOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
+
+		for (size_t i = 0; i < num; ++i)
+		{
+			// Set up a debug panel to display the shadow
+			MaterialPtr debugMat = MaterialManager::getSingleton().create(
+				"Ogre/DebugShadowMap" + StringConverter::toString(i), 
+				ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+			debugMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+			TexturePtr shadowTex = mSceneMgr->getShadowTexture(i);
+			TextureUnitState *t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState(shadowTex->getName());
+			t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+			//t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("spot_shadow_fade.png");
+			//t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+			//t->setColourOperation(LBO_ADD);
+
+			OverlayContainer* debugPanel = (OverlayContainer*)
+				(OverlayManager::getSingleton().createOverlayElement("Panel", "Ogre/DebugShadowPanel" + StringConverter::toString(i)));
+			debugPanel->_setPosition(0.8, i*0.3);
+			debugPanel->_setDimensions(0.2, 0.28);
+			debugPanel->setMaterialName(debugMat->getName());
+			debugOverlay->add2D(debugPanel);
+
+		}
+
+	}
+
 
     void testTextureShadows(ShadowTechnique tech)
     {
@@ -2344,9 +2373,9 @@ protected:
             1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
         Entity* pPlaneEnt;
         pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
-		if (tech & SHADOWDETAILTYPE_CUSTOM_SEQUENCE)
+		if (tech & SHADOWDETAILTYPE_INTEGRATED)
 		{
-			pPlaneEnt->setMaterialName("Examples/Plane/ShadowsCustomSequence");
+			pPlaneEnt->setMaterialName("Examples/Plane/IntegratedShadows");
 		}
 		else
 		{
@@ -2355,25 +2384,7 @@ protected:
         pPlaneEnt->setCastShadows(false);
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 
-        // Set up a debug panel to display the shadow
-        MaterialPtr debugMat = MaterialManager::getSingleton().create(
-            "Ogre/DebugShadowMap", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-        debugMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
-		TexturePtr shadowTex = mSceneMgr->getShadowTexture(0);
-        TextureUnitState *t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState(shadowTex->getName());
-        t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
-        //t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("spot_shadow_fade.png");
-        //t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
-        //t->setColourOperation(LBO_ADD);
-
-        OverlayContainer* debugPanel = (OverlayContainer*)
-            (OverlayManager::getSingleton().createOverlayElement("Panel", "Ogre/DebugShadowPanel"));
-        debugPanel->_setPosition(0.8, 0);
-        debugPanel->_setDimensions(0.2, 0.3);
-        debugPanel->setMaterialName("Ogre/DebugShadowMap");
-        Overlay* debugOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
-        debugOverlay->add2D(debugPanel);
-
+		addTextureShadowDebugOverlay(1);
 
 
         ParticleSystem* pSys2 = mSceneMgr->createParticleSystem("smoke", 
@@ -2674,23 +2685,7 @@ protected:
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 
 		// Set up a debug panel to display the shadow
-		MaterialPtr debugMat = MaterialManager::getSingleton().create(
-			"Ogre/DebugShadowMap", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-		debugMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
-		TexturePtr shadowTex = mSceneMgr->getShadowTexture(0);
-		TextureUnitState *t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState(shadowTex->getName());
-		t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
-		//t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("spot_shadow_fade.png");
-		//t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
-		//t->setColourOperation(LBO_ADD);
-
-		OverlayContainer* debugPanel = (OverlayContainer*)
-			(OverlayManager::getSingleton().createOverlayElement("Panel", "Ogre/DebugShadowPanel"));
-		debugPanel->_setPosition(0.8, 0);
-		debugPanel->_setDimensions(0.2, 0.3);
-		debugPanel->setMaterialName("Ogre/DebugShadowMap");
-		Overlay* debugOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
-		debugOverlay->add2D(debugPanel);
+		addTextureShadowDebugOverlay(1);
 
 
 
@@ -2699,6 +2694,7 @@ protected:
 		mTestNode[4] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-300, -100, 200));
 		mTestNode[4]->attachObject(pSys2);
 
+		TexturePtr shadowTex = mSceneMgr->getShadowTexture(0);
 		RenderTarget* shadowRtt = shadowTex->getBuffer()->getRenderTarget();
 		Viewport* vp = shadowRtt->getViewport(0);
 		Ogre::CompositorInstance *instance = 
@@ -5077,13 +5073,13 @@ protected:
 	}
 
 
-	void testCustomSequenceTextureShadows()
+	void testTextureShadowsIntegrated()
 	{
-		//mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_ADDITIVE_CUSTOM_SEQUENCE);
+		mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_ADDITIVE_INTEGRATED);
+		//mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);
 		MaterialManager::getSingleton().setDefaultTextureFiltering(TFO_ANISOTROPIC);
 		MaterialManager::getSingleton().setDefaultAnisotropy(5);
 
-		mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);
 		mSceneMgr->setShadowTextureSettings(1024, 2);
 
 		mSceneMgr->setAmbientLight(ColourValue::Black);
@@ -5099,14 +5095,23 @@ protected:
 		l->setDiffuseColour(0.5, 0.7, 0.5);
 
 		l = mSceneMgr->createLight("Spot2");
-		l->setType(Light::LT_SPOTLIGHT);
 		l->setAttenuation(5000,1,0,0);
+		/* // spotlight */
+		l->setType(Light::LT_SPOTLIGHT);
 		l->setSpotlightRange(Degree(30),Degree(45),1.0f);
+		/**/
+		// point
 		SceneNode* lightNode2 = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		lightNode2->attachObject(l);
 		lightNode2->setPosition(-500, 200, 500);
 		lightNode2->lookAt(Vector3(0,-200,0), Node::TS_WORLD);
 		l->setDirection(Vector3::NEGATIVE_UNIT_Z);
+		/* // directional
+		l->setType(Light::LT_DIRECTIONAL);
+		Vector3 dir(0.5, -1, 0.5);
+		dir.normalise();
+		l->setDirection(dir);
+		*/
 		l->setDiffuseColour(1, 0.2, 0.2);
 
 		// Create a basic plane to have something in the scene to look at
@@ -5120,13 +5125,13 @@ protected:
 		Entity* pPlaneEnt;
 		pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
 		//pPlaneEnt->setMaterialName("Examples/OffsetMapping/Specular");
-		pPlaneEnt->setMaterialName("Examples/OffsetMapping/CustomShadows");
+		pPlaneEnt->setMaterialName("Examples/OffsetMapping/IntegratedShadows");
 		pPlaneEnt->setCastShadows(false);
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 
 		pPlaneEnt = mSceneMgr->createEntity( "plane2", "Myplane" );
 		//pPlaneEnt->setMaterialName("Examples/OffsetMapping/Specular");
-		pPlaneEnt->setMaterialName("Examples/OffsetMapping/CustomShadows");
+		pPlaneEnt->setMaterialName("Examples/OffsetMapping/IntegratedShadows");
 		pPlaneEnt->setCastShadows(false);
 		SceneNode* n = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		n->roll(Degree(90));
@@ -5135,7 +5140,7 @@ protected:
 
 		pPlaneEnt = mSceneMgr->createEntity( "plane3", "Myplane" );
 		//pPlaneEnt->setMaterialName("Examples/OffsetMapping/Specular");
-		pPlaneEnt->setMaterialName("Examples/OffsetMapping/CustomShadows");
+		pPlaneEnt->setMaterialName("Examples/OffsetMapping/IntegratedShadows");
 		pPlaneEnt->setCastShadows(false);
 		n = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		n->pitch(Degree(90));
@@ -5149,6 +5154,8 @@ protected:
 		Entity* ent = mSceneMgr->createEntity("athene", "athene.mesh");
 		ent->setMaterialName("Examples/Athene/NormalMapped");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0,-20,0))->attachObject(ent);
+
+		addTextureShadowDebugOverlay(2);
 
 
 
@@ -5206,7 +5213,7 @@ protected:
         //testStencilShadows(SHADOWTYPE_STENCIL_MODULATIVE, false, true);
         //testTextureShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
-		//testCustomSequenceTextureShadows();
+		testTextureShadowsIntegrated();
 		//testTextureShadowsCustomCasterMat(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testTextureShadowsCustomReceiverMat(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testCompositorTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
@@ -5216,7 +5223,7 @@ protected:
 		//testBlendDiffuseColour();
 
         //testRaySceneQuery();
-		testMaterialSerializer();
+		//testMaterialSerializer();
         //testIntersectionSceneQuery();
 
         //test2Spotlights();

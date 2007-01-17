@@ -2462,8 +2462,9 @@ namespace Ogre {
 		/** Is there an additive shadowing technique in use? */
 		virtual bool isShadowTechniqueAdditive(void) const 
 		{ return (mShadowTechnique & SHADOWDETAILTYPE_ADDITIVE) != 0; }
-		virtual bool isShadowTechniqueCustomSequence(void) const 
-		{ return (mShadowTechnique & SHADOWDETAILTYPE_CUSTOM_SEQUENCE) != 0; }
+		/** Is the shadow technique integrated into primary materials? */
+		virtual bool isShadowTechniqueIntegrated(void) const 
+		{ return (mShadowTechnique & SHADOWDETAILTYPE_INTEGRATED) != 0; }
 		/** Is there any shadowing technique in use? */
 		virtual bool isShadowTechniqueInUse(void) const 
 		{ return mShadowTechnique != SHADOWTYPE_NONE; }

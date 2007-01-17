@@ -176,9 +176,9 @@ namespace Ogre {
 		/** Mask for modulative shadows (not for direct use, use  SHADOWTYPE_ enum instead)
 		*/
 		SHADOWDETAILTYPE_MODULATIVE = 0x02,
-		/** Mask for custom sequence shadows (not for direct use, use SHADOWTYPE_ enum instead)
+		/** Mask for integrated shadows (not for direct use, use SHADOWTYPE_ enum instead)
 		*/
-		SHADOWDETAILTYPE_CUSTOM_SEQUENCE = 0x04,
+		SHADOWDETAILTYPE_INTEGRATED = 0x04,
 		/** Mask for stencil shadows (not for direct use, use  SHADOWTYPE_ enum instead)
 		*/
 		SHADOWDETAILTYPE_STENCIL = 0x10,
@@ -232,7 +232,7 @@ namespace Ogre {
 		not mean it does the adding on your receivers automatically though, how you
 		use that result is up to you.
 		*/
-		SHADOWTYPE_TEXTURE_ADDITIVE_CUSTOM_SEQUENCE = 0x25,
+		SHADOWTYPE_TEXTURE_ADDITIVE_INTEGRATED = 0x25,
 		/** Texture-based shadow technique which involves a render-to-texture
 			of the shadow caster and a projection of that texture on to the shadow
 			receivers, with the usage of those shadow textures completely controlled
@@ -248,7 +248,7 @@ namespace Ogre {
 			not mean it modulates on your receivers automatically though, how you
 			use that result is up to you.
 		*/
-		SHADOWTYPE_TEXTURE_MODULATIVE_CUSTOM_SEQUENCE = 0x26
+		SHADOWTYPE_TEXTURE_MODULATIVE_INTEGRATED = 0x26
     };
 
     /** An enumeration describing which material properties should track the vertex colours */
