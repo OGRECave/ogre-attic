@@ -1,0 +1,21 @@
+version 1.0.1
+- Support for multiple animations
+- new Mesh Properties UI.
+- Collapse hierarchy option removed (belongs in type StaticMesh)
+- Ogre3d wiki page created
+
+version 1.0.0
+- Single mesh export (Vertex Colors, Normals, Multiple UV sets)
+- Reindexing optimization
+- Simple shader based materials (only one at a time) : 
+    * Blinn colors
+    * Diffuse map
+    * Specular Color map
+    * Specular Level map
+    * Self-Illumination map
+- Collapse static mesh (submesh materials)
+- Bone animation (.skeleton)
+    * Only one animation so far.
+    * Multiple root bones
+    * Linked bones 
+
