@@ -1460,6 +1460,7 @@ namespace Ogre {
         case CULL_NONE:
             glDisable( GL_CULL_FACE );
             return;
+		default:
         case CULL_CLOCKWISE:
             if (mActiveRenderTarget && 
                 ((mActiveRenderTarget->requiresTextureFlipping() && !mInvertVertexWinding) ||
@@ -1691,6 +1692,7 @@ namespace Ogre {
         case PM_WIREFRAME:
             glmode = GL_LINE;
             break;
+		default:
         case PM_SOLID:
             glmode = GL_FILL;
             break;
@@ -1934,7 +1936,8 @@ namespace Ogre {
 		GLfloat largest_supported_anisotropy = 0;
 		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest_supported_anisotropy);
 		if (maxAnisotropy > largest_supported_anisotropy)
-			maxAnisotropy = largest_supported_anisotropy ? largest_supported_anisotropy : 1;
+			maxAnisotropy = largest_supported_anisotropy ? 
+				static_cast<uint>(largest_supported_anisotropy) : 1;
 		if (_getCurrentAnisotropy(unit) != maxAnisotropy)
 			glTexParameterf(mTextureTypes[unit], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
 	}
@@ -2324,6 +2327,7 @@ namespace Ogre {
         case RenderOperation::OT_LINE_STRIP:
             primType = GL_LINE_STRIP;
             break;
+		default:
         case RenderOperation::OT_TRIANGLE_LIST:
             primType = GL_TRIANGLES;
             break;

@@ -59,8 +59,8 @@ namespace Ogre
 
 //-------------------------------------------------------------------------------------------------//
 GLXWindow::GLXWindow(Display *display) :
-	mDisplay(display), mWindow(0), mGlxContext(0), mClosed(false), mVisible(true), 
-	mFullScreen(false), mOldMode(-1), mContext(0), mVisualInfo(0), mDelVisualInfo(false)
+	mDisplay(display), mWindow(0), mGlxContext(0), mVisualInfo(0), mDelVisualInfo(false), 
+	mClosed(false), mVisible(true), mFullScreen(false), mOldMode(-1), mContext(0)
 {
 	mActive = false;
 }
@@ -236,9 +236,13 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 			int mode = -1;
 			int mode_width = INT_MAX;
 			int mode_height = INT_MAX;
-			for(size_t i=0; i<nsizes; i++) {
-				if(sizes[i].width >= width && sizes[i].height >= height &&
-				                sizes[i].width < mode_width && sizes[i].height < mode_height) {
+			for(size_t i=0; i<nsizes; i++) 
+			{
+				if(sizes[i].width >= static_cast<int>(width) && 
+					sizes[i].height >= static_cast<int>(height) &&
+				    sizes[i].width < mode_width && 
+					sizes[i].height < mode_height) 
+				{
 					mode = i;
 					mode_width = sizes[i].width;
 					mode_height = sizes[i].height;
@@ -473,7 +477,7 @@ void GLXWindow::windowMovedOrResized()
 	mTop  = temp.y;
 
 	//Only update viewport dimensions if they did actually change
-	if (mWidth == temp.width && mHeight == temp.height)
+	if (static_cast<int>(mWidth) == temp.width && static_cast<int>(mHeight) == temp.height)
 		return;
 
 	mWidth = temp.width;

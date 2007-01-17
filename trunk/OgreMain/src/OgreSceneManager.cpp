@@ -1220,6 +1220,10 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
 			// by the camera.
 			CamVisibleObjectsMap::iterator camVisObjIt = mCamVisibleObjectsMap.find( camera );
 
+			assert (camVisObjIt != mCamVisibleObjectsMap.end() &&
+				"Should never fail to find a visible object bound for a camera, "
+				"did you override SceneManager::createCamera or something?");
+
 			// reset the bounds
 			camVisObjIt->second.reset();
 
