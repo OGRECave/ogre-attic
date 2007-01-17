@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by MaxExport.rc
+// Used by LexiExport.rc
 //
 #define IDC_SETTINGS                    3
 #define IDC_ADD                         4
@@ -37,6 +37,13 @@
 #define IDC_GROUPBOX_TITLE              1033
 #define IDC_OBJECT_CHILD                1034
 #define IDC_OUTPUT                      1037
+#define IDC_ANIMATION_PROPERTIES        1038
+#define IDC_ANIMATION_LIST              1039
+#define IDC_COMBO2                      1041
+#define IDC_LIST1                       1042
+#define IDC_BUTTON_ADD_ANIMATION        1043
+#define IDC_BUTTON_REMOVE_ANIMATION     1044
+#define IDC_BUTTON_ANIMATION_REMOVE     1045
 
 // Next default values for new objects
 // 
@@ -44,7 +51,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        126
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1038
+#define _APS_NEXT_CONTROL_VALUE         1046
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -50,6 +50,7 @@ public:
 	void	SetData(CDDObject *pData);
 
 	void	CreateFromMeta(CDDObject *pMeta);
+	void	CreateFromMetaData(CDDObject *pMeta, CDDObject *pData);
 
 	// Notified from clients. This is enabled to make
 	// scroll-on-client-area function work.

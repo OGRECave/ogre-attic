@@ -167,9 +167,9 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="$(SolutionDir)Include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
-				RuntimeLibrary="0"
+				AdditionalIncludeDirectories="$(SolutionDir)Include;$(TVSDK)\TVKit\Latest\bin\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;USE_TVKIT"
+				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
@@ -186,8 +186,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(SolutionDir)Lib\SharedUtilities_static.lib Msimg32.lib comctl32.lib"
-				OutputFile="$(OutDir)\GDIMetaLib.dll"
+				IgnoreImportLibrary="true"
+				AdditionalDependencies="$(TVSDK)\TVKit\Latest\bin\lib\TVUtilities.lib Msimg32.lib comctl32.lib"
+				OutputFile="$(SystemRoot)\GDIMetaLib.dll"
 				AdditionalLibraryDirectories=""
 				ImportLibrary=""
 			/>

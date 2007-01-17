@@ -70,6 +70,7 @@
 				WarningLevel="3"
 				WarnAsError="true"
 				SuppressStartupBanner="true"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -91,6 +92,7 @@
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="&quot;..\..\..\SDK\3DSMax\8.0\Bin\lib&quot;;&quot;..\..\..\SDK\Ogre\1.2.2\bin\Lib&quot;"
 				GenerateManifest="true"
+				GenerateDebugInformation="false"
 				ProgramDatabaseFile=".\Release/LEXIExport.pdb"
 				ImportLibrary=".\Release/LEXIExport.lib"
 				TargetMachine="1"
@@ -516,11 +518,11 @@
 			Name="Dialogs"
 			>
 			<File
-				RelativePath=".\Sources\LexiDialogProperties.cpp"
+				RelativePath=".\Sources\LexiDialogObjectProperties.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Sources\LexiDialogProperties.h"
+				RelativePath=".\Sources\LexiDialogObjectProperties.h"
 				>
 			</File>
 			<File
@@ -532,11 +534,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Sources\LexiDialogObjectProperties.cpp"
+				RelativePath=".\Sources\LexiDialogProperties.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Sources\LexiDialogObjectProperties.h"
+				RelativePath=".\Sources\LexiDialogProperties.h"
 				>
 			</File>
 			<File

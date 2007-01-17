@@ -29,6 +29,71 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 //
 
+//enum AnimationTypes = { Bone=0, Morph=1, Pose=2 };
+
+class CAnimationSetting
+{
+public:
+	std::string		m_sAnimName;
+	std::string		m_sType;
+	unsigned int	m_iStartFrame;
+	unsigned int	m_iEndFrame;
+	float			m_fSampleRate;
+	bool			m_bOptimize;
+
+	Ogre::String ToString( void )
+	{
+		//Ogre::LogManager::getSingleton().logMessage("CAnimationSetting::ToString() - Start");
+		Ogre::StringUtil::StrStreamType str;
+		str << "AnimationSetting: " << m_sAnimName << " (" << m_sType << ") ";
+
+		//Ogre::LogManager::getSingleton().logMessage("CAnimationSetting::ToString() - End");
+		return str.str();
+	}
+
+	//CAnimationSetting( void )
+	//{
+	//	m_sAnimName = "";
+	//	m_sType = "";
+	//	m_iStartFrame = 0;
+	//	m_iEndFrame = 100;
+	//	m_fSampleRate = 1;
+	//	m_bOptimize = true;
+	//}
+
+//private:
+	//CAnimationSetting( const CAnimationSetting& other )
+	//{
+	//	Ogre::LogManager::getSingleton().logMessage("CAnimationSetting Copied!.");
+
+	//	m_sAnimName = other.m_sAnimName;
+	//	m_sType = other.m_sType;
+	//	m_iStartFrame = other.m_iStartFrame;
+	//	m_iEndFrame = other.m_iEndFrame;
+	//	m_fSampleRate = other.m_fSampleRate;
+	//	m_bOptimize = other.m_bOptimize;		
+
+	//	Ogre::LogManager::getSingleton().logMessage(other.m_sAnimName);
+	//	Ogre::LogManager::getSingleton().logMessage(other.m_sType);
+	//	Ogre::LogManager::getSingleton().logMessage(m_sAnimName);
+	//	Ogre::LogManager::getSingleton().logMessage(m_sType);
+	//}
+
+};
+
+class CAnimSettings
+{
+public:
+	std::vector< CAnimationSetting > m_lSettings;
+
+	
+
+};
+
+
+
+//
+
 class CMeshArray {
 
 	public:

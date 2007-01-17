@@ -29,11 +29,17 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 //
 
-class CObjectPropertiesDlg : public GDI::Dialog {
+class CObjectPropertiesDlg : public GDI::Dialog, public IDDNotify {
 
 	private:
 
 		static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+		CDDObject* ExtractAnimationMeta( CDDObject* pDDObj );
+
+		CDDObject* m_pDummyDD;
+		std::vector< std::string > m_lAnimNames;
+		fastmap< CDDObject* > m_lAnimMap;
 
 	public:
 
@@ -43,6 +49,11 @@ class CObjectPropertiesDlg : public GDI::Dialog {
 
 		HWND m_hMetaWnd;
 		GDI::MetaControl* m_pMetaCtrl;
+		GDI::ListCtrl m_ItemList;
+		HWND m_hAnimMetaWnd;
+		GDI::MetaControl* m_pAnimMetaCtrl;
+
+		GDI::Button m_ButtonRemove;
 
 		std::string m_sTitle;
 		std::string m_sGBTitle;
@@ -53,10 +64,20 @@ class CObjectPropertiesDlg : public GDI::Dialog {
 
 		unsigned int m_iInitFromSelected;
 
+
+		// Called when data object has changed
+		void	OnChanged(const CDDObject *pInstance, const char *pszKey);
+		
 		//
 
 		void ForceUpdateMembers();
 		void BrowseNodeAndAdd();
+
+		void PopulateItemList();
+		void UpdateItemList(void);
+		void FillItemList(void);
+		void DoAnimationSelected();
+
 
 	protected:
 
@@ -64,6 +85,15 @@ class CObjectPropertiesDlg : public GDI::Dialog {
 		void OnOK();
 		void OnCancel();
 		void BrowseNode();
+		void AddAnimation();
+
+		CDDObject* FindAnimationDataFromIndex( int index );
+		CDDObject* FindAnimationData( faststring animName );
+		CDDObject* FindOrCreateAnimationData( unsigned int index );
+		bool RemoveAnimationData( void );
+
+		void LoadAnimationData( fastvector< const CDDObject* > lAnimList);
+
 
 	public:
 

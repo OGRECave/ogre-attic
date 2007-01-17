@@ -62,6 +62,10 @@ class CMeshExportObject : public CExportObject {
 		
 		CDDObject* BuildMetaDesc( void );
 
+	private:
+	
+		void AddAnimationMetaData( CDDObject* pDDobj );
+
 };
 
 DECLARE_EXPORT_OBJECT(CMeshExportObject, "mesh", "Mesh", IDI_ICON_MESH)

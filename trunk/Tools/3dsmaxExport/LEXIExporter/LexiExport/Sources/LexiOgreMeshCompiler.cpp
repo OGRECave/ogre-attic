@@ -57,10 +57,15 @@ COgreMeshCompiler::COgreMeshCompiler( CIntermediateMesh* pIntermediateMesh, cons
 	Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: Creating HWBuffers");
 	// create hw buffers i.e.(vertex,index,normal..)
 	CreateBuffers(pIntermediateMesh);
+	Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: HWBuffers Created");
 
 	if(m_bExportSkeleton)
 		if(pIntermediateMesh->GetSkeleton()!= NULL)
+		{
+			Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: Creating Skeleton Compiler");
 			m_pSkeletonCompiler = new COgreSkeletonCompiler( pIntermediateMesh->GetSkeleton(), pConfig, filename, m_pOgreMesh );
+			Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: Skeleton Compiler Created");
+		}
 		else
 		{
 			MessageBox(NULL, "No Skin Modifier found. Ignoring..", "Warning!", MB_ICONWARNING);
@@ -118,7 +123,38 @@ void COgreMeshCompiler::ReadConfig( const CDDObject* pConfig )
 	m_bExportNormals = pConfig->GetBool("normalsID");
 	m_bExportColours = pConfig->GetBool("vertexColorsID");
 	m_bExportTexUVs = pConfig->GetBool("uvID");
-	m_bExportSkeleton = pConfig->GetBool("SkeletonID");
+
+	//m_bExportSkeleton = pConfig->GetBool("SkeletonID");
+	m_bExportSkeleton = false;
+	CDDObject* pAnimContainer = pConfig->GetDDObject("AnimationDataContainer");
+	if(pAnimContainer)
+	{
+		fastvector< const CDDObject* > lAnimations = pAnimContainer->GetDDList("Animations");
+		for(int i=0; i < lAnimations.size(); i++)
+		{
+			int iType = lAnimations[i]->GetInt("AnimationTypeID");
+			Ogre::String sType;
+			switch(iType)
+			{
+			case 0:
+				sType = "Bone";
+				break;
+			case 1:
+				sType = "Morph";
+				break;
+			case 2:
+				sType = "Pose";
+				break;
+			default:
+				break;
+			};
+			if(sType.compare("Bone")==0)
+			{
+				m_bExportSkeleton = true;
+				break;
+			}
+		}
+	}
 }
 
 
@@ -241,9 +277,9 @@ void COgreMeshCompiler::CreateVertexBuffer( CIntermediateMesh* pIntermediateMesh
 	vertexData->vertexCount = iNrVerts;
 
 	{	// DEBUG INFO
-		Ogre::StringUtil::StrStreamType strStrm;
-		strStrm << "Export: Vertex Size: " << vertexDecl->getVertexSize(m_iBind) << " | Vertex Count: " << vertexData->vertexCount << " | Buffer Size: " << vertexDecl->getVertexSize(m_iBind)*vertexData->vertexCount;
-		Ogre::LogManager::getSingletonPtr()->logMessage(strStrm.str());
+		//Ogre::StringUtil::StrStreamType strStrm;
+		//strStrm << "Export: Vertex Size: " << vertexDecl->getVertexSize(m_iBind) << " | Vertex Count: " << vertexData->vertexCount << " | Buffer Size: " << vertexDecl->getVertexSize(m_iBind)*vertexData->vertexCount;
+		//Ogre::LogManager::getSingletonPtr()->logMessage(strStrm.str());
 	}
 
 	Ogre::HardwareVertexBufferSharedPtr vBuf = Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(vertexDecl->getVertexSize(m_iBind), vertexData->vertexCount, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY, false);
@@ -277,9 +313,9 @@ void COgreMeshCompiler::CreateVertexBuffer( CIntermediateMesh* pIntermediateMesh
 	}
 	vBuf->unlock();
 
-	Ogre::StringUtil::StrStreamType strStrm;
-	strStrm << "Export: #Vertices: " << iNrVerts;
-	Ogre::LogManager::getSingletonPtr()->logMessage(strStrm.str());
+	//Ogre::StringUtil::StrStreamType strStrm;
+	//strStrm << "Export: #Vertices: " << iNrVerts;
+	//Ogre::LogManager::getSingletonPtr()->logMessage(strStrm.str());
 	
 }
 
@@ -319,9 +355,9 @@ void COgreMeshCompiler::CreateIndexBuffer( CIntermediateMesh* pIntermediateMesh 
 		{	// 32 Bit Index Buffer
 			unsigned int* pIndices = static_cast<unsigned int*>(iBuf->lock(Ogre::HardwareBuffer::HBL_NORMAL));
 
-			Ogre::StringUtil::StrStreamType strStrm3;
-			strStrm3 << "Export: #Indices: " << iBuf->getNumIndexes();
-			Ogre::LogManager::getSingletonPtr()->logMessage(strStrm3.str());
+			//Ogre::StringUtil::StrStreamType strStrm3;
+			//strStrm3 << "Export: #Indices: " << iBuf->getNumIndexes();
+			//Ogre::LogManager::getSingletonPtr()->logMessage(strStrm3.str());
 
 			unsigned int j = 0;
 			for(unsigned int i = 0; i< lMatTriangles.size(); i++) {
@@ -387,9 +423,9 @@ void COgreMeshCompiler::CreateIndexBuffer( CIntermediateMesh* pIntermediateMesh 
 		{	// 16 Bit Index Buffer
 			unsigned short* pIndices = static_cast<unsigned short*>(iBuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
 
-			Ogre::StringUtil::StrStreamType strStrm3;
-			strStrm3 << "Export: #Indices: " << iBuf->getNumIndexes();
-			Ogre::LogManager::getSingletonPtr()->logMessage(strStrm3.str());
+			//Ogre::StringUtil::StrStreamType strStrm3;
+			//strStrm3 << "Export: #Indices: " << iBuf->getNumIndexes();
+			//Ogre::LogManager::getSingletonPtr()->logMessage(strStrm3.str());
 
 			unsigned int j = 0;
 			for(unsigned int i = 0; i< lMatTriangles.size(); i++) {
@@ -440,9 +476,9 @@ void COgreMeshCompiler::CreateIndexBuffer( CIntermediateMesh* pIntermediateMesh 
 							vertexBoneAssignment.boneIndex		= boneData.boneIndex;
 							vertexBoneAssignment.weight			= boneData.weight;
 
-							Ogre::StringUtil::StrStreamType str;
-							str << vertIndex << ": " << vertexBoneAssignment.boneIndex << "\t" << vertexBoneAssignment.weight;
-							Ogre::LogManager::getSingletonPtr()->logMessage(str.str());
+							//Ogre::StringUtil::StrStreamType str;
+							//str << vertIndex << ": " << vertexBoneAssignment.boneIndex << "\t" << vertexBoneAssignment.weight;
+							//Ogre::LogManager::getSingletonPtr()->logMessage(str.str());
 
 							m_pOgreMesh->addBoneAssignment(vertexBoneAssignment);
 						}
@@ -509,9 +545,9 @@ void COgreMeshCompiler::CreateNormalBuffer( CIntermediateMesh* pIntermediateMesh
 	Ogre::Real* pReal;
 	posElem->baseVertexPointerToElement(vertex, &pReal);
 
-	Ogre::StringUtil::StrStreamType strStrm3;
-	strStrm3 << "Export: #Normals2Export: " << iNrNormals;
-	Ogre::LogManager::getSingletonPtr()->logMessage(strStrm3.str());
+	//Ogre::StringUtil::StrStreamType strStrm3;
+	//strStrm3 << "Export: #Normals2Export: " << iNrNormals;
+	//Ogre::LogManager::getSingletonPtr()->logMessage(strStrm3.str());
 
 	const Ogre::Vector3* data = (const Ogre::Vector3*)pNormalArray->Data();
 
@@ -556,9 +592,9 @@ void COgreMeshCompiler::CreateDiffuseBuffer( CIntermediateMesh* pIntermediateMes
 	Ogre::ARGB* pReal;
 	diffuseElem->baseVertexPointerToElement(vertex, &pReal);
 
-	Ogre::StringUtil::StrStreamType strStrm3;
-	strStrm3 << "Export: #Diffuse2Export: " << iNrVerts;
-	Ogre::LogManager::getSingletonPtr()->logMessage(strStrm3.str());
+	//Ogre::StringUtil::StrStreamType strStrm3;
+	//strStrm3 << "Export: #Diffuse2Export: " << iNrVerts;
+	//Ogre::LogManager::getSingletonPtr()->logMessage(strStrm3.str());
 
 	const Ogre::Vector4* data = (const Ogre::Vector4*)pDiffuseArray->Data();
 
@@ -590,8 +626,8 @@ void COgreMeshCompiler::CreateTexCoordBuffer( CIntermediateMesh* pIntermediateMe
 		if(pUVArray == NULL)
 			continue;
 
-		Ogre::String msg = Ogre::String("Exporting UV Channel: ")+Ogre::String(temp);
-		Ogre::LogManager::getSingletonPtr()->logMessage(msg);
+		//Ogre::String msg = Ogre::String("Exporting UV Channel: ")+Ogre::String(temp);
+		//Ogre::LogManager::getSingletonPtr()->logMessage(msg);
 
 
 		int iNrUVs = pUVArray->Size();

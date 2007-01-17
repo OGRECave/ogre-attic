@@ -174,6 +174,43 @@ void MetaControl::CreateFromMeta(CDDObject *pMeta)
 	}
 }
 
+void MetaControl::CreateFromMetaData(CDDObject *pMeta, CDDObject *pData)
+{
+	if(!pMeta || !pData) return;
+
+	// Release previous meta
+	if(m_pMetaData)
+	{
+		m_pMetaData->Release();
+	}
+
+	// We we had an existing object, we release it
+	if(m_pEditData) 
+	{
+		m_pEditData->SetNotifier(NULL);
+		m_pEditData->Release();
+	}
+
+	// Setup reference to the new object
+	m_pEditData=pData;
+	m_pEditData->AddRef();
+	m_pEditData->SetNotifier(this);
+
+	// Keep reference
+	m_pMetaData=pMeta;
+	m_pMetaData->AddRef();	
+
+	// Create controls based on the new meta data
+	CreateControls();
+
+	// Iterate and check all conditions
+	fastvector<MetaGroup*> lGroups=m_mGroups.data();
+	for(unsigned i=0;i<lGroups.size();i++)
+	{
+		lGroups[i]->CheckConditions("$Global");
+	}
+}
+
 void MetaControl::AddControl(const char *pszID, const CDDObject *pMetaKey)
 {
 	// Check if the control is currently hidden
@@ -230,6 +267,15 @@ void MetaControl::AddControl(const char *pszID, const CDDObject *pMetaKey)
 	}
 }
 
+int metaGroupCompare( const void *arg1, const void *arg2 )
+{
+   /* Compare all of both strings: */
+	MetaGroup* pMetaGroup1 = *(MetaGroup**)arg1;
+	MetaGroup* pMetaGroup2 = *(MetaGroup**)arg2;
+
+	return pMetaGroup1->GetTitle().compare(pMetaGroup2->GetTitle());
+}
+
 void MetaControl::CreateControls()
 {
 	if(m_pMetaData==NULL) return;
@@ -274,6 +320,9 @@ void MetaControl::CreateControls()
 	int iY=0;
 	m_iWidth=rClient.right;
 	fastvector<MetaGroup*> lGroups=m_mGroups.data();
+
+	lGroups.sort(metaGroupCompare);
+
 	for(unsigned i=0;i<lGroups.size();i++)
 	{
 		lGroups[i]->SetWidth(m_iWidth);
@@ -330,7 +379,6 @@ void MetaControl::OnSize()
 	{
 		m_iWidth=rClient.right;
 		fastvector<MetaGroup*> lGroups=m_mGroups.data();
-
 		for(unsigned i=0;i<lGroups.size();i++)
 		{
 			lGroups[i]->SetWidth(m_iWidth);
@@ -481,6 +529,7 @@ void MetaControl::DoLayout()
 	int iY=0;
 	m_iWidth=rClient.right;
 	fastvector<MetaGroup*> lGroups=m_mGroups.data();
+	lGroups.sort(metaGroupCompare);
 	for(unsigned i=0;i<lGroups.size();i++)
 	{
 		lGroups[i]->SetWidth(m_iWidth);

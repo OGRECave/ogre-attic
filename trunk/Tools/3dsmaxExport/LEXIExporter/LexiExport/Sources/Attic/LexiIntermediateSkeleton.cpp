@@ -313,7 +313,7 @@ std::string CIntermediateSkeleton::ToString( void )
 	str << "\n";
 	print( str, m_BoneList.front() );
 
-	printAnimationData( str, m_BoneList.front(), 0 );
+	printAnimationData( str, m_BoneList.front(), 0 ); // obsolete since multiple animation support added
 
 	return str.str();
 }
@@ -336,24 +336,24 @@ void CIntermediateSkeleton::printAnimationData( std::stringstream& output, CInte
 
 	output << pBone->GetName() << "(" << pBone->GetHandle() << ")" << "[" << pBone->GetIndex() << "]" << "\n";
 	
-	Ogre::Vector3 vPos, vScale;
-	float fTimeInSecs;
-	Ogre::Quaternion qOri;
+	//Ogre::Vector3 vPos, vScale;
+	//float fTimeInSecs;
+	//Ogre::Quaternion qOri;
 
-	for (int j =0; j < pBone->GetFrameCount(); j++)
-	{
-		pBone->GetFrame(j, fTimeInSecs, vPos, qOri, vScale);
+	//for (int j =0; j < pBone->GetFrameCount(); j++)
+	//{
+	//	pBone->GetFrame(j, fTimeInSecs, vPos, qOri, vScale);
 
-		for (int i=0; i <= indent; i++) output << "\t";
-		output << "Frame: " << j << "\t" << " time:" << Ogre::StringConverter::toString(fTimeInSecs) 
-			<< "\t" << "(" << Ogre::StringConverter::toString(vPos) << ")" 
-			<< "\t" << "(" << Ogre::StringConverter::toString(qOri) << ")"
-			<< "\t" << "(" << Ogre::StringConverter::toString(vScale) << ")" << "\n";
-	}
-	output << "\t" << "\n";
+	//	for (int i=0; i <= indent; i++) output << "\t";
+	//	output << "Frame: " << j << "\t" << " time:" << Ogre::StringConverter::toString(fTimeInSecs) 
+	//		<< "\t" << "(" << Ogre::StringConverter::toString(vPos) << ")" 
+	//		<< "\t" << "(" << Ogre::StringConverter::toString(qOri) << ")"
+	//		<< "\t" << "(" << Ogre::StringConverter::toString(vScale) << ")" << "\n";
+	//}
+	//output << "\t" << "\n";
 
-	for (int j = 0; j < pBone->GetBoneCount(); j++)
-		printAnimationData(output, pBone->GetBone(j), indent+1);
+	//for (int j = 0; j < pBone->GetBoneCount(); j++)
+	//	printAnimationData(output, pBone->GetBone(j), indent+1);
 }
 
 

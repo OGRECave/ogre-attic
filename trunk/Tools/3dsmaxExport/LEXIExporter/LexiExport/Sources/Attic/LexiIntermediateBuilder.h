@@ -43,7 +43,7 @@ class CIntermediateBuilder {
 		void CreateIntermediateBonePool(CIntermediateSkeleton* pSkel, ISkin* pSkin);
 		void ConnectLinkedBones(CIntermediateSkeleton* pSkel);
 		void BuildSkeleton( CIntermediateSkeleton* pSkel );
-		void AddFrame( CIntermediateSkeleton* pSkel, unsigned int meshNodeID, unsigned int iStartFrame, unsigned int iEndFrame, unsigned int iSampleRate);
+		void AddFrame( CIntermediateSkeleton* pSkel, unsigned int meshNodeID, CAnimationSetting animSetting);
 		void SetBindingPose( CIntermediateSkeleton* pISkel, unsigned int meshNodeID, unsigned int frame );
 
 		void CountTriangles(Ogre::SceneNode* pNode, unsigned int& iNumTriangles) const;
@@ -51,6 +51,8 @@ class CIntermediateBuilder {
 
 		static void Clamp( Point3& inVec, float threshold );
 		static void Rotate90DegreesAroundX( Point3& inVec );
+
+		CAnimSettings	m_AnimationSetting;
 
 		bool			m_bExportSkeleton;
 		int				m_iAnimStart;

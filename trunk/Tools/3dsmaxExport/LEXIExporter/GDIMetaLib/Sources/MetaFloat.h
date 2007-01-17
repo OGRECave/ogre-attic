@@ -78,6 +78,7 @@ private:
 	float	m_fMin;	
 	float	m_fMax;
 	float	m_fValue;
+	bool	m_bEnableSlider;
 	RECT	m_rSlider;
 	AlphaFiller	m_AlphaFiller;
 

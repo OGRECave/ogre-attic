@@ -11,6 +11,12 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_0686370DACBF415A9E1208986EBF62B4"
+        "OwnerKey" = "8:_CC23F68F82304537917937A5BCC47A6F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_192C1206465A49C982CD53150BC0A363"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -29,12 +35,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_5DF6D1A9628F4459AA4311436C0276EF"
-        "OwnerKey" = "8:_F62357BAC2214812AD677583B5E0CA48"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_61916BA150C64800B37EE8FE8D559588"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -47,12 +47,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_8A354FBBF5A5A01D4A926AA173E629C4"
-        "OwnerKey" = "8:_30BD674C97284F2DB5C7D153FB8FC74F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_918FAC30856943B3BDEBA7308AA9A9BA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -61,6 +55,12 @@
         {
         "MsmKey" = "8:_A4F11C25B1AE4D20BD9D336F51FE9A43"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_ADD5FA067BA9433BED1710B43CB2B350"
+        "OwnerKey" = "8:_30BD674C97284F2DB5C7D153FB8FC74F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -83,6 +83,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_CC23F68F82304537917937A5BCC47A6F"
+        "OwnerKey" = "8:_30BD674C97284F2DB5C7D153FB8FC74F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E348545CE70C41C0B14F2CD7D8863C70"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -91,12 +97,6 @@
         {
         "MsmKey" = "8:_E959BCA23DE94B749366DA0A7316FE6D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F62357BAC2214812AD677583B5E0CA48"
-        "OwnerKey" = "8:_30BD674C97284F2DB5C7D153FB8FC74F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -129,6 +129,17 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                }
+            }
         }
         "Distribution"
         {
@@ -145,6 +156,17 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                }
+            }
         }
         "Release"
         {
@@ -161,6 +183,17 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                }
+            }
         }
     }
     "Deployable"
@@ -262,26 +295,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8A354FBBF5A5A01D4A926AA173E629C4"
-            {
-            "SourcePath" = "8:MSIMG32.dll"
-            "TargetName" = "8:MSIMG32.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_71706C085AA640518D4EFAF8A0F651E3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_918FAC30856943B3BDEBA7308AA9A9BA"
             {
             "SourcePath" = "8:InstallData\\resources.cfg"
@@ -320,6 +333,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_ADD5FA067BA9433BED1710B43CB2B350"
+            {
+            "SourcePath" = "8:MSIMG32.dll"
+            "TargetName" = "8:MSIMG32.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_60932FAA369B40EC891679ECE31BF91E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B0EE57A4C8D4423F91E6083F12A5BE36"
@@ -550,14 +583,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:LexiExport"
-        "ProductCode" = "8:{223AA5C3-8C7F-4FD4-8D23-C93C41687BAA}"
-        "PackageCode" = "8:{EA56D3F6-930C-4BD4-B8E4-F34E2A0B551E}"
+        "ProductCode" = "8:{D565BD6F-A9DE-41F5-BF5D-855A8B53BF87}"
+        "PackageCode" = "8:{3872B384-D92E-4BDD-BBB4-9FEF97DC23CD}"
         "UpgradeCode" = "8:{153F1498-CA22-4196-B639-B267C9BC0DFA}"
         "RestartWWWService" = "11:FALSE"
-        "RemovePreviousVersions" = "11:FALSE"
+        "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.0"
+        "ProductVersion" = "8:1.0.1"
         "Manufacturer" = "8:NDS Denmark A/S"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -1066,7 +1099,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_5DF6D1A9628F4459AA4311436C0276EF"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_0686370DACBF415A9E1208986EBF62B4"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1080,7 +1113,7 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_F62357BAC2214812AD677583B5E0CA48"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_CC23F68F82304537917937A5BCC47A6F"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"

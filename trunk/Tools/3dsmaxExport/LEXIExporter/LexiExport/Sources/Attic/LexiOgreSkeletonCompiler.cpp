@@ -34,7 +34,9 @@ COgreSkeletonCompiler::COgreSkeletonCompiler( CIntermediateSkeleton* pIntermedia
 	m_pSkel = Ogre::SkeletonManager::getSingletonPtr()->create(name + ".skeleton", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME /*"exporterSkelGroup"*/, true);
 	ogreMesh->setSkeletonName(name+".skeleton");
 
+	Ogre::LogManager::getSingletonPtr()->logMessage("COgreSkeletonCompiler: Reading Config.");
 	ReadConfig(pConfig);
+	Ogre::LogManager::getSingletonPtr()->logMessage("COgreSkeletonCompiler: Config Read.");
 
 	std::vector<CIntermediateBone*>::const_iterator it = m_pISkel->GetRootBones().begin();
 
@@ -45,7 +47,9 @@ COgreSkeletonCompiler::COgreSkeletonCompiler( CIntermediateSkeleton* pIntermedia
 	}
 	
 	m_pSkel->setBindingPose();
+	Ogre::LogManager::getSingletonPtr()->logMessage("COgreSkeletonCompiler: Creating Ogre Skeleton Animations");
 	CreateAnimations();
+	Ogre::LogManager::getSingletonPtr()->logMessage("COgreSkeletonCompiler: Ogre Skeleton Animations Created.");
 }
 
 COgreSkeletonCompiler::~COgreSkeletonCompiler()
@@ -58,12 +62,30 @@ COgreSkeletonCompiler::~COgreSkeletonCompiler()
 void COgreSkeletonCompiler::ReadConfig( const CDDObject* pConfig )
 {
 	assert(pConfig);
+	//CDDObject* pAnimContainer = pConfig->GetDDObject("AnimationDataContainer");
+	//assert(pAnimContainer);
 
-	m_sAnimName = pConfig->GetString("AnimationNameID");
-	m_iStartFrame = pConfig->GetInt("AnimationStartID");
-	m_iEndFrame = pConfig->GetInt("AnimationEndID");
-	m_fSampleRate = pConfig->GetFloat("AnimationSampleRateID");
-	m_bOptimize = pConfig->GetBool("AnimationOptimizeID");
+	//m_lAnimSpecs.clear();
+
+	//fastvector<const CDDObject*> lAnimList = pAnimContainer->GetDDList("Animations");
+	//while(!lAnimList.empty())
+	//{
+	//	const CDDObject* pCurAnim = lAnimList.pop_back();
+	//	SAnimSpec curAnimSpec;
+	//	curAnimSpec.sAnimName = pCurAnim->GetString("AnimationNameID");
+	//	curAnimSpec.iStartFrame = pCurAnim->GetInt("AnimationStartID");
+	//	curAnimSpec.iEndFrame = pCurAnim->GetInt("AnimationEndID");
+	//	curAnimSpec.fSampleRate = pCurAnim->GetFloat("AnimationSampleRateID");
+	//	curAnimSpec.bOptimize = pCurAnim->GetBool("AnimationOptimizeID");
+
+	//	m_lAnimSpecs.push_back(curAnimSpec);
+	//}
+
+	//m_sAnimName = pConfig->GetString("AnimationNameID");
+	//m_iStartFrame = pConfig->GetInt("AnimationStartID");
+	//m_iEndFrame = pConfig->GetInt("AnimationEndID");
+	//m_fSampleRate = pConfig->GetFloat("AnimationSampleRateID");
+	//m_bOptimize = pConfig->GetBool("AnimationOptimizeID");
 }
 
 void COgreSkeletonCompiler::CreateSkeleton( CIntermediateBone* pIBone )
@@ -128,60 +150,93 @@ void COgreSkeletonCompiler::CreateSkeleton( CIntermediateBone* pIBone )
 
 void COgreSkeletonCompiler::CreateAnimations( void )
 {
-	if(m_pSkel.get())
+	Ogre::LogManager::getSingletonPtr()->logMessage("COgreSkeletonCompiler::CreateAnimations() - Getting Bone with index 0.");
+	CIntermediateBone* tmpBone = m_pISkel->GetBoneByIndex(0);
+	Ogre::LogManager::getSingletonPtr()->logMessage("COgreSkeletonCompiler::CreateAnimations() - Bone with index 0 Got.");
+	std::map< Ogre::String, CAnimationData* > lAnimMap;
+	if(tmpBone != NULL)
 	{
-		float animLength = ( 1 /float(m_pISkel->GetFPS()) )*m_pISkel->GetBoneByIndex(0)->GetFrameCount();
-		Ogre::Animation* anim = m_pSkel->createAnimation(m_sAnimName, animLength);
-		if(anim) {
-			Ogre::AnimationStateSet* animSet = new Ogre::AnimationStateSet(); 
-
-			for ( int i=0; i < m_pSkel->getNumBones(); i++)
-			{
-				Ogre::Bone* pBone = m_pSkel->getBone(i);
-				Ogre::NodeAnimationTrack* pAnimTrack = anim->createNodeTrack(pBone->getHandle(),pBone);
-
-				CIntermediateBone* pIBone = m_pISkel->GetBoneByName( pBone->getName().c_str() );
-				
-				for ( int j=0; j < pIBone->GetFrameCount(); j++)
-				{
-					float fTimeInSecs;
-					Ogre::Vector3 pos;
-					Ogre::Vector3 scale;
-					Ogre::Quaternion orient;
-					pIBone->GetFrame(j,fTimeInSecs,pos,orient,scale);
-
-					Ogre::TransformKeyFrame* pKeyFrame = pAnimTrack->createNodeKeyFrame(fTimeInSecs);
-					pKeyFrame->setRotation( orient );
-					pKeyFrame->setScale( scale );
-					pKeyFrame->setTranslate( pos );
-				}
-
-				//// Add end animation Spline keyframe for tangent generation.
-				//int iEndFrame = pIBone->GetFrameCount();
-				//Ogre::TransformKeyFrame* pKeyFrame = pAnimTrack->createNodeKeyFrame(anim->getLength());
-				//Ogre::Vector3 pos(0,0,0);
-				//Ogre::Vector3 scale(1,1,1);
-				//Ogre::Quaternion orient(Ogre::Radian(90), Ogre::Vector3::NEGATIVE_UNIT_X);
-				////pIBone->GetFrame( iEndFrame-1,pos,orient,scale );
-				//pKeyFrame->setRotation( orient );
-				//pKeyFrame->setScale( scale );
-				//pKeyFrame->setTranslate( pos );
-
-				if(m_bOptimize)
-					pAnimTrack->optimise();
-			}
-			m_pSkel->_initAnimationState(animSet);
-			m_pOgreMesh->_initAnimationState(animSet);
-			m_pSkel->setAnimationState(*animSet);
-		}
+		Ogre::LogManager::getSingletonPtr()->logMessage("COgreSkeletonCompiler::CreateAnimations() - Getting Animations.");
+		lAnimMap = tmpBone->GetAnimations();
+		Ogre::LogManager::getSingletonPtr()->logMessage("COgreSkeletonCompiler::CreateAnimations() - Animations Got.");
 	}
+	else
+	{
+		Ogre::LogManager::getSingletonPtr()->logMessage("COgreSkeletonCompiler::CreateAnimations() - Bone with index 0 not found.");
+		return;
+	}
+
+	Ogre::LogManager::getSingletonPtr()->logMessage("COgreSkeletonCompiler::CreateAnimations() - Getting Begin Iter");
+	std::map< Ogre::String, CAnimationData* >::const_iterator animIter = lAnimMap.begin();
+
+	while(animIter != lAnimMap.end() )
+	{
+	//for(int animIndex=0; animIndex < m_lA
+	//{
+
+		Ogre::LogManager::getSingletonPtr()->logMessage("COgreSkeletonCompiler::CreateAnimations() - Creating Ogre Skeleton Animation from Iter");
+		CAnimationData* pCurAnimData = (*animIter).second;
+		Ogre::String curAnimName = (*animIter).first;
+		animIter++;
+
+		if(m_pSkel.get())
+		{
+			float animLength = ( 1 /float(m_pISkel->GetFPS()) )*m_pISkel->GetBoneByIndex(0)->GetFrameCount( curAnimName );
+			Ogre::Animation* anim = m_pSkel->createAnimation(curAnimName, animLength);
+			if(anim) {
+				Ogre::AnimationStateSet* animSet = new Ogre::AnimationStateSet(); 
+
+				for ( int i=0; i < m_pSkel->getNumBones(); i++)
+				{
+					Ogre::Bone* pBone = m_pSkel->getBone(i);
+					Ogre::NodeAnimationTrack* pAnimTrack = anim->createNodeTrack(pBone->getHandle(),pBone);
+
+					CIntermediateBone* pIBone = m_pISkel->GetBoneByName( pBone->getName().c_str() );
+					
+					for ( int j=0; j < pIBone->GetFrameCount(curAnimName); j++)
+					{
+						float fTimeInSecs;
+						Ogre::Vector3 pos;
+						Ogre::Vector3 scale;
+						Ogre::Quaternion orient;
+						pIBone->GetFrame(curAnimName,j,fTimeInSecs,pos,orient,scale);
+
+						Ogre::TransformKeyFrame* pKeyFrame = pAnimTrack->createNodeKeyFrame(fTimeInSecs);
+						pKeyFrame->setRotation( orient );
+						pKeyFrame->setScale( scale );
+						pKeyFrame->setTranslate( pos );
+					}
+
+					//// Add end animation Spline keyframe for tangent generation.
+					//int iEndFrame = pIBone->GetFrameCount();
+					//Ogre::TransformKeyFrame* pKeyFrame = pAnimTrack->createNodeKeyFrame(anim->getLength());
+					//Ogre::Vector3 pos(0,0,0);
+					//Ogre::Vector3 scale(1,1,1);
+					//Ogre::Quaternion orient(Ogre::Radian(90), Ogre::Vector3::NEGATIVE_UNIT_X);
+					////pIBone->GetFrame( iEndFrame-1,pos,orient,scale );
+					//pKeyFrame->setRotation( orient );
+					//pKeyFrame->setScale( scale );
+					//pKeyFrame->setTranslate( pos );
+
+					if(pCurAnimData->GetOptimize())
+						pAnimTrack->optimise();
+				}
+				m_pSkel->_initAnimationState(animSet);
+				m_pOgreMesh->_initAnimationState(animSet);
+				m_pSkel->setAnimationState(*animSet);
+			}
+		}
+
+		
+	}
+	Ogre::LogManager::getSingletonPtr()->logMessage("COgreSkeletonCompiler:CreateAnimations() - End");
 }
 
 bool COgreSkeletonCompiler::WriteOgreSkeleton( const Ogre::String& sFilename )
 {
 	Ogre::SkeletonSerializer* pSkeletonWriter = new Ogre::SkeletonSerializer();
 	try
-	{	
+	{
 		pSkeletonWriter->exportSkeleton( m_pSkel.get(), sFilename );
 	}
 	catch (Ogre::Exception& e)

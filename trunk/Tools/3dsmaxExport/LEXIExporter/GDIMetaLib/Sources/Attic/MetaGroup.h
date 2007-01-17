@@ -50,6 +50,8 @@ public:
 	HFONT	GetCtrlFont();
 	HFONT	GetCtrlFontBold();
 
+	faststring	GetTitle(void);
+
 	// Window callback procedure
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 

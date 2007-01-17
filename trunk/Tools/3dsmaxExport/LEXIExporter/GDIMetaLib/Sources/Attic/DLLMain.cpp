@@ -55,10 +55,10 @@ extern "C" __declspec( dllexport ) void CreateWin32Class(HWND hWnd)
 }
 
 // Called from C# to setup new meta DDObject on previously created control
-extern "C" __declspec( dllexport ) void CreateFromMeta(HWND hWnd, void *pData, int iSize)
+extern "C" __declspec( dllexport ) void CreateFromMeta(HWND hWnd, void *pMeta, int iMetaSize)
 {
 	// Find meta control from window handle
-	GDI::MetaControl* pMeta=(GDI::MetaControl*)GDI::MetaControl::GetMapping(hWnd);
+	GDI::MetaControl* pMetaCtrl=(GDI::MetaControl*)GDI::MetaControl::GetMapping(hWnd);
 	if(!pMeta) 
 	{
 		LOGSTATIC LOG_ERROR, "Failed to find control: %X", hWnd);
@@ -66,13 +66,40 @@ extern "C" __declspec( dllexport ) void CreateFromMeta(HWND hWnd, void *pData, i
 	}
 
 	// Create DDObject from data stream
-	CDataStream d(pData, iSize, 0);
-	CDDObject *dd=new CDDObject;
-	dd->FromDataStream(&d);
+	CDataStream MetaStream(pMeta, iMetaSize, 0);
+	CDDObject *ddMeta=new CDDObject;
+	ddMeta->FromDataStream(&MetaStream);
 
 	// Create controls
-	pMeta->CreateFromMeta(dd);
-	dd->Release();
+	pMetaCtrl->CreateFromMeta(ddMeta);
+	ddMeta->Release();
+}
+
+// Called from C# to setup new meta DDObject on previously created control
+extern "C" __declspec( dllexport ) void CreateFromMetaData(HWND hWnd, void *pMeta, int iMetaSize, void *pData, int iDataSize)
+{
+	// Find meta control from window handle
+	GDI::MetaControl* pMetaCtrl=(GDI::MetaControl*)GDI::MetaControl::GetMapping(hWnd);
+	if(!pMeta) 
+	{
+		LOGSTATIC LOG_ERROR, "Failed to find control: %X", hWnd);
+		return;
+	}
+
+	// Create DDObject from data stream
+	CDataStream MetaStream(pMeta, iMetaSize, 0);
+	CDDObject *ddMeta=new CDDObject;
+	ddMeta->FromDataStream(&MetaStream);
+
+	// Create DDObject from data stream
+	CDataStream DataStream(pData, iDataSize, 0);
+	CDDObject *ddData=new CDDObject;
+	ddData->FromDataStream(&DataStream);
+
+	// Create controls
+	pMetaCtrl->CreateFromMetaData(ddMeta, ddData);
+	ddMeta->Release();
+	ddData->Release();
 }
 
 // Called from C# to retrieve data from control

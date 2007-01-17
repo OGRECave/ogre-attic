@@ -58,7 +58,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include <WinDef.h>
 
+#ifdef USE_TVKIT
+#include <TVUtilities.h>
+#else
 #include "SharedUtilities.h"
+#endif
 
 #include <map>
 #include <string>
