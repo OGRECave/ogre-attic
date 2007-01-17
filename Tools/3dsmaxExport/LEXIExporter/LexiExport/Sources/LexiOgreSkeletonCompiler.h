@@ -29,6 +29,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 class COgreSkeletonCompiler
 {
+
+
 public:
 	COgreSkeletonCompiler( CIntermediateSkeleton* pIntermediateSkeleton, const CDDObject* pConfig, Ogre::String name, Ogre::MeshPtr ogreMesh);
 	virtual ~COgreSkeletonCompiler();
@@ -48,10 +50,13 @@ private:
 	Ogre::MeshPtr m_pOgreMesh;
 
 	// Config 
-	Ogre::String	m_sAnimName;
-	int				m_iStartFrame;
-	int				m_iEndFrame;
-	float			m_fSampleRate;
-	bool			m_bOptimize;
+
+	//std::vector< SAnimSpec > m_lAnimSpecs;
+
+	//Ogre::String	m_sAnimName;
+	//int				m_iStartFrame;
+	//int				m_iEndFrame;
+	//float			m_fSampleRate;
+	//bool			m_bOptimize;
 
 };

@@ -42,31 +42,37 @@ void MetaFloat::OnCreated()
 	m_pEditCtrl=new Edit();
 	HWND hWnd=::CreateWindow("EDIT", "", ES_RIGHT|WS_VISIBLE|WS_BORDER|WS_CHILD|WS_TABSTOP, 0, 0, g_iSmallEditWidth, m_iHeight, m_hWnd, NULL, NULL, NULL);
 	m_pEditCtrl->Attach(hWnd);
-	m_iHeight+=g_iSliderHeight;
 	::SendMessage(hWnd, WM_SETFONT, (WPARAM)m_pGroup->GetCtrlFont(), 0);
 
-	// Get min value as either float or int
-	if(m_pMetaKey->GetKeyType("MinValue")==DD_INT)
-		m_fMin=(float)m_pMetaKey->GetInt("MinValue",0);
-	else
-		m_fMin=m_pMetaKey->GetFloat("MinValue", 0);
+	m_bEnableSlider=m_pMetaKey->GetBool("EnableSlider",true);
 
-	// Get max value as either float or int
-	if(m_pMetaKey->GetKeyType("MaxValue")==DD_INT)
-		m_fMax=(float)m_pMetaKey->GetInt("MaxValue",0);
-	else
-		m_fMax=m_pMetaKey->GetFloat("MaxValue", 100.0f);	
+	if(	m_bEnableSlider )
+	{
+		m_iHeight+=g_iSliderHeight;
 
-	char buffer[25];
-	_snprintf_s(buffer, 25, "%.2f", m_fMin);
-	m_sMin=buffer;	
-	_snprintf_s(buffer, 25, "%.2f", m_fMax);
-	m_sMax=buffer;
-	
-	::GetClientRect(m_hWnd, &m_rSlider);	
-	m_rSlider.top+=g_iDefaultCtrlHeight;
+		// Get min value as either float or int
+		if(m_pMetaKey->GetKeyType("MinValue")==DD_INT)
+			m_fMin=(float)m_pMetaKey->GetInt("MinValue",0);
+		else
+			m_fMin=m_pMetaKey->GetFloat("MinValue", 0);
 
-	m_AlphaFiller.Create(0xFFFFFF, m_hWnd);
+		// Get max value as either float or int
+		if(m_pMetaKey->GetKeyType("MaxValue")==DD_INT)
+			m_fMax=(float)m_pMetaKey->GetInt("MaxValue",0);
+		else
+			m_fMax=m_pMetaKey->GetFloat("MaxValue", 100.0f);	
+
+		char buffer[25];
+		_snprintf_s(buffer, 25, "%.2f", m_fMin);
+		m_sMin=buffer;	
+		_snprintf_s(buffer, 25, "%.2f", m_fMax);
+		m_sMax=buffer;
+		
+		::GetClientRect(m_hWnd, &m_rSlider);	
+		m_rSlider.top+=g_iDefaultCtrlHeight;
+
+		m_AlphaFiller.Create(0xFFFFFF, m_hWnd);
+	}
 }
 
 void MetaFloat::UpdateData(CDDObject *pData)
@@ -86,9 +92,12 @@ void MetaFloat::UpdateData(CDDObject *pData)
 		pData->SetFloat(m_sMetaID.c_str(), m_fValue);
 	}
 
-	// Bound check
-	if (m_fValue < m_fMin) m_fValue = m_fMin;
-	else if (m_fValue > m_fMax) m_fValue = m_fMax;
+	if(	m_bEnableSlider )
+	{
+		// Bound check
+		if (m_fValue < m_fMin) m_fValue = m_fMin;
+		else if (m_fValue > m_fMax) m_fValue = m_fMax;
+	}
 
 	char buffer[25];
 	_snprintf_s(buffer, 25, "%.2f", m_fValue);
@@ -117,51 +126,54 @@ void MetaFloat::OnPaint()
 
 	::DrawText(hdc, m_sCaption.c_str(), -1, &rLabel, DT_SINGLELINE|DT_VCENTER|DT_LEFT);
 
-	TRIVERTEX        vert[2] ;
-	GRADIENT_RECT    gRect;
-	vert [0] .x      = m_rSlider.left;
-	vert [0] .y      = m_rSlider.top;
-	vert [0] .Red    = 0x6300;
-	vert [0] .Green  = 0x7F00;
-	vert [0] .Blue   = 0x8E00;
-	vert [0] .Alpha  = 0x0000;
-
-	vert [1] .x      = m_rSlider.right;
-	vert [1] .y      = m_rSlider.bottom; 
-	vert [1] .Red    = 0x9900;
-	vert [1] .Green  = 0xAA00;
-	vert [1] .Blue   = 0xBE00;
-	vert [1] .Alpha  = 0x0000;
-
-	if(!m_bEnabled)
+	if(	m_bEnableSlider )
 	{
-		COLORREF cFace=GET_SYSTEM_COLOR(COLOR_3DFACE);
-		vert[0].Red=(vert[0].Red+(GetRValue(cFace)<<8))/2;
-		vert[1].Red=(vert[1].Red+(GetRValue(cFace)<<8))/2;
+		TRIVERTEX        vert[2] ;
+		GRADIENT_RECT    gRect;
+		vert [0] .x      = m_rSlider.left;
+		vert [0] .y      = m_rSlider.top;
+		vert [0] .Red    = 0x6300;
+		vert [0] .Green  = 0x7F00;
+		vert [0] .Blue   = 0x8E00;
+		vert [0] .Alpha  = 0x0000;
 
-		vert[0].Green=(vert[0].Green+(GetGValue(cFace)<<8))/2;
-		vert[1].Green=(vert[1].Green+(GetGValue(cFace)<<8))/2;
+		vert [1] .x      = m_rSlider.right;
+		vert [1] .y      = m_rSlider.bottom; 
+		vert [1] .Red    = 0x9900;
+		vert [1] .Green  = 0xAA00;
+		vert [1] .Blue   = 0xBE00;
+		vert [1] .Alpha  = 0x0000;
 
-		vert[0].Blue=(vert[0].Blue+(GetBValue(cFace)<<8))/2;
-		vert[1].Blue=(vert[1].Blue+(GetBValue(cFace)<<8))/2;
+		if(!m_bEnabled)
+		{
+			COLORREF cFace=GET_SYSTEM_COLOR(COLOR_3DFACE);
+			vert[0].Red=(vert[0].Red+(GetRValue(cFace)<<8))/2;
+			vert[1].Red=(vert[1].Red+(GetRValue(cFace)<<8))/2;
+
+			vert[0].Green=(vert[0].Green+(GetGValue(cFace)<<8))/2;
+			vert[1].Green=(vert[1].Green+(GetGValue(cFace)<<8))/2;
+
+			vert[0].Blue=(vert[0].Blue+(GetBValue(cFace)<<8))/2;
+			vert[1].Blue=(vert[1].Blue+(GetBValue(cFace)<<8))/2;
+		}
+
+		gRect.UpperLeft  = 0;
+		gRect.LowerRight = 1;
+		::GradientFill(hdc, vert, 2, &gRect, 1, GRADIENT_FILL_RECT_H);
+
+		// Draw min/max values
+		::DrawText(hdc, m_sMin.c_str(), -1, &m_rSlider, DT_SINGLELINE|DT_VCENTER|DT_LEFT);
+		::DrawText(hdc, m_sMax.c_str(), -1, &m_rSlider, DT_SINGLELINE|DT_VCENTER|DT_RIGHT);	
+
+		float fRange = m_fMax - m_fMin;
+		int iXPos = (int)(((m_fValue - m_fMin) * (m_rSlider.right-g_iSliderHandleWidth)) / fRange);
+		if (iXPos < 1) iXPos = 1;
+		else if (iXPos + g_iSliderHandleWidth > m_rSlider.right - 1)
+			iXPos = (m_rSlider.right - 1) - g_iSliderHandleWidth;
+
+		m_AlphaFiller.Fill(hdc, iXPos, m_rSlider.top+1, g_iSliderHandleWidth, g_iSliderHeight-2, 170);
 	}
 
-	gRect.UpperLeft  = 0;
-	gRect.LowerRight = 1;
-	::GradientFill(hdc, vert, 2, &gRect, 1, GRADIENT_FILL_RECT_H);
-
-	// Draw min/max values
-	::DrawText(hdc, m_sMin.c_str(), -1, &m_rSlider, DT_SINGLELINE|DT_VCENTER|DT_LEFT);
-	::DrawText(hdc, m_sMax.c_str(), -1, &m_rSlider, DT_SINGLELINE|DT_VCENTER|DT_RIGHT);	
-
-	float fRange = m_fMax - m_fMin;
-	int iXPos = (int)(((m_fValue - m_fMin) * (m_rSlider.right-g_iSliderHandleWidth)) / fRange);
-	if (iXPos < 1) iXPos = 1;
-	else if (iXPos + g_iSliderHandleWidth > m_rSlider.right - 1)
-		iXPos = (m_rSlider.right - 1) - g_iSliderHandleWidth;
-
-	m_AlphaFiller.Fill(hdc, iXPos, m_rSlider.top+1, g_iSliderHandleWidth, g_iSliderHeight-2, 170);
-	
 	SelectObject(hdc, hOld);
 	::EndPaint(m_hWnd, &ps);
 }
@@ -180,32 +192,35 @@ bool MetaFloat::OnMouseDown(int iFlags, int iX, int iY)
 
 bool MetaFloat::OnMouseMove(int iFlags, int iX, int iY)
 {
-	if(m_bEnabled && ((iFlags&MK_LBUTTON)==MK_LBUTTON && (iY>g_iDefaultCtrlHeight || m_bHasCapture)))
+	if(	m_bEnableSlider )
 	{
-		if(!m_bHasCapture)
+		if(m_bEnabled && ((iFlags&MK_LBUTTON)==MK_LBUTTON && (iY>g_iDefaultCtrlHeight || m_bHasCapture)))
 		{
-			::SetCapture(m_hWnd);
-			m_bHasCapture=true;
+			if(!m_bHasCapture)
+			{
+				::SetCapture(m_hWnd);
+				m_bHasCapture=true;
+			}
+
+			RECT rClient;		
+			::GetClientRect(m_hWnd, &rClient);
+
+			double fRatio = (double)((iX - (g_iSliderHandleWidth / 2)) - rClient.left) / (double)(rClient.right - g_iSliderHandleWidth);
+			m_fValue = (float)(((m_fMax - m_fMin) * fRatio)) + m_fMin;
+			if (m_fValue < m_fMin) m_fValue = m_fMin;
+			else if (m_fValue > m_fMax) m_fValue = m_fMax;		
+			
+			char buffer[25];
+			_snprintf_s(buffer, 25, "%.2f", m_fValue);
+			m_pEditCtrl->SetWindowText(buffer);
+			
+			return true;
 		}
-
-		RECT rClient;		
-		::GetClientRect(m_hWnd, &rClient);
-
-		double fRatio = (double)((iX - (g_iSliderHandleWidth / 2)) - rClient.left) / (double)(rClient.right - g_iSliderHandleWidth);
-		m_fValue = (float)(((m_fMax - m_fMin) * fRatio)) + m_fMin;
-		if (m_fValue < m_fMin) m_fValue = m_fMin;
-		else if (m_fValue > m_fMax) m_fValue = m_fMax;		
-		
-		char buffer[25];
-		_snprintf_s(buffer, 25, "%.2f", m_fValue);
-		m_pEditCtrl->SetWindowText(buffer);
-		
-		return true;
-	}
-	if(m_bHasCapture)
-	{
-		::ReleaseCapture();
-		m_bHasCapture=false;
+		if(m_bHasCapture)
+		{
+			::ReleaseCapture();
+			m_bHasCapture=false;
+		}
 	}
 	return false;
 }

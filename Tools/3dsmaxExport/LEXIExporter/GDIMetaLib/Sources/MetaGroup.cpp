@@ -306,4 +306,10 @@ LRESULT CALLBACK MetaGroup::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 	}
 	return 0;
 }
+
+faststring MetaGroup::GetTitle(void)
+{
+	return m_sTitle;
+}
+
 }

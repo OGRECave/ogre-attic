@@ -40,6 +40,8 @@ CIntermediateBone::CIntermediateBone(const char* pszName)
 	m_bindingPos = Ogre::Vector3::ZERO;
 	m_bindingOrientation = Ogre::Quaternion::IDENTITY;
 	m_bindingScale = Ogre::Vector3::ZERO;
+
+	m_lAnimations.clear();
 }
 
 CIntermediateBone::~CIntermediateBone()
@@ -61,10 +63,18 @@ void CIntermediateBone::clear()
 	}
 	m_Bones.clear();
 
-	m_Positions.clear();
-	m_Orientations.clear();
-	m_Scales.clear();
-	m_pParent = NULL;
+	std::map< Ogre::String, CAnimationData* >::iterator iter = m_lAnimations.begin();
+	while(iter != m_lAnimations.end())
+	{
+		delete (*iter).second;
+		iter++;
+	}
+	m_lAnimations.clear();
+
+	//m_Positions.clear();
+	//m_Orientations.clear();
+	//m_Scales.clear();
+	//m_pParent = NULL;
 }
 
 //
@@ -139,25 +149,73 @@ CIntermediateBone* CIntermediateBone::GetParent( void )
 
 //
 
-unsigned int CIntermediateBone::GetFrameCount() const
+unsigned int CIntermediateBone::GetFrameCount( Ogre::String animationName ) const
 {
-	return m_Positions.size();
+	std::map< Ogre::String, CAnimationData* >::const_iterator iter = m_lAnimations.find(animationName);
+
+	if(iter == m_lAnimations.end())
+		return false;	// Animation with that name doesn´t exist
+
+	return (*iter).second->GetNrFrames();
 }
 
-void CIntermediateBone::GetFrame(unsigned int iFrame, float& fTimeInSecs, Ogre::Vector3& vPos, Ogre::Quaternion& qOri, Ogre::Vector3& vScale) const
+bool CIntermediateBone::CreateAnimation( const CAnimationSetting animSetting )
 {
-	fTimeInSecs = m_Times[iFrame];
-	vPos = m_Positions[iFrame];
-	qOri = m_Orientations[iFrame];
-	vScale = m_Scales[iFrame];
+	Ogre::LogManager::getSingleton().logMessage("CIntermediateBone::CreateAnimation() - Start");
+
+	std::map< Ogre::String, CAnimationData* >::iterator iter = m_lAnimations.find(animSetting.m_sAnimName);
+
+	Ogre::LogManager::getSingleton().logMessage("CIntermediateBone::CreateAnimation() - Start2");
+	if(iter != m_lAnimations.end())
+		return false;	// Animation with that name already exists
+
+	Ogre::LogManager::getSingleton().logMessage("CIntermediateBone::CreateAnimation() - Start3");
+	CAnimationData* newAnim = new CAnimationData();//animSetting.m_iEndFrame - animSetting.m_iStartFrame);
+	newAnim->SetOptimize(animSetting.m_bOptimize);
+	Ogre::LogManager::getSingleton().logMessage("CIntermediateBone::CreateAnimation() - Start4");
+
+	m_lAnimations.insert( std::pair< Ogre::String, CAnimationData* >(animSetting.m_sAnimName, newAnim) );
+	Ogre::LogManager::getSingleton().logMessage("CIntermediateBone::CreateAnimation() - End");
+	return true;
 }
 
-void CIntermediateBone::AddFrame( float timeInSecs, const Ogre::Vector3& vPos, const Ogre::Quaternion& qOri, const Ogre::Vector3& vScale)
+
+bool CIntermediateBone::GetFrame( Ogre::String animName, unsigned int iFrame, float& fTimeInSecs, Ogre::Vector3& vPos, Ogre::Quaternion& qOri, Ogre::Vector3& vScale) const
 {
-	m_Times.push_back(timeInSecs);
-	m_Positions.push_back(vPos);
-	m_Orientations.push_back(qOri);
-	m_Scales.push_back(vScale);
+	std::map< Ogre::String, CAnimationData* >::const_iterator iter = m_lAnimations.find(animName);
+	if(iter == m_lAnimations.end())
+		return false;
+
+	//if(iFrame > (*iter).second->GetNrFrames() )
+	//	return false;
+
+	return (*iter).second->GetFrame(iFrame, fTimeInSecs, vPos, qOri, vScale);
+
+	//fTimeInSecs = (*iter).second->m_lTimes[iFrame];
+	//vPos = (*iter).second->m_lPositions[iFrame];
+	//qOri = (*iter).second->m_lOrientations[iFrame];
+	//vScale = (*iter).second->m_lScales[iFrame];
+	//return true;
+}
+
+bool CIntermediateBone::AddFrame( const std::string animName, unsigned int frameNr, float timeInSecs, const Ogre::Vector3& vPos, const Ogre::Quaternion& qOri, const Ogre::Vector3& vScale)
+{
+	std::map< Ogre::String, CAnimationData* >::const_iterator iter = m_lAnimations.find(animName);
+	if(iter == m_lAnimations.end())
+		return false;
+
+	// add only if it appends
+	if(frameNr != (*iter).second->GetNrFrames() )
+		return false;
+
+	(*iter).second->AddFrame(timeInSecs,vPos,qOri,vScale);
+
+	//(*iter).second->m_lTimes.push_back(timeInSecs);
+	//(*iter).second->m_lPositions.push_back(vPos);
+	//(*iter).second->m_lOrientations.push_back(qOri);
+	//(*iter).second->m_lScales.push_back(vScale);
+
+	return true;
 }
 
 void CIntermediateBone::SetBindingPose(const Ogre::Vector3& vPos, const Ogre::Quaternion& qOri, const Ogre::Vector3& vScale)
@@ -172,6 +230,16 @@ void CIntermediateBone::GetBindingPose(Ogre::Vector3& vPos, Ogre::Quaternion& qO
 	vPos = m_bindingPos;
 	qOri = m_bindingOrientation;
 	vScale = m_bindingScale;
+}
+
+std::map< Ogre::String, CAnimationData* > CIntermediateBone::GetAnimations( void )
+{
+	Ogre::LogManager::getSingletonPtr()->logMessage("CIntermediateBone::GetAnimations() - Ready to return m_lAnimations");
+	int iSize = m_lAnimations.size();
+	Ogre::StringUtil::StrStreamType str;
+	str << "m_lAnimations size: " << Ogre::StringConverter::toString(iSize);
+	Ogre::LogManager::getSingletonPtr()->logMessage(str.str());
+	return m_lAnimations;
 }
 
 //

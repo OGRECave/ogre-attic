@@ -137,6 +137,8 @@ void CExportObject::Read(CDDObject* pConfig)
 	m_sFilename = pConfig->GetString("filename", "<unknown>");
 
 	CDDObject* tmpDD = pConfig->GetDDObject("EditedSettings");
+
+	//pConfig->SaveASCII("C:\\EditedSettings.txt");
 	if(tmpDD != NULL) 
 	{
 		m_pDDEditMeta->Release();

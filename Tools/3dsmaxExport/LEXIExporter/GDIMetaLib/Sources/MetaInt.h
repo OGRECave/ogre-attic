@@ -54,6 +54,7 @@ private:
 	int		m_iStep;
 	int		m_iMax;
 	int		m_iValue;
+	bool	m_bEnableSlider;
 	RECT	m_rSlider;
 	AlphaFiller	m_AlphaFiller;
 
