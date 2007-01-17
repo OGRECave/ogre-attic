@@ -1021,7 +1021,7 @@ material jaiqua
 }
 
 
-material Examples/Plane/ShadowsCustomSequence
+material Examples/Plane/IntegratedShadows
 {
 	technique
 	{
