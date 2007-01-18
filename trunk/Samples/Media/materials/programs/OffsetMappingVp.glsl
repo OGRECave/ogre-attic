@@ -2,9 +2,9 @@ attribute vec3 tangent;
 
 uniform vec4 lightPosition; // object space 
 uniform vec4 lightPosition1; // object space 
-uniform vec3 eyePosition;   // object space 
-uniform vec3 spotDirection; // object space
-uniform vec3 spotDirection1; // object space
+uniform vec4 eyePosition;   // object space 
+uniform vec4 spotDirection; // object space
+uniform vec4 spotDirection1; // object space
 uniform mat4 worldViewProj; // not actually used but here for compat with HLSL
 uniform mat4 worldMatrix;
 uniform mat4 texViewProj1;
@@ -33,7 +33,7 @@ void main()
     vec3 lightDir = normalize(lightPosition.xyz -  (gl_Vertex.xyz * lightPosition.w));
 	vec3 lightDir1 = normalize(lightPosition1.xyz -  (gl_Vertex.xyz * lightPosition1.w));
 	
-	vec3 eyeDir = eyePosition - gl_Vertex.xyz; 
+	vec3 eyeDir = (eyePosition - gl_Vertex).xyz; 
 
 	// Calculate the binormal (NB we assume both normal and tangent are 
 	// already normalised) 
@@ -45,8 +45,10 @@ void main()
 	// Transform the light vector according to this matrix 
 	tangentLightDir[0] = normalize(rotation * lightDir); 
 	tangentLightDir[1] = normalize(rotation * lightDir1); 
-	tangentEyeDir = normalize(rotation * eyeDir); 
+	// Invert the Y on the eye dir since we'll be using this to alter UVs and
+	// GL has Y inverted
+	tangentEyeDir = normalize(rotation * eyeDir) * vec3(1, -1, 1); 
 
-	tangentSpotDir[0] = normalize(rotation * -spotDirection);
-	tangentSpotDir[1] = normalize(rotation * -spotDirection1);	
+	tangentSpotDir[0] = normalize(rotation * -spotDirection.xyz);
+	tangentSpotDir[1] = normalize(rotation * -spotDirection1.xyz);	
 }

@@ -1,7 +1,7 @@
-uniform vec3 lightDiffuse;
+uniform vec4 lightDiffuse;
 uniform vec4 scaleBias;
 uniform vec4 spotParams;
-uniform vec3 lightDiffuse1;
+uniform vec4 lightDiffuse1;
 uniform vec4 spotParams1;
 
 uniform sampler2D normalHeightMap;
@@ -33,26 +33,26 @@ void main()
 	float bias = scaleBias.y;
 
 	// calculate displacement	
-	//float displacement = (height * scale) + bias;
-	float displacement = (height * 0.04) - 0.02;
+	float displacement = (height * scale) + bias;
+	//float displacement = (height * 0.04) - 0.02;
 	
-	vec2 scaledEyeDir = tangentEyeDir.xy * displacement;
+	vec3 scaledEyeDir = tangentEyeDir * displacement;
 	
 	// calculate the new tex coord to use for normal and diffuse
-	vec2 newTexCoord = scaledEyeDir + gl_TexCoord[0].xy;
+	vec2 newTexCoord = (scaledEyeDir + gl_TexCoord[0].xyz).xy;
 	
 	// get the new normal and diffuse values
 	vec3 normal = expand(texture2D(normalHeightMap, newTexCoord).xyz);
-	vec3 diffuse = texture2D(diffuseMap, newTexCoord).xyz;
+	vec4 diffuse = texture2D(diffuseMap, newTexCoord);
 	
-	vec3 col1 = diffuse * clamp(dot(normal, tangentLightDir[0]),0.0,1.0) * lightDiffuse;
+	vec4 col1 = diffuse * clamp(dot(normal, tangentLightDir[0]),0.0,1.0) * lightDiffuse;
 	// factor in spotlight angle
 	float rho = clamp(dot(tangentSpotDir[0], tangentLightDir[0]),0.0,1.0);
 	// factor = (rho - cos(outer/2) / cos(inner/2) - cos(outer/2)) ^ falloff
 	float spotFactor = pow(
 		clamp(rho - spotParams.y,0.0,1.0) / (spotParams.x - spotParams.y), spotParams.z);
 	col1 = col1 * spotFactor;
-	vec3 col2 = diffuse * clamp(dot(normal, tangentLightDir[1]),0.0,1.0) * lightDiffuse1;
+	vec4 col2 = diffuse * clamp(dot(normal, tangentLightDir[1]),0.0,1.0) * lightDiffuse1;
 	// factor in spotlight angle
 	rho = clamp(dot(tangentSpotDir[1], tangentLightDir[1]),0.0,1.0);
 	// factor = (rho - cos(outer/2) / cos(inner/2) - cos(outer/2)) ^ falloff
@@ -61,9 +61,9 @@ void main()
 	col2 = col2 * spotFactor;
 
 	// shadow textures
-	col1 = col1 * texture2DProj(shadowMap1, shadowUV[0]).rgb;
-	col2 = col2 * texture2DProj(shadowMap2, shadowUV[1]).rgb;
+	col1 = col1 * texture2DProj(shadowMap1, shadowUV[0]);
+	col2 = col2 * texture2DProj(shadowMap2, shadowUV[1]);
 
-	gl_FragColor = vec4(col1 + col2, 1);
+	gl_FragColor = col1 + col2;
 
 }
