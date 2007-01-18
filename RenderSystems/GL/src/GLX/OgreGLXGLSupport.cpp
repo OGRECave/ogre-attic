@@ -178,10 +178,6 @@ void* GLXGLSupport::getProcAddress(const String& procname) {
 }
 
 
-bool GLXGLSupport::supportsPBuffers()
-{
-    return true;
-}
 GLPBuffer *GLXGLSupport::createPBuffer(PixelComponentType format, size_t width, size_t height)
 {
     return new GLXPBuffer(format, width, height);

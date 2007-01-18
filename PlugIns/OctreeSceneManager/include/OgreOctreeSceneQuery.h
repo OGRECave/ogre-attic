@@ -91,7 +91,7 @@ public:
     OctreeAxisAlignedBoxSceneQuery(SceneManager* creator);
     ~OctreeAxisAlignedBoxSceneQuery();
 
-    /** See RayScenQuery. */
+    /** See RaySceneQuery. */
     void execute(SceneQueryListener* listener);
 };
 

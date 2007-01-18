@@ -1951,6 +1951,7 @@ typedef void (GLAPIENTRY * PFNGLUNIFORMMATRIX4X3FVPROC) (GLint location, GLsizei
 #define GL_PIXEL_UNPACK_BUFFER_ARB        0x88EC
 #define GL_PIXEL_PACK_BUFFER_BINDING_ARB  0x88ED
 #define GL_PIXEL_UNPACK_BUFFER_BINDING_ARB 0x88EF
+#define GLEW_ARB_pixel_buffer_object GLEW_GET_VAR(__GLEW_ARB_pixel_buffer_object)
 
 #endif /* GL_ARB_pixel_buffer_object */
 
@@ -3056,7 +3057,12 @@ typedef void (GLAPIENTRY * PFNGLRENDERBUFFERSTORAGEEXTPROC) (GLenum target, GLen
 
 #endif /* GL_EXT_framebuffer_object */
 
-/* ------------------------- GL_EXT_secondary_color ------------------------ */
+/* ----------------------- GL_EXT_pixel_buffer_object ----------------------- */
+#ifndef GL_EXT_pixel_buffer_object
+#define GL_EXT_pixel_buffer_object 1
+#define GLEW_EXT_pixel_buffer_object GLEW_GET_VAR(__GLEW_EXT_pixel_buffer_object)
+#endif /* GL_EXT_pixel_buffer_object */
+
 
 #ifndef GL_EXT_secondary_color
 #define GL_EXT_secondary_color 1
@@ -4417,6 +4423,8 @@ GLEW_VAR_EXPORT GLboolean __GLEW_ATI_draw_buffers;
 GLEW_VAR_EXPORT GLboolean __GLEW_ATI_fragment_shader;
 GLEW_VAR_EXPORT GLboolean __GLEW_ATI_texture_float;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_framebuffer_object;
+GLEW_VAR_EXPORT GLboolean __GLEW_EXT_pixel_buffer_object;
+GLEW_VAR_EXPORT GLboolean __GLEW_ARB_pixel_buffer_object;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_secondary_color;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_stencil_two_side;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_stencil_wrap;
