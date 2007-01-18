@@ -1258,10 +1258,10 @@ namespace Ogre
             switch(i->paramType)
             {
             case ACT_LIGHT_DIFFUSE_COLOUR:
-                _writeRawConstant(i->physicalIndex, source.getLight(i->data).getDiffuseColour());
+                _writeRawConstant(i->physicalIndex, source.getLight(i->data).getDiffuseColour(), i->elementCount);
                 break;
             case ACT_LIGHT_SPECULAR_COLOUR:
-                _writeRawConstant(i->physicalIndex, source.getLight(i->data).getSpecularColour());
+                _writeRawConstant(i->physicalIndex, source.getLight(i->data).getSpecularColour(), i->elementCount);
                 break;
             case ACT_LIGHT_POSITION:
                 // Get as 4D vector, works for directional lights too
