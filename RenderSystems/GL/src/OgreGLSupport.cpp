@@ -131,7 +131,7 @@ namespace Ogre {
     
     bool GLSupport::supportsPBuffers()
     {
-        return false;
+        return (GLEW_ARB_pixel_buffer_object || GLEW_EXT_pixel_buffer_object) != GL_FALSE;
     }
 
 	GLPBuffer* GLSupport::createPBuffer(PixelComponentType format, size_t width, size_t height)

@@ -2973,6 +2973,18 @@ typedef void (GLAPIENTRY * PFNGLRENDERBUFFERSTORAGEEXTPROC) (GLenum target, GLen
 
 #endif /* GL_EXT_framebuffer_object */
 
+/* ----------------------- GL_EXT_pixel_buffer_object ----------------------- */
+#ifndef GL_EXT_pixel_buffer_object
+#define GL_EXT_pixel_buffer_object 1
+#define GLEW_EXT_pixel_buffer_object GLEW_GET_VAR(__GLEW_EXT_pixel_buffer_object)
+#endif /* GL_EXT_pixel_buffer_object */
+
+/* ----------------------- GL_ARB_pixel_buffer_object ----------------------- */
+#ifndef GL_ARB_pixel_buffer_object
+#define GL_ARB_pixel_buffer_object 1
+#define GLEW_ARB_pixel_buffer_object GLEW_GET_VAR(__GLEW_ARB_pixel_buffer_object)
+#endif /* GL_ARB_pixel_buffer_object */
+
 /* ------------------------- GL_EXT_secondary_color ------------------------ */
 
 #ifndef GL_EXT_secondary_color
@@ -4314,6 +4326,8 @@ GLEW_VAR_EXPORT GLboolean __GLEW_ATI_draw_buffers;
 GLEW_VAR_EXPORT GLboolean __GLEW_ATI_fragment_shader;
 GLEW_VAR_EXPORT GLboolean __GLEW_ATI_texture_float;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_framebuffer_object;
+GLEW_VAR_EXPORT GLboolean __GLEW_EXT_pixel_buffer_object;
+GLEW_VAR_EXPORT GLboolean __GLEW_ARB_pixel_buffer_object;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_secondary_color;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_stencil_two_side;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_stencil_wrap;
