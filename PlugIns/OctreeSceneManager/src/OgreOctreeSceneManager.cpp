@@ -1081,7 +1081,9 @@ bool OctreeSceneManager::setOption( const String & key, const void * val )
     else if ( key == "Depth" )
     {
         mMaxDepth = * static_cast < const int * > ( val );
-        resize( mOctree->mBox );
+		// copy the box since resize will delete mOctree and reference won't work
+		AxisAlignedBox box = mOctree->mBox;
+        resize(box);
         return true;
     }
 
