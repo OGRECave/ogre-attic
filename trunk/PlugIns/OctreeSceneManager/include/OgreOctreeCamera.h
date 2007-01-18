@@ -55,9 +55,9 @@ class Octree;
 
 /** Specialized viewpoint from which an Octree can be rendered.
 @remarks
-This class contains several speciliazations of the Ogre::Camera class. It
-implements the getRenderOperation method inorder to return displayable geometry
-for debuggin purposes. It also implements a visibility function that is more granular
+This class contains several specializations of the Ogre::Camera class. It
+implements the getRenderOperation method in order to return displayable geometry
+for debugging purposes. It also implements a visibility function that is more granular
 than the default.
 */
 
@@ -73,7 +73,7 @@ public:
         FULL
     };
 
-    /* Standard Constructor */
+    /* Standard constructor */
     OctreeCamera( const String& name, SceneManager* sm );
     /* Standard destructor */
     ~OctreeCamera();

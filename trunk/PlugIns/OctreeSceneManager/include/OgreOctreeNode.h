@@ -47,7 +47,7 @@ namespace Ogre
 {
 
 /** Specialized SceneNode that is customized for working within an Octree. Each node
-* maintains it's own bounding box, rather than merging it with all the children.
+* maintains its own bounding box, rather than merging it with all the children.
 *
 */
 
@@ -116,7 +116,7 @@ protected:
     /** Internal method for updating the bounds for this OctreeNode.
     @remarks
     This method determines the bounds solely from the attached objects, not
-    any children. If the node has changed it's bounds, it is removed from its
+    any children. If the node has changed its bounds, it is removed from its
     current octree, and reinserted into the tree.
     */
     void _updateBounds( void );

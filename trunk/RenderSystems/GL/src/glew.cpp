@@ -741,6 +741,8 @@ GLboolean __GLEW_ATI_draw_buffers = GL_FALSE;
 GLboolean __GLEW_ATI_fragment_shader = GL_FALSE;
 GLboolean __GLEW_ATI_texture_float = GL_FALSE;
 GLboolean __GLEW_EXT_framebuffer_object = GL_FALSE;
+GLboolean __GLEW_EXT_pixel_buffer_object = GL_FALSE;
+GLboolean __GLEW_ARB_pixel_buffer_object = GL_FALSE;
 GLboolean __GLEW_EXT_secondary_color = GL_FALSE;
 GLboolean __GLEW_EXT_stencil_two_side = GL_FALSE;
 GLboolean __GLEW_EXT_stencil_wrap = GL_FALSE;
@@ -1951,6 +1953,12 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
   GLEW_EXT_framebuffer_object = glewGetExtension("GL_EXT_framebuffer_object");
   if (glewExperimental || GLEW_EXT_framebuffer_object) GLEW_EXT_framebuffer_object = !_glewInit_GL_EXT_framebuffer_object(GLEW_CONTEXT_ARG_VAR_INIT);
 #endif /* GL_EXT_framebuffer_object */
+#ifdef GL_EXT_pixel_buffer_object
+  GLEW_EXT_pixel_buffer_object = glewGetExtension("GL_EXT_pixel_buffer_object");
+#endif /* GL_EXT_pixel_buffer_object */
+#ifdef GL_ARB_pixel_buffer_object
+  GLEW_ARB_pixel_buffer_object = glewGetExtension("GL_ARB_pixel_buffer_object");
+#endif /* GL_ARB_pixel_buffer_object */
 #ifdef GL_EXT_secondary_color
   GLEW_EXT_secondary_color = glewGetExtension("GL_EXT_secondary_color");
   if (glewExperimental || GLEW_EXT_secondary_color) GLEW_EXT_secondary_color = !_glewInit_GL_EXT_secondary_color(GLEW_CONTEXT_ARG_VAR_INIT);

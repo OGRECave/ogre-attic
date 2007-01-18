@@ -222,13 +222,13 @@ namespace Ogre
         virtual const Quaternion& getWorldOrientation(void) const;
         virtual const Vector3& getWorldPosition(void) const;
 
-        /** Returns the mipmap level that will be rendered for this frame. */
+        /** Returns the mipmap level that will be rendered for this frame */
         inline int getRenderLevel() const
         {
             return mRenderLevel;
         };
 
-        /** Forces the LOD to the given level from this point on. */
+        /** Forces the LOD to the given level from this point on */
         inline void setForcedRenderLevel( int i )
         {
             mForcedRenderLevel = i;
@@ -252,7 +252,7 @@ namespace Ogre
             mNeighbors[ n ] = t;
         };
 
-        /** Returns the neighbor TerrainRenderable.
+        /** Returns the neighbor TerrainRenderable
         */
         TerrainRenderable * _getNeighbor( Neighbor n )
         {
@@ -265,7 +265,7 @@ namespace Ogre
             mMaterial = m;
         };
 
-        /** Calculates static normals for lighting the terrain. */
+        /** Calculates static normals for lighting the terrain */
         void _calculateNormals();
 
 
