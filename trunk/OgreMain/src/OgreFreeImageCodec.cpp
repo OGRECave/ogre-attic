@@ -162,12 +162,14 @@ namespace Ogre {
 		case PF_X8B8G8R8:
 		case PF_B8G8R8A8:
 		case PF_R8G8B8A8:
+		case PF_SHORT_GR:
 			imageType = FIT_BITMAP;
 			break;
 		case PF_L16:
 			imageType = FIT_UINT16;
 			break;
 		case PF_FLOAT16_RGB:
+		case PF_FLOAT16_GR:
 			imageType = FIT_RGB16;
 			break;
 		case PF_FLOAT16_RGBA:
@@ -177,6 +179,7 @@ namespace Ogre {
 			imageType = FIT_FLOAT;
 			break;
 		case PF_FLOAT32_RGB:
+		case PF_FLOAT32_GR:
 			imageType = FIT_RGBF;
 			break;
 		case PF_FLOAT32_RGBA:

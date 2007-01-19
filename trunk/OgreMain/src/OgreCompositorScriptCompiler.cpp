@@ -54,7 +54,8 @@ namespace Ogre {
 		"<WidthOption> ::= 'target_width' | <#width> \n"
 		"<HeightOption> ::= 'target_height' | <#height> \n"
 		"<PixelFormat> ::= 'PF_A8R8G8B8' | 'PF_R8G8B8A8' | 'PF_R8G8B8' | 'PF_FLOAT16_RGBA' | \n"
-        "   'PF_FLOAT16_RGB' | 'PF_FLOAT16_R' | 'PF_FLOAT32_RGBA' | 'PF_FLOAT32_RGB' | 'PF_FLOAT32_R' \n"
+        "   'PF_FLOAT16_RGB' | 'PF_FLOAT16_R' | 'PF_FLOAT32_RGBA' | 'PF_FLOAT32_RGB' | 'PF_FLOAT32_R' | \n"
+		"   'PF_FLOAT16_GR' | 'PF_FLOAT32_GR' \n"
 		// Target
 		"<Target> ::= 'target ' <Label> '{' {<TargetOptions>} {<Pass>} '}' \n"
 	    "<TargetOptions> ::=	<TargetInput> | <OnlyInitial> | <VisibilityMask> | \n"
@@ -143,9 +144,11 @@ namespace Ogre {
 		addLexemeToken("PF_R8G8B8A8", ID_PF_R8G8B8A8);
 		addLexemeToken("PF_R8G8B8", ID_PF_R8G8B8);
 		addLexemeToken("PF_FLOAT16_R", ID_PF_FLOAT16_R);
+		addLexemeToken("PF_FLOAT16_GR", ID_PF_FLOAT16_GR);
 		addLexemeToken("PF_FLOAT16_RGB", ID_PF_FLOAT16_RGB);
 		addLexemeToken("PF_FLOAT16_RGBA", ID_PF_FLOAT16_RGBA);
 		addLexemeToken("PF_FLOAT32_R", ID_PF_FLOAT32_R);
+		addLexemeToken("PF_FLOAT32_GR", ID_PF_FLOAT32_GR);
 		addLexemeToken("PF_FLOAT32_RGB", ID_PF_FLOAT32_RGB);
 		addLexemeToken("PF_FLOAT32_RGBA", ID_PF_FLOAT32_RGBA);
 
@@ -366,13 +369,15 @@ namespace Ogre {
         case ID_PF_R8G8B8A8:
             textureDef->format = PF_R8G8B8A8;
             break;
-
         case ID_PF_R8G8B8:
             textureDef->format = PF_R8G8B8;
             break;
 		case ID_PF_FLOAT16_R:
             textureDef->format = PF_FLOAT16_R;
             break;
+		case ID_PF_FLOAT16_GR:
+			textureDef->format = PF_FLOAT16_GR;
+			break;
 		case ID_PF_FLOAT16_RGB:
             textureDef->format = PF_FLOAT16_RGB;
             break;
@@ -382,6 +387,9 @@ namespace Ogre {
 		case ID_PF_FLOAT32_R:
             textureDef->format = PF_FLOAT32_R;
             break;
+		case ID_PF_FLOAT32_GR:
+			textureDef->format = PF_FLOAT32_GR;
+			break;
 		case ID_PF_FLOAT32_RGB:
             textureDef->format = PF_FLOAT32_RGB;
             break;

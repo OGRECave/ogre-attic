@@ -124,12 +124,18 @@ namespace Ogre {
         PF_FLOAT32_RGB = 24,
         // 128-bit pixel format, 32 bits (float) for red, 32 bits (float) for green, 32 bits (float) for blue, 32 bits (float) for alpha
         PF_FLOAT32_RGBA = 25,
+		// 32-bit, 2-channel s10e5 floating point pixel format, 16-bit green, 16-bit red
+		PF_FLOAT16_GR = 35,
+		// 64-bit, 2-channel floating point pixel format, 32-bit green, 32-bit red
+		PF_FLOAT32_GR = 36,
 		// Depth texture format
 		PF_DEPTH = 29,
 		// 64-bit pixel format, 16 bits for red, green, blue and alpha
 		PF_SHORT_RGBA = 30,
+		// 32-bit pixel format, 16-bit green, 16-bit red
+		PF_SHORT_GR = 34,
 		// Number of pixel formats currently defined
-        PF_COUNT = 34
+        PF_COUNT = 37
     };
 
     /**
