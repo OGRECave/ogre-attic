@@ -146,8 +146,10 @@ namespace Ogre {
 
 	// Special FourCC codes
 	const uint32 D3DFMT_R16F			= 111;
+	const uint32 D3DFMT_G16R16F			= 112;
 	const uint32 D3DFMT_A16B16G16R16F	= 113;
 	const uint32 D3DFMT_R32F            = 114;
+	const uint32 D3DFMT_G32R32F         = 115;
 	const uint32 D3DFMT_A32B32G32R32F   = 116;
 
 
@@ -217,10 +219,14 @@ namespace Ogre {
 			return PF_DXT5;
 		case D3DFMT_R16F:
 			return PF_FLOAT16_R;
+		case D3DFMT_G16R16F:
+			return PF_FLOAT16_GR;
 		case D3DFMT_A16B16G16R16F:
 			return PF_FLOAT16_RGBA;
 		case D3DFMT_R32F:
 			return PF_FLOAT32_R;
+		case D3DFMT_G32R32F:
+			return PF_FLOAT32_GR;
 		case D3DFMT_A32B32G32R32F:
 			return PF_FLOAT32_RGBA;
 		// We could support 3Dc here, but only ATI cards support it, not nVidia

@@ -38,11 +38,6 @@ Torus Knot Software Ltd.
 	are deploying your application you will probably want to set this to 0 */
 #define OGRE_PROFILING 0
 
-/** If set to 1, stack unwinding code is compiled into the library and called
-    in case an exception is thrown in order to show the call stack.
-*/
-#define OGRE_STACK_UNWINDING 0
-
 /** There are three modes for handling asserts in OGRE:
 0 - STANDARD - Standard asserts in debug builds, nothing in release builds
 1 - RELEASE_EXCEPTIONS - Standard asserts in debug builds, exceptions in release builds
@@ -109,7 +104,7 @@ Torus Knot Software Ltd.
     WARNING: highly experimental, use with caution
 */
 #ifndef OGRE_THREAD_SUPPORT
-#define OGRE_THREAD_SUPPORT 0
+#define OGRE_THREAD_SUPPORT 1
 #endif
 
 /** Disables use of the FreeImage image library for loading images.
