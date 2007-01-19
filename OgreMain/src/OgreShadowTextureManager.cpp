@@ -183,7 +183,7 @@ namespace Ogre
 			if ((*i).useCount() == ResourceGroupManager::RESOURCE_SYSTEM_NUM_REFERENCE_COUNTS + 1)
 			{
 				TextureManager::getSingleton().remove((*i)->getHandle());
-				i = mTextureList.erase(i);
+				i = mNullTextureList.erase(i);
 			}
 			else
 			{
