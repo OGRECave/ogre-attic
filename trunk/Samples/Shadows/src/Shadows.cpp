@@ -1612,7 +1612,7 @@ protected:
 
 					break;
 				case MAT_DEPTH_FLOAT:
-					mSceneMgr->setShadowTexturePixelFormat(PF_FLOAT16_R);
+					mSceneMgr->setShadowTexturePixelFormat(PF_FLOAT32_R);
 					mSceneMgr->setShadowTextureCasterMaterial(CUSTOM_CASTER_MATERIAL);
 					mSceneMgr->setShadowTextureReceiverMaterial(CUSTOM_RECEIVER_MATERIAL);
 					mSceneMgr->setShadowTextureSelfShadow(true);	
@@ -1632,7 +1632,7 @@ protected:
 					updateDepthShadowParams();
 					break;
 				case MAT_DEPTH_FLOAT_PCF:
-					mSceneMgr->setShadowTexturePixelFormat(PF_FLOAT16_R);
+					mSceneMgr->setShadowTexturePixelFormat(PF_FLOAT32_R);
 					mSceneMgr->setShadowTextureCasterMaterial(CUSTOM_CASTER_MATERIAL);
 					mSceneMgr->setShadowTextureReceiverMaterial(CUSTOM_RECEIVER_MATERIAL + "/PCF");
 					mSceneMgr->setShadowTextureSelfShadow(true);	
