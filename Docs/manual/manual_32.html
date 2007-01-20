@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on November 11 2006 by texi2html 1.66 -->
+<!-- Created on January 20 2007 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -12,10 +12,10 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.2.4 ('Dagon'): Standard Particle Affectors</TITLE>
+<TITLE>OGRE Manual v1.2.5 ('Dagon'): Standard Particle Affectors</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.2.4 ('Dagon'): Standard Particle Affectors">
-<META NAME="keywords" CONTENT="OGRE Manual v1.2.4 ('Dagon'): Standard Particle Affectors">
+<META NAME="description" CONTENT="OGRE Manual v1.2.5 ('Dagon'): Standard Particle Affectors">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.5 ('Dagon'): Standard Particle Affectors">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.66">
@@ -28,7 +28,7 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_31.html#SEC191"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC145"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC200"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC202"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -54,6 +54,10 @@ Ogre comes preconfigured with a few particle affectors. New ones can be added by
 <A HREF="manual_32.html#SEC198">ColourInterpolator Affector</A>
 <LI>
 <A HREF="manual_32.html#SEC199">ColourImage Affector</A>
+<LI>
+<A HREF="manual_32.html#SEC200">DeflectorPlane Affector</A>
+<LI>
+<A HREF="manual_32.html#SEC201">DirectionRandomiser Affector</A>
 </UL>
 
 <A NAME="Linear Force Affector"></A>
@@ -299,12 +303,50 @@ To create a ColourImage affector, include a section like this within your partic
 }
 </pre></td></tr></table>
 
+<A NAME="DeflectorPlane Affector"></A>
+<A NAME="SEC200"></A>
+<H3> DeflectorPlane Affector </H3>
+<!--docid::SEC200::-->
+This affector defines a plane which deflects particles which collide with it. The attributes are:
+<DL COMPACT>
+<DT>plane_point
+<DD>A point on the deflector plane. Together with the normal vector it defines the plane.<BR>
+default: plane_point 0 0 0<BR>
+<DT>plane_normal
+<DD>The normal vector of the deflector plane. Together with the point it defines the plane.<BR>
+default: plane_normal 0 1 0<BR>
+<DT>bounce
+<DD>The amount of bouncing when a particle is deflected. 0 means no deflection and 1 stands for 100 percent reflection.<BR>
+default: bounce 1.0
+</DL>
+
+
+<A NAME="DirectionRandomiser Affector"></A>
+<A NAME="SEC201"></A>
+<H3> DirectionRandomiser Affector </H3>
+<!--docid::SEC201::-->
+This affector applies randomness to the movement of the particles. Its extra attributes are:
+<DL COMPACT>
+<DT>randomness
+<DD>The amount of randomness to introduce in each axial direction.<BR>
+example: randomness 5<BR>
+default: randomness 1<BR>
+<DT>scope
+<DD>The percentage of particles affected in each run of the affector.<BR>
+example: scope 0.5<BR>
+default: scope 1.0<BR>
+<DT>keep_velocity
+<DD>Determines whether the velocity of particles is unchanged.<BR>
+example: keep_velocity true<BR>
+default: keep_velocity false<BR>
+</DL>
+
 <A NAME="Overlay Scripts"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_31.html#SEC191"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC145"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC200"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC202"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -313,7 +355,7 @@ To create a ColourImage affector, include a section like this within your partic
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>November 11 2006</I>
+by <I>steve</I> on <I>January 20 2007</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 

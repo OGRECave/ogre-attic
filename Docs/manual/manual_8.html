@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on November 11 2006 by texi2html 1.66 -->
+<!-- Created on January 20 2007 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -12,10 +12,10 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.2.4 ('Dagon'): The ResourceManager Objects</TITLE>
+<TITLE>OGRE Manual v1.2.5 ('Dagon'): The ResourceManager Objects</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.2.4 ('Dagon'): The ResourceManager Objects">
-<META NAME="keywords" CONTENT="OGRE Manual v1.2.4 ('Dagon'): The ResourceManager Objects">
+<META NAME="description" CONTENT="OGRE Manual v1.2.5 ('Dagon'): The ResourceManager Objects">
+<META NAME="keywords" CONTENT="OGRE Manual v1.2.5 ('Dagon'): The ResourceManager Objects">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.66">
@@ -44,9 +44,7 @@ ResourceManager's ensure that resources are only loaded once and shared througho
 
 Most of the time you won't interact with resource managers directly. Resource managers will be called by other parts of the OGRE system as required, for example when you request for a texture to be added to a Material, the TextureManager will be called for you. If you like, you can call the appropriate resource manager directly to preload resources (if for example you want to prevent disk access later on) but most of the time it's ok to let OGRE decide when to do it.<BR><BR>
 
-Probably the only time you will need to call a ResourceManager is when you want to tell it where to look for resources. You can do this by calling the addSearchPath and addArchive methods of the resource manager, which will cause it to also look in the folder/archive you specify next time it searches for files.<BR><BR>
-
-The above methods only affect the particular resource manager you call (e.g. it will only affect texture loading if you call it on TextureManager). Alternatively you can also call the static method ResourceManager::addCommonSearchPath or ResourceManager::addCommonArchive if you want ALL resource managers to look in the folder/archive you specify.<BR><BR>
+One thing you will want to do is to tell the resource managers where to look for resources. You do this via ResourceGroupManager::getSingleton().addResourceLocation. <BR><BR>
 
 Because there is only ever 1 instance of each resource manager in the engine, if you do want to get a reference to a resource manager use the following syntax:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>TextureManager::getSingleton().someMethod()
@@ -55,19 +53,10 @@ MeshManager::getSingleton().someMethod()
 
 <A NAME="The Mesh Object"></A>
 <HR SIZE=1>
-<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_7.html#SEC10"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_4.html#SEC4"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_9.html#SEC12"> &gt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
-</TR></TABLE>
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>November 11 2006</I>
+by <I>steve</I> on <I>January 20 2007</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 
