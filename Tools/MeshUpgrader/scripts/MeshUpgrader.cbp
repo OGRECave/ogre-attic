@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="5" />
+	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="MeshUpgrader" />
 		<Option pch_mode="0" />
-		<Option default_target="" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
-				<Option output="..\..\Common\bin\debug\OgreMeshUpgrader.exe" />
+				<Option output="..\..\Common\bin\debug\OgreMeshUpgrader.exe" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="..\..\Common\bin\Debug" />
 				<Option object_output="..\obj\Debug" />
 				<Option type="1" />
@@ -23,7 +21,7 @@
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="..\..\Common\bin\release\OgreMeshUpgrader.exe" />
+				<Option output="..\..\Common\bin\release\OgreMeshUpgrader.exe" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="..\..\Common\bin\Release" />
 				<Option object_output="..\obj\Release" />
 				<Option type="1" />
@@ -57,10 +55,9 @@
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="..\..\Common\bin\$(TARGET_NAME)" />
 		</Linker>
-		<Unit filename="..\src\main.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
+		<Unit filename="..\src\main.cpp" />
+		<Extensions>
+			<code_completion />
+		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

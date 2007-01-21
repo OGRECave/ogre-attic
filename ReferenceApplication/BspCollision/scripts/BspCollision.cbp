@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="5" />
+	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="Demo_BspCollision" />
-		<Option default_target="" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
-				<Option output="..\..\..\Samples\Common\bin\Debug\Demo_BspCollision.exe" />
+				<Option output="..\..\..\Samples\Common\bin\Debug\Demo_BspCollision.exe" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="..\..\..\Samples\Common\bin\Debug" />
 				<Option object_output="..\obj\Debug" />
 				<Option external_deps="..\..\..\OgreMain\lib\Debug\OgreMain_d.dll;" />
@@ -27,7 +25,7 @@
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="..\..\..\Samples\Common\bin\Release\Demo_BspCollision.exe" />
+				<Option output="..\..\..\Samples\Common\bin\Release\Demo_BspCollision.exe" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="..\..\..\Samples\Common\bin\Release" />
 				<Option object_output="..\obj\Release" />
 				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
@@ -71,24 +69,11 @@
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="..\..\..\Samples\Common\bin\$(TARGET_NAME)" />
 		</Linker>
-		<Unit filename="..\src\BspCollision.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\Common\include\ExampleRefAppApplication.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\Common\include\ExampleRefAppFrameListener.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
+		<Unit filename="..\src\BspCollision.cpp" />
+		<Unit filename="..\..\Common\include\ExampleRefAppApplication.h" />
+		<Unit filename="..\..\Common\include\ExampleRefAppFrameListener.h" />
+		<Extensions>
+			<code_completion />
+		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

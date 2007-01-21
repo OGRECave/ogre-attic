@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="5" />
+	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="Demo_Water" />
-		<Option default_target="" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
-				<Option output="..\..\Common\bin\Debug\Demo_Water.exe" />
+				<Option output="..\..\Common\bin\Debug\Demo_Water.exe" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="..\..\Common\bin\Debug" />
 				<Option object_output="..\obj\Debug" />
 				<Option external_deps="..\..\..\OgreMain\lib\Debug\OgreMain_d.dll;" />
@@ -24,7 +22,7 @@
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="..\..\Common\bin\Release\Demo_Water.exe" />
+				<Option output="..\..\Common\bin\Release\Demo_Water.exe" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="..\..\Common\bin\Release" />
 				<Option object_output="..\obj\Release" />
 				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
@@ -62,22 +60,11 @@
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="..\..\Common\bin\$(TARGET_NAME)" />
 		</Linker>
-		<Unit filename="..\include\WaterMesh.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\Water.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\WaterMesh.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
+		<Unit filename="..\include\WaterMesh.h" />
+		<Unit filename="..\src\Water.cpp" />
+		<Unit filename="..\src\WaterMesh.cpp" />
+		<Extensions>
+			<code_completion />
+		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

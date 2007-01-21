@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="5" />
+	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="Plugin_OctreeSceneManager" />
-		<Option default_target="" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
 				<Option output="..\bin\Debug\Plugin_OctreeSceneManager.dll" prefix_auto="0" extension_auto="0" />
@@ -58,7 +56,6 @@
 			<Add option="-DWIN32" />
 			<Add option="-D_WINDOWS" />
 			<Add option="-D_USRDLL" />
-			<Add directory="$(#STLPORT_DIR)\stlport" />
 			<Add directory="..\include" />
 			<Add directory="..\..\..\OgreMain\include" />
 		</Compiler>
@@ -67,149 +64,32 @@
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="..\..\..\Samples\Common\bin\$(TARGET_NAME)" />
 		</Linker>
-		<Unit filename="..\include\OgreHeightmapTerrainPageSource.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreOctree.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreOctreeCamera.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreOctreeNode.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreOctreeSceneManager.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreOctreeSceneQuery.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreTerrainPage.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreTerrainPageSource.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreTerrainPrerequisites.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreTerrainRenderable.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreTerrainSceneManager.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreTerrainVertexProgram.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreHeightmapTerrainPageSource.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreOctree.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreOctreeCamera.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreOctreeNode.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreOctreeSceneManager.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreOctreeSceneManagerDll.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreOctreeSceneQuery.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreTerrainPage.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreTerrainPageSource.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreTerrainRenderable.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreTerrainSceneManager.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreTerrainVertexProgram.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
+		<Unit filename="..\include\OgreHeightmapTerrainPageSource.h" />
+		<Unit filename="..\include\OgreOctree.h" />
+		<Unit filename="..\include\OgreOctreeCamera.h" />
+		<Unit filename="..\include\OgreOctreeNode.h" />
+		<Unit filename="..\include\OgreOctreeSceneManager.h" />
+		<Unit filename="..\include\OgreOctreeSceneQuery.h" />
+		<Unit filename="..\include\OgreTerrainPage.h" />
+		<Unit filename="..\include\OgreTerrainPageSource.h" />
+		<Unit filename="..\include\OgreTerrainPrerequisites.h" />
+		<Unit filename="..\include\OgreTerrainRenderable.h" />
+		<Unit filename="..\include\OgreTerrainSceneManager.h" />
+		<Unit filename="..\include\OgreTerrainVertexProgram.h" />
+		<Unit filename="..\src\OgreHeightmapTerrainPageSource.cpp" />
+		<Unit filename="..\src\OgreOctree.cpp" />
+		<Unit filename="..\src\OgreOctreeCamera.cpp" />
+		<Unit filename="..\src\OgreOctreeNode.cpp" />
+		<Unit filename="..\src\OgreOctreeSceneManager.cpp" />
+		<Unit filename="..\src\OgreOctreeSceneManagerDll.cpp" />
+		<Unit filename="..\src\OgreOctreeSceneQuery.cpp" />
+		<Unit filename="..\src\OgreTerrainPage.cpp" />
+		<Unit filename="..\src\OgreTerrainPageSource.cpp" />
+		<Unit filename="..\src\OgreTerrainRenderable.cpp" />
+		<Unit filename="..\src\OgreTerrainSceneManager.cpp" />
+		<Unit filename="..\src\OgreTerrainVertexProgram.cpp" />
+		<Extensions>
+			<code_completion />
+		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="5" />
+	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="ReferenceAppLayer" />
-		<Option default_target="" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
-				<Option output="..\lib\Debug\ReferenceAppLayer.dll" />
+				<Option output="..\lib\Debug\ReferenceAppLayer.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="..\obj\Debug" />
 				<Option external_deps="..\..\..\OgreMain\lib\Debug\OgreMain_d.dll;" />
 				<Option type="3" />
@@ -29,7 +27,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
-				<Option output="..\lib\Release\ReferenceAppLayer.dll" />
+				<Option output="..\lib\Release\ReferenceAppLayer.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="..\obj\Release" />
 				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
 				<Option type="3" />
@@ -74,232 +72,43 @@
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="..\..\..\Samples\Common\bin\$(TARGET_NAME)" />
 		</Linker>
-		<Unit filename="..\..\..\Dependencies\include\ode\collision.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\Dependencies\include\ode\common.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\Dependencies\include\ode\contact.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\Dependencies\include\ode\error.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\Dependencies\include\ode\geom.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\Dependencies\include\ode\mass.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\Dependencies\include\ode\matrix.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\Dependencies\include\ode\memory.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\Dependencies\include\ode\misc.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\Dependencies\include\ode\objects.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\Dependencies\include\ode\ode.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\Dependencies\include\ode\odecpp.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\Dependencies\include\ode\odecpp_collision.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\Dependencies\include\ode\odemath.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\..\..\Dependencies\include\ode\rotation.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreRefAppApplicationObject.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreRefAppBall.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreRefAppBox.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreRefAppCollideCamera.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreRefAppJoint.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreRefAppJointSubtypes.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreRefAppOgreHead.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreRefAppPlane.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreRefAppPrerequisites.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreRefAppWorld.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreReferenceAppLayer.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreRefAppApplicationObject.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreRefAppBall.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreRefAppBox.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreRefAppCollideCamera.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreRefAppJoint.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreRefAppJointSubtypes.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreRefAppOgreHead.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreRefAppPlane.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreRefAppWorld.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
+		<Unit filename="..\..\..\Dependencies\include\ode\collision.h" />
+		<Unit filename="..\..\..\Dependencies\include\ode\common.h" />
+		<Unit filename="..\..\..\Dependencies\include\ode\contact.h" />
+		<Unit filename="..\..\..\Dependencies\include\ode\error.h" />
+		<Unit filename="..\..\..\Dependencies\include\ode\geom.h" />
+		<Unit filename="..\..\..\Dependencies\include\ode\mass.h" />
+		<Unit filename="..\..\..\Dependencies\include\ode\matrix.h" />
+		<Unit filename="..\..\..\Dependencies\include\ode\memory.h" />
+		<Unit filename="..\..\..\Dependencies\include\ode\misc.h" />
+		<Unit filename="..\..\..\Dependencies\include\ode\objects.h" />
+		<Unit filename="..\..\..\Dependencies\include\ode\ode.h" />
+		<Unit filename="..\..\..\Dependencies\include\ode\odecpp.h" />
+		<Unit filename="..\..\..\Dependencies\include\ode\odecpp_collision.h" />
+		<Unit filename="..\..\..\Dependencies\include\ode\odemath.h" />
+		<Unit filename="..\..\..\Dependencies\include\ode\rotation.h" />
+		<Unit filename="..\include\OgreRefAppApplicationObject.h" />
+		<Unit filename="..\include\OgreRefAppBall.h" />
+		<Unit filename="..\include\OgreRefAppBox.h" />
+		<Unit filename="..\include\OgreRefAppCollideCamera.h" />
+		<Unit filename="..\include\OgreRefAppJoint.h" />
+		<Unit filename="..\include\OgreRefAppJointSubtypes.h" />
+		<Unit filename="..\include\OgreRefAppOgreHead.h" />
+		<Unit filename="..\include\OgreRefAppPlane.h" />
+		<Unit filename="..\include\OgreRefAppPrerequisites.h" />
+		<Unit filename="..\include\OgreRefAppWorld.h" />
+		<Unit filename="..\include\OgreReferenceAppLayer.h" />
+		<Unit filename="..\src\OgreRefAppApplicationObject.cpp" />
+		<Unit filename="..\src\OgreRefAppBall.cpp" />
+		<Unit filename="..\src\OgreRefAppBox.cpp" />
+		<Unit filename="..\src\OgreRefAppCollideCamera.cpp" />
+		<Unit filename="..\src\OgreRefAppJoint.cpp" />
+		<Unit filename="..\src\OgreRefAppJointSubtypes.cpp" />
+		<Unit filename="..\src\OgreRefAppOgreHead.cpp" />
+		<Unit filename="..\src\OgreRefAppPlane.cpp" />
+		<Unit filename="..\src\OgreRefAppWorld.cpp" />
+		<Extensions>
+			<code_completion />
+		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
