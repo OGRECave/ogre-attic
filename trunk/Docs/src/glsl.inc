@@ -128,7 +128,29 @@ If you declare an attribute as 'attribute vec3 binormal;' at the top of your GLS
 @item blendIndices
 If you declare an attribute as 'attribute vec4 blendIndices;' at the top of your GLSL vertex program, Ogre will automatically bind vertex elements of type VES_BLEND_INDICES to it. 
 @item blendWeights
-If you declare an attribute as 'attribute vec4 blendWeights;' at the top of your GLSL vertex program, Ogre will automatically bind vertex elements of type VES_BLEND_WEIGHTS to it. 
+If you declare an attribute as 'attribute vec4 blendWeights;' at the top of your GLSL vertex program, Ogre will automatically bind vertex elements of type VES_BLEND_WEIGHTS to it.
+
+@subheading Preprocessor definitions
+GLSL supports using preprocessor definitions in your code - some are defined by the implementation, but you can also define your own, say in order to use the same source code for a few different variants of the same technique. In order to use this feature, include preprocessor conditions in your GLSL code, of the kind #ifdef SYMBOL, #if SYMBOL==2 etc. Then in your program definition, use the 'preprocessor_defines' option, following it with a string if definitions.  Definitions are separated by ';' or ',' and may optionally have a '=' operator within them to specify a definition value. Those without an '=' will implicitly have a definition of 1. For example:@*@*
+@example
+// in your GLSL
+
+#ifdef CLEVERTECHNIQUE
+	// some clever stuff here
+#else
+	// normal technique
+#endif
+
+#if NUM_THINGS==2
+	// Some specific code
+#else
+	// something else
+#endif
+
+// in  your program definition
+preprocessor_defines CLEVERTECHNIQUE,NUMTHINGS=2
+@end example
+This way you can use the same source code but still include small variations, each one defined as a different Ogre program name but based on the same source code.
 
 
 

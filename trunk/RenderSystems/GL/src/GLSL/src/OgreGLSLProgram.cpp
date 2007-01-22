@@ -43,6 +43,7 @@ Torus Knot Software Ltd.
 namespace Ogre {
 
     //-----------------------------------------------------------------------
+	GLSLProgram::CmdPreprocessorDefines GLSLProgram::msCmdPreprocessorDefines;
     GLSLProgram::CmdAttach GLSLProgram::msCmdAttach;
     //-----------------------------------------------------------------------
     //---------------------------------------------------------------------------
@@ -73,8 +74,67 @@ namespace Ogre {
             checkForGLSLError( "GLSLProgram::GLSLProgram", "Error creating GLSL shader Object", 0 );
         }
 
-        const char* SLSource = mSource.c_str();
-		glShaderSourceARB(mGLHandle, 1, &SLSource, NULL);
+		// build preprocessor defines
+		// GLSL has no explicit interface for defining preprocessor flags outside
+		// of the source code, so we'll prepend some extra source code
+		String preprocessorSource;
+		if (!mPreprocessorDefines.empty())
+		{
+			StringUtil::StrStreamType tempStr;
+			// Split preprocessor defines and build up macro array
+			String::size_type pos = 0;
+			while (pos != String::npos)
+			{
+				// Find delims
+				String::size_type endPos = mPreprocessorDefines.find_first_of(";,=", pos);
+				if (endPos != String::npos)
+				{
+					// ok, we have a definition
+					tempStr << "#define ";
+					// name
+					tempStr << mPreprocessorDefines.substr(pos, endPos - pos) << " ";
+					pos = endPos;
+					
+					// Check definition part
+					if (mPreprocessorDefines[pos] == '=')
+					{
+						// set up a definition, skip delim
+						++pos;
+						endPos = mPreprocessorDefines.find_first_of(";,", pos);
+						if (endPos == String::npos)
+						{
+							tempStr << mPreprocessorDefines.substr(pos, String::npos);
+							pos = endPos;
+						}
+						else
+						{
+							tempStr << mPreprocessorDefines.substr(pos, endPos - pos);
+							pos = endPos+1;
+						}
+					}
+					else
+					{
+						// No definition part, define as "1"
+						++pos;
+						tempStr << "1";
+					}
+
+					tempStr << std::endl;
+				}
+				else
+				{
+					pos = endPos;
+				}
+			}
+
+			preprocessorSource = tempStr.str();
+		}
+
+		// Add preprocessor extras and main source
+		const char* sources[2];
+		sources[0] = preprocessorSource.c_str();
+		sources[1] = mSource.c_str();
+		glShaderSourceARB(mGLHandle, 2, sources, NULL);
 		// check for load errors
 		checkForGLSLError( "GLSLProgram::loadFromSource", "Cannot load GLSL high-level shader source : " + mName, 0 );
 
@@ -160,6 +220,9 @@ namespace Ogre {
             setupBaseParamDictionary();
             ParamDictionary* dict = getParamDictionary();
 
+			dict->addParameter(ParameterDef("preprocessor_defines", 
+				"Preprocessor defines use to compile the program.",
+				PT_STRING),&msCmdPreprocessorDefines);
             dict->addParameter(ParameterDef("attach", 
                 "name of another GLSL program needed by this program",
                 PT_STRING),&msCmdAttach);
@@ -190,6 +253,15 @@ namespace Ogre {
 	        static_cast<GLSLProgram*>(target)->attachChildShader(vecShaderNames[i]);
 		}
     }
+	//-----------------------------------------------------------------------
+	String GLSLProgram::CmdPreprocessorDefines::doGet(const void *target) const
+	{
+		return static_cast<const GLSLProgram*>(target)->getPreprocessorDefines();
+	}
+	void GLSLProgram::CmdPreprocessorDefines::doSet(void *target, const String& val)
+	{
+		static_cast<GLSLProgram*>(target)->setPreprocessorDefines(val);
+	}
 
 	//-----------------------------------------------------------------------
     void GLSLProgram::attachChildShader(const String& name)
