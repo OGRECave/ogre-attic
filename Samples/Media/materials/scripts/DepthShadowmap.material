@@ -145,6 +145,7 @@ fragment_program Ogre/DepthShadowmap/ReceiverFP_GLSL glsl
 
 	default_params
     {
+		param_named shadowMap int 0
         param_named inverseShadowmapSize float 0.0009765625
 		param_named fixedDepthBias float 0.0005
 		param_named gradientClamp float 0.0098
@@ -256,13 +257,8 @@ material Ogre/DepthShadowmap/Receiver/RockWall
 			diffuse 0 0 0 
 			specular 0 0 0 0 
 			// Really basic vertex program
-			// NB we don't use fixed function here because GL does not like
-			// mixing fixed function and vertex programs, depth fighting can
-			// be an issue
-			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTextureHLSL
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTextureUnified
 			{
-				param_named_auto worldViewProj worldviewproj_matrix
-				param_named_auto ambient ambient_light_colour
 			}
 			
 		}
@@ -307,10 +303,7 @@ material Ogre/DepthShadowmap/Receiver/RockWall
 			// to lighting pass categorisation routine
 			lighting off
 			// Really basic vertex program
-			// NB we don't use fixed function here because GL does not like
-			// mixing fixed function and vertex programs, depth fighting can
-			// be an issue
-			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTextureHLSL
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTextureUnified
 			{
 				param_named_auto worldViewProj worldviewproj_matrix
 				param_named ambient float4 1 1 1 1
