@@ -323,7 +323,7 @@ public:
 
 		mRootGuiPanel = CEGUI::WindowManager::getSingleton().getWindow("Shadows");
 
-		mMoveSpeed = 50.0f;
+		mMoveSpeed = 10.0f;
 
 		// Set up a debug panel to display the shadow
 		MaterialPtr debugMat = MaterialManager::getSingleton().create(
@@ -614,8 +614,8 @@ public:
 
     bool frameEnded(const FrameEvent& evt)
     {
-		//if (mAnimState)
-		//	mAnimState->addTime(evt.timeSinceLastFrame);
+		if (mAnimState)
+			mAnimState->addTime(evt.timeSinceLastFrame);
 
 		if (mShutdownRequested)
 			return false;
@@ -997,7 +997,7 @@ protected:
             contMgr.getFrameTimeSource(), val, func);
 
         //mLight->setPosition(Vector3(300,250,-300));
-        mLightNode->setPosition(Vector3(300,450,-700));
+        mLightNode->setPosition(Vector3(300,1750,-700));
 
 
         // Create a track for the light
@@ -1026,7 +1026,7 @@ protected:
         key = track->createNodeKeyFrame(16);//I
         key->setTranslate(Vector3(100,850,100));
         key = track->createNodeKeyFrame(18);//J
-        key->setTranslate(Vector3(250,5800,0));
+        key->setTranslate(Vector3(250,800,0));
         key = track->createNodeKeyFrame(20);//K == A
         key->setTranslate(Vector3(300,750,-700));
         // Create a new animation state to track this
@@ -1125,8 +1125,8 @@ protected:
 			}
 		}
 
-		mCamera->setPosition(500, 70, 600);
-		mCamera->lookAt(0, 20, 0);
+		mCamera->setPosition(250, 20, 400);
+		mCamera->lookAt(0, 10, 0);
 
     }
 	
@@ -1379,11 +1379,11 @@ protected:
 
 
 		mFixedBias = static_cast<CEGUI::Editbox*>(wmgr.getWindow("Shadows/Main/FixedBias"));
-		mFixedBias->setText("0");
+		mFixedBias->setText("0.002");
 		mFixedBias->subscribeEvent(CEGUI::Editbox::EventTextAccepted, 
 			CEGUI::Event::Subscriber(&ShadowsApplication::handleParamsChanged, this));
 		mGradientBias = static_cast<CEGUI::Editbox*>(wmgr.getWindow("Shadows/Main/GradientBias"));
-		mGradientBias->setText("0");
+		mGradientBias->setText("0.0008");
 		mGradientBias->subscribeEvent(CEGUI::Editbox::EventTextAccepted, 
 			CEGUI::Event::Subscriber(&ShadowsApplication::handleParamsChanged, this));
 		mGradientClamp = static_cast<CEGUI::Editbox*>(wmgr.getWindow("Shadows/Main/GradientClamp"));
@@ -1534,6 +1534,11 @@ protected:
 				mSceneMgr->setShadowCameraSetup(mCurrentShadowCameraSetup);
 
 				updateTipForCombo(cbo);
+				if (!mCustomRockwallVparams.isNull() && !mCustomRockwallFparams.isNull())
+				{
+					// set
+					setDefaultDepthShadowParams();
+				}
 
 			}
 		}
@@ -1543,12 +1548,32 @@ protected:
 
 	void updateDepthShadowParams()
 	{
-		mCustomRockwallVparams->setNamedConstant("fixedDepthBias", 
+		mCustomRockwallFparams->setNamedConstant("fixedDepthBias", 
 			StringConverter::parseReal(mFixedBias->getText().c_str()));
 		mCustomRockwallFparams->setNamedConstant("gradientScaleBias",
 			StringConverter::parseReal(mGradientBias->getText().c_str()));
 		mCustomRockwallFparams->setNamedConstant("gradientClamp",
 			StringConverter::parseReal(mGradientClamp->getText().c_str()));
+	}
+
+	void setDefaultDepthShadowParams()
+	{
+		switch(mCurrentProjection)
+		{
+		case UNIFORM:
+		case UNIFORM_FOCUSED:
+		case PLANE_OPTIMAL:
+			mFixedBias->setText("0");
+			mGradientBias->setText("0");
+			break;
+		case LISPSM:
+			mFixedBias->setText("0.009");
+			mGradientBias->setText("0.04");
+			break;
+		};
+
+		updateDepthShadowParams();
+
 	}
 
 	bool handleParamsChanged(const CEGUI::EventArgs& e)
@@ -1629,7 +1654,7 @@ protected:
 					mCustomRockwallFparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverFragmentProgramParameters();
 
 					// set the current params
-					updateDepthShadowParams();
+					setDefaultDepthShadowParams();
 					break;
 				case MAT_DEPTH_FLOAT_PCF:
 					mSceneMgr->setShadowTexturePixelFormat(PF_FLOAT32_R);
@@ -1641,7 +1666,7 @@ protected:
 					for (std::vector<Entity*>::iterator i = pColumns.begin();
 						i != pColumns.end(); ++i)
 					{
-						(*i)->setMaterialName(CUSTOM_ROCKWALL_MATERIAL);
+						(*i)->setMaterialName(CUSTOM_ROCKWALL_MATERIAL + "/PCF");
 					}
 
 					themat = MaterialManager::getSingleton().getByName(CUSTOM_ROCKWALL_MATERIAL + "/PCF");
@@ -1649,7 +1674,7 @@ protected:
 					mCustomRockwallFparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverFragmentProgramParameters();
 
 					// set the current params
-					updateDepthShadowParams();
+					setDefaultDepthShadowParams();
 					break;
 				};
 				mCurrentMaterial = mat;

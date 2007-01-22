@@ -62,7 +62,6 @@ void receiverVP(
 	uniform float4x4 texViewProj,
 	uniform float4 lightPosition,
 	uniform float4 lightColour,
-	uniform float fixedDepthBias,
 	uniform float4 shadowDepthRange
 	)
 {
@@ -82,9 +81,7 @@ void receiverVP(
 	outShadowUV = mul(texViewProj, worldPos);
 #if LINEAR_RANGE
 	// adjust by fixed depth bias, rescale into range
-	outShadowUV.z = (outShadowUV.z - fixedDepthBias - shadowDepthRange.x) * shadowDepthRange.w;
-#else
-	outShadowUV.z = outShadowUV.z - fixedDepthBias * outShadowUV.w;
+	outShadowUV.z = (outShadowUV.z - shadowDepthRange.x) * shadowDepthRange.w;
 #endif
 	
 
@@ -99,6 +96,7 @@ void receiverFPraw(
 
 	uniform sampler2D shadowMap : register(s0),
 	uniform float inverseShadowmapSize,
+	uniform float fixedDepthBias,
 	uniform float gradientClamp,
 	uniform float gradientScaleBias,
 	uniform float shadowFuzzyWidth,
@@ -126,7 +124,8 @@ void receiverFPraw(
 	float gradientFactor = gradient * gradientScaleBias;
 
 	// visibility function
-	float finalCenterDepth = centerdepth + gradientFactor;
+	float depthAdjust = gradientFactor + (fixedDepthBias * centerdepth);
+	float finalCenterDepth = centerdepth + depthAdjust;
 
 	// shadowUV.z contains lightspace position of current object
 
@@ -140,7 +139,7 @@ void receiverFPraw(
 	// hard test
 #if PCF
 	// use depths from prev, calculate diff
-	depths += gradientFactor.xxxx;
+	depths += depthAdjust.xxxx;
 	float final = (finalCenterDepth > shadowUV.z) ? 1.0f : 0.0f;
 	final += (depths.x > shadowUV.z) ? 1.0f : 0.0f;
 	final += (depths.y > shadowUV.z) ? 1.0f : 0.0f;
