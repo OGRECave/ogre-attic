@@ -73,7 +73,6 @@ void receiverVP(
 	// calculate lighting (simple vertex lighting)
 	float3 lightDir = normalize(
 		lightPosition.xyz -  (worldPos.xyz * lightPosition.w));
-	lightDir = normalize(lightDir);
 
 	outColour = lightColour * max(dot(lightDir, worldNorm), 0.0);
 
