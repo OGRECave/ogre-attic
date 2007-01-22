@@ -77,10 +77,24 @@ namespace Ogre {
 
         /** Attach another GLSL Shader to this one. */
         void attachChildShader(const String& name);
+
+		/** Sets the preprocessor defines use to compile the program. */
+		void setPreprocessorDefines(const String& defines) { mPreprocessorDefines = defines; }
+		/** Sets the preprocessor defines use to compile the program. */
+		const String& getPreprocessorDefines(void) const { return mPreprocessorDefines; }
+
         /// Overridden from GpuProgram
         const String& getLanguage(void) const;
 
+		/// Command object for setting macro defines
+		class CmdPreprocessorDefines : public ParamCommand
+		{
+		public:
+			String doGet(const void* target) const;
+			void doSet(void* target, const String& val);
+		};
 	protected:
+		static CmdPreprocessorDefines msCmdPreprocessorDefines;
         static CmdAttach msCmdAttach;
 
         /** Internal load implementation, must be implemented by subclasses.
@@ -106,6 +120,8 @@ namespace Ogre {
 		GLint mCompiled;
 		/// attached Shader names
 		String mAttachedShaderNames;
+		/// Preprocessor options
+		String mPreprocessorDefines;
 		/// container of attached programs
 		typedef std::vector< GLSLProgram* > GLSLProgramContainer;
 		typedef GLSLProgramContainer::iterator GLSLProgramContainerIterator;
