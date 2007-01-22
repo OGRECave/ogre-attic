@@ -46,7 +46,6 @@ vertex_program Ogre/DepthShadowmap/ReceiverVP hlsl
 		param_named_auto lightPosition light_position 0
 		param_named_auto lightColour light_diffuse_colour 0
 		param_named_auto shadowDepthRange shadow_scene_depth_range 0
-		param_named fixedDepthBias float 0.0005
     }
 }
 
@@ -62,6 +61,7 @@ fragment_program Ogre/DepthShadowmap/ReceiverFPraw hlsl
 	default_params
     {
         param_named inverseShadowmapSize float 0.0009765625
+		param_named fixedDepthBias float 0.0005
 		param_named gradientClamp float 0.0098
 		param_named gradientScaleBias float 0
 		param_named shadowFuzzyWidth float 1
