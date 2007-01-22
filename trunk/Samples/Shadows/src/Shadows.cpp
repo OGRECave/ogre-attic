@@ -863,6 +863,8 @@ protected:
 	// transient pointer to LiSPSM setup if present
 	LiSPSMShadowCameraSetup* mLiSPSMSetup;
 
+	bool mIsOpenGL;
+
 public:
 	ShadowsApplication() : 
 	  mGUIRenderer(0),
@@ -1133,15 +1135,21 @@ protected:
     // Just override the mandatory create scene method
     void createScene(void)
     {
-        // set up general scene (this defaults to additive stencils)
+		// Need to detect D3D or GL for best depth shadowmapping
+		if (Root::getSingleton().getRenderSystem()->getName().find("GL") != String::npos)
+		{
+			mIsOpenGL = true;
+		}
+		else
+		{
+			mIsOpenGL = false;
+		}
+
+		// set up general scene (this defaults to additive stencils)
         generalSceneSetup();
 
 		setupGUI();
 
-		// Uncomment the below and LiSPSM loses warping factor????!?!?
-
-		//changeShadowTechnique(SHADOWTYPE_TEXTURE_ADDITIVE);
-		//mSceneMgr->setShadowCameraSetup(ShadowCameraSetupPtr(new LiSPSMShadowCameraSetup()));
 
     }
 
@@ -1637,7 +1645,18 @@ protected:
 
 					break;
 				case MAT_DEPTH_FLOAT:
-					mSceneMgr->setShadowTexturePixelFormat(PF_FLOAT32_R);
+					if (mIsOpenGL)
+					{
+						// GL performs much better if you pick half-float format
+						mSceneMgr->setShadowTexturePixelFormat(PF_FLOAT16_R);
+					}
+					else
+					{
+						// D3D is the opposite - if you ask for PF_FLOAT16_R you
+						// get an integer format instead! You can ask for PF_FLOAT16_GR
+						// but the precision doesn't work well
+						mSceneMgr->setShadowTexturePixelFormat(PF_FLOAT32_R);
+					}
 					mSceneMgr->setShadowTextureCasterMaterial(CUSTOM_CASTER_MATERIAL);
 					mSceneMgr->setShadowTextureReceiverMaterial(CUSTOM_RECEIVER_MATERIAL);
 					mSceneMgr->setShadowTextureSelfShadow(true);	
@@ -1657,7 +1676,18 @@ protected:
 					setDefaultDepthShadowParams();
 					break;
 				case MAT_DEPTH_FLOAT_PCF:
-					mSceneMgr->setShadowTexturePixelFormat(PF_FLOAT32_R);
+					if (mIsOpenGL)
+					{
+						// GL performs much better if you pick half-float format
+						mSceneMgr->setShadowTexturePixelFormat(PF_FLOAT16_R);
+					}
+					else
+					{
+						// D3D is the opposite - if you ask for PF_FLOAT16_R you
+						// get an integer format instead! You can ask for PF_FLOAT16_GR
+						// but the precision doesn't work well
+						mSceneMgr->setShadowTexturePixelFormat(PF_FLOAT32_R);
+					}
 					mSceneMgr->setShadowTextureCasterMaterial(CUSTOM_CASTER_MATERIAL);
 					mSceneMgr->setShadowTextureReceiverMaterial(CUSTOM_RECEIVER_MATERIAL + "/PCF");
 					mSceneMgr->setShadowTextureSelfShadow(true);	
