@@ -14,6 +14,7 @@ vertex_program Ogre/BasicVertexPrograms/AmbientOneTexture cg
 	default_params
 	{
 		param_named_auto worldViewProj worldviewproj_matrix
+		param_named_auto ambient ambient_light_colour
 	}
 	
 }
@@ -27,7 +28,24 @@ vertex_program Ogre/BasicVertexPrograms/AmbientOneTextureHLSL hlsl
 	default_params
 	{
 		param_named_auto worldViewProj worldviewproj_matrix
+		param_named_auto ambient ambient_light_colour
 	}
+}
+// A really basic ambient pass program, support for one texture coodinate set
+vertex_program Ogre/BasicVertexPrograms/AmbientOneTextureGLSL glsl
+{
+	source AmbientOneTexture.glsl
+
+	default_params
+	{
+		param_named_auto ambient ambient_light_colour
+	}
+}
+
+vertex_program Ogre/BasicVertexPrograms/AmbientOneTextureUnified unified
+{
+	delegate Ogre/BasicVertexPrograms/AmbientOneTextureGLSL
+	delegate Ogre/BasicVertexPrograms/AmbientOneTextureHLSL
 }
 
 
