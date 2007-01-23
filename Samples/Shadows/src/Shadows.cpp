@@ -312,6 +312,7 @@ public:
 		t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState(shadowTex->getName());
 		t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
 
+		/* Uncomment this to display the shadow textures
 		OverlayContainer* debugPanel = (OverlayContainer*)
 			(OverlayManager::getSingleton().createOverlayElement("Panel", "Ogre/DebugShadowPanel0"));
 		debugPanel->_setPosition(0.8, 0);
@@ -326,6 +327,7 @@ public:
 		debugPanel->_setDimensions(0.2, 0.2);
 		debugPanel->setMaterialName("Ogre/DebugShadowMap1");
 		debugOverlay->add2D(debugPanel);
+		*/
 		
 
     }
@@ -599,9 +601,14 @@ protected:
 	CEGUI::OgreCEGUIRenderer* mGUIRenderer;
 	CEGUI::System* mGUISystem;
 	CEGUI::Window* mDescWindow;
-	CEGUI::Editbox* mFixedBias;
-	CEGUI::Editbox* mGradientBias;
-	CEGUI::Editbox* mGradientClamp;
+	CEGUI::Scrollbar* mFixedBias;
+	CEGUI::Scrollbar* mGradientBias;
+	CEGUI::Scrollbar* mGradientClamp;
+	CEGUI::Window* mDepthShadowTweak;
+	CEGUI::Window* mFixedBiasText;
+	CEGUI::Window* mGradientBiasText;
+	CEGUI::Window* mGradientClampText;
+	
 
 	ShadowTechnique mCurrentShadowTechnique;
 	ShadowProjection mCurrentProjection;
@@ -1109,18 +1116,25 @@ protected:
 
 
 
-		mFixedBias = static_cast<CEGUI::Editbox*>(wmgr.getWindow("Shadows/Main/FixedBias"));
-		mFixedBias->setText("0.002");
-		mFixedBias->subscribeEvent(CEGUI::Editbox::EventTextAccepted, 
+		mFixedBias = static_cast<CEGUI::Scrollbar*>(wmgr.getWindow("Shadows/DepthShadowTweakGroup/FixedBias"));
+		mFixedBias->setScrollPosition(0.002f);
+		mFixedBias->subscribeEvent(CEGUI::Scrollbar::EventScrollPositionChanged, 
 			CEGUI::Event::Subscriber(&ShadowsApplication::handleParamsChanged, this));
-		mGradientBias = static_cast<CEGUI::Editbox*>(wmgr.getWindow("Shadows/Main/GradientBias"));
-		mGradientBias->setText("0.0008");
-		mGradientBias->subscribeEvent(CEGUI::Editbox::EventTextAccepted, 
+		mGradientBias = static_cast<CEGUI::Scrollbar*>(wmgr.getWindow("Shadows/DepthShadowTweakGroup/SlopeBias"));
+		mGradientBias->setScrollPosition(0.0008f);
+		mGradientBias->subscribeEvent(CEGUI::Scrollbar::EventScrollPositionChanged, 
 			CEGUI::Event::Subscriber(&ShadowsApplication::handleParamsChanged, this));
-		mGradientClamp = static_cast<CEGUI::Editbox*>(wmgr.getWindow("Shadows/Main/GradientClamp"));
-		mGradientClamp->setText("0.02");
-		mGradientClamp->subscribeEvent(CEGUI::Editbox::EventTextAccepted, 
+		mGradientClamp = static_cast<CEGUI::Scrollbar*>(wmgr.getWindow("Shadows/DepthShadowTweakGroup/SlopeClamp"));
+		mGradientClamp->setScrollPosition(0.02f);
+		mGradientClamp->subscribeEvent(CEGUI::Scrollbar::EventScrollPositionChanged, 
 			CEGUI::Event::Subscriber(&ShadowsApplication::handleParamsChanged, this));
+
+		mDepthShadowTweak = wmgr.getWindow("Shadows/DepthShadowTweakGroup");
+		mDepthShadowTweak->setVisible(false);
+		mFixedBiasText = wmgr.getWindow("Shadows/DepthShadowTweakGroup/FixedBiasText");
+		mGradientBiasText = wmgr.getWindow("Shadows/DepthShadowTweakGroup/SlopeBiasText");
+		mGradientClampText = wmgr.getWindow("Shadows/DepthShadowTweakGroup/SlopeClampText");
+		
 
 		
 
@@ -1280,18 +1294,26 @@ protected:
 	void updateDepthShadowParams()
 	{
 		mCustomRockwallFparams->setNamedConstant("fixedDepthBias", 
-			StringConverter::parseReal(mFixedBias->getText().c_str()));
+			mFixedBias->getScrollPosition());
 		mCustomRockwallFparams->setNamedConstant("gradientScaleBias",
-			StringConverter::parseReal(mGradientBias->getText().c_str()));
+			mGradientBias->getScrollPosition());
 		mCustomRockwallFparams->setNamedConstant("gradientClamp",
-			StringConverter::parseReal(mGradientClamp->getText().c_str()));
+			mGradientClamp->getScrollPosition());
 
 		mCustomAtheneFparams->setNamedConstant("fixedDepthBias", 
-			StringConverter::parseReal(mFixedBias->getText().c_str()));
+			mFixedBias->getScrollPosition());
 		mCustomAtheneFparams->setNamedConstant("gradientScaleBias",
-			StringConverter::parseReal(mGradientBias->getText().c_str()));
+			mGradientBias->getScrollPosition());
 		mCustomAtheneFparams->setNamedConstant("gradientClamp",
-			StringConverter::parseReal(mGradientClamp->getText().c_str()));
+			mGradientClamp->getScrollPosition());
+
+
+		mFixedBiasText->setText(StringConverter::toString(
+			mFixedBias->getScrollPosition(), 4, 5, '0', std::ios::fixed));
+		mGradientBiasText->setText(StringConverter::toString(
+			mGradientBias->getScrollPosition(), 4, 5, '0', std::ios::fixed));
+		mGradientClampText->setText(StringConverter::toString(
+			mGradientClamp->getScrollPosition(), 4, 5, '0', std::ios::fixed));
 	}
 
 	void setDefaultDepthShadowParams()
@@ -1301,12 +1323,12 @@ protected:
 		case UNIFORM:
 		case UNIFORM_FOCUSED:
 		case PLANE_OPTIMAL:
-			mFixedBias->setText("0");
-			mGradientBias->setText("0");
+			mFixedBias->setScrollPosition(0.0f);
+			mGradientBias->setScrollPosition(0.0f);
 			break;
 		case LISPSM:
-			mFixedBias->setText("0.009");
-			mGradientBias->setText("0.04");
+			mFixedBias->setScrollPosition(0.009f);
+			mGradientBias->setScrollPosition(0.04f);
 			break;
 		};
 
@@ -1373,6 +1395,7 @@ protected:
 					mSceneMgr->setShadowTextureCasterMaterial(StringUtil::BLANK);
 					mSceneMgr->setShadowTextureReceiverMaterial(StringUtil::BLANK);
 					mSceneMgr->setShadowTextureSelfShadow(false);	
+					mDepthShadowTweak->setVisible(false);
 
 					resetMaterials();
 
@@ -1408,6 +1431,8 @@ protected:
 					themat = MaterialManager::getSingleton().getByName(CUSTOM_ATHENE_MATERIAL);
 					mCustomAtheneVparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverVertexProgramParameters();
 					mCustomAtheneFparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverFragmentProgramParameters();
+					mDepthShadowTweak->setVisible(true);
+
 
 					// set the current params
 					setDefaultDepthShadowParams();
@@ -1443,6 +1468,7 @@ protected:
 					themat = MaterialManager::getSingleton().getByName(CUSTOM_ATHENE_MATERIAL + "/PCF");
 					mCustomAtheneVparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverVertexProgramParameters();
 					mCustomAtheneFparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverFragmentProgramParameters();
+					mDepthShadowTweak->setVisible(true);
 
 					// set the current params
 					setDefaultDepthShadowParams();
