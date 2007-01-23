@@ -536,7 +536,7 @@ material Ogre/DepthShadowmap/Receiver/Athene
 
 			texture_unit
 			{
-				texture rockwall.tga
+				texture egyptrockyfull.jpg 
 			}
 			
 		}
