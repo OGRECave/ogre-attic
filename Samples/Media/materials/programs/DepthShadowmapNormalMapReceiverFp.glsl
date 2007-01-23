@@ -3,11 +3,29 @@ uniform float fixedDepthBias;
 uniform float gradientClamp;
 uniform float gradientScaleBias;
 uniform float shadowFuzzyWidth;
+uniform vec4 lightColour;
 
 uniform sampler2D shadowMap;
+uniform sampler2D normalMap;
+
+varying vec3 tangentLightDir;
+
+
+// Expand a range-compressed vector
+vec3 expand(vec3 v)
+{
+	return (v - 0.5) * 2.0;
+}
 
 void main()
 {
+
+	// get the new normal and diffuse values
+	vec3 normal = normalize(expand(texture2D(normalMap, gl_TexCoord[1].xy).xyz));
+	
+	vec4 vertexColour = clamp(dot(normal, tangentLightDir),0.0,1.0) * lightColour;
+
+
 	vec4 shadowUV = gl_TexCoord[0];
 	// point on shadowmap
 #if LINEAR_RANGE
@@ -54,10 +72,10 @@ void main()
 	
 	final *= 0.2f;
 
-	gl_FragColor = vec4(gl_Color.xyz * final, 1);
+	gl_FragColor = vec4(vertexColour.xyz * final, 1);
 	
 #else
-	gl_FragColor = (finalCenterDepth > shadowUV.z) ? gl_Color : vec4(0,0,0,1);
+	gl_FragColor = (finalCenterDepth > shadowUV.z) ? vertexColour : vec4(0,0,0,1);
 #endif
 
 #endif
