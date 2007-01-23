@@ -63,42 +63,14 @@ ColourValue mMaxLightColour(0.5, 0.3, 0.1);
 Real mMinFlareSize = 40;
 Real mMaxFlareSize = 80;
 
-#define NUM_SHADOW_TECH 8
-String mShadowTechDescriptions[NUM_SHADOW_TECH] = 
-{
-    "Stencil Shadows (Additive)",
-    "Stencil Shadows (Modulative)",
-	"Texture Shadows (Additive)",
-    "Texture Shadows (Modulative)",
-	"Texture Shadows (Soft Modulative)",
-	"Texture Shadows (Additive + Plane Optimal)",
-	"Custom Shadowmapping (Additive + Plane Optimal)",
-    "None"
-};
-enum DemoShadowTech
-{
-	STENCIL_ADDITIVE = 0,
-	STENCIL_MODULATIVE = 1,
-	TEXTURE_ADDITIVE = 2,
-	TEXTURE_MODULATIVE = 3,
-	TEXTURE_SOFT_MODULATIVE = 4,
-	TEXTURE_ADDITIVE_PLANE_OPTIMAL = 5,
-	CUSTOM_DEPTH_SHADOWMAPPING = 6,
-	NONE = 7
-};
-bool mShadowTechSupported[NUM_SHADOW_TECH];
-
-String SHADOW_COMPOSITOR_NAME("Gaussian Blur");
-//String CUSTOM_ROCKWALL_MATERIAL("Ogre/CustomShadows/SimpleRock");	
-//String CUSTOM_CASTER_MATERIAL("CustomShadows/ShadowCaster");
-//String CUSTOM_RECEIVER_MATERIAL("CustomShadows/ShadowReceiver");
-
 // New depth shadowmapping
 String CUSTOM_ROCKWALL_MATERIAL("Ogre/DepthShadowmap/Receiver/RockWall");
 String CUSTOM_CASTER_MATERIAL("Ogre/DepthShadowmap/Caster/Float");
 String CUSTOM_RECEIVER_MATERIAL("Ogre/DepthShadowmap/Receiver/Float");
+String CUSTOM_ATHENE_MATERIAL("Ogre/DepthShadowmap/Receiver/Athene");
 
 String BASIC_ROCKWALL_MATERIAL("Examples/Rockwall");
+String BASIC_ATHENE_MATERIAL("Examples/Athene/NormalMapped");
 
 
 
@@ -358,225 +330,6 @@ public:
 
     }
 
-	void configureShadowTechnique(int preTechnique, int currentTechnique)
-	{
-		switch(currentTechnique)
-		{
-		case STENCIL_ADDITIVE:
-			mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_ADDITIVE);
-			break;
-		case STENCIL_MODULATIVE:
-			mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);
-			break;
-		case TEXTURE_ADDITIVE:
-		case TEXTURE_ADDITIVE_PLANE_OPTIMAL:
-		case CUSTOM_DEPTH_SHADOWMAPPING:
-			mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_ADDITIVE);
-			break;
-		case TEXTURE_MODULATIVE:
-		case TEXTURE_SOFT_MODULATIVE:
-			mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);
-			break;
-		case NONE:
-			mSceneMgr->setShadowTechnique(SHADOWTYPE_NONE);
-			break;
-
-		}
-
-	}
-
-	void configureLights(int preTechnique, int currentTechnique)
-	{
-		Vector3 dir;
-		switch (currentTechnique)
-		{
-		case STENCIL_ADDITIVE:
-			// Fixed light, dim
-			mSunLight->setCastShadows(true);
-
-			// Point light, movable, reddish
-			mLight->setType(Light::LT_POINT);
-			mLight->setCastShadows(true);
-			mLight->setDiffuseColour(mMinLightColour);
-			mLight->setSpecularColour(1, 1, 1);
-			mLight->setAttenuation(8000,1,0.0005,0);
-
-			break;
-		case STENCIL_MODULATIVE:
-			// Multiple lights cause obvious silhouette edges in modulative mode
-			// So turn off shadows on the direct light
-			// Fixed light, dim
-			mSunLight->setCastShadows(false);
-
-			// Point light, movable, reddish
-			mLight->setType(Light::LT_POINT);
-			mLight->setCastShadows(true);
-			mLight->setDiffuseColour(mMinLightColour);
-			mLight->setSpecularColour(1, 1, 1);
-			mLight->setAttenuation(8000,1,0.0005,0);
-			break;
-		case TEXTURE_SOFT_MODULATIVE:
-		case TEXTURE_MODULATIVE:
-		case TEXTURE_ADDITIVE:
-			// Fixed light, dim
-			mSunLight->setCastShadows(currentTechnique != TEXTURE_SOFT_MODULATIVE);
-
-			// Change moving light to spotlight
-			// Point light, movable, reddish
-			mLight->setType(Light::LT_SPOTLIGHT);
-			mLight->setDirection(Vector3::NEGATIVE_UNIT_Z);
-			mLight->setCastShadows(true);
-			mLight->setDiffuseColour(mMinLightColour);
-			mLight->setSpecularColour(1, 1, 1);
-			mLight->setAttenuation(8000,1,0.0005,0);
-			mLight->setSpotlightRange(Degree(80),Degree(90));
-
-
-			break;
-		default:
-			break;
-		};
-
-	}
-	void cleanupCompositors(int preTechnique, int currentTechnique)
-	{
-		if (preTechnique == TEXTURE_SOFT_MODULATIVE && 
-			preTechnique != currentTechnique)
-		{
-			// Clean up compositors
-			mShadowCompositor->removeListener(&gaussianListener);
-			CompositorManager::getSingleton().setCompositorEnabled(mShadowVp, 
-				SHADOW_COMPOSITOR_NAME, false);
-			// Remove entire compositor chain
-			CompositorManager::getSingleton().removeCompositorChain(mShadowVp);
-			mShadowVp = 0;
-			mShadowCompositor = 0;
-		}
-
-
-	}
-	void configureCompositors(int preTechnique, int currentTechnique)
-	{
-		RenderTarget* shadowRtt;
-		TexturePtr shadowTex;
-		switch(currentTechnique)
-		{
-		case TEXTURE_SOFT_MODULATIVE:
-			// set up compositors
-			shadowTex = mSceneMgr->getShadowTexture(0);
-			shadowRtt = shadowTex->getBuffer()->getRenderTarget();
-			mShadowVp = shadowRtt->getViewport(0);
-			mShadowCompositor = 
-				CompositorManager::getSingleton().addCompositor(mShadowVp, SHADOW_COMPOSITOR_NAME);
-			CompositorManager::getSingleton().setCompositorEnabled(
-				mShadowVp, SHADOW_COMPOSITOR_NAME, true);
-			mShadowCompositor->addListener(&gaussianListener);
-			gaussianListener.notifyViewportSize(mShadowVp->getActualWidth(), mShadowVp->getActualHeight());
-
-			break;
-		default:
-			break;
-
-		};
-
-	}
-	void configureTextures(int preTechnique, int currentTechnique)
-	{
-		switch(currentTechnique)
-		{
-		case CUSTOM_DEPTH_SHADOWMAPPING:
-			mSceneMgr->setShadowTexturePixelFormat(PF_FLOAT32_R);
-			break;
-		default:
-			mSceneMgr->setShadowTexturePixelFormat(PF_X8R8G8B8);
-		}
-
-	}
-	void configureShadowCasterReceiverMaterials(int preTechnique, int currentTechnique)
-	{
-		switch(currentTechnique)
-		{
-		case CUSTOM_DEPTH_SHADOWMAPPING:
-			mSceneMgr->setShadowTextureCasterMaterial(CUSTOM_CASTER_MATERIAL);
-			mSceneMgr->setShadowTextureReceiverMaterial(CUSTOM_RECEIVER_MATERIAL);
-			mSceneMgr->setShadowTextureSelfShadow(true);	// NOTE: need to perform depth biasing for this to work
-			// Sort out base materials
-			pPlaneEnt->setMaterialName(CUSTOM_ROCKWALL_MATERIAL);
-			for (std::vector<Entity*>::iterator i = pColumns.begin();
-				i != pColumns.end(); ++i)
-			{
-				(*i)->setMaterialName(CUSTOM_ROCKWALL_MATERIAL);
-			}
-			break;
-
-		default:
-			mSceneMgr->setShadowTextureCasterMaterial(StringUtil::BLANK);
-			mSceneMgr->setShadowTextureReceiverMaterial(StringUtil::BLANK);
-			mSceneMgr->setShadowTextureSelfShadow(false);	
-			// Sort out base materials for additive modes
-			pPlaneEnt->setMaterialName(BASIC_ROCKWALL_MATERIAL);
-			for (std::vector<Entity*>::iterator i = pColumns.begin();
-				i != pColumns.end(); ++i)
-			{
-				(*i)->setMaterialName(BASIC_ROCKWALL_MATERIAL);
-			}
-
-		}
-
-	}
-
-	/*
-	void configureShadowCameras(int preTechnique, int currentTechnique)
-	{
-		switch(currentTechnique)
-		{
-		case TEXTURE_ADDITIVE_PLANE_OPTIMAL:
-			// Create custom camera setup class
-			{
-				ShadowCameraSetupPtr planeOptPtr1(new PlaneOptimalShadowCameraSetup(mPlane));
-				mSunLight->setCustomShadowCameraSetup(planeOptPtr1);
-				ShadowCameraSetupPtr planeOptPtr2(new PlaneOptimalShadowCameraSetup(mPlane));
-				mLight->setCustomShadowCameraSetup(planeOptPtr2);
-			}
-			break;
-		default:
-			// Default shadow camera setup
-			mSunLight->resetCustomShadowCameraSetup();
-			mLight->resetCustomShadowCameraSetup();
-			break;
-
-		}
-
-	}
-	*/
-
-	/*
-    void changeShadowTechnique()
-    {
-		int prevTech = mCurrentShadowTechnique;
-        mCurrentShadowTechnique = ++mCurrentShadowTechnique % NUM_SHADOW_TECH;
-		if (!mShadowTechSupported[mCurrentShadowTechnique])
-		{
-			// Skip unsupported
-			mCurrentShadowTechnique = ++mCurrentShadowTechnique % NUM_SHADOW_TECH;
-		}
-        mShadowTechniqueInfo->setCaption("Current: " + mShadowTechDescriptions[mCurrentShadowTechnique]);
-
-		cleanupCompositors(prevTech, mCurrentShadowTechnique);
-
-		configureShadowTechnique(prevTech, mCurrentShadowTechnique);
-
-		if (mCurrentShadowTechnique != NONE)
-		{
-			configureShadowCameras(prevTech, mCurrentShadowTechnique);
-			configureLights(prevTech, mCurrentShadowTechnique);
-			configureCompositors(prevTech, mCurrentShadowTechnique);
-			configureTextures(prevTech, mCurrentShadowTechnique);
-			configureShadowCasterReceiverMaterials(prevTech, mCurrentShadowTechnique);
-		}
-
-    }
-	*/
 
 	bool frameStarted(const FrameEvent& evt)
 	{
@@ -856,6 +609,8 @@ protected:
 
 	GpuProgramParametersSharedPtr mCustomRockwallVparams;
 	GpuProgramParametersSharedPtr mCustomRockwallFparams;
+	GpuProgramParametersSharedPtr mCustomAtheneVparams;
+	GpuProgramParametersSharedPtr mCustomAtheneFparams;
 
 	ShadowCameraSetupPtr mCurrentShadowCameraSetup;
 	/// Plane that defines plane-optimal shadow mapping basis
@@ -935,26 +690,6 @@ protected:
         // do this first so we generate edge lists
         mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_ADDITIVE);
 		mCurrentShadowTechnique = SHADOWTYPE_STENCIL_ADDITIVE;
-
-		// default to all techs supported
-		for (int i = 0; i < NUM_SHADOW_TECH; ++i)
-			mShadowTechSupported[i] = true;
-
-        // Set the default Athene material
-        // We'll default it to the normal map for ps_2_0 capable hardware
-        // everyone else will default to the basic
-        if (!GpuProgramManager::getSingleton().isSyntaxSupported("ps_2_0") &&
-            !GpuProgramManager::getSingleton().isSyntaxSupported("arbfp1"))
-        {
-			// no SM2
-			mShadowTechSupported[CUSTOM_DEPTH_SHADOWMAPPING] = false;
-			mShadowTechSupported[TEXTURE_SOFT_MODULATIVE] = false;
-        }
-
-		if (!mRoot->getRenderSystem()->getCapabilities()->hasCapability(RSC_TEXTURE_FLOAT))
-		{
-			mShadowTechSupported[CUSTOM_DEPTH_SHADOWMAPPING] = false;
-		}
 
         // Set ambient light off
         mSceneMgr->setAmbientLight(ColourValue(0.0, 0.0, 0.0));
@@ -1050,7 +785,7 @@ protected:
         SceneNode* node;
         node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
         mAthene = mSceneMgr->createEntity( "athene", "athene.mesh" );
-        mAthene->setMaterialName("Examples/Athene/NormalMapped");
+        mAthene->setMaterialName(BASIC_ATHENE_MATERIAL);
         node->attachObject( mAthene );
         node->translate(0,-27, 0);
         node->yaw(Degree(90));
@@ -1109,23 +844,6 @@ protected:
         mCamera->setFarClipDistance(100000);
 
         //mSceneMgr->setShowDebugShadows(true);
-
-		const RenderSystemCapabilities* caps = Root::getSingleton().getRenderSystem()->getCapabilities();
-		if (!caps->hasCapability(RSC_VERTEX_PROGRAM) || !(caps->hasCapability(RSC_FRAGMENT_PROGRAM)))
-		{
-			mShadowTechSupported[TEXTURE_SOFT_MODULATIVE] = false;
-			mShadowTechSupported[CUSTOM_DEPTH_SHADOWMAPPING] = false;
-		}
-		else
-		{
-			if (!GpuProgramManager::getSingleton().isSyntaxSupported("glsl") &&
-				!GpuProgramManager::getSingleton().isSyntaxSupported("ps_2_0") 
-				)
-			{
-				mShadowTechSupported[TEXTURE_SOFT_MODULATIVE] = false;
-				mShadowTechSupported[CUSTOM_DEPTH_SHADOWMAPPING] = false;
-			}
-		}
 
 		mCamera->setPosition(250, 20, 400);
 		mCamera->lookAt(0, 10, 0);
@@ -1353,20 +1071,25 @@ protected:
 		cbo->setText("Standard");
 		mCurrentMaterial = MAT_STANDARD;
 
-		li = new CEGUI::ListboxTextItem("Depth Shadowmap", MAT_DEPTH_FLOAT);
-		li->setSelectionBrushImage(selectImage);
-		li->setTooltipText("Depth Shadowmap: Shadow caster depth is rendered into a "
-			" floating point texture and a depth comparison is performed on receivers "
-			" (self-shadowing allowed). Requires floating point textures and shader support.");
-		cbo->addItem(li);
+		// Only add depth shadowmapping if supported
+		if (GpuProgramManager::getSingleton().isSyntaxSupported("ps_2_0") ||
+			GpuProgramManager::getSingleton().isSyntaxSupported("glsl"))
+		{
+			li = new CEGUI::ListboxTextItem("Depth Shadowmap", MAT_DEPTH_FLOAT);
+			li->setSelectionBrushImage(selectImage);
+			li->setTooltipText("Depth Shadowmap: Shadow caster depth is rendered into a "
+				" floating point texture and a depth comparison is performed on receivers "
+				" (self-shadowing allowed). Requires floating point textures and shader support.");
+			cbo->addItem(li);
 
-		li = new CEGUI::ListboxTextItem("Depth Shadowmap (PCF)", MAT_DEPTH_FLOAT_PCF);
-		li->setSelectionBrushImage(selectImage);
-		li->setTooltipText("Depth Shadowmap (PCF): Shadow caster depth is rendered into a "
-			" floating point texture and a depth comparison is performed on receivers "
-			" (self-shadowing allowed), with a percentage closest filter. Requires "
-			"floating point textures and shader support.");
-		cbo->addItem(li);
+			li = new CEGUI::ListboxTextItem("Depth Shadowmap (PCF)", MAT_DEPTH_FLOAT_PCF);
+			li->setSelectionBrushImage(selectImage);
+			li->setTooltipText("Depth Shadowmap (PCF): Shadow caster depth is rendered into a "
+				" floating point texture and a depth comparison is performed on receivers "
+				" (self-shadowing allowed), with a percentage closest filter. Requires "
+				"floating point textures and shader support.");
+			cbo->addItem(li);
+		}
 
 		CEGUI::RadioButton* radio = static_cast<CEGUI::RadioButton*>(
 			wmgr.getWindow("Shadows/Stencil"));
@@ -1562,6 +1285,13 @@ protected:
 			StringConverter::parseReal(mGradientBias->getText().c_str()));
 		mCustomRockwallFparams->setNamedConstant("gradientClamp",
 			StringConverter::parseReal(mGradientClamp->getText().c_str()));
+
+		mCustomAtheneFparams->setNamedConstant("fixedDepthBias", 
+			StringConverter::parseReal(mFixedBias->getText().c_str()));
+		mCustomAtheneFparams->setNamedConstant("gradientScaleBias",
+			StringConverter::parseReal(mGradientBias->getText().c_str()));
+		mCustomAtheneFparams->setNamedConstant("gradientClamp",
+			StringConverter::parseReal(mGradientClamp->getText().c_str()));
 	}
 
 	void setDefaultDepthShadowParams()
@@ -1611,6 +1341,7 @@ protected:
 	{
 		// Sort out base materials
 		pPlaneEnt->setMaterialName(BASIC_ROCKWALL_MATERIAL);
+		mAthene->setMaterialName(BASIC_ATHENE_MATERIAL);
 		for (std::vector<Entity*>::iterator i = pColumns.begin();
 			i != pColumns.end(); ++i)
 		{
@@ -1619,6 +1350,8 @@ protected:
 
 		mCustomRockwallVparams.setNull();
 		mCustomRockwallFparams.setNull();
+		mCustomAtheneVparams.setNull();
+		mCustomAtheneFparams.setNull();
 
 	}
 	bool handleMaterialChanged(const CEGUI::EventArgs& e)
@@ -1662,6 +1395,7 @@ protected:
 					mSceneMgr->setShadowTextureSelfShadow(true);	
 					// Sort out base materials
 					pPlaneEnt->setMaterialName(CUSTOM_ROCKWALL_MATERIAL);
+					mAthene->setMaterialName(CUSTOM_ATHENE_MATERIAL);
 					for (std::vector<Entity*>::iterator i = pColumns.begin();
 						i != pColumns.end(); ++i)
 					{
@@ -1671,6 +1405,9 @@ protected:
 					themat = MaterialManager::getSingleton().getByName(CUSTOM_ROCKWALL_MATERIAL);
 					mCustomRockwallVparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverVertexProgramParameters();
 					mCustomRockwallFparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverFragmentProgramParameters();
+					themat = MaterialManager::getSingleton().getByName(CUSTOM_ATHENE_MATERIAL);
+					mCustomAtheneVparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverVertexProgramParameters();
+					mCustomAtheneFparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverFragmentProgramParameters();
 
 					// set the current params
 					setDefaultDepthShadowParams();
@@ -1693,6 +1430,7 @@ protected:
 					mSceneMgr->setShadowTextureSelfShadow(true);	
 					// Sort out base materials
 					pPlaneEnt->setMaterialName(CUSTOM_ROCKWALL_MATERIAL + "/PCF");
+					mAthene->setMaterialName(CUSTOM_ATHENE_MATERIAL + "/PCF");
 					for (std::vector<Entity*>::iterator i = pColumns.begin();
 						i != pColumns.end(); ++i)
 					{
@@ -1702,6 +1440,9 @@ protected:
 					themat = MaterialManager::getSingleton().getByName(CUSTOM_ROCKWALL_MATERIAL + "/PCF");
 					mCustomRockwallVparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverVertexProgramParameters();
 					mCustomRockwallFparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverFragmentProgramParameters();
+					themat = MaterialManager::getSingleton().getByName(CUSTOM_ATHENE_MATERIAL + "/PCF");
+					mCustomAtheneVparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverVertexProgramParameters();
+					mCustomAtheneFparams = themat->getTechnique(0)->getPass(1)->getShadowReceiverFragmentProgramParameters();
 
 					// set the current params
 					setDefaultDepthShadowParams();
