@@ -63,14 +63,14 @@ void main()
 	// hard test
 #if PCF
 	// use depths from prev, calculate diff
-	depths += depthAdjust.xxxx;
-	float final = (finalCenterDepth > shadowUV.z) ? 1.0f : 0.0f;
-	final += (depths.x > shadowUV.z) ? 1.0f : 0.0f;
-	final += (depths.y > shadowUV.z) ? 1.0f : 0.0f;
-	final += (depths.z > shadowUV.z) ? 1.0f : 0.0f;
-	final += (depths.w > shadowUV.z) ? 1.0f : 0.0f;
+	depths += depthAdjust;
+	float final = (finalCenterDepth > shadowUV.z) ? 1.0 : 0.0;
+	final += (depths.x > shadowUV.z) ? 1.0 : 0.0;
+	final += (depths.y > shadowUV.z) ? 1.0 : 0.0;
+	final += (depths.z > shadowUV.z) ? 1.0 : 0.0;
+	final += (depths.w > shadowUV.z) ? 1.0 : 0.0;
 	
-	final *= 0.2f;
+	final *= 0.2;
 
 	gl_FragColor = vec4(vertexColour.xyz * final, 1);
 	
