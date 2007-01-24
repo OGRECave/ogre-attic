@@ -211,16 +211,14 @@ namespace Ogre
         {
             Plane ret;
 			Matrix4 invTrans = inverse().transpose();
-            ret.normal.x =
-                invTrans[0][0] * p.normal.x + invTrans[0][1] * p.normal.y + invTrans[0][2] * p.normal.z;
-            ret.normal.y = 
-                invTrans[1][0] * p.normal.x + invTrans[1][1] * p.normal.y + invTrans[1][2] * p.normal.z;
-            ret.normal.z = 
-                invTrans[2][0] * p.normal.x + invTrans[2][1] * p.normal.y + invTrans[2][2] * p.normal.z;
+			Vector4 v4( p.normal.x, p.normal.y, p.normal.z, p.d );
+			Vector4 pt = invTrans * v4;
+			ret.normal.x = pt.x; 
+			ret.normal.y = pt.y; 
+			ret.normal.z = pt.z;
 			ret.normal.normalise();
-            Vector3 pt = p.normal * -p.d;
-            pt = *this * pt;
-            ret.d = - pt.dotProduct(ret.normal);
+			ret.d = pt.w;
+
             return ret;
         }
 
