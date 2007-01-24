@@ -519,6 +519,8 @@ namespace Ogre {
 
         /** Overridden member from ShadowCaster. */
         EdgeData* getEdgeList(void);
+		/** Overridden member from ShadowCaster. */
+		bool hasEdgeList(void);
         /** Overridden member from ShadowCaster. */
         ShadowRenderableListIterator getShadowVolumeRenderableIterator(
             ShadowTechnique shadowTechnique, const Light* light,

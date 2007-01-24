@@ -3540,7 +3540,12 @@ bool SceneManager::ShadowCasterSceneQueryListener::queryResult(
     MovableObject* object)
 {
     if (object->getCastShadows() && object->isVisible() && 
-		mSceneMgr->isRenderQueueToBeProcessed(object->getRenderQueueGroup()))
+		mSceneMgr->isRenderQueueToBeProcessed(object->getRenderQueueGroup()) &&
+		// objects need an edge list to cast shadows (shadow volumes only)
+		((mSceneMgr->getShadowTechnique() & SHADOWDETAILTYPE_TEXTURE) ||
+		 (mSceneMgr->getShadowTechnique() & SHADOWDETAILTYPE_STENCIL) && object->hasEdgeList()
+		)
+	   )
     {
         if (mFarDistSquared)
         {

@@ -197,12 +197,6 @@ namespace Ogre {
 		reevaluateVertexProcessing();
 
 
-		// Do we have a mesh where edge lists are not going to be available?
-		if (!mMesh->isEdgeListBuilt() && !mMesh->getAutoBuildEdgeLists())
-		{
-			setCastShadows(false);
-		}
-
 		mInitialised = true;
 
 	}
@@ -619,7 +613,7 @@ namespace Ogre {
 		bool forcedSwAnimation = getSoftwareAnimationRequests()>0;
 		bool forcedNormals = getSoftwareAnimationNormalsRequests()>0;
 		bool stencilShadows = false;
-		if (getCastShadows() && root._getCurrentSceneManager())
+		if (getCastShadows() && hasEdgeList() && root._getCurrentSceneManager())
 			stencilShadows =  root._getCurrentSceneManager()->isShadowTechniqueStencilBased();
 		bool softwareAnimation = !hwAnimation || stencilShadows || forcedSwAnimation;
 		// Blend normals in s/w only if we're not using h/w animation,
@@ -1321,6 +1315,13 @@ namespace Ogre {
     {
         // Get from Mesh
         return mMesh->getEdgeList(mMeshLodIndex);
+    }
+	//-----------------------------------------------------------------------
+    bool Entity::hasEdgeList(void)
+    {
+        // check if mesh has an edge list attached
+        // give mesh a chance to built it if scheduled
+        return (mMesh->getEdgeList(mMeshLodIndex) != NULL);
     }
     //-----------------------------------------------------------------------
     void Entity::reevaluateVertexProcessing(void)
