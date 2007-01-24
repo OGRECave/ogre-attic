@@ -212,12 +212,11 @@ namespace Ogre
             Plane ret;
 			Matrix4 invTrans = inverse().transpose();
 			Vector4 v4( p.normal.x, p.normal.y, p.normal.z, p.d );
-			Vector4 pt = invTrans * v4;
-			ret.normal.x = pt.x; 
-			ret.normal.y = pt.y; 
-			ret.normal.z = pt.z;
-			ret.normal.normalise();
-			ret.d = pt.w;
+			v4 = invTrans * v4;
+			ret.normal.x = v4.x; 
+			ret.normal.y = v4.y; 
+			ret.normal.z = v4.z;
+			ret.d = v4.w / ret.normal.normalise();
 
             return ret;
         }
