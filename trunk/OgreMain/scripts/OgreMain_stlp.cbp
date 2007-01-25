@@ -1581,11 +1581,6 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="..\src\OgreAxisAlignedBox.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
 		<Unit filename="..\src\OgreBillboard.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
@@ -1602,11 +1597,6 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\src\OgreBillboardSet.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreBitwise.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />
@@ -1692,16 +1682,6 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\src\OgreConfigFile.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreConfigOptionMap.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreController.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />
@@ -2255,11 +2235,6 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="..\src\OgreSingleton.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
 		<Unit filename="..\src\OgreSkeleton.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
@@ -2296,11 +2271,6 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\src\OgreStringInterface.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreStringVector.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />

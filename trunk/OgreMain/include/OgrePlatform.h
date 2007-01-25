@@ -114,7 +114,7 @@ namespace Ogre {
 
 // If we're not including this from a client build, specify that the stuff
 // should get exported. Otherwise, import it.
-#	if defined( __MINGW32__ )
+#	if defined( __MINGW32__ ) || defined( OGRE_STATIC_LIB )
 		// Linux compilers don't have symbol import/export directives.
 #   	define _OgreExport
 #   	define _OgrePrivate

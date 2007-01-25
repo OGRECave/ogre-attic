@@ -13,12 +13,10 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreAnimationTrack.cpp \
                          OgreArchiveManager.cpp \
 			 OgreAutoParamDataSource.cpp \
-                         OgreAxisAlignedBox.cpp \
                          OgreBillboard.cpp \
 			 OgreBillboardChain.cpp \
                          OgreBillboardParticleRenderer.cpp \
                          OgreBillboardSet.cpp \
-                         OgreBitwise.cpp \
                          OgreBone.cpp \
                          OgreBorderPanelOverlayElement.cpp \
                          OgreCamera.cpp \
@@ -26,8 +24,6 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreColourValue.cpp \
                          OgreCommon.cpp \
                          OgreConfigFile.cpp \
-                         OgreConfigOptionMap.cpp \
-                         OgreController.cpp \
                          OgreControllerManager.cpp \
 						 OgreConvexBody.cpp \
                          OgreDataStream.cpp \
@@ -135,7 +131,6 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
 			 OgreShadowVolumeExtrudeProgram.cpp \
                          OgreSimpleRenderable.cpp \
                          OgreSimpleSpline.cpp \
-                         OgreSingleton.cpp \
                          OgreSkeleton.cpp \
                          OgreSkeletonInstance.cpp \
                          OgreSkeletonManager.cpp \
@@ -144,7 +139,6 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          OgreString.cpp \
                          OgreStringConverter.cpp \
                          OgreStringInterface.cpp \
-                         OgreStringVector.cpp \
                          OgreSubEntity.cpp \
                          OgreSubMesh.cpp \
                          OgreTagPoint.cpp \
