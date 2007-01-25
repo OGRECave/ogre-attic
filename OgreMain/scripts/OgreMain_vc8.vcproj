@@ -316,7 +316,7 @@
 				AdditionalIncludeDirectories="..\include;..\..\Dependencies\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_USRDLL;_MT;OGRE_NONCLIENT_BUILD;FREEIMAGE_LIB;OGRE_STATIC_LIB"
 				StringPooling="true"
-				MinimalRebuild="true"
+				MinimalRebuild="false"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
@@ -326,7 +326,7 @@
 				PrecompiledHeaderThrough="OgreStableHeaders.h"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
