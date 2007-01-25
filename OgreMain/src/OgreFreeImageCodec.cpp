@@ -57,16 +57,8 @@ namespace Ogre {
 	//---------------------------------------------------------------------
 	void FreeImageCodec::startup(void)
 	{
-		// Note: FreeImage needs no explicit initialisation / deinitialisation 
-		// when using the dynamic library version. If a user decides to use the static
-		// library version (not recommended at this time since it is much larger to 
-		// distribute for us), the library must be initialised and shut down manually
-
-		//For linux & OSX, FreeImage needs an explicit startup even when using shared lib.. There is
-		//no dllEntry point used under linux (how FreeImage loads up on win32)
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE || defined(FREEIMAGE_LIB)
 		FreeImage_Initialise(false);
-#endif
+
 		LogManager::getSingleton().logMessage(
 			LML_NORMAL,
 			"FreeImage version: " + String(FreeImage_GetVersion()));
@@ -117,11 +109,7 @@ namespace Ogre {
 	//---------------------------------------------------------------------
 	void FreeImageCodec::shutdown(void)
 	{
-		//For linux & OSX, FreeImage needs an explicit destruction even when using shared lib.. There is
-		//no dllEntry point used under linux (how FreeImage shuts down win32)
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE || defined(FREEIMAGE_LIB)
 		FreeImage_DeInitialise();
-#endif
 
 		for (RegisteredCodecList::iterator i = msCodecList.begin();
 			i != msCodecList.end(); ++i)
