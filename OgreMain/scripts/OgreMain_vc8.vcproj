@@ -263,7 +263,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\$(ProjectName)Static.lib"
+				OutputFile="$(OutDir)\$(ProjectName)Static_d.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
