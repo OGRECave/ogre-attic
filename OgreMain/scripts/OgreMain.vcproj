@@ -183,9 +183,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreAutoParamDataSource.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreAxisAlignedBox.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreBillboard.cpp">
 			</File>
 			<File
@@ -196,9 +193,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreBillboardSet.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreBitwise.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreBone.cpp">
@@ -253,12 +247,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreConfigFile.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreConfigOptionMap.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreController.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreControllerManager.cpp">
@@ -617,9 +605,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreSimpleSpline.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreSingleton.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreSkeleton.cpp">
 			</File>
 			<File
@@ -642,9 +627,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreStringInterface.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreStringVector.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreSubEntity.cpp">

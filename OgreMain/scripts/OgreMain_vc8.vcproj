@@ -210,6 +210,154 @@
 				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\Samples\Common\bin\$(ConfigurationName)&#x0D;&#x0A;copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
+		<Configuration
+			Name="DebugStaticLib|Win32"
+			OutputDirectory="..\lib\$(ConfigurationName)"
+			IntermediateDirectory="..\obj\$(ConfigurationName)"
+			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)\VCProjectDefaults\UpgradeFromVC70.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\include;..\..\Dependencies\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_USRDLL;_MT;OGRE_NONCLIENT_BUILD;FREEIMAGE_LIB;OGRE_STATIC_LIB"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				SmallerTypeCheck="true"
+				RuntimeLibrary="3"
+				BufferSecurityCheck="true"
+				EnableFunctionLevelLinking="true"
+				FloatingPointModel="2"
+				DisableLanguageExtensions="false"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="OgreStableHeaders.h"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\$(ProjectName)Static.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="ReleaseStaticLib|Win32"
+			OutputDirectory="..\lib\$(ConfigurationName)"
+			IntermediateDirectory="..\obj\$(ConfigurationName)"
+			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)\VCProjectDefaults\UpgradeFromVC70.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="true"
+				EnableFiberSafeOptimizations="true"
+				AdditionalIncludeDirectories="..\include;..\..\Dependencies\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_USRDLL;_MT;OGRE_NONCLIENT_BUILD;FREEIMAGE_LIB;OGRE_STATIC_LIB"
+				StringPooling="true"
+				MinimalRebuild="true"
+				RuntimeLibrary="2"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
+				FloatingPointModel="2"
+				DisableLanguageExtensions="false"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="OgreStableHeaders.h"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\$(ProjectName)Static.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine=""
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -247,10 +395,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\OgreAxisAlignedBox.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\OgreBillboard.cpp"
 				>
 			</File>
@@ -264,10 +408,6 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreBillboardSet.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreBitwise.cpp"
 				>
 			</File>
 			<File
@@ -340,14 +480,6 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreConfigFile.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreConfigOptionMap.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreController.cpp"
 				>
 			</File>
 			<File
@@ -675,6 +807,24 @@
 						PrecompiledHeaderThrough="OgreStableHeaders.h"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="DebugStaticLib|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough="OgreStableHeaders.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseStaticLib|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough="OgreStableHeaders.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\OgrePredefinedControllers.cpp"
@@ -821,10 +971,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\OgreSingleton.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\OgreSkeleton.cpp"
 				>
 			</File>
@@ -854,10 +1000,6 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreStringInterface.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreStringVector.cpp"
 				>
 			</File>
 			<File
