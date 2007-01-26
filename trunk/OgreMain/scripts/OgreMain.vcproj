@@ -41,7 +41,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib zziplibd.lib zdll.lib freetype2110_D.lib freeimaged.lib"
+				AdditionalDependencies="kernel32.lib user32.lib zziplibd.lib zlibd.lib freetype230_D.lib FreeImaged.lib"
 				OutputFile="$(OutDir)/OgreMain_d.dll"
 				Version="0.99"
 				LinkIncremental="2"
@@ -115,7 +115,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib zziplib.lib zdll.lib freetype2110.lib freeimage.lib"
+				AdditionalDependencies="kernel32.lib user32.lib zziplib.lib zlib.lib freetype230.lib FreeImage.lib"
 				OutputFile="$(OutDir)/OgreMain.dll"
 				Version="0.99"
 				LinkIncremental="1"
@@ -301,6 +301,20 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreFreeImageCodec.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="FREEIMAGE_LIB"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="FREEIMAGE_LIB"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\OgreFrustum.cpp">
@@ -402,8 +416,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreNode.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreNumerics.cpp"
-				>
+				RelativePath="..\src\OgreNumerics.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreOptimisedUtil.cpp">
@@ -571,20 +584,16 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreSerializer.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreShadowCameraSetup.cpp"
-				>
+				RelativePath="..\src\OgreShadowCameraSetup.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreShadowCameraSetupFocused.cpp"
-				>
+				RelativePath="..\src\OgreShadowCameraSetupFocused.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreShadowCameraSetupLiSPSM.cpp"
-				>
+				RelativePath="..\src\OgreShadowCameraSetupLiSPSM.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreShadowCameraSetupPlaneOptimal.cpp"
-				>
+				RelativePath="..\src\OgreShadowCameraSetupPlaneOptimal.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreShadowCaster.cpp">
@@ -993,8 +1002,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreNoMemoryMacros.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreNumerics.h"
-				>
+				RelativePath="..\include\OgreNumerics.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreOptimisedUtil.h">
@@ -1189,20 +1197,16 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreSerializer.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreShadowCameraSetup.h"
-				>
+				RelativePath="..\include\OgreShadowCameraSetup.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreShadowCameraSetupFocused.h"
-				>
+				RelativePath="..\include\OgreShadowCameraSetupFocused.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreShadowCameraSetupLiSPSM.h"
-				>
+				RelativePath="..\include\OgreShadowCameraSetupLiSPSM.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreShadowCameraSetupPlaneOptimal.h"
-				>
+				RelativePath="..\include\OgreShadowCameraSetupPlaneOptimal.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreShadowCaster.h">
