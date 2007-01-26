@@ -227,6 +227,13 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\include\OgreParticleFXPlugin.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\include\OgrePointEmitter.h">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
@@ -351,6 +358,11 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\src\OgreParticleFX.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\src\OgreParticleFXPlugin.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />

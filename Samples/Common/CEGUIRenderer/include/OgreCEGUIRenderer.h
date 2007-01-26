@@ -29,7 +29,7 @@
 #ifndef _OgreCEGUIRenderer_h_
 #define _OgreCEGUIRenderer_h_
 
-#if (defined( __WIN32__ ) || defined( _WIN32 )) && !defined(__MINGW32__)
+#if (defined( __WIN32__ ) || defined( _WIN32 )) && !defined(__MINGW32__) && !defined(OGRE_STATIC_LIB)
 #   ifdef OGRE_GUIRENDERER_EXPORTS
 #       define OGRE_GUIRENDERER_API __declspec(dllexport)
 #   else

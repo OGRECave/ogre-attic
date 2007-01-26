@@ -287,6 +287,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreGLPlugin.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreGLRenderSystem.cpp"
 				>
 			</File>
@@ -625,6 +629,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreGLPixelFormat.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreGLPlugin.h"
 				>
 			</File>
 			<File

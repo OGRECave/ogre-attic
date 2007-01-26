@@ -10,6 +10,7 @@ OgreD3D9HardwareIndexBuffer.h \
 OgreD3D9HardwareOcclusionQuery.h \
 OgreD3D9HardwareVertexBuffer.h \
 OgreD3D9Mappings.h \
+OgreD3D9Plugin.h \
 OgreD3D9Prerequisites.h \
 OgreD3D9RenderSystem.h \
 OgreD3D9RenderWindow.h \

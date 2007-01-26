@@ -65,7 +65,11 @@ namespace Ogre {
 		if (mHWnd)
 			destroy();
 
+#ifdef OGRE_STATIC_LIB
+		HINSTANCE hInst = GetModuleHandle( NULL );
+#else
 		HINSTANCE hInst = GetModuleHandle("RenderSystem_GL.dll");
+#endif
 
 		mHWnd = 0;
 		mName = name;

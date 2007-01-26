@@ -47,7 +47,7 @@ namespace Ogre
 // Windows Settings
 //-----------------------------------------------------------------------
 
-#if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32 ) && !defined(__MINGW32__)
+#if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32 ) && !defined(__MINGW32__) && !defined(OGRE_STATIC_LIB)
 #   ifdef PLUGIN_TERRAIN_EXPORTS
 #       define _OgreOctreePluginExport __declspec(dllexport)
 #   else

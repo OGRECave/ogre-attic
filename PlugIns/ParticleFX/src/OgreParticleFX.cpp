@@ -26,149 +26,25 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
-
+#include "OgreParticleFXPrerequisites.h"
 #include "OgreRoot.h"
-#include "OgreParticleSystemManager.h"
-#include "OgreParticleAffectorFactory.h"
-#include "OgreParticleEmitterFactory.h"
-
-#include "OgrePointEmitterFactory.h"
-#include "OgreBoxEmitterFactory.h"
-#include "OgreEllipsoidEmitterFactory.h"
-#include "OgreHollowEllipsoidEmitterFactory.h"
-#include "OgreRingEmitterFactory.h"
-#include "OgreCylinderEmitterFactory.h"
-#include "OgreLinearForceAffectorFactory.h"
-#include "OgreColourFaderAffectorFactory.h"
-#include "OgreColourFaderAffectorFactory2.h"
-#include "OgreColourImageAffectorFactory.h"
-#include "OgreColourInterpolatorAffectorFactory.h"
-#include "OgreScaleAffectorFactory.h"
-#include "OgreRotationAffectorFactory.h"
-#include "OgreDirectionRandomiserAffectorFactory.h"
-#include "OgreDeflectorPlaneAffectorFactory.h"
+#include "OgreParticleFXPlugin.h"
 
 namespace Ogre {
 
-    std::vector<ParticleEmitterFactory*> emitterFactories;
-    std::vector<ParticleAffectorFactory*> affectorFactories;
-
-    //-----------------------------------------------------------------------
-    void registerParticleFactories(void)
-    {
-        // -- Create all new particle emitter factories --
-        ParticleEmitterFactory* pEmitFact;
-
-        // PointEmitter
-        pEmitFact = new PointEmitterFactory();
-        ParticleSystemManager::getSingleton().addEmitterFactory(pEmitFact);
-        emitterFactories.push_back(pEmitFact);
-
-        // BoxEmitter
-        pEmitFact = new BoxEmitterFactory();
-        ParticleSystemManager::getSingleton().addEmitterFactory(pEmitFact);
-        emitterFactories.push_back(pEmitFact);
-
-        // EllipsoidEmitter
-        pEmitFact = new EllipsoidEmitterFactory();
-        ParticleSystemManager::getSingleton().addEmitterFactory(pEmitFact);
-        emitterFactories.push_back(pEmitFact);
-        
-	    // CylinderEmitter
-        pEmitFact = new CylinderEmitterFactory();
-        ParticleSystemManager::getSingleton().addEmitterFactory(pEmitFact);
-        emitterFactories.push_back(pEmitFact);
-	
-        // RingEmitter
-        pEmitFact = new RingEmitterFactory();
-        ParticleSystemManager::getSingleton().addEmitterFactory(pEmitFact);
-        emitterFactories.push_back(pEmitFact);
-
-        // HollowEllipsoidEmitter
-        pEmitFact = new HollowEllipsoidEmitterFactory();
-        ParticleSystemManager::getSingleton().addEmitterFactory(pEmitFact);
-        emitterFactories.push_back(pEmitFact);
-
-        // -- Create all new particle affector factories --
-        ParticleAffectorFactory* pAffFact;
-
-        // LinearForceAffector
-        pAffFact = new LinearForceAffectorFactory();
-        ParticleSystemManager::getSingleton().addAffectorFactory(pAffFact);
-        affectorFactories.push_back(pAffFact);
-
-        // ColourFaderAffector
-        pAffFact = new ColourFaderAffectorFactory();
-        ParticleSystemManager::getSingleton().addAffectorFactory(pAffFact);
-        affectorFactories.push_back(pAffFact);
-
-        // ColourFaderAffector2
-        pAffFact = new ColourFaderAffectorFactory2();
-        ParticleSystemManager::getSingleton().addAffectorFactory(pAffFact);
-        affectorFactories.push_back(pAffFact);
-
-        // ColourImageAffector
-        pAffFact = new ColourImageAffectorFactory();
-        ParticleSystemManager::getSingleton().addAffectorFactory(pAffFact);
-        affectorFactories.push_back(pAffFact);
-
-        // ColourInterpolatorAffector
-        pAffFact = new ColourInterpolatorAffectorFactory();
-        ParticleSystemManager::getSingleton().addAffectorFactory(pAffFact);
-        affectorFactories.push_back(pAffFact);
-
-        // ScaleAffector
-        pAffFact = new ScaleAffectorFactory();
-        ParticleSystemManager::getSingleton().addAffectorFactory(pAffFact);
-        affectorFactories.push_back(pAffFact);
-
-        // RotationAffector
-        pAffFact = new RotationAffectorFactory();
-        ParticleSystemManager::getSingleton().addAffectorFactory(pAffFact);
-        affectorFactories.push_back(pAffFact);
-
-
-		// DirectionRandomiserAffector
-		pAffFact = new DirectionRandomiserAffectorFactory();
-		ParticleSystemManager::getSingleton().addAffectorFactory(pAffFact);
-		affectorFactories.push_back(pAffFact);
-
-		// DeflectorPlaneAffector
-		pAffFact = new DeflectorPlaneAffectorFactory();
-		ParticleSystemManager::getSingleton().addAffectorFactory(pAffFact);
-		affectorFactories.push_back(pAffFact);
-
-	}
-    //-----------------------------------------------------------------------
-    void destroyParticleFactories(void)
-    {
-        std::vector<ParticleEmitterFactory*>::iterator ei;
-        std::vector<ParticleAffectorFactory*>::iterator ai;
-
-        for (ei = emitterFactories.begin(); ei != emitterFactories.end(); ++ei)
-        {
-            delete (*ei);
-        }
-
-        for (ai = affectorFactories.begin(); ai != affectorFactories.end(); ++ai)
-        {
-            delete (*ai);
-        }
-
-
-    }
+	ParticleFXPlugin* plugin;
     //-----------------------------------------------------------------------
     extern "C" void _OgreParticleFXExport dllStartPlugin(void) throw()
     {
-        // Particle SFX
-        registerParticleFactories();
+		plugin = new ParticleFXPlugin();
+		Root::getSingleton().installPlugin(plugin);
     }
 
     //-----------------------------------------------------------------------
     extern "C" void _OgreParticleFXExport dllStopPlugin(void)
     {
-        // Particle SFX
-        destroyParticleFactories();
+		Root::getSingleton().uninstallPlugin(plugin);
+		delete plugin;
 
     }
 

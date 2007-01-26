@@ -101,7 +101,14 @@ namespace Ogre
         unsigned long mCurrentFrame;
 		Real mFrameSmoothingTime;
 
-        std::vector<DynLib*> mPluginLibs;
+	public:
+		typedef std::vector<DynLib*> PluginLibList;
+		typedef std::vector<Plugin*> PluginInstanceList;
+	protected:
+		/// List of plugin DLLs loaded
+        PluginLibList mPluginLibs;
+		/// List of Plugin instances registered
+		PluginInstanceList mPlugins;
 
 		typedef std::map<String, MovableObjectFactory*> MovableObjectFactoryMap;
 		MovableObjectFactoryMap mMovableObjectFactoryMap;
@@ -561,32 +568,53 @@ namespace Ogre
         */
         RenderTarget * getRenderTarget(const String &name);
 
-        /** Sets whether or not the debug overlay is shown.
-        @remarks
-            The debug overlay displays frame rate stats and various other debug
-            information. You can enable it or disable it using this method.
-            Alternatively you could access the overlay directly using mSceneManager::getOverlay
-            but this is simpler.
-        void showDebugOverlay(bool show);
-        */
-
-		/** Manually load a plugin.
+		/** Manually load a Plugin contained in a DLL / DSO.
 		 @remarks
-		 	Plugins are loaded at startup using the plugin configuration
-			file specified when you create Root (default: plugins.cfg).
-			This method allows you to load plugins in code.
+		 	Plugins embedded in DLLs can be loaded at startup using the plugin 
+			configuration file specified when you create Root (default: plugins.cfg).
+			This method allows you to load plugin DLLs directly in code.
+			The DLL in question is expected to implement a dllStartPlugin 
+			method which instantiates a Plugin subclass and calls Root::installPlugin.
+			It should also implement dllStopPlugin (see Root::unloadPlugin)
 		@param pluginName Name of the plugin library to load
 		*/
 		void loadPlugin(const String& pluginName);
 
-		/** Manually unloads a plugin.
+		/** Manually unloads a Plugin contained in a DLL / DSO.
 		 @remarks
-		 	Plugins are unloaded at shutdown automatically.
-			This method allows you to unload plugins in code, but
-			make sure their dependencies are decoupled frist.
+		 	Plugin DLLs are unloaded at shutdown automatically. This method 
+			allows you to unload plugins in code, but make sure their 
+			dependencies are decoupled first. This method will call the 
+			dllStopPlugin method defined in the DLL, which in turn should call
+			Root::uninstallPlugin.
 		@param pluginName Name of the plugin library to unload
 		*/
 		void unloadPlugin(const String& pluginName);
+
+		/** Install a new plugin.
+		@remarks
+			This installs a new extension to OGRE. The plugin itself may be loaded
+			from a DLL / DSO, or it might be statically linked into your own 
+			application. Either way, something has to call this method to get
+			it registered and functioning. You should only call this method directly
+			if your plugin is not in a DLL that could otherwise be loaded with 
+			loadPlugin, since the DLL function dllStartPlugin should call this
+			method when the DLL is loaded. 
+		*/
+		void installPlugin(Plugin* plugin);
+
+		/** Uninstall an existing plugin.
+		@remarks
+			This uninstalls an extension to OGRE. Plugins are automatically 
+			uninstalled at shutdown but this lets you remove them early. 
+			If the plugin was loaded from a DLL / DSO you should call unloadPlugin
+			which should result in this method getting called anyway (if the DLL
+			is well behaved).
+		*/
+		void uninstallPlugin(Plugin* plugin);
+
+		/** Gets a read-only list of the currently installed plugins. */
+		const PluginInstanceList& getInstalledPlugins() const { return mPlugins; }
 
         /** Gets a pointer to the central timer used for all OGRE timings */
         Timer* getTimer(void);

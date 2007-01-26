@@ -97,6 +97,13 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\include\OgreOctreePlugin.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\include\OgreOctreeSceneManager.h">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
@@ -169,6 +176,11 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\src\OgreOctreeNode.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\src\OgreOctreePlugin.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />

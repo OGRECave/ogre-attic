@@ -146,6 +146,9 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath="..\src\OgreCgPlugin.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreCgProgram.cpp">
 			</File>
 			<File
@@ -163,6 +166,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreCgPrerequisites.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreCgPlugin.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreCgProgram.h">

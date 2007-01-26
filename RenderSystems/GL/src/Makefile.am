@@ -11,6 +11,7 @@ SUBDIRS = $(OGRE_GLSUPPORT) nvparse atifs GLSL
 pkglib_LTLIBRARIES = RenderSystem_GL.la
 
 RenderSystem_GL_la_SOURCES = OgreGLEngineDll.cpp \
+                             OgreGLPlugin.cpp \
                              OgreGLGpuProgram.cpp \
                              OgreGLGpuNvparseProgram.cpp \
                              OgreGLGpuProgramManager.cpp \

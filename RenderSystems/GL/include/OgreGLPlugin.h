@@ -1,8 +1,8 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
-For the latest info, see http://www.ogre3d.org/
+(Object-oriented Graphics Rendering Engine)
+For the latest info, see http://www.ogre3d.org
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
 Also see acknowledgements in Readme.html
@@ -26,21 +26,42 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
-#include "OgreRoot.h"
-#include "OgreD3D9Plugin.h"
-namespace Ogre 
+#ifndef __GLPlugin_H__
+#define __GLPlugin_H__
+
+#include "OgrePlugin.h"
+#include "OgreGLRenderSystem.h"
+#include "OgreGLSLProgramFactory.h"
+
+namespace Ogre
 {
-	D3D9Plugin* plugin;
 
-	extern "C" void dllStartPlugin(void) throw()
+	/** Plugin instance for GL Manager */
+	class GLPlugin : public Plugin
 	{
-		plugin = new D3D9Plugin();
-		Root::getSingleton().installPlugin(plugin);
-	}
+	public:
+		GLPlugin();
 
-	extern "C" void dllStopPlugin(void)
-	{
-		Root::getSingleton().uninstallPlugin(plugin);
-		delete plugin;
-	}
+
+		/// @copydoc Plugin::getName
+		const String& getName() const;
+
+		/// @copydoc Plugin::install
+		void install();
+
+		/// @copydoc Plugin::initialise
+		void initialise();
+
+		/// @copydoc Plugin::shutdown
+		void shutdown();
+
+		/// @copydoc Plugin::uninstall
+		void uninstall();
+	protected:
+		GLRenderSystem* mRenderSystem;
+		GLSLProgramFactory* mGLSLProgramFactory;
+
+	};
 }
+
+#endif

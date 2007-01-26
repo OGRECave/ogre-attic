@@ -101,6 +101,13 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\include\OgreBspSceneManagerPlugin.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\include\OgreBspSceneNode.h">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
@@ -164,6 +171,11 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\src\OgreBspSceneManagerDll.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\src\OgreBspSceneManagerPlugin.cpp">
 			<Option compilerVar="CPP" />
 			<Option target="Debug" />
 			<Option target="Release" />

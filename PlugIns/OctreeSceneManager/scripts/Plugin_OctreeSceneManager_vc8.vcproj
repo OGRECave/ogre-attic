@@ -226,7 +226,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreOctreePlugin.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreOctreeSceneManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\misc\OgreOctreeSceneManager.def"
 				>
 			</File>
 			<File
@@ -276,6 +284,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreOctreeNode.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreOctreePlugin.h"
 				>
 			</File>
 			<File

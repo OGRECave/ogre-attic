@@ -1,8 +1,8 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
-For the latest info, see http://www.ogre3d.org/
+(Object-oriented Graphics Rendering Engine)
+For the latest info, see http://www.ogre3d.org
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
 Also see acknowledgements in Readme.html
@@ -26,21 +26,42 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
-#include "OgreRoot.h"
-#include "OgreD3D9Plugin.h"
-namespace Ogre 
+#ifndef __D3D9Plugin_H__
+#define __D3D9Plugin_H__
+
+#include "OgrePlugin.h"
+#include "OgreD3D9RenderSystem.h"
+#include "OgreD3D9HLSLProgramFactory.h"
+
+namespace Ogre
 {
-	D3D9Plugin* plugin;
 
-	extern "C" void dllStartPlugin(void) throw()
+	/** Plugin instance for D3D9 Manager */
+	class D3D9Plugin : public Plugin
 	{
-		plugin = new D3D9Plugin();
-		Root::getSingleton().installPlugin(plugin);
-	}
+	public:
+		D3D9Plugin();
 
-	extern "C" void dllStopPlugin(void)
-	{
-		Root::getSingleton().uninstallPlugin(plugin);
-		delete plugin;
-	}
+
+		/// @copydoc Plugin::getName
+		const String& getName() const;
+
+		/// @copydoc Plugin::install
+		void install();
+
+		/// @copydoc Plugin::initialise
+		void initialise();
+
+		/// @copydoc Plugin::shutdown
+		void shutdown();
+
+		/// @copydoc Plugin::uninstall
+		void uninstall();
+	protected:
+		D3D9RenderSystem* mRenderSystem;
+		D3D9HLSLProgramFactory* mHLSLProgramFactory;
+
+	};
 }
+
+#endif

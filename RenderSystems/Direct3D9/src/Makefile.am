@@ -18,6 +18,7 @@ OgreD3D9HardwareIndexBuffer.cpp \
 OgreD3D9HardwareOcclusionQuery.cpp \
 OgreD3D9HardwareVertexBuffer.cpp \
 OgreD3D9Mappings.cpp \
+OgreD3D9Plugin.cpp \
 OgreD3D9RenderSystem.cpp \
 OgreD3D9RenderWindow.cpp \
 OgreD3D9Texture.cpp \

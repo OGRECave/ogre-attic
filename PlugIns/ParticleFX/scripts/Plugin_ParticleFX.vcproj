@@ -193,6 +193,9 @@
 				RelativePath="..\src\OgreParticleFX.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreParticleFXPlugin.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgrePointEmitter.cpp">
 			</File>
 			<File
@@ -279,6 +282,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreParticleFXPrerequisites.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreParticleFXPlugin.h">
 			</File>
 			<File
 				RelativePath="..\include\OgrePointEmitter.h">

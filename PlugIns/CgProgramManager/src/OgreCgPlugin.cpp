@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -26,21 +26,50 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
+
+#include "OgreCgPlugin.h"
 #include "OgreRoot.h"
-#include "OgreD3D9Plugin.h"
+#include "OgreHighLevelGpuProgramManager.h"
+
 namespace Ogre 
 {
-	D3D9Plugin* plugin;
-
-	extern "C" void dllStartPlugin(void) throw()
+	const String sPluginName = "Cg Program Manager";
+	//---------------------------------------------------------------------
+	CgPlugin::CgPlugin()
+		:mCgProgramFactory(0)
 	{
-		plugin = new D3D9Plugin();
-		Root::getSingleton().installPlugin(plugin);
+
+	}
+	//---------------------------------------------------------------------
+	const String& CgPlugin::getName() const
+	{
+		return sPluginName;
+	}
+	//---------------------------------------------------------------------
+	void CgPlugin::install()
+	{
+		// Create new factory
+		mCgProgramFactory = new CgProgramFactory();
+		// Register
+		HighLevelGpuProgramManager::getSingleton().addFactory(mCgProgramFactory);
+	}
+	//---------------------------------------------------------------------
+	void CgPlugin::initialise()
+	{
+		// nothing to do
+	}
+	//---------------------------------------------------------------------
+	void CgPlugin::shutdown()
+	{
+		// nothing to do
+	}
+	//---------------------------------------------------------------------
+	void CgPlugin::uninstall()
+	{
+		delete mCgProgramFactory;
+		mCgProgramFactory = 0;
+		
 	}
 
-	extern "C" void dllStopPlugin(void)
-	{
-		Root::getSingleton().uninstallPlugin(plugin);
-		delete plugin;
-	}
+
 }
