@@ -21,6 +21,7 @@ noinst_HEADERS =OgreAreaEmitter.h \
                 OgreHollowEllipsoidEmitterFactory.h \
                 OgreLinearForceAffector.h \
                 OgreLinearForceAffectorFactory.h \
+                OgreParticleFXPlugin.h \
                 OgreParticleFXPrerequisites.h \
                 OgrePointEmitter.h \
                 OgrePointEmitterFactory.h \

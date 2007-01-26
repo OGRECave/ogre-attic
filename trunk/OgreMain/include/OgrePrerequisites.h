@@ -299,6 +299,7 @@ namespace Ogre {
     class PixelBox;
     class Plane;
     class PlaneBoundedVolume;
+	class Plugin;
     class Pose;
     class PositionTarget;
     class ProgressiveMesh;

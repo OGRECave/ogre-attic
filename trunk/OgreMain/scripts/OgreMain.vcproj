@@ -1075,6 +1075,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgrePlatformInformation.h">
 			</File>
 			<File
+				RelativePath="..\include\OgrePlugin.h">
+			</File>
+			<File
 				RelativePath="..\include\OgrePolygon.h">
 			</File>
 			<File

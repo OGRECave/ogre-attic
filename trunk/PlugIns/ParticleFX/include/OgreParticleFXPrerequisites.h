@@ -34,16 +34,11 @@ Torus Knot Software Ltd.
 //-----------------------------------------------------------------------
 // Windows Settings
 //-----------------------------------------------------------------------
-#if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(__MINGW32__)
-#   if OGRE_DYNAMIC_LINKAGE == 0
-#       pragma warn( "No dynamic linkage" )
-#       define _OgreParticleFXExport
+#if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(__MINGW32__) && !defined(OGRE_STATIC_LIB)
+#   ifdef PLUGIN_ParticleFX_EXPORTS
+#       define _OgreParticleFXExport __declspec(dllexport)
 #   else
-#       ifdef PLUGIN_ParticleFX_EXPORTS
-#           define _OgreParticleFXExport __declspec(dllexport)
-#       else
-#           define _OgreParticleFXExport __declspec(dllimport)
-#       endif
+#       define _OgreParticleFXExport __declspec(dllimport)
 #   endif
 #else
 #   define _OgreParticleFXExport

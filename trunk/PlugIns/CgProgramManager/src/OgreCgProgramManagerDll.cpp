@@ -27,26 +27,28 @@ Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 
-#include "OgreCgProgramFactory.h"
-#include "OgreHighLevelGpuProgramManager.h"
+#include "OgreCgPlugin.h"
+#include "OgreCgProgram.h"
+#include "OgreRoot.h"
 
 namespace Ogre {
 
-    CgProgramFactory* cgFactory;
+    CgPlugin* cgPlugin;
     //-----------------------------------------------------------------------
     extern "C" void dllStartPlugin(void)
     {
-        // Create new factory
-        cgFactory = new CgProgramFactory();
+        // Create new plugin
+        cgPlugin = new CgPlugin();
 
         // Register
-        HighLevelGpuProgramManager::getSingleton().addFactory(cgFactory);
+        Root::getSingleton().installPlugin(cgPlugin);
 
 
     }
     extern "C" void dllStopPlugin(void)
     {
-        delete cgFactory;
+		Root::getSingleton().uninstallPlugin(cgPlugin);
+		delete cgPlugin;
     }
 
     void checkForCgError(const String& ogreMethod, const String& errorTextPrefix, CGcontext context)

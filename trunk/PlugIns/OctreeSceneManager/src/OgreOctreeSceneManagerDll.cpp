@@ -27,39 +27,25 @@ Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 
-#include <OgreOctreeSceneManager.h>
-#include <OgreTerrainSceneManager.h>
 #include <OgreRoot.h>
+#include <OgreOctreePlugin.h>
 
 namespace Ogre
 {
-OctreeSceneManagerFactory* octreePlugin;
-TerrainSceneManagerFactory* terrainPlugin;
+OctreePlugin* octreePlugin;
 
 extern "C" void _OgreOctreePluginExport dllStartPlugin( void )
 {
     // Create new scene manager
-    octreePlugin = new OctreeSceneManagerFactory();
-    terrainPlugin = new TerrainSceneManagerFactory();
-	// Construct listener manager singleton
-	new TerrainPageSourceListenerManager();
+    octreePlugin = new OctreePlugin();
 
     // Register
-    Root::getSingleton().addSceneManagerFactory(octreePlugin);
-    Root::getSingleton().addSceneManagerFactory(terrainPlugin);
+    Root::getSingleton().installPlugin(octreePlugin);
 
 }
-extern "C" void _OgreOctreePluginExport dllShutdownPlugin( void )
-{
-	Root::getSingleton().removeSceneManagerFactory(terrainPlugin);
-	Root::getSingleton().removeSceneManagerFactory(octreePlugin);
-	// destroy listener manager
-	delete TerrainPageSourceListenerManager::getSingletonPtr();
-}
-
 extern "C" void _OgreOctreePluginExport dllStopPlugin( void )
 {
-    delete octreePlugin;
-    delete terrainPlugin;
+	Root::getSingleton().uninstallPlugin(octreePlugin);
+	delete octreePlugin;
 }
 }

@@ -212,7 +212,7 @@
 		</Configuration>
 		<Configuration
 			Name="DebugStaticLib|Win32"
-			OutputDirectory="..\lib\$(ConfigurationName)"
+			OutputDirectory="..\..\lib\$(ConfigurationName)"
 			IntermediateDirectory="..\obj\$(ConfigurationName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)\VCProjectDefaults\UpgradeFromVC70.vsprops"
@@ -284,7 +284,7 @@
 		</Configuration>
 		<Configuration
 			Name="ReleaseStaticLib|Win32"
-			OutputDirectory="..\lib\$(ConfigurationName)"
+			OutputDirectory="..\..\lib\$(ConfigurationName)"
 			IntermediateDirectory="..\obj\$(ConfigurationName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)\VCProjectDefaults\UpgradeFromVC70.vsprops"
@@ -1593,6 +1593,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgrePlatformInformation.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgrePlugin.h"
 				>
 			</File>
 			<File

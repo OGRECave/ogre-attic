@@ -52,6 +52,7 @@ Torus Knot Software Ltd.
 #include "OgreConfigDialog.h"
 #include "OgreStringConverter.h"
 #include "OgreArchiveManager.h"
+#include "OgrePlugin.h"
 #include "OgreZip.h"
 #include "OgreFileSystem.h"
 #include "OgreShadowVolumeExtrudeProgram.h"
@@ -97,7 +98,6 @@ namespace Ogre {
     }
 
     typedef void (*DLL_START_PLUGIN)(void);
-    typedef void (*DLL_INIT_PLUGIN)(void);
     typedef void (*DLL_STOP_PLUGIN)(void);
 
 
@@ -487,9 +487,6 @@ namespace Ogre {
         // Initialise timer
         mTimer->reset();
 
-		// Init plugins
-		initialisePlugins();
-
 		// Init pools
 		ConvexBody::_initialisePool();
 
@@ -792,53 +789,44 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void Root::shutdownPlugins(void)
 	{
-		std::vector<DynLib*>::reverse_iterator i;
-
 		// NB Shutdown plugins in reverse order to enforce dependencies
-		for (i = mPluginLibs.rbegin(); i != mPluginLibs.rend(); ++i)
+		for (PluginInstanceList::reverse_iterator i = mPlugins.rbegin(); i != mPlugins.rend(); ++i)
 		{
-			// Call plugin shutdown (optional)
-			DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)(*i)->getSymbol("dllShutdownPlugin");
-			if (pFunc)
-			{
-				pFunc();
-			}
-
+			(*i)->shutdown();
 		}
 	}
 	//-----------------------------------------------------------------------
 	void Root::initialisePlugins(void)
 	{
-		std::vector<DynLib*>::iterator i;
-
-		for (i = mPluginLibs.begin(); i != mPluginLibs.end(); ++i)
+		for (PluginInstanceList::reverse_iterator i = mPlugins.rbegin(); i != mPlugins.rend(); ++i)
 		{
-			// Call plugin initialise (optional)
-			DLL_INIT_PLUGIN pFunc = (DLL_INIT_PLUGIN)(*i)->getSymbol("dllInitialisePlugin");
-			if (pFunc)
-			{
-				pFunc();
-			}
-
+			(*i)->initialise();
 		}
 	}
 	//-----------------------------------------------------------------------
 	void Root::unloadPlugins(void)
     {
-        std::vector<DynLib*>::reverse_iterator i;
-
-        // NB Unload plugins in reverse order to enforce dependencies
-        for (i = mPluginLibs.rbegin(); i != mPluginLibs.rend(); ++i)
+		// unload dynamic libs first
+        for (PluginLibList::reverse_iterator i = mPluginLibs.rbegin(); i != mPluginLibs.rend(); ++i)
         {
             // Call plugin shutdown
             DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)(*i)->getSymbol("dllStopPlugin");
+			// this will call uninstallPlugin
             pFunc();
             // Unload library & destroy
             DynLibManager::getSingleton().unload(*i);
 
         }
+		mPluginLibs.clear();
 
-        mPluginLibs.clear();
+		// now deal with any remaining plugins that were registered through other means
+		for (PluginInstanceList::reverse_iterator i = mPlugins.rbegin(); i != mPlugins.rend(); ++i)
+		{
+			// Note this does NOT call uninstallPlugin - this shutdown is for the 
+			// detail objects
+			(*i)->uninstall();
+		}
+		mPlugins.clear();
 
     }
     //-----------------------------------------------------------------------
@@ -924,6 +912,38 @@ namespace Ogre {
 
         return mActiveRenderer->getRenderTarget(name);
     }
+	//---------------------------------------------------------------------
+	void Root::installPlugin(Plugin* plugin)
+	{
+		LogManager::getSingleton().logMessage("Installing plugin: " + plugin->getName());
+
+		mPlugins.push_back(plugin);
+		plugin->install();
+
+		// if rendersystem is already initialised, call rendersystem init too
+		if (mIsInitialised)
+		{
+			plugin->initialise();
+		}
+
+		LogManager::getSingleton().logMessage("Plugin successfully installed");
+	}
+	//---------------------------------------------------------------------
+	void Root::uninstallPlugin(Plugin* plugin)
+	{
+		LogManager::getSingleton().logMessage("Uninstalling plugin: " + plugin->getName());
+		PluginInstanceList::iterator i = 
+			std::find(mPlugins.begin(), mPlugins.end(), plugin);
+		if (i != mPlugins.end())
+		{
+			if (mIsInitialised)
+				plugin->shutdown();
+			plugin->uninstall();
+			mPlugins.erase(i);
+		}
+		LogManager::getSingleton().logMessage("Plugin successfully uninstalled");
+
+	}
     //-----------------------------------------------------------------------
 	void Root::loadPlugin(const String& pluginName)
 	{
@@ -937,23 +957,16 @@ namespace Ogre {
 
 		if (!pFunc)
 			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Cannot find symbol dllStartPlugin in library " + pluginName,
-				"Root::loadPlugins");
+				"Root::loadPlugin");
+
+		// This must call installPlugin
 		pFunc();
 
-		if (mIsInitialised)
-		{
-			// initialise too
-			DLL_INIT_PLUGIN pFunc = (DLL_INIT_PLUGIN)lib->getSymbol("dllInitialisePlugin");
-			if (pFunc)
-			{
-				pFunc();
-			}
-		}
 	}
     //-----------------------------------------------------------------------
 	void Root::unloadPlugin(const String& pluginName)
 	{
-        std::vector<DynLib*>::iterator i;
+        PluginLibList::iterator i;
 
         for (i = mPluginLibs.begin(); i != mPluginLibs.end(); ++i)
         {
@@ -961,6 +974,7 @@ namespace Ogre {
 			{
 				// Call plugin shutdown
 				DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)(*i)->getSymbol("dllStopPlugin");
+				// this must call uninstallPlugin
 				pFunc();
 				// Unload library (destroyed by DynLibManager)
 				DynLibManager::getSingleton().unload(*i);
@@ -988,6 +1002,8 @@ namespace Ogre {
             mParticleManager->_initialise();
 			// Init mesh manager
 			MeshManager::getSingleton()._initialise();
+			// Init plugins - after window creation so rsys resources available
+			initialisePlugins();
             mFirstTimePostWindowInit = true;
         }
 

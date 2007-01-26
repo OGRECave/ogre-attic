@@ -76,16 +76,11 @@ namespace Ogre
     //-------------------------------------------
 	// Windows setttings
 	//-------------------------------------------
-#if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(__MINGW32__)
-#	if OGRE_DYNAMIC_LINKAGE == 0
-#		pragma warn( "No dynamic linkage" )
-#		define _OgreD3D9Export
+#if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(__MINGW32__) && !defined(OGRE_STATIC_LIB)
+#	ifdef OGRED3DENGINEDLL_EXPORTS
+#		define _OgreD3D9Export __declspec(dllexport)
 #	else
-#		ifdef OGRED3DENGINEDLL_EXPORTS
-#			define _OgreD3D9Export __declspec(dllexport)
-#		else
-#			define _OgreD3D9Export __declspec(dllimport)
-#		endif
+#		define _OgreD3D9Export __declspec(dllimport)
 #	endif
 #endif	// OGRE_WIN32
 }

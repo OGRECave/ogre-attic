@@ -38,10 +38,14 @@ namespace Ogre
 {
     ErrorDialog::ErrorDialog()
     {
-#if OGRE_DEBUG_MODE == 1
-        mHInstance = GetModuleHandle("OgreMain_d.dll");
+#ifdef OGRE_STATIC_LIB
+		HINSTANCE hInst = GetModuleHandle( NULL );
 #else
+#  if OGRE_DEBUG_MODE == 1
+        mHInstance = GetModuleHandle("OgreMain_d.dll");
+#  else
         mHInstance = GetModuleHandle("OgreMain.dll");
+#  endif
 #endif
     }
 

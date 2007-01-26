@@ -27,30 +27,23 @@ Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 
-#include "OgreGLRenderSystem.h"
 #include "OgreRoot.h"
-#include "OgreGLSLProgramFactory.h"
+#include "OgreGLPlugin.h"
 
 
 namespace Ogre {
 
-	GLSLProgramFactory* glslProgramFactory;
-    GLRenderSystem* glRendPlugin;
-
+	GLPlugin* plugin;
     extern "C" void dllStartPlugin(void) throw()
     {
-        glRendPlugin = new GLRenderSystem();
-
-        Root::getSingleton().addRenderSystem(glRendPlugin);
-
-		glslProgramFactory = new GLSLProgramFactory();
-		HighLevelGpuProgramManager::getSingleton().addFactory(glslProgramFactory);
+		plugin = new GLPlugin();
+		Root::getSingleton().installPlugin(plugin);
 
     }
 
     extern "C" void dllStopPlugin(void)
     {
-        delete glRendPlugin;
-		delete glslProgramFactory;
+		Root::getSingleton().uninstallPlugin(plugin);
+		delete plugin;
     }
 }

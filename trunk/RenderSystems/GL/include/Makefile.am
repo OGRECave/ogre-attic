@@ -1,4 +1,5 @@
 noinst_HEADERS = OgreGLPrerequisites.h \
+				 OgreGLPlugin.h \
                  OgreGLGpuProgram.h \
                  OgreGLGpuNvparseProgram.h \
                  OgreGLGpuProgramManager.h \

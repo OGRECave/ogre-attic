@@ -111,6 +111,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgrePlane.h \
                      OgrePlaneBoundedVolume.h \
                      OgrePlatform.h \
+                     OgrePlugin.h \
 					 OgrePolygon.h \
                      OgrePose.h \
                      OgrePredefinedControllers.h \

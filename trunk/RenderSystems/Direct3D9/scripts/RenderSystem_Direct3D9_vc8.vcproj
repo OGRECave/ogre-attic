@@ -268,6 +268,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreD3D9Plugin.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreD3D9RenderSystem.cpp"
 				>
 			</File>
@@ -350,6 +354,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreD3D9MultiRenderTarget.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreD3D9Plugin.h"
 				>
 			</File>
 			<File

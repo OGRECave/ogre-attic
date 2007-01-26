@@ -27,35 +27,23 @@ Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 
-#include "OgreBspSceneManager.h"
-#include "OgreBspResourceManager.h"
 #include "OgreRoot.h"
+#include "OgreBspSceneManagerPlugin.h"
 
-namespace Ogre {
+Ogre::BspSceneManagerPlugin* bspPlugin;
+//-----------------------------------------------------------------------
+extern "C" void dllStartPlugin(void)
+{
+    // Create new scene manager
+    bspPlugin = new Ogre::BspSceneManagerPlugin();
 
-    BspSceneManagerFactory* bspFactory;
-    //-----------------------------------------------------------------------
-    extern "C" void dllStartPlugin(void)
-    {
-        // Create new scene manager
-        bspFactory = new BspSceneManagerFactory();
-
-        // Register
-        Root::getSingleton().addSceneManagerFactory(bspFactory);
-
-		// Create resource manager (singleton manages)
-		new BspResourceManager();
+    // Register
+    Ogre::Root::getSingleton().installPlugin(bspPlugin);
 
 
-    }
-	extern "C" void dllShutdownPlugin( void )
-	{
-		Root::getSingleton().removeSceneManagerFactory(bspFactory);
-		delete BspResourceManager::getSingletonPtr();
-
-	}    
-	extern "C" void dllStopPlugin(void)
-    {
-        delete bspFactory;
-    }
+}
+extern "C" void dllStopPlugin(void)
+{
+	Ogre::Root::getSingleton().uninstallPlugin(bspPlugin);
+    delete bspPlugin;
 }

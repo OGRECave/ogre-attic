@@ -15,6 +15,7 @@ Plugin_ParticleFX_la_SOURCES = OgreAreaEmitter.cpp \
                         OgreHollowEllipsoidEmitter.cpp \
                         OgreLinearForceAffector.cpp \
                         OgreParticleFX.cpp \
+                        OgreParticleFXPlugin.cpp \
                         OgrePointEmitter.cpp \
                         OgreRingEmitter.cpp \
 						OgreRotationAffector.cpp \

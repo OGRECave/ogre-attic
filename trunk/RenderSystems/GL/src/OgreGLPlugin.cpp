@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2006 Torus Knot Software Ltd
@@ -26,21 +26,53 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
+
+#include "OgreGLPlugin.h"
 #include "OgreRoot.h"
-#include "OgreD3D9Plugin.h"
+
 namespace Ogre 
 {
-	D3D9Plugin* plugin;
-
-	extern "C" void dllStartPlugin(void) throw()
+	const String sPluginName = "GL RenderSystem";
+	//---------------------------------------------------------------------
+	GLPlugin::GLPlugin()
+		: mRenderSystem(0), mGLSLProgramFactory(0)
 	{
-		plugin = new D3D9Plugin();
-		Root::getSingleton().installPlugin(plugin);
+
+	}
+	//---------------------------------------------------------------------
+	const String& GLPlugin::getName() const
+	{
+		return sPluginName;
+	}
+	//---------------------------------------------------------------------
+	void GLPlugin::install()
+	{
+		mRenderSystem = new GLRenderSystem();
+
+		Root::getSingleton().addRenderSystem(mRenderSystem);
+
+		mGLSLProgramFactory = new GLSLProgramFactory();
+		HighLevelGpuProgramManager::getSingleton().addFactory(mGLSLProgramFactory);
+	}
+	//---------------------------------------------------------------------
+	void GLPlugin::initialise()
+	{
+		// nothing to do
+	}
+	//---------------------------------------------------------------------
+	void GLPlugin::shutdown()
+	{
+		// nothing to do
+	}
+	//---------------------------------------------------------------------
+	void GLPlugin::uninstall()
+	{
+		delete mGLSLProgramFactory;
+		mGLSLProgramFactory = 0;
+		delete mRenderSystem;
+		mRenderSystem = 0;
+
 	}
 
-	extern "C" void dllStopPlugin(void)
-	{
-		Root::getSingleton().uninstallPlugin(plugin);
-		delete plugin;
-	}
+
 }

@@ -158,6 +158,9 @@
 				RelativePath="..\src\OgreBspSceneManager.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreBspSceneManagerPlugin.cpp">
+			</File>
+			<File
 				RelativePath="..\misc\OgreBspSceneManager.def">
 			</File>
 			<File
@@ -193,6 +196,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreBspSceneManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreBspSceneManagerPlugin.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreBspSceneNode.h">
