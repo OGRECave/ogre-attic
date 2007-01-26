@@ -4,6 +4,7 @@
 	Version="7.10"
 	Name="Demo_BspCollision"
 	ProjectGUID="{1982C73F-3D1C-46A6-9DFB-C7B03310365B}"
+	RootNamespace="Demo_BspCollision"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -12,7 +13,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\..\Samples\Common\bin\$(ConfigurationName)"
+			OutputDirectory="..\bin\$(ConfigurationName)"
 			IntermediateDirectory="..\obj\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="2">
@@ -46,7 +47,8 @@
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				CommandLine="copy $(TargetPath) ..\..\..\Samples\Common\Bin\$(ConfigurationName)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -66,7 +68,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\..\Samples\Common\bin\$(ConfigurationName)"
+			OutputDirectory="..\bin\$(ConfigurationName)"
 			IntermediateDirectory="..\obj\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="2">
@@ -108,7 +110,8 @@
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				CommandLine="copy $(TargetPath) ..\..\..\Samples\Common\Bin\$(ConfigurationName)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
