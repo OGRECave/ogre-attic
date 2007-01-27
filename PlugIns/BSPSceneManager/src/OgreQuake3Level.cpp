@@ -95,8 +95,8 @@ namespace Ogre {
         else
         {
             mLumpStart = ((unsigned char*)mHeader) + sizeof(mHeader);
+			initialisePointers();
         }
-        initialisePointers();
 
 
 #if OGRE_ENDIAN == OGRE_ENDIAN_BIG
