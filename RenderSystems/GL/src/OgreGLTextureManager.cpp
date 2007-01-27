@@ -114,7 +114,67 @@ namespace Ogre {
 
 		
 	}
+	//-----------------------------------------------------------------------------
+    bool GLTextureManager::isHardwareFilteringSupported(TextureType ttype, PixelFormat format, int usage,
+            bool preciseFormatOnly)
+    {
+        if (format == PF_UNKNOWN)
+            return false;
 
+        // Check natively format
+        PixelFormat nativeFormat = getNativeFormat(ttype, format, usage);
+        if (preciseFormatOnly && format != nativeFormat)
+            return false;
 
+        // Assume non-floating point is supported always
+        if (!PixelUtil::isFloatingPoint(nativeFormat))
+            return true;
+
+        // Hack: there are no elegant GL API to detects texture filtering supported,
+        // just hard code for cards based on vendor specifications.
+
+        // TODO: Add cards that 16 bits floating point flitering supported by
+        // hardware below
+        static const String sFloat16SupportedCards[] =
+        {
+            "*GeForce*7600*",
+            "*GeForce*7800*",
+            ""                      // Empty string means end of list
+        };
+
+        // TODO: Add cards that 32 bits floating point flitering supported by
+        // hardware below
+        static const String sFloat32SupportedCards[] =
+        {
+            ""                      // Empty string means end of list
+        };
+
+        PixelComponentType pct = PixelUtil::getComponentType(nativeFormat);
+        const String* supportedCards;
+        switch (pct)
+        {
+        case PCT_FLOAT16:
+            supportedCards = sFloat16SupportedCards;
+            break;
+        case PCT_FLOAT32:
+            supportedCards = sFloat32SupportedCards;
+            break;
+        default:
+            return false;
+        }
+
+        const GLubyte* pcRenderer = glGetString(GL_RENDERER);
+        String str = (const char*)pcRenderer;
+
+        for (; !supportedCards->empty(); ++supportedCards)
+        {
+            if (StringUtil::match(str, *supportedCards))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
 }

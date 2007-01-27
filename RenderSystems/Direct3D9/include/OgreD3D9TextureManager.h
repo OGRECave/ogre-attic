@@ -65,6 +65,9 @@ namespace Ogre
 		/// @copydoc TextureManager::getNativeFormat
 		PixelFormat getNativeFormat(TextureType ttype, PixelFormat format, int usage);
 
+        /// @copydoc TextureManager::isHardwareFilteringSupported
+        bool isHardwareFilteringSupported(TextureType ttype, PixelFormat format, int usage,
+            bool preciseFormatOnly = false);
 
 	};
 }

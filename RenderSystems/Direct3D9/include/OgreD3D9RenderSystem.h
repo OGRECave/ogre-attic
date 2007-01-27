@@ -336,6 +336,11 @@ namespace Ogre
 		*/
 		void _cleanupDepthStencils();
 
+        /** Check whether or not filtering is supported for the precise texture format requested
+        with the given usage options.
+        */
+        bool _checkTextureFilteringSupported(TextureType ttype, PixelFormat format, int usage);
+
 	};
 }
 #endif
