@@ -32,6 +32,8 @@ Torus Knot Software Ltd.
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
 #include "OgreD3D9Mappings.h"
+#include "OgreRoot.h"
+#include "OgreD3D9RenderSystem.h"
 
 namespace Ogre 
 {
@@ -132,5 +134,16 @@ namespace Ogre
 
 	}
 
+    bool D3D9TextureManager::isHardwareFilteringSupported(TextureType ttype, PixelFormat format, int usage,
+        bool preciseFormatOnly)
+    {
+        if (!preciseFormatOnly)
+            format = getNativeFormat(ttype, format, usage);
+
+        D3D9RenderSystem* rs = static_cast<D3D9RenderSystem*>(
+            Root::getSingleton().getRenderSystem());
+
+        return rs->_checkTextureFilteringSupported(ttype, format, usage);
+    }
 
 }

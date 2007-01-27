@@ -1136,6 +1136,54 @@ namespace Ogre
 
 	}
 	//-----------------------------------------------------------------------
+    bool D3D9RenderSystem::_checkTextureFilteringSupported(TextureType ttype, PixelFormat format, int usage)
+    {
+		// Gets D3D format
+		D3DFORMAT d3dPF = D3D9Mappings::_getPF(format);
+        if (d3dPF == D3DFMT_UNKNOWN)
+            return false;
+
+		LPDIRECT3DSURFACE9 pSurface = mPrimaryWindow->getRenderSurface();
+		D3DSURFACE_DESC srfDesc;
+		if (FAILED(pSurface->GetDesc(&srfDesc)))
+            return false;
+
+		// Calculate usage
+		DWORD d3dusage = D3DUSAGE_QUERY_FILTER;
+		if (usage & TU_RENDERTARGET) 
+			d3dusage |= D3DUSAGE_RENDERTARGET;
+		if (usage & TU_DYNAMIC)
+			d3dusage |= D3DUSAGE_DYNAMIC;
+
+        // Detect resource type
+        D3DRESOURCETYPE rtype;
+		switch(ttype)
+		{
+		case TEX_TYPE_1D:
+		case TEX_TYPE_2D:
+            rtype = D3DRTYPE_TEXTURE;
+            break;
+        case TEX_TYPE_3D:
+            rtype = D3DRTYPE_VOLUMETEXTURE;
+            break;
+        case TEX_TYPE_CUBE_MAP:
+            rtype = D3DRTYPE_CUBETEXTURE;
+            break;
+        default:
+            return false;
+        }
+
+        HRESULT hr = mpD3D->CheckDeviceFormat(
+            mActiveD3DDriver->getAdapterNumber(),
+            D3DDEVTYPE_HAL,
+            srfDesc.Format,
+            d3dusage,
+            rtype,
+            d3dPF);
+
+        return SUCCEEDED(hr);
+    }
+	//-----------------------------------------------------------------------
 	MultiRenderTarget * D3D9RenderSystem::createMultiRenderTarget(const String & name)
 	{
 		MultiRenderTarget *retval;
