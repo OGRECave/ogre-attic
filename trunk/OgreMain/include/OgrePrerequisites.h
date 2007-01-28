@@ -301,7 +301,6 @@ namespace Ogre {
     class PlaneBoundedVolume;
 	class Plugin;
     class Pose;
-    class PositionTarget;
     class ProgressiveMesh;
     class Profile;
 	class Profiler;
@@ -355,7 +354,6 @@ namespace Ogre {
     class SubEntity;
     class SubMesh;
 	class TagPoint;
-	class TargetManager;
     class Technique;
 	class TempBlendedBufferInfo;
 	class ExternalTextureSource;

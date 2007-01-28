@@ -1864,10 +1864,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\include\OgreTargetManager.h"
-				>
-			</File>
-			<File
 				RelativePath="..\include\OgreTechnique.h"
 				>
 			</File>
