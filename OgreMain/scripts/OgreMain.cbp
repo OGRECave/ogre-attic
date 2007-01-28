@@ -1423,13 +1423,6 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="..\include\OgreTargetManager.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
 		<Unit filename="..\include\OgreTechnique.h">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />

@@ -179,7 +179,6 @@ pkginclude_HEADERS = Ogre.h \
                      OgreSubEntity.h \
                      OgreSubMesh.h \
                      OgreTagPoint.h \
-                     OgreTargetManager.h \
                      OgreTechnique.h \
                      OgreTextAreaOverlayElement.h \
                      OgreTextureUnitState.h \
