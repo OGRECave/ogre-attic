@@ -136,6 +136,9 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath="..\src\AnimationBlender.cpp">
+			</File>
+			<File
 				RelativePath="..\src\PlayPen.cpp">
 			</File>
 			<File
@@ -145,6 +148,9 @@
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
+			<File
+				RelativePath="..\include\AnimationBlender.h">
+			</File>
 			<File
 				RelativePath="..\..\..\Samples\Common\include\ExampleApplication.h">
 			</File>
