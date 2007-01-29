@@ -50,7 +50,7 @@ namespace Ogre {
 #		define _OgreBspPluginExport __declspec(dllimport)
 #   endif
 #else
-	define _OgreBspPluginExport
+#	define _OgreBspPluginExport
 #endif	// OGRE_WIN32
 
 
