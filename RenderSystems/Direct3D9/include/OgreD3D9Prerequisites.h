@@ -83,7 +83,7 @@ namespace Ogre
 #		define _OgreD3D9Export __declspec(dllimport)
 #	endif
 #else
-	define _OgreD3D9Export
+#	define _OgreD3D9Export
 #endif	// OGRE_WIN32
 }
 #endif
