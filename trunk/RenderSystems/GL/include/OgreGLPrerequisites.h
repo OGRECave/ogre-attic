@@ -106,7 +106,7 @@ namespace Ogre {
 #		define _OgreGLExport __declspec(dllimport)
 #	endif
 #else
-define _OgreGLExport
+#   define _OgreGLExport
 #endif	// OGRE_WIN32
 
 #endif

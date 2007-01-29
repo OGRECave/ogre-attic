@@ -49,7 +49,7 @@ namespace Ogre {
 #		define _OgreCgPluginExport __declspec(dllimport)
 #   endif
 #else
-	define _OgreCgPluginExport
+#	define _OgreCgPluginExport
 #endif	// OGRE_WIN32
 
 }
