@@ -101,7 +101,16 @@ namespace Ogre {
 	{
 		mAssemblerProgram = GpuProgramPtr(new GLSLGpuProgram( this ));
 	}
+	//---------------------------------------------------------------------------
+	void GLSLProgram::unloadImpl()
+	{   
+		// We didn't create mAssemblerProgram through a manager, so override this
+		// implementation so that we don't try to remove it from one. Since getCreator()
+		// is used, it might target a different matching handle!
+		mAssemblerProgram.setNull();
 
+		unloadHighLevel();
+	}
 	//-----------------------------------------------------------------------
     void GLSLProgram::unloadHighLevelImpl(void)
     {
@@ -110,8 +119,6 @@ namespace Ogre {
 			glDeleteObjectARB(mGLHandle);
 		}
 
-		// should we do this here?
-		mAssemblerProgram.setNull();
 
     }
 
