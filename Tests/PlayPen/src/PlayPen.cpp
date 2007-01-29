@@ -5092,7 +5092,7 @@ protected:
 		lightNode1->setPosition(200, 250, 500);
 		lightNode1->lookAt(Vector3(0,-200,0), Node::TS_WORLD);
 		l->setDirection(Vector3::NEGATIVE_UNIT_Z);
-		l->setDiffuseColour(0.5, 0.7, 0.5);
+		l->setDiffuseColour(0.7, 0.7, 0.5);
 
 		l = mSceneMgr->createLight("Spot2");
 		l->setAttenuation(5000,1,0,0);
@@ -5146,7 +5146,7 @@ protected:
 		n->pitch(Degree(90));
 		n->yaw(Degree(-90));
 		n->translate(0,0,-100);
-		//n->attachObject(pPlaneEnt);
+		n->attachObject(pPlaneEnt);
 
 		mCamera->setPosition(-50, 500, 1000);
 		mCamera->lookAt(Vector3(-50,-100,0));
@@ -5155,7 +5155,7 @@ protected:
 		ent->setMaterialName("Examples/Athene/NormalMapped");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0,-20,0))->attachObject(ent);
 
-		addTextureShadowDebugOverlay(2);
+		//addTextureShadowDebugOverlay(2);
 
 
 
@@ -5165,6 +5165,9 @@ protected:
 	// Just override the mandatory create scene method
     void createScene(void)
     {
+		MeshPtr m;
+		ResourcePtr p = m;
+
 		Real d = std::numeric_limits<Real>::infinity();
 		d = std::max(1e10f, d);
 		d = std::min(1e5f, d);

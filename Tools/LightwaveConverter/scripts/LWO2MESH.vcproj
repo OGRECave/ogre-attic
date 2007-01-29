@@ -44,7 +44,7 @@
 				OutputFile=".\..\bin\Debug\LWO2MESH.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\..\OgreMain\lib\Debug"
+				AdditionalLibraryDirectories="..\..\..\lib"
 				IgnoreDefaultLibraryNames="libc.lib,libcd.lib,libcmt.lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\..\bin\Debug\LWO2MESH.pdb"
@@ -101,7 +101,7 @@
 				OutputFile=".\..\bin\Release\LWO2MESH.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\..\OgreMain\lib\Release"
+				AdditionalLibraryDirectories="..\..\..\lib"
 				IgnoreDefaultLibraryNames="libcd.lib,libcmt.lib,libcmtd.lib"
 				SubSystem="1"/>
 			<Tool

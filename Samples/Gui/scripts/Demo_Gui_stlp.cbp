@@ -11,7 +11,7 @@
 				<Option output="..\..\Common\bin\Debug\Demo_Gui.exe" />
 				<Option working_dir="..\..\Common\bin\Debug" />
 				<Option object_output="..\obj\Debug" />
-				<Option external_deps="..\..\..\OgreMain\lib\Debug\libOgreMain_d.dll;..\..\Common\CEGUIRenderer\bin\Debug\libOgreGUIRenderer_d.a;" />
+				<Option external_deps="..\..\..\lib\libOgreMain_d.dll;..\..\Common\CEGUIRenderer\bin\Debug\libOgreGUIRenderer_d.a;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />
@@ -31,7 +31,7 @@
 				<Option output="..\..\Common\bin\Release\Demo_Gui.exe" />
 				<Option working_dir="..\..\Common\bin\Release" />
 				<Option object_output="..\obj\Release" />
-				<Option external_deps="..\..\..\OgreMain\lib\Release\libOgreMain.dll;" />
+				<Option external_deps="..\..\..\lib\libOgreMain.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />

@@ -41,6 +41,17 @@ namespace Ogre {
     */
     void checkForCgError(const String& ogreMethod, const String& errorTextPrefix, CGcontext context);
 
+
+#if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(__MINGW32__) && !defined(OGRE_STATIC_LIB)
+#	ifdef OGRE_CGPLUGIN_EXPORTS
+#		define _OgreCgPluginExport __declspec(dllexport)
+#	else
+#		define _OgreCgPluginExport __declspec(dllimport)
+#   endif
+#else
+	define _OgreCgPluginExport
+#endif	// OGRE_WIN32
+
 }
 
 #endif

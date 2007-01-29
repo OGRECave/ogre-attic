@@ -332,7 +332,7 @@ namespace Ogre {
 		
 		LPCSTR dummyText = "OgreWglDummy";
 #ifdef OGRE_STATIC_LIB
-		HINSTANCE hInst = GetModuleHandle( NULL );
+		HINSTANCE hinst = GetModuleHandle( NULL );
 #else
 		HINSTANCE hinst = GetModuleHandle("RenderSystem_GL.dll");
 #endif

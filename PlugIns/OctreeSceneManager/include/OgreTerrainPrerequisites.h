@@ -48,7 +48,7 @@ namespace Ogre
 //-----------------------------------------------------------------------
 
 #if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32 ) && !defined(__MINGW32__) && !defined(OGRE_STATIC_LIB)
-#   ifdef PLUGIN_TERRAIN_EXPORTS
+#   ifdef OGRE_TERRAINPLUGIN_EXPORTS
 #       define _OgreOctreePluginExport __declspec(dllexport)
 #   else
 #       define _OgreOctreePluginExport __declspec(dllimport)

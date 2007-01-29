@@ -8,9 +8,9 @@
 		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
-				<Option output="..\bin\Debug\OgreGUIRenderer_d.dll" prefix_auto="0" extension_auto="0" />
+				<Option output="..\..\..\..\lib\OgreGUIRenderer_d.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="..\bin\Debug" />
-				<Option external_deps="..\..\..\..\OgreMain\lib\Debug\OgreMain_d.dll;" />
+				<Option external_deps="..\..\..\..\lib\OgreMain_d.dll;" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />
@@ -27,9 +27,9 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
-				<Option output="..\bin\Release\OgreGUIRenderer.dll" prefix_auto="0" extension_auto="0" />
+				<Option output="..\..\..\..\lib\OgreGUIRenderer.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="..\bin\Release" />
-				<Option external_deps="..\..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
+				<Option external_deps="..\..\..\..\lib\OgreMain.dll;" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />

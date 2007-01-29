@@ -12,8 +12,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\bin\$(ConfigurationName)"
-			IntermediateDirectory="..\bin\$(ConfigurationName)"
+			OutputDirectory="..\..\..\..\lib"
+			IntermediateDirectory="..\obj\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2">
 			<Tool
@@ -39,7 +39,7 @@
 				AdditionalDependencies="CEGUIBase_d.lib Ogremain_d.lib"
 				OutputFile="$(OutDir)/$(ProjectName)_d.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;..\..\..\..\dependencies\lib\$(ConfigurationName)"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\lib&quot;;..\..\..\..\dependencies\lib\$(ConfigurationName)"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(IntDir)/$(ProjectName).pdb"
 				SubSystem="2"
@@ -69,8 +69,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\bin\$(ConfigurationName)"
-			IntermediateDirectory="..\bin\$(ConfigurationName)"
+			OutputDirectory="..\..\..\..\lib"
+			IntermediateDirectory="..\obj\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2">
 			<Tool
@@ -93,7 +93,7 @@
 				AdditionalDependencies="CEGUIBase.lib Ogremain.lib"
 				OutputFile="$(OutDir)/$(ProjectName).dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;..\..\..\..\dependencies\lib\$(ConfigurationName)"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\lib&quot;;..\..\..\..\dependencies\lib\$(ConfigurationName)"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(IntDir)/$(ProjectName).pdb"
 				SubSystem="2"

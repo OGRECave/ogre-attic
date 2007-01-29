@@ -8,9 +8,9 @@
 		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
-				<Option output="..\lib\Debug\ReferenceAppLayer.dll" />
+				<Option output="..\..\..\lib\ReferenceAppLayer_d.dll" />
 				<Option object_output="..\obj\Debug" />
-				<Option external_deps="..\..\..\OgreMain\lib\Debug\OgreMain_d.dll;" />
+				<Option external_deps="..\..\..\lib\OgreMain_d.dll;" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />
@@ -30,9 +30,9 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
-				<Option output="..\lib\Release\ReferenceAppLayer.dll" />
+				<Option output="..\..\..\lib\ReferenceAppLayer.dll" />
 				<Option object_output="..\obj\Release" />
-				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
+				<Option external_deps="..\..\..\lib\OgreMain.dll;" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />

@@ -99,4 +99,14 @@ namespace Ogre {
 
 #endif //OGRE_DEBUG_MODE
 
+#if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(__MINGW32__) && !defined(OGRE_STATIC_LIB)
+#	ifdef OGRE_GLPLUGIN_EXPORTS
+#		define _OgreGLExport __declspec(dllexport)
+#	else
+#		define _OgreGLExport __declspec(dllimport)
+#	endif
+#else
+define _OgreGLExport
+#endif	// OGRE_WIN32
+
 #endif

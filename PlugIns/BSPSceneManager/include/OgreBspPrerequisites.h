@@ -43,6 +43,16 @@ namespace Ogre {
     class Quake3ShaderManager;
     class Quake3Shader;
 
+#if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(__MINGW32__) && !defined(OGRE_STATIC_LIB)
+#	ifdef OGRE_BSPPLUGIN_EXPORTS
+#		define _OgreBspPluginExport __declspec(dllexport)
+#	else
+#		define _OgreBspPluginExport __declspec(dllimport)
+#   endif
+#else
+	define _OgreBspPluginExport
+#endif	// OGRE_WIN32
+
 
 }
 

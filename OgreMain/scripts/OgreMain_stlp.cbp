@@ -8,7 +8,7 @@
 		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
-				<Option output="..\lib\Debug\OgreMain_d.dll" />
+				<Option output="..\..\lib\OgreMain_d.dll" />
 				<Option object_output="..\obj\Debug" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -34,7 +34,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
-				<Option output="..\lib\Release\OgreMain.dll" />
+				<Option output="..\..\lib\OgreMain.dll" />
 				<Option object_output="..\obj\Release" />
 				<Option type="3" />
 				<Option compiler="gcc" />
