@@ -11,7 +11,7 @@
 				<Option output="..\..\Common\bin\Debug\Demo_ParticleFX.exe" />
 				<Option working_dir="..\..\Common\bin\Debug" />
 				<Option object_output="..\obj\Debug" />
-				<Option external_deps="..\..\..\OgreMain\lib\Debug\OgreMain_d.dll;" />
+				<Option external_deps="..\..\..\lib\OgreMain_d.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />
@@ -29,7 +29,7 @@
 				<Option output="..\..\Common\bin\Release\Demo_ParticleFX.exe" />
 				<Option working_dir="..\..\Common\bin\Release" />
 				<Option object_output="..\obj\Release" />
-				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
+				<Option external_deps="..\..\..\lib\OgreMain.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />

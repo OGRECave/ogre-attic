@@ -12,7 +12,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\bin\$(ConfigurationName)"
+			OutputDirectory="..\..\..\lib"
 			IntermediateDirectory="..\obj\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2">
@@ -38,16 +38,16 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
 				AdditionalDependencies="OgreMain_d.lib d3d9.lib d3dx9.lib dxerr9.lib dxguid.lib"
-				OutputFile="$(OutDir)/RenderSystem_Direct3D9.dll"
+				OutputFile="$(OutDir)/RenderSystem_Direct3D9_d.dll"
 				Version="0.99"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
-				ModuleDefinitionFile="..\misc\OgreD3D9RenderSystem.def"
+				AdditionalLibraryDirectories="&quot;..\..\..\lib&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
+				ModuleDefinitionFile=""
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/RenderSystem_Direct3D9.pdb"
 				SubSystem="2"
-				ImportLibrary="$(OutDir)/RenderSystem_Direct3D9.lib"
+				ImportLibrary="$(OutDir)/RenderSystem_Direct3D9_d.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -73,7 +73,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\bin\$(ConfigurationName)"
+			OutputDirectory="..\..\..\lib"
 			IntermediateDirectory="..\obj\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2"
@@ -110,8 +110,8 @@
 				Version="0.99"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
-				ModuleDefinitionFile="..\misc\OgreD3D9RenderSystem.def"
+				AdditionalLibraryDirectories="&quot;..\..\..\lib&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
+				ModuleDefinitionFile=""
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				OptimizeReferences="2"

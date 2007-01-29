@@ -32,7 +32,7 @@ Torus Knot Software Ltd.
 
 Ogre::BspSceneManagerPlugin* bspPlugin;
 //-----------------------------------------------------------------------
-extern "C" void dllStartPlugin(void)
+extern "C" void _OgreBspPluginExport dllStartPlugin(void)
 {
     // Create new scene manager
     bspPlugin = new Ogre::BspSceneManagerPlugin();
@@ -42,7 +42,7 @@ extern "C" void dllStartPlugin(void)
 
 
 }
-extern "C" void dllStopPlugin(void)
+extern "C" void _OgreBspPluginExport dllStopPlugin(void)
 {
 	Ogre::Root::getSingleton().uninstallPlugin(bspPlugin);
     delete bspPlugin;

@@ -8,9 +8,9 @@
 		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
-				<Option output="..\bin\Debug\RenderSystem_Direct3D9.dll" />
+				<Option output="..\..\..\lib\RenderSystem_Direct3D9_d.dll" />
 				<Option object_output="..\obj\Debug" />
-				<Option external_deps="..\..\..\OgreMain\lib\Debug\OgreMain_d.dll;" />
+				<Option external_deps="..\..\..\lib\OgreMain_d.dll;" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />
@@ -34,9 +34,9 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
-				<Option output="..\bin\Release\RenderSystem_Direct3D9.dll" />
+				<Option output="..\..\..\lib\RenderSystem_Direct3D9.dll" />
 				<Option object_output="..\obj\Release" />
-				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
+				<Option external_deps="..\..\..\lib\OgreMain.dll;" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />

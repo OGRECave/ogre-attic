@@ -11,7 +11,7 @@
 				<Option output="..\..\..\Samples\Common\bin\Debug\Demo_BspCollision.exe" />
 				<Option working_dir="..\..\..\Samples\Common\bin\Debug" />
 				<Option object_output="..\obj\Debug" />
-				<Option external_deps="..\..\..\OgreMain\lib\Debug\OgreMain_d.dll;" />
+				<Option external_deps="..\..\..\lib\OgreMain_d.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />
@@ -25,14 +25,13 @@
 					<Add library="ois_d" />
 					<Add library="stlportstlg.5.1" />
 					<Add directory="..\..\Dependencies\lib\Debug" />
-					<Add directory="..\..\ReferenceAppLayer\lib\Debug" />
 				</Linker>
 			</Target>
 			<Target title="Release">
 				<Option output="..\..\..\Samples\Common\bin\Release\Demo_BspCollision.exe" />
 				<Option working_dir="..\..\..\Samples\Common\bin\Release" />
 				<Option object_output="..\obj\Release" />
-				<Option external_deps="..\..\..\OgreMain\lib\Release\OgreMain.dll;" />
+				<Option external_deps="..\..\..\lib\OgreMain.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />
@@ -47,7 +46,6 @@
 					<Add library="ois" />
 					<Add library="stlport.5.1" />
 					<Add directory="..\..\Dependencies\lib\Release" />
-					<Add directory="..\..\ReferenceAppLayer\lib\Release" />
 				</Linker>
 			</Target>
 		</Build>

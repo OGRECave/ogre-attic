@@ -80,9 +80,9 @@ Torus Knot Software Ltd.
 */
 #define OGRE_MAX_BLEND_WEIGHTS 4
 
-/** Set this to zero if you want to link OGRE as a static lib.
+/** Define this if you want to link OGRE as a static lib (preferably as a project file)
 */
-#define OGRE_DYNAMIC_LINKAGE 1
+//#define OGRE_STATIC_LIB
 
 
 /** Set this to 0 if you want to use the standard memory manager in Debug builds

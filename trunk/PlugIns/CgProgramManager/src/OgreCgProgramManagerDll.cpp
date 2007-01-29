@@ -35,7 +35,7 @@ namespace Ogre {
 
     CgPlugin* cgPlugin;
     //-----------------------------------------------------------------------
-    extern "C" void dllStartPlugin(void)
+    extern "C" void _OgreCgPluginExport dllStartPlugin(void)
     {
         // Create new plugin
         cgPlugin = new CgPlugin();
@@ -45,7 +45,7 @@ namespace Ogre {
 
 
     }
-    extern "C" void dllStopPlugin(void)
+    extern "C" void _OgreCgPluginExport dllStopPlugin(void)
     {
 		Root::getSingleton().uninstallPlugin(cgPlugin);
 		delete cgPlugin;

@@ -34,14 +34,14 @@ Torus Knot Software Ltd.
 namespace Ogre {
 
 	GLPlugin* plugin;
-    extern "C" void dllStartPlugin(void) throw()
+    extern "C" void _OgreGLExport dllStartPlugin(void) throw()
     {
 		plugin = new GLPlugin();
 		Root::getSingleton().installPlugin(plugin);
 
     }
 
-    extern "C" void dllStopPlugin(void)
+    extern "C" void _OgreGLExport dllStopPlugin(void)
     {
 		Root::getSingleton().uninstallPlugin(plugin);
 		delete plugin;

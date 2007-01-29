@@ -35,7 +35,7 @@ Torus Knot Software Ltd.
 // Windows Settings
 //-----------------------------------------------------------------------
 #if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(__MINGW32__) && !defined(OGRE_STATIC_LIB)
-#   ifdef PLUGIN_ParticleFX_EXPORTS
+#   ifdef OGRE_PARTICLEFXPLUGIN_EXPORTS
 #       define _OgreParticleFXExport __declspec(dllexport)
 #   else
 #       define _OgreParticleFXExport __declspec(dllimport)
