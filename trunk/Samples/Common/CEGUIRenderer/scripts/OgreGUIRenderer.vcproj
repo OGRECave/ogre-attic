@@ -4,6 +4,7 @@
 	Version="7.10"
 	Name="OgreGUIRenderer"
 	ProjectGUID="{2250CA22-7F4D-4BC0-A8E7-B4400D209B33}"
+	RootNamespace="OgreGUIRenderer"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -43,7 +44,7 @@
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(IntDir)/$(ProjectName).pdb"
 				SubSystem="2"
-				ImportLibrary="..\lib\$(ProjectName)_d.lib"
+				ImportLibrary="$(OutDir)\$(ProjectName)_d.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -99,7 +100,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="..\lib\$(ProjectName).lib"
+				ImportLibrary="$(OutDir)\$(ProjectName).lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
