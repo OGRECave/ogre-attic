@@ -33,7 +33,7 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
     //-----------------------------------------------------------------------
-    String sLanguageName = "cg";
+    String CgProgramFactory::sLanguageName = "cg";
     //-----------------------------------------------------------------------
     CgProgramFactory::CgProgramFactory()
     {

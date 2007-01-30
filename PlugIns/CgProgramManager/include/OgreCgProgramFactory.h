@@ -39,6 +39,7 @@ namespace Ogre
     {
     protected:
         CGcontext mCgContext;
+		static String sLanguageName;
     public:
         CgProgramFactory();
         ~CgProgramFactory();

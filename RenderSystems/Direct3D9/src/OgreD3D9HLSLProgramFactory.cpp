@@ -33,7 +33,7 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
     //-----------------------------------------------------------------------
-    String sLanguageName = "hlsl";
+    String D3D9HLSLProgramFactory::sLanguageName = "hlsl";
     //-----------------------------------------------------------------------
     D3D9HLSLProgramFactory::D3D9HLSLProgramFactory()
     {

@@ -40,6 +40,20 @@ Description: Somewhere to play in the sand...
 #include "OgreTextAreaOverlayElement.h"
 #include "AnimationBlender.h"
 
+// Static plugins declaration section
+// Note that every entry in here adds an extra header / library dependency
+#ifdef OGRE_STATIC_LIB
+#  define ENABLE_PLUGIN_GL
+#  if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+#    define ENABLE_PLUGIN_Direct3D9
+#  endif
+#  define ENABLE_PLUGIN_OctreeSceneManager
+#  define ENABLE_PLUGIN_BSPSceneManager
+#  define ENABLE_PLUGIN_ParticleFX
+#  define ENABLE_PLUGIN_CgProgramManager
+#endif
+#include "StaticPluginLoader.h"
+
 /*
 #include "OgreNoMemoryMacros.h"
 #include <ode/odecpp.h>
@@ -476,6 +490,7 @@ class PlayPenApplication : public ExampleApplication
 protected:
     RefractionTextureListener mRefractionListener;
     ReflectionTextureListener mReflectionListener;
+	StaticPluginLoader mStaticPluginLoader;
 public:
     PlayPenApplication() {
     
@@ -486,6 +501,20 @@ public:
     {
         if (frustum)
             delete frustum;
+		// Early delete so we can destroy static plugins
+		if (mFrameListener)
+		{
+			delete mFrameListener;
+			mFrameListener = 0;
+		}
+		if (mRoot)
+		{
+			delete mRoot;
+			mRoot = 0;
+		}
+#ifdef OGRE_STATIC_LIB
+		mStaticPluginLoader.unload();
+#endif
     }
 protected:
     
@@ -5308,6 +5337,45 @@ public:
         mRoot->startRendering();
     }
 
+	bool setup()
+	{
+		String pluginsPath = mResourcePath + "plugins.cfg";
+		// only use plugins.cfg if not static
+#ifdef OGRE_STATIC_LIB
+		mRoot = new Root(StringUtil::BLANK, 
+			mResourcePath + "ogre.cfg", mResourcePath + "Ogre.log");
+		mStaticPluginLoader.load(*mRoot);
+#else
+		mRoot = new Root(pluginsPath, 
+			mResourcePath + "ogre.cfg", mResourcePath + "Ogre.log");
+#endif
+		setupResources();
+
+		bool carryOn = configure();
+		if (!carryOn) return false;
+
+		chooseSceneManager();
+		createCamera();
+		createViewports();
+
+		// Set default mipmap level (NB some APIs ignore this)
+		TextureManager::getSingleton().setDefaultNumMipmaps(5);
+
+		// Create any resource listeners (for loading screens)
+		createResourceListener();
+		// Load resources
+		loadResources();
+
+		// Create the scene
+		createScene();
+
+		createFrameListener();
+
+		return true;
+
+	}
+
+
 
 };
 
@@ -5405,12 +5473,17 @@ public:
 	bool setup(void)
 	{
 		if(!gReload)
-			mRoot = new Root();
+		{
+			String pluginsPath = mResourcePath + "plugins.cfg";
+			mRoot = new Root(pluginsPath, 
+				mResourcePath + "ogre.cfg", mResourcePath + "Ogre.log");
+		}
 
 		setupResources();
 
 		if(!gReload)
 		{
+
 			bool carryOn = configure();
 			if (!carryOn)
 				return false;

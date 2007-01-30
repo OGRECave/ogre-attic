@@ -107,30 +107,25 @@ namespace Ogre
 #endif
 		}
 
-		void unload(Root& root)
+		void unload()
 		{
+			// don't unload plugins, since Root will have done that. Destroy here.
 #ifdef ENABLE_PLUGIN_BSPSceneManager
-			root.uninstallPlugin(mBSPPlugin);
 			delete mBSPPlugin;
 #endif
 #ifdef ENABLE_PLUGIN_ParticleFX
-			root.uninstallPlugin(mParticleFXPlugin);
 			delete mParticleFXPlugin;
 #endif
 #ifdef ENABLE_PLUGIN_OctreeSceneManager
-			root.uninstallPlugin(mOctreePlugin);
 			delete mOctreePlugin;
 #endif
 #ifdef ENABLE_PLUGIN_CgProgramManager
-			root.uninstallPlugin(mCgPlugin);
 			delete mCgPlugin;
 #endif
 #ifdef ENABLE_PLUGIN_Direct3D9
-			root.uninstallPlugin(mD3D9Plugin);
 			delete mD3D9Plugin;
 #endif
 #ifdef ENABLE_PLUGIN_GL
-			root.uninstallPlugin(mGLPlugin);
 			delete mGLPlugin;
 #endif
 

@@ -33,7 +33,7 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
     //-----------------------------------------------------------------------
-    const String sLanguageName = "glsl";
+    String GLSLProgramFactory::sLanguageName = "glsl";
     //-----------------------------------------------------------------------
 	GLSLProgramFactory::GLSLProgramFactory(void)
     {
