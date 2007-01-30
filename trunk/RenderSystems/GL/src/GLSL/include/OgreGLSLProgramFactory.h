@@ -40,6 +40,7 @@ namespace Ogre
     class GLSLProgramFactory : public HighLevelGpuProgramFactory
     {
     protected:
+		static String sLanguageName;
     public:
         GLSLProgramFactory(void);
         ~GLSLProgramFactory(void);

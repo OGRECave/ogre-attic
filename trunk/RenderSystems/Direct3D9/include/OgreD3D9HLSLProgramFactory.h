@@ -38,6 +38,7 @@ namespace Ogre
     class D3D9HLSLProgramFactory : public HighLevelGpuProgramFactory
     {
     protected:
+		static String sLanguageName;
     public:
         D3D9HLSLProgramFactory();
         ~D3D9HLSLProgramFactory();

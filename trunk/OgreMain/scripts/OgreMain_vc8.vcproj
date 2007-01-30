@@ -279,7 +279,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine=""
+				CommandLine="copy ..\obj\DebugStaticLib\OgreWin32Resources.res ..\..\lib\OgreWin32Resources_d.res"
 			/>
 		</Configuration>
 		<Configuration
@@ -355,7 +355,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine=""
+				CommandLine="copy ..\obj\DebugStaticLib\OgreWin32Resources.res ..\..\lib\OgreWin32Resources.res"
 			/>
 		</Configuration>
 	</Configurations>

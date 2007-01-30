@@ -35,6 +35,7 @@ Torus Knot Software Ltd.
 #include "OgreMaterial.h"
 #include "OgreException.h"
 #include "OgreRoot.h"
+#include "OgreLogManager.h"
 
 
 namespace Ogre {
@@ -84,6 +85,9 @@ namespace Ogre {
 		mFactories.push_back(fact);
 		// add to metadata
 		mMetaDataList.push_back(&fact->getMetaData());
+		// Log
+		LogManager::getSingleton().logMessage("SceneManagerFactory for type '" +
+			fact->getMetaData().typeName + "' registered.");
 	}
 	//-----------------------------------------------------------------------
 	void SceneManagerEnumerator::removeFactory(SceneManagerFactory* fact)

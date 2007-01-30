@@ -65,6 +65,14 @@ public:
     {
         mFrameListener = 0;
         mRoot = 0;
+		// Provide a nice cross platform solution for locating the configuration files
+		// On windows files are searched for in the current working directory, on OS X however
+		// you must provide the full path, the helper function macBundlePath does this for us.
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+		mResourcePath = macBundlePath() + "/Contents/Resources/";
+#else
+		mResourcePath = "";
+#endif
     }
     /// Standard destructor
     virtual ~ExampleApplication()
@@ -99,16 +107,14 @@ protected:
     /** Sets up the application - returns false if the user chooses to abandon configuration. */
     virtual bool setup(void)
     {
-		// Provide a nice cross platform solution for locating the configuration files
-		// On windows files are searched for in the current working directory, on OS X however
-		// you must provide the full path, the helper function macBundlePath does this for us.
-		#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-		mResourcePath = macBundlePath() + "/Contents/Resources/";
-		#else
-		mResourcePath = "";
-		#endif
+
+		String pluginsPath;
+		// only use plugins.cfg if not static
+#ifndef OGRE_STATIC_LIB
+		pluginsPath = mResourcePath + "plugins.cfg";
+#endif
 		
-        mRoot = new Root(mResourcePath + "plugins.cfg", 
+        mRoot = new Root(pluginsPath, 
             mResourcePath + "ogre.cfg", mResourcePath + "Ogre.log");
 
         setupResources();
