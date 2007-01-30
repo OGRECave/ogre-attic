@@ -99,12 +99,12 @@ namespace Ogre {
         else
         {
             mLumpStart = ((unsigned char*)mHeader) + sizeof(mHeader);
+			initialisePointers();
         }
-        initialisePointers();
 
 
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-      // swap header
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
+		// swap header
         SwapFourBytes ((uint32*)&mHeader->version);
 #endif
     }
@@ -144,7 +144,7 @@ namespace Ogre {
         mLeafBrushes = (int*)getLump(BSP_LBRUSHES_LUMP);
         mBrushes = (bsp_brush_t*) getLump(BSP_BRUSH_LUMP);
         mBrushSides = (bsp_brushside_t*) getLump(BSP_BRUSHSIDES_LUMP);
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
         SwapFourBytesGrup ((uint32*)mElements, mNumElements*sizeof(int));
         SwapFourBytesGrup ((uint32*)mFaces, mNumFaces*sizeof(bsp_face_t));
         SwapFourBytesGrup ((uint32*)mLeafFaces, mNumLeafFaces*sizeof(int));
@@ -170,7 +170,7 @@ namespace Ogre {
         if (mLumpStart)
         {
        
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
             // swap lump offset
             SwapFourBytes ((uint32*)&mHeader->lumps[lumpType].offset);
 #endif
@@ -185,7 +185,7 @@ namespace Ogre {
     int Quake3Level::getLumpSize(int lumpType)
     {
 
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
         // swap lump size
         SwapFourBytes ((uint32*)&mHeader->lumps[lumpType].size);
 #endif

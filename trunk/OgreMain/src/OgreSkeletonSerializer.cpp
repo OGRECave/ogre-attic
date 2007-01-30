@@ -65,6 +65,12 @@ namespace Ogre {
 
         String msg;
         mpfFile = fopen(filename.c_str(), "wb");
+		if (!mpfFile)
+		{
+			OGRE_EXCEPT(Exception::ERR_CANNOT_WRITE_TO_FILE,
+				"Unable to open file " + filename + " for writing",
+				"SkeletonSerializer::exportSkeleton");
+		}
 
         writeFileHeader();
 
