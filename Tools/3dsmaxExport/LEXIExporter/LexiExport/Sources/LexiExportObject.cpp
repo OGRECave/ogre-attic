@@ -7,6 +7,7 @@ Copyright 2006 NDS Limited
 Author(s):
 Mark Folkenberg,
 Bo Krohn
+Lasse Tassing
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -74,10 +75,11 @@ void CExportObject::Initialize()
 	}
 }
 
-CExportObject* CExportObject::Construct(const char* pszType)
+CExportObject* CExportObject::Construct(CDDObject *pConfig)
 {
+	const char* pszType=pConfig->GetString("Type");
 	ObjectMap::const_iterator it = m_ObjectMap.find(pszType);
-	return it != m_ObjectMap.end() ? it->second.m_pfnConstruct() : NULL;
+	return it != m_ObjectMap.end() ? it->second.m_pfnConstruct(pConfig) : NULL;
 }
 
 void CExportObject::EnumObjects(std::vector<Desc>& objlist)
@@ -96,79 +98,67 @@ void CExportObject::EnumObjects(std::vector<Desc>& objlist)
 }
 
 //
-
-CExportProgressDlg* CExportObject::m_pExportProgressDlg = NULL;
-
-//
-
-CExportObject::CExportObject(const char* pszType)
+CExportObject::CExportObject(CDDObject *pConfig)
 {
-	m_sType = pszType;
-	m_iID = 0xffffffff;
-	m_sName = "<unnamed>";
-	m_sFilename = "<unknown>";
-	m_pSceneNode = NULL;
-	m_pDDMetaDesc = NULL;
+	m_pDDConfig=pConfig;
+	m_pDDConfig->AddRef();
 
-	m_pDDEditMeta = new CDDObject();
-//	m_pDDEditMeta->AddRef();
+	m_sType = m_pDDConfig->GetString("Type");		// Known to exist!
+//	m_sName = m_pDDConfig->GetString("Name", "<unnamed>");
+	
+	m_pParent=NULL;	
+	m_bEnabled=true;
+
+	// Construct all child exports
+	fastvector<const CDDObject *> lChildren=m_pDDConfig->GetDDList("Children");
+	for(unsigned i=0;i<lChildren.size();i++)
+	{
+		CExportObject *pChild=Construct((CDDObject *)lChildren[i]);
+		if(pChild != NULL)
+			pChild->SetParent(this);
+	}
 }
 
 CExportObject::~CExportObject()
 {
-	if(m_pSceneNode) delete m_pSceneNode;
+	m_pDDConfig->Release();	
+
+	// If we have a valid parent, we remove this instance now
+	if(m_pParent) m_pParent->RemoveChild(this);	
 }
 
-//
+// Save configuration 
+void CExportObject::SaveConfig(CDDObject *pOutput) const
+{
+	pOutput->MergeWith(m_pDDConfig);
+
+	if(m_lChildren.size())
+	{
+		fastvector<const CDDObject*> lChildDD;
+
+		for(unsigned i=0;i<m_lChildren.size();i++)
+		{
+			CDDObject *pChildConfig=new CDDObject;
+			m_lChildren[i]->SaveConfig(pChildConfig);
+			lChildDD.push_back(pChildConfig);
+		}
+
+		pOutput->SetDDList("Children", lChildDD, false);
+	}
+}
 
 void CExportObject::Release()
 {
-	if(m_pDDEditMeta)
-		m_pDDEditMeta->Release();
+	// Make a copy of list of children
+	// Each child will be removed from m_lChildren list when it is released
+	std::vector<CExportObject *> lCopyList=m_lChildren;
+	for(unsigned i=0;i<lCopyList.size();i++)
+	{		
+		lCopyList[i]->Release();
+	}
+	m_lChildren.clear();
 	delete this;
 }
-
-//
-
-void CExportObject::Read(CDDObject* pConfig)
-{
-	m_iID = pConfig->GetInt("id", 0xffffffff);
-	m_sName = pConfig->GetString("name", "<unnamed>");
-	m_sFilename = pConfig->GetString("filename", "<unknown>");
-
-	CDDObject* tmpDD = pConfig->GetDDObject("EditedSettings");
-
-	//pConfig->SaveASCII("C:\\EditedSettings.txt");
-	if(tmpDD != NULL) 
-	{
-		m_pDDEditMeta->Release();
-		m_pDDEditMeta = tmpDD;
-		m_pDDEditMeta->AddRef();
-	}
-}
-
-void CExportObject::Write(CDDObject* pConfig) const
-{
-	pConfig->SetInt("id", m_iID);
-	pConfig->SetString("name", m_sName.c_str());
-	pConfig->SetString("filename", m_sFilename.c_str());
-	pConfig->SetDDObject("EditedSettings", m_pDDEditMeta);
-}
-
-//
-
-bool CExportObject::CreateSceneNode()
-{
-	if(m_pSceneNode)
-	{
-		delete m_pSceneNode;
-		m_pSceneNode = NULL;
-	}
-
-	return false;
-}
-
-//
 
 const char* CExportObject::GetType() const
 {
@@ -180,83 +170,136 @@ const char* CExportObject::GetTypeName() const
 	return m_ObjectMap[GetType()].m_sTypeName.c_str();
 }
 
-//
-
-void CExportObject::SetID(unsigned int iID)
-{
-	m_iID = iID;
-}
-
-unsigned int CExportObject::GetID() const
-{
-	return m_iID;
-}
-
-//
-
-void CExportObject::SetName(const char* pszName)
-{
-	m_sName = pszName;
-}
-
 const char* CExportObject::GetName() const
 {
-	return m_sName.c_str();
+//	return m_sName.c_str();
+	return m_pDDConfig->GetString("Name", "<unnamed>");
+}
+
+// Get additional description string
+const char* CExportObject::GetDesc() const
+{
+	return m_sDesc.c_str();
 }
 
 //
-
-void CExportObject::SetFilename(const char* pszFilename)
+// Enable/disable object during export (childs may still be exported)
+void CExportObject::SetEnabled(bool bEnabled)
 {
-	m_sFilename = pszFilename;
+	m_bEnabled=bEnabled;
+}
+bool CExportObject::GetEnabled() const
+{
+	return m_bEnabled;
 }
 
-const char* CExportObject::GetFilename() const
+// Supports node class. Default implementation just returns false.
+bool CExportObject::SupportsMAXNode(INode *pMAXNode) const
 {
-	return m_sFilename.c_str();
+	return false;
 }
 
-//
-
-bool CExportObject::Edit(GDI::Window* pParent, const char* pszTitle, unsigned int iInitSelectedID)
+// Get/Set selected MAX node. Default implementation read/writes it from
+// the m_pDDConfig object on a key called "NodeID"
+void CExportObject::SetMAXNodeID(unsigned int iMAXNodeID)
 {
-	CObjectPropertiesDlg dlg(pParent, this);
-	dlg.m_sTitle = pszTitle;
-
-	char gbtitle[256];
-	sprintf(gbtitle, "%s Properties", GetTypeName());
-	dlg.m_sGBTitle = gbtitle;
-
-	dlg.m_sName = GetName();
-	dlg.m_iID = GetID();
-	dlg.m_sFilename = GetFilename();
-	dlg.m_iInitFromSelected = iInitSelectedID;
-
-	if(dlg.DoModal() != IDOK) return false;
-
-	SetName(dlg.m_sName.c_str());
-	SetID(dlg.m_iID);
-	SetFilename(dlg.m_sFilename.c_str());
-
-	return true;
+	m_pDDConfig->SetInt("NodeID", iMAXNodeID);
+}
+unsigned int CExportObject::GetMAXNodeID() const
+{
+	if(m_pDDConfig->GetKeyType("NodeID")!=DD_INT) return 0xFFFFFFFF;
+	return m_pDDConfig->GetInt("NodeID");
 }
 
-//
-
-void CExportObject::OutputProgress(const char* pszText, unsigned int iLevel) const
+// Set new parent object. This will automatically add current instance
+// as child on the parent and remove it from the old parent (if available)
+void CExportObject::SetParent(CExportObject *pParent)
 {
-	if(m_pExportProgressDlg) m_pExportProgressDlg->Output(pszText, iLevel);
+	// Check if we have the same parent
+	if(m_pParent==pParent) return;
+
+	// If we have a valid parent, we remove us as child
+	if(m_pParent!=NULL)
+	{
+		m_pParent->RemoveChild(this);
+	}
+	m_pParent=pParent;
+	if(m_pParent!=NULL)
+	{
+		m_pParent->AddChild(this);
+	}
 }
 
-//
-
-const char* CExportObject::GetDefaultFileExt() const
+CExportObject* CExportObject::GetParent() const
 {
-	return "export";
+	return m_pParent;
+}
+
+// Add child to this instance
+void CExportObject::AddChild(CExportObject *pChild)
+{
+	m_lChildren.push_back(pChild);
+}
+
+// Remove child from instance.
+void CExportObject::RemoveChild(CExportObject *pChild)
+{
+	for(int i=0;i<m_lChildren.size();i++)
+	{
+		if(m_lChildren[i]==pChild)
+		{
+			m_lChildren.erase(m_lChildren.begin()+i);
+			return;
+		}
+	}
+}
+
+// Get list of children attached to current instance
+std::vector<CExportObject*> CExportObject::GetChildren() const
+{
+	return m_lChildren;
+}
+bool CExportObject::HasChildren() const
+{
+	return m_lChildren.size()!=0;
+}
+
+// Get number of children - optionally recurse to count all subchildren
+unsigned int CExportObject::GetChildCount(bool bRecursive)
+{
+	unsigned int iCount=m_lChildren.size();
+
+	if(bRecursive)
+	{
+		// Iterate all children and call export on them
+		for(unsigned int i=0;i<m_lChildren.size();i++)
+		{
+			iCount+=m_lChildren[i]->GetChildCount(true);
+		}
+	}
+	return iCount;
+}
+
+// Export object
+bool CExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll) const
+{
+	bool bOK=true;
+	pProgressDlg->GlobalStep();
+
+	// Iterate all children and call export on them
+	for(unsigned int i=0;i<m_lChildren.size();i++)
+	{
+		// Check if user wants to abort current export
+		if(pProgressDlg->CheckAbort()==true) return false;
+
+		// Export child object
+		if(!m_lChildren[i]->Export(pProgressDlg, bForceAll))
+			bOK=false;
+	}
+	return bOK;
 }
 
 ///////////////////////////////////////////////////////////
-
 const char* GetNameFromID(unsigned int iID)
 {
 	if(iID == 0) return "<SceneRoot>";

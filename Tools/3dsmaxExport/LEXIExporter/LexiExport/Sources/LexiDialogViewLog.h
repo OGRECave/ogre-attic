@@ -23,51 +23,43 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __NDS_META_COLOR__
-#define __NDS_META_COLOR__
+#ifndef __NDS_LexiExporter_ViewLogDialog__
+#define __NDS_LexiExporter_ViewLogDialog__
+
+#include <richedit.h>
 
 //
-namespace GDI 
-{
-class MetaColor : public MetaBaseCtrl
+
+class CExportViewLogDlg : public GDI::Dialog
 {
 public:
-	MetaColor();
-	~MetaColor();	
+	CExportViewLogDlg(Window* pParent, CMemoryLog *pLog);
+	~CExportViewLogDlg();
 
-private:
-	// Data object changed - update data on control
-	// Note: This is also called when control is created
-	void	UpdateData(CDDObject *pData);
-	void	OnCreated();
-	void	OnPaint();
-	void	OnLayout();	
-	bool	OnMouseDown(int iFlags, int iX, int iY);
-	bool	OnMouseDblClick(int iFlags, int iX, int iY);
-	bool	OnMouseMove(int iFlags, int iX, int iY);
-	void	OnCommand(HWND hWnd, int iCode, int iID);
-	void	MakeGrayed(TRIVERTEX &tVert);
-	void	UpdateHeight();
+protected:
 
-	// Enable/disable control
-	void	SetEnabled(bool bEnabled);
+	virtual void OnInitDialog();
+	void	OnSize(void);
+	void	OnShowDebug(void);
+	void	OnShowOGRE(void);
+	void	OnAutoClose(void);
 
-	bool	m_bIncludeAlpha;
-	bool	m_bHasCapture;
-	bool	m_bShowSliders;
-	CVec4	m_Value;
-	AlphaFiller	m_AlphaFiller;
-	int		m_iActiveSlider;
+private:	
+	static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	
+	void	Repopulate(void);
+	void	AddMessage(CMemoryLog::SMessage *pMessage);
 
-	//
-	HDC		m_hAlphaDC;
-	HBITMAP	m_hAlphaMemory;
-	HBITMAP	m_hBrushBitmap;
-	HBRUSH	m_hCheckerBrush;
-	BLENDFUNCTION m_BlendFunc;
+	RECT	m_OrgClientRect;
+	CMemoryLog *m_pLog;
 
-	Edit	*m_pEditCtrl;
+	GDI::TreeCtrl	m_LogTree;
+	GDI::Button		m_ShowDebug;
+	GDI::Button		m_ShowOGRE;
+	bool			m_bShowDebug;
+	bool			m_bShowOGRE;	
 };
 
-}
-#endif
+//
+
+#endif // __NDS_LexiExporter_ExportProgressDialog__

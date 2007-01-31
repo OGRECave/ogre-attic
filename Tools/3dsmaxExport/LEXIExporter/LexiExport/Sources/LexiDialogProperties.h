@@ -29,66 +29,79 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 //
 
-class CExporterPropertiesDlg : public GDI::Dialog {
+class CExporterPropertiesDlg : public GDI::Dialog 
+{
+public:
+	CExporterPropertiesDlg(Window* pParent, Interface* pMax, IUtil* pMaxUtil, CExportObjectRoot *pRoot);
+	~CExporterPropertiesDlg();
 
-	private:
+public:
 
-		Interface* m_pMax;
-		IUtil* m_pMaxUtil;
+	bool m_bChanges;		
 
-		ExportObjectList* m_pConfig;
-		CDDObject* m_pSettings;
+	void PopulateExportTree();
+//	void AddToExportTree(unsigned int iConfigIndex);
+//	void UpdateItemInList(int iIndex);
 
-		std::vector<unsigned int> m_SelectionList;
+protected:
+	void	OnInitDialog();
+	bool	OnValidate();
+	void	OnSize();	
+	void	OnConfigButtonAdd();
+	void	OnConfigButtonAddSelected();
+	void	OnConfigButtonRemove();	
+	void	OnLoadSelection();	
+	void	OnConfigButtonSettings();
+	void	OnConfigButtonExport();
+	void	OnConfigButtonExportSelected();
+	void	OnViewLog();
+	void	OnSelChange();
+	void	OnCheckChange(HTREEITEM hItem);
+	void	OnRClickTree();
+	void	OnDataChange();
+	void	OnButtonAdd(GDI::Button* pButton, unsigned int iSelectedID);
 
-		//
+	void	AddObjectToTree(CExportObject *pObject, HTREEITEM hParent);
+	void	InternalCreate(int iTypeIndex, HTREEITEM hParent, unsigned int iSelectedID);
+	void	InternalRemove(HTREEITEM hItem);
+	void	UpdateEditWindow();
+	void	GetSubItems(HTREEITEM hParent, std::vector<HTREEITEM> &lList);
 
-		static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+private:
+	// Image list for icons in the treectrl
+	HIMAGELIST m_hImageList;
+	std::map<std::string, unsigned int> m_ImageListMap;
+	std::vector<CExportObject*> m_lTypeCache;
 
-	public:
+	// UI controls
+	GDI::Button		m_ButtonAdd;
+	GDI::Button		m_ButtonAddSelected;
+	GDI::Button		m_ButtonRemove;
+	GDI::Button		m_ButtonSettings;
+	GDI::Button		m_ButtonExport;
+	GDI::Button		m_ButtonLoadSelection;
+	GDI::Button		m_ButtonExportSelected;
+	GDI::TreeCtrl	m_ExportTree;
+	GDI::Window		*m_pCurrentEditWindow;
 
-		CExporterPropertiesDlg(Window* pParent, Interface* pMax, IUtil* pMaxUtil, ExportObjectList* pConfig, CDDObject* pSettings);
-		~CExporterPropertiesDlg();
+	// 
+	Interface* m_pMax;
+	IUtil* m_pMaxUtil;
 
-		void GetLastSelection(std::vector<unsigned int>& selectionlist) const;
+	CExportObjectRoot	*m_pRoot;	
+	HTREEITEM			m_hRootItem;
 
-	protected:
+	// Currently selected ExportObject
+	CExportObject*		m_pCurrent;
 
-		virtual void OnInitDialog();
+	// Last object to have edit control displayed
+	CExportObject*		m_pLastEditObject;
 
-		void OnButtonAdd(GDI::Button* pButton, unsigned int iSelectedID);
+	// Original Client Rectangle (initialize in OnInitDialog())
+	RECT	m_OrgClientRect;
 
-	public:
-
-		bool m_bChanges;
-
-		GDI::ListCtrl m_ItemList;
-		HIMAGELIST m_hImageList;
-		std::map<std::string, unsigned int> m_ImageListMap;
-
-		GDI::Button m_ButtonAdd;
-		GDI::Button m_ButtonAddSelected;
-		GDI::Button m_ButtonRemove;
-		GDI::Button m_ButtonProperties;
-		GDI::Button m_ButtonSettings;
-		GDI::Button m_ButtonExport;
-		GDI::Button m_ButtonExportSelected;
-
-		//
-
-		void OnConfigButtonAdd();
-		void OnConfigButtonAddSelected();
-		void OnConfigButtonRemove();
-		void OnConfigButtonProperties();
-		void OnConfigButtonSettings();
-		void OnConfigButtonExport();
-		void OnConfigButtonExportSelected();
-
-		void UpdateStuff();
-
-		void PopulateItemList();
-		void AddToItemList(unsigned int iConfigIndex);
-		void UpdateItemInList(int iIndex);
+	//
+	static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 };
 

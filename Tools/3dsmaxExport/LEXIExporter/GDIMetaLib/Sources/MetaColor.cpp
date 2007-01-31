@@ -329,7 +329,12 @@ bool MetaColor::OnMouseDown(int iFlags, int iX, int iY)
 		m_pGroup->OnCtrlHeightChange(this);
 		return true;
 	}
-	return (iY>g_iDefaultCtrlHeight && m_bEnabled);
+	if(iY>g_iDefaultCtrlHeight && m_bEnabled)
+	{
+		m_iActiveSlider=(iY-g_iDefaultCtrlHeight)/g_iSliderHeight;
+		return true;
+	}
+	return false;
 }
 
 bool MetaColor::OnMouseDblClick(int iFlags, int iX, int iY)
@@ -363,11 +368,10 @@ bool MetaColor::OnMouseMove(int iFlags, int iX, int iY)
 		else if (fValue > 1) fValue = 1;
 				
 		if(iY>=rClient.bottom) iY=rClient.bottom-1;
-		int iAbsYSlider=(iY-g_iDefaultCtrlHeight)/g_iSliderHeight;
 		if(GetAsyncKeyState(VK_MENU)&0x8000)
 		{
 			float fDelta=0;
-			switch(iAbsYSlider)
+			switch(m_iActiveSlider)
 			{
 				case 0:
 					fDelta=fValue-m_Value.x;break;
@@ -392,7 +396,7 @@ bool MetaColor::OnMouseMove(int iFlags, int iX, int iY)
 			else if(m_Value.w<0) m_Value.w=0;
 		} else
 		{			
-			switch(iAbsYSlider)
+			switch(m_iActiveSlider)
 			{
 				case 0:
 					m_Value.x=fValue;break;
@@ -429,6 +433,7 @@ bool MetaColor::OnMouseMove(int iFlags, int iX, int iY)
 	{
 		::ReleaseCapture();
 		m_bHasCapture=false;
+		m_iActiveSlider=-1;
 	}			
 	return false;
 }

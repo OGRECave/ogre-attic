@@ -26,7 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "LexiStdAfx.h"
 #include "LexiDialogObjectProperties.h"
-#include "LexiExportObjectMesh.h"
+#include "LexiExportObjectSkinnedMesh.h"
 #include "LexiOgreMeshCompiler.h"
 #include "LexiOgreMaterialCompiler.h"
 #include "LexiIntermediateBuilder.h"
@@ -36,11 +36,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <dbghelp.h>
 #pragma comment(lib,"Dbghelp.lib")
 
-CObjectPropertiesDlg *CMeshExportObject::m_pEditDlg=NULL;
-CDDObject* CMeshExportObject::m_pDDMetaDesc=NULL;
+CObjectPropertiesDlg *CSkinnedMeshExportObject::m_pEditDlg=NULL;
+CDDObject* CSkinnedMeshExportObject::m_pDDMetaDesc=NULL;
 //
 
-CMeshExportObject::CMeshExportObject(CDDObject *pConfig) : CExportObject(pConfig)
+CSkinnedMeshExportObject::CSkinnedMeshExportObject(CDDObject *pConfig) : CExportObject(pConfig)
 {
 /*	m_iID = 0xffffffff;
 	m_sName = "<unnamed>";
@@ -50,7 +50,7 @@ CMeshExportObject::CMeshExportObject(CDDObject *pConfig) : CExportObject(pConfig
 	//m_pDDMetaDesc = BuildMetaDesc();	
 }
 
-CMeshExportObject::~CMeshExportObject()
+CSkinnedMeshExportObject::~CSkinnedMeshExportObject()
 {
 //	if(m_pDDMetaDesc) m_pDDMetaDesc->Release();
 	// Free scene node - no longer needed
@@ -58,7 +58,7 @@ CMeshExportObject::~CMeshExportObject()
 }
 
 // Check if ExportObject supports a given ExportObject instance as parent
-bool CMeshExportObject::SupportsParentType(const CExportObject *pParent) const
+bool CSkinnedMeshExportObject::SupportsParentType(const CExportObject *pParent) const
 {	
 	// Meshes can only have root as parent
 	if(pParent==NULL || stricmp(pParent->GetType(), "root")!=0) return false;
@@ -66,7 +66,7 @@ bool CMeshExportObject::SupportsParentType(const CExportObject *pParent) const
 }
 
 //
-bool CMeshExportObject::SupportsMAXNode(INode *pMAXNode) const
+bool CSkinnedMeshExportObject::SupportsMAXNode(INode *pMAXNode) const
 {
 	if(pMAXNode==NULL) return false;
 	SClass_ID nClass = GetClassIDFromNode(pMAXNode);
@@ -75,27 +75,25 @@ bool CMeshExportObject::SupportsMAXNode(INode *pMAXNode) const
 }
 
 // Get window for editing ExportObject properties
-GDI::Window* CMeshExportObject::GetEditWindow(GDI::Window *pParent)
+GDI::Window* CSkinnedMeshExportObject::GetEditWindow(GDI::Window *pParent)
 {
 	if(m_pEditDlg==NULL)
 	{
 		m_pEditDlg=new CObjectPropertiesDlg(pParent);
-		m_pEditDlg->Create();
+		m_pEditDlg->Create();		
 		m_pDDMetaDesc=BuildMetaDesc();
 		m_pEditDlg->Init(m_pDDMetaDesc, ".mesh");	
 	}
 
 	m_pEditDlg->SetInstance(m_pDDConfig, this);
-	//LOGDEBUG "Window Created:\t%i (handle)", m_pEditDlg->m_hWnd);
 	return m_pEditDlg;
 }
 
 // End edit
-void CMeshExportObject::CloseEditWindow()
+void CSkinnedMeshExportObject::CloseEditWindow()
 {
 	if(m_pEditDlg!=NULL)
 	{
-		//LOGDEBUG "Window Ended:\t%i (handle)", m_pEditDlg->m_hWnd);
 		m_pEditDlg->EndDialog(0);
 		delete m_pEditDlg;		
 		m_pEditDlg=NULL;
@@ -110,7 +108,7 @@ void CMeshExportObject::CloseEditWindow()
 // Called when object is first created [by user].
 // This allows for wizard-style editing of required data
 // If this function returns false, the object is not created
-bool CMeshExportObject::OnCreate(CExporterPropertiesDlg *pPropDialog)
+bool CSkinnedMeshExportObject::OnCreate(CExporterPropertiesDlg *pPropDialog)
 {
 	if(GetMAXNodeID()==0xFFFFFFFF)
 	{
@@ -134,7 +132,7 @@ bool CMeshExportObject::OnCreate(CExporterPropertiesDlg *pPropDialog)
 /*
 //
 
-void CMeshExportObject::Read(CDDObject* pConfig)
+void CSkinnedMeshExportObject::Read(CDDObject* pConfig)
 {
 	m_iID = pConfig->GetInt("id", 0xffffffff);
 	m_sName = pConfig->GetString("name", "<unnamed>");
@@ -142,24 +140,24 @@ void CMeshExportObject::Read(CDDObject* pConfig)
 	CExportObject::Read(pConfig);
 }
 
-void CMeshExportObject::Write(CDDObject* pConfig) const
+void CSkinnedMeshExportObject::Write(CDDObject* pConfig) const
 {
 	CExportObject::Write(pConfig);
 }
 
 //
 
-CDDObject* CMeshExportObject::GetMetaDesc() const
+CDDObject* CSkinnedMeshExportObject::GetMetaDesc() const
 {
 	return m_pDDMetaDesc;
 }
 
-CDDObject* CMeshExportObject::GetEditMeta() const
+CDDObject* CSkinnedMeshExportObject::GetEditMeta() const
 {
 	return m_pConfig;
 }*/
 
-CDDObject* CMeshExportObject::BuildMetaDesc( void )
+CDDObject* CSkinnedMeshExportObject::BuildMetaDesc( void )
 {
 	CDDObject* pDDMetaDesc = new CDDObject();
 
@@ -172,7 +170,6 @@ CDDObject* CMeshExportObject::BuildMetaDesc( void )
 	pDDMetaElement->SetString("Group","Export Settings");
 	pDDMetaElement->SetString("Caption","Vertex Normals");
 	pDDMetaElement->SetString("Help","Export vertex normals");
-	//pDDMetaElement->SetBool("normalsID",false);
 	pDDMetaElement->SetBool("Default", true);
 	lSettings.push_back(pDDMetaElement);
 
@@ -182,7 +179,6 @@ CDDObject* CMeshExportObject::BuildMetaDesc( void )
 	pDDMetaElement->SetString("Group","Export Settings");
 	pDDMetaElement->SetString("Caption","Vertex Colors");
 	pDDMetaElement->SetString("Help","Export baked vertex colors");
-	//pDDMetaElement->SetBool("vertexColorsID",false);
 	pDDMetaElement->SetBool("Default", true);
 	lSettings.push_back(pDDMetaElement);
 
@@ -192,7 +188,6 @@ CDDObject* CMeshExportObject::BuildMetaDesc( void )
 	pDDMetaElement->SetString("Group","Export Settings");
 	pDDMetaElement->SetString("Caption","Texture Coordinates");
 	pDDMetaElement->SetString("Help","Export texture vertex coordinates");
-	//pDDMetaElement->SetBool("uvID",false);
 	pDDMetaElement->SetBool("Default", true);
 	lSettings.push_back(pDDMetaElement);
 
@@ -202,16 +197,8 @@ CDDObject* CMeshExportObject::BuildMetaDesc( void )
 	pDDMetaElement->SetString("Group","Export Settings");
 	pDDMetaElement->SetString("Caption","Reindex Vertices");
 	pDDMetaElement->SetString("Help","Optimize Index and Vertex buffer");
-	//pDDMetaElement->SetBool("reindexID",false);
-	pDDMetaElement->SetBool("Default", true);
-	lSettings.push_back(pDDMetaElement);
-
-	pDDMetaElement = new CDDObject();
-	pDDMetaElement->SetString("ID","collapseHierarchy");
-	pDDMetaElement->SetString("Type","bool");
-	pDDMetaElement->SetString("Group","Export Settings");
-	pDDMetaElement->SetString("Caption","Collapse Hierarchy");
-	pDDMetaElement->SetString("Help","Collapse entire hierarchy into one mesh");
+	// Disable for now since reindexing bone weights are broken!
+	pDDMetaElement->SetString("Condition","$reindexID=true");	
 	pDDMetaElement->SetBool("Default", false);
 	lSettings.push_back(pDDMetaElement);
 
@@ -241,12 +228,13 @@ CDDObject* CMeshExportObject::BuildMetaDesc( void )
 //
 typedef std::map< Ogre::String, CIntermediateMaterial*> MAT_LIST;
 
-bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll) const
+bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll) const
 {
 	bool returnVal = false;
 	Ogre::String sFilename;
 	CIntermediateMesh* pIMesh = NULL;
 	COgreMeshCompiler* pOgreMeshCompiler = NULL;
+	COgreSkeletonCompiler* pSkeletonCompiler = NULL;
 
 	if(m_bEnabled || bForceAll)
 	{
@@ -256,6 +244,8 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 		pProgressDlg->InitLocal(2);
 
 		LOGDEBUG "Starting...");
+	//	Ogre::LogManager::getSingleton().logMessage("Export: Starting..");
+
 		CIntermediateBuilder::Get()->Clear();
 		CIntermediateBuilder::Get()->SetConfig(m_pDDConfig);
 
@@ -263,7 +253,8 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 
 		// SPLIT THIS CLASS INTO A MESH AND SKINNED MESH.
 
-		pProgressDlg->LocalStep("StaticMesh: Reading max data");
+		pProgressDlg->LocalStep("SkinnedMesh: Reading max data");
+
 		LOGDEBUG "Creating Hierarchy...");
 
 		Ogre::SceneNode* pNode = CIntermediateBuilder::Get()->CreateHierarchy(GetMAXNodeID(), true, false);
@@ -274,46 +265,36 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 		}
 
 		LOGDEBUG "Reading config ...");
-		bool bCollaps = m_pDDConfig->GetBool("collapseHierarchy", false);
 		bool bCopyTextures = m_pDDConfig->GetBool("copyTextureMaps", false);
 		bool bCopyShaders = m_pDDConfig->GetBool("copyShaders", false);
 
 		sFilename = m_pDDConfig->GetString("FileName");
 
-		///// BELONGS IN A STATIC HIERARCHY TYPE
-		if(bCollaps)
-		{
-			pProgressDlg->LocalStep("StaticMesh: Collapsing Mesh");
-			std::list<std::string> clist;
-			clist.push_back("position");
-			clist.push_back("normal");
-			clist.push_back("uv1");
-			Ogre::SceneNode* pColNode = CIntermediateBuilder::Get()->CollapseHierarchy(pNode, clist, "Collapsed");
-			delete pNode;
-			pNode = pColNode;
-		}
-		else
-		{
-			pProgressDlg->LocalStep();
-		}
-
 
 		pIMesh = (CIntermediateMesh*)pNode->getAttachedObject(0);
 
+		pProgressDlg->LocalStep("SkinnedMesh: Exporting Mesh");
 		LOGINFO "Exporting mesh: %s", pIMesh->getName().c_str());
 
 		returnVal = CExportObject::Export(pProgressDlg, bForceAll);	
 
-
-		// We have some remaining steps
-
+		// Calculate remaining steps:
+		// Materials
 		bool bInOneFile = true;
 		MAT_LIST lMaterials;
 		bool bMatRetrieved = CIntermediateBuilder::Get()->GetMaterials(lMaterials);
-
-		pProgressDlg->InitLocal(3+(lMaterials.size()));
-		pProgressDlg->LocalStep("StaticMesh: Creating Ogre Mesh..");
+		pProgressDlg->InitLocal(5+(lMaterials.size()));
+		pProgressDlg->LocalStep("SkinnedMesh: Creating Ogre Mesh..");
 		pOgreMeshCompiler = new COgreMeshCompiler(pIMesh, m_pDDConfig, sFilename);
+
+		pProgressDlg->LocalStep("SkinnedMesh: Creating Ogre Skeletin..");
+		LOGINFO "Writing Skeleton.");	
+		pSkeletonCompiler = new COgreSkeletonCompiler( m_pDDConfig, sFilename, pOgreMeshCompiler->GetOgreMesh() );
+
+		pProgressDlg->LocalStep("SkinnedMesh: Writing Ogre Skeletin..");
+		if( !pSkeletonCompiler->WriteOgreSkeleton( sFilename+".skeleton") )
+			LOGERROR "Could not write skeleton.");
+
 
 		Ogre::String sBaseName;
 		Ogre::String sPath;
@@ -335,11 +316,11 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 			return false;
 		}
 
-		pProgressDlg->LocalStep("StaticMesh: Writing Ogre Mesh..");
+		pProgressDlg->LocalStep("SkinnedMesh: Writing Ogre Mesh..");
 		LOGINFO "Writing Ogre Mesh (%s) ...", sFilename.c_str());
 		pOgreMeshCompiler->WriteOgreMesh(sFilename);
 
-		pProgressDlg->LocalStep("StaticMesh: Exporting Ogre Materials..");
+		pProgressDlg->LocalStep("SkinnedMesh: Exporting Ogre Materials..");
 		LOGINFO "Exporting material(s) ...");
 		if ( bMatRetrieved )
 		{
@@ -348,9 +329,10 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 
 			while (it != lMaterials.end())
 			{
-				Ogre::String matDesc("StaticMesh: Exporting Ogre Material: ");
+				Ogre::String matDesc("SkinnedMesh: Exporting Ogre Material: ");
 				matDesc += it->second->GetName();
 				pProgressDlg->LocalStep(matDesc.c_str());
+
 				COgreMaterialCompiler matComp( it->second );
 				if(bInOneFile)
 				{
@@ -390,7 +372,7 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 		LOGERROR "OgreException caught: %s", e.getDescription().c_str());
 	} catch(...)
 	{
-		LOGERROR "Caught unhandled exception in CMeshExportObject::Export()");
+		LOGERROR "Caught unhandled exception in CSkinnedMeshExportObject::Export()");
 	}
 	}
 
@@ -398,6 +380,7 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 	LOGDEBUG "Cleaning up...");
 	delete pOgreMeshCompiler;
 	delete pIMesh;
+	delete pSkeletonCompiler;
 
 	LOGINFO "..Done!");
 

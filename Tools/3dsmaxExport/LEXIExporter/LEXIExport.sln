@@ -27,6 +27,7 @@ Global
 		Debug|Win32 = Debug|Win32
 		Distribution|Win32 = Distribution|Win32
 		GDI DLL Release|Win32 = GDI DLL Release|Win32
+		GDI Test|Win32 = GDI Test|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
@@ -36,6 +37,7 @@ Global
 		{FF167AF2-15B7-4AB2-9034-D3A80CAFA34E}.Distribution|Win32.Build.0 = Release|Win32
 		{FF167AF2-15B7-4AB2-9034-D3A80CAFA34E}.GDI DLL Release|Win32.ActiveCfg = Release|Win32
 		{FF167AF2-15B7-4AB2-9034-D3A80CAFA34E}.GDI DLL Release|Win32.Build.0 = Release|Win32
+		{FF167AF2-15B7-4AB2-9034-D3A80CAFA34E}.GDI Test|Win32.ActiveCfg = Debug|Win32
 		{FF167AF2-15B7-4AB2-9034-D3A80CAFA34E}.Release|Win32.ActiveCfg = Release|Win32
 		{FF167AF2-15B7-4AB2-9034-D3A80CAFA34E}.Release|Win32.Build.0 = Release|Win32
 		{387FED5F-FFC1-4D66-ACC5-5163467C241E}.Debug|Win32.ActiveCfg = Debug|Win32
@@ -44,6 +46,8 @@ Global
 		{387FED5F-FFC1-4D66-ACC5-5163467C241E}.Distribution|Win32.Build.0 = Release|Win32
 		{387FED5F-FFC1-4D66-ACC5-5163467C241E}.GDI DLL Release|Win32.ActiveCfg = Release|Win32
 		{387FED5F-FFC1-4D66-ACC5-5163467C241E}.GDI DLL Release|Win32.Build.0 = Release|Win32
+		{387FED5F-FFC1-4D66-ACC5-5163467C241E}.GDI Test|Win32.ActiveCfg = Debug|Win32
+		{387FED5F-FFC1-4D66-ACC5-5163467C241E}.GDI Test|Win32.Build.0 = Debug|Win32
 		{387FED5F-FFC1-4D66-ACC5-5163467C241E}.Release|Win32.ActiveCfg = Release|Win32
 		{387FED5F-FFC1-4D66-ACC5-5163467C241E}.Release|Win32.Build.0 = Release|Win32
 		{0D42BA7E-A0D1-4C7B-B78E-C8270A35A219}.Debug|Win32.ActiveCfg = Debug|Win32
@@ -52,17 +56,22 @@ Global
 		{0D42BA7E-A0D1-4C7B-B78E-C8270A35A219}.Distribution|Win32.Build.0 = Release|Win32
 		{0D42BA7E-A0D1-4C7B-B78E-C8270A35A219}.GDI DLL Release|Win32.ActiveCfg = Release|Win32
 		{0D42BA7E-A0D1-4C7B-B78E-C8270A35A219}.GDI DLL Release|Win32.Build.0 = Release|Win32
+		{0D42BA7E-A0D1-4C7B-B78E-C8270A35A219}.GDI Test|Win32.ActiveCfg = Debug|Win32
+		{0D42BA7E-A0D1-4C7B-B78E-C8270A35A219}.GDI Test|Win32.Build.0 = Debug|Win32
 		{0D42BA7E-A0D1-4C7B-B78E-C8270A35A219}.Release|Win32.ActiveCfg = Release|Win32
 		{0D42BA7E-A0D1-4C7B-B78E-C8270A35A219}.Release|Win32.Build.0 = Release|Win32
 		{981A4576-5AC5-4C00-8181-ADC71C11ADDD}.Debug|Win32.ActiveCfg = Release|Win32
 		{981A4576-5AC5-4C00-8181-ADC71C11ADDD}.Distribution|Win32.ActiveCfg = Release|Win32
 		{981A4576-5AC5-4C00-8181-ADC71C11ADDD}.GDI DLL Release|Win32.ActiveCfg = Release|Win32
 		{981A4576-5AC5-4C00-8181-ADC71C11ADDD}.GDI DLL Release|Win32.Build.0 = Release|Win32
+		{981A4576-5AC5-4C00-8181-ADC71C11ADDD}.GDI Test|Win32.ActiveCfg = Debug|Win32
+		{981A4576-5AC5-4C00-8181-ADC71C11ADDD}.GDI Test|Win32.Build.0 = Debug|Win32
 		{981A4576-5AC5-4C00-8181-ADC71C11ADDD}.Release|Win32.ActiveCfg = Release|Win32
 		{769972B1-78C8-4903-A499-2B0AF63E6B94}.Debug|Win32.ActiveCfg = Release
 		{769972B1-78C8-4903-A499-2B0AF63E6B94}.Distribution|Win32.ActiveCfg = Distribution
 		{769972B1-78C8-4903-A499-2B0AF63E6B94}.Distribution|Win32.Build.0 = Distribution
 		{769972B1-78C8-4903-A499-2B0AF63E6B94}.GDI DLL Release|Win32.ActiveCfg = Distribution
+		{769972B1-78C8-4903-A499-2B0AF63E6B94}.GDI Test|Win32.ActiveCfg = Release
 		{769972B1-78C8-4903-A499-2B0AF63E6B94}.Release|Win32.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution

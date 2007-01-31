@@ -27,16 +27,16 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "LexiStdAfx.h"
 #include "LexiMaxExport.h"
-#include "LexiDialogObjectProperties.h"
+#include "LexiDialogAnimProperties.h"
 #include "LexiExportObject.h"
-#include "LexiDialogSelectNode.h"
 
 #include "..\Res\resource.h"
 
 #define _PRINT_DEBUG_INFO_
 //
+//
 
-CObjectPropertiesDlg::CObjectPropertiesDlg(Window* pParent) : Dialog(IDD_DIALOG_OBJECTPROPERTIES, DlgProc, pParent)
+CAnimPropertiesDlg::CAnimPropertiesDlg(Window* pParent) : Dialog(IDD_DIALOG_ANIMPROPERTIES, DlgProc, pParent)
 {
 	memset(&m_OrgClientRect, 0, sizeof(RECT));	
 	m_pMetaCtrl=0;
@@ -44,7 +44,7 @@ CObjectPropertiesDlg::CObjectPropertiesDlg(Window* pParent) : Dialog(IDD_DIALOG_
 	m_pData=0;
 }
 
-CObjectPropertiesDlg::~CObjectPropertiesDlg()
+CAnimPropertiesDlg::~CAnimPropertiesDlg()
 {
 	// Destroy meta windows
 	m_pMetaCtrl->Detach();
@@ -53,7 +53,7 @@ CObjectPropertiesDlg::~CObjectPropertiesDlg()
 }
 
 // Initialize controls from object
-void CObjectPropertiesDlg::Init(CDDObject *pMeta, const char *pszDefExt)
+void CAnimPropertiesDlg::Init(CDDObject *pMeta, const char *pszDefExt)
 {
 	// Hookup data
 	m_sDefExt=pszDefExt;
@@ -83,9 +83,7 @@ void CObjectPropertiesDlg::Init(CDDObject *pMeta, const char *pszDefExt)
 		m_pMetaCtrl->Attach(m_hMetaWnd);
 		m_pMetaCtrl->SetDataNotify(this);
 	}
-
 	
-
 	// Setup meta data and object data
 	m_pMetaCtrl->CreateFromMeta(pMeta);			
 
@@ -93,28 +91,28 @@ void CObjectPropertiesDlg::Init(CDDObject *pMeta, const char *pszDefExt)
 	GotoDlgCtrl(IDC_NODE);
 }
 
-void CObjectPropertiesDlg::SetInstance(CDDObject *pData, CExportObject* pObj)
+void CAnimPropertiesDlg::SetInstance(CDDObject *pData, CExportObject* pObj)
 {
 	m_pData=pData;
 	m_pObj=pObj;
 
 	// Setup defaults
 	GetDlgItem(IDC_NAME)->SetWindowText(pData->GetString("Name", "<unnamed>"));
-	GetDlgItem(IDC_FILENAME)->SetWindowText(pData->GetString("FileName", "<unknown>"));
-	GetDlgItem(IDC_NODE)->SetWindowText(GetNameFromID(pData->GetInt("NodeID")));
+	GetDlgItem(IDC_FILENAME)->SetWindowText(pData->GetString("FileName", "<unknown>"));	
+	m_SaveSeperate.SetCheck(pData->GetBool("Seperate", false));
 	m_pMetaCtrl->SetData(m_pData);
 }
 
 //
-INT_PTR CALLBACK CObjectPropertiesDlg::DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK CAnimPropertiesDlg::DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	CObjectPropertiesDlg* pThis = (CObjectPropertiesDlg*)Window::GetMapping(hWnd);
+	CAnimPropertiesDlg* pThis = (CAnimPropertiesDlg*)Window::GetMapping(hWnd);
 
 	switch(message)
 	{
 		case WM_INITDIALOG:
 		{
-			pThis = (CObjectPropertiesDlg*)lParam;
+			pThis = (CAnimPropertiesDlg*)lParam;
 			Window::AddMapping(pThis, hWnd);		
 			pThis->OnInitDialog();
 		}	return 0;
@@ -136,14 +134,9 @@ INT_PTR CALLBACK CObjectPropertiesDlg::DlgProc(HWND hWnd, UINT message, WPARAM w
 					if(HIWORD(wParam)==EN_CHANGE)
 						pThis->OnFileNameChange();
 					break;
-
 				case IDC_BROWSEFILE:
 					pThis->BrowseOutput();
-					break;
-
-				case IDC_BROWSENODE:
-					pThis->BrowseNode();
-					break;
+					break;				
 			}
 		}	break;
 	}
@@ -151,12 +144,34 @@ INT_PTR CALLBACK CObjectPropertiesDlg::DlgProc(HWND hWnd, UINT message, WPARAM w
 }
 
 //
-void CObjectPropertiesDlg::OnInitDialog()
+void CAnimPropertiesDlg::OnNameChange()
 {
-	GetClientRect(m_OrgClientRect);
+	std::string sValue=GetDlgItem(IDC_NAME)->GetWindowText();
+	m_pData->SetString("Name", sValue.c_str());
 }
 
-void CObjectPropertiesDlg::OnSize()
+//
+void CAnimPropertiesDlg::OnFileNameChange()
+{
+	std::string sValue=GetDlgItem(IDC_FILENAME)->GetWindowText();
+	m_pData->SetString("FileName", sValue.c_str());
+}
+
+//
+void CAnimPropertiesDlg::OnChanged(const CDDObject *pInstance, const char *pszKey)
+{
+	::SendMessage(m_hParent, WM_NOTIFY_MESSAGE_ID, 0, 0);
+}
+
+//
+void CAnimPropertiesDlg::OnInitDialog()
+{
+	GetClientRect(m_OrgClientRect);
+	Bind(IDC_SEPERATEFILE, m_SaveSeperate);
+}
+
+//
+void CAnimPropertiesDlg::OnSize()
 {
 	// Check if have initialized dialog
 	if(m_OrgClientRect.right==0) return;
@@ -185,23 +200,12 @@ void CObjectPropertiesDlg::OnSize()
 	hdwp=::DeferWindowPos(hdwp, pItem->m_hWnd, NULL, 0, 0, (rTemp.right-rTemp.left)+iDeltaX, (rTemp.bottom-rTemp.top)+iDeltaY, SWP_NOZORDER|SWP_NOMOVE);
 
 	if(iDeltaX!=0)
-	{
-		// Move browse node button
-		pItem=GetDlgItem(IDC_BROWSENODE);
-		pItem->GetWindowRect(rTemp);
-		ScreenToClient(rTemp);
-		hdwp=::DeferWindowPos(hdwp, pItem->m_hWnd, NULL, rTemp.left+iDeltaX, rTemp.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
-
+	{		
 		// Move browse filename button
 		pItem=GetDlgItem(IDC_BROWSEFILE);
 		pItem->GetWindowRect(rTemp);
 		ScreenToClient(rTemp);
 		hdwp=::DeferWindowPos(hdwp, pItem->m_hWnd, NULL, rTemp.left+iDeltaX, rTemp.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
-
-		// Resize node window
-		pItem=GetDlgItem(IDC_NODE);
-		pItem->GetWindowRect(rTemp);
-		hdwp=::DeferWindowPos(hdwp, pItem->m_hWnd, NULL, 0, 0, (rTemp.right-rTemp.left)+iDeltaX, (rTemp.bottom-rTemp.top), SWP_NOZORDER|SWP_NOMOVE);
 
 		// Resize name window
 		pItem=GetDlgItem(IDC_NAME);
@@ -219,43 +223,7 @@ void CObjectPropertiesDlg::OnSize()
 }
 
 //
-void CObjectPropertiesDlg::OnNameChange()
-{
-	std::string sValue=GetDlgItem(IDC_NAME)->GetWindowText();
-	m_pData->SetString("Name", sValue.c_str());
-}
-
-//
-void CObjectPropertiesDlg::OnFileNameChange()
-{
-	std::string sValue=GetDlgItem(IDC_FILENAME)->GetWindowText();
-	m_pData->SetString("FileName", sValue.c_str());
-}
-
-//
-void CObjectPropertiesDlg::OnChanged(const CDDObject *pInstance, const char *pszKey)
-{
-	::SendMessage(m_hParent, WM_NOTIFY_MESSAGE_ID, 0, 0);
-}
-
-//
-void CObjectPropertiesDlg::BrowseNode()
-{
-	// We need to have a valid instance
-	if(!m_pObj || !m_pData) return;
-
-	// Create node browser dialog
-	CSelectNodeDlg dlg(this, m_pObj);
-//	dlg.m_iNode = m_pData->GetInt("NodeID");
-
-	if(dlg.DoModal() != IDOK) return;
-
-//	m_pData->SetInt("NodeID", dlg.m_iNode);
-	GetDlgItem(IDC_NODE)->SetWindowText(GetNameFromID(m_pObj->GetMAXNodeID()));
-}
-
-//
-void CObjectPropertiesDlg::BrowseOutput()
+void CAnimPropertiesDlg::BrowseOutput()
 {	
 	// We need to have a valid instance
 	if(!m_pObj || !m_pData) return;

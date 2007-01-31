@@ -34,6 +34,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "LexiIntermediateBone.h"
 #include "LexiIntermediateSkeleton.h"
 #include "LexiIntermediateBuilder.h"
+#include "LexiIntermediateBuilderSkeleton.h"
 #include "LexiIntermediateMesh.h"
 
 //

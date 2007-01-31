@@ -5,8 +5,7 @@ This source file is part of LEXIExporter
 Copyright 2006 NDS Limited
 
 Author(s):
-Mark Folkenberg,
-Bo Krohn
+Mark Folkenberg
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -33,12 +32,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 //
 
-class CMeshExportObject : public CExportObject 
+class CSkinnedMeshExportObject : public CExportObject 
 {
 public:
 	// Constructor/Destructor
-	CMeshExportObject(CDDObject *pConfig);
-	~CMeshExportObject();
+	CSkinnedMeshExportObject(CDDObject *pConfig);
+	~CSkinnedMeshExportObject();
 
 	// Get window for editing ExportObject properties
 	GDI::Window* GetEditWindow(GDI::Window *pParent);
@@ -75,7 +74,7 @@ private:
 	
 };
 
-DECLARE_EXPORT_OBJECT(CMeshExportObject, "static_mesh", "Static Mesh", IDI_ICON_MESH)
+DECLARE_EXPORT_OBJECT(CSkinnedMeshExportObject, "skinnedmesh", "Skinned Mesh", IDI_ICON_MESH)
 
 //
 

@@ -49,7 +49,6 @@ Dialog::~Dialog()
 }
 
 //
-
 bool Dialog::Create(unsigned int nTemplateID, Window* pParent)
 {
 	HWND hWnd = CreateDialogParam(GetCurrentInstance(), MAKEINTRESOURCE(nTemplateID), pParent->m_hWnd, m_fnProc, (LPARAM)this);
@@ -59,7 +58,14 @@ bool Dialog::Create(unsigned int nTemplateID, Window* pParent)
 }
 
 //
+bool Dialog::Create()
+{
+	HWND hWnd = CreateDialogParam(GetCurrentInstance(), MAKEINTRESOURCE(m_iTemplate), m_hParent, m_fnProc, (LPARAM)this);
+	if(!hWnd) return false;
+	return true;
+}
 
+//
 int Dialog::DoModal()
 {
 	return DialogBoxParam(GetCurrentInstance(), MAKEINTRESOURCE(m_iTemplate), m_hParent, m_fnProc, (LPARAM)this);

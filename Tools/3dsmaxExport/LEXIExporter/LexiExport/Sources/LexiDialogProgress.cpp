@@ -32,22 +32,92 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "..\Res\resource.h"
 
 //
+CExportProgressDlg::CExportProgressDlg(Window* pParent) : Dialog(IDD_DIALOG_PROGRESS, DlgProc, pParent)
+{
+	m_iTotalGlobal=0;
+	m_iGlobalProgress=0;
+	m_bAbortRequest=false;
+	m_bAbortFlag=false;
+}
 
-#define FONT_FACE				"Courier New"
-#define FONT_SIZE				9
-#define FONT_COLOR_BACK			RGB(255, 255, 255)
-#define FONT_COLOR_INFO			RGB(0, 0, 0)
-#define FONT_COLOR_WARNING		RGB(0, 0, 255)
-#define FONT_COLOR_ERROR		RGB(255, 0, 0)
-
-//
-
-CExportProgressDlg::CExportProgressDlg(Window* pParent) : Dialog(IDD_DIALOG_EXPORTPROGRESS, DlgProc, pParent)
+CExportProgressDlg::~CExportProgressDlg()
 {
 }
 
-//
+// Initialize global stepping
+void CExportProgressDlg::InitGlobal(int iObjectCount)
+{
+	m_pGlobalProgress->SendMessage(PBM_SETRANGE, 0, MAKELPARAM(0, iObjectCount+1));
+	m_iGlobalProgress=0;
+	m_iTotalGlobal=iObjectCount;
+}
 
+// Do a global step (once per ExportObject)
+void CExportProgressDlg::GlobalStep()
+{
+	++m_iGlobalProgress;
+	_snprintf_s(m_InfoBuffer, 1024, "Exporting %d of %d", m_iGlobalProgress, m_iTotalGlobal);
+	m_pGlobalInfo->SetWindowText(m_InfoBuffer);
+	m_pGlobalProgress->SendMessage(PBM_SETPOS, m_iGlobalProgress, 0);
+
+	// Pump messages
+	MSG winmsg;
+	while(PeekMessage(&winmsg, NULL, 0, 0, PM_REMOVE))
+	{
+		TranslateMessage(&winmsg);
+		DispatchMessage(&winmsg);
+	}
+}
+
+// Initialize local progress
+void CExportProgressDlg::InitLocal(int iStepCount)
+{
+	m_pLocalProgress->SendMessage(PBM_SETRANGE, 0, MAKELPARAM(0, iStepCount+1));
+	m_iLocalProgress=0;
+}
+
+// Do a local step
+void CExportProgressDlg::LocalStep(const char *pszDesc)
+{
+	++m_iLocalProgress;	
+	if(pszDesc!=NULL) m_pLocalInfo->SetWindowText(pszDesc);
+	m_pLocalProgress->SendMessage(PBM_SETPOS, m_iLocalProgress, 0);
+
+	// Pump messages
+	MSG winmsg;
+	while(PeekMessage(&winmsg, NULL, 0, 0, PM_REMOVE))
+	{
+		TranslateMessage(&winmsg);
+		DispatchMessage(&winmsg);
+	}
+}
+
+// Signal export done
+void CExportProgressDlg::ExportDone(void)
+{
+	DestroyWindow();
+}
+
+// Check if we want to abort current export
+bool CExportProgressDlg::CheckAbort()
+{
+	if(m_bAbortFlag) return true;
+
+	if(m_bAbortRequest)
+	{
+		int rs = MessageBox("Do you want to abort current export?", NDS_EXPORTER_TITLE, MB_YESNO | MB_ICONWARNING);
+		if(rs != IDYES) 
+		{
+			m_bAbortRequest=false;
+			return false;	
+		}
+		m_bAbortFlag=true;
+		return true;
+	}
+	return false;
+}
+
+//
 INT_PTR CALLBACK CExportProgressDlg::DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	CExportProgressDlg* pThis = (CExportProgressDlg*)Window::GetMapping(hWnd);
@@ -63,18 +133,13 @@ INT_PTR CALLBACK CExportProgressDlg::DlgProc(HWND hWnd, UINT message, WPARAM wPa
 
 		}	return 0;
 
-		case WM_CLOSE:
+		case WM_COMMAND:
 		{
-			// Allow user to abort progress?
-		}	break;
-
-		case WM_SIZE:
-		{
-			if(::IsWindow(pThis->m_hWnd))
+			switch(LOWORD(wParam))
 			{
-				RECT rc;
-				pThis->GetClientRect(rc);
-				pThis->GetDlgItem(IDC_OUTPUT)->MoveWindow(rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, true);
+				case IDC_ABORT:
+					pThis->OnAbort();
+					break;
 			}
 		}	break;
 	}
@@ -85,60 +150,18 @@ INT_PTR CALLBACK CExportProgressDlg::DlgProc(HWND hWnd, UINT message, WPARAM wPa
 //
 
 void CExportProgressDlg::OnInitDialog()
-{
-	RECT rc;
-	GetClientRect(rc);
-	GetDlgItem(IDC_OUTPUT)->MoveWindow(0, 0, rc.right - rc.left, rc.bottom - rc.top, true);
-
-	memset(&m_CharFormat, 0, sizeof(CHARFORMAT));
-	m_CharFormat.cbSize = sizeof(CHARFORMAT);
-	m_CharFormat.dwMask = CFM_BOLD | CFM_COLOR | CFM_FACE | CFM_SIZE | CFM_CHARSET;
-	m_CharFormat.dwEffects = CFE_PROTECTED;
-	m_CharFormat.yHeight = FONT_SIZE * 20;
-	m_CharFormat.bPitchAndFamily = DEFAULT_PITCH;
-	m_CharFormat.bCharSet = DEFAULT_CHARSET;
-	strcpy(m_CharFormat.szFaceName, FONT_FACE);
-	GetDlgItem(IDC_OUTPUT)->SendMessage(EM_SETBKGNDCOLOR, 0, FONT_COLOR_BACK);
-
+{		
+	m_pGlobalInfo=GetDlgItem(IDC_EXPORTINFO);
+	m_pGlobalProgress=GetDlgItem(IDC_GLOBALPROGRESS);
+	m_pLocalInfo=GetDlgItem(IDC_LOCALINFO);
+	m_pLocalProgress=GetDlgItem(IDC_LOCALPROGRESS);
+	m_pGlobalInfo->SetWindowText("Counting...");
+	m_pLocalInfo->SetWindowText("");
 	CenterWindow();
 }
 
-//
 
-void CExportProgressDlg::Output(const char* pszText, unsigned int iLevel)
+void CExportProgressDlg::OnAbort()
 {
-	Window* pCtrl = GetDlgItem(IDC_OUTPUT);
-
-	COLORREF nColor = FONT_COLOR_INFO;
-	if(iLevel == 1) nColor = FONT_COLOR_WARNING;
-	else if(iLevel == 2) nColor = FONT_COLOR_ERROR;
-
-	char strText[4096];
-	sprintf(strText, "%s\r\n", pszText);
-
-	int iTotal = pCtrl->SendMessage(WM_GETTEXTLENGTH, 0, 0);
-
-	CHARRANGE range;
-	range.cpMin = iTotal;
-	range.cpMax = iTotal + 1;
-	pCtrl->SendMessage(EM_EXSETSEL, 0, (LPARAM)&range);
-
-	m_CharFormat.crTextColor = nColor;
-	pCtrl->SendMessage(EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&m_CharFormat);
-
-	pCtrl->SendMessage(EM_REPLACESEL, 0, (LPARAM)strText);
-
-	pCtrl->SendMessage(EM_SCROLLCARET, 0, 0);
-
-	//
-
-	MSG winmsg;
-	while(PeekMessage(&winmsg, NULL, 0, 0, PM_REMOVE))
-	{
-		TranslateMessage(&winmsg);
-		DispatchMessage(&winmsg);
-	}
+	m_bAbortRequest=true;
 }
-
-//
-

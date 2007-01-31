@@ -31,27 +31,50 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 //
 
-class CExportProgressDlg : public GDI::Dialog {
+class CExportProgressDlg : public GDI::Dialog
+{
+public:
+	CExportProgressDlg(Window* pParent);
+	~CExportProgressDlg();
 
-	private:
+	// Initialize global stepping
+	void	InitGlobal(int iObjectCount);
 
-		static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	// Do a global step (once per ExportObject)
+	void	GlobalStep();
 
-		CHARFORMAT m_CharFormat;
+	// Initialize local progress
+	void	InitLocal(int iStepCount);
 
-	public:
+	// Do a local step
+	void	LocalStep(const char *pszDesc=NULL);
 
-		CExportProgressDlg(Window* pParent);
+	// Signal all export done
+	void	ExportDone(void);
 
-		//
+	// Check if we want to abort current export
+	bool	CheckAbort();
 
-		// Output text. Level: 0=Info 1=Warning 2=Error
-		void Output(const char* pszText, unsigned int iLevel);
+protected:
+	void	OnInitDialog();	
+	void	OnAbort();
 
-	protected:
+private:	
+	static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);	
 
-		virtual void OnInitDialog();
+	// text buffer for global info
+	char	m_InfoBuffer[1024];
+	int		m_iGlobalProgress;
+	int		m_iTotalGlobal;
+	int		m_iLocalProgress;
 
+	bool	m_bAbortRequest;
+	bool	m_bAbortFlag;
+
+	GDI::Window*	m_pGlobalInfo;
+	GDI::Window*	m_pGlobalProgress;
+	GDI::Window*	m_pLocalInfo;
+	GDI::Window*	m_pLocalProgress;
 };
 
 //

@@ -86,7 +86,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="comctl32.lib Msimg32.lib"
+				AdditionalDependencies="comctl32.lib Msimg32.lib shlwapi.lib"
 				OutputFile="Bin\LEXIExport.dlu"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -191,7 +191,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="comctl32.lib Msimg32.lib"
+				AdditionalDependencies="comctl32.lib Msimg32.lib shlwapi.lib"
 				OutputFile="Bin\LEXIExport(debug).dlu"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -396,6 +396,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Sources\LexiMemoryLog.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiMemoryLog.h"
+				>
+			</File>
+			<File
 				RelativePath="Sources\LexiStdAfx.cpp"
 				>
 				<FileConfiguration
@@ -489,11 +497,35 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Res\LogDebug.ico"
+					>
+				</File>
+				<File
+					RelativePath=".\Res\LogError.ico"
+					>
+				</File>
+				<File
+					RelativePath=".\Res\LogInfo.ico"
+					>
+				</File>
+				<File
+					RelativePath=".\Res\LogOGRE.ico"
+					>
+				</File>
+				<File
+					RelativePath=".\Res\LogWarning.ico"
+					>
+				</File>
+				<File
 					RelativePath=".\Res\Mesh.ico"
 					>
 				</File>
 				<File
 					RelativePath=".\Res\Model.ico"
+					>
+				</File>
+				<File
+					RelativePath=".\Res\Root.ico"
 					>
 				</File>
 				<File
@@ -517,6 +549,14 @@
 		<Filter
 			Name="Dialogs"
 			>
+			<File
+				RelativePath=".\Sources\LexiDialogAnimProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiDialogAnimProperties.h"
+				>
+			</File>
 			<File
 				RelativePath=".\Sources\LexiDialogObjectProperties.cpp"
 				>
@@ -549,6 +589,14 @@
 				RelativePath=".\Sources\LexiDialogSelectNode.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Sources\LexiDialogViewLog.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiDialogViewLog.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Export Objects"
@@ -562,11 +610,35 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Sources\LexiExportObjectBoneAnim.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiExportObjectBoneAnim.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Sources\LexiExportObjectMesh.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Sources\LexiExportObjectMesh.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiExportObjectRoot.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiExportObjectRoot.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiExportObjectSkinnedMesh.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiExportObjectSkinnedMesh.h"
 				>
 			</File>
 		</Filter>
@@ -627,6 +699,14 @@
 			</File>
 			<File
 				RelativePath=".\Sources\LexiIntermediateBuilder.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiIntermediateBuilderSkeleton.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiIntermediateBuilderSkeleton.h"
 				>
 			</File>
 			<File

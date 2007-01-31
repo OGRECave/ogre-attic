@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "LexiMaxExport.h"
 #include "LexiMaxExportDesc.h"
 #include "LexiDialogProperties.h"
+#include "LexiDialogViewLog.h"
 #include "LexiDialogProgress.h"
 
 #include "../res/resource.h"
@@ -54,22 +55,36 @@ static void ModifyCallback(void* param, NotifyInfo* info)
 	}
 }
 
+// Singleton
+CExporter* CExporter::Get()
+{
+	return m_pThis;
+}
+
+// Global settings
+CDDObject* CExporter::GetGlobalSettings()
+{
+	return m_pGlobalSettings;
+}
+
 //
 
 CExporter::CExporter(CExporterDesc* pDesc)
 {
+	LoadGlobalSettings();
 	CExportObject::Initialize();
+	CLogSystem::Get()->AddReceiver(new CFileLogger("C:\\LexiExport_debug.txt"));
 
 	m_pDesc = pDesc;
 	m_pMax = NULL;
 	m_pMaxUtil = NULL;
 	m_hPanel = NULL;
 	m_pThis = this;
-
-	m_pSettings = new CDDObject;
+	m_pExportRoot=NULL;	
+	m_pMemoryLog=new CMemoryLog();
+	m_bMemoryLogOnOGRE=false;
 
 	//
-
 	RegisterNotification(ModifyCallback, this, NOTIFY_SYSTEM_POST_RESET);
 	RegisterNotification(ModifyCallback, this, NOTIFY_SYSTEM_POST_NEW);
 	RegisterNotification(ModifyCallback, this, NOTIFY_FILE_POST_OPEN);
@@ -79,68 +94,83 @@ CExporter::CExporter(CExporterDesc* pDesc)
 
 CExporter::~CExporter()
 {
+	SaveGlobalSettings();
 	UnRegisterNotification(ModifyCallback, this, NOTIFY_SYSTEM_POST_RESET);
 	UnRegisterNotification(ModifyCallback, this, NOTIFY_SYSTEM_POST_NEW);
 	UnRegisterNotification(ModifyCallback, this, NOTIFY_FILE_POST_OPEN);
 	UnRegisterNotification(ModifyCallback, this, NOTIFY_FILE_POST_MERGE);
 	UnRegisterNotification(ModifyCallback, this, NOTIFY_POST_IMPORT);
 
-	//
-
-	GDI::Window::Cleanup();
-
-	//
-
-	FreeConfig();
-	m_pSettings->Release();
-}
-
-//
-
-void CExporter::FreeConfig()
-{
-	unsigned int iNumObjects = m_Config.size();
-	for(unsigned int x = 0; x < iNumObjects; x++)
+	try {
+		//
+		GDI::Window::Cleanup();
+		delete m_pMemoryLog;
+		m_pMemoryLog=0;
+	} catch(...)
 	{
-		CExportObject* pObj = m_Config[x];
-		pObj->Release();
 	}
-	m_Config.clear();
 
-	m_pSettings->Clear();
-
-	RefreshButtons();
+	// Free ExportObjects
+	FreeConfig();	
 }
 
 void CExporter::LoadConfig()
 {
+	// Remove old configuration
 	FreeConfig();
 
-	PROPSPEC ps;
-	ps.ulKind = PRSPEC_LPWSTR;
-	ps.lpwstr = NDS_PROPERTY_NAME;
+	// Root config
+	CDDObject *pRootConfig=new CDDObject();
+	pRootConfig->SetString("Type", "root");	
 
-	int iPropIndex = m_pMax->FindProperty(PROPSET_USERDEFINED, &ps);
-	if(iPropIndex == -1) return;
+	try {
+		PROPSPEC ps;
+		ps.ulKind = PRSPEC_LPWSTR;
+		ps.lpwstr = NDS_PROPERTY_NAME;
 
-	const PROPVARIANT* pProperty = m_pMax->GetPropertyVariant(PROPSET_USERDEFINED, iPropIndex);
-	if(pProperty->vt != VT_BLOB) return;
+		int iPropIndex = m_pMax->FindProperty(PROPSET_USERDEFINED, &ps);
+		if(iPropIndex != -1) 
+		{
+			const PROPVARIANT* pProperty = m_pMax->GetPropertyVariant(PROPSET_USERDEFINED, iPropIndex);
+			if(pProperty->vt == VT_BLOB)
+			{
+				const BLOB& blob = pProperty->blob;
 
-	//
+				CDataStream stream(blob.pBlobData, blob.cbSize, NULL);
+				stream.SetPosition(0);	
 
-	const BLOB& blob = pProperty->blob;
+				// Check Version
+				unsigned int iVersionID = stream.GetInt();
+				if(iVersionID == NDS_EXPORTER_CONFIG_VERSION)
+					pRootConfig->FromDataStream(&stream);
+			}
+		}
+	} catch(...)
+	{	
+	}
 
-	CDataStream stream(blob.pBlobData, blob.cbSize, NULL);
-	stream.SetPosition(0);
-	LoadConfig(stream);
+	// Create new export root object
+	m_pExportRoot=(CExportObjectRoot*)CExportObject::Construct(pRootConfig);	
+	pRootConfig->Release();
 
+	// Refresh buttonstates on MAX panel
 	RefreshButtons();
 }
 
 void CExporter::SaveConfig()
 {
+	if(!m_pExportRoot || !m_pExportRoot->HasChildren()) return;
+
 	CDataStream stream;
-	SaveConfig(stream);
+
+	//Write Version ID
+	stream.SetPosition(0);
+	stream.AddInt( NDS_EXPORTER_CONFIG_VERSION );
+
+	CDDObject *pConfig=new CDDObject();
+	m_pExportRoot->SaveConfig(pConfig);
+	pConfig->ToDataStream(&stream);
+	pConfig->Release();
 
 	//
 
@@ -167,56 +197,21 @@ void CExporter::SaveConfig()
 }
 
 //
-
-void CExporter::LoadConfig(CDataStream& stream)
+void CExporter::FreeConfig()
 {
-	stream.SetPosition(0);
-
-	unsigned int iNumObjects = stream.GetInt();
-	for(unsigned int x = 0; x < iNumObjects; x++)
+	// If we had an old configuration, we release it
+	if(m_pExportRoot!=NULL)
 	{
-		const std::string& sType = stream.GetString();
-
-		CDDObject* pDDObj = new CDDObject;
-		pDDObj->FromDataStream(&stream);
-
-		CExportObject* pObj = CExportObject::Construct(sType.c_str());
-		pObj->Read(pDDObj);
-
-		pDDObj->Release();
-
-		m_Config.push_back(pObj);
+		try {
+			m_pExportRoot->Release();
+		} catch(...)
+		{
+		}
 	}
-
-	m_pSettings->FromDataStream(&stream);
-}
-
-void CExporter::SaveConfig(CDataStream& stream)
-{
-	stream.SetPosition(0);
-
-	unsigned int iNumObjects = m_Config.size();
-	stream.AddInt(iNumObjects);
-
-	for(unsigned int x = 0; x < iNumObjects; x++)
-	{
-		const CExportObject* pObj = m_Config[x];
-
-		const char* pszType = pObj->GetType();
-		stream.AddString(pszType);
-
-		CDDObject* pDDObj = new CDDObject;
-		pObj->Write(pDDObj);
-
-		pDDObj->ToDataStream(&stream);
-		pDDObj->Release();
-	}
-
-	m_pSettings->ToDataStream(&stream);
+	m_pExportRoot=NULL;
 }
 
 //
-
 void CExporter::RefreshButtons()
 {
 	if(!m_hPanel) return;
@@ -226,7 +221,7 @@ void CExporter::RefreshButtons()
 	ps.lpwstr = NDS_PROPERTY_NAME;
 	bool bGotConfig = (m_pMax->FindProperty(PROPSET_USERDEFINED, &ps) != -1) ? true : false;
 
-	EnableWindow(GetDlgItem(m_hPanel, IDC_EXPORT_BUTTON), bGotConfig && m_Config.size() ? TRUE : FALSE);
+	EnableWindow(GetDlgItem(m_hPanel, IDC_EXPORT_BUTTON), m_pExportRoot!=NULL && m_pExportRoot->HasChildren() ? TRUE : FALSE);
 }
 
 //
@@ -244,7 +239,12 @@ void CExporter::BeginEditParams(Interface* ip, IUtil* iu)
 
 		if (COgreCore::getSingletonPtr() == NULL)
 		{
-			new COgreCore(m_hPanel);
+			new COgreCore(m_hPanel);			
+		}
+		if(!m_bMemoryLogOnOGRE)
+		{
+			Ogre::LogManager::getSingleton().addListener(m_pMemoryLog);
+			m_bMemoryLogOnOGRE=true;
 		}
 
 		LoadConfig();
@@ -266,6 +266,11 @@ void CExporter::EndEditParams(Interface* ip, IUtil* iu)
 
 	m_pMax = NULL;
 	m_pMaxUtil = NULL;
+	if(m_bMemoryLogOnOGRE)
+	{
+		Ogre::LogManager::getSingleton().removeListener(m_pMemoryLog);
+		m_bMemoryLogOnOGRE=false;
+	}
 }
 
 void CExporter::DeleteThis()
@@ -323,72 +328,67 @@ INT_PTR CALLBACK CExporter::ConfigDlgProc(HWND hWnd, UINT Msg, WPARAM wParam, LP
 
 void CExporter::OnPanelButtonProperties()
 {
-	CExporterPropertiesDlg dlg(GDI::Window::FromHandle(m_pMax->GetMAXHWnd()), m_pMax, m_pMaxUtil, &m_Config, m_pSettings);
+	CExporterPropertiesDlg dlg(GDI::Window::FromHandle(m_pMax->GetMAXHWnd()), m_pMax, m_pMaxUtil, m_pExportRoot);
 	int iRtnCode = dlg.DoModal();
 
 	if(dlg.m_bChanges) SaveConfig();
 
-	RefreshButtons();
-
-	std::vector<unsigned int> selectionlist;
+	RefreshButtons();	
 	if(iRtnCode == 100 || iRtnCode == 101)
 	{
 		if(iRtnCode == 101)
 		{
-			dlg.GetLastSelection(selectionlist);
+			ExportItems(false);			
 		}
 		else
 		{
-			for(unsigned int x = 0; x < m_Config.size(); x++) selectionlist.push_back(x);
+			ExportItems(true);			
 		}
-
-		ExportItems(selectionlist);
 	}
 }
 
 //
-
 void CExporter::OnPanelButtonExport()
-{
-	std::vector<unsigned int> selectionlist;
-	for(unsigned int x = 0; x < m_Config.size(); x++) selectionlist.push_back(x);
-
-	ExportItems(selectionlist);
+{	
+	ExportItems(true);
 }
 
 //
-
-void CExporter::ExportItems(const std::vector<unsigned int>& selectionlist)
+void CExporter::ShowLog()
 {
-	if(!selectionlist.size()) return;
+	CExportViewLogDlg dlg(GDI::Window::FromHandle(m_pMax->GetMAXHWnd()), m_pMemoryLog);
+	dlg.DoModal();
+}
 
+//
+void CExporter::ExportItems(bool bForceAll)
+{
+	if(m_pExportRoot==NULL || !m_pExportRoot->HasChildren()) return;
+
+	m_pMemoryLog->Flush();
+	m_pMemoryLog->LogImportant(true);
+	LOGINFO "Memory log flushed");
+
+	// Create progress dialog
 	CExportProgressDlg dlg(NULL);
-	dlg.Create(IDD_DIALOG_EXPORTPROGRESS, GDI::Window::FromHandle(m_pMax->GetMAXHWnd()));
+	dlg.Create(IDD_DIALOG_PROGRESS, GDI::Window::FromHandle(m_pMax->GetMAXHWnd()));
+	LOGINFO "Progress created");
 	dlg.ShowWindow(SW_SHOW);
+	LOGINFO "Progress show");
+	unsigned int iCount=m_pExportRoot->GetChildCount(true);
+	iCount++; // Inclusive Root Object
+	LOGINFO "Counted: %d", iCount);
+	dlg.InitGlobal(iCount);
+	LOGINFO "Progress initglobal");
 
-	char temp[16384];
-	sprintf(temp, "Exporting %i item(s)", selectionlist.size());
-	dlg.Output(temp, 1);
+	LOGINFO "Exporting %i topitem(s)", m_pExportRoot->GetChildren().size());
+	m_pExportRoot->Export(&dlg, bForceAll);
 
-	CExportObject::m_pExportProgressDlg = &dlg;
-
-	unsigned int iNumSelections = selectionlist.size();
-	for(unsigned int x = 0; x < iNumSelections; x++)
-	{
-		CExportObject* pExpObj = m_Config[selectionlist[x]];
-
-		sprintf(temp, "%s: \"%s\" ID: %i -> \"%s\"", pExpObj->GetTypeName(), pExpObj->GetName(), pExpObj->GetID(), pExpObj->GetFilename());
-		dlg.Output(temp, 0);
-
-		if(!pExpObj->Export())
-		{
-		}
-	}
-
-	CExportObject::m_pExportProgressDlg = NULL;
-
-	dlg.MessageBox("Done", NDS_EXPORTER_TITLE, MB_ICONINFORMATION);
-	dlg.DestroyWindow();
+//	dlg.MessageBox("Done", NDS_EXPORTER_TITLE, MB_ICONINFORMATION);
+//	dlg.DestroyWindow();
+	dlg.ExportDone();
+	if(m_pMemoryLog->LogImportant(true))
+		ShowLog();
 }
 
 //
@@ -399,4 +399,23 @@ Interface* CExporter::GetMax()
 }
 
 //
+void CExporter::LoadGlobalSettings()
+{
+	char buffer[_MAX_PATH];
+	GetModuleFileName(m_hInstance, buffer, _MAX_PATH);
+	PathRemoveFileSpec(buffer);
+	strcat(buffer, "\\LEXIExport.DDConf");
+	CDDParse p;
+	m_pGlobalSettings=p.ParseFromFile(buffer);
+	if(m_pGlobalSettings==NULL) m_pGlobalSettings=new CDDObject();
+}
 
+//
+void CExporter::SaveGlobalSettings()
+{
+	char buffer[_MAX_PATH];
+	GetModuleFileName(m_hInstance, buffer, _MAX_PATH);
+	PathRemoveFileSpec(buffer);
+	strcat(buffer, "\\LEXIExport.DDConf");
+	m_pGlobalSettings->SaveASCII(buffer);
+}

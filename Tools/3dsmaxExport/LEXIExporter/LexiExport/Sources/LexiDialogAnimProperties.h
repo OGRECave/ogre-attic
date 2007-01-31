@@ -5,6 +5,8 @@ This source file is part of LEXIExporter
 Copyright 2006 NDS Limited
 
 Author(s):
+Mark Folkenberg,
+Bo Krohn
 Lasse Tassing
 
 This program is free software; you can redistribute it and/or modify it under
@@ -23,51 +25,42 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __NDS_META_COLOR__
-#define __NDS_META_COLOR__
+#ifndef __NDS_LexiExporter_AnimPropertiesDialog__
+#define __NDS_LexiExporter_AnimPropertiesDialog__
 
 //
-namespace GDI 
-{
-class MetaColor : public MetaBaseCtrl
-{
+class CAnimPropertiesDlg : public GDI::Dialog, public IDDNotify
+{	
 public:
-	MetaColor();
-	~MetaColor();	
+	CAnimPropertiesDlg(Window* pParent);	
+	~CAnimPropertiesDlg();
+
+	// Initialize controls from object
+	void	Init(CDDObject *pMeta, const char *pszDefExt);	
+	void	SetInstance(CDDObject *pData, CExportObject* pObj);
 
 private:
-	// Data object changed - update data on control
-	// Note: This is also called when control is created
-	void	UpdateData(CDDObject *pData);
-	void	OnCreated();
-	void	OnPaint();
-	void	OnLayout();	
-	bool	OnMouseDown(int iFlags, int iX, int iY);
-	bool	OnMouseDblClick(int iFlags, int iX, int iY);
-	bool	OnMouseMove(int iFlags, int iX, int iY);
-	void	OnCommand(HWND hWnd, int iCode, int iID);
-	void	MakeGrayed(TRIVERTEX &tVert);
-	void	UpdateHeight();
+	void	OnInitDialog();
+	void	OnSize();	
+	void	BrowseOutput();
+	void	OnNameChange();
+	void	OnFileNameChange();
+	void	OnChanged(const CDDObject *pInstance, const char *pszKey);
+		
+	std::string	m_sDefExt;
 
-	// Enable/disable control
-	void	SetEnabled(bool bEnabled);
+	static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	bool	m_bIncludeAlpha;
-	bool	m_bHasCapture;
-	bool	m_bShowSliders;
-	CVec4	m_Value;
-	AlphaFiller	m_AlphaFiller;
-	int		m_iActiveSlider;
+	CExportObject* m_pObj;
+	CDDObject	*m_pData;
 
-	//
-	HDC		m_hAlphaDC;
-	HBITMAP	m_hAlphaMemory;
-	HBITMAP	m_hBrushBitmap;
-	HBRUSH	m_hCheckerBrush;
-	BLENDFUNCTION m_BlendFunc;
+	HWND m_hMetaWnd;
+	GDI::MetaControl* m_pMetaCtrl;
+	GDI::Button	m_SaveSeperate;
 
-	Edit	*m_pEditCtrl;
+	RECT	m_OrgClientRect;
 };
 
-}
-#endif
+//
+
+#endif // __NDS_LexiExporter_AnimPropertiesDialog__

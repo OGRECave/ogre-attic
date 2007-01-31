@@ -24,21 +24,19 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __NDS_LexiExporter_ExportObject_Mesh__
-#define __NDS_LexiExporter_ExportObject_Mesh__
+#ifndef __NDS_LexiExporter_ExportObject_BoneAnim__
+#define __NDS_LexiExporter_ExportObject_BoneAnim__
 
 #include "..\res\resource.h"
-#include "LexiIntermediateAPI.h"
-//
 
 //
 
-class CMeshExportObject : public CExportObject 
+class CBoneAnimExportObject : public CExportObject 
 {
 public:
 	// Constructor/Destructor
-	CMeshExportObject(CDDObject *pConfig);
-	~CMeshExportObject();
+	CBoneAnimExportObject(CDDObject *pConfig);
+	~CBoneAnimExportObject();
 
 	// Get window for editing ExportObject properties
 	GDI::Window* GetEditWindow(GDI::Window *pParent);
@@ -54,28 +52,17 @@ public:
 	// Check if ExportObject supports a given ExportObject instance as parent
 	bool SupportsParentType(const CExportObject *pParent) const;
 
-	// Supports node class
-	bool SupportsMAXNode(INode *pMAXNode) const;
-
 	// Export object
 	bool Export(CExportProgressDlg *pProgressDlg, bool bForceAll) const;
 
-	// Default file extension
-//	const char* GetDefaultFileExt() const;
-
 private:
-	// Build meta description object
 	CDDObject* BuildMetaDesc( void );
 
-	static CObjectPropertiesDlg *m_pEditDlg;
+	static CAnimPropertiesDlg *m_pEditDlg;
 	static CDDObject* m_pDDMetaDesc;
-
-	//
-	std::string m_sFilename;
-	
 };
 
-DECLARE_EXPORT_OBJECT(CMeshExportObject, "static_mesh", "Static Mesh", IDI_ICON_MESH)
+DECLARE_EXPORT_OBJECT(CBoneAnimExportObject, "skeleton", "Bone Animation", IDI_ICON_ANIMATION)
 
 //
 

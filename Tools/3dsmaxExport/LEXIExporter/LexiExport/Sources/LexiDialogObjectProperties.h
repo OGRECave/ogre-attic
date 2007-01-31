@@ -7,6 +7,7 @@ Copyright 2006 NDS Limited
 Author(s):
 Mark Folkenberg,
 Bo Krohn
+Lasse Tassing
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -29,74 +30,36 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 //
 
-class CObjectPropertiesDlg : public GDI::Dialog, public IDDNotify {
+class CObjectPropertiesDlg : public GDI::Dialog, public IDDNotify
+{	
+public:
+	CObjectPropertiesDlg(Window* pParent);	
+	~CObjectPropertiesDlg();
 
-	private:
+	// Initialize controls from object
+	void	Init(CDDObject *pMeta, const char *pszDefExt);	
+	void	SetInstance(CDDObject *pData, CExportObject* pObj);
 
-		static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-
-		CDDObject* ExtractAnimationMeta( CDDObject* pDDObj );
-
-		CDDObject* m_pDummyDD;
-		std::vector< std::string > m_lAnimNames;
-		fastmap< CDDObject* > m_lAnimMap;
-
-	public:
-
-		CObjectPropertiesDlg(Window* pParent, CExportObject* pObj);
-
-		CExportObject* m_pObj;
-
-		HWND m_hMetaWnd;
-		GDI::MetaControl* m_pMetaCtrl;
-		GDI::ListCtrl m_ItemList;
-		HWND m_hAnimMetaWnd;
-		GDI::MetaControl* m_pAnimMetaCtrl;
-
-		GDI::Button m_ButtonRemove;
-
-		std::string m_sTitle;
-		std::string m_sGBTitle;
-
-		std::string m_sName;
-		unsigned int m_iID;
-		std::string m_sFilename;
-
-		unsigned int m_iInitFromSelected;
-
-
-		// Called when data object has changed
-		void	OnChanged(const CDDObject *pInstance, const char *pszKey);
+private:
+	void	OnInitDialog();
+	void	OnSize();	
+	void	BrowseNode();
+	void	BrowseOutput();
+	void	OnNameChange();
+	void	OnFileNameChange();
+	void	OnChanged(const CDDObject *pInstance, const char *pszKey);
 		
-		//
+	std::string	m_sDefExt;
 
-		void ForceUpdateMembers();
-		void BrowseNodeAndAdd();
+	static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-		void PopulateItemList();
-		void UpdateItemList(void);
-		void FillItemList(void);
-		void DoAnimationSelected();
+	CExportObject* m_pObj;
+	CDDObject	*m_pData;
 
+	HWND m_hMetaWnd;
+	GDI::MetaControl* m_pMetaCtrl;
 
-	protected:
-
-		virtual void OnInitDialog();
-		void OnOK();
-		void OnCancel();
-		void BrowseNode();
-		void AddAnimation();
-
-		CDDObject* FindAnimationDataFromIndex( int index );
-		CDDObject* FindAnimationData( faststring animName );
-		CDDObject* FindOrCreateAnimationData( unsigned int index );
-		bool RemoveAnimationData( void );
-
-		void LoadAnimationData( fastvector< const CDDObject* > lAnimList);
-
-
-	public:
-
+	RECT	m_OrgClientRect;
 };
 
 //
