@@ -71,6 +71,11 @@ http://www.gnu.org/copyleft/lesser.txt
 // generated code from nvparse etc). I doubt very much that these calls
 // will ever be actually removed from VC anyway, it would break too much code.
 #	pragma warning( disable: 4996)
+
+// disable: "conditional expression constant", always occurs on 
+// OGRE_MUTEX_CONDITIONAL when no threading enabled
+#   pragma warning (disable : 201)
+
 #endif
 
 /* Include all the standard header *after* all the configuration
