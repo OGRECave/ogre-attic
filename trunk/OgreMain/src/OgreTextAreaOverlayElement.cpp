@@ -168,14 +168,14 @@ namespace Ogre {
 		float left = _getDerivedLeft() * 2.0 - 1.0;
 		float top = -( (_getDerivedTop() * 2.0 ) - 1.0 );
 
-		// Derive space with from a capital A
+		// Derive space with from a number 0
 		if (mSpaceWidth == 0)
 		{
-			mSpaceWidth = mpFont->getGlyphAspectRatio( 'A' ) * mCharHeight * 2.0 * mViewportAspectCoef;
+			mSpaceWidth = mpFont->getGlyphAspectRatio(0x30) * mCharHeight * 2.0 * mViewportAspectCoef;
 		}
 
 		// Use iterator
-		String::iterator i, iend;
+		UTFString::iterator i, iend;
 		iend = mCaption.end();
 		bool newLine = true;
 		for( i = mCaption.begin(); i != iend; ++i )
@@ -183,15 +183,21 @@ namespace Ogre {
 			if( newLine )
 			{
 				Real len = 0.0f;
-				for( String::iterator j = i; j != iend && *j != '\n'; j++ )
+				for( UTFString::iterator j = i; j != iend; j++ )
 				{
-					if (*j == ' ')
+					Font::CodePoint character = j.getCharacter();
+					if (character == 0x000D // CR
+						|| character == 0x0085) // NEL
+					{
+						break;
+					}
+					else if (character == 0x0020) // space
 					{
 						len += mSpaceWidth;
 					}
 					else 
 					{
-						len += mpFont->getGlyphAspectRatio( *j ) * mCharHeight * 2.0 * mViewportAspectCoef;
+						len += mpFont->getGlyphAspectRatio(character) * mCharHeight * 2.0 * mViewportAspectCoef;
 					}
 				}
 
@@ -203,7 +209,9 @@ namespace Ogre {
 				newLine = false;
 			}
 
-			if( *i == '\n' )
+			Font::CodePoint character = i.getCharacter();
+			if (character == 0x000D // CR
+				|| character == 0x0085) // NEL
 			{
 				left = _getDerivedLeft() * 2.0 - 1.0;
 				top -= mCharHeight * 2.0;
@@ -212,8 +220,7 @@ namespace Ogre {
 				mRenderOp.vertexData->vertexCount -= 6;
 				continue;
 			}
-
-			if ( *i == ' ')
+			else if (character == 0x0020) // space
 			{
 				// Just leave a gap, no tris
 				left += mSpaceWidth;
@@ -222,9 +229,8 @@ namespace Ogre {
 				continue;
 			}
 
-			Real horiz_height = mpFont->getGlyphAspectRatio( *i ) * mViewportAspectCoef ;
-			Real u1, u2, v1, v2; 
-			mpFont->getGlyphTexCoords( *i, u1, v1, u2, v2 );
+			Real horiz_height = mpFont->getGlyphAspectRatio(character) * mViewportAspectCoef ;
+			const Font::UVRect& uvRect = mpFont->getGlyphTexCoords(character);
 
 			// each vert is (x, y, z, u, v)
 			//-------------------------------------------------------------------------------------
@@ -234,8 +240,8 @@ namespace Ogre {
 			*pVert++ = left;
 			*pVert++ = top;
 			*pVert++ = -1.0;
-			*pVert++ = u1;
-			*pVert++ = v1;
+			*pVert++ = uvRect.left;
+			*pVert++ = uvRect.top;
 
 			top -= mCharHeight * 2.0;
 
@@ -243,8 +249,8 @@ namespace Ogre {
 			*pVert++ = left;
 			*pVert++ = top;
 			*pVert++ = -1.0;
-			*pVert++ = u1;
-			*pVert++ = v2;
+			*pVert++ = uvRect.left;
+			*pVert++ = uvRect.bottom;
 
 			top += mCharHeight * 2.0;
 			left += horiz_height * mCharHeight * 2.0;
@@ -253,8 +259,8 @@ namespace Ogre {
 			*pVert++ = left;
 			*pVert++ = top;
 			*pVert++ = -1.0;
-			*pVert++ = u2;
-			*pVert++ = v1;
+			*pVert++ = uvRect.right;
+			*pVert++ = uvRect.top;
 			//-------------------------------------------------------------------------------------
 
 			//-------------------------------------------------------------------------------------
@@ -264,8 +270,8 @@ namespace Ogre {
 			*pVert++ = left;
 			*pVert++ = top;
 			*pVert++ = -1.0;
-			*pVert++ = u2;
-			*pVert++ = v1;
+			*pVert++ = uvRect.right;
+			*pVert++ = uvRect.top;
 
 			top -= mCharHeight * 2.0;
 			left -= horiz_height  * mCharHeight * 2.0;
@@ -274,8 +280,8 @@ namespace Ogre {
 			*pVert++ = left;
 			*pVert++ = top;
 			*pVert++ = -1.0;
-			*pVert++ = u1;
-			*pVert++ = v2;
+			*pVert++ = uvRect.left;
+			*pVert++ = uvRect.bottom;
 
 			left += horiz_height  * mCharHeight * 2.0;
 
@@ -283,8 +289,8 @@ namespace Ogre {
 			*pVert++ = left;
 			*pVert++ = top;
 			*pVert++ = -1.0;
-			*pVert++ = u2;
-			*pVert++ = v2;
+			*pVert++ = uvRect.right;
+			*pVert++ = uvRect.bottom;
 			//-------------------------------------------------------------------------------------
 
 			// Go back up with top
@@ -318,15 +324,11 @@ namespace Ogre {
 		// Nothing to do, we combine positions and textures
 	}
 
-    void TextAreaOverlayElement::setCaption( const String& caption )
+    void TextAreaOverlayElement::setCaption( const UTFString& caption )
     {
         mCaption = caption;
 		mGeomPositionsOutOfDate = true;
 		mGeomUVsOutOfDate = true;
-    }
-    const String& TextAreaOverlayElement::getCaption() const
-    {
-        return mCaption;
     }
 
     void TextAreaOverlayElement::setFontName( const String& font )

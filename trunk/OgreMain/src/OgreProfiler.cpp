@@ -579,7 +579,7 @@ namespace Ogre {
                 // display the profile's name and the number of times it was called in a frame
                 g = *bIter;
                 g->show();
-                g->setCaption((*iter).name + " (" + StringConverter::toString((*iter).numCallsThisFrame) + ")");
+                g->setCaption(String((*iter).name + " (" + StringConverter::toString((*iter).numCallsThisFrame) + ")"));
                 g->setLeft(10 + (*iter).hierarchicalLvl * 15);
 
                 // display the main bar that show the percentage of the frame time that this

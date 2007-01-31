@@ -30,24 +30,10 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreResource.h"
 #include "OgreTexture.h"
 #include "OgreMaterial.h"
+#include "OgreCommon.h"
 
 namespace Ogre
 {
-    // Define the number of glyphs allowed
-    // We ignore 0-31 since these are control characters
-#if OGRE_WCHAR_T_STRINGS
-    // Allow wide chars
-    #define OGRE_NUM_GLYPHS (1024 - 32)
-#else
-    // Allow 8-bit ASCII 
-    // (we don't want to offend people with charcodes 127-256 in their name eh cearny? ;)
-    // Only chars 33+ are any use though
-    #define OGRE_NUM_GLYPHS (256 - 32)
-#endif
-
-    // How to look up chars
-    #define OGRE_GLYPH_INDEX(c) c - 33
-
     /** Enumerates the types of Font usable in the engine. */
     enum FontType
     {
@@ -102,12 +88,20 @@ namespace Ogre
 			String doGet(const void* target) const;
 			void doSet(void* target, const String& val);
 		};
+		/// Command object for Font - see ParamCommand 
+		class _OgreExport CmdCodePoints : public ParamCommand
+		{
+		public:
+			String doGet(const void* target) const;
+			void doSet(void* target, const String& val);
+		};
 
 		// Command object for setting / getting parameters
 		static CmdType msTypeCmd;
 		static CmdSource msSourceCmd;
 		static CmdSize msSizeCmd;
 		static CmdResolution msResolutionCmd;
+		static CmdCodePoints msCodePointsCmd;
 
 		/// The type of font
         FontType mType;
@@ -121,17 +115,29 @@ namespace Ogre
         uint mTtfResolution;
 
 
-        /// Start u coords
-        Real mTexCoords_u1[OGRE_NUM_GLYPHS];
-        /// End u coords
-        Real mTexCoords_u2[OGRE_NUM_GLYPHS];
-        /// Start v coords
-        Real mTexCoords_v1[OGRE_NUM_GLYPHS];
-        /// End v coords
-        Real mTexCoords_v2[OGRE_NUM_GLYPHS];
+	public:
+		typedef Ogre::uint32 CodePoint;
+		typedef Ogre::FloatRect UVRect;
+		/// Information about the position and size of a glyph in a texture
+		struct GlyphInfo 
+		{
+			CodePoint codePoint;
+			UVRect uvRect;
+			Real aspectRatio;
 
-        /// Aspect ratio between x and y (width / height)
-        Real mAspectRatio[OGRE_NUM_GLYPHS];
+			GlyphInfo(CodePoint id, const UVRect& rect, Real aspect)
+				: codePoint(id), uvRect(rect), aspectRatio(aspect)
+			{
+
+			}
+		};
+		/// A range of code points, inclusive on both ends
+		typedef std::pair<CodePoint, CodePoint> CodePointRange;
+		typedef std::vector<CodePointRange> CodePointRangeList;
+	protected:
+		/// Map from unicode code point to texture coordinates
+		typedef std::map<CodePoint, GlyphInfo> CodePointMap;
+		CodePointMap mCodePointMap;
 
         /// The material which is generated for this font
         MaterialPtr mpMaterial;
@@ -141,6 +147,9 @@ namespace Ogre
 
         /// for TRUE_TYPE font only
         bool mAntialiasColour;
+
+		/// Range of code points to generate glyphs for (truetype only)
+		CodePointRangeList mCodePointRangeList;
 
         /// Internal method for loading from ttf
         void createTextureFromFont(void);
@@ -176,7 +185,9 @@ namespace Ogre
         @par
             If you have created a font of type FT_TRUETYPE, this method tells the
             Font which .ttf file to use to generate the text. You will also need to call 
-            setTrueTypeSize and setTrueTypeResolution.
+            setTrueTypeSize and setTrueTypeResolution, and call addCodePointRange
+			as many times as required to define the range of glyphs you want to be
+			available.
         @param source An image file or a truetype font, depending on the type of this font
         */
         void setSource(const String& source);
@@ -210,23 +221,25 @@ namespace Ogre
         */
         uint getTrueTypeResolution(void) const;
 
-        /** Returns the size in pixels of a box that could contain the whole string.
-        */
-        std::pair< uint, uint > StrBBox( const String & text, Real char_height, RenderWindow & window  );
-
 
         /** Returns the teture coordinates of the associated glyph. 
             @remarks Parameter is a short to allow both ASCII and wide chars.
-            @param id The character code
-            @param u1, u2, v1, v2 location to place the results
+            @param id The code point (unicode)
+            @returns A rectangle with the UV coordinates, or null UVs if the
+				code point was not present
         */
-        inline void getGlyphTexCoords(OgreChar id, Real& u1, Real& v1, Real& u2, Real& v2 ) const
+        inline const UVRect& getGlyphTexCoords(CodePoint id) const
         {
-            unsigned OgreChar idx = OGRE_GLYPH_INDEX(id);
-            u1 = mTexCoords_u1[ idx ];
-            v1 = mTexCoords_v1[ idx ];
-            u2 = mTexCoords_u2[ idx ];
-            v2 = mTexCoords_v2[ idx ];
+			CodePointMap::const_iterator i = mCodePointMap.find(id);
+			if (i != mCodePointMap.end())
+			{
+				return i->second.uvRect;
+			}
+			else
+			{
+				static UVRect nullRect(0.0, 0.0, 0.0, 0.0);
+				return nullRect;
+			}
         }
 
         /** Sets the texture coordinates of a glyph.
@@ -235,31 +248,85 @@ namespace Ogre
         @note
             Also sets the aspect ratio (width / height) of this character. 
         */
-        inline void setGlyphTexCoords( OgreChar id, Real u1, Real v1, Real u2, Real v2 )
+        inline void setGlyphTexCoords(CodePoint id, Real u1, Real v1, Real u2, Real v2)
         {
-            unsigned OgreChar idx = OGRE_GLYPH_INDEX(id);
-            mTexCoords_u1[ idx ] = u1;
-            mTexCoords_v1[ idx ] = v1;
-            mTexCoords_u2[ idx ] = u2;
-            mTexCoords_v2[ idx ] = v2;
-            mAspectRatio[ idx ] = ( u2 - u1 ) / ( v2 - v1 );
+			CodePointMap::iterator i = mCodePointMap.find(id);
+			if (i != mCodePointMap.end())
+			{
+				i->second.uvRect.left = u1;
+				i->second.uvRect.top = v1;
+				i->second.uvRect.right = u2;
+				i->second.uvRect.bottom = v2;
+				i->second.aspectRatio = (u2 - u1)  / (v2 - v1);
+			}
+			else
+			{
+				mCodePointMap.insert(
+					CodePointMap::value_type(id, 
+						GlyphInfo(id, UVRect(u1, v1, u2, v2), (u2 - u1)  / (v2 - v1))));
+			}
+
         }
         /** Gets the aspect ratio (width / height) of this character. */
-        inline Real getGlyphAspectRatio( OgreChar id ) const
+        inline Real getGlyphAspectRatio(CodePoint id) const
         {
-            unsigned OgreChar idx = OGRE_GLYPH_INDEX(id);
-            return mAspectRatio[ idx ];
+			CodePointMap::const_iterator i = mCodePointMap.find(id);
+			if (i != mCodePointMap.end())
+			{
+				return i->second.aspectRatio;
+			}
+			else
+			{
+				return 1.0;
+			}
         }
         /** Sets the aspect ratio (width / height) of this character.
         @remarks
             You only need to call this if you're setting up a font loaded from a texture manually,
-            and your aspect ratio is really freaky.
+            and your aspect ratio is really freaky (not relative to UVs).
         */
-        inline void setGlyphAspectRatio( OgreChar id, Real ratio )
+        inline void setGlyphAspectRatio(CodePoint id, Real ratio)
         {
-            unsigned OgreChar idx = OGRE_GLYPH_INDEX(id);
-            mAspectRatio[ idx ] = ratio;
+			CodePointMap::iterator i = mCodePointMap.find(id);
+			if (i != mCodePointMap.end())
+			{
+				i->second.aspectRatio = ratio;
+			}
         }
+
+		/** Gets the information available for a glyph corresponding to a
+			given code point, or throws an exception if it doesn't exist;
+		*/
+		const GlyphInfo& getGlyphInfo(CodePoint id) const;
+
+		/** Get the width of a space in this font
+
+		/** Adds a range of code points to the list of code point ranges to generate
+			glyphs for, if this is a truetype based font.
+		@remarks
+			In order to save texture space, only the glyphs which are actually
+			needed by the application are generated into the texture. Before this
+			object is loaded you must call this method as many times as necessary
+			to define the code point range that you need.
+		*/
+		void addCodePointRange(const CodePointRange& range)
+		{
+			mCodePointRangeList.push_back(range);
+		}
+
+		/** Clear the list of code point ranges.
+		*/
+		void clearCodePointRanges()
+		{
+			mCodePointRangeList.clear();
+		}
+		/** Get a const reference to the list of code point ranges to be used to
+			generate glyphs from a truetype font.
+		*/
+		const CodePointRangeList& getCodePointRangeList() const
+		{
+			return mCodePointRangeList;
+		}
         /** Gets the material generated for this font, as a weak reference. 
         @remarks
             This will only be valid after the Font has been loaded. 
