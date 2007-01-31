@@ -50,10 +50,10 @@
 				IgnoreAllDefaultLibraries="FALSE"
 				IgnoreDefaultLibraryNames="LIBCD;LIBCMTD"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/OgreMain_d.pdb"
+				ProgramDatabaseFile="$(OutDir)/$(ProjectName)_d.pdb"
 				SubSystem="1"
 				OptimizeForWindows98="1"
-				ImportLibrary="$(OutDir)/OgreMain_d.lib"
+				ImportLibrary="$(OutDir)/$(TargetName).lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -116,7 +116,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="kernel32.lib user32.lib zziplib.lib zlib.lib freetype230.lib FreeImage.lib"
-				OutputFile="$(OutDir)/$(ProjectName).dll"
 				Version="0.99"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -128,7 +127,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				OptimizeForWindows98="1"
-				ImportLibrary="$(OutDir)/OgreMain.lib"
+				ImportLibrary="$(OutDir)/$(TargetName).lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>

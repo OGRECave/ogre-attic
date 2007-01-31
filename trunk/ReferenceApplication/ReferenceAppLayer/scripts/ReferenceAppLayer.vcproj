@@ -36,16 +36,16 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
 				AdditionalDependencies="OgreMain_d.lib ode.lib"
-				OutputFile="$(OutDir)/ReferenceAppLayer_d.dll"
+				OutputFile="$(OutDir)/$(ProjectName)_d.dll"
 				Version="0.99"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="&quot;..\..\..\lib&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
 				ModuleDefinitionFile=""
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/ReferenceAppLayer.pdb"
+				ProgramDatabaseFile="$(OutDir)/$(ProjectName)_d.pdb"
 				SubSystem="2"
-				ImportLibrary="$(OutDir)/ReferenceAppLayer_d.lib"
+				ImportLibrary="$(OutDir)/$(TargetName).lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -104,7 +104,6 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
 				AdditionalDependencies="OgreMain.lib ode.lib"
-				OutputFile="$(OutDir)/ReferenceAppLayer.dll"
 				Version="0.99"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -114,7 +113,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="$(OutDir)/ReferenceAppLayer.lib"
+				ImportLibrary="$(OutDir)/$(TargetName).lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
