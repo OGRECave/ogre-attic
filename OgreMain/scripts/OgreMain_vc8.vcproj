@@ -263,7 +263,9 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="zziplibd.lib freetype230_D.lib freeimaged.lib LibJPEG.lib LibMNG.lib LibPNG.lib LibTIFF.lib"
 				OutputFile="$(OutDir)\$(ProjectName)Static_d.lib"
+				AdditionalLibraryDirectories="..\..\lib;..\..\Dependencies\lib\Debug"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -339,7 +341,9 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="zziplib.lib freetype230.lib freeimage.lib LibJPEG.lib LibMNG.lib LibPNG.lib LibTIFF.lib"
 				OutputFile="$(OutDir)\$(ProjectName)Static.lib"
+				AdditionalLibraryDirectories="..\..\lib;..\..\Dependencies\lib\Release"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -1861,6 +1865,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreTagPoint.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreTangentSpaceBuilder.h"
 				>
 			</File>
 			<File
