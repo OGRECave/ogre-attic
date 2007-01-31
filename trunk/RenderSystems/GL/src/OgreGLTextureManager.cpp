@@ -137,8 +137,24 @@ namespace Ogre {
         // hardware below
         static const String sFloat16SupportedCards[] =
         {
-            "*GeForce*7600*",
+            // GeForce 8 Series
+            "*GeForce*8800*",
+
+            // GeForce 7 Series
+            "*GeForce*7950*",
+            "*GeForce*7900*",
             "*GeForce*7800*",
+            "*GeForce*7600*",
+            "*GeForce*7500*",
+            "*GeForce*7300*",
+
+            // GeForce 6 Series
+            "*GeForce*6800*",
+            "*GeForce*6700*",
+            "*GeForce*6600*",
+            "*GeForce*6500*",
+            "*GeForce*6200*",
+
             ""                      // Empty string means end of list
         };
 
@@ -146,6 +162,9 @@ namespace Ogre {
         // hardware below
         static const String sFloat32SupportedCards[] =
         {
+            // GeForce 8 Series
+            "*GeForce*8800*",
+
             ""                      // Empty string means end of list
         };
 
