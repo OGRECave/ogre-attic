@@ -57,6 +57,7 @@ private:
 	bool	m_bShowSliders;
 	CVec4	m_Value;
 	AlphaFiller	m_AlphaFiller;
+	int		m_iActiveSlider;
 
 	//
 	HDC		m_hAlphaDC;

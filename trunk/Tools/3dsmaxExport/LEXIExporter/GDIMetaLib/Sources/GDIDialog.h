@@ -58,6 +58,7 @@ class Dialog : public Window {
 
 		// Create
 		bool Create(unsigned int nTemplateID, Window* pParent);
+		bool Create();
 
 		// Do modal run
 		int DoModal();

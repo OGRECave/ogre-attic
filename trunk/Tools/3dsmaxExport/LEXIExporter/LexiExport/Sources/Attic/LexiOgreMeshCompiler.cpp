@@ -48,31 +48,29 @@ COgreMeshCompiler::COgreMeshCompiler( CIntermediateMesh* pIntermediateMesh, cons
 	if(m_bReindex)
 		ReindexIntermediateBuffers(pIntermediateMesh);
 
-	Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: Creating Mesh");
+	//Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: Creating Mesh");
 	// create basic ogre mesh structure
 	CreateOgreMesh(pIntermediateMesh);
 
-	
-
-	Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: Creating HWBuffers");
+	//Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: Creating HWBuffers");
 	// create hw buffers i.e.(vertex,index,normal..)
 	CreateBuffers(pIntermediateMesh);
-	Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: HWBuffers Created");
+	//Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: HWBuffers Created");
 
-	if(m_bExportSkeleton)
-		if(pIntermediateMesh->GetSkeleton()!= NULL)
-		{
-			Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: Creating Skeleton Compiler");
-			m_pSkeletonCompiler = new COgreSkeletonCompiler( pIntermediateMesh->GetSkeleton(), pConfig, filename, m_pOgreMesh );
-			Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: Skeleton Compiler Created");
-		}
-		else
-		{
-			MessageBox(NULL, "No Skin Modifier found. Ignoring..", "Warning!", MB_ICONWARNING);
-			m_bExportSkeleton = false;
-		}
-
-
+	//if(m_bExportSkeleton)
+	//{
+	//	if(pIntermediateMesh->GetSkeleton()!= NULL)
+	//	{
+	//		Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: Creating Skeleton Compiler");
+	//		m_pSkeletonCompiler = new COgreSkeletonCompiler( pIntermediateMesh->GetSkeleton(), pConfig, filename, m_pOgreMesh );
+	//		Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: Skeleton Compiler Created");
+	//	}
+	//	else
+	//	{
+	//		LOGWARNING "No Skin Modifier found, ignoring \"export skeleton\" option...");
+	//		m_bExportSkeleton = false;
+	//	}
+	//}
 
 	Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: Creating Bounds");
 	// create and register bounding box
@@ -171,7 +169,7 @@ void COgreMeshCompiler::ReindexIntermediateBuffers( CIntermediateMesh* pIntermed
 	if(m_bExportNormals)
 	{
 		if (pArray == NULL)
-			MessageBox(NULL, "No Normals found. Ignoring..", "Warning!", MB_ICONWARNING);
+			LOGWARNING "No Normals found, ignoring \"export normals\" option.");
 		else
 			bufferList.push_back(pArray);
 	}
@@ -180,7 +178,7 @@ void COgreMeshCompiler::ReindexIntermediateBuffers( CIntermediateMesh* pIntermed
 	if(m_bExportColours)
 	{
 		if (pArray == NULL)
-			MessageBox(NULL, "No Vertex Colours defined. Ignoring..", "Warning!", MB_ICONWARNING);
+			LOGWARNING "No Vertex Colours defined, ignoring \"export vertex colors\" option.");			
 		else
 			bufferList.push_back(pArray);
 	}
@@ -383,7 +381,7 @@ void COgreMeshCompiler::CreateIndexBuffer( CIntermediateMesh* pIntermediateMesh 
 						for (int i=0; i < iBoneCount; i++)
 						{
 							SVertexBoneData boneData;
-							vertexBoneAssignment.boneIndex = pISkel->GetVertexData(vertIndex,0,boneData);
+							vertexBoneAssignment.boneIndex = pISkel->GetVertexData(vertIndex,i,boneData);
 
 							vertexBoneAssignment.vertexIndex = vertIndex;
 							vertexBoneAssignment.boneIndex = boneData.boneIndex;
@@ -455,10 +453,19 @@ void COgreMeshCompiler::CreateIndexBuffer( CIntermediateMesh* pIntermediateMesh 
 						//m_pOgreMesh->addBoneAssignment(vertexBoneAssignment);
 
 						//for (int i=0; i < 1; i++)
+						SVertexBoneData maxBoneData;
+						maxBoneData.weight = 0;
+						int maxVertIndex = 0;
 						for (int i=0; i < iBoneCount; i++)
 						{
+
+
+							
 							SVertexBoneData boneData;
 							pISkel->GetVertexData(vertIndex,i,boneData);
+
+							if(maxBoneData.weight < boneData.weight)
+								maxBoneData = boneData;
 
 							//if(boneData.weight < 0.001f) continue;
 							//boneData.weight = 1.0f;
@@ -481,8 +488,21 @@ void COgreMeshCompiler::CreateIndexBuffer( CIntermediateMesh* pIntermediateMesh 
 							//Ogre::LogManager::getSingletonPtr()->logMessage(str.str());
 
 							m_pOgreMesh->addBoneAssignment(vertexBoneAssignment);
+
+							
 						}
 
+						/*
+						// Only apply highest weight:
+						if(iBoneCount > 0 )
+						{
+							vertexBoneAssignment.vertexIndex	= vertIndex;
+							vertexBoneAssignment.boneIndex		= maxBoneData.boneIndex;
+							vertexBoneAssignment.weight			= maxBoneData.weight;
+
+							m_pOgreMesh->addBoneAssignment(vertexBoneAssignment);
+						}
+						*/
 						//Vertex::BoneData::iterator it = smData.mVertexDeque[i].mBoneData.begin();
 						//Vertex::BoneData::iterator iend = smData.mVertexDeque[i].mBoneData.end();
 
@@ -701,14 +721,18 @@ bool COgreMeshCompiler::WriteOgreMesh( const Ogre::String& sFilename )
 	}
 	catch (Ogre::Exception& e)
 	{
-		MessageBox( NULL, e.getFullDescription().c_str(), "ERROR", MB_ICONERROR);
+		LOGERROR "OgreException: %s", e.getFullDescription().c_str());
+//		MessageBox( NULL, e.getFullDescription().c_str(), "ERROR", MB_ICONERROR);
 		return false;
+	} catch(...)
+	{
+		LOGERROR "Unhandled exception caught in COgreMeshCompiler::WriteOgreMesh()");
 	}
 	delete pMeshWriter;
 
-	if(m_bExportSkeleton)
-		if( !m_pSkeletonCompiler->WriteOgreSkeleton( sFilename+".skeleton") )
-			return false;
+	//if(m_bExportSkeleton)
+	//	if( !m_pSkeletonCompiler->WriteOgreSkeleton( sFilename+".skeleton") )
+	//		return false;
 
 	return true;
 }

@@ -7,6 +7,7 @@ Copyright 2006 NDS Limited
 Author(s):
 Mark Folkenberg,
 Bo Krohn
+Lasse Tassing
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -28,115 +29,140 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __NDS_LexiExporter_ExportObject__
 
 //
-
 #define DECLARE_EXPORT_OBJECT(classname, type, typname, icon) \
-static CExportObject* _construct##classname() { return new classname; } \
+static CExportObject* _construct##classname(CDDObject *pConfig) { return new classname(pConfig); } \
 static bool bDummyExp##classname = CExportObject::RegisterObject(type, typname, icon, _construct##classname); \
 static classname* dummyGetPtrToClassName_##classname() { bool bDummy = bDummyExp##classname; return NULL; }
 
 //
-
-class CExportObject {
-
-	friend class CExporter;
-	friend class CExportProgressDlg;
-
-	public:
-
-		typedef struct {
-
-			const char* m_pszType;
-			const char* m_pszTypeName;
-			HICON m_hIcon;
-
-		} Desc;
-
-	public:
-
-		typedef CExportObject* (*Construct_FN)();
-
-		static void Initialize();
-
-		static bool RegisterObject(const char* pszType, const char* pszTypeName, unsigned int iIcon, Construct_FN pfnConstruct);
-		static CExportObject* Construct(const char* pszType);
-		static void EnumObjects(std::vector<Desc>& objlist);
-
-	protected:
-
-		std::string m_sType;
-
-		static CExportProgressDlg* m_pExportProgressDlg;
-
-		Ogre::SceneNode* m_pSceneNode;
-
-		CDDObject* m_pDDEditMeta;
-		CDDObject* m_pDDMetaDesc;
-
-		//
-
-		unsigned int m_iID;
-		std::string m_sName;
-		std::string m_sFilename;
-
-	public:
-
-		// Constructor/Destructor
-		CExportObject(const char* pszType);
-		virtual ~CExportObject();
-
-		// Release object
-		void Release();
-
-		// Create scene node
-		bool CreateSceneNode();
-
-		// Read/Write
-		virtual void Read(CDDObject* pConfig);
-		virtual void Write(CDDObject* pConfig) const;
-
-		// Type
-		const char* GetType() const;
-		const char* GetTypeName() const;
-
-		// ID
-		void SetID(unsigned int iID);
-		unsigned int GetID() const;
-
-		// Name
-		void SetName(const char* pszName);
-		const char* GetName() const;
-
-		// Filename
-		void SetFilename(const char* pszFilename);
-		const char* GetFilename() const;
-
-		// Edit object
-		bool Edit(GDI::Window* pParent, const char* pszTitle, unsigned int iInitSelectedID);
-
-		// Supports node class
-		virtual bool SupportsClass(SClass_ID nClass) const = 0;
-
-		// Get meta description
-		virtual CDDObject* GetMetaDesc() const = 0;
-
-		// Get meta edits
-		virtual CDDObject* GetEditMeta() const = 0;
-
-		// Export object
-		virtual bool Export() const = 0;
-
-		// Output export info, warnings, errors, etc.
-		void OutputProgress(const char* pszText, unsigned int iLevel) const;
-
-		// Default file extension
-		virtual const char* GetDefaultFileExt() const;
-
-};
-
-typedef std::vector<CExportObject*> ExportObjectList;
+class CExporterPropertiesDlg;
 
 //
+// Base class for all export objects. Derive from this class to implement a new export
+// object type.
+class CExportObject 
+{
+public:
+	// Constructor will setup m_pDDConfig and create children from DDList 'Children'
+	CExportObject(CDDObject *pConfig);
+	virtual ~CExportObject();
 
+	// Release object
+	void	Release();
+
+	// Save configuration. 
+	// Base implementation will store contents of m_pDDConfig and traverse children
+	// generating DDList called "Children".
+	virtual void	SaveConfig(CDDObject *pOutput) const;
+
+	// Type
+	const char* GetType() const;
+	const char* GetTypeName() const;	
+	const char* GetName() const;
+
+	// Get additional description string
+	virtual const char* GetDesc() const;
+
+	// Enable/disable object during export (childs may still be exported)
+	void	SetEnabled(bool bEnabled);
+	bool	GetEnabled() const;
+
+	// Called when object is first created [by user].
+	// This allows for wizard-style editing of required data.
+	// If this function returns false, the object is not created
+	virtual bool OnCreate(CExporterPropertiesDlg *pPropDialog)=0;
+
+public:
+	// Get window for editing ExportObject properties
+	virtual GDI::Window* GetEditWindow(GDI::Window *pParent) =0;
+
+	// Close currently open edit window.
+	// NOTE: If two ExportObject instances return the same window handle
+	// in GetEditWindow(), it will not be closed.
+	virtual void CloseEditWindow() =0;	
+
+public:
+	// Supports node class. Default implementation just returns false.
+	virtual bool SupportsMAXNode(INode *pMAXNode) const;
+
+	// Get/Set selected MAX node. Default implementation read/writes it from
+	// the m_pDDConfig object on a key called "NodeID"
+	virtual void SetMAXNodeID(unsigned int iMAXNodeID);
+	virtual unsigned int GetMAXNodeID() const;
+
+public:
+	// Check if ExportObject supports a given ExportObject instance/type as parent
+	virtual bool SupportsParentType(const CExportObject *pParent) const =0;
+
+	// Set new parent object. This will automatically add current instance
+	// as child on the parent and remove it from the old parent (if available)
+	void	SetParent(CExportObject *pParent);
+	CExportObject* GetParent() const;
+
+public:
+	// Add child to this instance
+	void	AddChild(CExportObject *pChild);
+
+	// Remove child from instance.
+	void	RemoveChild(CExportObject *pChild);
+
+	// Check if ExportObject has any children
+	bool	HasChildren() const;
+
+	// Get number of children - optionally recurse to count all subchildren
+	unsigned int GetChildCount(bool bRecursive);
+
+	// Get list of children attached to current instance
+	std::vector<CExportObject*> GetChildren() const;
+
+	// Export object and child object(s) if any. If bForceAll is true, ExportObjects
+	// are exported even though they are not enabled.
+	// NOTE: Base implementation calls Export() on all children and increments GlobalStep on
+	// supplied Progress Dialog.
+	virtual bool Export(CExportProgressDlg *pProgressDlg, bool bForceAll) const;
+
+public:
+	//
+	// Static functions for global register/enum/construct of ExportObjects
+	//
+	typedef struct {
+
+		const char* m_pszType;
+		const char* m_pszTypeName;
+		HICON m_hIcon;
+
+	} Desc;
+
+	typedef CExportObject* (*Construct_FN)(CDDObject *pConfig);
+
+	// Initialize ExportObject base
+	static void Initialize();
+
+	// Register ExportObject
+	static bool RegisterObject(const char* pszType, const char* pszTypeName, unsigned int iIcon, Construct_FN pfnConstruct);
+
+	// ExportObject factory function
+	static CExportObject* Construct(CDDObject *pConfig);
+
+	// Enumerate all registered ExportObjects
+	static void EnumObjects(std::vector<Desc>& objlist);
+
+protected:
+	std::string m_sType;
+	std::string m_sDesc;
+//	std::string	m_sName;
+
+//	Ogre::SceneNode* m_pSceneNode;
+
+	CDDObject* m_pDDConfig;	
+	bool	m_bEnabled;
+
+private:
+	CExportObject	*m_pParent;
+	std::vector<CExportObject*> m_lChildren;
+};
+
+//
 const char* GetNameFromID(unsigned int iID);
 INode* GetNodeFromID(unsigned int iID);
 SClass_ID GetClassIDFromNodeID(unsigned int iID);

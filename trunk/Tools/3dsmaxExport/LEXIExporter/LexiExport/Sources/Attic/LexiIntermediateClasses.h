@@ -51,34 +51,6 @@ public:
 		return str.str();
 	}
 
-	//CAnimationSetting( void )
-	//{
-	//	m_sAnimName = "";
-	//	m_sType = "";
-	//	m_iStartFrame = 0;
-	//	m_iEndFrame = 100;
-	//	m_fSampleRate = 1;
-	//	m_bOptimize = true;
-	//}
-
-//private:
-	//CAnimationSetting( const CAnimationSetting& other )
-	//{
-	//	Ogre::LogManager::getSingleton().logMessage("CAnimationSetting Copied!.");
-
-	//	m_sAnimName = other.m_sAnimName;
-	//	m_sType = other.m_sType;
-	//	m_iStartFrame = other.m_iStartFrame;
-	//	m_iEndFrame = other.m_iEndFrame;
-	//	m_fSampleRate = other.m_fSampleRate;
-	//	m_bOptimize = other.m_bOptimize;		
-
-	//	Ogre::LogManager::getSingleton().logMessage(other.m_sAnimName);
-	//	Ogre::LogManager::getSingleton().logMessage(other.m_sType);
-	//	Ogre::LogManager::getSingleton().logMessage(m_sAnimName);
-	//	Ogre::LogManager::getSingleton().logMessage(m_sType);
-	//}
-
 };
 
 class CAnimSettings

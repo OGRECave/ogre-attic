@@ -161,21 +161,15 @@ unsigned int CIntermediateBone::GetFrameCount( Ogre::String animationName ) cons
 
 bool CIntermediateBone::CreateAnimation( const CAnimationSetting animSetting )
 {
-	Ogre::LogManager::getSingleton().logMessage("CIntermediateBone::CreateAnimation() - Start");
-
 	std::map< Ogre::String, CAnimationData* >::iterator iter = m_lAnimations.find(animSetting.m_sAnimName);
 
-	Ogre::LogManager::getSingleton().logMessage("CIntermediateBone::CreateAnimation() - Start2");
 	if(iter != m_lAnimations.end())
 		return false;	// Animation with that name already exists
 
-	Ogre::LogManager::getSingleton().logMessage("CIntermediateBone::CreateAnimation() - Start3");
 	CAnimationData* newAnim = new CAnimationData();//animSetting.m_iEndFrame - animSetting.m_iStartFrame);
 	newAnim->SetOptimize(animSetting.m_bOptimize);
-	Ogre::LogManager::getSingleton().logMessage("CIntermediateBone::CreateAnimation() - Start4");
 
 	m_lAnimations.insert( std::pair< Ogre::String, CAnimationData* >(animSetting.m_sAnimName, newAnim) );
-	Ogre::LogManager::getSingleton().logMessage("CIntermediateBone::CreateAnimation() - End");
 	return true;
 }
 
@@ -234,11 +228,6 @@ void CIntermediateBone::GetBindingPose(Ogre::Vector3& vPos, Ogre::Quaternion& qO
 
 std::map< Ogre::String, CAnimationData* > CIntermediateBone::GetAnimations( void )
 {
-	Ogre::LogManager::getSingletonPtr()->logMessage("CIntermediateBone::GetAnimations() - Ready to return m_lAnimations");
-	int iSize = m_lAnimations.size();
-	Ogre::StringUtil::StrStreamType str;
-	str << "m_lAnimations size: " << Ogre::StringConverter::toString(iSize);
-	Ogre::LogManager::getSingletonPtr()->logMessage(str.str());
 	return m_lAnimations;
 }
 

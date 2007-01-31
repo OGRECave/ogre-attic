@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="SharedUtilities"
 	ProjectGUID="{0D42BA7E-A0D1-4C7B-B78E-C8270A35A219}"
 	RootNamespace="SharedUtilities"

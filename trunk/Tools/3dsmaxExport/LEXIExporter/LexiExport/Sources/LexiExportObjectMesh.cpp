@@ -25,45 +25,126 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "LexiStdAfx.h"
+#include "LexiDialogObjectProperties.h"
 #include "LexiExportObjectMesh.h"
 #include "LexiOgreMeshCompiler.h"
 #include "LexiOgreMaterialCompiler.h"
 #include "LexiIntermediateBuilder.h"
 #include "LexiIntermediateMesh.h"
+#include "LexiDialogSelectNode.h"
 
 #include <dbghelp.h>
 #pragma comment(lib,"Dbghelp.lib")
+
+CObjectPropertiesDlg *CMeshExportObject::m_pEditDlg=NULL;
+CDDObject* CMeshExportObject::m_pDDMetaDesc=NULL;
 //
 
-CMeshExportObject::CMeshExportObject() : CExportObject("mesh")
+CMeshExportObject::CMeshExportObject(CDDObject *pConfig) : CExportObject(pConfig)
 {
-	m_pDDMetaDesc = BuildMetaDesc();
-	//m_pDDMetaDesc->SaveASCII("C:\\METADESC.ddconf");
+/*	m_iID = 0xffffffff;
+	m_sName = "<unnamed>";
+	m_sFilename = "<unknown>";
+	m_pSceneNode = NULL;
+	m_pDDMetaDesc = BuildMetaDesc();	*/	
+	//m_pDDMetaDesc = BuildMetaDesc();	
 }
 
 CMeshExportObject::~CMeshExportObject()
 {
-	m_pDDMetaDesc->Release();
+//	if(m_pDDMetaDesc) m_pDDMetaDesc->Release();
+	// Free scene node - no longer needed
+//	if(m_pSceneNode) delete m_pSceneNode;
 }
 
+// Check if ExportObject supports a given ExportObject instance as parent
+bool CMeshExportObject::SupportsParentType(const CExportObject *pParent) const
+{	
+	// Meshes can only have root as parent
+	if(pParent==NULL || stricmp(pParent->GetType(), "root")!=0) return false;
+	return true;
+}
+
+//
+bool CMeshExportObject::SupportsMAXNode(INode *pMAXNode) const
+{
+	if(pMAXNode==NULL) return false;
+	SClass_ID nClass = GetClassIDFromNode(pMAXNode);
+	if(nClass == GEOMOBJECT_CLASS_ID) return true;
+	return false;
+}
+
+// Get window for editing ExportObject properties
+GDI::Window* CMeshExportObject::GetEditWindow(GDI::Window *pParent)
+{
+	if(m_pEditDlg==NULL)
+	{
+		m_pEditDlg=new CObjectPropertiesDlg(pParent);
+		m_pEditDlg->Create();
+		m_pDDMetaDesc=BuildMetaDesc();
+		m_pEditDlg->Init(m_pDDMetaDesc, ".mesh");	
+	}
+
+	m_pEditDlg->SetInstance(m_pDDConfig, this);
+	//LOGDEBUG "Window Created:\t%i (handle)", m_pEditDlg->m_hWnd);
+	return m_pEditDlg;
+}
+
+// End edit
+void CMeshExportObject::CloseEditWindow()
+{
+	if(m_pEditDlg!=NULL)
+	{
+		//LOGDEBUG "Window Ended:\t%i (handle)", m_pEditDlg->m_hWnd);
+		m_pEditDlg->EndDialog(0);
+		delete m_pEditDlg;		
+		m_pEditDlg=NULL;
+		if(m_pDDMetaDesc) 
+		{
+			m_pDDMetaDesc->Release();
+			m_pDDMetaDesc=NULL;
+		}
+	}
+}
+
+// Called when object is first created [by user].
+// This allows for wizard-style editing of required data
+// If this function returns false, the object is not created
+bool CMeshExportObject::OnCreate(CExporterPropertiesDlg *pPropDialog)
+{
+	if(GetMAXNodeID()==0xFFFFFFFF)
+	{
+		CSelectNodeDlg dlg((GDI::Window*)pPropDialog, this);
+		if(dlg.DoModal() != IDOK) return false;	// user must select a valid node
+	}
+	
+	// Initialize mesh name
+	std::string sName = GetNameFromID(m_pDDConfig->GetInt("NodeID"));
+	RemoveIllegalChars(sName);
+	m_pDDConfig->SetString("Name", sName.c_str());
+
+	// Initialize filename
+	std::string sTemp = GetNameFromID(m_pDDConfig->GetInt("NodeID"));
+	sTemp += ".mesh";	
+	RemoveIllegalChars(sTemp);
+	sTemp = "C:\\" + sTemp;		
+	m_pDDConfig->SetString("FileName", sTemp.c_str());
+	return true;
+}
+/*
 //
 
 void CMeshExportObject::Read(CDDObject* pConfig)
 {
+	m_iID = pConfig->GetInt("id", 0xffffffff);
+	m_sName = pConfig->GetString("name", "<unnamed>");
+	m_sFilename = pConfig->GetString("filename", "<unknown>");
 	CExportObject::Read(pConfig);
 }
 
 void CMeshExportObject::Write(CDDObject* pConfig) const
 {
 	CExportObject::Write(pConfig);
-}
-
-//
-
-bool CMeshExportObject::SupportsClass(SClass_ID nClass) const
-{
-	if(nClass == GEOMOBJECT_CLASS_ID) return true;
-	return false;
 }
 
 //
@@ -75,14 +156,11 @@ CDDObject* CMeshExportObject::GetMetaDesc() const
 
 CDDObject* CMeshExportObject::GetEditMeta() const
 {
-	return m_pDDEditMeta;
-}
+	return m_pConfig;
+}*/
 
 CDDObject* CMeshExportObject::BuildMetaDesc( void )
 {
-	if(m_pDDMetaDesc != NULL)
-		return m_pDDMetaDesc;
-
 	CDDObject* pDDMetaDesc = new CDDObject();
 
 	fastvector< const CDDObject* > lSettings;
@@ -128,25 +206,14 @@ CDDObject* CMeshExportObject::BuildMetaDesc( void )
 	pDDMetaElement->SetBool("Default", true);
 	lSettings.push_back(pDDMetaElement);
 
-	//pDDMetaElement = new CDDObject();
-	//pDDMetaElement->SetString("ID","collapseHierarchy");
-	//pDDMetaElement->SetString("Type","bool");
-	//pDDMetaElement->SetString("Group","Export Settings");
-	//pDDMetaElement->SetString("Caption","Collapse Hierarchy");
-	//pDDMetaElement->SetString("Help","Collapse entire hierarchy into one mesh");
-	////pDDMetaElement->SetBool("collapseHierarchy",false);
-	//pDDMetaElement->SetBool("Default", false);
-	//lSettings.push_back(pDDMetaElement);
-
-	//pDDMetaElement = new CDDObject();
-	//pDDMetaElement->SetString("ID","SkeletonID");
-	//pDDMetaElement->SetString("Type","bool");
-	//pDDMetaElement->SetString("Group","Export Settings");
-	//pDDMetaElement->SetString("Caption","Export Skeleton");
-	//pDDMetaElement->SetString("Help","Export Skeleton if there is one");
-	////pDDMetaElement->SetBool("collapseHierarchy",false);
-	//pDDMetaElement->SetBool("Default", false);
-	//lSettings.push_back(pDDMetaElement);
+	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID","collapseHierarchy");
+	pDDMetaElement->SetString("Type","bool");
+	pDDMetaElement->SetString("Group","Export Settings");
+	pDDMetaElement->SetString("Caption","Collapse Hierarchy");
+	pDDMetaElement->SetString("Help","Collapse entire hierarchy into one mesh");
+	pDDMetaElement->SetBool("Default", false);
+	lSettings.push_back(pDDMetaElement);
 
 	pDDMetaElement = new CDDObject();
 	pDDMetaElement->SetString("ID","copyTextureMaps");
@@ -154,7 +221,6 @@ CDDObject* CMeshExportObject::BuildMetaDesc( void )
 	pDDMetaElement->SetString("Group","Resources");
 	pDDMetaElement->SetString("Caption","Copy Textures");
 	pDDMetaElement->SetString("Help","Copy Textures To Output Folder");
-	//pDDMetaElement->SetBool("collapseHierarchy",false);
 	pDDMetaElement->SetBool("Default", true);
 	lSettings.push_back(pDDMetaElement);
 
@@ -164,13 +230,10 @@ CDDObject* CMeshExportObject::BuildMetaDesc( void )
 	pDDMetaElement->SetString("Group","Resources");
 	pDDMetaElement->SetString("Caption","Copy Shaders");
 	pDDMetaElement->SetString("Help","Copy Shaders To Output Folder");
-	//pDDMetaElement->SetBool("collapseHierarchy",false);
 	pDDMetaElement->SetBool("Default", true);
 	lSettings.push_back(pDDMetaElement);
 
 	pDDMetaDesc->SetDDList("MetaList", lSettings, false);
-
-	AddAnimationMetaData(pDDMetaDesc);
 
 	return pDDMetaDesc;
 }
@@ -178,257 +241,167 @@ CDDObject* CMeshExportObject::BuildMetaDesc( void )
 //
 typedef std::map< Ogre::String, CIntermediateMaterial*> MAT_LIST;
 
-bool CMeshExportObject::Export() const
+bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll) const
 {
+	bool returnVal = false;
+	Ogre::String sFilename;
+	CIntermediateMesh* pIMesh = NULL;
+	COgreMeshCompiler* pOgreMeshCompiler = NULL;
 
-	Ogre::LogManager::getSingleton().logMessage("Export: Starting..");
-
-	CIntermediateBuilder::Get()->Clear();
-	CIntermediateBuilder::Get()->SetConfig(m_pDDEditMeta);
-
-	Ogre::LogManager::getSingleton().logMessage("Export: Creating Hierarchy...");
-
-	Ogre::SceneNode* pNode = CIntermediateBuilder::Get()->CreateHierarchy(m_iID, true, false);
-
-	if(pNode == NULL)
+	if(m_bEnabled || bForceAll)
 	{
-		OutputProgress("ERROR!: No node with such ID", 1);
-		return false;
-	}
-
-	Ogre::LogManager::getSingleton().logMessage("Export: Reading Config..");
-
-	bool bCollaps = m_pDDEditMeta->GetBool("collapseHierarchy", false);
-	bool bCopyTextures = m_pDDEditMeta->GetBool("copyTextureMaps", false);
-	bool bCopyShaders = m_pDDEditMeta->GetBool("copyShaders", false);
-
-	if(bCollaps)
+	try 
 	{
-		std::list<std::string> clist;
-		clist.push_back("position");
-		clist.push_back("normal");
-		clist.push_back("uv1");
-		Ogre::SceneNode* pColNode = CIntermediateBuilder::Get()->CollapseHierarchy(pNode, clist, "Collapsed");
-		delete pNode;
-		pNode = pColNode;
-	}
+		// We have two step to begin with
+		pProgressDlg->InitLocal(2);
 
-	CIntermediateMesh* iMesh = (CIntermediateMesh*)pNode->getAttachedObject(0);
+		LOGDEBUG "Starting...");
+		CIntermediateBuilder::Get()->Clear();
+		CIntermediateBuilder::Get()->SetConfig(m_pDDConfig);
 
+		// BREAK UP THIS METHOD INTO SMALLER FUNCTION CALLS
 
-	Ogre::String str = "Exporting Mesh: "+iMesh->getName();
-	OutputProgress(str.c_str(), 1);
+		// SPLIT THIS CLASS INTO A MESH AND SKINNED MESH.
 
-	Ogre::LogManager::getSingleton().logMessage("Export: Creating OgreMeshcompiler...");
+		pProgressDlg->LocalStep("StaticMesh: Reading max data");
+		LOGDEBUG "Creating Hierarchy...");
 
-	COgreMeshCompiler* pOgreMeshCompiler = new COgreMeshCompiler(iMesh, m_pDDEditMeta, m_sFilename);
-
-	Ogre::String sBaseName;
-	Ogre::String sPath;
-	Ogre::StringUtil::splitFilename(m_sFilename, sBaseName, sPath);
-	
-	int n = sPath.find("/");
-	while(n != Ogre::String::npos)
-	{
-		sPath.replace(n,1,"\\");
-		sPath.insert(n,"\\");
-		n = sPath.find("/");
-	}
-
-	if(!::MakeSureDirectoryPathExists(sPath.c_str()))
-	{
-		Ogre::String errorMsg = "Unknown error while attempting to create path: ";
-		errorMsg += sPath;
-		MessageBox(NULL,errorMsg.c_str(),"ERROR", MB_ICONERROR);
-
-		delete pOgreMeshCompiler;
-		delete iMesh;
-
-		return false;
-	}
-
-	Ogre::LogManager::getSingleton().logMessage("Export: Writing Ogre Mesh...");
-
-
-	pOgreMeshCompiler->WriteOgreMesh(m_sFilename);
-
-	Ogre::LogManager::getSingleton().logMessage("Export: Preparing Material Export..");
-
-
-	bool bInOneFile = true;
-	MAT_LIST lMaterials;
-	if ( CIntermediateBuilder::Get()->GetMaterials(lMaterials) )
-	{
-		Ogre::MaterialSerializer matWriter;
-		MAT_LIST::iterator it = lMaterials.begin();
-
-		while (it != lMaterials.end())
+		Ogre::SceneNode* pNode = CIntermediateBuilder::Get()->CreateHierarchy(GetMAXNodeID(), true, false);
+		if(pNode == NULL)
 		{
-			COgreMaterialCompiler matComp( it->second );
-			//Ogre::MaterialPtr mat = 
-			if(bInOneFile)
-			{
-				Ogre::LogManager::getSingleton().logMessage("Export: Queueing material...");
-				matWriter.queueForExport( matComp.GetOgreMaterial() );
-			}
-			else
-			{
-				Ogre::LogManager::getSingleton().logMessage("Export: Exporting individual material...");
+			LOGERROR "No node with such ID: %d", GetMAXNodeID());
+			return false;
+		}
 
-				try {
-					matWriter.exportMaterial( matComp.GetOgreMaterial(), Ogre::String(m_sFilename+".material"));
-				} catch (Ogre::Exception e) {
-					MessageBox(NULL,e.getDescription().c_str(),"ERROR", MB_ICONERROR);
+		LOGDEBUG "Reading config ...");
+		bool bCollaps = m_pDDConfig->GetBool("collapseHierarchy", false);
+		bool bCopyTextures = m_pDDConfig->GetBool("copyTextureMaps", false);
+		bool bCopyShaders = m_pDDConfig->GetBool("copyShaders", false);
+
+		sFilename = m_pDDConfig->GetString("FileName");
+
+		///// BELONGS IN A STATIC HIERARCHY TYPE
+		if(bCollaps)
+		{
+			pProgressDlg->LocalStep("StaticMesh: Collapsing Mesh");
+			std::list<std::string> clist;
+			clist.push_back("position");
+			clist.push_back("normal");
+			clist.push_back("uv1");
+			Ogre::SceneNode* pColNode = CIntermediateBuilder::Get()->CollapseHierarchy(pNode, clist, "Collapsed");
+			delete pNode;
+			pNode = pColNode;
+		}
+		else
+		{
+			pProgressDlg->LocalStep();
+		}
+
+
+		pIMesh = (CIntermediateMesh*)pNode->getAttachedObject(0);
+
+		LOGINFO "Exporting mesh: %s", pIMesh->getName().c_str());
+
+		returnVal = CExportObject::Export(pProgressDlg, bForceAll);	
+
+
+		// We have some remaining steps
+
+		bool bInOneFile = true;
+		MAT_LIST lMaterials;
+		bool bMatRetrieved = CIntermediateBuilder::Get()->GetMaterials(lMaterials);
+
+		pProgressDlg->InitLocal(3+(lMaterials.size()));
+		pProgressDlg->LocalStep("StaticMesh: Creating Ogre Mesh..");
+		pOgreMeshCompiler = new COgreMeshCompiler(pIMesh, m_pDDConfig, sFilename);
+
+		Ogre::String sBaseName;
+		Ogre::String sPath;
+		Ogre::StringUtil::splitFilename(sFilename, sBaseName, sPath);
+		
+		int n = sPath.find("/");
+		while(n != Ogre::String::npos)
+		{
+			sPath.replace(n,1,"\\");
+			sPath.insert(n,"\\");
+			n = sPath.find("/");
+		}
+
+		if(!::MakeSureDirectoryPathExists(sPath.c_str()))
+		{
+			LOGERROR "Error while attempting to create path: %s", sPath.c_str());
+			delete pOgreMeshCompiler;
+			delete pIMesh;
+			return false;
+		}
+
+		pProgressDlg->LocalStep("StaticMesh: Writing Ogre Mesh..");
+		LOGINFO "Writing Ogre Mesh (%s) ...", sFilename.c_str());
+		pOgreMeshCompiler->WriteOgreMesh(sFilename);
+
+		pProgressDlg->LocalStep("StaticMesh: Exporting Ogre Materials..");
+		LOGINFO "Exporting material(s) ...");
+		if ( bMatRetrieved )
+		{
+			Ogre::MaterialSerializer matWriter;
+			MAT_LIST::iterator it = lMaterials.begin();
+
+			while (it != lMaterials.end())
+			{
+				Ogre::String matDesc("StaticMesh: Exporting Ogre Material: ");
+				matDesc += it->second->GetName();
+				pProgressDlg->LocalStep(matDesc.c_str());
+				COgreMaterialCompiler matComp( it->second );
+				if(bInOneFile)
+				{
+					LOGDEBUG "Queueing material ...");
+					matWriter.queueForExport( matComp.GetOgreMaterial() );
 				}
+				else
+				{
+					LOGDEBUG "Exporting individual material ...");
+					try
+					{
+						matWriter.exportMaterial( matComp.GetOgreMaterial(), Ogre::String(sFilename+".material"));
+					} catch (Ogre::Exception e) 
+					{
+						LOGERROR "OgreExeception caught: %s", e.getDescription().c_str()); 
+					}
+				}
+
+				if(bCopyTextures) matComp.CopyTextureMaps( sPath );
+				if(bCopyShaders) matComp.CopyShaderSources( sPath );
+				it++;
 			}
-
-			if(bCopyTextures) matComp.CopyTextureMaps( sPath );
-			if(bCopyShaders) matComp.CopyShaderSources( sPath );
-			it++;
-		}
-		try	{
-			Ogre::LogManager::getSingleton().logMessage("Export: Exporting Global material file...");
-			matWriter.exportQueued( Ogre::String(m_sFilename+".material") );
-		} catch (Ogre::Exception e) {
-			MessageBox(NULL,e.getDescription().c_str(),"ERROR", MB_ICONERROR);
+			try	
+			{
+				LOGDEBUG "Exporting Global material file...");
+				matWriter.exportQueued( Ogre::String(sFilename+".material") );
+			} catch (Ogre::Exception e) 
+			{
+				LOGERROR "OgreExeception caught: %s",  e.getDescription().c_str()); 
+			}
 		}
 
+
+
+	} catch(Ogre::Exception e)
+	{
+		LOGERROR "OgreException caught: %s", e.getDescription().c_str());
+	} catch(...)
+	{
+		LOGERROR "Caught unhandled exception in CMeshExportObject::Export()");
+	}
 	}
 
-	Ogre::LogManager::getSingleton().logMessage("Export: Cleaning Up...");
+
+	LOGDEBUG "Cleaning up...");
 	delete pOgreMeshCompiler;
-	delete iMesh;
+	delete pIMesh;
 
-	OutputProgress("..Done", 1);
-	Ogre::LogManager::getSingleton().logMessage("Export: Done!");
+	LOGINFO "..Done!");
 
-	return true;
-}
-
-//
-
-const char* CMeshExportObject::GetDefaultFileExt() const
-{
-	return "mesh";
-}
-
-void CMeshExportObject::AddAnimationMetaData( CDDObject* pDDobj )
-{
-	CDDObject* AnimContainer = new CDDObject();
-
-	fastvector< const CDDObject* > lAnimSettings;
-	CDDObject* pDDAnimElement;
-
-	// --- General Animation ---
-
-	// Animation Name
-	pDDAnimElement = new CDDObject();
-	pDDAnimElement->SetString("ID","AnimationNameID");
-	pDDAnimElement->SetString("Type","string");
-	pDDAnimElement->SetString("Group","Animation");
-	pDDAnimElement->SetString("Caption","Name");
-	pDDAnimElement->SetString("Help","The Name of the Animation.");
-	pDDAnimElement->SetBool("Default", "AnimName");
-	lAnimSettings.push_back(pDDAnimElement);
-
-	// Animation Type
-	pDDAnimElement = new CDDObject();
-	pDDAnimElement->SetString("ID","AnimationTypeID");
-	pDDAnimElement->SetString("Type","selection");
-	pDDAnimElement->SetString("Group","Animation");
-	vector< faststring > lTypes;
-	lTypes.push_back("Bone");	//0
-	//lTypes.push_back("Morph");//1
-	//lTypes.push_back("Pose");	//2
-	pDDAnimElement->SetStringList("Strings",lTypes);
-	pDDAnimElement->SetString("Caption","Type");
-	pDDAnimElement->SetString("Help","The Type of the Animation (Bone, Morph or Pose).");
-	pDDAnimElement->SetInt("Default", 0);
-	lAnimSettings.push_back(pDDAnimElement);
-
-	pDDAnimElement = new CDDObject();
-	pDDAnimElement->SetString("ID","AnimationOptimizeID");
-	pDDAnimElement->SetString("Type","Bool");
-	pDDAnimElement->SetString("Group","Animation");
-	pDDAnimElement->SetString("Caption","Optimize");
-	pDDAnimElement->SetString("Help","Reduces the amount of KeyFrames by removing redundant data.");
-	pDDAnimElement->SetBool("Default", true);
-	lAnimSettings.push_back(pDDAnimElement);
-
-	// --- Bone Animation ---
-
-	pDDAnimElement = new CDDObject();
-	pDDAnimElement->SetString("ID","AnimationStartID");
-	pDDAnimElement->SetString("Type","Int");
-	pDDAnimElement->SetBool("EnableSlider", false);
-	pDDAnimElement->SetString("Group","Bone");
-	pDDAnimElement->SetString("Caption","Start Frame");
-	pDDAnimElement->SetString("Help","Frame which the animation begins");
-	pDDAnimElement->SetString("Condition", "$AnimationTypeID=0");
-	pDDAnimElement->SetInt("Default", 0);
-	lAnimSettings.push_back(pDDAnimElement);
-
-	pDDAnimElement = new CDDObject();
-	pDDAnimElement->SetString("ID","AnimationEndID");
-	pDDAnimElement->SetString("Type","Int");
-	pDDAnimElement->SetBool("EnableSlider", false);
-	pDDAnimElement->SetString("Group","Bone");
-	pDDAnimElement->SetString("Caption","End Frame");
-	pDDAnimElement->SetString("Help","Frame which the animation stops");
-	pDDAnimElement->SetString("Condition", "$AnimationTypeID=0");
-	pDDAnimElement->SetInt("Default", 100);
-	lAnimSettings.push_back(pDDAnimElement);
-
-	pDDAnimElement = new CDDObject();
-	pDDAnimElement->SetString("ID","AnimationSampleRateID");
-	pDDAnimElement->SetString("Type","Float");
-	pDDAnimElement->SetBool("EnableSlider", false);
-	pDDAnimElement->SetString("Group","Bone");
-	pDDAnimElement->SetString("Caption","Samplerate");
-	pDDAnimElement->SetString("Help","Rate at which samples should be done. e.g 2 yields every second frame in max.");
-	pDDAnimElement->SetString("Condition", "$AnimationTypeID=0");
-	pDDAnimElement->SetFloat("Default", 1.0);
-	lAnimSettings.push_back(pDDAnimElement);
-
-		// --- Pose Animation ---
-
-	//pDDAnimElement = new CDDObject();
-	//pDDAnimElement->SetString("ID","AnimationStartID");
-	//pDDAnimElement->SetString("Type","Int");
-	//pDDAnimElement->SetBool("EnableSlider", false);
-	//pDDAnimElement->SetString("Group","Pose");
-	//pDDAnimElement->SetString("Caption","Start Frame");
-	//pDDAnimElement->SetString("Help","Frame which the animation begins");
-	//pDDAnimElement->SetString("Condition", "$AnimationTypeID=2");
-	//pDDAnimElement->SetInt("Default", 0);
-	//lAnimSettings.push_back(pDDAnimElement);
-
-	//pDDAnimElement = new CDDObject();
-	//pDDAnimElement->SetString("ID","AnimationEndID");
-	//pDDAnimElement->SetString("Type","Int");
-	//pDDAnimElement->SetBool("EnableSlider", false);
-	//pDDAnimElement->SetString("Group","Pose");
-	//pDDAnimElement->SetString("Caption","End Frame");
-	//pDDAnimElement->SetString("Help","Frame which the animation stops");
-	//pDDAnimElement->SetString("Condition", "$AnimationTypeID=2");
-	//pDDAnimElement->SetInt("Default", 100);
-	//lAnimSettings.push_back(pDDAnimElement);
-
-	//pDDAnimElement = new CDDObject();
-	//pDDAnimElement->SetString("ID","AnimationSampleRateID");
-	//pDDAnimElement->SetString("Type","Float");
-	//pDDAnimElement->SetBool("EnableSlider", false);
-	//pDDAnimElement->SetString("Group","Pose");
-	//pDDAnimElement->SetString("Caption","Samplerate");
-	//pDDAnimElement->SetString("Help","Rate at which samples should be done. e.g 2 yields every second frame in max.");
-	//pDDAnimElement->SetString("Condition", "$AnimationTypeID=2");
-	//pDDAnimElement->SetFloat("Default", 1.0);
-	//lAnimSettings.push_back(pDDAnimElement);
-
-	AnimContainer->SetDDList("MetaList", lAnimSettings, false);
-	pDDobj->SetDDObject("AnimationContainer", AnimContainer);
+	return returnVal;
 
 }
-
-//
 

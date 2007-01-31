@@ -31,64 +31,73 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 class CExporterDesc;
 
-class CExporter : public UtilityObj {
+class CExporter : public UtilityObj 
+{
+public:
+	// Constructor/Destructor
+	CExporter(CExporterDesc* pDesc);
+	~CExporter();
 
-	public:
+	// From UtilityObj
+	void	BeginEditParams(Interface* ip,IUtil* iu);
+	void	EndEditParams(Interface* ip,IUtil* iu);
+	void	DeleteThis();
 
-		static HINSTANCE m_hInstance;
+	// Get Max interface
+	static Interface* GetMax();
 
-		//
+	// Module Instance (loading icons, etc.)
+	static HINSTANCE m_hInstance;
 
-		void OnPanelButtonProperties();
-		void OnPanelButtonExport();
+	// Singleton
+	static CExporter* Get();
 
-	private:
+	// Global settings
+	CDDObject* GetGlobalSettings();
 
-		CExporterDesc* m_pDesc;
-		static Interface* m_pMax;
-		IUtil* m_pMaxUtil;
+	//
+	void	ShowLog();
 
-		HWND m_hPanel;
+	//
+	void	OnPanelButtonProperties();
+	void	OnPanelButtonExport();	
 
-		CConsoleLogger* m_pLogger;
+	void	RefreshButtons();
 
-		ExportObjectList m_Config;
-		CDDObject* m_pSettings;
+	// Load per-scene configuration
+	void	LoadConfig();
+	
+	// Save per-scene configuration
+	void	SaveConfig();		
 
-		//
+	// Export items
+	void	ExportItems(bool bForceAll);
 
-		static INT_PTR CALLBACK ConfigDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+private:	
+	CExporterDesc* m_pDesc;
+	static Interface* m_pMax;
+	IUtil* m_pMaxUtil;
 
-		static CExporter* m_pThis;
+	HWND m_hPanel;
 
-	public:
+	//
+	CMemoryLog			*m_pMemoryLog;
+	bool				m_bMemoryLogOnOGRE;
 
-		void RefreshButtons();
+	// Export root object
+	CExportObjectRoot	*m_pExportRoot;
 
-		void LoadConfig();
-		void LoadConfig(CDataStream& stream);
+	// Per machine settings
+	CDDObject* m_pGlobalSettings;	
 
-		void SaveConfig();
-		void SaveConfig(CDataStream& stream);
+	//	
+	void	FreeConfig();
+	void	LoadGlobalSettings();
+	void	SaveGlobalSettings();
 
-		void FreeConfig();
-
-		void ExportItems(const std::vector<unsigned int>& selectionlist);
-
-	public:
-
-		// Constructor/Destructor
-		CExporter(CExporterDesc* pDesc);
-		~CExporter();
-
-		// From UtilityObj
-		void BeginEditParams(Interface* ip,IUtil* iu);
-		void EndEditParams(Interface* ip,IUtil* iu);
-		void DeleteThis();
-
-		// Get Max interface
-		static Interface* GetMax();
-
+	//
+	static INT_PTR CALLBACK ConfigDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	static CExporter* m_pThis;
 };
 
 //

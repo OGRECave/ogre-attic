@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="GDIMetaLib"
 	ProjectGUID="{387FED5F-FFC1-4D66-ACC5-5163467C241E}"
 	RootNamespace="GDIMetaLib"

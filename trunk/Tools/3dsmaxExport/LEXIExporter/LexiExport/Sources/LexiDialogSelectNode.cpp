@@ -40,7 +40,7 @@ CSelectNodeDlg::CSelectNodeDlg(Window* pParent, CExportObject* pObj) : Dialog(ID
 	sprintf(temp, "Select %s Node", m_pObj->GetTypeName());
 	m_sTitle = temp;
 
-	m_iNode = 0;
+	m_iNode = m_pObj->GetMAXNodeID();
 
 	m_hImageList = ImageList_Create(16, 16, ILC_COLOR16 | ILC_MASK, 0, 64);
 
@@ -101,6 +101,7 @@ INT_PTR CALLBACK CSelectNodeDlg::DlgProc(HWND hWnd, UINT message, WPARAM wParam,
 			switch(LOWORD(wParam))
 			{
 				case IDOK:
+					pThis->m_pObj->SetMAXNodeID(pThis->m_iNode);
 					pThis->EndDialog(IDOK);
 					return 0;
 
@@ -124,6 +125,21 @@ INT_PTR CALLBACK CSelectNodeDlg::DlgProc(HWND hWnd, UINT message, WPARAM wParam,
 					if(pHdr->code == TVN_SELCHANGED)
 					{
 						pThis->UpdateStuff();
+					} if(pHdr->code == NM_DBLCLK)
+					{
+						TVHITTESTINFO ht = {0};
+
+						GetCursorPos(&ht.pt);
+						pThis->m_Tree.ScreenToClient(ht.pt);
+
+						HTREEITEM hItem=pThis->m_Tree.HitTest(&ht); 
+						if(hItem!=NULL)
+						{
+							pThis->m_Tree.SelectItem(hItem);
+							pThis->UpdateStuff();
+							pThis->m_pObj->SetMAXNodeID(pThis->m_iNode);
+							pThis->EndDialog(IDOK);
+						}
 					}
 					break;
 			}
@@ -161,6 +177,14 @@ void CSelectNodeDlg::OnInitDialog()
 
 	ShaveTree();
 
+	// Check if there is any supported nodes
+	if(!m_Tree.ItemHasChildren(m_hRoot))
+	{
+		MessageBox("Could not find any compatible objects in scene", NDS_EXPORTER_TITLE, MB_ICONERROR);
+		this->EndDialog(IDCANCEL);
+		return;
+	}
+
 	m_Tree.Expand(m_hRoot, TVE_EXPAND);
 
 	UpdateStuff();
@@ -177,9 +201,8 @@ void CSelectNodeDlg::UpdateStuff()
 	{
 		INode* pNode = (INode*)m_Tree.GetItemData(hItem);
 		if(pNode)
-		{
-			SClass_ID nClass = GetClassIDFromNode(pNode);
-			if(m_pObj->SupportsClass(nClass))
+		{			
+			if(m_pObj->SupportsMAXNode(pNode))
 			{
 				m_iNode = pNode->GetHandle();
 				bOK = true;
@@ -188,7 +211,7 @@ void CSelectNodeDlg::UpdateStuff()
 		else
 		{
 			m_iNode = 0;
-			bOK = true;
+			bOK = false;
 		}
 	}
 
@@ -243,8 +266,7 @@ bool CSelectNodeDlg::ShaveTree(HTREEITEM hItem)
 		INode* pNode = (INode*)m_Tree.GetItemData(hItem);
 		if(pNode)
 		{
-			SClass_ID nClass = GetClassIDFromNode(pNode);
-			if(!m_pObj->SupportsClass(nClass))
+			if(!m_pObj->SupportsMAXNode(pNode))
 			{
 				m_Tree.DeleteItem(hItem);
 				return true;

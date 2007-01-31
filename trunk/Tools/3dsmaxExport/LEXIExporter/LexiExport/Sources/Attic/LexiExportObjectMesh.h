@@ -28,47 +28,54 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __NDS_LexiExporter_ExportObject_Mesh__
 
 #include "..\res\resource.h"
+#include "LexiIntermediateAPI.h"
+//
 
 //
 
-class CMeshExportObject : public CExportObject {
+class CMeshExportObject : public CExportObject 
+{
+public:
+	// Constructor/Destructor
+	CMeshExportObject(CDDObject *pConfig);
+	~CMeshExportObject();
 
-	public:
+	// Get window for editing ExportObject properties
+	GDI::Window* GetEditWindow(GDI::Window *pParent);
 
-		// Constructor/Destructor
-		CMeshExportObject();
-		~CMeshExportObject();
+	// Close edit window
+	void CloseEditWindow();
 
-		// Read/Write
-		void Read(CDDObject* pConfig);
-		void Write(CDDObject* pConfig) const;
+	// Called when object is first created [by user].
+	// This allows for wizard-style editing of required data
+	// If this function returns false, the object is not created
+	bool OnCreate(CExporterPropertiesDlg *pPropDialog);
 
-		// Supports node class
-		bool SupportsClass(SClass_ID nClass) const;
+	// Check if ExportObject supports a given ExportObject instance as parent
+	bool SupportsParentType(const CExportObject *pParent) const;
 
-		// Get meta description
-		CDDObject* GetMetaDesc() const;
+	// Supports node class
+	bool SupportsMAXNode(INode *pMAXNode) const;
 
-		// Get meta edits
-		CDDObject* GetEditMeta() const;
+	// Export object
+	bool Export(CExportProgressDlg *pProgressDlg, bool bForceAll) const;
 
-		// Export object
-		bool Export() const;
+	// Default file extension
+//	const char* GetDefaultFileExt() const;
 
-		// Default file extension
-		const char* GetDefaultFileExt() const;
+private:
+	// Build meta description object
+	CDDObject* BuildMetaDesc( void );
 
-	protected:
-		
-		CDDObject* BuildMetaDesc( void );
+	static CObjectPropertiesDlg *m_pEditDlg;
+	static CDDObject* m_pDDMetaDesc;
 
-	private:
+	//
+	std::string m_sFilename;
 	
-		void AddAnimationMetaData( CDDObject* pDDobj );
-
 };
 
-DECLARE_EXPORT_OBJECT(CMeshExportObject, "mesh", "Mesh", IDI_ICON_MESH)
+DECLARE_EXPORT_OBJECT(CMeshExportObject, "static_mesh", "Static Mesh", IDI_ICON_MESH)
 
 //
 

@@ -101,7 +101,7 @@ bool COgreCore::configureRenderer(HWND hwnd)
 	}
 	if(m_pRenderSystem==NULL)
 	{
-		Ogre::LogManager::getSingletonPtr()->logMessage("Failed to find Direc3D9 render system. Do you have DirectX installed?");
+		LOGERROR "Failed to find OpenGL render system.");
 		return false;
 	}
 
@@ -124,17 +124,20 @@ bool COgreCore::configureRenderer(HWND hwnd)
 		m_pRenderSystem->setConfigOption("VSync", "No");	
 	} 
 
-	Ogre::LogManager::getSingletonPtr()->logMessage("Ready to validate");
+	LOGDEBUG "Ready to validate");
+//	Ogre::LogManager::getSingletonPtr()->logMessage("Ready to validate");
 
 	try {
 		// Validate configuration
 		m_pRenderSystem->validateConfigOptions();
 	} catch(...)
 	{
-		Ogre::LogManager::getSingletonPtr()->logMessage( "Caught exception in validateConfigOptions");
+		LOGERROR "Exception caught in validateConfigOptions");
+//		Ogre::LogManager::getSingletonPtr()->logMessage( "Caught exception in validateConfigOptions");
 	}
 
-	Ogre::LogManager::getSingletonPtr()->logMessage( "Render System Validated");
+	LOGDEBUG "Render system validated");
+//	Ogre::LogManager::getSingletonPtr()->logMessage( "Render System Validated");
 
 
 	//initialize Root

@@ -241,7 +241,7 @@ bool CIntermediateSkeleton::GetVertexData( int idx, int assignmentNr, SVertexBon
 	return false;
 }
 
-bool CIntermediateSkeleton::SetVertexData( int idx, SVertexBoneData vertexData )
+bool CIntermediateSkeleton::AddVertexData( int idx, SVertexBoneData vertexData )
 {
 	std::map< int, std::vector<SVertexBoneData> >::iterator iter = m_VertexBoneData.find( idx );
 
@@ -311,9 +311,9 @@ std::string CIntermediateSkeleton::ToString( void )
 {
 	std::stringstream str;
 	str << "\n";
-	print( str, m_BoneList.front() );
+	print( str, m_RootBoneList.front() );
 
-	printAnimationData( str, m_BoneList.front(), 0 ); // obsolete since multiple animation support added
+	print( str, m_RootBoneList.front(), 0 ); // obsolete since multiple animation support added
 
 	return str.str();
 }

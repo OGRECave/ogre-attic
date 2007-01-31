@@ -32,7 +32,7 @@ class COgreSkeletonCompiler
 
 
 public:
-	COgreSkeletonCompiler( CIntermediateSkeleton* pIntermediateSkeleton, const CDDObject* pConfig, Ogre::String name, Ogre::MeshPtr ogreMesh);
+	COgreSkeletonCompiler( const CDDObject* pConfig, Ogre::String name, Ogre::MeshPtr ogreMesh );
 	virtual ~COgreSkeletonCompiler();
 	bool WriteOgreSkeleton( const Ogre::String& sFilename );
 	void CreateAnimations( void );

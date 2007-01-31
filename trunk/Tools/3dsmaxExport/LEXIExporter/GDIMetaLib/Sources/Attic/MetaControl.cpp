@@ -43,6 +43,7 @@ MetaControl::MetaControl()
 	m_iClientHeight=0;
 	m_iContentHeight=0;
 	m_hWndTip=NULL;
+	m_pListener=0;
 }
 MetaControl::~MetaControl()
 {
@@ -85,7 +86,7 @@ void MetaControl::RegisterClasses()
 	if(!RegisterClassEx(&wcex))
 		LOGSTATIC LOG_ERROR, "Failed to register MetaControl");
 
-	LOGSTATIC LOG_INFO, "Register info: %X", wcex.hInstance);
+	//LOGSTATIC LOG_INFO, "Register info: %X", wcex.hInstance);
 
 	wcex.lpfnWndProc	= MetaControl::WndChildProc;
 	wcex.lpszClassName	= "MetaChildControl";
@@ -100,7 +101,7 @@ void MetaControl::RegisterClasses()
 
 	m_hNormal=LoadCursor(NULL, IDC_ARROW);
 	m_hGrab=LoadCursor(NULL, IDC_HAND);
-	LOGSTATIC LOG_INFO, "Controls are registered OK");
+//	LOGSTATIC LOG_INFO, "Controls are registered OK");
 }
 
 void MetaControl::UnregisterClasses()
@@ -139,6 +140,11 @@ void MetaControl::SetData(CDDObject *pData)
 		lGroups[i]->UpdateData(m_pEditData);
 		lGroups[i]->CheckConditions("$Global");
 	}
+}
+// Set data notifier
+void MetaControl::SetDataNotify(IDDNotify *pListener)
+{
+	m_pListener=pListener;
 }
 
 void MetaControl::CreateFromMeta(CDDObject *pMeta)
@@ -445,6 +451,9 @@ void MetaControl::OnChanged(const CDDObject *pInstance, const char *pszKey)
 	{
 		lGroups[i]->CheckConditions(pszKey);
 	}
+
+	// Notify listener if any
+	if(m_pListener) m_pListener->OnChanged(pInstance, pszKey);
 
 	// Notify owning window about change
 	::SendMessage(this->m_hWnd, WM_NOTIFY_MESSAGE_ID, 0, (LPARAM)pszKey);

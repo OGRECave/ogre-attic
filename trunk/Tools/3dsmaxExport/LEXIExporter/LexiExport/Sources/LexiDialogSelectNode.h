@@ -23,52 +23,43 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-
 #ifndef __NDS_LexiExporter_SelectNodeDialog__
 #define __NDS_LexiExporter_SelectNodeDialog__
 
 //
+class CSelectNodeDlg : public GDI::Dialog 
+{
+public:
+	CSelectNodeDlg(Window* pParent, CExportObject *pCaller);
+	~CSelectNodeDlg();
 
-class CSelectNodeDlg : public GDI::Dialog {
+protected:
+	virtual void OnInitDialog();
 
-	private:
+private:
+	CExportObject* m_pObj;
 
-		CExportObject* m_pObj;
+	GDI::TreeCtrl m_Tree;
+	HTREEITEM m_hRoot;
 
-		GDI::TreeCtrl m_Tree;
-		HTREEITEM m_hRoot;
+	HIMAGELIST m_hImageList;
+	std::map<SClass_ID, unsigned int> m_ImageListMap;
 
-		HIMAGELIST m_hImageList;
-		std::map<SClass_ID, unsigned int> m_ImageListMap;
+	std::string m_sTitle;
 
-		std::string m_sTitle;
+	// Selected node
+	unsigned int m_iNode;
 
-		//
+	// Windows callback function
+	static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-		static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	// Build selection tree
+	void BuildTree(INode* pNode, HTREEITEM hTreeItem);
 
-		//
+	void ShaveTree();
+	bool ShaveTree(HTREEITEM hItem);
 
-		void BuildTree(INode* pNode, HTREEITEM hTreeItem);
-
-		void ShaveTree();
-		bool ShaveTree(HTREEITEM hItem);
-
-		void UpdateStuff();
-
-	public:
-
-		CSelectNodeDlg(Window* pParent, CExportObject* pObj);
-		~CSelectNodeDlg();
-
-		unsigned int m_iNode;
-
-	protected:
-
-		virtual void OnInitDialog();
-
-	public:
-
+	void UpdateStuff();
 };
 
 //

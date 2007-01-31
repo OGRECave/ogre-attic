@@ -54,6 +54,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <stdlib.h>
 #include <stdio.h>
 #include <commdlg.h>
+#include <shlwapi.h>
 
 //
 
@@ -67,16 +68,24 @@ http://www.gnu.org/copyleft/lesser.txt.
 #endif
 
 //
+#include "..\res\resource.h"
 
 #include "SharedUtilities.h"
 #include "GDIMetaLib.h"
 #include "LexiIncludes.h"
+#include "LexiMemoryLog.h"
 #include "LexiOgreCore.h"
+#include "LexiDialogProgress.h"
 #include "LexiExportObject.h"
+#include "LexiExportObjectRoot.h"
 
 //
 
 #define NDS_EXPORTER_TITLE			"LEXIExporter"
+// Remember to change every release
+#define NDS_EXPORTER_VERSION		"1.0.2"
+// Change only at config protocol break
+#define NDS_EXPORTER_CONFIG_VERSION	10002
 
 
 

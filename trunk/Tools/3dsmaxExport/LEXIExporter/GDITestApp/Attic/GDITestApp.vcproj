@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="GDITestApp"
 	ProjectGUID="{981A4576-5AC5-4C00-8181-ADC71C11ADDD}"
 	RootNamespace="GDITestApp"

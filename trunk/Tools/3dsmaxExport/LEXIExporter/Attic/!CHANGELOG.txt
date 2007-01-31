@@ -1,10 +1,28 @@
+version 1.0.2
+=============
+- Completly new UI design.(single window approach)
+- Static Mesh export type added
+	* Collapse geometry
+- Skinned Mesh export type added
+	* Add bone animations
+- Bone Animation export type added
+- Progress window added
+- New log window
+- Resizable windows
+- FileBrowser buttons when out filename is needed
+- Bug Fixes:
+	* Forum Reported Bug: Wrong orientation of single exported root bone - FIXED!
+	* Wrong bone structure when not all bones were assigned to modifier - FIXED!
+
 version 1.0.1
+=============
 - Support for multiple animations
 - new Mesh Properties UI.
 - Collapse hierarchy option removed (belongs in type StaticMesh)
 - Ogre3d wiki page created
 
 version 1.0.0
+=============
 - Single mesh export (Vertex Colors, Normals, Multiple UV sets)
 - Reindexing optimization
 - Simple shader based materials (only one at a time) : 

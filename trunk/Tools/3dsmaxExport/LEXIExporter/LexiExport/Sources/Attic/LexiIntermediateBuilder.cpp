@@ -33,6 +33,7 @@ CIntermediateBuilder::CIntermediateBuilder()
 {
 	m_iBoneIndex = 0;
 	m_fAnimTotalLength=0.0;
+	m_pSkeletonBuilder = NULL;
 }
 
 CIntermediateBuilder::~CIntermediateBuilder()
@@ -43,6 +44,8 @@ CIntermediateBuilder::~CIntermediateBuilder()
 		delete pMat;
 	}
 	m_lMaterials.clear();
+
+	delete m_pSkeletonBuilder;
 }
 
 //
@@ -50,6 +53,8 @@ CIntermediateBuilder::~CIntermediateBuilder()
 void CIntermediateBuilder::Clear()
 {
 	m_lMaterials.clear();
+	delete m_pSkeletonBuilder;
+	m_pSkeletonBuilder = NULL;
 }
 
 void CIntermediateBuilder::SetConfig( CDDObject* pConfig )
@@ -62,45 +67,44 @@ void CIntermediateBuilder::SetConfig( CDDObject* pConfig )
 	m_sAnimationName = pConfig->GetString("AnimationNameID", "Anim1");
 
 	// Read Animation Settings
-	//m_AnimationSetting.m_lSettings.push_back(
 
-	CDDObject* pAnimContainer = pConfig->GetDDObject("AnimationDataContainer");
-	assert(pAnimContainer);
+	//CDDObject* pAnimContainer = pConfig->GetDDObject("AnimationDataContainer");
+	//assert(pAnimContainer);
 
-	m_AnimationSetting.m_lSettings.clear();
+	//m_AnimationSetting.m_lSettings.clear();
 
-	fastvector<const CDDObject*> lAnimList = pAnimContainer->GetDDList("Animations");
-	while(!lAnimList.empty())
-	{
-		const CDDObject* pCurAnim = lAnimList.pop_back();
-		CAnimationSetting curAnimSetting;
-		curAnimSetting.m_sAnimName = pCurAnim->GetString("AnimationNameID","NO_NAME");
-		curAnimSetting.m_iStartFrame = pCurAnim->GetInt("AnimationStartID",0);
-		curAnimSetting.m_iEndFrame = pCurAnim->GetInt("AnimationEndID",100);
-		curAnimSetting.m_fSampleRate = pCurAnim->GetFloat("AnimationSampleRateID",1.0);
-		curAnimSetting.m_bOptimize = pCurAnim->GetBool("AnimationOptimizeID",true);
+	//fastvector<const CDDObject*> lAnimList = pAnimContainer->GetDDList("Animations");
+	//while(!lAnimList.empty())
+	//{
+	//	const CDDObject* pCurAnim = lAnimList.pop_back();
+	//	CAnimationSetting curAnimSetting;
+	//	curAnimSetting.m_sAnimName = pCurAnim->GetString("AnimationNameID","NO_NAME");
+	//	curAnimSetting.m_iStartFrame = pCurAnim->GetInt("AnimationStartID",0);
+	//	curAnimSetting.m_iEndFrame = pCurAnim->GetInt("AnimationEndID",100);
+	//	curAnimSetting.m_fSampleRate = pCurAnim->GetFloat("AnimationSampleRateID",1.0);
+	//	curAnimSetting.m_bOptimize = pCurAnim->GetBool("AnimationOptimizeID",true);
 
 
-		int iType = pCurAnim->GetInt("AnimationTypeID");
-		std::string sType;
-		switch(iType)
-		{
-		case 0:
-			sType = "Bone";
-			break;
-		case 1:
-			sType = "Morph";
-			break;
-		case 2:
-			sType = "Pose";
-			break;
-		default:
-			break;
-		};
-		curAnimSetting.m_sType = sType;
+	//	int iType = pCurAnim->GetInt("AnimationTypeID");
+	//	std::string sType;
+	//	switch(iType)
+	//	{
+	//	case 0:
+	//		sType = "Bone";
+	//		break;
+	//	case 1:
+	//		sType = "Morph";
+	//		break;
+	//	case 2:
+	//		sType = "Pose";
+	//		break;
+	//	default:
+	//		break;
+	//	};
+	//	curAnimSetting.m_sType = sType;
 
-		m_AnimationSetting.m_lSettings.push_back(curAnimSetting);
-	}
+	//	m_AnimationSetting.m_lSettings.push_back(curAnimSetting);
+	//}
 }
 
 
@@ -314,25 +318,28 @@ CMeshArray* CIntermediateBuilder::BuildMeshArray(unsigned int iNodeID, const cha
 
 Ogre::SceneNode* CIntermediateBuilder::CreateHierarchy(unsigned int iNodeID, bool bRecursive, bool bHidden)
 {
-	Ogre::LogManager::getSingleton().logMessage("CIntermediate::CreateHierarchy() - Main call..");
+	LOGDEBUG "CIntermediate::CreateHierarchy() - Main call..");
 	return CreateHierarchy(iNodeID, NULL, bRecursive, bHidden);
 }
 
 Ogre::SceneNode* CIntermediateBuilder::CreateHierarchy(unsigned int iNodeID, Ogre::SceneNode* pParent, bool bRecursive, bool bHidden)
 {
-	Ogre::LogManager::getSingleton().logMessage("CIntermediate::CreateHierarchy() - recursive call..");
+	LOGDEBUG "CIntermediate::CreateHierarchy() - recursive call..");
 	INode* pRoot = GetNodeFromID(iNodeID);
 	if(!pRoot) return NULL;
 
-	Ogre::LogManager::getSingleton().logMessage("CIntermediate::CreateHierarchy() - Creating Intermediate Mesh");
+	LOGDEBUG "CIntermediate::CreateHierarchy() - Creating Intermediate Mesh");
 
 	CIntermediateMesh* pIMesh = CreateMesh(iNodeID);
 	if(!pIMesh) return NULL;
+
+	LOGDEBUG "CIntermediate::CreateHierarchy() - Creating Scenenode");
 
 	Ogre::SceneNode* pSceneNode = new Ogre::SceneNode(NULL, pRoot->GetName());
 	pSceneNode->attachObject(pIMesh);
 
 	//
+	LOGDEBUG "CIntermediate::CreateHierarchy() - Getting transformation");
 
 	Matrix3 mTransform = GetTransformFromNode(0, pRoot);
 
@@ -344,10 +351,14 @@ Ogre::SceneNode* CIntermediateBuilder::CreateHierarchy(unsigned int iNodeID, Ogr
 		mTransform = mTransform * mParentT;
 	}
 
+	LOGDEBUG "CIntermediate::CreateHierarchy() - Decomposing");
+
+	// Retrieve orientation and transform into proper coord system
 	Point3 pos;
 	Point3 scale;
 	Quat quat;
 	DecomposeMatrix(mTransform, pos, quat, scale);
+
 	Ogre::Quaternion oquat;
 	oquat.x = quat.x;
 	oquat.y = quat.z;
@@ -358,13 +369,25 @@ Ogre::SceneNode* CIntermediateBuilder::CreateHierarchy(unsigned int iNodeID, Ogr
 	oquat.ToAngleAxis(w, axis);
 	oquat.FromAngleAxis(-w, axis);
 
+	//CIntermediateBuilder::Rotate90DegreesAroundX(quat);
+	//Ogre::Quaternion oquat;
+	//oquat.x = quat.x;
+	//oquat.y = quat.y;
+	//oquat.z = quat.z;
+	//oquat.w = quat.w;
 
-
-	pSceneNode->setPosition(Ogre::Vector3(pos.x, pos.z, -pos.y));
 	pSceneNode->setOrientation(oquat);
-	pSceneNode->setScale(Ogre::Vector3(scale.x, scale.z, scale.y));
+
+	// Transform the position into proper coord system
+	Rotate90DegreesAroundX(pos);
+	pSceneNode->setPosition(Ogre::Vector3(pos.x, pos.y, pos.z));
+
+	// NOTICE! Double tjeck if we really doesn´t need to transfrom the Scale ?
+	//pSceneNode->setScale(Ogre::Vector3(scale.x, scale.z, scale.y));
+	pSceneNode->setScale(Ogre::Vector3(1, 1, 1));
 
 	//
+	LOGDEBUG "CIntermediate::CreateHierarchy() - Add to parent");
 
 	if(pParent) pParent->addChild(pSceneNode);
 
@@ -383,19 +406,27 @@ Ogre::SceneNode* CIntermediateBuilder::CreateHierarchy(unsigned int iNodeID, Ogr
 
 CIntermediateMesh* CIntermediateBuilder::CreateMesh(unsigned int iNodeID)
 {
+	LOGDEBUG "Verify Node ID");
+
 	// Verify Node ID
 	INode* pRoot = GetNodeFromID(iNodeID);
 	if(!pRoot) return NULL;
+
+	LOGDEBUG "Get object on node");
 
 	// Retrieve object on node
 	ObjectState os = pRoot->EvalWorldState(0, TRUE);
 	Object* pObj = os.obj;
 	if(!pObj) return NULL;
 
+	LOGDEBUG "Validate");
+
 	// We only use the Mesh objects
 	if(pObj->ClassID() == Class_ID(TARGET_CLASS_ID, 0)) return NULL;
 	if(pObj->SuperClassID() != GEOMOBJECT_CLASS_ID) return NULL;
 	if(!pObj->CanConvertToType(Class_ID(TRIOBJ_CLASS_ID, 0))) return NULL;
+
+	LOGDEBUG "->TRIOBJ_CLASS");
 
 	// Convert object into triangle object (mesh data)
 	TriObject* pTri = (TriObject*)pObj->ConvertToType(0, Class_ID(TRIOBJ_CLASS_ID, 0));
@@ -403,9 +434,7 @@ CIntermediateMesh* CIntermediateBuilder::CreateMesh(unsigned int iNodeID)
 
 	bool bDeleteTri = (pObj != pTri) ? true : false;
 
-	Ogre::LogManager::getSingleton().logMessage("CIntermediate::CreateMesh() - Retrieving Mesh Data..");
-
-
+	LOGDEBUG "Get mesh");
 	Mesh* pMesh = &pTri->GetMesh();
 	if(!pMesh || !pMesh->getNumFaces())
 	{
@@ -413,6 +442,9 @@ CIntermediateMesh* CIntermediateBuilder::CreateMesh(unsigned int iNodeID)
 		return NULL;
 	}
 
+	// CALL ON_CREATE_INTERMEDIATE_MESH_START()
+	
+	LOGDEBUG "Get material");
 	Mtl* maxMtl = pRoot->GetMtl();
 	if(maxMtl == NULL)
 	{
@@ -425,37 +457,21 @@ CIntermediateMesh* CIntermediateBuilder::CreateMesh(unsigned int iNodeID)
 	}
 	BOOL bMultiMat = maxMtl->IsMultiMtl();
 
+	LOGDEBUG "Construct intermediate mesh");
 	unsigned int iNumTriangles = pMesh->getNumFaces();
 	CIntermediateMesh* pIMesh = new CIntermediateMesh(iNumTriangles, iNodeID);
 
-	// build Skeleton if needed
-	CIntermediateSkeleton* pISkel = NULL;
-	Modifier* pSkinMod = NULL;
-	ISkin	* pSkin = NULL;
-	ISkinContextData *pSkinContext = NULL;
+	LOGDEBUG "Construct intermediate skeletonbuilder");
+	if(m_pSkeletonBuilder == NULL)
+		m_pSkeletonBuilder = new CIntermediateBuilderSkeleton();
 
-	//if(m_bExportSkeleton)
-	Ogre::LogManager::getSingleton().logMessage("CIntermediate::CreateMesh() - Tjeck for bone animation.");
-	if(!m_AnimationSetting.m_lSettings.empty())
-	{
-	Ogre::LogManager::getSingleton().logMessage("CIntermediate::CreateMesh() - Tjeck for skin modifier.");
-		if(FindSkinModifier(pRoot, &pSkinMod, &pSkin, &pSkinContext))
-		{
-			Ogre::LogManager::getSingleton().logMessage("CIntermediate::CreateMesh() - Creating intermediate skeleton.");
-			pISkel = new CIntermediateSkeleton();
-			pIMesh->SetSkeleton(pISkel);
+	LOGDEBUG "Build skeleton");
+	m_pSkeletonBuilder->BuildIntermediateSkeleton(pRoot);
 
-			CreateIntermediateBonePool(pISkel,pSkin);
-			pISkel->PopulateBoneHandleMap();
-			BuildSkeleton( pISkel );
-			ConnectLinkedBones( pISkel );
+	LOGDEBUG "Set skeleton");
+	pIMesh->SetSkeleton( m_pSkeletonBuilder->GetSkeleton() );
 
-			pISkel->BuildIndexedBoneList();
-
-			SetBindingPose(pISkel, iNodeID, 0);
-		}
-	}
-
+	LOGDEBUG "Iterate triangles");
 	//
 	unsigned int iBoneIndex = 0;
 	unsigned int iVIndex = 0;
@@ -483,170 +499,152 @@ CIntermediateMesh* CIntermediateBuilder::CreateMesh(unsigned int iNodeID)
 
 		tri.m_pMaterial = CreateMaterial( pMat );
 
-		if(pISkel != NULL)
+		// CALL ON_CREATE_INTERMEDIATE_MESH_TRIANGLE_LOOP(pMesh, idx, tri.m_Vertices[wind[j]], x)
+
+		if(m_pSkeletonBuilder != NULL)
 		{
-			// Record bones and weights (we fill a pool of bones and builds the hierarchy later)
-			SVertexBoneData vd;
 			for (int j=0; j<3; j++)
 			{
-				int idx = pMesh->faces[x].v[j]; //tri.m_Vertices[j];
-				int nrBones = pSkinContext->GetNumAssignedBones(idx);
-				for (int i=0; i < nrBones; i++)
-				{
-					int iBoneIdx = pSkinContext->GetAssignedBone(idx,i);
-					INode* pMaxBone = pSkin->GetBone(iBoneIdx);
-					if(pMaxBone)
-					{
-						CIntermediateBone* pIBone = pISkel->FindBone( pMaxBone->GetHandle() );
-
-						vd.boneIndex = pIBone->GetIndex();
-						vd.weight = pSkinContext->GetBoneWeight(idx, i);//iBoneIdx);
-
-						//Ogre::StringUtil::StrStreamType strStream;
-						//strStream << "Original Index:\t" << idx << "\tBone:\t" << iBoneIdx << "\tWeight:\t" << vd.weight;
-						//Ogre::LogManager::getSingleton().logMessage(strStream.str());
-
-						if(vd.weight < 0.01f) 
-							continue;
-
-						pISkel->SetVertexData( tri.m_Vertices[wind[j]], vd );
-					}
-				}
+				// get current index from max mesh
+				int idx = pMesh->faces[x].v[j]; 
+				m_pSkeletonBuilder->SetVertexData( idx, tri.m_Vertices[wind[j]] );
 			}
 		}
 	}
 
-	Ogre::LogManager::getSingleton().logMessage("CIntermediate::CreateMesh() - Building Material List..");
+	LOGDEBUG "Finalize");
+	CIntermediateBuilder::Get()->GetSkeletonBuilder()->Finalize();
+
+	LOGDEBUG "CIntermediate::CreateMesh() - Building Material List..");
 
 	pIMesh->BuildMaterialList();
 
-	if(pISkel != NULL)
-	{
-		Ogre::LogManager::getSingleton().logMessage("CIntermediate::CreateMesh() - Adding frames for all animations..");
-		for(int i=0; i < m_AnimationSetting.m_lSettings.size(); i++)
-		{
-			CAnimationSetting curAnim = m_AnimationSetting.m_lSettings[i];
 
-			if(curAnim.m_sType.compare("Bone")==0)
-			{
-				Ogre::LogManager::getSingleton().logMessage("CIntermediate::CreateMesh() - Adding frame..");
-				Ogre::LogManager::getSingleton().logMessage(curAnim.ToString());
+	//if(m_pSkeletonBuilder != NULL)
+	//{
 
-				AddFrame( pISkel, iNodeID, curAnim );
-			}
-		}
 
-		Ogre::LogManager::getSingleton().logMessage("CIntermediate::CreateMesh() - Normalizing Vertex Assignments..");
+	//	for(int i=0; i < m_AnimationSetting.m_lSettings.size(); i++)
+	//	{
+	//		CAnimationSetting curAnim = m_AnimationSetting.m_lSettings[i];
 
-		pISkel->NormalizeVertexAssignments();
-		pISkel->SetFPS( GetFrameRate() );
-		//Ogre::LogManager::getSingletonPtr()->logMessage( pISkel->ToString() );
-	}
+	//		if(curAnim.m_sType.compare("Bone")==0)
+	//		{
+	//			AddFrame( pISkel, iNodeID, curAnim );
+	//		}
+	//	}
+
+	//	pISkel->NormalizeVertexAssignments();
+	//	pISkel->SetFPS( GetFrameRate() );
+	//}
+
+	// CALL ON_CREATE_INTERMEDIATE_MESH_END()
+	LOGDEBUG "Delete pTri");
 
 	if(bDeleteTri) delete pTri;
 
 	return pIMesh;
 }
-
-void CIntermediateBuilder::CreateIntermediateBonePool(CIntermediateSkeleton* pSkel, ISkin* pSkin)
-{
-	int iBoneCount = pSkin->GetNumBones();
-	for (int i=0; i < iBoneCount; i++)
-	{
-		INode* pBone = pSkin->GetBone(i);
-		CIntermediateBone* pIBone = new CIntermediateBone( pBone->GetName() );
-		pIBone->SetHandle( pBone->GetHandle() );
-
-		INode* pParent = pBone->GetParentNode();
-		if(pParent)
-			pIBone->SetParentHandle( pParent->GetHandle() );
-
-		pIBone->SetIndex( m_iBoneIndex++ );
-
-		pSkel->AddBone( pIBone, pIBone->GetName().c_str() );
-		
-	}
-}
-
-void CIntermediateBuilder::ConnectLinkedBones(CIntermediateSkeleton* pSkel)
-{
-	static int i = 0;
-
-	std::vector<CIntermediateBone*>::const_iterator iter = pSkel->GetRootBones().begin();
-
-	while(iter != pSkel->GetRootBones().end())
-	{
-		CIntermediateBone* pIBone = *iter;
-		ULONG handle = pIBone->GetHandle();
-		INode* pNode = GetNodeFromID(handle);
-
-		INode* pParentNode = pNode->GetParentNode();
-		if(pParentNode)
-			if(pParentNode->SuperClassID() == HELPER_CLASS_ID)
-			{
-				CIntermediateBone* pParentIBone = pSkel->FindBone( pParentNode->GetParentNode()->GetHandle() );
-				if(pParentIBone)
-				{
-					Ogre::StringUtil::StrStreamType strID;
-					strID << "Connecting_Bone_" << i++ ;
-					CIntermediateBone* pConnectBone = new CIntermediateBone(strID.str().c_str());
-
-					pConnectBone->SetHandle( pParentNode->GetHandle());
-					pConnectBone->SetIndex(m_iBoneIndex++);
-					pConnectBone->AddBone( pIBone );
-					pParentIBone->AddBone( pIBone );
-				}
-			}
-		iter++;
-	}
-}
-
-bool CIntermediateBuilder::FindSkinModifier(INode* nodePtr, Modifier** pSkinMod,ISkin** pSkin, ISkinContextData** pSkinContext)
-{	
-	// Get object from node. Abort if no object.
-	Object* ObjectPtr = nodePtr->GetObjectRef();			
-
-	if (!ObjectPtr) return false;
-
-	// Is derived object ?
-	while (ObjectPtr->SuperClassID() == GEN_DERIVOB_CLASS_ID && ObjectPtr)
-	{
-		// Yes -> Cast.
-		IDerivedObject *DerivedObjectPtr = (IDerivedObject *)(ObjectPtr);
-
-		// Iterate over all entries of the modifier stack.
-		int ModStackIndex = 0;
-		while (ModStackIndex < DerivedObjectPtr->NumModifiers())
-		{
-			// Get current modifier.
-			Modifier* ModifierPtr = DerivedObjectPtr->GetModifier(ModStackIndex);
-
-			// Is this Physique ?
-			if (ModifierPtr->ClassID() == SKIN_CLASSID)
-			{
-				// Yes -> Exit.
-				*pSkinMod = ModifierPtr;
-				*pSkin=(ISkin*)(*pSkinMod)->GetInterface(I_SKIN);
-
-				//get the node's initial transformation matrix and store it in a matrix3
-				Matrix3 initTM;
-				int msg = (*pSkin)->GetBoneInitTM(nodePtr, initTM);
-
-				//get a pointer to the export context interface
-				*pSkinContext=(ISkinContextData*)(*pSkin)->GetContextInterface(nodePtr);
-				return true;
-			}
-
-			// Next modifier stack entry.
-			ModStackIndex++;
-		}
-		ObjectPtr = DerivedObjectPtr->GetObjRef();
-	}
-
-	// Not found.
-	return false;
-}
-
+//
+//void CIntermediateBuilder::CreateIntermediateBonePool(CIntermediateSkeleton* pSkel, ISkin* pSkin)
+//{
+//	int iBoneCount = pSkin->GetNumBones();
+//	for (int i=0; i < iBoneCount; i++)
+//	{
+//		INode* pBone = pSkin->GetBone(i);
+//		CIntermediateBone* pIBone = new CIntermediateBone( pBone->GetName() );
+//		pIBone->SetHandle( pBone->GetHandle() );
+//
+//		INode* pParent = pBone->GetParentNode();
+//		if(pParent)
+//			pIBone->SetParentHandle( pParent->GetHandle() );
+//
+//		pIBone->SetIndex( m_iBoneIndex++ );
+//
+//		pSkel->AddBone( pIBone, pIBone->GetName().c_str() );
+//		
+//	}
+//}
+//
+//void CIntermediateBuilder::ConnectLinkedBones(CIntermediateSkeleton* pSkel)
+//{
+//	static int i = 0;
+//
+//	std::vector<CIntermediateBone*>::const_iterator iter = pSkel->GetRootBones().begin();
+//
+//	while(iter != pSkel->GetRootBones().end())
+//	{
+//		CIntermediateBone* pIBone = *iter;
+//		ULONG handle = pIBone->GetHandle();
+//		INode* pNode = GetNodeFromID(handle);
+//
+//		INode* pParentNode = pNode->GetParentNode();
+//		if(pParentNode)
+//			if(pParentNode->SuperClassID() == HELPER_CLASS_ID)
+//			{
+//				CIntermediateBone* pParentIBone = pSkel->FindBone( pParentNode->GetParentNode()->GetHandle() );
+//				if(pParentIBone)
+//				{
+//					Ogre::StringUtil::StrStreamType strID;
+//					strID << "Connecting_Bone_" << i++ ;
+//					CIntermediateBone* pConnectBone = new CIntermediateBone(strID.str().c_str());
+//
+//					pConnectBone->SetHandle( pParentNode->GetHandle());
+//					pConnectBone->SetIndex(m_iBoneIndex++);
+//					pConnectBone->AddBone( pIBone );
+//					pParentIBone->AddBone( pIBone );
+//				}
+//			}
+//		iter++;
+//	}
+//}
+//
+//bool CIntermediateBuilder::FindSkinModifier(INode* nodePtr, Modifier** pSkinMod,ISkin** pSkin, ISkinContextData** pSkinContext)
+//{	
+//	// Get object from node. Abort if no object.
+//	Object* ObjectPtr = nodePtr->GetObjectRef();			
+//
+//	if (!ObjectPtr) return false;
+//
+//	// Is derived object ?
+//	while (ObjectPtr->SuperClassID() == GEN_DERIVOB_CLASS_ID && ObjectPtr)
+//	{
+//		// Yes -> Cast.
+//		IDerivedObject *DerivedObjectPtr = (IDerivedObject *)(ObjectPtr);
+//
+//		// Iterate over all entries of the modifier stack.
+//		int ModStackIndex = 0;
+//		while (ModStackIndex < DerivedObjectPtr->NumModifiers())
+//		{
+//			// Get current modifier.
+//			Modifier* ModifierPtr = DerivedObjectPtr->GetModifier(ModStackIndex);
+//
+//			// Is this Physique ?
+//			if (ModifierPtr->ClassID() == SKIN_CLASSID)
+//			{
+//				// Yes -> Exit.
+//				*pSkinMod = ModifierPtr;
+//				*pSkin=(ISkin*)(*pSkinMod)->GetInterface(I_SKIN);
+//
+//				//get the node's initial transformation matrix and store it in a matrix3
+//				Matrix3 initTM;
+//				int msg = (*pSkin)->GetBoneInitTM(nodePtr, initTM);
+//
+//				//get a pointer to the export context interface
+//				*pSkinContext=(ISkinContextData*)(*pSkin)->GetContextInterface(nodePtr);
+//				return true;
+//			}
+//
+//			// Next modifier stack entry.
+//			ModStackIndex++;
+//		}
+//		ObjectPtr = DerivedObjectPtr->GetObjRef();
+//	}
+//
+//	// Not found.
+//	return false;
+//}
+//
 
 void CIntermediateBuilder::Clamp( Point3& inVec, float threshold )
 {
@@ -678,191 +676,188 @@ void CIntermediateBuilder::Rotate90DegreesAroundX( Point3& inVec )
 	inVec.z = negY;
 }
 
-
-
-void CIntermediateBuilder::AddFrame( CIntermediateSkeleton* pSkel, unsigned int meshNodeID, CAnimationSetting animationSettings )
+void CIntermediateBuilder::Rotate90DegreesAroundX( Quat& inQuat )
 {
-	for (int i=0; i < pSkel->GetBoneCount(); i++)
-	{
-		CAnimationSetting animSetting = animationSettings;
-
-		CIntermediateBone* pIBone = pSkel->GetBone(i);
-		INode* pMaxNode = GetNodeFromID(pIBone->GetHandle());
-		if(!pMaxNode) return;
-
-		INode* pParentBone = pMaxNode->GetParentNode();
-
-		// binding pose:
-		Ogre::Vector3 pos;
-		Ogre::Vector3 scale;
-		Ogre::Quaternion oriet;
-		pIBone->GetBindingPose(pos,oriet,scale);
-
-		Point3 basePos(pos.x, pos.y, pos.z);
-		Point3 baseScale(scale.x, scale.y, scale.z);
-		Quat baseOriet(oriet.x, oriet.y, oriet.z, oriet.w);
-
-		int tpf = GetTicksPerFrame();
-		float fps = 1.0 / float(GetFrameRate());
-
-		Ogre::LogManager::getSingleton().logMessage("CIntermediate::AddFrame() - Creating Animation on bone..");
-		//Ogre::LogManager::getSingleton().logMessage(animSetting.ToString());
-		//Ogre::LogManager::getSingleton().logMessage("^AnimSettings");
-
-
-		bool animCreated = pIBone->CreateAnimation(animSetting);
-
-		if(animCreated)
-			Ogre::LogManager::getSingleton().logMessage("CIntermediate::AddFrame() - Animation created..");
-		else
-			Ogre::LogManager::getSingleton().logMessage("CIntermediate::AddFrame() - Animation NOT created..");
-
-		if(animCreated)
-		{
-			Ogre::LogManager::getSingleton().logMessage("CIntermediate::AddFrame() - Creating Frames.");
-			for(unsigned int x = animSetting.m_iStartFrame; x <= animSetting.m_iEndFrame; x++)
-			{
-				TimeValue t = (x * animSetting.m_fSampleRate) * tpf;
-
-				Matrix3 nodeTM = pMaxNode->GetNodeTM(t);
-				Matrix3 parentTM = pParentBone->GetNodeTM(t);
-
-				if( pParentBone->IsRootNode() )
-				{
-					INode* pMeshNode = GetNodeFromID(meshNodeID);
-					parentTM = pMeshNode->GetObjTMAfterWSM(t);
-				}
-
-				Matrix3 relativeTM = nodeTM * Inverse(parentTM);
-
-				Point3 nodePos;
-				Point3 nodeScale;
-				Quat nodeOriet;
-
-				DecomposeMatrix(relativeTM, nodePos, nodeOriet, nodeScale);
-
-				Ogre::Quaternion oquat;
-				oquat.x = nodeOriet.x;
-				oquat.y = nodeOriet.z;
-				oquat.z = -nodeOriet.y;
-				oquat.w = nodeOriet.w;
-
-				Rotate90DegreesAroundX(nodePos);
-
-				Ogre::Vector3 axis;
-				Ogre::Radian w;
-				oquat.ToAngleAxis(w, axis);
-				oquat.FromAngleAxis(-w, axis);
-
-				Point3 relPos = basePos;
-				Point3 relScale = baseScale;
-				Ogre::Quaternion relOriet = baseOriet;
-
-				// relative transformation
-				relPos = nodePos - basePos;
-				relScale = (nodeScale + baseScale) / 2;
-				relOriet = oriet.Inverse() * oquat;
-
-				//Clamp(relPos, 0.0001);
-
-				float time = (x- animSetting.m_iStartFrame)*fps;
-				Ogre::LogManager::getSingleton().logMessage("CIntermediate::AddFrame() - Creating Single Frame.");
-				pIBone->AddFrame( 
-					animSetting.m_sAnimName,
-					x - animSetting.m_iStartFrame, // frame nr relative to this animation
-					time,
-					Ogre::Vector3(relPos.x, relPos.z, -relPos.y),
-					relOriet, 
-					Ogre::Vector3(relScale.x, relScale.z, relScale.y)
-					);
-
-				Ogre::LogManager::getSingleton().logMessage("CIntermediate::AddFrame() - Single Frame Created.");
-
-				if(m_fAnimTotalLength < time)
-					m_fAnimTotalLength = time;
-			}
-		}
-	}
-	Ogre::LogManager::getSingleton().logMessage("CIntermediate::AddFrame() - End");
+	static Quat rotMinus90X = Quat(-sqrt(0.5),0,0,sqrt(0.5));
+	inQuat = rotMinus90X*inQuat;
 }
 
-Ogre::String CIntermediateBuilder::GetAnimationName( void )
-{
-	return m_sAnimationName;
-}
-
-float CIntermediateBuilder::GetAnimationLength( void )
-{
-	return m_fAnimTotalLength;
-}
-
-void CIntermediateBuilder::SetBindingPose( CIntermediateSkeleton* pISkel, unsigned int meshNodeID, unsigned int frame )
-{
-	for (int i=0; i < pISkel->GetBoneCount(); i++)
-	{
-		CIntermediateBone* pIBone = pISkel->GetBone(i);
-		INode* pMaxNode = GetNodeFromID(pIBone->GetHandle());
-		if(!pMaxNode) return;
-
-		// binding pose:
-		INode* pParentBone = pMaxNode->GetParentNode();
-		Matrix3 baseParentTM = pParentBone->GetNodeTM(frame);
-
-		Matrix3 baseTM = pMaxNode->GetNodeTM(0);
-
-		if( pParentBone->IsRootNode() )
-		{
-			INode* pMeshNode = GetNodeFromID(meshNodeID);
-			Matrix3 meshTM = pMeshNode->GetObjTMAfterWSM(frame);
-			baseTM = baseTM * Inverse(meshTM);
-		}
-		else
-		{
-			baseTM = baseTM * Inverse(baseParentTM); // binding pose initial local space transformation matrix
-		}
-		
-		Point3 basePos;
-		Point3 baseScale;
-		Quat baseOriet;
-
-		DecomposeMatrix(baseTM, basePos, baseOriet, baseScale);
-
-		Ogre::Quaternion oquat;
-		oquat.x = baseOriet.x;
-		oquat.y = baseOriet.z;
-		oquat.z = -baseOriet.y;
-		oquat.w = baseOriet.w;
-
-		Ogre::Vector3 axis;
-		Ogre::Radian w;
-		oquat.ToAngleAxis(w, axis);
-		oquat.FromAngleAxis(-w, axis);
-
-		Rotate90DegreesAroundX(basePos);
-
-		pIBone->SetBindingPose(Ogre::Vector3(basePos.x, basePos.y, basePos.z), oquat, Ogre::Vector3(baseScale.x, baseScale.z, baseScale.y));
-	}
-}
-
-void CIntermediateBuilder::BuildSkeleton( CIntermediateSkeleton* pSkel )
-{
-	m_iBoneIndex = 0;
-	for (int i=0; i < pSkel->GetBoneCount(); i++)
-	{
-		CIntermediateBone* pIBone = pSkel->GetBone(i);
-		INode* pMaxNode = GetNodeFromID(pIBone->GetHandle());
-		if(!pMaxNode) return;
-
-		ULONG parentHandle = pIBone->GetParentHandle();
-		CIntermediateBone* parent = pSkel->FindBone( parentHandle );
-		if(parent)
-			parent->AddBone( pIBone );
-		else
-		{
-			pSkel->MarkBoneAsRoot( pIBone );
-		}
-	}
-}
+//
+//
+//void CIntermediateBuilder::AddFrame( CIntermediateSkeleton* pSkel, unsigned int meshNodeID, CAnimationSetting animationSettings )
+//{
+//	for (int i=0; i < pSkel->GetBoneCount(); i++)
+//	{
+//		CAnimationSetting animSetting = animationSettings;
+//
+//		CIntermediateBone* pIBone = pSkel->GetBone(i);
+//		INode* pMaxNode = GetNodeFromID(pIBone->GetHandle());
+//		if(!pMaxNode) return;
+//
+//		INode* pParentBone = pMaxNode->GetParentNode();
+//
+//		// binding pose:
+//		Ogre::Vector3 pos;
+//		Ogre::Vector3 scale;
+//		Ogre::Quaternion oriet;
+//		pIBone->GetBindingPose(pos,oriet,scale);
+//
+//		Point3 basePos(pos.x, pos.y, pos.z);
+//		Point3 baseScale(scale.x, scale.y, scale.z);
+//		Quat baseOriet(oriet.x, oriet.y, oriet.z, oriet.w);
+//
+//		int tpf = GetTicksPerFrame();
+//		float fps = 1.0 / float(GetFrameRate());
+//
+//		bool animCreated = pIBone->CreateAnimation(animSetting);
+//
+//		//if(animCreated)
+//		//	LOGDEBUG "CIntermediate::AddFrame() - Animation created..");
+//		//else
+//		//	LOGDEBUG "CIntermediate::AddFrame() - Animation NOT created..");
+//
+//		if(animCreated)
+//		{
+//			for(unsigned int x = animSetting.m_iStartFrame; x <= animSetting.m_iEndFrame; x++)
+//			{
+//				TimeValue t = (x * animSetting.m_fSampleRate) * tpf;
+//
+//				Matrix3 nodeTM = pMaxNode->GetNodeTM(t);
+//				Matrix3 parentTM = pParentBone->GetNodeTM(t);
+//
+//				if( pParentBone->IsRootNode() )
+//				{
+//					INode* pMeshNode = GetNodeFromID(meshNodeID);
+//					parentTM = pMeshNode->GetObjTMAfterWSM(t);
+//				}
+//
+//				Matrix3 relativeTM = nodeTM * Inverse(parentTM);
+//
+//				Point3 nodePos;
+//				Point3 nodeScale;
+//				Quat nodeOriet;
+//
+//				DecomposeMatrix(relativeTM, nodePos, nodeOriet, nodeScale);
+//
+//				Ogre::Quaternion oquat;
+//				oquat.x = nodeOriet.x;
+//				oquat.y = nodeOriet.z;
+//				oquat.z = -nodeOriet.y;
+//				oquat.w = nodeOriet.w;
+//
+//				Rotate90DegreesAroundX(nodePos);
+//
+//				Ogre::Vector3 axis;
+//				Ogre::Radian w;
+//				oquat.ToAngleAxis(w, axis);
+//				oquat.FromAngleAxis(-w, axis);
+//
+//				Point3 relPos = basePos;
+//				Point3 relScale = baseScale;
+//				Ogre::Quaternion relOriet = baseOriet;
+//
+//				// relative transformation
+//				relPos = nodePos - basePos;
+//				relScale = (nodeScale + baseScale) / 2;
+//				relOriet = oriet.Inverse() * oquat;
+//
+//				//Clamp(relPos, 0.0001);
+//
+//				float time = (x- animSetting.m_iStartFrame)*fps;
+//				pIBone->AddFrame( 
+//					animSetting.m_sAnimName,
+//					x - animSetting.m_iStartFrame, // frame nr relative to this animation
+//					time,
+//					Ogre::Vector3(relPos.x, relPos.z, -relPos.y),
+//					relOriet, 
+//					Ogre::Vector3(relScale.x, relScale.z, relScale.y)
+//					);
+//
+//				if(m_fAnimTotalLength < time)
+//					m_fAnimTotalLength = time;
+//			}
+//		}
+//	}
+//	//LOGDEBUG "CIntermediate::AddFrame() - End");
+//}
+//
+//Ogre::String CIntermediateBuilder::GetAnimationName( void )
+//{
+//	return m_sAnimationName;
+//}
+//
+//float CIntermediateBuilder::GetAnimationLength( void )
+//{
+//	return m_fAnimTotalLength;
+//}
+//
+//void CIntermediateBuilder::SetBindingPose( CIntermediateSkeleton* pISkel, unsigned int meshNodeID, unsigned int frame )
+//{
+//	for (int i=0; i < pISkel->GetBoneCount(); i++)
+//	{
+//		CIntermediateBone* pIBone = pISkel->GetBone(i);
+//		INode* pMaxNode = GetNodeFromID(pIBone->GetHandle());
+//		if(!pMaxNode) return;
+//
+//		// binding pose:
+//		INode* pParentBone = pMaxNode->GetParentNode();
+//		Matrix3 baseParentTM = pParentBone->GetNodeTM(frame);
+//
+//		Matrix3 baseTM = pMaxNode->GetNodeTM(0);
+//
+//		if( pParentBone->IsRootNode() )
+//		{
+//			INode* pMeshNode = GetNodeFromID(meshNodeID);
+//			Matrix3 meshTM = pMeshNode->GetObjTMAfterWSM(frame);
+//			baseTM = baseTM * Inverse(meshTM);
+//		}
+//		else
+//		{
+//			baseTM = baseTM * Inverse(baseParentTM); // binding pose initial local space transformation matrix
+//		}
+//		
+//		Point3 basePos;
+//		Point3 baseScale;
+//		Quat baseOriet;
+//
+//		DecomposeMatrix(baseTM, basePos, baseOriet, baseScale);
+//
+//		Ogre::Quaternion oquat;
+//		oquat.x = baseOriet.x;
+//		oquat.y = baseOriet.z;
+//		oquat.z = -baseOriet.y;
+//		oquat.w = baseOriet.w;
+//
+//		Ogre::Vector3 axis;
+//		Ogre::Radian w;
+//		oquat.ToAngleAxis(w, axis);
+//		oquat.FromAngleAxis(-w, axis);
+//
+//		Rotate90DegreesAroundX(basePos);
+//
+//		pIBone->SetBindingPose(Ogre::Vector3(basePos.x, basePos.y, basePos.z), oquat, Ogre::Vector3(baseScale.x, baseScale.z, baseScale.y));
+//	}
+//}
+//
+//void CIntermediateBuilder::BuildSkeleton( CIntermediateSkeleton* pSkel )
+//{
+//	m_iBoneIndex = 0;
+//	for (int i=0; i < pSkel->GetBoneCount(); i++)
+//	{
+//		CIntermediateBone* pIBone = pSkel->GetBone(i);
+//		INode* pMaxNode = GetNodeFromID(pIBone->GetHandle());
+//		if(!pMaxNode) return;
+//
+//		ULONG parentHandle = pIBone->GetParentHandle();
+//		CIntermediateBone* parent = pSkel->FindBone( parentHandle );
+//		if(parent)
+//			parent->AddBone( pIBone );
+//		else
+//		{
+//			pSkel->MarkBoneAsRoot( pIBone );
+//		}
+//	}
+//}
 
 Ogre::SceneNode* CIntermediateBuilder::CollapseHierarchy(Ogre::SceneNode* pHierarchy, const std::list<std::string>& Arrays, const char* pszName) const
 {
@@ -999,8 +994,7 @@ CIntermediateMaterial* CIntermediateBuilder::CreateMaterial( Mtl* pMaxMaterial )
 	if (pMaxMaterial->ClassID() != Class_ID(DMTL_CLASS_ID, 0))
 	{
 		Ogre::String str("Material ("+Ogre::String(+pMaxMaterial->GetName())+") Not Standard!");
-		//MessageBox(NULL,str.c_str(),"ERROR", MB_ICONERROR);
-		Ogre::LogManager::getSingletonPtr()->logMessage(str);
+		LOGWARNING str.c_str());
 		return NULL;
 	}
 
@@ -1135,4 +1129,9 @@ void CIntermediateBuilder::RegisterMaps( CIntermediateMaterial* pIMat, Mtl* pMax
 			mask = mask | 1<<i;
  		}
 	}
+}
+
+CIntermediateBuilderSkeleton* CIntermediateBuilder::GetSkeletonBuilder( void )
+{
+	return m_pSkeletonBuilder;
 }

@@ -86,7 +86,7 @@ class CIntermediateSkeleton {
 		int GetNrOfAssignmentsOnVertex( int idx );
 		void NormalizeVertexAssignments( void );
 		bool GetVertexData( int idx, int assignmentNr, SVertexBoneData& returnVal );
-		bool SetVertexData( int idx, SVertexBoneData vertexData );
+		bool AddVertexData( int idx, SVertexBoneData vertexData );
 
 		bool AssembleBones( void );
 

@@ -49,6 +49,9 @@ public:
 	CDDObject*	GetData();
 	void	SetData(CDDObject *pData);
 
+	// Set data notifier
+	void	SetDataNotify(IDDNotify *pListener);
+
 	void	CreateFromMeta(CDDObject *pMeta);
 	void	CreateFromMetaData(CDDObject *pMeta, CDDObject *pData);
 
@@ -99,6 +102,9 @@ private:
 
 	// Reference to the data object being edited
 	CDDObject	*m_pEditData;
+
+	//
+	IDDNotify	*m_pListener;
 
 	//
 	bool	m_bHasCapture;
