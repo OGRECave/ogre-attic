@@ -1447,6 +1447,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreUserDefinedObject.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreUTFString.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreVector2.h">
 			</File>
 			<File

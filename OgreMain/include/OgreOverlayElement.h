@@ -33,6 +33,7 @@ Torus Knot Software Ltd.
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
 #include "OgreRenderable.h"
+#include "OgreUTFString.h"
 #include "OgreStringInterface.h"
 #include "OgreOverlayElementCommands.h"
 
@@ -121,7 +122,7 @@ namespace Ogre {
         Real mHeight;
         String mMaterialName;
         MaterialPtr mpMaterial;
-        String mCaption;
+        UTFString mCaption;
         ColourValue mColour;
         Rectangle mClippingRegion;
 
@@ -351,10 +352,10 @@ namespace Ogre {
         However, being a common requirement it is in the top-level interface to avoid
         having to set it via the StringInterface all the time.
         */
-        virtual void setCaption(const String& text);
+        virtual void setCaption(const UTFString& text);
 
         /** Gets the caption for this element. */
-        virtual const String& getCaption(void) const;
+        virtual const UTFString& getCaption(void) const;
 
         /** Sets the colour on elements that support it. 
         @remarks

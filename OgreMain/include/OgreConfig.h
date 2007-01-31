@@ -59,11 +59,6 @@ Torus Knot Software Ltd.
 #define OGRE_DOUBLE_PRECISION 0
 #endif
 
-/** If set to 1, the strings are transforned to Unicode, and char is replaced
-    with wchar_t when having to do with strings of any kind.
-*/
-#define OGRE_WCHAR_T_STRINGS 0
-
 /** Define number of texture coordinate sets allowed per vertex.
 */
 #define OGRE_MAX_TEXTURE_COORD_SETS 6

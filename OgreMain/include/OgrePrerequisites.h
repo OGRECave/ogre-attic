@@ -109,15 +109,6 @@ namespace Ogre {
         typedef float Real;
     #endif
 
-    // define the Char type as either char or wchar_t
-    #if OGRE_WCHAR_T_STRINGS == 1
-    #   define OgreChar wchar_t
-    #	define _TO_CHAR( x ) L##x
-    #else
-    #   define OgreChar char
-    #	define _TO_CHAR( x ) x
-    #endif
-
     #if OGRE_COMPILER == OGRE_COMPILER_GNUC && OGRE_COMP_VER >= 310 && !defined(STLPORT)
     #   define HashMap ::__gnu_cxx::hash_map
     #else

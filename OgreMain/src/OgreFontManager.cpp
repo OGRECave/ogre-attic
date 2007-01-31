@@ -207,6 +207,20 @@ namespace Ogre
         	// Set
             pFont->setAntialiasColour(StringConverter::parseBool(params[1]));
         }
+		else if (attrib == "code_points")
+		{
+			for (int c = 1; c < params.size(); ++c)
+			{
+				String& item = params[c];
+				StringVector itemVec = StringUtil::split(item, "-");
+				if (itemVec.size() == 2)
+				{
+					pFont->addCodePointRange(Font::CodePointRange(
+						StringConverter::parseLong(itemVec[0]), 
+						StringConverter::parseLong(itemVec[1])));
+				}
+			}
+		}
 
 
 

@@ -1908,6 +1908,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\OgreUTFString.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\OgreVector2.h"
 				>
 			</File>

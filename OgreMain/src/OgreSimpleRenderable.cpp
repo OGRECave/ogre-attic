@@ -51,7 +51,7 @@ namespace Ogre {
 
         // Generate name
 		StringUtil::StrStreamType name;
-		name << _TO_CHAR("SimpleRenderable") << ms_uGenNameCount++;
+		name << "SimpleRenderable" << ms_uGenNameCount++;
 		mName = name.str();
     }
 
