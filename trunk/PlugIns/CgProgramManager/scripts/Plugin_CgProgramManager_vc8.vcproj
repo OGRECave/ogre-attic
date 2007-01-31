@@ -250,7 +250,9 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="cg.lib"
 				OutputFile="$(OutDir)\$(ProjectName)Static_d.lib"
+				AdditionalLibraryDirectories="..\..\..\Dependencies\lib\Debug"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -324,7 +326,9 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="cg.lib"
 				OutputFile="$(OutDir)\$(ProjectName)Static.lib"
+				AdditionalLibraryDirectories="..\..\..\Dependencies\lib\Release"
 			/>
 			<Tool
 				Name="VCALinkTool"
