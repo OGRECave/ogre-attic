@@ -107,6 +107,27 @@ namespace Ogre {
 #endif // #ifdef __STDC_ISO_10646__
 
 
+// OGRE_IS_NATIVE_WCHAR_T means that wchar_t isn't a typedef of
+// uint16 or uint32.
+#if OGRE_COMPILER == OGRE_COMPILER_MSVC
+
+// Don't define wchar_t related functions since it'll duplicate
+// with UTFString::code_point related functions when compile
+// without /Zc:wchar_t, because in this case both of them are
+// a typedef of uint16.
+# if defined(_NATIVE_WCHAR_T_DEFINED)
+#   define OGRE_IS_NATIVE_WCHAR_T      1
+# else
+#   define OGRE_IS_NATIVE_WCHAR_T      0
+# endif
+
+#else   // OGRE_COMPILER != OGRE_COMPILER_MSVC
+
+// Assumed wchar_t is natively for other compilers
+#   define OGRE_IS_NATIVE_WCHAR_T     1
+
+#endif  // OGRE_COMPILER == OGRE_COMPILER_MSVC
+
 	//! A UTF-16 string with implicit conversion to/from std::string and std::wstring
 	/*! This class provides a complete 1 to 1 map of most std::string functions (at least to my
 	knowledge). Implicit conversions allow this string class to work with all common C++ string
@@ -810,6 +831,7 @@ namespace Ogre {
 			_init();
 			assign( str, index, length );
 		}
+#if OGRE_IS_NATIVE_WCHAR_T
 		//! duplicate of nul-terminated \c wchar_t array
 		UTFString( const wchar_t* w_str ) {
 			_init();
@@ -820,6 +842,7 @@ namespace Ogre {
 			_init();
 			assign( w_str, length );
 		}
+#endif
 		//! duplicate of \a wstr
 		UTFString( const std::wstring& wstr ) {
 			_init();
@@ -921,11 +944,13 @@ namespace Ogre {
 			if ( c > 0 ) push_back( cp[0] );
 			if ( c > 1 ) push_back( cp[1] );
 		}
+#if OGRE_IS_NATIVE_WCHAR_T
 		//! appends \a val to the end of the string
 		void push_back( wchar_t val ) {
 			// we do this because the Unicode method still preserves UTF-16 code points
 			mData.push_back( static_cast<unicode_char>( val ) );
 		}
+#endif
 		//! appends \a val to the end of the string
 		/*! This can be used to push surrogate pair code points, you'll just need to push them
 		one after the other. */
@@ -1173,6 +1198,7 @@ namespace Ogre {
 #endif
 			return *this;
 		}
+#if OGRE_IS_NATIVE_WCHAR_T
 		//! assign \a w_str to the current string
 		UTFString& assign( const wchar_t* w_str ) {
 			std::wstring tmp;
@@ -1185,6 +1211,7 @@ namespace Ogre {
 			tmp.assign( w_str, num );
 			return assign( tmp );
 		}
+#endif
 		//! assign \a str to the current string (\a str is treated as a UTF-8 stream)
 		UTFString& assign( const std::string& str ) {
 			size_type len = _verifyUTF8( str );
@@ -1264,6 +1291,7 @@ namespace Ogre {
 			mData.append( start.mIter, end.mIter );
 			return *this;
 		}
+#if OGRE_IS_NATIVE_WCHAR_T
 		//! appends \a num characters of \a str on to the end of the current string
 		UTFString& append( const wchar_t* w_str, size_type num ) {
 			std::wstring tmp( w_str, num );
@@ -1273,6 +1301,7 @@ namespace Ogre {
 		UTFString& append( size_type num, wchar_t ch ) {
 			return append( num, static_cast<unicode_char>( ch ) );
 		}
+#endif
 		//! appends \a num characters of \a str on to the end of the current string  (UTF-8 encoding)
 		UTFString& append( const char* c_str, size_type num ) {
 			UTFString tmp( c_str, num );
@@ -1336,12 +1365,14 @@ namespace Ogre {
 			mData.insert( index, str, num );
 			return *this;
 		}
+#if OGRE_IS_NATIVE_WCHAR_T
 		//! inserts \a num code points of \a str into the current string, at location \a index
 		UTFString& insert( size_type index, const wchar_t* w_str, size_type num ) {
 			UTFString tmp( w_str, num );
 			insert( index, tmp );
 			return *this;
 		}
+#endif
 		//! inserts \a num code points of \a str into the current string, at location \a index
 		UTFString& insert( size_type index, const char* c_str, size_type num ) {
 			UTFString tmp( c_str, num );
@@ -1353,11 +1384,13 @@ namespace Ogre {
 			mData.insert( index, num, ch );
 			return *this;
 		}
+#if OGRE_IS_NATIVE_WCHAR_T
 		//! inserts \a num copies of \a ch into the current string, at location \a index
 		UTFString& insert( size_type index, size_type num, wchar_t ch ) {
 			insert( index, num, static_cast<unicode_char>( ch ) );
 			return *this;
 		}
+#endif
 		//! inserts \a num copies of \a ch into the current string, at location \a index
 		UTFString& insert( size_type index, size_type num, char ch ) {
 			insert( index, num, static_cast<code_point>( ch ) );
@@ -1381,10 +1414,12 @@ namespace Ogre {
 		void insert( iterator i, size_type num, const code_point& ch ) {
 			mData.insert( i.mIter, num, ch );
 		}
+#if OGRE_IS_NATIVE_WCHAR_T
 		//! inserts \a num copies of \a ch into the current string, before the code point denoted by \a i
 		void insert( iterator i, size_type num, const wchar_t& ch ) {
 			insert( i, num, static_cast<unicode_char>( ch ) );
 		}
+#endif
 		//! inserts \a num copies of \a ch into the current string, before the code point denoted by \a i
 		void insert( iterator i, size_type num, const char& ch ) {
 			insert( i, num, static_cast<code_point>( ch ) );
@@ -1495,11 +1530,13 @@ namespace Ogre {
 		int compare( size_type index, size_type length, const code_point* str, size_type length2 ) const {
 			return mData.compare( index, length, str, length2 );
 		}
+#if OGRE_IS_NATIVE_WCHAR_T
 		//! compare a substring of \a str to a substring of the current string, where the substring of \a str begins at zero and is \a length2 elements long, and the substring of the current string begins at \a index and is \a length characters long
 		int compare( size_type index, size_type length, const wchar_t* w_str, size_type length2 ) const {
 			UTFString tmp( w_str, length2 );
 			return compare( index, length, tmp );
 		}
+#endif
 		//! compare a substring of \a str to a substring of the current string, where the substring of \a str begins at zero and is \a length2 <b>UTF-8 code points</b> long, and the substring of the current string begins at \a index and is \a length characters long
 		int compare( size_type index, size_type length, const char* c_str, size_type length2 ) const {
 			UTFString tmp( c_str, length2 );
@@ -1528,12 +1565,14 @@ namespace Ogre {
 			UTFString tmp( c_str );
 			return mData.find( tmp.c_str(), index, length );
 		}
+#if OGRE_IS_NATIVE_WCHAR_T
 		//! returns the index of the first occurrence of \a str within the current string and within \a length code points, starting at \a index; returns \c UTFString::npos if nothing is found
 		/*! \a cp_str is a UTF-16 encoded string */
 		size_type find( const wchar_t* w_str, size_type index, size_type length ) const {
 			UTFString tmp( w_str );
 			return mData.find( tmp.c_str(), index, length );
 		}
+#endif
 		//! returns the index of the first occurrence \a ch within the current string, starting at \a index; returns \c UTFString::npos if nothing is found
 		/*! \a ch is only capable of representing Unicode values up to U+007F (127) */
 		size_type find( char ch, size_type index = 0 ) const {
@@ -1544,11 +1583,13 @@ namespace Ogre {
 		size_type find( code_point ch, size_type index = 0 ) const {
 			return mData.find( ch, index );
 		}
+#if OGRE_IS_NATIVE_WCHAR_T
 		//! returns the index of the first occurrence \a ch within the current string, starting at \a index; returns \c UTFString::npos if nothing is found
 		/*! \a ch is only capable of representing Unicode values up to U+FFFF (65535) */
 		size_type find( wchar_t ch, size_type index = 0 ) const {
 			return find( static_cast<unicode_char>( ch ), index );
 		}
+#endif
 		//! returns the index of the first occurrence \a ch within the current string, starting at \a index; returns \c UTFString::npos if nothing is found
 		/*! \a ch can fully represent any Unicode character */
 		size_type find( unicode_char ch, size_type index = 0 ) const {
@@ -1571,11 +1612,13 @@ namespace Ogre {
 			UTFString tmp( c_str );
 			return mData.rfind( tmp.c_str(), index, num );
 		}
+#if OGRE_IS_NATIVE_WCHAR_T
 		//! returns the location of the first occurrence of \a str in the current string, doing a reverse search from \a index, searching at most \a num characters; returns \c UTFString::npos if nothing is found
 		size_type rfind( const wchar_t* w_str, size_type index, size_type num ) const {
 			UTFString tmp( w_str );
 			return mData.rfind( tmp.c_str(), index, num );
 		}
+#endif
 		//! returns the location of the first occurrence of \a ch in the current string, doing a reverse search from \a index; returns \c UTFString::npos if nothing is found
 		size_type rfind( char ch, size_type index = 0 ) const {
 			return rfind( static_cast<code_point>( ch ), index );
@@ -1584,10 +1627,12 @@ namespace Ogre {
 		size_type rfind( code_point ch, size_type index ) const {
 			return mData.rfind( ch, index );
 		}
+#if OGRE_IS_NATIVE_WCHAR_T
 		//! returns the location of the first occurrence of \a ch in the current string, doing a reverse search from \a index; returns \c UTFString::npos if nothing is found
 		size_type rfind( wchar_t ch, size_type index = 0 ) const {
 			return rfind( static_cast<unicode_char>( ch ), index );
 		}
+#endif
 		//! returns the location of the first occurrence of \a ch in the current string, doing a reverse search from \a index; returns \c UTFString::npos if nothing is found
 		size_type rfind( unicode_char ch, size_type index = 0 ) const {
 			code_point cp[3] = {0, 0, 0};
@@ -1622,10 +1667,12 @@ namespace Ogre {
 		size_type find_first_of( char ch, size_type index = 0 ) const {
 			return find_first_of( static_cast<code_point>( ch ), index );
 		}
+#if OGRE_IS_NATIVE_WCHAR_T
 		//! returns the index of the first occurrence of \a ch in the current string, starting the search at \a index; returns \c UTFString::npos if nothing is found
 		size_type find_first_of( wchar_t ch, size_type index = 0 ) const {
 			return find_first_of( static_cast<unicode_char>( ch ), index );
 		}
+#endif
 		//! returns the index of the first occurrence of \a ch in the current string, starting the search at \a index; returns \c UTFString::npos if nothing is found
 		size_type find_first_of( unicode_char ch, size_type index = 0 ) const {
 			code_point cp[3] = {0, 0, 0};
@@ -1655,10 +1702,12 @@ namespace Ogre {
 		size_type find_first_not_of( char ch, size_type index = 0 ) const {
 			return find_first_not_of( static_cast<code_point>( ch ), index );
 		}
+#if OGRE_IS_NATIVE_WCHAR_T
 		//! returns the index of the first character within the current string that does not match \a ch, starting the search at \a index; returns \c UTFString::npos if nothing is found
 		size_type find_first_not_of( wchar_t ch, size_type index = 0 ) const {
 			return find_first_not_of( static_cast<unicode_char>( ch ), index );
 		}
+#endif
 		//! returns the index of the first character within the current string that does not match \a ch, starting the search at \a index; returns \c UTFString::npos if nothing is found
 		size_type find_first_not_of( unicode_char ch, size_type index = 0 ) const {
 			code_point cp[3] = {0, 0, 0};
@@ -1697,10 +1746,12 @@ namespace Ogre {
 		size_type find_last_of( char ch, size_type index = npos ) const {
 			return find_last_of( static_cast<code_point>( ch ), index );
 		}
+#if OGRE_IS_NATIVE_WCHAR_T
 		//! returns the index of the first occurrence of \a ch in the current string, doing a reverse search from \a index; returns \c UTFString::npos if nothing is found
 		size_type find_last_of( wchar_t ch, size_type index = npos ) const {
 			return find_last_of( static_cast<unicode_char>( ch ), index );
 		}
+#endif
 		//! returns the index of the first occurrence of \a ch in the current string, doing a reverse search from \a index; returns \c UTFString::npos if nothing is found
 		size_type find_last_of( unicode_char ch, size_type index = npos ) const {
 			code_point cp[3] = {0, 0, 0};
@@ -1739,10 +1790,12 @@ namespace Ogre {
 		size_type find_last_not_of( char ch, size_type index = npos ) const {
 			return find_last_not_of( static_cast<code_point>( ch ), index );
 		}
+#if OGRE_IS_NATIVE_WCHAR_T
 		//! returns the index of the last occurrence of a character that does not match \a ch in the current string, doing a reverse search from \a index; returns \c UTFString::npos if nothing is found
 		size_type find_last_not_of( wchar_t ch, size_type index = npos ) const {
 			return find_last_not_of( static_cast<unicode_char>( ch ), index );
 		}
+#endif
 		//! returns the index of the last occurrence of a character that does not match \a ch in the current string, doing a reverse search from \a index; returns \c UTFString::npos if nothing is found
 		size_type find_last_not_of( unicode_char ch, size_type index = npos ) const {
 			code_point cp[3] = {0, 0, 0};
@@ -1793,11 +1846,13 @@ namespace Ogre {
 			clear();
 			return append( 1, ch );
 		}
+#if OGRE_IS_NATIVE_WCHAR_T
 		//! assignment operator
 		UTFString& operator=( wchar_t ch ) {
 			clear();
 			return append( 1, ch );
 		}
+#endif
 		//! assignment operator
 		UTFString& operator=( unicode_char ch ) {
 			clear();
@@ -2252,10 +2307,12 @@ namespace Ogre {
 	inline UTFString operator+( const UTFString& s1, char c ) {
 		return UTFString( s1 ).append( 1, c );
 	}
+#if OGRE_IS_NATIVE_WCHAR_T
 	//! string addition operator \relates UTFString
 	inline UTFString operator+( const UTFString& s1, wchar_t c ) {
 		return UTFString( s1 ).append( 1, c );
 	}
+#endif
 	//! string addition operator \relates UTFString
 	inline UTFString operator+( UTFString::code_point c, const UTFString& s2 ) {
 		return UTFString().append( 1, c ).append( s2 );
@@ -2268,10 +2325,12 @@ namespace Ogre {
 	inline UTFString operator+( char c, const UTFString& s2 ) {
 		return UTFString().append( 1, c ).append( s2 );
 	}
+#if OGRE_IS_NATIVE_WCHAR_T
 	//! string addition operator \relates UTFString
 	inline UTFString operator+( wchar_t c, const UTFString& s2 ) {
 		return UTFString().append( 1, c ).append( s2 );
 	}
+#endif
 
 	// (const) forward iterator common operators
 	inline UTFString::size_type operator-( const UTFString::_const_fwd_iterator& left, const UTFString::_const_fwd_iterator& right ) {
