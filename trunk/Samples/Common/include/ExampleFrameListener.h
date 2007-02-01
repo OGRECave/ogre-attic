@@ -341,7 +341,7 @@ public:
 			}
 			mRotX = 0;
 			mRotY = 0;
-			mTranslateVector = Vector3::ZERO;
+			mTranslateVector = Ogre::Vector3::ZERO;
 		}
 
 		//Check to see which device is not buffered, and handle it

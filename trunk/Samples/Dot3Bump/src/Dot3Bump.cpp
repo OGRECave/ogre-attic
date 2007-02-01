@@ -184,7 +184,7 @@ public:
 
         // animate the lights
         for (size_t i = 0; i < NUM_LIGHTS; ++i)
-            mLightPivots[i]->rotate(Vector3::UNIT_Z, Degree(mLightSpeeds[i] * evt.timeSinceLastFrame));
+            mLightPivots[i]->rotate(Ogre::Vector3::UNIT_Z, Degree(mLightSpeeds[i] * evt.timeSinceLastFrame));
 
 		return true;
     }
