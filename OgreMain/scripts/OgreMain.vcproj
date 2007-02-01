@@ -477,6 +477,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreImageResampler.h">
 			</File>
 			<File
+				RelativePath="..\src\OgreInstancedGeometry.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreKeyFrame.cpp">
 			</File>
 			<File
@@ -1061,6 +1064,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreImageCodec.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreInstancedGeometry.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreIteratorWrappers.h">

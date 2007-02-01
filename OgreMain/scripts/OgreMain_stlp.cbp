@@ -587,6 +587,13 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="..\include\OgreInstancedGeometry.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="..\include\OgreIteratorWrappers.h">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
@@ -1834,6 +1841,13 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="..\src\OgreImageResampler.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="..\src\OgreInstancedGeometry.cpp">
 			<Option compilerVar="CPP" />
 			<Option compile="0" />
 			<Option link="0" />

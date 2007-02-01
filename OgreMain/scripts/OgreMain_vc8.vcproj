@@ -611,6 +611,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreInstancedGeometry.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreKeyFrame.cpp"
 				>
 			</File>
@@ -1396,6 +1400,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\OgreInstancedGeometry.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\OgreIteratorWrappers.h"
 				>
 			</File>
@@ -1865,10 +1873,6 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreTagPoint.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreTangentSpaceBuilder.h"
 				>
 			</File>
 			<File

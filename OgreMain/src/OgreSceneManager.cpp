@@ -5050,6 +5050,59 @@ void SceneManager::destroyAllStaticGeometry(void)
 	mStaticGeometryList.clear();
 }
 //---------------------------------------------------------------------
+InstancedGeometry* SceneManager::createInstancedGeometry(const String& name)
+{
+	// Check not existing
+	if (mInstancedGeometryList.find(name) != mInstancedGeometryList.end())
+	{
+		OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
+			"InstancedGeometry with name '" + name + "' already exists!", 
+			"SceneManager::createInstancedGeometry");
+	}
+	InstancedGeometry* ret = new InstancedGeometry(this, name);
+	mInstancedGeometryList[name] = ret;
+	return ret;
+}
+//---------------------------------------------------------------------
+InstancedGeometry* SceneManager::getInstancedGeometry(const String& name) const
+{
+	InstancedGeometryList::const_iterator i = mInstancedGeometryList.find(name);
+	if (i == mInstancedGeometryList.end())
+	{
+		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+			"InstancedGeometry with name '" + name + "' not found", 
+			"SceneManager::createInstancedGeometry");
+	}
+	return i->second;
+}
+//---------------------------------------------------------------------
+void SceneManager::destroyInstancedGeometry(InstancedGeometry* geom)
+{
+	destroyInstancedGeometry(geom->getName());
+}
+//---------------------------------------------------------------------
+void SceneManager::destroyInstancedGeometry(const String& name)
+{
+	InstancedGeometryList::iterator i = mInstancedGeometryList.find(name);
+	if (i != mInstancedGeometryList.end())
+	{
+		delete i->second;
+		mInstancedGeometryList.erase(i);
+	}
+
+}
+//---------------------------------------------------------------------
+void SceneManager::destroyAllInstancedGeometry(void)
+{
+	InstancedGeometryList::iterator i, iend;
+	iend = mInstancedGeometryList.end();
+	for (i = mInstancedGeometryList.begin(); i != iend; ++i)
+	{
+		delete i->second;
+	}
+	mInstancedGeometryList.clear();
+}
+//---------------------------------------------------------------------
 AxisAlignedBoxSceneQuery* 
 SceneManager::createAABBQuery(const AxisAlignedBox& box, unsigned long mask)
 {

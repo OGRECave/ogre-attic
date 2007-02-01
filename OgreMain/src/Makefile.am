@@ -52,6 +52,7 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
 			 OgreHighLevelGpuProgram.cpp \
 			 OgreHighLevelGpuProgramManager.cpp \
                          OgreImage.cpp \
+						 OgreInstancedGeometry.cpp \
                          OgreKeyFrame.cpp \
                          OgreLight.cpp \
                          OgreLog.cpp \
