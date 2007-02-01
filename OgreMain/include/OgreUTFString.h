@@ -33,6 +33,31 @@
 #include <iterator>
 #include <string>
 
+// Workaround for VC7:
+//      when build with /MD or /MDd, VC7 have both std::basic_string<unsigned short> and
+// basic_string<__wchar_t> instantiated in msvcprt[d].lib/MSVCP71[D].dll, but the header
+// files tells compiler that only one of them is over there (based on /Zc:wchar_t compile
+// option). And since this file used both of them, causing compiler instantiating another
+// one in user object code, which lead to duplicate symbols with msvcprt.lib/MSVCP71[D].dll.
+//
+#if OGRE_COMPILER == OGRE_COMPILER_MSVC && (1300 <= OGRE_COMP_VER && OGRE_COMP_VER <= 1310)
+
+# if defined(_DLL_CPPLIB)
+
+namespace std
+{
+    template class _CRTIMP2 basic_string<unsigned short, char_traits<unsigned short>,
+	    allocator<unsigned short> >;
+
+    template class _CRTIMP2 basic_string<__wchar_t, char_traits<__wchar_t>,
+	    allocator<__wchar_t> >;
+}
+
+# endif // defined(_DLL_CPPLIB)
+
+#endif  // OGRE_COMPILER == OGRE_COMPILER_MSVC && OGRE_COMP_VER == 1300
+
+
 namespace Ogre {
 
 	/* READ THIS NOTICE BEFORE USING IN YOUR OWN APPLICATIONS
@@ -1918,12 +1943,12 @@ namespace Ogre {
 		//! returns the number of UTF-8 code points needed to represent the given UTF-32 character \a cp
 		static size_t _utf8_char_length( unicode_char uc ) {
 			/*
-			7 bit:  U-00000000 – U-0000007F: 0xxxxxxx
-			11 bit: U-00000080 – U-000007FF: 110xxxxx 10xxxxxx
-			16 bit: U-00000800 – U-0000FFFF: 1110xxxx 10xxxxxx 10xxxxxx
-			21 bit: U-00010000 – U-001FFFFF: 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-			26 bit: U-00200000 – U-03FFFFFF: 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
-			31 bit: U-04000000 – U-7FFFFFFF: 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+			7 bit:  U-00000000 - U-0000007F: 0xxxxxxx
+			11 bit: U-00000080 - U-000007FF: 110xxxxx 10xxxxxx
+			16 bit: U-00000800 - U-0000FFFF: 1110xxxx 10xxxxxx 10xxxxxx
+			21 bit: U-00010000 - U-001FFFFF: 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+			26 bit: U-00200000 - U-03FFFFFF: 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+			31 bit: U-04000000 - U-7FFFFFFF: 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
 			*/
 			if ( !( uc & ~0x0000007F ) ) return 1;
 			if ( !( uc & ~0x000007FF ) ) return 2;
