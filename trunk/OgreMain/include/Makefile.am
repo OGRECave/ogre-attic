@@ -62,6 +62,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgreHighLevelGpuProgramManager.h \
                      OgreImage.h \
                      OgreImageCodec.h \
+                     OgreInstancedGeometry.h \
                      OgreIteratorWrappers.h \
                      OgreKeyFrame.h \
                      OgreLight.h \

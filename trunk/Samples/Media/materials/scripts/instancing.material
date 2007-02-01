@@ -1,0 +1,54 @@
+
+vertex_program InstancingVertexOnly cg
+{
+	source instancing.cg
+	profiles vs_2_0 vp30
+	entry_point VPmainDefault
+	default_params
+	{
+		param_named_auto viewProjectionMatrix viewproj_matrix
+		param_named_auto worldMatrix3x4Array world_matrix_array_3x4
+	}
+}
+
+vertex_program InstancingVertexLighted cg
+{
+	source instancing.cg
+	profiles vs_2_0 vp30
+	entry_point VPmainLighted
+
+	default_params
+	{
+		param_named_auto ambient ambient_light_colour
+		param_named_auto lightDiffuseColour light_diffuse_colour 0
+		param_named_auto lightPos light_position 0
+		param_named_auto viewProjectionMatrix viewproj_matrix
+		param_named_auto worldMatrix3x4Array world_matrix_array_3x4
+	}
+}
+vertex_program InstancingShadowCaster cg
+{
+   	source instancing.cg
+	profiles vs_2_0 vp30
+	entry_point instancingCaster_vp
+	default_params
+	{
+		param_named_auto ambient ambient_light_colour
+		param_named_auto viewProjectionMatrix viewproj_matrix
+		param_named_auto worldMatrix3x4Array world_matrix_array_3x4
+	}
+}
+vertex_program Crowd cg
+{
+	source instancing.cg
+	profiles vs_2_0 vp30
+	entry_point crowd_vp
+}
+vertex_program CrowdShadowCaster cg
+{
+	source instancing.cg
+	profiles vs_2_0 vp30
+	entry_point crowdFourWeightCaster_vp
+}
+
+

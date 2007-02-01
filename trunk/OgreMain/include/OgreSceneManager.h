@@ -50,6 +50,7 @@ Torus Knot Software Ltd.
 #include "OgreShadowCameraSetup.h"
 #include "OgreShadowTextureManager.h"
 #include "OgreCamera.h"
+#include "OgreInstancedGeometry.h"
 
 namespace Ogre {
 
@@ -309,6 +310,8 @@ namespace Ogre {
 
 		typedef std::map<String, StaticGeometry* > StaticGeometryList;
 		StaticGeometryList mStaticGeometryList;
+		typedef std::map<String, InstancedGeometry* > InstancedGeometryList;
+		InstancedGeometryList mInstancedGeometryList;
 
         typedef std::map<String, SceneNode*> SceneNodeList;
 
@@ -2499,6 +2502,25 @@ namespace Ogre {
 		virtual void destroyStaticGeometry(const String& name);
 		/** Remove & destroy all StaticGeometry instances. */
 		virtual void destroyAllStaticGeometry(void);
+
+		/** Creates a InstancedGeometry instance suitable for use with this
+			SceneManager.
+		@remarks
+			InstancedGeometry is a way of batching up geometry into a more 
+			efficient form, and still be able to move it. Please 
+			read the InstancedGeometry class documentation for full information.
+		@param name The name to give the new object
+		@returns The new InstancedGeometry instance
+		*/
+		virtual InstancedGeometry* createInstancedGeometry(const String& name);
+		/** Retrieve a previously created InstancedGeometry instance. */
+		virtual InstancedGeometry* getInstancedGeometry(const String& name) const;
+		/** Remove & destroy a InstancedGeometry instance. */
+		virtual void destroyInstancedGeometry(InstancedGeometry* geom);
+		/** Remove & destroy a InstancedGeometry instance. */
+		virtual void destroyInstancedGeometry(const String& name);
+		/** Remove & destroy all InstancedGeometry instances. */
+		virtual void destroyAllInstancedGeometry(void);
 
 
 		/** Create a movable object of the type specified.
