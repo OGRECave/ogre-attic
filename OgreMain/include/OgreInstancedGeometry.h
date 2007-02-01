@@ -347,7 +347,7 @@ namespace Ogre {
 			/// Return the geometry list
 			MaterialBucket::GeometryBucketList*getGeometryBucketList(void) const;
 			/// fill in the map and the list
-			void updateContainers(GeometryBucket* bucket,String & format);
+			void updateContainers(GeometryBucket* bucket, const String &format);
 			void setLastIndex(int index){mLastIndex=index;}
 			int getLastIndex(){return mLastIndex;}
 			void setMaterial(const String & name);

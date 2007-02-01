@@ -38,6 +38,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreTechnique.h"
 #include "OgrePass.h"
 #include "OgreMaterial.h"
+#include "OgreBitwise.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
