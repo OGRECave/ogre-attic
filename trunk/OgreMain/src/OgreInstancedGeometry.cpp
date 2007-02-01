@@ -41,6 +41,7 @@ Torus Knot Software Ltd.
 #include "OgreRoot.h"
 #include "OgreRenderSystem.h"
 #include "OgreEdgeListBuilder.h"
+#include "OgreStringConverter.h"
 
 namespace Ogre {
 
@@ -703,12 +704,12 @@ namespace Ogre {
 				while(geomIt.hasMoreElements())
 				{
 					//get the source geometry bucket
-					GeometryBucket*geom=geomIt.getNext();
+					GeometryBucket *geom = geomIt.getNext();
 					//create a new geometry bucket 
-					GeometryBucket*geomBucket=new GeometryBucket(matBucket,geom->getFormatString(),geom);
+					GeometryBucket *geomBucket = new GeometryBucket(matBucket,geom->getFormatString(),geom);
 			
 					//update the material bucket map of the material bucket
-					matBucket->updateContainers(geomBucket,geomBucket->getFormatString());
+					matBucket->updateContainers(geomBucket, geomBucket->getFormatString() );
 
 					//copy bounding informations
 					geomBucket->getAABB()=geom->getAABB();
@@ -754,7 +755,7 @@ namespace Ogre {
 			mNode->attachObject(this);
 	}
 	//--------------------------------------------------------------------------
-	void InstancedGeometry::MaterialBucket::updateContainers(InstancedGeometry::GeometryBucket* bucket,String & format)
+	void InstancedGeometry::MaterialBucket::updateContainers(InstancedGeometry::GeometryBucket* bucket, const String & format)
 	{
 		mCurrentGeometryMap[format]=bucket;
 		mGeometryBucketList.push_back(bucket);
