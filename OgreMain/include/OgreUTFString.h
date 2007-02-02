@@ -32,6 +32,7 @@
 // these are explained later
 #include <iterator>
 #include <string>
+#include <stdexcept>
 
 // Workaround for VC7:
 //      when build with /MD or /MDd, VC7 have both std::basic_string<unsigned short> and
@@ -1489,8 +1490,10 @@ namespace Ogre {
 		}
 		//! replaces code points in the current string from \a start to \a end with \a num code points from \a str
 		UTFString& replace( iterator start, iterator end, const UTFString& str, size_type num = npos ) {
-			size_type index1 = begin() - start;
-			size_type num1 = end - start;
+			_const_fwd_iterator st(start); //Work around for gcc, allow it to find correct overload
+
+			size_type index1 = begin() - st;
+			size_type num1 = end - st;
 			return replace( index1, num1, str, 0, num );
 		}
 		//! replaces up to \a num1 code points in the current string (beginning at \a index) with \c num2 copies of \c ch
@@ -1500,8 +1503,10 @@ namespace Ogre {
 		}
 		//! replaces the code points in the current string from \a start to \a end with \a num copies of \a ch
 		UTFString& replace( iterator start, iterator end, size_type num, code_point ch ) {
-			size_type index1 = begin() - start;
-			size_type num1 = end - start;
+			_const_fwd_iterator st(start); //Work around for gcc, allow it to find correct overload
+
+			size_type index1 = begin() - st;
+			size_type num1 = end - st;
 			return replace( index1, num1, num, ch );
 		}
 		//@}
