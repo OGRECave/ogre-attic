@@ -205,9 +205,11 @@ int main(int argc, char **argv)
 			"robots" );
 		batch->setCastShadows(true);
 
+        size_t i, k;
+
 		batch->setBatchInstanceDimensions (Vector3(1000000, 1000000, 1000000));
 		const size_t batchSize = (numMesh > maxObjectsPerBatch) ? maxObjectsPerBatch :numMesh;
-		for(size_t i = 0; i < batchSize ; i++)
+		for(i = 0; i < batchSize ; i++)
 		{
 			batch->addEntity(ent, Vector3::ZERO);
 		}
@@ -216,11 +218,12 @@ int main(int argc, char **argv)
 		batch->build();
 
 
-		for (size_t k = 0; k < numRender-1; k++)
+		for (k = 0; k < numRender-1; k++)
 		{
 			batch->addBatchInstance();
 		}
-		size_t i = 0,k=0;
+
+		i = 0,k = 0;
 		InstancedGeometry::BatchInstanceIterator regIt = batch->getBatchInstanceIterator();
 		size_t baseIndexForBatch = 0;
 		//create a RayQuery to get the terrain height
