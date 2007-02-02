@@ -316,32 +316,6 @@ int main(int argc, char **argv)
 			}
 		}
 		instancedMaterial->load();
-		Technique::PassIterator pIt = instancedMaterial->getBestTechnique ()->getPassIterator();
-		while (pIt.hasMoreElements())
-		{
-			Pass * const p = pIt.getNext();
-
-			GpuProgramParametersSharedPtr params = p->getVertexProgramParameters ();
- 			params->clearAutoConstants();
-			params->setNamedAutoConstant("viewProjectionMatrix", GpuProgramParameters::ACT_VIEWPROJ_MATRIX);
-			params->setNamedAutoConstant("numBones",GpuProgramParameters::ACT_CUSTOM,0);
-			params->setNamedAutoConstant("worldMatrix3x4Array", GpuProgramParameters::ACT_WORLD_MATRIX_ARRAY_3x4);
-			params->setNamedAutoConstant("lightPos",GpuProgramParameters::ACT_LIGHT_POSITION);
-			params->setNamedAutoConstant("lightDiffuseColour",GpuProgramParameters::ACT_LIGHT_DIFFUSE_COLOUR);
-			params->setNamedAutoConstant("ambient",GpuProgramParameters::ACT_AMBIENT_LIGHT_COLOUR);
-	
-			params = p->getShadowCasterVertexProgramParameters();
-			
-			params->setNamedAutoConstant("viewProjectionMatrix", GpuProgramParameters::ACT_VIEWPROJ_MATRIX);
-			params->setNamedAutoConstant("worldMatrix3x4Array", GpuProgramParameters::ACT_WORLD_MATRIX_ARRAY_3x4);
-			params->setNamedAutoConstant("ambient",GpuProgramParameters::ACT_AMBIENT_LIGHT_COLOUR);
-			params->setNamedConstant("numBones",Vector4(numBones,0,0,0));
-
-			instancedMaterial->_notifyNeedsRecompile ();
-			instancedMaterial->compile(); 
-			instancedMaterial->load();
-
-		}
 		return instancedMaterialName;
 
 

@@ -129,18 +129,11 @@
                     <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                     <Property Name="UnifiedAreaRect" Value="{{0.05,0},{0.180359,0},{1.05,0},{0.260718,0}}" />
                 </Window>
-                <Window Type="TaharezLook/Checkbox" Name="Lighting" >
-                    <Property Name="Font" Value="BlueHighway-12" />
-                    <Property Name="Text" Value="Lighted flat/per vertex" />
-                    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                    <Property Name="UnifiedAreaRect" Value="{{0.0541146,0},{0.398227,0},{1.05411,0},{0.473681,0}}" />
-                </Window>
                 <Window Type="TaharezLook/Checkbox" Name="Shadows" >
                     <Property Name="Font" Value="BlueHighway-12" />
                     <Property Name="Text" Value="Shadows on/off" />
                     <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
 					<Property Name="UnifiedAreaRect" Value="{{0.05,0},{0.458078,0},{1.05,0},{0.545613,0}}" />
-					<Property Name="Selected" Value="true" />
                 </Window>
                 <Window Type="TaharezLook/StaticText" Name="Object Count Text" >
                     <Property Name="Font" Value="BlueHighway-12" />

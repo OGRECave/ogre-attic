@@ -287,9 +287,6 @@ protected:
 
 	    mEditorGuiSheet = CEGUI::WindowManager::getSingleton().loadWindowLayout((CEGUI::utf8*)"CrowdDemo.layout");
 		mGUISystem->setGUISheet(mEditorGuiSheet);
-		//just show the tip overlay 
-		Overlay*tipOverlay = Ogre::OverlayManager::getSingleton().getByName("Example/InstancingOverlay");
-	    tipOverlay->show();
 	}
 	void setupEventHandlers(void)
 	{
