@@ -2272,21 +2272,36 @@ namespace Ogre {
                 break;
             case VES_TEXTURE_COORDINATES:
 
-                for (i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; i++)
-                {
-					// Only set this texture unit's texcoord pointer if it
-					// is supposed to be using this element's index
-					if (mTextureCoordIndex[i] == elem->getIndex())
+				if (mCurrentVertexProgram)
+				{
+					// Programmable pipeline - direct UV assignment
+					glClientActiveTextureARB(GL_TEXTURE0 + elem->getIndex());
+					glTexCoordPointer(
+						VertexElement::getTypeCount(elem->getType()), 
+						GLHardwareBufferManager::getGLType(elem->getType()),
+						static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+						pBufferData);
+					glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+				}
+				else
+				{
+					// fixed function matching to units based on tex_coord_set
+					for (i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; i++)
 					{
-						glClientActiveTextureARB(GL_TEXTURE0 + i);
-						glTexCoordPointer(
-							VertexElement::getTypeCount(elem->getType()), 
-							GLHardwareBufferManager::getGLType(elem->getType()),
-                            static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
-                                pBufferData);
-						glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+						// Only set this texture unit's texcoord pointer if it
+						// is supposed to be using this element's index
+						if (mTextureCoordIndex[i] == elem->getIndex())
+						{
+							glClientActiveTextureARB(GL_TEXTURE0 + i);
+							glTexCoordPointer(
+								VertexElement::getTypeCount(elem->getType()), 
+								GLHardwareBufferManager::getGLType(elem->getType()),
+								static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+									pBufferData);
+							glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+						}
 					}
-                }
+				}
                 break;
             case VES_BLEND_INDICES:
             case VES_BLEND_WEIGHTS:
