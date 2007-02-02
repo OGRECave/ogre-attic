@@ -61,7 +61,6 @@ protected:
 	size_t objectCount;
 	String mDebugText;
 	CurrentGeomOpt currentGeomOpt;
-	bool mIsLit;
 	
 	size_t numRender;
 
@@ -101,8 +100,6 @@ public:
 	void createInstanceGeom();
 	//-----------------------------------------------------------------------
 	void destroyInstanceGeom();
-	//-----------------------------------------------------------------------
-	void setLighting(bool);
 	//-----------------------------------------------------------------------
 	void createStaticGeom();
 	//-----------------------------------------------------------------------
@@ -291,9 +288,6 @@ protected:
 
 	    mEditorGuiSheet = CEGUI::WindowManager::getSingleton().loadWindowLayout((CEGUI::utf8*)"InstancingDemo.layout");
 		mGUISystem->setGUISheet(mEditorGuiSheet);
-		//just show the tip overlay 
-		Overlay*tipOverlay = Ogre::OverlayManager::getSingleton().getByName("Example/InstancingOverlay");
-	    tipOverlay->show();
 	}
 	void setupEventHandlers(void)
 	{
@@ -306,7 +300,6 @@ protected:
 		wmgr.getWindow((CEGUI::utf8*)"tIndependantEntities")->subscribeEvent(CEGUI::RadioButton::EventSelectStateChanged, CEGUI::Event::Subscriber(&InstancingApplication::handleTechniqueChanged, this));
 		wmgr.getWindow((CEGUI::utf8*)"Object Count")->subscribeEvent(CEGUI::Scrollbar::EventScrollPositionChanged,CEGUI::Event::Subscriber(&InstancingApplication::handleObjectCountChanged, this));
 		wmgr.getWindow((CEGUI::utf8*)"Time Burner")->subscribeEvent(CEGUI::Scrollbar::EventScrollPositionChanged,CEGUI::Event::Subscriber(&InstancingApplication::handleTimeBurnerChanged, this));
-		wmgr.getWindow((CEGUI::utf8*)"Lighting")->subscribeEvent(CEGUI::Checkbox::EventCheckStateChanged,CEGUI::Event::Subscriber(&InstancingApplication::handleLightingChanged, this));
 		wmgr.getWindow((CEGUI::utf8*)"PostEffect")->subscribeEvent(CEGUI::Checkbox::EventCheckStateChanged,CEGUI::Event::Subscriber(&InstancingApplication::handlePostEffectChanged, this));
 		wmgr.getWindow((CEGUI::utf8*)"Shadows")->subscribeEvent(CEGUI::Checkbox::EventCheckStateChanged,CEGUI::Event::Subscriber(&InstancingApplication::handleShadowsChanged, this));
 		CEGUI::Combobox*ObjectList=((CEGUI::Combobox*)(wmgr.getWindow((CEGUI::utf8*)"Objects")));
@@ -414,20 +407,6 @@ protected:
 		else
 		{
 				CompositorManager::getSingleton().setCompositorEnabled(pViewport,"Bloom",false);
-		}
-		return true;
-	}
-	//-----------------------------------------------------------------------
-	bool handleLightingChanged(const CEGUI::EventArgs& e)
-	{
-		
-		if(((CEGUI::Checkbox*)((const CEGUI::WindowEventArgs&)e).window)->isSelected())
-		{
-			static_cast<InstancingListener*>(mFrameListener)->setLighting(true);
-		}
-		else
-		{
-			static_cast<InstancingListener*>(mFrameListener)->setLighting(false);
 		}
 		return true;
 	}

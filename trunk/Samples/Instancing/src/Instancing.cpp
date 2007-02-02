@@ -73,7 +73,6 @@ mBurnAmount(0)
 	numRender = 0;
 	meshSelected = 0;
 	currentGeomOpt = INSTANCE_OPT;
-	mIsLit = true;
 	createCurrentGeomOpt();
 
 	mMouse->setEventCallback(this);
@@ -319,29 +318,13 @@ String InstancingListener::buildInstancedMaterial(const String &originalMaterial
 		{
 
 			Pass * const p = pIt.getNext();
-			if(mIsLit)
-			{
-				p->setVertexProgram("InstancingVertexLighted", false);
-			}
-			else
-			{
-				p->setVertexProgram("InstancingVertexOnly", false);
-			}
+			p->setVertexProgram("Instancing", false);
 			p->setShadowCasterVertexProgram("InstancingShadowCaster");
+
 
 		}
 	}
 	instancedMaterial->load();
-	Technique::PassIterator pIt = instancedMaterial->getBestTechnique ()->getPassIterator();
-	while (pIt.hasMoreElements())
-	{
-		Pass * const p = pIt.getNext();
-
-		instancedMaterial->_notifyNeedsRecompile ();
-		instancedMaterial->compile(); 
-		instancedMaterial->load();
-
-	}
 	return instancedMaterialName;
 
 
@@ -351,88 +334,6 @@ void InstancingListener::destroyInstanceGeom()
 {
 	delete renderInstance[0];
 	renderInstance.clear();
-}
-//-----------------------------------------------------------------------
-void InstancingListener::setLighting(bool isLighted)
-{
-	mIsLit = isLighted;
-	if(currentGeomOpt==INSTANCE_OPT)
-	{
-		InstancedGeometry::BatchInstanceIterator regIt = renderInstance[0]->getBatchInstanceIterator();
-		while (regIt.hasMoreElements ())
-		{
-			InstancedGeometry::BatchInstance *r = regIt.getNext();
-			InstancedGeometry::BatchInstance::LODIterator lodIterator = r->getLODIterator();
-			//parse all the lod buckets of the BatchInstance
-			while (lodIterator.hasMoreElements())
-			{
-
-				InstancedGeometry::LODBucket* lod = lodIterator.getNext();
-
-				InstancedGeometry::LODBucket::MaterialIterator matIt = lod->getMaterialIterator();
-				//parse all the material buckets of the lod bucket
-				while (matIt.hasMoreElements())
-				{
-
-					InstancedGeometry::MaterialBucket*mat = matIt.getNext();
-					String materialName=mat->getMaterialName();
-
-					InstancedGeometry::MaterialBucket::GeometryIterator geomIt = mat->getGeometryIterator();
-					//parse all the geometry buckets of the material bucket
-					while(geomIt.hasMoreElements())
-					{
-
-						InstancedGeometry::GeometryBucket*geom=geomIt.getNext();
-						//get the source material
-						MaterialPtr originalMaterial = geom->getMaterial();
-						MaterialPtr instancedMaterial;
-						String suffix;
-						//add a different suffix depending of the wanted shader
-						if(isLighted)
-							suffix="/VERTEX_L";
-						else
-							suffix="/VERTEX_U";
-
-						//check if a material with this name already exists
-						instancedMaterial = MaterialManager::getSingleton().getByName(materialName+suffix);
-
-						if (instancedMaterial.isNull())
-						{
-							instancedMaterial = originalMaterial->clone(materialName+suffix);
-							instancedMaterial->load();
-							Technique::PassIterator pIt = instancedMaterial->getBestTechnique ()->getPassIterator();
-							GpuProgramParametersSharedPtr params;
-							while (pIt.hasMoreElements())
-							{
-
-								Pass * const p = pIt.getNext();
-								if(isLighted)
-								{
-									p->setVertexProgram ("InstancingVertexLighted", true);
-
-								}		
-								else
-								{
-									p->setVertexProgram ("InstancingVertexOnly", true);
-								}
-
-								instancedMaterial->_notifyNeedsRecompile ();
-								instancedMaterial->compile(); 
-								instancedMaterial->load();
-
-
-							}
-						}
-
-						String matName=instancedMaterial->getName();
-						geom->setMaterial(matName);
-						mat->setMaterial(matName);
-					}
-
-				}
-			}
-		}
-	}
 }
 //-----------------------------------------------------------------------
 void InstancingListener::createStaticGeom()
