@@ -95,6 +95,7 @@ namespace Ogre {
             bool isManual = false, ManualResourceLoader* loader = 0, 
             const NameValuePairList* createParams = 0);
 
+		typedef std::pair<ResourcePtr, bool> ResourceCreateOrRetrieveResult;
 		/** Create a new resource, or retrieve an existing one with the same
 			name if it already exists.
 		@remarks
@@ -105,8 +106,10 @@ namespace Ogre {
 			fail because another thread created a resource in between.
 		@see ResourceManager::create
 		@see ResourceManager::getByName
+		@returns A pair, teh first element being the pointer, and the second being 
+			an indicator specifying whether the resource was newly created.
 		*/
-		virtual ResourcePtr createOrRetrieve(const String& name, 
+		virtual ResourceCreateOrRetrieveResult createOrRetrieve(const String& name, 
 			const String& group, bool isManual = false, 
 			ManualResourceLoader* loader = 0, 
 			const NameValuePairList* createParams = 0);

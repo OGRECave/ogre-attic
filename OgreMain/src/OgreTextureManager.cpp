@@ -63,9 +63,10 @@ namespace Ogre {
     TexturePtr TextureManager::load(const String &name, const String& group,
         TextureType texType, int numMipmaps, Real gamma, bool isAlpha, PixelFormat desiredFormat)
     {
-        TexturePtr tex = createOrRetrieve(name, group);
-
-        if(!tex->isLoaded())
+		ResourceCreateOrRetrieveResult res = createOrRetrieve(name, group);
+        TexturePtr tex = res.first;
+		// Was it created?
+		if(res.second)
         {
             tex->setTextureType(texType);
             tex->setNumMipmaps((numMipmaps == -1)? mDefaultNumMipmaps :
@@ -73,8 +74,8 @@ namespace Ogre {
             tex->setGamma(gamma);
             tex->setTreatLuminanceAsAlpha(isAlpha);
             tex->setFormat(desiredFormat);
-	        tex->load();
         }
+		tex->load();
 
         return tex;
     }

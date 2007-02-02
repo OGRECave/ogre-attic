@@ -67,7 +67,8 @@ namespace Ogre {
 
 	}
     //-----------------------------------------------------------------------
-    ResourcePtr ResourceManager::createOrRetrieve(
+    ResourceManager::ResourceCreateOrRetrieveResult 
+	ResourceManager::createOrRetrieve(
 		const String& name, const String& group, 
 		bool isManual, ManualResourceLoader* loader, 
 		const NameValuePairList* params)
@@ -76,12 +77,14 @@ namespace Ogre {
 		OGRE_LOCK_AUTO_MUTEX
 
 		ResourcePtr res = getByName(name);
+		bool created = false;
 		if (res.isNull())
 		{
+			created = true;
 			res = create(name, group, isManual, loader, params);
 		}
 
-		return res;
+		return ResourceCreateOrRetrieveResult(res, created);
 	}
     //-----------------------------------------------------------------------
     ResourcePtr ResourceManager::load(const String& name, 
