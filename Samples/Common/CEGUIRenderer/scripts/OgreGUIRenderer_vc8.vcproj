@@ -69,7 +69,7 @@
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\lib&quot;;..\..\..\..\dependencies\lib\$(ConfigurationName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(IntDir)/$(ProjectName).pdb"
+				ProgramDatabaseFile="$(IntDir)/$(ProjectName)_d.pdb"
 				SubSystem="2"
 				ImportLibrary="..\..\..\..\lib\$(ProjectName)_d.lib"
 				TargetMachine="1"

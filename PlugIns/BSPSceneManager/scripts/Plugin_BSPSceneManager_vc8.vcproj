@@ -72,7 +72,7 @@
 				AdditionalLibraryDirectories="&quot;..\..\..\lib&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
 				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/Plugin_BSPSceneManager.pdb"
+				ProgramDatabaseFile="$(OutDir)/$(ProjectName)_d.pdb"
 				SubSystem="2"
 				ImportLibrary="$(OutDir)/Plugin_BSPSceneManager_d.lib"
 				TargetMachine="1"

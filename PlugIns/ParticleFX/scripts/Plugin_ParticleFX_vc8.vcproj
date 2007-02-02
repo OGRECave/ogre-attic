@@ -73,7 +73,7 @@
 				AdditionalLibraryDirectories="&quot;..\..\..\lib&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
 				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/Plugin_ParticleFX.pdb"
+				ProgramDatabaseFile="$(OutDir)/$(ProjectName)_d.pdb"
 				SubSystem="2"
 				OptimizeForWindows98="1"
 				ImportLibrary="$(OutDir)/Plugin_ParticleFX_d.lib"

@@ -73,7 +73,7 @@
 				AdditionalLibraryDirectories="&quot;..\..\..\lib&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
 				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/RenderSystem_GL.pdb"
+				ProgramDatabaseFile="$(OutDir)/$(ProjectName)_d.pdb"
 				SubSystem="2"
 				ImportLibrary="$(OutDir)/RenderSystem_GL_d.lib"
 				TargetMachine="1"
