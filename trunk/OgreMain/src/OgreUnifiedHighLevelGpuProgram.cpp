@@ -138,7 +138,10 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	GpuProgram* UnifiedHighLevelGpuProgram::_getBindingDelegate(void)
 	{
-		return _getDelegate()->_getBindingDelegate();
+		if (!_getDelegate().isNull())
+			return _getDelegate()->_getBindingDelegate();
+		else
+			return 0;
 	}
 	//-----------------------------------------------------------------------
 	bool UnifiedHighLevelGpuProgram::isSupported(void) const
@@ -149,117 +152,172 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	bool UnifiedHighLevelGpuProgram::isSkeletalAnimationIncluded(void) const
 	{
-		return _getDelegate()->isSkeletalAnimationIncluded();
+		if (!_getDelegate().isNull())
+			return _getDelegate()->isSkeletalAnimationIncluded();
+		else
+			return false;
 	}
 	//-----------------------------------------------------------------------
 	bool UnifiedHighLevelGpuProgram::isMorphAnimationIncluded(void) const
 	{
-		return _getDelegate()->isMorphAnimationIncluded();
+		if (!_getDelegate().isNull())
+			return _getDelegate()->isMorphAnimationIncluded();
+		else
+			return false;
 	}
 	//-----------------------------------------------------------------------
 	bool UnifiedHighLevelGpuProgram::isPoseAnimationIncluded(void) const
 	{
-		return _getDelegate()->isPoseAnimationIncluded();
+		if (!_getDelegate().isNull())
+			return _getDelegate()->isPoseAnimationIncluded();
+		else
+			return false;
 	}
 	//-----------------------------------------------------------------------
 	bool UnifiedHighLevelGpuProgram::isVertexTextureFetchRequired(void) const
 	{
-		return _getDelegate()->isVertexTextureFetchRequired();
+		if (!_getDelegate().isNull())
+			return _getDelegate()->isVertexTextureFetchRequired();
+		else
+			return false;
 	}
 	//-----------------------------------------------------------------------
 	GpuProgramParametersSharedPtr UnifiedHighLevelGpuProgram::getDefaultParameters(void)
 	{
-		return _getDelegate()->getDefaultParameters();
+		if (!_getDelegate().isNull())
+			return _getDelegate()->getDefaultParameters();
+		else
+			return GpuProgramParametersSharedPtr();
 	}
 	//-----------------------------------------------------------------------
 	bool UnifiedHighLevelGpuProgram::hasDefaultParameters(void) const
 	{
-		return _getDelegate()->hasDefaultParameters();
+		if (!_getDelegate().isNull())
+			return _getDelegate()->hasDefaultParameters();
+		else
+			return false;
 	}
 	//-----------------------------------------------------------------------
 	bool UnifiedHighLevelGpuProgram::getPassSurfaceAndLightStates(void) const
 	{
-		return _getDelegate()->getPassSurfaceAndLightStates();
+		if (!_getDelegate().isNull())
+			return _getDelegate()->getPassSurfaceAndLightStates();
+		else
+			return false;
 	}
 	//-----------------------------------------------------------------------
 	bool UnifiedHighLevelGpuProgram::hasCompileError(void) const
 	{
-		return _getDelegate()->hasCompileError();
+		if (_getDelegate().isNull())
+		{
+			return false;
+		}
+		else
+		{
+			return _getDelegate()->hasCompileError();
+		}
 	}
 	//-----------------------------------------------------------------------
 	void UnifiedHighLevelGpuProgram::resetCompileError(void)
 	{
-		_getDelegate()->resetCompileError();
+		if (!_getDelegate().isNull())
+			_getDelegate()->resetCompileError();
 	}
 	//-----------------------------------------------------------------------
 	void UnifiedHighLevelGpuProgram::load(bool backgroundThread)
 	{
-		_getDelegate()->load(backgroundThread);
+		if (!_getDelegate().isNull())
+			_getDelegate()->load(backgroundThread);
 	}
 	//-----------------------------------------------------------------------
 	void UnifiedHighLevelGpuProgram::reload(void)
 	{
-		_getDelegate()->reload();
+		if (!_getDelegate().isNull())
+			_getDelegate()->reload();
 	}
 	//-----------------------------------------------------------------------
 	bool UnifiedHighLevelGpuProgram::isReloadable(void) const
 	{
-		return _getDelegate()->isReloadable();
+		if (!_getDelegate().isNull())
+			return _getDelegate()->isReloadable();
+		else
+			return true;
 	}
 	//-----------------------------------------------------------------------
 	void UnifiedHighLevelGpuProgram::unload(void)
 	{
-		_getDelegate()->unload();
+		if (!_getDelegate().isNull())
+			_getDelegate()->unload();
 	}
 	//-----------------------------------------------------------------------
 	bool UnifiedHighLevelGpuProgram::isLoaded(void) const
 	{
-		return _getDelegate()->isLoaded();
+		if (!_getDelegate().isNull())
+			return _getDelegate()->isLoaded();
+		else
+			return false;
 	}
 	//-----------------------------------------------------------------------
 	Resource::LoadingState UnifiedHighLevelGpuProgram::isLoading() const
 	{
-		return _getDelegate()->isLoading();
+		if (!_getDelegate().isNull())
+			return _getDelegate()->isLoading();
+		else
+			return Resource::LOADSTATE_UNLOADED;
 	}
 	//-----------------------------------------------------------------------
 	Resource::LoadingState UnifiedHighLevelGpuProgram::getLoadingState() const
 	{
-		return _getDelegate()->getLoadingState();
+		if (!_getDelegate().isNull())
+			return _getDelegate()->getLoadingState();
+		else
+			return Resource::LOADSTATE_UNLOADED;
 	}
 	//-----------------------------------------------------------------------
 	size_t UnifiedHighLevelGpuProgram::getSize(void) const
 	{
-		return _getDelegate()->getSize();
+		if (!_getDelegate().isNull())
+			return _getDelegate()->getSize();
+		else
+			return 0;
 	}
 	//-----------------------------------------------------------------------
 	void UnifiedHighLevelGpuProgram::touch(void)
 	{
-		_getDelegate()->touch();
+		if (!_getDelegate().isNull())
+			_getDelegate()->touch();
 	}
 	//-----------------------------------------------------------------------
 	bool UnifiedHighLevelGpuProgram::isBackgroundLoaded(void) const
 	{
-		return _getDelegate()->isBackgroundLoaded();
+		if (!_getDelegate().isNull())
+			return _getDelegate()->isBackgroundLoaded();
+		else
+			return false;
 	}
 	//-----------------------------------------------------------------------
 	void UnifiedHighLevelGpuProgram::setBackgroundLoaded(bool bl)
 	{
-		_getDelegate()->setBackgroundLoaded(bl);
+		if (!_getDelegate().isNull())
+			_getDelegate()->setBackgroundLoaded(bl);
 	}
 	//-----------------------------------------------------------------------
 	void UnifiedHighLevelGpuProgram::escalateLoading()
 	{
-		_getDelegate()->escalateLoading();
+		if (!_getDelegate().isNull())
+			_getDelegate()->escalateLoading();
 	}
 	//-----------------------------------------------------------------------
 	void UnifiedHighLevelGpuProgram::addListener(Resource::Listener* lis)
 	{
-		_getDelegate()->addListener(lis);
+		if (!_getDelegate().isNull())
+			_getDelegate()->addListener(lis);
 	}
 	//-----------------------------------------------------------------------
 	void UnifiedHighLevelGpuProgram::removeListener(Resource::Listener* lis)
 	{
-		_getDelegate()->removeListener(lis);
+		if (!_getDelegate().isNull())
+			_getDelegate()->removeListener(lis);
 	}
 	//-----------------------------------------------------------------------
 	void UnifiedHighLevelGpuProgram::createLowLevelImpl(void)
