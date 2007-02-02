@@ -7,6 +7,6 @@ if OGRE_BUILDING_DEMOS
             DynTex VolumeTex Grass DeferredShading
 
 if HAVE_CEGUI
- SUBDIRS += Gui FacialAnimation OceanDemo Compositor Shadows
+ SUBDIRS += Gui FacialAnimation OceanDemo Compositor Shadows Instancing
 endif
 endif
