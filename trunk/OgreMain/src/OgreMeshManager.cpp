@@ -87,13 +87,15 @@ namespace Ogre
 		HardwareBuffer::Usage indexBufferUsage, 
 		bool vertexBufferShadowed, bool indexBufferShadowed)
     {
-        MeshPtr pMesh = createOrRetrieve(filename, groupName);
-        if (!pMesh->isLoaded())
+        ResourceCreateOrRetrieveResult res = createOrRetrieve(filename, groupName);
+		MeshPtr pMesh = res.first;
+		// Was it created?
+        if (res.second)
         {
 			pMesh->setVertexBufferPolicy(vertexBufferUsage, vertexBufferShadowed);
 			pMesh->setIndexBufferPolicy(indexBufferUsage, indexBufferShadowed);
-        pMesh->load();
         }
+		pMesh->load();
         return pMesh;
 
     }
