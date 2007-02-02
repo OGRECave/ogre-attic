@@ -32,7 +32,6 @@
 // these are explained later
 #include <iterator>
 #include <string>
-#include <stdexcept>
 
 // Workaround for VC7:
 //      when build with /MD or /MDd, VC7 have both std::basic_string<unsigned short> and
@@ -191,12 +190,10 @@ namespace Ogre {
 		typedef std::basic_string<unicode_char> utf32string;
 
 		//! This exception is used when invalid data streams are encountered
-		class invalid_data : public std::runtime_error /* i don't know why the beautifier is freaking out on this line */
-		{
+	class invalid_data: public std::runtime_error { /* i don't know why the beautifier is freaking out on this line */
 		public:
 			//! constructor takes a string message that can be later retrieved by the what() function
-			explicit invalid_data( const std::string& _Message ): std::runtime_error( _Message )
-			{
+			explicit invalid_data( const std::string& _Message ): std::runtime_error( _Message ) {
 				/* The thing is, Bob, it's not that I'm lazy, it's that I just don't care. */
 			}
 		};
@@ -1492,8 +1489,8 @@ namespace Ogre {
 		}
 		//! replaces code points in the current string from \a start to \a end with \a num code points from \a str
 		UTFString& replace( iterator start, iterator end, const UTFString& str, size_type num = npos ) {
-			size_type index1 = _const_fwd_iterator(begin()) - start;
-			size_type num1 = _const_fwd_iterator(end) - start;
+			size_type index1 = begin() - start;
+			size_type num1 = end - start;
 			return replace( index1, num1, str, 0, num );
 		}
 		//! replaces up to \a num1 code points in the current string (beginning at \a index) with \c num2 copies of \c ch
@@ -1503,8 +1500,8 @@ namespace Ogre {
 		}
 		//! replaces the code points in the current string from \a start to \a end with \a num copies of \a ch
 		UTFString& replace( iterator start, iterator end, size_type num, code_point ch ) {
-			size_type index1 = _const_fwd_iterator(begin()) - start;
-			size_type num1 = _const_fwd_iterator(end) - start;
+			size_type index1 = begin() - start;
+			size_type num1 = end - start;
 			return replace( index1, num1, num, ch );
 		}
 		//@}
@@ -2194,7 +2191,10 @@ namespace Ogre {
 					break;
 				case bt_none: // under the worse of circumstances, this is all we can do, and hope it works out
 				default:
-					delete m_buffer.mVoidBuffer;
+					//delete m_buffer.mVoidBuffer;
+					// delete void* is undefined, don't do that
+					assert("This should never happen - mVoidBuffer should never contain something if we "
+						"don't know the type");
 					break;
 				}
 				m_buffer.mVoidBuffer = 0;
