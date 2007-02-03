@@ -36,7 +36,8 @@ namespace Ogre {
 	/**
 	* Class to do pixel format mapping between GL and OGRE
 	*/
-	class GLPixelUtil {
+	class _OgrePrivate GLPixelUtil
+	{
 	public:
 		/** Takes the OGRE pixel format and returns the appropriate GL one
 			@returns a GLenum describing the format, or 0 if there is no exactly matching 

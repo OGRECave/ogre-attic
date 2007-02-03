@@ -37,7 +37,7 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
     /** GL-specific implementation of a TextureManager */
-    class GLTextureManager : public TextureManager
+    class _OgrePrivate GLTextureManager : public TextureManager
     {
     public:
         GLTextureManager(GLSupport& support);

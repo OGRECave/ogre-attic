@@ -1,4 +1,4 @@
-INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/Common/CEGUIRenderer/include -I$(top_srcdir)/OgreMain/include @CEGUI_CFLAGS@
+INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/Common/CEGUIRenderer/include -I$(top_srcdir)/OgreMain/include @CEGUI_CFLAGS@ $(CFLAGS_VISIBILITY)
 
 lib_LTLIBRARIES = libCEGUIOgreRenderer.la
 

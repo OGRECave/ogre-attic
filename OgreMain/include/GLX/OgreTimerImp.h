@@ -35,7 +35,7 @@ Torus Knot Software Ltd.
 namespace Ogre
 {
 	/** Timer class */
-	class Timer
+	class _OgreExport Timer
 	{
 	private:
 		struct timeval start;

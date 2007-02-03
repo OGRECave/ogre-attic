@@ -34,7 +34,7 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
-    class Win32Context: public GLContext
+    class _OgrePrivate Win32Context: public GLContext
     {
     public:
         Win32Context(HDC     HDC,

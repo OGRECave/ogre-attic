@@ -38,7 +38,7 @@ Torus Knot Software Ltd.
 namespace Ogre {
 
     /// Specialisation of HardwareVertexBuffer for emulation
-    class GLDefaultHardwareVertexBuffer : public HardwareVertexBuffer 
+    class _OgrePrivate GLDefaultHardwareVertexBuffer : public HardwareVertexBuffer 
     {
 	protected:
 		unsigned char* mpData;
@@ -66,7 +66,7 @@ namespace Ogre {
     };
 
 	/// Specialisation of HardwareIndexBuffer for emulation
-    class GLDefaultHardwareIndexBuffer : public HardwareIndexBuffer
+    class _OgrePrivate GLDefaultHardwareIndexBuffer : public HardwareIndexBuffer
     {
 	protected:
 		unsigned char* mpData;
@@ -97,7 +97,7 @@ namespace Ogre {
 		rendering system (which is required to create a 'real' hardware
 		buffer manager.
 	*/
-	class GLDefaultHardwareBufferManager : public HardwareBufferManager
+	class _OgrePrivate GLDefaultHardwareBufferManager : public HardwareBufferManager
 	{
     public:
         GLDefaultHardwareBufferManager();

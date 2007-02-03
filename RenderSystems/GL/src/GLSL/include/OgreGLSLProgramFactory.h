@@ -37,7 +37,7 @@ Torus Knot Software Ltd.
 namespace Ogre
 {
     /** Factory class for GLSL programs. */
-    class GLSLProgramFactory : public HighLevelGpuProgramFactory
+    class _OgrePrivate GLSLProgramFactory : public HighLevelGpuProgramFactory
     {
     protected:
 		static String sLanguageName;

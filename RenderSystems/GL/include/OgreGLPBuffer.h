@@ -36,7 +36,7 @@ namespace Ogre {
     /** An off-screen rendering context. These contexts are always RGBA for simplicity, speed and
         convience, but the component format is configurable.
     */
-    class GLPBuffer
+    class _OgrePrivate GLPBuffer
     {
     public:
         GLPBuffer(PixelComponentType format, size_t width, size_t height);

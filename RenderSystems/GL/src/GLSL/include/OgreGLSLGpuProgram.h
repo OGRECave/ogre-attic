@@ -46,7 +46,7 @@ namespace Ogre {
 		interface between the GLSLLinkProgramManager , GLRenderSystem, and the active GLSLProgram
 		instances.
 	*/
-    class GLSLGpuProgram : public GLGpuProgram
+    class _OgrePrivate GLSLGpuProgram : public GLGpuProgram
     {
     private:
 		/// GL Handle for the shader object

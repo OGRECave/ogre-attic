@@ -35,7 +35,7 @@ Torus Knot Software Ltd.
 namespace Ogre {
 
     /** Implementation of HardwareBufferManager for OpenGL. */
-    class GLHardwareBufferManager : public HardwareBufferManager
+    class _OgrePrivate GLHardwareBufferManager : public HardwareBufferManager
     {
     public:
         GLHardwareBufferManager();

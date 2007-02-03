@@ -31,9 +31,18 @@ Torus Knot Software Ltd.
 // Common stuff
 
 #include "OgreString.h"
+
+#if OGRE_COMPILER == OGRE_COMPILER_GNUC && OGRE_COMP_VER >= 400
+#   pragma GCC visibility push(default)
+#endif
+
 #include <utility>
 #include <vector>
 #include <map>
+
+#if OGRE_COMPILER == OGRE_COMPILER_GNUC && OGRE_COMP_VER >= 400
+#   pragma GCC visibility pop
+#endif
 
 namespace Ogre {
 

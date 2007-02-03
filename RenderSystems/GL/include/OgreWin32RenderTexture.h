@@ -35,7 +35,7 @@ Torus Knot Software Ltd.
 #include "OgreGLPBuffer.h"
 
 namespace Ogre {
-    class Win32PBuffer : public GLPBuffer
+    class _OgrePrivate Win32PBuffer : public GLPBuffer
     {
 	public:
 		Win32PBuffer(PixelComponentType format, size_t width, size_t height);

@@ -54,7 +54,7 @@ namespace Ogre {
 		seperated by white space.
         
     */
-    class GLSLProgram : public HighLevelGpuProgram
+    class _OgrePrivate GLSLProgram : public HighLevelGpuProgram
     {
     public:
         /// Command object for attaching another GLSL Program 

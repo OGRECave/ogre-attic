@@ -34,7 +34,7 @@ Torus Knot Software Ltd.
 #include "OgreRenderWindow.h"
 
 namespace Ogre {
-    class Win32Window : public RenderWindow
+    class _OgrePrivate Win32Window : public RenderWindow
     {
     public:
         Win32Window(Win32GLSupport &glsupport);

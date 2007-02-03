@@ -37,7 +37,7 @@ namespace Ogre {
     /** RenderTexture that uses a PBuffer (offscreen rendering context) for rendering.
     */
     class GLPBRTTManager;
-    class GLPBRenderTexture: public GLRenderTexture
+    class _OgrePrivate GLPBRenderTexture: public GLRenderTexture
     {
     public:
         GLPBRenderTexture(GLPBRTTManager *manager, const String &name, const GLSurfaceDesc &target);
@@ -51,7 +51,7 @@ namespace Ogre {
         
     /** Manager for rendertextures and PBuffers (offscreen rendering contexts)
     */
-    class GLPBRTTManager: public GLRTTManager
+    class _OgrePrivate GLPBRTTManager: public GLRTTManager
     {
     public:
         GLPBRTTManager(GLSupport *support, RenderTarget *mainwindow);

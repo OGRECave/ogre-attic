@@ -39,7 +39,7 @@ Torus Knot Software Ltd.
 namespace Ogre
 {
 
-    class GLXPBuffer : public GLPBuffer
+    class _OgrePrivate GLXPBuffer : public GLPBuffer
     {
     public:
         GLXPBuffer(PixelComponentType format, size_t width, size_t height);

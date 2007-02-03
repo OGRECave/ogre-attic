@@ -33,7 +33,7 @@ Torus Knot Software Ltd.
 #include "OgreHardwarePixelBuffer.h"
 
 namespace Ogre {
-	class GLHardwarePixelBuffer: public HardwarePixelBuffer
+	class _OgrePrivate GLHardwarePixelBuffer: public HardwarePixelBuffer
 	{
 	protected:  
 		/// Lock a box
@@ -77,7 +77,7 @@ namespace Ogre {
 
     /** Texture surface.
     */
-    class GLTextureBuffer: public GLHardwarePixelBuffer
+    class _OgrePrivate GLTextureBuffer: public GLHardwarePixelBuffer
 	{
     public:
         /** Texture constructor */
@@ -122,7 +122,7 @@ namespace Ogre {
     };
      /** Renderbuffer surface.  Needs FBO extension.
      */
-    class GLRenderBuffer: public GLHardwarePixelBuffer
+    class _OgrePrivate GLRenderBuffer: public GLHardwarePixelBuffer
 	{
     public:
         GLRenderBuffer(GLenum format, size_t width, size_t height);

@@ -34,7 +34,7 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
-class GLGpuProgramManager : public GpuProgramManager
+class _OgrePrivate GLGpuProgramManager : public GpuProgramManager
 {
 public:
     typedef GpuProgram* (*CreateGpuProgramCallback)(ResourceManager* creator, 
