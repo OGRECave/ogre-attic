@@ -36,7 +36,7 @@ Torus Knot Software Ltd.
 namespace Ogre {
 
 	/** Specialisation of the GL low-level program for ATI Fragment Shader programs. */
-	class ATI_FS_GLGpuProgram : public GLGpuProgram
+	class _OgrePrivate ATI_FS_GLGpuProgram : public GLGpuProgram
 	{
 	public:
         ATI_FS_GLGpuProgram(ResourceManager* creator, 

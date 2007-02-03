@@ -37,7 +37,7 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
-    class GLXContext: public GLContext
+    class _OgrePrivate GLXContext: public GLContext
     {
     public:
         GLXContext(::Display *dpy,

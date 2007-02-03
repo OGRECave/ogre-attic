@@ -35,7 +35,7 @@ Torus Knot Software Ltd.
 namespace Ogre { 
 
 
-    class GLHardwareIndexBuffer : public HardwareIndexBuffer
+    class _OgrePrivate GLHardwareIndexBuffer : public HardwareIndexBuffer
     {
     private:
         GLuint mBufferId;

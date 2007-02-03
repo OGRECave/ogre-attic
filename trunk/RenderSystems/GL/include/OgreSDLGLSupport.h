@@ -7,7 +7,7 @@
 namespace Ogre
 {
     
-class SDLGLSupport : public GLSupport
+class _OgrePrivate SDLGLSupport : public GLSupport
 {
 public:
     SDLGLSupport();

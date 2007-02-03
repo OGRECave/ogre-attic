@@ -29,16 +29,6 @@
 #ifndef _OgreCEGUIRenderer_h_
 #define _OgreCEGUIRenderer_h_
 
-#if (defined( __WIN32__ ) || defined( _WIN32 )) && !defined(__MINGW32__) && !defined(OGRE_STATIC_LIB)
-#   ifdef OGRE_GUIRENDERER_EXPORTS
-#       define OGRE_GUIRENDERER_API __declspec(dllexport)
-#   else
-#       define OGRE_GUIRENDERER_API __declspec(dllimport)
-#   endif
-#else
-#   define OGRE_GUIRENDERER_API
-#endif
-
 #include <CEGUI/CEGUIBase.h>
 #include <CEGUI/CEGUIRenderer.h>
 #include <CEGUI/CEGUITexture.h>
@@ -46,6 +36,23 @@
 #include <OgreRenderQueueListener.h>
 #include <OgreSceneManagerEnumerator.h>
 #include <OgreTextureUnitState.h>
+
+#if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(__MINGW32__) && !defined(OGRE_STATIC_LIB)
+#   ifdef OGRE_GUIRENDERER_EXPORTS
+#       define OGRE_GUIRENDERER_API __declspec(dllexport)
+#   else
+#       define OGRE_GUIRENDERER_API __declspec(dllimport)
+#   endif
+#else
+#   if (OGRE_PLATFORM == OGRE_PLATFORM_LINUX) || (OGRE_PLATFORM == OGRE_PLATFORM_APPLE)
+#       if OGRE_COMP_VER >= 400
+#          define OGRE_GUIRENDERER_API  __attribute__ ((visibility("default")))
+#       endif
+#   else
+#       define OGRE_GUIRENDERER_API
+#   endif
+#endif
+
 
 // Start of CEGUI namespace section
 namespace CEGUI
@@ -61,7 +68,7 @@ class OgreCEGUIRenderer;
 \brief
 	RenderQueueListener based class used to hook into the ogre rendering system
 */
-class CEGUIRQListener : public Ogre::RenderQueueListener
+class _OgrePrivate CEGUIRQListener : public Ogre::RenderQueueListener
 {
 public:
 	CEGUIRQListener(OgreCEGUIRenderer* renderer, Ogre::uint8 queue_id, bool post_queue)

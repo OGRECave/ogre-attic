@@ -34,7 +34,7 @@ Torus Knot Software Ltd.
 #include "OgreRenderWindow.h"
 
 namespace Ogre {
-    class SDLWindow : public RenderWindow
+    class _OgrePrivate SDLWindow : public RenderWindow
     {
     private:
         SDL_Surface* mScreen;

@@ -38,7 +38,7 @@ namespace CEGUI
 \brief
 	Texture class that is created by OgreCEGUIRenderer objects
 */
-class OGRE_GUIRENDERER_API OgreCEGUITexture : public Texture
+class _OgrePrivate OgreCEGUITexture : public Texture
 {
 private:
 	/*************************************************************************

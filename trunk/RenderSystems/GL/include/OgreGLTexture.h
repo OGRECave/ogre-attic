@@ -39,7 +39,7 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
-    class GLTexture : public Texture
+    class _OgrePrivate GLTexture : public Texture
     {
     public:
         // Constructor
@@ -89,7 +89,7 @@ namespace Ogre {
     except to do so requires a form VC6 does not support i.e.
     ResourceSubclassPtr<T> : public SharedPtr<T>
     */
-    class GLTexturePtr : public SharedPtr<GLTexture> 
+    class _OgrePrivate GLTexturePtr : public SharedPtr<GLTexture> 
     {
     public:
         GLTexturePtr() : SharedPtr<GLTexture>() {}

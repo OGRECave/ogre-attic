@@ -53,7 +53,7 @@ const size_t    OgreCEGUIRenderer::UNDERUSED_FRAME_THRESHOLD = 50000; // halfs b
 /*************************************************************************
 	Utility function to create a render operation and vertex buffer to render quads
 *************************************************************************/
-void createQuadRenderOp(Ogre::RenderOperation &d_render_op, 
+static void createQuadRenderOp(Ogre::RenderOperation &d_render_op, 
     Ogre::HardwareVertexBufferSharedPtr &d_buffer, size_t nquads)
 {
     using namespace Ogre;
@@ -81,7 +81,8 @@ void createQuadRenderOp(Ogre::RenderOperation &d_render_op,
 	d_render_op.operationType = RenderOperation::OT_TRIANGLE_LIST;
 	d_render_op.useIndexes = false;
 }
-void destroyQuadRenderOp(Ogre::RenderOperation &d_render_op, 
+
+static void destroyQuadRenderOp(Ogre::RenderOperation &d_render_op, 
     Ogre::HardwareVertexBufferSharedPtr &d_buffer)
 {
     delete d_render_op.vertexData;

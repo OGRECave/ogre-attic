@@ -32,7 +32,7 @@
 // Start of CEGUI namespace section
 namespace CEGUI
 {
-class OGRE_GUIRENDERER_API OgreCEGUIResourceProvider : public ResourceProvider
+class _OgrePrivate OgreCEGUIResourceProvider : public ResourceProvider
 {
 public:
 	/*************************************************************************

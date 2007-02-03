@@ -35,7 +35,7 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
-class GLGpuNvparseProgram : public GLGpuProgram
+class _OgrePrivate GLGpuNvparseProgram : public GLGpuProgram
 {
 public:
     GLGpuNvparseProgram(ResourceManager* creator, 

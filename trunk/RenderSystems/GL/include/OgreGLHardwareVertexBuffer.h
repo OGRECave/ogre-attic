@@ -35,7 +35,7 @@ Torus Knot Software Ltd.
 namespace Ogre {
 
     /// Specialisation of HardwareVertexBuffer for OpenGL
-    class GLHardwareVertexBuffer : public HardwareVertexBuffer 
+    class _OgrePrivate GLHardwareVertexBuffer : public HardwareVertexBuffer 
     {
     private:
         GLuint mBufferId;

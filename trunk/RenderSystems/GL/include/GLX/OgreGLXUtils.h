@@ -37,7 +37,7 @@ namespace Ogre {
    /**
      * Class that acquires and stores properties of a frame buffer configuration
      */
-    class FBConfigData 
+    class _OgrePrivate FBConfigData 
     {
     public:
         FBConfigData();
@@ -68,7 +68,9 @@ namespace Ogre {
         int maxPBufferHeight;
         int maxPBufferPixels;        
     };
-    class GLXUtils {
+
+    class _OgrePrivate GLXUtils
+    {
     public:
         /**
          * Loads an icon from an Ogre resource into the X Server. This currently only

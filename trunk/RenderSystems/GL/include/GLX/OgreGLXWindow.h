@@ -40,7 +40,7 @@ Torus Knot Software Ltd.
 
 namespace Ogre 
 {
-	class GLXWindow : public RenderWindow
+	class _OgrePrivate GLXWindow : public RenderWindow
 	{
 	private:
 		::Display *mDisplay;		//Pointer to X connection

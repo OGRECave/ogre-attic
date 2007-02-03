@@ -35,7 +35,7 @@ Torus Knot Software Ltd.
 namespace Ogre {
 	/** MultiRenderTarget for GL. Requires the FBO extension.
 	*/
-	class GLFBOMultiRenderTarget : public MultiRenderTarget
+	class _OgrePrivate GLFBOMultiRenderTarget : public MultiRenderTarget
 	{
 	public:
 		GLFBOMultiRenderTarget(GLFBOManager *manager, const String &name);

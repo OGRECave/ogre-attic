@@ -52,7 +52,7 @@ namespace Ogre {
 
 	*/
 
-	class GLSLLinkProgram
+	class _OgrePrivate GLSLLinkProgram
 	{
 	private:
 		/// container of uniform references that are active in the program object

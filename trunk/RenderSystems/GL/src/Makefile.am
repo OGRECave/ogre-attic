@@ -3,7 +3,8 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/RenderSystems/GL/include \
            -I$(top_srcdir)/RenderSystems/GL/src/$(OGRE_GLSUPPORT) \
            -I$(top_srcdir)/RenderSystems/GL/src/nvparse \
            -I$(top_srcdir)/RenderSystems/GL/src/atifs/include \
-           -I$(top_srcdir)/RenderSystems/GL/src/GLSL/include
+           -I$(top_srcdir)/RenderSystems/GL/src/GLSL/include \
+           $(CFLAGS_VISIBILITY)
 
 DIST_SUBDIRS = win32 GLX
 SUBDIRS = $(OGRE_GLSUPPORT) nvparse atifs GLSL

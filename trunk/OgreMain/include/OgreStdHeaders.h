@@ -5,6 +5,16 @@
     #define __STD_ALGORITHM
 #endif
 
+#if OGRE_COMPILER == OGRE_COMPILER_GNUC && OGRE_COMP_VER >= 400
+/* Until libstdc++ for gcc 4.2 is released, we have to declare all
+ * symbols in libstdc++.so externally visible, otherwise we end up
+ * with them marked as hidden by -fvisible=hidden.
+ *
+ * See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=20218
+ */
+#   pragma GCC visibility push(default)
+#endif
+
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
@@ -86,4 +96,7 @@ extern "C" {
 #	include <boost/thread/recursive_mutex.hpp>
 #endif
 
+#if OGRE_COMPILER == OGRE_COMPILER_GNUC && OGRE_COMP_VER >= 400
+#   pragma GCC visibility pop
+#endif
 #endif

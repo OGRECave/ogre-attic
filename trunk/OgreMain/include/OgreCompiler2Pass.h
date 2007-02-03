@@ -31,8 +31,8 @@ Torus Knot Software Ltd.
 #ifndef __Compiler2Pass_H__
 #define __Compiler2Pass_H__
 
-#include <vector>
 #include "OgrePrerequisites.h"
+#include "OgreStdHeaders.h"
 
 namespace Ogre {
 

@@ -35,7 +35,7 @@ Torus Knot Software Ltd.
 namespace Ogre {
     /** GL surface descriptor. Points to a 2D surface that can be rendered to. 
     */
-    struct GLSurfaceDesc
+    struct _OgrePrivate GLSurfaceDesc
     {
     public:
         GLHardwarePixelBuffer *buffer;
@@ -44,7 +44,7 @@ namespace Ogre {
     
     /** Base class for GL Render Textures
     */
-    class GLRenderTexture: public RenderTexture
+    class _OgrePrivate GLRenderTexture: public RenderTexture
     {
     public:
         GLRenderTexture(const String &name, const GLSurfaceDesc &target);
@@ -55,7 +55,7 @@ namespace Ogre {
     
     /** Manager/factory for RenderTextures.
     */
-    class GLRTTManager: public Singleton<GLRTTManager>
+    class _OgrePrivate GLRTTManager: public Singleton<GLRTTManager>
     {
     public:
         virtual ~GLRTTManager();
@@ -90,7 +90,7 @@ namespace Ogre {
     /** RenderTexture for simple copying from frame buffer
     */
     class GLCopyingRTTManager;
-    class GLCopyingRenderTexture: public GLRenderTexture
+    class _OgrePrivate GLCopyingRenderTexture: public GLRenderTexture
     {
     public:
         GLCopyingRenderTexture(GLCopyingRTTManager *manager, const String &name, const GLSurfaceDesc &target);
@@ -101,7 +101,7 @@ namespace Ogre {
     /** Simple, copying manager/factory for RenderTextures. This is only used as the last fallback if
         both PBuffers and FBOs aren't supported.
     */
-    class GLCopyingRTTManager: public GLRTTManager
+    class _OgrePrivate GLCopyingRTTManager: public GLRTTManager
     {
     public:
         GLCopyingRTTManager();
