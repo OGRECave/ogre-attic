@@ -19,7 +19,7 @@ LGPL like the rest of the engine.
         Shows OGRE's bezier Crowd feature
 */
 
-#include "Crowd.h"
+#include "crowd.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -283,11 +283,11 @@ int main(int argc, char **argv)
 	}
 	void CrowdListener::setupInstancedMaterialToEntity(Entity*ent)
 	{
-			for (uint i = 0; i < ent->getNumSubEntities(); ++i)
+		for (Ogre::uint i = 0; i < ent->getNumSubEntities(); ++i)
 		{
 			SubEntity* se = ent->getSubEntity(i);
 			String materialName= se->getMaterialName();
-			se->setMaterialName(buildCrowdMaterial(materialName,ent->getSkeleton()->getNumBones()));
+			se->setMaterialName(buildCrowdMaterial(materialName, ent->getSkeleton()->getNumBones()));
 		}
 	}
 	String CrowdListener::buildCrowdMaterial(const String &originalMaterialName,int numBones)

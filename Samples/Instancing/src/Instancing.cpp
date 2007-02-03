@@ -288,7 +288,7 @@ void InstancingListener::createInstanceGeom()
 }
 void InstancingListener::setupInstancedMaterialToEntity(Entity*ent)
 {
-	for (uint i = 0; i < ent->getNumSubEntities(); ++i)
+	for (Ogre::uint i = 0; i < ent->getNumSubEntities(); ++i)
 	{
 		SubEntity* se = ent->getSubEntity(i);
 		String materialName= se->getMaterialName();
