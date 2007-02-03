@@ -1,1 +1,1 @@
-noinst_HEADERS = Instancing.h
+noinst_HEADERS = Instancing.h crowd.h
