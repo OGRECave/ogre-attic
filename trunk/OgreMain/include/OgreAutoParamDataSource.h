@@ -57,6 +57,7 @@ namespace Ogre {
     protected:
         mutable Matrix4 mWorldMatrix[256];
         mutable size_t mWorldMatrixCount;
+        mutable const Matrix4* mWorldMatrixArray;
         mutable Matrix4 mWorldViewMatrix;
         mutable Matrix4 mViewProjMatrix;
         mutable Matrix4 mWorldViewProjMatrix;
@@ -104,6 +105,7 @@ namespace Ogre {
         const Viewport* mCurrentViewport;
 		const SceneManager* mCurrentSceneManager;
 		const VisibleObjectsBoundsInfo* mMainCamBoundsInfo;
+        const Pass* mCurrentPass;
 
         Light mBlankLight;
     public:
@@ -111,6 +113,8 @@ namespace Ogre {
         ~AutoParamDataSource();
         /** Updates the current renderable */
         void setCurrentRenderable(const Renderable* rend);
+        /** Sets the world matrices, avoid query from renderable again */
+        void setWorldMatrices(const Matrix4* m, size_t count);
         /** Updates the current camera */
         void setCurrentCamera(const Camera* cam);
         /** Sets the light list that should be used */
@@ -127,6 +131,8 @@ namespace Ogre {
 		void setMainCamBoundsInfo(VisibleObjectsBoundsInfo* info);
 		/** Set the current scene manager for enquiring on demand */
 		void setCurrentSceneManager(const SceneManager* sm);
+        /** Sets the current pass */
+        void setCurrentPass(const Pass* pass);
 
 
 
@@ -149,12 +155,23 @@ namespace Ogre {
         const Light& getLight(size_t index) const;
 		void setAmbientLightColour(const ColourValue& ambient);
 		const ColourValue& getAmbientLightColour(void) const;
+        const ColourValue& getSurfaceAmbientColour(void) const;
+        const ColourValue& getSurfaceDiffuseColour(void) const;
+        const ColourValue& getSurfaceSpecularColour(void) const;
+        const ColourValue& getSurfaceEmissiveColour(void) const;
+        Real getSurfaceShininess(void) const;
+        ColourValue getDerivedAmbientLightColour(void) const;
+        ColourValue getDerivedSceneColour(void) const;
         void setFog(FogMode mode, const ColourValue& colour, Real expDensity, Real linearStart, Real linearEnd);
         const ColourValue& getFogColour(void) const;
         const Vector4& getFogParams(void) const;
         const Matrix4& getTextureViewProjMatrix(size_t index) const;
         const RenderTarget* getCurrentRenderTarget(void) const;
         const Renderable* getCurrentRenderable(void) const;
+        const Pass* getCurrentPass(void) const;
+        Vector4 getTextureSize(size_t index) const;
+        Vector4 getInverseTextureSize(size_t index) const;
+        Vector4 getPackedTextureSize(size_t index) const;
 		Real getShadowExtrusionDistance(void) const;
 		const Vector4& getSceneDepthRange() const;
 		const Vector4& getShadowSceneDepthRange(size_t lightIndex) const;

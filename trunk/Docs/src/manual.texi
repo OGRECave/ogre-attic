@@ -2037,6 +2037,32 @@ As light_power, except that this populates an array of parameters with a number 
 
 @item ambient_light_colour
 The colour of the ambient light currently set in the scene.
+
+@item surface_ambient_colour
+The ambient colour reflectance properties of the pass (@xref{ambient}). This allows you access to fixed-function pipeline property handily.
+@item surface_diffuse_colour
+The diffuse colour reflectance properties of the pass (@xref{diffuse}). This allows you access to fixed-function pipeline property handily.
+@item surface_specular_colour
+The specular colour reflectance properties of the pass (@xref{specular}). This allows you access to fixed-function pipeline property handily.
+@item surface_emissive_colour
+The amount of self-illumination of the pass (@xref{emissive}). This allows you access to fixed-function pipeline property handily.
+@item surface_shininess
+The shininess of the pass, affecting the size of specular highlights (@xref{specular}). This allows you bind to fixed-function pipeline property handily.
+
+@item derived_ambient_light_colour
+The derived ambient light colour, with 'r', 'g', 'b' components filled with product of surface_ambient_colour and ambient_light_colour, respectively, and 'a' component filled with surface ambient alpha component.
+@item derived_scene_colour
+The derived scene colour, with 'r', 'g' and 'b' components filled with sum of derived_ambient_light_colour and surface_emissive_colour, respectively, and 'a' component filled with surface diffuse alpha component.
+
+@item derived_light_diffuse_colour
+The derived light diffuse colour, with 'r', 'g' and 'b' components filled with product of surface_diffuse_colour and light_diffuse_colour, respectively, and 'a' component filled with surface diffuse alpha component. This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light).
+@item derived_light_specular_colour
+The derived light specular colour, with 'r', 'g' and 'b' components filled with product of surface_specular_colour and light_specular_colour, respectively, and 'a' component filled with surface specular alpha component. This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light).
+@item derived_light_diffuse_colour_array
+As derived_light_diffuse_colour, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
+@item derived_light_specular_colour_array
+As derived_light_specular_colour, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
+
 @item fog_colour
 The colour of the fog currently set in the scene.
 @item fog_params
@@ -2111,6 +2137,12 @@ Applicable to vertex programs which have been specified as the 'shadow receiver'
 Provides information about the depth range as viewed from the current camera being used to render. Provided as float4(minDepth, maxDepth, depthRange, 1 / depthRange).
 @item shadow_scene_depth_range
 Provides information about the depth range as viewed from the shadow camera relating to a selected light. Requires a light index parameter. Provided as float4(minDepth, maxDepth, depthRange, 1 / depthRange).
+@item texture_size
+Provides texture size of the selected texture unit. Requires a texture unit index parameter. Provided as float4(width, height, depth, 1). For 2D-texture, depth sets to 1, for 1D-texture, height and depth sets to 1.
+@item inverse_texture_size
+Provides inverse texture size of the selected texture unit. Requires a texture unit index parameter. Provided as float4(1 / width, 1 / height, 1 / depth, 1). For 2D-texture, depth sets to 1, for 1D-texture, height and depth sets to 1.
+@item packed_texture_size
+Provides packed texture size of the selected texture unit. Requires a texture unit index parameter. Provided as float4(width, height, 1 / width, 1 / height). For 3D-texture, depth is ignored, for 1D-texture, height sets to 1.
 @anchor{pass_number}
 @item pass_number
 Sets the active pass index number in a gpu parameter.  The first pass in a technique has an index of 0, the second an index of 1 and so on.  This is usefull for multipass shaders (ie fur or blur shader) that need to know what pass it is.  By setting up the auto parameter in a @ref{Default Program Parameters} list in a program definition, there is no requirement to set the pass number parameter in each pass and lose track. (@xref{fur_example})

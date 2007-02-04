@@ -819,6 +819,9 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed,
 			pass = deriveShadowReceiverPass(pass);
 		}
 
+        // Tell params about current pass
+        mAutoParamDataSource.setCurrentPass(pass);
+
 		// TEST
 		/*
 		LogManager::getSingleton().logMessage("BEGIN PASS " + StringConverter::toString(pass->getIndex()) + 
@@ -2568,6 +2571,8 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
         {
             // Tell auto params object about the renderable change
             mAutoParamDataSource.setCurrentRenderable(rend);
+            // Tell auto params object about the world matrices, eliminated query from renderable again
+            mAutoParamDataSource.setWorldMatrices(mTempXform, numMatrices);
             pass->_updateAutoParamsNoLights(mAutoParamDataSource);
             if (pass->hasVertexProgram())
             {
