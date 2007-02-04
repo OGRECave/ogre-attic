@@ -1335,6 +1335,10 @@ namespace Ogre {
 		*/
 		void setupBaseParamDictionary(void);
 
+        /** Internal method returns whether required capabilities for this program is supported.
+        */
+        bool isRequiredCapabilitiesSupported(void) const;
+
 		/// @copydoc Resource::calculateSize
 		size_t calculateSize(void) const { return 0; } // TODO 
 

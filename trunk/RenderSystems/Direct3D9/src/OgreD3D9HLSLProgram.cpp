@@ -30,10 +30,6 @@ Torus Knot Software Ltd.
 #include "OgreGpuProgramManager.h"
 #include "OgreStringConverter.h"
 #include "OgreD3D9GpuProgram.h"
-#include "OgreGpuProgram.h"
-#include "OgreRoot.h"
-#include "OgreRenderSystem.h"
-#include "OgreRenderSystemCapabilities.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -421,14 +417,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool D3D9HLSLProgram::isSupported(void) const
     {
-		// If skeletal animation is being done, we need support for UBYTE4
-		if ((isSkeletalAnimationIncluded() && 
-			!Root::getSingleton().getRenderSystem()->getCapabilities()
-				->hasCapability(RSC_VERTEX_FORMAT_UBYTE4)) ||  
-			mCompileError)
-		{
-			return false;
-		}
+        if (mCompileError || !isRequiredCapabilitiesSupported())
+            return false;
 
         return GpuProgramManager::getSingleton().isSyntaxSupported(mTarget);
     }
