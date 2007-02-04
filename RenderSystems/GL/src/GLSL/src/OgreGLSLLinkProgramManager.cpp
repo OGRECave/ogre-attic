@@ -110,7 +110,7 @@ namespace Ogre {
 
 		if (mActiveVertexGpuProgram)
 		{
-			activeKey = mActiveVertexGpuProgram->getProgramID() << 8;
+			activeKey = mActiveVertexGpuProgram->getProgramID() << 16;
 		}
 
 		if (mActiveFragmentGpuProgram)
