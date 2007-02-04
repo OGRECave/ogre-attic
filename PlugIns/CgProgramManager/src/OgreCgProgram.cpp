@@ -29,9 +29,6 @@ Torus Knot Software Ltd.
 #include "OgreCgProgram.h"
 #include "OgreGpuProgramManager.h"
 #include "OgreStringConverter.h"
-#include "OgreRoot.h"
-#include "OgreRenderSystem.h"
-#include "OgreRenderSystemCapabilities.h"
 #include "OgreLogManager.h"
 
 namespace Ogre {
@@ -467,14 +464,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool CgProgram::isSupported(void) const
     {
-		// If skeletal animation is being done, we need support for UBYTE4
-		if ((isSkeletalAnimationIncluded() && 
-			!Root::getSingleton().getRenderSystem()->getCapabilities()
-			->hasCapability(RSC_VERTEX_FORMAT_UBYTE4)) ||  
-			mCompileError)
-		{
-			return false;
-		}
+        if (mCompileError || !isRequiredCapabilitiesSupported())
+            return false;
 
 		StringVector::const_iterator i, iend;
         iend = mProfiles.end();

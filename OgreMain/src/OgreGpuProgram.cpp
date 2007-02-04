@@ -252,15 +252,14 @@ namespace Ogre
 
     }
     //-----------------------------------------------------------------------------
-    bool GpuProgram::isSupported(void) const
+    bool GpuProgram::isRequiredCapabilitiesSupported(void) const
     {
 		const RenderSystemCapabilities* caps = 
 			Root::getSingleton().getRenderSystem()->getCapabilities();
+
         // If skeletal animation is being done, we need support for UBYTE4
-        if ((isSkeletalAnimationIncluded() && 
-            !Root::getSingleton().getRenderSystem()->getCapabilities()
-                ->hasCapability(RSC_VERTEX_FORMAT_UBYTE4)) ||  
-			mCompileError)
+        if (isSkeletalAnimationIncluded() && 
+            !caps->hasCapability(RSC_VERTEX_FORMAT_UBYTE4))
         {
             return false;
         }
@@ -271,6 +270,14 @@ namespace Ogre
 		{
 			return false;
 		}
+
+        return true;
+    }
+    //-----------------------------------------------------------------------------
+    bool GpuProgram::isSupported(void) const
+    {
+        if (mCompileError || !isRequiredCapabilitiesSupported())
+            return false;
 
         return GpuProgramManager::getSingleton().isSyntaxSupported(mSyntaxCode);
     }
