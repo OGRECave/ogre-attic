@@ -90,6 +90,12 @@ namespace Ogre
         AutoConstantDefinition(ACT_FOG_COLOUR,                    "fog_colour",                   4, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_FOG_PARAMS,                    "fog_params",                   4, ET_REAL, ACDT_NONE),
 
+        AutoConstantDefinition(ACT_SURFACE_AMBIENT_COLOUR,          "surface_ambient_colour",           4, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_SURFACE_DIFFUSE_COLOUR,          "surface_diffuse_colour",           4, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_SURFACE_SPECULAR_COLOUR,         "surface_specular_colour",          4, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_SURFACE_EMISSIVE_COLOUR,         "surface_emissive_colour",          4, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_SURFACE_SHININESS,               "surface_shininess",                1, ET_REAL, ACDT_NONE),
+
         AutoConstantDefinition(ACT_AMBIENT_LIGHT_COLOUR,          "ambient_light_colour",         4, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_LIGHT_DIFFUSE_COLOUR,          "light_diffuse_colour",         4, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_LIGHT_SPECULAR_COLOUR,         "light_specular_colour",        4, ET_REAL, ACDT_INT),
@@ -115,6 +121,14 @@ namespace Ogre
 		AutoConstantDefinition(ACT_LIGHT_DISTANCE_OBJECT_SPACE_ARRAY,   "light_distance_object_space_array",  1, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_LIGHT_POWER_SCALE_ARRAY,   		  "light_power_array",  1, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_SPOTLIGHT_PARAMS_ARRAY,              "spotlight_params_array",             4, ET_REAL, ACDT_INT),
+
+        AutoConstantDefinition(ACT_DERIVED_AMBIENT_LIGHT_COLOUR,    "derived_ambient_light_colour",     4, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_DERIVED_SCENE_COLOUR,            "derived_scene_colour",             4, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_DERIVED_LIGHT_DIFFUSE_COLOUR,    "derived_light_diffuse_colour",     4, ET_REAL, ACDT_INT),
+        AutoConstantDefinition(ACT_DERIVED_LIGHT_SPECULAR_COLOUR,   "derived_light_specular_colour",    4, ET_REAL, ACDT_INT),
+        AutoConstantDefinition(ACT_DERIVED_LIGHT_DIFFUSE_COLOUR_ARRAY,  "derived_light_diffuse_colour_array",   4, ET_REAL, ACDT_INT),
+        AutoConstantDefinition(ACT_DERIVED_LIGHT_SPECULAR_COLOUR_ARRAY, "derived_light_specular_colour_array",  4, ET_REAL, ACDT_INT),
+
         AutoConstantDefinition(ACT_SHADOW_EXTRUSION_DISTANCE,     "shadow_extrusion_distance",    1, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_CAMERA_POSITION,               "camera_position",              3, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_CAMERA_POSITION_OBJECT_SPACE,  "camera_position_object_space", 3, ET_REAL, ACDT_NONE),
@@ -155,6 +169,9 @@ namespace Ogre
 		AutoConstantDefinition(ACT_TEXEL_OFFSETS,               "texel_offsets",				  4, ET_REAL, ACDT_NONE),
 		AutoConstantDefinition(ACT_SCENE_DEPTH_RANGE,           "scene_depth_range",			  4, ET_REAL, ACDT_NONE),
 		AutoConstantDefinition(ACT_SHADOW_SCENE_DEPTH_RANGE,    "shadow_scene_depth_range",		  4, ET_REAL, ACDT_INT),
+        AutoConstantDefinition(ACT_TEXTURE_SIZE,                "texture_size",                   4, ET_REAL, ACDT_INT),
+        AutoConstantDefinition(ACT_INVERSE_TEXTURE_SIZE,        "inverse_texture_size",           4, ET_REAL, ACDT_INT),
+        AutoConstantDefinition(ACT_PACKED_TEXTURE_SIZE,         "packed_texture_size",            4, ET_REAL, ACDT_INT),
     };
 
 	//---------------------------------------------------------------------
@@ -1115,12 +1132,40 @@ namespace Ogre
                 _writeRawConstant(i->physicalIndex, source.getAmbientLightColour(), 
 					i->elementCount);
                 break;
+            case ACT_DERIVED_AMBIENT_LIGHT_COLOUR:
+                _writeRawConstant(i->physicalIndex, source.getDerivedAmbientLightColour(),
+                    i->elementCount);
+                break;
+            case ACT_DERIVED_SCENE_COLOUR:
+                _writeRawConstant(i->physicalIndex, source.getDerivedSceneColour(),
+                    i->elementCount);
+                break;
 
             case ACT_FOG_COLOUR:
                 _writeRawConstant(i->physicalIndex, source.getFogColour());
                 break;
             case ACT_FOG_PARAMS:
                 _writeRawConstant(i->physicalIndex, source.getFogParams(), i->elementCount);
+                break;
+
+            case ACT_SURFACE_AMBIENT_COLOUR:
+                _writeRawConstant(i->physicalIndex, source.getSurfaceAmbientColour(),
+                    i->elementCount);
+                break;
+            case ACT_SURFACE_DIFFUSE_COLOUR:
+                _writeRawConstant(i->physicalIndex, source.getSurfaceDiffuseColour(),
+                    i->elementCount);
+                break;
+            case ACT_SURFACE_SPECULAR_COLOUR:
+                _writeRawConstant(i->physicalIndex, source.getSurfaceSpecularColour(),
+                    i->elementCount);
+                break;
+            case ACT_SURFACE_EMISSIVE_COLOUR:
+                _writeRawConstant(i->physicalIndex, source.getSurfaceEmissiveColour(),
+                    i->elementCount);
+                break;
+            case ACT_SURFACE_SHININESS:
+                _writeRawConstant(i->physicalIndex, source.getSurfaceShininess());
                 break;
 
             case ACT_CAMERA_POSITION:
@@ -1214,6 +1259,15 @@ namespace Ogre
 						i->elementCount);
 				}
 				break;
+            case ACT_TEXTURE_SIZE:
+                _writeRawConstant(i->physicalIndex, source.getTextureSize(i->data), i->elementCount);
+                break;
+            case ACT_INVERSE_TEXTURE_SIZE:
+                _writeRawConstant(i->physicalIndex, source.getInverseTextureSize(i->data), i->elementCount);
+                break;
+            case ACT_PACKED_TEXTURE_SIZE:
+                _writeRawConstant(i->physicalIndex, source.getPackedTextureSize(i->data), i->elementCount);
+                break;
 			case ACT_SCENE_DEPTH_RANGE:
 				_writeRawConstant(i->physicalIndex, source.getSceneDepthRange(), i->elementCount);
 				break;
@@ -1411,7 +1465,7 @@ namespace Ogre
 			case ACT_LIGHT_POSITION_VIEW_SPACE_ARRAY:
 				for (size_t l = 0; l < i->data; ++l)
 					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
-						source.getWorldViewMatrix().transformAffine(
+						source.getViewMatrix().transformAffine(
 							source.getLight(l).getAs4DVector()),
 						i->elementCount);
 				break;
@@ -1481,6 +1535,32 @@ namespace Ogre
 					}
 					break;
 				}
+            case ACT_DERIVED_LIGHT_DIFFUSE_COLOUR:
+                _writeRawConstant(i->physicalIndex,
+                    source.getLight(i->data).getDiffuseColour() * source.getSurfaceDiffuseColour(),
+                    i->elementCount);
+                break;
+            case ACT_DERIVED_LIGHT_SPECULAR_COLOUR:
+                _writeRawConstant(i->physicalIndex,
+                    source.getLight(i->data).getSpecularColour() * source.getSurfaceSpecularColour(),
+                    i->elementCount);
+                break;
+            case ACT_DERIVED_LIGHT_DIFFUSE_COLOUR_ARRAY:
+				for (size_t l = 0; l < i->data; ++l)
+                {
+					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
+                        source.getLight(l).getDiffuseColour() * source.getSurfaceDiffuseColour(),
+                        i->elementCount);
+                }
+                break;
+            case ACT_DERIVED_LIGHT_SPECULAR_COLOUR_ARRAY:
+				for (size_t l = 0; l < i->data; ++l)
+                {
+					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
+                        source.getLight(l).getSpecularColour() * source.getSurfaceSpecularColour(),
+                        i->elementCount);
+                }
+                break;
 			case ACT_TEXTURE_VIEWPROJ_MATRIX:
 				// can also be updated in lights
 				_writeRawConstant(i->physicalIndex, source.getTextureViewProjMatrix(i->data));

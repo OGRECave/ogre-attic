@@ -66,11 +66,12 @@ namespace Ogre {
          mCurrentRenderTarget(0),
          mCurrentViewport(0), 
 		 mCurrentSceneManager(0),
-		 mMainCamBoundsInfo(0)
+		 mMainCamBoundsInfo(0),
+         mCurrentPass(0)
     {
         mBlankLight.setDiffuseColour(ColourValue::Black);
         mBlankLight.setSpecularColour(ColourValue::Black);
-        mBlankLight.setAttenuation(0,0,0,0);
+        mBlankLight.setAttenuation(0,1,0,0);
 		for(size_t i = 0; i < OGRE_MAX_SIMULTANEOUS_LIGHTS; ++i)
 		{
 			mTextureViewProjMatrixDirty[i] = true;
@@ -132,21 +133,30 @@ namespace Ogre {
 		mCurrentSceneManager = sm;
 	}
     //-----------------------------------------------------------------------------
+    void AutoParamDataSource::setWorldMatrices(const Matrix4* m, size_t count)
+    {
+        mWorldMatrixArray = m;
+        mWorldMatrixCount = count;
+        mWorldMatrixDirty = false;
+    }
+    //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getWorldMatrix(void) const
     {
         if (mWorldMatrixDirty)
         {
+            mWorldMatrixArray = mWorldMatrix;
             mCurrentRenderable->getWorldTransforms(mWorldMatrix);
             mWorldMatrixCount = mCurrentRenderable->getNumWorldTransforms();
             mWorldMatrixDirty = false;
         }
-        return mWorldMatrix[0];
+        return mWorldMatrixArray[0];
     }
     //-----------------------------------------------------------------------------
     size_t AutoParamDataSource::getWorldMatrixCount(void) const
     {
         if (mWorldMatrixDirty)
         {
+            mWorldMatrixArray = mWorldMatrix;
             mCurrentRenderable->getWorldTransforms(mWorldMatrix);
             mWorldMatrixCount = mCurrentRenderable->getNumWorldTransforms();
             mWorldMatrixDirty = false;
@@ -158,11 +168,12 @@ namespace Ogre {
     {
         if (mWorldMatrixDirty)
         {
+            mWorldMatrixArray = mWorldMatrix;
             mCurrentRenderable->getWorldTransforms(mWorldMatrix);
             mWorldMatrixCount = mCurrentRenderable->getNumWorldTransforms();
             mWorldMatrixDirty = false;
         }
-        return mWorldMatrix;
+        return mWorldMatrixArray;
     }
     //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getViewMatrix(void) const
@@ -336,6 +347,83 @@ namespace Ogre {
 		return mAmbientLight;
 		
 	}
+    //-----------------------------------------------------------------------------
+    void AutoParamDataSource::setCurrentPass(const Pass* pass)
+    {
+        mCurrentPass = pass;
+    }
+    //-----------------------------------------------------------------------------
+    const Pass* AutoParamDataSource::getCurrentPass(void) const
+    {
+        return mCurrentPass;
+    }
+    //-----------------------------------------------------------------------------
+    Vector4 AutoParamDataSource::getTextureSize(size_t index) const
+    {
+        Vector4 size = Vector4(1,1,1,1);
+
+        if (index < mCurrentPass->getNumTextureUnitStates())
+        {
+            const TexturePtr& tex = mCurrentPass->getTextureUnitState(index)->_getTexturePtr();
+            if (!tex.isNull())
+            {
+                size.x = tex->getWidth();
+                size.y = tex->getHeight();
+                size.z = tex->getDepth();
+            }
+        }
+
+        return size;
+    }
+    //-----------------------------------------------------------------------------
+    Vector4 AutoParamDataSource::getInverseTextureSize(size_t index) const
+    {
+        Vector4 size = getTextureSize(index);
+        return 1 / size;
+    }
+    //-----------------------------------------------------------------------------
+    Vector4 AutoParamDataSource::getPackedTextureSize(size_t index) const
+    {
+        Vector4 size = getTextureSize(index);
+        return Vector4(size.x, size.y, 1 / size.x, 1 / size.y);
+    }
+    //-----------------------------------------------------------------------------
+    const ColourValue& AutoParamDataSource::getSurfaceAmbientColour(void) const
+    {
+        return mCurrentPass->getAmbient();
+    }
+    //-----------------------------------------------------------------------------
+    const ColourValue& AutoParamDataSource::getSurfaceDiffuseColour(void) const
+    {
+        return mCurrentPass->getDiffuse();
+    }
+    //-----------------------------------------------------------------------------
+    const ColourValue& AutoParamDataSource::getSurfaceSpecularColour(void) const
+    {
+        return mCurrentPass->getSpecular();
+    }
+    //-----------------------------------------------------------------------------
+    const ColourValue& AutoParamDataSource::getSurfaceEmissiveColour(void) const
+    {
+        return mCurrentPass->getSelfIllumination();
+    }
+    //-----------------------------------------------------------------------------
+    Real AutoParamDataSource::getSurfaceShininess(void) const
+    {
+        return mCurrentPass->getShininess();
+    }
+    //-----------------------------------------------------------------------------
+    ColourValue AutoParamDataSource::getDerivedAmbientLightColour(void) const
+    {
+        return getAmbientLightColour() * getSurfaceAmbientColour();
+    }
+    //-----------------------------------------------------------------------------
+    ColourValue AutoParamDataSource::getDerivedSceneColour(void) const
+    {
+        ColourValue result = getDerivedAmbientLightColour() + getSurfaceEmissiveColour();
+        result.a = getSurfaceDiffuseColour().a;
+        return result;
+    }
     //-----------------------------------------------------------------------------
     void AutoParamDataSource::setFog(FogMode mode, const ColourValue& colour,
         Real expDensity, Real linearStart, Real linearEnd)

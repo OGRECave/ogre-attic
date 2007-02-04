@@ -334,12 +334,24 @@ namespace Ogre {
             ACT_FOG_PARAMS,
 
 
+            /// Surface ambient colour, as set in Pass::setAmbient
+            ACT_SURFACE_AMBIENT_COLOUR,
+            /// Surface diffuse colour, as set in Pass::setDiffuse
+            ACT_SURFACE_DIFFUSE_COLOUR,
+            /// Surface specular colour, as set in Pass::setSpecular
+            ACT_SURFACE_SPECULAR_COLOUR,
+            /// Surface emissive colour, as set in Pass::setSelfIllumination
+            ACT_SURFACE_EMISSIVE_COLOUR,
+            /// Surface shininess, as set in Pass::setShininess
+            ACT_SURFACE_SHININESS,
+
+
 			/// The ambient light colour set in the scene
 			ACT_AMBIENT_LIGHT_COLOUR, 
 
             /// Light diffuse colour (index determined by setAutoConstant call)
             ACT_LIGHT_DIFFUSE_COLOUR,
-            /// Light diffuse colour (index determined by setAutoConstant call)
+            /// Light specular colour (index determined by setAutoConstant call)
             ACT_LIGHT_SPECULAR_COLOUR,
             /// Light attenuation parameters, Vector4(range, constant, linear, quadric)
             ACT_LIGHT_ATTENUATION,
@@ -370,7 +382,7 @@ namespace Ogre {
 			ACT_LIGHT_POWER_SCALE,
 			/// Array of light diffuse colours (count set by extra param)
 			ACT_LIGHT_DIFFUSE_COLOUR_ARRAY,
-			/// Array of light diffuse colours (count set by extra param)
+			/// Array of light specular colours (count set by extra param)
 			ACT_LIGHT_SPECULAR_COLOUR_ARRAY,
 			/// Array of light attenuation parameters, Vector4(range, constant, linear, quadric) (count set by extra param)
 			ACT_LIGHT_ATTENUATION_ARRAY,
@@ -402,6 +414,36 @@ namespace Ogre {
 			(count set by extra param)
 			*/ 
 			ACT_SPOTLIGHT_PARAMS_ARRAY,
+
+            /** The derived ambient light colour, with 'r', 'g', 'b' components filled with
+                product of surface ambient colour and ambient light colour, respectively,
+                and 'a' component filled with surface ambient alpha component.
+            */
+            ACT_DERIVED_AMBIENT_LIGHT_COLOUR,
+            /** The derived scene colour, with 'r', 'g' and 'b' components filled with sum
+                of derived ambient light colour and surface emissive colour, respectively,
+                and 'a' component filled with surface diffuse alpha component.
+            */
+            ACT_DERIVED_SCENE_COLOUR,
+
+            /** The derived light diffuse colour (index determined by setAutoConstant call),
+                with 'r', 'g' and 'b' components filled with product of surface diffuse colour
+                and light diffuse colour, respectively, and 'a' component filled with surface
+                diffuse alpha component.
+            */
+            ACT_DERIVED_LIGHT_DIFFUSE_COLOUR,
+            /** The derived light specular colour (index determined by setAutoConstant call),
+                with 'r', 'g' and 'b' components filled with product of surface specular colour
+                and light specular colour, respectively, and 'a' component filled with surface
+                specular alpha component.
+            */
+            ACT_DERIVED_LIGHT_SPECULAR_COLOUR,
+
+			/// Array of derived light diffuse colours (count set by extra param)
+            ACT_DERIVED_LIGHT_DIFFUSE_COLOUR_ARRAY,
+			/// Array of derived light specular colours (count set by extra param)
+            ACT_DERIVED_LIGHT_SPECULAR_COLOUR_ARRAY,
+
 
 			/** The distance a shadow volume should be extruded when using
 			    finite extrusion programs.
@@ -550,6 +592,19 @@ namespace Ogre {
 			Passed as float4(minDepth, maxDepth, depthRange, 1 / depthRange)
 			*/
 			ACT_SHADOW_SCENE_DEPTH_RANGE,
+
+            /** Provides texture size of the texture unit (index determined by setAutoConstant
+                call). Packed as float4(width, height, depth, 1)
+            */
+            ACT_TEXTURE_SIZE,
+            /** Provides inverse texture size of the texture unit (index determined by setAutoConstant
+                call). Packed as float4(1 / width, 1 / height, 1 / depth, 1)
+            */
+            ACT_INVERSE_TEXTURE_SIZE,
+            /** Provides packed texture size of the texture unit (index determined by setAutoConstant
+                call). Packed as float4(width, height, 1 / width, 1 / height)
+            */
+            ACT_PACKED_TEXTURE_SIZE,
 
 
         };
