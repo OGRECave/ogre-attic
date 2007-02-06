@@ -705,7 +705,8 @@ namespace Ogre {
     {
         mCompilationRequired = true;
         // Also need to unload to ensure we loaded any new items
-        unload();
+		if (isLoaded()) // needed to stop this being called in 'loading' state
+			unload();
     }
     // --------------------------------------------------------------------
     void Material::setLodLevels(const LodDistanceList& lodDistances)
