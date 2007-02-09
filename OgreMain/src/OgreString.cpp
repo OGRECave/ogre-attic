@@ -30,7 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
 	//-----------------------------------------------------------------------
-	const String StringUtil::BLANK = String("");
+	const String StringUtil::BLANK;
 	//-----------------------------------------------------------------------
     void StringUtil::trim(String& str, bool left, bool right)
     {
@@ -67,8 +67,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     std::vector<String> StringUtil::split( const String& str, const String& delims, unsigned int maxSplits)
     {
-        // static unsigned dl;
         std::vector<String> ret;
+        // Pre-allocate some space for performance
+        ret.reserve(maxSplits ? maxSplits+1 : 10);    // 10 is guessed capacity for most case
+
         unsigned int numSplits = 0;
 
         // Use STL methods 
@@ -175,7 +177,7 @@ namespace Ogre {
 
         if (i == String::npos)
         {
-            outPath = "";
+            outPath.clear();
 			outBasename = qualifiedName;
         }
         else
