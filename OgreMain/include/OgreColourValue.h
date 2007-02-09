@@ -157,7 +157,7 @@ namespace Ogre {
 			return &r;
 		}
 		/// Pointer accessor for direct copying
-		inline const Real* ptr() const
+		inline const float* ptr() const
 		{
 			return &r;
 		}
