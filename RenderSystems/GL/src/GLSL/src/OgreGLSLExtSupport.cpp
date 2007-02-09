@@ -82,7 +82,7 @@ namespace Ogre
 				GLcharARB * infoLog = new GLcharARB[infologLength];
 
 				glGetInfoLogARB(obj, infologLength, &charsWritten, infoLog);
-				logMessage += String(infoLog) + "\n";
+				logMessage += String(infoLog);
 				LogManager::getSingleton().logMessage(logMessage);
 
 				delete [] infoLog;

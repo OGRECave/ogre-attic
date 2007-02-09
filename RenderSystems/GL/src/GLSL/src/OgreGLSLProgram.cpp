@@ -144,6 +144,10 @@ namespace Ogre {
     //---------------------------------------------------------------------------
 	bool GLSLProgram::compile(const bool checkErrors)
 	{
+        if (checkErrors)
+        {
+            logObjectInfo("GLSL compiling: " + mName, mGLHandle);
+        }
 
 		glCompileShaderARB(mGLHandle);
 		// check for compile errors
@@ -155,7 +159,7 @@ namespace Ogre {
 			
 			if (mCompiled)
 			{
-				logObjectInfo( mName + " : GLSL compiled ", mGLHandle );
+				logObjectInfo("GLSL compiled : " + mName, mGLHandle);
 			}
 		}
 		return (mCompiled == 1);
