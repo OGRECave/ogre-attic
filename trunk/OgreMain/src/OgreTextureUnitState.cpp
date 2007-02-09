@@ -1180,7 +1180,13 @@ namespace Ogre {
             }
         }
 
-        // Don't unload textures. may be used elsewhere
+        // Unreference but don't unload textures. may be used elsewhere
+        std::vector<TexturePtr>::iterator ti, tiend;
+        tiend = mFramePtrs.end();
+        for (ti = mFramePtrs.begin(); ti != tiend; ++ti)
+        {
+            ti->setNull();
+        }
     }
     //-----------------------------------------------------------------------------
     bool TextureUnitState::isLoaded(void)
