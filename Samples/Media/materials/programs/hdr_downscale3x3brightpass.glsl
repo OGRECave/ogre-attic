@@ -1,5 +1,6 @@
 uniform sampler2D inRTT;
 uniform sampler2D inLum;
+uniform vec2 texelSize;
 
 varying vec2 uv;
 const vec4 BRIGHT_LIMITER = vec4(0.6, 0.6, 0.6, 0.0);
@@ -10,8 +11,6 @@ vec4 toneMap(in vec4 inColour, in float lum);
 void main(void)
 {
     vec4 accum = vec4(0.0, 0.0, 0.0, 0.0);
-	// Approximate ratio from viewport to texture
-	vec2 texelSize = vec2(0.005, 0.005);
 
     accum += texture2D(inRTT, uv + texelSize * vec2(-1.0, -1.0));
     accum += texture2D(inRTT, uv + texelSize * vec2( 0.0, -1.0));
