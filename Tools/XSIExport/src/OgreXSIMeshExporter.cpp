@@ -283,15 +283,16 @@ namespace Ogre {
 			{
 				ProtoSubMesh* candidate = *psi;
 				// Check format is compatible
-				bool compat = true;
 				if (candidate->textureCoordDimensions.size() != texCoordDims.size())
 				{
-					compat = false;
+					continue;
 				}
 				if (candidate->hasVertexColours != hasVertexColours)
 				{
-					compat = false;
+					continue;
 				}
+
+				bool compat = true;
 				std::vector<ushort>::iterator t = texCoordDims.begin();
 				std::vector<ushort>::iterator u = candidate->textureCoordDimensions.begin(); 
 				for (;t != texCoordDims.end(); ++t,++u)
