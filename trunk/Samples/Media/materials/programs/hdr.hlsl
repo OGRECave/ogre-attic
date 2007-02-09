@@ -67,13 +67,12 @@ float4 toneMap(float4 inColour, float lum)
 */
 float4 downscale2x2Luminence(
 	float2 uv : TEXCOORD0,
+	uniform float2 texelSize, // depends on size of source texture
 	uniform sampler2D inRTT : register(s0)
     ) : COLOR
 {
 	
     float4 accum = float4(0.0f, 0.0f, 0.0f, 0.0f);
-	// Approximate ratio from viewport to texture
-	float2 texelSize = 0.005;
 
 	float2 texOffset[4] = {
 		-0.5, -0.5,
@@ -101,7 +100,7 @@ float4 downscale2x2Luminence(
 */
 float4 downscale3x3(
 	float2 uv : TEXCOORD0,
-	uniform float texelSize, // depends on size of source texture
+	uniform float2 texelSize, // depends on size of source texture
 	uniform sampler2D inRTT : register(s0)
     ) : COLOR
 {
@@ -136,14 +135,13 @@ float4 downscale3x3(
 */
 float4 downscale3x3brightpass(
 	float2 uv : TEXCOORD0,
+	uniform float2 texelSize, // depends on size of source texture
 	uniform sampler2D inRTT : register(s0),
 	uniform sampler2D inLum : register(s1)
     ) : COLOR
 {
 	
     float4 accum = float4(0.0f, 0.0f, 0.0f, 0.0f);
-	// Approximate ratio from viewport to texture
-	float2 texelSize = 0.005;
 
 	float2 texOffset[9] = {
 		-1.0, -1.0,
