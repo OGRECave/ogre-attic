@@ -1,5 +1,5 @@
 bash prepsdkbuild.sh
-call buildsdk Ogre.sln
+call buildsdk_vc71
 if errorlevel goto end
 bash copysamples.sh VC7
 pushd ..\..\Docs\src
