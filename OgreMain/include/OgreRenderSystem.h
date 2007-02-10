@@ -1179,6 +1179,9 @@ namespace Ogre
 
         bool mInvertVertexWinding;
 
+        /// Texture units from this upwards are disabled
+        size_t mDisabledTexUnitsFrom;
+
         /// number of times to render the current state
         size_t mCurrentPassIterationCount;
 

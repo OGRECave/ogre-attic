@@ -49,6 +49,7 @@ Torus Knot Software Ltd.
 namespace Ogre {
 
     const PlaneList Renderable::msDummyPlaneList; // FIX ME: temporary
+    static const TexturePtr sNullTexPtr;
 
     //-----------------------------------------------------------------------
     RenderSystem::RenderSystem()
@@ -62,6 +63,7 @@ namespace Ogre {
         , mVSync(true)
 		, mWBuffer(false)
         , mInvertVertexWinding(false)
+        , mDisabledTexUnitsFrom(0)
         , mCurrentPassIterationCount(0)
         , mVertexProgramBound(false)
         , mFragmentProgramBound(false)
@@ -220,32 +222,31 @@ namespace Ogre {
         // This method is only ever called to set a texture unit to valid details
         // The method _disableTextureUnit is called to turn a unit off
 
+        const TexturePtr& tex = tl._getTexturePtr();
 		// Vertex texture binding?
-		static TexturePtr nullPtr;
 		if (mCapabilities->hasCapability(RSC_VERTEX_TEXTURE_FETCH) && 
 			!mCapabilities->getVertexTextureUnitsShared())
 		{
 			if (tl.getBindingType() == TextureUnitState::BT_VERTEX)
 			{
+				// Bind vertex texture
+				_setVertexTexture(texUnit, tex);
 				// bind nothing to fragment unit (hardware isn't shared but fragment
 				// unit can't be using the same index
-				_setTexture(texUnit, true, nullPtr);
-				// Bind vertex texture
-				_setVertexTexture(texUnit, tl._getTexturePtr());
+				_setTexture(texUnit, true, sNullTexPtr);
 			}
 			else
 			{
 				// vice versa
-				_setTexture(texUnit, true, tl._getTexturePtr());
-				_setVertexTexture(texUnit, nullPtr);
-
+				_setVertexTexture(texUnit, sNullTexPtr);
+				_setTexture(texUnit, true, tex);
 			}
 		}
 		else
 		{
 			// Shared vertex / fragment textures or no vertex texture support
 			// Bind texture (may be blank)
-			_setTexture(texUnit, true, tl._getTexturePtr());
+			_setTexture(texUnit, true, tex);
 		}
 
         // Set texture coordinate set
@@ -269,9 +270,15 @@ namespace Ogre {
         _setTextureBlendMode(texUnit, tl.getAlphaBlendMode());
 
         // Texture addressing mode
-        _setTextureAddressingMode(texUnit, tl.getTextureAddressingMode() );
-        // Texture border colour
-        _setTextureBorderColour(texUnit, tl.getTextureBorderColour());
+        const TextureUnitState::UVWAddressingMode& uvw = tl.getTextureAddressingMode();
+        _setTextureAddressingMode(texUnit, uvw);
+        // Set texture border colour only if required
+        if (uvw.u == TextureUnitState::TAM_BORDER ||
+            uvw.v == TextureUnitState::TAM_BORDER ||
+            uvw.w == TextureUnitState::TAM_BORDER)
+        {
+            _setTextureBorderColour(texUnit, tl.getTextureBorderColour());
+        }
 
         // Set texture effects
         TextureUnitState::EffectMap::iterator effi;
@@ -320,7 +327,6 @@ namespace Ogre {
         if (!anyCalcs)
         {
             _setTextureCoordCalculation(texUnit, TEXCALC_NONE);
-            _setTextureCoordSet(texUnit, tl.getTextureCoordSet());
         }
 
         // Change tetxure matrix 
@@ -347,15 +353,16 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void RenderSystem::_disableTextureUnit(size_t texUnit)
     {
-		static TexturePtr nullPtr;
-
-        _setTexture(texUnit, false, nullPtr);
-        _setTextureMatrix(texUnit, Matrix4::IDENTITY);
+        _setTexture(texUnit, false, sNullTexPtr);
     }
     //---------------------------------------------------------------------
     void RenderSystem::_disableTextureUnitsFrom(size_t texUnit)
     {
-        for (size_t i = texUnit; i < mCapabilities->getNumTextureUnits(); ++i)
+        size_t disableTo = mCapabilities->getNumTextureUnits();
+        if (disableTo > mDisabledTexUnitsFrom)
+            disableTo = mDisabledTexUnitsFrom;
+        mDisabledTexUnitsFrom = texUnit;
+        for (size_t i = texUnit; i < disableTo; ++i)
         {
             _disableTextureUnit(i);
         }
