@@ -1,10 +1,11 @@
 # alter the version number
-# required format ./bumpversion.sh <major> <minor> <patch> <codename>
+# required format ./bumpversion.sh <major> <minor> <patch> <codename> [<extra>]
 
 MAJOR=$1
 MINOR=$2
 PATCH=$3
 CODENAME=$4
+EXTRA=$5
 
 if [ -e $MAJOR ]
 then 
@@ -72,7 +73,7 @@ sed -i -e "s/Version='[0-9]*\.[0-9]*\.[0-9]*'/Version='$MAJOR.$MINOR.$PATCH'/i" 
 
 # SDK/Win32/ogresdk.nsh
 #	!define PRODUCT_VERSION "1.2.5"
-sed -i -e "s/PRODUCT_VERSION \".*$/PRODUCT_VERSION \"$MAJOR.$MINOR.$PATCH\"/i" SDK/Win32/ogresdk.nsh
+sed -i -e "s/PRODUCT_VERSION \".*$/PRODUCT_VERSION \"$MAJOR.$MINOR.$PATCH$EXTRA\"/i" SDK/Win32/ogresdk.nsh
 
 # Tools/Common/setup/commandlinetools.wxs
 #	Version='1.2.5'
