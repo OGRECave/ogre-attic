@@ -317,66 +317,75 @@ namespace Ogre
 	//-----------------------------------------------------------------------
 	void RibbonTrail::updateTrail(size_t index, const Node* node)
 	{
-		// Node has changed somehow, we're only interested in the derived position
-		ChainSegment& seg = mChainSegmentList[index];
-		Element& headElem = mChainElementList[seg.start + seg.head];
-		size_t nextElemIdx = seg.head + 1;
-		// wrap
-		if (nextElemIdx == mMaxElementsPerChain)
-			nextElemIdx = 0;
-		Element& nextElem = mChainElementList[seg.start + nextElemIdx];
-
-		// Vary the head elem, but bake new version if that exceeds element len
-        Vector3 newPos = node->_getDerivedPosition();
-        if (mParentNode)
-        {
-            // Transform position to ourself space
-            newPos = mParentNode->_getDerivedOrientation().UnitInverse() *
-                (newPos - mParentNode->_getDerivedPosition()) / mParentNode->_getDerivedScale();
-        }
-		Vector3 diff = newPos - nextElem.position;
-		Real sqlen = diff.squaredLength();
-		if (sqlen >= mSquaredElemLength)
+		// Repeat this entire process if chain is stretched beyond its natural length
+		bool done = false;
+		while (!done)
 		{
-			// Move existing head to mElemLength
-			Vector3 scaledDiff = diff * (mElemLength / Math::Sqrt(sqlen));
-			headElem.position = nextElem.position + scaledDiff;
-			// Add a new element to be the new head
-			Element newElem(newPos, mInitialWidth[index], 0.0f, mInitialColour[index]);
-			addChainElement(index, newElem);
-			// alter diff to represent new head size
-			diff = newPos - newElem.position;
+			// Node has changed somehow, we're only interested in the derived position
+			ChainSegment& seg = mChainSegmentList[index];
+			Element& headElem = mChainElementList[seg.start + seg.head];
+			size_t nextElemIdx = seg.head + 1;
+			// wrap
+			if (nextElemIdx == mMaxElementsPerChain)
+				nextElemIdx = 0;
+			Element& nextElem = mChainElementList[seg.start + nextElemIdx];
 
-		}
-		else
-		{
-			// Extend existing head
-			headElem.position = newPos;
-		}
-
-		// Is this segment full?
-		if ((seg.tail + 1) % mMaxElementsPerChain == seg.head)
-		{
-			// If so, shrink tail gradually to match head extension
-			Element& tailElem = mChainElementList[seg.start + seg.tail];
-			size_t preTailIdx;
-			if (seg.tail == 0)
-				preTailIdx = mMaxElementsPerChain - 1;
-			else
-				preTailIdx = seg.tail - 1;
-			Element& preTailElem = mChainElementList[seg.start + preTailIdx];
-
-			// Measure tail diff from pretail to tail
-			Vector3 taildiff = tailElem.position - preTailElem.position;
-			Real taillen = taildiff.length();
-			if (taillen > 1e-06)
+			// Vary the head elem, but bake new version if that exceeds element len
+			Vector3 newPos = node->_getDerivedPosition();
+			if (mParentNode)
 			{
-				Real tailsize = mElemLength - diff.length();
-				taildiff *= tailsize / taillen;
-				tailElem.position = preTailElem.position + taildiff;
+				// Transform position to ourself space
+				newPos = mParentNode->_getDerivedOrientation().UnitInverse() *
+					(newPos - mParentNode->_getDerivedPosition()) / mParentNode->_getDerivedScale();
+			}
+			Vector3 diff = newPos - nextElem.position;
+			Real sqlen = diff.squaredLength();
+			if (sqlen >= mSquaredElemLength)
+			{
+				// Move existing head to mElemLength
+				Vector3 scaledDiff = diff * (mElemLength / Math::Sqrt(sqlen));
+				headElem.position = nextElem.position + scaledDiff;
+				// Add a new element to be the new head
+				Element newElem(newPos, mInitialWidth[index], 0.0f, mInitialColour[index]);
+				addChainElement(index, newElem);
+				// alter diff to represent new head size
+				diff = newPos - newElem.position;
+				// check whether another step is needed or not
+				if (diff.squaredLength() <= mSquaredElemLength)   
+					done = true;
+
+			}
+			else
+			{
+				// Extend existing head
+				headElem.position = newPos;
+				done = true;
 			}
 
-		}
+			// Is this segment full?
+			if ((seg.tail + 1) % mMaxElementsPerChain == seg.head)
+			{
+				// If so, shrink tail gradually to match head extension
+				Element& tailElem = mChainElementList[seg.start + seg.tail];
+				size_t preTailIdx;
+				if (seg.tail == 0)
+					preTailIdx = mMaxElementsPerChain - 1;
+				else
+					preTailIdx = seg.tail - 1;
+				Element& preTailElem = mChainElementList[seg.start + preTailIdx];
+
+				// Measure tail diff from pretail to tail
+				Vector3 taildiff = tailElem.position - preTailElem.position;
+				Real taillen = taildiff.length();
+				if (taillen > 1e-06)
+				{
+					Real tailsize = mElemLength - diff.length();
+					taildiff *= tailsize / taillen;
+					tailElem.position = preTailElem.position + taildiff;
+				}
+
+			}
+		} // end while
 
 
 		mBoundsDirty = true;
