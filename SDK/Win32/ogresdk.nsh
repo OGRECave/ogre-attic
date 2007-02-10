@@ -88,12 +88,16 @@ Section -Headers
   SetOutPath "$INSTDIR\include\ode"
   SetOverwrite try
   File /r /x CVS "..\..\Dependencies\include\ode\*.*"
+  SetOutPath "$INSTDIR\include\OIS"
+  SetOverwrite try
+  File /r /x CVS "..\..\Dependencies\include\OIS\*.*"
 
   ; Optional headers (for linking direct to plugins)
   SetOutPath "$INSTDIR\include\opt"
   SetOverwrite try
   File "..\..\Plugins\OctreeSceneManager\include\*.h"
   File "..\..\Plugins\BspSceneManager\include\*.h"
+  File "..\..\Plugins\ParticleFX\include\*.h"
 
 SectionEnd
 
@@ -108,34 +112,35 @@ Section -Libs
     ; Release libs
   !else ; MSVC
     ; Debug libs
-    File "..\..\OgreMain\lib\Debug\OgreMain_d.lib"
-    File "..\..\OgreMain\lib\Debug\OgreMain_d.pdb"
-    ; ode.lib is only one available, no separate release version
-    File "..\..\Dependencies\lib\Debug\ode.lib"
+    File "..\..\lib\OgreMain_d.lib"
+    File "..\..\lib\Debug\OgreMain_d.pdb"
+    ; ode.lib is only one available, no separately named debug version
+    File "..\..\Dependencies\lib\Release\ode.lib"
     File "..\..\Dependencies\lib\Debug\CEGUIBase_d.lib"
-    File "..\..\Samples\Common\CEGUIRenderer\lib\OgreGUIRenderer_d.lib"
-    File "..\..\Samples\Common\CEGUIRenderer\bin\Debug\OgreGUIRenderer.pdb"
+    File "..\..\Dependencies\lib\Debug\OIS_d.lib"
+    File "..\..\lib\OgreGUIRenderer_d.lib"
+    File "..\..\lib\OgreGUIRenderer_d.pdb"
     ; Release libs
     File "..\..\OgreMain\lib\Release\OgreMain.lib"
     File "..\..\Dependencies\lib\Release\CEGUIBase.lib"
-    File "..\..\Samples\Common\CEGUIRenderer\lib\OgreGUIRenderer.lib"
+    File "..\..\Dependencies\lib\Release\OIS.lib"
+    File "..\..\lib\OgreGUIRenderer.lib"
   !endif
 
 
   ; Optional library files (for linking direct to plugins)
-  SetOutPath "$INSTDIR\lib\opt\debug"
+  SetOutPath "$INSTDIR\lib\opt"
   SetOverwrite try
   !ifndef MINGW ; MSVC
-    File "..\..\Plugins\OctreeSceneManager\bin\debug\Plugin_OctreeSceneManager.lib"
-    File "..\..\Plugins\OctreeSceneManager\bin\debug\Plugin_OctreeSceneManager.pdb"
-    File "..\..\Plugins\BspSceneManager\bin\debug\Plugin_BspSceneManager.lib"
-    File "..\..\Plugins\BspSceneManager\bin\debug\Plugin_BspSceneManager.pdb"
-  !endif
-  SetOutPath "$INSTDIR\lib\opt\release"
-  SetOverwrite try
-  !ifndef MINGW ; MSVC
-    File "..\..\Plugins\OctreeSceneManager\bin\release\Plugin_OctreeSceneManager.lib"
-    File "..\..\Plugins\BspSceneManager\bin\release\Plugin_BspSceneManager.lib"
+    File "..\..\lib\Plugin_OctreeSceneManager.lib"
+    File "..\..\lib\Plugin_OctreeSceneManager_d.lib"
+    File "..\..\lib\Plugin_OctreeSceneManager_d.pdb"
+    File "..\..\lib\Plugin_BspSceneManager.lib"
+    File "..\..\lib\Plugin_BspSceneManager_d.lib"
+    File "..\..\lib\Plugin_BspSceneManager_d.pdb"
+    File "..\..\lib\Plugin_ParticleFX.lib"
+    File "..\..\lib\Plugin_ParticleFX_d.lib"
+    File "..\..\lib\Plugin_ParticleFX_d.pdb"
   !endif
 
 SectionEnd
@@ -147,31 +152,24 @@ Section -Binaries
   SetOverwrite ifnewer
   !ifdef MINGW
     File "..\..\Samples\Common\bin\Debug\mingwm10.dll"
-  !else
-    File "..\..\Samples\Common\bin\Debug\ilut.dll"
   !endif
-  File "..\..\Samples\Common\bin\Debug\ilu.dll"
-  File "..\..\Samples\Common\bin\Debug\devil.dll"
   File "..\..\Samples\Common\bin\Debug\cg.dll"
-  File "..\..\Samples\Common\bin\Debug\zlib1.dll"
+  File "..\..\Samples\Common\bin\Debug\OIS_d.dll"
 
   File "..\..\Samples\Common\bin\Debug\OgreMain_d.dll"
-  File "..\..\Samples\Common\bin\Debug\OgrePlatform_d.dll"
   File "..\..\Samples\Common\bin\Debug\CEGUIBase_d.dll"
-  File "..\..\Samples\Common\bin\Debug\CEGUIFalagardBase_d.dll"
-  File "..\..\Samples\Common\bin\Debug\CEGUITaharezLook_d.dll"
-  File "..\..\Samples\Common\bin\Debug\CEGUIWindowsLook_d.dll"
-  File "..\..\Samples\Common\bin\Debug\Plugin_BSPSceneManager.dll"
-  File "..\..\Samples\Common\bin\Debug\Plugin_CgProgramManager.dll"
-  File "..\..\Samples\Common\bin\Debug\Plugin_OctreeSceneManager.dll"
-  File "..\..\Samples\Common\bin\Debug\Plugin_ParticleFX.dll"
-  File "..\..\Samples\Common\bin\Debug\RenderSystem_Direct3D9.dll"
-  File "..\..\Samples\Common\bin\Debug\RenderSystem_GL.dll"
+  File "..\..\Samples\Common\bin\Debug\CEGUIExpatParser_d.dll"
+  File "..\..\Samples\Common\bin\Debug\CEGUIFalagardWRBase_d.dll"
+  File "..\..\Samples\Common\bin\Debug\Plugin_BSPSceneManager_d.dll"
+  File "..\..\Samples\Common\bin\Debug\Plugin_CgProgramManager_d.dll"
+  File "..\..\Samples\Common\bin\Debug\Plugin_OctreeSceneManager_d.dll"
+  File "..\..\Samples\Common\bin\Debug\Plugin_ParticleFX_d.dll"
+  File "..\..\Samples\Common\bin\Debug\RenderSystem_Direct3D9_d.dll"
+  File "..\..\Samples\Common\bin\Debug\RenderSystem_GL_d.dll"
   File "..\..\Samples\Common\bin\Debug\OgreGUIRenderer_d.dll"
 
   File ".\samples\resources.cfg"
   File "..\..\Samples\Common\bin\Debug\plugins.cfg"
-  ; File "..\..\Samples\Common\bin\Debug\terrain.cfg"
   File "..\..\Samples\Common\bin\Debug\media.cfg"
   File "..\..\Samples\Common\bin\Debug\quake3settings.cfg"
   ; Binaries - release
@@ -179,33 +177,26 @@ Section -Binaries
   SetOverwrite ifnewer
   !ifdef MINGW
     File "..\..\Samples\Common\bin\Release\mingwm10.dll"
-  !else
-    File "..\..\Samples\Common\bin\Release\ilut.dll"
   !endif
-  File "..\..\Samples\Common\bin\Release\ilu.dll"
-  File "..\..\Samples\Common\bin\Release\devil.dll"
   File "..\..\Samples\Common\bin\Release\cg.dll"
-  File "..\..\Samples\Common\bin\Release\zlib1.dll"
+  File "..\..\Samples\Common\bin\Release\OIS.dll"
 
   File "..\..\Samples\Common\bin\Release\OgreMain.dll"
-  File "..\..\Samples\Common\bin\Release\OgrePlatform.dll"
   File "..\..\Samples\Common\bin\Release\CEGUIBase.dll"
-  File "..\..\Samples\Common\bin\Release\CEGUITaharezLook.dll"
-  File "..\..\Samples\Common\bin\Release\CEGUIWindowsLook.dll"
-  File "..\..\Samples\Common\bin\Release\CEGUIFalagardBase.dll"
+  File "..\..\Samples\Common\bin\Release\CEGUIExpatParser.dll"
+  File "..\..\Samples\Common\bin\Release\CEGUIFalagardWRBase.dll"
   File "..\..\Samples\Common\bin\Release\Plugin_BSPSceneManager.dll"
   File "..\..\Samples\Common\bin\Release\Plugin_CgProgramManager.dll"
   File "..\..\Samples\Common\bin\Release\Plugin_OctreeSceneManager.dll"
   File "..\..\Samples\Common\bin\Release\Plugin_ParticleFX.dll"
-  ;File "..\..\Samples\Common\bin\Release\RenderSystem_Direct3D7.dll"
   File "..\..\Samples\Common\bin\Release\RenderSystem_Direct3D9.dll"
   File "..\..\Samples\Common\bin\Release\RenderSystem_GL.dll"
   File "..\..\Samples\Common\bin\Release\OgreGUIRenderer.dll"
 
   File ".\samples\resources.cfg"
   File "..\..\Samples\Common\bin\Release\plugins.cfg"
-  ; File "..\..\Samples\Common\bin\Release\terrain.cfg"
   File "..\..\Samples\Common\bin\Release\media.cfg"
+  File "..\..\Samples\Common\bin\Release\quake3settings.cfg"
 
 SectionEnd
 
