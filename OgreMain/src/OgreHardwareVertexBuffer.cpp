@@ -510,22 +510,33 @@ namespace Ogre {
         for (i = elems.begin(); i != elems.end(); ++i, ++c)
         {
             const VertexElement& elem = *i;
-			if (vertexAnimation && elem.getSemantic() == VES_NORMAL)
+            if (elem.getSemantic() == VES_POSITION && vertexAnimation)
 			{
 				// For morph animation, we need positions on their own
+                if (offset)
+                {
+                    ++buffer;
+                    offset = 0;
+                }
+                newDecl->modifyElement(c, buffer, offset,
+                    elem.getType(), elem.getSemantic(), elem.getIndex());
 				++buffer;
 				offset = 0;
 			}
-            if ((skeletalAnimation || vertexAnimation) &&
-                elem.getSemantic() != VES_POSITION && elem.getSemantic() != VES_NORMAL)
+            else if (elem.getSemantic() == VES_NORMAL && (skeletalAnimation || vertexAnimation))
             {
 				// All animated meshes have to split after normal
+                newDecl->modifyElement(c, buffer, offset,
+                    elem.getType(), elem.getSemantic(), elem.getIndex());
 				++buffer;
 				offset = 0;
             }
-			newDecl->modifyElement(c, buffer, offset, 
-				elem.getType(), elem.getSemantic(), elem.getIndex());
-			offset += elem.getSize();
+            else
+            {
+                newDecl->modifyElement(c, buffer, offset,
+                    elem.getType(), elem.getSemantic(), elem.getIndex());
+                offset += elem.getSize();
+            }
         }
 
         return newDecl;
@@ -558,7 +569,7 @@ namespace Ogre {
         unsetAllBindings();
 	}
     //-----------------------------------------------------------------------------
-	void VertexBufferBinding::setBinding(unsigned short index, HardwareVertexBufferSharedPtr buffer)
+	void VertexBufferBinding::setBinding(unsigned short index, const HardwareVertexBufferSharedPtr& buffer)
 	{
         // NB will replace any existing buffer ptr at this index, and will thus cause
         // reference count to decrement on that buffer (possibly destroying it)
@@ -581,6 +592,7 @@ namespace Ogre {
     void VertexBufferBinding::unsetAllBindings(void)
     {
         mBindingMap.clear();
+        mHighIndex = 0;
     }
     //-----------------------------------------------------------------------------
 	const VertexBufferBinding::VertexBufferBindingMap& 
@@ -589,9 +601,9 @@ namespace Ogre {
 		return mBindingMap;
 	}
     //-----------------------------------------------------------------------------
-	HardwareVertexBufferSharedPtr VertexBufferBinding::getBuffer(unsigned short index)
+	const HardwareVertexBufferSharedPtr& VertexBufferBinding::getBuffer(unsigned short index) const
 	{
-		VertexBufferBindingMap::iterator i = mBindingMap.find(index);
+		VertexBufferBindingMap::const_iterator i = mBindingMap.find(index);
 		if (i == mBindingMap.end())
 		{
 			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No buffer is bound to that index.",
@@ -600,7 +612,7 @@ namespace Ogre {
 		return i->second;
 	}
 	//-----------------------------------------------------------------------------
-	bool VertexBufferBinding::isBufferBound(unsigned short index)
+	bool VertexBufferBinding::isBufferBound(unsigned short index) const
 	{
 		return mBindingMap.find(index) != mBindingMap.end();
 	}
