@@ -483,7 +483,7 @@ namespace Ogre {
 			You should assign bindings from 0 and not leave gaps, although you can
 			bind them in any order.
 		*/
-		virtual void setBinding(unsigned short index, HardwareVertexBufferSharedPtr buffer);
+		virtual void setBinding(unsigned short index, const HardwareVertexBufferSharedPtr& buffer);
 		/** Removes an existing binding. */
 		virtual void unsetBinding(unsigned short index);
 
@@ -494,9 +494,9 @@ namespace Ogre {
 		virtual const VertexBufferBindingMap& getBindings(void) const;
 
 		/// Gets the buffer bound to the given source index
-		virtual HardwareVertexBufferSharedPtr getBuffer(unsigned short index);
+		virtual const HardwareVertexBufferSharedPtr& getBuffer(unsigned short index) const;
 		/// Gets whether a buffer is bound to the given source index
-		virtual bool isBufferBound(unsigned short index);
+		virtual bool isBufferBound(unsigned short index) const;
 
         virtual size_t getBufferCount(void) const { return mBindingMap.size(); }
 
