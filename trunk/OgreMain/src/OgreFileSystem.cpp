@@ -71,6 +71,23 @@ namespace Ogre {
         return (fn [0] == '.' && (fn [1] == 0 || (fn [1] == '.' && fn [2] == 0)));
     }
     //-----------------------------------------------------------------------
+    static bool is_absolute_path(const char* path)
+    {
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+        if (isalpha(uchar(path[0])) && path[1] == ':')
+            return true;
+#endif
+        return path[0] == '/' || path[0] == '\\';
+    }
+    //-----------------------------------------------------------------------
+    static String concatenate_path(const String& base, const String& name)
+    {
+        if (base.empty() || is_absolute_path(name.c_str()))
+            return name;
+        else
+            return base + '/' + name;
+    }
+    //-----------------------------------------------------------------------
     void FileSystemArchive::findFiles(const String& pattern, bool recursive, 
         bool dirs, StringVector* simpleList, FileInfoList* detailList)
     {
@@ -86,7 +103,7 @@ namespace Ogre {
         if (pos1 != pattern.npos)
             directory = pattern.substr (0, pos1 + 1);
 
-        String full_pattern = mName + "/" + pattern;
+        String full_pattern = concatenate_path(mName, pattern);
 
         lHandle = _findfirst(full_pattern.c_str(), &tagData);
         res = 0;
@@ -123,7 +140,7 @@ namespace Ogre {
             String base_dir = mName;
             if (!directory.empty ())
             {
-                base_dir.append ("/").append (directory);
+                base_dir = concatenate_path(mName, directory);
                 // Remove the last '/'
                 base_dir.erase (base_dir.length () - 1);
             }
@@ -173,7 +190,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     DataStreamPtr FileSystemArchive::open(const String& filename) const
     {
-    	String full_path = mName + "/" + filename;
+        String full_path = concatenate_path(mName, filename);
 
         // Use filesystem to determine size 
         // (quicker than streaming to the end and back)
@@ -242,7 +259,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	bool FileSystemArchive::exists(const String& filename)
 	{
-        String full_path = mName + "/" + filename;
+        String full_path = concatenate_path(mName, filename);
 
         struct stat tagStat;
         bool ret = (stat(full_path.c_str(), &tagStat) == 0);
