@@ -572,7 +572,7 @@ namespace Ogre {
 		/// Calculate the area of intersection of this box and another
 		inline AxisAlignedBox intersection(const AxisAlignedBox& b2) const
 		{
-			if (!this->intersects(b2))
+            if (this->isNull() || b2.isNull())
 			{
 				return AxisAlignedBox();
 			}
@@ -585,39 +585,21 @@ namespace Ogre {
 				return *this;
 			}
 
-			Vector3 intMin, intMax;
+			Vector3 intMin = mMinimum;
+            Vector3 intMax = mMaximum;
 
-			const Vector3& b2max = b2.getMaximum();
-			const Vector3& b2min = b2.getMinimum();
+            intMin.makeCeil(b2.getMinimum());
+            intMax.makeFloor(b2.getMaximum());
 
-			if (b2max.x > mMaximum.x && mMaximum.x > b2min.x)
-				intMax.x = mMaximum.x;
-			else 
-				intMax.x = b2max.x;
-			if (b2max.y > mMaximum.y && mMaximum.y > b2min.y)
-				intMax.y = mMaximum.y;
-			else 
-				intMax.y = b2max.y;
-			if (b2max.z > mMaximum.z && mMaximum.z > b2min.z)
-				intMax.z = mMaximum.z;
-			else 
-				intMax.z = b2max.z;
+            // Check intersection isn't null
+            if (intMin.x < intMax.x &&
+                intMin.y < intMax.y &&
+                intMin.z < intMax.z)
+            {
+                return AxisAlignedBox(intMin, intMax);
+            }
 
-			if (b2min.x < mMinimum.x && mMinimum.x < b2max.x)
-				intMin.x = mMinimum.x;
-			else
-				intMin.x= b2min.x;
-			if (b2min.y < mMinimum.y && mMinimum.y < b2max.y)
-				intMin.y = mMinimum.y;
-			else
-				intMin.y= b2min.y;
-			if (b2min.z < mMinimum.z && mMinimum.z < b2max.z)
-				intMin.z = mMinimum.z;
-			else
-				intMin.z= b2min.z;
-
-			return AxisAlignedBox(intMin, intMax);
-
+            return AxisAlignedBox();
 		}
 
 		/// Calculate the volume of this box
@@ -742,6 +724,58 @@ namespace Ogre {
 			}
 		}
 
+        /** Tests whether the given point contained by this box.
+        */
+        bool contains(const Vector3& v) const
+        {
+            if (isNull())
+                return false;
+            if (isInfinite())
+                return true;
+
+            return mMinimum.x <= v.x && v.x <= mMaximum.x &&
+                   mMinimum.y <= v.y && v.y <= mMaximum.y &&
+                   mMinimum.z <= v.z && v.z <= mMaximum.z;
+        }
+
+        /** Tests whether another box contained by this box.
+        */
+        bool contains(const AxisAlignedBox& other) const
+        {
+            if (other.isNull() || this->isInfinite())
+                return true;
+
+            if (this->isNull() || other.isInfinite())
+                return false;
+
+            return this->mMinimum.x <= other.mMinimum.x &&
+                   this->mMinimum.y <= other.mMinimum.y &&
+                   this->mMinimum.z <= other.mMinimum.z &&
+                   other.mMaximum.x <= this->mMaximum.x &&
+                   other.mMaximum.y <= this->mMaximum.y &&
+                   other.mMaximum.z <= this->mMaximum.z;
+        }
+
+        /** Tests 2 boxes for equality.
+        */
+        bool operator== (const AxisAlignedBox& rhs) const
+        {
+            if (this->mExtent != rhs.mExtent)
+                return false;
+
+            if (!this->isFinite())
+                return true;
+
+            return this->mMinimum == rhs.mMinimum &&
+                   this->mMaximum == rhs.mMaximum;
+        }
+
+        /** Tests 2 boxes for inequality.
+        */
+        bool operator!= (const AxisAlignedBox& rhs) const
+        {
+            return !(*this == rhs);
+        }
 
 	};
 
