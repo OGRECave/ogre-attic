@@ -53,6 +53,7 @@ namespace Ogre {
         for (ViewportList::iterator i = mViewportList.begin();
             i != mViewportList.end(); ++i)
         {
+            fireViewportRemoved(i->second);
             delete (*i).second;
         }
 
@@ -164,6 +165,7 @@ namespace Ogre {
 
         for (ViewportList::iterator it = mViewportList.begin(); it != mViewportList.end(); ++it)
         {
+            fireViewportRemoved(it->second);
             delete (*it).second;
         }
 
