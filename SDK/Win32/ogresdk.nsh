@@ -113,15 +113,13 @@ Section -Libs
   !else ; MSVC
     ; Debug libs
     File "..\..\lib\OgreMain_d.lib"
-    File "..\..\lib\Debug\OgreMain_d.pdb"
     ; ode.lib is only one available, no separately named debug version
     File "..\..\Dependencies\lib\Release\ode.lib"
     File "..\..\Dependencies\lib\Debug\CEGUIBase_d.lib"
     File "..\..\Dependencies\lib\Debug\OIS_d.lib"
     File "..\..\lib\OgreGUIRenderer_d.lib"
-    File "..\..\lib\OgreGUIRenderer_d.pdb"
     ; Release libs
-    File "..\..\OgreMain\lib\Release\OgreMain.lib"
+    File "..\..\lib\OgreMain.lib"
     File "..\..\Dependencies\lib\Release\CEGUIBase.lib"
     File "..\..\Dependencies\lib\Release\OIS.lib"
     File "..\..\lib\OgreGUIRenderer.lib"
@@ -134,13 +132,10 @@ Section -Libs
   !ifndef MINGW ; MSVC
     File "..\..\lib\Plugin_OctreeSceneManager.lib"
     File "..\..\lib\Plugin_OctreeSceneManager_d.lib"
-    File "..\..\lib\Plugin_OctreeSceneManager_d.pdb"
     File "..\..\lib\Plugin_BspSceneManager.lib"
     File "..\..\lib\Plugin_BspSceneManager_d.lib"
-    File "..\..\lib\Plugin_BspSceneManager_d.pdb"
     File "..\..\lib\Plugin_ParticleFX.lib"
     File "..\..\lib\Plugin_ParticleFX_d.lib"
-    File "..\..\lib\Plugin_ParticleFX_d.pdb"
   !endif
 
 SectionEnd
@@ -213,9 +208,10 @@ Section -Docs
   SetOutPath "$INSTDIR\docs"
   SetOverwrite try
   File ".\docs\ReadMe.html"
-  File "..\..\Docs\License.html"
   File "..\..\Docs\ChangeLog.html"
   File "..\..\Docs\style.css"
+  SetOutPath "$INSTDIR\docs\licenses"
+  File "..\..\Docs\licenses\*.*"
 
 
   SetOutPath "$INSTDIR\docs\manual\images"
