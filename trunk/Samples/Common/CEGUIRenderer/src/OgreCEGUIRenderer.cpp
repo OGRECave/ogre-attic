@@ -330,7 +330,7 @@ void OgreCEGUIRenderer::doRender(void)
             }
             d_render_op.vertexData->vertexCount = d_bufferPos - d_render_op.vertexData->vertexStart;
             /// Set texture, and do the render
-            d_render_sys->_setTexture(0, true, d_currTexture->getName());
+            d_render_sys->_setTexture(0, true, d_currTexture);
             d_render_sys->_render(d_render_op);
         }
 
