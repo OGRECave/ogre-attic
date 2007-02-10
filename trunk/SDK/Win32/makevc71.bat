@@ -8,4 +8,5 @@ cd ..\api\html
 hhc index.hhp
 popd
 makensis ogresdk_vc71.nsi
+:end
 pause
