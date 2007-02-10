@@ -36,16 +36,15 @@ namespace Ogre
 
 	//---------------------------------------------------------------------
 	AnimationState::AnimationState(AnimationStateSet* parent, const AnimationState &rhs)
+        : mAnimationName(rhs.mAnimationName)
+        , mParent(parent)
+        , mTimePos(rhs.mTimePos)
+        , mLength(rhs.mLength)
+        , mWeight(rhs.mWeight)
+        , mEnabled(rhs.mEnabled)
+        , mLoop(rhs.mLoop)
 	{
-		mAnimationName = rhs.mAnimationName;
-		mTimePos = rhs.mTimePos;
-		mLoop = rhs.mLoop;
-		setLength(rhs.mLength);
-		mWeight = rhs.mWeight;
-		mParent = parent;
-
 		mParent->_notifyDirty();
-
 	}
 	//---------------------------------------------------------------------
 	AnimationState::~AnimationState()
@@ -55,11 +54,14 @@ namespace Ogre
     AnimationState::AnimationState(const String& animName, 
 		AnimationStateSet *parent, Real timePos, Real length, Real weight, 
 		bool enabled)
-        : mAnimationName(animName), mParent(parent), mTimePos(timePos), 
-		mWeight(weight), mEnabled(enabled)
+        : mAnimationName(animName)
+        , mParent(parent)
+        , mTimePos(timePos)
+        , mLength(length)
+        , mWeight(weight)
+        , mEnabled(enabled)
+        , mLoop(true)
     {
-        mLoop = true;
-        setLength(length);
 		mParent->_notifyDirty();
     }
     //---------------------------------------------------------------------
@@ -108,14 +110,6 @@ namespace Ogre
     void AnimationState::setLength(Real len)
     {
         mLength = len;
-        if (len != 0)
-        {
-            mInvLength = 1/len;
-        }
-        else
-        {
-            mInvLength = 0;
-        }
     }
     //---------------------------------------------------------------------
     Real AnimationState::getWeight(void) const
@@ -173,7 +167,6 @@ namespace Ogre
     {
         mTimePos = animState.mTimePos;
         mLength = animState.mLength;
-        mInvLength = animState.mInvLength;
         mWeight = animState.mWeight;
         mEnabled = animState.mEnabled;
         mLoop = animState.mLoop;
@@ -190,6 +183,9 @@ namespace Ogre
 	AnimationStateSet::AnimationStateSet(const AnimationStateSet& rhs)
 		: mDirtyFrameNumber(std::numeric_limits<unsigned long>::max())
 	{
+		// lock rhs
+		OGRE_LOCK_MUTEX(rhs.OGRE_AUTO_MUTEX_NAME)
+
 		for (AnimationStateMap::const_iterator i = rhs.mAnimationStates.begin();
 			i != rhs.mAnimationStates.end(); ++i)
 		{
