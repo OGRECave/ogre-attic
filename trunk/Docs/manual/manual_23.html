@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on January 23 2007 by texi2html 1.66 -->
+<!-- Created on February 10 2007 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -206,6 +206,32 @@ example: param_indexed_auto 0 worldviewproj_matrix<BR><BR>
 
 <DT>ambient_light_colour
 <DD>The colour of the ambient light currently set in the scene.
+
+<DT>surface_ambient_colour
+<DD>The ambient colour reflectance properties of the pass (See section <A HREF="manual_16.html#SEC37">ambient</A>). This allows you access to fixed-function pipeline property handily.
+<DT>surface_diffuse_colour
+<DD>The diffuse colour reflectance properties of the pass (See section <A HREF="manual_16.html#SEC38">diffuse</A>). This allows you access to fixed-function pipeline property handily.
+<DT>surface_specular_colour
+<DD>The specular colour reflectance properties of the pass (See section <A HREF="manual_16.html#SEC39">specular</A>). This allows you access to fixed-function pipeline property handily.
+<DT>surface_emissive_colour
+<DD>The amount of self-illumination of the pass (See section <A HREF="manual_16.html#SEC40">emissive</A>). This allows you access to fixed-function pipeline property handily.
+<DT>surface_shininess
+<DD>The shininess of the pass, affecting the size of specular highlights (See section <A HREF="manual_16.html#SEC39">specular</A>). This allows you bind to fixed-function pipeline property handily.
+
+<DT>derived_ambient_light_colour
+<DD>The derived ambient light colour, with 'r', 'g', 'b' components filled with product of surface_ambient_colour and ambient_light_colour, respectively, and 'a' component filled with surface ambient alpha component.
+<DT>derived_scene_colour
+<DD>The derived scene colour, with 'r', 'g' and 'b' components filled with sum of derived_ambient_light_colour and surface_emissive_colour, respectively, and 'a' component filled with surface diffuse alpha component.
+
+<DT>derived_light_diffuse_colour
+<DD>The derived light diffuse colour, with 'r', 'g' and 'b' components filled with product of surface_diffuse_colour and light_diffuse_colour, respectively, and 'a' component filled with surface diffuse alpha component. This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light).
+<DT>derived_light_specular_colour
+<DD>The derived light specular colour, with 'r', 'g' and 'b' components filled with product of surface_specular_colour and light_specular_colour, respectively, and 'a' component filled with surface specular alpha component. This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light).
+<DT>derived_light_diffuse_colour_array
+<DD>As derived_light_diffuse_colour, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
+<DT>derived_light_specular_colour_array
+<DD>As derived_light_specular_colour, except that this populates an array of parameters with a number of lights, and the 'extra_params' field refers to the number of 'nth closest' lights to be processed. This parameter is not compatible with light-based pass_iteration options but can be used for single-pass lighting.
+
 <DT>fog_colour
 <DD>The colour of the fog currently set in the scene.
 <DT>fog_params
@@ -280,6 +306,12 @@ example: param_indexed_auto 0 worldviewproj_matrix<BR><BR>
 <DD>Provides information about the depth range as viewed from the current camera being used to render. Provided as float4(minDepth, maxDepth, depthRange, 1 / depthRange).
 <DT>shadow_scene_depth_range
 <DD>Provides information about the depth range as viewed from the shadow camera relating to a selected light. Requires a light index parameter. Provided as float4(minDepth, maxDepth, depthRange, 1 / depthRange).
+<DT>texture_size
+<DD>Provides texture size of the selected texture unit. Requires a texture unit index parameter. Provided as float4(width, height, depth, 1). For 2D-texture, depth sets to 1, for 1D-texture, height and depth sets to 1.
+<DT>inverse_texture_size
+<DD>Provides inverse texture size of the selected texture unit. Requires a texture unit index parameter. Provided as float4(1 / width, 1 / height, 1 / depth, 1). For 2D-texture, depth sets to 1, for 1D-texture, height and depth sets to 1.
+<DT>packed_texture_size
+<DD>Provides packed texture size of the selected texture unit. Requires a texture unit index parameter. Provided as float4(width, height, 1 / width, 1 / height). For 3D-texture, depth is ignored, for 1D-texture, height sets to 1.
 <A NAME="pass_number"></A>
 <DT>pass_number
 <DD>Sets the active pass index number in a gpu parameter.  The first pass in a technique has an index of 0, the second an index of 1 and so on.  This is usefull for multipass shaders (ie fur or blur shader) that need to know what pass it is.  By setting up the auto parameter in a <A HREF="manual_18.html#SEC90">Default Program Parameters</A> list in a program definition, there is no requirement to set the pass number parameter in each pass and lose track. (See  <A HREF="manual_16.html#fur_example">fur_example</A>)
@@ -362,7 +394,7 @@ When using additive texture shadows, the shadow pass render is actually the ligh
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>January 23 2007</I>
+by <I>steve</I> on <I>February 10 2007</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 
