@@ -89,51 +89,26 @@ namespace Ogre {
 		if (box.isInfinite())
 			return BOTH_SIDE;
 
-		const Vector3& min = box.getMinimum();
-		const Vector3& max = box.getMaximum();
-		Plane::Side firstSide = getSide(min); // 0 min min min
-
-		Vector3 currentCorner = min; 
-		Plane::Side currentSide;
-
-		currentCorner.z = max.z; // 6 min min max
-		currentSide = getSide(currentCorner);
-		if(currentSide != firstSide)
-			return BOTH_SIDE;
-
-		currentCorner.y = max.y; // 5 min max max
-		currentSide = getSide(currentCorner);
-		if(currentSide != firstSide)
-			return BOTH_SIDE;
-
-		currentCorner.z = min.z; // 1 min max min
-		currentSide = getSide(currentCorner);
-		if(currentSide != firstSide)
-			return BOTH_SIDE;
-
-		currentCorner.x = max.x; // 2 max max min
-		currentSide = getSide(currentCorner);
-		if(currentSide != firstSide)
-			return BOTH_SIDE;
-
-		currentCorner.z = max.z; // 4 max max max
-		currentSide = getSide(currentCorner);
-		if(currentSide != firstSide)
-			return BOTH_SIDE;        
-
-		currentCorner.y = min.y; // 7 max min max
-		currentSide = getSide(currentCorner);
-		if(currentSide != firstSide)
-			return BOTH_SIDE;
-
-		currentCorner.z = min.z; // 3 max min min
-		currentSide = getSide(currentCorner);
-		if(currentSide != firstSide)
-			return BOTH_SIDE;
-
-		return firstSide;
+        return getSide(box.getCenter(), box.getHalfSize());
 	}
+    //-----------------------------------------------------------------------
+    Plane::Side Plane::getSide (const Vector3& centre, const Vector3& halfSize) const
+    {
+        // Calculate the distance between box centre and the plane
+        Real dist = getDistance(centre);
 
+        // Calculate the maximise allows absolute distance for
+        // the distance between box centre and plane
+        Real maxAbsDist = normal.absDotProduct(halfSize);
+
+        if (dist < -maxAbsDist)
+            return Plane::NEGATIVE_SIDE;
+
+        if (dist > +maxAbsDist)
+            return Plane::POSITIVE_SIDE;
+
+        return Plane::BOTH_SIDE;
+    }
 	//-----------------------------------------------------------------------
 	void Plane::redefine(const Vector3& rkPoint0, const Vector3& rkPoint1,
 		const Vector3& rkPoint2)

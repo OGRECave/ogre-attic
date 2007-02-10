@@ -147,6 +147,10 @@ Intersection intersect( const PlaneBoundedVolume &one, const AxisAlignedBox &two
     // Null box?
     if (two.isNull()) return OUTSIDE;
 
+    // Get centre of the box
+    Vector3 centre = two.getCenter();
+    // Get the half-size of the box
+    Vector3 halfSize = two.getHalfSize();
 
     // For each plane, see if all points are on the negative side
     // If so, object is not visible.
@@ -159,8 +163,8 @@ Intersection intersect( const PlaneBoundedVolume &one, const AxisAlignedBox &two
     {
         const Plane& plane = *i;
 
-        Plane::Side side = plane.getSide(two);
-        if(side == Plane::NEGATIVE_SIDE)
+        Plane::Side side = plane.getSide(centre, halfSize);
+        if(side == one.outside)
                 return OUTSIDE;
         if(side == Plane::BOTH_SIDE)
                 all_inside = false; 

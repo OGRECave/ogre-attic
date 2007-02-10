@@ -360,6 +360,33 @@ namespace Ogre
             return x * x + y * y + z * z;
         }
 
+        /** Returns the distance to another vector.
+            @warning
+                This operation requires a square root and is expensive in
+                terms of CPU operations. If you don't need to know the exact
+                distance (e.g. for just comparing distances) use squaredDistance()
+                instead.
+        */
+        inline Real distance(const Vector3& rhs) const
+        {
+            return (*this - rhs).length();
+        }
+
+        /** Returns the square of the distance to another vector.
+            @remarks
+                This method is for efficiency - calculating the actual
+                distance to another vector requires a square root, which is
+                expensive in terms of the operations required. This method
+                returns the square of the distance to another vector, i.e.
+                the same as the distance but before the square root is taken.
+                Use this if you want to find the longest / shortest distance
+                without incurring the square root.
+        */
+        inline Real squaredDistance(const Vector3& rhs) const
+        {
+            return (*this - rhs).squaredLength();
+        }
+
         /** Calculates the dot (scalar) product of this vector with another.
             @remarks
                 The dot product can be used to calculate the angle between 2
@@ -377,6 +404,21 @@ namespace Ogre
         inline Real dotProduct(const Vector3& vec) const
         {
             return x * vec.x + y * vec.y + z * vec.z;
+        }
+
+        /** Calculates the absolute dot (scalar) product of this vector with another.
+            @remarks
+                This function work similar dotProduct, except it use absolute value
+                of each component of the vector to computing.
+            @param
+                vec Vector with which to calculate the absolute dot product (together
+                with this one).
+            @returns
+                A Real representing the absolute dot product value.
+        */
+        inline Real absDotProduct(const Vector3& vec) const
+        {
+            return Math::Abs(x * vec.x) + Math::Abs(y * vec.y) + Math::Abs(z * vec.z);
         }
 
         /** Normalises the vector.
@@ -601,8 +643,7 @@ namespace Ogre
             {
                 return Quaternion::IDENTITY;
             }
-            Real s = Math::Sqrt( (1+d)*2 );
-			if (s < 1e-6f)
+			if (d < (1e-6f - 1.0f))
 			{
 				if (fallbackAxis != Vector3::ZERO)
 				{
@@ -621,6 +662,7 @@ namespace Ogre
 			}
 			else
 			{
+                Real s = Math::Sqrt( (1+d)*2 );
 	            Real invs = 1 / s;
 
 				Vector3 c = v0.crossProduct(v1);
@@ -672,6 +714,19 @@ namespace Ogre
 				Math::RealEqual(z, rhs.z, tolerance);
 
 		}
+
+		/** Returns whether this vector is within a positional tolerance
+			of another vector, also take scale of the vectors into account.
+		@param rhs The vector to compare with
+		@param tolerance The amount (related to the scale of vectors) that distance
+            of the vector may vary by and still be considered close
+		*/
+		inline bool positionCloses(const Vector3& rhs, Real tolerance = 1e-03f) const
+		{
+			return squaredDistance(rhs) <=
+                (squaredLength() + rhs.squaredLength()) * tolerance;
+		}
+
 		/** Returns whether this vector is within a directional tolerance
 			of another vector.
 		@param rhs The vector to compare with

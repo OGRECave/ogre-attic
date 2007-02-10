@@ -60,6 +60,11 @@ namespace Ogre {
         {
             if (box.isNull()) return false;
             if (box.isInfinite()) return true;
+
+            // Get centre of the box
+            Vector3 centre = box.getCenter();
+            // Get the half-size of the box
+            Vector3 halfSize = box.getHalfSize();
             
             PlaneList::const_iterator i, iend;
             iend = planes.end();
@@ -67,7 +72,8 @@ namespace Ogre {
             {
                 const Plane& plane = *i;
 
-                if(plane.getSide(box) == outside)
+                Plane::Side side = plane.getSide(centre, halfSize);
+                if (side == outside)
                 {
                     // Found a splitting plane therefore return not intersecting
                     return false;

@@ -816,35 +816,29 @@ namespace Ogre
         const Vector3& max = box.getMaximum();
 
         // just test facing planes, early fail if sphere is totally outside
-        if (center.x < min.x && 
-            min.x - center.x > radius)
+        if (min.x - center.x > radius)
         {
             return false;
         }
-        if (center.x > max.x && 
-            center.x  - max.x > radius)
-        {
-            return false;
-        }
-
-        if (center.y < min.y && 
-            min.y - center.y > radius)
-        {
-            return false;
-        }
-        if (center.y > max.y && 
-            center.y  - max.y > radius)
+        if (center.x - max.x > radius)
         {
             return false;
         }
 
-        if (center.z < min.z && 
-            min.z - center.z > radius)
+        if (min.y - center.y > radius)
         {
             return false;
         }
-        if (center.z > max.z && 
-            center.z  - max.z > radius)
+        if (center.y - max.y > radius)
+        {
+            return false;
+        }
+
+        if (min.z - center.z > radius)
+        {
+            return false;
+        }
+        if (center.z - max.z > radius)
         {
             return false;
         }
@@ -856,9 +850,6 @@ namespace Ogre
     //-----------------------------------------------------------------------
     bool Math::intersects(const Plane& plane, const AxisAlignedBox& box)
     {
-        if (box.isNull()) return false;
-        if (box.isInfinite()) return true;
-
         return (plane.getSide(box) == Plane::BOTH_SIDE);
     }
     //-----------------------------------------------------------------------
