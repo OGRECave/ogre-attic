@@ -965,7 +965,9 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed,
 					shadowTex = getShadowTexture(shadowTexIndex);
 					// Hook up projection frustum
 					Camera *cam = shadowTex->getBuffer()->getRenderTarget()->getViewport(0)->getCamera();
-					pTex->setProjectiveTexturing(true, cam);
+					// Only set fixed-function projection if no vertex program
+					if (!pass->hasVertexProgram())
+						pTex->setProjectiveTexturing(true, cam);
 					mAutoParamDataSource.setTextureProjector(cam, shadowTexIndex);
 				}
 				else
@@ -2124,8 +2126,9 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(
 				mShadowTextureCustomReceiverPass : mShadowReceiverPass;
 			targetPass->getTextureUnitState(0)->setTextureName(
 				mCurrentShadowTexture->getName());
-            // Hook up projection frustum
-            targetPass->getTextureUnitState(0)->setProjectiveTexturing(true, cam);
+            // Hook up projection frustum (if fixed-function)
+			if (!targetPass->hasVertexProgram())
+				targetPass->getTextureUnitState(0)->setProjectiveTexturing(true, cam);
             mAutoParamDataSource.setTextureProjector(cam, 0);
             // if this light is a spotlight, we need to add the spot fader layer
             if (l->getType() == Light::LT_SPOTLIGHT)
@@ -2143,7 +2146,8 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(
 					// Just set 
 					TextureUnitState* t = 
 						targetPass->getTextureUnitState(1);
-					t->setProjectiveTexturing(true, cam);
+					if (!targetPass->hasVertexProgram())
+						t->setProjectiveTexturing(true, cam);
 				}
                 else
 				{
@@ -2153,7 +2157,8 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(
 
                     TextureUnitState* t = 
                         targetPass->createTextureUnitState("spot_shadow_fade.png");
-                    t->setProjectiveTexturing(true, cam);
+					if (!targetPass->hasVertexProgram())
+	                    t->setProjectiveTexturing(true, cam);
                     t->setColourOperation(LBO_ADD);
                     t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
                 }
@@ -2247,8 +2252,9 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
 						mShadowTextureCustomReceiverPass : mShadowReceiverPass;
 					targetPass->getTextureUnitState(0)->setTextureName(
 						mCurrentShadowTexture->getName());
-					// Hook up projection frustum
-					targetPass->getTextureUnitState(0)->setProjectiveTexturing(true, cam);
+					// Hook up projection frustum (if fixed-function)
+					if (!targetPass->hasVertexProgram())
+						targetPass->getTextureUnitState(0)->setProjectiveTexturing(true, cam);
 					mAutoParamDataSource.setTextureProjector(cam, 0);
 					// Remove any spot fader layer
 					if (targetPass->getNumTextureUnitStates() > 1 && 
@@ -2679,7 +2685,8 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 										pass->getTextureUnitState(tuindex));
 								tu->_setTexturePtr(mShadowTextures[lightIndex]);
 								Camera *cam = mShadowTextures[lightIndex]->getBuffer()->getRenderTarget()->getViewport(0)->getCamera();
-								tu->setProjectiveTexturing(true, cam);
+								if (!pass->hasVertexProgram())
+									tu->setProjectiveTexturing(true, cam);
 								mAutoParamDataSource.setTextureProjector(cam, numShadowTextureLights);
 								++numShadowTextureLights;
 								// Have to set TU on rendersystem right now, although
@@ -4080,6 +4087,10 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
                     tex = retPass->getTextureUnitState(targetIndex);
                 }
                 (*tex) = *(pass->getTextureUnitState(t));
+				// If programmable, have to adjust the texcoord sets too
+				// D3D insists that texcoordsets match tex unit in programmable mode
+				if (retPass->hasVertexProgram())
+					tex->setTextureCoordSet(targetIndex);
             }
             keepTUCount = origPassTUCount + 1;
 		}// additive lighting
@@ -4837,9 +4848,10 @@ void SceneManager::ensureShadowTexturesCreated()
 				mat->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
 				// create texture unit referring to render target texture
 				TextureUnitState* texUnit = 
-					mat->getTechnique(0)->getPass(0)->createTextureUnitState(shadowTex->getName());
+					p->createTextureUnitState(shadowTex->getName());
 				// set projective based on camera
-				texUnit->setProjectiveTexturing(true, cam);
+				if (!p->hasVertexProgram())
+					texUnit->setProjectiveTexturing(true, cam);
 				// clamp to border colour
 				texUnit->setTextureAddressingMode(TextureUnitState::TAM_BORDER);
 				texUnit->setTextureBorderColour(ColourValue::White);
