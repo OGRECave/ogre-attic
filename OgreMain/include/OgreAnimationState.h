@@ -107,7 +107,6 @@ namespace Ogre {
 		AnimationStateSet* mParent;
         Real mTimePos;
         Real mLength;
-        Real mInvLength;
         Real mWeight;
         bool mEnabled;
         bool mLoop;
