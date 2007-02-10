@@ -209,7 +209,7 @@ namespace Ogre
         }
 		else if (attrib == "code_points")
 		{
-			for (int c = 1; c < params.size(); ++c)
+			for (size_t c = 1; c < params.size(); ++c)
 			{
 				String& item = params[c];
 				StringVector itemVec = StringUtil::split(item, "-");
