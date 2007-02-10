@@ -376,12 +376,10 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	bool StringConverter::isNumber(const String& val)
 	{
-		std::istringstream str;
-		// set string - add space to ensure good() returns true for packed values
-		str.str(val + " ");
+		std::istringstream str(val);
 		float tst;
 		str >> tst;
-		return str.good();
+		return !str.fail() && str.eof();
 	}
 }
 

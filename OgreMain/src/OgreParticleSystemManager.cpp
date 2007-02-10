@@ -157,7 +157,7 @@ namespace Ogre {
                         vecparams = StringUtil::split(line, "\t ");
                         if (vecparams.size() < 2)
                         {
-                            // Oops, bad emitter
+                            // Oops, bad affector
                             LogManager::getSingleton().logMessage("Bad particle system affector line: '"
                                 + line + "' in " + pSys->getName());
                             skipToNextCloseBrace(stream);
@@ -474,10 +474,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystemManager::parseAttrib(const String& line, ParticleSystem* sys)
     {
-        std::vector<String> vecparams;
-
         // Split params on space
-        vecparams = StringUtil::split(line, "\t ", 1);
+        std::vector<String> vecparams = StringUtil::split(line, "\t ", 1);
 
         // Look up first param (command setting)
         if (!sys->setParameter(vecparams[0], vecparams[1]))
@@ -503,10 +501,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystemManager::parseEmitterAttrib(const String& line, ParticleEmitter* emit)
     {
-        std::vector<String> vecparams;
-
         // Split params on first space
-        vecparams = StringUtil::split(line, "\t ", 1);
+        std::vector<String> vecparams = StringUtil::split(line, "\t ", 1);
 
         // Look up first param (command setting)
         if (!emit->setParameter(vecparams[0], vecparams[1]))
@@ -519,10 +515,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystemManager::parseAffectorAttrib(const String& line, ParticleAffector* aff)
     {
-        std::vector<String> vecparams;
-
         // Split params on space
-        vecparams = StringUtil::split(line, "\t ", 1);
+        std::vector<String> vecparams = StringUtil::split(line, "\t ", 1);
 
         // Look up first param (command setting)
         if (!aff->setParameter(vecparams[0], vecparams[1]))
@@ -535,7 +529,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystemManager::skipToNextCloseBrace(DataStreamPtr& stream)
     {
-        String line = "";
+        String line;
         while (!stream->eof() && line != "}")
         {
             line = stream->getLine();
@@ -545,7 +539,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystemManager::skipToNextOpenBrace(DataStreamPtr& stream)
     {
-        String line = "";
+        String line;
         while (!stream->eof() && line != "{")
         {
             line = stream->getLine();

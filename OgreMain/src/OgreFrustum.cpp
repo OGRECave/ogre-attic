@@ -913,7 +913,9 @@ namespace Ogre {
     void Frustum::getWorldTransforms(Matrix4* xform) const 
     {
         if (mParentNode)
-            mParentNode->getWorldTransforms(xform);
+            *xform = mParentNode->_getFullTransform();
+        else
+            *xform = Matrix4::IDENTITY;
     }
     //-----------------------------------------------------------------------
     const Quaternion& Frustum::getWorldOrientation(void) const 
