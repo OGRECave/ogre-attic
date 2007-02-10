@@ -83,6 +83,17 @@ namespace Ogre {
         */
         Side getSide (const AxisAlignedBox& rkBox) const;
 
+        /** Returns which side of the plane that the given box lies on.
+            The box is defined as centre/half-size pairs for effectively.
+        @param centre The centre of the box.
+        @param halfSize The half-size of the box.
+        @returns
+            POSITIVE_SIDE if the box complete lies on the "positive side" of the plane,
+            NEGATIVE_SIDE if the box complete lies on the "negative side" of the plane,
+            and BOTH_SIDE if the box intersects the plane.
+        */
+        Side getSide (const Vector3& centre, const Vector3& halfSize) const;
+
         /** This is a pseudodistance. The sign of the return value is
             positive if the point is on the positive side of the plane,
             negative if the point is on the negative side, and zero if the
@@ -122,6 +133,7 @@ namespace Ogre {
 
 		Vector3 normal;
         Real d;
+
         /// Comparison operator
         bool operator==(const Plane& rhs) const
         {

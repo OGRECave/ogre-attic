@@ -232,15 +232,21 @@ namespace Ogre {
         // Make any pending updates to the calculated frustum planes
         updateFrustumPlanes();
 
+        // Get centre of the box
+        Vector3 centre = bound.getCenter();
+        // Get the half-size of the box
+        Vector3 halfSize = bound.getHalfSize();
+
         // For each plane, see if all points are on the negative side
         // If so, object is not visible
         for (int plane = 0; plane < 6; ++plane)
         {
             // Skip far plane if infinite view frustum
-            if (mFarDist == 0 && plane == FRUSTUM_PLANE_FAR)
+            if (plane == FRUSTUM_PLANE_FAR && mFarDist == 0)
                 continue;
 
-            if (mFrustumPlanes[plane].getSide(bound) == Plane::NEGATIVE_SIDE)
+            Plane::Side side = mFrustumPlanes[plane].getSide(centre, halfSize);
+            if (side == Plane::NEGATIVE_SIDE)
             {
                 // ALL corners on negative side therefore out of view
                 if (culledBy)
@@ -264,7 +270,7 @@ namespace Ogre {
         for (int plane = 0; plane < 6; ++plane)
         {
             // Skip far plane if infinite view frustum
-            if (mFarDist == 0 && plane == FRUSTUM_PLANE_FAR)
+            if (plane == FRUSTUM_PLANE_FAR && mFarDist == 0)
                 continue;
 
             if (mFrustumPlanes[plane].getSide(vert) == Plane::NEGATIVE_SIDE)
@@ -291,7 +297,7 @@ namespace Ogre {
         for (int plane = 0; plane < 6; ++plane)
         {
             // Skip far plane if infinite view frustum
-            if (mFarDist == 0 && plane == FRUSTUM_PLANE_FAR)
+            if (plane == FRUSTUM_PLANE_FAR && mFarDist == 0)
                 continue;
 
             // If the distance from sphere center to plane is negative, and 'more negative' 
