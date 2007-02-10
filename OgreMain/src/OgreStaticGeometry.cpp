@@ -1350,8 +1350,8 @@ namespace Ogre {
 			// Remove the elements
 			mVertexData->vertexDeclaration->removeElement(VES_BLEND_INDICES);
 			mVertexData->vertexDeclaration->removeElement(VES_BLEND_WEIGHTS);
-
-
+            // Close gaps in bindings for effective and safely
+            mVertexData->closeGapsInBindings();
 		}
 
 

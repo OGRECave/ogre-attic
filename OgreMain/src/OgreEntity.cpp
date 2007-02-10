@@ -1304,9 +1304,8 @@ namespace Ogre {
         ret->vertexDeclaration->removeElement(VES_BLEND_INDICES);
         ret->vertexDeclaration->removeElement(VES_BLEND_WEIGHTS);
 
-        // Copy reference to wcoord buffer
-        if (!source->hardwareShadowVolWBuffer.isNull())
-            ret->hardwareShadowVolWBuffer = source->hardwareShadowVolWBuffer;
+        // Close gaps in bindings for effective and safely
+        ret->closeGapsInBindings();
 
         return ret;
     }
