@@ -364,7 +364,8 @@ namespace Ogre {
 
         if (index < mCurrentPass->getNumTextureUnitStates())
         {
-            const TexturePtr& tex = mCurrentPass->getTextureUnitState(index)->_getTexturePtr();
+            const TexturePtr& tex = mCurrentPass->getTextureUnitState(
+				static_cast<unsigned short>(index))->_getTexturePtr();
             if (!tex.isNull())
             {
                 size.x = tex->getWidth();
