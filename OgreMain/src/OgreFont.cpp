@@ -281,7 +281,7 @@ namespace Ogre
 		size_t rawSize = (max_width + char_spacer) *
 							((max_height >> 6) + char_spacer) * glyphCount;
 
-		size_t tex_side = static_cast<size_t>(Math::Sqrt(rawSize));
+		uint32 tex_side = static_cast<uint32>(Math::Sqrt(rawSize));
 		// just in case the size might chop a glyph in half, add another glyph width/height
 		tex_side += std::max(max_width, (max_height>>6));
 		// Now round up to nearest power of two
