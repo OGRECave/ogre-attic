@@ -1,5 +1,5 @@
 bash prepsdkbuild.sh
-buildsdk Ogre_vc8.sln
+call buildsdk Ogre_vc8.sln
 if errorlevel goto end
 bash copysamples.sh VC8
 pushd ..\..\Docs\src
