@@ -65,7 +65,7 @@ namespace Ogre {
 		VertexData* dest = new VertexData();
 
 		// Copy vertex buffers in turn
-		const VertexBufferBinding::VertexBufferBindingMap bindings = 
+		const VertexBufferBinding::VertexBufferBindingMap& bindings = 
 			this->vertexBufferBinding->getBindings();
 		VertexBufferBinding::VertexBufferBindingMap::const_iterator vbi, vbend;
 		vbend = bindings.end();
@@ -112,21 +112,8 @@ namespace Ogre {
                 ei->getIndex() );
         }
 
-		// Copy hardware shadow buffer if set up
-		if (!hardwareShadowVolWBuffer.isNull())
-		{
-			dest->hardwareShadowVolWBuffer = 
-				HardwareBufferManager::getSingleton().createVertexBuffer(
-				hardwareShadowVolWBuffer->getVertexSize(), 
-				hardwareShadowVolWBuffer->getNumVertices(), 
-				hardwareShadowVolWBuffer->getUsage(),
-				hardwareShadowVolWBuffer->hasShadowBuffer());
-
-			// copy data
-			dest->hardwareShadowVolWBuffer->copyData(
-				*hardwareShadowVolWBuffer, 0, 0, 
-				hardwareShadowVolWBuffer->getSizeInBytes(), true);
-		}
+		// Copy reference to hardware shadow buffer, no matter whether copy data or not
+        dest->hardwareShadowVolWBuffer = hardwareShadowVolWBuffer;
 
 		// copy anim data
 		dest->hwAnimationDataList = hwAnimationDataList;
@@ -505,6 +492,77 @@ namespace Ogre {
         reorganiseBuffers(newDeclaration, usages);
 
     }
+    //-----------------------------------------------------------------------
+    void VertexData::closeGapsInBindings(void)
+    {
+        if (!vertexBufferBinding->hasGaps())
+            return;
+
+        // Check for error first
+        const VertexDeclaration::VertexElementList& allelems = 
+            vertexDeclaration->getElements();
+        VertexDeclaration::VertexElementList::const_iterator ai;
+        for (ai = allelems.begin(); ai != allelems.end(); ++ai)
+        {
+            const VertexElement& elem = *ai;
+            if (!vertexBufferBinding->isBufferBound(elem.getSource()))
+            {
+                OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND,
+                    "No buffer is bound to that element source.",
+                    "VertexData::closeGapsInBindings");
+            }
+        }
+
+        // Close gaps in the vertex buffer bindings
+        VertexBufferBinding::BindingIndexMap bindingIndexMap;
+        vertexBufferBinding->closeGaps(bindingIndexMap);
+
+        // Modify vertex elements to reference to new buffer index
+        unsigned short elemIndex = 0;
+        for (ai = allelems.begin(); ai != allelems.end(); ++ai, ++elemIndex)
+        {
+            const VertexElement& elem = *ai;
+            VertexBufferBinding::BindingIndexMap::const_iterator it =
+                bindingIndexMap.find(elem.getSource());
+            assert(it != bindingIndexMap.end());
+            ushort targetSource = it->second;
+            if (elem.getSource() != targetSource)
+            {
+                vertexDeclaration->modifyElement(elemIndex, 
+                    targetSource, elem.getOffset(), elem.getType(), 
+                    elem.getSemantic(), elem.getIndex());
+            }
+        }
+    }
+    //-----------------------------------------------------------------------
+    void VertexData::removeUnusedBuffers(void)
+    {
+        std::set<ushort> usedBuffers;
+
+        // Collect used buffers
+        const VertexDeclaration::VertexElementList& allelems = 
+            vertexDeclaration->getElements();
+        VertexDeclaration::VertexElementList::const_iterator ai;
+        for (ai = allelems.begin(); ai != allelems.end(); ++ai)
+        {
+            const VertexElement& elem = *ai;
+            usedBuffers.insert(elem.getSource());
+        }
+
+        // Unset unused buffer bindings
+        ushort count = vertexBufferBinding->getLastBoundIndex();
+        for (ushort index = 0; index < count; ++index)
+        {
+            if (usedBuffers.find(index) == usedBuffers.end() &&
+                vertexBufferBinding->isBufferBound(index))
+            {
+                vertexBufferBinding->unsetBinding(index);
+            }
+        }
+
+        // Close gaps
+        closeGapsInBindings();
+    }
 	//-----------------------------------------------------------------------
 	void VertexData::convertPackedColour(
 		VertexElementType srcType, VertexElementType destType)
@@ -856,7 +914,8 @@ namespace Ogre {
 	}
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
-	void VertexCacheProfiler::profile(const HardwareIndexBufferSharedPtr indexBuffer) {
+	void VertexCacheProfiler::profile(const HardwareIndexBufferSharedPtr& indexBuffer)
+    {
 		if (indexBuffer->isLocked()) return;
 
 		uint16 *shortbuffer = (uint16 *)indexBuffer->lock(HardwareBuffer::HBL_READ_ONLY);

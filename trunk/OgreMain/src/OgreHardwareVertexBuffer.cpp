@@ -617,6 +617,38 @@ namespace Ogre {
 		return mBindingMap.find(index) != mBindingMap.end();
 	}
     //-----------------------------------------------------------------------------
+    unsigned short VertexBufferBinding::getLastBoundIndex(void) const
+    {
+        return mBindingMap.empty() ? 0 : mBindingMap.rbegin()->first + 1;
+    }
+    //-----------------------------------------------------------------------------
+    bool VertexBufferBinding::hasGaps(void) const
+    {
+        if (mBindingMap.empty())
+            return false;
+        if (mBindingMap.rbegin()->first + 1 == mBindingMap.size())
+            return false;
+        return true;
+    }
+    //-----------------------------------------------------------------------------
+    void VertexBufferBinding::closeGaps(BindingIndexMap& bindingIndexMap)
+    {
+        bindingIndexMap.clear();
+
+        VertexBufferBindingMap newBindingMap;
+
+        VertexBufferBindingMap::const_iterator it;
+        ushort targetIndex = 0;
+        for (it = mBindingMap.begin(); it != mBindingMap.end(); ++it, ++targetIndex)
+        {
+            bindingIndexMap[it->first] = targetIndex;
+            newBindingMap[targetIndex] = it->second;
+        }
+
+        mBindingMap.swap(newBindingMap);
+        mHighIndex = targetIndex;
+    }
+    //-----------------------------------------------------------------------------
     HardwareVertexBufferSharedPtr::HardwareVertexBufferSharedPtr(HardwareVertexBuffer* buf)
         : SharedPtr<HardwareVertexBuffer>(buf)
     {

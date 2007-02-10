@@ -154,6 +154,27 @@ namespace Ogre {
 		*/
 		void reorganiseBuffers(VertexDeclaration* newDeclaration);
 
+        /** Remove any gaps in the vertex buffer bindings.
+        @remarks
+            This is useful if you've removed elements and buffers from this vertex
+            data and want to remove any gaps in the vertex buffer bindings. This
+            method is mainly useful when reorganising vertex data manually.
+        @note
+            This will cause binding index of the elements in the vertex declaration
+            to be altered to new binding index.
+        */
+        void closeGapsInBindings(void);
+
+        /** Remove all vertex buffers that never used by the vertex declaration.
+        @remarks
+            This is useful if you've removed elements from the vertex declaration
+            and want to unreference buffers that never used any more. This method
+            is mainly useful when reorganising vertex data manually.
+        @note
+            This also remove any gaps in the vertex buffer bindings.
+        */
+        void removeUnusedBuffers(void);
+
 		/** Convert all packed colour values (VET_COLOUR_*) in buffers used to
 			another type.
 		@param srcType The source colour type to assume if the ambiguous VET_COLOUR
@@ -243,7 +264,7 @@ namespace Ogre {
 				delete[] cache;
 			}
 
-			void profile(const HardwareIndexBufferSharedPtr indexBuffer);
+			void profile(const HardwareIndexBufferSharedPtr& indexBuffer);
 			void reset() { hit = 0; miss = 0; tail = 0; buffersize = 0; };
 			void flush() { tail = 0; buffersize = 0; };
 

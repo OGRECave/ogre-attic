@@ -507,7 +507,29 @@ namespace Ogre {
 		*/
 		virtual unsigned short getNextIndex(void) const { return mHighIndex++; }
 
+        /** Gets the last bound index.
+        */
+        virtual unsigned short getLastBoundIndex(void) const;
 
+        typedef std::map<ushort, ushort> BindingIndexMap;
+
+        /** Check whether any gaps in the bindings.
+        */
+        virtual bool hasGaps(void) const;
+
+        /** Remove any gaps in the bindings.
+        @remarks
+            This is useful if you've removed vertex buffer from this vertex buffer
+            bindings and want to remove any gaps in the bindings. Note, however,
+            that if this bindings is already being used with a VertexDeclaration,
+            you will need to alter that too. This method is mainly useful when
+            reorganising buffers manually.
+        @param
+            bindingIndexMap To be retrieve the binding index map that used to
+            translation old index to new index; will be cleared by this method
+            before fill-in.
+        */
+        virtual void closeGaps(BindingIndexMap& bindingIndexMap);
 
 
 	};
