@@ -3,7 +3,7 @@
 
   <Product 
 	  Name='OGRE Demos 1.4.0' 
-		Id='05A4DFEA-C532-4b43-A946-046314E77D50'
+		Id='B3483083-1A14-4250-B196-AB82DE686742'
 		Language='1033' Codepage='1252' 
 		Version='1.4.0' Manufacturer='OGRE Project'>
 
@@ -25,18 +25,14 @@
               src='..\bin\release\OgreMain.dll' Vital='yes' />
             <File Id='CEGUIBase' Name="CEBase.dll" LongName='CEGUIBase.dll' DiskId='1'
               src='..\bin\release\CEGUIBase.dll' Vital='yes' />
-            <File Id='CEGUIFalagardBase' Name="CEFBase.dll" LongName='CEGUIFalagardBase.dll' DiskId='1'
-              src='..\bin\release\CEGUIFalagardBase.dll' Vital='yes' />
-            <File Id='CEGUITaharezLook' Name="CETLBase.dll" LongName='CEGUITaharezLook.dll' DiskId='1'
-              src='..\bin\release\CEGUITaharezLook.dll' Vital='yes' />
-            <File Id='CEGUIWindowsLook' Name="CEWLBase.dll" LongName='CEGUIWindowsLook.dll' DiskId='1'
-              src='..\bin\release\CEGUIWindowsLook.dll' Vital='yes' />
+ 		  	<File Id='CEGuiExpat' Name="CEEBase.dll" LongName='CEGUIExpatParser.dll' DiskId='1'
+              src='..\bin\release\CEGUIExpatParser.dll' Vital='yes' />
+		  	<File Id='CEGUIFalagard' Name="CEFBase.dll" LongName='CEGUIFalagardWRBase.dll' DiskId='1'
+              src='..\bin\release\CEGUIFalagardWRBase.dll' Vital='yes' />
             <File Id='Cg' Name="cg.dll" DiskId='1'
               src='..\bin\release\cg.dll' Vital='yes' />
             <File Id='OgreGuiRenderer' Name="OgreGuiR.dll" LongName='OgreGUIRenderer.dll' DiskId='1'
               src='..\bin\release\OgreGUIRenderer.dll' Vital='yes' />
-            <File Id='OgrePlatform' Name="OgrePlat.dll" LongName='OgrePlatform.dll' DiskId='1'
-              src='..\bin\release\OgrePlatform.dll' Vital='yes' />
             <File Id='BSPPlugin' Name="PlugBsp.dll" LongName='Plugin_BSPSceneManager.dll' DiskId='1'
               src='..\bin\release\Plugin_BSPSceneManager.dll' Vital='yes' />
             <File Id='CgPlugin' Name="PlugCg.dll" LongName='Plugin_CgProgramManager.dll' DiskId='1'
@@ -51,16 +47,10 @@
               src='..\bin\release\RenderSystem_Direct3D9.dll' Vital='yes' />
             <File Id='GL' Name="RsGL.dll" LongName='RenderSystem_GL.dll' DiskId='1'
               src='..\bin\release\RenderSystem_GL.dll' Vital='yes' />
+		  <File Id='OIS' Name="OIS.dll" LongName='OIS.dll' DiskId='1'
+              src='..\bin\release\OIS.dll' Vital='yes' />
 
 
-            <File Id='DevilDLL1' Name='devil.dll' DiskId='1'
-              src='..\bin\release\devil.dll' Vital='yes' />
-            <File Id='DevilDLL2' Name='ilu.dll' DiskId='1'
-              src='..\bin\release\ilu.dll' Vital='yes' />
-            <File Id='DevilDLL3' Name='ilut.dll' DiskId='1'
-              src='..\bin\release\ilut.dll' Vital='yes' />
-            <File Id='ZlibDLL' Name='zlib1.dll' DiskId='1'
-              src='..\bin\release\zlib1.dll' Vital='yes' />
             <File Id='Readme' Name="Readme.htm" LongName='Readme.html' DiskId='1'
               src='..\..\Readme.html' Vital='yes'>
               <Shortcut Id="ReadmeShortcut" Directory="DemosMenuDir" Name="Readme"/>
@@ -134,97 +124,24 @@
             <File Id="file951" Name="DEMO_C_4.EXE" LongName="Demo_Compositor.exe" src="..\bin\release\Demo_Compositor.exe" DiskId='1' >
               <Shortcut Id="CompositorShortcut" Directory="DemosMenuDir" WorkingDirectory="INSTALLDIR" Name="Compostr" LongName="Compositor Effects"/>
             </File>
-            <File Id="file952" Name="DEMO_D_3.EXE" LongName="Demo_DeferredShading.exe" src="..\bin\release\Demo_DeferredShading.exe" DiskId='1' >
-              <Shortcut Id="DeferredShortcut" Directory="DemosMenuDir" WorkingDirectory="INSTALLDIR" Name="DefShad" LongName="Deferred Shading"/>
-            </File>
             <File Id="file953" Name="DEMO_V_1.EXE" LongName="Demo_VolumeTex.exe" src="..\bin\release\Demo_VolumeTex.exe" DiskId='1' >
               <Shortcut Id="VolumeTexShortcut" Directory="DemosMenuDir" WorkingDirectory="INSTALLDIR" Name="VolTex" LongName="Volume (3D) Textures"/>
             </File>
             <File Id="file954" Name="DEMO_O_1.EXE" LongName="Demo_Ocean.exe" src="..\bin\release\Demo_Ocean.exe" DiskId='1' >
               <Shortcut Id="OceanShortcut" Directory="DemosMenuDir" WorkingDirectory="INSTALLDIR" Name="Ocean" LongName="Ocean Shader Effects"/>
             </File>
+            <File Id="crowddemo" Name="demcrowd.exe" LongName="Demo_Crowd.exe" src="..\bin\release\Demo_Crowd.exe" DiskId='1' >
+				<Shortcut Id="CrowdShortcut" Directory="DemosMenuDir" WorkingDirectory="INSTALLDIR" Name="Crowd" LongName="Crowd"/>
+            </File>
 
           </Component>
 
-          <Directory Id="directory0" Name="Media">
-            <Component Id="MediaComp" DiskId="1" Guid="EAC2113E-DB1B-4875-8DDC-4F415AB7EB00">
+		  <Directory Id="directory0" Name="Media">
+            <Component Id="MediaComp" DiskId="1" Guid="DD9848F5-1B79-4be8-B866-0A38A373451C">
               <File Id="file0" Name="terrain.cfg" src="..\..\Media\terrain.cfg" />
             </Component>
-            <Directory Id="directory2" Name="DEFERR_1" LongName="DeferredShadingMedia">
-              <Component Id="MediaDeferredShadingComp" DiskId="1" Guid="E52E09BD-A021-4cce-8177-B5D187237D7F">
-                <File Id="file8" Name="COPYING" src="..\..\Media\DeferredShadingMedia\COPYING" />
-                <File Id="file9" Name="DEFERR_1.PRO" LongName="deferred.glsl.program" src="..\..\Media\DeferredShadingMedia\deferred.glsl.program" />
-                <File Id="file10" Name="DEFERR_2.PRO" LongName="deferred.hlsl.program" src="..\..\Media\DeferredShadingMedia\deferred.hlsl.program" />
-                <File Id="file11" Name="DEFERR_1.MAT" LongName="deferred.material" src="..\..\Media\DeferredShadingMedia\deferred.material" />
-                <File Id="file12" Name="DEFERR_3.PRO" LongName="deferred_post_debug.glsl.program" src="..\..\Media\DeferredShadingMedia\deferred_post_debug.glsl.program" />
-                <File Id="file13" Name="DEFERR_4.PRO" LongName="deferred_post_debug.hlsl.program" src="..\..\Media\DeferredShadingMedia\deferred_post_debug.hlsl.program" />
-                <File Id="file14" Name="DEFERR_2.MAT" LongName="deferred_post_debug.material" src="..\..\Media\DeferredShadingMedia\deferred_post_debug.material" />
-                <File Id="file15" Name="DE2249_1.PRO" LongName="deferred_post_minilight.glsl.program" src="..\..\Media\DeferredShadingMedia\deferred_post_minilight.glsl.program" />
-                <File Id="file16" Name="DEA249_1.PRO" LongName="deferred_post_minilight.hlsl.program" src="..\..\Media\DeferredShadingMedia\deferred_post_minilight.hlsl.program" />
-                <File Id="file17" Name="DEFERR_3.MAT" LongName="deferred_post_minilight.material" src="..\..\Media\DeferredShadingMedia\deferred_post_minilight.material" />
-                <File Id="file18" Name="DEE8F4_1.PRO" LongName="deferred_post_multipass.glsl.program" src="..\..\Media\DeferredShadingMedia\deferred_post_multipass.glsl.program" />
-                <File Id="file19" Name="DE69F4_1.PRO" LongName="deferred_post_multipass.hlsl.program" src="..\..\Media\DeferredShadingMedia\deferred_post_multipass.hlsl.program" />
-                <File Id="file20" Name="DEFERR_4.MAT" LongName="deferred_post_multipass.material" src="..\..\Media\DeferredShadingMedia\deferred_post_multipass.material" />
-                <File Id="file21" Name="DE23DF_1.PRO" LongName="deferred_post_onepass.glsl.program" src="..\..\Media\DeferredShadingMedia\deferred_post_onepass.glsl.program" />
-                <File Id="file22" Name="DEA3DF_1.PRO" LongName="deferred_post_onepass.hlsl.program" src="..\..\Media\DeferredShadingMedia\deferred_post_onepass.hlsl.program" />
-                <File Id="file23" Name="DE9225_1.MAT" LongName="deferred_post_onepass.material" src="..\..\Media\DeferredShadingMedia\deferred_post_onepass.material" />
-                <File Id="file24" Name="DE8EEE_1.MAT" LongName="deferreddemo.material" src="..\..\Media\DeferredShadingMedia\deferreddemo.material" />
-              </Component>
-              <Directory Id="directory4" Name="DEFERR_1" LongName="DeferredShading">
-                <Directory Id="directory6" Name="material">
-                  <Directory Id="directory8" Name="glsl">
-                    <Component Id="MediaDeferredShadingMaterialGLSLComp" DiskId="1" Guid="F580B00C-4036-4513-9E75-2DB05F4CA78C">
-                      <File Id="file46" Name="NM_NOT_1.GLS" LongName="nm_notex_ps.glsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\material\glsl\nm_notex_ps.glsl" />
-                      <File Id="file47" Name="NM_PS_1.GLS" LongName="nm_ps.glsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\material\glsl\nm_ps.glsl" />
-                      <File Id="file48" Name="NM_VS_1.GLS" LongName="nm_vs.glsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\material\glsl\nm_vs.glsl" />
-                      <File Id="file49" Name="NOTEX__1.GLS" LongName="notex_ps.glsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\material\glsl\notex_ps.glsl" />
-                      <File Id="file50" Name="PS1EB5_1.GLS" LongName="ps.glsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\material\glsl\ps.glsl" />
-                      <File Id="file51" Name="VS1AC5_1.GLS" LongName="vs.glsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\material\glsl\vs.glsl" />
-                    </Component>
-                  </Directory>
-                  <Directory Id="directory10" Name="hlsl">
-                    <Component Id="MediaDeferredShadingMaterialHLSLComp" DiskId="1" Guid="B4A34DD7-B3B8-460a-8483-DF13A0AFD04B">
-                      <File Id="file59" Name="NM_NOT_1.HLS" LongName="nm_notex_ps.hlsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\material\hlsl\nm_notex_ps.hlsl" />
-                      <File Id="file60" Name="NM_PS_1.HLS" LongName="nm_ps.hlsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\material\hlsl\nm_ps.hlsl" />
-                      <File Id="file61" Name="NM_VS_1.HLS" LongName="nm_vs.hlsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\material\hlsl\nm_vs.hlsl" />
-                      <File Id="file62" Name="NOTEX__1.HLS" LongName="notex_ps.hlsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\material\hlsl\notex_ps.hlsl" />
-                      <File Id="file63" Name="PS1EB1_1.HLS" LongName="ps.hlsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\material\hlsl\ps.hlsl" />
-                      <File Id="file64" Name="VS1AC1_1.HLS" LongName="vs.hlsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\material\hlsl\vs.hlsl" />
-                    </Component>
-                  </Directory>
-                </Directory>
-                <Directory Id="directory12" Name="post">
-                  <Directory Id="directory14" Name="glsl">
-                    <Component Id="MediaDeferredShadingMaterialPostGLSLComp" DiskId="1" Guid="70777EF0-AB14-4408-90E3-10236625B846">
-                      <File Id="file79" Name="AMBIEN_1.GLS" LongName="Ambient_ps.glsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\post\glsl\Ambient_ps.glsl" />
-                      <File Id="file80" Name="GLOBAL_1.GLS" LongName="GlobalLight_ps.glsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\post\glsl\GlobalLight_ps.glsl" />
-                      <File Id="file81" Name="LIGHTM_1.GLS" LongName="LightMaterial_ps.glsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\post\glsl\LightMaterial_ps.glsl" />
-                      <File Id="file82" Name="LIGHTM_2.GLS" LongName="LightMaterial_vs.glsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\post\glsl\LightMaterial_vs.glsl" />
-                      <File Id="file83" Name="SHOWCO_1.GLS" LongName="ShowColour_ps.glsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\post\glsl\ShowColour_ps.glsl" />
-                      <File Id="file84" Name="SHOWDS_1.GLS" LongName="ShowDS_ps.glsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\post\glsl\ShowDS_ps.glsl" />
-                      <File Id="file85" Name="SHOWNO_1.GLS" LongName="ShowNormal_ps.glsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\post\glsl\ShowNormal_ps.glsl" />
-                      <File Id="file86" Name="SINGLE_1.GLS" LongName="SinglePass_ps.glsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\post\glsl\SinglePass_ps.glsl" />
-                      <File Id="file87" Name="VS1AC5_1.GLS" LongName="vs.glsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\post\glsl\vs.glsl" />
-                    </Component>
-                  </Directory>
-                  <Directory Id="directory16" Name="hlsl">
-                    <Component Id="MediaDeferredShadingMaterialPostHLSLComp" DiskId="1" Guid="E94E6139-98CC-4647-A06F-E47FC62AC584">
-                      <File Id="file95" Name="AMBIEN_1.HLS" LongName="Ambient_ps.hlsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\post\hlsl\Ambient_ps.hlsl" />
-                      <File Id="file96" Name="GLOBAL_1.HLS" LongName="GlobalLight_ps.hlsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\post\hlsl\GlobalLight_ps.hlsl" />
-                      <File Id="file97" Name="LIGHTM_1.HLS" LongName="LightMaterial_ps.hlsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\post\hlsl\LightMaterial_ps.hlsl" />
-                      <File Id="file98" Name="LIGHTM_2.HLS" LongName="LightMaterial_vs.hlsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\post\hlsl\LightMaterial_vs.hlsl" />
-                      <File Id="file99" Name="SHOWCO_1.HLS" LongName="ShowColour_ps.hlsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\post\hlsl\ShowColour_ps.hlsl" />
-                      <File Id="file100" Name="SHOWDS_1.HLS" LongName="ShowDS_ps.hlsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\post\hlsl\ShowDS_ps.hlsl" />
-                      <File Id="file101" Name="SHOWNO_1.HLS" LongName="ShowNormal_ps.hlsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\post\hlsl\ShowNormal_ps.hlsl" />
-                      <File Id="file102" Name="SINGLE_1.HLS" LongName="SinglePass_ps.hlsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\post\hlsl\SinglePass_ps.hlsl" />
-                      <File Id="file103" Name="VS1AC1_1.HLS" LongName="vs.hlsl" src="..\..\Media\DeferredShadingMedia\DeferredShading\post\hlsl\vs.hlsl" />
-                    </Component>
-                  </Directory>
-                </Directory>
-              </Directory>
-            </Directory>
             <Directory Id="directory18" Name="fonts">
-              <Component Id="MediaFontsComp" DiskId="1" Guid="FA9AC810-72C6-4594-942F-78546D07A0BD">
+			  <Component Id="MediaFontsComp" DiskId="1" Guid="40B9BEA8-31F4-41ef-915E-AD27F7FEF4B3">
                 <File Id="file114" Name="SAMPLE_1.FON" LongName="sample.fontdef" src="..\..\Media\fonts\sample.fontdef" />
                 <File Id="file115" Name="solo5.ttf" src="..\..\Media\fonts\solo5.ttf" />
 				<File Id="file116_" Name="bluebold.ttf" src="..\..\Media\fonts\bluebold.ttf" />
@@ -234,7 +151,7 @@
               </Component>
             </Directory>
             <Directory Id="directory20" Name="gui">
-              <Component Id="MediaGuiComp" DiskId="1" Guid="54ADB45E-1260-4866-B68B-5895D83EDAB8">
+			  <Component Id="MediaGuiComp" DiskId="1" Guid="AF71EDA0-4DE9-418d-8207-71319DD49FE7">
                 <File Id="file123" Name="Falagard.xsd" src="..\..\Media\gui\Falagard.xsd" />
                 <File Id="file124" Name="Font.xsd" src="..\..\Media\gui\Font.xsd" />
                 <File Id="file125" Name="GUILAY_1.XSD" LongName="GUILayout.xsd" src="..\..\Media\gui\GUILayout.xsd" />
@@ -255,12 +172,14 @@
                 <File Id="file141" Name="bluehi_3.FON" LongName="bluehighway-8.font" src="..\..\Media\gui\bluehighway-8.font" />
 				<File Id="file143_" Name="Compo_1.lay" LongName="CompositorDemo.layout" src="..\..\Media\gui\CompositorDemo.layout" />
 				<File Id="file144_" Name="Compo_1.con" LongName="CompositorDemoCegui.config" src="..\..\Media\gui\CompositorDemoCegui.config" />
+				<File Id="shadowslayout" Name="shadows.lay" LongName="shadows.layout" src="..\..\Media\gui\shadows.layout" />
+				<File Id="crowdlayout" Name="crowd.lay" LongName="CrowdDemo.layout" src="..\..\Media\gui\CrowdDemo.layout" />
 				
               </Component>
             </Directory>
             <Directory Id="directory22" Name="MATERI_1" LongName="materials">
               <Directory Id="directory24" Name="programs">
-                <Component Id="MediaMaterialsProgramsComp" DiskId="1" Guid="62930E3C-8132-4eed-870B-80E22E73528C">
+				<Component Id="MediaMaterialsProgramsComp" DiskId="1" Guid="78887AB3-E9CD-4b78-9CD1-A35EFCB69F38">
                   <File Id="file157" Name="BLOOM__1.HLS" LongName="Bloom_ps20.hlsl" src="..\..\Media\materials\programs\Bloom_ps20.hlsl" />
                   <File Id="file158" Name="BLOOM__2.HLS" LongName="Bloom_vs11.hlsl" src="..\..\Media\materials\programs\Bloom_vs11.hlsl" />
                   <File Id="file159" Name="BLUR0__1.HLS" LongName="Blur0_ps20.hlsl" src="..\..\Media\materials\programs\Blur0_ps20.hlsl" />
@@ -309,10 +228,26 @@
 				  <File Id="file202_" Name="Poster_1.cg" LongName="PosterizeFP.cg" src="..\..\Media\materials\programs\PosterizeFP.cg" />
 				  <File Id="file203_" Name="Sharpe_1.cg" LongName="SharpenEdgesFP.cg" src="..\..\Media\materials\programs\SharpenEdgesFP.cg" />
 				  <File Id="file204_" Name="TilingFP.cg" src="..\..\Media\materials\programs\TilingFP.cg" />
+				  <File Id="ambonetexglsl" Name="Amb1Tex.gls" LongName="AmbientOneTexture.glsl" src="..\..\Media\materials\programs\AmbientOneTexture.glsl" />
+				  <File Id="depthshadowhlsl" Name="dsmap.hls" LongName="DepthShadowmap.hlsl" src="..\..\Media\materials\programs\DepthShadowmap.hlsl" />
+				  <File Id="depthshadowglslcfp" Name="dsmap1.gls" LongName="DepthShadowmapCasterFp.glsl" src="..\..\Media\materials\programs\DepthShadowmapCasterFp.glsl" />
+				  <File Id="depthshadowglslcvp" Name="dsmap2.gls" LongName="DepthShadowmapCasterVp.glsl" src="..\..\Media\materials\programs\DepthShadowmapCasterVp.glsl" />
+				  <File Id="depthshadowglslnmrfp" Name="dsmap3.gls" LongName="DepthShadowmapNormalMapReceiverFp.glsl" src="..\..\Media\materials\programs\DepthShadowmapNormalMapReceiverFp.glsl" />
+				  <File Id="depthshadowglslnmrvp" Name="dsmap4.gls" LongName="DepthShadowmapNormalMapReceiverVp.glsl" src="..\..\Media\materials\programs\DepthShadowmapNormalMapReceiverVp.glsl" />
+				  <File Id="depthshadowglslrfp" Name="dsmap5.gls" LongName="DepthShadowmapReceiverFp.glsl" src="..\..\Media\materials\programs\DepthShadowmapReceiverFp.glsl" />
+				  <File Id="depthshadowglslrvp" Name="dsmap6.gls" LongName="DepthShadowmapReceiverVp.glsl" src="..\..\Media\materials\programs\DepthShadowmapReceiverVp.glsl" />
+				  <File Id="examplebasichlsl" Name="exampl1.hls" LongName="Example_Basic.hlsl" src="..\..\Media\materials\programs\Example_Basic.hlsl" />
+				  <File Id="offsetmappinghlsl" Name="offsmap1.hls" LongName="OffsetMapping.hlsl" src="..\..\Media\materials\programs\OffsetMapping.hlsl" />
+				  <File Id="offsetmappingfpglsl" Name="offsmap1.gls" LongName="OffsetMappingFp.glsl" src="..\..\Media\materials\programs\OffsetMappingFp.glsl" />
+				  <File Id="offsetmappingvpglsl" Name="offsmap2.gls" LongName="OffsetMappingVp.glsl" src="..\..\Media\materials\programs\OffsetMappingVp.glsl" />
+				  <File Id="skintwoweightsglsl" Name="skin2w.gls" LongName="skinningTwoWeightsVp.glsl" src="..\..\Media\materials\programs\skinningTwoWeightsVp.glsl" />
+				  <File Id="instancingcg" Name="inst.cg" LongName="instancing.cg" src="..\..\Media\materials\programs\instancing.cg" />
+				  <File Id="instancingvpglsl" Name="instvp.gls" LongName="instancingVp.glsl" src="..\..\Media\materials\programs\instancingVp.glsl" />
+				  <File Id="crowdvpglsl" Name="crowvp.gls" LongName="crowdVp.glsl" src="..\..\Media\materials\programs\crowdVp.glsl" />
                 </Component>
               </Directory>
               <Directory Id="directory26" Name="scripts">
-                <Component Id="MediaMaterialsScriptsComp" DiskId="1" Guid="4A095E32-4073-4726-8B22-6986403B5B27">
+			    <Component Id="MediaMaterialsScriptsComp" DiskId="1" Guid="64DFDE91-5809-4ba0-865E-08E7EE7E8F0E">
                   <File Id="file197" Name="BLACKA_1.MAT" LongName="BlackAndWhite.material" src="..\..\Media\materials\scripts\BlackAndWhite.material" />
                   <File Id="file198" Name="BLOOM_1.MAT" LongName="Bloom.material" src="..\..\Media\materials\scripts\Bloom.material" />
                   <File Id="file199" Name="DOF_1.MAT" LongName="DOF.material" src="..\..\Media\materials\scripts\DOF.material" />
@@ -343,10 +278,12 @@
 				  <File Id="file224_" Name="Laplace.mat" LongName="Laplace.material" src="..\..\Media\materials\scripts\Laplace.material" />
 				  <File Id="file225_" Name="Poster_1.mat" LongName="Posterize.material" src="..\..\Media\materials\scripts\Posterize.material" />
 				  <File Id="file226_" Name="Tiling.mat" LongName="Tiling.material" src="..\..\Media\materials\scripts\Tiling.material" />
+				  <File Id="depthshadowmat" Name="depthsha.mat" LongName="DepthShadowmap.material" src="..\..\Media\materials\scripts\DepthShadowmap.material" />
+				  <File Id="instancingmat" Name="instanc.mat" LongName="instancing.material" src="..\..\Media\materials\scripts\instancing.material" />
                 </Component>
               </Directory>
               <Directory Id="directory28" Name="textures">
-                <Component Id="MediaMaterialsTexturesComp" DiskId="1" Guid="34D09F23-7AC6-44a2-8E07-45259924FB1E">
+			    <Component Id="MediaMaterialsTexturesComp" DiskId="1" Guid="75560EC1-67EF-4711-AFBC-80FF55335E9B">
                   <File Id="file227" Name="10points.png" src="..\..\Media\materials\textures\10points.png" />
                   <File Id="file229" Name="BEACHS_1.JPG" LongName="BeachStones.jpg" src="..\..\Media\materials\textures\BeachStones.jpg" />
                   <File Id="file230" Name="BUMPYM_1.JPG" LongName="BumpyMetal.jpg" src="..\..\Media\materials\textures\BumpyMetal.jpg" />
@@ -441,7 +378,7 @@
               </Directory>
             </Directory>
             <Directory Id="directory30" Name="models">
-              <Component Id="MediaModelsComp" DiskId="1" Guid="CB824E15-3A52-413d-B292-FB16EE98F456">
+			  <Component Id="MediaModelsComp" DiskId="1" Guid="DDFBD1F9-4B4A-4672-BA61-7850FDA9C7C3">
                 <File Id="file318" Name="BARREL_1.MES" LongName="Barrel.mesh" src="..\..\Media\models\Barrel.mesh" />
                 <File Id="file319" Name="RZR-00_1.MES" LongName="RZR-002.mesh" src="..\..\Media\models\RZR-002.mesh" />
                 <File Id="file320" Name="WOODPA_1.MES" LongName="WoodPallet.mesh" src="..\..\Media\models\WoodPallet.mesh" />
@@ -467,7 +404,7 @@
               </Component>
             </Directory>
             <Directory Id="directory32" Name="overlays">
-              <Component Id="MediaOverlaysComp" DiskId="1" Guid="B96442E9-A8B1-4e6c-88F1-C502AEF6E618">
+			  <Component Id="MediaOverlaysComp" DiskId="1" Guid="1186634B-76D5-406f-BDB3-5202014DB0CB">
                 <File Id="file344" Name="BASICO_1.INC" LongName="BasicOgreGuiTemplates.inc" src="..\..\Media\overlays\BasicOgreGuiTemplates.inc" />
                 <File Id="file345" Name="DP3_1.OVE" LongName="DP3.overlay" src="..\..\Media\overlays\DP3.overlay" />
                 <File Id="file346" Name="EXAMPL_1.OVE" LongName="Example-CubeMapping.overlay" src="..\..\Media\overlays\Example-CubeMapping.overlay" />
@@ -478,7 +415,7 @@
               </Component>
             </Directory>
             <Directory Id="directory34" Name="packs">
-              <Component Id="MediaPacksComp" DiskId="1" Guid="8BA53D7E-06EC-4015-81ED-B08998F23FF0">
+			  <Component Id="MediaPacksComp" DiskId="1" Guid="21D81EFC-0541-462e-8460-7A174CAA39DF">
                 <File Id="file358" Name="OgreCore.zip" src="..\..\Media\packs\OgreCore.zip" />
                 <File Id="file359" Name="cubemap.zip" src="..\..\Media\packs\cubemap.zip" />
                 <File Id="file360" Name="CUBEMA_1.ZIP" LongName="cubemapsJS.zip" src="..\..\Media\packs\cubemapsJS.zip" />
@@ -491,10 +428,11 @@
               </Component>
             </Directory>
             <Directory Id="directory36" Name="particle">
-              <Component Id="MediaParticleComp" DiskId="1" Guid="1CFBE0D8-C100-4c81-8EE5-A660C455593C">
+			  <Component Id="MediaParticleComp" DiskId="1" Guid="CC0CCE4F-11EE-429f-8CE2-79F6C3F490F8">
                 <File Id="file372" Name="EXAMPL_1.PAR" LongName="Example-Water.particle" src="..\..\Media\particle\Example-Water.particle" />
                 <File Id="file373" Name="EXAMPL_2.PAR" LongName="Example.particle" src="..\..\Media\particle\Example.particle" />
                 <File Id="file374" Name="SMOKE_1.PAR" LongName="smoke.particle" src="..\..\Media\particle\smoke.particle" />
+				<File Id="emittedpart" Name="emitemit.PAR" LongName="emitted_emitter.particle" src="..\..\Media\particle\emitted_emitter.particle" />
               </Component>
             </Directory>
           </Directory>
@@ -515,11 +453,6 @@
       Absent='disallow' AllowAdvertise='no'>
       <ComponentRef Id='OgreDemosComp' />
       <ComponentRef Id='MediaComp' />
-      <ComponentRef Id='MediaDeferredShadingComp' />
-      <ComponentRef Id='MediaDeferredShadingMaterialGLSLComp' />
-      <ComponentRef Id='MediaDeferredShadingMaterialHLSLComp' />
-      <ComponentRef Id='MediaDeferredShadingMaterialPostGLSLComp' />
-      <ComponentRef Id='MediaDeferredShadingMaterialPostHLSLComp' />
       <ComponentRef Id='MediaFontsComp' />
       <ComponentRef Id='MediaGuiComp' />
       <ComponentRef Id='MediaMaterialsProgramsComp' />
