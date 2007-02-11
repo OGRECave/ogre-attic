@@ -147,8 +147,8 @@ namespace Ogre {
 // Linux/Apple Settings
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 
-// Enable GCC 4.0 symbol visibility
-#   if OGRE_COMP_VER >= 400
+// Enable GCC symbol visibility
+#   if defined( OGRE_GNU_VISIBILITY )
 #       define _OgreExport  __attribute__ ((visibility("default")))
 #       define _OgrePrivate __attribute__ ((visibility("hidden")))
 #   else

@@ -41,7 +41,7 @@ AC_LANG_PUSH(C++)
 AC_LIBTOOL_COMPILER_OPTION([if $CXX supports -fvisibility],
     [ogre_prog_compiler_supports_visibility],
     [-fvisibility=hidden -fvisibility-inlines-hidden], [],
-    [CFLAGS_VISIBILITY="-fvisibility=hidden -fvisibility-inlines-hidden"])
+    [CFLAGS_VISIBILITY="-fvisibility=hidden -fvisibility-inlines-hidden -DOGRE_GNU_VISIBILITY"])
 AC_SUBST(CFLAGS_VISIBILITY)
 AC_LANG_POP
 
@@ -54,7 +54,7 @@ case $target_cpu in
             echo "The -fvisibility-inlines-hidden flag is known to give problems in such"
             echo "situations with libstdc++ < 4.2. Disabling the compiler flag."
             echo "***********************************************************************"
-            CFLAGS_VISIBILITY="-fvisibility=hidden"
+            CFLAGS_VISIBILITY="-fvisibility=hidden -DOGRE_GNU_VISIBILITY"
         fi
 	;;
 esac

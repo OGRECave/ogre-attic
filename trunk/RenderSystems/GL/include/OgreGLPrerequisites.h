@@ -105,14 +105,10 @@ namespace Ogre {
 #	else
 #		define _OgreGLExport __declspec(dllimport)
 #	endif
+#elif defined ( OGRE_GNU_VISIBILITY )
+#    define _OgreGLExport  __attribute__ ((visibility("default")))
 #else
-#   if (OGRE_PLATFORM == OGRE_PLATFORM_LINUX) || (OGRE_PLATFORM == OGRE_PLATFORM_APPLE)
-#       if OGRE_COMP_VER >= 400
-#          define _OgreGLExport  __attribute__ ((visibility("default")))
-#       endif
-#   else
-#       define _OgreGLExport
-#   endif
+#    define _OgreGLExport
 #endif
 
 #endif //#ifndef __GLPrerequisites_H__

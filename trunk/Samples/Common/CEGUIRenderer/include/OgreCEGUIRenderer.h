@@ -43,14 +43,10 @@
 #   else
 #       define OGRE_GUIRENDERER_API __declspec(dllimport)
 #   endif
+#elif defined ( OGRE_GNU_VISIBILITY )
+#    define OGRE_GUIRENDERER_API  __attribute__ ((visibility("default")))
 #else
-#   if (OGRE_PLATFORM == OGRE_PLATFORM_LINUX) || (OGRE_PLATFORM == OGRE_PLATFORM_APPLE)
-#       if OGRE_COMP_VER >= 400
-#          define OGRE_GUIRENDERER_API  __attribute__ ((visibility("default")))
-#       endif
-#   else
-#       define OGRE_GUIRENDERER_API
-#   endif
+#    define OGRE_GUIRENDERER_API
 #endif
 
 
