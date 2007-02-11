@@ -81,6 +81,9 @@ Section -Headers
   SetOverwrite try
   File "..\..\OgreMain\include\*.h"
   File "..\..\ReferenceApplication\Common\include\*.h"
+  SetOutPath "$INSTDIR\include\WIN32"
+  SetOverwrite try
+  File "..\..\OgreMain\include\WIN32\*.h"
   ; Dependencies - only ODE and CEGui
   SetOutPath "$INSTDIR\include\CEGUI"
   SetOverwrite try
