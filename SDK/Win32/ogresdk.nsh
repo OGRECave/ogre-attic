@@ -213,6 +213,7 @@ Section -Docs
   File ".\docs\ReadMe.html"
   File "..\..\Docs\ChangeLog.html"
   File "..\..\Docs\style.css"
+  File "..\..\Docs\ogre-logo.gif"
   SetOutPath "$INSTDIR\docs\licenses"
   File "..\..\Docs\licenses\*.*"
 
