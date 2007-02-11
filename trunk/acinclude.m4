@@ -526,3 +526,19 @@ AC_DEFUN([OGRE_CHECK_GUI],
     AC_SUBST(GTK_CFLAGS)
     AC_SUBST(GTK_LIBS)
 ])
+
+dnl SSE support 
+AC_DEFUN([OGRE_CHECK_SSE],
+[
+AC_MSG_CHECKING(whether to use SSE)
+case $target_cpu in
+	powerpc)
+		build_sse=no
+	;;
+	*)
+		build_sse=yes
+	;;
+esac
+AC_MSG_RESULT($build_sse)
+AM_CONDITIONAL(OGRE_BUILD_SSE, test x$build_sse = xyes)
+])

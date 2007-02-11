@@ -1,6 +1,6 @@
 INCLUDES = $(STLPORT_CFLAGS) $(FT2_CFLAGS) -I$(top_srcdir)/OgreMain/include -DOGRE_NONCLIENT_BUILD $(PLATFORM_CFLAGS) $(ZZIPLIB_CFLAGS) $(DEVIL_CFLAGS) $(FREEIMAGE_CFLAGS) $(GTK_CFLAGS) $(CFLAGS_VISIBILITY)
 
-noinst_LTLIBRARIES = libSSEsupport.la
+EXTRA_LTLIBRARIES = libSSEsupport.la
 libSSEsupport_la_SOURCES = OgreOptimisedUtilSSE.cpp
 libSSEsupport_la_CPPFLAGS = -msse
 
@@ -178,8 +178,11 @@ libOgreMain_la_SOURCES += OgreFreeImageCodec.cpp
 endif
 
 platformdir = $(libdir)
-libOgreMain_la_LIBADD= $(STLPORT_LIBS) $(FT2_LIBS) $(ZZIPLIB_LIBS) $(GTK_LIBS) $(OGRE_THREAD_LIBS) $(PLATFORM_LIBS) libSSEsupport.la
+libOgreMain_la_LIBADD= $(STLPORT_LIBS) $(FT2_LIBS) $(ZZIPLIB_LIBS) $(GTK_LIBS) $(OGRE_THREAD_LIBS) $(PLATFORM_LIBS)
 libOgreMain_la_LDFLAGS = $(SHARED_FLAGS) -release @PACKAGE_VERSION@ -Wl,-rpath,$(platformdir)
 #-version-info @OGREMAIN_VERSION_INFO@ -Wl,-rpath,$(platformdir)
 #-Wl,--version-script=$(top_srcdir)/OgreMain/src/ogremain.map
 
+if OGRE_BUILD_SSE
+libOgreMain_la_LIBADD += libSSEsupport.la
+endif
