@@ -299,6 +299,8 @@ namespace Ogre
 		}
 		finalWidth = roundUpSize;
 
+		Real textureAspect = finalWidth / finalHeight;
+
 		const size_t pixel_bytes = 2;
 		size_t data_width = finalWidth * pixel_bytes;
 		size_t data_size = finalWidth * finalHeight * pixel_bytes;
@@ -364,14 +366,16 @@ namespace Ogre
 							*pDest++= 0xFF;
 						}
 						// Always use the greyscale value for alpha
-						*pDest++= *buffer++;                 }
+						*pDest++= *buffer++; 
+					}
 				}
 
 				this->setGlyphTexCoords(cp,
 					(Real)l / (Real)finalWidth,  // u1
 					(Real)m / (Real)finalHeight,  // v1
 					(Real)( l + ( face->glyph->advance.x >> 6 ) ) / (Real)finalWidth, // u2
-					( m + ( max_height >> 6 ) ) / (Real)finalHeight // v2
+					( m + ( max_height >> 6 ) ) / (Real)finalHeight, // v2
+					textureAspect
 					);
 
 				// Advance a column

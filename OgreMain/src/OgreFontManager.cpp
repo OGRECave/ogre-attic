@@ -170,7 +170,7 @@ namespace Ogre
                 StringConverter::parseReal(params[2]),
                 StringConverter::parseReal(params[3]),
                 StringConverter::parseReal(params[4]),
-                StringConverter::parseReal(params[5]) );
+                StringConverter::parseReal(params[5]), 1.0 ); // assume image is square
         }
         else if (attrib == "size")
         {
