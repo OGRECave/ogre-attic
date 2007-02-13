@@ -42,6 +42,7 @@ Enhancements 2003 - 2004 (C) The OGRE Team
 #include <OgreCamera.h>
 #include <OgreHardwareBufferManager.h>
 #include <OgreSimpleRenderable.h>
+#include "OgreTerrainPrerequisites.h"
 
 /**
 *@author Jon Anderson
@@ -61,7 +62,7 @@ for debugging purposes. It also implements a visibility function that is more gr
 than the default.
 */
 
-class OctreeCamera : public Camera
+class _OgreOctreePluginExport OctreeCamera : public Camera
 {
 public:
 
