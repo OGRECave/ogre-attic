@@ -42,6 +42,7 @@ Enhancements 2003 - 2004 (C) The OGRE Team
 #include <OgreSceneNode.h>
 
 #include <OgreOctreeSceneManager.h>
+#include "OgreTerrainPrerequisites.h"
 
 namespace Ogre
 {
@@ -51,7 +52,7 @@ namespace Ogre
 *
 */
 
-class OctreeNode : public SceneNode
+class _OgreOctreePluginExport OctreeNode : public SceneNode
 {
 public:
     /** Standard constructor */
