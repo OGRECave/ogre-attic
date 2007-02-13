@@ -144,6 +144,14 @@ namespace Ogre
 		*/
 		virtual void begin(const String& materialName, 
 			RenderOperation::OperationType opType = RenderOperation::OT_TRIANGLE_LIST);
+
+		/** Use before defining gometry to indicate that you intend to update the
+			geometry regularly and want the internal structure to reflect that.
+		*/
+		virtual void setDynamic(bool dyn) { mDynamic = dyn; }
+		/** Gets whether this object is marked as dynamic */
+		virtual bool getDynamic() const { return mDynamic; }
+
 		/** Start the definition of an update to a part of the object.
 		@remarks
 			Using this method, you can update an existing section of the object
