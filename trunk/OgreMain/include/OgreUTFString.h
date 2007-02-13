@@ -1052,7 +1052,6 @@ namespace Ogre {
 		was made, -1 if the string was shortened, or 1 if the string was lengthened. Any single call can
 		only change the string length by + or - 1. */
 		int setChar( size_type loc, unicode_char ch ) {
-			const code_point* ptr = c_str();
 			code_point cp[2] = { /* blame the code beautifier */
 								   0, 0
 							   };
@@ -1729,7 +1728,6 @@ namespace Ogre {
 			while ( i < num && ( index - i ) != npos ) {
 				size_type j = index - i;
 				// careful to step full Unicode characters
-				code_point cur = at( j );
 				if ( j != 0 && _utf16_surrogate_follow( at( j ) ) && _utf16_surrogate_lead( at( j - 1 ) ) ) {
 					j = index - ++i;
 				}
@@ -1773,7 +1771,6 @@ namespace Ogre {
 			while ( i < num && ( index - i ) != npos ) {
 				size_type j = index - i;
 				// careful to step full Unicode characters
-				code_point cur = at( j );
 				if ( j != 0 && _utf16_surrogate_follow( at( j ) ) && _utf16_surrogate_lead( at( j - 1 ) ) ) {
 					j = index - ++i;
 				}
