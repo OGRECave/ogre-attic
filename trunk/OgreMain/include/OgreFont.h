@@ -246,9 +246,10 @@ namespace Ogre
         @remarks
             You only need to call this if you're setting up a font loaded from a texture manually.
         @note
-            Also sets the aspect ratio (width / height) of this character. 
+            Also sets the aspect ratio (width / height) of this character. textureAspect
+			is the width/height of the texture (may be non-square)
         */
-        inline void setGlyphTexCoords(CodePoint id, Real u1, Real v1, Real u2, Real v2)
+        inline void setGlyphTexCoords(CodePoint id, Real u1, Real v1, Real u2, Real v2, Real textureAspect)
         {
 			CodePointMap::iterator i = mCodePointMap.find(id);
 			if (i != mCodePointMap.end())
@@ -257,13 +258,14 @@ namespace Ogre
 				i->second.uvRect.top = v1;
 				i->second.uvRect.right = u2;
 				i->second.uvRect.bottom = v2;
-				i->second.aspectRatio = (u2 - u1)  / (v2 - v1);
+				i->second.aspectRatio = textureAspect * (u2 - u1)  / (v2 - v1);
 			}
 			else
 			{
 				mCodePointMap.insert(
 					CodePointMap::value_type(id, 
-						GlyphInfo(id, UVRect(u1, v1, u2, v2), (u2 - u1)  / (v2 - v1))));
+						GlyphInfo(id, UVRect(u1, v1, u2, v2), 
+							textureAspect * (u2 - u1)  / (v2 - v1))));
 			}
 
         }
@@ -282,8 +284,8 @@ namespace Ogre
         }
         /** Sets the aspect ratio (width / height) of this character.
         @remarks
-            You only need to call this if you're setting up a font loaded from a texture manually,
-            and your aspect ratio is really freaky (not relative to UVs).
+            You only need to call this if you're setting up a font loaded from a 
+			texture manually.
         */
         inline void setGlyphAspectRatio(CodePoint id, Real ratio)
         {
