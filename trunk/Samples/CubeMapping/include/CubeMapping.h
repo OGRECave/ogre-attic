@@ -566,7 +566,7 @@ private:
 	{
         std::string media_filename(MEDIA_FILENAME);
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-        media_filename = bundlePath() + "/Contents/Resources/" + media_filename;
+        media_filename = macBundlePath() + "/Contents/Resources/" + media_filename;
 #endif
 		ConfigFile cfg;
 		cfg.load( media_filename );
