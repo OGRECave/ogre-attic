@@ -334,6 +334,8 @@ namespace Ogre
 		void _updateRenderQueue(RenderQueue* queue);
 		/** Implement this method to enable stencil shadows. */
 		EdgeData* getEdgeList(void);
+		/** Overridden member from ShadowCaster. */
+		bool hasEdgeList(void);
 		/** Implement this method to enable stencil shadows. */
 		ShadowRenderableListIterator getShadowVolumeRenderableIterator(
 			ShadowTechnique shadowTechnique, const Light* light, 

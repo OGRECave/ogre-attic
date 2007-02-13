@@ -971,6 +971,11 @@ namespace Ogre {
 		return mEdgeList;
 	}
 	//--------------------------------------------------------------------------
+	bool StaticGeometry::Region::hasEdgeList(void)
+	{
+		return mEdgeList != 0;
+	}
+	//--------------------------------------------------------------------------
 	void StaticGeometry::Region::dump(std::ofstream& of) const
 	{
 		of << "Region " << mRegionID << std::endl;
