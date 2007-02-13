@@ -447,7 +447,8 @@ namespace Ogre {
 				bool extrudeVertices, Real extrusionDistance, unsigned long flags = 0 );
 			/// Overridden from MovableObject
 			EdgeData* getEdgeList(void);
-
+			/** Overridden member from ShadowCaster. */
+			bool hasEdgeList(void);
 
 			/// Dump contents for diagnostics
 			void dump(std::ofstream& of) const;
