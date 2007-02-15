@@ -2648,8 +2648,39 @@ namespace Ogre {
 			glClearStencil(stencil);
         }
 
+        // Should be enable scissor test due the clear region is
+        // relied on scissor box bounds.
+        GLboolean scissorTestEnabled = glIsEnabled(GL_SCISSOR_TEST);
+        if (!scissorTestEnabled)
+        {
+            glEnable(GL_SCISSOR_TEST);
+        }
+
+        // Sets the scissor box as same as viewport
+        GLint viewport[4], scissor[4];
+        glGetIntegerv(GL_VIEWPORT, viewport);
+        glGetIntegerv(GL_SCISSOR_BOX, scissor);
+        bool scissorBoxDifference =
+            viewport[0] != scissor[0] || viewport[1] != scissor[1] ||
+            viewport[2] != scissor[2] || viewport[3] != scissor[3];
+        if (scissorBoxDifference)
+        {
+            glScissor(viewport[0], viewport[1], viewport[2], viewport[3]);
+        }
+
         // Clear buffers
         glClear(flags);
+
+        // Restore scissor box
+        if (scissorBoxDifference)
+        {
+            glScissor(scissor[0], scissor[1], scissor[2], scissor[3]);
+        }
+        // Restore scissor test
+        if (!scissorTestEnabled)
+        {
+            glDisable(GL_SCISSOR_TEST);
+        }
 
         // Reset buffer write state
         if (!mDepthWrite && (buffers & FBT_DEPTH))
