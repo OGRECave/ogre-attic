@@ -580,36 +580,23 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-    unsigned short Pass::getTextureUnitStateIndex(const TextureUnitState* state)
+    unsigned short Pass::getTextureUnitStateIndex(const TextureUnitState* state) const
     {
-        assert(state && "state is 0 in Pass::addTextureUnitState()");
-        unsigned short idx = 0;
+        assert(state && "state is 0 in Pass::getTextureUnitStateIndex()");
 
         // only find index for state attached to this pass
         if (state->getParent() == this)
         {
-            // iterate through TUS container and find matching pointer to state
-            TextureUnitStates::iterator i    = mTextureUnitStates.begin();
-            TextureUnitStates::iterator iend = mTextureUnitStates.end();
-            while (i != iend)
-            {
-                if ( (*i) == state )
-                {
-                    // calculate index
-                    idx = static_cast<unsigned short>(i - mTextureUnitStates.begin());
-                    break;
-                }
-
-                ++i;
-            }
+            TextureUnitStates::const_iterator i =
+                std::find(mTextureUnitStates.begin(), mTextureUnitStates.end(), state);
+            assert(i != mTextureUnitStates.end() && "state is supposed to attached to this pass");
+            return static_cast<unsigned short>(std::distance(mTextureUnitStates.begin(), i));
         }
         else
         {
 			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "TextureUnitState is not attached to this pass",
 				"Pass:getTextureUnitStateIndex");
         }
-
-        return idx;
     }
 
     //-----------------------------------------------------------------------
@@ -1144,11 +1131,6 @@ namespace Ogre {
     bool Pass::isLoaded(void) const
     {
         return mParent->isLoaded();
-    }
-	//-----------------------------------------------------------------------
-    uint32 Pass::getHash(void) const
-    {
-        return mHash;
     }
 	//-----------------------------------------------------------------------
     void Pass::_recalculateHash(void)

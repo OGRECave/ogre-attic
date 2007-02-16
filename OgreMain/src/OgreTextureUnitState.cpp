@@ -1189,7 +1189,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------------
-    bool TextureUnitState::isLoaded(void)
+    bool TextureUnitState::isLoaded(void) const
     {
         return mParent->isLoaded();
     }
@@ -1199,7 +1199,7 @@ namespace Ogre {
         mParent->_notifyNeedsRecompile();
     }
     //-----------------------------------------------------------------------
-    bool TextureUnitState::hasViewRelativeTextureCoordinateGeneration(void)
+    bool TextureUnitState::hasViewRelativeTextureCoordinateGeneration(void) const
     {
         // Right now this only returns true for reflection maps
 

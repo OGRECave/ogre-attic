@@ -479,7 +479,7 @@ namespace Ogre {
         @note
             Throws an exception if the state is not attached to the pass.
         */
-        unsigned short getTextureUnitStateIndex(const TextureUnitState* state);
+        unsigned short getTextureUnitStateIndex(const TextureUnitState* state) const;
 
         typedef VectorIterator<TextureUnitStates> TextureUnitStateIterator;
         /** Get an iterator over the TextureUnitStates contained in this Pass. */
@@ -911,7 +911,7 @@ namespace Ogre {
 		unsigned short getLightCountPerIteration(void) const;
 		
 		/// Gets the parent Technique
-        Technique* getParent(void) { return mParent; }
+        Technique* getParent(void) const { return mParent; }
 
 		/// Gets the resource group of the ultimate parent Material
 		const String& getResourceGroup(void) const;
@@ -1130,7 +1130,7 @@ namespace Ogre {
             using firstly its index (so that all passes are rendered in order), then
             by the textures which it's TextureUnitState instances are using.
         */
-        uint32 getHash(void) const;
+        uint32 getHash(void) const { return mHash; }
 		/// Mark the hash as dirty
 		void _dirtyHash(void);
         /** Internal method for recalculating the hash.
