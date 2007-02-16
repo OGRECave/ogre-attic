@@ -753,9 +753,9 @@ namespace Ogre
     {
         StringVector vecparams = StringUtil::split(params, " \t");
         const size_t numParams = vecparams.size();
-        if (numParams > 4)
+        if (numParams > 5)
         {
-            logParseError("Invalid texture attribute - expected only 1, 2, 3 or 4 parameters.",
+            logParseError("Invalid texture attribute - expected only up to 5 parameters.",
                 context);
         }
         TextureType tt = TEX_TYPE_2D;

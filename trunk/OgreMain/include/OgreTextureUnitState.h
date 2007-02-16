@@ -203,14 +203,6 @@ namespace Ogre {
         */
         void setTextureName( const String& name, TextureType ttype = TEX_TYPE_2D);
 
-        /** Gets how many mipmaps have been requested for the texture.
-		*/
-		int getNumRequestedMipMaps() const { return mTextureSrcMipmaps; }
-
-		/** Gets whether this texture is requested to be loaded as alpha if single channel
-		*/
-		bool isAlpha() const { return mIsAlpha; }
-
 		/** Sets this texture layer to use a combination of 6 texture maps, each one relating to a face of a cube.
         @remarks
         Cubic textures are made up of 6 separate texture images. Each one of these is an orthoganal view of the
@@ -481,20 +473,20 @@ namespace Ogre {
         */
         PixelFormat getDesiredFormat(void) const;
 
-        /** Sets the requests number of mipmaps when load the texture.
-        */
+        /** Sets how many mipmaps have been requested for the texture.
+		*/
         void setNumMipmaps(int numMipmaps);
 
-        /** Gets the requests number of mipmaps when load the texture.
-        */
+        /** Gets how many mipmaps have been requested for the texture.
+		*/
         int getNumMipmaps(void) const;
 
-        /** Sets whether luminace image should be treat as alpha format when load the texture.
-        */
+		/** Sets whether this texture is requested to be loaded as alpha if single channel
+		*/
         void setIsAlpha(bool isAlpha);
 
-        /** Gets whether luminace image should be treat as alpha format when load the texture.
-        */
+		/** Gets whether this texture is requested to be loaded as alpha if single channel
+		*/
         bool getIsAlpha(void) const;
 
         /** Gets the index of the set of texture co-ords this layer uses.
@@ -1027,10 +1019,10 @@ namespace Ogre {
 		/** Internal method for unloading this object as part of Material::unload */
 		void _unload(void);
         /// Returns whether this unit has texture coordinate generation that depends on the camera
-        bool hasViewRelativeTextureCoordinateGeneration(void);
+        bool hasViewRelativeTextureCoordinateGeneration(void) const;
 
         // Is this loaded?
-        bool isLoaded(void);
+        bool isLoaded(void) const;
         /** Tells the class that it needs recompilation. */
         void _notifyNeedsRecompile(void);
 
