@@ -50,6 +50,11 @@ namespace Ogre {
     //---------------------------------------------------------------------
     #define POS_TEX_BINDING 0
     #define COLOUR_BINDING 1
+	#define UNICODE_NEL 0x0085
+	#define UNICODE_CR 0x000D
+	#define UNICODE_LF 0x000A
+	#define UNICODE_SPACE 0x0020
+	#define UNICODE_ZERO 0x0030
     //---------------------------------------------------------------------
     TextAreaOverlayElement::TextAreaOverlayElement(const String& name)
         : OverlayElement(name)
@@ -171,7 +176,7 @@ namespace Ogre {
 		// Derive space with from a number 0
 		if (mSpaceWidth == 0)
 		{
-			mSpaceWidth = mpFont->getGlyphAspectRatio(0x30) * mCharHeight * 2.0 * mViewportAspectCoef;
+			mSpaceWidth = mpFont->getGlyphAspectRatio(UNICODE_ZERO) * mCharHeight * 2.0 * mViewportAspectCoef;
 		}
 
 		// Use iterator
@@ -186,12 +191,13 @@ namespace Ogre {
 				for( UTFString::iterator j = i; j != iend; j++ )
 				{
 					Font::CodePoint character = j.getCharacter();
-					if (character == 0x000D // CR
-						|| character == 0x0085) // NEL
+					if (character == UNICODE_CR
+						|| character == UNICODE_NEL
+						|| character == UNICODE_LF) 
 					{
 						break;
 					}
-					else if (character == 0x0020) // space
+					else if (character == UNICODE_SPACE) // space
 					{
 						len += mSpaceWidth;
 					}
@@ -210,17 +216,27 @@ namespace Ogre {
 			}
 
 			Font::CodePoint character = i.getCharacter();
-			if (character == 0x000D // CR
-				|| character == 0x0085) // NEL
+			if (character == UNICODE_CR
+				|| character == UNICODE_NEL
+				|| character == UNICODE_LF)
 			{
 				left = _getDerivedLeft() * 2.0 - 1.0;
 				top -= mCharHeight * 2.0;
 				newLine = true;
 				// Also reduce tri count
 				mRenderOp.vertexData->vertexCount -= 6;
+
+				// consume CR/LF in one
+				if (character == UNICODE_CR)
+				{
+					UTFString::iterator peeki = i;
+					peeki++;
+					if (peeki != iend && peeki.getCharacter() == UNICODE_LF)
+						i = peeki; // skip both as one newline
+				}
 				continue;
 			}
-			else if (character == 0x0020) // space
+			else if (character == UNICODE_SPACE) // space
 			{
 				// Just leave a gap, no tris
 				left += mSpaceWidth;
