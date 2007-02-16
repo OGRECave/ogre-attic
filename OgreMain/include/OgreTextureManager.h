@@ -73,6 +73,13 @@ namespace Ogre {
 				level, 1x1x1.
             @param
                 gamma The gamma adjustment factor to apply to this texture (brightening/darkening)
+			@param 
+				isAlpha Only applicable to greyscale images. If true, specifies that
+				the image should be loaded into an alpha texture rather than a
+				single channel colour texture - useful for fixed-function systems.
+			@param 
+				desiredFormat The format you would like to have used instead of
+				the format being based on the contents of the texture
         */
         virtual TexturePtr load( 
             const String& name, const String& group, 
@@ -98,6 +105,13 @@ namespace Ogre {
 				level, 1x1x1.
             @param
                 gamma The gamma adjustment factor to apply to this texture (brightening/darkening)
+			@param 
+				isAlpha Only applicable to greyscale images. If true, specifies that
+				the image should be loaded into an alpha texture rather than a
+				single channel colour texture - useful for fixed-function systems.
+			@param 
+				desiredFormat The format you would like to have used instead of
+				the format being based on the contents of the texture
         */
         virtual TexturePtr loadImage( 
             const String &name, const String& group, const Image &img, 
