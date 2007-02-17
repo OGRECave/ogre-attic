@@ -61,6 +61,7 @@ void help(void)
 	cout << "-srcd3d    = Interpret ambiguous colours as D3D style" << endl;
 	cout << "-srcgl     = Interpret ambiguous colours as GL style" << endl;
 	cout << "-E endian  = Set endian mode 'big' 'little' or 'native' (default)" << endl;
+	cout << "-b         = Recalculate bounding box (static meshes only)" << endl;
     cout << "sourcefile = name of file to convert" << endl;
     cout << "destfile   = optional name of file to write to. If you don't" << endl;
     cout << "             specify this OGRE overwrites the existing file." << endl;
@@ -85,6 +86,7 @@ struct UpgradeOptions
 	size_t lodFixed;
 	bool usePercent;
 	Serializer::Endian endian;
+	bool recalcBounds;
 
 };
 
@@ -119,6 +121,7 @@ void parseOpts(UnaryOptionList& unOpts, BinaryOptionList& binOpts)
 	opts.lodPercent = 20;
 	opts.numLods = 0;
 	opts.usePercent = true;
+	opts.recalcBounds = false;
 
 
 	UnaryOptionList::iterator ui = unOpts.find("-e");
@@ -152,6 +155,11 @@ void parseOpts(UnaryOptionList& unOpts, BinaryOptionList& binOpts)
 	{
 		opts.srcColourFormatSet = true;
 		opts.srcColourFormat = VET_COLOUR_ABGR;
+	}
+	ui = unOpts.find("-b");
+	if (ui->second)
+	{
+		opts.recalcBounds = true;
 	}
 
 
@@ -813,6 +821,50 @@ void resolveColourAmbiguities(Mesh* mesh)
 
 }
 
+void recalcBounds(const VertexData* vdata, AxisAlignedBox& aabb, Real& radius)
+{
+	const VertexElement* posElem = 
+		vdata->vertexDeclaration->findElementBySemantic(VES_POSITION);
+	
+	const HardwareVertexBufferSharedPtr buf = vdata->vertexBufferBinding->getBuffer(
+		posElem->getSource());
+	void* pBase = buf->lock(HardwareBuffer::HBL_READ_ONLY);
+
+	for (size_t v = 0; v < vdata->vertexCount; ++v)
+	{
+		float* pFloat;
+		posElem->baseVertexPointerToElement(pBase, &pFloat);
+		
+		Vector3 pos(pFloat[0], pFloat[1], pFloat[2]);
+		aabb.merge(pos);
+		radius = std::max(radius, pos.length());
+
+		pBase = static_cast<void*>(static_cast<char*>(pBase) + buf->getVertexSize());
+
+	}
+
+	buf->unlock();
+
+}
+
+void recalcBounds(Mesh* mesh)
+{
+	AxisAlignedBox aabb;
+	Real radius = 0.0f;
+
+	if (mesh->sharedVertexData)
+		recalcBounds(mesh->sharedVertexData, aabb, radius);
+	for (unsigned short i = 0; i < mesh->getNumSubMeshes(); ++i)
+	{
+		SubMesh* sm = mesh->getSubMesh(i);
+		if (!sm->useSharedVertices)
+			recalcBounds(sm->vertexData, aabb, radius);
+	}
+
+	mesh->_setBounds(aabb, false);
+	mesh->_setBoundingSphereRadius(radius);
+}
+
 int main(int numargs, char** args)
 {
     if (numargs < 2)
@@ -847,6 +899,7 @@ int main(int numargs, char** args)
 	unOptList["-d3d"] = false;
 	unOptList["-srcgl"] = false;
 	unOptList["-srcd3d"] = false;
+	unOptList["-b"] = false;
 	binOptList["-l"] = "";
 	binOptList["-d"] = "";
 	binOptList["-p"] = "";
@@ -957,6 +1010,8 @@ int main(int numargs, char** args)
     }
 
 
+	if (opts.recalcBounds)
+		recalcBounds(&mesh);
 
     meshSerializer->exportMesh(&mesh, dest, opts.endian);
     
