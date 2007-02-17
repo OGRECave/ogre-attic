@@ -45,6 +45,7 @@ std::vector<Entity*> belowWaterEnts;
 #define NUM_FISH 30
 #define NUM_FISH_WAYPOINTS 10
 #define FISH_PATH_LENGTH 200 
+#define FISH_SCALE 1.2
 AnimationState* fishAnimations[NUM_FISH];
 SimpleSpline fishSplines[NUM_FISH];
 Vector3 fishLastPosition[NUM_FISH];
@@ -123,9 +124,6 @@ public:
     {}
     bool frameStarted(const FrameEvent &evt)
     {
-	if( ExampleFrameListener::frameStarted(evt) == false )
-		return false;
-
         animTime += evt.timeSinceLastFrame;
         while (animTime > FISH_PATH_LENGTH)
             animTime -= FISH_PATH_LENGTH;
@@ -159,7 +157,9 @@ public:
 
         }
 
-        return true;
+
+
+        return ExampleFrameListener::frameStarted(evt);
     }
 
 };
@@ -190,7 +190,7 @@ protected:
 		const RenderSystemCapabilities* caps = Root::getSingleton().getRenderSystem()->getCapabilities();
         if (!caps->hasCapability(RSC_VERTEX_PROGRAM) || !(caps->hasCapability(RSC_FRAGMENT_PROGRAM)))
         {
-            OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "Your card does not support vertex and fragment programs, so cannot "
+            OGRE_EXCEPT(1, "Your card does not support vertex and fragment programs, so cannot "
                 "run this demo. Sorry!", 
                 "Fresnel::createScene");
         }
@@ -201,14 +201,15 @@ protected:
 				!GpuProgramManager::getSingleton().isSyntaxSupported("ps_1_4")
 				)
             {
-                OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "Your card does not support advanced fragment programs, "
+                OGRE_EXCEPT(1, "Your card does not support advanced fragment programs, "
                     "so cannot run this demo. Sorry!", 
                 "Fresnel::createScene");
             }
         }
 
         theCam = mCamera;
-        theCam->setPosition(-100,20,700);
+        theCam->setPosition(-50,125,760);
+		theCam->setDirection (0,0,-1);
         // Set ambient light
         mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
 
@@ -253,7 +254,7 @@ protected:
         MeshManager::getSingleton().createPlane("ReflectPlane",
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             reflectionPlane,
-            1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
+            700,1300,10,10,true,1,3,5,Vector3::UNIT_Z);
         pPlaneEnt = mSceneMgr->createEntity( "plane", "ReflectPlane" );
         pPlaneEnt->setMaterialName("Examples/FresnelReflectionRefraction");
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
@@ -264,43 +265,37 @@ protected:
         // My node to which all objects will be attached
         SceneNode* myRootNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 
-        // Above water entities - NB all meshes are static
-        pEnt = mSceneMgr->createEntity( "head1", "head1.mesh" );
-        myRootNode->attachObject(pEnt);
-        aboveWaterEnts.push_back(pEnt);
-        pEnt = mSceneMgr->createEntity( "Pillar1", "Pillar1.mesh" );
-        myRootNode->attachObject(pEnt);
-        aboveWaterEnts.push_back(pEnt);
-        pEnt = mSceneMgr->createEntity( "Pillar2", "Pillar2.mesh" );
-        myRootNode->attachObject(pEnt);
-        aboveWaterEnts.push_back(pEnt);
-        pEnt = mSceneMgr->createEntity( "Pillar3", "Pillar3.mesh" );
-        myRootNode->attachObject(pEnt);
-        aboveWaterEnts.push_back(pEnt);
-        pEnt = mSceneMgr->createEntity( "Pillar4", "Pillar4.mesh" );
-        myRootNode->attachObject(pEnt);
-        aboveWaterEnts.push_back(pEnt);
-        pEnt = mSceneMgr->createEntity( "UpperSurround", "UpperSurround.mesh" );
-        myRootNode->attachObject(pEnt);
+		// above water entities
+        pEnt = mSceneMgr->createEntity( "RomanBathUpper", "RomanBathUpper.mesh" );
+		myRootNode->attachObject(pEnt);        
         aboveWaterEnts.push_back(pEnt);
 
-        // Now the below water ents
-        pEnt = mSceneMgr->createEntity( "LowerSurround", "LowerSurround.mesh" );
-        myRootNode->attachObject(pEnt);
-        belowWaterEnts.push_back(pEnt);
-        pEnt = mSceneMgr->createEntity( "PoolFloor", "PoolFloor.mesh" );
+        pEnt = mSceneMgr->createEntity( "Columns", "Columns.mesh" );
+		myRootNode->attachObject(pEnt);        
+        aboveWaterEnts.push_back(pEnt);
+
+		Ogre::SceneNode *headNode = myRootNode->createChildSceneNode ();
+		pEnt = mSceneMgr->createEntity( "OgreHead", "ogrehead.mesh" );
+		pEnt->setMaterialName ("RomanBath/OgreStone");
+        headNode->attachObject(pEnt);
+		headNode->setPosition(-350,55,130);
+		headNode->rotate(Vector3::UNIT_Y, Degree (90));
+        aboveWaterEnts.push_back(pEnt);
+
+		// below water entities
+		pEnt = mSceneMgr->createEntity( "RomanBathLower", "RomanBathLower.mesh" );
         myRootNode->attachObject(pEnt);
         belowWaterEnts.push_back(pEnt);
 
-        for (size_t fishNo = 0; fishNo < NUM_FISH; ++fishNo)
+		for (size_t fishNo = 0; fishNo < NUM_FISH; ++fishNo)
         {
             pEnt = mSceneMgr->createEntity("fish" + StringConverter::toString(fishNo), "fish.mesh");
             fishNodes[fishNo] = myRootNode->createChildSceneNode();
+			fishNodes[fishNo]->setScale(FISH_SCALE, FISH_SCALE, FISH_SCALE);
             fishAnimations[fishNo] = pEnt->getAnimationState("swim");
             fishAnimations[fishNo]->setEnabled(true);
             fishNodes[fishNo]->attachObject(pEnt);
             belowWaterEnts.push_back(pEnt);
-
 
             // Generate a random selection of points for the fish to swim to
             fishSplines[fishNo].setAutoCalculate(false);
@@ -308,7 +303,7 @@ protected:
             for (size_t waypoint = 0; waypoint < NUM_FISH_WAYPOINTS; ++waypoint)
             {
                 Vector3 pos = Vector3(
-                    Math::SymmetricRandom() * 700, -10, Math::SymmetricRandom() * 700);
+                    Math::SymmetricRandom() * 270, -10, Math::SymmetricRandom() * 700);
                 if (waypoint > 0)
                 {
                     // check this waypoint isn't too far, we don't want turbo-fish ;)
@@ -317,7 +312,7 @@ protected:
                     while ((lastPos - pos).length() > 750)
                     {
                         pos = Vector3(
-                            Math::SymmetricRandom() * 700, -10, Math::SymmetricRandom() * 700);
+                            Math::SymmetricRandom() * 270, -10, Math::SymmetricRandom() * 700);
                     }
                 }
                 fishSplines[fishNo].addPoint(pos);
