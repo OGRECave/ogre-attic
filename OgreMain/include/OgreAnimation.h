@@ -238,7 +238,7 @@ namespace Ogre {
         InterpolationMode getInterpolationMode(void) const;
         /** Tells the animation how to interpolate rotations.
         @remarks
-            By default, animations interpolate lieanrly between rotations. This
+            By default, animations interpolate linearly between rotations. This
             is fast but not necessarily completely accurate. If you want more 
             accurate interpolation, use spherical interpolation, but be aware 
             that it will incur a higher cost.
@@ -310,7 +310,7 @@ namespace Ogre {
 		/** Optimise an animation by removing unnecessary tracks and keyframes.
 		@remarks
 			When you export an animation, it is possible that certain tracks
-			have been keyfamed but actually don't include anything useful - the
+			have been keyframed but actually don't include anything useful - the
 			keyframes include no transformation. These tracks can be completely
 			eliminated from the animation and thus speed up the animation. 
 			In addition, if several keyframes in a row have the same value, 
