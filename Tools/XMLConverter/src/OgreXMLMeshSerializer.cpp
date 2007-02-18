@@ -769,7 +769,9 @@ namespace Ogre {
                 {
                     // NB set is local to this buffer, but will be translated into a 
                     // global set number across all vertex buffers
-                    attrib = vbElem->Attribute("texture_coord_dimensions_" + StringConverter::toString(tx));
+					StringUtil::StrStreamType str;
+					str << "texture_coord_dimensions_" << tx;
+                    attrib = vbElem->Attribute(str.str().c_str());
                     unsigned short dims;
                     if (attrib)
                     {
