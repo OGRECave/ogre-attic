@@ -630,6 +630,12 @@ vertex_program Examples/FresnelRefractReflectVP cg
 	entry_point main_vp
 	profiles vs_1_1 arbvp1
 }
+vertex_program Examples/FresnelRefractReflectVPold cg
+{
+	source Example_Fresnel.cg
+	entry_point main_vp_old
+	profiles vs_1_1 arbvp1
+}
 
 fragment_program Examples/FresnelRefractReflectFP cg
 {
@@ -709,7 +715,7 @@ material Examples/FresnelReflectionRefraction
 	{
 		pass
 		{
-			vertex_program_ref Examples/FresnelRefractReflectVP
+			vertex_program_ref Examples/FresnelRefractReflectVPold
 			{
 				param_named_auto worldViewProjMatrix worldviewproj_matrix
 				param_named_auto eyePosition camera_position_object_space
