@@ -101,6 +101,8 @@ namespace Ogre  {
                 return GL_RGBA;
 			case PF_SHORT_RGBA:
 				return GL_RGBA;
+            case PF_SHORT_RGB:
+                return GL_RGB;
 			case PF_SHORT_GR:
 				return GL_LUMINANCE_ALPHA;
             case PF_DXT1:
@@ -173,6 +175,7 @@ namespace Ogre  {
             case PF_FLOAT32_RGBA:
                 return GL_FLOAT;
 			case PF_SHORT_RGBA:
+            case PF_SHORT_RGB:
 			case PF_SHORT_GR:
 				return GL_UNSIGNED_SHORT;
             default:
@@ -231,6 +234,8 @@ namespace Ogre  {
                 return GL_RGBA32F_ARB;
 			case PF_SHORT_RGBA:
 				return GL_RGBA16;
+            case PF_SHORT_RGB:
+                return GL_RGB16;
 			case PF_SHORT_GR:
 				GL_LUMINANCE16_ALPHA16;
 			case PF_DXT1:
@@ -285,6 +290,8 @@ namespace Ogre  {
 			return PF_A2R10G10B10;
 		case GL_RGBA16:
 			return PF_SHORT_RGBA;
+        case GL_RGB16:
+            return PF_SHORT_RGB;
 		case GL_LUMINANCE16_ALPHA16:
 			return PF_SHORT_GR;
 		case GL_LUMINANCE_FLOAT16_ATI:

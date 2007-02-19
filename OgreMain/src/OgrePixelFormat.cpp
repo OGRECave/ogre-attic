@@ -566,6 +566,19 @@ namespace Ogre {
         /* Masks and shifts */
         0, 0, 0, 0, 0, 0, 0, 0
         },
+	//-----------------------------------------------------------------------
+		{"PF_SHORT_RGB",
+		/* Bytes per element */
+        6,
+        /* Flags */
+        0,
+        /* Component type and count */
+        PCT_SHORT, 3,
+        /* rbits, gbits, bbits, abits */
+        16, 16, 16, 0,
+        /* Masks and shifts */
+		0, 0, 0, 0, 0, 0, 0, 0
+        },
     };
     //-----------------------------------------------------------------------
 	size_t PixelBox::getConsecutiveSize() const
@@ -982,6 +995,11 @@ namespace Ogre {
                 ((uint16*)dest)[2] = Bitwise::floatToHalf(b);
                 ((uint16*)dest)[3] = Bitwise::floatToHalf(a);
                 break;
+            case PF_SHORT_RGB:
+				((uint16*)dest)[0] = Bitwise::floatToFixed(r, 16);
+                ((uint16*)dest)[1] = Bitwise::floatToFixed(g, 16);
+                ((uint16*)dest)[2] = Bitwise::floatToFixed(b, 16);
+                break;
 			case PF_SHORT_RGBA:
 				((uint16*)dest)[0] = Bitwise::floatToFixed(r, 16);
                 ((uint16*)dest)[1] = Bitwise::floatToFixed(g, 16);
@@ -1117,6 +1135,12 @@ namespace Ogre {
                 *b = Bitwise::halfToFloat(((uint16*)src)[2]);
                 *a = Bitwise::halfToFloat(((uint16*)src)[3]);
                 break;
+			case PF_SHORT_RGB:
+				*r = Bitwise::fixedToFloat(((uint16*)src)[0], 16);
+                *g = Bitwise::fixedToFloat(((uint16*)src)[1], 16);
+				*b = Bitwise::fixedToFloat(((uint16*)src)[2], 16);
+				*a = 1.0f;
+				break;
 			case PF_SHORT_RGBA:
 				*r = Bitwise::fixedToFloat(((uint16*)src)[0], 16);
                 *g = Bitwise::fixedToFloat(((uint16*)src)[1], 16);
