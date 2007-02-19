@@ -380,13 +380,13 @@ const PixelBox &pb = buffer->getCurrentLock();
 uint32 *data = static_cast<uint32*>(pb.data);
 size_t height = pb.getHeight();
 size_t width = pb.getWidth();
-size_t rowSkip = pb.getRowSkip(); // Skip between rows of image
+size_t pitch = pb.rowPitch; // Skip between rows of image
 for(size_t y=0; y<height; ++y)
 {
     for(size_t x=0; x<width; ++x)
 {
         // 0xRRGGBB -> fill the buffer with yellow pixels
-        data[rowSkip*y + x] = 0x00FFFF00;
+        data[pitch*y + x] = 0x00FFFF00;
 }
 }
 
