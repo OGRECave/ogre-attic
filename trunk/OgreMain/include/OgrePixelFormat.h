@@ -134,8 +134,10 @@ namespace Ogre {
 		PF_SHORT_RGBA = 30,
 		// 32-bit pixel format, 16-bit green, 16-bit red
 		PF_SHORT_GR = 34,
+		// 48-bit pixel format, 16 bits for red, green and blue
+		PF_SHORT_RGB = 37,
 		// Number of pixel formats currently defined
-        PF_COUNT = 37
+        PF_COUNT = 38
     };
 
     /**

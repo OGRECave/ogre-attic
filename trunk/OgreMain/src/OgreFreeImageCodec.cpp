@@ -134,12 +134,14 @@ namespace Ogre {
 		ImageData* pImgData = static_cast< ImageData * >( pData.getPointer() );
 		PixelBox src(pImgData->width, pImgData->height, pImgData->depth, pImgData->format, input->getPtr());
 
+		// The required format, which will adjust to the format
+		// actually supported by FreeImage.
+		PixelFormat requiredFormat = pImgData->format;
+
 		// determine the settings
 		FREE_IMAGE_TYPE imageType;
 		switch(pImgData->format)
 		{
-		case PF_L8:
-		case PF_A8:
 		case PF_R5G6B5:
 		case PF_B5G6R5:
 		case PF_R8G8B8:
@@ -150,56 +152,81 @@ namespace Ogre {
 		case PF_X8B8G8R8:
 		case PF_B8G8R8A8:
 		case PF_R8G8B8A8:
-		case PF_SHORT_GR:
+		case PF_A4L4:
+		case PF_BYTE_LA:
+		case PF_R3G3B2:
+		case PF_A4R4G4B4:
+		case PF_A1R5G5B5:
+		case PF_A2R10G10B10:
+		case PF_A2B10G10R10:
+			// I'd like to be able to use r/g/b masks to get FreeImage to load the data
+			// in it's existing format, but that doesn't work, FreeImage needs to have
+			// data in RGB[A] (big endian) and BGR[A] (little endian), always.
+			if (PixelUtil::hasAlpha(pImgData->format))
+			{
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
+				requiredFormat = PF_BYTE_RGBA;
+#else
+				requiredFormat = PF_BYTE_BGRA;
+#endif
+			}
+			else
+			{
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
+				requiredFormat = PF_BYTE_RGB;
+#else
+				requiredFormat = PF_BYTE_BGR;
+#endif
+			}
+			// fall through
+		case PF_L8:
+		case PF_A8:
 			imageType = FIT_BITMAP;
 			break;
+
 		case PF_L16:
 			imageType = FIT_UINT16;
 			break;
-		case PF_FLOAT16_RGB:
-		case PF_FLOAT16_GR:
+
+		case PF_SHORT_GR:
+			requiredFormat = PF_SHORT_RGB;
+			// fall through
+		case PF_SHORT_RGB:
 			imageType = FIT_RGB16;
 			break;
-		case PF_FLOAT16_RGBA:
+
+		case PF_SHORT_RGBA:
 			imageType = FIT_RGBA16;
 			break;
+
+		case PF_FLOAT16_R:
+			requiredFormat = PF_FLOAT32_R;
+			// fall through
 		case PF_FLOAT32_R:
 			imageType = FIT_FLOAT;
 			break;
-		case PF_FLOAT32_RGB:
+
+		case PF_FLOAT16_GR:
+		case PF_FLOAT16_RGB:
 		case PF_FLOAT32_GR:
+			requiredFormat = PF_FLOAT32_RGB;
+			// fall through
+		case PF_FLOAT32_RGB:
 			imageType = FIT_RGBF;
 			break;
+
+		case PF_FLOAT16_RGBA:
+			requiredFormat = PF_FLOAT32_RGBA;
+			// fall through
 		case PF_FLOAT32_RGBA:
 			imageType = FIT_RGBAF;
 			break;
+
 		default:
 			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Invalid image format", "FreeImageCodec::encode");
 		};
 
-		unsigned bpp = static_cast<unsigned>(PixelUtil::getNumElemBits(pImgData->format));
-
 		bool conversionRequired = false;
-		PixelFormat requiredFormat = pImgData->format;
-		// I'd like to be able to use r/g/b masks to get FreeImage to load the data
-		// in it's existing format, but that doesn't work, FreeImage needs to have
-		// data in RGB[A] (big endian) and BGR[A] (little endian), always.
-		if (bpp == 24)
-		{
-#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
-			requiredFormat = PF_BYTE_RGB;
-#else
-			requiredFormat = PF_BYTE_BGR;
-#endif
-		}
-		else if (bpp == 32)
-		{
-#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
-			requiredFormat = PF_BYTE_RGBA;
-#else
-			requiredFormat = PF_BYTE_BGRA;
-#endif
-		}
 
 		unsigned char* srcData = input->getPtr();
 		PixelBox convBox(pImgData->width, pImgData->height, 1, requiredFormat);
@@ -215,13 +242,15 @@ namespace Ogre {
 
 		}
 
+		unsigned bpp = static_cast<unsigned>(PixelUtil::getNumElemBits(requiredFormat));
+
 		ret = FreeImage_AllocateT(
 			imageType, 
 			static_cast<int>(pImgData->width), 
 			static_cast<int>(pImgData->height), 
 			bpp);
 
-		if( pImgData->format == PF_L8 || pImgData->format == PF_A8 )
+		if (requiredFormat == PF_L8 || requiredFormat == PF_A8)
 		{
 			// Must explicitly tell FreeImage that this is greyscale by setting
 			// a "grey" palette (otherwise it will save as a normal RGB
@@ -232,7 +261,7 @@ namespace Ogre {
 		}
 		
 		size_t dstPitch = FreeImage_GetPitch(ret);
-		size_t srcPitch = pImgData->width * PixelUtil::getNumElemBytes(pImgData->format);
+		size_t srcPitch = pImgData->width * PixelUtil::getNumElemBytes(requiredFormat);
 
 
 		// Copy data, invert scanlines and respect FreeImage pitch
@@ -326,6 +355,7 @@ namespace Ogre {
 		case FIT_UINT32:
 		case FIT_INT32:
 		case FIT_DOUBLE:
+        default:
 			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 				"Unknown or unsupported image format", 
 				"FreeImageCodec::decode");
@@ -406,12 +436,10 @@ namespace Ogre {
 			imgData->format = PF_FLOAT32_R;
 			break;
 		case FIT_RGB16:
-			// TODO: is this valid?
-			imgData->format = PF_FLOAT16_RGB;
+			imgData->format = PF_SHORT_RGB;
 			break;
 		case FIT_RGBA16:
-			// TODO: is this valid?
-			imgData->format = PF_FLOAT16_RGBA;
+			imgData->format = PF_SHORT_RGBA;
 			break;
 		case FIT_RGBF:
 			imgData->format = PF_FLOAT32_RGB;
