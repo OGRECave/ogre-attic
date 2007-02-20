@@ -542,14 +542,15 @@ namespace Ogre {
     {
         // Iterate through, finding the largest # bones per vertex
         unsigned short maxBones = 0;
-        unsigned short currBones;
-        currBones = 0;
+		bool existsNonSkinnedVertices = false;
         VertexBoneAssignmentList::iterator i;
 
         for (size_t v = 0; v < vertexCount; ++v)
         {
             // Get number of entries for this vertex
-            currBones = static_cast<unsigned short>(assignments.count(v));
+            unsigned short currBones = static_cast<unsigned short>(assignments.count(v));
+			if (currBones <= 0)
+				existsNonSkinnedVertices = true;
 
             // Deal with max bones update
             // (note this will record maxBones even if they exceed limit)
@@ -619,6 +620,16 @@ namespace Ogre {
             maxBones = OGRE_MAX_BLEND_WEIGHTS;
 
         }
+
+		if (existsNonSkinnedVertices)
+		{
+            // Warn that we've non-skinned vertices
+            LogManager::getSingleton().logMessage("WARNING: the mesh '" + mName + "' "
+                "includes vertices without bone assignments. Those vertices will "
+				"transform to wrong position when skeletal animation enabled. "
+				"To eliminate this, assign at least one bone assignment per vertex "
+				"on your mesh.");
+		}
 
         return maxBones;
     }
