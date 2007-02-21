@@ -464,6 +464,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Entity::_updateRenderQueue(RenderQueue* queue)
     {
+		// Do nothing if not initialised yet
+		if (!mInitialised)
+			return;
+
         // Check we're not using a manual LOD
         if (mMeshLodIndex > 0 && mMesh->isLodManual())
         {
