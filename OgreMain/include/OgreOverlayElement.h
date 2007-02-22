@@ -42,7 +42,13 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
-
+#if OGRE_UNICODE_SUPPORT
+	typedef UTFString DisplayString;
+#	define OGRE_DEREF_DISPLAYSTRING_ITERATOR(it) it.getCharacter()
+#else
+	typedef String DisplayString;
+#	define OGRE_DEREF_DISPLAYSTRING_ITERATOR(it) *it
+#endif
     /** Enum describing how the position / size of an element is to be recorded. 
     */
     enum GuiMetricsMode
@@ -122,7 +128,7 @@ namespace Ogre {
         Real mHeight;
         String mMaterialName;
         MaterialPtr mpMaterial;
-        UTFString mCaption;
+        DisplayString mCaption;
         ColourValue mColour;
         Rectangle mClippingRegion;
 
@@ -352,11 +358,9 @@ namespace Ogre {
         However, being a common requirement it is in the top-level interface to avoid
         having to set it via the StringInterface all the time.
         */
-        virtual void setCaption(const UTFString& text);
-
+		virtual void setCaption(const DisplayString& text);
         /** Gets the caption for this element. */
-        virtual const UTFString& getCaption(void) const;
-
+        virtual const DisplayString& getCaption(void) const;
         /** Sets the colour on elements that support it. 
         @remarks
         This property doesn't do something on all elements, just those that support it.

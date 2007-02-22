@@ -673,13 +673,13 @@ namespace Ogre {
             &msVisibleCmd);
     }
     //-----------------------------------------------------------------------
-    void OverlayElement::setCaption( const UTFString& caption )
+    void OverlayElement::setCaption( const DisplayString& caption )
     {
         mCaption = caption;
         _positionsOutOfDate();
     }
     //-----------------------------------------------------------------------
-    const UTFString& OverlayElement::getCaption() const
+	const DisplayString& OverlayElement::getCaption() const
     {
         return mCaption;
     }
