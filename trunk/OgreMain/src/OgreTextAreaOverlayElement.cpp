@@ -180,7 +180,7 @@ namespace Ogre {
 		}
 
 		// Use iterator
-		UTFString::iterator i, iend;
+		DisplayString::iterator i, iend;
 		iend = mCaption.end();
 		bool newLine = true;
 		for( i = mCaption.begin(); i != iend; ++i )
@@ -188,9 +188,9 @@ namespace Ogre {
 			if( newLine )
 			{
 				Real len = 0.0f;
-				for( UTFString::iterator j = i; j != iend; j++ )
+				for( DisplayString::iterator j = i; j != iend; j++ )
 				{
-					Font::CodePoint character = j.getCharacter();
+					Font::CodePoint character = OGRE_DEREF_DISPLAYSTRING_ITERATOR(j);
 					if (character == UNICODE_CR
 						|| character == UNICODE_NEL
 						|| character == UNICODE_LF) 
@@ -215,7 +215,7 @@ namespace Ogre {
 				newLine = false;
 			}
 
-			Font::CodePoint character = i.getCharacter();
+			Font::CodePoint character = OGRE_DEREF_DISPLAYSTRING_ITERATOR(i);
 			if (character == UNICODE_CR
 				|| character == UNICODE_NEL
 				|| character == UNICODE_LF)
@@ -229,9 +229,9 @@ namespace Ogre {
 				// consume CR/LF in one
 				if (character == UNICODE_CR)
 				{
-					UTFString::iterator peeki = i;
+					DisplayString::iterator peeki = i;
 					peeki++;
-					if (peeki != iend && peeki.getCharacter() == UNICODE_LF)
+					if (peeki != iend && OGRE_DEREF_DISPLAYSTRING_ITERATOR(peeki) == UNICODE_LF)
 						i = peeki; // skip both as one newline
 				}
 				continue;
@@ -340,7 +340,7 @@ namespace Ogre {
 		// Nothing to do, we combine positions and textures
 	}
 
-    void TextAreaOverlayElement::setCaption( const UTFString& caption )
+    void TextAreaOverlayElement::setCaption( const DisplayString& caption )
     {
         mCaption = caption;
 		mGeomPositionsOutOfDate = true;

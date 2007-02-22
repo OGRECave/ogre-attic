@@ -140,6 +140,14 @@ namespace Ogre {
     #define vsnprintf _vsnprintf
 #endif
 
+// Disable unicode support on MingW at the moment, poorly supported in stdlibc++
+// STLPORT fixes this though so allow if found
+#if defined( __MINGW32__ ) && !defined(_STLPORT_VERSION)
+#	define OGRE_UNICODE_SUPPORT 0
+#else
+#	define OGRE_UNICODE_SUPPORT 1
+#endif
+
 #endif
 //----------------------------------------------------------------------------
 
@@ -173,6 +181,10 @@ namespace Ogre {
     //OGRE_PLATFORM_LINUX
     #define OGRE_PLATFORM_LIB "libOgrePlatform.so"
 #endif
+
+// Always enable unicode support for the moment
+// Perhaps disable in old versions of gcc if necessary
+#define OGRE_UNICODE_SUPPORT 1
 
 #endif
 

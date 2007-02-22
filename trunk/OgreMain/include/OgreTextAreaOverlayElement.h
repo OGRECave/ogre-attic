@@ -49,7 +49,7 @@ namespace Ogre
         virtual ~TextAreaOverlayElement();
 
         virtual void initialise(void);
-        void setCaption( const UTFString& caption );
+		virtual void setCaption(const DisplayString& text);
 
         void setCharHeight( Real height );
         Real getCharHeight() const;

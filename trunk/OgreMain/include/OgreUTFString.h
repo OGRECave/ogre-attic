@@ -27,6 +27,8 @@
 #ifndef __OGRE_UTFSTRING_H__
 #define __OGRE_UTFSTRING_H__
 
+#if OGRE_UNICODE_SUPPORT 
+
 #include "OgrePrerequisites.h"
 
 // these are explained later
@@ -2397,5 +2399,7 @@ namespace Ogre {
 
 
 } // namespace Ogre{
+
+#endif // OGRE_UNICODE_SUPPORT
 
 #endif 
