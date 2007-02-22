@@ -27,9 +27,10 @@
 #ifndef __OGRE_UTFSTRING_H__
 #define __OGRE_UTFSTRING_H__
 
-#if OGRE_UNICODE_SUPPORT 
 
 #include "OgrePrerequisites.h"
+
+#if OGRE_UNICODE_SUPPORT 
 
 // these are explained later
 #include <iterator>
