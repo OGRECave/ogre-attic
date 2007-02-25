@@ -1635,19 +1635,20 @@ namespace Ogre {
             __m128 a = _mm_sub_ps(v1, v0);                      // ax 0 ay az
             __m128 b = _mm_sub_ps(v2, v0);                      // bx 0 by bz
             t0 = _mm_shuffle_ps(a, a, _MM_SHUFFLE(2,0,1,3));    // az 0 ax ay
-            t1 = _mm_shuffle_ps(a, a, _MM_SHUFFLE(0,3,1,2));    // ay 0 az ax
+            t1 = _mm_shuffle_ps(b, b, _MM_SHUFFLE(2,0,1,3));    // bz 0 bx by
             t0 = _mm_mul_ps(t0, b);                             // az*bx 0 ax*by ay*bz
-            t1 = _mm_mul_ps(t1, b);                             // ay*bx 0 az*by ax*bz
-            t0 = _mm_shuffle_ps(t0, t0, _MM_SHUFFLE(2,0,1,3));  // ay*bz 0 az*bx ax*by
-            t1 = _mm_shuffle_ps(t1, t1, _MM_SHUFFLE(0,3,1,2));  // az*by 0 ax*bz ay*bx
+            t1 = _mm_mul_ps(t1, a);                             // ax*bz 0 ay*bx az*by
 
-            __m128 n = _mm_sub_ps(t0, t1);                      // nx 0  ny nz
-            __m128 d = _mm_mul_ps(v0, n);                       // dx 0  dy dz
+            __m128 n = _mm_sub_ps(t0, t1);                      // ny 0  nz nx
+
+            __m128 d = _mm_mul_ps(                              // dy 0  dz dx
+                _mm_shuffle_ps(v0, v0, _MM_SHUFFLE(0,3,1,2)), n);
+
             n = _mm_sub_ps(_mm_sub_ps(_mm_sub_ps(               // nx ny nz -(dx+dy+dz)
-                _mm_shuffle_ps(n, n, _MM_SHUFFLE(1,3,2,0)),     // nx ny nz 0
-                _mm_shuffle_ps(d, d, _MM_SHUFFLE(0,1,1,1))),    // 0  0  0  dx
-                _mm_shuffle_ps(d, d, _MM_SHUFFLE(2,1,1,1))),    // 0  0  0  dy
-                _mm_shuffle_ps(d, d, _MM_SHUFFLE(3,1,1,1)));    // 0  0  0  dz
+                _mm_shuffle_ps(n, n, _MM_SHUFFLE(1,2,0,3)),     // nx ny nz 0
+                _mm_shuffle_ps(d, d, _MM_SHUFFLE(3,1,1,1))),    // 0  0  0  dx
+                _mm_shuffle_ps(d, d, _MM_SHUFFLE(0,1,1,1))),    // 0  0  0  dy
+                _mm_shuffle_ps(d, d, _MM_SHUFFLE(2,1,1,1)));    // 0  0  0  dz
 
             // Store result
             __MM_STORE_PS(&faceNormals->x, n);
