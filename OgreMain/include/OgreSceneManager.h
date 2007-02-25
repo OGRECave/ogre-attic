@@ -430,7 +430,16 @@ namespace Ogre {
 		};
 		typedef std::map<String, MovableObjectCollection*> MovableObjectCollectionMap;
 		MovableObjectCollectionMap mMovableObjectCollectionMap;
+		/** Gets the movable object collection for the given type name.
+		@remarks
+			This method create new collection if the collection does not exist.
+		*/
 		MovableObjectCollection* getMovableObjectCollection(const String& typeName);
+		/** Gets the movable object collection for the given type name.
+		@remarks
+			This method throw exception if the collection does not exist.
+		*/
+		const MovableObjectCollection* getMovableObjectCollection(const String& typeName) const;
 		/// Mutex over the collection of MovableObject types
 		OGRE_MUTEX(mMovableObjectCollectionMapMutex)
 
@@ -853,7 +862,7 @@ namespace Ogre {
         /** Retrieves a pointer to the named camera.
 		@note Throws an exception if the named instance does not exist
         */
-        virtual Camera* getCamera(const String& name);
+        virtual Camera* getCamera(const String& name) const;
 
 		/** Returns whether a camera with the given name exists.
 		*/
@@ -901,7 +910,7 @@ namespace Ogre {
         /** Returns a pointer to the named Light which has previously been added to the scene.
 		@note Throws an exception if the named instance does not exist
         */
-        virtual Light* getLight(const String& name);
+        virtual Light* getLight(const String& name) const;
 
 		/** Returns whether a light with the given name exists.
 		*/
@@ -1084,7 +1093,7 @@ namespace Ogre {
         /** Retrieves a pointer to the named Entity. 
 		@note Throws an exception if the named instance does not exist
 		*/
-        virtual Entity* getEntity(const String& name);
+        virtual Entity* getEntity(const String& name) const;
 		/** Returns whether an entity with the given name exists.
 		*/
 		virtual bool hasEntity(const String& name) const;
@@ -1129,7 +1138,7 @@ namespace Ogre {
         /** Retrieves a pointer to the named ManualObject. 
 		@note Throws an exception if the named instance does not exist
 		*/
-        virtual ManualObject* getManualObject(const String& name);
+        virtual ManualObject* getManualObject(const String& name) const;
 		/** Returns whether a manual object with the given name exists.
 		*/
 		virtual bool hasManualObject(const String& name) const;
@@ -1152,7 +1161,7 @@ namespace Ogre {
         /** Retrieves a pointer to the named BillboardChain. 
 		@note Throws an exception if the named instance does not exist
 		*/
-        virtual BillboardChain* getBillboardChain(const String& name);
+        virtual BillboardChain* getBillboardChain(const String& name) const;
 		/** Returns whether a billboard chain with the given name exists.
 		*/
 		virtual bool hasBillboardChain(const String& name) const;
@@ -1175,7 +1184,7 @@ namespace Ogre {
         /** Retrieves a pointer to the named RibbonTrail. 
 		@note Throws an exception if the named instance does not exist
 		*/
-        virtual RibbonTrail* getRibbonTrail(const String& name);
+        virtual RibbonTrail* getRibbonTrail(const String& name) const;
 		/** Returns whether a ribbon trail with the given name exists.
 		*/
 		virtual bool hasRibbonTrail(const String& name) const;
@@ -1237,7 +1246,7 @@ namespace Ogre {
         /** Retrieves a pointer to the named ParticleSystem. 
 		@note Throws an exception if the named instance does not exist
 		*/
-        virtual ParticleSystem* getParticleSystem(const String& name);
+        virtual ParticleSystem* getParticleSystem(const String& name) const;
 		/** Returns whether a particle system with the given name exists.
 		*/
 		virtual bool hasParticleSystem(const String& name) const;
@@ -1747,7 +1756,7 @@ namespace Ogre {
         /** Retrieves a pointer to the named BillboardSet.
 		@note Throws an exception if the named instance does not exist
         */
-        virtual BillboardSet* getBillboardSet(const String& name);
+        virtual BillboardSet* getBillboardSet(const String& name) const;
 		/** Returns whether a billboardset with the given name exists.
 		*/
 		virtual bool hasBillboardSet(const String& name) const;
@@ -1862,7 +1871,7 @@ namespace Ogre {
         /** Retrieves animation state as previously created using createAnimationState. 
 		@note Throws an exception if the named instance does not exist
 		*/
-        virtual AnimationState* getAnimationState(const String& animName);
+        virtual AnimationState* getAnimationState(const String& animName) const;
 		/** Returns whether an animation state with the given name exists.
 		*/
 		virtual bool hasAnimationState(const String& name) const;
@@ -2554,7 +2563,7 @@ namespace Ogre {
 		/** Get a reference to a previously created MovableObject. 
 		@note Throws an exception if the named instance does not exist
 		*/
-		virtual MovableObject* getMovableObject(const String& name, const String& typeName);
+		virtual MovableObject* getMovableObject(const String& name, const String& typeName) const;
 		/** Returns whether a movable object instance with the given name exists. */
 		virtual bool hasMovableObject(const String& name, const String& typeName) const;
 		typedef MapIterator<MovableObjectMap> MovableObjectIterator;
@@ -2708,7 +2717,7 @@ namespace Ogre {
 
 		/** Gets the current viewport being rendered (advanced use only, only 
 			valid during viewport update. */
-		Viewport* getCurrentViewport(void) { return mCurrentViewport; }
+		Viewport* getCurrentViewport(void) const { return mCurrentViewport; }
 
 		/** Returns a visibility boundary box for a specific camera. */
 		const VisibleObjectsBoundsInfo& getVisibleObjectsBoundsInfo(const Camera* cam) const;

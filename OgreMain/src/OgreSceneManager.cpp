@@ -276,9 +276,9 @@ Camera* SceneManager::createCamera(const String& name)
 }
 
 //-----------------------------------------------------------------------
-Camera* SceneManager::getCamera(const String& name)
+Camera* SceneManager::getCamera(const String& name) const
 {
-    CameraList::iterator i = mCameras.find(name);
+    CameraList::const_iterator i = mCameras.find(name);
     if (i == mCameras.end())
     {
         OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, 
@@ -360,7 +360,7 @@ Light* SceneManager::createLight(const String& name)
 		createMovableObject(name, LightFactory::FACTORY_TYPE_NAME));
 }
 //-----------------------------------------------------------------------
-Light* SceneManager::getLight(const String& name)
+Light* SceneManager::getLight(const String& name) const
 {
 	return static_cast<Light*>(
 		getMovableObject(name, LightFactory::FACTORY_TYPE_NAME));
@@ -490,7 +490,7 @@ Entity* SceneManager::createEntity(
 }
 
 //-----------------------------------------------------------------------
-Entity* SceneManager::getEntity(const String& name)
+Entity* SceneManager::getEntity(const String& name) const
 {
 	return static_cast<Entity*>(
 		getMovableObject(name, EntityFactory::FACTORY_TYPE_NAME));
@@ -533,7 +533,7 @@ ManualObject* SceneManager::createManualObject(const String& name)
 		createMovableObject(name, ManualObjectFactory::FACTORY_TYPE_NAME));
 }
 //-----------------------------------------------------------------------
-ManualObject* SceneManager::getManualObject(const String& name)
+ManualObject* SceneManager::getManualObject(const String& name) const
 {
 	return static_cast<ManualObject*>(
 		getMovableObject(name, ManualObjectFactory::FACTORY_TYPE_NAME));
@@ -567,7 +567,7 @@ BillboardChain* SceneManager::createBillboardChain(const String& name)
 		createMovableObject(name, BillboardChainFactory::FACTORY_TYPE_NAME));
 }
 //-----------------------------------------------------------------------
-BillboardChain* SceneManager::getBillboardChain(const String& name)
+BillboardChain* SceneManager::getBillboardChain(const String& name) const
 {
 	return static_cast<BillboardChain*>(
 		getMovableObject(name, BillboardChainFactory::FACTORY_TYPE_NAME));
@@ -601,7 +601,7 @@ RibbonTrail* SceneManager::createRibbonTrail(const String& name)
 		createMovableObject(name, RibbonTrailFactory::FACTORY_TYPE_NAME));
 }
 //-----------------------------------------------------------------------
-RibbonTrail* SceneManager::getRibbonTrail(const String& name)
+RibbonTrail* SceneManager::getRibbonTrail(const String& name) const
 {
 	return static_cast<RibbonTrail*>(
 		getMovableObject(name, RibbonTrailFactory::FACTORY_TYPE_NAME));
@@ -652,7 +652,7 @@ ParticleSystem* SceneManager::createParticleSystem(const String& name,
 			&params));
 }
 //-----------------------------------------------------------------------
-ParticleSystem* SceneManager::getParticleSystem(const String& name)
+ParticleSystem* SceneManager::getParticleSystem(const String& name) const
 {
 	return static_cast<ParticleSystem*>(
 		getMovableObject(name, ParticleSystemFactory::FACTORY_TYPE_NAME));
@@ -2879,7 +2879,7 @@ BillboardSet* SceneManager::createBillboardSet(const String& name, unsigned int 
 		createMovableObject(name, BillboardSetFactory::FACTORY_TYPE_NAME, &params));
 }
 //-----------------------------------------------------------------------
-BillboardSet* SceneManager::getBillboardSet(const String& name)
+BillboardSet* SceneManager::getBillboardSet(const String& name) const
 {
 	return static_cast<BillboardSet*>(
 		getMovableObject(name, BillboardSetFactory::FACTORY_TYPE_NAME));
@@ -2991,7 +2991,7 @@ AnimationState* SceneManager::createAnimationState(const String& animName)
 
 }
 //-----------------------------------------------------------------------
-AnimationState* SceneManager::getAnimationState(const String& animName) 
+AnimationState* SceneManager::getAnimationState(const String& animName) const
 {
 	return mAnimationStates.getAnimationState(animName);
 
@@ -3961,7 +3961,7 @@ const Pass* SceneManager::deriveShadowCasterPass(const Pass* pass)
 		{
 			// Have to merge the shadow caster vertex program in
 			retPass->setVertexProgram(
-				pass->getShadowCasterVertexProgramName());
+				pass->getShadowCasterVertexProgramName(), false);
 			const GpuProgramPtr& prg = retPass->getVertexProgram();
 			// Load this program if not done already
 			if (!prg->isLoaded())
@@ -3980,7 +3980,7 @@ const Pass* SceneManager::deriveShadowCasterPass(const Pass* pass)
 					mShadowTextureCustomCasterVertexProgram)
 				{
 					mShadowTextureCustomCasterPass->setVertexProgram(
-						mShadowTextureCustomCasterVertexProgram);
+						mShadowTextureCustomCasterVertexProgram, false);
 					if(mShadowTextureCustomCasterPass->hasVertexProgram())
 					{
 						mShadowTextureCustomCasterPass->setVertexProgramParameters(
@@ -4019,7 +4019,7 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 		{
 			// Have to merge the shadow receiver vertex program in
 			retPass->setVertexProgram(
-				pass->getShadowReceiverVertexProgramName());
+				pass->getShadowReceiverVertexProgramName(), false);
 			const GpuProgramPtr& prg = retPass->getVertexProgram();
 			// Load this program if not done already
 			if (!prg->isLoaded())
@@ -4038,7 +4038,7 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 					mShadowTextureCustomReceiverVertexProgram)
 				{
 					mShadowTextureCustomReceiverPass->setVertexProgram(
-						mShadowTextureCustomReceiverVertexProgram);
+						mShadowTextureCustomReceiverVertexProgram, false);
 					if(mShadowTextureCustomReceiverPass->hasVertexProgram())
 					{
 						mShadowTextureCustomReceiverPass->setVertexProgramParameters(
@@ -4106,7 +4106,7 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 		{
 			// Have to merge the shadow receiver vertex program in
 			retPass->setFragmentProgram(
-				pass->getShadowReceiverFragmentProgramName());
+				pass->getShadowReceiverFragmentProgramName(), false);
 			const GpuProgramPtr& prg = retPass->getFragmentProgram();
 			// Load this program if not done already
 			if (!prg->isLoaded())
@@ -4119,7 +4119,7 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 			if (pass->hasVertexProgram() && !retPass->hasVertexProgram())
 			{
 				// We didn't bind a receiver-specific program, so bind the original
-				retPass->setVertexProgram(pass->getVertexProgramName());
+				retPass->setVertexProgram(pass->getVertexProgramName(), false);
 				const GpuProgramPtr& prg = retPass->getVertexProgram();
 				// Load this program if required
 				if (!prg->isLoaded())
@@ -4140,7 +4140,7 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 					mShadowTextureCustomReceiverFragmentProgram)
 				{
 					mShadowTextureCustomReceiverPass->setFragmentProgram(
-						mShadowTextureCustomReceiverFragmentProgram);
+						mShadowTextureCustomReceiverFragmentProgram, false);
 					if(mShadowTextureCustomReceiverPass->hasFragmentProgram())
 					{
 						mShadowTextureCustomReceiverPass->setFragmentProgramParameters(
@@ -5193,6 +5193,26 @@ SceneManager::getMovableObjectCollection(const String& typeName)
 	}
 }
 //---------------------------------------------------------------------
+const SceneManager::MovableObjectCollection* 
+SceneManager::getMovableObjectCollection(const String& typeName) const
+{
+	// lock collection mutex
+	OGRE_LOCK_MUTEX(mMovableObjectCollectionMapMutex)
+
+	MovableObjectCollectionMap::const_iterator i = 
+		mMovableObjectCollectionMap.find(typeName);
+	if (i == mMovableObjectCollectionMap.end())
+	{
+		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+			"Object collection named '" + typeName + "' does not exist.", 
+			"SceneManager::getMovableObjectCollection");
+	}
+	else
+	{
+		return i->second;
+	}
+}
+//---------------------------------------------------------------------
 MovableObject* SceneManager::createMovableObject(const String& name, 
 	const String& typeName, const NameValuePairList* params)
 {
@@ -5291,13 +5311,13 @@ void SceneManager::destroyAllMovableObjects(void)
 
 }
 //---------------------------------------------------------------------
-MovableObject* SceneManager::getMovableObject(const String& name, const String& typeName)
+MovableObject* SceneManager::getMovableObject(const String& name, const String& typeName) const
 {
-	MovableObjectCollection* objectMap = getMovableObjectCollection(typeName);
+	const MovableObjectCollection* objectMap = getMovableObjectCollection(typeName);
 	
 	{
 		OGRE_LOCK_MUTEX(objectMap->mutex)
-		MovableObjectMap::iterator mi = objectMap->map.find(name);
+		MovableObjectMap::const_iterator mi = objectMap->map.find(name);
 		if (mi == objectMap->map.end())
 		{
 			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
