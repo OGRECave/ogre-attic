@@ -462,7 +462,7 @@ namespace Ogre
             and inverts the Y. */
         static const Matrix4 CLIPSPACE2DTOIMAGESPACE;
 
-        inline Matrix4 operator*(Real scalar)
+        inline Matrix4 operator*(Real scalar) const
         {
             return Matrix4(
                 scalar*m[0][0], scalar*m[0][1], scalar*m[0][2], scalar*m[0][3],
