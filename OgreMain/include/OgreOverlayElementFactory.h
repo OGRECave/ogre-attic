@@ -52,6 +52,8 @@ namespace Ogre {
     class _OgreExport OverlayElementFactory
     {
     public:
+        /** Destroy the overlay element factory */
+        virtual ~OverlayElementFactory () {}
         /** Creates a new OverlayElement instance with the name supplied. */
         virtual OverlayElement* createOverlayElement(const String& instanceName) = 0;
         /** Destroys a OverlayElement which this factory created previously. */

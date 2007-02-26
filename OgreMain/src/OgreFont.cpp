@@ -262,7 +262,7 @@ namespace Ogre
 			r != mCodePointRangeList.end(); ++r)
 		{
 			const CodePointRange& range = *r;
-			for(CodePoint cp = range.first, l = 0, m = 0, n = 0; cp <= range.second; ++cp, ++glyphCount)
+			for(CodePoint cp = range.first; cp <= range.second; ++cp, ++glyphCount)
 			{
 				FT_Load_Char( face, cp, FT_LOAD_RENDER );
 

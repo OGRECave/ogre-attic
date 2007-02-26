@@ -301,8 +301,6 @@ namespace Ogre
 		*/
 		const GlyphInfo& getGlyphInfo(CodePoint id) const;
 
-		/** Get the width of a space in this font
-
 		/** Adds a range of code points to the list of code point ranges to generate
 			glyphs for, if this is a truetype based font.
 		@remarks

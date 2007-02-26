@@ -66,7 +66,7 @@ namespace Ogre {
         mRenderQueueIDSet(false),
 		mObjectCount(0),
 		mInstancedGeometryInstance(0),
-		mSkeletonInstance(NULL)
+		mSkeletonInstance(0)
 	{
 		mBaseSkeleton.setNull();
 	}
@@ -820,7 +820,6 @@ namespace Ogre {
 			
 		mVisible = visible;
 		// tell any existing BatchInstances
-		int i=0;
 		for (BatchInstanceMap::iterator ri = mBatchInstanceMap.begin();
 			ri != mBatchInstanceMap.end(); ++ri)
 		{
@@ -881,9 +880,10 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
 	InstancedGeometry::InstancedObject::InstancedObject(int index,SkeletonInstance *skeleton, AnimationStateSet*animations):mIndex(index),
 		mTransformation(Matrix4::ZERO),
-		mPosition(Vector3::ZERO),
-		mScale(Vector3(1,1,1)),
 		mOrientation(Quaternion::IDENTITY),
+		mScale(Vector3::UNIT_SCALE),
+		mPosition(Vector3::ZERO),
+		mSkeletonInstance(skeleton),
 		mBoneWorldMatrices(NULL),
         mBoneMatrices(NULL),
         mNumBoneMatrices(0),
@@ -891,7 +891,6 @@ namespace Ogre {
 
 	{
 			
-			mSkeletonInstance = skeleton;
 			mSkeletonInstance->load();
 		
 			mAnimationState = new AnimationStateSet();
@@ -910,15 +909,15 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
 	InstancedGeometry::InstancedObject::InstancedObject(int index):mIndex(index),
 		mTransformation(Matrix4::ZERO),
-		mPosition(Vector3::ZERO),
-		mScale(Vector3(1,1,1)),
 		mOrientation(Quaternion::IDENTITY),
-		mBoneWorldMatrices(NULL),
-        mBoneMatrices(NULL),
+		mScale(Vector3::UNIT_SCALE),
+		mPosition(Vector3::ZERO),
+		mSkeletonInstance(0),
+		mBoneWorldMatrices(0),
+        mBoneMatrices(0),
+		mAnimationState(0),
         mNumBoneMatrices(0),
-		mFrameAnimationLastUpdated(std::numeric_limits<unsigned long>::max()),
-		mSkeletonInstance(NULL),
-		mAnimationState(NULL)
+		mFrameAnimationLastUpdated(std::numeric_limits<unsigned long>::max())
 	{
 	}
 	//--------------------------------------------------------------------------
