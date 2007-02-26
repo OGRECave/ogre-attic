@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="5" />
+	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="Demo_Fresnel" />
-		<Option default_target="" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
 				<Option output="..\..\Common\bin\Debug\Demo_Fresnel.exe" prefix_auto="0" extension_auto="0" />
@@ -66,10 +64,9 @@
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="..\..\Common\bin\$(TARGET_NAME)" />
 		</Linker>
-		<Unit filename="..\src\Fresnel.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
+		<Unit filename="..\src\Fresnel.cpp" />
+		<Extensions>
+			<code_completion />
+		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

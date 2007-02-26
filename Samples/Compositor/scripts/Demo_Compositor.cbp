@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="5" />
+	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="Demo_Compositor" />
-		<Option default_target="" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
 				<Option output="..\..\Common\bin\Debug\Demo_Compositor.exe" prefix_auto="0" extension_auto="0" />
@@ -73,42 +71,12 @@
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="..\..\Common\bin\$(TARGET_NAME)" />
 		</Linker>
-		<Unit filename="..\include\Compositor.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\CompositorDemo_FrameListener.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\ItemSelectorViewManager.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\Compositor.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\CompositorDemo_FrameListener.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\ItemSelectorViewManager.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
+		<Unit filename="..\include\Compositor.h" />
+		<Unit filename="..\include\CompositorDemo_FrameListener.h" />
+		<Unit filename="..\include\ItemSelectorViewManager.h" />
+		<Unit filename="..\src\Compositor.cpp" />
+		<Unit filename="..\src\CompositorDemo_FrameListener.cpp" />
+		<Unit filename="..\src\ItemSelectorViewManager.cpp" />
 		<Extensions>
 			<code_completion />
 		</Extensions>

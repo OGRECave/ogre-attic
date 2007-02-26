@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="5" />
+	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="OgreGUIRenderer" />
-		<Option default_target="" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
 				<Option output="..\..\..\..\lib\OgreGUIRenderer_d.dll" prefix_auto="0" extension_auto="0" />
@@ -60,6 +58,7 @@
 			<Add option="-DWIN32" />
 			<Add option="-D_WINDOWS" />
 			<Add option="-D_USRDLL" />
+			<Add option="-DOGRE_GUIRENDERER_EXPORTS" />
 			<Add directory="..\include" />
 			<Add directory="..\..\..\..\OgreMain\include" />
 			<Add directory="..\..\..\..\Dependencies\include" />
@@ -70,42 +69,14 @@
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="..\..\bin\$(TARGET_NAME)" />
 		</Linker>
-		<Unit filename="..\include\OgreCEGUIRenderer.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreCEGUIResourceProvider.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreCEGUITexture.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreCEGUIRenderer.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreCEGUIResourceProvider.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreCEGUITexture.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Extensions />
+		<Unit filename="..\include\OgreCEGUIRenderer.h" />
+		<Unit filename="..\include\OgreCEGUIResourceProvider.h" />
+		<Unit filename="..\include\OgreCEGUITexture.h" />
+		<Unit filename="..\src\OgreCEGUIRenderer.cpp" />
+		<Unit filename="..\src\OgreCEGUIResourceProvider.cpp" />
+		<Unit filename="..\src\OgreCEGUITexture.cpp" />
+		<Extensions>
+			<code_completion />
+		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

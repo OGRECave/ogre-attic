@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="5" />
+	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="Demo_DeferredShading" />
-		<Option default_target="" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
 				<Option output="..\..\Common\bin\Debug\Demo_DeferredShading.exe" prefix_auto="0" extension_auto="0" />
@@ -66,65 +64,18 @@
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="..\..\Common\bin\$(TARGET_NAME)" />
 		</Linker>
-		<Unit filename="..\include\CreateSphere.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\DeferredShading.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\LightMaterialGenerator.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\MLight.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\MaterialGenerator.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\DeferredShading.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\DeferredShadingDemo.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\LightMaterialGenerator.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\MLight.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\MaterialGenerator.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
+		<Unit filename="..\include\CreateSphere.h" />
+		<Unit filename="..\include\DeferredShading.h" />
+		<Unit filename="..\include\LightMaterialGenerator.h" />
+		<Unit filename="..\include\MLight.h" />
+		<Unit filename="..\include\MaterialGenerator.h" />
+		<Unit filename="..\src\DeferredShading.cpp" />
+		<Unit filename="..\src\DeferredShadingDemo.cpp" />
+		<Unit filename="..\src\LightMaterialGenerator.cpp" />
+		<Unit filename="..\src\MLight.cpp" />
+		<Unit filename="..\src\MaterialGenerator.cpp" />
+		<Extensions>
+			<code_completion />
+		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
