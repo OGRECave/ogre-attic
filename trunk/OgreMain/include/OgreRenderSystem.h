@@ -762,6 +762,8 @@ namespace Ogre
         virtual void _beginGeometryCount(void);
         /** Reports the number of tris rendered since the last _beginGeometryCount call. */
         virtual unsigned int _getFaceCount(void) const;
+		/** Reports the number of batches rendered since the last _beginGeometryCount call. */
+		virtual unsigned int _getBatchCount(void) const;
         /** Reports the number of vertices passed to the renderer since the last _beginGeometryCount call. */
         virtual unsigned int _getVertexCount(void) const;
 
@@ -1168,6 +1170,7 @@ namespace Ogre
         bool mVSync;
 		bool mWBuffer;
 
+        size_t mBatchCount;
         size_t mFaceCount;
         size_t mVertexCount;
 

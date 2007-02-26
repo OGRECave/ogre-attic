@@ -110,6 +110,9 @@ namespace Ogre {
         /// Stored number of visible faces in the last render
         unsigned int mVisFacesLastRender;
 
+        /// Stored number of visible faces in the last render
+        unsigned int mVisBatchesLastRender;
+
         /// Shared class-level name for Movable type
         static String msMovableType;
 
@@ -342,9 +345,17 @@ namespace Ogre {
         */
         void _notifyRenderedFaces(unsigned int numfaces);
 
+        /** Internal method to notify camera of the visible batches in the last render.
+        */
+        void _notifyRenderedBatches(unsigned int numbatches);
+
         /** Internal method to retrieve the number of visible faces in the last render.
         */
         unsigned int _getNumRenderedFaces(void) const;
+
+        /** Internal method to retrieve the number of visible batches in the last render.
+        */
+        unsigned int _getNumRenderedBatches(void) const;
 
         /** Gets the derived orientation of the camera, including any
             rotation inherited from a node attachment and reflection matrix. */

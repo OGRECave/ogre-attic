@@ -217,6 +217,10 @@ namespace Ogre {
         */
         unsigned int _getNumRenderedFaces(void) const;
 
+        /** Gets the number of rendered batches in the last update.
+        */
+        unsigned int _getNumRenderedBatches(void) const;
+
         /** Tells this viewport whether it should display Overlay objects.
         @remarks
             Overlay objects are layers which appear on top of the scene. They are created via

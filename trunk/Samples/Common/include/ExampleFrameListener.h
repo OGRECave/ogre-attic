@@ -56,6 +56,7 @@ protected:
 		static String bestFps = "Best FPS: ";
 		static String worstFps = "Worst FPS: ";
 		static String tris = "Triangle Count: ";
+		static String batches = "Batch Count: ";
 
 		// update stats when necessary
 		try {
@@ -74,6 +75,9 @@ protected:
 
 			OverlayElement* guiTris = OverlayManager::getSingleton().getOverlayElement("Core/NumTris");
 			guiTris->setCaption(tris + StringConverter::toString(stats.triangleCount));
+
+			OverlayElement* guiBatches = OverlayManager::getSingleton().getOverlayElement("Core/NumBatches");
+			guiBatches->setCaption(batches + StringConverter::toString(stats.batchCount));
 
 			OverlayElement* guiDbg = OverlayManager::getSingleton().getOverlayElement("Core/DebugText");
 			guiDbg->setCaption(mDebugText);

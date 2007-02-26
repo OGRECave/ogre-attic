@@ -79,6 +79,7 @@ namespace Ogre {
             unsigned long bestFrameTime;
             unsigned long worstFrameTime;
             size_t triangleCount;
+            size_t batchCount;
         };
 
         RenderTarget();
@@ -272,13 +273,15 @@ namespace Ogre {
 
 		/** Gets the number of triangles rendered in the last update() call. */
 		virtual size_t getTriangleCount(void) const;
-        /** Utility method to notify a render target that a camera has been removed, 
-        incase it was referring to it as a viewer. 
+        /** Gets the number of batches rendered in the last update() call. */
+		virtual size_t getBatchCount(void) const;
+        /** Utility method to notify a render target that a camera has been removed,
+        incase it was referring to it as a viewer.
         */
         virtual void _notifyCameraRemoved(const Camera* cam);
 
         /** Indicates whether this target is the primary window. The
-            primary window is special in that it is destroyed when 
+            primary window is special in that it is destroyed when
             ogre is shut down, and cannot be destroyed directly.
             This is the case because it holds the context for vertex,
             index buffers and textures.
