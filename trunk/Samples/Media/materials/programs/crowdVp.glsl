@@ -24,7 +24,8 @@ void main()
 		// perform matrix multiplication manually since no 3x4 matrices
 		for (int row = 0; row < 3; ++row)
 		{
-			vec4 blendMatrixRow = worldMatrix3x4Array[instanceOffset + int(blendIndices[bone]) * 3 + row];
+		    int idx = instanceOffset + int(blendIndices[bone]) * 3 + row;
+			vec4 blendMatrixRow = worldMatrix3x4Array[idx];
 			tmpPos[row] = dot(blendMatrixRow, gl_Vertex);
 #if SHADOW_CASTER
 #else
