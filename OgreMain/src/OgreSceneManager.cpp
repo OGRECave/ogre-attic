@@ -1268,15 +1268,17 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
 	mDestRenderSystem->_setProjectionMatrix(mCameraInProgress->getProjectionMatrixRS());
 	mDestRenderSystem->_setViewMatrix(mCameraInProgress->getViewMatrix(true));
 
-    // Render scene content 
+    // Render scene content
     _renderVisibleObjects();
 
     // End frame
     mDestRenderSystem->_endFrame();
 
-    // Notify camera or vis faces
+    // Notify camera of vis faces
     camera->_notifyRenderedFaces(mDestRenderSystem->_getFaceCount());
 
+    // Notify camera of vis batches
+    camera->_notifyRenderedBatches(mDestRenderSystem->_getBatchCount());
 
 
 }

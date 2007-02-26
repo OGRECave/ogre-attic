@@ -101,6 +101,7 @@ namespace Ogre {
         firePreUpdate();
 
         mStats.triangleCount = 0;
+        mStats.batchCount = 0;
         // Go through viewports in Z-order
         // Tell each to refresh
         ViewportList::iterator it = mViewportList.begin();
@@ -109,6 +110,7 @@ namespace Ogre {
             fireViewportPreUpdate((*it).second);
             (*it).second->update();
             mStats.triangleCount += (*it).second->_getNumRenderedFaces();
+            mStats.batchCount += (*it).second->_getNumRenderedBatches();
             fireViewportPostUpdate((*it).second);
             ++it;
         }
@@ -213,6 +215,11 @@ namespace Ogre {
         return mStats.triangleCount;
     }
 
+    size_t RenderTarget::getBatchCount(void) const
+    {
+        return mStats.batchCount;
+    }
+
     float RenderTarget::getBestFrameTime() const
     {
         return mStats.bestFrameTime;
@@ -230,6 +237,7 @@ namespace Ogre {
         mStats.lastFPS = 0.0;
         mStats.worstFPS = 999.0;
         mStats.triangleCount = 0;
+        mStats.batchCount = 0;
         mStats.bestFrameTime = 999999;
         mStats.worstFrameTime = 0;
 

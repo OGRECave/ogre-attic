@@ -236,6 +236,11 @@ namespace Ogre {
 		return mCamera ? mCamera->_getNumRenderedFaces() : 0;
     }
     //---------------------------------------------------------------------
+    unsigned int Viewport::_getNumRenderedBatches(void) const
+    {
+		return mCamera ? mCamera->_getNumRenderedBatches() : 0;
+    }
+    //---------------------------------------------------------------------
     void Viewport::setCamera(Camera* cam)
     {
         mCamera = cam;
@@ -281,7 +286,7 @@ namespace Ogre {
 		}
 		else
 		{
-			mRQSequence = 
+			mRQSequence =
 				Root::getSingleton().getRenderQueueInvocationSequence(mRQSequenceName);
 		}
 	}
