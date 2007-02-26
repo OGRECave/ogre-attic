@@ -302,6 +302,18 @@ namespace Ogre
 				        poslong:posint:poslong:poslong (display*:screen:windowHandle:XVisualInfo*) for GLX
 				Default: 0 (None)
 				**
+				Key: "externalGLControl" [Win32 OpenGL specific]
+				Description: Let the external window control OpenGL i.e. don't select a pixel format for the window,
+				             do not change v-sync and do not swap buffer. When set to true, the calling application
+				             is responsible of OpenGL initialization and buffer swapping. It should also create an
+				             OpenGL context for its own rendering, Ogre will create one for its use. Then the calling
+				             application must also enable Ogre OpenGL context before calling any Ogre function and
+				             restore its OpenGL context after these calls. The Ogre OpenGL context can be retrieved 
+				             after Ogre initialisation by calling wglGetCurrentDC() and wglGetCurrentContext().
+				             It is only used when the externalWindowHandle parameter is used.
+				Values: true, false
+				Default: false
+				**
 				Key: "parentWindowHandle" [API specific]
 				Description: Parent window handle, for embedding the OGRE context
 				Values: positive integer for W32 (HWND handle)

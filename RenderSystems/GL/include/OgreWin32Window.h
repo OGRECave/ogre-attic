@@ -73,6 +73,7 @@ namespace Ogre {
 		HDC		mHDC;
 		HGLRC	mGlrc;
         bool    mIsExternal;
+	bool    mIsExternalGLControl;
         bool    mSizing;
 		bool	mClosed;
         int     mDisplayFrequency;      // fullscreen only, to restore display
