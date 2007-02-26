@@ -103,7 +103,11 @@ namespace Ogre {
 #	ifdef OGRE_GLPLUGIN_EXPORTS
 #		define _OgreGLExport __declspec(dllexport)
 #	else
-#		define _OgreGLExport __declspec(dllimport)
+#       if defined( __MINGW32__ )
+#           define _OgreGLExport
+#       else
+#    		define _OgreGLExport __declspec(dllimport)
+#       endif
 #	endif
 #elif defined ( OGRE_GCC_VISIBILITY )
 #    define _OgreGLExport  __attribute__ ((visibility("default")))

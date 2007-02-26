@@ -37,11 +37,15 @@
 #include <OgreSceneManagerEnumerator.h>
 #include <OgreTextureUnitState.h>
 
-#if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(__MINGW32__) && !defined(OGRE_STATIC_LIB)
+#if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(OGRE_STATIC_LIB)
 #   ifdef OGRE_GUIRENDERER_EXPORTS
 #       define OGRE_GUIRENDERER_API __declspec(dllexport)
 #   else
-#       define OGRE_GUIRENDERER_API __declspec(dllimport)
+#       if defined(__MINGW32__)
+#           define OGRE_GUIRENDERER_API
+#       else
+#           define OGRE_GUIRENDERER_API __declspec(dllimport)
+#       endif
 #   endif
 #elif defined ( OGRE_GCC_VISIBILITY )
 #    define OGRE_GUIRENDERER_API  __attribute__ ((visibility("default")))
