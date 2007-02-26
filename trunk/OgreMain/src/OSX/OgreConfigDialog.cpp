@@ -18,7 +18,6 @@ namespace Ogre {
 	
 	void ConfigDialog::initialise()
 	{
-		Root::getSingleton().restoreConfig();
 		RenderSystemList* renderers = Root::getSingleton().getAvailableRenderers();
 		RenderSystem* renderer = renderers->front();
 		ConfigOptionMap config = renderer->getConfigOptions();
@@ -163,7 +162,6 @@ namespace Ogre {
 		}
 
 		Root::getSingleton().setRenderSystem( renderer );
-		Root::getSingleton().saveConfig();
 
 		iDisplayStatus = true;
 
@@ -215,7 +213,11 @@ namespace Ogre {
 		// TODO: Fix OS X Config dialog
 		RenderSystemList* renderers = Root::getSingleton().getAvailableRenderers();
 		RenderSystem* renderer = renderers->front();
-			
+
+		// WARNING: restoreConfig() should not be invoked here as Root calls
+		// it before this method anyway, and invoking restoreConfig() here
+		// forces the client application to use Ogre.cfg, while it may have
+		// different plans.
 		if(!Root::getSingleton().restoreConfig())
 		{
 			// Set some defaults
@@ -226,7 +228,6 @@ namespace Ogre {
 			renderer->setConfigOption("RTT Preferred Mode", "PBuffer");
 			// Set the rendersystem and save the config.
 			Root::getSingleton().setRenderSystem(renderer);
-			Root::getSingleton().saveConfig();
 		}
 		return true;
 	/*

@@ -290,6 +290,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Root::saveConfig(void)
     {
+        if (mConfigFileName.empty ())
+            return;
+
 		std::ofstream of(mConfigFileName.c_str());
 
         if (!of)
@@ -323,6 +326,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool Root::restoreConfig(void)
     {
+        if (mConfigFileName.empty ())
+            return true;
+
         // Restores configuration from saved state
         // Returns true if a valid saved configuration is
         //   available, and false if no saved config is
@@ -388,11 +394,14 @@ namespace Ogre {
         ConfigDialog* dlg;
         bool isOk;
 
+        restoreConfig();
+
         dlg = new ConfigDialog();
 
-        isOk = dlg->display();
+        if ((isOk = dlg->display()))
+            saveConfig();
 
-	delete dlg;
+        delete dlg;
         return isOk;
     }
 
