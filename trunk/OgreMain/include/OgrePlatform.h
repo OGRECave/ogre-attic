@@ -114,7 +114,7 @@ namespace Ogre {
 
 // If we're not including this from a client build, specify that the stuff
 // should get exported. Otherwise, import it.
-#	if defined( __MINGW32__ ) || defined( OGRE_STATIC_LIB )
+#	if defined( OGRE_STATIC_LIB )
 		// Linux compilers don't have symbol import/export directives.
 #   	define _OgreExport
 #   	define _OgrePrivate
@@ -122,7 +122,11 @@ namespace Ogre {
 #   	if defined( OGRE_NONCLIENT_BUILD )
 #       	define _OgreExport __declspec( dllexport )
 #   	else
-#       	define _OgreExport __declspec( dllimport )
+#           if defined( __MINGW32__ )
+#               define _OgreExport
+#           else
+#       	    define _OgreExport __declspec( dllimport )
+#           endif
 #   	endif
 #   	define _OgrePrivate
 #	endif
@@ -140,8 +144,14 @@ namespace Ogre {
 
 // Disable unicode support on MingW at the moment, poorly supported in stdlibc++
 // STLPORT fixes this though so allow if found
+// MinGW C++ Toolkit supports unicode and sets the define __MINGW32_TOOLKIT_UNICODE__ in _mingw.h
 #if defined( __MINGW32__ ) && !defined(_STLPORT_VERSION)
-#	define OGRE_UNICODE_SUPPORT 0
+#   include<_mingw.h>
+#   if defined(__MINGW32_TOOLKIT_UNICODE__)
+#	    define OGRE_UNICODE_SUPPORT 1
+#   else
+#       define OGRE_UNICODE_SUPPORT 0
+#   endif
 #else
 #	define OGRE_UNICODE_SUPPORT 1
 #endif
