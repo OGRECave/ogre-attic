@@ -76,11 +76,15 @@ namespace Ogre
     //-------------------------------------------
 	// Windows setttings
 	//-------------------------------------------
-#if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(__MINGW32__) && !defined(OGRE_STATIC_LIB)
+#if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(OGRE_STATIC_LIB)
 #	ifdef OGRED3DENGINEDLL_EXPORTS
 #		define _OgreD3D9Export __declspec(dllexport)
 #	else
-#		define _OgreD3D9Export __declspec(dllimport)
+#       if defined( __MINGW32__ )
+#           define _OgreD3D9Export
+#       else
+#    		define _OgreD3D9Export __declspec(dllimport)
+#       endif
 #	endif
 #else
 #	define _OgreD3D9Export

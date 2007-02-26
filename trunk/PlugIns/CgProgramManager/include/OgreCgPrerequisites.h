@@ -46,7 +46,11 @@ namespace Ogre {
 #	ifdef OGRE_CGPLUGIN_EXPORTS
 #		define _OgreCgPluginExport __declspec(dllexport)
 #	else
-#		define _OgreCgPluginExport __declspec(dllimport)
+#       if defined( __MINGW32__ )
+#           define _OgreCgPluginExport
+#       else
+#    		define _OgreCgPluginExport __declspec(dllimport)
+#       endif
 #   endif
 #else
 #	define _OgreCgPluginExport
