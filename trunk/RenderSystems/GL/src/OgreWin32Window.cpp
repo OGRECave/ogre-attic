@@ -47,6 +47,7 @@ namespace Ogre {
 		mIsFullScreen = false;
 		mHWnd = 0;
 		mIsExternal = false;
+		mIsExternalGLControl = false;
 		mSizing = false;
 		mClosed = false;
 		mDisplayFrequency = 0;
@@ -122,6 +123,10 @@ namespace Ogre {
 				{
 					mIsExternal = true;
 					mIsFullScreen = false;
+				}
+
+				if ((opt = miscParams->find("externalGLControl")) != end) {
+				  mIsExternalGLControl = StringConverter::parseBool(opt->second);
 				}
 			}
 			// window border style
@@ -258,27 +263,32 @@ namespace Ogre {
 
 		mHDC = GetDC(mHWnd);
 
-		if (!mGLSupport.selectPixelFormat(mHDC, mColourDepth, fsaa))
+		if (!mIsExternalGLControl)
 		{
-			if (fsaa == 0)
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "selectPixelFormat failed", "Win32Window::create");
+			if (!mGLSupport.selectPixelFormat(mHDC, mColourDepth, fsaa))
+			{
+				if (fsaa == 0)
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "selectPixelFormat failed", "Win32Window::create");
 
-			LogManager::getSingleton().logMessage(LML_NORMAL, "FSAA level not supported, falling back");
-			if (!mGLSupport.selectPixelFormat(mHDC, mColourDepth, 0))
-				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "selectPixelFormat failed", "Win32Window::create");
+				LogManager::getSingleton().logMessage(LML_NORMAL, "FSAA level not supported, falling back");
+				if (!mGLSupport.selectPixelFormat(mHDC, mColourDepth, 0))
+					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "selectPixelFormat failed", "Win32Window::create");
+			}
 		}
-
 		mGlrc = wglCreateContext(mHDC);
 		if (!mGlrc)
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "wglCreateContext", "Win32Window::create");
 		if (!wglMakeCurrent(mHDC, mGlrc))
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "wglMakeCurrent", "Win32Window::create");
 
-		// Don't use wglew as if this is the first window, we won't have initialised yet
-		PFNWGLSWAPINTERVALEXTPROC _wglSwapIntervalEXT = 
-			(PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
-		if (_wglSwapIntervalEXT)
-			_wglSwapIntervalEXT(vsync? 1 : 0);
+		// Do not change vsync if the external window has the OpenGL control
+		if (!mIsExternalGLControl) {
+			// Don't use wglew as if this is the first window, we won't have initialised yet
+			PFNWGLSWAPINTERVALEXTPROC _wglSwapIntervalEXT = 
+				(PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
+			if (_wglSwapIntervalEXT)
+				_wglSwapIntervalEXT(vsync? 1 : 0);
+		}
 
         if (old_context)
         {
@@ -385,7 +395,9 @@ namespace Ogre {
 
 	void Win32Window::swapBuffers(bool waitForVSync)
 	{
-		SwapBuffers(mHDC);
+	  if (!mIsExternalGLControl) {
+	  	SwapBuffers(mHDC);
+	  }
 	}
 
 	void Win32Window::writeContentsToFile(const String& filename)
