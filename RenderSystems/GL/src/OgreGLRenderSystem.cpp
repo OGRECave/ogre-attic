@@ -213,10 +213,10 @@ namespace Ogre {
         // Setup GLSupport
         mGLSupport->initialiseExtensions();
 
-        LogManager::getSingleton().logMessage(
-            "***************************\n"
-            "*** GL Renderer Started ***\n"
-                "***************************");
+        LogManager::getSingleton().logMessage("***************************");
+		LogManager::getSingleton().logMessage("*** GL Renderer Started ***");
+		LogManager::getSingleton().logMessage("***************************");
+
 		// Get extension function pointers
         glewContextInit(mGLSupport);
 

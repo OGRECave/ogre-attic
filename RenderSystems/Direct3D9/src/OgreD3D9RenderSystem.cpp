@@ -543,10 +543,9 @@ namespace Ogre
             }
 		}
 
-        LogManager::getSingleton().logMessage("***************************************");
-
+		LogManager::getSingleton().logMessage("***************************************");
 		LogManager::getSingleton().logMessage("*** D3D9 : Subsystem Initialised OK ***");
-        LogManager::getSingleton().logMessage("***************************************");
+		LogManager::getSingleton().logMessage("***************************************");
 
 		// call superclass method
 		RenderSystem::initialise( autoCreateWindow );
