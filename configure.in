@@ -24,40 +24,33 @@ AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 AC_LIBTOOL_LANG_CXX_CONFIG
 
-dnl GCC version check
-if test x$GCC = xyes; then
-    AC_MSG_CHECKING([version 3.1 or above of gcc])
-    if test -n "`$CC --version 2>&1|grep ' [[34]].'`"; then
-        AC_DEFINE(EXT_HASH,, Use old STL hash options)
-        AC_SUBST(OGRE_CFLAGS, "-DEXT_HASH")
-        AC_MSG_RESULT(yes);
-    else
-        AC_MSG_RESULT(no);
-    fi
-fi
+# OGRE_CFLAGS contains the compiler flags crucial for stand-alone client
+# programs. They are exported via pkg-config, but not used while building
+# Ogre itself; instead, they are defined in config.h.
+AC_SUBST(OGRE_CFLAGS)
 
 # Check if compiler supports symbol visibility
+# There are quirks for x86_64 and debug builds with gcc < 4.2
 AC_LANG_PUSH(C++)
 AC_LIBTOOL_COMPILER_OPTION([if $CXX supports -fvisibility],
     [ogre_prog_compiler_supports_visibility],
     [-fvisibility=hidden -fvisibility-inlines-hidden], [],
-    [CFLAGS_VISIBILITY="-fvisibility=hidden -fvisibility-inlines-hidden -DOGRE_GNU_VISIBILITY"])
+    [CFLAGS_VISIBILITY="-fvisibility=hidden -fvisibility-inlines-hidden -DOGRE_GCC_VISIBILITY";
+    case $target_cpu in
+        x86_64* )
+            if ! echo "$CFLAGS $CXXFLAGS" | grep -q "\-O"; then
+                echo "***********************************************************************"
+                echo "WARNING: It looks like you're doing a debug build for an x86_64 target."
+                echo "The -fvisibility-inlines-hidden flag is known to give problems in such"
+                echo "situations with libstdc++ < 4.2. Disabling the compiler flag."
+                echo "***********************************************************************"
+                CFLAGS_VISIBILITY="-fvisibility=hidden -DOGRE_GCC_VISIBILITY"
+            fi
+        ;;
+    esac
+    ])
 AC_SUBST(CFLAGS_VISIBILITY)
 AC_LANG_POP
-
-# Warn the user on x86_64 and debug builds with gcc < 4.2
-case $target_cpu in
-    x86_64* )
-        if ! echo "$CFLAGS $CXXFLAGS $OGRE_CFLAGS" | grep -q "\-O"; then
-            echo "***********************************************************************"
-            echo "WARNING: It looks like you're doing a debug build for an x86_64 target."
-            echo "The -fvisibility-inlines-hidden flag is known to give problems in such"
-            echo "situations with libstdc++ < 4.2. Disabling the compiler flag."
-            echo "***********************************************************************"
-            CFLAGS_VISIBILITY="-fvisibility=hidden -DOGRE_GNU_VISIBILITY"
-        fi
-	;;
-esac
 
 dnl Other stuff we need
 OGRE_USE_STLPORT

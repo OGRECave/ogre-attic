@@ -29,7 +29,9 @@ Torus Knot Software Ltd.
 #ifndef __Config_H_
 #define __Config_H_
 
-// configure options
+// Read configuration options; some systems use an auto-generated config.h,
+// other use a manually generated config.h; in any case just define
+// HAVE_CONFIG_H to include the custom config.h file.
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

@@ -7,5 +7,5 @@ plugindir=@libdir@/@PACKAGE@
 Name: OGRE
 Description: Object-Oriented Graphics Rendering Engine
 Version: @VERSION@
-Libs: -L${libdir} -lOgreMain
-Cflags: -I${includedir} -I${includedir}/@PACKAGE@ @OGRE_DOUBLE_PRECISION_FLAGS@ @OGRE_CFLAGS@
+Libs: -L${libdir} -lOgreMain @OGRE_THREAD_LIBS@
+Cflags: -I${includedir} -I${includedir}/@PACKAGE@ @OGRE_CFLAGS@

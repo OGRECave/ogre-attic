@@ -7,4 +7,4 @@ Plugin_EXRCodec_la_SOURCES = OgreEXRCodec.cpp \
                              OgreEXRCodecDll.cpp 
 
 Plugin_EXRCodec_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src -Wl,-z,defs
-Plugin_EXRCodec_la_LIBADD = -lOgreMain $(OPENEXR_LIBS)
+Plugin_EXRCodec_la_LIBADD = -lOgreMain $(OPENEXR_LIBS) $(OGRE_THREAD_LIBS)

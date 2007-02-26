@@ -50,9 +50,7 @@ Torus Knot Software Ltd.s
 
 #include "OgreGLFBORenderTexture.h"
 #include "OgreGLPBRenderTexture.h"
-#ifdef HAVE_CONFIG_H
-#   include "config.h"
-#endif
+#include "OgreConfig.h"
 
 // Convenience macro from ARB_vertex_buffer_object spec
 #define VBO_BUFFER_OFFSET(i) ((char *)NULL + (i))

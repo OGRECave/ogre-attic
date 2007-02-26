@@ -43,7 +43,7 @@
 #   else
 #       define OGRE_GUIRENDERER_API __declspec(dllimport)
 #   endif
-#elif defined ( OGRE_GNU_VISIBILITY )
+#elif defined ( OGRE_GCC_VISIBILITY )
 #    define OGRE_GUIRENDERER_API  __attribute__ ((visibility("default")))
 #else
 #    define OGRE_GUIRENDERER_API

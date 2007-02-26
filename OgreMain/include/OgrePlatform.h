@@ -133,9 +133,7 @@ namespace Ogre {
 #       define OGRE_DEBUG_MODE 0
 #   endif
 
-#if defined( __MINGW32__ )
-    #define EXT_HASH
-#else
+#if !defined( __MINGW32__ )
     #define snprintf _snprintf
     #define vsnprintf _vsnprintf
 #endif
@@ -156,7 +154,7 @@ namespace Ogre {
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 
 // Enable GCC symbol visibility
-#   if defined( OGRE_GNU_VISIBILITY )
+#   if defined( OGRE_GCC_VISIBILITY )
 #       define _OgreExport  __attribute__ ((visibility("default")))
 #       define _OgrePrivate __attribute__ ((visibility("hidden")))
 #   else
@@ -169,6 +167,8 @@ namespace Ogre {
 
 // Unlike the Win32 compilers, Linux compilers seem to use DEBUG for when
 // specifying a debug build.
+// (??? this is wrong, on Linux debug builds aren't marked in any way unless
+// you mark it yourself any way you like it -- zap ???)
 #   ifdef DEBUG
 #       define OGRE_DEBUG_MODE 1
 #   else
@@ -198,7 +198,7 @@ namespace Ogre {
 //----------------------------------------------------------------------------
 // Endian Settings
 // check for BIG_ENDIAN config flag, set OGRE_ENDIAN correctly
-#ifdef CONFIG_BIG_ENDIAN
+#ifdef OGRE_CONFIG_BIG_ENDIAN
 #    define OGRE_ENDIAN OGRE_ENDIAN_BIG
 #else
 #    define OGRE_ENDIAN OGRE_ENDIAN_LITTLE
