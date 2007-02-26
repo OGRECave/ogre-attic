@@ -48,7 +48,7 @@ namespace Ogre
 //-------------------------------------------------------------------------------------------------//
 OSXCarbonWindow::OSXCarbonWindow()
 {
-	mActive = mClosed = mHasResized = false;
+	mActive = mClosed = mHasResized = mIsFullScreen = false;
 	mAGLContext = NULL;
 	mContext = NULL;
 	mWindow = NULL;
@@ -258,6 +258,7 @@ void OSXCarbonWindow::create( const String& name, unsigned int width, unsigned i
 	mWidth = width;
 	mHeight = height;
 	mActive = true;
+	mIsFullScreen = fullScreen;
 }
 
 //-------------------------------------------------------------------------------------------------//
@@ -370,6 +371,12 @@ void OSXCarbonWindow::windowMovedOrResized()
 		aglSetInteger(mAGLContext, AGL_BUFFER_RECT, bufferRect);
 		aglEnable (mAGLContext, AGL_BUFFER_RECT);
 		swapBuffers(true);
+		
+		mWidth = ctrlBounds.right - ctrlBounds.left;
+		mHeight = ctrlBounds.bottom - ctrlBounds.top;
+		mLeft = ctrlBounds.left;
+		mTop = ctrlBounds.top;
+		
 	}
 	
 	for (ViewportList::iterator it = mViewportList.begin(); it != mViewportList.end(); ++it)
