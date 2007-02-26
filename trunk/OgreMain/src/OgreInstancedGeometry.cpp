@@ -1056,13 +1056,13 @@ namespace Ogre {
             OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Object is not animated",
                 "InstancedGeometry::InstancedObject::getAnimationState");
         }
-		AnimationStateIterator it=mAnimationState->getAnimationStateIterator();
-		while (it.hasMoreElements())
-		{
-			AnimationState*anim= it.getNext();
-
-			
-		}
+//		AnimationStateIterator it=mAnimationState->getAnimationStateIterator();
+//		while (it.hasMoreElements())
+//		{
+//			AnimationState*anim= it.getNext();
+//
+//			
+//		}
 		return mAnimationState->getAnimationState(name);
     }
 	//--------------------------------------------------------------------------
@@ -1104,7 +1104,6 @@ namespace Ogre {
 		}
 		mInstancesMap.clear();
 		// no need to delete queued meshes, these are managed in InstancedGeometry
-	    int i=0;
 	}
 	//--------------------------------------------------------------------------
 	void InstancedGeometry::BatchInstance::assign(QueuedSubMesh* qmesh)
@@ -1852,7 +1851,7 @@ namespace Ogre {
 
 		// create all vertex buffers, and lock
 		ushort b;
-		ushort posBufferIdx = dcl->findElementBySemantic(VES_POSITION)->getSource();
+		//ushort posBufferIdx = dcl->findElementBySemantic(VES_POSITION)->getSource();
 	
 		std::vector<uchar*> destBufferLocks;
 		std::vector<VertexDeclaration::VertexElementList> bufferElements;
