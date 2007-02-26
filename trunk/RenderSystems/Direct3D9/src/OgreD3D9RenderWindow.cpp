@@ -279,6 +279,8 @@ namespace Ogre
 				"D3D9RenderWindow::createD3DResources");
 		}
 
+		SAFE_RELEASE(mpRenderSurface);
+
 		// Set up the presentation parameters
 		HRESULT hr;
 		LPDIRECT3D9 pD3D = mDriver->getD3D();
@@ -401,10 +403,6 @@ namespace Ogre
 			{
 				mpRenderZBuffer = 0;
 			}
-			// release immediately so we don't hog them
-			mpRenderSurface->Release();
-			// We'll need the depth buffer for rendering the swap chain
-			//mpRenderZBuffer->Release();
 		}
 		else
 		{
@@ -475,7 +473,6 @@ namespace Ogre
 			mpD3DDevice->GetRenderTarget( 0, &mpRenderSurface );
 			mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
 			// release immediately so we don't hog them
-			mpRenderSurface->Release();
 			mpRenderZBuffer->Release();
 		}
 
@@ -483,7 +480,6 @@ namespace Ogre
 
 	void D3D9RenderWindow::destroyD3DResources()
 	{
-		mpRenderSurface = 0;
 		if (mIsSwapChain)
 		{
 			SAFE_RELEASE(mpRenderZBuffer);
@@ -494,6 +490,7 @@ namespace Ogre
 			// ignore depth buffer, access device through driver
 			mpRenderZBuffer = 0;
 		}
+		SAFE_RELEASE(mpRenderSurface);
 	}
 
 	void D3D9RenderWindow::destroy()
@@ -555,6 +552,8 @@ namespace Ogre
 		if (mWidth == width && mHeight == height)
 			return;
 
+		SAFE_RELEASE( mpRenderSurface );
+
 		if (mIsSwapChain) 
 		{
 
@@ -608,7 +607,6 @@ namespace Ogre
 					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to create depth stencil surface for Swap Chain", "D3D9RenderWindow::resize" );
 				}
 
-				mpRenderSurface->Release();
 			}
 		}
 		// primary windows must reset the device
@@ -643,6 +641,8 @@ namespace Ogre
 			}
 			if( D3DERR_DEVICELOST == hr )
 			{
+				SAFE_RELEASE(mpRenderSurface);
+
 				static_cast<D3D9RenderSystem*>(
 					Root::getSingleton().getRenderSystem())->_notifyDeviceLost();
 			}
@@ -858,7 +858,7 @@ namespace Ogre
 				// can't do anything about it here, wait until we get 
 				// D3DERR_DEVICENOTRESET; rendering calls will silently fail until 
 				// then (except Present, but we ignore device lost there too)
-				mpRenderSurface = 0;
+				SAFE_RELEASE(mpRenderSurface);
 				// need to release if swap chain
 				if (!mIsSwapChain)
 					mpRenderZBuffer = 0;
@@ -886,7 +886,6 @@ namespace Ogre
 					mpD3DDevice->GetRenderTarget( 0, &mpRenderSurface );
 					mpD3DDevice->GetDepthStencilSurface( &mpRenderZBuffer );
 					// release immediately so we don't hog them
-					mpRenderSurface->Release();
 					mpRenderZBuffer->Release();
 				}
 				else 
