@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="5" />
+	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="Plugin_BSPSceneManager" />
-		<Option default_target="" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
-				<Option output="..\..\..\lib\Plugin_BSPSceneManager.dll" prefix_auto="0" extension_auto="0" />
+				<Option output="..\..\..\lib\Plugin_BSPSceneManager_d.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="..\obj\Debug" />
 				<Option external_deps="..\..\..\lib\OgreMain_d.dll;" />
 				<Option type="3" />
@@ -58,6 +56,7 @@
 			<Add option="-DWIN32" />
 			<Add option="-D_WINDOWS" />
 			<Add option="-D_USRDLL" />
+			<Add option="-DOGRE_BSPPLUGIN_EXPORTS" />
 			<Add directory="..\include" />
 			<Add directory="..\..\..\OgreMain\include" />
 		</Compiler>
@@ -66,139 +65,30 @@
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="..\..\..\Samples\Common\bin\$(TARGET_NAME)" />
 		</Linker>
-		<Unit filename="..\include\OgreBspLevel.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreBspNode.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreBspPrerequisites.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreBspResourceManager.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreBspSceneManager.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreBspSceneManagerPlugin.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreBspSceneNode.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreQuake3Level.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreQuake3Shader.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreQuake3ShaderManager.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreQuake3Types.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\misc\OgreBspSceneManager.def">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreBspLevel.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreBspNode.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreBspResourceManager.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreBspSceneManager.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreBspSceneManagerDll.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreBspSceneManagerPlugin.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreBspSceneNode.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreQuake3Level.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreQuake3Shader.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreQuake3ShaderManager.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
+		<Unit filename="..\include\OgreBspLevel.h" />
+		<Unit filename="..\include\OgreBspNode.h" />
+		<Unit filename="..\include\OgreBspPrerequisites.h" />
+		<Unit filename="..\include\OgreBspResourceManager.h" />
+		<Unit filename="..\include\OgreBspSceneManager.h" />
+		<Unit filename="..\include\OgreBspSceneManagerPlugin.h" />
+		<Unit filename="..\include\OgreBspSceneNode.h" />
+		<Unit filename="..\include\OgreQuake3Level.h" />
+		<Unit filename="..\include\OgreQuake3Shader.h" />
+		<Unit filename="..\include\OgreQuake3ShaderManager.h" />
+		<Unit filename="..\include\OgreQuake3Types.h" />
+		<Unit filename="..\misc\OgreBspSceneManager.def" />
+		<Unit filename="..\src\OgreBspLevel.cpp" />
+		<Unit filename="..\src\OgreBspNode.cpp" />
+		<Unit filename="..\src\OgreBspResourceManager.cpp" />
+		<Unit filename="..\src\OgreBspSceneManager.cpp" />
+		<Unit filename="..\src\OgreBspSceneManagerDll.cpp" />
+		<Unit filename="..\src\OgreBspSceneManagerPlugin.cpp" />
+		<Unit filename="..\src\OgreBspSceneNode.cpp" />
+		<Unit filename="..\src\OgreQuake3Level.cpp" />
+		<Unit filename="..\src\OgreQuake3Shader.cpp" />
+		<Unit filename="..\src\OgreQuake3ShaderManager.cpp" />
+		<Extensions>
+			<code_completion />
+		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
