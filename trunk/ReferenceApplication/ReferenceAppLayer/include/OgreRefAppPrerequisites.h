@@ -44,12 +44,16 @@ using namespace Ogre;
 
 namespace OgreRefApp {
 
-    #if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(__MINGW32__) && !defined(OGRE_STATIC_LIB)
+    #if (OGRE_PLATFORM == OGRE_PLATFORM_WIN32) && !defined(OGRE_STATIC_LIB)
     // Export control
     #   if defined( REFERENCEAPPLAYER_EXPORTS )
     #       define _OgreRefAppExport __declspec( dllexport )
     #   else
-    #       define _OgreRefAppExport __declspec( dllimport )
+    #       if defined( __MINGW32__ )
+    #           define _OgreRefAppExport
+    #       else
+    #     	    define _OgreRefAppExport __declspec( dllimport )
+    #       endif
     #   endif
     #else // Linux / Mac OSX etc
     #   define _OgreRefAppExport
