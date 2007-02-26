@@ -105,7 +105,7 @@ namespace Ogre {
 #	else
 #		define _OgreGLExport __declspec(dllimport)
 #	endif
-#elif defined ( OGRE_GNU_VISIBILITY )
+#elif defined ( OGRE_GCC_VISIBILITY )
 #    define _OgreGLExport  __attribute__ ((visibility("default")))
 #else
 #    define _OgreGLExport

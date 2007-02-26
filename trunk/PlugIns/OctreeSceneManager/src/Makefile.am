@@ -19,4 +19,4 @@ Plugin_OctreeSceneManager_la_SOURCES = \
 
 
 Plugin_OctreeSceneManager_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src -Wl,-z,defs
-Plugin_OctreeSceneManager_la_LIBADD = -lOgreMain
+Plugin_OctreeSceneManager_la_LIBADD = -lOgreMain $(OGRE_THREAD_LIBS)

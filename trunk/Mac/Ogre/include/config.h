@@ -8,9 +8,6 @@
 /* Little endian machine */
 /* #undef CONFIG_LITTLE_ENDIAN */
 
-/* Use old STL hash options */
-#define EXT_HASH 
-
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
 

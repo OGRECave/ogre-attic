@@ -32,7 +32,7 @@ Torus Knot Software Ltd.
 
 #include "OgreString.h"
 
-#if defined ( OGRE_GNU_VISIBILITY )
+#if defined ( OGRE_GCC_VISIBILITY )
 #   pragma GCC visibility push(default)
 #endif
 
@@ -40,7 +40,7 @@ Torus Knot Software Ltd.
 #include <vector>
 #include <map>
 
-#if defined ( OGRE_GNU_VISIBILITY )
+#if defined ( OGRE_GCC_VISIBILITY )
 #   pragma GCC visibility pop
 #endif
 

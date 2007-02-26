@@ -41,4 +41,4 @@ RenderSystem_GL_la_LIBADD = \
     $(top_builddir)/RenderSystems/GL/src/GLSL/src/libGLSL.la \
     $(top_builddir)/RenderSystems/GL/src/nvparse/libnvparse.la \
     $(top_builddir)/RenderSystems/GL/src/atifs/src/libatifs.la \
-    $(GL_LIBS) $(GLSUPPORT_LIBS) -lOgreMain
+    $(GL_LIBS) $(GLSUPPORT_LIBS) -lOgreMain $(OGRE_THREAD_LIBS)

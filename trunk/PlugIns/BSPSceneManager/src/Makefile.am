@@ -15,4 +15,4 @@ Plugin_BSPSceneManager_la_SOURCES = OgreBspLevel.cpp \
 
 
 Plugin_BSPSceneManager_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src -Wl,-z,defs
-Plugin_BSPSceneManager_la_LIBADD = -lOgreMain -lc
+Plugin_BSPSceneManager_la_LIBADD = -lOgreMain -lc $(OGRE_THREAD_LIBS)

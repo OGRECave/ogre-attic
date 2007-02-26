@@ -268,8 +268,10 @@ AC_DEFUN([OGRE_DETECT_ENDIAN],
 			return c;
 		}
 	]
-	,[AC_DEFINE(CONFIG_BIG_ENDIAN,,[Big endian machine])]
-	,[AC_DEFINE(CONFIG_LITTLE_ENDIAN,,[Little endian machine])])
+	,[AC_DEFINE(OGRE_CONFIG_BIG_ENDIAN,,[Big endian machine])
+          OGRE_CFLAGS="$OGRE_CFLAGS -DOGRE_CONFIG_BIG_ENDIAN"]
+	,[AC_DEFINE(OGRE_CONFIG_LITTLE_ENDIAN,,[Little endian machine])
+          OGRE_CFLAGS="$OGRE_CFLAGS -DOGRE_CONFIG_LITTLE_ENDIAN"])
 ])
 
 AC_DEFUN([OGRE_CHECK_OPENEXR],
@@ -359,9 +361,10 @@ if test "x$build_freeimage" = "xyes" ; then
 * process to build without it. This is an advanced option      *
 * useful only if you provide your own image loading codecs.    *
 ****************************************************************]))
-	AC_DEFINE([OGRE_NO_FREEIMAGE], [0], [Build freeimage])
+	AC_DEFINE([OGRE_NO_FREEIMAGE], [0], [Do not use freeimage to load images])
 else
-	AC_DEFINE([OGRE_NO_FREEIMAGE], [1], [Build freeimage])
+	AC_DEFINE([OGRE_NO_FREEIMAGE], [1], [Load images using the freeimage library])
+	OGRE_CFLAGS="$OGRE_CFLAGS -DOGRE_NO_FREEIMAGE"
 fi
 
 
@@ -413,15 +416,14 @@ AC_MSG_CHECKING([whether to use double floating point precision])
 	case $build_double in
         yes)
 			AC_DEFINE([OGRE_DOUBLE_PRECISION], [1], [Build with double precision])
+			OGRE_CFLAGS="$OGRE_CFLAGS -DOGRE_DOUBLE_PRECISION"
 			AC_MSG_RESULT(yes)
-			OGRE_DOUBLE_PRECISION_FLAGS="-DOGRE_DOUBLE_PRECISION"
         ;;
         *)
-			AC_DEFINE([OGRE_DOUBLE_PRECISION], [0], [Build with double precision])
-            AC_MSG_RESULT(no)
+			AC_DEFINE([OGRE_DOUBLE_PRECISION], [0], [Build with single precision])
+			AC_MSG_RESULT(no)
         ;;
     esac
-    AC_SUBST(OGRE_DOUBLE_PRECISION_FLAGS)
 ])
 
 AC_DEFUN([OGRE_CHECK_THREADING],
@@ -431,18 +433,18 @@ AC_ARG_ENABLE(threading,
                              [Indicate general support for multithreading. This will enable threading support in certain parts of the engine, mainly resource loading and SharedPtr handling. WARNING: highly experimental, use with caution.]),
               [build_threads=$enableval],
               [build_threads=no])
-AC_MSG_CHECKING([whether to use threaded resource loading])
-	case $build_threads in
+    case $build_threads in
         yes)
-            CXXFLAGS="$CXXFLAGS -pthread"
-            OGRE_THREAD_LIBS="-lboost_thread-mt"
-			AC_DEFINE([OGRE_THREAD_SUPPORT], [1], [Build with thread support])
-            AC_CHECK_LIB([boost_thread-mt], [main],, AC_MSG_ERROR([cannot find boost_thread-mt library]))
-            AC_MSG_RESULT(yes)
+            AC_DEFINE([OGRE_THREAD_SUPPORT], [1], [Build with thread support])
+            OGRE_CFLAGS="$OGRE_CFLAGS -DOGRE_THREAD_SUPPORT"
+            # Check for the C++ Boost library
+            AC_CHECK_LIB(boost_thread, main, OGRE_THREAD_LIBS="-lboost_thread", [
+                AC_CHECK_LIB(boost_thread-mt, main, OGRE_THREAD_LIBS="-lboost_thread-mt", [
+                    AC_MSG_ERROR([You need the C++ boost libraries.])])])
         ;;
         *)
+            AC_DEFINE([OGRE_THREAD_SUPPORT], [0], [Build with thread support])
             OGRE_THREAD_LIBS=""
-			AC_DEFINE([OGRE_THREAD_SUPPORT], [0], [Build with thread support])
             AC_MSG_RESULT(no)
         ;;
     esac
@@ -518,11 +520,13 @@ AC_DEFUN([OGRE_CHECK_GUI],
     else
         AC_MSG_ERROR([The GUI dialogs for $with_gui are not available.])
     fi
-    AC_SUBST(OGRE_GUI)
 
     # Add the OGRE_GUI_xxx flag to compiler command line
     PLATFORM_CFLAGS="$PLATFORM_CFLAGS -DOGRE_GUI_$OGRE_GUI"
+    # And export it to client applications as well
+    OGRE_CFLAGS="$OGRE_CFLAGS -DOGRE_GUI_$OGRE_GUI"
 
+    AC_SUBST(OGRE_GUI)
     AC_SUBST(GTK_CFLAGS)
     AC_SUBST(GTK_LIBS)
 ])
