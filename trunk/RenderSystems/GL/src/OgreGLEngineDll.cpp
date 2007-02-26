@@ -33,7 +33,8 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
-	GLPlugin* plugin;
+	static GLPlugin* plugin;
+
     extern "C" void _OgreGLExport dllStartPlugin(void) throw()
     {
 		plugin = new GLPlugin();

@@ -237,7 +237,7 @@ namespace Ogre  {
             case PF_SHORT_RGB:
                 return GL_RGB16;
 			case PF_SHORT_GR:
-				GL_LUMINANCE16_ALPHA16;
+				return GL_LUMINANCE16_ALPHA16;
 			case PF_DXT1:
                 return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
             case PF_DXT3:

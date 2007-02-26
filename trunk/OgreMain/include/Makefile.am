@@ -30,7 +30,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgreConfigOptionMap.h \
                      OgreController.h \
                      OgreControllerManager.h \
-					 OgreConvexBody.h \
+                     OgreConvexBody.h \
                      OgreDataStream.h \
                      OgreDDSCodec.h \
                      OgreDefaultHardwareBufferManager.h \
@@ -47,7 +47,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgreFont.h \
                      OgreFontManager.h \
                      OgreFrameListener.h \
-					 OgreFreeImageCodec.h \
+                     OgreFreeImageCodec.h \
                      OgreFrustum.h \
                      OgreGpuProgram.h \
                      OgreGpuProgramManager.h \
@@ -87,7 +87,7 @@ pkginclude_HEADERS = Ogre.h \
                      OgreMovablePlane.h \
                      OgreNoMemoryMacros.h \
                      OgreNode.h \
-					 OgreNumerics.h \
+                     OgreNumerics.h \
                      OgreOverlay.h \
                      OgreOverlayContainer.h \
                      OgreOverlayElement.h \
@@ -113,10 +113,10 @@ pkginclude_HEADERS = Ogre.h \
                      OgrePlaneBoundedVolume.h \
                      OgrePlatform.h \
                      OgrePlugin.h \
-					 OgrePolygon.h \
+                     OgrePolygon.h \
                      OgrePose.h \
                      OgrePredefinedControllers.h \
-					 OgrePrefabFactory.h \
+                     OgrePrefabFactory.h \
                      OgrePrerequisites.h \
                      OgreProfiler.h \
                      OgreProgressiveMesh.h \
@@ -151,10 +151,10 @@ pkginclude_HEADERS = Ogre.h \
                      OgreScriptLoader.h \
                      OgreSearchOps.h \
                      OgreSerializer.h \
-					 OgreShadowCameraSetup.h \
-					 OgreShadowCameraSetupFocused.h \
-					 OgreShadowCameraSetupLiSPSM.h \
-					 OgreShadowCameraSetupPlaneOptimal.h \
+                     OgreShadowCameraSetup.h \
+                     OgreShadowCameraSetupFocused.h \
+                     OgreShadowCameraSetupLiSPSM.h \
+                     OgreShadowCameraSetupPlaneOptimal.h \
                      OgreShadowCaster.h \
                      OgreShadowTextureManager.h \
                      OgreShadowVolumeExtrudeProgram.h \
@@ -186,9 +186,9 @@ pkginclude_HEADERS = Ogre.h \
                      OgreTexture.h \
                      OgreTextureManager.h \
                      OgreTimer.h \
-					 OgreUnifiedHighLevelGpuProgram.h \
+                     OgreUnifiedHighLevelGpuProgram.h \
                      OgreUserDefinedObject.h \
-					 OgreUTFString.h \
+                     OgreUTFString.h \
                      OgreVector2.h \
                      OgreVector3.h \
                      OgreVector4.h \
