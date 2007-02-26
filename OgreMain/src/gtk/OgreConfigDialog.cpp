@@ -271,8 +271,6 @@ bool ConfigDialog::display ()
     if (!__gtk_init_once ())
         return false;
 
-    /* Behave similar to the Win32 version */
-    Root::getSingleton ().restoreConfig ();
     /* Select previously selected rendersystem */
     mSelectedRenderSystem = Root::getSingleton ().getRenderSystem ();
 
@@ -293,7 +291,6 @@ bool ConfigDialog::display ()
         return false;
 
     Root::getSingleton ().setRenderSystem (mSelectedRenderSystem);
-    Root::getSingleton ().saveConfig ();
 
     return true;
 }

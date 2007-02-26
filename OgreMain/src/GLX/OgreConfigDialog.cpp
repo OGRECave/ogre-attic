@@ -488,8 +488,6 @@ ConfigDialog::ConfigDialog() : mSelectedRenderSystem(0)
 bool ConfigDialog::display()
 {
 	GLXConfigurator test;
-	/* Should this be called here? */
-	Root::getSingleton().restoreConfig();
 	/* Select previously selected rendersystem */
 	if(Root::getSingleton().getRenderSystem())
 		test.SetRenderSystem(Root::getSingleton().getRenderSystem());
@@ -505,7 +503,6 @@ bool ConfigDialog::display()
 
 	/* All done */
 	Root::getSingleton().setRenderSystem(test.mRenderer);
-	Root::getSingleton().saveConfig();
 
 	return true;
 }

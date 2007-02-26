@@ -78,7 +78,6 @@ namespace Ogre
 
         case WM_INITDIALOG:
             // Load saved settings
-            Root::getSingleton().restoreConfig();
             dlg->mSelectedRenderSystem = Root::getSingleton().getRenderSystem();
             // Get all render systems
             lstRend = Root::getSingleton().getAvailableRenderers();
@@ -279,7 +278,6 @@ namespace Ogre
                 }
 
                 Root::getSingleton().setRenderSystem(dlg->mSelectedRenderSystem);
-                Root::getSingleton().saveConfig();
 
                 EndDialog(hDlg, TRUE);
                 return TRUE;
