@@ -18,7 +18,7 @@
 					<Add option="-D_DEBUG" />
 				</Compiler>
 				<Linker>
-					<Add library="ReferenceAppLayer" />
+					<Add library="ReferenceAppLayer_d" />
 					<Add library="OgreMain_d" />
 					<Add library="ois_d" />
 					<Add directory="..\..\Dependencies\lib\Debug" />
