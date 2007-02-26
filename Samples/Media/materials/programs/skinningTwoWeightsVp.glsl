@@ -26,7 +26,8 @@ void main()
 		// perform matrix multiplication manually since no 3x4 matrices
 		for (int row = 0; row < 3; ++row)
 		{
-			vec4 blendMatrixRow = worldMatrixArray[int(blendIndices[bone]) * 3 + row];
+		    int idx = int(blendIndices[bone]) * 3 + row;
+			vec4 blendMatrixRow = worldMatrixArray[idx];
 			tmpPos[row] = dot(blendMatrixRow, gl_Vertex);
 
 			tmpNorm[row] = dot(blendMatrixRow.xyz, gl_Normal);
