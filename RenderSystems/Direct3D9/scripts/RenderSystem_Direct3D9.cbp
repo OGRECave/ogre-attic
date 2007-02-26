@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="5" />
+	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="RenderSystem_Direct3D9" />
-		<Option default_target="" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
 				<Option output="..\..\..\lib\RenderSystem_Direct3D9_d.dll" prefix_auto="0" extension_auto="0" />
@@ -71,6 +69,7 @@
 			<Add option="-DWIN32" />
 			<Add option="-D_WINDOWS" />
 			<Add option="-D_USRDLL" />
+			<Add option="-DOGRED3DENGINEDLL_EXPORTS" />
 			<Add directory="..\include" />
 			<Add directory="..\..\..\OgreMain\include" />
 			<Add directory="..\..\..\Dependencies\include" />
@@ -80,269 +79,52 @@
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="..\..\..\Samples\Common\bin\$(TARGET_NAME)" />
 		</Linker>
-		<Unit filename="..\include\OgreD3D9Driver.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9DriverList.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9GpuProgram.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9GpuProgramManager.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9HLSLProgram.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9HLSLProgramFactory.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9HardwareBufferManager.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9HardwareIndexBuffer.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9HardwareOcclusionQuery.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9HardwarePixelBuffer.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9HardwareVertexBuffer.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9Mappings.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9Plugin.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9MultiRenderTarget.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9Prerequisites.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9RenderSystem.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9RenderWindow.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9Texture.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9TextureManager.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9VertexDeclaration.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9VideoMode.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreD3D9VideoModeList.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9Driver.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9DriverList.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9EngineDll.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9GpuProgram.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9GpuProgramManager.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9HLSLProgram.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9HLSLProgramFactory.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9HardwareBufferManager.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9HardwareIndexBuffer.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9HardwareOcclusionQuery.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9HardwarePixelBuffer.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9HardwareVertexBuffer.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9Mappings.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9Plugin.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9MultiRenderTarget.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9RenderSystem.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9RenderWindow.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9Texture.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9TextureManager.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9VertexDeclaration.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9VideoMode.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreD3D9VideoModeList.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
+		<Unit filename="..\include\OgreD3D9Driver.h" />
+		<Unit filename="..\include\OgreD3D9DriverList.h" />
+		<Unit filename="..\include\OgreD3D9GpuProgram.h" />
+		<Unit filename="..\include\OgreD3D9GpuProgramManager.h" />
+		<Unit filename="..\include\OgreD3D9HLSLProgram.h" />
+		<Unit filename="..\include\OgreD3D9HLSLProgramFactory.h" />
+		<Unit filename="..\include\OgreD3D9HardwareBufferManager.h" />
+		<Unit filename="..\include\OgreD3D9HardwareIndexBuffer.h" />
+		<Unit filename="..\include\OgreD3D9HardwareOcclusionQuery.h" />
+		<Unit filename="..\include\OgreD3D9HardwarePixelBuffer.h" />
+		<Unit filename="..\include\OgreD3D9HardwareVertexBuffer.h" />
+		<Unit filename="..\include\OgreD3D9Mappings.h" />
+		<Unit filename="..\include\OgreD3D9MultiRenderTarget.h" />
+		<Unit filename="..\include\OgreD3D9Plugin.h" />
+		<Unit filename="..\include\OgreD3D9Prerequisites.h" />
+		<Unit filename="..\include\OgreD3D9RenderSystem.h" />
+		<Unit filename="..\include\OgreD3D9RenderWindow.h" />
+		<Unit filename="..\include\OgreD3D9Texture.h" />
+		<Unit filename="..\include\OgreD3D9TextureManager.h" />
+		<Unit filename="..\include\OgreD3D9VertexDeclaration.h" />
+		<Unit filename="..\include\OgreD3D9VideoMode.h" />
+		<Unit filename="..\include\OgreD3D9VideoModeList.h" />
+		<Unit filename="..\src\OgreD3D9Driver.cpp" />
+		<Unit filename="..\src\OgreD3D9DriverList.cpp" />
+		<Unit filename="..\src\OgreD3D9EngineDll.cpp" />
+		<Unit filename="..\src\OgreD3D9GpuProgram.cpp" />
+		<Unit filename="..\src\OgreD3D9GpuProgramManager.cpp" />
+		<Unit filename="..\src\OgreD3D9HLSLProgram.cpp" />
+		<Unit filename="..\src\OgreD3D9HLSLProgramFactory.cpp" />
+		<Unit filename="..\src\OgreD3D9HardwareBufferManager.cpp" />
+		<Unit filename="..\src\OgreD3D9HardwareIndexBuffer.cpp" />
+		<Unit filename="..\src\OgreD3D9HardwareOcclusionQuery.cpp" />
+		<Unit filename="..\src\OgreD3D9HardwarePixelBuffer.cpp" />
+		<Unit filename="..\src\OgreD3D9HardwareVertexBuffer.cpp" />
+		<Unit filename="..\src\OgreD3D9Mappings.cpp" />
+		<Unit filename="..\src\OgreD3D9MultiRenderTarget.cpp" />
+		<Unit filename="..\src\OgreD3D9Plugin.cpp" />
+		<Unit filename="..\src\OgreD3D9RenderSystem.cpp" />
+		<Unit filename="..\src\OgreD3D9RenderWindow.cpp" />
+		<Unit filename="..\src\OgreD3D9Texture.cpp" />
+		<Unit filename="..\src\OgreD3D9TextureManager.cpp" />
+		<Unit filename="..\src\OgreD3D9VertexDeclaration.cpp" />
+		<Unit filename="..\src\OgreD3D9VideoMode.cpp" />
+		<Unit filename="..\src\OgreD3D9VideoModeList.cpp" />
+		<Extensions>
+			<code_completion />
+		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

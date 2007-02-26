@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="5" />
+	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="Plugin_CgProgramManager" />
-		<Option default_target="" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
 				<Option output="..\..\..\lib\Plugin_CgProgramManager_d.dll" prefix_auto="0" extension_auto="0" />
@@ -62,6 +60,7 @@
 			<Add option="-DWIN32" />
 			<Add option="-D_WINDOWS" />
 			<Add option="-D_USRDLL" />
+			<Add option="-DOGRE_CGPLUGIN_EXPORTS" />
 			<Add directory="..\include" />
 			<Add directory="..\..\..\OgreMain\include" />
 			<Add directory="..\..\..\Dependencies\include" />
@@ -71,60 +70,17 @@
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="..\..\..\Samples\Common\bin\$(TARGET_NAME)" />
 		</Linker>
-		<Unit filename="..\..\..\Dependencies\include\Cg\cg.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreCgPrerequisites.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreCgPlugin.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreCgProgram.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreCgPlugin.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreCgProgramFactory.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreCgProgram.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreCgProgramFactory.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreCgProgramManagerDll.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
+		<Unit filename="..\..\..\Dependencies\include\Cg\cg.h" />
+		<Unit filename="..\include\OgreCgPlugin.h" />
+		<Unit filename="..\include\OgreCgPrerequisites.h" />
+		<Unit filename="..\include\OgreCgProgram.h" />
+		<Unit filename="..\include\OgreCgProgramFactory.h" />
+		<Unit filename="..\src\OgreCgPlugin.cpp" />
+		<Unit filename="..\src\OgreCgProgram.cpp" />
+		<Unit filename="..\src\OgreCgProgramFactory.cpp" />
+		<Unit filename="..\src\OgreCgProgramManagerDll.cpp" />
+		<Extensions>
+			<code_completion />
+		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

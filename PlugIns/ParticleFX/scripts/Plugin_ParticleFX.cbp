@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="5" />
+	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="Plugin_ParticleFX" />
-		<Option default_target="" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
 				<Option output="..\..\..\lib\Plugin_ParticleFX_d.dll" prefix_auto="0" extension_auto="0" />
@@ -58,6 +56,7 @@
 			<Add option="-DWIN32" />
 			<Add option="-D_WINDOWS" />
 			<Add option="-D_USRDLL" />
+			<Add option="-DOGRE_PARTICLEFXPLUGIN_EXPORTS" />
 			<Add directory="..\include" />
 			<Add directory="..\..\..\OgreMain\include" />
 		</Compiler>
@@ -66,326 +65,59 @@
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="..\..\..\Samples\Common\bin\$(TARGET_NAME)" />
 		</Linker>
-		<Unit filename="..\include\OgreAreaEmitter.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreBoxEmitter.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreBoxEmitterFactory.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreColourFaderAffector.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreColourFaderAffector2.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreColourFaderAffectorFactory.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreColourFaderAffectorFactory2.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreColourImageAffector.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreColourImageAffectorFactory.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreColourInterpolatorAffector.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreCylinderEmitter.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreCylinderEmitterFactory.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreDeflectorPlaneAffector.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreDeflectorPlaneAffectorFactory.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreDirectionRandomiserAffector.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreDirectionRandomiserAffectorFactory.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreEllipsoidEmitter.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreEllipsoidEmitterFactory.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreHollowEllipsoidEmitter.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreHollowEllipsoidEmitterFactory.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreLinearForceAffector.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreLinearForceAffectorFactory.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreParticleFXPrerequisites.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreParticleFXPlugin.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgrePointEmitter.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgrePointEmitterFactory.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreRingEmitter.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreRingEmitterFactory.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreRotationAffector.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreRotationAffectorFactory.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreScaleAffector.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreScaleAffectorFactory.h">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\misc\OgreParticleFXDll.def">
-			<Option compilerVar="CPP" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreAreaEmitter.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreBoxEmitter.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreColourFaderAffector.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreColourFaderAffector2.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreColourImageAffector.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreColourInterpolatorAffector.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreCylinderEmitter.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreDeflectorPlaneAffector.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreDirectionRandomiserAffector.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreEllipsoidEmitter.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreHollowEllipsoidEmitter.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreLinearForceAffector.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreParticleFX.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreParticleFXPlugin.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgrePointEmitter.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreRingEmitter.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreRotationAffector.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreScaleAffector.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
+		<Unit filename="..\include\OgreAreaEmitter.h" />
+		<Unit filename="..\include\OgreBoxEmitter.h" />
+		<Unit filename="..\include\OgreBoxEmitterFactory.h" />
+		<Unit filename="..\include\OgreColourFaderAffector.h" />
+		<Unit filename="..\include\OgreColourFaderAffector2.h" />
+		<Unit filename="..\include\OgreColourFaderAffectorFactory.h" />
+		<Unit filename="..\include\OgreColourFaderAffectorFactory2.h" />
+		<Unit filename="..\include\OgreColourImageAffector.h" />
+		<Unit filename="..\include\OgreColourImageAffectorFactory.h" />
+		<Unit filename="..\include\OgreColourInterpolatorAffector.h" />
+		<Unit filename="..\include\OgreCylinderEmitter.h" />
+		<Unit filename="..\include\OgreCylinderEmitterFactory.h" />
+		<Unit filename="..\include\OgreDeflectorPlaneAffector.h" />
+		<Unit filename="..\include\OgreDeflectorPlaneAffectorFactory.h" />
+		<Unit filename="..\include\OgreDirectionRandomiserAffector.h" />
+		<Unit filename="..\include\OgreDirectionRandomiserAffectorFactory.h" />
+		<Unit filename="..\include\OgreEllipsoidEmitter.h" />
+		<Unit filename="..\include\OgreEllipsoidEmitterFactory.h" />
+		<Unit filename="..\include\OgreHollowEllipsoidEmitter.h" />
+		<Unit filename="..\include\OgreHollowEllipsoidEmitterFactory.h" />
+		<Unit filename="..\include\OgreLinearForceAffector.h" />
+		<Unit filename="..\include\OgreLinearForceAffectorFactory.h" />
+		<Unit filename="..\include\OgreParticleFXPlugin.h" />
+		<Unit filename="..\include\OgreParticleFXPrerequisites.h" />
+		<Unit filename="..\include\OgrePointEmitter.h" />
+		<Unit filename="..\include\OgrePointEmitterFactory.h" />
+		<Unit filename="..\include\OgreRingEmitter.h" />
+		<Unit filename="..\include\OgreRingEmitterFactory.h" />
+		<Unit filename="..\include\OgreRotationAffector.h" />
+		<Unit filename="..\include\OgreRotationAffectorFactory.h" />
+		<Unit filename="..\include\OgreScaleAffector.h" />
+		<Unit filename="..\include\OgreScaleAffectorFactory.h" />
+		<Unit filename="..\misc\OgreParticleFXDll.def" />
+		<Unit filename="..\src\OgreAreaEmitter.cpp" />
+		<Unit filename="..\src\OgreBoxEmitter.cpp" />
+		<Unit filename="..\src\OgreColourFaderAffector.cpp" />
+		<Unit filename="..\src\OgreColourFaderAffector2.cpp" />
+		<Unit filename="..\src\OgreColourImageAffector.cpp" />
+		<Unit filename="..\src\OgreColourInterpolatorAffector.cpp" />
+		<Unit filename="..\src\OgreCylinderEmitter.cpp" />
+		<Unit filename="..\src\OgreDeflectorPlaneAffector.cpp" />
+		<Unit filename="..\src\OgreDirectionRandomiserAffector.cpp" />
+		<Unit filename="..\src\OgreEllipsoidEmitter.cpp" />
+		<Unit filename="..\src\OgreHollowEllipsoidEmitter.cpp" />
+		<Unit filename="..\src\OgreLinearForceAffector.cpp" />
+		<Unit filename="..\src\OgreParticleFX.cpp" />
+		<Unit filename="..\src\OgreParticleFXPlugin.cpp" />
+		<Unit filename="..\src\OgrePointEmitter.cpp" />
+		<Unit filename="..\src\OgreRingEmitter.cpp" />
+		<Unit filename="..\src\OgreRotationAffector.cpp" />
+		<Unit filename="..\src\OgreScaleAffector.cpp" />
+		<Extensions>
+			<code_completion />
+		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
