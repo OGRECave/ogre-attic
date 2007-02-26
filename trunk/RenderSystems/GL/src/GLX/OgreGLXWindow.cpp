@@ -168,7 +168,6 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 
 			left = top = 0;
 			fullScreen = false; // Can't be full screen if embedded in an app!
-			mTopLevel = false;  // Can't be top-level if embedded
 		}
 		
 		opt = miscParams->find("externalWindowHandle");
