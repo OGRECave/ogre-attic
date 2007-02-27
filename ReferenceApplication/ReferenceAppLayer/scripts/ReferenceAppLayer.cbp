@@ -17,8 +17,7 @@
 					<Add option="-D_DEBUG" />
 				</Compiler>
 				<Linker>
-					<Add library="ode" />
-					<Add library="OPCODE" />
+					<Add library="ode_d" />
 					<Add library="OgreMain_d" />
 					<Add directory="..\..\..\Dependencies\lib\Debug" />
 				</Linker>
@@ -40,7 +39,6 @@
 				<Linker>
 					<Add option="-s" />
 					<Add library="ode" />
-					<Add library="OPCODE" />
 					<Add library="OgreMain" />
 					<Add directory="..\..\..\Dependencies\lib\Release" />
 				</Linker>
@@ -62,6 +60,7 @@
 			<Add option="-DWIN32" />
 			<Add option="-D_WINDOWS" />
 			<Add option="-D_USRDLL" />
+			<Add option="-DREFERENCEAPPLAYER_EXPORTS" />
 			<Add directory="..\..\..\Dependencies\include\ode" />
 			<Add directory="..\include" />
 			<Add directory="..\..\..\OgreMain\include" />
