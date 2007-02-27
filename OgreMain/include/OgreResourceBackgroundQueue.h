@@ -125,6 +125,8 @@ namespace Ogre {
 			RT_INITIALISE_ALL_GROUPS,
 			RT_LOAD_GROUP,
 			RT_LOAD_RESOURCE,
+			RT_UNLOAD_GROUP,
+			RT_UNLOAD_RESOURCE,
 			RT_SHUTDOWN
 		};
 		/** Encapsulates a queued request for the background queue */
@@ -133,6 +135,7 @@ namespace Ogre {
 			BackgroundProcessTicket ticketID;
 			RequestType type;
 			String resourceName;
+			ResourceHandle resourceHandle;
 			String resourceType;
 			String groupName;
 			bool isManual; 
@@ -274,7 +277,7 @@ namespace Ogre {
 		virtual BackgroundProcessTicket initialiseAllResourceGroups( 
 			Listener* listener = 0);
 		/** Loads a resource group in the background.
-		@see ResourceGroupManager::intialiseResourceGroup
+		@see ResourceGroupManager::loadResourceGroup
 		@param name The name of the resource group to load
 		@param listener Optional callback interface, take note of warnings in 
 			the header and only use if you understand them.
@@ -283,6 +286,33 @@ namespace Ogre {
 		*/
 		virtual BackgroundProcessTicket loadResourceGroup(const String& name, 
 			Listener* listener = 0);
+
+
+		/** Unload a single resource in the background. 
+		@see ResourceManager::unload
+		@param resType The type of the resource 
+			(from ResourceManager::getResourceType())
+		@param name The name of the Resource
+		*/
+		virtual BackgroundProcessTicket unload(
+			const String& resType, const String& name);
+
+		/** Unload a single resource in the background. 
+		@see ResourceManager::unload
+		@param resType The type of the resource 
+			(from ResourceManager::getResourceType())
+		@param handle Handle to the resource 
+		*/
+		virtual BackgroundProcessTicket unload(
+			const String& resType, ResourceHandle handle);
+
+		/** Unloads a resource group in the background.
+		@see ResourceGroupManager::unloadResourceGroup
+		@param name The name of the resource group to load
+		@returns Ticket identifying the request, use isProcessComplete() to 
+			determine if completed if not using listener
+		*/
+		virtual BackgroundProcessTicket unloadResourceGroup(const String& name);
 
 
 		/** Load a single resource in the background. 
@@ -306,7 +336,6 @@ namespace Ogre {
 			ManualResourceLoader* loader = 0, 
 			const NameValuePairList* loadParams = 0, 
 			Listener* listener = 0);
-
 		/** Returns whether a previously queued process has completed or not. 
 		@remarks
 			This method of checking that a background process has completed is

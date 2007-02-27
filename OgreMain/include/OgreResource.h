@@ -100,7 +100,9 @@ namespace Ogre {
 			/// Loading is in progress
 			LOADSTATE_LOADING,
 			/// Fully loaded
-			LOADSTATE_LOADED
+			LOADSTATE_LOADED,
+			/// Currently unloading
+			LOADSTATE_UNLOADING
 		};
     protected:
 		/// Creator

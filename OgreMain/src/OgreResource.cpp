@@ -162,7 +162,7 @@ namespace Ogre
 	void Resource::unload(void) 
 	{ 
 		// Early-out without lock (mitigate perf cost of ensuring unloaded)
-		if (mLoadingState == LOADSTATE_UNLOADED)
+		if (mLoadingState != LOADSTATE_LOADED)
 			return;
 
 		// Scope lock for loading status
@@ -176,6 +176,8 @@ namespace Ogre
 			}
 			if (mLoadingState != LOADSTATE_LOADED)
 				return; // nothing to do
+
+			mLoadingState = LOADSTATE_UNLOADING;
 		}
 
 		// Scope lock for actual unload
