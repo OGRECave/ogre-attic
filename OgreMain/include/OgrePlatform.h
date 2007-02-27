@@ -147,7 +147,7 @@ namespace Ogre {
 // MinGW C++ Toolkit supports unicode and sets the define __MINGW32_TOOLKIT_UNICODE__ in _mingw.h
 #if defined( __MINGW32__ ) && !defined(_STLPORT_VERSION)
 #   include<_mingw.h>
-#   if defined(__MINGW32_TOOLKIT_UNICODE__)
+#   if defined(__MINGW32_TOOLBOX_UNICODE__)
 #	    define OGRE_UNICODE_SUPPORT 1
 #   else
 #       define OGRE_UNICODE_SUPPORT 0
