@@ -109,10 +109,8 @@ vertex_program Ogre/HardwareSkinningTwoWeightsGLSL glsl
 }
 vertex_program Ogre/HardwareSkinningTwoWeights unified
 {
-	delegate Ogre/HardwareSkinningTwoWeightsCg
-	// GLSL will never get used right now
-	// ATI driver bug reported on blendIndices attribute
 	delegate Ogre/HardwareSkinningTwoWeightsGLSL
+	delegate Ogre/HardwareSkinningTwoWeightsCg
 }
 
 // Basic hardware skinning using four indexed weights per vertex
