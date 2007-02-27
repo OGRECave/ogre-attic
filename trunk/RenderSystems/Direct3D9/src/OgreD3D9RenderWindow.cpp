@@ -44,9 +44,10 @@ Torus Knot Software Ltd.
 
 namespace Ogre
 {
-	D3D9RenderWindow::D3D9RenderWindow(HINSTANCE instance, D3D9Driver *driver, LPDIRECT3DDEVICE9 deviceIfSwapChain):
-	mInstance(instance),
-		mDriver(driver)
+	D3D9RenderWindow::D3D9RenderWindow(HINSTANCE instance, D3D9Driver *driver, LPDIRECT3DDEVICE9 deviceIfSwapChain)
+        : mInstance(instance)
+        , mDriver(driver)
+        , mpRenderSurface(0)
 	{
 		mIsFullScreen = false;
 		mIsSwapChain = (deviceIfSwapChain != NULL);
