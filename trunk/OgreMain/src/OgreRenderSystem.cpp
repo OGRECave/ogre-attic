@@ -455,8 +455,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void RenderSystem::_setWorldMatrices(const Matrix4* m, unsigned short count)
     {
-        // Save these matrices for software blending later
-        memcpy(mWorldMatrices, m, count * sizeof(Matrix4));
+        // Do nothing with these matrices here, it never used for now,
+		// derived class should take care with them if required.
 
         // Set hardware matrix to nothing
         _setWorldMatrix(Matrix4::IDENTITY);
