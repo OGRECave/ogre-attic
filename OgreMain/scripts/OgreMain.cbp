@@ -48,9 +48,13 @@
 					<Add library="kernel32" />
 					<Add library="user32" />
 					<Add library="zziplib" />
-					<Add library="zlib1" />
-					<Add library="freetype221" />
 					<Add library="freeimage" />
+					<Add library="freetype230" />
+					<Add library="LibPNG" />
+					<Add library="LibMNG" />
+					<Add library="LibJPEG" />
+					<Add library="LibTIFF" />
+					<Add library="zlib" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="cmd /c copy $($(TARGET_NAME)_OUTPUT_FILE) ..\..\Samples\Common\bin\$(TARGET_NAME)" />
