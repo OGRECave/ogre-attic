@@ -257,6 +257,7 @@ namespace Ogre {
 		}
 		// Set current group
 		mCurrentGroup = grp;
+		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex 
 
 		// Count up resources for starting event
 		ResourceGroup::LoadResourceOrderMap::reverse_iterator oi;

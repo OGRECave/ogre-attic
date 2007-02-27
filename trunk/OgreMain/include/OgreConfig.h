@@ -98,7 +98,6 @@ Torus Knot Software Ltd.
 	The places where threading is available are clearly
 	marked, you should assume state is NOT thread safe unless otherwise
 	stated in relation to this flag.
-    WARNING: highly experimental, use with caution
 */
 #ifndef OGRE_THREAD_SUPPORT
 #define OGRE_THREAD_SUPPORT 0

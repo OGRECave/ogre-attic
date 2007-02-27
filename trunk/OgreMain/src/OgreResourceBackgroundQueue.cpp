@@ -226,6 +226,80 @@ namespace Ogre {
 		return 0; 
 #endif
 	}
+	//---------------------------------------------------------------------
+	BackgroundProcessTicket ResourceBackgroundQueue::unload(
+		const String& resType, const String& name)
+	{
+#if OGRE_THREAD_SUPPORT
+		if (!mThread && mStartThread)
+		{
+			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
+				"Thread not initialised",
+				"ResourceBackgroundQueue::unload");
+		}
+		// queue a request
+		Request req;
+		req.type = RT_UNLOAD_RESOURCE;
+		req.resourceType = resType;
+		req.resourceName = name;
+		return addRequest(req);
+#else
+		// synchronous
+		ResourceManager* rm = 
+			ResourceGroupManager::getSingleton()._getResourceManager(resType);
+		rm->unload(name);
+		return 0; 
+#endif
+
+	}
+	//---------------------------------------------------------------------
+	BackgroundProcessTicket ResourceBackgroundQueue::unload(
+		const String& resType, ResourceHandle handle)
+	{
+#if OGRE_THREAD_SUPPORT
+		if (!mThread && mStartThread)
+		{
+			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
+				"Thread not initialised",
+				"ResourceBackgroundQueue::unload");
+		}
+		// queue a request
+		Request req;
+		req.type = RT_UNLOAD_RESOURCE;
+		req.resourceType = resType;
+		req.resourceHandle = handle;
+		return addRequest(req);
+#else
+		// synchronous
+		ResourceManager* rm = 
+			ResourceGroupManager::getSingleton()._getResourceManager(resType);
+		rm->unload(handle);
+		return 0; 
+#endif
+
+	}
+	//---------------------------------------------------------------------
+	BackgroundProcessTicket ResourceBackgroundQueue::unloadResourceGroup(const String& name)
+	{
+#if OGRE_THREAD_SUPPORT
+		if (!mThread && mStartThread)
+		{
+			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
+				"Thread not initialised",
+				"ResourceBackgroundQueue::unloadResourceGroup");
+		}
+		// queue a request
+		Request req;
+		req.type = RT_UNLOAD_GROUP;
+		req.groupName = name;
+		return addRequest(req);
+#else
+		// synchronous
+		ResourceGroupManager::getSingleton().unloadResourceGroup(name);
+		return 0; 
+#endif
+
+	}
 	//------------------------------------------------------------------------
 	bool ResourceBackgroundQueue::isProcessComplete(
 			BackgroundProcessTicket ticket)
@@ -343,11 +417,23 @@ namespace Ogre {
 			ResourceGroupManager::getSingleton().loadResourceGroup(
 				req->groupName);
 			break;
+		case RT_UNLOAD_GROUP:
+			ResourceGroupManager::getSingleton().unloadResourceGroup(
+				req->groupName);
+			break;
 		case RT_LOAD_RESOURCE:
 			rm = ResourceGroupManager::getSingleton()._getResourceManager(
 				req->resourceType);
 			rm->load(req->resourceName, req->groupName, req->isManual, 
 				req->loader, req->loadParams);
+			break;
+		case RT_UNLOAD_RESOURCE:
+			rm = ResourceGroupManager::getSingleton()._getResourceManager(
+				req->resourceType);
+			if (req->resourceName.empty())
+				rm->unload(req->resourceHandle);
+			else
+				rm->unload(req->resourceName);
 			break;
 		case RT_SHUTDOWN:
 			// That's all folks
