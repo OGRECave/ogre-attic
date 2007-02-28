@@ -131,7 +131,7 @@ namespace Ogre {
             return false;
 
         DWORD pixels;
-        const HRESULT hr = mpQuery->GetData( (void *) &pixels, sizeof( DWORD ), D3DGETDATA_FLUSH);
+        const HRESULT hr = mpQuery->GetData( (void *) &pixels, sizeof( DWORD ), 0);
 
         if (hr  == S_FALSE)
             return true;
