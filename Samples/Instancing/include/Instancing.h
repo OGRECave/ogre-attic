@@ -20,8 +20,7 @@ class InstancingApplication;
 String meshes[]=
 { 
 	"razor", //0
-	"cube",
-	"Ogrehead",
+	"ogrehead",
 	"knot", 
 	"tudorhouse",
 	"WoodPallet"//6
