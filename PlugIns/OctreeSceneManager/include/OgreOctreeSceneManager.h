@@ -69,9 +69,6 @@ typedef std::list < unsigned long > ColorList;
 
 /** Specialized SceneManager that divides the geometry into an octree in order to facilitate spatial queries.
 @remarks
-For debugging purposes, a special "CullCamera" can be defined.  To use it, call setUseCallCamera( true ),
-and create a camera named "CullCamera".  All culling will be performed using that camera, instead of the viewport
-camera, allowing you to fly around and examine culling.
 */
 
 class _OgreOctreePluginExport OctreeSceneManager : public SceneManager
@@ -167,12 +164,6 @@ public:
         mShowBoxes = b;
     };
 
-    /** Sets the cull camera flag */
-    void setUseCullCamera( bool b )
-    {
-        mCullCamera = b;
-    };
-
     void setLooseOctree( bool b )
     {
         mLoose = b;
@@ -186,7 +177,6 @@ public:
                @remarks
         Options are:
         "Size", AxisAlignedBox *;
-        "CullCamera", bool *;
         "Depth", int *;
         "ShowOctree", bool *;
     */
@@ -231,9 +221,6 @@ protected:
 
     /// Boxes visibility flag
     bool mShowBoxes;
-
-    /// Cull camera flag
-    bool mCullCamera;
 
 
     bool mLoose;

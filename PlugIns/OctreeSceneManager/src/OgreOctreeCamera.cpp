@@ -60,9 +60,6 @@ OctreeCamera::Visibility OctreeCamera::getVisibility( const AxisAlignedBox &boun
     if ( bound.isNull() )
         return NONE;
 
-    // Make any pending updates to the calculated frustum planes
-    updateFrustumPlanes();
-
     // Get centre of the box
     Vector3 centre = bound.getCenter();
     // Get the half-size of the box
@@ -77,7 +74,8 @@ OctreeCamera::Visibility OctreeCamera::getVisibility( const AxisAlignedBox &boun
         if (plane == FRUSTUM_PLANE_FAR && mFarDist == 0)
             continue;
 
-        Plane::Side side = mFrustumPlanes[plane].getSide(centre, halfSize);
+		// This updates frustum planes and deals with cull frustum
+        Plane::Side side = getFrustumPlane(plane).getSide(centre, halfSize);
         if(side == Plane::NEGATIVE_SIDE) return NONE;
         // We can't return now as the box could be later on the negative side of a plane.
         if(side == Plane::BOTH_SIDE) 
