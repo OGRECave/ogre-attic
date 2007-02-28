@@ -77,6 +77,8 @@ Intersection intersect( const Ray &one, const AxisAlignedBox &two )
     OctreeSceneManager::intersect_call++;
     // Null box?
     if (two.isNull()) return OUTSIDE;
+	// Infinite box?
+	if (two.isInfinite()) return INTERSECT;
 
     bool inside = true;
     const Vector3& twoMin = two.getMinimum();
@@ -146,6 +148,8 @@ Intersection intersect( const PlaneBoundedVolume &one, const AxisAlignedBox &two
     OctreeSceneManager::intersect_call++;
     // Null box?
     if (two.isNull()) return OUTSIDE;
+	// Infinite box?
+	if (two.isInfinite()) return INTERSECT;
 
     // Get centre of the box
     Vector3 centre = two.getCenter();
@@ -185,6 +189,9 @@ Intersection intersect( const AxisAlignedBox &one, const AxisAlignedBox &two )
     OctreeSceneManager::intersect_call++;
     // Null box?
     if (one.isNull() || two.isNull()) return OUTSIDE;
+	if (one.isInfinite()) return INSIDE;
+	if (two.isInfinite()) return INTERSECT;
+
 
     const Vector3& insideMin = two.getMinimum();
     const Vector3& insideMax = two.getMaximum();
@@ -223,6 +230,7 @@ Intersection intersect( const Sphere &one, const AxisAlignedBox &two )
     OctreeSceneManager::intersect_call++;
     // Null box?
     if (two.isNull()) return OUTSIDE;
+	if (two.isInfinite()) return INTERSECT;
 
     float sradius = one.getRadius();
 
