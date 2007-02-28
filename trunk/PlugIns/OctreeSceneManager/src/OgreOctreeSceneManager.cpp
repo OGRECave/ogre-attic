@@ -344,8 +344,6 @@ void OctreeSceneManager::init( AxisAlignedBox &box, int depth )
 
     mShowBoxes = false;
 
-    mCullCamera = false;
-
     mNumObjects = 0;
 
     Vector3 v( 1.5, 1.5, 1.5 );
@@ -358,7 +356,6 @@ void OctreeSceneManager::init( AxisAlignedBox &box, int depth )
     // setShowBoxes( true );
 
     //
-    //setUseCullCamera( true );
     //mSceneRoot isn't put into the octree since it has no volume.
 
 }
@@ -409,7 +406,6 @@ bool OctreeSceneManager::getOptionValues( const String & key, StringVector  &ref
 bool OctreeSceneManager::getOptionKeys( StringVector & refKeys )
 {
     SceneManager::getOptionKeys( refKeys );
-    refKeys.push_back( "CullCamera" );
     refKeys.push_back( "Size" );
     refKeys.push_back( "ShowOctree" );
     refKeys.push_back( "Depth" );
@@ -596,14 +592,6 @@ void OctreeSceneManager::_findVisibleObjects(Camera * cam,
     mBoxes.clear();
     mVisible.clear();
 
-    if ( mCullCamera )
-    {
-        Camera * c = getCamera( "CullCamera" );
-
-        if ( c != 0 )
-            cam = c;
-    }
-
     mNumObjects = 0;
 
     //walk the octree, adding all visible Octreenodes nodes to the render queue.
@@ -611,24 +599,11 @@ void OctreeSceneManager::_findVisibleObjects(Camera * cam,
 				visibleBounds, false, onlyShadowCasters );
 
     // Show the octree boxes & cull camera if required
-    if ( mShowBoxes || mCullCamera )
+    if ( mShowBoxes )
     {
-        if ( mShowBoxes )
+        for ( BoxList::iterator it = mBoxes.begin(); it != mBoxes.end(); ++it )
         {
-            for ( BoxList::iterator it = mBoxes.begin(); it != mBoxes.end(); ++it )
-            {
-                getRenderQueue()->addRenderable(*it);
-            }
-        }
-
-        if ( mCullCamera )
-        {
-            OctreeCamera * c = static_cast<OctreeCamera*>(getCamera( "CullCamera" ));
-
-            if ( c != 0 )
-            {
-                getRenderQueue()->addRenderable(c);
-            }
+            getRenderQueue()->addRenderable(*it);
         }
     }
 }
@@ -1100,11 +1075,6 @@ bool OctreeSceneManager::setOption( const String & key, const void * val )
         return true;
     }
 
-    else if ( key == "CullCamera" )
-    {
-        mCullCamera = * static_cast < const bool * > ( val );
-        return true;
-    }
 
     return SceneManager::setOption( key, val );
 
@@ -1133,11 +1103,6 @@ bool OctreeSceneManager::getOption( const String & key, void *val )
         return true;
     }
 
-    else if ( key == "CullCamera" )
-    {
-        * static_cast < bool * > ( val ) = mCullCamera;
-        return true;
-    }
 
     return SceneManager::getOption( key, val );
 
