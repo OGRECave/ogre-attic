@@ -939,11 +939,51 @@ namespace Ogre {
 
 		}
 
+		// rebind any missing hardware pose buffers
+		// Caused by not having any animations enabled, or keyframes which reference
+		// no poses
+		if (mMesh->sharedVertexData && hardwareAnimation 
+			&& mMesh->getSharedVertexDataAnimationType() == VAT_POSE)
+		{
+			bindMissingHardwarePoseBuffers(mMesh->sharedVertexData, mHardwareVertexAnimVertexData);
+		}
+
+
 		for (SubEntityList::iterator i = mSubEntityList.begin();
 			i != mSubEntityList.end(); ++i)
 		{
 			(*i)->_restoreBuffersForUnusedAnimation(hardwareAnimation);
 		}
+
+	}
+	//---------------------------------------------------------------------
+	void Entity::bindMissingHardwarePoseBuffers(const VertexData* srcData, 
+		VertexData* destData)
+	{
+		// For hardware pose animation, also make sure we've bound buffers to all the elements
+		// required - if there are missing bindings for elements in use,
+		// some rendersystems can complain because elements refer
+		// to an unbound source.
+		// Get the original position source, we'll use this to fill gaps
+		const VertexElement* srcPosElem =
+			srcData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+		HardwareVertexBufferSharedPtr srcBuf =
+			srcData->vertexBufferBinding->getBuffer(
+				srcPosElem->getSource());
+
+		for (VertexData::HardwareAnimationDataList::const_iterator i = destData->hwAnimationDataList.begin();
+			i != destData->hwAnimationDataList.end(); ++i)
+		{
+			const VertexData::HardwareAnimationData& animData = *i;
+			if (!destData->vertexBufferBinding->isBufferBound(
+				animData.targetVertexElement->getSource()))
+			{
+				// Bind to a safe default
+				destData->vertexBufferBinding->setBinding(
+					animData.targetVertexElement->getSource(), srcBuf);
+			}
+		}
+
 	}
 	//-----------------------------------------------------------------------
 	void Entity::_updateAnimation(void)

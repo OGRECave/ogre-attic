@@ -592,7 +592,6 @@ namespace Ogre {
 
         // Wrap time
         Real totalAnimationLength = mLength;
-        assert(totalAnimationLength > 0.0f && "Invalid animation length!");
 
         while (timePos > totalAnimationLength && totalAnimationLength > 0.0f)
         {

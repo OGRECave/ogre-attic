@@ -423,6 +423,17 @@ namespace Ogre {
 				destPosElem->getSource(), srcBuf);
 
 		}
+
+		// rebind any missing hardware pose buffers
+		// Caused by not having any animations enabled, or keyframes which reference
+		// no poses
+		if (!mSubMesh->useSharedVertices && hardwareAnimation 
+			&& mSubMesh->getVertexAnimationType() == VAT_POSE)
+		{
+			mParentEntity->bindMissingHardwarePoseBuffers(
+				mSubMesh->vertexData, mHardwareVertexAnimVertexData);
+		}
+
 	}
 
 

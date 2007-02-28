@@ -141,6 +141,14 @@ namespace Ogre {
 		*/
 		void restoreBuffersForUnusedAnimation(bool hardwareAnimation);
 
+		/** Ensure that any unbound  pose animation buffers are bound to a safe
+			default.
+			@param srcData Original vertex data containing original positions
+			@param destData Hardware animation vertex data to be checked
+		*/
+		void bindMissingHardwarePoseBuffers(const VertexData* srcData, 
+			VertexData* destData);
+
 		/// Cached bone matrices, including any world transform
         Matrix4 *mBoneWorldMatrices;
         /// Cached bone matrices in skeleton local space, might shares with other entity instances.
