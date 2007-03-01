@@ -425,7 +425,7 @@ namespace Ogre {
 			if( mExtent != EXTENT_FINITE )
 				return;
 
-			Vector3 oldMin, oldMax, temp, currentCorner;
+			Vector3 oldMin, oldMax, currentCorner;
 
 			// Getting the old values so that we can use the existing merge method.
 			oldMin = mMinimum;
