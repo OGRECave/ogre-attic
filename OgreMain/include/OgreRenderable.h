@@ -256,7 +256,8 @@ namespace Ogre {
             CustomParameterMap::const_iterator i = mCustomParameters.find(constantEntry.data);
             if (i != mCustomParameters.end())
             {
-                params->_writeRawConstant(constantEntry.physicalIndex, i->second);
+                params->_writeRawConstant(constantEntry.physicalIndex, i->second, 
+					constantEntry.elementCount);
             }
         }
 
