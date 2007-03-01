@@ -127,6 +127,9 @@ namespace Ogre {
         */
         virtual size_t getMemoryBudget(void) const;
 
+		/** Gets the current memory usage, in bytes. */
+		virtual size_t getMemoryUsage(void) const { return mMemoryUsage; }
+
 		/** Unloads a single resource by name.
 		@remarks
 			Unloaded resources are not removed, they simply free up their memory
@@ -402,8 +405,6 @@ namespace Ogre {
 		/** Checks memory usage and pages out if required.
 		*/
 		virtual void checkUsage(void);
-		/** Gets the current memory usage, in bytes. */
-		virtual size_t getMemoryUsage(void) const { return mMemoryUsage; }
 
 
     public:
