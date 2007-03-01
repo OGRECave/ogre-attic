@@ -63,8 +63,8 @@ namespace Ogre {
 #   include <OpenGL/glu.h>
 #endif
 
-
-
+/// Lots of generated code in here which triggers the new VC CRT security warnings
+#define _CRT_SECURE_NO_DEPRECATE
 
 #ifdef  OGRE_DEBUG_MODE
 
