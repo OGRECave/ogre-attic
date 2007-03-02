@@ -2710,6 +2710,27 @@ namespace Ogre {
 		virtual void _renderQueueGroupObjects(RenderQueueGroup* group, 
 			QueuedRenderableCollection::OrganisationMode om);
 
+		/** Advanced method for supplying an alternative visitor, used for parsing the
+			render queues and sending the results to the renderer.
+		@remarks
+			You can use this method to insert your own implementation of the 
+			QueuedRenderableVisitor interface, which receives calls as the queued
+			renderables are parsed in a given order (determined by RenderQueueInvocationSequence)
+			and are sent to the renderer. If you provide your own implementation of
+			this visitor, you are responsible for either calling the rendersystem, 
+			or passing the calls on to the base class implementation.
+		@note
+			Ownership is not taken of this pointer, you are still required to 
+			delete it yourself once you're finished.
+		@param visitor Your implementation of SceneMgrQueuedRenderableVisitor. 
+			If you pass 0, the default implementation will be used.
+		*/
+		void setQueuedRenderableVisitor(SceneMgrQueuedRenderableVisitor* visitor);
+
+		/** Gets the current visitor object which processes queued renderables. */
+		SceneMgrQueuedRenderableVisitor* getQueuedRenderableVisitor(void) const;
+
+
 		/** Get the rendersystem subclass to which the output of this Scene Manager
 			gets sent
 		*/
