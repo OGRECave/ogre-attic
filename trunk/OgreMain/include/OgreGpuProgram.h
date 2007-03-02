@@ -964,9 +964,13 @@ namespace Ogre {
 		/// Get a reference to the list of float constants
 		const FloatConstantList& getFloatConstantList() const { return mFloatConstants; }
 		/// Get a pointer to the 'nth' item in the float buffer
+		float* getFloatPointer(size_t pos) { return &mFloatConstants[pos]; }
+		/// Get a pointer to the 'nth' item in the float buffer
 		const float* getFloatPointer(size_t pos) const { return &mFloatConstants[pos]; }
 		/// Get a reference to the list of int constants
 		const IntConstantList& getIntConstantList() const { return mIntConstants; }
+		/// Get a pointer to the 'nth' item in the int buffer
+		int* getIntPointer(size_t pos) { return &mIntConstants[pos]; }
 		/// Get a pointer to the 'nth' item in the int buffer
 		const int* getIntPointer(size_t pos) const { return &mIntConstants[pos]; }
 		/// Get a reference to the list of auto constant bindings
