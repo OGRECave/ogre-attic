@@ -2,7 +2,7 @@
 
 /* Big endian machine */
 #if defined(__BIG_ENDIAN__)
-	#define CONFIG_BIG_ENDIAN 
+	#define OGRE_CONFIG_BIG_ENDIAN 
 #endif
 
 /* Little endian machine */
