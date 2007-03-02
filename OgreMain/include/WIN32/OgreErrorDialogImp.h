@@ -47,7 +47,7 @@ namespace Ogre
     {
     public:
         ErrorDialog();
-		~ErrorDialog();
+		~ErrorDialog() {}
 
 		/**
 		@remarks
