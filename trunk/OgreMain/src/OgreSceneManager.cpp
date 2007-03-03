@@ -5460,4 +5460,20 @@ SceneManager::getShadowCasterBoundsInfo( const Light* light ) const
 	// AAB not available
 	return nullBox;
 }
+//---------------------------------------------------------------------
+void SceneManager::setQueuedRenderableVisitor(SceneManager::SceneMgrQueuedRenderableVisitor* visitor)
+{
+	if (visitor)
+		mActiveQueuedRenderableVisitor = visitor;
+	else
+		mActiveQueuedRenderableVisitor = &mDefaultQueuedRenderableVisitor;
+}
+//---------------------------------------------------------------------
+SceneManager::SceneMgrQueuedRenderableVisitor* SceneManager::getQueuedRenderableVisitor(void) const
+{
+	return mActiveQueuedRenderableVisitor;
+}
+
+
+
 }
