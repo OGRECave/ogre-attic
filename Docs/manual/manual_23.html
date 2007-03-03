@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on February 10 2007 by texi2html 1.66 -->
+<!-- Created on March 3 2007 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -162,7 +162,7 @@ example: param_indexed_auto 0 worldviewproj_matrix<BR><BR>
 <DT>light_attenuation
 <DD>A float4 containing the 4 light attenuation variables for a given light. This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes. The order of the parameters is range, constant attenuation, linear attenuation, quadric attenuation.
 <DT>spotlight_params
-<DD>A float4 containing the 3 spotlight parameters and a control value. The order of the parameters is cos(inner angle /2 ), cos(outer angle / 2), falloff, and the final w value is 1.0f for spotlights and 0.0f for other lights (can be used for either conditional processing or factoring). Also note that the inner and outer angles are set to 1 and nearly 1 for other light types. This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). If there are less lights than this, the details are like a non-spotlight.
+<DD>A float4 containing the 3 spotlight parameters and a control value. The order of the parameters is cos(inner angle /2 ), cos(outer angle / 2), falloff, and the final w value is 1.0f. For non-spotlights the value is float4(1,0,0,1). This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). If there are less lights than this, the details are like a non-spotlight.
 <DT>light_position
 <DD>The position of a given light in world space. This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes. Note that this property will work with all kinds of lights, even directional lights, since the parameter is set as a 4D vector. Point lights will be (pos.x, pos.y, pos.z, 1.0f) whilst directional lights will be (-dir.x, -dir.y, -dir.z, 0.0f). Operations like dot products will work consistently on both.
 <DT>light_direction
@@ -394,7 +394,7 @@ When using additive texture shadows, the shadow pass render is actually the ligh
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>February 10 2007</I>
+by <I>steve</I> on <I>March 3 2007</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 
