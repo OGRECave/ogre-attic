@@ -24,18 +24,33 @@ void main()
 	for (int bone = 0; bone < 2; ++bone)
 	{
 		// perform matrix multiplication manually since no 3x4 matrices
-		for (int row = 0; row < 3; ++row)
-		{
-		    int idx = int(blendIndices[bone]) * 3 + row;
-			vec4 blendMatrixRow = worldMatrixArray[idx];
-			tmpPos[row] = dot(blendMatrixRow, gl_Vertex);
-
-			tmpNorm[row] = dot(blendMatrixRow.xyz, gl_Normal);
-			
-		}
+    // ATI GLSL compiler can't handle indexing an array within an array so calculate the inner index first
+	    int idx = int(blendIndices[bone]) * 3;
+	    vec4 blendMatrixRow;
+// ATI GLSL compiler can't handle unrolling the loop 
+//		for (int row = 0; row < 3; ++row)
+//		{
+//			blendMatrixRow = worldMatrixArray[idx + row];
+//			tmpPos[row] = dot(blendMatrixRow, gl_Vertex);
+//
+//			tmpNorm[row] = dot(blendMatrixRow.xyz, gl_Normal);
+//		}
+        blendMatrixRow = worldMatrixArray[idx];
+		tmpPos[0] = dot(blendMatrixRow, gl_Vertex);
+		tmpNorm[0] = dot(blendMatrixRow.xyz, gl_Normal);
+		
+        blendMatrixRow = worldMatrixArray[idx + 1];
+		tmpPos[1] = dot(blendMatrixRow, gl_Vertex);
+		tmpNorm[1] = dot(blendMatrixRow.xyz, gl_Normal);
+		
+        blendMatrixRow = worldMatrixArray[idx + 2];
+		tmpPos[2] = dot(blendMatrixRow, gl_Vertex);
+		tmpNorm[2] = dot(blendMatrixRow.xyz, gl_Normal);
+		
 		// now weight this into final 
-		blendPos += tmpPos * blendWeights[bone];
-		blendNorm += tmpNorm * blendWeights[bone];
+	    float weight = blendWeights[bone];
+		blendPos += tmpPos * weight;
+		blendNorm += tmpNorm * weight;
 	}
 
 	// apply view / projection to position
