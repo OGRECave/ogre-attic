@@ -9,6 +9,7 @@
 		<Project filename="scripts\Demo_CameraTrack.cbp" />
 		<Project filename="scripts\Demo_CelShading.cbp" />
 		<Project filename="scripts\Demo_Compositor.cbp" />
+		<Project filename="scripts\Demo_Crowd.cbp" />
 		<Project filename="scripts\Demo_CubeMapping.cbp" />
 		<Project filename="scripts\Demo_DeferredShading.cbp" />
 		<Project filename="scripts\Demo_Dot3Bump.cbp" />
