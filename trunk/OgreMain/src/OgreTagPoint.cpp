@@ -165,7 +165,10 @@ namespace Ogre {
             }
         }
 
-
+        if (mChildObject)
+        {
+            mChildObject->_notifyMoved();
+        }
     }
     //-----------------------------------------------------------------------------
     const LightList& TagPoint::getLights(void) const
