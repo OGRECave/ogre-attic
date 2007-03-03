@@ -15,6 +15,8 @@ s/$(#STLPORT_DIR)\\stlport/$(OGRE_HOME)\\stlport\\stlport/i
 s/$(#STLPORT_DIR)\\lib/$(OGRE_HOME)\\stlport\\lib/i
 
 s/\.\.\\\.\.\\\.\.\\Dependencies\\include\\CEGUI/$(OGRE_HOME)\\include\\CEGUI/i
+s/\.\.\\\.\.\\\.\.\\Dependencies\\include/$(OGRE_HOME)\\include/i
+s/\.\.\\\.\.\\\.\.\\Dependencies\\include\\ois/$(OGRE_HOME)\\include\\ois/i
 s/\.\.\\\.\.\\Common\\CEGUIRenderer\\include//i
 
 s/CommandLine=\"copy.*\"//i
