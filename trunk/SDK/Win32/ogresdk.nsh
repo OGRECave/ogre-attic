@@ -4,7 +4,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "OGRE SDK"
-!define PRODUCT_VERSION "1.4.0RC1"
+!define PRODUCT_VERSION "1.4.0RC2"
 !define PRODUCT_PUBLISHER "The OGRE Team"
 !define PRODUCT_WEB_SITE "http://www.ogre3d.org"
 !ifdef MINGW
@@ -110,9 +110,9 @@ Section -Libs
   SetOverwrite try
   !ifdef MINGW
     ; Debug libs
-    File "..\..\Dependencies\lib\Debug\libOPCODE.a"
-    File "..\..\Dependencies\lib\Debug\libode.a"
+    File "..\..\Dependencies\lib\Debug\libode_d.a"
     ; Release libs
+    File "..\..\Dependencies\lib\Release\libode.a"
   !else ; MSVC
     ; Debug libs
     File "..\..\lib\OgreMain_d.lib"
@@ -150,13 +150,16 @@ Section -Binaries
   SetOverwrite ifnewer
   !ifdef MINGW
     File "..\..\Samples\Common\bin\Debug\mingwm10.dll"
+    File "..\..\Samples\Common\bin\Debug\CEGUITinyXMLParser_d.dll"
   !endif
   File "..\..\Samples\Common\bin\Debug\cg.dll"
   File "..\..\Samples\Common\bin\Debug\OIS_d.dll"
 
   File "..\..\Samples\Common\bin\Debug\OgreMain_d.dll"
   File "..\..\Samples\Common\bin\Debug\CEGUIBase_d.dll"
-  File "..\..\Samples\Common\bin\Debug\CEGUIExpatParser_d.dll"
+  !ifndef MINGW ; MSVC
+    File "..\..\Samples\Common\bin\Debug\CEGUIExpatParser_d.dll"
+  !endif
   File "..\..\Samples\Common\bin\Debug\CEGUIFalagardWRBase_d.dll"
   File "..\..\Samples\Common\bin\Debug\Plugin_BSPSceneManager_d.dll"
   File "..\..\Samples\Common\bin\Debug\Plugin_CgProgramManager_d.dll"
@@ -175,13 +178,16 @@ Section -Binaries
   SetOverwrite ifnewer
   !ifdef MINGW
     File "..\..\Samples\Common\bin\Release\mingwm10.dll"
+    File "..\..\Samples\Common\bin\Release\CEGUITinyXMLParser.dll"
   !endif
   File "..\..\Samples\Common\bin\Release\cg.dll"
   File "..\..\Samples\Common\bin\Release\OIS.dll"
 
   File "..\..\Samples\Common\bin\Release\OgreMain.dll"
   File "..\..\Samples\Common\bin\Release\CEGUIBase.dll"
-  File "..\..\Samples\Common\bin\Release\CEGUIExpatParser.dll"
+  !ifndef MINGW ; MSVC
+    File "..\..\Samples\Common\bin\Release\CEGUIExpatParser.dll"
+  !endif
   File "..\..\Samples\Common\bin\Release\CEGUIFalagardWRBase.dll"
   File "..\..\Samples\Common\bin\Release\Plugin_BSPSceneManager.dll"
   File "..\..\Samples\Common\bin\Release\Plugin_CgProgramManager.dll"
