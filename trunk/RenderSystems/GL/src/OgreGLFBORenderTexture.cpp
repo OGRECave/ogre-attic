@@ -210,8 +210,12 @@ size_t depthBits[] = {
     {
         // Try all formats, and report which ones work as target
         GLuint fb, tid;
+        GLint old_drawbuffer, old_readbuffer;
         GLenum target = GL_TEXTURE_2D;
-        
+
+        glGetIntegerv (GL_DRAW_BUFFER, &old_drawbuffer);
+        glGetIntegerv (GL_READ_BUFFER, &old_readbuffer);
+
         for(size_t x=0; x<PF_COUNT; ++x)
         {
             mProps[x].valid = false;
@@ -234,7 +238,7 @@ size_t depthBits[] = {
             // Create and attach framebuffer
             glGenFramebuffersEXT(1, &fb);
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
-            if(fmt!=GL_NONE)
+            if (fmt!=GL_NONE)
             {
 				// Create and attach texture
 				glGenTextures(1, &tid);
@@ -254,7 +258,6 @@ size_t depthBits[] = {
 			else
 			{
 				// Draw to nowhere -- stencil/depth only
-				tid = 0;
 				glDrawBuffer(GL_NONE);
 				glReadBuffer(GL_NONE);
 			}
@@ -330,9 +333,15 @@ size_t depthBits[] = {
             // Delete texture and framebuffer
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
             glDeleteFramebuffersEXT(1, &fb);
-            glDeleteTextures(1, &tid);
+            if (fmt!=GL_NONE)
+                glDeleteTextures(1, &tid);
         }
-        
+
+        // It seems a bug in nVidia driver: glBindFramebufferEXT should restore
+        // draw and read buffers, but in some unclear circumstances it won't.
+        glDrawBuffer(old_drawbuffer);
+        glReadBuffer(old_readbuffer);
+
         std::string fmtstring;
         for(size_t x=0; x<PF_COUNT; ++x)
         {
