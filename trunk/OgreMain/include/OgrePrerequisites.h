@@ -91,6 +91,7 @@ namespace Ogre {
     #define OGRE_VERSION_MAJOR 1
     #define OGRE_VERSION_MINOR 4
     #define OGRE_VERSION_PATCH 0
+	#define OGRE_VERSION_SUFFIX "RC2"
     #define OGRE_VERSION_NAME "Eihort"
 
     #define OGRE_VERSION    ((OGRE_VERSION_MAJOR << 16) | (OGRE_VERSION_MINOR << 8) | OGRE_VERSION_PATCH)
