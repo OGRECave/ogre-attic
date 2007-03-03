@@ -8,8 +8,8 @@ s/\.\.\\\.\.\\\.\.\\Dependencies\\lib\\Release/$(OGRE_HOME)\\lib/i
 s/\.\.\\\.\.\\\.\.\\Samples\\Common/$(OGRE_HOME)/i
 s/\.\.\\obj/\.\.\\\.\.\\obj/i
 s/\.\.\\lib/\.\.\\\.\.\\lib/g
-s/\.\.\\\.\.\\\.\.\\lib/$(OGRE_HOME)\\lib/i
-s/\.\.\\\.\.\\\.\.\\lib/$(OGRE_HOME)\\lib/i
+s/\.\.\\\.\.\\\.\.\\\.\.\\lib/$(OGRE_HOME)\\lib/i
+s/\.\.\\\.\.\\\.\.\\\.\.\\lib/$(OGRE_HOME)\\lib/i
 s/CommandLine=\"copy.*\"/CommandLine=\"copy $(OutDir)\\$(TargetFileName) $(OGRE_HOME)\\bin\\$(ConfigurationName)\\"/i
 s/$(#STLPORT_DIR)\\stlport/$(OGRE_HOME)\\stlport\\stlport/i
 s/$(#STLPORT_DIR)\\lib/$(OGRE_HOME)\\stlport\\lib/i
