@@ -114,7 +114,8 @@ namespace Ogre {
         mActiveRenderer = 0;
         mVersion = StringConverter::toString(OGRE_VERSION_MAJOR) + "." +
             StringConverter::toString(OGRE_VERSION_MINOR) + "." +
-            StringConverter::toString(OGRE_VERSION_PATCH) + " " +
+            StringConverter::toString(OGRE_VERSION_PATCH) + 
+			OGRE_VERSION_SUFFIX + " " +
             "(" + OGRE_VERSION_NAME + ")";
 		mConfigFileName = configFileName;
 
