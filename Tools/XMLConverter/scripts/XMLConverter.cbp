@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_project_file>
-	<FileVersion major="1" minor="5" />
+	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="XMLConverter" />
 		<Option pch_mode="0" />
-		<Option default_target="" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="" />
 		<Build>
 			<Target title="Debug">
 				<Option output="..\..\Common\bin\debug\OgreXMLConverter.exe" prefix_auto="0" extension_auto="0" />
@@ -57,76 +55,18 @@
 			<Add option="-Wl,--add-stdcall-alias" />
 			<Add directory="..\..\Common\bin\$(TARGET_NAME)" />
 		</Linker>
-		<Unit filename="..\include\OgreXMLMeshSerializer.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreXMLPrerequisites.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\OgreXMLSkeletonSerializer.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\tinystr.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\include\tinyxml.h">
-			<Option compilerVar="" />
-			<Option compile="0" />
-			<Option link="0" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreXMLMeshSerializer.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\OgreXMLSkeletonSerializer.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\main.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\tinystr.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\tinyxml.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\tinyxmlerror.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\tinyxmlparser.cpp">
-			<Option compilerVar="CPP" />
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
+		<Unit filename="..\include\OgreXMLMeshSerializer.h" />
+		<Unit filename="..\include\OgreXMLPrerequisites.h" />
+		<Unit filename="..\include\OgreXMLSkeletonSerializer.h" />
+		<Unit filename="..\include\tinystr.h" />
+		<Unit filename="..\include\tinyxml.h" />
+		<Unit filename="..\src\OgreXMLMeshSerializer.cpp" />
+		<Unit filename="..\src\OgreXMLSkeletonSerializer.cpp" />
+		<Unit filename="..\src\main.cpp" />
+		<Unit filename="..\src\tinystr.cpp" />
+		<Unit filename="..\src\tinyxml.cpp" />
+		<Unit filename="..\src\tinyxmlerror.cpp" />
+		<Unit filename="..\src\tinyxmlparser.cpp" />
 		<Extensions>
 			<code_completion />
 		</Extensions>
