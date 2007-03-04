@@ -806,7 +806,7 @@ namespace Ogre {
 
 
         if (!from->isLeaf() || !to->isLeaf())
-            throw Exception(Exception::ERR_INVALIDPARAMS,
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
                 "Both nodes must be leaf nodes for visibility testing.",
                 "BspLevel::isLeafVisible");
 

@@ -61,7 +61,7 @@ namespace Ogre {
     BspNode* BspNode::getFront(void) const
     {
         if (mIsLeaf)
-            throw Exception(Exception::ERR_INVALIDPARAMS,
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
                 "This method is not valid on a leaf node.",
                 "BspNode::getFront");
         return mFront;
@@ -71,7 +71,7 @@ namespace Ogre {
     BspNode* BspNode::getBack(void) const
     {
         if (mIsLeaf)
-            throw Exception(Exception::ERR_INVALIDPARAMS,
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
                 "This method is not valid on a leaf node.",
                 "BspNode::getBack");
         return mBack;
@@ -81,7 +81,7 @@ namespace Ogre {
     const Plane& BspNode::getSplitPlane(void) const
     {
         if (mIsLeaf)
-            throw Exception(Exception::ERR_INVALIDPARAMS,
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
                 "This method is not valid on a leaf node.",
                 "BspNode::getSplitPlane");
 
@@ -93,7 +93,7 @@ namespace Ogre {
     const AxisAlignedBox& BspNode::getBoundingBox(void) const
     {
         if (!mIsLeaf)
-            throw Exception(Exception::ERR_INVALIDPARAMS,
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
                 "This method is only valid on a leaf node.",
                 "BspNode::getBoundingBox");
         return mBounds;
@@ -104,7 +104,7 @@ namespace Ogre {
     int BspNode::getNumFaceGroups(void) const
     {
         if (!mIsLeaf)
-            throw Exception(Exception::ERR_INVALIDPARAMS,
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
                 "This method is only valid on a leaf node.",
                 "BspNode::getNumFaces");
         return mNumFaceGroups;
@@ -114,7 +114,7 @@ namespace Ogre {
     int BspNode::getFaceGroupStart(void) const
     {
         if (!mIsLeaf)
-            throw Exception(Exception::ERR_INVALIDPARAMS,
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
                 "This method is only valid on a leaf node.",
                 "BspNode::getFaces");
         return mFaceGroupStart;
@@ -129,7 +129,7 @@ namespace Ogre {
     Plane::Side BspNode::getSide (const Vector3& point) const
     {
         if (mIsLeaf)
-            throw Exception(Exception::ERR_INVALIDPARAMS,
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
                 "This method is not valid on a leaf node.",
                 "BspNode::getSide");
 
@@ -141,7 +141,7 @@ namespace Ogre {
     {
 
         if (mIsLeaf)
-            throw Exception(Exception::ERR_INVALIDPARAMS,
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
                 "This method is not valid on a leaf node.",
                 "BspNode::getNextNode");
 
@@ -174,7 +174,7 @@ namespace Ogre {
     Real BspNode::getDistance(const Vector3& pos) const
     {
         if (mIsLeaf)
-            throw Exception(Exception::ERR_INVALIDPARAMS,
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
                 "This method is not valid on a leaf node.",
                 "BspNode::getSide");
 
