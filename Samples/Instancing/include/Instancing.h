@@ -15,7 +15,7 @@ using namespace Ogre;
 
 #define maxObjectsPerBatch 80
 #define FLT_MAX         3.402823466e+38F        /* max value */
-const size_t numTypeMeshes = 6;
+const size_t numTypeMeshes = 5;
 class InstancingApplication;
 String meshes[]=
 { 
