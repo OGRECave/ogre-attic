@@ -231,7 +231,6 @@ namespace Ogre {
 							GL_TRUE, params->getFloatPointer(def->physicalIndex));
 					}
 					break;
-					break;
 				case GCT_MATRIX_3X2:
 					if (GLEW_VERSION_2_1)
 					{
@@ -296,6 +295,10 @@ namespace Ogre {
 					break;
 
 				} // end switch
+#if OGRE_DEBUG_MODE
+				checkForGLSLError( "GLSLLinkProgram::updateUniforms", "Error updating uniform", 0 );
+#endif
+
 			}
   
   		} // end for
