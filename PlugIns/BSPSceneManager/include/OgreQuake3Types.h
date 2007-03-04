@@ -235,7 +235,7 @@ struct bsp_header_t {
 //
 struct bsp_brushside_t {
 	int planenum;
-	int content;			// ¿?shader¿?
+	int content;			// ??shader??
 };
 
 
