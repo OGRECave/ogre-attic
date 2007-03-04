@@ -347,7 +347,20 @@ namespace Ogre {
 			{
 				// user defined uniform found, add it to the reference list
 				String paramName = String( uniformName );
-
+				
+                // currant ATI drivers (Catalyst 7.2 and earlier) and older NVidia drivers will include all array elements as uniforms but we only want the root array name and location
+                // Also note that ATI Catalyst 6.8 to 7.2 there is a bug with glUniform that does not allow you to update a uniform array past the first uniform array element
+                // ie you can't start updating an array starting at element 1, must always be element 0.
+                
+                // if the uniform name has a "[" in it then its an array element uniform.
+                String::size_type arrayStart = paramName.find("[");
+                if (arrayStart != String::npos)
+                {
+                    // if not the first array element then skip it and continue to the next uniform
+                    if (paramName.compare(arrayStart, paramName.size() - 1, "[0]") != 0) continue;
+                    paramName = paramName.substr(0, arrayStart);
+                }
+                
 				// find out which params object this comes from
 				bool foundSource = completeParamSource(paramName, 
 					vertexConstantDefs, 
