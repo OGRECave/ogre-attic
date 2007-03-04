@@ -23,6 +23,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	
 	Material shader: Textured normal mapped
 */
+
+#extension GL_ARB_draw_buffers : enable
+
 varying vec3 normal;
 varying vec3 tangent;
 varying vec3 binormal;

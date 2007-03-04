@@ -23,6 +23,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	
 	Material shader: Single colour phong
 */
+
+#extension GL_ARB_draw_buffers : enable
+
 varying vec3 normal;
 varying vec2 texCoord0;
 varying float depth;
