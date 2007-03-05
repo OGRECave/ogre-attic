@@ -913,28 +913,7 @@ namespace Ogre {
         const ColourValue &emissive, Real shininess,
         TrackVertexColourType tracking)
     {
-        // XXX Cache previous values?
-        // XXX Front or Front and Back?
-
-        GLfloat f4val[4] = {diffuse.r, diffuse.g, diffuse.b, diffuse.a};
-        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, f4val);
-        f4val[0] = ambient.r;
-        f4val[1] = ambient.g;
-        f4val[2] = ambient.b;
-        f4val[3] = ambient.a;
-        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, f4val);
-        f4val[0] = specular.r;
-        f4val[1] = specular.g;
-        f4val[2] = specular.b;
-        f4val[3] = specular.a;
-        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, f4val);
-        f4val[0] = emissive.r;
-        f4val[1] = emissive.g;
-        f4val[2] = emissive.b;
-        f4val[3] = emissive.a;
-        glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, f4val);
-        glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
-        
+       
         // Track vertex colour
         if(tracking != TVC_NONE) 
         {
@@ -974,6 +953,28 @@ namespace Ogre {
         {
             glDisable(GL_COLOR_MATERIAL);          
         }
+
+		// XXX Cache previous values?
+		// XXX Front or Front and Back?
+
+		GLfloat f4val[4] = {diffuse.r, diffuse.g, diffuse.b, diffuse.a};
+		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, f4val);
+		f4val[0] = ambient.r;
+		f4val[1] = ambient.g;
+		f4val[2] = ambient.b;
+		f4val[3] = ambient.a;
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, f4val);
+		f4val[0] = specular.r;
+		f4val[1] = specular.g;
+		f4val[2] = specular.b;
+		f4val[3] = specular.a;
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, f4val);
+		f4val[0] = emissive.r;
+		f4val[1] = emissive.g;
+		f4val[2] = emissive.b;
+		f4val[3] = emissive.a;
+		glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, f4val);
+		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
     }
     //-----------------------------------------------------------------------------
 	void GLRenderSystem::_setPointParameters(Real size, 
