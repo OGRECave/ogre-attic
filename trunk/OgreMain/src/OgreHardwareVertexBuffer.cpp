@@ -507,34 +507,53 @@ namespace Ogre {
         size_t offset = 0;
         c = 0;
 		unsigned short buffer = 0;
+        VertexElementSemantic prevSemantic = VES_POSITION;
         for (i = elems.begin(); i != elems.end(); ++i, ++c)
         {
             const VertexElement& elem = *i;
-            if (elem.getSemantic() == VES_POSITION && vertexAnimation)
-			{
-				// For morph animation, we need positions on their own
-                if (offset)
-                {
-                    ++buffer;
-                    offset = 0;
-                }
-                newDecl->modifyElement(c, buffer, offset,
-                    elem.getType(), elem.getSemantic(), elem.getIndex());
-				++buffer;
-				offset = 0;
-			}
-            else if (elem.getSemantic() == VES_NORMAL && (skeletalAnimation || vertexAnimation))
+
+            bool splitWithPrev = false;
+            bool splitWithNext = false;
+            switch (elem.getSemantic())
             {
-				// All animated meshes have to split after normal
-                newDecl->modifyElement(c, buffer, offset,
-                    elem.getType(), elem.getSemantic(), elem.getIndex());
-				++buffer;
-				offset = 0;
+            case VES_POSITION:
+                // For morph animation, we need positions on their own
+                splitWithPrev = vertexAnimation;
+                splitWithNext = vertexAnimation;
+                break;
+            case VES_NORMAL:
+                // Normals can't sharing with blend weights/indices
+                splitWithPrev = (prevSemantic == VES_BLEND_WEIGHTS || prevSemantic == VES_BLEND_INDICES);
+                // All animated meshes have to split after normal
+                splitWithNext = (skeletalAnimation || vertexAnimation);
+                break;
+            case VES_BLEND_WEIGHTS:
+                // Blend weights/indices can be sharing with their own buffer only
+                splitWithPrev = true;
+                break;
+            case VES_BLEND_INDICES:
+                // Blend weights/indices can be sharing with their own buffer only
+                splitWithNext = true;
+                break;
+            }
+
+            if (splitWithPrev && offset)
+            {
+                ++buffer;
+                offset = 0;
+            }
+
+            prevSemantic = elem.getSemantic();
+            newDecl->modifyElement(c, buffer, offset,
+                elem.getType(), elem.getSemantic(), elem.getIndex());
+
+            if (splitWithNext)
+            {
+                ++buffer;
+                offset = 0;
             }
             else
             {
-                newDecl->modifyElement(c, buffer, offset,
-                    elem.getType(), elem.getSemantic(), elem.getIndex());
                 offset += elem.getSize();
             }
         }
