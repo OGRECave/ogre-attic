@@ -6,11 +6,10 @@ attribute vec4 blendWeights;
 // 3x4 matrix, passed as vec4's for compatibility with GL 2.0
 // GL 2.0 supports 3x4 matrices
 // Support 24 bones ie 24*3, but use 72 since our parser can pick that out for sizing
-uniform vec4 worldMatrixArray[72];
-uniform mat4 viewProjMatrix;
+uniform vec4 worldMatrix3x4Array[72];
+uniform mat4 viewProjectionMatrix;
 uniform vec4 lightPos[2];
 uniform vec4 lightDiffuseColour[2];
-uniform vec4 ambient;
 
 void main()
 {
@@ -35,15 +34,15 @@ void main()
 //
 //			tmpNorm[row] = dot(blendMatrixRow.xyz, gl_Normal);
 //		}
-        blendMatrixRow = worldMatrixArray[idx];
+        blendMatrixRow = worldMatrix3x4Array[idx];
 		tmpPos[0] = dot(blendMatrixRow, gl_Vertex);
 		tmpNorm[0] = dot(blendMatrixRow.xyz, gl_Normal);
 		
-        blendMatrixRow = worldMatrixArray[idx + 1];
+        blendMatrixRow = worldMatrix3x4Array[idx + 1];
 		tmpPos[1] = dot(blendMatrixRow, gl_Vertex);
 		tmpNorm[1] = dot(blendMatrixRow.xyz, gl_Normal);
 		
-        blendMatrixRow = worldMatrixArray[idx + 2];
+        blendMatrixRow = worldMatrix3x4Array[idx + 2];
 		tmpPos[2] = dot(blendMatrixRow, gl_Vertex);
 		tmpNorm[2] = dot(blendMatrixRow.xyz, gl_Normal);
 		
@@ -54,7 +53,7 @@ void main()
 	}
 
 	// apply view / projection to position
-	gl_Position = viewProjMatrix * vec4(blendPos, 1);
+	gl_Position = viewProjectionMatrix * vec4(blendPos, 1);
 
 	// simple lighting model
 	vec3 lightDir0 = normalize(
@@ -63,7 +62,7 @@ void main()
 		lightPos[1].xyz -  (blendPos.xyz * lightPos[1].w));
 		
 	gl_FrontSecondaryColor = vec4(0,0,0,0);
-	gl_FrontColor = ambient 
+	gl_FrontColor = vec4(0.5, 0.5, 0.5, 1.0) 
 		+ clamp(dot(lightDir0, blendNorm), 0.0, 1.0) * lightDiffuseColour[0]
 		+ clamp(dot(lightDir1, blendNorm), 0.0, 1.0) * lightDiffuseColour[1];
 
