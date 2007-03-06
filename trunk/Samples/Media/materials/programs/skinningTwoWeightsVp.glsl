@@ -24,10 +24,10 @@ void main()
 	for (int bone = 0; bone < 2; ++bone)
 	{
 		// perform matrix multiplication manually since no 3x4 matrices
-    // ATI GLSL compiler can't handle indexing an array within an array so calculate the inner index first
+        // ATI GLSL compiler can't handle indexing an array within an array so calculate the inner index first
 	    int idx = int(blendIndices[bone]) * 3;
 	    vec4 blendMatrixRow;
-// ATI GLSL compiler can't handle unrolling the loop 
+//  ATI GLSL compiler can't handle unrolling the loop 
 //		for (int row = 0; row < 3; ++row)
 //		{
 //			blendMatrixRow = worldMatrixArray[idx + row];
@@ -61,7 +61,8 @@ void main()
 		lightPos[0].xyz -  (blendPos.xyz * lightPos[0].w));
 	vec3 lightDir1 = normalize(
 		lightPos[1].xyz -  (blendPos.xyz * lightPos[1].w));
-	
+		
+	gl_FrontSecondaryColor = vec4(0,0,0,0);
 	gl_FrontColor = ambient 
 		+ clamp(dot(lightDir0, blendNorm), 0.0, 1.0) * lightDiffuseColour[0]
 		+ clamp(dot(lightDir1, blendNorm), 0.0, 1.0) * lightDiffuseColour[1];
