@@ -54,7 +54,7 @@ void main()
 	gl_FrontColor = ambient 
 		+ clamp(dot(lightDir, blendNorm), 0.0, 1.0) * lightDiffuseColour;
 #endif
-
+    gl_FrontSecondaryColor = vec4(0);
 	gl_TexCoord[0] = gl_MultiTexCoord0;
 
 	

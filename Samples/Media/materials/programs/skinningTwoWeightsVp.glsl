@@ -47,7 +47,7 @@ void main()
 	vec3 lightDir1 = normalize(
 		lightPos[1].xyz -  (blendPos.xyz * lightPos[1].w));
 		
-	gl_FrontSecondaryColor = vec4(0,0,0,0);
+	gl_FrontSecondaryColor = vec4(0);
 	gl_FrontColor = vec4(0.5, 0.5, 0.5, 1.0) 
 		+ clamp(dot(lightDir0, blendNorm), 0.0, 1.0) * lightDiffuseColour[0]
 		+ clamp(dot(lightDir1, blendNorm), 0.0, 1.0) * lightDiffuseColour[1];
