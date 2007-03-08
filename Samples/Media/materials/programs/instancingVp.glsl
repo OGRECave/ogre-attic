@@ -26,7 +26,7 @@ void main()
 	// view / projection
 	gl_Position = viewProjectionMatrix * vec4(transformedPos,1);
 	gl_TexCoord[0] = gl_MultiTexCoord0;
-
+    gl_FrontSecondaryColor = vec4(0);
 	
 #if SHADOW_CASTER
 	gl_FrontColor = ambient;
