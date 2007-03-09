@@ -130,7 +130,9 @@ namespace Ogre {
 
         vbuf->unlock();
 
-        mBox.setExtents(left, top, 0, right, bottom, 0);
+        mBox.setExtents(
+            std::min(left, right), std::min(top, bottom), 0,
+            std::max(left, right), std::max(top, bottom), 0);
 
     }
 

@@ -82,9 +82,12 @@ namespace Ogre {
 	};
     //-----------------------------------------------------------------------
     ParticleSystem::ParticleSystem() 
-      : mBoundsAutoUpdate(true),
+      : mAABB(),
+        mBoundingRadius(1.0f),
+        mBoundsAutoUpdate(true),
         mBoundsUpdateTime(10.0f),
         mUpdateRemainTime(0),
+        mWorldAABB(),
         mResourceGroupName(ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME),
         mIsRendererConfigured(false),
         mSpeedFactor(1.0f),
@@ -104,12 +107,6 @@ namespace Ogre {
 		mEmittedEmitterPoolSize(0)
 	{
         initParameters();
-        mAABB.setExtents(-1, -1, -1, 1, 1, 1);
-        mBoundingRadius = 1;
-        // Init world AABB to something silly
-        Vector3 min( Math::POS_INFINITY, Math::POS_INFINITY, Math::POS_INFINITY );
-        Vector3 max( Math::NEG_INFINITY, Math::NEG_INFINITY, Math::NEG_INFINITY );
-        mWorldAABB.setExtents(min, max);
 
         // Default to billboard renderer
         setRenderer("billboard");
@@ -118,9 +115,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     ParticleSystem::ParticleSystem(const String& name, const String& resourceGroup)
       : MovableObject(name),
+        mAABB(),
+        mBoundingRadius(1.0f),
         mBoundsAutoUpdate(true),
         mBoundsUpdateTime(10.0f),
         mUpdateRemainTime(0),
+        mWorldAABB(),
         mResourceGroupName(resourceGroup),
         mIsRendererConfigured(false),
         mSpeedFactor(1.0f),
@@ -145,12 +145,6 @@ namespace Ogre {
         setParticleQuota( 10 );
 		setEmittedEmitterQuota( 3 );
         initParameters();
-        mAABB.setExtents(-1, -1, -1, 1, 1, 1);
-        mBoundingRadius = 1;
-        // Init world AABB to something silly
-        Vector3 min( Math::POS_INFINITY, Math::POS_INFINITY, Math::POS_INFINITY );
-        Vector3 max( Math::NEG_INFINITY, Math::NEG_INFINITY, Math::NEG_INFINITY );
-        mWorldAABB.setExtents(min, max);
 
         // Default to billboard renderer
         setRenderer("billboard");
@@ -790,42 +784,51 @@ namespace Ogre {
 
         if (mParentNode && (mBoundsAutoUpdate || mBoundsUpdateTime > 0.0f))
         {
-
-            Vector3 min;  
-            Vector3 max; 
-            if (!mBoundsAutoUpdate)
+            if (mActiveParticles.empty())
             {
-                // We're on a limit, grow rather than reset each time
-                // so that we pick up the worst case scenario
-                min = mWorldAABB.getMinimum();
-                max = mWorldAABB.getMaximum();
+                // No particles, reset to null if auto update bounds
+                if (mBoundsAutoUpdate)
+                {
+                    mWorldAABB.setNull();
+                }
             }
             else
             {
-                min.x = min.y = min.z = Math::POS_INFINITY;
-                max.x = max.y = max.z = Math::NEG_INFINITY;
-            }
-            ActiveParticleList::iterator p;
-            Vector3 halfScale = Vector3::UNIT_SCALE * 0.5;
-            Vector3 defaultPadding = 
-                halfScale * std::max(mDefaultHeight, mDefaultWidth);
-            for (p = mActiveParticles.begin(); p != mActiveParticles.end(); ++p)
-            {
-
-                if ((*p)->mOwnDimensions)
+                Vector3 min;
+                Vector3 max;
+                if (!mBoundsAutoUpdate && mWorldAABB.isFinite())
                 {
-                    Vector3 padding = 
-                        halfScale * std::max((*p)->mWidth, (*p)->mHeight);
-                    min.makeFloor((*p)->position - padding);
-                    max.makeCeil((*p)->position + padding);
+                    // We're on a limit, grow rather than reset each time
+                    // so that we pick up the worst case scenario
+                    min = mWorldAABB.getMinimum();
+                    max = mWorldAABB.getMaximum();
                 }
                 else
                 {
-                    min.makeFloor((*p)->position - defaultPadding);
-                    max.makeCeil((*p)->position + defaultPadding);
+                    min.x = min.y = min.z = Math::POS_INFINITY;
+                    max.x = max.y = max.z = Math::NEG_INFINITY;
                 }
+                ActiveParticleList::iterator p;
+                Vector3 halfScale = Vector3::UNIT_SCALE * 0.5;
+                Vector3 defaultPadding = 
+                    halfScale * std::max(mDefaultHeight, mDefaultWidth);
+                for (p = mActiveParticles.begin(); p != mActiveParticles.end(); ++p)
+                {
+                    if ((*p)->mOwnDimensions)
+                    {
+                        Vector3 padding = 
+                            halfScale * std::max((*p)->mWidth, (*p)->mHeight);
+                        min.makeFloor((*p)->position - padding);
+                        max.makeCeil((*p)->position + padding);
+                    }
+                    else
+                    {
+                        min.makeFloor((*p)->position - defaultPadding);
+                        max.makeCeil((*p)->position + defaultPadding);
+                    }
+                }
+                mWorldAABB.setExtents(min, max);
             }
-            mWorldAABB.setExtents(min, max);
 
 
             if (mLocalSpace)
