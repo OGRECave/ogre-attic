@@ -375,20 +375,20 @@ namespace Ogre {
 
 			//! dereference operator
 			value_type& operator*() const {
-				return mIter.operator*();
+				return *mIter;
 			}
 
 			//! dereference at offset operator
 			value_type& operator[]( size_type n ) const {
 				_fwd_iterator tmp( *this );
 				tmp += n;
-				return tmp.operator*();
+				return *tmp;
 			}
 			//! dereference at offset operator
 			value_type& operator[]( difference_type n ) const {
 				_fwd_iterator tmp( *this );
 				tmp += n;
-				return tmp.operator*();
+				return *tmp;
 			}
 
 			//! advances to the next Unicode character, honoring surrogate pairs in the UTF-16 stream
@@ -509,20 +509,20 @@ namespace Ogre {
 
 			//! dereference operator
 			const value_type& operator*() const {
-				return mIter.operator*();
+				return *mIter;
 			}
 
 			//! dereference at offset operator
 			const value_type& operator[]( size_type n ) const {
 				_const_fwd_iterator tmp( *this );
 				tmp += n;
-				return tmp.operator*();
+				return *tmp;
 			}
 			//! dereference at offset operator
 			const value_type& operator[]( difference_type n ) const {
 				_const_fwd_iterator tmp( *this );
 				tmp += n;
-				return tmp.operator*();
+				return *tmp;
 			}
 
 			//! advances to the next Unicode character, honoring surrogate pairs in the UTF-16 stream
@@ -661,13 +661,13 @@ namespace Ogre {
 			value_type& operator[]( size_type n ) const {
 				_rev_iterator tmp( *this );
 				tmp -= n;
-				return tmp.operator*();
+				return *tmp;
 			}
 			//! dereference at offset operator
 			value_type& operator[]( difference_type n ) const {
 				_rev_iterator tmp( *this );
 				tmp -= n;
-				return tmp.operator*();
+				return *tmp;
 			}
 		};
 		//#########################################################################
@@ -772,13 +772,13 @@ namespace Ogre {
 			const value_type& operator[]( size_type n ) const {
 				_const_rev_iterator tmp( *this );
 				tmp -= n;
-				return tmp.operator*();
+				return *tmp;
 			}
 			//! dereference at offset operator
 			const value_type& operator[]( difference_type n ) const {
 				_const_rev_iterator tmp( *this );
 				tmp -= n;
-				return tmp.operator*();
+				return *tmp;
 			}
 
 			//! difference operator
