@@ -235,6 +235,9 @@ namespace Ogre {
 		*/
 		inline void setExtents( const Vector3& min, const Vector3& max )
 		{
+            assert( (min.x <= max.x && min.y <= max.y && min.z <= max.z) &&
+                "The minimum corner of the box must be less than or equal to maximum corner" );
+
 			mExtent = EXTENT_FINITE;
 			mMinimum = min;
 			mMaximum = max;
@@ -244,6 +247,9 @@ namespace Ogre {
 			Real mx, Real my, Real mz,
 			Real Mx, Real My, Real Mz )
 		{
+            assert( (mx <= Mx && my <= My && mz <= Mz) &&
+                "The minimum corner of the box must be less than or equal to maximum corner" );
+
 			mExtent = EXTENT_FINITE;
 
 			mMinimum.x = mx;
