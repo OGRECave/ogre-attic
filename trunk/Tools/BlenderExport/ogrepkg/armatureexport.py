@@ -355,9 +355,6 @@ class SkeletonAnimationTrack:
 		if self.parent is not None:
 			poseTransformation *= self.parent.getInverseLastKeyframeTotalTransformation()
 		
-		# calculate difference to rest pose
-		poseTransformation *= self.inverseOgreRestPose
-		
 		self.keyframeDict[time] = Blender.Mathutils.Matrix(*poseTransformation)
 		return
 	def write(self, f, indentation=0):
@@ -372,7 +369,11 @@ class SkeletonAnimationTrack:
 				f.write(indent(indentation + 2) + "<keyframe time=\"%f\">\n" % time)
 				transformation = self.keyframeDict[time]
 				# get transformation values
+				# translation relative to parent coordinate system
 				translationTuple = tuple(transformation.translationPart())
+				# rotation relative to local coordiante system
+				# calculate difference to rest pose
+				transformation *= self.inverseOgreRestPose
 				rotationQuaternion = transformation.toQuat()
 				rotationQuaternion.normalize()
 				angle = float(rotationQuaternion.angle)/180*math.pi
