@@ -192,7 +192,7 @@ namespace Ogre {
         /** Converts a String to a boolean. 
         @remarks
             Returns true if case-insensitive match of the start of the string
-			matches "true" or "yes", false otherwise.
+			matches "true", "yes" or "1", false otherwise.
         */
         static bool parseBool(const String& val);
         /** Parses a Vector3 out of a String.

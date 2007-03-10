@@ -281,7 +281,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool StringConverter::parseBool(const String& val)
     {
-		return (StringUtil::startsWith(val, "true") || StringUtil::startsWith(val, "yes"));
+		return (StringUtil::startsWith(val, "true") || StringUtil::startsWith(val, "yes")
+			|| StringUtil::startsWith(val, "1"));
     }
     //-----------------------------------------------------------------------
     Vector3 StringConverter::parseVector3(const String& val)
