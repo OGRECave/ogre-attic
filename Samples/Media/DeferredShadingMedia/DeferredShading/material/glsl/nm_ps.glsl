@@ -27,7 +27,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #extension GL_ARB_draw_buffers : enable
 
 varying vec3 normal;
-varying vec3 tangent;
+varying vec3 tangent_;
 varying vec3 binormal;
 
 varying vec2 texCoord0;
@@ -40,7 +40,7 @@ uniform float specularity;
 void main()                    
 {
 	// Frame for normal mapping
-	mat3 rotation = mat3(tangent, binormal, normal);
+	mat3 rotation = mat3(tangent_, binormal, normal);
 	vec3 texnormal = (vec3(texture2D(normTex, texCoord0))-0.5)*2.0;
 	
    	gl_FragData[0].rgb = vec3(texture2D(tex0, texCoord0));

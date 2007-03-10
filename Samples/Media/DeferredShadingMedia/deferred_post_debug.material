@@ -21,6 +21,7 @@ material DeferredShading/Post/ShowNormal
 			}
 			texture_unit
 			{
+				tex_coord_set 1
 				tex_address_mode clamp
 				filtering none
 			}
@@ -47,6 +48,7 @@ material DeferredShading/Post/ShowNormal
 			}
 			texture_unit
 			{
+				tex_coord_set 1
 				tex_address_mode clamp
 				filtering none
 			}
@@ -77,6 +79,7 @@ material DeferredShading/Post/ShowDS
 			}
 			texture_unit
 			{
+				tex_coord_set 1
 				tex_address_mode clamp
 				filtering none
 			}
@@ -103,6 +106,7 @@ material DeferredShading/Post/ShowDS
 			}
 			texture_unit
 			{
+				tex_coord_set 1
 				tex_address_mode clamp
 				filtering none
 			}
@@ -132,6 +136,7 @@ material DeferredShading/Post/ShowColour
 			}
 			texture_unit
 			{
+				tex_coord_set 1
 				tex_address_mode clamp
 				filtering none
 			}
@@ -158,6 +163,7 @@ material DeferredShading/Post/ShowColour
 			}
 			texture_unit
 			{
+				tex_coord_set 1
 				tex_address_mode clamp
 				filtering none
 			}
