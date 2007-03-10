@@ -24,11 +24,13 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	Material shader: Normal mapped
 */
 varying vec3 normal;
-varying vec3 tangent;
+varying vec3 tangent_;
 varying vec3 binormal;
 
 varying vec2 texCoord0;
 varying float depth;
+
+attribute vec3 tangent;
 
 void main()                    
 {
@@ -39,7 +41,7 @@ void main()
    texCoord0 = vec2(gl_MultiTexCoord0);
    
    normal = vec3(gl_ModelViewMatrix*vec4(gl_Normal,0));
-   tangent = vec3(gl_ModelViewMatrix*vec4(vec3(gl_MultiTexCoord1),0));
-   binormal = cross(normal, tangent);
+   tangent_ = vec3(gl_ModelViewMatrix*vec4(tangent,0));
+   binormal = cross(normal, tangent_);
    
 }

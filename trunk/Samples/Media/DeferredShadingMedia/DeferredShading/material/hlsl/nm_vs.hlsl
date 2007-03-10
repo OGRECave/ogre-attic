@@ -40,7 +40,7 @@ VS_OUTPUT main(
 	float4 Pos: POSITION, 
 	float3 normal: NORMAL,
 	float2 texCoord0: TEXCOORD0,
-	float3 tangent: TEXCOORD1
+	float3 tangent: TANGENT0
 ){
    VS_OUTPUT Out;
    
