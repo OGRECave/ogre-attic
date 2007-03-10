@@ -59,33 +59,37 @@ namespace Ogre {
     }
    
 /// Size of probe texture
-#define PROBE_SIZE 256
+#define PROBE_SIZE 16
+
 /// Stencil and depth formats to be tried
-GLenum stencilFormats[]={
+static const GLenum stencilFormats[] =
+{
     GL_NONE,                    // No stencil
     GL_STENCIL_INDEX1_EXT,
     GL_STENCIL_INDEX4_EXT,
     GL_STENCIL_INDEX8_EXT,
     GL_STENCIL_INDEX16_EXT
 };
-size_t stencilBits[] = {
+static const size_t stencilBits[] =
+{
     0, 1, 4, 8, 16
 };
 #define STENCILFORMAT_COUNT (sizeof(stencilFormats)/sizeof(GLenum))
-GLenum depthFormats[]={
+
+static const GLenum depthFormats[] =
+{
     GL_NONE,
     GL_DEPTH_COMPONENT16,
     GL_DEPTH_COMPONENT24,    // Prefer 24 bit depth
     GL_DEPTH_COMPONENT32,
     GL_DEPTH24_STENCIL8_EXT // packed depth / stencil
 };
-size_t depthBits[] = {
+static const size_t depthBits[] =
+{
     0,16,24,32,24
 };
-
-
 #define DEPTHFORMAT_COUNT (sizeof(depthFormats)/sizeof(GLenum))
-    
+
 	GLFBOManager::GLFBOManager(bool atimode):
 		mATIMode(atimode)
     {
