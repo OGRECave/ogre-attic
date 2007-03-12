@@ -267,14 +267,22 @@ void DeferredShadingSystem::createResources(void)
 	//assert(mTexture0->getFormat() == format);
 	//assert(mTexture1->getFormat() == format);
 	rttTex = Ogre::Root::getSingleton().getRenderSystem()->createMultiRenderTarget("MRT");
-	rttTex->bindSurface(0, mTexture0->getBuffer()->getRenderTarget());
-	rttTex->bindSurface(1, mTexture1->getBuffer()->getRenderTarget());
+    RenderTexture* rt0 = mTexture0->getBuffer()->getRenderTarget();
+    RenderTexture* rt1 = mTexture1->getBuffer()->getRenderTarget();
+    rt0->setAutoUpdated(false);
+    rt1->setAutoUpdated(false);
+	rttTex->bindSurface(0, rt0);
+	rttTex->bindSurface(1, rt1);
 	rttTex->setAutoUpdated( false );
 
 	// Setup viewport on 'fat' render target
 	Viewport* v = rttTex->addViewport( mCamera );
 	v->setClearEveryFrame( false );
 	v->setOverlaysEnabled( false );
+    // Should disable skies for MRT due it's not designed for that, and
+    // will causing NVIDIA refusing write anything to other render targets
+    // for some reason.
+    v->setSkiesEnabled(false);
 	v->setBackgroundColour( ColourValue( 0, 0, 0, 0) );
 	compMan.addCompositor(v, "DeferredShading/Fat");
 
