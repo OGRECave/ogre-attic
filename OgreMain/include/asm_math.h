@@ -300,7 +300,7 @@ FORCEINLINE float asm_rand_max()
   #if 0
     #if OGRE_COMP_VER >= 1300
 
-	return std::numeric_limits< unsigned __int64 >::max();
+	return (std::numeric_limits< unsigned __int64 >::max)();
 	return 9223372036854775807.0f;
     #endif
   #else
