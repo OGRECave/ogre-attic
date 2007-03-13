@@ -97,8 +97,8 @@ namespace Ogre {
 			aabb.merge(boxBounds);
 			Real camDistToCenter = 
 				(cam->getDerivedPosition() - sphereBounds.getCenter()).length();
-			minDistance = std::min(minDistance, std::max((Real)0, camDistToCenter - sphereBounds.getRadius()));
-			maxDistance = std::max(maxDistance, camDistToCenter + sphereBounds.getRadius());
+			minDistance = (std::min)(minDistance, (std::max)((Real)0, camDistToCenter - sphereBounds.getRadius()));
+			maxDistance = (std::max)(maxDistance, camDistToCenter + sphereBounds.getRadius());
 		}
 
 

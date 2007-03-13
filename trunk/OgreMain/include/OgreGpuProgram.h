@@ -133,7 +133,7 @@ namespace Ogre {
 
 		GpuConstantDefinition()
 			: constType(GCT_UNKNOWN)
-			, physicalIndex(std::numeric_limits<size_t>::max())
+			, physicalIndex((std::numeric_limits<size_t>::max)())
 			, elementSize(0)
 			, arraySize(1) {}
 	};
@@ -1282,7 +1282,7 @@ namespace Ogre {
         void incPassIterationNumber(void);
 		/** Does this parameters object have a pass iteration number constant? */
 		bool hasPassIterationNumber() const 
-		{ return mActivePassIterationIndex != std::numeric_limits<size_t>::max(); }
+		{ return mActivePassIterationIndex != (std::numeric_limits<size_t>::max)(); }
 		/** Get the physical buffer index of the pass iteration number constant */
 		size_t getPassIterationNumberIndex() const 
 		{ return mActivePassIterationIndex; }
