@@ -93,6 +93,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
 	Pass::PassSet Pass::msDirtyHashList;
     Pass::PassSet Pass::msPassGraveyard;
+	OGRE_STATIC_MUTEX_INSTANCE(Pass::msDirtyHashListMutex)
+	OGRE_STATIC_MUTEX_INSTANCE(Pass::msPassGraveyardMutex)
+
 	Pass::HashFunc* Pass::msHashFunc = &sMinTextureStateChangeHashFunc;
 	//-----------------------------------------------------------------------------
 	void Pass::setHashFunction(BuiltinHashFunction builtin)
@@ -1150,8 +1153,15 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void Pass::_dirtyHash(void)
 	{
+		OGRE_LOCK_MUTEX(msDirtyHashListMutex)
 		// Mark this hash as for follow up
 		msDirtyHashList.insert(this);
+	}
+	//---------------------------------------------------------------------
+	void Pass::clearDirtyHashList(void) 
+	{ 
+		OGRE_LOCK_MUTEX(msDirtyHashListMutex)
+		msDirtyHashList.clear(); 
 	}
     //-----------------------------------------------------------------------
     void Pass::_notifyNeedsRecompile(void)
@@ -1211,24 +1221,31 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Pass::processPendingPassUpdates(void)
     {
-        // Delete items in the graveyard
-        PassSet::iterator i, iend;
-        iend = msPassGraveyard.end();
-        for (i = msPassGraveyard.begin(); i != iend; ++i)
-        {
-            delete *i;
-        }
-        msPassGraveyard.clear();
+		{
+			OGRE_LOCK_MUTEX(msPassGraveyardMutex)
+			// Delete items in the graveyard
+			PassSet::iterator i, iend;
+			iend = msPassGraveyard.end();
+			for (i = msPassGraveyard.begin(); i != iend; ++i)
+			{
+				delete *i;
+			}
+			msPassGraveyard.clear();
+		}
 
-        // The dirty ones will have been removed from the groups above using the old hash now
-        iend = msDirtyHashList.end();
-        for (i = msDirtyHashList.begin(); i != iend; ++i)
-        {
-            Pass* p = *i;
-            p->_recalculateHash();
-        }
-        // Clear the dirty list
-        msDirtyHashList.clear();
+		{
+			OGRE_LOCK_MUTEX(msDirtyHashListMutex)
+			PassSet::iterator i, iend;
+			// The dirty ones will have been removed from the groups above using the old hash now
+			iend = msDirtyHashList.end();
+			for (i = msDirtyHashList.begin(); i != iend; ++i)
+			{
+				Pass* p = *i;
+				p->_recalculateHash();
+			}
+			// Clear the dirty list
+			msDirtyHashList.clear();
+		}
     }
     //-----------------------------------------------------------------------
     void Pass::queueForDeletion(void)
@@ -1262,9 +1279,14 @@ namespace Ogre {
 			mShadowReceiverFragmentProgramUsage = 0;
 		}
         // remove from dirty list, if there
-        msDirtyHashList.erase(this);
-
-        msPassGraveyard.insert(this);
+		{
+			OGRE_LOCK_MUTEX(msDirtyHashListMutex)
+			msDirtyHashList.erase(this);
+		}
+		{
+			OGRE_LOCK_MUTEX(msPassGraveyardMutex)
+			msPassGraveyard.insert(this);
+		}
     }
     //-----------------------------------------------------------------------
     bool Pass::isAmbientOnly(void) const

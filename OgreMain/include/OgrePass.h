@@ -189,6 +189,8 @@ namespace Ogre {
 		/// The Pass hash functor
 		static HashFunc* msHashFunc;
     public:
+		OGRE_STATIC_MUTEX(msDirtyHashListMutex);
+		OGRE_STATIC_MUTEX(msPassGraveyardMutex);
         /// Default constructor
 		Pass(Technique* parent, unsigned short index);
         /// Copy constructor
@@ -1191,7 +1193,7 @@ namespace Ogre {
 			the hashes are recalculated, instead we expect the processor of the
 			dirty hash list to clear the list when they are done.
 		*/
-		static void clearDirtyHashList(void) { msDirtyHashList.clear(); }
+		static void clearDirtyHashList(void);
 
         /** Process all dirty and pending deletion passes. */
         static void processPendingPassUpdates(void);
