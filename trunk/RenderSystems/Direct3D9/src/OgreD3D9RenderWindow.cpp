@@ -747,7 +747,15 @@ namespace Ogre
 		else
 		{
 			RECT srcRect;
-			GetWindowRect(mHWnd, &srcRect);
+			GetClientRect(mHWnd, &srcRect);
+			POINT point;
+			point.x = srcRect.left;
+			point.y = srcRect.top;
+			ClientToScreen(mHWnd, &point);
+			srcRect.top = point.y;
+			srcRect.left = point.x;
+			srcRect.bottom += point.y;
+			srcRect.right += point.x;
 
 			desc.Width = srcRect.right - srcRect.left;
 			desc.Height = srcRect.bottom - srcRect.top;
