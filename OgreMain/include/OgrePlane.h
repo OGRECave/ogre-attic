@@ -144,7 +144,7 @@ namespace Ogre {
             return (rhs.d != d && rhs.normal != normal);
         }
 
-        _OgreExport friend std::ostream& operator<< (std::ostream& o, Plane& p);
+        _OgreExport friend std::ostream& operator<< (std::ostream& o, const Plane& p);
     };
 
     typedef std::vector<Plane> PlaneList;

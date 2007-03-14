@@ -399,7 +399,7 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    std::ostream& operator<<( std::ostream& o, Camera& c )
+    std::ostream& operator<<( std::ostream& o, const Camera& c )
     {
         o << "Camera(Name='" << c.mName << "', pos=" << c.mPosition;
         Vector3 dir(c.mOrientation*Vector3(0,0,-1));

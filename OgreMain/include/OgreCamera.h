@@ -339,7 +339,7 @@ namespace Ogre {
 
         /** Function for outputting to a stream.
         */
-        friend std::ostream& operator<<(std::ostream& o, Camera& c);
+        _OgreExport friend std::ostream& operator<<(std::ostream& o, const Camera& c);
 
         /** Internal method to notify camera of the visible faces in the last render.
         */

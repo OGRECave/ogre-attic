@@ -86,7 +86,7 @@ Torus Knot Software Ltd.
     Release builds always use the standard memory manager
 */
 #ifndef OGRE_DEBUG_MEMORY_MANAGER
-#define OGRE_DEBUG_MEMORY_MANAGER 1
+#define OGRE_DEBUG_MEMORY_MANAGER 0
 #endif
 /** Define max number of multiple render targets (MRTs) to render to at once.
 */
