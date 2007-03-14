@@ -310,8 +310,8 @@ void OgreCEGUIRenderer::doRender(void)
         }
         
         /// Render the buffer
-		initRenderStates();
         d_bufferPos = 0;
+		bool first = true;
 
         // Iterate over each quad in the list and render it
         QuadList::iterator i = d_quadlist.begin();
@@ -331,6 +331,11 @@ void OgreCEGUIRenderer::doRender(void)
             d_render_op.vertexData->vertexCount = d_bufferPos - d_render_op.vertexData->vertexStart;
             /// Set texture, and do the render
             d_render_sys->_setTexture(0, true, d_currTexture);
+			if (first)
+			{
+				initRenderStates();
+				first = false;
+			}
             d_render_sys->_render(d_render_op);
         }
 
@@ -590,8 +595,8 @@ void OgreCEGUIRenderer::renderQuadDirect(const Rect& dest_rect, float z, const T
         //
 		// perform rendering...
 		//
-        initRenderStates();
 		d_render_sys->_setTexture(0, true, ((OgreCEGUITexture*)tex)->getOgreTexture()->getName());
+		initRenderStates();
 		d_direct_render_op.vertexData->vertexCount = VERTEX_PER_QUAD;
 		d_render_sys->_render(d_direct_render_op);
 	}
