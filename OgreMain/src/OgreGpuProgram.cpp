@@ -657,6 +657,10 @@ namespace Ogre
 			if (requestedSize)
 			{
 				physicalIndex = mFloatConstants.size();
+
+                // Expand at buffer end
+                mFloatConstants.insert(mFloatConstants.end(), requestedSize, 0.0f);
+
 				// low-level programs will not know about mapping ahead of time, so 
 				// populate it. Other params objects will be able to just use this
 				// accepted mapping since the constant structure will be the same
@@ -708,14 +712,6 @@ namespace Ogre
 				}
 			}
 		}
-		// Expand at buffer end if required
-		size_t expandSize = physicalIndex + requestedSize - mFloatConstants.size();
-		if (expandSize > 0)
-		{
-			mFloatConstants.insert(mFloatConstants.end(), expandSize, 0.0f);
-		}
-
-
 
 		return physicalIndex;
 	}
@@ -737,6 +733,10 @@ namespace Ogre
 			if (requestedSize)
 			{
 				physicalIndex = mIntConstants.size();
+
+                // Expand at buffer end
+                mIntConstants.insert(mIntConstants.end(), requestedSize, 0);
+
 				// low-level programs will not know about mapping ahead of time, so 
 				// populate it. Other params objects will be able to just use this
 				// accepted mapping since the constant structure will be the same
@@ -772,7 +772,7 @@ namespace Ogre
 				size_t insertCount = requestedSize - logi->second.currentSize;
 				IntConstantList::iterator insertPos = mIntConstants.begin();
 				std::advance(insertPos, physicalIndex);
-				mIntConstants.insert(insertPos, insertCount, 0.0f);
+				mIntConstants.insert(insertPos, insertCount, 0);
 				// shift all physical positions after this one
 				for (GpuLogicalIndexUseMap::iterator i = mIntLogicalToPhysical->map.begin();
 					i != mIntLogicalToPhysical->map.end(); ++i)
@@ -787,13 +787,6 @@ namespace Ogre
 						i->physicalIndex += insertCount;
 				}
 			}
-		}
-
-		// Expand if required
-		size_t expandSize = physicalIndex + requestedSize - mIntConstants.size();
-		if (expandSize > 0)
-		{
-			mIntConstants.insert(mIntConstants.end(), expandSize, 0);
 		}
 
 		return physicalIndex;
