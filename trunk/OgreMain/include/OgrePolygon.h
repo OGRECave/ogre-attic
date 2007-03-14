@@ -121,7 +121,7 @@ namespace Ogre
 
 		/** Prints out the polygon data.
 		*/
-		friend std::ostream& operator<< ( std::ostream& strm, const Polygon& poly );
+		_OgreExport friend std::ostream& operator<< ( std::ostream& strm, const Polygon& poly );
 
 	};
 

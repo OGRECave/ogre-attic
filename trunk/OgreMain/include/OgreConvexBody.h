@@ -144,7 +144,7 @@ namespace Ogre
 
 		/** Prints out the body with all its polygons.
 		*/
-		friend std::ostream& operator<< ( std::ostream& strm, const ConvexBody& body );
+		_OgreExport friend std::ostream& operator<< ( std::ostream& strm, const ConvexBody& body );
 
 		/** Log details of this body */
 		void logInfo() const;
