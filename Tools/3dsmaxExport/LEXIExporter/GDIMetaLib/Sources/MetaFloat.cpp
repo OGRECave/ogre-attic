@@ -37,6 +37,19 @@ MetaFloat::~MetaFloat()
 
 }
 
+// Set defaults on a data object from a meta object
+void MetaFloat::SetDefaults(const CDDObject *pMetaKey, const char *pszMetaID, CDDObject *pData)
+{
+	if(pData->GetKeyType(pszMetaID)!=DD_FLOAT)
+	{			
+		// Get default value as either float or int
+		if(pMetaKey->GetKeyType("Default")==DD_INT)
+			pData->SetFloat(pszMetaID, (float)pMetaKey->GetInt("Default"));			
+		else
+			pData->SetFloat(pszMetaID, pMetaKey->GetFloat("Default"));
+	}			
+}
+
 void MetaFloat::OnCreated()
 {
 	m_pEditCtrl=new Edit();

@@ -132,6 +132,8 @@ void CExportObject::SaveConfig(CDDObject *pOutput) const
 {
 	pOutput->MergeWith(m_pDDConfig);
 
+	m_pDDConfig->SaveASCII("C:\\RootConfig.ddconf");
+
 	if(m_lChildren.size())
 	{
 		fastvector<const CDDObject*> lChildDD;
@@ -144,6 +146,11 @@ void CExportObject::SaveConfig(CDDObject *pOutput) const
 		}
 
 		pOutput->SetDDList("Children", lChildDD, false);
+	}
+	else
+	{
+		// object has no children, so lets make sure its 
+		pOutput->RemoveData("Children");
 	}
 }
 
@@ -281,7 +288,7 @@ unsigned int CExportObject::GetChildCount(bool bRecursive)
 }
 
 // Export object
-bool CExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll) const
+bool CExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 {
 	bool bOK=true;
 	pProgressDlg->GlobalStep();

@@ -96,14 +96,29 @@ bool CBoneAnimExportObject::OnCreate(CExporterPropertiesDlg *pPropDialog)
 // Check if ExportObject supports a given ExportObject instance as parent
 bool CBoneAnimExportObject::SupportsParentType(const CExportObject *pParent) const
 {	
-	// Bone animation requires a mesh parent
-	if(pParent==NULL || stricmp(pParent->GetType(), "skinnedmesh")!=0) return false;
+	const IExportObjectSkinSupport* pMeshSupport;
+	try {
+		pMeshSupport = dynamic_cast<const IExportObjectSkinSupport*>(pParent);
+		if(pMeshSupport == NULL)
+			return false;
+	} catch (...) 
+	{
+	  LOGERROR "Error while attempting to check compatible parent type.");
+	}
+
 	return true;
+
+	// Bone animation requires a mesh parent
+//	if(pParent==NULL || stricmp(pParent->GetType(), "skinnedmesh")!=0) return false;
+//	return true;
 }
 
 //
 CDDObject* CBoneAnimExportObject::BuildMetaDesc( void )
 {
+	int iStartFrame = GetAnimStart()/GetTicksPerFrame();
+	int iEndFrame = GetAnimEnd()/GetTicksPerFrame();
+
 	CDDObject* AnimContainer = new CDDObject();
 
 	fastvector< const CDDObject* > lAnimSettings;
@@ -155,7 +170,7 @@ CDDObject* CBoneAnimExportObject::BuildMetaDesc( void )
 	pDDAnimElement->SetString("Caption","Start Frame");
 	pDDAnimElement->SetString("Help","Frame which the animation begins");
 	pDDAnimElement->SetString("Condition", "$AnimationTypeID=0");
-	pDDAnimElement->SetInt("Default", 0);
+	pDDAnimElement->SetInt("Default", iStartFrame);
 	lAnimSettings.push_back(pDDAnimElement);
 
 	pDDAnimElement = new CDDObject();
@@ -166,7 +181,7 @@ CDDObject* CBoneAnimExportObject::BuildMetaDesc( void )
 	pDDAnimElement->SetString("Caption","End Frame");
 	pDDAnimElement->SetString("Help","Frame which the animation stops");
 	pDDAnimElement->SetString("Condition", "$AnimationTypeID=0");
-	pDDAnimElement->SetInt("Default", 100);
+	pDDAnimElement->SetInt("Default", iEndFrame);
 	lAnimSettings.push_back(pDDAnimElement);
 
 	pDDAnimElement = new CDDObject();
@@ -184,42 +199,13 @@ CDDObject* CBoneAnimExportObject::BuildMetaDesc( void )
 	return AnimContainer;
 }
 
-bool CBoneAnimExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll) const
+bool CBoneAnimExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 {	
 
 	if(m_bEnabled || bForceAll)
 	{
 		// Do bone export
-
-//		((CMeshExportObject*)m_pParent)->GetIntermediateMesh();
-		//unsigned int iNodeID = 1;
-		//INode* pRoot = GetNodeFromID(iNodeID);
-
-		//CIntermediateBuilderSkeleton* pIMBSkeleton = new CIntermediateBuilderSkeleton();
-		//pIMBSkeleton->BuildIntermediateSkeleton(pRoot);
-		
-
 		CIntermediateBuilder::Get()->GetSkeletonBuilder()->CreateAnimation( m_pDDConfig,pProgressDlg );
-
-		// Get the constructed skeleton builder
-		//CIntermediateBuilder::Get()->GetSkeletonBuilder()->SetConfig(m_pDDEditMeta);
-
-		//// Get the constructed OgreMesh
-
-		//// Get the intermediate mesh constructed by the parent
-		//CIntermediateMesh* pIntermediateMesh = m_pParentObject->GetIntermediateMesh();
-		//
-		//CIntermediateMesh* pIntermediateMesh = CIntermediateBuilder::Get()->GetSkeletonBuilder()->GetIntermediate
-		//
-		//// FOREACH skeleton to be exported do:
-
-		//LOGDEBUG "OgreMeshCompiler: Creating Skeleton Compiler.");
-		//pSkeletonCompiler = new COgreSkeletonCompiler( pIntermediateMesh->GetSkeleton(), /*OBSOLETE*/m_pDDEditMeta, m_sFilename, m_pOgreMesh );
-
-		//if( !pSkeletonCompiler->WriteOgreSkeleton( sFilename+".skeleton") )
-		//	return false;
-
-		//delete pSkeletonCompiler;
 
 	}
 	return CExportObject::Export(pProgressDlg, bForceAll);	

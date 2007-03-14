@@ -48,6 +48,7 @@ CSkinnedMeshExportObject::CSkinnedMeshExportObject(CDDObject *pConfig) : CExport
 	m_pSceneNode = NULL;
 	m_pDDMetaDesc = BuildMetaDesc();	*/	
 	//m_pDDMetaDesc = BuildMetaDesc();	
+	m_pIMesh = NULL;
 }
 
 CSkinnedMeshExportObject::~CSkinnedMeshExportObject()
@@ -68,10 +69,12 @@ bool CSkinnedMeshExportObject::SupportsParentType(const CExportObject *pParent) 
 //
 bool CSkinnedMeshExportObject::SupportsMAXNode(INode *pMAXNode) const
 {
-	if(pMAXNode==NULL) return false;
-	SClass_ID nClass = GetClassIDFromNode(pMAXNode);
-	if(nClass == GEOMOBJECT_CLASS_ID) return true;
-	return false;
+	return CIntermediateBuilderSkeleton::QuerySkinModifier(pMAXNode);
+
+	//if(pMAXNode==NULL) return false;
+	//SClass_ID nClass = GetClassIDFromNode(pMAXNode);
+	//if(nClass == GEOMOBJECT_CLASS_ID) return true;
+	//return false;
 }
 
 // Get window for editing ExportObject properties
@@ -114,6 +117,15 @@ bool CSkinnedMeshExportObject::OnCreate(CExporterPropertiesDlg *pPropDialog)
 	{
 		CSelectNodeDlg dlg((GDI::Window*)pPropDialog, this);
 		if(dlg.DoModal() != IDOK) return false;	// user must select a valid node
+	}
+	else
+	{
+		INode* pMaxNode = GetNodeFromID( GetMAXNodeID() );
+		if(!SupportsMAXNode( pMaxNode ))
+		{
+			MessageBox(NULL,"Selected object not of compatible type. Skinned meshes requires a skin modifier.", NDS_EXPORTER_TITLE, MB_ICONERROR);
+			return false;
+		}
 	}
 	
 	// Initialize mesh name
@@ -198,7 +210,7 @@ CDDObject* CSkinnedMeshExportObject::BuildMetaDesc( void )
 	pDDMetaElement->SetString("Caption","Reindex Vertices");
 	pDDMetaElement->SetString("Help","Optimize Index and Vertex buffer");
 	// Disable for now since reindexing bone weights are broken!
-	pDDMetaElement->SetString("Condition","$reindexID=true");	
+	//pDDMetaElement->SetString("Condition","$reindexID=true");	
 	pDDMetaElement->SetBool("Default", false);
 	lSettings.push_back(pDDMetaElement);
 
@@ -228,11 +240,11 @@ CDDObject* CSkinnedMeshExportObject::BuildMetaDesc( void )
 //
 typedef std::map< Ogre::String, CIntermediateMaterial*> MAT_LIST;
 
-bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll) const
+bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll) 
 {
 	bool returnVal = false;
 	Ogre::String sFilename;
-	CIntermediateMesh* pIMesh = NULL;
+	//CIntermediateMesh* pIMesh = NULL;
 	COgreMeshCompiler* pOgreMeshCompiler = NULL;
 	COgreSkeletonCompiler* pSkeletonCompiler = NULL;
 
@@ -244,14 +256,11 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 		pProgressDlg->InitLocal(2);
 
 		LOGDEBUG "Starting...");
-	//	Ogre::LogManager::getSingleton().logMessage("Export: Starting..");
 
 		CIntermediateBuilder::Get()->Clear();
 		CIntermediateBuilder::Get()->SetConfig(m_pDDConfig);
 
-		// BREAK UP THIS METHOD INTO SMALLER FUNCTION CALLS
-
-		// SPLIT THIS CLASS INTO A MESH AND SKINNED MESH.
+		// BREAK THIS METHOD UP INTO SMALLER FUNCTION CALLS
 
 		pProgressDlg->LocalStep("SkinnedMesh: Reading max data");
 
@@ -271,27 +280,27 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 		sFilename = m_pDDConfig->GetString("FileName");
 
 
-		pIMesh = (CIntermediateMesh*)pNode->getAttachedObject(0);
+		m_pIMesh = (CIntermediateMesh*)pNode->getAttachedObject(0);
 
 		pProgressDlg->LocalStep("SkinnedMesh: Exporting Mesh");
-		LOGINFO "Exporting mesh: %s", pIMesh->getName().c_str());
+		LOGINFO "Exporting mesh: %s", m_pIMesh->getName().c_str());
 
 		returnVal = CExportObject::Export(pProgressDlg, bForceAll);	
 
 		// Calculate remaining steps:
 		// Materials
-		bool bInOneFile = true;
+		bool bInOneFile = false;//true;
 		MAT_LIST lMaterials;
 		bool bMatRetrieved = CIntermediateBuilder::Get()->GetMaterials(lMaterials);
 		pProgressDlg->InitLocal(5+(lMaterials.size()));
 		pProgressDlg->LocalStep("SkinnedMesh: Creating Ogre Mesh..");
-		pOgreMeshCompiler = new COgreMeshCompiler(pIMesh, m_pDDConfig, sFilename);
+		pOgreMeshCompiler = new COgreMeshCompiler(m_pIMesh, m_pDDConfig, sFilename);
 
-		pProgressDlg->LocalStep("SkinnedMesh: Creating Ogre Skeletin..");
+		pProgressDlg->LocalStep("SkinnedMesh: Creating Ogre Skeleton..");
 		LOGINFO "Writing Skeleton.");	
-		pSkeletonCompiler = new COgreSkeletonCompiler( m_pDDConfig, sFilename, pOgreMeshCompiler->GetOgreMesh() );
+		pSkeletonCompiler = new COgreSkeletonCompiler( sFilename, pOgreMeshCompiler->GetOgreMesh() );
 
-		pProgressDlg->LocalStep("SkinnedMesh: Writing Ogre Skeletin..");
+		pProgressDlg->LocalStep("SkinnedMesh: Writing Ogre Skeleton..");
 		if( !pSkeletonCompiler->WriteOgreSkeleton( sFilename+".skeleton") )
 			LOGERROR "Could not write skeleton.");
 
@@ -312,7 +321,8 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 		{
 			LOGERROR "Error while attempting to create path: %s", sPath.c_str());
 			delete pOgreMeshCompiler;
-			delete pIMesh;
+			delete m_pIMesh;
+			m_pIMesh = NULL;
 			return false;
 		}
 
@@ -344,7 +354,8 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 					LOGDEBUG "Exporting individual material ...");
 					try
 					{
-						matWriter.exportMaterial( matComp.GetOgreMaterial(), Ogre::String(sFilename+".material"));
+						Ogre::MaterialPtr oMatPtr = matComp.GetOgreMaterial();
+						matWriter.exportMaterial( oMatPtr, Ogre::String(sPath+"\\"+oMatPtr->getName()+".material"));
 					} catch (Ogre::Exception e) 
 					{
 						LOGERROR "OgreExeception caught: %s", e.getDescription().c_str()); 
@@ -379,7 +390,8 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 
 	LOGDEBUG "Cleaning up...");
 	delete pOgreMeshCompiler;
-	delete pIMesh;
+	delete m_pIMesh;
+	m_pIMesh = NULL;
 	delete pSkeletonCompiler;
 
 	LOGINFO "..Done!");
@@ -388,3 +400,8 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 
 }
 
+
+CIntermediateMesh* CSkinnedMeshExportObject::GetIntermediateMesh(void)
+{
+	return m_pIMesh;
+}

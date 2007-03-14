@@ -36,6 +36,9 @@ public:
 	CDataStream(void *pData, unsigned iSize);	// NOTE! This takes ownership of data
 	~CDataStream(void);
 
+	//
+	void	Reserve(unsigned int iNewAlloc);
+
 	// Insertion
 	void	InsertInt(int iData, int iPosition=0);
 	void	InsertString(const char *pszData, int iPosition=0);

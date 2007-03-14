@@ -27,29 +27,21 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "LexiStdAfx.h"
 #include "LexiOgreSkeletonCompiler.h"
 
-COgreSkeletonCompiler::COgreSkeletonCompiler( const CDDObject* pConfig, Ogre::String name, Ogre::MeshPtr ogreMesh )
+COgreSkeletonCompiler::COgreSkeletonCompiler( Ogre::String name, Ogre::MeshPtr ogreMesh )
 {
 	m_pOgreMesh = ogreMesh;
 	m_pISkel = CIntermediateBuilder::Get()->GetSkeletonBuilder()->GetSkeleton();
-	m_pSkel = Ogre::SkeletonManager::getSingletonPtr()->create(name + ".skeleton", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME /*"exporterSkelGroup"*/, true);
-	m_pOgreMesh->setSkeletonName(name+".skeleton");
-
-//	Ogre::LogManager::getSingletonPtr()->logMessage("COgreSkeletonCompiler: Reading Config.");
-	ReadConfig(pConfig);
-//	Ogre::LogManager::getSingletonPtr()->logMessage("COgreSkeletonCompiler: Config Read.");
 
 	if( m_pISkel != NULL)
 	{
-		/*std::vector<CIntermediateBone*>::const_iterator it = m_pISkel->GetRootBones().begin();
+		// extract filename(no path)
+		Ogre::String baseName;
+		Ogre::String tmpPath;
+		Ogre::StringUtil::splitFilename(name, baseName, tmpPath);
+		m_pSkel = Ogre::SkeletonManager::getSingletonPtr()->create(baseName + ".skeleton", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME /*"exporterSkelGroup"*/, true);
+		m_pOgreMesh->setSkeletonName(baseName+".skeleton");
 
-		while ( it != m_pISkel->GetRootBones().end())
-		{
-			CreateSkeleton( *it );
-			it++;
-		}*/
-		
 		CreateSkeleton( NULL );
-
 		m_pSkel->setBindingPose();
 		LOGDEBUG "COgreSkeletonCompiler: Creating Ogre Skeleton Animations");
 		CreateAnimations();
@@ -64,36 +56,6 @@ COgreSkeletonCompiler::~COgreSkeletonCompiler()
 {
 	Ogre::SkeletonManager::getSingletonPtr()->unload(m_pSkel->getHandle());
 	Ogre::SkeletonManager::getSingletonPtr()->remove(m_pSkel->getHandle());
-}
-
-
-void COgreSkeletonCompiler::ReadConfig( const CDDObject* pConfig )
-{
-	assert(pConfig);
-	//CDDObject* pAnimContainer = pConfig->GetDDObject("AnimationDataContainer");
-	//assert(pAnimContainer);
-
-	//m_lAnimSpecs.clear();
-
-	//fastvector<const CDDObject*> lAnimList = pAnimContainer->GetDDList("Animations");
-	//while(!lAnimList.empty())
-	//{
-	//	const CDDObject* pCurAnim = lAnimList.pop_back();
-	//	SAnimSpec curAnimSpec;
-	//	curAnimSpec.sAnimName = pCurAnim->GetString("AnimationNameID");
-	//	curAnimSpec.iStartFrame = pCurAnim->GetInt("AnimationStartID");
-	//	curAnimSpec.iEndFrame = pCurAnim->GetInt("AnimationEndID");
-	//	curAnimSpec.fSampleRate = pCurAnim->GetFloat("AnimationSampleRateID");
-	//	curAnimSpec.bOptimize = pCurAnim->GetBool("AnimationOptimizeID");
-
-	//	m_lAnimSpecs.push_back(curAnimSpec);
-	//}
-
-	//m_sAnimName = pConfig->GetString("AnimationNameID");
-	//m_iStartFrame = pConfig->GetInt("AnimationStartID");
-	//m_iEndFrame = pConfig->GetInt("AnimationEndID");
-	//m_fSampleRate = pConfig->GetFloat("AnimationSampleRateID");
-	//m_bOptimize = pConfig->GetBool("AnimationOptimizeID");
 }
 
 void COgreSkeletonCompiler::CreateSkeleton( CIntermediateBone* pIBone )
@@ -150,69 +112,6 @@ void COgreSkeletonCompiler::CreateSkeleton( CIntermediateBone* pIBone )
 
 
 	}
-
-
-
-
-	/*
-	Ogre::Bone* oBone = NULL;
-
-	//for ( int i=0; i < m_pISkel->GetBoneCount(); i++)
-	//{
-	//	CIntermediateBone* pIBone = m_pISkel->GetBoneByIndex(i);
-
-		// Init point
-		if(pIBone == NULL)
-		{
-			pIBone = m_pISkel->GetBone(0);
-		}
-
-		CIntermediateBone* pParent = pIBone->GetParent();
-		if(pParent != NULL)
-		{
-			Ogre::Bone* oParent = NULL;
-			try
-			{
-				oParent = m_pSkel->getBone(pParent->GetName());
-			}
-			catch (...)
-			{
-				// new bone detected.. 
-				oParent = m_pSkel->createBone(pParent->GetName());
-			}
-			oBone = m_pSkel->createBone(pIBone->GetName());
-
-			Ogre::Vector3 pos;
-			Ogre::Vector3 scale;
-			Ogre::Quaternion orient;
-			pIBone->GetBindingPose(pos, orient, scale);
-
-			oBone->setPosition( pos );
-			oBone->setOrientation( orient );
-			oBone->setScale( scale );
-
-			oParent->addChild(oBone);
-		}
-		else
-		{
-			oBone = m_pSkel->createBone(pIBone->GetName());
-			Ogre::Vector3 pos;
-			Ogre::Vector3 scale;
-			Ogre::Quaternion orient;
-			pIBone->GetBindingPose(pos, orient, scale);
-
-			oBone->setPosition( pos );
-			oBone->setOrientation( orient );
-			oBone->setScale( scale );
-		}
-
-		for (int i=0; i<pIBone->GetBoneCount(); i++)
-		{
-			CreateSkeleton(pIBone->GetBone(i));
-		}
-	//}
-
-	*/
 }
 
 void COgreSkeletonCompiler::CreateAnimations( void )
@@ -240,7 +139,6 @@ void COgreSkeletonCompiler::CreateAnimations( void )
 			Ogre::Vector3 endScale;
 			Ogre::Quaternion endOrient;
 			m_pISkel->GetBoneByIndex(0)->GetFrame( curAnimName, iLastFrame-1, animLength, endPos, endOrient, endScale);
-			//float animLength = ( 1 /float(m_pISkel->GetFPS()) )*;
 			Ogre::Animation* anim = m_pSkel->createAnimation(curAnimName, animLength);
 			if(anim) {
 				Ogre::AnimationStateSet* animSet = new Ogre::AnimationStateSet(); 
@@ -285,8 +183,6 @@ void COgreSkeletonCompiler::CreateAnimations( void )
 				m_pSkel->setAnimationState(*animSet);
 			}
 		}
-
-		
 	}
 }
 

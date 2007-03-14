@@ -34,9 +34,9 @@ public:
 	faststring(void) { m_iAllocSpace=32; m_pszString=new char[m_iAllocSpace]; m_pszString[0] = 0; }
 	faststring(const faststring &other) { m_iAllocSpace=other.m_iAllocSpace;
 											m_pszString=new char[m_iAllocSpace];
-											strcpy(m_pszString, other.m_pszString); }
+											strcpy_s(m_pszString, m_iAllocSpace, other.m_pszString); }
 	faststring(const char *pszOther) {	m_iAllocSpace=((int)strlen(pszOther)+32)&0xFFE0;m_pszString=new char[m_iAllocSpace];
-										strcpy(m_pszString, pszOther); }
+										strcpy_s(m_pszString, m_iAllocSpace, pszOther); }
 	faststring(const char cInit) {	m_iAllocSpace=32; m_pszString=new char[m_iAllocSpace]; m_pszString[0]=cInit; m_pszString[1]=0; }
 	faststring(const char* pBuffer, unsigned int iLen) {	m_iAllocSpace=(iLen+32)&0xFFE0;m_pszString=new char[m_iAllocSpace];
 															memcpy(m_pszString, pBuffer, iLen); m_pszString[iLen] = 0; }
@@ -48,7 +48,7 @@ public:
 	// Reserve space for n chars
 	void	reserve(int iNewCharCount) { if(iNewCharCount>m_iAllocSpace) {
 											char *pNew=new char[iNewCharCount]; m_iAllocSpace=iNewCharCount;
-											strcpy(pNew, m_pszString); delete[] m_pszString; m_pszString=pNew; } }
+											strcpy_s(pNew, iNewCharCount, m_pszString); delete[] m_pszString; m_pszString=pNew; } }
 
 	// Retrieve length of string
 	unsigned size(void) const { return (unsigned)strlen(m_pszString); }
@@ -66,8 +66,8 @@ public:
 	int		comparei(const faststring &other) const { return _stricmp(m_pszString, other.m_pszString); }
 
 	// Add string
-	void	add(const char *pszOther) { reserve((int)strlen(pszOther)+size()+32); strcat(m_pszString, pszOther); }
-	void	add(const faststring &other) { reserve(other.size()+size()+32); strcat(m_pszString, other.m_pszString); }
+	void	add(const char *pszOther) { reserve((int)strlen(pszOther)+size()+32); strcat_s(m_pszString, m_iAllocSpace, pszOther); }
+	void	add(const faststring &other) { reserve(other.size()+size()+32); strcat_s(m_pszString, m_iAllocSpace, other.m_pszString); }
 
 	// Add character
 	void	add(const char ch) 
@@ -80,11 +80,11 @@ public:
 
 	// Assign new string contents
 	void	assign(const char *pszStr) {	reserve(((int)strlen(pszStr)+32)&0xFFE0);
-											strcpy(m_pszString, pszStr); }	
+											strcpy_s(m_pszString, m_iAllocSpace, pszStr); }	
 
 	// Assign new string contents
 	void	assign(const char *pszStr, int iLen) {	reserve((iLen+32)&0xFFE0);
-													strncpy(m_pszString, pszStr, iLen);
+													strncpy_s(m_pszString, m_iAllocSpace, pszStr, iLen);
 													m_pszString[iLen]=0; }	
 
 	// Index operator
@@ -92,11 +92,11 @@ public:
 
 	// Assignment operator
 	const faststring& operator =(const char *pszOther) {	reserve(((int)strlen(pszOther)+32)&0xFFE0);
-															strcpy(m_pszString, pszOther);
+															strcpy_s(m_pszString, m_iAllocSpace, pszOther);
 															return *(this);		}
 	// Assignment operator
 	const faststring& operator =(const faststring &other) {	reserve(other.m_iAllocSpace);															
-															strcpy(m_pszString, other.m_pszString);
+															strcpy_s(m_pszString, m_iAllocSpace, other.m_pszString);
 															return *(this);		}
 
 	int find(char byt) const { int len = (int)strlen(m_pszString); for(int x = 0; x < len; x++) { if(m_pszString[x] == byt) return x; } return -1; }

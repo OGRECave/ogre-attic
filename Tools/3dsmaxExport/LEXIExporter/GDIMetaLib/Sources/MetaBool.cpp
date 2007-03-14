@@ -44,10 +44,23 @@ void MetaBool::OnCreated()
 	m_pCheckCtrl->Attach(hWnd);			
 }
 
+// Set defaults on a data object from a meta object
+void MetaBool::SetDefaults(const CDDObject *pMetaKey, const char *pszMetaID, CDDObject *pData)
+{
+	if(pData->GetKeyType(pszMetaID)!=DD_BOOL)
+	{	
+		if(pMetaKey->GetKeyType("Default")==DD_INT)
+			pData->SetBool(pszMetaID, pMetaKey->GetInt("Default",0)&1);			
+		else
+			pData->SetBool(pszMetaID, pMetaKey->GetBool("Default", false));
+	}
+}
+
 // Data object changed - update as needed
 void MetaBool::UpdateData(CDDObject *pNewData)
 {
-	bool bData;
+	SetDefaults(m_pMetaKey, m_sMetaID.c_str(), pNewData);
+/*	bool bData;
 	if(pNewData->GetKeyType(m_sMetaID.c_str())==DD_BOOL)
 	{
 		bData=pNewData->GetBool(m_sMetaID.c_str());
@@ -58,8 +71,8 @@ void MetaBool::UpdateData(CDDObject *pNewData)
 		else
 			bData=m_pMetaKey->GetBool("Default", false);
 		pNewData->SetBool(m_sMetaID.c_str(), bData);
-	}
-	m_pCheckCtrl->SetCheck(bData);
+	}*/
+	m_pCheckCtrl->SetCheck(pNewData->GetBool(m_sMetaID.c_str()));
 }
 
 void MetaBool::OnPaint()

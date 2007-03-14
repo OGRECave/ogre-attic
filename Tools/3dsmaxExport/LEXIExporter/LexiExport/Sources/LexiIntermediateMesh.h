@@ -42,6 +42,24 @@ class CIntermediateMesh : public Ogre::MovableObject {
 
 		} MeshArray;
 
+		typedef struct {
+
+			Ogre::String	m_sPoseName;
+			unsigned int	m_iTime;
+			bool			m_bOptimize;
+
+		} PoseData;
+
+		typedef struct {
+
+			PoseData		m_poseData;
+			Ogre::String	m_sAnimName;
+			unsigned int	m_iStartFrame;
+			unsigned int	m_iEndFrame;
+			float			m_fSampleRate;
+
+		} PoseAnimData;
+
 	private:
 
 		void BuildMaterialList();
@@ -56,9 +74,17 @@ class CIntermediateMesh : public Ogre::MovableObject {
 
 		CIntermediateSkeleton* m_pISkeleton;
 
+		std::map< Ogre::String ,PoseData > m_lPoseList;
+		std::map< Ogre::String, PoseAnimData > m_lPoseAnims;
+
+		unsigned int* m_pIndexTable;
+		unsigned int* m_pPickIndexTable;
+		unsigned int m_iIndexCount;
+
 	protected:
 
 		unsigned int m_iNodeID;
+		bool	m_bIsCollapsed;
 
 		//
 
@@ -101,6 +127,8 @@ class CIntermediateMesh : public Ogre::MovableObject {
 		// Get array
 		CMeshArray* GetArray(const char* pszName, TimeValue iTime);
 
+		bool IsCollapsed( void );
+
 		//
 		//  Material
 
@@ -116,10 +144,24 @@ class CIntermediateMesh : public Ogre::MovableObject {
 		CIntermediateSkeleton* GetSkeleton( void );
 
 		//
+		// Pose
+		bool AddPose(Ogre::String name, unsigned int frame, bool bOptimize);
+		bool HasPoseData( void );
+		unsigned int GetPoseCount( void );
+		bool GetPose(unsigned int index, Ogre::String& poseName, unsigned int& frameRef, bool& optimize);
+
+		bool AddPoseAnimation(const char* pszAnimName, unsigned int iStartFrame, unsigned int iEndFrame, float fRate, bool bOptimize);
+		unsigned int GetPoseAnimCount( void );
+		bool GetPoseAnimation(unsigned int index, Ogre::String& poseName, unsigned int& iStartFrame, unsigned int& iEndFrame, float& fRate, bool& bOptimize);
+
+		
+		//
 		//  Utilities
 
 		// Reindex vertices
+
 		void Reindex(const fastvector<CMeshArray*>& ArrayList);
+		void PostReindex(const fastvector<CMeshArray*>& ArrayList);
 
 };
 

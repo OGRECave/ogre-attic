@@ -37,6 +37,15 @@ MetaString::~MetaString()
 
 }
 
+// Set defaults on a data object from a meta object
+void MetaString::SetDefaults(const CDDObject *pMetaKey, const char *pszMetaID, CDDObject *pData)
+{
+	if(pData->GetKeyType(pszMetaID)!=DD_STRING)
+	{			
+		pData->SetString(pszMetaID, pMetaKey->GetString("Default"));					
+	}			
+}
+
 void MetaString::OnCreated()
 {
 	m_pEditCtrl=new Edit();

@@ -79,6 +79,16 @@ int ListCtrl::InsertItem(int iIndex, const char* pszText)
 	return SendMessage(LVM_INSERTITEM, 0, (LPARAM)&item);
 }
 
+// Hit Test
+int	ListCtrl::HitTest(LVHITTESTINFO* pHitTestInfo) const
+{
+	return (int)SendMessage(LVM_HITTEST, 0, (LPARAM)pHitTestInfo);
+}
+int	ListCtrl::SubItemHitTest(LVHITTESTINFO* pHitTestInfo) const
+{
+	return (int)SendMessage(LVM_SUBITEMHITTEST , 0, (LPARAM)pHitTestInfo);
+}
+
 void ListCtrl::DeleteItem(int iIndex)
 {
 	SendMessage(LVM_DELETEITEM, iIndex, 0);
@@ -174,6 +184,19 @@ bool ListCtrl::SetItemState(int iIndex, unsigned int nState, unsigned int nMask)
 }
 
 //
+// Get item rect
+int ListCtrl::GetSubItemRect(int iIndex, int iSubItem, int iFlags, RECT *pRect)
+{
+	pRect->top=iSubItem;
+	pRect->left=iFlags;
+	return SendMessage(LVM_GETSUBITEMRECT, iIndex, (LPARAM)pRect);
+}
+
+// Get selection mark
+int ListCtrl::GetSelectionMark()
+{
+	return SendMessage(LVM_GETSELECTIONMARK, 0, 0);
+}
 
 } // namespace GDI
 

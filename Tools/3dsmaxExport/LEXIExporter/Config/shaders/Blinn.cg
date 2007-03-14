@@ -8,6 +8,7 @@ void Blinn_vp (
 			float2 uv 		: TEXCOORD0,
 			float4 position : POSITION, 
 			float3 normal   : NORMAL,
+			float4 vertCol	: COLOR,
 			
 			//vert shader input
 			uniform float4 lightPosition,
@@ -24,7 +25,10 @@ void Blinn_vp (
 			out float3 oEyePos	: TEXCOORD3,
                     
 			//support for texture with the per pixel lighting
-			out float2 oUv	   : TEXCOORD4
+			out float2 oUv	   : TEXCOORD4,
+			
+			// Vertex coloring
+			out float4 oVertCol	: COLOR
 			)
 { 
 	oClipPos = mul(worldviewproj, position); 
@@ -36,6 +40,7 @@ void Blinn_vp (
 	
 	//support for texture with the per pixel lighting
      oUv = uv;
+	 oVertCol = vertCol;
 	 
 	//Remarks:
 	//since we want exact calculations in every case,
@@ -55,6 +60,7 @@ void Blinn_4UV_vp (
 			float2 uv3 		: TEXCOORD3,
 			float4 position : POSITION, 
 			float3 normal   : NORMAL,
+			float4 vertCol	: COLOR,
 			
 			//vert shader input
 			uniform float4 lightPosition,
@@ -74,7 +80,8 @@ void Blinn_4UV_vp (
 			out float2 oUv	   : TEXCOORD4,
 			out float2 oUv1	   : TEXCOORD5,
 			out float2 oUv2	   : TEXCOORD6,
-			out float2 oUv3	   : TEXCOORD7
+			out float2 oUv3	   : TEXCOORD7,
+			out float4 oVertCol	: COLOR
 			)
 { 
 	oClipPos = mul(worldviewproj, position); 
@@ -89,6 +96,8 @@ void Blinn_4UV_vp (
      oUv1 = uv1;
      oUv2 = uv2;
      oUv3 = uv3;
+	 
+	 oVertCol = vertCol;
 	 
 	//Remarks:
 	//since we want exact calculations in every case,
@@ -105,6 +114,8 @@ void Blinn_pure_fp (
 			float3 normal	: TEXCOORD1, 
 	 		float4 lightpos	: TEXCOORD2,
 			float3 eyepos	: TEXCOORD3,
+			float4 vertCol	: COLOR,
+			
 			
 			uniform float4 lightDiffuse,
 			uniform float4 lightSpecular,
@@ -148,7 +159,29 @@ void Blinn_pure_fp (
 	shadeColor += specular;
 	shadeColor.a = opacity;
 	
-	oColor = shadeColor;
+	oColor = vertCol * shadeColor;
+}
+
+/////////////////////////////////////////////
+void Vertex_Color_vp (
+			float4 position: POSITION,
+			float4 vertCol : COLOR,
+			//both in object space
+			uniform float4x4 worldviewproj, 
+			out float4 oClipPos	: POSITION,
+			out float4 oVertCol: COLOR
+			)
+{ 
+oClipPos = mul(worldviewproj, position);
+oVertCol = vertCol;
+} 
+
+void Vertex_Color_fp (
+			float4 vertCol	: COLOR,
+			out float4 oColor : COLOR 
+) 
+{
+	oColor = vertCol;
 }
 
 
@@ -157,6 +190,7 @@ void Blinn_DiffuseMap_fp (
 			float3 normal	: TEXCOORD1, 
 	 		float4 lightpos	: TEXCOORD2,
 			float3 eyepos	: TEXCOORD3,
+			float4 vertCol	: COLOR,
                        
 			//Support for texture with the per pixel lighting
             float2 uv		: TEXCOORD4,
@@ -213,7 +247,7 @@ void Blinn_DiffuseMap_fp (
 	
 	shadeColor.a = opacity;
 	
-	oColor = shadeColor;
+	oColor = vertCol * shadeColor;
 }
 
 void Blinn_SpecularColor_fp (
@@ -221,6 +255,7 @@ void Blinn_SpecularColor_fp (
 			float3 normal	: TEXCOORD1, 
 	 		float4 lightpos	: TEXCOORD2,
 			float3 eyepos	: TEXCOORD3,
+			float4 vertCol	: COLOR,
                        
 			//Support for texture with the per pixel lighting
             float2 uv		: TEXCOORD4,
@@ -275,7 +310,7 @@ void Blinn_SpecularColor_fp (
 	shadeColor += specular * (1-amount) + amount * clamp( float4(specColour.xyz,1)* exponent, 0.0, 1.0);
 	shadeColor.a = opacity;
 	
-	oColor = shadeColor;
+	oColor = vertCol * shadeColor;
 }
 
 
@@ -284,6 +319,7 @@ void Blinn_SpecularLevel_fp (
 			float3 normal	: TEXCOORD1, 
 	 		float4 lightpos	: TEXCOORD2,
 			float3 eyepos	: TEXCOORD3,
+			float4 vertCol	: COLOR,
                        
 			//Support for texture with the per pixel lighting
             float2 uv		: TEXCOORD4,
@@ -342,7 +378,7 @@ void Blinn_SpecularLevel_fp (
 	shadeColor += specular * (1-amount) + amount * clamp( float4(specIntensity.xyz,1)* exponent, 0.0, 1.0);
 	shadeColor.a = opacity;
 	
-	oColor = shadeColor;
+	oColor = vertCol * shadeColor;
 }
 
 
@@ -351,6 +387,7 @@ void Blinn_SelfIllumination_fp (
 			float3 normal	: TEXCOORD1, 
 	 		float4 lightpos	: TEXCOORD2,
 			float3 eyepos	: TEXCOORD3,
+			float4 vertCol	: COLOR,
                        
 			//Support for texture with the per pixel lighting
             float2 uv		: TEXCOORD4,
@@ -417,6 +454,73 @@ void Blinn_SelfIllumination_fp (
 	shadeColor += specular;
 	shadeColor.a = opacity;
 	
-	oColor = shadeColor;
+	oColor = vertCol * shadeColor;
+}
+
+void Blinn_DiffuseAndOpacityMap_fp (
+			float4 pos	 	: TEXCOORD0,
+			float3 normal	: TEXCOORD1, 
+	 		float4 lightpos	: TEXCOORD2,
+			float3 eyepos	: TEXCOORD3,
+			float4 vertCol	: COLOR,
+                       
+			//Support for texture with the per pixel lighting
+            float2 uv		: TEXCOORD4,
+			
+			uniform float4 lightDiffuse,
+			uniform float4 lightSpecular,
+			uniform float4 sceneAmbient, 
+			uniform float4 ambientColor,
+			uniform float4 diffuseColor,
+			uniform float4 specularColor,
+			uniform float specularLevel,
+			uniform float glossLevel,
+			uniform float opacity,
+			uniform float amount,
+			
+			uniform sampler2D diffuseMap,
+			uniform sampler2D opacityMap,
+
+			out float4 oColor : COLOR 
+) 
+{
+	float4 shadeColor = float4(0,0,0,1);
+	float3 N = normalize(normal);
+
+	//Remarks: 
+
+	//we could do this normalize() in vert shader, or skip it
+	float3 EyeDir = normalize(eyepos - pos.xyz);
+
+	// When doing Blinn-Phong shading we only use the half angle
+	float3 LightDir = normalize(lightpos.xyz -  (pos * lightpos.w).xyz);
+	float3 HalfAngle = normalize(LightDir + EyeDir);
+	float NdotL = dot(LightDir, N);
+	float NdotH = dot(HalfAngle, N);
+
+	// Max Style Specularity
+	float exponent = clamp(NdotH,0,1);
+	exponent = pow(exponent, glossLevel) * specularLevel *1.5;
+
+	//support for texture with the per pixel lighting
+	float3 textColour = expand(tex2D(diffuseMap, uv).xyz);
+	float4 opacityColour = tex2D(opacityMap, uv);
+	
+	// calculate lighting components
+	float4 ambient = sceneAmbient * ambientColor;
+	float4 diffuse = lightDiffuse * diffuseColor * clamp(dot(N,LightDir),0,1);
+	float4 specular= lightSpecular * specularColor * exponent;
+	float4 texture = float4(textColour.xyz, 1) * clamp(dot(N,LightDir),0,1);
+	
+	//Do the Blinn per pixel lighting
+	shadeColor = ambient;
+	shadeColor += diffuse;
+	// Blend texture onto surface
+	shadeColor = shadeColor *(1-amount) + (amount * texture);
+	shadeColor += specular;
+	
+	shadeColor.a = opacityColour.a * opacity;
+	
+	oColor = vertCol * shadeColor;
 }
 		

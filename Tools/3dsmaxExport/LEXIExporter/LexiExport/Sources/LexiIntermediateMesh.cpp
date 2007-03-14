@@ -55,10 +55,16 @@ void CIntermediateMesh::_updateRenderQueue(Ogre::RenderQueue* queue)
 CIntermediateMesh::CIntermediateMesh(unsigned int iNumTriangles, unsigned int iNodeID) : MovableObject(GetNodeFromID(iNodeID)->GetName())
 {
 	m_iNodeID = iNodeID;
+	m_bIsCollapsed = false;
 
 	m_Triangles.Create(iNumTriangles);
 	m_iNumTriangles = iNumTriangles;
 	m_pISkeleton = NULL;
+
+	m_pIndexTable = NULL;
+	m_pPickIndexTable = NULL;
+	m_iIndexCount = 0;
+
 }
 
 CIntermediateMesh::~CIntermediateMesh()
@@ -70,6 +76,9 @@ CIntermediateMesh::~CIntermediateMesh()
 		delete pArray;
 	}
 	m_Arrays.clear();
+
+	delete [] m_pIndexTable;
+	delete [] m_pPickIndexTable;
 }
 
 //
@@ -113,6 +122,107 @@ CIntermediateSkeleton* CIntermediateMesh::GetSkeleton( void )
 	return m_pISkeleton;
 }
 
+//
+bool CIntermediateMesh::AddPose(Ogre::String name, unsigned int frame, bool bOptimize)
+{
+	std::map<Ogre::String, PoseData>::const_iterator it = m_lPoseList.find(name);
+
+	if(it == m_lPoseList.end() )
+	{
+		PoseData newData;
+		newData.m_bOptimize = bOptimize;
+		newData.m_iTime = frame;
+		newData.m_sPoseName = name;
+		m_lPoseList.insert( std::pair<Ogre::String, PoseData>(name,newData) );
+		return true;
+	}
+
+	return false;
+}
+
+bool CIntermediateMesh::HasPoseData( void )
+{
+	if( (m_lPoseList.size() != 0) || (m_lPoseAnims.size() != 0))
+		return true;
+	return false;
+}
+
+unsigned int CIntermediateMesh::GetPoseCount( void )
+{
+	return m_lPoseList.size();
+}
+
+bool CIntermediateMesh::GetPose(unsigned int index, Ogre::String& poseName, unsigned int& frameRef, bool& optimize )
+{
+	if( index < m_lPoseList.size() )
+	{
+		std::map< Ogre::String, PoseData>::iterator it = m_lPoseList.begin();
+
+		while(index > 0)
+		{
+			index--;
+			it ++;
+		}
+		poseName = it->second.m_sPoseName;
+		frameRef = it->second.m_iTime;
+		optimize = it->second.m_bOptimize;
+		return true;
+	}
+
+	return false;
+}
+
+bool CIntermediateMesh::AddPoseAnimation(const char* pszAnimName, unsigned int iStartFrame, unsigned int iEndFrame, float fRate, bool bOptimize)
+{
+	std::map<Ogre::String, PoseAnimData>::const_iterator it = m_lPoseAnims.find(pszAnimName);
+
+	if(it == m_lPoseAnims.end() )
+	{
+		PoseData newData;
+		newData.m_bOptimize = bOptimize;
+		newData.m_iTime = 0;
+		newData.m_sPoseName = "";
+
+		PoseAnimData newAnimData;
+		newAnimData.m_poseData = newData;
+		newAnimData.m_sAnimName = pszAnimName;
+		newAnimData.m_iStartFrame = iStartFrame;
+		newAnimData.m_iEndFrame = iEndFrame;
+		newAnimData.m_fSampleRate = fRate;
+
+		m_lPoseAnims.insert( std::pair<Ogre::String, PoseAnimData>(pszAnimName,newAnimData) );
+		return true;
+	}
+
+	return false;
+}
+
+unsigned int CIntermediateMesh::GetPoseAnimCount( void )
+{
+	return m_lPoseAnims.size();
+}
+
+bool CIntermediateMesh::GetPoseAnimation(unsigned int index, Ogre::String& poseName, unsigned int& iStartFrame, unsigned int& iEndFrame, float& fRate, bool& bOptimize)
+{
+	if( index < m_lPoseAnims.size() )
+	{
+		std::map<Ogre::String, PoseAnimData>::const_iterator it = m_lPoseAnims.begin();
+
+		while(index > 0)
+		{
+			index--;
+			it ++;
+		}
+		poseName = it->second.m_sAnimName;
+		iStartFrame = it->second.m_iStartFrame;
+		iEndFrame = it->second.m_iEndFrame;
+		bOptimize = it->second.m_poseData.m_bOptimize;
+		fRate = it->second.m_fSampleRate;
+		return true;
+	}
+
+	return false;
+}
 //
 
 void CIntermediateMesh::ForceCreateArray(const char* pszName)
@@ -176,6 +286,11 @@ CMeshArray* CIntermediateMesh::GetArray(const char* pszName, TimeValue iTime)
 	return pArray;
 }
 
+bool CIntermediateMesh::IsCollapsed( void )
+{
+	return m_bIsCollapsed;
+}
+
 //
 
 unsigned int CIntermediateMesh::GetNumMaterials() const
@@ -221,53 +336,60 @@ void CIntermediateMesh::Reindex(const fastvector<CMeshArray*>& ArrayList)
 	_iCmpListSize = ArrayList.size();
 	if(!_iCmpListSize) return;
 
+	// We assume the first element contains exactly all verticies
 	unsigned int iNumVertices = ArrayList[0]->Size();
 	if(!iNumVertices) return;
 
 	_CmpList = ArrayList;
 
-	unsigned int* pIndexTable = new unsigned int[iNumVertices];
-	unsigned int* pPickIndexTable = new unsigned int[iNumVertices];
+	if(m_pIndexTable != NULL)
+		delete [] m_pIndexTable;
+	if(m_pPickIndexTable != NULL)
+		delete [] m_pPickIndexTable;
+
+
+	m_pIndexTable = new unsigned int[iNumVertices];
+	m_pPickIndexTable = new unsigned int[iNumVertices];
 
 	//
 
 	vertexmap crcmap;
-	unsigned int iIndexCount = 0;
+	m_iIndexCount = 0;
 
 	for(unsigned int x = 0; x < iNumVertices; x++)
 	{
 		vertexmap::iterator it = crcmap.find(x);
 		if(it != crcmap.end())
 		{
-			pIndexTable[x] = it->second;
+			m_pIndexTable[x] = it->second;
 		}
 		else
 		{
-			pIndexTable[x] = iIndexCount;
-			pPickIndexTable[iIndexCount++] = x;
+			m_pIndexTable[x] = m_iIndexCount;
+			m_pPickIndexTable[m_iIndexCount++] = x;
 			crcmap.insert(vertexmap::value_type(x, crcmap.size()));
 		}
 	}
 
-	//
+	// Keep only the buffer entries which are to be used together with the new indices.
 
 	for(unsigned int x = 0; x < _iCmpListSize; x++)
 	{
 		CMeshArray* pArray = _CmpList[x];
 
 		unsigned int iElemSize = pArray->ElementSize();
-		unsigned char* pTarget = new unsigned char[iIndexCount * iElemSize];
+		unsigned char* pTarget = new unsigned char[m_iIndexCount * iElemSize];
 
-		for(unsigned int y = 0; y < iIndexCount; y++)
+		for(unsigned int y = 0; y < m_iIndexCount; y++)
 		{
-			memcpy(pTarget + (y * iElemSize), pArray->Data(pPickIndexTable[y]), iElemSize);
+			memcpy(pTarget + (y * iElemSize), pArray->Data(m_pPickIndexTable[y]), iElemSize);
 		}
 
-		pArray->Create(iIndexCount, pTarget);
+		pArray->Create(m_iIndexCount, pTarget);
 		delete []pTarget;
 	}
 
-	//
+	// 
 
 	for(unsigned int x = 0; x < m_iNumTriangles; x++)
 	{
@@ -276,22 +398,42 @@ void CIntermediateMesh::Reindex(const fastvector<CMeshArray*>& ArrayList)
 		unsigned int& t2 = tri.m_Vertices[1];
 		unsigned int& t3 = tri.m_Vertices[2];
 
-		if(m_pISkeleton) m_pISkeleton->PrepareReindexChange(t1, pIndexTable[t1]);
-		t1 = pIndexTable[t1];
+//		if(m_pISkeleton) m_pISkeleton->PrepareReindexChange(t1, m_pIndexTable[t1]);
+		t1 = m_pIndexTable[t1];
 
-		if(m_pISkeleton) m_pISkeleton->PrepareReindexChange(t2, pIndexTable[t2]);
-		t2 = pIndexTable[t2];
+//		if(m_pISkeleton) m_pISkeleton->PrepareReindexChange(t2, m_pIndexTable[t2]);
+		t2 = m_pIndexTable[t2];
 
-		if(m_pISkeleton) m_pISkeleton->PrepareReindexChange(t3, pIndexTable[t3]);
-		t3 = pIndexTable[t3];
+//		if(m_pISkeleton) m_pISkeleton->PrepareReindexChange(t3, m_pIndexTable[t3]);
+		t3 = m_pIndexTable[t3];
 	}
 
 	//
 
-	delete []pIndexTable;
-	delete []pPickIndexTable;
+	//delete []pIndexTable;
+	//delete []pPickIndexTable;
 
-	if(m_pISkeleton) m_pISkeleton->ApplyReindexChanges();
+	//if(m_pISkeleton) m_pISkeleton->ApplyReindexChanges();
+	
+}
+
+void CIntermediateMesh::PostReindex(const fastvector<CMeshArray*>& ArrayList)
+{	
+	for(unsigned int x = 0; x < ArrayList.size(); x++)
+	{
+		CMeshArray* pArray = ArrayList[x];
+
+		unsigned int iElemSize = pArray->ElementSize();
+		unsigned char* pTarget = new unsigned char[m_iIndexCount * iElemSize];
+
+		for(unsigned int y = 0; y < m_iIndexCount; y++)
+		{
+			memcpy(pTarget + (y * iElemSize), pArray->Data(m_pPickIndexTable[y]), iElemSize);
+		}
+
+		pArray->Create(m_iIndexCount, pTarget);
+		delete []pTarget;
+	}
 }
 
 //

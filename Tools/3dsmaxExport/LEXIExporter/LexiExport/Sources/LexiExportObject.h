@@ -119,7 +119,7 @@ public:
 	// are exported even though they are not enabled.
 	// NOTE: Base implementation calls Export() on all children and increments GlobalStep on
 	// supplied Progress Dialog.
-	virtual bool Export(CExportProgressDlg *pProgressDlg, bool bForceAll) const;
+	virtual bool Export(CExportProgressDlg *pProgressDlg, bool bForceAll);
 
 public:
 	//

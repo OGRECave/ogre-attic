@@ -62,7 +62,7 @@ MetaControl::~MetaControl()
 	}
 	if(m_pEditData)
 	{
-		m_pEditData->SetNotifier(NULL);
+		m_pEditData->RemoveNotifier(this);
 		m_pEditData->Release();
 		m_pEditData=0;
 	}
@@ -123,14 +123,14 @@ void MetaControl::SetData(CDDObject *pData)
 	// We we had an existing object, we release it
 	if(m_pEditData) 
 	{
-		m_pEditData->SetNotifier(NULL);
+		m_pEditData->RemoveNotifier(this);
 		m_pEditData->Release();
 	}
 
 	// Setup reference to the new object
 	m_pEditData=pData;
 	m_pEditData->AddRef();
-	m_pEditData->SetNotifier(this);
+	m_pEditData->AddNotifier(this);
 
 	// Iterate all groups and notify about the new data object.
 	// This will also setup default values (if needed) on the object.
@@ -166,7 +166,7 @@ void MetaControl::CreateFromMeta(CDDObject *pMeta)
 	if(!m_pEditData) 
 	{
 		m_pEditData=new CDDObject;
-		m_pEditData->SetNotifier(this);
+		m_pEditData->AddNotifier(this);
 	}
 
 	// Create controls based on the new meta data
@@ -193,14 +193,14 @@ void MetaControl::CreateFromMetaData(CDDObject *pMeta, CDDObject *pData)
 	// We we had an existing object, we release it
 	if(m_pEditData) 
 	{
-		m_pEditData->SetNotifier(NULL);
+		m_pEditData->RemoveNotifier(this);
 		m_pEditData->Release();
 	}
 
 	// Setup reference to the new object
 	m_pEditData=pData;
 	m_pEditData->AddRef();
-	m_pEditData->SetNotifier(this);
+	m_pEditData->AddNotifier(this);
 
 	// Keep reference
 	m_pMetaData=pMeta;
@@ -214,6 +214,52 @@ void MetaControl::CreateFromMetaData(CDDObject *pMeta, CDDObject *pData)
 	for(unsigned i=0;i<lGroups.size();i++)
 	{
 		lGroups[i]->CheckConditions("$Global");
+	}
+}
+
+// Set defaults on a data object from a meta object
+void MetaControl::SetDefaultsFromMeta(const CDDObject *pMeta, CDDObject *pData)
+{
+	// Check if we have a list of meta controls
+	if (pMeta->GetKeyType("MetaList") == DD_OBJLIST)
+	{
+		fastvector<const CDDObject*> lMetaList=pMeta->GetDDList("MetaList");
+
+		// Iterate meta description list and create controls
+		for (unsigned i = 0; i < lMetaList.size(); i++)
+		{
+			const CDDObject *pMetaKey = lMetaList[i];
+			if (pMetaKey == NULL || pMetaKey->GetKeyType("ID") != DD_STRING) continue;
+			const char *pszID	= pMetaKey->GetString("ID");
+			const char *pszType = pMetaKey->GetString("Type");
+
+			// Create new instance based on type identifier
+			if(_stricmp(pszType, "int")==0 || _stricmp(pszType, "integer")==0)
+			{
+				MetaInt::SetDefaults(pMetaKey, pszID, pData);				
+			} else if(_stricmp(pszType, "stringsel")==0 || _stricmp(pszType, "selection")==0)
+			{
+				MetaSelection::SetDefaults(pMetaKey, pszID, pData);	
+			} else if(_stricmp(pszType, "string")==0)
+			{
+				MetaString::SetDefaults(pMetaKey, pszID, pData);
+			} else if(_stricmp(pszType, "float")==0)
+			{
+				MetaFloat::SetDefaults(pMetaKey, pszID, pData);				
+			} else if(_stricmp(pszType, "bool")==0 || _stricmp(pszType, "boolean")==0)
+			{
+				MetaBool::SetDefaults(pMetaKey, pszID, pData);
+			} else if(_stricmp(pszType, "color")==0 || _stricmp(pszType, "colour")==0)
+			{
+				MetaColor::SetDefaults(pMetaKey, pszID, pData);				
+			} else if(_stricmp(pszType, "vec3")==0 || _stricmp(pszType, "vector3")==0)
+			{
+				MetaVec3::SetDefaults(pMetaKey, pszID, pData);
+			} else if(_stricmp(pszType, "vec4")==0 || _stricmp(pszType, "vector4")==0 || _stricmp(pszType, "quaternion")==0)
+			{
+				MetaVec4::SetDefaults(pMetaKey, pszID, pData);
+			}
+		}
 	}
 }
 
@@ -251,6 +297,9 @@ void MetaControl::AddControl(const char *pszID, const CDDObject *pMetaKey)
 	} else if(_stricmp(pszType, "vec3")==0 || _stricmp(pszType, "vector3")==0)
 	{
 		pMetaCtrl=new MetaVec3();
+	} else if(_stricmp(pszType, "vec4")==0 || _stricmp(pszType, "vector4")==0 || _stricmp(pszType, "quaternion")==0)
+	{
+		pMetaCtrl=new MetaVec4();
 	}
 
 	// Bail if a new instance was not created

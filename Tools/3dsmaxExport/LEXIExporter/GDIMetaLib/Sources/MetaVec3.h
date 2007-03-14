@@ -35,6 +35,9 @@ public:
 	MetaVec3();
 	~MetaVec3();	
 
+	// Set defaults on a data object from a meta object
+	static void SetDefaults(const CDDObject *pMetaKey, const char *pszMetaID, CDDObject *pData);
+
 private:
 	// Data object changed - update data on control
 	// Note: This is also called when control is created
@@ -43,6 +46,7 @@ private:
 	void	OnPaint();
 	void	OnLayout();	
 	bool	OnMouseDown(int iFlags, int iX, int iY);
+//	bool	OnKeyDown(unsigned vKey, unsigned iFlags);
 	void	OnCommand(HWND hWnd, int iCode, int iID);
 
 	// Enable/disable control
