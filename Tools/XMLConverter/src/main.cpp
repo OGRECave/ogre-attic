@@ -384,6 +384,7 @@ void XMLToBinary(XmlOptions opts)
     if (!doc->LoadFile())
     {
         cout << "Unable to open file " << opts.source << " - fatal error." << endl;
+        delete doc;
         exit (1);
     }
     TiXmlElement* root = doc->RootElement();
@@ -691,7 +692,10 @@ void XMLToBinary(XmlOptions opts)
 		}
         skeletonSerializer->exportSkeleton(newSkel.getPointer(), opts.dest, opts.endian);
     }
-
+    else
+    {
+        delete doc;
+    }
 
 }
 
