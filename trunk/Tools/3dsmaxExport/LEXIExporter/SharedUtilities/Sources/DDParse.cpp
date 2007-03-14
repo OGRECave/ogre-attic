@@ -215,6 +215,24 @@ void CDDParse::ParseInclude(void)
 	faststring sIncPath;
 	GetNextToken(sIncPath);
 
+	// THIS IS A FIX: The first time the #include occurs it has not been replaced.
+	char buffer1[_MAX_PATH];
+	strcpy(buffer1, sIncPath.c_str());
+	char* pDest = strstr(buffer1,"$CurrentDir");
+	if(pDest != NULL)
+	{
+		//replace $CurrentDir token
+		pDest = strstr(buffer1,"\\");
+		pDest++;
+		// Replace
+		char buffer2[_MAX_PATH];
+		LPTSTR pFilePart2;
+		GetFullPathName(pDest, _MAX_PATH, buffer2, &pFilePart2);
+
+		sIncPath.clear();
+		sIncPath.add( buffer2 );
+	}
+
 	// Open file
 	HANDLE hFile=CreateFile(sIncPath.c_str(),GENERIC_READ,FILE_SHARE_READ,0,OPEN_EXISTING,0,0);
 

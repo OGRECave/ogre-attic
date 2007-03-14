@@ -28,12 +28,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __NDS_LexiExporter_ExportObject_Mesh__
 
 #include "..\res\resource.h"
+#include "LexiExportSupportTypes.h"
 #include "LexiIntermediateAPI.h"
 //
 
 //
 
-class CMeshExportObject : public CExportObject 
+class CMeshExportObject : public CExportObject, public IExportObjectMeshSupport
 {
 public:
 	// Constructor/Destructor
@@ -58,10 +59,13 @@ public:
 	bool SupportsMAXNode(INode *pMAXNode) const;
 
 	// Export object
-	bool Export(CExportProgressDlg *pProgressDlg, bool bForceAll) const;
+	bool Export(CExportProgressDlg *pProgressDlg, bool bForceAll);
 
 	// Default file extension
 //	const char* GetDefaultFileExt() const;
+
+	// IExportObjectMeshSupport implementation
+	CIntermediateMesh* GetIntermediateMesh(void);
 
 private:
 	// Build meta description object

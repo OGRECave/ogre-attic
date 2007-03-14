@@ -56,6 +56,10 @@ class ListCtrl : public Window {
 		// Insert item
 		int InsertItem(int iIndex, const char* pszText);
 
+		// Hit Test
+		int	HitTest(LVHITTESTINFO* pHitTestInfo) const;
+		int	SubItemHitTest(LVHITTESTINFO* pHitTestInfo) const;
+
 		// Delete item
 		void DeleteItem(int iIndex);
 
@@ -87,6 +91,11 @@ class ListCtrl : public Window {
 		// Set item state
 		bool SetItemState(int iIndex, unsigned int nState, unsigned int nMask);
 
+		// Get item rect
+		int GetSubItemRect(int iIndex, int iSubItem, int iFlags, RECT *pRect);
+
+		// Get selection mark
+		int GetSelectionMark();
 };
 
 //

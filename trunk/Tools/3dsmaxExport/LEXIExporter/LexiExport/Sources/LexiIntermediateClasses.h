@@ -70,6 +70,8 @@ class CMeshArray {
 
 	public:
 
+		virtual ~CMeshArray() {};
+
 		virtual void Create(unsigned int iSize) = 0;
 		virtual void Create(unsigned int iSize, const void* pData) = 0;
 

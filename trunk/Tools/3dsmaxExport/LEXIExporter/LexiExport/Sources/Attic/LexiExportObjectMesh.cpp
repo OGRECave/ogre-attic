@@ -241,12 +241,12 @@ CDDObject* CMeshExportObject::BuildMetaDesc( void )
 //
 typedef std::map< Ogre::String, CIntermediateMaterial*> MAT_LIST;
 
-bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll) const
+bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 {
 	bool returnVal = false;
 	Ogre::String sFilename;
-	CIntermediateMesh* pIMesh = NULL;
 	COgreMeshCompiler* pOgreMeshCompiler = NULL;
+	Ogre::SceneNode* pNode;
 
 	if(m_bEnabled || bForceAll)
 	{
@@ -266,7 +266,12 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 		pProgressDlg->LocalStep("StaticMesh: Reading max data");
 		LOGDEBUG "Creating Hierarchy...");
 
-		Ogre::SceneNode* pNode = CIntermediateBuilder::Get()->CreateHierarchy(GetMAXNodeID(), true, false);
+		/////////////////////////////////////
+		//MessageBox(NULL, "PreIM","BREAK!",0);
+		/////////////////////////////////////
+
+
+		pNode = CIntermediateBuilder::Get()->CreateHierarchy(GetMAXNodeID(), true, false);
 		if(pNode == NULL)
 		{
 			LOGERROR "No node with such ID: %d", GetMAXNodeID());
@@ -280,7 +285,6 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 
 		sFilename = m_pDDConfig->GetString("FileName");
 
-		///// BELONGS IN A STATIC HIERARCHY TYPE
 		if(bCollaps)
 		{
 			pProgressDlg->LocalStep("StaticMesh: Collapsing Mesh");
@@ -289,7 +293,7 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 			clist.push_back("normal");
 			clist.push_back("uv1");
 			Ogre::SceneNode* pColNode = CIntermediateBuilder::Get()->CollapseHierarchy(pNode, clist, "Collapsed");
-			delete pNode;
+			CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
 			pNode = pColNode;
 		}
 		else
@@ -298,22 +302,27 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 		}
 
 
-		pIMesh = (CIntermediateMesh*)pNode->getAttachedObject(0);
+		m_pIMesh = (CIntermediateMesh*)pNode->getAttachedObject(0);
 
-		LOGINFO "Exporting mesh: %s", pIMesh->getName().c_str());
+		LOGINFO "Exporting mesh: %s", m_pIMesh->getName().c_str());
 
 		returnVal = CExportObject::Export(pProgressDlg, bForceAll);	
 
 
 		// We have some remaining steps
 
-		bool bInOneFile = true;
+		bool bInOneFile = false;//true;
 		MAT_LIST lMaterials;
 		bool bMatRetrieved = CIntermediateBuilder::Get()->GetMaterials(lMaterials);
 
 		pProgressDlg->InitLocal(3+(lMaterials.size()));
 		pProgressDlg->LocalStep("StaticMesh: Creating Ogre Mesh..");
-		pOgreMeshCompiler = new COgreMeshCompiler(pIMesh, m_pDDConfig, sFilename);
+
+		/////////////////////////////////////
+		//MessageBox(NULL, "PreMeshCompiler","BREAK!",0);
+		/////////////////////////////////////
+
+		pOgreMeshCompiler = new COgreMeshCompiler(m_pIMesh, m_pDDConfig, sFilename);
 
 		Ogre::String sBaseName;
 		Ogre::String sPath;
@@ -331,13 +340,22 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 		{
 			LOGERROR "Error while attempting to create path: %s", sPath.c_str());
 			delete pOgreMeshCompiler;
-			delete pIMesh;
+			delete m_pIMesh;
 			return false;
 		}
 
 		pProgressDlg->LocalStep("StaticMesh: Writing Ogre Mesh..");
 		LOGINFO "Writing Ogre Mesh (%s) ...", sFilename.c_str());
+
+		/////////////////////////////////////
+		//MessageBox(NULL, "PreWrite","BREAK!",0);
+		/////////////////////////////////////
+
 		pOgreMeshCompiler->WriteOgreMesh(sFilename);
+
+		/////////////////////////////////////
+		//MessageBox(NULL, "Pre Materials","BREAK!",0);
+		/////////////////////////////////////
 
 		pProgressDlg->LocalStep("StaticMesh: Exporting Ogre Materials..");
 		LOGINFO "Exporting material(s) ...");
@@ -362,7 +380,8 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 					LOGDEBUG "Exporting individual material ...");
 					try
 					{
-						matWriter.exportMaterial( matComp.GetOgreMaterial(), Ogre::String(sFilename+".material"));
+						Ogre::MaterialPtr oMatPtr = matComp.GetOgreMaterial();
+						matWriter.exportMaterial( oMatPtr, Ogre::String(sPath+"\\"+oMatPtr->getName()+".material"));
 					} catch (Ogre::Exception e) 
 					{
 						LOGERROR "OgreExeception caught: %s", e.getDescription().c_str()); 
@@ -375,14 +394,16 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 			}
 			try	
 			{
-				LOGDEBUG "Exporting Global material file...");
-				matWriter.exportQueued( Ogre::String(sFilename+".material") );
+				if(bInOneFile)
+				{
+					LOGDEBUG "Exporting Global material file...");
+					matWriter.exportQueued( Ogre::String(sFilename+".material") );
+				}
 			} catch (Ogre::Exception e) 
 			{
 				LOGERROR "OgreExeception caught: %s",  e.getDescription().c_str()); 
 			}
 		}
-
 
 
 	} catch(Ogre::Exception e)
@@ -397,7 +418,9 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 
 	LOGDEBUG "Cleaning up...");
 	delete pOgreMeshCompiler;
-	delete pIMesh;
+	//delete m_pIMesh; // We should do a general Cleanup from the imtermediateBuilder since there might be several objects in the hierarchy
+	CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
+	CIntermediateBuilder::Get()->Clear();
 
 	LOGINFO "..Done!");
 
@@ -405,3 +428,7 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 
 }
 
+CIntermediateMesh* CMeshExportObject::GetIntermediateMesh(void)
+{
+	return m_pIMesh;
+}

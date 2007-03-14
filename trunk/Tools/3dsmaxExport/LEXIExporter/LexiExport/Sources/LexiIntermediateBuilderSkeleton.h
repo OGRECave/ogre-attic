@@ -46,9 +46,11 @@ public:
 
 	CIntermediateSkeleton* GetSkeleton( void );
 
+	static bool QuerySkinModifier( INode* pMaxNode );
+
 private:
 
-	bool FindSkinModifier( void );
+	bool FindSkinModifier( INode* pMaxNode  );
 
 	void CreateBonePool( void );
 

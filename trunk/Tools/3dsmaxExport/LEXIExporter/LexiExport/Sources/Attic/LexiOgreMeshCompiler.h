@@ -50,13 +50,19 @@ protected:
 	void	CreateNormalBuffer( CIntermediateMesh* pIntermediateMesh );
 	void	CreateDiffuseBuffer( CIntermediateMesh* pIntermediateMesh );
 	void	CreateTexCoordBuffer( CIntermediateMesh* pIntermediateMesh );
+	void	CreatePoseBuffers( CIntermediateMesh* pIntermediateMesh );
 	void	CreateMeshBounds( void );
 	void	PrintVertexDataToLog( void );
+
+	void	SetBoneAssignments( const CTriangle& face, CIntermediateMesh* pIntermediateMesh );
 
 private:
 
 	void	ReadConfig( const CDDObject* pConfig );
 	void	ReindexIntermediateBuffers( CIntermediateMesh* pIntermediateMesh );
+
+	unsigned int CreatePose( CIntermediateMesh* pIntermediateMesh, Ogre::String name, unsigned int iFrame, bool bOptimize );
+	unsigned int m_iNrPoses;
 
 	Ogre::MeshPtr			m_pOgreMesh;
 	Ogre::Real				m_MaxSquaredLength;
@@ -73,5 +79,8 @@ private:
 
 	Ogre::HardwareIndexBuffer::IndexType		m_IndexBitType;
 	std::map<CIntermediateMaterial*, Ogre::SubMesh*>	m_lMaterialSubMeshMap;
+
+	Ogre::HardwareVertexBufferSharedPtr vBuf;
+	unsigned int m_iNrVerts;
 
 };

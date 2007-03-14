@@ -52,16 +52,21 @@ class ListBox : public Window {
 		//
 
 		// Get Count
+		int GetCount();
 
 		// Get Horizontal Extent
 
 		// Get Item Data
+		long GetItemData(int iIndex) const;
 
 		// Get Item Data Ptr
+		void* GetItemDataPtr(int iIndex) const;
 
 		// Get Item Height
+		int GetItemHeight() const;
 
 		// Get Item Rect
+		bool GetItemRect(int iIndex, RECT* pRect) const;
 
 		// Get List Box Info
 
@@ -76,12 +81,14 @@ class ListBox : public Window {
 		// Get Top Index
 
 		// Item From Point
+		int GetItemFromPoint(POINT &pt) const;
 
 		// Set Column Width
 
 		// Set Horizontal Extent
 
 		// Set Item Data
+		void SetItemData(int iIndex, long data);
 
 		// Set Item Data Ptr
 
@@ -98,8 +105,10 @@ class ListBox : public Window {
 		//
 
 		// Get Cur Sel
+		int GetCurSel();
 
 		// Set Cur Sel
+		void SetCurSel(int iIndex);
 
 		//
 		//  Multiple-Selection Operations
@@ -126,6 +135,7 @@ class ListBox : public Window {
 		//
 
 		// Add String
+		int AddString(const char* pszText);
 
 		// Delete String
 
@@ -138,8 +148,10 @@ class ListBox : public Window {
 		// Insert String
 
 		// Reset Content
+		void ResetContent();
 
 		// SelectString
+
 
 };
 

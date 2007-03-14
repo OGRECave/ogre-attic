@@ -60,7 +60,7 @@
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
 				ForceConformanceInForLoopScope="false"
-				RuntimeTypeInfo="false"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="LexiStdAfx.h"
 				PrecompiledHeaderFile=".\Release/LexiExport.pch"
@@ -165,7 +165,7 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				ForceConformanceInForLoopScope="false"
-				RuntimeTypeInfo="false"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="LexiStdAfx.h"
 				PrecompiledHeaderFile=".\Debug/LexiExport.pch"
@@ -521,7 +521,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Res\MeshPose.ico"
+					>
+				</File>
+				<File
 					RelativePath=".\Res\Model.ico"
+					>
+				</File>
+				<File
+					RelativePath=".\Res\PoseAnimation.ico"
 					>
 				</File>
 				<File
@@ -550,6 +558,14 @@
 			Name="Dialogs"
 			>
 			<File
+				RelativePath=".\Sources\LexiDialogAddMultiple.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiDialogAddMultiple.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Sources\LexiDialogAnimProperties.cpp"
 				>
 			</File>
@@ -563,6 +579,14 @@
 			</File>
 			<File
 				RelativePath=".\Sources\LexiDialogObjectProperties.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiDialogPoseProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiDialogPoseProperties.h"
 				>
 			</File>
 			<File
@@ -626,6 +650,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Sources\LexiExportObjectPose.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiExportObjectPose.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiExportObjectPoseAnim.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiExportObjectPoseAnim.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Sources\LexiExportObjectRoot.cpp"
 				>
 			</File>
@@ -639,6 +679,10 @@
 			</File>
 			<File
 				RelativePath=".\Sources\LexiExportObjectSkinnedMesh.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiExportSupportTypes.h"
 				>
 			</File>
 		</Filter>

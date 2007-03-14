@@ -50,47 +50,6 @@ COgreMaterialCompiler::~COgreMaterialCompiler( void )
 
 void COgreMaterialCompiler::InitializeOgreComponents( void )
 {
-	//if(Ogre::Root::getSingletonPtr() == NULL )
-	//	new Ogre::Root;
-	//else if(!Ogre::Root::getSingletonPtr()->isInitialised())
-	//	Ogre::Root::getSingletonPtr()->initialise(false,"foorbar");
-
-
-	//if(Ogre::LogManager::getSingletonPtr() == NULL)
-	//{
-	//	new Ogre::LogManager();
-	//	Ogre::LogManager::getSingletonPtr()->createLog("Ogre.log");
-	//}
-
-	//if(Ogre::ResourceGroupManager::getSingletonPtr() == NULL) 
-	//	new Ogre::ResourceGroupManager();
-
-	////if(Ogre::Root::getSingletonPtr() == NULL )
-	////	new Ogre::Root;
-
-	////if(!Ogre::Root::getSingletonPtr()->isInitialised())
-	////	Ogre::Root::getSingletonPtr()->initialise(false,"foorbar");
-
-	//if( Ogre::MaterialManager::getSingletonPtr() == NULL )
-	//{
-	//	new Ogre::MaterialManager();
-	//	Ogre::MaterialManager::getSingletonPtr()->initialise(); 
-	//}
-
-	//if( Ogre::HighLevelGpuProgramManager::getSingletonPtr() == NULL )
-	//{
-	//	new Ogre::HighLevelGpuProgramManager();
-	//}
-
-	//if( Ogre::SkeletonManager::getSingletonPtr() == NULL )
-	//{
-	//	new Ogre::SkeletonManager();
-	//}
-
-	//////if( Ogre::GpuProgramManager::getSingletonPtr() == NULL )
-	//////	new Ogre::GpuProgramManager();
-
-
 	Ogre::MaterialManager::getSingletonPtr()->unloadAll();
 	Ogre::MaterialManager::getSingletonPtr()->removeAll();
 }
@@ -142,16 +101,22 @@ void COgreMaterialCompiler::ParseMaterialMaps( Ogre::Pass* pass )
 
 	short mask = m_pIMaterial->GetMask();
 
+	LOGINFO "Parsing Material(%s) with Map Mask: %i", m_pIMaterial->GetName().c_str(), mask);
+
 	if(mask == 0)		// no texture maps
 		CreatePureBlinn(pass);
-	if(mask & 2)		// only diffuse
+	else if(mask == 2)		// only diffuse
 		CreateDiffuse(pass);
-	if(mask & 4)		// only specular color
+	else if(mask == 4)		// only specular color
 		CreateSpecularColor(pass);
-	if(mask & 8)		// only specular level
+	else if(mask == 8)		// only specular level
 		CreateSpecularLevel(pass);
-	if(mask & 32)		// only self illumination map
+	else if(mask == 32)		// only self illumination map
 		CreateSelfIllumination(pass);
+	else if(mask == 66)		// diffuse map + opacity
+		CreateDiffuseAndOpacity(pass);
+	else if(mask & 2)		// fallback on ordinary diffuse
+		CreateDiffuse(pass);
 
 
 //	const std::map< Ogre::String, STextureMapInfo >& lMats = m_pIMaterial->GetTextureMaps();
@@ -406,6 +371,42 @@ void COgreMaterialCompiler::CreateSelfIllumination( Ogre::Pass* pass )
 	pass->setFragmentProgramParameters(params);
 }
 
+void COgreMaterialCompiler::CreateDiffuseAndOpacity( Ogre::Pass* pass )
+{
+	pass->setVertexProgram("BlinnVP");
+	pass->setFragmentProgram( "Blinn_DiffuseAndOpacityMap_FP" );
+
+	pass->setSceneBlending( Ogre::SBT_TRANSPARENT_ALPHA );
+	pass->setDepthWriteEnabled(false);
+
+	// HACK: For some reason we cannot set the SpecularLevel if it is its max at 9.99, so we clamp it to 9.98
+	float specHack = m_pIMaterial->GetSpecularLevel() > 9.98 ? 9.98 : m_pIMaterial->GetSpecularLevel() ;
+	// HACK: For some reason we cannot set the SpecularLevel if it is its max at 9.99, so we clamp it to 9.98
+	float glossHack = m_pIMaterial->GetGlossiness() == 1 ? 0.9999 : m_pIMaterial->GetGlossiness() ;
+	glossHack = glossHack > 0.01 ? glossHack * 100 : 0.0 ;
+
+	Ogre::GpuProgramParametersSharedPtr params = pass->getFragmentProgramParameters();
+	params->setNamedConstant("ambientColor", m_pIMaterial->GetAmbientColor());
+	params->setNamedConstant("diffuseColor", m_pIMaterial->GetDiffuseColor());
+	params->setNamedConstant("specularColor", m_pIMaterial->GetSpecularColor());
+	params->setNamedConstant("specularLevel", specHack);
+	params->setNamedConstant("glossLevel", glossHack);
+
+	STextureMapInfo texInfo = m_pIMaterial->GetTextureMapInfoFromName("diffuse");
+	if ( !texInfo.isNull())
+		params->setNamedConstant("amount", texInfo.m_fAmount);
+
+	CreateTextureUnits(pass, texInfo);
+
+	texInfo = m_pIMaterial->GetTextureMapInfoFromName("opacity");
+	if ( !texInfo.isNull())
+		params->setNamedConstant("opacity", texInfo.m_fAmount);
+	
+	CreateTextureUnits(pass, texInfo);
+
+	pass->setFragmentProgramParameters(params);
+}
+
 void COgreMaterialCompiler::CopyTextureMaps( Ogre::String outPath )
 {
 	// copy texture files to target path
@@ -424,7 +425,8 @@ void COgreMaterialCompiler::CopyTextureMaps( Ogre::String outPath )
 
 		//Ogre::String srcFile = texInfo.m_sFilename;
 
-		doFileCopy(texInfo.m_sFilename, outPath+baseFile );
+		if( doFileCopy(texInfo.m_sFilename, outPath+baseFile) != 0 )
+			LOGWARNING "Couldn´t copy texture map: %s", texInfo.m_sFilename.c_str());
 		it++;
 	}
 }

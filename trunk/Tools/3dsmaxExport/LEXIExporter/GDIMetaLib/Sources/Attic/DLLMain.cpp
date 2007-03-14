@@ -86,15 +86,21 @@ extern "C" __declspec( dllexport ) void CreateFromMetaData(HWND hWnd, void *pMet
 		return;
 	}
 
+	LOGSTATIC LOG_WARNING, "Create meta");
+
 	// Create DDObject from data stream
 	CDataStream MetaStream(pMeta, iMetaSize, 0);
 	CDDObject *ddMeta=new CDDObject;
 	ddMeta->FromDataStream(&MetaStream);
 
+	LOGSTATIC LOG_WARNING, "Create data");
+
 	// Create DDObject from data stream
 	CDataStream DataStream(pData, iDataSize, 0);
 	CDDObject *ddData=new CDDObject;
 	ddData->FromDataStream(&DataStream);
+
+	LOGSTATIC LOG_WARNING, "->MetaControl");
 
 	// Create controls
 	pMetaCtrl->CreateFromMetaData(ddMeta, ddData);
@@ -141,6 +147,25 @@ extern "C" __declspec( dllexport ) void SetDataToControl(HWND hWnd, void *pData,
 	dd->Release();
 }
 
+// Called from C# to update data on meta control
+extern "C" __declspec( dllexport ) const void* CreateDefaultsFromMeta(void *pMeta, int iMetaSize, int *iOutSize)
+{	
+	// Create DDObject from data stream
+	CDataStream d(pMeta, iMetaSize, 0);
+	CDDObject *dd=new CDDObject;
+	dd->FromDataStream(&d);
+
+	CDDObject *pDefaults=new CDDObject();
+	GDI::MetaControl::SetDefaultsFromMeta(dd, pDefaults);
+	dd->Release();
+
+	m_pStorage->SetPosition(0);
+	pDefaults->ToDataStream(m_pStorage);
+	*iOutSize=m_pStorage->GetPosition();
+	pDefaults->Release();
+	return m_pStorage->GetBaseData();
+}
+
 // DLL entry function
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
@@ -148,7 +173,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 	{
 		case DLL_PROCESS_ATTACH:
 //			CLogSystem::Get()->AddReceiver(new CConsoleLogger());
-//			CLogSystem::Get()->AddReceiver(new CFileLogger("Debuglog.txt"));
+//			CLogSystem::Get()->AddReceiver(new CFileLogger("C:\\Debuglog.txt"));
 			g_hInstance=hModule;
 			GDI::MetaControl::RegisterClasses();			
 			break;

@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "LexiMaxExport.h"
 #include "LexiDialogProperties.h"
 #include "LexiDialogObjectProperties.h"
+#include "LexiDialogAddMultiple.h"
 
 #include "..\Res\resource.h"
 
@@ -356,7 +357,30 @@ void CExporterPropertiesDlg::OnConfigButtonAdd()
 void CExporterPropertiesDlg::OnConfigButtonAddSelected()
 {
 	unsigned int iSelCount = m_pMax->GetSelNodeCount();
-	if(iSelCount != 1) return;
+	if(iSelCount != 1) 
+	{
+		if(iSelCount>0)
+		{
+			// Get currently selected tree control item (this would be parent item)
+			HTREEITEM hParent=m_ExportTree.GetSelectedItem();
+			if(hParent==NULL) hParent=m_hRootItem;
+			CExportObject *pParent=m_pCurrent;
+
+			CAddMultipleDlg dlg(this, this, pParent);
+			if(dlg.DoModal()==IDOK)
+			{
+				vector<CAddMultipleDlg::SListItem*> lExportItems=dlg.GetExportItems();
+
+				// Iterate all export items and add them
+				for(int i=0;i<lExportItems.size();i++)
+				{
+					m_pCurrent=pParent;
+					InternalCreate(lExportItems[i]->ExportType, hParent, lExportItems[i]->pNode->GetHandle());
+				}
+			}
+		}
+		return;
+	}
 
 	OnButtonAdd(&m_ButtonAddSelected, m_pMax->GetSelNode(0)->GetHandle());
 }
@@ -450,7 +474,13 @@ void CExporterPropertiesDlg::InternalRemove(HTREEITEM hItem)
 	m_ExportTree.SelectItem(hNextSel);
 
 	m_ExportTree.DeleteItem(hItem);
-	pSel->Release();	
+	if(pSel==m_pCurrent) m_pCurrent=NULL;
+	if(pSel==m_pLastEditObject) 
+	{
+		m_pLastEditObject->CloseEditWindow();
+		m_pLastEditObject=NULL;
+	}
+	pSel->Release();		
 	m_bChanges = true;
 }
 
@@ -629,11 +659,11 @@ void CExporterPropertiesDlg::OnSelChange()
 		}		
 	}
 
-	INode *pNode=0;
+/*	INode *pNode=0;
 	if(m_pMax->GetSelNodeCount() == 1)
 	{
 		pNode=m_pMax->GetSelNode(0);		
-	}
+	}*/
 
 	// Check if have any available types	
 	bool bCanAdd=false, bCanAddSel=false;
@@ -642,8 +672,15 @@ void CExporterPropertiesDlg::OnSelChange()
 		if(m_lTypeCache[i]->SupportsParentType(m_pCurrent))
 		{
 			bCanAdd=true;
-			if(m_pMax->GetSelNodeCount() == 1 && m_lTypeCache[i]->SupportsMAXNode(pNode))
-				bCanAddSel=true;						
+			for(int iSelNode=0;iSelNode<m_pMax->GetSelNodeCount();iSelNode++)
+			{
+				if(m_lTypeCache[i]->SupportsMAXNode(m_pMax->GetSelNode(iSelNode)))
+				{
+					bCanAddSel=true;
+					break;
+				}
+			}
+			if(bCanAddSel) break;
 		}
 	}
 	m_ButtonAdd.EnableWindow(bCanAdd);

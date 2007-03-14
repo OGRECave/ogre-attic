@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="GDIMetaLib"
 	ProjectGUID="{387FED5F-FFC1-4D66-ACC5-5163467C241E}"
 	RootNamespace="GDIMetaLib"
@@ -323,6 +323,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Sources\MetaVec4.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Sources\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -392,7 +396,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="$(SolutionDir)IncMerge $(InputPath) $(SolutionDir)Include\$(InputFileName)&#x0D;&#x0A;"
+						CommandLine="..\..\..\Tools\Bin\IncMerge $(InputPath) $(SolutionDir)Include\$(InputFileName) -checkout&#x0D;&#x0A;"
 						Outputs="$(SolutionDir)Include\$(InputFileName)"
 					/>
 				</FileConfiguration>
@@ -401,7 +405,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="$(SolutionDir)IncMerge $(InputPath) $(SolutionDir)Include\$(InputFileName)&#x0D;&#x0A;"
+						CommandLine="..\..\..\Tools\Bin\IncMerge $(InputPath) $(SolutionDir)Include\$(InputFileName) -checkout&#x0D;&#x0A;"
 						Outputs="$(SolutionDir)Include\$(InputFileName)"
 					/>
 				</FileConfiguration>
@@ -410,7 +414,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="$(SolutionDir)IncMerge $(InputPath) $(SolutionDir)Include\$(InputFileName)&#x0D;&#x0A;"
+						CommandLine="..\..\..\Tools\Bin\IncMerge $(InputPath) $(SolutionDir)Include\$(InputFileName) -checkout&#x0D;&#x0A;"
 						Outputs="$(SolutionDir)Include\$(InputFileName)"
 					/>
 				</FileConfiguration>
@@ -465,6 +469,10 @@
 			</File>
 			<File
 				RelativePath=".\Sources\MetaVec3.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\MetaVec4.h"
 				>
 			</File>
 			<File

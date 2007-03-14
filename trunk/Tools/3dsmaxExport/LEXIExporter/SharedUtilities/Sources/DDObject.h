@@ -42,8 +42,9 @@ public:
 	// Remove a specific mapping
 	void	RemoveData(const char *pszID);	
 
-	// Check if object has been changed
-	bool	HasChanged(bool bResetChange);
+	// Check if object has been changed. If bRecurse is true, all
+	// contained DDObjects (DDList included) will also be checked.
+	bool	HasChanged(bool bResetChange, bool bRecurse);
 
 	// Deserialize from data stream
 	void	FromDataStream(CDataStream *pStream, bool bAppend=false);
@@ -66,7 +67,8 @@ public:
 	CDDBase* Clone(void) const;
 
 	// Set notifier instance. Use this to get notified when object data changes
-	void	SetNotifier(IDDNotify *pNotifier);
+	void	AddNotifier(IDDNotify *pNotifier);
+	void	RemoveNotifier(IDDNotify *pNotifier);
 
 	// Query Functions
 	// ---------------
@@ -184,8 +186,8 @@ private:
 	// Marks any changes to the object
 	bool	m_bChanged;
 
-	// 
-	IDDNotify *m_pNotifier;
+	// List of listeners on object
+	fastvector<IDDNotify *> m_lListeners;
 
 	// Map of data
 	fastmap< const CDDBase * >	m_mData;

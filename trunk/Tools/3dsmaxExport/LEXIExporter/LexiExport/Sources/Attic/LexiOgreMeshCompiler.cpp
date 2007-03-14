@@ -37,40 +37,28 @@ COgreMeshCompiler::COgreMeshCompiler( CIntermediateMesh* pIntermediateMesh, cons
 	m_bExportNormals(false),
 	m_bExportColours(false),
 	m_bExportTexUVs(false),
-	m_bExportSkeleton(false)
+	m_bExportSkeleton(false),
+	m_iNrVerts(0),
+	m_iNrPoses(0)
 {
 	m_IndexBitType = Ogre::HardwareIndexBuffer::IT_16BIT;
-
-	InitializeOgreComponents();
 
 	ReadConfig(pConfig);
 
 	if(m_bReindex)
 		ReindexIntermediateBuffers(pIntermediateMesh);
 
-	//Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: Creating Mesh");
-	// create basic ogre mesh structure
+	/////////////////////////////////////
+	//MessageBox(NULL, "PreOgreMeshCreate","BREAK!",0);
+	/////////////////////////////////////
+
 	CreateOgreMesh(pIntermediateMesh);
 
-	//Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: Creating HWBuffers");
-	// create hw buffers i.e.(vertex,index,normal..)
-	CreateBuffers(pIntermediateMesh);
-	//Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: HWBuffers Created");
+	/////////////////////////////////////
+	//MessageBox(NULL, "PreCreateBuffer","BREAK!",0);
+	/////////////////////////////////////
 
-	//if(m_bExportSkeleton)
-	//{
-	//	if(pIntermediateMesh->GetSkeleton()!= NULL)
-	//	{
-	//		Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: Creating Skeleton Compiler");
-	//		m_pSkeletonCompiler = new COgreSkeletonCompiler( pIntermediateMesh->GetSkeleton(), pConfig, filename, m_pOgreMesh );
-	//		Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: Skeleton Compiler Created");
-	//	}
-	//	else
-	//	{
-	//		LOGWARNING "No Skin Modifier found, ignoring \"export skeleton\" option...");
-	//		m_bExportSkeleton = false;
-	//	}
-	//}
+	CreateBuffers(pIntermediateMesh);
 
 	Ogre::LogManager::getSingletonPtr()->logMessage("OgreMeshCompiler: Creating Bounds");
 	// create and register bounding box
@@ -81,35 +69,12 @@ COgreMeshCompiler::COgreMeshCompiler( CIntermediateMesh* pIntermediateMesh, cons
 
 COgreMeshCompiler::~COgreMeshCompiler()
 {
-	if(m_bExportSkeleton)
-		delete m_pSkeletonCompiler;
-}
+	LOGDEBUG "OgreMeshCompiler cleaned..");
 
-void COgreMeshCompiler::InitializeOgreComponents( void )
-{
-	//if(Ogre::Root::getSingletonPtr() == NULL )
-	//	new Ogre::Root();
-	//else if(!Ogre::Root::getSingletonPtr()->isInitialised())
-	//{
-	//	Ogre::LogManager::getSingletonPtr()->logMessage("Ogre::Root Created. Starting Initializing....");
-	//	Ogre::Root::getSingletonPtr()->initialise(false,"foorbar");
-	//	Ogre::LogManager::getSingletonPtr()->logMessage("Ogre::Root Created. Initialization Done.");
-	//}
-
-
-	//if(Ogre::LogManager::getSingletonPtr() == NULL)
-	//{
-	//	new Ogre::LogManager();
-	//	Ogre::LogManager::getSingletonPtr()->createLog("Ogre.log");
-	//}
-
-	//if(Ogre::ResourceGroupManager::getSingletonPtr() == NULL) 
-	//	new Ogre::ResourceGroupManager();
-
-	//if(Ogre::MeshManager::getSingletonPtr() == NULL) 
-	//	new Ogre::MeshManager();
-
-
+	Ogre::MeshManager* pMeshMgr = Ogre::MeshManager::getSingletonPtr();
+	delete m_pOgreMesh->sharedVertexData;
+	pMeshMgr->unloadAll();
+	pMeshMgr->removeAll();
 }
 
 
@@ -122,37 +87,7 @@ void COgreMeshCompiler::ReadConfig( const CDDObject* pConfig )
 	m_bExportColours = pConfig->GetBool("vertexColorsID");
 	m_bExportTexUVs = pConfig->GetBool("uvID");
 
-	//m_bExportSkeleton = pConfig->GetBool("SkeletonID");
 	m_bExportSkeleton = false;
-	CDDObject* pAnimContainer = pConfig->GetDDObject("AnimationDataContainer");
-	if(pAnimContainer)
-	{
-		fastvector< const CDDObject* > lAnimations = pAnimContainer->GetDDList("Animations");
-		for(int i=0; i < lAnimations.size(); i++)
-		{
-			int iType = lAnimations[i]->GetInt("AnimationTypeID");
-			Ogre::String sType;
-			switch(iType)
-			{
-			case 0:
-				sType = "Bone";
-				break;
-			case 1:
-				sType = "Morph";
-				break;
-			case 2:
-				sType = "Pose";
-				break;
-			default:
-				break;
-			};
-			if(sType.compare("Bone")==0)
-			{
-				m_bExportSkeleton = true;
-				break;
-			}
-		}
-	}
 }
 
 
@@ -165,21 +100,21 @@ void COgreMeshCompiler::ReindexIntermediateBuffers( CIntermediateMesh* pIntermed
 
 	CMeshArray* pArray; 
 
-	pArray = pIntermediateMesh->GetArray("normal",0);
+	
 	if(m_bExportNormals)
 	{
+		pArray = pIntermediateMesh->GetArray("normal",0);
 		if (pArray == NULL)
 			LOGWARNING "No Normals found, ignoring \"export normals\" option.");
 		else
 			bufferList.push_back(pArray);
 	}
 
-	pArray = pIntermediateMesh->GetArray("diffuse",0);
+	
 	if(m_bExportColours)
 	{
-		if (pArray == NULL)
-			LOGWARNING "No Vertex Colours defined, ignoring \"export vertex colors\" option.");			
-		else
+		pArray = pIntermediateMesh->GetArray("diffuse",0);
+		if (pArray != NULL)
 			bufferList.push_back(pArray);
 	}
 
@@ -199,7 +134,34 @@ void COgreMeshCompiler::ReindexIntermediateBuffers( CIntermediateMesh* pIntermed
 		}
 	}
 
+	// Prepare bone vertex assignments
+ 	CIntermediateSkeleton* pISkel = pIntermediateMesh->GetSkeleton();
+	SharedUtilities::fastvector< CMeshArray* > boneBuffer;
+
+	if(pISkel != NULL)
+	{
+		// extract declaration map into individual arrays for reindexing
+		pISkel->ExtractVertexAssignmentsArrays(boneBuffer);
+
+		for(int i=0; i < boneBuffer.size(); i++)
+		{
+			bufferList.push_back( boneBuffer[i] );
+		}
+	}
+
 	pIntermediateMesh->Reindex( bufferList );
+
+	if(pISkel != NULL)
+	{
+		pISkel->ApplyVertexAssignmentsArrays(boneBuffer);
+		//Clean up
+		for(int i=0; i < boneBuffer.size(); i++)
+		{
+			delete boneBuffer[i];
+		}
+		boneBuffer.clear();
+	}
+
 }
 
 void COgreMeshCompiler::CreateOgreMesh( CIntermediateMesh* pIntermediateMesh )
@@ -239,17 +201,43 @@ void COgreMeshCompiler::CreateBuffers( CIntermediateMesh* pIntermediateMesh )
 	assert(pIntermediateMesh);
 	assert(!m_pOgreMesh.isNull());
 
+	/////////////////////////////////////
+	//MessageBox(NULL, "PreVertexBuffer","BREAK!",0);
+	/////////////////////////////////////
 	CreateVertexBuffer(pIntermediateMesh);
+
+	/////////////////////////////////////
+	//MessageBox(NULL, "PreIndexBuffer","BREAK!",0);
+	/////////////////////////////////////
 	CreateIndexBuffer(pIntermediateMesh);
 
 	if(m_bExportNormals)
+	{
+		/////////////////////////////////////
+		//MessageBox(NULL, "PreNormalBuffer","BREAK!",0);
+		/////////////////////////////////////
 		CreateNormalBuffer(pIntermediateMesh);
+	}
 
 	if(m_bExportColours)
+	{
+		/////////////////////////////////////
+		//MessageBox(NULL, "PreDiffuseBuffer","BREAK!",0);
+		/////////////////////////////////////
 		CreateDiffuseBuffer(pIntermediateMesh);
-	
+	}	
 	if (m_bExportTexUVs)
+	{
+		/////////////////////////////////////
+		//MessageBox(NULL, "PreTextureCoordBuffer","BREAK!",0);
+		/////////////////////////////////////
 		CreateTexCoordBuffer(pIntermediateMesh);
+	}
+
+	if( pIntermediateMesh->HasPoseData() )
+	{
+		CreatePoseBuffers(pIntermediateMesh);
+	}
 
 	//"specular"
 	//"boneindex"
@@ -265,14 +253,14 @@ void COgreMeshCompiler::CreateVertexBuffer( CIntermediateMesh* pIntermediateMesh
 	if(pMeshArray == NULL)
 		return;
 
-	unsigned int iNrVerts = pMeshArray->Size();
+	m_iNrVerts = pMeshArray->Size();
 
 	Ogre::VertexData* vertexData = m_pOgreMesh->sharedVertexData;
 	Ogre::VertexDeclaration* vertexDecl = vertexData->vertexDeclaration;
 
 	// allocate the position vertex buffer
 	vertexDecl->addElement(m_iBind, 0, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
-	vertexData->vertexCount = iNrVerts;
+	vertexData->vertexCount = m_iNrVerts;
 
 	{	// DEBUG INFO
 		//Ogre::StringUtil::StrStreamType strStrm;
@@ -280,12 +268,13 @@ void COgreMeshCompiler::CreateVertexBuffer( CIntermediateMesh* pIntermediateMesh
 		//Ogre::LogManager::getSingletonPtr()->logMessage(strStrm.str());
 	}
 
-	Ogre::HardwareVertexBufferSharedPtr vBuf = Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(vertexDecl->getVertexSize(m_iBind), vertexData->vertexCount, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY, false);
+	vBuf = Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(vertexDecl->getVertexSize(m_iBind), vertexData->vertexCount, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY, false);
 	Ogre::VertexBufferBinding* binding = vertexData->vertexBufferBinding;
 	binding->setBinding(m_iBind, vBuf);
 	const Ogre::VertexElement* posElem = vertexData->vertexDeclaration->getElement(m_iBind);
 	unsigned char* vertex = static_cast<unsigned char*>(vBuf->lock(Ogre::HardwareBuffer::HBL_NORMAL));
 	m_iBind++;
+
 
 	// Ok, Let´s fill in the buffer with data  :D
 
@@ -295,7 +284,7 @@ void COgreMeshCompiler::CreateVertexBuffer( CIntermediateMesh* pIntermediateMesh
 	posElem->baseVertexPointerToElement(vertex, &pReal);
 
 	unsigned int j = 0;
-	for(unsigned int i=0; i< iNrVerts; i++) {
+	for(unsigned int i=0; i< m_iNrVerts; i++) {
 
 		Ogre::Vector3 vert = data[i];
 
@@ -337,7 +326,11 @@ void COgreMeshCompiler::CreateIndexBuffer( CIntermediateMesh* pIntermediateMesh 
 		int iNrIndices = lMatTriangles.size() *3;
 		pSubMesh->indexData->indexCount = iNrIndices;
 
-		if(iNrIndices >= 65536)
+		// We should use a 32bit buffer if the vertex buffer has more than 65536 entries (otherwise we cannot reference them)
+		// From the vertex buffer decleration we know the vertex count:
+
+		m_IndexBitType = Ogre::HardwareIndexBuffer::IT_16BIT;
+		if(m_iNrVerts >= 65536)
 			m_IndexBitType = Ogre::HardwareIndexBuffer::IT_32BIT;
 
 		pSubMesh->indexData->indexBuffer = Ogre::HardwareBufferManager::getSingleton().createIndexBuffer(m_IndexBitType, pSubMesh->indexData->indexCount, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY, false);
@@ -367,50 +360,10 @@ void COgreMeshCompiler::CreateIndexBuffer( CIntermediateMesh* pIntermediateMesh 
 				pIndices[j++] = face.m_Vertices[1];
 				pIndices[j++] = face.m_Vertices[2];
 
+				SetBoneAssignments(face,pIntermediateMesh);
+
 				// skeleton
-				CIntermediateSkeleton* pISkel = pIntermediateMesh->GetSkeleton();
-				if(pISkel != NULL) {
 
-					Ogre::VertexBoneAssignment vertexBoneAssignment;
-
-					for (int w=0; w < 3; w++)
-					{
-						int vertIndex = j-w;
-						int iBoneCount = pISkel->GetNrOfAssignmentsOnVertex(vertIndex);
-
-						for (int i=0; i < iBoneCount; i++)
-						{
-							SVertexBoneData boneData;
-							vertexBoneAssignment.boneIndex = pISkel->GetVertexData(vertIndex,i,boneData);
-
-							vertexBoneAssignment.vertexIndex = vertIndex;
-							vertexBoneAssignment.boneIndex = boneData.boneIndex;
-							vertexBoneAssignment.weight = boneData.weight;
-
-							m_pOgreMesh->addBoneAssignment(vertexBoneAssignment);
-						}
-
-						//Vertex::BoneData::iterator it = smData.mVertexDeque[i].mBoneData.begin();
-						//Vertex::BoneData::iterator iend = smData.mVertexDeque[i].mBoneData.end();
-
-						//for(; it != iend; ++it) {
-						//	VertexBoneAssignment& vertexBoneData = (*it);
-						//	vertexBoneAssginment.boneIndex = vertexBoneData.mBoneIndex;
-						//	vertexBoneAssginment.vertexIndex = i;
-						//	vertexBoneAssginment.weight = vertexBoneData.mWeight;
-
-						//	pSubMesh->addBoneAssignment(vertexBoneAssginment);
-
-						//	/*
-						//	if(!pSubMesh->useSharedVertices)
-						//	pSubMesh->addBoneAssignment(vertexBoneAssginment);
-						//	else
-						//	mMesh->addBoneAssignment(vertexBoneAssginment);
-						//	*/
-						//}
-
-					}
-				}
 
 			}
 
@@ -437,93 +390,7 @@ void COgreMeshCompiler::CreateIndexBuffer( CIntermediateMesh* pIntermediateMesh 
 
 
 				// skeleton
-				CIntermediateSkeleton* pISkel = pIntermediateMesh->GetSkeleton();
-				if(pISkel != NULL) {
-
-					Ogre::VertexBoneAssignment vertexBoneAssignment;
-
-					for (int w=0; w < 3; w++)
-					{
-						int vertIndex = j-3+w;
-						int iBoneCount = pISkel->GetNrOfAssignmentsOnVertex(vertIndex);
-
-						//vertexBoneAssignment.vertexIndex = vertIndex;
-						//vertexBoneAssignment.boneIndex = 2;
-						//vertexBoneAssignment.weight = 1.0f;
-						//m_pOgreMesh->addBoneAssignment(vertexBoneAssignment);
-
-						//for (int i=0; i < 1; i++)
-						SVertexBoneData maxBoneData;
-						maxBoneData.weight = 0;
-						int maxVertIndex = 0;
-						for (int i=0; i < iBoneCount; i++)
-						{
-
-
-							
-							SVertexBoneData boneData;
-							pISkel->GetVertexData(vertIndex,i,boneData);
-
-							if(maxBoneData.weight < boneData.weight)
-								maxBoneData = boneData;
-
-							//if(boneData.weight < 0.001f) continue;
-							//boneData.weight = 1.0f;
-
-							
-							//int boneIndex = 0;
-							//if(boneData.boneHandle == 2)
-							//	boneIndex = 0;
-							//else if (boneData.boneHandle == 3)
-							//	boneIndex = 1;
-							//else if (boneData.boneHandle == 5)
-							//	boneIndex = 2;
-
-							vertexBoneAssignment.vertexIndex	= vertIndex;
-							vertexBoneAssignment.boneIndex		= boneData.boneIndex;
-							vertexBoneAssignment.weight			= boneData.weight;
-
-							//Ogre::StringUtil::StrStreamType str;
-							//str << vertIndex << ": " << vertexBoneAssignment.boneIndex << "\t" << vertexBoneAssignment.weight;
-							//Ogre::LogManager::getSingletonPtr()->logMessage(str.str());
-
-							m_pOgreMesh->addBoneAssignment(vertexBoneAssignment);
-
-							
-						}
-
-						/*
-						// Only apply highest weight:
-						if(iBoneCount > 0 )
-						{
-							vertexBoneAssignment.vertexIndex	= vertIndex;
-							vertexBoneAssignment.boneIndex		= maxBoneData.boneIndex;
-							vertexBoneAssignment.weight			= maxBoneData.weight;
-
-							m_pOgreMesh->addBoneAssignment(vertexBoneAssignment);
-						}
-						*/
-						//Vertex::BoneData::iterator it = smData.mVertexDeque[i].mBoneData.begin();
-						//Vertex::BoneData::iterator iend = smData.mVertexDeque[i].mBoneData.end();
-
-						//for(; it != iend; ++it) {
-						//	VertexBoneAssignment& vertexBoneData = (*it);
-						//	vertexBoneAssginment.boneIndex = vertexBoneData.mBoneIndex;
-						//	vertexBoneAssginment.vertexIndex = i;
-						//	vertexBoneAssginment.weight = vertexBoneData.mWeight;
-
-						//	pSubMesh->addBoneAssignment(vertexBoneAssginment);
-
-						//	/*
-						//	if(!pSubMesh->useSharedVertices)
-						//	pSubMesh->addBoneAssignment(vertexBoneAssginment);
-						//	else
-						//	mMesh->addBoneAssignment(vertexBoneAssginment);
-						//	*/
-						//}
-
-					}
-				}
+				SetBoneAssignments(face,pIntermediateMesh);
 			}
 
 			// Unlock
@@ -534,6 +401,41 @@ void COgreMeshCompiler::CreateIndexBuffer( CIntermediateMesh* pIntermediateMesh 
 			pSubMesh->setMaterialName(pMat->GetName().c_str());
 		else
 			pSubMesh->setMaterialName("NoMaterial");
+	}
+}
+
+void COgreMeshCompiler::SetBoneAssignments( const CTriangle& face, CIntermediateMesh* pIntermediateMesh )
+{
+	CIntermediateSkeleton* pISkel = pIntermediateMesh->GetSkeleton();
+	if(pISkel != NULL) {
+		Ogre::VertexBoneAssignment vertexBoneAssignment;
+
+		for (int w=0; w < 3; w++)
+		{
+			int vertIndex = face.m_Vertices[w];//startIndex-3+w;
+			int iBoneCount = pISkel->GetNrOfAssignmentsOnVertex(vertIndex);
+
+			SVertexBoneData maxBoneData;
+			maxBoneData.weight = 0;
+			int maxVertIndex = 0;
+			for (int i=0; i < iBoneCount; i++)
+			{
+				SVertexBoneData boneData;
+				if(pISkel->GetVertexData(vertIndex,i,boneData))
+				{
+					if(maxBoneData.weight < boneData.weight)
+						maxBoneData = boneData;
+
+					if(boneData.weight < 0.001f) continue;
+
+					vertexBoneAssignment.vertexIndex	= vertIndex;
+					vertexBoneAssignment.boneIndex		= boneData.boneIndex;
+					vertexBoneAssignment.weight			= boneData.weight;
+	
+					m_pOgreMesh->addBoneAssignment(vertexBoneAssignment);
+				}
+			}
+		}
 	}
 }
 
@@ -588,8 +490,26 @@ void COgreMeshCompiler::CreateDiffuseBuffer( CIntermediateMesh* pIntermediateMes
 	assert(pIntermediateMesh);
 
 	CMeshArray* pDiffuseArray = pIntermediateMesh->GetArray("diffuse",0);
+
+	bool bCleanUp = false;
 	if(pDiffuseArray == NULL)
-		return;
+	{
+		LOGWARNING "No Vertex Colours defined, will export white colors on each vertex!.");
+
+		// Fallback on standard white.
+		unsigned int iVIndex = 0;
+		CVec4Array* pArray = new CVec4Array(m_iNrVerts);
+		bCleanUp = true;
+		for(unsigned int x = 0; x < m_iNrVerts; x++)
+		{
+			Ogre::Vector4& vColor = (*pArray)[iVIndex++];
+			vColor.x = 1.0f;
+			vColor.y = 1.0f;
+			vColor.z = 1.0f;
+			vColor.w = 1.0f;
+		}
+		pDiffuseArray = pArray;
+	}
 
 	int iNrVerts = pDiffuseArray->Size();
 
@@ -628,6 +548,9 @@ void COgreMeshCompiler::CreateDiffuseBuffer( CIntermediateMesh* pIntermediateMes
 					(((unsigned int)(vert.z*255.0)));
 	}
 	dBuf->unlock();
+
+	if(bCleanUp)
+		delete [] pDiffuseArray;
 }
 
 void COgreMeshCompiler::CreateTexCoordBuffer( CIntermediateMesh* pIntermediateMesh )
@@ -740,4 +663,111 @@ bool COgreMeshCompiler::WriteOgreMesh( const Ogre::String& sFilename )
 Ogre::MeshPtr COgreMeshCompiler::GetOgreMesh( void )
 {
 	return m_pOgreMesh;
+}
+
+void COgreMeshCompiler::CreatePoseBuffers( CIntermediateMesh* pIntermediateMesh )
+{
+	// Create static pose data
+	unsigned int iPoseCount = pIntermediateMesh->GetPoseCount();
+	for(unsigned int i=0; i<iPoseCount; i++)
+	{
+		Ogre::String poseName;
+		unsigned int iFrame;
+		bool bOptimize;
+		pIntermediateMesh->GetPose(i, poseName, iFrame,bOptimize);
+		iFrame *= GetTicksPerFrame();
+
+		CreatePose(pIntermediateMesh, poseName, iFrame, bOptimize );
+	}
+
+	// Create pose animations
+	unsigned int iPoseAnimCount = pIntermediateMesh->GetPoseAnimCount();
+	for(unsigned int i=0; i<iPoseAnimCount; i++)
+	{
+		Ogre::String animName;
+		unsigned int iStartFrame;
+		unsigned int iEndFrame;
+		float fRate;
+		bool bOptimize;
+		pIntermediateMesh->GetPoseAnimation(i, animName, iStartFrame, iEndFrame, fRate, bOptimize);
+
+		float fps = 1.0 / float(GetFrameRate());
+		float fAnimLength = (iEndFrame - iStartFrame) * fps;
+
+		Ogre::Animation* pAnim = m_pOgreMesh->createAnimation(animName,fAnimLength);
+		Ogre::VertexAnimationTrack* pTrack = pAnim->createVertexTrack(0, Ogre::VAT_POSE);
+
+		float x = iStartFrame;
+		int frameCount = 0;
+		while(x <= iEndFrame)
+		{
+			float time = (x- iStartFrame)*fps; // local in this animation
+			Ogre::VertexPoseKeyFrame* pKeyFrame = pTrack->createVertexPoseKeyFrame(time);
+
+			Ogre::String poseName = animName;
+			poseName += "_";
+			poseName += Ogre::StringConverter::toString(frameCount++);
+			unsigned int poseID = CreatePose(pIntermediateMesh, poseName, x*GetTicksPerFrame(), bOptimize );
+
+			pKeyFrame->addPoseReference(poseID,1.0f);
+
+			x += fRate;
+		}
+
+		if(bOptimize)
+			pAnim->optimise();
+	}
+}
+
+unsigned int COgreMeshCompiler::CreatePose( CIntermediateMesh* pIntermediateMesh, Ogre::String poseName, unsigned int iFrame, bool bOptimize )
+{
+	Ogre::Pose* pPose = m_pOgreMesh->createPose(0 /*shared geometry buffer*/, poseName);
+
+	if(iFrame != 0) // then the pose is the same as the reference, so nothing is needed to be checked
+	{
+		CMeshArray* pVerts = new CVec3Array();
+		CMeshArray* pTmpBuf = pIntermediateMesh->GetArray("position", iFrame);
+		pVerts->Create(pTmpBuf->Size(), pTmpBuf->Data());
+
+		CMeshArray* pOrigVerts = new CVec3Array();
+		pTmpBuf = pIntermediateMesh->GetArray("position", 0);
+		pOrigVerts->Create(pTmpBuf->Size(), pTmpBuf->Data());
+		
+		if(m_bReindex)
+		{
+				SharedUtilities::fastvector< CMeshArray* > bufferList;
+
+				bufferList.push_back(pVerts);
+				bufferList.push_back(pOrigVerts);
+
+				pIntermediateMesh->PostReindex( bufferList );
+		}
+
+		const Ogre::Vector3* data = (const Ogre::Vector3*)pVerts->Data();
+		const Ogre::Vector3* origData = (const Ogre::Vector3*)pOrigVerts->Data();
+		for(unsigned int j=0; j< pVerts->Size(); j++)
+		{
+			Ogre::Vector3 vert = data[j];
+			Ogre::Vector3 origVert = origData[j];
+
+			vert = vert - origVert;
+
+			if( !bOptimize )
+			{
+				pPose->addVertex(j,vert);
+			}
+			else if(vert != Ogre::Vector3::ZERO)
+				pPose->addVertex(j,vert);
+		}
+
+		delete pOrigVerts;
+		delete pVerts;
+	}
+	else
+	{
+		// ensure the buffer is clean (been known to be polluted right after creation)
+		pPose->clearVertexOffsets();
+	}
+
+	return m_iNrPoses++;
 }

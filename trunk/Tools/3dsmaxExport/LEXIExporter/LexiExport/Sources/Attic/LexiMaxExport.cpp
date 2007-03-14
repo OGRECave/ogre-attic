@@ -148,9 +148,10 @@ void CExporter::LoadConfig()
 	} catch(...)
 	{	
 	}
-
+	pRootConfig->SaveASCII("C:\\loadStream.txt");
 	// Create new export root object
 	m_pExportRoot=(CExportObjectRoot*)CExportObject::Construct(pRootConfig);	
+
 	pRootConfig->Release();
 
 	// Refresh buttonstates on MAX panel
@@ -159,7 +160,7 @@ void CExporter::LoadConfig()
 
 void CExporter::SaveConfig()
 {
-	if(!m_pExportRoot || !m_pExportRoot->HasChildren()) return;
+	if(!m_pExportRoot) return;// || !m_pExportRoot->HasChildren()) return;
 
 	CDataStream stream;
 
@@ -169,6 +170,9 @@ void CExporter::SaveConfig()
 
 	CDDObject *pConfig=new CDDObject();
 	m_pExportRoot->SaveConfig(pConfig);
+
+	pConfig->SaveASCII("C:\\saveStream.txt");
+
 	pConfig->ToDataStream(&stream);
 	pConfig->Release();
 
@@ -248,6 +252,8 @@ void CExporter::BeginEditParams(Interface* ip, IUtil* iu)
 		}
 
 		LoadConfig();
+		Ogre::String sVersionInfo = Ogre::String("Version: ") + Ogre::String(NDS_EXPORTER_VERSION);
+		Static_SetText( GetDlgItem(m_hPanel, IDC_VERSION_INFO), sVersionInfo.c_str());
 
 	}
 	catch (...)

@@ -49,6 +49,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "MetaString.h"
 #include "MetaColor.h"
 #include "MetaVec3.h"
+#include "MetaVec4.h"
 
 extern HBRUSH	GetGDISysColorBrush(int iIndex);
 extern DWORD	GetGDISysColor(int iIndex);

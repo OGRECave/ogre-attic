@@ -75,6 +75,16 @@ class CVec4 {
 		// Direct access to vector
 		float x, y, z, w;
 
+		// Ccess operators
+		inline float& operator [] (unsigned int iIndex)
+		{
+			return ((float*)&x)[iIndex];
+		}
+		inline const float& operator [] (unsigned int iIndex) const
+		{
+			return ((const float*)&x)[iIndex];
+		}
+
 		// Assignment
 		inline CVec4& operator = (const CVec4& v)
 		{
@@ -300,7 +310,6 @@ class CVec4 {
 		}
 
 		void fromMatrix(const CMatrix& m);
-
 };
 
 //

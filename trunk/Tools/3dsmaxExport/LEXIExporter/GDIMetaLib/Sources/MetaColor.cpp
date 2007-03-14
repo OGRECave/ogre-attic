@@ -39,6 +39,22 @@ MetaColor::~MetaColor()
 
 }
 
+
+// Set defaults on a data object from a meta object
+void MetaColor::SetDefaults(const CDDObject *pMetaKey, const char *pszMetaID, CDDObject *pData)
+{
+	if(pData->GetKeyType(pszMetaID)!=DD_VEC4 && pData->GetKeyType(pszMetaID)!=DD_VEC3)
+	{			
+		if(pMetaKey->GetKeyType("Default")==DD_VEC4)
+		{					
+			pData->SetVec4(pszMetaID, pMetaKey->GetVec4("Default"));
+		} else
+		{
+			pData->SetVec3(pszMetaID, pMetaKey->GetVec3("Default"));			
+		}		
+	}			
+}
+
 void MetaColor::OnCreated()
 {
 	m_pEditCtrl=new Edit();

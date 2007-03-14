@@ -93,6 +93,13 @@ public:
 		}
 	}
 
+	void	append(const fastvector<_T>& _X)
+	{
+		reserve(m_iSize + _X.m_iSize);
+		CopyMemory(m_pData+m_iSize,_X.m_pData, _X.m_iSize*sizeof(_T));
+		m_iSize=m_iSize + _X.m_iSize;
+	}
+
 	// Retrieve number of elements in the list
 	unsigned	size(void) const { return m_iSize; };
 

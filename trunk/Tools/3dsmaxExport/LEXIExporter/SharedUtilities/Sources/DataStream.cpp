@@ -208,6 +208,12 @@ int	CDataStream::GetPosition(void) const
 	return m_iPosition;
 }
 
+//
+void CDataStream::Reserve(unsigned int iNewAlloc)
+{
+	if(m_iAllocSize<iNewAlloc) Realloc(iNewAlloc-m_iAllocSize);
+}
+
 void CDataStream::Realloc(int iSpaceNeeded)
 {
 	// Allocate new chunk

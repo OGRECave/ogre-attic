@@ -45,6 +45,9 @@ public:
 	// Find meta control from window handle
 	static MetaControl*	FindFromHWND(HWND hWnd);
 
+	// Set defaults on a data object from a meta object
+	static void	SetDefaultsFromMeta(const CDDObject *pMeta, CDDObject *pData);
+
 	// Get/Set data object to edit
 	CDDObject*	GetData();
 	void	SetData(CDDObject *pData);
@@ -53,7 +56,7 @@ public:
 	void	SetDataNotify(IDDNotify *pListener);
 
 	void	CreateFromMeta(CDDObject *pMeta);
-	void	CreateFromMetaData(CDDObject *pMeta, CDDObject *pData);
+	void	CreateFromMetaData(CDDObject *pMeta, CDDObject *pData);	
 
 	// Notified from clients. This is enabled to make
 	// scroll-on-client-area function work.

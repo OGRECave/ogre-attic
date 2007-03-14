@@ -32,7 +32,7 @@ class COgreSkeletonCompiler
 
 
 public:
-	COgreSkeletonCompiler( const CDDObject* pConfig, Ogre::String name, Ogre::MeshPtr ogreMesh );
+	COgreSkeletonCompiler( Ogre::String name, Ogre::MeshPtr ogreMesh );
 	virtual ~COgreSkeletonCompiler();
 	bool WriteOgreSkeleton( const Ogre::String& sFilename );
 	void CreateAnimations( void );
@@ -41,22 +41,10 @@ protected:
 
 private:
 
-	void ReadConfig( const CDDObject* pConfig );
-
 	void CreateSkeleton( CIntermediateBone* pIBone = NULL );
 
 	CIntermediateSkeleton* m_pISkel;
 	Ogre::SkeletonPtr m_pSkel;
 	Ogre::MeshPtr m_pOgreMesh;
-
-	// Config 
-
-	//std::vector< SAnimSpec > m_lAnimSpecs;
-
-	//Ogre::String	m_sAnimName;
-	//int				m_iStartFrame;
-	//int				m_iEndFrame;
-	//float			m_fSampleRate;
-	//bool			m_bOptimize;
 
 };

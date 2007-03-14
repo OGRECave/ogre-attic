@@ -7,8 +7,18 @@
 "LanguageId" = "3:1033"
 "CodePage" = "3:1252"
 "UILanguageId" = "3:1033"
+"SccProjectName" = "8:Perforce Project"
+"SccLocalPath" = "8:."
+"SccAuxPath" = "8:"
+"SccProvider" = "8:MSSCCI:Perforce SCM"
     "Hierarchy"
     {
+        "Entry"
+        {
+        "MsmKey" = "8:_0110A363BD0B4B95A7E564B228B72F08"
+        "OwnerKey" = "8:_86C37D9B161B456FB750A53ED4B7E8F4"
+        "MsmSig" = "8:_UNDEFINED"
+        }
         "Entry"
         {
         "MsmKey" = "8:_192C1206465A49C982CD53150BC0A363"
@@ -29,14 +39,14 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_61916BA150C64800B37EE8FE8D559588"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_462FAB653D58ABCC9AB6C8887DF24A61"
+        "OwnerKey" = "8:_30BD674C97284F2DB5C7D153FB8FC74F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_6E7836BFFF8F4D938D237907C229ABA5"
-        "OwnerKey" = "8:_30BD674C97284F2DB5C7D153FB8FC74F"
+        "MsmKey" = "8:_61916BA150C64800B37EE8FE8D559588"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -47,26 +57,20 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_86C37D9B161B456FB750A53ED4B7E8F4"
+        "OwnerKey" = "8:_30BD674C97284F2DB5C7D153FB8FC74F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_918FAC30856943B3BDEBA7308AA9A9BA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_A2C08E44C1D442218A3834F049F5ABA0"
-        "OwnerKey" = "8:_6E7836BFFF8F4D938D237907C229ABA5"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_A4F11C25B1AE4D20BD9D336F51FE9A43"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_ADD5FA067BA9433BED1710B43CB2B350"
-        "OwnerKey" = "8:_30BD674C97284F2DB5C7D153FB8FC74F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -89,14 +93,14 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E348545CE70C41C0B14F2CD7D8863C70"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_D73759BDDB7A85E4341246231EB01793"
+        "OwnerKey" = "8:_30BD674C97284F2DB5C7D153FB8FC74F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_E6F3ABC611CFB771244ADBFD6FE62507"
-        "OwnerKey" = "8:_30BD674C97284F2DB5C7D153FB8FC74F"
+        "MsmKey" = "8:_E348545CE70C41C0B14F2CD7D8863C70"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -261,6 +265,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_462FAB653D58ABCC9AB6C8887DF24A61"
+            {
+            "SourcePath" = "8:MSIMG32.dll"
+            "TargetName" = "8:MSIMG32.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_9A6955C86079434BBECC068FF51DFB25"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_61916BA150C64800B37EE8FE8D559588"
             {
             "SourcePath" = "8:InstallData\\LexiExporter\\RenderSystem_GL.dll"
@@ -341,26 +365,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_ADD5FA067BA9433BED1710B43CB2B350"
-            {
-            "SourcePath" = "8:MSIMG32.dll"
-            "TargetName" = "8:MSIMG32.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_9A6955C86079434BBECC068FF51DFB25"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B0EE57A4C8D4423F91E6083F12A5BE36"
             {
             "SourcePath" = "8:InstallData\\ILU.dll"
@@ -421,6 +425,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D73759BDDB7A85E4341246231EB01793"
+            {
+            "SourcePath" = "8:comdlg32.dll"
+            "TargetName" = "8:comdlg32.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_9A6955C86079434BBECC068FF51DFB25"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E348545CE70C41C0B14F2CD7D8863C70"
             {
             "SourcePath" = "8:InstallData\\cg.dll"
@@ -439,26 +463,6 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E6F3ABC611CFB771244ADBFD6FE62507"
-            {
-            "SourcePath" = "8:comdlg32.dll"
-            "TargetName" = "8:comdlg32.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_9A6955C86079434BBECC068FF51DFB25"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E959BCA23DE94B749366DA0A7316FE6D"
@@ -609,18 +613,18 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:LEXIExport"
-        "ProductCode" = "8:{FEBF2045-8A55-48BB-B35D-A2835B2B961C}"
-        "PackageCode" = "8:{B91AD371-6231-4786-BBB2-231B3C9EF7EA}"
+        "ProductCode" = "8:{6569210F-E60A-4237-8119-9F83B11302EA}"
+        "PackageCode" = "8:{90F01308-B90D-474C-88E6-B63374B761D7}"
         "UpgradeCode" = "8:{153F1498-CA22-4196-B639-B267C9BC0DFA}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.2"
+        "ProductVersion" = "8:1.0.3"
         "Manufacturer" = "8:NDS Denmark A/S"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:LEXIExport 1.0.2"
+        "Title" = "8:LEXIExport 1.0.3"
         "Subject" = "8:"
         "ARPCONTACT" = "8:ITE ApS"
         "Keywords" = "8:"
@@ -1125,11 +1129,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_6E7836BFFF8F4D938D237907C229ABA5"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_0110A363BD0B4B95A7E564B228B72F08"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
+            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
                 "Properties"
                 {
                 }
@@ -1139,11 +1143,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_A2C08E44C1D442218A3834F049F5ABA0"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_86C37D9B161B456FB750A53ED4B7E8F4"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
+            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
                 "Properties"
                 {
                 }

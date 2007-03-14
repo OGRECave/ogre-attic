@@ -28,7 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __NDS_LexiExporter_ExportObject_BoneAnim__
 
 #include "..\res\resource.h"
-
+#include "LexiExportSupportTypes.h"
 //
 
 class CBoneAnimExportObject : public CExportObject 
@@ -53,7 +53,7 @@ public:
 	bool SupportsParentType(const CExportObject *pParent) const;
 
 	// Export object
-	bool Export(CExportProgressDlg *pProgressDlg, bool bForceAll) const;
+	bool Export(CExportProgressDlg *pProgressDlg, bool bForceAll);
 
 private:
 	CDDObject* BuildMetaDesc( void );

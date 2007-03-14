@@ -46,7 +46,7 @@ bool CIntermediateBuilderSkeleton::BuildIntermediateSkeleton( INode* pMaxNode )
 	m_pMaxNode = pMaxNode;
 
 	//LOGDEBUG "CIntermediate::CreateMesh() - Tjeck for skin modifier.");
-	if(FindSkinModifier())
+	if(FindSkinModifier( m_pMaxNode ))
 	{
 		LOGDEBUG "Creating intermediate skeleton.");
 
@@ -80,6 +80,7 @@ void CIntermediateBuilderSkeleton::Finalize( void )
 {
 	if(m_pISkel!=NULL)
 	{
+		m_pISkel->TrimVertexAssignments(4);
 		m_pISkel->NormalizeVertexAssignments();
 		m_pISkel->SetFPS( GetFrameRate() );
 	}
@@ -183,10 +184,10 @@ void CIntermediateBuilderSkeleton::ConnectLinkedBones( void )
 	}
 }
 
-bool CIntermediateBuilderSkeleton::FindSkinModifier( void )
+bool CIntermediateBuilderSkeleton::FindSkinModifier( INode* pMaxNode )
 {	
 	// Get object from node. Abort if no object.
-	Object* ObjectPtr = m_pMaxNode->GetObjectRef();			
+	Object* ObjectPtr = pMaxNode->GetObjectRef();			
 
 	if (!ObjectPtr) return false;
 
@@ -212,10 +213,60 @@ bool CIntermediateBuilderSkeleton::FindSkinModifier( void )
 
 				//get the node's initial transformation matrix and store it in a matrix3
 				Matrix3 initTM;
-				int msg = (m_pSkin)->GetBoneInitTM(m_pMaxNode, initTM);
+				int msg = (m_pSkin)->GetBoneInitTM(pMaxNode, initTM);
 
 				//get a pointer to the export context interface
-				m_pSkinContext = (ISkinContextData*)(m_pSkin)->GetContextInterface(m_pMaxNode);
+				m_pSkinContext = (ISkinContextData*)(m_pSkin)->GetContextInterface(pMaxNode);
+				return true;
+			}
+
+			// Next modifier stack entry.
+			ModStackIndex++;
+		}
+		ObjectPtr = DerivedObjectPtr->GetObjRef();
+	}
+
+	// Not found.
+	return false;
+}
+
+bool CIntermediateBuilderSkeleton::QuerySkinModifier( INode* pMaxNode )
+{	
+	// Get object from node. Abort if no object.
+	Object* ObjectPtr = pMaxNode->GetObjectRef();			
+
+	if (!ObjectPtr) return false;
+
+	Modifier*			pSkinMod = NULL;
+	ISkin*				pSkin = NULL;
+	ISkinContextData*	pSkinContext = NULL;
+
+	// Is derived object ?
+	while (ObjectPtr->SuperClassID() == GEN_DERIVOB_CLASS_ID && ObjectPtr)
+	{
+		// Yes -> Cast.
+		IDerivedObject *DerivedObjectPtr = (IDerivedObject *)(ObjectPtr);
+
+		// Iterate over all entries of the modifier stack.
+		int ModStackIndex = 0;
+		while (ModStackIndex < DerivedObjectPtr->NumModifiers())
+		{
+			// Get current modifier.
+			Modifier* ModifierPtr = DerivedObjectPtr->GetModifier(ModStackIndex);
+
+			// Is this Physique ?
+			if (ModifierPtr->ClassID() == SKIN_CLASSID)
+			{
+				// Yes -> Exit.
+				pSkinMod = ModifierPtr;
+				pSkin=(ISkin*)(pSkinMod)->GetInterface(I_SKIN);
+
+				//get the node's initial transformation matrix and store it in a matrix3
+				Matrix3 initTM;
+				int msg = (pSkin)->GetBoneInitTM(pMaxNode, initTM);
+
+				//get a pointer to the export context interface
+				pSkinContext = (ISkinContextData*)(pSkin)->GetContextInterface(pMaxNode);
 				return true;
 			}
 

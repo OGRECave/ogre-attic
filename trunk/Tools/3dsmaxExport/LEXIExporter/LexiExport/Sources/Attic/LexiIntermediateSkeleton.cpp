@@ -51,6 +51,7 @@ void CIntermediateSkeleton::clear()
 	m_BoneList.clear();
 	m_RootBoneList.clear();
 	m_BoneNameList.clear();
+	m_VertexBoneData.clear();
 }
 
 //
@@ -140,10 +141,6 @@ bool CIntermediateSkeleton::RecursiveAssembleBones( CIntermediateBone* pIBone )
 		parent->AddBone( pIBone );
 
 	return true;
-//	for (int i = 0; i < pIBone->GetBoneCount(); i++)
-//	{
-//		RecursiveAssembleBones(pIBone->GetBone(i));
-//	}
 }
 
 void CIntermediateSkeleton::PopulateBoneHandleMap( void )
@@ -200,6 +197,34 @@ int CIntermediateSkeleton::GetNrOfAssignmentsOnVertex( int idx )
 	return 0;
 }
 
+void CIntermediateSkeleton::TrimVertexAssignments( int iMaxAssignments )
+{
+	
+	std::map< int, std::vector<SVertexBoneData> >::iterator iter = m_VertexBoneData.begin();
+
+	// throw the lowest weighted away
+	while( iter != m_VertexBoneData.end() )
+	{
+		if(iter->second.size() >= iMaxAssignments)
+		{
+			LOGWARNING "Too Many Vertex Bone assignments (max: %i).. ignoring the lowest weights..", iMaxAssignments);
+
+
+			sort(iter->second.begin(), iter->second.end() );
+
+			int popCount = iter->second.size() - iMaxAssignments;
+			while(popCount != 0)
+			{
+				iter->second.pop_back();
+				popCount--;
+			}
+
+		}
+		iter++;
+	}
+	
+}
+
 void CIntermediateSkeleton::NormalizeVertexAssignments( void )
 {
 	std::map< int, std::vector<SVertexBoneData> >::iterator iter = m_VertexBoneData.begin();
@@ -216,7 +241,7 @@ void CIntermediateSkeleton::NormalizeVertexAssignments( void )
 			fTotal+=vertexBoneData.weight;		
 		}
 
-		if(fTotal!=0) {
+		if( (fTotal!=0) && (fTotal!=1) ) {
 			it = iter->second.begin();
 			for(; it != iend; ++it) {
 				SVertexBoneData& vertexBoneData = (*it);
@@ -233,9 +258,13 @@ bool CIntermediateSkeleton::GetVertexData( int idx, int assignmentNr, SVertexBon
 
 	if( iter != m_VertexBoneData.end() )
 	{
-		returnVal.boneIndex = iter->second[assignmentNr].boneIndex;
-		returnVal.weight = iter->second[assignmentNr].weight;
-		return true;
+		if(	iter->second[assignmentNr].bRead != true )
+		{
+			returnVal.boneIndex = iter->second[assignmentNr].boneIndex;
+			returnVal.weight = iter->second[assignmentNr].weight;
+			iter->second[assignmentNr].bRead = true;
+			return true;
+		}
 	}
 
 	return false;
@@ -261,6 +290,70 @@ bool CIntermediateSkeleton::AddVertexData( int idx, SVertexBoneData vertexData )
 	return false;
 }
 
+typedef std::map< int, std::vector<SVertexBoneData> > vertexMap;
+typedef CTMeshArray<SVertexBoneData> CDataArray;
+
+void CIntermediateSkeleton::ExtractVertexAssignmentsArrays( SharedUtilities::fastvector< CMeshArray* > &bufferList )
+{
+	short MAX_BONE_INDEX = 3;
+	//short boneNr = 0;
+	unsigned int iIndexCount = m_VertexBoneData.size();
+
+	CDataArray* pArray;
+
+	for(int i=0; i < MAX_BONE_INDEX; i++)
+	{
+		pArray = new CDataArray(iIndexCount);
+		
+		vertexMap::const_iterator it = m_VertexBoneData.begin();
+
+		for(int j=0; j < iIndexCount; j++)
+		{
+			std::vector<SVertexBoneData> curList = it->second;
+			SVertexBoneData curData;
+
+			if( i < curList.size())
+				curData = curList[i];
+			else
+			{
+				curData.boneIndex = 0xFFFFFFFF;
+				curData.weight = 0xFFFFFFFF;
+			}
+
+			(*pArray)[j] = curData;
+			it++;
+		}
+		bufferList.push_back(pArray);
+	}
+}
+
+/** Apply new assignments based on the arrays given.
+	The new arrays must fit the original index count.
+*/
+bool CIntermediateSkeleton::ApplyVertexAssignmentsArrays( SharedUtilities::fastvector< CMeshArray* > &bufferList )
+{
+	short MAX_BONE_INDEX = 3;
+	CDataArray* pArray;
+
+	if(bufferList.size()> MAX_BONE_INDEX)
+		return false;
+
+	m_VertexBoneData.clear();
+
+	for(int i=0; i < bufferList.size(); i++)
+	{
+		pArray = dynamic_cast<CDataArray*>(bufferList[i]);
+
+		for(int j=0; j < pArray->Size(); j++)
+		{
+			SVertexBoneData curData = (*pArray)[j];
+			if(curData.boneIndex != 0xFFFFFFFF)
+				AddVertexData(j,curData);
+		}
+	}
+	return true;
+}
+/*
 bool CIntermediateSkeleton::PrepareReindexChange( int oldIndex, int newIndex )
 {
 	std::map< int, std::vector<SVertexBoneData> >::iterator iter = m_VertexBoneData.find( oldIndex );
@@ -270,13 +363,14 @@ bool CIntermediateSkeleton::PrepareReindexChange( int oldIndex, int newIndex )
 		std::map< int, std::vector<SVertexBoneData> >::iterator iter2 = m_ReindexVertexBoneData.find( newIndex );
 		if( iter2 != m_ReindexVertexBoneData.end() )
 		{
-			// we already have a record on this index.. so we appends
-			while(!iter->second.empty())
-			{
-				iter2->second.push_back(iter->second.back());
-				iter->second.pop_back();
-			}
-			return true;
+			// we already have a record on this index.. so we append
+			// NO! WE DON`T
+			//while(!iter->second.empty())
+			//{
+			//	iter2->second.push_back(iter->second.back());
+			//	iter->second.pop_back();
+			//}
+			//return true;
 		}
 		else
 		{
@@ -295,7 +389,7 @@ bool CIntermediateSkeleton::ApplyReindexChanges( void )
 	m_ReindexVertexBoneData.clear();
 	return true;
 }
-
+*/
 void CIntermediateSkeleton::MarkBoneAsRoot( CIntermediateBone* pIBone )
 {
 	m_RootBoneList.push_back( pIBone );

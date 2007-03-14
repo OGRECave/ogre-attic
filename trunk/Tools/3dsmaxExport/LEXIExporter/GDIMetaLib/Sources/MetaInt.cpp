@@ -37,6 +37,15 @@ MetaInt::~MetaInt()
 
 }
 
+// Set defaults on a data object from a meta object
+void MetaInt::SetDefaults(const CDDObject *pMetaKey, const char *pszMetaID, CDDObject *pData)
+{
+	if(pData->GetKeyType(pszMetaID)!=DD_INT)
+	{			
+		pData->SetInt(pszMetaID, pMetaKey->GetInt("Default"));					
+	}			
+}
+
 void MetaInt::OnCreated()
 {
 	m_pEditCtrl=new Edit();
@@ -194,17 +203,19 @@ bool MetaInt::OnMouseMove(int iFlags, int iX, int iY)
 			::GetClientRect(m_hWnd, &rClient);		
 
 			double fRatio = (double)((iX - (g_iSliderHandleWidth / 2)) - rClient.left) / (double)(rClient.right - g_iSliderHandleWidth);
-			m_iValue = ((int)((m_iMax - m_iMin) * fRatio + 0.5)) + m_iMin + (m_iStep / 2);
-			m_iValue /= m_iStep;
-			m_iValue *= m_iStep;
-			if (m_iValue < m_iMin) m_iValue = m_iMin;
-			else if (m_iValue > m_iMax) m_iValue = m_iMax;		
-
-			// Set data on data object
-			
-			char buffer[25];
-			_snprintf_s(buffer, 25, "%d", m_iValue);
-			m_pEditCtrl->SetWindowText(buffer);	
+			int iNewValue= ((int)((m_iMax - m_iMin) * fRatio + 0.5)) + m_iMin + (m_iStep / 2);
+			iNewValue /= m_iStep;
+			iNewValue *= m_iStep;
+			if (iNewValue < m_iMin) iNewValue = m_iMin;
+			else if (iNewValue > m_iMax) iNewValue = m_iMax;		
+			if(iNewValue!=m_iValue)
+			{
+				m_iValue=iNewValue;
+				// Set data on data object				
+				char buffer[25];
+				_snprintf_s(buffer, 25, "%d", m_iValue);
+				m_pEditCtrl->SetWindowText(buffer);	
+			}
 			return true;
 		}
 		if(m_bHasCapture)

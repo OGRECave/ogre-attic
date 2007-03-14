@@ -22,15 +22,19 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-
 #include "StdAfx.h"
+
+#define NOTIFY_CHANGE(x) \
+	m_bChanged=true; \
+	for(unsigned _iNotify=0;_iNotify<m_lListeners.size();_iNotify++) \
+		m_lListeners[_iNotify]->OnChanged(this, x);
 
 // Constructor 
 CDDObject::CDDObject(void)
 {
 	m_iRefCount=1;
 	m_bChanged=false;
-	m_pNotifier=0;
+
 }
 
 // Private destructor - use Release() to free object
@@ -67,16 +71,53 @@ void CDDObject::RemoveData(const char *pszID)
 	const CDDBase *pItem;
 	if(m_mData.find(pszID,pItem))
 	{
-		pItem->Release();
+		pItem->Release();		
 		m_mData.erase(pszID);
-		m_bChanged=true;
+		NOTIFY_CHANGE(pszID);
 	}
 }
 
 // Check if object has been changed
-bool CDDObject::HasChanged(bool bResetChange)
+bool CDDObject::HasChanged(bool bResetChange, bool bRecurse)
 {
 	bool bRet=m_bChanged;
+
+	// If this object has not changed, we check others
+	if(!bRet && bRecurse)
+	{
+		fastvector< const CDDBase * > lObjects=m_mData.data();
+		for(unsigned i=0;i<lObjects.size();i++)
+		{
+			if(lObjects[i]->GetType()==DD_OBJECT)
+			{
+				// Check sub object
+				CDDObject *pSub=(CDDObject *)lObjects[i];
+				if(pSub->HasChanged(bResetChange, true))
+				{
+					// Object has changed, we do not need to check any further
+					bRet=true;
+					break;
+				}
+			}
+			else if(lObjects[i]->GetType()==DD_OBJLIST)
+			{
+				const CDDObjectList *pDDList=static_cast<const CDDObjectList *>(lObjects[i]);
+				for(unsigned iSub=0;iSub<pDDList->m_lList.size();iSub++)
+				{
+					// Intentionally cast const away, since we have to be able to reset change flag
+					if(((CDDObject*)pDDList->m_lList[iSub])->HasChanged(bResetChange, true))
+					{
+						// Object has changed, we do not need to check any further
+						bRet=true;
+						break;
+					}
+				}
+				// If any of the sub objects was marked, we do not need to check any other objects
+				if(bRet) break;
+			}
+		}
+	}
+
 	if(bResetChange) m_bChanged=false;
 	return bRet;
 }
@@ -774,9 +815,20 @@ CDDBase* CDDObject::Clone(void) const
 }
 
 // Set notifier instance. Use this to get notified when object data changes
-void CDDObject::SetNotifier(IDDNotify *pNotifier)
+void CDDObject::AddNotifier(IDDNotify *pNotifier)
 {
-	m_pNotifier=pNotifier;
+	m_lListeners.push_back(pNotifier);	
+}
+void CDDObject::RemoveNotifier(IDDNotify *pNotifier)
+{
+	for(unsigned i=0;i<m_lListeners.size();i++)
+	{
+		if(m_lListeners[i]==pNotifier)
+		{
+			m_lListeners.erase(i);
+			break;
+		}
+	}	
 }
 
 // Query Functions
@@ -1050,7 +1102,7 @@ void CDDObject::SetInt(const char *pszID, int iData)
 	m_mData.map(pszID, new CDDInt(iData), pOld);
 	if(pOld) pOld->Release();
 	m_bChanged=true;
-	if(m_pNotifier) m_pNotifier->OnChanged(this, pszID);
+	NOTIFY_CHANGE(pszID);	
 }
 // Set a list of integers
 void CDDObject::SetIntList(const char *pszID, const int *pValues, int iCount)
@@ -1059,7 +1111,7 @@ void CDDObject::SetIntList(const char *pszID, const int *pValues, int iCount)
 	m_mData.map(pszID, new CDDIntList(pValues, iCount), pOld);
 	if(pOld) pOld->Release();
 	m_bChanged=true;
-	if(m_pNotifier) m_pNotifier->OnChanged(this, pszID);
+	NOTIFY_CHANGE(pszID);
 }
 void CDDObject::SetIntList(const char *pszID, fastvector<int> &lList)
 {
@@ -1072,8 +1124,8 @@ void CDDObject::SetFloat(const char *pszID, float fData)
 	const CDDBase *pOld=NULL;
 	m_mData.map(pszID, new CDDFloat(fData), pOld);
 	if(pOld) pOld->Release();
-	m_bChanged=true;
-	if(m_pNotifier) m_pNotifier->OnChanged(this, pszID);
+	NOTIFY_CHANGE(pszID);	
+
 }
 // Set a list of floats
 void CDDObject::SetFloatList(const char *pszID, const float *pValues, int iCount)
@@ -1081,8 +1133,8 @@ void CDDObject::SetFloatList(const char *pszID, const float *pValues, int iCount
 	const CDDBase *pOld=NULL;
 	m_mData.map(pszID, new CDDFloatList(pValues, iCount), pOld);
 	if(pOld) pOld->Release();
-	m_bChanged=true;
-	if(m_pNotifier) m_pNotifier->OnChanged(this, pszID);
+	NOTIFY_CHANGE(pszID);	
+
 }
 void CDDObject::SetFloatList(const char *pszID, fastvector<float> &lList)
 {
@@ -1095,8 +1147,8 @@ void CDDObject::SetString(const char *pszID, const char *pszData)
 	const CDDBase *pOld=NULL;
 	m_mData.map(pszID, new CDDString(pszData), pOld);
 	if(pOld) pOld->Release();
-	m_bChanged=true;
-	if(m_pNotifier) m_pNotifier->OnChanged(this, pszID);
+	NOTIFY_CHANGE(pszID);	
+
 }
 
 // Store stringlist
@@ -1105,8 +1157,8 @@ void CDDObject::SetStringList(const char *pszID, vector<faststring> &lList)
 	const CDDBase *pOld=NULL;
 	m_mData.map(pszID, new CDDStringList(lList), pOld);
 	if(pOld) pOld->Release();
-	m_bChanged=true;
-	if(m_pNotifier) m_pNotifier->OnChanged(this, pszID);
+	NOTIFY_CHANGE(pszID);	
+
 }
 
 // Store DDObject
@@ -1116,8 +1168,8 @@ void CDDObject::SetDDObject(const char *pszID, const CDDObject *pObj)
 	pObj->AddRef();
 	m_mData.map(pszID, pObj, pOld);
 	if(pOld) pOld->Release();
-	m_bChanged=true;
-	if(m_pNotifier) m_pNotifier->OnChanged(this, pszID);
+	NOTIFY_CHANGE(pszID);
+
 }
 
 // Store DDObject List
@@ -1126,8 +1178,8 @@ void CDDObject::SetDDList(const char *pszID, fastvector<const CDDObject *> &lLis
 	const CDDBase *pOld=NULL;
 	m_mData.map(pszID, new CDDObjectList(lList, bAddRef), pOld);	
 	if(pOld) pOld->Release();
-	m_bChanged=true;
-	if(m_pNotifier) m_pNotifier->OnChanged(this, pszID);
+	NOTIFY_CHANGE(pszID);
+
 }
 
 // Set a list of floats
@@ -1136,8 +1188,8 @@ void CDDObject::SetBinary(const char *pszID, const void *pData, unsigned iSize)
 	const CDDBase *pOld=NULL;
 	m_mData.map(pszID, new CDDBinary(pData, (int)iSize), pOld);
 	if(pOld) pOld->Release();
-	m_bChanged=true;
-	if(m_pNotifier) m_pNotifier->OnChanged(this, pszID);
+	NOTIFY_CHANGE(pszID);
+
 }
 
 // Store vec3
@@ -1146,8 +1198,8 @@ void CDDObject::SetVec3(const char *pszID, const CVec3& vVec)
 	const CDDBase *pOld=NULL;
 	m_mData.map(pszID, new CDDVec3(vVec.x, vVec.y, vVec.z), pOld);
 	if(pOld) pOld->Release();
-	m_bChanged=true;
-	if(m_pNotifier) m_pNotifier->OnChanged(this, pszID);
+	NOTIFY_CHANGE(pszID);
+
 }
 // Set a list of vec3's
 void CDDObject::SetVec3List(const char *pszID, const CVec3* pValues, int iCount)
@@ -1155,8 +1207,8 @@ void CDDObject::SetVec3List(const char *pszID, const CVec3* pValues, int iCount)
 	const CDDBase *pOld=NULL;
 	m_mData.map(pszID, new CDDVec3List(pValues, iCount), pOld);
 	if(pOld) pOld->Release();
-	m_bChanged=true;
-	if(m_pNotifier) m_pNotifier->OnChanged(this, pszID);
+	NOTIFY_CHANGE(pszID);
+
 }
 
 // Store boolean
@@ -1165,8 +1217,8 @@ void CDDObject::SetBool(const char *pszID, bool bData)
 	const CDDBase *pOld=NULL;
 	m_mData.map(pszID, new CDDBool(bData), pOld);
 	if(pOld) pOld->Release();
-	m_bChanged=true;
-	if(m_pNotifier) m_pNotifier->OnChanged(this, pszID);
+	NOTIFY_CHANGE(pszID);
+
 }
 
 // Store vec2
@@ -1175,8 +1227,8 @@ void CDDObject::SetVec2(const char *pszID, const CVec2& vVec)
 	const CDDBase *pOld=NULL;
 	m_mData.map(pszID, new CDDVec2(vVec.x, vVec.y), pOld);
 	if(pOld) pOld->Release();
-	m_bChanged=true;
-	if(m_pNotifier) m_pNotifier->OnChanged(this, pszID);
+	NOTIFY_CHANGE(pszID);
+
 }
 
 // Store vec4
@@ -1185,8 +1237,8 @@ void CDDObject::SetVec4(const char *pszID, const CVec4& vVec)
 	const CDDBase *pOld=NULL;
 	m_mData.map(pszID, new CDDVec4(vVec.x, vVec.y, vVec.z, vVec.w), pOld);
 	if(pOld) pOld->Release();
-	m_bChanged=true;
-	if(m_pNotifier) m_pNotifier->OnChanged(this, pszID);
+	NOTIFY_CHANGE(pszID);
+
 }
 // Set a list of vec4's
 void CDDObject::SetVec4List(const char *pszID, const CVec4* pValues, int iCount)
@@ -1194,8 +1246,8 @@ void CDDObject::SetVec4List(const char *pszID, const CVec4* pValues, int iCount)
 	const CDDBase *pOld=NULL;
 	m_mData.map(pszID, new CDDVec4List(pValues, iCount), pOld);
 	if(pOld) pOld->Release();
-	m_bChanged=true;
-	if(m_pNotifier) m_pNotifier->OnChanged(this, pszID);
+	NOTIFY_CHANGE(pszID);
+
 }
 
 // Store matrix
@@ -1204,8 +1256,8 @@ void CDDObject::SetMatrix(const char *pszID, const CMatrix& mMat)
 	const CDDBase *pOld=NULL;
 	m_mData.map(pszID, new CDDMatrix((const float*)mMat.mat), pOld);
 	if(pOld) pOld->Release();
-	m_bChanged=true;
-	if(m_pNotifier) m_pNotifier->OnChanged(this, pszID);
+	NOTIFY_CHANGE(pszID);
+
 }
 // Set a list of matrices
 void CDDObject::SetMatrixList(const char *pszID, const CMatrix* pValues, int iCount)
@@ -1213,7 +1265,8 @@ void CDDObject::SetMatrixList(const char *pszID, const CMatrix* pValues, int iCo
 	const CDDBase *pOld=NULL;
 	m_mData.map(pszID, new CDDMatrixList(pValues, iCount), pOld);
 	if(pOld) pOld->Release();
-	m_bChanged=true;
-	if(m_pNotifier) m_pNotifier->OnChanged(this, pszID);
+	NOTIFY_CHANGE(pszID);
 }
+
+
 

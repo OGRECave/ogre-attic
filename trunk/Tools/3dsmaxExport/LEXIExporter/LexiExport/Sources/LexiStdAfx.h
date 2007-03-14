@@ -83,7 +83,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #define NDS_EXPORTER_TITLE			"LEXIExporter"
 // Remember to change every release
-#define NDS_EXPORTER_VERSION		"1.0.2"
+#define NDS_EXPORTER_VERSION		"1.0.3"
 // Change only at config protocol break
 #define NDS_EXPORTER_CONFIG_VERSION	10002
 

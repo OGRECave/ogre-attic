@@ -32,6 +32,23 @@ http://www.gnu.org/copyleft/lesser.txt.
 struct SVertexBoneData{
 	ULONG boneIndex;
 	float weight;
+	bool bRead;
+
+public:
+	SVertexBoneData()
+	{
+		boneIndex = 0xFFFFFFFF;
+		weight = 0.0f;
+		bRead = false;
+	}
+
+	bool operator< (const SVertexBoneData& other)
+	{
+		// We do it the other way around since we want to sort decenting
+		if(weight > other.weight)
+			return true;
+		return false;
+	}
 };
 
 class CIntermediateSkeleton {
@@ -84,14 +101,18 @@ class CIntermediateSkeleton {
 		CIntermediateBone* FindBone( ULONG handle );
 
 		int GetNrOfAssignmentsOnVertex( int idx );
+		void TrimVertexAssignments( int iMaxAssignments );
 		void NormalizeVertexAssignments( void );
-		bool GetVertexData( int idx, int assignmentNr, SVertexBoneData& returnVal );
+		bool GetVertexData( int idx, int assignmentNr, SVertexBoneData& returnVal);
 		bool AddVertexData( int idx, SVertexBoneData vertexData );
 
 		bool AssembleBones( void );
 
-		bool PrepareReindexChange( int oldIndex, int newIndex );
-		bool ApplyReindexChanges( void );
+		void ExtractVertexAssignmentsArrays( SharedUtilities::fastvector< CMeshArray* > &bufferList );
+		bool ApplyVertexAssignmentsArrays( SharedUtilities::fastvector< CMeshArray* > &bufferList );
+
+		//bool PrepareReindexChange( int oldIndex, int newIndex );
+		//bool ApplyReindexChanges( void );
 
 		void MarkBoneAsRoot( CIntermediateBone* pIBone );
 		const std::vector<CIntermediateBone*>& GetRootBones( void ) const;

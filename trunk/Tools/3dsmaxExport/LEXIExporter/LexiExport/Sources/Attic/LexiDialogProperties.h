@@ -29,7 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 //
 
-class CExporterPropertiesDlg : public GDI::Dialog 
+class CExporterPropertiesDlg : public GDI::Dialog
 {
 public:
 	CExporterPropertiesDlg(Window* pParent, Interface* pMax, IUtil* pMaxUtil, CExportObjectRoot *pRoot);
@@ -42,6 +42,11 @@ public:
 	void PopulateExportTree();
 //	void AddToExportTree(unsigned int iConfigIndex);
 //	void UpdateItemInList(int iIndex);
+
+	// Accessible for AddMultiple Dialog
+	Interface* m_pMax;
+	IUtil* m_pMaxUtil;
+	std::vector<CExportObject*> m_lTypeCache;
 
 protected:
 	void	OnInitDialog();
@@ -70,8 +75,7 @@ protected:
 private:
 	// Image list for icons in the treectrl
 	HIMAGELIST m_hImageList;
-	std::map<std::string, unsigned int> m_ImageListMap;
-	std::vector<CExportObject*> m_lTypeCache;
+	std::map<std::string, unsigned int> m_ImageListMap;	
 
 	// UI controls
 	GDI::Button		m_ButtonAdd;
@@ -82,11 +86,7 @@ private:
 	GDI::Button		m_ButtonLoadSelection;
 	GDI::Button		m_ButtonExportSelected;
 	GDI::TreeCtrl	m_ExportTree;
-	GDI::Window		*m_pCurrentEditWindow;
-
-	// 
-	Interface* m_pMax;
-	IUtil* m_pMaxUtil;
+	GDI::Window		*m_pCurrentEditWindow;	
 
 	CExportObjectRoot	*m_pRoot;	
 	HTREEITEM			m_hRootItem;

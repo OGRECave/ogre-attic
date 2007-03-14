@@ -48,13 +48,15 @@ class CIntermediateBuilder {
 		// Clear everything (cached materials, etc.)
 		void Clear();
 
+		void CleanUpHierarchy( Ogre::SceneNode* pNode );
+
 		void SetConfig( CDDObject* pConfig );
 
 		// Get built hierarchy
 		Ogre::SceneNode* CreateHierarchy(unsigned int iNodeID, bool bRecursive, bool bHidden);
 
 		// Collapse hierarchy
-		Ogre::SceneNode* CollapseHierarchy(Ogre::SceneNode* pHierarchy, const std::list<std::string>& Arrays, const char* pszName) const;
+		Ogre::SceneNode* CollapseHierarchy(Ogre::SceneNode* pHierarchy, const std::list<std::string>& Arrays, const char* pszName);
 
 		// Get the list of active intermediate materials
 		bool GetMaterials( std::map<Ogre::String, CIntermediateMaterial*>& materialMap ) const;
@@ -109,6 +111,9 @@ class CIntermediateBuilder {
 		float			m_fSampleRate;
 		Ogre::String	m_sAnimationName;
 		float			m_fAnimTotalLength;
+
+		// record the created intermediate objects
+		std::vector< CIntermediateMesh* > m_lIMPool;
 };
 
 //

@@ -52,6 +52,7 @@ private:
 	void	CreateSpecularColor(  Ogre::Pass* pass );
 	void	CreateSpecularLevel(  Ogre::Pass* pass );
 	void	CreateSelfIllumination(  Ogre::Pass* pass );
+	void	CreateDiffuseAndOpacity( Ogre::Pass* pass );
 
 	static int doFileCopy(Ogre::String inFile, Ogre::String outFile);
 

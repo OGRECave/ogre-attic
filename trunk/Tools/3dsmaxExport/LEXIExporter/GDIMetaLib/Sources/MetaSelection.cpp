@@ -36,6 +36,32 @@ MetaSelection::~MetaSelection()
 
 }
 
+// Set defaults on a data object from a meta object
+void MetaSelection::SetDefaults(const CDDObject *pMetaKey, const char *pszMetaID, CDDObject *pData)
+{
+	if(pData->GetKeyType(pszMetaID)!=DD_INT)
+	{			
+		if(pMetaKey->GetKeyType("Default")==DD_STRING)
+		{
+			const char *pszString=pMetaKey->GetString("Default");
+			vector<faststring> lStrings=pMetaKey->GetStringList("Strings");
+			int iSel=0;
+			for(unsigned i=0;i<lStrings.size();i++)
+			{
+				if(strcmp(lStrings[i].c_str(),pszString)==0)
+				{
+					iSel=i;
+					break;
+				}
+			}
+			pData->SetInt(pszMetaID, iSel);
+		} else
+		{
+			pData->SetInt(pszMetaID, pMetaKey->GetInt("Default"));
+		}
+	}			
+}
+
 void MetaSelection::OnCreated()
 {
 	vector<faststring> lStrings=m_pMetaKey->GetStringList("Strings");
