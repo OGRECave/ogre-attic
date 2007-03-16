@@ -533,8 +533,10 @@ namespace Ogre {
 
         /** Begin injection of billboard data; applicable when 
             constructing the BillboardSet for external data use.
+		@param numBillboards If you know the number of billboards you will be 
+			issuing, state it here to make the update more efficient.
         */
-        void beginBillboards(void);
+        void beginBillboards(size_t numBillboards = 0);
         /** Define a billboard. */
         void injectBillboard(const Billboard& bb);
         /** Finish defining billboards. */

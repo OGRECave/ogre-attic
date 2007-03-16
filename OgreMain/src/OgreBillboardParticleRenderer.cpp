@@ -126,7 +126,7 @@ namespace Ogre {
         mBillboardSet->setCullIndividually(cullIndividually);
 
         // Update billboard set geometry
-        mBillboardSet->beginBillboards();
+        mBillboardSet->beginBillboards(currentParticles.size());
         Billboard bb;
         for (std::list<Particle*>::iterator i = currentParticles.begin();
             i != currentParticles.end(); ++i)
