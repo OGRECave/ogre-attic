@@ -30,16 +30,17 @@ Torus Knot Software Ltd.
 #include "OgreGLHardwareVertexBuffer.h"
 #include "OgreGLHardwareIndexBuffer.h"
 #include "OgreHardwareBuffer.h"
+#include "OgreAlignedAllocator.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
-	// Scratch pool management
+	// Scratch pool management (32 bit structure)
 	struct GLScratchBufferAlloc
 	{
 		/// Size in bytes
-		uint32 size;
-		/// Free? (with some compilers we can pack this into size, not sure of support though)
-		bool free;
+		uint32 size: 31;
+		/// Free? (pack with size)
+		uint32 free: 1;
 	};
 	#define SCRATCH_POOL_SIZE 4 * 1024 * 1024
 	//---------------------------------------------------------------------
@@ -48,7 +49,8 @@ namespace Ogre {
 		// Init scratch pool
 		// TODO make it a configurable size?
 #ifdef OGRE_GL_USE_SCRATCH_BUFFERS
-		mScratchBufferPool = new char[SCRATCH_POOL_SIZE];
+		// 32-bit aligned buffer
+		mScratchBufferPool = static_cast<char*>(AlignedMemory::allocate(SCRATCH_POOL_SIZE, 32));
 		GLScratchBufferAlloc* ptrAlloc = (GLScratchBufferAlloc*)mScratchBufferPool;
 		ptrAlloc->size = SCRATCH_POOL_SIZE - sizeof(GLScratchBufferAlloc);
 		ptrAlloc->free = true;
@@ -62,7 +64,7 @@ namespace Ogre {
         destroyAllDeclarations();
         destroyAllBindings();
 
-		delete [] mScratchBufferPool;
+		AlignedMemory::deallocate(mScratchBufferPool);
     }
     //-----------------------------------------------------------------------
     HardwareVertexBufferSharedPtr GLHardwareBufferManager::createVertexBuffer(
@@ -140,6 +142,14 @@ namespace Ogre {
 		// not that fast but the list should never get that long since not many
 		// locks at once (hopefully)
 		OGRE_LOCK_MUTEX(mScratchMutex)
+
+
+		// Alignment - round up the size to 32 bits
+		// control blocks are 32 bits too so this packs nicely
+		if (size % 4 != 0)
+		{
+			size += 4 - (size % 4);
+		}
 
 		uint32 bufferPos = 0;
 		while (bufferPos < SCRATCH_POOL_SIZE)
