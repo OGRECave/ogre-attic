@@ -390,7 +390,7 @@ namespace Ogre {
         mCamDir = mCamQ * Vector3::NEGATIVE_UNIT_Z;
     }
     //-----------------------------------------------------------------------
-    void BillboardSet::beginBillboards(void)
+    void BillboardSet::beginBillboards(size_t numBillboards)
     {
         /* Generate the vertices for all the billboards relative to the camera
            Also take the opportunity to update the vertex colours
@@ -444,14 +444,40 @@ namespace Ogre {
         mNumVisibleBillboards = 0;
 
         // Lock the buffer
-        mLockPtr = static_cast<float*>(
-            mMainBuf->lock(HardwareBuffer::HBL_DISCARD) );
+		if (numBillboards) // optimal lock
+		{
+			// clamp to max
+			numBillboards = std::min(mPoolSize, numBillboards);
+
+			size_t billboardSize;
+			if (mPointRendering)
+			{
+				// just one vertex per billboard (this also excludes texcoords)
+				billboardSize = mMainBuf->getVertexSize();
+			}
+			else
+			{
+				// 4 corners
+				billboardSize = mMainBuf->getVertexSize() * 4;
+			}
+			assert (numBillboards * billboardSize < mMainBuf->getSizeInBytes());
+
+			mLockPtr = static_cast<float*>(
+				mMainBuf->lock(0, numBillboards * billboardSize, 
+				HardwareBuffer::HBL_DISCARD) );
+		}
+		else // lock the entire thing
+			mLockPtr = static_cast<float*>(
+				mMainBuf->lock(HardwareBuffer::HBL_DISCARD) );
 
     }
     //-----------------------------------------------------------------------
     void BillboardSet::injectBillboard(const Billboard& bb)
     {
-        // Skip if not visible (NB always true if not bounds checking individual billboards)
+		// Don't accept injections beyond pool size
+		if (mNumVisibleBillboards == mPoolSize) return;
+
+		// Skip if not visible (NB always true if not bounds checking individual billboards)
         if (!billboardVisible(mCurrentCamera, bb)) return;
 
         if (!mPointRendering &&
@@ -573,7 +599,7 @@ namespace Ogre {
                 _sortBillboards(mCurrentCamera);
             }
 
-            beginBillboards();
+            beginBillboards(mActiveBillboards.size());
             ActiveBillboardList::iterator it;
             for(it = mActiveBillboards.begin();
                 it != mActiveBillboards.end();
