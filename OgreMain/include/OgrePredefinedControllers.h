@@ -200,6 +200,11 @@ namespace Ogre {
         /** Overriden function.
         */
         Real calculate(Real source);
+
+		/** Set the time value manually. */
+		void setTime(Real timeVal);
+		/** Set the sequence duration value manually. */
+		void setSequenceTime(Real seqVal);
     };
 
 	//-----------------------------------------------------------------------
