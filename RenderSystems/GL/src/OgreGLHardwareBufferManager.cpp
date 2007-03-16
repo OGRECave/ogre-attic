@@ -33,14 +33,36 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
     //-----------------------------------------------------------------------
+	// Scratch pool management
+	struct GLScratchBufferAlloc
+	{
+		/// Size in bytes
+		uint32 size;
+		/// Free? (with some compilers we can pack this into size, not sure of support though)
+		bool free;
+	};
+	#define SCRATCH_POOL_SIZE 4 * 1024 * 1024
+	//---------------------------------------------------------------------
     GLHardwareBufferManager::GLHardwareBufferManager()
     {
+		// Init scratch pool
+		// TODO make it a configurable size?
+#ifdef OGRE_GL_USE_SCRATCH_BUFFERS
+		mScratchBufferPool = new char[SCRATCH_POOL_SIZE];
+		GLScratchBufferAlloc* ptrAlloc = (GLScratchBufferAlloc*)mScratchBufferPool;
+		ptrAlloc->size = SCRATCH_POOL_SIZE - sizeof(GLScratchBufferAlloc);
+		ptrAlloc->free = true;
+#else
+		mScratchBufferPool = 0;
+#endif
     }
     //-----------------------------------------------------------------------
     GLHardwareBufferManager::~GLHardwareBufferManager()
     {
         destroyAllDeclarations();
         destroyAllBindings();
+
+		delete [] mScratchBufferPool;
     }
     //-----------------------------------------------------------------------
     HardwareVertexBufferSharedPtr GLHardwareBufferManager::createVertexBuffer(
@@ -109,4 +131,107 @@ namespace Ogre {
                 return 0;
         };
     }
+	//---------------------------------------------------------------------
+	//---------------------------------------------------------------------
+#ifdef OGRE_GL_USE_SCRATCH_BUFFERS
+	void* GLHardwareBufferManager::allocateScratch(uint32 size)
+	{
+		// simple forward link search based on alloc sizes
+		// not that fast but the list should never get that long since not many
+		// locks at once (hopefully)
+		OGRE_LOCK_MUTEX(mScratchMutex)
+
+		uint32 bufferPos = 0;
+		while (bufferPos < SCRATCH_POOL_SIZE)
+		{
+			GLScratchBufferAlloc* pNext = (GLScratchBufferAlloc*)(mScratchBufferPool + bufferPos);
+			// Big enough?
+			if (pNext->free && pNext->size >= size)
+			{
+				// split? And enough space for control block
+				if(pNext->size > size + sizeof(GLScratchBufferAlloc))
+				{
+					uint32 offset = sizeof(GLScratchBufferAlloc) + size;
+
+					GLScratchBufferAlloc* pSplitAlloc = (GLScratchBufferAlloc*)
+						(mScratchBufferPool + bufferPos + offset);
+					pSplitAlloc->free = true;
+					// split size is remainder minus new control block
+					pSplitAlloc->size = pNext->size - size - sizeof(GLScratchBufferAlloc);
+
+					// New size of current
+					pNext->size = size;
+				}
+				// allocate and return
+				pNext->free = false;
+
+				// return pointer just after this control block (++ will do that for us)
+				return ++pNext;
+
+			}
+
+			bufferPos += sizeof(GLScratchBufferAlloc) + pNext->size;
+
+		}
+
+		// no available alloc
+		return 0;
+
+	}
+	//---------------------------------------------------------------------
+	void GLHardwareBufferManager::deallocateScratch(void* ptr)
+	{
+		OGRE_LOCK_MUTEX(mScratchMutex)
+
+		// Simple linear search dealloc
+		uint32 bufferPos = 0;
+		GLScratchBufferAlloc* pLast = 0;
+		while (bufferPos < SCRATCH_POOL_SIZE)
+		{
+			GLScratchBufferAlloc* pCurrent = (GLScratchBufferAlloc*)(mScratchBufferPool + bufferPos);
+			
+			// Pointers match?
+			if ((mScratchBufferPool + bufferPos + sizeof(GLScratchBufferAlloc))
+				== ptr)
+			{
+				// dealloc
+				pCurrent->free = true;
+				
+				// merge with previous
+				if (pLast && pLast->free)
+				{
+					// adjust buffer pos
+					bufferPos -= (pLast->size + sizeof(GLScratchBufferAlloc));
+					// merge free space
+					pLast->size += pCurrent->size + sizeof(GLScratchBufferAlloc);
+					pCurrent = pLast;
+				}
+
+				// merge with next
+				uint32 offset = bufferPos + pCurrent->size + sizeof(GLScratchBufferAlloc);
+				if (offset < SCRATCH_POOL_SIZE)
+				{
+					GLScratchBufferAlloc* pNext = (GLScratchBufferAlloc*)(
+						mScratchBufferPool + offset);
+					if (pNext->free)
+					{
+						pCurrent->size += pNext->size + sizeof(GLScratchBufferAlloc);
+					}
+				}
+
+				// done
+				return;
+			}
+
+			bufferPos += sizeof(GLScratchBufferAlloc) + pCurrent->size;
+			pLast = pCurrent;
+
+		}
+
+		// Should never get here unless there's a corruption
+		assert (false && "Memory deallocation error");
+
+
+	}
+#endif
 }

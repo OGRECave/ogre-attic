@@ -57,9 +57,88 @@ namespace Ogre {
 
         Light::LightTypes lightType = light->getType();
 
-        // Lock index buffer for writing
+		// pre-count the size of index data we need since it makes a big perf difference
+		// to GL in particular if we lock a smaller area of the index buffer
+		size_t preCountIndexes = 0;
+
+		si = shadowRenderables.begin();
+		egiend = edgeData->edgeGroups.end();
+		for (egi = edgeData->edgeGroups.begin(); egi != egiend; ++egi, ++si)
+		{
+			const EdgeData::EdgeGroup& eg = *egi;
+			bool  firstDarkCapTri = true;
+
+			EdgeData::EdgeList::const_iterator i, iend;
+			iend = eg.edges.end();
+			for (i = eg.edges.begin(); i != iend; ++i)
+			{
+				const EdgeData::Edge& edge = *i;
+
+				// Silhouette edge, when two tris has opposite light facing, or
+				// degenerate edge where only tri 1 is valid and the tri light facing
+				char lightFacing = edgeData->triangleLightFacings[edge.triIndex[0]];
+				if ((edge.degenerate && lightFacing) ||
+					(!edge.degenerate && (lightFacing != edgeData->triangleLightFacings[edge.triIndex[1]])))
+				{
+
+					preCountIndexes += 3;
+
+					// Are we extruding to infinity?
+					if (!(lightType == Light::LT_DIRECTIONAL &&
+						flags & SRF_EXTRUDE_TO_INFINITY))
+					{
+						preCountIndexes += 3;
+					}
+
+					// Do dark cap tri
+					// Use McGuire et al method, a triangle fan covering all silhouette
+					// edges and one point (taken from the initial tri)
+					if (flags & SRF_INCLUDE_DARK_CAP)
+					{
+						if (firstDarkCapTri)
+						{
+							firstDarkCapTri = false;
+						}
+						else
+						{
+							preCountIndexes += 3;
+						}
+
+					}
+				}
+
+			}
+
+			// Do light cap
+			if (flags & SRF_INCLUDE_LIGHT_CAP) 
+			{
+				// Iterate over the triangles which are using this vertex set
+				EdgeData::TriangleList::const_iterator ti, tiend;
+				EdgeData::TriangleLightFacingList::const_iterator lfi;
+				ti = edgeData->triangles.begin() + eg.triStart;
+				tiend = ti + eg.triCount;
+				lfi = edgeData->triangleLightFacings.begin() + eg.triStart;
+				for ( ; ti != tiend; ++ti, ++lfi)
+				{
+					const EdgeData::Triangle& t = *ti;
+					assert(t.vertexSet == eg.vertexSet);
+					// Check it's light facing
+					if (*lfi)
+					{
+						preCountIndexes += 3;
+					}
+				}
+
+			}
+
+		}
+		// End pre-count
+
+
+        // Lock index buffer for writing, just enough length as we need
         unsigned short* pIdx = static_cast<unsigned short*>(
-            indexBuffer->lock(HardwareBuffer::HBL_DISCARD));
+            indexBuffer->lock(0, sizeof(unsigned short) * preCountIndexes, 
+			HardwareBuffer::HBL_DISCARD));
         size_t numIndices = 0;
 
         // Iterate over the groups and form renderables for each based on their
