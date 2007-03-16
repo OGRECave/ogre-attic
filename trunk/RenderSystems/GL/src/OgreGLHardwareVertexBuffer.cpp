@@ -73,67 +73,117 @@ namespace Ogre {
                 "GLHardwareIndexBuffer::lock");
         }
 
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
 
-        if(options == HBL_DISCARD)
-        {
-            //TODO: really we should use this to indicate our discard of the buffer
-            //However it makes no difference to fps on nVidia, and can crash some ATI
-            //glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
-            //    GLHardwareBufferManager::getGLUsage(mUsage));
+		void* retPtr = 0;
+#ifdef OGRE_GL_USE_SCRATCH_BUFFERS
+		// don't map, try to use a scratch buffer
+		// if this fails, we fall back on mapping
+		retPtr = static_cast<GLHardwareBufferManager*>(
+			HardwareBufferManager::getSingletonPtr())->allocateScratch((uint32)length);
 
-            access = (mUsage == HBU_DYNAMIC || mUsage == HBU_STATIC) ? 
-                GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
+		if (retPtr)
+		{
+			mLockedToScratch = true;
+			mScratchOffset = offset;
+			mScratchSize = length;
+			mScratchPtr = retPtr;
+			mScratchUploadOnUnlock = (options != HBL_READ_ONLY);
 
-        }
-        else if(options == HBL_READ_ONLY)
-        {
-            if(mUsage == HBU_WRITE_ONLY)
-            {
-                LogManager::getSingleton().logMessage(
-                    "GLHardwareVertexBuffer: Locking a write-only vertex "
-                    "buffer for reading, performance warning.");
-            }
-            access = GL_READ_ONLY_ARB;
-        }
-        else if(options == HBL_NORMAL || options == HBL_NO_OVERWRITE)
-        {
-            // TODO: we should be using the below implementation, but nVidia cards
-            // choke on it and perform terribly - for investigation with nVidia
-            //access = (mUsage == HBU_DYNAMIC || mUsage == HBU_STATIC) ? 
-            //    GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
-            access = GL_READ_WRITE;
-        }
-        else
-        {
-            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
-                "Invalid locking option set", "GLHardwareVertexBuffer::lock");
-        }
+			if (options != HBL_DISCARD)
+			{
+				// have to read back the data before returning the pointer
+				readData(offset, length, retPtr);
+			}
+		}
+		
+#endif
+		if (!retPtr)
+		{
+			// Use glMapBuffer
+			glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
 
-        void* pBuffer = glMapBufferARB( GL_ARRAY_BUFFER_ARB, access);
+			if(options == HBL_DISCARD)
+			{
+				//TODO: really we should use this to indicate our discard of the buffer
+				//However it makes no difference to fps on nVidia, and can crash some ATI
+				//glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
+				//    GLHardwareBufferManager::getGLUsage(mUsage));
 
-        if(pBuffer == 0)
-        {
-            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
-                "Vertex Buffer: Out of memory", "GLHardwareVertexBuffer::lock");
-        }
+				access = (mUsage == HBU_DYNAMIC || mUsage == HBU_STATIC) ? 
+					GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
 
-        mIsLocked = true;
-        // return offsetted
-        return static_cast<void*>(
-            static_cast<unsigned char*>(pBuffer) + offset);
+			}
+			else if(options == HBL_READ_ONLY)
+			{
+				if(mUsage == HBU_WRITE_ONLY)
+				{
+					LogManager::getSingleton().logMessage(
+						"GLHardwareVertexBuffer: Locking a write-only vertex "
+						"buffer for reading, performance warning.");
+				}
+				access = GL_READ_ONLY_ARB;
+			}
+			else if(options == HBL_NORMAL || options == HBL_NO_OVERWRITE)
+			{
+				// TODO: we should be using the below implementation, but nVidia cards
+				// choke on it and perform terribly - for investigation with nVidia
+				//access = (mUsage == HBU_DYNAMIC || mUsage == HBU_STATIC) ? 
+				//    GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
+				access = GL_READ_WRITE;
+			}
+			else
+			{
+				OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
+					"Invalid locking option set", "GLHardwareVertexBuffer::lock");
+			}
+
+			void* pBuffer = glMapBufferARB( GL_ARRAY_BUFFER_ARB, access);
+
+			if(pBuffer == 0)
+			{
+				OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
+					"Vertex Buffer: Out of memory", "GLHardwareVertexBuffer::lock");
+			}
+
+			// return offsetted
+			retPtr = static_cast<void*>(
+				static_cast<unsigned char*>(pBuffer) + offset);
+
+			mLockedToScratch = false;
+		}
+		mIsLocked = true;
+		return retPtr;
     }
 	//---------------------------------------------------------------------
 	void GLHardwareVertexBuffer::unlockImpl(void)
     {
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
+#ifdef OGRE_GL_USE_SCRATCH_BUFFERS
+		if (mLockedToScratch)
+		{
+			if (mScratchUploadOnUnlock)
+			{
+				// have to write the data back to vertex buffer
+				writeData(mScratchOffset, mScratchSize, mScratchPtr, true);
+			}
 
-        if(!glUnmapBufferARB( GL_ARRAY_BUFFER_ARB ))
-        {
-            OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
-                "Buffer data corrupted, please reload", 
-                "GLHardwareVertexBuffer::unlock");
-        }
+			// deallocate from scratch buffer
+			static_cast<GLHardwareBufferManager*>(
+				HardwareBufferManager::getSingletonPtr())->deallocateScratch(mScratchPtr);
+
+			mLockedToScratch = false;
+			mIsLocked = false;
+			return;
+		}
+#endif
+
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
+
+		if(!glUnmapBufferARB( GL_ARRAY_BUFFER_ARB ))
+		{
+			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
+				"Buffer data corrupted, please reload", 
+				"GLHardwareVertexBuffer::unlock");
+		}
 
         mIsLocked = false;
     }
