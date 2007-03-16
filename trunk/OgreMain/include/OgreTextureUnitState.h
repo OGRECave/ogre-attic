@@ -1071,6 +1071,11 @@ namespace Ogre {
 		void _setTexturePtr(const TexturePtr& texptr);
 		/** Set the texture pointer for a given frame (internal use only!). */
 		void _setTexturePtr(const TexturePtr& texptr, size_t frame);
+
+		/** Gets the animation controller (as created because of setAnimatedTexture)
+			if it exists.
+		*/
+		Controller<Real>* _getAnimController() const { return mAnimController; }
 protected:
         // State
         /// The current animation frame.

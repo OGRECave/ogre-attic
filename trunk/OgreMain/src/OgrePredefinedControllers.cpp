@@ -264,6 +264,16 @@ namespace Ogre
         // Return parametric
         return mTime / mSeqTime;
     }
+	//-----------------------------------------------------------------------
+	void AnimationControllerFunction::setTime(Real timeVal)
+	{
+		mTime = timeVal;
+	}
+	//-----------------------------------------------------------------------
+	void AnimationControllerFunction::setSequenceTime(Real seqVal)
+	{
+		mSeqTime = seqVal;
+	}
     //-----------------------------------------------------------------------
     // ScaleControllerFunction
     //-----------------------------------------------------------------------
