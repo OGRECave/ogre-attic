@@ -32,13 +32,10 @@ Torus Knot Software Ltd.
 #include "OgreGLPrerequisites.h"
 #include "OgreHardwareBufferManager.h"
 
-/** This define makes OGRE use scratch buffers and gl[Get]BufferSubData instead
-	of glMapBuffer, which appears to have performance issues.
-*/
-#define OGRE_GL_USE_SCRATCH_BUFFERS
-
 namespace Ogre {
 
+// Threshold at which glMapBuffer becomes more efficient than glBufferSubData (32k?)
+#define OGRE_GL_MAP_BUFFER_THRESHOLD (1024 * 32)
     /** Implementation of HardwareBufferManager for OpenGL. */
     class _OgrePrivate GLHardwareBufferManager : public HardwareBufferManager
     {
@@ -63,7 +60,6 @@ namespace Ogre {
         /// Utility function to get the correct GL type based on VET's
         static GLenum getGLType(unsigned int type);
 
-#ifdef OGRE_GL_USE_SCRATCH_BUFFERS
 		/** Allocator method to allow us to use a pool of memory as a scratch
 			area for hardware buffers. This is because glMapBuffer is incredibly
 			inefficient, seemingly no matter what options we give it. So for the
@@ -75,7 +71,6 @@ namespace Ogre {
 
 		/// @see allocateScratch
 		void deallocateScratch(void* ptr);
-#endif
     };
 
 }

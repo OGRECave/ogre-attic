@@ -75,67 +75,48 @@ namespace Ogre {
 
 
 		void* retPtr = 0;
-#ifdef OGRE_GL_USE_SCRATCH_BUFFERS
-		// don't map, try to use a scratch buffer
-		// if this fails, we fall back on mapping
-		retPtr = static_cast<GLHardwareBufferManager*>(
-			HardwareBufferManager::getSingletonPtr())->allocateScratch((uint32)length);
 
-		if (retPtr)
+		// Try to use scratch buffers for smaller buffers
+		if(length < OGRE_GL_MAP_BUFFER_THRESHOLD)
 		{
-			mLockedToScratch = true;
-			mScratchOffset = offset;
-			mScratchSize = length;
-			mScratchPtr = retPtr;
-			mScratchUploadOnUnlock = (options != HBL_READ_ONLY);
+			// if this fails, we fall back on mapping
+			retPtr = static_cast<GLHardwareBufferManager*>(
+				HardwareBufferManager::getSingletonPtr())->allocateScratch((uint32)length);
 
-			if (options != HBL_DISCARD)
+			if (retPtr)
 			{
-				// have to read back the data before returning the pointer
-				readData(offset, length, retPtr);
+				mLockedToScratch = true;
+				mScratchOffset = offset;
+				mScratchSize = length;
+				mScratchPtr = retPtr;
+				mScratchUploadOnUnlock = (options != HBL_READ_ONLY);
+
+				if (options != HBL_DISCARD)
+				{
+					// have to read back the data before returning the pointer
+					readData(offset, length, retPtr);
+				}
 			}
 		}
 		
-#endif
 		if (!retPtr)
 		{
 			// Use glMapBuffer
-			glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
-
+			glBindBufferARB( GL_ARRAY_BUFFER_ARB, mBufferId );
+			// Use glMapBuffer
 			if(options == HBL_DISCARD)
 			{
-				//TODO: really we should use this to indicate our discard of the buffer
-				//However it makes no difference to fps on nVidia, and can crash some ATI
-				//glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
-				//    GLHardwareBufferManager::getGLUsage(mUsage));
-
-				access = (mUsage == HBU_DYNAMIC || mUsage == HBU_STATIC) ? 
-					GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
+				// Discard the buffer
+				glBufferDataARB(GL_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
+					GLHardwareBufferManager::getGLUsage(mUsage));
 
 			}
-			else if(options == HBL_READ_ONLY)
-			{
-				if(mUsage == HBU_WRITE_ONLY)
-				{
-					LogManager::getSingleton().logMessage(
-						"GLHardwareVertexBuffer: Locking a write-only vertex "
-						"buffer for reading, performance warning.");
-				}
+			if (mUsage & HBU_WRITE_ONLY)
+				access = GL_WRITE_ONLY_ARB;
+			else if (options == HBL_READ_ONLY)
 				access = GL_READ_ONLY_ARB;
-			}
-			else if(options == HBL_NORMAL || options == HBL_NO_OVERWRITE)
-			{
-				// TODO: we should be using the below implementation, but nVidia cards
-				// choke on it and perform terribly - for investigation with nVidia
-				//access = (mUsage == HBU_DYNAMIC || mUsage == HBU_STATIC) ? 
-				//    GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
-				access = GL_READ_WRITE;
-			}
 			else
-			{
-				OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
-					"Invalid locking option set", "GLHardwareVertexBuffer::lock");
-			}
+				access = GL_READ_WRITE_ARB;
 
 			void* pBuffer = glMapBufferARB( GL_ARRAY_BUFFER_ARB, access);
 
@@ -157,7 +138,6 @@ namespace Ogre {
 	//---------------------------------------------------------------------
 	void GLHardwareVertexBuffer::unlockImpl(void)
     {
-#ifdef OGRE_GL_USE_SCRATCH_BUFFERS
 		if (mLockedToScratch)
 		{
 			if (mScratchUploadOnUnlock)
@@ -171,18 +151,18 @@ namespace Ogre {
 				HardwareBufferManager::getSingletonPtr())->deallocateScratch(mScratchPtr);
 
 			mLockedToScratch = false;
-			mIsLocked = false;
-			return;
 		}
-#endif
-
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
-
-		if(!glUnmapBufferARB( GL_ARRAY_BUFFER_ARB ))
+		else
 		{
-			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
-				"Buffer data corrupted, please reload", 
-				"GLHardwareVertexBuffer::unlock");
+
+			glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
+
+			if(!glUnmapBufferARB( GL_ARRAY_BUFFER_ARB ))
+			{
+				OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
+					"Buffer data corrupted, please reload", 
+					"GLHardwareVertexBuffer::unlock");
+			}
 		}
 
         mIsLocked = false;
