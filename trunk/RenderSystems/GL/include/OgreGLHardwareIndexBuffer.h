@@ -59,6 +59,8 @@ namespace Ogre {
         /** See HardwareBuffer. */
         void writeData(size_t offset, size_t length, 
             const void* pSource, bool discardWholeBuffer = false);
+        /** See HardwareBuffer. */
+        void _updateFromShadow(void);
 
         GLuint getGLBufferId(void) const { return mBufferId; }
     };
