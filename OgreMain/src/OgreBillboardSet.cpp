@@ -460,7 +460,7 @@ namespace Ogre {
 				// 4 corners
 				billboardSize = mMainBuf->getVertexSize() * 4;
 			}
-			assert (numBillboards * billboardSize < mMainBuf->getSizeInBytes());
+			assert (numBillboards * billboardSize <= mMainBuf->getSizeInBytes());
 
 			mLockPtr = static_cast<float*>(
 				mMainBuf->lock(0, numBillboards * billboardSize, 
