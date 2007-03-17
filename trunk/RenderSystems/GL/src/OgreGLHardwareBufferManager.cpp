@@ -42,21 +42,17 @@ namespace Ogre {
 		/// Free? (pack with size)
 		uint32 free: 1;
 	};
-	#define SCRATCH_POOL_SIZE 4 * 1024 * 1024
+	#define SCRATCH_POOL_SIZE 1 * 1024 * 1024
 	//---------------------------------------------------------------------
     GLHardwareBufferManager::GLHardwareBufferManager()
     {
 		// Init scratch pool
 		// TODO make it a configurable size?
-#ifdef OGRE_GL_USE_SCRATCH_BUFFERS
 		// 32-bit aligned buffer
 		mScratchBufferPool = static_cast<char*>(AlignedMemory::allocate(SCRATCH_POOL_SIZE, 32));
 		GLScratchBufferAlloc* ptrAlloc = (GLScratchBufferAlloc*)mScratchBufferPool;
 		ptrAlloc->size = SCRATCH_POOL_SIZE - sizeof(GLScratchBufferAlloc);
-		ptrAlloc->free = true;
-#else
-		mScratchBufferPool = 0;
-#endif
+		ptrAlloc->free = 1;
     }
     //-----------------------------------------------------------------------
     GLHardwareBufferManager::~GLHardwareBufferManager()
@@ -135,7 +131,6 @@ namespace Ogre {
     }
 	//---------------------------------------------------------------------
 	//---------------------------------------------------------------------
-#ifdef OGRE_GL_USE_SCRATCH_BUFFERS
 	void* GLHardwareBufferManager::allocateScratch(uint32 size)
 	{
 		// simple forward link search based on alloc sizes
@@ -165,7 +160,7 @@ namespace Ogre {
 
 					GLScratchBufferAlloc* pSplitAlloc = (GLScratchBufferAlloc*)
 						(mScratchBufferPool + bufferPos + offset);
-					pSplitAlloc->free = true;
+					pSplitAlloc->free = 1;
 					// split size is remainder minus new control block
 					pSplitAlloc->size = pNext->size - size - sizeof(GLScratchBufferAlloc);
 
@@ -173,7 +168,7 @@ namespace Ogre {
 					pNext->size = size;
 				}
 				// allocate and return
-				pNext->free = false;
+				pNext->free = 0;
 
 				// return pointer just after this control block (++ will do that for us)
 				return ++pNext;
@@ -205,7 +200,7 @@ namespace Ogre {
 				== ptr)
 			{
 				// dealloc
-				pCurrent->free = true;
+				pCurrent->free = 1;
 				
 				// merge with previous
 				if (pLast && pLast->free)
@@ -243,5 +238,4 @@ namespace Ogre {
 
 
 	}
-#endif
 }
