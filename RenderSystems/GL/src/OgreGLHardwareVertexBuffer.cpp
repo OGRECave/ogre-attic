@@ -201,15 +201,46 @@ namespace Ogre {
             mpShadowBuffer->unlock();
         }
 
-        if(discardWholeBuffer)
+        if (offset == 0 && length == mSizeInBytes)
         {
-            glBufferDataARB(GL_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
+            glBufferDataARB(GL_ARRAY_BUFFER_ARB, mSizeInBytes, pSource, 
                 GLHardwareBufferManager::getGLUsage(mUsage));
         }
+        else
+        {
+            if(discardWholeBuffer)
+            {
+                glBufferDataARB(GL_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
+                    GLHardwareBufferManager::getGLUsage(mUsage));
+            }
 
-        // Now update the real buffer
-        glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, offset, length, pSource); 
+            // Now update the real buffer
+            glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, offset, length, pSource); 
+        }
     }
 	//---------------------------------------------------------------------
+    void GLHardwareVertexBuffer::_updateFromShadow(void)
+    {
+        if (mUseShadowBuffer && mShadowUpdated && !mSuppressHardwareUpdate)
+        {
+            const void *srcData = mpShadowBuffer->lock(
+                mLockStart, mLockSize, HBL_READ_ONLY);
 
+            glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
+
+            // Update whole buffer if possible, otherwise normal
+            if (mLockStart == 0 && mLockSize == mSizeInBytes)
+            {
+                glBufferDataARB(GL_ARRAY_BUFFER_ARB, mSizeInBytes, srcData,
+                    GLHardwareBufferManager::getGLUsage(mUsage));
+            }
+            else
+            {
+                glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, mLockStart, mLockSize, srcData);
+            }
+
+            mpShadowBuffer->unlock();
+            mShadowUpdated = false;
+        }
+    }
 }
