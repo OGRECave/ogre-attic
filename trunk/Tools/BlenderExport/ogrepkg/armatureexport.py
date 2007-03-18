@@ -251,6 +251,7 @@ class SkeletonBone:
 		
 		   Note that the parent bone rest matrix is required to be valid!
 		"""
+		# Warning: Blender uses left multiplication vector*matrix
 		# get bone matrix of OGRE parent bone
 		inverseParentMatrix = Matrix([1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1])
 		if self.parent is not None:
@@ -300,6 +301,7 @@ class SkeletonAnimationTrack:
 		# cache name
 		self.name = self.skeletonBone.getName()
 		# cache restpose
+		self.ogreRestPose = self.skeletonBone.getOgreRestMatrix()
 		self.inverseOgreRestPose = self.skeletonBone.getOgreRestMatrix()
 		self.inverseOgreRestPose.invert()
 		
@@ -369,8 +371,11 @@ class SkeletonAnimationTrack:
 				f.write(indent(indentation + 2) + "<keyframe time=\"%f\">\n" % time)
 				transformation = self.keyframeDict[time]
 				# get transformation values
-				# translation relative to parent coordinate system
-				translationTuple = tuple(transformation.translationPart())
+				# translation relative to parent coordinate system orientation
+				# and as difference to rest pose translation
+				translation = transformation.translationPart()
+				translation -= self.ogreRestPose.translationPart()
+				translationTuple = tuple(translation)
 				# rotation relative to local coordiante system
 				# calculate difference to rest pose
 				transformation *= self.inverseOgreRestPose
