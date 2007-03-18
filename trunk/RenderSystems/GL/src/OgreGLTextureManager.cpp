@@ -153,7 +153,6 @@ namespace Ogre {
             "*GeForce*6700*",
             "*GeForce*6600*",
             "*GeForce*6500*",
-            "*GeForce*6200*",
 
             ""                      // Empty string means end of list
         };
