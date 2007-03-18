@@ -410,13 +410,13 @@ namespace Ogre {
         	@param pf		Pixelformat in which to write the colour
         	@param dest		Destination memory location
         */
-        static void packColour(const ColourValue &colour, const PixelFormat pf,  const void* dest);
+        static void packColour(const ColourValue &colour, const PixelFormat pf,  void* dest);
         /** Pack a colour value to memory
         	@param r,g,b,a	The four colour components, range 0x00 to 0xFF
         	@param pf		Pixelformat in which to write the colour
         	@param dest		Destination memory location
         */
-        static void packColour(const uint8 r, const uint8 g, const uint8 b, const uint8 a, const PixelFormat pf,  const void* dest);
+        static void packColour(const uint8 r, const uint8 g, const uint8 b, const uint8 a, const PixelFormat pf,  void* dest);
          /** Pack a colour value to memory
         	@param r,g,b,a	The four colour components, range 0.0f to 1.0f
         					(an exception to this case exists for floating point pixel
@@ -424,7 +424,7 @@ namespace Ogre {
         	@param pf		Pixelformat in which to write the colour
         	@param dest		Destination memory location
         */
-        static void packColour(const float r, const float g, const float b, const float a, const PixelFormat pf,  const void* dest);
+        static void packColour(const float r, const float g, const float b, const float a, const PixelFormat pf,  void* dest);
 
         /** Unpack a colour value from memory
         	@param colour	The colour is returned here

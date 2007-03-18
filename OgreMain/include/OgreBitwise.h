@@ -161,7 +161,7 @@ namespace Ogre {
         /**
          * Write a n*8 bits integer value to memory in native endian.
          */
-        static inline void intWrite(const void *dest, const int n, const unsigned int value)
+        static inline void intWrite(void *dest, const int n, const unsigned int value)
         {
             switch(n) {
                 case 1:

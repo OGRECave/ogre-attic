@@ -921,12 +921,12 @@ namespace Ogre {
     /*************************************************************************
     * Pixel packing/unpacking utilities
     */
-    void PixelUtil::packColour(const ColourValue &colour, const PixelFormat pf,  const void* dest)
+    void PixelUtil::packColour(const ColourValue &colour, const PixelFormat pf,  void* dest)
     {
         packColour(colour.r, colour.g, colour.b, colour.a, pf, dest);
     }
     //-----------------------------------------------------------------------
-    void PixelUtil::packColour(const uint8 r, const uint8 g, const uint8 b, const uint8 a, const PixelFormat pf,  const void* dest)
+    void PixelUtil::packColour(const uint8 r, const uint8 g, const uint8 b, const uint8 a, const PixelFormat pf,  void* dest)
     {
         const PixelFormatDescription &des = getDescriptionFor(pf);
         if(des.flags & PFF_NATIVEENDIAN) {
@@ -943,7 +943,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void PixelUtil::packColour(const float r, const float g, const float b, const float a, const PixelFormat pf,  const void* dest)
+    void PixelUtil::packColour(const float r, const float g, const float b, const float a, const PixelFormat pf,  void* dest)
     {
         // Catch-it-all here
         const PixelFormatDescription &des = getDescriptionFor(pf);
