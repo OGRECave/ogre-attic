@@ -154,7 +154,7 @@ namespace Ogre {
         // and ctype is PCT_BYTE. This must be checked every time because the window might have been resized
 		if(ctype == PCT_BYTE)
 		{
-			if(width <= mMainWindow->getWidth() && height <= mMainWindow->getWidth())
+			if(width <= mMainWindow->getWidth() && height <= mMainWindow->getHeight())
 				return mMainContext;
 		}
         assert(mPBuffers[ctype].pb);
