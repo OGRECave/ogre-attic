@@ -76,6 +76,9 @@ namespace Ogre {
         */
         void addTime(Real offset);
 
+		/// Returns true if the animation has reached the end and is not looping
+		bool hasEnded(void) const;
+
         /// Returns true if this animation is currently enabled
         bool getEnabled(void) const;
         /// Sets whether this animation is enabled

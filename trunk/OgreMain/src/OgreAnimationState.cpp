@@ -130,6 +130,11 @@ namespace Ogre
         setTimePosition(mTimePos + offset);
     }
     //---------------------------------------------------------------------
+	bool AnimationState::hasEnded(void) const
+	{
+		return (mTimePos == mLength && !mLoop);
+	}
+    //---------------------------------------------------------------------
     bool AnimationState::getEnabled(void) const
     {
         return mEnabled;
