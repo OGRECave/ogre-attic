@@ -104,6 +104,9 @@ namespace Ogre
 		ManualObject(const String& name);
 		virtual ~ManualObject();
 
+		//pre-declare ManualObjectSection
+		class ManualObjectSection;
+
 		/** Completely clear the contents of the object.
 		@remarks
 			Clearing the contents of this object and rebuilding from scratch
@@ -241,8 +244,11 @@ namespace Ogre
 		*/
 		virtual void quad(uint16 i1, uint16 i2, uint16 i3, uint16 i4);
 
-		/** Finish defining the object and compile the final renderable version. */
-		virtual void end(void);
+		/** Finish defining the object and compile the final renderable version. 
+		@note
+			Will return a pointer to the finished section or NULL if the section was discarded (i.e. has zero vertices/indices).
+		*/
+		virtual ManualObjectSection* end(void);
 
 		/** Alter the material for a subsection of this object after it has been
 			specified.
@@ -321,6 +327,14 @@ namespace Ogre
 			@see ManualObject::setUseIdentityProjection, ManualObject::setUseIdentityView,
 				AxisAlignedBox::setInfinite */
 		void setBoundingBox(const AxisAlignedBox& box) { mAABB = box; }
+
+		/** Gets a pointer to a ManualObjectSection, ie a part of a ManualObject.
+		*/
+		ManualObjectSection* getSection(unsigned int index) const;
+
+		/** Retrieves the number of ManualObjectSection objects making up this ManualObject.
+		*/
+		unsigned int getNumSections(void) const;
 
 		// MovableObject overrides
 
