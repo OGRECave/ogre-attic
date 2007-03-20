@@ -196,12 +196,33 @@ namespace Ogre {
         // rotation of a vector by a quaternion
         Vector3 operator* (const Vector3& rkVector) const;
 
-   		/// Calculate the local roll element of this quaternion
-		Radian getRoll(void) const;
-   		/// Calculate the local pitch element of this quaternion
-		Radian getPitch(void) const;
-   		/// Calculate the local yaw element of this quaternion
-		Radian getYaw(void) const;		
+   		/** Calculate the local roll element of this quaternion.
+		@param reprojectAxis By default the method returns the 'intuitive' result
+			that is, if you projected the local Y of the quaterion onto the X and
+			Y axes, the angle between them is returned. If set to false though, the
+			result is the actual yaw that will be used to implement the quaternion,
+			which is the shortest possible path to get to the same orientation and 
+			may involve less axial rotation. 
+		*/
+		Radian getRoll(bool reprojectAxis = true) const;
+   		/** Calculate the local pitch element of this quaternion
+		@param reprojectAxis By default the method returns the 'intuitive' result
+			that is, if you projected the local Z of the quaterion onto the X and
+			Y axes, the angle between them is returned. If set to true though, the
+			result is the actual yaw that will be used to implement the quaternion,
+			which is the shortest possible path to get to the same orientation and 
+			may involve less axial rotation. 
+		*/
+		Radian getPitch(bool reprojectAxis = true) const;
+   		/** Calculate the local yaw element of this quaternion
+		@param reprojectAxis By default the method returns the 'intuitive' result
+			that is, if you projected the local Z of the quaterion onto the X and
+			Z axes, the angle between them is returned. If set to true though, the
+			result is the actual yaw that will be used to implement the quaternion,
+			which is the shortest possible path to get to the same orientation and 
+			may involve less axial rotation. 
+		*/
+		Radian getYaw(bool reprojectAxis = true) const;		
 		/// Equality with tolerance (tolerance is max angle difference)
 		bool equals(const Quaternion& rhs, const Radian& tolerance) const;
 		
