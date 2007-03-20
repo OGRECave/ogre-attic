@@ -416,7 +416,7 @@ namespace Ogre {
 				commentStart = src.rfind("//", currPos);
 				if (commentStart != String::npos)
 				{
-					size_t lineEnd = src.rfind("\r", currPos);
+					size_t lineEnd = src.rfind("\n", currPos);
 
 					// On same line as comment? Either no newline or nearest is before comment start
 					if (lineEnd == String::npos || lineEnd < commentStart)
