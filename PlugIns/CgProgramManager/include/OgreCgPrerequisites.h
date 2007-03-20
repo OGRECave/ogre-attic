@@ -52,6 +52,8 @@ namespace Ogre {
 #    		define _OgreCgPluginExport __declspec(dllimport)
 #       endif
 #   endif
+#elif defined ( OGRE_GCC_VISIBILITY )
+#   define _OgreCgPluginExport  __attribute__ ((visibility("default")))
 #else
 #	define _OgreCgPluginExport
 #endif	// OGRE_WIN32

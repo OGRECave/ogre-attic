@@ -44,6 +44,8 @@ Torus Knot Software Ltd.
 #    		define _OgreParticleFXExport __declspec(dllimport)
 #       endif
 #   endif
+#elif defined ( OGRE_GCC_VISIBILITY )
+#    define _OgreParticleFXExport  __attribute__ ((visibility("default")))
 #else
 #   define _OgreParticleFXExport
 #endif
