@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_workspace_file>
+	<Workspace title="Ogre  workspace">
+		<Project filename="OgreMain/scripts/OgreMain_linux.cbp" />
+		<Project filename="PlugIns/BSPSceneManager/scripts/Plugin_BSPSceneManager_linux.cbp">
+			<Depends filename="OgreMain/scripts/OgreMain_linux.cbp" />
+		</Project>
+		<Project filename="PlugIns/CgProgramManager/scripts/Plugin_CgProgramManager_linux.cbp">
+			<Depends filename="OgreMain/scripts/OgreMain_linux.cbp" />
+		</Project>
+		<Project filename="PlugIns/OctreeSceneManager/scripts/Plugin_OctreeSceneManager_linux.cbp">
+			<Depends filename="OgreMain/scripts/OgreMain_linux.cbp" />
+		</Project>
+		<Project filename="PlugIns/ParticleFX/scripts/Plugin_ParticleFX_linux.cbp">
+			<Depends filename="OgreMain/scripts/OgreMain_linux.cbp" />
+		</Project>
+		<Project filename="RenderSystems/GL/scripts/RenderSystem_GL_linux.cbp">
+			<Depends filename="OgreMain/scripts/OgreMain_linux.cbp" />
+		</Project>
+		<Project filename="Samples/Common/CEGUIRenderer/scripts/OgreGUIRenderer_linux.cbp">
+			<Depends filename="OgreMain/scripts/OgreMain_linux.cbp" />
+		</Project>
+		<Project filename="Samples/BezierPatch/scripts/Demo_BezierPatch_linux.cbp">
+			<Depends filename="OgreMain/scripts/OgreMain_linux.cbp" />
+			<Depends filename="PlugIns/BSPSceneManager/scripts/Plugin_BSPSceneManager_linux.cbp" />
+			<Depends filename="PlugIns/CgProgramManager/scripts/Plugin_CgProgramManager_linux.cbp" />
+			<Depends filename="PlugIns/OctreeSceneManager/scripts/Plugin_OctreeSceneManager_linux.cbp" />
+			<Depends filename="PlugIns/ParticleFX/scripts/Plugin_ParticleFX_linux.cbp" />
+			<Depends filename="RenderSystems/GL/scripts/RenderSystem_GL_linux.cbp" />
+		</Project>
+		<Project filename="Samples/BSP/scripts/Demo_BSP_linux.cbp">
+			<Depends filename="OgreMain/scripts/OgreMain_linux.cbp" />
+			<Depends filename="PlugIns/BSPSceneManager/scripts/Plugin_BSPSceneManager_linux.cbp" />
+			<Depends filename="PlugIns/CgProgramManager/scripts/Plugin_CgProgramManager_linux.cbp" />
+			<Depends filename="PlugIns/OctreeSceneManager/scripts/Plugin_OctreeSceneManager_linux.cbp" />
+			<Depends filename="PlugIns/ParticleFX/scripts/Plugin_ParticleFX_linux.cbp" />
+			<Depends filename="RenderSystems/GL/scripts/RenderSystem_GL_linux.cbp" />
+		</Project>
+		<Project filename="Samples/CameraTrack/scripts/Demo_CameraTrack_linux.cbp">
+			<Depends filename="OgreMain/scripts/OgreMain_linux.cbp" />
+			<Depends filename="PlugIns/BSPSceneManager/scripts/Plugin_BSPSceneManager_linux.cbp" />
+			<Depends filename="PlugIns/CgProgramManager/scripts/Plugin_CgProgramManager_linux.cbp" />
+			<Depends filename="PlugIns/OctreeSceneManager/scripts/Plugin_OctreeSceneManager_linux.cbp" />
+			<Depends filename="PlugIns/ParticleFX/scripts/Plugin_ParticleFX_linux.cbp" />
+			<Depends filename="RenderSystems/GL/scripts/RenderSystem_GL_linux.cbp" />
+		</Project>
+		<Project filename="Samples/CelShading/scripts/Demo_CelShading_linux.cbp">
+			<Depends filename="OgreMain/scripts/OgreMain_linux.cbp" />
+			<Depends filename="PlugIns/BSPSceneManager/scripts/Plugin_BSPSceneManager_linux.cbp" />
+			<Depends filename="PlugIns/CgProgramManager/scripts/Plugin_CgProgramManager_linux.cbp" />
+			<Depends filename="PlugIns/OctreeSceneManager/scripts/Plugin_OctreeSceneManager_linux.cbp" />
+			<Depends filename="PlugIns/ParticleFX/scripts/Plugin_ParticleFX_linux.cbp" />
+			<Depends filename="RenderSystems/GL/scripts/RenderSystem_GL_linux.cbp" />
+		</Project>
+		<Project filename="Samples/Compositor/scripts/Demo_Compositor_linux.cbp" active="1">
+			<Depends filename="OgreMain/scripts/OgreMain_linux.cbp" />
+			<Depends filename="PlugIns/BSPSceneManager/scripts/Plugin_BSPSceneManager_linux.cbp" />
+			<Depends filename="PlugIns/CgProgramManager/scripts/Plugin_CgProgramManager_linux.cbp" />
+			<Depends filename="PlugIns/OctreeSceneManager/scripts/Plugin_OctreeSceneManager_linux.cbp" />
+			<Depends filename="PlugIns/ParticleFX/scripts/Plugin_ParticleFX_linux.cbp" />
+			<Depends filename="RenderSystems/GL/scripts/RenderSystem_GL_linux.cbp" />
+			<Depends filename="Samples/Common/CEGUIRenderer/scripts/OgreGUIRenderer_linux.cbp" />
+		</Project>
+		<Project filename="Samples/Fresnel/scripts/Demo_Fresnel_linux.cbp">
+			<Depends filename="OgreMain/scripts/OgreMain_linux.cbp" />
+			<Depends filename="PlugIns/BSPSceneManager/scripts/Plugin_BSPSceneManager_linux.cbp" />
+			<Depends filename="PlugIns/CgProgramManager/scripts/Plugin_CgProgramManager_linux.cbp" />
+			<Depends filename="PlugIns/OctreeSceneManager/scripts/Plugin_OctreeSceneManager_linux.cbp" />
+			<Depends filename="PlugIns/ParticleFX/scripts/Plugin_ParticleFX_linux.cbp" />
+			<Depends filename="RenderSystems/GL/scripts/RenderSystem_GL_linux.cbp" />
+		</Project>
+	</Workspace>
+</CodeBlocks_workspace_file>
