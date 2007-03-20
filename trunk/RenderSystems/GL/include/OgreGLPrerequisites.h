@@ -64,7 +64,9 @@ namespace Ogre {
 #endif
 
 /// Lots of generated code in here which triggers the new VC CRT security warnings
+#if !defined( _CRT_SECURE_NO_DEPRECATE )
 #define _CRT_SECURE_NO_DEPRECATE
+#endif
 
 #ifdef  OGRE_DEBUG_MODE
 
