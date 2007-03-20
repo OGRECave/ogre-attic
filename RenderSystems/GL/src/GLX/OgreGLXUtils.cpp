@@ -34,9 +34,9 @@ Torus Knot Software Ltd.
 #include "OgreStringConverter.h"
 
 #include "OgreGLRenderSystem.h"
-
 #include "OgreGLXUtils.h"
 
+#include "OgreNoMemoryMacros.h"
 #include <GL/glxext.h>
 
 namespace Ogre {
@@ -49,7 +49,7 @@ namespace Ogre {
        int redMask, greenMask, blueMask;
        int colormapSize;
        int bitsPerRGB;
-    
+
        /* GL visual attribs */
        int supportsGL;
        int transparentType;
@@ -71,15 +71,15 @@ namespace Ogre {
        int numSamples, numMultisample;
        int visualCaveat;
     };
-   
-   
-   
+
+
+
     FBConfigData::FBConfigData():
         configID(0), visualID(0), bufferSize(0), level(0), doubleBuffer(0), stereo(0),
         auxBuffers(0), renderType(0),
         redSize(0), greenSize(0), blueSize(0), alphaSize(0),
         depthSize(0), stencilSize(0),
-        accumRedSize(0), accumGreenSize(0), accumBlueSize(0), accumAlphaSize(0),      
+        accumRedSize(0), accumGreenSize(0), accumBlueSize(0), accumAlphaSize(0),
         drawableType(0), caveat(0),
         maxPBufferWidth(0), maxPBufferHeight(0), maxPBufferPixels(0)
     {
@@ -88,7 +88,7 @@ namespace Ogre {
     FBConfigData::FBConfigData(Display *dpy, GLXFBConfig config)
     {
         memset(this, 0, sizeof(FBConfigData));
-        
+
         glXGetFBConfigAttrib(dpy, config, GLX_FBCONFIG_ID, &configID);
         glXGetFBConfigAttrib(dpy, config, GLX_VISUAL_ID, &visualID);
         glXGetFBConfigAttrib(dpy, config, GLX_BUFFER_SIZE, &bufferSize);
@@ -141,8 +141,8 @@ namespace Ogre {
         ss << " maxPBufferPixels=" << maxPBufferPixels;
         return ss.str();
     }
-    
-    bool GLXUtils::LoadIcon(Display *mDisplay, Window rootWindow, const std::string &name, Pixmap *pix, Pixmap *mask) 
+
+    bool GLXUtils::LoadIcon(Display *mDisplay, Window rootWindow, const std::string &name, Pixmap *pix, Pixmap *mask)
     {
      Image img;
      int mWidth, mHeight;
@@ -159,13 +159,13 @@ namespace Ogre {
             // Could not find image; never mind
             return false;
       }
-    
+
      // Allocate space for image data
        data = (char*)malloc(mWidth * mHeight * 4); // Must be allocated with malloc
        // Allocate space for transparency bitmap
       int wbits = (mWidth+7)/8;
       bitmap = (char*)malloc(wbits * mHeight);
-    
+
       // Convert and copy image
       const char *imgdata = (const char*)img.getData();
       int sptr = 0, dptr = 0;
@@ -185,27 +185,27 @@ namespace Ogre {
              dptr += 4;
          }
       }
-    
+
      /* put my pixmap data into the client side X image data structure */
        XImage *image = XCreateImage (mDisplay, NULL, 24, ZPixmap, 0,
                                     data,
                                       mWidth, mHeight, 8,
                                     mWidth*4);
        image->byte_order = MSBFirst; // 0RGB format
-    
+
       /* tell server to start managing my pixmap */
       Pixmap retval = XCreatePixmap(mDisplay, rootWindow, mWidth,
                                       mHeight, 24);
-    
+
        /* copy from client to server */
        GC context = XCreateGC (mDisplay, rootWindow, 0, NULL);
         XPutImage(mDisplay, retval, context, image, 0, 0, 0, 0,
                   mWidth, mHeight);
-    
+
        /* free up the client side pixmap data area */
      XDestroyImage(image); // also cleans data
       XFreeGC(mDisplay, context);
-    
+
        *pix = retval;
      *mask = XCreateBitmapFromData(mDisplay, rootWindow, bitmap, mWidth, mHeight);
       free(bitmap);
@@ -213,31 +213,31 @@ namespace Ogre {
     }
 
 
-    
+
     static void
     get_visual_attribs(Display *dpy, XVisualInfo *vInfo,
-                       struct visual_attribs *attribs) 
+                       struct visual_attribs *attribs)
     {
      const char *ext = glXQueryExtensionsString(dpy, vInfo->screen);
-    
+
        memset(attribs, 0, sizeof(struct visual_attribs));
-    
+
         attribs->id = vInfo->visualid;
     #if defined(__cplusplus) || defined(c_plusplus)
-    
+
         attribs->klass = vInfo->c_class;
     #else
-    
+
         attribs->klass = vInfo->class;
     #endif
-    
+
      attribs->depth = vInfo->depth;
      attribs->redMask = vInfo->red_mask;
         attribs->greenMask = vInfo->green_mask;
         attribs->blueMask = vInfo->blue_mask;
       attribs->colormapSize = vInfo->colormap_size;
       attribs->bitsPerRGB = vInfo->bits_per_rgb;
-    
+
         if (glXGetConfig(dpy, vInfo, GLX_USE_GL, &attribs->supportsGL) != 0)
            return;
         glXGetConfig(dpy, vInfo, GLX_BUFFER_SIZE, &attribs->bufferSize);
@@ -256,7 +256,7 @@ namespace Ogre {
       glXGetConfig(dpy, vInfo, GLX_ACCUM_GREEN_SIZE, &attribs->accumGreenSize);
       glXGetConfig(dpy, vInfo, GLX_ACCUM_BLUE_SIZE, &attribs->accumBlueSize);
         glXGetConfig(dpy, vInfo, GLX_ACCUM_ALPHA_SIZE, &attribs->accumAlphaSize);
-    
+
      /* get transparent pixel stuff */
       glXGetConfig(dpy, vInfo,GLX_TRANSPARENT_TYPE, &attribs->transparentType);
       if (attribs->transparentType == GLX_TRANSPARENT_RGB) {
@@ -267,7 +267,7 @@ namespace Ogre {
         } else if (attribs->transparentType == GLX_TRANSPARENT_INDEX) {
             glXGetConfig(dpy, vInfo, GLX_TRANSPARENT_INDEX_VALUE, &attribs->transparentIndexValue);
         }
-    
+
      /* multisample attribs */
        if (ext && strstr("GLX_ARB_multisample", ext) == 0) {
           	glXGetConfig(dpy, vInfo, GLX_SAMPLE_BUFFERS_ARB, &attribs->numMultisample);
@@ -277,21 +277,21 @@ namespace Ogre {
          attribs->numSamples = 0;
            attribs->numMultisample = 0;
        }
-    
+
       if (ext && strstr(ext, "GLX_EXT_visual_rating")) {
          glXGetConfig(dpy, vInfo, GLX_VISUAL_CAVEAT_EXT, &attribs->visualCaveat);
        } else {
            attribs->visualCaveat = GLX_NONE_EXT;
       }
     }
-    
+
     /*
      * Examine all visuals to find the so-called best one.
      * We prefer deepest RGBA buffer with depth, stencil and accum
      * that has no caveats.
      * @author Brian Paul (from the glxinfo source)
      */
-    int GLXUtils::findBestVisual(Display *dpy, int scrnum, int multiSample) 
+    int GLXUtils::findBestVisual(Display *dpy, int scrnum, int multiSample)
     {
         XVisualInfo theTemplate;
        XVisualInfo *visuals;
@@ -300,7 +300,7 @@ namespace Ogre {
      int i;
      struct visual_attribs bestVis;
 	 int msDiff;
-    
+
         /* get list of all visuals on this screen */
        theTemplate.screen = scrnum;
        mask = VisualScreenMask;
@@ -311,25 +311,25 @@ namespace Ogre {
                 XFree(visuals);
             return -1;
      }
-    
+
      /* init bestVis with first visual info */
       get_visual_attribs(dpy, &visuals[0], &bestVis);
-    
+
        /* try to find a "better" visual */
         for (i = 1; i < numVisuals; i++) {
          struct visual_attribs vis;
-    
+
             get_visual_attribs(dpy, &visuals[i], &vis);
-    
+
            	/* always skip visuals that are slow */
          	if (vis.visualCaveat == GLX_SLOW_VISUAL_EXT)
          	    continue;
 		 	/* skip visual if it doesn't have the desired number of multisamples */
 			if (multiSample != -1 && vis.numSamples != multiSample)
 			   continue;
-    
+
          /* see if this vis is better than bestVis */
-		   
+
            if ((!bestVis.supportsGL && vis.supportsGL) ||
                          (bestVis.visualCaveat != GLX_NONE_EXT) ||
                           (!bestVis.rgba && vis.rgba) ||
@@ -340,14 +340,14 @@ namespace Ogre {
                            (bestVis.alphaSize < vis.alphaSize) ||
                          (bestVis.depthSize < vis.depthSize) ||
                          (bestVis.stencilSize < vis.stencilSize) ||
-                         (bestVis.accumRedSize < vis.accumRedSize)) 
+                         (bestVis.accumRedSize < vis.accumRedSize))
 			{
                /* found a better visual */
                 bestVis = vis;
 			}
-         
+
       }
-    
+
      XFree(visuals);
     	if (multiSample != -1 && bestVis.numSamples != multiSample)
 			// We found no visual with the desired FSAA
@@ -362,7 +362,7 @@ namespace Ogre {
     {
     public:
         FBConfigMatchSort(Display *dpy, const int *idealattribs): dpy(dpy), mIdeal(idealattribs) { }
-        
+
         Display *dpy;
         const int *mIdeal;
         bool operator()(const GLXFBConfig & a, const GLXFBConfig & b)
@@ -384,19 +384,19 @@ namespace Ogre {
 
     GLXFBConfig GLXUtils::findBestMatch(Display *dpy, int scrnum, const int *attribs, const int *idealattribs)
     {
-        // Create vector of existing config data formats        
+        // Create vector of existing config data formats
         GLXFBConfig * fbConfigs;
         int nConfigs;
         fbConfigs = glXChooseFBConfig(dpy, scrnum, attribs, &nConfigs);
-        if (nConfigs == 0 || !fbConfigs) 
+        if (nConfigs == 0 || !fbConfigs)
             OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "glXChooseFBConfig() failed: Couldn't find a suitable pixel format", "GLRenderTexture::createPBuffer");
 
         // Sort by best match
         std::sort(fbConfigs, fbConfigs+nConfigs, FBConfigMatchSort(dpy, idealattribs));
-        
+
         GLXFBConfig retval = fbConfigs[0];
         XFree(fbConfigs);
-        
+
         return retval;
     }
 
