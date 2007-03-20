@@ -3,19 +3,19 @@
 This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
- 
+
 Copyright (c) 2000-2006 Torus Knot Software Ltd
 Also see acknowledgements in Readme.html
- 
+
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
 Foundation; either version 2 of the License, or (at your option) any later
 version.
- 
+
 This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- 
+
 You should have received a copy of the GNU Lesser General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 Place - Suite 330, Boston, MA 02111-1307, USA, or go to
@@ -30,6 +30,7 @@ Torus Knot Software Ltd.
 #include "OgreException.h"
 #include "OgreImage.h"
 #include "OgreLogManager.h"
+#include "OgreNoMemoryMacros.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -41,10 +42,10 @@ Torus Knot Software Ltd.
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 
-#include <X11/Intrinsic.h> 
-#include <X11/StringDefs.h> 
-#include <X11/Xaw/Command.h> 
-#include <X11/Xaw/Form.h> 
+#include <X11/Intrinsic.h>
+#include <X11/StringDefs.h>
+#include <X11/Xaw/Command.h>
+#include <X11/Xaw/Form.h>
 #include <X11/Xaw/Box.h>
 #include <X11/Shell.h>
 #include <X11/Xaw/Toggle.h>
@@ -58,7 +59,7 @@ namespace {
 /**
 Backdrop image. This must be sized mWidth by mHeight, and produce a
 RGB pixel format when loaded with Image::load .
- 
+
 You can easily generate your own backdrop with the following python script:
 
 #!/usr/bin/python
@@ -78,9 +79,9 @@ namespace Ogre {
 
 /**
  * Single X window with image backdrop, making it possible to configure
- * OGRE in a graphical way. 
- * XaW uses a not-very-smart widget positioning system, so I override it to use 
- * fixed positions. This works great, but it means you need to define the various 
+ * OGRE in a graphical way.
+ * XaW uses a not-very-smart widget positioning system, so I override it to use
+ * fixed positions. This works great, but it means you need to define the various
  * positions manually.
  * Furthermore, it has no OptionMenu by default, so I simulate this with dropdown
  * buttons.
@@ -113,7 +114,7 @@ protected:
 
 	int mWidth, mHeight;
 	// Xt
-	XtAppContext appContext; 
+	XtAppContext appContext;
 	Widget toplevel;
 
 	/**
@@ -168,15 +169,15 @@ public:
 		mRenderer = sys;
 	}
 private:
-	/* Callbacks that terminate modal dialog loop */ 
+	/* Callbacks that terminate modal dialog loop */
 	static void acceptHandler(Widget w, GLXConfigurator *obj, XtPointer callData) {
 		// Check if a renderer was selected, if not, don't accept
 		if(!obj->mRenderer)
 			return;
 		obj->accept = true;
 		obj->Exit();
-	} 
-	static void cancelHandler(Widget w, GLXConfigurator *obj, XtPointer callData) { 
+	}
+	static void cancelHandler(Widget w, GLXConfigurator *obj, XtPointer callData) {
 		obj->Exit();
 	}
 	/* Callbacks that set a setting */
@@ -234,32 +235,32 @@ bool GLXConfigurator::CreateWindow() {
 		XtNallowShellResize, False,
 		XtNborderWidth, 0,
 		XtNoverrideRedirect, True,
-		NULL, NULL); 
-		
+		NULL, NULL);
+
 	/* Find out display and screen used */
 	mDisplay = XtDisplay(toplevel);
 	int screen = DefaultScreen(mDisplay);
 	Window rootWindow = RootWindow(mDisplay,screen);
 
 	/* Move to center of display */
-	int w = DisplayWidth(mDisplay, screen); 
-	int h = DisplayHeight(mDisplay, screen); 
-	XtVaSetValues(toplevel, 
-			XtNx, w/2-mWidth/2, 
+	int w = DisplayWidth(mDisplay, screen);
+	int h = DisplayHeight(mDisplay, screen);
+	XtVaSetValues(toplevel,
+			XtNx, w/2-mWidth/2,
 			XtNy, h/2-mHeight/2, 0, NULL);
 
 	/* Backdrop stuff */
 	mBackDrop = CreateBackdrop(rootWindow, DefaultDepth(mDisplay,screen));
-	
+
 	/* Create toplevel */
-	box = XtVaCreateManagedWidget("box",formWidgetClass,toplevel, 
+	box = XtVaCreateManagedWidget("box",formWidgetClass,toplevel,
 		XtNbackgroundPixmap, mBackDrop,
 		0,NULL);
 
 	/* Create renderer selection */
 	int cury = ystart + 0*rowh;
 
-	Widget lb1 = XtVaCreateManagedWidget("topLabel", labelWidgetClass, box, XtNlabel, "Select Renderer", XtNborderWidth, 0, 
+	Widget lb1 = XtVaCreateManagedWidget("topLabel", labelWidgetClass, box, XtNlabel, "Select Renderer", XtNborderWidth, 0,
 		XtNwidth, col1w, 	// Fixed width
 		XtNheight, 18,
 		XtNleft, XawChainLeft,
@@ -273,7 +274,7 @@ bool GLXConfigurator::CreateWindow() {
 	const char *curRenderName = " Select One "; // Name of current renderer, or hint to select one
 	if(mRenderer)
 		curRenderName = mRenderer->getName().c_str();
-	Widget mb1 = XtVaCreateManagedWidget("Menu", menuButtonWidgetClass, box, XtNlabel,curRenderName, 
+	Widget mb1 = XtVaCreateManagedWidget("Menu", menuButtonWidgetClass, box, XtNlabel,curRenderName,
 		XtNresize, false,
 		XtNresizable, false,
 		XtNwidth, col2w, 	// Fixed width
@@ -286,7 +287,7 @@ bool GLXConfigurator::CreateWindow() {
 		XtNvertDistance, cury,
 		NULL);
 
-	Widget menu = XtVaCreatePopupShell("menu", simpleMenuWidgetClass, mb1, 
+	Widget menu = XtVaCreatePopupShell("menu", simpleMenuWidgetClass, mb1,
 		0, NULL);
 
 	RenderSystemList* renderers = Root::getSingleton().getAvailableRenderers();
@@ -301,9 +302,9 @@ bool GLXConfigurator::CreateWindow() {
 		XtAddCallback(entry, XtNcallback, (XtCallbackProc)&GLXConfigurator::renderSystemHandler, &mRendererCallbackData.back());
 	}
 
-	Widget bottomPanel = XtVaCreateManagedWidget("bottomPanel", formWidgetClass, box, 
-		XtNsensitive, True, 
-		XtNborderWidth, 0, 
+	Widget bottomPanel = XtVaCreateManagedWidget("bottomPanel", formWidgetClass, box,
+		XtNsensitive, True,
+		XtNborderWidth, 0,
 		XtNwidth, 150, 	// Fixed width
 		XtNleft, XawChainLeft,
 		XtNtop, XawChainTop,
@@ -311,15 +312,15 @@ bool GLXConfigurator::CreateWindow() {
 		XtNbottom, XawChainTop,
 		XtNhorizDistance, mWidth - 160,
 		XtNvertDistance, mHeight - 40,
-		NULL); 
+		NULL);
 
-	Widget helloButton = XtVaCreateManagedWidget("cancelButton", commandWidgetClass, bottomPanel, XtNlabel," Cancel ", NULL); 
-	XtAddCallback(helloButton, XtNcallback, (XtCallbackProc)&GLXConfigurator::cancelHandler, this); 
+	Widget helloButton = XtVaCreateManagedWidget("cancelButton", commandWidgetClass, bottomPanel, XtNlabel," Cancel ", NULL);
+	XtAddCallback(helloButton, XtNcallback, (XtCallbackProc)&GLXConfigurator::cancelHandler, this);
 
 	Widget exitButton = XtVaCreateManagedWidget("acceptButton", commandWidgetClass, bottomPanel, XtNlabel," Accept ", XtNfromHoriz,helloButton, NULL);
- 	XtAddCallback(exitButton, XtNcallback, (XtCallbackProc)&GLXConfigurator::acceptHandler, this); 
+ 	XtAddCallback(exitButton, XtNcallback, (XtCallbackProc)&GLXConfigurator::acceptHandler, this);
 
-	XtRealizeWidget(toplevel); 
+	XtRealizeWidget(toplevel);
 
 	if(mRenderer)
 		/* There was already a renderer selected; display its options */
@@ -351,30 +352,30 @@ Pixmap GLXConfigurator::CreateBackdrop(Window rootWindow, int depth) {
         Image img;
         MemoryDataStream *imgStream;
         DataStreamPtr imgStreamPtr;
- 
+
         // Load backdrop image using OGRE
         imgStream = new MemoryDataStream((void*)GLX_backdrop_data, sizeof(GLX_backdrop_data), false);
         imgStreamPtr = DataStreamPtr(imgStream);
 		img.load(imgStreamPtr, imgType);
-        
+
         PixelBox src = img.getPixelBox(0, 0);
 
 		// Convert and copy image
 		data = (unsigned char*)malloc(mWidth * mHeight * bpl); // Must be allocated with malloc
-        
+
         PixelBox dst(src, bpl == 2 ? PF_B5G6R5 : PF_A8R8G8B8, data );
-        
+
         PixelUtil::bulkPixelConversion(src, dst);
 	} catch(Exception &e) {
 		// Could not find image; never mind
 		LogManager::getSingleton().logMessage("GLX backdrop image not found: Warning");
 		return 0;
 	}
-	
+
 	GC context = XCreateGC (mDisplay, rootWindow, 0, NULL);
 
 	/* put my pixmap data into the client side X image data structure */
-	XImage *image = XCreateImage (mDisplay, NULL, depth, ZPixmap, 0, 
+	XImage *image = XCreateImage (mDisplay, NULL, depth, ZPixmap, 0,
 		(char*)data,
 		mWidth, mHeight, 8,
 		mWidth*bpl);
@@ -427,7 +428,7 @@ void GLXConfigurator::SetRenderer(RenderSystem *r) {
 	// Process each option and create an optionmenu widget for it
 	for (ConfigOptionMap::iterator it = options.begin();
 					it != options.end(); it++) {
-		Widget lb1 = XtVaCreateManagedWidget("topLabel", labelWidgetClass, box, XtNlabel, it->second.name.c_str(), XtNborderWidth, 0, 
+		Widget lb1 = XtVaCreateManagedWidget("topLabel", labelWidgetClass, box, XtNlabel, it->second.name.c_str(), XtNborderWidth, 0,
 			XtNwidth, col1w, 	// Fixed width
 			XtNheight, 18,
 			XtNleft, XawChainLeft,
@@ -439,7 +440,7 @@ void GLXConfigurator::SetRenderer(RenderSystem *r) {
 			XtNjustify, XtJustifyLeft,
 			NULL);
 		mRenderOptionWidgets.push_back(lb1);
-		Widget mb1 = XtVaCreateManagedWidget("Menu", menuButtonWidgetClass, box, XtNlabel, it->second.currentValue.c_str(), 
+		Widget mb1 = XtVaCreateManagedWidget("Menu", menuButtonWidgetClass, box, XtNlabel, it->second.currentValue.c_str(),
 			XtNresize, false,
 			XtNresizable, false,
 			XtNwidth, col2w, 	// Fixed width
@@ -453,7 +454,7 @@ void GLXConfigurator::SetRenderer(RenderSystem *r) {
 			NULL);
 		mRenderOptionWidgets.push_back(mb1);
 
-		Widget menu = XtVaCreatePopupShell("menu", simpleMenuWidgetClass, mb1, 
+		Widget menu = XtVaCreatePopupShell("menu", simpleMenuWidgetClass, mb1,
 			0, NULL);
 
 		// Process each choice
