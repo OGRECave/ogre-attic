@@ -520,7 +520,7 @@ namespace Ogre {
 
 	}
 	//-----------------------------------------------------------------------------
-	void ManualObject::end(void)
+	ManualObject::ManualObjectSection* ManualObject::end(void)
 	{
 		if (!mCurrentSection)
 		{
@@ -534,6 +534,8 @@ namespace Ogre {
 			copyTempVertexToBuffer();
 		}
 
+		// pointer that will be returned
+		ManualObjectSection* result = NULL;
 
 		RenderOperation* rop = mCurrentSection->getRenderOperation();
 		// Check for empty content
@@ -545,6 +547,9 @@ namespace Ogre {
 			{
 				// Can't just undo / remove since may be in the middle
 				// Just allow counts to be 0, will not be issued to renderer
+
+				// return the finished section (though it has zero vertices)
+				result = mCurrentSection;
 			}
 			else
 			{
@@ -618,6 +623,10 @@ namespace Ogre {
 						* rop->indexData->indexBuffer->getIndexSize(),
 					mTempIndexBuffer, true);
 			}
+
+			// return the finished section
+			result = mCurrentSection;
+
 		} // empty section check
 
 		mCurrentSection = 0;
@@ -629,6 +638,9 @@ namespace Ogre {
 			mParentNode->needUpdate();
 		}
 
+		// will return the finished section or NULL if
+		// the section was empty (i.e. zero vertices/indices)
+		return result;
 	}
 	//-----------------------------------------------------------------------------
 	void ManualObject::setMaterialName(size_t idx, const String& name)
@@ -719,6 +731,20 @@ namespace Ogre {
 		// Save setting for future sections
 		mUseIdentityView = useIdentityView;
 	}
+    //-----------------------------------------------------------------------
+	ManualObject::ManualObjectSection* ManualObject::getSection(unsigned int index) const
+    {
+        if (index >= mSectionList.size())
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+            "Index out of bounds.",
+            "ManualObject::getSection");
+        return mSectionList[index];
+    }
+    //-----------------------------------------------------------------------
+	unsigned int ManualObject::getNumSections(void) const
+    {
+        return static_cast< unsigned int >( mSectionList.size() );
+    }
 	//-----------------------------------------------------------------------------
 	const String& ManualObject::getMovableType(void) const
 	{
