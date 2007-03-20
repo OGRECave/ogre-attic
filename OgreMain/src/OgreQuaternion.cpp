@@ -522,19 +522,79 @@ namespace Ogre {
         return len;
     }
     //-----------------------------------------------------------------------
-	Radian Quaternion::getRoll(void) const
+	Radian Quaternion::getRoll(bool reprojectAxis) const
 	{
-		return Radian(Math::ATan2(2*(x*y + w*z), w*w + x*x - y*y - z*z));
+		if (reprojectAxis)
+		{
+			// roll = atan2(localx.y, localx.x)
+			// pick parts of xAxis() implementation that we need
+			Real fTx  = 2.0*x;
+			Real fTy  = 2.0*y;
+			Real fTz  = 2.0*z;
+			Real fTwz = fTz*w;
+			Real fTxy = fTy*x;
+			Real fTyy = fTy*y;
+			Real fTzz = fTz*z;
+
+			// Vector3(1.0-(fTyy+fTzz), fTxy+fTwz, fTxz-fTwy);
+
+			return Radian(Math::ATan2(fTxy+fTwz, 1.0-(fTyy+fTzz)));
+
+		}
+		else
+		{
+			return Radian(Math::ATan2(2*(x*y + w*z), w*w + x*x - y*y - z*z));
+		}
 	}
     //-----------------------------------------------------------------------
-	Radian Quaternion::getPitch(void) const
+	Radian Quaternion::getPitch(bool reprojectAxis) const
 	{
-		return Radian(Math::ATan2(2*(y*z + w*x), w*w - x*x - y*y + z*z));
+		if (reprojectAxis)
+		{
+			// pitch = atan2(localy.z, localy.y)
+			// pick parts of yAxis() implementation that we need
+			Real fTx  = 2.0*x;
+			Real fTy  = 2.0*y;
+			Real fTz  = 2.0*z;
+			Real fTwx = fTx*w;
+			Real fTxx = fTx*x;
+			Real fTyz = fTz*y;
+			Real fTzz = fTz*z;
+
+			// Vector3(fTxy-fTwz, 1.0-(fTxx+fTzz), fTyz+fTwx);
+			return Radian(Math::ATan2(fTyz+fTwx, 1.0-(fTxx+fTzz)));
+		}
+		else
+		{
+			// internal version
+			return Radian(Math::ATan2(2*(y*z + w*x), w*w - x*x - y*y + z*z));
+		}
 	}
     //-----------------------------------------------------------------------
-	Radian Quaternion::getYaw(void) const
+	Radian Quaternion::getYaw(bool reprojectAxis) const
 	{
-		return Radian(Math::ASin(-2*(x*z - w*y)));
+		if (reprojectAxis)
+		{
+			// yaw = atan2(localz.x, localz.z)
+			// pick parts of zAxis() implementation that we need
+			Real fTx  = 2.0*x;
+			Real fTy  = 2.0*y;
+			Real fTz  = 2.0*z;
+			Real fTwy = fTy*w;
+			Real fTxx = fTx*x;
+			Real fTxz = fTz*x;
+			Real fTyy = fTy*y;
+
+			// Vector3(fTxz+fTwy, fTyz-fTwx, 1.0-(fTxx+fTyy));
+
+			return Radian(Math::ATan2(fTxz+fTwy, 1.0-(fTxx+fTyy)));
+
+		}
+		else
+		{
+			// internal version
+			return Radian(Math::ASin(-2*(x*z - w*y)));
+		}
 	}
     //-----------------------------------------------------------------------
     Quaternion Quaternion::nlerp(Real fT, const Quaternion& rkP,
