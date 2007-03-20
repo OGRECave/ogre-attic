@@ -176,8 +176,20 @@ AC_DEFUN([OGRE_GET_PLATFORM],
       AC_CHECK_HEADERS([X11/Xaw/Command.h],, [AC_MSG_ERROR("libxaw headers not found")])
       AC_CHECK_HEADERS([X11/extensions/xf86vmode.h],, [AC_MSG_ERROR("libxf86vm headers not found")],[#include <X11/Xlib.h>])
       AC_CHECK_HEADERS([X11/extensions/Xrandr.h],, [AC_MSG_ERROR("libxrandr headers not found")],[#include <X11/Xlib.h>])
-      PLATFORM_CFLAGS="-I/usr/X11R6/include"
-      PLATFORM_LIBS="-L/usr/X11R6/lib -lX11 -lXaw"
+      AC_PATH_X
+      if test x"$x_includes" != x; then
+        if test x"$x_includes" != xNONE; then
+          PLATFORM_CFLAGS="-I$x_includes"
+        fi
+      fi
+      if test x"$x_libraries" != x; then
+        if test x"$x_libraries" != xNONE; then
+          PLATFORM_LIBS="-L$x_libraries -lX11 -lXaw"
+        fi
+      dnl In case of xorg 7.x, $x_libraries is empty
+      else
+        PLATFORM_LIBS="-lX11 -lXaw"
+      fi
     ;;
     Win32)
       PLATFORM_CFLAGS=""
@@ -213,8 +225,20 @@ AC_DEFUN([OGRE_GET_GLSUPPORT],
   dnl Do the extra checks per type here
   case $OGRE_GLSUPPORT in 
     GLX)
-	GLSUPPORT_CFLAGS="-I/usr/X11R6/include"
-	GLSUPPORT_LIBS="-L/usr/X11R6/lib -lX11 -lXext -lGL -lXrandr -lXxf86vm"
+        AC_PATH_X
+        if test x"$x_includes" != x; then
+          if test x"$x_includes" != xNONE; then
+            GLSUPPORT_CFLAGS="-I$x_includes"
+          fi
+        fi
+        if test x"$x_libraries" != x; then
+          if test x"$x_libraries" != xNONE; then
+            GLSUPPORT_LIBS="-L$x_libraries -lX11 -lXext -lGL -lXrandr -lXxf86vm"
+          fi
+        dnl In case of xorg 7.x $x_libraries might be empty
+        else
+          GLSUPPORT_LIBS="-lX11 -lXext -lGL -lXrandr -lXxf86vm"
+        fi
     ;;
     win32)
 	GLSUPPORT_CFLAGS=""
