@@ -21,15 +21,12 @@ void main(void)
 {
    gl_Position = ftransform();
    
-   // uvw is the calculated uvw coordinates based on vertex position
-   // GLSL uses xy instead of xz for uv and z is depth so do some swizzling
-   vec3 lookupPos = gl_Vertex.xzy * scale.xzy;
-   lookupPos .x += waveSpeed.x * time_0_X;
-   lookupPos .y += waveSpeed.y * time_0_X;
-   lookupPos .z += lookupPos.y + noiseSpeed * time_0_X;
-   uvw = lookupPos;
-   
    //  the view vector needs to be in vertex space
    vVec = gl_Vertex.xyz - eyePosition;
    normal = gl_Normal;
+   // uvw is the calculated uvw coordinates based on vertex position
+   uvw = gl_Vertex.xyz * scale.xyz;
+   uvw.xz += waveSpeed * time_0_X;
+   uvw.y += uvw.z + noiseSpeed * time_0_X;
+   
 }

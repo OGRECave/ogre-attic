@@ -30,8 +30,7 @@ VS_OUTPUT main(float4 Pos: POSITION, float3 normal: NORMAL,
    
    // uvw is the calculated uvw coordinates based on vertex position
    Out.uvw = Pos.xyz * scale;
-   Out.uvw.x += waveSpeed.x * time_0_X;
-   Out.uvw.z += waveSpeed.y * time_0_X;
+   Out.uvw.xz += waveSpeed * time_0_X;
    Out.uvw.y += Out.uvw.z + noiseSpeed * time_0_X;
    
    //  the view vector needs to be in vertex space
