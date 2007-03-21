@@ -316,11 +316,12 @@ namespace Ogre
             imageData[i + 1] = 0x00; // alpha
         }
 
+        size_t l = 0, m = 0;
 		for (CodePointRangeList::const_iterator r = mCodePointRangeList.begin();
 			r != mCodePointRangeList.end(); ++r)
 		{
 			const CodePointRange& range = *r;
-			for(CodePoint cp = range.first, l = 0, m = 0, n = 0; cp <= range.second; ++cp )
+			for(CodePoint cp = range.first; cp <= range.second; ++cp )
 			{
 				FT_Error ftResult;
 
@@ -385,7 +386,7 @@ namespace Ogre
 				if( finalWidth - 1 < l + ( advance ) )
 				{
 					m += ( max_height >> 6 ) + char_spacer;
-					l = n = 0;
+					l = 0;
 				}
 			}
 		}
