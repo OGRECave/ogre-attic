@@ -9,7 +9,7 @@
 				<Option output="../../Common/bin/Debug/Demo_CameraTrack_d" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="../../Common/bin/Debug" />
 				<Option object_output="../obj/Debug" />
-				<Option external_deps="../../../lib/OgreMain_d.dll;" />
+				<Option external_deps="../../../lib/libOgreMain_d.so;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />
@@ -26,7 +26,7 @@
 				<Option output="../../Common/bin/Release/Demo_CameraTrack" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="../../Common/bin/Release" />
 				<Option object_output="../obj/Release" />
-				<Option external_deps="../../../lib/OgreMain.dll;" />
+				<Option external_deps="../../../lib/libOgreMain.so;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />
