@@ -761,18 +761,12 @@ namespace Ogre {
 			for (LightList::const_iterator i = mCurrentLightList->begin();
 				i != mCurrentLightList->end(); ++i)
 			{
-				// stop as soon as we run out of shadow casting lights, they are
-				// all grouped at the beginning
+				// Skip non shadow casting lights
 				if (!(*i)->getCastShadows())
-					break;
+					continue;
 
 				const VisibleObjectsBoundsInfo& info = 
 					mCurrentSceneManager->getShadowCasterBoundsInfo(*i);
-
-				mSceneDepthRange.x = mMainCamBoundsInfo->minDistance;
-				mSceneDepthRange.y = mMainCamBoundsInfo->maxDistance;
-				mSceneDepthRange.z = mMainCamBoundsInfo->maxDistance - mMainCamBoundsInfo->minDistance;
-				mSceneDepthRange.w = 1.0f / mSceneDepthRange.z;
 
 				mShadowCamDepthRanges.push_back(Vector4(
 					info.minDistance, 
