@@ -19,12 +19,7 @@ varying vec3 vVec;
 
 void main(void)
 {
-   // in OpenGL Ogre uses Devil 1.6.7 for loading dds textures.
-   // But Devil buggers up the green and blue channels of the 3D
-   // texture by setting them to zero so only the red channel has good data
-   // Dx9 loads the texture properly but if we want things to look the same
-   // between Dx9 and GL we only use the red channel for now until Devil dds issues are fixed
-   vec3 noisy = texture3D(Noise, uvw).xxx;
+   vec3 noisy = texture3D(Noise, uvw).xyz;
    
    // convert to signed noise
    vec3 bump = 2.0 * noisy - 1.0;
