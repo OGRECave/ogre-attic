@@ -438,8 +438,6 @@ namespace Ogre {
 			typedef VectorIterator<LODBucketList> LODIterator;
 			/// Get an iterator over the LODs in this region
 			LODIterator getLODIterator(void);
-			/// Shared set of lights for all GeometryBuckets
-			const LightList& getLights(void) const;
 			/// @copydoc ShadowCaster::getShadowVolumeRenderableIterator
 			ShadowRenderableListIterator getShadowVolumeRenderableIterator(
 				ShadowTechnique shadowTechnique, const Light* light, 
