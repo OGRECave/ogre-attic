@@ -27,6 +27,11 @@ Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 #include "StringTests.h"
+#include "OgreStringConverter.h"
+#include "OgreVector3.h"
+#include "OgreQuaternion.h"
+#include "OgreMatrix4.h"
+#include "OgreColourValue.h"
 
 using namespace Ogre;
 
@@ -124,4 +129,97 @@ void StringTests::testMatchGlobMiddle()
 void StringTests::testMatchSuperGlobtastic()
 {
 	CPPUNIT_ASSERT(StringUtil::match(testFileNoPath, "*e*tf*e.t*t", true));
+}
+void StringTests::testParseReal()
+{
+	Real r = 23.454;
+
+	String s = StringConverter::toString(r);
+	Real t = StringConverter::parseReal(s);
+
+	CPPUNIT_ASSERT_EQUAL(r, t);
+
+
+}
+void StringTests::testParseInt()
+{
+
+	int r = 223546;
+
+	String s = StringConverter::toString(r);
+	int t = StringConverter::parseInt(s);
+
+	CPPUNIT_ASSERT_EQUAL(r, t);
+}
+void StringTests::testParseLong()
+{
+	long r = -223546325346456;
+
+	String s = StringConverter::toString(r);
+	long t = StringConverter::parseLong(s);
+
+	CPPUNIT_ASSERT_EQUAL(r, t);
+
+}
+void StringTests::testParseUnsignedLong()
+{
+	unsigned long r = 1223546325346456;
+
+	String s = StringConverter::toString(r);
+	unsigned long t = StringConverter::parseUnsignedLong(s);
+
+	CPPUNIT_ASSERT_EQUAL(r, t);
+
+}
+void StringTests::testParseVector3()
+{
+	Vector3 r(0.12, 3.22, -4.04);
+
+	String s = StringConverter::toString(r);
+	Vector3 t = StringConverter::parseVector3(s);
+
+	CPPUNIT_ASSERT_EQUAL(r, t);
+
+}
+void StringTests::testParseMatrix4()
+{
+	Matrix4 r(1.12, 0, 0, 34, 0, 0.87, 0, 20, 0, 0, 0.56, 10, 0, 0, 0, 1);
+
+	String s = StringConverter::toString(r);
+	Matrix4 t = StringConverter::parseMatrix4(s);
+
+	CPPUNIT_ASSERT_EQUAL(r, t);
+
+}
+void StringTests::testParseQuaternion()
+{
+	Quaternion r(1.12, 0.87, 0.67, 1);
+
+	String s = StringConverter::toString(r);
+	Quaternion t = StringConverter::parseQuaternion(s);
+
+	CPPUNIT_ASSERT_EQUAL(r, t);
+
+}
+void StringTests::testParseBool()
+{
+	bool r = true;
+	String s = StringConverter::toString(r);
+	bool t = StringConverter::parseBool(s);
+	CPPUNIT_ASSERT_EQUAL(r, t);
+
+	r = false;
+	s = StringConverter::toString(r);
+	t = StringConverter::parseBool(s);
+	CPPUNIT_ASSERT_EQUAL(r, t);
+
+}
+void StringTests::testParseColourValue()
+{
+	ColourValue r(0.34, 0.44, 0.77, 1.0);
+
+	String s = StringConverter::toString(r);
+	ColourValue t = StringConverter::parseColourValue(s);
+	CPPUNIT_ASSERT_EQUAL(r, t);
+
 }
