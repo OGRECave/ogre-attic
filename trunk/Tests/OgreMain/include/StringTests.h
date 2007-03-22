@@ -45,6 +45,16 @@ class StringTests : public CppUnit::TestFixture
     CPPUNIT_TEST(testMatchGlobStartAndEnd);
     CPPUNIT_TEST(testMatchGlobMiddle);
     CPPUNIT_TEST(testMatchSuperGlobtastic);
+	CPPUNIT_TEST(testParseReal);
+	CPPUNIT_TEST(testParseInt);
+	CPPUNIT_TEST(testParseLong);
+	CPPUNIT_TEST(testParseUnsignedLong);
+	CPPUNIT_TEST(testParseVector3);
+	CPPUNIT_TEST(testParseMatrix4);
+	CPPUNIT_TEST(testParseQuaternion);
+	CPPUNIT_TEST(testParseBool);
+	CPPUNIT_TEST(testParseColourValue);
+
     CPPUNIT_TEST_SUITE_END();
 protected:
 	Ogre::String testFileNoPath;
@@ -68,5 +78,16 @@ public:
 	void testMatchGlobStartAndEnd();
 	void testMatchGlobMiddle();
 	void testMatchSuperGlobtastic();
+	// StringConverter tests
+	void testParseReal();
+	void testParseInt();
+	void testParseLong();
+	void testParseUnsignedLong();
+	void testParseVector3();
+	void testParseMatrix4();
+	void testParseQuaternion();
+	void testParseBool();
+	void testParseColourValue();
+
 
 };

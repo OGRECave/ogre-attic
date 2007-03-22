@@ -256,12 +256,22 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Real StringConverter::parseReal(const String& val)
     {
-        return atof(val.c_str());
+		// Use istringstream for direct correspondence with toString
+		std::istringstream str(val);
+		Real ret;
+		str >> ret;
+
+        return ret;
     }
     //-----------------------------------------------------------------------
     int StringConverter::parseInt(const String& val)
     {
-        return atoi(val.c_str());
+		// Use istringstream for direct correspondence with toString
+		std::istringstream str(val);
+		int ret;
+		str >> ret;
+
+        return ret;
     }
     //-----------------------------------------------------------------------
     unsigned int StringConverter::parseUnsignedInt(const String& val)
@@ -271,12 +281,22 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     long StringConverter::parseLong(const String& val)
     {
-        return strtol(val.c_str(), 0, 10);
+		// Use istringstream for direct correspondence with toString
+		std::istringstream str(val);
+		long ret;
+		str >> ret;
+
+		return ret;
     }
     //-----------------------------------------------------------------------
     unsigned long StringConverter::parseUnsignedLong(const String& val)
     {
-        return strtoul(val.c_str(), 0, 10);
+		// Use istringstream for direct correspondence with toString
+		std::istringstream str(val);
+		unsigned long ret;
+		str >> ret;
+
+		return ret;
     }
     //-----------------------------------------------------------------------
     bool StringConverter::parseBool(const String& val)
