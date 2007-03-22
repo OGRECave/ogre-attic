@@ -27,6 +27,7 @@ Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 #include "OgreGLDefaultHardwareBufferManager.h"
+#include "OgreAlignedAllocator.h"
 
 namespace Ogre {
 
@@ -34,12 +35,12 @@ namespace Ogre {
 		HardwareBuffer::Usage usage)
         : HardwareVertexBuffer(vertexSize, numVertices, usage, true, false) // always software, never shadowed
 	{
-		mpData = new unsigned char[mSizeInBytes];
+        mpData = static_cast<unsigned char*>(AlignedMemory::allocate(mSizeInBytes));
 	}
 	//-----------------------------------------------------------------------
     GLDefaultHardwareVertexBuffer::~GLDefaultHardwareVertexBuffer()
 	{
-		delete [] mpData;
+		AlignedMemory::deallocate(mpData);
 	}
 	//-----------------------------------------------------------------------
     void* GLDefaultHardwareVertexBuffer::lockImpl(size_t offset, size_t length, LockOptions options)
