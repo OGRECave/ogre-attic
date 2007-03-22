@@ -214,6 +214,8 @@ namespace Ogre {
 			// Delete SubEntity
 			delete *i;
 		}
+		mSubEntityList.clear();
+		
 		// Delete LOD entities
 		LODEntityList::iterator li, liend;
 		liend = mLodEntityList.end();
@@ -222,7 +224,8 @@ namespace Ogre {
 			// Delete
 			delete (*li);
 		}
-
+        mLodEntityList.clear();
+        
 		// Delete shadow renderables
 		ShadowRenderableList::iterator si, siend;
 		siend = mShadowRenderables.end();
@@ -230,7 +233,8 @@ namespace Ogre {
 		{
 			delete *si;
 		}
-
+        mShadowRenderables.clear();
+        
 		// Detach all child objects, do this manually to avoid needUpdate() call
 		// which can fail because of deleted items
 		detachAllObjectsImpl();
