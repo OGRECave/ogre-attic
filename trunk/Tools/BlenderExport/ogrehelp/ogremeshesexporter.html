@@ -75,17 +75,34 @@ The script needs access to standard Python modules not shipped with Blender. Con
   Copy the the script and all subdirectories either into ".blender/scripts" or the user defined scripts directory.
   </li>
   <li>
-  In the "Scripts Window" run "Scripts -&gt; Update Menus".
+  In the "Scripts Window" run "Scripts &rarr; Update Menus".
   </li>
 </ul>
 
 <h2><a name="Basic Usage">Basic Usage</a></h2>
+<p>
+  There is a one-to-one correspondence:
+</p>
+<div class="importantBox">
+  <div class="center">
+    Blender Object (OB) &harr; Ogre::SceneNode
+  </div>
+  <div class="center">
+    Blender Mesh (ME) &harr; Ogre::Entity
+  </div>
+</div>
+<p>
+  The OGRE Meshes Exporter maps Blender Meshes (ME) to Ogre Entities. Please refer to the OGRE Scene Exporter for the mapping of Blender Objects (OB) to Ogre SceneNodes.
+</p>
+<p>
+To export Blender Meshes (ME) do:
+</p>
 <ul>
   <li>
-  In the "3D View" select the objects you want to export.
+  In the "3D View" select the mesh objects you want to export.
   </li>
   <li>
-  In the "Scripts Window" run "Scripts -&gt; Export -&gt; OGRE Meshes".
+  In the "Scripts Window" run "Scripts &rarr; Export &rarr; OGRE Meshes".
   </li>
   <li>
   Choose your export options.
@@ -220,7 +237,7 @@ is automatically converted into two triangle faces in the exported mesh. The exp
 
 <p>The script does not support subdivision surface (SubSurf) options.
 To export a SubSurf object, you have to convert it into a Mesh object,
-"Object -&gt; Convert Object Type... -&gt; Mesh (keep original)".</p>
+"Object &rarr; Convert Object Type... &rarr; Mesh (keep original)".</p>
 
 <p>The script does not support the "Double Sided" mesh option, use the "Two Sided" face option instead.</p>
 
