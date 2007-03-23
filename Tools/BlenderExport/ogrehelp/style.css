@@ -2,7 +2,7 @@ body {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; col
 a:link {  color: #003300; text-decoration: underline}
 a:hover {  color: #F5BC52; text-decoration: underline}
 a:visited {  color: #004400; text-decoration: underline}
-li {  color: #003300; list-style-type: diamond; position: relative; left: -15px; clip:    rect(   )}
+li {  color: #003300; position: relative; left: -15px; clip: rect(auto, auto, auto, auto)}
 td {  font-size: 10pt}
 th {  font-size: 10pt}
 
@@ -56,9 +56,23 @@ A:hover.code { text-decoration: underline; font-weight: normal; color: Blue }
 A.codeRef { font-weight: normal; color: #4444ee } 	 
 DL.el { margin-left: -1cm } 	 
 DIV.fragment { width: 100%; border: none; background-color: #003300 } 	 
-DIV.ah { color: white; background-color: black; margin-bottom: 3; margin-top: 3 } 	 
-DIV.groupHeader { margin-left: 16; margin-top: 12; margin-bottom: 6; font-weight: bold } 	 
-DIV.groupText { margin-left: 16; font-style: italic; font-size: smaller } 	 
+DIV.ah { color: white; background-color: black; margin-bottom: 3px; margin-top: 3px } 	 
+DIV.groupHeader { margin-left: 16px; margin-top: 12px; margin-bottom: 6px; font-weight: bold } 	 
+DIV.groupText { margin-left: 16px; font-style: italic; font-size: smaller } 	 
+DIV.importantBox {
+	border-width:medium;
+	border-style:solid;
+	border-color:#6b7d6b;
+	background-color:#F5BC52;
+	margin-left:10%;
+	margin-right:10%;
+	margin-top:5px;
+	margin-bottom:5px;
+	padding:5px;
+}
+DIV.center {
+	text-align:center;
+}
 FONT.keyword       { color: #008000 } 	 
 FONT.keywordtype   { color: #999920 } 	 
 FONT.keywordflow   { color: #e0FF00 } 	 
@@ -113,7 +127,6 @@ CODE.str {
 {
 	font-size: 12pt;
 	font-weight: bold;
-	color: 
 }
 .md A.el {
 	color: #F5BC52;
