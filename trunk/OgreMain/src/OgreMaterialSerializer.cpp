@@ -551,7 +551,7 @@ namespace Ogre
             }
             else
                 logParseError(
-                    "Bad iteration attribute, valid parameters are 'once' or 'once_per_light' or <number> [per_light] [light type].", context);
+                    "Bad iteration attribute, valid parameters are 'once' or 'once_per_light' or <number> [per_light|per_n_lights <num_lights>] [light type].", context);
         }
         return false;
     }
