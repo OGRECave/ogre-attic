@@ -845,7 +845,7 @@ Default: start_light 0@*
 Sets the maximum number of lights which will be considered for use with this pass.@*@*
 Format: max_lights <number>@*@*
 
-The maximum number of lights which can be used when rendering fixed-function materials is set by the rendering system, and is typically set at 8. When you are using the programmable pipeline (@xref{Using Vertex and Fragment Programs in a Pass}) this limit is dependent on the program you are running, or, if you use 'iteration once_per_light' (@xref{iteration}), it effectively only bounded by the number of passes you are willing to use. Whichever method you use, however, the max_lights limit applies.@*@*
+The maximum number of lights which can be used when rendering fixed-function materials is set by the rendering system, and is typically set at 8. When you are using the programmable pipeline (@xref{Using Vertex and Fragment Programs in a Pass}) this limit is dependent on the program you are running, or, if you use 'iteration once_per_light' or a variant (@xref{iteration}), it effectively only bounded by the number of passes you are willing to use. If you are not using pass iteration, the light limit applies once for this pass. If you are using pass iteration, the light limit applies across all iterations of this pass - for example if you have 12 lights in range with an 'iteration once_per_light' setup but your max_lights is set to 4 for that pass, the pass will only iterate 4 times. @*@*
 
 Default: max_lights 8@*
 

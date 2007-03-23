@@ -2638,7 +2638,14 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 			// in which case this pass would be skipped
 			int lightsLeft;
 			if (iteratePerLight)
+			{
 				lightsLeft = static_cast<int>(rendLightList.size()) - pass->getStartLight();
+				// Don't allow total light count for all iterations to exceed max per pass
+				if (lightsLeft > static_cast<int>(pass->getMaxSimultaneousLights()))
+				{
+					lightsLeft = static_cast<int>(pass->getMaxSimultaneousLights());
+				}
+			}
 			else
 				lightsLeft = 1; // just to make sure we render once, number irrelevant
 
