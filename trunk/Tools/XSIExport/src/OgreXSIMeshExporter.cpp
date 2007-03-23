@@ -954,6 +954,7 @@ namespace Ogre {
 										// shape offset since this inherited transform is
 										// baked into the base OGRE mesh (to preserve
 										// relative positioning of parts)
+										// This deals with rotation and scaling
 
 										// If object is parented
 										// Don't know if anyone really uses this
@@ -962,7 +963,13 @@ namespace Ogre {
 											xsiMesh->obj.GetKinematics().GetGlobal().GetTransform();
 										MATH::CVector3 off(offset.x, offset.y, offset.z);
 										off.MulByTransformationInPlace(xform);
+										// now adjust for position since OGRE's poses
+										// are relative to original vertex position
+										off -= xform.GetTranslation();
+
 										offset = XSItoOgre(off);
+
+
 
 									}
 
