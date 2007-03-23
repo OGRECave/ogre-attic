@@ -232,7 +232,12 @@ namespace Ogre {
 					DisplayString::iterator peeki = i;
 					peeki++;
 					if (peeki != iend && OGRE_DEREF_DISPLAYSTRING_ITERATOR(peeki) == UNICODE_LF)
+					{
 						i = peeki; // skip both as one newline
+						// Also reduce tri count
+						mRenderOp.vertexData->vertexCount -= 6;
+					}
+
 				}
 				continue;
 			}
