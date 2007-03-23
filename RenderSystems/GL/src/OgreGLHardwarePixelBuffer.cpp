@@ -289,10 +289,9 @@ GLTextureBuffer::~GLTextureBuffer()
     {
         // Delete all render targets that are not yet deleted via _clearSliceRTT because the rendertarget
         // was deleted by the user.
-        for(size_t zoffset=0; zoffset<mDepth; ++zoffset)
+        for (SliceTRT::const_iterator it = mSliceTRT.begin(); it != mSliceTRT.end(); ++it)
         {
-            if(mSliceTRT[zoffset])
-                Root::getSingleton().getRenderSystem()->destroyRenderTarget(mSliceTRT[zoffset]->getName());
+            Root::getSingleton().getRenderSystem()->destroyRenderTarget((*it)->getName());
         }
 	}
 }
@@ -725,8 +724,11 @@ void GLTextureBuffer::blitFromMemory(const PixelBox &src_orig, const Image::Box 
 {
     /// Fall back to normal GLHardwarePixelBuffer::blitFromMemory in case 
     /// - FBO is not supported
+    /// - Either source or target is luminance due doesn't looks like supported by hardware
     /// - the source dimensions match the destination ones, in which case no scaling is needed
     if(!GLEW_EXT_framebuffer_object ||
+        PixelUtil::isLuminance(src_orig.format) ||
+        PixelUtil::isLuminance(mFormat) ||
         (src_orig.getWidth() == dstBox.getWidth() &&
         src_orig.getHeight() == dstBox.getHeight() &&
         src_orig.getDepth() == dstBox.getDepth()))
@@ -782,10 +784,12 @@ void GLTextureBuffer::blitFromMemory(const PixelBox &src_orig, const Image::Box 
         glTexImage2D(target, 0, format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
     /// GL texture buffer
-    GLTextureBuffer tex("", target, id, 0, 0, (Usage)(TU_AUTOMIPMAP|HBU_STATIC_WRITE_ONLY), false);
+    GLTextureBuffer tex(StringUtil::BLANK, target, id, 0, 0, (Usage)(TU_AUTOMIPMAP|HBU_STATIC_WRITE_ONLY), false);
     
     /// Upload data to 0,0,0 in temporary texture
     PixelBox tempTarget(src.getWidth(), src.getHeight(), src.getDepth(), src.format, src.data);
+    tempTarget.rowPitch = src.rowPitch;
+    tempTarget.slicePitch = src.slicePitch;
     tex.upload(tempTarget);
     
     /// Blit
