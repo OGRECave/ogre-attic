@@ -86,7 +86,7 @@ protected:
 
 		ExampleApplication::setupResources();
 		ResourceGroupManager::getSingleton().addResourceLocation(
-			mQuakePk3, "Zip", ResourceGroupManager::getSingleton().getWorldResourceGroupName());
+			mQuakePk3, "Zip", ResourceGroupManager::getSingleton().getWorldResourceGroupName(), true);
 
 	}
 	// Override scene manager (use indoor instead of generic)
