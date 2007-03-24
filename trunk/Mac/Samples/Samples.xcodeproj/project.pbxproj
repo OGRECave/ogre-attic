@@ -210,34 +210,35 @@
 		000E29E80B39E704004EA2DF /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E26400B393B0A004EA2DF /* resources.cfg */; };
 		000E29EF0B39E71B004EA2DF /* Water.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000E29ED0B39E71B004EA2DF /* Water.cpp */; };
 		000E29F00B39E71B004EA2DF /* WaterMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000E29EE0B39E71B004EA2DF /* WaterMesh.cpp */; };
-		003EDF470B3DC12F00A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF480B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF490B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF4A0B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF4B0B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF4C0B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF4D0B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF4E0B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF4F0B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF500B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF510B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF520B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF530B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF540B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF550B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF560B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF570B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF580B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF590B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF5A0B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF5B0B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF5C0B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF5D0B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF5E0B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF5F0B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF600B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF610B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
-		003EDF620B3DC13000A11F7D /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 003EDF460B3DC12F00A11F7D /* libois.a */; };
+		0053F4930BB4D00E00328359 /* Ogre.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 000E25230B392BAA004EA2DF /* Ogre.framework */; };
+		0053F52F0BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5300BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5310BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5320BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5330BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5340BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5350BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5360BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5370BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5380BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5390BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F53A0BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F53B0BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F53C0BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F53D0BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F53E0BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F53F0BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5400BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5410BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5420BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5430BB5908100328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5440BB5908200328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5450BB5908200328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5460BB5908200328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5470BB5908200328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5480BB5908200328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F5490BB5908200328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		0053F54A0BB5908200328359 /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
 		0062EE280B4ACACE0076F733 /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */; };
 		0062EE290B4ACACE0076F733 /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE270B4ACACE0076F733 /* CEGUI.framework */; };
 		0062EE2A0B4ACACE0076F733 /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */; };
@@ -474,6 +475,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				0053F4930BB4D00E00328359 /* Ogre.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -610,7 +612,7 @@
 		000E29EC0B39E713004EA2DF /* WaterMesh.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = WaterMesh.h; path = ../../Samples/Water/include/WaterMesh.h; sourceTree = SOURCE_ROOT; };
 		000E29ED0B39E71B004EA2DF /* Water.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Water.cpp; path = ../../Samples/Water/src/Water.cpp; sourceTree = SOURCE_ROOT; };
 		000E29EE0B39E71B004EA2DF /* WaterMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = WaterMesh.cpp; path = ../../Samples/Water/src/WaterMesh.cpp; sourceTree = SOURCE_ROOT; };
-		003EDF460B3DC12F00A11F7D /* libois.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libois.a; path = ../../Dependencies/lib/Debug/libois.a; sourceTree = SOURCE_ROOT; };
+		0053F52E0BB5908100328359 /* libois.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libois.a; path = ../../Dependencies/lib/Release/libois.a; sourceTree = SOURCE_ROOT; };
 		0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OgreCEGUIRenderer.framework; path = /Library/Frameworks/OgreCEGUIRenderer.framework; sourceTree = "<absolute>"; };
 		0062EE270B4ACACE0076F733 /* CEGUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CEGUI.framework; path = /Library/Frameworks/CEGUI.framework; sourceTree = "<absolute>"; };
 		00ABEB520B4D8A980059129A /* OgreCustomNib.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OgreCustomNib.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -633,7 +635,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E261C0B393748004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF480B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F5300BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -642,7 +644,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E27090B399CA7004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF490B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F5310BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -651,7 +653,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E27220B399EE2004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF4A0B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F52F0BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -660,9 +662,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E273C0B39A09D004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF4B0B3DC13000A11F7D /* libois.a in Frameworks */,
 				0062EE280B4ACACE0076F733 /* OgreCEGUIRenderer.framework in Frameworks */,
 				0062EE290B4ACACE0076F733 /* CEGUI.framework in Frameworks */,
+				0053F5320BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -671,7 +673,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E27550B39A136004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF4C0B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F5330BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -680,7 +682,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E27720B39A3EB004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF4D0B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F5340BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -689,7 +691,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E27950B39A861004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF4E0B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F5350BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -698,7 +700,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E27A90B39A99F004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF4F0B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F5360BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -707,7 +709,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E27C40B39AC04004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF500B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F5370BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -716,9 +718,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E27D40B39AD74004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF510B3DC13000A11F7D /* libois.a in Frameworks */,
 				0062EE2A0B4ACACE0076F733 /* OgreCEGUIRenderer.framework in Frameworks */,
 				0062EE2B0B4ACACE0076F733 /* CEGUI.framework in Frameworks */,
+				0053F5380BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -727,7 +729,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E27FC0B39AE9D004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF530B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F5390BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -736,7 +738,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E281C0B39B0D9004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF520B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F53A0BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -745,9 +747,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E28300B39B278004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF540B3DC13000A11F7D /* libois.a in Frameworks */,
 				0062EE2C0B4ACACE0076F733 /* OgreCEGUIRenderer.framework in Frameworks */,
 				0062EE2D0B4ACACE0076F733 /* CEGUI.framework in Frameworks */,
+				0053F53B0BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -756,7 +758,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E285B0B39B3AC004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF550B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F53C0BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -765,9 +767,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E28710B39B480004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF560B3DC13000A11F7D /* libois.a in Frameworks */,
 				0062EE2E0B4ACACE0076F733 /* OgreCEGUIRenderer.framework in Frameworks */,
 				0062EE2F0B4ACACE0076F733 /* CEGUI.framework in Frameworks */,
+				0053F53D0BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -776,7 +778,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E28AA0B39B654004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF470B3DC12F00A11F7D /* libois.a in Frameworks */,
+				0053F53E0BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -785,7 +787,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E28CE0B39DAF8004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF570B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F53F0BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -794,9 +796,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E28E20B39DBFA004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF580B3DC13000A11F7D /* libois.a in Frameworks */,
 				0062EE300B4ACACE0076F733 /* OgreCEGUIRenderer.framework in Frameworks */,
 				0062EE310B4ACACE0076F733 /* CEGUI.framework in Frameworks */,
+				0053F5400BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -805,7 +807,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E28F40B39DC80004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF590B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F5410BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -814,7 +816,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E29110B39DD71004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF5A0B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F5420BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -823,7 +825,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E29260B39DE87004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF5B0B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F5430BB5908100328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -832,7 +834,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E29400B39DF69004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF5C0B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F5440BB5908200328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -841,7 +843,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E29580B39E06F004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF5D0B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F5450BB5908200328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -850,7 +852,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E29720B39E19C004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF5E0B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F5460BB5908200328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -859,7 +861,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E29990B39E403004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF5F0B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F5470BB5908200328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -868,7 +870,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E29AF0B39E4FB004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF600B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F5480BB5908200328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -877,7 +879,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E29C50B39E607004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF610B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F5490BB5908200328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -886,7 +888,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E29E40B39E6F8004EA2DF /* Ogre.framework in Frameworks */,
-				003EDF620B3DC13000A11F7D /* libois.a in Frameworks */,
+				0053F54A0BB5908200328359 /* libois.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1209,7 +1211,7 @@
 				0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */,
 				0062EE270B4ACACE0076F733 /* CEGUI.framework */,
 				000E25230B392BAA004EA2DF /* Ogre.framework */,
-				003EDF460B3DC12F00A11F7D /* libois.a */,
+				0053F52E0BB5908100328359 /* libois.a */,
 			);
 			name = "External Frameworks and Libraries";
 			sourceTree = "<group>";
@@ -2660,7 +2662,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -2687,8 +2691,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -2716,7 +2722,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -2743,8 +2751,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -2772,7 +2782,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -2799,8 +2811,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -2833,7 +2847,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -2865,8 +2881,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -2894,7 +2912,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -2921,8 +2941,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -2950,7 +2972,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -2977,8 +3001,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3006,7 +3032,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3033,8 +3061,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3062,7 +3092,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3089,8 +3121,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3118,7 +3152,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3145,8 +3181,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3179,7 +3217,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3211,8 +3251,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3240,7 +3282,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3267,8 +3311,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3296,7 +3342,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3323,8 +3371,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3357,7 +3407,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3389,8 +3441,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3418,7 +3472,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3445,8 +3501,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3479,7 +3537,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3511,8 +3571,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3540,7 +3602,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_3)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_3 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3567,8 +3631,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3596,7 +3662,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3623,8 +3691,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3657,7 +3727,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3689,8 +3761,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3718,7 +3792,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3745,8 +3821,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3774,7 +3852,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3801,8 +3881,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3830,7 +3912,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3857,8 +3941,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3886,7 +3972,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3913,8 +4001,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3942,7 +4032,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -3969,8 +4061,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -3998,7 +4092,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4025,8 +4121,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -4054,7 +4152,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4081,8 +4181,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -4110,7 +4212,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4137,8 +4241,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -4166,7 +4272,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4193,8 +4301,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
@@ -4222,7 +4332,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../Dependencies/lib/Debug\"";
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -4249,8 +4361,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/../../../SDKs/ois/Mac/XCode-2.2/build/Development\"";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Carbon,
