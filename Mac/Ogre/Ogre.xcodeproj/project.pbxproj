@@ -557,12 +557,16 @@
 		000E26CD0B39958C004EA2DF /* config.nib in Resources */ = {isa = PBXBuildFile; fileRef = 000E1D450B38D4E5004EA2DF /* config.nib */; };
 		000E26CE0B39958C004EA2DF /* main.nib in Resources */ = {isa = PBXBuildFile; fileRef = 000E1D460B38D4E5004EA2DF /* main.nib */; };
 		003C21120B51AE990090A344 /* OgreOSXWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 003C21110B51AE990090A344 /* OgreOSXWindow.cpp */; };
-		0054A5010B5465250037D8B9 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 0054A4FE0B5465250037D8B9 /* config.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0053F1D40BB4BF4D00328359 /* config.h in Copy Config File */ = {isa = PBXBuildFile; fileRef = 009077D90B5CDB3600459879 /* config.h */; };
+		0053F2060BB4C2EE00328359 /* OgreConfigDialogImp.h in Copy Additional Headers */ = {isa = PBXBuildFile; fileRef = 000E1EEC0B38D587004EA2DF /* OgreConfigDialogImp.h */; };
+		0053F2070BB4C2EE00328359 /* OgreErrorDialogImp.h in Copy Additional Headers */ = {isa = PBXBuildFile; fileRef = 000E1EED0B38D587004EA2DF /* OgreErrorDialogImp.h */; };
+		0053F2080BB4C2EE00328359 /* OgreTimerImp.h in Copy Additional Headers */ = {isa = PBXBuildFile; fileRef = 000E1EEE0B38D587004EA2DF /* OgreTimerImp.h */; };
+		0053F20E0BB4CEDC00328359 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 009077D90B5CDB3600459879 /* config.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0054A5020B5465250037D8B9 /* OgrePrefabFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 0054A4FF0B5465250037D8B9 /* OgrePrefabFactory.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0054A5030B5465250037D8B9 /* OgreUnifiedHighLevelGpuProgram.h in Headers */ = {isa = PBXBuildFile; fileRef = 0054A5000B5465250037D8B9 /* OgreUnifiedHighLevelGpuProgram.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0054A5080B5465940037D8B9 /* OgrePrefabFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0054A5060B5465940037D8B9 /* OgrePrefabFactory.cpp */; };
 		0054A5090B5465940037D8B9 /* OgreUnifiedHighLevelGpuProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0054A5070B5465940037D8B9 /* OgreUnifiedHighLevelGpuProgram.cpp */; };
-		005E5EA20B7F399C00658C32 /* OgreInstancedGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = 005E5E9F0B7F399C00658C32 /* OgreInstancedGeometry.h */; };
+		005E5EA20B7F399C00658C32 /* OgreInstancedGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = 005E5E9F0B7F399C00658C32 /* OgreInstancedGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		005E5EA30B7F399C00658C32 /* OgrePlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 005E5EA00B7F399C00658C32 /* OgrePlugin.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		005E5EA40B7F399C00658C32 /* OgreUTFString.h in Headers */ = {isa = PBXBuildFile; fileRef = 005E5EA10B7F399C00658C32 /* OgreUTFString.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		005E5EA60B7F39CB00658C32 /* OgreInstancedGeometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005E5EA50B7F39CB00658C32 /* OgreInstancedGeometry.cpp */; };
@@ -572,7 +576,6 @@
 		005E5EBE0B7F3C6100658C32 /* OgreOctreePlugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005E5EBD0B7F3C6100658C32 /* OgreOctreePlugin.cpp */; };
 		005E5EC10B7F3C9300658C32 /* OgreCgPlugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005E5EC00B7F3C9300658C32 /* OgreCgPlugin.cpp */; };
 		0062F0F60B4C9D4A0076F733 /* ogrelogo-small.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 0062F0F50B4C9D490076F733 /* ogrelogo-small.jpg */; };
-		009077DB0B5CDB5E00459879 /* config.h in Copy Config File */ = {isa = PBXBuildFile; fileRef = 009077D90B5CDB3600459879 /* config.h */; };
 		00ABEAF70B4D69960059129A /* OgreOSXCocoaWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 00ABEAF60B4D69960059129A /* OgreOSXCocoaWindow.mm */; };
 		00ABEC6A0B4EA58B0059129A /* OgreOSXCocoaView.h in Headers */ = {isa = PBXBuildFile; fileRef = 00ABEAF50B4D68690059129A /* OgreOSXCocoaView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		00ABEC6B0B4EA5920059129A /* OgreOSXCocoaView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 00ABEAF30B4D685A0059129A /* OgreOSXCocoaView.mm */; };
@@ -671,12 +674,25 @@
 		000E24EB0B392591004EA2DF /* Copy Config File */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = ../../../../OgreMain/include;
-			dstSubfolderSpec = 16;
+			dstPath = "$(PROJECT_DIR)/../../OgreMain/include";
+			dstSubfolderSpec = 0;
 			files = (
-				009077DB0B5CDB5E00459879 /* config.h in Copy Config File */,
+				0053F1D40BB4BF4D00328359 /* config.h in Copy Config File */,
 			);
 			name = "Copy Config File";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0053F1F60BB4C23700328359 /* Copy Additional Headers */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = ./Headers/OSX;
+			dstSubfolderSpec = 1;
+			files = (
+				0053F2060BB4C2EE00328359 /* OgreConfigDialogImp.h in Copy Additional Headers */,
+				0053F2070BB4C2EE00328359 /* OgreErrorDialogImp.h in Copy Additional Headers */,
+				0053F2080BB4C2EE00328359 /* OgreTimerImp.h in Copy Additional Headers */,
+			);
+			name = "Copy Additional Headers";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -1310,7 +1326,6 @@
 		000E24600B390764004EA2DF /* OgreEXRCodecDll.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreEXRCodecDll.cpp; path = ../../PlugIns/EXRCodec/src/OgreEXRCodecDll.cpp; sourceTree = SOURCE_ROOT; };
 		003C21070B51AB990090A344 /* OgreOSXWindow.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreOSXWindow.h; path = ../../RenderSystems/GL/include/OSX/OgreOSXWindow.h; sourceTree = SOURCE_ROOT; };
 		003C21110B51AE990090A344 /* OgreOSXWindow.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgreOSXWindow.cpp; path = ../../RenderSystems/GL/src/OSX/OgreOSXWindow.cpp; sourceTree = SOURCE_ROOT; };
-		0054A4FE0B5465250037D8B9 /* config.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../../OgreMain/include/config.h; sourceTree = SOURCE_ROOT; };
 		0054A4FF0B5465250037D8B9 /* OgrePrefabFactory.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgrePrefabFactory.h; path = ../../OgreMain/include/OgrePrefabFactory.h; sourceTree = SOURCE_ROOT; };
 		0054A5000B5465250037D8B9 /* OgreUnifiedHighLevelGpuProgram.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreUnifiedHighLevelGpuProgram.h; path = ../../OgreMain/include/OgreUnifiedHighLevelGpuProgram.h; sourceTree = SOURCE_ROOT; };
 		0054A5060B5465940037D8B9 /* OgrePrefabFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OgrePrefabFactory.cpp; path = ../../OgreMain/src/OgrePrefabFactory.cpp; sourceTree = SOURCE_ROOT; };
@@ -1725,7 +1740,6 @@
 				005E5E9F0B7F399C00658C32 /* OgreInstancedGeometry.h */,
 				005E5EA00B7F399C00658C32 /* OgrePlugin.h */,
 				005E5EA10B7F399C00658C32 /* OgreUTFString.h */,
-				0054A4FE0B5465250037D8B9 /* config.h */,
 				0054A4FF0B5465250037D8B9 /* OgrePrefabFactory.h */,
 				0054A5000B5465250037D8B9 /* OgreUnifiedHighLevelGpuProgram.h */,
 				000E1EEC0B38D587004EA2DF /* OgreConfigDialogImp.h */,
@@ -2333,6 +2347,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000E1E1C0B38D566004EA2DF /* asm_math.h in Headers */,
+				0053F20E0BB4CEDC00328359 /* config.h in Headers */,
 				000E1E1D0B38D566004EA2DF /* Ogre.h in Headers */,
 				000E1E1E0B38D566004EA2DF /* OgreAlignedAllocator.h in Headers */,
 				000E1E1F0B38D566004EA2DF /* OgreAnimable.h in Headers */,
@@ -2549,7 +2564,6 @@
 				00DDBB800B4CDC9600E8E1C9 /* OgreOSXContext.h in Headers */,
 				00DDBB8D0B4CDE9100E8E1C9 /* OgreOSXCGLContext.h in Headers */,
 				00ABEC6A0B4EA58B0059129A /* OgreOSXCocoaView.h in Headers */,
-				0054A5010B5465250037D8B9 /* config.h in Headers */,
 				0054A5020B5465250037D8B9 /* OgrePrefabFactory.h in Headers */,
 				0054A5030B5465250037D8B9 /* OgreUnifiedHighLevelGpuProgram.h in Headers */,
 				005E5EA20B7F399C00658C32 /* OgreInstancedGeometry.h in Headers */,
@@ -2567,6 +2581,7 @@
 			buildPhases = (
 				000E24EB0B392591004EA2DF /* Copy Config File */,
 				000E1D300B38D380004EA2DF /* Headers */,
+				0053F1F60BB4C23700328359 /* Copy Additional Headers */,
 				000E1D310B38D380004EA2DF /* Resources */,
 				000E1D320B38D380004EA2DF /* Sources */,
 				000E1D330B38D380004EA2DF /* Frameworks */,
