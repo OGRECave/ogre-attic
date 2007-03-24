@@ -653,7 +653,7 @@ namespace Ogre {
 	    bool compile(const String& source, const String& sourceName);
         /** gets BNF Grammer.  Gets called when BNF grammer has to be compiled for the first time.
         */
-        virtual const String& getClientBNFGrammer(void) = 0;
+        virtual const String& getClientBNFGrammer(void) const = 0;
 
         /** get the name of the BNF grammer.
         */

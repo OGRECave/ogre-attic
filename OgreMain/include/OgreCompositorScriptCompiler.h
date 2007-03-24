@@ -48,11 +48,12 @@ namespace Ogre {
 
         /** gets BNF Grammer for Compositor script.
         */
-        virtual const String& getClientBNFGrammer(void) { return compositorScript_BNF; }
+        virtual const String& getClientBNFGrammer(void) const;
 
         /** get the name of the Compositor script BNF grammer.
         */
-        virtual const String& getClientGrammerName(void) const { static const String grammerName("Compositor Script"); return grammerName; }
+        virtual const String& getClientGrammerName(void) const;
+
         /** Compile a compositor script from a data stream using a specific resource group name.
         @param stream Weak reference to a data stream which is the source of the material script
         @param groupName The name of the resource group that resources which are
@@ -122,11 +123,6 @@ namespace Ogre {
 		};
 
 		CompositorScriptContext mScriptContext;
-
-		// static library database for tokens and BNF rules
-		static TokenRule compositorScript_RulePath[];
-		// simplified Backus - Naur Form (BNF) grammer for compositor scripts
-		static String compositorScript_BNF;
 
 		typedef void (CompositorScriptCompiler::* CSC_Action)(void);
 		typedef std::map<size_t, CSC_Action> TokenActionMap;
