@@ -84,3 +84,7 @@ sed -i -e "s/Version='[0-9]*\.[0-9]*\.[0-9]*'/Version='$MAJOR.$MINOR.$PATCH'/i" 
 #	Version='1.2.5'
 sed -i -e "s/Version='[0-9]*\.[0-9]*\.[0-9]*'/Version='$MAJOR.$MINOR.$PATCH'/i" Tools/XSIExport/setup/xsi5install.wxs
 
+# Tools/XSIExport/setup/xsi6install.wxs
+#	Version='1.2.5'
+sed -i -e "s/Version='[0-9]*\.[0-9]*\.[0-9]*'/Version='$MAJOR.$MINOR.$PATCH'/i" Tools/XSIExport/setup/xsi6install.wxs
+
