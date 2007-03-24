@@ -377,7 +377,7 @@ AC_DEFUN([OGRE_CHECK_FREEIMAGE],
 AM_CONDITIONAL(USE_FREEIMAGE, test x$build_freeimage = xyes)
 
 if test "x$build_freeimage" = "xyes" ; then
-	AC_CHECK_LIB(freeimage, FreeImage_Load,,AC_MSG_ERROR([
+	AC_CHECK_LIB(freeimage, FreeImage_Load,,,-lstdc++,AC_MSG_ERROR([
 ****************************************************************
 * You do not have FreeImage installed.  This is required.      *
 * You may find it at http://freeimage.sourceforge.net/.        *
