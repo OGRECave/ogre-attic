@@ -24,18 +24,6 @@
 					<File Id='OgreMainDLL' Name='OgreMain.dll' DiskId='1'
 						src='..\..\..\Samples\Common\bin\release\OgreMain.dll' Vital='yes' />
 				</Component>
-				<Component Id='DevilComp' Guid='D05E6464-EBB6-4f22-97FF-BA598174FB33'>
-					<File Id='DevilDLL1' Name='devil.dll' DiskId='1'
-						src='..\..\..\Samples\Common\bin\release\devil.dll' Vital='yes' />
-					<File Id='DevilDLL2' Name='ilu.dll' DiskId='1'
-						src='..\..\..\Samples\Common\bin\release\ilu.dll' Vital='yes' />
-					<File Id='DevilDLL3' Name='ilut.dll' DiskId='1'
-						src='..\..\..\Samples\Common\bin\release\ilut.dll' Vital='yes' />
-				</Component>
-				<Component Id='ZlibComp' Guid='5889E957-98A8-4ae7-8682-CF0870E5D445'>
-					<File Id='ZlibDLL' Name='zlib1.dll' DiskId='1'
-						src='..\..\..\Samples\Common\bin\release\zlib1.dll' Vital='yes' />
-				</Component>
 				<Component Id='ExeComp' Guid='2EEEFD09-4BD5-40ec-912C-5F02CC93CA97'>
 					<File Id='XmlConverter' Name="XmlConv.exe" LongName='OgreXmlConverter.exe' DiskId='1'
 						src='..\bin\release\OgreXMLConverter.exe' Vital='yes' />
@@ -64,8 +52,6 @@
 			Absent='disallow' AllowAdvertise='no'>
 			<ComponentRef Id='ExeComp' />
 			<ComponentRef Id='OgreMainComp' />
-			<ComponentRef Id='DevilComp' />
-			<ComponentRef Id='ZlibComp' />
 			<MergeRef Id='CRT' />
 			<MergeRef Id='CRT Policy' />
 		</Feature>

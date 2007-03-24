@@ -29,20 +29,6 @@
 					<File Id='OgreMainDLL' Name='OgreMain.dll' DiskId='1'
 						src='..\..\..\Samples\Common\bin\release\OgreMain.dll' Vital='yes' />
 				</Component>
-				<!-- Milkshape includes its own Devil version 
-				<Component Id='DevilComp' Guid='807CC153-6E8A-450a-B463-9BC60508A484'>
-					<File Id='DevilDLL1' Name='devil.dll' DiskId='1'
-						src='..\..\..\Samples\Common\bin\release\devil.dll' Vital='yes' />
-					<File Id='DevilDLL2' Name='ilu.dll' DiskId='1'
-						src='..\..\..\Samples\Common\bin\release\ilu.dll' Vital='yes' />
-					<File Id='DevilDLL3' Name='ilut.dll' DiskId='1'
-						src='..\..\..\Samples\Common\bin\release\ilut.dll' Vital='yes' />
-				</Component>
-				-->
-				<Component Id='ZlibComp' Guid='379819AC-D00C-4730-8280-5D29AE02F99F'>
-					<File Id='ZlibDLL' Name='zlib1.dll' DiskId='1'
-						src='..\..\..\Samples\Common\bin\release\zlib1.dll' Vital='yes' />
-				</Component>
 			</Directory>
 			<!-- Docs -->
 			<Directory Id="ProgramFilesFolder" Name="PFiles">
@@ -72,10 +58,6 @@
 			Absent='disallow' AllowAdvertise='no'>
 			<ComponentRef Id='PluginDLLComp' />
 			<ComponentRef Id='OgreMainComp' />
-			<!-- Milkshape includes its own Devil version 
-			<ComponentRef Id='DevilComp' />
-			-->
-			<ComponentRef Id='ZlibComp' />
 			<MergeRef Id='CRT' />
 			<MergeRef Id='CRT Policy' />
 			<Condition Level="0">FILEEXISTS</Condition>
