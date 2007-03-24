@@ -44,7 +44,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     CompositorScriptCompiler::TokenActionMap CompositorScriptCompiler::mTokenActionMap;
 
-	String CompositorScriptCompiler::compositorScript_BNF =
+    const String& CompositorScriptCompiler::getClientBNFGrammer(void) const
+    {
+		// simplified Backus - Naur Form (BNF) grammer for compositor scripts
+	    static const String compositorScript_BNF =
 		// Top level rule
 		"<Script> ::= {<Compositor>} \n"
 		"<Compositor> ::= 'compositor' <Flex_Label> '{' <Technique> '}' \n"
@@ -117,6 +120,15 @@ namespace Ogre {
 		"<Unquoted_Label_Illegals> ::= (! \n\r\t{}\") \n"
 
 		;
+
+        return compositorScript_BNF;
+    }
+	//-----------------------------------------------------------------------
+    const String& CompositorScriptCompiler::getClientGrammerName(void) const
+    {
+        static const String grammerName = "Compositor Script";
+        return grammerName;
+    }
 	//-----------------------------------------------------------------------
 	CompositorScriptCompiler::CompositorScriptCompiler(void)
 	{

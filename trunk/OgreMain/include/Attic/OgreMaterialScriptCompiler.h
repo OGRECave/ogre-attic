@@ -44,13 +44,15 @@ namespace Ogre {
     public:
         MaterialScriptCompiler(void);
         ~MaterialScriptCompiler(void);
+
         /** gets BNF Grammer for Compositor script.
         */
-        virtual const String& getClientBNFGrammer(void) { return materialScript_BNF; }
+        virtual const String& getClientBNFGrammer(void) const;
 
         /** get the name of the BNF grammer.
         */
-        virtual const String& getClientGrammerName(void) const { static const String grammerName("Material Script"); return grammerName; }
+        virtual const String& getClientGrammerName(void) const;
+
         /** Compile a material script from a data stream using a specific resource group name.
         @param stream Weak reference to a data stream which is the source of the material script
         @param groupName The name of the resource group that resources which are
@@ -188,11 +190,6 @@ namespace Ogre {
         };
 
         MaterialScriptContext mScriptContext;
-
-	    // static library database for tokens and BNF rules
-	    static TokenRule materialScript_RulePath[];
-        // simplified Backus - Naur Form (BNF) grammer for material scripts
-        static String materialScript_BNF;
 
         typedef void (MaterialScriptCompiler::* MSC_Action)(void);
         typedef std::map<size_t, MSC_Action> TokenActionMap;

@@ -47,7 +47,11 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     MaterialScriptCompiler::TokenActionMap MaterialScriptCompiler::mTokenActionMap;
 
-    String MaterialScriptCompiler::materialScript_BNF =
+    //-----------------------------------------------------------------------
+    const String& MaterialScriptCompiler::getClientBNFGrammer(void) const
+    {
+        // simplified Backus - Naur Form (BNF) grammer for material scripts
+        static const String materialScript_BNF =
         "<Script> ::= {<Script_Properties>} \n"
 
         "<Script_Properties> ::= <Material> | <Vertex_Program> | <Fragment_Program> \n"
@@ -255,6 +259,14 @@ namespace Ogre {
 
         ;
 
+        return materialScript_BNF;
+    }
+    //-----------------------------------------------------------------------
+    const String& MaterialScriptCompiler::getClientGrammerName(void) const
+    {
+        static const String grammerName = "Material Script";
+        return grammerName;
+    }
     //-----------------------------------------------------------------------
     MaterialScriptCompiler::MaterialScriptCompiler(void)
     {
