@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on March 3 2007 by texi2html 1.66 -->
+<!-- Created on March 24 2007 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -453,7 +453,7 @@ Default: start_light 0<BR>
 Sets the maximum number of lights which will be considered for use with this pass.<BR><BR>
 Format: max_lights &lt;number&gt;<BR><BR>
 
-The maximum number of lights which can be used when rendering fixed-function materials is set by the rendering system, and is typically set at 8. When you are using the programmable pipeline (See section <A HREF="manual_23.html#SEC106">3.1.9 Using Vertex and Fragment Programs in a Pass</A>) this limit is dependent on the program you are running, or, if you use 'iteration once_per_light' (See section <A HREF="manual_16.html#SEC56">iteration</A>), it effectively only bounded by the number of passes you are willing to use. Whichever method you use, however, the max_lights limit applies.<BR><BR>
+The maximum number of lights which can be used when rendering fixed-function materials is set by the rendering system, and is typically set at 8. When you are using the programmable pipeline (See section <A HREF="manual_23.html#SEC106">3.1.9 Using Vertex and Fragment Programs in a Pass</A>) this limit is dependent on the program you are running, or, if you use 'iteration once_per_light' or a variant (See section <A HREF="manual_16.html#SEC56">iteration</A>), it effectively only bounded by the number of passes you are willing to use. If you are not using pass iteration, the light limit applies once for this pass. If you are using pass iteration, the light limit applies across all iterations of this pass - for example if you have 12 lights in range with an 'iteration once_per_light' setup but your max_lights is set to 4 for that pass, the pass will only iterate 4 times. <BR><BR>
 
 Default: max_lights 8<BR>
 
@@ -646,7 +646,7 @@ Default: point_size_max 0
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>March 3 2007</I>
+by <I>steve</I> on <I>March 24 2007</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 
