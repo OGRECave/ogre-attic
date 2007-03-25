@@ -19,6 +19,7 @@
 		<Project filename="scripts\Demo_Fresnel.cbp" />
 		<Project filename="scripts\Demo_Grass.cbp" />
 		<Project filename="scripts\Demo_Gui.cbp" />
+		<Project filename="scripts\Demo_Instancing.cbp" />
 		<Project filename="scripts\Demo_Lighting.cbp" />
 		<Project filename="scripts\Demo_Ocean.cbp" />
 		<Project filename="scripts\Demo_ParticleFX.cbp" />
