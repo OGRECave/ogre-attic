@@ -35,7 +35,7 @@
 
 /* Begin PBXFileReference section */
 		000E24D50B3923A7004EA2DF /* config.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../../Ogre/include/config.h; sourceTree = SOURCE_ROOT; };
-		8DD76F6C0486A84900D96B5E /* OgreXMLConverter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OgreXMLConverter; sourceTree = BUILT_PRODUCTS_DIR; };
+		8DD76F6C0486A84900D96B5E /* OgreXMLConverter */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = OgreXMLConverter; sourceTree = BUILT_PRODUCTS_DIR; };
 		D01230DD0B0A450C00E3DC56 /* OgreXMLMeshSerializer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreXMLMeshSerializer.h; path = ../../../Tools/XMLConverter/include/OgreXMLMeshSerializer.h; sourceTree = SOURCE_ROOT; };
 		D01230DE0B0A450C00E3DC56 /* OgreXMLPrerequisites.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreXMLPrerequisites.h; path = ../../../Tools/XMLConverter/include/OgreXMLPrerequisites.h; sourceTree = SOURCE_ROOT; };
 		D01230DF0B0A450C00E3DC56 /* OgreXMLSkeletonSerializer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OgreXMLSkeletonSerializer.h; path = ../../../Tools/XMLConverter/include/OgreXMLSkeletonSerializer.h; sourceTree = SOURCE_ROOT; };

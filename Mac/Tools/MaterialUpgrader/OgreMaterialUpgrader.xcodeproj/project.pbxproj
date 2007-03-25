@@ -31,7 +31,6 @@
 		D012322F0B0A4A6400E3DC56 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../../Tools/MaterialUpgrader/src/main.cpp; sourceTree = SOURCE_ROOT; };
 		D01232300B0A4A6400E3DC56 /* OldMaterialReader.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OldMaterialReader.cpp; path = ../../../Tools/MaterialUpgrader/src/OldMaterialReader.cpp; sourceTree = SOURCE_ROOT; };
 		D01232350B0A4A7C00E3DC56 /* OldMaterialReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OldMaterialReader.h; path = ../../../Tools/MaterialUpgrader/include/OldMaterialReader.h; sourceTree = SOURCE_ROOT; };
-		D01232370B0A4A8100E3DC56 /* config.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../../include/config.h; sourceTree = SOURCE_ROOT; };
 		D01232390B0A4A8800E3DC56 /* Ogre.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Ogre.framework; path = /Library/Frameworks/Ogre.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
@@ -86,7 +85,6 @@
 		D01232340B0A4A6F00E3DC56 /* Include */ = {
 			isa = PBXGroup;
 			children = (
-				D01232370B0A4A8100E3DC56 /* config.h */,
 				D01232350B0A4A7C00E3DC56 /* OldMaterialReader.h */,
 			);
 			name = Include;
