@@ -10,7 +10,7 @@ case "$1" in
 # if no parameter was passed then exit with usage message
 "") echo "Usage: `basename $0` $SDKTYPES"; exit $E_NOARGS ;;
 
-"CBMINGW") PROJEXT=".cbp" ; RMEXT="_stlp.cbp" ;;
+"CBMINGW") PROJEXT=".cbp" ; RMEXT="_stlp.cbp samples/scripts/*_linux.cbp" ;;
 
 "CBMINGW_STLP") PROJEXT="_stlp.cbp" ; RMEXT= ;;
 
@@ -52,6 +52,7 @@ if [ -n "$RMEXT" ]
 then
  # remove unwanted scripts that got copied over
  rm samples/scripts/*$RMEXT
+ rm samples/refapp/scripts/*$RMEXT
 fi
 rm samples/scripts/OgreGUIRenderer$PROJEXT
 /bin/find samples/scripts/ -iname *$PROJEXT -exec sed -i -f altersamples.sed \{\} \;
