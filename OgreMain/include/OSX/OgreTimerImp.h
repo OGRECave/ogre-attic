@@ -30,7 +30,7 @@ Torus Knot Software Ltd.
 #ifndef __OSXTimer_H__
 #define __OSXTimer_H__
 
-#include "OgrePrerequisites.h"
+#include <Ogre/OgrePrerequisites.h>
 
 namespace Ogre
 {
