@@ -309,8 +309,8 @@ namespace Ogre
         Real getVerticalTexelOffset(void);
         Real getMinimumDepthInputValue(void);
         Real getMaximumDepthInputValue(void);
-		void registerThread();
-		void unregisterThread();
+		void *registerThread();
+		void unregisterThread(void *opaque);
 		void preExtraThreadsStarted();
 		void postExtraThreadsStarted();
 

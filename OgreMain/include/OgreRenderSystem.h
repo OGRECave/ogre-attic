@@ -298,8 +298,7 @@ namespace Ogre
 				Key: "externalWindowHandle" [API specific]
 				Description: External window handle, for embedding the OGRE context
 				Values: positive integer for W32 (HWND handle)
-				        poslong:posint:poslong (display*:screen:windowHandle) or
-				        poslong:posint:poslong:poslong (display*:screen:windowHandle:XVisualInfo*) for GLX
+				        poslong:poslong (Display*:Window) for GLX
 				Default: 0 (None)
 				**
 				Key: "externalGLControl" [Win32 OpenGL specific]
@@ -317,7 +316,7 @@ namespace Ogre
 				Key: "parentWindowHandle" [API specific]
 				Description: Parent window handle, for embedding the OGRE context
 				Values: positive integer for W32 (HWND handle)
-				        poslong:posint:poslong for GLX (display*:screen:windowHandle)
+				        poslong:poslong for GLX (Display*:Window)
 				Default: 0 (None)
 				**
 				Key: "FSAA"
@@ -350,6 +349,19 @@ namespace Ogre
 				Description: Enable the use of nVidia NVPerfHUD
 				Values: true, false
 				Default: false
+				**
+				Key: "fbconfigid" [GLX specific]
+				Description: Specify a custom GLXFBConfig (pixel format) if needed
+				Values: poslong (GLXFBConfig)
+				Default: Choose the "best" one
+				**
+				Key: "glxcontext" [GLX specific]
+				Description: Specify a custom GLXContext to use; the context will
+				not be auto-deleted at shutdown; you also may specify a drawable
+				(a GLXWindow or a GLXPBuffer or whatever) if pre-created.
+				Values: poslong (GLXContext) or
+						poslong:poslong (GLXContext:GLXDrawable)
+				Default: Both auto-created by the RenderSystem
         */
 		virtual RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, 
 			bool fullScreen, const NameValuePairList *miscParams = 0) = 0;
@@ -1142,16 +1154,33 @@ namespace Ogre
 			they should call this method before doing anything related to the render system.
 			Some rendering APIs require a per-thread setup and this method will sort that
 			out. It is also necessary to call unregisterThread before the thread shuts down.
+		@par
+			In any case, the second thread should not call any rendering methods because
+			with some rendering APIs threads other than the main thread use a context bound
+			to a dummy drawable. The main application for using this method is background
+			loading of resources - any resources loaded in auxiliary threads are guaranteed
+			to be acessible from the main rendering thread.
+		@par
+			The returned value should be saved somewhere and passed to unregisterThread()
+			in order to free render system resources. You can ignore this value if your
+			application is using a fixed number of threads, since allocated resources will
+			be freed in any case when the render system is shut down.
 		@note
 			This method takes no parameters - it must be called from the thread being
 			registered and that context is enough.
+		@return
+			A opaque pointer that can be passed to unregisterThread() in order to free
+			render system resources.
 		*/
-		virtual void registerThread() = 0;
+		virtual void *registerThread() = 0;
 			
 		/** Unregister an additional thread which may make calls to rendersystem-related objects.
 		@see RenderSystem::registerThread
+		@param opaque
+			An opaque pointer returned by registerThread(). If you don't need to free render
+			system resources (e.g. your application is going to shut down), you can pass NULL.
 		*/
-		virtual void unregisterThread() = 0;
+		virtual void unregisterThread(void *opaque = NULL) = 0;
     protected:
 
 		

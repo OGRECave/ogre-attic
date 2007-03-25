@@ -80,6 +80,8 @@ namespace Ogre
         GtkWidget *mDialog;
         /// The table with renderer parameters
         GtkWidget *mParamTable;
+        /// True if render parameter refresh is pending
+        bool mRefreshPending;
 
         /// Create the gtk+ dialog window
         bool createWindow ();
@@ -89,6 +91,8 @@ namespace Ogre
         static void rendererChanged (GtkComboBox *widget, gpointer data);
         /// Callback function to change a renderer option
         static void optionChanged (GtkComboBox *widget, gpointer data);
+        /// Callback to refresh the whole set of options
+        static gboolean refreshRendererParams (gpointer data);
     };
 }
 #endif

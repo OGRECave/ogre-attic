@@ -547,7 +547,7 @@ namespace Ogre {
 				rttMode = 2;
 			}
 		}
-         // Check for framebuffer object extension
+        // Check for framebuffer object extension
         if(GLEW_EXT_framebuffer_object && rttMode < 1)
         {
 			// Probe number of draw buffers
@@ -2907,7 +2907,7 @@ namespace Ogre {
         return 1.0f;
     }
     //---------------------------------------------------------------------
-	void GLRenderSystem::registerThread()
+	void *GLRenderSystem::registerThread()
 	{
 		// This is only valid once we've created the main context
 		if (!mMainContext)
@@ -2917,6 +2917,9 @@ namespace Ogre {
 				"has been created.", 
 				"GLRenderSystem::registerThread");
 		}
+
+		// Protect what follows from concurrent modifications
+		OGRE_LOCK_MUTEX (mContextListMutex)
 
 		// Create a new context for this thread. Cloning from the main context
 		// will ensure that resources are shared with the main context
@@ -2931,15 +2934,24 @@ namespace Ogre {
 		_oneTimeContextInitialization();
 		newContext->setInitialized();
 
-
+		return newContext;
 	}
-    //---------------------------------------------------------------------
-	void GLRenderSystem::unregisterThread()
+	//---------------------------------------------------------------------
+	void GLRenderSystem::unregisterThread(void *opaque)
 	{
-		// nothing to do here?
-		// Don't need to worry about active context, just make sure we delete
-		// on shutdown.
-
+		if (opaque)
+		{
+			OGRE_LOCK_MUTEX (mContextListMutex)
+			GLContext *ctx = reinterpret_cast<GLContext *> (opaque);
+			for (GLContextList::iterator i = mBackgroundContextList.begin(); 
+				i != mBackgroundContextList.end(); ++i)
+				if (*i == ctx)
+				{
+					mBackgroundContextList.erase (i);
+					delete ctx;
+					break;
+				}
+		}
 	}
 	//---------------------------------------------------------------------
 	void GLRenderSystem::preExtraThreadsStarted()

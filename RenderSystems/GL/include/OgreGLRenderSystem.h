@@ -125,18 +125,20 @@ namespace Ogre {
         GLGpuProgram* mCurrentVertexProgram;
         GLGpuProgram* mCurrentFragmentProgram;
 
-		/* The main GL context - main thread only */
+        /* The main GL context - main thread only */
         GLContext *mMainContext;
         /* The current GL context  - main thread only*/
         GLContext *mCurrentContext;
-		typedef std::list<GLContext*> GLContextList;
-		/// List of background thread contexts
-		GLContextList mBackgroundContextList;
+        typedef std::vector<GLContext*> GLContextList;
+        /// List of background thread contexts
+        GLContextList mBackgroundContextList;
+        /// The mutex that protects mBackgroundContextList
+        OGRE_MUTEX (mContextListMutex);
 
         /** Manager object for creating render textures.
             Direct render to texture via GL_EXT_framebuffer_object is preferable 
-			to pbuffers, which depend on the GL support used and are generally 
-			unwieldy and slow. However, FBO support for stencil buffers is poor.
+            to pbuffers, which depend on the GL support used and are generally
+            unwieldy and slow. However, FBO support for stencil buffers is poor.
         */
         GLRTTManager *mRTTManager;
     public:
@@ -435,8 +437,8 @@ namespace Ogre {
         Real getVerticalTexelOffset(void);
         Real getMinimumDepthInputValue(void);
         Real getMaximumDepthInputValue(void);
-		void registerThread();
-		void unregisterThread();
+		void *registerThread();
+		void unregisterThread(void *opaque);
 		void preExtraThreadsStarted();
 		void postExtraThreadsStarted();
 

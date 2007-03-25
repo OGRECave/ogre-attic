@@ -30,10 +30,8 @@ Torus Knot Software Ltd.
 #define __OgreGLXContext_H__
 
 #include "OgreGLContext.h"
-
 #include <X11/Xlib.h>
 #include <GL/glx.h>
-#include <GL/glxext.h>
 
 namespace Ogre {
 
@@ -41,32 +39,36 @@ namespace Ogre {
     {
     public:
         GLXContext(::Display *dpy,
-                    ::GLXDrawable drawable,
-                    ::GLXContext ctx, 
-					::XVisualInfo* visualInfo);
-        GLXContext(::Display *dpy,
-                    ::GLXDrawable drawable,
-                    ::GLXContext ctx, 
-					::GLXFBConfig fbconfig);
+                   ::GLXDrawable drawable,
+                   ::GLXContext ctx, 
+                   ::GLXFBConfig fbconfig,
+                   uint32 drawableType = 0);
 
 
         virtual ~GLXContext();
 
         /** See GLContext */
         virtual void setCurrent();
-		/** See GLContext */
-		virtual void endCurrent();
+        /** See GLContext */
+        virtual void endCurrent();
 
-		/// @copydoc GLContext::clone
-		GLContext* clone() const;
+        /// @copydoc GLContext::clone
+        GLContext* clone() const;
 
-		::Display *mDpy;
+        /// The display for this GLX context
+        ::Display *mDisplay;
+        /// The drawable this context is bound to
         ::GLXDrawable mDrawable;
-        ::GLXContext mCtx;
-		// only valid for window contexts
-		::XVisualInfo* mVisualInfo;
-		// only valid for PBuffer contexts
-		::GLXFBConfig mFBConfig;
+        /// The OpenGL context
+        ::GLXContext mContext;
+        /// The pixel format of the drawable
+        ::GLXFBConfig mFBConfig;
+        /**
+         * Drawable type: GLX_WINDOW/GLX_PBUFFER, if drawable must be destroyed
+         * in GLXContext destructor, otherwise 0; if this is not 0 mContext
+         * will be also destroyed in destructor.
+         */
+        uint32 mDrawableType;
     };
 }
 

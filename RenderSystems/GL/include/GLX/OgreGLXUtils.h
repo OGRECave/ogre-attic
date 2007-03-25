@@ -84,20 +84,14 @@ namespace Ogre {
          * @returns true on success
          */        
         static bool LoadIcon(Display *mDisplay, Window rootWindow, const std::string &name, Pixmap *pix, Pixmap *mask);
-        /*
-         * Examine all visuals to find the so-called best one.
-         * We prefer deepest RGBA buffer with depth, stencil and accum
-         * that has no caveats. This will only choose formats with a multisample
-		 * that equals multisample
-		 * @returns -1 in case of failure, otherwise a valid visual ID
-         * @author Brian Paul (from the glxinfo source)
-         */
-        static int findBestVisual(Display *dpy, int scrnum, int multisample = -1);
         /**
          * Find best FBConfig given a list required and a list of desired properties
          */
         static GLXFBConfig findBestMatch(Display *dpy, int scrnum, const int *attribs, const int *ideal);
-        
+        /**
+         * Return a string containing the properties of the specified FBConfig.
+         */
+        static String FBConfigToString (Display *dpy, GLXFBConfig config);
     };
    
 };
