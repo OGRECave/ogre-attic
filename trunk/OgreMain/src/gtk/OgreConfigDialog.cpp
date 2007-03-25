@@ -93,6 +93,14 @@ void ConfigDialog::rendererChanged (GtkComboBox *widget, gpointer data)
         }
 }
 
+gboolean ConfigDialog::refreshRendererParams (gpointer data)
+{
+    ConfigDialog *This = static_cast<ConfigDialog *> (data);
+    This->setupRendererParams ();
+    This->mRefreshPending = false;
+    return FALSE;
+}
+
 void ConfigDialog::optionChanged (GtkComboBox *widget, gpointer data)
 {
     ConfigDialog *This = static_cast<ConfigDialog *> (data);
@@ -102,6 +110,15 @@ void ConfigDialog::optionChanged (GtkComboBox *widget, gpointer data)
     This->mSelectedRenderSystem->setConfigOption (
         gtk_label_get_text (GTK_LABEL (ro_label)),
         gtk_combo_box_get_active_text (widget));
+
+    // Re-fill the option table, since some parameters may have changed
+    // We can't call setupRenderParams() here since this will destroy
+    // the control for which we're still processing the message.
+    if (!This->mRefreshPending)
+    {
+        This->mRefreshPending = true;
+        g_idle_add (refreshRendererParams, This);
+    }
 }
 
 static void remove_all_callback (GtkWidget *widget, gpointer data)

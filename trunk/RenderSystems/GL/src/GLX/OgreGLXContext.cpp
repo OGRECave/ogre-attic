@@ -33,52 +33,64 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
-    GLXContext::GLXContext(::Display *dpy,
-                ::GLXDrawable drawable,
-                ::GLXContext ctx, 
-				::XVisualInfo* visualInfo) :
-        mDpy(dpy), mDrawable(drawable), mCtx(ctx), mVisualInfo(visualInfo)
-	{
-                  
-    }
-    GLXContext::GLXContext(::Display *dpy,
-                ::GLXDrawable drawable,
-                ::GLXContext ctx, 
-				::GLXFBConfig fbconfig) :
-        mDpy(dpy), mDrawable(drawable), mCtx(ctx), mVisualInfo(0), mFBConfig(fbconfig)
-	{
-                  
-    }
-    GLXContext::~GLXContext() {
-		// Unregister and destroy this context
-		// This will disable it if it was still active
-		// NB have to do this is subclass to ensure any methods called back
-		// are on this subclass and not half-destructed superclass
-		GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
-		rs->_unregisterContext(this);
+    GLXContext::GLXContext (::Display *dpy, ::GLXDrawable drawable,
+        ::GLXContext ctx, ::GLXFBConfig fbconfig, uint32 drawableType) :
+        mDisplay (dpy), mDrawable (drawable), mContext (ctx),
+        mFBConfig (fbconfig), mDrawableType (drawableType)
+    {
     }
 
-    void GLXContext::setCurrent() {
-        glXMakeCurrent(mDpy, mDrawable, mCtx);
+    GLXContext::~GLXContext ()
+    {
+        // Unregister and destroy this context
+        // This will disable it if it was still active
+        // NB have to do this is subclass to ensure any methods called back
+        // are on this subclass and not half-destructed superclass
+        GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
+        rs->_unregisterContext (this);
+
+        if (mDrawableType != 0)
+        {
+            // Destroy GL context
+            glXDestroyContext (mDisplay, mContext);
+
+            if (mDrawableType == GLX_WINDOW)
+                glXDestroyWindow (mDisplay, mDrawable);
+            else if (mDrawableType == GLX_PBUFFER)
+                glXDestroyPbuffer (mDisplay, mDrawable);
+        }
     }
-	void GLXContext::endCurrent() {
-		glXMakeCurrent(mDpy, None, NULL);
-	}
 
-	GLContext* GLXContext::clone() const
-	{
-		// Create a new context, share lists with existing
+    void GLXContext::setCurrent ()
+    {
+        glXMakeCurrent (mDisplay, mDrawable, mContext);
+    }
 
-		if (mVisualInfo) // window context clone
-		{
-			::GLXContext newCtx = glXCreateContext(mDpy, mVisualInfo, mCtx,True);
-			return new GLXContext(mDpy, mDrawable, newCtx, mVisualInfo);
-		}
-		else // non-window
-		{
-			::GLXContext newCtx = glXCreateNewContext(mDpy, mFBConfig, GLX_RGBA_TYPE, mCtx, True);
-			return new GLXContext(mDpy, mDrawable, newCtx, mFBConfig);
-		}      
-	} 
+    void GLXContext::endCurrent ()
+    {
+        glXMakeCurrent (mDisplay, None, NULL);
+    }
 
+    GLContext *GLXContext::clone () const
+    {
+        // Create a new context, share lists with existing
+        ::GLXContext newctx = glXCreateNewContext (mDisplay, mFBConfig, GLX_RGBA_TYPE, mContext, True);
+
+        // Create an unused PBuffer, other contexts can't render to same window
+        static const int pbuf_attr [] =
+        {
+            GLX_PBUFFER_WIDTH, 1,
+            GLX_PBUFFER_HEIGHT, 1,
+            GLX_PRESERVED_CONTENTS, False,
+            GLX_DOUBLEBUFFER, False,
+            None
+        };
+        GLXPbuffer pbuf = glXCreatePbuffer (mDisplay, mFBConfig, pbuf_attr);
+        if (!pbuf)
+            OGRE_EXCEPT (Exception::ERR_NOT_IMPLEMENTED,
+                         "Failed to create a spare PBuffer",
+                         "GLXContext::clone");
+
+        return new GLXContext (mDisplay, pbuf, newctx, mFBConfig, GLX_PBUFFER);
+    }
 }

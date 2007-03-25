@@ -33,30 +33,29 @@ Torus Knot Software Ltd.
 #include "OgreRenderWindow.h"
 #include "OgreGLXContext.h"
 
-#include <X11/Xlib.h>
-#include <X11/keysym.h>
-#include <GL/glx.h>
-#include <GL/glxext.h>
-
 namespace Ogre 
 {
 	class _OgrePrivate GLXWindow : public RenderWindow
 	{
 	private:
-		::Display *mDisplay;		//Pointer to X connection
-		::Window mWindow;		//X Window
-		::Atom mAtomDeleteWindow;	//Used for handling X window closing
+		::Display *mDisplay;        // Pointer to X connection
+		::Window mWindow;           // X Window
+		::Atom mAtomDeleteWindow;   // Used for handling X window closing
 		::GLXContext mGlxContext;
-		::XVisualInfo* mVisualInfo;
-		bool mDelVisualInfo;
+		::GLXFBConfig mFBConfig;
+		::GLXWindow mGlxWindow;
+		bool mDelWindow;
+		bool mDelContext;
+		bool mDelGlxWindow;
 
-		bool mClosed;			//Window has been closed
-		bool mVisible;			//Window is visible
-		bool mFullScreen;		//We are full screen
-		bool mTopLevel;			//This is false if the Ogre window is embedded
-		int mOldMode;			//Mode before switching to fullscreen
+		bool mClosed;               // Window has been closed
+		bool mVisible;              // Window is visible
+		bool mFullScreen;           // We are full screen
+		bool mTopLevel;             // This is false if the Ogre window is embedded
+		int mOldMode;               // Mode before switching to fullscreen
+		int mOldRefreshRate;        // Refresh rate before switching to fullscreen
 
-		GLXContext   *mContext;
+		GLXContext *mContext;
 	public:
 		// Pass X display to create this window on
 		GLXWindow(Display *display);
