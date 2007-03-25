@@ -17,6 +17,7 @@
 				000E2A2D0B39E7DD004EA2DF /* PBXTargetDependency */,
 				000E2A2B0B39E7DD004EA2DF /* PBXTargetDependency */,
 				000E2A290B39E7DC004EA2DF /* PBXTargetDependency */,
+				000C05FA0BB61C4F00E6B30C /* PBXTargetDependency */,
 				000E2A270B39E7DC004EA2DF /* PBXTargetDependency */,
 				000E2A250B39E7DC004EA2DF /* PBXTargetDependency */,
 				000E2A230B39E7DC004EA2DF /* PBXTargetDependency */,
@@ -26,6 +27,7 @@
 				000E2A1B0B39E7DB004EA2DF /* PBXTargetDependency */,
 				000E2A190B39E7DB004EA2DF /* PBXTargetDependency */,
 				000E2A170B39E7DB004EA2DF /* PBXTargetDependency */,
+				000C05DA0BB616DC00E6B30C /* PBXTargetDependency */,
 				000E2A150B39E7DB004EA2DF /* PBXTargetDependency */,
 				000E2A130B39E7DB004EA2DF /* PBXTargetDependency */,
 				000E2A110B39E7DA004EA2DF /* PBXTargetDependency */,
@@ -59,6 +61,23 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		000C042B0BB6139600E6B30C /* Instancing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000C04290BB6139600E6B30C /* Instancing.cpp */; };
+		000C05110BB613C400E6B30C /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 000E25230B392BAA004EA2DF /* Ogre.framework */; };
+		000C05120BB613C400E6B30C /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		000C05B90BB613D500E6B30C /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */; };
+		000C05BA0BB613D500E6B30C /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE270B4ACACE0076F733 /* CEGUI.framework */; };
+		000C05BD0BB6142900E6B30C /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E263E0B393B0A004EA2DF /* media.cfg */; };
+		000C05BE0BB6142900E6B30C /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E263F0B393B0A004EA2DF /* plugins.cfg */; };
+		000C05BF0BB6142900E6B30C /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E26400B393B0A004EA2DF /* resources.cfg */; };
+		000C05E60BB617DA00E6B30C /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E263E0B393B0A004EA2DF /* media.cfg */; };
+		000C05E70BB617DA00E6B30C /* plugins.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E263F0B393B0A004EA2DF /* plugins.cfg */; };
+		000C05E80BB617DA00E6B30C /* resources.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E26400B393B0A004EA2DF /* resources.cfg */; };
+		000C05EB0BB6186F00E6B30C /* OgreCEGUIRenderer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE260B4ACACE0076F733 /* OgreCEGUIRenderer.framework */; };
+		000C05EC0BB6186F00E6B30C /* CEGUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0062EE270B4ACACE0076F733 /* CEGUI.framework */; };
+		000C05ED0BB6186F00E6B30C /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 000E25230B392BAA004EA2DF /* Ogre.framework */; };
+		000C05EE0BB6186F00E6B30C /* libois.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0053F52E0BB5908100328359 /* libois.a */; };
+		000C05EF0BB6187F00E6B30C /* crowd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000C04280BB6139600E6B30C /* crowd.cpp */; };
+		000C05F60BB61BEE00E6B30C /* terrain.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E29870B39E350004EA2DF /* terrain.cfg */; };
 		000E25350B392C9E004EA2DF /* Bezier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000E25340B392C9E004EA2DF /* Bezier.cpp */; };
 		000E261C0B393748004EA2DF /* Ogre.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 000E25230B392BAA004EA2DF /* Ogre.framework */; };
 		000E26410B393B0A004EA2DF /* media.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 000E263E0B393B0A004EA2DF /* media.cfg */; };
@@ -263,6 +282,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		000C05D90BB616DC00E6B30C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 000E24E00B3924F0004EA2DF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 000C041F0BB6128200E6B30C /* Instancing */;
+			remoteInfo = Instancing;
+		};
+		000C05F90BB61C4F00E6B30C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 000E24E00B3924F0004EA2DF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 000C05DF0BB6173B00E6B30C /* Crowd */;
+			remoteInfo = Crowd;
+		};
 		000E29F80B39E7D8004EA2DF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 000E24E00B3924F0004EA2DF /* Project object */;
@@ -483,6 +516,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		000C04200BB6128200E6B30C /* Instancing.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Instancing.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		000C04260BB6133300E6B30C /* crowd.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = crowd.h; path = ../../Samples/Instancing/include/crowd.h; sourceTree = SOURCE_ROOT; };
+		000C04270BB6133300E6B30C /* Instancing.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Instancing.h; path = ../../Samples/Instancing/include/Instancing.h; sourceTree = SOURCE_ROOT; };
+		000C04280BB6139600E6B30C /* crowd.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = crowd.cpp; path = ../../Samples/Instancing/src/crowd.cpp; sourceTree = SOURCE_ROOT; };
+		000C04290BB6139600E6B30C /* Instancing.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Instancing.cpp; path = ../../Samples/Instancing/src/Instancing.cpp; sourceTree = SOURCE_ROOT; };
+		000C05BB0BB613F000E6B30C /* Instancing-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; name = "Instancing-Info.plist"; path = "plist/Instancing-Info.plist"; sourceTree = "<group>"; };
+		000C05E00BB6173B00E6B30C /* Crowd.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Crowd.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		000C05E20BB6173C00E6B30C /* Crowd-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Crowd-Info.plist"; path = "plist/Crowd-Info.plist"; sourceTree = "<group>"; };
 		000E25230B392BAA004EA2DF /* Ogre.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Ogre.framework; path = /Library/Frameworks/Ogre.framework; sourceTree = "<absolute>"; };
 		000E252B0B392BE5004EA2DF /* BezierPatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BezierPatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E252E0B392BE6004EA2DF /* BezierPatch-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "BezierPatch-Info.plist"; path = "plist/BezierPatch-Info.plist"; sourceTree = "<group>"; };
@@ -543,7 +584,7 @@
 		000E280B0B39B08F004EA2DF /* Grass.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Grass.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E280D0B39B090004EA2DF /* Grass-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Grass-Info.plist"; path = "plist/Grass-Info.plist"; sourceTree = "<group>"; };
 		000E28220B39B0F0004EA2DF /* Grass.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Grass.cpp; path = ../../Samples/Grass/src/Grass.cpp; sourceTree = SOURCE_ROOT; };
-		000E282A0B39B248004EA2DF /* Gui.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gui.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		000E282A0B39B248004EA2DF /* Gui.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Gui.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E282C0B39B249004EA2DF /* Gui-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Gui-Info.plist"; path = "plist/Gui-Info.plist"; sourceTree = "<group>"; };
 		000E28380B39B294004EA2DF /* Gui.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Gui.cpp; path = ../../Samples/Gui/src/Gui.cpp; sourceTree = SOURCE_ROOT; };
 		000E28550B39B377004EA2DF /* Lighting.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lighting.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -630,6 +671,28 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		000C041E0BB6128200E6B30C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				000C05110BB613C400E6B30C /* Ogre.framework in Frameworks */,
+				000C05120BB613C400E6B30C /* libois.a in Frameworks */,
+				000C05B90BB613D500E6B30C /* OgreCEGUIRenderer.framework in Frameworks */,
+				000C05BA0BB613D500E6B30C /* CEGUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		000C05DE0BB6173B00E6B30C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				000C05EB0BB6186F00E6B30C /* OgreCEGUIRenderer.framework in Frameworks */,
+				000C05EC0BB6186F00E6B30C /* CEGUI.framework in Frameworks */,
+				000C05ED0BB6186F00E6B30C /* Ogre.framework in Frameworks */,
+				000C05EE0BB6186F00E6B30C /* libois.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		000E25290B392BE5004EA2DF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -903,6 +966,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		000C041B0BB611F300E6B30C /* Instancing */ = {
+			isa = PBXGroup;
+			children = (
+				000C04270BB6133300E6B30C /* Instancing.h */,
+				000C04290BB6139600E6B30C /* Instancing.cpp */,
+			);
+			name = Instancing;
+			sourceTree = "<group>";
+		};
+		000C05DB0BB616E500E6B30C /* Crowd */ = {
+			isa = PBXGroup;
+			children = (
+				000C04280BB6139600E6B30C /* crowd.cpp */,
+				000C04260BB6133300E6B30C /* crowd.h */,
+			);
+			name = Crowd;
+			sourceTree = "<group>";
+		};
 		000E24DE0B3924F0004EA2DF = {
 			isa = PBXGroup;
 			children = (
@@ -1167,6 +1248,7 @@
 				000E25030B3928FF004EA2DF /* CameraTrack */,
 				000E25040B39290C004EA2DF /* CelShading */,
 				000E25050B392918004EA2DF /* Compositor */,
+				000C05DB0BB616E500E6B30C /* Crowd */,
 				000E25060B392925004EA2DF /* CubeMapping */,
 				000E25070B392932004EA2DF /* DeferredShading */,
 				000E25080B392940004EA2DF /* Dot3Bump */,
@@ -1176,6 +1258,7 @@
 				000E250C0B39296B004EA2DF /* Fresnel */,
 				000E250D0B392975004EA2DF /* Grass */,
 				000E250E0B392982004EA2DF /* Gui */,
+				000C041B0BB611F300E6B30C /* Instancing */,
 				000E25100B39299F004EA2DF /* Lighting */,
 				000E25110B3929B4004EA2DF /* OceanDemo */,
 				000E288F0B39B58A004EA2DF /* ParticleFX */,
@@ -1248,6 +1331,8 @@
 				000E29BD0B39E5BE004EA2DF /* VolumeTex.app */,
 				000E29DB0B39E6BE004EA2DF /* Water.app */,
 				00ABEB520B4D8A980059129A /* OgreCustomNib.app */,
+				000C04200BB6128200E6B30C /* Instancing.app */,
+				000C05E00BB6173B00E6B30C /* Crowd.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1262,6 +1347,7 @@
 				000E26F70B399BF6004EA2DF /* CameraTrack-Info.plist */,
 				000E27170B399DB5004EA2DF /* CelShading-Info.plist */,
 				000E27320B39A055004EA2DF /* Compositor-Info.plist */,
+				000C05E20BB6173C00E6B30C /* Crowd-Info.plist */,
 				000E274E0B39A0FA004EA2DF /* CubeMapping-Info.plist */,
 				000E276B0B39A2C1004EA2DF /* DeferredShading-Info.plist */,
 				000E27910B39A801004EA2DF /* Dot3Bump-Info.plist */,
@@ -1271,6 +1357,7 @@
 				000E27F50B39AE59004EA2DF /* Fresnel-Info.plist */,
 				000E280D0B39B090004EA2DF /* Grass-Info.plist */,
 				000E282C0B39B249004EA2DF /* Gui-Info.plist */,
+				000C05BB0BB613F000E6B30C /* Instancing-Info.plist */,
 				000E28570B39B377004EA2DF /* Lighting-Info.plist */,
 				000E286D0B39B441004EA2DF /* OceanDemo-Info.plist */,
 				000E28970B39B5DF004EA2DF /* ParticleFX-Info.plist */,
@@ -1376,6 +1463,40 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		000C041F0BB6128200E6B30C /* Instancing */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 000C04230BB6128300E6B30C /* Build configuration list for PBXNativeTarget "Instancing" */;
+			buildPhases = (
+				000C041C0BB6128200E6B30C /* Resources */,
+				000C041D0BB6128200E6B30C /* Sources */,
+				000C041E0BB6128200E6B30C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Instancing;
+			productName = Instancing;
+			productReference = 000C04200BB6128200E6B30C /* Instancing.app */;
+			productType = "com.apple.product-type.application";
+		};
+		000C05DF0BB6173B00E6B30C /* Crowd */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 000C05E30BB6173D00E6B30C /* Build configuration list for PBXNativeTarget "Crowd" */;
+			buildPhases = (
+				000C05DC0BB6173B00E6B30C /* Resources */,
+				000C05DD0BB6173B00E6B30C /* Sources */,
+				000C05DE0BB6173B00E6B30C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Crowd;
+			productName = Crowd;
+			productReference = 000C05E00BB6173B00E6B30C /* Crowd.app */;
+			productType = "com.apple.product-type.application";
+		};
 		000E252A0B392BE5004EA2DF /* BezierPatch */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 000E252F0B392BE7004EA2DF /* Build configuration list for PBXNativeTarget "BezierPatch" */;
@@ -1887,6 +2008,7 @@
 				000E26F40B399BF5004EA2DF /* CameraTrack */,
 				000E27140B399DB5004EA2DF /* CelShading */,
 				000E272F0B39A055004EA2DF /* Compositor */,
+				000C05DF0BB6173B00E6B30C /* Crowd */,
 				000E274B0B39A0F9004EA2DF /* CubeMapping */,
 				000E27680B39A2C1004EA2DF /* DeferredShading */,
 				000E278E0B39A801004EA2DF /* Dot3Bump */,
@@ -1896,6 +2018,7 @@
 				000E27F20B39AE59004EA2DF /* Fresnel */,
 				000E280A0B39B08F004EA2DF /* Grass */,
 				000E28290B39B248004EA2DF /* Gui */,
+				000C041F0BB6128200E6B30C /* Instancing */,
 				000E28540B39B377004EA2DF /* Lighting */,
 				000E286A0B39B441004EA2DF /* OceanDemo */,
 				000E28940B39B5DF004EA2DF /* ParticleFX */,
@@ -1917,6 +2040,27 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		000C041C0BB6128200E6B30C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				000C05BD0BB6142900E6B30C /* media.cfg in Resources */,
+				000C05BE0BB6142900E6B30C /* plugins.cfg in Resources */,
+				000C05BF0BB6142900E6B30C /* resources.cfg in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		000C05DC0BB6173B00E6B30C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				000C05F60BB61BEE00E6B30C /* terrain.cfg in Resources */,
+				000C05E60BB617DA00E6B30C /* media.cfg in Resources */,
+				000C05E70BB617DA00E6B30C /* plugins.cfg in Resources */,
+				000C05E80BB617DA00E6B30C /* resources.cfg in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		000E25270B392BE5004EA2DF /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2216,6 +2360,22 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		000C041D0BB6128200E6B30C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				000C042B0BB6139600E6B30C /* Instancing.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		000C05DD0BB6173B00E6B30C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				000C05EF0BB6187F00E6B30C /* crowd.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		000E25280B392BE5004EA2DF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2462,6 +2622,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		000C05DA0BB616DC00E6B30C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 000C041F0BB6128200E6B30C /* Instancing */;
+			targetProxy = 000C05D90BB616DC00E6B30C /* PBXContainerItemProxy */;
+		};
+		000C05FA0BB61C4F00E6B30C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 000C05DF0BB6173B00E6B30C /* Crowd */;
+			targetProxy = 000C05F90BB61C4F00E6B30C /* PBXContainerItemProxy */;
+		};
 		000E29F90B39E7D8004EA2DF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 000E29DA0B39E6BE004EA2DF /* Water */;
@@ -2610,6 +2780,138 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		000C04240BB6128300E6B30C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
+				HEADER_SEARCH_PATHS = (
+					"../../OgreMain/include/**",
+					../../Dependencies/include,
+					"../../Dependencies/include/CEGUI/**",
+				);
+				INFOPLIST_FILE = "./plist/Instancing-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Carbon,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = Instancing;
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		000C04250BB6128300E6B30C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
+				HEADER_SEARCH_PATHS = (
+					"../../OgreMain/include/**",
+					../../Dependencies/include,
+					"../../Dependencies/include/CEGUI/**",
+				);
+				INFOPLIST_FILE = "./plist/Instancing-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Carbon,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = Instancing;
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		000C05E40BB6173D00E6B30C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
+				HEADER_SEARCH_PATHS = (
+					"../../OgreMain/include/**",
+					../../Dependencies/include,
+					"../../Dependencies/include/CEGUI/**",
+				);
+				INFOPLIST_FILE = "./plist/Crowd-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Carbon,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = Crowd;
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		000C05E50BB6173D00E6B30C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
+				HEADER_SEARCH_PATHS = (
+					"../../OgreMain/include/**",
+					../../Dependencies/include,
+					"../../Dependencies/include/CEGUI/**",
+				);
+				INFOPLIST_FILE = "./plist/Crowd-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Dependencies/lib/Release\"";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Carbon,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = Crowd;
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 		000E24E20B3924F0004EA2DF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -4481,6 +4783,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		000C04230BB6128300E6B30C /* Build configuration list for PBXNativeTarget "Instancing" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				000C04240BB6128300E6B30C /* Debug */,
+				000C04250BB6128300E6B30C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		000C05E30BB6173D00E6B30C /* Build configuration list for PBXNativeTarget "Crowd" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				000C05E40BB6173D00E6B30C /* Debug */,
+				000C05E50BB6173D00E6B30C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		000E24E10B3924F0004EA2DF /* Build configuration list for PBXProject "Samples" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
