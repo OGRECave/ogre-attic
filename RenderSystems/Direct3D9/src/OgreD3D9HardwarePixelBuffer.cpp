@@ -418,12 +418,7 @@ void D3D9HardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const Pixel
             (srcBox.getWidth() == getWidth()) && (srcBox.getHeight() == getHeight()) &&
             (mFormat == tmpFormat))
         {
-            if(mpDev->GetRenderTargetData(mSurface, surface) != D3D_OK)
-            {
-                surface->Release();
-                tmp->Release();
-            }
-			else
+            if(mpDev->GetRenderTargetData(mSurface, surface) == D3D_OK)
 			{
 				fastLoadSuccess = true;
 			}
