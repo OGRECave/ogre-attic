@@ -26,7 +26,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		8DD76F6C0486A84900D96B5E /* OgreMeshUpgrader */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OgreMeshUpgrader; sourceTree = BUILT_PRODUCTS_DIR; };
+		8DD76F6C0486A84900D96B5E /* OgreMeshUpgrader */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = OgreMeshUpgrader; sourceTree = BUILT_PRODUCTS_DIR; };
 		D01232160B0A493500E3DC56 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../../Tools/MeshUpgrader/src/main.cpp; sourceTree = SOURCE_ROOT; };
 		D01232180B0A493C00E3DC56 /* config.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../../include/config.h; sourceTree = SOURCE_ROOT; };
 		D012321A0B0A494600E3DC56 /* Ogre.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Ogre.framework; path = /Library/Frameworks/Ogre.framework; sourceTree = "<absolute>"; };
