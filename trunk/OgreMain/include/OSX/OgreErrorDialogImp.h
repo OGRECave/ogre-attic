@@ -29,7 +29,7 @@ Torus Knot Software Ltd.
 #ifndef __OSXErrorDialog_H__
 #define __OSXErrorDialog_H__
 
-#include "OgrePrerequisites.h"
+#include <Ogre/OgrePrerequisites.h>
 
 namespace Ogre
 {
