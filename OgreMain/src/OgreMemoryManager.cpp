@@ -1081,6 +1081,10 @@ namespace Ogre
 
     void MemoryManager::dllocMem(const char *sourceFile, const unsigned int sourceLine, const char *sourceFunc, const unsigned int deallocationType, const void *reportedAddress, const unsigned processID )
     {
+		// early-out for NULL
+		if (!reportedAddress)
+			return;
+
         try
         {
             // Log the request
