@@ -207,12 +207,14 @@ GLPBuffer *GLXGLSupport::createPBuffer (
     return new GLXPBuffer (format, width, height);
 }
 
+#ifndef NO_XRANDR 
 static int compare_modes (const void *m1, const void *m2)
 {
 	const XRRScreenSize *ss1 = reinterpret_cast<const XRRScreenSize *> (m1);
 	const XRRScreenSize *ss2 = reinterpret_cast<const XRRScreenSize *> (m2);
 	return ss2->width * ss2->height - ss1->width * ss1->height;
 }
+#endif
 
 void GLXGLSupport::FillVideoModes ()
 {
