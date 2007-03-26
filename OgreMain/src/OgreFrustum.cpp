@@ -517,6 +517,16 @@ namespace Ogre {
 		// Near plane bounds
 		Vector3 min(left, bottom, -farDist);
 		Vector3 max(right, top, 0);
+
+		if (mCustomProjMatrix)
+		{
+			// Some custom projection matrices can have unusual inverted settings
+			// So make sure the AABB is the right way around to start with
+			Vector3 tmp = min;
+			min.makeFloor(max);
+			max.makeCeil(tmp);
+		}
+
 		if (mProjType == PT_PERSPECTIVE)
 		{
 			// Merge with far plane bounds
