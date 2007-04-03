@@ -140,8 +140,13 @@ namespace Ogre {
     //---------------------------------------------------------------------------
     void HighLevelGpuProgramManager::removeFactory(HighLevelGpuProgramFactory* factory)
     {
-        assert(mFactories[factory->getLanguage()] == factory);
-        mFactories.erase(factory->getLanguage());
+        // Remove only if equal to registered one, since it might overridden
+        // by other plugins
+        FactoryMap::iterator it = mFactories.find(factory->getLanguage());
+        if (it != mFactories.end() && it->second == factory)
+        {
+            mFactories.erase(it);
+        }
     }
     //---------------------------------------------------------------------------
 	HighLevelGpuProgramFactory* HighLevelGpuProgramManager::getFactory(const String& language)
