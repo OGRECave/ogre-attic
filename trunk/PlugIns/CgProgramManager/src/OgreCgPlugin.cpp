@@ -66,9 +66,14 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void CgPlugin::uninstall()
 	{
-		delete mCgProgramFactory;
-		mCgProgramFactory = 0;
-		
+        if (mCgProgramFactory)
+        {
+            // Remove from manager safely
+            if (HighLevelGpuProgramManager::getSingletonPtr())
+                HighLevelGpuProgramManager::getSingleton().removeFactory(mCgProgramFactory);
+		    delete mCgProgramFactory;
+		    mCgProgramFactory = 0;
+        }
 	}
 
 

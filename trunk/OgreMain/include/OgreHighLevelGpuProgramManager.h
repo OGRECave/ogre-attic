@@ -88,6 +88,8 @@ namespace Ogre {
 		~HighLevelGpuProgramManager();
 		/** Add a new factory object for high-level programs of a given language. */
 		void addFactory(HighLevelGpuProgramFactory* factory);
+		/** Remove a factory object for high-level programs of a given language. */
+		void removeFactory(HighLevelGpuProgramFactory* factory);
 
 
         /** Create a new, unloaded HighLevelGpuProgram. 

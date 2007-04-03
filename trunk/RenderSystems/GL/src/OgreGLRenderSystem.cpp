@@ -99,6 +99,7 @@ namespace Ogre {
     GLRenderSystem::GLRenderSystem()
       : mDepthWrite(true), mStencilMask(0xFFFFFFFF), mHardwareBufferManager(0),
         mGpuProgramManager(0),
+        mGLSLProgramFactory(0),
         mRTTManager(0)
     {
         size_t i;
@@ -446,6 +447,8 @@ namespace Ogre {
 			 GLEW_ARB_vertex_shader) )
 		{
 			// NFZ - check for GLSL vertex and fragment shader support successful
+            mGLSLProgramFactory = new GLSLProgramFactory();
+            HighLevelGpuProgramManager::getSingleton().addFactory(mGLSLProgramFactory);
             mGpuProgramManager->_pushSyntaxCode("glsl");
 			LogManager::getSingleton().logMessage("GLSL support detected");
 		}
@@ -637,6 +640,16 @@ namespace Ogre {
     void GLRenderSystem::shutdown(void)
     {
         RenderSystem::shutdown();
+
+        // Deleting the GLSL program factory
+        if (mGLSLProgramFactory)
+        {
+            // Remove from manager safely
+            if (HighLevelGpuProgramManager::getSingletonPtr())
+                HighLevelGpuProgramManager::getSingleton().removeFactory(mGLSLProgramFactory);
+		    delete mGLSLProgramFactory;
+		    mGLSLProgramFactory = 0;
+        }
 
         // Deleting the GPU program manager and hardware buffer manager.  Has to be done before the mGLSupport->stop().
         delete mGpuProgramManager;
