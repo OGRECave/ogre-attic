@@ -44,7 +44,7 @@ Torus Knot Software Ltd.
 #include "OgreD3D9VertexDeclaration.h"
 #include "OgreD3D9GpuProgram.h"
 #include "OgreD3D9GpuProgramManager.h"
-//#include "OgreD3D9HLSLProgramFactory.h"
+#include "OgreD3D9HLSLProgramFactory.h"
 #include "OgreHighLevelGpuProgramManager.h"
 #include "OgreD3D9HardwareOcclusionQuery.h"
 #include "OgreFrustum.h"
@@ -75,7 +75,7 @@ namespace Ogre
 		mDeviceLost = false;
 		mBasicStatesInitialised = false;
 		mUseNVPerfHUD = false;
-        //mHLSLProgramFactory = NULL;
+        mHLSLProgramFactory = NULL;
 
 		// init lights
 		for(int i = 0; i < MAX_LIGHTS; i++ )
@@ -117,7 +117,16 @@ namespace Ogre
 	{
         shutdown();
 
-        //SAFE_DELETE(mHLSLProgramFactory);
+        // Deleting the HLSL program factory
+        if (mHLSLProgramFactory)
+        {
+            // Remove from manager safely
+            if (HighLevelGpuProgramManager::getSingletonPtr())
+                HighLevelGpuProgramManager::getSingleton().removeFactory(mHLSLProgramFactory);
+            delete mHLSLProgramFactory;
+            mHLSLProgramFactory = 0;
+        }
+
 		SAFE_RELEASE( mpD3D );
 
 		LogManager::getSingleton().logMessage( "D3D9 : " + getName() + " destroyed." );
@@ -655,8 +664,8 @@ namespace Ogre
 			// Create the GPU program manager
 			mGpuProgramManager = new D3D9GpuProgramManager(mpD3DDevice);
             // create & register HLSL factory
-            //mHLSLProgramFactory = new D3D9HLSLProgramFactory();
-            //HighLevelGpuProgramManager::getSingleton().addFactory(mHLSLProgramFactory);
+            mHLSLProgramFactory = new D3D9HLSLProgramFactory();
+            HighLevelGpuProgramManager::getSingleton().addFactory(mHLSLProgramFactory);
             mGpuProgramManager->_pushSyntaxCode("hlsl");
 
 

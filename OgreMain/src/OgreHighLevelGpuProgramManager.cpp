@@ -138,6 +138,12 @@ namespace Ogre {
 		mFactories[factory->getLanguage()] = factory;
 	}
     //---------------------------------------------------------------------------
+    void HighLevelGpuProgramManager::removeFactory(HighLevelGpuProgramFactory* factory)
+    {
+        assert(mFactories[factory->getLanguage()] == factory);
+        mFactories.erase(factory->getLanguage());
+    }
+    //---------------------------------------------------------------------------
 	HighLevelGpuProgramFactory* HighLevelGpuProgramManager::getFactory(const String& language)
 	{
 		FactoryMap::iterator i = mFactories.find(language);
