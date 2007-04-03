@@ -193,6 +193,12 @@ namespace Ogre {
     }
 
 	//-----------------------------------------------------------------------
+    void GLSLProgram::populateParameterNames(GpuProgramParametersSharedPtr params)
+    {
+		params->_setNamedConstants(&getConstantDefinitions());
+		// Don't set logical / physical maps here, as we can't access parameters by logical index in GLHL.
+    }
+	//-----------------------------------------------------------------------
     void GLSLProgram::buildConstantDefinitions() const
     {
 		// We need an accurate list of all the uniforms in the shader, but we

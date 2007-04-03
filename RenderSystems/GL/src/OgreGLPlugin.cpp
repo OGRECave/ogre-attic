@@ -35,7 +35,7 @@ namespace Ogre
 	const String sPluginName = "GL RenderSystem";
 	//---------------------------------------------------------------------
 	GLPlugin::GLPlugin()
-		: mRenderSystem(0), mGLSLProgramFactory(0)
+		: mRenderSystem(0)
 	{
 
 	}
@@ -50,9 +50,6 @@ namespace Ogre
 		mRenderSystem = new GLRenderSystem();
 
 		Root::getSingleton().addRenderSystem(mRenderSystem);
-
-		mGLSLProgramFactory = new GLSLProgramFactory();
-		HighLevelGpuProgramManager::getSingleton().addFactory(mGLSLProgramFactory);
 	}
 	//---------------------------------------------------------------------
 	void GLPlugin::initialise()
@@ -67,8 +64,6 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void GLPlugin::uninstall()
 	{
-		delete mGLSLProgramFactory;
-		mGLSLProgramFactory = 0;
 		delete mRenderSystem;
 		mRenderSystem = 0;
 

@@ -35,7 +35,7 @@ namespace Ogre
 	const String sPluginName = "D3D9 RenderSystem";
 	//---------------------------------------------------------------------
 	D3D9Plugin::D3D9Plugin()
-		: mRenderSystem(0), mHLSLProgramFactory(0)
+		: mRenderSystem(0)
 	{
 
 	}
@@ -56,10 +56,6 @@ namespace Ogre
 		mRenderSystem = new D3D9RenderSystem( hInst );
 		// Register the render system
 		Root::getSingleton().addRenderSystem( mRenderSystem );
-
-		// create & register HLSL factory
-		mHLSLProgramFactory = new D3D9HLSLProgramFactory();
-		HighLevelGpuProgramManager::getSingleton().addFactory(mHLSLProgramFactory);
 	}
 	//---------------------------------------------------------------------
 	void D3D9Plugin::initialise()
@@ -76,9 +72,6 @@ namespace Ogre
 	{
 		delete mRenderSystem;
 		mRenderSystem = 0;
-		delete mHLSLProgramFactory;
-		mHLSLProgramFactory = 0;
-
 	}
 
 

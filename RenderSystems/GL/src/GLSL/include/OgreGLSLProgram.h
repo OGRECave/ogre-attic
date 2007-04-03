@@ -111,6 +111,8 @@ namespace Ogre {
 		/// Overridden from HighLevelGpuProgram
 		void unloadImpl(void);
 
+        /// Populate the passed parameters with name->index map
+        void populateParameterNames(GpuProgramParametersSharedPtr params);
         /// Populate the passed parameters with name->index map, must be overridden
         void buildConstantDefinitions() const;
 		/// compile source into shader object

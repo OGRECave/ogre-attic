@@ -34,6 +34,7 @@ Torus Knot Software Ltd.
 #include "OgreRenderSystem.h"
 #include "OgreGLHardwareBufferManager.h"
 #include "OgreGLGpuProgramManager.h"
+#include "OgreGLSLProgramFactory.h"
 #include "OgreVector4.h"
 
 
@@ -117,6 +118,7 @@ namespace Ogre {
 
         HardwareBufferManager* mHardwareBufferManager;
         GLGpuProgramManager* mGpuProgramManager;
+		GLSLProgramFactory* mGLSLProgramFactory;
 
         unsigned short mCurrentLights;
 

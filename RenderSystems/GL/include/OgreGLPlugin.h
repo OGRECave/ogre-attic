@@ -31,7 +31,6 @@ Torus Knot Software Ltd.
 
 #include "OgrePlugin.h"
 #include "OgreGLRenderSystem.h"
-#include "OgreGLSLProgramFactory.h"
 
 namespace Ogre
 {
@@ -59,8 +58,6 @@ namespace Ogre
 		void uninstall();
 	protected:
 		GLRenderSystem* mRenderSystem;
-		GLSLProgramFactory* mGLSLProgramFactory;
-
 	};
 }
 

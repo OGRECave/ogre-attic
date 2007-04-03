@@ -39,7 +39,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void CgProgram::selectProfile(void)
     {
-        mSelectedProfile = "";
+        mSelectedProfile.clear();
         mSelectedCgProfile = CG_PROFILE_UNKNOWN;
 
         StringVector::iterator i, iend;
@@ -183,6 +183,7 @@ namespace Ogre {
 
 
 		recurseParams(cgGetFirstParameter(mCgProgram, CG_PROGRAM));
+        recurseParams(cgGetFirstParameter(mCgProgram, CG_GLOBAL));
 	}
 	//---------------------------------------------------------------------
 	void CgProgram::recurseParams(CGparameter parameter, size_t contextArraySize) const
@@ -241,7 +242,7 @@ namespace Ogre {
 					default:
 						// normal constant
 						break;
-					};
+					}
 
 					// Trim the '[0]' suffix if it exists, we will add our own indexing later
 					if (StringUtil::endsWith(paramName, "[0]", false))
@@ -307,7 +308,7 @@ namespace Ogre {
 
 					break;
 		
-				};
+				}
 					
             }
             // Get next
@@ -417,7 +418,7 @@ namespace Ogre {
 			default:
 				def.constType = GCT_UNKNOWN;
 				break;
-			};
+			}
 		}
 	}
     //-----------------------------------------------------------------------
