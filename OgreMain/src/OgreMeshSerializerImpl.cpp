@@ -322,12 +322,14 @@ namespace Ogre {
         writeShorts(&idx, 1);
 
         float *vertices = new float [s->extremityPoints.size() * 3];
+		float *pVert = vertices;
+
         for (std::vector<Vector3>::const_iterator i = s->extremityPoints.begin();
              i != s->extremityPoints.end(); ++i)
         {
-			*vertices++ = i->x;
-			*vertices++ = i->y;
-			*vertices++ = i->z;
+			*pVert++ = i->x;
+			*pVert++ = i->y;
+			*pVert++ = i->z;
         }
 
         writeFloats(vertices, s->extremityPoints.size () * 3);
