@@ -217,7 +217,7 @@ void GLXWindow::create (const String& name, unsigned int width, unsigned int hei
 	// Find out the ordinal number of the screen
 	int screen_no = 0;
 	while (screen_no < ScreenCount (mDisplay))
-		if (ScreenOfDisplay (mDisplay, screen_no) == screen)
+		if (ScreenOfDisplay (mDisplay, screen_no++) == screen)
 			break;
 
 	if (screen_no >= ScreenCount (mDisplay))
