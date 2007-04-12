@@ -3084,7 +3084,8 @@ namespace Ogre
     {
         DWORD prev;
         mpD3DDevice->GetRenderState(D3DRS_CLIPPLANEENABLE, &prev);
-        __SetRenderState(D3DRS_CLIPPLANEENABLE, prev | (1 << index));
+        __SetRenderState(D3DRS_CLIPPLANEENABLE, enable?
+			(prev | (1 << index)) : (prev & ~(1 << index)));
     }
     //---------------------------------------------------------------------
     HardwareOcclusionQuery* D3D9RenderSystem::createHardwareOcclusionQuery(void)
