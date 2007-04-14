@@ -3,8 +3,12 @@
 
 #include "OgreGLSupport.h"
 
-#include "X11/Xlib.h"
+#include <X11/Xlib.h>
+#include <X11/keysym.h>
+#include <X11/extensions/xf86vmode.h>
 #include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glx.h>
 
 namespace Ogre {
 
@@ -46,20 +50,11 @@ public:
 	* Get the address of a function
 	*/
 	void* getProcAddress(const String& procname);
-
-	virtual GLPBuffer *createPBuffer(PixelComponentType format, size_t width, size_t height);
-
-	virtual void setConfigOption(const String &name, const String &value);
-
+ 
+    virtual GLPBuffer *createPBuffer(PixelComponentType format, size_t width, size_t height);
 private:
 	// X display
 	Display *mDisplay;
-	// X screen
-	Screen *mScreen;
-	// Fill the "Video Mode" option
-	void FillVideoModes ();
-	// Fill the "Refresh Rate" option, if supported
-	void RenewRefreshRate ();
 }
 ; // class GLXGLSupport
 

@@ -3378,12 +3378,11 @@ namespace Ogre
 		}
 		mZBufferHash.clear();
 	}
-	void *D3D9RenderSystem::registerThread()
+	void D3D9RenderSystem::registerThread()
 	{
 		// nothing to do - D3D9 shares rendering context already
-		return NULL;
 	}
-	void D3D9RenderSystem::unregisterThread(void *opaque)
+	void D3D9RenderSystem::unregisterThread()
 	{
 		// nothing to do - D3D9 shares rendering context already
 	}
