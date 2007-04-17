@@ -76,6 +76,8 @@ namespace Ogre
         Real mNearDist;
         /// x/y viewport ratio - default 1.3333
         Real mAspect;
+		/// Ortho height size (world units)
+		Real mOrthoHeight;
         /// Off-axis frustum center offset - default (0.0, 0.0)
         Vector2 mFrustumOffset;
         /// Focal length of frustum (for stereo rendering, defaults to 1.0)
@@ -486,6 +488,32 @@ namespace Ogre
         /** Retrieves info on the type of projection used (orthographic or perspective).
         */
         virtual ProjectionType getProjectionType(void) const;
+
+		/** Sets the orthographic window settings, for use with orthographic rendering only. 
+		@note Calling this method will recalculate the aspect ratio, use 
+			setOrthoWindowHeight or setOrthoWindowWidth alone if you wish to 
+			preserve the aspect ratio but just fit one or other dimension to a 
+			particular size.
+		@param w, h The dimensions of the view window in world units
+		*/
+		virtual void setOrthoWindow(Real w, Real h);
+		/** Sets the orthographic window height, for use with orthographic rendering only. 
+		@note The width of the window will be calculated from the aspect ratio. 
+		@param h The height of the view window in world units
+		*/
+		virtual void setOrthoWindowHeight(Real h);
+		/** Sets the orthographic window width, for use with orthographic rendering only. 
+		@note The height of the window will be calculated from the aspect ratio. 
+		@param w The width of the view window in world units
+		*/
+		virtual void setOrthoWindowWidth(Real w);
+		/** Gets the orthographic window height, for use with orthographic rendering only. 
+		*/
+		virtual Real getOrthoWindowHeight() const;
+		/** Gets the orthographic window width, for use with orthographic rendering only. 
+		@note This is calculated from the orthographic height and the aspect ratio
+		*/
+		virtual Real getOrthoWindowWidth() const;
 
         /** Modifies this frustum so it always renders from the reflection of itself through the
         plane specified.

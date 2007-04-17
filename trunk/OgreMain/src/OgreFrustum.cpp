@@ -54,6 +54,7 @@ namespace Ogre {
         mFarDist(100000.0f), 
         mNearDist(100.0f), 
         mAspect(1.33333333333333f), 
+		mOrthoHeight(1000),
         mFrustumOffset(Vector2::ZERO),
         mFocalLength(1.0f),
         mLastParentOrientation(Quaternion::IDENTITY),
@@ -336,22 +337,35 @@ namespace Ogre {
 		else
 		{
 			// Calculate general projection parameters
+			if (mProjType == PT_PERSPECTIVE)
+			{
+				Radian thetaY (mFOVy * 0.5f);
+				Real tanThetaY = Math::Tan(thetaY);
+				Real tanThetaX = tanThetaY * mAspect;
 
-			Radian thetaY (mFOVy * 0.5f);
-			Real tanThetaY = Math::Tan(thetaY);
-			Real tanThetaX = tanThetaY * mAspect;
+				Real nearFocal = mNearDist / mFocalLength;
+				Real nearOffsetX = mFrustumOffset.x * nearFocal;
+				Real nearOffsetY = mFrustumOffset.y * nearFocal;
+				Real half_w = tanThetaX * mNearDist;
+				Real half_h = tanThetaY * mNearDist;
 
-			// Unknow how to apply frustum offset to orthographic camera, just ignore here
-			Real nearFocal = (mProjType == PT_PERSPECTIVE) ? mNearDist / mFocalLength : 0;
-			Real nearOffsetX = mFrustumOffset.x * nearFocal;
-			Real nearOffsetY = mFrustumOffset.y * nearFocal;
-			Real half_w = tanThetaX * mNearDist;
-			Real half_h = tanThetaY * mNearDist;
+				left   = - half_w + nearOffsetX;
+				right  = + half_w + nearOffsetX;
+				bottom = - half_h + nearOffsetY;
+				top    = + half_h + nearOffsetY;
+			}
+			else
+			{
+				// Unknown how to apply frustum offset to orthographic camera, just ignore here
+				Real half_w = getOrthoWindowWidth() * 0.5;
+				Real half_h = getOrthoWindowHeight() * 0.5;
 
-			left   = - half_w + nearOffsetX;
-			right  = + half_w + nearOffsetX;
-			bottom = - half_h + nearOffsetY;
-			top    = + half_h + nearOffsetY;
+				left   = - half_w;
+				right  = + half_w;
+				bottom = - half_h;
+				top    = + half_h;
+			}
+
 		}
     }
 	//-----------------------------------------------------------------------
@@ -1135,6 +1149,37 @@ namespace Ogre {
 		}
 		invalidateFrustum();
 	}
+	//---------------------------------------------------------------------
+	void Frustum::setOrthoWindow(Real w, Real h)
+	{
+		mOrthoHeight = h;
+		mAspect = w / h;
+		invalidateFrustum();
+	}
+	//---------------------------------------------------------------------
+	void Frustum::setOrthoWindowHeight(Real h)
+	{
+		mOrthoHeight = h;
+		invalidateFrustum();
+	}
+	//---------------------------------------------------------------------
+	void Frustum::setOrthoWindowWidth(Real w)
+	{
+		mOrthoHeight = w / mAspect;
+		invalidateFrustum();
+	}
+	//---------------------------------------------------------------------
+	Real Frustum::getOrthoWindowHeight() const
+	{
+		return mOrthoHeight;
+	}
+	//---------------------------------------------------------------------
+	Real Frustum::getOrthoWindowWidth() const
+	{
+		return mOrthoHeight * mAspect;	
+	}
+	//---------------------------------------------------------------------
+
 
 
 
