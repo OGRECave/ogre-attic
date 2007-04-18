@@ -329,13 +329,19 @@ namespace Ogre {
         else
         {
 			Technique* ret = 0;
+			MaterialManager& matMgr = MaterialManager::getSingleton();
 			// get scheme
 			BestTechniquesBySchemeList::iterator si = 
-				mBestTechniquesBySchemeList.find(
-				MaterialManager::getSingleton()._getActiveSchemeIndex());
+				mBestTechniquesBySchemeList.find(matMgr._getActiveSchemeIndex());
 			// scheme not found?
 			if (si == mBestTechniquesBySchemeList.end())
 			{
+				// listener specified alternative technique available?
+				ret = matMgr._arbitrateMissingTechniqueForActiveScheme(this, lodIndex);
+				if (ret)
+					return ret;
+
+				// Nope, use default
 				// get the first item, will be 0 (the default) if default
 				// scheme techniques exist, otherwise the earliest defined
 				si = mBestTechniquesBySchemeList.begin();
