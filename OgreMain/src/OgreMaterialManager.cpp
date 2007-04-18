@@ -271,19 +271,34 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void MaterialManager::setActiveScheme(const String& schemeName)
 	{
-		SchemeMap::iterator i = mSchemes.find(schemeName);
-		if (i == mSchemes.end())
-		{
-			// Invalid scheme, use default
-			mActiveSchemeName = DEFAULT_SCHEME_NAME;
-			mActiveSchemeIndex = 0;
-		}
-		else
-		{
-			mActiveSchemeName = schemeName;
-			mActiveSchemeIndex = i->second;
-		}
-
+		// Allow the creation of new scheme indexes on demand
+		// even if they're not specified in any Technique
+		mActiveSchemeIndex = _getSchemeIndex(schemeName);
 	}
     //-----------------------------------------------------------------------
+	void MaterialManager::addListener(Listener* l)
+	{
+		mListenerList.push_back(l);
+	}
+	//---------------------------------------------------------------------
+	void MaterialManager::removeListener(Listener* l)
+	{
+		mListenerList.remove(l);
+	}
+	//---------------------------------------------------------------------
+	Technique* MaterialManager::_arbitrateMissingTechniqueForActiveScheme(
+		Material* mat, unsigned short lodIndex)
+	{
+		for (ListenerList::iterator i = mListenerList.begin(); i != mListenerList.end(); ++i)
+		{
+			Technique* t = (*i)->handleSchemeNotFound(mActiveSchemeIndex, 
+				mActiveSchemeName, mat, lodIndex);
+			if (t)
+				return t;
+		}
+
+		return 0;
+
+	}
+
 }

@@ -65,6 +65,44 @@ namespace Ogre {
     */
     class _OgreExport MaterialManager : public ResourceManager, public Singleton<MaterialManager>
     {
+	public:
+		/** Listener on any general material events.
+		@see MaterialManager::addListener
+		*/
+		class Listener
+		{
+		public:
+			/** Called if a technique for a given scheme is not found within a material,
+				allows the application to specify a Technique instance manually.
+			@remarks
+				Material schemes allow you to switch wholesale between families of 
+				techniques on a material. However they require you to define those
+				schemes on the materials up-front, which might not be possible or
+				desirable for all materials, particular if, for example, you wanted
+				a simple way to replace all materials with another using a scheme.
+			@par
+				This callback allows you to handle the case where a scheme is requested
+				but the material doesn't have an entry for it. You can return a
+				Technique pointer from this method to specify the material technique
+				you'd like to be applied instead, which can be from another material
+				entirely (and probably will be). Note that it is critical that you
+				only return a Technique that is supported on this hardware; there are
+				utility methods like Material::getBestTechnique to help you with this.
+			@param schemeIndex The index of the scheme that was requested - all 
+				schemes have a unique index when created that does not alter. 
+			@param schemeName The friendly name of the scheme being requested
+			@param originalMaterial The material that is being processed, that 
+				didn't have a specific technique for this scheme
+			@param lodIndex The material level-of-detail that was being asked for, 
+				in case you need to use it to determine a technique.
+			@returns A pointer to the technique to be used, or NULL if you wish to
+				use the default technique for this material
+			*/
+			virtual Technique* handleSchemeNotFound(unsigned short schemeIndex, 
+				const String& schemeName, Material* originalMaterial, unsigned short lodIndex) = 0;
+
+		};
+
     protected:
 
         /// Default Texture filtering - minification
@@ -94,6 +132,9 @@ namespace Ogre {
 		String mActiveSchemeName;
 		/// Current material scheme
 		unsigned short mActiveSchemeIndex;
+
+		typedef std::list<Listener*> ListenerList;
+		ListenerList mListenerList;
 
     public:
 		/// Default material scheme
@@ -201,6 +242,15 @@ namespace Ogre {
 		@see Technique::setSchemeName
 		*/
 		virtual void setActiveScheme(const String& schemeName);
+
+		/** Add a listener to handle material events. */
+		virtual void addListener(Listener* l);
+		/** Remove a listener handling material events. */
+		virtual void removeListener(Listener* l);
+
+		/// Internal method for sorting out missing technique for a scheme
+		virtual Technique* _arbitrateMissingTechniqueForActiveScheme(
+			Material* mat, unsigned short lodIndex);
 
         /** Override standard Singleton retrieval.
         @remarks

@@ -4644,6 +4644,44 @@ protected:
 		vp->setOverlaysEnabled(false);
 
 	}
+	class TestMatMgrListener : public MaterialManager::Listener
+	{
+	public:
+		TestMatMgrListener() : mTech(0) {}
+		Technique* mTech;
+		
+
+		Technique* handleSchemeNotFound(unsigned short schemeIndex, 
+			const String& schemeName, Material* originalMaterial, unsigned short lodIndex)
+		{
+			return mTech;
+		}
+	};
+	TestMatMgrListener schemeListener;
+	void testMaterialSchemesListener()
+	{
+		Entity *ent = mSceneMgr->createEntity("robot", "robot.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+		mSceneMgr->setAmbientLight(ColourValue(0.8, 0.8, 0.8));
+
+		// create a second viewport using alternate scheme
+		// notice it's not defined in a technique
+		Viewport* vp = mWindow->addViewport(mCamera, 1, 0.75, 0, 0.25, 0.25);
+		vp->setMaterialScheme("newscheme");
+		vp->setOverlaysEnabled(false);
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("schemetest", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		// default scheme
+		mat->getTechnique(0)->getPass(0)->createTextureUnitState("GreenSkin.jpg");
+
+		schemeListener.mTech = mat->getTechnique(0);
+
+		MaterialManager::getSingleton().addListener(&schemeListener);
+
+
+	}
+
 	void testMaterialSchemesWithLOD()
 	{
 
@@ -5245,7 +5283,7 @@ protected:
         //testStencilShadows(SHADOWTYPE_STENCIL_MODULATIVE, false, true);
         //testTextureShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
-		testTextureShadowsIntegrated();
+		//testTextureShadowsIntegrated();
 		//testTextureShadowsCustomCasterMat(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testTextureShadowsCustomReceiverMat(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testCompositorTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
@@ -5296,6 +5334,7 @@ protected:
 		//testMultiSceneManagersComplex();
 		//testManualBoneMovement();
 		//testMaterialSchemes();
+		testMaterialSchemesListener();
 		//testMaterialSchemesWithLOD();
 		//testMaterialSchemesWithMismatchedLOD();
         //testSkeletonAnimationOptimise();
