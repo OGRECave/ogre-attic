@@ -78,6 +78,7 @@ OGRE_CHECK_GUI
 OGRE_CHECK_DOUBLE
 OGRE_CHECK_THREADING
 OGRE_CHECK_FREEIMAGE
+OGRE_CHECK_DEVIL
 OGRE_CHECK_CG
 OGRE_CHECK_OPENEXR
 OGRE_CHECK_DX9
@@ -253,6 +254,7 @@ echo "    Support for threading           : $build_threads"
 echo "    Use STLport                     : $ac_cv_use_stlport"
 echo "    Use FreeType                    : $ft_detected"
 echo "    Use FreeImage                   : $build_freeimage"
+echo "    Use DevIL                       : $build_il"
 echo "    Build OGRE demos                : $build_ogre_demos"
 test "x$build_ogre_demos" == "xyes" && \
 echo "    Build CEGUI demos               : $build_cegui_sample"
