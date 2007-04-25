@@ -983,6 +983,17 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed,
 
 				++shadowTexIndex;
 			}
+			else if (mIlluminationStage == IRS_NONE && pass->hasVertexProgram())
+			{
+				// Manually set texture projector for shaders if present
+				// This won't get set any other way if using manual projection
+				TextureUnitState::EffectMap::const_iterator effi = 
+					pTex->getEffects().find(TextureUnitState::ET_PROJECTIVE_TEXTURE);
+				if (effi != pTex->getEffects().end())
+				{
+					mAutoParamDataSource.setTextureProjector(effi->second.frustum, unit);
+				}
+			}
 			mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
 			++unit;
 		}

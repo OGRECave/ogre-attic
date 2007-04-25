@@ -191,6 +191,30 @@ namespace Ogre {
         }
 
     }
+	//-----------------------------------------------------------------------
+	void StringUtil::splitBaseFilename(const Ogre::String& fullName, 
+		Ogre::String& outBasename, Ogre::String& outExtention)
+	{
+		size_t i = fullName.find_last_of(".");
+		if (i == Ogre::String::npos)
+		{
+			outExtention.clear();
+			outBasename = fullName;
+		}
+		else
+		{
+			outExtention = fullName.substr(i+1);
+			outBasename = fullName.substr(0, i);
+		}
+	}
+	// ----------------------------------------------------------------------------------------------------------------------------------------------
+	void StringUtil::splitFullFilename(	const Ogre::String& qualifiedName, 
+		Ogre::String& outBasename, Ogre::String& outExtention, Ogre::String& outPath )
+	{
+		Ogre::String fullName;
+		splitFilename( qualifiedName, fullName, outPath );
+		splitBaseFilename( fullName, outBasename, outExtention );
+	}
     //-----------------------------------------------------------------------
     bool StringUtil::match(const String& str, const String& pattern, bool caseSensitive)
     {

@@ -60,6 +60,9 @@ pkginclude_HEADERS = Ogre.h \
                      OgreHardwareVertexBuffer.h \
                      OgreHighLevelGpuProgram.h \
                      OgreHighLevelGpuProgramManager.h \
+                     OgreILUtil.h \
+                     OgreILCodecs.h \
+                     OgreILImageCodec.h \
                      OgreImage.h \
                      OgreImageCodec.h \
                      OgreInstancedGeometry.h \

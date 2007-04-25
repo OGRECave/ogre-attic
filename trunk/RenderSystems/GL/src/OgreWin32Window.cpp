@@ -242,6 +242,11 @@ namespace Ogre {
 				{
 					dm.dmDisplayFrequency = mDisplayFrequency;
 					dm.dmFields |= DM_DISPLAYFREQUENCY;
+					if (ChangeDisplaySettings(&dm, CDS_FULLSCREEN | CDS_TEST) != DISP_CHANGE_SUCCESSFUL)
+					{
+						LogManager::getSingleton().logMessage(LML_NORMAL, "ChangeDisplaySettings with user display frequency failed");
+						dm.dmFields ^= DM_DISPLAYFREQUENCY;
+					}
 				}
 				if (ChangeDisplaySettings(&dm, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
 					LogManager::getSingleton().logMessage(LML_CRITICAL, "ChangeDisplaySettings failed");

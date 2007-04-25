@@ -395,6 +395,39 @@ fi
 ])
 
 
+AC_DEFUN([OGRE_CHECK_DEVIL],
+[AC_ARG_ENABLE(devil,
+              AC_HELP_STRING([--disable-devil],
+                             [Don't use DevIL for image loading. This is not recommended unless you provide your own image loading codecs.]),
+              [build_il=$enableval],
+              [build_il=yes])
+
+AM_CONDITIONAL(USE_DEVIL, test x$build_il = xyes)
+
+if test "$USE_FREEIMAGE"; then
+    AC_MSG_NOTICE([Freeimage is being built, disabling check for DevIL.])
+    [build_freeimage=no]
+	AC_DEFINE([OGRE_NO_DEVIL], [1], [Build devil])
+else
+if test "x$build_il" = "xyes"; then
+	AC_CHECK_LIB(IL, ilInit,,AC_MSG_ERROR([
+****************************************************************
+* You do not have DevIL installed.  This is required to build. *
+* You may find it at http://openil.sourceforge.net/.           *
+* Note: You can also provide --disable-devil to the build      *
+* process to build without DevIL. This is an advanced option   *
+* useful only if you provide your own image loading codecs.    *
+****************************************************************]))
+	AC_CHECK_LIB(ILU, iluFlipImage)
+	AC_DEFINE([OGRE_NO_DEVIL], [0], [Build devil])
+else
+	AC_DEFINE([OGRE_NO_DEVIL], [1], [Build devil])
+fi
+fi
+
+])
+
+
 
 AC_DEFUN([OGRE_CHECK_PIC],
 [
