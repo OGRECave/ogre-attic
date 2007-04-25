@@ -120,6 +120,22 @@ namespace Ogre {
         static void splitFilename(const String& qualifiedName,
             String& outBasename, String& outPath);
 
+		/** Method for splitting a fully qualified filename into the base name,
+		extension and path.
+		@remarks
+		Path is standardised as in standardisePath
+		*/
+		static void splitFullFilename(const Ogre::String& qualifiedName, 
+			Ogre::String& outBasename, Ogre::String& outExtention, 
+			Ogre::String& outPath);
+
+		/** Method for splitting a filename into the base name
+		and extension.
+		*/
+		static void splitBaseFilename(const Ogre::String& fullName, 
+			Ogre::String& outBasename, Ogre::String& outExtention);
+
+
         /** Simple pattern-matching routine allowing a wildcard pattern.
         @param str String to test
         @param pattern Pattern to match against; can include simple '*' wildcards

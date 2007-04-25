@@ -90,7 +90,7 @@ namespace Ogre
 			if (out_view != NULL)
 			{
 				*out_view = buildViewMatrix(cam.getDerivedPosition(), 
-					light.getDerivedDirection(), 
+					-light.getDerivedDirection(), 
 					camDir);
 			}
 

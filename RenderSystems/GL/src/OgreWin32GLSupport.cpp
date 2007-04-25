@@ -222,6 +222,14 @@ namespace Ogre {
 			winOptions["vsync"] = StringConverter::toString(vsync);
 			renderSystem->setWaitForVerticalBlank(vsync);
 
+			opt = mOptions.find("Display Frequency");
+			if (opt != mOptions.end())
+			{
+				unsigned int displayFrequency =
+					StringConverter::parseUnsignedInt(opt->second.currentValue);
+				winOptions["displayFrequency"] = StringConverter::toString(displayFrequency);
+			}
+
 			opt = mOptions.find("FSAA");
 			if (opt == mOptions.end())
 				OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Can't find FSAA options!", "Win32GLSupport::createWindow");

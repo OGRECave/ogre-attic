@@ -177,6 +177,12 @@ libOgreMain_la_SOURCES += OgreFreeImageCodec.cpp
 
 endif
 
+if USE_DEVIL
+libOgreMain_la_SOURCES +=OgreILImageCodec.cpp \
+                         OgreILCodecs.cpp \
+                         OgreILUtil.cpp
+endif
+
 platformdir = $(libdir)
 libOgreMain_la_LIBADD= $(STLPORT_LIBS) $(FT2_LIBS) $(ZZIPLIB_LIBS) $(GTK_LIBS) $(OGRE_THREAD_LIBS) $(PLATFORM_LIBS)
 libOgreMain_la_LDFLAGS = $(SHARED_FLAGS) -release @PACKAGE_VERSION@ -Wl,-rpath,$(platformdir)

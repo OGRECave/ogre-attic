@@ -34,36 +34,37 @@ Torus Knot Software Ltd.
 #include "OgreGLPBuffer.h"
 #include "OgreGLXContext.h"
 
+#include <X11/Xlib.h>
 #include <GL/glx.h>
-
 namespace Ogre
 {
 
     class _OgrePrivate GLXPBuffer : public GLPBuffer
     {
     public:
-        GLXPBuffer (PixelComponentType format, size_t width, size_t height);
-        ~GLXPBuffer ();
-
-        virtual GLContext *getContext ();
-
+        GLXPBuffer(PixelComponentType format, size_t width, size_t height);
+        ~GLXPBuffer();
+        
+        virtual GLContext *getContext();
     protected:
-        void createPBuffer ();
+        void createPBuffer();
 
-        Ogre::GLXContext *mContext;
-
+        ::Display      *_pDpy;
+        ::GLXContext   _hGLContext;
+        ::GLXPbuffer   _hPBuffer;
+		::GLXFBConfig  mFBConfig; 
+        Ogre::GLXContext   *mContext;
+        
         /// Find out which extension to use for floating point
         /// Possible floating point extensions, in order of preference (ARB is best)
-        enum RTFType
-        {
-            RTF_NONE = 0,
-            RTF_NV   = 1,   ///!< GLX_NV_float_buffer
-            RTF_ATI  = 2,   ///!< GLX_ATI_pixel_format_float
-            RTF_ARB  = 3    ///!< GLX_ARB_fbconfig_float
+        enum RTFType {
+            RTF_NONE=0,
+            RTF_NV=1,    /** GLX_NV_float_buffer */
+            RTF_ATI=2,   /** GLX_ATI_pixel_format_float */
+            RTF_ARB=3    /** GLX_ARB_fbconfig_float */
         };
         
-        RTFType detectRTFType (::Display *dpy);
+        RTFType detectRTFType();
     };
 }
-
 #endif

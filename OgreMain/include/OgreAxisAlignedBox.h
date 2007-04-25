@@ -314,7 +314,7 @@ namespace Ogre {
 
 		/** gets the position of one of the corners
 		*/
-		Vector3 getCorner(CornerEnum cornerToGet)
+		Vector3 getCorner(CornerEnum cornerToGet) const
 		{
 			switch(cornerToGet)
 			{

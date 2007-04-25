@@ -164,9 +164,15 @@ LRESULT CALLBACK WindowEventUtilities::_WndProc(HWND hWnd, UINT uMsg, WPARAM wPa
 		case VK_CONTROL:
 		case VK_SHIFT:
 		case VK_MENU: //ALT
+		case VK_F10:
 			//return zero to bypass defProc and signal we processed the message
 			return 0;
 		}
+		break;
+	case WM_SYSCHAR:
+		// return zero to bypass defProc and signal we processed the message, unless it's an ALT-space
+		if (wParam != VK_SPACE)
+			return 0;
 		break;
 	case WM_ENTERSIZEMOVE:
 		//log->logMessage("WM_ENTERSIZEMOVE");
