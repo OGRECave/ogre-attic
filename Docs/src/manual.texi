@@ -1,7 +1,7 @@
 \input texinfo   @c -*-texinfo-*-
 @c %**start of header
 @setfilename manual.info
-@settitle OGRE Manual v1.4.0 ('Eihort')
+@settitle OGRE Manual v1.6.0 ('Shoggoth')
 @c %**end of header
    
 @titlepage
@@ -509,6 +509,8 @@ Here are the attributes you can use in a 'pass' section of a .material script:
 @ref{shading}
 @item 
 @ref{polygon_mode}
+@item 
+@ref{polygon_mode_overrideable}
 @item
 @ref{fog_override}
 @item
@@ -789,6 +791,12 @@ Only the points of each polygon are rendered.
 @end table
 Default: polygon_mode solid@*@*
 
+@anchor{polygon_mode_overrideable}
+@subheading polygon_mode_overrideable
+
+Sets whether or not the @ref{polygon_mode} set on this pass can be downgraded by the camera, if the camera itself is set to a lower polygon mode. If set to false, this pass will always be rendered at its own chosen polygon mode no matter what the camera says. The default is true.@*@*
+
+Format: polygon_mode_overrideable <true|false>@*@*
 
 @anchor{fog_override}
 @subheading fog_override

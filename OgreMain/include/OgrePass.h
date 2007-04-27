@@ -137,7 +137,7 @@ namespace Ogre {
         ShadeOptions mShadeOptions;
 		/// Polygon mode
 		PolygonMode mPolygonMode;
-
+		bool mPolygonModeOverrideable;
         //-------------------------------------------------------------------------
         // Fog
         bool mFogOverride;
@@ -726,6 +726,23 @@ namespace Ogre {
 		*/
 		PolygonMode getPolygonMode(void) const;
 
+		/** Sets whether this pass's chosen detail level can be
+			overridden (downgraded) by the camera setting. 
+		@param override true means that a lower camera detail will override this
+			pass's detail level, false means it won't (default true).
+		*/
+		virtual void setPolygonModeOverrideable(bool override)
+		{
+			mPolygonModeOverrideable = override;
+		}
+
+		/** Gets whether this renderable's chosen detail level can be
+			overridden (downgraded) by the camera setting. 
+		*/
+		virtual bool getPolygonModeOverrideable(void) const
+		{
+			return mPolygonModeOverrideable;
+		}
         /** Sets the fogging mode applied to this pass.
         @remarks
         Fogging is an effect that is applied as polys are rendered. Sometimes, you want

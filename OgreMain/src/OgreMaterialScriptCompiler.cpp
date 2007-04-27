@@ -82,7 +82,7 @@ namespace Ogre {
         "                              <Depth_Func> | <Depth_Bias> | <Alpha_Rejection> | \n"
         "                              <Cull_Hardware> | <Cull_Software> | <Lighting> | \n"
         "                              <GPU_Program_Ref> | \n"
-        "                              <Shading> | <PolygonMode> | <Fog_Override> | <Colour_Write> | \n"
+        "                              <Shading> | <PolygonMode> | <PolygonModeOverride> | <Fog_Override> | <Colour_Write> | \n"
 		"                              <Max_Lights> | <Start_Light> | <Iteration> | \n"
 		"                              <Point_Sprites> | <Point_Size_Attenuation> | \n"
 		"                              <Point_Size_Min> | <Point_Size_Max> | <Point_Size> \n"
@@ -123,6 +123,7 @@ namespace Ogre {
         "           <Shading_Options> ::= 'flat' | 'gouraud' | 'phong' \n"
         "        <PolygonMode> ::= 'polygon_mode' <PolygonMode_Options> \n"
         "           <PolygonMode_Options> ::= 'solid' | 'wireframe' | 'points' \n"
+		"        <PolygonModeOverride> ::= 'polygon_mode_overrideable' <True_False> \n"
         "        <Colour_Write> ::= 'colour_write' <On_Off> \n"
 		"        <Point_Size> ::= 'point_size' <#size> \n"
 		"        <Point_Sprites> ::= 'point_sprites' <On_Off> \n"
@@ -369,6 +370,7 @@ namespace Ogre {
                 addLexemeTokenAction("solid", ID_SOLID);
                 addLexemeToken("wireframe", ID_WIREFRAME);
                 addLexemeToken("points", ID_POINTS);
+			addLexemeAction("polygon_mode_overrideable", &MaterialScriptCompiler::parsePolygonModeOverrideable);
             addLexemeAction("fog_override", &MaterialScriptCompiler::parseFogOverride);
                 addLexemeToken("exp", ID_EXP);
                 addLexemeToken("exp2", ID_EXP2);
@@ -1297,6 +1299,12 @@ namespace Ogre {
             break;
         }
     }
+	//-----------------------------------------------------------------------
+	void MaterialScriptCompiler::parsePolygonModeOverrideable(void)
+	{
+		assert(mScriptContext.pass);
+		mScriptContext.pass->setPolygonModeOverrideable(testNextTokenID(ID_TRUE));
+	}
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseFogOverride(void)
     {
