@@ -411,9 +411,13 @@ namespace Ogre {
 		RenderTargetViewportEvent evt;
 		evt.source = vp;
 
+		// Make a temp copy of the listeners
+		// some will want to remove themselves as listeners when they get this
+		RenderTargetListenerList tempList = mListeners;
+
 		RenderTargetListenerList::iterator i, iend;
-		i = mListeners.begin();
-		iend = mListeners.end();
+		i = tempList.begin();
+		iend = tempList.end();
 		for(; i != iend; ++i)
 		{
 			(*i)->viewportRemoved(evt);
