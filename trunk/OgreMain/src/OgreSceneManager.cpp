@@ -2617,7 +2617,7 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 		// Precedence is Camera, Object, Material
 		// Camera might not override object if not overrideable
 		PolygonMode reqMode = pass->getPolygonMode();
-		if (rend->getPolygonModeOverrideable())
+		if (pass->getPolygonModeOverrideable() && rend->getPolygonModeOverrideable())
 		{
             PolygonMode camPolyMode = mCameraInProgress->getPolygonMode();
 			// check camera detial only when render detail is overridable

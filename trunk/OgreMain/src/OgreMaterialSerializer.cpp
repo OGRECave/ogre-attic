@@ -704,6 +704,15 @@ namespace Ogre
 
 		return false;
 	}
+	//-----------------------------------------------------------------------
+	bool parsePolygonModeOverrideable(String& params, MaterialScriptContext& context)
+	{
+		StringUtil::toLowerCase(params);
+
+		context.pass->setPolygonModeOverrideable(
+			StringConverter::parseBool(params));
+		return false;
+	}
     //-----------------------------------------------------------------------
     bool parseFiltering(String& params, MaterialScriptContext& context)
     {
@@ -2612,6 +2621,7 @@ namespace Ogre
         mPassAttribParsers.insert(AttribParserList::value_type("fog_override", (ATTRIBUTE_PARSER)parseFogging));
         mPassAttribParsers.insert(AttribParserList::value_type("shading", (ATTRIBUTE_PARSER)parseShading));
 		mPassAttribParsers.insert(AttribParserList::value_type("polygon_mode", (ATTRIBUTE_PARSER)parsePolygonMode));
+		mPassAttribParsers.insert(AttribParserList::value_type("polygon_mode_overrideable", (ATTRIBUTE_PARSER)parsePolygonModeOverrideable));
         mPassAttribParsers.insert(AttribParserList::value_type("depth_bias", (ATTRIBUTE_PARSER)parseDepthBias));
         mPassAttribParsers.insert(AttribParserList::value_type("texture_unit", (ATTRIBUTE_PARSER)parseTextureUnit));
         mPassAttribParsers.insert(AttribParserList::value_type("vertex_program_ref", (ATTRIBUTE_PARSER)parseVertexProgramRef));

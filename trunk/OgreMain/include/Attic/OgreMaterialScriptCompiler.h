@@ -254,6 +254,7 @@ namespace Ogre {
         void parseLighting(void);
         void parseShading(void);
         void parsePolygonMode(void);
+		void parsePolygonModeOverrideable(void);
         void parseFogOverride(void);
         void parseMaxLights(void);
 		void parseStartLight(void);

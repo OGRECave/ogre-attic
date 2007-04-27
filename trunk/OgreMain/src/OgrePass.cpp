@@ -142,6 +142,7 @@ namespace Ogre {
 		, mOnlyLightType(Light::LT_POINT)
 		, mShadeOptions(SO_GOURAUD)
 		, mPolygonMode(PM_SOLID)
+		, mPolygonModeOverrideable(true)
 		, mFogOverride(false)
 		, mFogMode(FOG_NONE)
 		, mFogColour(ColourValue::White)
@@ -229,6 +230,7 @@ namespace Ogre {
         mOnlyLightType = oth.mOnlyLightType;
 	    mShadeOptions = oth.mShadeOptions;
 		mPolygonMode = oth.mPolygonMode;
+		mPolygonModeOverrideable = oth.mPolygonModeOverrideable;
         mPassIterationCount = oth.mPassIterationCount;
 		mPointSize = oth.mPointSize;
 		mPointMinSize = oth.mPointMinSize;
