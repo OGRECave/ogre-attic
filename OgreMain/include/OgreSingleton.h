@@ -47,6 +47,9 @@ Torus Knot Software Ltd.
 #   pragma warning (disable : 4312)
 #endif
 
+#if defined ( OGRE_GCC_VISIBILITY )
+#   pragma GCC visibility push(default)
+#endif
 namespace Ogre {
 // End SJS additions
     /** Template class for creating single-instance global classes.
@@ -76,4 +79,7 @@ namespace Ogre {
 		{ return ms_Singleton; }
     };
 }
+#if defined ( OGRE_GCC_VISIBILITY )
+#   pragma GCC visibility pop
+#endif
 #endif
