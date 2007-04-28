@@ -1708,7 +1708,7 @@ protected:
         mCamera->lookAt(-50,50,0);
 
         // Report whether hardware skinning is enabled or not
-        Technique* t = ent->getSubEntity(0)->getMaterial()->getBestTechnique();
+        Technique* t = ent->getSubEntity(0)->getTechnique();
         Pass* p = t->getPass(0);
 		OverlayElement* guiDbg = OverlayManager::getSingleton().getOverlayElement("Core/DebugText");
         if (p->hasVertexProgram() && 
@@ -4652,7 +4652,8 @@ protected:
 		
 
 		Technique* handleSchemeNotFound(unsigned short schemeIndex, 
-			const String& schemeName, Material* originalMaterial, unsigned short lodIndex)
+			const String& schemeName, Material* originalMaterial, unsigned short lodIndex, 
+			const Renderable* rend)
 		{
 			return mTech;
 		}

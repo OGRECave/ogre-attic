@@ -287,12 +287,12 @@ namespace Ogre {
 	}
 	//---------------------------------------------------------------------
 	Technique* MaterialManager::_arbitrateMissingTechniqueForActiveScheme(
-		Material* mat, unsigned short lodIndex)
+		Material* mat, unsigned short lodIndex, const Renderable* rend)
 	{
 		for (ListenerList::iterator i = mListenerList.begin(); i != mListenerList.end(); ++i)
 		{
 			Technique* t = (*i)->handleSchemeNotFound(mActiveSchemeIndex, 
-				mActiveSchemeName, mat, lodIndex);
+				mActiveSchemeName, mat, lodIndex, rend);
 			if (t)
 				return t;
 		}

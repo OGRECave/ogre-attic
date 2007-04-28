@@ -1386,7 +1386,7 @@ namespace Ogre {
             const MaterialPtr& m = sub->getMaterial();
             // Make sure it's loaded
             m->load();
-            Technique* t = m->getBestTechnique();
+            Technique* t = m->getBestTechnique(0, sub);
             if (!t)
             {
                 // No supported techniques

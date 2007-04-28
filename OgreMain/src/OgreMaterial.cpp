@@ -320,7 +320,7 @@ namespace Ogre {
 
 	}
 	//-----------------------------------------------------------------------------
-    Technique* Material::getBestTechnique(unsigned short lodIndex)
+    Technique* Material::getBestTechnique(unsigned short lodIndex, const Renderable* rend)
     {
         if (mSupportedTechniques.empty())
         {
@@ -337,7 +337,7 @@ namespace Ogre {
 			if (si == mBestTechniquesBySchemeList.end())
 			{
 				// listener specified alternative technique available?
-				ret = matMgr._arbitrateMissingTechniqueForActiveScheme(this, lodIndex);
+				ret = matMgr._arbitrateMissingTechniqueForActiveScheme(this, lodIndex, rend);
 				if (ret)
 					return ret;
 

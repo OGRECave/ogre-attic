@@ -95,11 +95,15 @@ namespace Ogre {
 				didn't have a specific technique for this scheme
 			@param lodIndex The material level-of-detail that was being asked for, 
 				in case you need to use it to determine a technique.
+			@param rend Pointer to the Renderable that is requesting this technique
+				to be used, so this may influence your choice of Technique. May be
+				null if the technique isn't being requested in that context.
 			@returns A pointer to the technique to be used, or NULL if you wish to
 				use the default technique for this material
 			*/
 			virtual Technique* handleSchemeNotFound(unsigned short schemeIndex, 
-				const String& schemeName, Material* originalMaterial, unsigned short lodIndex) = 0;
+				const String& schemeName, Material* originalMaterial, unsigned short lodIndex, 
+				const Renderable* rend) = 0;
 
 		};
 
@@ -250,7 +254,7 @@ namespace Ogre {
 
 		/// Internal method for sorting out missing technique for a scheme
 		virtual Technique* _arbitrateMissingTechniqueForActiveScheme(
-			Material* mat, unsigned short lodIndex);
+			Material* mat, unsigned short lodIndex, const Renderable* rend);
 
         /** Override standard Singleton retrieval.
         @remarks

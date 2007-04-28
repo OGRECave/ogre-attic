@@ -116,7 +116,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Technique* SubEntity::getTechnique(void) const
     {
-        return mpMaterial->getBestTechnique(mMaterialLodIndex);
+        return mpMaterial->getBestTechnique(mMaterialLodIndex, this);
     }
     //-----------------------------------------------------------------------
     void SubEntity::getRenderOperation(RenderOperation& op)
