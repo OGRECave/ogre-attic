@@ -249,8 +249,12 @@ namespace Ogre {
             which typically happens on loading the material. Therefore, if this method returns
             NULL, try calling Material::load.
 		@param lodIndex The material lod index to use
+		@param rend Optional parameter specifying the Renderable that is requesting
+			this technique. Only used if no valid technique for the active material 
+			scheme is found, at which point it is passed to 
+			MaterialManager::Listener::handleSchemeNotFound as information.
         */
-        Technique* getBestTechnique(unsigned short lodIndex = 0);
+        Technique* getBestTechnique(unsigned short lodIndex = 0, const Renderable* rend = 0);
 
 
         /** Creates a new copy of this material with the same settings but a new name.

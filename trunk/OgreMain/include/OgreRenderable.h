@@ -39,6 +39,7 @@ Torus Knot Software Ltd.
 #include "OgreGpuProgram.h"
 #include "OgreVector4.h"
 #include "OgreException.h"
+#include "OgreAny.h"
 
 namespace Ogre {
 
@@ -70,7 +71,7 @@ namespace Ogre {
             This is to allow Renderables to use a chosen Technique if they wish, otherwise
             they will use the best Technique available for the Material they are using.
         */
-        virtual Technique* getTechnique(void) const { return getMaterial()->getBestTechnique(); }
+        virtual Technique* getTechnique(void) const { return getMaterial()->getBestTechnique(0, this); }
         /** Gets the render operation required to send this object to the frame buffer.
         */
         virtual void getRenderOperation(RenderOperation& op) = 0;
@@ -279,6 +280,17 @@ namespace Ogre {
 			return mPolygonModeOverrideable;
 		}
 
+		/** Sets any kind of user value on this object.
+		@remarks
+			This method allows you to associate any user value you like with 
+			this Renderable. This can be a pointer back to one of your own
+			classes for instance.
+		*/
+		virtual void setUserAny(const Any& anything) { mUserAny = anything; }
+
+		/** Retrieves the custom user value associated with this object.
+		*/
+		virtual const Any& getUserAny(void) const { return mUserAny; }
 
     protected:
         static const PlaneList msDummyPlaneList;
@@ -287,6 +299,7 @@ namespace Ogre {
 		bool mPolygonModeOverrideable;
         bool mUseIdentityProjection;
         bool mUseIdentityView;
+		Any mUserAny;
     };
 
 
