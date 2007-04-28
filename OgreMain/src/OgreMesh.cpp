@@ -179,7 +179,6 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void Mesh::postLoadImpl(void)
 	{
-
 		// Prepare for shadow volumes?
 		if (MeshManager::getSingleton().getPrepareAllMeshesForShadowVolumes())
 		{
@@ -193,7 +192,6 @@ namespace Ogre {
 				buildEdgeList();
 			}
 		}
-
 	}
 	//-----------------------------------------------------------------------
     void Mesh::loadImpl()
@@ -1536,6 +1534,8 @@ namespace Ogre {
             // use getLodLevel to enforce loading of manual mesh lods
             MeshLodUsage& usage = const_cast<MeshLodUsage&>(getLodLevel(lodIndex));
 
+			bool atLeastOneIndexSet = false;
+
             if (mIsLodManual && lodIndex != 0)
             {
                 // Delegate edge building to manual mesh
@@ -1563,6 +1563,13 @@ namespace Ogre {
                 for (i = mSubMeshList.begin(); i != iend; ++i)
                 {
                     SubMesh* s = *i;
+					if (s->operationType != RenderOperation::OT_TRIANGLE_FAN && 
+						s->operationType != RenderOperation::OT_TRIANGLE_LIST && 
+						s->operationType != RenderOperation::OT_TRIANGLE_STRIP)
+					{
+						// Skip this submesh
+						continue;
+					}
                     if (s->useSharedVertices)
                     {
                         // Use shared vertex data, index as set 0
@@ -1594,9 +1601,12 @@ namespace Ogre {
                         }
 
                     }
+					atLeastOneIndexSet = true;
                 }
 
-                usage.edgeData = eb.build();
+                if (atLeastOneIndexSet)
+				{
+					usage.edgeData = eb.build();
 
                 #if OGRE_DEBUG_MODE
                     // Override default log
@@ -1607,6 +1617,7 @@ namespace Ogre {
 					// clean up log & close file handle
 					LogManager::getSingleton().destroyLog(log);
                 #endif
+				}
 
             }
         }
@@ -1652,7 +1663,10 @@ namespace Ogre {
         for (i = mSubMeshList.begin(); i != iend; ++i)
         {
             SubMesh* s = *i;
-            if (!s->useSharedVertices)
+            if (!s->useSharedVertices && 
+				(s->operationType == RenderOperation::OT_TRIANGLE_FAN || 
+				s->operationType == RenderOperation::OT_TRIANGLE_LIST ||
+				s->operationType == RenderOperation::OT_TRIANGLE_STRIP))
             {
                 s->vertexData->prepareForShadowVolume();
             }
