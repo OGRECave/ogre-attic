@@ -39,7 +39,8 @@ Description: Somewhere to play in the sand...
 #include "OgreBillboardChain.h"
 #include "OgreTextAreaOverlayElement.h"
 #include "AnimationBlender.h"
-
+#include "OgreErrorDialog.h"
+#include "OgreFontManager.h"
 // Static plugins declaration section
 // Note that every entry in here adds an extra header / library dependency
 #ifdef OGRE_STATIC_LIB
@@ -103,6 +104,11 @@ String animBlendTarget[2];
 int animBlendTargetIndex;
 MovablePlane movablePlane("APlane");
 
+
+static const char* HeadPoses[] = {"upperboth", "upperleft", "upperright", "jaw", "face1", "face2"};
+static const char* PoseAnimationStateName = "HeadPoses";
+enum eHeadPose { DMG_BOTH, DMG_UPPER_LEFT, DMG_UPPER_RIGHT, DMG_JAW, FACE_1, FACE_2, NUM_HEAD_POSES };
+
 using namespace OIS;
 
 class RefractionTextureListener : public RenderTargetListener
@@ -148,7 +154,6 @@ public:
     {
     }
 
-
 	/// Background load completed
 	void operationCompleted(BackgroundProcessTicket ticket)
 	{
@@ -158,6 +163,8 @@ public:
 
     bool frameStarted(const FrameEvent& evt)
     {
+		//mMoveSpeed = 0.2;
+
         if (!vertParams.isNull())
         {
             Matrix4 scaleMat = Matrix4::IDENTITY;
@@ -842,22 +849,64 @@ protected:
 
 	}
 
+
 	void testBug()
 	{
-		MaterialPtr m = MaterialManager::getSingleton ().getByName ("BaseWhiteNoLighting"); 
-		m->getBestTechnique();
-		TexturePtr tex = TextureManager::getSingleton().getByName("t");
-		size_t x, y;
-		Box box;
-		box.left = x;
-		box.right = x + 1;
-		box.top = y;
-		box.bottom = y + 1;
-		box.front = 0;
-		box.back = 1;
-		const PixelBox& lockBox = tex->getBuffer()->lock(box, HardwareBuffer::HBL_NORMAL);
-		PixelUtil::packColour(ColourValue::White, lockBox.format, lockBox.data);
-		tex->getBuffer()->unlock();
+
+		Ogre::Mesh* mesh = Ogre::MeshManager::getSingleton().load("male_civ_head.mesh", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME).getPointer();
+		assert(mesh);
+		Ogre::PoseList pose_list = mesh->getPoseList();
+		unsigned int num_subs = mesh->getNumSubMeshes();
+
+		int cur_pose_index = 0;
+		Animation* anim = mesh->createAnimation(PoseAnimationStateName, (Real)NUM_HEAD_POSES);
+		for (unsigned int cur_sub = 1; cur_sub <= num_subs; ++cur_sub)
+		{
+			Ogre::VertexAnimationTrack* track = anim->createVertexTrack(cur_sub, VAT_POSE);
+
+			for (int cur_pose = 0; cur_pose < NUM_HEAD_POSES; ++cur_pose)
+			{
+				Ogre::VertexPoseKeyFrame* key = track->createVertexPoseKeyFrame((Real)cur_pose);
+
+				bool done = false;
+
+				for (unsigned int cur_key = 0; cur_key < NUM_HEAD_POSES && !done; ++cur_key)
+				{
+					if (pose_list[cur_key]->getName().compare(HeadPoses[cur_pose]) == 0 &&
+						pose_list[cur_key]->getTarget() == cur_sub - 1)
+					{
+						key->addPoseReference(cur_pose_index, 1.f);
+						++cur_pose_index;
+						done = true;
+					}
+				}
+			}          
+		}
+
+		Entity* ent = mSceneMgr->createEntity("1", mesh->getName());
+		num_subs = ent->getNumSubEntities();
+		SubEntity* mStump;
+		for (int i = 0; i < num_subs; ++i)
+		{
+			Ogre::SubEntity* sub_ent = ent->getSubEntity(i);
+			assert(sub_ent);
+			
+			if (sub_ent->getMaterialName().compare(0, strlen("male_civ/neckstump_"), "male_civ/neckstump_") == 0)
+				mStump = sub_ent;
+		}
+
+		assert(mStump && "Couldn't find head stump sub entity!");
+
+		mStump->setVisible(false);
+
+		AnimationState* animState = ent->getAnimationState(PoseAnimationStateName);
+		animState->setLoop(false);                            // else mTimePos becomes undefined?
+		animState->setEnabled(true);
+		animState->setTimePosition((Real)2);
+
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+
+
 
 	}
 
@@ -2249,6 +2298,81 @@ protected:
 
     }
 
+	void testStencilShadowsMixedOpSubMeshes(bool pointLight, bool directionalLight)
+	{
+		mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);
+		//mSceneMgr->setShowDebugShadows(true);
+		mSceneMgr->setShadowDirectionalLightExtrusionDistance(1000);
+
+		//mSceneMgr->setShadowFarDistance(800);
+		// Set ambient light
+		mSceneMgr->setAmbientLight(ColourValue(0.0, 0.0, 0.0));
+
+		// Point light
+		if(pointLight)
+		{
+			mLight = mSceneMgr->createLight("MainLight");
+			mLight->setPosition(-400,400,-300);
+			mLight->setDiffuseColour(0.9, 0.9, 1);
+			mLight->setSpecularColour(0.9, 0.9, 1);
+			mLight->setAttenuation(6000,1,0.001,0);
+		}
+		// Directional light
+		if (directionalLight)
+		{
+			mLight = mSceneMgr->createLight("Light2");
+			Vector3 dir(-1,-1,0);
+			dir.normalise();
+			mLight->setType(Light::LT_DIRECTIONAL);
+			mLight->setDirection(dir);
+			mLight->setDiffuseColour(1, 1, 0.8);
+			mLight->setSpecularColour(1, 1, 1);
+		}
+
+		mSceneMgr->setSkyBox(true, "Examples/CloudyNoonSkyBox");
+
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 100;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("2 - Default");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		mCamera->setPosition(180, 34, 223);
+		mCamera->setOrientation(Quaternion(0.7265, -0.2064, 0.6304, 0.1791));
+
+
+		ManualObject* man = mSceneMgr->createManualObject("testMO");
+		man->begin("2 - Default");
+		man->position(0, 200, 0);
+		man->position(0, 50, 100);
+		man->position(100, 50, -100);
+		man->position(-100, 50, -100);
+		man->triangle(0, 1, 2);
+		man->triangle(0, 2, 3);
+		man->triangle(0, 3, 1);
+		man->end();
+		man->begin("2 - Default", RenderOperation::OT_LINE_STRIP);
+		man->position(0, 200, 0);
+		man->position(50, 250, 0);
+		man->position(200, 300, 0);
+		man->index(0);
+		man->index(1);
+		man->index(2);
+		man->end();
+		MeshPtr msh = man->convertToMesh("testMO.mesh");
+		
+		Entity* e = mSceneMgr->createEntity("34", "testMO.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+
+
+
+	}
     void test2Spotlights()
     {
         mSceneMgr->setAmbientLight(ColourValue(0.3, 0.3, 0.3));
@@ -2322,13 +2446,12 @@ protected:
     {
         mSceneMgr->setShadowTextureSize(1024);
         mSceneMgr->setShadowTechnique(tech);
-		/*
-		LiSPSMShadowCameraSetup* lispsmSetup = new LiSPSMShadowCameraSetup();
-		lispsmSetup->setOptimalAdjustFactor(0.5);
-		mSceneMgr->setShadowCameraSetup(ShadowCameraSetupPtr(lispsmSetup));
-		*/
 
-        mSceneMgr->setShadowFarDistance(1500);
+		FocusedShadowCameraSetup* lispsmSetup = new FocusedShadowCameraSetup();
+		//lispsmSetup->setOptimalAdjustFactor(2);
+		mSceneMgr->setShadowCameraSetup(ShadowCameraSetupPtr(lispsmSetup));
+
+        mSceneMgr->setShadowFarDistance(10000);
         mSceneMgr->setShadowColour(ColourValue(0.35, 0.35, 0.35));
         //mSceneMgr->setShadowFarDistance(800);
         // Set ambient light
@@ -2336,12 +2459,14 @@ protected:
 
         mLight = mSceneMgr->createLight("MainLight");
 
+		
         // Directional test
+		
         mLight->setType(Light::LT_DIRECTIONAL);
         Vector3 vec(-1,-1,0);
         vec.normalise();
         mLight->setDirection(vec);
-
+				
 		
         // Spotlight test
 		/*
@@ -2351,7 +2476,7 @@ protected:
         mTestNode[0]->setPosition(800,600,0);
         mTestNode[0]->lookAt(Vector3(0,0,0), Node::TS_WORLD, Vector3::UNIT_Z);
         mTestNode[0]->attachObject(mLight);
-		*/
+		*/		
 
         mTestNode[1] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 
@@ -2368,6 +2493,9 @@ protected:
         pEnt = mSceneMgr->createEntity( "3", "knot.mesh" );
         mTestNode[2] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-200, 0, -200));
         mTestNode[2]->attachObject( pEnt );
+
+		createRandomEntityClones(pEnt, 20, Vector3(-1000,0,-1000), Vector3(1000,0,1000));
+
 
         // Transparent object (can force cast shadows)
         pEnt = mSceneMgr->createEntity( "3.5", "knot.mesh" );
@@ -2395,11 +2523,12 @@ protected:
         mSceneMgr->setSkyBox(true, "Examples/CloudyNoonSkyBox");
 
 
+
         movablePlane.normal = Vector3::UNIT_Y;
         movablePlane.d = 100;
         MeshManager::getSingleton().createPlane("Myplane",
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, movablePlane,
-            1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
+            2500,2500,10,10,true,1,5,5,Vector3::UNIT_Z);
         Entity* pPlaneEnt;
         pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
 		if (tech & SHADOWDETAILTYPE_INTEGRATED)
@@ -2416,10 +2545,16 @@ protected:
 		addTextureShadowDebugOverlay(1);
 
 
+		/*
         ParticleSystem* pSys2 = mSceneMgr->createParticleSystem("smoke", 
             "Examples/Smoke");
         mTestNode[4] = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-300, -100, 200));
         mTestNode[4]->attachObject(pSys2);
+		*/
+
+		mCamera->setPosition(0, 1000, 0);
+		mCamera->setFixedYawAxis(false);
+		mCamera->lookAt(0,0,0);
 
 
     }
@@ -2948,8 +3083,10 @@ protected:
 		dir.normalise();
 		l->setDirection(dir);
 
-		// Create a set of random balls
-		Entity* ent = mSceneMgr->createEntity("test", "ogrehead.mesh");
+		Entity* ent = mSceneMgr->createEntity("head", "robot.mesh");
+		AnimationState* a = ent->getAnimationState("Walk");
+		a->setEnabled(true);
+		mAnimStateList.push_back(a);
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
 
 		NameValuePairList valuePair;
@@ -2958,6 +3095,8 @@ protected:
 
 		RenderWindow* win2 = mRoot->createRenderWindow("window2", 200,200, false, &valuePair);
 		win2->addViewport(mCamera);
+
+
 
 	}
 
@@ -3329,15 +3468,15 @@ protected:
 		ser.exportMesh(mesh.get(), "../../../Media/testpose.mesh");
 
 
-
+		Entity*  e;
+		AnimationState* animState;
 		// software pose
-		Entity* e = mSceneMgr->createEntity("test2", "testpose.mesh");
+		e = mSceneMgr->createEntity("test2", "testpose.mesh");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(150,0,0))->attachObject(e);
-		AnimationState* animState = e->getAnimationState("poseanim");
+		animState = e->getAnimationState("poseanim");
 		animState->setEnabled(true);
 		animState->setWeight(1.0f);
 		mAnimStateList.push_back(animState);
-
 		
 		// test hardware pose
 		e = mSceneMgr->createEntity("test", "testpose.mesh");
@@ -3778,6 +3917,8 @@ protected:
 
 
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(man);
+
+		
 
 	}
 
@@ -5182,6 +5323,18 @@ protected:
 		*/
 		l->setDiffuseColour(1, 0.2, 0.2);
 
+		// Test spot 3
+		l = mSceneMgr->createLight("Spot3");
+		l->setType(Light::LT_SPOTLIGHT);
+		l->setAttenuation(5000,1,0,0);
+		l->setSpotlightRange(Degree(30),Degree(45),1.0f);
+		SceneNode* lightNode3 = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		lightNode3->attachObject(l);
+		lightNode3->setPosition(500, 250, 500);
+		lightNode3->lookAt(Vector3(0,-200,0), Node::TS_WORLD);
+		l->setDirection(Vector3::NEGATIVE_UNIT_Z);
+		l->setDiffuseColour(0.0, 0.7, 1.0);
+
 		// Create a basic plane to have something in the scene to look at
 		Plane plane;
 		plane.normal = Vector3::UNIT_Y;
@@ -5229,10 +5382,77 @@ protected:
 
 	}
 
+	void testTimeCreateDestroyObject()
+	{
+		int iterationCount = 100000;
+
+		// Create names ahead of time
+		StringVector nameList;
+		nameList.reserve(iterationCount);
+		for (int i = 0; i < iterationCount; ++i)
+		{
+			nameList.push_back("somerelativelylongtestname" + StringConverter::toString(i));
+		}
+
+		Timer timer;
+		StringVector::iterator nameIt = nameList.begin();
+		timer.reset();
+		for (int i = 0; i < iterationCount; ++i, ++nameIt)
+		{
+			ManualObject* man = mSceneMgr->createManualObject(*nameIt);
+		}
+		unsigned long createTime = timer.getMilliseconds();
+
+		nameIt = nameList.begin();
+		timer.reset();
+		for (int i = 0; i < iterationCount; ++i, ++nameIt)
+		{
+			ManualObject* man = mSceneMgr->getManualObject(*nameIt);
+			// do something so compiler doesn't think I'm doing nothing
+			man->setVisible(true);
+		}
+		unsigned long lookupTime = timer.getMilliseconds();
+
+		nameIt = nameList.begin();
+		timer.reset();
+		for (int i = 0; i < iterationCount; ++i, ++nameIt)
+		{
+			mSceneMgr->destroyManualObject(*nameIt);
+		}
+		unsigned long destroyTime = timer.getMilliseconds();
+
+		nameIt = nameList.begin();
+		timer.reset();
+		for (int i = 0; i < iterationCount; ++i, ++nameIt)
+		{
+			mSceneMgr->createSceneNode(*nameIt);
+		}
+		unsigned long sncreateTime = timer.getMilliseconds();
+
+		nameIt = nameList.begin();
+		timer.reset();
+		for (int i = 0; i < iterationCount; ++i, ++nameIt)
+		{
+			mSceneMgr->destroySceneNode(*nameIt);
+		}
+		unsigned long sndestroyTime = timer.getMilliseconds();
+
+		StringUtil::StrStreamType str;
+		str << "Object create time: " << ((float)createTime / 1000.0f) << " secs" << std::endl;
+		str << "Object lookup time: " << ((float)lookupTime / 1000.0f) << " secs" << std::endl;
+		str << "Object destroy time: " << ((float)destroyTime / 1000.0f) << " secs" << std::endl;
+		str << "SceneNode create time: " << ((float)sncreateTime / 1000.0f) << " secs" << std::endl;
+		str << "SceneNode destroy time: " << ((float)sndestroyTime / 1000.0f) << " secs" << std::endl;
+		LogManager::getSingleton().logMessage(str.str());
+
+
+	}
 
 	// Just override the mandatory create scene method
     void createScene(void)
     {
+		ErrorDialog e;
+
 		MeshPtr m;
 		ResourcePtr p = m;
 
@@ -5285,6 +5505,8 @@ protected:
         //testTextureShadows(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testTextureShadowsIntegrated();
+		//testTextureShadowsIntegrated();
+		testStencilShadowsMixedOpSubMeshes(false, true);
 		//testTextureShadowsCustomCasterMat(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testTextureShadowsCustomReceiverMat(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testCompositorTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
@@ -5315,6 +5537,7 @@ protected:
 		//testPoseAnimation();
 		//testPoseAnimation2();
 		//testBug();
+		//testTimeCreateDestroyObject();
 		//testManualBlend();
 		//testManualObjectNonIndexed();
 		//testManualObjectIndexed();

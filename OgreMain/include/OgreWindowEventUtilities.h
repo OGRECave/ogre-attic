@@ -43,7 +43,7 @@ namespace Ogre
 	@Remarks
 		Callback class used to send out window events to client app
 	*/
-	class WindowEventListener
+	class _OgreExport WindowEventListener
 	{
 	public:
 		virtual ~WindowEventListener() {};

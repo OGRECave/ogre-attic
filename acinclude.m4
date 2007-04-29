@@ -377,14 +377,14 @@ AC_DEFUN([OGRE_CHECK_FREEIMAGE],
 AM_CONDITIONAL(USE_FREEIMAGE, test x$build_freeimage = xyes)
 
 if test "x$build_freeimage" = "xyes" ; then
-	AC_CHECK_LIB(freeimage, FreeImage_Load,,,-lstdc++,AC_MSG_ERROR([
+	AC_CHECK_LIB(freeimage, FreeImage_Load,,AC_MSG_ERROR([
 ****************************************************************
 * You do not have FreeImage installed.  This is required.      *
 * You may find it at http://freeimage.sourceforge.net/.        *
 * Note: You can also provide --disable-freeimage to the build  *
 * process to build without it. This is an advanced option      *
 * useful only if you provide your own image loading codecs.    *
-****************************************************************]))
+****************************************************************]), -lstdc++)
 	AC_DEFINE([OGRE_NO_FREEIMAGE], [0], [Do not use freeimage to load images])
 else
 	AC_DEFINE([OGRE_NO_FREEIMAGE], [1], [Load images using the freeimage library])
@@ -402,11 +402,11 @@ AC_DEFUN([OGRE_CHECK_DEVIL],
               [build_il=$enableval],
               [build_il=yes])
 
-AM_CONDITIONAL(USE_DEVIL, test x$build_il = xyes)
+AM_CONDITIONAL(USE_DEVIL, test x$build_il = xyes && test x$build_freeimage = xno)
 
-if test "$USE_FREEIMAGE"; then
+if test "x$build_freeimage" = "xyes"; then
     AC_MSG_NOTICE([Freeimage is being built, disabling check for DevIL.])
-    [build_freeimage=no]
+    [build_il=no]
 	AC_DEFINE([OGRE_NO_DEVIL], [1], [Build devil])
 else
 if test "x$build_il" = "xyes"; then
