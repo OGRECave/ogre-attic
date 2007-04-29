@@ -785,18 +785,24 @@ namespace Ogre {
 		{
 			EdgeListBuilder eb;
 			size_t vertexSet = 0;
+			bool anyBuilt = false;
 			for (SectionList::iterator i = mSectionList.begin(); i != mSectionList.end(); ++i)
 			{
 				RenderOperation* rop = (*i)->getRenderOperation();
-				// Only indexed geometry supported for stencil shadows
-				if (rop->useIndexes && rop->indexData->indexCount != 0)
+				// Only indexed triangle geometry supported for stencil shadows
+				if (rop->useIndexes && rop->indexData->indexCount != 0 && 
+					(rop->operationType == RenderOperation::OT_TRIANGLE_FAN ||
+					 rop->operationType == RenderOperation::OT_TRIANGLE_LIST ||
+					 rop->operationType == RenderOperation::OT_TRIANGLE_STRIP))
 				{
 					eb.addVertexData(rop->vertexData);
 					eb.addIndexData(rop->indexData, vertexSet++);
+					anyBuilt = true;
 				}
 			}
 
-			mEdgeList = eb.build();
+			if (anyBuilt)
+				mEdgeList = eb.build();
 
 		}
 		return mEdgeList;

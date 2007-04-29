@@ -166,7 +166,7 @@ namespace Ogre {
 		void destroyResources(void);
 
 		/** Render queue listener used to set up rendering events. */
-		class RQListener: public RenderQueueListener
+		class _OgreExport RQListener: public RenderQueueListener
 		{
 		public:
 			/** @copydoc RenderQueueListener::renderQueueStarted

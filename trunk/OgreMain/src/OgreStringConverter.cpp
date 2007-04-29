@@ -258,7 +258,7 @@ namespace Ogre {
     {
 		// Use istringstream for direct correspondence with toString
 		std::istringstream str(val);
-		Real ret;
+		Real ret = 0;
 		str >> ret;
 
         return ret;
@@ -268,7 +268,7 @@ namespace Ogre {
     {
 		// Use istringstream for direct correspondence with toString
 		std::istringstream str(val);
-		int ret;
+		int ret = 0;
 		str >> ret;
 
         return ret;
@@ -283,7 +283,7 @@ namespace Ogre {
     {
 		// Use istringstream for direct correspondence with toString
 		std::istringstream str(val);
-		long ret;
+		long ret = 0;
 		str >> ret;
 
 		return ret;
@@ -293,7 +293,7 @@ namespace Ogre {
     {
 		// Use istringstream for direct correspondence with toString
 		std::istringstream str(val);
-		unsigned long ret;
+		unsigned long ret = 0;
 		str >> ret;
 
 		return ret;

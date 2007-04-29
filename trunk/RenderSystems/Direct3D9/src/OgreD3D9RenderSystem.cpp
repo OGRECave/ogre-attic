@@ -514,10 +514,26 @@ namespace Ogre
 			if( opt == mOptions.end() )
 				OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Can't find Video Mode option!", "D3D9RenderSystem::initialise" );
 
+			// The string we are manipulating looks like this :width x height @ colourDepth
+			// Pull out the colour depth by getting what comes after the @ and a space
+			String colourDepth = opt->second.currentValue.substr(opt->second.currentValue.rfind('@')+1);
+			// Now we know that the width starts a 0, so if we can find the end we can parse that out
+			String::size_type widthEnd = opt->second.currentValue.find(' ');
+			// we know that the height starts 3 characters after the width and goes until the next space
+			String::size_type heightEnd = opt->second.currentValue.find(' ', widthEnd+3);
+			// Now we can parse out the values
+			width = StringConverter::parseInt(opt->second.currentValue.substr(0, widthEnd));
+			height = StringConverter::parseInt(opt->second.currentValue.substr(widthEnd+3, heightEnd));
+
 			for( unsigned j=0; j < mActiveD3DDriver->getVideoModeList()->count(); j++ )
 			{
 				temp = mActiveD3DDriver->getVideoModeList()->item(j)->getDescription();
-				if( temp == opt->second.currentValue )
+
+				// In full screen we only want to allow supported resolutions, so temp and opt->second.currentValue need to 
+				// match exacly, but in windowed mode we can allow for arbitrary window sized, so we only need
+				// to match the colour values
+				if(fullScreen && (temp == opt->second.currentValue) ||
+				  !fullScreen && (temp.substr(temp.rfind('@')+1) == colourDepth))
 				{
 					videoMode = mActiveD3DDriver->getVideoModeList()->item(j);
 					break;
@@ -526,9 +542,6 @@ namespace Ogre
 
 			if( !videoMode )
 				OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Can't find requested video mode.", "D3D9RenderSystem::initialise" );
-
-			width = videoMode->getWidth();
-			height = videoMode->getHeight();
 			
 			NameValuePairList miscParams;
 			miscParams["colourDepth"] = StringConverter::toString(videoMode->getColourDepth());
