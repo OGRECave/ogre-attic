@@ -523,7 +523,8 @@ int OgreMaxExport::callback(INode *node) {
 
 			if (node->GetParentNode() != NULL) {
 				// stick this in the bone-index map for later use
-				m_boneIndexMap.insert(std::map< std::string, int >::value_type(std::string(node->GetName()), m_currentBoneIndex++));
+				std::string nodeName(node->GetName());
+				m_boneIndexMap.insert(std::map< std::string, int >::value_type(nodeName, m_currentBoneIndex++));
 			}
 
 			return TREE_CONTINUE;
@@ -896,6 +897,19 @@ bool OgreMaxExport::streamSubmesh(std::ostream &of, INode *node, std::string &mt
 	
 	of << ">" << std::endl;
 
+// Build a map from vert coord to tex coord - NGC VTS - Nathan Hanish
+std::vector<unsigned long> vertIndexToTexIndex;
+vertIndexToTexIndex.resize(vertCount);
+if((mesh).tvFace)
+{
+	for(int f = 0; f < faceCount; ++f)
+	{
+		vertIndexToTexIndex[ ((mesh).faces[f]).v[0] ] = ((mesh).tvFace[f]).t[0];
+		vertIndexToTexIndex[ ((mesh).faces[f]).v[1] ] = ((mesh).tvFace[f]).t[1];
+		vertIndexToTexIndex[ ((mesh).faces[f]).v[2] ] = ((mesh).tvFace[f]).t[2];
+	}
+}
+
 	for (i=0; i<vertCount; i++) {
 		Point3 v = mesh.getVert(i);
 
@@ -953,9 +967,7 @@ bool OgreMaxExport::streamSubmesh(std::ostream &of, INode *node, std::string &mt
 
 		if (i < mesh.getNumTVerts()) {
 			for (int t=0; t<numTexMaps; t++) {
-
-				UVVert uv = mesh.getTVert(i);
-
+				UVVert uv = mesh.getTVert(vertIndexToTexIndex[i]); // NGC VTS - Nathan Hanish
 				switch (m_2DTexCoord) {
 					case UV:
 						of << "\t\t\t\t\t\t<texcoord u=\"" << uv.x << "\" v=\"" << (1.0f - uv.y) << "\" />" << std::endl; 
@@ -1006,6 +1018,22 @@ bool OgreMaxExport::streamSubmesh(std::ostream &of, INode *node, std::string &mt
 	return true;
 }
 
+// NGC VTS - Nathan Hanish - force all bones, including those not assigned to any verts, to show up in skeleton
+void OgreMaxExport::listParentAndSelf(void *skinp, INode *node)
+{
+	ISkin *skin = (ISkin *)skinp;
+	if(node->GetParentNode())
+	{
+		listParentAndSelf(skin, node->GetParentNode());
+	}
+
+	// TODO: Find some other way to know if this is a bone or not
+	if(std::string(node->GetName()) != "Scene Root")
+	{
+		getBoneIndex(node->GetName());
+	}
+}
+
 bool OgreMaxExport::streamBoneAssignments(std::ostream &of, Modifier *oMod, INode *node) {
 	
 
@@ -1013,6 +1041,13 @@ bool OgreMaxExport::streamBoneAssignments(std::ostream &of, Modifier *oMod, INod
 	ISkin *skin = (ISkin *) oMod->GetInterface(I_SKIN);
 	ISkinContextData *skinData = skin->GetContextInterface(node);
 
+	// NGC VTS  - Nathan Hanish - force all bones, including those not assigned to any verts, to show up in skeleton
+	int allBones = skin->GetNumBones();
+	for(int allBonesIndex = 0; allBonesIndex < allBones; ++allBonesIndex)
+	{
+		listParentAndSelf(skin, skin->GetBone(allBonesIndex));
+	}
+	
 	// loop through all the vertices, writing out skinning data as we go
 	int skinnedVertexCount = skinData->GetNumPoints();
 

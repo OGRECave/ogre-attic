@@ -109,6 +109,9 @@ protected:
 	void addAnimation();
 	void deleteAnimation();
 
+	// NGC VTS  - Nathan Hanish - force all bones, including those not assigned to any verts, to show up in skeleton
+	void listParentAndSelf(void *skinp, INode *node);
+
 	// mesh file stream functions
 	bool streamFileHeader(std::ostream &of);
 	bool streamFileFooter(std::ostream &of);
