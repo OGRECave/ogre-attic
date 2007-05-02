@@ -156,45 +156,49 @@ typedef std::map< Ogre::String, CIntermediateMaterial*> MAT_LIST;
 
 bool CPoseMeshExportObject::Export( CExportProgressDlg *pProgressDlg, bool bForceAll)
 {
-	CExportObject *pBaseParent = GetParent();
-	IExportObjectMeshSupport* pParent;
-	try {
-		pParent = dynamic_cast<IExportObjectMeshSupport*>(pBaseParent);
-		if(pParent == NULL)
+	//bool returnVal = false;
+
+	if(m_bEnabled || bForceAll)
+	{
+		CExportObject *pBaseParent = GetParent();
+		IExportObjectMeshSupport* pParent;
+		try {
+			pParent = dynamic_cast<IExportObjectMeshSupport*>(pBaseParent);
+			if(pParent == NULL)
+				return false;
+		} catch (...) 
+		{
+		  LOGERROR "Error while attempting to check compatible parent type. Parent must atleast support a mesh type.");
+		}
+
+		CIntermediateMesh* pIMesh = pParent->GetIntermediateMesh();
+
+		if(pIMesh->IsCollapsed())
+		{
+			LOGERROR "Cannot create pose data for collapsed Meshes. Pose Ignored");
 			return false;
-	} catch (...) 
-	{
-	  LOGERROR "Error while attempting to check compatible parent type. Parent must atleast support a mesh type.");
+		}
+
+		// Check vertex count before adding pose description to Intermediate Mesh
+		CMeshArray* lVerts = pIMesh->GetArray("position", 0);
+		int iOrigVertCount = lVerts->Size();
+
+		int iFrame = m_pDDConfig->GetInt("FrameRefID",0);
+		faststring sPoseName = m_pDDConfig->GetString("Name",0);
+		bool bOptimize = m_pDDConfig->GetBool("OptimizeID",true);
+		lVerts = pIMesh->GetArray("position",iFrame);
+		int iPoseVertCount = lVerts->Size();
+
+		if(iPoseVertCount != iOrigVertCount)
+		{
+			LOGERROR "Pose(%s) does not contain same amount of verticies as base mesh. Pose Ignored", sPoseName.c_str() );
+			return false;
+		}
+
+		pIMesh->AddPose(sPoseName.c_str(), iFrame, bOptimize);
+
+		
 	}
-
-	CIntermediateMesh* pIMesh = pParent->GetIntermediateMesh();
-
-	if(pIMesh->IsCollapsed())
-	{
-		LOGERROR "Cannot create pose data for collapsed Meshes. Pose Ignored");
-		return false;
-	}
-
-	// Check vertex count before adding pose description to Intermediate Mesh
-	CMeshArray* lVerts = pIMesh->GetArray("position", 0);
-	int iOrigVertCount = lVerts->Size();
-
-	int iFrame = m_pDDConfig->GetInt("FrameRefID",0);
-	faststring sPoseName = m_pDDConfig->GetString("Name",0);
-	bool bOptimize = m_pDDConfig->GetBool("OptimizeID",true);
-	lVerts = pIMesh->GetArray("position",iFrame);
-	int iPoseVertCount = lVerts->Size();
-
-	if(iPoseVertCount != iOrigVertCount)
-	{
-		LOGERROR "Pose(%s) does not contain same amount of verticies as base mesh. Pose Ignored", sPoseName.c_str() );
-		return false;
-	}
-
-	pIMesh->AddPose(sPoseName.c_str(), iFrame, bOptimize);
-
-	bool returnVal = false;
-
-	return returnVal;
+	return CExportObject::Export(pProgressDlg, bForceAll);
 }
 

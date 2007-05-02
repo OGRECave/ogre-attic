@@ -197,6 +197,19 @@ int CIntermediateSkeleton::GetNrOfAssignmentsOnVertex( int idx )
 	return 0;
 }
 
+bool CIntermediateSkeleton::GetVertexDataCollection( int idx, std::vector<SVertexBoneData>** returnCollection )
+{
+	std::map< int, std::vector<SVertexBoneData> >::iterator iter = m_VertexBoneData.find( idx );
+
+	if( iter != m_VertexBoneData.end() )
+	{
+		 *returnCollection = &(iter->second);
+		 return true;
+	}
+
+	return false;
+}
+
 void CIntermediateSkeleton::TrimVertexAssignments( int iMaxAssignments )
 {
 	

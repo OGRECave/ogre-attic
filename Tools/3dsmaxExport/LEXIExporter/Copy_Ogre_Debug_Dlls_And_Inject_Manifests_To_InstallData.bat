@@ -3,7 +3,7 @@
 set CONFIGURATION=debug
 set EXPORTERDIR=LEXIExporter
 
-set SDKSUBPATH_OGRE=D:\ITE5000-SDK\SDK\Ogre\1.2.2\bin\bin
+set SDKSUBPATH_OGRE=..\..\SDK\Ogre\1.2.5\bin\bin
 
 set OUTDIR=.\LexiExportInstall\InstallData
 set COPY_PARAMS=/F /H /R /Y

@@ -93,29 +93,89 @@ CDDObject* CExportObjectRoot::BuildMetaDesc( void )
 {
 	CDDObject* pDDMetaDesc = new CDDObject();
 
-	fastvector< const CDDObject* > lSettings;
+	fastvector<const CDDObject*> lSettings;
 	CDDObject* pDDMetaElement;
 
 	pDDMetaElement = new CDDObject();
-	pDDMetaElement->SetString("ID","ForceSeperateAnimID");
-	pDDMetaElement->SetString("Type","bool");
-	pDDMetaElement->SetString("Group","Export Settings");
-	pDDMetaElement->SetString("Caption","Force Seperate Skeletons");
-	pDDMetaElement->SetString("Help","Globally force all animations to be written in seperate files");
-	pDDMetaElement->SetBool("Default", false);
-		// Disable for now since reindexing bone weights are broken!
-	pDDMetaElement->SetString("Condition","$ForceSeperateAnimID=true");
+	pDDMetaElement->SetString("ID", ResolveMacros("$(username)@$(hostname).RootFolder").c_str());
+	pDDMetaElement->SetString("Type", "string");
+	pDDMetaElement->SetString("Group", "Default Folders");
+	pDDMetaElement->SetString("Caption", "Root");
+	pDDMetaElement->SetString("Help", ResolveMacros("Location of root folder (unique for $(username)@$(hostname))").c_str());
+	pDDMetaElement->SetString("Default", "");
+	pDDMetaElement->SetString("HelperButton", "BrowseForFolder");
 	lSettings.push_back(pDDMetaElement);
 
 	pDDMetaElement = new CDDObject();
-	pDDMetaElement->SetString("ID","OptimizeMeshID");
-	pDDMetaElement->SetString("Type","bool");
-	pDDMetaElement->SetString("Group","Export Settings");
-	pDDMetaElement->SetString("Caption","Optimize Mesh Output");
-	pDDMetaElement->SetString("Help","Optimize all mesh files");	
+	pDDMetaElement->SetString("ID", "DefaultMeshFolder");
+	pDDMetaElement->SetString("Type", "string");
+	pDDMetaElement->SetString("Group", "Default Folders");
+	pDDMetaElement->SetString("Caption", "Meshes");
+	pDDMetaElement->SetString("Help", "Location of default mesh folder");
+	pDDMetaElement->SetString("Default", "");
+	pDDMetaElement->SetString("HelperButton", "BrowseForFolder");
+	lSettings.push_back(pDDMetaElement);
+
+	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID", "DefaultSkeletonFolder");
+	pDDMetaElement->SetString("Type", "string");
+	pDDMetaElement->SetString("Group", "Default Folders");
+	pDDMetaElement->SetString("Caption", "Skeletons");
+	pDDMetaElement->SetString("Help", "Location of default skeleton folder");
+	pDDMetaElement->SetString("Default", "");
+	pDDMetaElement->SetString("HelperButton", "BrowseForFolder");
+	lSettings.push_back(pDDMetaElement);
+
+	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID", "DefaultMaterialFolder");
+	pDDMetaElement->SetString("Type", "string");
+	pDDMetaElement->SetString("Group", "Default Folders");
+	pDDMetaElement->SetString("Caption", "Materials");
+	pDDMetaElement->SetString("Help", "Location of default material folder");
+	pDDMetaElement->SetString("Default", "");
+	pDDMetaElement->SetString("HelperButton", "BrowseForFolder");
+	lSettings.push_back(pDDMetaElement);
+
+	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID", "DefaultTextureFolder");
+	pDDMetaElement->SetString("Type", "string");
+	pDDMetaElement->SetString("Group", "Default Folders");
+	pDDMetaElement->SetString("Caption", "Textures");
+	pDDMetaElement->SetString("Help", "Location of default texture folder");
+	pDDMetaElement->SetString("Default", "");
+	pDDMetaElement->SetString("HelperButton", "BrowseForFolder");
+	lSettings.push_back(pDDMetaElement);
+
+	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID", "DefaultShaderFolder");
+	pDDMetaElement->SetString("Type", "string");
+	pDDMetaElement->SetString("Group", "Default Folders");
+	pDDMetaElement->SetString("Caption", "Shaders");
+	pDDMetaElement->SetString("Help", "Location of default shader folder");
+	pDDMetaElement->SetString("Default", "");
+	pDDMetaElement->SetString("HelperButton", "BrowseForFolder");
+	lSettings.push_back(pDDMetaElement);
+
+	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID", "ForceSeperateAnimID");
+	pDDMetaElement->SetString("Type", "bool");
+	pDDMetaElement->SetString("Group", "Export Settings");
+	pDDMetaElement->SetString("Caption", "Force Seperate Skeletons");
+	pDDMetaElement->SetString("Help", "Globally force all animations to be written in seperate files");
 	pDDMetaElement->SetBool("Default", false);
 		// Disable for now since reindexing bone weights are broken!
-	pDDMetaElement->SetString("Condition","$OptimizeMeshID=true");
+	pDDMetaElement->SetString("Condition", "$ForceSeperateAnimID=true");
+	lSettings.push_back(pDDMetaElement);
+
+	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID", "OptimizeMeshID");
+	pDDMetaElement->SetString("Type", "bool");
+	pDDMetaElement->SetString("Group", "Export Settings");
+	pDDMetaElement->SetString("Caption", "Optimize Mesh Output");
+	pDDMetaElement->SetString("Help", "Optimize all mesh files");	
+	pDDMetaElement->SetBool("Default", false);
+		// Disable for now since reindexing bone weights are broken!
+	pDDMetaElement->SetString("Condition", "$OptimizeMeshID=true");
 	lSettings.push_back(pDDMetaElement);	
 
 	pDDMetaDesc->SetDDList("MetaList", lSettings, false);

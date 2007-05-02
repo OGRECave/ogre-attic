@@ -127,12 +127,17 @@ CExportObject::~CExportObject()
 	if(m_pParent) m_pParent->RemoveChild(this);	
 }
 
+CDDObject* CExportObject::GetConfig() const
+{
+	return m_pDDConfig;
+}
+
 // Save configuration 
 void CExportObject::SaveConfig(CDDObject *pOutput) const
 {
 	pOutput->MergeWith(m_pDDConfig);
 
-	m_pDDConfig->SaveASCII("C:\\RootConfig.ddconf");
+	//m_pDDConfig->SaveASCII("C:\\RootConfig.ddconf");
 
 	if(m_lChildren.size())
 	{

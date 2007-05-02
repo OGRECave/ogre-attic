@@ -26,6 +26,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "LexiStdAfx.h"
 #include <direct.h>
+#include <dbghelp.h>
+#pragma comment(lib,"Dbghelp.lib")
 
 template<> COgreCore* Ogre::Singleton<COgreCore>::ms_Singleton = 0;
 
@@ -53,7 +55,20 @@ COgreCore::COgreCore(HWND hwnd)
 	Ogre::StringUtil::splitFilename(cwd, fileName, filePath);
 
 	_chdir(filePath.c_str());
+	Ogre::String logFileName = filePath;
 	filePath+=Ogre::String("plugins.cfg");
+
+	// Init logmanager so it uses the LEXIExpoter\Logs dir
+	logFileName += "LEXIExporter/Logs/Ogre.log";
+	int n = logFileName.find("/");
+	while(n != Ogre::String::npos)
+	{
+		logFileName.replace(n,1,"\\");
+		n = logFileName.find("/");
+	}
+	::MakeSureDirectoryPathExists(logFileName.c_str());
+	Ogre::LogManager* pLogManager = new Ogre::LogManager();
+	pLogManager->createLog(logFileName, true, true);
 
 	m_pRoot = new Ogre::Root(filePath.c_str());
 

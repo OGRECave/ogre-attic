@@ -1,0 +1,97 @@
+MetaList=(ddlist)
+{
+	{
+		ID="Death";
+		Type="bool";
+		Group="Test Group";
+		Caption="Certain death";
+		Help="Test of boolean input";
+		Default=1;		
+	},
+	{
+		ID="TestGeneric";
+		Type="bool";
+		Caption="Generic bool";
+		Help="Test of boolean input";
+		Default=1;		
+	},
+	{
+		ID="TestVec";
+		Type="Vec3";
+		//Group="Test Group";
+		Caption="Velocity";
+		Help="Test Vector3 control";	
+	},
+	{
+		ID="Death2";
+		Type="bool";
+		Group="Test Group";
+		Caption="Almost Certain death";
+		Help="Test of boolean input";
+		Default=1;		
+	},
+ 	{
+		ID="TestSel";
+		Type="selection";
+		Group="Test Group";
+		Caption="Select mode of death";
+		Strings=(stringlist)
+		{
+			"Quick",
+			"Slow and painful"
+		};
+		Default=1;
+		Condition=(string)"$Death==true && $Death2==true";
+	},
+	{
+		ID="TestFloat";
+		Type="float";
+		Group="Test Group";
+		Caption="Test float 1";
+		Help="Test of float input";
+		Default=(float)5.5;
+		MinValue=0;
+		MaxValue=(float)25.5;
+		Slider=1;			
+		Condition=(string)"$Death==true && $Lifes>1";
+	},
+	{
+		ID="Lifes";
+		Type="int";
+		Group="Test Group";
+		Caption="Test lifes 1";
+		Help="Test of integer input";
+		MinValue=1;
+		MaxValue=3;
+		Slider=1;
+		Condition=(string)"$Death2==true";
+	},	
+	{
+		ID="NumberColors";
+		Type="int";
+		Group="Test Group 2";
+		Caption="Number of colors";
+		Help="Number of colors";
+		Default=1;
+		MinValue=0;
+		MaxValue=32;
+		Slider=1;
+	},	
+	{
+		ID="TestColor";
+		Type="color";
+		Group="Test Group 2";
+		Caption="Fancy color";
+		Help="Test of color input";		
+		Condition=(string)"$NumberColors>0";		
+	},
+	{
+		ID="FreeText";
+		Type="string";
+		Group="Test Group 2";
+		Caption="Text input:";
+		Help="Test of string input";
+		Default="Hello world!";	
+		Condition=(string)"$NumberColors>0";	
+	}	
+};

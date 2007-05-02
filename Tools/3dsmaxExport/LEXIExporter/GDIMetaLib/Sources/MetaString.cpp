@@ -25,12 +25,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "stdafx.h"
 
+#define _browsebutton_width		20
+
 namespace GDI
 {
 
 MetaString::MetaString()
 {
-
+	m_pBrowseButton = NULL;
 }
 MetaString::~MetaString()
 {
@@ -48,11 +50,28 @@ void MetaString::SetDefaults(const CDDObject *pMetaKey, const char *pszMetaID, C
 
 void MetaString::OnCreated()
 {
+	const char* pszHelperButton = m_pMetaKey->GetString("HelperButton", "");
+	m_iBrowseButtonType = 0;
+	if(!_stricmp(pszHelperButton, "BrowseForFolder")) m_iBrowseButtonType = 1;
+	else if(!_stricmp(pszHelperButton, "BrowseForFile")) m_iBrowseButtonType = 2;
+
+	unsigned int iEditWidth = m_iBrowseButtonType ? m_iWidth - _browsebutton_width : m_iWidth;
+	unsigned int iBrowseButtonYPos = m_iHeight;
+	unsigned int iBrowseButtonHeight = m_iHeight;
+
 	m_pEditCtrl=new Edit();
-	HWND hWnd=::CreateWindow("EDIT", "", ES_LEFT|WS_VISIBLE|WS_BORDER|WS_CHILD|WS_TABSTOP, 0, m_iHeight, m_iWidth, m_iHeight, m_hWnd, NULL, NULL, NULL);
+	HWND hWnd=::CreateWindow("EDIT", "", ES_LEFT|ES_AUTOHSCROLL|WS_VISIBLE|WS_BORDER|WS_CHILD|WS_TABSTOP, 0, m_iHeight, iEditWidth, m_iHeight, m_hWnd, NULL, NULL, NULL);
 	m_pEditCtrl->Attach(hWnd);
 	m_iHeight+=m_iHeight;
 	::SendMessage(hWnd, WM_SETFONT, (WPARAM)m_pGroup->GetCtrlFont(), 0);		
+
+	if(m_iBrowseButtonType)
+	{
+		m_pBrowseButton = new Button();
+		HWND hWnd = ::CreateWindow("BUTTON", "...", BS_PUSHBUTTON | BS_TEXT | BS_CENTER | WS_VISIBLE | WS_CHILD | WS_TABSTOP, iEditWidth, iBrowseButtonYPos, _browsebutton_width, iBrowseButtonHeight, m_hWnd, NULL, NULL, NULL);
+		m_pBrowseButton->Attach(hWnd);
+		::SendMessage(hWnd, WM_SETFONT, (WPARAM)m_pGroup->GetCtrlFont(), 0);		
+	}
 }
 
 void MetaString::UpdateData(CDDObject *pData)
@@ -78,7 +97,7 @@ void MetaString::OnPaint()
 	RECT rLabel;
 	::GetClientRect(m_hWnd, &rLabel);		
 	::SetTextColor(hdc, GET_SYSTEM_COLOR(m_bEnabled ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT));
-	::SetBkMode(hdc, TRANSPARENT); 	
+	::SetBkMode(hdc, TRANSPARENT);
 
 	rLabel.bottom-=m_iHeight/2;
 
@@ -92,9 +111,18 @@ void MetaString::OnPaint()
 
 void MetaString::OnLayout()
 {
+	unsigned int iEditWidth = m_pBrowseButton ? m_iWidth - _browsebutton_width : m_iWidth;
+
 	RECT rClient;
 	::GetClientRect(m_hWnd, &rClient);
-	m_pEditCtrl->SetWindowPos(NULL, rClient.left, m_iHeight/2, m_iWidth, m_iHeight/2, SWP_NOZORDER);
+	m_pEditCtrl->SetWindowPos(NULL, rClient.left, m_iHeight/2, iEditWidth, m_iHeight/2, SWP_NOZORDER);
+
+	if(m_pBrowseButton)
+	{
+		RECT rClient;
+		::GetClientRect(m_hWnd, &rClient);
+		m_pBrowseButton->SetWindowPos(NULL, rClient.left + iEditWidth, m_iHeight/2, _browsebutton_width, m_iHeight/2, SWP_NOZORDER);
+	}
 }
 
 void MetaString::OnCommand(HWND hWnd, int iCode, int iID)
@@ -105,6 +133,27 @@ void MetaString::OnCommand(HWND hWnd, int iCode, int iID)
 		{
 			std::string sText=m_pEditCtrl->GetWindowText();			
 			m_pOwner->GetData()->SetString(m_sMetaID.c_str(), sText.c_str());			
+		}
+	}
+	else if(m_pBrowseButton && hWnd == m_pBrowseButton->m_hWnd)
+	{
+		if(iCode == BN_CLICKED)
+		{
+			if(m_iBrowseButtonType == 1)
+			{
+				FolderDialog fd(m_pOwner->GetData()->GetString(m_sMetaID.c_str(), ""), NULL, this);
+				if(fd.DoModal() == IDOK)
+				{
+					std::string sFolder = fd.GetFolderName();
+					m_pEditCtrl->SetWindowText(sFolder.c_str());
+					m_pOwner->GetData()->SetString(m_sMetaID.c_str(), sFolder.c_str());
+				}
+			}
+			else if(m_iBrowseButtonType == 2)
+			{
+				// TODO: Add browse-for-file dialog handling
+				::MessageBox(m_hWnd, "The 'BrowseForFile' dialog has not been implemented yet.", "Information", MB_ICONWARNING);
+			}
 		}
 	}
 }

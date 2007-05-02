@@ -1,6 +1,31 @@
+version 1.0.4
+=============
+- Global "Default Folders" Export Settings on Root entry
+- Dedicated geometry buffers (submesh data)
+	* Vertex
+	* Tex.Coord
+	* Normals
+	* Vertex Colors
+	* Bone weights
+	* Poses
+- Mesh options added
+	* Tangent generating (Ogre3D method)
+	* Edgelist generation (Ogre3D method)
+- Export optimizations
+	* Simple Profiler tool in source
+	* Some memory usage reductions
+	* Small General Export time reduction 
+- Extended Material Features:
+	* Diffuse with Specular map (Courtesy: rewb0rn)
+	* Automatical conversion of referenced texturemaps. (e.g. .psd -> .dds)
+	* Shader support detection.
+	* Single material file option
+- Bug Fixes:
+	* Crashes on exporting selected entries - FIXED!
+- Uses Ogre3D 1.2.5 (Dagon)
+	
 version 1.0.3
 =============
-
 - Multiple selection add support.
 - Animation ranges are now pr default the range in max
 - Materials are now exported into seperate files (combats material conflicts)

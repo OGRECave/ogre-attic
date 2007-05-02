@@ -3,7 +3,7 @@
 set CONFIGURATION=release
 set EXPORTERDIR=LEXIExporter
 
-set SDKSUBPATH_OGRE=D:\ITE5000-SDK\SDK\Ogre\1.2.2\bin\bin
+set SDKSUBPATH_OGRE=..\..\SDK\Ogre\1.2.5\bin\bin
 
 set OUTDIR=.\LexiExportInstall\InstallData
 set COPY_PARAMS=/F /H /R /Y
@@ -23,3 +23,4 @@ xcopy %COPY_PARAMS% %SDKSUBPATH_OGRE%\%CONFIGURATION%\OgreMain.dll "%OUTDIR%"
 xcopy %COPY_PARAMS% %SDKSUBPATH_OGRE%\%CONFIGURATION%\OgrePlatform.dll "%OUTDIR%"
 xcopy %COPY_PARAMS% %SDKSUBPATH_OGRE%\%CONFIGURATION%\Plugin_CgProgramManager.dll "%OUTDIR%\%EXPORTERDIR%\"
 xcopy %COPY_PARAMS% %SDKSUBPATH_OGRE%\%CONFIGURATION%\RenderSystem_GL.dll "%OUTDIR%\%EXPORTERDIR%\"
+pause
