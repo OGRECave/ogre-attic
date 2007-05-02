@@ -23,37 +23,58 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __GDI_META_LIB__
-#define __GDI_META_LIB__
+#ifndef __GDI_FolderDialog__
+#define __GDI_FolderDialog__
 
-#include <commctrl.h>
+#include <shlobj.h>
 
-#include "GDIWindow.h"
-#include "GDIButton.h"
-#include "GDIEdit.h"
-#include "GDIComboBox.h"
-#include "GDIListCtrl.h"
-#include "GDIListBox.h"
-#include "GDITreeCtrl.h"
-#include "GDIDialog.h"
-#include "GDIFolderDialog.h"
-#include "GDIAlphaFiller.h"
+//
 
-#include "MetaDefs.h"
-#include "MetaControl.h"
-#include "MetaGroup.h"
-#include "MetaBaseCtrl.h"
-#include "MetaInt.h"
-#include "MetaFloat.h"
-#include "MetaBool.h"
-#include "MetaSelection.h"
-#include "MetaString.h"
-#include "MetaColor.h"
-#include "MetaVec3.h"
-#include "MetaVec4.h"
+namespace GDI {
 
-extern HBRUSH	GetGDISysColorBrush(int iIndex);
-extern DWORD	GetGDISysColor(int iIndex);
-extern HINSTANCE GetCurrentInstance(void);
+//
 
-#endif
+class FolderDialog {
+
+	public:
+
+		// Constructor/Destructor
+		FolderDialog(const char* pszFolderName = NULL, const char* pszTitle = NULL, Window* pParentWnd = NULL);
+		virtual ~FolderDialog();
+
+		// Call Dialog
+		int DoModal();
+
+		// Get selected folder
+		std::string GetFolderName() const;
+
+		BROWSEINFO m_bi;
+
+	protected:
+
+		void OnInitDialog();
+		void OnSelChanged(ITEMIDLIST* pIdl);
+		void CallbackFunction(HWND hWnd, UINT uMsg,	LPARAM lParam);
+
+		void EnableOK(bool bEnable=true);
+		void SetSelection(LPCTSTR pszSelection);
+
+		std::string m_sInitialFolderName;
+		std::string m_sFinalFolderName;
+
+		char m_strDisplayName[MAX_PATH];
+		char m_strPath[MAX_PATH];
+
+		HWND m_hDialogBox;
+
+		static int CALLBACK BrowseDirectoryCallback(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
+
+};
+
+//
+
+} // namespace GDI
+
+//
+
+#endif // __GDI_FolderDialog__

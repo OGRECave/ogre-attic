@@ -136,7 +136,7 @@ CDDObject* CPoseAnimExportObject::BuildMetaDesc( void )
 	pDDAnimElement->SetString("ID","AnimationStartID");
 	pDDAnimElement->SetString("Type","Int");
 	pDDAnimElement->SetBool("EnableSlider", false);
-	pDDAnimElement->SetString("Group","Bone");
+	pDDAnimElement->SetString("Group","Animation");
 	pDDAnimElement->SetString("Caption","Start Frame");
 	pDDAnimElement->SetString("Help","Frame which the animation begins");
 	pDDAnimElement->SetInt("Default", iStartFrame);
@@ -146,7 +146,7 @@ CDDObject* CPoseAnimExportObject::BuildMetaDesc( void )
 	pDDAnimElement->SetString("ID","AnimationEndID");
 	pDDAnimElement->SetString("Type","Int");
 	pDDAnimElement->SetBool("EnableSlider", false);
-	pDDAnimElement->SetString("Group","Bone");
+	pDDAnimElement->SetString("Group","Animation");
 	pDDAnimElement->SetString("Caption","End Frame");
 	pDDAnimElement->SetString("Help","Frame which the animation stops");
 	pDDAnimElement->SetInt("Default", iEndFrame);
@@ -156,11 +156,21 @@ CDDObject* CPoseAnimExportObject::BuildMetaDesc( void )
 	pDDAnimElement->SetString("ID","AnimationSampleRateID");
 	pDDAnimElement->SetString("Type","Float");
 	pDDAnimElement->SetBool("EnableSlider", false);
-	pDDAnimElement->SetString("Group","Bone");
+	pDDAnimElement->SetString("Group","Animation");
 	pDDAnimElement->SetString("Caption","Samplerate");
 	pDDAnimElement->SetString("Help","Rate at which samples should be done. e.g 2 yields every second frame in max.");
 	pDDAnimElement->SetFloat("Default", 1.0);
 	lAnimSettings.push_back(pDDAnimElement);
+
+	pDDAnimElement = new CDDObject();
+	pDDAnimElement->SetString("ID","OptimizeID");
+	pDDAnimElement->SetString("Type","Bool");
+	pDDAnimElement->SetString("Group","Animation");
+	pDDAnimElement->SetString("Caption","Optimize");
+	pDDAnimElement->SetString("Help","Rate at which samples should be done. e.g 2 yields every second frame in max.");
+	pDDAnimElement->SetBool("Default", true);
+	lAnimSettings.push_back(pDDAnimElement);
+	
 
 	AnimContainer->SetDDList("MetaList", lAnimSettings, false);
 	return AnimContainer;

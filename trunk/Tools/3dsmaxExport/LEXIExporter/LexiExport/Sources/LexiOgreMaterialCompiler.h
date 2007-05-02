@@ -30,12 +30,12 @@ class COgreMaterialCompiler
 {
 public:
 
-	COgreMaterialCompiler( CIntermediateMaterial* pIntermediateMaterial );
+	COgreMaterialCompiler( CIntermediateMaterial* pIntermediateMaterial, Ogre::String sExtension="" );
 	virtual ~COgreMaterialCompiler();
 
 	bool				WriteOgreMaterial( const Ogre::String& sFilename );
 	Ogre::MaterialPtr	GetOgreMaterial( void );
-	void				CopyTextureMaps( Ogre::String outPath );
+	void				CopyTextureMaps( Ogre::String outPath, Ogre::String extension );
 	void				CopyShaderSources( Ogre::String outPath );
 protected:
 
@@ -53,15 +53,20 @@ private:
 	void	CreateSpecularLevel(  Ogre::Pass* pass );
 	void	CreateSelfIllumination(  Ogre::Pass* pass );
 	void	CreateDiffuseAndOpacity( Ogre::Pass* pass );
+	void	CreateDiffuseAndSpecularLevel( Ogre::Pass* pass );
 
 	static int doFileCopy(Ogre::String inFile, Ogre::String outFile);
 
 	Ogre::MaterialPtr m_pOgreMaterial;
 	CIntermediateMaterial* m_pIMaterial;
 
+	Ogre::String m_sExtensionOverride;
+
 	bool 	m_bReindex;
 	bool 	m_bExportNormals;
 	bool 	m_bExportColours;
 	bool 	m_bExportTexUVs;
+
+	bool	m_bShadersSupported;
 
 };

@@ -52,7 +52,7 @@
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="0"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;..\..\..\SDK\3DSMax\8.0\Bin\include&quot;;&quot;..\..\..\SDK\Ogre\1.2.2\bin\Include&quot;;$(SolutionDir)Include"
+				AdditionalIncludeDirectories="..\..\..\SDK\3DSMax\8.0\Bin\include;..\..\..\SDK\Ogre\1.2.5\bin\Include;&quot;$(SolutionDir)Include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -90,7 +90,7 @@
 				OutputFile="Bin\LEXIExport.dlu"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;..\..\..\SDK\3DSMax\8.0\Bin\lib&quot;;&quot;..\..\..\SDK\Ogre\1.2.2\bin\Lib&quot;"
+				AdditionalLibraryDirectories="..\..\..\SDK\3DSMax\8.0\Bin\lib;..\..\..\SDK\Ogre\1.2.5\bin\Lib"
 				GenerateManifest="true"
 				GenerateDebugInformation="false"
 				ProgramDatabaseFile=".\Release/LEXIExport.pdb"
@@ -159,7 +159,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="-Zm118"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\SDK\3DSMax\8.0\Bin\include;..\..\..\SDK\Ogre\1.2.2\bin\Include;&quot;$(SolutionDir)Include&quot;"
+				AdditionalIncludeDirectories="..\..\..\SDK\3DSMax\8.0\Bin\include;..\..\..\SDK\Ogre\1.2.5\bin\Include;&quot;$(SolutionDir)Include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -195,7 +195,7 @@
 				OutputFile="Bin\LEXIExport(debug).dlu"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;..\..\..\SDK\3DSMax\8.0\Bin\lib&quot;;&quot;..\..\..\SDK\Ogre\1.2.2\bin\Lib&quot;"
+				AdditionalLibraryDirectories="..\..\..\SDK\3DSMax\8.0\Bin\lib;..\..\..\SDK\Ogre\1.2.5\bin\Lib"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/LEXIExport(debug).pdb"
@@ -266,7 +266,7 @@
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="0"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;..\..\..\SDK\3DSMax\8.0\Bin\include&quot;;&quot;..\..\..\SDK\Ogre\1.2.2\bin\Include&quot;;$(SolutionDir)Include"
+				AdditionalIncludeDirectories="&quot;..\..\..\SDK\3DSMax\8.0\Bin\include&quot;;&quot;..\..\..\SDK\Ogre\1.2.5\bin\Include&quot;;$(SolutionDir)Include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -303,7 +303,7 @@
 				OutputFile="Bin\ITEExport.dlu"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;..\..\..\SDK\3DSMax\8.0\Bin\lib&quot;;&quot;..\..\..\SDK\Ogre\1.2.2\bin\Lib&quot;"
+				AdditionalLibraryDirectories="..\..\..\SDK\3DSMax\8.0\Bin\lib;..\..\..\SDK\Ogre\1.2.5\bin\Lib"
 				GenerateManifest="false"
 				ProgramDatabaseFile=".\Release/ITEExport.pdb"
 				ImportLibrary=".\Release/ITEExport.lib"
@@ -401,6 +401,14 @@
 			</File>
 			<File
 				RelativePath=".\Sources\LexiMemoryLog.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiProfiler.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Sources\LexiProfiler.h"
 				>
 			</File>
 			<File

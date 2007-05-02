@@ -523,4 +523,77 @@ void Blinn_DiffuseAndOpacityMap_fp (
 	
 	oColor = vertCol * shadeColor;
 }
-		
+
+void Blinn_DiffuseAndSpecularMap_fp (
+		float4 pos       : TEXCOORD0,
+		float3 normal   : TEXCOORD1,
+		float4 lightpos   : TEXCOORD2,
+		float3 eyepos   : TEXCOORD3,
+		float4 vertCol   : COLOR,
+				   
+		//Support for texture with the per pixel lighting
+		float2 uv      : TEXCOORD4,
+
+		uniform float4 lightDiffuse,
+		uniform float4 lightSpecular,
+		uniform float4 sceneAmbient,
+		uniform float4 ambientColor,
+		uniform float4 diffuseColor,
+		uniform float4 specularColor,
+		uniform float specularLevel,
+		uniform float glossLevel,
+		uniform float opacity,
+		uniform float amount,
+
+		uniform sampler2D diffuseMap,
+		uniform sampler2D specularMap,
+
+		out float4 oColor : COLOR
+)
+{
+	float4 shadeColor = float4(0,0,0,1);
+	float3 N = normalize(normal);
+	float clampAmount = clamp(amount,0.0,1.0);
+
+	//we could do this normalize() in vert shader, or skip it
+	float3 EyeDir = normalize(eyepos - pos.xyz);
+
+	// When doing Blinn-Phong shading we only use the half angle
+	float3 LightDir = normalize(lightpos.xyz -  (pos * lightpos.w).xyz);
+	float3 HalfAngle = normalize(LightDir + EyeDir);
+	float NdotL = dot(LightDir, N);
+	float NdotH = dot(HalfAngle, N);
+
+	// Max Style Specularity
+	float exponent = clamp(NdotH,0,1);
+	exponent = pow(exponent, glossLevel) * specularLevel *1.5;
+
+	//support for texture with the per pixel lighting
+	float3 textColour = expand(tex2D(diffuseMap, uv).xyz);
+
+	//support for texture with the per pixel lighting
+	float3 specIntensity = expand(tex2D(specularMap, uv).xyz);
+
+	// convert into grey scale for intensity ---THIS WE MIGHT IGNORE---
+	specIntensity = (specIntensity.x+specIntensity.y+specIntensity.z)/3;
+
+	// calculate lighting components
+	float4 ambient = sceneAmbient * ambientColor;
+	float4 diffuse = lightDiffuse * diffuseColor * clamp(dot(N,LightDir),0,1);
+	float4 specular= lightSpecular * specularColor * exponent;
+	float4 texture = float4(textColour.xyz, 1) * clamp(dot(N,LightDir),0,1);
+
+	//Do the Blinn per pixel lighting
+	shadeColor = ambient;
+	shadeColor += diffuse;
+	   
+	//diffuse map component
+	shadeColor = shadeColor *(1-amount) + (amount * texture);
+
+	//specular map component
+	shadeColor += specular * (1-clampAmount) + clampAmount * clamp( float4(specIntensity.xyz,1)* exponent, 0.0, 1.0);
+
+	//opacity
+	shadeColor.a = opacity;
+	oColor = vertCol * shadeColor;  
+}

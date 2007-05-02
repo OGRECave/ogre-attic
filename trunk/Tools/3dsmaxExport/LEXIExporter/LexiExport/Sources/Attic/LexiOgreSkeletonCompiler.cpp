@@ -191,6 +191,7 @@ bool COgreSkeletonCompiler::WriteOgreSkeleton( const Ogre::String& sFilename )
 	Ogre::SkeletonSerializer* pSkeletonWriter = new Ogre::SkeletonSerializer();
 	try
 	{
+		SetFileAttributesA(sFilename.c_str(), FILE_ATTRIBUTE_NORMAL );
 		pSkeletonWriter->exportSkeleton( m_pSkel.get(), sFilename );
 	}
 	catch (Ogre::Exception& e)

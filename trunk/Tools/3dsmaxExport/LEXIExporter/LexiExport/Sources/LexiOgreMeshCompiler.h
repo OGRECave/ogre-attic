@@ -31,7 +31,7 @@ class COgreMeshCompiler
 {
 public:
 
-	COgreMeshCompiler( CIntermediateMesh* pIntermediateMesh, const CDDObject* pConfig, Ogre::String filename );
+	COgreMeshCompiler( CIntermediateMesh* pIntermediateMesh, const CDDObject* pConfig, CExportProgressDlg* pProgressDlg);
 	virtual ~COgreMeshCompiler();
 
 	bool			WriteOgreMesh( const Ogre::String& sFilename );
@@ -52,16 +52,23 @@ protected:
 	void	CreateTexCoordBuffer( CIntermediateMesh* pIntermediateMesh );
 	void	CreatePoseBuffers( CIntermediateMesh* pIntermediateMesh );
 	void	CreateMeshBounds( void );
-	void	PrintVertexDataToLog( void );
 
-	void	SetBoneAssignments( const CTriangle& face, CIntermediateMesh* pIntermediateMesh );
+	void	SetBoneAssignments( const CTriangle& face, CIntermediateMesh* pIntermediateMesh, Ogre::SubMesh* pSubMesh=NULL );
 
 private:
 
 	void	ReadConfig( const CDDObject* pConfig );
 	void	ReindexIntermediateBuffers( CIntermediateMesh* pIntermediateMesh );
+	void	OptimizeVertexDeclaration( void );
+	Ogre::VertexData* GetVertexData( bool sharedGeometry, unsigned int subMeshindex=0 );
+	CMeshArray* ExtractSubMeshData_Vec3( CMeshArray* pMeshArray, CIntermediateMesh* pIMesh, CIntermediateMaterial* pIMat, std::map< unsigned int, unsigned int>& lIndexMap );
+	CMeshArray* ExtractSubMeshData_Vec4( CMeshArray* pMeshArray, CIntermediateMesh* pIMesh, CIntermediateMaterial* pIMat, std::map< unsigned int, unsigned int>& lIndexMap );
+	CMeshArray* ExtractSubMeshDataFromIndexMap_Vec4( CMeshArray* pMeshArray, std::map< unsigned int, unsigned int>& lIndexMap );
+	CMeshArray* ExtractSubMeshDataFromIndexMap_Vec3( CMeshArray* pMeshArray, std::map< unsigned int, unsigned int>& lIndexMap );
+	CMeshArray* ExtractSubMeshDataFromIndexMap_Vec2( CMeshArray* pMeshArray, std::map< unsigned int, unsigned int>& lIndexMap );
+	
 
-	unsigned int CreatePose( CIntermediateMesh* pIntermediateMesh, Ogre::String name, unsigned int iFrame, bool bOptimize );
+	unsigned int CreatePose( int** poseIndex, CIntermediateMesh* pIntermediateMesh, Ogre::String name, unsigned int iFrame, bool bOptimize );
 	unsigned int m_iNrPoses;
 
 	Ogre::MeshPtr			m_pOgreMesh;
@@ -74,13 +81,24 @@ private:
 	bool 	m_bExportColours;
 	bool 	m_bExportTexUVs;
 	bool 	m_bExportSkeleton;
+	bool	m_bPoseAnimation;
+	bool	m_bOptimizeBuffers;
+	bool	m_bExportEdges;
+	bool	m_bExportTangents;
+	bool	m_bUseSharedGeometry;
+
+	CExportProgressDlg* m_pProgressDlg;
 
 	COgreSkeletonCompiler* m_pSkeletonCompiler;
 
 	Ogre::HardwareIndexBuffer::IndexType		m_IndexBitType;
 	std::map<CIntermediateMaterial*, Ogre::SubMesh*>	m_lMaterialSubMeshMap;
+	std::map<Ogre::SubMesh*, std::map<unsigned int, unsigned int> >	m_lSubMeshIndexReMap; // old index -> newIndex
 
-	Ogre::HardwareVertexBufferSharedPtr vBuf;
+	//Ogre::HardwareVertexBufferSharedPtr vBuf;
+	Ogre::VertexDeclaration* m_pVertexDecl;
 	unsigned int m_iNrVerts;
+
+	int m_iPoseBufferIndexs[2];
 
 };

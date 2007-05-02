@@ -101,6 +101,7 @@ class CIntermediateSkeleton {
 		CIntermediateBone* FindBone( ULONG handle );
 
 		int GetNrOfAssignmentsOnVertex( int idx );
+		bool GetVertexDataCollection( int idx, std::vector<SVertexBoneData>** returnCollection );
 		void TrimVertexAssignments( int iMaxAssignments );
 		void NormalizeVertexAssignments( void );
 		bool GetVertexData( int idx, int assignmentNr, SVertexBoneData& returnVal);

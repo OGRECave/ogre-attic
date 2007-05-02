@@ -7,22 +7,18 @@
 "LanguageId" = "3:1033"
 "CodePage" = "3:1252"
 "UILanguageId" = "3:1033"
-"SccProjectName" = "8:Perforce Project"
-"SccLocalPath" = "8:."
-"SccAuxPath" = "8:"
-"SccProvider" = "8:MSSCCI:Perforce SCM"
     "Hierarchy"
     {
         "Entry"
         {
-        "MsmKey" = "8:_0110A363BD0B4B95A7E564B228B72F08"
-        "OwnerKey" = "8:_86C37D9B161B456FB750A53ED4B7E8F4"
+        "MsmKey" = "8:_192C1206465A49C982CD53150BC0A363"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_192C1206465A49C982CD53150BC0A363"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_1CE0E926D661402E957B38286B432B8D"
+        "OwnerKey" = "8:_470B0D71E5114C61AA1EAE7F1BE04213"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -45,6 +41,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_470B0D71E5114C61AA1EAE7F1BE04213"
+        "OwnerKey" = "8:_30BD674C97284F2DB5C7D153FB8FC74F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_61916BA150C64800B37EE8FE8D559588"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -53,12 +55,6 @@
         {
         "MsmKey" = "8:_70C695C9EE00485A901A89334B9295F4"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_86C37D9B161B456FB750A53ED4B7E8F4"
-        "OwnerKey" = "8:_30BD674C97284F2DB5C7D153FB8FC74F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -583,6 +579,17 @@
                                 {
                                 }
                             }
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_A6D183DA7537437D941083859DE50A40"
+                            {
+                            "Name" = "8:Logs"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_876C4991303648318FD7040C919883EA"
+                                "Folders"
+                                {
+                                }
+                            }
                         }
                     }
                 }
@@ -613,18 +620,18 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:LEXIExport"
-        "ProductCode" = "8:{6569210F-E60A-4237-8119-9F83B11302EA}"
-        "PackageCode" = "8:{90F01308-B90D-474C-88E6-B63374B761D7}"
+        "ProductCode" = "8:{4DB65CE5-FAF0-48A4-9A7C-B5AE729EFF81}"
+        "PackageCode" = "8:{6B7CB4B4-60C1-4B1F-B8E1-E16E4E619C24}"
         "UpgradeCode" = "8:{153F1498-CA22-4196-B639-B267C9BC0DFA}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.3"
+        "ProductVersion" = "8:1.0.4"
         "Manufacturer" = "8:NDS Denmark A/S"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:LEXIExport 1.0.3"
+        "Title" = "8:LEXIExport 1.0.4"
         "Subject" = "8:"
         "ARPCONTACT" = "8:ITE ApS"
         "Keywords" = "8:"
@@ -1129,7 +1136,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_0110A363BD0B4B95A7E564B228B72F08"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_1CE0E926D661402E957B38286B432B8D"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1143,7 +1150,7 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_86C37D9B161B456FB750A53ED4B7E8F4"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_470B0D71E5114C61AA1EAE7F1BE04213"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"

@@ -419,6 +419,7 @@ void CIntermediateMesh::Reindex(const fastvector<CMeshArray*>& ArrayList)
 
 void CIntermediateMesh::PostReindex(const fastvector<CMeshArray*>& ArrayList)
 {	
+	// We create a new array with the reindex'ed indices.. perhaps we could optimize this.
 	for(unsigned int x = 0; x < ArrayList.size(); x++)
 	{
 		CMeshArray* pArray = ArrayList[x];
@@ -434,6 +435,11 @@ void CIntermediateMesh::PostReindex(const fastvector<CMeshArray*>& ArrayList)
 		pArray->Create(m_iIndexCount, pTarget);
 		delete []pTarget;
 	}
+}
+
+unsigned int CIntermediateMesh::GetReindexedIndex( unsigned int iOldIndex )
+{
+	return m_pPickIndexTable[iOldIndex];
 }
 
 //
@@ -469,4 +475,117 @@ void CIntermediateMesh::BuildMaterialList( void )
 }
 
 //
-
+//
+//// calculates the mapping of indicies from shared to dedicated geometry buffers
+//void CIntermediateMesh::BuildSubmeshIndexMaps( void )
+//{
+//	if(m_Materials.size() == 0)
+//		return;
+//
+//	m_lSubmeshIndexMap.clear();
+//
+//	for(unsigned int x = 0; x < m_Materials.size(); x++)
+//	{
+//		CIntermediateMaterial* pMat = m_Materials[x];
+//		std::vector< unsigned int > lMatTriangles;
+//		GetTrianglesUsingMaterial( pMat, lMatTriangles);
+//
+//		std::map< unsigned int, unsigned int> lSubmeshMap;
+//		lSubmeshMap.clear();
+//
+//		unsigned int j = 0;
+//		for(unsigned int i = 0; i< lMatTriangles.size(); i++) {
+//
+//			const CTriangle& face = m_Triangles[ lMatTriangles[i] ];
+//
+//			// build index map
+//			for( unsigned int i=0; i < 3; i++)
+//			{
+//				unsigned int oldIndex = face.m_Vertices[i++];
+//				// ensure all records are unique
+//				std::map< unsigned int, unsigned int>::iterator it = lSubmeshMap.find(oldIndex);
+//				if(it == lSubmeshMap.end())
+//					lSubmeshMap.insert( std::pair<unsigned int, unsigned int>(oldIndex, j++) );
+//			}
+//
+//		}
+//		// associate with material
+//		m_lSubmeshIndexMap.insert( std::pair<CIntermediateMaterial*, std::map< unsigned int, unsigned int>>(pMat, lSubmeshMap ) );
+//	}
+//}
+//
+//// calculates the mapping of indicies from shared to dedicated geometry buffers
+//unsigned int CIntermediateMesh::GetSubmeshMappedIndex( CIntermediateMaterial* pMat, unsigned int oldIndex )
+//{
+//	if(m_lSubmeshIndexMap.size() == 0)
+//		return 0;
+//
+//	std::map< CIntermediateMaterial*, std::map< unsigned int, unsigned int> >::iterator it = m_lSubmeshIndexMap.find(pMat);
+//	if(it != m_lSubmeshIndexMap.end())
+//	{
+//		std::map< unsigned int, unsigned int> lSubmeshMap = it->second;
+//		std::map< unsigned int, unsigned int>::iterator it2 = lSubmeshMap.find(oldIndex);
+//		if(it2 != lSubmeshMap.end())
+//			return it2->second; // new index
+//	}
+//	return 0;
+//}
+//
+//unsigned int CIntermediateMesh::GetSubmeshMappedIndexCount( CIntermediateMaterial* pMat )
+//{
+//	if(m_lSubmeshIndexMap.size() == 0)
+//		return 0;
+//
+//	std::map< CIntermediateMaterial*, std::map< unsigned int, unsigned int> >::iterator it = m_lSubmeshIndexMap.find(pMat);
+//	if(it != m_lSubmeshIndexMap.end())
+//	{
+//		std::map< unsigned int, unsigned int> lSubmeshMap = it->second;
+//		return lSubmeshMap.size();
+//	}
+//
+//	return 0;
+//}
+//
+//bool CIntermediateMesh::GetSubmeshMappedIndexMap( CIntermediateMaterial* pMat, std::map< unsigned int, unsigned int>& returnMap )
+//{
+//	if(m_lSubmeshIndexMap.size() == 0)
+//		return false;
+//
+//	std::map< CIntermediateMaterial*, std::map< unsigned int, unsigned int> >::iterator it = m_lSubmeshIndexMap.find(pMat);
+//	if(it != m_lSubmeshIndexMap.end())
+//	{
+//		returnMap = it->second;
+//		return true;
+//	}
+//
+//	return false;
+//}
+//
+//
+//unsigned int CIntermediateMesh::GetSubmeshMappedUniqueIndexCount( CIntermediateMaterial* pMat )
+//{
+//	if(m_lSubmeshIndexMap.size() == 0)
+//		return 0;
+//
+//	std::map< unsigned int, unsigned int> lUniqueIndicies;
+//	lUniqueIndicies.clear();
+//
+//	std::map< CIntermediateMaterial*, std::map< unsigned int, unsigned int> >::iterator it = m_lSubmeshIndexMap.find(pMat);
+//	if(it != m_lSubmeshIndexMap.end())
+//	{
+//		std::map< unsigned int, unsigned int> lSubmeshMap = it->second;
+//		std::map< unsigned int, unsigned int>::iterator it2 = lSubmeshMap.begin();
+//		while(it2 != lSubmeshMap.end() )
+//		{
+//			unsigned int newIndex = it2->second;
+//			std::map< unsigned int, unsigned int>::iterator it3 = lUniqueIndicies.find(newIndex);
+//			if(it3==lUniqueIndicies.end())
+//			{
+//				lUniqueIndicies.insert( std::pair<unsigned int, unsigned int>(it3->second,it3->second) );
+//			}
+//			it2++;
+//		}
+//	}
+//
+//	return lUniqueIndicies.size();
+//}

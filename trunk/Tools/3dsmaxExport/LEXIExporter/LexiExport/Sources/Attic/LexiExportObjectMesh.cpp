@@ -127,7 +127,7 @@ bool CMeshExportObject::OnCreate(CExporterPropertiesDlg *pPropDialog)
 	std::string sTemp = GetNameFromID(m_pDDConfig->GetInt("NodeID"));
 	sTemp += ".mesh";	
 	RemoveIllegalChars(sTemp);
-	sTemp = "C:\\" + sTemp;		
+//	sTemp = "C:\\" + sTemp;		
 	m_pDDConfig->SetString("FileName", sTemp.c_str());
 	return true;
 }
@@ -166,6 +166,16 @@ CDDObject* CMeshExportObject::BuildMetaDesc( void )
 	fastvector< const CDDObject* > lSettings;
 	CDDObject* pDDMetaElement;
 
+	
+	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID","useSharedGeometryID");
+	pDDMetaElement->SetString("Type","bool");
+	pDDMetaElement->SetString("Group","Export Settings");
+	pDDMetaElement->SetString("Caption","Shared Geometry");
+	pDDMetaElement->SetString("Help","Export vertex data into one shared buffer. Otherwise keep a dedicated vertex buffer for each submesh. (If you plan to do hardware optimized pose blending ensure this option if set to off)");
+	pDDMetaElement->SetBool("Default", false);
+	lSettings.push_back(pDDMetaElement);
+
 	pDDMetaElement = new CDDObject();
 	pDDMetaElement->SetString("ID","normalsID");
 	pDDMetaElement->SetString("Type","bool");
@@ -197,6 +207,25 @@ CDDObject* CMeshExportObject::BuildMetaDesc( void )
 	lSettings.push_back(pDDMetaElement);
 
 	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID","exportEdgesID");
+	pDDMetaElement->SetString("Type","bool");
+	pDDMetaElement->SetString("Group","Export Settings");
+	pDDMetaElement->SetString("Caption","Edges");
+	pDDMetaElement->SetString("Help","Generate and export edges. This is usually used with shadow techniques.");
+	pDDMetaElement->SetBool("Default", false);
+	lSettings.push_back(pDDMetaElement);
+
+	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID","exportTangentsID");
+	pDDMetaElement->SetString("Type","bool");
+	pDDMetaElement->SetString("Group","Export Settings");
+	pDDMetaElement->SetString("Caption","Tangents");
+	pDDMetaElement->SetString("Help","Generate and export tangents. Check the Log to see which uv set it is written to.");
+	pDDMetaElement->SetString("Condition", "$uvID==true && $normalsID==true");
+	pDDMetaElement->SetBool("Default", false);
+	lSettings.push_back(pDDMetaElement);
+
+	pDDMetaElement = new CDDObject();
 	pDDMetaElement->SetString("ID","reindexID");
 	pDDMetaElement->SetString("Type","bool");
 	pDDMetaElement->SetString("Group","Export Settings");
@@ -206,12 +235,31 @@ CDDObject* CMeshExportObject::BuildMetaDesc( void )
 	pDDMetaElement->SetBool("Default", true);
 	lSettings.push_back(pDDMetaElement);
 
+	//pDDMetaElement = new CDDObject();
+	//pDDMetaElement->SetString("ID","collapseHierarchy");
+	//pDDMetaElement->SetString("Type","bool");
+	//pDDMetaElement->SetString("Group","Export Settings");
+	//pDDMetaElement->SetString("Caption","Collapse Hierarchy");
+	//pDDMetaElement->SetString("Help","Collapse entire hierarchy into one mesh");
+	//pDDMetaElement->SetBool("Default", false);
+	//lSettings.push_back(pDDMetaElement);
+
 	pDDMetaElement = new CDDObject();
-	pDDMetaElement->SetString("ID","collapseHierarchy");
+	pDDMetaElement->SetString("ID","exportMaterialsID");
 	pDDMetaElement->SetString("Type","bool");
 	pDDMetaElement->SetString("Group","Export Settings");
-	pDDMetaElement->SetString("Caption","Collapse Hierarchy");
-	pDDMetaElement->SetString("Help","Collapse entire hierarchy into one mesh");
+	pDDMetaElement->SetString("Caption","Export Materials");
+	pDDMetaElement->SetString("Help","Write Ogre3D materials files.");
+	pDDMetaElement->SetBool("Default", true);
+	lSettings.push_back(pDDMetaElement);
+
+	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID","exportSingleMaterialFileID");
+	pDDMetaElement->SetString("Type","bool");
+	pDDMetaElement->SetString("Group","Resources");
+	pDDMetaElement->SetString("Caption","Export Single Material File");
+	pDDMetaElement->SetString("Help","Write Ogre3D materials in a single file. Warning! This might lead to duplicate material definitions when exporting several meshes.");
+	pDDMetaElement->SetString("Condition", "$exportMaterialsID==true");
 	pDDMetaElement->SetBool("Default", false);
 	lSettings.push_back(pDDMetaElement);
 
@@ -221,6 +269,7 @@ CDDObject* CMeshExportObject::BuildMetaDesc( void )
 	pDDMetaElement->SetString("Group","Resources");
 	pDDMetaElement->SetString("Caption","Copy Textures");
 	pDDMetaElement->SetString("Help","Copy Textures To Output Folder");
+	pDDMetaElement->SetString("Condition", "$exportMaterialsID==true");
 	pDDMetaElement->SetBool("Default", true);
 	lSettings.push_back(pDDMetaElement);
 
@@ -230,8 +279,38 @@ CDDObject* CMeshExportObject::BuildMetaDesc( void )
 	pDDMetaElement->SetString("Group","Resources");
 	pDDMetaElement->SetString("Caption","Copy Shaders");
 	pDDMetaElement->SetString("Help","Copy Shaders To Output Folder");
+	pDDMetaElement->SetString("Condition", "$exportMaterialsID==true");
 	pDDMetaElement->SetBool("Default", true);
 	lSettings.push_back(pDDMetaElement);
+
+	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID","overrideExtensionID");
+	pDDMetaElement->SetString("Type","bool");
+	pDDMetaElement->SetString("Group","Resources");
+	pDDMetaElement->SetString("Caption","Convert Textures while copying.");
+	pDDMetaElement->SetString("Help","Convert Referenced Texture Maps to a specific format, e.g. .dds.");
+	pDDMetaElement->SetString("Condition", "$copyTextureMaps==true && $exportMaterialsID==true");
+	pDDMetaElement->SetBool("Default", false);
+	lSettings.push_back(pDDMetaElement);
+
+	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID","extensionID");
+	pDDMetaElement->SetString("Type","selection");
+	std::vector<faststring> lExtensions;
+	lExtensions.push_back(".dds");
+	lExtensions.push_back(".png");
+	lExtensions.push_back(".tga");
+	lExtensions.push_back(".bmp");
+	lExtensions.push_back(".jpg");
+	lExtensions.push_back(".gif");
+	pDDMetaElement->SetStringList("Strings",lExtensions);
+	pDDMetaElement->SetString("Group","Resources");
+	pDDMetaElement->SetString("Caption","Out Format");
+	pDDMetaElement->SetString("Help","Format to which the textures will be converted.");
+	pDDMetaElement->SetString("Condition", "$overrideExtensionID==true && $copyTextureMaps==true && $exportMaterialsID==true");
+	pDDMetaElement->SetString("Default",".dds");
+	lSettings.push_back(pDDMetaElement);
+			
 
 	pDDMetaDesc->SetDDList("MetaList", lSettings, false);
 
@@ -243,186 +322,263 @@ typedef std::map< Ogre::String, CIntermediateMaterial*> MAT_LIST;
 
 bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 {
+	START_PROFILE("CMeshExportObject::Export()");
 	bool returnVal = false;
-	Ogre::String sFilename;
 	COgreMeshCompiler* pOgreMeshCompiler = NULL;
 	Ogre::SceneNode* pNode;
 
 	if(m_bEnabled || bForceAll)
 	{
-	try 
-	{
-		// We have two step to begin with
-		pProgressDlg->InitLocal(2);
-
-		LOGDEBUG "Starting...");
-		CIntermediateBuilder::Get()->Clear();
-		CIntermediateBuilder::Get()->SetConfig(m_pDDConfig);
-
-		// BREAK UP THIS METHOD INTO SMALLER FUNCTION CALLS
-
-		// SPLIT THIS CLASS INTO A MESH AND SKINNED MESH.
-
-		pProgressDlg->LocalStep("StaticMesh: Reading max data");
-		LOGDEBUG "Creating Hierarchy...");
-
-		/////////////////////////////////////
-		//MessageBox(NULL, "PreIM","BREAK!",0);
-		/////////////////////////////////////
-
-
-		pNode = CIntermediateBuilder::Get()->CreateHierarchy(GetMAXNodeID(), true, false);
-		if(pNode == NULL)
+		try 
 		{
-			LOGERROR "No node with such ID: %d", GetMAXNodeID());
-			return false;
-		}
+			// We have two step to begin with
+			pProgressDlg->InitLocal(2);
 
-		LOGDEBUG "Reading config ...");
-		bool bCollaps = m_pDDConfig->GetBool("collapseHierarchy", false);
-		bool bCopyTextures = m_pDDConfig->GetBool("copyTextureMaps", false);
-		bool bCopyShaders = m_pDDConfig->GetBool("copyShaders", false);
+			LOGDEBUG "Starting...");
+			CIntermediateBuilder::Get()->Clear();
+			CIntermediateBuilder::Get()->SetConfig(m_pDDConfig);
 
-		sFilename = m_pDDConfig->GetString("FileName");
+			// BREAK UP THIS METHOD INTO SMALLER FUNCTION CALLS
 
-		if(bCollaps)
-		{
-			pProgressDlg->LocalStep("StaticMesh: Collapsing Mesh");
-			std::list<std::string> clist;
-			clist.push_back("position");
-			clist.push_back("normal");
-			clist.push_back("uv1");
-			Ogre::SceneNode* pColNode = CIntermediateBuilder::Get()->CollapseHierarchy(pNode, clist, "Collapsed");
-			CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
-			pNode = pColNode;
-		}
-		else
-		{
-			pProgressDlg->LocalStep();
-		}
+			// SPLIT THIS CLASS INTO A MESH AND SKINNED MESH.
+
+			pProgressDlg->LocalStep("StaticMesh: Reading max data");
+			LOGDEBUG "Creating Hierarchy...");
+
+			/////////////////////////////////////
+			//MessageBox(NULL, "PreIM","BREAK!",0);
+			/////////////////////////////////////
 
 
-		m_pIMesh = (CIntermediateMesh*)pNode->getAttachedObject(0);
-
-		LOGINFO "Exporting mesh: %s", m_pIMesh->getName().c_str());
-
-		returnVal = CExportObject::Export(pProgressDlg, bForceAll);	
-
-
-		// We have some remaining steps
-
-		bool bInOneFile = false;//true;
-		MAT_LIST lMaterials;
-		bool bMatRetrieved = CIntermediateBuilder::Get()->GetMaterials(lMaterials);
-
-		pProgressDlg->InitLocal(3+(lMaterials.size()));
-		pProgressDlg->LocalStep("StaticMesh: Creating Ogre Mesh..");
-
-		/////////////////////////////////////
-		//MessageBox(NULL, "PreMeshCompiler","BREAK!",0);
-		/////////////////////////////////////
-
-		pOgreMeshCompiler = new COgreMeshCompiler(m_pIMesh, m_pDDConfig, sFilename);
-
-		Ogre::String sBaseName;
-		Ogre::String sPath;
-		Ogre::StringUtil::splitFilename(sFilename, sBaseName, sPath);
-		
-		int n = sPath.find("/");
-		while(n != Ogre::String::npos)
-		{
-			sPath.replace(n,1,"\\");
-			sPath.insert(n,"\\");
-			n = sPath.find("/");
-		}
-
-		if(!::MakeSureDirectoryPathExists(sPath.c_str()))
-		{
-			LOGERROR "Error while attempting to create path: %s", sPath.c_str());
-			delete pOgreMeshCompiler;
-			delete m_pIMesh;
-			return false;
-		}
-
-		pProgressDlg->LocalStep("StaticMesh: Writing Ogre Mesh..");
-		LOGINFO "Writing Ogre Mesh (%s) ...", sFilename.c_str());
-
-		/////////////////////////////////////
-		//MessageBox(NULL, "PreWrite","BREAK!",0);
-		/////////////////////////////////////
-
-		pOgreMeshCompiler->WriteOgreMesh(sFilename);
-
-		/////////////////////////////////////
-		//MessageBox(NULL, "Pre Materials","BREAK!",0);
-		/////////////////////////////////////
-
-		pProgressDlg->LocalStep("StaticMesh: Exporting Ogre Materials..");
-		LOGINFO "Exporting material(s) ...");
-		if ( bMatRetrieved )
-		{
-			Ogre::MaterialSerializer matWriter;
-			MAT_LIST::iterator it = lMaterials.begin();
-
-			while (it != lMaterials.end())
+			pNode = CIntermediateBuilder::Get()->CreateHierarchy(GetMAXNodeID(), true, false);
+			if(pNode == NULL)
 			{
-				Ogre::String matDesc("StaticMesh: Exporting Ogre Material: ");
-				matDesc += it->second->GetName();
-				pProgressDlg->LocalStep(matDesc.c_str());
-				COgreMaterialCompiler matComp( it->second );
-				if(bInOneFile)
+				LOGERROR "No node with such ID: %d", GetMAXNodeID());
+				return false;
+			}
+
+			LOGDEBUG "Reading config ...");
+			bool bCollaps = m_pDDConfig->GetBool("collapseHierarchy", false);
+			bool bCopyTextures = m_pDDConfig->GetBool("copyTextureMaps", false);
+			bool bCopyShaders = m_pDDConfig->GetBool("copyShaders", false);
+			bool bExportMaterials = m_pDDConfig->GetBool("exportMaterialsID",true);
+			bool bInOneFile = m_pDDConfig->GetBool("exportSingleMaterialFileID",false);
+			
+			Ogre::String sExtension = "";
+			bool bOverrideExtension = m_pDDConfig->GetBool("overrideExtensionID",false);
+			if(bOverrideExtension)
+			{
+				std::vector<faststring> lExtensions;
+				lExtensions.push_back(".dds");
+				lExtensions.push_back(".png");
+				lExtensions.push_back(".tga");
+				lExtensions.push_back(".bmp");
+				lExtensions.push_back(".jpg");
+				lExtensions.push_back(".gif");
+				int index = m_pDDConfig->GetInt("extensionID");
+				sExtension = lExtensions.at(index).c_str();
+			}
+			if(bCollaps)
+			{
+				pProgressDlg->LocalStep("StaticMesh: Collapsing Mesh");
+				std::list<std::string> clist;
+				clist.push_back("position");
+				clist.push_back("normal");
+				clist.push_back("uv1");
+				Ogre::SceneNode* pColNode = CIntermediateBuilder::Get()->CollapseHierarchy(pNode, clist, "Collapsed");
+				CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
+				pNode = pColNode;
+			}
+			else
+			{
+				pProgressDlg->LocalStep();
+			}
+
+
+			m_pIMesh = (CIntermediateMesh*)pNode->getAttachedObject(0);
+
+			LOGINFO "Exporting mesh: %s", m_pIMesh->getName().c_str());
+
+			returnVal = CExportObject::Export(pProgressDlg, bForceAll);	
+
+
+			// We have some remaining steps
+
+			//bool bInOneFile = false;//true;
+			MAT_LIST lMaterials;
+			bool bMatRetrieved = CIntermediateBuilder::Get()->GetMaterials(lMaterials);
+
+			pProgressDlg->InitLocal(3+(lMaterials.size()));
+			pProgressDlg->LocalStep("StaticMesh: Creating Ogre Mesh..");
+
+			/////////////////////////////////////
+			//MessageBox(NULL, "PreMeshCompiler","BREAK!",0);
+			/////////////////////////////////////
+
+			pOgreMeshCompiler = new COgreMeshCompiler(m_pIMesh, m_pDDConfig, pProgressDlg);
+
+			const Ogre::String& sOrigFilename = m_pDDConfig->GetString("FileName");
+			const Ogre::String& sMeshFilename = FixupFilename(sOrigFilename.c_str(), "mesh");
+			const Ogre::String& sMaterialFilename = FixupFilename(sOrigFilename.c_str(), "material");
+			const Ogre::String& sTextureFilename = FixupFilename(sOrigFilename.c_str(), "texture");
+			const Ogre::String& sShaderFilename = FixupFilename(sOrigFilename.c_str(), "shader");
+
+			Ogre::String sBaseName;
+			Ogre::String sMeshPath;
+			Ogre::String sMaterialPath;
+			Ogre::String sTexturePath;
+			Ogre::String sShaderPath;
+
+			Ogre::StringUtil::splitFilename(sMeshFilename, sBaseName, sMeshPath);
+			int n = sMeshPath.find("/");
+			while(n != Ogre::String::npos)
+			{
+				sMeshPath.replace(n,1,"\\");
+				n = sMeshPath.find("/");
+			}
+
+			Ogre::StringUtil::splitFilename(sTextureFilename, sBaseName, sTexturePath);
+			n = sTexturePath.find("/");
+			while(n != Ogre::String::npos)
+			{
+				sTexturePath.replace(n,1,"\\");
+				n = sTexturePath.find("/");
+			}
+
+			Ogre::StringUtil::splitFilename(sMaterialFilename, sBaseName, sMaterialPath);
+			n = sMaterialPath.find("/");
+			while(n != Ogre::String::npos)
+			{
+				sMaterialPath.replace(n,1,"\\");
+				n = sMaterialPath.find("/");
+			}
+
+			Ogre::StringUtil::splitFilename(sShaderFilename, sBaseName, sShaderPath);
+			n = sShaderPath.find("/");
+			while(n != Ogre::String::npos)
+			{
+				sShaderPath.replace(n,1,"\\");
+				n = sShaderPath.find("/");
+			}
+
+			if(!::MakeSureDirectoryPathExists(sMeshPath.c_str()))
+			{
+				LOGERROR "Error while attempting to create path: %s", sMeshPath.c_str());
+				delete pOgreMeshCompiler;
+				delete m_pIMesh;
+				return false;
+			}
+
+			if(!::MakeSureDirectoryPathExists(sMaterialPath.c_str()))
+			{
+				LOGERROR "Error while attempting to create path: %s", sMaterialPath.c_str());
+				delete pOgreMeshCompiler;
+				delete m_pIMesh;
+				return false;
+			}
+
+			if(!::MakeSureDirectoryPathExists(sTexturePath.c_str()))
+			{
+				LOGERROR "Error while attempting to create path: %s", sTexturePath.c_str());
+				delete pOgreMeshCompiler;
+				delete m_pIMesh;
+				return false;
+			}
+
+			if(!::MakeSureDirectoryPathExists(sShaderPath.c_str()))
+			{
+				LOGERROR "Error while attempting to create path: %s", sShaderPath.c_str());
+				delete pOgreMeshCompiler;
+				delete m_pIMesh;
+				return false;
+			}
+
+			pProgressDlg->LocalStep("StaticMesh: Writing Ogre Mesh..");
+			LOGINFO "Writing Ogre Mesh (%s) ...", sMeshFilename.c_str());
+
+			/////////////////////////////////////
+			//MessageBox(NULL, "PreWrite","BREAK!",0);
+			/////////////////////////////////////
+
+			pOgreMeshCompiler->WriteOgreMesh(sMeshFilename);
+
+			/////////////////////////////////////
+			//MessageBox(NULL, "Pre Materials","BREAK!",0);
+			/////////////////////////////////////
+
+			
+			if(bExportMaterials)
+			{
+				pProgressDlg->LocalStep("StaticMesh: Exporting Ogre Materials..");
+				LOGINFO "Exporting material(s) ...");
+				if ( bMatRetrieved )
 				{
-					LOGDEBUG "Queueing material ...");
-					matWriter.queueForExport( matComp.GetOgreMaterial() );
-				}
-				else
-				{
-					LOGDEBUG "Exporting individual material ...");
-					try
+					Ogre::MaterialSerializer matWriter;
+					MAT_LIST::iterator it = lMaterials.begin();
+
+					while (it != lMaterials.end())
 					{
-						Ogre::MaterialPtr oMatPtr = matComp.GetOgreMaterial();
-						matWriter.exportMaterial( oMatPtr, Ogre::String(sPath+"\\"+oMatPtr->getName()+".material"));
-					} catch (Ogre::Exception e) 
+						Ogre::String matDesc("StaticMesh: Exporting Ogre Material: ");
+						matDesc += it->second->GetName();
+						pProgressDlg->LocalStep(matDesc.c_str());
+
+						COgreMaterialCompiler matComp( it->second, sExtension );
+						if(bInOneFile)
+						{
+							LOGDEBUG "Queueing material ...");
+							matWriter.queueForExport( matComp.GetOgreMaterial() );
+						}
+						else
+						{
+							try
+							{
+								Ogre::MaterialPtr oMatPtr = matComp.GetOgreMaterial();
+								Ogre::String matName(oMatPtr->getName()+".material");
+								Ogre::String matFile(sMaterialPath+"\\"+matName);
+								LOGDEBUG "Exporting individual material: (%s).", matName.c_str());
+								matWriter.exportMaterial( oMatPtr, matFile);
+							} catch (Ogre::Exception e) 
+							{
+								LOGERROR "OgreExeception caught: %s", e.getDescription().c_str()); 
+							}
+						}
+
+						if(bCopyTextures) matComp.CopyTextureMaps( sTexturePath, sExtension );
+						if(bCopyShaders) matComp.CopyShaderSources( sShaderPath );
+						it++;
+					}
+					if(bInOneFile)
 					{
-						LOGERROR "OgreExeception caught: %s", e.getDescription().c_str()); 
+						try	
+						{
+							LOGDEBUG "Exporting Global material file...");
+							matWriter.exportQueued( Ogre::String(sMaterialFilename+".material") );
+						} catch (Ogre::Exception e) 
+						{
+							LOGERROR "OgreExeception caught: %s",  e.getDescription().c_str()); 
+						}
 					}
 				}
+			} // End Material export
 
-				if(bCopyTextures) matComp.CopyTextureMaps( sPath );
-				if(bCopyShaders) matComp.CopyShaderSources( sPath );
-				it++;
-			}
-			try	
-			{
-				if(bInOneFile)
-				{
-					LOGDEBUG "Exporting Global material file...");
-					matWriter.exportQueued( Ogre::String(sFilename+".material") );
-				}
-			} catch (Ogre::Exception e) 
-			{
-				LOGERROR "OgreExeception caught: %s",  e.getDescription().c_str()); 
-			}
+		} catch(Ogre::Exception e)
+		{
+			LOGERROR "OgreException caught: %s", e.getDescription().c_str());
+		} catch(...)
+		{
+			LOGERROR "Caught unhandled exception in CMeshExportObject::Export()");
 		}
+		
+		LOGDEBUG "Cleaning up...");
+		delete pOgreMeshCompiler;
+		//delete m_pIMesh; // We should do a general Cleanup from the imtermediateBuilder since there might be several objects in the hierarchy
+		CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
+		CIntermediateBuilder::Get()->Clear();
 
-
-	} catch(Ogre::Exception e)
-	{
-		LOGERROR "OgreException caught: %s", e.getDescription().c_str());
-	} catch(...)
-	{
-		LOGERROR "Caught unhandled exception in CMeshExportObject::Export()");
+		LOGINFO "..Done!");
 	}
-	}
 
-
-	LOGDEBUG "Cleaning up...");
-	delete pOgreMeshCompiler;
-	//delete m_pIMesh; // We should do a general Cleanup from the imtermediateBuilder since there might be several objects in the hierarchy
-	CIntermediateBuilder::Get()->CleanUpHierarchy( pNode );
-	CIntermediateBuilder::Get()->Clear();
-
-	LOGINFO "..Done!");
+	END_PROFILE("CMeshExportObject::Export()");
 
 	return returnVal;
 

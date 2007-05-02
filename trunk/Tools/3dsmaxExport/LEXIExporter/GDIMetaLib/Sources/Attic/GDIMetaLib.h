@@ -36,6 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "GDIListBox.h"
 #include "GDITreeCtrl.h"
 #include "GDIDialog.h"
+#include "GDIFolderDialog.h"
 #include "GDIAlphaFiller.h"
 
 #include "MetaDefs.h"
