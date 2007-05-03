@@ -569,7 +569,14 @@ namespace Ogre {
 		return mSceneLodFactorInv;
 	}
     //-----------------------------------------------------------------------
-    Ray Camera::getCameraToViewportRay(Real screenX, Real screenY) const
+	Ray Camera::getCameraToViewportRay(Real screenX, Real screenY) const
+	{
+		Ray ret;
+		getCameraToViewportRay(screenX, screenY, &ret);
+		return ret;
+	}
+	//---------------------------------------------------------------------
+    void Camera::getCameraToViewportRay(Real screenX, Real screenY, Ray* outRay) const
     {
 		Matrix4 inverseVP = (getProjectionMatrix() * getViewMatrix(true)).inverse();
 
@@ -588,9 +595,62 @@ namespace Ogre {
 		Vector3 rayDirection = rayTarget - rayOrigin;
 		rayDirection.normalise();
 
-		return Ray(rayOrigin, rayDirection);
+		outRay->setOrigin(rayOrigin);
+		outRay->setDirection(rayDirection);
     } 
+	//---------------------------------------------------------------------
+	PlaneBoundedVolume Camera::getCameraToViewportBoxVolume(Real screenLeft, 
+		Real screenTop, Real screenRight, Real screenBottom)
+	{
+		PlaneBoundedVolume vol;
+		getCameraToViewportBoxVolume(screenLeft, screenTop, screenRight, screenBottom, 
+			&vol);
+		return vol;
 
+	}
+	//---------------------------------------------------------------------()
+	void Camera::getCameraToViewportBoxVolume(Real screenLeft, 
+		Real screenTop, Real screenRight, Real screenBottom, 
+		PlaneBoundedVolume* outVolume)
+	{
+		outVolume->planes.clear();
+
+		// Use the corner rays to generate planes
+		Ray ul = getCameraToViewportRay(screenLeft, screenTop);
+		Ray ur = getCameraToViewportRay(screenRight, screenTop);
+		Ray bl = getCameraToViewportRay(screenLeft, screenBottom);
+		Ray br = getCameraToViewportRay(screenRight, screenBottom);
+
+
+		Vector3 normal;
+		// top plane
+		normal = ul.getDirection().crossProduct(ur.getDirection());
+		normal.normalise();
+		outVolume->planes.push_back(
+			Plane(normal, getDerivedPosition()));
+
+		// right plane
+		normal = ur.getDirection().crossProduct(br.getDirection());
+		normal.normalise();
+		outVolume->planes.push_back(
+			Plane(normal, getDerivedPosition()));
+
+		// bottom plane
+		normal = br.getDirection().crossProduct(bl.getDirection());
+		normal.normalise();
+		outVolume->planes.push_back(
+			Plane(normal, getDerivedPosition()));
+
+		// left plane
+		normal = bl.getDirection().crossProduct(ul.getDirection());
+		normal.normalise();
+		outVolume->planes.push_back(
+			Plane(normal, getDerivedPosition()));
+
+		// near plane
+		outVolume->planes.push_back(getFrustumPlane(FRUSTUM_PLANE_NEAR));
+
+	}
     // -------------------------------------------------------------------
     void Camera::setWindow (Real Left, Real Top, Real Right, Real Bottom)
     {

@@ -43,6 +43,7 @@ Torus Knot Software Ltd.
 #include "OgreCommon.h"
 #include "OgreFrustum.h"
 #include "OgreRay.h"
+#include "OgrePlaneBoundedVolume.h"
 
 
 namespace Ogre {
@@ -445,6 +446,36 @@ namespace Ogre {
             in normalised screen coordinates [0,1]
         */
         Ray getCameraToViewportRay(Real screenx, Real screeny) const;
+        /** Gets a world space ray as cast from the camera through a viewport position.
+        @param screenx, screeny The x and y position at which the ray should intersect the viewport, 
+            in normalised screen coordinates [0,1]
+		@param outRay Ray instance to populate with result
+        */
+        void getCameraToViewportRay(Real screenx, Real screeny, Ray* outRay) const;
+
+		/** Gets a world-space list of planes enclosing a volume based on a viewport
+			rectangle. 
+		@remarks
+			Can be useful for populating a PlaneBoundedVolumeListSceneQuery, e.g. 
+			for a rubber-band selection. 
+		@param screenLeft, screenTop, screenRight, screenBottom The bounds of the
+			on-screen rectangle, expressed in normalised screen coordinates [0,1]
+		*/
+		PlaneBoundedVolume getCameraToViewportBoxVolume(Real screenLeft, 
+			Real screenTop, Real screenRight, Real screenBottom);
+
+		/** Gets a world-space list of planes enclosing a volume based on a viewport
+			rectangle. 
+		@remarks
+			Can be useful for populating a PlaneBoundedVolumeListSceneQuery, e.g. 
+			for a rubber-band selection. 
+		@param screenLeft, screenTop, screenRight, screenBottom The bounds of the
+			on-screen rectangle, expressed in normalised screen coordinates [0,1]
+		@param outVolume The plane list to populate with the result
+		*/
+		void getCameraToViewportBoxVolume(Real screenLeft, 
+			Real screenTop, Real screenRight, Real screenBottom, 
+			PlaneBoundedVolume* outVolume);
 
 		/** Internal method for OGRE to use for LOD calculations. */
 		Real _getLodBiasInverse(void) const;
