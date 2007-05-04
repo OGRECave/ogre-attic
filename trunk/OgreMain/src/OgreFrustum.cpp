@@ -286,7 +286,6 @@ namespace Ogre {
 
         return true;
     }
-
     //-----------------------------------------------------------------------
     bool Frustum::isVisible(const Sphere& sphere, FrustumPlane* culledBy) const
     {
@@ -315,6 +314,11 @@ namespace Ogre {
 
         return true;
     }
+	//---------------------------------------------------------------------
+	uint32 Frustum::getTypeFlags(void) const
+	{
+		return SceneManager::FRUSTUM_TYPE_MASK;
+	}
     //-----------------------------------------------------------------------
     void Frustum::calcProjectionParameters(Real& left, Real& right, Real& bottom, Real& top) const
     { 
