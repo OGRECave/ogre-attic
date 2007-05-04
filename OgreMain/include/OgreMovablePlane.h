@@ -81,6 +81,9 @@ namespace Ogre {
         const String& getMovableType(void) const;
         /// Get the derived plane as transformed by its parent node. 
         const Plane& _getDerivedPlane(void) const;
+		/// @copydoc MovableObject::visitRenderables
+		void visitRenderables(Renderable::Visitor* visitor, 
+			bool debugRenderables = false) {/* do nothing */}
 
     };
 }

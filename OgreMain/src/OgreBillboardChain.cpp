@@ -737,19 +737,16 @@ namespace Ogre {
 		*xform = _getParentNodeFullTransform();
 	}
 	//-----------------------------------------------------------------------
-	const Quaternion& BillboardChain::getWorldOrientation(void) const
-	{
-		return getParentNode()->_getDerivedOrientation();
-	}
-	//-----------------------------------------------------------------------
-	const Vector3& BillboardChain::getWorldPosition(void) const
-	{
-		return getParentNode()->_getDerivedPosition();
-	}
-	//-----------------------------------------------------------------------
 	const LightList& BillboardChain::getLights(void) const
 	{
 		return queryLights();
+	}
+	//---------------------------------------------------------------------
+	void BillboardChain::visitRenderables(Renderable::Visitor* visitor, 
+		bool debugRenderables)
+	{
+		// only one renderable
+		visitor->visit(this, 0, false);
 	}
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------

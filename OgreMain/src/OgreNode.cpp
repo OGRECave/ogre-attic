@@ -659,16 +659,6 @@ namespace Ogre {
         *xform = this->_getFullTransform();
     }
     //-----------------------------------------------------------------------
-    const Quaternion& Node::getWorldOrientation(void) const
-    {
-        return _getDerivedOrientation();
-    }
-    //-----------------------------------------------------------------------
-    const Vector3& Node::getWorldPosition(void) const
-    {
-        return _getDerivedPosition();
-    }
-    //-----------------------------------------------------------------------
     void Node::setInitialState(void)
     {
         mInitialPosition = mPosition;

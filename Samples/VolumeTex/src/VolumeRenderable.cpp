@@ -79,10 +79,6 @@ void VolumeRenderable::_notifyCurrentCamera( Camera* cam )
 }
 
 
-//const Ogre::Quaternion& VolumeRenderable::getWorldOrientation(void) const
-//{
-//	return Ogre::Quaternion::IDENTITY;
-//}
 
 void VolumeRenderable::getWorldTransforms( Matrix4* xform ) const
 {

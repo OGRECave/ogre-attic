@@ -385,10 +385,6 @@ namespace Ogre
 			void getRenderOperation(RenderOperation& op);
 			/** @copydoc Renderable::getWorldTransforms. */
 			void getWorldTransforms(Matrix4* xform) const;
-			/** @copydoc Renderable::getWorldOrientation. */
-			const Quaternion& getWorldOrientation(void) const;
-			/** @copydoc Renderable::getWorldPosition. */
-			const Vector3& getWorldPosition(void) const;
 			/** @copydoc Renderable::getSquaredViewDepth. */
 			Real getSquaredViewDepth(const Ogre::Camera *) const;
 			/** @copydoc Renderable::getLights. */
@@ -412,16 +408,17 @@ namespace Ogre
 			~ManualObjectSectionShadowRenderable();
 			/// Overridden from ShadowRenderable
 			void getWorldTransforms(Matrix4* xform) const;
-			/// Overridden from ShadowRenderable
-			const Quaternion& getWorldOrientation(void) const;
-			/// Overridden from ShadowRenderable
-			const Vector3& getWorldPosition(void) const;
 			HardwareVertexBufferSharedPtr getPositionBuffer(void) { return mPositionBuffer; }
 			HardwareVertexBufferSharedPtr getWBuffer(void) { return mWBuffer; }
 
 		};
 
 		typedef std::vector<ManualObjectSection*> SectionList;
+
+		/// @copydoc MovableObject::visitRenderables
+		void visitRenderables(Renderable::Visitor* visitor, 
+			bool debugRenderables = false);
+		
 		
 	protected:
 		/// Dynamic?

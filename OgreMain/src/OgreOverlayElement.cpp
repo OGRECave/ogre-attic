@@ -344,16 +344,6 @@ namespace Ogre {
     {
         mOverlay->_getWorldTransforms(xform);
     }
-    //-----------------------------------------------------------------------
-    const Quaternion& OverlayElement::getWorldOrientation(void) const
-    {
-        return mOverlay->getWorldOrientation();
-    }
-    //-----------------------------------------------------------------------
-    const Vector3& OverlayElement::getWorldPosition(void) const
-    {
-        return mOverlay->getWorldPosition();
-    }
     //---------------------------------------------------------------------
 	void OverlayElement::_positionsOutOfDate(void)
 	{
@@ -626,6 +616,12 @@ namespace Ogre {
         }
       
     }
+	//---------------------------------------------------------------------
+	void OverlayElement::visitRenderables(Renderable::Visitor* visitor, 
+		bool debugRenderables)
+	{
+		visitor->visit(this, 0, false);
+	}
     //-----------------------------------------------------------------------
     void OverlayElement::addBaseParameters(void)    
     {

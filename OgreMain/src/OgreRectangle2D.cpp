@@ -142,16 +142,6 @@ namespace Ogre {
         // return identity matrix to prevent parent transforms
         *xform = Matrix4::IDENTITY;
     }
-    //-----------------------------------------------------------------------
-    const Quaternion& Rectangle2D::getWorldOrientation(void) const
-    {
-        return Quaternion::IDENTITY;
-    }
-    //-----------------------------------------------------------------------
-    const Vector3& Rectangle2D::getWorldPosition(void) const
-    {
-        return Vector3::ZERO;
-    }
 
 
 }

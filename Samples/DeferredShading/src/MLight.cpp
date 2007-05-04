@@ -263,7 +263,7 @@ Ogre::Real MLight::getSquaredViewDepth(const Ogre::Camera* cam) const
 	}
 	else
 	{
-		Vector3 dist = cam->getDerivedPosition() - getWorldPosition();                                                                       
+		Vector3 dist = cam->getDerivedPosition() - getParentSceneNode()->_getDerivedPosition();
 		return dist.squaredLength();
 	}
 }
