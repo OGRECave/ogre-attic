@@ -294,6 +294,12 @@ namespace Ogre {
     {
         // Do nothing
     }
+	//-----------------------------------------------------------------------
+	void Light::visitRenderables(Renderable::Visitor* visitor, 
+		bool debugRenderables)
+	{
+		// nothing to render
+	}
     //-----------------------------------------------------------------------
     const String& Light::getMovableType(void) const
     {

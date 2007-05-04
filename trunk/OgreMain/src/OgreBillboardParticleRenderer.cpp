@@ -157,6 +157,12 @@ namespace Ogre {
         // Update the queue
         mBillboardSet->_updateRenderQueue(queue);
     }
+	//---------------------------------------------------------------------
+	void BillboardParticleRenderer::visitRenderables(Renderable::Visitor* visitor, 
+		bool debugRenderables)
+	{
+		mBillboardSet->visitRenderables(visitor, debugRenderables);
+	}
     //-----------------------------------------------------------------------
     void BillboardParticleRenderer::_setMaterial(MaterialPtr& mat)
     {

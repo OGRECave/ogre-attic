@@ -238,9 +238,10 @@ namespace Ogre {
 		void _updateRenderQueue(RenderQueue *);
 		void getRenderOperation(RenderOperation &);
 		void getWorldTransforms(Matrix4 *) const;
-		const Quaternion& getWorldOrientation(void) const;
-		const Vector3& getWorldPosition(void) const;
 		const LightList& getLights(void) const;
+		/// @copydoc MovableObject::visitRenderables
+		void visitRenderables(Renderable::Visitor* visitor, 
+			bool debugRenderables = false);
 
 
 

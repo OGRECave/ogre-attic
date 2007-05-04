@@ -234,18 +234,6 @@ namespace Ogre {
         *xform = mTransform;
 
     }
-    //-----------------------------------------------------------------------
-    const Quaternion& Overlay::getWorldOrientation(void) const
-    {
-        // n/a
-        return Quaternion::IDENTITY;
-    }
-    //-----------------------------------------------------------------------
-    const Vector3& Overlay::getWorldPosition(void) const
-    {
-        // n/a
-        return Vector3::ZERO;
-    }
     //---------------------------------------------------------------------
     void Overlay::_findVisibleObjects(Camera* cam, RenderQueue* queue)
     {

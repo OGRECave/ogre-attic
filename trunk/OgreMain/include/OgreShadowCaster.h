@@ -66,10 +66,6 @@ namespace Ogre {
         /// Overridden from Renderable
         void getWorldTransforms(Matrix4* xform) const = 0;
         /// Overridden from Renderable
-        const Quaternion& getWorldOrientation(void) const = 0;
-        /// Overridden from Renderable
-        const Vector3& getWorldPosition(void) const = 0;
-        /// Overridden from Renderable
         Real getSquaredViewDepth(const Camera*) const{ return 0; /* not used */}
         /// Overridden from Renderable
         const LightList& getLights(void) const;

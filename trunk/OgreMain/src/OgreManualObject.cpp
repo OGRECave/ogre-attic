@@ -778,6 +778,16 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------------
+	void ManualObject::visitRenderables(Renderable::Visitor* visitor, 
+		bool debugRenderables)
+	{
+		for (SectionList::iterator i = mSectionList.begin(); i != mSectionList.end(); ++i)
+		{
+			visitor->visit(*i, 0, false);
+		}
+
+	}
+	//-----------------------------------------------------------------------------
 	EdgeData* ManualObject::getEdgeList(void)
 	{
 		// Build on demand
@@ -965,16 +975,6 @@ namespace Ogre {
 		xform[0] = mParent->_getParentNodeFullTransform();
 	}
 	//-----------------------------------------------------------------------------
-	const Quaternion& ManualObject::ManualObjectSection::getWorldOrientation(void) const
-	{
-		return mParent->getParentNode()->_getDerivedOrientation();
-	}
-	//-----------------------------------------------------------------------------
-	const Vector3& ManualObject::ManualObjectSection::getWorldPosition(void) const
-	{
-		return mParent->getParentNode()->_getDerivedPosition();
-	}
-	//-----------------------------------------------------------------------------
 	Real ManualObject::ManualObjectSection::getSquaredViewDepth(const Ogre::Camera *cam) const
 	{
 		Node* n = mParent->getParentNode();
@@ -1049,18 +1049,6 @@ namespace Ogre {
 	{
 		// pretransformed
 		*xform = mParent->_getParentNodeFullTransform();
-	}
-	//--------------------------------------------------------------------------
-	const Quaternion&
-		ManualObject::ManualObjectSectionShadowRenderable::getWorldOrientation(void) const
-	{
-		return mParent->getParentNode()->_getDerivedOrientation();
-	}
-	//--------------------------------------------------------------------------
-	const Vector3&
-		ManualObject::ManualObjectSectionShadowRenderable::getWorldPosition(void) const
-	{
-		return mParent->getParentNode()->_getDerivedPosition();
 	}
 	//-----------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------

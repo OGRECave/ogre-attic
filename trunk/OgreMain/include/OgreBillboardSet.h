@@ -584,10 +584,6 @@ namespace Ogre {
         */
         virtual void getWorldTransforms(Matrix4* xform) const;
 
-        /** @copydoc Renderable::getWorldOrientation */
-        const Quaternion& getWorldOrientation(void) const;
-        /** @copydoc Renderable::getWorldPosition */
-        const Vector3& getWorldPosition(void) const;
         /** Internal callback used by Billboards to notify their parent that they have been resized.
         */
         virtual void _notifyBillboardResized(void);
@@ -713,6 +709,10 @@ namespace Ogre {
         virtual void _updateBounds(void);
         /** @copydoc Renderable::getLights */
         const LightList& getLights(void) const;
+
+		/// @copydoc MovableObject::visitRenderables
+		void visitRenderables(Renderable::Visitor* visitor, 
+			bool debugRenderables = false);
 
         /** Sort the billboard set. Only called when enabled via setSortingEnabled */
 		virtual void _sortBillboards( Camera* cam);

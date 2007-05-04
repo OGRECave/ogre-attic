@@ -108,6 +108,8 @@ namespace Ogre {
         bool mParentIsTagPoint;
         /// Is this object visible?
         bool mVisible;
+		/// Is debug display enabled?
+		bool mDebugDisplay;
 		/// Upper distance to still render
 		Real mUpperDistance;
 		Real mSquaredUpperDistance;
@@ -453,6 +455,32 @@ namespace Ogre {
 			override this if they want to be included in queries.
 		*/
 		virtual uint32 getTypeFlags(void) const;
+
+		/** Method to allow a caller to abstractly iterate over the Renderable
+			instances that this MovableObject will add to the render queue when
+			asked, if any. 
+		@param visitor Pointer to a class implementing the Renderable::Visitor 
+			interface which will be called back for each Renderable which will
+			be queued. Bear in mind that the state of the Renderable instances
+			may not be finalised depending on when you call this.
+		@param debugRenderables If false, only regular renderables will be visited
+			(those for normal display). If true, debug renderables will be
+			included too.
+		*/
+		virtual void visitRenderables(Renderable::Visitor* visitor, 
+			bool debugRenderables = false) = 0;
+
+		/** Sets whether or not the debug display of this object is enabled.
+		@remarks
+			Some objects aren't visible themselves but it can be useful to display
+			a debug representation of them. Or, objects may have an additional 
+			debug display on top of their regular display. This option enables / 
+			disables that debug display. Objects that are not visible never display
+			debug geometry regardless of this setting.
+		*/
+		virtual void setDebugDisplayEnabled(bool enabled) { mDebugDisplay = enabled; }
+		/// Gets whether debug display of this object is enabled. 
+		virtual bool isDebugDisplayEnabled(void) const { return mDebugDisplay; }
 
 
 

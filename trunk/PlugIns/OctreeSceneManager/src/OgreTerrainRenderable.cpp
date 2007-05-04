@@ -418,6 +418,12 @@ namespace Ogre
 
         queue->addRenderable(this, mRenderQueueID);
     }
+	//---------------------------------------------------------------------
+	void TerrainRenderable::visitRenderables(Renderable::Visitor* visitor, 
+		bool debugRenderables)
+	{
+		visitor->visit(this, 0, false);
+	}
     //-----------------------------------------------------------------------
     void TerrainRenderable::getRenderOperation( RenderOperation& op )
     {
@@ -437,16 +443,6 @@ namespace Ogre
     void TerrainRenderable::getWorldTransforms( Matrix4* xform ) const
     {
         *xform = mParentNode->_getFullTransform();
-    }
-    //-----------------------------------------------------------------------
-    const Quaternion& TerrainRenderable::getWorldOrientation(void) const
-    {
-        return mParentNode->_getDerivedOrientation();
-    }
-    //-----------------------------------------------------------------------
-    const Vector3& TerrainRenderable::getWorldPosition(void) const
-    {
-        return mParentNode->_getDerivedPosition();
     }
     //-----------------------------------------------------------------------
     bool TerrainRenderable::_checkSize( int n )

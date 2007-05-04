@@ -917,8 +917,11 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Frustum::_updateRenderQueue(RenderQueue* queue)
     {
-        // Add self 
-        queue->addRenderable(this);
+		if (mDebugDisplay)
+		{
+			// Add self 
+			queue->addRenderable(this);
+		}
     }
     //-----------------------------------------------------------------------
     const String& Frustum::getMovableType(void) const
@@ -950,22 +953,6 @@ namespace Ogre {
             *xform = mParentNode->_getFullTransform();
         else
             *xform = Matrix4::IDENTITY;
-    }
-    //-----------------------------------------------------------------------
-    const Quaternion& Frustum::getWorldOrientation(void) const 
-    {
-        if (mParentNode)
-            return mParentNode->_getDerivedOrientation();
-        else
-            return Quaternion::IDENTITY;
-    }
-    //-----------------------------------------------------------------------
-    const Vector3& Frustum::getWorldPosition(void) const 
-    {
-        if (mParentNode)
-            return mParentNode->_getDerivedPosition();
-        else
-            return Vector3::ZERO;
     }
     //-----------------------------------------------------------------------
     Real Frustum::getSquaredViewDepth(const Camera* cam) const 
@@ -1183,6 +1170,18 @@ namespace Ogre {
 		return mOrthoHeight * mAspect;	
 	}
 	//---------------------------------------------------------------------
+	void Frustum::visitRenderables(Renderable::Visitor* visitor, 
+		bool debugRenderables)
+	{
+		// Only displayed in debug
+		if (debugRenderables)
+		{
+			visitor->visit(this, 0, true);
+		}
+
+	}
+	//---------------------------------------------------------------------
+
 
 
 

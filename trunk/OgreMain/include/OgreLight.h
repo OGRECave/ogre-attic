@@ -371,6 +371,11 @@ namespace Ogre {
 		/** return a pointer to the custom shadow camera setup (null means use SceneManager global version). */
 		const ShadowCameraSetupPtr& getCustomShadowCameraSetup(void) const;
 
+		/// @copydoc MovableObject::visitRenderables
+		void visitRenderables(Renderable::Visitor* visitor, 
+			bool debugRenderables = false);
+
+
     protected:
         /// internal method for synchronising with parent node (if any)
         virtual void update(void) const;

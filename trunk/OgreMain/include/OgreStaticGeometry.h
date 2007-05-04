@@ -229,8 +229,6 @@ namespace Ogre {
 			Technique* getTechnique(void) const;
 			void getRenderOperation(RenderOperation& op);
 	        void getWorldTransforms(Matrix4* xform) const;
-	        const Quaternion& getWorldOrientation(void) const;
-	        const Vector3& getWorldPosition(void) const;
 			Real getSquaredViewDepth(const Camera* cam) const;
 	        const LightList& getLights(void) const;
 			bool getCastsShadows(void) const;
@@ -292,6 +290,7 @@ namespace Ogre {
 			Technique* getCurrentTechnique(void) const { return mTechnique; }
 			/// Dump contents for diagnostics
 			void dump(std::ofstream& of) const;
+			void visitRenderables(Renderable::Visitor* visitor, bool debugRenderables);
 		};
 		/** A LODBucket is a collection of smaller buckets with the same LOD. 
 		@remarks
@@ -335,6 +334,7 @@ namespace Ogre {
 			MaterialIterator getMaterialIterator(void);
 			/// Dump contents for diagnostics
 			void dump(std::ofstream& of) const;
+			void visitRenderables(Renderable::Visitor* visitor, bool debugRenderables);
 			
 		};
 		/** The details of a topological region which is the highest level of
@@ -368,10 +368,6 @@ namespace Ogre {
 				~RegionShadowRenderable();
 				/// Overridden from ShadowRenderable
 				void getWorldTransforms(Matrix4* xform) const;
-				/// Overridden from ShadowRenderable
-				const Quaternion& getWorldOrientation(void) const;
-				/// Overridden from ShadowRenderable
-				const Vector3& getWorldPosition(void) const;
 				HardwareVertexBufferSharedPtr getPositionBuffer(void) { return mPositionBuffer; }
 				HardwareVertexBufferSharedPtr getWBuffer(void) { return mWBuffer; }
 
@@ -432,6 +428,9 @@ namespace Ogre {
 			const AxisAlignedBox& getBoundingBox(void) const;
 			Real getBoundingRadius(void) const;
 			void _updateRenderQueue(RenderQueue* queue);
+			/// @copydoc MovableObject::visitRenderables
+			void visitRenderables(Renderable::Visitor* visitor, 
+				bool debugRenderables = false);
 			bool isVisible(void) const;
 			uint32 getTypeFlags(void) const;
 
@@ -728,6 +727,9 @@ namespace Ogre {
 
         /** Gets the queue group for this entity, see setRenderQueueGroup for full details. */
         virtual uint8 getRenderQueueGroup(void) const;
+		/// @copydoc MovableObject::visitRenderables
+		void visitRenderables(Renderable::Visitor* visitor, 
+			bool debugRenderables = false);
 		
 		/// Iterator for iterating over contained regions
 		typedef MapIterator<RegionMap> RegionIterator;

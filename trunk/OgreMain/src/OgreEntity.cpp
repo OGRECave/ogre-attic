@@ -1794,16 +1794,6 @@ namespace Ogre {
         *xform = mParent->_getParentNodeFullTransform();
     }
     //-----------------------------------------------------------------------
-    const Quaternion& Entity::EntityShadowRenderable::getWorldOrientation(void) const
-    {
-        return mParent->getParentNode()->_getDerivedOrientation();
-    }
-    //-----------------------------------------------------------------------
-    const Vector3& Entity::EntityShadowRenderable::getWorldPosition(void) const
-    {
-        return mParent->getParentNode()->_getDerivedPosition();
-    }
-    //-----------------------------------------------------------------------
     void Entity::EntityShadowRenderable::rebindPositionBuffer(const VertexData* vertexData, bool force)
     {
         if (force || mCurrentVertexData != vertexData)
@@ -1995,6 +1985,29 @@ namespace Ogre {
 		else
 		{
 			return BIND_ORIGINAL;
+		}
+
+	}
+	//---------------------------------------------------------------------
+	void Entity::visitRenderables(Renderable::Visitor* visitor, 
+		bool debugRenderables)
+	{
+		// Visit each SubEntity
+		for (SubEntityList::iterator i = mSubEntityList.begin(); i != mSubEntityList.end(); ++i)
+		{
+			visitor->visit(*i, 0, false);
+		}
+		// if manual LOD is in use, visit those too
+		ushort lodi = 1;
+		for (LODEntityList::iterator e = mLodEntityList.begin(); 
+			e != mLodEntityList.end(); ++e, ++lodi)
+		{
+			
+			uint nsub = (*e)->getNumSubEntities();
+			for (uint s = 0; s < nsub; ++s)
+			{
+				visitor->visit((*e)->getSubEntity(s), lodi, false);
+			}
 		}
 
 	}

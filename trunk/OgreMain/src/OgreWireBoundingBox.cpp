@@ -90,17 +90,6 @@ namespace Ogre {
         *xform = Matrix4::IDENTITY;
     }
     //-----------------------------------------------------------------------
-    const Quaternion& WireBoundingBox::getWorldOrientation(void) const
-    {
-        return Quaternion::IDENTITY;
-    }
-    //-----------------------------------------------------------------------
-    const Vector3& WireBoundingBox::getWorldPosition(void) const
-    {
-        return Vector3::ZERO;
-    }
-
-    //-----------------------------------------------------------------------
 	void WireBoundingBox::setupBoundingBoxVertices(const AxisAlignedBox& aab) {
 
 		Vector3 vmax = aab.getMaximum();

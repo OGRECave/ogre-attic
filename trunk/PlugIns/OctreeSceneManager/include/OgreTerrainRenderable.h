@@ -204,6 +204,10 @@ namespace Ogre
 
         virtual void _updateRenderQueue( RenderQueue* queue );
 
+		/// @copydoc MovableObject::visitRenderables
+		void visitRenderables(Renderable::Visitor* visitor, 
+			bool debugRenderables = false);
+
         /**
         Constructs a RenderOperation to render the TerrainRenderable.
         @remarks
@@ -218,9 +222,6 @@ namespace Ogre
         };
 
         virtual void getWorldTransforms( Matrix4* xform ) const;
-
-        virtual const Quaternion& getWorldOrientation(void) const;
-        virtual const Vector3& getWorldPosition(void) const;
 
         /** Returns the mipmap level that will be rendered for this frame */
         inline int getRenderLevel() const

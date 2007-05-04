@@ -464,12 +464,6 @@ namespace Ogre
         void getWorldTransforms(Matrix4* xform) const;
 
         /** Overridden from Renderable */
-        const Quaternion& getWorldOrientation(void) const;
-
-        /** Overridden from Renderable */
-        const Vector3& getWorldPosition(void) const;
-
-        /** Overridden from Renderable */
         Real getSquaredViewDepth(const Camera* cam) const;
 
         /** Overridden from Renderable */
@@ -608,7 +602,10 @@ namespace Ogre
 		/** Is a custom near clip plane in use? */
 		virtual bool isCustomNearClipPlaneEnabled(void) const 
 		{ return mObliqueDepthProjection; }
-		
+
+		/// @copydoc MovableObject::visitRenderables
+		void visitRenderables(Renderable::Visitor* visitor, 
+			bool debugRenderables = false);
 
         /// Small constant used to reduce far plane projection to avoid inaccuracies
         static const Real INFINITE_FAR_PLANE_ADJUST;

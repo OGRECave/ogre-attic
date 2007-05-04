@@ -69,10 +69,6 @@ namespace Ogre {
 
         void setWorldTransform( const Matrix4& xform );
         virtual void getWorldTransforms( Matrix4* xform ) const;
-        /** @copydoc Renderable::getWorldOrientation */
-        const Quaternion& getWorldOrientation(void) const;
-        /** @copydoc Renderable::getWorldPosition */
-        const Vector3& getWorldPosition(void) const;
 
 
         virtual void _notifyCurrentCamera(Camera* cam);
@@ -81,6 +77,9 @@ namespace Ogre {
         virtual const AxisAlignedBox& getBoundingBox(void) const;
 
         virtual void _updateRenderQueue(RenderQueue* queue);
+		/// @copydoc MovableObject::visitRenderables
+		void visitRenderables(Renderable::Visitor* visitor, 
+			bool debugRenderables = false);
 
         virtual ~SimpleRenderable();
 

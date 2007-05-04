@@ -191,17 +191,6 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    const Quaternion& SubEntity::getWorldOrientation(void) const
-    {
-        return mParentEntity->mParentNode->_getDerivedOrientation();
-    }
-    //-----------------------------------------------------------------------
-    const Vector3& SubEntity::getWorldPosition(void) const
-    {
-        return mParentEntity->mParentNode->_getDerivedPosition();
-    }
-
-    //-----------------------------------------------------------------------
     unsigned short SubEntity::getNumWorldTransforms(void) const
     {
         if (!mParentEntity->mNumBoneMatrices ||

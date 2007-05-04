@@ -713,6 +713,16 @@ namespace Ogre {
             mRenderer->_updateRenderQueue(queue, mActiveParticles, mCullIndividual);
         }
     }
+	//---------------------------------------------------------------------
+	void ParticleSystem::visitRenderables(Renderable::Visitor* visitor, 
+		bool debugRenderables)
+	{
+		if (mRenderer)
+		{
+			mRenderer->visitRenderables(visitor, debugRenderables);
+		}
+	}
+	//---------------------------------------------------------------------
     void ParticleSystem::initParameters(void)
     {
         if (createParamDictionary("ParticleSystem"))
