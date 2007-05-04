@@ -615,41 +615,66 @@ namespace Ogre {
 	{
 		outVolume->planes.clear();
 
-		// Use the corner rays to generate planes
-		Ray ul = getCameraToViewportRay(screenLeft, screenTop);
-		Ray ur = getCameraToViewportRay(screenRight, screenTop);
-		Ray bl = getCameraToViewportRay(screenLeft, screenBottom);
-		Ray br = getCameraToViewportRay(screenRight, screenBottom);
+		if (mProjType == PT_PERSPECTIVE)
+		{
+
+			// Use the corner rays to generate planes
+			Ray ul = getCameraToViewportRay(screenLeft, screenTop);
+			Ray ur = getCameraToViewportRay(screenRight, screenTop);
+			Ray bl = getCameraToViewportRay(screenLeft, screenBottom);
+			Ray br = getCameraToViewportRay(screenRight, screenBottom);
 
 
-		Vector3 normal;
-		// top plane
-		normal = ul.getDirection().crossProduct(ur.getDirection());
-		normal.normalise();
-		outVolume->planes.push_back(
-			Plane(normal, getDerivedPosition()));
+			Vector3 normal;
+			// top plane
+			normal = ul.getDirection().crossProduct(ur.getDirection());
+			normal.normalise();
+			outVolume->planes.push_back(
+				Plane(normal, getDerivedPosition()));
 
-		// right plane
-		normal = ur.getDirection().crossProduct(br.getDirection());
-		normal.normalise();
-		outVolume->planes.push_back(
-			Plane(normal, getDerivedPosition()));
+			// right plane
+			normal = ur.getDirection().crossProduct(br.getDirection());
+			normal.normalise();
+			outVolume->planes.push_back(
+				Plane(normal, getDerivedPosition()));
 
-		// bottom plane
-		normal = br.getDirection().crossProduct(bl.getDirection());
-		normal.normalise();
-		outVolume->planes.push_back(
-			Plane(normal, getDerivedPosition()));
+			// bottom plane
+			normal = br.getDirection().crossProduct(bl.getDirection());
+			normal.normalise();
+			outVolume->planes.push_back(
+				Plane(normal, getDerivedPosition()));
 
-		// left plane
-		normal = bl.getDirection().crossProduct(ul.getDirection());
-		normal.normalise();
-		outVolume->planes.push_back(
-			Plane(normal, getDerivedPosition()));
+			// left plane
+			normal = bl.getDirection().crossProduct(ul.getDirection());
+			normal.normalise();
+			outVolume->planes.push_back(
+				Plane(normal, getDerivedPosition()));
 
-		// near plane
+		}
+		else
+		{
+			// ortho planes are parallel to frustum planes
+
+			Ray ul = getCameraToViewportRay(screenLeft, screenTop);
+			Ray br = getCameraToViewportRay(screenRight, screenBottom);
+
+			updateFrustumPlanes();
+			outVolume->planes.push_back(
+				Plane(mFrustumPlanes[FRUSTUM_PLANE_TOP].normal, ul.getOrigin()));
+			outVolume->planes.push_back(
+				Plane(mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal, br.getOrigin()));
+			outVolume->planes.push_back(
+				Plane(mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal, br.getOrigin()));
+			outVolume->planes.push_back(
+				Plane(mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal, br.getOrigin()));
+			outVolume->planes.push_back(
+				Plane(mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal, ul.getOrigin()));
+			
+
+		}
+
+		// near plane applicable to both projection types
 		outVolume->planes.push_back(getFrustumPlane(FRUSTUM_PLANE_NEAR));
-
 	}
     // -------------------------------------------------------------------
     void Camera::setWindow (Real Left, Real Top, Real Right, Real Bottom)
