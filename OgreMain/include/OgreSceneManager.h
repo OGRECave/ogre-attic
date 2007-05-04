@@ -228,6 +228,8 @@ namespace Ogre {
 		static uint32 STATICGEOMETRY_TYPE_MASK;
 		/// Query type mask which will be used for lights  @see SceneQuery
 		static uint32 LIGHT_TYPE_MASK;
+		/// Query type mask which will be used for frusta and cameras @see SceneQuery
+		static uint32 FRUSTUM_TYPE_MASK;
 		/// User type mask limit
 		static uint32 USER_TYPE_MASK_LIMIT;
         /** Comparator for material map, for sorting materials into render order (e.g. transparent last).
