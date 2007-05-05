@@ -548,8 +548,6 @@ namespace Ogre
     void TerrainSceneManager::_renderVisibleObjects( void )
     {
 
-        mDestRenderSystem -> setLightingEnabled( false );
-
         OctreeSceneManager::_renderVisibleObjects();
 
     }
