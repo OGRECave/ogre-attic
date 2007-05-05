@@ -34,6 +34,7 @@ Torus Knot Software Ltd.
 #include "OgreFactoryObj.h"
 #include "OgreRenderQueue.h"
 #include "OgreCommon.h"
+#include "OgreRenderable.h"
 
 namespace Ogre {
 
