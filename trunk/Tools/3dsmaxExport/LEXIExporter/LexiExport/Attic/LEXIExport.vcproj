@@ -159,7 +159,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="-Zm131"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\GDIMetaLib\Sources;&quot;$(SolutionDir)Include&quot;;..\..\..\..\OgreMain\include;..\SharedUtilities\Sources\;&quot;$(MAX_SDK_DIR)\include&quot;&quot;$(SolutionDir)\LexiExport\XMLConverter\include&quot;"
+				AdditionalIncludeDirectories="..\GDIMetaLib\Sources;&quot;$(SolutionDir)Include&quot;;..\..\..\..\OgreMain\include;..\SharedUtilities\Sources\;&quot;$(MAX_SDK_DIR)\include&quot;;&quot;$(SolutionDir)\LexiExport\XMLConverter\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;TIXML_USE_STL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"

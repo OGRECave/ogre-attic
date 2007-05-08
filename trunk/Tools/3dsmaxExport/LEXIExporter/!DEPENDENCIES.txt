@@ -1,8 +1,11 @@
 Dependencies:
-- IncMerge.exe (www.folkenberg.dk\files\IncMerge.zip)
-- Ogre3D SDK (www.ogre3d.org)
-- Max8 SDK (from your 3DMax install CD)
+- IncMerge.exe (Get it from www.folkenberg.dk\files\IncMerge.zip and extract it to the same folder as teh VS8 solution file)
+- Ogre3D SDK (www.ogre3d.org - you probably already have the source since LEXIExporter gets distributed in it - just remember to build it)
+- Max8 SDK (from your 3DMax install CD. Ensure there is a environment variable called MAX_SDK_DIR pointing to your MAX8 SDK folder)
 
 NB.
 Remember to set the Include and Linking options in the VSproject.
 The Ogre path should also be set in the Copy_...bat files.
+
+NB.
+Run the Copy_Ogre_Release...bat file to populate the installData folder, before building the installer. 
