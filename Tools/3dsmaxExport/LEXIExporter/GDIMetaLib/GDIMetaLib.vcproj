@@ -404,7 +404,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\Tools\Bin\IncMerge $(InputPath) $(SolutionDir)Include\$(InputFileName) -checkout&#x0D;&#x0A;"
+						CommandLine="$(SolutionDir)\IncMerge $(InputPath) $(SolutionDir)Include\$(InputFileName) -checkout&#x0D;&#x0A;"
 						Outputs="$(SolutionDir)Include\$(InputFileName)"
 					/>
 				</FileConfiguration>
@@ -413,7 +413,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\Tools\Bin\IncMerge $(InputPath) $(SolutionDir)Include\$(InputFileName) -checkout&#x0D;&#x0A;"
+						CommandLine="$(SolutionDir)\IncMerge $(InputPath) $(SolutionDir)Include\$(InputFileName) -checkout&#x0D;&#x0A;"
 						Outputs="$(SolutionDir)Include\$(InputFileName)"
 					/>
 				</FileConfiguration>
@@ -422,7 +422,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\Tools\Bin\IncMerge $(InputPath) $(SolutionDir)Include\$(InputFileName) -checkout&#x0D;&#x0A;"
+						CommandLine="$(SolutionDir)\IncMerge $(InputPath) $(SolutionDir)Include\$(InputFileName) -checkout&#x0D;&#x0A;"
 						Outputs="$(SolutionDir)Include\$(InputFileName)"
 					/>
 				</FileConfiguration>

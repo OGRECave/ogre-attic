@@ -109,6 +109,9 @@ class CIntermediateMesh : public Ogre::MovableObject {
 		//
 		//  Triangle
 
+		// MovableObject implementation
+		void visitRenderables(Ogre::Renderable::Visitor* visitor,	bool debugRenderables = false){};
+
 		// Get number of triangles
 		unsigned int GetNumTriangles() const;
 
