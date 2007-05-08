@@ -11,19 +11,7 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_192C1206465A49C982CD53150BC0A363"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_1CE0E926D661402E957B38286B432B8D"
-        "OwnerKey" = "8:_470B0D71E5114C61AA1EAE7F1BE04213"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_2AEB44FB10ED4C9BA53FD417A9DBA91C"
+        "MsmKey" = "8:_0AF85D7829FF41678DD40D949B0FF6C4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -41,12 +29,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_470B0D71E5114C61AA1EAE7F1BE04213"
-        "OwnerKey" = "8:_30BD674C97284F2DB5C7D153FB8FC74F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_61916BA150C64800B37EE8FE8D559588"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -55,6 +37,12 @@
         {
         "MsmKey" = "8:_70C695C9EE00485A901A89334B9295F4"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_89634EA830B0483BA0DD8CAC96CAB32D"
+        "OwnerKey" = "8:_30BD674C97284F2DB5C7D153FB8FC74F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -71,8 +59,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_B0EE57A4C8D4423F91E6083F12A5BE36"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_A6AD6CE018AA46999EF3E4B8FC4EF4D1"
+        "OwnerKey" = "8:_89634EA830B0483BA0DD8CAC96CAB32D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -105,48 +93,9 @@
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
-        "Entry"
-        {
-        "MsmKey" = "8:_F9AD8A987662432283EDE182A1EA76FF"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_FB39AB4912A84B23822DB4A47F79A176"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
     }
     "Configurations"
     {
-        "Debug"
-        {
-        "DisplayName" = "8:Debug"
-        "IsDebugOnly" = "11:TRUE"
-        "IsReleaseOnly" = "11:FALSE"
-        "OutputFilename" = "8:Debug\\LexiExportInstall.msi"
-        "PackageFilesAs" = "3:2"
-        "PackageFileSize" = "3:-2147483648"
-        "CabType" = "3:1"
-        "Compression" = "3:2"
-        "SignOutput" = "11:FALSE"
-        "CertificateFile" = "8:"
-        "PrivateKeyFile" = "8:"
-        "TimeStampServer" = "8:"
-        "InstallerBootstrapper" = "3:2"
-            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
-            {
-            "Enabled" = "11:TRUE"
-            "PromptEnabled" = "11:TRUE"
-            "PrerequisitesLocation" = "2:1"
-            "Url" = "8:"
-            "ComponentsUrl" = "8:"
-                "Items"
-                {
-                }
-            }
-        }
         "Distribution"
         {
         "DisplayName" = "8:Distribution"
@@ -221,30 +170,10 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_192C1206465A49C982CD53150BC0A363"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0AF85D7829FF41678DD40D949B0FF6C4"
             {
-            "SourcePath" = "8:InstallData\\zlib1.dll"
-            "TargetName" = "8:zlib1.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_71706C085AA640518D4EFAF8A0F651E3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2AEB44FB10ED4C9BA53FD417A9DBA91C"
-            {
-            "SourcePath" = "8:InstallData\\OgrePlatform.dll"
-            "TargetName" = "8:OgrePlatform.dll"
+            "SourcePath" = "8:InstallData\\OIS.dll"
+            "TargetName" = "8:OIS.dll"
             "Tag" = "8:"
             "Folder" = "8:_71706C085AA640518D4EFAF8A0F651E3"
             "Condition" = "8:"
@@ -361,26 +290,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B0EE57A4C8D4423F91E6083F12A5BE36"
-            {
-            "SourcePath" = "8:InstallData\\ILU.dll"
-            "TargetName" = "8:ILU.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_71706C085AA640518D4EFAF8A0F651E3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B7201509B5274439AA97A9095FC528BC"
             {
             "SourcePath" = "8:InstallData\\LexiExporter\\shaders\\Blinn.cg"
@@ -467,46 +376,6 @@
             "TargetName" = "8:Shaders.program"
             "Tag" = "8:"
             "Folder" = "8:_431C7AFBD47243B8B2AAE24393DB9139"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F9AD8A987662432283EDE182A1EA76FF"
-            {
-            "SourcePath" = "8:InstallData\\ILUT.dll"
-            "TargetName" = "8:ILUT.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_71706C085AA640518D4EFAF8A0F651E3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FB39AB4912A84B23822DB4A47F79A176"
-            {
-            "SourcePath" = "8:InstallData\\DevIL.dll"
-            "TargetName" = "8:DevIL.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_71706C085AA640518D4EFAF8A0F651E3"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -620,18 +489,18 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:LEXIExport"
-        "ProductCode" = "8:{4DB65CE5-FAF0-48A4-9A7C-B5AE729EFF81}"
-        "PackageCode" = "8:{6B7CB4B4-60C1-4B1F-B8E1-E16E4E619C24}"
+        "ProductCode" = "8:{62813863-2B5E-41A4-A206-883D6FF42E50}"
+        "PackageCode" = "8:{D75021C6-EA09-493E-9CDF-831CFD88F425}"
         "UpgradeCode" = "8:{153F1498-CA22-4196-B639-B267C9BC0DFA}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.4"
+        "ProductVersion" = "8:1.0.5"
         "Manufacturer" = "8:NDS Denmark A/S"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:LEXIExport 1.0.4"
+        "Title" = "8:LEXIExport 1.0.5"
         "Subject" = "8:"
         "ARPCONTACT" = "8:ITE ApS"
         "Keywords" = "8:"
@@ -858,7 +727,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:WARNING: This program is under LGPL licens (http://www.gnu.org/licenses/lgpl.html). Use freely but publish any changes to the source code."
+                            "Value" = "8:WARNING: This program is under LGPL license (http://www.gnu.org/licenses/lgpl.html). Use freely but publish any changes to the source code."
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -1136,11 +1005,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_1CE0E926D661402E957B38286B432B8D"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_89634EA830B0483BA0DD8CAC96CAB32D"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
+            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
                 "Properties"
                 {
                 }
@@ -1150,11 +1019,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_470B0D71E5114C61AA1EAE7F1BE04213"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_A6AD6CE018AA46999EF3E4B8FC4EF4D1"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
+            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
                 "Properties"
                 {
                 }

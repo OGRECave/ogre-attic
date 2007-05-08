@@ -31,11 +31,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 CIntermediateSkeleton::CIntermediateSkeleton()
 {
+	REGISTER_MODULE("Intermediate Mesh")
 }
 
 CIntermediateSkeleton::~CIntermediateSkeleton()
 {
 	clear();
+
+	UNREGISTER_MODULE
 }
 
 //

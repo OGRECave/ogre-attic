@@ -59,6 +59,9 @@ private:
 					Ogre::LogMessageLevel lml = Ogre::LML_NORMAL, 
 					bool maskDebug = false );
 
+	// Called when an Ogre log message is received (Eihort)
+	void	messageLogged( const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String &logName );
+
 	// Set true whenever a warning or error is received
 	bool	m_bImportantFlag;
 };

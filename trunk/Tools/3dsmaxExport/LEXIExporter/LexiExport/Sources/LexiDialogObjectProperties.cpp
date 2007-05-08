@@ -99,9 +99,13 @@ void CObjectPropertiesDlg::SetInstance(CDDObject *pData, CExportObject* pObj)
 	m_pObj=pObj;
 
 	// Setup defaults
-	GetDlgItem(IDC_NAME)->SetWindowText(pData->GetString("Name", "<unnamed>"));
-	GetDlgItem(IDC_FILENAME)->SetWindowText(pData->GetString("FileName", "<unknown>"));
-	GetDlgItem(IDC_NODE)->SetWindowText(GetNameFromID(pData->GetInt("NodeID")));
+	GDI::Window* pWnd = NULL;
+	pWnd = GetDlgItem(IDC_NAME);
+	if(pWnd) pWnd->SetWindowText(pData->GetString("Name", "<unnamed>"));
+	pWnd = GetDlgItem(IDC_FILENAME);
+	if(pWnd) pWnd->SetWindowText(pData->GetString("FileName", "<unknown>"));
+	pWnd = GetDlgItem(IDC_NODE);
+	if(pWnd) pWnd->SetWindowText(GetNameFromID(pData->GetInt("NodeID")));
 	m_pMetaCtrl->SetData(m_pData);
 }
 

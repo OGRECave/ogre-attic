@@ -47,13 +47,13 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="-Zm110"
+				AdditionalOptions="-Zm130"
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="0"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\..\..\SDK\3DSMax\8.0\Bin\include;..\..\..\SDK\Ogre\1.2.5\bin\Include;&quot;$(SolutionDir)Include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL"
+				AdditionalIncludeDirectories="..\GDIMetaLib\Sources;&quot;$(SolutionDir)Include&quot;;..\..\..\..\OgreMain\include;..\SharedUtilities\Sources\;&quot;$(MAX_SDK_DIR)\include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;TIXML_USE_STL"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				StructMemberAlignment="4"
@@ -90,7 +90,7 @@
 				OutputFile="Bin\LEXIExport.dlu"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\..\SDK\3DSMax\8.0\Bin\lib;..\..\..\SDK\Ogre\1.2.5\bin\Lib"
+				AdditionalLibraryDirectories="..\..\..\..\lib;&quot;$(MAX_SDK_DIR)\lib&quot;"
 				GenerateManifest="true"
 				GenerateDebugInformation="false"
 				ProgramDatabaseFile=".\Release/LEXIExport.pdb"
@@ -157,10 +157,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="-Zm118"
+				AdditionalOptions="-Zm131"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\SDK\3DSMax\8.0\Bin\include;..\..\..\SDK\Ogre\1.2.5\bin\Include;&quot;$(SolutionDir)Include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL"
+				AdditionalIncludeDirectories="..\GDIMetaLib\Sources;&quot;$(SolutionDir)Include&quot;;..\..\..\..\OgreMain\include;..\SharedUtilities\Sources\;&quot;$(MAX_SDK_DIR)\include&quot;&quot;$(SolutionDir)\LexiExport\XMLConverter\include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;TIXML_USE_STL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -195,7 +195,7 @@
 				OutputFile="Bin\LEXIExport(debug).dlu"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\..\SDK\3DSMax\8.0\Bin\lib;..\..\..\SDK\Ogre\1.2.5\bin\Lib"
+				AdditionalLibraryDirectories="..\..\..\..\lib;&quot;$(MAX_SDK_DIR)\lib&quot;"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/LEXIExport(debug).pdb"
@@ -215,113 +215,6 @@
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
 				OutputFile=".\Debug/LexiExport.bsc"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="GDI DLL Release|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\Release/LexiExport.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="1"
-				FavorSizeOrSpeed="0"
-				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;..\..\..\SDK\3DSMax\8.0\Bin\include&quot;;&quot;..\..\..\SDK\Ogre\1.2.5\bin\Include&quot;;$(SolutionDir)Include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL"
-				StringPooling="true"
-				RuntimeLibrary="0"
-				StructMemberAlignment="4"
-				BufferSecurityCheck="false"
-				EnableFunctionLevelLinking="true"
-				ForceConformanceInForLoopScope="false"
-				RuntimeTypeInfo="false"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="LexiStdAfx.h"
-				PrecompiledHeaderFile=".\Release/LexiExport.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
-				WarningLevel="3"
-				WarnAsError="true"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				AdditionalDependencies="comctl32.lib Msimg32.lib"
-				OutputFile="Bin\ITEExport.dlu"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\..\SDK\3DSMax\8.0\Bin\lib;..\..\..\SDK\Ogre\1.2.5\bin\Lib"
-				GenerateManifest="false"
-				ProgramDatabaseFile=".\Release/ITEExport.pdb"
-				ImportLibrary=".\Release/ITEExport.lib"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-				SuppressStartupBanner="true"
-				OutputFile=".\Release/LexiExport.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -366,15 +259,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="GDI DLL Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -434,16 +318,6 @@
 						UsePrecompiledHeader="1"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="GDI DLL Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="Sources\LexiStdAfx.h"
@@ -468,15 +342,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCResourceCompilerTool"
-						PreprocessorDefinitions=""
-						AdditionalIncludeDirectories="Res"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="GDI DLL Release|Win32"
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
@@ -791,6 +656,54 @@
 			</File>
 			<File
 				RelativePath=".\Sources\LexiIntermediateSkeleton.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="XMLConverter"
+			>
+			<File
+				RelativePath=".\XMLConverter\src\OgreXMLMeshSerializer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\XMLConverter\include\OgreXMLMeshSerializer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\XMLConverter\include\OgreXMLPrerequisites.h"
+				>
+			</File>
+			<File
+				RelativePath=".\XMLConverter\src\OgreXMLSkeletonSerializer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\XMLConverter\include\OgreXMLSkeletonSerializer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\XMLConverter\src\tinystr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\XMLConverter\include\tinystr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\XMLConverter\src\tinyxml.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\XMLConverter\include\tinyxml.h"
+				>
+			</File>
+			<File
+				RelativePath=".\XMLConverter\src\tinyxmlerror.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\XMLConverter\src\tinyxmlparser.cpp"
 				>
 			</File>
 		</Filter>

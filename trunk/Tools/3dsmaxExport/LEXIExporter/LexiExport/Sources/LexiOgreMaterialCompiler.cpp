@@ -36,6 +36,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 COgreMaterialCompiler::COgreMaterialCompiler( CIntermediateMaterial* pIntermediateMaterial, Ogre::String sExtension )
 : m_bShadersSupported(false)
 {
+	REGISTER_MODULE("Ogre Material Compiler")
+
 	m_pOgreMaterial.setNull();
 	m_pIMaterial = pIntermediateMaterial;
 
@@ -60,7 +62,7 @@ COgreMaterialCompiler::COgreMaterialCompiler( CIntermediateMaterial* pIntermedia
 
 COgreMaterialCompiler::~COgreMaterialCompiler( void )
 {
-	
+	UNREGISTER_MODULE	
 }
 
 void COgreMaterialCompiler::InitializeOgreComponents( void )

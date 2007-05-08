@@ -41,6 +41,10 @@ void CMemoryLog::write( const Ogre::String& name, const Ogre::String& message, O
 	m_lMessages.push_back(pNewMessage);
 }
 
+void CMemoryLog::messageLogged( const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String &logName )
+{
+	write(logName, message, lml, maskDebug);
+}
 //
 void CMemoryLog::ReceiveLogMessage(SYSTEMTIME &LogTime, const char *pszTimeStr, int iLevel, const char *pszMessage)
 {

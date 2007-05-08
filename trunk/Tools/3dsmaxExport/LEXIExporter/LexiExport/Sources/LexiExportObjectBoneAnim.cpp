@@ -41,12 +41,14 @@ CDDObject* CBoneAnimExportObject::m_pDDMetaDesc=NULL;
 
 CBoneAnimExportObject::CBoneAnimExportObject(CDDObject *pConfig) : CExportObject(pConfig)
 {
+	REGISTER_MODULE("Bone Animation Export Object")
 	//m_pDDMetaDesc = BuildMetaDesc();
 	//m_pDDMetaDesc->SaveASCII("C:\\METADESC.ddconf");
 }
 
 CBoneAnimExportObject::~CBoneAnimExportObject()
 {
+	UNREGISTER_MODULE
 }
 
 // Get window for editing ExportObject properties

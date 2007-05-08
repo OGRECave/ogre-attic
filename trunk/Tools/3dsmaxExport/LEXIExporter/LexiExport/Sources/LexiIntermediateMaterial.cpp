@@ -31,6 +31,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 CIntermediateMaterial::CIntermediateMaterial( Ogre::String name )
 {
+	REGISTER_MODULE("Intermediate Material")
+
 	m_sName = name;
 	m_Mask = 0;
 	m_b2Sided = false;
@@ -40,6 +42,8 @@ CIntermediateMaterial::CIntermediateMaterial( Ogre::String name )
 
 CIntermediateMaterial::CIntermediateMaterial(const CIntermediateMaterial& other)
 {
+	REGISTER_MODULE("Intermediate Material")
+
 	m_sName = other.m_sName;
 	m_sParentName = other.m_sParentName;
 	m_vAmbientColor = other.m_vAmbientColor;
@@ -57,7 +61,7 @@ CIntermediateMaterial::CIntermediateMaterial(const CIntermediateMaterial& other)
 
 CIntermediateMaterial::~CIntermediateMaterial( void )
 {
-
+	UNREGISTER_MODULE
 }
 
 void CIntermediateMaterial::AddTextureMap( Ogre::String identifier, STextureMapInfo texInfo)

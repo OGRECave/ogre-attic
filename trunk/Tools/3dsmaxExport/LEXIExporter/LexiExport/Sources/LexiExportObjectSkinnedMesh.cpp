@@ -42,6 +42,8 @@ CDDObject* CSkinnedMeshExportObject::m_pDDMetaDesc=NULL;
 
 CSkinnedMeshExportObject::CSkinnedMeshExportObject(CDDObject *pConfig) : CExportObject(pConfig)
 {
+	REGISTER_MODULE("Skinned Mesh Export Object")
+
 /*	m_iID = 0xffffffff;
 	m_sName = "<unnamed>";
 	m_sFilename = "<unknown>";
@@ -56,6 +58,8 @@ CSkinnedMeshExportObject::~CSkinnedMeshExportObject()
 //	if(m_pDDMetaDesc) m_pDDMetaDesc->Release();
 	// Free scene node - no longer needed
 //	if(m_pSceneNode) delete m_pSceneNode;
+
+	UNREGISTER_MODULE
 }
 
 // Check if ExportObject supports a given ExportObject instance as parent
@@ -241,6 +245,15 @@ CDDObject* CSkinnedMeshExportObject::BuildMetaDesc( void )
 	lSettings.push_back(pDDMetaElement);
 
 	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID","XmlID");
+	pDDMetaElement->SetString("Type","bool");
+	pDDMetaElement->SetString("Group","Export Settings");
+	pDDMetaElement->SetString("Caption","Export as XML");
+	pDDMetaElement->SetString("Help","Export into two human readable XML (mesh and skeleton) files. (Filenames will be have .xml extension)");
+	pDDMetaElement->SetBool("Default", false);
+	lSettings.push_back(pDDMetaElement);
+
+	pDDMetaElement = new CDDObject();
 	pDDMetaElement->SetString("ID","exportMaterialsID");
 	pDDMetaElement->SetString("Type","bool");
 	pDDMetaElement->SetString("Group","Export Settings");
@@ -356,6 +369,7 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 			bool bCopyShaders = m_pDDConfig->GetBool("copyShaders", false);
 			bool bExportMaterials = m_pDDConfig->GetBool("exportMaterialsID",true);
 			bool bInOneFile = m_pDDConfig->GetBool("exportSingleMaterialFileID",false);
+			bool bXMLexport = m_pDDConfig->GetBool("XmlID",false);
 
 			Ogre::String sExtension = "";
 			bool bOverrideExtension = m_pDDConfig->GetBool("overrideExtensionID",false);
@@ -487,13 +501,12 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 			pSkeletonCompiler = new COgreSkeletonCompiler( sSkeletonFilename, pOgreMeshCompiler->GetOgreMesh() );
 
 			pProgressDlg->LocalStep("SkinnedMesh: Writing Ogre Skeleton..");
-			if( !pSkeletonCompiler->WriteOgreSkeleton( sSkeletonFilename+".skeleton") )
+			if( !pSkeletonCompiler->WriteOgreSkeleton( sSkeletonFilename+".skeleton", bXMLexport) )
 				LOGERROR "Could not write skeleton.");
 
 
 			pProgressDlg->LocalStep("SkinnedMesh: Writing Ogre Mesh..");
-			LOGINFO "Writing Ogre Mesh (%s) ...", sMeshFilename.c_str());
-			pOgreMeshCompiler->WriteOgreMesh(sMeshFilename);
+			pOgreMeshCompiler->WriteOgreMesh(sMeshFilename, bXMLexport);
 
 						
 			if(bExportMaterials)

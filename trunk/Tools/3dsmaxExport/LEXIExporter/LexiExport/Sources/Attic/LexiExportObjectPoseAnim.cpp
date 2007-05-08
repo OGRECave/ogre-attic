@@ -41,10 +41,12 @@ CDDObject* CPoseAnimExportObject::m_pDDMetaDesc=NULL;
 
 CPoseAnimExportObject::CPoseAnimExportObject(CDDObject *pConfig) : CExportObject(pConfig)
 {
+	REGISTER_MODULE("Pose Animation Export Object")
 }
 
 CPoseAnimExportObject::~CPoseAnimExportObject()
 {
+	UNREGISTER_MODULE
 }
 
 // Get window for editing ExportObject properties

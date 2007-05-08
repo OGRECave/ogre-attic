@@ -34,7 +34,7 @@ class COgreSkeletonCompiler
 public:
 	COgreSkeletonCompiler( Ogre::String name, Ogre::MeshPtr ogreMesh );
 	virtual ~COgreSkeletonCompiler();
-	bool WriteOgreSkeleton( const Ogre::String& sFilename );
+	bool WriteOgreSkeleton( const Ogre::String& sFilename, bool bXMLexport=false );
 	void CreateAnimations( void );
 
 protected:

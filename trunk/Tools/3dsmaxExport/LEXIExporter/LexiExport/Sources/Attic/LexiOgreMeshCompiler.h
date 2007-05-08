@@ -34,7 +34,7 @@ public:
 	COgreMeshCompiler( CIntermediateMesh* pIntermediateMesh, const CDDObject* pConfig, CExportProgressDlg* pProgressDlg);
 	virtual ~COgreMeshCompiler();
 
-	bool			WriteOgreMesh( const Ogre::String& sFilename );
+	bool			WriteOgreMesh( const Ogre::String& sFilename, bool bXMLexport=false );
 
 	Ogre::MeshPtr	GetOgreMesh( void );
 
