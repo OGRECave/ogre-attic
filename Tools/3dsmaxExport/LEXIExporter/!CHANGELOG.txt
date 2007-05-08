@@ -1,3 +1,13 @@
+version 1.0.5
+=============
+- XML export:
+	* Skeleton
+	* Mesh
+- Log messages now report their origin. (Courtesy: Assaf Raman)
+- Bug Fixes:
+	* UI crash when expanding treenode - FIXED
+-Uses Ogre3D 1.4.1 (Eihort)
+	
 version 1.0.4
 =============
 - Global "Default Folders" Export Settings on Root entry

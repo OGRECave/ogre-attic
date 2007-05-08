@@ -1,12 +1,11 @@
 /*
 -----------------------------------------------------------------------------
-This source file is part of LEXIExporter
+This source file is part of OGRE
+    (Object-oriented Graphics Rendering Engine)
+For the latest info, see http://www.ogre3d.org/
 
-Copyright 2006 NDS Limited
-
-Author(s):
-Mark Folkenberg,
-Bo Krohn
+Copyright (c) 2000-2006 Torus Knot Software Ltd
+Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -21,30 +20,20 @@ You should have received a copy of the GNU Lesser General Public License along w
 this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
+
+You may alternatively use this source under the terms of a specific version of
+the OGRE Unrestricted License provided you have obtained such a license from
+Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 
-#include "LexiIntermediateAPI.h"
+#ifndef __XMLPrerequisites_H__
+#define __XMLPrerequisites_H__
+
+#include "OgrePrerequisites.h"
+
+// Include tinyxml headers
+#include "tinyxml.h"
 
 
-class COgreSkeletonCompiler
-{
-
-
-public:
-	COgreSkeletonCompiler( Ogre::String name, Ogre::MeshPtr ogreMesh );
-	virtual ~COgreSkeletonCompiler();
-	bool WriteOgreSkeleton( const Ogre::String& sFilename, bool bXMLexport=false );
-	void CreateAnimations( void );
-
-protected:
-
-private:
-
-	void CreateSkeleton( CIntermediateBone* pIBone = NULL );
-
-	CIntermediateSkeleton* m_pISkel;
-	Ogre::SkeletonPtr m_pSkel;
-	Ogre::MeshPtr m_pOgreMesh;
-
-};
+#endif

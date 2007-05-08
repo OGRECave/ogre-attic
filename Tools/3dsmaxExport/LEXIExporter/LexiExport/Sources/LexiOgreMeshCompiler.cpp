@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "LexiOgreMeshCompiler.h"
 #include "OgreDefaultHardwareBufferManager.h"
 #include "LexiExportObject.h"
+#include "../XMLConverter/include/OgreXMLMeshSerializer.h"
 
 COgreMeshCompiler::COgreMeshCompiler( CIntermediateMesh* pIntermediateMesh, const CDDObject* pConfig, CExportProgressDlg* pProgressDlg) :
 	m_iBind(0),
@@ -47,6 +48,7 @@ COgreMeshCompiler::COgreMeshCompiler( CIntermediateMesh* pIntermediateMesh, cons
 	m_bExportTangents(false),
 	m_pProgressDlg(pProgressDlg)
 {
+	REGISTER_MODULE("Ogre Mesh Compiler")
 	m_IndexBitType = Ogre::HardwareIndexBuffer::IT_16BIT;
 
 	m_bExportSkeleton = pIntermediateMesh->GetSkeleton() != NULL ? true : false;
@@ -101,8 +103,8 @@ COgreMeshCompiler::COgreMeshCompiler( CIntermediateMesh* pIntermediateMesh, cons
 		m_pProgressDlg->LocalStep("Building Tangent Vectors...");
 		unsigned short SourceCoordSet = 0;
 		unsigned short DestCoordSet = 0;
-		m_pOgreMesh->suggestTangentVectorBuildParams(SourceCoordSet,DestCoordSet);
-		m_pOgreMesh->buildTangentVectors(SourceCoordSet,DestCoordSet);
+		m_pOgreMesh->suggestTangentVectorBuildParams( Ogre::VES_TANGENT, SourceCoordSet,DestCoordSet);
+		m_pOgreMesh->buildTangentVectors( Ogre::VES_TANGENT, SourceCoordSet,DestCoordSet);
 		// 
 		LOGINFO "Tangents for mesh: (%s) written to coord buffer %i", m_pOgreMesh->getName().c_str(), DestCoordSet);
 	}
@@ -114,9 +116,10 @@ COgreMeshCompiler::~COgreMeshCompiler()
 	LOGDEBUG "OgreMeshCompiler cleaned..");
 
 	Ogre::MeshManager* pMeshMgr = Ogre::MeshManager::getSingletonPtr();
-	//delete m_pOgreMesh->sharedVertexData;
+	//delete m_pOgreMesh->sharedVertexData; // Ogre handles this
 	pMeshMgr->unloadAll();
-	pMeshMgr->removeAll();
+
+	UNREGISTER_MODULE
 }
 
 
@@ -1056,30 +1059,54 @@ void COgreMeshCompiler::CreateMeshBounds( void )
 	m_pOgreMesh->_setBoundingSphereRadius(width);
 }
 
-bool COgreMeshCompiler::WriteOgreMesh( const Ogre::String& sFilename )
+bool COgreMeshCompiler::WriteOgreMesh( const Ogre::String& sFilename, bool bXMLexport )
 {
 	assert(Ogre::MeshManager::getSingletonPtr());
 
 	START_PROFILE("COgreMeshCompiler::WriteOgreMesh()");
 
 	m_pProgressDlg->InitLocal(2);
-	m_pProgressDlg->LocalStep("Writing Ogre Mesh File..");
-
-
-	Ogre::MeshSerializer* pMeshWriter = new Ogre::MeshSerializer();
-	try
-	{	
-		pMeshWriter->exportMesh(m_pOgreMesh.get(), sFilename);
-	}
-	catch (Ogre::Exception& e)
+	if(bXMLexport)
 	{
-		LOGERROR "OgreException: %s", e.getFullDescription().c_str());
-		return false;
-	} catch(...)
-	{
-		LOGERROR "Unhandled exception caught in COgreMeshCompiler::WriteOgreMesh()");
+		m_pProgressDlg->LocalStep("Writing Ogre XML Mesh File..");
+		Ogre::String xmlFileName = sFilename;
+		xmlFileName.append(".xml");
+
+		Ogre::XMLMeshSerializer* pMeshWriter = new Ogre::XMLMeshSerializer();
+		try
+		{	
+			LOGINFO "Writing Ogre XML Mesh File (%s) ...", xmlFileName.c_str());
+			pMeshWriter->exportMesh(m_pOgreMesh.get(), xmlFileName);
+		}
+		catch (Ogre::Exception& e)
+		{
+			LOGERROR "OgreException: %s", e.getFullDescription().c_str());
+			return false;
+		} catch(...)
+		{
+			LOGERROR "Unhandled exception caught in COgreMeshCompiler::WriteOgreMesh()");
+		}
+		delete pMeshWriter;
 	}
-	delete pMeshWriter;
+	else
+	{
+		m_pProgressDlg->LocalStep("Writing Ogre Mesh File..");
+		Ogre::MeshSerializer* pMeshWriter = new Ogre::MeshSerializer();
+		try
+		{	
+			LOGINFO "Writing Ogre Mesh (%s) ...", sFilename.c_str());
+			pMeshWriter->exportMesh(m_pOgreMesh.get(), sFilename);
+		}
+		catch (Ogre::Exception& e)
+		{
+			LOGERROR "OgreException: %s", e.getFullDescription().c_str());
+			return false;
+		} catch(...)
+		{
+			LOGERROR "Unhandled exception caught in COgreMeshCompiler::WriteOgreMesh()");
+		}
+		delete pMeshWriter;
+	}
 
 	m_pProgressDlg->LocalStep();
 

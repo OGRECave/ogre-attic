@@ -78,9 +78,28 @@ CDDObject* CExporter::GetRootConfig() const
 
 CExporter::CExporter(CExporterDesc* pDesc)
 {
+	REGISTER_MODULE("Exporter")
+
 	LoadGlobalSettings();
 	CExportObject::Initialize();
-	CLogSystem::Get()->AddReceiver(new CFileLogger("C:\\LexiExport_debug.txt"));
+
+	// We always write Logs to the <MAXDIR>\LEXIExporter\Logs Directory
+	//--
+	char szAppPath[MAX_PATH] = "";
+	::GetModuleFileName(NULL,szAppPath,sizeof(szAppPath) - 1);
+	Ogre::String cwd(szAppPath);
+	Ogre::String fileNameTMP, filePath;
+	Ogre::StringUtil::splitFilename(cwd, fileNameTMP, filePath);
+	int n = filePath.find("/");
+	while(n != Ogre::String::npos)
+	{
+		filePath.replace(n,1,"\\");
+		n = filePath.find("/");
+	}
+	filePath+="LEXIExporter\\Logs\\LexiExport.log";
+	//--
+
+	CLogSystem::Get()->AddReceiver(new CFileLogger(filePath.c_str()));
 
 	m_pDesc = pDesc;
 	m_pMax = NULL;
@@ -122,7 +141,10 @@ CExporter::~CExporter()
 	}
 
 	// Free ExportObjects
-	FreeConfig();	
+	FreeConfig();
+
+	UNREGISTER_MODULE
+
 }
 
 void CExporter::LoadConfig()
@@ -174,6 +196,7 @@ void CExporter::SaveConfig()
 	if(!m_pExportRoot) return;// || !m_pExportRoot->HasChildren()) return;
 
 	CDataStream stream;
+	stream.Reserve(50000);
 
 	//Write Version ID
 	stream.SetPosition(0);
@@ -258,7 +281,7 @@ void CExporter::BeginEditParams(Interface* ip, IUtil* iu)
 		}
 		if(!m_bMemoryLogOnOGRE)
 		{
-			Ogre::LogManager::getSingleton().addListener(m_pMemoryLog);
+			Ogre::LogManager::getSingleton().getDefaultLog()->addListener(m_pMemoryLog);
 			m_bMemoryLogOnOGRE=true;
 		}
 
@@ -285,7 +308,7 @@ void CExporter::EndEditParams(Interface* ip, IUtil* iu)
 	m_pMaxUtil = NULL;
 	if(m_bMemoryLogOnOGRE)
 	{
-		Ogre::LogManager::getSingleton().removeListener(m_pMemoryLog);
+		Ogre::LogManager::getSingleton().getDefaultLog()->removeListener(m_pMemoryLog);
 		m_bMemoryLogOnOGRE=false;
 	}
 }

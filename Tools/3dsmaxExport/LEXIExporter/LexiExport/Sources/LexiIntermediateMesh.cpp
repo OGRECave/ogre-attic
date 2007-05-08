@@ -54,6 +54,8 @@ void CIntermediateMesh::_updateRenderQueue(Ogre::RenderQueue* queue)
 
 CIntermediateMesh::CIntermediateMesh(unsigned int iNumTriangles, unsigned int iNodeID) : MovableObject(GetNodeFromID(iNodeID)->GetName())
 {
+	REGISTER_MODULE("Intermediate Mesh")
+
 	m_iNodeID = iNodeID;
 	m_bIsCollapsed = false;
 
@@ -79,6 +81,8 @@ CIntermediateMesh::~CIntermediateMesh()
 
 	delete [] m_pIndexTable;
 	delete [] m_pPickIndexTable;
+
+	UNREGISTER_MODULE
 }
 
 //

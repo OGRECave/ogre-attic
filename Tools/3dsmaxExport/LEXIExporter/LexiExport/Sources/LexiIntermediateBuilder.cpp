@@ -31,6 +31,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 CIntermediateBuilder::CIntermediateBuilder()
 {
+	REGISTER_MODULE("Intermediate Builder")
+
 	m_iBoneIndex = 0;
 	m_fAnimTotalLength=0.0;
 	m_pSkeletonBuilder = NULL;
@@ -46,6 +48,8 @@ CIntermediateBuilder::~CIntermediateBuilder()
 	m_lMaterials.clear();
 
 	delete m_pSkeletonBuilder;
+
+	UNREGISTER_MODULE
 }
 
 //

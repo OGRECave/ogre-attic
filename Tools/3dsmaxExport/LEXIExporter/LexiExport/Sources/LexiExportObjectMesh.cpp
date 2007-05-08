@@ -42,6 +42,7 @@ CDDObject* CMeshExportObject::m_pDDMetaDesc=NULL;
 
 CMeshExportObject::CMeshExportObject(CDDObject *pConfig) : CExportObject(pConfig)
 {
+	REGISTER_MODULE("Mesh Export Object")
 /*	m_iID = 0xffffffff;
 	m_sName = "<unnamed>";
 	m_sFilename = "<unknown>";
@@ -55,6 +56,7 @@ CMeshExportObject::~CMeshExportObject()
 //	if(m_pDDMetaDesc) m_pDDMetaDesc->Release();
 	// Free scene node - no longer needed
 //	if(m_pSceneNode) delete m_pSceneNode;
+	UNREGISTER_MODULE
 }
 
 // Check if ExportObject supports a given ExportObject instance as parent
@@ -235,6 +237,15 @@ CDDObject* CMeshExportObject::BuildMetaDesc( void )
 	pDDMetaElement->SetBool("Default", true);
 	lSettings.push_back(pDDMetaElement);
 
+	pDDMetaElement = new CDDObject();
+	pDDMetaElement->SetString("ID","XmlID");
+	pDDMetaElement->SetString("Type","bool");
+	pDDMetaElement->SetString("Group","Export Settings");
+	pDDMetaElement->SetString("Caption","Export as XML");
+	pDDMetaElement->SetString("Help","Export into a human readable XML file. (Filename will be have .xml extension)");
+	pDDMetaElement->SetBool("Default", false);
+	lSettings.push_back(pDDMetaElement);
+
 	//pDDMetaElement = new CDDObject();
 	//pDDMetaElement->SetString("ID","collapseHierarchy");
 	//pDDMetaElement->SetString("Type","bool");
@@ -363,6 +374,7 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 			bool bCopyShaders = m_pDDConfig->GetBool("copyShaders", false);
 			bool bExportMaterials = m_pDDConfig->GetBool("exportMaterialsID",true);
 			bool bInOneFile = m_pDDConfig->GetBool("exportSingleMaterialFileID",false);
+			bool bXMLexport = m_pDDConfig->GetBool("XmlID",false);
 			
 			Ogre::String sExtension = "";
 			bool bOverrideExtension = m_pDDConfig->GetBool("overrideExtensionID",false);
@@ -494,13 +506,13 @@ bool CMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bForceAll)
 			}
 
 			pProgressDlg->LocalStep("StaticMesh: Writing Ogre Mesh..");
-			LOGINFO "Writing Ogre Mesh (%s) ...", sMeshFilename.c_str());
+			//LOGINFO "Writing Ogre Mesh (%s) ...", sMeshFilename.c_str());
 
 			/////////////////////////////////////
 			//MessageBox(NULL, "PreWrite","BREAK!",0);
 			/////////////////////////////////////
 
-			pOgreMeshCompiler->WriteOgreMesh(sMeshFilename);
+			pOgreMeshCompiler->WriteOgreMesh(sMeshFilename,bXMLexport);
 
 			/////////////////////////////////////
 			//MessageBox(NULL, "Pre Materials","BREAK!",0);

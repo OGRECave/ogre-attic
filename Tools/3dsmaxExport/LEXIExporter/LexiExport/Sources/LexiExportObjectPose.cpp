@@ -43,11 +43,14 @@ int CPoseMeshExportObject::m_iPoseCount=0;
 
 CPoseMeshExportObject::CPoseMeshExportObject(CDDObject *pConfig) : CExportObject(pConfig)
 {
-//	m_pMetaCtrl = NULL;
+	REGISTER_MODULE("Pose Mesh Export Object")
+
+	//	m_pMetaCtrl = NULL;
 }
 
 CPoseMeshExportObject::~CPoseMeshExportObject()
 {
+	UNREGISTER_MODULE
 }
 
 // Check if ExportObject supports a given ExportObject instance as parent

@@ -31,6 +31,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 CIntermediateBone::CIntermediateBone(const char* pszName)
 {
+	REGISTER_MODULE("Intermediate Bone")
+
 	m_sName = pszName;
 	m_pParent = NULL;
 	m_iIndex = 0;
@@ -47,6 +49,7 @@ CIntermediateBone::CIntermediateBone(const char* pszName)
 CIntermediateBone::~CIntermediateBone()
 {
 	clear();
+	UNREGISTER_MODULE
 }
 
 //

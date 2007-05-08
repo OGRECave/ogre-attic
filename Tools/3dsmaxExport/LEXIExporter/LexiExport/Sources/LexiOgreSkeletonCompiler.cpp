@@ -26,9 +26,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "LexiStdAfx.h"
 #include "LexiOgreSkeletonCompiler.h"
+#include "../XMLConverter/include/OgreXMLSkeletonSerializer.h"
 
 COgreSkeletonCompiler::COgreSkeletonCompiler( Ogre::String name, Ogre::MeshPtr ogreMesh )
 {
+	REGISTER_MODULE("Ogre Skeleton Compiler")
+
 	m_pOgreMesh = ogreMesh;
 	m_pISkel = CIntermediateBuilder::Get()->GetSkeletonBuilder()->GetSkeleton();
 
@@ -56,6 +59,8 @@ COgreSkeletonCompiler::~COgreSkeletonCompiler()
 {
 	Ogre::SkeletonManager::getSingletonPtr()->unload(m_pSkel->getHandle());
 	Ogre::SkeletonManager::getSingletonPtr()->remove(m_pSkel->getHandle());
+
+	UNREGISTER_MODULE
 }
 
 void COgreSkeletonCompiler::CreateSkeleton( CIntermediateBone* pIBone )
@@ -186,19 +191,40 @@ void COgreSkeletonCompiler::CreateAnimations( void )
 	}
 }
 
-bool COgreSkeletonCompiler::WriteOgreSkeleton( const Ogre::String& sFilename )
+bool COgreSkeletonCompiler::WriteOgreSkeleton( const Ogre::String& sFilename, bool bXMLexport )
 {
-	Ogre::SkeletonSerializer* pSkeletonWriter = new Ogre::SkeletonSerializer();
-	try
+	if(bXMLexport)
 	{
-		SetFileAttributesA(sFilename.c_str(), FILE_ATTRIBUTE_NORMAL );
-		pSkeletonWriter->exportSkeleton( m_pSkel.get(), sFilename );
+		Ogre::XMLSkeletonSerializer* pSkeletonWriter = new Ogre::XMLSkeletonSerializer();
+		try
+		{
+			//m_pProgressDlg->LocalStep("Writing Ogre XML Skeleton File..");
+			Ogre::String xmlFileName = sFilename;
+			xmlFileName.append(".xml");
+			SetFileAttributesA(sFilename.c_str(), FILE_ATTRIBUTE_NORMAL );
+			pSkeletonWriter->exportSkeleton( m_pSkel.get(), xmlFileName );
+		}
+		catch (Ogre::Exception& e)
+		{
+			LOGERROR "OgreExeception caught: %s", e.getDescription().c_str()); 
+			return false;
+		}
+		delete pSkeletonWriter;
 	}
-	catch (Ogre::Exception& e)
+	else
 	{
-		LOGERROR "OgreExeception caught: %s", e.getDescription().c_str()); 
-		return false;
+		Ogre::SkeletonSerializer* pSkeletonWriter = new Ogre::SkeletonSerializer();
+		try
+		{
+			SetFileAttributesA(sFilename.c_str(), FILE_ATTRIBUTE_NORMAL );
+			pSkeletonWriter->exportSkeleton( m_pSkel.get(), sFilename );
+		}
+		catch (Ogre::Exception& e)
+		{
+			LOGERROR "OgreExeception caught: %s", e.getDescription().c_str()); 
+			return false;
+		}
+		delete pSkeletonWriter;
 	}
-	delete pSkeletonWriter;
 	return true;
 }
