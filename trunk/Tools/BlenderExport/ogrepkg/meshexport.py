@@ -147,23 +147,31 @@ class Vertex:
 		"""
 		isEqual = 0
 		# compare index, normal, colourDiffuse and texcoord
-		if (self.bMVert.index == other.bMVert.index):
+		if (self.bMVert.index != other.bMVert.index):
+			# different Blender vertex
 			pass
 		elif ((self.normal - other.normal).length > Vertex.THRESHOLD):
+			# normals don't match
 			pass
 		elif ((self.texcoord and not(other.texcoord)) or 
 			(not(self.texcoord) and other.texcoord)):
+			# mixed existence of texture coordinates
 			pass
-		elif ((math.fabs(self.texcoord[0] - other.texcoord[0]) > Vertex.THRESHOLD)
-			or (math.fabs(self.texcoord[1] - other.texcoord[1]) > Vertex.THRESHOLD)):
+		elif (self.texcoord and 
+			((math.fabs(self.texcoord[0] - other.texcoord[0]) > Vertex.THRESHOLD)
+			or (math.fabs(self.texcoord[1] - other.texcoord[1]) > Vertex.THRESHOLD))):
+			# texture coordinates exist but do not match
 			pass
 		elif ((self.colourDiffuse and not(other.colourDiffuse)) or 
 			(not(self.colourDiffuse) and other.colourDiffuse)):
+			# mixed existence of vertex colours
 			pass
-		elif ((math.fabs(self.colourDiffuse[0] - other.colourDiffuse[0]) > Vertex.THRESHOLD)
+		elif (self.colourDiffuse and
+			((math.fabs(self.colourDiffuse[0] - other.colourDiffuse[0]) > Vertex.THRESHOLD)
 			or (math.fabs(self.colourDiffuse[1] - other.colourDiffuse[1]) > Vertex.THRESHOLD)
 			or (math.fabs(self.colourDiffuse[2] - other.colourDiffuse[2]) > Vertex.THRESHOLD)
-			or (math.fabs(self.colourDiffuse[3] - other.colourDiffuse[3]) > Vertex.THRESHOLD)):
+			or (math.fabs(self.colourDiffuse[3] - other.colourDiffuse[3]) > Vertex.THRESHOLD))):
+			# vertex colours exist but do not match
 			pass
 		else:
 			isEqual = 1
@@ -228,7 +236,11 @@ class Vertex:
 			Log.getSingleton().logWarning("Vertex without bone assignment!")
 		elif (nAssignments  > 4):
 			Log.getSingleton().logWarning("Vertex with more than 4 bone assignments!")
-		# weightSum > 1.0 seems to be often the case.
+		# TODO: weightSum normalization
+		#
+		# Ogre::Mesh::_rationaliseBoneAssignments states that sum of weights is normalized to 1.0
+		#
+		# however, in Blender weightSum > 1.0 seems to be often the case.
 		# TODO: check whether OGRE requires that it is <= 1.0
 		# TODO: check whether Blender takes this as a scale factor, i.e., 
 		#   influence is sum_i bone_i*weight_i, or if weights are normalized to sum_i weight_i == 1
