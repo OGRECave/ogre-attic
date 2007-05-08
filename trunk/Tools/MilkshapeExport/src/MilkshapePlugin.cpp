@@ -26,7 +26,6 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
-
 #include "MilkshapePlugin.h"
 #include "Ogre.h"
 #include "msLib.h"
@@ -42,7 +41,6 @@ Torus Knot Software Ltd.
 MilkshapePlugin::MilkshapePlugin ()
 {
     strcpy(mTitle, "OGRE Mesh / Skeleton...");
-
 }
 //---------------------------------------------------------------------
 MilkshapePlugin::~MilkshapePlugin ()
@@ -52,7 +50,7 @@ MilkshapePlugin::~MilkshapePlugin ()
 //---------------------------------------------------------------------
 int MilkshapePlugin::GetType ()
 {
-    return cMsPlugIn::eTypeExport;
+    return(cMsPlugIn::eTypeExport|eNormalsAndTexCoordsPerTriangleVertex);
 }
 //---------------------------------------------------------------------
 const char* MilkshapePlugin::GetTitle ()
@@ -329,6 +327,8 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
 
     // No shared geometry
     int i;
+	int wh, numbones;
+	int intweight[3], intbones[3];
     size_t j;
     Ogre::Vector3 min, max, currpos;
     Ogre::Real maxSquaredRadius;
@@ -336,7 +336,6 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
     for (i = 0; i < msModel_GetMeshCount (pModel); i++)
     {
         msMesh *pMesh = msModel_GetMeshAt (pModel, i);
-
 
         logMgr.logMessage("Creating SubMesh object...");
         Ogre::SubMesh* ogreSubMesh = ogreMesh->createSubMesh();
@@ -392,19 +391,15 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
 
         float* pPos = static_cast<float*>(
             pbuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
-        float* pTex = static_cast<float*>(
-            tbuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
 
         logMgr.logMessage("Doing positions and texture coords...");
         for (j = 0; j < ogreSubMesh->vertexData->vertexCount; ++j)
         {
             logMgr.logMessage("Doing vertex " + Ogre::StringConverter::toString(j));
-            msVertex *pVertex = msMesh_GetVertexAt (pMesh, j);
+            msVertex *pVertex = msMesh_GetVertexAt (pMesh, (int)j);
+			msVertexEx *pVertexEx=msMesh_GetVertexExAt(pMesh, (int)j);
             msVec3 Vertex;
-            msVec2 uv;
-
             msVertex_GetVertex (pVertex, Vertex);
-            msVertex_GetTexCoords (pVertex, uv);
 
             *pPos++ = Vertex[0];
             *pPos++ = Vertex[1];
@@ -424,26 +419,69 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
                 maxSquaredRadius = std::max(maxSquaredRadius, currpos.squaredLength());
             }
 
-            *pTex++ = uv[0];
-            *pTex++ = uv[1];
-
             int boneIdx = msVertex_GetBoneIndex(pVertex);
             if (boneIdx != -1)
             {
-                foundBoneAssignment = true;
-                Ogre::VertexBoneAssignment vertAssign;
-                vertAssign.boneIndex = boneIdx;
-                vertAssign.vertexIndex = j;
-                vertAssign.weight = 1.0; // Milkshape only supports single assignments
-                ogreSubMesh->addBoneAssignment(vertAssign);
-            }
+				foundBoneAssignment = true;
+				numbones = 1;
+				intbones[0] = intbones[1] = intbones[2] = -1;
+				intweight[0] = intweight[1] = intweight[2] = 0;
+				for(wh = 0; wh < 3; ++wh) 
+				{
+					intbones[wh] = msVertexEx_GetBoneIndices(pVertexEx, wh);
+					if(intbones[wh] == -1) 
+						break;
 
+					++numbones;
+					intweight[wh] = msVertexEx_GetBoneWeights(pVertexEx, wh);
+
+				} // for(k)
+				Ogre::VertexBoneAssignment vertAssign;
+				vertAssign.boneIndex = boneIdx;
+				vertAssign.vertexIndex = (unsigned int)j;
+				if(numbones == 1) 
+				{
+					vertAssign.weight = 1.0;
+				} // single assignment
+				else 
+				{
+					vertAssign.weight=(Ogre::Real)intweight[0]/100.0;
+				}
+				ogreSubMesh->addBoneAssignment(vertAssign);
+				if(numbones > 1) 
+				{
+					// this somewhat contorted logic is because the first weight [0] matches to the bone assignment
+					// located with pVertex. The next two weights [1][2] match up to the first two bones found
+					// with pVertexEx [0][1]. The weight for the fourth bone, if present, is the unassigned weight
+					for(wh = 0; wh < 3; wh++) 
+					{
+						boneIdx = intbones[wh];
+						if(boneIdx == -1) 
+							break;
+						vertAssign.boneIndex = boneIdx;
+						vertAssign.vertexIndex = (unsigned int)j;
+						if(wh == 2) 
+						{ 
+							// fourth weight is 1.0-(sumoffirstthreeweights)
+							vertAssign.weight = 1.0-(((Ogre::Real)intweight[0]/100.0)+
+								((Ogre::Real)intweight[1]/100.0)+((Ogre::Real)intweight[2]/100.0));
+						}
+						else 
+						{
+							vertAssign.weight=(Ogre::Real)intweight[wh+1];
+						}
+						ogreSubMesh->addBoneAssignment(vertAssign);
+					} // for(k)
+				} // if(numbones)
+			}
 
         }
         pbuf->unlock();
-        tbuf->unlock();
 
-        logMgr.logMessage("Doing normals and indexes...");
+        float* pTex = static_cast<float*>(
+            tbuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
+        logMgr.logMessage("Doing uvs, normals and indexes (v2)...");
+
         // Aargh, Milkshape uses stupid separate normal indexes for the same vertex like 3DS
         // Normals aren't described per vertex but per triangle vertex index
         // Pain in the arse, we have to do vertex duplication again if normals differ at a vertex (non smooth)
@@ -460,13 +498,14 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
             ibuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
         for (j = 0; j < ogreSubMesh->indexData->indexCount; j+=3)
         {
-            msTriangle *pTriangle = msMesh_GetTriangleAt (pMesh, j/3);
-
+            msTriangle *pTriangle = msMesh_GetTriangleAt (pMesh, (int)j/3);
+			msTriangleEx *pTriangleEx=msMesh_GetTriangleExAt(pMesh, (int)j/3);
             word nIndices[3];
             msTriangle_GetVertexIndices (pTriangle, nIndices);
-
             msVec3 Normal;
-            int k, normIdx, vertIdx;
+            msVec2 uv;
+            int k, vertIdx;
+
             for (k = 0; k < 3; ++k)
             {
                 vertIdx = nIndices[k];
@@ -475,19 +514,19 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
 
                 // Vertex normals
                 // For the moment, ignore any discrepancies per vertex
-                normIdx = pTriangle->nNormalIndices[k];
-                msMesh_GetVertexNormalAt (pMesh, normIdx, Normal);
-
+				msTriangleEx_GetNormal(pTriangleEx, k, &Normal[0]);
+				msTriangleEx_GetTexCoord(pTriangleEx, k, &uv[0]);
+				pTex[(vertIdx*2)]=uv[0];
+				pTex[(vertIdx*2)+1]=uv[1];
                 pNorm[(vertIdx*3)] = Normal[0];
                 pNorm[(vertIdx*3)+1] = Normal[1];
                 pNorm[(vertIdx*3)+2] = Normal[2];
-
             }
-
 
         } // Faces
         nbuf->unlock();
         ibuf->unlock();
+        tbuf->unlock();
 
         // Now use Ogre's ability to reorganise the vertex buffers the best way
         Ogre::VertexDeclaration* newDecl = 
