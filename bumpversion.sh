@@ -32,7 +32,7 @@ fi
 #	AC_INIT([OGRE], [1.4.0])
 #	AM_INIT_AUTOMAKE([OGRE], 1.4.0)
 sed -i -e "s/AC_INIT(.*$/AC_INIT([OGRE], [$MAJOR.$MINOR.$PATCH])/i" configure.in
-sed -i -e "s/AC_INIT_AUTOMAKE.*$/AM_INIT_AUTOMAKE([OGRE], $MAJOR.$MINOR.$PATCH)/i" configure.in
+sed -i -e "s/AM_INIT_AUTOMAKE(.*$/AM_INIT_AUTOMAKE([OGRE], $MAJOR.$MINOR.$PATCH)/i" configure.in
 
 # Docs/src/html.cfg
 #	PROJECT_NUMBER         = 1.4.0
