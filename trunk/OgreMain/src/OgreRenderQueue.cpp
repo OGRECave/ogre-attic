@@ -108,7 +108,8 @@ namespace Ogre {
 		if (mRenderableListener)
 		{
 			// Allow listener to override technique and to abort
-			if (!mRenderableListener->renderableQueued(pRend, groupID, priority, &pTech))
+			if (!mRenderableListener->renderableQueued(pRend, groupID, priority, 
+				&pTech, this))
 				return; // rejected
 
 			// tell material it's been used (incase changed)

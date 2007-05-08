@@ -954,7 +954,7 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed,
 				// say that when texture shadows are enabled, the lights up to the
 				// number of texture shadows will be fixed for all objects
 				// to match the shadow textures that have been generated
-				// see ShadowListener::sortLightsAffectingFrustum and
+				// see Listener::sortLightsAffectingFrustum and
 				// MovableObject::Listener::objectQueryLights
 				// Note that light iteration throws the indexes out so we don't bind here
 				// if that's the case, we have to bind when lights are iterated
@@ -1245,8 +1245,10 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
 			camVisObjIt->second.reset();
 
 			// Parse the scene and tag visibles
+			firePreFindVisibleObjects(vp);
 			_findVisibleObjects(camera, &(camVisObjIt->second),
 				mIlluminationStage == IRS_RENDER_TO_TEXTURE? true : false);
+			firePostFindVisibleObjects(vp);
 
 			mAutoParamDataSource.setMainCamBoundsInfo(&(camVisObjIt->second));
 		}
@@ -3204,20 +3206,20 @@ void SceneManager::removeRenderQueueListener(RenderQueueListener* delListener)
 
 }
 //---------------------------------------------------------------------
-void SceneManager::addShadowListener(ShadowListener* newListener)
+void SceneManager::addListener(Listener* newListener)
 {
-    mShadowListeners.push_back(newListener);
+    mListeners.push_back(newListener);
 }
 //---------------------------------------------------------------------
-void SceneManager::removeShadowListener(ShadowListener* delListener)
+void SceneManager::removeListener(Listener* delListener)
 {
-    ShadowListenerList::iterator i, iend;
-    iend = mShadowListeners.end();
-    for (i = mShadowListeners.begin(); i != iend; ++i)
+    ListenerList::iterator i, iend;
+    iend = mListeners.end();
+    for (i = mListeners.begin(); i != iend; ++i)
     {
         if (*i == delListener)
         {
-            mShadowListeners.erase(i);
+            mListeners.erase(i);
             break;
         }
     }
@@ -3252,10 +3254,10 @@ bool SceneManager::fireRenderQueueEnded(uint8 id, const String& invocation)
 //---------------------------------------------------------------------
 void SceneManager::fireShadowTexturesUpdated(size_t numberOfShadowTextures)
 {
-    ShadowListenerList::iterator i, iend;
+    ListenerList::iterator i, iend;
 
-    iend = mShadowListeners.end();
-    for (i = mShadowListeners.begin(); i != iend; ++i)
+    iend = mListeners.end();
+    for (i = mListeners.begin(); i != iend; ++i)
     {
         (*i)->shadowTexturesUpdated(numberOfShadowTextures);
     }
@@ -3263,10 +3265,10 @@ void SceneManager::fireShadowTexturesUpdated(size_t numberOfShadowTextures)
 //---------------------------------------------------------------------
 void SceneManager::fireShadowTexturesPreCaster(Light* light, Camera* camera)
 {
-    ShadowListenerList::iterator i, iend;
+    ListenerList::iterator i, iend;
 
-    iend = mShadowListeners.end();
-    for (i = mShadowListeners.begin(); i != iend; ++i)
+    iend = mListeners.end();
+    for (i = mListeners.begin(); i != iend; ++i)
     {
         (*i)->shadowTextureCasterPreViewProj(light, camera);
     }
@@ -3274,13 +3276,38 @@ void SceneManager::fireShadowTexturesPreCaster(Light* light, Camera* camera)
 //---------------------------------------------------------------------
 void SceneManager::fireShadowTexturesPreReceiver(Light* light, Frustum* f)
 {
-    ShadowListenerList::iterator i, iend;
+    ListenerList::iterator i, iend;
 
-    iend = mShadowListeners.end();
-    for (i = mShadowListeners.begin(); i != iend; ++i)
+    iend = mListeners.end();
+    for (i = mListeners.begin(); i != iend; ++i)
     {
         (*i)->shadowTextureReceiverPreViewProj(light, f);
     }
+}
+//---------------------------------------------------------------------
+void SceneManager::firePreFindVisibleObjects(Viewport* v)
+{
+	ListenerList::iterator i, iend;
+
+	iend = mListeners.end();
+	for (i = mListeners.begin(); i != iend; ++i)
+	{
+		(*i)->preFindVisibleObjects(this, mIlluminationStage, v);
+	}
+
+}
+//---------------------------------------------------------------------
+void SceneManager::firePostFindVisibleObjects(Viewport* v)
+{
+	ListenerList::iterator i, iend;
+
+	iend = mListeners.end();
+	for (i = mListeners.begin(); i != iend; ++i)
+	{
+		(*i)->postFindVisibleObjects(this, mIlluminationStage, v);
+	}
+
+
 }
 //---------------------------------------------------------------------
 void SceneManager::setViewport(Viewport* vp)
@@ -3537,11 +3564,11 @@ void SceneManager::findLightsAffectingFrustum(const Camera* camera)
 		// used to generate shadow textures and we should pick the most appropriate
 		if (isShadowTechniqueTextureBased())
 		{
-			// Allow a ShadowListener to override light sorting
+			// Allow a Listener to override light sorting
 			// Reverse iterate so last takes precedence
 			bool overridden = false;
-			for (ShadowListenerList::reverse_iterator ri = mShadowListeners.rbegin();
-				ri != mShadowListeners.rend(); ++ri)
+			for (ListenerList::reverse_iterator ri = mListeners.rbegin();
+				ri != mListeners.rend(); ++ri)
 			{
 				overridden = (*ri)->sortLightsAffectingFrustum(mLightsAffectingFrustum);
 				if (overridden)
