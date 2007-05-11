@@ -2141,7 +2141,12 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(
 				mCurrentShadowTexture->getName());
 			// Hook up projection frustum if fixed-function, but also need to
 			// disable it explicitly for program pipeline.
-			targetPass->getTextureUnitState(0)->setProjectiveTexturing(!targetPass->hasVertexProgram(), cam);
+			TextureUnitState* texUnit = targetPass->getTextureUnitState(0);
+			texUnit->setProjectiveTexturing(!targetPass->hasVertexProgram(), cam);
+			// clamp to border colour in case this is a custom material
+			texUnit->setTextureAddressingMode(TextureUnitState::TAM_BORDER);
+			texUnit->setTextureBorderColour(ColourValue::White);
+
             mAutoParamDataSource.setTextureProjector(cam, 0);
             // if this light is a spotlight, we need to add the spot fader layer
             if (l->getType() == Light::LT_SPOTLIGHT)
@@ -2265,7 +2270,11 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
 						mCurrentShadowTexture->getName());
 					// Hook up projection frustum if fixed-function, but also need to
 					// disable it explicitly for program pipeline.
-					targetPass->getTextureUnitState(0)->setProjectiveTexturing(!targetPass->hasVertexProgram(), cam);
+					TextureUnitState* texUnit = targetPass->getTextureUnitState(0);
+					texUnit->setProjectiveTexturing(!targetPass->hasVertexProgram(), cam);
+					// clamp to border colour in case this is a custom material
+					texUnit->setTextureAddressingMode(TextureUnitState::TAM_BORDER);
+					texUnit->setTextureBorderColour(ColourValue::White);
 					mAutoParamDataSource.setTextureProjector(cam, 0);
 					// Remove any spot fader layer
 					if (targetPass->getNumTextureUnitStates() > 1 && 
