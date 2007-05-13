@@ -1056,41 +1056,105 @@ namespace Ogre {
     bool Frustum::projectSphere(const Sphere& sphere, 
         Real* left, Real* top, Real* right, Real* bottom) const
     {
-        // initialise
-        *left = *bottom = -1.0f;
-        *right = *top = 1.0f;
-
+		// See http://www.gamasutra.com/features/20021011/lengyel_06.htm
         // Transform light position into camera space
 
-        // Don't use getViewMatrix here, incase overrided by camera and return a cull frustum view matrix
         updateView();
         Vector3 eyeSpacePos = mViewMatrix.transformAffine(sphere.getCenter());
 
+		// initialise
+		*left = *bottom = -1.0f;
+		*right = *top = 1.0f;
+
         if (eyeSpacePos.z < 0)
         {
+			updateFrustum();
+			const Matrix4& projMatrix = getProjectionMatrix();
             Real r = sphere.getRadius();
+			Real rsq = r * r;
+
             // early-exit
-            if (eyeSpacePos.squaredLength() <= r * r)
+            if (eyeSpacePos.squaredLength() <= rsq)
                 return false;
 
-            updateFrustum();
-            Vector3 screenSpacePos = mProjMatrix * eyeSpacePos;
+			Real Lxz = Math::Sqr(eyeSpacePos.x) + Math::Sqr(eyeSpacePos.z);
+			Real Lyz = Math::Sqr(eyeSpacePos.y) + Math::Sqr(eyeSpacePos.z);
+
+			// Find the tangent planes to the sphere
+			// XZ first
+			// calculate quadratic discriminant: b*b - 4ac
+			// x = Nx
+			// a = Lx^2 + Lz^2
+			// b = -2rLx
+			// c = r^2 - Lz^2
+			Real a = Lxz;
+			Real b = -2.0 * r * eyeSpacePos.x;
+			Real c = rsq - Math::Sqr(eyeSpacePos.z);
+			Real D = b*b - 4*a*c;
+
+			// two roots?
+			if (D > 0)
+			{
+				Real sqrootD = Math::Sqrt(D);
+				// solve the quadratic to get the components of the normal
+				Real Nx0 = (-b + sqrootD) / (2 * a);
+				Real Nx1 = (-b - sqrootD) / (2 * a);
+				
+				// Derive Z from this
+				Real Nz0 = (r - Nx0 * eyeSpacePos.x) / eyeSpacePos.z;
+				Real Nz1 = (r - Nx1 * eyeSpacePos.x) / eyeSpacePos.z;
+
+				// Project point onto near plane in worldspace
+				Real nearx0 = (Nz0 * mNearDist) / Nx0;
+				Real nearx1 = (Nz1 * mNearDist) / Nx1;
+
+				// now we need to map this to viewport coords
+				// use projection matrix since that will take into account all factors
+				
+				Vector3 relx0 = projMatrix * Vector3(nearx0, 0, -mNearDist);
+				Vector3 relx1 = projMatrix * Vector3(nearx1, 0, -mNearDist);
+				*left = std::min(relx0.x, relx1.x);
+				*right = std::max(relx0.x, relx1.x);
+
+			}
 
 
-            // perspective attenuate
-            Vector3 spheresize(r, r, eyeSpacePos.z);
-            spheresize = mProjMatrix * spheresize;
+			// Now YZ 
+			// calculate quadratic discriminant: b*b - 4ac
+			// x = Ny
+			// a = Ly^2 + Lz^2
+			// b = -2rLy
+			// c = r^2 - Lz^2
+			a = Lyz;
+			b = -2.0 * r * eyeSpacePos.y;
+			c = rsq - Math::Sqr(eyeSpacePos.z);
+			D = b*b - 4*a*c;
 
-            Real possLeft = screenSpacePos.x - spheresize.x;
-            Real possRight = screenSpacePos.x + spheresize.x;
-            Real possTop = screenSpacePos.y + spheresize.y;
-            Real possBottom = screenSpacePos.y - spheresize.y;
+			// two roots?
+			if (D > 0)
+			{
+				Real sqrootD = Math::Sqrt(D);
+				// solve the quadratic to get the components of the normal
+				Real Ny0 = (-b + sqrootD) / (2 * a);
+				Real Ny1 = (-b - sqrootD) / (2 * a);
 
-            *left = std::max(static_cast<Real>(-1.0), possLeft);
-            *right = std::min(static_cast<Real>(1.0), possRight);
-            *top = std::min(static_cast<Real>(1.0), possTop);
-            *bottom = std::max(static_cast<Real>(-1.0), possBottom);
+				// Derive Z from this
+				Real Nz0 = (r - Ny0 * eyeSpacePos.y) / eyeSpacePos.z;
+				Real Nz1 = (r - Ny1 * eyeSpacePos.y) / eyeSpacePos.z;
 
+				// Project point onto near plane in worldspace
+				Real neary0 = (Nz0 * mNearDist) / Ny0;
+				Real neary1 = (Nz1 * mNearDist) / Ny1;
+
+				// now we need to map this to viewport coords
+				// use projection matrix since that will take into account all factors
+
+				Vector3 rely0 = projMatrix * Vector3(0, neary0, -mNearDist);
+				Vector3 rely1 = projMatrix * Vector3(0, neary1, -mNearDist);
+				*bottom = std::min(rely0.y, rely1.y);
+				*top = std::max(rely0.y, rely1.y);
+
+			}
         }
 
         return (*left != -1.0f) || (*top != 1.0f) || (*right != 1.0f) || (*bottom != -1.0f);

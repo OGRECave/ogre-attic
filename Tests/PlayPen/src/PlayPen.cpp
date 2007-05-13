@@ -89,6 +89,8 @@ Entity* ball = 0;
 Vector3 ballVector;
 bool testreload = false;
 String testBackgroundLoadGroup;
+Sphere* projectionSphere = 0;
+ManualObject* scissorRect = 0;
 
 // Hacky globals
 GpuProgramParametersSharedPtr fragParams;
@@ -239,6 +241,24 @@ public:
 			camera2->setOrientation(mCamera->getOrientation());
 			camera2->setPosition(mCamera->getPosition());
 		}
+
+
+		if (projectionSphere && scissorRect)
+		{
+			Real left, top, right, bottom;
+			mCamera->projectSphere(*projectionSphere, &left, &top, &right, &bottom);
+
+			scissorRect->beginUpdate(0);
+			scissorRect->position(left, top, 0);
+			scissorRect->position(right, top, 0);
+			scissorRect->position(right, bottom, 0);
+			scissorRect->position(left, bottom, 0);
+			scissorRect->position(left, top, 0);
+			scissorRect->end();
+
+
+		}
+
 		return ret;
 
     }
@@ -849,9 +869,69 @@ protected:
 
 	}
 
+	void testProjectSphere()
+	{
+		mSceneMgr->setAmbientLight(ColourValue::White);
+
+		
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 0;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			4500,4500,10,10,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("Examples/GrassFloor");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		projectionSphere = new Sphere(Vector3(0, 30.0, 0), 10.0);
+
+		ManualObject* debugSphere = mSceneMgr->createManualObject("debugSphere");
+		debugSphere->begin("BaseWhiteNoLighting", RenderOperation::OT_LINE_STRIP);
+		for (int i = 0; i <= 20; ++i)
+		{
+			Vector3 basePos(projectionSphere->getRadius(), 0, 0);
+			Quaternion quat;
+			quat.FromAngleAxis(Radian(((float)i/(float)20)*Math::TWO_PI), Vector3::UNIT_Y);
+			basePos = quat * basePos;
+			debugSphere->position(basePos);
+		}
+		for (int i = 0; i <= 20; ++i)
+		{
+			Vector3 basePos(projectionSphere->getRadius(), 0, 0);
+			Quaternion quat;
+			quat.FromAngleAxis(Radian(((float)i/(float)20)*Math::TWO_PI), Vector3::UNIT_Z);
+			basePos = quat * basePos;
+			debugSphere->position(basePos);
+		}
+		debugSphere->end();
+
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0,30,0))->attachObject(debugSphere);
+
+		scissorRect = mSceneMgr->createManualObject("scissorrect");
+		scissorRect->setUseIdentityProjection(true);
+		scissorRect->setUseIdentityView(true);
+		AxisAlignedBox aabb;
+		aabb.setInfinite();
+		scissorRect->setBoundingBox(aabb);
+		scissorRect->begin("BaseWhiteNoLighting", RenderOperation::OT_LINE_STRIP);
+		scissorRect->position(Vector3::ZERO);
+		scissorRect->position(Vector3::ZERO);
+		scissorRect->position(Vector3::ZERO);
+		scissorRect->position(Vector3::ZERO);
+		scissorRect->position(Vector3::ZERO);
+		scissorRect->end();
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(scissorRect);
+
+
+
+
+	}
 
 	void testBug()
 	{
+
 
 		Ogre::Mesh* mesh = Ogre::MeshManager::getSingleton().load("male_civ_head.mesh", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME).getPointer();
 		assert(mesh);
@@ -2212,6 +2292,10 @@ protected:
 		mAnimStateList.push_back(anim);
 		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(100, 0, 0))->attachObject(pEnt);
 		pEnt->setMaterialName("Examples/Rocky");
+
+		// test object
+		//pEnt = mSceneMgr->createEntity("tst", "building.mesh");
+		//mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(300, 0, 0))->attachObject(pEnt);
 
 
         // Does not receive shadows
@@ -5537,6 +5621,7 @@ protected:
 		//testPoseAnimation();
 		//testPoseAnimation2();
 		//testBug();
+		testProjectSphere();
 		//testTimeCreateDestroyObject();
 		//testManualBlend();
 		//testManualObjectNonIndexed();

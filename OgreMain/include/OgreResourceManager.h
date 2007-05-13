@@ -106,7 +106,7 @@ namespace Ogre {
 			fail because another thread created a resource in between.
 		@see ResourceManager::create
 		@see ResourceManager::getByName
-		@returns A pair, teh first element being the pointer, and the second being 
+		@returns A pair, the first element being the pointer, and the second being 
 			an indicator specifying whether the resource was newly created.
 		*/
 		virtual ResourceCreateOrRetrieveResult createOrRetrieve(const String& name, 
