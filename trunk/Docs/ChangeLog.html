@@ -312,7 +312,39 @@ Rendering Engine)</p>
 
 
 
-
+<p class="mainheader" align="left">v1.4.1 [Eihort] (6 May 2007) - Maintenance Release</p>
+<ul>
+	<li>Linux support for GLX 1.2 and earlier re-established. Patch which enhanced GLX support but was reliant on GLX 1.3 has been rolled back.</li>
+	<li>Allow Linux configure to choose to use DevIL again if wished, to avoid conflicts of FreeImage's modified image libraries &amp; system libs.</li>
+	<li>Fix autotool detection of FreeImage</li>
+	<li>Fix assert in debug mode with custom projections (e.g. focused or LiSPSM shadows) caused by constructing an invalid AABB</li>
+	<li>MemoryManager::dllocMem should early-out for null pointers to conform to standards</li>
+	<li>Fix theoretical problem with Ray/AABB intersection - if origin was precisely on the boundary of an AABB plane it wouldn't be classed as 'inside' but would also would not test whether the ray was heading towards the box.</li>
+	<li>Don't set logical / physical param maps for GLSL, as GLSL isn't supposed to access parameters by logical index, so try to do that will throw exception rather than some undefined behavior now.</li>
+	<li>Global namespace uniforms supported in Cg</li>
+	<li>Fix cracks in TerrainSceneManager vertex morph program in GL/ATI. Was caused by different interpretation of ARB_vertex_program by ATI drivers.</li>
+	<li>Registration and deregistration of high level gpu program factories tightened up, they're only registered if supportable now so easier to determine high-level support. Were originally registered early to try to reduce errors in using cross-platform media but this has been addressed via null programs now.</li>
+	<li>Resolved some ALT-key issues in default window loop</li>
+	<li>Fixed directional lights inverted when using focused &amp; LiSPSM shadows</li>
+	<li>Fixed opening GLX window on displays &gt; 0</li>
+	<li>Fix OpenGL fullscreen refresh rate in Win32 (GLX ok)</li>
+	<li>Fix use of ACT_TEXTURE_VIEWPROJ_MATRIX with custom projectors (not texture shadows)</li>
+	<li>Fix problems with compositor removing a viewport listener in the middle of the viewport listener callbacks - only shows up if there is more than one listener.</li>
+	<li>Allow arbitrary D3D window size in auto created window (in windowed mode), was previously only allowed in manually created windows)</li>
+	<li>More gracefully handle trying to build edge lists on meshes which have line / point geometry in them. Make sure we create no edge list when there
+	is no triangle data, and allow meshes with mixed operation types by only including the triangle data submeshes in the edge list</li>
+	<li>Fix to make StringConverter::parseXxxx correctly return zero when given garbage</li>
+	<li>GCC visibility fixes (python-ogre compatibility)</li>
+	<li>Compositors are now correctly created in the resource group their script was parsed from</li>
+	<li>MeshSerializerImpl::writeSubMeshExtremes bugfix</li>
+	<li>Improvement to FileName splitting functions</li>
+	<li>AxisAlignedBox::getCorner method const correctness</li>
+	<li>Documented the 'emitted emitters' feature</li>
+	<li>Remove manual setting of light state in TerrainSceneManager</li>
+	<li>Updated GLX config dialog backdrop</li>
+	
+	
+</ul>
 
 
 

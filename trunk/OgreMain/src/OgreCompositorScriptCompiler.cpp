@@ -331,7 +331,7 @@ namespace Ogre {
 	{
 		const String compositorName = getNextTokenLabel();
 		mScriptContext.compositor = CompositorManager::getSingleton().create(
-            compositorName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+            compositorName, mScriptContext.groupName
 			);
 		mScriptContext.section = CSS_COMPOSITOR;
 

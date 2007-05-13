@@ -562,6 +562,7 @@ namespace Ogre
                 */
                 perp = this->crossProduct( Vector3::UNIT_Y );
             }
+			perp.normalise();
 
             return perp;
         }
