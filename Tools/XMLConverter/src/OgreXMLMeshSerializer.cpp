@@ -1409,7 +1409,7 @@ namespace Ogre {
 					"XMLMeshSerializer::readPoses");
 			}
 			unsigned short targetID;
-			if(target == "mesh")
+			if(String(target) == "mesh")
 			{
 				targetID = 0;
 			}
