@@ -1893,9 +1893,9 @@ void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(
         lightList.clear();
 
         // Render all the ambient passes first, no light iteration, no lights
-        renderObjects(pPriorityGrp->getSolidsBasic(), om, false, &lightList);
+        renderObjects(pPriorityGrp->getSolidsBasic(), om, false, false, &lightList);
         // Also render any objects which have receive shadows disabled
-        renderObjects(pPriorityGrp->getSolidsNoShadowReceive(), om, true);
+        renderObjects(pPriorityGrp->getSolidsNoShadowReceive(), om, true, true);
 
 
         // Now iterate per light
@@ -1927,7 +1927,7 @@ void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(
             }
 
             // render lighting passes for this light
-            renderObjects(pPriorityGrp->getSolidsDiffuseSpecular(), om, false, &lightList);
+            renderObjects(pPriorityGrp->getSolidsDiffuseSpecular(), om, false, false, &lightList);
 
             // Reset stencil params
             mDestRenderSystem->setStencilBufferParams();
@@ -1941,7 +1941,7 @@ void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(
 
 
         // Now render decal passes, no need to set lights as lighting will be disabled
-        renderObjects(pPriorityGrp->getSolidsDecal(), om, false);
+        renderObjects(pPriorityGrp->getSolidsDecal(), om, false, false);
 
 
     }// for each priority
@@ -1954,7 +1954,7 @@ void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(
 
         // Do transparents (always descending sort)
         renderObjects(pPriorityGrp->getTransparents(), 
-			QueuedRenderableCollection::OM_SORT_DESCENDING, true);
+			QueuedRenderableCollection::OM_SORT_DESCENDING, true, true);
 
     }// for each priority
 
@@ -1984,7 +1984,7 @@ void SceneManager::renderModulativeStencilShadowedQueueGroupObjects(
         pPriorityGrp->sort(mCameraInProgress);
 
         // Do (shadowable) solids
-        renderObjects(pPriorityGrp->getSolidsBasic(), om, true);
+        renderObjects(pPriorityGrp->getSolidsBasic(), om, true, true);
     }
 
 
@@ -2006,7 +2006,7 @@ void SceneManager::renderModulativeStencilShadowedQueueGroupObjects(
             mDestRenderSystem->setStencilCheckEnabled(true);
             // NB we render where the stencil is not equal to zero to render shadows, not lit areas
             mDestRenderSystem->setStencilBufferParams(CMPF_NOT_EQUAL, 0);
-            renderSingleObject(mFullScreenQuad, mShadowModulativePass, false);
+            renderSingleObject(mFullScreenQuad, mShadowModulativePass, false, false);
             // Reset stencil params
             mDestRenderSystem->setStencilBufferParams();
             mDestRenderSystem->setStencilCheckEnabled(false);
@@ -2022,7 +2022,7 @@ void SceneManager::renderModulativeStencilShadowedQueueGroupObjects(
         RenderPriorityGroup* pPriorityGrp = groupIt2.getNext();
 
         // Do non-shadowable solids
-        renderObjects(pPriorityGrp->getSolidsNoShadowReceive(), om, true);
+        renderObjects(pPriorityGrp->getSolidsNoShadowReceive(), om, true, true);
 
     }// for each priority
 
@@ -2035,7 +2035,7 @@ void SceneManager::renderModulativeStencilShadowedQueueGroupObjects(
 
         // Do transparents (always descending sort)
         renderObjects(pPriorityGrp->getTransparents(), 
-			QueuedRenderableCollection::OM_SORT_DESCENDING, true);
+			QueuedRenderableCollection::OM_SORT_DESCENDING, true, true);
 
     }// for each priority
 
@@ -2076,13 +2076,13 @@ void SceneManager::renderTextureShadowCasterQueueGroupObjects(
         pPriorityGrp->sort(mCameraInProgress);
 
         // Do solids, override light list incase any vertex programs use them
-        renderObjects(pPriorityGrp->getSolidsBasic(), om, false, &nullLightList);
-        renderObjects(pPriorityGrp->getSolidsNoShadowReceive(), om, false, &nullLightList);
+        renderObjects(pPriorityGrp->getSolidsBasic(), om, false, false, &nullLightList);
+        renderObjects(pPriorityGrp->getSolidsNoShadowReceive(), om, false, false, &nullLightList);
 		// Do transparents that cast shadows
 		renderTransparentShadowCasterObjects(
 				pPriorityGrp->getTransparents(), 
 				QueuedRenderableCollection::OM_SORT_DESCENDING, 
-				false, &nullLightList);
+				false, false, &nullLightList);
 
 
     }// for each priority
@@ -2115,8 +2115,8 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(
         pPriorityGrp->sort(mCameraInProgress);
 
         // Do solids
-        renderObjects(pPriorityGrp->getSolidsBasic(), om, true);
-        renderObjects(pPriorityGrp->getSolidsNoShadowReceive(), om, true);
+        renderObjects(pPriorityGrp->getSolidsBasic(), om, true, true);
+        renderObjects(pPriorityGrp->getSolidsNoShadowReceive(), om, true, true);
     }
 
 
@@ -2222,7 +2222,7 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(
 
         // Do transparents (always descending)
         renderObjects(pPriorityGrp->getTransparents(), 
-			QueuedRenderableCollection::OM_SORT_DESCENDING, true);
+			QueuedRenderableCollection::OM_SORT_DESCENDING, true, true);
 
     }// for each priority
 
@@ -2246,9 +2246,9 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
 		lightList.clear();
 
 		// Render all the ambient passes first, no light iteration, no lights
-		renderObjects(pPriorityGrp->getSolidsBasic(), om, false, &lightList);
+		renderObjects(pPriorityGrp->getSolidsBasic(), om, false, false, &lightList);
 		// Also render any objects which have receive shadows disabled
-		renderObjects(pPriorityGrp->getSolidsNoShadowReceive(), om, true);
+		renderObjects(pPriorityGrp->getSolidsNoShadowReceive(), om, true, true);
 
 
 		// only perform this next part if we're in the 'normal' render stage, to avoid
@@ -2319,7 +2319,7 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
 
 				// set up light scissoring, always useful in additive modes
 				bool scissored = buildAndSetScissor(lightList, mCameraInProgress);
-				renderObjects(pPriorityGrp->getSolidsDiffuseSpecular(), om, false, &lightList);
+				renderObjects(pPriorityGrp->getSolidsDiffuseSpecular(), om, false, false, &lightList);
 				if (scissored)
 					resetScissor();
 
@@ -2328,7 +2328,7 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
 			mIlluminationStage = IRS_NONE;
 
 			// Now render decal passes, no need to set lights as lighting will be disabled
-			renderObjects(pPriorityGrp->getSolidsDecal(), om, false);
+			renderObjects(pPriorityGrp->getSolidsDecal(), om, false, false);
 
 		}
 
@@ -2343,7 +2343,7 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
 
 		// Do transparents (always descending sort)
 		renderObjects(pPriorityGrp->getTransparents(), 
-			QueuedRenderableCollection::OM_SORT_DESCENDING, true);
+			QueuedRenderableCollection::OM_SORT_DESCENDING, true, true);
 
 	}// for each priority
 
@@ -2367,7 +2367,7 @@ void SceneManager::renderTextureShadowReceiverQueueGroupObjects(
         RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
 
         // Do solids, override light list incase any vertex programs use them
-        renderObjects(pPriorityGrp->getSolidsBasic(), om, false, &nullLightList);
+        renderObjects(pPriorityGrp->getSolidsBasic(), om, false, false, &nullLightList);
 
         // Don't render transparents or passes which have shadow receipt disabled
 
@@ -2385,7 +2385,7 @@ void SceneManager::SceneMgrQueuedRenderableVisitor::visit(const Renderable* r)
 	if (targetSceneMgr->validateRenderableForRendering(mUsedPass, r))
 	{
 		// Render a single object, this will set up auto params if required
-		targetSceneMgr->renderSingleObject(r, mUsedPass, autoLights, manualLightList);
+		targetSceneMgr->renderSingleObject(r, mUsedPass, scissoring, autoLights, manualLightList);
 	}
 }
 //-----------------------------------------------------------------------
@@ -2415,8 +2415,8 @@ void SceneManager::SceneMgrQueuedRenderableVisitor::visit(const RenderablePass* 
 	if (targetSceneMgr->validateRenderableForRendering(rp->pass, rp->renderable))
 	{
 		mUsedPass = targetSceneMgr->_setPass(rp->pass);
-		targetSceneMgr->renderSingleObject(rp->renderable, mUsedPass, autoLights, 
-			manualLightList);
+		targetSceneMgr->renderSingleObject(rp->renderable, mUsedPass, scissoring, 
+			autoLights, manualLightList);
 	}
 }
 //-----------------------------------------------------------------------
@@ -2466,12 +2466,14 @@ bool SceneManager::validateRenderableForRendering(const Pass* pass, const Render
 //-----------------------------------------------------------------------
 void SceneManager::renderObjects(const QueuedRenderableCollection& objs, 
 								 QueuedRenderableCollection::OrganisationMode om, 
+								 bool lightScissoring,
 								 bool doLightIteration, 
                                  const LightList* manualLightList)
 {
 	mActiveQueuedRenderableVisitor->autoLights = doLightIteration;
 	mActiveQueuedRenderableVisitor->manualLightList = manualLightList;
 	mActiveQueuedRenderableVisitor->transparentShadowCastersMode = false;
+	mActiveQueuedRenderableVisitor->scissoring = lightScissoring;
 	// Use visitor
 	objs.acceptVisitor(mActiveQueuedRenderableVisitor, om);
 }
@@ -2551,10 +2553,10 @@ void SceneManager::renderBasicQueueGroupObjects(RenderQueueGroup* pGroup,
         pPriorityGrp->sort(mCameraInProgress);
 
         // Do solids
-        renderObjects(pPriorityGrp->getSolidsBasic(), om, true);
+        renderObjects(pPriorityGrp->getSolidsBasic(), om, true, true);
         // Do transparents (always descending)
         renderObjects(pPriorityGrp->getTransparents(), 
-			QueuedRenderableCollection::OM_SORT_DESCENDING, true);
+			QueuedRenderableCollection::OM_SORT_DESCENDING, true, true);
 
 
     }// for each priority
@@ -2562,12 +2564,14 @@ void SceneManager::renderBasicQueueGroupObjects(RenderQueueGroup* pGroup,
 //-----------------------------------------------------------------------
 void SceneManager::renderTransparentShadowCasterObjects(
 	const QueuedRenderableCollection& objs, 
-	QueuedRenderableCollection::OrganisationMode om, bool doLightIteration,
+	QueuedRenderableCollection::OrganisationMode om, bool lightScissoring, 
+	bool doLightIteration,
 	const LightList* manualLightList)
 {
 	mActiveQueuedRenderableVisitor->transparentShadowCastersMode = true;
 	mActiveQueuedRenderableVisitor->autoLights = doLightIteration;
 	mActiveQueuedRenderableVisitor->manualLightList = manualLightList;
+	mActiveQueuedRenderableVisitor->scissoring = lightScissoring;
 	
 	// Sort descending (transparency)
 	objs.acceptVisitor(mActiveQueuedRenderableVisitor, 
@@ -2577,7 +2581,8 @@ void SceneManager::renderTransparentShadowCasterObjects(
 }
 //-----------------------------------------------------------------------
 void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass, 
-                                      bool doLightIteration, const LightList* manualLightList)
+                                      bool lightScissoring, bool doLightIteration, 
+									  const LightList* manualLightList)
 {
     unsigned short numMatrices;
     static RenderOperation ro;
@@ -2805,7 +2810,7 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 				}
 				// optional light scissoring
 				bool scissored = false;
-				if (pass->getLightScissoringEnabled())
+				if (lightScissoring && pass->getLightScissoringEnabled())
 				{
 					scissored = buildAndSetScissor(*pLightListToUse, mCameraInProgress);
 				}
@@ -2852,7 +2857,7 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 
 			// optional light scissoring
 			bool scissored = false;
-			if (manualLightList && pass->getLightScissoringEnabled())
+			if (lightScissoring && manualLightList && pass->getLightScissoringEnabled())
 			{
 				scissored = buildAndSetScissor(*manualLightList, mCameraInProgress);
 			}
@@ -4554,7 +4559,7 @@ void SceneManager::renderShadowVolumeObjects(ShadowCaster::ShadowRenderableListI
         if (sr->isVisible())
         {
             // render volume, including dark and (maybe) light caps
-            renderSingleObject(sr, pass, false, manualLightList);
+            renderSingleObject(sr, pass, false, false, manualLightList);
 
             // optionally render separate light cap
             if (sr->isLightCapSeparate() && (flags & SRF_INCLUDE_LIGHT_CAP))
@@ -4586,13 +4591,13 @@ void SceneManager::renderShadowVolumeObjects(ShadowCaster::ShadowRenderableListI
                     // select back facing light caps to render
                     mDestRenderSystem->_setCullingMode(CULL_ANTICLOCKWISE);
                     // use normal depth function for back facing light caps
-                    renderSingleObject(lightCap, pass, false, manualLightList);
+                    renderSingleObject(lightCap, pass, false, false, manualLightList);
 
                     // select front facing light caps to render
                     mDestRenderSystem->_setCullingMode(CULL_CLOCKWISE);
                     // must always fail depth check for front facing light caps
                     mDestRenderSystem->_setDepthBufferFunction(CMPF_ALWAYS_FAIL);
-                    renderSingleObject(lightCap, pass, false, manualLightList);
+                    renderSingleObject(lightCap, pass, false, false, manualLightList);
 
                     // reset depth function
                     mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS);
@@ -4602,13 +4607,13 @@ void SceneManager::renderShadowVolumeObjects(ShadowCaster::ShadowRenderableListI
                 else if ((secondpass || zfail) && !(secondpass && zfail))
                 {
                     // use normal depth function for back facing light caps
-                    renderSingleObject(lightCap, pass, false, manualLightList);
+                    renderSingleObject(lightCap, pass, false, false, manualLightList);
                 }
                 else
                 {
                     // must always fail depth check for front facing light caps
                     mDestRenderSystem->_setDepthBufferFunction(CMPF_ALWAYS_FAIL);
-                    renderSingleObject(lightCap, pass, false, manualLightList);
+                    renderSingleObject(lightCap, pass, false, false, manualLightList);
 
                     // reset depth function
                     mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS);
@@ -5530,7 +5535,7 @@ void SceneManager::_injectRenderWithPass(Pass *pass, Renderable *rend, bool shad
 {
 	// render something as if it came from the current queue
     const Pass *usedPass = _setPass(pass, false, shadowDerivation);
-    renderSingleObject(rend, usedPass, false);
+    renderSingleObject(rend, usedPass, false, false);
 }
 //---------------------------------------------------------------------
 RenderSystem *SceneManager::getDestinationRenderSystem()
