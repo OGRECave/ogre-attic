@@ -178,6 +178,8 @@ namespace Ogre {
 		typedef std::vector<unsigned short> ContentTypeLookup;
 		mutable ContentTypeLookup mShadowContentTypeLookup;
 		mutable bool mContentTypeLookupBuilt;
+		/// Scissoring for the light?
+		bool mLightScissoring;
 
 	public:
 		typedef std::set<Pass*> PassSet;
@@ -1254,6 +1256,25 @@ namespace Ogre {
         */
         bool applyTextureAliases(const AliasTextureNamePairList& aliasList, const bool apply = true) const;
 
+		/** Sets whether or not this pass will be clipped by a scissor rectangle
+			encompassing the lights that are being used in it.
+		@remarks
+			In order to cut down on fillrate when you have a number of fixed-range
+			lights in the scene, you can enable this option to request that
+			during rendering, only the region of the screen which is covered by
+			the lights is rendered. This region is the screen-space rectangle 
+			covering the union of the spheres making up the light ranges. Directional
+			lights are ignored for this.
+		@note
+			This is only likely to be useful for multipass additive lighting 
+			algorithms, where the scene has already been 'seeded' with an ambient 
+			pass and this pass is just adding light in affected areas.
+		*/
+		void setLightScissoringEnabled(bool enabled) { mLightScissoring = enabled; }
+		/** Gets whether or not this pass will be clipped by a scissor rectangle
+			encompassing the lights that are being used in it.
+		*/
+		bool getLightScissoringEnabled() const { return mLightScissoring; }
 
 		/** There are some default hash functions used to order passes so that
 			render state changes are minimised, this enumerates them.

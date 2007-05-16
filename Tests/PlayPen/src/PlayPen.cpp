@@ -250,10 +250,10 @@ public:
 
 			scissorRect->beginUpdate(0);
 			scissorRect->position(left, top, 0);
-			scissorRect->position(right, top, 0);
-			scissorRect->position(right, bottom, 0);
 			scissorRect->position(left, bottom, 0);
-			scissorRect->position(left, top, 0);
+			scissorRect->position(right, bottom, 0);
+			scissorRect->position(right, top, 0);
+			scissorRect->quad(0,1,2,3);
 			scissorRect->end();
 
 
@@ -885,7 +885,7 @@ protected:
 		pPlaneEnt->setCastShadows(false);
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 
-		projectionSphere = new Sphere(Vector3(0, 30.0, 0), 10.0);
+		projectionSphere = new Sphere(Vector3(0, 2000, 0), 1500.0);
 
 		ManualObject* debugSphere = mSceneMgr->createManualObject("debugSphere");
 		debugSphere->begin("BaseWhiteNoLighting", RenderOperation::OT_LINE_STRIP);
@@ -907,7 +907,19 @@ protected:
 		}
 		debugSphere->end();
 
-		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0,30,0))->attachObject(debugSphere);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0,2000,0))->attachObject(debugSphere);
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("scissormat", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setDepthWriteEnabled(false);
+		p->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		TextureUnitState* t = p->createTextureUnitState();
+		t->setColourOperationEx(LBX_SOURCE1, LBS_MANUAL, LBS_CURRENT, 
+			ColourValue::Red);
+		t->setAlphaOperation(LBX_SOURCE1, LBS_MANUAL, LBS_CURRENT, 0.5f);
+
+
 
 		scissorRect = mSceneMgr->createManualObject("scissorrect");
 		scissorRect->setUseIdentityProjection(true);
@@ -915,12 +927,11 @@ protected:
 		AxisAlignedBox aabb;
 		aabb.setInfinite();
 		scissorRect->setBoundingBox(aabb);
-		scissorRect->begin("BaseWhiteNoLighting", RenderOperation::OT_LINE_STRIP);
+		scissorRect->begin(mat->getName());
 		scissorRect->position(Vector3::ZERO);
 		scissorRect->position(Vector3::ZERO);
 		scissorRect->position(Vector3::ZERO);
-		scissorRect->position(Vector3::ZERO);
-		scissorRect->position(Vector3::ZERO);
+		scissorRect->quad(0, 1, 2, 3);
 		scissorRect->end();
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(scissorRect);
 
@@ -5532,6 +5543,61 @@ protected:
 
 	}
 
+	void testLightScissoring()
+	{
+		mSceneMgr->setAmbientLight(ColourValue::White);
+
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 0;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			4500,4500,10,10,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("Examples/GrassFloor");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		Real lightRange = 100;
+
+		ManualObject* debugSphere = mSceneMgr->createManualObject("debugSphere");
+		debugSphere->begin("BaseWhiteNoLighting", RenderOperation::OT_LINE_STRIP);
+		for (int i = 0; i <= 20; ++i)
+		{
+			Vector3 basePos(lightRange, 0, 0);
+			Quaternion quat;
+			quat.FromAngleAxis(Radian(((float)i/(float)20)*Math::TWO_PI), Vector3::UNIT_Y);
+			basePos = quat * basePos;
+			debugSphere->position(basePos);
+		}
+		for (int i = 0; i <= 20; ++i)
+		{
+			Vector3 basePos(lightRange, 0, 0);
+			Quaternion quat;
+			quat.FromAngleAxis(Radian(((float)i/(float)20)*Math::TWO_PI), Vector3::UNIT_Z);
+			basePos = quat * basePos;
+			debugSphere->position(basePos);
+		}
+		debugSphere->end();
+
+		Light* l = mSceneMgr->createLight("l1");
+		l->setAttenuation(lightRange, 1, 0, 0);
+		SceneNode* n = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0,100,0));
+		n->attachObject(debugSphere);
+		n->attachObject(l);
+
+		// Modify the plane material so that it clips to the light
+		// Normally you'd only clip a secondary pass but this is engineered so you
+		// can actually see the scissoring effect
+		MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/GrassFloor");
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightScissoringEnabled(true);
+
+
+
+	}
+
 	// Just override the mandatory create scene method
     void createScene(void)
     {
@@ -5590,7 +5656,7 @@ protected:
 		//testTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testTextureShadowsIntegrated();
 		//testTextureShadowsIntegrated();
-		testStencilShadowsMixedOpSubMeshes(false, true);
+		//testStencilShadowsMixedOpSubMeshes(false, true);
 		//testTextureShadowsCustomCasterMat(SHADOWTYPE_TEXTURE_ADDITIVE);
 		//testTextureShadowsCustomReceiverMat(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//testCompositorTextureShadows(SHADOWTYPE_TEXTURE_MODULATIVE);
@@ -5621,7 +5687,8 @@ protected:
 		//testPoseAnimation();
 		//testPoseAnimation2();
 		//testBug();
-		testProjectSphere();
+		//testProjectSphere();
+		testLightScissoring();
 		//testTimeCreateDestroyObject();
 		//testManualBlend();
 		//testManualObjectNonIndexed();
@@ -5643,7 +5710,7 @@ protected:
 		//testMultiSceneManagersComplex();
 		//testManualBoneMovement();
 		//testMaterialSchemes();
-		testMaterialSchemesListener();
+		//testMaterialSchemesListener();
 		//testMaterialSchemesWithLOD();
 		//testMaterialSchemesWithMismatchedLOD();
         //testSkeletonAnimationOptimise();

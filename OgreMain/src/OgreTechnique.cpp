@@ -860,6 +860,8 @@ namespace Ogre {
                         newPass->setSelfIllumination(ColourValue::Black);
                         // must be additive
                         newPass->setSceneBlending(SBF_ONE, SBF_ONE);
+						// enable light scissoring
+						newPass->setLightScissoringEnabled(true);
 
                         // Calculate hash value for new pass, because we are compiling
                         // illumination passes on demand, which will loss hash calculate

@@ -357,6 +357,20 @@ namespace Ogre
                 context);
         return false;
     }
+	//-----------------------------------------------------------------------
+	bool parseLightScissor(String& params, MaterialScriptContext& context)
+	{
+		StringUtil::toLowerCase(params);
+		if (params == "on")
+			context.pass->setLightScissoringEnabled(true);
+		else if (params == "off")
+			context.pass->setLightScissoringEnabled(false);
+		else
+			logParseError(
+			"Bad light_scissor attribute, valid parameters are 'on' or 'off'.",
+			context);
+		return false;
+	}
 
     //-----------------------------------------------------------------------
     bool parseDepthFunc(String& params, MaterialScriptContext& context)
@@ -2615,6 +2629,7 @@ namespace Ogre
         mPassAttribParsers.insert(AttribParserList::value_type("depth_func", (ATTRIBUTE_PARSER)parseDepthFunc));
 		mPassAttribParsers.insert(AttribParserList::value_type("alpha_rejection", (ATTRIBUTE_PARSER)parseAlphaRejection));
         mPassAttribParsers.insert(AttribParserList::value_type("colour_write", (ATTRIBUTE_PARSER)parseColourWrite));
+		mPassAttribParsers.insert(AttribParserList::value_type("light_scissor", (ATTRIBUTE_PARSER)parseLightScissor));
         mPassAttribParsers.insert(AttribParserList::value_type("cull_hardware", (ATTRIBUTE_PARSER)parseCullHardware));
         mPassAttribParsers.insert(AttribParserList::value_type("cull_software", (ATTRIBUTE_PARSER)parseCullSoftware));
         mPassAttribParsers.insert(AttribParserList::value_type("lighting", (ATTRIBUTE_PARSER)parseLighting));
@@ -3479,7 +3494,15 @@ namespace Ogre
 				writeValue(StringConverter::toString(pPass->getDepthBiasSlopeScale()));
             }
 
-            // hardware culling mode
+			//light scissor
+			if (mDefaults ||
+				pPass->getLightScissoringEnabled() != false)
+			{
+				writeAttribute(3, "light_scissor");
+				writeValue(pPass->getLightScissoringEnabled() ? "on" : "off");
+			}
+
+			// hardware culling mode
             if (mDefaults ||
                 pPass->getCullingMode() != CULL_CLOCKWISE)
             {

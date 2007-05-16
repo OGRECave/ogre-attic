@@ -1907,12 +1907,19 @@ void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(
         {
             Light* l = *li;
             // Set light state
+			if (lightList.empty())
+				lightList.push_back(l);
+			else
+				lightList[0] = l;
+
+			// set up scissor, will cover shadow vol and regular light rendering
+			bool scissored = buildAndSetScissor(lightList, mCameraInProgress);
 
             if (l->getCastShadows())
             {
                 // Clear stencil
                 mDestRenderSystem->clearFrameBuffer(FBT_STENCIL);
-                renderShadowVolumesToStencil(l, mCameraInProgress);
+                renderShadowVolumesToStencil(l, mCameraInProgress, false);
                 // turn stencil check on
                 mDestRenderSystem->setStencilCheckEnabled(true);
                 // NB we render where the stencil is equal to zero to render lit areas
@@ -1920,16 +1927,15 @@ void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(
             }
 
             // render lighting passes for this light
-            if (lightList.empty())
-                lightList.push_back(l);
-            else
-                lightList[0] = l;
             renderObjects(pPriorityGrp->getSolidsDiffuseSpecular(), om, false, &lightList);
 
             // Reset stencil params
             mDestRenderSystem->setStencilBufferParams();
             mDestRenderSystem->setStencilCheckEnabled(false);
             mDestRenderSystem->_setDepthBufferParams();
+
+			if (scissored)
+				resetScissor();
 
         }// for each light
 
@@ -1993,7 +1999,7 @@ void SceneManager::renderModulativeStencilShadowedQueueGroupObjects(
         {
             // Clear stencil
             mDestRenderSystem->clearFrameBuffer(FBT_STENCIL);
-            renderShadowVolumesToStencil(l, mCameraInProgress);
+            renderShadowVolumesToStencil(l, mCameraInProgress, true);
             // render full-screen shadow modulator for all lights
             _setPass(mShadowModulativePass);
             // turn stencil check on
@@ -2310,7 +2316,12 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
                     lightList.push_back(l);
                 else
                     lightList[0] = l;
+
+				// set up light scissoring, always useful in additive modes
+				bool scissored = buildAndSetScissor(lightList, mCameraInProgress);
 				renderObjects(pPriorityGrp->getSolidsDiffuseSpecular(), om, false, &lightList);
+				if (scissored)
+					resetScissor();
 
 			}// for each light
 
@@ -2737,7 +2748,7 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 					}
 					pLightListToUse = &localLightList;
 				}
-				else
+				else // !iterate per light
 				{
 					// Use complete light list potentially adjusted by start light
 					if (pass->getStartLight())
@@ -2792,10 +2803,19 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 				{
 					mDestRenderSystem->_useLights(*pLightListToUse, pass->getMaxSimultaneousLights());
 				}
+				// optional light scissoring
+				bool scissored = false;
+				if (pass->getLightScissoringEnabled())
+				{
+					scissored = buildAndSetScissor(*pLightListToUse, mCameraInProgress);
+				}
 				// issue the render op		
 				// nfz: check for gpu_multipass
 				mDestRenderSystem->setCurrentPassIterationCount(pass->getPassIterationCount());
 				mDestRenderSystem->_render(ro);
+
+				if (scissored)
+					resetScissor();
 			} // possibly iterate per light
 		}
 		else // no automatic light processing
@@ -2829,10 +2849,21 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 			{
 				mDestRenderSystem->_useLights(*manualLightList, pass->getMaxSimultaneousLights());
 			}
+
+			// optional light scissoring
+			bool scissored = false;
+			if (manualLightList && pass->getLightScissoringEnabled())
+			{
+				scissored = buildAndSetScissor(*manualLightList, mCameraInProgress);
+			}
+
 			// issue the render op		
 			// nfz: set up multipass rendering
 			mDestRenderSystem->setCurrentPassIterationCount(pass->getPassIterationCount());
 			mDestRenderSystem->_render(ro);
+
+			if (scissored)
+				resetScissor();
 		}
 
 	}
@@ -4231,7 +4262,70 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 
 }
 //---------------------------------------------------------------------
-void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera* camera)
+bool SceneManager::buildAndSetScissor(const LightList& ll, const Camera* cam)
+{
+	if (!mDestRenderSystem->getCapabilities()->hasCapability(RSC_SCISSOR_TEST))
+		return false;
+
+	FloatRect rect;
+	// init 
+	rect.left = rect.bottom = -1.0f;
+	rect.right = rect.top = 1.0f;
+
+	for (LightList::const_iterator i = ll.begin(); i != ll.end(); ++i)
+	{
+		buildScissor(*i, cam, rect);
+	}
+
+	if (rect.left > -1.0f || rect.right < 1.0f || rect.bottom > -1.0f || rect.top < 1.0f)
+	{
+		// Turn normalised device coordinates into pixels
+		int iLeft, iTop, iWidth, iHeight;
+		mCurrentViewport->getActualDimensions(iLeft, iTop, iWidth, iHeight);
+		size_t szLeft, szRight, szTop, szBottom;
+
+		szLeft = (size_t)(iLeft + ((rect.left + 1) * 0.5 * iWidth));
+		szRight = (size_t)(iLeft + ((rect.right + 1) * 0.5 * iWidth));
+		szTop = (size_t)(iTop + ((-rect.top + 1) * 0.5 * iHeight));
+		szBottom = (size_t)(iTop + ((-rect.bottom + 1) * 0.5 * iHeight));
+
+		mDestRenderSystem->setScissorTest(true, szLeft, szTop, szRight, szBottom);
+
+		return true;
+	}
+	else
+		return false;
+
+}
+//---------------------------------------------------------------------
+void SceneManager::buildScissor(const Light* light, const Camera* cam, FloatRect& rect)
+{
+	if (light->getType() != Light::LT_DIRECTIONAL)
+	{
+		// Project the sphere onto the camera
+		Sphere sphere(light->getDerivedPosition(), light->getAttenuationRange());
+		Real left, right, bottom, top;
+		if (cam->projectSphere(sphere, &left, &top, &right, &bottom))
+		{
+			// merge
+			rect.left = std::max(rect.left, left);
+			rect.bottom = std::max(rect.bottom, bottom);
+			rect.right= std::min(rect.right, right);
+			rect.top = std::min(rect.top, top);
+		}
+	}
+}
+//---------------------------------------------------------------------
+void SceneManager::resetScissor()
+{
+	if (!mDestRenderSystem->getCapabilities()->hasCapability(RSC_SCISSOR_TEST))
+		return;
+
+	mDestRenderSystem->setScissorTest(false);
+}
+//---------------------------------------------------------------------
+void SceneManager::renderShadowVolumesToStencil(const Light* light, 
+	const Camera* camera, bool calcScissor)
 {
     // Get the shadow caster list
     const ShadowCasterList& casters = findShadowCastersForLight(light, camera);
@@ -4242,30 +4336,15 @@ void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera
         return;
     }
 
+	// Add light to internal list for use in render call
+	LightList lightList;
+	// const_cast is forgiveable here since we pass this const
+	lightList.push_back(const_cast<Light*>(light));
+
     // Set up scissor test (point & spot lights only)
     bool scissored = false;
-    if (light->getType() != Light::LT_DIRECTIONAL && 
-        mDestRenderSystem->getCapabilities()->hasCapability(RSC_SCISSOR_TEST))
-    {
-        // Project the sphere onto the camera
-        Real left, right, top, bottom;
-        Sphere sphere(light->getDerivedPosition(), light->getAttenuationRange());
-        if (camera->projectSphere(sphere, &left, &top, &right, &bottom))
-        {
-            scissored = true;
-            // Turn normalised device coordinates into pixels
-            int iLeft, iTop, iWidth, iHeight;
-            mCurrentViewport->getActualDimensions(iLeft, iTop, iWidth, iHeight);
-            size_t szLeft, szRight, szTop, szBottom;
-
-            szLeft = (size_t)(iLeft + ((left + 1) * 0.5 * iWidth));
-            szRight = (size_t)(iLeft + ((right + 1) * 0.5 * iWidth));
-            szTop = (size_t)(iTop + ((-top + 1) * 0.5 * iHeight));
-            szBottom = (size_t)(iTop + ((-bottom + 1) * 0.5 * iHeight));
-
-            mDestRenderSystem->setScissorTest(true, szLeft, szTop, szRight, szBottom);
-        }
-    }
+	if (calcScissor)
+		scissored = buildAndSetScissor(lightList, camera);
 
     mDestRenderSystem->unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
 
@@ -4322,11 +4401,6 @@ void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera
     {
         mDestRenderSystem->unbindGpuProgram(GPT_VERTEX_PROGRAM);
     }
-
-    // Add light to internal list for use in render call
-    LightList lightList;
-    // const_cast is forgiveable here since we pass this const
-    lightList.push_back(const_cast<Light*>(light));
 
     // Turn off colour writing and depth writing
     mDestRenderSystem->_setColourBufferWriteEnabled(false, false, false, false);
@@ -4459,7 +4533,7 @@ void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera
     if (scissored)
     {
         // disable scissor test
-        mDestRenderSystem->setScissorTest(false);
+        resetScissor();
     }
 
 }
