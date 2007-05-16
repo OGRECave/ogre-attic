@@ -599,6 +599,8 @@ namespace Ogre {
             Assumes that the pass has already been set up.
         @param rend The renderable to issue to the pipeline
         @param pass The pass which is being used
+		@param lightScissoring If true, passes that have the getLightScissorEnabled
+			flag will cause calculation and setting of scissor rect. 
         @param doLightIteration If true, this method will issue the renderable to
             the pipeline possibly multiple times, if the pass indicates it should be
             done once per light
@@ -607,7 +609,7 @@ namespace Ogre {
             which will be used for a single render of this object.
         */
         virtual void renderSingleObject(const Renderable* rend, const Pass* pass, 
-			bool doLightIteration, const LightList* manualLightList = 0);
+			bool lightScissoring, bool doLightIteration, const LightList* manualLightList = 0);
 
         /// Utility class for calculating automatic parameters for gpu programs
         AutoParamDataSource mAutoParamDataSource;
@@ -784,7 +786,7 @@ namespace Ogre {
 			QueuedRenderableCollection::OrganisationMode om);
 		/** Render a set of objects, see renderSingleObject for param definitions */
 		virtual void renderObjects(const QueuedRenderableCollection& objs, 
-			QueuedRenderableCollection::OrganisationMode om, 
+			QueuedRenderableCollection::OrganisationMode om, bool lightScissoring,
             bool doLightIteration, const LightList* manualLightList = 0);
 		/** Render those objects in the transparent pass list which have shadow casting forced on
 		@remarks
@@ -792,7 +794,7 @@ namespace Ogre {
 			transparency_casts_shadows set to 'on' in their material
 		*/
 		virtual void renderTransparentShadowCasterObjects(const QueuedRenderableCollection& objs, 
-			QueuedRenderableCollection::OrganisationMode om, 
+			QueuedRenderableCollection::OrganisationMode om, bool lightScissoring,
 			bool doLightIteration, const LightList* manualLightList = 0);
 
 		/** Update the state of the global render queue splitting based on a shadow
@@ -833,6 +835,8 @@ namespace Ogre {
 			bool autoLights;
 			/// Manual light list
 			const LightList* manualLightList;
+			/// Scissoring if requested?
+			bool scissoring;
 
 		};
 		/// Allow visitor helper to access protected methods
