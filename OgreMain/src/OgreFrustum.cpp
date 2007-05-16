@@ -1099,18 +1099,48 @@ namespace Ogre {
 				Real Nz0 = (r - Nx0 * eyeSpacePos.x) / eyeSpacePos.z;
 				Real Nz1 = (r - Nx1 * eyeSpacePos.x) / eyeSpacePos.z;
 
-				// Project point onto near plane in worldspace
-				Real nearx0 = (Nz0 * mNearDist) / Nx0;
-				Real nearx1 = (Nz1 * mNearDist) / Nx1;
+				// Get the point of tangency
+				// Only consider points of tangency in front of the camera
+				Real Pz0 = (Lxz - rsq) / (eyeSpacePos.z - ((Nz0 / Nx0) * eyeSpacePos.x));
+				if (Pz0 < 0)
+				{
+					// Project point onto near plane in worldspace
+					Real nearx0 = (Nz0 * mNearDist) / Nx0;
+					// now we need to map this to viewport coords
+					// use projection matrix since that will take into account all factors
+					Vector3 relx0 = projMatrix * Vector3(nearx0, 0, -mNearDist);
 
-				// now we need to map this to viewport coords
-				// use projection matrix since that will take into account all factors
-				
-				Vector3 relx0 = projMatrix * Vector3(nearx0, 0, -mNearDist);
-				Vector3 relx1 = projMatrix * Vector3(nearx1, 0, -mNearDist);
-				*left = std::min(relx0.x, relx1.x);
-				*right = std::max(relx0.x, relx1.x);
+					// find out whether this is a left side or right side
+					Real Px0 = -(Pz0 * Nz0) / Nx0;
+					if (Px0 > eyeSpacePos.x)
+					{
+						*right = std::min(*right, relx0.x);
+					}
+					else
+					{
+						*left = std::max(*left, relx0.x);
+					}
+				}
+				Real Pz1 = (Lxz - rsq) / (eyeSpacePos.z - ((Nz1 / Nx1) * eyeSpacePos.x));
+				if (Pz1 < 0)
+				{
+					// Project point onto near plane in worldspace
+					Real nearx1 = (Nz1 * mNearDist) / Nx1;
+					// now we need to map this to viewport coords
+					// use projection matrix since that will take into account all factors
+					Vector3 relx1 = projMatrix * Vector3(nearx1, 0, -mNearDist);
 
+					// find out whether this is a left side or right side
+					Real Px1 = -(Pz1 * Nz1) / Nx1;
+					if (Px1 > eyeSpacePos.x)
+					{
+						*right = std::min(*right, relx1.x);
+					}
+					else
+					{
+						*left = std::max(*left, relx1.x);
+					}
+				}
 			}
 
 
@@ -1137,18 +1167,48 @@ namespace Ogre {
 				Real Nz0 = (r - Ny0 * eyeSpacePos.y) / eyeSpacePos.z;
 				Real Nz1 = (r - Ny1 * eyeSpacePos.y) / eyeSpacePos.z;
 
-				// Project point onto near plane in worldspace
-				Real neary0 = (Nz0 * mNearDist) / Ny0;
-				Real neary1 = (Nz1 * mNearDist) / Ny1;
+				// Get the point of tangency
+				// Only consider points of tangency in front of the camera
+				Real Pz0 = (Lyz - rsq) / (eyeSpacePos.z - ((Nz0 / Ny0) * eyeSpacePos.y));
+				if (Pz0 < 0)
+				{
+					// Project point onto near plane in worldspace
+					Real neary0 = (Nz0 * mNearDist) / Ny0;
+					// now we need to map this to viewport coords
+					// use projection matriy since that will take into account all factors
+					Vector3 rely0 = projMatrix * Vector3(0, neary0, -mNearDist);
 
-				// now we need to map this to viewport coords
-				// use projection matrix since that will take into account all factors
+					// find out whether this is a top side or bottom side
+					Real Py0 = -(Pz0 * Nz0) / Ny0;
+					if (Py0 > eyeSpacePos.y)
+					{
+						*top = std::min(*top, rely0.y);
+					}
+					else
+					{
+						*bottom = std::max(*bottom, rely0.y);
+					}
+				}
+				Real Pz1 = (Lyz - rsq) / (eyeSpacePos.z - ((Nz1 / Ny1) * eyeSpacePos.y));
+				if (Pz1 < 0)
+				{
+					// Project point onto near plane in worldspace
+					Real neary1 = (Nz1 * mNearDist) / Ny1;
+					// now we need to map this to viewport coords
+					// use projection matriy since that will take into account all factors
+					Vector3 rely1 = projMatrix * Vector3(0, neary1, -mNearDist);
 
-				Vector3 rely0 = projMatrix * Vector3(0, neary0, -mNearDist);
-				Vector3 rely1 = projMatrix * Vector3(0, neary1, -mNearDist);
-				*bottom = std::min(rely0.y, rely1.y);
-				*top = std::max(rely0.y, rely1.y);
-
+					// find out whether this is a top side or bottom side
+					Real Py1 = -(Pz1 * Nz1) / Ny1;
+					if (Py1 > eyeSpacePos.y)
+					{
+						*top = std::min(*top, rely1.y);
+					}
+					else
+					{
+						*bottom = std::max(*bottom, rely1.y);
+					}
+				}
 			}
         }
 
