@@ -500,6 +500,8 @@ Here are the attributes you can use in a 'pass' section of a .material script:
 @item
 @ref{alpha_rejection}
 @item
+@ref{light_scissor}
+@item
 @ref{cull_hardware}
 @item
 @ref{cull_software}
@@ -721,6 +723,18 @@ Example: alpha_rejection greater_equal 128@*@*
 The function parameter can be any of the options listed in the material depth_function attribute. The value parameter can theoretically be any value between 0 and 255, but is best limited to 0 or 128 for hardware compatibility.@*@*
 
 Default: alpha_rejection always_pass@*@*
+@anchor{light_scissor}
+@subheading light_scissor
+
+Sets whether when rendering this pass, rendering will be limited to a screen-space scissor rectangle representing the coverage of the light(s) being used in this pass, derived from their attenuation ranges.@*@*
+
+Format: light_scissor <on|off>@*@*
+Default: light_scissor off@*@*
+
+This option is usually only useful if this pass is an additive lighting pass, and is at least the second one in the technique. Ie areas which are not affected by the current light(s) will never need to be rendered. If there is more than one light being passed to the pass, then the scissor is defined to be the rectangle which covers all lights in screen-space. Directional lights are ignored since they are infinite.@*@*
+
+This option does not need to be specified if you are using a standard additive shadow mode, ie SHADOWTYPE_STENCIL_ADDITIVE or SHADOWTYPE_TEXTURE_ADDITIVE, since it is the default behaviour to use a stencil for each additive shadow pass. However, if you're not using shadows, or you're using @ref{Integrated Texture Shadows} where passes are specified in a custom manner, then this could be of use to you.
+
 
 @anchor{cull_hardware}
 @subheading cull_hardware

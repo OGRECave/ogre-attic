@@ -671,8 +671,11 @@ namespace Ogre {
             stencil buffer.
         @param light The light source
         @param cam The camera being viewed from
+		@param calcScissor Whether the method should set up any scissor state, or
+			false if that's already been done
         */
-        virtual void renderShadowVolumesToStencil(const Light* light, const Camera* cam);
+        virtual void renderShadowVolumesToStencil(const Light* light, const Camera* cam, 
+			bool calcScissor);
         /** Internal utility method for setting stencil state for rendering shadow volumes. 
         @param secondpass Is this the second pass?
         @param zfail Should we be using the zfail method?
@@ -799,6 +802,12 @@ namespace Ogre {
 		option change. */
 		virtual void updateRenderQueueGroupSplitOptions(RenderQueueGroup* group, 
 			bool suppressShadows, bool suppressRenderState);
+
+		/// Set up a scissor rectangle from a group of lights
+		virtual bool buildAndSetScissor(const LightList& ll, const Camera* cam);
+		/// Update a scissor rectangle from a single light
+		virtual void buildScissor(const Light* l, const Camera* cam, FloatRect& rect);
+		virtual void resetScissor();
 
 		/** Inner helper class to implement the visitor pattern for rendering objects
 			in a queue. 
