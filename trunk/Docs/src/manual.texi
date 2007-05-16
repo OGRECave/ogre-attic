@@ -733,7 +733,7 @@ Default: light_scissor off@*@*
 
 This option is usually only useful if this pass is an additive lighting pass, and is at least the second one in the technique. Ie areas which are not affected by the current light(s) will never need to be rendered. If there is more than one light being passed to the pass, then the scissor is defined to be the rectangle which covers all lights in screen-space. Directional lights are ignored since they are infinite.@*@*
 
-This option does not need to be specified if you are using a standard additive shadow mode, ie SHADOWTYPE_STENCIL_ADDITIVE or SHADOWTYPE_TEXTURE_ADDITIVE, since it is the default behaviour to use a stencil for each additive shadow pass. However, if you're not using shadows, or you're using @ref{Integrated Texture Shadows} where passes are specified in a custom manner, then this could be of use to you.
+This option does not need to be specified if you are using a standard additive shadow mode, ie SHADOWTYPE_STENCIL_ADDITIVE or SHADOWTYPE_TEXTURE_ADDITIVE, since it is the default behaviour to use a scissor for each additive shadow pass. However, if you're not using shadows, or you're using @ref{Integrated Texture Shadows} where passes are specified in a custom manner, then this could be of use to you.
 
 
 @anchor{cull_hardware}
