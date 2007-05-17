@@ -2831,25 +2831,6 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 					if (pLightListToUse->empty())
 						continue;
 
-					/*
-					bool someLightVis = false;
-					for (LightList::const_iterator l = pLightListToUse->begin();
-						l != pLightListToUse->end(); ++l)
-					{
-						if ((*l)->getType() == Light::LT_DIRECTIONAL ||
-							mCameraInProgress->isVisible(Sphere((*l)->getDerivedPosition(), 
-								(*l)->getAttenuationRange())))
-						{
-							someLightVis = true;
-							break;
-						}
-					}
-					// If light scissoring / clipping but no lights are visible to 
-					// the camera, then there's no point rendering this at all
-					if (!someLightVis)
-						continue;
-					*/
-
 					if (pass->getLightScissoringEnabled())
 						scissored = buildAndSetScissor(*pLightListToUse, mCameraInProgress);
 				
@@ -4330,6 +4311,9 @@ bool SceneManager::buildAndSetScissor(const LightList& ll, const Camera* cam)
 
 	for (LightList::const_iterator i = ll.begin(); i != ll.end(); ++i)
 	{
+		// a directional light is being used, no scissoring can be done, period.
+		if ((*i)->getType() == Light::LT_DIRECTIONAL)
+			return false;
 		buildScissor(*i, cam, rect);
 	}
 
@@ -4356,19 +4340,16 @@ bool SceneManager::buildAndSetScissor(const LightList& ll, const Camera* cam)
 //---------------------------------------------------------------------
 void SceneManager::buildScissor(const Light* light, const Camera* cam, FloatRect& rect)
 {
-	if (light->getType() != Light::LT_DIRECTIONAL)
+	// Project the sphere onto the camera
+	Sphere sphere(light->getDerivedPosition(), light->getAttenuationRange());
+	Real left, right, bottom, top;
+	if (cam->projectSphere(sphere, &left, &top, &right, &bottom))
 	{
-		// Project the sphere onto the camera
-		Sphere sphere(light->getDerivedPosition(), light->getAttenuationRange());
-		Real left, right, bottom, top;
-		if (cam->projectSphere(sphere, &left, &top, &right, &bottom))
-		{
-			// merge
-			rect.left = std::max(rect.left, left);
-			rect.bottom = std::max(rect.bottom, bottom);
-			rect.right= std::min(rect.right, right);
-			rect.top = std::min(rect.top, top);
-		}
+		// merge
+		rect.left = std::max(rect.left, left);
+		rect.bottom = std::max(rect.bottom, bottom);
+		rect.right= std::min(rect.right, right);
+		rect.top = std::min(rect.top, top);
 	}
 }
 //---------------------------------------------------------------------
@@ -4388,16 +4369,17 @@ bool SceneManager::buildAndSetLightClip(const LightList& ll, PlaneList& planes)
 	Light* clipBase = 0;
 	for (LightList::const_iterator i = ll.begin(); i != ll.end(); ++i)
 	{
-		if ((*i)->getType() != Light::LT_DIRECTIONAL)
+		// a directional light is being used, no clipping can be done, period.
+		if ((*i)->getType() == Light::LT_DIRECTIONAL)
+			return false;
+
+		if (clipBase)
 		{
-			if (clipBase)
-			{
-				// we already have a clip base, so we had more than one light
-				// in this list we could clip by, so clip none
-				return false;
-			}
-			clipBase = *i;
+			// we already have a clip base, so we had more than one light
+			// in this list we could clip by, so clip none
+			return false;
 		}
+		clipBase = *i;
 	}
 
 	if (clipBase)
