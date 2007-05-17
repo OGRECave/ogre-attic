@@ -170,7 +170,10 @@ libOgreMain_la_SOURCES = OgreAlignedAllocator.cpp \
                          $(OGRE_PLATFORM)/OgreTimer.cpp \
                          $(OGRE_GUI)/OgreConfigDialog.cpp \
                          $(OGRE_GUI)/OgreErrorDialog.cpp \
-                         OgreWindowEventUtilities.cpp
+                         OgreWindowEventUtilities.cpp \
+                         OgreMemProfileManager.cpp
+
+                         
 
 if USE_FREEIMAGE
 libOgreMain_la_SOURCES += OgreFreeImageCodec.cpp

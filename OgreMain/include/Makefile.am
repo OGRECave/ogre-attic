@@ -211,4 +211,12 @@ pkginclude_HEADERS = Ogre.h \
                      OgreCompositorScriptCompiler.h \
                      OgreCompiler2Pass.h \
                      asm_math.h \
-                     OgreWindowEventUtilities.h
+                     OgreWindowEventUtilities.h \
+                     OgreAllocator.h \
+                     OgreAllocWrapper.h \
+                     OgreMemProfileManager.h \
+                     OgreMemProfiler.h \
+                     OgreMemProfilerBase.h \
+                     OgreObjectTraits.h \
+                     OgreStdAllocPolicy.h
+		
