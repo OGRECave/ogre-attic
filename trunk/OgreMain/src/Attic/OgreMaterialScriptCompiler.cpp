@@ -78,7 +78,7 @@ namespace Ogre {
         "    <Pass> ::= 'pass' [<Label>] '{' {<Pass_Properties>} '}' \n"
         "        <Pass_Properties> ::= <Ambient> | <Diffuse> | <Specular> | <Emissive> | \n"
         "                              <Scene_Blend> | <Depth_Check> | <Depth_Write> | \n"
-		"                              <Light_Scissor> | <Texture_Unit> | \n"
+		"                              <Light_Scissor> | <Light_Clip> | <Texture_Unit> | \n"
         "                              <Depth_Func> | <Depth_Bias> | <Alpha_Rejection> | \n"
         "                              <Cull_Hardware> | <Cull_Software> | <Lighting> | \n"
         "                              <GPU_Program_Ref> | \n"
@@ -112,6 +112,7 @@ namespace Ogre {
         "        <Depth_Func> ::= 'depth_func' <Compare_Func> \n"
 		"        <Depth_Bias> ::= 'depth_bias' <#constant> [<#slopescale>] \n"
 		"        <Light_Scissor> ::= 'light_scissor' <On_Off> \n"
+		"        <Light_Clip> ::= 'light_clip_planes' <On_Off> \n"
         "        <Alpha_Rejection> ::= 'alpha_rejection' <Compare_Func> <#value> \n"
         "        <Compare_Func> ::= 'always_fail' | 'always_pass' | 'less_equal' | 'less' | \n"
         "                           'equal' | 'not_equal' | 'greater_equal' | 'greater' \n"
@@ -357,6 +358,7 @@ namespace Ogre {
                 addLexemeToken("greater", ID_GREATER);
             addLexemeAction("alpha_rejection", &MaterialScriptCompiler::parseAlphaRejection);
 			addLexemeAction("light_scissor", &MaterialScriptCompiler::parseLightScissor);
+			addLexemeAction("light_clip_planes", &MaterialScriptCompiler::parseLightClip);
             addLexemeAction("cull_hardware", &MaterialScriptCompiler::parseCullHardware);
                 addLexemeToken("clockwise", ID_CLOCKWISE);
                 addLexemeToken("anticlockwise", ID_ANTICLOCKWISE);
@@ -1171,6 +1173,12 @@ namespace Ogre {
 	{
 		assert(mScriptContext.pass);
 		mScriptContext.pass->setLightScissoringEnabled(testNextTokenID(ID_ON));
+	}
+	//-----------------------------------------------------------------------
+	void MaterialScriptCompiler::parseLightClip(void)
+	{
+		assert(mScriptContext.pass);
+		mScriptContext.pass->setLightClipPlanesEnabled(testNextTokenID(ID_ON));
 	}
     //-----------------------------------------------------------------------
     CompareFunction MaterialScriptCompiler::convertCompareFunction(void)

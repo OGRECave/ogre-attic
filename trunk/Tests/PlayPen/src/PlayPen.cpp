@@ -5598,6 +5598,74 @@ protected:
 
 	}
 
+	void testLightClipPlanes()
+	{
+		mSceneMgr->setAmbientLight(ColourValue::White);
+
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 0;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			4500,4500,10,10,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("Examples/GrassFloor");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		Real lightRange = 1000;
+
+		ManualObject* debugSphere = mSceneMgr->createManualObject("debugSphere");
+		debugSphere->begin("BaseWhiteNoLighting", RenderOperation::OT_LINE_STRIP);
+		for (int i = 0; i <= 20; ++i)
+		{
+			Vector3 basePos(lightRange, 0, 0);
+			Quaternion quat;
+			quat.FromAngleAxis(Radian(((float)i/(float)20)*Math::TWO_PI), Vector3::UNIT_Y);
+			basePos = quat * basePos;
+			debugSphere->position(basePos);
+		}
+		for (int i = 0; i <= 20; ++i)
+		{
+			Vector3 basePos(lightRange, 0, 0);
+			Quaternion quat;
+			quat.FromAngleAxis(Radian(((float)i/(float)20)*Math::TWO_PI), Vector3::UNIT_Z);
+			basePos = quat * basePos;
+			debugSphere->position(basePos);
+		}
+		debugSphere->end();
+
+		Light* l = mSceneMgr->createLight("l1");
+		l->setAttenuation(lightRange, 1, 0, 0);
+		SceneNode* n = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0,0,0));
+		n->attachObject(debugSphere);
+		/* SPOT LIGHT
+		*/
+		// make sure we stay within spot range, but that on ground we match debug sphere size
+		Real spotHeight = lightRange - 100;
+		n = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0,spotHeight,0));
+		l->setType(Light::LT_SPOTLIGHT);
+		Radian spotAngle = Math::ATan(lightRange / spotHeight) * 2;
+		l->setSpotlightOuterAngle(spotAngle); 
+		l->setSpotlightInnerAngle(spotAngle * 0.75);
+		Vector3 dir(0, -1, 0);
+		dir.normalise();
+		l->setDirection(dir);
+
+		/* END SPOT LIGHT */
+		n->attachObject(l);
+
+		// Modify the plane material so that it clips to the light
+		// Normally you'd only clip a secondary pass but this is engineered so you
+		// can actually see the scissoring effect
+		MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/GrassFloor");
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightClipPlanesEnabled(true);
+
+
+
+	}
 	// Just override the mandatory create scene method
     void createScene(void)
     {
@@ -5688,7 +5756,8 @@ protected:
 		//testPoseAnimation2();
 		//testBug();
 		//testProjectSphere();
-		testLightScissoring();
+		//testLightScissoring();
+		testLightClipPlanes();
 		//testTimeCreateDestroyObject();
 		//testManualBlend();
 		//testManualObjectNonIndexed();

@@ -250,6 +250,7 @@ namespace Ogre {
         void parseDepthBias(void);
         void parseAlphaRejection(void);
 		void parseLightScissor(void);
+		void parseLightClip(void);
         void parseCullHardware(void);
         void parseCullSoftware(void);
         void parseLighting(void);

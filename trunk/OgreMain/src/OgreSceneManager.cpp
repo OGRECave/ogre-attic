@@ -123,6 +123,7 @@ mIlluminationStage(IRS_NONE),
 mShadowTextureConfigDirty(true),
 mShadowUseInfiniteFarPlane(true),
 mShadowCasterRenderBackFaces(true),
+mShadowAdditiveLightClip(false),
 mShadowCasterSphereQuery(0),
 mShadowCasterAABBQuery(0),
 mShadowFarDist(0),
@@ -1881,6 +1882,7 @@ void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(
 {
     RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
     LightList lightList;
+	PlaneList clipList;
 
     while (groupIt.hasMoreElements())
     {
@@ -1914,6 +1916,9 @@ void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(
 
 			// set up scissor, will cover shadow vol and regular light rendering
 			bool scissored = buildAndSetScissor(lightList, mCameraInProgress);
+			bool clipped = false;
+			if (mShadowAdditiveLightClip)
+				clipped = buildAndSetLightClip(lightList, clipList);
 
             if (l->getCastShadows())
             {
@@ -1936,6 +1941,8 @@ void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(
 
 			if (scissored)
 				resetScissor();
+			if (clipped)
+				resetLightClip();
 
         }// for each light
 
@@ -2234,6 +2241,7 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
 {
 	RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
 	LightList lightList;
+	PlaneList clipList;
 
 	while (groupIt.hasMoreElements())
 	{
@@ -2319,9 +2327,14 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
 
 				// set up light scissoring, always useful in additive modes
 				bool scissored = buildAndSetScissor(lightList, mCameraInProgress);
+				bool clipped = false;
+				if(mShadowAdditiveLightClip)
+					clipped = buildAndSetLightClip(lightList, clipList);
 				renderObjects(pPriorityGrp->getSolidsDiffuseSpecular(), om, false, false, &lightList);
 				if (scissored)
 					resetScissor();
+				if (clipped)
+					resetLightClip();
 
 			}// for each light
 
@@ -2466,14 +2479,14 @@ bool SceneManager::validateRenderableForRendering(const Pass* pass, const Render
 //-----------------------------------------------------------------------
 void SceneManager::renderObjects(const QueuedRenderableCollection& objs, 
 								 QueuedRenderableCollection::OrganisationMode om, 
-								 bool lightScissoring,
+								 bool lightScissoringClipping,
 								 bool doLightIteration, 
                                  const LightList* manualLightList)
 {
 	mActiveQueuedRenderableVisitor->autoLights = doLightIteration;
 	mActiveQueuedRenderableVisitor->manualLightList = manualLightList;
 	mActiveQueuedRenderableVisitor->transparentShadowCastersMode = false;
-	mActiveQueuedRenderableVisitor->scissoring = lightScissoring;
+	mActiveQueuedRenderableVisitor->scissoring = lightScissoringClipping;
 	// Use visitor
 	objs.acceptVisitor(mActiveQueuedRenderableVisitor, om);
 }
@@ -2564,14 +2577,14 @@ void SceneManager::renderBasicQueueGroupObjects(RenderQueueGroup* pGroup,
 //-----------------------------------------------------------------------
 void SceneManager::renderTransparentShadowCasterObjects(
 	const QueuedRenderableCollection& objs, 
-	QueuedRenderableCollection::OrganisationMode om, bool lightScissoring, 
+	QueuedRenderableCollection::OrganisationMode om, bool lightScissoringClipping, 
 	bool doLightIteration,
 	const LightList* manualLightList)
 {
 	mActiveQueuedRenderableVisitor->transparentShadowCastersMode = true;
 	mActiveQueuedRenderableVisitor->autoLights = doLightIteration;
 	mActiveQueuedRenderableVisitor->manualLightList = manualLightList;
-	mActiveQueuedRenderableVisitor->scissoring = lightScissoring;
+	mActiveQueuedRenderableVisitor->scissoring = lightScissoringClipping;
 	
 	// Sort descending (transparency)
 	objs.acceptVisitor(mActiveQueuedRenderableVisitor, 
@@ -2581,11 +2594,12 @@ void SceneManager::renderTransparentShadowCasterObjects(
 }
 //-----------------------------------------------------------------------
 void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass, 
-                                      bool lightScissoring, bool doLightIteration, 
+                                      bool lightScissoringClipping, bool doLightIteration, 
 									  const LightList* manualLightList)
 {
     unsigned short numMatrices;
     static RenderOperation ro;
+	PlaneList clipList;
 
     // Set up rendering operation
     // I know, I know, const_cast is nasty but otherwise it requires all internal
@@ -2656,8 +2670,6 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 			}
 		}
 		mDestRenderSystem->_setPolygonMode(reqMode);
-
-		mDestRenderSystem->setClipPlanes(rend->getClipPlanes());
 
 		if (doLightIteration)
 		{
@@ -2808,11 +2820,41 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 				{
 					mDestRenderSystem->_useLights(*pLightListToUse, pass->getMaxSimultaneousLights());
 				}
-				// optional light scissoring
+				// optional light scissoring & clipping
 				bool scissored = false;
-				if (lightScissoring && pass->getLightScissoringEnabled())
+				bool clipped = false;
+				if (lightScissoringClipping && 
+					(pass->getLightScissoringEnabled() || pass->getLightClipPlanesEnabled()))
 				{
-					scissored = buildAndSetScissor(*pLightListToUse, mCameraInProgress);
+					// if there's no lights hitting the scene, then we might as 
+					// well stop since clipping cannot include anything
+					if (pLightListToUse->empty())
+						continue;
+
+					/*
+					bool someLightVis = false;
+					for (LightList::const_iterator l = pLightListToUse->begin();
+						l != pLightListToUse->end(); ++l)
+					{
+						if ((*l)->getType() == Light::LT_DIRECTIONAL ||
+							mCameraInProgress->isVisible(Sphere((*l)->getDerivedPosition(), 
+								(*l)->getAttenuationRange())))
+						{
+							someLightVis = true;
+							break;
+						}
+					}
+					// If light scissoring / clipping but no lights are visible to 
+					// the camera, then there's no point rendering this at all
+					if (!someLightVis)
+						continue;
+					*/
+
+					if (pass->getLightScissoringEnabled())
+						scissored = buildAndSetScissor(*pLightListToUse, mCameraInProgress);
+				
+					if (pass->getLightClipPlanesEnabled())
+						clipped = buildAndSetLightClip(*pLightListToUse, clipList);
 				}
 				// issue the render op		
 				// nfz: check for gpu_multipass
@@ -2821,6 +2863,8 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 
 				if (scissored)
 					resetScissor();
+				if (clipped)
+					resetLightClip();
 			} // possibly iterate per light
 		}
 		else // no automatic light processing
@@ -2857,9 +2901,14 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 
 			// optional light scissoring
 			bool scissored = false;
-			if (lightScissoring && manualLightList && pass->getLightScissoringEnabled())
+			bool clipped = false;
+			if (lightScissoringClipping && manualLightList && pass->getLightScissoringEnabled())
 			{
 				scissored = buildAndSetScissor(*manualLightList, mCameraInProgress);
+			}
+			if (lightScissoringClipping && manualLightList && pass->getLightClipPlanesEnabled())
+			{
+				clipped = buildAndSetLightClip(*manualLightList, clipList);
 			}
 
 			// issue the render op		
@@ -2869,6 +2918,8 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 
 			if (scissored)
 				resetScissor();
+			if (clipped)
+				resetLightClip();
 		}
 
 	}
@@ -4327,6 +4378,119 @@ void SceneManager::resetScissor()
 		return;
 
 	mDestRenderSystem->setScissorTest(false);
+}
+//---------------------------------------------------------------------
+bool SceneManager::buildAndSetLightClip(const LightList& ll, PlaneList& planes)
+{
+	if (!mDestRenderSystem->getCapabilities()->hasCapability(RSC_USER_CLIP_PLANES))
+		return false;
+
+	Light* clipBase = 0;
+	for (LightList::const_iterator i = ll.begin(); i != ll.end(); ++i)
+	{
+		if ((*i)->getType() != Light::LT_DIRECTIONAL)
+		{
+			if (clipBase)
+			{
+				// we already have a clip base, so we had more than one light
+				// in this list we could clip by, so clip none
+				return false;
+			}
+			clipBase = *i;
+		}
+	}
+
+	if (clipBase)
+	{
+		buildLightClip(clipBase, planes);
+		mDestRenderSystem->setClipPlanes(planes);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
+
+}
+//---------------------------------------------------------------------
+void SceneManager::buildLightClip(const Light* l, PlaneList& planes)
+{
+	if (!mDestRenderSystem->getCapabilities()->hasCapability(RSC_USER_CLIP_PLANES))
+		return;
+
+	planes.clear();
+
+	Vector3 pos = l->getDerivedPosition();
+	Real r = l->getAttenuationRange();
+	switch(l->getType())
+	{
+	case Light::LT_POINT:
+		{
+			planes.push_back(Plane(Vector3::UNIT_X, pos + Vector3(-r, 0, 0)));
+			planes.push_back(Plane(Vector3::NEGATIVE_UNIT_X, pos + Vector3(r, 0, 0)));
+			planes.push_back(Plane(Vector3::UNIT_Y, pos + Vector3(0, -r, 0)));
+			planes.push_back(Plane(Vector3::NEGATIVE_UNIT_Y, pos + Vector3(0, r, 0)));
+			planes.push_back(Plane(Vector3::UNIT_Z, pos + Vector3(0, 0, -r)));
+			planes.push_back(Plane(Vector3::NEGATIVE_UNIT_Z, pos + Vector3(0, 0, r)));
+		}
+		break;
+	case Light::LT_SPOTLIGHT:
+		{
+			Vector3 dir = l->getDerivedDirection();
+			// near & far planes
+			planes.push_back(Plane(dir, pos));
+			planes.push_back(Plane(-dir, pos + dir * r));
+			// 4 sides of pyramids
+			// derive orientation
+			Vector3 up = Vector3::UNIT_Y;
+			// Check it's not coincident with dir
+			if (Math::Abs(up.dotProduct(dir)) >= 1.0f)
+			{
+				up = Vector3::UNIT_Z;
+			}
+			// cross twice to rederive, only direction is unaltered
+			Vector3 right = dir.crossProduct(up);
+			right.normalise();
+			up = right.crossProduct(dir);
+			up.normalise();
+			// Derive quaternion from axes (negate dir since -Z)
+			Quaternion q;
+			q.FromAxes(right, up, -dir);
+
+			// derive pyramid corner vectors in world orientation
+			Vector3 tl, tr, bl, br;
+			Real d = Math::Tan(l->getSpotlightOuterAngle() * 0.5) * r;
+			tl = q * Vector3(-d, d, -r);
+			tr = q * Vector3(d, d, -r);
+			bl = q * Vector3(-d, -d, -r);
+			br = q * Vector3(d, -d, -r);
+
+			// use cross product to derive normals, pass through light world pos
+			// top
+			planes.push_back(Plane(tl.crossProduct(tr).normalisedCopy(), pos));
+			// right
+			planes.push_back(Plane(tr.crossProduct(br).normalisedCopy(), pos));
+			// bottom
+			planes.push_back(Plane(br.crossProduct(bl).normalisedCopy(), pos));
+			// left
+			planes.push_back(Plane(bl.crossProduct(tl).normalisedCopy(), pos));
+
+		}
+		break;
+	default:
+		// do nothing
+		break;
+	};
+
+}
+//---------------------------------------------------------------------
+void SceneManager::resetLightClip()
+{
+	if (!mDestRenderSystem->getCapabilities()->hasCapability(RSC_USER_CLIP_PLANES))
+		return;
+
+	mDestRenderSystem->resetClipPlanes();
 }
 //---------------------------------------------------------------------
 void SceneManager::renderShadowVolumesToStencil(const Light* light, 

@@ -2974,6 +2974,17 @@ namespace Ogre
         }
     }
 	//---------------------------------------------------------------------
+	void D3D9RenderSystem::resetClipPlanes()
+	{
+		HRESULT hr = __SetRenderState(D3DRS_CLIPPLANEENABLE, 0);
+		if (FAILED(hr))
+		{
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to set render state for clip planes", 
+				"D3D9RenderSystem::resetClipPlanes");
+		}
+
+	}
+	//---------------------------------------------------------------------
     void D3D9RenderSystem::setScissorTest(bool enabled, size_t left, size_t top, size_t right,
         size_t bottom)
     {
