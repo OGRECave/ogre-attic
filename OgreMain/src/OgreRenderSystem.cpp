@@ -48,7 +48,6 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
-    const PlaneList Renderable::msDummyPlaneList; // FIX ME: temporary
     static const TexturePtr sNullTexPtr;
 
     //-----------------------------------------------------------------------

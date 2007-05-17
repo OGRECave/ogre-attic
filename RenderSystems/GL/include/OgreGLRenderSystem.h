@@ -425,6 +425,10 @@ namespace Ogre {
           RenderSystem
          */
         void setClipPlanes(const PlaneList& clipPlanes);
+		/** See
+		  RenderSystem
+		 */
+		void resetClipPlanes();
         /** See
           RenderSystem
          */

@@ -371,7 +371,20 @@ namespace Ogre
 			context);
 		return false;
 	}
-
+	//-----------------------------------------------------------------------
+	bool parseLightClip(String& params, MaterialScriptContext& context)
+	{
+		StringUtil::toLowerCase(params);
+		if (params == "on")
+			context.pass->setLightClipPlanesEnabled(true);
+		else if (params == "off")
+			context.pass->setLightClipPlanesEnabled(false);
+		else
+			logParseError(
+			"Bad light_clip_planes attribute, valid parameters are 'on' or 'off'.",
+			context);
+		return false;
+	}
     //-----------------------------------------------------------------------
     bool parseDepthFunc(String& params, MaterialScriptContext& context)
     {
@@ -2630,6 +2643,7 @@ namespace Ogre
 		mPassAttribParsers.insert(AttribParserList::value_type("alpha_rejection", (ATTRIBUTE_PARSER)parseAlphaRejection));
         mPassAttribParsers.insert(AttribParserList::value_type("colour_write", (ATTRIBUTE_PARSER)parseColourWrite));
 		mPassAttribParsers.insert(AttribParserList::value_type("light_scissor", (ATTRIBUTE_PARSER)parseLightScissor));
+		mPassAttribParsers.insert(AttribParserList::value_type("light_clip_planes", (ATTRIBUTE_PARSER)parseLightClip));
         mPassAttribParsers.insert(AttribParserList::value_type("cull_hardware", (ATTRIBUTE_PARSER)parseCullHardware));
         mPassAttribParsers.insert(AttribParserList::value_type("cull_software", (ATTRIBUTE_PARSER)parseCullSoftware));
         mPassAttribParsers.insert(AttribParserList::value_type("lighting", (ATTRIBUTE_PARSER)parseLighting));
@@ -3500,6 +3514,14 @@ namespace Ogre
 			{
 				writeAttribute(3, "light_scissor");
 				writeValue(pPass->getLightScissoringEnabled() ? "on" : "off");
+			}
+
+			//light clip planes
+			if (mDefaults ||
+				pPass->getLightClipPlanesEnabled() != false)
+			{
+				writeAttribute(3, "light_clip_planes");
+				writeValue(pPass->getLightClipPlanesEnabled() ? "on" : "off");
 			}
 
 			// hardware culling mode

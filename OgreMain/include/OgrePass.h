@@ -180,6 +180,8 @@ namespace Ogre {
 		mutable bool mContentTypeLookupBuilt;
 		/// Scissoring for the light?
 		bool mLightScissoring;
+		/// User clip planes for light?
+		bool mLightClipPlanes;
 
 	public:
 		typedef std::set<Pass*> PassSet;
@@ -1265,10 +1267,16 @@ namespace Ogre {
 			the lights is rendered. This region is the screen-space rectangle 
 			covering the union of the spheres making up the light ranges. Directional
 			lights are ignored for this.
-		@note
+		@par
 			This is only likely to be useful for multipass additive lighting 
 			algorithms, where the scene has already been 'seeded' with an ambient 
 			pass and this pass is just adding light in affected areas.
+		@note
+			When using SHADOWTYPE_STENCIL_ADDITIVE or SHADOWTYPE_TEXTURE_ADDITIVE,
+			this option is implicitly used for all per-light passes and does
+			not need to be specified. If you are not using shadows or are using
+			a modulative or an integrated shadow technique then this could be useful.
+
 		*/
 		void setLightScissoringEnabled(bool enabled) { mLightScissoring = enabled; }
 		/** Gets whether or not this pass will be clipped by a scissor rectangle
@@ -1276,6 +1284,34 @@ namespace Ogre {
 		*/
 		bool getLightScissoringEnabled() const { return mLightScissoring; }
 
+		/** Gets whether or not this pass will be clipped by user clips planes
+			bounding the area covered by the light.
+		@remarks
+			In order to cut down on the geometry set up to render this pass 
+			when you have a single fixed-range light being rendered through it, 
+			you can enable this option to request that during triangle setup, 
+			clip planes are defined to bound the range of the light. In the case
+			of a point light these planes form a cube, and in the case of 
+			a spotlight they form a pyramid. Directional lights are never clipped.
+		@par
+			This option is only likely to be useful for multipass additive lighting 
+			algorithms, where the scene has already been 'seeded' with an ambient 
+			pass and this pass is just adding light in affected areas. In addition,
+			it will only be honoured if there is exactly one non-directional light
+			being used in this pass. Also, these clip planes override any user clip
+			planes set on Camera.
+		@note
+			When using SHADOWTYPE_STENCIL_ADDITIVE or SHADOWTYPE_TEXTURE_ADDITIVE,
+			this option is automatically used for all per-light passes if you 
+			enable SceneManager::setShadowUseLightClipPlanes and does
+			not need to be specified. It is disabled by default since clip planes have
+			a cost of their own which may not always exceed the benefits they give you.
+		*/
+		void setLightClipPlanesEnabled(bool enabled) { mLightClipPlanes = enabled; }
+		/** Gets whether or not this pass will be clipped by user clips planes
+			bounding the area covered by the light.
+		*/
+		bool getLightClipPlanesEnabled() const { return mLightClipPlanes; }
 		/** There are some default hash functions used to order passes so that
 			render state changes are minimised, this enumerates them.
 		*/

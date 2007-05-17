@@ -165,8 +165,6 @@ namespace Ogre {
         */
         virtual const LightList& getLights(void) const = 0;
 
-        virtual const PlaneList& getClipPlanes() const { return msDummyPlaneList; };
-
         /** Method which reports whether this renderable would normally cast a
             shadow. 
         @remarks
@@ -310,7 +308,6 @@ namespace Ogre {
 		};
 
     protected:
-        static const PlaneList msDummyPlaneList;
         typedef std::map<size_t, Vector4> CustomParameterMap;
         CustomParameterMap mCustomParameters;
 		bool mPolygonModeOverrideable;

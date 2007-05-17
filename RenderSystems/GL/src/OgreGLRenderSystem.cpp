@@ -2585,6 +2585,15 @@ namespace Ogre {
         }
     }
 	//---------------------------------------------------------------------
+	void GLRenderSystem::resetClipPlanes()
+	{
+		for (size_t i = 0; i < 6/*GL_MAX_CLIP_PLANES*/; ++i)
+		{
+			glDisable(static_cast<GLenum>(GL_CLIP_PLANE0 + i));
+		}
+
+	}
+	//---------------------------------------------------------------------
     void GLRenderSystem::setScissorTest(bool enabled, size_t left, 
         size_t top, size_t right, size_t bottom)
     {

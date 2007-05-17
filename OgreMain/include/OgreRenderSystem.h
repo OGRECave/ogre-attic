@@ -973,11 +973,15 @@ namespace Ogre
         /** Returns whether or not a Gpu program of the given type is currently bound. */
         virtual bool isGpuProgramBound(GpuProgramType gptype);
 
-        /** sets the clipping region.
+        /** Sets the user clipping region.
         */
         virtual void setClipPlanes(const PlaneList& clipPlanes) = 0;
 
-        /** Utility method for initialising all render targets attached to this rendering system. */
+		/** Clears the user clipping region.
+		*/
+		virtual void resetClipPlanes() = 0;
+
+		/** Utility method for initialising all render targets attached to this rendering system. */
         virtual void _initRenderTargets(void);
 
         /** Utility method to notify all render targets that a camera has been removed, 

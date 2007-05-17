@@ -599,8 +599,9 @@ namespace Ogre {
             Assumes that the pass has already been set up.
         @param rend The renderable to issue to the pipeline
         @param pass The pass which is being used
-		@param lightScissoring If true, passes that have the getLightScissorEnabled
-			flag will cause calculation and setting of scissor rect. 
+		@param lightScissoringClipping If true, passes that have the getLightScissorEnabled
+			and/or getLightClipPlanesEnabled flags will cause calculation and setting of 
+			scissor rectangle and user clip planes. 
         @param doLightIteration If true, this method will issue the renderable to
             the pipeline possibly multiple times, if the pass indicates it should be
             done once per light
@@ -609,7 +610,7 @@ namespace Ogre {
             which will be used for a single render of this object.
         */
         virtual void renderSingleObject(const Renderable* rend, const Pass* pass, 
-			bool lightScissoring, bool doLightIteration, const LightList* manualLightList = 0);
+			bool lightScissoringClipping, bool doLightIteration, const LightList* manualLightList = 0);
 
         /// Utility class for calculating automatic parameters for gpu programs
         AutoParamDataSource mAutoParamDataSource;
@@ -635,6 +636,7 @@ namespace Ogre {
         Texture* mCurrentShadowTexture;
 		bool mShadowUseInfiniteFarPlane;
 		bool mShadowCasterRenderBackFaces;
+		bool mShadowAdditiveLightClip;
 
 		/// default shadow camera setup
 		ShadowCameraSetupPtr mDefaultShadowCameraSetup;
@@ -786,7 +788,7 @@ namespace Ogre {
 			QueuedRenderableCollection::OrganisationMode om);
 		/** Render a set of objects, see renderSingleObject for param definitions */
 		virtual void renderObjects(const QueuedRenderableCollection& objs, 
-			QueuedRenderableCollection::OrganisationMode om, bool lightScissoring,
+			QueuedRenderableCollection::OrganisationMode om, bool lightScissoringClipping,
             bool doLightIteration, const LightList* manualLightList = 0);
 		/** Render those objects in the transparent pass list which have shadow casting forced on
 		@remarks
@@ -794,7 +796,7 @@ namespace Ogre {
 			transparency_casts_shadows set to 'on' in their material
 		*/
 		virtual void renderTransparentShadowCasterObjects(const QueuedRenderableCollection& objs, 
-			QueuedRenderableCollection::OrganisationMode om, bool lightScissoring,
+			QueuedRenderableCollection::OrganisationMode om, bool lightScissoringClipping,
 			bool doLightIteration, const LightList* manualLightList = 0);
 
 		/** Update the state of the global render queue splitting based on a shadow
@@ -810,6 +812,10 @@ namespace Ogre {
 		/// Update a scissor rectangle from a single light
 		virtual void buildScissor(const Light* l, const Camera* cam, FloatRect& rect);
 		virtual void resetScissor();
+		/// Build a set of user clip planes from a single non-directional light
+		virtual bool buildAndSetLightClip(const LightList& ll, PlaneList& planes);
+		virtual void buildLightClip(const Light* l, PlaneList& planes);
+		virtual void resetLightClip();
 
 		/** Inner helper class to implement the visitor pattern for rendering objects
 			in a queue. 
@@ -2524,6 +2530,14 @@ namespace Ogre {
 		/** Is there any shadowing technique in use? */
 		virtual bool isShadowTechniqueInUse(void) const 
 		{ return mShadowTechnique != SHADOWTYPE_NONE; }
+		/** Sets whether when using a built-in additive shadow mode, user clip
+			planes should be used to restrict light rendering.
+		*/
+		virtual void setShadowUseLightClipPlanes(bool enabled) { mShadowAdditiveLightClip = enabled; }
+		/** Gets whether when using a built-in additive shadow mode, user clip
+		planes should be used to restrict light rendering.
+		*/
+		virtual bool getShadowUseLightClipPlanes() const { return mShadowAdditiveLightClip; }
 
 		/** Add a listener which will get called back on scene manager events.
 		*/

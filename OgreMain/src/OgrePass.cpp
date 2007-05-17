@@ -163,6 +163,7 @@ namespace Ogre {
 		, mPointAttenuationEnabled(false)
 		, mContentTypeLookupBuilt(false)
 		, mLightScissoring(false)
+		, mLightClipPlanes(false)
     {
 		mPointAttenuationCoeffs[0] = 1.0f;
 		mPointAttenuationCoeffs[1] = mPointAttenuationCoeffs[2] = 0.0f;
@@ -242,6 +243,7 @@ namespace Ogre {
 		mShadowContentTypeLookup = oth.mShadowContentTypeLookup;
 		mContentTypeLookupBuilt = oth.mContentTypeLookupBuilt;
 		mLightScissoring = oth.mLightScissoring;
+		mLightClipPlanes = oth.mLightClipPlanes;
 
 
 		if (oth.mVertexProgramUsage)
