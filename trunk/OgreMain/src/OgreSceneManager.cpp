@@ -1099,6 +1099,10 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
 	mActiveQueuedRenderableVisitor->targetSceneMgr = this;
 	mAutoParamDataSource.setCurrentSceneManager(this);
 
+	// clear cached light clipping info
+	// different from finding lights, should always be done here
+	mLightClippingInfoMap.clear();
+
     if (isShadowTechniqueInUse())
     {
         // Prepare shadow materials
@@ -1882,7 +1886,6 @@ void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(
 {
     RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
     LightList lightList;
-	PlaneList clipList;
 
     while (groupIt.hasMoreElements())
     {
@@ -1915,10 +1918,14 @@ void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(
 				lightList[0] = l;
 
 			// set up scissor, will cover shadow vol and regular light rendering
-			bool scissored = buildAndSetScissor(lightList, mCameraInProgress);
-			bool clipped = false;
+			ClipResult scissored = buildAndSetScissor(lightList, mCameraInProgress);
+			ClipResult clipped = CLIPPED_NONE;
 			if (mShadowAdditiveLightClip)
-				clipped = buildAndSetLightClip(lightList, clipList);
+				clipped = buildAndSetLightClip(lightList);
+
+			// skip light if scissored / clipped entirely
+			if (scissored == CLIPPED_ALL || clipped == CLIPPED_ALL)
+				continue;
 
             if (l->getCastShadows())
             {
@@ -1939,9 +1946,9 @@ void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(
             mDestRenderSystem->setStencilCheckEnabled(false);
             mDestRenderSystem->_setDepthBufferParams();
 
-			if (scissored)
+			if (scissored == CLIPPED_SOME)
 				resetScissor();
-			if (clipped)
+			if (clipped == CLIPPED_SOME)
 				resetLightClip();
 
         }// for each light
@@ -2241,7 +2248,6 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
 {
 	RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
 	LightList lightList;
-	PlaneList clipList;
 
 	while (groupIt.hasMoreElements())
 	{
@@ -2326,14 +2332,18 @@ void SceneManager::renderAdditiveTextureShadowedQueueGroupObjects(
                     lightList[0] = l;
 
 				// set up light scissoring, always useful in additive modes
-				bool scissored = buildAndSetScissor(lightList, mCameraInProgress);
-				bool clipped = false;
+				ClipResult scissored = buildAndSetScissor(lightList, mCameraInProgress);
+				ClipResult clipped = CLIPPED_NONE;
 				if(mShadowAdditiveLightClip)
-					clipped = buildAndSetLightClip(lightList, clipList);
+					clipped = buildAndSetLightClip(lightList);
+				// skip if entirely clipped
+				if(scissored == CLIPPED_ALL || clipped == CLIPPED_ALL)
+					continue;
+
 				renderObjects(pPriorityGrp->getSolidsDiffuseSpecular(), om, false, false, &lightList);
-				if (scissored)
+				if (scissored == CLIPPED_SOME)
 					resetScissor();
-				if (clipped)
+				if (clipped == CLIPPED_SOME)
 					resetLightClip();
 
 			}// for each light
@@ -2599,7 +2609,6 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 {
     unsigned short numMatrices;
     static RenderOperation ro;
-	PlaneList clipList;
 
     // Set up rendering operation
     // I know, I know, const_cast is nasty but otherwise it requires all internal
@@ -2821,8 +2830,8 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 					mDestRenderSystem->_useLights(*pLightListToUse, pass->getMaxSimultaneousLights());
 				}
 				// optional light scissoring & clipping
-				bool scissored = false;
-				bool clipped = false;
+				ClipResult scissored = CLIPPED_NONE;
+				ClipResult clipped = CLIPPED_NONE;
 				if (lightScissoringClipping && 
 					(pass->getLightScissoringEnabled() || pass->getLightClipPlanesEnabled()))
 				{
@@ -2835,16 +2844,19 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 						scissored = buildAndSetScissor(*pLightListToUse, mCameraInProgress);
 				
 					if (pass->getLightClipPlanesEnabled())
-						clipped = buildAndSetLightClip(*pLightListToUse, clipList);
+						clipped = buildAndSetLightClip(*pLightListToUse);
+
+					if (scissored == CLIPPED_ALL || clipped == CLIPPED_ALL)
+						continue;
 				}
 				// issue the render op		
 				// nfz: check for gpu_multipass
 				mDestRenderSystem->setCurrentPassIterationCount(pass->getPassIterationCount());
 				mDestRenderSystem->_render(ro);
 
-				if (scissored)
+				if (scissored == CLIPPED_SOME)
 					resetScissor();
-				if (clipped)
+				if (clipped == CLIPPED_SOME)
 					resetLightClip();
 			} // possibly iterate per light
 		}
@@ -2881,25 +2893,29 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 			}
 
 			// optional light scissoring
-			bool scissored = false;
-			bool clipped = false;
+			ClipResult scissored = CLIPPED_NONE;
+			ClipResult clipped = CLIPPED_NONE;
 			if (lightScissoringClipping && manualLightList && pass->getLightScissoringEnabled())
 			{
 				scissored = buildAndSetScissor(*manualLightList, mCameraInProgress);
 			}
 			if (lightScissoringClipping && manualLightList && pass->getLightClipPlanesEnabled())
 			{
-				clipped = buildAndSetLightClip(*manualLightList, clipList);
+				clipped = buildAndSetLightClip(*manualLightList);
 			}
 
-			// issue the render op		
-			// nfz: set up multipass rendering
-			mDestRenderSystem->setCurrentPassIterationCount(pass->getPassIterationCount());
-			mDestRenderSystem->_render(ro);
+			// don't bother rendering if clipped / scissored entirely
+			if (scissored != CLIPPED_ALL && clipped != CLIPPED_ALL)
+			{
+				// issue the render op		
+				// nfz: set up multipass rendering
+				mDestRenderSystem->setCurrentPassIterationCount(pass->getPassIterationCount());
+				mDestRenderSystem->_render(ro);
+			}
 
-			if (scissored)
+			if (scissored == CLIPPED_SOME)
 				resetScissor();
-			if (clipped)
+			if (clipped == CLIPPED_SOME)
 				resetLightClip();
 		}
 
@@ -4299,42 +4315,71 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 
 }
 //---------------------------------------------------------------------
-bool SceneManager::buildAndSetScissor(const LightList& ll, const Camera* cam)
+ClipResult SceneManager::buildAndSetScissor(const LightList& ll, const Camera* cam)
 {
 	if (!mDestRenderSystem->getCapabilities()->hasCapability(RSC_SCISSOR_TEST))
-		return false;
+		return CLIPPED_NONE;
 
-	FloatRect rect;
-	// init 
-	rect.left = rect.bottom = -1.0f;
-	rect.right = rect.top = 1.0f;
+	FloatRect finalRect;
+	// init (inverted since we want to grow from nothing)
+	finalRect.left = finalRect.bottom = 1.0f;
+	finalRect.right = finalRect.top = -1.0f;
 
 	for (LightList::const_iterator i = ll.begin(); i != ll.end(); ++i)
 	{
+		Light* l = *i;
 		// a directional light is being used, no scissoring can be done, period.
-		if ((*i)->getType() == Light::LT_DIRECTIONAL)
-			return false;
-		buildScissor(*i, cam, rect);
+		if (l->getType() == Light::LT_DIRECTIONAL)
+			return CLIPPED_NONE;
+		// Re-use calculations if possible
+		LightClippingInfoMap::iterator ci = mLightClippingInfoMap.find(l);
+		if (ci == mLightClippingInfoMap.end())
+		{
+			// create new entry
+			ci = mLightClippingInfoMap.insert(LightClippingInfoMap::value_type(l, LightClippingInfo())).first;
+		}
+		if (!ci->second.scissorValid)
+		{
+
+			buildScissor(l, cam, ci->second.scissorRect);
+			ci->second.scissorValid = true;
+		}
+		// merge with final
+		finalRect.left = std::min(finalRect.left, ci->second.scissorRect.left);
+		finalRect.bottom = std::min(finalRect.bottom, ci->second.scissorRect.bottom);
+		finalRect.right= std::max(finalRect.right, ci->second.scissorRect.right);
+		finalRect.top = std::max(finalRect.top, ci->second.scissorRect.top);
+
+
 	}
 
-	if (rect.left > -1.0f || rect.right < 1.0f || rect.bottom > -1.0f || rect.top < 1.0f)
+	if (finalRect.left >= 1.0f || finalRect.right <= -1.0f ||
+		finalRect.top <= -1.0f || finalRect.bottom >= 1.0f)
+	{
+		// rect was offscreen
+		return CLIPPED_ALL;
+	}
+
+	// Some scissoring?
+	if (finalRect.left > -1.0f || finalRect.right < 1.0f || 
+		finalRect.bottom > -1.0f || finalRect.top < 1.0f)
 	{
 		// Turn normalised device coordinates into pixels
 		int iLeft, iTop, iWidth, iHeight;
 		mCurrentViewport->getActualDimensions(iLeft, iTop, iWidth, iHeight);
 		size_t szLeft, szRight, szTop, szBottom;
 
-		szLeft = (size_t)(iLeft + ((rect.left + 1) * 0.5 * iWidth));
-		szRight = (size_t)(iLeft + ((rect.right + 1) * 0.5 * iWidth));
-		szTop = (size_t)(iTop + ((-rect.top + 1) * 0.5 * iHeight));
-		szBottom = (size_t)(iTop + ((-rect.bottom + 1) * 0.5 * iHeight));
+		szLeft = (size_t)(iLeft + ((finalRect.left + 1) * 0.5 * iWidth));
+		szRight = (size_t)(iLeft + ((finalRect.right + 1) * 0.5 * iWidth));
+		szTop = (size_t)(iTop + ((-finalRect.top + 1) * 0.5 * iHeight));
+		szBottom = (size_t)(iTop + ((-finalRect.bottom + 1) * 0.5 * iHeight));
 
 		mDestRenderSystem->setScissorTest(true, szLeft, szTop, szRight, szBottom);
 
-		return true;
+		return CLIPPED_SOME;
 	}
 	else
-		return false;
+		return CLIPPED_NONE;
 
 }
 //---------------------------------------------------------------------
@@ -4342,15 +4387,7 @@ void SceneManager::buildScissor(const Light* light, const Camera* cam, FloatRect
 {
 	// Project the sphere onto the camera
 	Sphere sphere(light->getDerivedPosition(), light->getAttenuationRange());
-	Real left, right, bottom, top;
-	if (cam->projectSphere(sphere, &left, &top, &right, &bottom))
-	{
-		// merge
-		rect.left = std::max(rect.left, left);
-		rect.bottom = std::max(rect.bottom, bottom);
-		rect.right= std::min(rect.right, right);
-		rect.top = std::min(rect.top, top);
-	}
+	cam->projectSphere(sphere, &(rect.left), &(rect.top), &(rect.right), &(rect.bottom));
 }
 //---------------------------------------------------------------------
 void SceneManager::resetScissor()
@@ -4361,36 +4398,50 @@ void SceneManager::resetScissor()
 	mDestRenderSystem->setScissorTest(false);
 }
 //---------------------------------------------------------------------
-bool SceneManager::buildAndSetLightClip(const LightList& ll, PlaneList& planes)
+ClipResult SceneManager::buildAndSetLightClip(const LightList& ll)
 {
 	if (!mDestRenderSystem->getCapabilities()->hasCapability(RSC_USER_CLIP_PLANES))
-		return false;
+		return CLIPPED_NONE;
 
 	Light* clipBase = 0;
 	for (LightList::const_iterator i = ll.begin(); i != ll.end(); ++i)
 	{
 		// a directional light is being used, no clipping can be done, period.
 		if ((*i)->getType() == Light::LT_DIRECTIONAL)
-			return false;
+			return CLIPPED_NONE;
 
 		if (clipBase)
 		{
 			// we already have a clip base, so we had more than one light
 			// in this list we could clip by, so clip none
-			return false;
+			return CLIPPED_NONE;
 		}
 		clipBase = *i;
 	}
 
 	if (clipBase)
 	{
-		buildLightClip(clipBase, planes);
-		mDestRenderSystem->setClipPlanes(planes);
-		return true;
+		// Try to re-use clipping info if already calculated
+		LightClippingInfoMap::iterator ci = mLightClippingInfoMap.find(clipBase);
+		if (ci == mLightClippingInfoMap.end())
+		{
+			// create new entry
+			ci = mLightClippingInfoMap.insert(LightClippingInfoMap::value_type(clipBase, LightClippingInfo())).first;
+		}
+		if (!ci->second.clipPlanesValid)
+		{
+			buildLightClip(clipBase, ci->second.clipPlanes);
+			ci->second.clipPlanesValid = true;
+		}
+		
+		mDestRenderSystem->setClipPlanes(ci->second.clipPlanes);
+		return CLIPPED_SOME;
 	}
 	else
 	{
-		return false;
+		// Can only get here if no non-directional lights from which to clip from
+		// ie list must be empty
+		return CLIPPED_ALL;
 	}
 
 
@@ -4493,9 +4544,13 @@ void SceneManager::renderShadowVolumesToStencil(const Light* light,
 	lightList.push_back(const_cast<Light*>(light));
 
     // Set up scissor test (point & spot lights only)
-    bool scissored = false;
+    ClipResult scissored = CLIPPED_NONE;
 	if (calcScissor)
+	{
 		scissored = buildAndSetScissor(lightList, camera);
+		if (scissored == CLIPPED_ALL)
+			return; // nothing to do
+	}
 
     mDestRenderSystem->unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
 
@@ -4681,7 +4736,7 @@ void SceneManager::renderShadowVolumesToStencil(const Light* light,
 
     mDestRenderSystem->unbindGpuProgram(GPT_VERTEX_PROGRAM);
 
-    if (scissored)
+    if (scissored == CLIPPED_SOME)
     {
         // disable scissor test
         resetScissor();
