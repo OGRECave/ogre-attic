@@ -1583,7 +1583,7 @@ namespace Ogre {
     {
         assert(mScriptContext.textureUnit);
         TextureType tt = TEX_TYPE_2D;
-		int mips = MIP_UNLIMITED; // When passed to TextureManager::load, this means default to default number of mipmaps
+		int mips = MIP_DEFAULT; // When passed to TextureManager::load, this means default to default number of mipmaps
         bool isAlpha = false;
         PixelFormat desiredFormat = PF_UNKNOWN;
         const String& textureName = getNextTokenLabel();

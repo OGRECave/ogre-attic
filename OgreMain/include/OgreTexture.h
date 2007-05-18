@@ -76,7 +76,9 @@ namespace Ogre {
 	enum TextureMipmap
 	{
 		/// Generate mipmaps up to 1x1
-		MIP_UNLIMITED = 0x7FFFFFFF
+		MIP_UNLIMITED = 0x7FFFFFFF,
+		/// Use TextureManager default
+		MIP_DEFAULT = -1
 	};
 
     // Forward declaration
