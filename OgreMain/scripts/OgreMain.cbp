@@ -310,6 +310,13 @@
 		<Unit filename="..\include\WIN32\OgreTimerImp.h" />
 		<Unit filename="..\include\asm_math.h" />
 		<Unit filename="..\include\stl_user_config.h" />
+		<Unit filename="..\include\OgreAllocWrapper.h " />
+		<Unit filename="..\include\OgreAllocator.h " />
+		<Unit filename="..\include\OgreMemProfileManager.h " />
+		<Unit filename="..\include\OgreMemProfiler.h " />
+		<Unit filename="..\include\OgreMemProfilerBase.h " />
+		<Unit filename="..\include\OgreObjectTraits.h " />
+		<Unit filename="..\include\OgreStdAllocPolicy.h" />
 		<Unit filename="..\src\OgreAlignedAllocator.cpp" />
 		<Unit filename="..\src\OgreAnimable.cpp" />
 		<Unit filename="..\src\OgreAnimation.cpp" />
@@ -493,6 +500,7 @@
 		<Unit filename="..\src\WIN32\ogrelogo.bmp" />
 		<Unit filename="..\src\WIN32\resource.h" />
 		<Unit filename="..\src\WIN32\winres.h" />
+		<Unit filename="..\src\OgreMemProfileManager.cpp"/>
 		<Extensions>
 			<code_completion />
 		</Extensions>

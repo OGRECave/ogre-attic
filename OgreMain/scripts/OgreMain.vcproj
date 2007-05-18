@@ -830,6 +830,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			<File
 				RelativePath="..\src\OgreZip.cpp">
 			</File>
+			<File
+				RelativePath="..\src\OgreMemProfileManager.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1481,6 +1484,27 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreZip.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreAllocWrapper.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreAllocator.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreMemProfileManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreMemProfiler.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreMemProfilerBase.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreObjectTraits.h>
+			</File>
+			<File
+				RelativePath="..\include\OgreStdAllocPolicy.h>
 			</File>
 		</Filter>
 		<Filter
