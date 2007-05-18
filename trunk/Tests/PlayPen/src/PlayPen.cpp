@@ -5543,7 +5543,7 @@ protected:
 
 	}
 
-	void testLightScissoring()
+	void testLightScissoring(bool cliptoo)
 	{
 		mSceneMgr->setAmbientLight(ColourValue::White);
 
@@ -5603,7 +5603,7 @@ protected:
 
 		Light* l = mSceneMgr->createLight("l1");
 		l->setAttenuation(lightRange, 1, 0, 0);
-		SceneNode* n = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0,100,0));
+		SceneNode* n = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0,95,0));
 		n->attachObject(debugSphere);
 		n->attachObject(l);
 
@@ -5619,12 +5619,16 @@ protected:
 		MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/GrassFloor");
 		Pass* p = mat->getTechnique(0)->getPass(0);
 		p->setLightScissoringEnabled(true);
+		if (cliptoo)
+			p->setLightClipPlanesEnabled(true);
 
 
+		mCamera->setPosition(0, 200, 300);
+		mCamera->lookAt(Vector3::ZERO);
 
 	}
 
-	void testLightClipPlanes()
+	void testLightClipPlanes(bool scissortoo)
 	{
 		mSceneMgr->setAmbientLight(ColourValue::White);
 
@@ -5641,22 +5645,15 @@ protected:
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 
 		Real lightRange = 1000;
+		Real spotWidth = 300;
 
 		ManualObject* debugSphere = mSceneMgr->createManualObject("debugSphere");
 		debugSphere->begin("BaseWhiteNoLighting", RenderOperation::OT_LINE_STRIP);
 		for (int i = 0; i <= 20; ++i)
 		{
-			Vector3 basePos(lightRange, 0, 0);
+			Vector3 basePos(spotWidth, 0, 0);
 			Quaternion quat;
 			quat.FromAngleAxis(Radian(((float)i/(float)20)*Math::TWO_PI), Vector3::UNIT_Y);
-			basePos = quat * basePos;
-			debugSphere->position(basePos);
-		}
-		for (int i = 0; i <= 20; ++i)
-		{
-			Vector3 basePos(lightRange, 0, 0);
-			Quaternion quat;
-			quat.FromAngleAxis(Radian(((float)i/(float)20)*Math::TWO_PI), Vector3::UNIT_Z);
 			basePos = quat * basePos;
 			debugSphere->position(basePos);
 		}
@@ -5668,11 +5665,11 @@ protected:
 		n->attachObject(debugSphere);
 		/* SPOT LIGHT
 		*/
-		// make sure we stay within spot range, but that on ground we match debug sphere size
-		Real spotHeight = lightRange - 100;
+		// match spot width to groud
+		Real spotHeight = lightRange * 0.5;
 		n = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0,spotHeight,0));
 		l->setType(Light::LT_SPOTLIGHT);
-		Radian spotAngle = Math::ATan(lightRange / spotHeight) * 2;
+		Radian spotAngle = Math::ATan(spotWidth / spotHeight) * 2;
 		l->setSpotlightOuterAngle(spotAngle); 
 		l->setSpotlightInnerAngle(spotAngle * 0.75);
 		Vector3 dir(0, -1, 0);
@@ -5688,6 +5685,11 @@ protected:
 		MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/GrassFloor");
 		Pass* p = mat->getTechnique(0)->getPass(0);
 		p->setLightClipPlanesEnabled(true);
+		if (scissortoo)
+			p->setLightScissoringEnabled(true);
+
+		mCamera->setPosition(0, 200, 300);
+		mCamera->lookAt(Vector3::ZERO);
 
 
 
@@ -5782,8 +5784,8 @@ protected:
 		//testPoseAnimation2();
 		//testBug();
 		//testProjectSphere();
-		testLightScissoring();
-		//testLightClipPlanes();
+		testLightScissoring(false);
+		//testLightClipPlanes(false);
 		//testTimeCreateDestroyObject();
 		//testManualBlend();
 		//testManualObjectNonIndexed();
