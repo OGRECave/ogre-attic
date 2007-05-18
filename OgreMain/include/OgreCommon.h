@@ -420,6 +420,16 @@ namespace Ogre {
     int _OgreExport findCommandLineOpts(int numargs, char** argv, UnaryOptionList& unaryOptList, 
         BinaryOptionList& binOptList);
 
+	/// Generic result of clipping
+	enum ClipResult
+	{
+		/// Nothing was clipped
+		CLIPPED_NONE = 0,
+		/// Partially clipped
+		CLIPPED_SOME = 1, 
+		/// Everything was clipped away
+		CLIPPED_ALL = 2
+	};
 }
 
 #endif

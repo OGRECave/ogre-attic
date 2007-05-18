@@ -637,6 +637,18 @@ namespace Ogre {
 		bool mShadowUseInfiniteFarPlane;
 		bool mShadowCasterRenderBackFaces;
 		bool mShadowAdditiveLightClip;
+		/// Struct for cacheing light clipping information for re-use in a frame
+		struct LightClippingInfo
+		{
+			FloatRect scissorRect;
+			PlaneList clipPlanes;
+			bool scissorValid;
+			unsigned long clipPlanesValid;
+			LightClippingInfo() : scissorValid(false), clipPlanesValid(false) {}
+
+		};
+		typedef std::map<Light*, LightClippingInfo> LightClippingInfoMap;
+		LightClippingInfoMap mLightClippingInfoMap;
 
 		/// default shadow camera setup
 		ShadowCameraSetupPtr mDefaultShadowCameraSetup;
@@ -808,12 +820,12 @@ namespace Ogre {
 			bool suppressShadows, bool suppressRenderState);
 
 		/// Set up a scissor rectangle from a group of lights
-		virtual bool buildAndSetScissor(const LightList& ll, const Camera* cam);
+		virtual ClipResult buildAndSetScissor(const LightList& ll, const Camera* cam);
 		/// Update a scissor rectangle from a single light
 		virtual void buildScissor(const Light* l, const Camera* cam, FloatRect& rect);
 		virtual void resetScissor();
 		/// Build a set of user clip planes from a single non-directional light
-		virtual bool buildAndSetLightClip(const LightList& ll, PlaneList& planes);
+		virtual ClipResult buildAndSetLightClip(const LightList& ll);
 		virtual void buildLightClip(const Light* l, PlaneList& planes);
 		virtual void resetLightClip();
 

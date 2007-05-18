@@ -5581,11 +5581,37 @@ protected:
 		}
 		debugSphere->end();
 
+		ManualObject* debugSphere2 = mSceneMgr->createManualObject("debugSphere2");
+		debugSphere2->begin("BaseWhiteNoLighting", RenderOperation::OT_LINE_STRIP);
+		for (int i = 0; i <= 20; ++i)
+		{
+			Vector3 basePos(lightRange, 0, 0);
+			Quaternion quat;
+			quat.FromAngleAxis(Radian(((float)i/(float)20)*Math::TWO_PI), Vector3::UNIT_Y);
+			basePos = quat * basePos;
+			debugSphere2->position(basePos);
+		}
+		for (int i = 0; i <= 20; ++i)
+		{
+			Vector3 basePos(lightRange, 0, 0);
+			Quaternion quat;
+			quat.FromAngleAxis(Radian(((float)i/(float)20)*Math::TWO_PI), Vector3::UNIT_Z);
+			basePos = quat * basePos;
+			debugSphere2->position(basePos);
+		}
+		debugSphere2->end();
+
 		Light* l = mSceneMgr->createLight("l1");
 		l->setAttenuation(lightRange, 1, 0, 0);
 		SceneNode* n = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0,100,0));
 		n->attachObject(debugSphere);
 		n->attachObject(l);
+
+		Light* l2 = mSceneMgr->createLight("l2");
+		l2->setAttenuation(lightRange, 1, 0, 0);
+		SceneNode* n2 = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(100,50,0));
+		n2->attachObject(debugSphere2);
+		n2->attachObject(l2);
 
 		// Modify the plane material so that it clips to the light
 		// Normally you'd only clip a secondary pass but this is engineered so you
@@ -5756,8 +5782,8 @@ protected:
 		//testPoseAnimation2();
 		//testBug();
 		//testProjectSphere();
-		//testLightScissoring();
-		testLightClipPlanes();
+		testLightScissoring();
+		//testLightClipPlanes();
 		//testTimeCreateDestroyObject();
 		//testManualBlend();
 		//testManualObjectNonIndexed();
