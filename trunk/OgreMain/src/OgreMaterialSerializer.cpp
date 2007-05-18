@@ -3602,6 +3602,14 @@ namespace Ogre
 				}
 			}
 
+			// polygon mode overrideable
+			if (mDefaults ||
+				!pPass->getPolygonModeOverrideable())
+			{
+				writeAttribute(3, "polygon_mode_overrideable");
+				writeValue(pPass->getPolygonModeOverrideable() ? "on" : "off");
+			}
+
             //fog override
             if (mDefaults ||
                 pPass->getFogOverride() != false)
