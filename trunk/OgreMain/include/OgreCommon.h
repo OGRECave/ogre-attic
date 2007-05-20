@@ -333,6 +333,11 @@ namespace Ogre {
         */
         typedef TRect<float> FloatRect;
 
+		/** Structure used to define a rectangle in a 2-D floating point space, 
+			subject to double / single floating point settings.
+		*/
+		typedef TRect<Real> RealRect;
+
         /** Structure used to define a rectangle in a 2-D integer space.
         */
         typedef TRect< long > Rect;

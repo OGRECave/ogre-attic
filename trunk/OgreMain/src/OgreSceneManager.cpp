@@ -4320,7 +4320,7 @@ ClipResult SceneManager::buildAndSetScissor(const LightList& ll, const Camera* c
 	if (!mDestRenderSystem->getCapabilities()->hasCapability(RSC_SCISSOR_TEST))
 		return CLIPPED_NONE;
 
-	FloatRect finalRect;
+	RealRect finalRect;
 	// init (inverted since we want to grow from nothing)
 	finalRect.left = finalRect.bottom = 1.0f;
 	finalRect.right = finalRect.top = -1.0f;
@@ -4383,7 +4383,7 @@ ClipResult SceneManager::buildAndSetScissor(const LightList& ll, const Camera* c
 
 }
 //---------------------------------------------------------------------
-void SceneManager::buildScissor(const Light* light, const Camera* cam, FloatRect& rect)
+void SceneManager::buildScissor(const Light* light, const Camera* cam, RealRect& rect)
 {
 	// Project the sphere onto the camera
 	Sphere sphere(light->getDerivedPosition(), light->getAttenuationRange());

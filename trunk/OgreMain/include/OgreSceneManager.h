@@ -640,7 +640,7 @@ namespace Ogre {
 		/// Struct for cacheing light clipping information for re-use in a frame
 		struct LightClippingInfo
 		{
-			FloatRect scissorRect;
+			RealRect scissorRect;
 			PlaneList clipPlanes;
 			bool scissorValid;
 			unsigned long clipPlanesValid;
@@ -822,7 +822,7 @@ namespace Ogre {
 		/// Set up a scissor rectangle from a group of lights
 		virtual ClipResult buildAndSetScissor(const LightList& ll, const Camera* cam);
 		/// Update a scissor rectangle from a single light
-		virtual void buildScissor(const Light* l, const Camera* cam, FloatRect& rect);
+		virtual void buildScissor(const Light* l, const Camera* cam, RealRect& rect);
 		virtual void resetScissor();
 		/// Build a set of user clip planes from a single non-directional light
 		virtual ClipResult buildAndSetLightClip(const LightList& ll);
