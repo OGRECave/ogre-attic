@@ -17,7 +17,7 @@
 	name	CDATA	#REQUIRED>
 <!ELEMENT faces (face+)>
 <!ATTLIST faces 
-	count		CDATA	#REQUIRED>
+	count		CDATA	#IMPLIED>
 <!ELEMENT face EMPTY>
 <!-- Do not need all 3 vertex indexes if triangle_strip or triangle_fan
      since every face after the first one is defined by a single vertex -->
@@ -27,7 +27,7 @@
 	v3		CDATA	#IMPLIED>
 <!ELEMENT geometry (vertexbuffer+)>
 <!ATTLIST geometry
-	vertexcount		CDATA		#REQUIRED >
+	vertexcount		CDATA		#IMPLIED >
 <!ELEMENT skeletonlink EMPTY>
 <!ATTLIST skeletonlink
 	name	CDATA	#REQUIRED>

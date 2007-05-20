@@ -67,7 +67,8 @@ namespace Ogre {
         elem = rootElem->FirstChildElement("sharedgeometry");
         if (elem)
         {
-            if(StringConverter::parseInt(elem->Attribute("vertexcount")) > 0)
+            const char *claimedVertexCount_ = elem->Attribute("vertexcount");
+            if(!claimedVertexCount_ || StringConverter::parseInt(claimedVertexCount_) > 0)
             {
                 mpMesh->sharedVertexData = new VertexData();
                 readGeometry(elem, mpMesh->sharedVertexData);
@@ -602,17 +603,29 @@ namespace Ogre {
             
             // Faces
             TiXmlElement* faces = smElem->FirstChildElement("faces");
+            size_t actualCount = 0;
+            for (TiXmlElement *faceElem = faces->FirstChildElement(); faceElem != 0; faceElem = faceElem->NextSiblingElement())
+            {
+                    actualCount++;
+            }
+            const char *claimedCount_ = faces->Attribute("count");
+            if (claimedCount_ && StringConverter::parseInt(claimedCount_)!=actualCount)
+            {
+				StringUtil::StrStreamType str;
+                str << "WARNING: face count (" << actualCount << ") " <<
+					"is not as claimed (" << claimedCount_ << ")";
+				LogManager::getSingleton().logMessage(str.str());
+            }
+
+
+            // Faces
             if (sm->operationType == RenderOperation::OT_TRIANGLE_LIST)
             {
-                // tri list
-                sm->indexData->indexCount = 
-                    StringConverter::parseInt(faces->Attribute("count")) * 3;
-            }
-            else
-            {
-                // tri strip or fan
-                sm->indexData->indexCount = 
-                    StringConverter::parseInt(faces->Attribute("count")) + 2;
+                    // tri list
+                    sm->indexData->indexCount = actualCount * 3;
+            } else {
+                    // tri strip or fan
+                    sm->indexData->indexCount = actualCount + 2;
             }
 
             // Allocate space
@@ -696,9 +709,15 @@ namespace Ogre {
         float *pFloat;
         ARGB *pCol;
 
-        vertexData->vertexCount = StringConverter::parseInt(mGeometryNode->Attribute("vertexcount"));
+        const char *claimedVertexCount_ = mGeometryNode->Attribute("vertexcount");
+        ptrdiff_t claimedVertexCount;
+        if (claimedVertexCount_)
+        {
+                claimedVertexCount =
+                        StringConverter::parseInt(claimedVertexCount_);
+        }
         // Skip empty 
-        if (vertexData->vertexCount <= 0) return;
+        if (claimedVertexCount_ && claimedVertexCount <= 0) return;
         
 
         VertexDeclaration* decl = vertexData->vertexDeclaration;
@@ -789,6 +808,22 @@ namespace Ogre {
                     offset += VertexElement::getTypeSize(vtype);
                 }
             } 
+
+            // calculate how many vertexes there actually are
+            int actualVertexCount = 0;
+            for (TiXmlElement * vertexElem = vbElem->FirstChildElement(); vertexElem != 0; vertexElem = vertexElem->NextSiblingElement())
+            {
+                    actualVertexCount++;
+            }
+            if (claimedVertexCount_ && actualVertexCount!=claimedVertexCount)
+            {
+				StringUtil::StrStreamType str;
+				str << "WARNING: vertex count (" << actualVertexCount 
+					<< ") is not as claimed (" << claimedVertexCount_ << ")";
+				LogManager::getSingleton().logMessage(str.str());
+            }
+
+            vertexData->vertexCount = actualVertexCount;
             // Now create the vertex buffer
             HardwareVertexBufferSharedPtr vbuf = HardwareBufferManager::getSingleton().
                 createVertexBuffer(offset, vertexData->vertexCount, 
