@@ -667,6 +667,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\OgreMemProfileManager.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\OgreMesh.cpp"
 				>
 			</File>
@@ -1104,6 +1108,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\OgreAllocator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreAllocWrapper.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\OgreAnimable.h"
 				>
 			</File>
@@ -1464,6 +1476,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\OgreMemProfileManager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreMemProfiler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreMemProfilerBase.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\OgreMesh.h"
 				>
 			</File>
@@ -1501,6 +1525,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreNumerics.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreObjectTraits.h"
 				>
 			</File>
 			<File
@@ -1837,6 +1865,10 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreStaticGeometry.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreStdAllocPolicy.h"
 				>
 			</File>
 			<File

@@ -26,11 +26,11 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
-
+#include "OgreStableHeaders.h"
 #include "OgreMemProfileManager.h"
 #include <iostream>
 
-namespace Oger{
+namespace Ogre{
 
     MemProfileManager::MemProfileManager()
     {
