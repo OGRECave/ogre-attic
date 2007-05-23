@@ -383,6 +383,8 @@ namespace Ogre {
 		HGLRC hrc = wglCreateContext(hdc);
 		if (hrc)
 		{
+			HGLRC oldrc = wglGetCurrentContext();
+			HDC oldhdc = wglGetCurrentDC();
 			// if wglMakeCurrent fails, wglGetProcAddress will return null
 			wglMakeCurrent(hdc, hrc);
 			
@@ -446,7 +448,7 @@ namespace Ogre {
                 }
 			}
 			
-			wglMakeCurrent(0, 0);
+			wglMakeCurrent(oldhdc, oldrc);
 			wglDeleteContext(hrc);
 		}
 

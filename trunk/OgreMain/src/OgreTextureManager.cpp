@@ -69,7 +69,7 @@ namespace Ogre {
 		if(res.second)
         {
             tex->setTextureType(texType);
-            tex->setNumMipmaps((numMipmaps == -1)? mDefaultNumMipmaps :
+            tex->setNumMipmaps((numMipmaps == MIP_DEFAULT)? mDefaultNumMipmaps :
 				static_cast<size_t>(numMipmaps));
             tex->setGamma(gamma);
             tex->setTreatLuminanceAsAlpha(isAlpha);
@@ -87,7 +87,7 @@ namespace Ogre {
         TexturePtr tex = create(name, group, true);
 
         tex->setTextureType(texType);
-        tex->setNumMipmaps((numMipmaps == -1)? mDefaultNumMipmaps :
+        tex->setNumMipmaps((numMipmaps == MIP_DEFAULT)? mDefaultNumMipmaps :
 			static_cast<size_t>(numMipmaps));
         tex->setGamma(gamma);
         tex->setTreatLuminanceAsAlpha(isAlpha);
@@ -105,7 +105,7 @@ namespace Ogre {
         TexturePtr tex = create(name, group, true);
 
         tex->setTextureType(texType);
-        tex->setNumMipmaps((numMipmaps == -1)? mDefaultNumMipmaps :
+        tex->setNumMipmaps((numMipmaps == MIP_DEFAULT)? mDefaultNumMipmaps :
 			static_cast<size_t>(numMipmaps));
         tex->setGamma(gamma);
 		tex->loadRawData(stream, uWidth, uHeight, format);
@@ -122,7 +122,7 @@ namespace Ogre {
         ret->setWidth(width);
         ret->setHeight(height);
 		ret->setDepth(depth);
-        ret->setNumMipmaps((numMipmaps == -1)? mDefaultNumMipmaps :
+        ret->setNumMipmaps((numMipmaps == MIP_DEFAULT)? mDefaultNumMipmaps :
 			static_cast<size_t>(numMipmaps));
         ret->setFormat(format);
         ret->setUsage(usage);

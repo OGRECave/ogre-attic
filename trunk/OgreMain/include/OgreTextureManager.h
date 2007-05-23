@@ -67,7 +67,7 @@ namespace Ogre {
             @param
                 texType The type of texture to load/create, defaults to normal 2D textures
             @param
-                numMipmaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
+                numMipmaps The number of pre-filtered mipmaps to generate. If left to MIP_DEFAULT then
                 the TextureManager's default number of mipmaps will be used (see setDefaultNumMipmaps())
 				If set to MIP_UNLIMITED mipmaps will be generated until the lowest possible
 				level, 1x1x1.
@@ -83,7 +83,7 @@ namespace Ogre {
         */
         virtual TexturePtr load( 
             const String& name, const String& group, 
-            TextureType texType = TEX_TYPE_2D, int numMipmaps = -1, 
+            TextureType texType = TEX_TYPE_2D, int numMipmaps = MIP_DEFAULT, 
             Real gamma = 1.0f, bool isAlpha = false,
             PixelFormat desiredFormat = PF_UNKNOWN);
 
@@ -99,7 +99,7 @@ namespace Ogre {
             @param
                 texType The type of texture to load/create, defaults to normal 2D textures
             @param
-                numMipmaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
+                numMipmaps The number of pre-filtered mipmaps to generate. If left to MIP_DEFAULT then
                 the TextureManager's default number of mipmaps will be used (see setDefaultNumMipmaps())
 				If set to MIP_UNLIMITED mipmaps will be generated until the lowest possible
 				level, 1x1x1.
@@ -116,7 +116,7 @@ namespace Ogre {
         virtual TexturePtr loadImage( 
             const String &name, const String& group, const Image &img, 
             TextureType texType = TEX_TYPE_2D,
-            int iNumMipmaps = -1, Real gamma = 1.0f, bool isAlpha = false,
+            int iNumMipmaps = MIP_DEFAULT, Real gamma = 1.0f, bool isAlpha = false,
             PixelFormat desiredFormat = PF_UNKNOWN);
 			
         /** Loads a texture from a raw data stream.
@@ -137,7 +137,7 @@ namespace Ogre {
             @param
                 texType The type of texture to load/create, defaults to normal 2D textures
             @param
-                numMipmaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
+                numMipmaps The number of pre-filtered mipmaps to generate. If left to MIP_DEFAULT then
                 the TextureManager's default number of mipmaps will be used (see setDefaultNumMipmaps())
 				If set to MIP_UNLIMITED mipmaps will be generated until the lowest possible
 				level, 1x1x1.
@@ -147,7 +147,7 @@ namespace Ogre {
         virtual TexturePtr loadRawData(const String &name, const String& group,
             DataStreamPtr& stream, ushort uWidth, ushort uHeight, 
             PixelFormat format, TextureType texType = TEX_TYPE_2D, 
-            int iNumMipmaps = -1, Real gamma = 1.0f);
+            int iNumMipmaps = MIP_DEFAULT, Real gamma = 1.0f);
 
 		/** Create a manual texture with specified width, height and depth (not loaded from a file).
             @param
@@ -159,7 +159,7 @@ namespace Ogre {
             @param
                 width, height, depth The dimensions of the texture
             @param
-                numMipmaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
+                numMipmaps The number of pre-filtered mipmaps to generate. If left to MIP_DEFAULT then
                 the TextureManager's default number of mipmaps will be used (see setDefaultNumMipmaps())
 				If set to MIP_UNLIMITED mipmaps will be generated until the lowest possible
 				level, 1x1x1.
@@ -197,7 +197,7 @@ namespace Ogre {
             @param
                 width, height The dimensions of the texture
             @param
-                numMipmaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
+                numMipmaps The number of pre-filtered mipmaps to generate. If left to MIP_DEFAULT then
                 the TextureManager's default number of mipmaps will be used (see setDefaultNumMipmaps()).
 				If set to MIP_UNLIMITED mipmaps will be generated until the lowest possible
 				level, 1x1x1.
