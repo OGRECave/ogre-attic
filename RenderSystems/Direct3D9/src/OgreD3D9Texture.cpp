@@ -230,7 +230,8 @@ namespace Ogre
             MemoryDataStream stream( dstream );
 
 			DWORD usage = 0;
-			UINT numMips = mNumRequestedMipmaps + 1;
+			UINT numMips = (mNumRequestedMipmaps == MIP_UNLIMITED) ?
+				D3DX_DEFAULT : mNumRequestedMipmaps + 1;
 			// check if mip map volume textures are supported
 			if (!(mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPCUBEMAP))
 			{
@@ -332,7 +333,8 @@ namespace Ogre
 			MemoryDataStream stream(dstream);
 	
 			DWORD usage = 0;
-			UINT numMips = mNumRequestedMipmaps + 1;
+			UINT numMips = (mNumRequestedMipmaps == MIP_UNLIMITED) ?
+				D3DX_DEFAULT : mNumRequestedMipmaps + 1;
 			// check if mip map volume textures are supported
 			if (!(mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPVOLUMEMAP))
 			{
@@ -425,7 +427,8 @@ namespace Ogre
 			MemoryDataStream stream(dstream);
 	
 			DWORD usage = 0;
-			UINT numMips = mNumRequestedMipmaps + 1;
+			UINT numMips = (mNumRequestedMipmaps == MIP_UNLIMITED) ?
+				D3DX_DEFAULT : mNumRequestedMipmaps + 1;
 			// check if mip map volume textures are supported
 			if (!(mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPMAP))
 			{
@@ -558,7 +561,8 @@ namespace Ogre
 
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
 		DWORD usage = (mUsage & TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
-		UINT numMips = mNumRequestedMipmaps + 1;
+		UINT numMips = (mNumRequestedMipmaps == MIP_UNLIMITED) ? 
+				D3DX_DEFAULT : mNumRequestedMipmaps + 1;
 		// Check dynamic textures
 		if (mUsage & TU_DYNAMIC)
 		{
@@ -654,7 +658,8 @@ namespace Ogre
 
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
 		DWORD usage = (mUsage & TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
-		UINT numMips = mNumRequestedMipmaps + 1;
+		UINT numMips = (mNumRequestedMipmaps == MIP_UNLIMITED) ? 
+			D3DX_DEFAULT : mNumRequestedMipmaps + 1;
 		// Check dynamic textures
 		if (mUsage & TU_DYNAMIC)
 		{
@@ -749,7 +754,8 @@ namespace Ogre
 
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
 		DWORD usage = (mUsage & TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
-		UINT numMips = mNumRequestedMipmaps + 1;
+		UINT numMips = (mNumRequestedMipmaps == MIP_UNLIMITED) ? 
+			D3DX_DEFAULT : mNumRequestedMipmaps + 1;
 		// Check dynamic textures
 		if (mUsage & TU_DYNAMIC)
 		{

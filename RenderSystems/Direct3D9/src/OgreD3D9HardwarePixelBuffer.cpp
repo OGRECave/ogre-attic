@@ -370,18 +370,37 @@ void D3D9HardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const Pixel
 	{
 		tmpFormat = dst.format;
 	}
+
+
 	if(mSurface)
 	{
 		assert(srcBox.getDepth() == 1 && dst.getDepth() == 1);
 		// Create temp texture
 		IDirect3DTexture9 *tmp;
 		IDirect3DSurface9 *surface;
+
+		D3DSURFACE_DESC srcDesc;
+		if(mSurface->GetDesc(&srcDesc) != D3D_OK)
+			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Could not get surface information",
+			"D3D9HardwarePixelBuffer::blitToMemory");
 	
+		D3DPOOL temppool = D3DPOOL_SCRATCH;
+		// if we're going to try to use GetRenderTargetData, need to use system mem pool
+		bool tryGetRenderTargetData = false;
+		if (((srcDesc.Usage & D3DUSAGE_RENDERTARGET) != 0) &&
+			(srcBox.getWidth() == dst.getWidth()) && (srcBox.getHeight() == dst.getHeight()) &&
+			(srcBox.getWidth() == getWidth()) && (srcBox.getHeight() == getHeight()) &&
+			(mFormat == tmpFormat))
+		{
+			tryGetRenderTargetData = true;
+			temppool = D3DPOOL_SYSTEMMEM;
+		}
+
 		if(D3DXCreateTexture(
 			mpDev,
 			dst.getWidth(), dst.getHeight(), 
 			1, // 1 mip level ie topmost, generate no mipmaps
-			0, D3D9Mappings::_getPF(tmpFormat), D3DPOOL_SCRATCH,
+			0, D3D9Mappings::_getPF(tmpFormat), temppool,
 			&tmp
 			) != D3D_OK)
 		{
@@ -406,17 +425,9 @@ void D3D9HardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const Pixel
             "D3D9HardwarePixelBuffer::blitToMemory");
         tmpFormat = D3D9Mappings::_getPF(dstDesc.Format);
 
-        D3DSURFACE_DESC srcDesc;
-        if(mSurface->GetDesc(&srcDesc) != D3D_OK)
-            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Could not get surface information",
-            "D3D9HardwarePixelBuffer::blitToMemory");
-
         // Use fast GetRenderTargetData if we are in its usage conditions
 		bool fastLoadSuccess = false;
-        if (((srcDesc.Usage & D3DUSAGE_RENDERTARGET) != 0) &&
-            (srcBox.getWidth() == dst.getWidth()) && (srcBox.getHeight() == dst.getHeight()) &&
-            (srcBox.getWidth() == getWidth()) && (srcBox.getHeight() == getHeight()) &&
-            (mFormat == tmpFormat))
+        if (tryGetRenderTargetData)
         {
             if(mpDev->GetRenderTargetData(mSurface, surface) == D3D_OK)
 			{

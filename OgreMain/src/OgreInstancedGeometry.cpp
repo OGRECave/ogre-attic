@@ -445,14 +445,18 @@ namespace Ogre {
 		if (use32bitIndexes)
 		{
 			p32 = static_cast<uint32*>(id->indexBuffer->lock(
-				id->indexStart, id->indexCount, HardwareBuffer::HBL_READ_ONLY));
+				id->indexStart, 
+				id->indexCount * id->indexBuffer->getIndexSize(), 
+				HardwareBuffer::HBL_READ_ONLY));
 			buildIndexRemap(p32, id->indexCount, indexRemap);
 			id->indexBuffer->unlock();
 		}
 		else
 		{
 			p16 = static_cast<uint16*>(id->indexBuffer->lock(
-				id->indexStart, id->indexCount, HardwareBuffer::HBL_READ_ONLY));
+				id->indexStart, 
+				id->indexCount * id->indexBuffer->getIndexSize(), 
+				HardwareBuffer::HBL_READ_ONLY));
 			buildIndexRemap(p16, id->indexCount, indexRemap);
 			id->indexBuffer->unlock();
 		}
@@ -528,7 +532,8 @@ namespace Ogre {
 		{
 			uint32 *pSrc32, *pDst32;
 			pSrc32 = static_cast<uint32*>(id->indexBuffer->lock(
-				id->indexStart, id->indexCount, HardwareBuffer::HBL_READ_ONLY));
+				id->indexStart, id->indexCount * id->indexBuffer->getIndexSize(), 
+				HardwareBuffer::HBL_READ_ONLY));
 			pDst32 = static_cast<uint32*>(ibuf->lock(
 				HardwareBuffer::HBL_DISCARD));
 			remapIndexes(pSrc32, pDst32, indexRemap, id->indexCount);
@@ -539,7 +544,8 @@ namespace Ogre {
 		{
 			uint16 *pSrc16, *pDst16;
 			pSrc16 = static_cast<uint16*>(id->indexBuffer->lock(
-				id->indexStart, id->indexCount, HardwareBuffer::HBL_READ_ONLY));
+				id->indexStart, id->indexCount * id->indexBuffer->getIndexSize(), 
+				HardwareBuffer::HBL_READ_ONLY));
 			pDst16 = static_cast<uint16*>(ibuf->lock(
 				HardwareBuffer::HBL_DISCARD));
 			remapIndexes(pSrc16, pDst16, indexRemap, id->indexCount);
@@ -1960,7 +1966,8 @@ namespace Ogre {
 				// Lock source indexes
 				uint32* pSrc = static_cast<uint32*>(
 					srcIdxData->indexBuffer->lock(
-						srcIdxData->indexStart, srcIdxData->indexCount,
+						srcIdxData->indexStart, 
+						srcIdxData->indexCount * srcIdxData->indexBuffer->getIndexSize(),
 						HardwareBuffer::HBL_READ_ONLY));
 
 				copyIndexes(pSrc, p32Dest, srcIdxData->indexCount, indexOffset);
@@ -1973,7 +1980,8 @@ namespace Ogre {
 				// Lock source indexes
 				uint16* pSrc = static_cast<uint16*>(
 					srcIdxData->indexBuffer->lock(
-					srcIdxData->indexStart, srcIdxData->indexCount,
+					srcIdxData->indexStart, 
+					srcIdxData->indexCount * srcIdxData->indexBuffer->getIndexSize(),
 					HardwareBuffer::HBL_READ_ONLY));
 
 				copyIndexes(pSrc, p16Dest, srcIdxData->indexCount, indexOffset);
