@@ -309,7 +309,7 @@ namespace Ogre {
 
 	void Win32Window::setFullscreen(bool fullScreen, unsigned int width, unsigned int height)
 	{
-		if (mIsFullScreen != fullScreen)
+		if (mIsFullScreen != fullScreen || width != mWidth || height != mHeight)
 		{
 			mIsFullScreen = fullScreen;
 			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
@@ -354,7 +354,7 @@ namespace Ogre {
 
 				SetWindowLong(mHWnd, GWL_STYLE, dwStyle);
 				SetWindowPos(mHWnd, HWND_TOPMOST, 0, 0, width, height,
-					SWP_DRAWFRAME | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+					SWP_NOACTIVATE);
 				mWidth = width;
 				mHeight = height;
 

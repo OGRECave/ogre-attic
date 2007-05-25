@@ -270,12 +270,13 @@ namespace Ogre
 
 	void D3D9RenderWindow::setFullscreen(bool fullScreen, unsigned int width, unsigned int height)
 	{
-		if (fullScreen != mIsFullScreen)
+		if (fullScreen != mIsFullScreen || width != mWidth || height != mHeight)
 		{
-			mIsFullScreen = fullScreen;
 
 			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 
+			bool oldFullscreen = mIsFullScreen;
+			mIsFullScreen = fullScreen;
 
 			if (fullScreen)
 			{
@@ -289,8 +290,30 @@ namespace Ogre
 				md3dpp.FullScreen_RefreshRateInHz = mIsFullScreen ? mDisplayFrequency : 0;
 				md3dpp.BackBufferHeight = height;
 				md3dpp.BackBufferWidth = width;
-				MoveWindow(mHWnd, mLeft, mTop, mWidth, mHeight, FALSE);
-				SetWindowLong(mHWnd, GWL_STYLE, dwStyle);
+				if (oldFullscreen)
+				{
+					// was previously fullscreen, just changing the resolution
+					SetWindowPos(mHWnd, HWND_TOPMOST, 0, 0, width, height,
+						SWP_NOACTIVATE);
+					// Have to release & trigger device reset
+					// NB don't use windowMovedOrResized since Win32 doesn't know
+					// about the size change yet
+					SAFE_RELEASE( mpRenderSurface );
+					static_cast<D3D9RenderSystem*>(
+						Root::getSingleton().getRenderSystem())->_notifyDeviceLost();
+					// Notify viewports of resize
+					ViewportList::iterator it = mViewportList.begin();
+					while( it != mViewportList.end() )
+						(*it++).second->_updateDimensions();
+				}
+				else
+				{
+					SetWindowPos(mHWnd, HWND_TOPMOST, 0, 0, width, height,
+						SWP_NOACTIVATE);
+					//MoveWindow(mHWnd, mLeft, mTop, mWidth, mHeight, FALSE);
+					SetWindowLong(mHWnd, GWL_STYLE, dwStyle);
+				}
+
 
 			}
 			else

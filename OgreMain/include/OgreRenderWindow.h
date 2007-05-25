@@ -87,8 +87,9 @@ namespace Ogre
 	            bool fullScreen, const NameValuePairList *miscParams) = 0;
 
 		/** Alter fullscreen mode options. 
-		@param fullScreen Whether to use fullscreen mode or not. Nothing will happen 
-			unless this is different from the current setting.
+		@note Nothing will happen unless the settings here are different from the
+			current settings.
+		@param fullScreen Whether to use fullscreen mode or not. 
 		@param width The new width to use
 		@param height The new height to use
 		*/

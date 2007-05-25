@@ -314,6 +314,12 @@ public:
 			timeUntilNextToggle = 0.5;
 
 		}
+		if (mKeyboard->isKeyDown(KC_EQUALS) && timeUntilNextToggle <= 0)
+		{
+			mWindow->setFullscreen(true, 800, 600);
+			timeUntilNextToggle = 0.5;
+
+		}
 
 
         MaterialPtr mat = MaterialManager::getSingleton().getByName("Core/StatsBlockBorder/Up");
@@ -946,7 +952,7 @@ protected:
 
 	void testBug()
 	{
-
+		/** Bren's problem
 
 		Ogre::Mesh* mesh = Ogre::MeshManager::getSingleton().load("male_civ_head.mesh", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME).getPointer();
 		assert(mesh);
@@ -998,6 +1004,11 @@ protected:
 		animState->setLoop(false);                            // else mTimePos becomes undefined?
 		animState->setEnabled(true);
 		animState->setTimePosition((Real)2);
+
+		*/
+
+		mSceneMgr->setAmbientLight(ColourValue::White);
+		Entity* ent = mSceneMgr->createEntity("23", "Iron_Golem.mesh");
 
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
 
@@ -5587,7 +5598,7 @@ protected:
 		//testLotsAndLotsOfEntities();
 		//testSimpleMesh();
 		//test2Windows();
-		testStaticGeometry();
+		//testStaticGeometry();
 		//testBillboardTextureCoords();
 		//testBillboardOrigins();
 		//testReloadResources();
@@ -5596,7 +5607,7 @@ protected:
 		//testMorphAnimation();
 		//testPoseAnimation();
 		//testPoseAnimation2();
-		//testBug();
+		testBug();
 		//testProjectSphere();
 		//testTimeCreateDestroyObject();
 		//testManualBlend();
