@@ -95,7 +95,6 @@ namespace Ogre
 		bool	mSizing;
 		bool	mClosed;
 		bool	mIsSwapChain;			// Is this a secondary window?
-		bool	mChangingMode;
 
 		// -------------------------------------------------------
 		// DirectX-specific

@@ -47,7 +47,6 @@ namespace Ogre
 	D3D9RenderWindow::D3D9RenderWindow(HINSTANCE instance, D3D9Driver *driver, LPDIRECT3DDEVICE9 deviceIfSwapChain)
         : mInstance(instance)
         , mDriver(driver)
-		, mChangingMode(false)
         , mpRenderSurface(0)
 	{
 		mIsFullScreen = false;
@@ -910,8 +909,6 @@ namespace Ogre
 	//-----------------------------------------------------------------------------
 	void D3D9RenderWindow::update(bool swap)
 	{
-		if (mChangingMode)
-			return;
 
 		D3D9RenderSystem* rs = static_cast<D3D9RenderSystem*>(
 			Root::getSingleton().getRenderSystem());
