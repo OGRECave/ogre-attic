@@ -533,7 +533,7 @@ void GLXWindow::writeContentsToFile(const String& filename)
 
 	// Read pixels
 	// I love GL: it does all the locking & colour conversion for us
-	glReadPixels(0,0, mWidth-1, mHeight-1, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
+	glReadPixels(0,0, mWidth, mHeight, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
 
 	// Wrap buffer in a memory stream
 	DataStreamPtr stream(new MemoryDataStream(pBuffer, mWidth * mHeight * 3, false));
