@@ -138,20 +138,15 @@ namespace Ogre {
 			if(opt != miscParams->end())
 				outerSize = StringConverter::parseBool(opt->second);
 
-			if (mIsFullScreen)
-			{
-				// only available with fullscreen
-				if ((opt = miscParams->find("displayFrequency")) != end)
-					mDisplayFrequency = StringConverter::parseUnsignedInt(opt->second);
-				if ((opt = miscParams->find("colourDepth")) != end)
-					mColourDepth = StringConverter::parseUnsignedInt(opt->second);
-			}
-			else
-			{
-				// incompatible with fullscreen
-				if ((opt = miscParams->find("parentWindowHandle")) != end)
-					parent = (HWND)StringConverter::parseUnsignedInt(opt->second);
-			}
+			// only available with fullscreen
+			if ((opt = miscParams->find("displayFrequency")) != end)
+				mDisplayFrequency = StringConverter::parseUnsignedInt(opt->second);
+			if ((opt = miscParams->find("colourDepth")) != end)
+				mColourDepth = StringConverter::parseUnsignedInt(opt->second);
+
+			// incompatible with fullscreen
+			if ((opt = miscParams->find("parentWindowHandle")) != end)
+				parent = (HWND)StringConverter::parseUnsignedInt(opt->second);
 		}
 
 		if (!mIsExternal)
@@ -310,6 +305,89 @@ namespace Ogre {
 		mContext = new Win32Context(mHDC, mGlrc);
 
 		mActive = true;
+	}
+
+	void Win32Window::setFullscreen(bool fullScreen, unsigned int width, unsigned int height)
+	{
+		if (mIsFullScreen != fullScreen)
+		{
+			mIsFullScreen = fullScreen;
+			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+
+			if (mIsFullScreen)
+			{
+				dwStyle |= WS_POPUP;
+
+				DEVMODE dm;
+				dm.dmSize = sizeof(DEVMODE);
+				dm.dmBitsPerPel = mColourDepth;
+				dm.dmPelsWidth = width;
+				dm.dmPelsHeight = height;
+				dm.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+				if (mDisplayFrequency)
+				{
+					dm.dmDisplayFrequency = mDisplayFrequency;
+					dm.dmFields |= DM_DISPLAYFREQUENCY;
+					if (ChangeDisplaySettings(&dm, CDS_FULLSCREEN | CDS_TEST) != DISP_CHANGE_SUCCESSFUL)
+					{
+						LogManager::getSingleton().logMessage(LML_NORMAL, "ChangeDisplaySettings with user display frequency failed");
+						dm.dmFields ^= DM_DISPLAYFREQUENCY;
+					}
+				}
+				else
+				{
+					// try a few
+					dm.dmDisplayFrequency = 100;
+					dm.dmFields |= DM_DISPLAYFREQUENCY;
+					if (ChangeDisplaySettings(&dm, CDS_FULLSCREEN | CDS_TEST) != DISP_CHANGE_SUCCESSFUL)
+					{
+						dm.dmDisplayFrequency = 75;
+						if (ChangeDisplaySettings(&dm, CDS_FULLSCREEN | CDS_TEST) != DISP_CHANGE_SUCCESSFUL)
+						{
+							dm.dmFields ^= DM_DISPLAYFREQUENCY;
+						}
+					}
+
+				}
+				if (ChangeDisplaySettings(&dm, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
+					LogManager::getSingleton().logMessage(LML_CRITICAL, "ChangeDisplaySettings failed");
+
+				SetWindowLong(mHWnd, GWL_STYLE, dwStyle);
+				SetWindowPos(mHWnd, HWND_TOPMOST, 0, 0, width, height,
+					SWP_DRAWFRAME | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+				mWidth = width;
+				mHeight = height;
+
+
+			}
+			else
+			{
+				dwStyle |= WS_OVERLAPPEDWINDOW;
+
+				// drop out of fullscreen
+				ChangeDisplaySettings(NULL, 0);
+
+				// calculate overall dimensions for requested client area
+				RECT rc = { 0, 0, width, height };
+				AdjustWindowRect(&rc, dwStyle, false);
+				unsigned int winWidth = rc.right - rc.left;
+				unsigned int winHeight = rc.bottom - rc.top;
+
+				int screenw = GetSystemMetrics(SM_CXSCREEN);
+				int screenh = GetSystemMetrics(SM_CYSCREEN);
+				int left = (screenw - winWidth) / 2;
+				int top = (screenh - winHeight) / 2;
+
+
+				SetWindowLong(mHWnd, GWL_STYLE, dwStyle);
+				SetWindowPos(mHWnd, HWND_NOTOPMOST, left, top, winWidth, winHeight,
+					SWP_DRAWFRAME | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+				mWidth = width;
+				mHeight = height;
+
+			}
+
+		}
 	}
 
 	void Win32Window::destroy(void)

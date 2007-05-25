@@ -3217,9 +3217,9 @@ namespace Ogre
 			(*sw)->destroyD3DResources();
 		}
 
+		D3DPRESENT_PARAMETERS* presParams = mPrimaryWindow->getPresentationParameters();
 		// Reset the device, using the primary window presentation params
-		HRESULT hr = mpD3DDevice->Reset(
-			mPrimaryWindow->getPresentationParameters());
+		HRESULT hr = mpD3DDevice->Reset(presParams);
 
 		if (hr == D3DERR_DEVICELOST)
 		{
@@ -3232,6 +3232,29 @@ namespace Ogre
 				"Cannot reset device! " + getErrorDescription(hr), 
 				"D3D9RenderWindow::restoreLostDevice" );
 		}
+
+		StringUtil::StrStreamType str;
+		str << "Reset device ok w:" << presParams->BackBufferWidth
+			<< " h:" << presParams->BackBufferHeight;
+		LogManager::getSingleton().logMessage(str.str());
+		// If windowed, we have to reset the size here
+		// since a fullscreen switch may have occurred
+		if (presParams->Windowed)
+		{
+			RECT rc;
+			SetRect(&rc, 0, 0, presParams->BackBufferWidth, presParams->BackBufferHeight);
+			AdjustWindowRect(&rc, GetWindowLong(mPrimaryWindow->getWindowHandle(), GWL_STYLE), false);
+			unsigned int winWidth = rc.right - rc.left;
+			unsigned int winHeight = rc.bottom - rc.top;
+			int screenw = GetSystemMetrics(SM_CXSCREEN);
+			int screenh = GetSystemMetrics(SM_CYSCREEN);
+			int left = (screenw - winWidth) / 2;
+			int top = (screenh - winHeight) / 2;
+			SetWindowPos(mPrimaryWindow->getWindowHandle(), HWND_NOTOPMOST, left, top, winWidth, winHeight,
+				SWP_DRAWFRAME | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+		}
+
 
 		// will have lost basic states
 		mBasicStatesInitialised = false;

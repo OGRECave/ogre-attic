@@ -301,6 +301,21 @@ public:
 
 		}
 
+		if (mKeyboard->isKeyDown(KC_MINUS) && timeUntilNextToggle <= 0)
+		{
+			if (mWindow->isFullScreen())
+			{
+				mWindow->setFullscreen(false, 800, 600);
+			}
+			else
+			{
+				mWindow->setFullscreen(true, 1024, 768);
+			}
+			timeUntilNextToggle = 0.5;
+
+		}
+
+
         MaterialPtr mat = MaterialManager::getSingleton().getByName("Core/StatsBlockBorder/Up");
         mat->setDepthCheckEnabled(true);
         mat->setDepthWriteEnabled(true);
@@ -3177,7 +3192,7 @@ protected:
 		valuePair["top"] = StringConverter::toString(0);
 		valuePair["left"] = StringConverter::toString(0);
 
-		RenderWindow* win2 = mRoot->createRenderWindow("window2", 200,200, false, &valuePair);
+		RenderWindow* win2 = mRoot->createRenderWindow("window2", 800,600, true, &valuePair);
 		win2->addViewport(mCamera);
 
 
@@ -5572,7 +5587,7 @@ protected:
 		//testLotsAndLotsOfEntities();
 		//testSimpleMesh();
 		//test2Windows();
-		//testStaticGeometry();
+		testStaticGeometry();
 		//testBillboardTextureCoords();
 		//testBillboardOrigins();
 		//testReloadResources();
@@ -5582,7 +5597,7 @@ protected:
 		//testPoseAnimation();
 		//testPoseAnimation2();
 		//testBug();
-		testProjectSphere();
+		//testProjectSphere();
 		//testTimeCreateDestroyObject();
 		//testManualBlend();
 		//testManualObjectNonIndexed();
