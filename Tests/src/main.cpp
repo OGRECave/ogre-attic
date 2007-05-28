@@ -35,7 +35,7 @@ int main( int argc, char **argv)
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
         MessageBox( NULL, "Unknown exception", "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
 #else
-        std::cerr << "An exception has occured: " << e.getFullDescription();
+        std::cerr << "An exception has occured";
 #endif
     }
 
