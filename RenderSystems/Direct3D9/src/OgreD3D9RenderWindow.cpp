@@ -268,6 +268,84 @@ namespace Ogre
 		mClosed = false;
 	}
 
+	void D3D9RenderWindow::setFullscreen(bool fullScreen, unsigned int width, unsigned int height)
+	{
+		if (fullScreen != mIsFullScreen || width != mWidth || height != mHeight)
+		{
+
+			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+
+			bool oldFullscreen = mIsFullScreen;
+			mIsFullScreen = fullScreen;
+
+			if (fullScreen)
+			{
+				dwStyle |= WS_POPUP;
+
+				mTop = mLeft = 0;
+				mWidth = width;
+				mHeight = height;
+				// need different ordering here
+				md3dpp.Windowed = !fullScreen;
+				md3dpp.FullScreen_RefreshRateInHz = mIsFullScreen ? mDisplayFrequency : 0;
+				md3dpp.BackBufferHeight = height;
+				md3dpp.BackBufferWidth = width;
+				if (oldFullscreen)
+				{
+					// was previously fullscreen, just changing the resolution
+					SetWindowPos(mHWnd, HWND_TOPMOST, 0, 0, width, height,
+						SWP_NOACTIVATE);
+					// Have to release & trigger device reset
+					// NB don't use windowMovedOrResized since Win32 doesn't know
+					// about the size change yet
+					SAFE_RELEASE( mpRenderSurface );
+					static_cast<D3D9RenderSystem*>(
+						Root::getSingleton().getRenderSystem())->_notifyDeviceLost();
+					// Notify viewports of resize
+					ViewportList::iterator it = mViewportList.begin();
+					while( it != mViewportList.end() )
+						(*it++).second->_updateDimensions();
+				}
+				else
+				{
+					SetWindowPos(mHWnd, HWND_TOPMOST, 0, 0, width, height,
+						SWP_NOACTIVATE);
+					//MoveWindow(mHWnd, mLeft, mTop, mWidth, mHeight, FALSE);
+					SetWindowLong(mHWnd, GWL_STYLE, dwStyle);
+				}
+
+
+			}
+			else
+			{
+				dwStyle |= WS_OVERLAPPEDWINDOW;
+				// Calculate window dimensions required
+				// to get the requested client area
+				RECT rc;
+				SetRect(&rc, 0, 0, width, height);
+				AdjustWindowRect(&rc, dwStyle, false);
+				md3dpp.Windowed = !fullScreen;
+				md3dpp.FullScreen_RefreshRateInHz = mIsFullScreen ? mDisplayFrequency : 0;
+				unsigned int winWidth = rc.right - rc.left;
+				unsigned int winHeight = rc.bottom - rc.top;
+
+				md3dpp.BackBufferHeight = height;
+				md3dpp.BackBufferWidth = width;
+
+				SetWindowLong(mHWnd, GWL_STYLE, dwStyle);
+				SetWindowPos(mHWnd, HWND_NOTOPMOST, 0, 0, winWidth, winHeight,
+					SWP_DRAWFRAME | SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOACTIVATE);
+
+				// Note that we also set the position in the restoreLostDevice method
+
+
+			}
+
+
+		}
+
+	}
+
 	void D3D9RenderWindow::createD3DResources(void)
 	{
 		// access device via driver
@@ -854,6 +932,7 @@ namespace Ogre
 	//-----------------------------------------------------------------------------
 	void D3D9RenderWindow::update(bool swap)
 	{
+
 		D3D9RenderSystem* rs = static_cast<D3D9RenderSystem*>(
 			Root::getSingleton().getRenderSystem());
 

@@ -859,6 +859,15 @@ namespace Ogre
 	GpuProgramParameters::_findNamedConstantDefinition(const String& name, 
 		bool throwExceptionIfNotFound) const
 	{
+		if (!mNamedConstants)
+		{
+			if (throwExceptionIfNotFound)
+				OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"Named constants have not been initialised, perhaps a compile error.",
+				"GpuProgramParameters::_findNamedConstantDefinition");
+			return 0;
+		}
+
 		GpuConstantDefinitionMap::const_iterator i = mNamedConstants->map.find(name);
 		if (i == mNamedConstants->map.end())
 		{

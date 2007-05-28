@@ -85,6 +85,15 @@ namespace Ogre
         */
 		virtual void create(const String& name, unsigned int width, unsigned int height,
 	            bool fullScreen, const NameValuePairList *miscParams) = 0;
+
+		/** Alter fullscreen mode options. 
+		@note Nothing will happen unless the settings here are different from the
+			current settings.
+		@param fullScreen Whether to use fullscreen mode or not. 
+		@param width The new width to use
+		@param height The new height to use
+		*/
+		virtual void setFullscreen(bool fullScreen, unsigned int width, unsigned int height) {}
         
         /** Destroys the window.
         */

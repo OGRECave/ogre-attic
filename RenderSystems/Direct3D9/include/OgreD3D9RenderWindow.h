@@ -48,6 +48,7 @@ namespace Ogre
 		~D3D9RenderWindow();
 		void create(const String& name, unsigned int width, unsigned int height,
 	            bool fullScreen, const NameValuePairList *miscParams);
+		void setFullscreen(bool fullScreen, unsigned int width, unsigned int height);
 		void destroy(void);
 		bool isVisible() const;
 		bool isClosed() const { return mClosed; }
