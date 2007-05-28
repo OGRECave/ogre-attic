@@ -27,6 +27,7 @@ Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 #include "OgreStableHeaders.h"
+#include "OgreException.h"
 #include "OgreScriptLexer.h"
 
 namespace Ogre{
@@ -78,9 +79,8 @@ namespace Ogre{
 #endif
 
 		String lexeme;
-		uint32 line = 0, state = READY;
+		uint32 line = 0, state = READY, lastQuote = 0, lastDoubleQuote = 0;
 		ScriptTokenListPtr tokens(new ScriptTokenList());
-		bool newlineAgain = false;
 
 		// Iterate over the input
 		String::const_iterator i = source.begin(), end = source.end();
@@ -88,6 +88,11 @@ namespace Ogre{
 		{
 			lastc = c;
 			c = *i;
+
+			if(c == quote)
+				lastQuote = line;
+			if(c == doublequote)
+				lastDoubleQuote = line;
 
 			switch(state)
 			{
@@ -117,12 +122,8 @@ namespace Ogre{
 				}
 				else if(isNewline(c))
 				{
-					if(!newlineAgain || !mIgnoreRepeatedNewlines)
-					{
-						lexeme = c;
-						setToken(lexeme, line, tokens);
-						newlineAgain = true;
-					}
+					lexeme = c;
+					setToken(lexeme, line, tokens);
 				}
 				else if(!isWhitespace(c))
 				{
@@ -139,17 +140,12 @@ namespace Ogre{
 				if(isNewline(c))
 				{
 					setToken(lexeme, line, tokens);
-					if(!newlineAgain || !mIgnoreRepeatedNewlines)
-					{
-						lexeme = c;
-						setToken(lexeme, line, tokens);
-						state = READY;
-						newlineAgain = true;
-					}
+					lexeme = c;
+					setToken(lexeme, line, tokens);
+					state = READY;
 				}
 				else if(isWhitespace(c))
 				{
-					newlineAgain = false;
 					setToken(lexeme, line, tokens);
 					state = READY;
 				}
@@ -168,7 +164,6 @@ namespace Ogre{
 					else if(c == quote)
 					{
 						lexeme += c;
-						newlineAgain = false;
 						setToken(lexeme, line, tokens);
 						state = READY;
 					}
@@ -191,7 +186,6 @@ namespace Ogre{
 					else if(c == doublequote)
 					{
 						lexeme += c;
-						newlineAgain = false;
 						setToken(lexeme, line, tokens);
 						state = READY;
 					}
@@ -208,17 +202,12 @@ namespace Ogre{
 				if(isNewline(c))
 				{
 					setToken(lexeme, line, tokens);
-					if(!newlineAgain || !mIgnoreRepeatedNewlines)
-					{
-						lexeme = c;
-						setToken(lexeme, line, tokens);
-						state = READY;
-						newlineAgain = true;
-					}
+					lexeme = c;
+					setToken(lexeme, line, tokens);
+					state = READY;
 				}
 				else if(isWhitespace(c))
 				{
-					newlineAgain = false;
 					setToken(lexeme, line, tokens);
 					state = READY;
 				}
@@ -244,7 +233,20 @@ namespace Ogre{
 		}
 		else
 		{
-
+			if(state == INQUOTE)
+			{
+				OGRE_EXCEPT(Exception::ERR_INVALID_STATE, 
+					Ogre::String("no matching ' found for ' at line ") + 
+						Ogre::StringConverter::toString(lastQuote),
+					"ScriptLexer::tokenize");
+			}
+			else if(state == INDOUBLEQUOTE)
+			{
+				OGRE_EXCEPT(Exception::ERR_INVALID_STATE, 
+					Ogre::String("no matching \" found for \" at line ") + 
+						Ogre::StringConverter::toString(lastDoubleQuote),
+					"ScriptLexer::tokenize");
+			}
 		}
 
 		return tokens;
@@ -259,49 +261,55 @@ namespace Ogre{
 	void ScriptLexer::setToken(const Ogre::String &lexeme, Ogre::uint32 line, Ogre::ScriptTokenListPtr &tokens)
 	{
 #if OGRE_WCHAR_T_STRINGS
-			const wchar_t newline = L'\n', openBracket = L'{', closeBracket = L'}', colon = L':', 
-				*import = L"import", quote = L'\'', doubleQuote = L'\"', var = L'$';
+		const wchar_t newline = L'\n', openBracket = L'{', closeBracket = L'}', colon = L':', 
+			*import = L"import", quote = L'\'', doubleQuote = L'\"', var = L'$';
 #else
-			const char newline = '\n', openBracket = '{', closeBracket = '}', colon = ':', 
-				*import = "import", quote = '\'', doubleQuote = '\"', var = '$';
+		const char newline = '\n', openBracket = '{', closeBracket = '}', colon = ':', 
+			*import = "import", quote = '\'', doubleQuote = '\"', var = '$';
 #endif
 
-			ScriptTokenPtr token(new ScriptToken());
-			token->lexeme = lexeme;
-			token->line = line;
+		ScriptTokenPtr token(new ScriptToken());
+		token->lexeme = lexeme;
+		token->line = line;
+		bool ignore = false;
 
-			// Check the user token map first
-			UserTokenMap::iterator i = mUserTokens.find(lexeme);
-			if(i != mUserTokens.end())
-				token->type = i->second;
-			else if(lexeme.empty()) // Block out empty tokens first
-				token->type = TID_UNKNOWN;
-			else if(lexeme.size() == 1 && lexeme[0] == newline)
-				token->type = TID_NEWLINE;
-			else if(lexeme.size() == 1 && lexeme[0] == openBracket)
-				token->type = TID_LBRACKET;
-			else if(lexeme.size() == 1 && lexeme[0] == closeBracket)
-				token->type = TID_RBRACKET;
-			else if(lexeme.size() == 1 && lexeme[0] == colon)
-				token->type = TID_COLON;
-			else if(lexeme == import)
-				token->type = TID_IMPORT;
-			else if(lexeme[0] == var)
-				token->type = TID_VARIABLE;
+		// Check the user token map first
+		UserTokenMap::iterator i = mUserTokens.find(lexeme);
+		if(i != mUserTokens.end())
+			token->type = i->second;
+		else if(lexeme.empty()) // Block out empty tokens first
+			token->type = TID_UNKNOWN;
+		else if(lexeme.size() == 1 && lexeme[0] == newline)
+		{
+			token->type = TID_NEWLINE;
+			if(!tokens->empty() && tokens->back()->type == TID_NEWLINE && mIgnoreRepeatedNewlines)
+				ignore = true;
+		}
+		else if(lexeme.size() == 1 && lexeme[0] == openBracket)
+			token->type = TID_LBRACKET;
+		else if(lexeme.size() == 1 && lexeme[0] == closeBracket)
+			token->type = TID_RBRACKET;
+		else if(lexeme.size() == 1 && lexeme[0] == colon)
+			token->type = TID_COLON;
+		else if(lexeme == import)
+			token->type = TID_IMPORT;
+		else if(lexeme[0] == var)
+			token->type = TID_VARIABLE;
+		else
+		{
+			// This is either a non-zero length phrase or quoted phrase
+			if((lexeme[0] == quote && lexeme[lexeme.size() - 1] == quote) ||
+				(lexeme[0] == doubleQuote && lexeme[lexeme.size() - 1] == doubleQuote))
+			{
+				token->type = TID_QUOTE;
+			}
 			else
 			{
-				// This is either a non-zero length phrase or quoted phrase
-				if((lexeme[0] == quote && lexeme[lexeme.size() - 1] == quote) ||
-					(lexeme[0] == doubleQuote && lexeme[lexeme.size() - 1] == doubleQuote))
-				{
-					token->type = TID_QUOTE;
-				}
-				else
-				{
-					token->type = TID_WORD;
-				}
+				token->type = TID_WORD;
 			}
+		}
 
+		if(!ignore)
 			tokens->push_back(token);
 	}
 
