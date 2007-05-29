@@ -153,7 +153,7 @@ void StringTests::testParseInt()
 }
 void StringTests::testParseLong()
 {
-	long r = -223546325346456;
+	long int  r = -223546325346456;
 
 	String s = StringConverter::toString(r);
 	long t = StringConverter::parseLong(s);

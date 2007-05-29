@@ -38,7 +38,7 @@ void FileSystemArchiveTests::setUp()
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
     testPath = "../../../../Tests/OgreMain/misc/ArchiveTest/";
 #else
-    testPath = "../../../Tests/OgreMain/misc/ArchiveTest/";
+    testPath = "../../Tests/OgreMain/misc/ArchiveTest/";
 #endif
 }
 void FileSystemArchiveTests::tearDown()
