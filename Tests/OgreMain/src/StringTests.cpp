@@ -153,7 +153,7 @@ void StringTests::testParseInt()
 }
 void StringTests::testParseLong()
 {
-	long int  r = -223546325346456;
+	long r = -2147483647;
 
 	String s = StringConverter::toString(r);
 	long t = StringConverter::parseLong(s);
@@ -163,7 +163,7 @@ void StringTests::testParseLong()
 }
 void StringTests::testParseUnsignedLong()
 {
-	unsigned long r = 1223546325346456;
+	unsigned long r = 4294967295;
 
 	String s = StringConverter::toString(r);
 	unsigned long t = StringConverter::parseUnsignedLong(s);
