@@ -32,6 +32,7 @@ Torus Knot Software Ltd.
 // Precompiler options
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
+#include "OgreStringVector.h"
 
 namespace Ogre {
 
@@ -140,6 +141,9 @@ namespace Ogre {
 			/// Are vertex texture units shared with fragment processor?
 			bool mVertexTextureUnitsShared;
 
+			/// The list of supported shader profiles
+			StringVector mShaderProfileList;
+
     	public:	
             RenderSystemCapabilities ();
             ~RenderSystemCapabilities ();
@@ -234,6 +238,23 @@ namespace Ogre {
                     return false;
                 }
             }
+
+						/** Adds the profile to the list of supported profiles
+						 */
+						void addShaderProfile(String profile)
+						{
+								mShaderProfileList.push_back(profile);
+						}
+
+						/** Returns true if profile is in the list of supported profiles
+						 */
+						bool isShaderProfileSupported(String profile)
+						{
+								return (mShaderProfileList.end() != 
+														find(mShaderProfileList.begin(), mShaderProfileList.end(), profile));
+						}
+
+
             /// Gets the best low-level vertex program version supported
             const String& getMaxVertexProgramVersion(void) const
             {
