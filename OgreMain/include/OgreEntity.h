@@ -259,8 +259,6 @@ namespace Ogre {
 		/// Bounding box that 'contains' all the mesh of each child entity
 		mutable AxisAlignedBox mFullBoundingBox;
 
-		bool mNormaliseNormals;
-
 		ShadowRenderableList mShadowRenderables;
 
 		/** Nested class to allow entity shadows. */
@@ -506,20 +504,6 @@ namespace Ogre {
 		const AxisAlignedBox& getWorldBoundingBox(bool derive = false) const;
 		/** @copy MovableObject::getWorldBoundingSphere */
 		const Sphere& getWorldBoundingSphere(bool derive = false) const;
-
-        /** If set to true, this forces normals of this entity to be normalised
-            dynamically by the hardware.
-        @remarks
-            This option can be used to prevent lighting variations when scaling an
-            Entity using a SceneNode - normally because this scaling is hardware
-            based, the normals get scaled too which causes lighting to become inconsistent.
-            However, this has an overhead so only do this if you really need to.
-        */
-        void setNormaliseNormals(bool normalise) { mNormaliseNormals = normalise; }
-
-        /** Returns true if this entity has auto-normalisation of normals set. */
-        bool getNormaliseNormals(void) const {return mNormaliseNormals; }
-
 
         /** Overridden member from ShadowCaster. */
         EdgeData* getEdgeList(void);

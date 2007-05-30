@@ -104,6 +104,7 @@ mWorldGeometryRenderQueue(RENDER_QUEUE_WORLD_GEOMETRY_1),
 mLastFrameNumber(0),
 mResetIdentityView(false),
 mResetIdentityProj(false),
+mNormaliseNormalsOnScale(true),
 mLightsDirtyCounter(0),
 mShadowCasterPlainBlackPass(0),
 mShadowReceiverPass(0),
@@ -2662,7 +2663,13 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
         }
 
         // Sort out normalisation
-        mDestRenderSystem->setNormaliseNormals(rend->getNormaliseNormals());
+		// Assume first world matrix representative - shaders that use multiple
+		// matrices should control renormalisation themselves
+		if ((pass->getNormaliseNormals() || mNormaliseNormalsOnScale)
+			&& mTempXform[0].hasScale())
+			mDestRenderSystem->setNormaliseNormals(true);
+		else
+			mDestRenderSystem->setNormaliseNormals(false);
 
         // Set up the solid / wireframe override
 		// Precedence is Camera, Object, Material

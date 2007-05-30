@@ -81,7 +81,7 @@ namespace Ogre {
 		"                              <Light_Scissor> | <Light_Clip> | <Texture_Unit> | \n"
         "                              <Depth_Func> | <Depth_Bias> | <Alpha_Rejection> | \n"
         "                              <Cull_Hardware> | <Cull_Software> | <Lighting> | \n"
-        "                              <GPU_Program_Ref> | \n"
+		"                              <GPU_Program_Ref> | <NormaliseNormals> | \n"
         "                              <Shading> | <PolygonMode> | <PolygonModeOverride> | <Fog_Override> | <Colour_Write> | \n"
 		"                              <Max_Lights> | <Start_Light> | <Iteration> | \n"
 		"                              <Point_Sprites> | <Point_Size_Attenuation> | \n"
@@ -123,6 +123,7 @@ namespace Ogre {
         "        <Lighting> ::= 'lighting' <On_Off> \n"
         "        <Shading> ::= 'shading' <Shading_Options> \n"
         "           <Shading_Options> ::= 'flat' | 'gouraud' | 'phong' \n"
+		"        <NormaliseNormals> ::= 'normalise_normals' <On_Off> \n"
         "        <PolygonMode> ::= 'polygon_mode' <PolygonMode_Options> \n"
         "           <PolygonMode_Options> ::= 'solid' | 'wireframe' | 'points' \n"
 		"        <PolygonModeOverride> ::= 'polygon_mode_overrideable' <True_False> \n"
@@ -365,6 +366,7 @@ namespace Ogre {
             addLexemeAction("cull_software", &MaterialScriptCompiler::parseCullSoftware);
                 addLexemeToken("back", ID_CULL_BACK);
                 addLexemeToken("front", ID_CULL_FRONT);
+			addLexemeAction("normalise_normals", &MaterialScriptCompiler::parseNormaliseNormals);
             addLexemeAction("lighting", &MaterialScriptCompiler::parseLighting);
             addLexemeAction("shading", &MaterialScriptCompiler::parseShading);
                 addLexemeTokenAction("flat", ID_FLAT);
@@ -1162,6 +1164,12 @@ namespace Ogre {
         assert(mScriptContext.pass);
         mScriptContext.pass->setDepthCheckEnabled(testNextTokenID(ID_ON));
     }
+	//-----------------------------------------------------------------------
+	void MaterialScriptCompiler::parseNormaliseNormals(void)
+	{
+		assert(mScriptContext.pass);
+		mScriptContext.pass->setNormaliseNormals(testNextTokenID(ID_ON));
+	}
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseDepthWrite(void)
     {

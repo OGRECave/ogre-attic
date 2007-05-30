@@ -244,11 +244,6 @@ namespace Ogre {
         return dist;
     }
     //-----------------------------------------------------------------------
-    bool SubEntity::getNormaliseNormals(void) const
-    {
-        return mParentEntity->mNormaliseNormals;
-    }
-    //-----------------------------------------------------------------------
     const LightList& SubEntity::getLights(void) const
     {
         return mParentEntity->queryLights();

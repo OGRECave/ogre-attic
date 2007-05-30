@@ -400,6 +400,20 @@ namespace Ogre
 
         return false;
     }
+	//-----------------------------------------------------------------------
+	bool parseNormaliseNormals(String& params, MaterialScriptContext& context)
+	{
+		StringUtil::toLowerCase(params);
+		if (params == "on")
+			context.pass->setNormaliseNormals(true);
+		else if (params == "off")
+			context.pass->setNormaliseNormals(false);
+		else
+			logParseError(
+			"Bad normalise_normals attribute, valid parameters are 'on' or 'off'.",
+			context);
+		return false;
+	}
     //-----------------------------------------------------------------------
     bool parseColourWrite(String& params, MaterialScriptContext& context)
     {
@@ -2640,6 +2654,7 @@ namespace Ogre
         mPassAttribParsers.insert(AttribParserList::value_type("depth_check", (ATTRIBUTE_PARSER)parseDepthCheck));
         mPassAttribParsers.insert(AttribParserList::value_type("depth_write", (ATTRIBUTE_PARSER)parseDepthWrite));
         mPassAttribParsers.insert(AttribParserList::value_type("depth_func", (ATTRIBUTE_PARSER)parseDepthFunc));
+		mPassAttribParsers.insert(AttribParserList::value_type("normalise_normals", (ATTRIBUTE_PARSER)parseNormaliseNormals));
 		mPassAttribParsers.insert(AttribParserList::value_type("alpha_rejection", (ATTRIBUTE_PARSER)parseAlphaRejection));
         mPassAttribParsers.insert(AttribParserList::value_type("colour_write", (ATTRIBUTE_PARSER)parseColourWrite));
 		mPassAttribParsers.insert(AttribParserList::value_type("light_scissor", (ATTRIBUTE_PARSER)parseLightScissor));

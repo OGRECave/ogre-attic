@@ -156,9 +156,6 @@ namespace Ogre {
 		*/
 		virtual Real getSquaredViewDepth(const Camera* cam) const = 0;
 
-        /** Returns whether or not this Renderable wishes the hardware to normalise normals. */
-        virtual bool getNormaliseNormals(void) const { return false; }
-
         /** Gets a list of lights, ordered relative to how close they are to this renderable.
         @remarks
             Directional lights, which have no position, will always be first on this list.

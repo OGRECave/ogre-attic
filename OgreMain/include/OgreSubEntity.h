@@ -152,9 +152,6 @@ namespace Ogre {
         void getWorldTransforms(Matrix4* xform) const;
         /** Overridden - see Renderable.
         */
-        bool getNormaliseNormals(void) const;      
-        /** Overridden - see Renderable.
-        */
         unsigned short getNumWorldTransforms(void) const;
         /** Overridden, see Renderable */
         Real getSquaredViewDepth(const Camera* cam) const;

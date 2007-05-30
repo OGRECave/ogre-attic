@@ -405,6 +405,8 @@ namespace Ogre {
 		bool mResetIdentityView;
 		bool mResetIdentityProj;
 
+		bool mNormaliseNormalsOnScale;
+
 	protected:
 
 		/** Visible objects bounding box list.
@@ -2706,6 +2708,21 @@ namespace Ogre {
             whether they are being manually handled.
  		*/
 		virtual bool getFindVisibleObjects(void) { return mFindVisibleObjects; }
+
+		/** Set whether to automatically normalise normals on objects whenever they
+			are scaled.
+		@remarks
+			Scaling can distort normals so the default behaviour is to compensate
+			for this, but it has a cost. If you would prefer to manually manage 
+			this, set this option to 'false' and use Pass::setNormaliseNormals
+			only when needed.
+		*/
+		virtual void setNormaliseNormalsOnScale(bool n) { mNormaliseNormalsOnScale = n; }
+
+		/** Get whether to automatically normalise normals on objects whenever they
+			are scaled.
+		*/
+		virtual bool getNormaliseNormalsOnScale() const { return mNormaliseNormalsOnScale; }
 
 		/** Render something as if it came from the current queue.
 			@param pass		Material pass to use for setting up this quad.

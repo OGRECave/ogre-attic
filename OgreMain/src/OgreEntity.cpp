@@ -81,8 +81,7 @@ namespace Ogre {
           mSkeletonInstance(0),
 		  mInitialised(false),
 		  mLastParentXform(Matrix4::ZERO),
-          mFullBoundingBox(),
-		  mNormaliseNormals(false)
+          mFullBoundingBox()
     {
     }
     //-----------------------------------------------------------------------
@@ -115,8 +114,7 @@ namespace Ogre {
 		mSkeletonInstance(0),
 		mInitialised(false),
 		mLastParentXform(Matrix4::ZERO),
-        mFullBoundingBox(),
-		mNormaliseNormals(false)
+        mFullBoundingBox()
 	{
 		_initialise();
     }
