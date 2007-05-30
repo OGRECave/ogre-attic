@@ -142,6 +142,7 @@ namespace Ogre {
 		, mOnlyLightType(Light::LT_POINT)
 		, mShadeOptions(SO_GOURAUD)
 		, mPolygonMode(PM_SOLID)
+		, mNormaliseNormals(false)
 		, mPolygonModeOverrideable(true)
 		, mFogOverride(false)
 		, mFogMode(FOG_NONE)
@@ -229,6 +230,7 @@ namespace Ogre {
 		mIteratePerLight = oth.mIteratePerLight;
 		mLightsPerIteration = oth.mLightsPerIteration;
         mRunOnlyForOneLightType = oth.mRunOnlyForOneLightType;
+		mNormaliseNormals = oth.mNormaliseNormals;
         mOnlyLightType = oth.mOnlyLightType;
 	    mShadeOptions = oth.mShadeOptions;
 		mPolygonMode = oth.mPolygonMode;

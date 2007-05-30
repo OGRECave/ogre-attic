@@ -504,6 +504,8 @@ Here are the attributes you can use in a 'pass' section of a .material script:
 @item
 @ref{light_clip_planes}
 @item
+@ref{normalise_normals}
+@item
 @ref{cull_hardware}
 @item
 @ref{cull_software}
@@ -748,6 +750,17 @@ Default: light_clip_planes off@*@*
 This option will only function if there is a single non-directional light being used in this pass. If there is more than one light, or only directional lights, then no clipping will occur. If there are no lights at all then the objects won't be rendered at all.@*@*
 
 When using a standard additive shadow mode, ie SHADOWTYPE_STENCIL_ADDITIVE or SHADOWTYPE_TEXTURE_ADDITIVE, you have the option of enabling clipping for all light passes by calling SceneManager::setShadowUseLightClipPlanes regardless of this pass setting, since rendering is done lightwise anyway. This is off by default since using clip planes is not always faster - it depends on how much of the scene the light volumes cover. Generally the smaller your lights are the more chance you'll see a benefit rather than a penalty from clipping. If you're not using shadows, or you're using @ref{Integrated Texture Shadows} where passes are specified in a custom manner, then specify the option per-pass using this attribute. 
+
+@anchor{normalise_normals}
+@subheading normalise_normals
+
+Sets whether or not this pass renders with all vertex normals being automatically re-normalised.@*
+
+Format: normalise_normals <on|off>@*@*
+
+Scaling objects causes normals to also change magnitude, which can throw off your lighting calculations. By default, the SceneManager detects this and will automatically renormalise normals for any scaled object, but this has a cost. If you'd prefer to control this manually, call SceneManager::setNormaliseNormalsOnScale(false) and then use this option on materials which are sensitive to normals being resized. @*@*
+
+Default: normalise_normals off@*
 
 @anchor{cull_hardware}
 @subheading cull_hardware

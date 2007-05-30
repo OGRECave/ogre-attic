@@ -137,6 +137,8 @@ namespace Ogre {
         ShadeOptions mShadeOptions;
 		/// Polygon mode
 		PolygonMode mPolygonMode;
+		/// Normalisation
+		bool mNormaliseNormals;
 		bool mPolygonModeOverrideable;
         //-------------------------------------------------------------------------
         // Fog
@@ -1198,6 +1200,22 @@ namespace Ogre {
         @see TextureUnitState::setTextureAnisotropy
         */
         void setTextureAnisotropy(unsigned int maxAniso);
+		/** If set to true, this forces normals to be normalised dynamically 
+			by the hardware for this pass.
+		@remarks
+			This option can be used to prevent lighting variations when scaling an
+			object - normally because this scaling is hardware based, the normals 
+			get scaled too which causes lighting to become inconsistent. By default the
+			SceneManager detects scaled objects and does this for you, but 
+			this has an overhead so you might want to turn that off through
+			SceneManager::setNormaliseNormalsOnScale(false) and only do it per-Pass
+			when you need to.
+		*/
+		void setNormaliseNormals(bool normalise) { mNormaliseNormals = normalise; }
+
+		/** Returns true if this pass has auto-normalisation of normals set. */
+		bool getNormaliseNormals(void) const {return mNormaliseNormals; }
+
 		/** Static method to retrieve all the Passes which need their
 		    hash values recalculated.
 		*/
