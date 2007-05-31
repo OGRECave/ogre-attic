@@ -34,7 +34,7 @@ Torus Knot Software Ltd.
 
 namespace Ogre{
 
-    /// Base class for memory profilers
+    /// Base class for memory profiler policies
     class MemProfilerBase
     {
     public:

@@ -39,55 +39,85 @@ Torus Knot Software Ltd.
 
 namespace Ogre
 {
-    template
-    <
-        typename T,
-        typename Policy = StdAllocPolicy<T>,
-        typename Traits = ObjectTraits<T>,
-        typename Profile = MemProfiler<T>
-    >
-    class AllocWrapper
+  /**
+  * This class is provided to form the base for a family of objects.
+  * It provides an overloaded operator new and delete as well as
+  * some utility functions to allow use of a custom allocator.
+  * See OgreAllocator.h for more info
+  *
+  * It takes the following template parameters:-
+  * T      : the derived type inheriting from this base
+  * Policy : a memory allocator policy (optional)
+  * Traits : a traits type (optioanal)
+  * Profile: a memory profiling policy (optional)
+  */
+  template
+  <
+    typename T,
+    typename Policy = StdAllocPolicy<T>,
+    typename Traits = ObjectTraits<T>,
+    typename Profile = MemProfiler<T>
+  >
+  class AllocWrapper
+  {
+  public:
+    /// this typedef hides the specicifc makup of the allocator
+    typedef Allocator<T, Policy, Traits, Profile>   AllocatorType;
+    typedef typename Policy::size_type            SizeType;
+
+    inline explicit AllocWrapper()
+    { }
+
+    virtual ~AllocWrapper()
+    { }
+
+    /// operator new
+    static inline void* operator new( size_t sz )
     {
-    public:
-        /// this typedef hides the specicifc makup of the allocator
-        typedef Allocator<T,Policy,Traits,Profile> AllocatorType;
-        typedef typename Policy::size_type        SizeType;
+      return smAllocator.allocateBytes( sz );
+    }
 
-        inline explicit AllocWrapper()
-        { }
+    /// placment operator new
+    static inline void* operator new( size_t sz, void* ptr )
+    {
+      return smAllocator.allocateBytes( sz, ptr );
+    }
 
-        virtual ~AllocWrapper()
-        { }
+    /// array operator new
+    static inline void* operator new[] ( size_t sz, void* ptr )
+    {
+      return smAllocator.allocateBytes( sz, ptr );
+    }
 
-    protected:
-        /// operator new
-        static inline void* operator new(size_t sz, void* ptr)
-        {
-            return smAllocator.allocate(sz,ptr);
-        }
+    /// operator delete
+    static inline void operator delete( void* ptr, size_t sz )
+    {
+      smAllocator.deallocateBytes( static_cast<T*>( ptr ), sz );
+    }
 
-        /// array operator new
-        static inline void* operator new[] (size_t sz, void* ptr)
-        {
-            return smAllocator.allocate(sz,ptr);
-        }
+    /// array operator delete
+    static inline void operator delete[] ( void* ptr, size_t sz )
+    {
+      smAllocator.deallocateBytes( static_cast<T*>( ptr ), sz );
+    }
 
-        /// operator delete
-        static inline void operator delete(void* ptr, size_t sz)
-        {
-            return smAllocator.deallocate(ptr,sz);
-        }
+  private:
+    static AllocatorType smAllocator;
+  };
 
-        /// array operator delete
-        static inline void operator delete[] (void* ptr, size_t sz)
-        {
-            return smAllocator.deallocate(ptr,sz);
-        }
-
-    private:
-        static AllocatorType smAllocator;
-    };
+  // statics
+  template
+  <
+    typename T,
+    typename Policy,
+    typename Traits,
+    typename Profile
+  >
+  typename AllocWrapper<T, Policy, Traits, Profile>::AllocatorType
+    AllocWrapper<T, Policy, Traits, Profile>::smAllocator;
 
 }// namesoace Ogre
+
+
 
 #endif // ALLOCWRAPPER_H

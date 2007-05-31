@@ -35,65 +35,69 @@ Torus Knot Software Ltd.
 
 #include "OgreMemProfilerBase.h"
 
-namespace Ogre{
+namespace Ogre
+{
 
-    template <typename T>
-    class MemProfiler : public MemProfilerBase
+  /**
+  * A memory profiling policy. See OgreAllocator.h
+  * It takes the following template parameters:-
+  * T      : the type we will be allocating (see rebind later)
+  */
+  template <typename T>
+  class MemProfiler : public MemProfilerBase
+  {
+  public:
+    /// define our types
+    typedef T                   value_type;
+    typedef value_type*         pointer;
+    typedef const value_type*  const_pointer;
+    typedef value_type&         reference;
+    typedef const value_type&  const_reference;
+    typedef std::size_t        size_type;
+    typedef std::ptrdiff_t      difference_type;
+
+    /// convert MemProfiler<T> to MemProfiler<U>
+    template<typename U>
+    struct rebind
     {
-    public:
-        /// define our types
-        typedef T                   value_type;
-        typedef value_type*         pointer;
-        typedef const value_type*  const_pointer;
-        typedef value_type&         reference;
-        typedef const value_type&  const_reference;
-        typedef std::size_t        size_type;
-        typedef std::ptrdiff_t      difference_type;
-
-        /// convert MemProfiler<T> to MemProfiler<U>
-        template<typename U>
-        struct rebind
-        {
-            typedef class MemProfiler<U> other;
-        };
-
-    public:
-        explicit inline MemProfiler()
-        { }
-
-        inline ~MemProfiler()
-        { }
-
-        /// copy ctor
-        inline explicit MemProfiler(MemProfiler const&)
-        { }
-
-        /// converstion
-        template <typename U>
-        inline explicit MemProfiler(MemProfiler<U> const&)
-        { }
-
-        /// Note information about an allocation
-        inline void note_allocation(size_type sz,
-                        typename std::allocator<void>::const_pointer ptr =0)
-        {
-            std::cout << "PROBE : alloc" << std::endl;
-            mStats.numAllocations++;
-            mStats.numBytesAllocated+=sz;
-        }
-
-        /// Note information about a deallocation
-        inline void note_deallocation(pointer ptr, size_type sz)
-        {
-            std::cout << "PROBE : purge" << std::endl;
-            mStats.numDeallocations++;
-            mStats.numBytesDeallocated+=sz;
-        }
-
-    protected:
-    private:
+      typedef class MemProfiler<U> other;
     };
 
-}// namesoace Ogre
+  public:
+    explicit inline MemProfiler()
+    { }
+
+    inline ~MemProfiler()
+    { }
+
+    /// copy ctor
+    inline explicit MemProfiler( MemProfiler const& )
+    { }
+
+    /// converstion
+    template <typename U>
+    inline explicit MemProfiler( MemProfiler<U> const& )
+    { }
+
+    /// Note information about an allocation
+    inline void note_allocation( size_type sz,
+                        typename std::allocator<void>::const_pointer ptr = 0 )
+    {
+      mStats.numAllocations++;
+      mStats.numBytesAllocated += sz;
+    }
+
+    /// Note information about a deallocation
+    inline void note_deallocation( pointer ptr, size_type sz )
+    {
+      mStats.numDeallocations++;
+      mStats.numBytesDeallocated += sz;
+    }
+
+  protected:
+  private:
+  };
+
+}// namespace Ogre
 
 #endif // MEMPROFILER_H

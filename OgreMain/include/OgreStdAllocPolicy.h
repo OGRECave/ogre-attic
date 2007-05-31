@@ -32,10 +32,21 @@ Torus Knot Software Ltd.
 
 #include <limits>
 #include <cstddef>
-#include <bits/allocator.h> //?
+#include <memory>
 
 namespace Ogre{
 
+    /**
+    * A "standard" allocation policy for use with Ogre's custom
+    * allocator type. By standard it is implied that this policy will
+    * allocate and release its memory using the global new and delete
+    * operators, this matches the standard default allocator for STL
+    * containers.
+    *
+    * It takes the following template parameters:-
+    * T : the type we will be allocting, (see rebind later)
+    *
+    */
     template<typename T>
     class StdAllocPolicy
     {
@@ -75,15 +86,24 @@ namespace Ogre{
         inline explicit StdAllocPolicy(StdAllocPolicy<U> const&)
         { }
 
-        /// memory allocation
+        /**
+         * memory allocation
+         * @param count number of bytes to allocate
+         * (NOT number of elements of T)
+         */
         inline pointer allocate(size_type count,
                         typename std::allocator<void>::const_pointer = 0)
         {
+            //return reinterpret_cast<pointer>
+            //       (::operator new(count * sizeof (T)));
             return reinterpret_cast<pointer>
-                   (::operator new(count * sizeof (T)));
+                   (::operator new(count));
         }
 
-        /// memory dealocation
+        /**
+         * memory deallocations
+         * @param ptr pointer to memory block
+         */
         inline void deallocate(pointer ptr, size_type)
         {
             ::operator delete(ptr);

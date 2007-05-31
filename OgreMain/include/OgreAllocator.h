@@ -35,91 +35,134 @@ Torus Knot Software Ltd.
 #include "OgreStdAllocPolicy.h"
 #include "OgreMemProfiler.h"
 
-namespace Ogre{
+namespace Ogre
+{
 
-    template
-    <
-        typename T,
-        typename Policy = StdAllocPolicy<T>,
-        typename Traits = ObjectTraits<T>,
-        typename Profile = MemProfiler<T>
-    >
-    class Allocator :  public Policy,
-                        public Traits,
-                        public Profile
+
+  /**
+  * A memory allocator suitable for use with the STL containers.
+  * This class acts as the host for several policies,it provides
+  * a unified interface to the policy configured behaviour.
+  *
+  * It takes the following template parameters:-
+  * T      : the type we will be allocating (see rebind later)
+  * Policy : a memory allocator policy (optional)
+  * Traits : a traits type (optional)
+  * Profile: a memory profiling policy (optional)
+  *
+  * @note why have an element based allocation and a byte based
+  * allocation when we know that we need to allocate objects of
+  * type T and we know the size of T? Well the allocator is
+  * used for both STL container allocations and direct allocations
+  * with new and delete. The STL passes a size based on the number
+  * of elements of type T to allocate, operator new/delete pass
+  * a size in bytes. We have to handle both, the specifics are
+  * handled in OgreAllocWrapper. We pass only a byte count to our
+  * allocation policy.
+  *
+  */
+  template
+  <
+    typename T,
+    typename Policy = StdAllocPolicy<T>,
+    typename Traits = ObjectTraits<T>,
+    typename Profile = MemProfiler<T>
+  >
+  class Allocator :  public Policy,
+        public Traits,
+        public Profile
+  {
+  private :
+    typedef Policy  AllocPolicy;
+    typedef Traits  TypeTraits;
+    typedef Profile ProfilePolicy;
+
+  public :
+    /// Propogate type info into our namespace
+    typedef typename AllocPolicy::size_type         size_type;
+    typedef typename AllocPolicy::difference_type   difference_type;
+    typedef typename AllocPolicy::pointer           pointer;
+    typedef typename AllocPolicy::const_pointer     const_pointer;
+    typedef typename AllocPolicy::reference         reference;
+    typedef typename AllocPolicy::const_reference   const_reference;
+    typedef typename AllocPolicy::value_type        value_type;
+
+    /// the rebind mechanism
+    template<typename U>
+    struct rebind
     {
-    private :
-        typedef Policy  AllocPolicy;
-        typedef Traits  TypeTraits;
-        typedef Profile ProfilePolicy;
-
-    public :
-        /// Propogate type info into our namespace
-        typedef typename AllocPolicy::size_type         size_type;
-        typedef typename AllocPolicy::difference_type   difference_type;
-        typedef typename AllocPolicy::pointer           pointer;
-        typedef typename AllocPolicy::const_pointer     const_pointer;
-        typedef typename AllocPolicy::reference         reference;
-        typedef typename AllocPolicy::const_reference   const_reference;
-        typedef typename AllocPolicy::value_type        value_type;
-
-        /// the rebind mechanism
-        template<typename U>
-        struct rebind
-        {
-            typedef Allocator
-            <
-                U,
-                typename AllocPolicy::template rebind<U>::other,
-                typename TypeTraits::template rebind<U>::other,
-                typename ProfilePolicy::template rebind<U>::other
-            >
-            other;
-        };
-
-        /// ctor
-        inline explicit Allocator()
-        { }
-
-        /// dtor
-        inline ~Allocator()
-        { }
-
-        /// copy ctor - done component wise
-        inline Allocator(Allocator const& rhs)
-                :Policy(rhs)
-                ,Traits(rhs)
-        { }
-
-        /// cast
-        template <typename U>
-        inline Allocator(Allocator<U> const&)
-        { }
-
-        /// conversion - done component wise
-        template <typename U, class P, class T2>
-        inline Allocator(Allocator<U, P,T2> const& rhs)
-                :Policy(rhs)
-                ,Traits(rhs)
-        { }
-
-        /// memory allocation
-        // via delegation, so we can hook in the profile
-        inline pointer allocate(size_type count,
-                                typename std::allocator<void>::const_pointer ptr =0)
-        {
-            ProfilePolicy::note_allocation(count,ptr);
-            return AllocPolicy::allocate(count,ptr);
-        }
-
-        /// memory dealocation
-        // via delegation, so we can hook in the profile
-        inline void deallocate(pointer ptr, size_type sz)
-        {
-            ProfilePolicy::note_deallocation(ptr,sz);
-            AllocPolicy::deallocate(ptr,sz);
-        }
+      typedef Allocator
+      <
+        U,
+        typename AllocPolicy::template   rebind<U>::other,
+        typename TypeTraits::template    rebind<U>::other,
+        typename ProfilePolicy::template rebind<U>::other
+      >
+      other;
     };
+
+    /// ctor
+    inline explicit Allocator()
+    { }
+
+    /// dtor
+    inline ~Allocator()
+    { }
+
+    /// copy ctor - done component wise
+    inline Allocator( Allocator const& rhs )
+        : AllocPolicy( rhs )
+        , TypeTraits( rhs )
+        , ProfilePolicy( rhs )
+    { }
+
+    /// cast
+    template <typename U>
+    inline Allocator( Allocator<U> const& )
+    { }
+
+    /// conversion - done component wise
+    template <typename U, typename P, typename Tt, typename Pp>
+    inline Allocator( Allocator<U, P, Tt, Pp> const& rhs )
+        : AllocPolicy( rhs )
+        , TypeTraits( rhs )
+        , ProfilePolicy( rhs )
+    { }
+
+    /// memory allocation (elements)
+    // via delegation, so we can hook in the profile
+    inline pointer allocate( size_type count,
+                             typename std::allocator<void>::const_pointer ptr = 0 )
+    {
+      ProfilePolicy::note_allocation( count*sizeof( T ), ptr );
+      return AllocPolicy::allocate( count*sizeof( T ), ptr );
+    }
+
+    /// memory dealocation (elements)
+    // via delegation, so we can hook in the profile
+    inline void deallocate( pointer ptr, size_type sz )
+    {
+      ProfilePolicy::note_deallocation( ptr, sz*sizeof( T ) );
+      AllocPolicy::deallocate( ptr, sz*sizeof( T ) );
+    }
+
+    /// memory allocation (bytes)
+    // via delegation, so we can hook in the profile
+    inline pointer allocateBytes( size_type count,
+                                  typename std::allocator<void>::const_pointer ptr = 0 )
+    {
+      ProfilePolicy::note_allocation( count, ptr );
+      return AllocPolicy::allocate( count, ptr );
+    }
+
+    /// memory dealocation (bytes)
+    // via delegation, so we can hook in the profile
+    inline void deallocateBytes( pointer ptr, size_type sz )
+    {
+      ProfilePolicy::note_deallocation( ptr, sz );
+      AllocPolicy::deallocate( ptr, sz );
+    }
+  };
 
 }// namesoace Ogre
 #endif // ALLOCATOR_H

@@ -35,6 +35,13 @@ Torus Knot Software Ltd.
 
 namespace Ogre{
 
+    /**
+    * This is the profile manager for the memory system
+    * memory profile policies hook into this via a call to
+    * registerProfile. This class collects information from
+    * all registered profiles and builds an information report
+    * see OgreMemProfiler.h
+    */
     class MemProfileManager
     {
     public:
