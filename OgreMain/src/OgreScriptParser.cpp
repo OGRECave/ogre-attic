@@ -115,12 +115,13 @@ namespace Ogre {
 
 			// stat_list ::= (import_stat|obj)*
 			rule<ScannerT> stat_list;
-			// import_stat ::= "import" script_path
+			// import_stat ::= "import" ident|'*' "from" script_path
 			rule<ScannerT> import_stat;
-			// script_path ::= ('A-Za-z0-9'|punct)* | ('\"' >> ('A-Za-z0-9'|punct|' ')* >> '\"')
-			rule<ScannerT> script_path;
+			// import_path ::= ('A-Za-z0-9'|punct)* | ('\"' >> ('A-Za-z0-9'|punct|' ')* >> '\"')
+			rule<ScannerT> import_path;
 			// obj ::= 'abstract'! word ident? (':' ident)? '{' (obj|expr)* '}'
 			rule<ScannerT> obj, top_obj;
+			rule<ScannerT> abstract_typed_obj, abstract_named_obj, named_typed_obj, named_obj, typed_obj;
 			// expr ::= (word (word|variable|number)* '\n')+
 			rule<ScannerT> expr;
 			// word ::= 'A-Za-z'|'_' 'A-Za-z0-9'|'_'
@@ -128,8 +129,7 @@ namespace Ogre {
 			// ident ::= 'A-Za-z'|'_' 'A-Za-z0-9'|'_'|'/'|'.'
 			rule<ScannerT> ident;
 
-			// This parser handles mismatches in the script_path rule
-			// when parsing import commands.
+			// This parser generates specific warnings during the parsing process
 			typedef functor_parser<ErrorParser> error_parser;
 			error_parser error_p(ParseError err = PE_RESERVED, ParseError eofErr = PE_RESERVED){
 				return ErrorParser(err, eofErr);
@@ -161,9 +161,9 @@ namespace Ogre {
 			};
 			// This action takes a script path after an import statement and adds it to the current node.
 			// It also resets the current node to blank.
-			struct do_script_path : public ast_action
+			struct do_import_path : public ast_action
 			{
-				do_script_path(AST &rhs):ast_action(rhs){}
+				do_import_path(AST &rhs):ast_action(rhs){}
 				template<class IterT>
 				void operator()(IterT first, IterT last) const{
 					std::string token(first, last);
@@ -194,9 +194,37 @@ namespace Ogre {
 					node->file = first.get_position().file;
 					node->line = first.get_position().line;
 					node->column = first.get_position().column;
-					node->type = TOK_STRING;
+					node->type = TOK_ABSTRACT;
 					node->parent = 0;
 					ast.nodes->push_back(node);
+				}
+			};
+			// This action adds a new object node to the current node
+			struct do_type : public ast_action
+			{
+				do_type(AST &rhs):ast_action(rhs){}
+				template<class IterT>
+				void operator()(IterT first, IterT last) const{
+					std::string token(first, last);
+
+					// Add it to the current node, and set ourselves as the current
+					ScriptNodePtr node(new ScriptNode());
+					node->token = token;
+					node->type = TOK_TYPE;
+					node->file = first.get_position().file;
+					node->line = first.get_position().line;
+					node->column = first.get_position().column;
+					if(ast.current)
+					{
+						node->parent = ast.current;
+						node->parent->children.push_back(node);
+					}
+					else
+					{
+						node->parent = 0;
+						ast.nodes->push_back(node);
+					}
+					ast.current = node.get();
 				}
 			};
 			// This action adds a new object node to the current node
@@ -290,7 +318,7 @@ namespace Ogre {
 					// Add it to the current node and set ourselves as current
 					ScriptNodePtr node(new ScriptNode());
 					node->token = token;
-					node->type = TOK_STRING;
+					node->type = TOK_PROPERTY;
 					node->file = first.get_position().file;
 					node->line = first.get_position().line;
 					node->column = first.get_position().column;
@@ -373,27 +401,31 @@ namespace Ogre {
 				self.ast.current = 0;
 
 				stat_list = 
-					*(import_stat|top_obj);
+					*(import_stat|abstract_typed_obj|abstract_named_obj|named_typed_obj|named_obj);
 
 				import_stat =
 					str_p("import")[do_import_stat(self.ast)] 
-					>> 
-					(script_path[do_script_path(self.ast)] | error_p(PE_SCRIPTPATHEXPECTED));
+					>>
+					((ident|str_p("*"))[do_ident(self.ast)] | error_p(PE_IMPORTTARGETEXPECTED))
+					>>
+					("from" | error_p(PE_FROMEXPECTED))
+					>>
+					(import_path[do_import_path(self.ast)] | error_p(PE_IMPORTPATHEXPECTED));
 
-				script_path =
+				import_path =
 					lexeme_d[+(alnum_p|punct_p)]
 					|
 					confix_p('\"', lexeme_d[+(alnum_p|punct_p|' ')], '\"');
 
-				top_obj =
-					// Performs a "look-ahead" to see if we are dealing with an object
+				abstract_typed_obj =
+					// Performs a "look-ahead" to see if we are dealing with an abstract typed object
 					// START syntax check
 					eps_p(
-						!str_p("abstract")
+						str_p("abstract")
 						>>
 						lexeme_d[(alpha_p|'_') >> *(alnum_p|'_')] 
 						>>
-						!lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')]
+						lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')]
 						>>
 						!(ch_p(':') >> lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')])
 						>>
@@ -401,21 +433,206 @@ namespace Ogre {
 					)
 					// END syntax check
 					>>
-					!str_p("abstract")[do_abstract(self.ast)]
+					str_p("abstract")[do_abstract(self.ast)]
 					>>
-					word[do_object(self.ast)]
+					word[do_type(self.ast)] 
 					>> 
-					!(ident[do_ident(self.ast)])
-						>> 
-						!(str_p(":")[do_colon(self.ast)] 
+					ident[do_ident(self.ast)]
+					>>
+					!(str_p(":")[do_colon(self.ast)] 
 							>> 
 							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED)))
 					>> 
 					(ch_p('{') | error_p(PE_OPENBRACEEXPECTED)) 
 					>> 
+					*(named_typed_obj|typed_obj|expr) 
+					>> 
+					(str_p("}")[do_close(self.ast)] | error_p(PE_CLOSEBRACEEXPECTED))
+					;
+
+				abstract_named_obj =
+					// Performs a "look-ahead" to see if we are dealing with an abstract object
+					// START syntax check
+					eps_p(
+						str_p("abstract")
+						>>
+						lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')]
+						>>
+						!(ch_p(':') >> lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')])
+						>>
+						'{'
+					)
+					// END syntax check
+					>>
+					str_p("abstract")[do_abstract(self.ast)]
+					>> 
+					ident[do_object(self.ast)]
+					>>
+					!(str_p(":")[do_colon(self.ast)] 
+							>> 
+							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED)))
+					>> 
+					(ch_p('{') | error_p(PE_OPENBRACEEXPECTED)) 
+					>> 
+					*(named_typed_obj|typed_obj|expr)
+					>> 
+					(str_p("}")[do_close(self.ast)] | error_p(PE_CLOSEBRACEEXPECTED))
+					;
+
+				named_typed_obj =
+					// Performs a "look-ahead" to see if we are dealing with an named typed concrete object
+					// START syntax check
+					eps_p(
+						lexeme_d[(alpha_p|'_') >> *(alnum_p|'_')] 
+						>>
+						lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')]
+						>>
+						!(ch_p(':') >> lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')])
+						>>
+						'{'
+					)
+					// END syntax check
+					>>
+					word[do_type(self.ast)] 
+					>> 
+					ident[do_ident(self.ast)]
+					>>
+					!(str_p(":")[do_colon(self.ast)] 
+							>> 
+							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED)))
+					>> 
+					(ch_p('{') | error_p(PE_OPENBRACEEXPECTED)) 
+					>> 
+					*(named_typed_obj|named_obj|typed_obj|expr)
+					>> 
+					(str_p("}")[do_close(self.ast)] | error_p(PE_CLOSEBRACEEXPECTED))
+					;
+
+				named_obj =
+					// Performs a "look-ahead" to see if we are dealing with an named concrete object
+					// START syntax check
+					eps_p(
+						lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')]
+						>>
+						!(ch_p(':') >> lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')])
+						>>
+						'{'
+					)
+					// END syntax check
+					>> 
+					ident[do_object(self.ast)]
+					>>
+					!(str_p(":")[do_colon(self.ast)] 
+							>> 
+							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED)))
+					>> 
+					(ch_p('{') | error_p(PE_OPENBRACEEXPECTED)) 
+					>> 
+					*(named_typed_obj|named_obj|typed_obj|expr)
+					>> 
+					(str_p("}")[do_close(self.ast)] | error_p(PE_CLOSEBRACEEXPECTED))
+					;
+
+				typed_obj =
+					// Performs a "look-ahead" to see if we are dealing with an typed anonymous object
+					// START syntax check
+					eps_p(
+						lexeme_d[(alpha_p|'_') >> *(alnum_p|'_')] 
+						>>
+						!(ch_p(':') >> lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')])
+						>>
+						'{'
+					)
+					// END syntax check
+					>>
+					word[do_type(self.ast)] 
+					>>
+					!(str_p(":")[do_colon(self.ast)] 
+							>> 
+							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED)))
+					>> 
+					(ch_p('{') | error_p(PE_OPENBRACEEXPECTED)) 
+					>> 
+					*(named_typed_obj|named_obj|typed_obj|expr) 
+					>> 
+					(str_p("}")[do_close(self.ast)] | error_p(PE_CLOSEBRACEEXPECTED))
+					;
+
+				top_obj =
+					(
+					// Performs a "look-ahead" to see if we are dealing with an abstract object
+					// START syntax check
+					eps_p(
+						str_p("abstract")
+						>>
+						!lexeme_d[(alpha_p|'_') >> *(alnum_p|'_')] 
+						>>
+						lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')]
+						>>
+						!(ch_p(':') >> lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')])
+						>>
+						'{'
+					)
+					// END syntax check
+					>>
+					str_p("abstract")[do_abstract(self.ast)]
+					>>
+						((word[do_type(self.ast)] 
+						>> 
+						ident[do_ident(self.ast)] 
+						>> 
+						!(str_p(":")[do_colon(self.ast)] 
+							>> 
+							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED))))
+					|
+						(ident[do_object(self.ast)]
+						>>
+						!(str_p(":")[do_colon(self.ast)] 
+							>> 
+							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED)))))
+					>> 
+					(ch_p('{') | error_p(PE_OPENBRACEEXPECTED)) 
+					>> 
 					*(obj|expr) 
 					>> 
-					(str_p("}")[do_close(self.ast)] | error_p(PE_CLOSEBRACEEXPECTED));
+					(str_p("}")[do_close(self.ast)] | error_p(PE_CLOSEBRACEEXPECTED))
+					)
+					|
+					(
+					// Performs a "look-ahead" to see if we are dealing with a concrete object
+					// START syntax check
+					eps_p(
+						!lexeme_d[(alpha_p|'_') >> *(alnum_p|'_')] 
+						>>
+						lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')]
+						>>
+						!(ch_p(':') >> lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')])
+						>>
+						'{'
+					)
+					// END syntax check
+					>>
+						((word[do_type(self.ast)] 
+						>> 
+						ident[do_ident(self.ast)] 
+						>> 
+						!(str_p(":")[do_colon(self.ast)] 
+							>> 
+							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED))))
+					|
+						(ident[do_object(self.ast)]
+						>>
+						!(str_p(":")[do_colon(self.ast)] 
+							>> 
+							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED)))))
+					>> 
+					(ch_p('{') | error_p(PE_OPENBRACEEXPECTED)) 
+					>> 
+					*(obj|expr) 
+					>> 
+					(str_p("}")[do_close(self.ast)] | error_p(PE_CLOSEBRACEEXPECTED))
+					)
+					;
 
 				obj =
 					// Performs a "look-ahead" to see if we are dealing with an object
@@ -431,7 +648,7 @@ namespace Ogre {
 					)
 					// END syntax check
 					>>
-					word[do_object(self.ast)]
+					word[do_type(self.ast)]
 					>> 
 					!(ident[do_ident(self.ast)])
 						>> 
@@ -518,8 +735,8 @@ namespace Ogre {
 		case PE_PRECEDINGTAGEXPECTED:
 			error = "preceding tag expected";
 			break;
-		case PE_SCRIPTPATHEXPECTED:
-			error = "script file path or file name expected";
+		case PE_IMPORTPATHEXPECTED:
+			error = "import file path or file name expected";
 			break;
 		case PE_IDENTIFIEREXPECTED:
 			error = "identifier expected";
@@ -529,6 +746,15 @@ namespace Ogre {
 			break;
 		case PE_CLOSEBRACEEXPECTED:
 			error = "close brace \'}\' expected";
+			break;
+		case PE_NEWLINEEXPECTED:
+			error = "newline expected";
+			break;
+		case PE_IMPORTTARGETEXPECTED:
+			error = "import target expected";
+			break;
+		case PE_FROMEXPECTED:
+			error = "keyword \"from\" expected";
 			break;
 		case PE_UNKNOWN:
 		default:
