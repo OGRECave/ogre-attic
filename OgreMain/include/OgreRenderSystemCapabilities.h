@@ -183,7 +183,9 @@ namespace Ogre {
                 textures in a single pass). Where a Material has multiple 
                 texture layers, it will try to use multitexturing where 
                 available, and where it is not available, will perform multipass
-                rendering to achieve the same effect.
+                rendering to achieve the same effect. This property only applies
+				to the fixed-function pipeline, the number available to the 
+				programmable pipeline depends on the shader model in use.
             */
             ushort getNumTextureUnits(void) const
             {
