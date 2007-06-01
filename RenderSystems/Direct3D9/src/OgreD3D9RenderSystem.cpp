@@ -1497,7 +1497,8 @@ namespace Ogre
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Cannot set D3D9 view matrix", "D3D9RenderSystem::_setViewMatrix" );
 
 		// also mark clip planes dirty
-		mClipPlanesDirty = true;
+		if (!mClipPlanes.empty())
+			mClipPlanesDirty = true;
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setProjectionMatrix( const Matrix4 &m )
@@ -1519,7 +1520,8 @@ namespace Ogre
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Cannot set D3D9 projection matrix", "D3D9RenderSystem::_setProjectionMatrix" );
 
 		// also mark clip planes dirty
-		mClipPlanesDirty = true;
+		if (!mClipPlanes.empty())
+			mClipPlanesDirty = true;
 
 	}
 	//---------------------------------------------------------------------

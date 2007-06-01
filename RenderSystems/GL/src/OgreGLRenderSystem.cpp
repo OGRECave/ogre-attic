@@ -899,8 +899,9 @@ namespace Ogre {
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(mat);
 
-		// also mark clip planes as dirty
-        mClipPlanesDirty = true;
+		// also mark clip planes dirty
+		if (!mClipPlanes.empty())
+			mClipPlanesDirty = true;
     }
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setProjectionMatrix(const Matrix4 &m)
@@ -919,8 +920,9 @@ namespace Ogre {
         glLoadMatrixf(mat);
         glMatrixMode(GL_MODELVIEW);
 
-		// also mark clip planes as dirty
-		mClipPlanesDirty = true;
+		// also mark clip planes dirty
+		if (!mClipPlanes.empty())
+			mClipPlanesDirty = true;
     }
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setSurfaceParams(const ColourValue &ambient,

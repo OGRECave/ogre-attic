@@ -605,7 +605,7 @@ namespace Ogre {
 	    {
         case GPT_VERTEX_PROGRAM:
 			// mark clip planes dirty if changed (programmable can change space)
-			if (!mVertexProgramBound)
+			if (!mVertexProgramBound && !mClipPlanes.empty())
 				mClipPlanesDirty = true;
 
             mVertexProgramBound = true;
@@ -622,7 +622,7 @@ namespace Ogre {
 	    {
         case GPT_VERTEX_PROGRAM:
 			// mark clip planes dirty if changed (programmable can change space)
-			if (mVertexProgramBound)
+			if (mVertexProgramBound && !mClipPlanes.empty())
 				mClipPlanesDirty = true;
             mVertexProgramBound = false;
 	        break;
