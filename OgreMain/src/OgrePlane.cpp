@@ -50,6 +50,11 @@ namespace Ogre {
 		normal = rkNormal;
 		d = -fConstant;
 	}
+	//---------------------------------------------------------------------
+	Plane::Plane (Real a, Real b, Real c, Real _d)
+		: normal(a, b, c), d(_d)
+	{
+	}
 	//-----------------------------------------------------------------------
 	Plane::Plane (const Vector3& rkNormal, const Vector3& rkPoint)
 	{

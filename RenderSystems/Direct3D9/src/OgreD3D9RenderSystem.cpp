@@ -1490,37 +1490,46 @@ namespace Ogre
         mViewMatrix[2][2] = -mViewMatrix[2][2];
         mViewMatrix[2][3] = -mViewMatrix[2][3];
 
-        D3DXMATRIX d3dmat = D3D9Mappings::makeD3DXMatrix( mViewMatrix );
+        mDxViewMat = D3D9Mappings::makeD3DXMatrix( mViewMatrix );
 
 		HRESULT hr;
-		if( FAILED( hr = mpD3DDevice->SetTransform( D3DTS_VIEW, &d3dmat ) ) )
+		if( FAILED( hr = mpD3DDevice->SetTransform( D3DTS_VIEW, &mDxViewMat ) ) )
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Cannot set D3D9 view matrix", "D3D9RenderSystem::_setViewMatrix" );
+
+		// also mark clip planes dirty
+		mClipPlanesDirty = true;
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setProjectionMatrix( const Matrix4 &m )
 	{
-		D3DXMATRIX d3dMat = D3D9Mappings::makeD3DXMatrix( m );
+		// save latest matrix
+		mDxProjMat = D3D9Mappings::makeD3DXMatrix( m );
 
 		if( mActiveRenderTarget->requiresTextureFlipping() )
         {
             // Invert transformed y
-            d3dMat._12 = - d3dMat._12;
-			d3dMat._22 = - d3dMat._22;
-            d3dMat._32 = - d3dMat._32;
-            d3dMat._42 = - d3dMat._42;
+            mDxProjMat._12 = - mDxProjMat._12;
+			mDxProjMat._22 = - mDxProjMat._22;
+            mDxProjMat._32 = - mDxProjMat._32;
+            mDxProjMat._42 = - mDxProjMat._42;
         }
 
 		HRESULT hr;
-		if( FAILED( hr = mpD3DDevice->SetTransform( D3DTS_PROJECTION, &d3dMat ) ) )
+		if( FAILED( hr = mpD3DDevice->SetTransform( D3DTS_PROJECTION, &mDxProjMat ) ) )
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Cannot set D3D9 projection matrix", "D3D9RenderSystem::_setProjectionMatrix" );
+
+		// also mark clip planes dirty
+		mClipPlanesDirty = true;
+
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setWorldMatrix( const Matrix4 &m )
 	{
-		D3DXMATRIX d3dMat = D3D9Mappings::makeD3DXMatrix( m );
+		// save latest matrix
+		mDxWorldMat = D3D9Mappings::makeD3DXMatrix( m );
 
 		HRESULT hr;
-		if( FAILED( hr = mpD3DDevice->SetTransform( D3DTS_WORLD, &d3dMat ) ) )
+		if( FAILED( hr = mpD3DDevice->SetTransform( D3DTS_WORLD, &mDxWorldMat ) ) )
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Cannot set D3D9 world matrix", "D3D9RenderSystem::_setWorldMatrix" );
 	}
 	//---------------------------------------------------------------------
@@ -2937,24 +2946,35 @@ namespace Ogre
 
         }
     }
-    //---------------------------------------------------------------------
-    void D3D9RenderSystem::setClipPlanes(const PlaneList& clipPlanes)
-    {
+	//---------------------------------------------------------------------
+	void D3D9RenderSystem::setClipPlanesImpl(const PlaneList& clipPlanes)
+	{
         size_t i;
         size_t numClipPlanes;
-        float dx9ClipPlane[4];
+        D3DXPLANE dx9ClipPlane;
         DWORD mask = 0;
         HRESULT hr;
 
-        numClipPlanes = clipPlanes.size();
+		numClipPlanes = clipPlanes.size();
         for (i = 0; i < numClipPlanes; ++i)
         {
             const Plane& plane = clipPlanes[i];
 
-            dx9ClipPlane[0] = plane.normal.x;
-            dx9ClipPlane[1] = plane.normal.y;
-            dx9ClipPlane[2] = plane.normal.z;
-            dx9ClipPlane[3] = plane.d;
+			dx9ClipPlane.a = plane.normal.x;
+			dx9ClipPlane.b = plane.normal.y;
+			dx9ClipPlane.c = plane.normal.z;
+			dx9ClipPlane.d = plane.d;
+
+			if (mVertexProgramBound)
+			{
+				// programmable clips in clip space (ugh)
+				// must transform worldspace planes by view/proj
+				D3DXMATRIX xform;
+				D3DXMatrixMultiply(&xform, &mDxViewMat, &mDxProjMat);
+				D3DXMatrixInverse(&xform, NULL, &xform);
+				D3DXMatrixTranspose(&xform, &xform);
+				D3DXPlaneTransform(&dx9ClipPlane, &dx9ClipPlane, &xform);
+			}
 
             hr = mpD3DDevice->SetClipPlane(i, dx9ClipPlane);
             if (FAILED(hr))
@@ -2973,17 +2993,6 @@ namespace Ogre
                 "D3D9RenderSystem::setClipPlanes");
         }
     }
-	//---------------------------------------------------------------------
-	void D3D9RenderSystem::resetClipPlanes()
-	{
-		HRESULT hr = __SetRenderState(D3DRS_CLIPPLANEENABLE, 0);
-		if (FAILED(hr))
-		{
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to set render state for clip planes", 
-				"D3D9RenderSystem::resetClipPlanes");
-		}
-
-	}
 	//---------------------------------------------------------------------
     void D3D9RenderSystem::setScissorTest(bool enabled, size_t left, size_t top, size_t right,
         size_t bottom)

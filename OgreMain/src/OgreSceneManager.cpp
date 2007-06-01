@@ -1215,22 +1215,10 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
 		// Set camera window clipping planes (if any)
 		if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_USER_CLIP_PLANES))
 		{
+			mDestRenderSystem->resetClipPlanes();
 			if (camera->isWindowSet())  
 			{
-				const std::vector<Plane>& planeList = 
-					camera->getWindowPlanes();
-				for (ushort i = 0; i < 4; ++i)
-				{
-					mDestRenderSystem->enableClipPlane(i, true);
-					mDestRenderSystem->setClipPlane(i, planeList[i]);
-				}
-			}
-			else
-			{
-				for (ushort i = 0; i < 4; ++i)
-				{
-					mDestRenderSystem->enableClipPlane(i, false);
-				}
+				mDestRenderSystem->setClipPlanes(camera->getWindowPlanes());
 			}
 		}
 

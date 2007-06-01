@@ -153,6 +153,8 @@ namespace Ogre
         /// Saved last view matrix
         Matrix4 mViewMatrix;
 
+		D3DXMATRIX mDxViewMat, mDxProjMat, mDxWorldMat;
+
 		// What follows is a set of duplicated lists just to make it
 		// easier to deal with lost devices
 		
@@ -184,6 +186,8 @@ namespace Ogre
 		};
 		typedef std::map<ZBufferFormat, ZBufferRef> ZBufferHash;
 		ZBufferHash mZBufferHash;
+	protected:
+		void setClipPlanesImpl(const PlaneList& clipPlanes);
 	public:
 		// constructor
 		D3D9RenderSystem( HINSTANCE hInstance );
@@ -293,11 +297,6 @@ namespace Ogre
           RenderSystem
          */
         void bindGpuProgramPassIterationParameters(GpuProgramType gptype);
-        /** See
-          RenderSystem
-         */
-        void setClipPlanes(const PlaneList& clipPlanes);
-		void resetClipPlanes();
 
         void setScissorTest(bool enabled, size_t left = 0, size_t top = 0, size_t right = 800, size_t bottom = 600);
         void clearFrameBuffer(unsigned int buffers, 
