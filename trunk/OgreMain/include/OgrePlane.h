@@ -59,6 +59,8 @@ namespace Ogre {
         Plane (const Plane& rhs);
         /** Construct a plane through a normal, and a distance to move the plane along the normal.*/
         Plane (const Vector3& rkNormal, Real fConstant);
+		/** Construct a plane using the 4 constants directly **/
+		Plane (Real a, Real b, Real c, Real d);
         Plane (const Vector3& rkNormal, const Vector3& rkPoint);
         Plane (const Vector3& rkPoint0, const Vector3& rkPoint1,
             const Vector3& rkPoint2);

@@ -975,11 +975,16 @@ namespace Ogre
 
         /** Sets the user clipping region.
         */
-        virtual void setClipPlanes(const PlaneList& clipPlanes) = 0;
+        virtual void setClipPlanes(const PlaneList& clipPlanes);
+
+		/** Add a user clipping plane. */
+		virtual void addClipPlane (const Plane &p);
+		/** Add a user clipping plane. */
+		virtual void addClipPlane (Real A, Real B, Real C, Real D);
 
 		/** Clears the user clipping region.
 		*/
-		virtual void resetClipPlanes() = 0;
+		virtual void resetClipPlanes();
 
 		/** Utility method for initialising all render targets attached to this rendering system. */
         virtual void _initRenderTargets(void);
@@ -991,13 +996,6 @@ namespace Ogre
 
         /** Internal method for updating all render targets attached to this rendering system. */
         virtual void _updateAllRenderTargets(void);
-
-        /** Set a clipping plane. */
-        virtual void setClipPlane (ushort index, const Plane &p);
-        /** Set a clipping plane. */
-        virtual void setClipPlane (ushort index, Real A, Real B, Real C, Real D) = 0;
-        /** Enable the clipping plane. */
-        virtual void enableClipPlane (ushort index, bool enable) = 0;
 
         /** Sets whether or not vertex windings set should be inverted; this can be important
             for rendering reflections. */
@@ -1221,6 +1219,16 @@ namespace Ogre
 		
 		bool mVertexProgramBound;
 		bool mFragmentProgramBound;
+
+		// Recording user clip planes
+		PlaneList mClipPlanes;
+		// Indicator that we need to re-set the clip planes on next render call
+		bool mClipPlanesDirty;
+
+		/// Internal method used to set the underlying clip planes when needed
+		virtual void setClipPlanesImpl(const PlaneList& clipPlanes) = 0;
+
+
 		
 
 

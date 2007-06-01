@@ -142,8 +142,6 @@ namespace Ogre {
         mCurrentVertexProgram = 0;
         mCurrentFragmentProgram = 0;
 
-        mClipPlanes.reserve(6);
-
     }
 
     GLRenderSystem::~GLRenderSystem()
@@ -901,7 +899,8 @@ namespace Ogre {
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(mat);
 
-        setGLClipPlanes();
+		// also mark clip planes as dirty
+        mClipPlanesDirty = true;
     }
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setProjectionMatrix(const Matrix4 &m)
@@ -919,6 +918,9 @@ namespace Ogre {
         glMatrixMode(GL_PROJECTION);
         glLoadMatrixf(mat);
         glMatrixMode(GL_MODELVIEW);
+
+		// also mark clip planes as dirty
+		mClipPlanesDirty = true;
     }
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setSurfaceParams(const ColourValue &ambient,
@@ -2551,9 +2553,17 @@ namespace Ogre {
         }
     }
 	//---------------------------------------------------------------------
-    void GLRenderSystem::setClipPlanes(const PlaneList& clipPlanes)
+	void GLRenderSystem::setClipPlanesImpl(const PlaneList& clipPlanes)
     {
-        size_t i;
+		// A note on GL user clipping:
+		// When an ARB vertex program is enabled in GL, user clipping is completely
+		// disabled. There is no way around this, it's just turned off.
+		// When using GLSL, user clipping can work but you have to include a 
+		// glClipVertex command in your vertex shader. 
+		// Thus the planes set here may not actually be respected.
+
+
+        size_t i = 0;
         size_t numClipPlanes;
         GLdouble clipPlane[4];
 
@@ -2584,15 +2594,6 @@ namespace Ogre {
             glDisable(static_cast<GLenum>(GL_CLIP_PLANE0 + i));
         }
     }
-	//---------------------------------------------------------------------
-	void GLRenderSystem::resetClipPlanes()
-	{
-		for (size_t i = 0; i < 6/*GL_MAX_CLIP_PLANES*/; ++i)
-		{
-			glDisable(static_cast<GLenum>(GL_CLIP_PLANE0 + i));
-		}
-
-	}
 	//---------------------------------------------------------------------
     void GLRenderSystem::setScissorTest(bool enabled, size_t left, 
         size_t top, size_t right, size_t bottom)
@@ -2745,34 +2746,6 @@ namespace Ogre {
         dest[2][2] = q;
         dest[2][3] = qn;
         dest[3][2] = -1;
-    }
-
-    // ------------------------------------------------------------------
-    void GLRenderSystem::setClipPlane (ushort index, Real A, Real B, Real C, Real D)
-    {
-        if (ushort(mClipPlanes.size()) < index+1)
-            mClipPlanes.resize(index+1);
-        mClipPlanes[index] = Vector4 (A, B, C, D);
-        GLdouble plane[4] = { A, B, C, D };
-        glClipPlane (GL_CLIP_PLANE0 + index, plane);
-    }
-
-    // ------------------------------------------------------------------
-    void GLRenderSystem::setGLClipPlanes() const
-    {
-        size_t size = mClipPlanes.size();
-        for (size_t i=0; i<size; i++)
-        {
-            const Vector4 &p = mClipPlanes[i];
-            GLdouble plane[4] = { p.x, p.y, p.z, p.w };
-            glClipPlane (GL_CLIP_PLANE0 + i, plane);
-        }
-    }
-
-    // ------------------------------------------------------------------
-    void GLRenderSystem::enableClipPlane (ushort index, bool enable)
-    {
-        glEnable (GL_CLIP_PLANE0 + index);
     }
     //---------------------------------------------------------------------
     HardwareOcclusionQuery* GLRenderSystem::createHardwareOcclusionQuery(void)

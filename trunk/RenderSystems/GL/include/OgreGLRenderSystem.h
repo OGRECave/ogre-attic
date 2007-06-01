@@ -53,12 +53,6 @@ namespace Ogre {
         #define MAX_LIGHTS 8
         Light* mLights[MAX_LIGHTS];
 
-        // clip planes
-        typedef std::vector<Vector4> PlaneList2;
-        PlaneList2 mClipPlanes;
-        void setGLClipPlanes() const;
-
-
         // view matrix to set world against
         Matrix4 mViewMatrix;
         Matrix4 mWorldMatrix;
@@ -141,6 +135,8 @@ namespace Ogre {
 			unwieldy and slow. However, FBO support for stencil buffers is poor.
         */
         GLRTTManager *mRTTManager;
+	protected:
+		void setClipPlanesImpl(const PlaneList& clipPlanes);
     public:
         // Default constructor / destructor
         GLRenderSystem();
@@ -421,14 +417,6 @@ namespace Ogre {
 		RenderSystem
 		*/
 		void bindGpuProgramPassIterationParameters(GpuProgramType gptype);
-        /** See
-          RenderSystem
-         */
-        void setClipPlanes(const PlaneList& clipPlanes);
-		/** See
-		  RenderSystem
-		 */
-		void resetClipPlanes();
         /** See
           RenderSystem
          */
