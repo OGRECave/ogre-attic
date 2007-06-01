@@ -828,7 +828,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void ResourceGroupManager::_notifyResourceCreated(ResourcePtr& res)
 	{
-		if (mCurrentGroup)
+		if (mCurrentGroup && res->getGroup() == mCurrentGroup->name)
 		{
 			// Use current group (batch loading)
 			addCreatedResource(res, *mCurrentGroup);
