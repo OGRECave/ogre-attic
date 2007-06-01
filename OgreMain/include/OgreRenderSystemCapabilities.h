@@ -142,7 +142,7 @@ namespace Ogre {
 			bool mVertexTextureUnitsShared;
 
 			/// The list of supported shader profiles
-			StringVector mShaderProfileList;
+			std::set<String> mSupportedShaderProfiles;
 
     	public:	
             RenderSystemCapabilities ();
@@ -243,15 +243,24 @@ namespace Ogre {
 						 */
 						void addShaderProfile(String profile)
 						{
-								mShaderProfileList.push_back(profile);
+								mSupportedShaderProfiles.insert(profile);
+									
 						}
 
 						/** Returns true if profile is in the list of supported profiles
 						 */
-						bool isShaderProfileSupported(String profile)
+						bool isShaderProfileSupported(String profile) const
 						{
-								return (mShaderProfileList.end() != 
-														find(mShaderProfileList.begin(), mShaderProfileList.end(), profile));
+								return (mSupportedShaderProfiles.end() != 
+														find(mSupportedShaderProfiles.begin(), mSupportedShaderProfiles.end(), profile));
+						}
+
+
+						/** Returns a set of all supported shader profiles
+						 * */
+						const std::set<String>& getSupportedShaderProfiles() const
+						{
+								return mSupportedShaderProfiles;
 						}
 
 

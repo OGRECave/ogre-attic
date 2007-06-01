@@ -44,8 +44,6 @@ namespace Ogre {
 		typedef std::set<String> SyntaxCodes;
 
 	protected:
-		/// Supported program syntax codes
-		SyntaxCodes mSyntaxCodes;
         /// Specialised create method with specific parameters
         virtual Resource* createImpl(const String& name, ResourceHandle handle, 
             const String& group, bool isManual, ManualResourceLoader* loader,
@@ -85,7 +83,8 @@ namespace Ogre {
             const String& syntaxCode);
 
 		/** Returns the syntaxes that this manager supports. */
-		virtual const SyntaxCodes& getSupportedSyntax(void) const { return mSyntaxCodes; };
+		virtual const std::set<String>& getSupportedSyntax(void) const;
+		 
 
         /** Returns whether a given syntax code (e.g. "ps_1_3", "fp20", "arbvp1") is supported. */
         virtual bool isSyntaxSupported(const String& syntaxCode) const;
@@ -140,8 +139,6 @@ namespace Ogre {
             GpuProgramType gptype, const String& syntaxCode, bool isManual = false, 
             ManualResourceLoader* loader = 0);
 
-        /** Internal method for populating the supported syntax codes, called by RenderSystem. */
-        virtual void _pushSyntaxCode(const String& syntaxCode) { mSyntaxCodes.insert(syntaxCode); }
         /** Overrides the standard ResourceManager getByName method.
         @param name The name of the program to retrieve
         @param preferHighLevelPrograms If set to true (the default), high level programs will be

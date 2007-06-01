@@ -327,7 +327,7 @@ namespace Ogre {
                 glGetBufferPointervARB = glGetBufferPointerv;
                 glGetBufferSubDataARB = glGetBufferSubData;
                 glIsBufferARB = glIsBuffer;
-                glMapBufferARB = glMapBuffer;
+								glMapBufferARB = glMapBuffer;
                 glUnmapBufferARB = glUnmapBuffer;
             }
 
@@ -358,19 +358,19 @@ namespace Ogre {
             glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB, &floatConstantCount);
             mCapabilities->setVertexProgramConstantFloatCount(floatConstantCount);
 
-            mGpuProgramManager->_pushSyntaxCode("arbvp1");
+            mCapabilities->addShaderProfile("arbvp1");
             mGpuProgramManager->registerProgramFactory("arbvp1", createGLArbGpuProgram);
 			if (GLEW_NV_vertex_program2_option)
 			{
 				mCapabilities->setMaxVertexProgramVersion("vp30");
-				mGpuProgramManager->_pushSyntaxCode("vp30");
+				mCapabilities->addShaderProfile("vp30");
 				mGpuProgramManager->registerProgramFactory("vp30", createGLArbGpuProgram);
 			}
 
 			if (GLEW_NV_vertex_program3)
 			{
 				mCapabilities->setMaxVertexProgramVersion("vp40");
-				mGpuProgramManager->_pushSyntaxCode("vp40");
+				mCapabilities->addShaderProfile("vp40");
 				mGpuProgramManager->registerProgramFactory("vp40", createGLArbGpuProgram);
 			}
 		}
@@ -381,7 +381,7 @@ namespace Ogre {
             mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
             mCapabilities->setMaxFragmentProgramVersion("fp20");
 
-            mGpuProgramManager->_pushSyntaxCode("fp20");
+            mCapabilities->addShaderProfile("fp20");
             mGpuProgramManager->registerProgramFactory("fp20", createGLGpuNvparseProgram);
         }
 
@@ -398,10 +398,10 @@ namespace Ogre {
 			// only 8 Vector4 constant floats supported
             mCapabilities->setFragmentProgramConstantFloatCount(8);
 
-            mGpuProgramManager->_pushSyntaxCode("ps_1_4");
-            mGpuProgramManager->_pushSyntaxCode("ps_1_3");
-            mGpuProgramManager->_pushSyntaxCode("ps_1_2");
-            mGpuProgramManager->_pushSyntaxCode("ps_1_1");
+            mCapabilities->addShaderProfile("ps_1_4");
+            mCapabilities->addShaderProfile("ps_1_3");
+            mCapabilities->addShaderProfile("ps_1_2");
+            mCapabilities->addShaderProfile("ps_1_1");
 
             mGpuProgramManager->registerProgramFactory("ps_1_4", createGL_ATI_FS_GpuProgram);
             mGpuProgramManager->registerProgramFactory("ps_1_3", createGL_ATI_FS_GpuProgram);
@@ -422,19 +422,19 @@ namespace Ogre {
             glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB, &floatConstantCount);
             mCapabilities->setFragmentProgramConstantFloatCount(floatConstantCount);
 
-            mGpuProgramManager->_pushSyntaxCode("arbfp1");
+            mCapabilities->addShaderProfile("arbfp1");
             mGpuProgramManager->registerProgramFactory("arbfp1", createGLArbGpuProgram);
 			if (GLEW_NV_fragment_program_option)
 			{
 				mCapabilities->setMaxFragmentProgramVersion("fp30");
-				mGpuProgramManager->_pushSyntaxCode("fp30");
+				mCapabilities->addShaderProfile("fp30");
 				mGpuProgramManager->registerProgramFactory("fp30", createGLArbGpuProgram);
 			}
 
 			if (GLEW_NV_fragment_program2)
 			{
 				mCapabilities->setMaxFragmentProgramVersion("fp40");
-				mGpuProgramManager->_pushSyntaxCode("fp40");
+				mCapabilities->addShaderProfile("fp40");
 				mGpuProgramManager->registerProgramFactory("fp40", createGLArbGpuProgram);
 			}        
 		}
@@ -449,7 +449,7 @@ namespace Ogre {
 			// NFZ - check for GLSL vertex and fragment shader support successful
             mGLSLProgramFactory = new GLSLProgramFactory();
             HighLevelGpuProgramManager::getSingleton().addFactory(mGLSLProgramFactory);
-            mGpuProgramManager->_pushSyntaxCode("glsl");
+            mCapabilities->addShaderProfile("glsl");
 			LogManager::getSingleton().logMessage("GLSL support detected");
 		}
 
@@ -2584,15 +2584,6 @@ namespace Ogre {
             glDisable(static_cast<GLenum>(GL_CLIP_PLANE0 + i));
         }
     }
-	//---------------------------------------------------------------------
-	void GLRenderSystem::resetClipPlanes()
-	{
-		for (size_t i = 0; i < 6/*GL_MAX_CLIP_PLANES*/; ++i)
-		{
-			glDisable(static_cast<GLenum>(GL_CLIP_PLANE0 + i));
-		}
-
-	}
 	//---------------------------------------------------------------------
     void GLRenderSystem::setScissorTest(bool enabled, size_t left, 
         size_t top, size_t right, size_t bottom)
