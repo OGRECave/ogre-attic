@@ -679,7 +679,7 @@ namespace Ogre
             // create & register HLSL factory
             mHLSLProgramFactory = new D3D9HLSLProgramFactory();
             HighLevelGpuProgramManager::getSingleton().addFactory(mHLSLProgramFactory);
-            mGpuProgramManager->_pushSyntaxCode("hlsl");
+            mCapabilities->addShaderProfile("hlsl");
 
 
             // Initialise the capabilities structures
@@ -971,16 +971,16 @@ namespace Ogre
         switch(major)
         {
         case 3:
-            mGpuProgramManager->_pushSyntaxCode("vs_3_0");
+            mCapabilities->addShaderProfile("vs_3_0");
         case 2:
             if (vs2x)
-                mGpuProgramManager->_pushSyntaxCode("vs_2_x");
+                mCapabilities->addShaderProfile("vs_2_x");
             if (vs2a)
-                mGpuProgramManager->_pushSyntaxCode("vs_2_a");
+                mCapabilities->addShaderProfile("vs_2_a");
 
-            mGpuProgramManager->_pushSyntaxCode("vs_2_0");
+            mCapabilities->addShaderProfile("vs_2_0");
         case 1:
-            mGpuProgramManager->_pushSyntaxCode("vs_1_1");
+            mCapabilities->addShaderProfile("vs_1_1");
             mCapabilities->setCapability(RSC_VERTEX_PROGRAM);
         }
     }
@@ -1098,27 +1098,27 @@ namespace Ogre
         {
         case 3:
             if (minor > 0)
-                mGpuProgramManager->_pushSyntaxCode("ps_3_x");
+                mCapabilities->addShaderProfile("ps_3_x");
 
-            mGpuProgramManager->_pushSyntaxCode("ps_3_0");
+            mCapabilities->addShaderProfile("ps_3_0");
         case 2:
             if (ps2x)
-                mGpuProgramManager->_pushSyntaxCode("ps_2_x");
+                mCapabilities->addShaderProfile("ps_2_x");
             if (ps2a)
-                mGpuProgramManager->_pushSyntaxCode("ps_2_a");
+                mCapabilities->addShaderProfile("ps_2_a");
             if (ps2b)
-                mGpuProgramManager->_pushSyntaxCode("ps_2_b");
+                mCapabilities->addShaderProfile("ps_2_b");
 
-            mGpuProgramManager->_pushSyntaxCode("ps_2_0");
+            mCapabilities->addShaderProfile("ps_2_0");
         case 1:
             if (major > 1 || minor >= 4)
-                mGpuProgramManager->_pushSyntaxCode("ps_1_4");
+                mCapabilities->addShaderProfile("ps_1_4");
             if (major > 1 || minor >= 3)
-                mGpuProgramManager->_pushSyntaxCode("ps_1_3");
+                mCapabilities->addShaderProfile("ps_1_3");
             if (major > 1 || minor >= 2)
-                mGpuProgramManager->_pushSyntaxCode("ps_1_2");
+                mCapabilities->addShaderProfile("ps_1_2");
             
-            mGpuProgramManager->_pushSyntaxCode("ps_1_1");
+            mCapabilities->addShaderProfile("ps_1_1");
             mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
         }
     }
@@ -2974,17 +2974,6 @@ namespace Ogre
         }
     }
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::resetClipPlanes()
-	{
-		HRESULT hr = __SetRenderState(D3DRS_CLIPPLANEENABLE, 0);
-		if (FAILED(hr))
-		{
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to set render state for clip planes", 
-				"D3D9RenderSystem::resetClipPlanes");
-		}
-
-	}
-	//---------------------------------------------------------------------
     void D3D9RenderSystem::setScissorTest(bool enabled, size_t left, size_t top, size_t right,
         size_t bottom)
     {
@@ -3228,9 +3217,9 @@ namespace Ogre
 			(*sw)->destroyD3DResources();
 		}
 
-		D3DPRESENT_PARAMETERS* presParams = mPrimaryWindow->getPresentationParameters();
 		// Reset the device, using the primary window presentation params
-		HRESULT hr = mpD3DDevice->Reset(presParams);
+		HRESULT hr = mpD3DDevice->Reset(
+			mPrimaryWindow->getPresentationParameters());
 
 		if (hr == D3DERR_DEVICELOST)
 		{
@@ -3243,29 +3232,6 @@ namespace Ogre
 				"Cannot reset device! " + getErrorDescription(hr), 
 				"D3D9RenderWindow::restoreLostDevice" );
 		}
-
-		StringUtil::StrStreamType str;
-		str << "Reset device ok w:" << presParams->BackBufferWidth
-			<< " h:" << presParams->BackBufferHeight;
-		LogManager::getSingleton().logMessage(str.str());
-		// If windowed, we have to reset the size here
-		// since a fullscreen switch may have occurred
-		if (presParams->Windowed)
-		{
-			RECT rc;
-			SetRect(&rc, 0, 0, presParams->BackBufferWidth, presParams->BackBufferHeight);
-			AdjustWindowRect(&rc, GetWindowLong(mPrimaryWindow->getWindowHandle(), GWL_STYLE), false);
-			unsigned int winWidth = rc.right - rc.left;
-			unsigned int winHeight = rc.bottom - rc.top;
-			int screenw = GetSystemMetrics(SM_CXSCREEN);
-			int screenh = GetSystemMetrics(SM_CYSCREEN);
-			int left = (screenw - winWidth) / 2;
-			int top = (screenh - winHeight) / 2;
-			SetWindowPos(mPrimaryWindow->getWindowHandle(), HWND_NOTOPMOST, left, top, winWidth, winHeight,
-				SWP_DRAWFRAME | SWP_FRAMECHANGED | SWP_NOACTIVATE);
-
-		}
-
 
 		// will have lost basic states
 		mBasicStatesInitialised = false;
