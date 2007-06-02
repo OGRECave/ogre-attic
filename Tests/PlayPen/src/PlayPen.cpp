@@ -301,6 +301,27 @@ public:
 
 		}
 
+		if (mKeyboard->isKeyDown(KC_MINUS) && timeUntilNextToggle <= 0)
+		{
+			if (mWindow->isFullScreen())
+			{
+				mWindow->setFullscreen(false, 800, 600);
+			}
+			else
+			{
+				mWindow->setFullscreen(true, 1024, 768);
+			}
+			timeUntilNextToggle = 0.5;
+
+		}
+		if (mKeyboard->isKeyDown(KC_EQUALS) && timeUntilNextToggle <= 0)
+		{
+			mWindow->setFullscreen(true, 800, 600);
+			timeUntilNextToggle = 0.5;
+
+		}
+
+
         MaterialPtr mat = MaterialManager::getSingleton().getByName("Core/StatsBlockBorder/Up");
         mat->setDepthCheckEnabled(true);
         mat->setDepthWriteEnabled(true);
@@ -942,7 +963,7 @@ protected:
 
 	void testBug()
 	{
-
+		/** Bren's problem
 
 		Ogre::Mesh* mesh = Ogre::MeshManager::getSingleton().load("male_civ_head.mesh", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME).getPointer();
 		assert(mesh);
@@ -994,6 +1015,11 @@ protected:
 		animState->setLoop(false);                            // else mTimePos becomes undefined?
 		animState->setEnabled(true);
 		animState->setTimePosition((Real)2);
+
+		*/
+
+		mSceneMgr->setAmbientLight(ColourValue::White);
+		Entity* ent = mSceneMgr->createEntity("23", "Iron_Golem.mesh");
 
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
 
@@ -3188,7 +3214,7 @@ protected:
 		valuePair["top"] = StringConverter::toString(0);
 		valuePair["left"] = StringConverter::toString(0);
 
-		RenderWindow* win2 = mRoot->createRenderWindow("window2", 200,200, false, &valuePair);
+		RenderWindow* win2 = mRoot->createRenderWindow("window2", 800,600, true, &valuePair);
 		win2->addViewport(mCamera);
 
 
@@ -5661,13 +5687,13 @@ protected:
 
 		Light* l = mSceneMgr->createLight("l1");
 		l->setAttenuation(lightRange, 1, 0, 0);
-		SceneNode* n = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0,0,0));
+		SceneNode* n = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(100,0,0));
 		n->attachObject(debugSphere);
 		/* SPOT LIGHT
 		*/
 		// match spot width to groud
 		Real spotHeight = lightRange * 0.5;
-		n = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0,spotHeight,0));
+		n = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(100,spotHeight,0));
 		l->setType(Light::LT_SPOTLIGHT);
 		Radian spotAngle = Math::ATan(spotWidth / spotHeight) * 2;
 		l->setSpotlightOuterAngle(spotAngle); 
@@ -5694,6 +5720,107 @@ protected:
 
 
 	}
+
+	void test16Textures()
+	{
+
+		HighLevelGpuProgramPtr frag;
+		if (StringUtil::match(Root::getSingleton().getRenderSystem()->getName(), "*GL*"))
+		{
+			frag = HighLevelGpuProgramManager::getSingleton().createProgram("frag16", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+				"glsl", GPT_FRAGMENT_PROGRAM);
+			frag->setSource(" \
+				uniform sampler2D tex0; \
+				uniform sampler2D tex1; \
+				uniform sampler2D tex2; \
+				uniform sampler2D tex3; \
+				uniform sampler2D tex4; \
+				uniform sampler2D tex5; \
+				uniform sampler2D tex6; \
+				uniform sampler2D tex7; \
+				uniform sampler2D tex8; \
+				uniform sampler2D tex9; \
+				uniform sampler2D tex10; \
+				uniform sampler2D tex11; \
+				uniform sampler2D tex12; \
+				uniform sampler2D tex13; \
+				uniform sampler2D tex14; \
+				uniform sampler2D tex15; \
+				void main() \
+				{ \
+					gl_FragColor = texture2D(tex15, gl_TexCoord[0].xy); \
+				} \
+				");
+
+		}
+		else
+		{
+			// DirectX
+			frag = HighLevelGpuProgramManager::getSingleton().createProgram("frag16", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+				"hlsl", GPT_FRAGMENT_PROGRAM);
+			frag->setParameter("target", "ps_2_0");
+			frag->setParameter("entry_point", "main");
+			frag->setSource(" \
+				float4 main( \
+					float2 uv : TEXCOORD0, \
+					uniform sampler2D tex0 : register(s0), \
+					uniform sampler2D tex1 : register(s1), \
+					uniform sampler2D tex2 : register(s2), \
+					uniform sampler2D tex3 : register(s3), \
+					uniform sampler2D tex4 : register(s4), \
+					uniform sampler2D tex5 : register(s5), \
+					uniform sampler2D tex6 : register(s6), \
+					uniform sampler2D tex7 : register(s7), \
+					uniform sampler2D tex8 : register(s8), \
+					uniform sampler2D tex9 : register(s9), \
+					uniform sampler2D tex10 : register(s10), \
+					uniform sampler2D tex11 : register(s11), \
+					uniform sampler2D tex12 : register(s12), \
+					uniform sampler2D tex13 : register(s13), \
+					uniform sampler2D tex14 : register(s14), \
+					uniform sampler2D tex15 : register(s15) \
+					) : COLOR \
+				{ \
+					return tex2D(tex15, uv); \
+				} \
+				");
+		}
+		frag->load();
+		
+		MaterialPtr mat = MaterialManager::getSingleton().create("test16", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setVertexProgram("Ogre/BasicVertexPrograms/AmbientOneTextureUnified");
+		p->setFragmentProgram(frag->getName());
+		// create 15 textures the same
+		for (int i = 0; i < 15; ++i)
+		{
+			p->createTextureUnitState("Dirt.jpg");
+		}
+		// create 16th texture differently
+		p->createTextureUnitState("ogrelogo.png");
+		if (StringUtil::match(Root::getSingleton().getRenderSystem()->getName(), "*GL*"))
+		{
+			// map samplers
+			GpuProgramParametersSharedPtr params = p->getFragmentProgramParameters();
+			for (int i = 0; i < 16; ++i)
+			{
+				params->setNamedConstant(String("tex") + StringConverter::toString(i), i);
+			}
+
+		}
+
+		mat->load();
+
+		Entity* e = mSceneMgr->createEntity("1", "knot.mesh");
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+
+		mCamera->setPosition(0,0,200);
+		mCamera->lookAt(0,0,0);
+
+	
+	}
+
 	// Just override the mandatory create scene method
     void createScene(void)
     {
@@ -5783,8 +5910,10 @@ protected:
 		//testPoseAnimation();
 		//testPoseAnimation2();
 		//testBug();
+		//testBug();
+		test16Textures();
 		//testProjectSphere();
-		testLightScissoring(false);
+		//testLightScissoring(false);
 		//testLightClipPlanes(false);
 		//testTimeCreateDestroyObject();
 		//testManualBlend();

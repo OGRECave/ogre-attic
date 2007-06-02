@@ -528,11 +528,8 @@ namespace Ogre {
 						}
 						defs.map.insert(GpuConstantDefinitionMap::value_type(paramName, def));
 
-						if (!def.isSampler())
-						{
-							// Generate array accessors
-							defs.generateConstantDefinitionArrayEntries(paramName, def);
-						}
+						// Generate array accessors
+						defs.generateConstantDefinitionArrayEntries(paramName, def);
 
 
 					}
