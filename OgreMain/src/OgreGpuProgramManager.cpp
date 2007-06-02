@@ -134,7 +134,7 @@ namespace Ogre {
         return prg;
     }
     //---------------------------------------------------------------------------
-		const std::set<String>& GpuProgramManager::getSupportedSyntax(void) const
+		const GpuProgramManager::SyntaxCodes& GpuProgramManager::getSupportedSyntax(void) const
 		{
 				// Use the current render system
 			  RenderSystem* rs = Root::getSingleton().getRenderSystem();

@@ -103,6 +103,11 @@ namespace Ogre {
     */
     class _OgreExport RenderSystemCapabilities 
     {
+
+			  public:
+
+						typedef std::set<String> ShaderProfiles;
+
         private:
             /// The number of world matricies available
             ushort mNumWorldMatrices;
@@ -142,7 +147,7 @@ namespace Ogre {
 			bool mVertexTextureUnitsShared;
 
 			/// The list of supported shader profiles
-			std::set<String> mSupportedShaderProfiles;
+			ShaderProfiles mSupportedShaderProfiles;
 
     	public:	
             RenderSystemCapabilities ();
@@ -251,14 +256,13 @@ namespace Ogre {
 						 */
 						bool isShaderProfileSupported(String profile) const
 						{
-								return (mSupportedShaderProfiles.end() != 
-														find(mSupportedShaderProfiles.begin(), mSupportedShaderProfiles.end(), profile));
+								return (mSupportedShaderProfiles.end() != mSupportedShaderProfiles.find(profile));
 						}
 
 
 						/** Returns a set of all supported shader profiles
 						 * */
-						const std::set<String>& getSupportedShaderProfiles() const
+						const ShaderProfiles& getSupportedShaderProfiles() const
 						{
 								return mSupportedShaderProfiles;
 						}

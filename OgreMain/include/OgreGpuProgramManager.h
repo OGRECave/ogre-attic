@@ -41,7 +41,9 @@ namespace Ogre {
 	class _OgreExport GpuProgramManager : public ResourceManager, public Singleton<GpuProgramManager>
 	{
 	public:
+
 		typedef std::set<String> SyntaxCodes;
+
 
 	protected:
         /// Specialised create method with specific parameters
@@ -83,7 +85,7 @@ namespace Ogre {
             const String& syntaxCode);
 
 		/** Returns the syntaxes that this manager supports. */
-		virtual const std::set<String>& getSupportedSyntax(void) const;
+		virtual const SyntaxCodes& getSupportedSyntax(void) const;
 		 
 
         /** Returns whether a given syntax code (e.g. "ps_1_3", "fp20", "arbvp1") is supported. */
