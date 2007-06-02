@@ -73,6 +73,9 @@ namespace Ogre {
         // Go through each pass, checking requirements
         Passes::iterator i;
 		unsigned short passNum = 0;
+		const RenderSystemCapabilities* caps =
+			Root::getSingleton().getRenderSystem()->getCapabilities();
+		unsigned short numTexUnits = caps->getNumTextureUnits();
         for (i = mPasses.begin(); i != mPasses.end(); ++i, ++passNum)
         {
             Pass* currPass = *i;
@@ -80,31 +83,32 @@ namespace Ogre {
 			currPass->_notifyIndex(passNum);
             // Check texture unit requirements
             size_t numTexUnitsRequested = currPass->getNumTextureUnitStates();
-            const RenderSystemCapabilities* caps =
-                Root::getSingleton().getRenderSystem()->getCapabilities();
-            unsigned short numTexUnits = caps->getNumTextureUnits();
-#if defined(OGRE_PRETEND_TEXTURE_UNITS) && OGRE_PRETEND_TEXTURE_UNITS > 0
-			if (numTexUnits > OGRE_PRETEND_TEXTURE_UNITS)
-				numTexUnits = OGRE_PRETEND_TEXTURE_UNITS;
-#endif
-			if (numTexUnitsRequested > numTexUnits)
+			// Don't trust getNumTextureUnits for programmable
+			if(!currPass->hasFragmentProgram())
 			{
-				if (!autoManageTextureUnits)
+	#if defined(OGRE_PRETEND_TEXTURE_UNITS) && OGRE_PRETEND_TEXTURE_UNITS > 0
+				if (numTexUnits > OGRE_PRETEND_TEXTURE_UNITS)
+					numTexUnits = OGRE_PRETEND_TEXTURE_UNITS;
+	#endif
+				if (numTexUnitsRequested > numTexUnits)
 				{
-					// The user disabled auto pass split
-					compileErrors << "Pass " << passNum << 
-						": Too many texture units for the current hardware and no splitting allowed."
-						<< std::endl;
-					return compileErrors.str();
-				}
-				else if (currPass->hasVertexProgram() || currPass->hasFragmentProgram())
-				{
-					// Can't do this one, and can't split a programmable pass
-					compileErrors << "Pass " << passNum << 
-						": Too many texture units for the current hardware and "
-						"cannot split programmable passes."
-						<< std::endl;
-					return compileErrors.str();
+					if (!autoManageTextureUnits)
+					{
+						// The user disabled auto pass split
+						compileErrors << "Pass " << passNum << 
+							": Too many texture units for the current hardware and no splitting allowed."
+							<< std::endl;
+						return compileErrors.str();
+					}
+					else if (currPass->hasVertexProgram())
+					{
+						// Can't do this one, and can't split a programmable pass
+						compileErrors << "Pass " << passNum << 
+							": Too many texture units for the current hardware and "
+							"cannot split programmable passes."
+							<< std::endl;
+						return compileErrors.str();
+					}
 				}
 			}
 
@@ -191,23 +195,26 @@ namespace Ogre {
 				}
 
 				// We're ok on operations, now we need to check # texture units
-				// Keep splitting this pass so long as units requested > gpu units
-                while (numTexUnitsRequested > numTexUnits)
-                {
-                    // chop this pass into many passes
-                    currPass = currPass->_split(numTexUnits);
-                    numTexUnitsRequested = currPass->getNumTextureUnitStates();
-					// Advance pass number
-					++passNum;
-					// Reset iterator
-					i = mPasses.begin() + passNum;
-					// Move the new pass to the right place (will have been created
-					// at the end, may be other passes in between)
-					assert(mPasses.back() == currPass);
-					std::copy_backward(i, (mPasses.end()-1), mPasses.end());
-					*i = currPass;
-					// Adjust pass index
-					currPass->_notifyIndex(passNum);
+				if (!currPass->hasFragmentProgram())
+				{
+					// Keep splitting this pass so long as units requested > gpu units
+					while (numTexUnitsRequested > numTexUnits)
+					{
+						// chop this pass into many passes
+						currPass = currPass->_split(numTexUnits);
+						numTexUnitsRequested = currPass->getNumTextureUnitStates();
+						// Advance pass number
+						++passNum;
+						// Reset iterator
+						i = mPasses.begin() + passNum;
+						// Move the new pass to the right place (will have been created
+						// at the end, may be other passes in between)
+						assert(mPasses.back() == currPass);
+						std::copy_backward(i, (mPasses.end()-1), mPasses.end());
+						*i = currPass;
+						// Adjust pass index
+						currPass->_notifyIndex(passNum);
+					}
 				}
             }
 

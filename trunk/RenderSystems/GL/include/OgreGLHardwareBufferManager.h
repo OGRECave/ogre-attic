@@ -35,7 +35,14 @@ Torus Knot Software Ltd.
 namespace Ogre {
 
 // Threshold at which glMapBuffer becomes more efficient than glBufferSubData (32k?)
-#define OGRE_GL_MAP_BUFFER_THRESHOLD (1024 * 32)
+// non-Win32 machines are having issues with this, looks like buffer corruption
+// disable for now until we figure out where the problem lies
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+#	define OGRE_GL_MAP_BUFFER_THRESHOLD (1024 * 32)
+#else
+#	define OGRE_GL_MAP_BUFFER_THRESHOLD 0
+#endif
+
     /** Implementation of HardwareBufferManager for OpenGL. */
     class _OgrePrivate GLHardwareBufferManager : public HardwareBufferManager
     {

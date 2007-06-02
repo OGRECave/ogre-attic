@@ -1313,6 +1313,7 @@ namespace Ogre
         if (!hasAutoConstants()) return; // abort early if no autos
         Vector3 vec3;
         Vector4 vec4;
+		Matrix3 m3;
 
         AutoConstantList::const_iterator i, iend;
         iend = mAutoConstants.end();
@@ -1346,10 +1347,11 @@ namespace Ogre
                 break;
             case ACT_LIGHT_DIRECTION_OBJECT_SPACE:
 				// We need the inverse transpose of the inverse world matrix
-				// == transpose of the world matrix
-				vec3 = source.getWorldMatrix().transpose() * 
+				// which translates to the transpose
+				source.getWorldMatrix().extract3x3Matrix(m3);
+				vec3 = m3.Transpose() * 
 					source.getLight(i->data).getDerivedDirection();
-                vec3.normalise();
+				vec3.normalise();
                 // Set as 4D vector for compatibility
                 _writeRawConstant(i->physicalIndex, Vector4(vec3.x, vec3.y, vec3.z, 1.0f), i->elementCount);
                 break;
@@ -1358,8 +1360,9 @@ namespace Ogre
                     source.getViewMatrix().transformAffine(source.getLight(i->data).getAs4DVector()), i->elementCount);
                 break;
             case ACT_LIGHT_DIRECTION_VIEW_SPACE:
-				vec3 = source.getInverseTransposeViewMatrix() *
-					source.getLight(i->data).getDerivedDirection();
+				source.getInverseTransposeViewMatrix().extract3x3Matrix(m3);
+				// inverse transpose in case of scaling
+				vec3 = m3 * source.getLight(i->data).getDerivedDirection();
                 vec3.normalise();
                 // Set as 4D vector for compatibility
                 _writeRawConstant(i->physicalIndex, Vector4(vec3.x, vec3.y, vec3.z, 1.0f),i->elementCount);
@@ -1454,13 +1457,17 @@ namespace Ogre
 				break;
 
 			case ACT_LIGHT_DIRECTION_OBJECT_SPACE_ARRAY:
+				// We need the inverse transpose of the inverse world matrix
+				// which translates to the transpose
+				source.getWorldMatrix().extract3x3Matrix(m3);
+				m3 = m3.Transpose(); // incase custom view matrix
 				for (size_t l = 0; l < i->data; ++l)
 				{
-					vec3 = source.getInverseWorldMatrix().transformAffine(source.getLight(l).getDerivedDirection());
+					// We need the inverse transpose of the inverse world matrix
+					vec3 = m3 * source.getLight(i->data).getDerivedDirection();
 					vec3.normalise();
-					// Set as 4D vector for compatibility
 					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
-						Vector4(vec3.x, vec3.y, vec3.z, 1.0f), i->elementCount);
+						Vector4(vec3.x, vec3.y, vec3.z, 1.0f), i->elementCount); 
 				}
 				break;
 
@@ -1473,9 +1480,10 @@ namespace Ogre
 				break;
 
 			case ACT_LIGHT_DIRECTION_VIEW_SPACE_ARRAY:
+				source.getInverseTransposeViewMatrix().extract3x3Matrix(m3);
 				for (size_t l = 0; l < i->data; ++l)
 				{
-					vec3 = source.getWorldViewMatrix().transformAffine(source.getLight(l).getDerivedDirection());
+					vec3 = m3 * source.getLight(i->data).getDerivedDirection();
 					vec3.normalise();
 					// Set as 4D vector for compatibility
 					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
