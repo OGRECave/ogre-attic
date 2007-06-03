@@ -305,6 +305,21 @@ namespace Ogre {
 			|| StringUtil::startsWith(val, "1"));
     }
     //-----------------------------------------------------------------------
+    Vector2 StringConverter::parseVector2(const String& val)
+    {
+        // Split on space
+        std::vector<String> vec = StringUtil::split(val);
+
+        if (vec.size() != 2)
+        {
+            return Vector2::ZERO;
+        }
+        else
+        {
+            return Vector2(parseReal(vec[0]),parseReal(vec[1]));
+        }
+    }
+	//-----------------------------------------------------------------------
     Vector3 StringConverter::parseVector3(const String& val)
     {
         // Split on space
@@ -318,7 +333,21 @@ namespace Ogre {
         {
             return Vector3(parseReal(vec[0]),parseReal(vec[1]),parseReal(vec[2]));
         }
+    }
+	//-----------------------------------------------------------------------
+    Vector4 StringConverter::parseVector4(const String& val)
+    {
+        // Split on space
+        std::vector<String> vec = StringUtil::split(val);
 
+        if (vec.size() != 4)
+        {
+            return Vector4::ZERO;
+        }
+        else
+        {
+            return Vector4(parseReal(vec[0]),parseReal(vec[1]),parseReal(vec[2]),parseReal(vec[3]));
+        }
     }
     //-----------------------------------------------------------------------
     Matrix3 StringConverter::parseMatrix3(const String& val)
