@@ -44,6 +44,7 @@ namespace OgreMayaExporter
 		m_poses.clear();
 		m_target = T_MESH;
 		m_index = 0;
+		m_weightConnections.clear();
 	}
 
 	// Load blend shape deformer from Maya
@@ -79,6 +80,8 @@ namespace OgreMayaExporter
 		m_index = targetIndex;
 		// Set blend shape deformer envelope to 1 to get target shapes
 		m_pBlendShapeFn->setEnvelope(1);
+		// Break connections on weights
+		breakConnections();
 		// Set weight to 0 for all targets
 		MIntArray indexList;
 		m_pBlendShapeFn->weightIndexList(indexList);
@@ -127,6 +130,8 @@ namespace OgreMayaExporter
 		{
 			m_pBlendShapeFn->setWeight(indexList[i],m_origWeights[i]);
 		}
+		// Restore connections on weights
+		restoreConnections();
 		return MS::kSuccess;
 	}
 
@@ -288,4 +293,64 @@ namespace OgreMayaExporter
 	{
 		m_pBlendShapeFn->setEnvelope(m_origEnvelope);
 	}
+	// Break connections to this blendshape
+	void BlendShape::breakConnections()
+	{
+		MStatus stat;
+		MDagModifier dagModifier;
+		// Clear the stored connections
+		m_weightConnections.clear();
+		// Save node connections and break them
+		MPlug weightsPlug = m_pBlendShapeFn->findPlug("weight",true);
+		int i,j;
+		for (i=0; i<weightsPlug.evaluateNumElements(); i++)
+		{
+			MPlug wPlug = weightsPlug.elementByPhysicalIndex(i);
+			MPlugArray srcConnections;
+			MPlugArray dstConnections;
+			wPlug.connectedTo(srcConnections,false,true);
+			wPlug.connectedTo(dstConnections,true,false);
+			weightConnections wcon;
+			for (j=0; j<srcConnections.length(); j++)
+			{
+				wcon.srcConnections.append(srcConnections[j]);
+				dagModifier.disconnect(wPlug,srcConnections[j]);
+				dagModifier.doIt();
+			}
+			for (j=0; j<dstConnections.length(); j++)
+			{
+				wcon.dstConnections.append(dstConnections[j]);
+				dagModifier.disconnect(dstConnections[j],wPlug);
+				dagModifier.doIt();
+			}
+			m_weightConnections.push_back(wcon);
+		}
+	}
+
+
+	// Restore connections on this blendshape
+	void BlendShape::restoreConnections()
+	{
+		MDagModifier dagModifier;
+		// Recreate stored connections on the weight attributes
+		MPlug weightsPlug = m_pBlendShapeFn->findPlug("weight",true);
+		int i,j;
+		for (i=0; i<weightsPlug.evaluateNumElements(); i++)
+		{
+			MPlug wPlug = weightsPlug.elementByPhysicalIndex(i);
+			weightConnections& wcon = m_weightConnections[i];
+			for (j=0; j<wcon.srcConnections.length(); j++)
+			{
+				dagModifier.connect(wPlug,wcon.srcConnections[j]);
+				dagModifier.doIt();
+			}
+			for (j=0; j<wcon.dstConnections.length(); j++)
+			{
+				dagModifier.connect(wcon.dstConnections[j],wPlug);
+				dagModifier.doIt();
+			}
+		}
+	}
+
+
 } // end namespace
