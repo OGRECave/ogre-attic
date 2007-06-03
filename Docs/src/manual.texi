@@ -490,6 +490,8 @@ Here are the attributes you can use in a 'pass' section of a .material script:
 @item
 @ref{scene_blend}
 @item
+@ref{separate_scene_blend}
+@item
 @ref{depth_check}
 @item
 @ref{depth_write}
@@ -654,7 +656,27 @@ The texel alpha value
 @end table
 @*
 Default: scene_blend one zero (opaque)
-@*
+@*@*
+Also see @ref{separate_scene_blend}.
+
+@anchor{separate_scene_blend}
+@subheading separate_scene_blend
+
+This option operates in exactly the same way as @ref{scene_blend}, except that it allows you to specify the operations to perform between the rendered pixel and the frame buffer separately for colour and alpha components. By nature this option is only useful when rendering to targets which have an alpha channel which you'll use for later processing, such as a render texture.@*@*
+
+Format1: separate_scene_blend <simple_colour_blend> <simple_alpha_blend>@*@*
+
+Example: separate_scene_blend add modulate@*@*
+
+This example would add colour components but multiply alpha components. The blend modes available are as in @ref{scene_blend}. The more advanced form is also available:@*@*
+
+Format2: separate_scene_blend <colour_src_factor> <colour_dest_factor> <alpha_src_factor> <alpha_dest_factor>@*@*
+
+Example: separate_scene_blend one one_minus_dest_alpha one one @*@*
+
+Again the options available in the second format are the same as those in the second format of @ref{scene_blend}.
+
+
 @anchor{depth_check}
 @subheading depth_check
 

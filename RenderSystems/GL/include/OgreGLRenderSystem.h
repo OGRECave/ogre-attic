@@ -287,6 +287,10 @@ namespace Ogre {
         /** See
           RenderSystem
          */
+		void _setSeparateSceneBlending(SceneBlendFactor sourceFactor, SceneBlendFactor destFactor, SceneBlendFactor sourceFactorAlpha, SceneBlendFactor destFactorAlpha);
+        /** See
+          RenderSystem
+         */
         void _setAlphaRejectSettings(CompareFunction func, unsigned char value);
         /** See
           RenderSystem

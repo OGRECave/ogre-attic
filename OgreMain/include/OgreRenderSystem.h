@@ -649,6 +649,18 @@ namespace Ogre
         */
         virtual void _setSceneBlending(SceneBlendFactor sourceFactor, SceneBlendFactor destFactor) = 0;
 
+        /** Sets the global blending factors for combining subsequent renders with the existing frame contents.
+            The result of the blending operation is:</p>
+            <p align="center">final = (texture * sourceFactor) + (pixel * destFactor)</p>
+            Each of the factors is specified as one of a number of options, as specified in the SceneBlendFactor
+            enumerated type.
+            @param sourceFactor The source factor in the above calculation, i.e. multiplied by the texture colour components.
+            @param destFactor The destination factor in the above calculation, i.e. multiplied by the pixel colour components.
+            @param sourceFactorAlpha The source factor in the above calculation for the alpha channel, i.e. multiplied by the texture alpha components.
+            @param destFactorAlpha The destination factor in the above calculation for the alpha channel, i.e. multiplied by the pixel alpha components.
+		*/
+		virtual void _setSeparateSceneBlending(SceneBlendFactor sourceFactor, SceneBlendFactor destFactor, SceneBlendFactor sourceFactorAlpha, SceneBlendFactor destFactorAlpha) = 0;
+
         /** Sets the global alpha rejection approach for future renders.
             By default images are rendered regardless of texture alpha. This method lets you change that.
             @param func The comparison function which must pass for a pixel to be written.
