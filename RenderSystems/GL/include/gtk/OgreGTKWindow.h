@@ -73,7 +73,7 @@ public:
     void reposition(int left, int top);
     void resize(unsigned int width, unsigned int height);
     void swapBuffers(bool waitForVSync);
-    void writeContentsToFile(const String& filename);
+    void copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer);
 
     bool requiresTextureFlipping() const { return false; }
 

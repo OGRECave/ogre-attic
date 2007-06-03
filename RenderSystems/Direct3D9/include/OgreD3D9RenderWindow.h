@@ -64,7 +64,7 @@ namespace Ogre
 		void getCustomAttribute( const String& name, void* pData );
 		/** Overridden - see RenderTarget.
 		*/
-		void writeContentsToFile(const String& filename);
+		virtual void copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer);
 		bool requiresTextureFlipping() const { return false; }
 
 		// Method for dealing with resize / move & 3d library

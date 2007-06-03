@@ -92,8 +92,8 @@ namespace Ogre
 		/** @copydoc see RenderWindow::swapBuffers */
 		void swapBuffers(bool waitForVSync);
 	
-		/** @copydoc see RenderTarget::writeContentsToFile */
-		void writeContentsToFile(const String& filename);
+		/** @copydoc see RenderTarget::copyContentsToMemory */
+		void copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer);
 
 		/**
 		@remarks

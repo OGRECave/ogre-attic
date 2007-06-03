@@ -46,7 +46,8 @@ namespace Ogre
         RenderTexture(HardwarePixelBuffer *buffer, size_t zoffset);
         virtual ~RenderTexture();
 
-		void writeContentsToFile( const String & filename );
+		virtual void copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer);
+
 	protected:
 		HardwarePixelBuffer *mBuffer;
 		size_t mZOffset;
@@ -94,7 +95,7 @@ namespace Ogre
 		/** Error throwing implementation, it's not possible to write a MultiRenderTarget
 			to disk. 
 		*/
-		virtual void writeContentsToFile( const String & filename );
+		virtual void copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer);
 	};
 }
 
