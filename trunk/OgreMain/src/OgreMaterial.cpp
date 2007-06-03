@@ -696,6 +696,16 @@ namespace Ogre {
         }
     }
     // --------------------------------------------------------------------
+    void Material::setSeparateSceneBlending( const SceneBlendType sbt, const SceneBlendType sbta )
+    {
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setSeparateSceneBlending(sbt, sbta);
+        }
+    }
+    // --------------------------------------------------------------------
     void Material::setSceneBlending( const SceneBlendFactor sourceFactor, 
         const SceneBlendFactor destFactor)
     {
@@ -706,6 +716,16 @@ namespace Ogre {
             (*i)->setSceneBlending(sourceFactor, destFactor);
         }
     }
+    // --------------------------------------------------------------------
+    void Material::setSeparateSceneBlending( const SceneBlendFactor sourceFactor, const SceneBlendFactor destFactor, const SceneBlendFactor sourceFactorAlpha, const SceneBlendFactor destFactorAlpha)
+	{
+        Techniques::iterator i, iend;
+        iend = mTechniques.end();
+        for (i = mTechniques.begin(); i != iend; ++i)
+        {
+            (*i)->setSeparateSceneBlending(sourceFactor, destFactor, sourceFactorAlpha, destFactorAlpha);
+        }
+	}
     // --------------------------------------------------------------------
     void Material::_notifyNeedsRecompile(void)
     {

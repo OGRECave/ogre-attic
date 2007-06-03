@@ -1384,6 +1384,27 @@ namespace Ogre {
             glBlendFunc(sourceBlend, destBlend);
         }
     }
+	//-----------------------------------------------------------------------------
+	void GLRenderSystem::_setSeparateSceneBlending(
+		SceneBlendFactor sourceFactor, SceneBlendFactor destFactor, 
+		SceneBlendFactor sourceFactorAlpha, SceneBlendFactor destFactorAlpha)
+	{
+		GLint sourceBlend = getBlendMode(sourceFactor);
+		GLint destBlend = getBlendMode(destFactor);
+		GLint sourceBlendAlpha = getBlendMode(sourceFactorAlpha);
+		GLint destBlendAlpha = getBlendMode(destFactorAlpha);
+
+		if(sourceFactor == SBF_ONE && destFactor == SBF_ZERO && 
+			sourceFactorAlpha == SBF_ONE && destFactorAlpha == SBF_ZERO)
+		{
+			glDisable(GL_BLEND);
+		}
+		else
+		{
+			glEnable(GL_BLEND);
+			glBlendFuncSeparate(sourceBlend, destBlend, sourceBlendAlpha, destBlendAlpha);
+		}
+	}
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setAlphaRejectSettings(CompareFunction func, unsigned char value)
     {

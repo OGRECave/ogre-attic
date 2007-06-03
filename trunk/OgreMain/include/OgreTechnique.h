@@ -393,6 +393,16 @@ namespace Ogre {
         */
         void setSceneBlending( const SceneBlendType sbt );
 
+        /** Sets the kind of blending every pass has with the existing contents of the scene, using individual factors both color and alpha channels
+        @note
+            This property actually exists on the Pass class. For simplicity, this method allows 
+            you to set these properties for every current Pass within this Technique. If 
+            you need more precision, retrieve the Pass instance and set the
+            property there.
+        @see Pass::setSeparateSceneBlending
+        */
+        void setSeparateSceneBlending( const SceneBlendType sbt, const SceneBlendType sbta );
+
         /** Allows very fine control of blending every Pass with the existing contents of the scene.
         @note
             This property actually exists on the Pass class. For simplicity, this method allows 
@@ -402,6 +412,16 @@ namespace Ogre {
         @see Pass::setSceneBlending
         */
         void setSceneBlending( const SceneBlendFactor sourceFactor, const SceneBlendFactor destFactor);
+
+        /** Allows very fine control of blending every Pass with the existing contents of the scene, using individual factors both color and alpha channels
+        @note
+            This property actually exists on the Pass class. For simplicity, this method allows 
+            you to set these properties for every current Pass within this Technique. If 
+            you need more precision, retrieve the Pass instance and set the
+            property there.
+        @see Pass::setSeparateSceneBlending
+        */
+        void setSeparateSceneBlending( const SceneBlendFactor sourceFactor, const SceneBlendFactor destFactor, const SceneBlendFactor sourceFactorAlpha, const SceneBlendFactor destFactorAlpha);
 
         /** Assigns a level-of-detail (LOD) index to this Technique.
         @remarks

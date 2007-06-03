@@ -95,6 +95,11 @@ namespace Ogre {
         // Blending factors
         SceneBlendFactor mSourceBlendFactor;
         SceneBlendFactor mDestBlendFactor;
+		SceneBlendFactor mSourceBlendFactorAlpha;
+		SceneBlendFactor mDestBlendFactorAlpha;
+
+		// Used to determine if separate alpha blending should be used for color and alpha channels
+		bool mSeparateBlend;
         //-------------------------------------------------------------------------
 
         //-------------------------------------------------------------------------
@@ -184,6 +189,9 @@ namespace Ogre {
 		bool mLightScissoring;
 		/// User clip planes for light?
 		bool mLightClipPlanes;
+
+		// Used to get scene blending flags from a blending type
+		void _getBlendFlags(SceneBlendType type, SceneBlendFactor& source, SceneBlendFactor& dest);
 
 	public:
 		typedef std::set<Pass*> PassSet;
@@ -532,6 +540,26 @@ namespace Ogre {
         */
         void setSceneBlending( const SceneBlendType sbt );
 
+       /** Sets the kind of blending this pass has with the existing contents of the scene, separately for color and alpha channels
+        @remarks
+        Wheras the texture blending operations seen in the TextureUnitState class are concerned with
+        blending between texture layers, this blending is about combining the output of the Pass
+        as a whole with the existing contents of the rendering target. This blending therefore allows
+        object transparency and other special effects. If all passes in a technique have a scene
+        blend, then the whole technique is considered to be transparent.
+        @par
+        This method allows you to select one of a number of predefined blending types. If you require more
+        control than this, use the alternative version of this method which allows you to specify source and
+        destination blend factors.
+        @note
+        This method is applicable for both the fixed-function and programmable pipelines.
+        @param
+        sbt One of the predefined SceneBlendType blending types for the color channel
+        @param
+        sbta One of the predefined SceneBlendType blending types for the alpha channel
+        */
+        void setSeparateSceneBlending( const SceneBlendType sbt, const SceneBlendType sbta );
+
         /** Allows very fine control of blending this Pass with the existing contents of the scene.
         @remarks
         Wheras the texture blending operations seen in the TextureUnitState class are concerned with
@@ -556,6 +584,37 @@ namespace Ogre {
         */
         void setSceneBlending( const SceneBlendFactor sourceFactor, const SceneBlendFactor destFactor);
 
+        /** Allows very fine control of blending this Pass with the existing contents of the scene.
+        @remarks
+        Wheras the texture blending operations seen in the TextureUnitState class are concerned with
+        blending between texture layers, this blending is about combining the output of the material
+        as a whole with the existing contents of the rendering target. This blending therefore allows
+        object transparency and other special effects.
+        @par
+        This version of the method allows complete control over the blending operation, by specifying the
+        source and destination blending factors. The result of the blending operation is:
+        <span align="center">
+        final = (texture * sourceFactor) + (pixel * destFactor)
+        </span>
+        @par
+        Each of the factors is specified as one of a number of options, as specified in the SceneBlendFactor
+        enumerated type.
+        @param
+        sourceFactor The source factor in the above calculation, i.e. multiplied by the texture colour components.
+        @param
+        destFactor The destination factor in the above calculation, i.e. multiplied by the pixel colour components.
+        @param
+        sourceFactorAlpha The alpha source factor in the above calculation, i.e. multiplied by the texture alpha component.
+        @param
+        destFactorAlpha The alpha destination factor in the above calculation, i.e. multiplied by the pixel alpha component.
+		@note
+        This method is applicable for both the fixed-function and programmable pipelines.
+        */
+		void setSeparateSceneBlending( const SceneBlendFactor sourceFactor, const SceneBlendFactor destFactor, const SceneBlendFactor sourceFactorAlpha, const SceneBlendFactor destFactorAlpha );
+
+		/** Return true if this pass uses separate scene blending */
+		bool hasSeparateSceneBlending() const;
+
         /** Retrieves the source blending factor for the material (as set using Materiall::setSceneBlending).
         */
         SceneBlendFactor getSourceBlendFactor() const;
@@ -563,6 +622,14 @@ namespace Ogre {
         /** Retrieves the destination blending factor for the material (as set using Materiall::setSceneBlending).
         */
         SceneBlendFactor getDestBlendFactor() const;
+
+	    /** Retrieves the alpha source blending factor for the material (as set using Materiall::setSeparateSceneBlending).
+        */
+		SceneBlendFactor getSourceBlendFactorAlpha() const;
+
+	    /** Retrieves the alpha destination blending factor for the material (as set using Materiall::setSeparateSceneBlending).
+        */
+		SceneBlendFactor getDestBlendFactorAlpha() const;
 
 		/** Returns true if this pass has some element of transparency. */
 		bool isTransparent(void) const;

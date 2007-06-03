@@ -77,7 +77,8 @@ namespace Ogre {
         // Pass section rules
         "    <Pass> ::= 'pass' [<Label>] '{' {<Pass_Properties>} '}' \n"
         "        <Pass_Properties> ::= <Ambient> | <Diffuse> | <Specular> | <Emissive> | \n"
-        "                              <Scene_Blend> | <Depth_Check> | <Depth_Write> | \n"
+        "                              <Scene_Blend> | <Separate_Scene_Blend> | \n"
+		"							   <Depth_Check> | <Depth_Write> | \n"
 		"                              <Light_Scissor> | <Light_Clip> | <Texture_Unit> | \n"
         "                              <Depth_Func> | <Depth_Bias> | <Alpha_Rejection> | \n"
         "                              <Cull_Hardware> | <Cull_Software> | <Lighting> | \n"
@@ -106,6 +107,9 @@ namespace Ogre {
         "                               'one_minus_dest_colour' | 'one_minus_src_colour' | \n"
         "                               'dest_alpha' | 'src_alpha' | 'one_minus_dest_alpha' | \n"
         "                               'one_minus_src_alpha' | 'one' | 'zero' \n"
+
+        "        <Separate_Scene_Blend> ::= 'separate_scene_blend' <SeparateSceneBlend_Options> \n"
+		"          <SeparateSceneBlend_Options> ::= <Simple_Blend> <Simple_Blend> | <User_Blend> <User_Blend> \n"
 
         "        <Depth_Check> ::= 'depth_check' <On_Off> \n"
         "        <Depth_Write> ::= 'depth_write' <On_Off> \n"
@@ -344,6 +348,8 @@ namespace Ogre {
                 addLexemeToken("src_alpha", ID_SRC_ALPHA);
                 addLexemeToken("one_minus_dest_alpha", ID_ONE_MINUS_DEST_ALPHA);
                 addLexemeToken("one_minus_src_alpha", ID_ONE_MINUS_SRC_ALPHA);
+
+            addLexemeAction("separate_scene_blend", &MaterialScriptCompiler::parseSeparateSceneBlend);
 
             addLexemeAction("depth_check", &MaterialScriptCompiler::parseDepthCheck);
             addLexemeAction("depth_write", &MaterialScriptCompiler::parseDepthWrite);
@@ -1156,6 +1162,72 @@ namespace Ogre {
         {
             logParseError(
                 "Bad scene_blend attribute, wrong number of parameters (expected 1 or 2)");
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MaterialScriptCompiler::parseSeparateSceneBlend(void)
+    {
+        assert(mScriptContext.pass);
+        const size_t paramCount = getRemainingTokensForAction();
+        // Should be 2 or 4 params
+        if (paramCount == 2)
+        {
+            //simple blend types
+            SceneBlendType sbtype = SBT_REPLACE;
+            switch(getNextTokenID())
+            {
+            case ID_ADD:
+                sbtype = SBT_ADD;
+                break;
+            case ID_MODULATE:
+                sbtype = SBT_MODULATE;
+                break;
+			case ID_COLOUR_BLEND:
+				sbtype = SBT_TRANSPARENT_COLOUR;
+				break;
+            case ID_ALPHA_BLEND:
+                sbtype = SBT_TRANSPARENT_ALPHA;
+                break;
+            default:
+                break;
+            }
+
+            //simple blend types
+            SceneBlendType sbtypea = SBT_REPLACE;
+            switch(getNextTokenID())
+            {
+            case ID_ADD:
+                sbtypea = SBT_ADD;
+                break;
+            case ID_MODULATE:
+                sbtypea = SBT_MODULATE;
+                break;
+			case ID_COLOUR_BLEND:
+				sbtypea = SBT_TRANSPARENT_COLOUR;
+				break;
+            case ID_ALPHA_BLEND:
+                sbtypea = SBT_TRANSPARENT_ALPHA;
+                break;
+            default:
+                break;
+            }
+
+            mScriptContext.pass->setSeparateSceneBlending(sbtype, sbtypea);
+        }
+        else if (paramCount == 4)
+        {
+            const SceneBlendFactor src = convertBlendFactor();
+            const SceneBlendFactor dest = convertBlendFactor();
+
+            const SceneBlendFactor srca = convertBlendFactor();
+            const SceneBlendFactor desta = convertBlendFactor();
+
+			mScriptContext.pass->setSeparateSceneBlending(src,dest,srca,desta);
+        }
+        else
+        {
+            logParseError(
+                "Bad separate_scene_blend attribute, wrong number of parameters (expected 2 or 4)");
         }
     }
     //-----------------------------------------------------------------------

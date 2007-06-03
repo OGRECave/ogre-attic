@@ -243,6 +243,7 @@ namespace Ogre {
         void parseSpecular(void);
         void parseEmissive(void);
         void parseSceneBlend(void);
+		void parseSeparateSceneBlend(void);
         SceneBlendFactor convertBlendFactor(void);
         void parseDepthCheck(void);
         void parseDepthWrite(void);

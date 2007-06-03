@@ -306,6 +306,79 @@ namespace Ogre
 
     }
     //-----------------------------------------------------------------------
+    bool parseSeparateSceneBlend(String& params, MaterialScriptContext& context)
+    {
+        StringUtil::toLowerCase(params);
+        StringVector vecparams = StringUtil::split(params, " \t");
+        // Should be 2 or 4 params
+        if (vecparams.size() == 2)
+        {
+            //simple
+            SceneBlendType stype;
+            if (vecparams[0] == "add")
+                stype = SBT_ADD;
+            else if (vecparams[0] == "modulate")
+                stype = SBT_MODULATE;
+			else if (vecparams[0] == "colour_blend")
+				stype = SBT_TRANSPARENT_COLOUR;
+            else if (vecparams[0] == "alpha_blend")
+                stype = SBT_TRANSPARENT_ALPHA;
+            else
+            {
+                logParseError(
+                    "Bad separate_scene_blend attribute, unrecognised parameter '" + vecparams[0] + "'",
+                    context);
+                return false;
+            }
+
+            SceneBlendType stypea;
+            if (vecparams[0] == "add")
+                stypea = SBT_ADD;
+            else if (vecparams[0] == "modulate")
+                stypea = SBT_MODULATE;
+			else if (vecparams[0] == "colour_blend")
+				stypea = SBT_TRANSPARENT_COLOUR;
+            else if (vecparams[0] == "alpha_blend")
+                stypea = SBT_TRANSPARENT_ALPHA;
+            else
+            {
+                logParseError(
+                    "Bad separate_scene_blend attribute, unrecognised parameter '" + vecparams[1] + "'",
+                    context);
+                return false;
+            }
+			
+			context.pass->setSeparateSceneBlending(stype, stypea);
+        }
+        else if (vecparams.size() == 4)
+        {
+            //src/dest
+            SceneBlendFactor src, dest;
+			SceneBlendFactor srca, desta;
+
+            try {
+                src = convertBlendFactor(vecparams[0]);
+                dest = convertBlendFactor(vecparams[1]);
+                srca = convertBlendFactor(vecparams[2]);
+                desta = convertBlendFactor(vecparams[3]);
+				context.pass->setSeparateSceneBlending(src,dest,srca,desta);
+            }
+            catch (Exception& e)
+            {
+                logParseError("Bad separate_scene_blend attribute, " + e.getDescription(), context);
+            }
+
+        }
+        else
+        {
+            logParseError(
+                "Bad separate_scene_blend attribute, wrong number of parameters (expected 2 or 4)",
+                context);
+        }
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
     CompareFunction convertCompareFunction(const String& param)
     {
         if (param == "always_fail")
@@ -2651,7 +2724,8 @@ namespace Ogre
         mPassAttribParsers.insert(AttribParserList::value_type("specular", (ATTRIBUTE_PARSER)parseSpecular));
         mPassAttribParsers.insert(AttribParserList::value_type("emissive", (ATTRIBUTE_PARSER)parseEmissive));
         mPassAttribParsers.insert(AttribParserList::value_type("scene_blend", (ATTRIBUTE_PARSER)parseSceneBlend));
-        mPassAttribParsers.insert(AttribParserList::value_type("depth_check", (ATTRIBUTE_PARSER)parseDepthCheck));
+        mPassAttribParsers.insert(AttribParserList::value_type("separate_scene_blend", (ATTRIBUTE_PARSER)parseSeparateSceneBlend));
+		mPassAttribParsers.insert(AttribParserList::value_type("depth_check", (ATTRIBUTE_PARSER)parseDepthCheck));
         mPassAttribParsers.insert(AttribParserList::value_type("depth_write", (ATTRIBUTE_PARSER)parseDepthWrite));
         mPassAttribParsers.insert(AttribParserList::value_type("depth_func", (ATTRIBUTE_PARSER)parseDepthFunc));
 		mPassAttribParsers.insert(AttribParserList::value_type("normalise_normals", (ATTRIBUTE_PARSER)parseNormaliseNormals));
@@ -3470,13 +3544,29 @@ namespace Ogre
             }
 
             // scene blend factor
-            if (mDefaults ||
-                pPass->getSourceBlendFactor() != SBF_ONE ||
-                pPass->getDestBlendFactor() != SBF_ZERO)
-            {
-                writeAttribute(3, "scene_blend");
-                writeSceneBlendFactor(pPass->getSourceBlendFactor(), pPass->getDestBlendFactor());
-            }
+			if (pPass->hasSeparateSceneBlending())
+			{
+				if (mDefaults ||
+					pPass->getSourceBlendFactor() != SBF_ONE ||
+					pPass->getDestBlendFactor() != SBF_ZERO ||
+					pPass->getSourceBlendFactorAlpha() != SBF_ONE ||
+					pPass->getDestBlendFactorAlpha() != SBF_ZERO)
+				{
+					writeAttribute(3, "separate_scene_blend");
+					writeSceneBlendFactor(pPass->getSourceBlendFactor(), pPass->getDestBlendFactor(), 
+						pPass->getSourceBlendFactorAlpha(), pPass->getDestBlendFactorAlpha());
+				}
+			}
+			else
+			{
+				if (mDefaults ||
+					pPass->getSourceBlendFactor() != SBF_ONE ||
+					pPass->getDestBlendFactor() != SBF_ZERO)
+				{
+					writeAttribute(3, "scene_blend");
+					writeSceneBlendFactor(pPass->getSourceBlendFactor(), pPass->getDestBlendFactor());
+				}
+			}
 
 
             //depth check
@@ -4210,6 +4300,14 @@ namespace Ogre
             writeSceneBlendFactor(sbf_dst);
         }
     }
+	//-----------------------------------------------------------------------
+	void MaterialSerializer::writeSceneBlendFactor(
+		const SceneBlendFactor c_src, const SceneBlendFactor c_dest, 
+		const SceneBlendFactor a_src, const SceneBlendFactor a_dest)
+	{
+		writeSceneBlendFactor(c_src, c_dest);
+		writeSceneBlendFactor(a_src, a_dest);
+	}
     //-----------------------------------------------------------------------
     void MaterialSerializer::writeCompareFunction(const CompareFunction cf)
     {

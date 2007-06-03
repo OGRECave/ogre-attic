@@ -923,8 +923,17 @@ const Pass* SceneManager::_setPass(const Pass* pass, bool evenIfSuppressed,
 		// The rest of the settings are the same no matter whether we use programs or not
 
 		// Set scene blending
-		mDestRenderSystem->_setSceneBlending(
-			pass->getSourceBlendFactor(), pass->getDestBlendFactor());
+		if ( pass->hasSeparateSceneBlending( ) )
+		{
+			mDestRenderSystem->_setSeparateSceneBlending(
+				pass->getSourceBlendFactor(), pass->getDestBlendFactor(),
+				pass->getSourceBlendFactorAlpha(), pass->getDestBlendFactorAlpha());
+		}
+		else
+		{
+			mDestRenderSystem->_setSceneBlending(
+				pass->getSourceBlendFactor(), pass->getDestBlendFactor());
+		}
 
 		// Set point parameters
 		mDestRenderSystem->_setPointParameters(

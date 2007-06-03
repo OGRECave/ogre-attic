@@ -666,6 +666,16 @@ namespace Ogre {
         }
     }
     // --------------------------------------------------------------------
+    void Technique::setSeparateSceneBlending( const SceneBlendType sbt, const SceneBlendType sbta )
+	{
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setSeparateSceneBlending(sbt, sbta);
+        }
+	}
+    // --------------------------------------------------------------------
     void Technique::setSceneBlending( const SceneBlendFactor sourceFactor,
         const SceneBlendFactor destFactor)
     {
@@ -676,6 +686,16 @@ namespace Ogre {
             (*i)->setSceneBlending(sourceFactor, destFactor);
         }
     }
+    // --------------------------------------------------------------------
+    void Technique::setSeparateSceneBlending( const SceneBlendFactor sourceFactor, const SceneBlendFactor destFactor, const SceneBlendFactor sourceFactorAlpha, const SceneBlendFactor destFactorAlpha)
+	{
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setSeparateSceneBlending(sourceFactor, destFactor, sourceFactorAlpha, destFactorAlpha);
+        }
+	}
 
     // --------------------------------------------------------------------
     void Technique::setName(const String& name)
