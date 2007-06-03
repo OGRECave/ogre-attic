@@ -59,7 +59,7 @@ namespace Ogre
         /** Overridden - see RenderWindow */
         virtual void swapBuffers( bool waitForVSync ) = 0;
         /** Overridden - see RenderTarget */
-        virtual void writeContentsToFile( const String& filename );
+        virtual void copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer);
 		/** Overridden - see RenderTarget */
 		virtual void windowMovedOrResized() {};
 

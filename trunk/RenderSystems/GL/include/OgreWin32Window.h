@@ -50,9 +50,8 @@ namespace Ogre {
         void resize(unsigned int width, unsigned int height);
         void swapBuffers(bool waitForVSync);
 
-        /** Overridden - see RenderTarget.
-        */
-        void writeContentsToFile(const String& filename);
+		/** Overridden - see RenderTarget. */
+		virtual void copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer);
 
 		bool requiresTextureFlipping() const { return false; }
 

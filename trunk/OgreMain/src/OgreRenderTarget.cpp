@@ -442,6 +442,18 @@ namespace Ogre {
         return filename;
 
     }
+	//-----------------------------------------------------------------------
+	void RenderTarget::writeContentsToFile(const String& filename)
+	{
+		uchar *data = new uchar[mWidth * mHeight * 3];
+		PixelBox pb(mWidth, mHeight, 1, PF_BYTE_RGB, data);
+
+		copyContentsToMemory(pb);
+
+		Image().loadDynamicImage(data, mWidth, mHeight, 1, PF_BYTE_RGB, false, 1, 0).save(filename);
+
+		delete [] data;
+	}
     //-----------------------------------------------------------------------
     void RenderTarget::_notifyCameraRemoved(const Camera* cam)
     {

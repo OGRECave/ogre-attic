@@ -204,51 +204,53 @@ namespace Ogre {
         // XXX More?
     }
 
-	void SDLWindow::writeContentsToFile(const String& filename)
+	void SDLWindow::copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer)
 	{
-		ImageCodec::ImageData* imgData = new ImageCodec::ImageData;
-		imgData->width = mWidth;
-		imgData->height = mHeight;
-		imgData->format = PF_BYTE_RGB;
-
-		// Allocate buffer 
-		uchar* pBuffer = new uchar[mWidth * mHeight * 3];
-
-		// Read pixels
-		// I love GL: it does all the locking & colour conversion for us
-		glReadPixels(0,0, mWidth-1, mHeight-1, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
-
-		// Wrap buffer in a memory stream
-        DataStreamPtr stream(new MemoryDataStream(pBuffer, mWidth * mHeight * 3, false));
-
-		// Need to flip the read data over in Y though
-		Image img;
-		img.loadRawData(stream, mWidth, mHeight, imgData->format );
-		img.flipAroundX();
-
-        MemoryDataStreamPtr streamFlipped(new MemoryDataStream(img.getData(), stream->size(), false));
-
-		// Get codec 
-		size_t pos = filename.find_last_of(".");
-		String extension;
-		if( pos == String::npos )
-			OGRE_EXCEPT(
-			Exception::ERR_INVALIDPARAMS, 
-			"Unable to determine image type for '" + filename + "' - invalid extension.",
-			"SDLWindow::writeContentsToFile" );
-
-		while( pos != filename.length() - 1 )
-			extension += filename[++pos];
-
-		// Get the codec
-		Codec * pCodec = Codec::getCodec(extension);
-
-		// Write out
-		Codec::CodecDataPtr codecDataPtr(imgData);
-		pCodec->codeToFile(streamFlipped, filename, codecDataPtr);
-
-		delete [] pBuffer;
-
-
+		if ((dst.left < 0) || (dst.right > mWidth) ||
+			(dst.top < 0) || (dst.bottom > mHeight) ||
+			(dst.front != 0) || (dst.back != 1))
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+						"Invalid box.",
+						"SDLWindow::copyContentsToMemory" );
+		}
+	
+		if (buffer == FB_AUTO)
+		{
+			buffer = mIsFullScreen? FB_FRONT : FB_BACK;
+		}
+	
+		GLenum format = Ogre::GLPixelUtil::getGLOriginFormat(dst.format);
+		GLenum type = Ogre::GLPixelUtil::getGLOriginDataType(dst.format);
+	
+		if ((format == GL_NONE) || (type == 0))
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+						"Unsupported format.",
+						"SDLWindow::copyContentsToMemory" );
+		}
+	
+		glReadBuffer((buffer == FB_FRONT)? GL_FRONT : GL_BACK);
+		glReadPixels((GLint)dst.left, (GLint)dst.top,
+					 (GLsizei)dst.getWidth(), (GLsizei)dst.getHeight(),
+					 format, type, dst.data);
+	
+		//vertical flip
+		{
+			size_t rowSpan = dst.getWidth() * PixelUtil::getNumElemBytes(dst.format);
+			size_t height = dst.getHeight();
+			uchar *tmpData = new uchar[rowSpan * height];
+			uchar *srcRow = (uchar *)dst.data, *tmpRow = tmpData + (height - 1) * rowSpan;
+	
+			while (tmpRow >= tmpData)
+			{
+				memcpy(tmpRow, srcRow, rowSpan);
+				srcRow += rowSpan;
+				tmpRow -= rowSpan;
+			}
+			memcpy(dst.data, tmpData, rowSpan * height);
+	
+			delete [] tmpData;
+		}
 	}
 }

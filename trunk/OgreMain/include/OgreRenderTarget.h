@@ -82,6 +82,13 @@ namespace Ogre {
             size_t batchCount;
         };
 
+		enum FrameBuffer
+		{
+			FB_FRONT,
+			FB_BACK,
+			FB_AUTO
+		};
+
         RenderTarget();
         virtual ~RenderTarget();
 
@@ -262,12 +269,15 @@ namespace Ogre {
         */
         virtual bool isAutoUpdated(void) const;
 
+		/** Copies the current contents of the render target to a pixelbox. */
+		virtual void copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer = FB_AUTO) = 0;
+		
         /** Writes the current contents of the render target to the named file. */
-        virtual void writeContentsToFile(const String& filename) = 0;
+        void writeContentsToFile(const String& filename);
 
-	/** Writes the current contents of the render target to the (PREFIX)(time-stamp)(SUFFIX) file.
-		@returns the name of the file used.*/
-	virtual String writeContentsToTimestampedFile(const String& filenamePrefix, const String& filenameSuffix);
+		/** Writes the current contents of the render target to the (PREFIX)(time-stamp)(SUFFIX) file.
+			@returns the name of the file used.*/
+		virtual String writeContentsToTimestampedFile(const String& filenamePrefix, const String& filenameSuffix);
 
 		virtual bool requiresTextureFlipping() const = 0;
 

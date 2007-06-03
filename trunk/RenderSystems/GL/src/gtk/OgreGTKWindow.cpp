@@ -178,9 +178,54 @@ void GTKWindow::swapBuffers(bool waitForVSync)
     	glwindow->swap_buffers();
 }
 
-void GTKWindow::writeContentsToFile(const String& filename)
+void GTKWindow::copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer)
 {
-    	// XXX impl me
+	if ((dst.left < 0) || (dst.right > mWidth) ||
+		(dst.top < 0) || (dst.bottom > mHeight) ||
+		(dst.front != 0) || (dst.back != 1))
+	{
+		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+					"Invalid box.",
+					"GTKWindow::copyContentsToMemory" );
+	}
+
+	if (buffer == FB_AUTO)
+	{
+		buffer = mIsFullScreen? FB_FRONT : FB_BACK;
+	}
+
+	GLenum format = Ogre::GLPixelUtil::getGLOriginFormat(dst.format);
+	GLenum type = Ogre::GLPixelUtil::getGLOriginDataType(dst.format);
+
+	if ((format == GL_NONE) || (type == 0))
+	{
+		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+					"Unsupported format.",
+					"GTKWindow::copyContentsToMemory" );
+	}
+
+	glReadBuffer((buffer == FB_FRONT)? GL_FRONT : GL_BACK);
+	glReadPixels((GLint)dst.left, (GLint)dst.top,
+				 (GLsizei)dst.getWidth(), (GLsizei)dst.getHeight(),
+				 format, type, dst.data);
+
+	//vertical flip
+	{
+		size_t rowSpan = dst.getWidth() * PixelUtil::getNumElemBytes(dst.format);
+		size_t height = dst.getHeight();
+		uchar *tmpData = new uchar[rowSpan * height];
+		uchar *srcRow = (uchar *)dst.data, *tmpRow = tmpData + (height - 1) * rowSpan;
+
+		while (tmpRow >= tmpData)
+		{
+			memcpy(tmpRow, srcRow, rowSpan);
+			srcRow += rowSpan;
+			tmpRow -= rowSpan;
+		}
+		memcpy(dst.data, tmpData, rowSpan * height);
+
+		delete [] tmpData;
+	}
 }
 
 void GTKWindow::getCustomAttribute( const String& name, void* pData )
