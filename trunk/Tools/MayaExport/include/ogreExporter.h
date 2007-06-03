@@ -14,6 +14,22 @@
 *   (at your option) any later version.                                          *
 *                                                                                *
 **********************************************************************************/
+/*********************************************************************************
+ * Description: This is a plugin for Maya, that allows the export of animated    *
+ *              meshes in the OGRE file format. All meshes will be combined      *
+ *              together to form a single OGRE mesh, each Maya mesh will be      *
+ *              translated as a submesh. Multiple materials per mesh are allowed *
+ *              each group of triangles sharing the same material will become    *
+ *              a separate submesh. Skeletal animation and blendshapes are       *
+ *              supported, or, alternatively, vertex animation as a sequence     *
+ *              of morph targets.                                                *
+ *              The export command can be run via script too, for instructions   *
+ *              on its usage please refer to the Instructions.txt file.          *
+ *********************************************************************************/
+/*********************************************************************************
+ * Note: The particles exporter is an extra module submitted by the OGRE         *
+ *       community, it still has to be reviewed and fixed.                       *
+ *********************************************************************************/
 
 #ifndef OGRE_EXPORTER_H
 #define OGRE_EXPORTER_H
@@ -29,16 +45,29 @@ namespace OgreMayaExporter
 	class OgreExporter : public MPxCommand
 	{
 	public:
-		// public methods
+		// Public methods
+		//constructor
 		OgreExporter();
+		//destructor
 		virtual ~OgreExporter(){};
+		//override of MPxCommand methods
 		static void* creator();
 		MStatus doIt(const MArgList& args);
 		bool isUndoable() const;
+
+	protected:
+		// Internal methods
+		//analyses a dag node in Maya and translates it to the OGRE format, 
+		//it is recursively applied until the whole dag nodes tree has been visited
 		MStatus translateNode(MDagPath& dagPath);
+		//writes animation data to an extra .anim file
 		MStatus writeAnim(MFnAnimCurve& anim);
+		//writes camera data to an extra .camera file
 		MStatus writeCamera(MFnCamera& camera);
+		//writes all translated data to a group of OGRE files
 		MStatus writeOgreData();
+		//cleans up memory and exits
+		void exit();
 
 	private:
 		// private members
@@ -48,8 +77,6 @@ namespace OgreMayaExporter
 		MaterialSet* m_pMaterialSet;
 		MSelectionList m_selList;
 		MTime m_curTime;
-
-		void exit();
 	};
 
 

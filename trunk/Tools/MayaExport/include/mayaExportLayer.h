@@ -20,6 +20,14 @@
 
 #define PRECISION 0.0001
 
+// standard libraries
+#include <math.h>
+#include <vector>
+#include <set>
+#include <cassert>
+#include <fstream>
+//#include <iostream>
+
 // Maya API
 #include <maya/MAngle.h>
 #include <maya/MFnTransform.h>
@@ -64,18 +72,11 @@
 #include <maya/MQuaternion.h>
 #include <maya/MFnBlendShapeDeformer.h>
 #include <maya/MBoundingBox.h>
+#include <maya/MDagModifier.h>
 
 // OGRE API
 #include "Ogre.h"
 #include "OgreDefaultHardwareBufferManager.h"
-
-// standard libraries
-#include <math.h>
-#include <vector>
-#include <set>
-#include <cassert>
-#include <fstream>
-#include <iostream>
 
 #pragma warning (disable : 4018)
 

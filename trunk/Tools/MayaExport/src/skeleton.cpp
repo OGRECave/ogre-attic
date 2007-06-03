@@ -426,6 +426,14 @@ namespace OgreMayaExporter
 		MVector axis;
 		double theta;
 		rotation.getAxisAngle(axis,theta);
+		while (theta > Ogre::Math::PI) 
+		{ 
+			theta -= Ogre::Math::TWO_PI; 
+		} 
+		while (theta < -Ogre::Math::PI) 
+		{ 
+			theta += Ogre::Math::TWO_PI; 
+		} 
 		if (fabs(axis.x) < PRECISION)
 			axis.x = 0;
 		if (fabs(axis.y) < PRECISION)
