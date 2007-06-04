@@ -47,11 +47,9 @@ namespace Ogre {
 	void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message) 
 	{
 		// Callback method as required by FreeImage to report problems
-		StringUtil::StrStreamType str;
-		str << "FreeImage error: '" << message << "' when loading format "
+		LogManager::getSingleton().stream() 
+			<< "FreeImage error: '" << message << "' when loading format "
 			<< FreeImage_GetFormatFromFIF(fif);
-
-		LogManager::getSingleton().logMessage(str.str());
 
 	}
 	//---------------------------------------------------------------------

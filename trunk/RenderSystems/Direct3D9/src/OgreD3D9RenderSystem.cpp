@@ -290,9 +290,8 @@ namespace Ogre
 	void D3D9RenderSystem::setConfigOption( const String &name, const String &value )
 	{
 
-        StringUtil::StrStreamType str;
-        str << "D3D9 : RenderSystem Option: " << name << " = " << value;
-		LogManager::getSingleton().logMessage(str.str());
+		LogManager::getSingleton().stream()
+			<< "D3D9 : RenderSystem Option: " << name << " = " << value;
 
         bool viewModeChanged = false;
 
@@ -304,7 +303,7 @@ namespace Ogre
 			it->second.currentValue = value;
 		else
 		{
-            str.str(StringUtil::BLANK);
+			StringUtil::StrStreamType str;
             str << "Option named '" << name << "' does not exist.";
 			OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS, str.str(), "D3D9RenderSystem::setConfigOption" );
 		}
@@ -1145,10 +1144,9 @@ namespace Ogre
 			{
 				// cool, at least one supported
 				anySupported = true;
-				StringUtil::StrStreamType str;
-				str << "D3D9: Vertex texture format supported - "
+				LogManager::getSingleton().stream()
+					<< "D3D9: Vertex texture format supported - "
 					<< PixelUtil::getFormatName(pf);
-				LogManager::getSingleton().logMessage(str.str());
 			}
 		}
 
@@ -3283,10 +3281,9 @@ namespace Ogre
 				"D3D9RenderWindow::restoreLostDevice" );
 		}
 
-		StringUtil::StrStreamType str;
-		str << "Reset device ok w:" << presParams->BackBufferWidth
+		LogManager::getSingleton().stream()
+			<< "Reset device ok w:" << presParams->BackBufferWidth
 			<< " h:" << presParams->BackBufferHeight;
-		LogManager::getSingleton().logMessage(str.str());
 		// If windowed, we have to reset the size here
 		// since a fullscreen switch may have occurred
 		if (presParams->Windowed)

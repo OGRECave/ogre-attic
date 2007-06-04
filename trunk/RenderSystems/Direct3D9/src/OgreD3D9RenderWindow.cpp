@@ -255,12 +255,10 @@ namespace Ogre
 		mIsFullScreen = fullScreen;
 		mColourDepth = colourDepth;
 
-		StringUtil::StrStreamType str;
-		str << "D3D9 : Created D3D9 Rendering Window '"
+		LogManager::getSingleton().stream()
+			<< "D3D9 : Created D3D9 Rendering Window '"
 			<< mName << "' : " << mWidth << "x" << mHeight 
 			<< ", " << mColourDepth << "bpp";
-		LogManager::getSingleton().logMessage(
-			LML_NORMAL, str.str());
 
 		createD3DResources();
 
@@ -653,10 +651,9 @@ namespace Ogre
 
 			if (FAILED(hr)) 
 			{
-				StringUtil::StrStreamType str;
-				str << "D3D9RenderWindow: failed to reset device to new dimensions << "
+				LogManager::getSingleton().stream(LML_CRITICAL)
+					<< "D3D9RenderWindow: failed to reset device to new dimensions << "
 					<< width << " x " << height << ". Trying to recover.";
-				LogManager::getSingleton().logMessage(LML_CRITICAL, str.str());
 
 				// try to recover
 				hr = mDriver->getD3DDevice()->CreateAdditionalSwapChain(

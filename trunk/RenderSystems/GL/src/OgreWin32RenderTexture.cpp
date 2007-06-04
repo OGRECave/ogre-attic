@@ -169,16 +169,14 @@ namespace Ogre {
 		int piValues[sizeof(piAttributes)/sizeof(const int)];
 		wglGetPixelFormatAttribivARB(old_hdc,format,0,sizeof(piAttributes)/sizeof(const int),piAttributes,piValues);
 
-        StringUtil::StrStreamType str;
-        str << " Win32PBuffer::PBuffer -- Chosen pixel format rgba="
+        LogManager::getSingleton().stream()
+			<< " Win32PBuffer::PBuffer -- Chosen pixel format rgba="
             << piValues[0] << ","  
             << piValues[1] << ","  
             << piValues[2] << ","  
             << piValues[3] 
             << " depth=" << piValues[4]
             << " stencil=" << piValues[5];
-		LogManager::getSingleton().logMessage(
-			LML_NORMAL, str.str());
 
 		mPBuffer = wglCreatePbufferARB(old_hdc,format,mWidth,mHeight,pattrib_default);
 		if(!mPBuffer)
@@ -210,10 +208,9 @@ namespace Ogre {
 		wglQueryPbufferARB(mPBuffer, WGL_PBUFFER_HEIGHT_ARB, &iHeight);
 		mWidth = iWidth;  
 		mHeight = iHeight;
-		str.str(StringUtil::BLANK);
-        str << "Win32RenderTexture::PBuffer created -- Real dimensions "
+		LogManager::getSingleton().stream()
+			<< "Win32RenderTexture::PBuffer created -- Real dimensions "
             << mWidth << "x" << mHeight;
-		LogManager::getSingleton().logMessage(LML_NORMAL, str.str());
 	}
 	void Win32PBuffer::destroyPBuffer() 
 	{

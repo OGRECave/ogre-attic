@@ -689,13 +689,12 @@ Ogre::SkeletonPtr MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::MeshP
         qfinal = qz * qy * qx;
         ogrebone->setOrientation(qfinal);
 
-		Ogre::StringUtil::StrStreamType msgStream;
-        msgStream << "Bone #" << i << ": " <<
+		Ogre::LogManager::getSingleton().stream()
+			<< "Bone #" << i << ": " <<
             "Name='" << bone->szName << "' " <<
             "Position: " << bonePos << " " <<
             "Ms3d Rotation: {" << msBoneRot[0] << ", " << msBoneRot[1] << ", " << msBoneRot[2] << "} " <<
             "Orientation: " << qfinal;
-        logMgr.logMessage(msgStream.str());
 
 
     }
@@ -1026,16 +1025,14 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::SkeletonPtr& ogr
         // Create animation
         frameTime = currSplit.end - currSplit.start;
         realTime = frameTime / fps;
-		Ogre::StringUtil::StrStreamType msgStream;
-        msgStream << "Trying to create Animation object for animation "
+		Ogre::LogManager::getSingleton().stream()
+			<< "Trying to create Animation object for animation "
 			<<  currSplit.name << " For Frames " << currSplit.start << " to "
             << currSplit.end << " inclusive. ";
-        logMgr.logMessage(msgStream.str());
 
-        msgStream.clear();
-		msgStream << "Frame time = "
+		Ogre::LogManager::getSingleton().stream()
+			<< "Frame time = "
 			<< frameTime << ", Seconds = " << realTime;
-        logMgr.logMessage(msg);
 
         Ogre::Animation *ogreanim =
             ogreskel->createAnimation(currSplit.name, realTime);
@@ -1112,13 +1109,12 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::SkeletonPtr& ogr
                     kfQ = qz * qy * qx;
                     ogrekey->setRotation(kfQ);
 
-					Ogre::StringUtil::StrStreamType msgStream;
-                    msgStream << "KeyFrame details: Adjusted Frame Time=" << frameTime
+					Ogre::LogManager::getSingleton().stream()
+						<< "KeyFrame details: Adjusted Frame Time=" << frameTime
 						<< " Seconds: " << realTime << " Position=" << kfPos << " " 
 						<< "Ms3d Rotation= {" << currRotKey->Rotation[0] << ", " 
 						<< currRotKey->Rotation[1] << ", " << currRotKey->Rotation[2] 
 						<< "} " << "Orientation=" << kfQ;
-                    logMgr.logMessage(msgStream.str());
                 } // keyframe creation
 
             } // keys

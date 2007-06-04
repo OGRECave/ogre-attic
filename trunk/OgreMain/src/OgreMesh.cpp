@@ -836,10 +836,9 @@ namespace Ogre {
 
         removeLodLevels();
 
-		StringUtil::StrStreamType str;
-		str << "Generating " << lodDistances.size()
+		LogManager::getSingleton().stream()
+			<< "Generating " << lodDistances.size()
 			<< " lower LODs for mesh " << mName;
-        LogManager::getSingleton().logMessage(str.str());
 
         SubMeshList::iterator isub, isubend;
         isubend = mSubMeshList.end();
@@ -897,12 +896,11 @@ namespace Ogre {
 			}
 			catch (Exception& )
 			{
-				StringUtil::StrStreamType str;
-				str << "Error while loading manual LOD level "
+				LogManager::getSingleton().stream()
+					<< "Error while loading manual LOD level "
 					<< mMeshLodUsageList[index].manualName
 					<< " - this LOD level will not be rendered. You can "
 					<< "ignore this error in offline mesh tools.";
-				LogManager::getSingleton().logMessage(str.str());
 			}
 
         }

@@ -31,6 +31,7 @@ Torus Knot Software Ltd.
 #define __Log_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreString.h"
 
 namespace Ogre {
 
@@ -76,6 +77,7 @@ namespace Ogre {
         virtual void messageLogged( const String& message, LogMessageLevel lml, bool maskDebug, const String &logName ) = 0;
     };
 
+
     /**
     @remarks
          Log class for writing debug/log data to files.
@@ -95,6 +97,9 @@ namespace Ogre {
         mtLogListener mListeners;
 
     public:
+
+		class Stream;
+
 		OGRE_AUTO_MUTEX // public to allow external locking
         /**
         @remarks
@@ -120,6 +125,9 @@ namespace Ogre {
         */
         void logMessage( const String& message, LogMessageLevel lml = LML_NORMAL, bool maskDebug = false );
 
+		/** Get a stream object targetting this log. */
+		Stream stream(LogMessageLevel lml = LML_NORMAL, bool maskDebug = false);
+
         /**
         @remarks
             Sets the level of the log detail.
@@ -143,6 +151,70 @@ namespace Ogre {
             A valid listener derived class
         */
         void removeListener(LogListener* listener);
+
+		/** Stream object which targets a log.
+		@remarks
+			A stream logger object makes it simpler to send various things to 
+			a log. You can just use the operator<< implementation to stream 
+			anything to the log, which is cached until a Stream::Flush is
+			encountered, or the stream itself is destroyed, at which point the 
+			cached contents are sent to the underlying log. You can use Log::stream()
+			directly without assigning it to a local variable and as soon as the
+			streaming is finished, the object will be destroyed and the message
+			logged.
+		@par
+			You can stream control operations to this object too, such as 
+			std::setw() and std::setfill() to control formatting.
+		@note
+			Each Stream object is not thread safe, so do not pass it between
+			threads. Multiple threads can hold their own Stream instances pointing
+			at the same Log though and that is threadsafe.
+		*/
+		class Stream
+		{
+		protected:
+			Log* mTarget;
+			LogMessageLevel mLevel;
+			bool mMaskDebug;
+			typedef StringUtil::StrStreamType BaseStream;
+			BaseStream mCache;
+
+		public:
+
+			/// Simple type to indicate a flush of the stream to the log
+			struct Flush {};
+
+			Stream(Log* target, LogMessageLevel lml, bool maskDebug)
+				:mTarget(target), mLevel(lml), mMaskDebug(maskDebug)
+			{
+
+			}
+			~Stream()
+			{
+				// flush on destroy
+				if (mCache.tellp() > 0)
+				{
+					mTarget->logMessage(mCache.str(), mLevel, mMaskDebug);
+				}
+			}
+
+			template <typename T>
+			Stream& operator<< (const T& v)
+			{
+				mCache << v;
+				return *this;
+			}
+
+			Stream& operator<< (const Flush& v)
+			{
+				mTarget->logMessage(mCache.str(), mLevel, mMaskDebug);
+				mCache.str(StringUtil::BLANK);
+				return *this;
+			}
+
+
+		};
+
     };
 }
 

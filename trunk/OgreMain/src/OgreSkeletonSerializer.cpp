@@ -81,16 +81,13 @@ namespace Ogre {
 
         // Write all animations
         unsigned short numAnims = pSkeleton->getNumAnimations();
-        msg = "Exporting animations, count=";
-		StringUtil::StrStreamType num;
-		num << numAnims;
-        msg += num.str();
-        LogManager::getSingleton().logMessage(msg);
+        LogManager::getSingleton().stream()
+			<< "Exporting animations, count=" << numAnims;
         for (unsigned short i = 0; i < numAnims; ++i)
         {
             Animation* pAnim = pSkeleton->getAnimation(i);
-            msg = "Exporting animation: " + pAnim->getName();
-            LogManager::getSingleton().logMessage(msg);
+			LogManager::getSingleton().stream()
+				<< "Exporting animation: " << pAnim->getName();
             writeAnimation(pSkeleton, pAnim);
             LogManager::getSingleton().logMessage("Animation exported.");
 
