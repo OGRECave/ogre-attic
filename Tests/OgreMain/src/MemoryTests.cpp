@@ -160,6 +160,39 @@ void MemoryTests::testStdVector()
   CPPUNIT_ASSERT(mNumBytesDeallocated==(sizeof(int)*10));
 }
 
+void MemoryTests::testDataIntegrity()
+{
+  // setup allocator with all default policies and a psudo-profiller
+  typedef Ogre::Allocator<
+    Data,
+    Ogre::StdAllocPolicy<Data>,
+    Ogre::ObjectTraits<Data>,
+    PsudoProfiler<Data>
+  > aloc_type;
+
+  // container type
+  typedef std::vector<Data,aloc_type > TestCont;
+
+  {
+    TestCont t;
+    // populate the container with data
+    for(int i=0;i<10;++i)
+    {
+      Data d;
+      d.one = 0;
+      d.two = i;
+      t.push_back(d);
+    }
+
+    // confirme that the data remains valid after several [de]allocations
+    for(int j=0;j<10;++j)
+    {
+      CPPUNIT_ASSERT(t[j].one==0);
+      CPPUNIT_ASSERT(t[j].two==j);
+    }
+  }
+}
+
 void MemoryTests::testAllocWrapperBase()
 {
   TestClass* t;

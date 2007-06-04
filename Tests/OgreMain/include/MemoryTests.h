@@ -61,8 +61,7 @@ public:
   // so test it works first.
   CPPUNIT_TEST ( testProfilePath );
 
-  // test the rebind mechanism, turn an allocator<T> i
-  // nto and allocator<U>
+  // test the rebind mechanism, turn an allocator<T> into and allocator<U>
   CPPUNIT_TEST ( testRebind );
 
   // test combatiblity with std::list
@@ -72,6 +71,8 @@ public:
   CPPUNIT_TEST ( testStdVector );
 
   //TODO: add more container type tests
+
+  CPPUNIT_TEST ( testDataIntegrity );
 
   // test the use of AllocWrapper as a base class
   CPPUNIT_TEST ( testAllocWrapperBase );
@@ -86,6 +87,7 @@ protected:
   void testRebind();
   void testStdList();
   void testStdVector();
+  void testDataIntegrity();
   void testAllocWrapperBase();
 
 private:
@@ -93,6 +95,13 @@ private:
   static int mNumBytesAllocated;
   static int mNumDeallocations;
   static int mNumBytesDeallocated;
+
+  // simple testing data struct
+  struct Data
+  {
+    int one;
+    int two;
+  };
 
   // internal class to simulate the profiler and allow for the
   // collection of test data
