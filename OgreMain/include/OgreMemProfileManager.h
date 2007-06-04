@@ -33,7 +33,8 @@ Torus Knot Software Ltd.
 #include "OgreMemProfilerBase.h"
 #include <vector>
 
-namespace Ogre{
+namespace Ogre
+{
 
     /**
     * This is the profile manager for the memory system
