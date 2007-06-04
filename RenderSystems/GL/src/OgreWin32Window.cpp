@@ -220,11 +220,10 @@ namespace Ogre {
 
 			WindowEventUtilities::_addRenderWindow(this);
 
-			StringUtil::StrStreamType str;
-			str << "Created Win32Window '"
+			LogManager::getSingleton().stream()
+				<< "Created Win32Window '"
 				<< mName << "' : " << mWidth << "x" << mHeight
 				<< ", " << mColourDepth << "bpp";
-			LogManager::getSingleton().logMessage(LML_NORMAL, str.str());
 
 			if (mIsFullScreen)
 			{

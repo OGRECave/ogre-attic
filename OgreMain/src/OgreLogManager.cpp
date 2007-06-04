@@ -145,4 +145,14 @@ namespace Ogre {
 	        mDefaultLog->setLogDetail(ll);
 		}
     }
+	//---------------------------------------------------------------------
+	Log::Stream LogManager::stream(LogMessageLevel lml, bool maskDebug)
+	{
+		OGRE_LOCK_AUTO_MUTEX
+		if (mDefaultLog)
+			return mDefaultLog->stream(lml, maskDebug);
+		else
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Default log not found. ", "LogManager::stream");
+
+	}
 }

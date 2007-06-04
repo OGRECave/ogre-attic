@@ -715,11 +715,10 @@ namespace Ogre {
 
 		if (vType == VET_COLOUR)
 		{
-			StringUtil::StrStreamType s;
-			s << "Warning: VET_COLOUR element type is deprecated, you should use "
+			LogManager::getSingleton().stream()
+				<< "Warning: VET_COLOUR element type is deprecated, you should use "
 				<< "one of the more specific types to indicate the byte order. "
 				<< "Use OgreMeshUpgrade on " << pMesh->getName() << " as soon as possible. ";
-			LogManager::getSingleton().logMessage(s.str());
 		}
 
 	}

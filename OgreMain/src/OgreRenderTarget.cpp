@@ -59,12 +59,11 @@ namespace Ogre {
 
 
         // Write closing message
-		StringUtil::StrStreamType msg;
-		msg << "Render Target '" << mName << "' "
+		LogManager::getSingleton().stream()
+			<< "Render Target '" << mName << "' "
 			<< "Average FPS: " << mStats.avgFPS << " "
 			<< "Best FPS: " << mStats.bestFPS << " "
 			<< "Worst FPS: " << mStats.worstFPS; 
-        LogManager::getSingleton().logMessage(msg.str());
 
     }
 

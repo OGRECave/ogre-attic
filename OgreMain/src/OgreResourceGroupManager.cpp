@@ -156,10 +156,9 @@ namespace Ogre {
 		// Can only bulk-load one group at a time (reasonable limitation I think)
 		OGRE_LOCK_AUTO_MUTEX
 
-		StringUtil::StrStreamType str;
-		str << "Loading resource group '" << name << "' - Resources: "
+		LogManager::getSingleton().stream()
+			<< "Loading resource group '" << name << "' - Resources: "
 			<< loadMainResources << " World Geometry: " << loadWorldGeom;
-		LogManager::getSingleton().logMessage(str.str());
 		// load all created resources
 		ResourceGroup* grp = getResourceGroup(name);
 		if (!grp)

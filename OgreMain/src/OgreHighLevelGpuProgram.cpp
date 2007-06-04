@@ -112,10 +112,9 @@ namespace Ogre
 			catch (const Exception&)
 			{
 				// will already have been logged
-				StringUtil::StrStreamType str;
-				str << "High-level program " << mName << " encountered an error "
+				LogManager::getSingleton().stream()
+					<< "High-level program " << mName << " encountered an error "
 					<< "during loading and is thus not supported.";
-				LogManager::getSingleton().logMessage(str.str());
 
 				mCompileError = true;
 			}

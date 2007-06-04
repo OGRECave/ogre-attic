@@ -3368,22 +3368,14 @@ protected:
 		std::list<int>::iterator i;
 		LogManager::getSingleton().logMessage("BEFORE");
 		for (i = particles.begin(); i != particles.end(); ++i)
-		{
-			StringUtil::StrStreamType str;
-			str << *i;
-			LogManager::getSingleton().logMessage(str.str());
-		}
+			LogManager::getSingleton().stream() << *i;
 
 		rs.sort(particles, f);
 
 
 		LogManager::getSingleton().logMessage("AFTER");
 		for (i = particles.begin(); i != particles.end(); ++i)
-		{
-			StringUtil::StrStreamType str;
-			str << *i;
-			LogManager::getSingleton().logMessage(str.str());
-		}
+			LogManager::getSingleton().stream() << *i;
 
 
 
@@ -5558,14 +5550,12 @@ protected:
 		}
 		unsigned long sndestroyTime = timer.getMilliseconds();
 
-		StringUtil::StrStreamType str;
-		str << "Object create time: " << ((float)createTime / 1000.0f) << " secs" << std::endl;
-		str << "Object lookup time: " << ((float)lookupTime / 1000.0f) << " secs" << std::endl;
-		str << "Object destroy time: " << ((float)destroyTime / 1000.0f) << " secs" << std::endl;
-		str << "SceneNode create time: " << ((float)sncreateTime / 1000.0f) << " secs" << std::endl;
-		str << "SceneNode destroy time: " << ((float)sndestroyTime / 1000.0f) << " secs" << std::endl;
-		LogManager::getSingleton().logMessage(str.str());
-
+		LogManager::getSingleton().stream()
+			<< "Object create time: " << ((float)createTime / 1000.0f) << " secs\n"
+			<< "Object lookup time: " << ((float)lookupTime / 1000.0f) << " secs\n"
+			<< "Object destroy time: " << ((float)destroyTime / 1000.0f) << " secs\n"
+			<< "SceneNode create time: " << ((float)sncreateTime / 1000.0f) << " secs\n"
+			<< "SceneNode destroy time: " << ((float)sndestroyTime / 1000.0f) << " secs\n";
 
 	}
 
@@ -5850,6 +5840,12 @@ protected:
 
 		//Any anyString("test");
 		*/
+
+		LogManager::getSingleton().stream() << "This is test number " << 1 <<
+			" to see whether something like this: " << Vector3(1,2,3) << " works.";
+
+		LogManager::getSingleton().stream() << "How about this: " 
+			<< std::setw(5) << std::setfill('x') << 4;
 
         //testMatrices();
         //testBsp();

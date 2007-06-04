@@ -466,10 +466,9 @@ namespace Ogre {
         // Did we find any?
         if (mSupportedTechniques.empty())
         {
-			StringUtil::StrStreamType str;
-			str << "WARNING: material " << mName << " has no supportable "
-				"Techniques and will be blank. Explanation: " << std::endl << mUnsupportedReasons;
-            LogManager::getSingleton().logMessage(str.str());               
+			LogManager::getSingleton().stream()
+				<< "WARNING: material " << mName << " has no supportable "
+				<< "Techniques and will be blank. Explanation: \n" << mUnsupportedReasons;
         }
     }
 	//-----------------------------------------------------------------------

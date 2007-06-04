@@ -611,10 +611,9 @@ namespace Ogre {
             const char *claimedCount_ = faces->Attribute("count");
             if (claimedCount_ && StringConverter::parseInt(claimedCount_)!=actualCount)
             {
-				StringUtil::StrStreamType str;
-                str << "WARNING: face count (" << actualCount << ") " <<
+				LogManager::getSingleton().stream()
+					<< "WARNING: face count (" << actualCount << ") " <<
 					"is not as claimed (" << claimedCount_ << ")";
-				LogManager::getSingleton().logMessage(str.str());
             }
 
 
@@ -817,10 +816,9 @@ namespace Ogre {
             }
             if (claimedVertexCount_ && actualVertexCount!=claimedVertexCount)
             {
-				StringUtil::StrStreamType str;
-				str << "WARNING: vertex count (" << actualVertexCount 
+				LogManager::getSingleton().stream()
+					<< "WARNING: vertex count (" << actualVertexCount 
 					<< ") is not as claimed (" << claimedVertexCount_ << ")";
-				LogManager::getSingleton().logMessage(str.str());
             }
 
             vertexData->vertexCount = actualVertexCount;
