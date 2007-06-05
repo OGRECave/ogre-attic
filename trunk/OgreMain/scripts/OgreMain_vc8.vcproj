@@ -647,10 +647,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\OgreMaterialScriptCompiler2.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\OgreMaterialSerializer.cpp"
 				>
 			</File>
@@ -752,10 +748,6 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreParticleIterator.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreParticleScriptCompiler.cpp"
 				>
 			</File>
 			<File
@@ -940,18 +932,6 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreSceneQuery.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreScriptCompiler.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreScriptLexer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\OgreScriptParser.cpp"
 				>
 			</File>
 			<File
@@ -1460,10 +1440,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\include\OgreMaterialScriptCompiler2.h"
-				>
-			</File>
-			<File
 				RelativePath="..\include\OgreMaterialSerializer.h"
 				>
 			</File>
@@ -1585,10 +1561,6 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreParticleIterator.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreParticleScriptCompiler.h"
 				>
 			</File>
 			<File
@@ -1776,19 +1748,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\include\OgreScriptCompiler.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreScriptLexer.h"
-				>
-			</File>
-			<File
 				RelativePath="..\include\OgreScriptLoader.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\OgreScriptParser.h"
 				>
 			</File>
 			<File
