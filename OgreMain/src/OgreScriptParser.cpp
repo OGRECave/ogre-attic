@@ -113,21 +113,7 @@ namespace Ogre {
 		{
 			typedef rule<ScannerT> rule_t;
 
-			// stat_list ::= (import_stat|obj)*
-			rule<ScannerT> stat_list;
-			// import_stat ::= "import" ident|'*' "from" script_path
-			rule<ScannerT> import_stat;
-			// import_path ::= ('A-Za-z0-9'|punct)* | ('\"' >> ('A-Za-z0-9'|punct|' ')* >> '\"')
-			rule<ScannerT> import_path;
-			// obj ::= 'abstract'! word ident? (':' ident)? '{' (obj|expr)* '}'
-			rule<ScannerT> obj, top_obj;
-			rule<ScannerT> abstract_typed_obj, abstract_named_obj, named_typed_obj, named_obj, typed_obj;
-			// expr ::= (word (word|variable|number)* '\n')+
-			rule<ScannerT> expr;
-			// word ::= 'A-Za-z'|'_' 'A-Za-z0-9'|'_'
-			rule<ScannerT> word;
-			// ident ::= 'A-Za-z'|'_' 'A-Za-z0-9'|'_'|'/'|'.'
-			rule<ScannerT> ident;
+			rule<ScannerT> quote, word, variable, block, import, statement, statement_list;
 
 			// This parser generates specific warnings during the parsing process
 			typedef functor_parser<ErrorParser> error_parser;
@@ -139,259 +125,176 @@ namespace Ogre {
 				AST &ast;
 				ast_action(AST &rhs):ast(rhs){}
 			};
-			// Action that puts a root node into the tree when an import statement is found
-			struct do_import_stat : public ast_action
-			{
-				do_import_stat(AST &rhs):ast_action(rhs){}
+			struct do_import : public ast_action{
+				do_import(AST &rhs):ast_action(rhs){}
 				template<class IterT>
 				void operator()(IterT first, IterT last) const{
-					std::string token(first, last);
+					String token(first, last);
 
-					// Add a new node to the top-level list
 					ScriptNodePtr node(new ScriptNode());
 					node->token = token;
-					node->file = first.get_position().file;
+					node->type = TOK_IMPORT;
 					node->line = first.get_position().line;
 					node->column = first.get_position().column;
-					node->type = TOK_IMPORT;
+					node->file = first.get_position().file;
 					node->parent = 0;
 					ast.nodes->push_back(node);
-					ast.current = node.get(); 
+					ast.current = node.get();
 				}
 			};
-			// This action takes a script path after an import statement and adds it to the current node.
-			// It also resets the current node to blank.
-			struct do_import_path : public ast_action
-			{
+			struct do_import_target : public ast_action{
+				do_import_target(AST &rhs):ast_action(rhs){}
+				template<class IterT>
+				void operator()(IterT first, IterT last) const{
+					String token(first, last);
+
+					ScriptNodePtr node(new ScriptNode());
+					node->token = token;
+					node->type = TOK_STRING;
+					node->line = first.get_position().line;
+					node->column = first.get_position().column;
+					node->file = first.get_position().file;
+					node->parent = ast.current;
+					ast.current->children.push_back(node);
+				}
+			};
+			struct do_import_path : public ast_action{
 				do_import_path(AST &rhs):ast_action(rhs){}
 				template<class IterT>
 				void operator()(IterT first, IterT last) const{
-					std::string token(first, last);
+					String token(first, last);
 
-					// Add it to the current node
 					ScriptNodePtr node(new ScriptNode());
 					node->token = token;
-					node->file = first.get_position().file;
+					node->type = TOK_STRING;
 					node->line = first.get_position().line;
 					node->column = first.get_position().column;
-					node->type = TOK_IMPORTPATH;
+					node->file = first.get_position().file;
 					node->parent = ast.current;
-					node->parent->children.push_back(node);
-					ast.current = 0;
+					ast.current->children.push_back(node);
+					ast.current = ast.current->parent;
 				}
 			};
-			// Takes the abstract keyword and places it into the ast
-			struct do_abstract : public ast_action
-			{
-				do_abstract(AST &rhs):ast_action(rhs){}
+			struct do_word : public ast_action{
+				do_word(AST &rhs):ast_action(rhs){}
 				template<class IterT>
 				void operator()(IterT first, IterT last) const{
-					std::string token(first, last);
+					String token(first, last);
 
-					// Add a new node to the top-level list
-					ScriptNodePtr node(new ScriptNode());
-					node->token = token;
-					node->file = first.get_position().file;
-					node->line = first.get_position().line;
-					node->column = first.get_position().column;
-					node->type = TOK_ABSTRACT;
-					node->parent = 0;
-					ast.nodes->push_back(node);
-				}
-			};
-			// This action adds a new object node to the current node
-			struct do_type : public ast_action
-			{
-				do_type(AST &rhs):ast_action(rhs){}
-				template<class IterT>
-				void operator()(IterT first, IterT last) const{
-					std::string token(first, last);
-
-					// Add it to the current node, and set ourselves as the current
-					ScriptNodePtr node(new ScriptNode());
-					node->token = token;
-					node->type = TOK_TYPE;
-					node->file = first.get_position().file;
-					node->line = first.get_position().line;
-					node->column = first.get_position().column;
-					if(ast.current)
-					{
-						node->parent = ast.current;
-						node->parent->children.push_back(node);
-					}
-					else
-					{
-						node->parent = 0;
-						ast.nodes->push_back(node);
-					}
-					ast.current = node.get();
-				}
-			};
-			// This action adds a new object node to the current node
-			struct do_object : public ast_action
-			{
-				do_object(AST &rhs):ast_action(rhs){}
-				template<class IterT>
-				void operator()(IterT first, IterT last) const{
-					std::string token(first, last);
-
-					// Add it to the current node, and set ourselves as the current
 					ScriptNodePtr node(new ScriptNode());
 					node->token = token;
 					node->type = TOK_STRING;
-					node->file = first.get_position().file;
 					node->line = first.get_position().line;
 					node->column = first.get_position().column;
-					if(ast.current)
-					{
-						node->parent = ast.current;
-						node->parent->children.push_back(node);
-					}
-					else
-					{
-						node->parent = 0;
-						ast.nodes->push_back(node);
-					}
-					ast.current = node.get();
-				}
-			};
-			// This action adds the name identifier to the current node's children
-			struct do_ident : public ast_action
-			{
-				do_ident(AST &rhs):ast_action(rhs){}
-				template<class IterT>
-				void operator()(IterT first, IterT last) const{
-					if(!ast.current)
-						throw ParseErrorException(first.get_position().file,
-							first.get_position().line, first.get_position().column, PE_PRECEDINGTAGEXPECTED);
-					
-					std::string token(first, last);
-
-					// Add it to the current node
-					ScriptNodePtr node(new ScriptNode());
-					node->token = token;
 					node->file = first.get_position().file;
-					node->line = first.get_position().line;
-					node->type = TOK_STRING;
-					node->column = first.get_position().column;
 					node->parent = ast.current;
-					node->parent->children.push_back(node);
-				}
-			};
-			// This action handles the colon which dictates an inheritance of objects
-			struct do_colon : public ast_action
-			{
-				do_colon(AST &rhs):ast_action(rhs){}
-				template<class IterT>
-				void operator()(IterT first, IterT last) const{
-					std::string token(first, last);
 
-					// Add it to the current node and set ourselves as current
-					ScriptNodePtr node(new ScriptNode());
-					node->token = token;
-					node->type = TOK_STRING;
-					node->file = first.get_position().file;
-					node->line = first.get_position().line;
-					node->column = first.get_position().column;
 					if(ast.current)
-					{
-						node->parent = ast.current;
-						node->parent->children.push_back(node);
-					}
+						ast.current->children.push_back(node);
 					else
-					{
-						node->parent = 0;
 						ast.nodes->push_back(node);
-					}
-					ast.current = node.get();
 				}
 			};
-			// This action starts a new property with its name and sets itself as the current.
-			// This starts a new branch
-			struct do_property : public ast_action
-			{
-				do_property(AST &rhs):ast_action(rhs){}
-				template<class IterT>
-				void operator()(IterT first, IterT last) const{
-					std::string token(first, last);
-
-					// Add it to the current node and set ourselves as current
-					ScriptNodePtr node(new ScriptNode());
-					node->token = token;
-					node->type = TOK_PROPERTY;
-					node->file = first.get_position().file;
-					node->line = first.get_position().line;
-					node->column = first.get_position().column;
-					if(ast.current)
-					{
-						node->parent = ast.current;
-						node->parent->children.push_back(node);
-					}
-					else
-					{
-						node->parent = 0;
-						ast.nodes->push_back(node);
-					}
-					ast.current = node.get();
-				}
-			};
-			// This action adds a variable to the current parent
-			struct do_variable : public ast_action
-			{
+			struct do_variable : public ast_action{
 				do_variable(AST &rhs):ast_action(rhs){}
 				template<class IterT>
 				void operator()(IterT first, IterT last) const{
-					if(!ast.current)
-						throw ParseErrorException(first.get_position().file,
-							first.get_position().line, first.get_position().column, PE_PRECEDINGTAGEXPECTED);
-					
-					std::string token(first, last);
+					String token(first, last);
 
-					// Add it to the current node
 					ScriptNodePtr node(new ScriptNode());
 					node->token = token;
-					node->file = first.get_position().file;
-					node->line = first.get_position().line;
 					node->type = TOK_VAR;
+					node->line = first.get_position().line;
 					node->column = first.get_position().column;
+					node->file = first.get_position().file;
 					node->parent = ast.current;
-					node->parent->children.push_back(node);
+
+					if(ast.current)
+						ast.current->children.push_back(node);
+					else
+						ast.nodes->push_back(node);
 				}
 			};
-			// This action adds a number to the current parent
-			struct do_number : public ast_action
-			{
+			struct do_quote : public ast_action{
+				do_quote(AST &rhs):ast_action(rhs){}
+				template<class IterT>
+				void operator()(IterT first, IterT last) const{
+					String token(first, last);
+
+					ScriptNodePtr node(new ScriptNode());
+					node->token = token;
+					node->type = TOK_QUOTE;
+					node->line = first.get_position().line;
+					node->column = first.get_position().column;
+					node->file = first.get_position().file;
+					node->parent = ast.current;
+
+					if(ast.current)
+						ast.current->children.push_back(node);
+					else
+						ast.nodes->push_back(node);
+				}
+			};
+			struct do_number : public ast_action{
 				do_number(AST &rhs):ast_action(rhs){}
 				template<class IterT>
 				void operator()(IterT first, IterT last) const{
-					if(!ast.current)
-						throw ParseErrorException(first.get_position().file,
-							first.get_position().line, first.get_position().column, PE_PRECEDINGTAGEXPECTED);
-					
-					std::string token(first, last);
+					String token(first, last);
 
-					// Add it to the current node
 					ScriptNodePtr node(new ScriptNode());
 					node->token = token;
-					node->file = first.get_position().file;
-					node->line = first.get_position().line;
 					node->type = TOK_NUMBER;
+					node->line = first.get_position().line;
 					node->column = first.get_position().column;
+					node->file = first.get_position().file;
 					node->parent = ast.current;
-					node->parent->children.push_back(node);
+
+					if(ast.current)
+						ast.current->children.push_back(node);
+					else
+						ast.nodes->push_back(node);
 				}
 			};
-			// This action is invoked when some closing sequence is found.
-			// It walks one up the tree branch (}, \n or ;)
-			struct do_close : public ast_action
-			{
-				do_close(AST &rhs):ast_action(rhs){}
+			struct do_lbrace : public ast_action{
+				do_lbrace(AST &rhs):ast_action(rhs){}
 				template<class IterT>
 				void operator()(IterT first, IterT last) const{
+					String token(first, last);
+
+					ScriptNodePtr node(new ScriptNode());
+					node->token = token;
+					node->type = TOK_LBRACE;
+					node->line = first.get_position().line;
+					node->column = first.get_position().column;
+					node->file = first.get_position().file;
+					node->parent = ast.current;
+
 					if(ast.current)
-					{
-						ast.current = ast.current->parent;
-					}
+						ast.current->children.push_back(node);
+					else
+						ast.nodes->push_back(node);
+					ast.current = node.get();
+				}
+			};
+			struct do_rbrace : public ast_action{
+				do_rbrace(AST &rhs):ast_action(rhs){}
+				template<class IterT>
+				void operator()(IterT first, IterT last) const{
+					String token(first, last);
+
+					ScriptNodePtr node(new ScriptNode());
+					node->token = token;
+					node->type = TOK_RBRACE;
+					node->line = first.get_position().line;
+					node->column = first.get_position().column;
+					node->file = first.get_position().file;
+
+					ast.current = ast.current->parent;
+					node->parent = ast.current;
+					if(ast.current)
+						ast.current->children.push_back(node);
+					else
+						ast.nodes->push_back(node);
 				}
 			};
 
@@ -400,297 +303,27 @@ namespace Ogre {
 				self.ast.nodes = ScriptNodeListPtr(new ScriptNodeList());
 				self.ast.current = 0;
 
-				stat_list = 
-					*(import_stat|abstract_typed_obj|abstract_named_obj|named_typed_obj|named_obj);
-
-				import_stat =
-					str_p("import")[do_import_stat(self.ast)] 
-					>>
-					((ident|str_p("*"))[do_ident(self.ast)] | error_p(PE_IMPORTTARGETEXPECTED))
-					>>
-					("from" | error_p(PE_FROMEXPECTED))
-					>>
-					(import_path[do_import_path(self.ast)] | error_p(PE_IMPORTPATHEXPECTED));
-
-				import_path =
-					lexeme_d[+(alnum_p|punct_p)]
-					|
-					confix_p('\"', lexeme_d[+(alnum_p|punct_p|' ')], '\"');
-
-				abstract_typed_obj =
-					// Performs a "look-ahead" to see if we are dealing with an abstract typed object
-					// START syntax check
-					eps_p(
-						str_p("abstract")
-						>>
-						lexeme_d[(alpha_p|'_') >> *(alnum_p|'_')] 
-						>>
-						lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')]
-						>>
-						!(ch_p(':') >> lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')])
-						>>
-						'{'
-					)
-					// END syntax check
-					>>
-					str_p("abstract")[do_abstract(self.ast)]
-					>>
-					word[do_type(self.ast)] 
-					>> 
-					ident[do_ident(self.ast)]
-					>>
-					!(str_p(":")[do_colon(self.ast)] 
-							>> 
-							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED)))
-					>> 
-					(ch_p('{') | error_p(PE_OPENBRACEEXPECTED)) 
-					>> 
-					*(named_typed_obj|typed_obj|expr) 
-					>> 
-					(str_p("}")[do_close(self.ast)] | error_p(PE_CLOSEBRACEEXPECTED))
+				word = lexeme_d[((alnum_p | punct_p) - (ch_p('$')|'*'|'{'|'}')) 
+					>> *(alnum_p | (punct_p - (ch_p('{')|'}')))];
+				variable = lexeme_d[ch_p('$') >> *(alnum_p | (punct_p - (ch_p('{')|'}')))];
+				quote = ch_p('\"') >> *(print_p - '\"') >> ("\"" | error_p(PE_ENDQUOTEEXPECTED));
+				block = str_p("{")[do_lbrace(self.ast)] 
+					>> *statement 
+						>> (str_p("}")[do_rbrace(self.ast)] | error_p(PE_CLOSEBRACEEXPECTED));
+				import = str_p("import")[do_import(self.ast)] 
+					>> ((word | '*')[do_import_target(self.ast)] | error_p(PE_IMPORTTARGETEXPECTED)) 
+						>> ("from" | error_p(PE_FROMEXPECTED))
+							>> (word[do_import_path(self.ast)] | error_p(PE_IMPORTPATHEXPECTED));
+				statement = word[do_word(self.ast)]
+					|variable[do_variable(self.ast)]
+					|quote[do_quote(self.ast)]
+					|(eps_p >> real_p)[do_number(self.ast)]
+					|block
 					;
-
-				abstract_named_obj =
-					// Performs a "look-ahead" to see if we are dealing with an abstract object
-					// START syntax check
-					eps_p(
-						str_p("abstract")
-						>>
-						lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')]
-						>>
-						!(ch_p(':') >> lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')])
-						>>
-						'{'
-					)
-					// END syntax check
-					>>
-					str_p("abstract")[do_abstract(self.ast)]
-					>> 
-					ident[do_object(self.ast)]
-					>>
-					!(str_p(":")[do_colon(self.ast)] 
-							>> 
-							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED)))
-					>> 
-					(ch_p('{') | error_p(PE_OPENBRACEEXPECTED)) 
-					>> 
-					*(named_typed_obj|typed_obj|expr)
-					>> 
-					(str_p("}")[do_close(self.ast)] | error_p(PE_CLOSEBRACEEXPECTED))
-					;
-
-				named_typed_obj =
-					// Performs a "look-ahead" to see if we are dealing with an named typed concrete object
-					// START syntax check
-					eps_p(
-						lexeme_d[(alpha_p|'_') >> *(alnum_p|'_')] 
-						>>
-						lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')]
-						>>
-						!(ch_p(':') >> lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')])
-						>>
-						'{'
-					)
-					// END syntax check
-					>>
-					word[do_type(self.ast)] 
-					>> 
-					ident[do_ident(self.ast)]
-					>>
-					!(str_p(":")[do_colon(self.ast)] 
-							>> 
-							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED)))
-					>> 
-					(ch_p('{') | error_p(PE_OPENBRACEEXPECTED)) 
-					>> 
-					*(named_typed_obj|named_obj|typed_obj|expr)
-					>> 
-					(str_p("}")[do_close(self.ast)] | error_p(PE_CLOSEBRACEEXPECTED))
-					;
-
-				named_obj =
-					// Performs a "look-ahead" to see if we are dealing with an named concrete object
-					// START syntax check
-					eps_p(
-						lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')]
-						>>
-						!(ch_p(':') >> lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')])
-						>>
-						'{'
-					)
-					// END syntax check
-					>> 
-					ident[do_object(self.ast)]
-					>>
-					!(str_p(":")[do_colon(self.ast)] 
-							>> 
-							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED)))
-					>> 
-					(ch_p('{') | error_p(PE_OPENBRACEEXPECTED)) 
-					>> 
-					*(named_typed_obj|named_obj|typed_obj|expr)
-					>> 
-					(str_p("}")[do_close(self.ast)] | error_p(PE_CLOSEBRACEEXPECTED))
-					;
-
-				typed_obj =
-					// Performs a "look-ahead" to see if we are dealing with an typed anonymous object
-					// START syntax check
-					eps_p(
-						lexeme_d[(alpha_p|'_') >> *(alnum_p|'_')] 
-						>>
-						!(ch_p(':') >> lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')])
-						>>
-						'{'
-					)
-					// END syntax check
-					>>
-					word[do_type(self.ast)] 
-					>>
-					!(str_p(":")[do_colon(self.ast)] 
-							>> 
-							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED)))
-					>> 
-					(ch_p('{') | error_p(PE_OPENBRACEEXPECTED)) 
-					>> 
-					*(named_typed_obj|named_obj|typed_obj|expr) 
-					>> 
-					(str_p("}")[do_close(self.ast)] | error_p(PE_CLOSEBRACEEXPECTED))
-					;
-
-				top_obj =
-					(
-					// Performs a "look-ahead" to see if we are dealing with an abstract object
-					// START syntax check
-					eps_p(
-						str_p("abstract")
-						>>
-						!lexeme_d[(alpha_p|'_') >> *(alnum_p|'_')] 
-						>>
-						lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')]
-						>>
-						!(ch_p(':') >> lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')])
-						>>
-						'{'
-					)
-					// END syntax check
-					>>
-					str_p("abstract")[do_abstract(self.ast)]
-					>>
-						((word[do_type(self.ast)] 
-						>> 
-						ident[do_ident(self.ast)] 
-						>> 
-						!(str_p(":")[do_colon(self.ast)] 
-							>> 
-							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED))))
-					|
-						(ident[do_object(self.ast)]
-						>>
-						!(str_p(":")[do_colon(self.ast)] 
-							>> 
-							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED)))))
-					>> 
-					(ch_p('{') | error_p(PE_OPENBRACEEXPECTED)) 
-					>> 
-					*(obj|expr) 
-					>> 
-					(str_p("}")[do_close(self.ast)] | error_p(PE_CLOSEBRACEEXPECTED))
-					)
-					|
-					(
-					// Performs a "look-ahead" to see if we are dealing with a concrete object
-					// START syntax check
-					eps_p(
-						!lexeme_d[(alpha_p|'_') >> *(alnum_p|'_')] 
-						>>
-						lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')]
-						>>
-						!(ch_p(':') >> lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')])
-						>>
-						'{'
-					)
-					// END syntax check
-					>>
-						((word[do_type(self.ast)] 
-						>> 
-						ident[do_ident(self.ast)] 
-						>> 
-						!(str_p(":")[do_colon(self.ast)] 
-							>> 
-							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED))))
-					|
-						(ident[do_object(self.ast)]
-						>>
-						!(str_p(":")[do_colon(self.ast)] 
-							>> 
-							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED)))))
-					>> 
-					(ch_p('{') | error_p(PE_OPENBRACEEXPECTED)) 
-					>> 
-					*(obj|expr) 
-					>> 
-					(str_p("}")[do_close(self.ast)] | error_p(PE_CLOSEBRACEEXPECTED))
-					)
-					;
-
-				obj =
-					// Performs a "look-ahead" to see if we are dealing with an object
-					// START syntax check
-					eps_p(
-						lexeme_d[(alpha_p|'_') >> *(alnum_p|'_')] 
-						>>
-						!lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')]
-						>>
-						!(ch_p(':') >> lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')])
-						>>
-						'{'
-					)
-					// END syntax check
-					>>
-					word[do_type(self.ast)]
-					>> 
-					!(ident[do_ident(self.ast)])
-						>> 
-						!(str_p(":")[do_colon(self.ast)] 
-							>> 
-							(ident[do_ident(self.ast)] | error_p(PE_IDENTIFIEREXPECTED)))
-					>> 
-					(ch_p('{') | error_p(PE_OPENBRACEEXPECTED)) 
-					>> 
-					*(obj|expr) 
-					>> 
-					(str_p("}")[do_close(self.ast)] | error_p(PE_CLOSEBRACEEXPECTED));
-
-				expr = 
-					lexeme_d
-					[
-						// word
-						((alpha_p|'_') >> *(alnum_p|'_'))[do_property(self.ast)]
-						>>
-						// whitespace
-						*(ch_p(' ')|'\t'|'\f')
-						>>
-						// ident|variable|real_p
-						*(
-							(((alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.'))[do_ident(self.ast)]
-							|
-							(ch_p('$') >> *(alnum_p|'_'))[do_variable(self.ast)]
-							|
-							(eps_p >> real_p)[do_number(self.ast)])
-							>>
-							*(ch_p(' ')|'\t'|'\f')
-						)
-						>>
-						// newline|';'|'}'
-						((str_p("\n")|";"|"}")[do_close(self.ast)] | error_p(PE_NEWLINEEXPECTED))
-					];
-
-				word = lexeme_d[(alpha_p|'_') >> *(alnum_p|'_')];
-				ident = lexeme_d[(alpha_p|'_') >> *(alnum_p|'-'|'_'|'/'|'.')];
+				statement_list = *(import|statement);
 			}
 
-			rule<ScannerT> const &start(){return stat_list;}
+			rule<ScannerT> const &start(){return statement_list;}
 		};
 	};
 
@@ -732,14 +365,8 @@ namespace Ogre {
 		String error = "";
 		switch(mError)
 		{
-		case PE_PRECEDINGTAGEXPECTED:
-			error = "preceding tag expected";
-			break;
 		case PE_IMPORTPATHEXPECTED:
 			error = "import file path or file name expected";
-			break;
-		case PE_IDENTIFIEREXPECTED:
-			error = "identifier expected";
 			break;
 		case PE_OPENBRACEEXPECTED:
 			error = "open brace \'{\' expected";
@@ -747,8 +374,8 @@ namespace Ogre {
 		case PE_CLOSEBRACEEXPECTED:
 			error = "close brace \'}\' expected";
 			break;
-		case PE_NEWLINEEXPECTED:
-			error = "newline expected";
+		case PE_ENDQUOTEEXPECTED:
+			error = "end of quote \'\"\' expected";
 			break;
 		case PE_IMPORTTARGETEXPECTED:
 			error = "import target expected";
