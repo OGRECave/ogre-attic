@@ -39,6 +39,7 @@ namespace Ogre {
     /// Enum describing the different hardware capabilities we want to check for
     enum Capabilities
     {
+				// FIRST CAPABILITIES SET (first four bits = 0)
         //RSC_MULTITEXTURE          = 0x00000001,
         /// Supporta generating mipmaps in hardware
         RSC_AUTOMIPMAP              = 0x00000002,
@@ -54,15 +55,9 @@ namespace Ogre {
         /// Supports hardware vertex and index buffers
         RSC_VBO                     = 0x00000080,
         /// Supports vertex programs (vertex shaders)
-		RSC_VERTEX_PROGRAM          = 0x00000200,
+				RSC_VERTEX_PROGRAM          = 0x00000200,
         /// Supports fragment programs (pixel shaders)
-		RSC_FRAGMENT_PROGRAM        = 0x00000400,
-        /// Supports compressed textures
-		RSC_TEXTURE_COMPRESSION     = 0x00000800,
-        /// Supports compressed textures in the DXT/ST3C formats
-		RSC_TEXTURE_COMPRESSION_DXT = 0x00001000,
-        /// Supports compressed textures in the VTC format
-		RSC_TEXTURE_COMPRESSION_VTC = 0x00002000,
+				RSC_FRAGMENT_PROGRAM        = 0x00000400,
         /// Supports performing a scissor test to exclude areas of the screen
         RSC_SCISSOR_TEST            = 0x00004000,
         /// Supports separate stencil updates for both front and back faces
@@ -73,26 +68,51 @@ namespace Ogre {
         RSC_HWOCCLUSION				= 0x00020000,
         /// Supports user clipping planes
         RSC_USER_CLIP_PLANES		= 0x00040000,
-		/// Supports the VET_UBYTE4 vertex element type
-		RSC_VERTEX_FORMAT_UBYTE4	= 0x00080000,
-		/// Supports infinite far plane projection
-		RSC_INFINITE_FAR_PLANE      = 0x00100000,
+				/// Supports the VET_UBYTE4 vertex element type
+				RSC_VERTEX_FORMAT_UBYTE4	= 0x00080000,
+				/// Supports infinite far plane projection
+				RSC_INFINITE_FAR_PLANE      = 0x00100000,
         /// Supports hardware render-to-texture (bigger than framebuffer)
         RSC_HWRENDER_TO_TEXTURE     = 0x00200000,
         /// Supports float textures and render targets
         RSC_TEXTURE_FLOAT           = 0x00400000,
         /// Supports non-power of two textures
         RSC_NON_POWER_OF_2_TEXTURES = 0x00800000,
-		/// Supports 3d (volume) textures
-		RSC_TEXTURE_3D				= 0x01000000,
-		/// Supports basic point sprite rendering
-		RSC_POINT_SPRITES		    = 0x02000000,
-		/// Supports extra point parameters (minsize, maxsize, attenuation)
-		RSC_POINT_EXTENDED_PARAMETERS = 0x04000000,
-		/// Supports vertex texture fetch
-		RSC_VERTEX_TEXTURE_FETCH = 0x08000000, 
-		/// Supports mipmap LOD biasing
-		RSC_MIPMAP_LOD_BIAS = 0x10000000 
+
+
+				// SECOND CAPABILITIES SET (first four bits == 1)
+				/// Supports 3d (volume) textures
+				RSC_TEXTURE_3D				= 0x04000001,
+				/// Supports basic point sprite rendering
+				RSC_POINT_SPRITES		    = 0x04000002,
+				/// Supports extra point parameters (minsize, maxsize, attenuation)
+				RSC_POINT_EXTENDED_PARAMETERS = 0x04000004,
+				/// Supports vertex texture fetch
+				RSC_VERTEX_TEXTURE_FETCH = 0x04000008, 
+				/// Supports mipmap LOD biasing
+				RSC_MIPMAP_LOD_BIAS = 0x04000010,
+				
+        /// Supports compressed textures
+				RSC_TEXTURE_COMPRESSION     = 0x04000020,
+        /// Supports compressed textures in the DXT/ST3C formats
+				RSC_TEXTURE_COMPRESSION_DXT = 0x04000040,
+        /// Supports compressed textures in the VTC format
+				RSC_TEXTURE_COMPRESSION_VTC = 0x04000080,
+
+
+				//OpenGL specific capabilities
+				/// Supports openGL GLEW version 1.5
+				RSC_GLEW1_5_NOVBO	 = 0x04000100,
+				// Support for Frame Buffer Objects (FBOs)
+				RSC_FBO						 = 0x04000200,
+				// Support for Frame Buffer Objects ARB implementation (regular FBO is higher precedence)
+				RSC_FBO_ARB				 = 0x04000400,
+				// Support for Frame Buffer Objects ATI implementation (ARB FBO is higher precedence)
+				RSC_FBO_ATI				 = 0x04000800,
+				// Support for PBuffer
+				RSC_PBUFFER				 = 0x04001000,
+				// Support for PBuffer
+				RSC_GLEW1_5_NOHWOCCLUSION = 0x04002000
 
     };
 
@@ -118,7 +138,7 @@ namespace Ogre {
             /// The number of matrices available for hardware blending
             ushort mNumVertexBlendMatrices;
             /// Stores the capabilities flags.
-            int mCapabilities;
+            int mCapabilities[4];
             /// The best vertex program that this card / rendersystem supports
             String mMaxVertexProgramVersion;
             /// The best fragment program that this card / rendersystem supports
@@ -227,14 +247,18 @@ namespace Ogre {
             */
             void setCapability(const Capabilities c) 
             { 
-                mCapabilities |= c;
+								int index = (0xFF000000 & c) >> 28;
+								// zero out the index from the stored capability
+                mCapabilities[index] |= (c & 0x00FFFFFF);
             }
 
             /** Checks for a capability
             */
             bool hasCapability(const Capabilities c) const
             {
-                if(mCapabilities & c)
+								int index = (0xFF000000 & c) >> 28;
+								// test against 
+                if(mCapabilities[index] & (c && 0x00FFFFFF))
                 {
                     return true;
                 }
