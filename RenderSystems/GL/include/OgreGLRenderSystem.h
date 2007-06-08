@@ -74,8 +74,8 @@ namespace Ogre {
         /// holds texture type settings for every stage
         GLenum mTextureTypes[OGRE_MAX_TEXTURE_LAYERS];
 
-		/// Number of fixed-function texture units
-		unsigned short mFixedFunctionTextureUnits;
+				/// Number of fixed-function texture units
+				unsigned short mFixedFunctionTextureUnits;
 
         void initConfigOptions(void);
         void initInputDevices(void);
@@ -85,22 +85,22 @@ namespace Ogre {
         void makeGLMatrix(GLfloat gl_matrix[16], const Matrix4& m);
  
         GLint getBlendMode(SceneBlendFactor ogreBlend) const;
-		GLint getTextureAddressingMode(TextureUnitState::TextureAddressingMode tam) const;
+				GLint getTextureAddressingMode(TextureUnitState::TextureAddressingMode tam) const;
 
         void setLights();
 
         // Store last depth write state
         bool mDepthWrite;
-		// Store last stencil mask state
-		uint32 mStencilMask;
-		// Store last colour write state
-		bool mColourWrite[4];
+				// Store last stencil mask state
+				uint32 mStencilMask;
+				// Store last colour write state
+				bool mColourWrite[4];
 
         GLint convertCompareFunction(CompareFunction func) const;
         GLint convertStencilOp(StencilOperation op, bool invert = false) const;
 
-		// internal method for anisotrophy validation
-		GLfloat _getCurrentAnisotropy(size_t unit);
+				// internal method for anisotrophy validation
+				GLfloat _getCurrentAnisotropy(size_t unit);
 		
         /// GL support class, used for creating windows etc
         GLSupport* mGLSupport;
@@ -113,12 +113,10 @@ namespace Ogre {
 
         // check if the GL system has already been initialized
         bool mGLInitialized;
-        // Initialise GL system and capabilities
-        void initGL(RenderTarget *primary);
 
         HardwareBufferManager* mHardwareBufferManager;
         GLGpuProgramManager* mGpuProgramManager;
-		GLSLProgramFactory* mGLSLProgramFactory;
+				GLSLProgramFactory* mGLSLProgramFactory;
 
         unsigned short mCurrentLights;
 
@@ -127,13 +125,13 @@ namespace Ogre {
         GLGpuProgram* mCurrentVertexProgram;
         GLGpuProgram* mCurrentFragmentProgram;
 
-		/* The main GL context - main thread only */
+				/* The main GL context - main thread only */
         GLContext *mMainContext;
         /* The current GL context  - main thread only*/
         GLContext *mCurrentContext;
-		typedef std::list<GLContext*> GLContextList;
-		/// List of background thread contexts
-		GLContextList mBackgroundContextList;
+				typedef std::list<GLContext*> GLContextList;
+				/// List of background thread contexts
+				GLContextList mBackgroundContextList;
 
         /** Manager object for creating render textures.
             Direct render to texture via GL_EXT_framebuffer_object is preferable 
@@ -172,6 +170,14 @@ namespace Ogre {
         /** See
           RenderSystem
          */
+				virtual RenderSystemCapabilities* createRenderSystemCapabilities() const;
+        /** See
+          RenderSystem
+         */
+				void initialiseFromRenderSystemCapabilities(RenderSystemCapabilities* caps, RenderTarget* primary);
+        /** See
+          RenderSystem
+         */
         void reinitialise(void); // Used if settings changed mid-rendering
         /** See
           RenderSystem
@@ -191,12 +197,12 @@ namespace Ogre {
          */
         void setLightingEnabled(bool enabled);
         
-		/// @copydoc RenderSystem::createRenderWindow
-		RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, 
-			bool fullScreen, const NameValuePairList *miscParams = 0);
+				/// @copydoc RenderSystem::createRenderWindow
+				RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, 
+						bool fullScreen, const NameValuePairList *miscParams = 0);
 
-		/// @copydoc RenderSystem::createMultiRenderTarget
-		virtual MultiRenderTarget * createMultiRenderTarget(const String & name); 
+				/// @copydoc RenderSystem::createMultiRenderTarget
+				virtual MultiRenderTarget * createMultiRenderTarget(const String & name); 
 		
         /** See
           RenderSystem
@@ -245,12 +251,12 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-		void _setPointParameters(Real size, bool attenuationEnabled, 
-			Real constant, Real linear, Real quadratic, Real minSize, Real maxSize);
+				void _setPointParameters(Real size, bool attenuationEnabled, 
+						Real constant, Real linear, Real quadratic, Real minSize, Real maxSize);
         /** See
           RenderSystem
          */
-		void _setPointSpritesEnabled(bool enabled);
+				void _setPointSpritesEnabled(bool enabled);
         /** See
           RenderSystem
          */
@@ -276,10 +282,10 @@ namespace Ogre {
           RenderSystem
          */
         void _setTextureBorderColour(size_t stage, const ColourValue& colour);
-		/** See
-		RenderSystem
-		*/
-		void _setTextureMipmapBias(size_t unit, float bias);
+				/** See
+				RenderSystem
+				*/
+				void _setTextureMipmapBias(size_t unit, float bias);
         /** See
           RenderSystem
          */
@@ -332,7 +338,7 @@ namespace Ogre {
           RenderSystem
          */
         void _setColourBufferWriteEnabled(bool red, bool green, bool blue, bool alpha);
-		/** See
+				/** See
           RenderSystem
          */
         void _setFog(FogMode mode, const ColourValue& colour, Real density, Real start, Real end);
@@ -354,7 +360,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-		void _makeOrthoMatrix(const Radian& fovy, Real aspect, Real nearPlane, Real farPlane, 
+				void _makeOrthoMatrix(const Radian& fovy, Real aspect, Real nearPlane, Real farPlane, 
             Matrix4& dest, bool forGpuProgram = false);
         /** See
         RenderSystem
@@ -392,15 +398,15 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-		void _setTextureLayerAnisotropy(size_t unit, unsigned int maxAnisotropy);
+				void _setTextureLayerAnisotropy(size_t unit, unsigned int maxAnisotropy);
         /** See
           RenderSystem
          */
-		void setVertexDeclaration(VertexDeclaration* decl);
+				void setVertexDeclaration(VertexDeclaration* decl);
         /** See
           RenderSystem
          */
-		void setVertexBufferBinding(VertexBufferBinding* binding);
+				void setVertexBufferBinding(VertexBufferBinding* binding);
         /** See
           RenderSystem
          */
@@ -417,21 +423,14 @@ namespace Ogre {
           RenderSystem
          */
         void bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParametersSharedPtr params);
-		/** See
-		RenderSystem
-		*/
-		void bindGpuProgramPassIterationParameters(GpuProgramType gptype);
+				/** See
+				RenderSystem
+				*/
+				void bindGpuProgramPassIterationParameters(GpuProgramType gptype);
         /** See
           RenderSystem
          */
         void setClipPlanes(const PlaneList& clipPlanes);
-		/** See
-		  RenderSystem
-		 */
-		void resetClipPlanes();
-        /** See
-          RenderSystem
-         */
         void setScissorTest(bool enabled, size_t left = 0, size_t top = 0, size_t right = 800, size_t bottom = 600) ;
         void clearFrameBuffer(unsigned int buffers, 
             const ColourValue& colour = ColourValue::Black, 
@@ -441,10 +440,10 @@ namespace Ogre {
         Real getVerticalTexelOffset(void);
         Real getMinimumDepthInputValue(void);
         Real getMaximumDepthInputValue(void);
-		void registerThread();
-		void unregisterThread();
-		void preExtraThreadsStarted();
-		void postExtraThreadsStarted();
+				void registerThread();
+				void unregisterThread();
+				void preExtraThreadsStarted();
+				void postExtraThreadsStarted();
 
         // ----------------------------------
         // GLRenderSystem specific members
@@ -468,8 +467,8 @@ namespace Ogre {
             GLContext.
          */
         void _unregisterContext(GLContext *context);
-		/** Returns the main context */
-		GLContext* _getMainContext() {return mMainContext;} 
+				/** Returns the main context */
+				GLContext* _getMainContext() {return mMainContext;} 
     };
 }
 #endif

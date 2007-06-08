@@ -48,13 +48,15 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
+    const PlaneList Renderable::msDummyPlaneList; // FIX ME: temporary
     static const TexturePtr sNullTexPtr;
 
     //-----------------------------------------------------------------------
     RenderSystem::RenderSystem()
         : mActiveRenderTarget(0)
         , mTextureManager(0)
-        , mCapabilities(0)
+        , mRealCapabilities(0)
+        , mCurrentCapabilities(0)
         , mActiveViewport(0)
         // This means CULL clockwise vertices, i.e. front of poly is counter-clockwise
         // This makes it the same as OpenGL and other right-handed systems
@@ -67,17 +69,15 @@ namespace Ogre {
         , mVertexProgramBound(false)
         , mFragmentProgramBound(false)
     {
-        // instanciate RenderSystemCapabilities
-        mCapabilities = new RenderSystemCapabilities();
     }
 
     //-----------------------------------------------------------------------
     RenderSystem::~RenderSystem()
     {
         shutdown();
-		delete mCapabilities;
-		mCapabilities = 0;
-    }
+				delete mRealCapabilities;
+				mRealCapabilities = 0;
+		}
     //-----------------------------------------------------------------------
     void RenderSystem::_initRenderTargets(void)
     {
@@ -223,8 +223,8 @@ namespace Ogre {
 
         const TexturePtr& tex = tl._getTexturePtr();
 		// Vertex texture binding?
-		if (mCapabilities->hasCapability(RSC_VERTEX_TEXTURE_FETCH) && 
-			!mCapabilities->getVertexTextureUnitsShared())
+		if (mCurrentCapabilities->hasCapability(RSC_VERTEX_TEXTURE_FETCH) && 
+			!mCurrentCapabilities->getVertexTextureUnitsShared())
 		{
 			if (tl.getBindingType() == TextureUnitState::BT_VERTEX)
 			{
@@ -357,7 +357,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void RenderSystem::_disableTextureUnitsFrom(size_t texUnit)
     {
-        size_t disableTo = mCapabilities->getNumTextureUnits();
+        size_t disableTo = mCurrentCapabilities->getNumTextureUnits();
         if (disableTo > mDisabledTexUnitsFrom)
             disableTo = mDisabledTexUnitsFrom;
         mDisabledTexUnitsFrom = texUnit;

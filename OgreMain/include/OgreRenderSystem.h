@@ -202,6 +202,10 @@ namespace Ogre
         */
         virtual RenderWindow* initialise(bool autoCreateWindow, const String& windowTitle = "OGRE Render Window");
 
+
+				/** Query the capabilities of the GPU and driver in the RenderSystem*/
+				virtual RenderSystemCapabilities* createRenderSystemCapabilities() const = 0;
+
         /** Restart the renderer (normally following a change in settings).
         */
         virtual void reinitialise(void) = 0;
@@ -949,8 +953,8 @@ namespace Ogre
          */
         virtual void _render(const RenderOperation& op);
 
-		/** Gets the capabilities of the render system. */
-		const RenderSystemCapabilities* getCapabilities(void) const { return mCapabilities; }
+				/** Gets the capabilities of the render system. */
+				const RenderSystemCapabilities* getCapabilities(void) const { return mCurrentCapabilities; }
 
         /** Binds a given GpuProgram (but not the parameters). 
         @remarks Only one GpuProgram of each type can be bound at once, binding another
@@ -973,15 +977,11 @@ namespace Ogre
         /** Returns whether or not a Gpu program of the given type is currently bound. */
         virtual bool isGpuProgramBound(GpuProgramType gptype);
 
-        /** Sets the user clipping region.
+        /** sets the clipping region.
         */
         virtual void setClipPlanes(const PlaneList& clipPlanes) = 0;
 
-		/** Clears the user clipping region.
-		*/
-		virtual void resetClipPlanes() = 0;
-
-		/** Utility method for initialising all render targets attached to this rendering system. */
+        /** Utility method for initialising all render targets attached to this rendering system. */
         virtual void _initRenderTargets(void);
 
         /** Utility method to notify all render targets that a camera has been removed, 
@@ -1158,13 +1158,16 @@ namespace Ogre
 		virtual void unregisterThread() = 0;
     protected:
 
+				/** Initialize the render system from the capabilities*/
+				virtual void initialiseFromRenderSystemCapabilities(RenderSystemCapabilities* caps, RenderTarget* primary) = 0;
+
 		
-        /** The render targets. */
+				/** The render targets. */
         RenderTargetMap mRenderTargets;
-		/** The render targets, ordered by priority. */
-		RenderTargetPriorityMap mPrioritisedRenderTargets;
-		/** The Active render target. */
-		RenderTarget * mActiveRenderTarget;
+				/** The render targets, ordered by priority. */
+				RenderTargetPriorityMap mPrioritisedRenderTargets;
+				/** The Active render target. */
+				RenderTarget * mActiveRenderTarget;
         /** The Active GPU programs and gpu program parameters*/
         GpuProgramParametersSharedPtr mActiveVertexGpuProgramParameters;
         GpuProgramParametersSharedPtr mActiveFragmentGpuProgramParameters;
@@ -1176,7 +1179,10 @@ namespace Ogre
         TextureManager* mTextureManager;
 
         /// Used to store the capabilities of the graphics card
-        RenderSystemCapabilities* mCapabilities;
+        RenderSystemCapabilities* mRealCapabilities;
+
+        RenderSystemCapabilities* mCurrentCapabilities;
+
 
         // Active viewport (dest for future rendering operations)
         Viewport* mActiveViewport;
@@ -1184,14 +1190,14 @@ namespace Ogre
         CullingMode mCullingMode;
 
         bool mVSync;
-		bool mWBuffer;
+				bool mWBuffer;
 
         size_t mBatchCount;
         size_t mFaceCount;
         size_t mVertexCount;
 
-		/// Saved manual colour blends
-		ColourValue mManualBlendColours[OGRE_MAX_TEXTURE_LAYERS][2];
+				/// Saved manual colour blends
+				ColourValue mManualBlendColours[OGRE_MAX_TEXTURE_LAYERS][2];
 
         bool mInvertVertexWinding;
 

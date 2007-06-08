@@ -199,9 +199,338 @@ namespace Ogre {
         
         return autoWindow;
     }
-
-    void GLRenderSystem::initGL(RenderTarget *primary)
+   
+    RenderSystemCapabilities* GLRenderSystem::createRenderSystemCapabilities() const
     {
+				RenderSystemCapabilities* rsc = new RenderSystemCapabilities();
+
+        // Check for hardware mipmapping support.
+        if(GLEW_VERSION_1_4 || GLEW_SGIS_generate_mipmap)
+        {
+            rsc->setCapability(RSC_AUTOMIPMAP);
+        }
+
+        // Check for blending support
+        if(GLEW_VERSION_1_3 || 
+            GLEW_ARB_texture_env_combine || 
+            GLEW_EXT_texture_env_combine)
+        {
+            rsc->setCapability(RSC_BLENDING);
+        }
+
+        // Check for Multitexturing support and set number of texture units
+        if(GLEW_VERSION_1_3 || 
+           GLEW_ARB_multitexture)
+        {
+						GLint units;
+						glGetIntegerv( GL_MAX_TEXTURE_UNITS, &units );
+
+						if (GLEW_ARB_fragment_program)
+						{
+								// Also check GL_MAX_TEXTURE_IMAGE_UNITS_ARB since NV at least
+								// only increased this on the FX/6x00 series
+								GLint arbUnits;
+								glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS_ARB, &arbUnits );
+								if (arbUnits > units)
+										units = arbUnits;
+						}
+						rsc->setNumTextureUnits(units);
+        }
+        else
+        {
+            // If no multitexture support then set one texture unit
+            rsc->setNumTextureUnits(1);
+        }
+            
+        // Check for Anisotropy support
+        if(GLEW_EXT_texture_filter_anisotropic)
+        {
+            rsc->setCapability(RSC_ANISOTROPY);
+        }
+
+        // Check for DOT3 support
+        if(GLEW_VERSION_1_3 ||
+           GLEW_ARB_texture_env_dot3 ||
+           GLEW_EXT_texture_env_dot3)
+        {
+            rsc->setCapability(RSC_DOT3);
+        }
+
+        // Check for cube mapping
+        if(GLEW_VERSION_1_3 || 
+           GLEW_ARB_texture_cube_map ||
+           GLEW_EXT_texture_cube_map)
+        {
+           rsc->setCapability(RSC_CUBEMAPPING);
+        }
+        
+
+				// Point sprites
+				if (GLEW_VERSION_2_0 ||	GLEW_ARB_point_sprite)
+				{
+						rsc->setCapability(RSC_POINT_SPRITES);
+				}
+        // Check for point parameters
+        if(GLEW_VERSION_1_4 ||
+						GLEW_ARB_point_parameters ||
+						GLEW_EXT_point_parameters)
+        {
+						rsc->setCapability(RSC_POINT_EXTENDED_PARAMETERS);
+        }
+		
+        // Check for hardware stencil support and set bit depth
+        GLint stencil;
+        glGetIntegerv(GL_STENCIL_BITS,&stencil);
+
+        if(stencil)
+        {
+            rsc->setCapability(RSC_HWSTENCIL);
+            rsc->setStencilBufferBitDepth(stencil);
+        }
+
+				 
+				if(GLEW_VERSION_1_5 || GLEW_ARB_vertex_buffer_object)
+				{
+						if(!GLEW_ARB_vertex_buffer_object)
+						{
+								rsc->setCapability(RSC_GLEW1_5_NOVBO);
+						}
+						rsc->setCapability(RSC_VBO);
+				}
+
+				if(GLEW_ARB_vertex_program)
+        {
+            rsc->setCapability(RSC_VERTEX_PROGRAM);
+
+            // Vertex Program Properties
+            rsc->setMaxVertexProgramVersion("arbvp1");
+            rsc->setVertexProgramConstantBoolCount(0);
+            rsc->setVertexProgramConstantIntCount(0);
+
+            GLint floatConstantCount;
+            glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB, &floatConstantCount);
+            rsc->setVertexProgramConstantFloatCount(floatConstantCount);
+
+            rsc->addShaderProfile("arbvp1");
+						if (GLEW_NV_vertex_program2_option)
+						{
+								rsc->setMaxVertexProgramVersion("vp30");
+								rsc->addShaderProfile("vp30");
+						}
+
+						if (GLEW_NV_vertex_program3)
+						{
+								rsc->setMaxVertexProgramVersion("vp40");
+								rsc->addShaderProfile("vp40");
+						}
+				}
+
+        if (GLEW_NV_register_combiners2 &&
+            GLEW_NV_texture_shader)
+        {
+						rsc->setCapability(RSC_FRAGMENT_PROGRAM);
+						rsc->setMaxFragmentProgramVersion("fp20");
+
+						rsc->addShaderProfile("fp20");
+        }
+
+				// NFZ - check for ATI fragment shader support
+				if (GLEW_ATI_fragment_shader)
+				{
+						rsc->setCapability(RSC_FRAGMENT_PROGRAM);
+						rsc->setMaxFragmentProgramVersion("ps_1_4");
+						// no boolean params allowed
+						rsc->setFragmentProgramConstantBoolCount(0);
+						// no integer params allowed
+						rsc->setFragmentProgramConstantIntCount(0);
+
+						// only 8 Vector4 constant floats supported
+						rsc->setFragmentProgramConstantFloatCount(8);
+
+						rsc->addShaderProfile("ps_1_4");
+						rsc->addShaderProfile("ps_1_3");
+						rsc->addShaderProfile("ps_1_2");
+						rsc->addShaderProfile("ps_1_1");
+				}
+
+        if (GLEW_ARB_fragment_program)
+        {
+            rsc->setCapability(RSC_FRAGMENT_PROGRAM);
+
+            // Fragment Program Properties
+            rsc->setMaxFragmentProgramVersion("arbfp1");
+            rsc->setFragmentProgramConstantBoolCount(0);
+            rsc->setFragmentProgramConstantIntCount(0);
+
+            GLint floatConstantCount;
+            glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB, &floatConstantCount);
+            rsc->setFragmentProgramConstantFloatCount(floatConstantCount);
+
+            rsc->addShaderProfile("arbfp1");
+						if (GLEW_NV_fragment_program_option)
+						{
+								rsc->setMaxFragmentProgramVersion("fp30");
+								rsc->addShaderProfile("fp30");
+						}
+
+						if (GLEW_NV_fragment_program2)
+						{
+								rsc->setMaxFragmentProgramVersion("fp40");
+								rsc->addShaderProfile("fp40");
+						}        
+				}
+
+				// NFZ - Check if GLSL is supported
+				if ( GLEW_VERSION_2_0 || 
+					(GLEW_ARB_shading_language_100 &&
+					 GLEW_ARB_shader_objects &&
+					 GLEW_ARB_fragment_shader &&
+					 GLEW_ARB_vertex_shader) )
+				{
+						rsc->addShaderProfile("glsl");
+				}
+
+				// Check for texture compression
+        if(GLEW_VERSION_1_3 || GLEW_ARB_texture_compression)
+        {   
+						rsc->setCapability(RSC_TEXTURE_COMPRESSION);
+         
+						// Check for dxt compression
+						if(GLEW_EXT_texture_compression_s3tc)
+						{
+						    rsc->setCapability(RSC_TEXTURE_COMPRESSION_DXT);
+            }
+            // Check for vtc compression
+            if(GLEW_NV_texture_compression_vtc)
+            {
+                rsc->setCapability(RSC_TEXTURE_COMPRESSION_VTC);
+            }
+        }
+
+        // Scissor test is standard in GL 1.2 (is it emulated on some cards though?)
+        rsc->setCapability(RSC_SCISSOR_TEST);
+				// As are user clipping planes
+				rsc->setCapability(RSC_USER_CLIP_PLANES);
+
+        // 2-sided stencil?
+        if (GLEW_VERSION_2_0 || GLEW_EXT_stencil_two_side)
+        {
+            rsc->setCapability(RSC_TWO_SIDED_STENCIL);
+        }
+        // stencil wrapping?
+        if (GLEW_VERSION_1_4 || GLEW_EXT_stencil_wrap)
+        {
+            rsc->setCapability(RSC_STENCIL_WRAP);
+        }
+
+        // Check for hardware occlusion support
+        if(GLEW_VERSION_1_5 || GLEW_ARB_occlusion_query)
+        {
+            // Some buggy driver claim that it is GL 1.5 compliant and
+            // not support ARB_occlusion_query
+            if (!GLEW_ARB_occlusion_query)
+            {
+								rsc->setCapability(RSC_GLEW1_5_NOHWOCCLUSION);		
+            }
+
+            rsc->setCapability(RSC_HWOCCLUSION);		
+        }
+				else if (GLEW_NV_occlusion_query)
+				{
+						// Support NV extension too for old hardware
+						rsc->setCapability(RSC_HWOCCLUSION);		
+				}
+
+				// UBYTE4 always supported
+				rsc->setCapability(RSC_VERTEX_FORMAT_UBYTE4);
+
+        // Inifinite far plane always supported
+        rsc->setCapability(RSC_INFINITE_FAR_PLANE);
+
+        // Check for non-power-of-2 texture support
+				if(GLEW_ARB_texture_non_power_of_two)
+        {
+            rsc->setCapability(RSC_NON_POWER_OF_2_TEXTURES);
+        }
+
+        // Check for Float textures
+        if(GLEW_ATI_texture_float || GLEW_ARB_texture_float)
+        {
+            rsc->setCapability(RSC_TEXTURE_FLOAT);
+        }
+        
+				// 3D textures should be supported by GL 1.2, which is our minimum version
+        rsc->setCapability(RSC_TEXTURE_3D);
+        
+        // Check for framebuffer object extension
+        if(GLEW_EXT_framebuffer_object)
+        {
+						// Probe number of draw buffers
+						// Only makes sense with FBO support, so probe here
+						if(GLEW_VERSION_2_0 || 
+						   GLEW_ARB_draw_buffers ||
+						   GLEW_ATI_draw_buffers)
+						{
+								GLint buffers;
+								glGetIntegerv(GL_MAX_DRAW_BUFFERS_ARB, &buffers);
+								rsc->setNumMultiRenderTargets(std::min(buffers, OGRE_MAX_MULTIPLE_RENDER_TARGETS));
+								if(!GLEW_VERSION_2_0)
+								{
+										// Before GL version 2.0, we need to get one of the extensions
+										if(GLEW_ARB_draw_buffers)
+												rsc->setCapability(RSC_FBO_ARB);
+										if(GLEW_ATI_draw_buffers)
+												rsc->setCapability(RSC_FBO_ATI);
+								}
+								else
+								{
+										rsc->setCapability(RSC_FBO);
+								}
+
+						}
+            rsc->setCapability(RSC_HWRENDER_TO_TEXTURE);
+        }
+        else
+        {
+            // Check GLSupport for PBuffer support
+            if(mGLSupport->supportsPBuffers())
+            {
+                // Use PBuffers
+                rsc->setCapability(RSC_HWRENDER_TO_TEXTURE);
+                rsc->setCapability(RSC_PBUFFER);
+            }
+        }
+
+				// Point size
+				float ps;
+				glGetFloatv(GL_POINT_SIZE_MAX, &ps);
+				rsc->setMaxPointSize(ps);
+
+				// Vertex texture fetching
+				GLint vUnits;
+				glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS_ARB, &vUnits);
+				rsc->setNumVertexTextureUnits(static_cast<ushort>(vUnits));
+				if (vUnits > 0)
+				{
+						rsc->setCapability(RSC_VERTEX_TEXTURE_FETCH);
+				}
+				// GL always shares vertex and fragment texture units (for now?)
+				rsc->setVertexTextureUnitsShared(true);
+
+				// Mipmap LOD biasing?
+				if (GLEW_VERSION_1_4 || GLEW_EXT_texture_lod_bias)
+				{
+						rsc->setCapability(RSC_MIPMAP_LOD_BIAS);
+				}
+
+				return rsc;
+		}
+
+		void GLRenderSystem::initialiseFromRenderSystemCapabilities(RenderSystemCapabilities* caps, RenderTarget* primary)
+		{
+
+				// set the current capabilities 
+				mCurrentCapabilities = caps;
         // Set main and current context
         mMainContext = 0;
         primary->getCustomAttribute("GLCONTEXT", &mMainContext);
@@ -215,125 +544,36 @@ namespace Ogre {
         mGLSupport->initialiseExtensions();
 
         LogManager::getSingleton().logMessage("***************************");
-		LogManager::getSingleton().logMessage("*** GL Renderer Started ***");
-		LogManager::getSingleton().logMessage("***************************");
+				LogManager::getSingleton().logMessage("*** GL Renderer Started ***");
+				LogManager::getSingleton().logMessage("***************************");
 
-		// Get extension function pointers
+				// Get extension function pointers
         glewContextInit(mGLSupport);
 
-        // Check for hardware mipmapping support.
-        if(GLEW_VERSION_1_4 || GLEW_SGIS_generate_mipmap)
-        {
-            mCapabilities->setCapability(RSC_AUTOMIPMAP);
-        }
+				// set texture the number of texture units
+				mFixedFunctionTextureUnits = caps->getNumTextureUnits();
 
-        // Check for blending support
-        if(GLEW_VERSION_1_3 || 
-            GLEW_ARB_texture_env_combine || 
-            GLEW_EXT_texture_env_combine)
-        {
-            mCapabilities->setCapability(RSC_BLENDING);
-        }
+				if(caps->hasCapability(RSC_GLEW1_5_NOVBO))
+				{
+						// Assign ARB functions same to GL 1.5 version since
+						// interface identical
+						glBindBufferARB = glBindBuffer;
+						glBufferDataARB = glBufferData;
+						glBufferSubDataARB = glBufferSubData;
+						glDeleteBuffersARB = glDeleteBuffers;
+						glGenBuffersARB = glGenBuffers;
+						glGetBufferParameterivARB = glGetBufferParameteriv;
+						glGetBufferPointervARB = glGetBufferPointerv;
+						glGetBufferSubDataARB = glGetBufferSubData;
+						glIsBufferARB = glIsBuffer;
+						glMapBufferARB = glMapBuffer;
+						glUnmapBufferARB = glUnmapBuffer;
+				}
 
-        // Check for Multitexturing support and set number of texture units
-        if(GLEW_VERSION_1_3 || 
-           GLEW_ARB_multitexture)
-        {
-            GLint units;
-            glGetIntegerv( GL_MAX_TEXTURE_UNITS, &units );
-			mFixedFunctionTextureUnits = units;
+        if(caps->hasCapability(RSC_VBO))
+				{
 
-			if (GLEW_ARB_fragment_program)
-			{
-				// Also check GL_MAX_TEXTURE_IMAGE_UNITS_ARB since NV at least
-				// only increased this on the FX/6x00 series
-				GLint arbUnits;
-				glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS_ARB, &arbUnits );
-				if (arbUnits > units)
-					units = arbUnits;
-			}
-	    
-            mCapabilities->setNumTextureUnits(units);
-
-        }
-        else
-        {
-            // If no multitexture support then set one texture unit
-            mCapabilities->setNumTextureUnits(1);
-        }
-            
-        // Check for Anisotropy support
-        if(GLEW_EXT_texture_filter_anisotropic)
-        {
-            mCapabilities->setCapability(RSC_ANISOTROPY);
-        }
-
-        // Check for DOT3 support
-        if(GLEW_VERSION_1_3 ||
-           GLEW_ARB_texture_env_dot3 ||
-           GLEW_EXT_texture_env_dot3)
-        {
-            mCapabilities->setCapability(RSC_DOT3);
-        }
-
-        // Check for cube mapping
-        if(GLEW_VERSION_1_3 || 
-           GLEW_ARB_texture_cube_map ||
-           GLEW_EXT_texture_cube_map)
-        {
-            mCapabilities->setCapability(RSC_CUBEMAPPING);
-        }
-        
-
-		// Point sprites
-		if (GLEW_VERSION_2_0 ||
-			GLEW_ARB_point_sprite)
-		{
-			mCapabilities->setCapability(RSC_POINT_SPRITES);
-		}
-        // Check for point parameters
-        if(GLEW_VERSION_1_4 ||
-			GLEW_ARB_point_parameters ||
-			GLEW_EXT_point_parameters)
-        {
-            mCapabilities->setCapability(RSC_POINT_EXTENDED_PARAMETERS);
-        }
-		
-        // Check for hardware stencil support and set bit depth
-        GLint stencil;
-        glGetIntegerv(GL_STENCIL_BITS,&stencil);
-
-        if(stencil)
-        {
-            mCapabilities->setCapability(RSC_HWSTENCIL);
-            mCapabilities->setStencilBufferBitDepth(stencil);
-        }
-
-        // Check for VBO support
-        if(GLEW_VERSION_1_5 || GLEW_ARB_vertex_buffer_object)
-        {
-            // Some buggy driver claim that it is GL 1.5 compliant and
-            // not support ARB_vertex_buffer_object
-            if (!GLEW_ARB_vertex_buffer_object)
-            {
-                // Assign ARB functions same to GL 1.5 version since
-                // interface identical
-                glBindBufferARB = glBindBuffer;
-                glBufferDataARB = glBufferData;
-                glBufferSubDataARB = glBufferSubData;
-                glDeleteBuffersARB = glDeleteBuffers;
-                glGenBuffersARB = glGenBuffers;
-                glGetBufferParameterivARB = glGetBufferParameteriv;
-                glGetBufferPointervARB = glGetBufferPointerv;
-                glGetBufferSubDataARB = glGetBufferSubData;
-                glIsBufferARB = glIsBuffer;
-								glMapBufferARB = glMapBuffer;
-                glUnmapBufferARB = glUnmapBuffer;
-            }
-
-            mCapabilities->setCapability(RSC_VBO);
-
-            mHardwareBufferManager = new GLHardwareBufferManager;
+						mHardwareBufferManager = new GLHardwareBufferManager;
         }
         else
         {
@@ -345,156 +585,83 @@ namespace Ogre {
         // GPU Program Manager setup
         mGpuProgramManager = new GLGpuProgramManager();
 
-		if(GLEW_ARB_vertex_program)
-        {
-            mCapabilities->setCapability(RSC_VERTEX_PROGRAM);
+        if(caps->hasCapability(RSC_VERTEX_PROGRAM))
+				{
+            if(caps->isShaderProfileSupported("arbvp1"))
+						{
+								mGpuProgramManager->registerProgramFactory("arbvp1", createGLArbGpuProgram);
+						}
 
-            // Vertex Program Properties
-            mCapabilities->setMaxVertexProgramVersion("arbvp1");
-            mCapabilities->setVertexProgramConstantBoolCount(0);
-            mCapabilities->setVertexProgramConstantIntCount(0);
+            if(caps->isShaderProfileSupported("vp30"))
+						{
+								mGpuProgramManager->registerProgramFactory("vp30", createGLArbGpuProgram);
+						}
 
-            GLint floatConstantCount;
-            glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB, &floatConstantCount);
-            mCapabilities->setVertexProgramConstantFloatCount(floatConstantCount);
+            if(caps->isShaderProfileSupported("vp40"))
+						{
+								mGpuProgramManager->registerProgramFactory("vp40", createGLArbGpuProgram);
+						}
+				}
 
-            mCapabilities->addShaderProfile("arbvp1");
-            mGpuProgramManager->registerProgramFactory("arbvp1", createGLArbGpuProgram);
-			if (GLEW_NV_vertex_program2_option)
-			{
-				mCapabilities->setMaxVertexProgramVersion("vp30");
-				mCapabilities->addShaderProfile("vp30");
-				mGpuProgramManager->registerProgramFactory("vp30", createGLArbGpuProgram);
-			}
+        if(caps->hasCapability(RSC_FRAGMENT_PROGRAM))
+				{
 
-			if (GLEW_NV_vertex_program3)
-			{
-				mCapabilities->setMaxVertexProgramVersion("vp40");
-				mCapabilities->addShaderProfile("vp40");
-				mGpuProgramManager->registerProgramFactory("vp40", createGLArbGpuProgram);
-			}
-		}
+            if(caps->isShaderProfileSupported("fp20"))
+						{
+								mGpuProgramManager->registerProgramFactory("fp20", createGLGpuNvparseProgram);
+						}
 
-        if (GLEW_NV_register_combiners2 &&
-            GLEW_NV_texture_shader)
-        {
-            mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
-            mCapabilities->setMaxFragmentProgramVersion("fp20");
+            if(caps->isShaderProfileSupported("ps_1_4"))
+						{
+								mGpuProgramManager->registerProgramFactory("ps_1_4", createGL_ATI_FS_GpuProgram);
+						}
 
-            mCapabilities->addShaderProfile("fp20");
-            mGpuProgramManager->registerProgramFactory("fp20", createGLGpuNvparseProgram);
-        }
+						if(caps->isShaderProfileSupported("ps_1_3"))
+						{
+								mGpuProgramManager->registerProgramFactory("ps_1_3", createGL_ATI_FS_GpuProgram);
+						}
 
-		// NFZ - check for ATI fragment shader support
-		if (GLEW_ATI_fragment_shader)
-		{
-            mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
-            mCapabilities->setMaxFragmentProgramVersion("ps_1_4");
-            // no boolean params allowed
-            mCapabilities->setFragmentProgramConstantBoolCount(0);
-            // no integer params allowed
-            mCapabilities->setFragmentProgramConstantIntCount(0);
+						if(caps->isShaderProfileSupported("ps_1_2"))
+						{
+								mGpuProgramManager->registerProgramFactory("ps_1_2", createGL_ATI_FS_GpuProgram);
+						}
 
-			// only 8 Vector4 constant floats supported
-            mCapabilities->setFragmentProgramConstantFloatCount(8);
+						if(caps->isShaderProfileSupported("ps_1_1"))
+						{
+								mGpuProgramManager->registerProgramFactory("ps_1_1", createGL_ATI_FS_GpuProgram);
+						}
 
-            mCapabilities->addShaderProfile("ps_1_4");
-            mCapabilities->addShaderProfile("ps_1_3");
-            mCapabilities->addShaderProfile("ps_1_2");
-            mCapabilities->addShaderProfile("ps_1_1");
+						if(caps->isShaderProfileSupported("arbfp1"))
+						{
+								mGpuProgramManager->registerProgramFactory("arbfp1", createGLArbGpuProgram);
+						}
 
-            mGpuProgramManager->registerProgramFactory("ps_1_4", createGL_ATI_FS_GpuProgram);
-            mGpuProgramManager->registerProgramFactory("ps_1_3", createGL_ATI_FS_GpuProgram);
-            mGpuProgramManager->registerProgramFactory("ps_1_2", createGL_ATI_FS_GpuProgram);
-            mGpuProgramManager->registerProgramFactory("ps_1_1", createGL_ATI_FS_GpuProgram);
-		}
+						if(caps->isShaderProfileSupported("fp40"))
+						{
+								mGpuProgramManager->registerProgramFactory("fp40", createGLArbGpuProgram);
+						}
 
-        if (GLEW_ARB_fragment_program)
-        {
-            mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
+						if(caps->isShaderProfileSupported("fp30"))
+						{
+								mGpuProgramManager->registerProgramFactory("fp30", createGLArbGpuProgram);
+						}
 
-            // Fragment Program Properties
-            mCapabilities->setMaxFragmentProgramVersion("arbfp1");
-            mCapabilities->setFragmentProgramConstantBoolCount(0);
-            mCapabilities->setFragmentProgramConstantIntCount(0);
+				}
 
-            GLint floatConstantCount;
-            glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB, &floatConstantCount);
-            mCapabilities->setFragmentProgramConstantFloatCount(floatConstantCount);
+				if(caps->isShaderProfileSupported("glsl"))
+				{
+						// NFZ - check for GLSL vertex and fragment shader support successful
+						mGLSLProgramFactory = new GLSLProgramFactory();
+						HighLevelGpuProgramManager::getSingleton().addFactory(mGLSLProgramFactory);
+						LogManager::getSingleton().logMessage("GLSL support detected");
+				}
 
-            mCapabilities->addShaderProfile("arbfp1");
-            mGpuProgramManager->registerProgramFactory("arbfp1", createGLArbGpuProgram);
-			if (GLEW_NV_fragment_program_option)
-			{
-				mCapabilities->setMaxFragmentProgramVersion("fp30");
-				mCapabilities->addShaderProfile("fp30");
-				mGpuProgramManager->registerProgramFactory("fp30", createGLArbGpuProgram);
-			}
-
-			if (GLEW_NV_fragment_program2)
-			{
-				mCapabilities->setMaxFragmentProgramVersion("fp40");
-				mCapabilities->addShaderProfile("fp40");
-				mGpuProgramManager->registerProgramFactory("fp40", createGLArbGpuProgram);
-			}        
-		}
-
-		// NFZ - Check if GLSL is supported
-		if ( GLEW_VERSION_2_0 || 
-			(GLEW_ARB_shading_language_100 &&
-			 GLEW_ARB_shader_objects &&
-			 GLEW_ARB_fragment_shader &&
-			 GLEW_ARB_vertex_shader) )
-		{
-			// NFZ - check for GLSL vertex and fragment shader support successful
-            mGLSLProgramFactory = new GLSLProgramFactory();
-            HighLevelGpuProgramManager::getSingleton().addFactory(mGLSLProgramFactory);
-            mCapabilities->addShaderProfile("glsl");
-			LogManager::getSingleton().logMessage("GLSL support detected");
-		}
-
-		// Check for texture compression
-        if(GLEW_VERSION_1_3 || GLEW_ARB_texture_compression)
-        {   
-            mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION);
-         
-            // Check for dxt compression
-            if(GLEW_EXT_texture_compression_s3tc)
-            {
-                mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION_DXT);
-            }
-            // Check for vtc compression
-            if(GLEW_NV_texture_compression_vtc)
-            {
-                mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION_VTC);
-            }
-        }
-
-        // Scissor test is standard in GL 1.2 (is it emulated on some cards though?)
-        mCapabilities->setCapability(RSC_SCISSOR_TEST);
-		// As are user clipping planes
-		mCapabilities->setCapability(RSC_USER_CLIP_PLANES);
-
-        // 2-sided stencil?
-        if (GLEW_VERSION_2_0 || GLEW_EXT_stencil_two_side)
-        {
-            mCapabilities->setCapability(RSC_TWO_SIDED_STENCIL);
-        }
-        // stencil wrapping?
-        if (GLEW_VERSION_1_4 || GLEW_EXT_stencil_wrap)
-        {
-            mCapabilities->setCapability(RSC_STENCIL_WRAP);
-        }
-
-        // Check for hardware occlusion support
-        if(GLEW_VERSION_1_5 || GLEW_ARB_occlusion_query)
-        {
-            // Some buggy driver claim that it is GL 1.5 compliant and
-            // not support ARB_occlusion_query
-            if (!GLEW_ARB_occlusion_query)
-            {
+        if(caps->hasCapability(RSC_HWOCCLUSION))
+				{
+						if(caps->hasCapability(RSC_GLEW1_5_NOHWOCCLUSION))
+						{
                 // Assign ARB functions same to GL 1.5 version since
-                // interface identical
+								// interface identical
                 glBeginQueryARB = glBeginQuery;
                 glDeleteQueriesARB = glDeleteQueries;
                 glEndQueryARB = glEndQuery;
@@ -504,88 +671,57 @@ namespace Ogre {
                 glGetQueryivARB = glGetQueryiv;
                 glIsQueryARB = glIsQuery;
             }
+				}
 
-            mCapabilities->setCapability(RSC_HWOCCLUSION);		
-        }
-		else if (GLEW_NV_occlusion_query)
-		{
-			// Support NV extension too for old hardware
-            mCapabilities->setCapability(RSC_HWOCCLUSION);		
-		}
-
-		// UBYTE4 always supported
-		mCapabilities->setCapability(RSC_VERTEX_FORMAT_UBYTE4);
-
-        // Inifinite far plane always supported
-        mCapabilities->setCapability(RSC_INFINITE_FAR_PLANE);
-
-        // Check for non-power-of-2 texture support
-		if(GLEW_ARB_texture_non_power_of_two)
-        {
-            mCapabilities->setCapability(RSC_NON_POWER_OF_2_TEXTURES);
-        }
-
-        // Check for Float textures
-        if(GLEW_ATI_texture_float || GLEW_ARB_texture_float)
-        {
-            mCapabilities->setCapability(RSC_TEXTURE_FLOAT);
-        }
-        
-		// 3D textures should be supported by GL 1.2, which is our minimum version
-        mCapabilities->setCapability(RSC_TEXTURE_3D);
-        
+               
         /// Do this after extension function pointers are initialised as the extension
         /// is used to probe further capabilities.
-		ConfigOptionMap::iterator cfi = getConfigOptions().find("RTT Preferred Mode");
-		// RTT Mode: 0 use whatever available, 1 use PBuffers, 2 force use copying
-		int rttMode = 0;
-		if (cfi != getConfigOptions().end())
-		{
-			if (cfi->second.currentValue == "PBuffer")
-			{
-				rttMode = 1;
-			}
-			else if (cfi->second.currentValue == "Copy")
-			{
-				rttMode = 2;
-			}
-		}
-         // Check for framebuffer object extension
-        if(GLEW_EXT_framebuffer_object && rttMode < 1)
-        {
-			// Probe number of draw buffers
-			// Only makes sense with FBO support, so probe here
-			if(GLEW_VERSION_2_0 || 
-				GLEW_ARB_draw_buffers ||
-				GLEW_ATI_draw_buffers)
-			{
-				GLint buffers;
-				glGetIntegerv(GL_MAX_DRAW_BUFFERS_ARB, &buffers);
-				mCapabilities->setNumMultiRenderTargets(std::min(buffers, OGRE_MAX_MULTIPLE_RENDER_TARGETS));
-				if(!GLEW_VERSION_2_0)
+				ConfigOptionMap::iterator cfi = getConfigOptions().find("RTT Preferred Mode");
+				// RTT Mode: 0 use whatever available, 1 use PBuffers, 2 force use copying
+				int rttMode = 0;
+				if (cfi != getConfigOptions().end())
 				{
-					// Before GL version 2.0, we need to get one of the extensions
-					if(GLEW_ARB_draw_buffers)
-						__glewDrawBuffers = glDrawBuffersARB;
-					else if(GLEW_ATI_draw_buffers)
-						__glewDrawBuffers = glDrawBuffersATI;
+						if (cfi->second.currentValue == "PBuffer")
+						{
+								rttMode = 1;
+						}
+						else if (cfi->second.currentValue == "Copy")
+						{
+								rttMode = 2;
+						}
 				}
-			}
-			// Create FBO manager
-            LogManager::getSingleton().logMessage("GL: Using GL_EXT_framebuffer_object for rendering to textures (best)");
-            //mRTTManager = new GLFBOManager(mGLSupport->getGLVendor() == "ATI");
-            mRTTManager = new GLFBOManager(false);
-            mCapabilities->setCapability(RSC_HWRENDER_TO_TEXTURE);
+
+
+
+
+         // Check for framebuffer object extension
+        if(caps->hasCapability(RSC_FBO) && rttMode < 1)
+        {
+						// Before GL version 2.0, we need to get one of the extensions
+						if(caps->hasCapability(RSC_FBO_ARB))
+								__glewDrawBuffers = glDrawBuffersARB;
+						else if(caps->hasCapability(RSC_FBO_ATI))
+								__glewDrawBuffers = glDrawBuffersATI;
+
+						if(caps->hasCapability(RSC_HWRENDER_TO_TEXTURE))
+						{
+								// Create FBO manager
+								LogManager::getSingleton().logMessage("GL: Using GL_EXT_framebuffer_object for rendering to textures (best)");
+								mRTTManager = new GLFBOManager(false);
+						}
+
         }
         else
         {
             // Check GLSupport for PBuffer support
-            if(mGLSupport->supportsPBuffers() && rttMode < 2)
+            if(caps->hasCapability(RSC_PBUFFER) && rttMode < 2)
             {
-                // Use PBuffers
-                mRTTManager = new GLPBRTTManager(mGLSupport, primary);
-                LogManager::getSingleton().logMessage("GL: Using PBuffers for rendering to textures");
-                mCapabilities->setCapability(RSC_HWRENDER_TO_TEXTURE);
+								if(caps->hasCapability(RSC_HWRENDER_TO_TEXTURE))
+								{
+										// Use PBuffers
+										mRTTManager = new GLPBRTTManager(mGLSupport, primary);
+										LogManager::getSingleton().logMessage("GL: Using PBuffers for rendering to textures");
+								}
             }
             else
             {
@@ -596,34 +732,12 @@ namespace Ogre {
             }
         }
 
-		// Point size
-		float ps;
-		glGetFloatv(GL_POINT_SIZE_MAX, &ps);
-		mCapabilities->setMaxPointSize(ps);
-
-		// Vertex texture fetching
-		GLint vUnits;
-		glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS_ARB, &vUnits);
-		mCapabilities->setNumVertexTextureUnits(static_cast<ushort>(vUnits));
-		if (vUnits > 0)
-		{
-			mCapabilities->setCapability(RSC_VERTEX_TEXTURE_FETCH);
-		}
-		// GL always shares vertex and fragment texture units (for now?)
-		mCapabilities->setVertexTextureUnitsShared(true);
-
-		// Mipmap LOD biasing?
-		if (GLEW_VERSION_1_4 || GLEW_EXT_texture_lod_bias)
-		{
-			mCapabilities->setCapability(RSC_MIPMAP_LOD_BIAS);
-		}
-
-        
-		Log* defaultLog = LogManager::getSingleton().getDefaultLog();
-		if (defaultLog)
-		{
-			mCapabilities->log(defaultLog);
-		}
+					
+				Log* defaultLog = LogManager::getSingleton().getDefaultLog();
+				if (defaultLog)
+				{
+					caps->log(defaultLog);
+				}
 
         /// Create the texture manager        
         mTextureManager = new GLTextureManager(*mGLSupport); 
@@ -739,7 +853,10 @@ namespace Ogre {
         if (!mGLInitialized) 
         {                
             // Initialise GL after the first window has been created
-            initGL(win);
+						// TODO: fire this from emulation options, and don't duplicate Real and Current capabilities
+						mRealCapabilities = createRenderSystemCapabilities();
+
+						initialiseFromRenderSystemCapabilities(mRealCapabilities, win);
             
             // Initialise the main context
             _oneTimeContextInitialization();
@@ -996,7 +1113,7 @@ namespace Ogre {
     {
 
 		if(attenuationEnabled && 
-			mCapabilities->hasCapability(RSC_POINT_EXTENDED_PARAMETERS))
+			mCurrentCapabilities->hasCapability(RSC_POINT_EXTENDED_PARAMETERS))
 		{
 			// Point size is still calculated in pixels even when attenuation is
 			// enabled, which is pretty awkward, since you typically want a viewport
@@ -1007,7 +1124,7 @@ namespace Ogre {
 			Real adjMinSize = minSize * mActiveViewport->getActualHeight();
 			Real adjMaxSize;
 			if (maxSize == 0.0f)
-				adjMaxSize = mCapabilities->getMaxPointSize(); // pixels
+				adjMaxSize = mCurrentCapabilities->getMaxPointSize(); // pixels
 			else
 				adjMaxSize = maxSize * mActiveViewport->getActualHeight();
 			glPointSize(adjSize);
@@ -1027,13 +1144,13 @@ namespace Ogre {
 			// GL has no disabled flag for this so just set to constant
 			glPointSize(size);
 
-			if (mCapabilities->hasCapability(RSC_POINT_EXTENDED_PARAMETERS))
+			if (mCurrentCapabilities->hasCapability(RSC_POINT_EXTENDED_PARAMETERS))
 			{
 				float val[4] = {1, 0, 0, 1};
 				glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, val);
 				glPointParameterf(GL_POINT_SIZE_MIN, minSize);
 				if (maxSize == 0.0f)
-					maxSize = mCapabilities->getMaxPointSize();
+					maxSize = mCurrentCapabilities->getMaxPointSize();
 				glPointParameterf(GL_POINT_SIZE_MAX, maxSize);
 			}
 		}
@@ -1301,7 +1418,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
 	void GLRenderSystem::_setTextureMipmapBias(size_t stage, float bias)
 	{
-		if (mCapabilities->hasCapability(RSC_MIPMAP_LOD_BIAS))
+		if (mCurrentCapabilities->hasCapability(RSC_MIPMAP_LOD_BIAS))
 		{
 			glActiveTextureARB( GL_TEXTURE0 + stage );
 			glTexEnvf(GL_TEXTURE_FILTER_CONTROL_EXT, GL_TEXTURE_LOD_BIAS_EXT, bias);
@@ -1734,7 +1851,7 @@ namespace Ogre {
 
         if (twoSidedOperation)
         {
-            if (!mCapabilities->hasCapability(RSC_TWO_SIDED_STENCIL))
+            if (!mCurrentCapabilities->hasCapability(RSC_TWO_SIDED_STENCIL))
                 OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "2-sided stencils are not supported",
                     "GLRenderSystem::setStencilBufferParams");
             
@@ -1942,7 +2059,7 @@ namespace Ogre {
 	//---------------------------------------------------------------------
 	void GLRenderSystem::_setTextureLayerAnisotropy(size_t unit, unsigned int maxAnisotropy)
 	{
-       if (!mCapabilities->hasCapability(RSC_ANISOTROPY))
+       if (!mCurrentCapabilities->hasCapability(RSC_ANISOTROPY))
 			return;
 
 		GLfloat largest_supported_anisotropy = 0;
@@ -1963,7 +2080,7 @@ namespace Ogre {
 		}
 
 		// Check to see if blending is supported
-        if(!mCapabilities->hasCapability(RSC_BLENDING))
+        if(!mCurrentCapabilities->hasCapability(RSC_BLENDING))
             return;
 
         GLenum src1op, src2op, cmd;
@@ -2087,7 +2204,7 @@ namespace Ogre {
             cmd = GL_INTERPOLATE;
             break;
         case LBX_DOTPRODUCT:
-            cmd = mCapabilities->hasCapability(RSC_DOT3) 
+            cmd = mCurrentCapabilities->hasCapability(RSC_DOT3) 
                 ? GL_DOT3_RGB : GL_MODULATE;
             break;
 		default:
@@ -2231,7 +2348,7 @@ namespace Ogre {
 
             HardwareVertexBufferSharedPtr vertexBuffer = 
                 op.vertexData->vertexBufferBinding->getBuffer(elem->getSource());
-            if(mCapabilities->hasCapability(RSC_VBO))
+            if(mCurrentCapabilities->hasCapability(RSC_VBO))
             {
                 glBindBufferARB(GL_ARRAY_BUFFER_ARB, 
                     static_cast<const GLHardwareVertexBuffer*>(vertexBuffer.get())->getGLBufferId());
@@ -2368,7 +2485,7 @@ namespace Ogre {
 
         if (op.useIndexes)
         {
-            if(mCapabilities->hasCapability(RSC_VBO))
+            if(mCurrentCapabilities->hasCapability(RSC_VBO))
             {
                 glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 
                     static_cast<GLHardwareIndexBuffer*>(
