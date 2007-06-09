@@ -3087,6 +3087,29 @@ void SceneManager::manualRender(RenderOperation* rend,
         mDestRenderSystem->_beginFrame();
 
     _setPass(pass);
+	// Do we need to update GPU program parameters?
+	if (pass->isProgrammable())
+	{
+		mAutoParamDataSource.setCurrentViewport(vp);
+		mAutoParamDataSource.setCurrentRenderTarget(vp->getTarget());
+		mAutoParamDataSource.setCurrentSceneManager(this);
+		mAutoParamDataSource.setWorldMatrices(&worldMatrix, 1);
+		Camera dummyCam(StringUtil::BLANK, 0);
+		dummyCam.setCustomViewMatrix(true, viewMatrix);
+		dummyCam.setCustomProjectionMatrix(true, projMatrix);
+		pass->_updateAutoParamsNoLights(mAutoParamDataSource);
+		// NOTE: We MUST bind parameters AFTER updating the autos
+		if (pass->hasVertexProgram())
+		{
+			mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
+				pass->getVertexProgramParameters());
+		}
+		if (pass->hasFragmentProgram())
+		{
+			mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
+				pass->getFragmentProgramParameters());
+		}
+	}
     mDestRenderSystem->_render(*rend);
 
     if (doBeginEndFrame)
