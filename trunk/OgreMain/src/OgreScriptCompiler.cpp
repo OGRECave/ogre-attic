@@ -51,6 +51,7 @@ namespace Ogre{
 
 	// ScriptCompiler
 	ScriptCompiler::ScriptCompiler()
+		:mAllowNontypedObjects(false)
 	{
 	}
 
@@ -64,6 +65,9 @@ namespace Ogre{
 	{
 		// Set up the context
 		mGroup = group;
+
+		// Set up the import mechanisms
+		mImportTable.clear();
 		mImports.clear();
 		if(!nodes->empty())
 			mImports.insert(std::make_pair(nodes->front()->file, ScriptNodeListPtr()));
@@ -71,9 +75,164 @@ namespace Ogre{
 		// Clear errors
 		mErrors.clear();
 
+		// Set up the global scope, the top level
+		mStack.clear();
+		pushScope();
+
 		processImports(nodes);
 		processObjects(*nodes.get(), nodes);
+		processVariables(*nodes.get(), nodes);
 		return compileImpl(nodes);
+	}
+
+	void ScriptCompiler::processVariables(ScriptNodeList &nodes, const ScriptNodeListPtr &top)
+	{
+		ScriptNodeList::iterator i = nodes.begin(), end = nodes.end();
+		while(i != end)
+		{
+			ScriptNodeList::iterator cur = i++;
+
+			if((*cur)->token == "set")
+			{
+				// The next token should be a var
+				ScriptNodePtr next1 = getNodeAt(cur, nodes.end(), 1);
+				if(next1.isNull())
+					addError(CE_VARIABLEEXPECTED, (*cur)->file, (*cur)->line, (*cur)->column);
+				else if(next1->type != SNT_VAR)
+					addError(CE_VARIABLEEXPECTED, next1->file, next1->line, next1->column);
+				else
+				{
+					// Now we need a quote or a word as the variable value
+					ScriptNodePtr next2 = getNodeAt(cur, nodes.end(), 2);
+					if(next2.isNull())
+						addError(CE_VARIABLEVALUEEXPECTED, next1->file, next1->line, next1->column);
+					else if(next2->type != SNT_STRING && next2->type != SNT_QUOTE)
+						addError(CE_VARIABLEVALUEEXPECTED, next2->file, next2->line, next2->column);
+					else
+					{
+						// If it is a quote, we need to remove the first and last characters
+						String value = next2->token;
+						if(next2->type == SNT_QUOTE)
+						{
+							value.erase(0, 1);
+							value.erase(value.size() - 1, 1);
+						}
+
+						// Insert this string into the current scope
+						setVariable(next1->token, value);
+
+						// We have used up 3 nodes now, so push the iterator forward 2 more slots
+						// past the variable and the value, then remove all 3 from the node list
+						// entirely
+						++i; // past the variable
+						++i; // past the value
+
+						ScriptNodeList::iterator curPlus1 = cur;
+						curPlus1++;
+						ScriptNodeList::iterator curPlus2 = cur;
+						curPlus2++;
+						curPlus2++;
+
+						nodes.erase(cur);
+						nodes.erase(curPlus1);
+						nodes.erase(curPlus2);
+					}
+				}
+			}
+		}
+
+		i = nodes.begin(), end = nodes.end();
+		while(i != end)
+		{
+			ScriptNodeList::iterator cur = i++;
+
+			// Handle the use of variables
+			if((*cur)->type == SNT_VAR)
+			{
+				// Look up the value of the variable in the current scope
+				std::pair<bool,String> var = findVariable((*cur)->token);
+
+				// If the variable is defined, then process its value
+				if(var.first)
+				{
+					// 1. parse, 2. inheritance, 3. variables
+					ScriptNodeListPtr newNodes = parse(var.second, (*cur)->file);
+					if(!newNodes.isNull() && !newNodes->empty())
+					{
+						processObjects(*newNodes.get(), top);
+						processVariables(*newNodes.get(), top);
+					}
+
+					// Insert the AST in place of the variable usage
+					if(!newNodes.isNull() && !newNodes->empty())
+						nodes.insert(cur, newNodes->begin(), newNodes->end());
+
+					// Remove the current node
+					nodes.erase(cur);
+				}
+				else
+					addError(CE_UNDEFINEDVARIABLE, (*cur)->file, (*cur)->line, (*cur)->column);
+			}
+			else if((*cur)->type == SNT_LBRACE)
+			{
+				pushScope();
+				if(!(*cur)->children.empty())
+					processVariables((*cur)->children, top);
+			}
+			else if((*cur)->type == SNT_RBRACE)
+			{
+				popScope();
+			}
+		}
+	}
+
+	void ScriptCompiler::processObjects(ScriptNodeList &nodes, const ScriptNodeListPtr &top)
+	{
+		ScriptNodeList::iterator i = nodes.begin(), end = nodes.end();
+		while(i != end)
+		{
+			ScriptNodeList::iterator cur = i++;
+
+			// Recurse so that children can take advantage of inheritance too
+			if(!(*cur)->children.empty())
+				processObjects((*cur)->children, top);
+
+			if((*cur)->token == ":") // This is the indicator that inheritance is occuring
+			{
+				// The next token is the name of the inherited
+				// The one after that should be a '{'
+				ScriptNodePtr next1 = getNodeAt(cur, end, 1), next2 = getNodeAt(cur, end, 2);
+				if(next2->token != "{")
+					addError(CE_OPENBRACEEXPECTED, next2->file, next2->line, next2->column);
+				else
+				{
+					// We are removing the next token too, so increment again
+					ScriptNodeList::iterator next = i++;
+
+					// next points to the name of the import target, which we need to remove
+					// to avoid any name clashes during a search for it
+					nodes.erase(cur);
+					nodes.erase(next);
+
+					// Use the locateImportTarget function to extract the AST of the inherited object
+					// Check the top-level section of the script first
+					ScriptNodeListPtr newNodes = locateTarget(*top.get(), next1->token);
+					// Check the import table if nothing was found
+					if(newNodes.isNull() || newNodes->empty())
+						newNodes = locateTarget(mImportTable, next1->token);
+					if(!newNodes.isNull() && !newNodes->empty())
+					{
+						// Find the '{', since we only copy the content of the inherited object
+						ScriptNodeList::iterator braceIter = findNode(newNodes->begin(), newNodes->end(), SNT_LBRACE);
+						if(braceIter != newNodes->end())
+						{
+							next2->children.insert(next2->children.begin(), 
+								(*braceIter)->children.begin(), (*braceIter)->children.end());
+						}
+					}
+				}
+			}
+		}
 	}
 
 	void ScriptCompiler::processImports(ScriptNodeListPtr &nodes)
@@ -87,7 +246,7 @@ namespace Ogre{
 			// i points to the node *after* the replaced nodes, no matter
 			// how many insertions and deletions may happen
 			ScriptNodeList::iterator cur = i++;
-			if((*cur)->type == TOK_IMPORT)
+			if((*cur)->type == SNT_IMPORT)
 			{
 				// There should be two nodes below this one
 				ScriptNodePtr importTarget = getNodeAt((*cur)->children, 0),
@@ -136,18 +295,18 @@ namespace Ogre{
 			{
 				if(j->second == "*")
 				{
-					// Insert the entire AST into the top of the currently processing node tree
-					nodes->insert(nodes->begin(), i->second->begin(), i->second->end());
+					// Insert the entire AST into the import table
+					mImportTable.insert(mImportTable.begin(), i->second->begin(), i->second->end());
 					continue; // Skip ahead to the next file
 				}
 				else
 				{
 					for(; j != end; ++j)
 					{
-						// Locate this target and insert it into our AST
-						ScriptNodeListPtr newNodes = locateImportTarget(i->second, j->second);
+						// Locate this target and insert it into the import table
+						ScriptNodeListPtr newNodes = locateTarget(*(i->second.get()), j->second);
 						if(!newNodes.isNull() && !newNodes->empty())
-							nodes->insert(nodes->begin(), newNodes->begin(), newNodes->end());
+							mImportTable.insert(mImportTable.begin(), newNodes->begin(), newNodes->end());
 					}
 				}
 			}
@@ -168,6 +327,118 @@ namespace Ogre{
 		}
 
 		return nodes;
+	}
+
+	ScriptNodeListPtr ScriptCompiler::locateTarget(ScriptNodeList &nodes, const String &target)
+	{
+		ScriptNodeList::iterator first = nodes.end(), last = nodes.end();
+		for(ScriptNodeList::iterator i = nodes.begin(); i != nodes.end(); ++i)
+		{
+			// Handle the abstract case first
+			if((*i)->token == "abstract")
+			{
+				// Check the next node
+				ScriptNodePtr next1 = getNodeAt(i, nodes.end(), 1);
+				if(!next1.isNull())
+				{
+					// Typed object check
+					if(mObjectTypes.find(next1->token) != mObjectTypes.end())
+					{
+						// We need to check one more node for the name now
+						ScriptNodePtr next2 = getNodeAt(i, nodes.end(), 2);
+						if(!next2.isNull() && next2->token == target) // We found it!
+						{
+							first = i;
+							break;
+						}
+					}
+					// Non-typed object check
+					else if(next1->token == target && mAllowNontypedObjects) // We found it!
+					{
+						first = i;
+						break;
+					}
+				}
+			}
+			// Handle the typed object non-abstract case
+			else if(mObjectTypes.find((*i)->token) != mObjectTypes.end())
+			{
+				// The next node should be the name
+				ScriptNodePtr next1 = getNodeAt(i, nodes.end(), 1);
+				if(!next1.isNull() && next1->token == target)
+				{
+					first = i;
+					break;
+				}
+			}
+			else if((*i)->token == target && mAllowNontypedObjects) // We found it!
+			{
+				first = i;
+				break;
+			}
+		}
+
+		ScriptNodeListPtr newNodes(new ScriptNodeList());
+
+		if(first != nodes.end())
+		{
+			// Attempt to search for the ending brace for this object
+			last = findNode(first, nodes.end(), SNT_RBRACE);
+			if(last != nodes.end())
+			{
+				// We want it inclusive, so...
+				++last;
+				newNodes->insert(newNodes->begin(), first, last);
+			}
+		}
+		return newNodes;
+	}
+
+	bool ScriptCompiler::containsObject(const ScriptNodeList &nodes, const String &name)
+	{
+		for(ScriptNodeList::const_iterator i = nodes.begin(); i != nodes.end(); ++i)
+		{
+			// Handle the abstract case first
+			if((*i)->token == "abstract")
+			{
+				// Check the next node
+				ScriptNodePtr next1 = getNodeAt(i, nodes.end(), 1);
+				if(!next1.isNull())
+				{
+					// Typed object check
+					if(mObjectTypes.find(next1->token) != mObjectTypes.end())
+					{
+						// We need to check one more node for the name now
+						ScriptNodePtr next2 = getNodeAt(i, nodes.end(), 2);
+						if(!next2.isNull() && next2->token == name) // We found it!
+						{
+							return true;
+						}
+					}
+					// Non-typed object check
+					else if(next1->token == name && mAllowNontypedObjects) // We found it!
+					{
+						return true;
+					}
+				}
+			}
+			// Handle the typed object non-abstract case
+			else if(mObjectTypes.find((*i)->token) != mObjectTypes.end())
+			{
+				// The next node should be the name
+				ScriptNodePtr next1 = getNodeAt(i, nodes.end(), 1);
+				if(!next1.isNull() && next1->token == name)
+				{
+					return true;
+				}
+			}
+			else if((*i)->token == name && mAllowNontypedObjects) // We found it!
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	ScriptNodePtr ScriptCompiler::getNodeAt(const ScriptNodeList &nodes, int index) const
@@ -273,4 +544,45 @@ namespace Ogre{
 		mErrors.push_back(err);
 	}
 
+	void ScriptCompiler::pushScope()
+	{
+		LexicalScopePtr scope(new LexicalScope());
+
+		// If there are scopes on the stack, copy the top one's contents into the new scope
+		if(!mStack.empty())
+			scope->vars = mStack.front()->vars;
+
+		// Push the new scope onto the stack
+		mStack.push_front(scope);
+	}
+
+	void ScriptCompiler::popScope()
+	{
+		if(!mStack.empty())
+			mStack.pop_front();
+	}
+
+	std::pair<bool,String> ScriptCompiler::findVariable(const Ogre::String &name)
+	{
+		std::pair<bool,String> ret;
+		ret.first = false;
+
+		if(!mStack.empty())
+		{
+			// Grab the top stack and do a search on its variable map
+			LexicalScopePtr &scope = mStack.front();
+			ScopedVariableMap::iterator i = scope->vars.find(name);
+			ret.first = i != scope->vars.end();
+			if(ret.first)
+				ret.second = i->second;
+		}
+
+		return ret;
+	}
+
+	void ScriptCompiler::setVariable(const String &name, const String &value)
+	{
+		if(!mStack.empty())
+			mStack.front()->vars[name] = value;
+	}
 }

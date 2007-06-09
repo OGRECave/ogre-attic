@@ -73,13 +73,14 @@ namespace Ogre {
 	/** This enum contains type IDs for identified built-in types */
 	enum
 	{
-		TOK_VAR,
-		TOK_STRING,
-		TOK_NUMBER,
-		TOK_IMPORT,
-		TOK_QUOTE,
-		TOK_LBRACE,
-		TOK_RBRACE
+		SNT_VAR,
+		SNT_STRING,
+		SNT_NUMBER,
+		SNT_IMPORT,
+		SNT_QUOTE,
+		SNT_LBRACE,
+		SNT_RBRACE,
+		SNT_END_TYPES
 	};
 
 	/** This exception type stores information about a parsing error.

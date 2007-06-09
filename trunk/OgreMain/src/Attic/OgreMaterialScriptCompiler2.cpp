@@ -32,5 +32,47 @@ Torus Knot Software Ltd.
 
 namespace Ogre{
 
+	MaterialScriptCompiler2::MaterialScriptCompiler2()
+	{
+		mAllowNontypedObjects = false; // All material objects must be typed
 
+		// Set up built-in object types
+		mObjectTypes.insert("vertex_program");
+		mObjectTypes.insert("fragment_program");
+		mObjectTypes.insert("material");
+		mObjectTypes.insert("technique");
+		mObjectTypes.insert("pass");
+		mObjectTypes.insert("texture_unit");
+		mObjectTypes.insert("texture_source");
+		mObjectTypes.insert("default_params");
+
+		// Set up built-in properties
+	}
+
+	bool MaterialScriptCompiler2::compileImpl(ScriptNodeListPtr nodes)
+	{
+		return false;
+	}
+
+	ScriptNodeListPtr MaterialScriptCompiler2::loadImportPath(const Ogre::String &name)
+	{
+		ScriptNodeListPtr nodes;
+
+		// Try the listener
+		//if(mListener)
+			//nodes = mListener->importFile(name);
+
+		// Try the base version
+		if(nodes.isNull())
+			nodes = ScriptCompiler::loadImportPath(name);
+
+		// If we got any AST loaded, do the necessary pre-processing steps
+		if(!nodes.isNull())
+		{
+			// Expand all imports
+			processImports(nodes);
+		}
+
+		return nodes;
+	}
 }
