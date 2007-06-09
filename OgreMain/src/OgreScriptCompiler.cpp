@@ -332,6 +332,7 @@ namespace Ogre{
 	ScriptNodeListPtr ScriptCompiler::locateTarget(ScriptNodeList &nodes, const String &target)
 	{
 		ScriptNodeList::iterator first = nodes.end(), last = nodes.end();
+		/*
 		for(ScriptNodeList::iterator i = nodes.begin(); i != nodes.end(); ++i)
 		{
 			// Handle the abstract case first
@@ -377,6 +378,25 @@ namespace Ogre{
 				break;
 			}
 		}
+		*/
+
+		// Search from the beginning for '{'
+		ScriptNodeList::iterator i = findNode(nodes.begin(), nodes.end(), SNT_LBRACE);
+		while(first == nodes.end() && i != nodes.end())
+		{
+			// From here, search backwards for the name
+			ScriptNodeList::iterator j = i++;
+			--j;
+
+			while(j != nodes.begin() && ((*j)->type == SNT_NUMBER || ((*j)->type == SNT_STRING && (*j)->token != target)))
+				--j;
+
+			// Something made us stop, check if it is what we've been looking for
+			if((*j)->type == SNT_STRING && (*j)->token == target)
+				first = j;
+			else
+				i = findNode(i, nodes.end(), SNT_LBRACE);
+		}
 
 		ScriptNodeListPtr newNodes(new ScriptNodeList());
 
@@ -396,46 +416,22 @@ namespace Ogre{
 
 	bool ScriptCompiler::containsObject(const ScriptNodeList &nodes, const String &name)
 	{
-		for(ScriptNodeList::const_iterator i = nodes.begin(); i != nodes.end(); ++i)
+		// Search from the beginning for '{'
+		ScriptNodeList::const_iterator i = findNode(nodes.begin(), nodes.end(), SNT_LBRACE);
+		while(i != nodes.end())
 		{
-			// Handle the abstract case first
-			if((*i)->token == "abstract")
-			{
-				// Check the next node
-				ScriptNodePtr next1 = getNodeAt(i, nodes.end(), 1);
-				if(!next1.isNull())
-				{
-					// Typed object check
-					if(mObjectTypes.find(next1->token) != mObjectTypes.end())
-					{
-						// We need to check one more node for the name now
-						ScriptNodePtr next2 = getNodeAt(i, nodes.end(), 2);
-						if(!next2.isNull() && next2->token == name) // We found it!
-						{
-							return true;
-						}
-					}
-					// Non-typed object check
-					else if(next1->token == name && mAllowNontypedObjects) // We found it!
-					{
-						return true;
-					}
-				}
-			}
-			// Handle the typed object non-abstract case
-			else if(mObjectTypes.find((*i)->token) != mObjectTypes.end())
-			{
-				// The next node should be the name
-				ScriptNodePtr next1 = getNodeAt(i, nodes.end(), 1);
-				if(!next1.isNull() && next1->token == name)
-				{
-					return true;
-				}
-			}
-			else if((*i)->token == name && mAllowNontypedObjects) // We found it!
-			{
+			// From here, search backwards for the name
+			ScriptNodeList::const_iterator j = i++;
+			--j;
+
+			while(j != nodes.begin() && ((*j)->type == SNT_NUMBER || ((*j)->type == SNT_STRING && (*j)->token != name)))
+				--j;
+
+			// Something made us stop, check if it is what we've been looking for
+			if((*j)->type == SNT_STRING && (*j)->token == name)
 				return true;
-			}
+			else
+				i = findNode(i, nodes.end(), SNT_LBRACE);
 		}
 
 		return false;
