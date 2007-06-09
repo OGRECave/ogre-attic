@@ -53,14 +53,8 @@ namespace Ogre{
 	protected:
 		/// This begins the compilation of the particle system from the final transformed AST
 		bool compileImpl(ScriptNodeListPtr nodes);
-		/// This is the special particle implementation of the processObjects function
-		void processObjects(ScriptNodeList &nodes, const ScriptNodeListPtr &top);
 		/// This is the override for loading imports
 		ScriptNodeListPtr loadImportPath(const String &name);
-		/// This is the override for locating import targets
-		ScriptNodeListPtr locateImportTarget(ScriptNodeListPtr nodes, const String &target);
-		/// Determines if the particle object already exists in the given tree
-		bool containsObject(const ScriptNodeList &nodes, const String &name);
 	private:
 		ParticleScriptCompilerListener *mListener;
 	};

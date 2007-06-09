@@ -36,7 +36,13 @@ namespace Ogre{
 
 	class _OgreExport MaterialScriptCompiler2 : public ScriptCompiler
 	{
-	
+	public:
+		MaterialScriptCompiler2();
+	protected:
+		/// This begins the compilation of the particle system from the final transformed AST
+		bool compileImpl(ScriptNodeListPtr nodes);
+		/// This is the override for loading imports
+		ScriptNodeListPtr loadImportPath(const String &name);
 	};
 
 }

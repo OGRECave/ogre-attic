@@ -50,7 +50,10 @@ namespace Ogre{
 
 	enum
 	{
-		CE_OPENBRACEEXPECTED
+		CE_OPENBRACEEXPECTED,
+		CE_VARIABLEEXPECTED,
+		CE_VARIABLEVALUEEXPECTED,
+		CE_UNDEFINEDVARIABLE
 	};
 
 	/** This struct stores semantic error information. It is information
@@ -77,6 +80,17 @@ namespace Ogre{
 	*/
 	class _OgreExport ScriptCompiler
 	{
+	protected: // Variables and scope types
+		// This type stores information about the specific variable
+		typedef std::map<String,String> ScopedVariableMap;
+
+		// This is the structure storing a single lexical scoping of variables
+		struct LexicalScope
+		{
+			ScopedVariableMap vars;
+		};
+		typedef Ogre::SharedPtr<LexicalScope> LexicalScopePtr;
+		typedef std::list<LexicalScopePtr> ScopeStack;
 	public:
 		ScriptCompiler();
 
@@ -100,12 +114,15 @@ namespace Ogre{
 	protected: // Operations
 		/// This is the overridable function for base classes to compile the AST
 		virtual bool compileImpl(ScriptNodeListPtr nodes) = 0;
-		/** This function handles inheritance expansions.
-
-			Since these functions depend on varying features of scripts, each compiler
-			must override this method and provide its own implementation.
+		/** This function descends into the tree and does a replacement of the variables.
+			Variables are replaced with their AST representations, which are fully processed.
+			This means a variable can expand to any valid construct, since inheritance and
+			variable processing occurs on the replacement
 		*/
-		virtual void processObjects(ScriptNodeList &nodes, const ScriptNodeListPtr &top) = 0;
+		void processVariables(ScriptNodeList &nodes, const ScriptNodeListPtr &top);
+		/** This function handles inheritance expansions.
+		*/
+		void processObjects(ScriptNodeList &nodes, const ScriptNodeListPtr &top);
 		/// This built-in function processes import nodes
 		void processImports(ScriptNodeListPtr &nodes);
 		/** This should be overridden by the given compiler. It is meant to load the given
@@ -120,14 +137,14 @@ namespace Ogre{
 		/** This should be overridden by the given compiler. It located the import
 			target within the AST and returns only the tree for that target object.
 		*/
-		virtual ScriptNodeListPtr locateImportTarget(ScriptNodeListPtr nodes, const String &target) = 0;
+		ScriptNodeListPtr locateTarget(ScriptNodeList &nodes, const String &target);
 		/** This function is intended to do a search within the given level of the tree
 			for an object of the same name. If the object exists, it should return true, otherwise
 			it returns false.
 
 			This should be overridden by derived compilers.
 		*/
-		virtual bool containsObject(const ScriptNodeList &nodes, const String &name) = 0;
+		bool containsObject(const ScriptNodeList &nodes, const String &name);
 		/// This is a utility function to provide random access to a sequential list of nodes
 		ScriptNodePtr getNodeAt(const ScriptNodeList &nodes, int index) const;
 		/// This is a utility for getting random access based on current iterator position
@@ -142,14 +159,36 @@ namespace Ogre{
 		ScriptNodeList::iterator findNode(ScriptNodeList::iterator from, ScriptNodeList::iterator to, uint32 type) const;
 		/// This registers a new error
 		void addError(uint32 error, const String &file, int line, int col);
+		/// This pushes a new scope onto the stack, copying variables from the higher stack into it
+		void pushScope();
+		/// This pops the top scope off the stack. If there are no scopes on the stack, it does nothing
+		void popScope();
+		/// This searches the current scope for the given variable and returns an iterator to it and true if successful
+		std::pair<bool,String> findVariable(const String &name);
+		/// Sets the value of the variable in the current scope, does nothing if there is no scope
+		void setVariable(const String &name, const String &value);
 	protected:
 		// Compiler context data
 		String mGroup; // The resource group of the resultant resources
+
+		// This controls whether objects in the script can have just names and not types
+		bool mAllowNontypedObjects;
 		
 		typedef std::map<String,ScriptNodeListPtr> ImportCacheMap;
 		ImportCacheMap mImports; // The set of imported scripts to avoid circular dependencies
 		typedef std::multimap<String,String> ImportRequestMap;
 		ImportRequestMap mImportRequests; // This holds the target objects for each script to be imported
+
+		// This stores the imports of the scripts, so they are separated and can be treated specially
+		ScriptNodeList mImportTable;
+
+		// The stack used to process our variables
+		ScopeStack mStack;
+
+		// These sets are used by the compiler to determine what is an object
+		// and what is a variable. Base classes should set these up
+		typedef std::set<String> StringSet;
+		StringSet mObjectTypes, mPropertyNames;
 
 		// Error information
 		ScriptCompilerErrorList mErrors;

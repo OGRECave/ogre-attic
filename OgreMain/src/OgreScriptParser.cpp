@@ -133,7 +133,7 @@ namespace Ogre {
 
 					ScriptNodePtr node(new ScriptNode());
 					node->token = token;
-					node->type = TOK_IMPORT;
+					node->type = SNT_IMPORT;
 					node->line = first.get_position().line;
 					node->column = first.get_position().column;
 					node->file = first.get_position().file;
@@ -150,7 +150,7 @@ namespace Ogre {
 
 					ScriptNodePtr node(new ScriptNode());
 					node->token = token;
-					node->type = TOK_STRING;
+					node->type = SNT_STRING;
 					node->line = first.get_position().line;
 					node->column = first.get_position().column;
 					node->file = first.get_position().file;
@@ -166,7 +166,7 @@ namespace Ogre {
 
 					ScriptNodePtr node(new ScriptNode());
 					node->token = token;
-					node->type = TOK_STRING;
+					node->type = SNT_STRING;
 					node->line = first.get_position().line;
 					node->column = first.get_position().column;
 					node->file = first.get_position().file;
@@ -183,7 +183,7 @@ namespace Ogre {
 
 					ScriptNodePtr node(new ScriptNode());
 					node->token = token;
-					node->type = TOK_STRING;
+					node->type = SNT_STRING;
 					node->line = first.get_position().line;
 					node->column = first.get_position().column;
 					node->file = first.get_position().file;
@@ -203,7 +203,7 @@ namespace Ogre {
 
 					ScriptNodePtr node(new ScriptNode());
 					node->token = token;
-					node->type = TOK_VAR;
+					node->type = SNT_VAR;
 					node->line = first.get_position().line;
 					node->column = first.get_position().column;
 					node->file = first.get_position().file;
@@ -223,7 +223,7 @@ namespace Ogre {
 
 					ScriptNodePtr node(new ScriptNode());
 					node->token = token;
-					node->type = TOK_QUOTE;
+					node->type = SNT_QUOTE;
 					node->line = first.get_position().line;
 					node->column = first.get_position().column;
 					node->file = first.get_position().file;
@@ -243,7 +243,7 @@ namespace Ogre {
 
 					ScriptNodePtr node(new ScriptNode());
 					node->token = token;
-					node->type = TOK_NUMBER;
+					node->type = SNT_NUMBER;
 					node->line = first.get_position().line;
 					node->column = first.get_position().column;
 					node->file = first.get_position().file;
@@ -263,7 +263,7 @@ namespace Ogre {
 
 					ScriptNodePtr node(new ScriptNode());
 					node->token = token;
-					node->type = TOK_LBRACE;
+					node->type = SNT_LBRACE;
 					node->line = first.get_position().line;
 					node->column = first.get_position().column;
 					node->file = first.get_position().file;
@@ -284,7 +284,7 @@ namespace Ogre {
 
 					ScriptNodePtr node(new ScriptNode());
 					node->token = token;
-					node->type = TOK_RBRACE;
+					node->type = SNT_RBRACE;
 					node->line = first.get_position().line;
 					node->column = first.get_position().column;
 					node->file = first.get_position().file;
@@ -303,7 +303,7 @@ namespace Ogre {
 				self.ast.nodes = ScriptNodeListPtr(new ScriptNodeList());
 				self.ast.current = 0;
 
-				word = lexeme_d[((alnum_p | punct_p) - (ch_p('$')|'*'|'{'|'}')) 
+				word = lexeme_d[((alnum_p | punct_p) - (ch_p('$')|'*'|'{'|'}'|'\"')) 
 					>> *(alnum_p | (punct_p - (ch_p('{')|'}')))];
 				variable = lexeme_d[ch_p('$') >> *(alnum_p | (punct_p - (ch_p('{')|'}')))];
 				quote = ch_p('\"') >> *(print_p - '\"') >> ("\"" | error_p(PE_ENDQUOTEEXPECTED));
@@ -314,10 +314,11 @@ namespace Ogre {
 					>> ((word | '*')[do_import_target(self.ast)] | error_p(PE_IMPORTTARGETEXPECTED)) 
 						>> ("from" | error_p(PE_FROMEXPECTED))
 							>> (word[do_import_path(self.ast)] | error_p(PE_IMPORTPATHEXPECTED));
-				statement = word[do_word(self.ast)]
+				statement = 
+					(eps_p >> real_p)[do_number(self.ast)]
+					|word[do_word(self.ast)]
 					|variable[do_variable(self.ast)]
 					|quote[do_quote(self.ast)]
-					|(eps_p >> real_p)[do_number(self.ast)]
 					|block
 					;
 				statement_list = *(import|statement);
