@@ -86,6 +86,7 @@ namespace Ogre {
  
         GLint getBlendMode(SceneBlendFactor ogreBlend) const;
 				GLint getTextureAddressingMode(TextureUnitState::TextureAddressingMode tam) const;
+				void initialiseContext(RenderWindow* primary);
 
         void setLights();
 

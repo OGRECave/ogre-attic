@@ -56,6 +56,8 @@ Torus Knot Software Ltd.s
 #define VBO_BUFFER_OFFSET(i) ((char *)NULL + (i))
 GLenum glewContextInit (Ogre::GLSupport *glSupport);
 
+
+
 namespace Ogre {
 
     // Callback function used when registering GLGpuPrograms
@@ -144,6 +146,7 @@ namespace Ogre {
 
         mClipPlanes.reserve(6);
 
+
     }
 
     GLRenderSystem::~GLRenderSystem()
@@ -199,7 +202,7 @@ namespace Ogre {
         
         return autoWindow;
     }
-   
+
     RenderSystemCapabilities* GLRenderSystem::createRenderSystemCapabilities() const
     {
 				RenderSystemCapabilities* rsc = new RenderSystemCapabilities();
@@ -223,7 +226,7 @@ namespace Ogre {
            GLEW_ARB_multitexture)
         {
 						GLint units;
-						glGetIntegerv( GL_MAX_TEXTURE_UNITS, &units );
+						glGetIntegerv( GL_MAX_TEXTURE_UNITS, &units );       
 
 						if (GLEW_ARB_fragment_program)
 						{
@@ -531,26 +534,7 @@ namespace Ogre {
 
 				// set the current capabilities 
 				mCurrentCapabilities = caps;
-        // Set main and current context
-        mMainContext = 0;
-        primary->getCustomAttribute("GLCONTEXT", &mMainContext);
-        mCurrentContext = mMainContext;
-        
-        // Set primary context as active
-        if(mCurrentContext)
-            mCurrentContext->setCurrent();
-            
-        // Setup GLSupport
-        mGLSupport->initialiseExtensions();
-
-        LogManager::getSingleton().logMessage("***************************");
-				LogManager::getSingleton().logMessage("*** GL Renderer Started ***");
-				LogManager::getSingleton().logMessage("***************************");
-
-				// Get extension function pointers
-        glewContextInit(mGLSupport);
-
-				// set texture the number of texture units
+ 				// set texture the number of texture units
 				mFixedFunctionTextureUnits = caps->getNumTextureUnits();
 
 				if(caps->hasCapability(RSC_GLEW1_5_NOVBO))
@@ -852,12 +836,15 @@ namespace Ogre {
 
         if (!mGLInitialized) 
         {                
+
+						// set up glew and GLSupport
+						initialiseContext(win);
             // Initialise GL after the first window has been created
 						// TODO: fire this from emulation options, and don't duplicate Real and Current capabilities
 						mRealCapabilities = createRenderSystemCapabilities();
 
 						initialiseFromRenderSystemCapabilities(mRealCapabilities, win);
-            
+
             // Initialise the main context
             _oneTimeContextInitialization();
             if(mCurrentContext)
@@ -866,6 +853,30 @@ namespace Ogre {
 
         return win;
     }
+
+		void GLRenderSystem::initialiseContext(RenderWindow* primary)
+		{
+       // Set main and current context
+        mMainContext = 0;
+        primary->getCustomAttribute("GLCONTEXT", &mMainContext);
+        mCurrentContext = mMainContext;
+        
+        // Set primary context as active
+        if(mCurrentContext)
+            mCurrentContext->setCurrent();
+            
+        // Setup GLSupport
+        mGLSupport->initialiseExtensions();
+
+        LogManager::getSingleton().logMessage("***************************");
+				LogManager::getSingleton().logMessage("*** GL Renderer Started ***");
+				LogManager::getSingleton().logMessage("***************************");
+
+				// Get extension function pointers
+        glewContextInit(mGLSupport);
+		}
+
+
 
 	//-----------------------------------------------------------------------
 	MultiRenderTarget * GLRenderSystem::createMultiRenderTarget(const String & name)
@@ -2681,7 +2692,7 @@ namespace Ogre {
             const Plane& plane = clipPlanes[i];
 
             if (i >= 6/*GL_MAX_CLIP_PLANES*/)
-            {
+						{
                 OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Unable to set clip plane", 
                     "GLRenderSystem::setClipPlanes");
             }
@@ -2694,7 +2705,6 @@ namespace Ogre {
             glClipPlane(clipPlaneId, clipPlane);
             glEnable(clipPlaneId);
         }
-
             // disable remaining clip planes
         for ( ; i < 6/*GL_MAX_CLIP_PLANES*/; ++i)
         {
@@ -3086,3 +3096,4 @@ namespace Ogre {
 
 
 }
+
