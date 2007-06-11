@@ -50,122 +50,127 @@ Torus Knot Software Ltd.
 class MemoryTests : public CPPUNIT_NS :: TestFixture
 {
 public:
-  inline explicit MemoryTests()
-  {}
+    inline explicit MemoryTests()
+    {}
 
-  virtual ~MemoryTests()
-  {}
+    virtual ~MemoryTests()
+    {}
 
-  CPPUNIT_TEST_SUITE ( MemoryTests );
-  // in later tests we use the profile path to collect data,
-  // so test it works first.
-  CPPUNIT_TEST ( testProfilePath );
+    CPPUNIT_TEST_SUITE ( MemoryTests );
+    // in later tests we use the profile path to collect data,
+    // so test it works first.
+    CPPUNIT_TEST ( testProfilePath );
 
-  // test the rebind mechanism, turn an allocator<T> into and allocator<U>
-  CPPUNIT_TEST ( testRebind );
+    // test the rebind mechanism, turn an allocator<T> into and allocator<U>
+    CPPUNIT_TEST ( testRebind );
 
-  // test combatiblity with std::list
-  CPPUNIT_TEST ( testStdList );
+    // test combatiblity with std::list
+    CPPUNIT_TEST ( testStdList );
 
-  // test combatiblity with std::vector
-  CPPUNIT_TEST ( testStdVector );
+    // test combatiblity with std::vector
+    CPPUNIT_TEST ( testStdVector );
 
-  //TODO: add more container type tests
+    //TODO: add more container type tests
 
-  CPPUNIT_TEST ( testDataIntegrity );
+    CPPUNIT_TEST ( testDataIntegrity );
 
-  // test the use of AllocWrapper as a base class
-  CPPUNIT_TEST ( testAllocWrapperBase );
-  CPPUNIT_TEST_SUITE_END ();
+    // test the use of AllocWrapper as a base class
+    CPPUNIT_TEST ( testAllocWrapperBase );
+    CPPUNIT_TEST_SUITE_END ();
 
 public:
-  void setUp ();
-  void tearDown ();
+    void setUp ();
+    void tearDown ();
 
 protected:
-  void testProfilePath();
-  void testRebind();
-  void testStdList();
-  void testStdVector();
-  void testDataIntegrity();
-  void testAllocWrapperBase();
+    void testProfilePath();
+    void testRebind();
+    void testStdList();
+    void testStdVector();
+    void testDataIntegrity();
+    void testAllocWrapperBase();
 
 private:
-  static int mNumAllocations;
-  static int mNumBytesAllocated;
-  static int mNumDeallocations;
-  static int mNumBytesDeallocated;
+    static int mNumAllocations;
+    static int mNumBytesAllocated;
+    static int mNumDeallocations;
+    static int mNumBytesDeallocated;
 
-  // simple testing data struct
-  struct Data
-  {
-    int one;
-    int two;
-  };
-
-  // internal class to simulate the profiler and allow for the
-  // collection of test data
-  template<typename T>
-  class PsudoProfiler
-  {
-  public:
-    /// define our types
-    typedef T                   value_type;
-    typedef value_type*         pointer;
-    typedef const value_type*  const_pointer;
-    typedef value_type&         reference;
-    typedef const value_type&  const_reference;
-    typedef std::size_t        size_type;
-    typedef std::ptrdiff_t      difference_type;
-
-    /// convert PsudoProfiler<T> to PsudoProfiler<U>
-    template<typename U>
-    struct rebind
+    // simple testing data struct
+    struct Data
     {
-      typedef class PsudoProfiler<U> other;
+        int one;
+        int two;
     };
 
-  public:
-    explicit inline PsudoProfiler()
-    { }
-
-    inline ~PsudoProfiler()
-    { }
-
-    /// copy ctor
-    inline explicit PsudoProfiler( PsudoProfiler const& )
-    { }
-
-    /// converstion
-    template <typename U>
-    inline explicit PsudoProfiler( PsudoProfiler<U> const& )
-    { }
-
-    /// Note information about an allocation
-    inline void note_allocation( size_type sz,
-                        typename std::allocator<void>::const_pointer ptr = 0 )
+    // internal class to simulate the profiler and allow for the
+    // collection of test data
+    template<typename T>
+    class PsudoProfiler
     {
-      MemoryTests::mNumAllocations++;
-      MemoryTests::mNumBytesAllocated += sz;
-    }
+    public:
+        /// define our types
+        typedef T                   value_type;
+        typedef value_type*         pointer;
+        typedef const value_type*  const_pointer;
+        typedef value_type&         reference;
+        typedef const value_type&  const_reference;
+        typedef std::size_t        size_type;
+        typedef std::ptrdiff_t      difference_type;
 
-    /// Note information about a deallocation
-    inline void note_deallocation( pointer ptr, size_type sz )
+        /// convert PsudoProfiler<T> to PsudoProfiler<U>
+        template<typename U>
+        struct rebind
+        {
+            typedef class PsudoProfiler<U> other;
+        };
+
+    public:
+        explicit inline PsudoProfiler()
+        { }
+
+        inline ~PsudoProfiler()
+        { }
+
+        /// copy ctor
+        inline explicit PsudoProfiler( PsudoProfiler const& )
+        { }
+
+        /// converstion
+        template <typename U>
+        inline explicit PsudoProfiler( PsudoProfiler<U> const& )
+        { }
+
+        /// Note information about an allocation
+        inline void note_allocation( size_type sz,
+                                     typename std::allocator<void>::const_pointer ptr = 0 )
+        {
+            MemoryTests::mNumAllocations++;
+            MemoryTests::mNumBytesAllocated += sz;
+        }
+
+        /// Note information about a deallocation
+        inline void note_deallocation( pointer ptr, size_type sz )
+        {
+            MemoryTests::mNumDeallocations++;
+            MemoryTests::mNumBytesDeallocated += sz;
+        }
+    };
+
+    /// class used in AllocWrapper tests
+class TestClass : public Ogre::AllocWrapper
+                                <
+                                    Ogre::Allocator
+                                    <
+                                        TestClass,
+                                        Ogre::StdAllocPolicy<TestClass>,
+                                        Ogre::ObjectTraits<TestClass>,
+                                        PsudoProfiler<TestClass>
+                                    >
+                                >
     {
-      MemoryTests::mNumDeallocations++;
-      MemoryTests::mNumBytesDeallocated += sz;
-    }
-  };
-
-  /// class used in AllocWrapper tests
-  class TestClass : public Ogre::AllocWrapper<
-                                    TestClass,
-                                    Ogre::StdAllocPolicy<TestClass>,
-                                    Ogre::ObjectTraits<TestClass>,
-                                    PsudoProfiler<TestClass> >
-  {
-    int padding[10];
-  };
+        int padding[10];
+    };
 
 };
 

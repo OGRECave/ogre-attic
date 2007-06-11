@@ -30,11 +30,11 @@ Torus Knot Software Ltd.
 #ifndef MEMPROFILEMANAGER_H
 #define MEMPROFILEMANAGER_H
 
+#include "OgreSingleton.h"
 #include "OgreMemProfilerBase.h"
 #include <vector>
 
-namespace Ogre
-{
+namespace Ogre{
 
     /**
     * This is the profile manager for the memory system
@@ -43,7 +43,7 @@ namespace Ogre
     * all registered profiles and builds an information report
     * see OgreMemProfiler.h
     */
-    class MemProfileManager
+    class MemProfileManager // : public <Singleton>
     {
     public:
         explicit MemProfileManager();
@@ -77,6 +77,7 @@ namespace Ogre
 
         ProfileArray                mProfArray;   // registered profiles
         MemProfilerBase::MemStats   mGlobalStats; // global stats
+        Log*                        mReportLog;   // log for holding the profile info
 
     private:
     };

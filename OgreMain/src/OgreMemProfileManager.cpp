@@ -28,51 +28,54 @@ Torus Knot Software Ltd.
 */
 #include "OgreStableHeaders.h"
 #include "OgreMemProfileManager.h"
+#include "OgreLogManager.h"
 #include <iostream>
 
-namespace Ogre
-{
+namespace Ogre{
 
-  MemProfileManager::MemProfileManager()
-  {
-    // reserve some memory ahead of time
-    mProfArray.reserve( 10 );
-  }
-
-  void MemProfileManager::registerProfile( MemProfilerBase& profile )
-  {
-    Profile prof;
-    memset( &( prof.mStats ), 0, sizeof( MemProfilerBase::MemStats ) );
-    mProfArray.push_back( prof ); // add the profile
-
-    std::cout << "PROBE: added profile" << std::endl;
-  }
-
-  void MemProfileManager::update()
-  {
-    ProfileArray::iterator iter, end;
-
-    iter = mProfArray.begin();
-    end = mProfArray.end();
-
-    MemProfilerBase::MemStats tmpStats;
-    for ( ; iter != end; ++iter ) // for each profile
+    MemProfileManager::MemProfileManager()
     {
-      // collect its stats
-      tmpStats = ( *iter ).mProfile->flush();
+        // reserve some memory ahead of time
+        mProfArray.reserve( 10 );
 
-      // update local stats package
-      ( *iter ).mStats.numAllocations += tmpStats.numAllocations;
-      ( *iter ).mStats.numBytesAllocated += tmpStats.numBytesAllocated;
-      ( *iter ).mStats.numDeallocations += tmpStats.numDeallocations;
-      ( *iter ).mStats.numBytesDeallocated += tmpStats.numBytesDeallocated;
-
-      // update global stats packet
-      mGlobalStats.numAllocations += tmpStats.numAllocations;
-      mGlobalStats.numBytesAllocated += tmpStats.numBytesAllocated;
-      mGlobalStats.numDeallocations += tmpStats.numDeallocations;
-      mGlobalStats.numBytesDeallocated += tmpStats.numBytesDeallocated;
+        // setup our log file
+        mReportLog = LogManager::getSingleton().createLog("MemoryReport.log");
     }
-  }
+
+    void MemProfileManager::registerProfile( MemProfilerBase& profile )
+    {
+        Profile prof;
+        memset( &( prof.mStats ), 0, sizeof( MemProfilerBase::MemStats ) );
+        mProfArray.push_back( prof ); // add the profile
+
+        //std::cout << "PROBE: added profile" << std::endl;
+    }
+
+    void MemProfileManager::update()
+    {
+        ProfileArray::iterator iter, end;
+
+        iter = mProfArray.begin();
+        end = mProfArray.end();
+
+        MemProfilerBase::MemStats tmpStats;
+        for ( ; iter != end; ++iter ) // for each profile
+        {
+            // collect its stats
+            tmpStats = ( *iter ).mProfile->flush();
+
+            // update local stats package
+            ( *iter ).mStats.numAllocations += tmpStats.numAllocations;
+            ( *iter ).mStats.numBytesAllocated += tmpStats.numBytesAllocated;
+            ( *iter ).mStats.numDeallocations += tmpStats.numDeallocations;
+            ( *iter ).mStats.numBytesDeallocated += tmpStats.numBytesDeallocated;
+
+            // update global stats packet
+            mGlobalStats.numAllocations += tmpStats.numAllocations;
+            mGlobalStats.numBytesAllocated += tmpStats.numBytesAllocated;
+            mGlobalStats.numDeallocations += tmpStats.numDeallocations;
+            mGlobalStats.numBytesDeallocated += tmpStats.numBytesDeallocated;
+        }
+    }
 
 }

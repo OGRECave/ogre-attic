@@ -92,7 +92,7 @@ namespace Ogre{
          * (NOT number of elements of T)
          */
         inline pointer allocate(size_type count,
-                        typename std::allocator<void>::const_pointer = 0)
+                                typename std::allocator<void>::const_pointer = 0)
         {
             //return reinterpret_cast<pointer>
             //       (::operator new(count * sizeof (T)));

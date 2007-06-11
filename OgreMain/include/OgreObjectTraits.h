@@ -67,6 +67,8 @@ namespace Ogre{
         }
 
         /// construct (initialise) the object
+        /// yes this is using an out variable, but it must.
+        /// we have to meet the requirements for the STL
         inline void construct(T* p, const T& t)
         {
             new(p) T(t);

@@ -27,7 +27,7 @@ Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 
-
+#include <OgreStableHeaders.h>
 #include "MemoryTests.h"
 
 // containers to test - more to come
@@ -44,10 +44,10 @@ int MemoryTests::mNumBytesDeallocated = 0;
 
 void MemoryTests::setUp()
 {
-  mNumAllocations=0;
-  mNumBytesAllocated=0;
-  mNumDeallocations=0;
-  mNumBytesDeallocated=0;
+    mNumAllocations=0;
+    mNumBytesAllocated=0;
+    mNumDeallocations=0;
+    mNumBytesDeallocated=0;
 }
 
 void MemoryTests::tearDown()
@@ -55,154 +55,156 @@ void MemoryTests::tearDown()
 
 void MemoryTests::testProfilePath()
 {
-  // setup allocator with all default policies and a psudo-profiller
-  Ogre::Allocator
-  <
-    int,
-    Ogre::StdAllocPolicy<int>,
-    Ogre::ObjectTraits<int>,
-    PsudoProfiler<int>
-  > aloc;
+    // setup allocator with all default policies and a psudo-profiller
+    Ogre::Allocator
+    <
+        int,
+        Ogre::StdAllocPolicy<int>,
+        Ogre::ObjectTraits<int>,
+        PsudoProfiler<int>
+    > aloc;
 
-  int* tmp;
-  for(int i=0;i<10;++i)
-  {
-    tmp = aloc.allocate(1);
-    aloc.deallocate(tmp,1);
-  }
+    int* tmp;
+    for (int i=0;i<10;++i)
+    {
+        tmp = aloc.allocate(1);
+        aloc.deallocate(tmp,1);
+    }
 
-  // check that the number and size of [de]allocation match the expected values
-  CPPUNIT_ASSERT(mNumAllocations==10);
-  CPPUNIT_ASSERT(mNumBytesAllocated==(sizeof(int)*10));
-  CPPUNIT_ASSERT(mNumDeallocations==10);
-  CPPUNIT_ASSERT(mNumBytesDeallocated==(sizeof(int)*10));
+    // check that the number and size of [de]allocation match the expected values
+    CPPUNIT_ASSERT(mNumAllocations==10);
+    CPPUNIT_ASSERT(mNumBytesAllocated==(sizeof(int)*10));
+    CPPUNIT_ASSERT(mNumDeallocations==10);
+    CPPUNIT_ASSERT(mNumBytesDeallocated==(sizeof(int)*10));
 }
 
 void MemoryTests::testRebind()
 {
-  // setup allocator with all default policies and a psudo-profiller
-  typedef Ogre::Allocator
-  <
-    int,
-    Ogre::StdAllocPolicy<int>,
-    Ogre::ObjectTraits<int>,
-    PsudoProfiler<int>
-  > AlocTypeT;
+    // setup allocator with all default policies and a psudo-profiller
+    typedef Ogre::Allocator
+    <
+        int,
+        Ogre::StdAllocPolicy<int>,
+        Ogre::ObjectTraits<int>,
+        PsudoProfiler<int>
+    > AlocTypeT;
 
-  typedef Ogre::Allocator
-  <
-    float,
-    Ogre::StdAllocPolicy<float>,
-    Ogre::ObjectTraits<float>,
-    PsudoProfiler<float>
-  > AlocTypeU;
+    typedef Ogre::Allocator
+    <
+        float,
+        Ogre::StdAllocPolicy<float>,
+        Ogre::ObjectTraits<float>,
+        PsudoProfiler<float>
+    > AlocTypeU;
 
-  AlocTypeT aloc1;
-  AlocTypeU aloc2;
-  AlocTypeT::rebind<float>::other aloc3;
+    AlocTypeT aloc1;
+    AlocTypeU aloc2;
+    AlocTypeT::rebind<float>::other aloc3;
 
-  //NOTE: if this compiles then the test is passed
-  aloc2 = aloc3;
+    //NOTE: if this compiles then the test is passed
+    aloc2 = aloc3;
 }
 
 void MemoryTests::testStdList()
 {
-  // container type
-  typedef std::list
-  <
-    int,
-    Ogre::Allocator
+    // container type
+    typedef std::list
     <
-      int,
-      Ogre::StdAllocPolicy<int>,
-      Ogre::ObjectTraits<int>,
-      PsudoProfiler<int>
-    >
-  > TestCont;
+        int,
+        Ogre::Allocator
+        <
+            int,
+            Ogre::StdAllocPolicy<int>,
+            Ogre::ObjectTraits<int>,
+            PsudoProfiler<int>
+        >
+    > TestCont;
 
-  {
-    TestCont t;
-    for(int i=0;i<10;++i)
-      t.push_back(i);
-  }
+    {
+        TestCont t;
+        for (int i=0;i<10;++i)
+            t.push_back(i);
+    }
 
-  // check that the number of [de]allocation match the expected values
-  CPPUNIT_ASSERT(mNumAllocations==10);
-  CPPUNIT_ASSERT(mNumDeallocations==10);
+    // check that the number of [de]allocation match the expected values
+    CPPUNIT_ASSERT(mNumAllocations==10);
+    CPPUNIT_ASSERT(mNumDeallocations==10);
 
-  // NOTE: std::list uses rebind<node<int> > so the allocation size can not
-  // be tested directly, we dont know the stl "node" implementation details.
-  CPPUNIT_ASSERT(mNumBytesAllocated==mNumBytesDeallocated);
+    // NOTE: std::list uses rebind<node<int> > so the allocation size can not
+    // be tested directly, we dont know the stl "node" implementation details.
+    CPPUNIT_ASSERT(mNumBytesAllocated==mNumBytesDeallocated);
 }
 
 void MemoryTests::testStdVector()
 {
-  // setup allocator with all default policies and a psudo-profiller
-  typedef Ogre::Allocator<
-    int,
-    Ogre::StdAllocPolicy<int>,
-    Ogre::ObjectTraits<int>,
-    PsudoProfiler<int>
-  > aloc_type;
+    // setup allocator with all default policies and a psudo-profiller
+    typedef Ogre::Allocator
+    <
+        int,
+        Ogre::StdAllocPolicy<int>,
+        Ogre::ObjectTraits<int>,
+        PsudoProfiler<int>
+    > aloc_type;
 
-  // container type
-  typedef std::vector<int,aloc_type > TestCont;
+    // container type
+    typedef std::vector<int,aloc_type > TestCont;
 
-  {
-    TestCont t;
-    t.reserve(10); // vector grabs the memory in one block
-  } // vector goes out of scope and releases memory here
+    {
+        TestCont t;
+        t.reserve(10); // vector grabs the memory in one block
+    } // vector goes out of scope and releases memory here
 
-  // check that the number and size of [de]allocation match the expected values
-  CPPUNIT_ASSERT(mNumAllocations==1);
-  CPPUNIT_ASSERT(mNumBytesAllocated==(sizeof(int)*10));
-  CPPUNIT_ASSERT(mNumDeallocations==1);
-  CPPUNIT_ASSERT(mNumBytesDeallocated==(sizeof(int)*10));
+    // check that the number and size of [de]allocation match the expected values
+    CPPUNIT_ASSERT(mNumAllocations==1);
+    CPPUNIT_ASSERT(mNumBytesAllocated==(sizeof(int)*10));
+    CPPUNIT_ASSERT(mNumDeallocations==1);
+    CPPUNIT_ASSERT(mNumBytesDeallocated==(sizeof(int)*10));
 }
 
 void MemoryTests::testDataIntegrity()
 {
-  // setup allocator with all default policies and a psudo-profiller
-  typedef Ogre::Allocator<
-    Data,
-    Ogre::StdAllocPolicy<Data>,
-    Ogre::ObjectTraits<Data>,
-    PsudoProfiler<Data>
-  > aloc_type;
+    // setup allocator with all default policies and a psudo-profiller
+    typedef Ogre::Allocator
+    <
+        Data,
+        Ogre::StdAllocPolicy<Data>,
+        Ogre::ObjectTraits<Data>,
+        PsudoProfiler<Data>
+    > aloc_type;
 
-  // container type
-  typedef std::vector<Data,aloc_type > TestCont;
+    // container type
+    typedef std::vector<Data,aloc_type > TestCont;
 
-  {
-    TestCont t;
-    // populate the container with data
-    for(int i=0;i<10;++i)
     {
-      Data d;
-      d.one = 0;
-      d.two = i;
-      t.push_back(d);
-    }
+        TestCont t;
+        // populate the container with data
+        for (int i=0;i<10;++i)
+        {
+            Data d;
+            d.one = 0;
+            d.two = i;
+            t.push_back(d);
+        }
 
-    // confirme that the data remains valid after several [de]allocations
-    for(int j=0;j<10;++j)
-    {
-      CPPUNIT_ASSERT(t[j].one==0);
-      CPPUNIT_ASSERT(t[j].two==j);
+        // confirme that the data remains valid after several [de]allocations
+        for (int j=0;j<10;++j)
+        {
+            CPPUNIT_ASSERT(t[j].one==0);
+            CPPUNIT_ASSERT(t[j].two==j);
+        }
     }
-  }
 }
 
 void MemoryTests::testAllocWrapperBase()
 {
-  TestClass* t;
-  t = new TestClass();
-  delete t;
+    TestClass* t;
+    t = new TestClass();
+    delete t;
 
-  CPPUNIT_ASSERT(mNumAllocations==1);
-  CPPUNIT_ASSERT(mNumBytesAllocated==sizeof(TestClass));
-  CPPUNIT_ASSERT(mNumDeallocations==1);
-  CPPUNIT_ASSERT(mNumBytesDeallocated==sizeof(TestClass));
+    CPPUNIT_ASSERT(mNumAllocations==1);
+    CPPUNIT_ASSERT(mNumBytesAllocated==sizeof(TestClass));
+    CPPUNIT_ASSERT(mNumDeallocations==1);
+    CPPUNIT_ASSERT(mNumBytesDeallocated==sizeof(TestClass));
 }
 
 
