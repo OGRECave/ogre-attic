@@ -56,8 +56,7 @@ namespace Ogre
 		at once. Surfaces can be bound and unbound at will, as long as the following constraints
 		are met:
 		- All bound surfaces have the same size
-
-		- All bound surfaces have the same internal format 
+		- All bound surfaces have the same bit depth
 		- Target 0 is bound
 	*/
 	class _OgreExport MultiRenderTarget: public RenderTarget
