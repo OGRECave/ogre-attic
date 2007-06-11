@@ -41,6 +41,8 @@ namespace Ogre {
         mNumVertexBlendMatrices(0), mNumMultiRenderTargets(1), 
 		mNonPOW2TexturesLimited(false)
     {
+
+
 			 for(int i = 0; i < sizeof(mCapabilities)/sizeof(int); i++)
 			 {
 					mCapabilities[i] = 0;

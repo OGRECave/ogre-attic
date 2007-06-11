@@ -258,7 +258,7 @@ namespace Ogre {
             {
 								int index = (0xFF000000 & c) >> 28;
 								// test against 
-                if(mCapabilities[index] & (c && 0x00FFFFFF))
+                if(mCapabilities[index] & (c & 0x00FFFFFF))
                 {
                     return true;
                 }
