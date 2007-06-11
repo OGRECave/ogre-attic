@@ -68,4 +68,45 @@ void RenderSystemCapabilitiesTests::testIsShaderProfileSupported(void)
 	CPPUNIT_ASSERT(!rsc.isShaderProfileSupported(""));
 }
 
+void RenderSystemCapabilitiesTests::testHasCapability()
+{
+	 using namespace Ogre;
 
+	 RenderSystemCapabilities rsc;
+
+	 // check that no caps (from 2 categories) are supported
+	 CPPUNIT_ASSERT(!rsc.hasCapability(RSC_AUTOMIPMAP));
+	 CPPUNIT_ASSERT(!rsc.hasCapability(RSC_BLENDING));
+	 CPPUNIT_ASSERT(!rsc.hasCapability(RSC_FRAGMENT_PROGRAM));
+	 CPPUNIT_ASSERT(!rsc.hasCapability(RSC_TWO_SIDED_STENCIL));
+	 CPPUNIT_ASSERT(!rsc.hasCapability(RSC_MIPMAP_LOD_BIAS));
+	 CPPUNIT_ASSERT(!rsc.hasCapability(RSC_TEXTURE_COMPRESSION));
+	 CPPUNIT_ASSERT(!rsc.hasCapability(RSC_TEXTURE_COMPRESSION_VTC));
+	 CPPUNIT_ASSERT(!rsc.hasCapability(RSC_GLEW1_5_NOVBO));
+	 CPPUNIT_ASSERT(!rsc.hasCapability(RSC_FBO_ATI));
+	 CPPUNIT_ASSERT(!rsc.hasCapability(RSC_PBUFFER));
+	 CPPUNIT_ASSERT(!rsc.hasCapability(RSC_GLEW1_5_NOHWOCCLUSION));
+
+	 // add support for few caps from each category
+	 rsc.setCapability(RSC_AUTOMIPMAP);
+	 rsc.setCapability(RSC_FRAGMENT_PROGRAM);
+	 rsc.setCapability(RSC_TEXTURE_COMPRESSION);
+	 rsc.setCapability(RSC_FBO_ATI);
+	 rsc.setCapability(RSC_GLEW1_5_NOHWOCCLUSION);
+
+	 // check that the newly set caps are supported
+	 CPPUNIT_ASSERT(rsc.hasCapability(RSC_AUTOMIPMAP));
+	 CPPUNIT_ASSERT(rsc.hasCapability(RSC_FRAGMENT_PROGRAM));
+	 CPPUNIT_ASSERT(rsc.hasCapability(RSC_TEXTURE_COMPRESSION));
+	 CPPUNIT_ASSERT(rsc.hasCapability(RSC_FBO_ATI));
+	 CPPUNIT_ASSERT(rsc.hasCapability(RSC_GLEW1_5_NOHWOCCLUSION));
+
+	 // check that the non-set caps are NOT supported
+	 CPPUNIT_ASSERT(!rsc.hasCapability(RSC_BLENDING));
+	 CPPUNIT_ASSERT(!rsc.hasCapability(RSC_TWO_SIDED_STENCIL));
+	 CPPUNIT_ASSERT(!rsc.hasCapability(RSC_MIPMAP_LOD_BIAS));
+	 CPPUNIT_ASSERT(!rsc.hasCapability(RSC_TEXTURE_COMPRESSION_VTC));
+	 CPPUNIT_ASSERT(!rsc.hasCapability(RSC_GLEW1_5_NOVBO));
+	 CPPUNIT_ASSERT(!rsc.hasCapability(RSC_PBUFFER));
+	 
+}

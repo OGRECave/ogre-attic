@@ -35,7 +35,8 @@ class RenderSystemCapabilitiesTests : public CppUnit::TestFixture
 {
     // CppUnit macros for setting up the test suite
     CPPUNIT_TEST_SUITE( RenderSystemCapabilitiesTests);
-        CPPUNIT_TEST(testIsShaderProfileSupported);
+    CPPUNIT_TEST(testIsShaderProfileSupported);
+    CPPUNIT_TEST(testHasCapability);
     CPPUNIT_TEST_SUITE_END();
 protected:
 public:
@@ -43,4 +44,5 @@ public:
     void tearDown();
 
     void testIsShaderProfileSupported();
+		void testHasCapability();
 };
