@@ -68,6 +68,8 @@ namespace Ogre {
         , mCurrentPassIterationCount(0)
         , mVertexProgramBound(false)
         , mFragmentProgramBound(false)
+				, mUseCustomCapabilities(false)
+
     {
     }
 
@@ -127,6 +129,12 @@ namespace Ogre {
 
         return 0;
     }
+
+		void RenderSystem::_useCustomRenderSystemCapabilities(RenderSystemCapabilities* capabilities)
+		{
+				mCurrentCapabilities = capabilities;
+				mUseCustomCapabilities = true;
+		}
 	//---------------------------------------------------------------------
 	RenderTexture * RenderSystem::createRenderTexture( const String & name, 
 		unsigned int width, unsigned int height,

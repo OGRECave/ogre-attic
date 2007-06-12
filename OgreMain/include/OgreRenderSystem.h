@@ -203,8 +203,15 @@ namespace Ogre
         virtual RenderWindow* initialise(bool autoCreateWindow, const String& windowTitle = "OGRE Render Window");
 
 
-				/** Query the capabilities of the GPU and driver in the RenderSystem*/
+				/** Query the real capabilities of the GPU and driver in the RenderSystem*/
 				virtual RenderSystemCapabilities* createRenderSystemCapabilities() const = 0;
+
+				/** Force the render system to use the special capabilities. 
+				 *	@param
+				 *		 capabilities Has to be a subset of the real capabilities. capabilities will be
+				 *		 used by Ogre. The caller is responsible for deallocating capabilities.
+				 */
+				virtual void _useCustomRenderSystemCapabilities(RenderSystemCapabilities* capabilities);
 
         /** Restart the renderer (normally following a change in settings).
         */
@@ -1161,6 +1168,7 @@ namespace Ogre
 				/** Initialize the render system from the capabilities*/
 				virtual void initialiseFromRenderSystemCapabilities(RenderSystemCapabilities* caps, RenderTarget* primary) = 0;
 
+
 		
 				/** The render targets. */
         RenderTargetMap mRenderTargets;
@@ -1182,6 +1190,8 @@ namespace Ogre
         RenderSystemCapabilities* mRealCapabilities;
 
         RenderSystemCapabilities* mCurrentCapabilities;
+
+				bool mUseCustomCapabilities;
 
 
         // Active viewport (dest for future rendering operations)
