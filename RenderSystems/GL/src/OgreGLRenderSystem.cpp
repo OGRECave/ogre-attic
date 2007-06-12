@@ -532,8 +532,6 @@ namespace Ogre {
 		void GLRenderSystem::initialiseFromRenderSystemCapabilities(RenderSystemCapabilities* caps, RenderTarget* primary)
 		{
 
-				// set the current capabilities 
-				mCurrentCapabilities = caps;
  				// set texture the number of texture units
 				mFixedFunctionTextureUnits = caps->getNumTextureUnits();
 
@@ -843,7 +841,11 @@ namespace Ogre {
 						// TODO: fire this from emulation options, and don't duplicate Real and Current capabilities
 						mRealCapabilities = createRenderSystemCapabilities();
 
-						initialiseFromRenderSystemCapabilities(mRealCapabilities, win);
+						// use real capabilities if custom capabilities are not available
+						if(!mUseCustomCapabilities)
+								mCurrentCapabilities = mRealCapabilities;
+
+						initialiseFromRenderSystemCapabilities(mCurrentCapabilities, win);
 
             // Initialise the main context
             _oneTimeContextInitialization();

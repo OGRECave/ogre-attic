@@ -678,15 +678,18 @@ namespace Ogre
 			mGpuProgramManager = new D3D9GpuProgramManager(mpD3DDevice);
             // create & register HLSL factory
             mHLSLProgramFactory = new D3D9HLSLProgramFactory();
-            HighLevelGpuProgramManager::getSingleton().addFactory(mHLSLProgramFactory);
 
 
             // Initialise the capabilities structures
 						mRealCapabilities = createRenderSystemCurrentCapabilities();							
             mRealCapabilities->addShaderProfile("hlsl");
 
+						// if we are using custom capabilities, then 
+						// mCurrentCapabilities has already been loaded
+						if(!mUseCustomCapabilities)
+								mCurrentCapabilities = mRealCapabilities;
 
-						initialiseFromRenderSystemCurrentCapabilities(mRealCapabilities, mPrimaryWindow);
+						initialiseFromRenderSystemCurrentCapabilities(mCurrentCapabilities, mPrimaryWindow);
 
 		}
 		else
@@ -1166,8 +1169,8 @@ namespace Ogre
 		//-----------------------------------------------------------------------
 		void D3D9RenderSystem::initialiseFromRenderSystemCurrentCapabilities(RenderSystemCurrentCapabilities* caps, RenderTarget* primary)
 		{
-				// make the render system use the given caps
-				mCurrentCapabilities = caps;
+				if(caps->isShaderProfileSupported("hlsl"))
+		        HighLevelGpuProgramManager::getSingleton().addFactory(mHLSLProgramFactory);
 		}
 
 	//-----------------------------------------------------------------------
