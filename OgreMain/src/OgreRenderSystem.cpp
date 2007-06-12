@@ -78,6 +78,7 @@ namespace Ogre {
 				delete mRealCapabilities;
 				mRealCapabilities = 0;
 		}
+		
     //-----------------------------------------------------------------------
     void RenderSystem::_initRenderTargets(void)
     {

@@ -120,7 +120,11 @@ namespace Ogre {
 				// Support for PBuffer
 				RSC_PBUFFER				 = CAPS_VALUE(1, 7),
 				// Support for PBuffer
-				RSC_GLEW1_5_NOHWOCCLUSION = CAPS_VALUE(1, 8)
+				RSC_GLEW1_5_NOHWOCCLUSION = CAPS_VALUE(1, 8),
+
+
+				// Is DirectX feature "per stage constants" supported
+				RSC_PERSTAGECONSTANT = CAPS_VALUE(1, 9);
 
     };
 
