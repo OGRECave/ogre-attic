@@ -124,7 +124,7 @@ namespace Ogre {
 
 
 				// Is DirectX feature "per stage constants" supported
-				RSC_PERSTAGECONSTANT = CAPS_VALUE(1, 9);
+				RSC_PERSTAGECONSTANT = CAPS_VALUE(1, 9)
 
     };
 
