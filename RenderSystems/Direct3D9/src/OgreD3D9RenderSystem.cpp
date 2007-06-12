@@ -679,11 +679,14 @@ namespace Ogre
             // create & register HLSL factory
             mHLSLProgramFactory = new D3D9HLSLProgramFactory();
             HighLevelGpuProgramManager::getSingleton().addFactory(mHLSLProgramFactory);
-            mCapabilities->addShaderProfile("hlsl");
 
 
             // Initialise the capabilities structures
-            initCapabilities();
+						mRealCapabilities = createRenderSystemCurrentCapabilities();							
+            mRealCapabilities->addShaderProfile("hlsl");
+
+
+						initialiseFromRenderSystemCurrentCapabilities(mRealCapabilities, mPrimaryWindow);
 
 		}
 		else
@@ -695,91 +698,93 @@ namespace Ogre
 
 	}
     //---------------------------------------------------------------------
-    void D3D9RenderSystem::initCapabilities(void)
-    {
-		// get caps
-		mpD3DDevice->GetDeviceCaps( &mCaps );
+		RenderSystemCurrentCapabilities* D3D9RenderSystem::createRenderSystemCurrentCapabilities(void)
+		{
+		
+				// get caps
+				mpD3DDevice->GetDeviceCaps( &mCaps );
 
         // Check for hardware stencil support
-		LPDIRECT3DSURFACE9 pSurf;
-		D3DSURFACE_DESC surfDesc;
-		mpD3DDevice->GetDepthStencilSurface(&pSurf);
-		pSurf->GetDesc(&surfDesc);
-		pSurf->Release();
+				LPDIRECT3DSURFACE9 pSurf;
+				D3DSURFACE_DESC surfDesc;
+				mpD3DDevice->GetDepthStencilSurface(&pSurf);
+				pSurf->GetDesc(&surfDesc);
+				pSurf->Release();
 
-		if (surfDesc.Format == D3DFMT_D24S8 || surfDesc.Format == D3DFMT_D24X8)
-		{
-			mCapabilities->setCapability(RSC_HWSTENCIL);
-			// Actually, it's always 8-bit
-			mCapabilities->setStencilBufferBitDepth(8);
+				RenderSystemCurrentCapabilities* rsc = new RenderSystemCurrentCapabilities();
 
-		}
+				if (surfDesc.Format == D3DFMT_D24S8 || surfDesc.Format == D3DFMT_D24X8)
+				{
+						rsc->setCapability(RSC_HWSTENCIL);
+						// Actually, it's always 8-bit
+						rsc->setStencilBufferBitDepth(8);
+				}
 
-		// Set number of texture units
-		mCapabilities->setNumTextureUnits(mCaps.MaxSimultaneousTextures);
+				// Set number of texture units
+				rsc->setNumTextureUnits(mCaps.MaxSimultaneousTextures);
         // Anisotropy?
         if (mCaps.MaxAnisotropy > 1)
-            mCapabilities->setCapability(RSC_ANISOTROPY);
+						rsc->setCapability(RSC_ANISOTROPY);
         // Automatic mipmap generation?
         if (mCaps.Caps2 & D3DCAPS2_CANAUTOGENMIPMAP)
-            mCapabilities->setCapability(RSC_AUTOMIPMAP);
-        // Blending between stages supported
-        mCapabilities->setCapability(RSC_BLENDING);
+            rsc->setCapability(RSC_AUTOMIPMAP);
+				// Blending between stages supported
+        rsc->setCapability(RSC_BLENDING);
         // Dot 3
         if (mCaps.TextureOpCaps & D3DTEXOPCAPS_DOTPRODUCT3)
-            mCapabilities->setCapability(RSC_DOT3);
+						rsc->setCapability(RSC_DOT3);
         // Cube map
         if (mCaps.TextureCaps & D3DPTEXTURECAPS_CUBEMAP)
-            mCapabilities->setCapability(RSC_CUBEMAPPING);
+            rsc->setCapability(RSC_CUBEMAPPING);
 
         // We always support compression, D3DX will decompress if device does not support
-        mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION);
-        mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION_DXT);
+        rsc->setCapability(RSC_TEXTURE_COMPRESSION);
+        rsc->setCapability(RSC_TEXTURE_COMPRESSION_DXT);
 
         // We always support VBOs
-        mCapabilities->setCapability(RSC_VBO);
+        rsc->setCapability(RSC_VBO);
 
         // Scissor test
         if (mCaps.RasterCaps & D3DPRASTERCAPS_SCISSORTEST)
-            mCapabilities->setCapability(RSC_SCISSOR_TEST);
+            rsc->setCapability(RSC_SCISSOR_TEST);
 
         // Two-sided stencil
         if (mCaps.StencilCaps & D3DSTENCILCAPS_TWOSIDED)
-            mCapabilities->setCapability(RSC_TWO_SIDED_STENCIL);
+            rsc->setCapability(RSC_TWO_SIDED_STENCIL);
 
         // stencil wrap
         if ((mCaps.StencilCaps & D3DSTENCILCAPS_INCR) && 
             (mCaps.StencilCaps & D3DSTENCILCAPS_DECR))
-            mCapabilities->setCapability(RSC_STENCIL_WRAP);
+            rsc->setCapability(RSC_STENCIL_WRAP);
 
         // Check for hardware occlusion support
         if ( ( mpD3DDevice->CreateQuery(D3DQUERYTYPE_OCCLUSION,  NULL ) ) == D3D_OK )	
         {
-            mCapabilities->setCapability(RSC_HWOCCLUSION);
+            rsc->setCapability(RSC_HWOCCLUSION);
         }
         convertVertexShaderCaps();
         convertPixelShaderCaps();
 
-		// User clip planes
+				// User clip planes
         if (mCaps.MaxUserClipPlanes > 0)
-		{
-			mCapabilities->setCapability(RSC_USER_CLIP_PLANES);
-		}
+				{
+						rsc->setCapability(RSC_USER_CLIP_PLANES);
+				}
 
-		// UBYTE4 type?
-		if (mCaps.DeclTypes & D3DDTCAPS_UBYTE4)
-		{
-			mCapabilities->setCapability(RSC_VERTEX_FORMAT_UBYTE4);
-		}
+				// UBYTE4 type?
+				if (mCaps.DeclTypes & D3DDTCAPS_UBYTE4)
+				{
+						rsc->setCapability(RSC_VERTEX_FORMAT_UBYTE4);
+				}
 
-		// Adapter details
-		const D3DADAPTER_IDENTIFIER9& adapterID = mActiveD3DDriver->getAdapterIdentifier();
+				// Adapter details
+				const D3DADAPTER_IDENTIFIER9& adapterID = mActiveD3DDriver->getAdapterIdentifier();
 
 		// Infinite projection?
 		// We have no capability for this, so we have to base this on our
 		// experience and reports from users
 		// Non-vertex program capable hardware does not appear to support it
-		if (mCapabilities->hasCapability(RSC_VERTEX_PROGRAM))
+		if (rsc->hasCapability(RSC_VERTEX_PROGRAM))
 		{
 			// GeForce4 Ti (and presumably GeForce3) does not
 			// render infinite projection properly, even though it does in GL
@@ -791,32 +796,31 @@ namespace Ogre
 				  (adapterID.DeviceId >= 0x170 && adapterID.DeviceId <= 0x18F) || //gf4 go
 				  (adapterID.DeviceId >= 0x280 && adapterID.DeviceId <= 0x28F)))  //gf4ti go
 			{
-				mCapabilities->setCapability(RSC_INFINITE_FAR_PLANE);
+				rsc->setCapability(RSC_INFINITE_FAR_PLANE);
 			}
 			
 		}
 		
-		// 3D textures?
-		if (mCaps.TextureCaps & D3DPTEXTURECAPS_VOLUMEMAP)
-		{
-			mCapabilities->setCapability(RSC_TEXTURE_3D);
-		}
+				// 3D textures?
+				if (mCaps.TextureCaps & D3DPTEXTURECAPS_VOLUMEMAP)
+				{
+						rsc->setCapability(RSC_TEXTURE_3D);
+				}
 		
         if ((mCaps.TextureCaps & D3DPTEXTURECAPS_POW2) == 0)
-		{
-			// unrestricted non POW2
-			mCapabilities->setCapability(RSC_NON_POWER_OF_2_TEXTURES);
-		}
-		else if (mCaps.TextureCaps & D3DPTEXTURECAPS_NONPOW2CONDITIONAL)
-		{
-			// Conditional support for non POW2
-			mCapabilities->setCapability(RSC_NON_POWER_OF_2_TEXTURES);
-			mCapabilities->setNonPOW2TexturesLimited(true);
-
-		}
+				{
+						// unrestricted non POW2
+						rsc->setCapability(RSC_NON_POWER_OF_2_TEXTURES);
+				}
+				else if (mCaps.TextureCaps & D3DPTEXTURECAPS_NONPOW2CONDITIONAL)
+				{
+						// Conditional support for non POW2
+						rsc->setCapability(RSC_NON_POWER_OF_2_TEXTURES);
+						rsc->setNonPOW2TexturesLimited(true);
+				}
 
 		// We always support rendertextures bigger than the frame buffer
-        mCapabilities->setCapability(RSC_HWRENDER_TO_TEXTURE);
+        rsc->setCapability(RSC_HWRENDER_TO_TEXTURE);
 
 		// Determine if any floating point texture format is supported
 		D3DFORMAT floatFormats[6] = {D3DFMT_R16F, D3DFMT_G16R16F, 
@@ -833,16 +837,15 @@ namespace Ogre
 				D3DDEVTYPE_HAL, bbSurfDesc.Format, 
 				0, D3DRTYPE_TEXTURE, floatFormats[i])))
 			{
-				mCapabilities->setCapability(RSC_TEXTURE_FLOAT);
+				rsc->setCapability(RSC_TEXTURE_FLOAT);
 				break;
 			}
 			
 		}
 		
-		// Number of render targets
-		mCapabilities->setNumMultiRenderTargets(std::min((ushort)mCaps.NumSimultaneousRTs, (ushort)OGRE_MAX_MULTIPLE_RENDER_TARGETS));
+				// Number of render targets
+				rsc->setNumMultiRenderTargets(std::min((ushort)mCaps.NumSimultaneousRTs, (ushort)OGRE_MAX_MULTIPLE_RENDER_TARGETS));
 
-		//
 		if(mCaps.PrimitiveMiscCaps & D3DPMISCCAPS_MRTINDEPENDENTBITDEPTHS)
 		{
 			LogManager::getSingleton().logMessage("Multiple render targets with independent bit depths supported");
@@ -851,14 +854,16 @@ namespace Ogre
 		// Point sprites 
 		if (mCaps.MaxPointSize > 1.0f)
 		{
-			mCapabilities->setCapability(RSC_POINT_SPRITES);
-			// sprites and extended parameters go together in D3D
-			mCapabilities->setCapability(RSC_POINT_EXTENDED_PARAMETERS);
-			mCapabilities->setMaxPointSize(mCaps.MaxPointSize);
+				rsc->setCapability(RSC_POINT_SPRITES);
+				// sprites and extended parameters go together in D3D
+				rsc->setCapability(RSC_POINT_EXTENDED_PARAMETERS);
+				rsc->setMaxPointSize(mCaps.MaxPointSize);
 		}
 
+		// TODO: make convertVertex/Fragment fill in rsc
+		// TODO: update the below line to use rsc
 		// Vertex textures
-		if (mGpuProgramManager->isSyntaxSupported("vs_3_0"))
+		if (rsc->isShaderProfileSupported("vs_3_0"))
 		{
 			// Run through all the texture formats looking for any which support
 			// vertex texture fetching. Must have at least one!
@@ -866,10 +871,10 @@ namespace Ogre
 			// but they support no texture formats for vertex texture fetch (cheaters!)
 			if (checkVertexTextureFormats())
 			{
-				mCapabilities->setCapability(RSC_VERTEX_TEXTURE_FETCH);
+				rsc->setCapability(RSC_VERTEX_TEXTURE_FETCH);
 				// always 4 vertex texture units in vs_3_0, and never shared
-				mCapabilities->setNumVertexTextureUnits(4);
-				mCapabilities->setVertexTextureUnitsShared(false);
+				rsc->setNumVertexTextureUnits(4);
+				rsc->setVertexTextureUnitsShared(false);
 
 			}
 		}
@@ -877,23 +882,25 @@ namespace Ogre
 		// Mipmap LOD biasing?
 		if (mCaps.RasterCaps & D3DPRASTERCAPS_MIPMAPLODBIAS)
 		{
-			mCapabilities->setCapability(RSC_MIPMAP_LOD_BIAS);
+				rsc->setCapability(RSC_MIPMAP_LOD_BIAS);
 		}
 		
 
 		Log* defaultLog = LogManager::getSingleton().getDefaultLog();
 		if (defaultLog)
 		{
-			mCapabilities->log(defaultLog);
+			rsc->log(defaultLog);
 		}
 
 		// Do we support per-stage src_manual constants?
 		// HACK - ATI drivers seem to be buggy and don't support per-stage constants properly?
-		mPerStageConstantSupport = (mCaps.PrimitiveMiscCaps & D3DPMISCCAPS_PERSTAGECONSTANT) != 0;
+		// TODO: move this to RSC
+		 if((mCaps.PrimitiveMiscCaps & D3DPMISCCAPS_PERSTAGECONSTANT) != 0)
+				rsc->hasCapability(RSC_PERSTAGECONSTANT);
 
     }
     //---------------------------------------------------------------------
-    void D3D9RenderSystem::convertVertexShaderCaps(void)
+    void D3D9RenderSystem::convertVertexShaderCaps(RenderSystemCurrentCapabilities* rsc)
     {
         ushort major, minor;
         major = static_cast<ushort>((mCaps.VertexShaderVersion & 0x0000FF00) >> 8);
@@ -924,46 +931,46 @@ namespace Ogre
         switch (major)
         {
         case 1:
-            mCapabilities->setMaxVertexProgramVersion("vs_1_1");
+            rsc->setMaxVertexProgramVersion("vs_1_1");
             // No boolean params allowed
-            mCapabilities->setVertexProgramConstantBoolCount(0);
+            rsc->setVertexProgramConstantBoolCount(0);
             // No integer params allowed
-            mCapabilities->setVertexProgramConstantIntCount(0);
+            rsc->setVertexProgramConstantIntCount(0);
             // float params, always 4D
-            mCapabilities->setVertexProgramConstantFloatCount(mCaps.MaxVertexShaderConst);
+            rsc->setVertexProgramConstantFloatCount(mCaps.MaxVertexShaderConst);
            
             break;
         case 2:
             if (vs2a)
             {
-                mCapabilities->setMaxVertexProgramVersion("vs_2_a");
+                rsc->setMaxVertexProgramVersion("vs_2_a");
             }
             else if (vs2x)
             {
-                mCapabilities->setMaxVertexProgramVersion("vs_2_x");
+                rsc->setMaxVertexProgramVersion("vs_2_x");
             }
             else
             {
-                mCapabilities->setMaxVertexProgramVersion("vs_2_0");
+                rsc->setMaxVertexProgramVersion("vs_2_0");
             }
             // 16 boolean params allowed
-            mCapabilities->setVertexProgramConstantBoolCount(16);
+            rsc->setVertexProgramConstantBoolCount(16);
             // 16 integer params allowed, 4D
-            mCapabilities->setVertexProgramConstantIntCount(16);
+            rsc->setVertexProgramConstantIntCount(16);
             // float params, always 4D
-            mCapabilities->setVertexProgramConstantFloatCount(mCaps.MaxVertexShaderConst);
+            rsc->setVertexProgramConstantFloatCount(mCaps.MaxVertexShaderConst);
             break;
         case 3:
-            mCapabilities->setMaxVertexProgramVersion("vs_3_0");
+            rsc->setMaxVertexProgramVersion("vs_3_0");
             // 16 boolean params allowed
-            mCapabilities->setVertexProgramConstantBoolCount(16);
+            rsc->setVertexProgramConstantBoolCount(16);
             // 16 integer params allowed, 4D
-            mCapabilities->setVertexProgramConstantIntCount(16);
+            rsc->setVertexProgramConstantIntCount(16);
             // float params, always 4D
-            mCapabilities->setVertexProgramConstantFloatCount(mCaps.MaxVertexShaderConst);
+            rsc->setVertexProgramConstantFloatCount(mCaps.MaxVertexShaderConst);
             break;
         default:
-            mCapabilities->setMaxVertexProgramVersion(StringUtil::BLANK);
+            rsc->setMaxVertexProgramVersion(StringUtil::BLANK);
             break;
         }
 
@@ -971,21 +978,21 @@ namespace Ogre
         switch(major)
         {
         case 3:
-            mCapabilities->addShaderProfile("vs_3_0");
+            rsc->addShaderProfile("vs_3_0");
         case 2:
             if (vs2x)
-                mCapabilities->addShaderProfile("vs_2_x");
+                rsc->addShaderProfile("vs_2_x");
             if (vs2a)
-                mCapabilities->addShaderProfile("vs_2_a");
+                rsc->addShaderProfile("vs_2_a");
 
-            mCapabilities->addShaderProfile("vs_2_0");
+            rsc->addShaderProfile("vs_2_0");
         case 1:
-            mCapabilities->addShaderProfile("vs_1_1");
-            mCapabilities->setCapability(RSC_VERTEX_PROGRAM);
+            rsc->addShaderProfile("vs_1_1");
+            rsc->setCapability(RSC_VERTEX_PROGRAM);
         }
     }
     //---------------------------------------------------------------------
-    void D3D9RenderSystem::convertPixelShaderCaps(void)
+    void D3D9RenderSystem::convertPixelShaderCaps(RenderSystemCurrentCapabilities* rsc)
     {
         ushort major, minor;
         major = static_cast<ushort>((mCaps.PixelShaderVersion & 0x0000FF00) >> 8);
@@ -1027,69 +1034,69 @@ namespace Ogre
             switch(minor)
             {
             case 1:
-                mCapabilities->setMaxFragmentProgramVersion("ps_1_1");
+                rsc->setMaxFragmentProgramVersion("ps_1_1");
                 break;
             case 2:
-                mCapabilities->setMaxFragmentProgramVersion("ps_1_2");
+                rsc->setMaxFragmentProgramVersion("ps_1_2");
                 break;
             case 3:
-                mCapabilities->setMaxFragmentProgramVersion("ps_1_3");
+                rsc->setMaxFragmentProgramVersion("ps_1_3");
                 break;
             case 4:
-                mCapabilities->setMaxFragmentProgramVersion("ps_1_4");
+                rsc->setMaxFragmentProgramVersion("ps_1_4");
                 break;
             }
             // no boolean params allowed
-            mCapabilities->setFragmentProgramConstantBoolCount(0);
+            rsc->setFragmentProgramConstantBoolCount(0);
             // no integer params allowed
-            mCapabilities->setFragmentProgramConstantIntCount(0);
+            rsc->setFragmentProgramConstantIntCount(0);
             // float params, always 4D
             // NB in ps_1_x these are actually stored as fixed point values,
             // but they are entered as floats
-            mCapabilities->setFragmentProgramConstantFloatCount(8);
+            rsc->setFragmentProgramConstantFloatCount(8);
             break;
         case 2:
 			if (ps2a)
             {
-                mCapabilities->setMaxFragmentProgramVersion("ps_2_a");
+                rsc->setMaxFragmentProgramVersion("ps_2_a");
             }
 			else if (ps2b)
             {
-                mCapabilities->setMaxFragmentProgramVersion("ps_2_b");
+                rsc->setMaxFragmentProgramVersion("ps_2_b");
             }
 			else if (ps2x)
             {
-                mCapabilities->setMaxFragmentProgramVersion("ps_2_x");
+                rsc->setMaxFragmentProgramVersion("ps_2_x");
             }
             else
             {
-                mCapabilities->setMaxFragmentProgramVersion("ps_2_0");
+                rsc->setMaxFragmentProgramVersion("ps_2_0");
             }
             // 16 boolean params allowed
-            mCapabilities->setFragmentProgramConstantBoolCount(16);
+            rsc->setFragmentProgramConstantBoolCount(16);
             // 16 integer params allowed, 4D
-            mCapabilities->setFragmentProgramConstantIntCount(16);
+            rsc->setFragmentProgramConstantIntCount(16);
             // float params, always 4D
-            mCapabilities->setFragmentProgramConstantFloatCount(32);
+            rsc->setFragmentProgramConstantFloatCount(32);
             break;
         case 3:
             if (minor > 0)
             {
-                mCapabilities->setMaxFragmentProgramVersion("ps_3_x");
+                rsc->setMaxFragmentProgramVersion("ps_3_x");
             }
             else
             {
-                mCapabilities->setMaxFragmentProgramVersion("ps_3_0");
+                rsc->setMaxFragmentProgramVersion("ps_3_0");
             }
             // 16 boolean params allowed
-            mCapabilities->setFragmentProgramConstantBoolCount(16);
+            rsc->setFragmentProgramConstantBoolCount(16);
             // 16 integer params allowed, 4D
-            mCapabilities->setFragmentProgramConstantIntCount(16);
+            rsc->setFragmentProgramConstantIntCount(16);
             // float params, always 4D
-            mCapabilities->setFragmentProgramConstantFloatCount(224);
+            rsc->setFragmentProgramConstantFloatCount(224);
             break;
         default:
-            mCapabilities->setMaxFragmentProgramVersion(StringUtil::BLANK);
+            rsc->setMaxFragmentProgramVersion(StringUtil::BLANK);
             break;
         }
 
@@ -1098,28 +1105,28 @@ namespace Ogre
         {
         case 3:
             if (minor > 0)
-                mCapabilities->addShaderProfile("ps_3_x");
+                rsc->addShaderProfile("ps_3_x");
 
-            mCapabilities->addShaderProfile("ps_3_0");
+            rsc->addShaderProfile("ps_3_0");
         case 2:
             if (ps2x)
-                mCapabilities->addShaderProfile("ps_2_x");
+                rsc->addShaderProfile("ps_2_x");
             if (ps2a)
-                mCapabilities->addShaderProfile("ps_2_a");
+                rsc->addShaderProfile("ps_2_a");
             if (ps2b)
-                mCapabilities->addShaderProfile("ps_2_b");
+                rsc->addShaderProfile("ps_2_b");
 
-            mCapabilities->addShaderProfile("ps_2_0");
+            rsc->addShaderProfile("ps_2_0");
         case 1:
             if (major > 1 || minor >= 4)
-                mCapabilities->addShaderProfile("ps_1_4");
+                rsc->addShaderProfile("ps_1_4");
             if (major > 1 || minor >= 3)
-                mCapabilities->addShaderProfile("ps_1_3");
+                rsc->addShaderProfile("ps_1_3");
             if (major > 1 || minor >= 2)
-                mCapabilities->addShaderProfile("ps_1_2");
+                rsc->addShaderProfile("ps_1_2");
             
-            mCapabilities->addShaderProfile("ps_1_1");
-            mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
+            rsc->addShaderProfile("ps_1_1");
+            rsc->setCapability(RSC_FRAGMENT_PROGRAM);
         }
     }
 	//-----------------------------------------------------------------------
@@ -1154,8 +1161,15 @@ namespace Ogre
 
 		return anySupported;
 
-
 	}
+
+		//-----------------------------------------------------------------------
+		void D3D9RenderSystem::initialiseFromRenderSystemCurrentCapabilities(RenderSystemCurrentCapabilities* caps, RenderTarget* primary)
+		{
+				// make the render system use the given caps
+				mCurrentCapabilities = caps;
+		}
+
 	//-----------------------------------------------------------------------
     bool D3D9RenderSystem::_checkTextureFilteringSupported(TextureType ttype, PixelFormat format, int usage)
     {
@@ -1576,7 +1590,7 @@ namespace Ogre
 		__SetFloatRenderState(D3DRS_POINTSIZE, size);
 		__SetFloatRenderState(D3DRS_POINTSIZE_MIN, minSize);
 		if (maxSize == 0.0f)
-			maxSize = mCapabilities->getMaxPointSize();
+			maxSize = mCurrentCapabilities->getMaxPointSize();
 		__SetFloatRenderState(D3DRS_POINTSIZE_MAX, maxSize);
 
 
@@ -1722,7 +1736,7 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTextureMipmapBias(size_t unit, float bias)
 	{
-		if (mCapabilities->hasCapability(RSC_MIPMAP_LOD_BIAS))
+		if (mCurrentCapabilities->hasCapability(RSC_MIPMAP_LOD_BIAS))
 		{
 			// ugh - have to pass float data through DWORD with no conversion
 			HRESULT hr = __SetSamplerState(unit, D3DSAMP_MIPMAPLODBIAS, 
@@ -1989,7 +2003,7 @@ namespace Ogre
 		// Set manual factor if required
 		if (bm.source1 == LBS_MANUAL)
 		{
-			if (mPerStageConstantSupport)
+			if (mCurrentCapabilities->hasCapability(RSC_PERSTAGECONSTANT))
 			{
 				// Per-stage state
 				hr = __SetTextureStageState(stage, D3DTSS_CONSTANT, manualD3D);
@@ -2003,7 +2017,7 @@ namespace Ogre
 				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set manual factor", "D3D9RenderSystem::_setTextureBlendMode" );
 		}
 		// set source 1
-		hr = __SetTextureStageState( stage, tss, D3D9Mappings::get(bm.source1, mPerStageConstantSupport) );
+		hr = __SetTextureStageState( stage, tss, D3D9Mappings::get(bm.source1, mCurrentCapabilities->hasCapability(RSC_PERSTAGECONSTANT)) );
 		if (FAILED(hr))
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set source1", "D3D9RenderSystem::_setTextureBlendMode" );
 		
@@ -2025,7 +2039,7 @@ namespace Ogre
 		// Set manual factor if required
 		if (bm.source2 == LBS_MANUAL)
 		{
-			if (mPerStageConstantSupport)
+			if (mCurrentCapabilities->hasCapability(RSC_PERSTAGECONSTANT))
 			{
 				// Per-stage state
 				hr = __SetTextureStageState(stage, D3DTSS_CONSTANT, manualD3D);
@@ -2038,7 +2052,7 @@ namespace Ogre
 				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set manual factor", "D3D9RenderSystem::_setTextureBlendMode" );
 		}
 		// Now set source 2
-		hr = __SetTextureStageState( stage, tss, D3D9Mappings::get(bm.source2, mPerStageConstantSupport) );
+		hr = __SetTextureStageState( stage, tss, D3D9Mappings::get(bm.source2, mCurrentCapabilities->hasCapability(RSC_PERSTAGECONSTANT)) );
 		if (FAILED(hr))
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Failed to set source 2", "D3D9RenderSystem::_setTextureBlendMode" );
 
@@ -2270,7 +2284,7 @@ namespace Ogre
         // 2-sided operation
         if (twoSidedOperation)
         {
-            if (!mCapabilities->hasCapability(RSC_TWO_SIDED_STENCIL))
+            if (!mCurrentCapabilities->hasCapability(RSC_TWO_SIDED_STENCIL))
                 OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "2-sided stencils are not supported",
                     "D3D9RenderSystem::setStencilBufferParams");
             hr = __SetRenderState(D3DRS_TWOSIDEDSTENCILMODE, TRUE);
@@ -2448,7 +2462,7 @@ namespace Ogre
 				pDepth = _getDepthStencilFor(srfDesc.Format, srfDesc.MultiSampleType, srfDesc.Width, srfDesc.Height);
 			}
 			// Bind render targets
-			uint count = mCapabilities->numMultiRenderTargets();
+			uint count = mCurrentCapabilities->numMultiRenderTargets();
 			for(uint x=0; x<count; ++x)
 			{
 				hr = mpD3DDevice->SetRenderTarget(x, pBack[x]);
@@ -3019,7 +3033,7 @@ namespace Ogre
             flags |= D3DCLEAR_ZBUFFER;
         }
         // Only try to clear the stencil buffer if supported
-        if (buffers & FBT_STENCIL && mCapabilities->hasCapability(RSC_HWSTENCIL))
+        if (buffers & FBT_STENCIL && mCurrentCapabilities->hasCapability(RSC_HWSTENCIL))
         {
             flags |= D3DCLEAR_STENCIL;
         }

@@ -143,10 +143,14 @@ namespace Ogre
 
 
         /// Internal method for populating the capabilities structure
-        void initCapabilities(void);
+				void RenderSystemCapabilities* createRenderSystemCapabilities();
 
-        void convertVertexShaderCaps(void);
-        void convertPixelShaderCaps(void);
+				/** See RenderSystem definition */
+				virtual void initialiseFromRenderSystemCapabilities(RenderSystemCapabilities* caps, RenderTarget* primary);
+
+
+        void convertVertexShaderCaps(RenderSystemCapabilities* rsc);
+        void convertPixelShaderCaps(RenderSystemCapabilities* rsc);
 		bool checkVertexTextureFormats(void);
 
         unsigned short mCurrentLights;
@@ -297,7 +301,6 @@ namespace Ogre
           RenderSystem
          */
         void setClipPlanes(const PlaneList& clipPlanes);
-		void resetClipPlanes();
 
         void setScissorTest(bool enabled, size_t left = 0, size_t top = 0, size_t right = 800, size_t bottom = 600);
         void clearFrameBuffer(unsigned int buffers, 
