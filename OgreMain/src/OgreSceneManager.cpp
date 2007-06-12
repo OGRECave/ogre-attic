@@ -2657,17 +2657,12 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 			// deliberately unsigned in case start light exceeds number of lights
 			// in which case this pass would be skipped
 			int lightsLeft;
-			if (iteratePerLight)
+			lightsLeft = static_cast<int>(rendLightList.size()) - pass->getStartLight();
+			// Don't allow total light count for all iterations to exceed max per pass
+			if (lightsLeft > static_cast<int>(pass->getMaxSimultaneousLights()))
 			{
-				lightsLeft = static_cast<int>(rendLightList.size()) - pass->getStartLight();
-				// Don't allow total light count for all iterations to exceed max per pass
-				if (lightsLeft > static_cast<int>(pass->getMaxSimultaneousLights()))
-				{
-					lightsLeft = static_cast<int>(pass->getMaxSimultaneousLights());
-				}
+				lightsLeft = static_cast<int>(pass->getMaxSimultaneousLights());
 			}
-			else
-				lightsLeft = 1; // just to make sure we render once, number irrelevant
 
 
 			const LightList* pLightListToUse;
@@ -2737,7 +2732,7 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 				else
 				{
 					// Use complete light list potentially adjusted by start light
-					if (pass->getStartLight())
+					if (pass->getStartLight() || pass->getMaxSimultaneousLights() != OGRE_MAX_SIMULTANEOUS_LIGHTS)
 					{
 						// out of lights?
 						if (pass->getStartLight() >= rendLightList.size())
@@ -2750,8 +2745,10 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 							localLightList.clear();
 							LightList::const_iterator copyStart = rendLightList.begin();
 							std::advance(copyStart, pass->getStartLight());
+							LightList::const_iterator copyEnd = copyStart;
+							std::advance(copyEnd, pass->getMaxSimultaneousLights());
 							localLightList.insert(localLightList.begin(), 
-								copyStart, rendLightList.end());
+								copyStart, copyEnd);
 							pLightListToUse = &localLightList;
 						}
 					}
