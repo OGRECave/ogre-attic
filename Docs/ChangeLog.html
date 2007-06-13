@@ -309,6 +309,43 @@ Rendering Engine)</p>
 
 
 
+<p class="mainheader" align="left">v1.4.2 [Eihort] (10 June 2007) - Maintenance Release</p>
+<ul>
+	<li>GL:
+	<ul>
+		<li>Restore old GL context instead of setting it to null during initialisation and context cloning, helps with systems managing their own contexts</li>
+		<li>When uploading from scratch to real buffer, should only discard whole buffer if the entire buffer was locked.</li>
+		<li>Scratch buffer optimisations temporarily disabled in Linux and OSX since they appear to still be having issues with them, Win32 is fine.</li>
+		<li>Support arrays of sampler uniforms in GLSL</li>
+	</ul>
+	</li>
+	<li>D3D9: Use D3DPOOL_SYSTEMMEM for temp surface when going down the GetRenderTargetData path since that's a requirement and complained on some drivers. </li>
+	<li>Fix a versioning issue on Linux, bumpversion script was missing AM_INIT_AUTOMAKE due to typo</li>
+	<li>Fix texture clamping on non-integrated custom shadow receiver materials</li>
+	<li>Fix Vector3::perpendicular for base vectors near UNIT_X</li>
+	<li>Rewrite Frustum::projectSphere so it is more accurate, now correctly solves quadratic instead of using inaccurate shortcut.</li>
+	<li>Fix bug in XML converter when reading poses that used 'mesh' as a target</li>
+	<li>Fix MaterialSerializer exporting of mipmap count</li>
+	<li>XML mesh conversion now handles incorrect XML vertex/face count cleanly instead of overrunning</li>
+	<li>Fix multiple index buffer locking bugs in StaticGeometry and InstancedGeometry, was causing underrun buffer corruptions in GL</li>
+	<li>Cope cleanly with GpuProgramParameters::mNamedConstants not having been initialised, mostly likely because of a compile error</li>
+	<li>Add the ability to switch between fullscreen mode and windowed mode on the fly, and to switch fullscreen modes, without recreating a window. Windows only implementation for the moment, still waiting for GLX and OSX versions.</li>
+	<li>Fix off-by-one error when writing a GLX window contents to disk, had already been fixed in Win32Window.</li>
+	<li>Fix some light_direction_object/view_space GPU parameters. Should make sure we extract 3x3 matrix to avoid accidentally factoring in translations. Also standardise the
+	_array versions of the same.</li>
+	<li>Support up to 16 textures properly in programmable pipeline, instead of maxing out at fixed-function limits.</li>
+	<li>Fix a crash caused by a Resource being created during bulk-loading of a resource group, with a different group (e.g. the autodetect group).</li>
+	<li>Water materials that use scene_blend should have depth_write off</li>
+	<li>Compositor fixes:
+		<ul>
+			<li>Detect when visibility mask is varied on the viewport for the implied 'original scene' and recompile</li>
+			<li>Assign the new values of vis mask and background settings to the compositor to stop repeated compilations after one change detected</li>
+			<li>Fix compositor demo closing when you ALT-TAB away from it</li>
+		</ul>
+	</li>
+	<li>Fix use of GPU parameters in SceneManager::manualRender</li>
+</ul>
+		
 
 
 

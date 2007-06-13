@@ -401,7 +401,7 @@ LGPL like the rest of the engine.
 	mMouse->capture();
 	mKeyboard->capture();
 
-	if( mMain->getRenderWindow()->isActive() == false )
+	if( mMain->getRenderWindow()->isClosed() )
 		return false;
 
         if (mQuit)
@@ -462,6 +462,9 @@ LGPL like the rest of the engine.
             mQuit = true;
             return false;
         }
+
+		if (e.key == OIS::KC_V)
+			mMain->getRenderWindow()->getViewport(0)->setBackgroundColour(Ogre::ColourValue(0,1,0));
 
         if (e.key == OIS::KC_SYSRQ )
         {
