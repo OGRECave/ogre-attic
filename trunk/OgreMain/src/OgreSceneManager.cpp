@@ -2700,12 +2700,15 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 
 			// deliberately unsigned in case start light exceeds number of lights
 			// in which case this pass would be skipped
-			int lightsLeft;
-			lightsLeft = static_cast<int>(rendLightList.size()) - pass->getStartLight();
-			// Don't allow total light count for all iterations to exceed max per pass
-			if (lightsLeft > static_cast<int>(pass->getMaxSimultaneousLights()))
+			int lightsLeft = 1;
+			if (iteratePerLight)
 			{
-				lightsLeft = static_cast<int>(pass->getMaxSimultaneousLights());
+				lightsLeft = static_cast<int>(rendLightList.size()) - pass->getStartLight();
+				// Don't allow total light count for all iterations to exceed max per pass
+				if (lightsLeft > static_cast<int>(pass->getMaxSimultaneousLights()))
+				{
+					lightsLeft = static_cast<int>(pass->getMaxSimultaneousLights());
+				}
 			}
 
 
