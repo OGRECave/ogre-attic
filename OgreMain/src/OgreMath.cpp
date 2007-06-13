@@ -815,36 +815,22 @@ namespace Ogre
         const Vector3& min = box.getMinimum();
         const Vector3& max = box.getMaximum();
 
-        // just test facing planes, early fail if sphere is totally outside
-        if (min.x - center.x > radius)
-        {
-            return false;
-        }
-        if (center.x - max.x > radius)
-        {
-            return false;
-        }
-
-        if (min.y - center.y > radius)
-        {
-            return false;
-        }
-        if (center.y - max.y > radius)
-        {
-            return false;
-        }
-
-        if (min.z - center.z > radius)
-        {
-            return false;
-        }
-        if (center.z - max.z > radius)
-        {
-            return false;
-        }
-
-        // Must intersect
-        return true;
+		// Arvo's algorithm
+		Real s, d = 0;
+		for (int i = 0; i < 3; ++i)
+		{
+			if (center.ptr()[i] < min.ptr()[i])
+			{
+				s = center.ptr()[i] - min.ptr()[i];
+				d += s * s; 
+			}
+			else if(center.ptr()[i] > max.ptr()[i])
+			{
+				s = center.ptr()[i] - max.ptr()[i];
+				d += s * s; 
+			}
+		}
+		return d <= radius * radius;
 
     }
     //-----------------------------------------------------------------------
@@ -856,7 +842,7 @@ namespace Ogre
     bool Math::intersects(const Sphere& sphere, const Plane& plane)
     {
         return (
-            Math::Abs(plane.normal.dotProduct(sphere.getCenter()))
+            Math::Abs(plane.getDistance(sphere.getCenter()))
             <= sphere.getRadius() );
     }
     //-----------------------------------------------------------------------
