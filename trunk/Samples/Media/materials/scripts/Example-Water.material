@@ -6,6 +6,7 @@ material Examples/Water0
 		pass
 		{
 			scene_blend colour_blend
+			depth_write off
 
 			texture_unit
 			{
@@ -23,6 +24,7 @@ material Examples/Water1
 		pass
 		{
 			scene_blend colour_blend
+			depth_write off
 
 			texture_unit
 			{
@@ -46,6 +48,7 @@ material Examples/Water2
 		pass
 		{
 			scene_blend colour_blend
+			depth_write off
 
 			texture_unit
 			{
@@ -62,6 +65,7 @@ material Examples/Water3
 		pass
 		{
 			scene_blend colour_blend
+			depth_write off
 
 			texture_unit
 			{
@@ -164,6 +168,7 @@ material Examples/Water8
 		{
 			lighting off
 			scene_blend add
+			depth_write off
 			cull_hardware none
 			cull_software none
 
