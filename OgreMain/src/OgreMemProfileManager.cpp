@@ -26,12 +26,29 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
+
 #include "OgreStableHeaders.h"
 #include "OgreMemProfileManager.h"
 #include "OgreLogManager.h"
 #include <iostream>
 
 namespace Ogre{
+
+    template<> MemProfileManager* Singleton<MemProfileManager>::ms_Singleton = 0;
+
+    MemProfileManager* MemProfileManager::getSingletonPtr(void)
+    {
+        return ms_Singleton;
+    }
+
+    MemProfileManager& MemProfileManager::getSingleton(void)
+    {
+        assert( ms_Singleton );  return ( *ms_Singleton );
+    }
+
+    MemProfileManager::~MemProfileManager()
+    { }
+
 
     MemProfileManager::MemProfileManager()
     {

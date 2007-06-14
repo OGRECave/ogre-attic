@@ -71,6 +71,7 @@ namespace Ogre
         bool mFirstTimePostWindowInit;
 
         // Singletons
+	MemProfileManager* mMemProfileManager;
         LogManager* mLogManager;
         ControllerManager* mControllerManager;
         SceneManagerEnumerator* mSceneManagerEnum;

@@ -43,13 +43,13 @@ namespace Ogre{
     * all registered profiles and builds an information report
     * see OgreMemProfiler.h
     */
-    class MemProfileManager // : public <Singleton>
+    class _OgreExport MemProfileManager : public Singleton<MemProfileManager>
     {
     public:
         explicit MemProfileManager();
 
-        virtual ~MemProfileManager()
-        {}
+        //virtual
+        ~MemProfileManager();
 
         /**
         * Register a memory profile with the manager
@@ -63,6 +63,39 @@ namespace Ogre{
         * profile information.
         */
         void update();
+
+    /** Override standard Singleton retrieval.
+        @remarks
+        Why do we do this? Well, it's because the Singleton
+        implementation is in a .h file, which means it gets compiled
+        into anybody who includes it. This is needed for the
+        Singleton template to work, but we actually only want it
+        compiled into the implementation of the class based on the
+        Singleton, not all of them. If we don't change this, we get
+        link errors when trying to use the Singleton-based class from
+        an outside dll.
+        @par
+        This method just delegates to the template version anyway,
+        but the implementation stays in this single compilation unit,
+        preventing link errors.
+        */
+        static MemProfileManager& getSingleton(void);
+        /** Override standard Singleton retrieval.
+        @remarks
+        Why do we do this? Well, it's because the Singleton
+        implementation is in a .h file, which means it gets compiled
+        into anybody who includes it. This is needed for the
+        Singleton template to work, but we actually only want it
+        compiled into the implementation of the class based on the
+        Singleton, not all of them. If we don't change this, we get
+        link errors when trying to use the Singleton-based class from
+        an outside dll.
+        @par
+        This method just delegates to the template version anyway,
+        but the implementation stays in this single compilation unit,
+        preventing link errors.
+        */
+        static MemProfileManager* getSingletonPtr(void);
 
     protected:
         /// used to hold a profile and pair it with a stats packet

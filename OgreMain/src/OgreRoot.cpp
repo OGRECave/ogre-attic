@@ -31,6 +31,7 @@ Torus Knot Software Ltd.
 
 #include "OgreRoot.h"
 
+#include "OgreMemProfileManager.h"
 #include "OgreRenderSystem.h"
 #include "OgreRenderWindow.h"
 #include "OgreException.h"
@@ -128,6 +129,9 @@ namespace Ogre {
 			mLogManager = new LogManager();
 			mLogManager->createLog(logFileName, true, true);
 		}
+
+	// now create the custom allocator memory manager
+	mMemProfileManager = new MemProfileManager();
 
         // Dynamic library manager
         mDynLibManager = new DynLibManager();
@@ -296,6 +300,9 @@ namespace Ogre {
 
 
         StringInterface::cleanupDictionary ();
+
+	// clean up the profiler, last posible moment so we catch all info
+	delete mMemProfileManager;
     }
 
     //-----------------------------------------------------------------------
