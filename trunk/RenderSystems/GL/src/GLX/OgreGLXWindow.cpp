@@ -35,6 +35,7 @@ Torus Knot Software Ltd.
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
 #include "OgreGLXUtils.h"
+#include "OgreGLPixelFormat.h"
 #include "OgreWindowEventUtilities.h"
 
 #include <iostream>
@@ -570,3 +571,5 @@ void GLXWindow::copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer)
 		delete [] tmpData;
 	}
  }
+
+}
