@@ -33,6 +33,7 @@ Torus Knot Software Ltd.
 #include <cstddef>
 #include <iostream>
 
+#include "OgreMemProfileManager.h"
 #include "OgreMemProfilerBase.h"
 
 namespace Ogre{
@@ -64,7 +65,10 @@ namespace Ogre{
 
     public:
         explicit inline MemProfiler()
-        { }
+        {
+            //register with the profile manager
+            MemProfileManager::getSingleton().registerProfile(*this);
+        }
 
         inline ~MemProfiler()
         { }

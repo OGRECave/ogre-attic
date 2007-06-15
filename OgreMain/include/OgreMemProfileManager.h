@@ -30,6 +30,8 @@ Torus Knot Software Ltd.
 #ifndef MEMPROFILEMANAGER_H
 #define MEMPROFILEMANAGER_H
 
+#include "OgrePrerequisites.h"
+
 #include "OgreSingleton.h"
 #include "OgreMemProfilerBase.h"
 #include <vector>
@@ -63,6 +65,19 @@ namespace Ogre{
         * profile information.
         */
         void update();
+
+        /**
+        * flush the stats to our log file, this records the
+        * stats for all allocations since the last call to flush
+        * this collection of stats is reffered to as a section. The
+        * section stats are zeroed after flushin, note that this
+        * will not zero the global stats that hold details on all
+        * allocations within the liftime of the memory system.
+        *
+        * @param message a message that will appear in the stats log
+        * to identify the section.
+        */
+        void flush(String const& message);
 
     /** Override standard Singleton retrieval.
         @remarks
@@ -108,9 +123,12 @@ namespace Ogre{
         // prfile array type
         typedef std::vector<Profile> ProfileArray;
 
-        ProfileArray                mProfArray;   // registered profiles
-        MemProfilerBase::MemStats   mGlobalStats; // global stats
-        Log*                        mReportLog;   // log for holding the profile info
+        uint32                      mNumUpdates;        // tottal number of updates
+        uint32                      mNumSectionUpdates; // number of updates since last flush
+        ProfileArray                mProfArray;         // registered profiles
+        MemProfilerBase::MemStats   mSectionStats;      // section stats
+        MemProfilerBase::MemStats   mGlobalStats;       // global stats
+        Log*                        mReportLog;         // log for holding the profile info
 
     private:
     };

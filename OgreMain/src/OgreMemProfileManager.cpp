@@ -30,7 +30,8 @@ Torus Knot Software Ltd.
 #include "OgreStableHeaders.h"
 #include "OgreMemProfileManager.h"
 #include "OgreLogManager.h"
-#include <iostream>
+#include <sstream>
+
 
 namespace Ogre{
 
@@ -51,12 +52,17 @@ namespace Ogre{
 
 
     MemProfileManager::MemProfileManager()
+    : mNumUpdates(0)
+    , mNumSectionUpdates(0)
     {
         // reserve some memory ahead of time
         mProfArray.reserve( 10 );
-
         // setup our log file
-        mReportLog = LogManager::getSingleton().createLog("MemoryReport.log");
+        mReportLog = LogManager::getSingleton().createLog("OgreMemoryReport.log");
+
+        // init stats
+        memset( &( mGlobalStats  ), 0, sizeof( MemProfilerBase::MemStats ) );
+        memset( &( mSectionStats ), 0, sizeof( MemProfilerBase::MemStats ) );
     }
 
     void MemProfileManager::registerProfile( MemProfilerBase& profile )
@@ -64,8 +70,6 @@ namespace Ogre{
         Profile prof;
         memset( &( prof.mStats ), 0, sizeof( MemProfilerBase::MemStats ) );
         mProfArray.push_back( prof ); // add the profile
-
-        //std::cout << "PROBE: added profile" << std::endl;
     }
 
     void MemProfileManager::update()
@@ -82,17 +86,57 @@ namespace Ogre{
             tmpStats = ( *iter ).mProfile->flush();
 
             // update local stats package
-            ( *iter ).mStats.numAllocations += tmpStats.numAllocations;
-            ( *iter ).mStats.numBytesAllocated += tmpStats.numBytesAllocated;
-            ( *iter ).mStats.numDeallocations += tmpStats.numDeallocations;
+            ( *iter ).mStats.numAllocations      += tmpStats.numAllocations;
+            ( *iter ).mStats.numBytesAllocated   += tmpStats.numBytesAllocated;
+            ( *iter ).mStats.numDeallocations    += tmpStats.numDeallocations;
             ( *iter ).mStats.numBytesDeallocated += tmpStats.numBytesDeallocated;
 
+            // update section stats
+            mSectionStats.numAllocations      += tmpStats.numAllocations;
+            mSectionStats.numBytesAllocated   += tmpStats.numBytesAllocated;
+            mSectionStats.numDeallocations    += tmpStats.numDeallocations;
+            mSectionStats.numBytesDeallocated += tmpStats.numBytesDeallocated;
+
             // update global stats packet
-            mGlobalStats.numAllocations += tmpStats.numAllocations;
-            mGlobalStats.numBytesAllocated += tmpStats.numBytesAllocated;
-            mGlobalStats.numDeallocations += tmpStats.numDeallocations;
+            mGlobalStats.numAllocations      += tmpStats.numAllocations;
+            mGlobalStats.numBytesAllocated   += tmpStats.numBytesAllocated;
+            mGlobalStats.numDeallocations    += tmpStats.numDeallocations;
             mGlobalStats.numBytesDeallocated += tmpStats.numBytesDeallocated;
         }
+        ++mNumUpdates;
+        ++mNumSectionUpdates;
+    }
+
+    void MemProfileManager::flush(String const& message)
+    {
+        // log the info
+        std::stringstream builder;
+
+        builder << "---------------------------------------------------------\n";
+        builder << "Section Flush: " << message << "\n";
+        builder << "---------------------------------------------------------\n";
+        builder << "Memory Profile Over " << mNumSectionUpdates << " updates\n";
+        builder << "Num Allocations               :\t"  << mSectionStats.numAllocations << "\n";
+        builder << "Num Bytes Allocated           :\t"  << mSectionStats.numBytesAllocated << "\n";
+        builder << "Num Deallocations             :\t"  << mSectionStats.numDeallocations << "\n";
+        builder << "Num Bytes Deallocations       :\t"  << mSectionStats.numBytesDeallocated << "\n";
+        builder << "Average Allocations per Update:\t" <<
+            (mSectionStats.numAllocations/static_cast<float>(mNumUpdates)) << "\n";
+        builder << "Average Bytes per Allocation  :\t" <<
+            (mSectionStats.numBytesAllocated/static_cast<float>(mSectionStats.numAllocations)) << "\n";
+        builder << "Outstanding Allocations       :\t" <<
+            (mSectionStats.numAllocations-mSectionStats.numDeallocations) <<
+            " ( " << (mSectionStats.numBytesAllocated-mSectionStats.numBytesDeallocated) <<
+            " bytes ) \n";
+        builder << "---------------------------------------------------------";
+        mReportLog->logMessage(builder.str());
+
+        // zero the counters
+        mSectionStats.numAllocations      = 0;
+        mSectionStats.numBytesAllocated   = 0;
+        mSectionStats.numDeallocations    = 0;
+        mSectionStats.numBytesDeallocated = 0;
+        mNumSectionUpdates                = 0;
     }
 
 }
