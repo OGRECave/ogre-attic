@@ -157,9 +157,10 @@ namespace Ogre {
 			are cleaned up aggressively, this name is not guaranteed to stay the
 			same if you disable and renable the compositor instance.
 		@param name The name of the texture in the original compositor definition
+		@param mrtIndex If name identifies a MRT, which texture attachment to retrieve
 		@returns The instance name for the texture, corresponds to a real texture
 		*/
-		const String& getTextureInstanceName(const String& name);
+		const String& getTextureInstanceName(const String& name, size_t mrtIndex);
 
        
         /** Recursively collect target states (except for final Pass).
@@ -215,6 +216,9 @@ namespace Ogre {
         /// Map from name->local texture
         typedef std::map<String,TexturePtr> LocalTextureMap;
         LocalTextureMap mLocalTextures;
+		/// Store a list of MRTs we've created
+		typedef std::map<String,MultiRenderTarget*> LocalMRTMap;
+		LocalMRTMap mLocalMRTs;
 
 		/// Vector of listeners
 		typedef std::vector<Listener*> Listeners;
@@ -247,13 +251,18 @@ namespace Ogre {
         RenderTarget *getTargetForTex(const String &name);
         
         /** Get source texture name for a named local texture.
+		@param name The local name of the texture as given to it in the compositor
+		@param mrtIndex For MRTs, which attached surface to retrieve
         */
-        const String &getSourceForTex(const String &name);
+        const String &getSourceForTex(const String &name, size_t mrtIndex = 0);
 
 		/** Queue a render system operation.
 			@returns destination pass
 		 */
 		void queueRenderSystemOp(TargetOperation &finalState, RenderSystemOperation *op);
+
+		/// Util method for assigning a local texture name to a MRT attachment
+		String getMRTTexLocalName(const String& baseName, size_t attachment);
         
         friend class CompositorChain;
     };

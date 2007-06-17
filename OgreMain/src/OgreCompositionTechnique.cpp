@@ -33,6 +33,8 @@ Torus Knot Software Ltd.
 #include "OgreCompositorChain.h"
 #include "OgreCompositionPass.h"
 #include "OgreTextureManager.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
 
 namespace Ogre {
 
@@ -186,22 +188,34 @@ bool CompositionTechnique::isSupported(bool acceptTextureDegradation)
     {
 		TextureDefinition* td = *i;
 
-		// Check whether equivalent supported
-		if(acceptTextureDegradation)
+		// Firstly check MRTs
+		if (td->formatList.size() > 
+			Root::getSingleton().getRenderSystem()->getCapabilities()->numMultiRenderTargets())
 		{
-			// Don't care about exact format so long as something is supported
-			if(texMgr.getNativeFormat(TEX_TYPE_2D, td->format, TU_RENDERTARGET) == PF_UNKNOWN)
-			{
-				return false;
-			}
+			return false;
 		}
-		else
+
+
+		for (PixelFormatList::iterator pfi = td->formatList.begin(); pfi != td->formatList.end(); ++pfi)
 		{
-			// Need a format which is the same number of bits to pass
-			if (!texMgr.isEquivalentFormatSupported(TEX_TYPE_2D, td->format, TU_RENDERTARGET))
+
+			// Check whether equivalent supported
+			if(acceptTextureDegradation)
 			{
-				return false;
-			}	
+				// Don't care about exact format so long as something is supported
+				if(texMgr.getNativeFormat(TEX_TYPE_2D, *pfi, TU_RENDERTARGET) == PF_UNKNOWN)
+				{
+					return false;
+				}
+			}
+			else
+			{
+				// Need a format which is the same number of bits to pass
+				if (!texMgr.isEquivalentFormatSupported(TEX_TYPE_2D, *pfi, TU_RENDERTARGET))
+				{
+					return false;
+				}	
+			}
 		}
 	}
 	

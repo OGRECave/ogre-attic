@@ -96,7 +96,7 @@ Techniques can have the following nested elements:
 This declares a render texture for use in subsequent @ref{Compositor Target Passes,target passes}.
 
 @*@*
-Format: texture <Name> <Width> <Height> <Pixel Format>@*@*
+Format: texture <Name> <Width> <Height> <Pixel Format> [<MRT Pixel Format2>] [<MRT Pixel FormatN>]@*@*
 
 Here is a description of the parameters:
 @table @asis
@@ -110,6 +110,8 @@ The pixel format of the render texture. This affects how much memory it will tak
 
 Example: texture rt0 512 512 PF_R8G8B8A8@*
 Example: texture rt1 target_width target_height PF_FLOAT32_RGB@*@*
+
+You can in fact repeat this element if you wish. If you do so, that means that this render texture becomes a Multiple Render Target (MRT), when the GPU writes to multiple textures at once. It is imperative that if you use MRT that the shaders that render to it render to ALL the targets. Not doing so can cause undefined results. It is also important to note that although you can use different pixel formats for each target in a MRT, each one should have the same total bit depth since most cards do not support independent bit depths. If you try to use this feature on cards that do not support the number of MRTs you've asked for, the technique will be skipped (so you ought to write a fallback technique).
 
 @node Compositor Target Passes
 @subsection Target Passes
@@ -222,12 +224,14 @@ Format: material <Name>@*@*
 @anchor{compositor_pass_input}
 @subheading input
 For passes of type 'render_quad', this is how you map one or more local render textures (@xref{compositor_texture}) into the material you're using to render the fullscreen quad. To bind more than one texture, repeat this attribute with different sampler indexes.@*@*
-Format: input <sampler> <Name>@*@*
+Format: input <sampler> <Name> [<MRTIndex>]@*@*
 @table @asis
 @item sampler
 The texture sampler to set, must be a number in the range [0, OGRE_MAX_TEXTURE_LAYERS-1].
 @item Name
 The name of the local render texture to bind, as declared in @ref{compositor_texture} and rendered to in one or more @ref{Compositor Target Passes,target pass}.
+@item MRTIndex
+If the local texture that you're referencing is a Multiple Render Target (MRT), this identifies the surface from the MRT that you wish to reference (0 is the first surface, 1 the second etc).
 @end table
 Example: input 0 rt0
 

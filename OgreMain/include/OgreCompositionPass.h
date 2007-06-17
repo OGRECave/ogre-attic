@@ -200,18 +200,31 @@ namespace Ogre {
 		*/
 		bool getStencilTwoSidedOperation();
 
+		/// Inputs (for material used for rendering the quad)
+		struct InputTex
+		{
+			/// Name (local) of the input texture (empty == no input)
+			String name;
+			/// MRT surface index if applicable
+			size_t mrtIndex;
+			InputTex() : name(StringUtil::BLANK), mrtIndex(0) {}
+			InputTex(const String& _name, size_t _mrtIndex = 0)
+				: name(_name), mrtIndex(_mrtIndex) {}
+		};
+
         /** Set an input local texture. An empty string clears the input.
             @param id    Input to set. Must be in 0..OGRE_MAX_TEXTURE_LAYERS-1
             @param input Which texture to bind to this input. An empty string clears the input.
+			@param mrtIndex Which surface of an MRT to retrieve
 			@note applies when PassType is RENDERQUAD 
         */
-        void setInput(size_t id, const String &input="");
+        void setInput(size_t id, const String &input=StringUtil::BLANK, size_t mrtIndex=0);
         
         /** Get the value of an input.
             @param id    Input to get. Must be in 0..OGRE_MAX_TEXTURE_LAYERS-1.
 			@note applies when PassType is RENDERQUAD 
         */
-        const String &getInput(size_t id);
+        const InputTex &getInput(size_t id);
         
         /** Get the number of inputs used.
 			@note applies when PassType is RENDERQUAD 
@@ -254,7 +267,7 @@ namespace Ogre {
 		uint32 mClearStencil;
         /// Inputs (for material used for rendering the quad)
         /// An empty string signifies that no input is used
-        String mInputs[OGRE_MAX_TEXTURE_LAYERS];
+        InputTex mInputs[OGRE_MAX_TEXTURE_LAYERS];
 		/// Stencil operation parameters
 		bool mStencilCheck;
 		CompareFunction mStencilFunc; 

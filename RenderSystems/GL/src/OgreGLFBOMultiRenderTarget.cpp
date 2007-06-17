@@ -46,7 +46,7 @@ namespace Ogre {
 	}
 
 
-	void GLFBOMultiRenderTarget::bindSurface(size_t attachment, RenderTexture *target)
+	void GLFBOMultiRenderTarget::bindSurfaceImpl(size_t attachment, RenderTexture *target)
 
 	{
 
@@ -72,7 +72,7 @@ namespace Ogre {
 
 
 
-	void GLFBOMultiRenderTarget::unbindSurface(size_t attachment)
+	void GLFBOMultiRenderTarget::unbindSurfaceImpl(size_t attachment)
 	{
 		fbo.unbindSurface(attachment);
 

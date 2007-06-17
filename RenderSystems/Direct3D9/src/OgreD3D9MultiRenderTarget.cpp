@@ -50,7 +50,7 @@ namespace Ogre
 	{
 	}
 
-	void D3D9MultiRenderTarget::bindSurface(size_t attachment, RenderTexture *target)
+	void D3D9MultiRenderTarget::bindSurfaceImpl(size_t attachment, RenderTexture *target)
 	{
 		assert(attachment<OGRE_MAX_MULTIPLE_RENDER_TARGETS);
 		/// Get buffer and surface to bind to
@@ -82,7 +82,7 @@ namespace Ogre
 		checkAndUpdate();
 	}
 
-	void D3D9MultiRenderTarget::unbindSurface(size_t attachment)
+	void D3D9MultiRenderTarget::unbindSurfaceImpl(size_t attachment)
 	{
 		assert(attachment<OGRE_MAX_MULTIPLE_RENDER_TARGETS);
 		targets[attachment] = 0;
