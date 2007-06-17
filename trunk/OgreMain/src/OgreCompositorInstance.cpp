@@ -44,6 +44,8 @@ Torus Knot Software Ltd.
 #include "OgreException.h"
 #include "OgreHardwarePixelBuffer.h"
 #include "OgreCamera.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
 
 namespace Ogre {
 CompositorInstance::CompositorInstance(Compositor *filter, CompositionTechnique *technique,
@@ -251,12 +253,12 @@ void CompositorInstance::collectPasses(TargetOperation &finalState, CompositionT
 				/// Set up inputs
 				for(size_t x=0; x<pass->getNumInputs(); ++x)
 				{
-					String inp = pass->getInput(x);
-					if(!inp.empty())
+					const CompositionPass::InputTex& inp = pass->getInput(x);
+					if(!inp.name.empty())
 					{
 						if(x < targetpass->getNumTextureUnitStates())
 						{
-							targetpass->getTextureUnitState((ushort)x)->setTextureName(getSourceForTex(inp));
+							targetpass->getTextureUnitState((ushort)x)->setTextureName(getSourceForTex(inp.name, inp.mrtIndex));
 						} 
 						else
 						{
@@ -339,9 +341,10 @@ CompositorChain *CompositorInstance::getChain()
 	return mChain;
 }
 //-----------------------------------------------------------------------
-const String& CompositorInstance::getTextureInstanceName(const String& name)
+const String& CompositorInstance::getTextureInstanceName(const String& name, 
+														 size_t mrtIndex)
 {
-	return getSourceForTex(name);
+	return getSourceForTex(name, mrtIndex);
 }
 //-----------------------------------------------------------------------
 MaterialPtr CompositorInstance::createLocalMaterial()
@@ -382,16 +385,51 @@ static size_t dummyCounter = 0;
         if(height == 0)
             height = mChain->getViewport()->getActualHeight();
         /// Make the tetxure
-        TexturePtr tex = TextureManager::getSingleton().createManual(
-            "CompositorInstanceTexture"+StringConverter::toString(dummyCounter), 
-            ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
-            (uint)width, (uint)height, 0, def->format, TU_RENDERTARGET );    
-        ++dummyCounter;
-        mLocalTextures[def->name] = tex;
+		RenderTarget* rendTarget;
+		if (def->formatList.size() > 1)
+		{
+			String MRTbaseName = "CompositorInstanceMRT" + StringConverter::toString(dummyCounter++);
+			MultiRenderTarget* mrt = 
+				Root::getSingleton().getRenderSystem()->createMultiRenderTarget(MRTbaseName);
+			mLocalMRTs[def->name] = mrt;
+
+			// create and bind individual surfaces
+			size_t atch = 0;
+			for (PixelFormatList::iterator p = def->formatList.begin(); 
+				p != def->formatList.end(); ++p, ++atch)
+			{
+
+				TexturePtr tex = TextureManager::getSingleton().createManual(
+					MRTbaseName + "/" + StringConverter::toString(atch),
+					ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
+					(uint)width, (uint)height, 0, *p, TU_RENDERTARGET ); 
+				
+				RenderTexture* rt = tex->getBuffer()->getRenderTarget();
+				rt->setAutoUpdated(false);
+				mrt->bindSurface(atch, rt);
+
+				// Also add to local textures so we can look up
+				String mrtLocalName = getMRTTexLocalName(def->name, atch);
+				mLocalTextures[mrtLocalName] = tex;
+				
+			}
+
+			rendTarget = mrt;
+		}
+		else
+		{
+			TexturePtr tex = TextureManager::getSingleton().createManual(
+				"CompositorInstanceTexture"+StringConverter::toString(dummyCounter++), 
+				ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
+				(uint)width, (uint)height, 0, def->formatList[0], TU_RENDERTARGET ); 
+
+			rendTarget = tex->getBuffer()->getRenderTarget();
+			mLocalTextures[def->name] = tex;
+		}
+        
         
         /// Set up viewport over entire texture
-        RenderTexture *rtt = tex->getBuffer()->getRenderTarget();
-        rtt->setAutoUpdated( false );
+        rendTarget->setAutoUpdated( false );
 
         Camera* camera = mChain->getViewport()->getCamera();
 
@@ -399,7 +437,7 @@ static size_t dummyCounter = 0;
         Viewport* oldViewport = camera->getViewport();
         Real aspectRatio = camera->getAspectRatio();
 
-        Viewport* v = rtt->addViewport( camera );
+        Viewport* v = rendTarget->addViewport( camera );
         v->setClearEveryFrame( false );
         v->setOverlaysEnabled( false );
         v->setBackgroundColour( ColourValue( 0, 0, 0, 0 ) );
@@ -413,6 +451,11 @@ static size_t dummyCounter = 0;
     }
     
 }
+//---------------------------------------------------------------------
+String CompositorInstance::getMRTTexLocalName(const String& baseName, size_t attachment)
+{
+	return baseName + "/" + StringConverter::toString(attachment);
+}
 //-----------------------------------------------------------------------
 void CompositorInstance::freeResources()
 {
@@ -424,26 +467,52 @@ void CompositorInstance::freeResources()
         TextureManager::getSingleton().remove(i->second->getName());
     }
     mLocalTextures.clear();
+
+	// Remove MRTs
+	LocalMRTMap::iterator mrti, mrtend = mLocalMRTs.end();
+	for (mrti = mLocalMRTs.begin(); mrti != mrtend; ++mrti)
+	{
+		// remove MRT
+		Root::getSingleton().getRenderSystem()->destroyRenderTarget(mrti->second->getName());
+	}
+	mLocalMRTs.clear();
 }
 //-----------------------------------------------------------------------
 RenderTarget *CompositorInstance::getTargetForTex(const String &name)
 {
-    LocalTextureMap::iterator i = mLocalTextures.find(name);
-    if(i == mLocalTextures.end())
-    {
-        OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Non-existent local texture name", "CompositorInstance::getTargetForTex");
-    }
-    return i->second->getBuffer()->getRenderTarget();
+	// try simple texture
+	LocalTextureMap::iterator i = mLocalTextures.find(name);
+    if(i != mLocalTextures.end())
+		return i->second->getBuffer()->getRenderTarget();
+
+	// try MRTs
+	LocalMRTMap::iterator mi = mLocalMRTs.find(name);
+	if (mi != mLocalMRTs.end())
+		return mi->second;
+	else
+		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Non-existent local texture name", 
+			"CompositorInstance::getTargetForTex");
+
 }
 //-----------------------------------------------------------------------
-const String &CompositorInstance::getSourceForTex(const String &name)
+const String &CompositorInstance::getSourceForTex(const String &name, size_t mrtIndex)
 {
+	// try simple textures first
     LocalTextureMap::iterator i = mLocalTextures.find(name);
-    if(i == mLocalTextures.end())
+    if(i != mLocalTextures.end())
     {
-        OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Non-existent local texture name", "CompositorInstance::getSourceForTex");
+		return i->second->getName();
     }
-    return i->second->getName();
+
+	// try MRTs - texture (rather than target)
+	i = mLocalTextures.find(getMRTTexLocalName(name, mrtIndex));
+	if (i != mLocalTextures.end())
+	{
+		return i->second->getName();
+	}
+	else
+		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Non-existent local texture name", 
+			"CompositorInstance::getSourceForTex");
 }
 //-----------------------------------------------------------------------
 void CompositorInstance::queueRenderSystemOp(TargetOperation &finalState, RenderSystemOperation *op)

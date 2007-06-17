@@ -41,19 +41,12 @@ namespace Ogre {
 		GLFBOMultiRenderTarget(GLFBOManager *manager, const String &name);
 		~GLFBOMultiRenderTarget();
 
-		/** @copydoc MultiRenderTarget::bindSurface */
-		virtual void bindSurface(size_t attachment, RenderTexture *target);
-
-
-
-		/** @copydoc MultiRenderTarget::unbindSurface */
-
-		virtual void unbindSurface(size_t attachment); 
-
 		virtual void getCustomAttribute( const String& name, void *pData );
 
 		bool requiresTextureFlipping() const { return true; }
 	private:
+		virtual void bindSurfaceImpl(size_t attachment, RenderTexture *target);
+		virtual void unbindSurfaceImpl(size_t attachment); 
 		GLFrameBufferObject fbo;
 	};
 

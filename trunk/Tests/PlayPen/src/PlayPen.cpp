@@ -106,11 +106,6 @@ String animBlendTarget[2];
 int animBlendTargetIndex;
 MovablePlane movablePlane("APlane");
 
-
-static const char* HeadPoses[] = {"upperboth", "upperleft", "upperright", "jaw", "face1", "face2"};
-static const char* PoseAnimationStateName = "HeadPoses";
-enum eHeadPose { DMG_BOTH, DMG_UPPER_LEFT, DMG_UPPER_RIGHT, DMG_JAW, FACE_1, FACE_2, NUM_HEAD_POSES };
-
 using namespace OIS;
 
 class RefractionTextureListener : public RenderTargetListener
@@ -961,69 +956,32 @@ protected:
 
 	}
 
+	void testMRTCompositorScript()
+	{
+
+		Entity* e = mSceneMgr->createEntity("e1", "knot.mesh");
+		e->setMaterialName("Ogre/MRTtest/scene");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		mCamera->setPosition(0, 0, -100);
+		mCamera->lookAt(Vector3::ZERO);
+
+		CompositorInstance* compInst = 
+			CompositorManager::getSingleton().addCompositor(mWindow->getViewport(0), "TestMRT");
+		CompositorManager::getSingleton().setCompositorEnabled(mWindow->getViewport(0), "TestMRT", true);
+
+		// Set up debug panels for each of the MRT outputs
+		String texName = compInst->getTextureInstanceName("mrt0", 0);
+		addTextureDebugOverlay(TextureManager::getSingleton().getByName(texName), 0);
+		texName = compInst->getTextureInstanceName("mrt0", 1);
+		addTextureDebugOverlay(TextureManager::getSingleton().getByName(texName), 1);
+		texName = compInst->getTextureInstanceName("mrt0", 2);
+		addTextureDebugOverlay(TextureManager::getSingleton().getByName(texName), 2);
+		texName = compInst->getTextureInstanceName("mrt0", 3);
+		addTextureDebugOverlay(TextureManager::getSingleton().getByName(texName), 3);
+	}
+
 	void testBug()
 	{
-		/** Bren's problem
-
-		Ogre::Mesh* mesh = Ogre::MeshManager::getSingleton().load("male_civ_head.mesh", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME).getPointer();
-		assert(mesh);
-		Ogre::PoseList pose_list = mesh->getPoseList();
-		unsigned int num_subs = mesh->getNumSubMeshes();
-
-		int cur_pose_index = 0;
-		Animation* anim = mesh->createAnimation(PoseAnimationStateName, (Real)NUM_HEAD_POSES);
-		for (unsigned int cur_sub = 1; cur_sub <= num_subs; ++cur_sub)
-		{
-			Ogre::VertexAnimationTrack* track = anim->createVertexTrack(cur_sub, VAT_POSE);
-
-			for (int cur_pose = 0; cur_pose < NUM_HEAD_POSES; ++cur_pose)
-			{
-				Ogre::VertexPoseKeyFrame* key = track->createVertexPoseKeyFrame((Real)cur_pose);
-
-				bool done = false;
-
-				for (unsigned int cur_key = 0; cur_key < NUM_HEAD_POSES && !done; ++cur_key)
-				{
-					if (pose_list[cur_key]->getName().compare(HeadPoses[cur_pose]) == 0 &&
-						pose_list[cur_key]->getTarget() == cur_sub - 1)
-					{
-						key->addPoseReference(cur_pose_index, 1.f);
-						++cur_pose_index;
-						done = true;
-					}
-				}
-			}          
-		}
-
-		Entity* ent = mSceneMgr->createEntity("1", mesh->getName());
-		num_subs = ent->getNumSubEntities();
-		SubEntity* mStump;
-		for (int i = 0; i < num_subs; ++i)
-		{
-			Ogre::SubEntity* sub_ent = ent->getSubEntity(i);
-			assert(sub_ent);
-			
-			if (sub_ent->getMaterialName().compare(0, strlen("male_civ/neckstump_"), "male_civ/neckstump_") == 0)
-				mStump = sub_ent;
-		}
-
-		assert(mStump && "Couldn't find head stump sub entity!");
-
-		mStump->setVisible(false);
-
-		AnimationState* animState = ent->getAnimationState(PoseAnimationStateName);
-		animState->setLoop(false);                            // else mTimePos becomes undefined?
-		animState->setEnabled(true);
-		animState->setTimePosition((Real)2);
-
-		*/
-
-		mSceneMgr->setAmbientLight(ColourValue::White);
-		Entity* ent = mSceneMgr->createEntity("23", "Iron_Golem.mesh");
-
-		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
-
-
 
 	}
 
@@ -2535,30 +2493,35 @@ protected:
 
 	void addTextureShadowDebugOverlay(size_t num)
 	{
-		Overlay* debugOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
-
 		for (size_t i = 0; i < num; ++i)
 		{
-			// Set up a debug panel to display the shadow
-			MaterialPtr debugMat = MaterialManager::getSingleton().create(
-				"Ogre/DebugShadowMap" + StringConverter::toString(i), 
-				ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-			debugMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
 			TexturePtr shadowTex = mSceneMgr->getShadowTexture(i);
-			TextureUnitState *t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState(shadowTex->getName());
-			t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
-			//t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("spot_shadow_fade.png");
-			//t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
-			//t->setColourOperation(LBO_ADD);
-
-			OverlayContainer* debugPanel = (OverlayContainer*)
-				(OverlayManager::getSingleton().createOverlayElement("Panel", "Ogre/DebugShadowPanel" + StringConverter::toString(i)));
-			debugPanel->_setPosition(0.8, i*0.3);
-			debugPanel->_setDimensions(0.2, 0.28);
-			debugPanel->setMaterialName(debugMat->getName());
-			debugOverlay->add2D(debugPanel);
+			addTextureDebugOverlay(shadowTex, num);
 
 		}
+
+	}
+	void addTextureDebugOverlay(TexturePtr tex, size_t i)
+	{
+		Overlay* debugOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
+
+		// Set up a debug panel to display the shadow
+		MaterialPtr debugMat = MaterialManager::getSingleton().create(
+			"Ogre/DebugTexture" + StringConverter::toString(i), 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		debugMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+		TextureUnitState *t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState(tex->getName());
+		t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+		//t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("spot_shadow_fade.png");
+		//t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+		//t->setColourOperation(LBO_ADD);
+
+		OverlayContainer* debugPanel = (OverlayContainer*)
+			(OverlayManager::getSingleton().createOverlayElement("Panel", "Ogre/DebugTexPanel" + StringConverter::toString(i)));
+		debugPanel->_setPosition(0.8, i*0.25);
+		debugPanel->_setDimensions(0.2, 0.24);
+		debugPanel->setMaterialName(debugMat->getName());
+		debugOverlay->add2D(debugPanel);
 
 	}
 
@@ -5906,8 +5869,8 @@ protected:
 		//testPoseAnimation();
 		//testPoseAnimation2();
 		//testBug();
-		//testBug();
-		test16Textures();
+		testMRTCompositorScript();
+		//test16Textures();
 		//testProjectSphere();
 		//testLightScissoring(false);
 		//testLightClipPlanes(false);

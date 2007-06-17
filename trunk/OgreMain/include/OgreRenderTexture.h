@@ -66,35 +66,64 @@ namespace Ogre
 		MultiRenderTarget(const String &name);
 
 		/** Bind a surface to a certain attachment point.
-
             @param attachment	0 .. mCapabilities->numMultiRenderTargets()-1
-
 			@param target		RenderTexture to bind.
 
-
-
 			It does not bind the surface and fails with an exception (ERR_INVALIDPARAMS) if:
-
 			- Not all bound surfaces have the same size
-
 			- Not all bound surfaces have the same internal format 
-
 		*/
 
-		virtual void bindSurface(size_t attachment, RenderTexture *target)=0;
+		virtual void bindSurface(size_t attachment, RenderTexture *target)
+		{
+			size_t oldSize = mBoundSurfaces.size();
+			for (size_t i = mBoundSurfaces.size(); i <= attachment; ++i)
+			{
+				mBoundSurfaces.push_back(0);
+			}
+			mBoundSurfaces[attachment] = target;
+
+			bindSurfaceImpl(attachment, target);
+		}
 
 
 
 		/** Unbind attachment.
-
 		*/
 
-		virtual void unbindSurface(size_t attachment)=0; 
+		virtual void unbindSurface(size_t attachment)
+		{
+			if (attachment < mBoundSurfaces.size())
+				mBoundSurfaces[attachment] = 0;
+			unbindSurfaceImpl(attachment);
+		}
 
 		/** Error throwing implementation, it's not possible to write a MultiRenderTarget
 			to disk. 
 		*/
 		virtual void copyContentsToMemory(const PixelBox &dst, FrameBuffer buffer);
+
+		typedef std::vector<RenderTexture*> BoundSufaceList;
+		/// Get a list of the surfaces which have been bound
+		const BoundSufaceList& getBoundSurfaceList() const { return mBoundSurfaces; }
+
+		/** Get a pointer to a bound surface */
+		RenderTexture* getBoundSurface(size_t index)
+		{
+			assert (index < mBoundSurfaces.size());
+			return mBoundSurfaces[index];
+		}
+
+
+	protected:
+		BoundSufaceList mBoundSurfaces;
+
+		/// implementation of bindSurface, must be provided
+		virtual void bindSurfaceImpl(size_t attachment, RenderTexture *target) = 0;
+		/// implementation of unbindSurface, must be provided
+		virtual void unbindSurfaceImpl(size_t attachment) = 0;
+
+
 	};
 }
 

@@ -816,8 +816,8 @@ LGPL like the rest of the engine.
 				{
 					Ogre::CompositionTechnique::TextureDefinition* texDef = texIt.getNext();
 
-					// Get instance name of texture
-					const Ogre::String& instName = inst->getTextureInstanceName(texDef->name);
+					// Get instance name of texture (NB only index 0 if MRTs for now)
+					const Ogre::String& instName = inst->getTextureInstanceName(texDef->name, 0);
 					// Create CEGUI texture from name of OGRE texture
 					CEGUI::Texture* tex = mMain->getGuiRenderer()->createTexture(instName);
 					// Create imageset

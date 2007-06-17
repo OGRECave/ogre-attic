@@ -53,7 +53,7 @@ namespace Ogre {
 		"<Compositor> ::= 'compositor' <Flex_Label> '{' <Technique> '}' \n"
 		// Technique
 		"<Technique> ::= 'technique' '{' {<Texture>} {<Target>} <TargetOutput> '}' \n"
-		"<Texture> ::= 'texture' <Label> <WidthOption> <HeightOption> <PixelFormat> \n"
+		"<Texture> ::= 'texture' <Label> <WidthOption> <HeightOption> <PixelFormat> {<PixelFormat>} \n"
 		"<WidthOption> ::= 'target_width' | <#width> \n"
 		"<HeightOption> ::= 'target_height' | <#height> \n"
 		"<PixelFormat> ::= 'PF_A8R8G8B8' | 'PF_R8G8B8A8' | 'PF_R8G8B8' | 'PF_FLOAT16_RGBA' | \n"
@@ -76,7 +76,7 @@ namespace Ogre {
 		"<PassOptions> ::= <PassFirstRenderQueue> | <PassLastRenderQueue> | \n"
 		"    <PassIdentifier> | <PassMaterial> | <PassInput> | <ClearSection> | <StencilSection> \n"
 		"<PassMaterial> ::= 'material' <Label> \n"
-		"<PassInput> ::= 'input' <#id> <Label> \n"
+		"<PassInput> ::= 'input' <#id> <Label> [<#mrtIndex>] \n"
 		"<PassFirstRenderQueue> ::= 'first_render_queue' <#queue> \n"
 		"<PassLastRenderQueue> ::= 'last_render_queue' <#queue> \n"
 		"<PassIdentifier> ::= 'identifier' <#id> \n"
@@ -372,47 +372,49 @@ namespace Ogre {
             textureDef->height = static_cast<size_t>(getNextTokenValue());
         }
         // get pixel factor
-        switch (getNextTokenID())
-        {
-        case ID_PF_A8R8G8B8:
-            textureDef->format = PF_A8R8G8B8;
-            break;
+		while (getRemainingTokensForAction() > 0)
+		{
+			switch (getNextTokenID())
+			{
+			case ID_PF_A8R8G8B8:
+				textureDef->formatList.push_back(PF_A8R8G8B8);
+				break;
 
-        case ID_PF_R8G8B8A8:
-            textureDef->format = PF_R8G8B8A8;
-            break;
-        case ID_PF_R8G8B8:
-            textureDef->format = PF_R8G8B8;
-            break;
-		case ID_PF_FLOAT16_R:
-            textureDef->format = PF_FLOAT16_R;
-            break;
-		case ID_PF_FLOAT16_GR:
-			textureDef->format = PF_FLOAT16_GR;
-			break;
-		case ID_PF_FLOAT16_RGB:
-            textureDef->format = PF_FLOAT16_RGB;
-            break;
-		case ID_PF_FLOAT16_RGBA:
-            textureDef->format = PF_FLOAT16_RGBA;
-            break;
-		case ID_PF_FLOAT32_R:
-            textureDef->format = PF_FLOAT32_R;
-            break;
-		case ID_PF_FLOAT32_GR:
-			textureDef->format = PF_FLOAT32_GR;
-			break;
-		case ID_PF_FLOAT32_RGB:
-            textureDef->format = PF_FLOAT32_RGB;
-            break;
-		case ID_PF_FLOAT32_RGBA:
-            textureDef->format = PF_FLOAT32_RGBA;
-            break;
-
-        default:
-            // should never get here?
-            break;
-        }
+			case ID_PF_R8G8B8A8:
+				textureDef->formatList.push_back(PF_R8G8B8A8);
+				break;
+			case ID_PF_R8G8B8:
+				textureDef->formatList.push_back(PF_R8G8B8);
+				break;
+			case ID_PF_FLOAT16_R:
+				textureDef->formatList.push_back(PF_FLOAT16_R);
+				break;
+			case ID_PF_FLOAT16_GR:
+				textureDef->formatList.push_back(PF_FLOAT16_GR);
+				break;
+			case ID_PF_FLOAT16_RGB:
+				textureDef->formatList.push_back(PF_FLOAT16_RGB);
+				break;
+			case ID_PF_FLOAT16_RGBA:
+				textureDef->formatList.push_back(PF_FLOAT16_RGBA);
+				break;
+			case ID_PF_FLOAT32_R:
+				textureDef->formatList.push_back(PF_FLOAT32_R);
+				break;
+			case ID_PF_FLOAT32_GR:
+				textureDef->formatList.push_back(PF_FLOAT32_GR);
+				break;
+			case ID_PF_FLOAT32_RGB:
+				textureDef->formatList.push_back(PF_FLOAT32_RGB);
+				break;
+			case ID_PF_FLOAT32_RGBA:
+				textureDef->formatList.push_back(PF_FLOAT32_RGBA);
+				break;
+			default:
+				// should never get here?
+				break;
+			}
+		}
 	}
 	//-----------------------------------------------------------------------
 	void CompositorScriptCompiler::parseTarget(void)
@@ -443,7 +445,13 @@ namespace Ogre {
 		    assert(mScriptContext.pass);
 		    uint32 id = static_cast<uint32>(getNextTokenValue());
 		    const String& textureName = getNextTokenLabel();
-		    mScriptContext.pass->setInput(id, textureName);
+			// MRT index?
+			size_t mrtIndex = 0;
+			if (getRemainingTokensForAction() > 0)
+			{
+				mrtIndex = static_cast<size_t>(getNextTokenValue()); 
+			}
+		    mScriptContext.pass->setInput(id, textureName, mrtIndex);
 		}
 
 	}

@@ -392,19 +392,19 @@ void CompositorDemo::createViewports(void)
 				Ogre::CompositionTechnique::TextureDefinition *def = t->createTextureDefinition("scene");
 				def->width = 0;
 				def->height = 0;
-				def->format = Ogre::PF_R8G8B8;
+				def->formatList.push_back(Ogre::PF_R8G8B8);
 			}
 			{
 				Ogre::CompositionTechnique::TextureDefinition *def = t->createTextureDefinition("sum");
 				def->width = 0;
 				def->height = 0;
-				def->format = Ogre::PF_R8G8B8;
+				def->formatList.push_back(Ogre::PF_R8G8B8);
 			}
 			{
 				Ogre::CompositionTechnique::TextureDefinition *def = t->createTextureDefinition("temp");
 				def->width = 0;
 				def->height = 0;
-				def->format = Ogre::PF_R8G8B8;
+				def->formatList.push_back(Ogre::PF_R8G8B8);
 			}
 			/// Render scene
 			{
@@ -463,13 +463,13 @@ void CompositorDemo::createViewports(void)
 				Ogre::CompositionTechnique::TextureDefinition *def = t->createTextureDefinition("scene");
 				def->width = 256;
 				def->height = 256;
-				def->format = Ogre::PF_R8G8B8;
+				def->formatList.push_back(Ogre::PF_R8G8B8);
 			}
 			{
 				Ogre::CompositionTechnique::TextureDefinition *def = t->createTextureDefinition("temp");
 				def->width = 256;
 				def->height = 256;
-				def->format = Ogre::PF_R8G8B8;
+				def->formatList.push_back(Ogre::PF_R8G8B8);
 			}
 			/// Render scene
 			{
