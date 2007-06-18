@@ -36,9 +36,10 @@ Torus Knot Software Ltd.
 namespace Ogre {
 
     //-----------------------------------------------------------------------
-    RenderSystemCapabilities::RenderSystemCapabilities()
-      : mNumWorldMatrices(0), mNumTextureUnits(0), mStencilBufferBitDepth(0),
-        mNumVertexBlendMatrices(0), mNumMultiRenderTargets(1), 
+    RenderSystemCapabilities::RenderSystemCapabilities (ResourceManager *creator, const String &name,
+                ResourceHandle handle, const String &group, bool isManual, ManualResourceLoader *loader)
+      : Resource(creator, name, handle, group, isManual, loader), mNumWorldMatrices(0), mNumTextureUnits(0), mStencilBufferBitDepth(0),
+        mNumVertexBlendMatrices(0), mNumMultiRenderTargets(1),
 		mNonPOW2TexturesLimited(false)
     {
 

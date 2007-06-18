@@ -33,15 +33,16 @@ Torus Knot Software Ltd.
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
 #include "OgreStringVector.h"
+#include "OgreResource.h"
 
 // Because there are more than 32 possible Capabilities, more than 1 int is needed to store them all.
 // In fact, an array of integers is used to store capabilities. However all the capabilities are defined in the single
 // enum. The only way to know which capabilities should be stored where in the array is to use some of the 32 bits
 // to record the category of the capability.  These top few bits are used as an index into mCapabilities array
-// The lower bits are used to identify each capability individually by setting 1 bit for each 
+// The lower bits are used to identify each capability individually by setting 1 bit for each
 
 // Identifies how many bits are reserved for categories
-// NOTE: Although 4 bits (currently) are enough 
+// NOTE: Although 4 bits (currently) are enough
 #define CAPS_CATEGORY_SIZE 4
 #define CAPS_BITSHIFT (32 - CAPS_CATEGORY_SIZE)
 #define CAPS_CATEGORY_MASK ((2^CAPS_CATEGORY_SIZE - 1) << CAPS_BITSHIFT)
@@ -128,19 +129,33 @@ namespace Ogre {
 
     };
 
-    /** singleton class for storing the capabilities of the graphics card. 
+    /** singleton class for storing the capabilities of the graphics card.
         @remarks
             This class stores the capabilities of the graphics card.  This
             information is set by the individual render systems.
     */
-    class _OgreExport RenderSystemCapabilities 
+    class _OgreExport RenderSystemCapabilities: public Resource
     {
 
 			  public:
 
 						typedef std::set<String> ShaderProfiles;
+        protected:
+            /** Do nothing (there is no content to load) */
+            virtual void loadImpl(void) {}
+			virtual void unloadImpl(void) {}
+            /** The size is 0, because there is no content */
+            virtual size_t calculateSize(void) {return 0;}
 
         private:
+            String mGLDriver;
+            String mGLVendor;
+            String mGLRenderer;
+
+            String mDX9Driver;
+            String mDX9Vendor;
+            String mDX9Renderer;
+
             /// The number of world matricies available
             ushort mNumWorldMatrices;
             /// The number of texture units available
@@ -156,15 +171,15 @@ namespace Ogre {
             /// The best fragment program that this card / rendersystem supports
             String mMaxFragmentProgramVersion;
             /// The number of floating-point constants vertex programs support
-            ushort mVertexProgramConstantFloatCount;           
+            ushort mVertexProgramConstantFloatCount;
             /// The number of integer constants vertex programs support
-            ushort mVertexProgramConstantIntCount;           
+            ushort mVertexProgramConstantIntCount;
             /// The number of boolean constants vertex programs support
-            ushort mVertexProgramConstantBoolCount;           
+            ushort mVertexProgramConstantBoolCount;
             /// The number of floating-point constants fragment programs support
-            ushort mFragmentProgramConstantFloatCount;           
+            ushort mFragmentProgramConstantFloatCount;
             /// The number of integer constants fragment programs support
-            ushort mFragmentProgramConstantIntCount;           
+            ushort mFragmentProgramConstantIntCount;
             /// The number of boolean constants fragment programs support
             ushort mFragmentProgramConstantBoolCount;
 			/// The number of simultaneous render targets supported
@@ -181,9 +196,72 @@ namespace Ogre {
 			/// The list of supported shader profiles
 			ShaderProfiles mSupportedShaderProfiles;
 
-    	public:	
-            RenderSystemCapabilities ();
+    	public:
+            RenderSystemCapabilities (ResourceManager *creator, const String &name, ResourceHandle handle,
+                                    const String &group, bool isManual=false, ManualResourceLoader *loader=0);
             ~RenderSystemCapabilities ();
+
+            void setGLDriver(String driver)
+            {
+                mGLDriver = driver;
+            }
+
+            void setGLVendor(String vendor)
+            {
+                mGLVendor = vendor;
+            }
+
+            void setGLRenderer(String renderer)
+            {
+                mGLRenderer = renderer;
+            }
+
+            void setDX9Driver(String driver)
+            {
+                mDX9Driver = driver;
+            }
+
+            void setDX9Vendor(String vendor)
+            {
+                mDX9Vendor = vendor;
+            }
+
+            void setDX9Renderer(String renderer)
+            {
+                mDX9Renderer = renderer;
+            }
+
+            String getGLDriver()
+            {
+                return mGLDriver;
+            }
+
+            String gettGLVendor()
+            {
+                return mGLVendor;
+            }
+
+            String getGLRenderer()
+            {
+                return mGLRenderer;
+            }
+
+            String gettDX9Driver()
+            {
+                return mDX9Driver;
+            }
+
+            String getDX9Vendor()
+            {
+                return mDX9Vendor;
+            }
+
+            String getDX9Renderer()
+            {
+                return mDX9Renderer;
+            }
+
+
 
             void setNumWorldMatricies(ushort num)
             {
@@ -212,7 +290,7 @@ namespace Ogre {
 			}
 
             ushort getNumWorldMatricies(void) const
-            { 
+            {
                 return mNumWorldMatrices;
             }
 
@@ -220,9 +298,9 @@ namespace Ogre {
                 supports.
 
                 For use in rendering, this determines how many texture units the
-                are available for multitexturing (i.e. rendering multiple 
-                textures in a single pass). Where a Material has multiple 
-                texture layers, it will try to use multitexturing where 
+                are available for multitexturing (i.e. rendering multiple
+                textures in a single pass). Where a Material has multiple
+                texture layers, it will try to use multitexturing where
                 available, and where it is not available, will perform multipass
                 rendering to achieve the same effect.
             */
@@ -231,7 +309,7 @@ namespace Ogre {
                 return mNumTextureUnits;
             }
 
-            /** Determines the bit depth of the hardware accelerated stencil 
+            /** Determines the bit depth of the hardware accelerated stencil
                 buffer, if supported.
                 @remarks
                     If hardware stencilling is not supported, the software will
@@ -242,7 +320,7 @@ namespace Ogre {
                 return mStencilBufferBitDepth;
             }
 
-            /** Returns the number of matrices available to hardware vertex 
+            /** Returns the number of matrices available to hardware vertex
                 blending for this rendering system. */
             ushort numVertexBlendMatrices(void) const
             {
@@ -257,8 +335,8 @@ namespace Ogre {
 
             /** Adds a capability flag to mCapabilities
             */
-            void setCapability(const Capabilities c) 
-            { 
+            void setCapability(const Capabilities c)
+            {
 								int index = (CAPS_CATEGORY_MASK & c) >> CAPS_BITSHIFT;
 								// zero out the index from the stored capability
                 mCapabilities[index] |= (c & ~CAPS_CATEGORY_MASK);
@@ -269,7 +347,7 @@ namespace Ogre {
             bool hasCapability(const Capabilities c) const
             {
 								int index = (CAPS_CATEGORY_MASK & c) >> CAPS_BITSHIFT;
-								// test against 
+								// test against
                 if(mCapabilities[index] & (c & ~CAPS_CATEGORY_MASK))
                 {
                     return true;
@@ -285,7 +363,7 @@ namespace Ogre {
 						void addShaderProfile(String profile)
 						{
 								mSupportedShaderProfiles.insert(profile);
-									
+
 						}
 
 						/** Returns true if profile is in the list of supported profiles
@@ -317,32 +395,32 @@ namespace Ogre {
             /// The number of floating-point constants vertex programs support
             ushort getVertexProgramConstantFloatCount(void) const
             {
-                return mVertexProgramConstantFloatCount;           
+                return mVertexProgramConstantFloatCount;
             }
             /// The number of integer constants vertex programs support
             ushort getVertexProgramConstantIntCount(void) const
             {
-                return mVertexProgramConstantIntCount;           
+                return mVertexProgramConstantIntCount;
             }
             /// The number of boolean constants vertex programs support
             ushort getVertexProgramConstantBoolCount(void) const
             {
-                return mVertexProgramConstantBoolCount;           
+                return mVertexProgramConstantBoolCount;
             }
             /// The number of floating-point constants fragment programs support
             ushort getFragmentProgramConstantFloatCount(void) const
             {
-                return mFragmentProgramConstantFloatCount;           
+                return mFragmentProgramConstantFloatCount;
             }
             /// The number of integer constants fragment programs support
             ushort getFragmentProgramConstantIntCount(void) const
             {
-                return mFragmentProgramConstantIntCount;           
+                return mFragmentProgramConstantIntCount;
             }
             /// The number of boolean constants fragment programs support
             ushort getFragmentProgramConstantBoolCount(void) const
             {
-                return mFragmentProgramConstantBoolCount;           
+                return mFragmentProgramConstantBoolCount;
             }
 
 
@@ -360,32 +438,32 @@ namespace Ogre {
             /// The number of floating-point constants vertex programs support
             void setVertexProgramConstantFloatCount(ushort c)
             {
-                mVertexProgramConstantFloatCount = c;           
+                mVertexProgramConstantFloatCount = c;
             }
             /// The number of integer constants vertex programs support
             void setVertexProgramConstantIntCount(ushort c)
             {
-                mVertexProgramConstantIntCount = c;           
+                mVertexProgramConstantIntCount = c;
             }
             /// The number of boolean constants vertex programs support
             void setVertexProgramConstantBoolCount(ushort c)
             {
-                mVertexProgramConstantBoolCount = c;           
+                mVertexProgramConstantBoolCount = c;
             }
             /// The number of floating-point constants fragment programs support
             void setFragmentProgramConstantFloatCount(ushort c)
             {
-                mFragmentProgramConstantFloatCount = c;           
+                mFragmentProgramConstantFloatCount = c;
             }
             /// The number of integer constants fragment programs support
             void setFragmentProgramConstantIntCount(ushort c)
             {
-                mFragmentProgramConstantIntCount = c;           
+                mFragmentProgramConstantIntCount = c;
             }
             /// The number of boolean constants fragment programs support
             void setFragmentProgramConstantBoolCount(ushort c)
             {
-                mFragmentProgramConstantBoolCount = c;           
+                mFragmentProgramConstantBoolCount = c;
             }
 			/// Maximum point screen size in pixels
 			void setMaxPointSize(Real s)
