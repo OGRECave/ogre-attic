@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;$(WXWIN)\include;$(WXWIN)\contrib\include;$(WXWIN)\lib\vc_lib\mswd;$(OGRE)\OgreMain\include;..\..\wxScintilla_1.69.2\include;$(WXWIN)\contrib\include\wx\propgrid"
+				AdditionalIncludeDirectories="..\include;$(WXWIN)\include;$(WXWIN)\contrib\include;$(WXWIN)\lib\vc_lib\mswd;$(OGRE)\OgreMain\include;..\..\wxScintilla_1.69.2\include;$(WXWIN)\contrib\include\wx\propgrid;$(BOOST)"
 				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;__WXDEBUG__;_WINDOWS;NOPCH;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -64,7 +64,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="wxbase28d.lib wxmsw28d_core.lib wxmsw28d_aui.lib wxmsw28d_adv.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib OgreMain_d.lib wxmsw28d_propgrid.lib wxscintillad.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="$(WXWIN)\lib;$(WXWIN)\contrib\lib;$(WXWIN)\lib\vc_lib;$(WXWIN)\lib\vc_lib\mswd;$(OGRE)\lib;..\..\wxScintilla_1.69.2\lib;$(WXWIN)\lib\vc_dll\"
+				AdditionalLibraryDirectories="$(WXWIN)\lib;$(WXWIN)\contrib\lib;$(WXWIN)\lib\vc_lib;$(WXWIN)\lib\vc_lib\mswd;$(OGRE)\lib;..\..\wxScintilla_1.69.2\lib;$(WXWIN)\lib\vc_dll\;$(BOOST)\lib"
 				GenerateManifest="true"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
@@ -123,7 +123,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="$(WXWIN)\include;$(WXWIN)\contrib\include;$(WXWIN)\lib\vc_lib\msw;$(OGRE)\OgreMain\include;$(WXWIN)\contrib\include\wx\propgrid;..\..\wxScintilla_1.69.2\include"
+				AdditionalIncludeDirectories="$(WXWIN)\include;$(WXWIN)\contrib\include;$(WXWIN)\lib\vc_lib\msw;$(OGRE)\OgreMain\include;$(WXWIN)\contrib\include\wx\propgrid;..\..\wxScintilla_1.69.2\include;$(BOOST)"
 				PreprocessorDefinitions="WIN32;__WXMSW__;_WINDOWS;NOPCH;_CRT_NONSTDC_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -144,7 +144,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="wxmsw28_core.lib wxmsw28_aui.lib wxmsw28d_adv.lib wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib OgreMain.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="$(WXWIN)\lib;$(WXWIN)\contrib\lib;$(WXWIN)\lib\vc_lib;$(OGRE)\lib;..\..\wxScintilla_1.69.2\lib"
+				AdditionalLibraryDirectories="$(WXWIN)\lib;$(WXWIN)\contrib\lib;$(WXWIN)\lib\vc_lib;$(OGRE)\lib;..\..\wxScintilla_1.69.2\lib;$(BOOST)\lib"
 				GenerateManifest="false"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -199,6 +199,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\MaterialController.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\MaterialEditorApp.cpp"
 				>
 			</File>
@@ -207,11 +211,27 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\MaterialPropertyGridPage.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\PassController.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\PassPropertyGridPage.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\Project.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\src\ResourcePanel.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TechniqueController.cpp"
 				>
 			</File>
 			<File
@@ -253,7 +273,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\MaterialPropertyGridPage.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\Observer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\PassController.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\PassPropertyGridPage.h"
 				>
 			</File>
 			<File
@@ -270,6 +302,14 @@
 			</File>
 			<File
 				RelativePath="..\include\Subject.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\TechniqueController.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\TechniquePropertyGridPage.h"
 				>
 			</File>
 			<File
