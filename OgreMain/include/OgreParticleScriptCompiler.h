@@ -34,6 +34,7 @@ Torus Knot Software Ltd.
 
 namespace Ogre{
 
+	class ParticleScriptCompiler;
 	/** This is the specific listener for the particle script compiler.
 		It allows overriding behavior for specific functionality of this compiler.
 	*/
@@ -41,6 +42,10 @@ namespace Ogre{
 	{
 	public:
 		ParticleScriptCompilerListener();
+		/// Override this to do custom processing of the script nodes
+		virtual bool processNode(ScriptNodeList::iterator &iter, ScriptNodeList::iterator &end, ParticleScriptCompiler*);
+		/// This provides the compiler with the particle system it wishes to compile into. Override it for custom system allocations.
+		virtual ParticleSystem *getParticleSystem(const String &name, const String &group);
 	};
 
 	class _OgreExport ParticleScriptCompiler : public ScriptCompiler
@@ -50,13 +55,25 @@ namespace Ogre{
 
 		/// Sets the listener for this compiler
 		void setListener(ParticleScriptCompilerListener *listener);
+		/// Returns the particle system currently being compiled
+		ParticleSystem *getParticleSystem() const;
 	protected:
 		/// This begins the compilation of the particle system from the final transformed AST
 		bool compileImpl(ScriptNodeListPtr nodes);
+		/// Delegates to the listener if it can, otherwise returns false. If it returns true, then some input was consumed.
+		bool processNode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
 		/// This is the override for loading imports
 		ScriptNodeListPtr loadImportPath(const String &name);
-	private:
+	private: // Handlers for compiling script elements
+		void compileParticleSystem(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+		void compileEmitter(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+		void compileAffector(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+		String getPropertyValue(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+	private: // Listener and context data
 		ParticleScriptCompilerListener *mListener;
+
+		// The system being compiled
+		ParticleSystem *mSystem;
 	};
 
 }

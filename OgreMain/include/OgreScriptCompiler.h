@@ -31,6 +31,7 @@ Torus Knot Software Ltd.
 #define __SCRIPTCOMPILER_H_
 
 #include "OgreScriptParser.h"
+#include "OgreDataStream.h"
 
 namespace Ogre{
 
@@ -40,12 +41,8 @@ namespace Ogre{
 	*/
 	class _OgreExport ScriptCompilerListener
 	{
-	protected:
-		std::set<String> mObjectTypeNames, mPropertyNames;
 	public:
 		virtual ScriptNodeListPtr importFile(const String &name);
-		virtual const std::set<String> &getObjectTypeNames() const;
-		virtual const std::set<String> &getPropertyNames() const;
 	};
 
 	enum
@@ -53,7 +50,14 @@ namespace Ogre{
 		CE_OPENBRACEEXPECTED,
 		CE_VARIABLEEXPECTED,
 		CE_VARIABLEVALUEEXPECTED,
-		CE_UNDEFINEDVARIABLE
+		CE_UNDEFINEDVARIABLE,
+		CE_OBJECTNAMEEXPECTED,
+		CE_OBJECTTYPEEXPECTED,
+		CE_STRINGEXPECTED,
+		CE_NUMBEREXPECTED,
+		CE_VALUEEXPECTED,
+		CE_INVALIDPROPERTY,
+		CE_INVALIDPROPERTYVALUE
 	};
 
 	/** This struct stores semantic error information. It is information
@@ -111,6 +115,13 @@ namespace Ogre{
 			@param group The resource group the final resources belong to
 		*/
 		bool compile(ScriptNodeListPtr nodes, const String &group);
+		/** Accepts a DataStreamPtr which represents the script being compiled.
+		    This stream is delegated to the text-based compilation function.
+
+			@param stream The data stream of the script
+			@param group This is the resource group to compile the script within
+		*/
+		bool compile(DataStreamPtr &stream, const String &group);
 	protected: // Operations
 		/// This is the overridable function for base classes to compile the AST
 		virtual bool compileImpl(ScriptNodeListPtr nodes) = 0;
@@ -149,6 +160,8 @@ namespace Ogre{
 		ScriptNodePtr getNodeAt(const ScriptNodeList &nodes, int index) const;
 		/// This is a utility for getting random access based on current iterator position
 		ScriptNodePtr getNodeAt(ScriptNodeList::const_iterator from, ScriptNodeList::const_iterator end, int index) const;
+		// This utility gets the next node, provided it is the right type and not at the end of the input
+		bool getNextNode(ScriptNodeList::iterator &iter, ScriptNodeList::iterator end, uint32 type) const;
 		// This is a utility for locating the position of the given token in the range provided
 		ScriptNodeList::const_iterator findNode(ScriptNodeList::const_iterator from, ScriptNodeList::const_iterator to, const String &token) const;
 		// This is a utility for locating the position of the given token in the range provided
@@ -157,6 +170,8 @@ namespace Ogre{
 		ScriptNodeList::iterator findNode(ScriptNodeList::iterator from, ScriptNodeList::iterator to, const String &token) const;
 		// This is a utility for locating the position of the given token in the range provided
 		ScriptNodeList::iterator findNode(ScriptNodeList::iterator from, ScriptNodeList::iterator to, uint32 type) const;
+		// Returns true if the string value represents a value of "true", false if not
+		bool isTruthValue(const String &value) const;
 		/// This registers a new error
 		void addError(uint32 error, const String &file, int line, int col);
 		/// This pushes a new scope onto the stack, copying variables from the higher stack into it
@@ -184,11 +199,6 @@ namespace Ogre{
 
 		// The stack used to process our variables
 		ScopeStack mStack;
-
-		// These sets are used by the compiler to determine what is an object
-		// and what is a variable. Base classes should set these up
-		typedef std::set<String> StringSet;
-		StringSet mObjectTypes, mPropertyNames;
 
 		// Error information
 		ScriptCompilerErrorList mErrors;
