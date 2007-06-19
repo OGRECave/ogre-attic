@@ -235,6 +235,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\TechniquePropertyGridPage.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\Workspace.cpp"
 				>
 			</File>
