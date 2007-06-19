@@ -31,19 +31,19 @@ http://www.gnu.org/copyleft/lesser.txt
 
 #include "TechniqueController.h"
 
-MaterialController::MaterialController(Material* material) 
-: mMaterial(material)
+MaterialController::MaterialController(MaterialPtr materialPtr) 
+: mMaterialPtr(materialPtr)
 {
-	mMaterial = material;
+	mMaterialPtr = materialPtr;
 }
 
 MaterialController::~MaterialController()
 {
 }
 
-Material* MaterialController::getMaterial() const
+MaterialPtr MaterialController::getMaterial() const
 {
-	return mMaterial;
+	return mMaterialPtr;
 }
 
 const TechniqueControllerList* MaterialController::getTechniqueControllers() const
@@ -53,17 +53,17 @@ const TechniqueControllerList* MaterialController::getTechniqueControllers() con
 
 void MaterialController::setReceiveShadows(bool enabled)
 {
-	mMaterial->setReceiveShadows(enabled);
+	mMaterialPtr->setReceiveShadows(enabled);
 }
 
 void MaterialController::setTransparencyCastsShadows(bool enabled)
 {
-	mMaterial->setTransparencyCastsShadows(enabled);
+	mMaterialPtr->setTransparencyCastsShadows(enabled);
 }
 
 TechniqueController* MaterialController::createTechnique(void)
 {
-	Technique* t = mMaterial->createTechnique();
+	Technique* t = mMaterialPtr->createTechnique();
 	
 	// Create controller
 	TechniqueController* tc = new TechniqueController(t);
@@ -74,12 +74,12 @@ TechniqueController* MaterialController::createTechnique(void)
 
 void MaterialController::removeTechnique(unsigned short index)
 {
-	mMaterial->removeTechnique(index);
+	mMaterialPtr->removeTechnique(index);
 }
 
 void MaterialController::removeAllTechniques(void)
 {
-	mMaterial->removeAllTechniques();
+	mMaterialPtr->removeAllTechniques();
 }
 
 void MaterialController::setAmbient(const ColourValue& ambient)

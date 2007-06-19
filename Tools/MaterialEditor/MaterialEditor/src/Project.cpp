@@ -63,9 +63,9 @@ void Project::setName(const String& name)
 	mNameChanged(this, name);
 }
 
-void Project::addMaterial(Material* material)
+void Project::addMaterial(MaterialPtr materialPtr)
 {
-	MaterialController* controller = new MaterialController(material);
+	MaterialController* controller = new MaterialController(materialPtr);
 	mMaterialControllers.push_back(controller);
 	
 	mMaterialAdded(this, controller);
