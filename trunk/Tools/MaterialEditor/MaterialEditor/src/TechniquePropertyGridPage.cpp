@@ -30,10 +30,12 @@ Torus Knot Software Ltd.
 
 #include <wx/propgrid/advprops.h>
 
+#include "OgreTechnique.h"
+
 #include "TechniqueController.h"
 
 BEGIN_EVENT_TABLE(TechniquePropertyGridPage, wxPropertyGridPage)
-	EVT_PG_CHANGED(1, TechniquePropertyGridPage::propertyChange)
+	EVT_PG_CHANGED(1, TechniquePropertyGridPage::propertyChanged)
 END_EVENT_TABLE()
 
 TechniquePropertyGridPage::TechniquePropertyGridPage(TechniqueController* controller)
@@ -45,7 +47,7 @@ TechniquePropertyGridPage::~TechniquePropertyGridPage()
 {
 }
 
-void TechniquePropertyGridPage::createPage()
+void TechniquePropertyGridPage::populate()
 {
 	Append(wxStringProperty(wxT("Name"), wxPG_LABEL, mController->getTechnique()->getName()));
 	Append(wxStringProperty(wxT("Scheme Name"), wxPG_LABEL, mController->getTechnique()->getSchemeName()));

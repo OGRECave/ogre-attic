@@ -37,9 +37,10 @@ class MaterialPropertyGridPage : public wxPropertyGridPage
 public:
 	MaterialPropertyGridPage(MaterialController* controller);
 	virtual ~MaterialPropertyGridPage();
+	virtual void populate();
 
 protected:
-	virtual void createPage();
+	
 	virtual void propertyChange(wxPropertyGridEvent& event);
 
 	MaterialController* mController;

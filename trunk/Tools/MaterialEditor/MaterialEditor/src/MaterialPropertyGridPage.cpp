@@ -35,13 +35,14 @@ END_EVENT_TABLE()
 MaterialPropertyGridPage::MaterialPropertyGridPage(MaterialController* controller)
 : mController(controller)
 {
+	
 }
 
 MaterialPropertyGridPage::~MaterialPropertyGridPage()
 {
 }
 
-void MaterialPropertyGridPage::createPage()
+void MaterialPropertyGridPage::populate()
 {
 	Append(wxStringProperty(wxT("Name"), wxPG_LABEL, mController->getMaterial()->getName()));
 	Append(wxBoolProperty(wxT("Receive Shadows"), wxPG_LABEL, mController->getMaterial()->getReceiveShadows()));

@@ -33,11 +33,11 @@ Torus Knot Software Ltd.
 
 #include <boost/signal.hpp>
 
+#include "OgreMaterial.h"
 #include "OgreString.h"
 
 namespace Ogre
 {
-	class Material;
 	class SceneManager;
 }
 
@@ -45,6 +45,7 @@ class MaterialController;
 class Project;
 
 using Ogre::Material;
+using Ogre::MaterialPtr;
 using Ogre::String;
 
 typedef std::list<MaterialController*> MaterialControllerList;
@@ -72,7 +73,7 @@ public:
 	const String& getName() const;
 	void setName(const String& name);
 
-	void addMaterial(Material* material);
+	void addMaterial(MaterialPtr materialPtr);
 
 	void removeMaterial(MaterialController* controller);
 	void removeMaterial(Material* material);
