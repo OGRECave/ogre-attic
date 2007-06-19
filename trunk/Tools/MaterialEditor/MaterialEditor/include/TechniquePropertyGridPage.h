@@ -34,14 +34,15 @@ Torus Knot Software Ltd.
 
 class TechniqueController;
 
-class TechniquePropertyGridPage
+class TechniquePropertyGridPage : public wxPropertyGridPage
 {
 public:
 	TechniquePropertyGridPage(TechniqueController* controller);
 	virtual ~TechniquePropertyGridPage();
 
+	virtual void populate();
+
 protected:
-	virtual void createPage();
 	virtual void propertyChanged(wxPropertyGridEvent& event);
 	
 	TechniqueController* mController;

@@ -40,8 +40,20 @@ public:
 	PassPropertyGridPage(PassController* controller);
 	virtual ~PassPropertyGridPage();
 
+	virtual void populate();
+
 protected:
-	virtual void createPage();
+	virtual void createGeneralCategory();
+	virtual void createReflectanceCategory();
+	virtual void createPointCategory();
+	virtual void createSceneBlendingCategory();
+	virtual void createDepthCategory();
+	virtual void createCullingCategory();
+	virtual void createIlluminationCategory();
+	virtual void createFogCategory();
+	virtual void createAlphaRejectionCategory();
+	virtual void createMiscCategory();
+
 	virtual void propertyChanged(wxPropertyGridEvent& event);
 	
 	PassController* mController;
