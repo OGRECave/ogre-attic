@@ -39,16 +39,6 @@ namespace Ogre{
 		return ScriptNodeListPtr();
 	}
 
-	const std::set<String> &ScriptCompilerListener::getObjectTypeNames() const
-	{
-		return mObjectTypeNames;
-	}
-
-	const std::set<String> &ScriptCompilerListener::getPropertyNames() const
-	{
-		return mPropertyNames;
-	}
-
 	// ScriptCompiler
 	ScriptCompiler::ScriptCompiler()
 		:mAllowNontypedObjects(false)
@@ -83,6 +73,11 @@ namespace Ogre{
 		processObjects(*nodes.get(), nodes);
 		processVariables(*nodes.get(), nodes);
 		return compileImpl(nodes);
+	}
+
+	bool ScriptCompiler::compile(DataStreamPtr &stream, const String &group)
+	{
+		return compile(stream->getAsString(), group, stream->getName());
 	}
 
 	void ScriptCompiler::processVariables(ScriptNodeList &nodes, const ScriptNodeListPtr &top)
@@ -260,7 +255,13 @@ namespace Ogre{
 				{
 					// Load the script
 					ScriptNodeListPtr importedNodes = loadImportPath(importPath->token);
-					mImports.insert(std::make_pair(importPath->token, importedNodes));
+					if(!importedNodes.isNull() && !importedNodes->empty())
+					{
+						processImports(importedNodes);
+						processObjects(*importedNodes.get(), importedNodes);
+					}
+					if(!importedNodes.isNull() && !importedNodes->empty())
+						mImports.insert(std::make_pair(importPath->token, importedNodes));
 				}
 
 				// Handle the target request now
@@ -473,6 +474,16 @@ namespace Ogre{
 		return ScriptNodePtr();
 	}
 
+	bool ScriptCompiler::getNextNode(ScriptNodeList::iterator &iter, ScriptNodeList::iterator end, Ogre::uint32 type) const
+	{
+		ScriptNodeList::iterator i = iter;
+		++i;
+		if(i == end || (*i)->type != type)
+			return false;
+		++iter;
+		return true;
+	}
+
 	ScriptNodeList::const_iterator ScriptCompiler::findNode(ScriptNodeList::const_iterator from, ScriptNodeList::const_iterator to, const String &token) const
 	{
 		ScriptNodeList::const_iterator rslt;
@@ -527,6 +538,11 @@ namespace Ogre{
 			}
 		}
 		return rslt;
+	}
+
+	bool ScriptCompiler::isTruthValue(const String &value) const
+	{
+		return value == "1" || value == "true" || value == "yes";
 	}
 
 	void ScriptCompiler::addError(uint32 error, const String &file, int line, int col)

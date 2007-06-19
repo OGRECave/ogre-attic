@@ -35,18 +35,6 @@ namespace Ogre{
 	MaterialScriptCompiler2::MaterialScriptCompiler2()
 	{
 		mAllowNontypedObjects = false; // All material objects must be typed
-
-		// Set up built-in object types
-		mObjectTypes.insert("vertex_program");
-		mObjectTypes.insert("fragment_program");
-		mObjectTypes.insert("material");
-		mObjectTypes.insert("technique");
-		mObjectTypes.insert("pass");
-		mObjectTypes.insert("texture_unit");
-		mObjectTypes.insert("texture_source");
-		mObjectTypes.insert("default_params");
-
-		// Set up built-in properties
 	}
 
 	bool MaterialScriptCompiler2::compileImpl(ScriptNodeListPtr nodes)
