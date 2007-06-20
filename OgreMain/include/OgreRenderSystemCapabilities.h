@@ -201,6 +201,8 @@ namespace Ogre {
                                     const String &group, bool isManual=false, ManualResourceLoader *loader=0);
             ~RenderSystemCapabilities ();
 
+            virtual size_t calculateSize() const {return 0;}
+
             void setGLDriver(String driver)
             {
                 mGLDriver = driver;

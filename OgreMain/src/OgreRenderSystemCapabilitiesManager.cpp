@@ -29,17 +29,17 @@ Torus Knot Software Ltd.
 #include "OgreStableHeaders.h"
 #include "OgreMaterialManager.h"
 
-#include "OgreMaterial.h"
+
 #include "OgreStringVector.h"
 #include "OgreLogManager.h"
 #include "OgreArchive.h"
 #include "OgreStringConverter.h"
-#include "OgreBlendMode.h"
-#include "OgreTechnique.h"
-#include "OgrePass.h"
-#include "OgreTextureUnitState.h"
+
+
+
 #include "OgreException.h"
-#include "OgreMaterialScriptCompiler.h"
+#include "OgreRenderSystemCapabilitiesManager.h"
+#include "OgreRenderSystemCapabilitiesSerializer.h"
 
 
 
@@ -95,6 +95,7 @@ namespace Ogre {
         mSerializer->parseScript(stream, groupName);
 
     }
+}
 
 
 

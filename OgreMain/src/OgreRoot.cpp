@@ -41,6 +41,7 @@ Torus Knot Software Ltd.
 #include "OgreDynLib.h"
 #include "OgreConfigFile.h"
 #include "OgreMaterialManager.h"
+#include "OgreRenderSystemCapabilitiesManager.h"
 #include "OgreMeshManager.h"
 #include "OgreTextureManager.h"
 #include "OgreParticleSystemManager.h"
@@ -66,7 +67,7 @@ Torus Knot Software Ltd.
 #include "OgreRenderQueueInvocation.h"
 #include "OgrePlatformInformation.h"
 #include "OgreConvexBody.h"
-	
+
 #if OGRE_NO_FREEIMAGE == 0
 #include "OgreFreeImageCodec.h"
 #endif
@@ -105,7 +106,7 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    Root::Root(const String& pluginFileName, const String& configFileName, 
+    Root::Root(const String& pluginFileName, const String& configFileName,
 		const String& logFileName)
       : mLogManager(0), mCurrentFrame(0), mFrameSmoothingTime(0.0f),
 	  mNextMovableObjectTypeFlag(1), mIsInitialised(false)
@@ -117,7 +118,7 @@ namespace Ogre {
         mActiveRenderer = 0;
         mVersion = StringConverter::toString(OGRE_VERSION_MAJOR) + "." +
             StringConverter::toString(OGRE_VERSION_MINOR) + "." +
-            StringConverter::toString(OGRE_VERSION_PATCH) + 
+            StringConverter::toString(OGRE_VERSION_PATCH) +
 			OGRE_VERSION_SUFFIX + " " +
             "(" + OGRE_VERSION_NAME + ")";
 		mConfigFileName = configFileName;
@@ -151,6 +152,9 @@ namespace Ogre {
 
         // Mesh manager
         mMeshManager = new MeshManager();
+
+        // .rendercaps manager
+        mRenderSystemCapabilitiesManager = new RenderSystemCapabilitiesManager();
 
         // Skeleton manager
         mSkeletonManager = new SkeletonManager();
@@ -275,6 +279,7 @@ namespace Ogre {
 
         unloadPlugins();
         delete mMaterialManager;
+        delete mRenderSystemCapabilitiesManager;
         Pass::processPendingPassUpdates(); // make sure passes are cleaned
 		delete mResourceBackgroundQueue;
         delete mResourceGroupManager;
@@ -542,20 +547,20 @@ namespace Ogre {
 		return mSceneManagerEnum->getMetaData(typeName);
 	}
 	//-----------------------------------------------------------------------
-	SceneManagerEnumerator::MetaDataIterator 
+	SceneManagerEnumerator::MetaDataIterator
 	Root::getSceneManagerMetaDataIterator(void) const
 	{
 		return mSceneManagerEnum->getMetaDataIterator();
 
 	}
 	//-----------------------------------------------------------------------
-	SceneManager* Root::createSceneManager(const String& typeName, 
+	SceneManager* Root::createSceneManager(const String& typeName,
 		const String& instanceName)
 	{
 		return mSceneManagerEnum->createSceneManager(typeName, instanceName);
 	}
 	//-----------------------------------------------------------------------
-	SceneManager* Root::createSceneManager(SceneTypeMask typeMask, 
+	SceneManager* Root::createSceneManager(SceneTypeMask typeMask,
 		const String& instanceName)
 	{
 		return mSceneManagerEnum->createSceneManager(typeMask, instanceName);
@@ -842,7 +847,7 @@ namespace Ogre {
 		// now deal with any remaining plugins that were registered through other means
 		for (PluginInstanceList::reverse_iterator i = mPlugins.rbegin(); i != mPlugins.rend(); ++i)
 		{
-			// Note this does NOT call uninstallPlugin - this shutdown is for the 
+			// Note this does NOT call uninstallPlugin - this shutdown is for the
 			// detail objects
 			(*i)->uninstall();
 		}
@@ -952,7 +957,7 @@ namespace Ogre {
 	void Root::uninstallPlugin(Plugin* plugin)
 	{
 		LogManager::getSingleton().logMessage("Uninstalling plugin: " + plugin->getName());
-		PluginInstanceList::iterator i = 
+		PluginInstanceList::iterator i =
 			std::find(mPlugins.begin(), mPlugins.end(), plugin);
 		if (i != mPlugins.end())
 		{

@@ -30,11 +30,13 @@ Torus Knot Software Ltd.
 #define __RENDERSYSTEMCAPABILITIESMANAGER_H__
 
 #include "OgrePrerequisites.h"
-
 #include "OgreSingleton.h"
 #include "OgreResourceManager.h"
-#include "OgreRenderSystemCapabilities.h"
 #include "OgreStringVector.h"
+
+
+//#include "OgreRenderSystemCapabilitiesSerializer.h"
+
 
 
 #if OGRE_THREAD_SUPPORT
@@ -62,7 +64,7 @@ namespace Ogre {
 			const String& group, bool isManual, ManualResourceLoader* loader,
             const NameValuePairList* params);
 
-        RenderSystemCapabilitiesSerializer* mSerializer();
+        RenderSystemCapabilitiesSerializer* mSerializer;
 
     public:
 

@@ -72,7 +72,7 @@ http://www.gnu.org/copyleft/lesser.txt
 // will ever be actually removed from VC anyway, it would break too much code.
 #	pragma warning( disable: 4996)
 
-// disable: "conditional expression constant", always occurs on 
+// disable: "conditional expression constant", always occurs on
 // OGRE_MUTEX_CONDITIONAL when no threading enabled
 #   pragma warning (disable : 201)
 
@@ -89,10 +89,10 @@ http://www.gnu.org/copyleft/lesser.txt
 namespace Ogre {
     // Define ogre version
     #define OGRE_VERSION_MAJOR 1
-    #define OGRE_VERSION_MINOR 5
+    #define OGRE_VERSION_MINOR 4
     #define OGRE_VERSION_PATCH 0
 	#define OGRE_VERSION_SUFFIX ""
-    #define OGRE_VERSION_NAME "Shoggoth"
+    #define OGRE_VERSION_NAME "Eihort"
 
     #define OGRE_VERSION    ((OGRE_VERSION_MAJOR << 16) | (OGRE_VERSION_MINOR << 8) | OGRE_VERSION_PATCH)
 
@@ -163,8 +163,8 @@ namespace Ogre {
         #define OGRE_MUTEX_CONDITIONAL(mutex) if (mutex)
 		#define OGRE_THREAD_SYNCHRONISER(sync) boost::condition sync;
 		#define OGRE_THREAD_WAIT(sync, lock) sync.wait(lock);
-		#define OGRE_THREAD_NOTIFY_ONE(sync) sync.notify_one(); 
-		#define OGRE_THREAD_NOTIFY_ALL(sync) sync.notify_all(); 
+		#define OGRE_THREAD_NOTIFY_ONE(sync) sync.notify_one();
+		#define OGRE_THREAD_NOTIFY_ALL(sync) sync.notify_all();
 		// Thread-local pointer
 		#define OGRE_THREAD_POINTER(T, var) boost::thread_specific_ptr<T> var
 		#define OGRE_THREAD_POINTER_SET(var, expr) var.reset(expr)
@@ -185,10 +185,10 @@ namespace Ogre {
 		#define OGRE_COPY_AUTO_SHARED_MUTEX(from)
         #define OGRE_SET_AUTO_SHARED_MUTEX_NULL
         #define OGRE_MUTEX_CONDITIONAL(name) if(true)
-		#define OGRE_THREAD_SYNCHRONISER(sync) 
-		#define OGRE_THREAD_WAIT(sync, lock) 
-		#define OGRE_THREAD_NOTIFY_ONE(sync) 
-		#define OGRE_THREAD_NOTIFY_ALL(sync) 
+		#define OGRE_THREAD_SYNCHRONISER(sync)
+		#define OGRE_THREAD_WAIT(sync, lock)
+		#define OGRE_THREAD_NOTIFY_ONE(sync)
+		#define OGRE_THREAD_NOTIFY_ALL(sync)
 		#define OGRE_THREAD_POINTER(T, var) T* var
 		#define OGRE_THREAD_POINTER_SET(var, expr) var = expr
 		#define OGRE_THREAD_POINTER_DELETE(var) delete var; var = 0
@@ -319,6 +319,8 @@ namespace Ogre {
     class RenderQueueListener;
     class RenderSystem;
     class RenderSystemCapabilities;
+    class RenderSystemCapabilitiesManager;
+    class RenderSystemCapabilitiesSerializer;
     class RenderTarget;
     class RenderTargetListener;
     class RenderTexture;

@@ -42,7 +42,7 @@ Torus Knot Software Ltd.
 namespace Ogre
 {
     typedef std::vector<RenderSystem*> RenderSystemList;
-	
+
     /** The root class of the Ogre system.
         @remarks
             The Ogre::Root class represents a starting point for the client
@@ -79,6 +79,7 @@ namespace Ogre
         ArchiveManager* mArchiveManager;
         MaterialManager* mMaterialManager;
         MeshManager* mMeshManager;
+        RenderSystemCapabilitiesManager* mRenderSystemCapabilitiesManager;
         ParticleSystemManager* mParticleManager;
         SkeletonManager* mSkeletonManager;
         OverlayElementFactory* mPanelFactory;
@@ -97,7 +98,7 @@ namespace Ogre
         Profiler* mProfiler;
         HighLevelGpuProgramManager* mHighLevelGpuProgramManager;
 		ExternalTextureSourceManager* mExternalTextureSourceManager;
-        CompositorManager* mCompositorManager;      
+        CompositorManager* mCompositorManager;
         unsigned long mCurrentFrame;
 		Real mFrameSmoothingTime;
 
@@ -176,11 +177,11 @@ namespace Ogre
             Defaults to "plugins.cfg", may be left blank to ignore.
 		@param configFileName The file that contains the configuration to be loaded.
 			Defaults to "ogre.cfg", may be left blank to load nothing.
-		@param logFileName The logfile to create, defaults to Ogre.log, may be 
+		@param logFileName The logfile to create, defaults to Ogre.log, may be
 			left blank if you've already set up LogManager & Log yourself
 		*/
-        Root(const String& pluginFileName = "plugins.cfg", 
-			const String& configFileName = "ogre.cfg", 
+        Root(const String& pluginFileName = "plugins.cfg",
+			const String& configFileName = "ogre.cfg",
 			const String& logFileName = "Ogre.log");
         ~Root();
 
@@ -296,7 +297,7 @@ namespace Ogre
 		bool isInitialised(void) const { return mIsInitialised; }
 
 		/** Register a new SceneManagerFactory, a factory object for creating instances
-			of specific SceneManagers. 
+			of specific SceneManagers.
 		@remarks
 			Plugins should call this to register as new SceneManager providers.
 		*/
@@ -308,23 +309,23 @@ namespace Ogre
 
 		/** Get more information about a given type of SceneManager.
 		@remarks
-			The metadata returned tells you a few things about a given type 
+			The metadata returned tells you a few things about a given type
 			of SceneManager, which can be created using a factory that has been
-			registered already. 
+			registered already.
 		@param typeName The type name of the SceneManager you want to enquire on.
-			If you don't know the typeName already, you can iterate over the 
+			If you don't know the typeName already, you can iterate over the
 			metadata for all types using getMetaDataIterator.
 		*/
 		const SceneManagerMetaData* getSceneManagerMetaData(const String& typeName) const;
 
-		/** Iterate over all types of SceneManager available for construction, 
+		/** Iterate over all types of SceneManager available for construction,
 			providing some information about each one.
 		*/
 		SceneManagerEnumerator::MetaDataIterator getSceneManagerMetaDataIterator(void) const;
 
 		/** Create a SceneManager instance of a given type.
 		@remarks
-			You can use this method to create a SceneManager instance of a 
+			You can use this method to create a SceneManager instance of a
 			given specific type. You may know this type already, or you may
 			have discovered it by looking at the results from getMetaDataIterator.
 		@note
@@ -333,14 +334,14 @@ namespace Ogre
 		@param instanceName Optional name to given the new instance that is
 			created. If you leave this blank, an auto name will be assigned.
 		*/
-		SceneManager* createSceneManager(const String& typeName, 
+		SceneManager* createSceneManager(const String& typeName,
 			const String& instanceName = StringUtil::BLANK);
 
 		/** Create a SceneManager instance based on scene type support.
 		@remarks
 			Creates an instance of a SceneManager which supports the scene types
-			identified in the parameter. If more than one type of SceneManager 
-			has been registered as handling that combination of scene types, 
+			identified in the parameter. If more than one type of SceneManager
+			has been registered as handling that combination of scene types,
 			in instance of the last one registered is returned.
 		@note This method always succeeds, if a specific scene manager is not
 			found, the default implementation is always returned.
@@ -348,7 +349,7 @@ namespace Ogre
 		@param instanceName Optional name to given the new instance that is
 			created. If you leave this blank, an auto name will be assigned.
 		*/
-		SceneManager* createSceneManager(SceneTypeMask typeMask, 
+		SceneManager* createSceneManager(SceneTypeMask typeMask,
 			const String& instanceName = StringUtil::BLANK);
 
 		/** Destroy an instance of a SceneManager. */
@@ -455,7 +456,7 @@ namespace Ogre
         */
         void startRendering(void);
 
-        /** Render one frame. 
+        /** Render one frame.
         @remarks
             Updates all the render targets automatically and then returns,
             raising frame events before and after.
@@ -474,7 +475,7 @@ namespace Ogre
             Resource type.
             @remarks
                 Resource files (textures, models etc) need to be loaded from
-                specific locations. By calling this method, you add another 
+                specific locations. By calling this method, you add another
 				search location to the list. Locations added first are preferred
 				over locations added later.
             @par
@@ -489,7 +490,7 @@ namespace Ogre
                 compressed with the pkzip / WinZip etc utilities) types.
             @par
 				You can also supply the name of a resource group which should
-				have this location applied to it. The 
+				have this location applied to it. The
 				ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME group is the
 				default, and one resource group which will always exist. You
 				should consider defining resource groups for your more specific
@@ -516,17 +517,17 @@ namespace Ogre
             @see
                 Archive
         */
-        void addResourceLocation(const String& name, const String& locType, 
-			const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+        void addResourceLocation(const String& name, const String& locType,
+			const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 			bool recursive = false);
 
 		/** Removes a resource location from the list.
 		@see addResourceLocation
 		@param name The name of the resource location as specified in addResourceLocation
-		@param groupName The name of the resource group to which this location 
+		@param groupName The name of the resource group to which this location
 			was assigned.
 		*/
-		void removeResourceLocation(const String& name, 
+		void removeResourceLocation(const String& name,
 			const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
         /** Generates a packed data version of the passed in ColourValue suitable for
@@ -551,7 +552,7 @@ namespace Ogre
 
         /** @copydoc RenderSystem::createRenderWindow
         */
-		RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, 
+		RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height,
 			bool fullScreen, const NameValuePairList *miscParams = 0) ;
 
         /** Destroys a rendering window.
@@ -568,10 +569,10 @@ namespace Ogre
 
 		/** Manually load a Plugin contained in a DLL / DSO.
 		 @remarks
-		 	Plugins embedded in DLLs can be loaded at startup using the plugin 
+		 	Plugins embedded in DLLs can be loaded at startup using the plugin
 			configuration file specified when you create Root (default: plugins.cfg).
 			This method allows you to load plugin DLLs directly in code.
-			The DLL in question is expected to implement a dllStartPlugin 
+			The DLL in question is expected to implement a dllStartPlugin
 			method which instantiates a Plugin subclass and calls Root::installPlugin.
 			It should also implement dllStopPlugin (see Root::unloadPlugin)
 		@param pluginName Name of the plugin library to load
@@ -580,9 +581,9 @@ namespace Ogre
 
 		/** Manually unloads a Plugin contained in a DLL / DSO.
 		 @remarks
-		 	Plugin DLLs are unloaded at shutdown automatically. This method 
-			allows you to unload plugins in code, but make sure their 
-			dependencies are decoupled first. This method will call the 
+		 	Plugin DLLs are unloaded at shutdown automatically. This method
+			allows you to unload plugins in code, but make sure their
+			dependencies are decoupled first. This method will call the
 			dllStopPlugin method defined in the DLL, which in turn should call
 			Root::uninstallPlugin.
 		@param pluginName Name of the plugin library to unload
@@ -592,19 +593,19 @@ namespace Ogre
 		/** Install a new plugin.
 		@remarks
 			This installs a new extension to OGRE. The plugin itself may be loaded
-			from a DLL / DSO, or it might be statically linked into your own 
+			from a DLL / DSO, or it might be statically linked into your own
 			application. Either way, something has to call this method to get
 			it registered and functioning. You should only call this method directly
-			if your plugin is not in a DLL that could otherwise be loaded with 
+			if your plugin is not in a DLL that could otherwise be loaded with
 			loadPlugin, since the DLL function dllStartPlugin should call this
-			method when the DLL is loaded. 
+			method when the DLL is loaded.
 		*/
 		void installPlugin(Plugin* plugin);
 
 		/** Uninstall an existing plugin.
 		@remarks
-			This uninstalls an extension to OGRE. Plugins are automatically 
-			uninstalled at shutdown but this lets you remove them early. 
+			This uninstalls an extension to OGRE. Plugins are automatically
+			uninstalled at shutdown but this lets you remove them early.
 			If the plugin was loaded from a DLL / DSO you should call unloadPlugin
 			which should result in this method getting called anyway (if the DLL
 			is well behaved).
@@ -617,12 +618,12 @@ namespace Ogre
         /** Gets a pointer to the central timer used for all OGRE timings */
         Timer* getTimer(void);
 
-        /** Method for raising frame started events. 
+        /** Method for raising frame started events.
         @remarks
             This method is only for internal use when you use OGRE's inbuilt rendering
             loop (Root::startRendering). However, if you run your own rendering loop then
             you should call this method to ensure that FrameListener objects are notified
-            of frame events; processes like texture animation and particle systems rely on 
+            of frame events; processes like texture animation and particle systems rely on
             this.
         @par
             Calling this method also increments the frame number, which is
@@ -631,57 +632,57 @@ namespace Ogre
             This method takes an event object as a parameter, so you can specify the times
             yourself. If you are happy for OGRE to automatically calculate the frame time
             for you, then call the other version of this method with no parameters.
-        @param evt Event object which includes all the timing information which you have 
+        @param evt Event object which includes all the timing information which you have
             calculated for yourself
         @returns False if one or more frame listeners elected that the rendering loop should
             be terminated, true otherwise.
         */
         bool _fireFrameStarted(FrameEvent& evt);
-        /** Method for raising frame ended events. 
+        /** Method for raising frame ended events.
         @remarks
             This method is only for internal use when you use OGRE's inbuilt rendering
             loop (Root::startRendering). However, if you run your own rendering loop then
             you should call this method to ensure that FrameListener objects are notified
-            of frame events; processes like texture animation and particle systems rely on 
+            of frame events; processes like texture animation and particle systems rely on
             this.
         @note
             This method takes an event object as a parameter, so you can specify the times
             yourself. If you are happy for OGRE to automatically calculate the frame time
             for you, then call the other version of this method with no parameters.
-        @param evt Event object which includes all the timing information which you have 
+        @param evt Event object which includes all the timing information which you have
             calculated for yourself
         @returns False if one or more frame listeners elected that the rendering loop should
             be terminated, true otherwise.
         */
         bool _fireFrameEnded(FrameEvent& evt);
-        /** Method for raising frame started events. 
+        /** Method for raising frame started events.
         @remarks
             This method is only for internal use when you use OGRE's inbuilt rendering
             loop (Root::startRendering). However, if you run your own rendering loop then
             you should call this method to ensure that FrameListener objects are notified
-            of frame events; processes like texture animation and particle systems rely on 
+            of frame events; processes like texture animation and particle systems rely on
             this.
         @par
             Calling this method also increments the frame number, which is
             important for keeping some elements of the engine up to date.
         @note
             This method calculates the frame timing information for you based on the elapsed
-            time. If you want to specify elapsed times yourself you should call the other 
+            time. If you want to specify elapsed times yourself you should call the other
             version of this method which takes event details as a parameter.
         @returns False if one or more frame listeners elected that the rendering loop should
             be terminated, true otherwise.
         */
         bool _fireFrameStarted();
-        /** Method for raising frame ended events. 
+        /** Method for raising frame ended events.
         @remarks
             This method is only for internal use when you use OGRE's inbuilt rendering
             loop (Root::startRendering). However, if you run your own rendering loop then
             you should call this method to ensure that FrameListener objects are notified
-            of frame events; processes like texture animation and particle systems rely on 
+            of frame events; processes like texture animation and particle systems rely on
             this.
         @note
             This method calculates the frame timing information for you based on the elapsed
-            time. If you want to specify elapsed times yourself you should call the other 
+            time. If you want to specify elapsed times yourself you should call the other
             version of this method which takes event details as a parameter.
         @returns False if one or more frame listeners elected that the rendering loop should
             be terminated, true otherwise.
@@ -703,7 +704,7 @@ namespace Ogre
         */
         void _setCurrentSceneManager(SceneManager* sm);
 
-        /** Internal method used for updating all RenderTarget objects (windows, 
+        /** Internal method used for updating all RenderTarget objects (windows,
             renderable textures etc) which are set to auto-update.
         @remarks
             You don't need to use this method if you're using Ogre's own internal
@@ -721,13 +722,13 @@ namespace Ogre
 		RenderQueueInvocationSequence* createRenderQueueInvocationSequence(
 			const String& name);
 
-		/** Get a RenderQueueInvocationSequence. 
+		/** Get a RenderQueueInvocationSequence.
 		@param name The name to identify the sequence
 		*/
 		RenderQueueInvocationSequence* getRenderQueueInvocationSequence(
 			const String& name);
 
-		/** Destroy a RenderQueueInvocationSequence. 
+		/** Destroy a RenderQueueInvocationSequence.
 		@remarks
 			You must ensure that no Viewports are using this sequence.
 		@param name The name to identify the sequence
@@ -735,7 +736,7 @@ namespace Ogre
 		void destroyRenderQueueInvocationSequence(
 			const String& name);
 
-		/** Destroy all RenderQueueInvocationSequences. 
+		/** Destroy all RenderQueueInvocationSequences.
 		@remarks
 			You must ensure that no Viewports are using custom sequences.
 		@param name The name to identify the sequence
@@ -775,10 +776,10 @@ namespace Ogre
         */
         static Root* getSingletonPtr(void);
 
-		/** Clears the history of all event times. 
+		/** Clears the history of all event times.
 		@remarks
 			OGRE stores a history of the last few event times in order to smooth
-			out any inaccuracies and temporary fluctuations. However, if you 
+			out any inaccuracies and temporary fluctuations. However, if you
 			pause or don't render for a little while this can cause a lurch, so
 			if you're resuming rendering after a break, call this method to reset
 			the stored times
@@ -788,7 +789,7 @@ namespace Ogre
 		/** Sets the period over which OGRE smooths out fluctuations in frame times.
 		@remarks
 			OGRE by default gives you the raw frame time, but can optionally
-			smooths it out over several frames, in order to reduce the 
+			smooths it out over several frames, in order to reduce the
 			noticeable effect of occasional hiccups in framerate.
 			These smoothed values are passed back as parameters to FrameListener
 			calls.
@@ -804,21 +805,21 @@ namespace Ogre
 		/** Register a new MovableObjectFactory which will create new MovableObject
 			instances of a particular type, as identified by the getType() method.
 		@remarks
-			Plugin creators can create subclasses of MovableObjectFactory which 
-			construct custom subclasses of MovableObject for insertion in the 
+			Plugin creators can create subclasses of MovableObjectFactory which
+			construct custom subclasses of MovableObject for insertion in the
 			scene. This is the primary way that plugins can make custom objects
 			available.
 		@param fact Pointer to the factory instance
-		@param overrideExisting Set this to true to override any existing 
+		@param overrideExisting Set this to true to override any existing
 			factories which are registered for the same type. You should only
-			change this if you are very sure you know what you're doing. 
+			change this if you are very sure you know what you're doing.
 		*/
-		void addMovableObjectFactory(MovableObjectFactory* fact, 
+		void addMovableObjectFactory(MovableObjectFactory* fact,
 			bool overrideExisting = false);
 		/** Removes a previously registered MovableObjectFactory.
 		@remarks
 			All instances of objects created by this factory will be destroyed
-			before removing the factory (by calling back the factories 
+			before removing the factory (by calling back the factories
 			'destroyInstance' method). The plugin writer is responsible for actually
 			destroying the factory.
 		*/
