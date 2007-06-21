@@ -128,6 +128,8 @@ namespace Ogre {
 				RSC_PERSTAGECONSTANT = CAPS_VALUE(1, 9)
 
     };
+    // Formard declaration
+    class RenderSystemCapabilitiesPtr;
 
     /** singleton class for storing the capabilities of the graphics card.
         @remarks
@@ -520,11 +522,65 @@ namespace Ogre {
             /** Write the capabilities to the pass in Log */
             void log(Log* pLog);
 
-
-
-
     };
-}
+
+    /** Specialisation of SharedPtr to allow SharedPtr to be assigned to RenderSystemCapabilitiesPtr
+	@note Has to be a subclass since we need operator=.
+	We could templatise this instead of repeating per Resource subclass,
+	except to do so requires a form VC6 does not support i.e.
+	ResourceSubclassPtr<T> : public SharedPtr<T>
+	*/
+	class _OgreExport RenderSystemCapabilitiesPtr : public SharedPtr<RenderSystemCapabilities>
+	{
+	public:
+		RenderSystemCapabilitiesPtr() : SharedPtr<RenderSystemCapabilities>() {}
+		explicit RenderSystemCapabilitiesPtr(RenderSystemCapabilities* rep) : SharedPtr<RenderSystemCapabilities>(rep) {}
+		RenderSystemCapabilitiesPtr(const RenderSystemCapabilitiesPtr& r) : SharedPtr<RenderSystemCapabilities>(r) {}
+		RenderSystemCapabilitiesPtr(const ResourcePtr& r) : SharedPtr<RenderSystemCapabilities>()
+		{
+			// lock & copy other mutex pointer
+            OGRE_MUTEX_CONDITIONAL(r.OGRE_AUTO_MUTEX_NAME)
+            {
+			    OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			    OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+			    pRep = static_cast<RenderSystemCapabilities*>(r.getPointer());
+			    pUseCount = r.useCountPointer();
+			    if (pUseCount)
+			    {
+				    ++(*pUseCount);
+			    }
+            }
+		}
+
+		/// Operator used to convert a ResourcePtr to a MaterialPtr
+		RenderSystemCapabilitiesPtr& operator=(const ResourcePtr& r)
+		{
+			if (pRep == static_cast<RenderSystemCapabilities*>(r.getPointer()))
+				return *this;
+			release();
+			// lock & copy other mutex pointer
+            OGRE_MUTEX_CONDITIONAL(r.OGRE_AUTO_MUTEX_NAME)
+            {
+			    OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
+			    OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
+			    pRep = static_cast<RenderSystemCapabilities*>(r.getPointer());
+			    pUseCount = r.useCountPointer();
+			    if (pUseCount)
+			    {
+				    ++(*pUseCount);
+			    }
+            }
+			else
+			{
+				// RHS must be a null pointer
+				assert(r.isNull() && "RHS must be null if it has no mutex!");
+				setNull();
+			}
+			return *this;
+		}
+	};
+
+} // namespace
 
 #endif // __RenderSystemCapabilities__
 
