@@ -75,6 +75,7 @@ namespace Ogre {
 		for(size_t i = 0; i < OGRE_MAX_SIMULTANEOUS_LIGHTS; ++i)
 		{
 			mTextureViewProjMatrixDirty[i] = true;
+			mTextureWorldViewProjMatrixDirty[i] = true;
 			mCurrentTextureProjector[i] = 0;
 		}
 
@@ -99,6 +100,11 @@ namespace Ogre {
 		mInverseTransposeWorldMatrixDirty = true;
 		mInverseTransposeWorldViewMatrixDirty = true;
 		mCameraPositionObjectSpaceDirty = true;
+		for(size_t i = 0; i < OGRE_MAX_SIMULTANEOUS_LIGHTS; ++i)
+		{
+			mTextureWorldViewProjMatrixDirty[i] = true;
+		}
+
     }
     //-----------------------------------------------------------------------------
     void AutoParamDataSource::setCurrentCamera(const Camera* cam)
@@ -451,6 +457,7 @@ namespace Ogre {
     {
         mCurrentTextureProjector[index] = frust;
         mTextureViewProjMatrixDirty[index] = true;
+		mTextureWorldViewProjMatrixDirty[index] = true;
 
     }
     //-----------------------------------------------------------------------------
@@ -466,6 +473,17 @@ namespace Ogre {
         }
         return mTextureViewProjMatrix[index];
     }
+	//-----------------------------------------------------------------------------
+	const Matrix4& AutoParamDataSource::getTextureWorldViewProjMatrix(size_t index) const
+	{
+		if (mTextureWorldViewProjMatrixDirty[index] && mCurrentTextureProjector[index])
+		{
+			mTextureWorldViewProjMatrix[index] = 
+				getTextureViewProjMatrix(index)	* getWorldMatrix();
+			mTextureWorldViewProjMatrixDirty[index] = false;
+		}
+		return mTextureWorldViewProjMatrix[index];
+	}
     //-----------------------------------------------------------------------------
     void AutoParamDataSource::setCurrentRenderTarget(const RenderTarget* target)
     {

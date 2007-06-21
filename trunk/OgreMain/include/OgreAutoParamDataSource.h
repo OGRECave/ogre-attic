@@ -68,6 +68,7 @@ namespace Ogre {
         mutable Matrix4 mInverseTransposeWorldViewMatrix;
         mutable Vector4 mCameraPositionObjectSpace;
         mutable Matrix4 mTextureViewProjMatrix[OGRE_MAX_SIMULTANEOUS_LIGHTS];
+		mutable Matrix4 mTextureWorldViewProjMatrix[OGRE_MAX_SIMULTANEOUS_LIGHTS];
         mutable Matrix4 mViewMatrix;
         mutable Matrix4 mProjectionMatrix;
 		mutable Real mDirLightExtrusionDistance;
@@ -87,6 +88,7 @@ namespace Ogre {
         mutable bool mCameraPositionObjectSpaceDirty;
         mutable bool mCameraPositionDirty;
         mutable bool mTextureViewProjMatrixDirty[OGRE_MAX_SIMULTANEOUS_LIGHTS];
+		mutable bool mTextureWorldViewProjMatrixDirty[OGRE_MAX_SIMULTANEOUS_LIGHTS];
 		mutable ColourValue mAmbientLight;
         mutable ColourValue mFogColour;
         mutable Vector4 mFogParams;
@@ -166,6 +168,7 @@ namespace Ogre {
         const ColourValue& getFogColour(void) const;
         const Vector4& getFogParams(void) const;
         const Matrix4& getTextureViewProjMatrix(size_t index) const;
+		const Matrix4& getTextureWorldViewProjMatrix(size_t index) const;
         const RenderTarget* getCurrentRenderTarget(void) const;
         const Renderable* getCurrentRenderable(void) const;
         const Pass* getCurrentPass(void) const;
