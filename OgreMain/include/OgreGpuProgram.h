@@ -455,6 +455,10 @@ namespace Ogre {
             ACT_CAMERA_POSITION_OBJECT_SPACE,
             /// The view/projection matrix of the assigned texture projection frustum
             ACT_TEXTURE_VIEWPROJ_MATRIX,
+			/** The view/projection matrix of the assigned texture projection frustum, 
+				combined with the current world matrix
+			*/
+			ACT_TEXTURE_WORLDVIEWPROJ_MATRIX,
             /// A custom parameter which will come from the renderable, using 'data' as the identifier
             ACT_CUSTOM,
             /** provides current elapsed time

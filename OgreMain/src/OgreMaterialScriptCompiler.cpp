@@ -2734,7 +2734,9 @@ namespace Ogre {
 							index, autoConstantDef->acType, mScriptContext.numAnimationParametrics++);
 				}
 				// Special case texture projector - assume 0 if data not specified
-				else if (autoConstantDef->acType == GpuProgramParameters::ACT_TEXTURE_VIEWPROJ_MATRIX
+				else if (
+					(autoConstantDef->acType == GpuProgramParameters::ACT_TEXTURE_VIEWPROJ_MATRIX ||
+					 autoConstantDef->acType == GpuProgramParameters::ACT_TEXTURE_WORLDVIEWPROJ_MATRIX)
 					&& getRemainingTokensForAction() == 0)
 				{
 					if (isNamed)
