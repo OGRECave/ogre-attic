@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on March 3 2007 by texi2html 1.66 -->
+<!-- Created on June 22 2007 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -12,10 +12,10 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.4.0 ('Eihort'): GLSL</TITLE>
+<TITLE>OGRE Manual v1.5.0 ('Shoggoth'): GLSL</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.4.0 ('Eihort'): GLSL">
-<META NAME="keywords" CONTENT="OGRE Manual v1.4.0 ('Eihort'): GLSL">
+<META NAME="description" CONTENT="OGRE Manual v1.5.0 ('Shoggoth'): GLSL">
+<META NAME="keywords" CONTENT="OGRE Manual v1.5.0 ('Shoggoth'): GLSL">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.66">
@@ -24,11 +24,11 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 <BODY LANG="en" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC99"></A>
+<A NAME="SEC105"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_20.html#SEC98"> &lt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_20.html#SEC104"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC105"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC111"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -36,7 +36,7 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 </TR></TABLE>
 <HR SIZE=1>
 <H3> 3.1.7 OpenGL GLSL </H3>
-<!--docid::SEC99::-->
+<!--docid::SEC105::-->
 OpenGL GLSL has a similar language syntax to HLSL but is tied to the OpenGL API. The are a few benefits over Cg in that it only requires the OpenGL render system plugin, not any additional plugins. Declaring a OpenGL GLSL program is similar to Cg but simpler. Here's an example:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>vertex_program myGLSLVertexProgram glsl
 {
@@ -70,9 +70,9 @@ vertex_program myGLSLVertexProgram2 glsl
 </pre></td></tr></table>
 External GLSL functions are attached to the program that needs them by using 'attach' and including the names of all external programs required on the same line seperated by spaces.  This can be done for both vertex and fragment programs.
 
-<A NAME="SEC100"></A>
+<A NAME="SEC106"></A>
 <H3> GLSL Texture Samplers </H3>
-<!--docid::SEC100::-->
+<!--docid::SEC106::-->
 To pass texture unit index values from the material script to texture samplers in glsl use 'int' type named parameters.  See the example below:<BR>
 
 excerpt from GLSL example.frag source:
@@ -111,9 +111,9 @@ material exampleGLSLTexturing
 </pre></td></tr></table>
 An index value of 0 refers to the first texture unit in the pass, an index value of 1 refers to the second unit in the pass and so on.<BR><BR>
 
-<A NAME="SEC101"></A>
+<A NAME="SEC107"></A>
 <H3> Matrix parameters </H3>
-<!--docid::SEC101::-->
+<!--docid::SEC107::-->
 
 Here are some examples of passing matrices to GLSL mat2, mat3, mat4 uniforms:
 
@@ -144,14 +144,14 @@ Here are some examples of passing matrices to GLSL mat2, mat3, mat4 uniforms:
   }
 }
 </pre></td></tr></table>
-<A NAME="SEC102"></A>
+<A NAME="SEC108"></A>
 <H3> Accessing OpenGL states in GLSL </H3>
-<!--docid::SEC102::-->
-GLSL can access most of the GL states directly so you do not need to pass these states through <A HREF="manual_23.html#SEC111">param_named_auto</A> in the material script.  This includes lights, material state, and all the matrices used in the openGL state ie model view matrix, worldview projection matrix etc. <BR><BR>
+<!--docid::SEC108::-->
+GLSL can access most of the GL states directly so you do not need to pass these states through <A HREF="manual_23.html#SEC117">param_named_auto</A> in the material script.  This includes lights, material state, and all the matrices used in the openGL state ie model view matrix, worldview projection matrix etc. <BR><BR>
 
-<A NAME="SEC103"></A>
+<A NAME="SEC109"></A>
 <H3> Binding vertex attributes </H3>
-<!--docid::SEC103::-->
+<!--docid::SEC109::-->
 GLSL natively supports automatic binding of the most common incoming per-vertex attributes (e.g. gl_Vertex, gl_Normal, gl_MultiTexCoord0 etc). However, there are some which are not automatically bound, which must be declared in the shader using the 'attribute &lt;type&gt; &lt;name&gt;' syntax, and the vertex data bound to it by Ogre. <BR><BR>
 
 In addition to the built in attributes described in section 7.3 of the GLSL manual, Ogre supports the following automatically bound attributes:
@@ -165,9 +165,9 @@ In addition to the built in attributes described in section 7.3 of the GLSL manu
 <DT>blendWeights
 <DD>If you declare an attribute as 'attribute vec4 blendWeights;' at the top of your GLSL vertex program, Ogre will automatically bind vertex elements of type VES_BLEND_WEIGHTS to it.
 
-<A NAME="SEC104"></A>
+<A NAME="SEC110"></A>
 <H3> Preprocessor definitions </H3>
-<!--docid::SEC104::-->
+<!--docid::SEC110::-->
 GLSL supports using preprocessor definitions in your code - some are defined by the implementation, but you can also define your own, say in order to use the same source code for a few different variants of the same technique. In order to use this feature, include preprocessor conditions in your GLSL code, of the kind #ifdef SYMBOL, #if SYMBOL==2 etc. Then in your program definition, use the 'preprocessor_defines' option, following it with a string if definitions.  Definitions are separated by ';' or ',' and may optionally have a '=' operator within them to specify a definition value. Those without an '=' will implicitly have a definition of 1. For example:<BR><BR>
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>// in your GLSL
 
@@ -193,9 +193,9 @@ preprocessor_defines CLEVERTECHNIQUE,NUMTHINGS=2
 <A NAME="Unified High-level Programs"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_20.html#SEC98"> &lt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_20.html#SEC104"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC105"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC111"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -204,7 +204,7 @@ preprocessor_defines CLEVERTECHNIQUE,NUMTHINGS=2
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>March 3 2007</I>
+by <I>steve</I> on <I>June 22 2007</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 
