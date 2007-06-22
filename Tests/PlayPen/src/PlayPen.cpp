@@ -5774,6 +5774,115 @@ protected:
 	
 	}
 
+	void testSpotlightViewProj(bool worldViewProj)
+	{
+		// Define programs that use spotlight projection
+
+		String vpStr;
+		vpStr = 
+			"void vp(float4 position : POSITION,\n"
+			"out float4 oPosition : POSITION,\n"
+			"out float4 oUV : TEXCOORD0,\n";
+		if (!worldViewProj)
+		{
+			vpStr += "uniform float4x4 world,\n"
+				"uniform float4x4 spotlightViewProj,\n";
+		}
+		else
+		{
+			vpStr += "uniform float4x4 spotlightWorldViewProj,\n";
+		}
+		vpStr += "uniform float4x4 worldViewProj)\n"
+			"{\n"
+			"	oPosition = mul(worldViewProj, position);\n";
+		if (worldViewProj)
+		{
+			vpStr += "	oUV = mul(spotlightWorldViewProj, position);\n";
+		}
+		else
+		{
+			vpStr += "	float4 worldPos = mul(world, position);\n"
+				"	oUV = mul(spotlightViewProj, worldPos);\n";
+		}
+		vpStr += "}\n";
+
+		String fpStr = 
+			"void fp(\n"
+			"float4 uv : TEXCOORD0,\n"
+			"uniform sampler2D tex : register(s0),\n"
+			"out float4 oColor : COLOR)\n"
+			"{\n"
+			"   uv = uv / uv.w;\n"
+			"	oColor = tex2D(tex, uv.xy);\n"
+			"}\n";
+
+		HighLevelGpuProgramPtr vp = HighLevelGpuProgramManager::getSingleton()
+			.createProgram("testvp", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+			"cg", GPT_VERTEX_PROGRAM);
+		vp->setSource(vpStr);
+		vp->setParameter("profiles", "vs_1_1 arbvp1");
+		vp->setParameter("entry_point", "vp");
+		vp->load();
+
+		HighLevelGpuProgramPtr fp = HighLevelGpuProgramManager::getSingleton()
+			.createProgram("testfp", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+			"cg", GPT_FRAGMENT_PROGRAM);
+		fp->setSource(fpStr);
+		fp->setParameter("profiles", "ps_2_0 arbfp1");
+		fp->setParameter("entry_point", "fp");
+		fp->load();
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("TestSpotlightProj", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setVertexProgram("testvp");
+		p->getVertexProgramParameters()->setNamedAutoConstant(
+			"worldViewProj", GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+
+		if (worldViewProj)
+		{
+			p->getVertexProgramParameters()->setNamedAutoConstant(
+				"spotlightWorldViewProj", GpuProgramParameters::ACT_SPOTLIGHT_WORLDVIEWPROJ_MATRIX);
+		}
+		else
+		{
+			p->getVertexProgramParameters()->setNamedAutoConstant(
+				"world", GpuProgramParameters::ACT_WORLD_MATRIX);
+			p->getVertexProgramParameters()->setNamedAutoConstant(
+				"spotlightViewProj", GpuProgramParameters::ACT_SPOTLIGHT_VIEWPROJ_MATRIX);
+		}
+		p->setFragmentProgram("testfp");
+		p->createTextureUnitState("ogrelogo.png");
+
+		Entity* pEnt;
+
+		// Define a plane mesh, use the above material
+		Plane plane;
+		plane.normal = Vector3::UNIT_Z;
+		plane.d = 200;
+		MeshManager::getSingleton().createPlane("WallPlane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+			plane,1500,1500,100,100,true,1,5,5,Vector3::UNIT_Y);
+		pEnt = mSceneMgr->createEntity( "5", "WallPlane" );
+		pEnt->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pEnt);
+
+
+		mTestNode[0] = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+
+		mTestNode[0]->translate(0, 0, 750);
+
+		Light* spot = mSceneMgr->createLight("l1");
+		spot->setType(Light::LT_SPOTLIGHT);
+		spot->setDirection(Vector3::NEGATIVE_UNIT_Z);
+
+		mTestNode[0]->attachObject(spot);
+
+
+	}
+
 	// Just override the mandatory create scene method
     void createScene(void)
     {
@@ -5869,7 +5978,8 @@ protected:
 		//testPoseAnimation();
 		//testPoseAnimation2();
 		//testBug();
-		testMRTCompositorScript();
+		//testMRTCompositorScript();
+		testSpotlightViewProj(true);
 		//test16Textures();
 		//testProjectSphere();
 		//testLightScissoring(false);

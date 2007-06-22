@@ -76,6 +76,8 @@ namespace Ogre {
 		{
 			mTextureViewProjMatrixDirty[i] = true;
 			mTextureWorldViewProjMatrixDirty[i] = true;
+			mSpotlightViewProjMatrixDirty[i] = true;
+			mSpotlightWorldViewProjMatrixDirty[i] = true;
 			mCurrentTextureProjector[i] = 0;
 		}
 
@@ -103,6 +105,7 @@ namespace Ogre {
 		for(size_t i = 0; i < OGRE_MAX_SIMULTANEOUS_LIGHTS; ++i)
 		{
 			mTextureWorldViewProjMatrixDirty[i] = true;
+			mSpotlightWorldViewProjMatrixDirty[i] = true;
 		}
 
     }
@@ -126,6 +129,12 @@ namespace Ogre {
     {
         mCurrentLightList = ll;
 		mShadowCamDepthRangesDirty = true;
+		for(size_t i = 0; i < ll->size(); ++i)
+		{
+			mSpotlightViewProjMatrixDirty[i] = true;
+			mSpotlightWorldViewProjMatrixDirty[i] = true;
+		}
+
     }
 	//-----------------------------------------------------------------------------
 	void AutoParamDataSource::setMainCamBoundsInfo(VisibleObjectsBoundsInfo* info)
@@ -483,6 +492,69 @@ namespace Ogre {
 			mTextureWorldViewProjMatrixDirty[index] = false;
 		}
 		return mTextureWorldViewProjMatrix[index];
+	}
+	//-----------------------------------------------------------------------------
+	const Matrix4& AutoParamDataSource::getSpotlightViewProjMatrix(size_t index) const
+	{
+		const Light& l = getLight(index);
+
+		if (&l != &mBlankLight && 
+			l.getType() == Light::LT_SPOTLIGHT &&
+			mSpotlightViewProjMatrixDirty[index])
+		{
+			Frustum frust;
+			SceneNode dummyNode(0);
+			dummyNode.attachObject(&frust);
+
+			frust.setProjectionType(PT_PERSPECTIVE);
+			frust.setFOVy(l.getSpotlightOuterAngle());
+			// set near clip the same as main camera, since they are likely
+			// to both reflect the nature of the scene
+			frust.setNearClipDistance(mCurrentCamera->getNearClipDistance());
+			// Calculate position, which same as spotlight position
+			dummyNode.setPosition(l.getDerivedPosition());
+			// Calculate direction, which same as spotlight direction
+			Vector3 dir = - l.getDerivedDirection(); // backwards since point down -z
+			dir.normalise();
+			Vector3 up = Vector3::UNIT_Y;
+			// Check it's not coincident with dir
+			if (Math::Abs(up.dotProduct(dir)) >= 1.0f)
+			{
+				// Use camera up
+				up = Vector3::UNIT_Z;
+			}
+			// cross twice to rederive, only direction is unaltered
+			Vector3 left = dir.crossProduct(up);
+			left.normalise();
+			up = dir.crossProduct(left);
+			up.normalise();
+			// Derive quaternion from axes
+			Quaternion q;
+			q.FromAxes(left, up, dir);
+			dummyNode.setOrientation(q);
+
+			mSpotlightViewProjMatrix[index] = 
+				PROJECTIONCLIPSPACE2DTOIMAGESPACE_PERSPECTIVE * 
+				frust.getProjectionMatrixWithRSDepth() * 
+				frust.getViewMatrix();
+			mSpotlightViewProjMatrixDirty[index] = false;
+		}
+		return mSpotlightViewProjMatrix[index];
+	}
+	//-----------------------------------------------------------------------------
+	const Matrix4& AutoParamDataSource::getSpotlightWorldViewProjMatrix(size_t index) const
+	{
+		const Light& l = getLight(index);
+
+		if (&l != &mBlankLight && 
+			l.getType() == Light::LT_SPOTLIGHT &&
+			mSpotlightWorldViewProjMatrixDirty[index])
+		{
+			mSpotlightWorldViewProjMatrix[index] = 
+				getSpotlightViewProjMatrix(index) * getWorldMatrix();
+			mSpotlightWorldViewProjMatrixDirty[index] = false;
+		}
+		return mSpotlightWorldViewProjMatrix[index];
 	}
     //-----------------------------------------------------------------------------
     void AutoParamDataSource::setCurrentRenderTarget(const RenderTarget* target)

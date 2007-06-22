@@ -134,6 +134,8 @@ namespace Ogre
         AutoConstantDefinition(ACT_CAMERA_POSITION_OBJECT_SPACE,  "camera_position_object_space", 3, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_TEXTURE_VIEWPROJ_MATRIX,       "texture_viewproj_matrix",     16, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_TEXTURE_WORLDVIEWPROJ_MATRIX,  "texture_worldviewproj_matrix",16, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_SPOTLIGHT_VIEWPROJ_MATRIX,       "spotlight_viewproj_matrix",     16, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_SPOTLIGHT_WORLDVIEWPROJ_MATRIX,  "spotlight_worldviewproj_matrix",16, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_CUSTOM,                        "custom",                       4, ET_REAL, ACDT_INT),  // *** needs to be tested
         AutoConstantDefinition(ACT_TIME,                               "time",                               1, ET_REAL, ACDT_REAL),
         AutoConstantDefinition(ACT_TIME_0_X,                      "time_0_x",                     4, ET_REAL, ACDT_REAL),
@@ -1578,6 +1580,12 @@ namespace Ogre
 			case ACT_TEXTURE_WORLDVIEWPROJ_MATRIX:
 				// can also be updated in lights
 				_writeRawConstant(i->physicalIndex, source.getTextureWorldViewProjMatrix(i->data));
+				break;
+			case ACT_SPOTLIGHT_VIEWPROJ_MATRIX:
+				_writeRawConstant(i->physicalIndex, source.getSpotlightViewProjMatrix(i->data));
+				break;
+			case ACT_SPOTLIGHT_WORLDVIEWPROJ_MATRIX:
+				_writeRawConstant(i->physicalIndex, source.getSpotlightWorldViewProjMatrix(i->data));
 				break;
             default:
                 // do nothing
