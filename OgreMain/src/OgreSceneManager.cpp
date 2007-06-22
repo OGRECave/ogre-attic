@@ -456,6 +456,13 @@ void SceneManager::_populateLightList(const Vector3& position, Real radius,
 		std::stable_sort(destList.begin(), destList.end(), lightLess());
 	}
 
+	// Now assign indexes in the list so they can be examined if needed
+	size_t lightIndex;
+	for (LightList::iterator li = destList.begin(); li != destList.end(); ++li, ++lightIndex)
+	{
+		(*li)->_notifyIndexInFrame(lightIndex);
+	}
+
 
 }
 //-----------------------------------------------------------------------

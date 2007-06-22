@@ -112,6 +112,7 @@ namespace Ogre {
 		const SceneManager* mCurrentSceneManager;
 		const VisibleObjectsBoundsInfo* mMainCamBoundsInfo;
         const Pass* mCurrentPass;
+		int mLightBaseIndex;
 
         Light mBlankLight;
     public:
@@ -123,7 +124,7 @@ namespace Ogre {
         void setWorldMatrices(const Matrix4* m, size_t count);
         /** Updates the current camera */
         void setCurrentCamera(const Camera* cam);
-        /** Sets the light list that should be used */
+        /** Sets the light list that should be used, and it's base index from the global list */
         void setCurrentLightList(const LightList* ll);
         /** Sets the current texture projector for a index */
         void setTextureProjector(const Frustum* frust, size_t index);
@@ -159,6 +160,7 @@ namespace Ogre {
         const Vector4& getCameraPositionObjectSpace(void) const;
         /** Get the light which is 'index'th closest to the current object */
         const Light& getLight(size_t index) const;
+		int getLightNumber(size_t index) const;
 		void setAmbientLightColour(const ColourValue& ambient);
 		const ColourValue& getAmbientLightColour(void) const;
         const ColourValue& getSurfaceAmbientColour(void) const;
