@@ -1080,7 +1080,25 @@ namespace Ogre
             required.
         @param count Number of times to render the current state.
         */
-        void setCurrentPassIterationCount(const size_t count) { mCurrentPassIterationCount = count; }
+        virtual void setCurrentPassIterationCount(const size_t count) { mCurrentPassIterationCount = count; }
+
+		/** Tell the render system whether to derive a depth bias on its own based on 
+			the values passed to it in setCurrentPassIterationCount.
+			The depth bias set will be baseValue + iteration * multiplier
+		@param derive True to tell the RS to derive this automatically
+		@param baseValue The base value to which the multiplier should be
+			added
+		@param multiplier The amount of depth bias to apply per iteration
+		@param slopeScale The constant slope scale bias for completeness
+		*/
+		virtual void setDeriveDepthBias(bool derive, float baseValue = 0.0f,
+			float multiplier = 0.0f, float slopeScale = 0.0f)
+		{
+			mDerivedDepthBias = derive;
+			mDerivedDepthBiasBase = baseValue;
+			mDerivedDepthBiasMultiplier = multiplier;
+			mDerivedDepthBiasSlopeScale = slopeScale;
+		}
 
 		/** Defines a listener on the custom events that this render system 
 			can raise.
@@ -1210,6 +1228,12 @@ namespace Ogre
 
         /// number of times to render the current state
         size_t mCurrentPassIterationCount;
+		size_t mCurrentPassIterationNum;
+		/// Whether to update the depth bias per render call
+		bool mDerivedDepthBias;
+		float mDerivedDepthBiasBase;
+		float mDerivedDepthBiasMultiplier;
+		float mDerivedDepthBiasSlopeScale;
 
         /** updates pass iteration rendering state including bound gpu program parameter
             pass iteration auto constant entry

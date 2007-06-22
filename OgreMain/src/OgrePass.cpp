@@ -131,6 +131,7 @@ namespace Ogre {
 		, mDepthFunc(CMPF_LESS_EQUAL)
 		, mDepthBiasConstant(0.0f)
 		, mDepthBiasSlopeScale(0.0f)
+		, mDepthBiasPerIteration(0.0f)
 		, mColourWrite(true)
 		, mAlphaRejectFunc(CMPF_ALWAYS_PASS)
 		, mAlphaRejectVal(0)
@@ -228,6 +229,7 @@ namespace Ogre {
 	    mDepthFunc = oth.mDepthFunc;
         mDepthBiasConstant = oth.mDepthBiasConstant;
 		mDepthBiasSlopeScale = oth.mDepthBiasSlopeScale;
+		mDepthBiasPerIteration = oth.mDepthBiasPerIteration;
 	    mCullMode = oth.mCullMode;
 	    mManualCullMode = oth.mManualCullMode;
 	    mLightingEnabled = oth.mLightingEnabled;
@@ -987,6 +989,16 @@ namespace Ogre {
 	float Pass::getDepthBiasSlopeScale(void) const
 	{
 		return mDepthBiasSlopeScale;
+	}
+	//---------------------------------------------------------------------
+	void Pass::setIterationDepthBias(float biasPerIteration)
+	{
+		mDepthBiasPerIteration = biasPerIteration;
+	}
+	//---------------------------------------------------------------------
+	float Pass::getIterationDepthBias() const
+	{
+		return mDepthBiasPerIteration;
 	}
     //-----------------------------------------------------------------------
 	Pass* Pass::_split(unsigned short numUnits)

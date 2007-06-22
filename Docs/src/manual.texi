@@ -500,6 +500,8 @@ Here are the attributes you can use in a 'pass' section of a .material script:
 @item
 @ref{depth_bias}
 @item
+@ref{iteration_depth_bias}
+@item
 @ref{alpha_rejection}
 @item
 @ref{light_scissor}
@@ -735,7 +737,16 @@ Sets the bias applied to the depth value of this pass. Can be used to make copla
 
 Format: depth_bias <constant_bias> [<slopescale_bias>]@*@*
 
-The final depth bias value is constant_bias * minObservableDepth + maxSlope * slopescale_bias. Slope scale biasing is relative to the angle of the polygon to the camera, which makes for a more appropriate bias value, but this is ignored on some older hardware. Constant biasing is expressed as a factor of the minimum depth value, so a value of 1 will nudge the depth by one 'notch' if you will.@*@*
+The final depth bias value is constant_bias * minObservableDepth + maxSlope * slopescale_bias. Slope scale biasing is relative to the angle of the polygon to the camera, which makes for a more appropriate bias value, but this is ignored on some older hardware. Constant biasing is expressed as a factor of the minimum depth value, so a value of 1 will nudge the depth by one 'notch' if you will. Also see @ref{iteration_depth_bias}@*@*
+
+@anchor{iteration_depth_bias}
+@subheading iteration_depth_bias
+
+Sets an additional bias derived from the number of times a given pass has been iterated. Operates just like @ref{depth_bias} except that it applies an additional bias factor to the base depth_bias value, multiplying the provided value by the number of times this pass has been iterated before, through one of the @ref{iteration} variants. So the first time the pass will get the depth_bias value, the second time it will get depth_bias + iteration_depth_bias, the third time it will get depth_bias + iteration_depth_bias * 2, and so on. The default is zero. @*@*
+
+Format: iteration_depth_bias <bias_per_iteration>@*@*
+
+@*@*
 
 @anchor{alpha_rejection}
 @subheading alpha_rejection
