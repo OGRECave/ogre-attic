@@ -249,6 +249,7 @@ namespace Ogre {
         void parseDepthWrite(void);
         void parseDepthFunc(void);
         void parseDepthBias(void);
+		void parseIterationDepthBias(void);
 		void parseNormaliseNormals(void);
         void parseAlphaRejection(void);
 		void parseLightScissor(void);

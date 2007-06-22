@@ -457,7 +457,7 @@ void SceneManager::_populateLightList(const Vector3& position, Real radius,
 	}
 
 	// Now assign indexes in the list so they can be examined if needed
-	size_t lightIndex;
+	size_t lightIndex = 0;
 	for (LightList::iterator li = destList.begin(); li != destList.end(); ++li, ++lightIndex)
 	{
 		(*li)->_notifyIndexInFrame(lightIndex);
@@ -2722,6 +2722,7 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 			const LightList* pLightListToUse;
 			// Start counting from the start light
 			size_t lightIndex = pass->getStartLight();
+			size_t depthInc = 0;
 
 			while (lightsLeft > 0)
 			{
@@ -2863,6 +2864,29 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 				// issue the render op		
 				// nfz: check for gpu_multipass
 				mDestRenderSystem->setCurrentPassIterationCount(pass->getPassIterationCount());
+				// We might need to update the depth bias each iteration
+				if (pass->getIterationDepthBias() != 0.0f)
+				{
+					float depthBiasBase = pass->getDepthBiasConstant() + 
+						pass->getIterationDepthBias() * depthInc;
+					// depthInc deals with light iteration 
+					if (depthInc > 0)
+					{
+						// Set modified depth bias right away
+						mDestRenderSystem->_setDepthBias(depthBiasBase, pass->getDepthBiasSlopeScale());
+					}
+
+					// Set to increment internally too if rendersystem iterates
+					mDestRenderSystem->setDeriveDepthBias(true, 
+						depthBiasBase, pass->getIterationDepthBias(), 
+						pass->getDepthBiasSlopeScale());
+				}
+				else
+				{
+					mDestRenderSystem->setDeriveDepthBias(false);
+				}
+				depthInc += pass->getPassIterationCount();
+
 				mDestRenderSystem->_render(ro);
 
 				if (scissored == CLIPPED_SOME)

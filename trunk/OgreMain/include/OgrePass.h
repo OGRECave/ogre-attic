@@ -109,6 +109,7 @@ namespace Ogre {
         CompareFunction mDepthFunc;
         float mDepthBiasConstant;
 		float mDepthBiasSlopeScale;
+		float mDepthBiasPerIteration;
 
         // Colour buffer settings
         bool mColourWrite;
@@ -908,6 +909,17 @@ namespace Ogre {
         float getDepthBiasConstant(void) const;
 		/** Retrieves the slope-scale depth bias value as set by setDepthBias. */
 		float getDepthBiasSlopeScale(void) const;
+		/** Sets a factor which derives an additional depth bias from the number 
+			of times a pass is iterated.
+		@remarks
+			The Final depth bias will be the constant depth bias as set through
+			setDepthBias, plus this value times the iteration number. 
+		*/
+		void setIterationDepthBias(float biasPerIteration);
+		/** Gets a factor which derives an additional depth bias from the number 
+			of times a pass is iterated.
+		*/
+		float getIterationDepthBias() const;
 
         /** Sets the way the pass will have use alpha to totally reject pixels from the pipeline.
         @remarks

@@ -80,7 +80,7 @@ namespace Ogre {
         "                              <Scene_Blend> | <Separate_Scene_Blend> | \n"
 		"							   <Depth_Check> | <Depth_Write> | \n"
 		"                              <Light_Scissor> | <Light_Clip> | <Texture_Unit> | \n"
-        "                              <Depth_Func> | <Depth_Bias> | <Alpha_Rejection> | \n"
+		"                              <Depth_Func> | <Depth_Bias> | <Iteration_Depth_Bias> | <Alpha_Rejection> | \n"
         "                              <Cull_Hardware> | <Cull_Software> | <Lighting> | \n"
 		"                              <GPU_Program_Ref> | <NormaliseNormals> | \n"
         "                              <Shading> | <PolygonMode> | <PolygonModeOverride> | <Fog_Override> | <Colour_Write> | \n"
@@ -115,6 +115,7 @@ namespace Ogre {
         "        <Depth_Write> ::= 'depth_write' <On_Off> \n"
         "        <Depth_Func> ::= 'depth_func' <Compare_Func> \n"
 		"        <Depth_Bias> ::= 'depth_bias' <#constant> [<#slopescale>] \n"
+		"        <Iteration_Depth_Bias> ::= 'iteration_depth_bias' <#bias> \n"
 		"        <Light_Scissor> ::= 'light_scissor' <On_Off> \n"
 		"        <Light_Clip> ::= 'light_clip_planes' <On_Off> \n"
         "        <Alpha_Rejection> ::= 'alpha_rejection' <Compare_Func> <#value> \n"
@@ -355,6 +356,7 @@ namespace Ogre {
             addLexemeAction("depth_write", &MaterialScriptCompiler::parseDepthWrite);
             addLexemeAction("depth_func", &MaterialScriptCompiler::parseDepthFunc);
             addLexemeAction("depth_bias", &MaterialScriptCompiler::parseDepthBias);
+			addLexemeAction("iteration_depth_bias", &MaterialScriptCompiler::parseIterationDepthBias);
                 addLexemeToken("always_fail", ID_ALWAYS_FAIL);
                 addLexemeToken("always_pass", ID_ALWAYS_PASS);
                 addLexemeToken("less_equal", ID_LESS_EQUAL);
@@ -1306,6 +1308,14 @@ namespace Ogre {
 
         mScriptContext.pass->setDepthBias(constantBias, slopeScaleBias);
     }
+	//-----------------------------------------------------------------------
+	void MaterialScriptCompiler::parseIterationDepthBias(void)
+	{
+		assert(mScriptContext.pass);
+		float bias = static_cast<float>(getNextTokenValue());
+
+		mScriptContext.pass->setIterationDepthBias(bias);
+	}
     //-----------------------------------------------------------------------
     void MaterialScriptCompiler::parseAlphaRejection(void)
     {

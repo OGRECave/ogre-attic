@@ -2721,6 +2721,13 @@ namespace Ogre
 
             do
             {
+				// Update derived depth bias
+				if (mDerivedDepthBias && mCurrentPassIterationNum > 0)
+				{
+					_setDepthBias(mDerivedDepthBiasBase + 
+						mDerivedDepthBiasMultiplier * mCurrentPassIterationNum, 
+						mDerivedDepthBiasSlopeScale);
+				}
                 // do indexed draw operation
 			    hr = mpD3DDevice->DrawIndexedPrimitive(
                     primType, 
@@ -2738,6 +2745,13 @@ namespace Ogre
             // nfz: gpu_iterate
             do
             {
+				// Update derived depth bias
+				if (mDerivedDepthBias && mCurrentPassIterationNum > 0)
+				{
+					_setDepthBias(mDerivedDepthBiasBase + 
+						mDerivedDepthBiasMultiplier * mCurrentPassIterationNum, 
+						mDerivedDepthBiasSlopeScale);
+				}
                 // Unindexed, a little simpler!
 			    hr = mpD3DDevice->DrawPrimitive(
                     primType, 

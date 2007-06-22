@@ -64,6 +64,7 @@ namespace Ogre {
         , mInvertVertexWinding(false)
         , mDisabledTexUnitsFrom(0)
         , mCurrentPassIterationCount(0)
+		, mDerivedDepthBias(false)
         , mVertexProgramBound(false)
         , mFragmentProgramBound(false)
 		, mClipPlanesDirty(true)
@@ -475,6 +476,7 @@ namespace Ogre {
         // account for a pass having multiple iterations
         if (mCurrentPassIterationCount > 1)
             val *= mCurrentPassIterationCount;
+		mCurrentPassIterationNum = 0;
 
         switch(op.operationType)
         {
@@ -555,6 +557,7 @@ namespace Ogre {
             return false;
 
         --mCurrentPassIterationCount;
+		++mCurrentPassIterationNum;
         if (!mActiveVertexGpuProgramParameters.isNull())
         {
             mActiveVertexGpuProgramParameters->incPassIterationNumber();

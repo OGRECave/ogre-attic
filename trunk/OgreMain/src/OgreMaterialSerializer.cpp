@@ -1593,6 +1593,16 @@ namespace Ogre
 
         return false;
     }
+	//-----------------------------------------------------------------------
+	bool parseIterationDepthBias(String& params, MaterialScriptContext& context)
+	{
+		StringVector vecparams = StringUtil::split(params, " \t");
+
+		float bias = static_cast<float>(StringConverter::parseReal(vecparams[0]));
+		context.pass->setIterationDepthBias(bias);
+
+		return false;
+	}
     //-----------------------------------------------------------------------
     bool parseAnisotropy(String& params, MaterialScriptContext& context)
     {
@@ -2744,6 +2754,7 @@ namespace Ogre
 		mPassAttribParsers.insert(AttribParserList::value_type("polygon_mode", (ATTRIBUTE_PARSER)parsePolygonMode));
 		mPassAttribParsers.insert(AttribParserList::value_type("polygon_mode_overrideable", (ATTRIBUTE_PARSER)parsePolygonModeOverrideable));
         mPassAttribParsers.insert(AttribParserList::value_type("depth_bias", (ATTRIBUTE_PARSER)parseDepthBias));
+		mPassAttribParsers.insert(AttribParserList::value_type("iteration_depth_bias", (ATTRIBUTE_PARSER)parseIterationDepthBias));
         mPassAttribParsers.insert(AttribParserList::value_type("texture_unit", (ATTRIBUTE_PARSER)parseTextureUnit));
         mPassAttribParsers.insert(AttribParserList::value_type("vertex_program_ref", (ATTRIBUTE_PARSER)parseVertexProgramRef));
         mPassAttribParsers.insert(AttribParserList::value_type("shadow_caster_vertex_program_ref", (ATTRIBUTE_PARSER)parseShadowCasterVertexProgramRef));
@@ -3615,6 +3626,13 @@ namespace Ogre
                 writeValue(StringConverter::toString(pPass->getDepthBiasConstant()));
 				writeValue(StringConverter::toString(pPass->getDepthBiasSlopeScale()));
             }
+			//iteration depth bias
+			if (mDefaults ||
+				pPass->getIterationDepthBias() != 0)
+			{
+				writeAttribute(3, "iteration_depth_bias");
+				writeValue(StringConverter::toString(pPass->getIterationDepthBias()));
+			}
 
 			//light scissor
 			if (mDefaults ||

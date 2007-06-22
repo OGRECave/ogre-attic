@@ -112,7 +112,6 @@ namespace Ogre {
 		const SceneManager* mCurrentSceneManager;
 		const VisibleObjectsBoundsInfo* mMainCamBoundsInfo;
         const Pass* mCurrentPass;
-		int mLightBaseIndex;
 
         Light mBlankLight;
     public:
