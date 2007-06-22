@@ -459,6 +459,12 @@ namespace Ogre {
 				combined with the current world matrix
 			*/
 			ACT_TEXTURE_WORLDVIEWPROJ_MATRIX,
+			/// The view/projection matrix of a given spotlight
+			ACT_SPOTLIGHT_VIEWPROJ_MATRIX,
+			/** The view/projection matrix of a given spotlight projection frustum, 
+			combined with the current world matrix
+			*/
+			ACT_SPOTLIGHT_WORLDVIEWPROJ_MATRIX,
             /// A custom parameter which will come from the renderable, using 'data' as the identifier
             ACT_CUSTOM,
             /** provides current elapsed time
