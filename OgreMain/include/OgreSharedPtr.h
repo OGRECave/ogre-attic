@@ -88,25 +88,10 @@ namespace Ogre {
 		SharedPtr& operator=(const SharedPtr& r) {
 			if (pRep == r.pRep)
 				return *this;
-			release();
-			// lock & copy other mutex pointer
-            OGRE_MUTEX_CONDITIONAL(r.OGRE_AUTO_MUTEX_NAME)
-            {
-			    OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
-			    OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
-			    pRep = r.pRep;
-			    pUseCount = r.pUseCount;
-			    if (pUseCount)
-			    {
-				    ++(*pUseCount);
-			    }
-            }
-			else
-			{
-				// RHS must be a null pointer
-				assert(r.isNull() && "RHS must be null if it has no mutex!");
-				setNull();
-			}
+			// Swap current data into a local copy
+			// this ensures we deal with rhs and this being dependent
+			SharedPtr<T> tmp(r);
+			swap(tmp);
 			return *this;
 		}
 		
@@ -134,19 +119,10 @@ namespace Ogre {
 		SharedPtr& operator=(const SharedPtr<Y>& r) {
 			if (pRep == r.pRep)
 				return *this;
-			release();
-			// lock & copy other mutex pointer
-            OGRE_MUTEX_CONDITIONAL(r.OGRE_AUTO_MUTEX_NAME)
-            {
-			    OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
-			    OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
-			    pRep = r.getPointer();
-			    pUseCount = r.useCountPointer();
-			    if (pUseCount)
-			    {
-				    ++(*pUseCount);
-			    }
-            }
+			// Swap current data into a local copy
+			// this ensures we deal with rhs and this being dependent
+			SharedPtr<T> tmp(r);
+			swap(tmp);
 			return *this;
 		}
 		virtual ~SharedPtr() {
@@ -226,6 +202,12 @@ namespace Ogre {
             delete pUseCount;
 			OGRE_DELETE_AUTO_SHARED_MUTEX
         }
+
+		virtual void swap(SharedPtr<T> &other) 
+		{
+			std::swap(pRep, other.pRep);
+			std::swap(pUseCount, other.pUseCount);
+		}
 	};
 
 	template<class T, class U> inline bool operator==(SharedPtr<T> const& a, SharedPtr<U> const& b)
