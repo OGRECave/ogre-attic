@@ -162,18 +162,8 @@ namespace Ogre{
 				else
 				{
 					ScriptNodeList::iterator k = j;
-					++k;
-					if(k != (*i)->children.end())
-					{
-						value = (*k)->token;
-					}
-					else
-					{
-						addError(CE_VALUEEXPECTED, (*j)->file, (*j)->line, (*j)->column);
-						// Jumping ahead to get out now
-						++j;
-						continue;
-					}
+					++k; // Move forward to check for a value
+					value = getPropertyValue(k, (*i)->children.end());
 
 					// There needs to be a value set before we move on
 					if(!value.empty())
@@ -192,10 +182,12 @@ namespace Ogre{
 						// Add an error if the property couldn't be set
 						if(!propertySet)
 							addError(CE_INVALIDPROPERTY, (*j)->file, (*j)->line, (*j)->column);
-
-						++j; // Move to the value
-						++j; // Move past the value
 					}
+					else
+					{
+						addError(CE_VALUEEXPECTED, (*j)->file, (*j)->line, (*j)->column);
+					}
+					j = k;
 				}
 			}
 		}
