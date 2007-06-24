@@ -51,8 +51,9 @@ namespace Ogre {
 
 
         /** Parses a RenderSystemCapabilities script file passed as a stream.
+            Adds it to RenderSystemCapabilitiesManager::_addRenderSystemCapabilities
         */
-        void parseScript(DataStreamPtr& stream, const String& groupName);
+        void parseScript(DataStreamPtr& stream);
     protected:
         int mCurrentLineNumber;
         String* mCurrentLine;

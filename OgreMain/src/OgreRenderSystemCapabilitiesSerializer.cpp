@@ -68,7 +68,7 @@ namespace Ogre
 
     }
     //-----------------------------------------------------------------------
-    void RenderSystemCapabilitiesSerializer::parseScript(DataStreamPtr& stream, const String& groupName)
+    void RenderSystemCapabilitiesSerializer::parseScript(DataStreamPtr& stream)
     {
         // reset parsing data to NULL
         mCurrentLineNumber = 0;
@@ -139,8 +139,9 @@ namespace Ogre
                             rscName = rscName.substr(0, rscName.size() - 1);
 
                             // create RSC
-                            ResourcePtr rcapsPtr = RenderSystemCapabilitiesManager::getSingleton().create(rscName, groupName);
-                            mCurrentCapabilities = (RenderSystemCapabilities*)rcapsPtr.getPointer();
+                            mCurrentCapabilities = new RenderSystemCapabilities();
+                            // RSCManager is responsible for deleting mCurrentCapabilities
+                            RenderSystemCapabilitiesManager::getSingleton()._addRenderSystemCapabilities(rscName, mCurrentCapabilities);
 
                             LogManager::getSingleton().logMessage("Create RenderSystemCapabilities" + rscName);
 
@@ -149,8 +150,6 @@ namespace Ogre
                             parsedAtLeastOneRSC = true;
                         }
                     }
-
-
 
                 break;
 

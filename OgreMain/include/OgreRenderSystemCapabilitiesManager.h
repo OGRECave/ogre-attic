@@ -31,9 +31,9 @@ Torus Knot Software Ltd.
 
 #include "OgrePrerequisites.h"
 #include "OgreSingleton.h"
-#include "OgreResourceManager.h"
 #include "OgreStringVector.h"
 
+#include "OgreRenderSystemCapabilities.h"
 
 //#include "OgreRenderSystemCapabilitiesSerializer.h"
 
@@ -55,16 +55,16 @@ namespace Ogre {
            RenderSystemCapabilities can not loaded like other resource be because they do not contain any \
            data besides the contents of .rendercaps files, which are "loaded" by parseScript
     */
-    class _OgreExport RenderSystemCapabilitiesManager : public ResourceManager, public Singleton<RenderSystemCapabilitiesManager>
+    class _OgreExport RenderSystemCapabilitiesManager :  public Singleton<RenderSystemCapabilitiesManager>
     {
 
     protected:
-		/// Overridden from ResourceManager
-		Resource* createImpl(const String& name, ResourceHandle handle,
-			const String& group, bool isManual, ManualResourceLoader* loader,
-            const NameValuePairList* params);
 
         RenderSystemCapabilitiesSerializer* mSerializer;
+        typedef std::map<String, RenderSystemCapabilities*> CapabilitiesMap;
+        CapabilitiesMap mCapabilitiesMap;
+
+        const String mScriptPattern;
 
     public:
 
@@ -79,8 +79,12 @@ namespace Ogre {
 
 		/** @see ScriptLoader::parseScript
         */
-        void parseScript(DataStreamPtr& stream, const String& groupName);
+        void parseCapabilitiesFromArchive(const String& filename, const String& archiveType, bool recursive = true);
 
+        RenderSystemCapabilities* loadParsedCapabilities(const String& name);
+
+        /** Method used by RenderSystemCapabilitiesSerializer::parseScript */
+        void _addRenderSystemCapabilities(const String& name, RenderSystemCapabilities* caps);
 
         /** Override standard Singleton retrieval.
         @remarks

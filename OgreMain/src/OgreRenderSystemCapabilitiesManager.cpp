@@ -29,13 +29,11 @@ Torus Knot Software Ltd.
 #include "OgreStableHeaders.h"
 #include "OgreMaterialManager.h"
 
-
 #include "OgreStringVector.h"
 #include "OgreLogManager.h"
+#include "OgreArchiveManager.h"
 #include "OgreArchive.h"
 #include "OgreStringConverter.h"
-
-
 
 #include "OgreException.h"
 #include "OgreRenderSystemCapabilitiesManager.h"
@@ -57,43 +55,49 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    RenderSystemCapabilitiesManager::RenderSystemCapabilitiesManager()
+    RenderSystemCapabilitiesManager::RenderSystemCapabilitiesManager() : mScriptPattern("*.rendercaps")
     {
         mSerializer = new RenderSystemCapabilitiesSerializer();
-
-		// Scripting is supported by this manager
-		mScriptPatterns.push_back("*.rendercaps");
-		ResourceGroupManager::getSingleton()._registerScriptLoader(this);
-
-		// Resource type
-		mResourceType = "RenderSystemCapabilities";
-
-		// Register with resource group manager
-		ResourceGroupManager::getSingleton()._registerResourceManager(mResourceType, this);
     }
     //-----------------------------------------------------------------------
     RenderSystemCapabilitiesManager::~RenderSystemCapabilitiesManager()
     {
-	    // Resources cleared by superclass
-		// Unregister with resource group manager
-		ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);
-		ResourceGroupManager::getSingleton()._unregisterScriptLoader(this);
+	    CapabilitiesMap::iterator iter = mCapabilitiesMap.begin();
+	    while(iter != mCapabilitiesMap.end())
+	    {
+	        // free memory in RenderSystemCapabilities*
+	        delete iter->second;
+	    }
+
 
     }
-	//-----------------------------------------------------------------------
-	Resource* RenderSystemCapabilitiesManager::createImpl(const String& name, ResourceHandle handle,
-		const String& group, bool isManual, ManualResourceLoader* loader,
-        const NameValuePairList* params)
-	{
-		return new RenderSystemCapabilities(this, name, handle, group, isManual, loader);
-	}
 
     //-----------------------------------------------------------------------
-    void RenderSystemCapabilitiesManager::parseScript(DataStreamPtr& stream, const String& groupName)
+    void RenderSystemCapabilitiesManager::parseCapabilitiesFromArchive(const String& filename, const String& archiveType, bool recursive)
     {
-        // Delegate to serializer
-        mSerializer->parseScript(stream, groupName);
+        // get the list of .rendercaps files
+        Archive* arch = ArchiveManager::getSingleton().load(filename, archiveType);
+        StringVectorPtr files = arch->find(mScriptPattern, recursive);
 
+        // loop through .rendercaps files and load each one
+        StringVector::iterator iter = files->begin();
+        while(iter != files->end())
+        {
+            DataStreamPtr stream = arch->open(*iter);
+            mSerializer->parseScript(stream);
+            iter++;
+        }
+    }
+
+    RenderSystemCapabilities* RenderSystemCapabilitiesManager::loadParsedCapabilities(const String& name)
+    {
+        return mCapabilitiesMap[name];
+    }
+
+    /** Method used by RenderSystemCapabilitiesSerializer::parseScript */
+    void RenderSystemCapabilitiesManager::_addRenderSystemCapabilities(const String& name, RenderSystemCapabilities* caps)
+    {
+        mCapabilitiesMap.insert(CapabilitiesMap::value_type(name, caps));
     }
 }
 
