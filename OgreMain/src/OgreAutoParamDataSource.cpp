@@ -137,9 +137,9 @@ namespace Ogre {
 
     }
 	//---------------------------------------------------------------------
-	int AutoParamDataSource::getLightNumber(size_t index) const
+	float AutoParamDataSource::getLightNumber(size_t index) const
 	{
-		return static_cast<int>(getLight(index)._getIndexInFrame());
+		return static_cast<float>(getLight(index)._getIndexInFrame());
 	}
 	//-----------------------------------------------------------------------------
 	void AutoParamDataSource::setMainCamBoundsInfo(VisibleObjectsBoundsInfo* info)
