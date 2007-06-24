@@ -513,6 +513,7 @@ namespace Ogre {
 
 			frust.setProjectionType(PT_PERSPECTIVE);
 			frust.setFOVy(l.getSpotlightOuterAngle());
+			frust.setAspectRatio(1.0f);
 			// set near clip the same as main camera, since they are likely
 			// to both reflect the nature of the scene
 			frust.setNearClipDistance(mCurrentCamera->getNearClipDistance());
