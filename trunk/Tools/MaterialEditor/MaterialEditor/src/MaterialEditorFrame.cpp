@@ -1,4 +1,5 @@
-/*-------------------------------------------------------------------------
+/*
+-------------------------------------------------------------------------
 This source file is a part of OGRE
 (Object-oriented Graphics Rendering Engine)
 
@@ -21,13 +22,15 @@ You should have received a copy of the GNU Lesser General Public License
 along with this library; if not, write to the Free Software Foundation,
 Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA or go to
 http://www.gnu.org/copyleft/lesser.txt
--------------------------------------------------------------------------*/
+-------------------------------------------------------------------------
+*/
 #include "MaterialEditorFrame.h"
 
 #include <wx/bitmap.h>
 #include <wx/notebook.h>
 #include <wx/treectrl.h>
 #include <wx/wxscintilla.h>
+#include <wx/wizard.h>
 #include <wx/aui/auibook.h>
 #include <wx/aui/framemanager.h>
 #include <wx/propgrid/manager.h>
@@ -35,6 +38,8 @@ http://www.gnu.org/copyleft/lesser.txt
 
 #include "OgreCamera.h"
 #include "OgreColourValue.h"
+#include "OgreMaterial.h"
+#include "OgreMaterialManager.h"
 #include "OgreRoot.h"
 #include "OgreString.h"
 #include "OgreStringConverter.h"
@@ -44,6 +49,15 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "ResourcePanel.h"
 #include "wxOgre.h"
 #include "CodeEditor.h"
+#include "MaterialController.h"
+#include "MaterialPropertyGridPage.h"
+#include "TechniqueController.h"
+#include "TechniquePropertyGridPage.h"
+#include "PassController.h"
+#include "PassPropertyGridPage.h"
+#include "ProjectPage.h"
+#include "ProjectWizard.h"
+#include "WorkspacePanel.h"
 
 using Ogre::Camera;
 using Ogre::ColourValue;
@@ -52,7 +66,9 @@ using Ogre::Root;
 using Ogre::String;
 using Ogre::Vector3;
 
-const long ID_FILE_MENU_NEW = wxNewId();
+const long ID_FILE_NEW_MENU = wxNewId();
+const long ID_FILE_NEW_MENU_PROJECT = wxNewId();
+const long ID_FILE_NEW_MENU_MATERIAL = wxNewId();
 const long ID_FILE_MENU_OPEN = wxNewId();
 const long ID_FILE_MENU_SAVE = wxNewId();
 const long ID_FILE_MENU_SAVE_AS = wxNewId();
@@ -69,11 +85,12 @@ const long ID_VIEW_MENU_OPENGL = wxNewId();
 const long ID_VIEW_MENU_DIRECTX = wxNewId();
 
 BEGIN_EVENT_TABLE(MaterialEditorFrame, wxFrame)
-	EVT_ACTIVATE(MaterialEditorFrame::onActivate)
-	EVT_MENU (ID_FILE_MENU_OPEN,			MaterialEditorFrame::onFileOpen)
-	EVT_MENU (ID_FILE_MENU_EXIT,	MaterialEditorFrame::onFileExit)
-	EVT_MENU (ID_VIEW_MENU_OPENGL , MaterialEditorFrame::onViewOpenGL)
-	EVT_MENU (ID_VIEW_MENU_DIRECTX, MaterialEditorFrame::onViewDirectX)
+	EVT_ACTIVATE(MaterialEditorFrame::OnActivate)
+	EVT_MENU (ID_FILE_NEW_MENU_PROJECT, MaterialEditorFrame::OnNewProject)
+	EVT_MENU (ID_FILE_MENU_OPEN,		MaterialEditorFrame::OnFileOpen)
+	EVT_MENU (ID_FILE_MENU_EXIT,		MaterialEditorFrame::OnFileExit)
+	EVT_MENU (ID_VIEW_MENU_OPENGL ,		MaterialEditorFrame::OnViewOpenGL)
+	EVT_MENU (ID_VIEW_MENU_DIRECTX,		MaterialEditorFrame::OnViewDirectX)
 END_EVENT_TABLE()
 
 MaterialEditorFrame::MaterialEditorFrame(wxWindow* parent)
@@ -180,8 +197,9 @@ void MaterialEditorFrame::createWorkspacePane()
 {
 	mWorkspaceNotebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNO_BORDER);
 
-	mMaterialTree = new wxTreeCtrl(mWorkspaceNotebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNO_BORDER);
-	mWorkspaceNotebook->AddPage(mMaterialTree, "Materials");
+	mWorkspacePanel = new WorkspacePanel(mWorkspaceNotebook);
+	//mMaterialTree = new wxTreeCtrl(mWorkspaceNotebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNO_BORDER);
+	mWorkspaceNotebook->AddPage(mWorkspacePanel, "Materials");
 
 	mResourcePanel = new ResourcePanel(mWorkspaceNotebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNO_BORDER);
 	mWorkspaceNotebook->AddPage(mResourcePanel, "Resources");
@@ -212,42 +230,23 @@ void MaterialEditorFrame::createLogPane()
 void MaterialEditorFrame::createPropertiesPane()
 {
 	mPropertyGrid = new wxPropertyGridManager(this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-		wxPG_BOLD_MODIFIED | wxPG_SPLITTER_AUTO_CENTER | wxPG_TOOLBAR | wxPG_DESCRIPTION | wxPG_COMPACTOR | wxPGMAN_DEFAULT_STYLE);
+		wxPG_BOLD_MODIFIED | wxPG_SPLITTER_AUTO_CENTER | wxPG_TOOLBAR | wxPG_DESCRIPTION | wxPGMAN_DEFAULT_STYLE);
 
 	// Adding a page sets target page to the one added, so
 	// we don't have to call SetTargetPage if we are filling
 	// it right after adding.
-	mPropertyGrid->AddPage(wxT("First Page"));
-
-	mPropertyGrid->AppendCategory(wxT("Category A1"));
-
-	// Remember, the next line equals pgman->Append( wxIntProperty(wxT("Number"),wxPG_LABEL,1) );
-	mPropertyGrid->Append( wxT("Number"),wxPG_LABEL,1 );
-
-	mPropertyGrid->Append( wxColourProperty(wxT("Colour"),wxPG_LABEL,*wxWHITE) );
-
-	mPropertyGrid->AddPage(wxT("Second Page"));
-
-	mPropertyGrid->Append( wxT("Text"),wxPG_LABEL,wxT("(no text)") );
-
-	mPropertyGrid->Append( wxFontProperty(wxT("Font"),wxPG_LABEL) );
+	MaterialController* controller = new MaterialController((MaterialPtr)MaterialManager::getSingletonPtr()->create("Test", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME));
+	TechniqueController* tc = controller->createTechnique();
+	PassController* pc = tc->createPass();
+	PassPropertyGridPage* page = new PassPropertyGridPage(pc);
+	//TechniquePropertyGridPage* page = new TechniquePropertyGridPage(tc);
+	//MaterialPropertyGridPage* page = new MaterialPropertyGridPage(controller);
+	mPropertyGrid->AddPage(wxEmptyString, wxPG_NULL_BITMAP, page);
+	page->populate();
 
 	// For total safety, finally reset the target page.
 	mPropertyGrid->SetTargetPage(0);
 
-	/*
-	wxPropertyGrid* pg = new wxPropertyGrid(
-		this, // parent
-		99, // id
-		wxDefaultPosition, // position
-		wxDefaultSize, // size
-		// Some specific window styles - for all additional styles,
-		// see Modules->PropertyGrid Window Styles
-		wxPG_AUTO_SORT | // Automatic sorting after items added
-		wxPG_SPLITTER_AUTO_CENTER | // Automatically center splitter until user manually adjusts it
-		// Default style
-		wxPG_DEFAULT_STYLE );
-		*/
 	wxAuiPaneInfo info;
 	info.Caption(_("Properties"));
 	info.MaximizeButton(true);
@@ -255,7 +254,6 @@ void MaterialEditorFrame::createPropertiesPane()
 	info.Left();
 
 	mAuiManager->AddPane(mPropertyGrid, info);
-
 }
 
 void MaterialEditorFrame::createOgrePane()
@@ -307,7 +305,24 @@ void MaterialEditorFrame::createFileMenu()
 {	
 	mFileMenu = new wxMenu();
 
-	mFileMenu->Append(ID_FILE_MENU_NEW, _("&New"));
+	// New sub menu
+	wxMenu* newMenu = new wxMenu("");
+	wxMenuItem* newProjectItem = newMenu->Append(ID_FILE_NEW_MENU_PROJECT, wxT("&Project..."));
+	wxBitmap projectImage;
+	if(projectImage.LoadFile("resources/images/project.gif", wxBITMAP_TYPE_GIF))
+	{
+		newProjectItem->SetBitmap(projectImage);
+	}
+
+	wxMenuItem* newMaterialItem = newMenu->Append(ID_FILE_NEW_MENU_MATERIAL, wxT("&Material..."));
+	wxBitmap materialImage;
+	if(materialImage.LoadFile("resources/images/material.gif", wxBITMAP_TYPE_GIF))
+	{
+		newProjectItem->SetBitmap(materialImage);
+	}
+
+	mFileMenu->AppendSubMenu(newMenu, wxT("&New"));
+
 	mFileMenu->Append(ID_FILE_MENU_OPEN, _("&Open..."));
 
 	wxMenuItem* saveItem = mFileMenu->Append(ID_FILE_MENU_SAVE, _("&Save"));
@@ -371,12 +386,37 @@ void MaterialEditorFrame::createHelpMenu()
 	mMenuBar->Append(mHelpMenu, _("&Help"));
 }
 
-void MaterialEditorFrame::onActivate(wxActivateEvent& event)
+void MaterialEditorFrame::OnActivate(wxActivateEvent& event)
 {
 	//if(mOgreControl) mOgreControl->initOgre();
 }
 
-void MaterialEditorFrame::onFileOpen(wxCommandEvent& event)
+void MaterialEditorFrame::OnNewProject(wxCommandEvent& event)
+{
+	wxBitmap projectImage;
+	projectImage.LoadFile("resources/images/new_project.gif", wxBITMAP_TYPE_GIF);
+
+	ProjectWizard* wizard = new ProjectWizard();
+	wizard->Create(this, wxID_ANY, wxT("New Project"), projectImage, wxDefaultPosition, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
+	wizard->RunWizard(wizard->getProjectPage()); // This seems unnatural, seems there must be a better way to deal with wizards
+
+	/*
+	wxBitmap projectImage;
+	projectImage.LoadFile("resources/images/new_project.gif", wxBITMAP_TYPE_GIF);
+
+	wxWizard* wizard = new wxWizard(this, wxID_ANY, wxT("New Project"), projectImage, wxDefaultPosition, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
+	ProjectPage* page = new ProjectPage(wizard);
+	wizard->GetPageAreaSizer()->Add(page);
+	if(wizard->RunWizard(page))
+	{
+
+	}
+
+	wizard->Destroy();
+	*/
+}
+
+void MaterialEditorFrame::OnFileOpen(wxCommandEvent& event)
 {
 	wxFileDialog * openDialog = new wxFileDialog(this, _("Choose a Material file to open"), wxEmptyString, wxEmptyString, _("Material Files (*.material)|*.material|All Files (*.*)|*.*"));
 
@@ -414,12 +454,12 @@ void MaterialEditorFrame::onFileOpen(wxCommandEvent& event)
 	}
 }
 
-void MaterialEditorFrame::onFileExit(wxCommandEvent& event)
+void MaterialEditorFrame::OnFileExit(wxCommandEvent& event)
 {
 	Close();
 }
 
-void MaterialEditorFrame::onViewOpenGL(wxCommandEvent& event)
+void MaterialEditorFrame::OnViewOpenGL(wxCommandEvent& event)
 {
 	/*
 	if(mOpenGLRenderSystem == NULL)
@@ -427,7 +467,7 @@ void MaterialEditorFrame::onViewOpenGL(wxCommandEvent& event)
 		wxMessageBox("OpenGL Render System not found", "Error");
 		return;
 	}
-
+                                                                                   
 	mOgreControl->SetRenderSystem(mOpenGLRenderSystem);
 
 	wxAuiPaneInfo info = mAuiManager->GetPane(mOgreControl);
@@ -446,7 +486,7 @@ void MaterialEditorFrame::onViewOpenGL(wxCommandEvent& event)
 	*/
 }
 
-void MaterialEditorFrame::onViewDirectX(wxCommandEvent& event)
+void MaterialEditorFrame::OnViewDirectX(wxCommandEvent& event)
 {
 	/*
 	if(mDirectXRenderSystem == NULL)
