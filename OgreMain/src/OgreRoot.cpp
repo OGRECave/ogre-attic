@@ -147,14 +147,13 @@ namespace Ogre {
 
 		mShadowTextureManager = new ShadowTextureManager();
 
+		mRenderSystemCapabilitiesManager = new RenderSystemCapabilitiesManager();
+
         // ..material manager
         mMaterialManager = new MaterialManager();
 
         // Mesh manager
         mMeshManager = new MeshManager();
-
-        // .rendercaps manager
-        mRenderSystemCapabilitiesManager = new RenderSystemCapabilitiesManager();
 
         // Skeleton manager
         mSkeletonManager = new SkeletonManager();
@@ -243,6 +242,7 @@ namespace Ogre {
         shutdown();
         delete mSceneManagerEnum;
 		delete mShadowTextureManager;
+		delete mRenderSystemCapabilitiesManager;
 
 		destroyAllRenderQueueInvocationSequences();
         delete mCompositorManager;
@@ -279,7 +279,6 @@ namespace Ogre {
 
         unloadPlugins();
         delete mMaterialManager;
-        delete mRenderSystemCapabilitiesManager;
         Pass::processPendingPassUpdates(); // make sure passes are cleaned
 		delete mResourceBackgroundQueue;
         delete mResourceGroupManager;
@@ -298,7 +297,6 @@ namespace Ogre {
 
 		mAutoWindow = 0;
 		mFirstTimePostWindowInit = false;
-
 
         StringInterface::cleanupDictionary ();
     }
@@ -397,6 +395,8 @@ namespace Ogre {
 
         setRenderSystem(rs);
 
+
+
         // Successful load
         return true;
 
@@ -489,7 +489,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    RenderWindow* Root::initialise(bool autoCreateWindow, const String& windowTitle)
+    RenderWindow* Root::initialise(bool autoCreateWindow, const String& windowTitle, const String& customCapabilitiesConfig)
     {
         if (!mActiveRenderer)
             OGRE_EXCEPT(Exception::ERR_INVALID_STATE,
@@ -498,6 +498,34 @@ namespace Ogre {
 
         if (!mControllerManager)
 			mControllerManager = new ControllerManager();
+
+        // .rendercaps manager
+        RenderSystemCapabilitiesManager& rscManager = RenderSystemCapabilitiesManager::getSingleton();
+        // caller wants to load custom RenderSystemCapabilities form a config file
+        if(customCapabilitiesConfig != StringUtil::BLANK)
+        {
+            ConfigFile cfg;
+            cfg.load(mConfigFileName, "\t:=", false);
+
+            // Capabilities Database setting must be in the same format as
+            // resources.cfg in Ogre examples.
+            ConfigFile::SettingsIterator iter = cfg.getSettingsIterator("Capabilities Database");
+            while(iter.hasMoreElements())
+            {
+                String key = iter.peekNextKey();
+                String val = iter.getNext();
+
+                rscManager.parseCapabilitiesFromArchive(key, val, true);
+            }
+
+            String capsName = cfg.getSetting("Custom Capabilities");
+            // The custom capabilities have been parsed, let's retrieve them
+            RenderSystemCapabilities* rsc = rscManager.loadParsedCapabilities(capsName);
+            // Tell RenderSystem to use the comon rsc
+            mActiveRenderer->_useCustomRenderSystemCapabilities(rsc);
+
+        }
+
 
 		PlatformInformation::log(LogManager::getSingleton().getDefaultLog());
 		mAutoWindow =  mActiveRenderer->initialise(autoCreateWindow, windowTitle);

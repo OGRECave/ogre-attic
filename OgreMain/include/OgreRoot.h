@@ -79,7 +79,6 @@ namespace Ogre
         ArchiveManager* mArchiveManager;
         MaterialManager* mMaterialManager;
         MeshManager* mMeshManager;
-        RenderSystemCapabilitiesManager* mRenderSystemCapabilitiesManager;
         ParticleSystemManager* mParticleManager;
         SkeletonManager* mSkeletonManager;
         OverlayElementFactory* mPanelFactory;
@@ -92,6 +91,7 @@ namespace Ogre
 		ResourceGroupManager* mResourceGroupManager;
 		ResourceBackgroundQueue* mResourceBackgroundQueue;
 		ShadowTextureManager* mShadowTextureManager;
+		RenderSystemCapabilitiesManager* mRenderSystemCapabilitiesManager;
 
         Timer* mTimer;
         RenderWindow* mAutoWindow;
@@ -291,7 +291,8 @@ namespace Ogre
                 A pointer to the automatically created window, if
                 requested, otherwise <b>NULL</b>.
         */
-	    RenderWindow* initialise(bool autoCreateWindow, const String& windowTitle = "OGRE Render Window");
+	    RenderWindow* initialise(bool autoCreateWindow, const String& windowTitle = "OGRE Render Window",
+                                    const String& customCapabilitiesConfig = StringUtil::BLANK);
 
 		/** Returns whether the system is initialised or not. */
 		bool isInitialised(void) const { return mIsInitialised; }
