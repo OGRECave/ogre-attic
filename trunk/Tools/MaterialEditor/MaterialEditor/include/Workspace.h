@@ -35,23 +35,23 @@ Torus Knot Software Ltd.
 
 #include "OgreSingleton.h"
 
+#include "EventContainer.h"
+
+class EventArgs;
 class Project;
 class Workspace;
 
 typedef std::list<Project*> ProjectList;
 
-typedef boost::signal<void (Workspace*, Project*)> ProjectAddedDelegate;
-typedef boost::signal<void (Workspace*, Project*)> ProjectRemovedDelegate;
-
 enum WorkspaceEvent
 {
-	ProjectAdded,
-	ProjectRemoved
+	WE_ProjectAdded,
+	WE_ProjectRemoved
 };
 
 using Ogre::String;
 
-class Workspace : public Ogre::Singleton<Workspace>
+class Workspace : public Ogre::Singleton<Workspace>, public EventContainer
 {
 public:
 	Workspace();
@@ -64,6 +64,7 @@ public:
 	Project* getProject(const Ogre::String& name);
 	const ProjectList* getProjects() const;
 	
+	/*
 	template<class T>
 	void subscribe(WorkspaceEvent event, T& functor)
 	{
@@ -78,6 +79,7 @@ public:
 			break;
 		}
 	}
+	*/
 
 	/** Override standard Singleton retrieval.
 	@remarks
@@ -95,6 +97,7 @@ public:
 	preventing link errors.
 	*/
 	static Workspace& getSingleton(void);
+
 	/** Override standard Singleton retrieval.
 	@remarks
 	Why do we do this? Well, it's because the Singleton
@@ -113,10 +116,12 @@ public:
 	static Workspace* getSingletonPtr(void);
 
 protected:
+	void registerEvents();
+
 	ProjectList mProjects;
 	
-	ProjectAddedDelegate mProjectAdded;
-	ProjectRemovedDelegate mProjectRemoved;
+	boost::signal<void (EventArgs&)> mProjectAdded;
+	boost::signal<void (EventArgs&)> mProjectRemoved;
 };
 
 #endif // WORKSPACE_H
