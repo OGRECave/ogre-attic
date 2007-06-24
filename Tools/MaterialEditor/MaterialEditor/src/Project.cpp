@@ -40,6 +40,10 @@ Project::Project() : mActiveMaterial(NULL)
 {
 }
 
+Project::Project(const String& name) : mActiveMaterial(NULL), mName(name)
+{
+}
+
 Project::~Project()
 {
 	MaterialControllerList::iterator it;
