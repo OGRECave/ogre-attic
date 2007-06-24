@@ -112,43 +112,34 @@ namespace Ogre {
 				RSC_TEXTURE_COMPRESSION_VTC = CAPS_VALUE(1, 2),
 				/// Supports openGL GLEW version 1.5
 				RSC_GLEW1_5_NOVBO	 = CAPS_VALUE(1, 3),
-				// Support for Frame Buffer Objects (FBOs)
+				/// Support for Frame Buffer Objects (FBOs)
 				RSC_FBO						 = CAPS_VALUE(1, 4),
-				// Support for Frame Buffer Objects ARB implementation (regular FBO is higher precedence)
+				/// Support for Frame Buffer Objects ARB implementation (regular FBO is higher precedence)
 				RSC_FBO_ARB				 = CAPS_VALUE(1, 5),
-				// Support for Frame Buffer Objects ATI implementation (ARB FBO is higher precedence)
+				/// Support for Frame Buffer Objects ATI implementation (ARB FBO is higher precedence)
 				RSC_FBO_ATI				 = CAPS_VALUE(1, 6),
-				// Support for PBuffer
+				/// Support for PBuffer
 				RSC_PBUFFER				 = CAPS_VALUE(1, 7),
-				// Support for PBuffer
+				/// Support for GLEW 1.5 without HW occlusion workaround
 				RSC_GLEW1_5_NOHWOCCLUSION = CAPS_VALUE(1, 8),
 
 
-				// Is DirectX feature "per stage constants" supported
+				/// Is DirectX feature "per stage constants" supported
 				RSC_PERSTAGECONSTANT = CAPS_VALUE(1, 9)
 
     };
-    // Formard declaration
-    class RenderSystemCapabilitiesPtr;
 
     /** singleton class for storing the capabilities of the graphics card.
         @remarks
             This class stores the capabilities of the graphics card.  This
             information is set by the individual render systems.
     */
-    class _OgreExport RenderSystemCapabilities: public Resource
+    class _OgreExport RenderSystemCapabilities
     {
 
 			  public:
 
 						typedef std::set<String> ShaderProfiles;
-        protected:
-            /** Do nothing (there is no content to load) */
-            virtual void loadImpl(void) {}
-			virtual void unloadImpl(void) {}
-            /** The size is 0, because there is no content */
-            virtual size_t calculateSize(void) {return 0;}
-
         private:
             String mGLDriver;
             String mGLVendor;
@@ -199,9 +190,8 @@ namespace Ogre {
 			ShaderProfiles mSupportedShaderProfiles;
 
     	public:
-            RenderSystemCapabilities (ResourceManager *creator, const String &name, ResourceHandle handle,
-                                    const String &group, bool isManual=false, ManualResourceLoader *loader=0);
-            ~RenderSystemCapabilities ();
+            RenderSystemCapabilities ();
+            virtual ~RenderSystemCapabilities ();
 
             virtual size_t calculateSize() const {return 0;}
 
@@ -523,62 +513,6 @@ namespace Ogre {
             void log(Log* pLog);
 
     };
-
-    /** Specialisation of SharedPtr to allow SharedPtr to be assigned to RenderSystemCapabilitiesPtr
-	@note Has to be a subclass since we need operator=.
-	We could templatise this instead of repeating per Resource subclass,
-	except to do so requires a form VC6 does not support i.e.
-	ResourceSubclassPtr<T> : public SharedPtr<T>
-	*/
-	class _OgreExport RenderSystemCapabilitiesPtr : public SharedPtr<RenderSystemCapabilities>
-	{
-	public:
-		RenderSystemCapabilitiesPtr() : SharedPtr<RenderSystemCapabilities>() {}
-		explicit RenderSystemCapabilitiesPtr(RenderSystemCapabilities* rep) : SharedPtr<RenderSystemCapabilities>(rep) {}
-		RenderSystemCapabilitiesPtr(const RenderSystemCapabilitiesPtr& r) : SharedPtr<RenderSystemCapabilities>(r) {}
-		RenderSystemCapabilitiesPtr(const ResourcePtr& r) : SharedPtr<RenderSystemCapabilities>()
-		{
-			// lock & copy other mutex pointer
-            OGRE_MUTEX_CONDITIONAL(r.OGRE_AUTO_MUTEX_NAME)
-            {
-			    OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
-			    OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
-			    pRep = static_cast<RenderSystemCapabilities*>(r.getPointer());
-			    pUseCount = r.useCountPointer();
-			    if (pUseCount)
-			    {
-				    ++(*pUseCount);
-			    }
-            }
-		}
-
-		/// Operator used to convert a ResourcePtr to a MaterialPtr
-		RenderSystemCapabilitiesPtr& operator=(const ResourcePtr& r)
-		{
-			if (pRep == static_cast<RenderSystemCapabilities*>(r.getPointer()))
-				return *this;
-			release();
-			// lock & copy other mutex pointer
-            OGRE_MUTEX_CONDITIONAL(r.OGRE_AUTO_MUTEX_NAME)
-            {
-			    OGRE_LOCK_MUTEX(*r.OGRE_AUTO_MUTEX_NAME)
-			    OGRE_COPY_AUTO_SHARED_MUTEX(r.OGRE_AUTO_MUTEX_NAME)
-			    pRep = static_cast<RenderSystemCapabilities*>(r.getPointer());
-			    pUseCount = r.useCountPointer();
-			    if (pUseCount)
-			    {
-				    ++(*pUseCount);
-			    }
-            }
-			else
-			{
-				// RHS must be a null pointer
-				assert(r.isNull() && "RHS must be null if it has no mutex!");
-				setNull();
-			}
-			return *this;
-		}
-	};
 
 } // namespace
 

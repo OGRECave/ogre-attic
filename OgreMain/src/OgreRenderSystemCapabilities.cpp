@@ -36,13 +36,11 @@ Torus Knot Software Ltd.
 namespace Ogre {
 
     //-----------------------------------------------------------------------
-    RenderSystemCapabilities::RenderSystemCapabilities (ResourceManager *creator, const String &name,
-                ResourceHandle handle, const String &group, bool isManual, ManualResourceLoader *loader)
-      : Resource(creator, name, handle, group, isManual, loader), mNumWorldMatrices(0), mNumTextureUnits(0), mStencilBufferBitDepth(0),
+    RenderSystemCapabilities::RenderSystemCapabilities ()
+      : mNumWorldMatrices(0), mNumTextureUnits(0), mStencilBufferBitDepth(0),
         mNumVertexBlendMatrices(0), mNumMultiRenderTargets(1),
 		mNonPOW2TexturesLimited(false)
     {
-
 
 			 for(int i = 0; i < sizeof(mCapabilities)/sizeof(int); i++)
 			 {
@@ -176,7 +174,28 @@ namespace Ogre {
 				+ StringConverter::toString(mVertexTextureUnitsShared, true));
 
 		}
+		pLog->logMessage(
+			" * GLEW 1.5 without VBO workaround: "
+			+ StringConverter::toString(hasCapability(RSC_GLEW1_5_NOVBO), true));
 
+        pLog->logMessage(
+			" * Frame Buffer objects: "
+			+ StringConverter::toString(hasCapability(RSC_FBO), true));
+        pLog->logMessage(
+			" * Frame Buffer objects (ARB extension): "
+			+ StringConverter::toString(hasCapability(RSC_FBO_ARB), true));
+        pLog->logMessage(
+			" * Frame Buffer objects (ATI extension): "
+			+ StringConverter::toString(hasCapability(RSC_FBO_ATI), true));
+        pLog->logMessage(
+			" * PBuffer suppport: "
+			+ StringConverter::toString(hasCapability(RSC_PBUFFER), true));
+        pLog->logMessage(
+			" * GLEW 1.5 without HW-occlusion workaround: "
+			+ StringConverter::toString(hasCapability(RSC_GLEW1_5_NOHWOCCLUSION), true));
+        pLog->logMessage(
+			" * DirectX per stage constants: "
+			+ StringConverter::toString(hasCapability(RSC_PERSTAGECONSTANT), true));
 
     }
 };
