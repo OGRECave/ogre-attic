@@ -68,6 +68,7 @@ class Project
 {
 public:
 	Project();
+	Project(const String& name);
 	virtual ~Project();
 
 	const String& getName() const;

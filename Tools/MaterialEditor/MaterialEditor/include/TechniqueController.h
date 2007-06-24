@@ -49,6 +49,15 @@ using namespace Ogre;
 
 typedef std::list<PassController*> PassControllerList;
 
+enum TechniqueEvent 
+{
+	TE_NameChanged,
+	TE_SchemeChanged,
+	TE_LodIndexChanged,
+	TE_PassAdded,
+	TE_PassRemoved
+};
+
 class TechniqueController
 {
 public:

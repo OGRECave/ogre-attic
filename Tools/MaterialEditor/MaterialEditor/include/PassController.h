@@ -16,6 +16,41 @@ namespace Ogre
 
 class TechniqueController;
 
+enum PassEvent
+{
+	PE_NameChanged,
+	PE_AmbientChanged,
+	PE_DiffuseChanged,
+	PE_SpecularChanged,
+	PE_ShininessChanged,
+	PE_SelfIllumChanged,
+	PE_VertexColourTrackingChanged,
+	PE_PointSizeChanged,
+	PE_PointSpritesChanged,
+	PE_PointAttenuationChanged,
+	PE_PointMinSizeChanged,
+	PE_PointMaxSizeChanged,
+	PE_SceneBlendingTypeChanged,
+	PE_SceneBlendSrcFactorChanged,
+	PE_SceneBlendDestFactorChanged,
+	PE_DepthCheckChanged,
+	PE_DepthWriteChanged,
+	PE_DepthFunctionChanged,
+	PE_ColourWriteChanged,
+	PE_CullingModeChanged,
+	PE_ManualCullingModeChanged,
+	PE_LightingChanged,
+	PE_MaxLightsChanged,
+	PE_StartLightChanged,
+	PE_ShadingModeChanged,
+	PE_PolygonModeChanged,
+	PE_FogChanged,
+	PE_DepthBiasChanged,
+	PE_AlphaRejectionChanged,
+	PE_IteratePerLightChanged,
+	PE_LightCountPerIterationChanged,
+};
+
 using namespace Ogre;
 
 class PassController

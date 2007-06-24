@@ -44,6 +44,13 @@ using namespace Ogre;
 
 typedef std::list<TechniqueController*> TechniqueControllerList;
 
+enum MaterialEvent
+{
+	ME_NameChanged,
+	ME_TechniqueAdded,
+	ME_TechniqueRemoved
+};
+
 class MaterialController //: public Subject
 {
 public:
