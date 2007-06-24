@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreResourceManager.h"
 
 #include "MaterialEditorFrame.h"
+#include "Workspace.h"
 
 using Ogre::ConfigFile;
 using Ogre::LogManager;
@@ -83,6 +84,9 @@ bool MaterialEditorApp::OnInit()
 
 	// cant init here, no rendersystem!
 	//mRoot->initialise(false);
+
+	// Ensure Workspace is created
+	new Workspace();
 
 	MaterialEditorFrame* frame = new MaterialEditorFrame(NULL);
 	frame->Show(TRUE);
