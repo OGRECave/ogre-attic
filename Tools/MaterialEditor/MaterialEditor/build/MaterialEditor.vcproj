@@ -191,6 +191,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\EventContainer.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\LogPanel.cpp"
 				>
 			</File>
@@ -227,6 +231,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\ProjectPage.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\ProjectWizard.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\ResourcePanel.cpp"
 				>
 			</File>
@@ -243,6 +255,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\WorkspaceEventArgs.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\WorkspacePanel.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\wxOgre.cpp"
 				>
 			</File>
@@ -254,6 +274,14 @@
 			>
 			<File
 				RelativePath="..\include\CodeEditor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\EventArgs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\EventContainer.h"
 				>
 			</File>
 			<File
@@ -297,15 +325,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\ProjectEventArgs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\ProjectPage.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\ProjectWizard.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\ResourcePanel.h"
 				>
 			</File>
 			<File
 				RelativePath="..\include\SharedDefs.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\Subject.h"
 				>
 			</File>
 			<File
@@ -318,6 +354,14 @@
 			</File>
 			<File
 				RelativePath="..\include\Workspace.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\WorkspaceEventArgs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\WorkspacePanel.h"
 				>
 			</File>
 			<File
