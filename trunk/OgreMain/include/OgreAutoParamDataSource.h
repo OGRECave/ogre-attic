@@ -159,7 +159,7 @@ namespace Ogre {
         const Vector4& getCameraPositionObjectSpace(void) const;
         /** Get the light which is 'index'th closest to the current object */
         const Light& getLight(size_t index) const;
-		int getLightNumber(size_t index) const;
+		float getLightNumber(size_t index) const;
 		void setAmbientLightColour(const ColourValue& ambient);
 		const ColourValue& getAmbientLightColour(void) const;
         const ColourValue& getSurfaceAmbientColour(void) const;
