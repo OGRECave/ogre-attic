@@ -1,4 +1,5 @@
-/*-------------------------------------------------------------------------
+/*
+-------------------------------------------------------------------------
 This source file is a part of OGRE
 (Object-oriented Graphics Rendering Engine)
 
@@ -21,7 +22,9 @@ You should have received a copy of the GNU Lesser General Public License
 along with this library; if not, write to the Free Software Foundation,
 Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA or go to
 http://www.gnu.org/copyleft/lesser.txt
--------------------------------------------------------------------------*/#ifndef _MATERIALEDITORFRAME_H_
+-------------------------------------------------------------------------
+*/
+#ifndef _MATERIALEDITORFRAME_H_
 #define _MATERIALEDITORFRAME_H_
 
 #include <wx/wx.h>
@@ -43,6 +46,7 @@ namespace
 
 class LogPanel;
 class ResourcePanel;
+class WorkspacePanel;
 class wxOgre;
 
 class MaterialEditorFrame : public wxFrame
@@ -68,12 +72,13 @@ protected:
 	void createWindowMenu(void);
 	void createHelpMenu(void);
 
-	void onActivate(wxActivateEvent& event);
+	void OnActivate(wxActivateEvent& event);
 
-	void onFileOpen(wxCommandEvent& event);
-	void onFileExit(wxCommandEvent& event);
-	void onViewOpenGL(wxCommandEvent& event);
-	void onViewDirectX(wxCommandEvent& event);
+	void OnNewProject(wxCommandEvent& event);
+	void OnFileOpen(wxCommandEvent& event);
+	void OnFileExit(wxCommandEvent& event);
+	void OnViewOpenGL(wxCommandEvent& event);
+	void OnViewDirectX(wxCommandEvent& event);
 
 private:
 	wxMenuBar* mMenuBar;
@@ -88,7 +93,7 @@ private:
 
 	wxAuiNotebook* mAuiNotebook;
 	wxNotebook* mWorkspaceNotebook;
-	wxTreeCtrl* mMaterialTree;
+	WorkspacePanel* mWorkspacePanel;
 	ResourcePanel* mResourcePanel;
 	wxPropertyGridManager* mPropertyGrid;
 
