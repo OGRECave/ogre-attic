@@ -28,7 +28,9 @@ Torus Knot Software Ltd.
 */
 #include "Workspace.h"
 
+#include "EventArgs.h"
 #include "Project.h"
+#include "WorkspaceEventArgs.h"
 
 template<> Workspace* Ogre::Singleton<Workspace>::ms_Singleton = 0;
 
@@ -44,6 +46,7 @@ Workspace* Workspace::getSingletonPtr(void)
 
 Workspace::Workspace()
 {
+	registerEvents();
 }
 
 Workspace::~Workspace()
@@ -55,17 +58,23 @@ Workspace::~Workspace()
 	}
 }
 
+void Workspace::registerEvents()
+{
+	registerEvent(WE_ProjectAdded, &mProjectAdded);
+	registerEvent(WE_ProjectRemoved, &mProjectRemoved);
+}
+
 void Workspace::addProject(Project* project)
 {
 	mProjects.push_back(project);
 	
-	mProjectAdded(this, project);
+	fireEvent(WE_ProjectAdded, WorkspaceEventArgs(this, project));
 }
 
 void Workspace::removeProject(Project* project)
 {
 	mProjects.remove(project);
-	mProjectRemoved(this, project);
+	fireEvent(WE_ProjectAdded, WorkspaceEventArgs(this, project));
 	delete project;
 }
 
