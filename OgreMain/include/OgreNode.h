@@ -172,6 +172,15 @@ namespace Ogre {
         */
         virtual void _updateFromParent(void) const;
 
+		/** Class-specific implementation of _updateFromParent.
+		@remarks
+			Splitting the implementation of the update away from the update call
+			itself allows the detail to be overridden without disrupting the 
+			general sequence of updateFromParent (e.g. raising events)
+		*/
+		virtual void updateFromParentImpl(void) const;
+
+
         /** Internal method for creating a new child node - must be overridden per subclass. */
         virtual Node* createChildImpl(void) = 0;
 

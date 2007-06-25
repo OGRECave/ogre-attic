@@ -332,10 +332,10 @@ namespace Ogre {
 	
 
 	
-
+#ifndef OGRE_EXCEPT
 #define OGRE_EXCEPT(num, desc, src) throw Ogre::ExceptionFactory::create( \
 	Ogre::ExceptionCodeType<num>(), desc, src, __FILE__, __LINE__ );
-
+#endif
 
 } // Namespace Ogre
 #endif

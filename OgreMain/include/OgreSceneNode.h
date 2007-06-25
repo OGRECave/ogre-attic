@@ -70,8 +70,8 @@ namespace Ogre {
         /// World-Axis aligned bounding box, updated only through _update
         AxisAlignedBox mWorldAABB;
 
-        /** @copydoc Node::_updateFromParent. */
-        void _updateFromParent(void) const;
+        /** @copydoc Node::updateFromParentImpl. */
+        void updateFromParentImpl(void) const;
 
         /** See Node. */
         Node* createChildImpl(void);

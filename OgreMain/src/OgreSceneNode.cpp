@@ -355,9 +355,9 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    void SceneNode::_updateFromParent(void) const
+    void SceneNode::updateFromParentImpl(void) const
     {
-        Node::_updateFromParent();
+        Node::updateFromParentImpl();
 
         // Notify objects that it has been moved
         ObjectMap::const_iterator i;
