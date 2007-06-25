@@ -1,0 +1,140 @@
+========================================================================
+    About the "Plugin_PCZSceneManager" Project
+========================================================================
+
+The Portal-Connected-Zone Scene Manager (PCZSM) is a plugin for Ogre3D (see
+www.ogre3d.org for more information about Ogre3d) which allows traversal of
+a scene which is non-homogeneous in structure.  Specifically, the PCZSM uses
+"Zones" which have their own hierarchy.  Zones are connected to other zones
+by "Portals" which can be envisioned as 4-point convex planar polygons.  
+
+This document gives basic information on the usage of the PCZSceneManager.
+It is not complete, and will change & expand as needed.  Note that as of
+this writing, the PCZSM has not undergone very extensive testing, nor is
+it optimized very much.  Assistance in these two areas would be greatly
+appreciated.  For support or to report bugs, please see the Developer Forum 
+at Ogre3D.org
+
+Cheers,
+
+Eric "Chaster" Cha
+
+/////////////////////////////////////////////////////////////////////////////
+			USING THE PCZ_SCENEMANAGER
+/////////////////////////////////////////////////////////////////////////////
+
+NOTE: For an example of PCZSM usage, see the PCZTestApp Application.  It
+is probably a lot easier to understand than trying to figure it all out
+from this. 
+
+LOADING & INITIALIZATION:
+
+The PCZSM is loaded just like any other Scene Manager plugin.  Included in
+the standard PCZSM plugin is the "default" zone.  If the user wishes to
+utilize the OctreeZone or TerrainZone, the "PLugin_OctreeZone" should be
+loaded *after* the PCZSM plugin is loaded.  
+
+Before using the PCZSM, the PCZSceneManager::init(zoneType) function should be called. 
+During intialization, the user specifies what type of zone (ZoneType_Default,
+ZoneType_OCtree, ZoneType_Terrain) the PCZSM should use for the default zone.
+The default zone is the zone where entities are placed if they are not 
+specified to be in other zones.  
+
+CREATING ZONES:
+
+Once the PCZSM has been initialized, the user can proceed with creating
+zones (PCZSceneManager::createZone(zoneType, zoneName)).  Zones can be 
+anything from the outdoors (i.e. a Terrain) to a room in a building, or
+a tunnel in a dungeon.  Zones can be of any size or shape, and can move.  
+
+NOTE: In the PCZSM, sky rendering (domes, boxes, planes) is associated 
+with a specific zone.  For example, if the user has a building on a terrain,
+the sky should be associated with the terrain (i.e. the "outdoors") using
+the function PCZSceneManager::setSkyZone(zone).  This tells the PCZSM to
+only draw the sky when the designated zone is visible.  (i.e. only draw
+the sky when the 'outdoor' zone is visible).
+
+CREATING PORTALS:
+
+Once the user has created a zone (in addition to the default zone), 
+they can create portals to attach two zones together.  To do this, the user 
+just creates a new Portal instance (i.e. newPortal = new Portal) and sets
+the portal corner points, attaches it to a node, and then adds it to the zone
+(see PCZTestApp -> RoomObject.cpp -> createPortals() function).  
+
+NOTE: In a future revision, I will probably change this so that it is a 
+function call instead of explicit instantiation by the user in order to
+prevent mis-use.
+
+NOTE: Portals currently only connect different zones.  The user can't
+connect portals to the same zone yet (i.e. no teleporters).  This functionality
+could be added later.
+
+Portals require 4 corner points which are co-planar and form a polygon which
+is convex. They also (currently) require a "matching" portal for proper
+scene traversal.  In other words, portals always exist in pairs - one in 
+each zone connected and co-existing in the same location, but facing in 
+opposite directions.  Portal corners are specified in right-handed counter-
+clockwise winding order so that the norm of the portal would be facing 
+the viewer.  
+
+While it is technically not required that a portal be associated with a 
+scene node, it is STRONGLY recommended.  Use Portal::setNode() to associate
+the portal with a scene node.  Once the portal is associated with a scene
+node, it will move with the scene node (including rotations or translations).
+Because of this, it is also highly recommended (although not required) that
+the node a portal is associated with be located at the center of the portal.
+
+NOTE: Scaling of a portal is not yet supported.  Scaling a node will not scale 
+the portal (although it might change position...) Also, if you don't associate
+the portal with a scene node, you will NOT be able to move it short of redefining
+the cornerpoints manually (and who wants to do that?).   
+
+Once all portals in the scene have been created, the user can either manually 
+assign their zone targets (i.e. the zone which they connect to) or they can
+call PCZSceneManager::connectPortalsToTargetZonesByLocation() to do it 
+automatically.  Note that this function requires all portals to have a matching
+portal in the target zone.  
+
+CREATING OBJECTS/ENTITIES:
+
+Once the zones and portals have been created, the user can create objects/entities. 
+The user should use SceneManager::createSceneNode() to create all scene nodes.
+
+NOTE: ALL OBJECTS *MUST* BE ATTACHED TO SCENENODES!!!  Unlike the other SM's
+available in Ogre3d, the PCZSM relies on Scene Nodes to determine zone
+locality of all entities - including cameras and lights.  Consequently,
+when a camera (or light) is created, the user should also attach the camera
+(or light) to a scene node and use that node to manipulate the object.
+
+SceneNodes should be assigned (by the user) to a zone upon creation of the 
+SceneNode.  Use the function "PCZSceneManager::setNodeHomeZone(node, zone)" 
+to do this.  
+
+If the user doesn't do this, the PCZSM will try to figure out which zone the 
+node belongs in using volumetric testing, but since there are situations when 
+this can fail, it is highly recommended that the user does so explicitly instead 
+of relying on the SM to figure it out.  Note that this only has to be done when 
+adding a node to the scene.  Once the node is in the proper zone, the SM will 
+handle moving it to other zones as necessary.
+
+NOTE: In order for the automatic zone assignment function to work, zones must
+have an "enclosure" object/node assigned to them (using the "PCZone::setEnclosureNode()
+function).  The enclosure node (or more specifically, the object attached to it)
+supplies the axis-aligned bounding box that determines the bounds of the zone.  
+So for example, the enclosure node/object for a room would be the model of the 
+walls, ceiling, and floor (assuming they are all modeled as one object or at least
+all attached to the same node).  See the PCZTestApp for an example.
+
+SCENE QUERIES:
+
+I have implemented Scene Query functions for Default & Octree Zones.  In general,
+they are used the same way as Scene Queries for any other Scene Manager, with
+one difference.  The user must specify the "start zone" for any scene query
+using XXXSceneQuery::setStartZone(zone) where "XXX" is Ray, Sphere, AxisAlignedBox, etc.
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////
