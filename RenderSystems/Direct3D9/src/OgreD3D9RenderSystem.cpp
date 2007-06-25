@@ -595,6 +595,7 @@ namespace Ogre
 	void D3D9RenderSystem::shutdown()
 	{
 		RenderSystem::shutdown();
+		mPrimaryWindow = NULL; // primary window deleted by base class.
 		freeDevice();
 		SAFE_DELETE( mDriverList );
 		mActiveD3DDriver = NULL;
@@ -677,7 +678,8 @@ namespace Ogre
 			// Create the GPU program manager
 			mGpuProgramManager = new D3D9GpuProgramManager(mpD3DDevice);
             // create & register HLSL factory
-            mHLSLProgramFactory = new D3D9HLSLProgramFactory();
+			if (mHLSLProgramFactory == NULL)
+				mHLSLProgramFactory = new D3D9HLSLProgramFactory();
             HighLevelGpuProgramManager::getSingleton().addFactory(mHLSLProgramFactory);
             mGpuProgramManager->_pushSyntaxCode("hlsl");
 
