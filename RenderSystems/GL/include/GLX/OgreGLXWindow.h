@@ -49,6 +49,7 @@ namespace Ogre
 		::GLXContext mGlxContext;
 		::XVisualInfo* mVisualInfo;
 		bool mDelVisualInfo;
+		bool mDelWindow;
 
 		bool mClosed;			//Window has been closed
 		bool mVisible;			//Window is visible
