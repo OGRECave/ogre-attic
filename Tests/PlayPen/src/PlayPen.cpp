@@ -1006,13 +1006,11 @@ protected:
 		animState->setTimePosition((Real)2);
 
 		*/
-
-		mSceneMgr->setAmbientLight(ColourValue::White);
-		Entity* ent = mSceneMgr->createEntity("23", "Iron_Golem.mesh");
-
+	
+		Entity* ent = mSceneMgr->createEntity("test", "fs_raiden03b.mesh");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
-
-
+		mAnimState = ent->getAnimationState("Default");
+		mAnimState->setEnabled(true);
 
 	}
 
@@ -4201,6 +4199,33 @@ protected:
 		mCamera->lookAt(Vector3::ZERO);
 
 	}
+	void testDxt1FromMemory()
+	{
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../../Tests/Media", "FileSystem");
+
+		DataStreamPtr stream = ResourceGroupManager::getSingleton().openResource("BumpyMetal_dxt1.dds");
+		// manually load into image
+		Image img;
+		img.load(stream, "dds");
+		TextureManager::getSingleton().loadImage("testdxtfrommem", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, img);
+
+		
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("testdxt", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		p->setCullingMode(CULL_NONE);
+		TextureUnitState* t = p->createTextureUnitState("testdxtfrommem");
+		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+
+		mCamera->setPosition(0,0,-300);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
 	void testDxt1Alpha()
 	{
 		ResourceGroupManager::getSingleton().addResourceLocation(
@@ -4234,6 +4259,35 @@ protected:
 		p->setCullingMode(CULL_NONE);
 		p->setSceneBlending(SBT_TRANSPARENT_ALPHA);
 		TextureUnitState* t = p->createTextureUnitState("ogreborderUp_dxt3.dds");
+		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
+		e->setMaterialName(mat->getName());
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		mWindow->getViewport(0)->setBackgroundColour(ColourValue::Red);
+
+		mCamera->setPosition(0,0,300);
+		mCamera->lookAt(Vector3::ZERO);
+
+	}
+	void testDxt3FromMemory()
+	{
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../../Tests/Media", "FileSystem");
+
+		DataStreamPtr stream = ResourceGroupManager::getSingleton().openResource("ogreborderUp_dxt3.dds");
+		// manually load into image
+		Image img;
+		img.load(stream, "dds");
+		TextureManager::getSingleton().loadImage("testdxtfrommem", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, img);
+
+
+
+		MaterialPtr mat = MaterialManager::getSingleton().create("testdxt", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass* p = mat->getTechnique(0)->getPass(0);
+		p->setLightingEnabled(false);
+		p->setCullingMode(CULL_NONE);
+		p->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		TextureUnitState* t = p->createTextureUnitState("testdxtfrommem");
 		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
 		e->setMaterialName(mat->getName());
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
@@ -5369,7 +5423,7 @@ protected:
 		l->setSpotlightRange(Degree(30),Degree(45),1.0f);
 		SceneNode* lightNode1 = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		lightNode1->attachObject(l);
-		lightNode1->setPosition(200, 250, 500);
+		lightNode1->setPosition(400, 250, 500);
 		lightNode1->lookAt(Vector3(0,-200,0), Node::TS_WORLD);
 		l->setDirection(Vector3::NEGATIVE_UNIT_Z);
 		l->setDiffuseColour(0.7, 0.7, 0.5);
@@ -5394,6 +5448,7 @@ protected:
 		*/
 		l->setDiffuseColour(1, 0.2, 0.2);
 
+		/*
 		// Test spot 3
 		l = mSceneMgr->createLight("Spot3");
 		l->setType(Light::LT_SPOTLIGHT);
@@ -5401,10 +5456,11 @@ protected:
 		l->setSpotlightRange(Degree(30),Degree(45),1.0f);
 		SceneNode* lightNode3 = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		lightNode3->attachObject(l);
-		lightNode3->setPosition(500, 250, 500);
+		lightNode3->setPosition(700, 250, 500);
 		lightNode3->lookAt(Vector3(0,-200,0), Node::TS_WORLD);
 		l->setDirection(Vector3::NEGATIVE_UNIT_Z);
 		l->setDiffuseColour(0.0, 0.7, 1.0);
+		*/
 
 		// Create a basic plane to have something in the scene to look at
 		Plane plane;
@@ -5519,6 +5575,87 @@ protected:
 
 	}
 
+
+	void testMRT()
+	{
+		TexturePtr Tex[2];
+		MultiRenderTarget* mrtTex;
+
+		Viewport* viewport = mWindow->getViewport(0);
+		uint width = viewport->getActualWidth();
+		uint height = viewport->getActualHeight();
+
+		Tex[0] = TextureManager::getSingleton().createManual("diffusemap", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D,
+			width,height,0,PF_R8G8B8A8,TU_RENDERTARGET);
+		Tex[1] = TextureManager::getSingleton().createManual("normalmap",ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D,
+			width,height,0,PF_R8G8B8A8,TU_RENDERTARGET);
+
+		//	assert(Tex[0]->getFormat() == PF_FLOAT16_RGBA);
+
+		mrtTex = Ogre::Root::getSingleton().getRenderSystem()->createMultiRenderTarget("MRT");
+		RenderTexture* rTex[2];
+		rTex[0] = Tex[0]->getBuffer()->getRenderTarget();
+		rTex[1] = Tex[1]->getBuffer()->getRenderTarget();
+
+		rTex[0]->setAutoUpdated(false);
+		rTex[1]->setAutoUpdated(false);
+		mrtTex->bindSurface(0, rTex[0]);
+		mrtTex->bindSurface(1, rTex[1]);
+		mrtTex->setAutoUpdated(true);
+
+		Viewport *v = mrtTex->addViewport(mCamera);
+		v->setMaterialScheme("MRT");
+		v->setClearEveryFrame(true);
+		v->setOverlaysEnabled(false);
+		v->setSkiesEnabled(false);
+		v->setBackgroundColour(ColourValue(0,0,0,0));
+
+		// Create texture overlay here
+		Overlay *debugOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
+		MaterialPtr debugMat = MaterialManager::getSingleton().create("DebugRTTMat1", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		debugMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+		TextureUnitState *t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("normalmap");
+		t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+		OverlayContainer *debugPanel = (OverlayContainer *) (OverlayManager::getSingleton().createOverlayElement("Panel","DebugRTTPanel1"));
+		debugPanel->_setPosition(0.8,0);
+		debugPanel->_setDimensions(0.2,0.3);
+		debugPanel->setMaterialName(debugMat->getName());
+		debugOverlay->add2D(debugPanel);
+
+		debugMat = MaterialManager::getSingleton().create("DebugRTTMat2", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		debugMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+		t = debugMat->getTechnique(0)->getPass(0)->createTextureUnitState("diffusemap");
+		t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+		debugPanel = (OverlayContainer *) (OverlayManager::getSingleton().createOverlayElement("Panel","DebugRTTPanel2"));
+		debugPanel->_setPosition(0.8,0.3);
+		debugPanel->_setDimensions(0.2,0.3);
+		debugPanel->setMaterialName(debugMat->getName());
+		debugOverlay->add2D(debugPanel);
+		// Create scene items
+
+		// Create a material to render differently to MRT compared to main viewport
+		MaterialPtr mat = MaterialManager::getSingleton().create("MRTTest", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		// normal technique (0), leave as default
+		Technique* mrtTech = mat->createTechnique();
+		mrtTech->setSchemeName("MRT");
+		Pass* mrtPass = mrtTech->createPass();
+		mrtPass->setVertexProgram("DeferredShading/material/hlsl/vs");
+		mrtPass->setFragmentProgram("DeferredShading/material/hlsl/ps");
+		mrtPass->createTextureUnitState("rockwall.tga");
+		mat->load();
+
+		Entity* ent = mSceneMgr->createEntity("knot", "knot.mesh");
+		ent->setMaterialName("MRTTest");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+
+		mCamera->setPosition(0, 0, 200);
+		mCamera->lookAt(Vector3::ZERO);
+
+
+
+	}
+
 	void test16Textures()
 	{
 
@@ -5618,10 +5755,18 @@ protected:
 
 	
 	}
+	struct Foo;
+	typedef Ogre::SharedPtr<Foo> FooPtr;
+	struct Foo { FooPtr ptr; };
 
-	// Just override the mandatory create scene method
     void createScene(void)
     {
+		// In main() or someplace:
+		FooPtr foo(new Foo);
+		foo->ptr.bind(new Foo);
+		foo = foo->ptr;
+		// foo now contains a wild pointer! 
+		// Just override the mandatory create scene method
 		ErrorDialog e;
 
 		MeshPtr m;
@@ -5708,7 +5853,7 @@ protected:
 		//testPoseAnimation();
 		//testPoseAnimation2();
 		//testBug();
-		test16Textures();
+		//test16Textures();
 		//testProjectSphere();
 		//testTimeCreateDestroyObject();
 		//testManualBlend();
@@ -5739,6 +5884,8 @@ protected:
 
 		//testCubeDDS();
 		//testDxt1();
+		//testDxt1FromMemory();
+		testDxt3FromMemory();
 		//testDxt1Alpha();
 		//testDxt3();
 		//testDxt5();
@@ -5750,6 +5897,7 @@ protected:
 		//testVertexTexture();
 		//testGLSLTangent();
 		//testBackgroundLoadResourceGroup();
+		//testMRT();
 		
     }
     // Create new frame listener

@@ -327,6 +327,26 @@ void D3D9HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::B
 		PixelUtil::bulkPixelConversion(src, converted);
 	}
 
+	size_t rowWidth;
+	if (PixelUtil::isCompressed(converted.format))
+	{
+		// D3D wants the width of one row of cells in bytes
+		if (converted.format == PF_DXT1)
+		{
+			// 64 bits (8 bytes) per 4x4 block
+			rowWidth = (converted.rowPitch / 4) * 8;
+		}
+		else
+		{
+			// 128 bits (16 bytes) per 4x4 block
+			rowWidth = (converted.rowPitch / 4) * 16;
+		}
+
+	}
+	else
+	{
+		rowWidth = converted.rowPitch * PixelUtil::getNumElemBytes(converted.format);
+	}
 	if(mSurface)
 	{
 		RECT destRect, srcRect;
@@ -335,7 +355,7 @@ void D3D9HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::B
 		
 		if(D3DXLoadSurfaceFromMemory(mSurface, NULL, &destRect, 
 			converted.data, D3D9Mappings::_getPF(converted.format),
-			converted.rowPitch * PixelUtil::getNumElemBytes(converted.format),
+			rowWidth,
 			NULL, &srcRect, D3DX_DEFAULT, 0) != D3D_OK)
 		{
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromMemory failed",
@@ -347,11 +367,30 @@ void D3D9HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::B
 		D3DBOX destBox, srcBox;
 		srcBox = toD3DBOXExtent(converted);
 		destBox = toD3DBOX(dstBox);
+		size_t sliceWidth;
+		if (PixelUtil::isCompressed(converted.format))
+		{
+			// D3D wants the width of one slice of cells in bytes
+			if (converted.format == PF_DXT1)
+			{
+				// 64 bits (8 bytes) per 4x4 block
+				sliceWidth = (converted.slicePitch / 16) * 8;
+			}
+			else
+			{
+				// 128 bits (16 bytes) per 4x4 block
+				sliceWidth = (converted.slicePitch / 16) * 16;
+			}
+
+		}
+		else
+		{
+			sliceWidth = converted.slicePitch * PixelUtil::getNumElemBytes(converted.format);
+		}
 		
 		if(D3DXLoadVolumeFromMemory(mVolume, NULL, &destBox, 
 			converted.data, D3D9Mappings::_getPF(converted.format),
-			converted.rowPitch * PixelUtil::getNumElemBytes(converted.format),
-			converted.slicePitch * PixelUtil::getNumElemBytes(converted.format),
+			rowWidth, sliceWidth,
 			NULL, &srcBox, D3DX_DEFAULT, 0) != D3D_OK)
 		{
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromMemory failed",
