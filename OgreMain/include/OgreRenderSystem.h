@@ -314,6 +314,11 @@ namespace Ogre
 				Values: true, false
 				Default: false
 				**
+				Key: "externalGLContext" [Win32 OpenGL specific]
+				Description: Use an externally created GL context
+				Values: <Context as Unsigned Long>
+				Default: 0 (create own context)
+				**
 				Key: "parentWindowHandle" [API specific]
 				Description: Parent window handle, for embedding the OGRE context
 				Values: positive integer for W32 (HWND handle)

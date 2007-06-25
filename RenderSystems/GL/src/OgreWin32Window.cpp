@@ -46,8 +46,10 @@ namespace Ogre {
 	{
 		mIsFullScreen = false;
 		mHWnd = 0;
+		mGlrc = 0;
 		mIsExternal = false;
 		mIsExternalGLControl = false;
+		mIsExternalGLContext = false;
 		mSizing = false;
 		mClosed = false;
 		mDisplayFrequency = 0;
@@ -129,6 +131,13 @@ namespace Ogre {
 				  mIsExternalGLControl = StringConverter::parseBool(opt->second);
 				}
 			}
+			if ((opt = miscParams->find("externalGLContext")) != end)
+			{
+				mGlrc = (HGLRC)StringConverter::parseUnsignedLong(opt->second);
+				if( mGlrc )
+					mIsExternalGLContext = true;
+			}
+
 			// window border style
 			opt = miscParams->find("border");
 			if(opt != miscParams->end())
@@ -275,9 +284,12 @@ namespace Ogre {
 					OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "selectPixelFormat failed", "Win32Window::create");
 			}
 		}
-		mGlrc = wglCreateContext(mHDC);
-		if (!mGlrc)
-			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "wglCreateContext", "Win32Window::create");
+		if (!mIsExternalGLContext)
+		{
+			mGlrc = wglCreateContext(mHDC);
+			if (!mGlrc)
+				OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "wglCreateContext", "Win32Window::create");
+		}
 		if (!wglMakeCurrent(mHDC, mGlrc))
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "wglMakeCurrent", "Win32Window::create");
 
@@ -290,7 +302,7 @@ namespace Ogre {
 				_wglSwapIntervalEXT(vsync? 1 : 0);
 		}
 
-        if (old_context)
+        if (old_context && old_context != mGlrc)
         {
             // Restore old context
 		    if (!wglMakeCurrent(old_hdc, old_context))
@@ -398,7 +410,7 @@ namespace Ogre {
 		// Unregister and destroy OGRE GLContext
 		delete mContext;
 
-		if (mGlrc)
+		if (!mIsExternalGLContext && mGlrc)
 		{
 			wglDeleteContext(mGlrc);
 			mGlrc = 0;
