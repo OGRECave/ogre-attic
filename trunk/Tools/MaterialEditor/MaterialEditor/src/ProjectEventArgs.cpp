@@ -24,21 +24,14 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA or go to
 http://www.gnu.org/copyleft/lesser.txt
 -------------------------------------------------------------------------
 */
-#ifndef _PROJECTEVENTARGS_H_
-#define _PROJECTEVENTARGS_H_
+#include "ProjectEventArgs.h"
 
-#include "EventArgs.h"
-#include "Project.h"
-
-class ProjectEventArgs : public EventArgs
+ProjectEventArgs::ProjectEventArgs(Project* project)
+: mProject(project)
 {
-public:
-	ProjectEventArgs(Project* project);
+}
 
-	Project* getProject() const;
-
-protected:
-	Project* mProject;
-};
-
-#endif // _PROJECTEVENTARGS_H_
+Project* ProjectEventArgs::getProject() const
+{
+	return mProject;
+}
