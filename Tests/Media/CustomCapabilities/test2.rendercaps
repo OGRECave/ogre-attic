@@ -1,0 +1,6 @@
+render_system_capabilities "TestCaps Realistic GPU"
+{
+// These capabilities emulate a realistic mid-end GPU for testing visuals
+// TODO: write this file
+
+}
