@@ -2870,11 +2870,16 @@ void SceneManager::renderSingleObject(const Renderable* rend, const Pass* pass,
 					float depthBiasBase = pass->getDepthBiasConstant() + 
 						pass->getIterationDepthBias() * depthInc;
 					// depthInc deals with light iteration 
-					if (depthInc > 0)
-					{
-						// Set modified depth bias right away
-						mDestRenderSystem->_setDepthBias(depthBiasBase, pass->getDepthBiasSlopeScale());
-					}
+					
+					// Note that we have to set the depth bias here even if the depthInc
+					// is zero (in which case you would think there is no change from
+					// what was set in _setPass(). The reason is that if there are
+					// multiple Renderables with this Pass, we won't go through _setPass
+					// again at the start of the iteration for the next Renderable
+					// because of Pass state grouping. So set it always
+
+					// Set modified depth bias right away
+					mDestRenderSystem->_setDepthBias(depthBiasBase, pass->getDepthBiasSlopeScale());
 
 					// Set to increment internally too if rendersystem iterates
 					mDestRenderSystem->setDeriveDepthBias(true, 
