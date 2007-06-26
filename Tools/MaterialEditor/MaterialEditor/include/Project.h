@@ -36,6 +36,8 @@ Torus Knot Software Ltd.
 #include "OgreMaterial.h"
 #include "OgreString.h"
 
+#include "EventContainer.h"
+
 namespace Ogre
 {
 	class SceneManager;
@@ -50,23 +52,17 @@ using Ogre::String;
 
 typedef std::list<MaterialController*> MaterialControllerList;
 
-
-typedef boost::signal<void (Project*, const String&)> NameChangedDelegate;
-typedef boost::signal<void (Project*, MaterialController*)> MaterialAddedDelegate;
-typedef boost::signal<void (Project*, MaterialController*)> MaterialRemovedDelegate;
-typedef boost::signal<void (Project*, MaterialController*)> ActiveMaterialChangedDelegate;
-
-enum ProjectEvent
-{
-	NamedChanged,
-	MaterialAdded,
-	MaterialRemoved,
-	ActiveMaterialChanged
-};
-
-class Project
+class Project : public EventContainer
 {
 public:
+	enum ProjectEvent
+	{
+		NameChanged,
+		MaterialAdded,
+		MaterialRemoved,
+		ActiveMaterialChanged
+	};
+
 	Project();
 	Project(const String& name);
 	virtual ~Project();
@@ -96,41 +92,12 @@ public:
 	bool isClosed();
 
 	void generateScene(Ogre::SceneManager* sceneManager);
-	
-	// use boost::bind for the functor so tracking is enabled
-	template<class T>
-	void subscribe(ProjectEvent event, T& functor)
-	{
-		switch(event)
-		{
-		case ProjectEvent::NameChanged:
-				mNameChanged.connect(functor);
-			break;
-			
-		case ProjectEvent::MaterialAdded:
-				mMaterialAdded.connect(functor);
-		break;
-			
-		case ProjectEvent::MaterialRemoved:
-				mMaterialRemoved.connect(functor);
-		break;
-			
-		case ProjectEvent::ActiveMaterialChanged:
-				mActiveMaterialChanged.connect(functor);
-		break;
-		}
-	}
 
 protected:
 	String mName;
 	bool mOpen;
 	MaterialController* mActiveMaterial;
 	MaterialControllerList mMaterialControllers;
-	
-	NameChangedDelegate mNameChanged;
-	MaterialAddedDelegate mMaterialAdded;
-	MaterialRemovedDelegate mMaterialRemoved;
-	ActiveMaterialChangedDelegate mActiveMaterialChanged;
 };
 
 #endif // _PROJECT_H_

@@ -33,6 +33,7 @@ Torus Knot Software Ltd.
 #include "OgreMaterialManager.h"
 
 #include "MaterialController.h"
+#include "ProjectEventArgs.h"
 
 using Ogre::MaterialManager;
 
@@ -64,7 +65,7 @@ void Project::setName(const String& name)
 {
 	mName = name;
 	
-	mNameChanged(this, name);
+	fireEvent(NameChanged, ProjectEventArgs(this));
 }
 
 void Project::addMaterial(MaterialPtr materialPtr)
@@ -72,7 +73,7 @@ void Project::addMaterial(MaterialPtr materialPtr)
 	MaterialController* controller = new MaterialController(materialPtr);
 	mMaterialControllers.push_back(controller);
 	
-	mMaterialAdded(this, controller);
+	fireEvent(MaterialAdded, ProjectEventArgs(this));
 }
 
 void Project::removeMaterial(MaterialController* controller)
@@ -87,7 +88,7 @@ void Project::removeMaterial(MaterialController* controller)
 		}
 	}
 	
-	mMaterialRemoved(this, controller);
+	fireEvent(MaterialRemoved, ProjectEventArgs(this));
 }
 
 void Project::removeMaterial(Material* material)
@@ -113,7 +114,7 @@ void Project::setActiveMaterial(MaterialController* controller)
 
 	mActiveMaterial = controller;
 	
-	mActiveMaterialChanged(this, controller);
+	fireEvent(ActiveMaterialChanged, ProjectEventArgs(this));
 }
 
 void Project::setActiveMaterial(Material* material)
