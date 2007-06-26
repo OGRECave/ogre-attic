@@ -31,8 +31,6 @@ Torus Knot Software Ltd.
 
 #include <list>
 
-#include <boost/signal.hpp>
-
 #include "OgreSingleton.h"
 
 #include "EventContainer.h"
@@ -43,17 +41,17 @@ class Workspace;
 
 typedef std::list<Project*> ProjectList;
 
-enum WorkspaceEvent
-{
-	WE_ProjectAdded,
-	WE_ProjectRemoved
-};
-
 using Ogre::String;
 
 class Workspace : public Ogre::Singleton<Workspace>, public EventContainer
 {
 public:
+	enum WorkspaceEvent
+	{
+		ProjectAdded,
+		ProjectRemoved
+	};
+
 	Workspace();
 	virtual ~Workspace();
 
@@ -63,23 +61,7 @@ public:
 
 	Project* getProject(const Ogre::String& name);
 	const ProjectList* getProjects() const;
-	
-	/*
-	template<class T>
-	void subscribe(WorkspaceEvent event, T& functor)
-	{
-		switch(event)
-		{
-			case WorkspaceEvent::ProjectAdded:
-				mProjectAdded.connect(functor);
-			break;
-			
-			case WorkspaceEvent::ProjectRemoved:
-				mProjectRemoved.connect(functor);
-			break;
-		}
-	}
-	*/
+
 
 	/** Override standard Singleton retrieval.
 	@remarks
@@ -119,9 +101,6 @@ protected:
 	void registerEvents();
 
 	ProjectList mProjects;
-	
-	boost::signal<void (EventArgs&)> mProjectAdded;
-	boost::signal<void (EventArgs&)> mProjectRemoved;
 };
 
 #endif // WORKSPACE_H

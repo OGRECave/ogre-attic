@@ -36,35 +36,23 @@ EventContainer::~EventContainer()
 {
 }
 
-void EventContainer::subscribe(int eventId, boost::function<void (EventArgs&)> func)
+void EventContainer::subscribe(int eventId, EventHandler handler)
 {
 	DelegateMap::iterator it = mDelegates.find(eventId);
-	it->second->connect(func);
+	it->second->connect(handler);
 }
 
 // TODO: Implement unsubscribe
-void EventContainer::unsubscribe(int eventId, boost::function<void (EventArgs&)> func)
+void EventContainer::unsubscribe(int eventId,EventHandler handler)
 {
 	DelegateMap::iterator it = mDelegates.find(eventId);
-	//it->second->disconnect(func);
-}
-/*
-void EventContainer::subscribe(int eventId, void (*callback)(EventArgs&))
-{
-	DelegateMap::iterator it = mDelegates.find(eventId);
-	it->second->connect(callback);
+	//it->second->disconnect(handler);
 }
 
-void EventContainer::unsubscribe(int eventId, void (*callback)(EventArgs&))
+// Should we throw an exception on duplicate event IDs?
+void EventContainer::registerEvent(int eventId)
 {
-	DelegateMap::iterator it = mDelegates.find(eventId);
-	it->second->disconnect(callback);
-}
-*/
-
-void EventContainer::registerEvent(int eventId,  boost::signal<void (EventArgs&)>* func)
-{
-	mDelegates[eventId] = func;
+	mDelegates[eventId] = new Delegate();
 }
 
 void EventContainer::fireEvent(int eventId, EventArgs& args)

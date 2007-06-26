@@ -60,21 +60,21 @@ Workspace::~Workspace()
 
 void Workspace::registerEvents()
 {
-	registerEvent(WE_ProjectAdded, &mProjectAdded);
-	registerEvent(WE_ProjectRemoved, &mProjectRemoved);
+	registerEvent(ProjectAdded);
+	registerEvent(ProjectRemoved);
 }
 
 void Workspace::addProject(Project* project)
 {
 	mProjects.push_back(project);
 	
-	fireEvent(WE_ProjectAdded, WorkspaceEventArgs(this, project));
+	fireEvent(ProjectAdded, WorkspaceEventArgs(this, project));
 }
 
 void Workspace::removeProject(Project* project)
 {
 	mProjects.remove(project);
-	fireEvent(WE_ProjectAdded, WorkspaceEventArgs(this, project));
+	fireEvent(ProjectAdded, WorkspaceEventArgs(this, project));
 	delete project;
 }
 
