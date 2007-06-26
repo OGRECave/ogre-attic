@@ -48,8 +48,8 @@ WorkspacePanel::WorkspacePanel(wxWindow* parent,
 {
 	createPanel();
 
-	Workspace::getSingletonPtr()->subscribe(WE_ProjectAdded, boost::bind(&WorkspacePanel::projectAdded, this, _1));
-	Workspace::getSingletonPtr()->subscribe(WE_ProjectRemoved, boost::bind(&WorkspacePanel::projectRemoved, this, _1));
+	Workspace::getSingletonPtr()->subscribe(Workspace::ProjectAdded, boost::bind(&WorkspacePanel::projectAdded, this, _1));
+	Workspace::getSingletonPtr()->subscribe(Workspace::ProjectRemoved, boost::bind(&WorkspacePanel::projectRemoved, this, _1));
 }
 
 WorkspacePanel::~WorkspacePanel()
