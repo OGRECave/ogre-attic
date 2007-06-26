@@ -36,7 +36,10 @@ Torus Knot Software Ltd.
 
 class EventArgs;
 
-typedef std::map<int, boost::signal<void (EventArgs&)>*> DelegateMap;
+typedef boost::function<void (EventArgs&)> EventHandler;
+typedef boost::signal<void (EventArgs&)> Delegate;
+typedef std::map<int, Delegate*> DelegateMap;
+
 
 class EventContainer
 {
@@ -44,16 +47,11 @@ public:
 	EventContainer();
 	virtual ~EventContainer();
 
-	void subscribe(int eventId, boost::function<void (EventArgs&)> func);
-	void unsubscribe(int eventId, boost::function<void (EventArgs&)> func);
-
-	//void subscribe(int eventId, void (*callback)(const EventArgs&));
-	//void unsubscribe(int eventId, void (*callback)(const EventArgs&));
+	void subscribe(int eventId, EventHandler handler);
+	void unsubscribe(int eventId, EventHandler handler);
 	
 protected:
-	// Consider: It seems it would be better if this class created
-	// the signals instead of forcing implementors to do so
-	void registerEvent(int eventId, boost::signal<void (EventArgs&)>* func);
+	void registerEvent(int eventId);
 	void fireEvent(int eventId, EventArgs& args);
 	
 private:
