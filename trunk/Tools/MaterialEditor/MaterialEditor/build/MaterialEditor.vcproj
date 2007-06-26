@@ -231,6 +231,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\ProjectEventArgs.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\ProjectPage.cpp"
 				>
 			</File>
