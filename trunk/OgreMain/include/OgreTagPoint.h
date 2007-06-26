@@ -95,7 +95,7 @@ namespace Ogre	{
         void needUpdate(bool forceParentUpdate = false);
 
         /** Overridden from Node in order to include parent Entity transform. */
-        void _updateFromParent(void) const;
+        void updateFromParentImpl(void) const;
         /** @copydoc Renderable::getLights */
         const LightList& getLights(void) const;
 

@@ -61,7 +61,8 @@ namespace Ogre
 //-------------------------------------------------------------------------------------------------//
 GLXWindow::GLXWindow(Display *display) :
 	mDisplay(display), mWindow(0), mGlxContext(0), mVisualInfo(0), mDelVisualInfo(false), 
-	mClosed(false), mVisible(true), mFullScreen(false), mOldMode(-1), mContext(0)
+	mDelWindow(false), mClosed(false), mVisible(true), mFullScreen(false), mOldMode(-1),
+	mContext(0)
 {
 	mActive = false;
 }
@@ -75,7 +76,7 @@ GLXWindow::~GLXWindow()
 	if(mGlxContext)
 		glXDestroyContext(mDisplay, mGlxContext);
 	
-	if(mWindow)
+	if(mDelWindow && mWindow)
 		XDestroyWindow(mDisplay, mWindow);
 
 #ifndef NO_XRANDR
@@ -303,6 +304,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 	
 		// Create window on server
 		mWindow = XCreateWindow(mDisplay,parentWindow,left,top,width,height,0,mVisualInfo->depth,InputOutput,mVisualInfo->visual,mask,&attr);
+		mDelWindow = true;
 		if(!mWindow) {
 			OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "GLXWindow: XCreateWindow failed", "GLXWindow::create");
 		}
@@ -403,7 +405,7 @@ void GLXWindow::destroy(void)
 	if(mGlxContext)
 		glXDestroyContext(mDisplay, mGlxContext);
 
-	if(mWindow)
+	if(mDelWindow && mWindow)
 		XDestroyWindow(mDisplay, mWindow);
 
 	mContext = 0;

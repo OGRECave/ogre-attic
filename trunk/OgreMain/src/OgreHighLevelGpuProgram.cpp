@@ -109,12 +109,13 @@ namespace Ogre
 				loadHighLevelImpl();
 				mHighLevelLoaded = true;
 			}
-			catch (const Exception&)
+			catch (const Exception& e)
 			{
 				// will already have been logged
 				LogManager::getSingleton().stream()
 					<< "High-level program " << mName << " encountered an error "
-					<< "during loading and is thus not supported.";
+					<< "during loading and is thus not supported.\n"
+					<< e.getFullDescription();
 
 				mCompileError = true;
 			}
