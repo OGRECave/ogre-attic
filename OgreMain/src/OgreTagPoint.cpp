@@ -123,10 +123,10 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------------
-    void TagPoint::_updateFromParent(void) const
+    void TagPoint::updateFromParentImpl(void) const
     {
         // Call superclass
-        Bone::_updateFromParent();
+        Bone::updateFromParentImpl();
 
         // Save transform for local skeleton
         mFullLocalTransform.makeTransform(

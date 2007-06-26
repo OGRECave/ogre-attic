@@ -218,9 +218,22 @@ namespace Ogre {
         mNeedChildUpdate = false;
 
     }
+	//-----------------------------------------------------------------------
+	void Node::_updateFromParent(void) const
+	{
+		updateFromParentImpl();
 
+		mCachedTransformOutOfDate = true;
+		mNeedParentUpdate = false;
+
+		// Call listener (note, this method only called if there's something to do)
+		if (mListener)
+		{
+			mListener->nodeUpdated(this);
+		}
+	}
     //-----------------------------------------------------------------------
-    void Node::_updateFromParent(void) const
+    void Node::updateFromParentImpl(void) const
     {
         if (mParent)
         {
@@ -265,14 +278,6 @@ namespace Ogre {
             mDerivedScale = mScale;
         }
 
-        mCachedTransformOutOfDate = true;
-        mNeedParentUpdate = false;
-
-		// Call listener (note, this method only called if there's something to do)
-		if (mListener)
-		{
-			mListener->nodeUpdated(this);
-		}
     }
     //-----------------------------------------------------------------------
     Node* Node::createChild(const Vector3& translate, const Quaternion& rotate)
