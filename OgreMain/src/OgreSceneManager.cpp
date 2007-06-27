@@ -125,6 +125,7 @@ mShadowTextureConfigDirty(true),
 mShadowUseInfiniteFarPlane(true),
 mShadowCasterRenderBackFaces(true),
 mShadowAdditiveLightClip(false),
+mLightClippingInfoMapFrameNumber(999),
 mShadowCasterSphereQuery(0),
 mShadowCasterAABBQuery(0),
 mShadowFarDist(0),
@@ -1115,10 +1116,6 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
     Root::getSingleton()._setCurrentSceneManager(this);
 	mActiveQueuedRenderableVisitor->targetSceneMgr = this;
 	mAutoParamDataSource.setCurrentSceneManager(this);
-
-	// clear cached light clipping info
-	// different from finding lights, should always be done here
-	mLightClippingInfoMap.clear();
 
     if (isShadowTechniqueInUse())
     {
@@ -4378,6 +4375,28 @@ const Pass* SceneManager::deriveShadowReceiverPass(const Pass* pass)
 
 }
 //---------------------------------------------------------------------
+const RealRect& SceneManager::getLightScissorRect(Light* l, const Camera* cam)
+{
+	checkCachedLightClippingInfo();
+
+	// Re-use calculations if possible
+	LightClippingInfoMap::iterator ci = mLightClippingInfoMap.find(l);
+	if (ci == mLightClippingInfoMap.end())
+	{
+		// create new entry
+		ci = mLightClippingInfoMap.insert(LightClippingInfoMap::value_type(l, LightClippingInfo())).first;
+	}
+	if (!ci->second.scissorValid)
+	{
+
+		buildScissor(l, cam, ci->second.scissorRect);
+		ci->second.scissorValid = true;
+	}
+
+	return ci->second.scissorRect;
+
+}
+//---------------------------------------------------------------------
 ClipResult SceneManager::buildAndSetScissor(const LightList& ll, const Camera* cam)
 {
 	if (!mDestRenderSystem->getCapabilities()->hasCapability(RSC_SCISSOR_TEST))
@@ -4394,24 +4413,14 @@ ClipResult SceneManager::buildAndSetScissor(const LightList& ll, const Camera* c
 		// a directional light is being used, no scissoring can be done, period.
 		if (l->getType() == Light::LT_DIRECTIONAL)
 			return CLIPPED_NONE;
-		// Re-use calculations if possible
-		LightClippingInfoMap::iterator ci = mLightClippingInfoMap.find(l);
-		if (ci == mLightClippingInfoMap.end())
-		{
-			// create new entry
-			ci = mLightClippingInfoMap.insert(LightClippingInfoMap::value_type(l, LightClippingInfo())).first;
-		}
-		if (!ci->second.scissorValid)
-		{
 
-			buildScissor(l, cam, ci->second.scissorRect);
-			ci->second.scissorValid = true;
-		}
+		const RealRect& scissorRect = getLightScissorRect(l, cam);
+
 		// merge with final
-		finalRect.left = std::min(finalRect.left, ci->second.scissorRect.left);
-		finalRect.bottom = std::min(finalRect.bottom, ci->second.scissorRect.bottom);
-		finalRect.right= std::max(finalRect.right, ci->second.scissorRect.right);
-		finalRect.top = std::max(finalRect.top, ci->second.scissorRect.top);
+		finalRect.left = std::min(finalRect.left, scissorRect.left);
+		finalRect.bottom = std::min(finalRect.bottom, scissorRect.bottom);
+		finalRect.right= std::max(finalRect.right, scissorRect.right);
+		finalRect.top = std::max(finalRect.top, scissorRect.top);
 
 
 	}
@@ -4461,6 +4470,37 @@ void SceneManager::resetScissor()
 	mDestRenderSystem->setScissorTest(false);
 }
 //---------------------------------------------------------------------
+void SceneManager::checkCachedLightClippingInfo()
+{
+	unsigned long frame = Root::getSingleton().getCurrentFrameNumber();
+	if (frame != mLightClippingInfoMapFrameNumber)
+	{
+		// reset cached clip information
+		mLightClippingInfoMap.clear();
+		mLightClippingInfoMapFrameNumber = frame;
+	}
+}
+//---------------------------------------------------------------------
+const PlaneList& SceneManager::getLightClippingPlanes(Light* l)
+{
+	checkCachedLightClippingInfo();
+
+	// Try to re-use clipping info if already calculated
+	LightClippingInfoMap::iterator ci = mLightClippingInfoMap.find(l);
+	if (ci == mLightClippingInfoMap.end())
+	{
+		// create new entry
+		ci = mLightClippingInfoMap.insert(LightClippingInfoMap::value_type(l, LightClippingInfo())).first;
+	}
+	if (!ci->second.clipPlanesValid)
+	{
+		buildLightClip(l, ci->second.clipPlanes);
+		ci->second.clipPlanesValid = true;
+	}
+	return ci->second.clipPlanes;
+	
+}
+//---------------------------------------------------------------------
 ClipResult SceneManager::buildAndSetLightClip(const LightList& ll)
 {
 	if (!mDestRenderSystem->getCapabilities()->hasCapability(RSC_USER_CLIP_PLANES))
@@ -4484,20 +4524,9 @@ ClipResult SceneManager::buildAndSetLightClip(const LightList& ll)
 
 	if (clipBase)
 	{
-		// Try to re-use clipping info if already calculated
-		LightClippingInfoMap::iterator ci = mLightClippingInfoMap.find(clipBase);
-		if (ci == mLightClippingInfoMap.end())
-		{
-			// create new entry
-			ci = mLightClippingInfoMap.insert(LightClippingInfoMap::value_type(clipBase, LightClippingInfo())).first;
-		}
-		if (!ci->second.clipPlanesValid)
-		{
-			buildLightClip(clipBase, ci->second.clipPlanes);
-			ci->second.clipPlanesValid = true;
-		}
+		const PlaneList& clipPlanes = getLightClippingPlanes(clipBase);
 		
-		mDestRenderSystem->setClipPlanes(ci->second.clipPlanes);
+		mDestRenderSystem->setClipPlanes(clipPlanes);
 		return CLIPPED_SOME;
 	}
 	else

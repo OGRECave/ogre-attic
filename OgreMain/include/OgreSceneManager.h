@@ -651,6 +651,7 @@ namespace Ogre {
 		};
 		typedef std::map<Light*, LightClippingInfo> LightClippingInfoMap;
 		LightClippingInfoMap mLightClippingInfoMap;
+		unsigned long mLightClippingInfoMapFrameNumber;
 
 		/// default shadow camera setup
 		ShadowCameraSetupPtr mDefaultShadowCameraSetup;
@@ -830,6 +831,7 @@ namespace Ogre {
 		virtual ClipResult buildAndSetLightClip(const LightList& ll);
 		virtual void buildLightClip(const Light* l, PlaneList& planes);
 		virtual void resetLightClip();
+		virtual void checkCachedLightClippingInfo();
 
 		/** Inner helper class to implement the visitor pattern for rendering objects
 			in a queue. 
@@ -979,6 +981,14 @@ namespace Ogre {
 		/** Returns whether a light with the given name exists.
 		*/
 		virtual bool hasLight(const String& name) const;
+
+		/** Retrieve a set of clipping planes for a given light. 
+		*/
+		virtual const PlaneList& getLightClippingPlanes(Light* l);
+
+		/** Retrieve a scissor rectangle for a given light and camera. 
+		*/
+		virtual const RealRect& getLightScissorRect(Light* l, const Camera* cam);
 
 		/** Removes the named light from the scene and destroys it.
             @remarks
