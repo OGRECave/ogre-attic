@@ -67,9 +67,10 @@ namespace Ogre {
 	    {
 	        // free memory in RenderSystemCapabilities*
 	        delete iter->second;
+	        iter++;
 	    }
 
-
+	    delete mSerializer;
     }
 
     //-----------------------------------------------------------------------
@@ -85,6 +86,7 @@ namespace Ogre {
         {
             DataStreamPtr stream = arch->open(*iter);
             mSerializer->parseScript(stream);
+            stream->close();
             iter++;
         }
     }
