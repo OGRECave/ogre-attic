@@ -103,7 +103,7 @@ namespace Ogre
 
             // skip empty and comment lines
             // TODO: handle end of line comments
-            if (tokens.size() == 0 || tokens[0].substr(0,2) == "//")
+            if (tokens[0] == "" || tokens[0].substr(0,2) == "//")
                 continue;
 
             switch (parseAction)
@@ -125,7 +125,7 @@ namespace Ogre
                         StringUtil::trim(rscName);
 
                         // the second argument must be a "" delimited string
-                        if (StringUtil::match(rscName, "\"*\""))
+                        if (!StringUtil::match(rscName, "\"*\""))
                         {
                             logParseError("The argument to render_system_capabilities must be a quote delimited (\"...\") string. RenderSystemCapabilities NOT created!");
                             return;
@@ -143,7 +143,7 @@ namespace Ogre
                             // RSCManager is responsible for deleting mCurrentCapabilities
                             RenderSystemCapabilitiesManager::getSingleton()._addRenderSystemCapabilities(rscName, mCurrentCapabilities);
 
-                            LogManager::getSingleton().logMessage("Create RenderSystemCapabilities" + rscName);
+                            LogManager::getSingleton().logMessage("Created RenderSystemCapabilities" + rscName);
 
                             // do next action
                             parseAction = FIND_OPEN_BRACE;
