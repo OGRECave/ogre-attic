@@ -354,7 +354,7 @@ namespace Ogre {
 
 						/** Adds the profile to the list of supported profiles
 						 */
-						void addShaderProfile(String profile)
+						void addShaderProfile(const String& profile)
 						{
 								mSupportedShaderProfiles.insert(profile);
 
@@ -362,7 +362,7 @@ namespace Ogre {
 
 						/** Returns true if profile is in the list of supported profiles
 						 */
-						bool isShaderProfileSupported(String profile) const
+						bool isShaderProfileSupported(const String& profile) const
 						{
 								return (mSupportedShaderProfiles.end() != mSupportedShaderProfiles.find(profile));
 						}
