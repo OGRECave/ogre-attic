@@ -29,16 +29,24 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreColourValue.h"
 #include "OgreTechnique.h"
 
+#include "MaterialEventArgs.h"
 #include "TechniqueController.h"
 
 MaterialController::MaterialController(MaterialPtr materialPtr) 
 : mMaterialPtr(materialPtr)
 {
-	mMaterialPtr = materialPtr;
+	registerEvents();
 }
 
 MaterialController::~MaterialController()
 {
+}
+
+void MaterialController::registerEvents()
+{
+	registerEvent(NameChanged);
+	registerEvent(TechniqueAdded);
+	registerEvent(TechniqueRemoved);
 }
 
 MaterialPtr MaterialController::getMaterial() const
@@ -64,22 +72,28 @@ void MaterialController::setTransparencyCastsShadows(bool enabled)
 TechniqueController* MaterialController::createTechnique(void)
 {
 	Technique* t = mMaterialPtr->createTechnique();
-	
+
 	// Create controller
 	TechniqueController* tc = new TechniqueController(t);
 	mTechniqueControllers.push_back(tc);
-	
+
+	fireEvent(TechniqueAdded, MaterialEventArgs(this));
+
 	return tc;
 }
 
 void MaterialController::removeTechnique(unsigned short index)
 {
 	mMaterialPtr->removeTechnique(index);
+
+	fireEvent(TechniqueRemoved, MaterialEventArgs(this));
 }
 
 void MaterialController::removeAllTechniques(void)
 {
 	mMaterialPtr->removeAllTechniques();
+
+	fireEvent(TechniqueRemoved, MaterialEventArgs(this));
 }
 
 void MaterialController::setAmbient(const ColourValue& ambient)
@@ -144,6 +158,7 @@ void MaterialController::setDiffuse(const ColourValue&  diffuse)
 	for(it = mTechniqueControllers.begin(); it != mTechniqueControllers.end(); ++it)
 		(*it)->setDiffuse(diffuse);
 }
+
 
 void MaterialController::setDiffuse(Real red, Real green, Real blue, Real alpha)
 {

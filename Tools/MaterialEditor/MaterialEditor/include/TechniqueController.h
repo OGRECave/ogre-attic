@@ -35,10 +35,11 @@ Torus Knot Software Ltd.
 #include "OgreCommon.h"
 #include "OgrePrerequisites.h"
 
+#include "EventContainer.h"
+
 namespace Ogre
 {
 	class ColourValue;
-	//class String;
 	class Technique;
 }
 
@@ -49,35 +50,35 @@ using namespace Ogre;
 
 typedef std::list<PassController*> PassControllerList;
 
-enum TechniqueEvent 
-{
-	TE_NameChanged,
-	TE_SchemeChanged,
-	TE_LodIndexChanged,
-	TE_PassAdded,
-	TE_PassRemoved
-};
-
-class TechniqueController
+class TechniqueController : public EventContainer
 {
 public:
+	enum TechniqueEvent 
+	{
+		NameChanged,
+		SchemeChanged,
+		LodIndexChanged,
+		PassAdded,
+		PassRemoved
+	};
+
 	TechniqueController(Technique* technique);
 	TechniqueController(MaterialController* parent, Technique* technique);
 	virtual ~TechniqueController();
-	
+
 	MaterialController* getParentController() const;
 	const Technique* getTechnique() const;
 	const PassControllerList* getPassControllers() const;
-	
+
 	PassController* createPass(void);
 	void removeAllPasses(void);
 	void removePass(unsigned short index);
-	
+
 	void movePass(const unsigned short sourceIndex, const unsigned short destIndex);
 	void setName(const String& name);
 	void setSchemeName(const String& schemeName);
 	void setLodIndex(unsigned short index);
-	
+
 	void setAmbient(const ColourValue& ambient);
 	void setAmbient(Real red, Real green, Real blue);
 	void setColourWriteEnabled(bool enabled);   
@@ -104,6 +105,8 @@ public:
 	void setTextureFiltering(TextureFilterOptions filterType);   
 
 protected:
+	void registerEvents();
+
 	MaterialController* mParentController;
 	Technique* mTechnique;
 	PassControllerList mPassControllers;
