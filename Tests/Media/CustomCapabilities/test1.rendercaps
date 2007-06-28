@@ -15,10 +15,7 @@ render_system_capabilities "TestCaps set String"
 	 // this rsc definition contains only caps set with a method, like:
 	 // void setXXX(String& val)
 
-	 /// NOTE: this will change soon, but should remain now to test
-	 // setString style caps
-	 gl_driver "GLDRIVER 1.234"
-	 gl_renderer "ZaWESOME-FX 590000"
+	 max_vertex_shader_version "vs99"
 }
 
 render_system_capabilities "TestCaps set bool (true)"
@@ -33,7 +30,7 @@ render_system_capabilities "TestCaps set bool (false)"
 
 render_system_capabilities "TestCaps set int"
 {
-	 num_multi_render_targers 99
+	 num_multi_render_targets 99
 }
 
 render_system_capabilities "TestCaps set Real"
@@ -45,7 +42,7 @@ render_system_capabilities "TestCaps addShaderProfile"
 {
 	 shader_profile "vp1"
 	 shader_profile "vs_1_1
-	 shader_profile "ps_2"
+	 shader_profile "ps_99"
 }
 
 
