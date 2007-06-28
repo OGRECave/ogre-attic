@@ -29,14 +29,30 @@ Torus Knot Software Ltd.
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
+#include "OgrePrerequisites.h"
+#include "OgreArchiveManager.h"
+#include "OgreFileSystem.h"
+#include "OgreRenderSystemCapabilitiesManager.h"
 
-// subclass from MaterialScriptCompiler class so protected methods can be tested
+using namespace Ogre;
+
+
 class RenderSystemCapabilitiesTests : public CppUnit::TestFixture
 {
     // CppUnit macros for setting up the test suite
-    CPPUNIT_TEST_SUITE( RenderSystemCapabilitiesTests);
+    CPPUNIT_TEST_SUITE( RenderSystemCapabilitiesTests );
+
     CPPUNIT_TEST(testIsShaderProfileSupported);
     CPPUNIT_TEST(testHasCapability);
+
+		CPPUNIT_TEST(testSerializeBlank);
+		CPPUNIT_TEST(testSerializeEnumCapability);
+		CPPUNIT_TEST(testSerializeStringCapability);
+		CPPUNIT_TEST(testSerializeBoolCapability);
+		CPPUNIT_TEST(testSerializeIntCapability);
+		CPPUNIT_TEST(testSerializeRealCapability);
+		CPPUNIT_TEST(testSerializeShaderCapability);
+
     CPPUNIT_TEST_SUITE_END();
 protected:
 public:
@@ -45,4 +61,21 @@ public:
 
     void testIsShaderProfileSupported();
 		void testHasCapability();
+
+		// Tests for basic functionality in RenderSystemCapabilitiesSerializer
+		void testSerializeBlank();
+		void testSerializeEnumCapability();
+		void testSerializeStringCapability();
+		void testSerializeBoolCapability();
+		void testSerializeIntCapability();
+		void testSerializeRealCapability();
+		void testSerializeShaderCapability();
+
+		// For serializing .rendercaps we need RSCManager
+		RenderSystemCapabilitiesManager* mRenderSystemCapabilitiesManager; 
+		// Need these for loading .rendercaps from the file system 
+	  ArchiveManager* mArchiveManager;
+		FileSystemArchiveFactory* mFileSystemArchiveFactory;
+
+
 };

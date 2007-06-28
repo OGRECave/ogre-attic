@@ -29,6 +29,7 @@ Torus Knot Software Ltd.
 
 #include "RenderSystemCapabilitiesTests.h"
 #include "OgreRenderSystemCapabilities.h"
+#include "OgreRenderSystemCapabilitiesManager.h"
 #include "OgreStringConverter.h"
 
 
@@ -37,9 +38,25 @@ CPPUNIT_TEST_SUITE_REGISTRATION( RenderSystemCapabilitiesTests );
 
 void RenderSystemCapabilitiesTests::setUp()
 {
+	 using namespace Ogre;
+
+	 // we need to be able to create FileSystem archives to load .rendercaps
+	 mFileSystemArchiveFactory = new FileSystemArchiveFactory();
+
+	 mArchiveManager = new ArchiveManager();
+	 ArchiveManager::getSingleton().addArchiveFactory( mFileSystemArchiveFactory );
+
+	 mRenderSystemCapabilitiesManager = new RenderSystemCapabilitiesManager();
+	 // actual parsing happens here. test methods confirm parse results only
+	 mRenderSystemCapabilitiesManager->parseCapabilitiesFromArchive("../Media/CustomCapabilities", "FileSystem", true);
 }
+
 void RenderSystemCapabilitiesTests::tearDown()
 {
+	 delete mRenderSystemCapabilitiesManager;
+	 delete mArchiveManager;
+	 delete mFileSystemArchiveFactory;
+
 }
 
 void RenderSystemCapabilitiesTests::testIsShaderProfileSupported(void)
@@ -110,3 +127,103 @@ void RenderSystemCapabilitiesTests::testHasCapability()
 	 CPPUNIT_ASSERT(!rsc.hasCapability(RSC_PBUFFER));
 	 
 }
+
+void RenderSystemCapabilitiesTests::testSerializeBlank()
+{
+	 using namespace Ogre;
+
+	 RenderSystemCapabilitiesManager* rscManager = RenderSystemCapabilitiesManager::getSingletonPtr();
+
+	 RenderSystemCapabilities* rsc = rscManager->loadParsedCapabilities("TestCaps Blank");
+
+	 // if we have a non-NULL it's good enough
+	 CPPUNIT_ASSERT(rsc != 0);
+}
+
+void RenderSystemCapabilitiesTests::testSerializeEnumCapability()
+{
+	 using namespace Ogre;
+
+	 RenderSystemCapabilitiesManager* rscManager = RenderSystemCapabilitiesManager::getSingletonPtr();
+
+	 RenderSystemCapabilities* rsc = rscManager->loadParsedCapabilities("TestCaps enum Capabilities");
+	 // confirm that RSC was loaded
+	 CPPUNIT_ASSERT(rsc != 0);
+
+	 // confirm that the contents are rhe same as in .rendercaps file
+	 CPPUNIT_ASSERT(rsc->hasCapability(RSC_AUTOMIPMAP));
+	 CPPUNIT_ASSERT(rsc->hasCapability(RSC_FBO_ARB));
+}
+
+
+void RenderSystemCapabilitiesTests::testSerializeStringCapability()
+{
+	 using namespace Ogre;
+
+	 RenderSystemCapabilitiesManager* rscManager = RenderSystemCapabilitiesManager::getSingletonPtr();
+
+	 RenderSystemCapabilities* rsc = rscManager->loadParsedCapabilities("TestCaps set String");
+	 // confirm that RSC was loaded
+	 CPPUNIT_ASSERT(rsc != 0);
+
+	 CPPUNIT_ASSERT(rsc->getMaxVertexProgramVersion() == "vs99");	  
+}
+
+void RenderSystemCapabilitiesTests::testSerializeBoolCapability()
+{
+	 using namespace Ogre;
+
+	 RenderSystemCapabilitiesManager* rscManager = RenderSystemCapabilitiesManager::getSingletonPtr();
+
+	 RenderSystemCapabilities* rscTrue = rscManager->loadParsedCapabilities("TestCaps set bool (true)");
+	 RenderSystemCapabilities* rscFalse = rscManager->loadParsedCapabilities("TestCaps set bool (false)");
+	 // confirm that RSC was loaded
+	 CPPUNIT_ASSERT(rscTrue != 0);
+	 CPPUNIT_ASSERT(rscFalse != 0);
+
+	 CPPUNIT_ASSERT(rscTrue->getVertexTextureUnitsShared() == true);
+	 CPPUNIT_ASSERT(rscFalse->getVertexTextureUnitsShared() == false);
+}
+
+void RenderSystemCapabilitiesTests::testSerializeIntCapability()
+{
+	 using namespace Ogre;
+
+	 RenderSystemCapabilitiesManager* rscManager = RenderSystemCapabilitiesManager::getSingletonPtr();
+
+	 RenderSystemCapabilities* rsc = rscManager->loadParsedCapabilities("TestCaps set int");
+	 // confirm that RSC was loaded
+	 CPPUNIT_ASSERT(rsc != 0);
+
+	 // TODO: why no get?
+	 CPPUNIT_ASSERT(rsc->numMultiRenderTargets() == 99);
+}
+
+void RenderSystemCapabilitiesTests::testSerializeRealCapability()
+{
+	 using namespace Ogre;
+
+	 RenderSystemCapabilitiesManager* rscManager = RenderSystemCapabilitiesManager::getSingletonPtr();
+
+	 RenderSystemCapabilities* rsc = rscManager->loadParsedCapabilities("TestCaps set Real");
+	 // confirm that RSC was loaded
+	 CPPUNIT_ASSERT(rsc != 0);
+
+	 CPPUNIT_ASSERT(rsc->getMaxPointSize() == 99.123);
+}
+
+void RenderSystemCapabilitiesTests::testSerializeShaderCapability()
+{
+	 using namespace Ogre;
+
+	 RenderSystemCapabilitiesManager* rscManager = RenderSystemCapabilitiesManager::getSingletonPtr();
+
+	 RenderSystemCapabilities* rsc = rscManager->loadParsedCapabilities("TestCaps addShaderProfile");
+	 // confirm that RSC was loaded
+	 CPPUNIT_ASSERT(rsc != 0);
+
+	 CPPUNIT_ASSERT(rsc->isShaderProfileSupported("vp1"));
+	 CPPUNIT_ASSERT(rsc->isShaderProfileSupported("vs_1_1"));
+	 CPPUNIT_ASSERT(rsc->isShaderProfileSupported("ps_99"));
+}
+
