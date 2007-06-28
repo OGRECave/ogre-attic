@@ -215,6 +215,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\MaterialEventArgs.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\MaterialPropertyGridPage.cpp"
 				>
 			</File>
@@ -248,6 +252,10 @@
 			</File>
 			<File
 				RelativePath="..\src\TechniqueController.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TechniqueEventArgs.cpp"
 				>
 			</File>
 			<File
@@ -309,6 +317,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\MaterialEventArgs.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\MaterialPropertyGridPage.h"
 				>
 			</File>
@@ -350,6 +362,10 @@
 			</File>
 			<File
 				RelativePath="..\include\TechniqueController.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\TechniqueEventArgs.h"
 				>
 			</File>
 			<File
