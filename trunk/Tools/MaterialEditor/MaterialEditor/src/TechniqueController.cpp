@@ -32,6 +32,7 @@ Torus Knot Software Ltd.
 
 #include "MaterialController.h"
 #include "PassController.h"
+#include "TechniqueEventArgs.h"
 
 TechniqueController::TechniqueController(Technique* technique)
 : mParentController(NULL), mTechnique(technique)
@@ -41,10 +42,19 @@ TechniqueController::TechniqueController(Technique* technique)
 TechniqueController::TechniqueController(MaterialController* parent, Technique* technique)
 : mParentController(parent), mTechnique(technique)
 {
+	registerEvents();
 }
 
 TechniqueController::~TechniqueController()
 {
+}
+
+void TechniqueController::registerEvents()
+{
+	registerEvent(NameChanged);
+	registerEvent(SchemeChanged);
+	registerEvent(PassAdded);
+	registerEvent(PassRemoved);
 }
 
 const Technique* TechniqueController::getTechnique() const
@@ -61,18 +71,20 @@ const PassControllerList* TechniqueController::getPassControllers() const
 {
 	return &mPassControllers;
 }
-	
+
 PassController* TechniqueController::createPass(void)
 {
 	Pass* pass = mTechnique->createPass();
-	
+
 	// Create controller
 	PassController* pc = new PassController(this, pass);
 	mPassControllers.push_back(pc);
-	
+
+	fireEvent(PassAdded, TechniqueEventArgs(this));
+
 	return pc;
 }
-	
+
 void TechniqueController::removeAllPasses(void)
 {
 }
@@ -80,7 +92,7 @@ void TechniqueController::removeAllPasses(void)
 void TechniqueController::removePass(unsigned short index)
 {
 }
-	
+
 void TechniqueController::movePass(const unsigned short sourceIndex, const unsigned short destIndex)
 {
 }
@@ -88,24 +100,24 @@ void TechniqueController::movePass(const unsigned short sourceIndex, const unsig
 void TechniqueController::setName(const String& name)
 {
 	mTechnique->setName(name);
-	
-	// TODO: Fire event
+
+	fireEvent(NameChanged, TechniqueEventArgs(this));
 }
 
 void TechniqueController::setSchemeName(const String& schemeName)
 {
 	mTechnique->setSchemeName(schemeName);
-	
-	// TODO: Fire event
+
+	fireEvent(SchemeChanged, TechniqueEventArgs(this));
 }
 
 void TechniqueController::setLodIndex(unsigned short index)
 {
 	mTechnique->setLodIndex(index);
-	
-	// TODO: Fire event
+
+	fireEvent(LodIndexChanged, TechniqueEventArgs(this));
 }
-	
+
 void TechniqueController::setAmbient(const ColourValue& ambient)
 {
 	PassControllerList::iterator it;
@@ -168,6 +180,7 @@ void TechniqueController::setDiffuse(const ColourValue&  diffuse)
 	for(it = mPassControllers.begin(); it != mPassControllers.end(); ++it)
 		(*it)->setDiffuse(diffuse);
 }
+
 
 void TechniqueController::setDiffuse(Real red, Real green, Real blue, Real alpha)
 {
@@ -273,3 +286,4 @@ void TechniqueController::setTextureFiltering(TextureFilterOptions filterType)
 	for(it = mPassControllers.begin(); it != mPassControllers.end(); ++it)
 		(*it)->setTextureFiltering(filterType);
 }
+

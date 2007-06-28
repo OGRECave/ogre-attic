@@ -33,6 +33,8 @@ http://www.gnu.org/copyleft/lesser.txt
 
 #include "OgreMaterial.h"
 
+#include "EventContainer.h"
+
 namespace Ogre
 {
 	class Technique;
@@ -44,19 +46,19 @@ using namespace Ogre;
 
 typedef std::list<TechniqueController*> TechniqueControllerList;
 
-enum MaterialEvent
-{
-	ME_NameChanged,
-	ME_TechniqueAdded,
-	ME_TechniqueRemoved
-};
-
-class MaterialController //: public Subject
+class MaterialController : public EventContainer
 {
 public:
+	enum MaterialEvent
+	{
+		NameChanged,
+		TechniqueAdded,
+		TechniqueRemoved
+	};
+
 	MaterialController(MaterialPtr material);
 	virtual ~MaterialController();
-		
+
 	MaterialPtr getMaterial() const;
 	const TechniqueControllerList* getTechniqueControllers() const;		
 
@@ -65,7 +67,7 @@ public:
 	TechniqueController* createTechnique(void);
 	void removeTechnique(unsigned short index);
 	void removeAllTechniques(void);
-	
+
 	void setAmbient(const ColourValue&  ambient);
 	void setAmbient(Real red, Real green, Real blue);
 	void setColourWriteEnabled(bool enabled);   
@@ -92,8 +94,10 @@ public:
 	void setTextureFiltering(TextureFilterOptions filterType);   
 
 protected:
+	void registerEvents();
+
 	MaterialPtr mMaterialPtr;
-	
+
 	TechniqueControllerList mTechniqueControllers;
 };
 
