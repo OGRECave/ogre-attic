@@ -41,6 +41,15 @@ Interface* CExporter::m_pMax = NULL;
 
 //
 
+extern "C" __declspec(dllexport) UtilityObj* CreateLEXI()
+{
+	return new CExporter();
+}
+extern "C" __declspec(dllexport) void DestroyLEXI(UtilityObj* pObj)
+{
+	pObj->DeleteThis();
+}
+
 static void ModifyCallback(void* param, NotifyInfo* info)
 {
 	switch(info->intcode)
@@ -76,32 +85,17 @@ CDDObject* CExporter::GetRootConfig() const
 
 //
 
-CExporter::CExporter(CExporterDesc* pDesc)
+CExporter::CExporter()//CExporterDesc* pDesc)
 {
 	REGISTER_MODULE("Exporter")
 
 	LoadGlobalSettings();
 	CExportObject::Initialize();
 
-	// We always write Logs to the <MAXDIR>\LEXIExporter\Logs Directory
-	//--
-	char szAppPath[MAX_PATH] = "";
-	::GetModuleFileName(NULL,szAppPath,sizeof(szAppPath) - 1);
-	Ogre::String cwd(szAppPath);
-	Ogre::String fileNameTMP, filePath;
-	Ogre::StringUtil::splitFilename(cwd, fileNameTMP, filePath);
-	int n = filePath.find("/");
-	while(n != Ogre::String::npos)
-	{
-		filePath.replace(n,1,"\\");
-		n = filePath.find("/");
-	}
-	filePath+="LEXIExporter\\Logs\\LexiExport.log";
-	//--
+	std::string sLogFile = GetLEXIRoot()+"/Logs/LexiExport.log";
+	CLogSystem::Get()->AddReceiver(new CFileLogger(sLogFile.c_str()));
 
-	CLogSystem::Get()->AddReceiver(new CFileLogger(filePath.c_str()));
-
-	m_pDesc = pDesc;
+//	m_pDesc = pDesc;
 	m_pMax = NULL;
 	m_pMaxUtil = NULL;
 	m_hPanel = NULL;
@@ -135,16 +129,18 @@ CExporter::~CExporter()
 		//
 		GDI::Window::Cleanup();
 		delete m_pMemoryLog;
-		m_pMemoryLog=0;
+		m_pMemoryLog=NULL;
 	} catch(...)
 	{
+		MessageBox(NULL,"Exception caught while cleaning GDI Window","ERROR",MB_ICONSTOP);
 	}
 
 	// Free ExportObjects
 	FreeConfig();
 
-	UNREGISTER_MODULE
+	m_pThis = NULL;
 
+	UNREGISTER_MODULE
 }
 
 void CExporter::LoadConfig()
@@ -180,6 +176,8 @@ void CExporter::LoadConfig()
 		}
 	} catch(...)
 	{	
+		MessageBox(NULL,"ERROR Loading LEXI Config from file", "ERROR", MB_ICONSTOP);
+		pRootConfig->Clear();
 	}
 	//pRootConfig->SaveASCII("C:\\loadStream.txt");
 	// Create new export root object
@@ -274,7 +272,6 @@ void CExporter::BeginEditParams(Interface* ip, IUtil* iu)
 
 		m_hPanel = ip->AddRollupPage(m_hInstance, MAKEINTRESOURCE(IDD_DIALOG_CONFIG), ConfigDlgProc, NDS_EXPORTER_TITLE, 0);
 
-
 		if (COgreCore::getSingletonPtr() == NULL)
 		{
 			new COgreCore(m_hPanel);			
@@ -285,9 +282,9 @@ void CExporter::BeginEditParams(Interface* ip, IUtil* iu)
 			m_bMemoryLogOnOGRE=true;
 		}
 
-		LoadConfig();
 		Ogre::String sVersionInfo = Ogre::String("Version: ") + Ogre::String(NDS_EXPORTER_VERSION);
 		Static_SetText( GetDlgItem(m_hPanel, IDC_VERSION_INFO), sVersionInfo.c_str());
+		LoadConfig();
 
 	}
 	catch (...)
@@ -304,13 +301,17 @@ void CExporter::EndEditParams(Interface* ip, IUtil* iu)
 	ip->DeleteRollupPage(m_hPanel);
 	m_hPanel = NULL;
 
-	m_pMax = NULL;
-	m_pMaxUtil = NULL;
+
 	if(m_bMemoryLogOnOGRE)
 	{
 		Ogre::LogManager::getSingleton().getDefaultLog()->removeListener(m_pMemoryLog);
 		m_bMemoryLogOnOGRE=false;
 	}
+#if(NDS_EXPORTER_AUTOUNLOAD)	
+	m_pMax = NULL;
+	m_pMaxUtil = NULL;
+	delete COgreCore::getSingletonPtr();
+#endif
 }
 
 void CExporter::DeleteThis()
@@ -341,9 +342,9 @@ INT_PTR CALLBACK CExporter::ConfigDlgProc(HWND hWnd, UINT Msg, WPARAM wParam, LP
 					m_pThis->OnPanelButtonExport();
 					break;
 
-				case IDC_CLOSE_BUTTON:
-					m_pThis->m_pMaxUtil->CloseUtility();
-					break;
+				//case IDC_CLOSE_BUTTON:
+				//	m_pThis->m_pMaxUtil->CloseUtility();
+				//	return 0; // do not process further
 
 				case IDOK:
 				case IDCANCEL:

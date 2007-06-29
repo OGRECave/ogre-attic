@@ -6,17 +6,24 @@ set EXPORTERDIR=LEXIExporter
 set SDKSUBPATH_OGRE=..\..\SDK\Ogre\1.4.1\bin\bin
 
 set OUTDIR=.\LexiExportInstall\InstallData
+set DLL_OUTDIR=%OUTDIR%\%EXPORTERDIR%\Dlls\
 set COPY_PARAMS=/F /H /R /Y
 
-xcopy %COPY_PARAMS% .\Config\*.cfg "%OUTDIR%"
+rmdir /S /Q %OUTDIR%
+mkdir %OUTDIR%
+mkdir %OUTDIR%\%EXPORTERDIR%\
+mkdir %OUTDIR%\%EXPORTERDIR%\Logs
+
+xcopy %COPY_PARAMS% .\Config\*.cfg "%DLL_OUTDIR%"
+del "%DLL_OUTDIR%\plugins_d.cfg"
 xcopy /D /S .\Config\shaders "%OUTDIR%\%EXPORTERDIR%\shaders\"
-xcopy %COPY_PARAMS% .\LexiExport\bin\LEXIExport.dlu "%OUTDIR%\plugins\"
-del "%OUTDIR%\plugins\LEXIExport(debug).dlu"
-del "%OUTDIR%\OgreMain_d.dll"
-xcopy %COPY_PARAMS% %SDKSUBPATH_OGRE%\%CONFIGURATION%\ILUT.dll "%OUTDIR%"
-xcopy %COPY_PARAMS% %SDKSUBPATH_OGRE%\%CONFIGURATION%\OIS.dll "%OUTDIR%"
-xcopy %COPY_PARAMS% %SDKSUBPATH_OGRE%\%CONFIGURATION%\cg.dll "%OUTDIR%"
-xcopy %COPY_PARAMS% %SDKSUBPATH_OGRE%\%CONFIGURATION%\OgreMain.dll "%OUTDIR%"
-xcopy %COPY_PARAMS% %SDKSUBPATH_OGRE%\%CONFIGURATION%\Plugin_CgProgramManager.dll "%OUTDIR%\%EXPORTERDIR%\"
-xcopy %COPY_PARAMS% %SDKSUBPATH_OGRE%\%CONFIGURATION%\RenderSystem_GL.dll "%OUTDIR%\%EXPORTERDIR%\"
+xcopy %COPY_PARAMS% .\LexiExport\bin\LEXIExporter.dll "%DLL_OUTDIR%"
+xcopy %COPY_PARAMS% .\LexiExportProxy\bin\LEXIExportProxy.dlu "%OUTDIR%\plugins\"
+xcopy %COPY_PARAMS% %SDKSUBPATH_OGRE%\%CONFIGURATION%\ILUT.dll "%DLL_OUTDIR%"
+xcopy %COPY_PARAMS% %SDKSUBPATH_OGRE%\%CONFIGURATION%\OIS.dll "%DLL_OUTDIR%"
+xcopy %COPY_PARAMS% %SDKSUBPATH_OGRE%\%CONFIGURATION%\cg.dll "%DLL_OUTDIR%"
+xcopy %COPY_PARAMS% %SDKSUBPATH_OGRE%\%CONFIGURATION%\OgreMain.dll "%DLL_OUTDIR%"
+xcopy %COPY_PARAMS% %SDKSUBPATH_OGRE%\%CONFIGURATION%\Plugin_CgProgramManager.dll "%DLL_OUTDIR%"
+xcopy %COPY_PARAMS% %SDKSUBPATH_OGRE%\%CONFIGURATION%\RenderSystem_GL.dll "%DLL_OUTDIR%"
+
 pause

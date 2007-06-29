@@ -1,23 +1,15 @@
 #include "LexiStdAfx.h"
 
-#include <dbghelp.h>
-#pragma comment(lib,"Dbghelp.lib")
-
-template<> CProfiler* Ogre::Singleton<CProfiler>::ms_Singleton = new CProfiler();
+CProfiler* CProfiler::ms_Singleton = new CProfiler();
 
 CProfiler& CProfiler::getSingleton( void )
 {	
 	assert(ms_Singleton);
-	//if(ms_Singleton==NULL)
-	//	ms_Singleton = new CProfiler();
 	return ( *ms_Singleton ); 
 }
 
 CProfiler* CProfiler::getSingletonPtr( void )
 { 
-	//if(ms_Singleton==NULL)
-	//	ms_Singleton = new CProfiler();
-
 	return ms_Singleton; 
 }
 
@@ -40,36 +32,36 @@ CProfiler::~CProfiler()
 {
 }
 
-void CProfiler::StartSection(std::string sectionName )
+void CProfiler::StartSection(const char* pszSectionName)
 {
 	SProfileInfo* profile = NULL;
-	std::map< std::string, SProfileInfo* >::iterator iter = m_lProfiles.find(sectionName);
+	TProfileMap::const_iterator iter = m_lProfiles.find(pszSectionName);
 	if(iter == m_lProfiles.end())
 	{
-		profile = new SProfileInfo(sectionName);
-		m_lProfiles.insert(std::pair< std::string, SProfileInfo* >(sectionName, profile));
+		profile = new SProfileInfo;
+		m_lProfiles.insert(TProfileMap::value_type(pszSectionName, profile));
 	}
 	else
 		profile = iter->second;
 
 	if(profile->bRunning)
-		LOGERROR "Profile (%s) is already running!", profile->sName.c_str());
+		LOGERROR "Profile (%s) is already running!", pszSectionName);
 
-	if(m_iMaxNameLength < profile->sName.length())
-		m_iMaxNameLength = profile->sName.length();
+	unsigned int iNameLen = strlen(pszSectionName);
+	if(m_iMaxNameLength < iNameLen) m_iMaxNameLength = iNameLen;
 
 	profile->iCallCount++;
 	profile->bRunning = true;
 	QueryPerformanceCounter( &(profile->qStartTime) );	
 }
 
-void CProfiler::EndSection(std::string sectionName )
+void CProfiler::EndSection(const char* pszSectionName)
 {
 	SProfileInfo* profile = NULL;
-	std::map< std::string, SProfileInfo* >::iterator iter = m_lProfiles.find(sectionName);
+	TProfileMap::const_iterator iter = m_lProfiles.find(pszSectionName);
 	if(iter == m_lProfiles.end())
 	{
-		LOGERROR "Profile (%s) not created!", sectionName.c_str());
+		LOGERROR "Profile (%s) not created!", pszSectionName);
 		return;
 	}
 	else
@@ -77,7 +69,7 @@ void CProfiler::EndSection(std::string sectionName )
 
 	if(!profile->bRunning)
 	{
-		LOGERROR "Profile (%s) is not running!", profile->sName.c_str());
+		LOGERROR "Profile (%s) is not running!", pszSectionName);
 		return;
 	}
 
@@ -93,7 +85,7 @@ void CProfiler::EndSection(std::string sectionName )
 	profile->fAverageTime = profile->fTotalTime/double(profile->iCallCount);
 }
 
-void CProfiler::WriteLog( std::string fileName )
+void CProfiler::WriteLog(const char* pszFilename)
 {
 	if(!m_bEnabled)
 		return;
@@ -108,60 +100,37 @@ void CProfiler::WriteLog( std::string fileName )
 				<< std::endl
 				<< setfill('-') << std::setw(m_iMaxNameLength+1+11+11+10) << '-' << std::endl;
 
-	std::map< std::string, SProfileInfo* >::iterator iter = m_lProfiles.begin();
-	while(iter!= m_lProfiles.end())
+	TProfileMap::const_iterator iter = m_lProfiles.begin();
+	while(iter != m_lProfiles.end())
 	{
-		SProfileInfo* profile = iter->second;
-		outString	<< setfill('.') << std::setw(m_iMaxNameLength) << left << profile->sName << " "			//Profile
+		const SProfileInfo* profile = iter->second;
+		outString	<< setfill('.') << std::setw(m_iMaxNameLength) << left << iter->first.c_str() << " "	//Profile
 					<< setfill(' ') << std::setw(10) << right << profile->iCallCount << " "					//Count
 					<< std::setw(10) << right << setprecision(1) << fixed << profile->fTotalTime << " "		//Total
 					<< std::setw(10) << right << setprecision(1) << fixed << profile->fAverageTime			//Average
 					<< std::endl;
-		//LOGINFO "Profile: %s \tCount %i \tTotal: %.2f \tAverage %.2f", profile->sName.c_str(), profile->iCallCount, profile->fTotalTime, profile->fAverageTime);
 		iter++;
 	}
 
-	// We always write to the <MAXDIR>\LEXIExporter\Logs Directory
-	char szAppPath[MAX_PATH] = "";
-	::GetModuleFileName(NULL,szAppPath,sizeof(szAppPath) - 1);
-	Ogre::String cwd(szAppPath);
-	Ogre::String fileNameTMP, filePath;
-	Ogre::StringUtil::splitFilename(cwd, fileNameTMP, filePath);
 
-	int n = filePath.find("/");
-	while(n != Ogre::String::npos)
+	HANDLE hFileHandle=CreateFile(pszFilename, GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, 0, CREATE_ALWAYS, 0, NULL);	
+	if(hFileHandle!=INVALID_HANDLE_VALUE) 
 	{
-		filePath.replace(n,1,"\\");
-		n = filePath.find("/");
-	}
-
-	filePath+="LEXIExporter\\Logs\\";
-
-	fileName = filePath + fileName;
-
-	if(::MakeSureDirectoryPathExists(filePath.c_str()))
-	{
-		//filePath+=fileName;
-		HANDLE m_hFileHandle=CreateFile(fileName.c_str(), GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, 0, CREATE_ALWAYS, 0, NULL);	
-		if(m_hFileHandle==INVALID_HANDLE_VALUE) 
-			LOGERROR "Could not write profile report file: %s", fileName.c_str());
-
 		DWORD dwWritten;
 		std::string outstr = outString.str();
 		const char *pszMessage = outstr.c_str();
-		WriteFile(m_hFileHandle, pszMessage, (DWORD)strlen(pszMessage), &dwWritten, NULL);
-
-		CloseHandle(m_hFileHandle);
+		WriteFile(hFileHandle, pszMessage, (DWORD)strlen(pszMessage), &dwWritten, NULL);
+		CloseHandle(hFileHandle);
 	}
 	else
-		LOGERROR "Could not write profile report file: %s", fileName.c_str());
+		LOGERROR "Could not write profile report file: %s", pszFilename);
 
 	CleanRecords();
 }
 
 void CProfiler::CleanRecords( void )
 {
-	std::map< std::string, SProfileInfo* >::iterator iter = m_lProfiles.begin();
+	TProfileMap::const_iterator iter = m_lProfiles.begin();
 	while(iter!= m_lProfiles.end())
 	{
 		delete iter->second;

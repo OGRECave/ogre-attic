@@ -24,27 +24,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __NDS_OgreCore_H__
-#define __NDS_OgreCore_H__
+#ifndef __NDS_LexiExporterProxy_Includes__
+#define __NDS_LexiExporterProxy_Includes__
 
-class COgreCore : public Ogre::Singleton<COgreCore>
-{
-public:
+//
+#include "Max.h"
+#include "utilapi.h"
 
-	COgreCore(HWND hwnd);
-	virtual ~COgreCore();
+//
+#pragma comment(linker, "/defaultlib:core.lib")
+#pragma comment(linker, "/defaultlib:maxutil.lib")
 
-	static COgreCore& getSingleton( void );
-	static COgreCore* getSingletonPtr( void );
-
-protected:
-	
-	bool configureRenderer(HWND hwnd);
-
-	Ogre::Root* m_pRoot;
-	Ogre::RenderSystem* m_pRenderSystem;
-	Ogre::RenderWindow* m_pWindow;
-};
-
-
-#endif
+#endif // __NDS_LexiExporterProxy_Includes__

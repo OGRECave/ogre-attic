@@ -26,22 +26,20 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __NDS_LexiExporter_Profiler__
 #define __NDS_LexiExporter_Profiler__
 
-#define PROFILER_ENABLED 0
+#define PROFILER_ENABLED 1
 
-class CProfiler : public Ogre::Singleton<CProfiler>
+class CProfiler
 {
 	struct SProfileInfo
 	{
-		std::string		sName;
 		unsigned int	iCallCount;
 		double			fAverageTime;	//Milliseconds
 		double			fTotalTime;		//Milliseconds
 		LARGE_INTEGER	qStartTime;		//
 		bool			bRunning;
 
-		SProfileInfo( std::string profileName ) : iCallCount(0), fAverageTime(0.0), fTotalTime(0.0), bRunning(false)
+		SProfileInfo() : iCallCount(0), fAverageTime(0.0), fTotalTime(0.0), bRunning(false)
 		{
-			sName = profileName;
 			qStartTime.QuadPart = 0;
 		}
 	};
@@ -53,10 +51,13 @@ public:
 	static CProfiler& getSingleton( void );
 	static CProfiler* getSingletonPtr( void );
 
-	void StartSection(std::string sectionName );
-	void EndSection(std::string sectionName );
-	void WriteLog( std::string fileName );
+	void StartSection(const char* pszSectionName);
+	void EndSection(const char* pszSectionName);
+	void WriteLog(const char* pszFilename);
 	void CleanRecords( void );
+
+protected:
+	static CProfiler* ms_Singleton;
 
 private:
 
@@ -64,7 +65,9 @@ private:
 
 	double m_dFrequency;
 	unsigned int m_iMaxNameLength;
-	std::map< std::string, SProfileInfo* >	m_lProfiles;
+
+	typedef std::map<std::string, SProfileInfo*> TProfileMap;
+	TProfileMap	m_lProfiles;
 
 };
 

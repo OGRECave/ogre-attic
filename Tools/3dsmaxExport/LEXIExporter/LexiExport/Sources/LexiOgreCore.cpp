@@ -42,45 +42,33 @@ COgreCore* COgreCore::getSingletonPtr( void )
 	return ms_Singleton; 
 }
 
-COgreCore::COgreCore(HWND hwnd)
+COgreCore::COgreCore(HWND hwnd) : m_pWindow(NULL)
 {
 	REGISTER_MODULE("Ogre Core")
 
-	char* szOldPath;
-	szOldPath = _getcwd(NULL, 0);
-	char szAppPath[MAX_PATH] = "";
-	::GetModuleFileName(NULL,szAppPath,sizeof(szAppPath) - 1);
+	std::string sLEXIRoot = GetLEXIRoot();
 
-	Ogre::String cwd(szAppPath);
-	Ogre::String fileName, filePath;
-	Ogre::StringUtil::splitFilename(cwd, fileName, filePath);
+	std::string sPluginCFG; // is set below
+	std::string sLogFileName = sLEXIRoot+"Logs/Ogre.log";
+	std::string sResourcesCFG = sLEXIRoot+"Dlls/resources.cfg";
 
-	_chdir(filePath.c_str());
-	Ogre::String logFileName = filePath;
 #ifdef _DEBUG
-	filePath+=Ogre::String("plugins_d.cfg");
+	sPluginCFG=sLEXIRoot+"Dlls/plugins_d.cfg";
 #else
-	filePath+=Ogre::String("plugins.cfg");
+	sPluginCFG=sLEXIRoot+"Dlls/plugins.cfg";
 #endif
 
 	// Init logmanager so it uses the LEXIExpoter\Logs dir
-	logFileName += "LEXIExporter/Logs/Ogre.log";
-	int n = logFileName.find("/");
-	while(n != Ogre::String::npos)
-	{
-		logFileName.replace(n,1,"\\");
-		n = logFileName.find("/");
-	}
-	::MakeSureDirectoryPathExists(logFileName.c_str());
+	::MakeSureDirectoryPathExists(sLogFileName.c_str());
 	Ogre::LogManager* pLogManager = new Ogre::LogManager();
-	pLogManager->createLog(logFileName, true, true);
+	pLogManager->createLog(sLogFileName, true, true);
 
-	m_pRoot = new Ogre::Root(filePath.c_str());
+	m_pRoot = new Ogre::Root(sPluginCFG);
 
 	// setup resources
 	Ogre::ConfigFile cf;
 
-	cf.load("resources.cfg");
+	cf.load(sResourcesCFG.c_str());
 
 	// Go through all sections & settings in the file
 	Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
@@ -106,7 +94,14 @@ COgreCore::COgreCore(HWND hwnd)
 
 COgreCore::~COgreCore()
 {
+	//delete Ogre::Root::getSingletonPtr();
+//	m_pRenderSystem->destroyRenderWindow(m_pWindow->getName());
+	delete m_pRoot;
+	delete Ogre::LogManager::getSingletonPtr();
+
 	UNREGISTER_MODULE
+
+	UnregisterClass("OgreGLWindow", NULL);
 }
 
 
@@ -175,8 +170,13 @@ bool COgreCore::configureRenderer(HWND hwnd)
 	miscParams["left"] = Ogre::StringConverter::toString(162); // the width of maxs tool panel.
 	miscParams["top"] = Ogre::StringConverter::toString(0);
 	miscParams["parentWindowHandle"] = Ogre::StringConverter::toString((unsigned int)hwnd);
-	
-	Ogre::RenderWindow* window = m_pRoot->createRenderWindow("Hidden MaxExporter Window", 640, 480, false, &miscParams);
-	
+	try
+	{
+		m_pWindow = m_pRoot->createRenderWindow("Hidden MaxExporter Window", 640, 480, false, &miscParams);
+	}
+	catch(Ogre::Exception& e)
+	{
+		MessageBox(NULL,e.getFullDescription().c_str(),"ERROR",MB_ICONSTOP);
+	}
 	return true;
 }

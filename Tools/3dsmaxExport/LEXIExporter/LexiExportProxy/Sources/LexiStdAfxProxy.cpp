@@ -24,27 +24,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __NDS_OgreCore_H__
-#define __NDS_OgreCore_H__
+#include "LexiStdAfxProxy.h"
 
-class COgreCore : public Ogre::Singleton<COgreCore>
-{
-public:
-
-	COgreCore(HWND hwnd);
-	virtual ~COgreCore();
-
-	static COgreCore& getSingleton( void );
-	static COgreCore* getSingletonPtr( void );
-
-protected:
-	
-	bool configureRenderer(HWND hwnd);
-
-	Ogre::Root* m_pRoot;
-	Ogre::RenderSystem* m_pRenderSystem;
-	Ogre::RenderWindow* m_pWindow;
-};
-
-
-#endif
+//

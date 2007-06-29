@@ -58,41 +58,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 //
 
-#include <Ogre.h>
-#include <OgreNoMemoryMacros.h>
 
-#ifdef _DEBUG
- #pragma comment(lib, "OgreMain_d.lib")	
-#else
- #pragma comment(lib, "OgreMain.lib")	
-#endif
-
-//
-#include "..\res\resource.h"
-
-
-#include "LexiProfiler.h"
-#include "SharedUtilities.h"
-#include "GDIMetaLib.h"
-#include "LexiIncludes.h"
-#include "LexiMemoryLog.h"
-#include "LexiOgreCore.h"
-#include "LexiDialogProgress.h"
-#include "LexiExportObject.h"
-#include "LexiExportObjectRoot.h"
-
-#include "..\..\LexiExportProxy\Sources\LexiCommon.h"
+#include "LexiIncludesProxy.h"
 
 //
 
-extern HINSTANCE GetCurrentInstance();
-extern void RemoveIllegalChars(std::string& sString);
-extern std::string FixupFilename(const char* pszFilename, const char* pszType);
-extern std::string ResolveMacros(const char* pszString);
-extern bool ValidateFilenames();
+#include "LexiCommon.h"
 
 //
-
-extern std::string GetLEXIRoot(void);
 
 #endif // __stdafx_h__
