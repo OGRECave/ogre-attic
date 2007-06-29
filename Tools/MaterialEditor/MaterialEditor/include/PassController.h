@@ -8,6 +8,8 @@
 #include "OgreLight.h"
 #include "OgrePrerequisites.h"
 
+#include "EventContainer.h"
+
 namespace Ogre
 {
 	class ColourValue;
@@ -16,46 +18,46 @@ namespace Ogre
 
 class TechniqueController;
 
-enum PassEvent
-{
-	PE_NameChanged,
-	PE_AmbientChanged,
-	PE_DiffuseChanged,
-	PE_SpecularChanged,
-	PE_ShininessChanged,
-	PE_SelfIllumChanged,
-	PE_VertexColourTrackingChanged,
-	PE_PointSizeChanged,
-	PE_PointSpritesChanged,
-	PE_PointAttenuationChanged,
-	PE_PointMinSizeChanged,
-	PE_PointMaxSizeChanged,
-	PE_SceneBlendingTypeChanged,
-	PE_SceneBlendSrcFactorChanged,
-	PE_SceneBlendDestFactorChanged,
-	PE_DepthCheckChanged,
-	PE_DepthWriteChanged,
-	PE_DepthFunctionChanged,
-	PE_ColourWriteChanged,
-	PE_CullingModeChanged,
-	PE_ManualCullingModeChanged,
-	PE_LightingChanged,
-	PE_MaxLightsChanged,
-	PE_StartLightChanged,
-	PE_ShadingModeChanged,
-	PE_PolygonModeChanged,
-	PE_FogChanged,
-	PE_DepthBiasChanged,
-	PE_AlphaRejectionChanged,
-	PE_IteratePerLightChanged,
-	PE_LightCountPerIterationChanged,
-};
-
 using namespace Ogre;
 
-class PassController
+class PassController : public EventContainer
 {
 public:
+	enum PassEvent
+	{
+		NameChanged,
+		AmbientChanged,
+		DiffuseChanged,
+		SpecularChanged,
+		ShininessChanged,
+		SelfIllumChanged,
+		VertexColourTrackingChanged,
+		PointSizeChanged,
+		PointSpritesChanged,
+		PointAttenuationChanged,
+		PointMinSizeChanged,
+		PointMaxSizeChanged,
+		SceneBlendingTypeChanged,
+		SceneBlendSrcFactorChanged,
+		SceneBlendDestFactorChanged,
+		DepthCheckChanged,
+		DepthWriteChanged,
+		DepthFunctionChanged,
+		ColourWriteChanged,
+		CullingModeChanged,
+		ManualCullingModeChanged,
+		LightingChanged,
+		MaxLightsChanged,
+		StartLightChanged,
+		ShadingModeChanged,
+		PolygonModeChanged,
+		FogChanged,
+		DepthBiasChanged,
+		AlphaRejectionChanged,
+		IteratePerLightChanged,
+		LightCountPerIterationChanged,
+	};
+
 	PassController(Pass* pass);
 	PassController(TechniqueController* parent, Pass* pass);
 	virtual ~PassController();
@@ -63,6 +65,8 @@ public:
 	TechniqueController* getParentController() const;
 	Pass* getPass() const;
 	
+	void registerEvents();
+
 	void  setName(const String& name);
 	void  setAmbient(Real red, Real green, Real blue);
 	void  setAmbient(const ColourValue& ambient); 
