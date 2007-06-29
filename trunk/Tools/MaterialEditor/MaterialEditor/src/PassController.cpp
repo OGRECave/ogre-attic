@@ -5,16 +5,21 @@
 #include "TechniqueController.h"
 
 PassController::PassController(Pass* pass)
-: mParentController(NULL), mPass(pass)
 {
+	this(NULL, pass);
 }
 
 PassController::PassController(TechniqueController* parent, Pass* pass)
 : mParentController(parent), mPass(pass)
 {
+	registerEvents();
 }
 
 PassController::~PassController()
+{
+}
+
+void PassController::registerEvents()
 {
 }
 	
