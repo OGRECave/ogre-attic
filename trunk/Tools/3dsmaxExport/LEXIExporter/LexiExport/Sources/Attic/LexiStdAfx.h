@@ -81,15 +81,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "LexiExportObject.h"
 #include "LexiExportObjectRoot.h"
 
-//
-
-#define NDS_EXPORTER_TITLE			"LEXIExporter"
-// Remember to change every release
-#define NDS_EXPORTER_VERSION		"1.0.5"
-// Change only at config protocol break
-#define NDS_EXPORTER_CONFIG_VERSION	10002
-
-
+#include "..\..\LexiExportProxy\Sources\LexiCommon.h"
 
 //
 
@@ -100,5 +92,7 @@ extern std::string ResolveMacros(const char* pszString);
 extern bool ValidateFilenames();
 
 //
+
+extern std::string GetLEXIRoot(void);
 
 #endif // __stdafx_h__

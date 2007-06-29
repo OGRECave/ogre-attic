@@ -30,7 +30,7 @@ class COgreMaterialCompiler
 {
 public:
 
-	COgreMaterialCompiler( CIntermediateMaterial* pIntermediateMaterial, Ogre::String sExtension="" );
+	COgreMaterialCompiler( CIntermediateMaterial* pIntermediateMaterial, Ogre::String sExtension="", bool bExportColours=false );
 	virtual ~COgreMaterialCompiler();
 
 	bool				WriteOgreMaterial( const Ogre::String& sFilename );
@@ -46,6 +46,10 @@ private:
 	void	CreateOgreMaterial( void );
 	void	ParseMaterialMaps( Ogre::Pass* pass );
 	void	CreateTextureUnits( Ogre::Pass* pass, STextureMapInfo texInfo );
+
+	void	SetBlendingByOpacity(Ogre::Pass* pass);
+	void	SetCommonVertexProgramParameters(Ogre::Pass* pass, Ogre::GpuProgramParametersSharedPtr params );
+	void	SetCommonFragmentProgramParameters(Ogre::Pass* pass, Ogre::GpuProgramParametersSharedPtr params );
 
 	void	CreatePureBlinn( Ogre::Pass* pass);
 	void	CreateDiffuse(  Ogre::Pass* pass );

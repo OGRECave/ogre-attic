@@ -1,3 +1,10 @@
+version 1.0.6
+=============
+- 3DS Max 9 compatibility
+- New Dll structure
+- Automatic unload and load of Ogre DLLs
+- Vertex colour toggle in shaders
+
 version 1.0.5
 =============
 - XML export:

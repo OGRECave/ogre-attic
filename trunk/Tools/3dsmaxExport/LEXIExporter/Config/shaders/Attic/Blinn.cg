@@ -10,6 +10,9 @@ void Blinn_vp (
 			float3 normal   : NORMAL,
 			float4 vertCol	: COLOR,
 			
+			// config
+			uniform float useVertCol,
+			
 			//vert shader input
 			uniform float4 lightPosition,
 			uniform float3 eyePosition,
@@ -40,7 +43,14 @@ void Blinn_vp (
 	
 	//support for texture with the per pixel lighting
      oUv = uv;
-	 oVertCol = vertCol;
+	 
+	// Do we use vertex colours
+	if(useVertCol==0.0)
+	{
+		// deafult vertex colour to white
+		vertCol = float4(1,1,1,1);
+	}
+	oVertCol = vertCol;
 	 
 	//Remarks:
 	//since we want exact calculations in every case,
@@ -61,6 +71,9 @@ void Blinn_4UV_vp (
 			float4 position : POSITION, 
 			float3 normal   : NORMAL,
 			float4 vertCol	: COLOR,
+			
+			// config
+			uniform float useVertCol,
 			
 			//vert shader input
 			uniform float4 lightPosition,
@@ -97,7 +110,14 @@ void Blinn_4UV_vp (
      oUv2 = uv2;
      oUv3 = uv3;
 	 
-	 oVertCol = vertCol;
+ 	// Do we use vertex colours
+	if(useVertCol==0.0)
+	{
+		// deafult vertex colour to white
+		vertCol = float4(1,1,1,1);
+	}
+	oVertCol = vertCol;
+	 
 	 
 	//Remarks:
 	//since we want exact calculations in every case,

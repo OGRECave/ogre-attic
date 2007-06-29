@@ -790,6 +790,7 @@ CIntermediateMaterial* CIntermediateBuilder::CreateMaterial( Mtl* pMaxMaterial )
 
 		newMat->SetGlosiness( pMaxMaterial->GetShininess() );
 		newMat->SetSpecularLevel( pMaxMaterial->GetShinStr() );
+		newMat->SetOpacity( 1.0f - pMaxMaterial->GetXParency() );
 
 		// Check to see if it's a Standard material
 		if (pMaxMaterial->ClassID() == Class_ID(DMTL_CLASS_ID, 0))
@@ -797,6 +798,7 @@ CIntermediateMaterial* CIntermediateBuilder::CreateMaterial( Mtl* pMaxMaterial )
 			StdMat* std = (StdMat *)pMaxMaterial;
 			newMat->Set2Sided( std->GetTwoSided() ? true : false );
 			newMat->SetWired( std->GetWire() ? true : false );
+			newMat->SetOpacity( std->GetOpacity(0) );
 
 			//if (std->ClassID() == Class_ID(DMTL2_CLASS_ID, 0))
 				newMat->SetFaceted( ((StdMat2 *)std)->IsFaceted() ? true : false );

@@ -33,8 +33,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <direct.h>
 
 
-COgreMaterialCompiler::COgreMaterialCompiler( CIntermediateMaterial* pIntermediateMaterial, Ogre::String sExtension )
-: m_bShadersSupported(false)
+COgreMaterialCompiler::COgreMaterialCompiler( CIntermediateMaterial* pIntermediateMaterial, Ogre::String sExtension, bool bExportColours )
+:	m_bShadersSupported(false),
+	m_bExportColours(bExportColours)
 {
 	REGISTER_MODULE("Ogre Material Compiler")
 
@@ -258,6 +259,44 @@ void COgreMaterialCompiler::CreateTextureUnits( Ogre::Pass* pass, STextureMapInf
 	//	}
 }
 
+void COgreMaterialCompiler::SetBlendingByOpacity(Ogre::Pass* pass)
+{
+	if (m_pIMaterial->GetOpacity() < 1.0)
+	{
+		pass->setSceneBlending( Ogre::SBT_TRANSPARENT_ALPHA );
+		pass->setDepthWriteEnabled(false);
+	}
+}
+
+void COgreMaterialCompiler::SetCommonFragmentProgramParameters(Ogre::Pass* pass, Ogre::GpuProgramParametersSharedPtr params )
+{
+	// HACK: For some reason we cannot set the SpecularLevel if it is its max at 9.99, so we clamp it to 9.98
+	float specHack = m_pIMaterial->GetSpecularLevel() > 9.98 ? 9.98 : m_pIMaterial->GetSpecularLevel() ;
+	// HACK: For some reason we cannot set the SpecularLevel if it is its max at 9.99, so we clamp it to 9.98
+	float glossHack = m_pIMaterial->GetGlossiness() == 1 ? 0.9999 : m_pIMaterial->GetGlossiness() ;
+	glossHack = glossHack > 0.01 ? glossHack * 100 : 0.0 ;
+	// Ensure opacity isn't less than zero
+	float fOpacity = m_pIMaterial->GetOpacity() < 0 ? 0.0 : m_pIMaterial->GetOpacity();
+
+	params->setNamedConstant("ambientColor", m_pIMaterial->GetAmbientColor());
+	params->setNamedConstant("diffuseColor", m_pIMaterial->GetDiffuseColor());
+	params->setNamedConstant("specularColor", m_pIMaterial->GetSpecularColor());
+	params->setNamedConstant("specularLevel", specHack);
+	params->setNamedConstant("glossLevel", glossHack);
+	params->setNamedConstant("opacity", fOpacity);
+	
+	SetBlendingByOpacity(pass);
+}
+
+void COgreMaterialCompiler::SetCommonVertexProgramParameters(Ogre::Pass* pass, Ogre::GpuProgramParametersSharedPtr params )
+{
+	// If we doesn't export vertex colours, we need to tell the shader since some GFX cards defaults to black!
+	float fUseVertCol = m_bExportColours ? 1.0 : 0.0; 
+	params->setNamedConstant("useVertCol", Ogre::Real(fUseVertCol));
+}
+
+
+
 void COgreMaterialCompiler::CreatePureBlinn( Ogre::Pass* pass )
 {
 	if(!m_bShadersSupported)
@@ -266,21 +305,11 @@ void COgreMaterialCompiler::CreatePureBlinn( Ogre::Pass* pass )
 	pass->setVertexProgram("BlinnVP");
 	pass->setFragmentProgram( "Blinn_Pure_FP" );
 
+	Ogre::GpuProgramParametersSharedPtr vertParams = pass->getVertexProgramParameters();
+	SetCommonVertexProgramParameters(pass, vertParams);
+
 	Ogre::GpuProgramParametersSharedPtr params = pass->getFragmentProgramParameters();
-
-	// HACK: For some reason we cannot set the SpecularLevel if it is its max at 9.99, so we clamp it to 9.98
-	float specHack = m_pIMaterial->GetSpecularLevel() > 9.98 ? 9.98 : m_pIMaterial->GetSpecularLevel() ;
-	// HACK: For some reason we cannot set the SpecularLevel if it is its max at 9.99, so we clamp it to 9.98
-	float glossHack = m_pIMaterial->GetGlossiness() == 1 ? 0.9999 : m_pIMaterial->GetGlossiness() ;
-	glossHack = glossHack > 0.01 ? glossHack * 100 : 0.0 ;
-
-	params->setNamedConstant("ambientColor", m_pIMaterial->GetAmbientColor());
-	params->setNamedConstant("diffuseColor", m_pIMaterial->GetDiffuseColor());
-	params->setNamedConstant("specularColor", m_pIMaterial->GetSpecularColor());
-	params->setNamedConstant("specularLevel", specHack);
-	params->setNamedConstant("glossLevel", glossHack);
-	params->setNamedConstant("opacity", m_pIMaterial->GetOpacity());
-
+	SetCommonFragmentProgramParameters(pass, params);
 	pass->setFragmentProgramParameters(params);
 }
 
@@ -293,20 +322,12 @@ void COgreMaterialCompiler::CreateDiffuse( Ogre::Pass* pass )
 		pass->setVertexProgram("BlinnVP");
 		pass->setFragmentProgram( "Blinn_DiffuseMap_FP" );
 
+		Ogre::GpuProgramParametersSharedPtr vertParams = pass->getVertexProgramParameters();
+		SetCommonVertexProgramParameters(pass, vertParams);
+
 		Ogre::GpuProgramParametersSharedPtr params = pass->getFragmentProgramParameters();
+		SetCommonFragmentProgramParameters(pass, params);
 
-		// HACK: For some reason we cannot set the SpecularLevel if it is its max at 9.99, so we clamp it to 9.98
-		float specHack = m_pIMaterial->GetSpecularLevel() > 9.98 ? 9.98 : m_pIMaterial->GetSpecularLevel() ;
-		// HACK: For some reason we cannot set the SpecularLevel if it is its max at 9.99, so we clamp it to 9.98
-		float glossHack = m_pIMaterial->GetGlossiness() == 1 ? 0.9999 : m_pIMaterial->GetGlossiness() ;
-		glossHack = glossHack > 0.01 ? glossHack * 100 : 0.0 ;
-
-		params->setNamedConstant("ambientColor", m_pIMaterial->GetAmbientColor());
-		params->setNamedConstant("diffuseColor", m_pIMaterial->GetDiffuseColor());
-		params->setNamedConstant("specularColor", m_pIMaterial->GetSpecularColor());
-		params->setNamedConstant("specularLevel", specHack);
-		params->setNamedConstant("glossLevel", glossHack);
-		params->setNamedConstant("opacity", m_pIMaterial->GetOpacity());
 		if ( !texInfo.isNull()) params->setNamedConstant("amount", texInfo.m_fAmount);
 
 		pass->setFragmentProgramParameters(params);
@@ -324,20 +345,12 @@ void COgreMaterialCompiler::CreateSpecularColor( Ogre::Pass* pass )
 		pass->setVertexProgram("BlinnVP");
 		pass->setFragmentProgram( "Blinn_SpecularColor_FP" );
 
+		Ogre::GpuProgramParametersSharedPtr vertParams = pass->getVertexProgramParameters();
+		SetCommonVertexProgramParameters(pass, vertParams);
+
 		Ogre::GpuProgramParametersSharedPtr params = pass->getFragmentProgramParameters();
+		SetCommonFragmentProgramParameters(pass, params);
 
-		// HACK: For some reason we cannot set the SpecularLevel if it is its max at 9.99, so we clamp it to 9.98
-		float specHack = m_pIMaterial->GetSpecularLevel() > 9.98 ? 9.98 : m_pIMaterial->GetSpecularLevel() ;
-		// HACK: For some reason we cannot set the SpecularLevel if it is its max at 9.99, so we clamp it to 9.98
-		float glossHack = m_pIMaterial->GetGlossiness() == 1 ? 0.9999 : m_pIMaterial->GetGlossiness() ;
-		glossHack = glossHack > 0.01 ? glossHack * 100 : 0.0 ;
-
-		params->setNamedConstant("ambientColor", m_pIMaterial->GetAmbientColor());
-		params->setNamedConstant("diffuseColor", m_pIMaterial->GetDiffuseColor());
-		params->setNamedConstant("specularColor", m_pIMaterial->GetSpecularColor());
-		params->setNamedConstant("specularLevel", specHack);
-		params->setNamedConstant("glossLevel", glossHack);
-		params->setNamedConstant("opacity", m_pIMaterial->GetOpacity());
 		if (!texInfo.isNull()) params->setNamedConstant("amount", texInfo.m_fAmount);
 
 		pass->setFragmentProgramParameters(params);
@@ -354,20 +367,12 @@ void COgreMaterialCompiler::CreateSpecularLevel( Ogre::Pass* pass )
 		pass->setVertexProgram("BlinnVP");
 		pass->setFragmentProgram( "Blinn_SpecularLevel_FP" );
 
+		Ogre::GpuProgramParametersSharedPtr vertParams = pass->getVertexProgramParameters();
+		SetCommonVertexProgramParameters(pass, vertParams);
+
 		Ogre::GpuProgramParametersSharedPtr params = pass->getFragmentProgramParameters();
+		SetCommonFragmentProgramParameters(pass, params);
 
-		// HACK: For some reason we cannot set the SpecularLevel if it is its max at 9.99, so we clamp it to 9.98
-		float specHack = m_pIMaterial->GetSpecularLevel() > 9.98 ? 9.98 : m_pIMaterial->GetSpecularLevel() ;
-		// HACK: For some reason we cannot set the SpecularLevel if it is its max at 9.99, so we clamp it to 9.98
-		float glossHack = m_pIMaterial->GetGlossiness() == 1 ? 0.9999 : m_pIMaterial->GetGlossiness() ;
-		glossHack = glossHack > 0.01 ? glossHack * 100 : 0.0 ;
-
-		params->setNamedConstant("ambientColor", m_pIMaterial->GetAmbientColor());
-		params->setNamedConstant("diffuseColor", m_pIMaterial->GetDiffuseColor());
-		params->setNamedConstant("specularColor", m_pIMaterial->GetSpecularColor());
-		params->setNamedConstant("specularLevel", specHack);
-		params->setNamedConstant("glossLevel", glossHack);
-		params->setNamedConstant("opacity", m_pIMaterial->GetOpacity());
 		if ( !texInfo.isNull()) params->setNamedConstant("amount", texInfo.m_fAmount);
 
 		pass->setFragmentProgramParameters(params);
@@ -385,20 +390,12 @@ void COgreMaterialCompiler::CreateSelfIllumination( Ogre::Pass* pass )
 		pass->setVertexProgram("Blinn_4UV_VP");
 		pass->setFragmentProgram( "Blinn_SelfIllumination_FP" );
 
+		Ogre::GpuProgramParametersSharedPtr vertParams = pass->getVertexProgramParameters();
+		SetCommonVertexProgramParameters(pass, vertParams);
+
 		Ogre::GpuProgramParametersSharedPtr params = pass->getFragmentProgramParameters();
+		SetCommonFragmentProgramParameters(pass, params);
 
-		// HACK: For some reason we cannot set the SpecularLevel if it is its max at 9.99, so we clamp it to 9.98
-		float specHack = m_pIMaterial->GetSpecularLevel() > 9.98 ? 9.98 : m_pIMaterial->GetSpecularLevel() ;
-		// HACK: For some reason we cannot set the SpecularLevel if it is its max at 9.99, so we clamp it to 9.98
-		float glossHack = m_pIMaterial->GetGlossiness() == 1 ? 0.9999 : m_pIMaterial->GetGlossiness() ;
-		glossHack = glossHack > 0.01 ? glossHack * 100 : 0.0 ;
-
-		params->setNamedConstant("ambientColor", m_pIMaterial->GetAmbientColor());
-		params->setNamedConstant("diffuseColor", m_pIMaterial->GetDiffuseColor());
-		params->setNamedConstant("specularColor", m_pIMaterial->GetSpecularColor());
-		params->setNamedConstant("specularLevel", specHack);
-		params->setNamedConstant("glossLevel", glossHack);
-		params->setNamedConstant("opacity", m_pIMaterial->GetOpacity());
 		if ( !texInfo.isNull())
 		{
 			params->setNamedConstant("amount", texInfo.m_fAmount);
@@ -423,18 +420,12 @@ void COgreMaterialCompiler::CreateDiffuseAndOpacity( Ogre::Pass* pass )
 		pass->setSceneBlending( Ogre::SBT_TRANSPARENT_ALPHA );
 		pass->setDepthWriteEnabled(false);
 
-		// HACK: For some reason we cannot set the SpecularLevel if it is its max at 9.99, so we clamp it to 9.98
-		float specHack = m_pIMaterial->GetSpecularLevel() > 9.98 ? 9.98 : m_pIMaterial->GetSpecularLevel() ;
-		// HACK: For some reason we cannot set the SpecularLevel if it is its max at 9.99, so we clamp it to 9.98
-		float glossHack = m_pIMaterial->GetGlossiness() == 1 ? 0.9999 : m_pIMaterial->GetGlossiness() ;
-		glossHack = glossHack > 0.01 ? glossHack * 100 : 0.0 ;
+		Ogre::GpuProgramParametersSharedPtr vertParams = pass->getVertexProgramParameters();
+		SetCommonVertexProgramParameters(pass, vertParams);
 
 		Ogre::GpuProgramParametersSharedPtr params = pass->getFragmentProgramParameters();
-		params->setNamedConstant("ambientColor", m_pIMaterial->GetAmbientColor());
-		params->setNamedConstant("diffuseColor", m_pIMaterial->GetDiffuseColor());
-		params->setNamedConstant("specularColor", m_pIMaterial->GetSpecularColor());
-		params->setNamedConstant("specularLevel", specHack);
-		params->setNamedConstant("glossLevel", glossHack);
+		SetCommonFragmentProgramParameters(pass, params);
+
 		if (!texInfo.isNull()) params->setNamedConstant("amount", texInfo.m_fAmount);
 		if (!texInfo2.isNull()) params->setNamedConstant("opacity", texInfo2.m_fAmount);
 		
@@ -455,18 +446,12 @@ void COgreMaterialCompiler::CreateDiffuseAndSpecularLevel( Ogre::Pass* pass )
 		pass->setVertexProgram("BlinnVP");
 		pass->setFragmentProgram( "Blinn_DiffuseAndSpecularMap_FP" );
 
-		// HACK: For some reason we cannot set the SpecularLevel if it is its max at 9.99, so we clamp it to 9.98
-		float specHack = m_pIMaterial->GetSpecularLevel() > 9.98 ? 9.98 : m_pIMaterial->GetSpecularLevel() ;
-		// HACK: For some reason we cannot set the SpecularLevel if it is its max at 9.99, so we clamp it to 9.98
-		float glossHack = m_pIMaterial->GetGlossiness() == 1 ? 0.9999 : m_pIMaterial->GetGlossiness() ;
-		glossHack = glossHack > 0.01 ? glossHack * 100 : 0.0 ;
+		Ogre::GpuProgramParametersSharedPtr vertParams = pass->getVertexProgramParameters();
+		SetCommonVertexProgramParameters(pass, vertParams);
 
 		Ogre::GpuProgramParametersSharedPtr params = pass->getFragmentProgramParameters();
-		params->setNamedConstant("ambientColor", m_pIMaterial->GetAmbientColor());
-		params->setNamedConstant("diffuseColor", m_pIMaterial->GetDiffuseColor());
-		params->setNamedConstant("specularColor", m_pIMaterial->GetSpecularColor());
-		params->setNamedConstant("specularLevel", specHack);
-		params->setNamedConstant("glossLevel", glossHack);
+		SetCommonFragmentProgramParameters(pass, params);
+
 		if (!texInfo.isNull()) params->setNamedConstant("amount", texInfo.m_fAmount);
 		if (!texInfo2.isNull()) params->setNamedConstant("amount", texInfo2.m_fAmount);
 		pass->setFragmentProgramParameters(params);

@@ -11,56 +11,56 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_0AF85D7829FF41678DD40D949B0FF6C4"
+        "MsmKey" = "8:_1149A15F93D5C55C47F14B43ED09E0DD"
+        "OwnerKey" = "8:_CEB47FD7C21B4F91B9D09001EB6E3F9C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1341BD61DACA47E3ACA8EF55F95E9219"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_30BD674C97284F2DB5C7D153FB8FC74F"
+        "MsmKey" = "8:_2B43FD9636F646B5BFEEB88D1F4C000C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_462FAB653D58ABCC9AB6C8887DF24A61"
-        "OwnerKey" = "8:_30BD674C97284F2DB5C7D153FB8FC74F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_61916BA150C64800B37EE8FE8D559588"
+        "MsmKey" = "8:_367555AFB9C145019D957547C8B04E71"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_70C695C9EE00485A901A89334B9295F4"
+        "MsmKey" = "8:_41A87FF340BB4F15A3A2AF045E5BB524"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_89634EA830B0483BA0DD8CAC96CAB32D"
-        "OwnerKey" = "8:_30BD674C97284F2DB5C7D153FB8FC74F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_918FAC30856943B3BDEBA7308AA9A9BA"
+        "MsmKey" = "8:_69E5BA9B620949F28BDA3FFC3C581CF7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_A4F11C25B1AE4D20BD9D336F51FE9A43"
+        "MsmKey" = "8:_7402A316C59C40929333A0A40518B1FE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_A6AD6CE018AA46999EF3E4B8FC4EF4D1"
-        "OwnerKey" = "8:_89634EA830B0483BA0DD8CAC96CAB32D"
+        "MsmKey" = "8:_7CF1A94162F14724A9B22EFE22ACD8F2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_83E7BC1E060F46E1A79288AD70215850"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -71,20 +71,32 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_C1CBED1994924F15ABD074814AF59F1F"
+        "MsmKey" = "8:_BAF947751FA6FF4AB8EE930EBD8D9283"
+        "OwnerKey" = "8:_CEB47FD7C21B4F91B9D09001EB6E3F9C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CEB47FD7C21B4F91B9D09001EB6E3F9C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_D73759BDDB7A85E4341246231EB01793"
-        "OwnerKey" = "8:_30BD674C97284F2DB5C7D153FB8FC74F"
+        "MsmKey" = "8:_E1AA4307C1E5406EACF5449108707E8B"
+        "OwnerKey" = "8:_1341BD61DACA47E3ACA8EF55F95E9219"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_E348545CE70C41C0B14F2CD7D8863C70"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_E1AA4307C1E5406EACF5449108707E8B"
+        "OwnerKey" = "8:_CEB47FD7C21B4F91B9D09001EB6E3F9C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E1C97AA30417475D93705DF4FE705240"
+        "OwnerKey" = "8:_E1AA4307C1E5406EACF5449108707E8B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -170,32 +182,12 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0AF85D7829FF41678DD40D949B0FF6C4"
-            {
-            "SourcePath" = "8:InstallData\\OIS.dll"
-            "TargetName" = "8:OIS.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_71706C085AA640518D4EFAF8A0F651E3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_462FAB653D58ABCC9AB6C8887DF24A61"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1149A15F93D5C55C47F14B43ED09E0DD"
             {
             "SourcePath" = "8:MSIMG32.dll"
             "TargetName" = "8:MSIMG32.dll"
             "Tag" = "8:"
-            "Folder" = "8:_9A6955C86079434BBECC068FF51DFB25"
+            "Folder" = "8:_0BBF0A1249024D52A4893D26FEBC94CA"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -206,16 +198,16 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
-            "Exclude" = "11:FALSE"
+            "Exclude" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_61916BA150C64800B37EE8FE8D559588"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2B43FD9636F646B5BFEEB88D1F4C000C"
             {
-            "SourcePath" = "8:InstallData\\LexiExporter\\RenderSystem_GL.dll"
+            "SourcePath" = "8:InstallData\\LEXIExporter\\Dlls\\RenderSystem_GL.dll"
             "TargetName" = "8:RenderSystem_GL.dll"
             "Tag" = "8:"
-            "Folder" = "8:_F1EBC7118A404D5C8CD9FEBF68CC6EDB"
+            "Folder" = "8:_0BBF0A1249024D52A4893D26FEBC94CA"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -230,12 +222,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_70C695C9EE00485A901A89334B9295F4"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_367555AFB9C145019D957547C8B04E71"
             {
-            "SourcePath" = "8:InstallData\\LexiExporter\\Plugin_CgProgramManager.dll"
-            "TargetName" = "8:Plugin_CgProgramManager.dll"
+            "SourcePath" = "8:InstallData\\LEXIExporter\\Dlls\\OIS.dll"
+            "TargetName" = "8:OIS.dll"
             "Tag" = "8:"
-            "Folder" = "8:_F1EBC7118A404D5C8CD9FEBF68CC6EDB"
+            "Folder" = "8:_0BBF0A1249024D52A4893D26FEBC94CA"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -250,12 +242,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_918FAC30856943B3BDEBA7308AA9A9BA"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_41A87FF340BB4F15A3A2AF045E5BB524"
             {
-            "SourcePath" = "8:InstallData\\resources.cfg"
+            "SourcePath" = "8:InstallData\\LEXIExporter\\Dlls\\resources.cfg"
             "TargetName" = "8:resources.cfg"
             "Tag" = "8:"
-            "Folder" = "8:_71706C085AA640518D4EFAF8A0F651E3"
+            "Folder" = "8:_0BBF0A1249024D52A4893D26FEBC94CA"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -270,12 +262,72 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A4F11C25B1AE4D20BD9D336F51FE9A43"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_69E5BA9B620949F28BDA3FFC3C581CF7"
             {
-            "SourcePath" = "8:InstallData\\OgreMain.dll"
+            "SourcePath" = "8:InstallData\\LEXIExporter\\Dlls\\plugins.cfg"
+            "TargetName" = "8:plugins.cfg"
+            "Tag" = "8:"
+            "Folder" = "8:_0BBF0A1249024D52A4893D26FEBC94CA"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7402A316C59C40929333A0A40518B1FE"
+            {
+            "SourcePath" = "8:InstallData\\LEXIExporter\\Dlls\\Plugin_CgProgramManager.dll"
+            "TargetName" = "8:Plugin_CgProgramManager.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_0BBF0A1249024D52A4893D26FEBC94CA"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7CF1A94162F14724A9B22EFE22ACD8F2"
+            {
+            "SourcePath" = "8:InstallData\\LEXIExporter\\Dlls\\OgreMain.dll"
             "TargetName" = "8:OgreMain.dll"
             "Tag" = "8:"
-            "Folder" = "8:_71706C085AA640518D4EFAF8A0F651E3"
+            "Folder" = "8:_0BBF0A1249024D52A4893D26FEBC94CA"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_83E7BC1E060F46E1A79288AD70215850"
+            {
+            "SourcePath" = "8:InstallData\\LEXIExporter\\Dlls\\cg.dll"
+            "TargetName" = "8:cg.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_0BBF0A1249024D52A4893D26FEBC94CA"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -310,32 +362,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C1CBED1994924F15ABD074814AF59F1F"
-            {
-            "SourcePath" = "8:InstallData\\plugins.cfg"
-            "TargetName" = "8:plugins.cfg"
-            "Tag" = "8:"
-            "Folder" = "8:_71706C085AA640518D4EFAF8A0F651E3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D73759BDDB7A85E4341246231EB01793"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BAF947751FA6FF4AB8EE930EBD8D9283"
             {
             "SourcePath" = "8:comdlg32.dll"
             "TargetName" = "8:comdlg32.dll"
             "Tag" = "8:"
-            "Folder" = "8:_9A6955C86079434BBECC068FF51DFB25"
+            "Folder" = "8:_0BBF0A1249024D52A4893D26FEBC94CA"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -346,28 +378,8 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
-            "Exclude" = "11:FALSE"
+            "Exclude" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E348545CE70C41C0B14F2CD7D8863C70"
-            {
-            "SourcePath" = "8:InstallData\\cg.dll"
-            "TargetName" = "8:cg.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_71706C085AA640518D4EFAF8A0F651E3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E959BCA23DE94B749366DA0A7316FE6D"
@@ -409,7 +421,7 @@
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_71706C085AA640518D4EFAF8A0F651E3"
             {
-            "DefaultLocation" = "8:[ProgramFilesFolder]Autodesk\\3dsMax8"
+            "DefaultLocation" = "8:[ProgramFilesFolder]Autodesk\\3ds Max 9\\"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -437,6 +449,17 @@
                     "Property" = "8:_016943C416EB4EA8BC4471E31313EDAD"
                         "Folders"
                         {
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_0BBF0A1249024D52A4893D26FEBC94CA"
+                            {
+                            "Name" = "8:Dlls"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_911B53C6D30D4A859F7ECE926C68E339"
+                                "Folders"
+                                {
+                                }
+                            }
                             "{9EF0B969-E518-4E46-987F-47570745A589}:_431C7AFBD47243B8B2AAE24393DB9139"
                             {
                             "Name" = "8:shaders"
@@ -451,7 +474,7 @@
                             "{9EF0B969-E518-4E46-987F-47570745A589}:_A6D183DA7537437D941083859DE50A40"
                             {
                             "Name" = "8:Logs"
-                            "AlwaysCreate" = "11:FALSE"
+                            "AlwaysCreate" = "11:TRUE"
                             "Condition" = "8:"
                             "Transitive" = "11:FALSE"
                             "Property" = "8:_876C4991303648318FD7040C919883EA"
@@ -489,18 +512,18 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:LEXIExport"
-        "ProductCode" = "8:{62813863-2B5E-41A4-A206-883D6FF42E50}"
-        "PackageCode" = "8:{D75021C6-EA09-493E-9CDF-831CFD88F425}"
+        "ProductCode" = "8:{5CF72BC9-A03F-420A-B82A-370C0013E0A2}"
+        "PackageCode" = "8:{8E8AEBE8-E466-46C8-8FE5-4ABE1B26F091}"
         "UpgradeCode" = "8:{153F1498-CA22-4196-B639-B267C9BC0DFA}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.5"
+        "ProductVersion" = "8:1.0.6"
         "Manufacturer" = "8:NDS Denmark A/S"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:LEXIExport 1.0.5"
+        "Title" = "8:LEXIExport 1.0.6"
         "Subject" = "8:"
         "ARPCONTACT" = "8:ITE ApS"
         "Keywords" = "8:"
@@ -740,7 +763,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:The installer will guide you through the steps required to install [ProductName] on your computer. Install in your 3DStudio Max 8 folder !"
+                            "Value" = "8:The installer will guide you through the steps required to install [ProductName] on your computer. Install in your 3DStudio Max 9 folder !"
                             "DefaultValue" = "8:#1203"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -1005,7 +1028,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_89634EA830B0483BA0DD8CAC96CAB32D"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_E1AA4307C1E5406EACF5449108707E8B"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1019,7 +1042,7 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_A6AD6CE018AA46999EF3E4B8FC4EF4D1"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_E1C97AA30417475D93705DF4FE705240"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1036,12 +1059,40 @@
         }
         "ProjectOutput"
         {
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_30BD674C97284F2DB5C7D153FB8FC74F"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_1341BD61DACA47E3ACA8EF55F95E9219"
             {
-            "SourcePath" = "8:..\\LexiExport\\bin\\LEXIExport.dlu"
+            "SourcePath" = "8:..\\LexiExportProxy\\bin\\LexiExportProxy.dlu"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_9A6955C86079434BBECC068FF51DFB25"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:Release|Win32"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{088726F7-F64F-4C9F-A669-D2222CD4640A}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_CEB47FD7C21B4F91B9D09001EB6E3F9C"
+            {
+            "SourcePath" = "8:..\\LexiExport\\bin\\LEXIExporter.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_0BBF0A1249024D52A4893D26FEBC94CA"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"

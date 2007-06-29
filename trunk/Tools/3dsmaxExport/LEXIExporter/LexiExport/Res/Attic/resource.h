@@ -45,7 +45,6 @@
 #define IDI_ICON_POSEANIM               142
 #define IDC_PROPERTIES_BUTTON           1023
 #define IDC_EXPORT_BUTTON               1024
-#define IDC_CLOSE_BUTTON                1025
 #define IDC_LIST                        1025
 #define IDC_CLOSE                       1026
 #define IDC_TREE                        1027

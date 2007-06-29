@@ -145,3 +145,17 @@ std::string ResolveMacros(const char* pszString)
 
 //
 
+std::string GetLEXIRoot(void)
+{
+	char szAppPath[MAX_PATH] = "";
+	::GetModuleFileName(NULL,szAppPath,sizeof(szAppPath) - 1);
+
+	char szDrive[MAX_PATH];
+	char szPath[MAX_PATH];
+	_splitpath(szAppPath,szDrive,szPath,NULL,NULL);
+	strcat(szDrive,szPath);
+	strcat(szDrive,"/LEXIExporter/");
+
+	return szDrive;
+}
+

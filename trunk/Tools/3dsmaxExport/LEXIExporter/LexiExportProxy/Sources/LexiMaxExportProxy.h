@@ -24,27 +24,35 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __NDS_OgreCore_H__
-#define __NDS_OgreCore_H__
+#ifndef __NDS_LexiExporterProxy__
+#define __NDS_LexiExporterProxy__
 
-class COgreCore : public Ogre::Singleton<COgreCore>
+//
+
+class CExporterProxyDesc;
+
+class CExporterProxy : public UtilityObj 
 {
 public:
+	// Constructor/Destructor
+	CExporterProxy(CExporterProxyDesc* pDesc);
+	~CExporterProxy();
 
-	COgreCore(HWND hwnd);
-	virtual ~COgreCore();
+	// From UtilityObj
+	void	BeginEditParams(Interface* ip,IUtil* iu);
+	void	EndEditParams(Interface* ip,IUtil* iu);
+	void	DeleteThis();
 
-	static COgreCore& getSingleton( void );
-	static COgreCore* getSingletonPtr( void );
+private:
+	HMODULE m_hModuleHandle;
+	typedef UtilityObj* (*fnCreate)();
+	typedef void (*fnDestroy)(UtilityObj*);
 
-protected:
-	
-	bool configureRenderer(HWND hwnd);
-
-	Ogre::Root* m_pRoot;
-	Ogre::RenderSystem* m_pRenderSystem;
-	Ogre::RenderWindow* m_pWindow;
+	fnCreate	m_fnCreate;
+	fnDestroy	m_fnDestroy;
+	static UtilityObj* m_pLEXIMain;
 };
 
+//
 
-#endif
+#endif // __NDS_LexiExporterProxy__

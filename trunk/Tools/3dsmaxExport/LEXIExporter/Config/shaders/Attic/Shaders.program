@@ -7,6 +7,7 @@ vertex_program BlinnVP cg
        	param_named_auto lightPosition light_position_object_space 0
 		param_named_auto eyePosition camera_position_object_space
        	param_named_auto worldviewproj worldviewproj_matrix
+		param_named useVertCol float 1.0
       } 
       entry_point Blinn_vp 
       profiles vs_1_1 arbvp1 
@@ -21,6 +22,7 @@ vertex_program Blinn_4UV_VP cg
        	param_named_auto lightPosition light_position_object_space 0
 		param_named_auto eyePosition camera_position_object_space
        	param_named_auto worldviewproj worldviewproj_matrix
+		param_named useVertCol float 1.0
       } 
       entry_point Blinn_4UV_vp 
       profiles vs_1_1 arbvp1 

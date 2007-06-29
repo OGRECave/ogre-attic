@@ -370,6 +370,7 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 			bool bExportMaterials = m_pDDConfig->GetBool("exportMaterialsID",true);
 			bool bInOneFile = m_pDDConfig->GetBool("exportSingleMaterialFileID",false);
 			bool bXMLexport = m_pDDConfig->GetBool("XmlID",false);
+			bool bExportColours = m_pDDConfig->GetBool("vertexColorsID", false);
 
 			Ogre::String sExtension = "";
 			bool bOverrideExtension = m_pDDConfig->GetBool("overrideExtensionID",false);
@@ -524,7 +525,7 @@ bool CSkinnedMeshExportObject::Export(CExportProgressDlg *pProgressDlg, bool bFo
 						matDesc += it->second->GetName();
 						pProgressDlg->LocalStep(matDesc.c_str());
 
-						COgreMaterialCompiler matComp( it->second, sExtension );
+						COgreMaterialCompiler matComp( it->second, sExtension, bExportColours );
 						if(bInOneFile)
 						{
 							LOGDEBUG "Queueing material ...");

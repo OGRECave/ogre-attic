@@ -87,7 +87,7 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
 				AdditionalDependencies="comctl32.lib Msimg32.lib shlwapi.lib"
-				OutputFile="Bin\LEXIExport.dlu"
+				OutputFile="Bin\LEXIExporter.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\..\..\lib;&quot;$(MAX_SDK_DIR)\lib&quot;"
@@ -192,13 +192,13 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
 				AdditionalDependencies="comctl32.lib Msimg32.lib shlwapi.lib"
-				OutputFile="Bin\LEXIExport(debug).dlu"
+				OutputFile="Bin\LEXIExporter_d.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\..\..\lib;&quot;$(MAX_SDK_DIR)\lib&quot;"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/LEXIExport(debug).pdb"
+				ProgramDatabaseFile=".\Debug/LEXIExporter_d.pdb"
 				ImportLibrary=".\Debug/LEXIExport(debug).lib"
 				TargetMachine="1"
 			/>
@@ -269,14 +269,6 @@
 			</File>
 			<File
 				RelativePath="Sources\LexiMaxExport.h"
-				>
-			</File>
-			<File
-				RelativePath="Sources\LexiMaxExportDesc.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Sources\LexiMaxExportDesc.h"
 				>
 			</File>
 			<File
