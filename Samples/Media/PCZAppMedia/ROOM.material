@@ -94,7 +94,6 @@ material [Metal_Rusted]1
    {
       pass
       {
-         18.0, 18.0
          diffuse 1 1 1 1.0
          texture_unit
          {
