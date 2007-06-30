@@ -735,225 +735,256 @@ namespace Ogre {
 	{
 		return mSchemeIndex;
 	}
+	//---------------------------------------------------------------------
+	bool Technique::checkManuallyOrganisedIlluminationPasses()
+	{
+		// first check whether all passes have manually assigned illumination
+		Passes::iterator i, ibegin, iend;
+		ibegin = mPasses.begin();
+		iend = mPasses.end();
+
+		for (i = ibegin; i != iend; ++i)
+		{
+			if ((*i)->getIlluminationStage() == IS_UNKNOWN)
+				return false;
+		}
+
+		// ok, all manually controlled, so just use that
+		for (i = ibegin; i != iend; ++i)
+		{
+			IlluminationPass* iPass = new IlluminationPass();
+			iPass->destroyOnShutdown = false;
+			iPass->originalPass = iPass->pass = *i;
+			iPass->stage = (*i)->getIlluminationStage();
+			mIlluminationPasses.push_back(iPass);
+		}
+
+		return true;
+	}
     //-----------------------------------------------------------------------
     void Technique::_compileIlluminationPasses(void)
     {
         clearIlluminationPasses();
 
-        Passes::iterator i, iend;
-        iend = mPasses.end();
-        i = mPasses.begin();
+		if (!checkManuallyOrganisedIlluminationPasses())
+		{
+			// Build based on our own heuristics
 
-        IlluminationStage iStage = IS_AMBIENT;
+			Passes::iterator i, iend;
+			iend = mPasses.end();
+			i = mPasses.begin();
 
-        bool haveAmbient = false;
-        while (i != iend)
-        {
-            IlluminationPass* iPass;
-            Pass* p = *i;
-            switch(iStage)
-            {
-            case IS_AMBIENT:
-                // Keep looking for ambient only
-                if (p->isAmbientOnly())
-                {
-                    // Add this pass wholesale
-                    iPass = new IlluminationPass();
-                    iPass->destroyOnShutdown = false;
-                    iPass->originalPass = iPass->pass = p;
-                    iPass->stage = iStage;
-                    mIlluminationPasses.push_back(iPass);
-                    haveAmbient = true;
-                    // progress to next pass
-                    ++i;
-                }
-                else
-                {
-                    // Split off any ambient part
-                    if (p->getAmbient() != ColourValue::Black ||
-                        p->getSelfIllumination() != ColourValue::Black ||
-                        p->getAlphaRejectFunction() != CMPF_ALWAYS_PASS)
-                    {
-                        // Copy existing pass
-                        Pass* newPass = new Pass(this, p->getIndex(), *p);
-                        if (newPass->getAlphaRejectFunction() != CMPF_ALWAYS_PASS)
-                        {
-                            // Alpha rejection passes must retain their transparency, so
-                            // we allow the texture units, but override the colour functions
-                            Pass::TextureUnitStateIterator tusi = newPass->getTextureUnitStateIterator();
-                            while (tusi.hasMoreElements())
-                            {
-                                TextureUnitState* tus = tusi.getNext();
-                                tus->setColourOperationEx(LBX_SOURCE1, LBS_CURRENT);
-                            }
-                        }
-                        else
-                        {
-                            // Remove any texture units
-                            newPass->removeAllTextureUnitStates();
-                        }
-                        // Remove any fragment program
-                        if (newPass->hasFragmentProgram())
-                            newPass->setFragmentProgram("");
-                        // We have to leave vertex program alone (if any) and
-                        // just trust that the author is using light bindings, which
-                        // we will ensure there are none in the ambient pass
-                        newPass->setDiffuse(0, 0, 0, newPass->getDiffuse().a);  // Preserving alpha
-                        newPass->setSpecular(ColourValue::Black);
+			IlluminationStage iStage = IS_AMBIENT;
 
-                        // Calculate hash value for new pass, because we are compiling
-                        // illumination passes on demand, which will loss hash calculate
-                        // before it add to render queue first time.
-                        newPass->_recalculateHash();
+			bool haveAmbient = false;
+			while (i != iend)
+			{
+				IlluminationPass* iPass;
+				Pass* p = *i;
+				switch(iStage)
+				{
+				case IS_AMBIENT:
+					// Keep looking for ambient only
+					if (p->isAmbientOnly())
+					{
+						// Add this pass wholesale
+						iPass = new IlluminationPass();
+						iPass->destroyOnShutdown = false;
+						iPass->originalPass = iPass->pass = p;
+						iPass->stage = iStage;
+						mIlluminationPasses.push_back(iPass);
+						haveAmbient = true;
+						// progress to next pass
+						++i;
+					}
+					else
+					{
+						// Split off any ambient part
+						if (p->getAmbient() != ColourValue::Black ||
+							p->getSelfIllumination() != ColourValue::Black ||
+							p->getAlphaRejectFunction() != CMPF_ALWAYS_PASS)
+						{
+							// Copy existing pass
+							Pass* newPass = new Pass(this, p->getIndex(), *p);
+							if (newPass->getAlphaRejectFunction() != CMPF_ALWAYS_PASS)
+							{
+								// Alpha rejection passes must retain their transparency, so
+								// we allow the texture units, but override the colour functions
+								Pass::TextureUnitStateIterator tusi = newPass->getTextureUnitStateIterator();
+								while (tusi.hasMoreElements())
+								{
+									TextureUnitState* tus = tusi.getNext();
+									tus->setColourOperationEx(LBX_SOURCE1, LBS_CURRENT);
+								}
+							}
+							else
+							{
+								// Remove any texture units
+								newPass->removeAllTextureUnitStates();
+							}
+							// Remove any fragment program
+							if (newPass->hasFragmentProgram())
+								newPass->setFragmentProgram("");
+							// We have to leave vertex program alone (if any) and
+							// just trust that the author is using light bindings, which
+							// we will ensure there are none in the ambient pass
+							newPass->setDiffuse(0, 0, 0, newPass->getDiffuse().a);  // Preserving alpha
+							newPass->setSpecular(ColourValue::Black);
 
-                        iPass = new IlluminationPass();
-                        iPass->destroyOnShutdown = true;
-                        iPass->originalPass = p;
-                        iPass->pass = newPass;
-                        iPass->stage = iStage;
+							// Calculate hash value for new pass, because we are compiling
+							// illumination passes on demand, which will loss hash calculate
+							// before it add to render queue first time.
+							newPass->_recalculateHash();
 
-                        mIlluminationPasses.push_back(iPass);
-                        haveAmbient = true;
+							iPass = new IlluminationPass();
+							iPass->destroyOnShutdown = true;
+							iPass->originalPass = p;
+							iPass->pass = newPass;
+							iPass->stage = iStage;
 
-                    }
+							mIlluminationPasses.push_back(iPass);
+							haveAmbient = true;
 
-                    if (!haveAmbient)
-                    {
-                        // Make up a new basic pass
-                        Pass* newPass = new Pass(this, p->getIndex());
-                        newPass->setAmbient(ColourValue::Black);
-                        newPass->setDiffuse(ColourValue::Black);
+						}
 
-                        // Calculate hash value for new pass, because we are compiling
-                        // illumination passes on demand, which will loss hash calculate
-                        // before it add to render queue first time.
-                        newPass->_recalculateHash();
+						if (!haveAmbient)
+						{
+							// Make up a new basic pass
+							Pass* newPass = new Pass(this, p->getIndex());
+							newPass->setAmbient(ColourValue::Black);
+							newPass->setDiffuse(ColourValue::Black);
 
-                        iPass = new IlluminationPass();
-                        iPass->destroyOnShutdown = true;
-                        iPass->originalPass = p;
-                        iPass->pass = newPass;
-                        iPass->stage = iStage;
-                        mIlluminationPasses.push_back(iPass);
-                        haveAmbient = true;
-                    }
-                    // This means we're done with ambients, progress to per-light
-                    iStage = IS_PER_LIGHT;
-                }
-                break;
-            case IS_PER_LIGHT:
-                if (p->getIteratePerLight())
-                {
-                    // If this is per-light already, use it directly
-                    iPass = new IlluminationPass();
-                    iPass->destroyOnShutdown = false;
-                    iPass->originalPass = iPass->pass = p;
-                    iPass->stage = iStage;
-                    mIlluminationPasses.push_back(iPass);
-                    // progress to next pass
-                    ++i;
-                }
-                else
-                {
-                    // Split off per-light details (can only be done for one)
-                    if (p->getLightingEnabled() &&
-                        (p->getDiffuse() != ColourValue::Black ||
-                        p->getSpecular() != ColourValue::Black))
-                    {
-                        // Copy existing pass
-                        Pass* newPass = new Pass(this, p->getIndex(), *p);
-                        if (newPass->getAlphaRejectFunction() != CMPF_ALWAYS_PASS)
-                        {
-                            // Alpha rejection passes must retain their transparency, so
-                            // we allow the texture units, but override the colour functions
-                            Pass::TextureUnitStateIterator tusi = newPass->getTextureUnitStateIterator();
-                            while (tusi.hasMoreElements())
-                            {
-                                TextureUnitState* tus = tusi.getNext();
-                                tus->setColourOperationEx(LBX_SOURCE1, LBS_CURRENT);
-                            }
-                        }
-                        else
-                        {
-                            // remove texture units
-                            newPass->removeAllTextureUnitStates();
-                        }
-                        // remove fragment programs
-                        if (newPass->hasFragmentProgram())
-                            newPass->setFragmentProgram("");
-                        // Cannot remove vertex program, have to assume that
-                        // it will process diffuse lights, ambient will be turned off
-                        newPass->setAmbient(ColourValue::Black);
-                        newPass->setSelfIllumination(ColourValue::Black);
-                        // must be additive
-                        newPass->setSceneBlending(SBF_ONE, SBF_ONE);
+							// Calculate hash value for new pass, because we are compiling
+							// illumination passes on demand, which will loss hash calculate
+							// before it add to render queue first time.
+							newPass->_recalculateHash();
 
-                        // Calculate hash value for new pass, because we are compiling
-                        // illumination passes on demand, which will loss hash calculate
-                        // before it add to render queue first time.
-                        newPass->_recalculateHash();
+							iPass = new IlluminationPass();
+							iPass->destroyOnShutdown = true;
+							iPass->originalPass = p;
+							iPass->pass = newPass;
+							iPass->stage = iStage;
+							mIlluminationPasses.push_back(iPass);
+							haveAmbient = true;
+						}
+						// This means we're done with ambients, progress to per-light
+						iStage = IS_PER_LIGHT;
+					}
+					break;
+				case IS_PER_LIGHT:
+					if (p->getIteratePerLight())
+					{
+						// If this is per-light already, use it directly
+						iPass = new IlluminationPass();
+						iPass->destroyOnShutdown = false;
+						iPass->originalPass = iPass->pass = p;
+						iPass->stage = iStage;
+						mIlluminationPasses.push_back(iPass);
+						// progress to next pass
+						++i;
+					}
+					else
+					{
+						// Split off per-light details (can only be done for one)
+						if (p->getLightingEnabled() &&
+							(p->getDiffuse() != ColourValue::Black ||
+							p->getSpecular() != ColourValue::Black))
+						{
+							// Copy existing pass
+							Pass* newPass = new Pass(this, p->getIndex(), *p);
+							if (newPass->getAlphaRejectFunction() != CMPF_ALWAYS_PASS)
+							{
+								// Alpha rejection passes must retain their transparency, so
+								// we allow the texture units, but override the colour functions
+								Pass::TextureUnitStateIterator tusi = newPass->getTextureUnitStateIterator();
+								while (tusi.hasMoreElements())
+								{
+									TextureUnitState* tus = tusi.getNext();
+									tus->setColourOperationEx(LBX_SOURCE1, LBS_CURRENT);
+								}
+							}
+							else
+							{
+								// remove texture units
+								newPass->removeAllTextureUnitStates();
+							}
+							// remove fragment programs
+							if (newPass->hasFragmentProgram())
+								newPass->setFragmentProgram("");
+							// Cannot remove vertex program, have to assume that
+							// it will process diffuse lights, ambient will be turned off
+							newPass->setAmbient(ColourValue::Black);
+							newPass->setSelfIllumination(ColourValue::Black);
+							// must be additive
+							newPass->setSceneBlending(SBF_ONE, SBF_ONE);
 
-                        iPass = new IlluminationPass();
-                        iPass->destroyOnShutdown = true;
-                        iPass->originalPass = p;
-                        iPass->pass = newPass;
-                        iPass->stage = iStage;
+							// Calculate hash value for new pass, because we are compiling
+							// illumination passes on demand, which will loss hash calculate
+							// before it add to render queue first time.
+							newPass->_recalculateHash();
 
-                        mIlluminationPasses.push_back(iPass);
+							iPass = new IlluminationPass();
+							iPass->destroyOnShutdown = true;
+							iPass->originalPass = p;
+							iPass->pass = newPass;
+							iPass->stage = iStage;
 
-                    }
-                    // This means the end of per-light passes
-                    iStage = IS_DECAL;
-                }
-                break;
-            case IS_DECAL:
-                // We just want a 'lighting off' pass to finish off
-                // and only if there are texture units
-                if (p->getNumTextureUnitStates() > 0)
-                {
-                    if (!p->getLightingEnabled())
-                    {
-                        // we assume this pass already combines as required with the scene
-                        iPass = new IlluminationPass();
-                        iPass->destroyOnShutdown = false;
-                        iPass->originalPass = iPass->pass = p;
-                        iPass->stage = iStage;
-                        mIlluminationPasses.push_back(iPass);
-                    }
-                    else
-                    {
-                        // Copy the pass and tweak away the lighting parts
-                        Pass* newPass = new Pass(this, p->getIndex(), *p);
-                        newPass->setAmbient(ColourValue::Black);
-                        newPass->setDiffuse(0, 0, 0, newPass->getDiffuse().a);  // Preserving alpha
-                        newPass->setSpecular(ColourValue::Black);
-                        newPass->setSelfIllumination(ColourValue::Black);
-                        newPass->setLightingEnabled(false);
-                        // modulate
-                        newPass->setSceneBlending(SBF_DEST_COLOUR, SBF_ZERO);
+							mIlluminationPasses.push_back(iPass);
 
-                        // Calculate hash value for new pass, because we are compiling
-                        // illumination passes on demand, which will loss hash calculate
-                        // before it add to render queue first time.
-                        newPass->_recalculateHash();
+						}
+						// This means the end of per-light passes
+						iStage = IS_DECAL;
+					}
+					break;
+				case IS_DECAL:
+					// We just want a 'lighting off' pass to finish off
+					// and only if there are texture units
+					if (p->getNumTextureUnitStates() > 0)
+					{
+						if (!p->getLightingEnabled())
+						{
+							// we assume this pass already combines as required with the scene
+							iPass = new IlluminationPass();
+							iPass->destroyOnShutdown = false;
+							iPass->originalPass = iPass->pass = p;
+							iPass->stage = iStage;
+							mIlluminationPasses.push_back(iPass);
+						}
+						else
+						{
+							// Copy the pass and tweak away the lighting parts
+							Pass* newPass = new Pass(this, p->getIndex(), *p);
+							newPass->setAmbient(ColourValue::Black);
+							newPass->setDiffuse(0, 0, 0, newPass->getDiffuse().a);  // Preserving alpha
+							newPass->setSpecular(ColourValue::Black);
+							newPass->setSelfIllumination(ColourValue::Black);
+							newPass->setLightingEnabled(false);
+							// modulate
+							newPass->setSceneBlending(SBF_DEST_COLOUR, SBF_ZERO);
 
-                        // NB there is nothing we can do about vertex & fragment
-                        // programs here, so people will just have to make their
-                        // programs friendly-like if they want to use this technique
-                        iPass = new IlluminationPass();
-                        iPass->destroyOnShutdown = true;
-                        iPass->originalPass = p;
-                        iPass->pass = newPass;
-                        iPass->stage = iStage;
-                        mIlluminationPasses.push_back(iPass);
+							// Calculate hash value for new pass, because we are compiling
+							// illumination passes on demand, which will loss hash calculate
+							// before it add to render queue first time.
+							newPass->_recalculateHash();
 
-                    }
-                }
-                ++i; // always increment on decal, since nothing more to do with this pass
+							// NB there is nothing we can do about vertex & fragment
+							// programs here, so people will just have to make their
+							// programs friendly-like if they want to use this technique
+							iPass = new IlluminationPass();
+							iPass->destroyOnShutdown = true;
+							iPass->originalPass = p;
+							iPass->pass = newPass;
+							iPass->stage = iStage;
+							mIlluminationPasses.push_back(iPass);
 
-                break;
-            }
-        }
+						}
+					}
+					++i; // always increment on decal, since nothing more to do with this pass
+
+					break;
+				}
+			}
+		}
 
     }
     //-----------------------------------------------------------------------

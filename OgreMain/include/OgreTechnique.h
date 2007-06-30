@@ -71,6 +71,8 @@ namespace Ogre {
 
         /// Internal method for clearing illumination pass list
         void clearIlluminationPasses(void);
+		/// Internal method - check for manually assigned illumination passes
+		bool checkManuallyOrganisedIlluminationPasses();
     public:
         /// Constructor
         Technique(Material* parent);

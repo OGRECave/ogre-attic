@@ -508,6 +508,8 @@ Here are the attributes you can use in a 'pass' section of a .material script:
 @item
 @ref{light_clip_planes}
 @item
+@ref{illumination_stage}
+@item
 @ref{normalise_normals}
 @item
 @ref{cull_hardware}
@@ -784,6 +786,16 @@ This option will only function if there is a single non-directional light being 
 
 When using a standard additive shadow mode, ie SHADOWTYPE_STENCIL_ADDITIVE or SHADOWTYPE_TEXTURE_ADDITIVE, you have the option of enabling clipping for all light passes by calling SceneManager::setShadowUseLightClipPlanes regardless of this pass setting, since rendering is done lightwise anyway. This is off by default since using clip planes is not always faster - it depends on how much of the scene the light volumes cover. Generally the smaller your lights are the more chance you'll see a benefit rather than a penalty from clipping. If you're not using shadows, or you're using @ref{Integrated Texture Shadows} where passes are specified in a custom manner, then specify the option per-pass using this attribute.@*@*
 A specific note about OpenGL: user clip planes are completely ignored when you use an ARB vertex program. This means light clip planes won't help much if you use ARB vertex programs on GL, although OGRE will perform some optimisation of its own, in that if it sees that the clip volume is completely off-screen, it won't perform a render at all. When using GLSL, user clipping can be used but you have to use glClipVertex in your shader, see the GLSL documentation for more information. In Direct3D user clip planes are always respected.
+
+@anchor{illumination_stage}
+@subheading illumination_stage
+
+When using an additive lighting mode (SHADOWTYPE_STENCIL_ADDITIVE or SHADOWTYPE_TEXTURE_ADDITIVE), the scene is rendered in 3 discrete stages, ambient (or pre-lighting), per-light (once per light, with shadowing) and decal (or post-lighting). Usually OGRE figures out how to categorise your passes automatically, but there are some effects you cannot achieve without manually controlling the illumination. For example specular effects are muted by the typical sequence because all textures are saved until the 'decal' stage which mutes the specular effect. Instead, you could do texturing within the per-light stage if it's possible for your material and thus add the specular on after the decal texturing, and have no post-light rendering. @*@*
+
+If you assign an illumination stage to a pass you have to assign it to all passes in the technique otherwise it will be ignored. Also note that whilst you can have more than one pass in each group, they cannot alternate, ie all ambient passes will be before all per-light passes, which will also be before all decal passes. Within their categories the passes will retain their ordering though.
+
+Format: illumination_stage <ambient|per_light|decal>@*@*
+Default: none (autodetect)@*@*
 
 @anchor{normalise_normals}
 @subheading normalise_normals
