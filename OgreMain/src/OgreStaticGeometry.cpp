@@ -636,6 +636,7 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
     void StaticGeometry::setRenderQueueGroup(uint8 queueID)
 	{
+		assert(queueID <= RENDER_QUEUE_MAX && "Render queue out of range!");
 		mRenderQueueIDSet = true;
 		mRenderQueueID = queueID;
 		// tell any existing regions

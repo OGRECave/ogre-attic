@@ -245,6 +245,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void BillboardParticleRenderer::setRenderQueueGroup(uint8 queueID)
 	{
+		assert(queueID <= RENDER_QUEUE_MAX && "Render queue out of range!");
 		mBillboardSet->setRenderQueueGroup(queueID);
 	}
 	//-----------------------------------------------------------------------

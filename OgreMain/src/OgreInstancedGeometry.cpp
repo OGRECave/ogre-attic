@@ -849,6 +849,7 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
     void InstancedGeometry::setRenderQueueGroup(uint8 queueID)
 	{
+		assert(queueID <= RENDER_QUEUE_MAX && "Render queue out of range!");
 		mRenderQueueIDSet = true;
 		mRenderQueueID = queueID;
 		// tell any existing BatchInstances

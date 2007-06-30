@@ -243,6 +243,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void MovableObject::setRenderQueueGroup(uint8 queueID)
     {
+		assert(queueID <= RENDER_QUEUE_MAX && "Render queue out of range!");
         mRenderQueueID = queueID;
         mRenderQueueIDSet = true;
     }
