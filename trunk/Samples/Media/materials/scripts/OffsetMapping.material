@@ -29,10 +29,22 @@ material Examples/OffsetMapping/Specular
   // This is the preferred technique which uses both vertex and 
    // fragment programs, supports coloured lights 
    technique 
-   { 
+   {
+   	  // ambient / depth
+	  pass
+	  {
+	      illumination_stage ambient
+		  vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+		  {
+		  }
+		  
+	  }
       // do the lighting  and bump mapping with parallax pass 
       pass 
-      { 
+      {
+	     illumination_stage per_light
+	     scene_blend add
+		 depth_write off
        
          // Vertex program reference 
          vertex_program_ref Examples/OffsetMappingVP 

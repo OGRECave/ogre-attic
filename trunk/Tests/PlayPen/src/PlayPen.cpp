@@ -4266,10 +4266,16 @@ protected:
 		p->setLightingEnabled(false);
 		p->setCullingMode(CULL_NONE);
 		p->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+		p->setAlphaRejectSettings(CMPF_GREATER, 128);
+		mat->setReceiveShadows(false);
 		TextureUnitState* t = p->createTextureUnitState("testdxtfrommem");
+		t->setTextureScale(0.5,0.5);
 		Entity *e = mSceneMgr->createEntity("Plane", SceneManager::PT_PLANE);
 		e->setMaterialName(mat->getName());
-		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		SceneNode* n = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		n->setPosition(-50, 0, 35);
+		n->yaw(Degree(90));
+		n->attachObject(e);
 		mWindow->getViewport(0)->setBackgroundColour(ColourValue::Red);
 
 		mCamera->setPosition(0,0,300);
@@ -6033,6 +6039,58 @@ protected:
 
 	}
 
+	void testManualIlluminationStage(ShadowTechnique tech)
+	{
+		mSceneMgr->setShadowTechnique(tech);
+		mSceneMgr->setShadowDirectionalLightExtrusionDistance(1000);
+		MaterialManager::getSingleton().setDefaultTextureFiltering(TFO_ANISOTROPIC);
+		MaterialManager::getSingleton().setDefaultAnisotropy(5);
+
+		// Set ambient light
+		mSceneMgr->setAmbientLight(ColourValue(0.0, 0.0, 0.0));
+
+		mLight = mSceneMgr->createLight("MainLight");
+		mLight->setPosition(-400,400,-300);
+		mLight->setDiffuseColour(0.9, 0.9, 1);
+		mLight->setSpecularColour(0.9, 0.9, 1);
+		mLight->setAttenuation(6000,1,0.001,0);
+
+		
+		mLight = mSceneMgr->createLight("Light2");
+		mLight->setPosition(300,200,100);
+		mLight->setDiffuseColour(1, 0.6, 0.5);
+		mLight->setSpecularColour(0.9, 0.9, 1);
+		mLight->setAttenuation(6000,1,0.001,0);
+		
+
+
+		MeshPtr msh = MeshManager::getSingleton().load("knot.mesh", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		msh->buildTangentVectors();
+		Entity* pEnt = mSceneMgr->createEntity( "3.5", "knot.mesh" );
+		pEnt->setMaterialName("Examples/OffsetMapping/Specular");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject( pEnt );
+
+
+		mSceneMgr->setSkyBox(true, "Examples/CloudyNoonSkyBox");
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 100;
+		MeshPtr planeMesh = MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			1500,1500,100,100,true,1,15,15,Vector3::UNIT_Z);
+		planeMesh->buildTangentVectors();
+		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("Examples/OffsetMapping/Specular");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		mCamera->setPosition(180, 34, 223);
+		mCamera->lookAt(0,50,0);
+
+
+	}
+
 	// Just override the mandatory create scene method
     void createScene(void)
     {
@@ -6128,13 +6186,14 @@ protected:
 		//testMorphAnimation();
 		//testPoseAnimation();
 		//testPoseAnimation2();
-		testBug();
+		//testBug();
 		//testMRTCompositorScript();
 		//testSpotlightViewProj(true);
 		//test16Textures();
 		//testProjectSphere();
 		//testLightScissoring(false);
 		//testLightClipPlanes(false);
+		testManualIlluminationStage(SHADOWTYPE_STENCIL_ADDITIVE);
 		//testTimeCreateDestroyObject();
 		//testManualBlend();
 		//testManualObjectNonIndexed();
@@ -6166,7 +6225,7 @@ protected:
 		//testCubeDDS();
 		//testDxt1();
 		//testDxt1FromMemory();
-		testDxt3FromMemory();
+		//testDxt3FromMemory();
 		//testDxt1Alpha();
 		//testDxt3();
 		//testDxt5();

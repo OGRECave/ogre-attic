@@ -38,6 +38,20 @@ Torus Knot Software Ltd.
 #include "OgreTextureUnitState.h"
 
 namespace Ogre {
+
+	/// Categorisation of passes for the purpose of additive lighting
+	enum IlluminationStage
+	{
+		/// Part of the rendering which occurs without any kind of direct lighting
+		IS_AMBIENT,
+		/// Part of the rendering which occurs per light
+		IS_PER_LIGHT,
+		/// Post-lighting rendering
+		IS_DECAL, 
+		/// Not determined
+		IS_UNKNOWN
+	};
+
     /** Class defining a single pass of a Technique (of a Material), ie
         a single rendering call.
     @remarks
@@ -190,6 +204,8 @@ namespace Ogre {
 		bool mLightScissoring;
 		/// User clip planes for light?
 		bool mLightClipPlanes;
+		/// Illumination stage?
+		IlluminationStage mIlluminationStage;
 
 		// Used to get scene blending flags from a blending type
 		void _getBlendFlags(SceneBlendType type, SceneBlendFactor& source, SceneBlendFactor& dest);
@@ -1409,6 +1425,31 @@ namespace Ogre {
 			bounding the area covered by the light.
 		*/
 		bool getLightClipPlanesEnabled() const { return mLightClipPlanes; }
+
+		/** Manually set which illumination stage this pass is a member of.
+		@remarks
+			When using an additive lighting mode (SHADOWTYPE_STENCIL_ADDITIVE or
+			SHADOWTYPE_TEXTURE_ADDITIVE), the scene is rendered in 3 discrete
+			stages, ambient (or pre-lighting), per-light (once per light, with 
+			shadowing) and decal (or post-lighting). Usually OGRE figures out how
+			to categorise your passes automatically, but there are some effects you
+			cannot achieve without manually controlling the illumination. For example
+			specular effects are muted by the typical sequence because all textures
+			are saved until the IS_DECAL stage which mutes the specular effect. 
+			Instead, you could do texturing within the per-light stage if it's
+			possible for your material and thus add the specular on after the
+			decal texturing, and have no post-light rendering. 
+		@par
+			If you assign an illumination stage to a pass you have to assign it
+			to all passes in the technique otherwise it will be ignored. Also note
+			that whilst you can have more than one pass in each group, they cannot
+			alternate, ie all ambient passes will be before all per-light passes, 
+			which will also be before all decal passes. Within their categories
+			the passes will retain their ordering though.
+		*/
+		void setIlluminationStage(IlluminationStage is) { mIlluminationStage = is; }
+		/// Get the manually assigned illumination stage, if any
+		IlluminationStage getIlluminationStage() const { return mIlluminationStage; }
 		/** There are some default hash functions used to order passes so that
 			render state changes are minimised, this enumerates them.
 		*/
@@ -1455,15 +1496,6 @@ namespace Ogre {
         
     };
 
-    enum IlluminationStage
-    {
-        /// Part of the rendering which occurs without any kind of direct lighting
-        IS_AMBIENT,
-        /// Part of the rendering which occurs per light
-        IS_PER_LIGHT,
-        /// Post-lighting rendering
-        IS_DECAL
-    };
     /** Struct recording a pass which can be used for a specific illumination stage.
     @remarks
         This structure is used to record categorised passes which fit into a

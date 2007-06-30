@@ -78,7 +78,7 @@ namespace Ogre {
         "    <Pass> ::= 'pass' [<Label>] '{' {<Pass_Properties>} '}' \n"
         "        <Pass_Properties> ::= <Ambient> | <Diffuse> | <Specular> | <Emissive> | \n"
         "                              <Scene_Blend> | <Separate_Scene_Blend> | \n"
-		"							   <Depth_Check> | <Depth_Write> | \n"
+		"							   <Depth_Check> | <Depth_Write> | <Illumination_Stage> | \n"
 		"                              <Light_Scissor> | <Light_Clip> | <Texture_Unit> | \n"
 		"                              <Depth_Func> | <Depth_Bias> | <Iteration_Depth_Bias> | <Alpha_Rejection> | \n"
         "                              <Cull_Hardware> | <Cull_Software> | <Lighting> | \n"
@@ -116,6 +116,8 @@ namespace Ogre {
         "        <Depth_Func> ::= 'depth_func' <Compare_Func> \n"
 		"        <Depth_Bias> ::= 'depth_bias' <#constant> [<#slopescale>] \n"
 		"        <Iteration_Depth_Bias> ::= 'iteration_depth_bias' <#bias> \n"
+		"        <Illumination_Stage> ::= 'illumination_stage' <Illum_Stage_Options> \n"
+		"        <Illum_Stage_Options> ::=  'ambient' | 'per_light' | 'decal' \n"
 		"        <Light_Scissor> ::= 'light_scissor' <On_Off> \n"
 		"        <Light_Clip> ::= 'light_clip_planes' <On_Off> \n"
         "        <Alpha_Rejection> ::= 'alpha_rejection' <Compare_Func> <#value> \n"
@@ -368,6 +370,9 @@ namespace Ogre {
             addLexemeAction("alpha_rejection", &MaterialScriptCompiler::parseAlphaRejection);
 			addLexemeAction("light_scissor", &MaterialScriptCompiler::parseLightScissor);
 			addLexemeAction("light_clip_planes", &MaterialScriptCompiler::parseLightClip);
+			addLexemeAction("illumination_stage", &MaterialScriptCompiler::parseIlluminationStage);
+				addLexemeToken("ambient", ID_AMBIENT);
+				addLexemeToken("decal", ID_DECAL);
             addLexemeAction("cull_hardware", &MaterialScriptCompiler::parseCullHardware);
                 addLexemeToken("clockwise", ID_CLOCKWISE);
                 addLexemeToken("anticlockwise", ID_ANTICLOCKWISE);
@@ -1261,6 +1266,28 @@ namespace Ogre {
 	{
 		assert(mScriptContext.pass);
 		mScriptContext.pass->setLightClipPlanesEnabled(testNextTokenID(ID_ON));
+	}
+	//---------------------------------------------------------------------
+	void MaterialScriptCompiler::parseIlluminationStage(void)
+	{
+		assert(mScriptContext.pass);
+		switch(getNextTokenID())
+		{
+		case ID_AMBIENT:
+			mScriptContext.pass->setIlluminationStage(IS_AMBIENT);
+			break;
+		case ID_PER_LIGHT:
+			mScriptContext.pass->setIlluminationStage(IS_PER_LIGHT);
+			break;
+		case ID_DECAL:
+			mScriptContext.pass->setIlluminationStage(IS_DECAL);
+			break;
+		default:
+			mScriptContext.pass->setIlluminationStage(IS_UNKNOWN);
+			break;
+		}
+
+
 	}
     //-----------------------------------------------------------------------
     CompareFunction MaterialScriptCompiler::convertCompareFunction(void)

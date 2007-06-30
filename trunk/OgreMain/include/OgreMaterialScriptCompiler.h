@@ -99,6 +99,8 @@ namespace Ogre {
             ID_EXP, ID_EXP2,
             // iteration
             ID_ONCE, ID_ONCE_PER_LIGHT, ID_PER_LIGHT, ID_PER_N_LIGHTS, ID_DIRECTIONAL, ID_SPOT,
+			// illumination stage
+			ID_AMBIENT, /* ID_PER_LIGHT, */ ID_DECAL,
 
             // texture unit state
             // texture
@@ -254,6 +256,7 @@ namespace Ogre {
         void parseAlphaRejection(void);
 		void parseLightScissor(void);
 		void parseLightClip(void);
+		void parseIlluminationStage(void);
         void parseCullHardware(void);
         void parseCullSoftware(void);
         void parseLighting(void);

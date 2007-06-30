@@ -1643,6 +1643,27 @@ namespace Ogre
 		}
 		return false;
 	}
+	//-----------------------------------------------------------------------
+	bool parseIlluminationStage(String& params, MaterialScriptContext& context)
+	{
+		if (params == "ambient")
+		{
+			context.pass->setIlluminationStage(IS_AMBIENT);
+		}
+		else if (params == "per_light")
+		{
+			context.pass->setIlluminationStage(IS_PER_LIGHT);
+		}
+		else if (params == "decal")
+		{
+			context.pass->setIlluminationStage(IS_DECAL);
+		}
+		else
+		{
+			logParseError("Invalid illumination_stage specified.", context);
+		}
+		return false;
+	}
     //-----------------------------------------------------------------------
     bool parseLodDistances(String& params, MaterialScriptContext& context)
     {
@@ -2769,6 +2790,7 @@ namespace Ogre
 		mPassAttribParsers.insert(AttribParserList::value_type("point_size_attenuation", (ATTRIBUTE_PARSER)parsePointAttenuation));
 		mPassAttribParsers.insert(AttribParserList::value_type("point_size_min", (ATTRIBUTE_PARSER)parsePointSizeMin));
 		mPassAttribParsers.insert(AttribParserList::value_type("point_size_max", (ATTRIBUTE_PARSER)parsePointSizeMax));
+		mPassAttribParsers.insert(AttribParserList::value_type("illumination_stage", (ATTRIBUTE_PARSER)parseIlluminationStage));
 
         // Set up texture unit attribute parsers
 		mTextureUnitAttribParsers.insert(AttribParserList::value_type("texture_source", (ATTRIBUTE_PARSER)parseTextureSource));
@@ -3648,6 +3670,24 @@ namespace Ogre
 			{
 				writeAttribute(3, "light_clip_planes");
 				writeValue(pPass->getLightClipPlanesEnabled() ? "on" : "off");
+			}
+
+			// illumination stage
+			if (pPass->getIlluminationStage() != IS_UNKNOWN)
+			{
+				writeAttribute(3, "illumination_stage");
+				switch(pPass->getIlluminationStage())
+				{
+				case IS_AMBIENT:
+					writeValue("ambient");
+					break;
+				case IS_PER_LIGHT:
+					writeValue("per_light");
+					break;
+				case IS_DECAL:
+					writeValue("decal");
+					break;
+				};
 			}
 
 			// hardware culling mode
