@@ -282,6 +282,10 @@ material TestIlluminationSplitIllumination
 @end example
 So as you can see, even a simple material requires a minimum of 3 passes when using this shadow technique, and in fact it requires (num_lights + 2) passes in the general sense. You can use more passes in your original material and Ogre will cope with that too, but be aware that each pass may turn into multiple ones if it uses more than one type of light contribution (ambient vs diffuse/specular) and / or has texture units. The main nice thing is that you get the full multipass lighting behaviour even if you don't define your materials in terms of it, meaning that your material definitions can remain the same no matter what lighting approach you decide to use.@*@*
 
+@anchor{Manually Categorising Illumination Passes}
+@subheading{Manually Categorising Illumination Passes}
+Alternatively, if you want more direct control over the categorisation of your passes, you can use the @ref{illumination_stage} option in your pass to explicitly assign a pass unchanged to an illumination stage. This way you can make sure you know precisely how your material will be rendered under additive lighting conditions.
+
 @anchor{Pass Classification and Vertex Programs}
 @subheading Pass Classification and Vertex Programs
 Ogre is pretty good at classifying and splitting your passes to ensure that the multipass rendering approach required by additive lighting works correctly without you having to change your material definitions. However, there is one exception; when you use vertex programs, the normal lighting attributes ambient, diffuse, specular etc are not used, becuase all of that is determined by the vertex program. Ogre has no way of knowing what you're doing inside that vertex program, so you have to tell it.@*@*
