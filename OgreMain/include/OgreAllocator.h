@@ -92,10 +92,10 @@ namespace Ogre{
         {
             typedef Allocator
             <
-            U,
-            typename AllocPolicy::template   rebind<U>::other,
-            typename TypeTraits::template    rebind<U>::other,
-            typename ProfilePolicy::template rebind<U>::other
+                U,
+                typename AllocPolicy::template   rebind<U>::other,
+                typename TypeTraits::template    rebind<U>::other,
+                typename ProfilePolicy::template rebind<U>::other
             >
             other;
         };

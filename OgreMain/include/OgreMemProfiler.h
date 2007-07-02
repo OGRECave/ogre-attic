@@ -50,10 +50,10 @@ namespace Ogre{
         /// define our types
         typedef T                   value_type;
         typedef value_type*         pointer;
-        typedef const value_type*  const_pointer;
+        typedef const value_type*   const_pointer;
         typedef value_type&         reference;
-        typedef const value_type&  const_reference;
-        typedef std::size_t        size_type;
+        typedef const value_type&   const_reference;
+        typedef std::size_t         size_type;
         typedef std::ptrdiff_t      difference_type;
 
         /// convert MemProfiler<T> to MemProfiler<U>
@@ -67,25 +67,56 @@ namespace Ogre{
         explicit inline MemProfiler()
         {
             //register with the profile manager
-            MemProfileManager::getSingleton().registerProfile(*this);
+            MemProfileManager::getSingleton().registerProfile(this);
         }
 
         inline ~MemProfiler()
         { }
 
-        /// copy ctor
-        inline explicit MemProfiler( MemProfiler const& )
-        { }
+        /// copy ctor, we need to define this to be safe with our mutex
+        inline explicit MemProfiler( MemProfiler<T> const& other)
+        { 
+        	// syncronise other
+        	#if OGRE_THREAD_SUPPORT
+            boost::recursive_mutex::scoped_lock scoped_lock(other.mDataMutex);
+            #endif
+        }
 
-        /// converstion
+        /// converstion, we need to define this to be safe with our mutex
         template <typename U>
-        inline explicit MemProfiler( MemProfiler<U> const& )
-        { }
+        inline explicit MemProfiler( MemProfiler<U> const& other)
+        { 
+        	// syncronise other
+        	#if OGRE_THREAD_SUPPORT
+            boost::recursive_mutex::scoped_lock scoped_lock(other.mDataMutex);
+            #endif
+        }
+        
+        /// Assignment, we need to define this to be safe with our mutex
+        const MemProfiler& operator=(const MemProfiler& other)
+        {
+            if (this == &other)
+                return *this;
+                
+            // syncronise both sides
+            #if OGRE_THREAD_SUPPORT
+            boost::recursive_mutex::scoped_lock lock1(&mDataMutex < &other.mDataMutex ? mDataMutex : other.mDataMutex);
+            boost::recursive_mutex::scoped_lock lock2(&mDataMutex > &other.mDataMutex ? mDataMutex : other.mDataMutex);
+            mStats = other.mStats;
+            #endif
+
+            return *this;
+        }
 
         /// Note information about an allocation
         inline void note_allocation( size_type sz,
                                      typename std::allocator<void>::const_pointer ptr = 0 )
         {
+        	// get a lock on the mutex
+        	#if OGRE_THREAD_SUPPORT
+        	boost::recursive_mutex::scoped_lock lock(mDataMutex);
+        	#endif
+        	
             mStats.numAllocations++;
             mStats.numBytesAllocated += sz;
         }
@@ -93,6 +124,11 @@ namespace Ogre{
         /// Note information about a deallocation
         inline void note_deallocation( pointer ptr, size_type sz )
         {
+        	// get a lock on the mutex
+        	#if OGRE_THREAD_SUPPORT
+        	boost::recursive_mutex::scoped_lock lock(mDataMutex);
+        	#endif
+        	
             mStats.numDeallocations++;
             mStats.numBytesDeallocated += sz;
         }

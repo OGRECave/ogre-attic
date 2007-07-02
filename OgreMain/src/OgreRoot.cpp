@@ -130,8 +130,8 @@ namespace Ogre {
 			mLogManager->createLog(logFileName, true, true);
 		}
 
-	// now create the custom allocator memory manager
-	mMemProfileManager = new MemProfileManager();
+	    // now create the custom allocator memory manager
+	    mMemProfileManager = new MemProfileManager();
 
         // Dynamic library manager
         mDynLibManager = new DynLibManager();
@@ -290,10 +290,10 @@ namespace Ogre {
 		delete mBillboardChainFactory;
 		delete mRibbonTrailFactory;
 
-	delete mTimer;
+	    delete mTimer;
 
         delete mDynLibManager;
-        delete mLogManager;
+        //delete mLogManager;
 
 		mAutoWindow = 0;
 		mFirstTimePostWindowInit = false;
@@ -301,8 +301,9 @@ namespace Ogre {
 
         StringInterface::cleanupDictionary ();
 
-	// clean up the profiler, last posible moment so we catch all info
-	delete mMemProfileManager;
+	    // clean up the profiler, last posible moment so we catch all info
+	    delete mMemProfileManager;
+	    delete mLogManager;
     }
 
     //-----------------------------------------------------------------------

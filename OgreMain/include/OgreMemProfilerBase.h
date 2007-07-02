@@ -30,7 +30,15 @@ Torus Knot Software Ltd.
 #ifndef OGREMEMPROFILERBASE_INCLUDED
 #define OGREMEMPROFILERBASE_INCLUDED
 
+
+
+#include "OgrePrerequisites.h"
+
+#if OGRE_THREAD_SUPPORT
+#include <boost/thread/recursive_mutex.hpp>
+#endif
 #include <cstring> // memset
+
 
 namespace Ogre{
 
@@ -46,10 +54,47 @@ namespace Ogre{
             unsigned int numBytesDeallocated;
             unsigned int numDeallocations;
         };
+        
+        inline explicit MemProfilerBase()
+        {
+        	memset(&mStats,0,sizeof(MemStats));
+       	}
+        	
+        
+        /// copy ctor, we need to define this to be safe with our mutex
+        inline explicit MemProfilerBase( MemProfilerBase const& other )
+        { 
+        	// syncronise other
+        	#if OGRE_THREAD_SUPPORT
+            boost::recursive_mutex::scoped_lock scoped_lock(other.mDataMutex);
+            #endif
+        }
+        
+        /// Assignment, we need to define this to be safe with our mutex
+        const MemProfilerBase& operator=(const MemProfilerBase& other)
+        {
+            if (this == &other)
+                return *this;
+                
+            // syncronise both sides
+            #if OGRE_THREAD_SUPPORT
+            boost::recursive_mutex::scoped_lock lock1(&mDataMutex < &other.mDataMutex ? mDataMutex : other.mDataMutex);
+            boost::recursive_mutex::scoped_lock lock2(&mDataMutex > &other.mDataMutex ? mDataMutex : other.mDataMutex);
+            #endif
+            
+            mStats=other.mStats;
+            return *this;
+        }
+
 
         /// called once a frame to collect statistics
         inline MemStats flush()
         {
+        	// get a lock on the mutex
+        	#if OGRE_THREAD_SUPPORT
+        	boost::recursive_mutex::scoped_lock lock(mDataMutex);
+        	#endif
+        	
             MemStats tmp = mStats;
             memset(&mStats,0,sizeof(MemStats));
             return tmp;
@@ -57,6 +102,11 @@ namespace Ogre{
 
     protected:
         MemStats mStats;
+        
+        /// we use a mutex to maintain sync between allocations 
+        /// updating our information and the manager reading it
+        OGRE_MUTEX(mDataMutex);
+        //mutable boost::recursive_mutex mDataMutex;
     };
 
 

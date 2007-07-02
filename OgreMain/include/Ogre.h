@@ -31,6 +31,7 @@ Torus Knot Software Ltd.
 // This file includes all the other files which you will need to build a client application
 #include "OgrePrerequisites.h"
 
+#include "OgreAllocator.h"
 #include "OgreAnimation.h"
 #include "OgreAnimationState.h"
 #include "OgreAnimationTrack.h"

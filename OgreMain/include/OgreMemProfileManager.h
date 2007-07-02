@@ -57,7 +57,7 @@ namespace Ogre{
         * Register a memory profile with the manager
         * @param profile the memory profile.
         */
-        void registerProfile(MemProfilerBase& profile);
+        void registerProfile(MemProfilerBase* profile);
 
         /**
         * Update, called once a frame to collect profile stats
@@ -70,7 +70,7 @@ namespace Ogre{
         * flush the stats to our log file, this records the
         * stats for all allocations since the last call to flush
         * this collection of stats is reffered to as a section. The
-        * section stats are zeroed after flushin, note that this
+        * section stats are zeroed after flushing, note that this
         * will not zero the global stats that hold details on all
         * allocations within the liftime of the memory system.
         *
@@ -113,6 +113,12 @@ namespace Ogre{
         static MemProfileManager* getSingletonPtr(void);
 
     protected:
+    	// shutdown the memory profiler, unregisters any memory 
+    	// profilers and flushes the global memory stats. Any outstanding
+    	// allocations at this point are reguarded as memory leaks
+    	void shutdown();
+    
+    
         /// used to hold a profile and pair it with a stats packet
         struct Profile
         {

@@ -48,8 +48,10 @@ namespace Ogre{
     }
 
     MemProfileManager::~MemProfileManager()
-    { }
-
+    { 
+        flush("Shutdown"); // flush a final section
+        shutdown(); // flush the gloabl stats
+    }
 
     MemProfileManager::MemProfileManager()
     : mNumUpdates(0)
@@ -57,6 +59,7 @@ namespace Ogre{
     {
         // reserve some memory ahead of time
         mProfArray.reserve( 10 );
+        
         // setup our log file
         mReportLog = LogManager::getSingleton().createLog("OgreMemoryReport.log");
 
@@ -65,11 +68,12 @@ namespace Ogre{
         memset( &( mSectionStats ), 0, sizeof( MemProfilerBase::MemStats ) );
     }
 
-    void MemProfileManager::registerProfile( MemProfilerBase& profile )
+    void MemProfileManager::registerProfile( MemProfilerBase* profile )
     {
-        Profile prof;
-        memset( &( prof.mStats ), 0, sizeof( MemProfilerBase::MemStats ) );
-        mProfArray.push_back( prof ); // add the profile
+        Profile profStruct;
+        profStruct.mProfile=profile;
+        memset( &( profStruct.mStats ), 0, sizeof( MemProfilerBase::MemStats ) );
+        mProfArray.push_back( profStruct ); // add the profile
     }
 
     void MemProfileManager::update()
@@ -112,7 +116,6 @@ namespace Ogre{
         // log the info
         std::stringstream builder;
 
-        builder << "---------------------------------------------------------\n";
         builder << "Section Flush: " << message << "\n";
         builder << "---------------------------------------------------------\n";
         builder << "Memory Profile Over " << mNumSectionUpdates << " updates\n";
@@ -137,6 +140,45 @@ namespace Ogre{
         mSectionStats.numDeallocations    = 0;
         mSectionStats.numBytesDeallocated = 0;
         mNumSectionUpdates                = 0;
+    }
+    
+    void MemProfileManager::shutdown()
+    {
+    	// log the info at shutdown
+        std::stringstream builder;
+
+        builder << "Global Stats at Shutdown: \n";
+        builder << "---------------------------------------------------------\n";
+        builder << "Memory Profile Over " << mNumUpdates << " updates\n";
+        builder << "Num Allocations               :\t"  << mGlobalStats.numAllocations << "\n";
+        builder << "Num Bytes Allocated           :\t"  << mGlobalStats.numBytesAllocated << "\n";
+        builder << "Num Deallocations             :\t"  << mGlobalStats.numDeallocations << "\n";
+        builder << "Num Bytes Deallocations       :\t"  << mGlobalStats.numBytesDeallocated << "\n";
+        builder << "Average Allocations per Update:\t" <<
+            (mGlobalStats.numAllocations/static_cast<float>(mNumUpdates)) << "\n";
+        builder << "Average Bytes per Allocation  :\t" <<
+            (mGlobalStats.numBytesAllocated/static_cast<float>(mGlobalStats.numAllocations)) << "\n";
+        
+        if(mGlobalStats.numAllocations-mGlobalStats.numDeallocations != 0)
+        {    
+        	builder << "      ***LEAKED MEMORY***     :\n";
+        	builder << (mGlobalStats.numBytesAllocated-mGlobalStats.numBytesDeallocated) << " bytes in ";
+        	builder << (mGlobalStats.numAllocations-mGlobalStats.numDeallocations) << " allocations !\n";
+        }
+        else
+        {
+        	builder << " No memory leaks detected \n";
+        }
+            
+        builder << "---------------------------------------------------------";
+        mReportLog->logMessage(builder.str());
+
+        // zero the counters
+        mGlobalStats.numAllocations      = 0;
+        mGlobalStats.numBytesAllocated   = 0;
+        mGlobalStats.numDeallocations    = 0;
+        mGlobalStats.numBytesDeallocated = 0;
+        mNumUpdates    	                 = 0;
     }
 
 }
