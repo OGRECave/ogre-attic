@@ -207,6 +207,9 @@ namespace Ogre {
 		{
 			std::swap(pRep, other.pRep);
 			std::swap(pUseCount, other.pUseCount);
+#if OGRE_THREAD_SUPPORT
+			std::swap(OGRE_AUTO_MUTEX_NAME, other.OGRE_AUTO_MUTEX_NAME);
+#endif
 		}
 	};
 

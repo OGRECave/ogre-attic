@@ -61,7 +61,9 @@ namespace Ogre {
         /// Penultimate queue(before overlays), used for skyboxes if rendered last
         RENDER_QUEUE_SKIES_LATE = 95,
         /// Use this queue for objects which must be rendered last e.g. overlays
-        RENDER_QUEUE_OVERLAY = 100
+        RENDER_QUEUE_OVERLAY = 100, 
+		/// Final possible render queue, don't exceed this
+		RENDER_QUEUE_MAX = 105
     };
 
     #define OGRE_RENDERABLE_DEFAULT_PRIORITY  100

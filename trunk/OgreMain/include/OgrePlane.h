@@ -120,7 +120,7 @@ namespace Ogre {
 			from the original vector, since parallel + perpendicular = original.
 		@param v The input vector
 		*/
-		Vector3 projectVector(const Vector3& v);
+		Vector3 projectVector(const Vector3& v) const;
 
         /** Normalises the plane.
             @remarks
