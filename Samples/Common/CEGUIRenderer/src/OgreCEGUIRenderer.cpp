@@ -324,8 +324,12 @@ void OgreCEGUIRenderer::doRender(void)
             {
                 const QuadInfo& quad = (*i);
                 if (d_currTexture != quad.texture)
+				{
                     /// If it has a different texture, render this quad in next operation
+					/// also need to reset render states
+					first = true;
 		            break;
+				}
                 d_bufferPos += VERTEX_PER_QUAD;
             }
             d_render_op.vertexData->vertexCount = d_bufferPos - d_render_op.vertexData->vertexStart;
