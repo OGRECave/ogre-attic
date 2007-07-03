@@ -56,6 +56,9 @@ namespace Ogre{
     MemProfileManager::MemProfileManager()
     : mNumUpdates(0)
     , mNumSectionUpdates(0)
+    , mPeakAllocations(0)
+    , mPeakUpdate(0)
+    , mLargestAllocation(0)
     {
         // reserve some memory ahead of time
         mProfArray.reserve( 10 );
@@ -113,16 +116,17 @@ namespace Ogre{
 
     void MemProfileManager::flush(String const& message)
     {
-        // log the info
+        
         std::stringstream builder;
 
+		// section over-veiw
         builder << "Section Flush: " << message << "\n";
         builder << "---------------------------------------------------------\n";
         builder << "Memory Profile Over " << mNumSectionUpdates << " updates\n";
         builder << "Num Allocations               :\t"  << mSectionStats.numAllocations << "\n";
         builder << "Num Bytes Allocated           :\t"  << mSectionStats.numBytesAllocated << "\n";
         builder << "Num Deallocations             :\t"  << mSectionStats.numDeallocations << "\n";
-        builder << "Num Bytes Deallocations       :\t"  << mSectionStats.numBytesDeallocated << "\n";
+        builder << "Num Bytes Deallocated         :\t"  << mSectionStats.numBytesDeallocated << "\n";
         builder << "Average Allocations per Update:\t" <<
             (mSectionStats.numAllocations/static_cast<float>(mNumUpdates)) << "\n";
         builder << "Average Bytes per Allocation  :\t" <<
@@ -131,7 +135,25 @@ namespace Ogre{
             (mSectionStats.numAllocations-mSectionStats.numDeallocations) <<
             " ( " << (mSectionStats.numBytesAllocated-mSectionStats.numBytesDeallocated) <<
             " bytes ) \n";
-        builder << "---------------------------------------------------------";
+        builder << "---------------------------------------------------------\n";
+        
+        // per-allocator stats
+        builder << "Per allocator stats :- \n";
+        
+        uint32 id=0;
+        ProfileArray::iterator iter = mProfArray.begin();
+        ProfileArray::iterator end = mProfArray.end();
+        for ( ; iter != end; ++iter ) // for each profile
+        {
+        	builder << "Allocator "<< id;
+        	builder << " Allocs " << ( *iter ).mStats.numAllocations;
+            builder << " ( " << ( *iter ).mStats.numBytesAllocated << " )";
+            builder << " De-Allocs " << ( *iter ).mStats.numDeallocations;
+            builder << " ( " <<( *iter ).mStats.numBytesDeallocated << " ) \n";
+            ++id;
+        }
+        builder << "---------------------------------------------------------\n";
+        
         mReportLog->logMessage(builder.str());
 
         // zero the counters
@@ -153,7 +175,7 @@ namespace Ogre{
         builder << "Num Allocations               :\t"  << mGlobalStats.numAllocations << "\n";
         builder << "Num Bytes Allocated           :\t"  << mGlobalStats.numBytesAllocated << "\n";
         builder << "Num Deallocations             :\t"  << mGlobalStats.numDeallocations << "\n";
-        builder << "Num Bytes Deallocations       :\t"  << mGlobalStats.numBytesDeallocated << "\n";
+        builder << "Num Bytes Deallocated         :\t"  << mGlobalStats.numBytesDeallocated << "\n";
         builder << "Average Allocations per Update:\t" <<
             (mGlobalStats.numAllocations/static_cast<float>(mNumUpdates)) << "\n";
         builder << "Average Bytes per Allocation  :\t" <<

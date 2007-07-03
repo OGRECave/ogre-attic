@@ -129,12 +129,17 @@ namespace Ogre{
         // prfile array type
         typedef std::vector<Profile> ProfileArray;
 
-        uint32                      mNumUpdates;        // tottal number of updates
+        uint32                      mNumUpdates;        // total number of updates
         uint32                      mNumSectionUpdates; // number of updates since last flush
         ProfileArray                mProfArray;         // registered profiles
         MemProfilerBase::MemStats   mSectionStats;      // section stats
         MemProfilerBase::MemStats   mGlobalStats;       // global stats
         Log*                        mReportLog;         // log for holding the profile info
+        
+        // all this is per-section, i.e. scopped by calls to flush()
+        uint32 mPeakAllocations;    // largest number of allocations occuring in a single update
+        uint32 mPeakUpdate;         // update that had the largest number of allocations
+        uint32 mLargestAllocation;  // largest single memory allocation
 
     private:
     };
