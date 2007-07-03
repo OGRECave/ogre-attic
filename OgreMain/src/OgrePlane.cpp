@@ -131,7 +131,7 @@ namespace Ogre {
 		d = -rkNormal.dotProduct(rkPoint);
 	}
 	//-----------------------------------------------------------------------
-	Vector3 Plane::projectVector(const Vector3& p)
+	Vector3 Plane::projectVector(const Vector3& p) const
 	{
 		// We know plane normal is unit length, so use simple method
 		Matrix3 xform;
