@@ -56,6 +56,23 @@ namespace Ogre {
 
     protected:
 
+
+        enum CapabilityKeywordType {UNDEFINED_CAPABILITY_TYPE = 0, SET_STRING_METHOD, SET_INT_METHOD, SET_BOOL_METHOD, SET_REAL_METHOD,
+                                SET_CAPABILITY_ENUM_BOOL, ADD_SHADER_PROFILE_STRING};
+        // determines what keyword is what type of capability. For example:
+        // "automipmap" and "pbuffer" are both activated with setCapability (passing RSC_AUTOMIPMAP and RSC_PBUFFER respectivelly)
+        // while "max_num_multi_render_targets" is an integer and has it's own method: setMaxMultiNumRenderTargets
+        // we need to know these types to automatically parse each capability
+        typedef std::map<String, CapabilityKeywordType> KeywordTypeMap;
+        KeywordTypeMap mKeywordTypeMap;
+
+        typedef void (RenderSystemCapabilities::*SetStringMethod)(const String&);
+        // maps capability keywords to setCapability(String& cap) style methods
+        typedef std::map<String, SetStringMethod> SetStringMethodDispatchTable;
+        SetStringMethodDispatchTable mSetStringMethodDispatchTable;
+
+        // capabilities lines for parsing are collected along with their line nnumbers for debugging
+        typedef std::vector<std::pair<String, int> > CapabilitiesLinesList;
         // the set of states that the parser can be in
         enum ParseAction {PARSE_HEADER, FIND_OPEN_BRACE, COLLECT_LINES};
 
@@ -65,7 +82,37 @@ namespace Ogre {
 
         RenderSystemCapabilities* mCurrentCapabilities;
 
-        void parseCapabilitiesLines(StringVector& lines);
+        inline void addKeywordType(String keyword, CapabilityKeywordType type)
+        {
+            mKeywordTypeMap.insert(KeywordTypeMap::value_type(keyword, type));
+        }
+
+        inline CapabilityKeywordType getKeywordType(const String& keyword)
+        {
+            return mKeywordTypeMap[keyword];
+        }
+
+        inline void addSetStringMethod(String keyword, SetStringMethod method)
+        {
+            mSetStringMethodDispatchTable.insert(SetStringMethodDispatchTable::value_type(keyword, method));
+        }
+
+        inline void callSetStringMethod(String& keyword, String& val)
+        {
+            SetStringMethod method = mSetStringMethodDispatchTable[keyword];
+            if (method)
+            {
+                (mCurrentCapabilities->*method)(val);
+            }
+            else
+            {
+                logParseError("undefined keyword: " + keyword);
+            }
+        }
+
+        void initialiaseDispatchTables();
+
+        void parseCapabilitiesLines(CapabilitiesLinesList& linesList);
 
         void logParseError(const String& error);
 

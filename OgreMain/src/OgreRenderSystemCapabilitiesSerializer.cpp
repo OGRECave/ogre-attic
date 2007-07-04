@@ -62,7 +62,7 @@ namespace Ogre
 
         // collect capabilities lines (i.e. everything that is not header, "{", "}",
         // comment or empty line) for further processing
-        StringVector capabilitiesLines;
+        CapabilitiesLinesList capabilitiesLines;
 
 
         // TODO: build a smarter tokenizer so that "{" and "}"
@@ -151,9 +151,7 @@ namespace Ogre
 
                     }
                     else
-                        capabilitiesLines.push_back(line);
-
-
+                        capabilitiesLines.push_back(CapabilitiesLinesList::value_type(line, mCurrentLineNumber));
                 break;
 
             }
@@ -175,11 +173,49 @@ namespace Ogre
             logParseError ("Bad .rendercaps file. Were not able to find a '}'");
         }
 
-
     }
 
-    void RenderSystemCapabilitiesSerializer::parseCapabilitiesLines(StringVector& lines)
+    void RenderSystemCapabilitiesSerializer::initialiaseDispatchTables()
     {
+        addKeywordType("max_vertex_program_version", SET_STRING_METHOD);
+
+        addSetStringMethod("max_vertex_program_version", &RenderSystemCapabilities::setMaxVertexProgramVersion);
+    }
+
+    void RenderSystemCapabilitiesSerializer::parseCapabilitiesLines(CapabilitiesLinesList& lines)
+    {
+        StringVector tokens;
+
+        for (CapabilitiesLinesList::iterator it = lines.begin(), end = lines.end(); it != end; ++it)
+        {
+            // restore the current line information for debugging
+            mCurrentLine = &(it->first);
+            mCurrentLineNumber = it->second;
+
+            tokens = StringUtil::split(it->first);
+            // check for incomplete lines
+            if(tokens.size() < 2)
+            {
+                logParseError("No parameters given for the capability keyword");
+                continue;
+            }
+
+            // the first token must the the keyword identifying the capability
+            // the remaining tokens are the parameters
+            String keyword = tokens[0];
+
+            CapabilityKeywordType keywordType = getKeywordType(keyword);
+
+            switch(keywordType)
+            {
+                case UNDEFINED_CAPABILITY_TYPE:
+                    logParseError("Unknown capability keyword: " + keyword);
+                    break;
+                case SET_STRING_METHOD:
+                    callSetStringMethod(keyword, tokens[1]);
+                    break;
+            }
+        }
     }
 
     void RenderSystemCapabilitiesSerializer::logParseError(const String& error)

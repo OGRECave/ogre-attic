@@ -230,7 +230,7 @@ namespace Ogre {
                 return mGLDriver;
             }
 
-            String gettGLVendor()
+            String getGLVendor()
             {
                 return mGLVendor;
             }
@@ -240,7 +240,7 @@ namespace Ogre {
                 return mGLRenderer;
             }
 
-            String gettDX9Driver()
+            String getDX9Driver()
             {
                 return mDX9Driver;
             }
