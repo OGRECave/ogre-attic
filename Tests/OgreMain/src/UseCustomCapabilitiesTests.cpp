@@ -38,25 +38,23 @@ CPPUNIT_TEST_SUITE_REGISTRATION( UseCustomCapabilitiesTests );
 
 void UseCustomCapabilitiesTests::setUp()
 {
-	 using namespace Ogre;
+    using namespace Ogre;
 
-	 mRoot = new Root();
+    mRoot = new Root();
 }
 
 void UseCustomCapabilitiesTests::tearDown()
 {
-	 delete mRoot;
+    delete mRoot;
 }
-
 
 void UseCustomCapabilitiesTests::testCustomCapabilitiesGL()
 {
-	 CPPUNIT_ASSERT(false);
+    CPPUNIT_ASSERT(false);
 }
 
 void UseCustomCapabilitiesTests::testCustomCapabilitiesDX9()
-
 {
-	 CPPUNIT_ASSERT(false);
+    CPPUNIT_ASSERT(false);
 }
 

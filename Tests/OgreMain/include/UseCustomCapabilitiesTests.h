@@ -40,20 +40,17 @@ class UseCustomCapabilitiesTests : public CppUnit::TestFixture
     // CppUnit macros for setting up the test suite
     CPPUNIT_TEST_SUITE( UseCustomCapabilitiesTests );
 
-		CPPUNIT_TEST(testCustomCapabilitiesGL);
-		CPPUNIT_TEST(testCustomCapabilitiesDX9);
+    CPPUNIT_TEST(testCustomCapabilitiesGL);
+    CPPUNIT_TEST(testCustomCapabilitiesDX9);
 
     CPPUNIT_TEST_SUITE_END();
-protected:
 public:
     void setUp();
     void tearDown();
 
-	  // Test the full stack of custom capabilities use (including config file and initializatio)
-		void testCustomCapabilitiesGL();
-		void testCustomCapabilitiesDX9();
+    // Test the full stack of custom capabilities use (including config file and initializatio)
+    void testCustomCapabilitiesGL();
+    void testCustomCapabilitiesDX9();
 
-	 
-	  Root* mRoot;
-
+    Root* mRoot;
 };

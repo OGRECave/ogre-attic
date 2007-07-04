@@ -45,37 +45,36 @@ class RenderSystemCapabilitiesTests : public CppUnit::TestFixture
     CPPUNIT_TEST(testIsShaderProfileSupported);
     CPPUNIT_TEST(testHasCapability);
 
-		CPPUNIT_TEST(testSerializeBlank);
-		CPPUNIT_TEST(testSerializeEnumCapability);
-		CPPUNIT_TEST(testSerializeStringCapability);
-		CPPUNIT_TEST(testSerializeBoolCapability);
-		CPPUNIT_TEST(testSerializeIntCapability);
-		CPPUNIT_TEST(testSerializeRealCapability);
-		CPPUNIT_TEST(testSerializeShaderCapability);
+    CPPUNIT_TEST(testSerializeBlank);
+    CPPUNIT_TEST(testSerializeEnumCapability);
+    CPPUNIT_TEST(testSerializeStringCapability);
+    CPPUNIT_TEST(testSerializeBoolCapability);
+    CPPUNIT_TEST(testSerializeIntCapability);
+    CPPUNIT_TEST(testSerializeRealCapability);
+    CPPUNIT_TEST(testSerializeShaderCapability);
 
     CPPUNIT_TEST_SUITE_END();
-protected:
+
 public:
     void setUp();
     void tearDown();
 
     void testIsShaderProfileSupported();
-		void testHasCapability();
+    void testHasCapability();
 
-		// Tests for basic functionality in RenderSystemCapabilitiesSerializer
-		void testSerializeBlank();
-		void testSerializeEnumCapability();
-		void testSerializeStringCapability();
-		void testSerializeBoolCapability();
-		void testSerializeIntCapability();
-		void testSerializeRealCapability();
-		void testSerializeShaderCapability();
+    // Tests for basic functionality in RenderSystemCapabilitiesSerializer
+    void testSerializeBlank();
+    void testSerializeEnumCapability();
+    void testSerializeStringCapability();
+    void testSerializeBoolCapability();
+    void testSerializeIntCapability();
+    void testSerializeRealCapability();
+    void testSerializeShaderCapability();
 
-		// For serializing .rendercaps we need RSCManager
-		RenderSystemCapabilitiesManager* mRenderSystemCapabilitiesManager; 
-		// Need these for loading .rendercaps from the file system 
-	  ArchiveManager* mArchiveManager;
-		FileSystemArchiveFactory* mFileSystemArchiveFactory;
-
+    // For serializing .rendercaps we need RSCManager
+    RenderSystemCapabilitiesManager* mRenderSystemCapabilitiesManager;
+    // Need these for loading .rendercaps from the file system
+    ArchiveManager* mArchiveManager;
+    FileSystemArchiveFactory* mFileSystemArchiveFactory;
 
 };
