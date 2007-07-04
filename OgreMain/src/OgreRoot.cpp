@@ -108,7 +108,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Root::Root(const String& pluginFileName, const String& configFileName,
 		const String& logFileName)
-      : mLogManager(0), mCurrentFrame(0), mFrameSmoothingTime(0.0f),
+      : mLogManager(0), mRenderSystemCapabilitiesManager(0), mCurrentFrame(0), mFrameSmoothingTime(0.0f),
 	  mNextMovableObjectTypeFlag(1), mIsInitialised(false)
     {
         // superclass will do singleton checking

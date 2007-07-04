@@ -38,14 +38,10 @@ Torus Knot Software Ltd.
 namespace Ogre
 {
 
-    RenderSystemCapabilitiesSerializer::RenderSystemCapabilitiesSerializer()
+    RenderSystemCapabilitiesSerializer::RenderSystemCapabilitiesSerializer() : mCurrentLineNumber(0), mCurrentLine(0),
+        mCurrentCapabilities(0)
     {
-        // initialiaze parsing data to NULL
-        mCurrentLineNumber = 0;
-        mCurrentLine = 0;
         mCurrentStream.setNull();
-        mCurrentCapabilities = 0;
-
     }
     //-----------------------------------------------------------------------
     void RenderSystemCapabilitiesSerializer::parseScript(DataStreamPtr& stream)

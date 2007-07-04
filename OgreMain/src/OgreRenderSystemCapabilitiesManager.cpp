@@ -54,7 +54,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    RenderSystemCapabilitiesManager::RenderSystemCapabilitiesManager() : mScriptPattern("*.rendercaps")
+    RenderSystemCapabilitiesManager::RenderSystemCapabilitiesManager() : mScriptPattern("*.rendercaps"), mSerializer(0)
     {
         mSerializer = new RenderSystemCapabilitiesSerializer();
     }
