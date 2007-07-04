@@ -44,10 +44,10 @@ namespace Ogre {
     {
 
     public:
-		/** default constructor*/
-		RenderSystemCapabilitiesSerializer();
-		/** default destructor*/
-		virtual ~RenderSystemCapabilitiesSerializer() {};
+        /** default constructor*/
+        RenderSystemCapabilitiesSerializer();
+        /** default destructor*/
+        virtual ~RenderSystemCapabilitiesSerializer() {};
 
 
         /** Parses a RenderSystemCapabilities script file passed as a stream.

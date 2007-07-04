@@ -62,15 +62,15 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     RenderSystemCapabilitiesManager::~RenderSystemCapabilitiesManager()
     {
-	    CapabilitiesMap::iterator iter = mCapabilitiesMap.begin();
-	    while(iter != mCapabilitiesMap.end())
-	    {
-	        // free memory in RenderSystemCapabilities*
-	        delete iter->second;
-	        iter++;
-	    }
+        CapabilitiesMap::iterator iter = mCapabilitiesMap.begin();
+        while(iter != mCapabilitiesMap.end())
+        {
+        // free memory in RenderSystemCapabilities*
+            delete iter->second;
+            iter++;
+        }
 
-	    delete mSerializer;
+        delete mSerializer;
     }
 
     //-----------------------------------------------------------------------

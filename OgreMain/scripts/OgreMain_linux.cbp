@@ -4,6 +4,7 @@
 	<Project>
 		<Option title="OgreMain" />
 		<Option platforms="Unix;" />
+		<Option pch_mode="0" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">

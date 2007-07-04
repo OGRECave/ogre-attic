@@ -42,9 +42,9 @@ Torus Knot Software Ltd.
 #if OGRE_THREAD_SUPPORT
 // boost::thread_specific_ptr has 'new' in header but delete in lib
 // so if we use our memory manager it reports leaks incorrectly
-#	include "OgreNoMemoryMacros.h"
-#	include <boost/thread/tss.hpp>
-#	include "OgreMemoryMacros.h"
+#include "OgreNoMemoryMacros.h"
+#include <boost/thread/tss.hpp>
+#include "OgreMemoryMacros.h"
 #endif
 
 namespace Ogre {
@@ -77,7 +77,7 @@ namespace Ogre {
         virtual ~RenderSystemCapabilitiesManager();
 
 
-		/** @see ScriptLoader::parseScript
+        /** @see ScriptLoader::parseScript
         */
         void parseCapabilitiesFromArchive(const String& filename, const String& archiveType, bool recursive = true);
 

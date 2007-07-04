@@ -65,7 +65,7 @@ namespace Ogre
         RenderSystemList mRenderers;
         RenderSystem* mActiveRenderer;
         String mVersion;
-		String mConfigFileName;
+        String mConfigFileName;
 	    bool mQueuedEnd;
         // In case multiple render windows are created, only once are the resources loaded.
         bool mFirstTimePostWindowInit;
