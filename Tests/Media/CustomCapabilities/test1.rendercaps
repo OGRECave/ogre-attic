@@ -15,7 +15,7 @@ render_system_capabilities "TestCaps set String"
 	 // this rsc definition contains only caps set with a method, like:
 	 // void setXXX(String& val)
 
-	 max_vertex_shader_version "vs99"
+	 max_vertex_program_version "vs99"
 }
 
 render_system_capabilities "TestCaps set bool (true)"
