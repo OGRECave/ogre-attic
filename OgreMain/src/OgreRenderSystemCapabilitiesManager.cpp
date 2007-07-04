@@ -85,7 +85,7 @@ namespace Ogre {
         {
             DataStreamPtr stream = arch->open(*iter);
             mSerializer->parseScript(stream);
-            stream->closed();
+            stream->close();
             iter++;
         }
     }
