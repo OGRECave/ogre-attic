@@ -316,13 +316,13 @@ namespace Ogre {
 
             /** Returns the number of matrices available to hardware vertex
                 blending for this rendering system. */
-            ushort numVertexBlendMatrices(void) const
+            ushort getNumVertexBlendMatrices(void) const
             {
                 return mNumVertexBlendMatrices;
             }
 
 			/// The number of simultaneous render targets supported
-			ushort numMultiRenderTargets(void) const
+			ushort getNumMultiRenderTargets(void) const
 			{
 				return mNumMultiRenderTargets;
 			}
