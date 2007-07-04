@@ -39,6 +39,7 @@ http://www.gnu.org/copyleft/lesser.txt
 
 #include "OgreMemoryManager.h"
 
+
 //-----------------------------------------------------------------------------
 // Allow the use of the real *alloc/free/new/delete functions
 #include "OgreNoMemoryMacros.h"
@@ -46,6 +47,10 @@ http://www.gnu.org/copyleft/lesser.txt
 
 namespace Ogre
 {
+	
+#ifdef OGRE_USE_OLD_MEMMAN // Turn off/on old memory system
+
+
 
     //-----------------------------------------------------------------------------
     MemoryManager& MemoryManager::instance(void)
@@ -1708,6 +1713,43 @@ namespace Ogre
     }
 
 #endif // OGRE_DEBUG_MEMORY_MANAGER
+} // namespace Ogre
 
+#else  // OGRE_USE_OLD_MEMMAN // Turn off/on old memory system
+} // namespace Ogre
+
+#include "OgreAllocator.h"
+#include "OgreLogManager.h"
+#include "OgreAllocator.h"
+
+// statics
+Ogre::_InitMemProfileManager::_InitMemProfileManager smMe;
+static Ogre::Allocator<unsigned char> sAllocator;
+
+Ogre::_InitMemProfileManager::_InitMemProfileManager()
+{
+	mLogManager=new Ogre::LogManager();
+	mLogManager->createLog("", true, true);
+	mMemProfileManager = new Ogre::MemProfileManager();
 }
+
+Ogre::_InitMemProfileManager::~_InitMemProfileManager()
+{
+	delete mMemProfileManager;
+	delete mLogManager;
+}
+
+void* wrapAllocate(size_t size) throw ()
+{
+    return static_cast<void*>(sAllocator.allocate(size));
+}
+    		
+void wrapDeallocate(void* ptr, size_t size) throw()
+{
+    sAllocator.deallocate(static_cast<unsigned char*>(ptr),size);
+}
+
+#endif // OGRE_DEBUG_MEMORY_MANAGER
+
+
 

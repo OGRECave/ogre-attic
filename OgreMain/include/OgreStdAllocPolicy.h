@@ -94,10 +94,9 @@ namespace Ogre{
         inline pointer allocate(size_type count,
                                 typename std::allocator<void>::const_pointer = 0)
         {
-            //return reinterpret_cast<pointer>
-            //       (::operator new(count * sizeof (T)));
             return reinterpret_cast<pointer>
-                   (::operator new(count));
+                   //(::operator new(count));
+                   (malloc(count));
         }
 
         /**
@@ -106,7 +105,8 @@ namespace Ogre{
          */
         inline void deallocate(pointer ptr, size_type)
         {
-            ::operator delete(ptr);
+            //::operator delete(ptr);
+            free(ptr);
         }
 
         /// maximum allocation size

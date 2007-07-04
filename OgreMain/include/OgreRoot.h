@@ -71,8 +71,8 @@ namespace Ogre
         bool mFirstTimePostWindowInit;
 
         // Singletons
-	MemProfileManager* mMemProfileManager;
-        LogManager* mLogManager;
+	    MemProfileManager* mMemProfileManager; // only set if we use old memory system for new/delete
+        LogManager* mLogManager;               // only set if we use old memory system for new/delete
         ControllerManager* mControllerManager;
         SceneManagerEnumerator* mSceneManagerEnum;
         SceneManager* mCurrentSceneManager;

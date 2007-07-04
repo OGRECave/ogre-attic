@@ -68,8 +68,8 @@ namespace Ogre{
         typename Profile = MemProfiler<T>
     >
     class Allocator :  public Policy,
-                public Traits,
-                public Profile
+                        public Traits,
+                        public Profile
     {
     private :
         typedef Policy  AllocPolicy;

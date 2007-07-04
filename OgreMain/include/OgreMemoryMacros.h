@@ -56,6 +56,10 @@ Torus Knot Software Ltd.
 #ifndef OGRE_MEMORY_MACROS
 #define OGRE_MEMORY_MACROS
 
+#define OGRE_USE_OLD_MEMMAN
+
+#ifdef OGRE_USE_OLD_MEMMAN
+
 #if OGRE_DEBUG_MEMORY_MANAGER && OGRE_DEBUG_MODE
 #   define new    (::Ogre::MemoryManager::instance().setOwner(__FILE__,__LINE__,__FUNCTION__),false) ? NULL                                                 : new
 #   define delete (::Ogre::MemoryManager::instance().setOwner(__FILE__,__LINE__,__FUNCTION__),false) ? ::Ogre::MemoryManager::instance().setOwner("",0,"") : delete
@@ -64,6 +68,8 @@ Torus Knot Software Ltd.
 #   define realloc(ptr,sz) ::Ogre::MemoryManager::instance().rllocMem(__FILE__,__LINE__,__FUNCTION__, ::Ogre::m_alloc_realloc,sz, ptr, gProcessID)
 #   define free(ptr)       ::Ogre::MemoryManager::instance().dllocMem(__FILE__,__LINE__,__FUNCTION__, ::Ogre::m_alloc_free,       ptr, gProcessID)
 #endif // OGRE_DEBUG_MEMORY_MANAGER
+
+#endif // OGRE_USE_OLD_MEMMAN
 
 #endif // OGRE_MEMORY_MACROS
 //-----------------------------------------------------------------------------

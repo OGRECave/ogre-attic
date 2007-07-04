@@ -105,8 +105,10 @@ namespace Ogre{
         
         /// we use a mutex to maintain sync between allocations 
         /// updating our information and the manager reading it
-        OGRE_MUTEX(mDataMutex);
-        //mutable boost::recursive_mutex mDataMutex;
+        //OGRE_MUTEX(mDataMutex);
+        #if OGRE_THREAD_SUPPORT
+        mutable boost::recursive_mutex mDataMutex;
+        #endif
     };
 
 

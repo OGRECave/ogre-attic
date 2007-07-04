@@ -108,8 +108,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Root::Root(const String& pluginFileName, const String& configFileName, 
 		const String& logFileName)
-      : mLogManager(0), mCurrentFrame(0), mFrameSmoothingTime(0.0f),
-	  mNextMovableObjectTypeFlag(1), mIsInitialised(false)
+      : mMemProfileManager(0)
+      , mLogManager(0)
+      , mCurrentFrame(0)
+      , mFrameSmoothingTime(0.0f)
+      , mNextMovableObjectTypeFlag(1)
+      , mIsInitialised(false)
     {
         // superclass will do singleton checking
         String msg;
@@ -130,8 +134,11 @@ namespace Ogre {
 			mLogManager->createLog(logFileName, true, true);
 		}
 
-	    // now create the custom allocator memory manager
-	    mMemProfileManager = new MemProfileManager();
+	    // now create the memory profile manager
+	    if(MemProfileManager::getSingletonPtr() == 0)
+	    {
+	    	mMemProfileManager = new MemProfileManager();
+	    }
 
         // Dynamic library manager
         mDynLibManager = new DynLibManager();
@@ -293,17 +300,17 @@ namespace Ogre {
 	    delete mTimer;
 
         delete mDynLibManager;
-        //delete mLogManager;
+        
 
 		mAutoWindow = 0;
 		mFirstTimePostWindowInit = false;
-
-
         StringInterface::cleanupDictionary ();
 
 	    // clean up the profiler, last posible moment so we catch all info
-	    delete mMemProfileManager;
-	    delete mLogManager;
+	    if(mLogManager)
+            delete mLogManager;
+        if(mMemProfileManager)
+            delete mMemProfileManager;
     }
 
     //-----------------------------------------------------------------------

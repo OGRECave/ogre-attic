@@ -49,6 +49,7 @@ namespace Ogre{
 
     MemProfileManager::~MemProfileManager()
     { 
+    	update(); // collect any final info
         flush("Shutdown"); // flush a final section
         shutdown(); // flush the gloabl stats
     }

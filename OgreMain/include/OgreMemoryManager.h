@@ -45,6 +45,9 @@ Torus Knot Software Ltd.
 #include "OgrePlatform.h"
 #include "OgreStdHeaders.h"
 
+#define OGRE_USE_OLD_MEMMAN
+
+#ifdef OGRE_USE_OLD_MEMMAN // Turn off/on old memory system
 namespace Ogre {
 
     /** @page memory_manager The memory manager information page
@@ -418,5 +421,58 @@ inline void operator delete[](void *reportedAddress)
 
 #endif
 
-#endif
+#else // Turn on/off new memory system
+
+
+// OK, here we go, I've switched off the old memory system, time to replace it 
+
+// overload new/delete to plug-in our gloabl scheme, maybe do this with macros later on
+// for now i just want to direct allocations to the right place
+
+//#include "OgreAllocator.h"
+
+namespace Ogre{
+	class LogManager;
+	class MemProfileManager;
+	
+    class _InitMemProfileManager
+    {
+    public:
+        _InitMemProfileManager();
+        ~_InitMemProfileManager();
+
+    private:
+        LogManager* mLogManager;
+        MemProfileManager* mMemProfileManager;
+	
+        static _InitMemProfileManager smMe;	
+    };
+}
+
+
+_OgreExport void* wrapAllocate(size_t) throw();
+_OgreExport void wrapDeallocate(void*,size_t) throw();
+
+inline void *operator new(size_t size)
+{
+	return wrapAllocate(size);
+}
+
+inline void *operator new[](size_t size)
+{
+	return wrapAllocate(size);
+}
+
+inline void operator delete(void *ptr, size_t size)
+{
+	return wrapDeallocate(ptr,size);
+}
+
+inline void operator delete[](void *ptr, size_t size)
+{
+	return wrapDeallocate(ptr,size);
+}
+#endif // Turn on/off new memory system
+
+#endif // include protect
 

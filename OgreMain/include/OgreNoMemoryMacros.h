@@ -32,11 +32,19 @@ Torus Knot Software Ltd.
 // include this header before the section that uses them.
 #ifdef OGRE_MEMORY_MACROS
 #undef OGRE_MEMORY_MACROS
+
+#define OGRE_USE_OLD_MEMMAN
+
+#ifdef OGRE_USE_OLD_MEMMAN
+
 #undef new
 #undef delete
 #undef malloc
 #undef calloc
 #undef realloc
 #undef free
+
+#endif // OGRE_USE_OLD_MEMMAN
+
 #endif
 //-----------------------------------------------------------------------------
