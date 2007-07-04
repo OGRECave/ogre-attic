@@ -58,14 +58,6 @@ namespace Ogre {
     class _OgreExport RenderSystemCapabilitiesManager :  public Singleton<RenderSystemCapabilitiesManager>
     {
 
-    protected:
-
-        RenderSystemCapabilitiesSerializer* mSerializer;
-        typedef std::map<String, RenderSystemCapabilities*> CapabilitiesMap;
-        CapabilitiesMap mCapabilitiesMap;
-
-        const String mScriptPattern;
-
     public:
 
         /** Default constructor.
@@ -118,6 +110,15 @@ namespace Ogre {
         preventing link errors.
         */
         static RenderSystemCapabilitiesManager* getSingletonPtr(void);
+
+    protected:
+
+        RenderSystemCapabilitiesSerializer* mSerializer;
+
+        typedef std::map<String, RenderSystemCapabilities*> CapabilitiesMap;
+        CapabilitiesMap mCapabilitiesMap;
+
+        const String mScriptPattern;
 
     };
 

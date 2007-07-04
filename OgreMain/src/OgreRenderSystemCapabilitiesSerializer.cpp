@@ -38,26 +38,6 @@ Torus Knot Software Ltd.
 namespace Ogre
 {
 
-    //-----------------------------------------------------------------------
-    // Internal parser methods
-    //-----------------------------------------------------------------------
-    void RenderSystemCapabilitiesSerializer::logParseError(const String& error)
-    {
-        // log material name only if filename not specified
-        if (mCurrentLine != 0 && !mCurrentStream.isNull())
-        {
-            LogManager::getSingleton().logMessage(
-                "Error in .rendercaps " + mCurrentStream->getName() + ":" + StringConverter::toString(mCurrentLineNumber) +
-                " : " + error);
-        }
-        else if (!mCurrentStream.isNull())
-        {
-            LogManager::getSingleton().logMessage(
-                "Error in .rendercaps " + mCurrentStream->getName() +
-                " : " + error);
-        }
-    }
-
     RenderSystemCapabilitiesSerializer::RenderSystemCapabilitiesSerializer()
     {
         // initialiaze parsing data to NULL
@@ -204,6 +184,23 @@ namespace Ogre
 
     void RenderSystemCapabilitiesSerializer::parseCapabilitiesLines(StringVector& lines)
     {
+    }
+
+    void RenderSystemCapabilitiesSerializer::logParseError(const String& error)
+    {
+        // log the line with error in it if the current line is available
+        if (mCurrentLine != 0 && !mCurrentStream.isNull())
+        {
+            LogManager::getSingleton().logMessage(
+                "Error in .rendercaps " + mCurrentStream->getName() + ":" + StringConverter::toString(mCurrentLineNumber) +
+                " : " + error);
+        }
+        else if (!mCurrentStream.isNull())
+        {
+            LogManager::getSingleton().logMessage(
+                "Error in .rendercaps " + mCurrentStream->getName() +
+                " : " + error);
+        }
     }
 
 }

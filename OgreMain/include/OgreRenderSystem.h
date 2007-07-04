@@ -170,11 +170,11 @@ namespace Ogre
          */
         virtual void setConfigOption(const String &name, const String &value) = 0;
 
-		/** Create an object for performing hardware occlusion queries. 
+		/** Create an object for performing hardware occlusion queries.
 		*/
 		virtual HardwareOcclusionQuery* createHardwareOcclusionQuery(void) = 0;
 
-		/** Destroy a hardware occlusion query object. 
+		/** Destroy a hardware occlusion query object.
 		*/
 		virtual void destroyHardwareOcclusionQuery(HardwareOcclusionQuery *hq);
 
@@ -206,12 +206,12 @@ namespace Ogre
 				/** Query the real capabilities of the GPU and driver in the RenderSystem*/
 				virtual RenderSystemCapabilities* createRenderSystemCapabilities() const = 0;
 
-				/** Force the render system to use the special capabilities. 
+				/** Force the render system to use the special capabilities.
 				 *	@param
 				 *		 capabilities Has to be a subset of the real capabilities. capabilities will be
 				 *		 used by Ogre. The caller is responsible for deallocating capabilities.
 				 */
-				virtual void _useCustomRenderSystemCapabilities(RenderSystemCapabilities* capabilities);
+				virtual void useCustomRenderSystemCapabilities(RenderSystemCapabilities* capabilities);
 
         /** Restart the renderer (normally following a change in settings).
         */
@@ -239,8 +239,8 @@ namespace Ogre
 
         /** Sets whether or not W-buffers are enabled if they are avalible for this renderer.
 			@param
-				enabled If true and the renderer supports them W-buffers will be used.  If false 
-				W-buffers will not be used even if avalible.  W-buffers are enabled by default 
+				enabled If true and the renderer supports them W-buffers will be used.  If false
+				W-buffers will not be used even if avalible.  W-buffers are enabled by default
 				for 16bit depth buffers and disabled for all other depths.
         */
 		void setWBufferEnabled(bool enabled);
@@ -272,7 +272,7 @@ namespace Ogre
                 fullScreen Specify true to make the window full screen
                 without borders, title bar or menu bar.
             @param
-                miscParams A NameValuePairList describing the other parameters for the new rendering window. 
+                miscParams A NameValuePairList describing the other parameters for the new rendering window.
 					Options are case sensitive. Unrecognised parameters will be ignored silently.
 					These values might be platform dependent, but these are present for all platorms unless
 					indicated otherwise:
@@ -319,7 +319,7 @@ namespace Ogre
 				             is responsible of OpenGL initialization and buffer swapping. It should also create an
 				             OpenGL context for its own rendering, Ogre will create one for its use. Then the calling
 				             application must also enable Ogre OpenGL context before calling any Ogre function and
-				             restore its OpenGL context after these calls. The Ogre OpenGL context can be retrieved 
+				             restore its OpenGL context after these calls. The Ogre OpenGL context can be retrieved
 				             after Ogre initialisation by calling wglGetCurrentDC() and wglGetCurrentContext().
 				             It is only used when the externalWindowHandle parameter is used.
 				Values: true, false
@@ -334,7 +334,7 @@ namespace Ogre
 				Key: "FSAA"
 				Description: Full screen antialiasing factor
 				Values: 0,2,4,6,...
-				Default: 0 
+				Default: 0
 				**
 				Key: "displayFrequency"
 				Description: Display frequency rate, for fullscreen mode
@@ -345,28 +345,28 @@ namespace Ogre
 				Description: Synchronize buffer swaps to vsync
 				Values: true, false
 				Default: 0
-				** 
-				Key: "border" 
+				**
+				Key: "border"
 				Description: The type of window border (in windowed mode)
 				Values: none, fixed, resize
 				Default: resize
 				**
-				Key: "outerDimensions" 
-				Description: Whether the width/height is expressed as the size of the 
+				Key: "outerDimensions"
+				Description: Whether the width/height is expressed as the size of the
 				outer window, rather than the content area
 				Values: true, false
-				Default: false 
+				Default: false
 				**
 				Key: "useNVPerfHUD" [DX9 specific]
 				Description: Enable the use of nVidia NVPerfHUD
 				Values: true, false
 				Default: false
         */
-		virtual RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, 
+		virtual RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height,
 			bool fullScreen, const NameValuePairList *miscParams = 0) = 0;
 
 		/** Creates and registers a render texture object.
-			@param name 
+			@param name
 				The name for the new render texture. Note that names must be unique.
 			@param width
 				The requested width for the render texture. See Remarks for more info.
@@ -392,14 +392,14 @@ namespace Ogre
                 TU_RENDERTARGET.
 		*/
 		RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height,
-		 	TextureType texType = TEX_TYPE_2D, PixelFormat internalFormat = PF_X8R8G8B8, 
-			const NameValuePairList *miscParams = 0 ); 
+		 	TextureType texType = TEX_TYPE_2D, PixelFormat internalFormat = PF_X8R8G8B8,
+			const NameValuePairList *miscParams = 0 );
 
 		/**	Create a MultiRenderTarget, which is a render target that renders to multiple RenderTextures
 			at once. Surfaces can be bound and unbound at will.
 			This fails if mCapabilities->numMultiRenderTargets() is smaller than 2.
 		*/
-		virtual MultiRenderTarget * createMultiRenderTarget(const String & name) = 0; 
+		virtual MultiRenderTarget * createMultiRenderTarget(const String & name) = 0;
 
         /** Destroys a render window */
         virtual void destroyRenderWindow(const String& name);
@@ -459,7 +459,7 @@ namespace Ogre
         // ------------------------------------------------------------------------
 
 
-        /** Tells the rendersystem to use the attached set of lights (and no others) 
+        /** Tells the rendersystem to use the attached set of lights (and no others)
         up to the number specified (this allows the same list to be used with different
         count limits) */
         virtual void _useLights(const LightList& lights, unsigned short limit) = 0;
@@ -519,11 +519,11 @@ namespace Ogre
             const ColourValue &emissive, Real shininess,
             TrackVertexColourType tracking = TVC_NONE) = 0;
 
-		/** Sets whether or not rendering points using OT_POINT_LIST will 
+		/** Sets whether or not rendering points using OT_POINT_LIST will
 			render point sprites (textured quads) or plain points.
 		@param enabled True enables point sprites, false returns to normal
 			point rendering.
-		*/	
+		*/
 		virtual void _setPointSpritesEnabled(bool enabled) = 0;
 
 		/** Sets the size of points and how they are attenuated with distance.
@@ -532,11 +532,11 @@ namespace Ogre
 			point size can be attenuated with distance. The equation for
 			doing this is attenuation = 1 / (constant + linear * dist + quadratic * d^2) .
 		@par
-			For example, to disable distance attenuation (constant screensize) 
+			For example, to disable distance attenuation (constant screensize)
 			you would set constant to 1, and linear and quadratic to 0. A
 			standard perspective attenuation would be 0, 1, 0 respectively.
 		*/
-		virtual void _setPointParameters(Real size, bool attenuationEnabled, 
+		virtual void _setPointParameters(Real size, bool attenuationEnabled,
 			Real constant, Real linear, Real quadratic, Real minSize, Real maxSize) = 0;
 
 
@@ -546,13 +546,13 @@ namespace Ogre
           User processes would not normally call this direct unless rendering
           primitives themselves.
 
-          @param unit The index of the texture unit to modify. Multitexturing 
-		  	hardware can support multiple units (see 
+          @param unit The index of the texture unit to modify. Multitexturing
+		  	hardware can support multiple units (see
 			RenderSystemCapabilites::getNumTextureUnits)
           @param enabled Boolean to turn the unit on/off
           @param texPtr Pointer to the texture to use.
          */
-        virtual void _setTexture(size_t unit, bool enabled, 
+        virtual void _setTexture(size_t unit, bool enabled,
 			const TexturePtr &texPtr) = 0;
         /**
           Sets the texture to bind to a given texture unit.
@@ -560,8 +560,8 @@ namespace Ogre
           User processes would not normally call this direct unless rendering
           primitives themselves.
 
-          @param unit The index of the texture unit to modify. Multitexturing 
-		  	hardware can support multiple units (see 
+          @param unit The index of the texture unit to modify. Multitexturing
+		  	hardware can support multiple units (see
 			RenderSystemCapabilites::getNumTextureUnits)
           @param enabled Boolean to turn the unit on/off
           @param texname The name of the texture to use - this should have
@@ -598,7 +598,7 @@ namespace Ogre
           @param m Calculation method to use
           @param frustum Optional Frustum param, only used for projective effects
          */
-        virtual void _setTextureCoordCalculation(size_t unit, TexCoordCalcMethod m, 
+        virtual void _setTextureCoordCalculation(size_t unit, TexCoordCalcMethod m,
             const Frustum* frustum = 0) = 0;
 
         /** Sets the texture blend modes from a TextureUnitState record.
@@ -637,7 +637,7 @@ namespace Ogre
 		/** Sets the mipmap bias value for a given texture unit.
 		@remarks
 			This allows you to adjust the mipmap calculation up or down for a
-			given texture unit. Negative values force a larger mipmap to be used, 
+			given texture unit. Negative values force a larger mipmap to be used,
 			positive values force a smaller mipmap to be used. Units are in numbers
 			of levels, so +1 forces the mipmaps to one smaller level.
 		@note Only does something if render system has capability RSC_MIPMAP_LOD_BIAS.
@@ -736,7 +736,7 @@ namespace Ogre
              for the new pixel to be written.
         */
         virtual void _setDepthBufferFunction(CompareFunction func = CMPF_LESS_EQUAL) = 0;
-		/** Sets whether or not colour buffer writing is enabled, and for which channels. 
+		/** Sets whether or not colour buffer writing is enabled, and for which channels.
 		@remarks
 			For some advanced effects, you may wish to turn off the writing of certain colour
 			channels, or even all of the colour channels so that only the depth buffer is updated
@@ -744,7 +744,7 @@ namespace Ogre
 			through the Material class.
 		@param red, green, blue, alpha Whether writing is enabled for each of the 4 colour channels. */
 		virtual void _setColourBufferWriteEnabled(bool red, bool green, bool blue, bool alpha) = 0;
-        /** Sets the depth bias, NB you should use the Material version of this. 
+        /** Sets the depth bias, NB you should use the Material version of this.
         @remarks
             When polygons are coplanar, you can get problems with 'depth fighting' where
             the pixels from the two polys compete for the same screen pixel. This is particularly
@@ -759,7 +759,7 @@ namespace Ogre
 			to the maximum depth slope of the polygon being rendered. The final bias
 			is constantBias + slopeScaleBias * maxslope. Slope scale biasing is
 			generally preferable but is not available on older hardware.
-        @param constantBias The constant bias value, expressed as a value in 
+        @param constantBias The constant bias value, expressed as a value in
 			homogenous depth coordinates.
 		@param slopeScaleBias The bias value which is factored by the maximum slope
 			of the polygon, see the description above. This is not supported by all
@@ -819,16 +819,16 @@ namespace Ogre
             projection matrix, this method allows each to implement their own correctly and pass
             back a generic OGRE matrix for storage in the engine.
         */
-        virtual void _makeProjectionMatrix(const Radian& fovy, Real aspect, Real nearPlane, Real farPlane, 
+        virtual void _makeProjectionMatrix(const Radian& fovy, Real aspect, Real nearPlane, Real farPlane,
             Matrix4& dest, bool forGpuProgram = false) = 0;
 
         /** Builds a perspective projection matrix for the case when frustum is
             not centered around camera.
         @remarks
-            Viewport coordinates are in camera coordinate frame, i.e. camera is 
+            Viewport coordinates are in camera coordinate frame, i.e. camera is
             at the origin.
         */
-        virtual void _makeProjectionMatrix(Real left, Real right, Real bottom, Real top, 
+        virtual void _makeProjectionMatrix(Real left, Real right, Real bottom, Real top,
             Real nearPlane, Real farPlane, Matrix4& dest, bool forGpuProgram = false) = 0;
         /** Builds an orthographic projection matrix suitable for this render system.
         @remarks
@@ -836,15 +836,15 @@ namespace Ogre
             projection matrix, this method allows each to implement their own correctly and pass
             back a generic OGRE matrix for storage in the engine.
         */
-        virtual void _makeOrthoMatrix(const Radian& fovy, Real aspect, Real nearPlane, Real farPlane, 
+        virtual void _makeOrthoMatrix(const Radian& fovy, Real aspect, Real nearPlane, Real farPlane,
             Matrix4& dest, bool forGpuProgram = false) = 0;
 
 		/** Update a perspective projection matrix to use 'oblique depth projection'.
 		@remarks
-			This method can be used to change the nature of a perspective 
-			transform in order to make the near plane not perpendicular to the 
-			camera view direction, but to be at some different orientation. 
-			This can be useful for performing arbitrary clipping (e.g. to a 
+			This method can be used to change the nature of a perspective
+			transform in order to make the near plane not perpendicular to the
+			camera view direction, but to be at some different orientation.
+			This can be useful for performing arbitrary clipping (e.g. to a
 			reflection plane) which could otherwise only be done using user
 			clip planes, which are more expensive, and not necessarily supported
 			on all cards.
@@ -855,32 +855,32 @@ namespace Ogre
 			plane must be in CAMERA (view) space.
         @param forGpuProgram Is this for use with a Gpu program or fixed-function
 		*/
-		virtual void _applyObliqueDepthProjection(Matrix4& matrix, const Plane& plane, 
+		virtual void _applyObliqueDepthProjection(Matrix4& matrix, const Plane& plane,
             bool forGpuProgram) = 0;
-		
+
         /** Sets how to rasterise triangles, as points, wireframe or solid polys. */
         virtual void _setPolygonMode(PolygonMode level) = 0;
 
-        /** Turns stencil buffer checking on or off. 
+        /** Turns stencil buffer checking on or off.
         @remarks
-            Stencilling (masking off areas of the rendering target based on the stencil 
+            Stencilling (masking off areas of the rendering target based on the stencil
             buffer) canbe turned on or off using this method. By default, stencilling is
             disabled.
         */
         virtual void setStencilCheckEnabled(bool enabled) = 0;
-        /** Determines if this system supports hardware accelerated stencil buffer. 
+        /** Determines if this system supports hardware accelerated stencil buffer.
         @remarks
             Note that the lack of this function doesn't mean you can't do stencilling, but
             the stencilling operations will be provided in software, which will NOT be
             fast.
         @par
             Generally hardware stencils are only supported in 32-bit colour modes, because
-            the stencil buffer shares the memory of the z-buffer, and in most cards the 
+            the stencil buffer shares the memory of the z-buffer, and in most cards the
             z-buffer has to be the same depth as the colour buffer. This means that in 32-bit
             mode, 24 bits of the z-buffer are depth and 8 bits are stencil. In 16-bit mode there
             is no room for a stencil (although some cards support a 15:1 depth:stencil option,
             this isn't useful for very much) so 8 bits of stencil are provided in software.
-            This can mean that if you use stencilling, your applications may be faster in 
+            This can mean that if you use stencilling, your applications may be faster in
             32-but colour than in 16-bit, which may seem odd to some people.
         */
         /*virtual bool hasHardwareStencil(void) = 0;*/
@@ -889,7 +889,7 @@ namespace Ogre
         @remarks
             The stencil buffer is used to mask out pixels in the render target, allowing
             you to do effects like mirrors, cut-outs, stencil shadows and more. Each of
-            your batches of rendering is likely to ignore the stencil buffer, 
+            your batches of rendering is likely to ignore the stencil buffer,
             update it with new values, or apply it to mask the output of the render.
             The stencil test is:<PRE>
             (Reference Value & Mask) CompareFunction (Stencil Buffer Value & Mask)</PRE>
@@ -904,27 +904,27 @@ namespace Ogre
             groups (see RenderQueue) and register a RenderQueueListener to get notifications
             between batches.
         @par
-            There are individual state change methods for each of the parameters set using 
-            this method. 
-            Note that the default values in this method represent the defaults at system 
+            There are individual state change methods for each of the parameters set using
+            this method.
+            Note that the default values in this method represent the defaults at system
             start up too.
         @param func The comparison function applied.
         @param refValue The reference value used in the comparison
-        @param mask The bitmask applied to both the stencil value and the reference value 
+        @param mask The bitmask applied to both the stencil value and the reference value
             before comparison
         @param stencilFailOp The action to perform when the stencil check fails
         @param depthFailOp The action to perform when the stencil check passes, but the
             depth buffer check still fails
         @param passOp The action to take when both the stencil and depth check pass.
-        @param twoSidedOperation If set to true, then if you render both back and front faces 
-            (you'll have to turn off culling) then these parameters will apply for front faces, 
+        @param twoSidedOperation If set to true, then if you render both back and front faces
+            (you'll have to turn off culling) then these parameters will apply for front faces,
             and the inverse of them will happen for back faces (keep remains the same).
         */
-        virtual void setStencilBufferParams(CompareFunction func = CMPF_ALWAYS_PASS, 
-            uint32 refValue = 0, uint32 mask = 0xFFFFFFFF, 
-            StencilOperation stencilFailOp = SOP_KEEP, 
+        virtual void setStencilBufferParams(CompareFunction func = CMPF_ALWAYS_PASS,
+            uint32 refValue = 0, uint32 mask = 0xFFFFFFFF,
+            StencilOperation stencilFailOp = SOP_KEEP,
             StencilOperation depthFailOp = SOP_KEEP,
-            StencilOperation passOp = SOP_KEEP, 
+            StencilOperation passOp = SOP_KEEP,
             bool twoSidedOperation = false) = 0;
 
 
@@ -942,7 +942,7 @@ namespace Ogre
         @par
             You should not normally call this direct unless you are rendering
             world geometry; set it on the Renderable because otherwise it will be
-            overridden by material settings. 
+            overridden by material settings.
         */
         virtual void setNormaliseNormals(bool normalise) = 0;
 
@@ -963,7 +963,7 @@ namespace Ogre
 				/** Gets the capabilities of the render system. */
 				const RenderSystemCapabilities* getCapabilities(void) const { return mCurrentCapabilities; }
 
-        /** Binds a given GpuProgram (but not the parameters). 
+        /** Binds a given GpuProgram (but not the parameters).
         @remarks Only one GpuProgram of each type can be bound at once, binding another
         one will simply replace the exsiting one.
         */
@@ -980,7 +980,7 @@ namespace Ogre
             This returns the pipeline to fixed-function processing for this type.
         */
         virtual void unbindGpuProgram(GpuProgramType gptype);
-        
+
         /** Returns whether or not a Gpu program of the given type is currently bound. */
         virtual bool isGpuProgramBound(GpuProgramType gptype);
 
@@ -991,8 +991,8 @@ namespace Ogre
         /** Utility method for initialising all render targets attached to this rendering system. */
         virtual void _initRenderTargets(void);
 
-        /** Utility method to notify all render targets that a camera has been removed, 
-            incase they were referring to it as their viewer. 
+        /** Utility method to notify all render targets that a camera has been removed,
+            incase they were referring to it as their viewer.
         */
         virtual void _notifyCameraRemoved(const Camera* cam);
 
@@ -1020,34 +1020,34 @@ namespace Ogre
         @param left, top, right, bottom The location of the corners of the rectangle, expressed in
             <i>pixels</i>.
         */
-        virtual void setScissorTest(bool enabled, size_t left = 0, size_t top = 0, 
+        virtual void setScissorTest(bool enabled, size_t left = 0, size_t top = 0,
             size_t right = 800, size_t bottom = 600) = 0;
 
-        /** Clears one or more frame buffers on the active render target. 
+        /** Clears one or more frame buffers on the active render target.
         @param buffers Combination of one or more elements of FrameBufferType
             denoting which buffers are to be cleared
         @param colour The colour to clear the colour buffer with, if enabled
         @param depth The value to initialise the depth buffer with, if enabled
         @param stencil The value to initialise the stencil buffer with, if enabled.
         */
-        virtual void clearFrameBuffer(unsigned int buffers, 
-            const ColourValue& colour = ColourValue::Black, 
+        virtual void clearFrameBuffer(unsigned int buffers,
+            const ColourValue& colour = ColourValue::Black,
             Real depth = 1.0f, unsigned short stencil = 0) = 0;
-        /** Returns the horizontal texel offset value required for mapping 
+        /** Returns the horizontal texel offset value required for mapping
             texel origins to pixel origins in this rendersystem.
         @remarks
-            Since rendersystems sometimes disagree on the origin of a texel, 
-            mapping from texels to pixels can sometimes be problematic to 
+            Since rendersystems sometimes disagree on the origin of a texel,
+            mapping from texels to pixels can sometimes be problematic to
             implement generically. This method allows you to retrieve the offset
             required to map the origin of a texel to the origin of a pixel in
             the horizontal direction.
         */
         virtual Real getHorizontalTexelOffset(void) = 0;
-        /** Returns the vertical texel offset value required for mapping 
+        /** Returns the vertical texel offset value required for mapping
         texel origins to pixel origins in this rendersystem.
         @remarks
-        Since rendersystems sometimes disagree on the origin of a texel, 
-        mapping from texels to pixels can sometimes be problematic to 
+        Since rendersystems sometimes disagree on the origin of a texel,
+        mapping from texels to pixels can sometimes be problematic to
         implement generically. This method allows you to retrieve the offset
         required to map the origin of a texel to the origin of a pixel in
         the vertical direction.
@@ -1072,14 +1072,14 @@ namespace Ogre
         @see Renderable::getUseIdentityView, Renderable::getUseIdentityProjection
         */
         virtual Real getMaximumDepthInputValue(void) = 0;
-        /** set the current multi pass count value.  This must be set prior to 
-            calling _render() if multiple renderings of the same pass state are 
+        /** set the current multi pass count value.  This must be set prior to
+            calling _render() if multiple renderings of the same pass state are
             required.
         @param count Number of times to render the current state.
         */
         void setCurrentPassIterationCount(const size_t count) { mCurrentPassIterationCount = count; }
 
-		/** Defines a listener on the custom events that this render system 
+		/** Defines a listener on the custom events that this render system
 			can raise.
 		@see RenderSystem::addListener
 		*/
@@ -1094,20 +1094,20 @@ namespace Ogre
 			@param parameters A list of parameters that may belong to this event,
 				may be null if there are no parameters
 			*/
-			virtual void eventOccurred(const String& eventName, 
+			virtual void eventOccurred(const String& eventName,
 				const NameValuePairList* parameters = 0) = 0;
 		};
 		/** Adds a listener to the custom events that this render system can raise.
 		@remarks
-			Some render systems have quite specific, internally generated events 
+			Some render systems have quite specific, internally generated events
 			that the application may wish to be notified of. Many applications
-			don't have to worry about these events, and can just trust OGRE to 
+			don't have to worry about these events, and can just trust OGRE to
 			handle them, but if you want to know, you can add a listener here.
 		@par
-			Events are raised very generically by string name. Perhaps the most 
-			common example of a render system specific event is the loss and 
-			restoration of a device in DirectX; which OGRE deals with, but you 
-			may wish to know when it happens. 
+			Events are raised very generically by string name. Perhaps the most
+			common example of a render system specific event is the loss and
+			restoration of a device in DirectX; which OGRE deals with, but you
+			may wish to know when it happens.
 		@see RenderSystem::getRenderSystemEvents
 		*/
 		virtual void addListener(Listener* l);
@@ -1126,7 +1126,7 @@ namespace Ogre
 		@remarks
 			Call this from your main thread before starting your other threads
 			(which themselves should call registerThread()). Note that if you
-			start your own threads, there is a specific startup sequence which 
+			start your own threads, there is a specific startup sequence which
 			must be respected and requires synchronisation between the threads:
 			<ol>
 			<li>[Main thread]Call preExtraThreadsStarted</li>
@@ -1144,12 +1144,12 @@ namespace Ogre
 		@see RenderSystem::preExtraThreadsStarted
 		*/
 		virtual void postExtraThreadsStarted() = 0;
-		
-		/** Register the an additional thread which may make calls to rendersystem-related 
+
+		/** Register the an additional thread which may make calls to rendersystem-related
 			objects.
 		@remarks
 			This method should only be called by additional threads during their
-			initialisation. If they intend to use hardware rendering system resources 
+			initialisation. If they intend to use hardware rendering system resources
 			they should call this method before doing anything related to the render system.
 			Some rendering APIs require a per-thread setup and this method will sort that
 			out. It is also necessary to call unregisterThread before the thread shuts down.
@@ -1158,7 +1158,7 @@ namespace Ogre
 			registered and that context is enough.
 		*/
 		virtual void registerThread() = 0;
-			
+
 		/** Unregister an additional thread which may make calls to rendersystem-related objects.
 		@see RenderSystem::registerThread
 		*/
@@ -1169,7 +1169,7 @@ namespace Ogre
 				virtual void initialiseFromRenderSystemCapabilities(RenderSystemCapabilities* caps, RenderTarget* primary) = 0;
 
 
-		
+
 				/** The render targets. */
         RenderTargetMap mRenderTargets;
 				/** The render targets, ordered by priority. */
@@ -1234,10 +1234,10 @@ namespace Ogre
 
 		typedef std::list<HardwareOcclusionQuery*> HardwareOcclusionQueryList;
 		HardwareOcclusionQueryList mHwOcclusionQueries;
-		
+
 		bool mVertexProgramBound;
 		bool mFragmentProgramBound;
-		
+
 
 
     };

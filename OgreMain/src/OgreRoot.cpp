@@ -522,7 +522,7 @@ namespace Ogre {
             // The custom capabilities have been parsed, let's retrieve them
             RenderSystemCapabilities* rsc = rscManager.loadParsedCapabilities(capsName);
             // Tell RenderSystem to use the comon rsc
-            mActiveRenderer->_useCustomRenderSystemCapabilities(rsc);
+            useCustomRenderSystemCapabilities(rsc);
 
         }
 
@@ -547,6 +547,11 @@ namespace Ogre {
 
         return mAutoWindow;
 
+    }
+    //-----------------------------------------------------------------------
+    void Root::useCustomRenderSystemCapabilities(RenderSystemCapabilities* capabilities)
+    {
+        mActiveRenderer->useCustomRenderSystemCapabilities(capabilities);
     }
     //-----------------------------------------------------------------------
     String Root::getErrorDescription(long errorNumber)

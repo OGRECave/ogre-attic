@@ -80,7 +80,7 @@ namespace Ogre {
 				delete mRealCapabilities;
 				mRealCapabilities = 0;
 		}
-		
+
     //-----------------------------------------------------------------------
     void RenderSystem::_initRenderTargets(void)
     {
@@ -123,28 +123,28 @@ namespace Ogre {
         // Subclasses should take it from here
         // They should ALL call this superclass method from
         //   their own initialise() implementations.
-        
+
         mVertexProgramBound = false;
         mFragmentProgramBound = false;
 
         return 0;
     }
 
-		void RenderSystem::_useCustomRenderSystemCapabilities(RenderSystemCapabilities* capabilities)
+		void RenderSystem::useCustomRenderSystemCapabilities(RenderSystemCapabilities* capabilities)
 		{
 				mCurrentCapabilities = capabilities;
 				mUseCustomCapabilities = true;
 		}
 	//---------------------------------------------------------------------
-	RenderTexture * RenderSystem::createRenderTexture( const String & name, 
+	RenderTexture * RenderSystem::createRenderTexture( const String & name,
 		unsigned int width, unsigned int height,
 		TextureType texType, PixelFormat internalFormat, const NameValuePairList *miscParams )
 	{
 		/// Create a new 2D texture, and return surface to render to
-        TexturePtr mTexture = TextureManager::getSingleton().createManual( name, 
-			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, texType, 
+        TexturePtr mTexture = TextureManager::getSingleton().createManual( name,
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, texType,
 			width, height, 0, internalFormat, TU_RENDERTARGET );
-            
+
         // Ensure texture loaded and internal resources created
         mTexture->load();
 
@@ -199,7 +199,7 @@ namespace Ogre {
         if( it != mRenderTargets.end() )
         {
             ret = it->second;
-			
+
 			/* Remove the render target from the priority groups. */
             RenderTargetPriorityMap::iterator itarg, itargend;
             itargend = mPrioritisedRenderTargets.end();
@@ -232,7 +232,7 @@ namespace Ogre {
 
         const TexturePtr& tex = tl._getTexturePtr();
 		// Vertex texture binding?
-		if (mCurrentCapabilities->hasCapability(RSC_VERTEX_TEXTURE_FETCH) && 
+		if (mCurrentCapabilities->hasCapability(RSC_VERTEX_TEXTURE_FETCH) &&
 			!mCurrentCapabilities->getVertexTextureUnitsShared())
 		{
 			if (tl.getBindingType() == TextureUnitState::BT_VERTEX)
@@ -261,9 +261,9 @@ namespace Ogre {
         _setTextureCoordSet(texUnit, tl.getTextureCoordSet());
 
         // Set texture layer filtering
-        _setTextureUnitFiltering(texUnit, 
-            tl.getTextureFiltering(FT_MIN), 
-            tl.getTextureFiltering(FT_MAG), 
+        _setTextureUnitFiltering(texUnit,
+            tl.getTextureFiltering(FT_MIN),
+            tl.getTextureFiltering(FT_MAG),
             tl.getTextureFiltering(FT_MIP));
 
         // Set texture layer filtering
@@ -325,7 +325,7 @@ namespace Ogre {
             case TextureUnitState::ET_TRANSFORM:
                 break;
             case TextureUnitState::ET_PROJECTIVE_TEXTURE:
-                _setTextureCoordCalculation(texUnit, TEXCALC_PROJECTIVE_TEXTURE, 
+                _setTextureCoordCalculation(texUnit, TEXCALC_PROJECTIVE_TEXTURE,
                     effi->second.frustum);
                 anyCalcs = true;
                 break;
@@ -337,13 +337,13 @@ namespace Ogre {
             _setTextureCoordCalculation(texUnit, TEXCALC_NONE);
         }
 
-        // Change tetxure matrix 
+        // Change tetxure matrix
         _setTextureMatrix(texUnit, tl.getTextureTransform());
 
 
     }
     //-----------------------------------------------------------------------
-	void RenderSystem::_setTexture(size_t unit, bool enabled, 
+	void RenderSystem::_setTexture(size_t unit, bool enabled,
 		const String &texname)
 	{
 		TexturePtr t = TextureManager::getSingleton().getByName(texname);
@@ -352,10 +352,10 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void RenderSystem::_setVertexTexture(size_t unit, const TexturePtr& tex)
 	{
-		OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, 
+		OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED,
 			"This rendersystem does not support separate vertex texture samplers, "
 			"you should use the regular texture samplers which are shared between "
-			"the vertex and fragment units.", 
+			"the vertex and fragment units.",
 			"RenderSystem::_setVertexTexture");
 	}
     //-----------------------------------------------------------------------
@@ -557,7 +557,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void RenderSystem::fireEvent(const String& name, const NameValuePairList* params)
 	{
-		for(ListenerList::iterator i = mEventListeners.begin(); 
+		for(ListenerList::iterator i = mEventListeners.begin();
 			i != mEventListeners.end(); ++i)
 		{
 			(*i)->eventOccurred(name, params);

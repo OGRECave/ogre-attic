@@ -297,6 +297,13 @@ namespace Ogre
 		/** Returns whether the system is initialised or not. */
 		bool isInitialised(void) const { return mIsInitialised; }
 
+        /** Requests active RenderSystem to use custom RenderSystemCapabilities
+        @remarks
+            This is useful for testing how the RenderSystem would behave on a machine with
+            less advanced GPUs. This method MUST be called before creating the first RenderWindow
+        */
+        void useCustomRenderSystemCapabilities(RenderSystemCapabilities* capabilities);
+
 		/** Register a new SceneManagerFactory, a factory object for creating instances
 			of specific SceneManagers.
 		@remarks

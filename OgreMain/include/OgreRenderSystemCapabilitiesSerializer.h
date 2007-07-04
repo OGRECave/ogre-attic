@@ -49,12 +49,16 @@ namespace Ogre {
         /** default destructor*/
         virtual ~RenderSystemCapabilitiesSerializer() {};
 
-
         /** Parses a RenderSystemCapabilities script file passed as a stream.
             Adds it to RenderSystemCapabilitiesManager::_addRenderSystemCapabilities
         */
         void parseScript(DataStreamPtr& stream);
+
     protected:
+
+        // the set of states that the parser can be in
+        enum ParseAction {PARSE_HEADER, FIND_OPEN_BRACE, COLLECT_LINES};
+
         int mCurrentLineNumber;
         String* mCurrentLine;
         DataStreamPtr mCurrentStream;
@@ -65,7 +69,6 @@ namespace Ogre {
 
         void logParseError(const String& error);
 
-        enum ParseAction {PARSE_HEADER, FIND_OPEN_BRACE, COLLECT_LINES};
     };
 
 }

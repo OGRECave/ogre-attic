@@ -27,7 +27,6 @@ Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
 #include "OgreStableHeaders.h"
-#include "OgreMaterialManager.h"
 
 #include "OgreStringVector.h"
 #include "OgreLogManager.h"
@@ -86,7 +85,7 @@ namespace Ogre {
         {
             DataStreamPtr stream = arch->open(*iter);
             mSerializer->parseScript(stream);
-            stream->close();
+            stream->closed();
             iter++;
         }
     }
