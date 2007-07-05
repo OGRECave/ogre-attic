@@ -33,7 +33,7 @@ Torus Knot Software Ltd.
 #ifdef OGRE_MEMORY_MACROS
 #undef OGRE_MEMORY_MACROS
 
-#define OGRE_USE_OLD_MEMMAN
+//#define OGRE_USE_OLD_MEMMAN
 
 #ifdef OGRE_USE_OLD_MEMMAN
 

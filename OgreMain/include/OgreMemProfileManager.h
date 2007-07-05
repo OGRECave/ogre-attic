@@ -56,8 +56,15 @@ namespace Ogre{
         /**
         * Register a memory profile with the manager
         * @param profile the memory profile.
+        * @return the profiles ID
         */
-        void registerProfile(MemProfilerBase* profile);
+        uint32 registerProfile(MemProfilerBase* profile);
+        
+        /**
+         * Remove a registered profile 
+         * @param the profile ptr
+         */
+        void removeProfile(MemProfilerBase* profile);
 
         /**
         * Update, called once a frame to collect profile stats
@@ -140,6 +147,8 @@ namespace Ogre{
         uint32 mPeakAllocations;    // largest number of allocations occuring in a single update
         uint32 mPeakUpdate;         // update that had the largest number of allocations
         uint32 mLargestAllocation;  // largest single memory allocation
+        
+        uint32 mProfileIdTracker; // used to hold the highest ID
 
     private:
     };

@@ -67,11 +67,14 @@ namespace Ogre{
         explicit inline MemProfiler()
         {
             //register with the profile manager
-            MemProfileManager::getSingleton().registerProfile(this);
+            mStats.profileID = MemProfileManager::getSingleton().registerProfile(this);
         }
 
         inline ~MemProfiler()
-        { }
+        { 
+        	//remove from profile manager
+        	MemProfileManager::getSingleton().removeProfile(this);
+        }
 
         /// copy ctor, we need to define this to be safe with our mutex
         inline explicit MemProfiler( MemProfiler<T> const& other)
@@ -80,6 +83,7 @@ namespace Ogre{
         	#if OGRE_THREAD_SUPPORT
             boost::recursive_mutex::scoped_lock scoped_lock(other.mDataMutex);
             #endif
+            mStats = other.mStats;
         }
 
         /// converstion, we need to define this to be safe with our mutex
@@ -90,6 +94,7 @@ namespace Ogre{
         	#if OGRE_THREAD_SUPPORT
             boost::recursive_mutex::scoped_lock scoped_lock(other.mDataMutex);
             #endif
+            mStats = other.mStats;
         }
         
         /// Assignment, we need to define this to be safe with our mutex
@@ -102,9 +107,9 @@ namespace Ogre{
             #if OGRE_THREAD_SUPPORT
             boost::recursive_mutex::scoped_lock lock1(&mDataMutex < &other.mDataMutex ? mDataMutex : other.mDataMutex);
             boost::recursive_mutex::scoped_lock lock2(&mDataMutex > &other.mDataMutex ? mDataMutex : other.mDataMutex);
-            mStats = other.mStats;
             #endif
-
+            
+            mStats = other.mStats;
             return *this;
         }
 

@@ -45,7 +45,7 @@ Torus Knot Software Ltd.
 #include "OgrePlatform.h"
 #include "OgreStdHeaders.h"
 
-#define OGRE_USE_OLD_MEMMAN
+//#define OGRE_USE_OLD_MEMMAN
 
 #ifdef OGRE_USE_OLD_MEMMAN // Turn off/on old memory system
 namespace Ogre {

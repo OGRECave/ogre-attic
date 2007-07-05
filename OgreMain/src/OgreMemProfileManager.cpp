@@ -49,7 +49,7 @@ namespace Ogre{
 
     MemProfileManager::~MemProfileManager()
     { 
-    	update(); // collect any final info
+        update(); // collect any final info
         flush("Shutdown"); // flush a final section
         shutdown(); // flush the gloabl stats
     }
@@ -60,6 +60,7 @@ namespace Ogre{
     , mPeakAllocations(0)
     , mPeakUpdate(0)
     , mLargestAllocation(0)
+    , mProfileIdTracker(0) 
     {
         // reserve some memory ahead of time
         mProfArray.reserve( 10 );
@@ -72,12 +73,89 @@ namespace Ogre{
         memset( &( mSectionStats ), 0, sizeof( MemProfilerBase::MemStats ) );
     }
 
-    void MemProfileManager::registerProfile( MemProfilerBase* profile )
+    uint32 MemProfileManager::registerProfile( MemProfilerBase* profile )
     {
+        ProfileArray::iterator iter = mProfArray.begin();
+        ProfileArray::iterator end = mProfArray.end();
+        
+        for ( ; iter != end; ++iter ) // for each profile
+        {
+            if(( *iter ).mProfile == NULL) // found an empty slot
+            {
+                ( *iter ).mProfile = profile;
+                // NOTE: as this slot is empty, the profile will have been 
+                // removed and all counts set to 0, so we dont need to do 
+                // it again here.
+                
+                // update and return the ID
+                ++mProfileIdTracker;
+                return mProfileIdTracker;
+            }
+        }
+        
+        // no slots found so build a new one
         Profile profStruct;
         profStruct.mProfile=profile;
         memset( &( profStruct.mStats ), 0, sizeof( MemProfilerBase::MemStats ) );
         mProfArray.push_back( profStruct ); // add the profile
+        
+        // update and return the ID
+        ++mProfileIdTracker;
+        return mProfileIdTracker;
+    }
+    
+    void MemProfileManager::removeProfile(MemProfilerBase* profile)
+    {
+        std::stringstream builder;
+        ProfileArray::iterator iter = mProfArray.begin();
+        ProfileArray::iterator end = mProfArray.end();
+        MemProfilerBase::MemStats tmpStats = profile->flush();
+
+        for ( ; iter != end; ++iter ) // for each profile
+        {
+            // find the stats.
+            if( ( *iter ).mStats.profileID == tmpStats.profileID )
+            {
+                builder << "Removing Memory Profile " << tmpStats.profileID << "\n";
+                builder << "---------------------------------------------------------\n";
+                // do some sanity checking
+                uint32 aloc = ( *iter ).mStats.numAllocations + tmpStats.numAllocations;
+                uint32 dloc = ( *iter ).mStats.numDeallocations + tmpStats.numDeallocations;
+                if(aloc-dloc > 0)
+                {
+                    uint32 tmp = 
+                        (( *iter ).mStats.numBytesAllocated + tmpStats.numBytesAllocated) -
+                        (( *iter ).mStats.numBytesDeallocated + tmpStats.numBytesDeallocated) ;
+                        
+                    builder << "  ***MEMORY ERROR DETECTED***  \n";
+                    builder << "removed allocator has outstanding allocations!\n";
+                    builder <<  aloc - dloc << " allocations ( "<< tmp << " bytes ) \n";
+                }
+                else
+                {
+                    builder << "clean removal, no memory errors detected\n";
+                }
+                
+                // remove it
+                ( *iter ).mStats.numAllocations = 0;
+                ( *iter ).mStats.numDeallocations = 0;
+                ( *iter ).mStats.numBytesAllocated = 0;
+                ( *iter ).mStats.numBytesDeallocated = 0;
+                ( *iter ).mStats.profileID = 0;
+                ( *iter ).mProfile=NULL;
+                
+                builder << "---------------------------------------------------------\n";
+                mReportLog->logMessage(builder.str());
+                return; // done, bail now
+            }
+        }
+        
+        // if we get to this point somthing is f00-bar
+        builder << "  ***INTERNAL ERROR***  \n";
+        builder << " Cant find Memory Profile " << tmpStats.profileID << " to remove!\n";
+        builder << "---------------------------------------------------------\n";
+        mReportLog->logMessage(builder.str());
+        return;
     }
 
     void MemProfileManager::update()
@@ -90,26 +168,30 @@ namespace Ogre{
         MemProfilerBase::MemStats tmpStats;
         for ( ; iter != end; ++iter ) // for each profile
         {
-            // collect its stats
-            tmpStats = ( *iter ).mProfile->flush();
+            if( ( *iter ).mProfile)
+            {
+                // collect its stats
+                tmpStats = ( *iter ).mProfile->flush();
 
-            // update local stats package
-            ( *iter ).mStats.numAllocations      += tmpStats.numAllocations;
-            ( *iter ).mStats.numBytesAllocated   += tmpStats.numBytesAllocated;
-            ( *iter ).mStats.numDeallocations    += tmpStats.numDeallocations;
-            ( *iter ).mStats.numBytesDeallocated += tmpStats.numBytesDeallocated;
+                // update local stats package
+                ( *iter ).mStats.profileID            = tmpStats.profileID;
+                ( *iter ).mStats.numAllocations      += tmpStats.numAllocations;
+                ( *iter ).mStats.numBytesAllocated   += tmpStats.numBytesAllocated;
+                ( *iter ).mStats.numDeallocations    += tmpStats.numDeallocations;
+                ( *iter ).mStats.numBytesDeallocated += tmpStats.numBytesDeallocated;
 
-            // update section stats
-            mSectionStats.numAllocations      += tmpStats.numAllocations;
-            mSectionStats.numBytesAllocated   += tmpStats.numBytesAllocated;
-            mSectionStats.numDeallocations    += tmpStats.numDeallocations;
-            mSectionStats.numBytesDeallocated += tmpStats.numBytesDeallocated;
+                // update section stats
+                mSectionStats.numAllocations      += tmpStats.numAllocations;
+                mSectionStats.numBytesAllocated   += tmpStats.numBytesAllocated;
+                mSectionStats.numDeallocations    += tmpStats.numDeallocations;
+                mSectionStats.numBytesDeallocated += tmpStats.numBytesDeallocated;
 
-            // update global stats packet
-            mGlobalStats.numAllocations      += tmpStats.numAllocations;
-            mGlobalStats.numBytesAllocated   += tmpStats.numBytesAllocated;
-            mGlobalStats.numDeallocations    += tmpStats.numDeallocations;
-            mGlobalStats.numBytesDeallocated += tmpStats.numBytesDeallocated;
+                // update global stats packet
+                mGlobalStats.numAllocations      += tmpStats.numAllocations;
+                mGlobalStats.numBytesAllocated   += tmpStats.numBytesAllocated;
+                mGlobalStats.numDeallocations    += tmpStats.numDeallocations;
+                mGlobalStats.numBytesDeallocated += tmpStats.numBytesDeallocated;
+            }
         }
         ++mNumUpdates;
         ++mNumSectionUpdates;
@@ -120,7 +202,7 @@ namespace Ogre{
         
         std::stringstream builder;
 
-		// section over-veiw
+        // section over-veiw
         builder << "Section Flush: " << message << "\n";
         builder << "---------------------------------------------------------\n";
         builder << "Memory Profile Over " << mNumSectionUpdates << " updates\n";
@@ -140,18 +222,15 @@ namespace Ogre{
         
         // per-allocator stats
         builder << "Per allocator stats :- \n";
-        
-        uint32 id=0;
         ProfileArray::iterator iter = mProfArray.begin();
         ProfileArray::iterator end = mProfArray.end();
         for ( ; iter != end; ++iter ) // for each profile
         {
-        	builder << "Allocator "<< id;
-        	builder << " Allocs " << ( *iter ).mStats.numAllocations;
+            builder << "Allocator "<< ( *iter ).mStats.profileID;
+            builder << " Allocs " << ( *iter ).mStats.numAllocations;
             builder << " ( " << ( *iter ).mStats.numBytesAllocated << " )";
             builder << " De-Allocs " << ( *iter ).mStats.numDeallocations;
             builder << " ( " <<( *iter ).mStats.numBytesDeallocated << " ) \n";
-            ++id;
         }
         builder << "---------------------------------------------------------\n";
         
@@ -167,7 +246,7 @@ namespace Ogre{
     
     void MemProfileManager::shutdown()
     {
-    	// log the info at shutdown
+        // log the info at shutdown
         std::stringstream builder;
 
         builder << "Global Stats at Shutdown: \n";
@@ -184,13 +263,13 @@ namespace Ogre{
         
         if(mGlobalStats.numAllocations-mGlobalStats.numDeallocations != 0)
         {    
-        	builder << "      ***LEAKED MEMORY***     :\n";
-        	builder << (mGlobalStats.numBytesAllocated-mGlobalStats.numBytesDeallocated) << " bytes in ";
-        	builder << (mGlobalStats.numAllocations-mGlobalStats.numDeallocations) << " allocations !\n";
+            builder << "      ***LEAKED MEMORY***      \n";
+            builder << (mGlobalStats.numBytesAllocated-mGlobalStats.numBytesDeallocated) << " bytes in ";
+            builder << (mGlobalStats.numAllocations-mGlobalStats.numDeallocations) << " allocations !\n";
         }
         else
         {
-        	builder << " No memory leaks detected \n";
+            builder << " No memory leaks detected \n";
         }
             
         builder << "---------------------------------------------------------";
@@ -201,7 +280,7 @@ namespace Ogre{
         mGlobalStats.numBytesAllocated   = 0;
         mGlobalStats.numDeallocations    = 0;
         mGlobalStats.numBytesDeallocated = 0;
-        mNumUpdates    	                 = 0;
+        mNumUpdates                      = 0;
     }
 
 }

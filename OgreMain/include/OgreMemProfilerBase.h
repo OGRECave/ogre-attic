@@ -49,6 +49,7 @@ namespace Ogre{
         /// used to accumulate statisitcis between calls to flush
         struct MemStats
         {
+        	unsigned int profileID;
             unsigned int numBytesAllocated;
             unsigned int numAllocations;
             unsigned int numBytesDeallocated;
@@ -68,6 +69,7 @@ namespace Ogre{
         	#if OGRE_THREAD_SUPPORT
             boost::recursive_mutex::scoped_lock scoped_lock(other.mDataMutex);
             #endif
+            mStats = other.mStats;
         }
         
         /// Assignment, we need to define this to be safe with our mutex
