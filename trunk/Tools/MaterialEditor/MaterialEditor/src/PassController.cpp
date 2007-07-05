@@ -1,12 +1,42 @@
+/*
+-----------------------------------------------------------------------------
+This source file is part of OGRE
+(Object-oriented Graphics Rendering Engine)
+For the latest info, see http://www.ogre3d.org/
+
+Copyright (c) 2000-2006 Torus Knot Software Ltd
+Also see acknowledgements in Readme.html
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place - Suite 330, Boston, MA 02111-1307, USA, or go to
+http://www.gnu.org/copyleft/lesser.txt.
+
+You may alternatively use this source under the terms of a specific version of
+the OGRE Unrestricted License provided you have obtained such a license from
+Torus Knot Software Ltd.
+-----------------------------------------------------------------------------
+*/
 #include "PassController.h"
 
 #include "OgrePass.h"
 
+#include "PassEventArgs.h"
 #include "TechniqueController.h"
 
 PassController::PassController(Pass* pass)
+: mParentController(NULL), mPass(pass)
 {
-	this(NULL, pass);
+	registerEvents();
 }
 
 PassController::PassController(TechniqueController* parent, Pass* pass)
@@ -21,8 +51,39 @@ PassController::~PassController()
 
 void PassController::registerEvents()
 {
+	registerEvent(NameChanged);
+	registerEvent(AmbientChanged);
+	registerEvent(DiffuseChanged);
+	registerEvent(SpecularChanged);
+	registerEvent(ShininessChanged);
+	registerEvent(SelfIllumChanged);
+	registerEvent(VertexColourTrackingChanged);
+	registerEvent(PointSizeChanged);
+	registerEvent(PointSpritesChanged);
+	registerEvent(PointAttenuationChanged);
+	registerEvent(PointMinSizeChanged);
+	registerEvent(PointMaxSizeChanged);
+	registerEvent(SceneBlendingTypeChanged);
+	registerEvent(SceneBlendSrcFactorChanged);
+	registerEvent(SceneBlendDestFactorChanged);
+	registerEvent(DepthCheckChanged);
+	registerEvent(DepthWriteChanged);
+	registerEvent(ColourWriteChanged);
+	registerEvent(CullingModeChanged);
+	registerEvent(ManualCullingModeChanged);
+	registerEvent(LightingChanged);
+	registerEvent(MaxLightsChanged);
+	registerEvent(StartLightChanged);
+	registerEvent(ShadingModeChanged);
+	registerEvent(PolygonModeChanged);
+	registerEvent(FogChanged);
+	registerEvent(DepthBiasChanged);
+	registerEvent(AlphaRejectionChanged);
+	registerEvent(IteratePerLightChanged);
+	registerEvent(LightCountPerIterationChanged);
 }
-	
+
+
 TechniqueController* PassController::getParentController() const
 {
 	return mParentController;
@@ -32,339 +93,339 @@ Pass* PassController::getPass() const
 {
 	return mPass;
 }
-	
+
 void PassController::setName(const String& name)
 {
 	mPass->setName(name);
-	
-	// TODO: Fire event
+
+	fireEvent(NameChanged, PassEventArgs(this));
 }
 
 void PassController::setAmbient(Real red, Real green, Real blue)
 {
 	mPass->setAmbient(red, green, blue);
-	
-	// TODO: Fire event
+
+	fireEvent(AmbientChanged, PassEventArgs(this));
 }
 
 void PassController::setAmbient(const ColourValue& ambient)
 {
 	mPass->setAmbient(ambient);
-	
-	// TODO: Fire event
+
+	fireEvent(AmbientChanged, PassEventArgs(this));
 }
 
 void PassController::setDiffuse(Real red, Real green, Real blue, Real alpha)
 {
 	mPass->setDiffuse(red, green, blue, alpha);
-	
-	// TODO: Fire event
+
+	fireEvent(DiffuseChanged, PassEventArgs(this));
 }
 
 void PassController::setDiffuse(const ColourValue &diffuse)
 {
 	mPass->setDiffuse(diffuse);
-	
-	// TODO: Fire event
+
+	fireEvent(DiffuseChanged, PassEventArgs(this));
 }
 
 void PassController::setSpecular(Real red, Real green, Real blue, Real alpha)
 {
 	mPass->setSpecular(red, green, blue, alpha);
-	
-	// TODO: Fire event
+
+	fireEvent(SpecularChanged, PassEventArgs(this));
 }
 
 void PassController::setSpecular(const ColourValue &specular)
 {
 	mPass->setSpecular(specular);
-	
-	// TODO: Fire event
+
+	fireEvent(SpecularChanged, PassEventArgs(this));
 }
 
 void PassController::setShininess(Real val)
 {
 	mPass->setShininess(val);
-	
-	// TODO: Fire event
+
+	fireEvent(ShininessChanged, PassEventArgs(this));
 }
 
 void PassController::setSelfIllumination(Real red, Real green, Real blue)
 {
 	mPass->setSelfIllumination(red, green, blue);
-	
-	// TODO: Fire event
+
+	fireEvent(SelfIllumChanged, PassEventArgs(this));
 }
 
 void PassController::setSelfIllumination(const ColourValue& selfIllum)
 {
 	mPass->setSelfIllumination(selfIllum);
-	
-	// TODO: Fire event
+
+	fireEvent(SelfIllumChanged, PassEventArgs(this));
 }
 
 void PassController::setVertexColourTracking(TrackVertexColourType tracking)
 {
 	mPass->setVertexColourTracking(tracking);
-	
-	// TODO: Fire event
+
+	fireEvent(VertexColourTrackingChanged, PassEventArgs(this));
 }
 
 void PassController::setPointSize(Real ps)
 {
 	mPass->setPointSize(ps);
-	
-	// TODO: Fire event
+
+	fireEvent(PointSizeChanged, PassEventArgs(this));
 }
 
 void PassController::setPointSpritesEnabled(bool enabled)
 {
 	mPass->setPointSpritesEnabled(enabled);
-	
-	// TODO: Fire event
+
+	fireEvent(PointSpritesChanged, PassEventArgs(this));
 }
 
 void PassController::setPointAttenuation(bool enabled, Real constant /* =0.0f */, Real linear /* =1.0f */, Real quadratic /* =0.0f */)
 {
 	mPass->setPointAttenuation(enabled, constant, linear, quadratic);
-	
-	// TODO: Fire event
+
+	fireEvent(PointAttenuationChanged, PassEventArgs(this));
 }
 
 void PassController::setPointMinSize(Real min)
 {
 	mPass->setPointMinSize(min);
-	
-	// TODO: Fire event
+
+	fireEvent(PointMinSizeChanged, PassEventArgs(this));
 }
 
 void PassController::setPointMaxSize(Real max)
 {
 	mPass->setPointMaxSize(max);
-	
-	// TODO: Fire event
+
+	fireEvent(PointMaxSizeChanged, PassEventArgs(this));
 }
 
 void PassController::setSceneBlending(const SceneBlendType sbt)
 {
 	mPass->setSceneBlending(sbt);
-	
-	// TODO: Fire event
+
+	fireEvent(SceneBlendingTypeChanged, PassEventArgs(this));
 }
 
 void PassController::setSceneBlending(const SceneBlendFactor sourceFactor, const SceneBlendFactor destFactor)
 {
 	mPass->setSceneBlending(sourceFactor, destFactor);
-	
-	// TODO: Fire event
+
+	fireEvent(SceneBlendSrcFactorChanged, PassEventArgs(this));
 }
 
 void PassController::setDepthCheckEnabled(bool enabled)
 {
 	mPass->setDepthCheckEnabled(enabled);
-	
-	// TODO: Fire event
+
+	fireEvent(DepthCheckChanged, PassEventArgs(this));
 }
 
 void PassController::setDepthWriteEnabled(bool enabled)
 {
 	mPass->setDepthWriteEnabled(enabled);
-	
-	// TODO: Fire event
+
+	fireEvent(DepthWriteChanged, PassEventArgs(this));
 }
 
 void PassController::setDepthFunction(CompareFunction func)
 {
 	mPass->setDepthFunction(func);
-	
-	// TODO: Fire event
+
+	fireEvent(DepthFunctionChanged, PassEventArgs(this));
 }
 
 void PassController::setColourWriteEnabled(bool enabled)
 {
 	mPass->setColourWriteEnabled(enabled);
-	
-	// TODO: Fire event
+
+	fireEvent(ColourWriteChanged, PassEventArgs(this));
 }
 
 void PassController::setCullingMode(CullingMode mode)
 {
 	mPass->setCullingMode(mode);
-	
-	// TODO: Fire event
+
+	fireEvent(CullingModeChanged, PassEventArgs(this));
 }
 
 void PassController::setManualCullingMode(ManualCullingMode mode)
 {
 	mPass->setManualCullingMode(mode);
-	
-	// TODO: Fire event
+
+	fireEvent(ManualCullingModeChanged, PassEventArgs(this));
 }
 
 void PassController::setLightingEnabled(bool enabled)
 {
 	mPass->setLightingEnabled(enabled);
-	
-	// TODO: Fire event
+
+	fireEvent(LightingChanged, PassEventArgs(this));
 }
 
 void PassController::setMaxSimultaneousLights(unsigned short maxLights)
 {
 	mPass->setMaxSimultaneousLights(maxLights);
-	
-	// TODO: Fire event
+
+	fireEvent(MaxLightsChanged, PassEventArgs(this));
 }
 
 void PassController::setStartLight(unsigned short startLight)
 {
 	mPass->setStartLight(startLight);
-	
-	// TODO: Fire event
+
+	fireEvent(StartLightChanged, PassEventArgs(this));
 }
 
 void PassController::setShadingMode(ShadeOptions mode)
 {
 	mPass->setShadingMode(mode);
-	
-	// TODO: Fire event
+
+	fireEvent(ShadingModeChanged, PassEventArgs(this));
 }
 
 void PassController::setPolygonMode(PolygonMode mode)
 {
 	mPass->setPolygonMode(mode);
-	
-	// TODO: Fire event
+
+	fireEvent(PolygonModeChanged, PassEventArgs(this));
 }
 
 void PassController::setFog(bool overrideScene, FogMode mode /* =FOG_NONE */, const ColourValue& colour /* =ColourValue::White */, Real expDensity /* =0.001 */, Real linearStart /* =0.0 */, Real linearEnd /* =1.0 */)
 {
 	mPass->setFog(overrideScene, mode, colour, expDensity, linearStart, linearEnd);
-	
-	// TODO: Fire event
+
+	fireEvent(FogChanged, PassEventArgs(this));
 }
 
 void PassController::setDepthBias(float constantBias, float slopeScaleBias /* =0.0f */)
 {
 	mPass->setDepthBias(constantBias, slopeScaleBias);
-	
-	// TODO: Fire event
+
+	fireEvent(DepthBiasChanged, PassEventArgs(this));
 }
 
 void PassController::setAlphaRejectSettings(CompareFunction func, unsigned char value)
 {
 	mPass->setAlphaRejectSettings(func, value);
-	
-	// TODO: Fire event
+
+	fireEvent(AlphaRejectionChanged, PassEventArgs(this));
 }
 
 void PassController::setAlphaRejectFunction(CompareFunction func)
 {
 	mPass->setAlphaRejectFunction(func);
-	
-	// TODO: Fire event
+
+	fireEvent(AlphaRejectionChanged, PassEventArgs(this));
 }
 
 void PassController::setAlphaRejectValue(unsigned char val)
 {
 	mPass->setAlphaRejectValue(val);
-	
-	// TODO: Fire event
+
+	fireEvent(AlphaRejectionChanged, PassEventArgs(this));
 }
 
 void PassController::setIteratePerLight(bool enabled, bool onlyForOneLightType /* =true */, Light::LightTypes lightType /*=Light::LT_POINT */)
 {
 	mPass->setIteratePerLight(enabled, onlyForOneLightType, lightType);
-	
-	// TODO: Fire event
+
+	fireEvent(IteratePerLightChanged, PassEventArgs(this));
 }
 
 void PassController::setLightCountPerIteration(unsigned short c)
 {
 	mPass->setLightCountPerIteration(c);
-	
-	// TODO: Fire event
+
+	fireEvent(LightCountPerIterationChanged, PassEventArgs(this));
 }
 
 void PassController::setVertexProgram(const String& name, bool resetParams /* =true */)
 {
 	mPass->setVertexProgram(name, resetParams);
-	
+
 	// TODO: Fire event
 }
 
 void PassController::setVertexProgramParameters(GpuProgramParametersSharedPtr params)
 {
 	mPass->setVertexProgramParameters(params);
-	
+
 	// TODO: Fire event
 }
 
 void PassController::setShadowCasterVertexProgram(const String& name)
 {
 	mPass->setShadowCasterVertexProgram(name);
-	
+
 	// TODO: Fire event
 }
 
 void PassController::setShadowCasterVertexProgramParameters(GpuProgramParametersSharedPtr params)
 {
 	mPass->setShadowCasterVertexProgramParameters(params);
-	
+
 	// TODO: Fire event
 }
 
 void PassController::setShadowReceiverVertexProgram(const String& name)
 {
 	mPass->setShadowReceiverVertexProgram(name);
-	
+
 	// TODO: Fire event
 }
 
 void PassController::setShadowReceiverVertexProgramParameters(GpuProgramParametersSharedPtr params)
 {
 	mPass->setShadowReceiverVertexProgramParameters(params);
-	
+
 	// TODO: Fire event
 }
 
 void PassController::setShadowReceiverFragmentProgram(const String& name)
 {
 	mPass->setShadowReceiverFragmentProgram(name);
-	
+
 	// TODO: Fire event
 }
 
 void PassController::setShadowReceiverFragmentProgramParameters(GpuProgramParametersSharedPtr params)
 {
 	mPass->setShadowReceiverFragmentProgramParameters(params);
-	
+
 	// TODO: Fire event
 }
 
 void PassController::setFragmentProgram(const String& name, bool resetParams /* =true */)
 {
 	mPass->setFragmentProgram(name, resetParams);
-	
+
 	// TODO: Fire event
 }
 
 void PassController::setFragmentProgramParameters(GpuProgramParametersSharedPtr params)
 {
 	mPass->setFragmentProgramParameters(params);
-	
+
 	// TODO: Fire event
 }
 
 void PassController::setTextureFiltering(TextureFilterOptions filterType)
 {
 	mPass->setTextureFiltering(filterType);
-	
+
 	// TODO: Fire event
 }
 
 void PassController::setTextureAnisotropy(unsigned int maxAniso)
 {
 	mPass->setTextureAnisotropy(maxAniso);
-	
+
 	// TODO: Fire event
 }
