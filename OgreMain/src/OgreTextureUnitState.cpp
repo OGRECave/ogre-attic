@@ -256,8 +256,13 @@ namespace Ogre {
 
 
             size_t pos = name.find_last_of(".");
-            baseName = name.substr(0, pos);
-            ext = name.substr(pos);
+			if( pos != String::npos )
+			{
+				baseName = name.substr(0, pos);
+				ext = name.substr(pos);
+			}
+			else
+				baseName = name;
 
             for (int i = 0; i < 6; ++i)
             {
