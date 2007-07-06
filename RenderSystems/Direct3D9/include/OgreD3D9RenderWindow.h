@@ -87,6 +87,11 @@ namespace Ogre
 	
 		/// Accessor for render surface
 		LPDIRECT3DSURFACE9 getRenderSurface() { return mpRenderSurface; }
+
+		/// Are we in the middle of switching between fullscreen and windowed
+		bool _getSwitchingFullscreen() const { return mSwitchingFullscreen; }
+		/// Indicate that fullscreen / windowed switching has finished
+		void _finishSwitchingFullscreen() { mSwitchingFullscreen = false; }
 	protected:
 		HINSTANCE mInstance;			// Process instance
 		D3D9Driver *mDriver;			// D3D9 driver
@@ -95,6 +100,7 @@ namespace Ogre
 		bool	mSizing;
 		bool	mClosed;
 		bool	mIsSwapChain;			// Is this a secondary window?
+		bool	mSwitchingFullscreen;	// Are we switching from fullscreen to windowed or vice versa
 
 		// -------------------------------------------------------
 		// DirectX-specific
