@@ -2149,7 +2149,9 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(
 
             mAutoParamDataSource.setTextureProjector(cam, 0);
             // if this light is a spotlight, we need to add the spot fader layer
-            if (l->getType() == Light::LT_SPOTLIGHT)
+			// BUT not if using a custom projection matrix, since then it will be
+			// inappropriately shaped most likely
+            if (l->getType() == Light::LT_SPOTLIGHT && !cam->isCustomProjectionMatrixEnabled())
             {
 				// remove all TUs except 0 & 1 
 				// (only an issue if additive shadows have been used)
