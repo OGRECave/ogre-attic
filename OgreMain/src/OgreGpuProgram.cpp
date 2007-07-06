@@ -1464,7 +1464,7 @@ namespace Ogre
 				for (size_t l = 0; l < i->data; ++l)
 				{
 					// We need the inverse transpose of the inverse world matrix
-					vec3 = m3 * source.getLight(i->data).getDerivedDirection();
+					vec3 = m3 * source.getLight(l).getDerivedDirection();
 					vec3.normalise();
 					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
 						Vector4(vec3.x, vec3.y, vec3.z, 1.0f), i->elementCount); 
@@ -1483,7 +1483,7 @@ namespace Ogre
 				source.getInverseTransposeViewMatrix().extract3x3Matrix(m3);
 				for (size_t l = 0; l < i->data; ++l)
 				{
-					vec3 = m3 * source.getLight(i->data).getDerivedDirection();
+					vec3 = m3 * source.getLight(l).getDerivedDirection();
 					vec3.normalise();
 					// Set as 4D vector for compatibility
 					_writeRawConstant(i->physicalIndex + l*i->elementCount, 
