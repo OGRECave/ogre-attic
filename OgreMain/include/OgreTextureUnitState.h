@@ -952,6 +952,14 @@ namespace Ogre {
         */
         void setBlank(void);
 
+		/** Tests if the texture associated with this unit has failed to load.
+		*/
+		bool isTextureLoadFailing() const { return mTextureLoadFailed; }
+
+		/** Tells the unit to retry loading the texture if it had failed to load.
+		*/
+		void retryTextureLoad() { mTextureLoadFailed = false; }
+
         // get texture effects in a multimap paired array
         const EffectMap& getEffects(void) const;
         // get the animated-texture animation duration
@@ -1098,7 +1106,7 @@ protected:
         SceneBlendFactor mColourBlendFallbackDest;
 
         LayerBlendModeEx mAlphaBlendMode;
-        mutable bool mIsBlank;
+        mutable bool mTextureLoadFailed;
         bool mIsAlpha;
 
         mutable bool mRecalcTexMatrix;

@@ -57,10 +57,10 @@ namespace Ogre {
 			if (c > 1)
 				t1 = p->getTextureUnitState(1);
 
-			if (t0 && !t0->isBlank())
+			if (t0 && !t0->getTextureName().empty())
 				hash += (static_cast<uint32>(H(t0->getTextureName())) 
 					% (1 << 14)) << 14;
-			if (t1 && !t1->isBlank())
+			if (t1 && !t1->getTextureName().empty())
 				hash += (static_cast<uint32>(H(t1->getTextureName()))
 					% (1 << 14));
 

@@ -48,7 +48,7 @@ namespace Ogre {
 		, mTextureSrcMipmaps(MIP_DEFAULT)
 		, mTextureCoordSetIndex(0)
 		, mBorderColour(ColourValue::Black)
-		, mIsBlank(true)
+		, mTextureLoadFailed(false)
 		, mIsAlpha(false)
 		, mRecalcTexMatrix(false)
 		, mUMod(0)
@@ -99,7 +99,7 @@ namespace Ogre {
 		, mTextureSrcMipmaps(MIP_DEFAULT)
 		, mTextureCoordSetIndex(0)
 		, mBorderColour(ColourValue::Black)
-		, mIsBlank(true)
+		, mTextureLoadFailed(false)
 		, mIsAlpha(false)
 		, mRecalcTexMatrix(false)
 		, mUMod(0)
@@ -178,6 +178,7 @@ namespace Ogre {
     void TextureUnitState::setTextureName( const String& name, TextureType texType)
     {
 		setContentType(CONTENT_NAMED);
+		mTextureLoadFailed = false;
 
 		if (texType == TEX_TYPE_CUBE_MAP)
         {
@@ -196,9 +197,9 @@ namespace Ogre {
             mTextureType = texType;
             if (name.empty())
             {
-                mIsBlank = true;
                 return;
             }
+
             
             // Load immediately ?
             if (isLoaded())
@@ -249,11 +250,11 @@ namespace Ogre {
         else
         {
 			setContentType(CONTENT_NAMED);
+			mTextureLoadFailed = false;
             String ext;
             String suffixes[6] = {"_fr", "_bk", "_lf", "_rt", "_up", "_dn"};
             String baseName;
             String fullNames[6];
-
 
             size_t pos = name.find_last_of(".");
 			if( pos != String::npos )
@@ -276,6 +277,7 @@ namespace Ogre {
     void TextureUnitState::setCubicTextureName(const String* const names, bool forUVW)
     {
 		setContentType(CONTENT_NAMED);
+		mTextureLoadFailed = false;
         mFrames.resize(forUVW ? 1 : 6);
 		// resize pointers, but don't populate until asked for
         mFramePtrs.resize(forUVW ? 1 : 6);
@@ -311,6 +313,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureUnitState::setFrameTextureName(const String& name, unsigned int frameNumber)
     {
+		mTextureLoadFailed = false;
         if (frameNumber < mFrames.size())
         {
             mFrames[frameNumber] = name;
@@ -335,6 +338,7 @@ namespace Ogre {
     void TextureUnitState::addFrameTextureName(const String& name)
     {
 		setContentType(CONTENT_NAMED);
+		mTextureLoadFailed = false;
 
         mFrames.push_back(name);
 		// Add blank pointer, load on demand
@@ -352,13 +356,11 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureUnitState::deleteFrameTextureName(const size_t frameNumber)
     {
+		mTextureLoadFailed = false;
         if (frameNumber < mFrames.size())
         {
             mFrames.erase(mFrames.begin() + frameNumber);
             mFramePtrs.erase(mFramePtrs.begin() + frameNumber);
-
-            if (mFrames.empty())
-                mIsBlank = true;
 
             if (isLoaded())
             {
@@ -378,6 +380,7 @@ namespace Ogre {
     void TextureUnitState::setAnimatedTextureName( const String& name, unsigned int numFrames, Real duration)
     {
 		setContentType(CONTENT_NAMED);
+		mTextureLoadFailed = false;
 
 		String ext;
         String baseName;
@@ -414,6 +417,7 @@ namespace Ogre {
     void TextureUnitState::setAnimatedTextureName(const String* const names, unsigned int numFrames, Real duration)
     {
 		setContentType(CONTENT_NAMED);
+		mTextureLoadFailed = false;
 
 		mFrames.resize(numFrames);
 		// resize pointers, but don't populate until needed
@@ -644,7 +648,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool TextureUnitState::isBlank(void) const
     {
-        return mIsBlank;
+		if (mFrames.empty())
+			return true;
+		else
+			return mFrames[0].empty() || mTextureLoadFailed;
     }
 
     //-----------------------------------------------------------------------
@@ -743,7 +750,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureUnitState::setBlank(void)
     {
-        mIsBlank = true;
+		setTextureName(StringUtil::BLANK);
     }
     //-----------------------------------------------------------------------
     void TextureUnitState::setTextureTransform(const Matrix4& xform)
@@ -918,10 +925,10 @@ namespace Ogre {
         _unload();
 
         // Load textures
-        for (unsigned int i = 0; i < mFrames.size(); ++i)
-        {
+		for (unsigned int i = 0; i < mFrames.size(); ++i)
+		{
 			ensureLoaded(i);
-        }
+		}
         // Animation controller
         if (mAnimDuration != 0)
         {
@@ -944,7 +951,7 @@ namespace Ogre {
 	{
 		if (mContentType == CONTENT_NAMED)
 		{
-			if (frame < mFrames.size())
+			if (frame < mFrames.size() && !mTextureLoadFailed)
 			{
 				ensureLoaded(frame);
 				return mFramePtrs[frame];
@@ -990,7 +997,6 @@ namespace Ogre {
 						TextureManager::getSingleton().load(mFrames[frame], 
 							mParent->getResourceGroup(), mTextureType, 
 							mTextureSrcMipmaps, 1.0f, mIsAlpha, mDesiredFormat);
-					mIsBlank = false;
 				}
 				catch (Exception &e) {
 					String msg;
@@ -999,7 +1005,7 @@ namespace Ogre {
 						"failed with the following exception: " 
 						+ e.getFullDescription();
 					LogManager::getSingleton().logMessage(msg);
-					mIsBlank = true;
+					mTextureLoadFailed = true;
 				}	
 			}
 			else
