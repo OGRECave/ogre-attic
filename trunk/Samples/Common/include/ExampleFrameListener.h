@@ -49,7 +49,7 @@ using namespace Ogre;
 class ExampleFrameListener: public FrameListener, public WindowEventListener
 {
 protected:
-	void updateStats(void)
+	virtual void updateStats(void)
 	{
 		static String currFps = "Current FPS: ";
 		static String avgFps = "Average FPS: ";
@@ -266,7 +266,7 @@ public:
 		return true;
 	}
 
-	bool processUnbufferedMouseInput(const FrameEvent& evt)
+	virtual bool processUnbufferedMouseInput(const FrameEvent& evt)
 	{
 		using namespace OIS;
 
@@ -287,7 +287,7 @@ public:
 		return true;
 	}
 
-	void moveCamera()
+	virtual void moveCamera()
 	{
 		// Make all the changes to the camera
 		// Note that YAW direction is around a fixed axis (freelook style) rather than a natural YAW
@@ -297,7 +297,7 @@ public:
 		mCamera->moveRelative(mTranslateVector);
 	}
 
-	void showDebugOverlay(bool show)
+	virtual void showDebugOverlay(bool show)
 	{
 		if (mDebugOverlay)
 		{
