@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
                       "http://www.w3.org/TR/html40/loose.dtd">
 <HTML>
-<!-- Created on March 3 2007 by texi2html 1.66 -->
+<!-- Created on July 8 2007 by texi2html 1.66 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -12,10 +12,10 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.4.0 ('Eihort'): Texture Units</TITLE>
+<TITLE>OGRE Manual v1.4.3 ('Eihort'): Texture Units</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.4.0 ('Eihort'): Texture Units">
-<META NAME="keywords" CONTENT="OGRE Manual v1.4.0 ('Eihort'): Texture Units">
+<META NAME="description" CONTENT="OGRE Manual v1.4.3 ('Eihort'): Texture Units">
+<META NAME="keywords" CONTENT="OGRE Manual v1.4.3 ('Eihort'): Texture Units">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.66">
@@ -94,7 +94,7 @@ Here are the attributes you can use in a 'texture_unit' section of a .material s
 <A HREF="manual_17.html#SEC70">content_type</A>
 </UL>
 
-You can also use a nested 'texture_source' section in order to use a special add-in as a source of texture data, See section <A HREF="manual_66.html#SEC278">6. External Texture Sources</A> for details.
+You can also use a nested 'texture_source' section in order to use a special add-in as a source of texture data, See section <A HREF="manual_66.html#SEC279">6. External Texture Sources</A> for details.
 
 <A NAME="SEC64"></A>
 <H2> Attribute Descriptions  </H2>
@@ -269,7 +269,7 @@ Tells this texture unit where it should get its content from. The default is to 
 <DT>named
 <DD>	The default option, this derives texture content from a texture name, loaded by ordinary means from a file or having been manually created with a given name.
 <DT>shadow
-<DD>	This option allows you to pull in a shadow texture, and is only valid when you use texture shadows and one of the 'custom sequence' shadowing types (See section <A HREF="manual_67.html#SEC285">7. Shadows</A>). The shadow texture in question will be from the 'n'th closest light that casts shadows, unless you use light-based pass iteration or the light_start option which may start the light index higher. When you use this option in multiple texture units within the same pass, each one references the next shadow texture. The shadow texture index is reset in the next pass, in case you want to take into account the same shadow textures again in another pass (e.g. a separate specular / gloss pass). By using this option, the correct light frustum projection is set up for you for use in fixed-function, if you use shaders just reference the texture_viewproj_matrix auto parameter in your shader.
+<DD>	This option allows you to pull in a shadow texture, and is only valid when you use texture shadows and one of the 'custom sequence' shadowing types (See section <A HREF="manual_67.html#SEC286">7. Shadows</A>). The shadow texture in question will be from the 'n'th closest light that casts shadows, unless you use light-based pass iteration or the light_start option which may start the light index higher. When you use this option in multiple texture units within the same pass, each one references the next shadow texture. The shadow texture index is reset in the next pass, in case you want to take into account the same shadow textures again in another pass (e.g. a separate specular / gloss pass). By using this option, the correct light frustum projection is set up for you for use in fixed-function, if you use shaders just reference the texture_viewproj_matrix auto parameter in your shader.
 </DL>
 
 Format: content_type &lt;named|shadow&gt;
@@ -649,7 +649,7 @@ The indexes of the 4x4 matrix value above are expressed as m&lt;row&gt;&lt;col&g
 <BR>
 <FONT SIZE="-1">
 This document was generated
-by <I>steve</I> on <I>March 3 2007</I>
+by <I>steve</I> on <I>July 8 2007</I>
 using <A HREF="http://texi2html.cvshome.org"><I>texi2html</I></A>
 </FONT>
 
