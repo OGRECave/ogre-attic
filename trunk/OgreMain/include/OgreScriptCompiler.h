@@ -57,7 +57,10 @@ namespace Ogre{
 		CE_NUMBEREXPECTED,
 		CE_VALUEEXPECTED,
 		CE_INVALIDPROPERTY,
-		CE_INVALIDPROPERTYVALUE
+		CE_INVALIDPROPERTYVALUE,
+		CE_OBJECTALLOCATIONERROR,
+		CE_TRUTHVALUEEXPECTED,
+		CE_BASE_ERRORS_END
 	};
 
 	/** This struct stores semantic error information. It is information
@@ -122,6 +125,12 @@ namespace Ogre{
 			@param group This is the resource group to compile the script within
 		*/
 		bool compile(DataStreamPtr &stream, const String &group);
+		/** Returns the resource group that the currently compiling script belongs to
+		*/
+		const String &getGroup() const;
+		/** Returns the list of errors from the last script compilation compilation
+		*/
+		const ScriptCompilerErrorList &getErrors() const;
 	protected: // Operations
 		/// This is the overridable function for base classes to compile the AST
 		virtual bool compileImpl(ScriptNodeListPtr nodes) = 0;
@@ -162,6 +171,8 @@ namespace Ogre{
 		ScriptNodePtr getNodeAt(ScriptNodeList::const_iterator from, ScriptNodeList::const_iterator end, int index) const;
 		// This utility gets the next node, provided it is the right type and not at the end of the input
 		bool getNextNode(ScriptNodeList::iterator &iter, ScriptNodeList::iterator end, uint32 type) const;
+		// Checks if the next node exists, and adds the given error if it doesn't
+		bool nodeExists(ScriptNodeList::iterator &iter, ScriptNodeList::iterator end, uint32 index);
 		// This is a utility for locating the position of the given token in the range provided
 		ScriptNodeList::const_iterator findNode(ScriptNodeList::const_iterator from, ScriptNodeList::const_iterator to, const String &token) const;
 		// This is a utility for locating the position of the given token in the range provided

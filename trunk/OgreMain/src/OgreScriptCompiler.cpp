@@ -80,6 +80,16 @@ namespace Ogre{
 		return compile(stream->getAsString(), group, stream->getName());
 	}
 
+	const String &ScriptCompiler::getGroup() const
+	{
+		return mGroup;
+	}
+
+	const ScriptCompilerErrorList &ScriptCompiler::getErrors() const
+	{
+		return mErrors;
+	}
+
 	void ScriptCompiler::processVariables(ScriptNodeList &nodes, const ScriptNodeListPtr &top)
 	{
 		ScriptNodeList::iterator i = nodes.begin(), end = nodes.end();
@@ -484,6 +494,21 @@ namespace Ogre{
 		return true;
 	}
 
+	bool ScriptCompiler::nodeExists(ScriptNodeList::iterator &iter, ScriptNodeList::iterator end, uint32 index)
+	{
+		ScriptNodeList::iterator i = iter;
+		uint32 n = 0;
+		while(n != index && i != end)
+		{
+			++i;
+			++n;
+		}
+
+		if(n == index)
+			return true;
+		return false;
+	}
+
 	ScriptNodeList::const_iterator ScriptCompiler::findNode(ScriptNodeList::const_iterator from, ScriptNodeList::const_iterator to, const String &token) const
 	{
 		ScriptNodeList::const_iterator rslt;
@@ -542,7 +567,7 @@ namespace Ogre{
 
 	bool ScriptCompiler::isTruthValue(const String &value) const
 	{
-		return value == "1" || value == "true" || value == "yes";
+		return value == "1" || value == "true" || value == "yes" || value == "on";
 	}
 
 	void ScriptCompiler::addError(uint32 error, const String &file, int line, int col)
