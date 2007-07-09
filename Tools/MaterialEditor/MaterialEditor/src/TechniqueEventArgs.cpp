@@ -26,14 +26,25 @@ http://www.gnu.org/copyleft/lesser.txt
 */
 #include "TechniqueEventArgs.h"
 
+#include "PassController.h"
 #include "TechniqueController.h"
 
-TechniqueEventArgs::TechniqueEventArgs(TechniqueController* controller)
-: mTechniqueController(controller)
+TechniqueEventArgs::TechniqueEventArgs(TechniqueController* tc)
+: mTechniqueController(tc), mPassController(NULL)
+{
+}
+
+TechniqueEventArgs::TechniqueEventArgs(TechniqueController* tc, PassController* pc)
+: mTechniqueController(tc), mPassController(pc)
 {
 }
 
 TechniqueController* TechniqueEventArgs::getTechniqueController() const
 {
 	return mTechniqueController;
+}
+
+PassController* TechniqueEventArgs::getPassController() const
+{
+	return mPassController;
 }

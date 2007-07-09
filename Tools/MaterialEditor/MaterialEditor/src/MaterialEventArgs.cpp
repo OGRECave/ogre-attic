@@ -27,13 +27,24 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "MaterialEventArgs.h"
 
 #include "MaterialController.h"
+#include "TechniqueController.h"
 
-MaterialEventArgs::MaterialEventArgs(MaterialController* controller)
-: mMaterialController(controller)
+MaterialEventArgs::MaterialEventArgs(MaterialController* mc)
+: mMaterialController(mc), mTechniqueController(NULL)
+{
+}
+
+MaterialEventArgs::MaterialEventArgs(MaterialController* mc, TechniqueController* tc)
+: mMaterialController(mc), mTechniqueController(tc)
 {
 }
 
 MaterialController* MaterialEventArgs::getMaterialController() const
 {
 	return mMaterialController;
+}
+
+TechniqueController* MaterialEventArgs::getTechniqueController() const
+{
+	return mTechniqueController;
 }

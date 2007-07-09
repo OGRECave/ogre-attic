@@ -29,17 +29,21 @@ http://www.gnu.org/copyleft/lesser.txt
 
 #include "EventArgs.h"
 
+class PassController;
 class TechniqueController;
 
 class TechniqueEventArgs : public EventArgs
 {
 public:
-	TechniqueEventArgs(TechniqueController* technique);
+	TechniqueEventArgs(TechniqueController* tc);
+	TechniqueEventArgs(TechniqueController* tc, PassController* pc);
 
 	TechniqueController* getTechniqueController() const;
+	PassController* getPassController() const;
 
 protected:
 	TechniqueController* mTechniqueController;
+	PassController* mPassController;
 };
 
 #endif // _PROJECTEVENTARGS_H_

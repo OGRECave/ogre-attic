@@ -37,6 +37,7 @@ Torus Knot Software Ltd.
 TechniqueController::TechniqueController(Technique* technique)
 : mParentController(NULL), mTechnique(technique)
 {
+	registerEvents();
 }
 
 TechniqueController::TechniqueController(MaterialController* parent, Technique* technique)
@@ -80,7 +81,7 @@ PassController* TechniqueController::createPass(void)
 	PassController* pc = new PassController(this, pass);
 	mPassControllers.push_back(pc);
 
-	fireEvent(PassAdded, TechniqueEventArgs(this));
+	fireEvent(PassAdded, TechniqueEventArgs(this, pc));
 
 	return pc;
 }

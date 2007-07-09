@@ -62,5 +62,10 @@ MaterialPage* MaterialWizard::getMaterialPage() const
 
 void MaterialWizard::OnFinish(wxWizardEvent& event)
 {
-	// TODO: Create material
+	Project* project = mMaterialPage->getProject();
+
+	wxString name;
+	mMaterialPage->getName(name);
+
+	project->createMaterial(name.c_str());
 }

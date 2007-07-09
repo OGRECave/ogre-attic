@@ -27,11 +27,21 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "ProjectEventArgs.h"
 
 ProjectEventArgs::ProjectEventArgs(Project* project)
-: mProject(project)
+: mProject(project), mMaterial(NULL)
+{
+}
+
+ProjectEventArgs::ProjectEventArgs(Project* project, MaterialController* material)
+: mProject(project), mMaterial(material)
 {
 }
 
 Project* ProjectEventArgs::getProject() const
 {
 	return mProject;
+}
+
+MaterialController* ProjectEventArgs::getMaterial() const
+{
+	return mMaterial;
 }

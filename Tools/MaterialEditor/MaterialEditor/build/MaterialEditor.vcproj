@@ -219,11 +219,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\MaterialPage.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\MaterialPropertyGridPage.cpp"
 				>
 			</File>
 			<File
+				RelativePath="..\src\MaterialWizard.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\PassController.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\PassEventArgs.cpp"
 				>
 			</File>
 			<File
@@ -256,6 +268,10 @@
 			</File>
 			<File
 				RelativePath="..\src\TechniqueEventArgs.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\TechniquePage.cpp"
 				>
 			</File>
 			<File
@@ -321,7 +337,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\MaterialPage.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\MaterialPropertyGridPage.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\MaterialWizard.h"
 				>
 			</File>
 			<File
@@ -330,6 +354,10 @@
 			</File>
 			<File
 				RelativePath="..\include\PassController.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\PassEventArgs.h"
 				>
 			</File>
 			<File
@@ -369,7 +397,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\TechniquePage.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\TechniquePropertyGridPage.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\TechniqueWizard.h"
 				>
 			</File>
 			<File

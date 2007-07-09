@@ -77,7 +77,7 @@ TechniqueController* MaterialController::createTechnique(void)
 	TechniqueController* tc = new TechniqueController(t);
 	mTechniqueControllers.push_back(tc);
 
-	fireEvent(TechniqueAdded, MaterialEventArgs(this));
+	fireEvent(TechniqueAdded, MaterialEventArgs(this, tc));
 
 	return tc;
 }

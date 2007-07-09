@@ -31,12 +31,36 @@ Torus Knot Software Ltd.
 #include <boost/bind.hpp>
 
 #include <wx/button.h>
+#include <wx/menu.h>
 #include <wx/sizer.h>
 
+#include "OgreMaterial.h"
+#include "OgrePass.h"
+#include "OgreTechnique.h"
+
 #include "EventArgs.h"
+#include "MaterialController.h"
+#include "MaterialEventArgs.h"
+#include "PassController.h"
 #include "Project.h"
+#include "ProjectEventArgs.h"
+#include "TechniqueController.h"
+#include "TechniqueEventArgs.h"
 #include "Workspace.h"
 #include "WorkspaceEventArgs.h"
+
+const long ID_TREE_CTRL = wxNewId();
+const long ID_MENU_NEW = wxNewId();
+const long ID_MENU_NEW_PROJECT = wxNewId();
+const long ID_MENU_NEW_MATERIAL = wxNewId();
+const long ID_MENU_NEW_TECHNIQUE = wxNewId();
+const long ID_MENU_NEW_PASS = wxNewId();
+const long ID_MENU_PASS_ENABLED = wxNewId();
+const long ID_MENU_DELETE = wxNewId();
+
+BEGIN_EVENT_TABLE(WorkspacePanel, wxPanel)
+	EVT_TREE_ITEM_RIGHT_CLICK(ID_TREE_CTRL, WorkspacePanel::OnRightClick)
+END_EVENT_TABLE()
 
 WorkspacePanel::WorkspacePanel(wxWindow* parent,
 			   wxWindowID id /* = wxID_ANY */,
@@ -67,7 +91,7 @@ void WorkspacePanel::createPanel()
 	//mToolBarPanel = new wxPanel(this);
 	//mSizer->Add(mToolBarPanel, 1, wxALL | wxEXPAND, 0);
 
-	mTreeCtrl = new wxTreeCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNO_BORDER | wxTR_FULL_ROW_HIGHLIGHT | wxTR_HAS_BUTTONS | wxTR_SINGLE);
+	mTreeCtrl = new wxTreeCtrl(this, ID_TREE_CTRL, wxDefaultPosition, wxDefaultSize, wxNO_BORDER | wxTR_FULL_ROW_HIGHLIGHT | wxTR_HAS_BUTTONS | wxTR_SINGLE);
 	mRootId = mTreeCtrl->AddRoot(wxT("Workspace"));
 
 	mSizer->Add(mTreeCtrl, 0, wxALL | wxEXPAND, 0);
@@ -76,14 +100,191 @@ void WorkspacePanel::createPanel()
 	Layout();
 }
 
+void WorkspacePanel::showContextMenu(wxPoint point, wxTreeItemId id)
+{
+	wxMenu* contextMenu = new wxMenu();
+	appendNewMenu(contextMenu);
+	contextMenu->AppendSeparator();
+	if(isProject(id)) appendProjectMenuItems(contextMenu);
+	else if(isMaterial(id)) appendMaterialMenuItems(contextMenu);
+	else if(isTechnique(id)) appendTechniqueMenuItems(contextMenu);
+	else appendPassMenuItems(contextMenu);
+
+	PopupMenu(contextMenu, point);
+
+	contextMenu->Remove(ID_MENU_NEW);
+
+	delete contextMenu;
+}
+
+void WorkspacePanel::appendNewMenu(wxMenu* menu)
+{
+	if(mNewMenu == NULL)
+	{
+		mNewMenu = new wxMenu(wxEmptyString);
+		mNewMenu->Append(ID_MENU_NEW_PROJECT, wxT("Project"));
+		mNewMenu->Append(ID_MENU_NEW_MATERIAL, wxT("Material"));
+		mNewMenu->Append(ID_MENU_NEW_TECHNIQUE, wxT("Technique"));
+		mNewMenu->Append(ID_MENU_NEW_PASS, wxT("Pass"));
+	}
+
+	menu->AppendSubMenu(mNewMenu, wxT("New"));
+}
+
+void WorkspacePanel::appendProjectMenuItems(wxMenu* menu)
+{
+}
+
+void WorkspacePanel::appendMaterialMenuItems(wxMenu* menu)
+{
+}
+
+void WorkspacePanel::appendTechniqueMenuItems(wxMenu* menu)
+{
+}
+
+void WorkspacePanel::appendPassMenuItems(wxMenu* menu)
+{
+	menu->AppendCheckItem(ID_MENU_PASS_ENABLED, wxT("Enabled"));
+}
+
+bool WorkspacePanel::isProject(wxTreeItemId id)
+{
+	for(ProjectIdMap::iterator it = mProjectIdMap.begin(); it != mProjectIdMap.end(); ++it)
+	{
+		if(it->first == id) return true;
+	}
+
+	return false;
+}
+
+bool WorkspacePanel::isMaterial(wxTreeItemId id)
+{
+	for(MaterialIdMap::iterator it = mMaterialIdMap.begin(); it != mMaterialIdMap.end(); ++it)
+	{
+		if(it->first == id) return true;
+	}
+
+	return false;
+}
+
+bool WorkspacePanel::isTechnique(wxTreeItemId id)
+{
+	for(TechniqueIdMap::iterator it = mTechniqueIdMap.begin(); it != mTechniqueIdMap.end(); ++it)
+	{
+		if(it->first == id) return true;
+	}
+
+	return false;
+}
+
+void WorkspacePanel::subscribe(Project* project)
+{
+	project->subscribe(Project::NameChanged, boost::bind(&WorkspacePanel::projectNameChanged, this, _1));
+	project->subscribe(Project::MaterialAdded, boost::bind(&WorkspacePanel::projectMaterialAdded, this, _1));
+	project->subscribe(Project::MaterialRemoved, boost::bind(&WorkspacePanel::projectMaterialRemoved, this, _1));
+}
+
+void WorkspacePanel::subscribe(MaterialController* material)
+{
+	material->subscribe(MaterialController::NameChanged, boost::bind(&WorkspacePanel::projectNameChanged, this, _1));
+	material->subscribe(MaterialController::TechniqueAdded, boost::bind(&WorkspacePanel::projectMaterialAdded, this, _1));
+	material->subscribe(MaterialController::TechniqueRemoved, boost::bind(&WorkspacePanel::projectMaterialRemoved, this, _1));
+}
+
+void WorkspacePanel::subscribe(TechniqueController* technique)
+{
+	//technique->subscribe(TechniqueController::NameChanged, boost::bind(&WorkspacePanel::projectNameChanged, this, _1));
+	technique->subscribe(TechniqueController::PassAdded, boost::bind(&WorkspacePanel::techniquePassAdded, this, _1));
+	technique->subscribe(TechniqueController::PassRemoved, boost::bind(&WorkspacePanel::techniquePassRemoved, this, _1));
+}
+
+void WorkspacePanel::OnRightClick(wxTreeEvent& event)
+{
+	showContextMenu(event.GetPoint(), event.GetItem());
+}
+
 void WorkspacePanel::projectAdded(EventArgs& args)
 {
 	WorkspaceEventArgs wea = dynamic_cast<WorkspaceEventArgs&>(args);
 	Project* project = wea.getProject();
+	subscribe(project);
 
-	mTreeCtrl->AppendItem(mRootId, project->getName().c_str());
+	wxTreeItemId id = mTreeCtrl->AppendItem(mRootId, project->getName().c_str());
+	mTreeCtrl->SelectItem(id, true);
+
+	mProjectIdMap[project] = id;
 }
 
 void WorkspacePanel::projectRemoved(EventArgs& args)
 {
+	// TODO: Implement projectRemoved
+}
+
+void WorkspacePanel::projectNameChanged(EventArgs& args)
+{
+	ProjectEventArgs pea = dynamic_cast<ProjectEventArgs&>(args);
+	Project* project = pea.getProject();
+
+	wxTreeItemId projectId = mProjectIdMap[project];
+	mTreeCtrl->SetItemText(projectId, project->getName().c_str());
+}
+
+void WorkspacePanel::projectMaterialAdded(EventArgs& args)
+{
+	ProjectEventArgs pea = dynamic_cast<ProjectEventArgs&>(args);
+	Project* project = pea.getProject();
+	MaterialController* material = pea.getMaterial();
+
+	wxTreeItemId projectId = mProjectIdMap[project];
+	wxTreeItemId id = mTreeCtrl->AppendItem(projectId, material->getMaterial()->getName().c_str());
+	mTreeCtrl->SelectItem(id, true);
+
+	mMaterialIdMap[material] = id;
+}
+
+void WorkspacePanel::projectMaterialRemoved(EventArgs& args)
+{
+	// TODO: Implement projectMaterialRemoved
+}
+
+void WorkspacePanel::materialNameChanged(EventArgs& args)
+{
+	MaterialEventArgs mea = dynamic_cast<MaterialEventArgs&>(args);
+	MaterialController* mc = mea.getMaterialController();
+
+	wxTreeItemId materialId = mMaterialIdMap[mc];
+	mTreeCtrl->SetItemText(materialId, mc->getMaterial()->getName().c_str());
+}
+
+void WorkspacePanel::materialTechniqueAdded(EventArgs& args)
+{
+	MaterialEventArgs mea = dynamic_cast<MaterialEventArgs&>(args);
+	MaterialController* mc = mea.getMaterialController();
+	TechniqueController* tc = mea.getTechniqueController();
+
+	wxTreeItemId materialId = mMaterialIdMap[mc];
+	wxTreeItemId id = mTreeCtrl->AppendItem(materialId, tc->getTechnique()->getName().c_str());
+	mTreeCtrl->SelectItem(id, true);
+}
+
+void WorkspacePanel::materialTechniqueRemoved(EventArgs& args)
+{
+	// TODO: Implement materialTechniqueRemoved
+}
+
+void WorkspacePanel::techniquePassAdded(EventArgs& args)
+{
+	TechniqueEventArgs tea = dynamic_cast<TechniqueEventArgs&>(args);
+	TechniqueController* tc = tea.getTechniqueController();
+	PassController* pc = tea.getPassController();
+
+	wxTreeItemId techniqueId = mTechniqueIdMap[tc];
+	wxTreeItemId id = mTreeCtrl->AppendItem(techniqueId, pc->getPass()->getName().c_str());
+	mTreeCtrl->SelectItem(id, true);
+}
+
+void WorkspacePanel::techniquePassRemoved(EventArgs& args)
+{
+	// TODO: Implement materialTechniqueRemoved
 }

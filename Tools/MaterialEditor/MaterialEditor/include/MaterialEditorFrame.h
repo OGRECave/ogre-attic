@@ -75,6 +75,7 @@ protected:
 	void OnActivate(wxActivateEvent& event);
 
 	void OnNewProject(wxCommandEvent& event);
+	void OnNewMaterial(wxCommandEvent& event);
 	void OnFileOpen(wxCommandEvent& event);
 	void OnFileExit(wxCommandEvent& event);
 	void OnViewOpenGL(wxCommandEvent& event);

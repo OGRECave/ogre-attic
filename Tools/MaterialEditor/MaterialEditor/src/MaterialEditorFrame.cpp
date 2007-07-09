@@ -51,6 +51,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "CodeEditor.h"
 #include "MaterialController.h"
 #include "MaterialPropertyGridPage.h"
+#include "MaterialWizard.h"
 #include "TechniqueController.h"
 #include "TechniquePropertyGridPage.h"
 #include "PassController.h"
@@ -86,11 +87,12 @@ const long ID_VIEW_MENU_DIRECTX = wxNewId();
 
 BEGIN_EVENT_TABLE(MaterialEditorFrame, wxFrame)
 	EVT_ACTIVATE(MaterialEditorFrame::OnActivate)
-	EVT_MENU (ID_FILE_NEW_MENU_PROJECT, MaterialEditorFrame::OnNewProject)
-	EVT_MENU (ID_FILE_MENU_OPEN,		MaterialEditorFrame::OnFileOpen)
-	EVT_MENU (ID_FILE_MENU_EXIT,		MaterialEditorFrame::OnFileExit)
-	EVT_MENU (ID_VIEW_MENU_OPENGL ,		MaterialEditorFrame::OnViewOpenGL)
-	EVT_MENU (ID_VIEW_MENU_DIRECTX,		MaterialEditorFrame::OnViewDirectX)
+	EVT_MENU (ID_FILE_NEW_MENU_PROJECT,  MaterialEditorFrame::OnNewProject)
+	EVT_MENU (ID_FILE_NEW_MENU_MATERIAL, MaterialEditorFrame::OnNewMaterial)
+	EVT_MENU (ID_FILE_MENU_OPEN,		 MaterialEditorFrame::OnFileOpen)
+	EVT_MENU (ID_FILE_MENU_EXIT,		 MaterialEditorFrame::OnFileExit)
+	EVT_MENU (ID_VIEW_MENU_OPENGL ,		 MaterialEditorFrame::OnViewOpenGL)
+	EVT_MENU (ID_VIEW_MENU_DIRECTX,		 MaterialEditorFrame::OnViewDirectX)
 END_EVENT_TABLE()
 
 MaterialEditorFrame::MaterialEditorFrame(wxWindow* parent)
@@ -400,20 +402,19 @@ void MaterialEditorFrame::OnNewProject(wxCommandEvent& event)
 	wizard->Create(this, wxID_ANY, wxT("New Project"), projectImage, wxDefaultPosition, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
 	wizard->RunWizard(wizard->getProjectPage()); // This seems unnatural, seems there must be a better way to deal with wizards
 
-	/*
-	wxBitmap projectImage;
-	projectImage.LoadFile("resources/images/new_project.gif", wxBITMAP_TYPE_GIF);
+	wizard->Destroy();
+}
 
-	wxWizard* wizard = new wxWizard(this, wxID_ANY, wxT("New Project"), projectImage, wxDefaultPosition, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
-	ProjectPage* page = new ProjectPage(wizard);
-	wizard->GetPageAreaSizer()->Add(page);
-	if(wizard->RunWizard(page))
-	{
+void MaterialEditorFrame::OnNewMaterial(wxCommandEvent& event)
+{
+	wxBitmap materialImage;
+	materialImage.LoadFile("resources/images/new_material.gif", wxBITMAP_TYPE_GIF);
 
-	}
+	MaterialWizard* wizard = new MaterialWizard();
+	wizard->Create(this, wxID_ANY, wxT("New Material"), materialImage, wxDefaultPosition, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
+	wizard->RunWizard(wizard->getMaterialPage());// This seems unnatural, seems there must be a better way to deal with wizards
 
 	wizard->Destroy();
-	*/
 }
 
 void MaterialEditorFrame::OnFileOpen(wxCommandEvent& event)
