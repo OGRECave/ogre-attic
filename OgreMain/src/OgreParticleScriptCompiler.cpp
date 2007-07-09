@@ -119,7 +119,7 @@ namespace Ogre{
 	void ParticleScriptCompiler::compileParticleSystem(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
 	{
 		// We expect this token to be the name of the system to compile
-		if(!(*i)->type == SNT_STRING)
+		if((*i)->type != SNT_STRING)
 		{
 			addError(CE_OBJECTNAMEEXPECTED, (*i)->file, (*i)->line, (*i)->column);
 			return;
@@ -131,13 +131,35 @@ namespace Ogre{
 		else
 			mSystem = ParticleSystemManager::getSingleton().createTemplate((*i)->token, mGroup);
 
-		++i;
-
-		// At this point there is either extra data, or the '{' to start the system body
-		while((*i)->type != SNT_LBRACE && i != end)
+		if(!mSystem)
 		{
-			if(!processNode(i, end))
-				++i;
+			addError(CE_OBJECTALLOCATIONERROR, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+
+		{
+			ScriptNodeList::iterator j = i;
+			j++;
+
+			// We can't end here!
+			if(j == end)
+			{
+				// Bail out!
+				addError(CE_OPENBRACEEXPECTED, (*i)->file, (*i)->line, (*i)->column);
+				mSystem = 0;
+				return;
+			}
+
+			// The next token must be the '{' starting the particle system object's body
+			if((*j)->type != SNT_LBRACE)
+			{
+				addError(CE_OPENBRACEEXPECTED, (*j)->file, (*j)->line, (*j)->column);
+				mSystem = 0;
+				return;
+			}
+			
+			// We're ok, so continue on
+			i = j;
 		}
 
 		// We hit the '{', so descend into it to continue compilation
@@ -195,6 +217,9 @@ namespace Ogre{
 		// We are finished with the object, so consume the '}'
 		++i; // '{'
 		++i; // '}'
+
+		// Reset the pointer to the system
+		mSystem = 0;
 	}
 
 	void ParticleScriptCompiler::compileEmitter(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
