@@ -39,10 +39,12 @@ using Ogre::MaterialManager;
 
 Project::Project() : mActiveMaterial(NULL)
 {
+	registerEvents();
 }
 
 Project::Project(const String& name) : mActiveMaterial(NULL), mName(name)
 {
+	registerEvents();
 }
 
 Project::~Project()
@@ -54,6 +56,14 @@ Project::~Project()
 	}
 	
 	mMaterialControllers.clear();
+}
+
+void Project::registerEvents()
+{
+	registerEvent(NameChanged);
+	registerEvent(MaterialAdded);
+	registerEvent(MaterialRemoved);
+	registerEvent(ActiveMaterialChanged);
 }
 
 const String& Project::getName() const
@@ -73,7 +83,18 @@ void Project::addMaterial(MaterialPtr materialPtr)
 	MaterialController* controller = new MaterialController(materialPtr);
 	mMaterialControllers.push_back(controller);
 	
-	fireEvent(MaterialAdded, ProjectEventArgs(this));
+	fireEvent(MaterialAdded, ProjectEventArgs(this, controller));
+}
+
+void Project::createMaterial(const String& name)
+{
+	// TODO: Projects should probably have their own resource groups instead of using the default
+	MaterialPtr materialPtr = (MaterialPtr)MaterialManager::getSingletonPtr()->create(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+	MaterialController* controller = new MaterialController(materialPtr);
+	mMaterialControllers.push_back(controller);
+
+	fireEvent(MaterialAdded, ProjectEventArgs(this, controller));
 }
 
 void Project::removeMaterial(MaterialController* controller)
@@ -88,7 +109,8 @@ void Project::removeMaterial(MaterialController* controller)
 		}
 	}
 	
-	fireEvent(MaterialRemoved, ProjectEventArgs(this));
+	// Consider: Should this be fired BEFORE the actual removal?
+	fireEvent(MaterialRemoved, ProjectEventArgs(this, controller));
 }
 
 void Project::removeMaterial(Material* material)

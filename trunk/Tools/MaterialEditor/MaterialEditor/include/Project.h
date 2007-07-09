@@ -67,10 +67,13 @@ public:
 	Project(const String& name);
 	virtual ~Project();
 
+	void registerEvents();
+
 	const String& getName() const;
 	void setName(const String& name);
 
 	void addMaterial(MaterialPtr materialPtr);
+	void createMaterial(const String& name);
 
 	void removeMaterial(MaterialController* controller);
 	void removeMaterial(Material* material);

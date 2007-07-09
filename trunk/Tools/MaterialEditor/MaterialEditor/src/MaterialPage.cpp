@@ -87,3 +87,10 @@ void MaterialPage::getName(wxString& name) const
 	name = mNameText->GetValue();
 }
 
+Project* MaterialPage::getProject() const
+{
+	wxString project = mProjectComboBox->GetValue();
+
+	return Workspace::getSingletonPtr()->getProject(project.c_str());
+}
+

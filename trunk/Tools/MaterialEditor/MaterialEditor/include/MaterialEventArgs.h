@@ -30,16 +30,20 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "EventArgs.h"
 
 class MaterialController;
+class TechniqueController;
 
 class MaterialEventArgs : public EventArgs
 {
 public:
-	MaterialEventArgs(MaterialController* material);
+	MaterialEventArgs(MaterialController* mc);
+	MaterialEventArgs(MaterialController* mc, TechniqueController* tc);
 
 	MaterialController* getMaterialController() const;
+	TechniqueController* getTechniqueController() const;
 
 protected:
 	MaterialController* mMaterialController;
+	TechniqueController* mTechniqueController;
 };
 
 #endif // _MATERIALEVENTARGS_H_

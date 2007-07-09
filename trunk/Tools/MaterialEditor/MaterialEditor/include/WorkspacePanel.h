@@ -29,13 +29,23 @@ Torus Knot Software Ltd.
 #ifndef _WORKSPACEPANEL_H_
 #define _WORKSPACEPANEL_H_
 
-#include "wx/panel.h"
-#include "wx/treectrl.h"
+#include <map>
+
+#include <wx/panel.h>
+#include <wx/treectrl.h>
 
 class wxBitmapButton;
 class wxFlexGridSizer;
+class wxMenu;
 
 class EventArgs;
+class MaterialController;
+class Project;
+class TechniqueController;
+
+typedef std::map<Project*, wxTreeItemId> ProjectIdMap;
+typedef std::map<MaterialController*, wxTreeItemId> MaterialIdMap;
+typedef std::map<TechniqueController*, wxTreeItemId> TechniqueIdMap;
 
 class WorkspacePanel : public wxPanel
 {
@@ -49,17 +59,58 @@ public:
 
 	virtual ~WorkspacePanel();
 
+	void OnRightClick(wxTreeEvent& event);
+
+	// Workspace Event Handlers
 	void projectAdded(EventArgs& args);
 	void projectRemoved(EventArgs& args);
 
+	// Project Event Handlers
+	void projectNameChanged(EventArgs& args);
+	void projectMaterialAdded(EventArgs& args);
+	void projectMaterialRemoved(EventArgs& args);
+
+	// Material Event Handlers
+	void materialNameChanged(EventArgs& args);
+	void materialTechniqueAdded(EventArgs& args);
+	void materialTechniqueRemoved(EventArgs& args);
+
+	// Technique Event Handlers
+	void techniquePassAdded(EventArgs& args);
+	void techniquePassRemoved(EventArgs& args);
+
 protected:
 	void createPanel();
+
+	void appendNewMenu(wxMenu* menu);
+	void showContextMenu(wxPoint point, wxTreeItemId id);
+	void appendProjectMenuItems(wxMenu* menu);
+	void appendMaterialMenuItems(wxMenu* memu);
+	void appendTechniqueMenuItems(wxMenu* menu);
+	void appendPassMenuItems(wxMenu* menu);
+
+	bool isProject(wxTreeItemId id);
+	bool isMaterial(wxTreeItemId id);
+	bool isTechnique(wxTreeItemId id);
+
+	// Event Handling Utils
+	void subscribe(Project* project);
+	void subscribe(MaterialController* material);
+	void subscribe(TechniqueController* technique);
 
 	wxFlexGridSizer* mSizer;
 	wxPanel* mToolBarPanel;
 	wxTreeCtrl* mTreeCtrl;
 
 	wxTreeItemId mRootId;
+
+	wxMenu* mNewMenu;
+
+	ProjectIdMap mProjectIdMap;
+	MaterialIdMap mMaterialIdMap;
+	TechniqueIdMap mTechniqueIdMap;
+
+	DECLARE_EVENT_TABLE()
 };
 
 #endif // _WORKSPACEPANEL_H_

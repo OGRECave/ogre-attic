@@ -29,7 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt
 
 #include <wx/wizard.h>
 
-class MaterialPage;
+#include "MaterialPage.h"
 
 class MaterialWizard : public wxWizard
 {
