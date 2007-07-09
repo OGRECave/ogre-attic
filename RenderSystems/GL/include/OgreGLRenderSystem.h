@@ -68,8 +68,8 @@ namespace Ogre {
         FilterOptions mMinFilter;
         FilterOptions mMipFilter;
 
-        // XXX 8 max texture units?
-        size_t mTextureCoordIndex[OGRE_MAX_TEXTURE_COORD_SETS];
+        // What texture coord set each texture unit is using
+        size_t mTextureCoordIndex[OGRE_MAX_TEXTURE_LAYERS];
 
         /// holds texture type settings for every stage
         GLenum mTextureTypes[OGRE_MAX_TEXTURE_LAYERS];
