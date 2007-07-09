@@ -174,13 +174,14 @@ namespace Ogre {
     void CgProgram::buildConstantDefinitions() const
     {
         // Derive parameter names from Cg
-        assert(mCgProgram && "Cg program not loaded!");
 
 		mFloatLogicalToPhysical.bufferSize = 0;
 		mIntLogicalToPhysical.bufferSize = 0;
 		mConstantDefs.floatBufferSize = 0;
 		mConstantDefs.intBufferSize = 0;
 
+		if (!mCgProgram)
+			return;
 
 		recurseParams(cgGetFirstParameter(mCgProgram, CG_PROGRAM));
         recurseParams(cgGetFirstParameter(mCgProgram, CG_GLOBAL));
