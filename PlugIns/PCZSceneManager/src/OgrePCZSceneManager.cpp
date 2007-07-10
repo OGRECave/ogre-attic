@@ -136,14 +136,12 @@ namespace Ogre
 	{
 		ZoneMap::iterator i;
 		PCZone * zone;
-		for (i = mZones.begin(); i != mZones.end(); i++)
+		i = mZones.find(zoneName);
+		if (i != mZones.end())
 		{
 			zone = i->second;
-			if (zone->getName() == zoneName)
-			{
-				zone->setZoneGeometry( filename, parentNode );
-				return;
-			}
+			zone->setZoneGeometry( filename, parentNode );
+			return;
 		}
 
 	}
@@ -616,17 +614,23 @@ namespace Ogre
 			while ( zit != mZones.end() )
 			{
 				zone = zit->second;
-				if (zone->getEnclosureNode())
+				AxisAlignedBox aabb;
+				zone->getAABB(aabb);
+				SceneNode * enclosureNode = zone->getEnclosureNode();
+				if (enclosureNode != 0)
 				{
-					if (zone->getEnclosureNode()->_getWorldAABB().contains(nodeCenter))
+					// since this is the "local" AABB, add in world translation of the enclosure node
+					aabb.setMinimum(aabb.getMinimum() + enclosureNode->_getDerivedPosition());
+					aabb.setMaximum(aabb.getMaximum() + enclosureNode->_getDerivedPosition());
+				}
+				if (aabb.contains(nodeCenter))
+				{
+					if (aabb.volume() < bestVolume)
 					{
-						if (zone->getEnclosureNode()->_getWorldAABB().volume() < bestVolume)
-						{
-							// this zone is "smaller" than the current best zone, so make it
-							// the new best zone
-							bestZone = zone;
-							bestVolume = zone->getEnclosureNode()->_getWorldAABB().volume();
-						}
+						// this zone is "smaller" than the current best zone, so make it
+						// the new best zone
+						bestZone = zone;
+						bestVolume = aabb.volume();
 					}
 				}
 				// proceed to next zone in the list

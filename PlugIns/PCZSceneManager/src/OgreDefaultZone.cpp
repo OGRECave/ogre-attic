@@ -173,7 +173,8 @@ namespace Ogre
 				// node is touching this portal
 				connectedZone = p->getTargetZone();
 				// add zone to the nodes visiting zone list unless it is the home zone of the node
-				if (connectedZone != pczsn->getHomeZone())
+				if (connectedZone != pczsn->getHomeZone() &&
+					!pczsn->isVisitingZone(connectedZone))
 				{
 					pczsn->addZoneToVisitingZonesMap(connectedZone);
 					// tell the connected zone that the node is visiting it
@@ -296,6 +297,7 @@ namespace Ogre
 	*/
 	void DefaultZone::updatePortalsZoneData(void)
 	{
+		PortalList transferPortalList;
 		// check each portal to see if it's intersecting another portal of greater size
 		for ( PortalList::iterator it = mPortals.begin(); it != mPortals.end(); ++it )
 		{
@@ -314,9 +316,9 @@ namespace Ogre
 					// Portal#2 is bigger than Portal1, check for crossing
 					if (p->crossedPortal(p2))
 					{
-						// portal#1 crossed portal#2 - move portal#1 to portal#2's target zone
-						this->_removePortal(p);
-						p2->getTargetZone()->_addPortal(p);
+						// portal#1 crossed portal#2 - flag portal#1 to be moved to portal#2's target zone
+						p->setNewHomeZone(p2->getTargetZone());
+						transferPortalList.push_back(p);
 						break;
 					}
 				}
@@ -344,6 +346,18 @@ namespace Ogre
 				}
 			}
 		}
+		// transfer any portals to new zones that have been flagged
+		for ( PortalList::iterator it = transferPortalList.begin(); it != transferPortalList.end(); ++it )
+		{
+			Portal * p = *it;
+			if (p->getNewHomeZone() != 0)
+			{
+				_removePortal(p);
+				p->getNewHomeZone()->_addPortal(p);
+				p->setNewHomeZone(0);
+			}
+		}
+		transferPortalList.clear();
 	}
 
     /* The following function checks if a node has left it's current home zone.

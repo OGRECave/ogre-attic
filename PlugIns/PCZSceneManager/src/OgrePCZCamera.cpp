@@ -148,7 +148,19 @@ namespace Ogre
         {
             return false;
         }
-        
+
+		// if portal is of type AABB or Sphere, then use simple bound check against planes
+		if (portal->getType() == Portal::PORTAL_TYPE_AABB)
+		{
+			AxisAlignedBox aabb;
+			aabb.setExtents(portal->getDerivedCorner(0), portal->getDerivedCorner(1));
+			return Camera::isVisible(aabb, culledBy);
+		}
+		else if (portal->getType() == Portal::PORTAL_TYPE_SPHERE)
+		{
+			return Camera::isVisible(portal->getDerivedSphere(), culledBy);
+		}
+
         // check if the portal norm is facing the camera
 		Vector3 cameraToPortal = portal->getDerivedCP() - getDerivedPosition();
 		Vector3 portalDirection = portal->getDerivedDirection();
@@ -166,9 +178,6 @@ namespace Ogre
             // If so, object is not visible
 			// NOTE: We skip the NEAR plane (plane #0) because Portals need to
 			// be visible no matter how close you get to them.  
-			// BUGBUG: This can cause a false positive situation when a portal is 
-			// behind the camera but close.  This could be fixed by having another
-			// culling plane at the camera location with normal same as camera direction.
 
             for (int plane = 1; plane < 6; ++plane)
             {

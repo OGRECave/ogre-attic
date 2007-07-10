@@ -84,6 +84,8 @@ namespace Ogre
 
 		/* isVisible function for aabb */
 		bool isVisible( const AxisAlignedBox &bound) const;
+		/* isVisible function for sphere */
+		bool isVisible( const Sphere &bound) const;
         /* isVisible() function for portals */
         bool isVisible (Portal * portal);
         /* more detailed check for visibility of an AABB */

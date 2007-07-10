@@ -99,6 +99,42 @@ namespace Ogre
 		return true;
     }
 
+    bool PCZFrustum::isVisible( const Sphere & bound) const
+    {
+        // Check originplane if told to
+        if (mUseOriginPlane)
+        {
+            Plane::Side side = mOriginPlane.getSide(bound.getCenter());
+            if (side == Plane::NEGATIVE_SIDE)
+            {
+				Real dist = mOriginPlane.getDistance(bound.getCenter());
+				if (dist > bound.getRadius())
+				{
+					return false;
+				}
+            }
+        }
+
+        // For each extra culling plane, see if the entire sphere is on the negative side
+        // If so, object is not visible
+        PCPlaneList::const_iterator pit = mCullingPlanes.begin();
+        while ( pit != mCullingPlanes.end() )
+        {
+            PCPlane * plane = *pit;
+            Plane::Side xside = plane->getSide(bound.getCenter());
+            if (xside == Plane::NEGATIVE_SIDE)
+            {
+				Real dist = plane->getDistance(bound.getCenter());
+				if (dist > bound.getRadius())
+				{
+					return false;
+				}
+            }
+            pit++;
+        }
+		return true;
+    }
+
     /* isVisible() function for portals */
     // NOTE: Everything needs to be updated spatially before this function is
     //       called including portal corners, frustum planes, etc.
@@ -121,6 +157,17 @@ namespace Ogre
 			}
             pit++;
         }
+		// if portal is of type AABB or Sphere, then use simple bound check against planes
+		if (portal->getType() == Portal::PORTAL_TYPE_AABB)
+		{
+			AxisAlignedBox aabb;
+			aabb.setExtents(portal->getDerivedCorner(0), portal->getDerivedCorner(1));
+			return isVisible(aabb);
+		}
+		else if (portal->getType() == Portal::PORTAL_TYPE_SPHERE)
+		{
+			return isVisible(portal->getDerivedSphere());
+		}
 
         // check if the portal norm is facing the frustum
 		Vector3 frustumToPortal = portal->getDerivedCP() - mOrigin;
@@ -158,7 +205,7 @@ namespace Ogre
             }
         }
 
-       // For each  culling plane, see if all portal points are on the negative 
+        // For each  culling plane, see if all portal points are on the negative 
         // side. If so, the portal is not visible
         pit = mCullingPlanes.begin();
         while ( pit != mCullingPlanes.end() )
@@ -254,14 +301,28 @@ namespace Ogre
 	//		 returns > 0 if culling planes are added (# is planes added)
     int PCZFrustum::addPortalCullingPlanes(Portal * portal)
     {
-        // Up to 4 planes can be added by a portal
+		int addedcullingplanes = 0;
+
+		// If portal is of type aabb or sphere, add a plane which is same as frustum
+		// origin plane (ie. redundant).  We do this because we need the plane as a flag
+		// to prevent infinite recursion 
+		if (portal->getType() == Portal::PORTAL_TYPE_AABB ||
+			portal->getType() == Portal::PORTAL_TYPE_SPHERE)
+		{
+            PCPlane * newPlane = new PCPlane(mOriginPlane);
+            newPlane->setPortal(portal);
+            mCullingPlanes.push_front(newPlane);
+			addedcullingplanes++;
+			return addedcullingplanes;
+		}
+
+        // For portal Quads: Up to 4 planes can be added by a portal quad
         // each plane is created from 2 corners (world space) of the portal
         // and the frustum origin (world space).
 		int i,j;
 		Plane::Side pt0_side, pt1_side;
 		bool visible;
         PCPlaneList::iterator pit;
-		int addedcullingplanes = 0;
         for (i=0;i<4;i++)
         {
             // first check if both corners are outside of one of the existing planes

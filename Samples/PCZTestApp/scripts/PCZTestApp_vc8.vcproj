@@ -209,18 +209,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc"
 			>
 			<File
-				RelativePath="..\include\ExampleApplication.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\ExampleFrameListener.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\ExampleLoadingBar.h"
-				>
-			</File>
-			<File
 				RelativePath="..\include\PCZTestApp.h"
 				>
 			</File>
