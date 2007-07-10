@@ -67,7 +67,7 @@ void MaterialPage::createPage()
 	
 	// TODO: Select first Project
 	mProjectComboBox = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, projectNames, wxCB_DROPDOWN);
-
+	mProjectComboBox->SetEditable(false);
 	mSizer->Add(mProjectComboBox, 0, wxALL | wxEXPAND, 5);
 	
 	// Name Label
@@ -92,5 +92,10 @@ Project* MaterialPage::getProject() const
 	wxString project = mProjectComboBox->GetValue();
 
 	return Workspace::getSingletonPtr()->getProject(project.c_str());
+}
+
+void MaterialPage::setProject(Project* project)
+{
+	mProjectComboBox->SetValue(project->getName().c_str());
 }
 

@@ -46,6 +46,7 @@ public:
 
 	void getName(wxString& name) const;
 	Project* getProject() const;
+	void setProject(Project* project);
 
 protected:
 	void createPage();

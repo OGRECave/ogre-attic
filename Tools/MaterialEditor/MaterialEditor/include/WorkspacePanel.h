@@ -35,17 +35,21 @@ Torus Knot Software Ltd.
 #include <wx/treectrl.h>
 
 class wxBitmapButton;
+class wxCommandEvent;
 class wxFlexGridSizer;
+class wxImageList;
 class wxMenu;
 
 class EventArgs;
 class MaterialController;
+class PassController;
 class Project;
 class TechniqueController;
 
 typedef std::map<Project*, wxTreeItemId> ProjectIdMap;
 typedef std::map<MaterialController*, wxTreeItemId> MaterialIdMap;
 typedef std::map<TechniqueController*, wxTreeItemId> TechniqueIdMap;
+typedef std::map<PassController*, wxTreeItemId> PassIdMap;
 
 class WorkspacePanel : public wxPanel
 {
@@ -60,6 +64,10 @@ public:
 	virtual ~WorkspacePanel();
 
 	void OnRightClick(wxTreeEvent& event);
+	void OnNewProject(wxCommandEvent& event);
+	void OnNewMaterial(wxCommandEvent& event);
+	void OnNewTechnique(wxCommandEvent& event);
+	void OnNewPass(wxCommandEvent& event);
 
 	// Workspace Event Handlers
 	void projectAdded(EventArgs& args);
@@ -81,7 +89,8 @@ public:
 
 protected:
 	void createPanel();
-
+	wxImageList* getImageList();
+	
 	void appendNewMenu(wxMenu* menu);
 	void showContextMenu(wxPoint point, wxTreeItemId id);
 	void appendProjectMenuItems(wxMenu* menu);
@@ -89,6 +98,12 @@ protected:
 	void appendTechniqueMenuItems(wxMenu* menu);
 	void appendPassMenuItems(wxMenu* menu);
 
+	Project* getProject(wxTreeItemId id);
+	MaterialController* getMaterial(wxTreeItemId id);
+	TechniqueController* getTechnique(wxTreeItemId id);
+	PassController* getPass(wxTreeItemId id);
+
+	bool isWorkspace(wxTreeItemId id);
 	bool isProject(wxTreeItemId id);
 	bool isMaterial(wxTreeItemId id);
 	bool isTechnique(wxTreeItemId id);
@@ -98,6 +113,7 @@ protected:
 	void subscribe(MaterialController* material);
 	void subscribe(TechniqueController* technique);
 
+	wxImageList* mImageList;
 	wxFlexGridSizer* mSizer;
 	wxPanel* mToolBarPanel;
 	wxTreeCtrl* mTreeCtrl;
@@ -109,6 +125,7 @@ protected:
 	ProjectIdMap mProjectIdMap;
 	MaterialIdMap mMaterialIdMap;
 	TechniqueIdMap mTechniqueIdMap;
+	PassIdMap mPassIdMap;
 
 	DECLARE_EVENT_TABLE()
 };
