@@ -228,7 +228,7 @@ namespace Ogre {
 	}
 	//---------------------------------------------------------------------
 	BackgroundProcessTicket ResourceBackgroundQueue::unload(
-		const String& resType, const String& name)
+		const String& resType, const String& name, Listener* listener)
 	{
 #if OGRE_THREAD_SUPPORT
 		if (!mThread && mStartThread)
@@ -242,6 +242,7 @@ namespace Ogre {
 		req.type = RT_UNLOAD_RESOURCE;
 		req.resourceType = resType;
 		req.resourceName = name;
+		req.listener = listener;
 		return addRequest(req);
 #else
 		// synchronous
@@ -254,7 +255,7 @@ namespace Ogre {
 	}
 	//---------------------------------------------------------------------
 	BackgroundProcessTicket ResourceBackgroundQueue::unload(
-		const String& resType, ResourceHandle handle)
+		const String& resType, ResourceHandle handle, Listener* listener)
 	{
 #if OGRE_THREAD_SUPPORT
 		if (!mThread && mStartThread)
@@ -268,6 +269,7 @@ namespace Ogre {
 		req.type = RT_UNLOAD_RESOURCE;
 		req.resourceType = resType;
 		req.resourceHandle = handle;
+		req.listener = listener;
 		return addRequest(req);
 #else
 		// synchronous
@@ -279,7 +281,8 @@ namespace Ogre {
 
 	}
 	//---------------------------------------------------------------------
-	BackgroundProcessTicket ResourceBackgroundQueue::unloadResourceGroup(const String& name)
+	BackgroundProcessTicket ResourceBackgroundQueue::unloadResourceGroup(
+		const String& name, Listener* listener)
 	{
 #if OGRE_THREAD_SUPPORT
 		if (!mThread && mStartThread)
@@ -292,6 +295,7 @@ namespace Ogre {
 		Request req;
 		req.type = RT_UNLOAD_GROUP;
 		req.groupName = name;
+		req.listener = listener;
 		return addRequest(req);
 #else
 		// synchronous

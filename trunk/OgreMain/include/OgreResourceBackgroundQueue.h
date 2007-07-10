@@ -295,7 +295,8 @@ namespace Ogre {
 		@param name The name of the Resource
 		*/
 		virtual BackgroundProcessTicket unload(
-			const String& resType, const String& name);
+			const String& resType, const String& name, 
+			Listener* listener = 0);
 
 		/** Unload a single resource in the background. 
 		@see ResourceManager::unload
@@ -304,7 +305,8 @@ namespace Ogre {
 		@param handle Handle to the resource 
 		*/
 		virtual BackgroundProcessTicket unload(
-			const String& resType, ResourceHandle handle);
+			const String& resType, ResourceHandle handle, 
+			Listener* listener = 0);
 
 		/** Unloads a resource group in the background.
 		@see ResourceGroupManager::unloadResourceGroup
@@ -312,7 +314,8 @@ namespace Ogre {
 		@returns Ticket identifying the request, use isProcessComplete() to 
 			determine if completed if not using listener
 		*/
-		virtual BackgroundProcessTicket unloadResourceGroup(const String& name);
+		virtual BackgroundProcessTicket unloadResourceGroup(const String& name, 
+			Listener* listener = 0);
 
 
 		/** Load a single resource in the background. 

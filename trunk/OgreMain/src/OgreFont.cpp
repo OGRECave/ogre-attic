@@ -190,8 +190,17 @@ namespace Ogre
     //---------------------------------------------------------------------
     void Font::unloadImpl()
     {
-		// Cascade to the texture we created
-        mTexture->unload();
+		if (!mpMaterial.isNull())
+		{
+			MaterialManager::getSingleton().remove(mpMaterial->getHandle());
+			mpMaterial.setNull();
+		}
+
+		if (!mTexture.isNull())
+		{
+			TextureManager::getSingleton().remove(mTexture->getHandle());
+			mTexture.setNull();
+		}
     }
     //---------------------------------------------------------------------
     void Font::createTextureFromFont(void)
