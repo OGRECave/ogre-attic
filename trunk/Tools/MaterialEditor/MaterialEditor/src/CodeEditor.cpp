@@ -98,7 +98,7 @@ CodeEditor::CodeEditor(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
 
 	// Set defaults, these should eventually be set via user prefs
 	SetViewEOL(false);
-	SetIndentationGuides(true);
+	SetIndentationGuides(false);
 	SetMarginWidth(mLineNumID, mLineNumMargin);
 	SetEdgeMode(wxSCI_EDGE_LINE);
 	//SetViewWhiteSpace(wxSCI_WS_VISIBLEALWAYS);
@@ -108,11 +108,11 @@ CodeEditor::CodeEditor(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
 
 	wxFont font(10, wxTELETYPE, wxNORMAL, wxNORMAL);
 	StyleSetFont(wxSCI_STYLE_DEFAULT, font);
-	StyleSetForeground(wxSCI_STYLE_DEFAULT, wxColour(_T("BLACK")));
-	StyleSetBackground(wxSCI_STYLE_DEFAULT, wxColour(_T("WHITE")));
-	StyleSetForeground(wxSCI_STYLE_LINENUMBER, wxColour(_T("DARK BLUE")));
-	StyleSetBackground(wxSCI_STYLE_LINENUMBER, wxColour(_T("WHITE")));
-	StyleSetForeground(wxSCI_STYLE_INDENTGUIDE, wxColour(_T("DARK GREY")));
+	StyleSetForeground(wxSCI_STYLE_DEFAULT, wxColour(wxT("BLACK")));
+	StyleSetBackground(wxSCI_STYLE_DEFAULT, wxColour(wxT("WHITE")));
+	StyleSetForeground(wxSCI_STYLE_LINENUMBER, wxColour(wxT("DARK BLUE")));
+	StyleSetBackground(wxSCI_STYLE_LINENUMBER, wxColour(wxT("WHITE")));
+	StyleSetForeground(wxSCI_STYLE_INDENTGUIDE, wxColour(wxT("DARK GREY")));
 	//InitializePrefs(DEFAULT_LANGUAGE);
 	SetTabWidth(4);
 	SetUseTabs(false);
@@ -124,6 +124,9 @@ CodeEditor::CodeEditor(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
 	SetVisiblePolicy(wxSCI_VISIBLE_STRICT | wxSCI_VISIBLE_SLOP, 1);
 	SetXCaretPolicy(wxSCI_CARET_EVEN | wxSCI_VISIBLE_STRICT | wxSCI_CARET_SLOP, 1);
 	SetYCaretPolicy(wxSCI_CARET_EVEN | wxSCI_VISIBLE_STRICT | wxSCI_CARET_SLOP, 1);
+
+	SetCaretLineVisible(true);
+	SetCaretLineBackground(wxColour(225, 235, 224));
 
 	// Markers
 	MarkerDefine(wxSCI_MARKNUM_FOLDER, wxSCI_MARK_BOXPLUS);
