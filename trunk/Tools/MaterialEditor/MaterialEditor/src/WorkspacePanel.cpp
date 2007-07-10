@@ -30,7 +30,9 @@ Torus Knot Software Ltd.
 
 #include <boost/bind.hpp>
 
+#include <wx/bitmap.h>
 #include <wx/button.h>
+#include <wx/imaglist.h>
 #include <wx/menu.h>
 #include <wx/sizer.h>
 
@@ -41,13 +43,21 @@ Torus Knot Software Ltd.
 #include "EventArgs.h"
 #include "MaterialController.h"
 #include "MaterialEventArgs.h"
+#include "MaterialWizard.h"
 #include "PassController.h"
 #include "Project.h"
 #include "ProjectEventArgs.h"
+#include "ProjectWizard.h"
 #include "TechniqueController.h"
 #include "TechniqueEventArgs.h"
 #include "Workspace.h"
 #include "WorkspaceEventArgs.h"
+
+#define WORKSPACE_IMAGE 0
+#define PROJECT_IMAGE 1
+#define MATERIAL_IMAGE 2
+#define TECHNIQUE_IMAGE 3
+#define PASS_IMAGE 4
 
 const long ID_TREE_CTRL = wxNewId();
 const long ID_MENU_NEW = wxNewId();
@@ -60,6 +70,10 @@ const long ID_MENU_DELETE = wxNewId();
 
 BEGIN_EVENT_TABLE(WorkspacePanel, wxPanel)
 	EVT_TREE_ITEM_RIGHT_CLICK(ID_TREE_CTRL, WorkspacePanel::OnRightClick)
+	EVT_MENU(ID_MENU_NEW_PROJECT, WorkspacePanel::OnNewProject)
+	EVT_MENU(ID_MENU_NEW_MATERIAL, WorkspacePanel::OnNewMaterial)
+	EVT_MENU(ID_MENU_NEW_TECHNIQUE, WorkspacePanel::OnNewTechnique)
+	EVT_MENU(ID_MENU_NEW_PASS, WorkspacePanel::OnNewPass)
 END_EVENT_TABLE()
 
 WorkspacePanel::WorkspacePanel(wxWindow* parent,
@@ -68,7 +82,7 @@ WorkspacePanel::WorkspacePanel(wxWindow* parent,
 			   const wxSize& size /* = wxDefaultSize */,
 			   long style /* = wxTAB_TRAVERSAL | wxNO_BORDER */,
 			   const wxString& name /* = wxT("Workspace Panel")) */)
-			   : wxPanel(parent, id, pos, size, style, name)
+			   : mImageList(NULL), wxPanel(parent, id, pos, size, style, name)
 {
 	createPanel();
 
@@ -92,7 +106,8 @@ void WorkspacePanel::createPanel()
 	//mSizer->Add(mToolBarPanel, 1, wxALL | wxEXPAND, 0);
 
 	mTreeCtrl = new wxTreeCtrl(this, ID_TREE_CTRL, wxDefaultPosition, wxDefaultSize, wxNO_BORDER | wxTR_FULL_ROW_HIGHLIGHT | wxTR_HAS_BUTTONS | wxTR_SINGLE);
-	mRootId = mTreeCtrl->AddRoot(wxT("Workspace"));
+	mTreeCtrl->AssignImageList(getImageList());
+	mRootId = mTreeCtrl->AddRoot(wxT("Workspace"), WORKSPACE_IMAGE);
 
 	mSizer->Add(mTreeCtrl, 0, wxALL | wxEXPAND, 0);
 
@@ -100,35 +115,58 @@ void WorkspacePanel::createPanel()
 	Layout();
 }
 
+wxImageList* WorkspacePanel::getImageList()
+{
+	if(mImageList == NULL)
+	{
+		wxBitmap workspaceImage;
+		workspaceImage.LoadFile("resources/images/workspace.png", wxBITMAP_TYPE_PNG);
+
+		wxBitmap projectImage;
+		projectImage.LoadFile("resources/images/project.png", wxBITMAP_TYPE_PNG);
+
+		wxBitmap materialImage;
+		materialImage.LoadFile("resources/images/material.png", wxBITMAP_TYPE_PNG);
+
+		wxBitmap techniqueImage;
+		techniqueImage.LoadFile("resources/images/technique.png", wxBITMAP_TYPE_PNG);
+
+		wxBitmap passImage;
+		passImage.LoadFile("resources/images/pass.png", wxBITMAP_TYPE_PNG);
+
+		mImageList = new wxImageList(16, 16, true, 5);
+		mImageList->Add(workspaceImage);
+		mImageList->Add(projectImage);
+		mImageList->Add(materialImage);
+		mImageList->Add(techniqueImage);
+		mImageList->Add(passImage);
+	}
+
+	return mImageList;
+}
+
 void WorkspacePanel::showContextMenu(wxPoint point, wxTreeItemId id)
 {
-	wxMenu* contextMenu = new wxMenu();
-	appendNewMenu(contextMenu);
-	contextMenu->AppendSeparator();
-	if(isProject(id)) appendProjectMenuItems(contextMenu);
-	else if(isMaterial(id)) appendMaterialMenuItems(contextMenu);
-	else if(isTechnique(id)) appendTechniqueMenuItems(contextMenu);
-	else appendPassMenuItems(contextMenu);
+	wxMenu contextMenu;
+	appendNewMenu(&contextMenu);
+	contextMenu.AppendSeparator();
+	if(isProject(id)) appendProjectMenuItems(&contextMenu);
+	else if(isMaterial(id)) appendMaterialMenuItems(&contextMenu);
+	else if(isTechnique(id)) appendTechniqueMenuItems(&contextMenu);
+	//else appendPassMenuItems(&contextMenu);
 
-	PopupMenu(contextMenu, point);
-
-	contextMenu->Remove(ID_MENU_NEW);
-
-	delete contextMenu;
+	PopupMenu(&contextMenu, point);
 }
 
 void WorkspacePanel::appendNewMenu(wxMenu* menu)
 {
-	if(mNewMenu == NULL)
-	{
-		mNewMenu = new wxMenu(wxEmptyString);
-		mNewMenu->Append(ID_MENU_NEW_PROJECT, wxT("Project"));
-		mNewMenu->Append(ID_MENU_NEW_MATERIAL, wxT("Material"));
-		mNewMenu->Append(ID_MENU_NEW_TECHNIQUE, wxT("Technique"));
-		mNewMenu->Append(ID_MENU_NEW_PASS, wxT("Pass"));
-	}
+	wxMenu* newMenu = new wxMenu();
+	newMenu->Append(ID_MENU_NEW_PROJECT, wxT("Project"));
+	newMenu->Append(ID_MENU_NEW_MATERIAL, wxT("Material"));
+	newMenu->Append(ID_MENU_NEW_TECHNIQUE, wxT("Technique"));
+	newMenu->Append(ID_MENU_NEW_PASS, wxT("Pass"));
 
-	menu->AppendSubMenu(mNewMenu, wxT("New"));
+	menu->AppendSubMenu(newMenu, wxT("New"));
 }
 
 void WorkspacePanel::appendProjectMenuItems(wxMenu* menu)
@@ -148,34 +186,64 @@ void WorkspacePanel::appendPassMenuItems(wxMenu* menu)
 	menu->AppendCheckItem(ID_MENU_PASS_ENABLED, wxT("Enabled"));
 }
 
-bool WorkspacePanel::isProject(wxTreeItemId id)
+Project* WorkspacePanel::getProject(wxTreeItemId id)
 {
 	for(ProjectIdMap::iterator it = mProjectIdMap.begin(); it != mProjectIdMap.end(); ++it)
 	{
-		if(it->first == id) return true;
+		if(it->second == id) return it->first;
 	}
 
-	return false;
+	return NULL;
+}
+
+MaterialController* WorkspacePanel::getMaterial(wxTreeItemId id)
+{
+	for(MaterialIdMap::iterator it = mMaterialIdMap.begin(); it != mMaterialIdMap.end(); ++it)
+	{
+		if(it->second == id) return it->first;
+	}
+
+	return NULL;
+}
+
+TechniqueController* WorkspacePanel::getTechnique(wxTreeItemId id)
+{
+	for(TechniqueIdMap::iterator it = mTechniqueIdMap.begin(); it != mTechniqueIdMap.end(); ++it)
+	{
+		if(it->second == id) return it->first;
+	}
+
+	return NULL;
+}
+
+PassController* WorkspacePanel::getPass(wxTreeItemId id)
+{
+	for(PassIdMap::iterator it = mPassIdMap.begin(); it != mPassIdMap.end(); ++it)
+	{
+		if(it->second == id) return it->first;
+	}
+
+	return NULL;
+}
+
+bool WorkspacePanel::isWorkspace(wxTreeItemId id)
+{
+	return mRootId == id;
+}
+
+bool WorkspacePanel::isProject(wxTreeItemId id)
+{
+	return getProject(id) != NULL;
 }
 
 bool WorkspacePanel::isMaterial(wxTreeItemId id)
 {
-	for(MaterialIdMap::iterator it = mMaterialIdMap.begin(); it != mMaterialIdMap.end(); ++it)
-	{
-		if(it->first == id) return true;
-	}
-
-	return false;
+	return getMaterial(id) != NULL;
 }
 
 bool WorkspacePanel::isTechnique(wxTreeItemId id)
 {
-	for(TechniqueIdMap::iterator it = mTechniqueIdMap.begin(); it != mTechniqueIdMap.end(); ++it)
-	{
-		if(it->first == id) return true;
-	}
-
-	return false;
+	return getTechnique(id) != NULL;
 }
 
 void WorkspacePanel::subscribe(Project* project)
@@ -204,13 +272,44 @@ void WorkspacePanel::OnRightClick(wxTreeEvent& event)
 	showContextMenu(event.GetPoint(), event.GetItem());
 }
 
+void WorkspacePanel::OnNewProject(wxCommandEvent& event)
+{
+	ProjectWizard* wizard = new ProjectWizard();
+	wizard->Create(this, wxID_ANY, wxT("New Project"), wxNullBitmap, wxDefaultPosition, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
+	wizard->RunWizard(wizard->getProjectPage()); // This seems unnatural, seems there must be a better way to deal with wizards
+
+	wizard->Destroy();
+}
+
+void WorkspacePanel::OnNewMaterial(wxCommandEvent& event)
+{
+	wxTreeItemId id = mTreeCtrl->GetSelection();
+
+	MaterialWizard* wizard = new MaterialWizard();
+	wizard->Create(this, wxID_ANY, wxT("New Project"), wxNullBitmap, wxDefaultPosition, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
+	wizard->getMaterialPage()->setProject(getProject(id));
+	wizard->RunWizard(wizard->getMaterialPage()); // This seems unnatural, seems there must be a better way to deal with wizards
+
+	wizard->Destroy();
+}
+
+void WorkspacePanel::OnNewTechnique(wxCommandEvent& event)
+{
+
+}
+
+void WorkspacePanel::OnNewPass(wxCommandEvent& event)
+{
+
+}
+
 void WorkspacePanel::projectAdded(EventArgs& args)
 {
 	WorkspaceEventArgs wea = dynamic_cast<WorkspaceEventArgs&>(args);
 	Project* project = wea.getProject();
 	subscribe(project);
 
-	wxTreeItemId id = mTreeCtrl->AppendItem(mRootId, project->getName().c_str());
+	wxTreeItemId id = mTreeCtrl->AppendItem(mRootId, project->getName().c_str(), PROJECT_IMAGE);
 	mTreeCtrl->SelectItem(id, true);
 
 	mProjectIdMap[project] = id;
@@ -237,7 +336,7 @@ void WorkspacePanel::projectMaterialAdded(EventArgs& args)
 	MaterialController* material = pea.getMaterial();
 
 	wxTreeItemId projectId = mProjectIdMap[project];
-	wxTreeItemId id = mTreeCtrl->AppendItem(projectId, material->getMaterial()->getName().c_str());
+	wxTreeItemId id = mTreeCtrl->AppendItem(projectId, material->getMaterial()->getName().c_str(), MATERIAL_IMAGE);
 	mTreeCtrl->SelectItem(id, true);
 
 	mMaterialIdMap[material] = id;
@@ -264,7 +363,7 @@ void WorkspacePanel::materialTechniqueAdded(EventArgs& args)
 	TechniqueController* tc = mea.getTechniqueController();
 
 	wxTreeItemId materialId = mMaterialIdMap[mc];
-	wxTreeItemId id = mTreeCtrl->AppendItem(materialId, tc->getTechnique()->getName().c_str());
+	wxTreeItemId id = mTreeCtrl->AppendItem(materialId, tc->getTechnique()->getName().c_str(), TECHNIQUE_IMAGE);
 	mTreeCtrl->SelectItem(id, true);
 }
 
@@ -280,8 +379,10 @@ void WorkspacePanel::techniquePassAdded(EventArgs& args)
 	PassController* pc = tea.getPassController();
 
 	wxTreeItemId techniqueId = mTechniqueIdMap[tc];
-	wxTreeItemId id = mTreeCtrl->AppendItem(techniqueId, pc->getPass()->getName().c_str());
+	wxTreeItemId id = mTreeCtrl->AppendItem(techniqueId, pc->getPass()->getName().c_str(), PASS_IMAGE);
 	mTreeCtrl->SelectItem(id, true);
+
+	mPassIdMap[pc] = id;
 }
 
 void WorkspacePanel::techniquePassRemoved(EventArgs& args)

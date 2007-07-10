@@ -59,7 +59,7 @@ protected:
 	void createDummyControl(void);
 	void createAuiManager(void);
 	void createAuiNotebookPane(void);
-	void createWorkspacePane(void);
+	void createManagementPane(void);
 	void createLogPane(void);
 	void createPropertiesPane();
 	void createOgrePane(void);
@@ -93,7 +93,7 @@ private:
 	wxAuiManager* mAuiManager;
 
 	wxAuiNotebook* mAuiNotebook;
-	wxNotebook* mWorkspaceNotebook;
+	wxAuiNotebook* mManagementNotebook;
 	WorkspacePanel* mWorkspacePanel;
 	ResourcePanel* mResourcePanel;
 	wxPropertyGridManager* mPropertyGrid;
