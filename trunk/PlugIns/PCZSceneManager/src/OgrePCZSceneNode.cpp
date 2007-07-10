@@ -141,17 +141,27 @@ namespace Ogre
 		{
 			mHomeZone = 0;
 		}
-		// go through the list of visiting zones and remove
-		ZoneMap::iterator i, iend;
-		iend = mVisitingZones.end();
-		for (i = mVisitingZones.begin(); i != iend; ++i)
+		// search the map of visiting zones and remove
+		ZoneMap::iterator i;
+		i = mVisitingZones.find(zone->getName());
+		if (i != mVisitingZones.end())
 		{
-			if (i->second == zone)
-			{
-				mVisitingZones.erase(i);
-				break;
-			}
+			mVisitingZones.erase(i);
 		}
+	}
+	
+	/* returns true if zone is in the node's visiting zones map
+	   false otherwise.
+	*/
+	bool PCZSceneNode::isVisitingZone(PCZone * zone)
+	{
+		ZoneMap::iterator i;
+		i = mVisitingZones.find(zone->getName());
+		if (i != mVisitingZones.end())
+		{
+			return true;
+		}
+		return false;
 	}
 
     /** Adds the attached objects of this PCZSceneNode into the queue. */

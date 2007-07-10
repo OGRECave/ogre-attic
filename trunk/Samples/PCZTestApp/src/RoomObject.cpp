@@ -539,7 +539,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_FrontDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -557,7 +557,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_BackDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -575,7 +575,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_TopDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -593,7 +593,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_BottomDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -611,7 +611,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_LeftDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -629,7 +629,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_RightDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -650,7 +650,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_FrontDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -668,7 +668,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_BackDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -686,7 +686,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_TopDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -704,7 +704,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_BottomDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -722,7 +722,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_LeftDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -740,7 +740,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_RightDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -774,7 +774,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_FrontDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -792,7 +792,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_BackDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -810,7 +810,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_TopDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -828,7 +828,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_BottomDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -846,7 +846,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_LeftDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -864,7 +864,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_RightDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -885,7 +885,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_FrontDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -903,7 +903,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_BackDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -921,7 +921,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_TopDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -939,7 +939,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_BottomDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -957,7 +957,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_LeftDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone
@@ -975,7 +975,7 @@ void RoomObject::createPortals(Ogre::SceneManager *scene,
 			// create the portal
 			portalName = room->getName() + Ogre::String("_RightDoorPortal");
 			Portal * p = new Portal(portalName);
-			p->setCorners(corners[0], corners[1], corners[2], corners[3]);
+			p->setCorners(corners);
 			// associate the portal with the roomnode
 			p->setNode(roomNode);
 			// add the portal to the zone

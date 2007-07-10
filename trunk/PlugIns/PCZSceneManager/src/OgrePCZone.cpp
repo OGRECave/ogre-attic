@@ -84,6 +84,27 @@ namespace Ogre
 	{
 	}
 
+	/* get the aabb of the zone - default implementation
+	   uses the enclosure node, but there are other perhaps
+	   better ways
+	*/
+	void PCZone::getAABB(AxisAlignedBox & aabb)
+	{
+		// if there is no node, just return a null box
+		if (mEnclosureNode == 0)
+		{
+			aabb.setNull();
+		}
+		else
+		{
+			aabb = mEnclosureNode->_getWorldAABB();
+			// since this is the "local" AABB, subtract out any translations
+			aabb.setMinimum(aabb.getMinimum() - mEnclosureNode->_getDerivedPosition());
+			aabb.setMaximum(aabb.getMaximum() - mEnclosureNode->_getDerivedPosition());
+		}
+		return;
+	}
+
 	/***********************************************************************\
 	ZoneData - Zone-specific Data structure for Scene Nodes
 	/***********************************************************************/

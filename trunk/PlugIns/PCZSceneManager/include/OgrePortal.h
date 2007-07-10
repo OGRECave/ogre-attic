@@ -61,9 +61,18 @@ namespace Ogre
 	class _OgrePCZPluginExport Portal 
     {
     public:
-        Portal(const String &);
+		enum PORTAL_TYPE
+		{
+			PORTAL_TYPE_QUAD,
+			PORTAL_TYPE_AABB,
+			PORTAL_TYPE_SPHERE,
+		};
+        Portal(const String &, const PORTAL_TYPE type = PORTAL_TYPE_QUAD);
         ~Portal();
 
+		/* get the type of portal 
+		*/
+		const PORTAL_TYPE getType(void) const {return mType;}
 		/* Returns the name of the portal
 		*/
 		const String & getName(void) const { return mName; }
@@ -73,6 +82,9 @@ namespace Ogre
         /** Set the Zone the Portal targets (connects to)
         */
         void setTargetZone( PCZone * );
+		/** Set the zone this portal should be moved to
+		*/
+		void setNewHomeZone( PCZone * );
 		/** Set the target portal pointer
 		*/
 		void setTargetPortal( Portal * );
@@ -81,16 +93,48 @@ namespace Ogre
         void setCorner( int , Vector3 & );
         /** Set the local coordinates of all of the portal corners
         */
-        void setCorners( Vector3 &, Vector3 &, Vector3 &, Vector3 & );
-		/* Calculate the local direction of the portal
+        void setCorners( Vector3 * );
+		/** Set the "inward/outward norm" direction of AAB or SPHERE portals
+		    NOTE: UNIT_Z = "outward" norm, NEGATIVE_UNIT_Z = "inward" norm
+			NOTE: Remember, Portal norms always point towards the zone they are "in".
+		*/
+		void setDirection(const Vector3 &d)
+		{
+			switch (mType)
+			{
+			default:
+			case PORTAL_TYPE_QUAD:
+				OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+					"Cannot setDirection on a Quad type portal", 
+					"Portal::setDirection");
+				break;
+			case PORTAL_TYPE_AABB:
+			case PORTAL_TYPE_SPHERE:
+				if (d != Vector3::UNIT_Z &&
+					d != Vector3::NEGATIVE_UNIT_Z)
+				{
+					OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+						"Valid parameters are Vector3::UNIT_Z or Vector3::NEGATIVE_UNIT_Z", 
+						"Portal::setDirection");
+					return;
+				}
+				mDirection = d;
+				break;
+			}
+		}
+
+		/* Calculate the local direction and radius of the portal
 		*/
 		void calcDirectionAndRadius( void );
-        /** Calculate the radius of the portal from corner points
+        /** Retrieve the radius of the portal (calculates if necessary for quad portals)
         */
 		Real getRadius( void );
         /** Get the Zone the Portal connects to
         */
         PCZone * getTargetZone() {return mTargetZone;}
+        /** Get the Zone the Portal connects to
+        */
+        PCZone * getNewHomeZone() {return mNewHomeZone;}
 		/** Get the connected portal (if any)
 		*/
 		Portal * getTargetPortal() {return mTargetPortal;}
@@ -159,36 +203,54 @@ namespace Ogre
 		bool closeTo(Portal *);
 
     protected:
+		// Type of portal (quad, aabb, or sphere)
+		PORTAL_TYPE mType;
 		// Name (identifier) for the Portal - must be unique
 		String mName;
 		/// SceneNode (if any) this portal is attached to
 		SceneNode * mNode;
         ///connected Zone
         PCZone * mTargetZone;
+		///zone to transfer this portal to
+		PCZone * mNewHomeZone;
 		///Matching Portal in the target zone (usually in same world space 
         // as this portal, but pointing the opposite direction)
 		Portal * mTargetPortal;
-        /// 4 Corners of the portal - coordinates are relative to the sceneNode
-        Vector3 mCorners[4];
-		/// Direction ("Norm") of the portal - determined by the 1st 3 corners
+        /// Corners of the portal - coordinates are relative to the sceneNode
+		// NOTE: there are 4 corners if the portal is a quad type
+		//       there are 8 corners if the portal is an AABB type
+		//       there are 2 corners if the portal is a sphere type (center and point on sphere)
+        Vector3 * mCorners;
+		/// Direction ("Norm") of the portal - 
+		// NOTE: For a Quad portal, determined by the 1st 3 corners.
+		// NOTE: For AABB & SPHERE portals, we only have "inward" or "outward" cases.
+		//       To indicate "outward", the Direction is UNIT_Z
+		//		 to indicate "inward", the Direction is NEGATIVE_UNIT_Z
 		Vector3 mDirection;
-		/// Radius of the sphere enclosing the portal
+		/// Radius of the sphere enclosing the portal 
+		// NOTE: For aabb portals, this value is the distance from the center of the aab to a corner
 		Real mRadius;
 		// Local Centerpoint of the portal
 		Vector3 mLocalCP;
-        /// 4 Derived (world coordinates) Corners of the portal
-        Vector3 mDerivedCorners[4];
+        /// Derived (world coordinates) Corners of the portal
+		// NOTE: there are 4 corners if the portal is a quad type
+		//       there are 2 corners if the portal is an AABB type (min corner & max corner)
+		//       there are 2 corners if the portal is a sphere type (center and point on sphere)
+        Vector3 * mDerivedCorners;
 		/// Derived (world coordinates) direction of the portal
+		// NOTE: Only applicable for a Quad portal
 		Vector3 mDerivedDirection;
 		/// Derived (world coordinates) of portal (center point)
 		Vector3 mDerivedCP;
 		/// Sphere of the portal centered on the derived CP
 		Sphere mDerivedSphere;
 		/// Derived (world coordinates) Plane of the portal
+		// NOTE: Only applicable for a Quad portal
 		Plane mDerivedPlane;
 		/// Previous frame portal cp (in world coordinates)
 		Vector3 mPrevDerivedCP;
 		/// Previous frame derived plane 
+		// NOTE: Only applicable for a Quad portal
 		Plane mPrevDerivedPlane;
 		/// flag indicating whether or not local values are up-to-date
 		bool mLocalsUpToDate;

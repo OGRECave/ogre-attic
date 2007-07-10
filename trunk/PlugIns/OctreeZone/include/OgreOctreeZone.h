@@ -178,6 +178,9 @@ namespace Ogre
 		/* called by PCZSM during setZoneGeometry() */
 		virtual void setZoneGeometry(const String &filename, PCZSceneNode * parentNode);
 
+		/* get the world coordinate aabb of the zone */
+		virtual void getAABB(AxisAlignedBox &);
+
 		// Init function carried over from OctreeSceneManager
 		void init(AxisAlignedBox &box, int depth);
 		/** Resizes the octree to the given size */

@@ -220,6 +220,8 @@ namespace Ogre
 		virtual void notifyBeginRenderScene(void) = 0;
 		/* called by PCZSM during setZoneGeometry() */
 		virtual void setZoneGeometry(const String &filename, PCZSceneNode * parentNode) = 0;
+		/* get the world coordinate aabb of the zone */
+		virtual void getAABB(AxisAlignedBox &);
 
 		/** list of Portals which this zone contains (each portal leads to another zone)
 		*/

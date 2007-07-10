@@ -64,6 +64,10 @@ namespace Ogre
 		TerrainZone( PCZSceneManager *, const String& name);
 		virtual ~TerrainZone( );
 
+		/** Set the enclosure node for this TerrainZone
+		*/
+		virtual void setEnclosureNode(PCZSceneNode *);
+
 		/** Sets the given option for the SceneManager.
 		@remarks
 			Options are (in addition to those supported by superclasses):

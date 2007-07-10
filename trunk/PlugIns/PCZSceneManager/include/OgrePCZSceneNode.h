@@ -72,6 +72,7 @@ namespace Ogre
 		void		clearVisitingZonesMap(void);
 		void		clearNodeFromVisitedZones( void );
 		void		removeReferencesToZone(PCZone * zone);
+		bool		isVisitingZone(PCZone * zone);
 	    void		_addToRenderQueue( Camera* cam, 
                                        RenderQueue *queue, 
                                        bool onlyShadowCasters, 

@@ -56,6 +56,8 @@ namespace Ogre
     public:
         /** Standard constructor */
         PCPlane();
+		/** Alternative constructor */
+		PCPlane (const Plane & plane);
         /** Alternative constructor */
         PCPlane (const Vector3& rkNormal, const Vector3& rkPoint);
         /** Alternative constructor */

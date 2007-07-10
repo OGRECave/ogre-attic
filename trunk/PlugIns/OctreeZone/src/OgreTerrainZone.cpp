@@ -99,6 +99,22 @@ namespace Ogre
     {
 		shutdown();
     }
+	/** Set the enclosure node for this TerrainZone
+	*/
+	void TerrainZone::setEnclosureNode(PCZSceneNode * node)
+	{
+		mEnclosureNode = node;
+		if (node)
+		{
+			// anchor the node to this zone
+			node->anchorToHomeZone(this);
+			// make sure node world bounds are up to date
+			node->_updateBounds();
+			// DON'T resize the octree to the same size as the enclosure node bounding box
+			// resize(node->_getWorldAABB());
+		}
+	}
+
     //-------------------------------------------------------------------------
     void TerrainZone::loadConfig(DataStreamPtr& stream)
     {
@@ -378,8 +394,8 @@ namespace Ogre
         //create a root terrain node.
         if (!mTerrainRoot)
 		{
-            mTerrainRoot = (PCZSceneNode*)(parentNode-> createChildSceneNode( "Terrain" ));
-			mTerrainRoot->anchorToHomeZone(this);
+			mTerrainRoot = (PCZSceneNode*)(parentNode->createChildSceneNode(this->getName()+"_node"));
+			setEnclosureNode(mTerrainRoot);
 		}
         //setup the page array.
         unsigned short pageSlots = 1 + (mBufferedPageMargin * 2);
@@ -438,15 +454,16 @@ namespace Ogre
         loadConfig(stream);
 		initLevelIndexes();
 
-        // Resize the octree, allow for 1 page for now
-        float max_x = mOptions.scale.x * mOptions.pageSize;
-        float max_y = mOptions.scale.y;
-        float max_z = mOptions.scale.z * mOptions.pageSize;
-        resize( AxisAlignedBox( 0, 0, 0, max_x, max_y, max_z ) );
 
         setupTerrainMaterial();
 
         setupTerrainZonePages(parentNode);
+
+        // Resize the octree allow for 1 page for now
+        float max_x = mOptions.scale.x * mOptions.pageSize;
+        float max_y = mOptions.scale.y;
+        float max_z = mOptions.scale.z * mOptions.pageSize;
+        resize( AxisAlignedBox( 0, 0, 0, max_x, max_y, max_z ) );
 
     }
     //-------------------------------------------------------------------------
