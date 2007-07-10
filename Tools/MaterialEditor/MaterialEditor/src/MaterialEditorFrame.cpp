@@ -38,6 +38,7 @@ http://www.gnu.org/copyleft/lesser.txt
 
 #include "OgreCamera.h"
 #include "OgreColourValue.h"
+#include "OgreConfigFile.h"
 #include "OgreMaterial.h"
 #include "OgreMaterialManager.h"
 #include "OgreRoot.h"
@@ -155,10 +156,22 @@ void MaterialEditorFrame::createDummyControl()
 void MaterialEditorFrame::createAuiManager()
 {
 	mAuiManager = new wxAuiManager();
+	mAuiManager->SetFlags(wxAUI_MGR_DEFAULT | wxAUI_MGR_ALLOW_ACTIVE_PANE | wxAUI_MGR_TRANSPARENT_DRAG);
 	mAuiManager->SetManagedWindow(this);
 
+	wxAuiDockArt* art = mAuiManager->GetArtProvider();
+	art->SetMetric(wxAUI_DOCKART_PANE_BORDER_SIZE, 1);
+	art->SetMetric(wxAUI_DOCKART_SASH_SIZE, 4);
+	art->SetMetric(wxAUI_DOCKART_CAPTION_SIZE, 17);
+	art->SetColour(wxAUI_DOCKART_ACTIVE_CAPTION_COLOUR, wxColour(49, 106, 197));
+	art->SetColour(wxAUI_DOCKART_ACTIVE_CAPTION_GRADIENT_COLOUR, wxColour(90, 135, 208));
+	art->SetColour(wxAUI_DOCKART_ACTIVE_CAPTION_TEXT_COLOUR, wxColour(255, 255, 255));
+	art->SetColour(wxAUI_DOCKART_INACTIVE_CAPTION_COLOUR, wxColour(200, 198, 183));
+	art->SetColour(wxAUI_DOCKART_INACTIVE_CAPTION_GRADIENT_COLOUR, wxColour(228, 226, 209));
+	art->SetColour(wxAUI_DOCKART_INACTIVE_CAPTION_TEXT_COLOUR, wxColour(0, 0, 0));
+
 	createAuiNotebookPane();
-	createWorkspacePane();
+	createManagementPane();
 	createLogPane();
 	createPropertiesPane();
 
@@ -195,24 +208,25 @@ void MaterialEditorFrame::createAuiNotebookPane()
 	mAuiManager->AddPane(mAuiNotebook, info);
 }
 
-void MaterialEditorFrame::createWorkspacePane()
+void MaterialEditorFrame::createManagementPane()
 {
-	mWorkspaceNotebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNO_BORDER);
+	mManagementNotebook = new wxAuiNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_NB_TOP | wxAUI_NB_TAB_SPLIT | wxAUI_NB_TAB_MOVE | wxAUI_NB_SCROLL_BUTTONS | wxNO_BORDER);
 
-	mWorkspacePanel = new WorkspacePanel(mWorkspaceNotebook);
+	mWorkspacePanel = new WorkspacePanel(mManagementNotebook);
 	//mMaterialTree = new wxTreeCtrl(mWorkspaceNotebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNO_BORDER);
-	mWorkspaceNotebook->AddPage(mWorkspacePanel, "Materials");
+	mManagementNotebook->AddPage(mWorkspacePanel, "Materials");
 
-	mResourcePanel = new ResourcePanel(mWorkspaceNotebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNO_BORDER);
-	mWorkspaceNotebook->AddPage(mResourcePanel, "Resources");
+	mResourcePanel = new ResourcePanel(mManagementNotebook, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNO_BORDER);
+	mManagementNotebook->AddPage(mResourcePanel, "Resources");
 
 	wxAuiPaneInfo info;
-	info.Caption(_("Workspace"));
+	info.Caption(_("Management"));
 	info.MaximizeButton(true);
 	info.BestSize(256, 512);
 	info.Left();
+	info.Layer(1);
 
-	mAuiManager->AddPane(mWorkspaceNotebook, info);
+	mAuiManager->AddPane(mManagementNotebook, info);
 }
 
 void MaterialEditorFrame::createLogPane()
@@ -254,6 +268,7 @@ void MaterialEditorFrame::createPropertiesPane()
 	info.MaximizeButton(true);
 	info.BestSize(256, 512);
 	info.Left();
+	info.Layer(1);
 
 	mAuiManager->AddPane(mPropertyGrid, info);
 }
@@ -308,44 +323,47 @@ void MaterialEditorFrame::createFileMenu()
 	mFileMenu = new wxMenu();
 
 	// New sub menu
-	wxMenu* newMenu = new wxMenu("");
+	wxMenu* newMenu = new wxMenu();
+
 	wxMenuItem* newProjectItem = newMenu->Append(ID_FILE_NEW_MENU_PROJECT, wxT("&Project..."));
 	wxBitmap projectImage;
-	if(projectImage.LoadFile("resources/images/project.gif", wxBITMAP_TYPE_GIF))
+	if(projectImage.LoadFile("resources/images/project.png", wxBITMAP_TYPE_PNG))
 	{
 		newProjectItem->SetBitmap(projectImage);
 	}
 
 	wxMenuItem* newMaterialItem = newMenu->Append(ID_FILE_NEW_MENU_MATERIAL, wxT("&Material..."));
 	wxBitmap materialImage;
-	if(materialImage.LoadFile("resources/images/material.gif", wxBITMAP_TYPE_GIF))
+	if(materialImage.LoadFile("resources/images/material.png", wxBITMAP_TYPE_PNG))
 	{
-		newProjectItem->SetBitmap(materialImage);
+		newMaterialItem->SetBitmap(materialImage);
 	}
 
 	mFileMenu->AppendSubMenu(newMenu, wxT("&New"));
 
 	mFileMenu->Append(ID_FILE_MENU_OPEN, _("&Open..."));
 
-	wxMenuItem* saveItem = mFileMenu->Append(ID_FILE_MENU_SAVE, _("&Save"));
+	wxMenuItem* saveItem = mFileMenu->Append(ID_FILE_MENU_SAVE, wxT("&Save"));
 	wxBitmap saveImage;
-	if(saveImage.LoadFile("resources/images/save.gif", wxBITMAP_TYPE_GIF))
+	if(saveImage.LoadFile("resources/images/save.png", wxBITMAP_TYPE_PNG))
 	{
 		saveItem->SetBitmap(saveImage);
 	}
 
-	wxMenuItem* saveAsItem = mFileMenu->Append(ID_FILE_MENU_SAVE_AS, _("Save &As..."));
-	wxBitmap saveAsImage;
-	if(saveAsImage.LoadFile("resources/images/saveas.gif", wxBITMAP_TYPE_GIF))
-	{
-		saveAsItem->SetBitmap(saveAsImage);
-	}
+	wxMenuItem* saveAsItem = mFileMenu->Append(ID_FILE_MENU_SAVE_AS, wxT("Save &As..."));
+	//wxBitmap saveAsImage;
+	//if(saveAsImage.LoadFile("resources/images/save.png", wxBITMAP_TYPE_PNG))
+	//{
+		saveAsItem->SetBitmap(saveImage);
+	//}
 
 	mFileMenu->AppendSeparator();
 
 	mFileMenu->Append(ID_FILE_MENU_CLOSE, _("&Close"));
 	mFileMenu->AppendSeparator();
 	mFileMenu->Append(ID_FILE_MENU_EXIT, _("E&xit"));
+
+	mFileMenu->UpdateUI();
 
 	mMenuBar->Append(mFileMenu, _("&File"));
 }
@@ -395,11 +413,11 @@ void MaterialEditorFrame::OnActivate(wxActivateEvent& event)
 
 void MaterialEditorFrame::OnNewProject(wxCommandEvent& event)
 {
-	wxBitmap projectImage;
-	projectImage.LoadFile("resources/images/new_project.gif", wxBITMAP_TYPE_GIF);
+	//wxBitmap projectImage;
+	//projectImage.LoadFile("resources/images/new_project.gif", wxBITMAP_TYPE_GIF);
 
 	ProjectWizard* wizard = new ProjectWizard();
-	wizard->Create(this, wxID_ANY, wxT("New Project"), projectImage, wxDefaultPosition, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
+	wizard->Create(this, wxID_ANY, wxT("New Project"), wxNullBitmap, wxDefaultPosition, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
 	wizard->RunWizard(wizard->getProjectPage()); // This seems unnatural, seems there must be a better way to deal with wizards
 
 	wizard->Destroy();
@@ -407,11 +425,11 @@ void MaterialEditorFrame::OnNewProject(wxCommandEvent& event)
 
 void MaterialEditorFrame::OnNewMaterial(wxCommandEvent& event)
 {
-	wxBitmap materialImage;
-	materialImage.LoadFile("resources/images/new_material.gif", wxBITMAP_TYPE_GIF);
+	//wxBitmap materialImage;
+	//materialImage.LoadFile("resources/images/new_material.gif", wxBITMAP_TYPE_GIF);
 
 	MaterialWizard* wizard = new MaterialWizard();
-	wizard->Create(this, wxID_ANY, wxT("New Material"), materialImage, wxDefaultPosition, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
+	wizard->Create(this, wxID_ANY, wxT("New Material"), wxNullBitmap, wxDefaultPosition, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
 	wizard->RunWizard(wizard->getMaterialPage());// This seems unnatural, seems there must be a better way to deal with wizards
 
 	wizard->Destroy();
@@ -433,10 +451,43 @@ void MaterialEditorFrame::OnFileOpen(wxCommandEvent& event)
 		ce->SetWrapMode(wxSCI_WRAP_NONE);
 
 		ce->SetLexer(wxSCI_LEX_OMS);
-		ce->SetKeyWords(0, "material technique pass texture_unit vertex_program vertex_program_ref fragment_program fragment_program_ref");
-		ce->SetKeyWords(1, "diffuse depth_check lighting ambient texture colour_op_ex colour_op_multipass_fallback tex_address_mode env_map cull_hardware colout_op_multipass_fallback source target param_named param_named_auto param_indexed param_indexed_auto scene_blend tex_address_mode");
-		ce->SetKeyWords(2, "add on off true false one src_texture src_current spherical mirror alpha_blend clamp none");
-		ce->SetKeyWords(3, ":");
+
+		// Load keywords from OMS keyword file
+		std::ifstream fp;
+		// Always open in binary mode
+		fp.open("resources/lexers/oms/keywords", std::ios::in | std::ios::binary);
+		if(fp)
+		{
+			DataStreamPtr stream(new FileStreamDataStream("resources/lexers/oms/keywords", &fp, false));
+
+			int index = -1;
+			String line;
+			wxString keywords;
+			while(!stream->eof())
+			{
+				line = stream->getLine();
+				if(line.length() > 0 && line.at(0) != '#')
+				{
+					if(line.at(0) == '[')
+					{
+						if(index != -1)
+						{
+							ce->SetKeyWords(index, keywords);
+							keywords.Clear();
+						}
+
+						++index;
+					}
+					else
+					{
+						keywords.Append(line);
+						keywords.Append(" ");
+					}
+				}
+			}
+			ce->SetKeyWords(index, keywords);
+		}
+
 		ce->StyleSetForeground(wxSCI_OMS_DEFAULT, wxColour(0, 0, 0));
 		ce->StyleSetFontAttr(wxSCI_OMS_DEFAULT, 10, "Courier New", false, false, false);
 		ce->StyleSetForeground(wxSCI_OMS_COMMENT, wxColour(0, 128, 0));
