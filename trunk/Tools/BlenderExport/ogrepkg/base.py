@@ -333,19 +333,28 @@ class OgreXMLConverter(Singleton):
 			encodedDir = os.path.normpath(dir)
 			encodedFilename = os.path.normpath(filename)
 			encodedConverter = os.path.normpath(converter)
-			# call the converter
-			commandLine = '"' + encodedConverter + '" -log "' \
-				 + os.path.join(encodedDir, 'OgreXMLConverter.log') \
-				 + '" ' + self.converterArgs + ' ' + arguments \
-				 + ' "' + encodedFilename + '"'
-			if os.name == "nt":
-				# workaround for popen windows bug
-				commandLine = '"' + commandLine + '"'
-			Log.getSingleton().logInfo("Running OgreXMLConverter: " + commandLine)
-			xmlConverter = os.popen(commandLine, 'r')
-			for line in xmlConverter:
-				Log.getSingleton().logInfo("OgreXMLConverter: " + line)
-			xmlConverter.close()
+			# check if converter exists
+			# if os.access(encodedConverter, os.X_OK):
+			# Does only work for full path!
+			# Testcase: Preferences->Manual->"OgreXMLConverter"
+			if True:
+				# call the converter
+				commandLine = '"' + encodedConverter + '" -log "' \
+					 + os.path.join(encodedDir, 'OgreXMLConverter.log') \
+					 + '" ' + self.converterArgs + ' ' + arguments \
+					 + ' "' + encodedFilename + '"'
+				if os.name == "nt":
+					# workaround for popen windows bug
+					commandLine = '"' + commandLine + '"'
+				Log.getSingleton().logInfo("Running OgreXMLConverter: " + commandLine)
+				xmlConverter = os.popen(commandLine, 'r')
+				for line in xmlConverter:
+					Log.getSingleton().logInfo("OgreXMLConverter: " + line)
+				xmlConverter.close()
+			else:
+				Log.getSingleton().logError('Can not execute OgreXMLConverter "' + encodedConverter + '"')
+		else:
+			Log.getSingleton().logError("OgreXMLConverter not found! Please specify the path to the OgreXMLConverter in the preferences.")
 		return
 
 class ConvertibleXMLFile:
