@@ -1,5 +1,5 @@
 This folder hold documentation on the Ogre memory manager.
-The fold "ogre" holds a Bouml project detailing the design
+The folder "ogre" holds a Bouml project detailing the design
 and workings in UML. The various *.png files are generated 
 from this and provided for the convenience of people with 
 out Bouml.

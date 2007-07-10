@@ -97,8 +97,13 @@ namespace Ogre{
         	boost::recursive_mutex::scoped_lock lock(mDataMutex);
         	#endif
         	
+        	// copy then reset the stats
             MemStats tmp = mStats;
-            memset(&mStats,0,sizeof(MemStats));
+            mStats.numBytesAllocated=0;
+            mStats.numAllocations=0;
+            mStats.numBytesDeallocated=0;
+            mStats.numDeallocations=0;
+            
             return tmp;
         }
 

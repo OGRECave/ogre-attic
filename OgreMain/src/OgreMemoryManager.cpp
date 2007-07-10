@@ -1722,31 +1722,35 @@ namespace Ogre
 #include "OgreLogManager.h"
 #include "OgreAllocator.h"
 
-// statics
-Ogre::_InitMemProfileManager::_InitMemProfileManager smMe;
+// realise static instance member for the init class
+Ogre::_InitMemProfileManager::_InitMemProfileManager smInstance;
+
+// static allocator used to handle generic allocations globally
 static Ogre::Allocator<unsigned char> sAllocator;
 
 Ogre::_InitMemProfileManager::_InitMemProfileManager()
 {
-	mLogManager=new Ogre::LogManager();
-	mLogManager->createLog("", true, true);
-	mMemProfileManager = new Ogre::MemProfileManager();
+	// init the managers we need
+    mLogManager=new Ogre::LogManager();
+    mLogManager->createLog("", true, true);
+    mMemProfileManager = new Ogre::MemProfileManager();
 }
 
 Ogre::_InitMemProfileManager::~_InitMemProfileManager()
 {
+	// clean up managers
 	delete mMemProfileManager;
 	delete mLogManager;
 }
 
 void* wrapAllocate(size_t size) throw ()
 {
-    return static_cast<void*>(sAllocator.allocate(size));
+    return static_cast<void*>(sAllocator.allocateBytes(size));
 }
     		
 void wrapDeallocate(void* ptr, size_t size) throw()
 {
-    sAllocator.deallocate(static_cast<unsigned char*>(ptr),size);
+    sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),size);
 }
 
 #endif // OGRE_DEBUG_MEMORY_MANAGER

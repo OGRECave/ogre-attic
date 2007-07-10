@@ -429,12 +429,16 @@ inline void operator delete[](void *reportedAddress)
 // overload new/delete to plug-in our gloabl scheme, maybe do this with macros later on
 // for now i just want to direct allocations to the right place
 
-//#include "OgreAllocator.h"
-
 namespace Ogre{
 	class LogManager;
 	class MemProfileManager;
-	
+
+	/**
+	 * This internal class is a little c++ trick used to init the
+	 * memory system, memory profile manager and the log manager
+	 * before we ever enter int main() and shut it all down just after
+	 * we return from it.
+	 */	
     class _InitMemProfileManager
     {
     public:
@@ -442,35 +446,44 @@ namespace Ogre{
         ~_InitMemProfileManager();
 
     private:
-        LogManager* mLogManager;
+        LogManager*        mLogManager;
         MemProfileManager* mMemProfileManager;
 	
-        static _InitMemProfileManager smMe;	
+        static _InitMemProfileManager smInstance;	
     };
 }
 
-
+/// wrapping function for allocations
 _OgreExport void* wrapAllocate(size_t) throw();
+/// wrapping function for deallocations
 _OgreExport void wrapDeallocate(void*,size_t) throw();
 
-inline void *operator new(size_t size)
+/// overloaded operator new, points back to the 
+/// allocation wrapper function
+inline void *operator new(std::size_t size)
 {
 	return wrapAllocate(size);
 }
 
-inline void *operator new[](size_t size)
+/// overloaded operator new[], points back to the 
+/// allocation wrapper function
+inline void *operator new[](std::size_t size)
 {
 	return wrapAllocate(size);
 }
 
-inline void operator delete(void *ptr, size_t size)
+/// overloaded operator delete, points back to the 
+/// deallocation wrapper function
+inline void operator delete(void *ptr, std::size_t size)
 {
 	return wrapDeallocate(ptr,size);
 }
 
-inline void operator delete[](void *ptr, size_t size)
+/// overloaded operator delete[], points back to the 
+/// deallocation wrapper function
+inline void operator delete[](void *ptr, int size)// std::size_t size)
 {
-	return wrapDeallocate(ptr,size);
+	return wrapDeallocate(ptr,0);
 }
 #endif // Turn on/off new memory system
 

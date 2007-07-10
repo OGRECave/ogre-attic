@@ -149,6 +149,13 @@ namespace Ogre{
         uint32 mLargestAllocation;  // largest single memory allocation
         
         uint32 mProfileIdTracker; // used to hold the highest ID
+        
+        /// we use a mutex to prevent removal of an allocator coinciding with
+        /// an update from its stats.
+        //OGRE_MUTEX(mDataMutex);
+        #if OGRE_THREAD_SUPPORT
+        mutable boost::recursive_mutex mUpdateMutex;
+        #endif
 
     private:
     };

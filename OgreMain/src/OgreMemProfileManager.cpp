@@ -106,6 +106,11 @@ namespace Ogre{
     
     void MemProfileManager::removeProfile(MemProfilerBase* profile)
     {
+    	// get a lock on the mutex, so we can't ubdate stats in mid-removal
+        #if OGRE_THREAD_SUPPORT
+        boost::recursive_mutex::scoped_lock lock(mUpdateMutex);
+        #endif
+    	
         std::stringstream builder;
         ProfileArray::iterator iter = mProfArray.begin();
         ProfileArray::iterator end = mProfArray.end();
@@ -136,6 +141,18 @@ namespace Ogre{
                     builder << "clean removal, no memory errors detected\n";
                 }
                 
+                // update the global and section stats, so we keep in sync
+                mSectionStats.numAllocations += tmpStats.numAllocations;
+                mSectionStats.numBytesAllocated += tmpStats.numBytesAllocated;
+                mSectionStats.numDeallocations += tmpStats.numDeallocations;
+                mSectionStats.numBytesDeallocated += tmpStats.numBytesDeallocated;
+                
+                // update the gloabl stats
+                mGlobalStats.numAllocations += tmpStats.numAllocations;
+                mGlobalStats.numBytesAllocated += tmpStats.numBytesAllocated;
+                mGlobalStats.numDeallocations += tmpStats.numDeallocations;
+                mGlobalStats.numBytesDeallocated += tmpStats.numBytesDeallocated;
+                
                 // remove it
                 ( *iter ).mStats.numAllocations = 0;
                 ( *iter ).mStats.numDeallocations = 0;
@@ -160,6 +177,12 @@ namespace Ogre{
 
     void MemProfileManager::update()
     {
+    	// get a lock on the mutex, so we can't remove a profile untill 
+    	// we have finished the batch of updates.
+        #if OGRE_THREAD_SUPPORT
+        boost::recursive_mutex::scoped_lock lock(mUpdateMutex);
+        #endif
+    	
         ProfileArray::iterator iter, end;
 
         iter = mProfArray.begin();
@@ -226,11 +249,14 @@ namespace Ogre{
         ProfileArray::iterator end = mProfArray.end();
         for ( ; iter != end; ++iter ) // for each profile
         {
-            builder << "Allocator "<< ( *iter ).mStats.profileID;
-            builder << " Allocs " << ( *iter ).mStats.numAllocations;
-            builder << " ( " << ( *iter ).mStats.numBytesAllocated << " )";
-            builder << " De-Allocs " << ( *iter ).mStats.numDeallocations;
-            builder << " ( " <<( *iter ).mStats.numBytesDeallocated << " ) \n";
+        	if(( *iter ).mProfile)
+        	{
+                builder << "Allocator "<< ( *iter ).mStats.profileID;
+                builder << " Allocs " << ( *iter ).mStats.numAllocations;
+                builder << " ( " << ( *iter ).mStats.numBytesAllocated << " )";
+                builder << " De-Allocs " << ( *iter ).mStats.numDeallocations;
+                builder << " ( " <<( *iter ).mStats.numBytesDeallocated << " ) \n";
+        	}
         }
         builder << "---------------------------------------------------------\n";
         
