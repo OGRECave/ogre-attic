@@ -56,6 +56,7 @@ namespace Ogre
 		mActive = false;
 		mSizing = false;
 		mClosed = false;
+		mSwitchingFullscreen = false;
 		mDisplayFrequency = 0;
 	}
 
@@ -270,6 +271,9 @@ namespace Ogre
 	{
 		if (fullScreen != mIsFullScreen || width != mWidth || height != mHeight)
 		{
+
+			if (fullScreen != mIsFullScreen)
+				mSwitchingFullscreen = true;
 
 			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 

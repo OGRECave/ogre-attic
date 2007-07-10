@@ -119,7 +119,7 @@ namespace Ogre {
 
         mColourWrite[0] = mColourWrite[1] = mColourWrite[2] = mColourWrite[3] = true;
 
-        for (i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; i++)
+        for (i = 0; i < OGRE_MAX_TEXTURE_LAYERS; i++)
         {
 			// Dummy value
             mTextureCoordIndex[i] = 99;
@@ -2325,7 +2325,7 @@ namespace Ogre {
 				else
 				{
 					// fixed function matching to units based on tex_coord_set
-					for (i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; i++)
+					for (i = 0; i < mDisabledTexUnitsFrom; i++)
 					{
 						// Only set this texture unit's texcoord pointer if it
 						// is supposed to be using this element's index

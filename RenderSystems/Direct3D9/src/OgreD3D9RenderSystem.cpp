@@ -3302,7 +3302,7 @@ namespace Ogre
 			<< " h:" << presParams->BackBufferHeight;
 		// If windowed, we have to reset the size here
 		// since a fullscreen switch may have occurred
-		if (presParams->Windowed)
+		if (presParams->Windowed && mPrimaryWindow->_getSwitchingFullscreen())
 		{
 			RECT rc;
 			SetRect(&rc, 0, 0, presParams->BackBufferWidth, presParams->BackBufferHeight);
@@ -3315,6 +3315,8 @@ namespace Ogre
 			int top = (screenh - winHeight) / 2;
 			SetWindowPos(mPrimaryWindow->getWindowHandle(), HWND_NOTOPMOST, left, top, winWidth, winHeight,
 				SWP_DRAWFRAME | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+			mPrimaryWindow->_finishSwitchingFullscreen();
 
 		}
 

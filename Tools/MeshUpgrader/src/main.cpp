@@ -912,8 +912,6 @@ int main(int numargs, char** args)
 
     String source(args[startIdx]);
 
-    logMgr->createLog("OgreMeshUpgrader.log");
-
 
     // Load the mesh
     struct stat tagStat;

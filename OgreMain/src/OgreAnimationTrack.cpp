@@ -484,11 +484,11 @@ namespace Ogre {
             mParent->getRotationInterpolationMode();
         if (rim == Animation::RIM_LINEAR)
         {
-            rotate = Quaternion::nlerp(weight, Quaternion::IDENTITY, kf.getRotation());
+            rotate = Quaternion::nlerp(weight, Quaternion::IDENTITY, kf.getRotation(), mUseShortestRotationPath);
         }
         else //if (rim == Animation::RIM_SPHERICAL)
         {
-            rotate = Quaternion::Slerp(weight, Quaternion::IDENTITY, kf.getRotation());
+            rotate = Quaternion::Slerp(weight, Quaternion::IDENTITY, kf.getRotation(), mUseShortestRotationPath);
         }
 		node->rotate(rotate);
 

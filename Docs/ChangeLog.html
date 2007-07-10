@@ -308,6 +308,50 @@ Rendering Engine)</p>
 
 
 
+<p class="mainheader" align="left">v1.4.3 [Eihort] (8 July 2007) - Maintenance Release</p>
+<ul>
+	<li>GL:
+	<ul>
+		<li>Fix returning to fixed-function pipeline after using programmable pipeline with
+		  more than fixed-function (8) texture units</li>
+		<li>Don't delete externally created windows in GLX renderer</li>
+		<li>Allow a Win32 GL window to use an externally created GL context</li>
+	</ul>	
+	</li>
+	<li>D3D9:
+	<ul>
+		<li>Fixed loading of DXT compressed data manually from memory instead of .dds files in D3D</li>
+		<li>Fix a leak / potential crash when manually shutting down and reinitialising</li>
+		<li>Only reset window size when necessary, when going between fullscreen and windowed modes</li>
+		<li>Precompiled SDK built again with 2004 DirectX SDK for max compatibility</li>
+	</ul>
+	</li>
+	<li>Change MRT surface restriction to 'same bit depth' not 'same pixel format'. This is
+	  the actual restriction that the majority of cards enforce, save
+	  the latest (e.g. 8800)
+	</li>
+	<li>Fix max_lights in non light-iteration cases, was being ignored previously which could
+	cause some issues with other processing of light lists</li>
+	<li>Fix Math::intersects (sphere / plane) - was
+	  missing the 'd' component Fix Math::intersects (sphere / aabb) -
+	  use Arvo's algorithm Neither of these methods were called in the
+	  Ogre code which is why they were missed.</li>
+	<li>Add Compositor to VC2005 SDK samples project, was missing.</li>
+	<li>Fix SharedPtr bug in operator= when rhs and lhs are interdependent (e.g. one holding a
+	pointer to the other)</li>
+	<li>Allow OGRE_EXCEPT to be overridden if predefined</li>
+	<li>Node::Listener is now called after all derived implementations of _updateFromParent, this fixes some issues with generating a RibbonTrail from a TagPoint</li>
+	<li>Fix failure in vertex pose animation when subentities are made invisible</li>
+	<li>Define maximum render queue ID more explicitly and assert against it to avoid issues with compositors if this is exceeded by user code</li>
+	<li>Fix an animation blending problem on some skeleton set ups. This should resolve the problems some people were getting when using non-unit weighting on multiple active animations. Would not have affected many skeletons, depends on the exporter.</li>
+	<li>Fixed incorrect fading of modulative texture spotlight shadows when using custom shadow projection systems</li>
+	<li>Font now correcly removes everything it creates allowing it to be reloaded at runtime</li>
+	<li>Prevented continuous (every frame) retry of texture loading when it fails, now only retries when something changes</li>
+	<li>Bug fix for auto params light_direction_view_space_array and light_direction_object_space_array</li>
+	<li>Fixed uncallable operator= of ConstMapIterator</li>
+	<li>A few const correctness / warning fixes.</li>
+
+</ul>
 
 <p class="mainheader" align="left">v1.4.2 [Eihort] (10 June 2007) - Maintenance Release</p>
 <ul>

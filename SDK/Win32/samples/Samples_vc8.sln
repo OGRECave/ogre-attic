@@ -67,7 +67,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo_Crowd", "scripts\Demo_
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo_Instancing", "scripts\Demo_Instancing_vc8.vcproj", "{35134523-6D5B-4AFA-BFB4-4D57C42C2169}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo_Compositor", "..\..\..\Samples\Compositor\scripts\Demo_Compositor_vc8.vcproj", "{FBD73586-AD33-4191-A604-68AE21278729}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo_Compositor", "scripts\Demo_Compositor_vc8.vcproj", "{FBD73586-AD33-4191-A604-68AE21278729}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
