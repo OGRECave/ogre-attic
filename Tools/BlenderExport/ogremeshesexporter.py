@@ -1743,5 +1743,6 @@ else:
 					QuitAction.execute(self)
 					return
 
-		application = MeshExporterApplication()
-		application.go()
+		if (__name__ == '__main__'):
+			application = MeshExporterApplication()
+			application.go()
