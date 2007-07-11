@@ -50,6 +50,7 @@ Torus Knot Software Ltd.
 #include "ProjectWizard.h"
 #include "TechniqueController.h"
 #include "TechniqueEventArgs.h"
+#include "TechniqueWizard.h"
 #include "Workspace.h"
 #include "WorkspaceEventArgs.h"
 
@@ -255,9 +256,9 @@ void WorkspacePanel::subscribe(Project* project)
 
 void WorkspacePanel::subscribe(MaterialController* material)
 {
-	material->subscribe(MaterialController::NameChanged, boost::bind(&WorkspacePanel::projectNameChanged, this, _1));
-	material->subscribe(MaterialController::TechniqueAdded, boost::bind(&WorkspacePanel::projectMaterialAdded, this, _1));
-	material->subscribe(MaterialController::TechniqueRemoved, boost::bind(&WorkspacePanel::projectMaterialRemoved, this, _1));
+	material->subscribe(MaterialController::NameChanged, boost::bind(&WorkspacePanel::materialNameChanged, this, _1));
+	material->subscribe(MaterialController::TechniqueAdded, boost::bind(&WorkspacePanel::materialTechniqueAdded, this, _1));
+	material->subscribe(MaterialController::TechniqueRemoved, boost::bind(&WorkspacePanel::materialTechniqueRemoved, this, _1));
 }
 
 void WorkspacePanel::subscribe(TechniqueController* technique)
@@ -295,7 +296,29 @@ void WorkspacePanel::OnNewMaterial(wxCommandEvent& event)
 
 void WorkspacePanel::OnNewTechnique(wxCommandEvent& event)
 {
+	Project* project = NULL;
+	MaterialController* material = NULL;
 
+	wxTreeItemId selId = mTreeCtrl->GetSelection();
+	if(isProject(selId))
+	{
+		project = getProject(selId);
+	}
+	else if(isMaterial(selId))
+	{
+		wxTreeItemId projectId = mTreeCtrl->GetItemParent(selId);
+		project = getProject(projectId);
+
+		material = getMaterial(selId);
+	}
+
+	TechniqueWizard* wizard = new TechniqueWizard();
+	wizard->Create(this, wxID_ANY, wxT("New Technique"), wxNullBitmap, wxDefaultPosition, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
+	wizard->getTechniquePage()->setProject(project);
+	wizard->getTechniquePage()->setMaterial(material);
+	wizard->RunWizard(wizard->getTechniquePage()); // This seems unnatural, seems there must be a better way to deal with wizards
+
+	wizard->Destroy();
 }
 
 void WorkspacePanel::OnNewPass(wxCommandEvent& event)
@@ -340,6 +363,8 @@ void WorkspacePanel::projectMaterialAdded(EventArgs& args)
 	mTreeCtrl->SelectItem(id, true);
 
 	mMaterialIdMap[material] = id;
+
+	subscribe(material);
 }
 
 void WorkspacePanel::projectMaterialRemoved(EventArgs& args)
@@ -365,6 +390,8 @@ void WorkspacePanel::materialTechniqueAdded(EventArgs& args)
 	wxTreeItemId materialId = mMaterialIdMap[mc];
 	wxTreeItemId id = mTreeCtrl->AppendItem(materialId, tc->getTechnique()->getName().c_str(), TECHNIQUE_IMAGE);
 	mTreeCtrl->SelectItem(id, true);
+
+	subscribe(tc);
 }
 
 void WorkspacePanel::materialTechniqueRemoved(EventArgs& args)
