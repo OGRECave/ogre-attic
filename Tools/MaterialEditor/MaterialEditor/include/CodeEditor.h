@@ -51,6 +51,7 @@ public:
 	// Styled text
 	void OnMarginClick(wxScintillaEvent &event);
 	void OnCharAdded(wxScintillaEvent &event);
+	void OnUpdateUI(wxScintillaEvent &event);
 
 	// Language/Lexer
 	//wxString DeterminePrefs (const wxString &filename);
@@ -66,6 +67,13 @@ public:
 	bool Modified();
 	wxString GetFilename() {return mFileName;};
 	void SetFilename(const wxString &filename) { mFileName = filename; };
+
+protected:
+	wxChar GetLastNonWhitespaceChar(int position = -1);
+	wxString CodeEditor::GetLineIndentString(int line);
+	int FindBlockStart(int position, wxChar blockStart, wxChar blockEnd, bool skipNested = true);
+
+	void HighlightBraces();
 
 private:
 	// File
