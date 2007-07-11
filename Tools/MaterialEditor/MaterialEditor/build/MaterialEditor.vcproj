@@ -279,6 +279,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\TechniqueWizard.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\Workspace.cpp"
 				>
 			</File>

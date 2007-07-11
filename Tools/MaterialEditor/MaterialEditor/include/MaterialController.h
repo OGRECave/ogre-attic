@@ -65,6 +65,7 @@ public:
 	void setReceiveShadows(bool enabled);
 	void setTransparencyCastsShadows(bool enabled);
 	TechniqueController* createTechnique(void);
+	TechniqueController* createTechnique(const String& name);
 	void removeTechnique(unsigned short index);
 	void removeAllTechniques(void);
 

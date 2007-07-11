@@ -82,6 +82,20 @@ TechniqueController* MaterialController::createTechnique(void)
 	return tc;
 }
 
+TechniqueController* MaterialController::createTechnique(const String& name)
+{
+	Technique* t = mMaterialPtr->createTechnique();
+	t->setName(name);
+
+	// Create controller
+	TechniqueController* tc = new TechniqueController(t);
+	mTechniqueControllers.push_back(tc);
+
+	fireEvent(TechniqueAdded, MaterialEventArgs(this, tc));
+
+	return tc;
+}
+
 void MaterialController::removeTechnique(unsigned short index)
 {
 	mMaterialPtr->removeTechnique(index);
