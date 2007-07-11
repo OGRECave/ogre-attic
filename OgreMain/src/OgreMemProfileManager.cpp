@@ -29,7 +29,6 @@ Torus Knot Software Ltd.
 
 #include "OgreStableHeaders.h"
 #include "OgreMemProfileManager.h"
-#include "OgreLogManager.h"
 #include <sstream>
 
 
@@ -66,7 +65,7 @@ namespace Ogre{
         mProfArray.reserve( 10 );
         
         // setup our log file
-        mReportLog = LogManager::getSingleton().createLog("OgreMemoryReport.log");
+        mReportLog.open("OgreMemoryReport.log",std::ios::out);
 
         // init stats
         memset( &( mGlobalStats  ), 0, sizeof( MemProfilerBase::MemStats ) );
@@ -110,8 +109,7 @@ namespace Ogre{
         #if OGRE_THREAD_SUPPORT
         boost::recursive_mutex::scoped_lock lock(mUpdateMutex);
         #endif
-    	
-        std::stringstream builder;
+
         ProfileArray::iterator iter = mProfArray.begin();
         ProfileArray::iterator end = mProfArray.end();
         MemProfilerBase::MemStats tmpStats = profile->flush();
@@ -121,8 +119,8 @@ namespace Ogre{
             // find the stats.
             if( ( *iter ).mStats.profileID == tmpStats.profileID )
             {
-                builder << "Removing Memory Profile " << tmpStats.profileID << "\n";
-                builder << "---------------------------------------------------------\n";
+                mReportLog << "Removing Memory Profile " << tmpStats.profileID << "\n";
+                mReportLog << "---------------------------------------------------------\n";
                 // do some sanity checking
                 uint32 aloc = ( *iter ).mStats.numAllocations + tmpStats.numAllocations;
                 uint32 dloc = ( *iter ).mStats.numDeallocations + tmpStats.numDeallocations;
@@ -132,13 +130,13 @@ namespace Ogre{
                         (( *iter ).mStats.numBytesAllocated + tmpStats.numBytesAllocated) -
                         (( *iter ).mStats.numBytesDeallocated + tmpStats.numBytesDeallocated) ;
                         
-                    builder << "  ***MEMORY ERROR DETECTED***  \n";
-                    builder << "removed allocator has outstanding allocations!\n";
-                    builder <<  aloc - dloc << " allocations ( "<< tmp << " bytes ) \n";
+                    mReportLog << "  ***MEMORY ERROR DETECTED***  \n";
+                    mReportLog << "removed allocator has outstanding allocations!\n";
+                    mReportLog <<  aloc - dloc << " allocations ( "<< tmp << " bytes ) \n";
                 }
                 else
                 {
-                    builder << "clean removal, no memory errors detected\n";
+                    mReportLog << "clean removal, no memory errors detected\n";
                 }
                 
                 // update the global and section stats, so we keep in sync
@@ -161,17 +159,15 @@ namespace Ogre{
                 ( *iter ).mStats.profileID = 0;
                 ( *iter ).mProfile=NULL;
                 
-                builder << "---------------------------------------------------------\n";
-                mReportLog->logMessage(builder.str());
+                mReportLog << "---------------------------------------------------------\n";
                 return; // done, bail now
             }
         }
         
         // if we get to this point somthing is f00-bar
-        builder << "  ***INTERNAL ERROR***  \n";
-        builder << " Cant find Memory Profile " << tmpStats.profileID << " to remove!\n";
-        builder << "---------------------------------------------------------\n";
-        mReportLog->logMessage(builder.str());
+        mReportLog << "  ***INTERNAL ERROR***  \n";
+        mReportLog << " Cant find Memory Profile " << tmpStats.profileID << " to remove!\n";
+        mReportLog << "---------------------------------------------------------\n";
         return;
     }
 
@@ -222,45 +218,42 @@ namespace Ogre{
 
     void MemProfileManager::flush(String const& message)
     {
-        
-        std::stringstream builder;
-
         // section over-veiw
-        builder << "Section Flush: " << message << "\n";
-        builder << "---------------------------------------------------------\n";
-        builder << "Memory Profile Over " << mNumSectionUpdates << " updates\n";
-        builder << "Num Allocations                :\t" << mSectionStats.numAllocations << "\n";
-        builder << "Num Bytes Allocated            :\t" << mSectionStats.numBytesAllocated << "\n";
-        builder << "Num Deallocations              :\t" << mSectionStats.numDeallocations << "\n";
-        builder << "Num Bytes Deallocated          :\t" << mSectionStats.numBytesDeallocated << "\n";
-        builder << "Average Allocations per Update :\t" <<
+        mReportLog << "Section Flush: " << message << "\n";
+        mReportLog << "---------------------------------------------------------\n";
+        mReportLog << "Memory Profile Over " << mNumSectionUpdates << " updates\n";
+        mReportLog << "Num Allocations                :\t" << mSectionStats.numAllocations << "\n";
+        mReportLog << "Num Bytes Allocated            :\t" << mSectionStats.numBytesAllocated << "\n";
+        mReportLog << "Num Deallocations              :\t" << mSectionStats.numDeallocations << "\n";
+        mReportLog << "Num Bytes Deallocated          :\t" << mSectionStats.numBytesDeallocated << "\n";
+        mReportLog << "Average Allocations per Update :\t" <<
             (mSectionStats.numAllocations/static_cast<float>(mNumUpdates)) << "\n";
-        builder << "Average Bytes per Allocation   :\t" <<
+        mReportLog << "Average Bytes per Allocation   :\t" <<
             (mSectionStats.numBytesAllocated/static_cast<float>(mSectionStats.numAllocations)) << "\n";
-        builder << "Global Outstanding Allocations :\t" <<
+        mReportLog << "Global Outstanding Allocations :\t" <<
             (mGlobalStats.numAllocations-mGlobalStats.numDeallocations) <<
             " ( " << (mGlobalStats.numBytesAllocated-mGlobalStats.numBytesDeallocated) <<
             " bytes ) \n";
-        builder << "---------------------------------------------------------\n";
+        mReportLog << "---------------------------------------------------------\n";
         
         // per-allocator stats
-        builder << "Per allocator stats :- \n";
+        mReportLog << "Per allocator stats :- \n";
         ProfileArray::iterator iter = mProfArray.begin();
         ProfileArray::iterator end = mProfArray.end();
         for ( ; iter != end; ++iter ) // for each profile
         {
         	if(( *iter ).mProfile)
         	{
-                builder << "Allocator "<< ( *iter ).mStats.profileID;
-                builder << " Allocs " << ( *iter ).mStats.numAllocations;
-                builder << " ( " << ( *iter ).mStats.numBytesAllocated << " )";
-                builder << " De-Allocs " << ( *iter ).mStats.numDeallocations;
-                builder << " ( " <<( *iter ).mStats.numBytesDeallocated << " ) \n";
+                mReportLog << "Allocator "<< ( *iter ).mStats.profileID;
+                mReportLog << " Allocs " << ( *iter ).mStats.numAllocations;
+                mReportLog << " ( " << ( *iter ).mStats.numBytesAllocated << " )";
+                mReportLog << " De-Allocs " << ( *iter ).mStats.numDeallocations;
+                mReportLog << " ( " <<( *iter ).mStats.numBytesDeallocated << " ) \n";
         	}
         }
-        builder << "---------------------------------------------------------\n";
+        mReportLog << "---------------------------------------------------------\n";
         
-        mReportLog->logMessage(builder.str());
+        //mReportLog->logMessage(builder.str());
 
         // zero the counters
         mSectionStats.numAllocations      = 0;
@@ -273,33 +266,30 @@ namespace Ogre{
     void MemProfileManager::shutdown()
     {
         // log the info at shutdown
-        std::stringstream builder;
-
-        builder << "Global Stats at Shutdown: \n";
-        builder << "---------------------------------------------------------\n";
-        builder << "Memory Profile Over " << mNumUpdates << " updates\n";
-        builder << "Num Allocations                :\t"  << mGlobalStats.numAllocations << "\n";
-        builder << "Num Bytes Allocated            :\t"  << mGlobalStats.numBytesAllocated << "\n";
-        builder << "Num Deallocations              :\t"  << mGlobalStats.numDeallocations << "\n";
-        builder << "Num Bytes Deallocated          :\t"  << mGlobalStats.numBytesDeallocated << "\n";
-        builder << "Average Allocations per Update :\t" <<
+        mReportLog << "Global Stats at Shutdown: \n";
+        mReportLog << "---------------------------------------------------------\n";
+        mReportLog << "Memory Profile Over " << mNumUpdates << " updates\n";
+        mReportLog << "Num Allocations                :\t"  << mGlobalStats.numAllocations << "\n";
+        mReportLog << "Num Bytes Allocated            :\t"  << mGlobalStats.numBytesAllocated << "\n";
+        mReportLog << "Num Deallocations              :\t"  << mGlobalStats.numDeallocations << "\n";
+        mReportLog << "Num Bytes Deallocated          :\t"  << mGlobalStats.numBytesDeallocated << "\n";
+        mReportLog << "Average Allocations per Update :\t" <<
             (mGlobalStats.numAllocations/static_cast<float>(mNumUpdates)) << "\n";
-        builder << "Average Bytes per Allocation   :\t" <<
+        mReportLog << "Average Bytes per Allocation   :\t" <<
             (mGlobalStats.numBytesAllocated/static_cast<float>(mGlobalStats.numAllocations)) << "\n";
         
         if(mGlobalStats.numAllocations-mGlobalStats.numDeallocations != 0)
         {    
-            builder << "      ***LEAKED MEMORY***      \n";
-            builder << (mGlobalStats.numBytesAllocated-mGlobalStats.numBytesDeallocated) << " bytes in ";
-            builder << (mGlobalStats.numAllocations-mGlobalStats.numDeallocations) << " allocations !\n";
+            mReportLog << "      ***LEAKED MEMORY***      \n";
+            mReportLog << (mGlobalStats.numBytesAllocated-mGlobalStats.numBytesDeallocated) << " bytes in ";
+            mReportLog << (mGlobalStats.numAllocations-mGlobalStats.numDeallocations) << " allocations !\n";
         }
         else
         {
-            builder << " No memory leaks detected \n";
+            mReportLog << " No memory leaks detected \n";
         }
             
-        builder << "---------------------------------------------------------";
-        mReportLog->logMessage(builder.str());
+        mReportLog << "---------------------------------------------------------";
 
         // zero the counters
         mGlobalStats.numAllocations      = 0;

@@ -436,9 +436,8 @@ namespace Ogre
 
 	/**
 	 * This internal class is a little c++ trick used to init the
-	 * memory system, memory profile manager and the log manager
-	 * before we ever enter int main() and shut it all down just after
-	 * we return from it.
+	 * memory system and memory profile manager before we ever enter 
+	 * int main() and shut it all down just after we return from it.
 	 */	
     class InitMemProfileManager
     {
@@ -447,7 +446,6 @@ namespace Ogre
         ~InitMemProfileManager();
 
     private:
-        LogManager*        mLogManager;
         MemProfileManager* mMemProfileManager;
 	
         static InitMemProfileManager smInstance;	

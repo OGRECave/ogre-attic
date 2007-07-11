@@ -35,6 +35,8 @@ Torus Knot Software Ltd.
 #include "OgreSingleton.h"
 #include "OgreMemProfilerBase.h"
 #include <vector>
+#include <iostream>
+#include <fstream>
 
 namespace Ogre{
 
@@ -86,7 +88,8 @@ namespace Ogre{
         */
         void flush(String const& message);
 
-    /** Override standard Singleton retrieval.
+        /** 
+        Override standard Singleton retrieval.
         @remarks
         Why do we do this? Well, it's because the Singleton
         implementation is in a .h file, which means it gets compiled
@@ -141,14 +144,14 @@ namespace Ogre{
         ProfileArray                mProfArray;         // registered profiles
         MemProfilerBase::MemStats   mSectionStats;      // section stats
         MemProfilerBase::MemStats   mGlobalStats;       // global stats
-        Log*                        mReportLog;         // log for holding the profile info
+        std::ofstream               mReportLog;         // log for holding the profile info
         
         // all this is per-section, i.e. scopped by calls to flush()
         uint32 mPeakAllocations;    // largest number of allocations occuring in a single update
         uint32 mPeakUpdate;         // update that had the largest number of allocations
         uint32 mLargestAllocation;  // largest single memory allocation
         
-        uint32 mProfileIdTracker; // used to hold the highest ID
+        uint32 mProfileIdTracker;   // used to hold the highest ID
         
         /// we use a mutex to prevent removal of an allocator coinciding with
         /// an update from its stats.

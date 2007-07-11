@@ -1730,17 +1730,14 @@ static Ogre::Allocator<unsigned char> sAllocator;
 
 Ogre::InitMemProfileManager::InitMemProfileManager()
 {
-	// init the managers we need
-    mLogManager=new Ogre::LogManager();
-    mLogManager->createLog("", true, true);
+    // init the profile manager
     mMemProfileManager = new Ogre::MemProfileManager();
 }
 
 Ogre::InitMemProfileManager::~InitMemProfileManager()
 {
-	// clean up managers
-	delete mMemProfileManager;
-	delete mLogManager;
+    // clean up profile managers
+    delete mMemProfileManager;
 }
 
 void* wrapAllocate(size_t size) throw ()
