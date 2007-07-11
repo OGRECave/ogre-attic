@@ -82,6 +82,8 @@ EVT_MENU (ID_CONVERTLF,		CodeEditor::OnConvertEOL)
 // scintilla
 EVT_SCI_MARGINCLICK (-1, CodeEditor::OnMarginClick)
 EVT_SCI_CHARADDED (-1,   CodeEditor::OnCharAdded)
+EVT_SCI_UPDATEUI(-1, CodeEditor::OnUpdateUI)
+
 END_EVENT_TABLE()
 
 CodeEditor::CodeEditor(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wxSize &size, long style)
@@ -96,10 +98,41 @@ CodeEditor::CodeEditor(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
 	mFoldingMargin = 16;
 	mDividerID = 1;
 
+	SetProperty(wxT("fold"), wxT("1"));
+	SetFoldFlags(16);
+	SetMarginType(mFoldingID, wxSCI_MARGIN_SYMBOL);
+	SetMarginMask(mFoldingID, wxSCI_MASK_FOLDERS);
+	SetMarginSensitive(mFoldingID, true);
+	SetMarginWidth(mFoldingID, mFoldingMargin);
+
+	MarkerDefine(wxSCI_MARKNUM_FOLDEROPEN, wxSCI_MARK_BOXMINUS);
+	MarkerSetForeground(wxSCI_MARKNUM_FOLDEROPEN, wxColour(0xff, 0xff, 0xff));
+	MarkerSetBackground(wxSCI_MARKNUM_FOLDEROPEN, wxColour(0x80, 0x80, 0x80));
+	MarkerDefine(wxSCI_MARKNUM_FOLDER, wxSCI_MARK_BOXPLUS);
+	MarkerSetForeground(wxSCI_MARKNUM_FOLDER, wxColour(0xff, 0xff, 0xff));
+	MarkerSetBackground(wxSCI_MARKNUM_FOLDER, wxColour(0x80, 0x80, 0x80));
+	MarkerDefine(wxSCI_MARKNUM_FOLDERSUB, wxSCI_MARK_VLINE);
+	MarkerSetForeground(wxSCI_MARKNUM_FOLDERSUB, wxColour(0xff, 0xff, 0xff));
+	MarkerSetBackground(wxSCI_MARKNUM_FOLDERSUB, wxColour(0x80, 0x80, 0x80));
+	MarkerDefine(wxSCI_MARKNUM_FOLDERTAIL, wxSCI_MARK_LCORNER);
+	MarkerSetForeground(wxSCI_MARKNUM_FOLDERTAIL, wxColour(0xff, 0xff, 0xff));
+	MarkerSetBackground(wxSCI_MARKNUM_FOLDERTAIL, wxColour(0x80, 0x80, 0x80));
+	MarkerDefine(wxSCI_MARKNUM_FOLDEREND, wxSCI_MARK_BOXPLUSCONNECTED);
+	MarkerSetForeground(wxSCI_MARKNUM_FOLDEREND, wxColour(0xff, 0xff, 0xff));
+	MarkerSetBackground(wxSCI_MARKNUM_FOLDEREND, wxColour(0x80, 0x80, 0x80));
+	MarkerDefine(wxSCI_MARKNUM_FOLDEROPENMID, wxSCI_MARK_BOXMINUSCONNECTED);
+	MarkerSetForeground(wxSCI_MARKNUM_FOLDEROPENMID, wxColour(0xff, 0xff, 0xff));
+	MarkerSetBackground(wxSCI_MARKNUM_FOLDEROPENMID, wxColour(0x80, 0x80, 0x80));
+	MarkerDefine(wxSCI_MARKNUM_FOLDERMIDTAIL, wxSCI_MARK_TCORNER);
+	MarkerSetForeground(wxSCI_MARKNUM_FOLDERMIDTAIL, wxColour(0xff, 0xff, 0xff));
+	MarkerSetBackground(wxSCI_MARKNUM_FOLDERMIDTAIL, wxColour(0x80, 0x80, 0x80));
+
 	// Set defaults, these should eventually be set via user prefs
 	SetViewEOL(false);
 	SetIndentationGuides(false);
 	SetMarginWidth(mLineNumID, mLineNumMargin);
+	//SetMarginWidth(mFoldingID, mFoldingMargin);
+	//SetMarginSensitive(mFoldingID, true);
 	SetEdgeMode(wxSCI_EDGE_LINE);
 	//SetViewWhiteSpace(wxSCI_WS_VISIBLEALWAYS);
 	SetOvertype(false);
@@ -113,6 +146,9 @@ CodeEditor::CodeEditor(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
 	StyleSetForeground(wxSCI_STYLE_LINENUMBER, wxColour(wxT("DARK BLUE")));
 	StyleSetBackground(wxSCI_STYLE_LINENUMBER, wxColour(wxT("WHITE")));
 	StyleSetForeground(wxSCI_STYLE_INDENTGUIDE, wxColour(wxT("DARK GREY")));
+
+	StyleSetBold(wxSCI_STYLE_BRACELIGHT, true);
+	
 	//InitializePrefs(DEFAULT_LANGUAGE);
 	SetTabWidth(4);
 	SetUseTabs(false);
@@ -129,17 +165,17 @@ CodeEditor::CodeEditor(wxWindow *parent, wxWindowID id, const wxPoint &pos, cons
 	SetCaretLineBackground(wxColour(225, 235, 224));
 
 	// Markers
-	MarkerDefine(wxSCI_MARKNUM_FOLDER, wxSCI_MARK_BOXPLUS);
-	MarkerSetBackground(wxSCI_MARKNUM_FOLDER, wxColour(_T("BLACK")));
-	MarkerSetForeground(wxSCI_MARKNUM_FOLDER, wxColour(_T("WHITE")));
-	MarkerDefine(wxSCI_MARKNUM_FOLDEROPEN, wxSCI_MARK_BOXMINUS);
-	MarkerSetBackground(wxSCI_MARKNUM_FOLDEROPEN, wxColour(_T("BLACK")));
-	MarkerSetForeground(wxSCI_MARKNUM_FOLDEROPEN, wxColour(_T("WHITE")));
-	MarkerDefine(wxSCI_MARKNUM_FOLDERSUB, wxSCI_MARK_EMPTY);
-	MarkerDefine(wxSCI_MARKNUM_FOLDEREND, wxSCI_MARK_SHORTARROW);
-	MarkerDefine(wxSCI_MARKNUM_FOLDEROPENMID, wxSCI_MARK_ARROWDOWN);
-	MarkerDefine(wxSCI_MARKNUM_FOLDERMIDTAIL, wxSCI_MARK_EMPTY);
-	MarkerDefine(wxSCI_MARKNUM_FOLDERTAIL, wxSCI_MARK_EMPTY);
+	//MarkerDefine(wxSCI_MARKNUM_FOLDER, wxSCI_MARK_BOXPLUS);
+	//MarkerSetBackground(wxSCI_MARKNUM_FOLDER, wxColour(_T("BLACK")));
+	//MarkerSetForeground(wxSCI_MARKNUM_FOLDER, wxColour(_T("WHITE")));
+	//MarkerDefine(wxSCI_MARKNUM_FOLDEROPEN, wxSCI_MARK_BOXMINUS);
+	//MarkerSetBackground(wxSCI_MARKNUM_FOLDEROPEN, wxColour(_T("BLACK")));
+	//MarkerSetForeground(wxSCI_MARKNUM_FOLDEROPEN, wxColour(_T("WHITE")));
+	//MarkerDefine(wxSCI_MARKNUM_FOLDERSUB, wxSCI_MARK_EMPTY);
+	//MarkerDefine(wxSCI_MARKNUM_FOLDEREND, wxSCI_MARK_SHORTARROW);
+	//MarkerDefine(wxSCI_MARKNUM_FOLDEROPENMID, wxSCI_MARK_ARROWDOWN);
+	//MarkerDefine(wxSCI_MARKNUM_FOLDERMIDTAIL, wxSCI_MARK_EMPTY);
+	//MarkerDefine(wxSCI_MARKNUM_FOLDERTAIL, wxSCI_MARK_EMPTY);
 
 	// Clear wrong default keys
 #if !defined(__WXGTK__)
@@ -177,6 +213,110 @@ CodeEditor::~CodeEditor()
 {
 
 }
+
+wxChar CodeEditor::GetLastNonWhitespaceChar(int position /* = -1 */)
+{
+	if (position == -1)
+		position = GetCurrentPos();
+
+	int count = 0; // Used to count the number of blank lines
+	bool foundlf = false; // For the rare case of CR's without LF's
+	while (position)
+	{
+		wxChar c = GetCharAt(--position);
+		int style = GetStyleAt(position);
+		bool inComment = style == wxSCI_C_COMMENT ||
+			style == wxSCI_C_COMMENTDOC ||
+			style == wxSCI_C_COMMENTDOCKEYWORD ||
+			style == wxSCI_C_COMMENTDOCKEYWORDERROR ||
+			style == wxSCI_C_COMMENTLINE ||
+			style == wxSCI_C_COMMENTLINEDOC;
+		if (c == wxT('\n'))
+		{
+			count++;
+			foundlf = true;
+		}
+		else if (c == wxT('\r') && !foundlf)
+			count++;
+		else
+			foundlf = false;
+		if (count > 1) return 0; // Don't over-indent
+		if (!inComment && c != wxT(' ') && c != wxT('\t') && c != wxT('\n') && c != wxT('\r'))
+			return c;
+	}
+
+	return 0;
+}
+
+wxString CodeEditor::GetLineIndentString(int line)
+{
+	int currLine = (line == -1) ? LineFromPosition(GetCurrentPos()) : line;
+
+	wxString text = GetLine(currLine);
+	int length = (int)text.Length();
+	wxString indent;
+	for (int i = 0; i < length; ++i)
+	{
+		if (text[i] == wxT(' ') || text[i] == wxT('\t'))
+			indent << text[i];
+		else
+			break;
+	}
+
+	return indent;
+}
+
+int CodeEditor::FindBlockStart(int position, wxChar blockStart, wxChar blockEnd, bool skipNested /* = true */)
+{
+	int level = 0;
+	wxChar ch = GetCharAt(position);
+	while (ch)
+	{
+		if (ch == blockEnd)
+			++level;
+
+		else if (ch == blockStart)
+		{
+			if (level == 0) return position;
+			--level;
+		}
+
+		--position;
+
+		ch = GetCharAt(position);
+	}
+
+	return -1;
+}
+
+void CodeEditor::HighlightBraces()
+{
+	int currPos = GetCurrentPos();
+	int newPos = BraceMatch(currPos);
+	if (newPos == wxSCI_INVALID_POSITION)
+	{
+		if(currPos > 0)
+			newPos = BraceMatch(--currPos);
+	}
+
+	wxChar ch = GetCharAt(currPos);
+	if (ch == wxT('{') || ch == wxT('[') || ch == wxT('(') ||
+		ch == wxT('}') || ch == wxT(']') || ch == wxT(')'))
+	{
+		if (newPos != wxSCI_INVALID_POSITION)
+		{
+			BraceHighlight(currPos, newPos);
+		}
+		else
+		{
+			BraceBadLight(currPos);
+		}
+	}
+	else BraceHighlight(-1, -1);
+
+	Refresh(false);
+}
+
 
 //----------------------------------------------------------------------------
 // Common event handlers
@@ -382,7 +522,7 @@ void CodeEditor::OnConvertEOL(wxCommandEvent &event)
 
 void CodeEditor::OnMarginClick(wxScintillaEvent &event)
 {
-	if (event.GetMargin() == 2)
+	if (event.GetMargin() == 1)
 	{
 		int lineClick = LineFromPosition(event.GetPosition());
 		int levelClick = GetFoldLevel(lineClick);
@@ -395,173 +535,64 @@ void CodeEditor::OnMarginClick(wxScintillaEvent &event)
 
 void CodeEditor::OnCharAdded(wxScintillaEvent &event)
 {
-	char chr = event.GetKey();
+	char ch = event.GetKey();
 	int currentLine = GetCurrentLine();
-	// Change this if support for mac files with \r is needed
-	if (chr == '\n')
+	int pos = GetCurrentPos();
+
+	if (ch == wxT('\n') && currentLine > 0)
 	{
-		int lineInd = 0;
-		if (currentLine > 0)
+		BeginUndoAction();
+
+		wxString indent = GetLineIndentString(currentLine - 1);
+
+		wxChar b = GetLastNonWhitespaceChar();
+		if(b == wxT('{'))
 		{
-			lineInd = GetLineIndentation(currentLine - 1);
+			if(GetUseTabs())
+				indent << wxT("\t");
+			else
+				indent << wxT("    ");
 		}
 
-		if (lineInd == 0) return;
+		InsertText(pos, indent);
+		GotoPos((int)(pos + indent.Length()));
+		ChooseCaretX();
 
-		SetLineIndentation (currentLine, lineInd);
-		GotoPos(PositionFromLine (currentLine) + lineInd);
+		EndUndoAction();
 	}
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
-// private
-//////////////////////////////////////////////////////////////////////////////
-/*
-wxString CodeEditor::DeterminePrefs(const wxString &filename) {
-
-	LanguageInfo const* curInfo;
-
-	// determine language from filepatterns
-	int languageNr;
-	for (languageNr = 0; languageNr < g_LanguagePrefsSize; languageNr++)
+	else if(ch == wxT('}'))
 	{
-		curInfo = &g_LanguagePrefs [languageNr];
-		wxString filepattern = curInfo->filepattern;
-		filepattern.Lower();
-		while (!filepattern.IsEmpty())
+		BeginUndoAction();
+
+		wxString line = GetLine(currentLine);
+		line.Trim(false);
+		line.Trim(true);
+		if(line.Matches(wxT("}")))
 		{
-			wxString cur = filepattern.BeforeFirst(';');
-			if ((cur == filename) ||
-				(cur == (filename.BeforeLast('.') + _T(".*"))) ||
-				(cur == (_T("*.") + filename.AfterLast('.')))) {
-					return curInfo->name;
+			pos = GetCurrentPos() - 2;
+			pos = FindBlockStart(pos, wxT('{'), wxT('}'));
+
+			if(pos != -1)
+			{
+				wxString indent = GetLineIndentString(LineFromPosition(pos));
+				indent << wxT('}');
+				DelLineLeft();
+				DelLineRight();
+				pos = GetCurrentPos();
+				InsertText(pos, indent);
+				GotoPos((int)(pos + indent.Length()));
+				ChooseCaretX();
 			}
-			filepattern = filepattern.AfterFirst(';');
 		}
-	}
 
-	return wxEmptyString;
+		EndUndoAction();
+	}
 }
 
-bool CodeEditor::InitializePrefs(const wxString &name)
+void CodeEditor::OnUpdateUI(wxScintillaEvent &event)
 {
-	// initialize styles
-	StyleClearAll();
-	LanguageInfo const* curInfo = NULL;
-
-	// determine language
-	bool found = false;
-	int languageNr;
-	for (languageNr = 0; languageNr < g_LanguagePrefsSize; languageNr++)
-	{
-		curInfo = &g_LanguagePrefs[languageNr];
-		if (curInfo->name == name)
-		{
-			found = true;
-			break;
-		}
-	}
-
-	if (!found) return false;
-
-	// set lexer and language
-	SetLexer (curInfo->lexer);
-	m_language = curInfo;
-
-	// set margin for line numbers
-	SetMarginType (mLineNumID, wxSCI_MARGIN_NUMBER);
-	StyleSetForeground (wxSCI_STYLE_LINENUMBER, wxColour (_T("DARK GREY")));
-	StyleSetBackground (wxSCI_STYLE_LINENUMBER, wxColour (_T("WHITE")));
-	SetMarginWidth (mLineNumID,
-		g_CommonPrefs.lineNumberEnable? mLineNumMargin: 0);
-
-	// set common styles
-	StyleSetForeground (wxSCI_STYLE_DEFAULT, wxColour (_T("DARK GREY")));
-	StyleSetForeground (wxSCI_STYLE_INDENTGUIDE, wxColour (_T("DARK GREY")));
-
-	// initialize settings
-	if (g_CommonPrefs.syntaxEnable)
-	{
-		int keywordnr = 0;
-		int Nr;
-		for (Nr = 0; Nr < STYLE_TYPES_COUNT; Nr++)
-		{
-			if (curInfo->styles[Nr].type == -1) continue;
-
-			const StyleInfo &curType = g_StylePrefs[curInfo->styles[Nr].type];
-			wxFont font(curType.fontsize, wxTELETYPE, wxNORMAL, wxNORMAL, false,curType.fontname);
-			StyleSetFont(Nr, font);
-			if (curType.foreground)
-			{
-				StyleSetForeground (Nr, wxColour(curType.foreground));
-			}
-			if (curType.background)
-			{
-				StyleSetBackground (Nr, wxColour(curType.background));
-			}
-
-			StyleSetBold(Nr, (curType.fontstyle & TOKEN_STYLE_BOLD) > 0);
-			StyleSetItalic(Nr, (curType.fontstyle & TOKEN_STYLE_ITALIC) > 0);
-			StyleSetUnderline(Nr, (curType.fontstyle & TOKEN_STYLE_UNDERL) > 0);
-			StyleSetVisible(Nr, (curType.fontstyle & TOKEN_STYLE_HIDDEN) == 0);
-			StyleSetCase(Nr, curType.lettercase);
-			const wxChar *pwords = curInfo->styles[Nr].words;
-			if (pwords) 
-			{
-				SetKeyWords(keywordnr, pwords);
-				keywordnr += 1;
-			}
-		}
-	}
-
-	// set margin as unused
-	SetMarginType(mDividerID, wxSCI_MARGIN_SYMBOL);
-	SetMarginWidth(mDividerID, 8);
-	SetMarginSensitive(mDividerID, false);
-
-	// folding
-	SetMarginType(mFoldingID, wxSCI_MARGIN_SYMBOL);
-	SetMarginMask(mFoldingID, wxSCI_MASK_FOLDERS);
-	StyleSetBackground(mFoldingID, wxColour(_T("WHITE")));
-	SetMarginWidth(mFoldingID, 0);
-	SetMarginSensitive(mFoldingID, false);
-	if (g_CommonPrefs.foldEnable)
-	{
-		SetMarginWidth(mFoldingID, curInfo->folds != 0? mFoldingMargin: 0);
-		SetMarginSensitive(mFoldingID, curInfo->folds != 0);
-		SetProperty(_T("fold"), curInfo->folds != 0? _T("1"): _T("0"));
-		SetProperty(_T("fold.comment"), (curInfo->folds & FOLD_TYPE_COMMENT) > 0? _T("1"): _T("0"));
-		SetProperty (_T("fold.compact"), (curInfo->folds & FOLD_TYPE_COMPACT) > 0? _T("1"): _T("0"));
-		SetProperty (_T("fold.preprocessor"), (curInfo->folds & FOLD_TYPE_PREPROC) > 0? _T("1"): _T("0"));
-		SetProperty (_T("fold.html"), (curInfo->folds & FOLD_TYPE_HTML) > 0? _T("1"): _T("0"));
-		SetProperty (_T("fold.html.preprocessor"),(curInfo->folds & FOLD_TYPE_HTMLPREP) > 0? _T("1"): _T("0"));
-		SetProperty (_T("fold.comment.python"), (curInfo->folds & FOLD_TYPE_COMMENTPY) > 0? _T("1"): _T("0"));
-		SetProperty (_T("fold.quotes.python"), (curInfo->folds & FOLD_TYPE_QUOTESPY) > 0? _T("1"): _T("0"));
-	}
-
-	SetFoldFlags (wxSCI_FOLDFLAG_LINEBEFORE_CONTRACTED | wxSCI_FOLDFLAG_LINEAFTER_CONTRACTED);
-
-	// set spaces and indention
-	SetTabWidth(4);
-	SetUseTabs(false);
-	SetTabIndents(true);
-	SetBackSpaceUnIndents(true);
-	SetIndent(g_CommonPrefs.indentEnable ? 4 : 0);
-
-	// others
-	SetViewEOL(g_CommonPrefs.displayEOLEnable);
-	SetIndentationGuides(g_CommonPrefs.indentGuideEnable);
-	SetEdgeColumn(80);
-	SetEdgeMode(g_CommonPrefs.longLineOnEnable? wxSCI_EDGE_LINE: wxSCI_EDGE_NONE);
-	SetViewWhiteSpace (g_CommonPrefs.whiteSpaceEnable ? wxSCI_WS_VISIBLEALWAYS : wxSCI_WS_INVISIBLE);
-	SetOvertype(g_CommonPrefs.overTypeInitial);
-	SetReadOnly(g_CommonPrefs.readOnlyInitial);
-	SetWrapMode(g_CommonPrefs.wrapModeInitial ? wxSCI_WRAP_WORD : wxSCI_WRAP_NONE);
-
-	return true;
+	HighlightBraces();
 }
-*/
 
 bool CodeEditor::LoadFile() 
 {
@@ -622,221 +653,3 @@ bool CodeEditor::Modified()
 	// Return modified state
 	return (GetModify() && !GetReadOnly());
 }
-
-/*
-EditProperties::EditProperties (Edit *edit, long style)
-	: wxDialog (edit, -1, wxEmptyString, wxDefaultPosition, wxDefaultSize, style | wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
-{
-	// sets the application title
-	SetTitle (_("Properties"));
-	wxString text;
-
-	// fullname
-	wxBoxSizer *fullname = new wxBoxSizer (wxHORIZONTAL);
-	fullname->Add(10, 0);
-	fullname->Add(new wxStaticText(this, -1, _("Full filename"),
-		wxDefaultPosition, wxSize(80, -1)), 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
-
-	fullname->Add(new wxStaticText(this, -1, edit->GetFilename()), 0,
-		wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
-
-	// text info
-	wxGridSizer *textinfo = new wxGridSizer(4, 0, 2);
-	textinfo->Add(new wxStaticText(this, -1, _("Language"), wxDefaultPosition, wxSize(80, -1)),
-		0, wxALIGN_LEFT |wxALIGN_CENTER_VERTICAL|wxLEFT, 4);
-	textinfo->Add (new wxStaticText(this, -1, edit->m_language->name),
-		0, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL|wxRIGHT, 4);
-	textinfo->Add(new wxStaticText(this, -1, _("Lexer-ID: "), wxDefaultPosition, wxSize(80, -1)),
-		0, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxLEFT, 4);
-	text = wxString::Format(_T("%d"), edit->GetLexer());
-	textinfo->Add(new wxStaticText (this, -1, text), 0, wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
-
-	wxString EOLtype = _T("");
-	switch (edit->GetEOLMode())
-	{
-		case wxSCI_EOL_CR: { EOLtype = _T("CR (Unix)"); break; }
-		case wxSCI_EOL_CRLF: { EOLtype = _T("CRLF (Windows)"); break; }
-		case wxSCI_EOL_LF: { EOLtype = _T("CR (Macintosh)"); break; }
-	}
-
-	textinfo->Add(new wxStaticText(this, -1, _("Line endings"), wxDefaultPosition, wxSize(80, -1)),
-		0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxLEFT, 4);
-	textinfo->Add (new wxStaticText (this, -1, EOLtype), 0, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL|wxRIGHT, 4);
-
-	// text info box
-	wxStaticBoxSizer *textinfos = new wxStaticBoxSizer(new wxStaticBox(this, -1, _("Informations")), wxVERTICAL);
-	textinfos->Add (textinfo, 0, wxEXPAND);
-	textinfos->Add (0, 6);
-
-	// statistic
-	wxGridSizer *statistic = new wxGridSizer(4, 0, 2);
-	statistic->Add (new wxStaticText(this, -1, _("Total lines"), wxDefaultPosition, wxSize(80, -1)),
-		0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxLEFT, 4);
-	text = wxString::Format(_T("%d"), edit->GetLineCount());
-	statistic->Add (new wxStaticText (this, -1, text),
-		0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxRIGHT, 4);
-	statistic->Add (new wxStaticText (this, -1, _("Total chars"),
-		wxDefaultPosition, wxSize(80, -1)),
-		0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxLEFT, 4);
-	text = wxString::Format (_T("%d"), edit->GetTextLength());
-	statistic->Add (new wxStaticText (this, -1, text),
-		0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxRIGHT, 4);
-	statistic->Add (new wxStaticText (this, -1, _("Current line"),
-		wxDefaultPosition, wxSize(80, -1)),
-		0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxLEFT, 4);
-	text = wxString::Format (_T("%d"), edit->GetCurrentLine());
-	statistic->Add (new wxStaticText (this, -1, text),
-		0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxRIGHT, 4);
-	statistic->Add (new wxStaticText (this, -1, _("Current pos"),
-		wxDefaultPosition, wxSize(80, -1)),
-		0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxLEFT, 4);
-	text = wxString::Format (_T("%d"), edit->GetCurrentPos());
-	statistic->Add (new wxStaticText (this, -1, text),
-		0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxRIGHT, 4);
-
-	// char/line statistics
-	wxStaticBoxSizer *statistics = new wxStaticBoxSizer (
-		new wxStaticBox (this, -1, _("Statistics")), wxVERTICAL);
-
-	statistics->Add (statistic, 0, wxEXPAND);
-	statistics->Add (0, 6);
-
-	// total pane
-	wxBoxSizer *totalpane = new wxBoxSizer (wxVERTICAL);
-	totalpane->Add (fullname, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
-	totalpane->Add (0, 6);
-	totalpane->Add (textinfos, 0, wxEXPAND | wxLEFT | wxRIGHT, 10);
-	totalpane->Add (0, 10);
-	totalpane->Add (statistics, 0, wxEXPAND | wxLEFT | wxRIGHT, 10);
-	totalpane->Add (0, 6);
-	wxButton *okButton = new wxButton (this, wxID_OK, _("OK"));
-	okButton->SetDefault();
-	totalpane->Add (okButton, 0, wxALIGN_CENTER | wxALL, 10);
-
-	SetSizerAndFit (totalpane);
-
-	ShowModal();
-}
--------------------------------------------------------------------------
-EditPrint::EditPrint (CodeEditor *editor, wxChar *title)
-	: wxPrintout(title)
-{
-	m_edit = edit;
-	m_printed = 0;
-}
-
-bool EditPrint::OnPrintPage (int page) {
-
-	wxDC *dc = GetDC();
-	if (!dc) return false;
-
-	// scale DC
-	PrintScaling (dc);
-
-	// print page
-	if (page == 1) m_printed = 0;
-	m_printed = m_edit->FormatRange (1, m_printed, m_edit->GetLength(),
-		dc, dc, m_printRect, m_pageRect);
-
-	return true;
-}
-
-bool EditPrint::OnBeginDocument (int startPage, int endPage) {
-
-	if (!wxPrintout::OnBeginDocument (startPage, endPage)) {
-		return false;
-	}
-
-	return true;
-}
-
-void EditPrint::GetPageInfo (int *minPage, int *maxPage, int *selPageFrom, int *selPageTo) {
-
-	// initialize values
-	*minPage = 0;
-	*maxPage = 0;
-	*selPageFrom = 0;
-	*selPageTo = 0;
-
-	// scale DC if possible
-	wxDC *dc = GetDC();
-	if (!dc) return;
-	PrintScaling (dc);
-
-	// get print page informations and convert to printer pixels
-	wxSize ppiScr;
-	GetPPIScreen (&ppiScr.x, &ppiScr.y);
-	wxSize page = g_pageSetupData->GetPaperSize();
-	page.x = static_cast<int> (page.x * ppiScr.x / 25.4);
-	page.y = static_cast<int> (page.y * ppiScr.y / 25.4);
-	m_pageRect = wxRect (0,
-		0,
-		page.x,
-		page.y);
-
-	// get margins informations and convert to printer pixels
-	int  top = 25; // default 25
-	int  bottom = 25; // default 25
-	int  left = 20; // default 20
-	int  right = 20; // default 20
-	wxPoint (top, left) = g_pageSetupData->GetMarginTopLeft();
-	wxPoint (bottom, right) = g_pageSetupData->GetMarginBottomRight();
-	top = static_cast<int> (top * ppiScr.y / 25.4);
-	bottom = static_cast<int> (bottom * ppiScr.y / 25.4);
-	left = static_cast<int> (left * ppiScr.x / 25.4);
-	right = static_cast<int> (right * ppiScr.x / 25.4);
-	m_printRect = wxRect (left,
-		top,
-		page.x - (left + right),
-		page.y - (top + bottom));
-
-	// count pages
-	while (HasPage (*maxPage)) {
-		m_printed = m_edit->FormatRange (0, m_printed, m_edit->GetLength(),
-			dc, dc, m_printRect, m_pageRect);
-		*maxPage += 1;
-	}
-	if (*maxPage > 0) *minPage = 1;
-	*selPageFrom = *minPage;
-	*selPageTo = *maxPage;
-	m_printed = 0;
-}
-
-bool EditPrint::HasPage (int WXUNUSED(page)) {
-
-	return (m_printed < m_edit->GetLength());
-}
-
-bool EditPrint::PrintScaling (wxDC *dc){
-
-	// check for dc, return if none
-	if (!dc) return false;
-
-	// get printer and screen sizing values
-	wxSize ppiScr;
-	GetPPIScreen (&ppiScr.x, &ppiScr.y);
-	if (ppiScr.x == 0) { // most possible guess 96 dpi
-		ppiScr.x = 96;
-		ppiScr.y = 96;
-	}
-	wxSize ppiPrt;
-	GetPPIPrinter (&ppiPrt.x, &ppiPrt.y);
-	if (ppiPrt.x == 0) { // scaling factor to 1
-		ppiPrt.x = ppiScr.x;
-		ppiPrt.y = ppiScr.y;
-	}
-	wxSize dcSize = dc->GetSize();
-	wxSize pageSize;
-	GetPageSizePixels (&pageSize.x, &pageSize.y);
-
-	// set user scale
-	float scale_x = (float)(ppiPrt.x * dcSize.x) /
-		(float)(ppiScr.x * pageSize.x);
-	float scale_y = (float)(ppiPrt.y * dcSize.y) /
-		(float)(ppiScr.y * pageSize.y);
-	dc->SetUserScale (scale_x, scale_y);
-
-	return true;
-}
-*/
-
