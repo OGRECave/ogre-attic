@@ -108,6 +108,71 @@ static void ColouriseOMS(unsigned int startPos, int length, int initStyle, WordL
 	sc.Complete();
 }
 
+static void FoldOMS(unsigned int startPos, int length, int initStyle, WordList* keywordLists[], Accessor &styler)
+{
+	WordList &primaryKeywords = *keywordLists[0];
+
+	unsigned int lengthDoc = startPos + length;
+	int visibleChars = 0;
+	int lineCurrent = styler.GetLine(startPos);
+	int levelPrev = styler.LevelAt(lineCurrent) & SC_FOLDLEVELNUMBERMASK;
+	int levelCurrent = levelPrev;
+	char chNext = styler[startPos];
+	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
+	int styleNext = styler.StyleAt(startPos);
+	StyleContext sc(startPos, length, initStyle, styler);
+
+	for (unsigned int i = startPos; i < lengthDoc; i++)
+	{
+		char ch = chNext;
+		chNext = styler.SafeGetCharAt(i + 1);
+		styleNext = styler.StyleAt(i + 1);
+		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
+
+		if (ch == '{')
+		{
+			levelCurrent++;
+		}
+		else if (ch == '}')
+		{
+			levelCurrent--;
+		}
+
+		if (atEOL)
+		{
+			int lev = levelPrev;
+			if (visibleChars == 0 && foldCompact) 
+			{
+				lev |= SC_FOLDLEVELWHITEFLAG;
+			}
+			
+			if ((levelCurrent > levelPrev) && (visibleChars > 0))
+			{
+				lev |= SC_FOLDLEVELHEADERFLAG;
+			}
+
+			if (lev != styler.LevelAt(lineCurrent))
+			{
+				styler.SetLevel(lineCurrent, lev);
+			}
+
+			lineCurrent++;
+			levelPrev = levelCurrent;
+			visibleChars = 0;
+		}
+
+		if (!isspacechar(ch))
+		{
+			visibleChars++;
+		}
+	}
+	
+	// Fill in the real level of the next line, keeping the current flags as they will be filled in later
+	int flagsNext = styler.LevelAt(lineCurrent) & ~SC_FOLDLEVELNUMBERMASK;
+	styler.SetLevel(lineCurrent, levelPrev | flagsNext);
+}
+
+
 static const char* const omsWordLists[] = {
 	"Primary Keywords",
 	"Attribute Keywords",
@@ -116,4 +181,4 @@ static const char* const omsWordLists[] = {
 	0,
 };
 
-LexerModule lmOMS(SCLEX_OMS, ColouriseOMS, "oms", 0, omsWordLists);
+LexerModule lmOMS(SCLEX_OMS, ColouriseOMS, "oms", FoldOMS, omsWordLists);
