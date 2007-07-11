@@ -31,13 +31,13 @@ Torus Knot Software Ltd.
 
 #include <wx/wizard.h>
 
+#include "Project.h"
+
 class wxBoxSizer;
 class wxComboBox;
 class wxStaticText;
 class wxTextCtrl;
 
-class MaterialController;
-class Project;
 class TechniqueController;
 
 class TechniquePage : public wxWizardPageSimple
@@ -49,8 +49,16 @@ public:
 	virtual ~TechniquePage();
 
 	void getName(wxString& name) const;
+
 	Project* getProject() const;
+	void setProject(Project* project);
+
 	MaterialController* getMaterial() const;
+	void setMaterial(MaterialController* mc);
+
+	void populateMaterials(const MaterialControllerList* materials);
+
+	void OnProjectSelected(wxCommandEvent& event);
 
 protected:
 	void createPage();

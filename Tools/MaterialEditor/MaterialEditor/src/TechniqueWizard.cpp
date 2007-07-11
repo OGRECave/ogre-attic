@@ -24,29 +24,51 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA or go to
 http://www.gnu.org/copyleft/lesser.txt
 -------------------------------------------------------------------------
 */
-#ifndef _TECHNIQUEWIZARD_H_
-#define _TECHNIQUEWIZARD_H_
+#include "TechniqueWizard.h"
 
-#include <wx/wizard.h>
+#include <wx/sizer.h>
 
+#include "MaterialController.h"
+#include "Project.h"
+#include "TechniqueController.h"
 #include "TechniquePage.h"
+#include "Workspace.h"
 
-class TechniqueWizard : public wxWizard
+BEGIN_EVENT_TABLE(TechniqueWizard, wxWizard)
+	EVT_WIZARD_FINISHED(wxID_ANY, TechniqueWizard::OnFinish)
+END_EVENT_TABLE()
+
+TechniqueWizard::TechniqueWizard()
 {
-public:
-	TechniqueWizard();
-	virtual ~TechniqueWizard();
+}
 
-	bool Create(wxWindow* parent, int id = -1, const wxString& title = wxEmptyString, const wxBitmap& bitmap = wxNullBitmap, const wxPoint& pos = wxDefaultPosition, long style = wxDEFAULT_DIALOG_STYLE);
+TechniqueWizard::~TechniqueWizard()
+{
+}
 
-	TechniquePage* getTechniquePage() const;
+bool TechniqueWizard::Create(wxWindow* parent, int id /* = -1 */, const wxString& title /* = wxEmptyString */, const wxBitmap& bitmap /* = wxNullBitmap */, const wxPoint& pos /* = wxDefaultPosition */, long style /* = wxDEFAULT_DIALOG_STYLE */)
+{
+	bool result = wxWizard::Create(parent, id, title, bitmap, pos, style);
 
-	void OnFinish(wxWizardEvent& event);
+	mTechniquePage = new TechniquePage(this);
 
-protected:
-	TechniquePage* mTechniquePage;
+	GetPageAreaSizer()->Add(mTechniquePage);
 
-	DECLARE_EVENT_TABLE()
-};
+	return result;
+}
 
-#endif // _TECHNIQUEWIZARD_H_
+TechniquePage* TechniqueWizard::getTechniquePage() const
+{
+	return mTechniquePage;
+}
+
+void TechniqueWizard::OnFinish(wxWizardEvent& event)
+{
+	Project* project = mTechniquePage->getProject();
+	MaterialController* mc = mTechniquePage->getMaterial();
+
+	wxString name;
+	mTechniquePage->getName(name);
+
+	mc->createTechnique(name.c_str());
+}
