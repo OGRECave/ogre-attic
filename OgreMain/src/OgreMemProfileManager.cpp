@@ -106,7 +106,7 @@ namespace Ogre{
     
     void MemProfileManager::removeProfile(MemProfilerBase* profile)
     {
-    	// get a lock on the mutex, so we can't ubdate stats in mid-removal
+    	// get a lock on the mutex, so we can't update stats in mid-removal
         #if OGRE_THREAD_SUPPORT
         boost::recursive_mutex::scoped_lock lock(mUpdateMutex);
         #endif
@@ -229,17 +229,17 @@ namespace Ogre{
         builder << "Section Flush: " << message << "\n";
         builder << "---------------------------------------------------------\n";
         builder << "Memory Profile Over " << mNumSectionUpdates << " updates\n";
-        builder << "Num Allocations               :\t"  << mSectionStats.numAllocations << "\n";
-        builder << "Num Bytes Allocated           :\t"  << mSectionStats.numBytesAllocated << "\n";
-        builder << "Num Deallocations             :\t"  << mSectionStats.numDeallocations << "\n";
-        builder << "Num Bytes Deallocated         :\t"  << mSectionStats.numBytesDeallocated << "\n";
-        builder << "Average Allocations per Update:\t" <<
+        builder << "Num Allocations                :\t" << mSectionStats.numAllocations << "\n";
+        builder << "Num Bytes Allocated            :\t" << mSectionStats.numBytesAllocated << "\n";
+        builder << "Num Deallocations              :\t" << mSectionStats.numDeallocations << "\n";
+        builder << "Num Bytes Deallocated          :\t" << mSectionStats.numBytesDeallocated << "\n";
+        builder << "Average Allocations per Update :\t" <<
             (mSectionStats.numAllocations/static_cast<float>(mNumUpdates)) << "\n";
-        builder << "Average Bytes per Allocation  :\t" <<
+        builder << "Average Bytes per Allocation   :\t" <<
             (mSectionStats.numBytesAllocated/static_cast<float>(mSectionStats.numAllocations)) << "\n";
-        builder << "Outstanding Allocations       :\t" <<
-            (mSectionStats.numAllocations-mSectionStats.numDeallocations) <<
-            " ( " << (mSectionStats.numBytesAllocated-mSectionStats.numBytesDeallocated) <<
+        builder << "Global Outstanding Allocations :\t" <<
+            (mGlobalStats.numAllocations-mGlobalStats.numDeallocations) <<
+            " ( " << (mGlobalStats.numBytesAllocated-mGlobalStats.numBytesDeallocated) <<
             " bytes ) \n";
         builder << "---------------------------------------------------------\n";
         
@@ -278,13 +278,13 @@ namespace Ogre{
         builder << "Global Stats at Shutdown: \n";
         builder << "---------------------------------------------------------\n";
         builder << "Memory Profile Over " << mNumUpdates << " updates\n";
-        builder << "Num Allocations               :\t"  << mGlobalStats.numAllocations << "\n";
-        builder << "Num Bytes Allocated           :\t"  << mGlobalStats.numBytesAllocated << "\n";
-        builder << "Num Deallocations             :\t"  << mGlobalStats.numDeallocations << "\n";
-        builder << "Num Bytes Deallocated         :\t"  << mGlobalStats.numBytesDeallocated << "\n";
-        builder << "Average Allocations per Update:\t" <<
+        builder << "Num Allocations                :\t"  << mGlobalStats.numAllocations << "\n";
+        builder << "Num Bytes Allocated            :\t"  << mGlobalStats.numBytesAllocated << "\n";
+        builder << "Num Deallocations              :\t"  << mGlobalStats.numDeallocations << "\n";
+        builder << "Num Bytes Deallocated          :\t"  << mGlobalStats.numBytesDeallocated << "\n";
+        builder << "Average Allocations per Update :\t" <<
             (mGlobalStats.numAllocations/static_cast<float>(mNumUpdates)) << "\n";
-        builder << "Average Bytes per Allocation  :\t" <<
+        builder << "Average Bytes per Allocation   :\t" <<
             (mGlobalStats.numBytesAllocated/static_cast<float>(mGlobalStats.numAllocations)) << "\n";
         
         if(mGlobalStats.numAllocations-mGlobalStats.numDeallocations != 0)

@@ -114,6 +114,28 @@ namespace Ogre{
         {
             return std::numeric_limits<size_type>::max();
         }
+        
+        /**
+         * return the size of a memory block allocation
+         * @param ptr start of the allocated block
+         */
+        inline size_type block_size(typename std::allocator<void>::const_pointer ptr = 0)
+        {
+        	// TODO: this need to be added for profiler
+        	(void)ptr;
+        	return 0;
+        }
+        
+        /**
+         * return the size of an allocation, this will include any 
+         * memory manager overhead
+         * @param size the requested allocation size
+         */
+        inline size_type alloc_size(size_type size)
+        {
+        	// TODO: we only return 0 for now, to match block_size()
+        	return 0;
+        }
 
     private:
         /// determin equality

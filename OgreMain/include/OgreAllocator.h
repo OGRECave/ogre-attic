@@ -133,16 +133,18 @@ namespace Ogre{
         inline pointer allocate( size_type count,
                                  typename std::allocator<void>::const_pointer ptr = 0 )
         {
-            ProfilePolicy::note_allocation( count*sizeof( T ), ptr );
-            return AllocPolicy::allocate( count*sizeof( T ), ptr );
+        	register size_type sz = count*sizeof( T );
+            ProfilePolicy::note_allocation( AllocPolicy::alloc_size( sz ), ptr );
+            return AllocPolicy::allocate( sz, ptr );
         }
 
         /// memory dealocation (elements)
         // via delegation, so we can hook in the profile
-        inline void deallocate( pointer ptr, size_type sz )
+        inline void deallocate( pointer ptr, size_type count )
         {
-            ProfilePolicy::note_deallocation( ptr, sz*sizeof( T ) );
-            AllocPolicy::deallocate( ptr, sz*sizeof( T ) );
+        	register size_type sz = count*sizeof( T );
+            ProfilePolicy::note_deallocation( ptr, AllocPolicy::block_size( ptr ) );
+            AllocPolicy::deallocate( ptr, sz );
         }
 
         /// memory allocation (bytes)
@@ -150,7 +152,7 @@ namespace Ogre{
         inline pointer allocateBytes( size_type count,
                                       typename std::allocator<void>::const_pointer ptr = 0 )
         {
-            ProfilePolicy::note_allocation( count, ptr );
+            ProfilePolicy::note_allocation( AllocPolicy::alloc_size( count ), ptr );
             return AllocPolicy::allocate( count, ptr );
         }
 
@@ -158,7 +160,7 @@ namespace Ogre{
         // via delegation, so we can hook in the profile
         inline void deallocateBytes( pointer ptr, size_type sz )
         {
-            ProfilePolicy::note_deallocation( ptr, sz );
+            ProfilePolicy::note_deallocation( ptr, AllocPolicy::block_size( ptr ) );
             AllocPolicy::deallocate( ptr, sz );
         }
     };

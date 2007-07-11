@@ -481,10 +481,30 @@ inline void operator delete(void *ptr, std::size_t size)
 
 /// overloaded operator delete[], points back to the 
 /// deallocation wrapper function
-inline void operator delete[](void *ptr, int size)// std::size_t size)
+inline void operator delete[](void *ptr, std::size_t size)
+{
+	return wrapDeallocate(ptr,size);
+}
+
+
+// single param delete, I can work with this for now untill 
+// I can sort out the (void*, size_t) version
+
+/// overloaded operator delete, points back to the 
+/// deallocation wrapper function
+inline void operator delete(void *ptr)
 {
 	return wrapDeallocate(ptr,0);
 }
+
+/// overloaded operator delete[], points back to the 
+/// deallocation wrapper function
+inline void operator delete[](void *ptr)
+{
+	return wrapDeallocate(ptr,0);
+}
+
+
 #endif // Turn on/off new memory system
 
 #endif // include protect
