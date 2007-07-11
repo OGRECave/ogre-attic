@@ -162,6 +162,11 @@ MaterialController* Project::getMaterialController(const String& name)
 	return NULL;
 }
 
+const MaterialControllerList* Project::getMaterials() const
+{
+	return &mMaterialControllers;
+}
+
 void Project::open()
 {
 }
