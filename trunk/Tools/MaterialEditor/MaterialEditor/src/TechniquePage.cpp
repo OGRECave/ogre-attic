@@ -35,10 +35,13 @@ Torus Knot Software Ltd.
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
 
-#include "Project.h"
+#include "MaterialController.h"
 #include "Workspace.h"
 
+const long ID_MATERIAL_COMBO_BOX = wxNewId();
+
 BEGIN_EVENT_TABLE(TechniquePage, wxWizardPageSimple)
+	EVT_CHOICE(ID_MATERIAL_COMBO_BOX, TechniquePage::OnProjectSelected)
 END_EVENT_TABLE()
 
 TechniquePage::TechniquePage(wxWizard* parent)
@@ -81,8 +84,15 @@ void TechniquePage::createPage()
 
 	// TODO: Select first Project
 	mProjectComboBox = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, projectNames, wxCB_DROPDOWN);
-
 	mSizer->Add(mProjectComboBox, 0, wxALL | wxEXPAND, 5);
+
+	// Material Label
+	mMaterialLabel = new wxStaticText(this, wxID_ANY, wxT("Material:"), wxDefaultPosition, wxDefaultSize, 0);
+	mSizer->Add(mMaterialLabel, 0, wxALL, 5);
+
+	// Material Combo Box
+	mMaterialComboBox = new wxComboBox(this, ID_MATERIAL_COMBO_BOX);
+	mSizer->Add(mMaterialComboBox, 0, wxALL | wxEXPAND, 5);
 
 	// Name Label
 	mNameLabel = new wxStaticText(this, wxID_ANY, wxT("Name:"), wxDefaultPosition, wxDefaultSize, 0);
@@ -106,5 +116,43 @@ Project* TechniquePage::getProject() const
 	wxString project = mProjectComboBox->GetValue();
 
 	return Workspace::getSingletonPtr()->getProject(project.c_str());
+}
+
+MaterialController* TechniquePage::getMaterial() const
+{
+	wxString material = mMaterialComboBox->GetValue();
+
+	return getProject()->getMaterialController(material.c_str());
+}
+
+void TechniquePage::setProject(Project* project)
+{
+	mProjectComboBox->SetValue(project != NULL ? project->getName().c_str() : wxEmptyString);
+	populateMaterials(project->getMaterials());
+}
+
+void TechniquePage::setMaterial(MaterialController* mc)
+{
+	mMaterialComboBox->SetValue(mc != NULL ? mc->getMaterial()->getName().c_str() : wxEmptyString);
+}
+
+void TechniquePage::OnProjectSelected(wxCommandEvent& event)
+{
+	Project* project = getProject();
+	if(project != NULL)
+		populateMaterials(project->getMaterials());
+}
+
+void TechniquePage::populateMaterials(const MaterialControllerList* materials)
+{
+	wxArrayString materialNames;
+	MaterialControllerList::const_iterator it;
+	for(it = materials->begin(); it != materials->end(); ++it)
+	{
+		materialNames.Add((*it)->getMaterial()->getName().c_str());
+	}
+
+	mMaterialComboBox->Clear();
+	mMaterialComboBox->Append(materialNames);
 }
 
