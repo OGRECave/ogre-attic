@@ -43,7 +43,8 @@ namespace Ogre{
 
     MemProfileManager& MemProfileManager::getSingleton(void)
     {
-        assert( ms_Singleton );  return ( *ms_Singleton );
+        assert( ms_Singleton );  
+        return ( *ms_Singleton );
     }
 
     MemProfileManager::~MemProfileManager()
@@ -51,6 +52,7 @@ namespace Ogre{
         update(); // collect any final info
         flush("Shutdown"); // flush a final section
         shutdown(); // flush the gloabl stats
+        mReportLog.close();
     }
 
     MemProfileManager::MemProfileManager()
@@ -65,7 +67,7 @@ namespace Ogre{
         mProfArray.reserve( 10 );
         
         // setup our log file
-        mReportLog.open("OgreMemoryReport.log",std::ios::out);
+        mReportLog.open("OgreMemoryReport.log");
 
         // init stats
         memset( &( mGlobalStats  ), 0, sizeof( MemProfilerBase::MemStats ) );
@@ -120,7 +122,6 @@ namespace Ogre{
             if( ( *iter ).mStats.profileID == tmpStats.profileID )
             {
                 mReportLog << "Removing Memory Profile " << tmpStats.profileID << "\n";
-                mReportLog << "---------------------------------------------------------\n";
                 // do some sanity checking
                 uint32 aloc = ( *iter ).mStats.numAllocations + tmpStats.numAllocations;
                 uint32 dloc = ( *iter ).mStats.numDeallocations + tmpStats.numDeallocations;
@@ -219,8 +220,8 @@ namespace Ogre{
     void MemProfileManager::flush(String const& message)
     {
         // section over-veiw
-        mReportLog << "Section Flush: " << message << "\n";
         mReportLog << "---------------------------------------------------------\n";
+        mReportLog << "Section Flush: " << message << "\n";
         mReportLog << "Memory Profile Over " << mNumSectionUpdates << " updates\n";
         mReportLog << "Num Allocations                :\t" << mSectionStats.numAllocations << "\n";
         mReportLog << "Num Bytes Allocated            :\t" << mSectionStats.numBytesAllocated << "\n";
@@ -267,7 +268,6 @@ namespace Ogre{
     {
         // log the info at shutdown
         mReportLog << "Global Stats at Shutdown: \n";
-        mReportLog << "---------------------------------------------------------\n";
         mReportLog << "Memory Profile Over " << mNumUpdates << " updates\n";
         mReportLog << "Num Allocations                :\t"  << mGlobalStats.numAllocations << "\n";
         mReportLog << "Num Bytes Allocated            :\t"  << mGlobalStats.numBytesAllocated << "\n";
@@ -289,7 +289,7 @@ namespace Ogre{
             mReportLog << " No memory leaks detected \n";
         }
             
-        mReportLog << "---------------------------------------------------------";
+        mReportLog << "---------------------------------------------------------\n";
 
         // zero the counters
         mGlobalStats.numAllocations      = 0;

@@ -127,6 +127,49 @@ namespace Ogre{
     	// profilers and flushes the global memory stats. Any outstanding
     	// allocations at this point are reguarded as memory leaks
     	void shutdown();
+    	
+    	/***
+    	 * just as a convenient logging method
+    	 */
+    	class Logger
+    	{
+    		private:
+    			std::ofstream mLogFile;
+    			
+    	    public:
+    	    	inline explicit Logger()
+    	    	{}
+    	    		
+    	    	inline ~Logger()
+    	    	{}
+    	    		
+    	    	void open(const char* path)
+    	    	{
+    	    		mLogFile.open(path,std::ios::out);
+    	    	}
+    	    	
+    	    	void close()
+    	    	{
+    	    		mLogFile.close();
+    	    		std::cout << std::endl;
+    	    	}
+    	    
+    	        template<typename T>
+    	        inline Logger& operator << (T ipt)
+    		    {
+    		    	std::cout << ipt;
+    		    	mLogFile << ipt;
+    		    	return *this;
+    		    }
+    		    
+    		    template<typename T>
+    	        inline Logger& operator << (T const& ipt) const
+    		    {
+    		    	std::cout << ipt;
+    		    	mLogFile << ipt;
+    		    	return *this;
+    		    }
+    	};
     
     
         /// used to hold a profile and pair it with a stats packet
@@ -144,7 +187,7 @@ namespace Ogre{
         ProfileArray                mProfArray;         // registered profiles
         MemProfilerBase::MemStats   mSectionStats;      // section stats
         MemProfilerBase::MemStats   mGlobalStats;       // global stats
-        std::ofstream               mReportLog;         // log for holding the profile info
+        Logger                      mReportLog;         // log for holding the profile info
         
         // all this is per-section, i.e. scopped by calls to flush()
         uint32 mPeakAllocations;    // largest number of allocations occuring in a single update
