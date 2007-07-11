@@ -38,8 +38,6 @@ import math
 #  Set to 0 for RGBA, 1 for BGRA.
 OGRE_OPENGL_VERTEXCOLOUR = 1
 
-matrixOne = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]
-
 class Vertex:
 	"""
 	"""
@@ -237,15 +235,12 @@ class Vertex:
 		elif (nAssignments  > 4):
 			Log.getSingleton().logWarning("Vertex with more than 4 bone assignments!")
 		# TODO: weightSum normalization
+		# Ogre::Mesh::_rationaliseBoneAssignments always normalises the sum of
+		# weights per vertex to be 1.0. However, in Blender weightSum > 1.0 and
+		# weightSum < 1.0 seems to be often the case.
 		#
-		# Ogre::Mesh::_rationaliseBoneAssignments states that sum of weights is normalized to 1.0
-		#
-		# however, in Blender weightSum > 1.0 seems to be often the case.
-		# TODO: check whether OGRE requires that it is <= 1.0
-		# TODO: check whether Blender takes this as a scale factor, i.e., 
-		#   influence is sum_i bone_i*weight_i, or if weights are normalized to sum_i weight_i == 1
-		#if (weightSum > 1.0):
-		#	Log.getSingleton().logWarning("Vertex with sum of bone assignment weights > 1!")
+		#if (abs(weightSum - 1.0) > THRESHOLD):
+		#	Log.getSingleton().logWarning("Vertex with non-convex bone assignment weights!")
 		return
 	def getIndex(self):
 		return self.index
