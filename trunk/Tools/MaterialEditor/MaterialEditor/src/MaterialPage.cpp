@@ -96,6 +96,6 @@ Project* MaterialPage::getProject() const
 
 void MaterialPage::setProject(Project* project)
 {
-	mProjectComboBox->SetValue(project->getName().c_str());
+	mProjectComboBox->SetValue(project != NULL ? project->getName().c_str() : wxEmptyString);
 }
 
