@@ -181,7 +181,7 @@ class ArmatureAnimation:
 				stack.extend(track.getChildren())
 		
 		# remove unused tracks
-		## TODO
+		self.trackList = [track for track in self.trackList if track.hasNontrivialKeyframe()]
 		
 		# restore current settings
 		# FIXME: does not work with multiple actions
@@ -296,6 +296,11 @@ class SkeletonAnimationTrack:
 		self.skeletonBone = skeletonBone
 		self.parent = parent
 		self.children = []
+		# A track is said to be nontrivial, if there is at least one keyframe
+		# that do has a relative transformation to the OGRE bone rest position
+		# with norm above a threshold.
+		self.nontrivialKeyframe = False
+		self.NONTRIVIALKEYFRAME_THRESHOLD = 1e-5
 		# key: time, value: keyframe matrix.
 		self.keyframeDict = {}
 		# cache name
@@ -312,6 +317,8 @@ class SkeletonAnimationTrack:
 		if self.parent is not None:
 			self.parent.addChild(self)		
 		return
+	def hasNontrivialKeyframe(self):
+		return self.nontrivialKeyframe
 	def getSkeletonBone(self):
 		return self.skeletonBone
 	def getChildren(self):
@@ -357,7 +364,35 @@ class SkeletonAnimationTrack:
 		if self.parent is not None:
 			poseTransformation *= self.parent.getInverseLastKeyframeTotalTransformation()
 		
-		self.keyframeDict[time] = Blender.Mathutils.Matrix(*poseTransformation)
+		# get transformation values
+		# translation relative to parent coordinate system orientation
+		# and as difference to rest pose translation
+		translation = poseTransformation.translationPart()
+		translation -= self.ogreRestPose.translationPart()
+		translationTuple = tuple(translation)
+		# rotation relative to local coordiante system
+		# calculate difference to rest pose
+		poseTransformation *= self.inverseOgreRestPose
+		rotationQuaternion = poseTransformation.toQuat()
+		rotationQuaternion.normalize()
+		angle = float(rotationQuaternion.angle)/180*math.pi
+		axisTuple = tuple(rotationQuaternion.axis)
+		# scale
+		scaleTuple = tuple(poseTransformation.scalePart())
+		
+		# check whether keyframe is nontrivial
+		if ((math.sqrt(translationTuple[0]**2 
+				+ translationTuple[1]**2 
+				+ translationTuple[2]**2) > self.NONTRIVIALKEYFRAME_THRESHOLD)
+			or (angle > self.NONTRIVIALKEYFRAME_THRESHOLD)
+			or (math.sqrt((scaleTuple[0] - 1.0)**2
+				+ (scaleTuple[1] - 1.0)**2
+				+ (scaleTuple[2] - 1.0)**2) > self.NONTRIVIALKEYFRAME_THRESHOLD)):
+			# at least one keyframe different from the identity transformation
+			self.nontrivialKeyframe = True
+		
+		# store transformations
+		self.keyframeDict[time] = (translationTuple, (axisTuple, angle), scaleTuple)
 		return
 	def write(self, f, indentation=0):
 		# write optimized keyframes
@@ -369,21 +404,7 @@ class SkeletonAnimationTrack:
 			keyframeTimes.sort()
 			for time in keyframeTimes:
 				f.write(indent(indentation + 2) + "<keyframe time=\"%f\">\n" % time)
-				transformation = self.keyframeDict[time]
-				# get transformation values
-				# translation relative to parent coordinate system orientation
-				# and as difference to rest pose translation
-				translation = transformation.translationPart()
-				translation -= self.ogreRestPose.translationPart()
-				translationTuple = tuple(translation)
-				# rotation relative to local coordiante system
-				# calculate difference to rest pose
-				transformation *= self.inverseOgreRestPose
-				rotationQuaternion = transformation.toQuat()
-				rotationQuaternion.normalize()
-				angle = float(rotationQuaternion.angle)/180*math.pi
-				axisTuple = tuple(rotationQuaternion.axis)
-				scaleTuple = tuple(transformation.scalePart())
+				(translationTuple, (axisTuple, angle), scaleTuple) = self.keyframeDict[time]
 				# write transformation values
 				f.write(indent(indentation + 3) + "<translate x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % translationTuple)
 				f.write(indent(indentation + 3) + "<rotate angle=\"%.6f\">\n" % angle)
