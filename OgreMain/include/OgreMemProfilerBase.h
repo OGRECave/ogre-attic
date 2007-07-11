@@ -49,11 +49,11 @@ namespace Ogre{
         /// used to accumulate statisitcis between calls to flush
         struct MemStats
         {
-        	unsigned int profileID;
-            unsigned int numBytesAllocated;
-            unsigned int numAllocations;
-            unsigned int numBytesDeallocated;
-            unsigned int numDeallocations;
+        	size_t profileID;
+            size_t numBytesAllocated;
+            size_t numAllocations;
+            size_t numBytesDeallocated;
+            size_t numDeallocations;
         };
         
         inline explicit MemProfilerBase()

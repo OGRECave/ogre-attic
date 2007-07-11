@@ -429,7 +429,8 @@ inline void operator delete[](void *reportedAddress)
 // overload new/delete to plug-in our gloabl scheme, maybe do this with macros later on
 // for now i just want to direct allocations to the right place
 
-namespace Ogre{
+namespace Ogre
+{
 	class LogManager;
 	class MemProfileManager;
 
@@ -439,17 +440,17 @@ namespace Ogre{
 	 * before we ever enter int main() and shut it all down just after
 	 * we return from it.
 	 */	
-    class _InitMemProfileManager
+    class InitMemProfileManager
     {
     public:
-        _InitMemProfileManager();
-        ~_InitMemProfileManager();
+        InitMemProfileManager();
+        ~InitMemProfileManager();
 
     private:
         LogManager*        mLogManager;
         MemProfileManager* mMemProfileManager;
 	
-        static _InitMemProfileManager smInstance;	
+        static InitMemProfileManager smInstance;	
     };
 }
 

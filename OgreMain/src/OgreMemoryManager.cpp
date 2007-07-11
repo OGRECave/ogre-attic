@@ -1723,12 +1723,12 @@ namespace Ogre
 #include "OgreAllocator.h"
 
 // realise static instance member for the init class
-Ogre::_InitMemProfileManager::_InitMemProfileManager smInstance;
+Ogre::InitMemProfileManager Ogre::InitMemProfileManager::smInstance;
 
 // static allocator used to handle generic allocations globally
 static Ogre::Allocator<unsigned char> sAllocator;
 
-Ogre::_InitMemProfileManager::_InitMemProfileManager()
+Ogre::InitMemProfileManager::InitMemProfileManager()
 {
 	// init the managers we need
     mLogManager=new Ogre::LogManager();
@@ -1736,7 +1736,7 @@ Ogre::_InitMemProfileManager::_InitMemProfileManager()
     mMemProfileManager = new Ogre::MemProfileManager();
 }
 
-Ogre::_InitMemProfileManager::~_InitMemProfileManager()
+Ogre::InitMemProfileManager::~InitMemProfileManager()
 {
 	// clean up managers
 	delete mMemProfileManager;
