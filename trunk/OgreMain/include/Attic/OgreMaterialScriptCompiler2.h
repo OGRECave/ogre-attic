@@ -58,7 +58,10 @@ namespace Ogre{
 	enum
 	{
 		ME_LODLISTEXPECTED = CE_BASE_ERRORS_END,
-		ME_TECHNIQUEBODYEXPECTED
+		ME_TECHNIQUEBODYEXPECTED,
+		ME_PASSBODYEXPECTED,
+		ME_COLOURORVERTEXTRACKINGEXPECTED,
+		ME_SCENEBLENDINGEXPECTED
 	};
 	
 	/** This is the new compiler for material scripts. It uses the parser to parse the material
@@ -81,7 +84,10 @@ namespace Ogre{
 	private: // Private handlers to compile pieces of the material script
 		void compileMaterial(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
 		void compileTechnique(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
-		void compilePass(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+		void compilePass(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Technique *technique);
+
+		bool parseColour(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, ColourValue &c);
+		bool parseBlendFactor(const String &str, SceneBlendFactor &factor);
 	private:
 		// The listener
 		MaterialScriptCompilerListener *mListener;

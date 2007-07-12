@@ -371,19 +371,343 @@ namespace Ogre{
 				}
 				else if((*j)->token == "pass")
 				{
-
+					compilePass(j, (*i)->children.end(), technique);
 				}
 			}
-
-			// Consume the '{' and the '}'
-			++i;
-			++i;
 		}
+
+		// Consume the '{' and the '}'
+		++i;
+		++i;
 	}
 
-	void MaterialScriptCompiler2::compilePass(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end)
+	void MaterialScriptCompiler2::compilePass(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Technique *technique)
 	{
+		// Consume the "technique" node
+		if(!nodeExists(i, end, 1))
+		{
+			addError(ME_PASSBODYEXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+		++i;
 
+		// Create the technique being compiled
+		Pass *pass = technique->createPass();
+
+		// Consume the name if there is one
+		if((*i)->type != SNT_LBRACE)
+		{
+			pass->setName((*i)->token);
+
+			if(!nodeExists(i, end, 1))
+			{
+				addError(ME_PASSBODYEXPECTED, (*i)->file, (*i)->line, (*i)->column);
+				return;
+			}
+			++i;
+		}
+
+		if((*i)->type != SNT_LBRACE)
+		{
+			addError(CE_OPENBRACEEXPECTED, (*i)->file, (*i)->line, (*i)->column);
+			return;
+		}
+
+		// Hit the '{', so compile the pass's parameters
+		ScriptNodeList::iterator j = (*i)->children.begin();
+		while(j != (*i)->children.end())
+		{
+			if(!processNode(j, (*i)->children.end()))
+			{
+				if((*j)->token == "ambient")
+				{
+					if(!nodeExists(j, (*i)->children.end(), 1))
+					{
+						addError(ME_COLOURORVERTEXTRACKINGEXPECTED, (*j)->file, (*j)->line, -1);
+						break;
+					}
+					++j;
+
+					if((*j)->token == "vertexcolour")
+						pass->setVertexColourTracking(TVC_AMBIENT);
+					else
+					{
+						ColourValue c;
+						if(parseColour(j, (*i)->children.end(), c))
+							pass->setAmbient(c);
+						else
+							addError(ME_COLOURORVERTEXTRACKINGEXPECTED, (*j)->file, (*j)->line, (*j)->column);
+					}
+				}
+				else if((*j)->token == "diffuse")
+				{
+					if(!nodeExists(j, (*i)->children.end(), 1))
+					{
+						addError(ME_COLOURORVERTEXTRACKINGEXPECTED, (*j)->file, (*j)->line, -1);
+						break;
+					}
+					++j;
+
+					if((*j)->token == "vertexcolour")
+						pass->setVertexColourTracking(TVC_DIFFUSE);
+					else
+					{
+						ColourValue c;
+						if(parseColour(j, (*i)->children.end(), c))
+							pass->setDiffuse(c);
+						else
+							addError(ME_COLOURORVERTEXTRACKINGEXPECTED, (*j)->file, (*j)->line, (*j)->column);
+					}
+				}
+				else if((*j)->token == "specular")
+				{
+					if(!nodeExists(j, (*i)->children.end(), 1))
+					{
+						addError(ME_COLOURORVERTEXTRACKINGEXPECTED, (*j)->file, (*j)->line, -1);
+						break;
+					}
+					++j;
+
+					if((*j)->token == "vertexcolour")
+						pass->setVertexColourTracking(TVC_SPECULAR);
+					else
+					{
+						ColourValue c;
+						if(parseColour(j, (*i)->children.end(), c))
+							pass->setSpecular(c);
+						else
+							addError(ME_COLOURORVERTEXTRACKINGEXPECTED, (*j)->file, (*j)->line, (*j)->column);
+					}
+				}
+				else if((*j)->token == "emissive")
+				{
+					if(!nodeExists(j, (*i)->children.end(), 1))
+					{
+						addError(ME_COLOURORVERTEXTRACKINGEXPECTED, (*j)->file, (*j)->line, -1);
+						break;
+					}
+					++j;
+
+					if((*j)->token == "vertexcolour")
+						pass->setVertexColourTracking(TVC_EMISSIVE);
+					else
+					{
+						ColourValue c;
+						if(parseColour(j, (*i)->children.end(), c))
+							pass->setSelfIllumination(c);
+						else
+							addError(ME_COLOURORVERTEXTRACKINGEXPECTED, (*j)->file, (*j)->line, (*j)->column);
+					}
+				}
+				else if((*j)->token == "scene_blend")
+				{
+					if(!nodeExists(j, (*i)->children.end(), 1))
+					{
+						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+						break;
+					}
+					++j;
+					
+					String blend = (*j)->token;
+					if(blend == "replace")
+						pass->setSceneBlending(SBT_REPLACE);
+					else if(blend == "add")
+						pass->setSceneBlending(SBT_ADD);
+					else if(blend == "modulate")
+						pass->setSceneBlending(SBT_MODULATE);
+					else if(blend == "colour_blend")
+						pass->setSceneBlending(SBT_TRANSPARENT_COLOUR);
+					else if(blend == "alpha_blend")
+						pass->setSceneBlending(SBT_TRANSPARENT_ALPHA);
+					else
+					{
+						// Two arguments now expected
+						if(!nodeExists(j, (*i)->children.end(), 1))
+						{
+							addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+							break;
+						}
+
+						SceneBlendFactor src, dst;
+						if(!parseBlendFactor(blend, src))
+						{
+							addError(ME_SCENEBLENDINGEXPECTED, (*j)->file, (*j)->line, (*j)->column);
+							break;
+						}
+
+						++j;
+						if(!parseBlendFactor((*j)->token, dst))
+						{
+							addError(ME_SCENEBLENDINGEXPECTED, (*j)->file, (*j)->line, (*j)->column);
+							break;
+						}
+
+						pass->setSceneBlending(src, dst);
+					}
+				}
+				else if((*j)->token == "separate_scene_blend")
+				{
+					// Check the first token to see if we are using the 2 or 4 argument version
+					if(!nodeExists(j, (*i)->children.end(), 1))
+					{
+						addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+						break;
+					}
+					++j;
+
+					bool useSbt = true;
+					Ogre::SceneBlendType sbt1, sbt2;
+					SceneBlendFactor colourSbf1, colourSbf2, alphaSbf1, alphaSbf2;
+
+					String str = (*j)->token;
+					if(str == "replace")
+						sbt1 = SBT_REPLACE;
+					else if(str == "add")
+						sbt1 = SBT_ADD;
+					else if(str == "modulate")
+						sbt1 = SBT_MODULATE;
+					else if(str == "colour_blend")
+						sbt1 = SBT_TRANSPARENT_COLOUR;
+					else if(str == "alpha_blend")
+						sbt1 = SBT_TRANSPARENT_ALPHA;
+					else
+						useSbt = false;
+
+					if(useSbt)
+					{
+						// We only need to get one more blending type
+						if(!nodeExists(j, (*i)->children.end(), 1))
+						{
+							addError(CE_STRINGEXPECTED, (*j)->file, (*j)->line, -1);
+							break;
+						}
+						++j;
+
+						str = (*j)->token;
+						if(str == "replace")
+							sbt2 = SBT_REPLACE;
+						else if(str == "add")
+							sbt2 = SBT_ADD;
+						else if(str == "modulate")
+							sbt2 = SBT_MODULATE;
+						else if(str == "colour_blend")
+							sbt2 = SBT_TRANSPARENT_COLOUR;
+						else if(str == "alpha_blend")
+							sbt2 = SBT_TRANSPARENT_ALPHA;
+						else
+						{
+							addError(ME_SCENEBLENDINGEXPECTED, (*j)->file, (*j)->line, (*j)->column);
+							break;
+						}
+						pass->setSeparateSceneBlending(sbt1, sbt2);
+					}
+					else
+					{
+						// First colour sbf
+						if(!parseBlendFactor(str, colourSbf1))
+						{
+							addError(ME_SCENEBLENDINGEXPECTED, (*j)->file, (*j)->line, (*j)->column);
+							break;
+						}
+
+						// Second colour sbf
+						if(!nodeExists(j, (*i)->children.end(), 1))
+						{
+							addError(ME_SCENEBLENDINGEXPECTED, (*j)->file, (*j)->line, -1);
+							break;
+						}
+						++j;
+						if(!parseBlendFactor((*j)->token, colourSbf2))
+						{
+							addError(ME_SCENEBLENDINGEXPECTED, (*j)->file, (*j)->line, (*j)->column);
+							break;
+						}
+
+						// First alpha sbf
+						if(!nodeExists(j, (*i)->children.end(), 1))
+						{
+							addError(ME_SCENEBLENDINGEXPECTED, (*j)->file, (*j)->line, -1);
+							break;
+						}
+						++j;
+						if(!parseBlendFactor((*j)->token, alphaSbf1))
+						{
+							addError(ME_SCENEBLENDINGEXPECTED, (*j)->file, (*j)->line, (*j)->column);
+							break;
+						}
+
+						// Second alpha sbf
+						if(!nodeExists(j, (*i)->children.end(), 1))
+						{
+							addError(ME_SCENEBLENDINGEXPECTED, (*j)->file, (*j)->line, -1);
+							break;
+						}
+						++j;
+						if(!parseBlendFactor((*j)->token, alphaSbf2))
+						{
+							addError(ME_SCENEBLENDINGEXPECTED, (*j)->file, (*j)->line, (*j)->column);
+							break;
+						}
+
+						pass->setSeparateSceneBlending(colourSbf1, colourSbf2, alphaSbf1, alphaSbf2);
+					}
+				}
+			}
+		}
+
+		// Consume the '{' and the '}'
+		++i;
+		++i;
+	}
+
+	bool MaterialScriptCompiler2::parseColour(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Ogre::ColourValue &c)
+	{
+		if(i == end || (*i)->type != SNT_NUMBER)
+			return false;
+
+		c.r = StringConverter::parseReal((*i)->token);
+
+		++i;
+		if(i != end && (*i)->type == SNT_NUMBER)
+		{
+			c.g = StringConverter::parseReal((*i)->token);
+
+			++i;
+			if(i != end && (*i)->type == SNT_NUMBER)
+			{
+				c.b = StringConverter::parseReal((*i)->token);
+
+				++i;
+				if(i != end && (*i)->type == SNT_NUMBER)
+					c.a = StringConverter::parseReal((*i)->token);
+			}
+		}
+
+		return true;
+	}
+
+	bool MaterialScriptCompiler2::parseBlendFactor(const String &str, SceneBlendFactor &factor)
+	{
+		bool retval = true;
+		if(str == "dest_colour")
+			factor = SBF_DEST_COLOUR;
+		else if(str == "src_colour")
+			factor = SBF_SOURCE_COLOUR;
+		else if(str == "one_minus_dest_colour")
+			factor = SBF_ONE_MINUS_DEST_COLOUR;
+		else if(str == "one_minus_src_colour")
+			factor = SBF_ONE_MINUS_SOURCE_COLOUR;
+		if(str == "dest_alpha")
+			factor = SBF_DEST_ALPHA;
+		else if(str == "src_alpha")
+			factor = SBF_SOURCE_ALPHA;
+		else if(str == "one_minus_dest_alpha")
+			factor = SBF_ONE_MINUS_DEST_ALPHA;
+		else if(str == "one_minus_src_alpha")
+			factor = SBF_ONE_MINUS_SOURCE_ALPHA;
+		else
+			retval = false;
+		return retval;
 	}
 
 }
