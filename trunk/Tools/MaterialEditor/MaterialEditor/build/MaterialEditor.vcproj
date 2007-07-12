@@ -191,6 +191,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\Editor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\EditorManager.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\EventContainer.cpp"
 				>
 			</File>
@@ -306,6 +314,18 @@
 			>
 			<File
 				RelativePath="..\include\CodeEditor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\Editor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\EditorInput.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\EditorManager.h"
 				>
 			</File>
 			<File
