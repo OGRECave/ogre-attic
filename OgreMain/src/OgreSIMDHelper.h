@@ -44,7 +44,12 @@ Torus Knot Software Ltd.
 // variables, so you need to wrap those alignment required functions
 // with extra function call.
 //
-#if OGRE_CPU == OGRE_CPU_X86 && OGRE_COMPILER == OGRE_COMPILER_GNUC
+#if defined(__INTEL_COMPILER)
+// For intel's compiler, simply calling alloca seems to do the right
+// thing. The size of the allocated block seems to be irrelevant.
+#define __OGRE_SIMD_ALIGN_STACK()   _alloca(16)
+
+#elif OGRE_CPU == OGRE_CPU_X86 && OGRE_COMPILER == OGRE_COMPILER_GNUC
 //
 // Horrible hack to align the stack to a 16-bytes boundary for gcc.
 //
@@ -69,11 +74,6 @@ Torus Knot Software Ltd.
         __asm__ __volatile__ ("andl $-16, %esp");                   \
     }
 
-#elif defined(__ICC)
-// For intel's compiler, simply calling alloca seems to do the right
-// thing. The size of the allocated block seems to be irrelevant.
-#define __OGRE_SIMD_ALIGN_STACK()   _alloca(16)
-
 #elif defined(_MSC_VER)
 // Fortunately, MSVC will align the stack automatically
 
@@ -85,13 +85,14 @@ Torus Knot Software Ltd.
 // NOTE: Should be sync with __OGRE_HAVE_SSE macro.
 //
 
-#if OGRE_DOUBLE_PRECISION == 0 && OGRE_CPU == OGRE_CPU_X86 && OGRE_COMPILER == OGRE_COMPILER_MSVC
+#if OGRE_DOUBLE_PRECISION == 0 && OGRE_CPU == OGRE_CPU_X86
+
+#if OGRE_COMPILER == OGRE_COMPILER_MSVC || defined(__INTEL_COMPILER)
 #include "OgreNoMemoryMacros.h"
 #include <xmmintrin.h>
 #include "OgreMemoryMacros.h"
 
-#elif OGRE_DOUBLE_PRECISION == 0 && OGRE_CPU == OGRE_CPU_X86 && OGRE_COMPILER == OGRE_COMPILER_GNUC
-
+#elif OGRE_COMPILER == OGRE_COMPILER_GNUC
 // Don't define ourself version SSE intrinsics if "xmmintrin.h" already included.
 //
 // Note: gcc in some platform already included "xmmintrin.h" for some reason.
@@ -222,7 +223,9 @@ __MM_DECL_OP2(cmpnle_ps, cmpnleps, xm)
 
 #endif // !defined(_XMMINTRIN_H_INCLUDED)
 
-#endif // OGRE_DOUBLE_PRECISION == 0 && OGRE_CPU == OGRE_CPU_X86 && OGRE_COMPILER == OGRE_COMPILER_MSVC
+#endif // OGRE_COMPILER == OGRE_COMPILER_GNUC
+
+#endif // OGRE_DOUBLE_PRECISION == 0 && OGRE_CPU == OGRE_CPU_X86
 
 
 

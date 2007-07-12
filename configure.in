@@ -48,6 +48,15 @@ AC_LIBTOOL_COMPILER_OPTION([if $CXX supports -fvisibility],
             fi
         ;;
     esac
+    case $CXX in
+        icpc )
+            echo "***********************************************************************"
+            echo "WARNING: The intel compiler currently has bugs in its -fvisibility"
+            echo "implementation. Disabling the compiler flag."
+            echo "***********************************************************************"
+            CFLAGS_VISIBILITY=""
+        ;;
+    esac
     ])
 AC_SUBST(CFLAGS_VISIBILITY)
 AC_LANG_POP
