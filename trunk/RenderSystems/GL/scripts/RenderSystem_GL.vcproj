@@ -492,6 +492,9 @@
 				<File
 					RelativePath="..\src\GLSL\src\OgreGLSLProgramFactory.cpp">
 				</File>
+				<File
+					RelativePath="..\src\GLSL\src\OgreGLSLPreprocessor.cpp">
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -625,6 +628,9 @@
 				</File>
 				<File
 					RelativePath="..\src\GLSL\include\OgreGLSLProgramFactory.h">
+				</File>
+				<File
+					RelativePath="..\src\GLSL\include\OgreGLSLPreprocessor.h">
 				</File>
 			</Filter>
 		</Filter>

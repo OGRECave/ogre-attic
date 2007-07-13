@@ -347,109 +347,74 @@ namespace Ogre {
 			{
 				// user defined uniform found, add it to the reference list
 				String paramName = String( uniformName );
-				
-                // currant ATI drivers (Catalyst 7.2 and earlier) and older NVidia drivers will include all array elements as uniforms but we only want the root array name and location
-                // Also note that ATI Catalyst 6.8 to 7.2 there is a bug with glUniform that does not allow you to update a uniform array past the first uniform array element
-                // ie you can't start updating an array starting at element 1, must always be element 0.
-                
-                // if the uniform name has a "[" in it then its an array element uniform.
-                String::size_type arrayStart = paramName.find("[");
-                if (arrayStart != String::npos)
-                {
-                    // if not the first array element then skip it and continue to the next uniform
-                    if (paramName.compare(arrayStart, paramName.size() - 1, "[0]") != 0) continue;
-                    paramName = paramName.substr(0, arrayStart);
-                }
-                
+
+				// currant ATI drivers (Catalyst 7.2 and earlier) and older NVidia drivers will include all array elements as uniforms but we only want the root array name and location
+				// Also note that ATI Catalyst 6.8 to 7.2 there is a bug with glUniform that does not allow you to update a uniform array past the first uniform array element
+				// ie you can't start updating an array starting at element 1, must always be element 0.
+
+				// if the uniform name has a "[" in it then its an array element uniform.
+				String::size_type arrayStart = paramName.find("[");
+				if (arrayStart != String::npos)
+				{
+					// if not the first array element then skip it and continue to the next uniform
+					if (paramName.compare(arrayStart, paramName.size() - 1, "[0]") != 0) continue;
+					paramName = paramName.substr(0, arrayStart);
+				}
+
 				// find out which params object this comes from
-				bool foundSource = completeParamSource(paramName, 
-					vertexConstantDefs, 
-					fragmentConstantDefs, newGLUniformReference);
+				bool foundSource = completeParamSource(paramName,
+						vertexConstantDefs,	fragmentConstantDefs, newGLUniformReference);
 
 				// only add this parameter if we found the source
 				if (foundSource)
 				{
-					assert(arraySize == newGLUniformReference.mConstantDef->arraySize
-						&& "GL doesn't agree with our array size!");
+					assert(size_t (arraySize) == newGLUniformReference.mConstantDef->arraySize
+							&& "GL doesn't agree with our array size!");
 					list.push_back(newGLUniformReference);
 				}
 
 				// Don't bother adding individual array params, they will be
 				// picked up in the 'parent' parameter can copied all at once
-				// anyway, individual indexes are only needed for lookup from 
+				// anyway, individual indexes are only needed for lookup from
 				// user params
 			} // end if
 		} // end for
 
 	}
 	//---------------------------------------------------------------------
-	void GLSLLinkProgramManager::extractConstantDefs(const String& src, 
+	void GLSLLinkProgramManager::extractConstantDefs(const String& src,
 		GpuNamedConstants& defs, const String& filename)
 	{
-		// Could have done this as a compiler but we don't want to have to 
-		// create a BNF for the whole GLSL syntax, so use a simpler method
-		String::size_type currPos = 0;
+		// Parse the output string and collect all uniforms
+		// NOTE this relies on the source already having been preprocessed
+		// which is done in GLSLProgram::loadFromSource
 		String line;
-		currPos = src.find("uniform", currPos);
+		String::size_type currPos = src.find("uniform");
 		while (currPos != String::npos)
 		{
 			GpuConstantDefinition def;
 			String paramName;
 
-			// Check that this is not in a comment block
-			bool inComment = false;
-			
-			// block-comments
-			size_t commentStart = src.rfind("/*", currPos);
-			if (commentStart != String::npos)
-			{
-				size_t commentEnd = src.rfind("*/", currPos);
-				if (commentEnd == String::npos || commentEnd < commentStart)
-				{
-					// no ending comment, or ending comment was from a previous batch
-					inComment = true;
-				}
-			}
-			// line-comments
-			if (!inComment)
-			{
-				commentStart = src.rfind("//", currPos);
-				if (commentStart != String::npos)
-				{
-					size_t lineEnd = src.rfind("\n", currPos);
-
-					// On same line as comment? Either no newline or nearest is before comment start
-					if (lineEnd == String::npos || lineEnd < commentStart)
-					{
-						inComment = true;
-					}
-				}
-			}
-
 			// Now check for using the word 'uniform' in a larger string & ignore
 			bool inLargerString = false;
-			if (!inComment)
-			{	
-				if (currPos != 0)
-				{
-					char prev = src.at(currPos - 1);
-					if (prev != ' ' && prev != '\t' && prev != '\r' && prev != '\n'
-						&& prev != ';')
-						inLargerString = true;
-				}
-				if (!inLargerString && currPos + 7 < src.size())
-				{
-					char next = src.at(currPos + 7);
-					if (next != ' ' && next != '\t' && next != '\r' && next != '\n')
-						inLargerString = true;
-				}
-
+			if (currPos != 0)
+			{
+				char prev = src.at(currPos - 1);
+				if (prev != ' ' && prev != '\t' && prev != '\r' && prev != '\n'
+					&& prev != ';')
+					inLargerString = true;
+			}
+			if (!inLargerString && currPos + 7 < src.size())
+			{
+				char next = src.at(currPos + 7);
+				if (next != ' ' && next != '\t' && next != '\r' && next != '\n')
+					inLargerString = true;
 			}
 
 			// skip 'uniform'
 			currPos += 7;
 
-			if (!inComment && !inLargerString)
+			if (!inLargerString)
 			{
 				// find terminating semicolon
 				String::size_type endPos = src.find(";", currPos);
@@ -460,6 +425,12 @@ namespace Ogre {
 				}
 				line = src.substr(currPos, endPos - currPos);
 
+				// Remove spaces before opening square braces, otherwise
+				// the following split() can split the line at inappropiate
+				// places (e.g. "vec3 something [3]" won't work).
+				for (String::size_type sqp = line.find (" ["); sqp != String::npos;
+					 sqp = line.find (" ["))
+					line.erase (sqp, 1);
 				// Split into tokens
 				StringVector parts = StringUtil::split(line, ", \t\r\n");
 
@@ -530,8 +501,6 @@ namespace Ogre {
 
 						// Generate array accessors
 						defs.generateConstantDefinitionArrayEntries(paramName, def);
-
-
 					}
 
 				}
