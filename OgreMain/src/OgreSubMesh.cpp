@@ -165,23 +165,42 @@ namespace Ogre {
             // get test result for if change will occur when the texture aliases are applied
             if (material->applyTextureAliases(mTextureAliases, false))
             {
-                // material textures will be changed so copy material,
-                // new material name is old material name + index
-                // check with material manager and find a unique name
-                size_t index = 0;
-                String newMaterialName = mMaterialName + "_" + StringConverter::toString(index);
-                while (MaterialManager::getSingleton().resourceExists(newMaterialName))
-                {
-                    // increment index for next name
-                    newMaterialName = mMaterialName + "_" + StringConverter::toString(++index);
-                }
+				Ogre::String newMaterialName;
 
-                Ogre::MaterialPtr newMaterial = Ogre::MaterialManager::getSingleton().create(
-                    newMaterialName, material->getGroup());
-                // copy parent material details to new material
-                material->copyDetailsTo(newMaterial);
-                // apply texture aliases to new material
-                newMaterial->applyTextureAliases(mTextureAliases);
+				// If this material was already derived from another material
+				// due to aliasing, let's strip off the aliasing suffix and
+				// generate a new one using our current aliasing table.
+
+				Ogre::String::size_type pos = mMaterialName.find("?TexAlias(", 0);
+				if( pos != Ogre::String::npos )
+					newMaterialName = mMaterialName.substr(0, pos);
+				else
+					newMaterialName = mMaterialName;
+
+				newMaterialName += "?TexAlias(";
+				// Iterate deterministically over the aliases (always in the same
+				// order via std::map's sorted iteration nature).
+				AliasTextureIterator aliasIter = getAliasTextureIterator();
+				while( aliasIter.hasMoreElements() )
+				{
+					newMaterialName += aliasIter.peekNextKey();
+					newMaterialName += "=";
+					newMaterialName += aliasIter.getNext();
+					newMaterialName += " ";
+				}
+				newMaterialName += ")";
+					
+				// Reuse the material if it's already been created. This decreases batch
+				// count and keeps material explosion under control.
+				if(!MaterialManager::getSingleton().resourceExists(newMaterialName))
+				{
+					Ogre::MaterialPtr newMaterial = Ogre::MaterialManager::getSingleton().create(
+						newMaterialName, material->getGroup());
+					// copy parent material details to new material
+					material->copyDetailsTo(newMaterial);
+					// apply texture aliases to new material
+					newMaterial->applyTextureAliases(mTextureAliases);
+				}
                 // place new material name in submesh
                 setMaterialName(newMaterialName);
                 newMaterialCreated = true;
