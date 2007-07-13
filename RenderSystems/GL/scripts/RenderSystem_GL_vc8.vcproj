@@ -681,6 +681,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\GLSL\src\OgreGLSLPreprocessor.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\GLSL\src\OgreGLSLProgram.cpp"
 					>
 				</File>
@@ -843,6 +847,10 @@
 				</File>
 				<File
 					RelativePath="..\src\GLSL\include\OgreGLSLLinkProgramManager.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\GLSL\include\OgreGLSLPreprocessor.h"
 					>
 				</File>
 				<File

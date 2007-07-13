@@ -121,12 +121,14 @@
 		<Unit filename="..\src\GLSL\include\OgreGLSLLinkProgramManager.h" />
 		<Unit filename="..\src\GLSL\include\OgreGLSLProgram.h" />
 		<Unit filename="..\src\GLSL\include\OgreGLSLProgramFactory.h" />
+		<Unit filename="..\src\GLSL\include\OgreGLSLPreprocessor.h" />
 		<Unit filename="..\src\GLSL\src\OgreGLSLExtSupport.cpp" />
 		<Unit filename="..\src\GLSL\src\OgreGLSLGpuProgram.cpp" />
 		<Unit filename="..\src\GLSL\src\OgreGLSLLinkProgram.cpp" />
 		<Unit filename="..\src\GLSL\src\OgreGLSLLinkProgramManager.cpp" />
 		<Unit filename="..\src\GLSL\src\OgreGLSLProgram.cpp" />
 		<Unit filename="..\src\GLSL\src\OgreGLSLProgramFactory.cpp" />
+		<Unit filename="..\src\GLSL\src\OgreGLSLPreprocessor.cpp" />
 		<Unit filename="..\src\OgreGLATIFSInit.cpp" />
 		<Unit filename="..\src\OgreGLContext.cpp" />
 		<Unit filename="..\src\OgreGLDefaultHardwareBufferManager.cpp" />
