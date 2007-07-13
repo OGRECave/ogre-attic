@@ -121,6 +121,27 @@ namespace Ogre{
         preventing link errors.
         */
         static MemProfileManager* getSingletonPtr(void);
+        
+        /// log out a message to the memory logfile
+        /// @param message info to be logged
+        template<typename T>
+        inline MemProfileManager& operator << (T message)
+        {
+        	mReportLog << message;
+        	return *this;
+        }
+        
+        /// log out a message to the memory logfile
+        /// @param message info to be logged
+        /*
+        template<typename T>
+        inline const MemProfileManager& operator << (T const& message) const
+        {
+        	mReportLog << message;
+        	return *this;
+        }
+        * */
+        
 
     protected:
     	// shutdown the memory profiler, unregisters any memory 
@@ -162,13 +183,15 @@ namespace Ogre{
     		    	return *this;
     		    }
     		    
+    		    /*
     		    template<typename T>
-    	        inline Logger& operator << (T const& ipt) const
+    	        inline Logger& operator << (T const& ipt)
     		    {
     		    	std::cout << ipt;
     		    	mLogFile << ipt;
     		    	return *this;
     		    }
+    		    * */
     	};
     
     

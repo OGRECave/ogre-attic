@@ -1722,6 +1722,13 @@ namespace Ogre
 #include "OgreLogManager.h"
 #include "OgreAllocator.h"
 
+// OS specific includes
+#ifdef WIN32
+# include <windows.h>
+#elif defined(__GNUC__)
+# include <unistd.h>    // sysconf(3)
+#endif
+
 // realise static instance member for the init class
 Ogre::InitMemProfileManager Ogre::InitMemProfileManager::smInstance;
 
@@ -1731,7 +1738,33 @@ static Ogre::Allocator<unsigned char> sAllocator;
 Ogre::InitMemProfileManager::InitMemProfileManager()
 {
     // init the profile manager
-    mMemProfileManager = new Ogre::MemProfileManager();
+    mMemProfileManager = new MemProfileManager();
+    MemProfileManager::getSingleton() << "Memory System Started: ";
+    
+    // init memory system
+#ifdef WIN32
+	MemProfileManager::getSingleton() << "Windows\n";
+    SYSTEM_INFO si;
+    GetSystemInfo(&si);
+    mPageSize = si.dwPageSize;
+	MemProfileManager::getSingleton() << "Page size is " << mPageSize << " bytes\n";
+	mRegionSize = si.dwAllocationGranularity;
+	MemProfileManager::getSingleton() << "VAS Region size is " << mPageSize << " bytes\n";
+#elif defined(__GNUC__)
+	MemProfileManager::getSingleton() << "UNIX/Linux (GNU)\n";
+    mPageSize = sysconf(_SC_PAGESIZE); //_SC_PAGE_SIZE
+	MemProfileManager::getSingleton() << "Page size is " << mPageSize << " bytes\n";
+#endif
+    
+	// make sure we startup page alligned     
+#ifdef WIN32
+    
+#elif defined(__GNUC__)
+    mVmemStart = sbrk(0);
+    MemProfileManager::getSingleton() << "Process Virtual Memory begins: " << mVmemStart;
+    mVmemStart=sbrk((uint32)(mVmemStart)%mPageSize);   
+    MemProfileManager::getSingleton() << "alligned to: " << mVmemStart << "\n";
+#endif
 }
 
 Ogre::InitMemProfileManager::~InitMemProfileManager()

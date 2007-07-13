@@ -435,20 +435,41 @@ namespace Ogre
 	class MemProfileManager;
 
 	/**
-	 * This internal class is a little c++ trick used to init the
-	 * memory system and memory profile manager before we ever enter 
-	 * int main() and shut it all down just after we return from it.
+	 * This internal class forms the heart of the memory manager,
+	 * all the various ogre-native allocator types grab there 
+	 * memory from here. This is where we manage the process 
+	 * virtual address space.
 	 */	
-    class InitMemProfileManager
+    class MemoryManager
     {
+    private:
+		struct MemCtrl
+		{
+			size_t		size;   // size of allocation
+			uint16		bucket; // id of bucket we came from
+			uin16		pad;    // padding
+		};
+
+        
+		struct MemFree
+		{
+			MemUnion* next;
+			MemUnion* prev;
+		};
+		
+        void* mBin[128];   // 128 fixed width bins, 8byte spacing, 1024b
+        uint32 mPageSize;   // system memory page size
+        uint32 mRegionSize; // size of a virtual address space region (windows only)
+        void* mVmemStart;  // start of process virtual address space
+        
     public:
-        InitMemProfileManager();
-        ~InitMemProfileManager();
+        MemoryManager();
+        ~MemoryManager();
 
     private:
         MemProfileManager* mMemProfileManager;
-	
         static InitMemProfileManager smInstance;	
+        
     };
 }
 
