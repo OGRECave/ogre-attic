@@ -204,8 +204,17 @@ void CompositorDemo::createViewports(void)
             {
                 typeName = i->first;
                 archName = i->second;
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+                // OS X does not set the working directory relative to the app,
+                // In order to make things portable on OS X we need to provide
+                // the loading with it's own bundle path location
+                Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
+                    Ogre::String(bundlePath() + "/" + archName), typeName, secName);
+#else
                 Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
                     archName, typeName, secName);
+#endif
+
             }
         }
 
