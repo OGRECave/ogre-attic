@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="Ogre  workspace">
-		<Project filename="OgreMain/scripts/OgreMain_linux.cbp" active="1" />
+		<Project filename="OgreMain/scripts/OgreMain_linux.cbp" />
 		<Project filename="PlugIns/BSPSceneManager/scripts/Plugin_BSPSceneManager_linux.cbp">
 			<Depends filename="OgreMain/scripts/OgreMain_linux.cbp" />
 		</Project>
@@ -274,6 +274,20 @@
 			<Depends filename="PlugIns/OctreeSceneManager/scripts/Plugin_OctreeSceneManager_linux.cbp" />
 			<Depends filename="PlugIns/ParticleFX/scripts/Plugin_ParticleFX_linux.cbp" />
 			<Depends filename="RenderSystems/GL/scripts/RenderSystem_GL_linux.cbp" />
+		</Project>
+		<Project filename="Tests/scripts/TestSuite.cbp">
+			<Depends filename="OgreMain/scripts/OgreMain_linux.cbp" />
+			<Depends filename="PlugIns/BSPSceneManager/scripts/Plugin_BSPSceneManager_linux.cbp" />
+			<Depends filename="PlugIns/CgProgramManager/scripts/Plugin_CgProgramManager_linux.cbp" />
+			<Depends filename="PlugIns/OctreeSceneManager/scripts/Plugin_OctreeSceneManager_linux.cbp" />
+			<Depends filename="PlugIns/ParticleFX/scripts/Plugin_ParticleFX_linux.cbp" />
+			<Depends filename="RenderSystems/GL/scripts/RenderSystem_GL_linux.cbp" />
+		</Project>
+		<Project filename="Tests/scripts/TextTestRunner.cbp">
+			<Depends filename="Tests/scripts/TestSuite.cbp" />
+		</Project>
+		<Project filename="Tests/scripts/QxTestRunner.cbp" active="1">
+			<Depends filename="Tests/scripts/TestSuite.cbp" />
 		</Project>
 	</Workspace>
 </CodeBlocks_workspace_file>
