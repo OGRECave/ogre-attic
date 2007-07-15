@@ -36,10 +36,10 @@ Torus Knot Software Ltd.
 
 namespace Ogre {
 
-    /** Specialisation of the Archive class to allow reading of files from 
+    /** Specialisation of the Archive class to allow reading of files from
         filesystem folders / directories.
     */
-    class _OgreExport FileSystemArchive : public Archive 
+    class _OgreExport FileSystemArchive : public Archive
     {
     protected:
         /** Utility method to retrieve all files in a directory matching pattern.
@@ -49,7 +49,7 @@ namespace Ogre {
             instead of files
         @param simpleList Populated if retrieving a simple list
         @param detailList Populated if retrieving a detailed list
-        @param currentDir The current directory relative to the base of the 
+        @param currentDir The current directory relative to the base of the
             archive, for file naming
         */
         void findFiles(const String& pattern, bool recursive, bool dirs,
@@ -90,14 +90,15 @@ namespace Ogre {
     };
 
     /** Specialisation of ArchiveFactory for FileSystem files. */
-    class _OgrePrivate FileSystemArchiveFactory : public ArchiveFactory
+    //class _OgrePrivate FileSystemArchiveFactory : public ArchiveFactory
+    class _OgreExport FileSystemArchiveFactory : public ArchiveFactory
     {
     public:
         virtual ~FileSystemArchiveFactory() {}
         /// @copydoc FactoryObj::getType
         const String& getType(void) const;
         /// @copydoc FactoryObj::createInstance
-        Archive *createInstance( const String& name ) 
+        Archive *createInstance( const String& name )
         {
             return new FileSystemArchive(name, "FileSystem");
         }
