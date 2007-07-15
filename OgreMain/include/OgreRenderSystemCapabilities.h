@@ -257,7 +257,7 @@ namespace Ogre {
 
 
 
-            void setNumWorldMatricies(ushort num)
+            void setNumWorldMatrices(ushort num)
             {
                 mNumWorldMatrices = num;
             }
