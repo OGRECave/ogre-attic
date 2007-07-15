@@ -194,7 +194,7 @@ void RenderSystemCapabilitiesTests::testSerializeIntCapability()
     CPPUNIT_ASSERT(rsc != 0);
 
     // TODO: why no get?
-    CPPUNIT_ASSERT(rsc->numMultiRenderTargets() == 99);
+    CPPUNIT_ASSERT(rsc->getNumMultiRenderTargets() == 99);
 }
 
 void RenderSystemCapabilitiesTests::testSerializeRealCapability()
@@ -207,7 +207,7 @@ void RenderSystemCapabilitiesTests::testSerializeRealCapability()
     // confirm that RSC was loaded
     CPPUNIT_ASSERT(rsc != 0);
 
-    CPPUNIT_ASSERT(rsc->getMaxPointSize() == 99.123);
+    CPPUNIT_ASSERT(rsc->getMaxPointSize() == 99.5);
 }
 
 void RenderSystemCapabilitiesTests::testSerializeShaderCapability()
