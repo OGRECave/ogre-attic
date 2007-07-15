@@ -71,7 +71,31 @@ namespace Ogre {
         typedef std::map<String, SetStringMethod> SetStringMethodDispatchTable;
         SetStringMethodDispatchTable mSetStringMethodDispatchTable;
 
-        // capabilities lines for parsing are collected along with their line nnumbers for debugging
+        // SET_INT_METHOD parsing tables
+        typedef void (RenderSystemCapabilities::*SetIntMethod)(ushort);
+        typedef std::map<String, SetIntMethod> SetIntMethodDispatchTable;
+        SetIntMethodDispatchTable mSetIntMethodDispatchTable;
+
+        // SET_BOOL_METHOD parsing tables
+        typedef void (RenderSystemCapabilities::*SetBoolMethod)(bool);
+        typedef std::map<String, SetBoolMethod> SetBoolMethodDispatchTable;
+        SetBoolMethodDispatchTable mSetBoolMethodDispatchTable;
+
+        // SET_REAL_METHOD parsing tables
+        typedef void (RenderSystemCapabilities::*SetRealMethod)(Real);
+        typedef std::map<String, SetRealMethod> SetRealMethodDispatchTable;
+        SetRealMethodDispatchTable mSetRealMethodDispatchTable;
+
+        typedef std::map<String, Capabilities> CapabilitiesMap;
+        CapabilitiesMap mCapabilitiesMap;
+
+        inline void addCapabilitiesMapping(String name, Capabilities cap)
+        {
+            mCapabilitiesMap.insert(CapabilitiesMap::value_type(name, cap));
+        }
+
+
+        // capabilities lines for parsing are collected along with their line numbers for debugging
         typedef std::vector<std::pair<String, int> > CapabilitiesLinesList;
         // the set of states that the parser can be in
         enum ParseAction {PARSE_HEADER, FIND_OPEN_BRACE, COLLECT_LINES};
@@ -107,6 +131,84 @@ namespace Ogre {
             else
             {
                 logParseError("undefined keyword: " + keyword);
+            }
+        }
+
+
+        inline void addSetIntMethod(String keyword, SetIntMethod method)
+        {
+            mSetIntMethodDispatchTable.insert(SetIntMethodDispatchTable::value_type(keyword, method));
+        }
+
+        inline void callSetIntMethod(String& keyword, int val)
+        {
+            SetIntMethod method = mSetIntMethodDispatchTable[keyword];
+            if (method)
+            {
+                (mCurrentCapabilities->*method)(val);
+            }
+            else
+            {
+                logParseError("undefined keyword: " + keyword);
+            }
+        }
+
+
+        inline void addSetBoolMethod(String keyword, SetBoolMethod method)
+        {
+            mSetBoolMethodDispatchTable.insert(SetBoolMethodDispatchTable::value_type(keyword, method));
+        }
+
+        inline void callSetBoolMethod(String& keyword, bool val)
+        {
+            SetBoolMethod method = mSetBoolMethodDispatchTable[keyword];
+            if (method)
+            {
+                (mCurrentCapabilities->*method)(val);
+            }
+            else
+            {
+                logParseError("undefined keyword: " + keyword);
+            }
+        }
+
+
+        inline void addSetRealMethod(String keyword, SetRealMethod method)
+        {
+            mSetRealMethodDispatchTable.insert(SetRealMethodDispatchTable::value_type(keyword, method));
+        }
+
+        inline void callSetRealMethod(String& keyword, Real val)
+        {
+            SetRealMethod method = mSetRealMethodDispatchTable[keyword];
+            if (method)
+            {
+                (mCurrentCapabilities->*method)(val);
+            }
+            else
+            {
+                logParseError("undefined keyword: " + keyword);
+            }
+        }
+
+        inline void addShaderProfile(String& val)
+        {
+            mCurrentCapabilities->addShaderProfile(val);
+        }
+
+        inline void setCapabilityEnumBool(String& name, bool val)
+        {
+            // check for errors
+            if(mCapabilitiesMap.find(name) == mCapabilitiesMap.end())
+            {
+                logParseError("Undefined capability: " + name);
+                return;
+            }
+            // only set true capabilities, we can't unset false
+            if(val)
+            {
+                Capabilities cap = mCapabilitiesMap[name];
+                mCurrentCapabilities->setCapability(cap);
             }
         }
 

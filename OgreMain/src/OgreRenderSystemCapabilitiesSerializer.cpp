@@ -42,6 +42,8 @@ namespace Ogre
         mCurrentCapabilities(0)
     {
         mCurrentStream.setNull();
+
+        initialiaseDispatchTables();
     }
     //-----------------------------------------------------------------------
     void RenderSystemCapabilitiesSerializer::parseScript(DataStreamPtr& stream)
@@ -63,6 +65,8 @@ namespace Ogre
         // collect capabilities lines (i.e. everything that is not header, "{", "}",
         // comment or empty line) for further processing
         CapabilitiesLinesList capabilitiesLines;
+
+
 
 
         // TODO: build a smarter tokenizer so that "{" and "}"
@@ -147,6 +151,7 @@ namespace Ogre
                         // this render_system_capabilities section is over
                         // let's process the data and look for the next one
                         parseCapabilitiesLines(capabilitiesLines);
+                        capabilitiesLines.clear();
                         parseAction = PARSE_HEADER;
 
                     }
@@ -165,6 +170,7 @@ namespace Ogre
             logParseError ("The file is empty");
         }
         if(parseAction == FIND_OPEN_BRACE)
+
         {
             logParseError ("Bad .rendercaps file. Were not able to find a '{'");
         }
@@ -177,9 +183,127 @@ namespace Ogre
 
     void RenderSystemCapabilitiesSerializer::initialiaseDispatchTables()
     {
+        // set up the  type for max_vertex_program_version capability
         addKeywordType("max_vertex_program_version", SET_STRING_METHOD);
-
+        // set up the setter for max_vertex_program_version capability
         addSetStringMethod("max_vertex_program_version", &RenderSystemCapabilities::setMaxVertexProgramVersion);
+
+        // initialize int types
+        addKeywordType("num_world_matrices", SET_INT_METHOD);
+        addKeywordType("num_texture_units", SET_INT_METHOD);
+        addKeywordType("stencil_buffer_bit_depth", SET_INT_METHOD);
+        addKeywordType("num_vertex_blend_matrices", SET_INT_METHOD);
+        addKeywordType("num_multi_render_targets", SET_INT_METHOD);
+        addKeywordType("vertex_program_constant_float_count", SET_INT_METHOD);
+        addKeywordType("vertex_program_constant_int_count", SET_INT_METHOD);
+        addKeywordType("vertex_program_constant_bool_count", SET_INT_METHOD);
+        addKeywordType("fragment_program_constant_float_count", SET_INT_METHOD);
+        addKeywordType("fragment_program_constant_int_count", SET_INT_METHOD);
+        addKeywordType("fragment_program_constant_bool_count", SET_INT_METHOD);
+        addKeywordType("num_vertex_texture_units", SET_INT_METHOD);
+
+        // initialize int setters
+        addSetIntMethod("num_world_matrices", &RenderSystemCapabilities::setNumWorldMatrices);
+        addSetIntMethod("num_texture_units", &RenderSystemCapabilities::setNumTextureUnits);
+        addSetIntMethod("stencil_buffer_bit_depth", &RenderSystemCapabilities::setStencilBufferBitDepth);
+        addSetIntMethod("num_vertex_blend_matrices", &RenderSystemCapabilities::setNumVertexBlendMatrices);
+        addSetIntMethod("num_multi_render_targets", &RenderSystemCapabilities::setNumMultiRenderTargets);
+        addSetIntMethod("vertex_program_constant_float_count", &RenderSystemCapabilities::setVertexProgramConstantFloatCount);
+        addSetIntMethod("vertex_program_constant_int_count", &RenderSystemCapabilities::setVertexProgramConstantIntCount);
+        addSetIntMethod("vertex_program_constant_bool_count", &RenderSystemCapabilities::setVertexProgramConstantBoolCount);
+        addSetIntMethod("fragment_program_constant_float_count", &RenderSystemCapabilities::setFragmentProgramConstantFloatCount);
+        addSetIntMethod("fragment_program_constant_int_count", &RenderSystemCapabilities::setFragmentProgramConstantIntCount);
+        addSetIntMethod("fragment_program_constant_bool_count", &RenderSystemCapabilities::setFragmentProgramConstantBoolCount);
+        addSetIntMethod("num_vertex_texture_units", &RenderSystemCapabilities::setNumVertexTextureUnits);
+
+        // initialize bool types
+        addKeywordType("non_pow2_textures_limited", SET_BOOL_METHOD);
+        addKeywordType("vertex_texture_units_shared", SET_BOOL_METHOD);
+
+        // initialize bool setters
+        addSetBoolMethod("non_pow2_textures_limited", &RenderSystemCapabilities::setNonPOW2TexturesLimited);
+        addSetBoolMethod("vertex_texture_units_shared", &RenderSystemCapabilities::setVertexTextureUnitsShared);
+
+        // initialize Real types
+        addKeywordType("max_point_size", SET_REAL_METHOD);
+
+        // initialize Real setters
+        addSetRealMethod("max_point_size", &RenderSystemCapabilities::setMaxPointSize);
+
+        // there is no dispatch table for shader profiles, just the type
+        addKeywordType("shader_profile", ADD_SHADER_PROFILE_STRING);
+
+        // set up RSC_XXX style capabilities
+        addKeywordType("automipmap", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("blending", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("anisotropy", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("dot3", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("cubemapping", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("hwstencil", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("vbo", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("vertex_program", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("fragment_program", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("scissor_test", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("two_sided_stencil", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("stencil_wrap", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("hwocclusion", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("user_clip_planes", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("vertex_format_ubyte4", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("infinite_far_plane", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("hwrender_to_texture", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("non_power_of_2_textures", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("texture_3d", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("point_sprites", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("vertex_texture_fetch", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("mipmap_lod_bias", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("texture_compression", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("texture_compression_dxt", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("texture_compression_vtc", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("glew1_5_novbo", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("fbo", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("fbo_arb", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("fbo_ati", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("glew1_5_nohwocclusion", SET_CAPABILITY_ENUM_BOOL);
+        addKeywordType("perstageconstant", SET_CAPABILITY_ENUM_BOOL);
+
+        addCapabilitiesMapping("automipmap", RSC_AUTOMIPMAP);
+        addCapabilitiesMapping("blending", RSC_BLENDING);
+        addCapabilitiesMapping("anisotropy", RSC_ANISOTROPY);
+        addCapabilitiesMapping("dot3", RSC_DOT3);
+        addCapabilitiesMapping("cubemapping", RSC_CUBEMAPPING);
+        addCapabilitiesMapping("hwstencil", RSC_HWSTENCIL);
+        addCapabilitiesMapping("vbo", RSC_VBO);
+        addCapabilitiesMapping("vertex_program", RSC_VERTEX_PROGRAM);
+        addCapabilitiesMapping("fragment_program", RSC_FRAGMENT_PROGRAM);
+        addCapabilitiesMapping("scissor_test", RSC_SCISSOR_TEST);
+        addCapabilitiesMapping("two_sided_stencil", RSC_TWO_SIDED_STENCIL);
+        addCapabilitiesMapping("stencil_wrap", RSC_STENCIL_WRAP);
+        addCapabilitiesMapping("hwocclusion", RSC_HWOCCLUSION);
+        addCapabilitiesMapping("user_clip_planes", RSC_USER_CLIP_PLANES);
+        addCapabilitiesMapping("vertex_format_ubyte4", RSC_VERTEX_FORMAT_UBYTE4);
+        addCapabilitiesMapping("infinite_far_plane", RSC_INFINITE_FAR_PLANE);
+        addCapabilitiesMapping("hwrender_to_texture", RSC_HWRENDER_TO_TEXTURE);
+        addCapabilitiesMapping("non_power_of_2_textures", RSC_NON_POWER_OF_2_TEXTURES);
+        addCapabilitiesMapping("texture_3d", RSC_TEXTURE_3D);
+        addCapabilitiesMapping("point_sprites", RSC_POINT_SPRITES);
+        addCapabilitiesMapping("vertex_texture_fetch", RSC_VERTEX_TEXTURE_FETCH);
+        addCapabilitiesMapping("mipmap_lod_bias", RSC_MIPMAP_LOD_BIAS);
+        addCapabilitiesMapping("texture_compression", RSC_TEXTURE_COMPRESSION);
+        addCapabilitiesMapping("texture_compression_dxt", RSC_TEXTURE_COMPRESSION_DXT);
+        addCapabilitiesMapping("texture_compression_vtc", RSC_TEXTURE_COMPRESSION_VTC);
+        addCapabilitiesMapping("glew1_5_novbo", RSC_GLEW1_5_NOVBO);
+        addCapabilitiesMapping("fbo", RSC_FBO);
+        addCapabilitiesMapping("fbo_arb", RSC_FBO_ARB);
+        addCapabilitiesMapping("fbo_ati", RSC_FBO_ATI);
+        addCapabilitiesMapping("glew1_5_nohwocclusion", RSC_GLEW1_5_NOHWOCCLUSION);
+        addCapabilitiesMapping("perstageconstant", RSC_PERSTAGECONSTANT);
+
+
+
+
+
+
+
     }
 
     void RenderSystemCapabilitiesSerializer::parseCapabilitiesLines(CapabilitiesLinesList& lines)
@@ -214,6 +338,35 @@ namespace Ogre
                 case SET_STRING_METHOD:
                     callSetStringMethod(keyword, tokens[1]);
                     break;
+                case SET_INT_METHOD:
+                {
+                    int integer = StringConverter::parseInt(tokens[1]);
+                    callSetIntMethod(keyword, integer);
+                    break;
+                }
+                case SET_BOOL_METHOD:
+                {
+                    bool b = StringConverter::parseBool(tokens[1]);
+                    callSetBoolMethod(keyword, b);
+                    break;
+                }
+                case SET_REAL_METHOD:
+                {
+                    Real real = StringConverter::parseReal(tokens[1]);
+                    callSetRealMethod(keyword, real);
+                    break;
+                }
+                case ADD_SHADER_PROFILE_STRING:
+                {
+                    addShaderProfile(tokens[1]);
+                    break;
+                }
+                case SET_CAPABILITY_ENUM_BOOL:
+                {
+                    bool b = StringConverter::parseBool(tokens[1]);
+                    setCapabilityEnumBool(tokens[0], b);
+                    break;
+                }
             }
         }
     }
