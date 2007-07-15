@@ -4,6 +4,7 @@ TESTS = TestSuite
 check_PROGRAMS  = TestSuite
 
 TestSuite_SOURCES = main.cpp \
+                    Suite.cpp \
                     ../OgreMain/src/EdgeBuilderTests.cpp \
                     ../OgreMain/src/FileSystemArchiveTests.cpp \
                     ../OgreMain/src/StringTests.cpp \
@@ -12,7 +13,7 @@ TestSuite_SOURCES = main.cpp \
                     ../OgreMain/src/PixelFormatTests.cpp \
                     ../OgreMain/src/RadixSort.cpp \
 										../OgreMain/src/RenderSystemCapabilitiesTests.cpp
-										../OgreMain/src/UseCustomCapabilitiesTests.cpp
+										../OgreMain/src/UsingCustomCapabilities.cpp
 
 TestSuite_LDFLAGS = -L$(top_builddir)/OgreMain/src $(CPPUNIT_LIBS)
 TestSuite_LDADD = -lOgreMain
