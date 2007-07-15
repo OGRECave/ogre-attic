@@ -54,6 +54,7 @@ namespace Ogre {
     class _OgreExport ArchiveFactory : public FactoryObj< Archive >
     {
     public:
+        virtual ~ArchiveFactory() {}
         // No methods, must just override all methods inherited from FactoryObj
     };
 
