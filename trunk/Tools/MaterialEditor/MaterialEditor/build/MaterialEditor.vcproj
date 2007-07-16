@@ -215,6 +215,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\MaterialDescriptor.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\MaterialEditorApp.cpp"
 				>
 			</File>
@@ -268,6 +272,18 @@
 			</File>
 			<File
 				RelativePath="..\src\ResourcePanel.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\RootEventPlugin.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\SelectionEventArgs.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\SelectionService.cpp"
 				>
 			</File>
 			<File
@@ -349,6 +365,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\MaterialDescriptor.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\MaterialEditorApp.h"
 				>
 			</File>
@@ -406,6 +426,22 @@
 			</File>
 			<File
 				RelativePath="..\include\ResourcePanel.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\RootEventArgs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\RootEventPlugin.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\SelectionEventArgs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\SelectionService.h"
 				>
 			</File>
 			<File
