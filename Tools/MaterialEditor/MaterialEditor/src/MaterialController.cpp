@@ -32,6 +32,12 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "MaterialEventArgs.h"
 #include "TechniqueController.h"
 
+MaterialController::MaterialController() 
+: mMaterialPtr(NULL)
+{
+	registerEvents();
+}
+
 MaterialController::MaterialController(MaterialPtr materialPtr) 
 : mMaterialPtr(materialPtr)
 {
@@ -52,6 +58,11 @@ void MaterialController::registerEvents()
 MaterialPtr MaterialController::getMaterial() const
 {
 	return mMaterialPtr;
+}
+
+void MaterialController::setMaterial(MaterialPtr mp)
+{
+	mMaterialPtr = mp;
 }
 
 const TechniqueControllerList* MaterialController::getTechniqueControllers() const
@@ -278,3 +289,4 @@ void MaterialController::setTextureFiltering(TextureFilterOptions filterType)
 	for(it = mTechniqueControllers.begin(); it != mTechniqueControllers.end(); ++it)
 		(*it)->setTextureFiltering(filterType);
 }
+

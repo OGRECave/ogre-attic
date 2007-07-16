@@ -26,87 +26,40 @@ the OGRE Unrestricted License provided you have obtained such a license from
 Torus Knot Software Ltd.
 -----------------------------------------------------------------------------
 */
-#ifndef _PROJECT_H_
-#define _PROJECT_H_
+#ifndef _MATERIALDESCRIPTOR_H_
+#define _MATERIALDESCRIPTOR_H_
 
-#include <list>
-
-#include <boost/signal.hpp>
-
-#include "OgreMaterial.h"
 #include "OgreString.h"
 
-#include "EventContainer.h"
-
-namespace Ogre
-{
-	class SceneManager;
-}
-
+class EventArgs;
 class MaterialController;
-class Project;
-class RootEventPlugin;
+class MaterialEventArgs;
+class PassEventArgs;
+class TechniqueEventArgs;
 
-using Ogre::Material;
 using Ogre::MaterialPtr;
 using Ogre::String;
 
-typedef std::list<MaterialController*> MaterialControllerList;
-
-class Project : public EventContainer
+class MaterialDescriptor
 {
 public:
-	enum ProjectEvent
-	{
-		NameChanged,
-		MaterialAdded,
-		MaterialRemoved,
-		ActiveMaterialChanged
-	};
-
-	Project();
-	Project(const String& name);
-	virtual ~Project();
-
-	void registerEvents();
-
+	MaterialDescriptor();
+	MaterialDescriptor(const String& name);
+	virtual ~MaterialDescriptor();
+	
 	const String& getName() const;
-	void setName(const String& name);
-
-	void addMaterial(MaterialPtr materialPtr);
-	void createMaterial(const String& name);
-
-	void removeMaterial(MaterialController* controller);
-	void removeMaterial(Material* material);
-	void removeMaterial(const String& name);
-	
-	MaterialController* getActiveMaterial() const;
-	void setActiveMaterial(MaterialController* controller);
-	void setActiveMaterial(Material* material);
-	void setActiveMaterial(const String& name);
-	
-	MaterialController* getMaterialController(const String& name);
-	
-	const MaterialControllerList* getMaterials() const;
-
-	void open();
-	void close();
-
-	bool isOpen();
-	bool isClosed();
-
-	void generateScene(Ogre::SceneManager* sceneManager);
-	
+	const String& getScript() const;
+	MaterialController* getMaterialController();
+	MaterialPtr& getMaterial();
+	void setMaterial(MaterialPtr& mp);
+		
 	void OnRootInitialized(EventArgs& args);
 	void OnRootShutdown(EventArgs& args);
-
+	
 protected:
 	String mName;
-	bool mOpen;
-	MaterialController* mActiveMaterial;
-	MaterialControllerList mMaterialControllers;
-	
-	void subscribeTo(RootEventPlugin* plugin);
+	String mScript;
+	MaterialController* mMaterialController;
 };
 
-#endif // _PROJECT_H_
+#endif _MATERIALDESCRIPTOR_H_

@@ -56,10 +56,13 @@ public:
 		TechniqueRemoved
 	};
 
+	MaterialController();
 	MaterialController(MaterialPtr material);
 	virtual ~MaterialController();
 
 	MaterialPtr getMaterial() const;
+	void setMaterial(MaterialPtr mp);
+	
 	const TechniqueControllerList* getTechniqueControllers() const;		
 
 	void setReceiveShadows(bool enabled);
@@ -103,3 +106,4 @@ protected:
 };
 
 #endif // _MATERIALCONTROLLER_H_
+
