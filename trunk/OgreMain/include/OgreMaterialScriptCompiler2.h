@@ -53,16 +53,6 @@ namespace Ogre{
 		/// This is called just before texture aliases found in a script are applied to a material
 		virtual void preApplyTextureAliases(Ogre::AliasTextureNamePairList &aliases);
 	};
-
-	/// This is the enum for material compiler specific errors
-	enum
-	{
-		ME_LODLISTEXPECTED = CE_BASE_ERRORS_END,
-		ME_TECHNIQUEBODYEXPECTED,
-		ME_PASSBODYEXPECTED,
-		ME_COLOURORVERTEXTRACKINGEXPECTED,
-		ME_SCENEBLENDINGEXPECTED
-	};
 	
 	/** This is the new compiler for material scripts. It uses the parser to parse the material
 		and this class processes the token stream that is produced and compiles it into Ogre materials.
@@ -83,11 +73,52 @@ namespace Ogre{
 		ScriptNodeListPtr loadImportPath(const String &name);
 	private: // Private handlers to compile pieces of the material script
 		void compileMaterial(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
-		void compileTechnique(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
-		void compilePass(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Technique *technique);
+		void compileLodDistances(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+		void compileReceiveShadows(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+		void compileTransparencyCastsShadows(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+		void compileSetTextureAlias(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
 
+		void compileTechnique(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end);
+		void compileScheme(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Technique *technique);
+		void compileLodIndex(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Technique *technique);
+
+		void compilePass(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Technique *technique);
+		void compileAmbient(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileDiffuse(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileSpecular(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileEmissive(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileSceneBlend(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileSeparateSceneBlend(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileDepthCheck(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileDepthWrite(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileDepthFunc(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileDepthBias(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileIterationDepthBias(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileAlphaRejection(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileLightScissor(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileLightClipPlanes(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileIlluminationStage(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileCullHardware(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileCullSoftware(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileNormaliseNormals(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileLighting(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileShading(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compilePolygonMode(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compilePolygonModeOverrideable(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileFogOverride(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileColourWrite(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileMaxLights(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileStartLight(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compileIteration(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compilePointSize(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compilePointSprites(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compilePointSizeAttenuation(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compilePointSizeMin(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		void compilePointSizeMax(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass);
+		
 		bool parseColour(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, ColourValue &c);
 		bool parseBlendFactor(const String &str, SceneBlendFactor &factor);
+		bool parseCompareFunction(const String &str, CompareFunction &func);
 	private:
 		// The listener
 		MaterialScriptCompilerListener *mListener;
