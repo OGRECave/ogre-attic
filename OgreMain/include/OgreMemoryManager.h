@@ -431,7 +431,6 @@ inline void operator delete[](void *reportedAddress)
 
 namespace Ogre
 {
-	class LogManager;
 	class MemProfileManager;
 
 	/**
@@ -440,24 +439,11 @@ namespace Ogre
 	 * memory from here. This is where we manage the process 
 	 * virtual address space.
 	 */	
-    class MemoryManager
+    class _OgreExport MemoryManager
     {
     private:
-		struct MemCtrl
-		{
-			size_t		size;   // size of allocation
-			uint16		bucket; // id of bucket we came from
-			uin16		pad;    // padding
-		};
-
-        
-		struct MemFree
-		{
-			MemUnion* next;
-			MemUnion* prev;
-		};
 		
-        void* mBin[128];   // 128 fixed width bins, 8byte spacing, 1024b
+        void* mBin[32];   // NOTE: this is likly to change 
         uint32 mPageSize;   // system memory page size
         uint32 mRegionSize; // size of a virtual address space region (windows only)
         void* mVmemStart;  // start of process virtual address space
@@ -465,65 +451,71 @@ namespace Ogre
     public:
         MemoryManager();
         ~MemoryManager();
-
+        
+        /**
+         * allocate memory from the free store. This will expand the 
+         * process virtual address space and "touch" the resulting 
+         * memory, the OS should map some form of phisical storage as
+         * a result. Normal paging rules still apply.
+         */
+        static void* allocMem(size_t size);
+        
+        /**
+         * return memory to be re-used, note, this may not release the
+         * memory back to the system imediatly. The manager caches 
+         * some memory to be re-used later, its kinder the OS memory
+         * mapping stuff.
+         */
+        static void purgeMem(void* ptr);
+        
+        /**
+         * this lets us ask the manager how large a block of memory is.
+         * The provided pointer should point to the start of the block 
+         * and the block must have been allocated via this manager. 
+         * @param pointer to stroage
+         * @return size of storage or -1 on invlaid pointer
+         */
+        static int sizeOfStorage(void* ptr);
+        
     private:
-        MemProfileManager* mMemProfileManager;
-        static InitMemProfileManager smInstance;	
+    	void moreCore(uint32 id);
+    
+        
+        MemProfileManager*    mMemProfileManager;
+        static MemoryManager smInstance;	
         
     };
 }
 
-/// wrapping function for allocations
-_OgreExport void* wrapAllocate(size_t) throw();
-/// wrapping function for deallocations
-_OgreExport void wrapDeallocate(void*,size_t) throw();
 
 /// overloaded operator new, points back to the 
 /// allocation wrapper function
-inline void *operator new(std::size_t size)
-{
-	return wrapAllocate(size);
-}
+_OgreExport void *operator new(std::size_t size);
 
 /// overloaded operator new[], points back to the 
 /// allocation wrapper function
-inline void *operator new[](std::size_t size)
-{
-	return wrapAllocate(size);
-}
+_OgreExport void *operator new[](std::size_t size);
 
 /// overloaded operator delete, points back to the 
 /// deallocation wrapper function
-inline void operator delete(void *ptr, std::size_t size)
-{
-	return wrapDeallocate(ptr,size);
-}
+_OgreExport void operator delete(void *ptr, std::size_t size);
 
 /// overloaded operator delete[], points back to the 
 /// deallocation wrapper function
-inline void operator delete[](void *ptr, std::size_t size)
-{
-	return wrapDeallocate(ptr,size);
-}
+_OgreExport void operator delete[](void *ptr, std::size_t size);
 
 
 // single param delete, I can work with this for now untill 
 // I can sort out the (void*, size_t) version
-
+// /*
 /// overloaded operator delete, points back to the 
 /// deallocation wrapper function
-inline void operator delete(void *ptr)
-{
-	return wrapDeallocate(ptr,0);
-}
+_OgreExport void operator delete(void *ptr);
 
 /// overloaded operator delete[], points back to the 
 /// deallocation wrapper function
-inline void operator delete[](void *ptr)
-{
-	return wrapDeallocate(ptr,0);
-}
-
+_OgreExport void operator delete[](void *ptr);
+// */
 
 #endif // Turn on/off new memory system
 

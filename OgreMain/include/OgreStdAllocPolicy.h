@@ -34,6 +34,8 @@ Torus Knot Software Ltd.
 #include <cstddef>
 #include <memory>
 
+#include "OgreMemoryManager.h"
+
 namespace Ogre{
 
     /**
@@ -94,9 +96,7 @@ namespace Ogre{
         inline pointer allocate(size_type count,
                                 typename std::allocator<void>::const_pointer = 0)
         {
-            return reinterpret_cast<pointer>
-                   //(::operator new(count));
-                   (malloc(count));
+            return reinterpret_cast<pointer>(MemoryManager::allocMem(count));
         }
 
         /**
@@ -105,8 +105,7 @@ namespace Ogre{
          */
         inline void deallocate(pointer ptr, size_type)
         {
-            //::operator delete(ptr);
-            free(ptr);
+            MemoryManager::purgeMem(ptr);
         }
 
         /// maximum allocation size

@@ -1730,12 +1730,12 @@ namespace Ogre
 #endif
 
 // realise static instance member for the init class
-Ogre::InitMemProfileManager Ogre::InitMemProfileManager::smInstance;
+Ogre::MemoryManager Ogre::MemoryManager::smInstance;
 
 // static allocator used to handle generic allocations globally
 static Ogre::Allocator<unsigned char> sAllocator;
 
-Ogre::InitMemProfileManager::InitMemProfileManager()
+Ogre::MemoryManager::MemoryManager()
 {
     // init the profile manager
     mMemProfileManager = new MemProfileManager();
@@ -1758,30 +1758,72 @@ Ogre::InitMemProfileManager::InitMemProfileManager()
     
 	// make sure we startup page alligned     
 #ifdef WIN32
+    // TODO windows bit
     
 #elif defined(__GNUC__)
     mVmemStart = sbrk(0);
-    MemProfileManager::getSingleton() << "Process Virtual Memory begins: " << mVmemStart;
+    MemProfileManager::getSingleton() << "Process Virtual Memory begins : " << mVmemStart;
     mVmemStart=sbrk((uint32)(mVmemStart)%mPageSize);   
-    MemProfileManager::getSingleton() << "alligned to: " << mVmemStart << "\n";
+    MemProfileManager::getSingleton() << "\n alligned to : " << mVmemStart << "\n";
 #endif
 }
 
-Ogre::InitMemProfileManager::~InitMemProfileManager()
+Ogre::MemoryManager::~MemoryManager()
 {
-    // clean up profile managers
-    delete mMemProfileManager;
+	// clean up
+	delete MemProfileManager::getSingletonPtr();
 }
 
-void* wrapAllocate(size_t size) throw ()
+void* Ogre::MemoryManager::allocMem(size_t size)
 {
-    return static_cast<void*>(sAllocator.allocateBytes(size));
+	//TODO
+	return malloc(size);
 }
-    		
-void wrapDeallocate(void* ptr, size_t size) throw()
+
+void Ogre::MemoryManager::purgeMem(void* ptr)
 {
-    sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),size);
+	//TODO
+	free(ptr);
 }
+
+int Ogre::MemoryManager::sizeOfStorage(void* ptr)
+{
+	//TODO
+	(void)ptr;
+	return -1;
+}
+
+_OgreExport void *operator new(std::size_t size)
+{
+	return static_cast<void*>(sAllocator.allocateBytes(size));
+}
+
+_OgreExport void *operator new[](std::size_t size)
+{
+	return static_cast<void*>(sAllocator.allocateBytes(size));
+}
+
+_OgreExport void operator delete(void *ptr, std::size_t size)
+{
+	sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),size);
+}
+
+_OgreExport void operator delete[](void *ptr, std::size_t size)
+{
+	sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),size);
+}
+
+// /*
+_OgreExport void operator delete(void *ptr)
+{
+	sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),0);
+}
+
+_OgreExport void operator delete[](void *ptr)
+{
+	sAllocator.deallocateBytes(static_cast<unsigned char*>(ptr),0);
+}
+// */
 
 #endif // OGRE_DEBUG_MEMORY_MANAGER
 
