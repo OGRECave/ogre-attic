@@ -178,3 +178,16 @@ void Project::close()
 void Project::generateScene(Ogre::SceneManager* sceneManager)
 {
 }
+
+void Project::subscribeTo(RootEventPlugin* plugin)
+{
+}
+
+void Project::OnRootInitialized(EventArgs& args)
+{
+}
+
+void Project::OnRootShutdown(EventArgs& args)
+{
+}
+
