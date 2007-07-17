@@ -283,7 +283,7 @@ namespace Ogre {
 				mNumMultiRenderTargets = num;
 			}
 
-            ushort getNumWorldMatricies(void) const
+            ushort getNumWorldMatrices(void) const
             {
                 return mNumWorldMatrices;
             }
