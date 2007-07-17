@@ -425,68 +425,8 @@ inline void operator delete[](void *reportedAddress)
 
 
 // OK, here we go, I've switched off the old memory system, time to replace it 
-
 // overload new/delete to plug-in our gloabl scheme, maybe do this with macros later on
-// for now i just want to direct allocations to the right place
-
-namespace Ogre
-{
-	class MemProfileManager;
-
-	/**
-	 * This internal class forms the heart of the memory manager,
-	 * all the various ogre-native allocator types grab there 
-	 * memory from here. This is where we manage the process 
-	 * virtual address space.
-	 */	
-    class _OgreExport MemoryManager
-    {
-    private:
-		
-        void* mBin[32];   // NOTE: this is likly to change 
-        uint32 mPageSize;   // system memory page size
-        uint32 mRegionSize; // size of a virtual address space region (windows only)
-        void* mVmemStart;  // start of process virtual address space
-        
-    public:
-        MemoryManager();
-        ~MemoryManager();
-        
-        /**
-         * allocate memory from the free store. This will expand the 
-         * process virtual address space and "touch" the resulting 
-         * memory, the OS should map some form of phisical storage as
-         * a result. Normal paging rules still apply.
-         */
-        static void* allocMem(size_t size);
-        
-        /**
-         * return memory to be re-used, note, this may not release the
-         * memory back to the system imediatly. The manager caches 
-         * some memory to be re-used later, its kinder the OS memory
-         * mapping stuff.
-         */
-        static void purgeMem(void* ptr);
-        
-        /**
-         * this lets us ask the manager how large a block of memory is.
-         * The provided pointer should point to the start of the block 
-         * and the block must have been allocated via this manager. 
-         * @param pointer to stroage
-         * @return size of storage or -1 on invlaid pointer
-         */
-        static int sizeOfStorage(void* ptr);
-        
-    private:
-    	void moreCore(uint32 id);
-    
-        
-        MemProfileManager*    mMemProfileManager;
-        static MemoryManager smInstance;	
-        
-    };
-}
-
+// for now I just want to direct allocations to the right place
 
 /// overloaded operator new, points back to the 
 /// allocation wrapper function
@@ -516,6 +456,110 @@ _OgreExport void operator delete(void *ptr);
 /// deallocation wrapper function
 _OgreExport void operator delete[](void *ptr);
 // */
+
+namespace Ogre
+{
+	class MemProfileManager;
+
+	/**
+	 * This internal class forms the heart of the memory manager,
+	 * all the various ogre-native allocator types grab there 
+	 * memory from here. This is where we manage the process 
+	 * virtual address space.
+	 */	
+    class _OgreExport MemoryManager
+    {
+    private:
+		/// the "magic" value, used to check for corruption
+		static const uint32 MAGIC = 0xAAAA;
+		
+		/// used to mask of the full bit
+		static const uint32 MASK  = 0x80000000;
+			
+		/// min alloc size
+		static const uint32 MIN_ALOC_SIZE = 8;
+		
+		/// size of overhead (at start of block)
+		static const uint32 OVERHEAD = 16;	
+		
+		/// 2^32 max aloc = 4Gig
+		static const uint32 NUM_BINS = 30;
+    
+		// this struct is added to the head and tail of a block
+		// we need to add it to the head to hold allocation info.
+		// We need to add it to the tail of a block to allow for
+		// auto-coelessing of adjacent empty blocks. Having a 
+		// block at the end allows us to detect corruption as well.
+		struct MemCtrl
+		{
+			uint32 size;   // 31 bits used for size info, 1 bit empty flag
+			uint16 bin_id; // id of the bucket we came from 
+			uint16 magic;  // magic value, for detecting corruption
+		};
+		
+		// this struct is used to form a linked list of empty 
+		// memory blocks. Only when a block is empty is this 
+		// struct used, when a block is full we use MemCtrl
+		struct MemFree
+		{
+			MemFree* next; // next empty block in list, maybe not be adjacent 
+			MemFree* prev; // prev empty block in list, maybe not be adjacent
+		};
+		
+		// bin[n] holds chunks of size 2^(n+3) smallest is 8.
+		// Overhead is before and after data
+        MemFree* mpBin[NUM_BINS];
+        
+        void* mVmemStart;  // start of process virtual address space
+        void* mVmemStop;   // end of process virtual address space
+        uint32 mPageSize;   // system memory page size
+        uint32 mRegionSize; // size of a virtual address space region (windows only)
+        
+    public:
+        MemoryManager();
+        ~MemoryManager();
+        
+        /**
+         * allocate memory from the free store. This will expand the 
+         * process virtual address space and "touch" the resulting 
+         * memory, the OS should map some form of phisical storage as
+         * a result. Normal paging rules still apply.
+         */
+        void* allocMem(size_t size);
+        
+        /**
+         * return memory to be re-used, note, this may not release the
+         * memory back to the system imediatly. The manager caches 
+         * some memory to be re-used later, its kinder to the OS memory
+         * mapping stuff.
+         */
+        void purgeMem(void* ptr);
+        
+        /**
+         * this lets us ask the manager how large a block of memory is.
+         * The provided pointer should point to the start of the block 
+         * and the block must have been allocated via this manager. 
+         * @param pointer to stroage
+         * @return size of storage or -1 on invlaid pointer
+         */
+        int sizeOfStorage(void* ptr);
+        
+        /// @return static instance of MemoryManager
+        static inline MemoryManager& getSingleton()
+        {
+        	return smInstance;
+        }
+        
+    private:
+    	void moreCore(uint32 id);
+    	void distributeCore(uint32 size, void* core);
+    
+        
+        MemProfileManager*    mMemProfileManager;
+        static MemoryManager smInstance;	
+        
+    };
+}
 
 #endif // Turn on/off new memory system
 

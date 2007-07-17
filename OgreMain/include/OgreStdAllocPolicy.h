@@ -96,7 +96,8 @@ namespace Ogre{
         inline pointer allocate(size_type count,
                                 typename std::allocator<void>::const_pointer = 0)
         {
-            return reinterpret_cast<pointer>(MemoryManager::allocMem(count));
+            return reinterpret_cast<pointer>
+              (MemoryManager::getSingleton().allocMem(count));
         }
 
         /**
@@ -105,7 +106,7 @@ namespace Ogre{
          */
         inline void deallocate(pointer ptr, size_type)
         {
-            MemoryManager::purgeMem(ptr);
+            MemoryManager::getSingleton().purgeMem(ptr);
         }
 
         /// maximum allocation size
