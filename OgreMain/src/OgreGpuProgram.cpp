@@ -661,6 +661,9 @@ namespace Ogre
                 // Expand at buffer end
                 mFloatConstants.insert(mFloatConstants.end(), requestedSize, 0.0f);
 
+				// Record extended size for future GPU params re-using this information
+				mFloatLogicalToPhysical->bufferSize = mFloatConstants.size();
+
 				// low-level programs will not know about mapping ahead of time, so 
 				// populate it. Other params objects will be able to just use this
 				// accepted mapping since the constant structure will be the same
@@ -736,6 +739,9 @@ namespace Ogre
 
                 // Expand at buffer end
                 mIntConstants.insert(mIntConstants.end(), requestedSize, 0);
+
+				// Record extended size for future GPU params re-using this information
+				mIntLogicalToPhysical->bufferSize = mIntConstants.size();
 
 				// low-level programs will not know about mapping ahead of time, so 
 				// populate it. Other params objects will be able to just use this
