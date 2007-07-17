@@ -88,7 +88,7 @@ namespace Ogre {
             return base + '/' + name;
     }
     //-----------------------------------------------------------------------
-    void FileSystemArchive::findFiles(const String& pattern, bool recursive, 
+    void FileSystemArchive::findFiles(const String& pattern, bool recursive,
         bool dirs, StringVector* simpleList, FileInfoList* detailList)
     {
         long lHandle, res;
@@ -192,7 +192,7 @@ namespace Ogre {
     {
         String full_path = concatenate_path(mName, filename);
 
-        // Use filesystem to determine size 
+        // Use filesystem to determine size
         // (quicker than streaming to the end and back)
         struct stat tagStat;
 	int ret = stat(full_path.c_str(), &tagStat);
@@ -247,7 +247,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    FileInfoListPtr FileSystemArchive::findFileInfo(const String& pattern, 
+    FileInfoListPtr FileSystemArchive::findFileInfo(const String& pattern,
         bool recursive, bool dirs)
     {
         FileInfoListPtr ret(new FileInfoList());
