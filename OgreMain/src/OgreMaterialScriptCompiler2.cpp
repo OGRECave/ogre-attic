@@ -223,6 +223,11 @@ namespace Ogre{
 					compileLodDistances(j, (*i)->children.end());
 				else if((*j)->token == "technique")
 					compileTechnique(j, (*i)->children.end());
+				else
+				{
+					addError(CE_UNKNOWNTOKEN, (*i)->file, (*i)->line, (*i)->column);
+					++i;
+				}
 			}
 		}
 
@@ -327,8 +332,13 @@ namespace Ogre{
 					compileScheme(j, (*i)->children.end(), technique);
 				else if((*j)->token == "lod_index")
 					compileLodIndex(j, (*i)->children.end(), technique);
+				else if((*j)->token == "pass")
+					compilePass(j, (*i)->children.end(), technique);
 				else
+				{
 					addError(CE_UNKNOWNTOKEN, (*j)->file, (*j)->line, (*j)->column);
+					++j;
+				}
 			}
 		}
 
@@ -376,6 +386,7 @@ namespace Ogre{
 			++i;
 		}
 
+		// After a possible name consumption, check again for the left brace
 		if((*i)->type != SNT_LBRACE)
 		{
 			addError(CE_OPENBRACEEXPECTED, (*i)->file, (*i)->line, (*i)->column);
@@ -453,7 +464,10 @@ namespace Ogre{
 				else if((*j)->token == "point_size_max")
 					compilePointSizeMax(j, (*i)->children.end(), pass);
 				else
+				{
 					addError(CE_UNKNOWNTOKEN, (*i)->file, (*i)->line, (*i)->column);
+					++j;
+				}
 			}
 		}
 
@@ -468,7 +482,10 @@ namespace Ogre{
 		++i;
 
 		if((*i)->token == "vertexcolour")
+		{
 			pass->setVertexColourTracking(TVC_AMBIENT);
+			++i;
+		}
 		else
 		{
 			ColourValue c;
@@ -477,7 +494,6 @@ namespace Ogre{
 			else
 				addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
 		}
-		++i;
 	}
 
 	void MaterialScriptCompiler2::compileDiffuse(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass)
@@ -486,7 +502,10 @@ namespace Ogre{
 		++i;
 
 		if((*i)->token == "vertexcolour")
+		{
 			pass->setVertexColourTracking(TVC_DIFFUSE);
+			++i;
+		}
 		else
 		{
 			ColourValue c;
@@ -495,7 +514,6 @@ namespace Ogre{
 			else
 				addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
 		}
-		++i;
 	}
 
 	void MaterialScriptCompiler2::compileSpecular(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass)
@@ -504,7 +522,10 @@ namespace Ogre{
 		++i;
 
 		if((*i)->token == "vertexcolour")
+		{
 			pass->setVertexColourTracking(TVC_SPECULAR);
+			++i;
+		}
 		else
 		{
 			ColourValue c;
@@ -513,7 +534,6 @@ namespace Ogre{
 			else
 				addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
 		}
-		++i;
 	}
 
 	void MaterialScriptCompiler2::compileEmissive(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass)
@@ -522,7 +542,10 @@ namespace Ogre{
 		++i;
 
 		if((*i)->token == "vertexcolour")
+		{
 			pass->setVertexColourTracking(TVC_EMISSIVE);
+			++i;
+		}
 		else
 		{
 			ColourValue c;
@@ -531,7 +554,6 @@ namespace Ogre{
 			else
 				addError(CE_INVALIDPROPERTYVALUE, (*i)->file, (*i)->line, (*i)->column);
 		}
-		++i;
 	}
 
 	void MaterialScriptCompiler2::compileSceneBlend(ScriptNodeList::iterator &i, ScriptNodeList::iterator &end, Pass *pass)
