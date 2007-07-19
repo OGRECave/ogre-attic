@@ -165,8 +165,21 @@ namespace Ogre
                 return;
             }
             // Set
+			// Support numeric and character glyph specification
+			Font::CodePoint cp;
+			if (params[1].at(0) == 'u' && params[1].size() > 1)
+			{
+				// Unicode glyph spec
+				String trimmed = params[1].substr(1);
+				cp = StringConverter::parseUnsignedInt(trimmed);
+			}
+			else
+			{
+				// Direct character
+				cp = params[1].at(0);
+			}
             pFont->setGlyphTexCoords(
-                params[1].at(0), 
+                cp, 
                 StringConverter::parseReal(params[2]),
                 StringConverter::parseReal(params[3]),
                 StringConverter::parseReal(params[4]),
