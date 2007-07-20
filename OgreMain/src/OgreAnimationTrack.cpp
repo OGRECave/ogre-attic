@@ -467,8 +467,8 @@ namespace Ogre {
     void NodeAnimationTrack::applyToNode(Node* node, const TimeIndex& timeIndex, Real weight,
 		Real scl)
     {
-		// Nothing to do if no keyframes or zero weight
-		if (mKeyFrames.empty() || !weight)
+		// Nothing to do if no keyframes or zero weight or no node
+		if (mKeyFrames.empty() || !weight || !node)
 			return;
 
         TransformKeyFrame kf(0, timeIndex.getTimePos());
@@ -709,8 +709,8 @@ namespace Ogre {
 	void VertexAnimationTrack::applyToVertexData(VertexData* data,
 		const TimeIndex& timeIndex, Real weight, const PoseList* poseList)
 	{
-		// Nothing to do if no keyframes
-		if (mKeyFrames.empty())
+		// Nothing to do if no keyframes or no vertex data
+		if (mKeyFrames.empty() || !data)
 			return;
 
 		// Get keyframes
