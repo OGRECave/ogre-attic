@@ -80,6 +80,7 @@
 		<Unit filename="../src/OgreCgProgramManagerDll.cpp" />
 		<Extensions>
 			<code_completion />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

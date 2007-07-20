@@ -118,6 +118,7 @@
 		<Unit filename="../src/OgreScaleAffector.cpp" />
 		<Extensions>
 			<code_completion />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

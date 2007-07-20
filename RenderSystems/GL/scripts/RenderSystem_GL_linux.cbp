@@ -15,6 +15,7 @@
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="0" />
 				<Compiler>
+					<Add option="-O2" />
 					<Add option="-g" />
 					<Add option="-DDEBUG" />
 				</Compiler>
@@ -204,6 +205,7 @@
 		<Unit filename="../src/nvparse/winheaders/unistd.h" />
 		<Extensions>
 			<code_completion />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
