@@ -63,6 +63,7 @@
 		<Unit filename="../OgreMain/include/BitwiseTests.h" />
 		<Unit filename="../OgreMain/include/CompositorScriptCompilerTests.h" />
 		<Unit filename="../OgreMain/include/EdgeBuilderTests.h" />
+		<Unit filename="../OgreMain/include/FileSystemArchiveTests.h" />
 		<Unit filename="../OgreMain/include/MaterialScriptCompilerTests.h" />
 		<Unit filename="../OgreMain/include/PixelFormatTests.h" />
 		<Unit filename="../OgreMain/include/RadixSortTests.h" />
@@ -74,6 +75,7 @@
 		<Unit filename="../OgreMain/src/BitwiseTests.cpp" />
 		<Unit filename="../OgreMain/src/CompositorScriptCompilerTests.cpp" />
 		<Unit filename="../OgreMain/src/EdgeBuilderTests.cpp" />
+		<Unit filename="../OgreMain/src/FileSystemArchiveTests.cpp" />
 		<Unit filename="../OgreMain/src/MaterialScriptCompilerTests.cpp" />
 		<Unit filename="../OgreMain/src/PixelFormatTests.cpp" />
 		<Unit filename="../OgreMain/src/RadixSort.cpp" />
