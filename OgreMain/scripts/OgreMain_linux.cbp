@@ -58,7 +58,6 @@
 			<Add option="-DOGRE_GCC_VISIBILITY" />
 			<Add option="-DHAVE_CONFIG_H" />
 			<Add option="-DPIC" />
-			<Add option="-DOGRE_GUI_gtk" />
 			<Add directory="../include" />
 			<Add directory="/usr/include/gtk-2.0" />
 			<Add directory="/usr/lib/gtk-2.0/include" />
@@ -221,6 +220,7 @@
 		<Unit filename="../include/OgreRenderQueueSortingGrouping.h" />
 		<Unit filename="../include/OgreRenderSystem.h" />
 		<Unit filename="../include/OgreRenderSystemCapabilities.h" />
+		<Unit filename="../include/OgreRenderSystemCapabilitiesManager.h" />
 		<Unit filename="../include/OgreRenderSystemCapabilitiesSerializer.h" />
 		<Unit filename="../include/OgreRenderTarget.h" />
 		<Unit filename="../include/OgreRenderTargetListener.h" />
@@ -294,6 +294,8 @@
 		<Unit filename="../include/config.h" />
 		<Unit filename="../include/stl_user_config.h" />
 		<Unit filename="../src/GLX/GLX_backdrop.h" />
+		<Unit filename="../src/GLX/OgreConfigDialog.cpp" />
+		<Unit filename="../src/GLX/OgreErrorDialog.cpp" />
 		<Unit filename="../src/GLX/OgreTimer.cpp" />
 		<Unit filename="../src/OgreAlignedAllocator.cpp" />
 		<Unit filename="../src/OgreAnimable.cpp" />
@@ -468,8 +470,6 @@
 		<Unit filename="../src/OgreWireBoundingBox.cpp" />
 		<Unit filename="../src/OgreZip.cpp" />
 		<Unit filename="../src/gtk/GLX_backdrop.h" />
-		<Unit filename="../src/gtk/OgreConfigDialog.cpp" />
-		<Unit filename="../src/gtk/OgreErrorDialog.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
