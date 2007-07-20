@@ -38,6 +38,7 @@ Torus Knot Software Ltd.
 #include "OgreVector3.h"
 #include "OgreHardwareBufferManager.h"
 #include "OgreMesh.h"
+#include "OgreRenderable.h"
 
 namespace Ogre {
 	/** Defines an instance of a discrete, movable object based on a Mesh.

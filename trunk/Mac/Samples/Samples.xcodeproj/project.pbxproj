@@ -286,14 +286,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 000E24E00B3924F0004EA2DF /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 000C041F0BB6128200E6B30C /* Instancing */;
+			remoteGlobalIDString = 000C041F0BB6128200E6B30C;
 			remoteInfo = Instancing;
 		};
 		000C05F90BB61C4F00E6B30C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 000E24E00B3924F0004EA2DF /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 000C05DF0BB6173B00E6B30C /* Crowd */;
+			remoteGlobalIDString = 000C05DF0BB6173B00E6B30C;
 			remoteInfo = Crowd;
 		};
 		000E29F80B39E7D8004EA2DF /* PBXContainerItemProxy */ = {
@@ -584,7 +584,7 @@
 		000E280B0B39B08F004EA2DF /* Grass.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Grass.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E280D0B39B090004EA2DF /* Grass-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Grass-Info.plist"; path = "plist/Grass-Info.plist"; sourceTree = "<group>"; };
 		000E28220B39B0F0004EA2DF /* Grass.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Grass.cpp; path = ../../Samples/Grass/src/Grass.cpp; sourceTree = SOURCE_ROOT; };
-		000E282A0B39B248004EA2DF /* Gui.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Gui.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		000E282A0B39B248004EA2DF /* Gui.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gui.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		000E282C0B39B249004EA2DF /* Gui-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Gui-Info.plist"; path = "plist/Gui-Info.plist"; sourceTree = "<group>"; };
 		000E28380B39B294004EA2DF /* Gui.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Gui.cpp; path = ../../Samples/Gui/src/Gui.cpp; sourceTree = SOURCE_ROOT; };
 		000E28550B39B377004EA2DF /* Lighting.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lighting.app; sourceTree = BUILT_PRODUCTS_DIR; };
