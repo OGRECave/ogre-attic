@@ -40,12 +40,12 @@ void UseCustomCapabilitiesTests::setUp()
 {
     using namespace Ogre;
 
-    mRoot = new Root();
+    //mRoot = new Root();
 }
 
 void UseCustomCapabilitiesTests::tearDown()
 {
-    delete mRoot;
+    //delete mRoot;
 }
 
 void UseCustomCapabilitiesTests::testCustomCapabilitiesGL()

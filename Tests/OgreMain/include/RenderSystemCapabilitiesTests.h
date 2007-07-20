@@ -53,6 +53,12 @@ class RenderSystemCapabilitiesTests : public CppUnit::TestFixture
     CPPUNIT_TEST(testSerializeRealCapability);
     CPPUNIT_TEST(testSerializeShaderCapability);
 
+    CPPUNIT_TEST(testWriteSimpleCapabilities);
+    CPPUNIT_TEST(testWriteAllFalseCapabilities);
+    CPPUNIT_TEST(testWriteAllTrueCapabilities);
+
+    CPPUNIT_TEST(testWriteAndReadComplexCapabilities);
+
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -70,6 +76,14 @@ public:
     void testSerializeIntCapability();
     void testSerializeRealCapability();
     void testSerializeShaderCapability();
+
+    // Test for serializing capabilities to file
+    void testWriteSimpleCapabilities();
+    void testWriteAllFalseCapabilities();
+    void testWriteAllTrueCapabilities();
+
+    // Test serializing to and from the file
+    void testWriteAndReadComplexCapabilities();
 
     // For serializing .rendercaps we need RSCManager
     RenderSystemCapabilitiesManager* mRenderSystemCapabilitiesManager;
