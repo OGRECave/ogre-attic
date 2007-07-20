@@ -35,6 +35,8 @@ Torus Knot Software Ltd.
 #include <qxcppunit/testrunner.h>
 #include <QApplication>
 
+#include "Suite.h"
+
 
 int main( int argc, char **argv)
 {
