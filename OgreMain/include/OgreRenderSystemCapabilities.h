@@ -51,10 +51,10 @@ Torus Knot Software Ltd.
 namespace Ogre {
 
     /// Enum describing the different hardware capabilities we want to check for
-		/// CAPS_VALUE(a, b) defines each capbility
-		// a is the category (which can be from 0 to 15)
-		// b is the value (from 0 to 27)
-		enum Capabilities
+	/// CAPS_VALUE(a, b) defines each capbility
+	// a is the category (which can be from 0 to 15)
+	// b is the value (from 0 to 27)
+    enum Capabilities
     {
         /// Supporta generating mipmaps in hardware
         RSC_AUTOMIPMAP              = CAPS_VALUE(0, 0),
@@ -70,9 +70,9 @@ namespace Ogre {
         /// Supports hardware vertex and index buffe6s
         RSC_VBO                     = CAPS_VALUE(0, 7),
         /// Supports vertex programs (vertex shaders8
-				RSC_VERTEX_PROGRAM          = CAPS_VALUE(0, 9),
+        RSC_VERTEX_PROGRAM          = CAPS_VALUE(0, 9),
         /// Supports fragment programs (pixel shaders)
-				RSC_FRAGMENT_PROGRAM        = CAPS_VALUE(0, 10),
+        RSC_FRAGMENT_PROGRAM        = CAPS_VALUE(0, 10),
         /// Supports performing a scissor test to exclude areas of the screen
         RSC_SCISSOR_TEST            = CAPS_VALUE(0, 11),
         /// Supports separate stencil updates for both front and back faces
@@ -80,52 +80,52 @@ namespace Ogre {
         /// Supports wrapping the stencil value at the range extremeties
         RSC_STENCIL_WRAP            = CAPS_VALUE(0, 13),
         /// Supports hardware occlusion queries
-        RSC_HWOCCLUSION				= CAPS_VALUE(0, 14),
+        RSC_HWOCCLUSION             = CAPS_VALUE(0, 14),
         /// Supports user clipping planes
-        RSC_USER_CLIP_PLANES		= CAPS_VALUE(0, 15),
-				/// Supports the VET_UBYTE4 vertex element type
-				RSC_VERTEX_FORMAT_UBYTE4	= CAPS_VALUE(0, 16),
-				/// Supports infinite far plane projection
-				RSC_INFINITE_FAR_PLANE      = CAPS_VALUE(0, 17),
+        RSC_USER_CLIP_PLANES        = CAPS_VALUE(0, 15),
+        /// Supports the VET_UBYTE4 vertex element type
+        RSC_VERTEX_FORMAT_UBYTE4    = CAPS_VALUE(0, 16),
+        /// Supports infinite far plane projection
+        RSC_INFINITE_FAR_PLANE      = CAPS_VALUE(0, 17),
         /// Supports hardware render-to-texture (bigger than framebuffer)
         RSC_HWRENDER_TO_TEXTURE     = CAPS_VALUE(0, 18),
         /// Supports float textures and render targets
         RSC_TEXTURE_FLOAT           = CAPS_VALUE(0, 19),
         /// Supports non-power of two textures
         RSC_NON_POWER_OF_2_TEXTURES = CAPS_VALUE(0, 20),
-				/// Supports 3d (volume) textures
-				RSC_TEXTURE_3D				= CAPS_VALUE(0, 21),
-				/// Supports basic point sprite rendering
-				RSC_POINT_SPRITES		    = CAPS_VALUE(0, 22),
-				/// Supports extra point parameters (minsize, maxsize, attenuation)
-				RSC_POINT_EXTENDED_PARAMETERS = CAPS_VALUE(0, 23),
-				/// Supports vertex texture fetch
-				RSC_VERTEX_TEXTURE_FETCH = CAPS_VALUE(0, 24),
-				/// Supports mipmap LOD biasing
-				RSC_MIPMAP_LOD_BIAS = CAPS_VALUE(0, 25),
+        /// Supports 3d (volume) textures
+        RSC_TEXTURE_3D              = CAPS_VALUE(0, 21),
+        /// Supports basic point sprite rendering
+        RSC_POINT_SPRITES           = CAPS_VALUE(0, 22),
+        /// Supports extra point parameters (minsize, maxsize, attenuation)
+        RSC_POINT_EXTENDED_PARAMETERS = CAPS_VALUE(0, 23),
+        /// Supports vertex texture fetch
+        RSC_VERTEX_TEXTURE_FETCH = CAPS_VALUE(0, 24),
+        /// Supports mipmap LOD biasing
+        RSC_MIPMAP_LOD_BIAS = CAPS_VALUE(0, 25),
 
         /// Supports compressed textures
-				RSC_TEXTURE_COMPRESSION = CAPS_VALUE(1, 0),
+        RSC_TEXTURE_COMPRESSION = CAPS_VALUE(1, 0),
         /// Supports compressed textures in the DXT/ST3C formats
-				RSC_TEXTURE_COMPRESSION_DXT = CAPS_VALUE(1, 1),
+        RSC_TEXTURE_COMPRESSION_DXT = CAPS_VALUE(1, 1),
         /// Supports compressed textures in the VTC format
-				RSC_TEXTURE_COMPRESSION_VTC = CAPS_VALUE(1, 2),
-				/// Supports openGL GLEW version 1.5
-				RSC_GLEW1_5_NOVBO	 = CAPS_VALUE(1, 3),
-				/// Support for Frame Buffer Objects (FBOs)
-				RSC_FBO						 = CAPS_VALUE(1, 4),
-				/// Support for Frame Buffer Objects ARB implementation (regular FBO is higher precedence)
-				RSC_FBO_ARB				 = CAPS_VALUE(1, 5),
-				/// Support for Frame Buffer Objects ATI implementation (ARB FBO is higher precedence)
-				RSC_FBO_ATI				 = CAPS_VALUE(1, 6),
-				/// Support for PBuffer
-				RSC_PBUFFER				 = CAPS_VALUE(1, 7),
-				/// Support for GLEW 1.5 without HW occlusion workaround
-				RSC_GLEW1_5_NOHWOCCLUSION = CAPS_VALUE(1, 8),
+        RSC_TEXTURE_COMPRESSION_VTC = CAPS_VALUE(1, 2),
+        /// Supports openGL GLEW version 1.5
+        RSC_GLEW1_5_NOVBO    = CAPS_VALUE(1, 3),
+        /// Support for Frame Buffer Objects (FBOs)
+        RSC_FBO              = CAPS_VALUE(1, 4),
+        /// Support for Frame Buffer Objects ARB implementation (regular FBO is higher precedence)
+        RSC_FBO_ARB          = CAPS_VALUE(1, 5),
+        /// Support for Frame Buffer Objects ATI implementation (ARB FBO is higher precedence)
+        RSC_FBO_ATI          = CAPS_VALUE(1, 6),
+        /// Support for PBuffer
+        RSC_PBUFFER          = CAPS_VALUE(1, 7),
+        /// Support for GLEW 1.5 without HW occlusion workaround
+        RSC_GLEW1_5_NOHWOCCLUSION = CAPS_VALUE(1, 8),
 
 
-				/// Is DirectX feature "per stage constants" supported
-				RSC_PERSTAGECONSTANT = CAPS_VALUE(1, 9)
+        /// Is DirectX feature "per stage constants" supported
+        RSC_PERSTAGECONSTANT = CAPS_VALUE(1, 9)
 
     };
 
@@ -137,9 +137,9 @@ namespace Ogre {
     class _OgreExport RenderSystemCapabilities
     {
 
-			  public:
+        public:
 
-						typedef std::set<String> ShaderProfiles;
+            typedef std::set<String> ShaderProfiles;
         private:
             String mGLDriver;
             String mGLVendor;
