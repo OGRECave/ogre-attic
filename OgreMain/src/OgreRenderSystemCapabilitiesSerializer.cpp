@@ -50,11 +50,11 @@ namespace Ogre
     }
 
     //-----------------------------------------------------------------------
-    void RenderSystemCapabilitiesSerializer::writeScript(RenderSystemCapabilities* caps, String& name, String& filename)
+    void RenderSystemCapabilitiesSerializer::writeScript(RenderSystemCapabilities* caps, String name, String filename)
     {
         using namespace std;
 
-        ofstream file(name.c_str());
+        ofstream file(filename.c_str());
 
         file << "render_system_capabilities \"" << name << "\"" << endl;
         file << "{" << endl;
@@ -77,7 +77,7 @@ namespace Ogre
         file << "infinite_far_plane " << StringConverter::toString(caps->hasCapability(RSC_INFINITE_FAR_PLANE)) << endl;
         file << "hwrender_to_texture " << StringConverter::toString(caps->hasCapability(RSC_HWRENDER_TO_TEXTURE)) << endl;
         file << "texture_float " << StringConverter::toString(caps->hasCapability(RSC_TEXTURE_FLOAT)) << endl;
-        file << "non_power_of_2_textures" << StringConverter::toString(caps->hasCapability(RSC_NON_POWER_OF_2_TEXTURES)) << endl;
+        file << "non_power_of_2_textures " << StringConverter::toString(caps->hasCapability(RSC_NON_POWER_OF_2_TEXTURES)) << endl;
         file << "texture_3d " << StringConverter::toString(caps->hasCapability(RSC_TEXTURE_3D)) << endl;
         file << "point_sprites " << StringConverter::toString(caps->hasCapability(RSC_POINT_SPRITES)) << endl;
         file << "point_extended_parameters " << StringConverter::toString(caps->hasCapability(RSC_POINT_EXTENDED_PARAMETERS)) << endl;
@@ -123,6 +123,8 @@ namespace Ogre
         file << "max_fragment_program_version " << caps->getMaxFragmentProgramVersion() << endl;
 
         file << "}" << endl;
+
+        file.close();
     }
 
     //-----------------------------------------------------------------------
@@ -145,8 +147,6 @@ namespace Ogre
         // collect capabilities lines (i.e. everything that is not header, "{", "}",
         // comment or empty line) for further processing
         CapabilitiesLinesList capabilitiesLines;
-
-
 
 
         // TODO: build a smarter tokenizer so that "{" and "}"
@@ -268,7 +268,7 @@ namespace Ogre
         addKeywordType("max_fragment_program_version", SET_STRING_METHOD);
         // set up the setter for max_vertex_program_version capability
         addSetStringMethod("max_vertex_program_version", &RenderSystemCapabilities::setMaxVertexProgramVersion);
-        addSetStringMethod("max_fragment_program_version", &RenderSystemCapabilities::setMaxVertexProgramVersion);
+        addSetStringMethod("max_fragment_program_version", &RenderSystemCapabilities::setMaxFragmentProgramVersion);
 
         // initialize int types
         addKeywordType("num_world_matrices", SET_INT_METHOD);
